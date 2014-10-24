@@ -43,7 +43,7 @@ class DIFFEDITOR_EXPORT DiffEditorReloader : public QObject
 {
     Q_OBJECT
 public:
-    DiffEditorReloader(QObject *parent = 0);
+    DiffEditorReloader();
     ~DiffEditorReloader();
 
     bool isReloading() const;

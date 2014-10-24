@@ -54,8 +54,7 @@ class SimpleDiffEditorReloader : public DiffEditorReloader
 {
     Q_OBJECT
 public:
-    SimpleDiffEditorReloader(QObject *parent,
-                             const QString &leftFileName,
+    SimpleDiffEditorReloader(const QString &leftFileName,
                              const QString &rightFileName);
 
 protected:
@@ -66,11 +65,9 @@ private:
     QString m_rightFileName;
 };
 
-SimpleDiffEditorReloader::SimpleDiffEditorReloader(QObject *parent,
-                                                   const QString &leftFileName,
+SimpleDiffEditorReloader::SimpleDiffEditorReloader(const QString &leftFileName,
                                                    const QString &rightFileName)
-    : DiffEditorReloader(parent),
-      m_leftFileName(leftFileName),
+    : m_leftFileName(leftFileName),
       m_rightFileName(rightFileName)
 {
 }
@@ -206,7 +203,7 @@ void DiffEditorPlugin::diff()
     DiffEditorController *controller = document->controller();
     if (!controller->reloader()) {
         SimpleDiffEditorReloader *reloader =
-                new SimpleDiffEditorReloader(controller, fileName1, fileName2);
+                new SimpleDiffEditorReloader(fileName1, fileName2);
         controller->setReloader(reloader);
     }
 
@@ -475,7 +472,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch()
     QCOMPARE(result, patchText);
 
     bool ok;
-    QList<FileData> resultList = DiffUtils::readPatch(result, false, &ok);
+    QList<FileData> resultList = DiffUtils::readPatch(result, &ok);
 
     QVERIFY(ok);
     QCOMPARE(resultList.count(), 1);
@@ -905,7 +902,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch()
     QFETCH(QList<FileData>, fileDataList);
 
     bool ok;
-    QList<FileData> result = DiffUtils::readPatch(sourcePatch, false, &ok);
+    QList<FileData> result = DiffUtils::readPatch(sourcePatch, &ok);
 
     QVERIFY(ok);
     QCOMPARE(fileDataList.count(), result.count());

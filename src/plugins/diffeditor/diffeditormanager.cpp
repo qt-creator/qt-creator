@@ -115,5 +115,14 @@ DiffEditorDocument *DiffEditorManager::findOrCreate(const QString &documentId, c
     return document;
 }
 
+void DiffEditorManager::removeDocument(DiffEditorDocument *document)
+{
+    if (!instance()->documentToId.contains(document))
+        return;
+    const QString documentId = instance()->documentToId.value(document);
+    instance()->documentToId.remove(document);
+    instance()->idToDocument.remove(documentId);
+}
+
 
 } // namespace DiffEditor

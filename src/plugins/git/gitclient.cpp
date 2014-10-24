@@ -331,8 +331,7 @@ void GitDiffHandler::slotTextualDiffOutputReceived(const QString &contents)
 
     bool ok;
     QList<DiffEditor::FileData> fileDataList
-            = DiffEditor::DiffUtils::readPatch(
-                contents, m_controller->isIgnoreWhitespace(), &ok);
+            = DiffEditor::DiffUtils::readPatch(contents, &ok);
     m_controller->setDiffFiles(fileDataList, m_workingDirectory);
     m_controller->requestRestoreState();
     deleteLater();
@@ -368,7 +367,7 @@ public:
         DiffShow
     };
 
-    GitDiffEditorReloader(QObject *parent);
+    GitDiffEditorReloader();
     void setWorkingDirectory(const QString &workingDir) {
         m_workingDirectory = workingDir;
     }
@@ -408,9 +407,8 @@ private:
     QString m_displayName;
 };
 
-GitDiffEditorReloader::GitDiffEditorReloader(QObject *parent)
-    : DiffEditorReloader(parent),
-      m_gitClient(GitPlugin::instance()->gitClient())
+GitDiffEditorReloader::GitDiffEditorReloader()
+    : m_gitClient(GitPlugin::instance()->gitClient())
 {
 }
 
@@ -831,7 +829,7 @@ GitDiffEditorReloader *GitClient::findOrCreateDiffEditor(const QString &document
         connect(controller, SIGNAL(expandBranchesRequested(QString)),
                 this, SLOT(branchesForCommit(QString)));
 
-        reloader = new GitDiffEditorReloader(controller);
+        reloader = new GitDiffEditorReloader();
         controller->setReloader(reloader);
 
         reloader->setWorkingDirectory(workingDirectory);

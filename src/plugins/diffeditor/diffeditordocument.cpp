@@ -31,6 +31,8 @@
 #include "diffeditordocument.h"
 #include "diffeditorconstants.h"
 #include "diffeditorcontroller.h"
+#include "diffeditormanager.h"
+#include "diffeditorreloader.h"
 #include "diffutils.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -83,6 +85,10 @@ bool DiffEditorDocument::save(QString *errorString, const QString &fileName, boo
     if (!ok)
         return false;
 
+    if (m_controller->reloader())
+        m_controller->setReloader(0);
+
+    DiffEditorManager::removeDocument(this);
     const QFileInfo fi(fileName);
     setTemporary(false);
     setFilePath(QDir::cleanPath(fi.absoluteFilePath()));
@@ -105,10 +111,7 @@ bool DiffEditorDocument::open(QString *errorString, const QString &fileName)
         return false;
 
     bool ok = false;
-    QList<FileData> fileDataList
-            = DiffUtils::readPatch(patch,
-                                   m_controller->isIgnoreWhitespace(),
-                                   &ok);
+    QList<FileData> fileDataList = DiffUtils::readPatch(patch, &ok);
     if (!ok) {
         *errorString = tr("Could not parse patch file \"%1\". "
                           "The content is not of unified diff format.")

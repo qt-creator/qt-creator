@@ -148,7 +148,6 @@ public:
                              bool lastChunk = false);
     static QString makePatch(const QList<FileData> &fileDataList);
     static QList<FileData> readPatch(const QString &patch,
-                                     bool ignoreWhitespace,
                                      bool *ok = 0);
 };
 

@@ -322,12 +322,12 @@ QWidget *DiffEditor::toolBar()
     whitespaceButton->setText(tr("Ignore Whitespace"));
     whitespaceButton->setCheckable(true);
     whitespaceButton->setChecked(m_controller->isIgnoreWhitespace());
-    m_toolBar->addWidget(whitespaceButton);
+    m_whitespaceButtonAction = m_toolBar->addWidget(whitespaceButton);
 
     QLabel *contextLabel = new QLabel(m_toolBar);
     contextLabel->setText(tr("Context Lines:"));
     contextLabel->setContentsMargins(6, 0, 6, 0);
-    m_toolBar->addWidget(contextLabel);
+    m_contextLabelAction = m_toolBar->addWidget(contextLabel);
 
     QSpinBox *contextSpinBox = new QSpinBox(m_toolBar);
     contextSpinBox->setRange(1, 100);
@@ -335,7 +335,7 @@ QWidget *DiffEditor::toolBar()
     contextSpinBox->setFrame(false);
     contextSpinBox->setSizePolicy(QSizePolicy::Minimum,
                                   QSizePolicy::Expanding); // Mac Qt5
-    m_toolBar->addWidget(contextSpinBox);
+    m_contextSpinBoxAction = m_toolBar->addWidget(contextSpinBox);
 
     QToolButton *toggleDescription = new QToolButton(m_toolBar);
     toggleDescription->setIcon(
@@ -497,6 +497,9 @@ void DiffEditor::slotDescriptionVisibilityChanged()
 
 void DiffEditor::slotReloaderChanged(DiffEditorReloader *reloader)
 {
+    m_whitespaceButtonAction->setVisible(reloader);
+    m_contextLabelAction->setVisible(reloader);
+    m_contextSpinBoxAction->setVisible(reloader);
     m_reloadAction->setVisible(reloader);
 }
 

@@ -53,6 +53,7 @@ public:
 
     static DiffEditorDocument *find(const QString &documentId);
     static DiffEditorDocument *findOrCreate(const QString &documentId, const QString &displayName);
+    static void removeDocument(DiffEditorDocument *document);
 
 private slots:
     void slotEditorsClosed(const QList<Core::IEditor *> &editors);
