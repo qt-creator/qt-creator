@@ -44,6 +44,7 @@ namespace ProjectExplorer {
 JsonWizard::JsonWizard(QWidget *parent) :
     Utils::Wizard(parent)
 {
+    setMinimumSize(800, 500);
     m_expander.registerExtraResolver([this](const QString &name, QString *ret) -> bool {
         QVariant v = value(name);
         if (v.isValid()) {
