@@ -125,6 +125,7 @@ private:
         unsigned _scanKeywords: 1;
         unsigned _scanAngleStringLiteralTokens: 1;
         unsigned _ppMode: 1;
+        unsigned _ignoreTrigraph : 1;
     };
 
     struct State {

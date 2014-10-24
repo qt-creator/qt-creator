@@ -336,20 +336,62 @@ void Lexer::scan_helper(Token *tok)
         break;
 
     case '?':
-        if (_yychar == '?') {
+        if (_yychar == '?' && f._ppMode) {
             yyinp();
             if (_yychar == '(') {
                 yyinp();
                 tok->f.kind = T_LBRACKET;
+                tok->f.trigraph = true;
             } else if (_yychar == ')') {
                 yyinp();
                 tok->f.kind = T_RBRACKET;
+                tok->f.trigraph = true;
             } else if (_yychar == '<') {
                 yyinp();
                 tok->f.kind = T_LBRACE;
+                tok->f.trigraph = true;
             } else if (_yychar == '>') {
                 yyinp();
                 tok->f.kind = T_RBRACE;
+                tok->f.trigraph = true;
+            } else if (_yychar == '=') {
+                yyinp();
+                tok->f.trigraph = true;
+                if (_yychar == '?' && *(_currentChar + 1) == '?' && *(_currentChar + 2) == '=') {
+                    yyinp();
+                    yyinp();
+                    yyinp();
+                    tok->f.kind = T_POUND_POUND;
+                } else {
+                    tok->f.kind = T_POUND;
+                }
+            } else if (_yychar == '\'') {
+                yyinp();
+                if (_yychar == '=') {
+                    yyinp();
+                    tok->f.kind = T_CARET_EQUAL;
+                } else {
+                    tok->f.kind = T_CARET;
+                }
+                tok->f.trigraph = true;
+            } else if (_yychar == '!') {
+                yyinp();
+                if (_yychar == '=') {
+                    yyinp();
+                    tok->f.kind = T_PIPE_EQUAL;
+                } else {
+                    tok->f.kind = T_PIPE;
+                }
+                tok->f.trigraph = true;
+            } else if (_yychar == '-') {
+                yyinp();
+                if (_yychar == '=') {
+                    yyinp();
+                    tok->f.kind = T_TILDE_EQUAL;
+                } else {
+                    tok->f.kind = T_TILDE;
+                }
+                tok->f.trigraph = true;
             }
         } else {
             tok->f.kind = T_QUESTION;

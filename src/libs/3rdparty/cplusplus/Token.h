@@ -371,8 +371,10 @@ public:
         // The token is C++11 user-defined literal such as:
         // 12_km, 0.5_Pa, 'c'_X, "abd"_L, u16"xyz"_M
         unsigned userDefinedLiteral : 1;
+        // Indicates the token is a trigraph
+        unsigned trigraph      : 1;
         // Unused...
-        unsigned pad           : 2;
+        unsigned pad           : 1;
         // The token length in bytes and UTF16 chars.
         unsigned bytes         : 16;
         unsigned utf16chars    : 16;
