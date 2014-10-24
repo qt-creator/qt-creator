@@ -46,8 +46,12 @@ JsonWizard::JsonWizard(QWidget *parent) :
 {
     m_expander.registerExtraResolver([this](const QString &name, QString *ret) -> bool {
         QVariant v = value(name);
-        if (v.isValid())
-            *ret = v.toString();
+        if (v.isValid()) {
+            if (v.type() == QVariant::Bool)
+                *ret = v.toBool() ? QLatin1String("true") : QString();
+            else
+                *ret = v.toString();
+        }
         return v.isValid();
     });
 }
