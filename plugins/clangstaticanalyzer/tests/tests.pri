@@ -6,8 +6,8 @@ isEmpty(IDE_SOURCE_TREE): error(Set QTC_SOURCE environment variable)
 isEmpty(IDE_BUILD_TREE): error(Set QTC_BUILD environment variable)
 isEmpty(QTC_PLUGIN_DIRS): error(Set QTC_PLUGIN_DIRS environment variable for extra plugins)
 
-include(../../../../qt-creator/qtcreator.pri)
-include(../../../../qt-creator/tests/auto/qttestrpath.pri)
+include($$IDE_SOURCE_TREE/qtcreator.pri)
+include($$IDE_SOURCE_TREE/tests/auto/qttestrpath.pri)
 
 PLUGINDIR=$$PWD/../
 
