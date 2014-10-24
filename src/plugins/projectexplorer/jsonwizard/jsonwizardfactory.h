@@ -76,6 +76,7 @@ public:
         QString shortTitle;
         int index; // page index in the wizard
         Core::Id typeId;
+        QVariant enabled;
         QVariant data;
     };
 

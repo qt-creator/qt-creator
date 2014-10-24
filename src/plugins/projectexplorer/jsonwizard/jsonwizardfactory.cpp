@@ -82,6 +82,7 @@ static const char DATA_KEY[] = "data";
 static const char PAGE_SUB_TITLE_KEY[] = "trSubTitle";
 static const char PAGE_SHORT_TITLE_KEY[] = "trShortTitle";
 static const char PAGE_INDEX_KEY[] = "index";
+static const char PAGE_ENABLED_EXPRESSION_KEY[] = "enabled";
 static const char OPTIONS_KEY[] = "options";
 static const char PLATFORM_INDEPENDENT_KEY[] = "platformIndependent";
 
@@ -185,8 +186,10 @@ static JsonWizardFactory::Page parsePage(const QVariant &value, QString *errorMe
         return p;
     }
 
-    QVariant varVal = data.value(QLatin1String(DATA_KEY));
-    if (!factory->validateData(typeId, varVal, errorMessage))
+    QVariant enabled = data.value(QLatin1String(PAGE_ENABLED_EXPRESSION_KEY), true);
+
+    QVariant subData = data.value(QLatin1String(DATA_KEY));
+    if (!factory->validateData(typeId, subData, errorMessage))
         return p;
 
     p.typeId = typeId;
@@ -194,7 +197,8 @@ static JsonWizardFactory::Page parsePage(const QVariant &value, QString *errorMe
     p.subTitle = subTitle;
     p.shortTitle = shortTitle;
     p.index = index;
-    p.data = varVal;
+    p.data = subData;
+    p.enabled = enabled;
 
     return p;
 }
@@ -392,6 +396,10 @@ void JsonWizardFactory::runWizard(const QString &path, QWidget *parent, const QS
 
     foreach (const Page &data, m_pages) {
         QTC_ASSERT(data.isValid(), continue);
+
+        if (!JsonWizard::boolFromVariant(data.enabled, wizard.expander()))
+            continue;
+
         JsonWizardPageFactory *factory = Utils::findOr(s_pageFactories, 0,
                                                        [&data](JsonWizardPageFactory *f) {
                                                             return f->canCreate(data.typeId);
