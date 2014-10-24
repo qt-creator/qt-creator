@@ -4,12 +4,12 @@ isEmpty(IDE_SOURCE_TREE): IDE_SOURCE_TREE=$$(QTC_SOURCE)
 isEmpty(IDE_BUILD_TREE): IDE_BUILD_TREE=$$(QTC_BUILD)
 isEmpty(IDE_SOURCE_TREE): error(Set QTC_SOURCE environment variable)
 isEmpty(IDE_BUILD_TREE): error(Set QTC_BUILD environment variable)
-isEmpty(QTC_PLUGIN_DIRS): error(Set QTC_PLUGIN_DIRS environment variable for extra plugins)
+
+PLUGINDIR = $$PWD/..
+INCLUDEPATH += $$PLUGINDIR/..
 
 include($$IDE_SOURCE_TREE/qtcreator.pri)
 include($$IDE_SOURCE_TREE/tests/auto/qttestrpath.pri)
-
-PLUGINDIR=$$PWD/../
 
 QT       += testlib
 QT       -= gui
