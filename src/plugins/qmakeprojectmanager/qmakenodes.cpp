@@ -36,6 +36,7 @@
 #include "qmakerunconfigurationfactory.h"
 
 #include <projectexplorer/nodesvisitor.h>
+#include <projectexplorer/projectexplorer.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/fileiconprovider.h>
@@ -771,6 +772,10 @@ void QmakePriFileNode::update(const Internal::PriFileEvalResult &result)
     }
 
     contents.updateSubFolders(this);
+    if (!m_setCurrentNodeDelayed.isEmpty()) {
+        ProjectExplorer::ProjectExplorerPlugin::setCurrentFile(m_project, m_setCurrentNodeDelayed);
+        m_setCurrentNodeDelayed.clear();
+    }
 }
 
 void QmakePriFileNode::watchFolders(const QSet<QString> &folders)
@@ -1112,6 +1117,7 @@ bool QmakePriFileNode::renameFile(const QString &filePath, const QString &newFil
     changeFiles(mt.type(), QStringList() << newFilePath, &dummy, AddToProFile);
     if (!dummy.isEmpty() && !changeProFileOptional)
         return false;
+    m_setCurrentNodeDelayed = newFilePath;
     return true;
 }
 

@@ -240,6 +240,7 @@ private:
     QSet<Utils::FileName> m_recursiveEnumerateFiles;
     QSet<QString> m_watchedFolders;
     bool m_includedInExactParse;
+    QString m_setCurrentNodeDelayed;
 
     // managed by QmakeProFileNode
     friend class QmakeProjectManager::QmakeProFileNode;
