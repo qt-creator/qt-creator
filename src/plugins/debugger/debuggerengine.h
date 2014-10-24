@@ -318,8 +318,10 @@ protected:
     virtual void notifyInferiorStopOk();
     virtual void notifyInferiorSpontaneousStop();
     virtual void notifyInferiorStopFailed();
+public:
     virtual void notifyInferiorExited();
 
+protected:
     virtual void notifyInferiorShutdownOk();
     virtual void notifyInferiorShutdownFailed();
 
