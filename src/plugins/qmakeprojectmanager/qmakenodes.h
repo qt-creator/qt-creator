@@ -418,7 +418,8 @@ public:
     bool isDeployable() const;
     QString resolvedMkspecPath() const;
 
-    void scheduleUpdate();
+    enum AsyncUpdateDelay { ParseNow, ParseLater };
+    void scheduleUpdate(AsyncUpdateDelay delay);
 
     bool validParse() const;
     bool parseInProgress() const;

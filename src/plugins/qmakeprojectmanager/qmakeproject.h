@@ -108,7 +108,8 @@ public:
     void destroyProFileReader(QtSupport::ProFileReader *reader);
 
     /// \internal
-    void scheduleAsyncUpdate(QmakeProjectManager::QmakeProFileNode *node);
+    void scheduleAsyncUpdate(QmakeProjectManager::QmakeProFileNode *node,
+                             QmakeProFileNode::AsyncUpdateDelay delay = QmakeProFileNode::ParseLater);
     /// \internal
     void incrementPendingEvaluateFutures();
     /// \internal
@@ -146,7 +147,7 @@ signals:
     void proFilesEvaluated();
 
 public slots:
-    void scheduleAsyncUpdate();
+    void scheduleAsyncUpdate(QmakeProFileNode::AsyncUpdateDelay delay = QmakeProFileNode::ParseLater);
 
 protected:
     bool fromMap(const QVariantMap &map);
@@ -177,6 +178,7 @@ private:
                                 ProjectExplorer::DeploymentData &deploymentData);
     void collectLibraryData(const QmakeProFileNode *node,
             ProjectExplorer::DeploymentData &deploymentData);
+    void startAsyncTimer(QmakeProFileNode::AsyncUpdateDelay delay);
     bool matchesKit(const ProjectExplorer::Kit *kit);
 
     QmakeManager *m_manager;

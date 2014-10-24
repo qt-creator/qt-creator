@@ -324,7 +324,7 @@ QmakePriFileNode::~QmakePriFileNode()
 void QmakePriFileNode::scheduleUpdate()
 {
     QtSupport::ProFileCacheManager::instance()->discardFile(m_projectFilePath);
-    m_qmakeProFileNode->scheduleUpdate();
+    m_qmakeProFileNode->scheduleUpdate(QmakeProFileNode::ParseLater);
 }
 
 namespace Internal {
@@ -1732,10 +1732,10 @@ bool QmakeProFileNode::parseInProgress() const
     return m_parseInProgress;
 }
 
-void QmakeProFileNode::scheduleUpdate()
+void QmakeProFileNode::scheduleUpdate(QmakeProFileNode::AsyncUpdateDelay delay)
 {
     setParseInProgressRecursive(true);
-    m_project->scheduleAsyncUpdate(this);
+    m_project->scheduleAsyncUpdate(this, delay);
 }
 
 void QmakeProFileNode::asyncUpdate()
