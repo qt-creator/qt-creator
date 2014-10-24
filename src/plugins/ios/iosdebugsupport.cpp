@@ -136,7 +136,7 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
         Utils::FileName xcodeInfo = IosConfigurations::developerPath().parentDir()
                 .appendPath(QLatin1String("Info.plist"));
         bool buggyLldb = false;
-        if (xcodeInfo.toFileInfo().exists()) {
+        if (xcodeInfo.exists()) {
             QSettings settings(xcodeInfo.toString(), QSettings::NativeFormat);
             QStringList version = settings.value(QLatin1String("CFBundleShortVersionString")).toString()
                     .split(QLatin1Char('.'));
@@ -147,7 +147,7 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
         bundlePath.chop(4);
         Utils::FileName dsymPath = Utils::FileName::fromString(
                     bundlePath.append(QLatin1String(".dSYM")));
-        if (!dsymPath.toFileInfo().exists()) {
+        if (!dsymPath.exists()) {
             if (buggyLldb)
                 TaskHub::addTask(Task::Warning,
                                  tr("Debugging with Xcode 5.0.x can be unreliable without a dSYM. "

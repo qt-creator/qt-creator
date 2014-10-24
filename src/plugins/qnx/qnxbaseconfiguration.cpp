@@ -136,7 +136,7 @@ bool QnxBaseConfiguration::isValid() const
 
 void QnxBaseConfiguration::ctor(const FileName &envScript)
 {
-    QTC_ASSERT(!envScript.isEmpty() && envScript.toFileInfo().exists(), return);
+    QTC_ASSERT(!envScript.isEmpty() && envScript.exists(), return);
     m_envFile = envScript;
     m_qnxEnv = QnxUtils::qnxEnvironmentFromEnvFile(m_envFile.toString());
     foreach (const Utils::EnvironmentItem &item, m_qnxEnv) {
@@ -151,7 +151,7 @@ void QnxBaseConfiguration::ctor(const FileName &envScript)
         m_qnxHost.toString() + QLatin1String("/usr/bin/qcc")));
     FileName armlev7GdbPath = FileName::fromString(Utils::HostOsInfo::withExecutableSuffix(
         m_qnxHost.toString() + QLatin1String("/usr/bin/ntoarm-gdb")));
-    if (!armlev7GdbPath.toFileInfo().exists()) {
+    if (!armlev7GdbPath.exists()) {
         armlev7GdbPath = FileName::fromString(Utils::HostOsInfo::withExecutableSuffix(
             m_qnxHost.toString() + QLatin1String("/usr/bin/ntoarmv7-gdb")));
     }
@@ -159,13 +159,13 @@ void QnxBaseConfiguration::ctor(const FileName &envScript)
     FileName x86GdbPath = FileName::fromString(Utils::HostOsInfo::withExecutableSuffix(
         m_qnxHost.toString() + QLatin1String("/usr/bin/ntox86-gdb")));
 
-    if (qccPath.toFileInfo().exists())
+    if (qccPath.exists())
         m_qccCompiler = qccPath;
 
-    if (armlev7GdbPath.toFileInfo().exists())
+    if (armlev7GdbPath.exists())
         m_armlev7Debugger = armlev7GdbPath;
 
-    if (x86GdbPath.toFileInfo().exists())
+    if (x86GdbPath.exists())
         m_x86Debugger = x86GdbPath;
 }
 

@@ -144,7 +144,7 @@ bool FileUtils::copyRecursively(const FileName &srcFilePath, const FileName &tgt
 {
     QFileInfo srcFileInfo = srcFilePath.toFileInfo();
     if (srcFileInfo.isDir()) {
-        if (!tgtFilePath.toFileInfo().exists()) {
+        if (!tgtFilePath.exists()) {
             QDir targetDir(tgtFilePath.toString());
             targetDir.cdUp();
             if (!targetDir.mkdir(tgtFilePath.toFileInfo().fileName())) {
@@ -549,6 +549,13 @@ QString FileName::toString() const
 QString FileName::toUserOutput() const
 {
     return QDir::toNativeSeparators(toString());
+}
+
+/// \returns a bool indicating whether a file with this
+/// FileName exists.
+bool FileName::exists() const
+{
+    return QFileInfo::exists(*this);
 }
 
 /// Find the parent directory of a given directory.

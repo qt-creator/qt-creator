@@ -181,7 +181,7 @@ void QtVersionManager::triggerQtVersionRestore()
     saveQtVersions();
 
     const FileName configFileName = globalSettingsFileName();
-    if (configFileName.toFileInfo().exists()) {
+    if (configFileName.exists()) {
         m_configFileWatcher = new FileSystemWatcher(m_instance);
         connect(m_configFileWatcher, SIGNAL(fileChanged(QString)),
                 m_fileWatcherTimer, SLOT(start()));
@@ -231,7 +231,7 @@ static bool restoreQtVersions()
     FileName filename = settingsFileName(QLatin1String(QTVERSION_FILENAME));
 
     // Read Qt Creator 2.5 qtversions.xml once:
-    if (!filename.toFileInfo().exists())
+    if (!filename.exists())
         filename = settingsFileName(QLatin1String(QTVERSION_LEGACY_FILENAME));
     if (!reader.load(filename))
         return false;

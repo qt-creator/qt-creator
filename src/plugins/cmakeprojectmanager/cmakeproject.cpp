@@ -586,7 +586,7 @@ QString CMakeProject::uiHeaderFile(const QString &uiFile)
     while (baseDirectory.isChildOf(project)) {
         Utils::FileName cmakeListsTxt = baseDirectory;
         cmakeListsTxt.appendPath(QLatin1String("CMakeLists.txt"));
-        if (cmakeListsTxt.toFileInfo().exists())
+        if (cmakeListsTxt.exists())
             break;
         QDir dir(baseDirectory.toString());
         dir.cdUp();

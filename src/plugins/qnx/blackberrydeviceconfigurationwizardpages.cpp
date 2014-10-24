@@ -391,7 +391,7 @@ bool BlackBerryDeviceConfigurationWizardConfigPage::isComplete() const
     bool configurationNameComplete = !m_ui->configurationNameField->text().isEmpty();
     Utils::FileName fileName = Utils::FileName::fromString(m_ui->debugTokenCombo->currentText());
     bool debugTokenComplete = m_holder.isSimulator || !m_holder.isProductionDevice
-            || (!fileName.isEmpty() && fileName.toFileInfo().exists());
+            || (!fileName.isEmpty() && fileName.exists());
 
     return configurationNameComplete  &&  debugTokenComplete;
 }

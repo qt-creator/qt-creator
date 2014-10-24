@@ -384,7 +384,7 @@ FileName AndroidConfig::androidToolPath() const
         // Java and I've made some progress on it. So if android.exe exists, return that instead.
         FileName path = m_sdkLocation;
         path.appendPath(QLatin1String("tools/android" QTC_HOST_EXE_SUFFIX));
-        if (path.toFileInfo().exists())
+        if (path.exists())
             return path;
         path = m_sdkLocation;
         return path.appendPath(QLatin1String("tools/android" ANDROID_BAT_SUFFIX));
@@ -1299,7 +1299,7 @@ void AndroidConfigurations::load()
 void AndroidConfigurations::updateAndroidDevice()
 {
     DeviceManager * const devMgr = DeviceManager::instance();
-    if (m_instance->m_config.adbToolPath().toFileInfo().exists())
+    if (m_instance->m_config.adbToolPath().exists())
         devMgr->addDevice(IDevice::Ptr(new Internal::AndroidDevice));
     else if (devMgr->find(Constants::ANDROID_DEVICE_ID))
         devMgr->removeDevice(Core::Id(Constants::ANDROID_DEVICE_ID));

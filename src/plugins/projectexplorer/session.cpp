@@ -883,7 +883,7 @@ bool SessionManager::loadSession(const QString &session)
     // Try loading the file
     FileName fileName = sessionNameToFileName(session);
     PersistentSettingsReader reader;
-    if (fileName.toFileInfo().exists()) {
+    if (fileName.exists()) {
         if (!reader.load(fileName)) {
             QMessageBox::warning(ICore::dialogParent(), tr("Error while restoring session"),
                                  tr("Could not restore session %1").arg(fileName.toUserOutput()));
@@ -919,7 +919,7 @@ bool SessionManager::loadSession(const QString &session)
     d->m_sessionName = session;
     EditorManager::updateWindowTitles();
 
-    if (fileName.toFileInfo().exists()) {
+    if (fileName.exists()) {
         d->m_virginSession = false;
 
         ProgressManager::addTask(d->m_future.future(), tr("Loading Session"),
@@ -1021,7 +1021,7 @@ QStringList SessionManager::projectsForSessionName(const QString &session)
 {
     const FileName fileName = sessionNameToFileName(session);
     PersistentSettingsReader reader;
-    if (fileName.toFileInfo().exists()) {
+    if (fileName.exists()) {
         if (!reader.load(fileName)) {
             qWarning() << "Could not restore session" << fileName.toUserOutput();
             return QStringList();

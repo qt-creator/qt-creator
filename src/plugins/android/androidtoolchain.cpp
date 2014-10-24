@@ -151,13 +151,13 @@ FileName AndroidToolChain::suggestedGdbServer() const
     Utils::FileName path = AndroidConfigurations::currentConfig().ndkLocation();
     path.appendPath(QString::fromLatin1("prebuilt/android-%1/gdbserver/gdbserver")
                     .arg(Abi::toString(targetAbi().architecture())));
-    if (path.toFileInfo().exists())
+    if (path.exists())
         return path;
     path = AndroidConfigurations::currentConfig().ndkLocation();
     path.appendPath(QString::fromLatin1("toolchains/%1-%2/prebuilt/gdbserver")
                                .arg(AndroidConfig::toolchainPrefix(targetAbi().architecture()))
                                .arg(m_ndkToolChainVersion));
-    if (path.toFileInfo().exists())
+    if (path.exists())
         return path;
 
     return Utils::FileName();
