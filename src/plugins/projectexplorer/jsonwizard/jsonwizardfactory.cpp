@@ -180,7 +180,7 @@ static JsonWizardFactory::Page parsePage(const QVariant &value, QString *errorMe
     bool ok;
     int index = data.value(QLatin1String(PAGE_INDEX_KEY), -1).toInt(&ok);
     if (!ok) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizardFactory", "Page with typeId \"%1\" has invalid index.")
+        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizardFactory", "Page with typeId \"%1\" has invalid \"index\".")
                 .arg(typeId.toString());
         return p;
     }
