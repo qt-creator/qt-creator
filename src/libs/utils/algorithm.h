@@ -143,9 +143,10 @@ auto equal(R (S::*function)() const, T value)
 // transform taking a member function pointer
 template<typename T, typename R, typename S>
 Q_REQUIRED_RESULT
-auto transform(const QList<T> &container, R (S::*p)() const) -> QList<R>
+auto transform(const QList<T> &container, R (S::*p)() const)
+    -> QList<typename std::remove_cv<typename std::remove_reference<R>::type>::type>
 {
-    QList<R> result;
+    QList<typename std::remove_cv<typename std::remove_reference<R>::type>::type> result;
     result.reserve(container.size());
     std::transform(container.begin(), container.end(),
                    std::back_inserter(result),
@@ -164,9 +165,9 @@ T &&declval();
 template<typename T, typename F>
 Q_REQUIRED_RESULT
 auto transform(const QList<T> &container, F function)
-     -> QList<typename std::remove_reference<decltype(function(declval<T>()))>::type>
+     -> QList<typename std::remove_cv<typename std::remove_reference<decltype(function(declval<T>()))>::type>::type>
 {
-    QList<typename std::remove_reference<decltype(function(declval<T>()))>::type> result;
+    QList<typename std::remove_cv<typename std::remove_reference<decltype(function(declval<T>()))>::type>::type> result;
     result.reserve(container.size());
     std::transform(container.begin(), container.end(),
                    std::back_inserter(result),
