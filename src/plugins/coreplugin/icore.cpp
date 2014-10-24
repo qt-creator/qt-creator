@@ -410,8 +410,7 @@ QString ICore::userResourcePath()
     const QString configDir = QFileInfo(settings(QSettings::UserScope)->fileName()).path();
     const QString urp = configDir + QLatin1String("/qtcreator");
 
-    QFileInfo fi(urp + QLatin1Char('/'));
-    if (!fi.exists()) {
+    if (!QFileInfo::exists(urp + QLatin1Char('/'))) {
         QDir dir;
         if (!dir.mkpath(urp))
             qWarning() << "could not create" << urp;

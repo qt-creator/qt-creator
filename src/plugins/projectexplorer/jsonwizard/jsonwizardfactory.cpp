@@ -511,7 +511,7 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
     strVal = data.value(QLatin1String(ICON_KEY)).toString();
     if (!strVal.isEmpty()) {
         strVal = baseDir.absoluteFilePath(strVal);
-        if (!QFileInfo(strVal).exists()) {
+        if (!QFileInfo::exists(strVal)) {
             *errorMessage = tr("Icon \"%1\" not found.").arg(strVal);
             return false;
         }

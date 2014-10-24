@@ -181,8 +181,7 @@ void PerforceChecker::parseOutput(const QString &response)
         return;
     }
     // Check existence. No precise check here, might be a symlink
-    const QFileInfo fi(repositoryRoot);
-    if (fi.exists()) {
+    if (QFileInfo::exists(repositoryRoot)) {
         emitSucceeded(repositoryRoot);
     } else {
         emitFailed(tr("The repository \"%1\" does not exist.").

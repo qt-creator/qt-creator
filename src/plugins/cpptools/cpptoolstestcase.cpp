@@ -195,7 +195,7 @@ bool TestCase::writeFile(const QString &filePath, const QByteArray &contents)
 FileWriterAndRemover::FileWriterAndRemover(const QString &filePath, const QByteArray &contents)
     : m_filePath(filePath)
 {
-    if (QFileInfo(filePath).exists()) {
+    if (QFileInfo::exists(filePath)) {
         const QString warning = QString::fromLatin1(
             "Will not overwrite existing file: \"%1\"."
             " If this file is left over due to a(n) abort/crash, please remove manually.")

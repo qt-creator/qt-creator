@@ -441,7 +441,7 @@ void HelpManager::verifyDocumenation()
 {
     const QStringList &registeredDocs = d->m_helpEngine->registeredDocumentations();
     foreach (const QString &nameSpace, registeredDocs) {
-        if (!QFileInfo(d->m_helpEngine->documentationFileName(nameSpace)).exists())
+        if (!QFileInfo::exists(d->m_helpEngine->documentationFileName(nameSpace)))
             d->m_nameSpacesToUnregister.append(nameSpace);
     }
 }

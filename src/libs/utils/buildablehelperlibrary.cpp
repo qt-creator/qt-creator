@@ -269,7 +269,7 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
     log->append(newline);
 
     const FileName makeFullPath = arguments.environment.searchInPath(arguments.makeCommand);
-    if (QFileInfo(arguments.directory + QLatin1String("/Makefile")).exists()) {
+    if (QFileInfo::exists(arguments.directory + QLatin1String("/Makefile"))) {
         if (makeFullPath.isEmpty()) {
             *errorMessage = QCoreApplication::translate("ProjectExplorer::DebuggingHelperLibrary",
                                                        "%1 not found in PATH\n").arg(arguments.makeCommand);

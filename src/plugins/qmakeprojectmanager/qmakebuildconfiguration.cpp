@@ -361,7 +361,7 @@ MakeStep *QmakeBuildConfiguration::makeStep() const
 QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportFrom(const QString &makefile)
 {
     QMakeStep *qs = qmakeStep();
-    if (QFileInfo(makefile).exists() && qs) {
+    if (QFileInfo::exists(makefile) && qs) {
         FileName qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(makefile);
         BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
         if (!version)
@@ -507,7 +507,7 @@ FileName QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
     // if it is the former we need to get the canonical form
     // for the other one we don't need to do anything
     if (parsedSpec.toFileInfo().isRelative()) {
-        if (QFileInfo(directory + QLatin1Char('/') + parsedSpec.toString()).exists())
+        if (QFileInfo::exists(directory + QLatin1Char('/') + parsedSpec.toString()))
             parsedSpec = FileName::fromUserInput(directory + QLatin1Char('/') + parsedSpec.toString());
         else
             parsedSpec = FileName::fromUserInput(baseMkspecDir.toString() + QLatin1Char('/') + parsedSpec.toString());

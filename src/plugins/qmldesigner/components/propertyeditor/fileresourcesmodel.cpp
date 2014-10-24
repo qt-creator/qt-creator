@@ -132,11 +132,11 @@ void FileResourcesModel::openFileDialog()
 
 
     //Next we try to fall back to the path any file browser was opened with
-    if (!QFileInfo(path).exists())
+    if (!QFileInfo::exists(path))
         path = s_lastBrowserPath;
 
     //The last fallback is to try the path of the document
-    if (!QFileInfo(path).exists())
+    if (!QFileInfo::exists(path))
         path = modelPath;
 
     QString newFile = QFileDialog::getOpenFileName(Core::ICore::mainWindow(), tr("Open File"), path, m_filter);

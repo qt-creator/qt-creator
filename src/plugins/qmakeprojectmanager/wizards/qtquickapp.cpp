@@ -322,7 +322,7 @@ Core::GeneratedFiles QtQuickApp::generateFiles(QString *errorMessage) const
         files.append(file(generateFile(QtQuickAppGeneratedFileInfo::MainQmlFile, errorMessage), path(MainQml)));
         files.last().setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     }
-    if (QFileInfo(path(MainQrcOrigin)).exists()) {
+    if (QFileInfo::exists(path(MainQrcOrigin))) {
         files.append(file(generateFile(QtQuickAppGeneratedFileInfo::MainQrcFile, errorMessage), path(MainQrc)));
     }
     if (!qrcDeployment().isEmpty()) {

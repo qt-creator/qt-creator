@@ -93,7 +93,7 @@ QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironmentFromEnvFile(const QString 
 {
     QList <Utils::EnvironmentItem> items;
 
-    if (!QFileInfo(fileName).exists())
+    if (!QFileInfo::exists(fileName))
         return items;
 
     const bool isWindows = Utils::HostOsInfo::isWindowsHost();
@@ -157,7 +157,7 @@ QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironmentFromEnvFile(const QString 
 
 bool QnxUtils::isValidNdkPath(const QString &ndkPath)
 {
-    return (QFileInfo(envFilePath(ndkPath)).exists());
+    return QFileInfo::exists(envFilePath(ndkPath));
 }
 
 QString QnxUtils::envFilePath(const QString &ndkPath, const QString &targetVersion)
@@ -168,7 +168,7 @@ QString QnxUtils::envFilePath(const QString &ndkPath, const QString &targetVersi
     else if (Utils::HostOsInfo::isAnyUnixHost())
         envFile = ndkPath + QLatin1String("/bbndk-env.sh");
 
-    if (!QFileInfo(envFile).exists()) {
+    if (!QFileInfo::exists(envFile)) {
         QString version = targetVersion.isEmpty() ? defaultTargetVersion(ndkPath) : targetVersion;
         version = version.replace(QLatin1Char('.'), QLatin1Char('_'));
         if (Utils::HostOsInfo::isWindowsHost())
@@ -268,7 +268,7 @@ QString QnxUtils::sdkInstallerPath(const QString &ndkPath)
 {
     QString sdkinstallPath = Utils::HostOsInfo::withExecutableSuffix(ndkPath + QLatin1String("/qde"));
 
-    if (QFileInfo(sdkinstallPath).exists())
+    if (QFileInfo::exists(sdkinstallPath))
         return sdkinstallPath;
 
     return QString();

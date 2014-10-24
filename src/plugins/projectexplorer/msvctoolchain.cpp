@@ -308,7 +308,7 @@ static QString winExpandDelayedEnvReferences(QString in, const Utils::Environmen
 Utils::Environment MsvcToolChain::readEnvironmentSetting(Utils::Environment& env) const
 {
     Utils::Environment result = env;
-    if (!QFileInfo(m_vcvarsBat).exists())
+    if (!QFileInfo::exists(m_vcvarsBat))
         return result;
 
     QMap<QString, QString> envPairs;
@@ -354,7 +354,7 @@ bool MsvcToolChain::isValid() const
     if (!AbstractMsvcToolChain::isValid())
         return false;
     QString vcVarsBat = MsvcToolChainFactory::vcVarsBatFor(QFileInfo(m_vcvarsBat).absolutePath(), m_varsBatArg);
-    return QFileInfo(vcVarsBat).exists();
+    return QFileInfo::exists(vcVarsBat);
 }
 
 MsvcToolChain::MsvcToolChain() :

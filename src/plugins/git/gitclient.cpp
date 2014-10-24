@@ -3225,8 +3225,8 @@ bool GitClient::synchronousMerge(const QString &workingDirectory, const QString 
 bool GitClient::canRebase(const QString &workingDirectory) const
 {
     const QString gitDir = findGitDirForRepository(workingDirectory);
-    if (QFileInfo(gitDir + QLatin1String("/rebase-apply")).exists()
-            || QFileInfo(gitDir + QLatin1String("/rebase-merge")).exists()) {
+    if (QFileInfo::exists(gitDir + QLatin1String("/rebase-apply"))
+            || QFileInfo::exists(gitDir + QLatin1String("/rebase-merge"))) {
         VcsOutputWindow::appendError(
                     tr("Rebase, merge or am is in progress. Finish "
                        "or abort it and then try again."));

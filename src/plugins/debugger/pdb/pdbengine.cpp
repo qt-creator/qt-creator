@@ -768,7 +768,7 @@ void PdbEngine::handleBacktrace(const PdbResponse &response)
                 frame.line = lineNumber;
                 frame.function = _(line.mid(pos2 + 1));
                 frame.usable = QFileInfo(frame.file).isReadable();
-                if (frame.line > 0 && QFileInfo(frame.file).exists()) {
+                if (frame.line > 0 && QFileInfo::exists(frame.file)) {
                     if (line.startsWith("> "))
                         currentIndex = level;
                     frame.level = level;

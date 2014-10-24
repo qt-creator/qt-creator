@@ -1437,7 +1437,7 @@ bool QmakeProject::requiresTargetPanel() const
 // but more pratical then duplicated the code everywhere
 QString QmakeProject::disabledReasonForRunConfiguration(const QString &proFilePath)
 {
-    if (!QFileInfo(proFilePath).exists())
+    if (!QFileInfo::exists(proFilePath))
         return tr("The .pro file \"%1\" does not exist.")
                 .arg(QFileInfo(proFilePath).fileName());
 

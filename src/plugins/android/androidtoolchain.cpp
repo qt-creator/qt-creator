@@ -122,7 +122,7 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
     env.set(QLatin1String("ANDROID_NDK_TOOLS_PREFIX"), AndroidConfig::toolsPrefix(targetAbi().architecture()));
     env.set(QLatin1String("ANDROID_NDK_TOOLCHAIN_VERSION"), m_ndkToolChainVersion);
     QString javaHome = AndroidConfigurations::currentConfig().openJDKLocation().toString();
-    if (!javaHome.isEmpty() && QFileInfo(javaHome).exists())
+    if (!javaHome.isEmpty() && QFileInfo::exists(javaHome))
         env.set(QLatin1String("JAVA_HOME"), javaHome);
     env.set(QLatin1String("ANDROID_HOME"), AndroidConfigurations::currentConfig().sdkLocation().toString());
     env.set(QLatin1String("ANDROID_SDK_ROOT"), AndroidConfigurations::currentConfig().sdkLocation().toString());

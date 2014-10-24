@@ -117,7 +117,7 @@ static QString winExpandDelayedEnvReferences(QString in, const Utils::Environmen
 Utils::Environment WinCEToolChain::readEnvironmentSetting(Utils::Environment &env) const
 {
     Utils::Environment result = env;
-    if (!QFileInfo(m_vcvarsBat).exists())
+    if (!QFileInfo::exists(m_vcvarsBat))
         return result;
 
     // Get the env pairs

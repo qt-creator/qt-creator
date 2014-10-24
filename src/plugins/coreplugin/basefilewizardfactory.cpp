@@ -379,9 +379,9 @@ BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(Ge
     static const QString symLinkMsg = tr("[symbolic link]");
 
     foreach (const GeneratedFile &file, *files) {
-        const QFileInfo fi(file.path());
-        if (fi.exists())
-            existingFiles.append(file.path());
+        const QString path = file.path();
+        if (QFileInfo::exists(path))
+            existingFiles.append(path);
     }
     if (existingFiles.isEmpty())
         return OverwriteOk;

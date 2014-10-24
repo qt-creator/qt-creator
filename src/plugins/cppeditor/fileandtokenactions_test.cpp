@@ -171,8 +171,7 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
     // Process all files from the projects
     foreach (const QString filePath, filesToOpen) {
         // Skip e.g. "<configuration>"
-        const QFileInfo fileInfo(filePath);
-        if (!fileInfo.exists())
+        if (!QFileInfo::exists(filePath))
             continue;
 
         qDebug() << " --" << filePath;

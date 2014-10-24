@@ -173,9 +173,8 @@ void AutoreconfStep::run(QFutureInterface<bool> &interface)
 
     // Check whether we need to run autoreconf
     const QString projectDir(bc->target()->project()->projectDirectory().toString());
-    const QFileInfo configureInfo(projectDir + QLatin1String("/configure"));
 
-    if (!configureInfo.exists())
+    if (!QFileInfo::exists(projectDir + QLatin1String("/configure")))
         m_runAutoreconf = true;
 
     if (!m_runAutoreconf) {

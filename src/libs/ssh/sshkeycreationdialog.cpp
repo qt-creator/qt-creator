@@ -142,7 +142,7 @@ void SshKeyCreationDialog::saveKeys()
 
 bool SshKeyCreationDialog::userForbidsOverwriting()
 {
-    if (!QFileInfo(privateKeyFilePath()).exists() && !QFileInfo(publicKeyFilePath()).exists())
+    if (!QFileInfo::exists(privateKeyFilePath()) && !QFileInfo::exists(publicKeyFilePath()))
         return false;
     const QMessageBox::StandardButton reply = QMessageBox::question(this, tr("File Exists"),
             tr("There already is a file of that name. Do you want to overwrite it?"),

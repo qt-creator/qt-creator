@@ -234,7 +234,7 @@ void SigningKeysSetupItem::validate()
         set(Error, tr("Found legacy BlackBerry signing keys."), tr("Update"));
     else if (!utils.hasRegisteredKeys())
         set(Error, tr("Cannot find BlackBerry signing keys."), tr("Request"));
-    else if (!QFileInfo(BlackBerryConfigurationManager::instance()->defaultKeystorePath()).exists())
+    else if (!QFileInfo::exists(BlackBerryConfigurationManager::instance()->defaultKeystorePath()))
         set(Error, tr("Cannot find developer certificate."), tr("Create"));
     else if (utils.defaultCertificateOpeningStatus() != BlackBerrySigningUtils::Opened)
         set(Info, tr("Developer certificate is not opened."), tr("Open"));
@@ -249,7 +249,7 @@ void SigningKeysSetupItem::fix()
         QDesktopServices::openUrl(QUrl(QLatin1String(Qnx::Constants::QNX_LEGACY_KEYS_URL)));
     } else if (!utils.hasRegisteredKeys()) {
         QDesktopServices::openUrl(QUrl(QLatin1String(Qnx::Constants::QNX_REGISTER_KEYS_URL)));
-    } else if (!QFileInfo(BlackBerryConfigurationManager::instance()->defaultKeystorePath()).exists()) {
+    } else if (!QFileInfo::exists(BlackBerryConfigurationManager::instance()->defaultKeystorePath())) {
         set(Info, tr("Opening certificate..."));
         utils.createCertificate();
     } else if (utils.defaultCertificateOpeningStatus() != BlackBerrySigningUtils::Opened) {

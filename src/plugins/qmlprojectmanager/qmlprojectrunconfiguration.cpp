@@ -292,8 +292,7 @@ void QmlProjectRunConfiguration::updateEnabled()
         qmlFileFound = !mainScript().isEmpty();
     }
 
-    bool newValue = QFileInfo(executable()).exists() && qmlFileFound;
-
+    bool newValue = QFileInfo::exists(executable()) && qmlFileFound;
 
     // Always emit change signal to force reevaluation of run/debug buttons
     m_isEnabled = newValue;

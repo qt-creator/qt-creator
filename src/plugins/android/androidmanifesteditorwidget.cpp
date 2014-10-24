@@ -1259,7 +1259,7 @@ QIcon AndroidManifestEditorWidget::icon(const QString &baseDir, IconDPI dpi)
 
 void AndroidManifestEditorWidget::copyIcon(IconDPI dpi, const QString &baseDir, const QString &filePath)
 {
-    if (!QFileInfo(filePath).exists())
+    if (!QFileInfo::exists(filePath))
         return;
 
     const QString targetPath = iconPath(baseDir, dpi);

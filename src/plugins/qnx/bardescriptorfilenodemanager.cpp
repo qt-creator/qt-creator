@@ -148,7 +148,7 @@ void BarDescriptorFileNodeManager::updateBarDescriptorNodes(ProjectExplorer::Pro
         if (!projectNode)
             continue;
 
-        if (!QFileInfo(package.appDescriptorPath()).exists()) {
+        if (!QFileInfo::exists(package.appDescriptorPath())) {
             if (!attemptCreate)
                 continue;
 
