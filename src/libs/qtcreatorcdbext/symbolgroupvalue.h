@@ -188,7 +188,7 @@ struct QtInfo
         Core, Gui, Widgets, Network, Script, Qml
     };
 
-    QtInfo() : version(0) {}
+    QtInfo() : version(0), isStatic(false) {}
 
     static const QtInfo &get(const SymbolGroupValueContext &ctx);
 
@@ -217,6 +217,7 @@ struct QtInfo
     std::string moduleName(Module m) const;
 
     int version;
+    bool isStatic;
     std::string nameSpace;
     std::string libInfix;
     // Fully qualified types with module and namespace
