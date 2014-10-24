@@ -54,6 +54,13 @@ JsonWizard::JsonWizard(QWidget *parent) :
         }
         return v.isValid();
     });
+    m_expander.registerPrefix("Exists", tr("Check whether a variable exists. Returns \"true\" if it does and an empty string if not."),
+                   [this](const QString &value) -> QString
+    {
+        const QString key = QString::fromLatin1("%{") + value + QLatin1Char('}');
+        return m_expander.expand(key) == key ? QString() : QLatin1String("true");
+    });
+
 }
 
 JsonWizard::~JsonWizard()
