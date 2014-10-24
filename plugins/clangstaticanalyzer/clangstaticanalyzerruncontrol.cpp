@@ -34,8 +34,8 @@
 #include <cpptools/cppprojects.h>
 #include <cpptools/cppprojectfile.h>
 
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
 
 #include <QLoggingCategory>
 #include <QTemporaryDir>
@@ -84,8 +84,12 @@ bool ClangStaticAnalyzerRunControl::startEngine()
 {
     emit starting(this);
 
-    Project *currentProject = ProjectExplorerPlugin::currentProject();
-    QTC_ASSERT(currentProject, emit finished(); return false);
+    RunConfiguration *runConfig = runConfiguration();
+    QTC_ASSERT(runConfig, emit finished(); return false);
+    Target *target = runConfig->target();
+    QTC_ASSERT(target, emit finished(); return false);
+    Project *project = target->project();
+    QTC_ASSERT(project, emit finished(); return false);
 
     // Check clang executable
     bool isValidClangExecutable;
@@ -111,7 +115,7 @@ bool ClangStaticAnalyzerRunControl::startEngine()
     m_clangLogFileDir = temporaryDir.path();
 
     // Collect files
-    const QList<SourceFileConfiguration> filesToProcess = calculateFilesToProcess(currentProject);
+    const QList<SourceFileConfiguration> filesToProcess = calculateFilesToProcess(project);
     qCDebug(LOG()) << "Files to process:";
     foreach (const SourceFileConfiguration &fileConfig, filesToProcess) {
         qCDebug(LOG()) << fileConfig.file.path + QLatin1String(" [")
