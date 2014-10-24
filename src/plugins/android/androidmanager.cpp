@@ -123,6 +123,15 @@ QString AndroidManager::packageName(ProjectExplorer::Target *target)
     return manifestElem.attribute(QLatin1String("package"));
 }
 
+QString AndroidManager::packageName(const Utils::FileName &manifestFile)
+{
+    QDomDocument doc;
+    if (!openXmlFile(doc, manifestFile))
+        return QString();
+    QDomElement manifestElem = doc.documentElement();
+    return manifestElem.attribute(QLatin1String("package"));
+}
+
 QString AndroidManager::intentName(ProjectExplorer::Target *target)
 {
     return packageName(target) + QLatin1Char('/') + activityName(target);

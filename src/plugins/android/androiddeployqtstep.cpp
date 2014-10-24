@@ -200,11 +200,7 @@ bool AndroidDeployQtStep::init()
     m_uninstallPreviousPackageRun = m_uninstallPreviousPackage || m_uninstallPreviousPackageTemp;
     m_uninstallPreviousPackageTemp = false;
     if (m_uninstallPreviousPackageRun) {
-        m_packageName = AndroidManager::packageName(target());
-        if (m_packageName.isEmpty()){
-            emit addOutput(tr("Cannot find the package name."), ErrorOutput);
-            return false;
-        }
+        m_manifestName = AndroidManager::manifestPath(target());
     }
     ProjectExplorer::ProcessParameters *pp = processParameters();
     m_useAndroiddeployqt = version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
@@ -299,10 +295,18 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
         pp->setArguments(m_androiddeployqtArgs);
     } else {
         if (m_uninstallPreviousPackageRun) {
-            emit addOutput(tr("Uninstall previous package %1.").arg(m_packageName), MessageOutput);
+            const QString packageName = AndroidManager::packageName(m_manifestName);
+            if (packageName.isEmpty()){
+                emit addOutput(tr("Cannot find the package name."), ErrorOutput);
+                fi.reportResult(false);
+                emit finished();
+                return;
+            }
+
+            emit addOutput(tr("Uninstall previous package %1.").arg(packageName), MessageOutput);
             runCommand(AndroidConfigurations::currentConfig().adbToolPath().toString(),
                        AndroidDeviceInfo::adbSelector(m_serialNumber)
-                       << QLatin1String("uninstall") << m_packageName);
+                       << QLatin1String("uninstall") << packageName);
         }
 
         QString args;
