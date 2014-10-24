@@ -195,7 +195,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
             this, SLOT(toolChainsUpdated()));
 
     auto chooser = new Core::VariableChooser(this);
-    chooser->addSupportedWidget(m_versionUi->nameEdit, "Qt:name");
+    chooser->addSupportedWidget(m_versionUi->nameEdit, "Qt:Name");
     chooser->addMacroExpanderProvider(
         [this]() -> Utils::MacroExpander * {
             BaseQtVersion *version = currentVersion();

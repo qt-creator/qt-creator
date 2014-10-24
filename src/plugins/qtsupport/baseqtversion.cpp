@@ -285,8 +285,8 @@ QString BaseQtVersion::defaultUnexpandedDisplayName(const FileName &qmakePath, b
     }
 
     return fromPath ?
-        QCoreApplication::translate("QtVersion", "Qt %{Qt:version} in PATH (%2)").arg(location) :
-        QCoreApplication::translate("QtVersion", "Qt %{Qt:version} (%2)").arg(location);
+        QCoreApplication::translate("QtVersion", "Qt %{Qt:Version} in PATH (%2)").arg(location) :
+        QCoreApplication::translate("QtVersion", "Qt %{Qt:Version} (%2)").arg(location);
 }
 
 FeatureSet BaseQtVersion::availableFeatures() const
