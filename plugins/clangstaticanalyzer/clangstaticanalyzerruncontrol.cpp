@@ -116,9 +116,9 @@ bool ClangStaticAnalyzerRunControl::startEngine()
 
     // Collect files
     const QList<SourceFileConfiguration> filesToProcess = calculateFilesToProcess(project);
-    qCDebug(LOG()) << "Files to process:";
+    qCDebug(LOG) << "Files to process:";
     foreach (const SourceFileConfiguration &fileConfig, filesToProcess) {
-        qCDebug(LOG()) << fileConfig.file.path + QLatin1String(" [")
+        qCDebug(LOG) << fileConfig.file.path + QLatin1String(" [")
                           + fileConfig.projectPart->projectFile + QLatin1Char(']');
     }
     m_filesToProcess = filesToProcess;
