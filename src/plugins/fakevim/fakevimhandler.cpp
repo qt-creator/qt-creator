@@ -1125,6 +1125,9 @@ public:
 
     QString toString() const
     {
+        if (!m_text.isEmpty())
+            return QString(m_text).replace(_("<"), _("<LT>"));
+
         QString key = vimKeyNames().key(m_key);
         bool namedKey = !key.isEmpty();
 
