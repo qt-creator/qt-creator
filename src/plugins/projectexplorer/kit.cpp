@@ -33,6 +33,7 @@
 #include "kitmanager.h"
 #include "ioutputparser.h"
 #include "osparser.h"
+#include "projectexplorerconstants.h"
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -97,6 +98,18 @@ public:
             [this]() { return m_fileSystemFriendlyName; });
         foreach (KitInformation *ki, KitManager::kitInformation())
             ki->addToMacroExpander(kit, &m_macroExpander);
+
+        // This provides the same global fall back as the global expander
+        // without relying on the currentKit() discovery process there.
+        m_macroExpander.registerVariable(Constants::VAR_CURRENTKIT_NAME,
+            tr("The currently active kit's name."),
+            [kit] { return kit->displayName(); });
+        m_macroExpander.registerVariable(Constants::VAR_CURRENTKIT_FILESYSTEMNAME,
+            tr("The currently active kit's name in a filesystem friendly version."),
+            [kit] { return kit->fileSystemFriendlyName(); });
+        m_macroExpander.registerVariable(Constants::VAR_CURRENTKIT_ID,
+            tr("The currently active kit's id."),
+            [kit] { return kit->id().toString(); });
     }
 
     QString m_unexpandedDisplayName;
