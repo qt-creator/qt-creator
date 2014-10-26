@@ -1903,6 +1903,9 @@ public:
     void stopRecording();
     bool executeRegister(int register);
 
+    // Handle current command as synonym
+    void handleAs(const QString &command);
+
 public:
     QTextEdit *m_textedit;
     QPlainTextEdit *m_plaintextedit;
@@ -4190,12 +4193,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         resetCount();
         enterVisualInsertMode(input.asChar());
     } else if (input.is('C')) {
-        setAnchor();
-        moveToEndOfLine();
-        g.rangemode = RangeCharMode;
-        g.submode = ChangeSubMode;
-        setDotCommand(QString(QLatin1Char('C')));
-        finishMovement();
+        handleAs(_("%1c$"));
     } else if (input.isControl('c')) {
         if (isNoVisualMode())
             showMessage(MessageInfo, Tr::tr("Type Alt-V, Alt-V to quit FakeVim mode."));
@@ -4221,15 +4219,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             setPosition(qMin(position(), anchor()));
         }
     } else if (input.is('D') && isNoVisualMode()) {
-        pushUndoState();
-        if (atEndOfLine())
-            moveLeft();
-        g.submode = DeleteSubMode;
-        g.movetype = MoveInclusive;
-        setAnchorAndPosition(position(), lastPositionInLine(cursorLine() + count()));
-        setDotCommand(QString(QLatin1Char('D')));
-        finishMovement();
-        setTargetColumn();
+        handleAs(_("%1d$"));
     } else if ((input.is('D') || input.is('X')) &&
          (isVisualCharMode() || isVisualLineMode())) {
         setDotCommand(visualDotCommand() + QLatin1Char('X'));
@@ -4363,28 +4353,9 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         while (--repeat >= 0)
             redo();
     } else if (input.is('s')) {
-        pushUndoState();
-        leaveVisualMode();
-        if (atEndOfLine())
-            moveLeft();
-        setAnchor();
-        moveRight(qMin(count(), rightDist()));
-        setDotCommand(_("%1s"), count());
-        g.submode = ChangeSubMode;
-        g.movetype = MoveExclusive;
-        finishMovement();
+        handleAs(_("c%1l"));
     } else if (input.is('S')) {
-        g.movetype = MoveLineWise;
-        pushUndoState();
-        if (!isVisualMode()) {
-            const int line = cursorLine() + 1;
-            const int anc = firstPositionInLine(line);
-            const int pos = lastPositionInLine(line + count() - 1);
-            setAnchorAndPosition(anc, pos);
-        }
-        setDotCommand(_("%1S"), count());
-        g.submode = ChangeSubMode;
-        finishMovement();
+        handleAs(_("%1cc"));
     } else if (g.gflag && input.is('t')) {
         handleExCommand(_("tabnext"));
     } else if (g.gflag && input.is('T')) {
@@ -4437,8 +4408,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             removeText(currentRange());
         }
     } else if (input.is('Y') && isNoVisualMode())  {
-        g.submode = YankSubMode;
-        handleChangeDeleteYankSubModes();
+        handleAs(_("%1yy"));
     } else if (input.isControl('y')) {
         // FIXME: this should use the "scroll" option, and "count"
         if (cursorLineOnScreen() == linesOnScreen() - 1)
@@ -5149,6 +5119,19 @@ void FakeVimHandler::Private::stopRecording()
     setRegister(g.currentRegister, g.recorded, g.rangemode);
     g.currentRegister = 0;
     g.recorded.clear();
+}
+
+void FakeVimHandler::Private::handleAs(const QString &command)
+{
+    const QString cmd = QString(_("\"%1")).arg(QChar(m_register)) + command.arg(count());
+    const int rev = revision();
+
+    beginLargeEditBlock();
+    replay(cmd);
+    endEditBlock();
+
+    if (rev != revision())
+        setDotCommand(cmd);
 }
 
 bool FakeVimHandler::Private::executeRegister(int reg)
