@@ -380,6 +380,7 @@ public:
     virtual void rewrapParagraph();
     virtual void unCommentSelection();
 
+public slots: // Qt4-style connect used in EditorConfiguration
     virtual void setDisplaySettings(const TextEditor::DisplaySettings &);
     virtual void setMarginSettings(const TextEditor::MarginSettings &);
     void setBehaviorSettings(const TextEditor::BehaviorSettings &);
@@ -388,6 +389,7 @@ public:
     void setCompletionSettings(const TextEditor::CompletionSettings &);
     void setExtraEncodingSettings(const TextEditor::ExtraEncodingSettings &);
 
+public:
     void circularPaste();
     void switchUtf8bom();
 
