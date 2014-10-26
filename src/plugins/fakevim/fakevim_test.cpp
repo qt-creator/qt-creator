@@ -3476,6 +3476,25 @@ void FakeVimPlugin::test_macros()
     data.setText("   abc xyz>." N "   def xyz>." N "   ghi xyz>." N "   jkl xyz>.");
     KEYS("qq" "^wdf>j" "q", "   abc ." N "   def " X "xyz>." N "   ghi xyz>." N "   jkl xyz>.");
     KEYS("2@q", "   abc ." N "   def ." N "   ghi ." N "   jkl " X "xyz>.");
+
+    // record command line
+    data.setText("abc" N "def");
+    KEYS("qq" ":s/./*/g<ESC>" "iX<ESC>" "q", X "Xabc" N "def");
+    KEYS("@q", X "XXabc" N "def");
+
+    KEYS("qq" ":s/./*/g<BS><BS><BS><BS><BS><BS><BS><BS>" "iY<ESC>" "q", X "YXXabc" N "def");
+    KEYS("@q", X "YYXXabc" N "def");
+
+    KEYS("qq" ":s/./*/g<CR>" "q", X "*******" N "def");
+    KEYS("j@q", "*******" N X "***");
+
+    // record repeating last command
+    data.setText("abc" N "def");
+    KEYS(":s/./-/g<CR>", X "---" N "def");
+    KEYS("u", X "abc" N "def");
+    KEYS("qq" ":<UP><CR>" "q", X "---" N "def");
+    KEYS(":s/./!/g<CR>", X "!!!" N "def");
+    KEYS("j@q", "!!!" N X "!!!");
 }
 
 void FakeVimPlugin::test_vim_qtcreator()

@@ -1856,6 +1856,7 @@ public:
     Q_SLOT void onContentsChanged(int position, int charsRemoved, int charsAdded);
     Q_SLOT void onUndoCommandAdded();
 
+    bool isCommandLineMode() const { return g.mode == ExMode || g.subsubmode == SearchSubSubMode; }
     bool isInsertMode() const { return g.mode == InsertMode || g.mode == ReplaceMode; }
     // Waiting for movement operator.
     bool isOperatorPending() const {
@@ -2283,7 +2284,7 @@ void FakeVimHandler::Private::focus()
             commitCursor();
         }
 
-        bool exitCommandLine = (g.subsubmode == SearchSubSubMode || g.mode == ExMode);
+        bool exitCommandLine = isCommandLineMode();
         resetCommandMode();
         if (exitCommandLine)
             updateMiniBuffer();
@@ -7892,6 +7893,9 @@ void FakeVimHandler::Private::enterVisualInsertMode(QChar command)
 
 void FakeVimHandler::Private::enterCommandMode(Mode returnToMode)
 {
+    if (g.isRecording && isCommandLineMode())
+        record(Input(Key_Escape, NoModifier));
+
     if (isNoVisualMode() && atEndOfLine())
         moveLeft();
     g.mode = CommandMode;
