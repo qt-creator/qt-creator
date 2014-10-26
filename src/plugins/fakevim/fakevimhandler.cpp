@@ -1629,14 +1629,14 @@ public:
     // return true only if input in current mode and sub-mode was correctly handled
     bool handleEscape();
     bool handleNoSubMode(const Input &);
-    bool handleChangeDeleteSubModes(const Input &);
+    bool handleChangeDeleteYankSubModes(const Input &);
+    void handleChangeDeleteYankSubModes();
     bool handleReplaceSubMode(const Input &);
     bool handleFilterSubMode(const Input &);
     bool handleRegisterSubMode(const Input &);
     bool handleShiftSubMode(const Input &);
     bool handleChangeCaseSubMode(const Input &);
     bool handleWindowSubMode(const Input &);
-    bool handleYankSubMode(const Input &);
     bool handleZSubMode(const Input &);
     bool handleCapitalZSubMode(const Input &);
     bool handleMacroRecordSubMode(const Input &);
@@ -4026,8 +4026,10 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         handled = handleCommandSubSubMode(input);
     } else if (g.submode == NoSubMode) {
         handled = handleNoSubMode(input);
-    } else if (g.submode == ChangeSubMode || g.submode == DeleteSubMode) {
-        handled = handleChangeDeleteSubModes(input);
+    } else if (g.submode == ChangeSubMode
+        || g.submode == DeleteSubMode
+        || g.submode == YankSubMode) {
+        handled = handleChangeDeleteYankSubModes(input);
     } else if (g.submode == ReplaceSubMode) {
         handled = handleReplaceSubMode(input);
     } else if (g.submode == FilterSubMode) {
@@ -4036,8 +4038,6 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         handled = handleRegisterSubMode(input);
     } else if (g.submode == WindowSubMode) {
         handled = handleWindowSubMode(input);
-    } else if (g.submode == YankSubMode) {
-        handled = handleYankSubMode(input);
     } else if (g.submode == ZSubMode) {
         handled = handleZSubMode(input);
     } else if (g.submode == CapitalZSubMode) {
@@ -4437,7 +4437,8 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             removeText(currentRange());
         }
     } else if (input.is('Y') && isNoVisualMode())  {
-        handleYankSubMode(Input(QLatin1Char('y')));
+        g.submode = YankSubMode;
+        handleChangeDeleteYankSubModes();
     } else if (input.isControl('y')) {
         // FIXME: this should use the "scroll" option, and "count"
         if (cursorLineOnScreen() == linesOnScreen() - 1)
@@ -4533,28 +4534,39 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     return handled;
 }
 
-bool FakeVimHandler::Private::handleChangeDeleteSubModes(const Input &input)
+bool FakeVimHandler::Private::handleChangeDeleteYankSubModes(const Input &input)
 {
-    bool handled = false;
-
     if ((g.submode == ChangeSubMode && input.is('c'))
-        || (g.submode == DeleteSubMode && input.is('d'))) {
-        g.movetype = MoveLineWise;
-        pushUndoState();
-        const int anc = firstPositionInLine(cursorLine() + 1);
-        moveDown(count() - 1);
-        const int pos = lastPositionInLine(cursorLine() + 1);
-        setAnchorAndPosition(anc, pos);
-        if (g.submode == ChangeSubMode)
-            setDotCommand(_("%1cc"), count());
-        else
-            setDotCommand(_("%1dd"), count());
-        finishMovement();
-        g.submode = NoSubMode;
-        handled = true;
+        || (g.submode == DeleteSubMode && input.is('d'))
+        || (g.submode == YankSubMode && input.is('y')))
+    {
+        handleChangeDeleteYankSubModes();
+        return true;
     }
 
-    return handled;
+    return false;
+}
+
+void FakeVimHandler::Private::handleChangeDeleteYankSubModes()
+{
+    g.movetype = MoveLineWise;
+
+    if (g.submode != YankSubMode)
+        pushUndoState();
+
+    const int anc = firstPositionInLine(cursorLine() + 1);
+    moveDown(count() - 1);
+    const int pos = lastPositionInLine(cursorLine() + 1);
+    setAnchorAndPosition(anc, pos);
+
+    if (g.submode == ChangeSubMode)
+        setDotCommand(_("%1cc"), count());
+    else if (g.submode == DeleteSubMode)
+        setDotCommand(_("%1dd"), count());
+
+    finishMovement();
+
+    g.submode = NoSubMode;
 }
 
 bool FakeVimHandler::Private::handleReplaceSubMode(const Input &input)
@@ -4670,20 +4682,6 @@ bool FakeVimHandler::Private::handleWindowSubMode(const Input &input)
 
     g.submode = NoSubMode;
     return true;
-}
-
-bool FakeVimHandler::Private::handleYankSubMode(const Input &input)
-{
-    bool handled = false;
-    if (input.is('y')) {
-        g.movetype = MoveLineWise;
-        int endPos = firstPositionInLine(lineForPosition(position()) + count() - 1);
-        Range range(position(), endPos, RangeLineMode);
-        yankText(range, m_register);
-        g.submode = NoSubMode;
-        handled = true;
-    }
-    return handled;
 }
 
 bool FakeVimHandler::Private::handleZSubMode(const Input &input)
