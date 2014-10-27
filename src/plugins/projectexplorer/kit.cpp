@@ -102,13 +102,13 @@ public:
         // This provides the same global fall back as the global expander
         // without relying on the currentKit() discovery process there.
         m_macroExpander.registerVariable(Constants::VAR_CURRENTKIT_NAME,
-            tr("The currently active kit's name."),
+            tr("The name of the currently active kit."),
             [kit] { return kit->displayName(); });
         m_macroExpander.registerVariable(Constants::VAR_CURRENTKIT_FILESYSTEMNAME,
-            tr("The currently active kit's name in a filesystem friendly version."),
+            tr("The name of the currently active kit in a filesystem friendly version."),
             [kit] { return kit->fileSystemFriendlyName(); });
         m_macroExpander.registerVariable(Constants::VAR_CURRENTKIT_ID,
-            tr("The currently active kit's id."),
+            tr("The id of the currently active kit."),
             [kit] { return kit->id().toString(); });
     }
 

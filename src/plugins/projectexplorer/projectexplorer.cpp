@@ -1145,28 +1145,28 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         });
 
     expander->registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
-        tr("The current project's name."),
+        tr("The name of the current project."),
         [this]() -> QString {
             Project *project = ProjectExplorerPlugin::currentProject();
             return project ? project->displayName() : QString();
         });
 
     expander->registerVariable(Constants::VAR_CURRENTKIT_NAME,
-        tr("The currently active kit's name."),
+        tr("The name of the currently active kit."),
         []() -> QString {
             Kit *kit = currentKit();
             return kit ? kit->displayName() : QString();
         });
 
     expander->registerVariable(Constants::VAR_CURRENTKIT_FILESYSTEMNAME,
-        tr("The currently active kit's name in a filesystem friendly version."),
+        tr("The name of the currently active kit in a filesystem friendly version."),
         []() -> QString {
             Kit *kit = currentKit();
             return kit ? kit->fileSystemFriendlyName() : QString();
         });
 
     expander->registerVariable(Constants::VAR_CURRENTKIT_ID,
-        tr("The currently active kit's id."),
+        tr("The id of the currently active kit."),
         []() -> QString {
             Kit *kit = currentKit();
             return kit ? kit->id().toString() : QString();
