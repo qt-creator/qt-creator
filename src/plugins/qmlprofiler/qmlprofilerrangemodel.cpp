@@ -138,7 +138,7 @@ void QmlProfilerRangeModel::QmlProfilerRangeModelPrivate::computeNestingContract
     nestingEndTimes.fill(0, nestingLevels + 1);
 
     for (i = 0; i < eventCount; i++) {
-        qint64 st = q->ranges[i].start;
+        qint64 st = ranges[i].start;
 
         // per type
         if (nestingEndTimes[nestingLevels] > st) {
@@ -151,7 +151,7 @@ void QmlProfilerRangeModel::QmlProfilerRangeModelPrivate::computeNestingContract
                    nestingEndTimes[nestingLevels-1] <= st)
                 nestingLevels--;
         }
-        nestingEndTimes[nestingLevels] = st + q->ranges[i].duration;
+        nestingEndTimes[nestingLevels] = st + ranges[i].duration;
 
         data[i].displayRowCollapsed = nestingLevels;
     }
@@ -163,7 +163,7 @@ void QmlProfilerRangeModel::QmlProfilerRangeModelPrivate::computeExpandedLevels(
     QHash<int, int> eventRow;
     int eventCount = q->count();
     for (int i = 0; i < eventCount; i++) {
-        int typeId = q->range(i).typeId;
+        int typeId = ranges[i].typeId;
         if (!eventRow.contains(typeId)) {
             eventRow[typeId] = expandedRowTypes.size();
             expandedRowTypes << typeId;
@@ -184,25 +184,23 @@ void QmlProfilerRangeModel::QmlProfilerRangeModelPrivate::findBindingLoops()
 
     for (int i = 0; i < q->count(); ++i) {
         const Range *potentialParent = callStack.isEmpty()
-                ? 0 : &q->ranges[callStack.top().second];
+                ? 0 : &ranges[callStack.top().second];
 
         while (potentialParent
-               && !(potentialParent->start + potentialParent->duration > q->ranges[i].start)) {
+               && !(potentialParent->start + potentialParent->duration > ranges[i].start)) {
             callStack.pop();
-            potentialParent = callStack.isEmpty() ? 0
-                                                  : &q->ranges[callStack.top().second];
+            potentialParent = callStack.isEmpty() ? 0 : &ranges[callStack.top().second];
         }
 
         // check whether event is already in stack
         for (int ii = 0; ii < callStack.size(); ++ii) {
-            if (callStack.at(ii).first == q->range(i).typeId) {
+            if (callStack.at(ii).first == ranges[i].typeId) {
                 data[i].bindingLoopHead = callStack.at(ii).second;
                 break;
             }
         }
 
-
-        CallStackEntry newEntry(q->range(i).typeId, i);
+        CallStackEntry newEntry(ranges[i].typeId, i);
         callStack.push(newEntry);
     }
 
@@ -266,7 +264,7 @@ QVariantMap QmlProfilerRangeModel::details(int index) const
             d->modelManager->qmlModel()->getEventTypes();
 
     result.insert(QStringLiteral("displayName"), categoryLabel(d->rangeType));
-    result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(range(index).duration));
+    result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(duration(index)));
 
     result.insert(tr("Details"), types[id].data);
     result.insert(tr("Location"), types[id].displayName);

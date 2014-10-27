@@ -37,6 +37,74 @@ namespace QmlProfiler {
 
 class QMLPROFILER_EXPORT AbstractTimelineModel::AbstractTimelineModelPrivate {
 public:
+    struct Range {
+        Range() : start(-1), duration(-1), typeId(-1), parent(-1) {}
+        Range(qint64 start, qint64 duration, int typeId) :
+            start(start), duration(duration), typeId(typeId), parent(-1) {}
+        qint64 start;
+        qint64 duration;
+        int typeId;
+        int parent;
+        inline qint64 timestamp() const {return start;}
+    };
+
+    struct RangeEnd {
+        RangeEnd() : startIndex(-1), end(-1) {}
+        RangeEnd(int startIndex, qint64 end) :
+            startIndex(startIndex), end(end) {}
+        int startIndex;
+        qint64 end;
+        inline qint64 timestamp() const {return end;}
+    };
+
+    void init(AbstractTimelineModel *q, const QString &displayName, QmlDebug::Message message,
+              QmlDebug::RangeType rangeType);
+
+    inline qint64 lastEndTime() const { return endTimes.last().end; }
+    inline qint64 firstStartTime() const { return ranges.first().start; }
+
+    void incrementStartIndices(int index)
+    {
+        for (int i = 0; i < endTimes.size(); ++i) {
+            if (endTimes[i].startIndex >= index)
+                endTimes[i].startIndex++;
+        }
+    }
+
+    template<typename RangeDelimiter>
+    static inline int insertSorted(QVector<RangeDelimiter> &container, const RangeDelimiter &item)
+    {
+        for (int i = container.count();;) {
+            if (i == 0) {
+                container.prepend(item);
+                return 0;
+            }
+            if (container[--i].timestamp() <= item.timestamp()) {
+                container.insert(++i, item);
+                return i;
+            }
+        }
+    }
+
+    template<typename RangeDelimiter>
+    static inline int lowerBound(const QVector<RangeDelimiter> &container, qint64 time)
+    {
+        int fromIndex = 0;
+        int toIndex = container.count() - 1;
+        while (toIndex - fromIndex > 1) {
+            int midIndex = (fromIndex + toIndex)/2;
+            if (container[midIndex].timestamp() < time)
+                fromIndex = midIndex;
+            else
+                toIndex = midIndex;
+        }
+
+        return fromIndex;
+    }
+
+    QVector<Range> ranges;
+    QVector<RangeEnd> endTimes;
+
     QVector<int> rowOffsets;
     QmlProfilerModelManager *modelManager;
     int modelId;

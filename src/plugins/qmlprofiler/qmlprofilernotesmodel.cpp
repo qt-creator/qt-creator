@@ -112,7 +112,7 @@ int QmlProfilerNotesModel::get(int timelineModel, int timelineIndex) const
 int QmlProfilerNotesModel::add(int timelineModel, int timelineIndex, const QString &text)
 {
     const AbstractTimelineModel *model = m_timelineModels[timelineModel];
-    int typeId = model->range(timelineIndex).typeId;
+    int typeId = model->typeId(timelineIndex);
     Note note = { text, timelineModel, timelineIndex };
     m_data << note;
     m_modified = true;
@@ -167,9 +167,8 @@ int QmlProfilerNotesModel::add(int typeId, qint64 start, qint64 duration, const 
             for (int i = model->firstIndex(start); i <= model->lastIndex(start + duration); ++i) {
                 if (i < 0)
                     continue;
-                const SortedTimelineModel::Range &timelineRange = model->range(i);
-                if (timelineRange.typeId == typeId && timelineRange.start == start &&
-                        timelineRange.duration == duration) {
+                if (model->typeId(i) == typeId && model->startTime(i) == start &&
+                        model->duration(i) == duration) {
                     timelineModel = model->modelId();
                     timelineIndex = i;
                     break;
@@ -218,9 +217,10 @@ void QmlProfilerNotesModel::saveData()
         if (it == m_timelineModels.end())
             continue;
 
-        const SortedTimelineModel::Range &noteRange = it.value()->range(note.timelineIndex);
+        const AbstractTimelineModel *model = it.value();
         QmlProfilerDataModel::QmlEventNoteData save = {
-            noteRange.typeId, noteRange.start, noteRange.duration, note.text
+            model->typeId(note.timelineIndex), model->startTime(note.timelineIndex),
+            model->duration(note.timelineIndex), note.text
         };
         notes.append(save);
     }

@@ -35,13 +35,12 @@
 #include "qmlprofiler_global.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerdatamodel.h"
-#include "sortedtimelinemodel.h"
 #include <QVariant>
 #include <QColor>
 
 namespace QmlProfiler {
 
-class QMLPROFILER_EXPORT AbstractTimelineModel : public SortedTimelineModel
+class QMLPROFILER_EXPORT AbstractTimelineModel : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ displayName CONSTANT)
@@ -51,6 +50,9 @@ class QMLPROFILER_EXPORT AbstractTimelineModel : public SortedTimelineModel
 
 public:
     class AbstractTimelineModelPrivate;
+
+    AbstractTimelineModel(const QString &displayName, QmlDebug::Message message,
+                          QmlDebug::RangeType rangeType, QObject *parent);
     ~AbstractTimelineModel();
 
     // Trivial methods implemented by the abstract model itself
@@ -63,6 +65,15 @@ public:
     int rowOffset(int rowNumber) const;
     void setRowHeight(int rowNumber, int height);
     int height() const;
+    int count() const;
+    qint64 duration(int index) const;
+    qint64 startTime(int index) const;
+    qint64 endTime(int index) const;
+    int typeId(int index) const;
+
+    int firstIndex(qint64 startTime) const;
+    int firstIndexNoParents(qint64 startTime) const;
+    int lastIndex(qint64 endTime) const;
 
     bool accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;
     bool expanded() const;
@@ -122,6 +133,11 @@ protected:
     {
         return QColor::fromHsl(hue % 360, Saturation, Lightness);
     }
+
+    int insert(qint64 startTime, qint64 duration, int typeId);
+    int insertStart(qint64 startTime, int typeId);
+    void insertEnd(int index, qint64 duration);
+    void computeNesting();
 
     explicit AbstractTimelineModel(AbstractTimelineModelPrivate *dd, const QString &displayName,
                                    QmlDebug::Message message, QmlDebug::RangeType rangeType,

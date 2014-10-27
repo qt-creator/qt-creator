@@ -30,7 +30,6 @@ SOURCES += \
     qmlprofilerviewmanager.cpp \
     qv8profilerdatamodel.cpp \
     qv8profilereventview.cpp \
-    sortedtimelinemodel.cpp \
     timelinemodelaggregator.cpp \
     timelinerenderer.cpp \
     timelinezoomcontrol.cpp
@@ -66,7 +65,6 @@ HEADERS += \
     qmlprofilerviewmanager.h \
     qv8profilerdatamodel.h \
     qv8profilereventview.h \
-    sortedtimelinemodel.h \
     timelinemodelaggregator.h \
     timelinerenderer.h \
     timelinezoomcontrol.h

@@ -31,28 +31,124 @@
 #include "abstracttimelinemodel.h"
 #include "abstracttimelinemodel_p.h"
 
+#include <QLinkedList>
+
 namespace QmlProfiler {
+
+/*!
+    \class QmlProfiler::AbstractTimelineModel
+    \brief The AbstractTimelineModel class provides a sorted model for timeline data.
+
+    The AbstractTimelineModel lets you keep range data sorted by both start and end times, so that
+    visible ranges can easily be computed. The only precondition for that to work is that the ranges
+    must be perfectly nested. A "parent" range of a range R is defined as a range for which the
+    start time is smaller than R's start time and the end time is greater than R's end time. A set
+    of ranges is perfectly nested if all parent ranges of any given range have a common parent
+    range. Mind that you can always make that happen by defining a range that spans the whole
+    available time span. That, however, will make any code that uses firstStartTime() and
+    lastEndTime() for selecting subsets of the model always select all of it.
+
+    \note Indices returned from the various methods are only valid until a new range is inserted
+          before them. Inserting a new range before a given index moves the range pointed to by the
+          index by one. Incrementing the index by one will make it point to the item again.
+*/
+
+/*!
+    \fn qint64 AbstractTimelineModelPrivate::firstStartTime() const
+    Returns the begin of the first range in the model.
+*/
+
+/*!
+    \fn qint64 AbstractTimelineModelPrivate::lastEndTime() const
+    Returns the end of the last range in the model.
+*/
+
+/*!
+    \fn const AbstractTimelineModelPrivate::Range &AbstractTimelineModelPrivate::range(int index) const
+    Returns the range data at the specified index.
+*/
+
+
+/*!
+    \fn void AbstractTimelineModel::computeNesting()
+    Compute all ranges' parents.
+    \sa findFirstIndex
+*/
+void AbstractTimelineModel::computeNesting()
+{
+    Q_D(AbstractTimelineModel);
+    QLinkedList<int> parents;
+    for (int range = 0; range != count(); ++range) {
+        AbstractTimelineModelPrivate::Range &current = d->ranges[range];
+        for (QLinkedList<int>::iterator parentIt = parents.begin();;) {
+            if (parentIt == parents.end()) {
+                parents.append(range);
+                break;
+            }
+
+            AbstractTimelineModelPrivate::Range &parent = d->ranges[*parentIt];
+            qint64 parentEnd = parent.start + parent.duration;
+            if (parentEnd < current.start) {
+                if (parent.start == current.start) {
+                    if (parent.parent == -1) {
+                        parent.parent = range;
+                    } else {
+                        AbstractTimelineModelPrivate::Range &ancestor = d->ranges[parent.parent];
+                        if (ancestor.start == current.start &&
+                                ancestor.duration < current.duration)
+                            parent.parent = range;
+                    }
+                    // Just switch the old parent range for the new, larger one
+                    *parentIt = range;
+                    break;
+                } else {
+                    parentIt = parents.erase(parentIt);
+                }
+            } else if (parentEnd >= current.start + current.duration) {
+                // no need to insert
+                current.parent = *parentIt;
+                break;
+            } else {
+                ++parentIt;
+            }
+        }
+    }
+}
+
+void AbstractTimelineModel::AbstractTimelineModelPrivate::init(AbstractTimelineModel *q,
+                                                               const QString &newDisplayName,
+                                                               QmlDebug::Message newMessage,
+                                                               QmlDebug::RangeType newRangeType)
+{
+    q_ptr = q;
+    modelId = 0;
+    modelManager = 0;
+    expanded = false;
+    hidden = false;
+    displayName = newDisplayName;
+    message = newMessage;
+    rangeType = newRangeType;
+    expandedRowCount = 1;
+    collapsedRowCount = 1;
+    connect(q,SIGNAL(rowHeightChanged()),q,SIGNAL(heightChanged()));
+    connect(q,SIGNAL(expandedChanged()),q,SIGNAL(heightChanged()));
+    connect(q,SIGNAL(hiddenChanged()),q,SIGNAL(heightChanged()));
+}
+
 
 AbstractTimelineModel::AbstractTimelineModel(AbstractTimelineModelPrivate *dd,
         const QString &displayName, QmlDebug::Message message, QmlDebug::RangeType rangeType,
         QObject *parent) :
-    SortedTimelineModel(parent), d_ptr(dd)
+    QObject(parent), d_ptr(dd)
 {
-    Q_D(AbstractTimelineModel);
-    connect(this,SIGNAL(rowHeightChanged()),this,SIGNAL(heightChanged()));
-    connect(this,SIGNAL(expandedChanged()),this,SIGNAL(heightChanged()));
-    connect(this,SIGNAL(hiddenChanged()),this,SIGNAL(heightChanged()));
+    dd->init(this, displayName, message, rangeType);
+}
 
-    d->q_ptr = this;
-    d->modelId = 0;
-    d->modelManager = 0;
-    d->expanded = false;
-    d->hidden = false;
-    d->displayName = displayName;
-    d->message = message;
-    d->rangeType = rangeType;
-    d->expandedRowCount = 1;
-    d->collapsedRowCount = 1;
+AbstractTimelineModel::AbstractTimelineModel(const QString &displayName, QmlDebug::Message message,
+                                             QmlDebug::RangeType rangeType, QObject *parent) :
+    QObject(parent), d_ptr(new AbstractTimelineModelPrivate)
+{
+    d_ptr->init(this, displayName, message, rangeType);
 }
 
 AbstractTimelineModel::~AbstractTimelineModel()
@@ -138,6 +234,97 @@ int AbstractTimelineModel::height() const
     return d->rowOffsets.last() + (depth - d->rowOffsets.size()) * DefaultRowHeight;
 }
 
+/*!
+    \fn int AbstractTimelineModel::count() const
+    Returns the number of ranges in the model.
+*/
+int AbstractTimelineModel::count() const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->ranges.count();
+}
+
+qint64 AbstractTimelineModel::duration(int index) const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->ranges[index].duration;
+}
+
+qint64 AbstractTimelineModel::startTime(int index) const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->ranges[index].start;
+}
+
+qint64 AbstractTimelineModel::endTime(int index) const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->ranges[index].start + d->ranges[index].duration;
+}
+
+int AbstractTimelineModel::typeId(int index) const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->ranges[index].typeId;
+}
+
+/*!
+    \fn int AbstractTimelineModel::firstIndex(qint64 startTime) const
+    Looks up the first range with an end time greater than the given time and
+    returns its parent's index. If no such range is found, it returns -1. If there
+    is no parent, it returns the found range's index. The parent of a range is the
+    range with the lowest start time that completely covers the child range.
+    "Completely covers" means:
+    parent.startTime <= child.startTime && parent.endTime >= child.endTime
+*/
+int AbstractTimelineModel::firstIndex(qint64 startTime) const
+{
+    Q_D(const AbstractTimelineModel);
+    int index = firstIndexNoParents(startTime);
+    if (index == -1)
+        return -1;
+    int parent = d->ranges[index].parent;
+    return parent == -1 ? index : parent;
+}
+
+/*!
+    \fn int AbstractTimelineModel::firstIndexNoParents(qint64 startTime) const
+    Looks up the first range with an end time greater than the given time and
+    returns its index. If no such range is found, it returns -1.
+*/
+int AbstractTimelineModel::firstIndexNoParents(qint64 startTime) const
+{
+    Q_D(const AbstractTimelineModel);
+    // in the "endtime" list, find the first event that ends after startTime
+    if (d->endTimes.isEmpty())
+        return -1;
+    if (d->endTimes.count() == 1 || d->endTimes.first().end > startTime)
+        return d->endTimes.first().startIndex;
+    if (d->endTimes.last().end <= startTime)
+        return -1;
+
+    return d->endTimes[d->lowerBound(d->endTimes, startTime) + 1].startIndex;
+}
+
+/*!
+    \fn int AbstractTimelineModel::lastIndex(qint64 endTime) const
+    Looks up the last range with a start time smaller than the given time and
+    returns its index. If no such range is found, it returns -1.
+*/
+int AbstractTimelineModel::lastIndex(qint64 endTime) const
+{
+    Q_D(const AbstractTimelineModel);
+    // in the "starttime" list, find the last event that starts before endtime
+    if (d->ranges.isEmpty() || d->ranges.first().start >= endTime)
+        return -1;
+    if (d->ranges.count() == 1)
+        return 0;
+    if (d->ranges.last().start < endTime)
+        return d->ranges.count() - 1;
+
+    return d->lowerBound(d->ranges, endTime);
+}
+
 QVariantMap AbstractTimelineModel::location(int index) const
 {
     Q_UNUSED(index);
@@ -181,6 +368,51 @@ int AbstractTimelineModel::rowMaxValue(int rowNumber) const
 {
     Q_UNUSED(rowNumber);
     return 0;
+}
+
+/*!
+    \fn int AbstractTimelineModel::insert(qint64 startTime, qint64 duration)
+    Inserts a range at the given time position and returns its index.
+*/
+int AbstractTimelineModel::insert(qint64 startTime, qint64 duration, int typeId)
+{
+    Q_D(AbstractTimelineModel);
+    /* Doing insert-sort here is preferable as most of the time the times will actually be
+     * presorted in the right way. So usually this will just result in appending. */
+    int index = d->insertSorted(d->ranges,
+                                AbstractTimelineModelPrivate::Range(startTime, duration, typeId));
+    if (index < d->ranges.size() - 1)
+        d->incrementStartIndices(index);
+    d->insertSorted(d->endTimes,
+                    AbstractTimelineModelPrivate::RangeEnd(index, startTime + duration));
+    return index;
+}
+
+/*!
+    \fn int AbstractTimelineModel::insertStart(qint64 startTime, int typeId)
+    Inserts the given data as range start at the given time position and
+    returns its index. The range end is not set.
+*/
+int AbstractTimelineModel::insertStart(qint64 startTime, int typeId)
+{
+    Q_D(AbstractTimelineModel);
+    int index = d->insertSorted(d->ranges,
+                                AbstractTimelineModelPrivate::Range(startTime, 0, typeId));
+    if (index < d->ranges.size() - 1)
+        d->incrementStartIndices(index);
+    return index;
+}
+
+/*!
+    \fn int AbstractTimelineModel::insertEnd(int index, qint64 duration)
+    Adds a range end for the given start index.
+*/
+void AbstractTimelineModel::insertEnd(int index, qint64 duration)
+{
+    Q_D(AbstractTimelineModel);
+    d->ranges[index].duration = duration;
+    d->insertSorted(d->endTimes, AbstractTimelineModelPrivate::RangeEnd(index,
+            d->ranges[index].start + duration));
 }
 
 void AbstractTimelineModel::dataChanged()
@@ -255,7 +487,8 @@ int AbstractTimelineModel::rowCount() const
 
 int AbstractTimelineModel::selectionId(int index) const
 {
-    return range(index).typeId;
+    Q_D(const AbstractTimelineModel);
+    return d->ranges[index].typeId;
 }
 
 void AbstractTimelineModel::clear()
@@ -268,7 +501,8 @@ void AbstractTimelineModel::clear()
     d->rowOffsets.clear();
     d->expanded = false;
     d->hidden = false;
-    SortedTimelineModel::clear();
+    d->ranges.clear();
+    d->endTimes.clear();
     if (hadRowHeights)
         emit rowHeightChanged();
     if (wasExpanded)
