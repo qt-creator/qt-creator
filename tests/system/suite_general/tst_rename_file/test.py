@@ -45,6 +45,7 @@ def main():
         return
     usedProFile = os.path.join(templateDir, proFile)
     openQmakeProject(usedProFile)
+    progressBarWait()
     for filetype, filename in [["Headers", "utility.h"],
                                ["Sources", "main.cpp"],
                                ["Sources", "utility.cpp"],
