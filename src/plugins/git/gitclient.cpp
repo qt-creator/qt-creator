@@ -171,11 +171,13 @@ void GitDiffHandler::diffFiles(const QStringList &stagedFileNames,
 {
     QList<QStringList> arguments;
 
-    QStringList stagedArguments;
-    stagedArguments << QLatin1String("--cached");
-    stagedArguments << QLatin1String("--");
-    stagedArguments << stagedFileNames;
-    arguments << stagedArguments;
+    if (!stagedFileNames.isEmpty()) {
+        QStringList stagedArguments;
+        stagedArguments << QLatin1String("--cached");
+        stagedArguments << QLatin1String("--");
+        stagedArguments << stagedFileNames;
+        arguments << stagedArguments;
+    }
 
     if (!unstagedFileNames.isEmpty()) {
         QStringList unstagedArguments = addHeadWhenCommandInProgress();
