@@ -55,7 +55,7 @@ QtcLibrary {
             dirName += "64";
         else
             dirName += "32";
-        return FileInfo.joinPaths(project.ide_library_path, dirName);
+        return FileInfo.joinPaths(project.libDirName, dirName);
     }
     files: [
         "base64.cpp",
