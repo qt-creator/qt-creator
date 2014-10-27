@@ -93,9 +93,9 @@ public:
         m_macroExpander.setDisplayName(tr("Kit"));
         m_macroExpander.setAccumulating(true);
         m_macroExpander.registerVariable("Kit:Id", tr("Kit ID"),
-            [this]() { return m_id.toString(); });
+            [kit] { return kit->id().toString(); });
         m_macroExpander.registerVariable("Kit:FileSystemName", tr("Kit filesystem-friendly name"),
-            [this]() { return m_fileSystemFriendlyName; });
+            [kit] { return kit->fileSystemFriendlyName(); });
         foreach (KitInformation *ki, KitManager::kitInformation())
             ki->addToMacroExpander(kit, &m_macroExpander);
 
