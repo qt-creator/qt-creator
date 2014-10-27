@@ -27,8 +27,6 @@ namespace Internal {
 class InputEventsModel : public QmlProfiler::AbstractTimelineModel
 {
     Q_OBJECT
-    class InputEventsModelPrivate;
-    Q_DECLARE_PRIVATE(InputEventsModel)
 
 protected:
     bool accepted(const QmlProfiler::QmlProfilerDataModel::QmlEventTypeData &event) const;

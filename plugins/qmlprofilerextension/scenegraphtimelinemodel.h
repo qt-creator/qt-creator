@@ -33,10 +33,46 @@ class SceneGraphTimelineModel : public QmlProfiler::AbstractTimelineModel
 {
     Q_OBJECT
 public:
+    enum SceneGraphStage {
+        MinimumSceneGraphStage = 0,
+        Polish = MinimumSceneGraphStage,
+        Wait,
+        GUIThreadSync,
+        Animations,
+        MaximumGUIThreadStage,
+
+        RenderThreadSync = MaximumGUIThreadStage,
+        Render,
+        Swap,
+        MaximumRenderThreadStage,
+
+        RenderPreprocess = MaximumRenderThreadStage,
+        RenderUpdate,
+        RenderBind,
+        RenderRender,
+        MaximumRenderStage,
+
+        Material = MaximumRenderStage,
+        MaximumMaterialStage,
+
+        GlyphRender = MaximumMaterialStage,
+        GlyphStore,
+        MaximumGlyphStage,
+
+        TextureBind = MaximumGlyphStage,
+        TextureConvert,
+        TextureSwizzle,
+        TextureUpload,
+        TextureMipmap,
+        TextureDeletion,
+        MaximumTextureStage,
+
+        MaximumSceneGraphStage = MaximumTextureStage
+    };
 
     struct SceneGraphEvent {
-        SceneGraphEvent(int stage = -1, int glyphCount = -1);
-        int stage;
+        SceneGraphEvent(SceneGraphStage stage = MaximumSceneGraphStage, int glyphCount = -1);
+        SceneGraphStage stage;
         int rowNumberCollapsed;
         int glyphCount; // only used for one event type
     };
@@ -57,8 +93,12 @@ protected:
     void clear();
 
 private:
-    class SceneGraphTimelineModelPrivate;
-    Q_DECLARE_PRIVATE(SceneGraphTimelineModel)
+    void flattenLoads();
+    qint64 insert(qint64 start, qint64 duration, int typeIndex, SceneGraphStage stage,
+                  int glyphCount = -1);
+    static const char *threadLabel(SceneGraphStage stage);
+
+    QVector<SceneGraphEvent> m_data;
 };
 
 } // namespace Internal

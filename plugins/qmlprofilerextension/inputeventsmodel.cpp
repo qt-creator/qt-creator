@@ -19,21 +19,14 @@
 #include "inputeventsmodel.h"
 #include "qmldebug/qmlprofilereventtypes.h"
 #include "qmlprofiler/qmlprofilermodelmanager.h"
-#include "qmlprofiler/abstracttimelinemodel_p.h"
 
 namespace QmlProfilerExtension {
 namespace Internal {
 
 using namespace QmlProfiler;
 
-class InputEventsModel::InputEventsModelPrivate : public AbstractTimelineModelPrivate
-{
-    Q_DECLARE_PUBLIC(InputEventsModel)
-};
-
 InputEventsModel::InputEventsModel(QObject *parent)
-    : AbstractTimelineModel(new InputEventsModelPrivate(),
-                            tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileInputEvents)),
+    : AbstractTimelineModel(tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileInputEvents)),
                             QmlDebug::Event, QmlDebug::MaximumRangeType, parent)
 {
 }
@@ -45,8 +38,7 @@ quint64 InputEventsModel::features() const
 
 int InputEventsModel::selectionId(int index) const
 {
-    Q_D(const InputEventsModel);
-    return d->modelManager->qmlModel()->getEventTypes()[typeId(index)].detailType;
+    return modelManager()->qmlModel()->getEventTypes()[typeId(index)].detailType;
 }
 
 QColor InputEventsModel::color(int index) const
@@ -56,10 +48,9 @@ QColor InputEventsModel::color(int index) const
 
 QVariantList InputEventsModel::labels() const
 {
-    Q_D(const InputEventsModel);
     QVariantList result;
 
-    if (d->expanded && !d->hidden && !isEmpty()) {
+    if (expanded() && !hidden() && !isEmpty()) {
         {
             QVariantMap element;
             element.insert(QLatin1String("description"), QVariant(tr("Mouse Events")));
@@ -96,9 +87,8 @@ int InputEventsModel::row(int index) const
 
 void InputEventsModel::loadData()
 {
-    Q_D(InputEventsModel);
     clear();
-    QmlProfilerDataModel *simpleModel = d->modelManager->qmlModel();
+    QmlProfilerDataModel *simpleModel = modelManager()->qmlModel();
     if (simpleModel->isEmpty())
         return;
 
@@ -108,12 +98,11 @@ void InputEventsModel::loadData()
         if (!accepted(type))
             continue;
         insert(event.startTime, 0, event.typeIndex);
-        d->modelManager->modelProxyCountUpdated(d->modelId, count(),
-                                                simpleModel->getEvents().count());
+        updateProgress(count(), simpleModel->getEvents().count());
     }
-    d->collapsedRowCount = 2;
-    d->expandedRowCount = 3;
-    d->modelManager->modelProxyCountUpdated(d->modelId, 1, 1);
+    setCollapsedRowCount(2);
+    setExpandedRowCount(3);
+    updateProgress(1, 1);
 }
 
 bool InputEventsModel::accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const

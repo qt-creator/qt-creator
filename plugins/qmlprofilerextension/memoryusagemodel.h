@@ -67,8 +67,10 @@ protected:
     void clear();
 
 private:
-    class MemoryUsageModelPrivate;
-    Q_DECLARE_PRIVATE(MemoryUsageModel)
+    static QString memoryTypeName(int type);
+
+    QVector<MemoryAllocation> m_data;
+    qint64 m_maxSize;
 };
 
 } // namespace Internal
