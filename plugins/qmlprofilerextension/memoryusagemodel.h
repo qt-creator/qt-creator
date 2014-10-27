@@ -19,7 +19,6 @@
 #ifndef MEMORYUSAGEMODEL_H
 #define MEMORYUSAGEMODEL_H
 
-#include "qmlprofiler/qmlprofilertimelinemodelproxy.h"
 #include "qmlprofiler/abstracttimelinemodel.h"
 #include "qmlprofiler/qmlprofilerdatamodel.h"
 

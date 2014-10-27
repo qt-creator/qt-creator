@@ -19,7 +19,6 @@
 #ifndef PIXMAPCACHEMODEL_H
 #define PIXMAPCACHEMODEL_H
 
-#include "qmlprofiler/qmlprofilertimelinemodelproxy.h"
 #include "qmlprofiler/abstracttimelinemodel.h"
 #include "qmlprofiler/qmlprofilerdatamodel.h"
 
