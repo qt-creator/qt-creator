@@ -24,7 +24,8 @@ QtcLibrary {
         for (var i = 0; i < c; ++i) {
             if (File.exists(paths[i])) {
                 // The inc subdir is just used for detection. See qtcreatorcdbext.pro.
-                return paths[i].endsWith("/inc") ? paths[i].substr(0, paths[i] - 4) : paths[i];
+                return paths[i].endsWith("/inc") ? paths[i].substr(0, paths[i].length - 4)
+                                                 : paths[i];
             }
         }
         return undefined;
