@@ -31,12 +31,30 @@ ENV_LIBPATH=$$(LIBPATH)
 contains(ENV_CPU, ^AMD64$) {
     DIRNAME=$${BASENAME}64
     CDB_PLATFORM=amd64
+
+    exists($$CDB_PATH/lib/amd64) {
+        LIBS+= -L$$CDB_PATH/lib/amd64 -ldbgeng
+    } else {
+        LIBS+= -L$$CDB_PATH/lib/x64 -ldbgeng
+    }
 } else:isEmpty(ENV_CPU):contains(ENV_LIBPATH, ^.*amd64.*$) {
     DIRNAME=$${BASENAME}64
     CDB_PLATFORM=amd64
+
+    exists($$CDB_PATH/lib/amd64) {
+        LIBS+= -L$$CDB_PATH/lib/amd64 -ldbgeng
+    } else {
+        LIBS+= -L$$CDB_PATH/lib/x64 -ldbgeng
+    }
 } else {
     DIRNAME=$${BASENAME}32
     CDB_PLATFORM=i386
+
+    exists($$CDB_PATH/lib/i386}) {
+        LIBS+= -L$$CDB_PATH/lib/i386 -ldbgeng
+    } else {
+        LIBS+= -L$$CDB_PATH/lib/x86 -ldbgeng
+    }
 }
 
 LIBS+=-luser32
@@ -47,7 +65,6 @@ TARGET = $$BASENAME
 message("Compiling Qt Creator CDB extension $$TARGET $$DESTDIR for $$CDB_PLATFORM using $$CDB_PATH")
 
 INCLUDEPATH += $$CDB_PATH/inc
-LIBS+= -L$$CDB_PATH/lib/$$CDB_PLATFORM -ldbgeng
 
 CONFIG -= qt
 QT -= gui

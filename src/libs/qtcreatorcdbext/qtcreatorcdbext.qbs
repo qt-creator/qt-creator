@@ -30,11 +30,21 @@ QtcLibrary {
         }
         return undefined;
     }
-    property string cdbPlatform: qbs.architecture.contains("x86_64") ? "x64" : "x86"
+    property string cdbLibPath: {
+        var paths = qbs.architecture.contains("x86_64") ? ["x64", "amd64"] : ["x86", "i386"];
+        var c = paths.length;
+        for (var i = 0; i < c; ++i) {
+            var libPath = FileInfo.joinPaths(cdbPath, "lib", paths[i]);
+            if (File.exists(libPath)) {
+                return libPath;
+            }
+        }
+        return undefined;
+    }
     cpp.includePaths: [FileInfo.joinPaths(cdbPath, "inc")]
     cpp.dynamicLibraries: [
         "user32.lib",
-        FileInfo.joinPaths(cdbPath, "lib", cdbPlatform, "dbgeng.lib")
+        FileInfo.joinPaths(cdbLibPath, "dbgeng.lib")
     ]
     cpp.linkerFlags: ["/DEF:" + FileInfo.toWindowsSeparators(
                                     FileInfo.joinPaths(product.sourceDirectory,
