@@ -22,6 +22,12 @@
 #include <analyzerbase/analyzerruncontrol.h>
 #include <analyzerbase/analyzerstartparameters.h>
 
+#include <projectexplorer/gcctoolchain.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
+
 using namespace Analyzer;
 using namespace ProjectExplorer;
 
@@ -36,8 +42,16 @@ ClangStaticAnalyzerRunControlFactory::ClangStaticAnalyzerRunControlFactory(QObje
 bool ClangStaticAnalyzerRunControlFactory::canRun(RunConfiguration *runConfiguration,
                                                   RunMode runMode) const
 {
-    Q_UNUSED(runConfiguration);
-    return runMode == ClangStaticAnalyzerMode;
+    if (runMode != ClangStaticAnalyzerMode)
+        return false;
+
+    Target *target = runConfiguration->target();
+    QTC_ASSERT(target, return false);
+    Kit *kit = target->kit();
+    QTC_ASSERT(kit, return false);
+    ToolChain *toolChain = ToolChainKitInformation::toolChain(kit);
+    QTC_ASSERT(toolChain, return false);
+    return toolChain->type() == QLatin1String("clang") || toolChain->type() == QLatin1String("gcc");
 }
 
 RunControl *ClangStaticAnalyzerRunControlFactory::create(RunConfiguration *runConfiguration,
