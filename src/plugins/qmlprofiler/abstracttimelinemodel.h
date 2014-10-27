@@ -47,6 +47,8 @@ class QMLPROFILER_EXPORT AbstractTimelineModel : public QObject
     Q_PROPERTY(bool empty READ isEmpty NOTIFY emptyChanged)
     Q_PROPERTY(bool hidden READ hidden WRITE setHidden NOTIFY hiddenChanged)
     Q_PROPERTY(int height READ height NOTIFY heightChanged)
+    Q_PROPERTY(QmlProfilerModelManager *modelManager READ modelManager WRITE setModelManager
+               NOTIFY modelManagerChanged)
 
 public:
     class AbstractTimelineModelPrivate;
@@ -57,6 +59,8 @@ public:
 
     // Trivial methods implemented by the abstract model itself
     void setModelManager(QmlProfilerModelManager *modelManager);
+    QmlProfilerModelManager *modelManager() const;
+
     bool isEmpty() const;
     int modelId() const;
 
@@ -101,43 +105,36 @@ public:
     virtual int rowMinValue(int rowNumber) const;
     virtual int rowMaxValue(int rowNumber) const;
 
+    static int defaultRowHeight();
+
 signals:
     void expandedChanged();
     void hiddenChanged();
     void rowHeightChanged();
     void emptyChanged();
     void heightChanged();
+    void modelManagerChanged();
 
 protected:
-    static const int DefaultRowHeight = 30;
-
-    enum BoxColorProperties {
-        SelectionIdHueMultiplier = 25,
-        FractionHueMultiplier = 96,
-        FractionHueMininimum = 10,
-        Saturation = 150,
-        Lightness = 166
-    };
-
-    QColor colorBySelectionId(int index) const
-    {
-        return colorByHue(selectionId(index) * SelectionIdHueMultiplier);
-    }
-
-    QColor colorByFraction(double fraction) const
-    {
-        return colorByHue(fraction * FractionHueMultiplier + FractionHueMininimum);
-    }
-
-    QColor colorByHue(int hue) const
-    {
-        return QColor::fromHsl(hue % 360, Saturation, Lightness);
-    }
+    QColor colorBySelectionId(int index) const;
+    QColor colorByFraction(double fraction) const;
+    QColor colorByHue(int hue) const;
 
     int insert(qint64 startTime, qint64 duration, int typeId);
     int insertStart(qint64 startTime, int typeId);
     void insertEnd(int index, qint64 duration);
     void computeNesting();
+
+    int collapsedRowCount() const;
+    void setCollapsedRowCount(int rows);
+
+    int expandedRowCount() const;
+    void setExpandedRowCount(int rows);
+
+    QmlDebug::RangeType rangeType() const;
+    QmlDebug::Message message() const;
+
+    void updateProgress(qint64 count, qint64 max) const;
 
     explicit AbstractTimelineModel(AbstractTimelineModelPrivate *dd, const QString &displayName,
                                    QmlDebug::Message message, QmlDebug::RangeType rangeType,
@@ -147,11 +144,9 @@ protected:
     virtual void loadData() = 0;
     virtual void clear();
 
-protected slots:
-    void dataChanged();
-
 private:
     Q_DECLARE_PRIVATE(AbstractTimelineModel)
+    Q_PRIVATE_SLOT(d_func(), void _q_dataChanged())
 };
 
 }

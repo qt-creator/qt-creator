@@ -37,6 +37,16 @@ namespace QmlProfiler {
 
 class QMLPROFILER_EXPORT AbstractTimelineModel::AbstractTimelineModelPrivate {
 public:
+    static const int DefaultRowHeight = 30;
+
+    enum BoxColorProperties {
+        SelectionIdHueMultiplier = 25,
+        FractionHueMultiplier = 96,
+        FractionHueMininimum = 10,
+        Saturation = 150,
+        Lightness = 166
+    };
+
     struct Range {
         Range() : start(-1), duration(-1), typeId(-1), parent(-1) {}
         Range(qint64 start, qint64 duration, int typeId) :
@@ -101,6 +111,8 @@ public:
 
         return fromIndex;
     }
+
+    void _q_dataChanged();
 
     QVector<Range> ranges;
     QVector<RangeEnd> endTimes;

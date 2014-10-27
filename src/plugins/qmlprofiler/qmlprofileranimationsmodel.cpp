@@ -199,8 +199,8 @@ float QmlProfilerAnimationsModel::relativeHeight(int index) const
 
     // Add some height to the events if we're far from the scale threshold of 2 * DefaultRowHeight.
     // Like that you can see the smaller events more easily.
-    int scaleThreshold = 2 * DefaultRowHeight - rowHeight(d->rowFromThreadId(data.threadId));
-    float boost = scaleThreshold > 0 ? (0.15 * scaleThreshold / DefaultRowHeight) : 0;
+    int scaleThreshold = 2 * defaultRowHeight() - rowHeight(d->rowFromThreadId(data.threadId));
+    float boost = scaleThreshold > 0 ? (0.15 * scaleThreshold / defaultRowHeight()) : 0;
 
     return boost + (1.0 - boost) * (float)data.animationcount /
             (float)(data.threadId == QmlDebug::GuiThread ? d->maxGuiThreadAnimations :

@@ -115,6 +115,30 @@ void AbstractTimelineModel::computeNesting()
     }
 }
 
+int AbstractTimelineModel::collapsedRowCount() const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->collapsedRowCount;
+}
+
+void AbstractTimelineModel::setCollapsedRowCount(int rows)
+{
+    Q_D(AbstractTimelineModel);
+    d->collapsedRowCount = rows;
+}
+
+int AbstractTimelineModel::expandedRowCount() const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->expandedRowCount;
+}
+
+void QmlProfiler::AbstractTimelineModel::setExpandedRowCount(int rows)
+{
+    Q_D(AbstractTimelineModel);
+    d->expandedRowCount = rows;
+}
+
 void AbstractTimelineModel::AbstractTimelineModelPrivate::init(AbstractTimelineModel *q,
                                                                const QString &newDisplayName,
                                                                QmlDebug::Message newMessage,
@@ -160,10 +184,26 @@ AbstractTimelineModel::~AbstractTimelineModel()
 void AbstractTimelineModel::setModelManager(QmlProfilerModelManager *modelManager)
 {
     Q_D(AbstractTimelineModel);
-    d->modelManager = modelManager;
-    connect(d->modelManager->qmlModel(),SIGNAL(changed()),this,SLOT(dataChanged()));
-    d->modelId = d->modelManager->registerModelProxy();
-    d->modelManager->announceFeatures(d->modelId, features());
+    if (modelManager != d->modelManager) {
+        if (d->modelManager != 0) {
+            disconnect(d->modelManager->qmlModel(), SIGNAL(changed()),
+                       this, SLOT(_q_dataChanged()));
+            // completely unregistering is not supported
+            d->modelManager->setProxyCountWeight(d->modelId, 0);
+        }
+        d->modelManager = modelManager;
+        connect(d->modelManager->qmlModel(), SIGNAL(changed()),
+                this, SLOT(_q_dataChanged()));
+        d->modelId = d->modelManager->registerModelProxy();
+        d->modelManager->announceFeatures(d->modelId, features());
+        emit modelManagerChanged();
+    }
+}
+
+QmlProfilerModelManager *AbstractTimelineModel::modelManager() const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->modelManager;
 }
 
 bool AbstractTimelineModel::isEmpty() const
@@ -181,11 +221,11 @@ int AbstractTimelineModel::rowHeight(int rowNumber) const
 {
     Q_D(const AbstractTimelineModel);
     if (!expanded())
-        return DefaultRowHeight;
+        return AbstractTimelineModelPrivate::DefaultRowHeight;
 
     if (d->rowOffsets.size() > rowNumber)
         return d->rowOffsets[rowNumber] - (rowNumber > 0 ? d->rowOffsets[rowNumber - 1] : 0);
-    return DefaultRowHeight;
+    return AbstractTimelineModelPrivate::DefaultRowHeight;
 }
 
 int AbstractTimelineModel::rowOffset(int rowNumber) const
@@ -194,13 +234,14 @@ int AbstractTimelineModel::rowOffset(int rowNumber) const
     if (rowNumber == 0)
         return 0;
     if (!expanded())
-        return DefaultRowHeight * rowNumber;
+        return AbstractTimelineModelPrivate::DefaultRowHeight * rowNumber;
 
     if (d->rowOffsets.size() >= rowNumber)
         return d->rowOffsets[rowNumber - 1];
     if (!d->rowOffsets.empty())
-        return d->rowOffsets.last() + (rowNumber - d->rowOffsets.size()) * DefaultRowHeight;
-    return rowNumber * DefaultRowHeight;
+        return d->rowOffsets.last() + (rowNumber - d->rowOffsets.size()) *
+                AbstractTimelineModelPrivate::DefaultRowHeight;
+    return rowNumber * AbstractTimelineModelPrivate::DefaultRowHeight;
 }
 
 void AbstractTimelineModel::setRowHeight(int rowNumber, int height)
@@ -208,12 +249,12 @@ void AbstractTimelineModel::setRowHeight(int rowNumber, int height)
     Q_D(AbstractTimelineModel);
     if (d->hidden || !d->expanded)
         return;
-    if (height < DefaultRowHeight)
-        height = DefaultRowHeight;
+    if (height < AbstractTimelineModelPrivate::DefaultRowHeight)
+        height = AbstractTimelineModelPrivate::DefaultRowHeight;
 
     int nextOffset = d->rowOffsets.empty() ? 0 : d->rowOffsets.last();
     while (d->rowOffsets.size() <= rowNumber)
-        d->rowOffsets << (nextOffset += DefaultRowHeight);
+        d->rowOffsets << (nextOffset += AbstractTimelineModelPrivate::DefaultRowHeight);
     int difference = height - d->rowOffsets[rowNumber] +
             (rowNumber > 0 ? d->rowOffsets[rowNumber - 1] : 0);
     if (difference != 0) {
@@ -229,9 +270,10 @@ int AbstractTimelineModel::height() const
     Q_D(const AbstractTimelineModel);
     int depth = rowCount();
     if (d->hidden || !d->expanded || d->rowOffsets.empty())
-        return depth * DefaultRowHeight;
+        return depth * AbstractTimelineModelPrivate::DefaultRowHeight;
 
-    return d->rowOffsets.last() + (depth - d->rowOffsets.size()) * DefaultRowHeight;
+    return d->rowOffsets.last() + (depth - d->rowOffsets.size()) *
+            AbstractTimelineModelPrivate::DefaultRowHeight;
 }
 
 /*!
@@ -370,6 +412,46 @@ int AbstractTimelineModel::rowMaxValue(int rowNumber) const
     return 0;
 }
 
+int AbstractTimelineModel::defaultRowHeight()
+{
+    return AbstractTimelineModelPrivate::DefaultRowHeight;
+}
+
+QmlDebug::RangeType AbstractTimelineModel::rangeType() const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->rangeType;
+}
+
+QmlDebug::Message AbstractTimelineModel::message() const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->message;
+}
+
+void AbstractTimelineModel::updateProgress(qint64 count, qint64 max) const
+{
+    Q_D(const AbstractTimelineModel);
+    d->modelManager->modelProxyCountUpdated(d->modelId, count, max);
+}
+
+QColor AbstractTimelineModel::colorBySelectionId(int index) const
+{
+    return colorByHue(selectionId(index) * AbstractTimelineModelPrivate::SelectionIdHueMultiplier);
+}
+
+QColor AbstractTimelineModel::colorByFraction(double fraction) const
+{
+    return colorByHue(fraction * AbstractTimelineModelPrivate::FractionHueMultiplier +
+                      AbstractTimelineModelPrivate::FractionHueMininimum);
+}
+
+QColor AbstractTimelineModel::colorByHue(int hue) const
+{
+    return QColor::fromHsl(hue % 360, AbstractTimelineModelPrivate::Saturation,
+                           AbstractTimelineModelPrivate::Lightness);
+}
+
 /*!
     \fn int AbstractTimelineModel::insert(qint64 startTime, qint64 duration)
     Inserts a range at the given time position and returns its index.
@@ -415,22 +497,22 @@ void AbstractTimelineModel::insertEnd(int index, qint64 duration)
             d->ranges[index].start + duration));
 }
 
-void AbstractTimelineModel::dataChanged()
+void AbstractTimelineModel::AbstractTimelineModelPrivate::_q_dataChanged()
 {
-    Q_D(AbstractTimelineModel);
-    bool wasEmpty = isEmpty();
-    switch (d->modelManager->state()) {
+    Q_Q(AbstractTimelineModel);
+    bool wasEmpty = q->isEmpty();
+    switch (modelManager->state()) {
     case QmlProfilerDataState::ProcessingData:
-        loadData();
+        q->loadData();
         break;
     case QmlProfilerDataState::ClearingData:
-        clear();
+        q->clear();
         break;
     default:
         break;
     }
-    if (wasEmpty != isEmpty())
-        emit emptyChanged();
+    if (wasEmpty != q->isEmpty())
+        emit q->emptyChanged();
 }
 
 bool AbstractTimelineModel::accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const
@@ -509,7 +591,9 @@ void AbstractTimelineModel::clear()
         emit expandedChanged();
     if (wasHidden)
         emit hiddenChanged();
-    d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
+    updateProgress(0, 1);
 }
 
 }
+
+#include "moc_abstracttimelinemodel.cpp"
