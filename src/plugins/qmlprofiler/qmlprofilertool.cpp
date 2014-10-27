@@ -38,7 +38,7 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerdetailsrewriter.h"
 #include "timelinerenderer.h"
-#include "notesmodel.h"
+#include "qmlprofilernotesmodel.h"
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerruncontrol.h>

@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "qmlprofilerpainteventsmodelproxy.h"
+#include "qmlprofileranimationsmodel.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerdatamodel.h"
 #include "abstracttimelinemodel_p.h"
@@ -46,49 +46,49 @@
 namespace QmlProfiler {
 namespace Internal {
 
-class PaintEventsModelProxy::PaintEventsModelProxyPrivate : public AbstractTimelineModelPrivate
+class QmlProfilerAnimationsModel::QmlProfilerAnimationsModelPrivate : public AbstractTimelineModelPrivate
 {
 public:
-    QVector<PaintEventsModelProxy::QmlPaintEventData> data;
+    QVector<QmlProfilerAnimationsModel::QmlPaintEventData> data;
     int maxGuiThreadAnimations;
     int maxRenderThreadAnimations;
     int rowFromThreadId(QmlDebug::AnimationThread threadId) const;
 
 private:
-    Q_DECLARE_PUBLIC(PaintEventsModelProxy)
+    Q_DECLARE_PUBLIC(QmlProfilerAnimationsModel)
 };
 
-PaintEventsModelProxy::PaintEventsModelProxy(QObject *parent)
-    : AbstractTimelineModel(new PaintEventsModelProxyPrivate,
+QmlProfilerAnimationsModel::QmlProfilerAnimationsModel(QObject *parent)
+    : AbstractTimelineModel(new QmlProfilerAnimationsModelPrivate,
                             tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileAnimations)),
                             QmlDebug::Event, QmlDebug::MaximumRangeType, parent)
 {
-    Q_D(PaintEventsModelProxy);
+    Q_D(QmlProfilerAnimationsModel);
     d->maxGuiThreadAnimations = d->maxRenderThreadAnimations = 0;
 }
 
-quint64 PaintEventsModelProxy::features() const
+quint64 QmlProfilerAnimationsModel::features() const
 {
     return 1 << QmlDebug::ProfileAnimations;
 }
 
-void PaintEventsModelProxy::clear()
+void QmlProfilerAnimationsModel::clear()
 {
-    Q_D(PaintEventsModelProxy);
+    Q_D(QmlProfilerAnimationsModel);
     d->maxGuiThreadAnimations = d->maxRenderThreadAnimations = 0;
     d->data.clear();
     AbstractTimelineModel::clear();
 }
 
-bool PaintEventsModelProxy::accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const
+bool QmlProfilerAnimationsModel::accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const
 {
     return AbstractTimelineModel::accepted(event) &&
             event.detailType== QmlDebug::AnimationFrame;
 }
 
-void PaintEventsModelProxy::loadData()
+void QmlProfilerAnimationsModel::loadData()
 {
-    Q_D(PaintEventsModelProxy);
+    Q_D(QmlProfilerAnimationsModel);
     clear();
     QmlProfilerDataModel *simpleModel = d->modelManager->qmlModel();
     if (simpleModel->isEmpty())
@@ -149,21 +149,21 @@ void PaintEventsModelProxy::loadData()
 
 /////////////////// QML interface
 
-int PaintEventsModelProxy::PaintEventsModelProxyPrivate::rowFromThreadId(
+int QmlProfilerAnimationsModel::QmlProfilerAnimationsModelPrivate::rowFromThreadId(
         QmlDebug::AnimationThread threadId) const
 {
     return (threadId == QmlDebug::GuiThread || maxGuiThreadAnimations == 0) ? 1 : 2;
 }
 
-int PaintEventsModelProxy::row(int index) const
+int QmlProfilerAnimationsModel::row(int index) const
 {
-    Q_D(const PaintEventsModelProxy);
+    Q_D(const QmlProfilerAnimationsModel);
     return d->rowFromThreadId(d->data[index].threadId);
 }
 
-int PaintEventsModelProxy::rowMaxValue(int rowNumber) const
+int QmlProfilerAnimationsModel::rowMaxValue(int rowNumber) const
 {
-    Q_D(const PaintEventsModelProxy);
+    Q_D(const QmlProfilerAnimationsModel);
     switch (rowNumber) {
     case 1:
         return d->maxGuiThreadAnimations > 0 ? d->maxGuiThreadAnimations :
@@ -175,15 +175,15 @@ int PaintEventsModelProxy::rowMaxValue(int rowNumber) const
     }
 }
 
-int PaintEventsModelProxy::selectionId(int index) const
+int QmlProfilerAnimationsModel::selectionId(int index) const
 {
-    Q_D(const PaintEventsModelProxy);
+    Q_D(const QmlProfilerAnimationsModel);
     return d->data[index].threadId;
 }
 
-QColor PaintEventsModelProxy::color(int index) const
+QColor QmlProfilerAnimationsModel::color(int index) const
 {
-    Q_D(const PaintEventsModelProxy);
+    Q_D(const QmlProfilerAnimationsModel);
     double fpsFraction = d->data[index].framerate / 60.0;
     if (fpsFraction > 1.0)
         fpsFraction = 1.0;
@@ -192,9 +192,9 @@ QColor PaintEventsModelProxy::color(int index) const
     return colorByFraction(fpsFraction);
 }
 
-float PaintEventsModelProxy::relativeHeight(int index) const
+float QmlProfilerAnimationsModel::relativeHeight(int index) const
 {
-    Q_D(const PaintEventsModelProxy);
+    Q_D(const QmlProfilerAnimationsModel);
     const QmlPaintEventData &data = d->data[index];
 
     // Add some height to the events if we're far from the scale threshold of 2 * DefaultRowHeight.
@@ -207,9 +207,9 @@ float PaintEventsModelProxy::relativeHeight(int index) const
                                                            d->maxRenderThreadAnimations);
 }
 
-QVariantList PaintEventsModelProxy::labels() const
+QVariantList QmlProfilerAnimationsModel::labels() const
 {
-    Q_D(const PaintEventsModelProxy);
+    Q_D(const QmlProfilerAnimationsModel);
     QVariantList result;
 
     if (!d->hidden && d->maxGuiThreadAnimations > 0) {
@@ -231,9 +231,9 @@ QVariantList PaintEventsModelProxy::labels() const
     return result;
 }
 
-QVariantMap PaintEventsModelProxy::details(int index) const
+QVariantMap QmlProfilerAnimationsModel::details(int index) const
 {
-    Q_D(const PaintEventsModelProxy);
+    Q_D(const QmlProfilerAnimationsModel);
     QVariantMap result;
 
     result.insert(QStringLiteral("displayName"), displayName());

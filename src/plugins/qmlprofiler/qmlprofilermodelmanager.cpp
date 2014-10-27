@@ -32,7 +32,7 @@
 #include "qmlprofilerdatamodel.h"
 #include "qv8profilerdatamodel.h"
 #include "qmlprofilertracefile.h"
-#include "notesmodel.h"
+#include "qmlprofilernotesmodel.h"
 
 #include <utils/qtcassert.h>
 
@@ -171,7 +171,7 @@ public:
 
     QmlProfilerDataModel *model;
     QV8ProfilerDataModel *v8Model;
-    NotesModel *notesModel;
+    QmlProfilerNotesModel *notesModel;
 
     QmlProfilerDataState *dataState;
     QmlProfilerTraceTime *traceTime;
@@ -198,7 +198,7 @@ QmlProfilerModelManager::QmlProfilerModelManager(Utils::FileInProjectFinder *fin
     d->v8Model = new QV8ProfilerDataModel(finder, this);
     d->dataState = new QmlProfilerDataState(this, this);
     d->traceTime = new QmlProfilerTraceTime(this);
-    d->notesModel = new NotesModel(this);
+    d->notesModel = new QmlProfilerNotesModel(this);
     d->notesModel->setModelManager(this);
 }
 
@@ -222,7 +222,7 @@ QV8ProfilerDataModel *QmlProfilerModelManager::v8Model() const
     return d->v8Model;
 }
 
-NotesModel *QmlProfilerModelManager::notesModel() const
+QmlProfilerNotesModel *QmlProfilerModelManager::notesModel() const
 {
     return d->notesModel;
 }

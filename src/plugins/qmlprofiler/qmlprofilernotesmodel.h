@@ -37,7 +37,7 @@
 #include <QHash>
 
 namespace QmlProfiler {
-class QMLPROFILER_EXPORT NotesModel : public QObject {
+class QMLPROFILER_EXPORT QmlProfilerNotesModel : public QObject {
     Q_OBJECT
 public:
     struct Note {
@@ -49,7 +49,7 @@ public:
         int timelineIndex;
     };
 
-    NotesModel(QObject *parent);
+    QmlProfilerNotesModel(QObject *parent);
     int count() const;
 
     void setModelManager(QmlProfilerModelManager *modelManager);

@@ -32,7 +32,6 @@
 #include "qmlprofilertool.h"
 #include "qmlprofilerstatemanager.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilertimelinemodelproxy.h"
 #include "timelinemodelaggregator.h"
 
 // Needed for the load&save actions in the context menu

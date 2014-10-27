@@ -29,8 +29,8 @@
 ****************************************************************************/
 
 
-#ifndef QMLPROFILERPAINTEVENTSMODELPROXY_H
-#define QMLPROFILERPAINTEVENTSMODELPROXY_H
+#ifndef QMLPROFILERANIMATIONSMODEL_H
+#define QMLPROFILERANIMATIONSMODEL_H
 
 #include <QObject>
 #include "abstracttimelinemodel.h"
@@ -49,7 +49,7 @@ class QmlProfilerModelManager;
 
 namespace Internal {
 
-class PaintEventsModelProxy : public AbstractTimelineModel
+class QmlProfilerAnimationsModel : public AbstractTimelineModel
 {
     Q_OBJECT
 public:
@@ -60,7 +60,7 @@ public:
         QmlDebug::AnimationThread threadId;
     };
 
-    PaintEventsModelProxy(QObject *parent = 0);
+    QmlProfilerAnimationsModel(QObject *parent = 0);
 
     int rowMaxValue(int rowNumber) const;
 
@@ -81,11 +81,11 @@ protected:
     void clear();
 
 private:
-    class PaintEventsModelProxyPrivate;
-    Q_DECLARE_PRIVATE(PaintEventsModelProxy)
+    class QmlProfilerAnimationsModelPrivate;
+    Q_DECLARE_PRIVATE(QmlProfilerAnimationsModel)
 };
 
 }
 }
 
-#endif
+#endif // QMLPROFILERANIMATIONSMODEL_H

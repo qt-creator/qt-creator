@@ -30,10 +30,10 @@
 
 #include "timelinemodelaggregator.h"
 
-#include "qmlprofilertimelinemodelproxy.h"
-#include "qmlprofilerpainteventsmodelproxy.h"
+#include "qmlprofilerrangemodel.h"
+#include "qmlprofileranimationsmodel.h"
 #include "qmlprofilerplugin.h"
-#include "notesmodel.h"
+#include "qmlprofilernotesmodel.h"
 
 #include <QStringList>
 #include <QVariant>
@@ -85,12 +85,12 @@ void TimelineModelAggregator::setModelManager(QmlProfilerModelManager *modelMana
         addModel(timelineModel);
     }
 
-    PaintEventsModelProxy *paintEventsModelProxy = new PaintEventsModelProxy(this);
+    QmlProfilerAnimationsModel *paintEventsModelProxy = new QmlProfilerAnimationsModel(this);
     paintEventsModelProxy->setModelManager(modelManager);
     addModel(paintEventsModelProxy);
 
     for (int i = 0; i < QmlDebug::MaximumRangeType; ++i) {
-        RangeTimelineModel *rangeModel = new RangeTimelineModel((QmlDebug::RangeType)i, this);
+        QmlProfilerRangeModel *rangeModel = new QmlProfilerRangeModel((QmlDebug::RangeType)i, this);
         rangeModel->setModelManager(modelManager);
         addModel(rangeModel);
     }
@@ -133,7 +133,7 @@ int TimelineModelAggregator::modelIndexFromManagerIndex(int modelManagerIndex) c
     return d->modelManagerIndexMapping[modelManagerIndex];
 }
 
-NotesModel *TimelineModelAggregator::notes() const
+QmlProfilerNotesModel *TimelineModelAggregator::notes() const
 {
     return d->modelManager->notesModel();
 }
@@ -334,7 +334,7 @@ void TimelineModelAggregator::setNoteText(int noteId, const QString &text)
 void TimelineModelAggregator::setNoteText(int modelIndex, int index, const QString &text)
 {
     int managerId = d->modelList[modelIndex]->modelId();
-    NotesModel *notesModel = notes();
+    QmlProfilerNotesModel *notesModel = notes();
     int noteId = notesModel->get(managerId, index);
     if (noteId == -1) {
         if (text.length() > 0)

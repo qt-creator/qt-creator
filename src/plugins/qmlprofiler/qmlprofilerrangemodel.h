@@ -29,8 +29,8 @@
 ****************************************************************************/
 
 
-#ifndef QMLPROFILERTIMELINEMODELPROXY_H
-#define QMLPROFILERTIMELINEMODELPROXY_H
+#ifndef QMLPROFILERRANGEMODEL_H
+#define QMLPROFILERRANGEMODEL_H
 
 #include "abstracttimelinemodel.h"
 #include <qmldebug/qmlprofilereventtypes.h>
@@ -44,7 +44,7 @@ class QmlProfilerModelManager;
 
 namespace Internal {
 
-class RangeTimelineModel : public AbstractTimelineModel
+class QmlProfilerRangeModel : public AbstractTimelineModel
 {
     Q_OBJECT
 public:
@@ -61,7 +61,7 @@ public:
         int bindingLoopHead;
     };
 
-    RangeTimelineModel(QmlDebug::RangeType rangeType, QObject *parent = 0);
+    QmlProfilerRangeModel(QmlDebug::RangeType rangeType, QObject *parent = 0);
 
     static QString categoryLabel(QmlDebug::RangeType categoryIndex);
     quint64 features() const;
@@ -82,11 +82,11 @@ protected:
     void clear();
 
 private:
-    class RangeTimelineModelPrivate;
-    Q_DECLARE_PRIVATE(RangeTimelineModel)
+    class QmlProfilerRangeModelPrivate;
+    Q_DECLARE_PRIVATE(QmlProfilerRangeModel)
 };
 
 }
 }
 
-#endif
+#endif // QMLPROFILERRANGEMODEL_H

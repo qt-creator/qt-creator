@@ -33,7 +33,6 @@
 
 #include <QQuickPaintedItem>
 #include <QJSValue>
-#include "qmlprofilertimelinemodelproxy.h"
 #include "timelinezoomcontrol.h"
 #include "timelinemodelaggregator.h"
 

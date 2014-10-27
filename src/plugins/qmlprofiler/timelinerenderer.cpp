@@ -29,7 +29,7 @@
 ****************************************************************************/
 
 #include "timelinerenderer.h"
-#include "notesmodel.h"
+#include "qmlprofilernotesmodel.h"
 
 #include <QQmlContext>
 #include <QQmlProperty>
@@ -365,7 +365,7 @@ void TimelineRenderer::drawNotes(QPainter *p)
     static const int annotationSpace = 4;
     static const int shadowOffset = 2;
 
-    NotesModel *notes = m_profilerModelProxy->notes();
+    QmlProfilerNotesModel *notes = m_profilerModelProxy->notes();
     for (int i = 0; i < notes->count(); ++i) {
         int managerIndex = notes->timelineModel(i);
         if (managerIndex == -1)

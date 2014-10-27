@@ -53,7 +53,7 @@ public:
     QVariantList models() const;
     int modelIndexFromManagerIndex(int modelManagerIndex) const;
 
-    Q_INVOKABLE NotesModel *notes() const;
+    Q_INVOKABLE QmlProfilerNotesModel *notes() const;
     Q_INVOKABLE int count(int modelIndex) const;
     void clear();
     Q_INVOKABLE int modelCount() const;

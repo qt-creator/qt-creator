@@ -28,32 +28,33 @@
 **
 ****************************************************************************/
 
-#include "notesmodel.h"
+#include "qmlprofilernotesmodel.h"
 
 namespace QmlProfiler {
 
-NotesModel::NotesModel(QObject *parent) : QObject(parent), m_modelManager(0), m_modified(false)
+QmlProfilerNotesModel::QmlProfilerNotesModel(QObject *parent) : QObject(parent), m_modelManager(0),
+    m_modified(false)
 {
 }
 
-int NotesModel::count() const
+int QmlProfilerNotesModel::count() const
 {
     return m_data.count();
 }
 
-void NotesModel::setModelManager(QmlProfilerModelManager *modelManager)
+void QmlProfilerNotesModel::setModelManager(QmlProfilerModelManager *modelManager)
 {
     m_modelManager = modelManager;
 }
 
-void NotesModel::addTimelineModel(const AbstractTimelineModel *timelineModel)
+void QmlProfilerNotesModel::addTimelineModel(const AbstractTimelineModel *timelineModel)
 {
     connect(timelineModel, &AbstractTimelineModel::destroyed,
-            this, &NotesModel::removeTimelineModel);
+            this, &QmlProfilerNotesModel::removeTimelineModel);
     m_timelineModels.insert(timelineModel->modelId(), timelineModel);
 }
 
-int NotesModel::typeId(int index) const
+int QmlProfilerNotesModel::typeId(int index) const
 {
     const Note &note = m_data[index];
     auto it = m_timelineModels.find(note.timelineModel);
@@ -62,22 +63,22 @@ int NotesModel::typeId(int index) const
     return it.value()->typeId(note.timelineIndex);
 }
 
-QString NotesModel::text(int index) const
+QString QmlProfilerNotesModel::text(int index) const
 {
     return m_data[index].text;
 }
 
-int NotesModel::timelineModel(int index) const
+int QmlProfilerNotesModel::timelineModel(int index) const
 {
     return m_data[index].timelineModel;
 }
 
-int NotesModel::timelineIndex(int index) const
+int QmlProfilerNotesModel::timelineIndex(int index) const
 {
     return m_data[index].timelineIndex;
 }
 
-QVariantList NotesModel::byTypeId(int selectedType) const
+QVariantList QmlProfilerNotesModel::byTypeId(int selectedType) const
 {
     QVariantList ret;
     for (int noteId = 0; noteId < count(); ++noteId) {
@@ -87,7 +88,7 @@ QVariantList NotesModel::byTypeId(int selectedType) const
     return ret;
 }
 
-QVariantList NotesModel::byTimelineModel(int timelineModel) const
+QVariantList QmlProfilerNotesModel::byTimelineModel(int timelineModel) const
 {
     QVariantList ret;
     for (int noteId = 0; noteId < count(); ++noteId) {
@@ -97,7 +98,7 @@ QVariantList NotesModel::byTimelineModel(int timelineModel) const
     return ret;
 }
 
-int NotesModel::get(int timelineModel, int timelineIndex) const
+int QmlProfilerNotesModel::get(int timelineModel, int timelineIndex) const
 {
     for (int noteId = 0; noteId < count(); ++noteId) {
         const Note &note = m_data[noteId];
@@ -108,7 +109,7 @@ int NotesModel::get(int timelineModel, int timelineIndex) const
     return -1;
 }
 
-int NotesModel::add(int timelineModel, int timelineIndex, const QString &text)
+int QmlProfilerNotesModel::add(int timelineModel, int timelineIndex, const QString &text)
 {
     const AbstractTimelineModel *model = m_timelineModels[timelineModel];
     int typeId = model->range(timelineIndex).typeId;
@@ -119,7 +120,7 @@ int NotesModel::add(int timelineModel, int timelineIndex, const QString &text)
     return m_data.count() - 1;
 }
 
-void NotesModel::update(int index, const QString &text)
+void QmlProfilerNotesModel::update(int index, const QString &text)
 {
     Note &note = m_data[index];
     if (text != note.text) {
@@ -129,7 +130,7 @@ void NotesModel::update(int index, const QString &text)
     }
 }
 
-void NotesModel::remove(int index)
+void QmlProfilerNotesModel::remove(int index)
 {
     Note &note = m_data[index];
     int noteType = typeId(index);
@@ -140,12 +141,12 @@ void NotesModel::remove(int index)
     emit changed(noteType, timelineModel, timelineIndex);
 }
 
-bool NotesModel::isModified() const
+bool QmlProfilerNotesModel::isModified() const
 {
     return m_modified;
 }
 
-void NotesModel::removeTimelineModel(QObject *timelineModel)
+void QmlProfilerNotesModel::removeTimelineModel(QObject *timelineModel)
 {
     for (auto i = m_timelineModels.begin(); i != m_timelineModels.end();) {
         if (i.value() == timelineModel)
@@ -155,7 +156,7 @@ void NotesModel::removeTimelineModel(QObject *timelineModel)
     }
 }
 
-int NotesModel::add(int typeId, qint64 start, qint64 duration, const QString &text)
+int QmlProfilerNotesModel::add(int typeId, qint64 start, qint64 duration, const QString &text)
 {
     int timelineModel = -1;
     int timelineIndex = -1;
@@ -188,14 +189,14 @@ int NotesModel::add(int typeId, qint64 start, qint64 duration, const QString &te
     return m_data.count() - 1;
 }
 
-void NotesModel::clear()
+void QmlProfilerNotesModel::clear()
 {
     m_data.clear();
     m_modified = false;
     emit changed(-1, -1, -1);
 }
 
-void NotesModel::loadData()
+void QmlProfilerNotesModel::loadData()
 {
     m_data.clear();
     const QVector<QmlProfilerDataModel::QmlEventNoteData> &notes =
@@ -208,7 +209,7 @@ void NotesModel::loadData()
     emit changed(-1, -1, -1);
 }
 
-void NotesModel::saveData()
+void QmlProfilerNotesModel::saveData()
 {
     QVector<QmlProfilerDataModel::QmlEventNoteData> notes;
     for (int i = 0; i < count(); ++i) {

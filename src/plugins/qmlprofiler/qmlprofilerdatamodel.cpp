@@ -31,7 +31,7 @@
 #include "qmlprofilerdatamodel.h"
 #include "qmlprofilerbasemodel_p.h"
 #include "qmlprofilermodelmanager.h"
-#include "notesmodel.h"
+#include "qmlprofilernotesmodel.h"
 #include <qmldebug/qmlprofilereventtypes.h>
 #include <utils/qtcassert.h>
 #include <QUrl>

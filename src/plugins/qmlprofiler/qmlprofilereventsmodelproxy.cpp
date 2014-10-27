@@ -138,7 +138,7 @@ void QmlProfilerEventsModelProxy::dataChanged()
 
 void QmlProfilerEventsModelProxy::notesChanged(int typeIndex)
 {
-    const NotesModel *notesModel = d->modelManager->notesModel();
+    const QmlProfilerNotesModel *notesModel = d->modelManager->notesModel();
     if (typeIndex == -1) {
         d->notes.clear();
         for (int noteId = 0; noteId < notesModel->count(); ++noteId) {

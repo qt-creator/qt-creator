@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "qmlprofilertimelinemodelproxy.h"
+#include "qmlprofilerrangemodel.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerdatamodel.h"
 #include "abstracttimelinemodel_p.h"
@@ -45,7 +45,7 @@
 namespace QmlProfiler {
 namespace Internal {
 
-class RangeTimelineModel::RangeTimelineModelPrivate : public AbstractTimelineModelPrivate
+class QmlProfilerRangeModel::QmlProfilerRangeModelPrivate : public AbstractTimelineModelPrivate
 {
 public:
     // convenience functions
@@ -56,35 +56,35 @@ public:
     QVector<QmlRangeEventStartInstance> data;
     QVector<int> expandedRowTypes;
 private:
-    Q_DECLARE_PUBLIC(RangeTimelineModel)
+    Q_DECLARE_PUBLIC(QmlProfilerRangeModel)
 };
 
-RangeTimelineModel::RangeTimelineModel(QmlDebug::RangeType rangeType, QObject *parent)
-    : AbstractTimelineModel(new RangeTimelineModelPrivate, categoryLabel(rangeType),
+QmlProfilerRangeModel::QmlProfilerRangeModel(QmlDebug::RangeType rangeType, QObject *parent)
+    : AbstractTimelineModel(new QmlProfilerRangeModelPrivate, categoryLabel(rangeType),
                             QmlDebug::MaximumMessage, rangeType, parent)
 {
-    Q_D(RangeTimelineModel);
+    Q_D(QmlProfilerRangeModel);
     d->expandedRowTypes << -1;
 }
 
-quint64 RangeTimelineModel::features() const
+quint64 QmlProfilerRangeModel::features() const
 {
-    Q_D(const RangeTimelineModel);
+    Q_D(const QmlProfilerRangeModel);
     return 1ULL << QmlDebug::featureFromRangeType(d->rangeType);
 }
 
-void RangeTimelineModel::clear()
+void QmlProfilerRangeModel::clear()
 {
-    Q_D(RangeTimelineModel);
+    Q_D(QmlProfilerRangeModel);
     d->expandedRowTypes.clear();
     d->expandedRowTypes << -1;
     d->data.clear();
     AbstractTimelineModel::clear();
 }
 
-void RangeTimelineModel::loadData()
+void QmlProfilerRangeModel::loadData()
 {
-    Q_D(RangeTimelineModel);
+    Q_D(QmlProfilerRangeModel);
     clear();
     QmlProfilerDataModel *simpleModel = d->modelManager->qmlModel();
     if (simpleModel->isEmpty())
@@ -126,9 +126,9 @@ void RangeTimelineModel::loadData()
     d->modelManager->modelProxyCountUpdated(d->modelId, 1, 1);
 }
 
-void RangeTimelineModel::RangeTimelineModelPrivate::computeNestingContracted()
+void QmlProfilerRangeModel::QmlProfilerRangeModelPrivate::computeNestingContracted()
 {
-    Q_Q(RangeTimelineModel);
+    Q_Q(QmlProfilerRangeModel);
     int i;
     int eventCount = q->count();
 
@@ -157,9 +157,9 @@ void RangeTimelineModel::RangeTimelineModelPrivate::computeNestingContracted()
     }
 }
 
-void RangeTimelineModel::RangeTimelineModelPrivate::computeExpandedLevels()
+void QmlProfilerRangeModel::QmlProfilerRangeModelPrivate::computeExpandedLevels()
 {
-    Q_Q(RangeTimelineModel);
+    Q_Q(QmlProfilerRangeModel);
     QHash<int, int> eventRow;
     int eventCount = q->count();
     for (int i = 0; i < eventCount; i++) {
@@ -173,9 +173,9 @@ void RangeTimelineModel::RangeTimelineModelPrivate::computeExpandedLevels()
     expandedRowCount = expandedRowTypes.size();
 }
 
-void RangeTimelineModel::RangeTimelineModelPrivate::findBindingLoops()
+void QmlProfilerRangeModel::QmlProfilerRangeModelPrivate::findBindingLoops()
 {
-    Q_Q(RangeTimelineModel);
+    Q_Q(QmlProfilerRangeModel);
     if (rangeType != QmlDebug::Binding && rangeType != QmlDebug::HandlingSignal)
         return;
 
@@ -210,35 +210,35 @@ void RangeTimelineModel::RangeTimelineModelPrivate::findBindingLoops()
 
 /////////////////// QML interface
 
-QString RangeTimelineModel::categoryLabel(QmlDebug::RangeType rangeType)
+QString QmlProfilerRangeModel::categoryLabel(QmlDebug::RangeType rangeType)
 {
     return QCoreApplication::translate("MainView",
             QmlProfilerModelManager::featureName(QmlDebug::featureFromRangeType(rangeType)));
 }
 
-int RangeTimelineModel::row(int index) const
+int QmlProfilerRangeModel::row(int index) const
 {
-    Q_D(const RangeTimelineModel);
+    Q_D(const QmlProfilerRangeModel);
     if (d->expanded)
         return d->data[index].displayRowExpanded;
     else
         return d->data[index].displayRowCollapsed;
 }
 
-int RangeTimelineModel::bindingLoopDest(int index) const
+int QmlProfilerRangeModel::bindingLoopDest(int index) const
 {
-    Q_D(const RangeTimelineModel);
+    Q_D(const QmlProfilerRangeModel);
     return d->data[index].bindingLoopHead;
 }
 
-QColor RangeTimelineModel::color(int index) const
+QColor QmlProfilerRangeModel::color(int index) const
 {
     return colorBySelectionId(index);
 }
 
-QVariantList RangeTimelineModel::labels() const
+QVariantList QmlProfilerRangeModel::labels() const
 {
-    Q_D(const RangeTimelineModel);
+    Q_D(const QmlProfilerRangeModel);
     QVariantList result;
 
     if (d->expanded && !d->hidden) {
@@ -257,9 +257,9 @@ QVariantList RangeTimelineModel::labels() const
     return result;
 }
 
-QVariantMap RangeTimelineModel::details(int index) const
+QVariantMap QmlProfilerRangeModel::details(int index) const
 {
-    Q_D(const RangeTimelineModel);
+    Q_D(const QmlProfilerRangeModel);
     QVariantMap result;
     int id = selectionId(index);
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
@@ -273,9 +273,9 @@ QVariantMap RangeTimelineModel::details(int index) const
     return result;
 }
 
-QVariantMap RangeTimelineModel::location(int index) const
+QVariantMap QmlProfilerRangeModel::location(int index) const
 {
-    Q_D(const RangeTimelineModel);
+    Q_D(const QmlProfilerRangeModel);
     QVariantMap result;
     int id = selectionId(index);
 
@@ -289,9 +289,9 @@ QVariantMap RangeTimelineModel::location(int index) const
     return result;
 }
 
-bool RangeTimelineModel::isSelectionIdValid(int typeId) const
+bool QmlProfilerRangeModel::isSelectionIdValid(int typeId) const
 {
-    Q_D(const RangeTimelineModel);
+    Q_D(const QmlProfilerRangeModel);
     if (typeId < 0)
         return false;
     const QmlProfilerDataModel::QmlEventTypeData &type =
@@ -301,9 +301,9 @@ bool RangeTimelineModel::isSelectionIdValid(int typeId) const
     return true;
 }
 
-int RangeTimelineModel::selectionIdForLocation(const QString &filename, int line, int column) const
+int QmlProfilerRangeModel::selectionIdForLocation(const QString &filename, int line, int column) const
 {
-    Q_D(const RangeTimelineModel);
+    Q_D(const QmlProfilerRangeModel);
     // if this is called from v8 view, we don't have the column number, it will be -1
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
             d->modelManager->qmlModel()->getEventTypes();

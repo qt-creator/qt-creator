@@ -33,7 +33,7 @@
 #define QMLPROFILEREVENTSMODELPROXY_H
 
 #include "qmlprofilerdatamodel.h"
-#include "notesmodel.h"
+#include "qmlprofilernotesmodel.h"
 #include <QObject>
 #include <qmldebug/qmlprofilereventtypes.h>
 #include <qmldebug/qmlprofilereventlocation.h>

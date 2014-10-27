@@ -5,70 +5,70 @@ QT += network qml quick
 include(../../qtcreatorplugin.pri)
 
 SOURCES += \
-    qmlprofilerplugin.cpp \
-    qmlprofilertool.cpp \
-    qmlprofilerengine.cpp \
-    qmlprofilerattachdialog.cpp \
-    localqmlprofilerrunner.cpp \
-    qmlprofilereventview.cpp \
-    qv8profilereventview.cpp \
-    qmlprofilerdetailsrewriter.cpp \
-    qmlprofilertraceview.cpp \
-    timelinerenderer.cpp \
-    qmlprofilerstatemanager.cpp \
-    qv8profilerdatamodel.cpp \
-    qmlprofilerclientmanager.cpp \
-    qmlprofilerviewmanager.cpp \
-    qmlprofilerstatewidget.cpp \
-    qmlprofilerruncontrolfactory.cpp \
-    qmlprofilermodelmanager.cpp \
-    qmlprofilereventsmodelproxy.cpp \
-    qmlprofilertimelinemodelproxy.cpp \
-    qmlprofilertreeview.cpp \
-    qmlprofilertracefile.cpp \
     abstracttimelinemodel.cpp \
-    timelinemodelaggregator.cpp \
-    qmlprofilerpainteventsmodelproxy.cpp \
-    sortedtimelinemodel.cpp \
+    localqmlprofilerrunner.cpp \
+    qmlprofileranimationsmodel.cpp \
+    qmlprofilerattachdialog.cpp \
     qmlprofilerbasemodel.cpp \
+    qmlprofilerclientmanager.cpp \
     qmlprofilerdatamodel.cpp \
-    notesmodel.cpp \
+    qmlprofilerdetailsrewriter.cpp \
+    qmlprofilerengine.cpp \
+    qmlprofilereventsmodelproxy.cpp \
+    qmlprofilereventview.cpp \
+    qmlprofilermodelmanager.cpp \
+    qmlprofilernotesmodel.cpp \
+    qmlprofilerplugin.cpp \
+    qmlprofilerrangemodel.cpp \
+    qmlprofilerruncontrolfactory.cpp \
+    qmlprofilerstatemanager.cpp \
+    qmlprofilerstatewidget.cpp \
+    qmlprofilertool.cpp \
+    qmlprofilertracefile.cpp \
+    qmlprofilertraceview.cpp \
+    qmlprofilertreeview.cpp \
+    qmlprofilerviewmanager.cpp \
+    qv8profilerdatamodel.cpp \
+    qv8profilereventview.cpp \
+    sortedtimelinemodel.cpp \
+    timelinemodelaggregator.cpp \
+    timelinerenderer.cpp \
     timelinezoomcontrol.cpp
 
 HEADERS += \
-    qmlprofilerconstants.h \
-    qmlprofiler_global.h \
-    qmlprofilerplugin.h \
-    qmlprofilertool.h \
-    qmlprofilerengine.h \
-    qmlprofilerattachdialog.h \
     abstractqmlprofilerrunner.h \
-    localqmlprofilerrunner.h \
-    qmlprofilereventview.h \
-    qv8profilereventview.h \
-    qmlprofilerdetailsrewriter.h \
-    qmlprofilertraceview.h \
-    timelinerenderer.h \
-    qmlprofilerstatemanager.h \
-    qv8profilerdatamodel.h \
-    qmlprofilerclientmanager.h \
-    qmlprofilerviewmanager.h \
-    qmlprofilerstatewidget.h \
-    qmlprofilerruncontrolfactory.h \
-    qmlprofilermodelmanager.h \
-    qmlprofilereventsmodelproxy.h \
-    qmlprofilertimelinemodelproxy.h \
-    qmlprofilertreeview.h \
-    qmlprofilertracefile.h \
     abstracttimelinemodel.h \
-    timelinemodelaggregator.h \
-    qmlprofilerpainteventsmodelproxy.h \
-    sortedtimelinemodel.h \
-    qmlprofilerbasemodel.h \
     abstracttimelinemodel_p.h \
-    qmlprofilerdatamodel.h \
+    localqmlprofilerrunner.h \
+    qmlprofiler_global.h \
+    qmlprofileranimationsmodel.h \
+    qmlprofilerattachdialog.h \
+    qmlprofilerbasemodel.h \
     qmlprofilerbasemodel_p.h \
-    notesmodel.h \
+    qmlprofilerclientmanager.h \
+    qmlprofilerconstants.h \
+    qmlprofilerdatamodel.h \
+    qmlprofilerdetailsrewriter.h \
+    qmlprofilerengine.h \
+    qmlprofilereventsmodelproxy.h \
+    qmlprofilereventview.h \
+    qmlprofilermodelmanager.h \
+    qmlprofilernotesmodel.h \
+    qmlprofilerplugin.h \
+    qmlprofilerrangemodel.h \
+    qmlprofilerruncontrolfactory.h \
+    qmlprofilerstatemanager.h \
+    qmlprofilerstatewidget.h \
+    qmlprofilertool.h \
+    qmlprofilertracefile.h \
+    qmlprofilertraceview.h \
+    qmlprofilertreeview.h \
+    qmlprofilerviewmanager.h \
+    qv8profilerdatamodel.h \
+    qv8profilereventview.h \
+    sortedtimelinemodel.h \
+    timelinemodelaggregator.h \
+    timelinerenderer.h \
     timelinezoomcontrol.h
 
 RESOURCES += \
