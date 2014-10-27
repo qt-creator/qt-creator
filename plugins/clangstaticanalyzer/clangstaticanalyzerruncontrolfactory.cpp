@@ -22,8 +22,6 @@
 #include <analyzerbase/analyzerruncontrol.h>
 #include <analyzerbase/analyzerstartparameters.h>
 
-#include <projectexplorer/localapplicationrunconfiguration.h>
-
 using namespace Analyzer;
 using namespace ProjectExplorer;
 
@@ -38,8 +36,8 @@ ClangStaticAnalyzerRunControlFactory::ClangStaticAnalyzerRunControlFactory(QObje
 bool ClangStaticAnalyzerRunControlFactory::canRun(RunConfiguration *runConfiguration,
                                                   RunMode runMode) const
 {
-    return runMode == ClangStaticAnalyzerMode
-            && (qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration));
+    Q_UNUSED(runConfiguration);
+    return runMode == ClangStaticAnalyzerMode;
 }
 
 RunControl *ClangStaticAnalyzerRunControlFactory::create(RunConfiguration *runConfiguration,
@@ -48,9 +46,6 @@ RunControl *ClangStaticAnalyzerRunControlFactory::create(RunConfiguration *runCo
 {
     Q_UNUSED(errorMessage);
     Q_UNUSED(runMode);
-
-    auto *rc = qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
-    QTC_ASSERT(rc, return 0);
 
     AnalyzerStartParameters sp;
     sp.runMode = runMode;
