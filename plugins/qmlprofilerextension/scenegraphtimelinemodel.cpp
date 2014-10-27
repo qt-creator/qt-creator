@@ -178,7 +178,7 @@ QVariantMap SceneGraphTimelineModel::details(int index) const
     result.insert(QLatin1String("displayName"),
                   tr(d->threadLabel(static_cast<SceneGraphStage>(ev->stage))));
     result.insert(tr("Stage"), tr(StageLabels[ev->stage]));
-    result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(range(index).duration));
+    result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(duration(index)));
     if (ev->glyphCount >= 0)
         result.insert(tr("Glyphs"), QString::number(ev->glyphCount));
 
@@ -296,7 +296,7 @@ void SceneGraphTimelineModel::SceneGraphTimelineModelPrivate::flattenLoads()
 
     for (int i = 0; i < q->count(); i++) {
         SceneGraphEvent &event = data[i];
-        const Range &start = q->range(i);
+        const Range &start = ranges[i];
         // Don't try to put render thread events in GUI row and vice versa.
         // Rows below those are free for all.
         if (event.stage < MaximumGUIThreadStage)

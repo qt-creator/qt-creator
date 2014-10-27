@@ -206,7 +206,7 @@ void MemoryUsageModel::loadData()
             MemoryAllocation &last = currentUsageIndex > -1 ? d->data[currentUsageIndex] : dummy;
             if (!rangeStack.empty() && type.detailType == last.type &&
                     last.originTypeIndex == rangeStack.top().originTypeIndex &&
-                    rangeStack.top().startTime < range(currentUsageIndex).start) {
+                    rangeStack.top().startTime < startTime(currentUsageIndex)) {
                 last.update(event.numericData1);
                 currentUsage = last.size;
             } else {
@@ -217,7 +217,7 @@ void MemoryUsageModel::loadData()
 
                 if (currentUsageIndex != -1) {
                     insertEnd(currentUsageIndex,
-                              event.startTime - range(currentUsageIndex).start - 1);
+                              event.startTime - startTime(currentUsageIndex) - 1);
                 }
                 currentUsageIndex = insertStart(event.startTime, event.typeIndex);
                 d->data.insert(currentUsageIndex, allocation);
@@ -228,7 +228,7 @@ void MemoryUsageModel::loadData()
             MemoryAllocation &last = currentJSHeapIndex > -1 ? d->data[currentJSHeapIndex] : dummy;
             if (!rangeStack.empty() && type.detailType == last.type &&
                     last.originTypeIndex == rangeStack.top().originTypeIndex &&
-                    rangeStack.top().startTime < range(currentJSHeapIndex).start) {
+                    rangeStack.top().startTime < startTime(currentJSHeapIndex)) {
                 last.update(event.numericData1);
                 currentSize = last.size;
             } else {
@@ -241,7 +241,7 @@ void MemoryUsageModel::loadData()
                     d->maxSize = currentSize;
                 if (currentJSHeapIndex != -1)
                     insertEnd(currentJSHeapIndex,
-                              event.startTime - range(currentJSHeapIndex).start - 1);
+                              event.startTime - startTime(currentJSHeapIndex) - 1);
                 currentJSHeapIndex = insertStart(event.startTime, event.typeIndex);
                 d->data.insert(currentJSHeapIndex, allocation);
             }
@@ -253,10 +253,10 @@ void MemoryUsageModel::loadData()
 
     if (currentJSHeapIndex != -1)
         insertEnd(currentJSHeapIndex, d->modelManager->traceTime()->endTime() -
-                  range(currentJSHeapIndex).start - 1);
+                  startTime(currentJSHeapIndex) - 1);
     if (currentUsageIndex != -1)
         insertEnd(currentUsageIndex, d->modelManager->traceTime()->endTime() -
-                  range(currentUsageIndex).start - 1);
+                  startTime(currentUsageIndex) - 1);
 
 
     computeNesting();

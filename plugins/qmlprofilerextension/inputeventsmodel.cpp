@@ -46,7 +46,7 @@ quint64 InputEventsModel::features() const
 int InputEventsModel::selectionId(int index) const
 {
     Q_D(const InputEventsModel);
-    return d->modelManager->qmlModel()->getEventTypes()[range(index).typeId].detailType;
+    return d->modelManager->qmlModel()->getEventTypes()[typeId(index)].detailType;
 }
 
 QColor InputEventsModel::color(int index) const

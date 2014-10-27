@@ -187,7 +187,7 @@ QVariantMap PixmapCacheModel::details(int index) const
             if (d->pixmaps[ev->urlIndex].sizes[ev->sizeIndex].loadState != Finished)
                 result.insert(tr("Result"), tr("Load Error"));
         }
-        result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(range(index).duration));
+        result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(duration(index)));
     }
 
     result.insert(tr("Cache Size"), QString::fromLatin1("%1 px").arg(ev->cacheSize));
@@ -248,7 +248,7 @@ void PixmapCacheModel::loadData()
 
         PixmapCacheEvent newEvent;
         newEvent.pixmapEventType = type.detailType;
-        qint64 startTime = event.startTime;
+        qint64 pixmapStartTime = event.startTime;
 
         newEvent.urlIndex = -1;
         for (QVector<Pixmap>::const_iterator it(d->pixmaps.cend()); it != d->pixmaps.cbegin();) {
@@ -290,7 +290,7 @@ void PixmapCacheModel::loadData()
 
             PixmapState &state = pixmap.sizes[newEvent.sizeIndex];
             if (state.cacheState == ToBeCached) {
-                lastCacheSizeEvent = d->updateCacheCount(lastCacheSizeEvent, startTime,
+                lastCacheSizeEvent = d->updateCacheCount(lastCacheSizeEvent, pixmapStartTime,
                                               state.size.width() * state.size.height(), newEvent,
                                               event.typeIndex);
                 state.cacheState = Cached;
@@ -298,7 +298,7 @@ void PixmapCacheModel::loadData()
             break;
         }
         case PixmapCacheCountChanged: {// Cache Size Changed Event
-            startTime = event.startTime + 1; // delay 1 ns for proper sorting
+            pixmapStartTime = event.startTime + 1; // delay 1 ns for proper sorting
 
             bool uncache = cumulatedCount > event.numericData3;
             cumulatedCount = event.numericData3;
@@ -351,7 +351,7 @@ void PixmapCacheModel::loadData()
                 pixmap.sizes << PixmapState(uncache ? Uncached : ToBeCached);
             }
 
-            lastCacheSizeEvent = d->updateCacheCount(lastCacheSizeEvent, startTime, pixSize,
+            lastCacheSizeEvent = d->updateCacheCount(lastCacheSizeEvent, pixmapStartTime, pixSize,
                                                      newEvent, event.typeIndex);
             break;
         }
@@ -372,7 +372,7 @@ void PixmapCacheModel::loadData()
 
             PixmapState &state = pixmap.sizes[newEvent.sizeIndex];
             state.loadState = Loading;
-            state.started = insertStart(startTime, event.typeIndex);
+            state.started = insertStart(pixmapStartTime, event.typeIndex);
             d->data.insert(state.started, newEvent);
             break;
         }
@@ -416,7 +416,7 @@ void PixmapCacheModel::loadData()
             // If the pixmap loading wasn't started, start it at traceStartTime()
             if (state.loadState == Initial) {
                 newEvent.pixmapEventType = PixmapLoadingStarted;
-                state.started = insert(d->modelManager->traceTime()->startTime(), startTime -
+                state.started = insert(d->modelManager->traceTime()->startTime(), pixmapStartTime -
                                        d->modelManager->traceTime()->startTime(), event.typeIndex);
                 d->data.insert(state.started, newEvent);
 
@@ -436,7 +436,7 @@ void PixmapCacheModel::loadData()
                 }
             }
 
-            insertEnd(state.started, startTime - range(state.started).start);
+            insertEnd(state.started, pixmapStartTime - startTime(state.started));
             if (newEvent.pixmapEventType == PixmapLoadingError) {
                 state.loadState = Error;
                 switch (state.cacheState) {
@@ -467,7 +467,7 @@ void PixmapCacheModel::loadData()
 
     if (lastCacheSizeEvent != -1)
         insertEnd(lastCacheSizeEvent, d->modelManager->traceTime()->endTime() -
-                  range(lastCacheSizeEvent).start);
+                  startTime(lastCacheSizeEvent));
 
     d->resizeUnfinishedLoads();
 
@@ -504,8 +504,8 @@ void PixmapCacheModel::PixmapCacheModelPrivate::resizeUnfinishedLoads()
     // all the "load start" events with duration 0 continue till the end of the trace
     for (int i = 0; i < q->count(); i++) {
         if (data[i].pixmapEventType == PixmapCacheModel::PixmapLoadingStarted &&
-                q->range(i).duration == 0) {
-            q->insertEnd(i, modelManager->traceTime()->endTime() - q->range(i).start);
+                ranges[i].duration == 0) {
+            q->insertEnd(i, modelManager->traceTime()->endTime() - ranges[i].start);
         }
     }
 }
@@ -519,7 +519,7 @@ void PixmapCacheModel::PixmapCacheModelPrivate::flattenLoads()
     QVector <qint64> eventEndTimes;
     for (int i = 0; i < q->count(); i++) {
         PixmapCacheModel::PixmapCacheEvent &event = data[i];
-        const Range &start = q->range(i);
+        const Range &start = ranges[i];
         if (event.pixmapEventType == PixmapCacheModel::PixmapLoadingStarted) {
             event.rowNumberCollapsed = 0;
             while (eventEndTimes.count() > event.rowNumberCollapsed &&
@@ -552,7 +552,7 @@ int PixmapCacheModel::PixmapCacheModelPrivate::updateCacheCount(int lastCacheSiz
     qint64 prevSize = 0;
     if (lastCacheSizeEvent != -1) {
         prevSize = data[lastCacheSizeEvent].cacheSize;
-        q->insertEnd(lastCacheSizeEvent, startTime - q->range(lastCacheSizeEvent).start);
+        q->insertEnd(lastCacheSizeEvent, startTime - ranges[lastCacheSizeEvent].start);
     }
 
     newEvent.cacheSize = prevSize + pixSize;
