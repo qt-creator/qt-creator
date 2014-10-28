@@ -374,7 +374,7 @@ QVariantMap AbstractTimelineModel::location(int index) const
     return map;
 }
 
-bool AbstractTimelineModel::isSelectionIdValid(int typeIndex) const
+bool AbstractTimelineModel::handlesTypeId(int typeIndex) const
 {
     Q_UNUSED(typeIndex);
     return false;

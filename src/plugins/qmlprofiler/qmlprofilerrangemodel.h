@@ -74,7 +74,7 @@ public:
     QVariantMap details(int index) const;
     QVariantMap location(int index) const;
 
-    bool isSelectionIdValid(int typeIndex) const;
+    bool handlesTypeId(int typeIndex) const;
     int selectionIdForLocation(const QString &filename, int line, int column) const;
 
 protected:

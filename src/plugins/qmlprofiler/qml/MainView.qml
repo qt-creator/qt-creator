@@ -138,35 +138,41 @@ Rectangle {
                                       Math.max(0, totalRowOffset - flick.height / 2));
     }
 
-    function selectBySelectionId(modelIndex, selectionId)
+    function selectByTypeId(typeId)
     {
-        if (selectionId === -1 || (modelIndex === view.selectedModel && view.selectedItem !== -1 &&
-                selectionId === qmlProfilerModelProxy.selectionId(modelIndex, view.selectedItem)))
+        if (lockItemSelection || typeId === -1)
             return;
 
-        // this is a slot responding to events from the other pane
-        // which tracks only events from the basic model
-        if (!lockItemSelection) {
-            lockItemSelection = true;
-            var itemIndex = -1;
-            var notes = qmlProfilerModelProxy.notesByTypeId(selectionId);
-            if (notes.length !== 0) {
-                itemIndex = qmlProfilerModelProxy.noteTimelineIndex(notes[0]);
-                // for some models typeId != selectionId. In that case we cannot select the noted
-                // events. This is purely theoretical as their data doesn't show up in the events
-                // view so that we cannot receive a selection event for them.
-                if (qmlProfilerModelProxy.typeId(modelIndex, itemIndex) !== selectionId)
-                    itemIndex = -1;
-            }
+        lockItemSelection = true;
 
-            if (itemIndex === -1)
-                itemIndex = view.nextItemFromSelectionId(modelIndex, selectionId);
+        var itemIndex = -1;
+        var modelIndex = -1;
+        var notes = qmlProfilerModelProxy.notesByTypeId(typeId);
+        if (notes.length !== 0) {
+            modelIndex = qmlProfilerModelProxy.noteTimelineModel(notes[0]);
+            itemIndex = qmlProfilerModelProxy.noteTimelineIndex(notes[0]);
+        } else {
+            for (modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); ++modelIndex) {
+                if (modelIndex === view.selectedModel && view.selectedItem !== -1 &&
+                        typeId === qmlProfilerModelProxy.typeId(modelIndex, view.selectedItem))
+                    break;
+
+                if (!qmlProfilerModelProxy.handlesTypeId(modelIndex, typeId))
+                    continue;
+
+                itemIndex = view.nextItemFromTypeId(modelIndex, typeId);
+                if (itemIndex !== -1)
+                    break;
+            }
+        }
+
+        if (itemIndex !== -1) {
             // select an item, lock to it, and recenter if necessary
             view.selectFromEventIndex(modelIndex, itemIndex); // triggers recentering
-            if (itemIndex !== -1)
-                view.selectionLocked = true;
-            lockItemSelection = false;
+            view.selectionLocked = true;
         }
+
+        lockItemSelection = false;
     }
 
     // ***** slots

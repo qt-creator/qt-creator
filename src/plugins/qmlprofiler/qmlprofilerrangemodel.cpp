@@ -259,7 +259,7 @@ QVariantMap QmlProfilerRangeModel::location(int index) const
     return result;
 }
 
-bool QmlProfilerRangeModel::isSelectionIdValid(int typeId) const
+bool QmlProfilerRangeModel::handlesTypeId(int typeId) const
 {
     if (typeId < 0)
         return false;

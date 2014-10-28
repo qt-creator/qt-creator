@@ -182,15 +182,7 @@ void QmlProfilerTraceView::selectByTypeId(int typeId)
     QQuickItem *rootObject = d->m_mainView->rootObject();
     if (!rootObject)
         return;
-
-    for (int modelIndex = 0; modelIndex < d->m_modelProxy->modelCount(); ++modelIndex) {
-        if (d->m_modelProxy->isSelectionIdValid(modelIndex, typeId)) {
-            QMetaObject::invokeMethod(rootObject, "selectBySelectionId",
-                                      Q_ARG(QVariant,QVariant(modelIndex)),
-                                      Q_ARG(QVariant,QVariant(typeId)));
-            return;
-        }
-    }
+    QMetaObject::invokeMethod(rootObject, "selectByTypeId", Q_ARG(QVariant,QVariant(typeId)));
 }
 
 void QmlProfilerTraceView::selectBySourceLocation(const QString &filename, int line, int column)

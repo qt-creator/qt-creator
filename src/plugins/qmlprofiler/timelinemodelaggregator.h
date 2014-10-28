@@ -95,7 +95,7 @@ public:
     Q_INVOKABLE QVariantMap details(int modelIndex, int index) const;
     Q_INVOKABLE QVariantMap location(int modelIndex, int index) const;
 
-    Q_INVOKABLE bool isSelectionIdValid(int modelIndex, int typeIndex) const;
+    Q_INVOKABLE bool handlesTypeId(int modelIndex, int typeIndex) const;
     Q_INVOKABLE int selectionIdForLocation(int modelIndex, const QString &filename, int line,
                                        int column) const;
 

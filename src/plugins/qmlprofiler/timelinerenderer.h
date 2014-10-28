@@ -89,7 +89,9 @@ public:
     Q_INVOKABLE void selectNext();
     Q_INVOKABLE void selectPrev();
     Q_INVOKABLE int nextItemFromSelectionId(int modelIndex, int selectionId) const;
+    Q_INVOKABLE int nextItemFromTypeId(int modelIndex, int typeId) const;
     Q_INVOKABLE int prevItemFromSelectionId(int modelIndex, int selectionId) const;
+    Q_INVOKABLE int prevItemFromTypeId(int modelIndex, int typeId) const;
     Q_INVOKABLE void selectFromEventIndex(int modelIndex, int index);
     Q_INVOKABLE void selectNextFromSelectionId(int modelIndex, int selectionId);
     Q_INVOKABLE void selectPrevFromSelectionId(int modelIndex, int selectionId);
@@ -174,6 +176,8 @@ private:
     }
 
 private:
+    enum IdType { SelectionId, TypeId };
+
     static const int OutOfScreenMargin = 3; // margin to make sure the rectangles stay invisible
     static const int MinimumItemWidth = 3;
 
@@ -199,6 +203,8 @@ private:
     bool m_selectionLocked;
     int m_startDragArea;
     int m_endDragArea;
+    int nextItemFromId(int modelIndex, IdType idType, int id) const;
+    int prevItemFromId(int modelIndex, IdType idType, int id) const;
 };
 
 } // namespace Internal

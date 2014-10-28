@@ -289,9 +289,9 @@ QVariantMap TimelineModelAggregator::location(int modelIndex, int index) const
     return d->modelList[modelIndex]->location(index);
 }
 
-bool TimelineModelAggregator::isSelectionIdValid(int modelIndex, int typeIndex) const
+bool TimelineModelAggregator::handlesTypeId(int modelIndex, int typeIndex) const
 {
-    return d->modelList[modelIndex]->isSelectionIdValid(typeIndex);
+    return d->modelList[modelIndex]->handlesTypeId(typeIndex);
 }
 
 int TimelineModelAggregator::selectionIdForLocation(int modelIndex, const QString &filename,

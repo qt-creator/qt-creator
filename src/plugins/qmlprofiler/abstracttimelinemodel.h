@@ -98,7 +98,7 @@ public:
     // returned map should contain "file", "line", "column" properties, or be empty
     virtual QVariantMap location(int index) const;
     virtual int selectionId(int index) const;
-    virtual bool isSelectionIdValid(int selectionId) const;
+    virtual bool handlesTypeId(int typeId) const;
     virtual int selectionIdForLocation(const QString &filename, int line, int column) const;
     virtual int bindingLoopDest(int index) const;
     virtual float relativeHeight(int index) const;

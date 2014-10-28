@@ -677,6 +677,26 @@ void TimelineRenderer::selectPrev()
 
 int TimelineRenderer::nextItemFromSelectionId(int modelIndex, int selectionId) const
 {
+    return nextItemFromId(modelIndex, SelectionId, selectionId);
+}
+
+int TimelineRenderer::nextItemFromTypeId(int modelIndex, int typeId) const
+{
+    return nextItemFromId(modelIndex, TypeId, typeId);
+}
+
+int TimelineRenderer::prevItemFromSelectionId(int modelIndex, int selectionId) const
+{
+    return prevItemFromId(modelIndex, SelectionId, selectionId);
+}
+
+int TimelineRenderer::prevItemFromTypeId(int modelIndex, int typeId) const
+{
+    return prevItemFromId(modelIndex, TypeId, typeId);
+}
+
+int TimelineRenderer::nextItemFromId(int modelIndex, IdType idType, int id) const
+{
     int modelCount = m_profilerModelProxy->count(modelIndex);
     if (modelCount == 0)
         return -1;
@@ -691,14 +711,15 @@ int TimelineRenderer::nextItemFromSelectionId(int modelIndex, int selectionId) c
         ndx = 0;
     int startIndex = ndx;
     do {
-        if (m_profilerModelProxy->selectionId(modelIndex, ndx) == selectionId)
+        if ((idType == TypeId && m_profilerModelProxy->typeId(modelIndex, ndx) == id) ||
+                (idType == SelectionId && m_profilerModelProxy->selectionId(modelIndex, ndx) == id))
             return ndx;
         ndx = (ndx + 1) % modelCount;
     } while (ndx != startIndex);
     return -1;
 }
 
-int TimelineRenderer::prevItemFromSelectionId(int modelIndex, int selectionId) const
+int TimelineRenderer::prevItemFromId(int modelIndex, IdType idType, int id) const
 {
     int ndx = -1;
     if (m_selectedItem == -1 || modelIndex != m_selectedModel)
@@ -709,7 +730,8 @@ int TimelineRenderer::prevItemFromSelectionId(int modelIndex, int selectionId) c
         ndx = m_profilerModelProxy->count(modelIndex) - 1;
     int startIndex = ndx;
     do {
-        if (m_profilerModelProxy->selectionId(modelIndex, ndx) == selectionId)
+        if ((idType == TypeId && m_profilerModelProxy->typeId(modelIndex, ndx) == id) ||
+                (idType == SelectionId && m_profilerModelProxy->selectionId(modelIndex, ndx) == id))
             return ndx;
         if (--ndx < 0)
             ndx = m_profilerModelProxy->count(modelIndex)-1;
