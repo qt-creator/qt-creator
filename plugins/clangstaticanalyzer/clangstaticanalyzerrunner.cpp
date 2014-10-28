@@ -100,7 +100,7 @@ bool ClangStaticAnalyzerRunner::run(const QString &filePath, const QStringList &
     QTC_ASSERT(!m_logFile.isEmpty(), return false);
     const QStringList arguments = constructCommandLineArguments(filePath, m_logFile,
                                                                 compilerOptions);
-    m_commandLine = m_clangExecutable + QLatin1Char(' ') + arguments.join(QLatin1Char(' '));
+    m_commandLine = (QStringList(m_clangExecutable) + arguments).join(QLatin1String("\" \""));
 
     qCDebug(LOG) << "Starting" << m_commandLine;
     m_process.start(m_clangExecutable, arguments);
