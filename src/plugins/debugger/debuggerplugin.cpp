@@ -1151,7 +1151,6 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
     m_dummyEngine(0),
     m_globalDebuggerOptions(new GlobalDebuggerOptions)
 {
-    setObjectName(QLatin1String("DebuggerCore"));
     qRegisterMetaType<WatchData>("WatchData");
     qRegisterMetaType<ContextData>("ContextData");
     qRegisterMetaType<DebuggerStartParameters>("DebuggerStartParameters");
@@ -2538,8 +2537,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     connect(ICore::instance(), SIGNAL(coreAboutToClose()), this, SLOT(coreShutdown()));
 
-    m_plugin->addObject(this);
-
     const Context globalcontext(CC::C_GLOBAL);
     const Context cppDebuggercontext(C_CPPDEBUGGER);
     const Context cppeditorcontext(CppEditor::Constants::CPPEDITOR_ID);
@@ -3384,7 +3381,8 @@ QSharedPointer<Internal::GlobalDebuggerOptions> globalDebuggerOptions()
 
 DebuggerPlugin::DebuggerPlugin()
 {
-    setObjectName(QLatin1String("DebuggerCore"));
+    setObjectName(QLatin1String("DebuggerPlugin"));
+    addObject(this);
     dd = new DebuggerPluginPrivate(this);
 }
 
