@@ -139,17 +139,12 @@ ProjectInfo::ProjectInfo(QPointer<ProjectExplorer::Project> project)
 
 ProjectInfo::operator bool() const
 {
-    return !m_project.isNull();
+    return isValid();
 }
 
 bool ProjectInfo::isValid() const
 {
     return !m_project.isNull();
-}
-
-bool ProjectInfo::isNull() const
-{
-    return m_project.isNull();
 }
 
 QPointer<ProjectExplorer::Project> ProjectInfo::project() const

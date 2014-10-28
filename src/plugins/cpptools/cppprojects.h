@@ -142,7 +142,6 @@ public:
 
     operator bool() const;
     bool isValid() const;
-    bool isNull() const;
 
     QPointer<ProjectExplorer::Project> project() const;
     const QList<ProjectPart::Ptr> projectParts() const;
