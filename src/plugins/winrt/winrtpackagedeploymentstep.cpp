@@ -78,8 +78,7 @@ bool WinRtPackageDeploymentStep::init()
 
     m_targetFilePath = appTargetFilePath.toString();
     if (m_targetFilePath.isEmpty()) {
-        // ### raise error in 3.3
-        // raiseError(tr("No executable to deploy found in %1.").arg(rc->proFilePath()));
+        raiseError(tr("No executable to deploy found in %1.").arg(rc->proFilePath()));
         return false;
     }
 
@@ -188,8 +187,7 @@ bool WinRtPackageDeploymentStep::processSucceeded(int exitCode, QProcess::ExitSt
                 relativeRemotePath = QDir(baseDir).relativeFilePath(pair.second);
 
             if (QDir(relativeRemotePath).isAbsolute() || relativeRemotePath.startsWith(QLatin1String(".."))) {
-                // for 3.3?
-                // raiseWarning(tr("File %1 is outside of the executable's directory. These files cannot be installed.").arg(relativeRemotePath));
+                raiseWarning(tr("File %1 is outside of the executable's directory. These files cannot be installed.").arg(relativeRemotePath));
                 continue;
             }
 
@@ -245,6 +243,13 @@ void WinRtPackageDeploymentStep::raiseError(const QString &errorMessage)
 {
     emit addOutput(errorMessage, BuildStep::ErrorMessageOutput);
     emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error, errorMessage, Utils::FileName(), -1,
+                                       ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT));
+}
+
+void WinRtPackageDeploymentStep::raiseWarning(const QString &warningMessage)
+{
+    emit addOutput(warningMessage, BuildStep::MessageOutput);
+    emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Warning, warningMessage, Utils::FileName(), -1,
                                        ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT));
 }
 
