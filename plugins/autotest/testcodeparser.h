@@ -39,6 +39,7 @@ class TestCodeParser : public QObject
     Q_OBJECT
 public:
     explicit TestCodeParser(TestTreeModel *parent = 0);
+    virtual ~TestCodeParser();
 
 signals:
 
@@ -51,6 +52,7 @@ public slots:
 
 private:
     void scanForTests();
+    void clearMaps();
 
     TestTreeModel *m_model;
     QMap<QString, TestInfo*> m_cppDocMap;

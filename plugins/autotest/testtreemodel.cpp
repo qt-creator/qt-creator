@@ -263,27 +263,28 @@ static void addProjectInformation(TestConfiguration *config, const QString &file
         project = projParts.at(0)->project; // necessary to grab this here? or should this be the current active startup project anyway?
     }
     if (project) {
-        ProjectExplorer::Target *target = project->activeTarget();
-        ProjectExplorer::BuildTargetInfoList appTargets = target->applicationTargets();
-        foreach (ProjectExplorer::BuildTargetInfo bti, appTargets.list) {
-            if (bti.isValid() && bti.projectFilePath.toString() == proFile) {
-                targetFile = bti.targetFilePath.toString();
-                targetName = bti.targetName;
-                break;
-            }
-        }
-
-        QList<ProjectExplorer::RunConfiguration *> rcs = target->runConfigurations();
-        foreach (ProjectExplorer::RunConfiguration *rc, rcs) {
-            if (ProjectExplorer::LocalApplicationRunConfiguration *localRunConfiguration
-                    = qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(rc)) {
-                if (localRunConfiguration->executable() == targetFile) {
-                    workDir = Utils::FileUtils::normalizePathName(
-                                localRunConfiguration->workingDirectory());
-                    ProjectExplorer::EnvironmentAspect *envAsp
-                            = localRunConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
-                    env = envAsp->environment();
+        if (auto target = project->activeTarget()) {
+            ProjectExplorer::BuildTargetInfoList appTargets = target->applicationTargets();
+            foreach (ProjectExplorer::BuildTargetInfo bti, appTargets.list) {
+                if (bti.isValid() && bti.projectFilePath.toString() == proFile) {
+                    targetFile = bti.targetFilePath.toString();
+                    targetName = bti.targetName;
                     break;
+                }
+            }
+
+            QList<ProjectExplorer::RunConfiguration *> rcs = target->runConfigurations();
+            foreach (ProjectExplorer::RunConfiguration *rc, rcs) {
+                if (ProjectExplorer::LocalApplicationRunConfiguration *localRunConfiguration
+                        = qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(rc)) {
+                    if (localRunConfiguration->executable() == targetFile) {
+                        workDir = Utils::FileUtils::normalizePathName(
+                                    localRunConfiguration->workingDirectory());
+                        ProjectExplorer::EnvironmentAspect *envAsp
+                                = localRunConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
+                        env = envAsp->environment();
+                        break;
+                    }
                 }
             }
         }
@@ -436,6 +437,20 @@ void TestTreeModel::removeAutoTestSubtreeByFilePath(const QString &file)
             break;
         }
     }
+}
+
+void TestTreeModel::addAutoTest(TestTreeItem *newItem)
+{
+    beginInsertRows(index(0, 0), m_autoTestRootItem->childCount(), m_autoTestRootItem->childCount());
+    m_autoTestRootItem->appendChild(newItem);
+    endInsertRows();
+}
+
+void TestTreeModel::removeAllAutoTests()
+{
+    beginResetModel();
+    m_autoTestRootItem->removeChildren();
+    endResetModel();
 }
 
 } // namespace Internal

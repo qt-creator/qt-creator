@@ -86,7 +86,9 @@ void TestRunner::runTests()
     ProjectExplorer::Internal::ProjectExplorerSettings pes = pep->projectExplorerSettings();
     if (pes.buildBeforeDeploy) {
         if (!project->hasActiveBuildSettings()) {
-            qDebug() << "no active build settings...???"; // let it configure?
+            TestResultsPane::instance()->addTestResult(
+                        TestResult(QString(), QString(), QString(), ResultType::MESSAGE_FATAL,
+                                   tr("*** Project is not configured - canceling Test Run ***")));
             return;
         }
         buildProject(project);

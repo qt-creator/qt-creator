@@ -39,12 +39,15 @@ public:
     void setRevision(unsigned revision) { m_revision = revision; }
     unsigned editorRevision() const { return m_editorRevision; }
     void setEditorRevision(unsigned editorRevision) { m_editorRevision = editorRevision; }
+    const QString referencingFile() const { return m_referencingFile; }
+    void setReferencingFile(const QString &refFile) {m_referencingFile = refFile; }
 
 private:
     QString m_className;
     QStringList m_functions;
     unsigned m_revision;
     unsigned m_editorRevision;
+    QString m_referencingFile;
 };
 
 } // namespace Internal

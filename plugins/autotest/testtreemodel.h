@@ -61,13 +61,15 @@ public:
     QList<TestConfiguration *> getAllTestCases() const;
     QList<TestConfiguration *> getSelectedTests() const;
 
+    void modifyAutoTestSubtree(int row, TestTreeItem *newItem);
+    void removeAutoTestSubtreeByFilePath(const QString &file);
+    void addAutoTest(TestTreeItem *newItem);
+    void removeAllAutoTests();
 signals:
 
 public slots:
 
 private:
-    void modifyAutoTestSubtree(int row, TestTreeItem *newItem);
-    void removeAutoTestSubtreeByFilePath(const QString &file);
     explicit TestTreeModel(QObject *parent = 0);
 
     TestTreeItem *m_rootItem;
@@ -75,7 +77,6 @@ private:
 //    TestTreeItem *m_quickTestRootItem;
     TestCodeParser *m_parser;
 
-    friend class TestCodeParser;
 };
 
 } // namespace Internal

@@ -19,6 +19,9 @@
 #ifndef TESTVISITOR_H
 #define TESTVISITOR_H
 
+#include <cplusplus/ASTVisitor.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/Scope.h>
 #include <cplusplus/SymbolVisitor.h>
 
 #include <QMap>
@@ -46,6 +49,24 @@ public:
 private:
     QString m_className;
     QMap<QString, TestCodeLocation> m_privSlots;
+};
+
+class TestAstVisitor : public CPlusPlus::ASTVisitor
+{
+public:
+    TestAstVisitor(CPlusPlus::Document::Ptr doc);
+    virtual ~TestAstVisitor();
+
+    bool visit(CPlusPlus::CallAST *ast);
+    bool visit(CPlusPlus::CompoundStatementAST *ast);
+
+    QString className() const { return m_className; }
+
+private:
+    QString m_className;
+    CPlusPlus::Scope *m_currentScope;
+    CPlusPlus::Document::Ptr m_currentDoc;
+
 };
 
 } // namespace Internal
