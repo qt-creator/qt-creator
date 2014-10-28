@@ -184,6 +184,8 @@ enum LogChannel
     ConsoleOutput            // Used to output to console
 };
 
+// Keep values compatible between Qt Creator versions,
+// because they are used by the installer for registering debuggers
 enum DebuggerEngineType
 {
     NoEngineType      = 0,
