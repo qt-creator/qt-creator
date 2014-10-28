@@ -48,12 +48,12 @@ public:
     };
 
     struct Range {
-        Range() : start(-1), duration(-1), typeId(-1), parent(-1) {}
-        Range(qint64 start, qint64 duration, int typeId) :
-            start(start), duration(duration), typeId(typeId), parent(-1) {}
+        Range() : start(-1), duration(-1), selectionId(-1), parent(-1) {}
+        Range(qint64 start, qint64 duration, int selectionId) :
+            start(start), duration(duration), selectionId(selectionId), parent(-1) {}
         qint64 start;
         qint64 duration;
-        int typeId;
+        int selectionId;
         int parent;
         inline qint64 timestamp() const {return start;}
     };

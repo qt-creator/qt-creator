@@ -304,10 +304,15 @@ qint64 AbstractTimelineModel::endTime(int index) const
     return d->ranges[index].start + d->ranges[index].duration;
 }
 
+/*!
+   Returns the type ID of the event with event ID \a index. The type ID is a globally valid ID which
+   can be used to communicate metainformation about events to other parts of the program. By default
+   it is -1, which means there is no global type information about the event.
+ */
 int AbstractTimelineModel::typeId(int index) const
 {
-    Q_D(const AbstractTimelineModel);
-    return d->ranges[index].typeId;
+    Q_UNUSED(index)
+    return -1;
 }
 
 /*!
@@ -374,10 +379,17 @@ QVariantMap AbstractTimelineModel::location(int index) const
     return map;
 }
 
+/*!
+    Returns \c true if this model can contain events of global type Id \a typeIndex. Otherwise
+    returns \c false.
+ */
 bool AbstractTimelineModel::handlesTypeId(int typeIndex) const
 {
-    Q_UNUSED(typeIndex);
-    return false;
+    if (typeIndex < 0)
+        return false;
+
+    Q_D(const AbstractTimelineModel);
+    return accepted(d->modelManager->qmlModel()->getEventTypes().at(typeIndex));
 }
 
 int AbstractTimelineModel::selectionIdForLocation(const QString &filename, int line, int column) const
@@ -453,16 +465,17 @@ QColor AbstractTimelineModel::colorByHue(int hue) const
 }
 
 /*!
-    \fn int AbstractTimelineModel::insert(qint64 startTime, qint64 duration)
-    Inserts a range at the given time position and returns its index.
+    Inserts an event at the time specified by \a startTime with the given \a duration and returns
+    its index. The \a selectionId determines the selection group the new event belongs to.
+    \sa selectionId()
 */
-int AbstractTimelineModel::insert(qint64 startTime, qint64 duration, int typeId)
+int AbstractTimelineModel::insert(qint64 startTime, qint64 duration, int selectionId)
 {
     Q_D(AbstractTimelineModel);
     /* Doing insert-sort here is preferable as most of the time the times will actually be
      * presorted in the right way. So usually this will just result in appending. */
     int index = d->insertSorted(d->ranges,
-                                AbstractTimelineModelPrivate::Range(startTime, duration, typeId));
+                                AbstractTimelineModelPrivate::Range(startTime, duration, selectionId));
     if (index < d->ranges.size() - 1)
         d->incrementStartIndices(index);
     d->insertSorted(d->endTimes,
@@ -471,15 +484,15 @@ int AbstractTimelineModel::insert(qint64 startTime, qint64 duration, int typeId)
 }
 
 /*!
-    \fn int AbstractTimelineModel::insertStart(qint64 startTime, int typeId)
-    Inserts the given data as range start at the given time position and
-    returns its index. The range end is not set.
+    Inserts a range start at the time given by \a startTime and returns its index. The range end is
+    not set. The \a selectionId determines the selection group the new event belongs to.
+    \sa selectionId()
 */
-int AbstractTimelineModel::insertStart(qint64 startTime, int typeId)
+int AbstractTimelineModel::insertStart(qint64 startTime, int selectionId)
 {
     Q_D(AbstractTimelineModel);
     int index = d->insertSorted(d->ranges,
-                                AbstractTimelineModelPrivate::Range(startTime, 0, typeId));
+                                AbstractTimelineModelPrivate::Range(startTime, 0, selectionId));
     if (index < d->ranges.size() - 1)
         d->incrementStartIndices(index);
     return index;
@@ -567,10 +580,18 @@ int AbstractTimelineModel::rowCount() const
     return d->expanded ? d->expandedRowCount : d->collapsedRowCount;
 }
 
+/*!
+    Returns the ID of the selection group the event with event Id \a index belongs to. Selection
+    groups are local to the model and the model can arbitrarily assign events to selection groups
+    when inserting them.
+    If one event from a selection group is selected, all visible other events from the same
+    selection group are highlighted. Rows are expected to correspond to selection IDs when the view
+    is expanded.
+ */
 int AbstractTimelineModel::selectionId(int index) const
 {
     Q_D(const AbstractTimelineModel);
-    return d->ranges[index].typeId;
+    return d->ranges[index].selectionId;
 }
 
 void AbstractTimelineModel::clear()

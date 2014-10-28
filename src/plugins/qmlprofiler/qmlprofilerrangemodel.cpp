@@ -259,15 +259,9 @@ QVariantMap QmlProfilerRangeModel::location(int index) const
     return result;
 }
 
-bool QmlProfilerRangeModel::handlesTypeId(int typeId) const
+int QmlProfilerRangeModel::typeId(int index) const
 {
-    if (typeId < 0)
-        return false;
-    const QmlProfilerDataModel::QmlEventTypeData &type =
-            modelManager()->qmlModel()->getEventTypes().at(typeId);
-    if (type.message != message() || type.rangeType != rangeType())
-        return false;
-    return true;
+    return selectionId(index);
 }
 
 int QmlProfilerRangeModel::selectionIdForLocation(const QString &filename, int line, int column) const

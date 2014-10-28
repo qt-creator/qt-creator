@@ -57,14 +57,14 @@ public:
     struct QmlPaintEventData {
         int framerate;
         int animationcount;
-        QmlDebug::AnimationThread threadId;
+        int typeId;
     };
 
     QmlProfilerAnimationsModel(QObject *parent = 0);
 
     int rowMaxValue(int rowNumber) const;
 
-    int selectionId(int index) const;
+    int typeId(int index) const;
     int row(int index) const;
 
     QColor color(int index) const;
@@ -84,7 +84,7 @@ private:
     QVector<QmlProfilerAnimationsModel::QmlPaintEventData> m_data;
     int m_maxGuiThreadAnimations;
     int m_maxRenderThreadAnimations;
-    int rowFromThreadId(QmlDebug::AnimationThread threadId) const;
+    int rowFromThreadId(int threadId) const;
 };
 
 }

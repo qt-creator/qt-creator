@@ -73,13 +73,12 @@ public:
     qint64 duration(int index) const;
     qint64 startTime(int index) const;
     qint64 endTime(int index) const;
-    int typeId(int index) const;
+    int selectionId(int index) const;
 
     int firstIndex(qint64 startTime) const;
     int firstIndexNoParents(qint64 startTime) const;
     int lastIndex(qint64 endTime) const;
 
-    bool accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;
     bool expanded() const;
     bool hidden() const;
     void setExpanded(bool expanded);
@@ -97,8 +96,9 @@ public:
     // Methods which can optionally be implemented by child models.
     // returned map should contain "file", "line", "column" properties, or be empty
     virtual QVariantMap location(int index) const;
-    virtual int selectionId(int index) const;
+    virtual int typeId(int index) const;
     virtual bool handlesTypeId(int typeId) const;
+    virtual bool accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;
     virtual int selectionIdForLocation(const QString &filename, int line, int column) const;
     virtual int bindingLoopDest(int index) const;
     virtual float relativeHeight(int index) const;
@@ -120,8 +120,8 @@ protected:
     QColor colorByFraction(double fraction) const;
     QColor colorByHue(int hue) const;
 
-    int insert(qint64 startTime, qint64 duration, int typeId);
-    int insertStart(qint64 startTime, int typeId);
+    int insert(qint64 startTime, qint64 duration, int selectionId);
+    int insertStart(qint64 startTime, int selectionId);
     void insertEnd(int index, qint64 duration);
     void computeNesting();
 
