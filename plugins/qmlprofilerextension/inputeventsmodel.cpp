@@ -27,7 +27,8 @@ using namespace QmlProfiler;
 
 InputEventsModel::InputEventsModel(QObject *parent)
     : AbstractTimelineModel(tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileInputEvents)),
-                            QmlDebug::Event, QmlDebug::MaximumRangeType, parent)
+                            QmlDebug::Event, QmlDebug::MaximumRangeType, parent),
+      m_keyTypeId(-1), m_mouseTypeId(-1)
 {
 }
 
@@ -36,9 +37,9 @@ quint64 InputEventsModel::features() const
     return 1 << QmlDebug::ProfileInputEvents;
 }
 
-int InputEventsModel::selectionId(int index) const
+int InputEventsModel::typeId(int index) const
 {
-    return modelManager()->qmlModel()->getEventTypes()[typeId(index)].detailType;
+    return selectionId(index) == QmlDebug::Mouse ? m_mouseTypeId : m_keyTypeId;
 }
 
 QColor InputEventsModel::color(int index) const
@@ -97,12 +98,24 @@ void InputEventsModel::loadData()
         const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex];
         if (!accepted(type))
             continue;
-        insert(event.startTime, 0, event.typeIndex);
+        insert(event.startTime, 0, type.detailType);
+        if (type.detailType == QmlDebug::Mouse) {
+            if (m_mouseTypeId == -1)
+                m_mouseTypeId = event.typeIndex;
+        } else if (m_keyTypeId == -1) {
+            m_keyTypeId = event.typeIndex;
+        }
         updateProgress(count(), simpleModel->getEvents().count());
     }
     setCollapsedRowCount(2);
     setExpandedRowCount(3);
     updateProgress(1, 1);
+}
+
+void InputEventsModel::clear()
+{
+    m_keyTypeId = m_mouseTypeId = -1;
+    AbstractTimelineModel::clear();
 }
 
 bool InputEventsModel::accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const

@@ -81,12 +81,12 @@ quint64 SceneGraphTimelineModel::features() const
 
 int SceneGraphTimelineModel::row(int index) const
 {
-    return expanded() ? (m_data[index].stage + 1) : m_data[index].rowNumberCollapsed;
+    return expanded() ? (selectionId(index) + 1) : m_data[index].rowNumberCollapsed;
 }
 
-int SceneGraphTimelineModel::selectionId(int index) const
+int SceneGraphTimelineModel::typeId(int index) const
 {
-    return m_data[index].stage;
+    return m_data[index].typeId;
 }
 
 QColor SceneGraphTimelineModel::color(int index) const
@@ -115,14 +115,15 @@ QVariantList SceneGraphTimelineModel::labels() const
 QVariantMap SceneGraphTimelineModel::details(int index) const
 {
     QVariantMap result;
-    const SceneGraphEvent *ev = &m_data[index];
+    const SceneGraphStage stage = static_cast<SceneGraphStage>(selectionId(index));
 
-    result.insert(QLatin1String("displayName"),
-                  tr(threadLabel(static_cast<SceneGraphStage>(ev->stage))));
-    result.insert(tr("Stage"), tr(StageLabels[ev->stage]));
+    result.insert(QLatin1String("displayName"), tr(threadLabel(stage)));
+    result.insert(tr("Stage"), tr(StageLabels[stage]));
     result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(duration(index)));
-    if (ev->glyphCount >= 0)
-        result.insert(tr("Glyphs"), QString::number(ev->glyphCount));
+
+    const int glyphCount = m_data[index].glyphCount;
+    if (glyphCount >= 0)
+        result.insert(tr("Glyphs"), QString::number(glyphCount));
 
     return result;
 }
@@ -234,11 +235,12 @@ void SceneGraphTimelineModel::flattenLoads()
 
     for (int i = 0; i < count(); i++) {
         SceneGraphEvent &event = m_data[i];
+        int stage = selectionId(i);
         // Don't try to put render thread events in GUI row and vice versa.
         // Rows below those are free for all.
-        if (event.stage < MaximumGUIThreadStage)
+        if (stage < MaximumGUIThreadStage)
             event.rowNumberCollapsed = SceneGraphGUIThread;
-        else if (event.stage < MaximumRenderThreadStage)
+        else if (stage < MaximumRenderThreadStage)
             event.rowNumberCollapsed = SceneGraphRenderThread;
         else
             event.rowNumberCollapsed = SceneGraphRenderThreadDetails;
@@ -273,8 +275,8 @@ qint64 SceneGraphTimelineModel::insert(qint64 start, qint64 duration, int typeIn
     if (duration <= 0)
         return 0;
 
-    m_data.insert(AbstractTimelineModel::insert(start, duration, typeIndex),
-                SceneGraphEvent(stage, glyphCount));
+    m_data.insert(AbstractTimelineModel::insert(start, duration, stage),
+                  SceneGraphEvent(typeIndex, glyphCount));
     return duration;
 }
 
@@ -295,8 +297,8 @@ void SceneGraphTimelineModel::clear()
     AbstractTimelineModel::clear();
 }
 
-SceneGraphTimelineModel::SceneGraphEvent::SceneGraphEvent(SceneGraphStage stage, int glyphCount) :
-    stage(stage), rowNumberCollapsed(-1), glyphCount(glyphCount)
+SceneGraphTimelineModel::SceneGraphEvent::SceneGraphEvent(int typeId, int glyphCount) :
+    typeId(typeId), rowNumberCollapsed(-1), glyphCount(glyphCount)
 {
 }
 

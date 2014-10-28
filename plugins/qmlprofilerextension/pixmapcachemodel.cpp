@@ -53,10 +53,9 @@ int PixmapCacheModel::row(int index) const
     return m_data[index].rowNumberCollapsed;
 }
 
-int PixmapCacheModel::selectionId(int index) const
+int PixmapCacheModel::typeId(int index) const
 {
-    return m_data[index].pixmapEventType == PixmapCacheCountChanged ?
-                0 : m_data[index].urlIndex + 1;
+    return m_data[index].typeId;
 }
 
 QColor PixmapCacheModel::color(int index) const
@@ -309,7 +308,8 @@ void PixmapCacheModel::loadData()
 
             PixmapState &state = pixmap.sizes[newEvent.sizeIndex];
             state.loadState = Loading;
-            state.started = insertStart(pixmapStartTime, event.typeIndex);
+            newEvent.typeId = event.typeIndex;
+            state.started = insertStart(pixmapStartTime, newEvent.urlIndex + 1);
             m_data.insert(state.started, newEvent);
             break;
         }
@@ -353,8 +353,10 @@ void PixmapCacheModel::loadData()
             // If the pixmap loading wasn't started, start it at traceStartTime()
             if (state.loadState == Initial) {
                 newEvent.pixmapEventType = PixmapLoadingStarted;
-                state.started = insert(modelManager()->traceTime()->startTime(), pixmapStartTime -
-                                       modelManager()->traceTime()->startTime(), event.typeIndex);
+                newEvent.typeId = event.typeIndex;
+                qint64 traceStart = modelManager()->traceTime()->startTime();
+                state.started = insert(traceStart, pixmapStartTime - traceStart,
+                                       newEvent.urlIndex + 1);
                 m_data.insert(state.started, newEvent);
 
                 // All other indices are wrong now as we've prepended. Fix them ...
@@ -487,7 +489,8 @@ int PixmapCacheModel::updateCacheCount(int lastCacheSizeEvent,
     }
 
     newEvent.cacheSize = prevSize + pixSize;
-    int index = insertStart(pixmapStartTime, typeId);
+    newEvent.typeId = typeId;
+    int index = insertStart(pixmapStartTime, 0);
     m_data.insert(index, newEvent);
     return index;
 }

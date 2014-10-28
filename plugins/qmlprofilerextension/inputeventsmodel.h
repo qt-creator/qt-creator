@@ -35,12 +35,18 @@ public:
     InputEventsModel(QObject *parent = 0);
     quint64 features() const;
 
-    int selectionId(int index) const;
+    int typeId(int index) const;
     QColor color(int index) const;
     QVariantList labels() const;
     QVariantMap details(int index) const;
     int row(int index) const;
     void loadData();
+    void clear();
+
+private:
+    int m_keyTypeId;
+    int m_mouseTypeId;
+
 };
 
 }

@@ -71,8 +71,8 @@ public:
     };
 
     struct SceneGraphEvent {
-        SceneGraphEvent(SceneGraphStage stage = MaximumSceneGraphStage, int glyphCount = -1);
-        SceneGraphStage stage;
+        SceneGraphEvent(int typeId = -1, int glyphCount = -1);
+        int typeId;
         int rowNumberCollapsed;
         int glyphCount; // only used for one event type
     };
@@ -81,7 +81,7 @@ public:
     quint64 features() const;
 
     int row(int index) const;
-    int selectionId(int index) const;
+    int typeId(int index) const;
     QColor color(int index) const;
 
     QVariantList labels() const;

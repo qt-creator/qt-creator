@@ -34,7 +34,7 @@ class MemoryUsageModel : public QmlProfiler::AbstractTimelineModel
 public:
 
     struct MemoryAllocation {
-        QmlDebug::MemoryType type;
+        int typeId;
         qint64 size;
         qint64 allocated;
         qint64 deallocated;
@@ -42,8 +42,7 @@ public:
         int deallocations;
         int originTypeIndex;
 
-        MemoryAllocation(QmlDebug::MemoryType type = QmlDebug::MaximumMemoryType,
-                         qint64 baseAmount = 0, int originTypeIndex = -1);
+        MemoryAllocation(int typeId = -1, qint64 baseAmount = 0, int originTypeIndex = -1);
         void update(qint64 amount);
     };
 
@@ -53,7 +52,7 @@ public:
     int rowMaxValue(int rowNumber) const;
 
     int row(int index) const;
-    int selectionId(int index) const;
+    int typeId(int index) const;
     QColor color(int index) const;
     float relativeHeight(int index) const;
 
