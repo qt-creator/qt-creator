@@ -5,6 +5,8 @@ import QtcPlugin
 QtcPlugin {
     name: "UpdateInfo"
 
+    condition: false // Severely broken atm.
+
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
     Depends { name: "Utils" }
 
