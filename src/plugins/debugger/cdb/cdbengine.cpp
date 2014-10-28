@@ -856,7 +856,7 @@ void CdbEngine::runEngine()
         notifyInferiorUnrunnable();
         processStop(*m_coreStopReason, false);
     } else {
-        postCommand("g", 0);
+        doContinueInferior();
     }
 }
 
@@ -2238,7 +2238,7 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
         showMessage(message, LogError);
     // Ignore things like WOW64, report tracepoints.
     if (stopFlags & StopIgnoreContinue) {
-        postCommand("g", 0);
+        doContinueInferior();
         return;
     }
     // Notify about state and send off command sequence to get stack, etc.
@@ -3179,7 +3179,7 @@ void CdbEngine::handleExpression(const CdbExtensionCommandPtr &command)
         if (value)
             processStop(cookie.stopReason, true);
         else
-            postCommand("g", 0);
+            doContinueInferior();
     }
 }
 
