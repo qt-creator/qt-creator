@@ -46,8 +46,7 @@ public:
         void update(qint64 amount);
     };
 
-    MemoryUsageModel(QObject *parent = 0);
-    quint64 features() const;
+    MemoryUsageModel(QmlProfiler::QmlProfilerModelManager *manager, QObject *parent = 0);
 
     int rowMaxValue(int rowNumber) const;
 

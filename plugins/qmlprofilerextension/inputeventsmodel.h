@@ -32,8 +32,7 @@ protected:
     bool accepted(const QmlProfiler::QmlProfilerDataModel::QmlEventTypeData &event) const;
 
 public:
-    InputEventsModel(QObject *parent = 0);
-    quint64 features() const;
+    InputEventsModel(QmlProfiler::QmlProfilerModelManager *manager, QObject *parent = 0);
 
     int typeId(int index) const;
     QColor color(int index) const;

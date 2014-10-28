@@ -85,8 +85,7 @@ public:
         qint64 cacheSize;
     };
 
-    PixmapCacheModel(QObject *parent = 0);
-    quint64 features() const;
+    PixmapCacheModel(QmlProfiler::QmlProfilerModelManager *manager, QObject *parent = 0);
 
     int rowMaxValue(int rowNumber) const;
 

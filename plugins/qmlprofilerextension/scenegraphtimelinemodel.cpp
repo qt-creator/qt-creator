@@ -68,15 +68,12 @@ enum SceneGraphCategoryType {
 Q_STATIC_ASSERT(sizeof(StageLabels) ==
                 SceneGraphTimelineModel::MaximumSceneGraphStage * sizeof(const char *));
 
-SceneGraphTimelineModel::SceneGraphTimelineModel(QObject *parent)
-    : AbstractTimelineModel(tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileSceneGraph)),
+SceneGraphTimelineModel::SceneGraphTimelineModel(QmlProfilerModelManager *manager, QObject *parent)
+    : AbstractTimelineModel(manager,
+                            tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileSceneGraph)),
                             QmlDebug::SceneGraphFrame, QmlDebug::MaximumRangeType, parent)
 {
-}
-
-quint64 SceneGraphTimelineModel::features() const
-{
-    return 1 << QmlDebug::ProfileSceneGraph;
+    announceFeatures(1 << QmlDebug::ProfileSceneGraph);
 }
 
 int SceneGraphTimelineModel::row(int index) const

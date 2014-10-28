@@ -18,6 +18,7 @@
 
 #include "qmlprofilerextensionplugin.h"
 #include "qmlprofilerextensionconstants.h"
+#include <qmlprofiler/qmlprofilertimelinemodelfactory.h>
 
 #include <licensechecker/licensecheckerplugin.h>
 
@@ -44,6 +45,21 @@
 #include "inputeventsmodel.h"
 
 using namespace QmlProfilerExtension::Internal;
+
+class ModelFactory : public QmlProfiler::QmlProfilerTimelineModelFactory {
+    Q_OBJECT
+public:
+    QList<QmlProfiler::AbstractTimelineModel *> create(
+            QmlProfiler::QmlProfilerModelManager *manager)
+    {
+        QList<QmlProfiler::AbstractTimelineModel *> models;
+        models << new PixmapCacheModel(manager, this)
+               << new SceneGraphTimelineModel(manager, this)
+               << new MemoryUsageModel(manager, this)
+               << new InputEventsModel(manager, this);
+        return models;
+    }
+};
 
 QmlProfilerExtensionPlugin::QmlProfilerExtensionPlugin()
 {
@@ -72,12 +88,8 @@ bool QmlProfilerExtensionPlugin::initialize(const QStringList &arguments, QStrin
             = ExtensionSystem::PluginManager::getObject<LicenseChecker::LicenseCheckerPlugin>();
 
     if (licenseChecker && licenseChecker->hasValidLicense()) {
-        if (licenseChecker->enterpriseFeatures()) {
-            addAutoReleasedObject(new PixmapCacheModel);
-            addAutoReleasedObject(new SceneGraphTimelineModel);
-            addAutoReleasedObject(new MemoryUsageModel);
-            addAutoReleasedObject(new InputEventsModel);
-        }
+        if (licenseChecker->enterpriseFeatures())
+            addAutoReleasedObject(new ModelFactory);
     } else {
         qWarning() << "Invalid license, disabling QML Profiler Enterprise features";
     }
@@ -107,3 +119,4 @@ void QmlProfilerExtensionPlugin::triggerAction()
                              tr("This is an action from QmlProfilerExtension."));
 }
 
+#include "qmlprofilerextensionplugin.moc"

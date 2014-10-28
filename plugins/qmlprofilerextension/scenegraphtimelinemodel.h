@@ -77,8 +77,7 @@ public:
         int glyphCount; // only used for one event type
     };
 
-    SceneGraphTimelineModel(QObject *parent = 0);
-    quint64 features() const;
+    SceneGraphTimelineModel(QmlProfiler::QmlProfilerModelManager *manager, QObject *parent = 0);
 
     int row(int index) const;
     int typeId(int index) const;
