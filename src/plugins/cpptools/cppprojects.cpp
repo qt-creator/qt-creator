@@ -137,6 +137,36 @@ ProjectInfo::ProjectInfo(QPointer<ProjectExplorer::Project> project)
     : m_project(project)
 {}
 
+bool ProjectInfo::operator ==(const ProjectInfo &other) const
+{
+    return m_project == other.m_project
+            && m_projectParts == other.m_projectParts
+            && m_compilerCallData == other.m_compilerCallData
+            && m_headerPaths == other.m_headerPaths
+            && m_sourceFiles == other.m_sourceFiles
+            && m_defines == other.m_defines;
+}
+
+bool ProjectInfo::operator !=(const ProjectInfo &other) const
+{
+    return !operator ==(other);
+}
+
+bool ProjectInfo::definesChanged(const ProjectInfo &other) const
+{
+    return m_defines != other.m_defines;
+}
+
+bool ProjectInfo::configurationChanged(const ProjectInfo &other) const
+{
+    return definesChanged(other) || m_headerPaths != other.m_headerPaths;
+}
+
+bool ProjectInfo::configurationOrFilesChanged(const ProjectInfo &other) const
+{
+    return configurationChanged(other) || m_sourceFiles != other.m_sourceFiles;
+}
+
 bool ProjectInfo::isValid() const
 {
     return !m_project.isNull();
@@ -193,6 +223,7 @@ void ProjectInfo::clearProjectParts()
     m_headerPaths.clear();
     m_sourceFiles.clear();
     m_defines.clear();
+    m_compilerCallData.clear();
 }
 
 const ProjectPart::HeaderPaths ProjectInfo::headerPaths() const
@@ -208,6 +239,16 @@ const QSet<QString> ProjectInfo::sourceFiles() const
 const QByteArray ProjectInfo::defines() const
 {
     return m_defines;
+}
+
+void ProjectInfo::setCompilerCallData(const CompilerCallData &data)
+{
+    m_compilerCallData = data;
+}
+
+ProjectInfo::CompilerCallData ProjectInfo::compilerCallData() const
+{
+    return m_compilerCallData;
 }
 
 namespace {
