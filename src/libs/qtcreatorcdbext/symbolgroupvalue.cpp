@@ -1225,6 +1225,8 @@ static KnownType knownClassTypeHelper(const std::string &type,
             return KT_QMetaEnum;
         if (!type.compare(qPos, 9, "QTextItem"))
             return KT_QTextItem;
+        if (!type.compare(qPos, 9, "QTimeZone"))
+            return KT_QTimeZone;
         if (!type.compare(qPos, 9, "QVector2D"))
             return KT_QVector2D;
         if (!type.compare(qPos, 9, "QVector3D"))
@@ -2147,6 +2149,11 @@ static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str)
     return true;
 }
 
+static bool dumpQTimeZone(const SymbolGroupValue &v, std::wostream &str)
+{
+    return dumpQByteArrayFromQPrivateClass(v, QPDM_qSharedDataPadded, SymbolGroupValue::pointerSize(), str);
+}
+
 static bool dumpQPixmap(const SymbolGroupValue &v, std::wostream &str)
 {
     const SymbolGroupValue pixmapSharedData = v["data"]["d"];
@@ -2766,6 +2773,9 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
             break;
         case KT_QDateTime:
             rc = dumpQDateTime(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QTimeZone:
+            rc = dumpQTimeZone(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QPoint:
         case KT_QPointF:
