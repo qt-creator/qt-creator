@@ -56,6 +56,7 @@ fi
 # copy libclang if needed
 if [ $LLVM_INSTALL_DIR ]; then
     if [ "$LLVM_INSTALL_DIR"/lib/libclang.dylib -nt "$1/Contents/PlugIns"/libclang.dylib ]; then
+        echo "- Copying libclang"
         cp -f "$LLVM_INSTALL_DIR"/lib/libclang.dylib "$1/Contents/PlugIns/" || exit 1
         cp -Rf "$LLVM_INSTALL_DIR"/lib/clang "$1/Contents/Resources/cplusplus/" || exit 1
     fi
@@ -68,19 +69,22 @@ if [ $LLVM_INSTALL_DIR ]; then
 fi
 
 #### macdeployqt
-qmlpuppetapp="$1/Contents/MacOS/qmlpuppet"
-if [ -f "$qmlpuppetapp" ]; then
-    qmlpuppetArgument="-executable=$qmlpuppetapp"
-fi
 
-qml2puppetapp="$1/Contents/MacOS/qml2puppet"
-if [ -f "$qml2puppetapp" ]; then
-    qml2puppetArgument="-executable=$qml2puppetapp"
-fi
+if [ ! -d "$1/Contents/Frameworks/QtCore.framework" ]; then
 
-echo "- Running macdeployqt"
+    qmlpuppetapp="$1/Contents/MacOS/qmlpuppet"
+    if [ -f "$qmlpuppetapp" ]; then
+        qmlpuppetArgument="-executable=$qmlpuppetapp"
+    fi
 
-macdeployqt "$1" \
+    qml2puppetapp="$1/Contents/MacOS/qml2puppet"
+    if [ -f "$qml2puppetapp" ]; then
+        qml2puppetArgument="-executable=$qml2puppetapp"
+    fi
+
+    echo "- Running macdeployqt ($(which macdeployqt))"
+
+    macdeployqt "$1" \
         "-executable=$1/Contents/Resources/qtpromaker" \
         "-executable=$1/Contents/Resources/sdktool" \
         "-executable=$1/Contents/Resources/ios/iostool" \
@@ -88,3 +92,4 @@ macdeployqt "$1" \
         "-executable=$1/Contents/Resources/ios/iossim_1_8_2" \
         "$qmlpuppetArgument" "$qml2puppetArgument" || exit 1
 
+fi
