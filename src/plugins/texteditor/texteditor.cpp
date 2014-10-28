@@ -2909,7 +2909,7 @@ void TextEditorWidgetPrivate::setupDocumentSignals()
     q->setDisplaySettings(settings->displaySettings());
     q->setCompletionSettings(settings->completionSettings());
     q->setExtraEncodingSettings(settings->extraEncodingSettings());
-    q->setCodeStyle(settings->codeStyle(q->languageSettingsId()));
+    q->setCodeStyle(settings->codeStyle(m_tabSettingsId));
 }
 
 bool TextEditorWidgetPrivate::snippetCheckCursor(const QTextCursor &cursor)
