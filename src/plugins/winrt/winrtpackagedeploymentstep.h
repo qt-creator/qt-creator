@@ -42,6 +42,7 @@ class WinRtPackageDeploymentStep : public ProjectExplorer::AbstractProcessStep
 public:
     explicit WinRtPackageDeploymentStep(ProjectExplorer::BuildStepList *bsl);
     bool init();
+    void run(QFutureInterface<bool> &fi);
     bool processSucceeded(int exitCode, QProcess::ExitStatus status);
     void stdOutput(const QString &line);
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
@@ -51,6 +52,7 @@ public:
     QString defaultWinDeployQtArguments() const;
 
     void raiseError(const QString &errorMessage);
+    void raiseWarning(const QString &warningMessage);
 
     bool fromMap(const QVariantMap &map);
     QVariantMap toMap() const;

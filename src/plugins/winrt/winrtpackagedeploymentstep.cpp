@@ -99,13 +99,30 @@ bool WinRtPackageDeploymentStep::init()
     QString args = QtcProcess::quoteArg(QDir::toNativeSeparators(m_targetFilePath));
     args += QLatin1Char(' ') + m_args;
 
+    if (qt->type() == QLatin1String(Constants::WINRT_WINPHONEQT)) {
+        m_createMappingFile = true;
+        args += QLatin1String(" -list mapping");
+    }
+
+    ProcessParameters *params = processParameters();
+    params->setCommand(QLatin1String("windeployqt.exe"));
+    params->setArguments(args);
+    params->setEnvironment(target()->activeBuildConfiguration()->environment());
+
+    return AbstractProcessStep::init();
+}
+
+void WinRtPackageDeploymentStep::run(QFutureInterface<bool> &fi)
+{
+    AbstractProcessStep::run(fi);
+
+    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target()->kit());
+    if (!qt)
+        return;
+
     m_manifestFileName = QStringLiteral("AppxManifest");
 
-    if (qt->type() == QLatin1String(Constants::WINRT_WINPHONEQT))
-        m_createMappingFile = true;
-
     if (m_createMappingFile) {
-        args += QLatin1String(" -list mapping");
         m_mappingFileContent = QLatin1String("[Files]\n");
 
         QDir assetDirectory(m_targetDirPath + QLatin1String("assets"));
@@ -116,7 +133,7 @@ bool WinRtPackageDeploymentStep::init()
             if (!parseIconsAndExecutableFromManifest(fullManifestPath, &iconsToDeploy,
                                                      &m_executablePathInManifest)) {
                 raiseError(tr("Cannot parse manifest file %1.").arg(fullManifestPath));
-                return false;
+                return;
             }
             foreach (const QString &icon, iconsToDeploy) {
                 m_mappingFileContent += QLatin1Char('"')
@@ -125,13 +142,6 @@ bool WinRtPackageDeploymentStep::init()
             }
         }
     }
-
-    ProcessParameters *params = processParameters();
-    params->setCommand(QLatin1String("windeployqt.exe"));
-    params->setArguments(args);
-    params->setEnvironment(target()->activeBuildConfiguration()->environment());
-
-    return AbstractProcessStep::init();
 }
 
 bool WinRtPackageDeploymentStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
