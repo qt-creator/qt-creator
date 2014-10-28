@@ -84,8 +84,13 @@ ClangStaticAnalyzerRunner::ClangStaticAnalyzerRunner(const QString &clangExecuta
 ClangStaticAnalyzerRunner::~ClangStaticAnalyzerRunner()
 {
     const QProcess::ProcessState processState = m_process.state();
-    if (processState == QProcess::Starting || processState == QProcess::Running)
-        m_process.kill();
+    if (processState == QProcess::Starting || processState == QProcess::Running) {
+        m_process.terminate();
+        if (!m_process.waitForFinished(500)) {
+            m_process.kill();
+            m_process.waitForFinished();
+        }
+    }
 }
 
 bool ClangStaticAnalyzerRunner::run(const QString &filePath, const QStringList &compilerOptions)

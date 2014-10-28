@@ -74,8 +74,8 @@ private:
     QString m_clangLogFileDir;
     QFutureInterface<void> m_progress;
     QList<SourceFileConfiguration> m_filesToProcess;
+    QSet<ClangStaticAnalyzerRunner *> m_runners;
     int m_initialFilesToProcessSize;
-    int m_runningProcesses;
 };
 
 } // namespace Internal

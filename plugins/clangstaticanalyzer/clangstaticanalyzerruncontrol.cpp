@@ -53,7 +53,6 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
         ProjectExplorer::RunConfiguration *runConfiguration)
     : AnalyzerRunControl(startParams, runConfiguration)
     , m_initialFilesToProcessSize(0)
-    , m_runningProcesses(0)
 {
 }
 
@@ -135,17 +134,25 @@ bool ClangStaticAnalyzerRunControl::startEngine()
     m_progress.reportStarted();
 
     // Start process(es)
+    m_runners.clear();
     const int parallelRuns = ClangStaticAnalyzerSettings::instance()->simultaneousProcesses();
     QTC_ASSERT(parallelRuns >= 1, emit finished(); return false);
-    m_runningProcesses = 0;
-    while (m_runningProcesses < parallelRuns && !m_filesToProcess.isEmpty())
+    while (m_runners.size() < parallelRuns && !m_filesToProcess.isEmpty())
         analyzeNextFile();
     return true;
 }
 
 void ClangStaticAnalyzerRunControl::stopEngine()
 {
+    QSetIterator<ClangStaticAnalyzerRunner *> i(m_runners);
+    while (i.hasNext()) {
+        ClangStaticAnalyzerRunner *runner = i.next();
+        QObject::disconnect(runner, 0, this, 0);
+        delete runner;
+    }
+    m_runners.clear();
     m_filesToProcess.clear();
+    analyzeNextFile(); // emits finished
 }
 
 void ClangStaticAnalyzerRunControl::analyzeNextFile()
@@ -154,8 +161,7 @@ void ClangStaticAnalyzerRunControl::analyzeNextFile()
         return; // The previous call already reported that we are finished.
 
     if (m_filesToProcess.isEmpty()) {
-        QTC_ASSERT(m_runningProcesses >= 0, return);
-        if (m_runningProcesses == 0) {
+        if (m_runners.size() == 0) {
             m_progress.reportFinished();
             emit finished();
         }
@@ -167,9 +173,9 @@ void ClangStaticAnalyzerRunControl::analyzeNextFile()
     const QStringList options = config.createClangOptions();
 
     ClangStaticAnalyzerRunner *runner = createRunner();
+    m_runners.insert(runner);
     qCDebug(LOG) << "analyzeNextFile:" << filePath;
     QTC_ASSERT(runner->run(filePath, options), return);
-    ++m_runningProcesses;
 }
 
 ClangStaticAnalyzerRunner *ClangStaticAnalyzerRunControl::createRunner()
@@ -208,7 +214,7 @@ void ClangStaticAnalyzerRunControl::onRunnerFinishedWithFailure(const QString &e
 
 void ClangStaticAnalyzerRunControl::handleFinished()
 {
-    --m_runningProcesses;
+    m_runners.remove(qobject_cast<ClangStaticAnalyzerRunner *>(sender()));
     updateProgressValue();
     sender()->deleteLater();
     analyzeNextFile();
