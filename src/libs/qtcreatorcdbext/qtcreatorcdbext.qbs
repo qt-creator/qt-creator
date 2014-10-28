@@ -5,6 +5,7 @@ import qbs.FileInfo
 QtcLibrary {
     condition: qbs.toolchain.contains("msvc") && cdbPath
     name: "qtcreatorcdbext"
+    targetName: name
     property string cdbPath: {
         var paths = [
             qbs.getEnv("CDB_PATH"),
