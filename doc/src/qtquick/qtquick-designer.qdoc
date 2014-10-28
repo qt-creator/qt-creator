@@ -24,16 +24,15 @@
 
 /*!
     \contentspage {Qt Creator Manual}
-    \previouspage quick-projects.html
+    \previouspage creator-quick-ui-forms.html
     \page creator-using-qt-quick-designer.html
     \nextpage quick-components.html
 
     \title Using Qt Quick Designer
 
-    You can edit .qml files in the \QMLD visual editor or in the code editor.
-
-    In \gui Projects, double-click a .qml file to open it in the code editor.
-    Then select the \gui {Design} mode to edit the file in the visual editor.
+    You can edit \l{Qt Quick UI Forms} (ui.qml files) in \QMLD. \QC opens the
+    UI forms in the \gui Design mode. It is recommended that you use UI forms
+    for components that you want to desing in \QMLD.
 
     \image qmldesigner-visual-editor.png "Visual editor"
 
@@ -185,7 +184,8 @@
     values that you specify explicitly are highlighted with blue color. In
     addition, property changes in states are highlighted with blue.
 
-    This allows you to easily see which values are set in the .qml file and
+    This allows you to easily see which values are set in the UI form or
+    QML file and
     which values are default characteristics of a QML type or a component.
 
     When editing states, you can easily see which values are explicitly set in
@@ -201,7 +201,7 @@
     \image qmldesigner-properties-explicit-state1.png "Explicitly set properties"
 
     Resetting a property sets it back to the default value and removes the value
-    from the .qml file.
+    from the UI form or QML file.
 
     \note As a result, all boolean values can be visualized in four different
     ways.

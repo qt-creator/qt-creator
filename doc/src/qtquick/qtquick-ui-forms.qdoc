@@ -1,0 +1,105 @@
+/****************************************************************************
+**
+** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of Qt Creator
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+
+    \contentspage {Qt Creator Manual}
+    \previouspage quick-projects.html
+    \page creator-quick-ui-forms.html
+    \nextpage creator-using-qt-quick-designer.html
+
+    \title Qt Quick UI Forms
+
+    You can use \QC wizards to create UI forms tha have the filename extension
+    \e .ui.qml. The UI forms contain a purely declarative subset of the QML
+    language. It is recommended that you edit the forms in the \gui Design mode.
+    \QC enforces the use of the supported QML features by displaying error
+    messages.
+
+    The following features are not supported:
+
+    \list
+        \li JavaScript blocks
+        \li Function definitions
+        \li Function calls (except \c qsTr)
+        \li Other bindings than pure expressions
+        \li Signal handlers
+        \li States in other items than the root item
+        \li Root items that are not derived from \l QQuickItem or \l Item
+    \endlist
+
+    The following types are not supported:
+
+    \list
+        \li Behavior
+        \li Binding
+        \li Canvas
+        \li Component
+        \li Shader Effect
+        \li Timer
+        \li Transform
+        \li Transition
+    \endlist
+
+    \section1 Using Qt Quick UI Forms
+
+    You can edit the forms in the \gui Design mode. Items that are supposed to
+    be used in QML code have to be exported as properties:
+
+    \code
+    Item {
+        width: 640
+        height: 480
+
+        property alias button: button
+
+        Button {
+            anchors.centerIn: parent
+            id: button
+            text: qsTr("Press Me")
+        }
+    }
+    \endcode
+
+    The property alias exports the button to the QML code that uses the form.
+    In \QC Enterprise you can use the
+    \inlineimage qmldesigner-export-item-button.png
+    (\gui Export) button in the \gui Navigator to export an item as a property:
+
+    \image qmldesigner-export-item.png
+
+    In the QML file that uses the form, you can use the \c button property alias
+    to implement signal handlers, for example. In the following code snippet,
+    the UI form is called \e MainForm.ui.qml:
+
+    \code
+    MainForm {
+        anchors.fill: parent
+        button.onClicked: messageDialog.show(qsTr("Button pressed"))
+    }
+    \endcode
+
+    You can also assign properties or define behavior or transitions.
+
+*/

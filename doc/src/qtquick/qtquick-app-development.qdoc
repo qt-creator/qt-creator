@@ -36,6 +36,13 @@
         \li \l {Creating Qt Quick Projects}
 
             You can use wizards to create Qt Quick projects.
+
+        \li \l{Qt Quick UI Forms}
+
+            Some of the wizards create Qt Quick projects that contain UI forms
+            (.ui.qml files). The forms use a purely declarative subset of the
+            QML language and you can edit them in the Design mode.
+
         \li \l {Using Qt Quick Designer}
 
             You can use the code editor (Edit mode) or the visual editor (Design
