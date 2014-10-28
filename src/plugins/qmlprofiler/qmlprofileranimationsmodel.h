@@ -60,7 +60,7 @@ public:
         int typeId;
     };
 
-    QmlProfilerAnimationsModel(QObject *parent = 0);
+    QmlProfilerAnimationsModel(QmlProfilerModelManager *manager, QObject *parent = 0);
 
     int rowMaxValue(int rowNumber) const;
 
@@ -72,7 +72,6 @@ public:
 
     QVariantList labels() const;
     QVariantMap details(int index) const;
-    quint64 features() const;
 
     bool accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;
 

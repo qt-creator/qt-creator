@@ -47,18 +47,17 @@ class QMLPROFILER_EXPORT AbstractTimelineModel : public QObject
     Q_PROPERTY(bool empty READ isEmpty NOTIFY emptyChanged)
     Q_PROPERTY(bool hidden READ hidden WRITE setHidden NOTIFY hiddenChanged)
     Q_PROPERTY(int height READ height NOTIFY heightChanged)
-    Q_PROPERTY(QmlProfilerModelManager *modelManager READ modelManager WRITE setModelManager
-               NOTIFY modelManagerChanged)
+    Q_PROPERTY(QmlProfilerModelManager *modelManager READ modelManager)
 
 public:
     class AbstractTimelineModelPrivate;
 
-    AbstractTimelineModel(const QString &displayName, QmlDebug::Message message,
-                          QmlDebug::RangeType rangeType, QObject *parent);
+    AbstractTimelineModel(QmlProfilerModelManager *manager, const QString &displayName,
+                          QmlDebug::Message message, QmlDebug::RangeType rangeType,
+                          QObject *parent);
     ~AbstractTimelineModel();
 
     // Trivial methods implemented by the abstract model itself
-    void setModelManager(QmlProfilerModelManager *modelManager);
     QmlProfilerModelManager *modelManager() const;
 
     bool isEmpty() const;
@@ -91,7 +90,6 @@ public:
     virtual QVariantList labels() const = 0;
     virtual QVariantMap details(int index) const = 0;
     virtual int row(int index) const = 0;
-    virtual quint64 features() const = 0;
 
     // Methods which can optionally be implemented by child models.
     // returned map should contain "file", "line", "column" properties, or be empty
@@ -113,7 +111,6 @@ signals:
     void rowHeightChanged();
     void emptyChanged();
     void heightChanged();
-    void modelManagerChanged();
 
 protected:
     QColor colorBySelectionId(int index) const;
@@ -135,8 +132,10 @@ protected:
     QmlDebug::Message message() const;
 
     void updateProgress(qint64 count, qint64 max) const;
+    void announceFeatures(quint64 features) const;
 
-    explicit AbstractTimelineModel(AbstractTimelineModelPrivate *dd, const QString &displayName,
+    explicit AbstractTimelineModel(AbstractTimelineModelPrivate *dd,
+                                   QmlProfilerModelManager *manager, const QString &displayName,
                                    QmlDebug::Message message, QmlDebug::RangeType rangeType,
                                    QObject *parent);
     AbstractTimelineModelPrivate *d_ptr;

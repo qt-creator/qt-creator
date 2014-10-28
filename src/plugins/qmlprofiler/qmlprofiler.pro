@@ -23,6 +23,7 @@ SOURCES += \
     qmlprofilerruncontrolfactory.cpp \
     qmlprofilerstatemanager.cpp \
     qmlprofilerstatewidget.cpp \
+    qmlprofilertimelinemodelfactory.cpp \
     qmlprofilertool.cpp \
     qmlprofilertracefile.cpp \
     qmlprofilertraceview.cpp \
@@ -58,6 +59,7 @@ HEADERS += \
     qmlprofilerruncontrolfactory.h \
     qmlprofilerstatemanager.h \
     qmlprofilerstatewidget.h \
+    qmlprofilertimelinemodelfactory.h \
     qmlprofilertool.h \
     qmlprofilertracefile.h \
     qmlprofilertraceview.h \

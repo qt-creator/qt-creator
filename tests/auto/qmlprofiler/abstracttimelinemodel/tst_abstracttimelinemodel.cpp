@@ -53,7 +53,6 @@ public:
     QVariantList labels() const { return QVariantList(); }
     QVariantMap details(int) const { return QVariantMap(); }
     int row(int) const { return 1; }
-    quint64 features() const { return 0; }
 
 protected:
     void loadData();

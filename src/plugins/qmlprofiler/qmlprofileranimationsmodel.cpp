@@ -46,16 +46,14 @@
 namespace QmlProfiler {
 namespace Internal {
 
-QmlProfilerAnimationsModel::QmlProfilerAnimationsModel(QObject *parent)
-    : AbstractTimelineModel(tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileAnimations)),
+QmlProfilerAnimationsModel::QmlProfilerAnimationsModel(QmlProfilerModelManager *manager,
+                                                       QObject *parent)
+    : AbstractTimelineModel(manager,
+                            tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileAnimations)),
                             QmlDebug::Event, QmlDebug::MaximumRangeType, parent)
 {
     m_maxGuiThreadAnimations = m_maxRenderThreadAnimations = 0;
-}
-
-quint64 QmlProfilerAnimationsModel::features() const
-{
-    return 1 << QmlDebug::ProfileAnimations;
+    announceFeatures(1 << QmlDebug::ProfileAnimations);
 }
 
 void QmlProfilerAnimationsModel::clear()

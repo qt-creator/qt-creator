@@ -80,20 +80,15 @@ void TimelineModelAggregator::setModelManager(QmlProfilerModelManager *modelMana
     connect(modelManager,SIGNAL(dataAvailable()),this,SIGNAL(dataAvailable()));
 
     // external models pushed on top
-    foreach (AbstractTimelineModel *timelineModel, QmlProfilerPlugin::instance->getModels()) {
-        timelineModel->setModelManager(modelManager);
+    foreach (AbstractTimelineModel *timelineModel,
+             QmlProfilerPlugin::instance->getModels(modelManager)) {
         addModel(timelineModel);
     }
 
-    QmlProfilerAnimationsModel *paintEventsModelProxy = new QmlProfilerAnimationsModel(this);
-    paintEventsModelProxy->setModelManager(modelManager);
-    addModel(paintEventsModelProxy);
+    addModel(new QmlProfilerAnimationsModel(modelManager, this));
 
-    for (int i = 0; i < QmlDebug::MaximumRangeType; ++i) {
-        QmlProfilerRangeModel *rangeModel = new QmlProfilerRangeModel((QmlDebug::RangeType)i, this);
-        rangeModel->setModelManager(modelManager);
-        addModel(rangeModel);
-    }
+    for (int i = 0; i < QmlDebug::MaximumRangeType; ++i)
+        addModel(new QmlProfilerRangeModel(modelManager, (QmlDebug::RangeType)i, this));
 
     // Connect this last so that it's executed after the models have updated their data.
     connect(modelManager->qmlModel(),SIGNAL(changed()),this,SIGNAL(stateChanged()));

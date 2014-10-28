@@ -92,7 +92,7 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
 
 void QmlProfilerPlugin::extensionsInitialized()
 {
-    timelineModels = ExtensionSystem::PluginManager::getObjects<AbstractTimelineModel>();
+    factory = ExtensionSystem::PluginManager::getObject<QmlProfilerTimelineModelFactory>();
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerPlugin::aboutToShutdown()
@@ -103,9 +103,9 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerPlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
-QList<AbstractTimelineModel *> QmlProfilerPlugin::getModels() const
+QList<AbstractTimelineModel *> QmlProfilerPlugin::getModels(QmlProfilerModelManager *manager) const
 {
-    return timelineModels;
+    return factory->create(manager);
 }
 
 } // namespace Internal

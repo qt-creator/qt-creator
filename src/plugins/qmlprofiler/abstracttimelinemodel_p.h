@@ -67,8 +67,8 @@ public:
         inline qint64 timestamp() const {return end;}
     };
 
-    void init(AbstractTimelineModel *q, const QString &displayName, QmlDebug::Message message,
-              QmlDebug::RangeType rangeType);
+    void init(AbstractTimelineModel *q, QmlProfilerModelManager *manager,
+              const QString &displayName, QmlDebug::Message message, QmlDebug::RangeType rangeType);
 
     inline qint64 lastEndTime() const { return endTimes.last().end; }
     inline qint64 firstStartTime() const { return ranges.first().start; }

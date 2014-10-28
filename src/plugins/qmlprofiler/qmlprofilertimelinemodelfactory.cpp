@@ -28,41 +28,9 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERPLUGIN_H
-#define QMLPROFILERPLUGIN_H
-
-#include "qmlprofiler_global.h"
 #include "qmlprofilertimelinemodelfactory.h"
-#include <extensionsystem/iplugin.h>
 
-#include "abstracttimelinemodel.h"
+// The presence of this file makes sure that moc generates metadata
 
 namespace QmlProfiler {
-namespace Internal {
-
-class QmlProfilerPlugin : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfiler.json")
-
-public:
-    QmlProfilerPlugin() {}
-
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
-
-    static bool debugOutput;
-    static QmlProfilerPlugin *instance;
-
-    QList<AbstractTimelineModel *> getModels(QmlProfilerModelManager *manager) const;
-
-private:
-    QmlProfilerTimelineModelFactory *factory;
-};
-
-} // namespace Internal
-} // namespace QmlProfiler
-
-#endif // QMLPROFILERPLUGIN_H
-
+}

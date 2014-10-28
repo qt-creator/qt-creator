@@ -140,13 +140,14 @@ void QmlProfiler::AbstractTimelineModel::setExpandedRowCount(int rows)
 }
 
 void AbstractTimelineModel::AbstractTimelineModelPrivate::init(AbstractTimelineModel *q,
+                                                               QmlProfilerModelManager *manager,
                                                                const QString &newDisplayName,
                                                                QmlDebug::Message newMessage,
                                                                QmlDebug::RangeType newRangeType)
 {
     q_ptr = q;
-    modelId = 0;
-    modelManager = 0;
+    modelId = manager->registerModelProxy();
+    modelManager = manager;
     expanded = false;
     hidden = false;
     displayName = newDisplayName;
@@ -154,6 +155,7 @@ void AbstractTimelineModel::AbstractTimelineModelPrivate::init(AbstractTimelineM
     rangeType = newRangeType;
     expandedRowCount = 1;
     collapsedRowCount = 1;
+    connect(modelManager->qmlModel(), SIGNAL(changed()), q, SLOT(_q_dataChanged()));
     connect(q,SIGNAL(rowHeightChanged()),q,SIGNAL(heightChanged()));
     connect(q,SIGNAL(expandedChanged()),q,SIGNAL(heightChanged()));
     connect(q,SIGNAL(hiddenChanged()),q,SIGNAL(heightChanged()));
@@ -161,43 +163,25 @@ void AbstractTimelineModel::AbstractTimelineModelPrivate::init(AbstractTimelineM
 
 
 AbstractTimelineModel::AbstractTimelineModel(AbstractTimelineModelPrivate *dd,
-        const QString &displayName, QmlDebug::Message message, QmlDebug::RangeType rangeType,
-        QObject *parent) :
+        QmlProfilerModelManager *manager, const QString &displayName, QmlDebug::Message message,
+        QmlDebug::RangeType rangeType, QObject *parent) :
     QObject(parent), d_ptr(dd)
 {
-    dd->init(this, displayName, message, rangeType);
+    d_ptr->init(this, manager, displayName, message, rangeType);
 }
 
-AbstractTimelineModel::AbstractTimelineModel(const QString &displayName, QmlDebug::Message message,
-                                             QmlDebug::RangeType rangeType, QObject *parent) :
+AbstractTimelineModel::AbstractTimelineModel(QmlProfilerModelManager *manager,
+        const QString &displayName, QmlDebug::Message message, QmlDebug::RangeType rangeType,
+        QObject *parent) :
     QObject(parent), d_ptr(new AbstractTimelineModelPrivate)
 {
-    d_ptr->init(this, displayName, message, rangeType);
+    d_ptr->init(this, manager, displayName, message, rangeType);
 }
 
 AbstractTimelineModel::~AbstractTimelineModel()
 {
     Q_D(AbstractTimelineModel);
     delete d;
-}
-
-void AbstractTimelineModel::setModelManager(QmlProfilerModelManager *modelManager)
-{
-    Q_D(AbstractTimelineModel);
-    if (modelManager != d->modelManager) {
-        if (d->modelManager != 0) {
-            disconnect(d->modelManager->qmlModel(), SIGNAL(changed()),
-                       this, SLOT(_q_dataChanged()));
-            // completely unregistering is not supported
-            d->modelManager->setProxyCountWeight(d->modelId, 0);
-        }
-        d->modelManager = modelManager;
-        connect(d->modelManager->qmlModel(), SIGNAL(changed()),
-                this, SLOT(_q_dataChanged()));
-        d->modelId = d->modelManager->registerModelProxy();
-        d->modelManager->announceFeatures(d->modelId, features());
-        emit modelManagerChanged();
-    }
 }
 
 QmlProfilerModelManager *AbstractTimelineModel::modelManager() const
@@ -445,6 +429,12 @@ void AbstractTimelineModel::updateProgress(qint64 count, qint64 max) const
 {
     Q_D(const AbstractTimelineModel);
     d->modelManager->modelProxyCountUpdated(d->modelId, count, max);
+}
+
+void AbstractTimelineModel::announceFeatures(quint64 features) const
+{
+    Q_D(const AbstractTimelineModel);
+    d->modelManager->announceFeatures(d->modelId, features);
 }
 
 QColor AbstractTimelineModel::colorBySelectionId(int index) const

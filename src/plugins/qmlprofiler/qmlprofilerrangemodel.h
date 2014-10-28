@@ -61,10 +61,10 @@ public:
         int bindingLoopHead;
     };
 
-    QmlProfilerRangeModel(QmlDebug::RangeType rangeType, QObject *parent = 0);
+    QmlProfilerRangeModel(QmlProfilerModelManager *manager, QmlDebug::RangeType range,
+                          QObject *parent = 0);
 
     static QString categoryLabel(QmlDebug::RangeType categoryIndex);
-    quint64 features() const;
 
     int row(int index) const;
     int bindingLoopDest(int index) const;
