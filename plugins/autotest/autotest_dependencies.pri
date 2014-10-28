@@ -3,7 +3,8 @@ QTC_PLUGIN_NAME = AutoTest
 QTC_PLUGIN_DEPENDS += \
     coreplugin \
     projectexplorer \
-    cpptools
+    cpptools \
+    licensechecker
 
 QTC_LIB_DEPENDS += \
     cplusplus \

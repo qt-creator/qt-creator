@@ -30,6 +30,10 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/coreconstants.h>
 
+#include <extensionsystem/pluginmanager.h>
+
+#include <licensechecker/licensecheckerplugin.h>
+
 #include <QAction>
 #include <QMessageBox>
 #include <QMainWindow>
@@ -65,6 +69,15 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
 
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
+
+    LicenseChecker::LicenseCheckerPlugin *licenseChecker
+            = ExtensionSystem::PluginManager::getObject<LicenseChecker::LicenseCheckerPlugin>();
+
+    if (!licenseChecker || !licenseChecker->hasValidLicense()) {
+        qWarning() << "Invalid license, disabling Qt Creator Enterprise Auto Test Add-on.";
+        return true;
+    } else if (!licenseChecker->enterpriseFeatures())
+        return true;
 
     QAction *action = new QAction(tr("Autotest action"), this);
     Core::Command *cmd = Core::ActionManager::registerAction(action, Constants::ACTION_ID,
