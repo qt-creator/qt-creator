@@ -82,8 +82,12 @@ protected:
     void clear();
 
 private:
-    class QmlProfilerRangeModelPrivate;
-    Q_DECLARE_PRIVATE(QmlProfilerRangeModel)
+    void computeNestingContracted();
+    void computeExpandedLevels();
+    void findBindingLoops();
+
+    QVector<QmlRangeEventStartInstance> m_data;
+    QVector<int> m_expandedRowTypes;
 };
 
 }

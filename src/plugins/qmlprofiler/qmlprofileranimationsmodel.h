@@ -81,8 +81,10 @@ protected:
     void clear();
 
 private:
-    class QmlProfilerAnimationsModelPrivate;
-    Q_DECLARE_PRIVATE(QmlProfilerAnimationsModel)
+    QVector<QmlProfilerAnimationsModel::QmlPaintEventData> m_data;
+    int m_maxGuiThreadAnimations;
+    int m_maxRenderThreadAnimations;
+    int rowFromThreadId(QmlDebug::AnimationThread threadId) const;
 };
 
 }

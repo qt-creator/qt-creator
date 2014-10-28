@@ -31,7 +31,6 @@
 #include "qmlprofilerrangemodel.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerdatamodel.h"
-#include "abstracttimelinemodel_p.h"
 
 #include <QCoreApplication>
 #include <QVector>
@@ -45,48 +44,30 @@
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerRangeModel::QmlProfilerRangeModelPrivate : public AbstractTimelineModelPrivate
-{
-public:
-    // convenience functions
-    void computeNestingContracted();
-    void computeExpandedLevels();
-    void findBindingLoops();
-
-    QVector<QmlRangeEventStartInstance> data;
-    QVector<int> expandedRowTypes;
-private:
-    Q_DECLARE_PUBLIC(QmlProfilerRangeModel)
-};
 
 QmlProfilerRangeModel::QmlProfilerRangeModel(QmlDebug::RangeType rangeType, QObject *parent)
-    : AbstractTimelineModel(new QmlProfilerRangeModelPrivate, categoryLabel(rangeType),
-                            QmlDebug::MaximumMessage, rangeType, parent)
+    : AbstractTimelineModel(categoryLabel(rangeType), QmlDebug::MaximumMessage, rangeType, parent)
 {
-    Q_D(QmlProfilerRangeModel);
-    d->expandedRowTypes << -1;
+    m_expandedRowTypes << -1;
 }
 
 quint64 QmlProfilerRangeModel::features() const
 {
-    Q_D(const QmlProfilerRangeModel);
-    return 1ULL << QmlDebug::featureFromRangeType(d->rangeType);
+    return 1ULL << QmlDebug::featureFromRangeType(rangeType());
 }
 
 void QmlProfilerRangeModel::clear()
 {
-    Q_D(QmlProfilerRangeModel);
-    d->expandedRowTypes.clear();
-    d->expandedRowTypes << -1;
-    d->data.clear();
+    m_expandedRowTypes.clear();
+    m_expandedRowTypes << -1;
+    m_data.clear();
     AbstractTimelineModel::clear();
 }
 
 void QmlProfilerRangeModel::loadData()
 {
-    Q_D(QmlProfilerRangeModel);
     clear();
-    QmlProfilerDataModel *simpleModel = d->modelManager->qmlModel();
+    QmlProfilerDataModel *simpleModel = modelManager()->qmlModel();
     if (simpleModel->isEmpty())
         return;
 
@@ -99,46 +80,45 @@ void QmlProfilerRangeModel::loadData()
             continue;
 
         // store starttime-based instance
-        d->data.insert(insert(event.startTime, event.duration, event.typeIndex),
-                       QmlRangeEventStartInstance());
-        d->modelManager->modelProxyCountUpdated(d->modelId, count(), eventList.count() * 6);
+        m_data.insert(insert(event.startTime, event.duration, event.typeIndex),
+                      QmlRangeEventStartInstance());
+        updateProgress(count(), eventList.count() * 6);
     }
 
-    d->modelManager->modelProxyCountUpdated(d->modelId, 2, 6);
+    updateProgress(2, 6);
 
     // compute range nesting
     computeNesting();
 
     // compute nestingLevel - nonexpanded
-    d->computeNestingContracted();
+    computeNestingContracted();
 
-    d->modelManager->modelProxyCountUpdated(d->modelId, 3, 6);
+    updateProgress(3, 6);
 
     // compute nestingLevel - expanded
-    d->computeExpandedLevels();
+    computeExpandedLevels();
 
-    d->modelManager->modelProxyCountUpdated(d->modelId, 4, 6);
+    updateProgress(4, 6);
 
-    d->findBindingLoops();
+    findBindingLoops();
 
-    d->modelManager->modelProxyCountUpdated(d->modelId, 5, 6);
+    updateProgress(5, 6);
 
-    d->modelManager->modelProxyCountUpdated(d->modelId, 1, 1);
+    updateProgress(1, 1);
 }
 
-void QmlProfilerRangeModel::QmlProfilerRangeModelPrivate::computeNestingContracted()
+void QmlProfilerRangeModel::computeNestingContracted()
 {
-    Q_Q(QmlProfilerRangeModel);
     int i;
-    int eventCount = q->count();
+    int eventCount = count();
 
     int nestingLevels = QmlDebug::Constants::QML_MIN_LEVEL;
-    collapsedRowCount = nestingLevels + 1;
+    int collapsedRowCount = nestingLevels + 1;
     QVector<qint64> nestingEndTimes;
     nestingEndTimes.fill(0, nestingLevels + 1);
 
     for (i = 0; i < eventCount; i++) {
-        qint64 st = ranges[i].start;
+        qint64 st = startTime(i);
 
         // per type
         if (nestingEndTimes[nestingLevels] > st) {
@@ -151,56 +131,53 @@ void QmlProfilerRangeModel::QmlProfilerRangeModelPrivate::computeNestingContract
                    nestingEndTimes[nestingLevels-1] <= st)
                 nestingLevels--;
         }
-        nestingEndTimes[nestingLevels] = st + ranges[i].duration;
+        nestingEndTimes[nestingLevels] = st + duration(i);
 
-        data[i].displayRowCollapsed = nestingLevels;
+        m_data[i].displayRowCollapsed = nestingLevels;
     }
+    setCollapsedRowCount(collapsedRowCount);
 }
 
-void QmlProfilerRangeModel::QmlProfilerRangeModelPrivate::computeExpandedLevels()
+void QmlProfilerRangeModel::computeExpandedLevels()
 {
-    Q_Q(QmlProfilerRangeModel);
     QHash<int, int> eventRow;
-    int eventCount = q->count();
+    int eventCount = count();
     for (int i = 0; i < eventCount; i++) {
-        int typeId = ranges[i].typeId;
-        if (!eventRow.contains(typeId)) {
-            eventRow[typeId] = expandedRowTypes.size();
-            expandedRowTypes << typeId;
+        int eventTypeId = typeId(i);
+        if (!eventRow.contains(eventTypeId)) {
+            eventRow[eventTypeId] = m_expandedRowTypes.size();
+            m_expandedRowTypes << eventTypeId;
         }
-        data[i].displayRowExpanded = eventRow[typeId];
+        m_data[i].displayRowExpanded = eventRow[eventTypeId];
     }
-    expandedRowCount = expandedRowTypes.size();
+    setExpandedRowCount(m_expandedRowTypes.size());
 }
 
-void QmlProfilerRangeModel::QmlProfilerRangeModelPrivate::findBindingLoops()
+void QmlProfilerRangeModel::findBindingLoops()
 {
-    Q_Q(QmlProfilerRangeModel);
-    if (rangeType != QmlDebug::Binding && rangeType != QmlDebug::HandlingSignal)
+    if (rangeType() != QmlDebug::Binding && rangeType() != QmlDebug::HandlingSignal)
         return;
 
     typedef QPair<int, int> CallStackEntry;
     QStack<CallStackEntry> callStack;
 
-    for (int i = 0; i < q->count(); ++i) {
-        const Range *potentialParent = callStack.isEmpty()
-                ? 0 : &ranges[callStack.top().second];
+    for (int i = 0; i < count(); ++i) {
+        int potentialParent = callStack.isEmpty() ? -1 : callStack.top().second;
 
-        while (potentialParent
-               && !(potentialParent->start + potentialParent->duration > ranges[i].start)) {
+        while (potentialParent != -1 && !(endTime(potentialParent) > startTime(i))) {
             callStack.pop();
-            potentialParent = callStack.isEmpty() ? 0 : &ranges[callStack.top().second];
+            potentialParent = callStack.isEmpty() ? -1 : callStack.top().second;
         }
 
         // check whether event is already in stack
         for (int ii = 0; ii < callStack.size(); ++ii) {
-            if (callStack.at(ii).first == ranges[i].typeId) {
-                data[i].bindingLoopHead = callStack.at(ii).second;
+            if (callStack.at(ii).first == typeId(i)) {
+                m_data[i].bindingLoopHead = callStack.at(ii).second;
                 break;
             }
         }
 
-        CallStackEntry newEntry(ranges[i].typeId, i);
+        CallStackEntry newEntry(typeId(i), i);
         callStack.push(newEntry);
     }
 
@@ -216,17 +193,15 @@ QString QmlProfilerRangeModel::categoryLabel(QmlDebug::RangeType rangeType)
 
 int QmlProfilerRangeModel::row(int index) const
 {
-    Q_D(const QmlProfilerRangeModel);
-    if (d->expanded)
-        return d->data[index].displayRowExpanded;
+    if (expanded())
+        return m_data[index].displayRowExpanded;
     else
-        return d->data[index].displayRowCollapsed;
+        return m_data[index].displayRowCollapsed;
 }
 
 int QmlProfilerRangeModel::bindingLoopDest(int index) const
 {
-    Q_D(const QmlProfilerRangeModel);
-    return d->data[index].bindingLoopHead;
+    return m_data[index].bindingLoopHead;
 }
 
 QColor QmlProfilerRangeModel::color(int index) const
@@ -236,15 +211,14 @@ QColor QmlProfilerRangeModel::color(int index) const
 
 QVariantList QmlProfilerRangeModel::labels() const
 {
-    Q_D(const QmlProfilerRangeModel);
     QVariantList result;
 
-    if (d->expanded && !d->hidden) {
+    if (expanded() && !hidden()) {
         const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
-                d->modelManager->qmlModel()->getEventTypes();
-        for (int i = 1; i < d->expandedRowCount; i++) { // Ignore the -1 for the first row
+                modelManager()->qmlModel()->getEventTypes();
+        for (int i = 1; i < expandedRowCount(); i++) { // Ignore the -1 for the first row
             QVariantMap element;
-            int typeId = d->expandedRowTypes[i];
+            int typeId = m_expandedRowTypes[i];
             element.insert(QLatin1String("displayName"), QVariant(types[typeId].displayName));
             element.insert(QLatin1String("description"), QVariant(types[typeId].data));
             element.insert(QLatin1String("id"), QVariant(typeId));
@@ -257,13 +231,12 @@ QVariantList QmlProfilerRangeModel::labels() const
 
 QVariantMap QmlProfilerRangeModel::details(int index) const
 {
-    Q_D(const QmlProfilerRangeModel);
     QVariantMap result;
     int id = selectionId(index);
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
-            d->modelManager->qmlModel()->getEventTypes();
+            modelManager()->qmlModel()->getEventTypes();
 
-    result.insert(QStringLiteral("displayName"), categoryLabel(d->rangeType));
+    result.insert(QStringLiteral("displayName"), categoryLabel(rangeType()));
     result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(duration(index)));
 
     result.insert(tr("Details"), types[id].data);
@@ -273,12 +246,11 @@ QVariantMap QmlProfilerRangeModel::details(int index) const
 
 QVariantMap QmlProfilerRangeModel::location(int index) const
 {
-    Q_D(const QmlProfilerRangeModel);
     QVariantMap result;
     int id = selectionId(index);
 
     const QmlDebug::QmlEventLocation &location
-            = d->modelManager->qmlModel()->getEventTypes().at(id).location;
+            = modelManager()->qmlModel()->getEventTypes().at(id).location;
 
     result.insert(QStringLiteral("file"), location.filename);
     result.insert(QStringLiteral("line"), location.line);
@@ -289,24 +261,22 @@ QVariantMap QmlProfilerRangeModel::location(int index) const
 
 bool QmlProfilerRangeModel::isSelectionIdValid(int typeId) const
 {
-    Q_D(const QmlProfilerRangeModel);
     if (typeId < 0)
         return false;
     const QmlProfilerDataModel::QmlEventTypeData &type =
-            d->modelManager->qmlModel()->getEventTypes().at(typeId);
-    if (type.message != d->message || type.rangeType != d->rangeType)
+            modelManager()->qmlModel()->getEventTypes().at(typeId);
+    if (type.message != message() || type.rangeType != rangeType())
         return false;
     return true;
 }
 
 int QmlProfilerRangeModel::selectionIdForLocation(const QString &filename, int line, int column) const
 {
-    Q_D(const QmlProfilerRangeModel);
     // if this is called from v8 view, we don't have the column number, it will be -1
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
-            d->modelManager->qmlModel()->getEventTypes();
-    for (int i = 1; i < d->expandedRowCount; ++i) {
-        int typeId = d->expandedRowTypes[i];
+            modelManager()->qmlModel()->getEventTypes();
+    for (int i = 1; i < expandedRowCount(); ++i) {
+        int typeId = m_expandedRowTypes[i];
         const QmlProfilerDataModel::QmlEventTypeData &eventData = types[typeId];
         if (eventData.location.filename == filename &&
                 eventData.location.line == line &&

@@ -46,25 +46,11 @@
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerAnimationsModel::QmlProfilerAnimationsModelPrivate : public AbstractTimelineModelPrivate
-{
-public:
-    QVector<QmlProfilerAnimationsModel::QmlPaintEventData> data;
-    int maxGuiThreadAnimations;
-    int maxRenderThreadAnimations;
-    int rowFromThreadId(QmlDebug::AnimationThread threadId) const;
-
-private:
-    Q_DECLARE_PUBLIC(QmlProfilerAnimationsModel)
-};
-
 QmlProfilerAnimationsModel::QmlProfilerAnimationsModel(QObject *parent)
-    : AbstractTimelineModel(new QmlProfilerAnimationsModelPrivate,
-                            tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileAnimations)),
+    : AbstractTimelineModel(tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileAnimations)),
                             QmlDebug::Event, QmlDebug::MaximumRangeType, parent)
 {
-    Q_D(QmlProfilerAnimationsModel);
-    d->maxGuiThreadAnimations = d->maxRenderThreadAnimations = 0;
+    m_maxGuiThreadAnimations = m_maxRenderThreadAnimations = 0;
 }
 
 quint64 QmlProfilerAnimationsModel::features() const
@@ -74,9 +60,8 @@ quint64 QmlProfilerAnimationsModel::features() const
 
 void QmlProfilerAnimationsModel::clear()
 {
-    Q_D(QmlProfilerAnimationsModel);
-    d->maxGuiThreadAnimations = d->maxRenderThreadAnimations = 0;
-    d->data.clear();
+    m_maxGuiThreadAnimations = m_maxRenderThreadAnimations = 0;
+    m_data.clear();
     AbstractTimelineModel::clear();
 }
 
@@ -88,9 +73,8 @@ bool QmlProfilerAnimationsModel::accepted(const QmlProfilerDataModel::QmlEventTy
 
 void QmlProfilerAnimationsModel::loadData()
 {
-    Q_D(QmlProfilerAnimationsModel);
     clear();
-    QmlProfilerDataModel *simpleModel = d->modelManager->qmlModel();
+    QmlProfilerDataModel *simpleModel = modelManager()->qmlModel();
     if (simpleModel->isEmpty())
         return;
 
@@ -127,49 +111,43 @@ void QmlProfilerAnimationsModel::loadData()
         lastEvent.animationcount = (int)event.numericData2;
         QTC_ASSERT(lastEvent.animationcount > 0, continue);
 
-        d->data.insert(insert(realStartTime, realEndTime - realStartTime, event.typeIndex),
-                       lastEvent);
+        m_data.insert(insert(realStartTime, realEndTime - realStartTime, event.typeIndex), lastEvent);
 
         if (lastEvent.threadId == QmlDebug::GuiThread)
-            d->maxGuiThreadAnimations = qMax(lastEvent.animationcount, d->maxGuiThreadAnimations);
+            m_maxGuiThreadAnimations = qMax(lastEvent.animationcount, m_maxGuiThreadAnimations);
         else
-            d->maxRenderThreadAnimations =
-                    qMax(lastEvent.animationcount, d->maxRenderThreadAnimations);
+            m_maxRenderThreadAnimations = qMax(lastEvent.animationcount, m_maxRenderThreadAnimations);
 
         minNextStartTimes[lastEvent.threadId] = event.startTime + 1;
 
-        d->modelManager->modelProxyCountUpdated(d->modelId, count(), referenceList.count());
+        updateProgress(count(), referenceList.count());
     }
 
     computeNesting();
-    d->expandedRowCount = d->collapsedRowCount =
-            (d->maxGuiThreadAnimations == 0 || d->maxRenderThreadAnimations == 0) ? 2 : 3;
-    d->modelManager->modelProxyCountUpdated(d->modelId, 1, 1);
+    setExpandedRowCount((m_maxGuiThreadAnimations == 0 || m_maxRenderThreadAnimations == 0) ? 2 : 3);
+    setCollapsedRowCount(expandedRowCount());
+    updateProgress(1, 1);
 }
 
 /////////////////// QML interface
 
-int QmlProfilerAnimationsModel::QmlProfilerAnimationsModelPrivate::rowFromThreadId(
-        QmlDebug::AnimationThread threadId) const
+int QmlProfilerAnimationsModel::rowFromThreadId(QmlDebug::AnimationThread threadId) const
 {
-    return (threadId == QmlDebug::GuiThread || maxGuiThreadAnimations == 0) ? 1 : 2;
+    return (threadId == QmlDebug::GuiThread || m_maxGuiThreadAnimations == 0) ? 1 : 2;
 }
 
 int QmlProfilerAnimationsModel::row(int index) const
 {
-    Q_D(const QmlProfilerAnimationsModel);
-    return d->rowFromThreadId(d->data[index].threadId);
+    return rowFromThreadId(m_data[index].threadId);
 }
 
 int QmlProfilerAnimationsModel::rowMaxValue(int rowNumber) const
 {
-    Q_D(const QmlProfilerAnimationsModel);
     switch (rowNumber) {
     case 1:
-        return d->maxGuiThreadAnimations > 0 ? d->maxGuiThreadAnimations :
-                                               d->maxRenderThreadAnimations;
+        return m_maxGuiThreadAnimations > 0 ? m_maxGuiThreadAnimations : m_maxRenderThreadAnimations;
     case 2:
-        return d->maxRenderThreadAnimations;
+        return m_maxRenderThreadAnimations;
     default:
         return AbstractTimelineModel::rowMaxValue(rowNumber);
     }
@@ -177,14 +155,12 @@ int QmlProfilerAnimationsModel::rowMaxValue(int rowNumber) const
 
 int QmlProfilerAnimationsModel::selectionId(int index) const
 {
-    Q_D(const QmlProfilerAnimationsModel);
-    return d->data[index].threadId;
+    return m_data[index].threadId;
 }
 
 QColor QmlProfilerAnimationsModel::color(int index) const
 {
-    Q_D(const QmlProfilerAnimationsModel);
-    double fpsFraction = d->data[index].framerate / 60.0;
+    double fpsFraction = m_data[index].framerate / 60.0;
     if (fpsFraction > 1.0)
         fpsFraction = 1.0;
     if (fpsFraction < 0.0)
@@ -194,25 +170,23 @@ QColor QmlProfilerAnimationsModel::color(int index) const
 
 float QmlProfilerAnimationsModel::relativeHeight(int index) const
 {
-    Q_D(const QmlProfilerAnimationsModel);
-    const QmlPaintEventData &data = d->data[index];
+    const QmlPaintEventData &data = m_data[index];
 
     // Add some height to the events if we're far from the scale threshold of 2 * DefaultRowHeight.
     // Like that you can see the smaller events more easily.
-    int scaleThreshold = 2 * defaultRowHeight() - rowHeight(d->rowFromThreadId(data.threadId));
+    int scaleThreshold = 2 * defaultRowHeight() - rowHeight(rowFromThreadId(data.threadId));
     float boost = scaleThreshold > 0 ? (0.15 * scaleThreshold / defaultRowHeight()) : 0;
 
     return boost + (1.0 - boost) * (float)data.animationcount /
-            (float)(data.threadId == QmlDebug::GuiThread ? d->maxGuiThreadAnimations :
-                                                           d->maxRenderThreadAnimations);
+            (float)(data.threadId == QmlDebug::GuiThread ? m_maxGuiThreadAnimations :
+                                                           m_maxRenderThreadAnimations);
 }
 
 QVariantList QmlProfilerAnimationsModel::labels() const
 {
-    Q_D(const QmlProfilerAnimationsModel);
     QVariantList result;
 
-    if (!d->hidden && d->maxGuiThreadAnimations > 0) {
+    if (!hidden() && m_maxGuiThreadAnimations > 0) {
         QVariantMap element;
         element.insert(QLatin1String("displayName"), QVariant(tr("Animations")));
         element.insert(QLatin1String("description"), QVariant(tr("GUI Thread")));
@@ -220,7 +194,7 @@ QVariantList QmlProfilerAnimationsModel::labels() const
         result << element;
     }
 
-    if (!d->hidden && d->maxRenderThreadAnimations > 0) {
+    if (!hidden() && m_maxRenderThreadAnimations > 0) {
         QVariantMap element;
         element.insert(QLatin1String("displayName"), QVariant(tr("Animations")));
         element.insert(QLatin1String("description"), QVariant(tr("Render Thread")));
@@ -233,14 +207,13 @@ QVariantList QmlProfilerAnimationsModel::labels() const
 
 QVariantMap QmlProfilerAnimationsModel::details(int index) const
 {
-    Q_D(const QmlProfilerAnimationsModel);
     QVariantMap result;
 
     result.insert(QStringLiteral("displayName"), displayName());
     result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(duration(index)));
-    result.insert(tr("Framerate"), QString::fromLatin1("%1 FPS").arg(d->data[index].framerate));
-    result.insert(tr("Animations"), QString::fromLatin1("%1").arg(d->data[index].animationcount));
-    result.insert(tr("Context"), tr(d->data[index].threadId == QmlDebug::GuiThread ?
+    result.insert(tr("Framerate"), QString::fromLatin1("%1 FPS").arg(m_data[index].framerate));
+    result.insert(tr("Animations"), QString::fromLatin1("%1").arg(m_data[index].animationcount));
+    result.insert(tr("Context"), tr(m_data[index].threadId == QmlDebug::GuiThread ?
                                     "GUI Thread" : "Render Thread"));
     return result;
 }
