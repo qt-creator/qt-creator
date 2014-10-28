@@ -3256,7 +3256,6 @@ void showModuleSections(const QString &moduleName, const Sections &sections)
 
 void DebuggerPluginPrivate::aboutToShutdown()
 {
-    m_plugin->removeObject(this);
     disconnect(SessionManager::instance(),
         SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
         this, 0);
@@ -3417,6 +3416,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
 IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
 {
+    removeObject(this);
     dd->aboutToShutdown();
     return SynchronousShutdown;
 }
