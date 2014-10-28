@@ -32,7 +32,7 @@
 #ifndef QMLPROFILERRANGEMODEL_H
 #define QMLPROFILERRANGEMODEL_H
 
-#include "abstracttimelinemodel.h"
+#include "qmlprofilertimelinemodel.h"
 #include <qmldebug/qmlprofilereventtypes.h>
 #include <qmldebug/qmlprofilereventlocation.h>
 #include <QVariantList>
@@ -44,7 +44,7 @@ class QmlProfilerModelManager;
 
 namespace Internal {
 
-class QmlProfilerRangeModel : public AbstractTimelineModel
+class QmlProfilerRangeModel : public QmlProfilerTimelineModel
 {
     Q_OBJECT
 public:

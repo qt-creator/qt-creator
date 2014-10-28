@@ -21,7 +21,6 @@ QtcPlugin {
         name: "General"
         files: [
             "abstractqmlprofilerrunner.h",
-            "abstracttimelinemodel.h", "abstracttimelinemodel_p.h", "abstracttimelinemodel.cpp",
             "localqmlprofilerrunner.cpp", "localqmlprofilerrunner.h",
             "qmlprofiler_global.h",
             "qmlprofileranimationsmodel.h", "qmlprofileranimationsmodel.cpp",
@@ -41,6 +40,7 @@ QtcPlugin {
             "qmlprofilerstatemanager.cpp", "qmlprofilerstatemanager.h",
             "qmlprofilerstatewidget.cpp", "qmlprofilerstatewidget.h",
             "qmlprofilerrangemodel.cpp", "qmlprofilerrangemodel.h",
+            "qmlprofilertimelinemodel.cpp", "qmlprofilertimelinemodel.h",
             "qmlprofilertimelinemodelfactory.cpp", "qmlprofilertimelinemodelfactory.h",
             "qmlprofilertool.cpp", "qmlprofilertool.h",
             "qmlprofilertracefile.cpp", "qmlprofilertracefile.h",
@@ -49,6 +49,7 @@ QtcPlugin {
             "qmlprofilerviewmanager.cpp", "qmlprofilerviewmanager.h",
             "qv8profilerdatamodel.cpp", "qv8profilerdatamodel.h",
             "qv8profilereventview.h", "qv8profilereventview.cpp",
+            "timelinemodel.cpp", "timelinemodel.h", "timelinemodel_p.h",
             "timelinemodelaggregator.cpp", "timelinemodelaggregator.h",
             "timelinerenderer.cpp", "timelinerenderer.h",
             "timelinezoomcontrol.cpp", "timelinezoomcontrol.h"

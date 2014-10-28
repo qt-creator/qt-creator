@@ -28,14 +28,14 @@
 **
 ****************************************************************************/
 
-#ifndef ABSTRACTTIMELINEMODEL_P_H
-#define ABSTRACTTIMELINEMODEL_P_H
+#ifndef TIMELINEMODEL_P_H
+#define TIMELINEMODEL_P_H
 
-#include "abstracttimelinemodel.h"
+#include "timelinemodel.h"
 
 namespace QmlProfiler {
 
-class QMLPROFILER_EXPORT AbstractTimelineModel::AbstractTimelineModelPrivate {
+class QMLPROFILER_EXPORT TimelineModel::TimelineModelPrivate {
 public:
     static const int DefaultRowHeight = 30;
 
@@ -67,11 +67,10 @@ public:
         inline qint64 timestamp() const {return end;}
     };
 
-    void init(AbstractTimelineModel *q, QmlProfilerModelManager *manager,
-              const QString &displayName, QmlDebug::Message message, QmlDebug::RangeType rangeType);
+    TimelineModelPrivate(int modelId, const QString &displayName);
+    void init(TimelineModel *q);
 
-    inline qint64 lastEndTime() const { return endTimes.last().end; }
-    inline qint64 firstStartTime() const { return ranges.first().start; }
+    int firstIndexNoParents(qint64 startTime) const;
 
     void incrementStartIndices(int index)
     {
@@ -112,28 +111,24 @@ public:
         return fromIndex;
     }
 
-    void _q_dataChanged();
-
     QVector<Range> ranges;
     QVector<RangeEnd> endTimes;
 
     QVector<int> rowOffsets;
-    QmlProfilerModelManager *modelManager;
-    int modelId;
+    const int modelId;
+    const QString displayName;
+
     bool expanded;
     bool hidden;
     int expandedRowCount;
     int collapsedRowCount;
-    QString displayName;
-    QmlDebug::Message message;
-    QmlDebug::RangeType rangeType;
 
 protected:
-    AbstractTimelineModel *q_ptr;
+    TimelineModel *q_ptr;
 
 private:
-    Q_DECLARE_PUBLIC(AbstractTimelineModel)
+    Q_DECLARE_PUBLIC(TimelineModel)
 };
 
 }
-#endif // ABSTRACTTIMELINEMODEL_P_H
+#endif // TIMELINEMODEL_P_H

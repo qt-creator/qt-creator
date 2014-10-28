@@ -32,7 +32,7 @@
 #include "qmlprofilerruncontrolfactory.h"
 
 #include "qmlprofilertool.h"
-#include "abstracttimelinemodel.h"
+#include "qmlprofilertimelinemodel.h"
 
 #include <analyzerbase/analyzermanager.h>
 #include <extensionsystem/pluginmanager.h>
@@ -103,7 +103,7 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerPlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
-QList<AbstractTimelineModel *> QmlProfilerPlugin::getModels(QmlProfilerModelManager *manager) const
+QList<QmlProfilerTimelineModel *> QmlProfilerPlugin::getModels(QmlProfilerModelManager *manager) const
 {
     return factory->create(manager);
 }

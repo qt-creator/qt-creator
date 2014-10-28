@@ -31,7 +31,7 @@
 #ifndef TIMELINEMODELAGGREGATOR_H
 #define TIMELINEMODELAGGREGATOR_H
 
-#include "abstracttimelinemodel.h"
+#include "qmlprofilertimelinemodel.h"
 #include "qmlprofilermodelmanager.h"
 
 namespace QmlProfiler {
@@ -49,8 +49,8 @@ public:
 
     int height() const;
     void setModelManager(QmlProfilerModelManager *modelManager);
-    void addModel(AbstractTimelineModel *m);
-    const AbstractTimelineModel *model(int modelIndex) const;
+    void addModel(QmlProfilerTimelineModel *m);
+    const QmlProfilerTimelineModel *model(int modelIndex) const;
     QVariantList models() const;
     int modelIndexFromManagerIndex(int modelManagerIndex) const;
 

@@ -46,8 +46,8 @@ namespace Internal {
 
 
 QmlProfilerRangeModel::QmlProfilerRangeModel(QmlProfilerModelManager *manager,
-                                             QmlDebug::RangeType range, QObject *parent)
-    : AbstractTimelineModel(manager, categoryLabel(range), QmlDebug::MaximumMessage, range, parent)
+                                             QmlDebug::RangeType range, QObject *parent) :
+    QmlProfilerTimelineModel(manager, categoryLabel(range), QmlDebug::MaximumMessage, range, parent)
 {
     m_expandedRowTypes << -1;
     announceFeatures(1ULL << QmlDebug::featureFromRangeType(rangeType()));
@@ -58,7 +58,7 @@ void QmlProfilerRangeModel::clear()
     m_expandedRowTypes.clear();
     m_expandedRowTypes << -1;
     m_data.clear();
-    AbstractTimelineModel::clear();
+    QmlProfilerTimelineModel::clear();
 }
 
 void QmlProfilerRangeModel::loadData()

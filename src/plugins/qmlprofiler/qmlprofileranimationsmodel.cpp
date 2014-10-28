@@ -31,7 +31,6 @@
 #include "qmlprofileranimationsmodel.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerdatamodel.h"
-#include "abstracttimelinemodel_p.h"
 #include <utils/qtcassert.h>
 #include <QCoreApplication>
 
@@ -47,10 +46,10 @@ namespace QmlProfiler {
 namespace Internal {
 
 QmlProfilerAnimationsModel::QmlProfilerAnimationsModel(QmlProfilerModelManager *manager,
-                                                       QObject *parent)
-    : AbstractTimelineModel(manager,
-                            tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileAnimations)),
-                            QmlDebug::Event, QmlDebug::MaximumRangeType, parent)
+                                                       QObject *parent) :
+    QmlProfilerTimelineModel(manager,
+                             tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileAnimations)),
+                             QmlDebug::Event, QmlDebug::MaximumRangeType, parent)
 {
     m_maxGuiThreadAnimations = m_maxRenderThreadAnimations = 0;
     announceFeatures(1 << QmlDebug::ProfileAnimations);
@@ -60,12 +59,12 @@ void QmlProfilerAnimationsModel::clear()
 {
     m_maxGuiThreadAnimations = m_maxRenderThreadAnimations = 0;
     m_data.clear();
-    AbstractTimelineModel::clear();
+    QmlProfilerTimelineModel::clear();
 }
 
 bool QmlProfilerAnimationsModel::accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const
 {
-    return AbstractTimelineModel::accepted(event) &&
+    return QmlProfilerTimelineModel::accepted(event) &&
             event.detailType== QmlDebug::AnimationFrame;
 }
 
@@ -149,7 +148,7 @@ int QmlProfilerAnimationsModel::rowMaxValue(int rowNumber) const
     case 2:
         return m_maxRenderThreadAnimations;
     default:
-        return AbstractTimelineModel::rowMaxValue(rowNumber);
+        return QmlProfilerTimelineModel::rowMaxValue(rowNumber);
     }
 }
 

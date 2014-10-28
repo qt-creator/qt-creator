@@ -33,7 +33,7 @@
 #define QMLPROFILERANIMATIONSMODEL_H
 
 #include <QObject>
-#include "abstracttimelinemodel.h"
+#include "qmlprofilertimelinemodel.h"
 #include <qmldebug/qmlprofilereventtypes.h>
 #include <qmldebug/qmlprofilereventlocation.h>
 //#include <QHash>
@@ -49,7 +49,7 @@ class QmlProfilerModelManager;
 
 namespace Internal {
 
-class QmlProfilerAnimationsModel : public AbstractTimelineModel
+class QmlProfilerAnimationsModel : public QmlProfilerTimelineModel
 {
     Q_OBJECT
 public:

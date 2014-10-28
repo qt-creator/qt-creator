@@ -47,9 +47,9 @@ void QmlProfilerNotesModel::setModelManager(QmlProfilerModelManager *modelManage
     m_modelManager = modelManager;
 }
 
-void QmlProfilerNotesModel::addTimelineModel(const AbstractTimelineModel *timelineModel)
+void QmlProfilerNotesModel::addTimelineModel(const QmlProfilerTimelineModel *timelineModel)
 {
-    connect(timelineModel, &AbstractTimelineModel::destroyed,
+    connect(timelineModel, &QmlProfilerTimelineModel::destroyed,
             this, &QmlProfilerNotesModel::removeTimelineModel);
     m_timelineModels.insert(timelineModel->modelId(), timelineModel);
 }
@@ -111,7 +111,7 @@ int QmlProfilerNotesModel::get(int timelineModel, int timelineIndex) const
 
 int QmlProfilerNotesModel::add(int timelineModel, int timelineIndex, const QString &text)
 {
-    const AbstractTimelineModel *model = m_timelineModels[timelineModel];
+    const QmlProfilerTimelineModel *model = m_timelineModels[timelineModel];
     int typeId = model->typeId(timelineIndex);
     Note note = { text, timelineModel, timelineIndex };
     m_data << note;
@@ -162,7 +162,7 @@ int QmlProfilerNotesModel::add(int typeId, qint64 start, qint64 duration, const 
     int timelineIndex = -1;
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
             m_modelManager->qmlModel()->getEventTypes();
-    foreach (const AbstractTimelineModel *model, m_timelineModels) {
+    foreach (const QmlProfilerTimelineModel *model, m_timelineModels) {
         if (model->accepted(types[typeId])) {
             for (int i = model->firstIndex(start); i <= model->lastIndex(start + duration); ++i) {
                 if (i < 0)
@@ -237,7 +237,7 @@ void QmlProfilerNotesModel::saveData()
         if (it == m_timelineModels.end())
             continue;
 
-        const AbstractTimelineModel *model = it.value();
+        const QmlProfilerTimelineModel *model = it.value();
         QmlProfilerDataModel::QmlEventNoteData save = {
             model->typeId(note.timelineIndex), model->startTime(note.timelineIndex),
             model->duration(note.timelineIndex), note.text

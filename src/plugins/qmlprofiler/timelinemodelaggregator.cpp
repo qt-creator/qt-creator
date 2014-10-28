@@ -52,7 +52,7 @@ public:
     // mapping of modelId assigned by manager to index in our list
     QList <int> modelManagerIndexMapping;
 
-    QList <AbstractTimelineModel *> modelList;
+    QList <QmlProfilerTimelineModel *> modelList;
     QmlProfilerModelManager *modelManager;
 };
 
@@ -80,7 +80,7 @@ void TimelineModelAggregator::setModelManager(QmlProfilerModelManager *modelMana
     connect(modelManager,SIGNAL(dataAvailable()),this,SIGNAL(dataAvailable()));
 
     // external models pushed on top
-    foreach (AbstractTimelineModel *timelineModel,
+    foreach (QmlProfilerTimelineModel *timelineModel,
              QmlProfilerPlugin::instance->getModels(modelManager)) {
         addModel(timelineModel);
     }
@@ -96,7 +96,7 @@ void TimelineModelAggregator::setModelManager(QmlProfilerModelManager *modelMana
             this, SIGNAL(notesChanged(int,int,int)));
 }
 
-void TimelineModelAggregator::addModel(AbstractTimelineModel *m)
+void TimelineModelAggregator::addModel(QmlProfilerTimelineModel *m)
 {
     while (d->modelManagerIndexMapping.size() <= m->modelId())
         d->modelManagerIndexMapping.append(-1);
@@ -110,7 +110,7 @@ void TimelineModelAggregator::addModel(AbstractTimelineModel *m)
     emit modelsChanged(d->modelList.length(), d->modelList.length());
 }
 
-const AbstractTimelineModel *TimelineModelAggregator::model(int modelIndex) const
+const QmlProfilerTimelineModel *TimelineModelAggregator::model(int modelIndex) const
 {
     return d->modelList[modelIndex];
 }
@@ -118,7 +118,7 @@ const AbstractTimelineModel *TimelineModelAggregator::model(int modelIndex) cons
 QVariantList TimelineModelAggregator::models() const
 {
     QVariantList ret;
-    foreach (AbstractTimelineModel *model, d->modelList)
+    foreach (QmlProfilerTimelineModel *model, d->modelList)
         ret << QVariant::fromValue(model);
     return ret;
 }
@@ -140,7 +140,7 @@ int TimelineModelAggregator::count(int modelIndex) const
 
 bool TimelineModelAggregator::isEmpty() const
 {
-    foreach (const AbstractTimelineModel *modelProxy, d->modelList)
+    foreach (const QmlProfilerTimelineModel *modelProxy, d->modelList)
         if (!modelProxy->isEmpty())
             return false;
     return true;
@@ -297,8 +297,8 @@ int TimelineModelAggregator::selectionIdForLocation(int modelIndex, const QStrin
 
 void TimelineModelAggregator::swapModels(int modelIndex1, int modelIndex2)
 {
-    AbstractTimelineModel *&model1 = d->modelList[modelIndex1];
-    AbstractTimelineModel *&model2 = d->modelList[modelIndex2];
+    QmlProfilerTimelineModel *&model1 = d->modelList[modelIndex1];
+    QmlProfilerTimelineModel *&model2 = d->modelList[modelIndex2];
     std::swap(d->modelManagerIndexMapping[model1->modelId()],
               d->modelManagerIndexMapping[model2->modelId()]);
     std::swap(model1, model2);

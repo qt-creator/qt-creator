@@ -29,8 +29,7 @@
 ****************************************************************************/
 
 #include <QtTest>
-#include <qmlprofiler/abstracttimelinemodel.h>
-#include <qmlprofiler/abstracttimelinemodel_p.h>
+#include <qmlprofiler/timelinemodel.h>
 
 using namespace QmlProfiler;
 
@@ -40,24 +39,24 @@ static const qint64 ItemDuration = 1 << 19;
 static const qint64 ItemSpacing = 1 << 20;
 
 class DummyModelPrivate;
-class DummyModel : public AbstractTimelineModel
+class DummyModel : public TimelineModel
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(DummyModel)
-    friend class tst_AbstractTimelineModel;
+    friend class tst_TimelineModel;
 public:
     DummyModel(QString displayName = tr("dummy"), QObject *parent = 0);
-    int selectionId(int index) const { return index; }
+    int typeId(int index) const { return index; }
     QColor color(int) const { return QColor(); }
     QVariantList labels() const { return QVariantList(); }
     QVariantMap details(int) const { return QVariantMap(); }
     int row(int) const { return 1; }
+    quint64 features() const { return 0; }
 
 protected:
     void loadData();
 };
 
-class tst_AbstractTimelineModel : public QObject
+class tst_TimelineModel : public QObject
 {
     Q_OBJECT
 
@@ -66,7 +65,6 @@ private slots:
     void rowHeight();
     void rowOffset();
     void height();
-    void accepted();
     void expand();
     void hide();
     void displayName();
@@ -77,20 +75,19 @@ private slots:
 };
 
 DummyModel::DummyModel(QString displayName, QObject *parent) :
-    AbstractTimelineModel(new QmlProfilerModelManager(0, parent), displayName,
-                          QmlDebug::MaximumMessage, QmlDebug::MaximumRangeType, parent)
+    TimelineModel(0, displayName, parent)
 {
 }
 
 void DummyModel::loadData()
 {
     for (int i = 0; i < NumItems; ++i)
-        insert(i * ItemSpacing, ItemDuration, 0);
+        insert(i * ItemSpacing, ItemDuration, 5);
     setCollapsedRowCount(2);
     setExpandedRowCount(2);
 }
 
-void tst_AbstractTimelineModel::isEmpty()
+void tst_TimelineModel::isEmpty()
 {
     DummyModel dummy;
     QVERIFY(dummy.isEmpty());
@@ -100,7 +97,7 @@ void tst_AbstractTimelineModel::isEmpty()
     QVERIFY(dummy.isEmpty());
 }
 
-void tst_AbstractTimelineModel::rowHeight()
+void tst_TimelineModel::rowHeight()
 {
     DummyModel dummy;
     QCOMPARE(dummy.rowHeight(0), DefaultRowHeight);
@@ -135,7 +132,7 @@ void tst_AbstractTimelineModel::rowHeight()
     QCOMPARE(dummy.rowHeight(1), 50);
 }
 
-void tst_AbstractTimelineModel::rowOffset()
+void tst_TimelineModel::rowOffset()
 {
     DummyModel dummy;
     QCOMPARE(dummy.rowOffset(0), 0);
@@ -164,10 +161,10 @@ void tst_AbstractTimelineModel::rowOffset()
     QCOMPARE(dummy.rowOffset(1), 100);
 }
 
-void tst_AbstractTimelineModel::height()
+void tst_TimelineModel::height()
 {
     DummyModel dummy;
-    QCOMPARE(dummy.height(), DefaultRowHeight);
+    QCOMPARE(dummy.height(), 0);
     dummy.loadData();
     QCOMPARE(dummy.height(), 2 * DefaultRowHeight);
     dummy.setExpanded(true);
@@ -176,22 +173,7 @@ void tst_AbstractTimelineModel::height()
     QCOMPARE(dummy.height(), DefaultRowHeight + 80);
 }
 
-void tst_AbstractTimelineModel::accepted()
-{
-    DummyModel dummy;
-    QmlProfilerDataModel::QmlEventTypeData event;
-    event.message = QmlDebug::MaximumMessage;
-    event.rangeType = QmlDebug::MaximumRangeType;
-    QVERIFY(dummy.accepted(event));
-    event.message = QmlDebug::Event;
-    QVERIFY(!dummy.accepted(event));
-    event.rangeType = QmlDebug::Painting;
-    QVERIFY(!dummy.accepted(event));
-    event.message = QmlDebug::MaximumMessage;
-    QVERIFY(!dummy.accepted(event));
-}
-
-void tst_AbstractTimelineModel::expand()
+void tst_TimelineModel::expand()
 {
     DummyModel dummy;
     QSignalSpy spy(&dummy, SIGNAL(expandedChanged()));
@@ -210,7 +192,7 @@ void tst_AbstractTimelineModel::expand()
     QCOMPARE(spy.count(), 2);
 }
 
-void tst_AbstractTimelineModel::hide()
+void tst_TimelineModel::hide()
 {
     DummyModel dummy;
     QSignalSpy spy(&dummy, SIGNAL(hiddenChanged()));
@@ -229,45 +211,45 @@ void tst_AbstractTimelineModel::hide()
     QCOMPARE(spy.count(), 2);
 }
 
-void tst_AbstractTimelineModel::displayName()
+void tst_TimelineModel::displayName()
 {
     QLatin1String name("testest");
     DummyModel dummy(name);
     QCOMPARE(dummy.displayName(), name);
 }
 
-void tst_AbstractTimelineModel::defaultValues()
+void tst_TimelineModel::defaultValues()
 {
     DummyModel dummy;
     dummy.loadData();
     QCOMPARE(dummy.location(0), QVariantMap());
+    QCOMPARE(dummy.handlesTypeId(0), false);
     QCOMPARE(dummy.selectionIdForLocation(QString(), 0, 0), -1);
-    QCOMPARE(dummy.bindingLoopDest(0), -1);
     QCOMPARE(dummy.relativeHeight(0), 1.0);
     QCOMPARE(dummy.rowMinValue(0), 0);
     QCOMPARE(dummy.rowMaxValue(0), 0);
 }
 
-void tst_AbstractTimelineModel::colorByHue()
+void tst_TimelineModel::colorByHue()
 {
     DummyModel dummy;
     QCOMPARE(dummy.colorByHue(10), QColor::fromHsl(10, 150, 166));
     QCOMPARE(dummy.colorByHue(500), QColor::fromHsl(140, 150, 166));
 }
 
-void tst_AbstractTimelineModel::colorBySelectionId()
+void tst_TimelineModel::colorBySelectionId()
 {
     DummyModel dummy;
     dummy.loadData();
-    QCOMPARE(dummy.colorBySelectionId(5), QColor::fromHsl(0, 150, 166));
+    QCOMPARE(dummy.colorBySelectionId(5), QColor::fromHsl(5 * 25, 150, 166));
 }
 
-void tst_AbstractTimelineModel::colorByFraction()
+void tst_TimelineModel::colorByFraction()
 {
     DummyModel dummy;
     QCOMPARE(dummy.colorByFraction(0.5), QColor::fromHsl(0.5 * 96 + 10, 150, 166));
 }
 
-QTEST_MAIN(tst_AbstractTimelineModel)
+QTEST_MAIN(tst_TimelineModel)
 
-#include "tst_abstracttimelinemodel.moc"
+#include "tst_timelinemodel.moc"

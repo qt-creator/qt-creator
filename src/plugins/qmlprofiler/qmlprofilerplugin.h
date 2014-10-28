@@ -35,7 +35,7 @@
 #include "qmlprofilertimelinemodelfactory.h"
 #include <extensionsystem/iplugin.h>
 
-#include "abstracttimelinemodel.h"
+#include "qmlprofilertimelinemodel.h"
 
 namespace QmlProfiler {
 namespace Internal {
@@ -55,7 +55,7 @@ public:
     static bool debugOutput;
     static QmlProfilerPlugin *instance;
 
-    QList<AbstractTimelineModel *> getModels(QmlProfilerModelManager *manager) const;
+    QList<QmlProfilerTimelineModel *> getModels(QmlProfilerModelManager *manager) const;
 
 private:
     QmlProfilerTimelineModelFactory *factory;

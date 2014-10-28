@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#ifndef ABSTRACTTIMELINEMODEL_H
-#define ABSTRACTTIMELINEMODEL_H
+#ifndef TIMELINEMODEL_H
+#define TIMELINEMODEL_H
 
 
 #include "qmlprofiler_global.h"
@@ -40,30 +40,24 @@
 
 namespace QmlProfiler {
 
-class QMLPROFILER_EXPORT AbstractTimelineModel : public QObject
+class QMLPROFILER_EXPORT TimelineModel : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(int modelId READ modelId CONSTANT)
     Q_PROPERTY(QString displayName READ displayName CONSTANT)
     Q_PROPERTY(bool empty READ isEmpty NOTIFY emptyChanged)
     Q_PROPERTY(bool hidden READ hidden WRITE setHidden NOTIFY hiddenChanged)
     Q_PROPERTY(int height READ height NOTIFY heightChanged)
-    Q_PROPERTY(QmlProfilerModelManager *modelManager READ modelManager)
 
 public:
-    class AbstractTimelineModelPrivate;
+    class TimelineModelPrivate;
 
-    AbstractTimelineModel(QmlProfilerModelManager *manager, const QString &displayName,
-                          QmlDebug::Message message, QmlDebug::RangeType rangeType,
-                          QObject *parent);
-    ~AbstractTimelineModel();
+    TimelineModel(int modelId, const QString &displayName, QObject *parent);
+    ~TimelineModel();
 
-    // Trivial methods implemented by the abstract model itself
-    QmlProfilerModelManager *modelManager() const;
-
+    // Methods implemented by the abstract model itself
     bool isEmpty() const;
     int modelId() const;
-
-    // Methods are directly passed on to the private model and relying on its virtual methods.
     int rowHeight(int rowNumber) const;
     int rowOffset(int rowNumber) const;
     void setRowHeight(int rowNumber, int height);
@@ -96,9 +90,7 @@ public:
     virtual QVariantMap location(int index) const;
     virtual int typeId(int index) const;
     virtual bool handlesTypeId(int typeId) const;
-    virtual bool accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;
     virtual int selectionIdForLocation(const QString &filename, int line, int column) const;
-    virtual int bindingLoopDest(int index) const;
     virtual float relativeHeight(int index) const;
     virtual int rowMinValue(int rowNumber) const;
     virtual int rowMaxValue(int rowNumber) const;
@@ -128,26 +120,15 @@ protected:
     int expandedRowCount() const;
     void setExpandedRowCount(int rows);
 
-    QmlDebug::RangeType rangeType() const;
-    QmlDebug::Message message() const;
-
-    void updateProgress(qint64 count, qint64 max) const;
-    void announceFeatures(quint64 features) const;
-
-    explicit AbstractTimelineModel(AbstractTimelineModelPrivate *dd,
-                                   QmlProfilerModelManager *manager, const QString &displayName,
-                                   QmlDebug::Message message, QmlDebug::RangeType rangeType,
-                                   QObject *parent);
-    AbstractTimelineModelPrivate *d_ptr;
-
-    virtual void loadData() = 0;
     virtual void clear();
 
+    explicit TimelineModel(TimelineModelPrivate &dd, QObject *parent);
+    TimelineModelPrivate *d_ptr;
+
 private:
-    Q_DECLARE_PRIVATE(AbstractTimelineModel)
-    Q_PRIVATE_SLOT(d_func(), void _q_dataChanged())
+    Q_DECLARE_PRIVATE(TimelineModel)
 };
 
 }
 
-#endif // ABSTRACTTIMELINEMODEL_H
+#endif // TIMELINEMODEL_H

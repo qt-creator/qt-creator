@@ -5,7 +5,6 @@ QT += network qml quick
 include(../../qtcreatorplugin.pri)
 
 SOURCES += \
-    abstracttimelinemodel.cpp \
     localqmlprofilerrunner.cpp \
     qmlprofileranimationsmodel.cpp \
     qmlprofilerattachdialog.cpp \
@@ -23,6 +22,7 @@ SOURCES += \
     qmlprofilerruncontrolfactory.cpp \
     qmlprofilerstatemanager.cpp \
     qmlprofilerstatewidget.cpp \
+    qmlprofilertimelinemodel.cpp \
     qmlprofilertimelinemodelfactory.cpp \
     qmlprofilertool.cpp \
     qmlprofilertracefile.cpp \
@@ -31,14 +31,13 @@ SOURCES += \
     qmlprofilerviewmanager.cpp \
     qv8profilerdatamodel.cpp \
     qv8profilereventview.cpp \
+    timelinemodel.cpp \
     timelinemodelaggregator.cpp \
     timelinerenderer.cpp \
     timelinezoomcontrol.cpp
 
 HEADERS += \
     abstractqmlprofilerrunner.h \
-    abstracttimelinemodel.h \
-    abstracttimelinemodel_p.h \
     localqmlprofilerrunner.h \
     qmlprofiler_global.h \
     qmlprofileranimationsmodel.h \
@@ -59,6 +58,7 @@ HEADERS += \
     qmlprofilerruncontrolfactory.h \
     qmlprofilerstatemanager.h \
     qmlprofilerstatewidget.h \
+    qmlprofilertimelinemodel.h \
     qmlprofilertimelinemodelfactory.h \
     qmlprofilertool.h \
     qmlprofilertracefile.h \
@@ -67,6 +67,8 @@ HEADERS += \
     qmlprofilerviewmanager.h \
     qv8profilerdatamodel.h \
     qv8profilereventview.h \
+    timelinemodel.h \
+    timelinemodel_p.h \
     timelinemodelaggregator.h \
     timelinerenderer.h \
     timelinezoomcontrol.h

@@ -28,21 +28,49 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERTIMELINEMODELFACTORY_H
-#define QMLPROFILERTIMELINEMODELFACTORY_H
+#ifndef QMLPROFILERTIMELINEMODEL_H
+#define QMLPROFILERTIMELINEMODEL_H
 
-#include "qmlprofilertimelinemodel.h"
-#include "qmlprofilermodelmanager.h"
+#include "timelinemodel.h"
 
 namespace QmlProfiler {
 
-class QMLPROFILER_EXPORT QmlProfilerTimelineModelFactory : public QObject
-{
+class QMLPROFILER_EXPORT QmlProfilerTimelineModel : public TimelineModel {
     Q_OBJECT
+    Q_PROPERTY(QmlDebug::RangeType rangeType READ rangeType CONSTANT)
+    Q_PROPERTY(QmlDebug::Message message READ message CONSTANT)
+    Q_PROPERTY(QmlProfilerModelManager *modelManager READ modelManager CONSTANT)
+
 public:
-    virtual QList<QmlProfilerTimelineModel *> create(QmlProfilerModelManager *manager) = 0;
+    QmlProfilerTimelineModel(QmlProfilerModelManager *modelManager, const QString &displayName,
+                             QmlDebug::Message message, QmlDebug::RangeType rangeType,
+                             QObject *parent);
+
+    QmlProfilerModelManager *modelManager() const;
+
+    QmlDebug::RangeType rangeType() const;
+    QmlDebug::Message message() const;
+
+    virtual bool accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;
+    bool handlesTypeId(int typeId) const;
+    Q_INVOKABLE virtual int bindingLoopDest(int index) const;
+
+    virtual void loadData() = 0;
+    void clear();
+
+private slots:
+    void dataChanged();
+
+protected:
+    void updateProgress(qint64 count, qint64 max) const;
+    void announceFeatures(quint64 features) const;
+
+private:
+    const QmlDebug::Message m_message;
+    const QmlDebug::RangeType m_rangeType;
+    QmlProfilerModelManager *const m_modelManager;
 };
 
 }
 
-#endif // QMLPROFILERTIMELINEMODELFACTORY_H
+#endif // QMLPROFILERTIMELINEMODEL_H
