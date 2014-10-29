@@ -4,7 +4,6 @@ import QtcPlugin
 
 QtcPlugin {
     name: "WinRt"
-    minimumQtVersion: "5.0"
 
     Depends { name: "Core" }
     Depends { name: "Debugger" }
