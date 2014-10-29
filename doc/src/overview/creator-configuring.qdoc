@@ -98,7 +98,15 @@
 
     \section1 Changing Color Schemes
 
-    You can use \QC with your favorite color scheme that defines how code
+    Themes enable you to customize the appearance of the \QC UI: widgets,
+    colors, and icons.
+
+    To switch from the default theme to a dark theme, select \gui Tools >
+    \gui Options > \gui Environment, and then select \gui {Dark (built-in)} in
+    the \gui Theme field.
+
+    You can use the \QC text and code editors with your favorite color scheme
+    that defines how code
     elements are highlighted and which background color is used. You can select
     one of the predefined color schemes or create custom ones.
     The color schemes apply to highlighting C++ files, QML files, and generic
