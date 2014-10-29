@@ -31,7 +31,7 @@
 #ifndef CPPDOCUMENTATIONCOMMENTHELPER_H
 #define CPPDOCUMENTATIONCOMMENTHELPER_H
 
-#include <cppeditor_global.h>
+#include "cppeditor_global.h"
 
 namespace TextEditor { class TextEditorWidget; }
 
