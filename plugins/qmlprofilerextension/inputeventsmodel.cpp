@@ -48,21 +48,15 @@ QVariantList InputEventsModel::labels() const
 {
     QVariantList result;
 
-    if (expanded() && !hidden() && !isEmpty()) {
-        {
-            QVariantMap element;
-            element.insert(QLatin1String("description"), QVariant(tr("Mouse Events")));
-            element.insert(QLatin1String("id"), QVariant(QmlDebug::Mouse));
-            result << element;
-        }
+    QVariantMap element;
+    element.insert(QLatin1String("description"), QVariant(tr("Mouse Events")));
+    element.insert(QLatin1String("id"), QVariant(QmlDebug::Mouse));
+    result << element;
 
-        {
-            QVariantMap element;
-            element.insert(QLatin1String("description"), QVariant(tr("Keyboard Events")));
-            element.insert(QLatin1String("id"), QVariant(QmlDebug::Key));
-            result << element;
-        }
-    }
+    element.clear();
+    element.insert(QLatin1String("description"), QVariant(tr("Keyboard Events")));
+    element.insert(QLatin1String("id"), QVariant(QmlDebug::Key));
+    result << element;
 
     return result;
 }

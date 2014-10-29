@@ -83,26 +83,22 @@ QVariantList PixmapCacheModel::labels() const
 {
     QVariantList result;
 
-    if (expanded() && !hidden() && !isEmpty()) {
-        {
-            // Cache Size
-            QVariantMap element;
-            element.insert(QLatin1String("description"), QVariant(QLatin1String("Cache Size")));
+    // Cache Size
+    QVariantMap element;
+    element.insert(QLatin1String("description"), QVariant(QLatin1String("Cache Size")));
 
-            element.insert(QLatin1String("id"), QVariant(0));
-            result << element;
-        }
+    element.insert(QLatin1String("id"), QVariant(0));
+    result << element;
 
-        for (int i=0; i < m_pixmaps.count(); i++) {
-            // Loading
-            QVariantMap element;
-            element.insert(QLatin1String("displayName"), m_pixmaps[i].url);
-            element.insert(QLatin1String("description"),
-                           QVariant(getFilenameOnly(m_pixmaps[i].url)));
+    for (int i=0; i < m_pixmaps.count(); i++) {
+        // Loading
+        QVariantMap element;
+        element.insert(QLatin1String("displayName"), m_pixmaps[i].url);
+        element.insert(QLatin1String("description"),
+                       QVariant(getFilenameOnly(m_pixmaps[i].url)));
 
-            element.insert(QLatin1String("id"), QVariant(i+1));
-            result << element;
-        }
+        element.insert(QLatin1String("id"), QVariant(i+1));
+        result << element;
     }
 
     return result;

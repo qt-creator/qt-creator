@@ -90,23 +90,15 @@ QVariantList MemoryUsageModel::labels() const
 {
     QVariantList result;
 
-    if (expanded() && !hidden() && !isEmpty()) {
-        {
-            QVariantMap element;
-            element.insert(QLatin1String("description"), QVariant(tr("Memory Allocation")));
+    QVariantMap element;
+    element.insert(QLatin1String("description"), QVariant(tr("Memory Allocation")));
+    element.insert(QLatin1String("id"), QVariant(QmlDebug::HeapPage));
+    result << element;
 
-            element.insert(QLatin1String("id"), QVariant(QmlDebug::HeapPage));
-            result << element;
-        }
-
-        {
-            QVariantMap element;
-            element.insert(QLatin1String("description"), QVariant(tr("Memory Usage")));
-
-            element.insert(QLatin1String("id"), QVariant(QmlDebug::SmallItem));
-            result << element;
-        }
-    }
+    element.clear();
+    element.insert(QLatin1String("description"), QVariant(tr("Memory Usage")));
+    element.insert(QLatin1String("id"), QVariant(QmlDebug::SmallItem));
+    result << element;
 
     return result;
 }

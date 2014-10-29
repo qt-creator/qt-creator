@@ -96,15 +96,13 @@ QVariantList SceneGraphTimelineModel::labels() const
 {
     QVariantList result;
 
-    if (expanded() && !hidden() && !isEmpty()) {
-        for (SceneGraphStage i = MinimumSceneGraphStage; i < MaximumSceneGraphStage;
-             i = static_cast<SceneGraphStage>(i + 1)) {
-            QVariantMap element;
-            element.insert(QLatin1String("displayName"), tr(threadLabel(i)));
-            element.insert(QLatin1String("description"), tr(StageLabels[i]));
-            element.insert(QLatin1String("id"), i);
-            result << element;
-        }
+    for (SceneGraphStage i = MinimumSceneGraphStage; i < MaximumSceneGraphStage;
+         i = static_cast<SceneGraphStage>(i + 1)) {
+        QVariantMap element;
+        element.insert(QLatin1String("displayName"), tr(threadLabel(i)));
+        element.insert(QLatin1String("description"), tr(StageLabels[i]));
+        element.insert(QLatin1String("id"), i);
+        result << element;
     }
 
     return result;
