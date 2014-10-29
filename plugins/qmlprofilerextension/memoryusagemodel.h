@@ -19,7 +19,7 @@
 #ifndef MEMORYUSAGEMODEL_H
 #define MEMORYUSAGEMODEL_H
 
-#include "qmlprofiler/abstracttimelinemodel.h"
+#include "qmlprofiler/qmlprofilertimelinemodel.h"
 #include "qmlprofiler/qmlprofilerdatamodel.h"
 
 #include <QStringList>
@@ -28,7 +28,7 @@
 namespace QmlProfilerExtension {
 namespace Internal {
 
-class MemoryUsageModel : public QmlProfiler::AbstractTimelineModel
+class MemoryUsageModel : public QmlProfiler::QmlProfilerTimelineModel
 {
     Q_OBJECT
 public:

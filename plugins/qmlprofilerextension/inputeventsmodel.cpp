@@ -25,10 +25,10 @@ namespace Internal {
 
 using namespace QmlProfiler;
 
-InputEventsModel::InputEventsModel(QmlProfilerModelManager *manager, QObject *parent)
-    : AbstractTimelineModel(manager,
-                            tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileInputEvents)),
-                            QmlDebug::Event, QmlDebug::MaximumRangeType, parent),
+InputEventsModel::InputEventsModel(QmlProfilerModelManager *manager, QObject *parent) :
+    QmlProfilerTimelineModel(manager,
+                             tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileInputEvents)),
+                             QmlDebug::Event, QmlDebug::MaximumRangeType, parent),
       m_keyTypeId(-1), m_mouseTypeId(-1)
 {
     announceFeatures(1 << QmlDebug::ProfileInputEvents);
@@ -112,12 +112,12 @@ void InputEventsModel::loadData()
 void InputEventsModel::clear()
 {
     m_keyTypeId = m_mouseTypeId = -1;
-    AbstractTimelineModel::clear();
+    QmlProfilerTimelineModel::clear();
 }
 
 bool InputEventsModel::accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const
 {
-    return AbstractTimelineModel::accepted(event) &&
+    return QmlProfilerTimelineModel::accepted(event) &&
             (event.detailType == QmlDebug::Mouse || event.detailType == QmlDebug::Key);
 }
 

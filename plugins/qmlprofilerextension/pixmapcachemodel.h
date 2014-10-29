@@ -19,7 +19,7 @@
 #ifndef PIXMAPCACHEMODEL_H
 #define PIXMAPCACHEMODEL_H
 
-#include "qmlprofiler/abstracttimelinemodel.h"
+#include "qmlprofiler/qmlprofilertimelinemodel.h"
 #include "qmlprofiler/qmlprofilerdatamodel.h"
 
 #include <QStringList>
@@ -29,7 +29,7 @@
 namespace QmlProfilerExtension {
 namespace Internal {
 
-class PixmapCacheModel : public QmlProfiler::AbstractTimelineModel
+class PixmapCacheModel : public QmlProfiler::QmlProfilerTimelineModel
 {
     Q_OBJECT
 public:

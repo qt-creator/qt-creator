@@ -19,7 +19,7 @@
 #ifndef SCENEGRAPHTIMELINEMODEL_H
 #define SCENEGRAPHTIMELINEMODEL_H
 
-#include "qmlprofiler/abstracttimelinemodel.h"
+#include "qmlprofiler/qmlprofilertimelinemodel.h"
 #include "qmlprofiler/qmlprofilermodelmanager.h"
 #include "qmlprofiler/qmlprofilerdatamodel.h"
 
@@ -29,7 +29,7 @@
 namespace QmlProfilerExtension {
 namespace Internal {
 
-class SceneGraphTimelineModel : public QmlProfiler::AbstractTimelineModel
+class SceneGraphTimelineModel : public QmlProfiler::QmlProfilerTimelineModel
 {
     Q_OBJECT
 public:

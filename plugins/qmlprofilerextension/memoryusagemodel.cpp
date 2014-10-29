@@ -27,10 +27,10 @@ namespace Internal {
 
 using namespace QmlProfiler;
 
-MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager, QObject *parent)
-    : AbstractTimelineModel(manager,
-                            tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileMemory)),
-                            QmlDebug::MemoryAllocation, QmlDebug::MaximumRangeType, parent)
+MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager, QObject *parent) :
+    QmlProfilerTimelineModel(manager,
+                             tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileMemory)),
+                             QmlDebug::MemoryAllocation, QmlDebug::MaximumRangeType, parent)
 {
     announceFeatures((1 << QmlDebug::ProfileMemory) | QmlDebug::Constants::QML_JS_RANGE_FEATURES);
 }
@@ -242,7 +242,7 @@ void MemoryUsageModel::clear()
 {
     m_data.clear();
     m_maxSize = 1;
-    AbstractTimelineModel::clear();
+    QmlProfilerTimelineModel::clear();
 }
 
 QString MemoryUsageModel::memoryTypeName(int type)

@@ -19,12 +19,12 @@
 #ifndef INPUTEVENTSMODEL_H
 #define INPUTEVENTSMODEL_H
 
-#include "qmlprofiler/abstracttimelinemodel.h"
+#include "qmlprofiler/qmlprofilertimelinemodel.h"
 
 namespace QmlProfilerExtension {
 namespace Internal {
 
-class InputEventsModel : public QmlProfiler::AbstractTimelineModel
+class InputEventsModel : public QmlProfiler::QmlProfilerTimelineModel
 {
     Q_OBJECT
 

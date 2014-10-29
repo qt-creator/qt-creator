@@ -49,10 +49,10 @@ using namespace QmlProfilerExtension::Internal;
 class ModelFactory : public QmlProfiler::QmlProfilerTimelineModelFactory {
     Q_OBJECT
 public:
-    QList<QmlProfiler::AbstractTimelineModel *> create(
+    QList<QmlProfiler::QmlProfilerTimelineModel *> create(
             QmlProfiler::QmlProfilerModelManager *manager)
     {
-        QList<QmlProfiler::AbstractTimelineModel *> models;
+        QList<QmlProfiler::QmlProfilerTimelineModel *> models;
         models << new PixmapCacheModel(manager, this)
                << new SceneGraphTimelineModel(manager, this)
                << new MemoryUsageModel(manager, this)

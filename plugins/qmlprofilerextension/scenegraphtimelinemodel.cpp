@@ -68,10 +68,11 @@ enum SceneGraphCategoryType {
 Q_STATIC_ASSERT(sizeof(StageLabels) ==
                 SceneGraphTimelineModel::MaximumSceneGraphStage * sizeof(const char *));
 
-SceneGraphTimelineModel::SceneGraphTimelineModel(QmlProfilerModelManager *manager, QObject *parent)
-    : AbstractTimelineModel(manager,
-                            tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileSceneGraph)),
-                            QmlDebug::SceneGraphFrame, QmlDebug::MaximumRangeType, parent)
+SceneGraphTimelineModel::SceneGraphTimelineModel(QmlProfilerModelManager *manager,
+                                                 QObject *parent) :
+    QmlProfilerTimelineModel(manager,
+                             tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileSceneGraph)),
+                             QmlDebug::SceneGraphFrame, QmlDebug::MaximumRangeType, parent)
 {
     announceFeatures(1 << QmlDebug::ProfileSceneGraph);
 }
@@ -272,7 +273,7 @@ qint64 SceneGraphTimelineModel::insert(qint64 start, qint64 duration, int typeIn
     if (duration <= 0)
         return 0;
 
-    m_data.insert(AbstractTimelineModel::insert(start, duration, stage),
+    m_data.insert(QmlProfilerTimelineModel::insert(start, duration, stage),
                   SceneGraphEvent(typeIndex, glyphCount));
     return duration;
 }
@@ -291,7 +292,7 @@ const char *SceneGraphTimelineModel::threadLabel(SceneGraphStage stage)
 void SceneGraphTimelineModel::clear()
 {
     m_data.clear();
-    AbstractTimelineModel::clear();
+    QmlProfilerTimelineModel::clear();
 }
 
 SceneGraphTimelineModel::SceneGraphEvent::SceneGraphEvent(int typeId, int glyphCount) :
