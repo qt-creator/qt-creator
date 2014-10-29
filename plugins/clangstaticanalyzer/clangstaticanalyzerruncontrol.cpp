@@ -90,12 +90,16 @@ bool ClangStaticAnalyzerRunControl::startEngine()
     Project *project = target->project();
     QTC_ASSERT(project, emit finished(); return false);
 
+    const QString projectFile = project->projectFilePath().toString();
+    appendMessage(tr("Running Clang Static Analyzer on %1").arg(projectFile) + QLatin1Char('\n'),
+                        Utils::NormalMessageFormat);
+
     // Check clang executable
     bool isValidClangExecutable;
     const QString executable = clangExecutableFromSettings(&isValidClangExecutable);
     if (!isValidClangExecutable) {
-        emit appendMessage(tr("Clang Static Analyzer: Invalid executable \"%1\", stop.\n")
-                            .arg(executable),
+        emit appendMessage(tr("Clang Static Analyzer: Invalid executable \"%1\", stop.")
+                            .arg(executable) + QLatin1Char('\n'),
                            Utils::ErrorMessageFormat);
         emit finished();
         return false;
@@ -106,8 +110,8 @@ bool ClangStaticAnalyzerRunControl::startEngine()
     QTemporaryDir temporaryDir(QDir::tempPath() + QLatin1String("/qtc-clangstaticanalyzer-XXXXXX"));
     temporaryDir.setAutoRemove(false);
     if (!temporaryDir.isValid()) {
-        emit appendMessage(tr("Clang Static Analyzer: Failed to create temporary dir, stop.\n"),
-                           Utils::ErrorMessageFormat);
+        emit appendMessage(tr("Clang Static Analyzer: Failed to create temporary dir, stop.")
+                           + QLatin1Char('\n'), Utils::ErrorMessageFormat);
         emit finished();
         return false;
     }
@@ -162,6 +166,8 @@ void ClangStaticAnalyzerRunControl::analyzeNextFile()
 
     if (m_filesToProcess.isEmpty()) {
         if (m_runners.size() == 0) {
+            appendMessage(tr("Clang Static Analyzer finished.") + QLatin1Char('\n'),
+                          Utils::NormalMessageFormat);
             m_progress.reportFinished();
             emit finished();
         }
@@ -199,6 +205,7 @@ void ClangStaticAnalyzerRunControl::onRunnerFinishedWithSuccess(const QString &l
 
     QString errorMessage;
     const QList<Diagnostic> diagnostics = LogFileReader::read(logFilePath, &errorMessage);
+    QTC_CHECK(errorMessage.isEmpty());
     if (!errorMessage.isEmpty())
         qCDebug(LOG) << "onRunnerFinishedWithSuccess: Error reading log file:" << errorMessage;
     if (!diagnostics.isEmpty())
