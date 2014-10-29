@@ -186,7 +186,7 @@ QVariantList QmlProfilerAnimationsModel::labels() const
 {
     QVariantList result;
 
-    if (!hidden() && m_maxGuiThreadAnimations > 0) {
+    if (m_maxGuiThreadAnimations > 0) {
         QVariantMap element;
         element.insert(QLatin1String("displayName"), QVariant(tr("Animations")));
         element.insert(QLatin1String("description"), QVariant(tr("GUI Thread")));
@@ -194,7 +194,7 @@ QVariantList QmlProfilerAnimationsModel::labels() const
         result << element;
     }
 
-    if (!hidden() && m_maxRenderThreadAnimations > 0) {
+    if (m_maxRenderThreadAnimations > 0) {
         QVariantMap element;
         element.insert(QLatin1String("displayName"), QVariant(tr("Animations")));
         element.insert(QLatin1String("description"), QVariant(tr("Render Thread")));

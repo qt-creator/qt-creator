@@ -210,17 +210,15 @@ QVariantList QmlProfilerRangeModel::labels() const
 {
     QVariantList result;
 
-    if (expanded() && !hidden()) {
-        const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
-                modelManager()->qmlModel()->getEventTypes();
-        for (int i = 1; i < expandedRowCount(); i++) { // Ignore the -1 for the first row
-            QVariantMap element;
-            int typeId = m_expandedRowTypes[i];
-            element.insert(QLatin1String("displayName"), QVariant(types[typeId].displayName));
-            element.insert(QLatin1String("description"), QVariant(types[typeId].data));
-            element.insert(QLatin1String("id"), QVariant(typeId));
-            result << element;
-        }
+    const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
+            modelManager()->qmlModel()->getEventTypes();
+    for (int i = 1; i < expandedRowCount(); i++) { // Ignore the -1 for the first row
+        QVariantMap element;
+        int typeId = m_expandedRowTypes[i];
+        element.insert(QLatin1String("displayName"), QVariant(types[typeId].displayName));
+        element.insert(QLatin1String("description"), QVariant(types[typeId].data));
+        element.insert(QLatin1String("id"), QVariant(typeId));
+        result << element;
     }
 
     return result;
