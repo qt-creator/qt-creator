@@ -89,11 +89,11 @@ QWidget *ThemeSettingsItemDelegate::createColorEditor(QWidget *parent, const QSt
 
     int k = 0;
     if (isUnnamed) {
-        cb->addItem(makeIcon(currentColor), tr("<unnamed> (current)"));
+        cb->addItem(makeIcon(currentColor), tr("<Unnamed> (Current)"));
         ++k;
     } else {
         cb->addItem(makeIcon(currentColor),
-                    colorRole->colorVariable()->variableName()+QString(tr(" (current)")));
+                    colorRole->colorVariable()->variableName()+QString(tr(" (Current)")));
         ++k;
     }
 
@@ -109,10 +109,10 @@ QWidget *ThemeSettingsItemDelegate::createColorEditor(QWidget *parent, const QSt
     }
 
     if (!isUnnamed) {
-        cb->addItem(tr("Make unnamed"));
+        cb->addItem(tr("Remove Variable Name"));
         m_actions[k++] = qMakePair(Action_MakeUnnamed, QSharedPointer<ColorVariable>(0));
     }
-    cb->addItem(tr("Create new name..."));
+    cb->addItem(tr("Add Variable Name..."));
     m_actions[k++] = qMakePair(Action_CreateNew, QSharedPointer<ColorVariable>(0));
 
     connect(cb, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
@@ -199,7 +199,7 @@ void ThemeSettingsItemDelegate::setModelData (QWidget *editor, QAbstractItemMode
                 ColorVariable::Ptr anonymousColor = themeSettingsModel->m_colors->createVariable(previousVariable->color());
                 themeColor->assignColorVariable(anonymousColor);
             } else if (act == Action_CreateNew) {
-                QString name = QInputDialog::getText(editor, tr("New variable name"), tr("Variable name:"));
+                QString name = QInputDialog::getText(editor, tr("Add Variable Name"), tr("Variable name:"));
                 if (!name.isEmpty()) {
                     previousVariable->removeReference(themeColor.data());
 
