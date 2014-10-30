@@ -70,11 +70,7 @@ def main():
             else:
                 pos = size
                 if key == "<Left>":
-                    if not isQt4Build or platform.system() == "Darwin":
-                        # native cursor behavior on Mac is different in Qt4
-                        pos = 0
-                    else:
-                        pos -= 1
+                    pos = 0
                 test.compare(editor.textCursor().selectionStart(), pos)
                 test.compare(editor.textCursor().selectionEnd(), pos)
                 test.compare(editor.textCursor().position(), pos)

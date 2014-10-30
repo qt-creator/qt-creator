@@ -72,7 +72,7 @@ def overrideStartApplication():
             if platform.system() == 'Darwin':
                 args[0] = args[0].replace('qtcreator', '"Qt Creator"', 1)
                 test.log("Using workaround for MacOS (different AUT name)")
-            elif not isQt4Build:
+            else:
                 args[0] = args[0] + ' -platform windows:dialogs=none'
                 test.log("Using workaround for Windows (failing to hook into native FileDialog)")
         return __origStartApplication__(*args)

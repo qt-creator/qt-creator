@@ -31,9 +31,6 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    if isQt4Build:
-        test.log("QbsProjectManager is not available with Qt4")
-        return
     pathCreator = os.path.join(srcPath, "creator", "qtcreator.qbs")
     if not neededFilePresent(pathCreator):
         return

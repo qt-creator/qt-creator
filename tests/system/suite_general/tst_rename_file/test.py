@@ -52,13 +52,6 @@ def main():
                                ["Resources", "musicbrowser.qrc"],
                                ["QML", "musicbrowser.qml"]]:
         filenames = ["ABCD" + filename.upper(), "abcd" + filename.lower(), "test", "TEST", filename]
-        if isQt4Build and platform.system() == 'Darwin':
-            # avoid QTCREATORBUG-9197
-            filtered = [filenames[0]]
-            for filename in filenames[1:]:
-                if filename.lower() != filtered[-1].lower():
-                    filtered.append(filename)
-            filenames = filtered
         previous = filenames[-1]
         for filename in filenames:
             tempFiletype = filetype

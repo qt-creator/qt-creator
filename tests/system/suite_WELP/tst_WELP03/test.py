@@ -73,8 +73,8 @@ def handlePackagingMessageBoxes():
             break
 
 def main():
-    if isQt4Build or not canTestEmbeddedQtQuick():
-        test.log("Welcome mode is not available or not scriptable with this Squish version")
+    if not canTestEmbeddedQtQuick():
+        test.log("Welcome mode is not scriptable with this Squish version")
         return
     global sdkPath
     # open Qt Creator

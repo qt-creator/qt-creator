@@ -59,8 +59,6 @@ def __getUrl__():
             url = helpViewer.source
         except:
             return ""
-    if isQt4Build:
-        return str(url.toString())
     return str(url.scheme) + "://" + str(url.host) + str(url.path)
 
 def getHighlightsInHtml(htmlCode):

@@ -32,8 +32,8 @@ source("../../shared/qtcreator.py")
 source("../../shared/suites_qtta.py")
 
 def main():
-    if isQt4Build or not canTestEmbeddedQtQuick():
-        test.log("Welcome mode is not available or not scriptable with this Squish version")
+    if not canTestEmbeddedQtQuick():
+        test.log("Welcome mode is not scriptable with this Squish version")
         return
     # open Qt Creator
     startApplication("qtcreator" + SettingsPath)

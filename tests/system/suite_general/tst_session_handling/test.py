@@ -42,7 +42,7 @@ def main():
     mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
     test.verify(waitFor("sessionName in str(mainWindow.windowTitle)", 2000),
                 "Verifying window title contains created session name.")
-    if not isQt4Build and canTestEmbeddedQtQuick():
+    if canTestEmbeddedQtQuick():
         checkWelcomePage(sessionName, True)
     for project in projects:
         openQmakeProject(project, Targets.DESKTOP_480_GCC)
@@ -55,7 +55,7 @@ def main():
     switchSession("default")
     test.verify(waitFor("'Qt Creator' == str(mainWindow.windowTitle)", 2000),
                 "Verifying window title is set to default.")
-    if not isQt4Build and canTestEmbeddedQtQuick():
+    if canTestEmbeddedQtQuick():
         checkWelcomePage(sessionName, False)
         switchViewTo(ViewConstants.EDIT)
     checkNavigator(1, "Verifying that no more project is opened.")
