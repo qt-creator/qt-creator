@@ -50,7 +50,7 @@ Column {
 
             Label {
                 text: qsTr("Cache")
-                toolTip: qsTr("Cache buffer")
+                tooltip: qsTr("Cache buffer")
             }
 
             SectionLayout {
@@ -68,7 +68,7 @@ Column {
 
             Label {
                 text: qsTr("Navigation wraps")
-                toolTip: qsTr("Determines whether the grid wraps key navigation.")
+                tooltip: qsTr("Determines whether the grid wraps key navigation.")
             }
 
             SectionLayout {
@@ -83,7 +83,7 @@ Column {
 
             Label {
                 text: qsTr("Orientation")
-                toolTip: qsTr("Orientation of the list.")
+                tooltip: qsTr("Orientation of the list.")
             }
 
             SecondColumnLayout {
@@ -114,7 +114,7 @@ Column {
 
             Label {
                 text: qsTr("Snap mode")
-                toolTip: qsTr("Determines how the view scrolling will settle following a drag or flick.")
+                tooltip: qsTr("Determines how the view scrolling will settle following a drag or flick.")
             }
 
             SecondColumnLayout {
@@ -131,7 +131,7 @@ Column {
 
             Label {
                 text: qsTr("Spacing")
-                toolTip: qsTr("Spacing between items.")
+                tooltip: qsTr("Spacing between items.")
             }
 
             SectionLayout {
@@ -159,7 +159,7 @@ Column {
 
             Label {
                 text: qsTr("Range")
-                toolTip: qsTr("Highlight range")
+                tooltip: qsTr("Highlight range")
             }
 
             SecondColumnLayout {
@@ -178,7 +178,7 @@ Column {
 
             Label {
                 text: qsTr("Move duration")
-                toolTip: qsTr("Move animation duration of the highlight delegate.")
+                tooltip: qsTr("Move animation duration of the highlight delegate.")
             }
 
             SectionLayout {
@@ -196,7 +196,7 @@ Column {
 
             Label {
                 text: qsTr("Move speed")
-                toolTip: qsTr("Move animation speed of the highlight delegate.")
+                tooltip: qsTr("Move animation speed of the highlight delegate.")
             }
 
             SectionLayout {
@@ -214,7 +214,7 @@ Column {
 
             Label {
                 text: qsTr("Resize duration")
-                toolTip: qsTr("Resize animation duration of the highlight delegate.")
+                tooltip: qsTr("Resize animation duration of the highlight delegate.")
             }
 
             SectionLayout {
@@ -232,7 +232,7 @@ Column {
 
             Label {
                 text: qsTr("Preferred begin")
-                toolTip: qsTr("Preferred highlight begin - must be smaller than Preferred end.")
+                tooltip: qsTr("Preferred highlight begin - must be smaller than Preferred end.")
             }
 
             SectionLayout {
@@ -250,7 +250,7 @@ Column {
 
             Label {
                 text: qsTr("Preferred end")
-                toolTip: qsTr("Preferred highlight end - must be larger than Preferred begin.")
+                tooltip: qsTr("Preferred highlight end - must be larger than Preferred begin.")
             }
 
             SectionLayout {
@@ -268,7 +268,7 @@ Column {
 
             Label {
                 text: qsTr("Follows current")
-                toolTip: qsTr("Determines whether the highlight is managed by the view.")
+                tooltip: qsTr("Determines whether the highlight is managed by the view.")
             }
 
             SectionLayout {

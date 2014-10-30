@@ -45,7 +45,7 @@ Column {
 
             Label {
                 text: qsTr("Drag margin")
-                toolTip: qsTr("Drag margin")
+                tooltip: qsTr("Drag margin")
             }
 
             SecondColumnLayout {
@@ -80,7 +80,7 @@ Column {
 
             Label {
                 text: qsTr("Interactive")
-                toolTip: qsTr("A user cannot drag or flick a PathView that is not interactive.")
+                tooltip: qsTr("A user cannot drag or flick a PathView that is not interactive.")
             }
 
             SecondColumnLayout {
@@ -95,7 +95,7 @@ Column {
 
             Label {
                 text: qsTr("Offset")
-                toolTip: qsTr("Specifies how far along the path the items are from their initial positions. This is a real number that ranges from 0.0 to the count of items in the model.")
+                tooltip: qsTr("Specifies how far along the path the items are from their initial positions. This is a real number that ranges from 0.0 to the count of items in the model.")
             }
 
             SecondColumnLayout {
@@ -113,7 +113,7 @@ Column {
 
             Label {
                 text: qsTr("Item count")
-                toolTip: qsTr("pathItemCount: number of items visible on the path at any one time.")
+                tooltip: qsTr("pathItemCount: number of items visible on the path at any one time.")
             }
 
             SecondColumnLayout {
@@ -139,7 +139,7 @@ Column {
 
             Label {
                 text: qsTr("Range")
-                toolTip: qsTr("Highlight range")
+                tooltip: qsTr("Highlight range")
             }
 
             SecondColumnLayout {
@@ -158,7 +158,7 @@ Column {
 
             Label {
                 text: qsTr("Move duration")
-                toolTip: qsTr("Move animation duration of the highlight delegate.")
+                tooltip: qsTr("Move animation duration of the highlight delegate.")
             }
 
             SecondColumnLayout {
@@ -176,7 +176,7 @@ Column {
 
             Label {
                 text: qsTr("Preferred begin")
-                toolTip: qsTr("Preferred highlight begin - must be smaller than Preferred end. Note that the user has to add a highlight component.")
+                tooltip: qsTr("Preferred highlight begin - must be smaller than Preferred end. Note that the user has to add a highlight component.")
             }
 
             SecondColumnLayout {
@@ -194,7 +194,7 @@ Column {
 
             Label {
                 text: qsTr("Preferred end")
-                toolTip: qsTr("Preferred highlight end - must be larger than Preferred begin. Note that the user has to add a highlight component.")
+                tooltip: qsTr("Preferred highlight end - must be larger than Preferred begin. Note that the user has to add a highlight component.")
             }
 
             SecondColumnLayout {
