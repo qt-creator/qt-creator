@@ -46,9 +46,8 @@ public:
     static FileName findSystemQt(const Environment &env);
     static bool isQtChooser(const QFileInfo &info);
     static QString qtChooserToQmakePath(const QString &path);
-    // return true if the qmake at qmakePath is qt4 (used by QtVersion)
+    // return true if the qmake at qmakePath is a Qt (used by QtVersion)
     static QString qtVersionForQMake(const QString &qmakePath);
-    static QString qtVersionForQMake(const QString &qmakePath, bool *qmakeIsExecutable);
     // returns something like qmake4, qmake, qmake-qt4 or whatever distributions have chosen (used by QtVersion)
     static QStringList possibleQMakeCommands();
 

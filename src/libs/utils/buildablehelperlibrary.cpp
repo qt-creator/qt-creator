@@ -106,20 +106,12 @@ FileName BuildableHelperLibrary::findSystemQt(const Environment &env)
 
 QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath)
 {
-    bool qmakeIsExecutable;
-    return BuildableHelperLibrary::qtVersionForQMake(qmakePath, &qmakeIsExecutable);
-}
-
-QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath, bool *qmakeIsExecutable)
-{
-    *qmakeIsExecutable = !qmakePath.isEmpty();
-    if (!*qmakeIsExecutable)
+    if (qmakePath.isEmpty())
         return QString();
 
     QProcess qmake;
     qmake.start(qmakePath, QStringList(QLatin1String("--version")));
     if (!qmake.waitForStarted()) {
-        *qmakeIsExecutable = false;
         qWarning("Cannot start '%s': %s", qPrintable(qmakePath), qPrintable(qmake.errorString()));
         return QString();
     }
@@ -129,7 +121,6 @@ QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath, bool
         return QString();
     }
     if (qmake.exitStatus() != QProcess::NormalExit) {
-        *qmakeIsExecutable = false;
         qWarning("'%s' crashed.", qPrintable(qmakePath));
         return QString();
     }
