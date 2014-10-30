@@ -55,6 +55,7 @@ SOURCES += texteditorplugin.cpp \
     refactoroverlay.cpp \
     outlinefactory.cpp \
     basehoverhandler.cpp \
+    colorpreviewhoverhandler.cpp \
     helpitem.cpp \
     autocompleter.cpp \
     snippets/snippetssettingspage.cpp \
@@ -161,6 +162,7 @@ HEADERS += texteditorplugin.h \
     outlinefactory.h \
     ioutlinewidget.h \
     basehoverhandler.h \
+    colorpreviewhoverhandler.h \
     helpitem.h \
     autocompleter.h \
     snippets/snippetssettingspage.h \
