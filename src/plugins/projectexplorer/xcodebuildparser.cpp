@@ -41,6 +41,7 @@ namespace ProjectExplorer {
 static const char failureRe[] = "\\*\\* BUILD FAILED \\*\\*$";
 static const char successRe[] = "\\*\\* BUILD SUCCEEDED \\*\\*$";
 static const char buildRe[] = "=== BUILD (AGGREGATE )?TARGET (.*) OF PROJECT (.*) WITH .* ===$";
+static const char signatureChangeRe[] = "(.+): replacing existing signature$";
 
 XcodebuildParser::XcodebuildParser() :
     m_fatalErrorCount(0),
@@ -53,6 +54,8 @@ XcodebuildParser::XcodebuildParser() :
     QTC_CHECK(m_successRe.isValid());
     m_buildRe.setPattern(QLatin1String(buildRe));
     QTC_CHECK(m_buildRe.isValid());
+    m_replacingSignatureRe.setPattern(QLatin1String(signatureChangeRe));
+    QTC_CHECK(m_replacingSignatureRe.isValid());
 }
 
 bool XcodebuildParser::hasFatalErrors() const
@@ -72,6 +75,16 @@ void XcodebuildParser::stdOutput(const QString &line)
     if (m_xcodeBuildParserState == InXcodebuild || m_xcodeBuildParserState == UnknownXcodebuildState) {
         if (m_successRe.indexIn(lne) > -1) {
             m_xcodeBuildParserState = OutsideXcodebuild;
+            return;
+        }
+        if (m_replacingSignatureRe.indexIn(lne) > -1) {
+            Task task(Task::Warning,
+                      QCoreApplication::translate("ProjectExplorer::XcodebuildParser",
+                                                  "Replacing signature"),
+                      Utils::FileName::fromString(m_replacingSignatureRe.cap(1)), /* filename */
+                      -1, /* line */
+                      Constants::TASK_CATEGORY_COMPILE);
+            taskAdded(task);
             return;
         }
         IOutputParser::stdError(line);
@@ -241,6 +254,26 @@ void ProjectExplorerPlugin::testXcodebuildParserParsing_data()
                     Constants::TASK_CATEGORY_COMPILE))
             << QString()
             << XcodebuildParser::UnknownXcodebuildState;
+    QTest::newRow("inside catch codesign replace signature")
+            << XcodebuildParser::InXcodebuild
+            << QString::fromLatin1("/somepath/somefile.app: replacing existing signature") << OutputParserTester::STDOUT
+            << QString() << QString()
+            << (QList<Task>()
+                << Task(Task::Warning,
+                        QCoreApplication::translate("ProjectExplorer::XcodebuildParser",
+                                                    "Replacing signature"),
+                        Utils::FileName::fromString(QLatin1String("/somepath/somefile.app")), /* filename */
+                        -1, /* line */
+                        Constants::TASK_CATEGORY_COMPILE))
+            << QString()
+            << XcodebuildParser::InXcodebuild;
+    QTest::newRow("outside forward codesign replace signature")
+            << XcodebuildParser::OutsideXcodebuild
+            << QString::fromLatin1("/somepath/somefile.app: replacing existing signature") << OutputParserTester::STDOUT
+            << QString::fromLatin1("/somepath/somefile.app: replacing existing signature\n") << QString()
+            << QList<Task>()
+            << QString()
+            << XcodebuildParser::OutsideXcodebuild;
 }
 
 void ProjectExplorerPlugin::testXcodebuildParserParsing()
