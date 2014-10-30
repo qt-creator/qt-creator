@@ -38,7 +38,7 @@
 
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
-#include <debugger/debuggerrunner.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>

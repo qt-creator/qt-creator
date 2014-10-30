@@ -63,7 +63,7 @@ public:
     static bool isValidDebugger(const ProjectExplorer::Kit *k);
 
     ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const;
-    bool resolveMacro(const ProjectExplorer::Kit *kit, const QString &name, QString *ret) const;
+    void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const;
 
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const;
 

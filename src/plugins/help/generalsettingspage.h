@@ -54,7 +54,6 @@ public:
 
 signals:
     void fontChanged();
-    void startOptionChanged();
     void returnOnCloseChanged();
 
 private slots:

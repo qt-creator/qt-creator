@@ -72,7 +72,7 @@ namespace Internal {
 BeautifierPlugin::BeautifierPlugin() :
     m_asyncFormatMapper(new QSignalMapper)
 {
-    connect(m_asyncFormatMapper, SIGNAL(mapped(QObject *)),
+    connect(m_asyncFormatMapper, SIGNAL(mapped(QObject*)),
             this, SLOT(formatCurrentFileContinue(QObject*)));
     connect(this, SIGNAL(pipeError(QString)), this, SLOT(showError(QString)));
 }

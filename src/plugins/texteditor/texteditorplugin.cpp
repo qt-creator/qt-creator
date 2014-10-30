@@ -48,6 +48,10 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/externaltoolmanager.h>
 #include <extensionsystem/pluginmanager.h>
+
+#include <texteditor/icodestylepreferences.h>
+#include <texteditor/tabsettings.h>
+
 #include <utils/qtcassert.h>
 #include <utils/macroexpander.h>
 
@@ -143,6 +147,11 @@ void TextEditorPlugin::extensionsInitialized()
 
     updateSearchResultsFont(m_settings->fontSettings());
 
+    connect(m_settings->codeStyle(), &ICodeStylePreferences::currentTabSettingsChanged,
+            this, &TextEditorPlugin::updateSearchResultsTabWidth);
+
+    updateSearchResultsTabWidth(m_settings->codeStyle()->currentTabSettings());
+
     addAutoReleasedObject(new FindInFiles);
     addAutoReleasedObject(new FindInCurrentFile);
     addAutoReleasedObject(new FindInOpenFiles);
@@ -219,6 +228,12 @@ void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)
                                   settings.formatFor(C_SEARCH_RESULT).foreground(),
                                   settings.formatFor(C_SEARCH_RESULT).background());
     }
+}
+
+void TextEditorPlugin::updateSearchResultsTabWidth(const TabSettings &tabSettings)
+{
+    if (auto window = SearchResultWindow::instance())
+        window->setTabWidth(tabSettings.m_tabSize);
 }
 
 void TextEditorPlugin::updateCurrentSelection(const QString &text)

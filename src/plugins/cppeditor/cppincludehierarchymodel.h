@@ -66,6 +66,11 @@ public:
     void fetchMore(const QModelIndex &parent);
     bool canFetchMore(const QModelIndex &parent) const;
     bool hasChildren(const QModelIndex &parent) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+
+    Qt::DropActions supportedDragActions() const;
+    QStringList mimeTypes() const;
+    QMimeData *mimeData(const QModelIndexList &indexes) const;
 
     void clear();
     void buildHierarchy(TextEditor::BaseTextEditor *editor, const QString &filePath);

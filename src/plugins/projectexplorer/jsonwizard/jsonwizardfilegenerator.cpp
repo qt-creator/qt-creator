@@ -39,7 +39,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-#include <utils/stringutils.h>
+#include <utils/macroexpander.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -48,7 +48,7 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-static QString processTextFileContents(Utils::AbstractMacroExpander *expander,
+static QString processTextFileContents(Utils::MacroExpander *expander,
                                        const QString &input, QString *errorMessage)
 {
     errorMessage->clear();
@@ -56,9 +56,32 @@ static QString processTextFileContents(Utils::AbstractMacroExpander *expander,
     if (input.isEmpty())
         return input;
 
-    QString result;
-    if (!customWizardPreprocess(Utils::expandMacros(input, expander), &result, errorMessage))
+    QString tmp;
+    if (!customWizardPreprocess(expander->expand(input), &tmp, errorMessage))
         return QString();
+
+    // Expand \n, \t and handle line continuation:
+    QString result;
+    result.reserve(tmp.count());
+    bool isEscaped = false;
+    for (int i = 0; i < tmp.count(); ++i) {
+        const QChar c = tmp.at(i);
+
+        if (isEscaped) {
+            if (c == QLatin1Char('n'))
+                result.append(QLatin1Char('\n'));
+            else if (c == QLatin1Char('t'))
+                result.append(QLatin1Char('\t'));
+            else if (c != QLatin1Char('\n'))
+                result.append(c);
+            isEscaped = false;
+        } else {
+            if (c == QLatin1Char('\\'))
+                isEscaped = true;
+            else
+                result.append(c);
+        }
+    }
     return result;
 }
 
@@ -101,7 +124,7 @@ bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
     return true;
 }
 
-Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::AbstractMacroExpander *expander,
+Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::MacroExpander *expander,
                                                        const QString &wizardDir, const QString &projectDir,
                                                        QString *errorMessage)
 {
@@ -117,7 +140,7 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::AbstractMacroExpan
             continue;
 
         // Read contents of source file
-        const QString src = wizard.absoluteFilePath(Utils::expandMacros(f.source, expander));
+        const QString src = wizard.absoluteFilePath(expander->expand(f.source));
         const QFile::OpenMode openMode
                 = JsonWizard::boolFromVariant(f.isBinary, expander)
                 ? QIODevice::ReadOnly : (QIODevice::ReadOnly|QIODevice::Text);
@@ -128,7 +151,7 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::AbstractMacroExpan
 
         // Generate file information:
         Core::GeneratedFile gf;
-        gf.setPath(project.absoluteFilePath(Utils::expandMacros(f.target, expander)));
+        gf.setPath(project.absoluteFilePath(expander->expand(f.target)));
 
         if (JsonWizard::boolFromVariant(f.isBinary, expander)) {
             gf.setBinary(true);
@@ -169,6 +192,14 @@ bool JsonWizardFileGenerator::writeFile(const JsonWizard *wizard, Core::Generate
 }
 
 bool JsonWizardFileGenerator::postWrite(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage)
+{
+    Q_UNUSED(wizard);
+    Q_UNUSED(file);
+    Q_UNUSED(errorMessage);
+    return true;
+}
+
+bool JsonWizardFileGenerator::allDone(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage)
 {
     Q_UNUSED(wizard);
     if (file->attributes() & Core::GeneratedFile::OpenProjectAttribute) {

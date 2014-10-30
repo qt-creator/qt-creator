@@ -118,6 +118,8 @@ private slots:
 
     void test_doxygen_comments_data();
     void test_doxygen_comments();
+    void test_doxygen_comments_no_leading_asterisks_data();
+    void test_doxygen_comments_no_leading_asterisks();
 
     void test_quickfix_data();
     void test_quickfix();
@@ -154,6 +156,9 @@ private slots:
     void test_quickfix_AddIncludeForUndefinedIdentifier_onBaseOfQualifiedName();
     void test_quickfix_AddIncludeForUndefinedIdentifier_onTemplateName();
     void test_quickfix_AddIncludeForUndefinedIdentifier_onTemplateNameInsideArguments();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_withForwardDeclaration();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_withForwardDeclaration2();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_withForwardHeader();
     void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_ignoremoc();
     void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_sortingTop();
     void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_sortingMiddle();

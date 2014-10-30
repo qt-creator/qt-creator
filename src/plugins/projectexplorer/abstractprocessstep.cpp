@@ -192,8 +192,18 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
 {
     m_futureInterface = &fi;
     QDir wd(m_param.effectiveWorkingDirectory());
-    if (!wd.exists())
-        wd.mkpath(wd.absolutePath());
+    if (!wd.exists()) {
+        if (!wd.mkpath(wd.absolutePath())) {
+            emit addOutput(tr("Could not create directory \"%1\"")
+                           .arg(QDir::toNativeSeparators(wd.absolutePath())),
+                           BuildStep::ErrorMessageOutput);
+            fi.reportResult(false);
+            emit finished();
+            return;
+        }
+    }
+
+
 
     QString effectiveCommand = m_param.effectiveCommand();
     if (!QFileInfo(effectiveCommand).exists()) {

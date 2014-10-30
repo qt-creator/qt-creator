@@ -196,6 +196,7 @@ QmlProfilerModelManager::QmlProfilerModelManager(Utils::FileInProjectFinder *fin
     QObject(parent), d(new QmlProfilerModelManagerPrivate(this))
 {
     d->totalWeight = 0;
+    d->features = 0;
     d->model = new QmlProfilerDataModel(finder, this);
     d->v8Model = new QV8ProfilerDataModel(finder, this);
     d->dataState = new QmlProfilerDataState(this, this);

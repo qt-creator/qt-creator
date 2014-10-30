@@ -37,14 +37,14 @@
 
 #include <coreplugin/find/itemviewfind.h>
 #include <utils/algorithm.h>
-#include <utils/navigationtreeview.h>
 #include <utils/annotateditemdelegate.h>
+#include <utils/navigationtreeview.h>
 
+#include <QApplication>
 #include <QLabel>
 #include <QLatin1String>
 #include <QModelIndex>
 #include <QStackedLayout>
-#include <QStandardItemModel>
 #include <QVBoxLayout>
 
 using namespace CppEditor;
@@ -61,6 +61,7 @@ enum ItemRole {
 QStandardItem *itemForClass(const CppClass &cppClass)
 {
     QStandardItem *item = new QStandardItem;
+    item->setFlags(item->flags() | Qt::ItemIsDragEnabled);
     item->setData(cppClass.name, Qt::DisplayRole);
     if (cppClass.name != cppClass.qualifiedName)
         item->setData(cppClass.qualifiedName, AnnotationRole);
@@ -87,40 +88,6 @@ QList<CppClass> sortClasses(const QList<CppClass> &cppClasses)
 namespace CppEditor {
 namespace Internal {
 
-class CppClassLabel : public QLabel
-{
-public:
-    CppClassLabel(QWidget *parent)
-        : QLabel(parent)
-    {}
-
-    void setup(CppClass *cppClass)
-    {
-        setText(cppClass->name);
-        m_link = cppClass->link;
-    }
-
-    void clear()
-    {
-        QLabel::clear();
-        m_link = CppEditorWidget::Link();
-    }
-
-private:
-    void mousePressEvent(QMouseEvent *)
-    {
-        if (!m_link.hasValidTarget())
-            return;
-
-        Core::EditorManager::openEditorAt(m_link.targetFileName,
-                                          m_link.targetLine,
-                                          m_link.targetColumn,
-                                          Constants::CPPEDITOR_ID);
-    }
-
-    CppEditorWidget::Link m_link;
-};
-
 // CppTypeHierarchyWidget
 CppTypeHierarchyWidget::CppTypeHierarchyWidget() :
     QWidget(0),
@@ -129,9 +96,9 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget() :
     m_delegate(0),
     m_noTypeHierarchyAvailableLabel(0)
 {
-    m_inspectedClass = new CppClassLabel(this);
+    m_inspectedClass = new TextEditor::TextEditorLinkLabel(this);
     m_inspectedClass->setMargin(5);
-    m_model = new QStandardItemModel(this);
+    m_model = new CppTypeHierarchyModel(this);
     m_treeView = new NavigationTreeView(this);
     m_treeView->setActivationMode(Utils::SingleClickActivation);
     m_delegate = new AnnotatedItemDelegate(this);
@@ -141,6 +108,9 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget() :
     m_treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_treeView->setItemDelegate(m_delegate);
     m_treeView->setRootIsDecorated(false);
+    m_treeView->setDragEnabled(true);
+    m_treeView->setDragDropMode(QAbstractItemView::DragOnly);
+    m_treeView->setDefaultDropAction(Qt::MoveAction);
     connect(m_treeView, &QTreeView::activated, this, &CppTypeHierarchyWidget::onItemActivated);
 
     m_noTypeHierarchyAvailableLabel = new QLabel(tr("No type hierarchy available"), this);
@@ -190,7 +160,8 @@ void CppTypeHierarchyWidget::perform()
         const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
         CppElement *element = cppElement.data();
         if (CppClass *cppClass = dynamic_cast<CppClass *>(element)) {
-            m_inspectedClass->setup(cppClass);
+            m_inspectedClass->setText(cppClass->name);
+            m_inspectedClass->setLink(cppClass->link);
             QStandardItem *bases = new QStandardItem(tr("Bases"));
             m_model->invisibleRootItem()->appendRow(bases);
             buildHierarchy(*cppClass, bases, true, &CppClass::bases);
@@ -255,6 +226,37 @@ Core::NavigationView CppTypeHierarchyFactory::createWidget()
     auto w = new CppTypeHierarchyWidget;
     w->perform();
     return Core::NavigationView(w);
+}
+
+CppTypeHierarchyModel::CppTypeHierarchyModel(QObject *parent)
+    : QStandardItemModel(parent)
+{
+}
+
+Qt::DropActions CppTypeHierarchyModel::supportedDragActions() const
+{
+    // copy & move actions to avoid idiotic behavior of drag and drop:
+    // standard item model removes nodes automatically that are
+    // dropped anywhere with move action, but we do not want the '+' sign in the
+    // drag handle that would appear when only allowing copy action
+    return Qt::CopyAction | Qt::MoveAction;
+}
+
+QStringList CppTypeHierarchyModel::mimeTypes() const
+{
+    return FileDropSupport::mimeTypesForFilePaths();
+}
+
+QMimeData *CppTypeHierarchyModel::mimeData(const QModelIndexList &indexes) const
+{
+    auto data = new FileDropMimeData;
+    data->setOverrideFileDropAction(Qt::CopyAction); // do not remove the item from the model
+    foreach (const QModelIndex &index, indexes) {
+        auto link = index.data(LinkRole).value<TextEditor::TextEditorWidget::Link>();
+        if (link.hasValidTarget())
+            data->addFile(link.targetFileName, link.targetLine, link.targetColumn);
+    }
+    return data;
 }
 
 } // namespace Internal

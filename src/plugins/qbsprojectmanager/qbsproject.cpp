@@ -55,7 +55,6 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
@@ -307,6 +306,37 @@ bool QbsProject::removeFilesFromProduct(QbsBaseProjectNode *node, const QStringL
     return notRemoved->isEmpty();
 }
 
+bool QbsProject::renameFileInProduct(QbsBaseProjectNode *node, const QString &oldPath,
+        const QString &newPath, const qbs::ProductData &productData,
+        const qbs::GroupData &groupData)
+{
+    if (newPath.isEmpty())
+        return false;
+    QStringList dummy;
+    if (!removeFilesFromProduct(node, QStringList() << oldPath, productData, groupData, &dummy))
+        return false;
+    qbs::ProductData newProductData;
+    foreach (const qbs::ProductData &p, m_projectData.allProducts()) {
+        if (uniqueProductName(p) == uniqueProductName(productData)) {
+            newProductData = p;
+            break;
+        }
+    }
+    if (!newProductData.isValid())
+        return false;
+    qbs::GroupData newGroupData;
+    foreach (const qbs::GroupData &g, newProductData.groups()) {
+        if (g.name() == groupData.name()) {
+            newGroupData = g;
+            break;
+        }
+    }
+    if (!newGroupData.isValid())
+        return false;
+
+    return addFilesToProduct(node, QStringList() << newPath, newProductData, newGroupData, &dummy);
+}
+
 void QbsProject::invalidate()
 {
     prepareForParsing();
@@ -364,16 +394,6 @@ bool QbsProject::isParsing() const
 bool QbsProject::hasParseResult() const
 {
     return qbsProject().isValid();
-}
-
-Utils::FileName QbsProject::defaultBuildDirectory(const QString &projectFilePath, const Kit *k,
-                                                  const QString &bcName)
-{
-    const QString projectName = QFileInfo(projectFilePath).completeBaseName();
-    ProjectExplorer::ProjectMacroExpander expander(projectFilePath, projectName, k, bcName);
-    QString projectDir = projectDirectory(Utils::FileName::fromString(projectFilePath)).toString();
-    QString buildPath = Utils::expandMacros(Core::DocumentManager::buildDirectory(), &expander);
-    return Utils::FileName::fromString(Utils::FileUtils::resolvePath(projectDir, buildPath));
 }
 
 qbs::Project QbsProject::qbsProject() const

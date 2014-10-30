@@ -37,8 +37,6 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 
-namespace Utils { class AbstractMacroExpander; }
-
 namespace ProjectExplorer {
 
 class BuildConfiguration;
@@ -83,8 +81,6 @@ public:
     virtual bool isEnabled() const;
     virtual QString disabledReason() const;
 
-    Utils::AbstractMacroExpander *macroExpander();
-
     enum BuildType {
         Unknown,
         Debug,
@@ -111,11 +107,11 @@ private slots:
 
 private:
     void emitEnvironmentChanged();
+    void setupMacroExpander();
 
     bool m_clearSystemEnvironment;
     QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
     QList<BuildStepList *> m_stepLists;
-    Utils::AbstractMacroExpander *m_macroExpander;
     Utils::FileName m_buildDirectory;
     Utils::FileName m_lastEmmitedBuildDirectory;
     mutable Utils::Environment m_cachedEnvironment;

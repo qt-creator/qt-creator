@@ -165,7 +165,7 @@
 :Qt Creator_Help::Internal::HelpViewer	{type='Help::Internal::QtWebKitHelpWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_HelpSelector_QComboBox	{occurrence='3' type='QComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Issues_Core::Internal::OutputPaneToggleButton	{occurrence='1' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Qt Creator_QHelpContentWidget	{type='QHelpContentWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_QHelpContentWidget	{type='Utils::NavigationTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QTableView	{type='QTableView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QmlJSEditor::Internal::QmlJSOutlineTreeView	{type='QmlJSEditor::Internal::QmlJSOutlineTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QmlJSEditor::QmlJSTextEditorWidget	{type='QmlJSEditor::Internal::QmlJSEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}

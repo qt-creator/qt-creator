@@ -36,6 +36,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
+#include <cpptools/cppprojects.h>
 #include <cpptools/cppworkingcopy.h>
 
 #include <QDir>
@@ -108,47 +109,6 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, const QString &fil
     return createClangOptions(pPart, fileKind);
 }
 
-static QStringList buildDefines(const QByteArray &defines, bool toolchainDefines)
-{
-    QStringList result;
-
-    foreach (QByteArray def, defines.split('\n')) {
-        if (def.isEmpty())
-            continue;
-
-        // This is a quick fix for QTCREATORBUG-11501.
-        // TODO: do a proper fix, see QTCREATORBUG-11709.
-        if (def.startsWith("#define __cplusplus"))
-            continue;
-
-        // TODO: verify if we can pass compiler-defined macros when also passing -undef.
-        if (toolchainDefines) {
-            //### FIXME: the next 3 check shouldn't be needed: we probably don't want to get the compiler-defined defines in.
-            if (!def.startsWith("#define "))
-                continue;
-            if (def.startsWith("#define _"))
-                continue;
-            if (def.startsWith("#define OBJC_NEW_PROPERTIES"))
-                continue;
-        }
-
-        QByteArray str = def.mid(8);
-        int spaceIdx = str.indexOf(' ');
-        QString arg;
-        if (spaceIdx != -1) {
-            arg = QLatin1String("-D" + str.left(spaceIdx) + "=" + str.mid(spaceIdx + 1));
-        } else {
-            arg = QLatin1String("-D" + str);
-        }
-        arg = arg.replace(QLatin1String("\\\""), QLatin1String("\""));
-        arg = arg.replace(QLatin1String("\""), QLatin1String(""));
-        if (!result.contains(arg))
-            result.append(arg);
-    }
-
-    return result;
-}
-
 static QString getResourceDir()
 {
     QDir dir(Core::ICore::instance()->resourcePath() + QLatin1String("/cplusplus/clang/") +
@@ -158,6 +118,16 @@ static QString getResourceDir()
     return dir.canonicalPath();
 }
 
+static bool maybeIncludeBorlandExtensions()
+{
+    return
+#if defined(CINDEX_VERSION) // clang 3.2 or higher
+        true;
+#else
+        false;
+#endif
+}
+
 /**
  * @brief Creates list of command-line arguments required for correct parsing
  * @param pPart Null if file isn't part of any project
@@ -165,20 +135,36 @@ static QString getResourceDir()
  */
 QStringList createClangOptions(const ProjectPart::Ptr &pPart, ProjectFile::Kind fileKind)
 {
-    const bool objcExt = pPart->languageExtensions & ProjectPart::ObjectiveCExtensions;
-    QStringList result = clangLanguageOption(fileKind, objcExt);
-    result << clangOptionsForLanguage(pPart->qtVersion,
-                                      pPart->languageVersion,
-                                      pPart->languageExtensions);
-
+    QStringList result;
     if (pPart.isNull())
         return result;
-
-    static const QString resourceDir = getResourceDir();
 
     if (BeVerbose)
         result << QLatin1String("-v");
 
+    const bool objcExt = pPart->languageExtensions & ProjectPart::ObjectiveCExtensions;
+    result << CppTools::CompilerOptionsBuilder::createLanguageOption(fileKind, objcExt);
+    result << CppTools::CompilerOptionsBuilder::createOptionsForLanguage(
+                                                      pPart->languageVersion,
+                                                      pPart->languageExtensions,
+                                                      maybeIncludeBorlandExtensions());
+    result << CppTools::CompilerOptionsBuilder::createDefineOptions(pPart->toolchainDefines);
+    result << CppTools::CompilerOptionsBuilder::createDefineOptions(pPart->projectDefines);
+    result << CppTools::CompilerOptionsBuilder::createHeaderPathOptions(pPart->headerPaths,
+                                                                        isBlacklisted);
+
+    // Inject header file
+    static const QString injectedHeader = Core::ICore::instance()->resourcePath()
+            + QLatin1String("/cplusplus/qt%1-qobjectdefs-injected.h");
+//    if (qtVersion == ProjectPart::Qt4)
+//        opts << QLatin1String("-include") << injectedHeader.arg(QLatin1Char('4'));
+    if (pPart->qtVersion == ProjectPart::Qt5)
+        result << QLatin1String("-include") << injectedHeader.arg(QLatin1Char('5'));
+
+    if (!pPart->projectConfigFile.isEmpty())
+        result << QLatin1String("-include") << pPart->projectConfigFile;
+
+    static const QString resourceDir = getResourceDir();
     if (!resourceDir.isEmpty()) {
         result << QLatin1String("-nostdlibinc");
         result << (QLatin1String("-I") + resourceDir);
@@ -190,39 +176,6 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, ProjectFile::Kind 
     result << QLatin1String("-fmacro-backtrace-limit=0");
     result << QLatin1String("-fretain-comments-from-system-headers");
     // TODO: -Xclang -ferror-limit -Xclang 0 ?
-
-    if (!pPart->projectConfigFile.isEmpty())
-        result << QLatin1String("-include") << pPart->projectConfigFile;
-
-    result << buildDefines(pPart->toolchainDefines, false);
-    result << buildDefines(pPart->projectDefines, false);
-
-    typedef ProjectPart::HeaderPath HeaderPath;
-    foreach (const HeaderPath &headerPath , pPart->headerPaths) {
-        if (headerPath.path.isEmpty() || isBlacklisted(headerPath.path))
-            continue;
-
-        QString prefix;
-        switch (headerPath.type) {
-        case HeaderPath::FrameworkPath:
-            prefix = QLatin1String("-F");
-            break;
-        default: // This shouldn't happen, but let's be nice..:
-            // intentional fall-through:
-        case HeaderPath::IncludePath:
-            prefix = QLatin1String("-I");
-            break;
-        }
-
-        result.append(prefix + headerPath.path);
-    }
-
-#if 0
-    qDebug() << "--- m_args:";
-    foreach (const QString &arg, result)
-        qDebug() << "\t" << qPrintable(arg);
-    qDebug() << "---";
-#endif
 
     return result;
 }
@@ -246,112 +199,6 @@ QStringList createPCHInclusionOptions(const QStringList &pchFiles)
 QStringList createPCHInclusionOptions(const QString &pchFile)
 {
     return createPCHInclusionOptions(QStringList() << pchFile);
-}
-
-/// @return "-std" flag to select standard, flags for C extensions
-/// @return "-std" flag to select standard, flags for C++ extensions, Qt injections
-QStringList clangOptionsForLanguage(CppTools::ProjectPart::QtVersion qtVersion,
-                                    CppTools::ProjectPart::LanguageVersion languageVersion,
-                                    ProjectPart::LanguageExtensions languageExtensions)
-{
-    QStringList opts;
-    bool gnuExtensions = languageExtensions & ProjectPart::GnuExtensions;
-    switch (languageVersion) {
-    case ProjectPart::C89:
-        opts << (gnuExtensions ? QLatin1String("-std=gnu89") : QLatin1String("-std=c89"));
-        break;
-    case ProjectPart::C99:
-        opts << (gnuExtensions ? QLatin1String("-std=gnu99") : QLatin1String("-std=c99"));
-        break;
-    case ProjectPart::C11:
-        opts << (gnuExtensions ? QLatin1String("-std=gnu11") : QLatin1String("-std=c11"));
-        break;
-    case ProjectPart::CXX11:
-        opts << (gnuExtensions ? QLatin1String("-std=gnu++11") : QLatin1String("-std=c++11"));
-        break;
-    case ProjectPart::CXX98:
-        opts << (gnuExtensions ? QLatin1String("-std=gnu++98") : QLatin1String("-std=c++98"));
-        break;
-    case ProjectPart::CXX03:
-        opts << QLatin1String("-std=c++03");
-        break;
-    case ProjectPart::CXX14:
-        opts << QLatin1String("-std=c++1y"); // TODO: change to c++14 after 3.5
-        break;
-    case ProjectPart::CXX17:
-        opts << QLatin1String("-std=c++1z"); // TODO: change to c++17 at some point in the future
-        break;
-    }
-
-    if (languageExtensions & ProjectPart::MicrosoftExtensions)
-        opts << QLatin1String("-fms-extensions");
-
-#if defined(CINDEX_VERSION) // clang 3.2 or higher
-    if (languageExtensions & ProjectPart::BorlandExtensions)
-        opts << QLatin1String("-fborland-extensions");
-#endif
-
-    static const QString injectedHeader(Core::ICore::instance()->resourcePath() + QLatin1String("/cplusplus/qt%1-qobjectdefs-injected.h"));
-//    if (qtVersion == ProjectPart::Qt4)
-//        opts << QLatin1String("-include") << injectedHeader.arg(QLatin1Char('4'));
-    if (qtVersion == ProjectPart::Qt5)
-        opts << QLatin1String("-include") << injectedHeader.arg(QLatin1Char('5'));
-
-    return opts;
-}
-
-/// @return "-x language-code"
-QStringList clangLanguageOption(ProjectFile::Kind fileKind, bool objcExt)
-{
-    QStringList opts;
-    opts += QLatin1String("-x");
-
-    switch (fileKind) {
-    case ProjectFile::CHeader:
-        if (objcExt)
-            opts += QLatin1String("objective-c-header");
-        else
-            opts += QLatin1String("c-header");
-        break;
-
-    case ProjectFile::CXXHeader:
-    default:
-        if (!objcExt) {
-            opts += QLatin1String("c++-header");
-            break;
-        } // else: fall-through!
-    case ProjectFile::ObjCHeader:
-    case ProjectFile::ObjCXXHeader:
-        opts += QLatin1String("objective-c++-header");
-        break;
-
-    case ProjectFile::CSource:
-        if (!objcExt) {
-            opts += QLatin1String("c");
-            break;
-        } // else: fall-through!
-    case ProjectFile::ObjCSource:
-        opts += QLatin1String("objective-c");
-        break;
-
-    case ProjectFile::CXXSource:
-        if (!objcExt) {
-            opts += QLatin1String("c++");
-            break;
-        } // else: fall-through!
-    case ProjectFile::ObjCXXSource:
-        opts += QLatin1String("objective-c++");
-        break;
-
-    case ProjectFile::OpenCLSource:
-        opts += QLatin1String("cl");
-        break;
-    case ProjectFile::CudaSource:
-        opts += QLatin1String("cuda");
-        break;
-    }
-
-    return opts;
 }
 
 } // namespace Utils

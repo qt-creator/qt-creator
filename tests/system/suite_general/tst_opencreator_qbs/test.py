@@ -38,7 +38,7 @@ def main():
     if not neededFilePresent(pathCreator):
         return
 
-    startApplication("qtcreator -load QbsProjectManager" + SettingsPath)
+    startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
     openQbsProject(pathCreator)

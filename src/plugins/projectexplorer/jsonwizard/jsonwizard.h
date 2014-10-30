@@ -36,12 +36,9 @@
 #include <coreplugin/generatedfile.h>
 
 #include <utils/wizard.h>
-
-namespace Utils { class AbstractMacroExpander; }
+#include <utils/macroexpander.h>
 
 namespace ProjectExplorer {
-
-namespace Internal { class JsonWizardExpander; }
 
 class JsonWizardGenerator;
 
@@ -71,7 +68,7 @@ public:
 
     void addGenerator(JsonWizardGenerator *gen);
 
-    Utils::AbstractMacroExpander *expander() const;
+    Utils::MacroExpander *expander();
 
     void resetFileList();
     GeneratorFiles fileList();
@@ -79,7 +76,7 @@ public:
     QVariant value(const QString &n) const;
     void setValue(const QString &key, const QVariant &value);
 
-    static bool boolFromVariant(const QVariant &v, Utils::AbstractMacroExpander *expander);
+    static bool boolFromVariant(const QVariant &v, Utils::MacroExpander *expander);
 
     void removeAttributeFromAllFiles(Core::GeneratedFile::Attribute a);
 
@@ -91,6 +88,7 @@ signals:
     void preWriteFiles(const JsonWizard::GeneratorFiles &files); // emitted before files are written to disk.
     void postProcessFiles(const JsonWizard::GeneratorFiles &files); // emitted before files are post-processed.
     void filesReady(const JsonWizard::GeneratorFiles &files); // emitted just after files are in final state on disk.
+    void allDone(const JsonWizard::GeneratorFiles &files); // emitted just after the wizard is done with the files. They are ready to be opened.
 
 public slots:
     void accept();
@@ -99,7 +97,7 @@ private:
     QList<JsonWizardGenerator *> m_generators;
 
     GeneratorFiles m_files;
-    Internal::JsonWizardExpander *m_expander;
+    Utils::MacroExpander m_expander;
 };
 
 } // namespace ProjectExplorer

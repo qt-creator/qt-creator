@@ -74,8 +74,8 @@ ClangIndexer::ClangIndexer()
     , m_isLoadingSession(false)
     , m_clangIndexer(new Indexer(this))
 {
-    connect(m_clangIndexer, SIGNAL(indexingStarted(QFuture<void>, Internal::ProgressNotificationMode)),
-            this, SLOT(onIndexingStarted(QFuture<void>, Internal::ProgressNotificationMode)));
+    connect(m_clangIndexer, SIGNAL(indexingStarted(QFuture<void>,Internal::ProgressNotificationMode)),
+            this, SLOT(onIndexingStarted(QFuture<void>,Internal::ProgressNotificationMode)));
 
     QObject *session = ProjectExplorer::SessionManager::instance();
 

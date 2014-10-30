@@ -36,6 +36,7 @@
 namespace TextEditor {
 
 class FontSettings;
+class TabSettings;
 class TextEditorSettings;
 
 namespace Internal {
@@ -62,6 +63,7 @@ public:
 
 private slots:
     void updateSearchResultsFont(const TextEditor::FontSettings &);
+    void updateSearchResultsTabWidth(const TextEditor::TabSettings &tabSettings);
     void updateCurrentSelection(const QString &text);
 
 private:

@@ -35,7 +35,6 @@
 
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/kitinformationmacroexpander.h>
 
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
@@ -302,15 +301,13 @@ KitConfigWidget *DebuggerKitInformation::createConfigWidget(Kit *k) const
     return new Internal::DebuggerKitConfigWidget(k, this);
 }
 
-bool DebuggerKitInformation::resolveMacro(const Kit *kit, const QString &name, QString *ret) const
+void DebuggerKitInformation::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
-    const DebuggerItem *item = debugger(kit);
-    if (name == QLatin1String("Debugger:engineType")) {
-        *ret = item ? item->engineTypeName()  : tr("none");
-        return true;
-    }
-
-    return false;
+    expander->registerVariable("Debugger:EngineType", tr("Type of Debugger Backend"),
+                               [this, kit]() -> QString {
+                                   const DebuggerItem *item = debugger(kit);
+                                   return item ? item->engineTypeName() : tr("unknown");
+                               });
 }
 
 KitInformation::ItemList DebuggerKitInformation::toUserOutput(const Kit *k) const

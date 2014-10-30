@@ -43,6 +43,8 @@ namespace Utils { class PersistentSettingsWriter; }
 
 namespace Debugger {
 
+namespace Internal { class DebuggerPlugin; }
+
 // -----------------------------------------------------------------------
 // DebuggerItemManager
 // -----------------------------------------------------------------------
@@ -52,7 +54,7 @@ class DEBUGGER_EXPORT DebuggerItemManager : public QObject
     Q_OBJECT
 
 public:
-    static QObject *instance();
+    static DebuggerItemManager *instance();
     ~DebuggerItemManager();
 
     static QList<DebuggerItem> debuggers();
@@ -91,7 +93,7 @@ private:
     static QList<DebuggerItem> m_debuggers;
 
     friend class Internal::DebuggerItemModel;
-    friend class DebuggerPlugin; // Enable constrcutor for DebuggerPlugin
+    friend class Internal::DebuggerPlugin; // Enable constrcutor for DebuggerPlugin
 };
 
 } // namespace Debugger

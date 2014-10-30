@@ -34,7 +34,7 @@ Rectangle {
     id: delegate
     height: 240
     width: 216
-    color: creatorTheme.backgroundColorNormal
+    color: creatorTheme.Welcome_BackgroundColorNormal
 
     property alias caption: captionItem.text
     property alias imageSource: imageItem.source
@@ -107,7 +107,7 @@ Rectangle {
         y: 161
         width: 200
         height: 69
-        color: creatorTheme.backgroundColorNormal
+        color: creatorTheme.Welcome_BackgroundColorNormal
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         anchors.left: parent.left
@@ -117,7 +117,7 @@ Rectangle {
         id: captionItem
         x: 16
         y: 170
-        color: creatorTheme.caption_TextColorNormal
+        color: creatorTheme.Welcome_Caption_TextColorNormal
         text: qsTr("2D PAINTING EXAMPLE long description")
         elide: Text.ElideRight
         anchors.right: parent.right
@@ -164,7 +164,7 @@ Rectangle {
         x: 16
         y: 198
         text: qsTr("Tags:")
-        color: creatorTheme.textColorNormal
+        color: creatorTheme.Welcome_TextColorNormal
         smooth: true
         font.italic: false
         font.pixelSize: 11

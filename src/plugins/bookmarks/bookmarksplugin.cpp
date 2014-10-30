@@ -162,11 +162,18 @@ void BookmarksPlugin::updateActions(int state)
 void BookmarksPlugin::editorOpened(IEditor *editor)
 {
     if (auto widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
-        connect(widget, &TextEditorWidget::markRequested,
-                m_bookmarkManager, &BookmarkManager::handleBookmarkRequest);
+        connect(widget, &TextEditorWidget::markRequested, m_bookmarkManager,
+                [this, editor](TextEditorWidget *, int line, TextMarkRequestKind kind) {
+                    if (kind == BookmarkRequest && editor->document())
+                        m_bookmarkManager->toggleBookmark(editor->document()->filePath(), line);
+                });
 
-        connect(widget, &TextEditorWidget::markTooltipRequested,
-                m_bookmarkManager, &BookmarkManager::handleBookmarkTooltipRequest);
+
+        connect(widget, &TextEditorWidget::markTooltipRequested, m_bookmarkManager,
+                [this, editor](TextEditorWidget *, const QPoint &pos, int line) {
+                    if (editor->document())
+                        m_bookmarkManager->handleBookmarkTooltipRequest(editor, pos, line);
+                });
 
         connect(widget, &TextEditorWidget::markContextMenuRequested,
                 this, &BookmarksPlugin::requestContextMenu);

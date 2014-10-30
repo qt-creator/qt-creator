@@ -36,6 +36,7 @@
 #include "qmakerunconfigurationfactory.h"
 
 #include <projectexplorer/nodesvisitor.h>
+#include <projectexplorer/projectexplorer.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/fileiconprovider.h>
@@ -84,27 +85,28 @@ struct FileTypeDataStorage {
     ProjectExplorer::FileType type;
     const char *typeName;
     const char *icon;
+    Theme::ImageFile themeImage;
 };
 
 static const FileTypeDataStorage fileTypeDataStorage[] = {
     { ProjectExplorer::HeaderType,
       QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Headers"),
-      ":/qmakeprojectmanager/images/headers.png" },
+      ":/qmakeprojectmanager/images/headers.png", Theme::ProjectExplorerHeader },
     { ProjectExplorer::SourceType,
       QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Sources"),
-      ":/qmakeprojectmanager/images/sources.png" },
+      ":/qmakeprojectmanager/images/sources.png", Theme::ProjectExplorerSource },
     { ProjectExplorer::FormType,
       QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Forms"),
-      ":/qtsupport/images/forms.png" },
+      ":/qtsupport/images/forms.png", Theme::ProjectExplorerForm },
     { ProjectExplorer::ResourceType,
       QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Resources"),
-      ":/qtsupport/images/qt_qrc.png" },
+      ":/qtsupport/images/qt_qrc.png", Theme::ProjectExplorerResource },
     { ProjectExplorer::QMLType,
       QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "QML"),
-      ":/qtsupport/images/qml.png" },
+      ":/qtsupport/images/qml.png", Theme::ProjectExplorerQML },
     { ProjectExplorer::UnknownFileType,
       QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Other files"),
-      ":/qmakeprojectmanager/images/unknown.png" }
+      ":/qmakeprojectmanager/images/unknown.png", Theme::ProjectExplorerOtherFiles }
 };
 
 class SortByPath
@@ -153,8 +155,8 @@ QmakeNodeStaticData::QmakeNodeStaticData()
 
     for (unsigned i = 0 ; i < count; ++i) {
         QIcon overlayIcon;
-        QString iconFile = QString::fromLatin1(fileTypeDataStorage[i].icon);
-        iconFile = creatorTheme()->imageFile(iconFile);
+        const QString iconFile = creatorTheme()->imageFile(fileTypeDataStorage[i].themeImage,
+                                                           QString::fromLatin1(fileTypeDataStorage[i].icon));
         overlayIcon = QIcon(iconFile);
         const QPixmap folderPixmap =
                 Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,
@@ -166,8 +168,9 @@ QmakeNodeStaticData::QmakeNodeStaticData()
                                                                desc, folderIcon));
     }
     // Project icon
-    const QLatin1String fname(":/qtsupport/images/qt_project.png");
-    const QIcon projectBaseIcon(creatorTheme()->imageFile(fname));
+    const QString fileName = creatorTheme()->imageFile(Theme::ProjectFileIcon,
+                                                       QLatin1String(":/qtsupport/images/qt_project.png"));
+    const QIcon projectBaseIcon(fileName);
     const QPixmap projectPixmap = Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,
                                                                       projectBaseIcon,
                                                                       desiredSize);
@@ -321,7 +324,7 @@ QmakePriFileNode::~QmakePriFileNode()
 void QmakePriFileNode::scheduleUpdate()
 {
     QtSupport::ProFileCacheManager::instance()->discardFile(m_projectFilePath);
-    m_qmakeProFileNode->scheduleUpdate();
+    m_qmakeProFileNode->scheduleUpdate(QmakeProFileNode::ParseLater);
 }
 
 namespace Internal {
@@ -769,6 +772,10 @@ void QmakePriFileNode::update(const Internal::PriFileEvalResult &result)
     }
 
     contents.updateSubFolders(this);
+    if (!m_setCurrentNodeDelayed.isEmpty()) {
+        ProjectExplorer::ProjectExplorerPlugin::setCurrentFile(m_project, m_setCurrentNodeDelayed);
+        m_setCurrentNodeDelayed.clear();
+    }
 }
 
 void QmakePriFileNode::watchFolders(const QSet<QString> &folders)
@@ -1110,6 +1117,7 @@ bool QmakePriFileNode::renameFile(const QString &filePath, const QString &newFil
     changeFiles(mt.type(), QStringList() << newFilePath, &dummy, AddToProFile);
     if (!dummy.isEmpty() && !changeProFileOptional)
         return false;
+    m_setCurrentNodeDelayed = newFilePath;
     return true;
 }
 
@@ -1724,10 +1732,10 @@ bool QmakeProFileNode::parseInProgress() const
     return m_parseInProgress;
 }
 
-void QmakeProFileNode::scheduleUpdate()
+void QmakeProFileNode::scheduleUpdate(QmakeProFileNode::AsyncUpdateDelay delay)
 {
     setParseInProgressRecursive(true);
-    m_project->scheduleAsyncUpdate(this);
+    m_project->scheduleAsyncUpdate(this, delay);
 }
 
 void QmakeProFileNode::asyncUpdate()
@@ -1775,7 +1783,7 @@ static QStringList mergeList(const QStringList &listA, const QStringList &listB)
     auto ait = listA.constBegin();
     auto aend = listA.constEnd();
     auto bit = listB.constBegin();
-    auto bend = listB.constBegin();
+    auto bend = listB.constEnd();
     while (ait != aend && bit != bend) {
         const QString &a = *ait;
         const QString &b = *bit;

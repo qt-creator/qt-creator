@@ -229,8 +229,8 @@ void WinRtRunnerHelper::startWinRtRunner(const RunConf &conf)
 
     if (connectProcess) {
         connect(process, SIGNAL(started()), SIGNAL(started()));
-        connect(process, SIGNAL(finished(int, QProcess::ExitStatus)),
-                SLOT(onProcessFinished(int, QProcess::ExitStatus)));
+        connect(process, SIGNAL(finished(int,QProcess::ExitStatus)),
+                SLOT(onProcessFinished(int,QProcess::ExitStatus)));
         connect(process, SIGNAL(error(QProcess::ProcessError)),
                 SLOT(onProcessError(QProcess::ProcessError)));
         connect(process, SIGNAL(readyReadStandardOutput()), SLOT(onProcessReadyReadStdOut()));

@@ -31,6 +31,7 @@
 #ifndef CPPTOOLS_CLANGUTILS_H
 #define CPPTOOLS_CLANGUTILS_H
 
+#include "clang_global.h"
 #include "utils.h"
 
 #include <cpptools/cppmodelmanager.h>
@@ -40,16 +41,11 @@ namespace Utils {
 
 ClangCodeModel::Internal::UnsavedFiles createUnsavedFiles(CppTools::WorkingCopy workingCopy);
 
-QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart, CppTools::ProjectFile::Kind fileKind);
-QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart, const QString &fileName = QString());
-QStringList clangNonProjectFileOptions(CppTools::ProjectFile::Kind kind);
-QStringList createPCHInclusionOptions(const QStringList &pchFiles);
+QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart,
+                               CppTools::ProjectFile::Kind fileKind);
+QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart,
+                               const QString &fileName = QString());
 QStringList createPCHInclusionOptions(const QString &pchFile);
-
-QStringList clangLanguageOption(CppTools::ProjectFile::Kind fileKind, bool objcExt);
-QStringList clangOptionsForLanguage(CppTools::ProjectPart::QtVersion qtVersion,
-                                     CppTools::ProjectPart::LanguageVersion languageVersion,
-                                     CppTools::ProjectPart::LanguageExtensions languageExtensions);
 
 } // namespace Utils
 } // namespace Clang

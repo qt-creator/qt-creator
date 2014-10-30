@@ -1,8 +1,9 @@
 HEADERS += $$PWD/jsonfieldpage.h \
     $$PWD/jsonfilepage.h \
+    $$PWD/jsonkitspage.h \
+    $$PWD/jsonprojectpage.h \
     $$PWD/jsonsummarypage.h \
     $$PWD/jsonwizard.h \
-    $$PWD/jsonwizardexpander.h \
     $$PWD/jsonwizardfactory.h \
     $$PWD/jsonwizardfilegenerator.h \
     $$PWD/jsonwizardgeneratorfactory.h \
@@ -11,9 +12,10 @@ HEADERS += $$PWD/jsonfieldpage.h \
 
 SOURCES += $$PWD/jsonfieldpage.cpp \
     $$PWD/jsonfilepage.cpp \
+    $$PWD/jsonkitspage.cpp \
+    $$PWD/jsonprojectpage.cpp \
     $$PWD/jsonsummarypage.cpp \
     $$PWD/jsonwizard.cpp \
-    $$PWD/jsonwizardexpander.cpp \
     $$PWD/jsonwizardfactory.cpp \
     $$PWD/jsonwizardfilegenerator.cpp \
     $$PWD/jsonwizardgeneratorfactory.cpp \

@@ -39,7 +39,7 @@
 
    Enhance tr/// and y/// support.
 -->
-<language name="Perl" version="1.29" kateversion="2.4" section="Scripts" extensions="*.pl;*.PL;*.pm" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPL">
+<language name="Perl" version="1.31" kateversion="2.4" section="Scripts" extensions="*.pl;*.PL;*.pm" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPL">
   <highlighting>
     <list name="keywords">
       <item> if </item>
@@ -346,7 +346,7 @@
         <keyword attribute="Operator" context="#stay" String="operators" />
         <keyword attribute="Function" context="#stay" String="functions" />
         <keyword attribute="Pragma" context="#stay" String="pragmas" />
-        <RegExpr attribute="Pod" context="pod" String="\=(?:head[1-6]|over|back|item|for|begin|end|pod)(\s|$)" column="0" beginRegion="POD"/>
+        <RegExpr attribute="Pod" context="pod" String="\=\w+(\s|$)" column="0" beginRegion="POD"/>
         <DetectSpaces />
         <DetectChar attribute="Comment" context="comment" char="#" />
 
@@ -620,14 +620,14 @@
       </context>
 
       <!-- rules internal stuff wrt regex patterns -->
-      <context name="regex_pattern_internal_rules_1" lineEndContext="#stay">
+      <context name="regex_pattern_internal_rules_1" attribute="Pattern" lineEndContext="#stay">
         <RegExpr attribute="Comment" context="#stay" String="#.*$" firstNonSpace="true" />
         <RegExpr attribute="Pattern Character Class" context="#stay" String="\\[anDdSsWw]" />
         <RegExpr attribute="Pattern Internal Operator" context="#stay" String="\\[ABbEGLlNUuQdQZz]" />
         <RegExpr attribute="Special Variable" context="#stay" String="\\[\d]+" />
         <RegExpr attribute="Pattern" context="#stay" String="\\." />
       </context>
-      <context name="regex_pattern_internal_rules_2" lineEndContext="#stay">
+      <context name="regex_pattern_internal_rules_2" attribute="Pattern" lineEndContext="#stay">
         <Detect2Chars attribute="Pattern Internal Operator" context="pat_ext" char="(" char1="?" />
         <DetectChar attribute="Pattern Internal Operator" context="pat_char_class" char="[" />
         <RegExpr attribute="Pattern Internal Operator" context="#stay" String="[()?^*+|]" />
@@ -745,7 +745,7 @@
       </context>
       <context name="here_document" attribute="String (interpolated)" lineEndContext="#stay" dynamic="true">
         <DetectSpaces />
-        <RegExpr attribute="Keyword" context="#pop#pop" String="%1" column="0" dynamic="true" endRegion="HereDocument"/>
+        <RegExpr attribute="Keyword" context="#pop#pop" String="^%1\b" column="0" dynamic="true" endRegion="HereDocument"/>
         <RegExpr attribute="Keyword" context="here_document" String="\=\s*&lt;&lt;\s*[&quot;']?([A-Z0-9_\-]+)[&quot;']?" beginRegion="HEREDoc" />
         <IncludeRules context="ipstring_internal" />
       </context>

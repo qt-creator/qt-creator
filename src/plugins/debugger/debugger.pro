@@ -33,7 +33,7 @@ HEADERS += \
     debuggerplugin.h \
     debuggerprotocol.h \
     debuggerrunconfigurationaspect.h \
-    debuggerrunner.h \
+    debuggerruncontrol.h \
     debuggerstartparameters.h \
     debuggerstringutils.h \
     debuggerkitconfigwidget.h \
@@ -65,7 +65,6 @@ HEADERS += \
     threaddata.h \
     threadshandler.h \
     watchdelegatewidgets.h \
-    debuggerruncontrolfactory.h \
     debuggertooltipmanager.h \
     debuggersourcepathmappingwidget.h \
     memoryview.h \
@@ -90,7 +89,7 @@ SOURCES += \
     debuggerplugin.cpp \
     debuggerprotocol.cpp \
     debuggerrunconfigurationaspect.cpp \
-    debuggerrunner.cpp \
+    debuggerruncontrol.cpp \
     debuggeroptionspage.cpp \
     debuggerkitconfigwidget.cpp \
     debuggerkitinformation.cpp \

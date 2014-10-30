@@ -45,7 +45,6 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/documentmanager.h>
 #include <cpptools/cppmodelmanager.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <projectexplorer/buildmanager.h>
@@ -55,10 +54,10 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectmacroexpander.h>
 #include <proparser/qmakevfs.h>
 #include <qtsupport/profilereader.h>
 #include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtversionmanager.h>
 #include <qtsupport/uicodemodelsupport.h>
 #include <resourceeditor/resourcenode.h>
 
@@ -359,11 +358,15 @@ QmakeProject::QmakeProject(QmakeManager *manager, const QString &fileName) :
     setRequiredKitMatcher(QtSupport::QtKitInformation::qtVersionMatcher());
 
     m_asyncUpdateTimer.setSingleShot(true);
-    m_asyncUpdateTimer.setInterval(0); // will be increased after first parse
+    m_asyncUpdateTimer.setInterval(3000);
     connect(&m_asyncUpdateTimer, SIGNAL(timeout()), this, SLOT(asyncUpdate()));
 
     connect(BuildManager::instance(), SIGNAL(buildQueueFinished(bool)),
             SLOT(buildFinished(bool)));
+
+    setPreferredKitMatcher(KitMatcher([this](const Kit *kit) -> bool {
+                               return matchesKit(kit);
+                           }));
 }
 
 QmakeProject::~QmakeProject()
@@ -427,7 +430,7 @@ bool QmakeProject::fromMap(const QVariantMap &map)
     connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(activeTargetWasChanged()));
 
-    scheduleAsyncUpdate();
+    scheduleAsyncUpdate(QmakeProFileNode::ParseNow);
     return true;
 }
 
@@ -662,7 +665,7 @@ void QmakeProject::updateRunConfigurations()
         activeTarget()->updateDefaultRunConfigurations();
 }
 
-void QmakeProject::scheduleAsyncUpdate(QmakeProFileNode *node)
+void QmakeProject::scheduleAsyncUpdate(QmakeProFileNode *node, QmakeProFileNode::AsyncUpdateDelay delay)
 {
     if (m_asyncUpdateState == ShuttingDown)
         return;
@@ -685,7 +688,7 @@ void QmakeProject::scheduleAsyncUpdate(QmakeProFileNode *node)
         // Just postpone
         if (debug)
             qDebug()<<"  full update pending, restarting timer";
-        m_asyncUpdateTimer.start();
+        startAsyncTimer(delay);
     } else if (m_asyncUpdateState == AsyncPartialUpdatePending
                || m_asyncUpdateState == Base) {
         if (debug)
@@ -714,11 +717,12 @@ void QmakeProject::scheduleAsyncUpdate(QmakeProFileNode *node)
 
         if (add)
             m_partialEvaluate.append(node);
-        // and start the timer anew
-        m_asyncUpdateTimer.start();
 
         // Cancel running code model update
         m_codeModelFuture.cancel();
+
+        startAsyncTimer(delay);
+
     } else if (m_asyncUpdateState == AsyncUpdateInProgress) {
         // A update is in progress
         // And this slot only gets called if a file changed on disc
@@ -729,11 +733,11 @@ void QmakeProject::scheduleAsyncUpdate(QmakeProFileNode *node)
         // even if that's not really needed
         if (debug)
             qDebug()<<"  Async update in progress, scheduling new one afterwards";
-        scheduleAsyncUpdate();
+        scheduleAsyncUpdate(delay);
     }
 }
 
-void QmakeProject::scheduleAsyncUpdate()
+void QmakeProject::scheduleAsyncUpdate(QmakeProFileNode::AsyncUpdateDelay delay)
 {
     if (debug)
         qDebug()<<"scheduleAsyncUpdate";
@@ -762,12 +766,18 @@ void QmakeProject::scheduleAsyncUpdate()
     enableActiveQmakeBuildConfiguration(activeTarget(), false);
     m_rootProjectNode->setParseInProgressRecursive(true);
     m_asyncUpdateState = AsyncFullUpdatePending;
-    m_asyncUpdateTimer.start();
 
     // Cancel running code model update
     m_codeModelFuture.cancel();
+    startAsyncTimer(delay);
 }
 
+void QmakeProject::startAsyncTimer(QmakeProFileNode::AsyncUpdateDelay delay)
+{
+    m_asyncUpdateTimer.stop();
+    m_asyncUpdateTimer.setInterval(qMin(m_asyncUpdateTimer.interval(), delay == QmakeProFileNode::ParseLater ? 3000 : 0));
+    m_asyncUpdateTimer.start();
+}
 
 void QmakeProject::incrementPendingEvaluateFutures()
 {
@@ -803,7 +813,7 @@ void QmakeProject::decrementPendingEvaluateFutures()
         if (m_asyncUpdateState == AsyncFullUpdatePending || m_asyncUpdateState == AsyncPartialUpdatePending) {
             if (debug)
                 qDebug()<<"  Oh update is pending start the timer";
-            m_asyncUpdateTimer.start();
+            startAsyncTimer(QmakeProFileNode::ParseLater);
         } else  if (m_asyncUpdateState != ShuttingDown){
             // After being done, we need to call:
             m_asyncUpdateState = Base;
@@ -1187,7 +1197,7 @@ void QmakeProject::notifyChanged(const QString &name)
         findProFile(name, rootQmakeProjectNode(), list);
         foreach (QmakeProFileNode *node, list) {
             QtSupport::ProFileCacheManager::instance()->discardFile(name);
-            node->scheduleUpdate();
+            node->scheduleUpdate(QmakeProFileNode::ParseNow);
         }
     }
 }
@@ -1442,23 +1452,6 @@ QString QmakeProject::disabledReasonForRunConfiguration(const QString &proFilePa
             .arg(QFileInfo(proFilePath).fileName());
 }
 
-QString QmakeProject::shadowBuildDirectory(const QString &proFilePath, const Kit *k, const QString &suffix)
-{
-    if (proFilePath.isEmpty())
-        return QString();
-    QFileInfo info(proFilePath);
-
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
-    if (version && !version->supportsShadowBuilds())
-        return info.absolutePath();
-
-    const QString projectName = QFileInfo(proFilePath).completeBaseName();
-    ProjectExplorer::ProjectMacroExpander expander(proFilePath, projectName, k, suffix);
-    QString projectDir = projectDirectory(Utils::FileName::fromString(proFilePath)).toString();
-    QString buildPath = Utils::expandMacros(Core::DocumentManager::buildDirectory(), &expander);
-    return Utils::FileUtils::resolvePath(projectDir, buildPath);
-}
-
 QString QmakeProject::buildNameFor(const Kit *k)
 {
     if (!k)
@@ -1622,6 +1615,21 @@ void QmakeProject::collectLibraryData(const QmakeProFileNode *node, DeploymentDa
     default:
         break;
     }
+}
+
+bool QmakeProject::matchesKit(const Kit *kit)
+{
+    QList<QtSupport::BaseQtVersion *> parentQts;
+    Utils::FileName filePath = projectFilePath();
+    foreach (QtSupport::BaseQtVersion *version, QtSupport::QtVersionManager::validVersions()) {
+        if (version->isInSourceDirectory(filePath))
+            parentQts.append(version);
+    }
+
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
+    if (!parentQts.isEmpty())
+        return parentQts.contains(version);
+    return true;
 }
 
 QString QmakeProject::executableFor(const QmakeProFileNode *node)

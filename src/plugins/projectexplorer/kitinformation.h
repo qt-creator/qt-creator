@@ -158,6 +158,8 @@ public:
 
     ItemList toUserOutput(const Kit *k) const;
 
+    virtual void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const;
+
     static Core::Id id();
     static IDevice::ConstPtr device(const Kit *k);
     static Core::Id deviceId(const Kit *k);

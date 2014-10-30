@@ -39,7 +39,7 @@
 
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerinternalconstants.h>
-#include <debugger/debuggerruncontrolfactory.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/disassemblerlines.h>
 
 #include <debugger/debuggeractions.h>
@@ -1038,6 +1038,7 @@ void GdbEngine::commandTimeout()
             showMessage(_("KILLING DEBUGGER AS REQUESTED BY USER"));
             // This is an undefined state, so we just pull the emergency brake.
             m_gdbProc->kill();
+            notifyEngineShutdownFailed();
         } else {
             showMessage(_("CONTINUE DEBUGGER AS REQUESTED BY USER"));
         }
@@ -1899,6 +1900,7 @@ void GdbEngine::shutdownInferior()
     m_commandsToRunOnTemporaryBreak.clear();
     switch (startParameters().closeMode) {
         case KillAtClose:
+        case KillAndExitMonitorAtClose:
             postCommand("kill", NeedsStop | LosesChild, CB(handleInferiorShutdown));
             return;
         case DetachAtClose:
@@ -1944,7 +1946,8 @@ void GdbEngine::notifyAdapterShutdownOk()
     m_commandsDoneCallback = 0;
     switch (m_gdbProc->state()) {
     case QProcess::Running:
-        postCommand("monitor exit");
+        if (startParameters().closeMode == KillAndExitMonitorAtClose)
+            postCommand("monitor exit");
         postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
         break;
     case QProcess::NotRunning:
@@ -1971,6 +1974,7 @@ void GdbEngine::handleGdbExit(const GdbResponse &response)
         qDebug() << (_("GDB WON'T EXIT (%1); KILLING IT").arg(msg));
         showMessage(_("GDB WON'T EXIT (%1); KILLING IT").arg(msg));
         m_gdbProc->kill();
+        notifyEngineShutdownFailed();
     }
 }
 
@@ -3045,7 +3049,7 @@ void GdbEngine::handleShowModuleSymbols(const GdbResponse &response)
         }
         file.close();
         file.remove();
-        debuggerCore()->showModuleSymbols(modulePath, symbols);
+        Internal::showModuleSymbols(modulePath, symbols);
     } else {
         showMessageBox(QMessageBox::Critical, tr("Cannot Read Symbols"),
             tr("Cannot read symbols for module \"%1\".").arg(fileName));
@@ -3093,7 +3097,7 @@ void GdbEngine::handleShowModuleSections(const GdbResponse &response)
             }
         }
         if (!sections.isEmpty())
-            debuggerCore()->showModuleSections(moduleName, sections);
+            Internal::showModuleSections(moduleName, sections);
     }
 }
 
@@ -3551,7 +3555,7 @@ void GdbEngine::handleMakeSnapshot(const GdbResponse &response)
 
 void GdbEngine::reloadRegisters()
 {
-    if (!debuggerCore()->isDockVisible(_(DOCKWIDGET_REGISTER)))
+    if (!Internal::isDockVisible(_(DOCKWIDGET_REGISTER)))
         return;
 
     if (state() != InferiorStopOk && state() != InferiorUnrunnable)
@@ -4246,7 +4250,7 @@ void GdbEngine::startGdb(const QStringList &args)
     //showMessage(_("Assuming Qt is installed at %1").arg(qtInstallPath));
     const SourcePathMap sourcePathMap =
         DebuggerSourcePathMappingWidget::mergePlatformQtPath(sp,
-                debuggerCore()->globalDebuggerOptions()->sourcePathMap);
+                Internal::globalDebuggerOptions()->sourcePathMap);
     const SourcePathMap completeSourcePathMap =
             mergeStartParametersSourcePathMap(sp, sourcePathMap);
     for (auto it = completeSourcePathMap.constBegin(), cend = completeSourcePathMap.constEnd();
@@ -4404,9 +4408,8 @@ void GdbEngine::abortDebugger()
 void GdbEngine::resetInferior()
 {
     if (!startParameters().commandsForReset.isEmpty()) {
-        QByteArray substitutedCommands = globalMacroExpander()->expandedString(
-                    QString::fromLatin1(startParameters().commandsForReset)).toLatin1();
-        foreach (QByteArray command, substitutedCommands.split('\n')) {
+        QByteArray commands = globalMacroExpander()->expand(startParameters().commandsForReset);
+        foreach (QByteArray command, commands.split('\n')) {
             command = command.trimmed();
             if (!command.isEmpty()) {
                 if (state() == InferiorStopOk) {
@@ -4455,8 +4458,8 @@ void GdbEngine::handleInferiorPrepared()
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
     if (!sp.commandsAfterConnect.isEmpty()) {
-        QByteArray substitutedCommands = globalMacroExpander()->expandedString(QString::fromLatin1(sp.commandsAfterConnect)).toLatin1();
-        foreach (QByteArray command, substitutedCommands.split('\n')) {
+        QByteArray commands = globalMacroExpander()->expand(sp.commandsAfterConnect);
+        foreach (QByteArray command, commands.split('\n')) {
             postCommand(command);
         }
     }
@@ -4583,7 +4586,7 @@ void GdbEngine::createFullBacktrace()
 void GdbEngine::handleCreateFullBacktrace(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
-        debuggerCore()->openTextEditor(_("Backtrace $"),
+        Internal::openTextEditor(_("Backtrace $"),
             _(response.consoleStreamOutput + response.logStreamOutput));
     }
 }

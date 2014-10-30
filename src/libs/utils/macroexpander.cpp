@@ -29,6 +29,9 @@
 ****************************************************************************/
 
 #include "macroexpander.h"
+#include "qtcprocess.h"
+
+#include "algorithm.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -43,13 +46,67 @@ const char kPathPostfix[] = ":Path";
 const char kFileNamePostfix[] = ":FileName";
 const char kFileBaseNamePostfix[] = ":FileBaseName";
 
-class MacroExpanderPrivate
+class MacroExpanderPrivate : public AbstractMacroExpander
 {
 public:
+    MacroExpanderPrivate() : m_accumulating(false) {}
+
+    bool resolveMacro(const QString &name, QString *ret)
+    {
+        bool found;
+        *ret = value(name.toUtf8(), &found);
+        if (found)
+            return true;
+
+        found = Utils::anyOf(m_subProviders, [name, ret] (const MacroExpanderProvider &p) -> bool {
+            MacroExpander *expander = p ? p() : 0;
+            return expander && expander->resolveMacro(name, ret);
+        });
+
+        if (found)
+            return true;
+
+        found = Utils::anyOf(m_extraResolvers, [name, ret] (const MacroExpander::ResolverFunction &resolver) {
+            return resolver(name, ret);
+        });
+
+        if (found)
+            return true;
+
+        return this == globalMacroExpander()->d ? false : globalMacroExpander()->d->resolveMacro(name, ret);
+    }
+
+    QString value(const QByteArray &variable, bool *found)
+    {
+        MacroExpander::StringFunction sf = m_map.value(variable);
+        if (sf) {
+            if (found)
+                *found = true;
+            return sf();
+        }
+
+        for (auto it = m_prefixMap.constBegin(); it != m_prefixMap.constEnd(); ++it) {
+            if (variable.startsWith(it.key())) {
+                MacroExpander::PrefixFunction pf = it.value();
+                if (found)
+                    *found = true;
+                return pf(QString::fromUtf8(variable.mid(it.key().count())));
+            }
+        }
+        if (found)
+            *found = false;
+
+        return QString();
+    }
+
     QHash<QByteArray, MacroExpander::StringFunction> m_map;
     QHash<QByteArray, MacroExpander::PrefixFunction> m_prefixMap;
+    QVector<MacroExpander::ResolverFunction> m_extraResolvers;
     QMap<QByteArray, QString> m_descriptions;
     QString m_displayName;
+    QVector<MacroExpanderProvider> m_subProviders;
+    QVector<MacroExpander *> m_subExpanders; // Not owned
+    bool m_accumulating;
 };
 
 } // Internal
@@ -180,38 +237,18 @@ MacroExpander::~MacroExpander()
 /*!
  * \internal
  */
-bool MacroExpander::resolveMacro(const QString &name, QString *ret)
+bool MacroExpander::resolveMacro(const QString &name, QString *ret) const
 {
-    bool found;
-    *ret = value(name.toUtf8(), &found);
-    return found;
+    return d->resolveMacro(name, ret);
 }
 
 /*!
  * Returns the value of the given \a variable. If \a found is given, it is
  * set to true if the variable has a value at all, false if not.
  */
-QString MacroExpander::value(const QByteArray &variable, bool *found)
+QString MacroExpander::value(const QByteArray &variable, bool *found) const
 {
-    StringFunction sf = d->m_map.value(variable);
-    if (sf) {
-        if (found)
-            *found = true;
-        return sf();
-    }
-
-    for (auto it = d->m_prefixMap.constBegin(); it != d->m_prefixMap.constEnd(); ++it) {
-        if (variable.startsWith(it.key())) {
-            PrefixFunction pf = it.value();
-            if (found)
-                *found = true;
-            return pf(QString::fromUtf8(variable.mid(it.key().count())));
-        }
-    }
-    if (found)
-        *found = false;
-
-    return QString();
+    return d->value(variable, found);
 }
 
 /*!
@@ -221,9 +258,21 @@ QString MacroExpander::value(const QByteArray &variable, bool *found)
  * \sa MacroExpander
  * \sa macroExpander()
  */
-QString MacroExpander::expandedString(const QString &stringWithVariables)
+QString MacroExpander::expand(const QString &stringWithVariables) const
 {
-    return Utils::expandMacros(stringWithVariables, this);
+    QString res = stringWithVariables;
+    Utils::expandMacros(&res, d);
+    return res;
+}
+
+QByteArray MacroExpander::expand(const QByteArray &stringWithVariables) const
+{
+    return expand(QString::fromLatin1(stringWithVariables)).toLatin1();
+}
+
+QString MacroExpander::expandProcessArgs(const QString &argsWithVariables) const
+{
+    return QtcProcess::expandMacros(argsWithVariables, d);
 }
 
 /*!
@@ -302,13 +351,18 @@ void MacroExpander::registerFileVariables(const QByteArray &prefix,
          [base]() -> QString { QString tmp = base(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).baseName(); });
 }
 
+void MacroExpander::registerExtraResolver(const MacroExpander::ResolverFunction &value)
+{
+    d->m_extraResolvers.append(value);
+}
+
 /*!
  * Returns all registered variable names.
  *
  * \sa registerVariable()
  * \sa registerFileVariables()
  */
-QList<QByteArray> MacroExpander::variables()
+QList<QByteArray> MacroExpander::variables() const
 {
     return d->m_descriptions.keys();
 }
@@ -316,9 +370,25 @@ QList<QByteArray> MacroExpander::variables()
 /*!
  * Returns the description that was registered for the \a variable.
  */
-QString MacroExpander::variableDescription(const QByteArray &variable)
+QString MacroExpander::variableDescription(const QByteArray &variable) const
 {
     return d->m_descriptions.value(variable);
+}
+
+MacroExpanders MacroExpander::subExpanders() const
+{
+    MacroExpanders expanders;
+    foreach (const MacroExpanderProvider &provider, d->m_subProviders)
+        if (provider)
+            if (MacroExpander *expander = provider())
+                expanders.append(expander);
+
+    return expanders;
+}
+
+AbstractMacroExpander *MacroExpander::abstractExpander() const
+{
+    return d;
 }
 
 QString MacroExpander::displayName() const
@@ -331,6 +401,20 @@ void MacroExpander::setDisplayName(const QString &displayName)
     d->m_displayName = displayName;
 }
 
+void MacroExpander::registerSubProvider(const MacroExpanderProvider &provider)
+{
+    d->m_subProviders.append(provider);
+}
+
+bool MacroExpander::isAccumulating() const
+{
+    return d->m_accumulating;
+}
+
+void MacroExpander::setAccumulating(bool on)
+{
+    d->m_accumulating = on;
+}
 
 class GlobalMacroExpander : public MacroExpander
 {

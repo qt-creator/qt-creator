@@ -101,6 +101,7 @@ namespace Internal {
         int m_currentIndex;
         QFont m_font;
         SearchResultColor m_color;
+        int m_tabWidth;
 
     public slots:
         void setCurrentIndex(int index);
@@ -109,7 +110,8 @@ namespace Internal {
     };
 
     SearchResultWindowPrivate::SearchResultWindowPrivate(SearchResultWindow *window)
-        : q(window)
+        : q(window),
+          m_tabWidth(8)
     {
     }
 
@@ -406,6 +408,7 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
     connect(widget, SIGNAL(restarted()), d, SLOT(moveWidgetToTop()));
     connect(widget, SIGNAL(requestPopup(bool)), d, SLOT(popupRequested(bool)));
     widget->setTextEditorFont(d->m_font, d->m_color);
+    widget->setTabWidth(d->m_tabWidth);
     widget->setSupportPreserveCase(preserveCaseMode == PreserveCaseEnabled);
     widget->setShowReplaceUI(searchOrSearchAndReplace != SearchOnly);
     widget->setAutoExpandResults(d->m_expandCollapseAction->isChecked());
@@ -492,6 +495,13 @@ void SearchResultWindow::setTextEditorFont(const QFont &font,
     d->m_color = color;
     foreach (Internal::SearchResultWidget *widget, d->m_searchResultWidgets)
         widget->setTextEditorFont(font, color);
+}
+
+void SearchResultWindow::setTabWidth(int tabWidth)
+{
+    d->m_tabWidth = tabWidth;
+    foreach (Internal::SearchResultWidget *widget, d->m_searchResultWidgets)
+        widget->setTabWidth(tabWidth);
 }
 
 void SearchResultWindow::openNewSearchPanel()

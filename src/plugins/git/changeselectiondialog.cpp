@@ -252,7 +252,7 @@ void ChangeSelectionDialog::recalculateDetails()
     }
 
     QStringList args;
-    args << QLatin1String("log") << QLatin1String("-n1") << ref;
+    args << QLatin1String("show") << QLatin1String("--stat=80") << ref;
 
     m_process = new QProcess(this);
     m_process->setWorkingDirectory(workingDir);

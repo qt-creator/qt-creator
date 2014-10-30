@@ -873,11 +873,6 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
         QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
         QVERIFY(mm->isCppEditor(editor));
 
-//        CppEditorSupport *sup = mm->cppEditorSupport(
-//                    qobject_cast<TextEditor::BaseTextEditor *>(editor));
-//        while (sup->lastSemanticInfoDocument().isNull())
-//            QCoreApplication::processEvents();
-
         Document::Ptr doc = mm->document(fileName);
         QCOMPARE(nameOfFirstDeclaration(doc), firstDeclarationName);
     }

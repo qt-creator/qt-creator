@@ -103,7 +103,7 @@ static bool isInStringHelper(const QTextCursor &cursor, Token *retToken = 0)
     const unsigned pos = cursor.selectionEnd() - cursor.block().position();
 
     if (tokens.isEmpty() || pos < tokens.first().utf16charsBegin())
-        return prevState > 0;
+        return false;
 
     if (pos >= tokens.last().utf16charsEnd()) {
         const Token tk = tokens.last();

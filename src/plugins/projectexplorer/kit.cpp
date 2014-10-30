@@ -33,6 +33,7 @@
 #include "kitmanager.h"
 #include "ioutputparser.h"
 #include "osparser.h"
+#include "projectexplorerconstants.h"
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -61,39 +62,19 @@ const char MUTABLE_INFO_KEY[] = "PE.Profile.MutableInfo";
 const char STICKY_INFO_KEY[] = "PE.Profile.StickyInfo";
 
 namespace ProjectExplorer {
-
-// --------------------------------------------------------------------
-// KitMacroExpander:
-// --------------------------------------------------------------------
-
-class KitMacroExpander : public MacroExpander
-{
-public:
-    KitMacroExpander(Kit *kit) : m_kit(kit) {}
-
-    bool resolveMacro(const QString &name, QString *ret)
-    {
-        foreach (KitInformation *ki, KitManager::kitInformation())
-            if (ki->resolveMacro(m_kit, name, ret))
-                return true;
-
-        return false;
-    }
-
-private:
-    Kit *m_kit;
-};
+namespace Internal {
 
 // -------------------------------------------------------------------------
 // KitPrivate
 // -------------------------------------------------------------------------
 
-namespace Internal {
 
 class KitPrivate
 {
+    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Kit)
+
 public:
-    KitPrivate(Id id, Kit *k) :
+    KitPrivate(Id id, Kit *kit) :
         m_id(id),
         m_nestedBlockingLevel(0),
         m_autodetected(false),
@@ -101,14 +82,34 @@ public:
         m_isValid(true),
         m_hasWarning(false),
         m_hasValidityInfo(false),
-        m_mustNotify(false),
-        m_macroExpander(k)
+        m_mustNotify(false)
     {
         if (!id.isValid())
             m_id = Id::fromString(QUuid::createUuid().toString());
 
         m_unexpandedDisplayName = QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed");
         m_iconPath = FileName::fromLatin1(":///DESKTOP///");
+
+        m_macroExpander.setDisplayName(tr("Kit"));
+        m_macroExpander.setAccumulating(true);
+        m_macroExpander.registerVariable("Kit:Id", tr("Kit ID"),
+            [kit] { return kit->id().toString(); });
+        m_macroExpander.registerVariable("Kit:FileSystemName", tr("Kit filesystem-friendly name"),
+            [kit] { return kit->fileSystemFriendlyName(); });
+        foreach (KitInformation *ki, KitManager::kitInformation())
+            ki->addToMacroExpander(kit, &m_macroExpander);
+
+        // This provides the same global fall back as the global expander
+        // without relying on the currentKit() discovery process there.
+        m_macroExpander.registerVariable(Constants::VAR_CURRENTKIT_NAME,
+            tr("The name of the currently active kit."),
+            [kit] { return kit->displayName(); });
+        m_macroExpander.registerVariable(Constants::VAR_CURRENTKIT_FILESYSTEMNAME,
+            tr("The name of the currently active kit in a filesystem friendly version."),
+            [kit] { return kit->fileSystemFriendlyName(); });
+        m_macroExpander.registerVariable(Constants::VAR_CURRENTKIT_ID,
+            tr("The id of the currently active kit."),
+            [kit] { return kit->id().toString(); });
     }
 
     QString m_unexpandedDisplayName;
@@ -128,7 +129,7 @@ public:
     QHash<Core::Id, QVariant> m_data;
     QSet<Core::Id> m_sticky;
     QSet<Core::Id> m_mutable;
-    KitMacroExpander m_macroExpander;
+    MacroExpander m_macroExpander;
 };
 
 } // namespace Internal
@@ -300,7 +301,7 @@ QString Kit::unexpandedDisplayName() const
 
 QString Kit::displayName() const
 {
-    return Utils::expandMacros(d->m_unexpandedDisplayName, &d->m_macroExpander);
+    return d->m_macroExpander.expand(d->m_unexpandedDisplayName);
 }
 
 static QString candidateName(const QString &name, const QString &postfix)
@@ -663,7 +664,7 @@ bool Kit::hasFeatures(const FeatureSet &features) const
     return availableFeatures().contains(features);
 }
 
-AbstractMacroExpander *Kit::macroExpander() const
+MacroExpander *Kit::macroExpander() const
 {
     return &d->m_macroExpander;
 }

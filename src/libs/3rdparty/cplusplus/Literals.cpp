@@ -56,23 +56,7 @@ bool Literal::equalTo(const Literal *other) const
     return ! std::strcmp(chars(), other->chars());
 }
 
-Literal::iterator Literal::begin() const
-{ return _chars; }
 
-Literal::iterator Literal::end() const
-{ return _chars + _size; }
-
-const char *Literal::chars() const
-{ return _chars; }
-
-char Literal::at(unsigned index) const
-{ return _chars[index]; }
-
-unsigned Literal::size() const
-{ return _size; }
-
-unsigned Literal::hashCode() const
-{ return _hashCode; }
 
 unsigned Literal::hashCode(const char *chars, unsigned size)
 {
@@ -95,23 +79,6 @@ unsigned Literal::hashCode(const char *chars, unsigned size)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-StringLiteral::StringLiteral(const char *chars, unsigned size)
-    : Literal(chars, size)
-{ }
-
-StringLiteral::~StringLiteral()
-{ }
-
-////////////////////////////////////////////////////////////////////////////////
-enum {
-    NumericLiteralIsInt,
-    NumericLiteralIsFloat,
-    NumericLiteralIsDouble,
-    NumericLiteralIsLongDouble,
-    NumericLiteralIsLong,
-    NumericLiteralIsLongLong
-};
-
 NumericLiteral::NumericLiteral(const char *chars, unsigned size)
     : Literal(chars, size), _flags(0)
 {
@@ -163,40 +130,7 @@ NumericLiteral::NumericLiteral(const char *chars, unsigned size)
     }
 }
 
-NumericLiteral::~NumericLiteral()
-{ }
-
-bool NumericLiteral::isHex() const
-{ return f._isHex; }
-
-bool NumericLiteral::isUnsigned() const
-{ return f._isUnsigned; }
-
-bool NumericLiteral::isInt() const
-{ return f._type == NumericLiteralIsInt; }
-
-bool NumericLiteral::isFloat() const
-{ return f._type == NumericLiteralIsFloat; }
-
-bool NumericLiteral::isDouble() const
-{ return f._type == NumericLiteralIsDouble; }
-
-bool NumericLiteral::isLongDouble() const
-{ return f._type == NumericLiteralIsLongDouble; }
-
-bool NumericLiteral::isLong() const
-{ return f._type == NumericLiteralIsLong; }
-
-bool NumericLiteral::isLongLong() const
-{ return f._type == NumericLiteralIsLongLong; }
-
 ////////////////////////////////////////////////////////////////////////////////
-Identifier::Identifier(const char *chars, unsigned size)
-    : Literal(chars, size)
-{ }
-
-Identifier::~Identifier()
-{ }
 
 void Identifier::accept0(NameVisitor *visitor) const
 { visitor->visit(this); }

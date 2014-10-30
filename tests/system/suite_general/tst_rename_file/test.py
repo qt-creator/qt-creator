@@ -45,6 +45,7 @@ def main():
         return
     usedProFile = os.path.join(templateDir, proFile)
     openQmakeProject(usedProFile)
+    progressBarWait()
     for filetype, filename in [["Headers", "utility.h"],
                                ["Sources", "main.cpp"],
                                ["Sources", "utility.cpp"],
@@ -72,10 +73,24 @@ def main():
             # end of handling QTCREATORBUG-10179
             renameFile(templateDir, usedProFile, projectName + "." + tempFiletype,
                        previous, filename)
-            previous = filename
             # QTCREATORBUG-13176 does update the navigator async
             progressBarWait()
+            if tempFiletype == "Headers":   # QTCREATORBUG-13204
+                verifyRenamedIncludes(templateDir, "main.cpp", previous, filename)
+                verifyRenamedIncludes(templateDir, "utility.cpp", previous, filename)
+            previous = filename
     invokeMenuItem("File", "Exit")
+
+def grep(pattern, text):
+    return "\n".join(filter(lambda x: pattern in x, text.splitlines()))
+
+def verifyRenamedIncludes(templateDir, file, oldname, newname):
+    fileText = readFile(os.path.join(templateDir, file))
+    if not (test.verify('#include "%s"' % oldname not in fileText,
+                        'Verify that old filename is no longer included in %s' % file) and
+            test.verify('#include "%s"' % newname in fileText,
+                        'Verify that new filename is included in %s' % file)):
+        test.log(grep("include", fileText))
 
 def renameFile(projectDir, proFile, branch, oldname, newname):
     oldFilePath = os.path.join(projectDir, oldname)

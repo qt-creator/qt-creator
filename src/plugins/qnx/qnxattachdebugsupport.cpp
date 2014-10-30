@@ -37,8 +37,7 @@
 
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerkitinformation.h>
-#include <debugger/debuggerplugin.h>
-#include <debugger/debuggerrunner.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
@@ -134,7 +133,7 @@ void QnxAttachDebugSupport::attachToProcess()
         sp.solibSearchPath = QnxUtils::searchPaths(qtVersion);
 
     QString errorMessage;
-    Debugger::DebuggerRunControl * const runControl = Debugger::DebuggerPlugin::createDebugger(sp, 0, &errorMessage);
+    Debugger::DebuggerRunControl * const runControl = Debugger::DebuggerRunControlFactory::doCreate(sp, 0, &errorMessage);
     if (!errorMessage.isEmpty()) {
         handleError(errorMessage);
         stopPDebug();

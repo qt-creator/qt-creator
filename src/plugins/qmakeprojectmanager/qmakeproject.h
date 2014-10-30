@@ -108,7 +108,8 @@ public:
     void destroyProFileReader(QtSupport::ProFileReader *reader);
 
     /// \internal
-    void scheduleAsyncUpdate(QmakeProjectManager::QmakeProFileNode *node);
+    void scheduleAsyncUpdate(QmakeProjectManager::QmakeProFileNode *node,
+                             QmakeProFileNode::AsyncUpdateDelay delay = QmakeProFileNode::ParseLater);
     /// \internal
     void incrementPendingEvaluateFutures();
     /// \internal
@@ -132,9 +133,6 @@ public:
     /// \internal
     QString disabledReasonForRunConfiguration(const QString &proFilePath);
 
-    /// suffix should be unique
-    static QString shadowBuildDirectory(const QString &profilePath, const ProjectExplorer::Kit *k,
-                                 const QString &suffix);
     /// used by the default implementation of shadowBuildDirectory
     static QString buildNameFor(const ProjectExplorer::Kit *k);
 
@@ -149,7 +147,7 @@ signals:
     void proFilesEvaluated();
 
 public slots:
-    void scheduleAsyncUpdate();
+    void scheduleAsyncUpdate(QmakeProFileNode::AsyncUpdateDelay delay = QmakeProFileNode::ParseLater);
 
 protected:
     bool fromMap(const QVariantMap &map);
@@ -180,6 +178,8 @@ private:
                                 ProjectExplorer::DeploymentData &deploymentData);
     void collectLibraryData(const QmakeProFileNode *node,
             ProjectExplorer::DeploymentData &deploymentData);
+    void startAsyncTimer(QmakeProFileNode::AsyncUpdateDelay delay);
+    bool matchesKit(const ProjectExplorer::Kit *kit);
 
     QmakeManager *m_manager;
     QmakeProFileNode *m_rootProjectNode;

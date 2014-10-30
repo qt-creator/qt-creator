@@ -221,6 +221,9 @@
     \inlineimage qtcreator-show-subprojects.png
     (\gui {Show Subprojects}).
 
+    To visit all parts of a namespace, double-click on the namespace item
+    multiple times.
+
     \section2 Viewing QML Types
 
     The \gui Outline view shows the type hierarchy in a QML file.

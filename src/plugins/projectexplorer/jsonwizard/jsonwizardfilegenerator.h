@@ -44,12 +44,13 @@ class JsonWizardFileGenerator : public JsonWizardGenerator
 public:
     bool setup(const QVariant &data, QString *errorMessage);
 
-    Core::GeneratedFiles fileList(Utils::AbstractMacroExpander *expander,
+    Core::GeneratedFiles fileList(Utils::MacroExpander *expander,
                                   const QString &wizardDir, const QString &projectDir,
                                   QString *errorMessage);
 
     bool writeFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
     bool postWrite(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
+    bool allDone(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
 
 private:
     class File {

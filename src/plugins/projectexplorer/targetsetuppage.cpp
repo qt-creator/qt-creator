@@ -144,7 +144,7 @@ public:
 using namespace Internal;
 
 TargetSetupPage::TargetSetupPage(QWidget *parent) :
-    QWizardPage(parent),
+    Utils::WizardPage(parent),
     m_importer(0),
     m_baseLayout(0),
     m_firstWidget(0),

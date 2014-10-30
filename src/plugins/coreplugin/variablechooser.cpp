@@ -32,6 +32,7 @@
 #include "coreconstants.h"
 
 #include <utils/fancylineedit.h> // IconButton
+#include <utils/headerviewstretcher.h> // IconButton
 #include <utils/macroexpander.h>
 #include <utils/treemodel.h>
 #include <utils/qtcassert.h>
@@ -42,6 +43,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidgetItem>
+#include <QMenu>
 #include <QPlainTextEdit>
 #include <QPointer>
 #include <QTextEdit>
@@ -54,6 +56,31 @@ using namespace Utils;
 
 namespace Core {
 namespace Internal {
+
+enum {
+    UnexpandedTextRole = Qt::UserRole,
+    ExpandedTextRole
+};
+
+class VariableTreeView : public QTreeView
+{
+public:
+    VariableTreeView(QWidget *parent, VariableChooserPrivate *target)
+        : QTreeView(parent), m_target(target)
+    {
+        setAttribute(Qt::WA_MacSmallSize);
+        setAttribute(Qt::WA_MacShowFocusRect, false);
+        setIndentation(indentation() * 7/10);
+        header()->hide();
+        new Utils::HeaderViewStretcher(header(), 0);
+    }
+
+    void contextMenuEvent(QContextMenuEvent *ev);
+
+private:
+    VariableChooserPrivate *m_target;
+};
+
 
 class VariableChooserPrivate : public QObject
 {
@@ -73,10 +100,13 @@ public:
     void updateDescription(const QModelIndex &index);
     void updateCurrentEditor(QWidget *old, QWidget *widget);
     void handleItemActivated(const QModelIndex &index);
-    void insertVariable(const QString &variable);
+    void insertText(const QString &variable);
     void updatePositionAndShow(bool);
 
     QWidget *currentWidget();
+
+    int buttonMargin() const;
+    void updateButtonGeometry();
 
 public:
     VariableChooser *q;
@@ -87,40 +117,17 @@ public:
     QPointer<QPlainTextEdit> m_plainTextEdit;
     QPointer<Utils::IconButton> m_iconButton;
 
-    QTreeView *m_variableTree;
+    VariableTreeView *m_variableTree;
     QLabel *m_variableDescription;
     QString m_defaultDescription;
     QByteArray m_currentVariableName; // Prevent recursive insertion of currently expanded item
 };
 
-class VariableItem : public TreeItem
-{
-public:
-    VariableItem()
-    {}
-
-    QVariant data(int column, int role) const
-    {
-        if (role == Qt::DisplayRole || role == Qt::EditRole) {
-            if (column == 0)
-                return m_display;
-        }
-        if (role == Qt::ToolTipRole)
-            return m_description;
-
-        return QVariant();
-    }
-
-public:
-    QString m_display;
-    QString m_description;
-};
-
 class VariableGroupItem : public TreeItem
 {
 public:
-    VariableGroupItem(VariableChooserPrivate *chooser)
-        : m_chooser(chooser), m_expander(0)
+    VariableGroupItem()
+        : m_chooser(0), m_expander(0)
     {
         setLazy(true);
     }
@@ -138,29 +145,86 @@ public:
             if (column == 0 && ensureExpander())
                 return m_expander->displayName();
         }
+
         return QVariant();
     }
 
     void populate()
     {
-        if (ensureExpander()) {
-            foreach (const QByteArray &variable, m_expander->variables()) {
-                auto item = new VariableItem;
-                item->m_display = QString::fromLatin1(variable);
-                item->m_description = m_expander->variableDescription(variable);
-                if (variable == m_chooser->m_currentVariableName)
-                    item->setFlags(Qt::ItemIsSelectable); // not ItemIsEnabled
-                appendChild(item);
-            }
-        }
+        if (ensureExpander())
+            populateGroup(m_expander);
     }
+
+    void populateGroup(MacroExpander *expander);
 
 public:
     VariableChooserPrivate *m_chooser; // Not owned.
     MacroExpanderProvider m_provider;
     mutable MacroExpander *m_expander; // Not owned.
-    QString m_displayName;
 };
+
+class VariableItem : public TreeItem
+{
+public:
+    VariableItem() {}
+
+    QVariant data(int column, int role) const
+    {
+        if (role == Qt::DisplayRole || role == Qt::EditRole) {
+            if (column == 0)
+                return m_variable;
+        }
+
+        if (role == Qt::ToolTipRole)
+            return m_expander->variableDescription(m_variable.toUtf8());
+
+        if (role == UnexpandedTextRole)
+            return QString(QLatin1String("%{") + m_variable + QLatin1Char('}'));
+
+        if (role == ExpandedTextRole)
+            return m_expander->expand(QLatin1String("%{") + m_variable + QLatin1Char('}'));
+
+        return QVariant();
+    }
+
+public:
+    MacroExpander *m_expander;
+    QString m_variable;
+};
+
+void VariableTreeView::contextMenuEvent(QContextMenuEvent *ev)
+{
+    const QModelIndex index = indexAt(ev->pos());
+
+    QString unexpandedText = index.data(UnexpandedTextRole).toString();
+    QString expandedText = index.data(ExpandedTextRole).toString();
+
+    QMenu menu;
+    QAction *insertUnexpandedAction = 0;
+    QAction *insertExpandedAction = 0;
+
+    if (unexpandedText.isEmpty()) {
+        insertUnexpandedAction = menu.addAction(tr("Insert unexpanded value"));
+        insertUnexpandedAction->setEnabled(false);
+    } else {
+        insertUnexpandedAction = menu.addAction(tr("Insert \"%1\"").arg(unexpandedText));
+    }
+
+    if (expandedText.isEmpty()) {
+        insertExpandedAction = menu.addAction(tr("Insert expanded value"));
+        insertExpandedAction->setEnabled(false);
+    } else {
+        insertExpandedAction = menu.addAction(tr("Insert \"%1\"").arg(expandedText));
+    }
+
+
+    QAction *act = menu.exec(ev->globalPos());
+
+    if (act == insertUnexpandedAction)
+        m_target->insertText(unexpandedText);
+    else if (act == insertExpandedAction)
+        m_target->insertText(expandedText);
+}
 
 VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
     : q(parent),
@@ -170,12 +234,8 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
 {
     m_defaultDescription = VariableChooser::tr("Select a variable to insert.");
 
-    m_variableTree = new QTreeView(q);
-    m_variableTree->setAttribute(Qt::WA_MacSmallSize);
-    m_variableTree->setAttribute(Qt::WA_MacShowFocusRect, false);
+    m_variableTree = new VariableTreeView(q, this);
     m_variableTree->setModel(&m_model);
-    m_variableTree->header()->hide();
-    m_variableTree->header()->setStretchLastSection(true);
 
     m_variableDescription = new QLabel(q);
     m_variableDescription->setText(m_defaultDescription);
@@ -189,8 +249,6 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
     verticalLayout->addWidget(m_variableTree);
     verticalLayout->addWidget(m_variableDescription);
 
-    //        connect(m_variableList, &QTreeView::currentChanged,
-    //            this, &VariableChooserPrivate::updateDescription);
     connect(m_variableTree, &QTreeView::clicked,
             this, &VariableChooserPrivate::updateDescription);
     connect(m_variableTree, &QTreeView::activated,
@@ -198,6 +256,29 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
     connect(qobject_cast<QApplication *>(qApp), &QApplication::focusChanged,
             this, &VariableChooserPrivate::updateCurrentEditor);
     updateCurrentEditor(0, qApp->focusWidget());
+}
+
+void VariableGroupItem::populateGroup(MacroExpander *expander)
+{
+    foreach (const QByteArray &variable, expander->variables()) {
+        auto item = new VariableItem;
+        item->m_variable = QString::fromUtf8(variable);
+        item->m_expander = expander;
+        if (variable == m_chooser->m_currentVariableName)
+            item->setFlags(Qt::ItemIsSelectable); // not ItemIsEnabled
+        appendChild(item);
+    }
+
+    foreach (MacroExpander *subExpander, expander->subExpanders()) {
+        if (expander->isAccumulating()) {
+            populateGroup(subExpander);
+        } else {
+            auto item = new VariableGroupItem;
+            item->m_chooser = m_chooser;
+            item->m_expander = subExpander;
+            appendChild(item);
+        }
+    }
 }
 
 } // namespace Internal
@@ -274,7 +355,8 @@ VariableChooser::~VariableChooser()
 
 void VariableChooser::addMacroExpanderProvider(const MacroExpanderProvider &provider)
 {
-    auto *item = new VariableGroupItem(d);
+    auto item = new VariableGroupItem;
+    item->m_chooser = d;
     item->m_provider = provider;
     d->m_model.rootItem()->prependChild(item);
 }
@@ -301,10 +383,27 @@ void VariableChooserPrivate::updateDescription(const QModelIndex &index)
 /*!
  * \internal
  */
+int VariableChooserPrivate::buttonMargin() const
+{
+    int margin = m_iconButton->pixmap().width() + 8;
+    if (q->style()->inherits("OxygenStyle"))
+        margin = qMax(24, margin);
+
+    return margin;
+}
+
+void VariableChooserPrivate::updateButtonGeometry()
+{
+    QWidget *current = currentWidget();
+    int margin = buttonMargin();
+    m_iconButton->setGeometry(current->rect().adjusted(
+                                  current->width() - (margin + 4), 0,
+                                  0, -qMax(0, current->height() - (margin + 4))));
+}
+
 void VariableChooserPrivate::updateCurrentEditor(QWidget *old, QWidget *widget)
 {
-    if (old)
-        old->removeEventFilter(this);
+    Q_UNUSED(old);
     if (!widget) // we might loose focus, but then keep the previous state
         return;
     // prevent children of the chooser itself, and limit to children of chooser's parent
@@ -322,7 +421,6 @@ void VariableChooserPrivate::updateCurrentEditor(QWidget *old, QWidget *widget)
     if (!handle)
         return;
 
-    widget->installEventFilter(this); // for intercepting escape key presses
     QLineEdit *previousLineEdit = m_lineEdit;
     QWidget *previousWidget = currentWidget();
     m_lineEdit = 0;
@@ -337,11 +435,11 @@ void VariableChooserPrivate::updateCurrentEditor(QWidget *old, QWidget *widget)
         m_textEdit = (supportsVariables ? textEdit : 0);
     else if (QPlainTextEdit *plainTextEdit = qobject_cast<QPlainTextEdit *>(widget))
         m_plainTextEdit = (supportsVariables ? plainTextEdit : 0);
-    if (!(m_lineEdit || m_textEdit || m_plainTextEdit))
-        q->hide();
 
     QWidget *current = currentWidget();
     if (current != previousWidget) {
+        if (previousWidget)
+            previousWidget->removeEventFilter(q);
         if (previousLineEdit)
             previousLineEdit->setTextMargins(0, 0, 0, 0);
         if (m_iconButton) {
@@ -349,18 +447,17 @@ void VariableChooserPrivate::updateCurrentEditor(QWidget *old, QWidget *widget)
             m_iconButton->setParent(0);
         }
         if (current) {
+            current->installEventFilter(q); // escape key handling and geometry changes
             if (!m_iconButton)
                 createIconButton();
-            int margin = m_iconButton->pixmap().width() + 8;
-            if (q->style()->inherits("OxygenStyle"))
-                margin = qMax(24, margin);
+            int margin = buttonMargin();
             if (m_lineEdit)
                 m_lineEdit->setTextMargins(0, 0, margin, 0);
             m_iconButton->setParent(current);
-            m_iconButton->setGeometry(current->rect().adjusted(
-                                          current->width() - (margin + 4), 0,
-                                          0, -qMax(0, current->height() - (margin + 4))));
+            updateButtonGeometry();
             m_iconButton->show();
+        } else {
+            q->hide();
         }
     }
 }
@@ -378,6 +475,7 @@ void VariableChooserPrivate::updatePositionAndShow(bool)
     q->show();
     q->raise();
     q->activateWindow();
+    m_variableTree->expandAll();
 }
 
 /*!
@@ -397,15 +495,16 @@ QWidget *VariableChooserPrivate::currentWidget()
  */
 void VariableChooserPrivate::handleItemActivated(const QModelIndex &index)
 {
-    insertVariable(m_model.data(index, Qt::DisplayRole).toString());
+    QString text = m_model.data(index, UnexpandedTextRole).toString();
+    if (!text.isEmpty())
+        insertText(text);
 }
 
 /*!
  * \internal
  */
-void VariableChooserPrivate::insertVariable(const QString &variable)
+void VariableChooserPrivate::insertText(const QString &text)
 {
-    const QString text = QLatin1String("%{") + variable + QLatin1Char('}');
     if (m_lineEdit) {
         m_lineEdit->insert(text);
         m_lineEdit->activateWindow();
@@ -434,19 +533,23 @@ static bool handleEscapePressed(QKeyEvent *ke, QWidget *widget)
 /*!
  * \internal
  */
-void VariableChooser::keyPressEvent(QKeyEvent *ke)
+void VariableChooser::keyPressEvent(QKeyEvent *ev)
 {
-    handleEscapePressed(ke, this);
+    handleEscapePressed(ev, this);
 }
 
 /*!
  * \internal
  */
-bool VariableChooser::eventFilter(QObject *, QEvent *event)
+bool VariableChooser::eventFilter(QObject *obj, QEvent *event)
 {
+    if (obj != d->currentWidget())
+        return false;
     if (event->type() == QEvent::KeyPress && isVisible()) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
         return handleEscapePressed(ke, this);
+    } else if (event->type() == QEvent::Resize) {
+        d->updateButtonGeometry();
     }
     return false;
 }

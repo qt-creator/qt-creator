@@ -46,9 +46,9 @@ class QTCREATOR_UTILS_EXPORT Theme : public QObject
 {
     Q_OBJECT
 
-    Q_ENUMS(ColorRole)
-    Q_ENUMS(GradientRole)
-    Q_ENUMS(MimeType)
+    Q_ENUMS(Color)
+    Q_ENUMS(ImageFile)
+    Q_ENUMS(Gradient)
     Q_ENUMS(Flag)
     Q_ENUMS(WidgetStyle)
 
@@ -56,7 +56,7 @@ public:
     Theme(QObject *parent = 0);
     ~Theme();
 
-    enum ColorRole {
+    enum Color {
         BackgroundColorAlternate,
         BackgroundColorDark,
         BackgroundColorHover,
@@ -103,7 +103,8 @@ public:
         OutputPaneToggleButtonTextColorChecked,
         OutputPaneToggleButtonTextColorUnchecked,
         PanelButtonToolBackgroundColorHover,
-        PanelTextColor,
+        PanelTextColorLight,
+        PanelTextColorDark,
         PanelsWidgetSeparatorLineColor,
         PanelStatusBarBackgroundColor,
         ProgressBarTitleColor,
@@ -149,22 +150,32 @@ public:
 
         Welcome_SessionItem_BackgroundColorNormal,
         Welcome_SessionItem_BackgroundColorHover,
-        Welcome_SessionItemExpanded_BackgroundColor
+        Welcome_SessionItemExpanded_BackgroundColorNormal,
+        Welcome_SessionItemExpanded_BackgroundColorHover
     };
 
-    enum GradientRole {
+    enum Gradient {
         DetailsWidgetHeaderGradient,
         Welcome_Button_GradientNormal,
         Welcome_Button_GradientPressed
     };
 
-    enum MimeType {
-        CppSourceMimetype,
-        CSourceMimetype,
-        CppHeaderMimetype,
-        ProMimetype,
-        PriMimetype,
-        PrfMimetype
+    enum ImageFile {
+        ProjectExplorerHeader,
+        ProjectExplorerSource,
+        ProjectExplorerForm,
+        ProjectExplorerResource,
+        ProjectExplorerQML,
+        ProjectExplorerOtherFiles,
+        ProjectFileIcon,
+        IconOverlayCSource,
+        IconOverlayCppHeader,
+        IconOverlayCppSource,
+        IconOverlayPri,
+        IconOverlayPrf,
+        IconOverlayPro,
+        StandardPixmapFileIcon,
+        StandardPixmapDirIcon
     };
 
     enum Flag {
@@ -183,17 +194,15 @@ public:
 
     WidgetStyle widgetStyle() const;
     bool flag(Flag f) const;
-    QColor color(ColorRole role) const;
-    QGradientStops gradient(GradientRole role) const;
-    QString iconOverlay(MimeType mimetype) const;
+    QColor color(Color role) const;
+    QString imageFile(ImageFile imageFile, const QString &fallBack) const;
+    QGradientStops gradient(Gradient role) const;
     QPalette palette(const QPalette &base) const;
-    QString dpiSpecificImageFile(const QString &fileName) const;
-    void drawIndicatorBranch(QPainter *painter, const QRect &rect, QStyle::State state) const;
-    QIcon standardIcon(QStyle::StandardPixmap standardPixmap, const QStyleOption *opt, const QWidget *widget) const;
-    QString imageFile(const QString &fileName) const;
 
     QString fileName() const;
     void setName(const QString &name);
+
+    QVariantHash values() const;
 
     void writeSettings(const QString &filename) const;
     void readSettings(QSettings &settings);
@@ -201,9 +210,6 @@ public:
 
 signals:
     void changed();
-
-protected:
-    QString dpiSpecificImageFile(const QString &fileName, const QString &themePrefix) const;
 
 private:
     QPair<QColor, QString> readNamedColor(const QString &color) const;

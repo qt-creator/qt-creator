@@ -33,8 +33,8 @@ import QtQuick 2.1
 NativeText {
     id: root
     height: 16
-    color: active ? creatorTheme.link_TextColorActive
-                  : creatorTheme.link_TextColorNormal
+    color: active ? creatorTheme.Welcome_Link_TextColorActive
+                  : creatorTheme.Welcome_Link_TextColorNormal
     verticalAlignment: Text.AlignVCenter
 
     font: fonts.linkFont

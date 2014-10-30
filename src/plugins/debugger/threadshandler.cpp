@@ -356,7 +356,7 @@ void ThreadsHandler::updateThreadBox()
     QStringList list;
     foreach (const ThreadData &thread, m_threads)
         list.append(QString::fromLatin1("#%1 %2").arg(thread.id.raw()).arg(thread.name));
-    debuggerCore()->setThreads(list, indexOf(m_currentId));
+    Internal::setThreads(list, indexOf(m_currentId));
 }
 
 void ThreadsHandler::threadDataChanged(ThreadId id)

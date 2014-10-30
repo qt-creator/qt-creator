@@ -200,7 +200,7 @@ bool CustomExecutableRunConfiguration::validateExecutable(QString *executable, Q
     EnvironmentAspect *aspect = extraAspect<EnvironmentAspect>();
     if (aspect)
         env = aspect->environment();
-    const Utils::FileName exec = env.searchInPath(Utils::expandMacros(m_executable, macroExpander()),
+    const Utils::FileName exec = env.searchInPath(macroExpander()->expand(m_executable),
                                                   QStringList(workingDirectory()));
     if (exec.isEmpty()) {
         if (errorMessage)
@@ -240,7 +240,7 @@ QString CustomExecutableRunConfiguration::workingDirectory() const
     EnvironmentAspect *aspect = extraAspect<EnvironmentAspect>();
     QTC_ASSERT(aspect, return baseWorkingDirectory());
     return QDir::cleanPath(aspect->environment().expandVariables(
-                Utils::expandMacros(baseWorkingDirectory(), macroExpander())));
+                macroExpander()->expand(baseWorkingDirectory())));
 }
 
 QString CustomExecutableRunConfiguration::baseWorkingDirectory() const
@@ -251,7 +251,7 @@ QString CustomExecutableRunConfiguration::baseWorkingDirectory() const
 
 QString CustomExecutableRunConfiguration::commandLineArguments() const
 {
-    return Utils::QtcProcess::expandMacros(m_cmdArguments, macroExpander());
+    return macroExpander()->expandProcessArgs(m_cmdArguments);
 }
 
 QString CustomExecutableRunConfiguration::rawCommandLineArguments() const

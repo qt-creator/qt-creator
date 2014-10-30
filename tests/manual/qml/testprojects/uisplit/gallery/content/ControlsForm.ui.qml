@@ -37,6 +37,7 @@ Item {
 
     width: 640
     height: 420
+    property alias fontComboBox: fontComboBox
     property alias rowLayout1: rowLayout1
     property alias button2: button2
     property alias editableCombo: editableCombo
@@ -76,7 +77,7 @@ Item {
                 Layout.fillWidth: true
             }
             ComboBox {
-                model: Qt.fontFamilies()
+                id: fontComboBox
                 Layout.fillWidth: true
                 currentIndex: 47
             }

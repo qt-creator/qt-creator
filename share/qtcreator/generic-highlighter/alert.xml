@@ -30,7 +30,7 @@
   Introduce 3 alert levels and sort keywords according importance.
   Few more keywords has been added.
 -->
-<language version="1.09" kateversion="2.3" name="Alerts" section="Other" extensions="" mimetype="" author="Dominik Haumann (dhdev@gmx.de)" license="LGPL" hidden="true">
+<language version="1.11" kateversion="3.1" name="Alerts" section="Other" extensions="" mimetype="" author="Dominik Haumann (dhdev@gmx.de)" license="LGPL" hidden="true">
   <highlighting>
     <list name="alerts_hi">
       <item> ALERT </item>
@@ -59,6 +59,10 @@
     </list>
     <contexts>
       <context attribute="Normal Text" lineEndContext="#pop" name="Normal Text" >
+        <StringDetect attribute="Region Marker" context="#stay" String="{{{" beginRegion="AlertRegion1" />
+        <StringDetect attribute="Region Marker" context="#stay" String="}}}" endRegion="AlertRegion1" />
+        <StringDetect attribute="Region Marker" context="#stay" String="BEGIN" beginRegion="AlertRegion2" />
+        <StringDetect attribute="Region Marker" context="#stay" String="END" endRegion="AlertRegion2" />
         <keyword attribute="Alert Level 1" context="#stay" String="alerts_hi" />
         <keyword attribute="Alert Level 2" context="#stay" String="alerts_mid" />
         <keyword attribute="Alert Level 3" context="#stay" String="alerts_lo" />
@@ -69,6 +73,7 @@
       <itemData name="Alert Level 1" defStyleNum="dsAlert" color="#e85848" selColor="#e85848" backgroundColor="#451e1a" />
       <itemData name="Alert Level 2" defStyleNum="dsAlert" color="#ca9219" selColor="#ca9219" backgroundColor="#451e1a" />
       <itemData name="Alert Level 3" defStyleNum="dsAlert" color="#81ca2d" selColor="#81ca2d" />
+      <itemData name="Region Marker" defStyleNum="dsRegionMarker"/>
     </itemDatas>
   </highlighting>
   <general>

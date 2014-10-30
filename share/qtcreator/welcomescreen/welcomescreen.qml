@@ -47,7 +47,7 @@ Item  {
 
     Rectangle {
         id: splitter
-        color: creatorTheme.dividerColor; // divider between left and right pane
+        color: creatorTheme.Welcome_DividerColor; // divider between left and right pane
         width: 1
         anchors.top: parent.top
         anchors.bottom: parent.bottom

@@ -86,6 +86,7 @@ DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const AbstractR
     const IDevice::ConstPtr device = DeviceKitInformation::device(k);
     QTC_ASSERT(device, return params);
 
+    params.closeMode = KillAndExitMonitorAtClose;
     params.sysRoot = SysRootKitInformation::sysRoot(k).toString();
     params.debuggerCommand = DebuggerKitInformation::debuggerCommand(k).toString();
     if (ToolChain *tc = ToolChainKitInformation::toolChain(k))

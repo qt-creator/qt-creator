@@ -48,5 +48,7 @@ ControlsForm {
         }
     }
 
+    fontComboBox.model: Qt.fontFamilies()
+
     rowLayout1.data: [ ExclusiveGroup { id: tabPositionGroup } ]
 }

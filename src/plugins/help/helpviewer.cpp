@@ -144,16 +144,7 @@ bool HelpViewer::launchWithExternalApp(const QUrl &url)
 
 void HelpViewer::home()
 {
-    const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
-    QString homepage = engine.customValue(QLatin1String("HomePage"),
-        QLatin1String("")).toString();
-
-    if (homepage.isEmpty()) {
-        homepage = engine.customValue(QLatin1String("DefaultHomePage"),
-            Help::Constants::AboutBlank).toString();
-    }
-
-    setSource(homepage);
+    setSource(LocalHelpManager::homePage());
 }
 
 void HelpViewer::slotLoadStarted()

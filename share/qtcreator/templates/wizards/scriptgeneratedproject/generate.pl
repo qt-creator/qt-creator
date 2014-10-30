@@ -123,7 +123,7 @@ if ($optDryRun) {
 
     my $projectFile = new IO::File('>' . $projectFileName) or die ('Unable to open ' . $projectFileName . ' :' . $!);
     print $projectFile "TEMPLATE = app\nQT -= core\nCONFIG += console\nTARGET = ", $optProjectName,
-          "\nSOURCES += ", $sourceFileName, ' ',$headerFileName, ' ', $mainSourceFileName,
+          "\nSOURCES += ", $sourceFileName, ' ', $mainSourceFileName,
           "\nHEADERS += ", $headerFileName,"\n";
     $projectFile->close();
 }

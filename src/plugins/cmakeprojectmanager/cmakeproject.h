@@ -102,9 +102,6 @@ public:
 
     CMakeBuildTarget buildTargetForTitle(const QString &title);
 
-    static QString shadowBuildDirectory(const QString &projectFilePath, const ProjectExplorer::Kit *k,
-                                        const QString &bcName);
-
     bool isProjectFile(const QString &fileName);
 
     bool parseCMakeLists();

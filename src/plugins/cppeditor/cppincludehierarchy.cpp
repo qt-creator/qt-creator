@@ -57,34 +57,6 @@ using namespace Utils;
 namespace CppEditor {
 namespace Internal {
 
-class CppIncludeLabel : public QLabel
-{
-public:
-    CppIncludeLabel(QWidget *parent)
-        : QLabel(parent)
-    {}
-
-    void setup(const QString &fileName, const QString &filePath)
-    {
-        setText(fileName);
-        m_link = CppEditorWidget::Link(filePath);
-    }
-
-private:
-    void mousePressEvent(QMouseEvent *)
-    {
-        if (!m_link.hasValidTarget())
-            return;
-
-        Core::EditorManager::openEditorAt(m_link.targetFileName,
-                                          m_link.targetLine,
-                                          m_link.targetColumn,
-                                          Constants::CPPEDITOR_ID);
-    }
-
-    CppEditorWidget::Link m_link;
-};
-
 // CppIncludeHierarchyWidget
 CppIncludeHierarchyWidget::CppIncludeHierarchyWidget() :
     QWidget(0),
@@ -94,7 +66,7 @@ CppIncludeHierarchyWidget::CppIncludeHierarchyWidget() :
     m_includeHierarchyInfoLabel(0),
     m_editor(0)
 {
-    m_inspectedFile = new CppIncludeLabel(this);
+    m_inspectedFile = new TextEditorLinkLabel(this);
     m_inspectedFile->setMargin(5);
     m_model = new CppIncludeHierarchyModel(this);
     m_treeView = new CppIncludeHierarchyTreeView(this);
@@ -150,8 +122,8 @@ void CppIncludeHierarchyWidget::perform()
     if (m_model->isEmpty())
         return;
 
-    m_inspectedFile->setup(widget->textDocument()->displayName(),
-                           widget->textDocument()->filePath());
+    m_inspectedFile->setText(widget->textDocument()->displayName());
+    m_inspectedFile->setLink(TextEditorWidget::Link(widget->textDocument()->filePath()));
 
     //expand "Includes"
     m_treeView->expand(m_model->index(0, 0));

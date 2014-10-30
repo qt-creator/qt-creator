@@ -35,23 +35,37 @@
 
 #include <functional>
 
+#include <QList>
+#include <QVector>
+#include <QCoreApplication>
+
 namespace Utils {
 
 namespace Internal { class MacroExpanderPrivate; }
 
-class QTCREATOR_UTILS_EXPORT MacroExpander : public AbstractMacroExpander
+class MacroExpander;
+typedef std::function<MacroExpander *()> MacroExpanderProvider;
+typedef QVector<MacroExpander *> MacroExpanders;
+
+class QTCREATOR_UTILS_EXPORT MacroExpander
 {
+    Q_DECLARE_TR_FUNCTIONS("MacroExpander")
+
 public:
     explicit MacroExpander();
-    ~MacroExpander();
+    virtual ~MacroExpander();
 
-    bool resolveMacro(const QString &name, QString *ret);
+    virtual bool resolveMacro(const QString &name, QString *ret) const;
 
-    QString value(const QByteArray &variable, bool *found = 0);
+    virtual QString value(const QByteArray &variable, bool *found = 0) const;
 
-    QString expandedString(const QString &stringWithVariables);
+    QString expand(const QString &stringWithVariables) const;
+    QByteArray expand(const QByteArray &stringWithVariables) const;
+
+    QString expandProcessArgs(const QString &argsWithVariables) const;
 
     typedef std::function<QString(QString)> PrefixFunction;
+    typedef std::function<bool(QString, QString *)> ResolverFunction;
     typedef std::function<QString()> StringFunction;
     typedef std::function<int()> IntFunction;
 
@@ -67,16 +81,27 @@ public:
     void registerFileVariables(const QByteArray &prefix,
         const QString &heading, const StringFunction &value);
 
-    QList<QByteArray> variables();
-    QString variableDescription(const QByteArray &variable);
+    void registerExtraResolver(const ResolverFunction &value);
+
+    QList<QByteArray> variables() const;
+    QString variableDescription(const QByteArray &variable) const;
+
+    MacroExpanders subExpanders() const;
+    AbstractMacroExpander *abstractExpander() const;
 
     QString displayName() const;
     void setDisplayName(const QString &displayName);
+
+    void registerSubProvider(const MacroExpanderProvider &provider);
+
+    bool isAccumulating() const;
+    void setAccumulating(bool on);
 
 private:
     MacroExpander(const MacroExpander &) Q_DECL_EQ_DELETE;
     void operator=(const MacroExpander &) Q_DECL_EQ_DELETE;
 
+    friend class Internal::MacroExpanderPrivate;
     Internal::MacroExpanderPrivate *d;
 };
 

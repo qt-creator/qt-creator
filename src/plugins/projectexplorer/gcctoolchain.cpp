@@ -445,21 +445,22 @@ ToolChain::CompilerFlags GccToolChain::compilerFlags(const QStringList &cxxflags
         if (flag.startsWith(QLatin1String("-std="))) {
             const QByteArray std = flag.mid(5).toLatin1();
             if (std == "c++98" || std == "c++03") {
-                flags &= ~CompilerFlags(StandardCxx11 | GnuExtensions);
+                flags &= ~CompilerFlags(StandardCxx11 | StandardCxx14 | StandardCxx17 | GnuExtensions);
             } else if (std == "gnu++98" || std == "gnu++03") {
-                flags &= ~StandardCxx11;
+                flags &= ~CompilerFlags(StandardCxx11 | StandardCxx14 | StandardCxx17);
                 flags |= GnuExtensions;
             } else if (std == "c++0x" || std == "c++11") {
                 flags |= StandardCxx11;
-                flags &= ~GnuExtensions;
+                flags &= ~CompilerFlags(StandardCxx14 | StandardCxx17 | GnuExtensions);
             } else if (std == "c++14" || std == "c++1y") {
                 flags |= StandardCxx14;
-                flags &= ~GnuExtensions;
+                flags &= ~CompilerFlags(StandardCxx11 | StandardCxx17 | GnuExtensions);
             } else if (std == "c++17" || std == "c++1z") {
                 flags |= StandardCxx17;
-                flags &= ~GnuExtensions;
+                flags &= ~CompilerFlags(StandardCxx11 | StandardCxx14 | GnuExtensions);
             } else if (std == "gnu++0x" || std == "gnu++11" || std== "gnu++1y") {
                 flags |= CompilerFlags(StandardCxx11 | GnuExtensions);
+                flags &= ~CompilerFlags(StandardCxx14 | StandardCxx17);
             } else if (std == "c89" || std == "c90"
                        || std == "iso9899:1990" || std == "iso9899:199409") {
                 flags &= ~CompilerFlags(StandardC99 | StandardC11);
@@ -1104,7 +1105,7 @@ void ClangToolChain::addToEnvironment(Environment &env) const
 
 ToolChain::CompilerFlags ClangToolChain::defaultCompilerFlags() const
 {
-    return CompilerFlags(GnuExtensions | StandardC99 | StandardCxx11);
+    return CompilerFlags(GnuExtensions | StandardCxx11);
 }
 
 IOutputParser *ClangToolChain::outputParser() const

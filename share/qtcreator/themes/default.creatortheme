@@ -26,7 +26,7 @@ DoubleTabWidget1stEmptyAreaBackgroundColor=ffff0000
 DoubleTabWidget1stSeparatorColor=ffff0000
 DoubleTabWidget1stTabActiveTextColor=ff000000
 DoubleTabWidget1stTabBackgroundColor=ffff0000
-DoubleTabWidget1stTabInactiveTextColor=ff000000
+DoubleTabWidget1stTabInactiveTextColor=ffffffff
 DoubleTabWidget2ndSeparatorColor=ffff0000
 DoubleTabWidget2ndTabActiveTextColor=ffffffff
 DoubleTabWidget2ndTabBackgroundColor=ffff0000
@@ -56,7 +56,8 @@ OutputFormatter_StdOutTextColor=ff000000
 OutputPaneButtonFlashColor=ffff0000
 OutputPaneToggleButtonTextColorChecked=ffffffff
 OutputPaneToggleButtonTextColorUnchecked=ff000000
-PanelTextColor=brightText
+PanelTextColorLight=brightText
+PanelTextColorDark=darkText
 PanelButtonToolBackgroundColorHover=25ffffff
 PanelStatusBarBackgroundColor=ffff0000
 PanelsWidgetSeparatorLineColor=ffbfbcb8
@@ -86,7 +87,8 @@ Welcome_Link_TextColorActive=fff0f0f0
 Welcome_Link_TextColorNormal=ff328930
 Welcome_ProjectItem_BackgroundColorHover=fff9f9f9
 Welcome_ProjectItem_TextColorFilepath=ff6b6b6b
-Welcome_SessionItemExpanded_BackgroundColor=fff1f1f1
+Welcome_SessionItemExpanded_BackgroundColorHover=ffe9e9e9
+Welcome_SessionItemExpanded_BackgroundColorNormal=fff1f1f1
 Welcome_SessionItem_BackgroundColorHover=fff9f9f9
 Welcome_SessionItem_BackgroundColorNormal=19f9f9f9
 Welcome_SideBar_BackgroundColor=ffebebeb
@@ -105,14 +107,6 @@ DrawTargetSelectorBottom=true
 DetailsWidgetHeaderGradient\1\color=ffffff
 DetailsWidgetHeaderGradient\1\pos=1
 DetailsWidgetHeaderGradient\size=1
-
-[IconOverlay]
-CSourceMimetype=:/cppeditor/images/qt_c.png
-CppHeaderMimetype=:/cppeditor/images/qt_h.png
-CppSourceMimetype=:/cppeditor/images/qt_cpp.png
-PrfMimetype=:/qtsupport/images/qt_project.png
-PriMimetype=:/qtsupport/images/qt_project.png
-ProMimetype=:/qtsupport/images/qt_project.png
 
 [Style]
 WidgetStyle=StyleDefault

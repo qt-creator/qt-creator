@@ -103,7 +103,7 @@ private:
     void stdError(const QString &line);
     virtual bool processSucceeded(int exitCode, QProcess::ExitStatus status);
 
-    QString m_packageName;
+    Utils::FileName m_manifestName;
     QString m_serialNumber;
     QString m_buildDirectory;
     QString m_avdName;

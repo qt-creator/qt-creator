@@ -5,6 +5,7 @@ import qbs.FileInfo
 QtcLibrary {
     condition: qbs.toolchain.contains("msvc") && cdbPath
     name: "qtcreatorcdbext"
+    targetName: name
     property string cdbPath: {
         var paths = [
             qbs.getEnv("CDB_PATH"),
@@ -24,16 +25,27 @@ QtcLibrary {
         for (var i = 0; i < c; ++i) {
             if (File.exists(paths[i])) {
                 // The inc subdir is just used for detection. See qtcreatorcdbext.pro.
-                return paths[i].endsWith("/inc") ? paths[i].substr(0, paths[i] - 4) : paths[i];
+                return paths[i].endsWith("/inc") ? paths[i].substr(0, paths[i].length - 4)
+                                                 : paths[i];
             }
         }
         return undefined;
     }
-    property string cdbPlatform: qbs.architecture.contains("x86_64") ? "x64" : "x86"
+    property string cdbLibPath: {
+        var paths = qbs.architecture.contains("x86_64") ? ["x64", "amd64"] : ["x86", "i386"];
+        var c = paths.length;
+        for (var i = 0; i < c; ++i) {
+            var libPath = FileInfo.joinPaths(cdbPath, "lib", paths[i]);
+            if (File.exists(libPath)) {
+                return libPath;
+            }
+        }
+        return undefined;
+    }
     cpp.includePaths: [FileInfo.joinPaths(cdbPath, "inc")]
     cpp.dynamicLibraries: [
         "user32.lib",
-        FileInfo.joinPaths(cdbPath, "lib", cdbPlatform, "dbgeng.lib")
+        FileInfo.joinPaths(cdbLibPath, "dbgeng.lib")
     ]
     cpp.linkerFlags: ["/DEF:" + FileInfo.toWindowsSeparators(
                                     FileInfo.joinPaths(product.sourceDirectory,
@@ -44,7 +56,7 @@ QtcLibrary {
             dirName += "64";
         else
             dirName += "32";
-        return FileInfo.joinPaths(project.ide_library_path, dirName);
+        return FileInfo.joinPaths(project.libDirName, dirName);
     }
     files: [
         "base64.cpp",

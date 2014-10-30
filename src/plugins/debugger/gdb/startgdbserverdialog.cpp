@@ -33,7 +33,7 @@
 #include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerkitinformation.h>
-#include <debugger/debuggerruncontrolfactory.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 
 #include <coreplugin/icore.h>
@@ -206,7 +206,8 @@ void GdbServerStarter::attach(int port)
     }
 
     DebuggerStartParameters sp;
-    QTC_ASSERT(fillParameters(&sp, d->kit), return);
+    bool res = DebuggerRunControlFactory::fillParametersFromKit(&sp, d->kit);
+    QTC_ASSERT(res, return);
     sp.masterEngineType = GdbEngineType;
     sp.connParams.port = port;
     sp.remoteChannel = sp.connParams.host + QLatin1Char(':') + QString::number(sp.connParams.port);

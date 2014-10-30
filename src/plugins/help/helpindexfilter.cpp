@@ -86,13 +86,10 @@ void HelpIndexFilter::accept(LocatorFilterEntry selection) const
     const QString &key = selection.displayName;
     const QMap<QString, QUrl> &links = Core::HelpManager::linksForKeyword(key);
 
-    if (links.size() == 1) {
+    if (links.size() == 1)
         emit linkActivated(links.begin().value());
-    } else if (!links.isEmpty()) {
-        TopicChooser tc(CentralWidget::instance(), key, links);
-        if (tc.exec() == QDialog::Accepted)
-            emit linkActivated(tc.link());
-    }
+    else
+        emit linksActivated(links, key);
 }
 
 void HelpIndexFilter::refresh(QFutureInterface<void> &future)

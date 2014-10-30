@@ -42,8 +42,7 @@
 namespace QmlDesigner {
 
 Qt5NodeInstanceServer::Qt5NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient)
-    : NodeInstanceServer(nodeInstanceClient),
-      m_designerSupport(new DesignerSupport)
+    : NodeInstanceServer(nodeInstanceClient)
 {
     DesignerSupport::activateDesignerMode();
 }
@@ -51,8 +50,6 @@ Qt5NodeInstanceServer::Qt5NodeInstanceServer(NodeInstanceClientInterface *nodeIn
 Qt5NodeInstanceServer::~Qt5NodeInstanceServer()
 {
     delete quickView();
-    delete m_designerSupport;
-    m_designerSupport = 0;
 }
 
 QQuickView *Qt5NodeInstanceServer::quickView() const
@@ -128,21 +125,18 @@ void Qt5NodeInstanceServer::refreshBindings()
     DesignerSupport::refreshExpressions(context());
 }
 
-DesignerSupport *Qt5NodeInstanceServer::designerSupport() const
+DesignerSupport *Qt5NodeInstanceServer::designerSupport()
 {
-    return m_designerSupport;
+    return &m_designerSupport;
 }
 
 void Qt5NodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
-    m_designerSupport = new DesignerSupport;
     NodeInstanceServer::createScene(command);
 }
 
 void Qt5NodeInstanceServer::clearScene(const ClearSceneCommand &command)
 {
-    delete m_designerSupport;
-    m_designerSupport = 0;
     NodeInstanceServer::clearScene(command);
 }
 

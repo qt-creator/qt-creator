@@ -633,65 +633,6 @@ std::string SymbolGroupValue::pointedToSymbolName(ULONG64 address, const std::st
     return str.str();
 }
 
-/* QtInfo helper: Determine the full name of a Qt Symbol like 'qstrdup' in 'QtCored4'.
- * as 'QtCored4![namespace::]qstrdup'. In the event someone really uses a different
- * library prefix or namespaced Qt, this should be found.
- * The crux is here that the underlying IDebugSymbols::StartSymbolMatch()
- * does not accept module wildcards (as opposed to the 'x' command where
- * 'x QtCo*!*qstrdup' would be acceptable and fast). OTOH, doing a wildcard search
- * like '*qstrdup' is very slow and should be done only if there is really a
- * different namespace or lib prefix.
- * Parameter 'modulePatternC' is used to do a search on the modules returned
- * (due to the amiguities and artifacts that appear like 'QGuid4!qstrdup'). */
-
-static inline std::string resolveQtSymbol(const char *symbolC,
-                                          const char *moduleNameC,
-                                          const SymbolGroupValueContext &ctx)
-{
-    enum { debugResolveQtSymbol =  0 };
-    typedef std::list<std::string> StringList;
-    typedef StringList::const_iterator StringListConstIt;
-
-    if (debugResolveQtSymbol)
-        DebugPrint() << ">resolveQtSymbol" << symbolC << " def=" << moduleNameC << " defModName="
-                     << moduleNameC;
-    const SubStringPredicate modulePattern(moduleNameC);
-    // First try a match with the default module name 'QtCored4!qstrdup' or
-    //  'Qt5Cored!qstrdup' for speed reasons.
-    for (int qtVersion = 4; qtVersion < 6; qtVersion++) {
-        std::ostringstream str;
-        str << "Qt";
-        if (qtVersion >= 5)
-            str << qtVersion;
-        str << moduleNameC << 'd';
-        if (qtVersion == 4)
-            str << qtVersion;
-        str << '!' << symbolC;
-        const std::string defaultPattern = str.str();
-        const StringList defaultMatches = SymbolGroupValue::resolveSymbolName(defaultPattern.c_str(), ctx);
-        if (debugResolveQtSymbol)
-            DebugPrint() << "resolveQtSymbol: defaultMatches=" << qtVersion
-                         << DebugSequence<StringListConstIt>(defaultMatches.begin(), defaultMatches.end());
-        const StringListConstIt defaultIt = std::find_if(defaultMatches.begin(), defaultMatches.end(), modulePattern);
-        if (defaultIt != defaultMatches.end()) {
-            if (debugResolveQtSymbol)
-                DebugPrint() << "<resolveQtSymbol return1 " << *defaultIt;
-            return *defaultIt;
-        }
-    }
-    // Fail, now try a search with '*qstrdup' in all modules. This might return several matches
-    // like 'QtCored4!qstrdup', 'QGuid4!qstrdup'
-    const std::string wildCardPattern = std::string(1, '*') + symbolC;
-    const StringList allMatches = SymbolGroupValue::resolveSymbolName(wildCardPattern.c_str(), ctx);
-    if (debugResolveQtSymbol)
-        DebugPrint() << "resolveQtSymbol: allMatches= (" << wildCardPattern << ") -> " << DebugSequence<StringListConstIt>(allMatches.begin(), allMatches.end());
-    const StringListConstIt allIt = std::find_if(allMatches.begin(), allMatches.end(), modulePattern);
-    const std::string rc = allIt != allMatches.end() ? *allIt : std::string();
-    if (debugResolveQtSymbol)
-        DebugPrint() << "<resolveQtSymbol return2 " << rc;
-    return rc;
-}
-
 /*!
     \class QtInfo
 
@@ -708,35 +649,71 @@ const QtInfo &QtInfo::get(const SymbolGroupValueContext &ctx)
     if (!rc.libInfix.empty())
         return rc;
 
-    do {
-        // Lookup qstrdup() to hopefully get module (potential libinfix) and namespace
-        // Typically, this resolves to 'QtGuid4!qstrdup' and 'QtCored4!qstrdup'...
-        const std::string qualifiedSymbol = resolveQtSymbol("qstrdup", "Core", ctx);
-        const std::string::size_type libPos = qualifiedSymbol.find("Core");
-        const std::string::size_type exclPos = qualifiedSymbol.find('!'); // Resolved: 'QtCored4!qstrdup'
-        if (libPos == std::string::npos || exclPos == std::string::npos) {
-            rc.libInfix = "d4";
-            rc.version = 4;
+    typedef std::list<std::string> StringList;
+    typedef StringList::const_iterator StringListConstIt;
+
+    // Lookup qstrdup() to hopefully get module (potential libinfix) and namespace
+    // Typically, this resolves to 'QtGuid4!qstrdup' and 'QtCored4!qstrdup'...
+    const char* qstrdupSymbol = "qstrdup";
+    StringList modulePatterns;
+    modulePatterns.push_back("Qt5Cored!");
+    modulePatterns.push_back("QtCored4!");
+    modulePatterns.push_back("*");
+    std::string qualifiedSymbol;
+    std::string::size_type exclPos;
+    std::string::size_type libPos;
+    for (StringListConstIt modulePattern = modulePatterns.begin(), total = modulePatterns.end();
+            modulePattern != total; ++modulePattern) {
+        const std::string pattern = *modulePattern + qstrdupSymbol;
+        const StringList &allMatches = SymbolGroupValue::resolveSymbolName(pattern.c_str(), ctx);
+        const StringListConstIt match = *modulePattern == "*" ? allMatches.begin()
+                : std::find_if(allMatches.begin(), allMatches.end(), SubStringPredicate(modulePattern->c_str()));
+        if (match == allMatches.end())
+            continue;
+        qualifiedSymbol = *match;
+        exclPos = qualifiedSymbol.find('!'); // Resolved: 'QtCored4!qstrdup'
+        libPos = qualifiedSymbol.find("Core");
+        if (exclPos != std::string::npos && libPos != std::string::npos)
             break;
+    }
+
+    if (exclPos != std::string::npos) {
+        if (libPos != std::string::npos) {
+            // found the core module
+            // determine the qt version from the module name
+            if (isdigit(qualifiedSymbol.at(2)))
+                rc.version = qualifiedSymbol.at(2) - '0';
+            else
+                rc.version = qualifiedSymbol.at(exclPos - 1) - '0';
+            rc.libInfix = qualifiedSymbol.substr(libPos + 4, exclPos - libPos - 4);
+        } else {
+            // Found the Qt symbol but in an unexpected module, most probably
+            // it is a static build.
+            rc.isStatic = true;
+            rc.libInfix = qualifiedSymbol.substr(0, exclPos);
+            // The Qt version cannot be determined by the module name. Looking up
+            // qInstallMessageHandler which is in Qt since 5.0 to determine the version.
+            const std::string pattern = rc.libInfix + "!qInstallMessageHandler";
+            const StringList &allMatches = SymbolGroupValue::resolveSymbolName(pattern.c_str(), ctx);
+            const StringListConstIt match = std::find_if(allMatches.begin(), allMatches.end(),
+                                                         SubStringPredicate(rc.libInfix.c_str()));
+            rc.version = match == allMatches.end() ? 4 : 5;
         }
-        rc.libInfix = qualifiedSymbol.substr(libPos + 4, exclPos - libPos - 4);
-        // 'Qt5Cored!qstrdup' or 'QtCored4!qstrdup'.
-        if (isdigit(qualifiedSymbol.at(2)))
-            rc.version = qualifiedSymbol.at(2) - '0';
-        else
-            rc.version = qualifiedSymbol.at(exclPos - 1) - '0';
         // Any namespace? 'QtCored4!nsp::qstrdup'
         const std::string::size_type nameSpaceStart = exclPos + 1;
         const std::string::size_type colonPos = qualifiedSymbol.find(':', nameSpaceStart);
         if (colonPos != std::string::npos)
             rc.nameSpace = qualifiedSymbol.substr(nameSpaceStart, colonPos - nameSpaceStart);
+    } else {
+        // Can't find a basic Qt symbol so use a fallback
+        rc.libInfix = "d4";
+        rc.version = 4;
+    }
 
-    } while (false);
     rc.qObjectType = rc.prependQtCoreModule("QObject");
     rc.qObjectPrivateType = rc.prependQtCoreModule("QObjectPrivate");
     rc.qWindowPrivateType = rc.prependQtGuiModule("QWindowPrivate");
-    rc.qWidgetPrivateType =
-        rc.prependQtModule("QWidgetPrivate", rc.version >= 5 ? Widgets : Gui);
+    rc.qWidgetPrivateType = rc.prependQtModule("QWidgetPrivate", rc.version >= 5 ? Widgets : Gui);
     if (SymbolGroupValue::verbose)
         DebugPrint() << rc;
     return rc;
@@ -744,6 +721,8 @@ const QtInfo &QtInfo::get(const SymbolGroupValueContext &ctx)
 
 std::string QtInfo::moduleName(Module m) const
 {
+    if (isStatic)
+        return libInfix;
     // Must match the enumeration
     static const char* modNames[] =
         {"Core", "Gui", "Widgets", "Network", "Script", "Qml" };

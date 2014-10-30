@@ -30,7 +30,7 @@
 
 #include "processparameters.h"
 
-#include <utils/stringutils.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcprocess.h>
 
 #include <QFileInfo>
@@ -97,7 +97,7 @@ void ProcessParameters::setWorkingDirectory(const QString &workingDirectory)
 */
 
 /*!
-   \fn  void ProjectExplorer::ProcessParameters::setMacroExpander(Utils::AbstractMacroExpander *mx)
+   \fn  void ProjectExplorer::ProcessParameters::setMacroExpander(Utils::MacroExpander *mx)
    Sets the macro expander \a mx to use on the command, arguments, and working
    dir.
 
@@ -113,7 +113,7 @@ QString ProcessParameters::effectiveWorkingDirectory() const
     if (m_effectiveWorkingDirectory.isEmpty()) {
         QString wds = m_workingDirectory;
         if (m_macroExpander)
-            Utils::expandMacros(&wds, m_macroExpander);
+            wds = m_macroExpander->expand(wds);
         m_effectiveWorkingDirectory = QDir::cleanPath(m_environment.expandVariables(wds));
     }
     return m_effectiveWorkingDirectory;
@@ -128,7 +128,7 @@ QString ProcessParameters::effectiveCommand() const
     if (m_effectiveCommand.isEmpty()) {
         QString cmd = m_command;
         if (m_macroExpander)
-            Utils::expandMacros(&cmd, m_macroExpander);
+            cmd = m_macroExpander->expand(cmd);
         m_effectiveCommand =
                 m_environment.searchInPath(cmd, QStringList(effectiveWorkingDirectory())).toString();
         m_commandMissing = m_effectiveCommand.isEmpty();
@@ -153,7 +153,7 @@ QString ProcessParameters::effectiveArguments() const
     if (m_effectiveArguments.isEmpty()) {
         m_effectiveArguments = m_arguments;
         if (m_macroExpander)
-            Utils::expandMacros(&m_effectiveArguments, m_macroExpander);
+            m_effectiveArguments = m_macroExpander->expand(m_effectiveArguments);
     }
     return m_effectiveArguments;
 }
@@ -162,7 +162,7 @@ QString ProcessParameters::prettyCommand() const
 {
     QString cmd = m_command;
     if (m_macroExpander)
-        Utils::expandMacros(&cmd, m_macroExpander);
+        cmd = m_macroExpander->expand(cmd);
     return QFileInfo(cmd).fileName();
 }
 

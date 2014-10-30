@@ -60,6 +60,10 @@ public:
 
     static LocalHelpManager *instance();
 
+    static QString defaultHomePage();
+    static QString homePage();
+    static void setHomePage(const QString &page);
+
     void setupGuiHelpEngine();
     void setEngineNeedsUpdate();
 

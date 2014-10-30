@@ -115,7 +115,7 @@ QVariantMap VersionUpgrader::renameKeys(const QList<Change> &changes, QVariantMa
 } // ProjectExplorer
 
 using namespace ProjectExplorer;
-using namespace Internal;
+using namespace ProjectExplorer::Internal;
 
 namespace {
 

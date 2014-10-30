@@ -35,9 +35,11 @@
 #include "kitmanager.h"
 #include "task.h"
 
+#include <coreplugin/variablechooser.h>
+
 #include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
-#include <utils/stringutils.h>
+#include <utils/macroexpander.h>
 
 #include <QAction>
 #include <QRegularExpression>
@@ -86,7 +88,7 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     Q_ASSERT(fileSystemFriendlyNameRegexp.isValid());
     m_fileSystemFriendlyNameLineEdit->setValidator(new QRegularExpressionValidator(fileSystemFriendlyNameRegexp, m_fileSystemFriendlyNameLineEdit));
     m_layout->addWidget(m_fileSystemFriendlyNameLineEdit, 1, WidgetColumn);
-    connect(m_fileSystemFriendlyNameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(setFileSystemFriendlyName()));
+    connect(m_fileSystemFriendlyNameLineEdit, &QLineEdit::textChanged, this, &KitManagerConfigWidget::setFileSystemFriendlyName);
 
     QWidget *inner = new QWidget;
     inner->setLayout(m_layout);
@@ -108,14 +110,20 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
 
     discard();
 
-    connect(m_iconButton, SIGNAL(clicked()), this, SLOT(setIcon()));
-    connect(m_nameEdit, SIGNAL(textChanged(QString)), this, SLOT(setDisplayName()));
+    connect(m_iconButton, &QAbstractButton::clicked,
+            this, &KitManagerConfigWidget::setIcon);
+    connect(m_nameEdit, &QLineEdit::textChanged,
+            this, &KitManagerConfigWidget::setDisplayName);
 
-    QObject *km = KitManager::instance();
-    connect(km, SIGNAL(unmanagedKitUpdated(ProjectExplorer::Kit*)),
-            this, SLOT(workingCopyWasUpdated(ProjectExplorer::Kit*)));
-    connect(km, SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
-            this, SLOT(kitWasUpdated(ProjectExplorer::Kit*)));
+    KitManager *km = KitManager::instance();
+    connect(km, &KitManager::unmanagedKitUpdated,
+            this, &KitManagerConfigWidget::workingCopyWasUpdated);
+    connect(km, &KitManager::kitUpdated,
+            this, &KitManagerConfigWidget::kitWasUpdated);
+
+    auto chooser = new Core::VariableChooser(this);
+    chooser->addSupportedWidget(m_nameEdit);
+    chooser->addMacroExpanderProvider([this]() { return m_modifiedKit->macroExpander(); });
 }
 
 KitManagerConfigWidget::~KitManagerConfigWidget()
@@ -133,7 +141,7 @@ KitManagerConfigWidget::~KitManagerConfigWidget()
 
 QString KitManagerConfigWidget::displayName() const
 {
-    return m_modifiedKit->displayName();
+    return m_displayName;
 }
 
 void KitManagerConfigWidget::apply()
@@ -167,6 +175,7 @@ void KitManagerConfigWidget::discard()
     }
     m_iconButton->setIcon(m_modifiedKit->icon());
     m_nameEdit->setText(m_modifiedKit->unexpandedDisplayName());
+    m_displayName = m_modifiedKit->displayName();
     m_fileSystemFriendlyNameLineEdit->setText(m_modifiedKit->customFileSystemFriendlyName());
     emit dirty();
 }
@@ -213,7 +222,7 @@ void KitManagerConfigWidget::addConfigWidget(KitConfigWidget *widget)
     action->setEnabled(!widget->isSticky());
     widget->mainWidget()->addAction(action);
     widget->mainWidget()->setContextMenuPolicy(Qt::ActionsContextMenu);
-    connect(action, SIGNAL(toggled(bool)), this, SLOT(updateMutableState()));
+    connect(action, &QAction::toggled, this, &KitManagerConfigWidget::updateMutableState);
     m_actions << action;
 
     int row = m_layout->rowCount();
@@ -308,6 +317,7 @@ void KitManagerConfigWidget::setDisplayName()
     int pos = m_nameEdit->cursorPosition();
     m_modifiedKit->setUnexpandedDisplayName(m_nameEdit->text());
     m_nameEdit->setCursorPosition(pos);
+    m_displayName = m_modifiedKit->displayName();
 }
 
 void KitManagerConfigWidget::setFileSystemFriendlyName()
@@ -331,6 +341,8 @@ void KitManagerConfigWidget::workingCopyWasUpdated(Kit *k)
 
     if (k->unexpandedDisplayName() != m_nameEdit->text())
         m_nameEdit->setText(k->unexpandedDisplayName());
+
+    m_displayName = k->displayName();
 
     m_fileSystemFriendlyNameLineEdit->setText(k->customFileSystemFriendlyName());
     m_iconButton->setIcon(k->icon());

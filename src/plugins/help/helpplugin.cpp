@@ -162,7 +162,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     connect(HelpManager::instance(), SIGNAL(helpRequested(QUrl,Core::HelpManager::HelpViewerLocation)),
             this, SLOT(handleHelpRequest(QUrl,Core::HelpManager::HelpViewerLocation)));
     connect(m_searchTaskHandler, SIGNAL(search(QUrl)), this,
-            SLOT(switchToHelpMode(QUrl)));
+            SLOT(showLinkInHelpMode(QUrl)));
 
     connect(m_filterSettingsPage, SIGNAL(filtersChanged()), this,
         SLOT(setupHelpEngineIfNeeded()));
@@ -179,12 +179,12 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     // Add Contents, Index, and Context menu items
     action = new QAction(QIcon::fromTheme(QLatin1String("help-contents")),
         tr(Constants::SB_CONTENTS), this);
-    cmd = ActionManager::registerAction(action, Constants::HELP_CONTENTS, globalcontext);
+    cmd = ActionManager::registerAction(action, "Help.ContentsMenu", globalcontext);
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, SIGNAL(triggered()), this, SLOT(activateContents()));
 
     action = new QAction(tr(Constants::SB_INDEX), this);
-    cmd = ActionManager::registerAction(action, "Help.Index", globalcontext);
+    cmd = ActionManager::registerAction(action, "Help.IndexMenu", globalcontext);
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, SIGNAL(triggered()), this, SLOT(activateIndex()));
 
@@ -223,15 +223,17 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
             SLOT(gotoNextPage()));
     }
 
-    HelpIndexFilter *helpIndexFilter = new HelpIndexFilter();
+    auto helpIndexFilter = new HelpIndexFilter();
     addAutoReleasedObject(helpIndexFilter);
-    connect(helpIndexFilter, SIGNAL(linkActivated(QUrl)), this,
-        SLOT(switchToHelpMode(QUrl)));
+    connect(helpIndexFilter, &HelpIndexFilter::linkActivated,
+            this, &HelpPlugin::showLinkInHelpMode);
+    connect(helpIndexFilter, &HelpIndexFilter::linksActivated,
+            this, &HelpPlugin::showLinksInHelpMode);
 
     RemoteHelpFilter *remoteHelpFilter = new RemoteHelpFilter();
     addAutoReleasedObject(remoteHelpFilter);
     connect(remoteHelpFilter, SIGNAL(linkActivated(QUrl)), this,
-        SLOT(switchToHelpMode(QUrl)));
+        SLOT(showLinkInHelpMode(QUrl)));
 
     QDesktopServices::setUrlHandler(QLatin1String("qthelp"), this, "handleHelpRequest");
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*,Core::IMode*)),
@@ -330,7 +332,7 @@ HelpWidget *HelpPlugin::createHelpWidget(const Context &context, HelpWidget::Wid
     connect(widget->currentViewer(), SIGNAL(loadFinished()),
             this, SLOT(highlightSearchTermsInContextHelp()));
     connect(widget, SIGNAL(openHelpMode(QUrl)),
-            this, SLOT(switchToHelpMode(QUrl)));
+            this, SLOT(showLinkInHelpMode(QUrl)));
     connect(widget, SIGNAL(closeButtonClicked()),
             this, SLOT(slotHideRightPane()));
     connect(widget, SIGNAL(aboutToClose()),
@@ -362,7 +364,9 @@ HelpViewer *HelpPlugin::externalHelpViewer()
         QSettings *settings = Core::ICore::settings();
         m_externalWindowState = settings->value(QLatin1String(kExternalWindowStateKey)).toRect();
     }
-    if (!m_externalWindowState.isNull())
+    if (m_externalWindowState.isNull())
+        m_externalWindow->resize(650, 700);
+    else
         m_externalWindow->setGeometry(m_externalWindowState);
     m_externalWindow->show();
     m_externalWindow->setFocus();
@@ -408,12 +412,19 @@ void HelpPlugin::activateHelpMode()
     ModeManager::activateMode(Id(Constants::ID_MODE_HELP));
 }
 
-void HelpPlugin::switchToHelpMode(const QUrl &source)
+void HelpPlugin::showLinkInHelpMode(const QUrl &source)
 {
     activateHelpMode();
     Core::ICore::raiseWindow(m_mode->widget());
     m_centralWidget->setSource(source);
     m_centralWidget->setFocus();
+}
+
+void HelpPlugin::showLinksInHelpMode(const QMap<QString, QUrl> &links, const QString &key)
+{
+    activateHelpMode();
+    Core::ICore::raiseWindow(m_mode->widget());
+    m_centralWidget->showTopicChooser(links, key);
 }
 
 void HelpPlugin::slotHideRightPane()
@@ -442,8 +453,13 @@ void HelpPlugin::updateSideBarSource()
 
 void HelpPlugin::updateSideBarSource(const QUrl &newUrl)
 {
-    if (m_rightPaneSideBarWidget)
-        m_rightPaneSideBarWidget->currentViewer()->setSource(newUrl);
+    if (m_rightPaneSideBarWidget) {
+        // This is called when setSource on the central widget is called.
+        // Avoid nested setSource calls (even of different help viewers) by scheduling the
+        // sidebar viewer update on the event loop (QTCREATORBUG-12742)
+        QMetaObject::invokeMethod(m_rightPaneSideBarWidget->currentViewer(), "setSource",
+                                  Qt::QueuedConnection, Q_ARG(QUrl, newUrl));
+    }
 }
 
 void HelpPlugin::fontChanged()
@@ -456,7 +472,7 @@ void HelpPlugin::fontChanged()
                                        : m_rightPaneSideBarWidget->currentViewer()->viewerFont();
 
     m_rightPaneSideBarWidget->setViewerFont(font);
-    CentralWidget::instance()->setViewerFont(font);
+    m_centralWidget->setViewerFont(font);
 }
 
 void HelpPlugin::setupHelpEngineIfNeeded()
@@ -639,7 +655,7 @@ void HelpPlugin::handleHelpRequest(const QUrl &url, Core::HelpManager::HelpViewe
 
 void HelpPlugin::slotOpenSupportPage()
 {
-    switchToHelpMode(QUrl(QLatin1String("qthelp://org.qt-project.qtcreator/doc/technical-support.html")));
+    showLinkInHelpMode(QUrl(QLatin1String("qthelp://org.qt-project.qtcreator/doc/technical-support.html")));
 }
 
 void HelpPlugin::slotReportBug()

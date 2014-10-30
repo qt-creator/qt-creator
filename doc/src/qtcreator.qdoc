@@ -165,6 +165,7 @@
             \li \l{Developing Qt Quick Applications}
             \list
                 \li \l {Creating Qt Quick Projects}
+                \li \l {Qt Quick UI Forms}
                 \li \l {Using Qt Quick Designer}
                 \li \l {Creating Components}
                 \li \l {Creating Buttons}

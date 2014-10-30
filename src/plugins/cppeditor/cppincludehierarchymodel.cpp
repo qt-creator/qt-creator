@@ -39,6 +39,7 @@
 #include <texteditor/texteditor.h>
 
 #include <cplusplus/CppDocument.h>
+#include <utils/fileutils.h>
 
 #include <QSet>
 
@@ -239,6 +240,37 @@ bool CppIncludeHierarchyModel::hasChildren(const QModelIndex &parent) const
 
     Q_ASSERT(parentItem);
     return parentItem->hasChildren();
+}
+
+Qt::ItemFlags CppIncludeHierarchyModel::flags(const QModelIndex &index) const
+{
+    const TextEditor::TextEditorWidget::Link link
+            = index.data(LinkRole).value<TextEditor::TextEditorWidget::Link>();
+    if (link.hasValidTarget())
+        return Qt::ItemIsDragEnabled | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+
+Qt::DropActions CppIncludeHierarchyModel::supportedDragActions() const
+{
+    return Qt::MoveAction;
+}
+
+QStringList CppIncludeHierarchyModel::mimeTypes() const
+{
+    return Utils::FileDropSupport::mimeTypesForFilePaths();
+}
+
+QMimeData *CppIncludeHierarchyModel::mimeData(const QModelIndexList &indexes) const
+{
+    auto data = new Utils::FileDropMimeData;
+    foreach (const QModelIndex &index, indexes) {
+        const TextEditor::TextEditorWidget::Link link
+                = index.data(LinkRole).value<TextEditor::TextEditorWidget::Link>();
+        if (link.hasValidTarget())
+            data->addFile(link.targetFileName, link.targetLine, link.targetColumn);
+    }
+    return data;
 }
 
 bool CppIncludeHierarchyModel::isEmpty() const

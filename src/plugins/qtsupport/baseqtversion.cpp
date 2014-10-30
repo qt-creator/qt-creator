@@ -234,25 +234,25 @@ void BaseQtVersion::ctor(const FileName &qmakePath)
 
 void BaseQtVersion::setupExpander()
 {
-    m_expander.registerVariable("Qt:version",
+    m_expander.setDisplayName(
+        QCoreApplication::translate("QtSupport::QtKitInformation", "Qt version"));
+
+    m_expander.registerVariable("Qt:Version",
         QCoreApplication::translate("QtSupport::QtKitInformation", "The version string of the current Qt version."),
         [this]() { return qtVersionString(); });
 
-    m_expander.registerVariable("Qt:type",
+    m_expander.registerVariable("Qt:Type",
         QCoreApplication::translate("QtSupport::QtKitInformation", "The type of the current Qt version."),
         [this]() { return type(); });
 
-    m_expander.registerVariable("Qt:mkspec",
+    m_expander.registerVariable("Qt:Mkspec",
         QCoreApplication::translate("QtSupport::QtKitInformation", "The mkspec of the current Qt version."),
         [this]() { return mkspec().toUserOutput(); });
 
 //    FIXME: Re-enable once we can detect expansion loops.
-//    m_expander.registerVariable("Qt:name",
+//    m_expander.registerVariable("Qt:Name",
 //        QCoreApplication::translate("QtSupport::QtKitInformation", "The display name of the current Qt version."),
 //        [this]() { return displayName(); });
-
-    m_expander.setDisplayName(
-        QCoreApplication::translate("QtSupport::QtKitInformation", "Qt version"));
 }
 
 BaseQtVersion::~BaseQtVersion()
@@ -285,8 +285,8 @@ QString BaseQtVersion::defaultUnexpandedDisplayName(const FileName &qmakePath, b
     }
 
     return fromPath ?
-        QCoreApplication::translate("QtVersion", "Qt %{Qt:version} in PATH (%2)").arg(location) :
-        QCoreApplication::translate("QtVersion", "Qt %{Qt:version} (%2)").arg(location);
+        QCoreApplication::translate("QtVersion", "Qt %{Qt:Version} in PATH (%2)").arg(location) :
+        QCoreApplication::translate("QtVersion", "Qt %{Qt:Version} (%2)").arg(location);
 }
 
 FeatureSet BaseQtVersion::availableFeatures() const
@@ -609,8 +609,7 @@ void BaseQtVersion::setAutoDetectionSource(const QString &autodetectionSource)
 
 QString BaseQtVersion::displayName() const
 {
-    QString ret = Utils::expandMacros(m_unexpandedDisplayName, &m_expander);
-    return Utils::expandMacros(ret, Utils::globalMacroExpander());
+    return m_expander.expand(m_unexpandedDisplayName);
 }
 
 QString BaseQtVersion::unexpandedDisplayName() const
@@ -1451,6 +1450,10 @@ FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QString> &ver
 
 FileName BaseQtVersion::sourcePath(const QHash<QString, QString> &versionInfo)
 {
+    const QString qt5Source = qmakeProperty(versionInfo, "QT_INSTALL_PREFIX/src");
+    if (!qt5Source.isEmpty())
+        return Utils::FileName::fromString(qt5Source);
+
     const QString installData = qmakeProperty(versionInfo, "QT_INSTALL_PREFIX");
     QString sourcePath = installData;
     QFile qmakeCache(installData + QLatin1String("/.qmake.cache"));
@@ -1470,6 +1473,18 @@ FileName BaseQtVersion::sourcePath(const QHash<QString, QString> &versionInfo)
         }
     }
     return FileName::fromUserInput(sourcePath);
+}
+
+bool BaseQtVersion::isInSourceDirectory(const Utils::FileName &filePath)
+{
+    const Utils::FileName &source = sourcePath();
+    if (source.isEmpty())
+        return false;
+    QDir dir = QDir(source.toString());
+    if (dir.dirName() == QLatin1String("qtbase"))
+        dir.cdUp();
+
+    return filePath.isChildOf(dir);
 }
 
 bool BaseQtVersion::isQmlDebuggingSupported(Kit *k, QString *reason)

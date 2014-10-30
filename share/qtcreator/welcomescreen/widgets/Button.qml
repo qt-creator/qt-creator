@@ -61,60 +61,60 @@ Button {
                 Rectangle {
                     anchors.fill: parent
                     antialiasing: true
-                    radius: (creatorTheme.widgetStyle === 'flat') ? 0 : 3
+                    radius: (creatorTheme.WidgetStyle === 'StyleFlat') ? 0 : 3
 
                     visible: !(button.pressed || button.checked)
 
                     gradient: Gradient {
                         GradientStop {
                             position: 0
-                            color: (theme==='dark') ? "#232323" : "#f9f9f9"
+                            color: (creatorTheme.WidgetStyle === 'StyleFlat') ? "#232323" : "#f9f9f9"
                         }
 
                         GradientStop {
                             position: 0.49
-                            color: (theme === 'dark') ? "#232323" : "#f9f9f9"
+                            color: (creatorTheme.WidgetStyle === 'StyleFlat') ? "#232323" : "#f9f9f9"
                         }
 
                         GradientStop {
                             position: 0.5
-                            color: (theme === 'dark') ? "#232323" : "#eeeeee"
+                            color: (creatorTheme.WidgetStyle === 'StyleFlat') ? "#232323" : "#eeeeee"
                         }
 
                         GradientStop {
                             position: 1
-                            color: (theme === 'dark') ? "#232323" : "#eeeeee"
+                            color: (creatorTheme.WidgetStyle === 'StyleFlat') ? "#232323" : "#eeeeee"
                         }
                     }
-                    border.color: creatorTheme.button_BorderColor
+                    border.color: creatorTheme.Welcome_Button_BorderColor
                 }
 
                 Rectangle {
                     anchors.fill: parent
                     antialiasing: true
-                    radius: (creatorTheme.widgetStyle === 'flat') ? 0 : 3
+                    radius: (creatorTheme.WidgetStyle === 'StyleFlat') ? 0 : 3
 
                     visible: button.pressed || button.checked
 
                     gradient: Gradient {
                         GradientStop {
                             position: 0.00;
-                            color: (theme === "dark") ? "#151515" : "#4c4c4c"
+                            color: (creatorTheme.WidgetStyle === 'StyleFlat') ? "#151515" : "#4c4c4c"
                         }
                         GradientStop {
                             position: 0.49;
-                            color: (theme === "dark") ? "#151515" : "#4c4c4c"
+                            color: (creatorTheme.WidgetStyle === 'StyleFlat') ? "#151515" : "#4c4c4c"
                         }
                         GradientStop {
                             position: 0.50;
-                            color: (theme === "dark") ? "#151515" : "#424242"
+                            color: (creatorTheme.WidgetStyle === 'StyleFlat') ? "#151515" : "#424242"
                         }
                         GradientStop {
                             position: 1.00;
-                            color: (theme === "dark") ? "#151515" : "#424242"
+                            color: (creatorTheme.WidgetStyle === 'StyleFlat') ? "#151515" : "#424242"
                         }
                     }
-                    border.color: creatorTheme.button_BorderColor
+                    border.color: creatorTheme.Welcome_Button_BorderColor
 
                 }
             }
@@ -124,8 +124,8 @@ Button {
                     verticalAlignment: Text.AlignVCenter
                     text: button.text
                     color: button.pressed || button.checked
-                             ? creatorTheme.button_TextColorPressed
-                             : creatorTheme.button_TextColorNormal
+                             ? creatorTheme.Welcome_Button_TextColorPressed
+                             : creatorTheme.Welcome_Button_TextColorNormal
                     font.pixelSize: 15
                     font.bold: false
                     smooth: true

@@ -443,51 +443,34 @@ void Manager::gotoLocation(const QString &fileName, int line, int column)
 void Manager::gotoLocations(const QList<QVariant> &list)
 {
     QSet<SymbolLocation> locations = Utils::roleToLocations(list);
-
-    if (locations.count() == 0)
+    if (locations.size() == 0)
         return;
 
-    QString fileName;
-    int line = 0;
-    int column = 0;
-    bool currentPositionAvailable = false;
+    // Default to first known location
+    SymbolLocation loc = *locations.constBegin();
 
-    // what is open now?
-    if (IEditor *editor = EditorManager::currentEditor()) {
-        // get current file name
-        if (IDocument *document = editor->document())
-            fileName = document->filePath();
-
-        // if text file - what is current position?
-        TextEditor::BaseTextEditor *textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
+    if (locations.size() > 1) {
+        // The symbol has multiple locations. Check if we are already at one location,
+        // and if so, cycle to the "next" one
+        auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(EditorManager::currentEditor());
         if (textEditor) {
-            // there is open currently text editor
-            int position = textEditor->position();
-            textEditor->convertPosition(position, &line, &column);
-            currentPositionAvailable = true;
+            // check if current cursor position is a known location of the symbol
+            const QString fileName = textEditor->document()->filePath();
+            int line;
+            int column;
+            textEditor->convertPosition(textEditor->position(), &line, &column);
+            SymbolLocation current(fileName, line, column);
+            QSet<SymbolLocation>::const_iterator it = locations.find(current);
+            QSet<SymbolLocation>::const_iterator end = locations.constEnd();
+            if (it != end) {
+                // we already are at the symbol, cycle to next location
+                ++it;
+                if (it == end)
+                    it = locations.begin();
+                loc = *it;
+            }
         }
     }
-
-    // if there is something open - try to check, is it currently activated symbol?
-    if (currentPositionAvailable) {
-        SymbolLocation current(fileName, line, column);
-        QSet<SymbolLocation>::const_iterator it = locations.find(current);
-        QSet<SymbolLocation>::const_iterator end = locations.constEnd();
-        // is it known location?
-        if (it != end) {
-            // found - do one additional step
-            ++it;
-            if (it == end)
-                it = locations.begin();
-            const SymbolLocation &found = *it;
-            gotoLocation(found.fileName(), found.line(), found.column());
-            return;
-        }
-    }
-
-    // no success - open first item in the list
-    const SymbolLocation loc = *locations.constBegin();
-
     gotoLocation(loc.fileName(), loc.line(), loc.column());
 }
 

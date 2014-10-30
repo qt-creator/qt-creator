@@ -33,7 +33,7 @@
 #include "blackberrydebugsupport.h"
 #include "blackberryapplicationrunner.h"
 
-#include <debugger/debuggerrunner.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerstartparameters.h>
 

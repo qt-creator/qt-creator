@@ -32,7 +32,9 @@
 #include "cppeditortestcase.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <cpptools/commentssettings.h>
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpptoolssettings.h>
 
 #include <cplusplus/CppDocument.h>
 #include <utils/fileutils.h>
@@ -63,9 +65,11 @@ namespace Tests {
 
 class DoxygenTestCase : public Internal::Tests::TestCase
 {
+    QScopedPointer<CppTools::CommentsSettings> oldSettings;
 public:
     /// The '|' in the input denotes the cursor position.
-    DoxygenTestCase(const QByteArray &original, const QByteArray &expected)
+    DoxygenTestCase(const QByteArray &original, const QByteArray &expected,
+                    CppTools::CommentsSettings *injectedSettings = 0)
     {
         QVERIFY(succeededSoFar());
 
@@ -81,6 +85,12 @@ public:
         QVERIFY(openCppEditor(testDocument.filePath(), &testDocument.m_editor,
                               &testDocument.m_editorWidget));
         closeEditorAtEndOfTestCase(testDocument.m_editor);
+
+        if (injectedSettings) {
+            auto *cts = CppTools::CppToolsSettings::instance();
+            oldSettings.reset(new CppTools::CommentsSettings(cts->commentsSettings()));
+            injectSettings(injectedSettings);
+        }
 
         // We want to test documents that start with a comment. By default, the
         // editor will fold the very first comment it encounters, assuming
@@ -103,6 +113,19 @@ public:
         testDocument.m_editorWidget->undo();
         const QString contentsAfterUndo = testDocument.m_editorWidget->document()->toPlainText();
         QCOMPARE(contentsAfterUndo, testDocument.m_source);
+    }
+
+    ~DoxygenTestCase()
+    {
+        if (oldSettings)
+            injectSettings(oldSettings.data());
+    }
+
+    static void injectSettings(CppTools::CommentsSettings *injection)
+    {
+        auto *cts = CppTools::CppToolsSettings::instance();
+        QVERIFY(QMetaObject::invokeMethod(cts, "commentsSettingsChanged", Qt::DirectConnection,
+                                          Q_ARG(CppTools::CommentsSettings, *injection)));
     }
 };
 
@@ -252,6 +275,31 @@ void CppEditorPlugin::test_doxygen_comments()
     QFETCH(QByteArray, given);
     QFETCH(QByteArray, expected);
     Tests::DoxygenTestCase(given, expected);
+}
+
+void CppEditorPlugin::test_doxygen_comments_no_leading_asterisks_data()
+{
+    QTest::addColumn<QByteArray>("given");
+    QTest::addColumn<QByteArray>("expected");
+
+    QTest::newRow("cpp_style_no_astrix") << _(
+            "/* asdf asdf|\n"
+        ) << _(
+            "/* asdf asdf\n"
+            "   \n"
+    );
+}
+
+void CppEditorPlugin::test_doxygen_comments_no_leading_asterisks()
+{
+    QFETCH(QByteArray, given);
+    QFETCH(QByteArray, expected);
+
+    CppTools::CommentsSettings injection;
+    injection.m_enableDoxygen = true;
+    injection.m_leadingAsterisks = false;
+
+    Tests::DoxygenTestCase(given, expected, &injection);
 }
 
 } // namespace Internal

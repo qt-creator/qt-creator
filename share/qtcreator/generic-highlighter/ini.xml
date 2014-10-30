@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
-<language name="INI Files" section="Configuration" extensions="*.ini;*.pls;*.kcfgc" mimetype="" version="1.1" kateversion="2.0" author="Jan Janssen (medhefgo@web.de)" license="LGPL">
+<language name="INI Files" section="Configuration" extensions="*.ini;*.pls;*.kcfgc" mimetype="" version="1.1" kateversion="2.4" author="Jan Janssen (medhefgo@web.de)" license="LGPL">
 
 <highlighting>
 <list name="keywords">

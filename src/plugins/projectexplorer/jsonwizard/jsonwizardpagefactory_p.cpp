@@ -32,6 +32,8 @@
 
 #include "jsonfieldpage.h"
 #include "jsonfilepage.h"
+#include "jsonkitspage.h"
+#include "jsonprojectpage.h"
 #include "jsonsummarypage.h"
 #include "jsonwizardfactory.h"
 
@@ -102,11 +104,11 @@ FilePageFactory::FilePageFactory()
 
 Utils::WizardPage *FilePageFactory::create(JsonWizard *wizard, Core::Id typeId, const QVariant &data)
 {
+    Q_UNUSED(wizard);
     Q_UNUSED(data);
     QTC_ASSERT(canCreate(typeId), return 0);
 
     JsonFilePage *page = new JsonFilePage;
-    page->setPath(wizard->value(QStringLiteral("InitialPath")).toString());
     return page;
 }
 
@@ -116,6 +118,80 @@ bool FilePageFactory::validateData(Core::Id typeId, const QVariant &data, QStrin
     if (!data.isNull() && (data.type() != QVariant::Map || !data.toMap().isEmpty())) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
                                                     "\"data\" for a \"File\" page needs to be unset or an empty object.");
+        return false;
+    }
+
+    return true;
+}
+
+// --------------------------------------------------------------------
+// KitsPageFactory:
+// --------------------------------------------------------------------
+
+KitsPageFactory::KitsPageFactory()
+{
+    setTypeIdsSuffix(QLatin1String("Kits"));
+}
+
+Utils::WizardPage *KitsPageFactory::create(JsonWizard *wizard, Core::Id typeId, const QVariant &data)
+{
+    Q_UNUSED(wizard);
+    QTC_ASSERT(canCreate(typeId), return 0);
+
+    JsonKitsPage *page = new JsonKitsPage;
+    page->setProjectFilePath(data.toMap().value(QLatin1String("projectFilePath")).toString());
+
+    return page;
+}
+
+bool KitsPageFactory::validateData(Core::Id typeId, const QVariant &data, QString *errorMessage)
+{
+    QTC_ASSERT(canCreate(typeId), return false);
+
+    if (data.isNull() || data.type() != QVariant::Map) {
+        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
+                                                    "\"data\" must be a JSON object for \"Kits\" pages.");
+        return false;
+    }
+
+    QVariantMap tmp = data.toMap();
+    if (tmp.value(QLatin1String("projectFilePath")).toString().isEmpty()) {
+        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
+                                                    "\"Kits\" page requires a \"projectFilePath\" set.");
+        return false;
+    }
+
+    return true;
+}
+
+// --------------------------------------------------------------------
+// ProjectPageFactory:
+// --------------------------------------------------------------------
+
+ProjectPageFactory::ProjectPageFactory()
+{
+    setTypeIdsSuffix(QLatin1String("Project"));
+}
+
+Utils::WizardPage *ProjectPageFactory::create(JsonWizard *wizard, Core::Id typeId, const QVariant &data)
+{
+    Q_UNUSED(wizard);
+    Q_UNUSED(data);
+    QTC_ASSERT(canCreate(typeId), return 0);
+
+    JsonProjectPage *page = new JsonProjectPage;
+
+    return page;
+}
+
+bool ProjectPageFactory::validateData(Core::Id typeId, const QVariant &data, QString *errorMessage)
+{
+    Q_UNUSED(errorMessage);
+
+    QTC_ASSERT(canCreate(typeId), return false);
+    if (!data.isNull() && (data.type() != QVariant::Map || !data.toMap().isEmpty())) {
+        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
+                                                    "\"data\" for a \"Project\" page needs to be unset or an empty object.");
         return false;
     }
 

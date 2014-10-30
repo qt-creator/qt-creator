@@ -385,7 +385,6 @@ private slots:
     void updateVimRcWidgets();
 
 private:
-    friend class DebuggerPlugin;
     QPointer<QWidget> m_widget;
     Ui::FakeVimOptionPage m_ui;
     Utils::SavedActionSet m_group;

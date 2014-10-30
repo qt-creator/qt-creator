@@ -35,7 +35,7 @@
 
 #include <utils/environment.h>
 
-namespace Utils { class AbstractMacroExpander; }
+namespace Utils { class MacroExpander; }
 
 namespace ProjectExplorer {
 
@@ -57,8 +57,8 @@ public:
     void setEnvironment(const Utils::Environment &env) { m_environment = env; }
     Utils::Environment environment() const { return m_environment; }
 
-    void setMacroExpander(Utils::AbstractMacroExpander *mx) { m_macroExpander = mx; }
-    Utils::AbstractMacroExpander *macroExpander() const { return m_macroExpander; }
+    void setMacroExpander(Utils::MacroExpander *mx) { m_macroExpander = mx; }
+    Utils::MacroExpander *macroExpander() const { return m_macroExpander; }
 
     /// Get the fully expanded working directory:
     QString effectiveWorkingDirectory() const;
@@ -81,7 +81,7 @@ private:
     QString m_command;
     QString m_arguments;
     Utils::Environment m_environment;
-    Utils::AbstractMacroExpander *m_macroExpander;
+    Utils::MacroExpander *m_macroExpander;
 
     mutable QString m_effectiveWorkingDirectory;
     mutable QString m_effectiveCommand;

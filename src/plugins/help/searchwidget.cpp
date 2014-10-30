@@ -97,6 +97,12 @@ void SearchWidget::resetZoom()
     }
 }
 
+void SearchWidget::reindexDocumentation()
+{
+    if (searchEngine)
+        searchEngine->reindexDocumentation();
+}
+
 void SearchWidget::showEvent(QShowEvent *event)
 {
     if (!event->spontaneous() && !searchEngine) {
@@ -285,6 +291,6 @@ QList<QToolButton *> SearchSideBarItem::createToolBarWidgets()
     reindexButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_RELOAD_GRAY)));
     reindexButton->setToolTip(tr("Regenerate Index"));
     connect(reindexButton, SIGNAL(clicked()),
-            LocalHelpManager::helpEngine().searchEngine(), SLOT(reindexDocumentation()));
+            widget(), SLOT(reindexDocumentation()));
     return QList<QToolButton *>() << reindexButton;
 }

@@ -51,9 +51,9 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
       m_ignoreChange(false)
 {
     m_defaultShadowBuildDir
-            = QmakeProject::shadowBuildDirectory(bc->target()->project()->projectFilePath().toString(),
-                                               bc->target()->kit(),
-                                               Utils::FileUtils::qmakeFriendlyName(bc->displayName()));
+            = QmakeBuildConfiguration::shadowBuildDirectory(bc->target()->project()->projectFilePath().toString(),
+                                                            bc->target()->kit(),
+                                                            Utils::FileUtils::qmakeFriendlyName(bc->displayName()));
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);

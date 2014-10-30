@@ -98,7 +98,7 @@ QString KitChooser::kitToolTip(Kit *k) const
 void KitChooser::populate()
 {
     m_chooser->clear();
-    foreach (Kit *kit, KitManager::kits()) {
+    foreach (Kit *kit, KitManager::sortedKits()) {
         if (kitMatches(kit)) {
             m_chooser->addItem(kitText(kit), qVariantFromValue(kit->id()));
             m_chooser->setItemData(m_chooser->count() - 1, kitToolTip(kit), Qt::ToolTipRole);

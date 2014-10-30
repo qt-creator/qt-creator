@@ -214,7 +214,7 @@ void SnapshotHandler::activateSnapshot(int index)
     beginResetModel();
     m_currentIndex = index;
     //qDebug() << "ACTIVATING INDEX: " << m_currentIndex << " OF " << size();
-    debuggerCore()->displayDebugger(at(index), true);
+    Internal::displayDebugger(at(index), true);
     endResetModel();
 }
 

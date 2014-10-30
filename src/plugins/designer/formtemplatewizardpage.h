@@ -31,7 +31,9 @@
 #ifndef FORMTEMPLATEWIZARDPAGE_H
 #define FORMTEMPLATEWIZARDPAGE_H
 
-#include <QWizardPage>
+#include <projectexplorer/jsonwizard/jsonwizardpagefactory.h>
+
+#include <utils/wizardpage.h>
 
 QT_BEGIN_NAMESPACE
 class QDesignerNewFormWidgetInterface;
@@ -40,10 +42,22 @@ QT_END_NAMESPACE
 namespace Designer {
 namespace Internal {
 
+class FormPageFactory : public ProjectExplorer::JsonWizardPageFactory
+{
+public:
+    FormPageFactory();
+
+    Utils::WizardPage *create(ProjectExplorer::JsonWizard *wizard, Core::Id typeId, const QVariant &data);
+
+    bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage);
+};
+
 // A wizard page embedding Qt Designer's QDesignerNewFormWidgetInterface
 // widget.
 
-class FormTemplateWizardPage : public QWizardPage
+// Sets FormContents property.
+
+class FormTemplateWizardPage : public Utils::WizardPage
 {
     Q_OBJECT
 

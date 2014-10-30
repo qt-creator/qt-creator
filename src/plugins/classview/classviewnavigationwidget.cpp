@@ -99,6 +99,9 @@ NavigationWidget::NavigationWidget(QWidget *parent) :
     verticalLayout->setContentsMargins(0, 0, 0, 0);
     treeView = new ::Utils::NavigationTreeView(this);
     treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    treeView->setDragEnabled(true);
+    treeView->setDragDropMode(QAbstractItemView::DragOnly);
+    treeView->setDefaultDropAction(Qt::MoveAction);
     verticalLayout->addWidget(Core::ItemViewFind::createSearchableWrapper(
                                   treeView, Core::ItemViewFind::DarkColored,
                                   Core::ItemViewFind::FetchMoreWhileSearching));

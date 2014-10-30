@@ -139,17 +139,12 @@ ProjectInfo::ProjectInfo(QPointer<ProjectExplorer::Project> project)
 
 ProjectInfo::operator bool() const
 {
-    return !m_project.isNull();
+    return isValid();
 }
 
 bool ProjectInfo::isValid() const
 {
     return !m_project.isNull();
-}
-
-bool ProjectInfo::isNull() const
-{
-    return m_project.isNull();
 }
 
 QPointer<ProjectExplorer::Project> ProjectInfo::project() const
@@ -440,4 +435,176 @@ void ProjectPartBuilder::createProjectPart(const QStringList &theSources,
         adder.maybeAdd(file);
 
     m_pInfo.appendProjectPart(part);
+}
+
+
+QStringList CompilerOptionsBuilder::createHeaderPathOptions(
+        const ProjectPart::HeaderPaths &headerPaths,
+        IsBlackListed isBlackListed)
+{
+    typedef ProjectPart::HeaderPath HeaderPath;
+
+    QStringList result;
+
+    foreach (const HeaderPath &headerPath , headerPaths) {
+        if (headerPath.path.isEmpty())
+            continue;
+
+        if (isBlackListed && isBlackListed(headerPath.path))
+            continue;
+
+        QString prefix;
+        switch (headerPath.type) {
+        case HeaderPath::FrameworkPath:
+            prefix = QLatin1String("-F");
+            break;
+        default: // This shouldn't happen, but let's be nice..:
+            // intentional fall-through:
+        case HeaderPath::IncludePath:
+            prefix = QLatin1String("-I");
+            break;
+        }
+
+        result.append(prefix + headerPath.path);
+    }
+
+    return result;
+}
+
+QStringList CompilerOptionsBuilder::createDefineOptions(const QByteArray &defines,
+                                                        bool toolchainDefines)
+{
+    QStringList result;
+
+    foreach (QByteArray def, defines.split('\n')) {
+        if (def.isEmpty())
+            continue;
+
+        // This is a quick fix for QTCREATORBUG-11501.
+        // TODO: do a proper fix, see QTCREATORBUG-11709.
+        if (def.startsWith("#define __cplusplus"))
+            continue;
+
+        // TODO: verify if we can pass compiler-defined macros when also passing -undef.
+        if (toolchainDefines) {
+            //### FIXME: the next 3 check shouldn't be needed: we probably don't want to get the compiler-defined defines in.
+            if (!def.startsWith("#define "))
+                continue;
+            if (def.startsWith("#define _"))
+                continue;
+            if (def.startsWith("#define OBJC_NEW_PROPERTIES"))
+                continue;
+        }
+
+        QByteArray str = def.mid(8);
+        int spaceIdx = str.indexOf(' ');
+        QString arg;
+        if (spaceIdx != -1) {
+            arg = QLatin1String("-D" + str.left(spaceIdx) + "=" + str.mid(spaceIdx + 1));
+        } else {
+            arg = QLatin1String("-D" + str);
+        }
+        arg = arg.replace(QLatin1String("\\\""), QLatin1String("\""));
+        arg = arg.replace(QLatin1String("\""), QLatin1String(""));
+        if (!result.contains(arg))
+            result.append(arg);
+    }
+
+    return result;
+}
+
+QStringList CompilerOptionsBuilder::createLanguageOption(ProjectFile::Kind fileKind, bool objcExt)
+{
+    QStringList opts;
+    opts += QLatin1String("-x");
+
+    switch (fileKind) {
+    case ProjectFile::CHeader:
+        if (objcExt)
+            opts += QLatin1String("objective-c-header");
+        else
+            opts += QLatin1String("c-header");
+        break;
+
+    case ProjectFile::CXXHeader:
+    default:
+        if (!objcExt) {
+            opts += QLatin1String("c++-header");
+            break;
+        } // else: fall-through!
+    case ProjectFile::ObjCHeader:
+    case ProjectFile::ObjCXXHeader:
+        opts += QLatin1String("objective-c++-header");
+        break;
+
+    case ProjectFile::CSource:
+        if (!objcExt) {
+            opts += QLatin1String("c");
+            break;
+        } // else: fall-through!
+    case ProjectFile::ObjCSource:
+        opts += QLatin1String("objective-c");
+        break;
+
+    case ProjectFile::CXXSource:
+        if (!objcExt) {
+            opts += QLatin1String("c++");
+            break;
+        } // else: fall-through!
+    case ProjectFile::ObjCXXSource:
+        opts += QLatin1String("objective-c++");
+        break;
+
+    case ProjectFile::OpenCLSource:
+        opts += QLatin1String("cl");
+        break;
+    case ProjectFile::CudaSource:
+        opts += QLatin1String("cuda");
+        break;
+    }
+
+    return opts;
+}
+
+QStringList CompilerOptionsBuilder::createOptionsForLanguage(
+    ProjectPart::LanguageVersion languageVersion,
+    ProjectPart::LanguageExtensions languageExtensions,
+    bool checkForBorlandExtensions)
+{
+    QStringList opts;
+    bool gnuExtensions = languageExtensions & ProjectPart::GnuExtensions;
+    switch (languageVersion) {
+    case ProjectPart::C89:
+        opts << (gnuExtensions ? QLatin1String("-std=gnu89") : QLatin1String("-std=c89"));
+        break;
+    case ProjectPart::C99:
+        opts << (gnuExtensions ? QLatin1String("-std=gnu99") : QLatin1String("-std=c99"));
+        break;
+    case ProjectPart::C11:
+        opts << (gnuExtensions ? QLatin1String("-std=gnu11") : QLatin1String("-std=c11"));
+        break;
+    case ProjectPart::CXX11:
+        opts << (gnuExtensions ? QLatin1String("-std=gnu++11") : QLatin1String("-std=c++11"));
+        break;
+    case ProjectPart::CXX98:
+        opts << (gnuExtensions ? QLatin1String("-std=gnu++98") : QLatin1String("-std=c++98"));
+        break;
+    case ProjectPart::CXX03:
+        opts << QLatin1String("-std=c++03");
+        break;
+    case ProjectPart::CXX14:
+        opts << QLatin1String("-std=c++1y"); // TODO: change to c++14 after 3.5
+        break;
+    case ProjectPart::CXX17:
+        opts << QLatin1String("-std=c++1z"); // TODO: change to c++17 at some point in the future
+        break;
+    }
+
+    if (languageExtensions & ProjectPart::MicrosoftExtensions)
+        opts << QLatin1String("-fms-extensions");
+
+    if (checkForBorlandExtensions && (languageExtensions & ProjectPart::BorlandExtensions))
+        opts << QLatin1String("-fborland-extensions");
+
+    return opts;
 }

@@ -91,12 +91,7 @@ QWidget *GeneralSettingsPage::widget()
         updateFontStyle();
         updateFontFamily();
 
-        m_homePage = HelpManager::customValue(QLatin1String("HomePage"), QString())
-                .toString();
-        if (m_homePage.isEmpty()) {
-            m_homePage = HelpManager::customValue(QLatin1String("DefaultHomePage"),
-                                                  Help::Constants::AboutBlank).toString();
-        }
+        m_homePage = LocalHelpManager::homePage();
         m_ui->homePageLineEdit->setText(m_homePage);
 
         m_startOption = HelpManager::customValue(QLatin1String("StartOption"),
@@ -168,7 +163,7 @@ void GeneralSettingsPage::apply()
     m_ui->homePageLineEdit->setText(homePage);
     if (m_homePage != homePage) {
         m_homePage = homePage;
-        HelpManager::setCustomValue(QLatin1String("HomePage"), homePage);
+        LocalHelpManager::setHomePage(homePage);
     }
 
     const int startOption = m_ui->helpStartComboBox->currentIndex();
@@ -210,8 +205,7 @@ void GeneralSettingsPage::setBlankPage()
 
 void GeneralSettingsPage::setDefaultPage()
 {
-    m_ui->homePageLineEdit->setText(
-        HelpManager::customValue(QLatin1String("DefaultHomePage"), QString()).toString());
+    m_ui->homePageLineEdit->setText(LocalHelpManager::defaultHomePage());
 }
 
 void GeneralSettingsPage::importBookmarks()

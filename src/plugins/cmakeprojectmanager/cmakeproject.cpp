@@ -49,7 +49,6 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/deploymentdata.h>
-#include <projectexplorer/projectmacroexpander.h>
 #include <qtsupport/customexecutablerunconfiguration.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
@@ -62,7 +61,6 @@
 #include <utils/hostosinfo.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
-#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <QDebug>
@@ -175,19 +173,6 @@ void CMakeProject::changeBuildDirectory(CMakeBuildConfiguration *bc, const QStri
 {
     bc->setBuildDirectory(Utils::FileName::fromString(newBuildDirectory));
     parseCMakeLists();
-}
-
-QString CMakeProject::shadowBuildDirectory(const QString &projectFilePath, const Kit *k, const QString &bcName)
-{
-    if (projectFilePath.isEmpty())
-        return QString();
-    QFileInfo info(projectFilePath);
-
-    const QString projectName = QFileInfo(info.absolutePath()).fileName();
-    ProjectExplorer::ProjectMacroExpander expander(projectFilePath, projectName, k, bcName);
-    QDir projectDir = QDir(projectDirectory(Utils::FileName::fromString(projectFilePath)).toString());
-    QString buildPath = Utils::expandMacros(Core::DocumentManager::buildDirectory(), &expander);
-    return QDir::cleanPath(projectDir.absoluteFilePath(buildPath));
 }
 
 QStringList CMakeProject::getCXXFlagsFor(const CMakeBuildTarget &buildTarget)

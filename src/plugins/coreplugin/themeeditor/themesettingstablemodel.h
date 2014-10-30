@@ -52,7 +52,7 @@ public:
         SectionWidgetStyle,
         SectionColors,
         SectionFlags,
-        SectionIconOverlays,
+        SectionImageFiles,
         SectionInvalid // end
     };
 
@@ -82,7 +82,7 @@ public:
 public:
     ThemeColors::Ptr m_colors;
     QList<QPair<QString, bool> > m_flags;
-    QList<QPair<QString, QString> > m_iconOverlays;
+    QList<QPair<QString, QString> > m_imageFiles;
     Utils::Theme::WidgetStyle m_widgetStyle;
     bool m_hasChanges;
 };

@@ -70,6 +70,7 @@
 #include <coreplugin/manhattanstyle.h>
 #include <coreplugin/find/basetextfind.h>
 #include <utils/linecolumnlabel.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
@@ -89,6 +90,7 @@
 #include <QPainter>
 #include <QPrintDialog>
 #include <QPrinter>
+#include <QDrag>
 #include <QScrollBar>
 #include <QShortcut>
 #include <QStyle>
@@ -389,7 +391,8 @@ public:
     void highlightSearchResults(const QTextBlock &block, TextEditorOverlay *overlay);
     QTimer m_delayedUpdateTimer;
 
-    QList<QTextEdit::ExtraSelection> m_extraSelections[TextEditorWidget::NExtraSelectionKinds];
+    void setExtraSelections(int kind, const QList<QTextEdit::ExtraSelection> &selections);
+    QHash<int, QList<QTextEdit::ExtraSelection>> m_extraSelections;
 
     // block selection mode
     bool m_inBlockSelectionMode;
@@ -519,6 +522,8 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
 
     m_cursorPositionLabelAction = m_toolBar->addWidget(m_cursorPositionLabel);
     m_fileEncodingLabelAction = m_toolBar->addWidget(m_fileEncodingLabel);
+
+    m_extraSelections.reserve(TextEditorWidget::NExtraSelectionKinds);
 }
 
 } // namespace Internal
@@ -2540,8 +2545,8 @@ void TextEditorWidgetPrivate::documentAboutToBeReloaded()
 
     // remove extra selections (loads of QTextCursor objects)
 
-    for (int i = 0; i < TextEditorWidget::NExtraSelectionKinds; ++i)
-        m_extraSelections[i].clear();
+    m_extraSelections.clear();
+    m_extraSelections.reserve(TextEditorWidget::NExtraSelectionKinds);
     q->QPlainTextEdit::setExtraSelections(QList<QTextEdit::ExtraSelection>());
 
     // clear all overlays
@@ -2904,7 +2909,7 @@ void TextEditorWidgetPrivate::setupDocumentSignals()
     q->setDisplaySettings(settings->displaySettings());
     q->setCompletionSettings(settings->completionSettings());
     q->setExtraEncodingSettings(settings->extraEncodingSettings());
-    q->setCodeStyle(settings->codeStyle(q->languageSettingsId()));
+    q->setCodeStyle(settings->codeStyle(m_tabSettingsId));
 }
 
 bool TextEditorWidgetPrivate::snippetCheckCursor(const QTextCursor &cursor)
@@ -5813,41 +5818,48 @@ void TextEditorWidget::deleteStartOfWordCamelCase()
     setTextCursor(c);
 }
 
-void TextEditorWidget::setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections)
+// kind can be either a value from the ExtraSelectionKind enum, or an unique Core::Id identifier.
+void TextEditorWidgetPrivate::setExtraSelections(int kind, const QList<QTextEdit::ExtraSelection> &selections)
 {
-    if (selections.isEmpty() && d->m_extraSelections[kind].isEmpty())
+    if (selections.isEmpty() && m_extraSelections[kind].isEmpty())
         return;
-    d->m_extraSelections[kind] = selections;
+    m_extraSelections[kind] = selections;
 
-    if (kind == CodeSemanticsSelection) {
-        d->m_overlay->clear();
-        foreach (const QTextEdit::ExtraSelection &selection, d->m_extraSelections[kind]) {
-            d->m_overlay->addOverlaySelection(selection.cursor,
+    if (kind == TextEditorWidget::CodeSemanticsSelection) {
+        m_overlay->clear();
+        foreach (const QTextEdit::ExtraSelection &selection, m_extraSelections[kind]) {
+            m_overlay->addOverlaySelection(selection.cursor,
                                               selection.format.background().color(),
                                               selection.format.background().color(),
                                               TextEditorOverlay::LockSize);
         }
-        d->m_overlay->setVisible(!d->m_overlay->isEmpty());
-    } else if (kind == SnippetPlaceholderSelection) {
-        d->m_snippetOverlay->mangle();
-        d->m_snippetOverlay->clear();
-        foreach (const QTextEdit::ExtraSelection &selection, d->m_extraSelections[kind]) {
-            d->m_snippetOverlay->addOverlaySelection(selection.cursor,
+        m_overlay->setVisible(!m_overlay->isEmpty());
+    } else if (kind == TextEditorWidget::SnippetPlaceholderSelection) {
+        m_snippetOverlay->mangle();
+        m_snippetOverlay->clear();
+        foreach (const QTextEdit::ExtraSelection &selection, m_extraSelections[kind]) {
+            m_snippetOverlay->addOverlaySelection(selection.cursor,
                                               selection.format.background().color(),
                                               selection.format.background().color(),
                                               TextEditorOverlay::ExpandBegin);
         }
-        d->m_snippetOverlay->mapEquivalentSelections();
-        d->m_snippetOverlay->setVisible(!d->m_snippetOverlay->isEmpty());
+        m_snippetOverlay->mapEquivalentSelections();
+        m_snippetOverlay->setVisible(!m_snippetOverlay->isEmpty());
     } else {
         QList<QTextEdit::ExtraSelection> all;
-        for (int i = 0; i < NExtraSelectionKinds; ++i) {
-            if (i == CodeSemanticsSelection || i == SnippetPlaceholderSelection)
+        for (auto i = m_extraSelections.constBegin(); i != m_extraSelections.constEnd(); ++i) {
+            if (i.key() == TextEditorWidget::CodeSemanticsSelection
+                || i.key() == TextEditorWidget::SnippetPlaceholderSelection)
                 continue;
-            all += d->m_extraSelections[i];
+            all += i.value();
         }
-        QPlainTextEdit::setExtraSelections(all);
+        q->QPlainTextEdit::setExtraSelections(all);
     }
+}
+
+void TextEditorWidget::setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections)
+{
+    d->setExtraSelections(kind, selections);
 }
 
 QList<QTextEdit::ExtraSelection> TextEditorWidget::extraSelections(ExtraSelectionKind kind) const
@@ -5855,11 +5867,24 @@ QList<QTextEdit::ExtraSelection> TextEditorWidget::extraSelections(ExtraSelectio
     return d->m_extraSelections[kind];
 }
 
+void TextEditorWidget::setExtraSelections(Core::Id kind, const QList<QTextEdit::ExtraSelection> &selections)
+{
+    // Private Core:Id identifiers from the 0-1000 range cannot be used here, they conflict with ExtraSelectionKind
+    QTC_ASSERT(kind.uniqueIdentifier() >= NExtraSelectionKinds, return);
+    d->setExtraSelections(kind.uniqueIdentifier(), selections);
+}
+
+QList<QTextEdit::ExtraSelection> TextEditorWidget::extraSelections(Core::Id kind) const
+{
+    // Private Core:Id identifiers from the 0-1000 range cannot be used here, they conflict with ExtraSelectionKind
+    QTC_ASSERT(kind.uniqueIdentifier() >= NExtraSelectionKinds, return QList<QTextEdit::ExtraSelection>());
+    return d->m_extraSelections[kind.uniqueIdentifier()];
+}
+
 QString TextEditorWidget::extraSelectionTooltip(int pos) const
 {
     QList<QTextEdit::ExtraSelection> all;
-    for (int i = 0; i < NExtraSelectionKinds; ++i) {
-        const QList<QTextEdit::ExtraSelection> &sel = d->m_extraSelections[i];
+    foreach (const QList<QTextEdit::ExtraSelection> &sel, d->m_extraSelections) {
         for (int j = 0; j < sel.size(); ++j) {
             const QTextEdit::ExtraSelection &s = sel.at(j);
             if (s.cursor.selectionStart() <= pos
@@ -7203,6 +7228,55 @@ void TextEditorWidget::setupAsPlainEditor()
             d, &TextEditorWidgetPrivate::reconfigure);
 
     updateEditorInfoBar(this);
+}
+
+//
+// TextEditorLinkLabel
+//
+TextEditorLinkLabel::TextEditorLinkLabel(QWidget *parent)
+    : QLabel(parent)
+{
+}
+
+void TextEditorLinkLabel::setLink(TextEditorWidget::Link link)
+{
+    m_link = link;
+}
+
+TextEditorWidget::Link TextEditorLinkLabel::link() const
+{
+    return m_link;
+}
+
+void TextEditorLinkLabel::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+        m_dragStartPosition = event->pos();
+}
+
+void TextEditorLinkLabel::mouseMoveEvent(QMouseEvent *event)
+{
+    if (!(event->buttons() & Qt::LeftButton))
+        return;
+    if ((event->pos() - m_dragStartPosition).manhattanLength() < QApplication::startDragDistance())
+        return;
+
+    auto data = new Utils::FileDropMimeData;
+    data->addFile(m_link.targetFileName, m_link.targetLine, m_link.targetColumn);
+    auto drag = new QDrag(this);
+    drag->setMimeData(data);
+    drag->exec(Qt::MoveAction);
+}
+
+void TextEditorLinkLabel::mouseReleaseEvent(QMouseEvent *event)
+{
+    Q_UNUSED(event)
+    if (!m_link.hasValidTarget())
+        return;
+
+    Core::EditorManager::openEditorAt(m_link.targetFileName,
+                                      m_link.targetLine,
+                                      m_link.targetColumn);
 }
 
 //

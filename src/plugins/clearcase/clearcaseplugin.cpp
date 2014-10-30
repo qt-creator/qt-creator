@@ -606,13 +606,13 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     connect(m_checkInSelectedAction, SIGNAL(triggered()), this, SLOT(checkInSelected()));
 
     m_checkInDiffAction = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff Selected Files"), this);
-    command = ActionManager::registerAction(m_checkInDiffAction , Constants::DIFF_SELECTED, clearcasecheckincontext);
+    ActionManager::registerAction(m_checkInDiffAction , Constants::DIFF_SELECTED, clearcasecheckincontext);
 
     m_submitUndoAction = new QAction(tr("&Undo"), this);
-    command = ActionManager::registerAction(m_submitUndoAction, Core::Constants::UNDO, clearcasecheckincontext);
+    ActionManager::registerAction(m_submitUndoAction, Core::Constants::UNDO, clearcasecheckincontext);
 
     m_submitRedoAction = new QAction(tr("&Redo"), this);
-    command = ActionManager::registerAction(m_submitRedoAction, Core::Constants::REDO, clearcasecheckincontext);
+    ActionManager::registerAction(m_submitRedoAction, Core::Constants::REDO, clearcasecheckincontext);
 
     return true;
 }
@@ -774,7 +774,7 @@ ClearCaseSubmitEditor *ClearCasePlugin::openClearCaseSubmitEditor(const QString 
     IEditor *editor =
             EditorManager::openEditor(fileName, Constants::CLEARCASECHECKINEDITOR_ID);
     ClearCaseSubmitEditor *submitEditor = qobject_cast<ClearCaseSubmitEditor*>(editor);
-    QTC_CHECK(submitEditor);
+    QTC_ASSERT(submitEditor, return 0);
     submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_checkInSelectedAction, m_checkInDiffAction);
     connect(submitEditor, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(diffCheckInFiles(QStringList)));
     submitEditor->setCheckScriptWorkingDirectory(m_checkInView);

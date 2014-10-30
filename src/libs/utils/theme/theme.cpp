@@ -41,6 +41,16 @@ namespace Utils {
 
 static Theme *m_creatorTheme = 0;
 
+ThemePrivate::ThemePrivate()
+    : widgetStyle(Theme::StyleDefault)
+{
+    const QMetaObject &m = Theme::staticMetaObject;
+    colors.resize        (m.enumerator(m.indexOfEnumerator("Color")).keyCount());
+    imageFiles.resize    (m.enumerator(m.indexOfEnumerator("ImageFile")).keyCount());
+    gradients.resize     (m.enumerator(m.indexOfEnumerator("Gradient")).keyCount());
+    flags.resize         (m.enumerator(m.indexOfEnumerator("Flag")).keyCount());
+}
+
 Theme *creatorTheme()
 {
     return m_creatorTheme;
@@ -48,7 +58,9 @@ Theme *creatorTheme()
 
 void setCreatorTheme(Theme *theme)
 {
-    // TODO: memory management of theme object
+    if (m_creatorTheme == theme)
+        return;
+    delete m_creatorTheme;
     m_creatorTheme = theme;
 }
 
@@ -63,13 +75,6 @@ Theme::~Theme()
     delete d;
 }
 
-void Theme::drawIndicatorBranch(QPainter *painter, const QRect &rect, QStyle::State state) const
-{
-    Q_UNUSED(painter);
-    Q_UNUSED(rect);
-    Q_UNUSED(state);
-}
-
 Theme::WidgetStyle Theme::widgetStyle() const
 {
     return d->widgetStyle;
@@ -80,53 +85,20 @@ bool Theme::flag(Theme::Flag f) const
     return d->flags[f];
 }
 
-QColor Theme::color(Theme::ColorRole role) const
+QColor Theme::color(Theme::Color role) const
 {
     return d->colors[role].first;
 }
 
-QGradientStops Theme::gradient(Theme::GradientRole role) const
+QString Theme::imageFile(Theme::ImageFile imageFile, const QString &fallBack) const
 {
-    return d->gradientStops[role];
+    const QString &file = d->imageFiles.at(imageFile);
+    return file.isEmpty() ? fallBack : file;
 }
 
-QString Theme::iconOverlay(Theme::MimeType mimetype) const
+QGradientStops Theme::gradient(Theme::Gradient role) const
 {
-    return d->iconOverlays[mimetype];
-}
-
-QString Theme::dpiSpecificImageFile(const QString &fileName) const
-{
-    return dpiSpecificImageFile(fileName, QLatin1String(""));
-}
-
-QString Theme::dpiSpecificImageFile(const QString &fileName, const QString &themePrefix) const
-{
-    // See QIcon::addFile()
-    const QFileInfo fi(fileName);
-
-    bool at2x = (qApp->devicePixelRatio() > 1.0);
-
-    const QString at2xFileName = fi.path() + QStringLiteral("/")
-        + fi.completeBaseName() + QStringLiteral("@2x.") + fi.suffix();
-    const QString themedAt2xFileName = fi.path() + QStringLiteral("/") + themePrefix
-        + fi.completeBaseName() + QStringLiteral("@2x.") + fi.suffix();
-    const QString themedFileName = fi.path() + QStringLiteral("/")  + themePrefix
-        + fi.completeBaseName() + QStringLiteral(".")    + fi.suffix();
-
-    if (at2x) {
-        if (QFile::exists(themedAt2xFileName))
-            return themedAt2xFileName;
-        else if (QFile::exists(themedFileName))
-            return themedFileName;
-        else if (QFile::exists(at2xFileName))
-            return at2xFileName;
-        return fileName;
-    } else {
-        if (QFile::exists(themedFileName))
-            return themedFileName;
-        return fileName;
-    }
+    return d->gradients[role];
 }
 
 QPair<QColor, QString> Theme::readNamedColor(const QString &color) const
@@ -143,11 +115,6 @@ QPair<QColor, QString> Theme::readNamedColor(const QString &color) const
     return qMakePair(QColor::fromRgba(rgba), QString());
 }
 
-QString Theme::imageFile(const QString &fileName) const
-{
-    return fileName;
-}
-
 QString Theme::fileName() const
 {
     return d->fileName;
@@ -156,6 +123,32 @@ QString Theme::fileName() const
 void Theme::setName(const QString &name)
 {
     d->name = name;
+}
+
+QVariantHash Theme::values() const
+{
+    QVariantHash result;
+    const QMetaObject &m = *metaObject();
+    {
+        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("Color"));
+        for (int i = 0, total = e.keyCount(); i < total; ++i) {
+            const QString key = QLatin1String(e.key(i));
+            const QPair<QColor, QString> &var = d->colors.at(i);
+            result.insert(key, var.first);
+        }
+    }
+    {
+        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("Flag"));
+        for (int i = 0, total = e.keyCount(); i < total; ++i) {
+            const QString key = QLatin1String(e.key(i));
+            result.insert(key, flag(static_cast<Theme::Flag>(i)));
+        }
+    }
+    {
+        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("WidgetStyle"));
+        result.insert(QLatin1String("WidgetStyle"), QLatin1String(e.valueToKey(widgetStyle())));
+    }
+    return result;
 }
 
 static QColor readColor(const QString &color)
@@ -191,7 +184,7 @@ void Theme::writeSettings(const QString &filename) const
     }
     {
         settings.beginGroup(QLatin1String("Colors"));
-        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("ColorRole"));
+        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("Color"));
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
             const QString key = QLatin1String(e.key(i));
             const QPair<QColor, QString> var = d->colors[i];
@@ -203,11 +196,22 @@ void Theme::writeSettings(const QString &filename) const
         settings.endGroup();
     }
     {
-        settings.beginGroup(QLatin1String("Gradients"));
-        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("GradientRole"));
+        settings.beginGroup(QLatin1String("ImageFiles"));
+        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("ImageFile"));
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
             const QString key = QLatin1String(e.key(i));
-            QGradientStops stops = gradient(static_cast<Theme::GradientRole>(i));
+            const QString &var = d->imageFiles.at(i);
+            if (!var.isEmpty())
+                settings.setValue(key, var);
+        }
+        settings.endGroup();
+    }
+    {
+        settings.beginGroup(QLatin1String("Gradients"));
+        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("Gradient"));
+        for (int i = 0, total = e.keyCount(); i < total; ++i) {
+            const QString key = QLatin1String(e.key(i));
+            QGradientStops stops = gradient(static_cast<Theme::Gradient>(i));
             settings.beginWriteArray(key);
             int k = 0;
             foreach (const QGradientStop stop, stops) {
@@ -217,15 +221,6 @@ void Theme::writeSettings(const QString &filename) const
                 ++k;
             }
             settings.endArray();
-        }
-        settings.endGroup();
-    }
-    {
-        settings.beginGroup(QLatin1String("IconOverlay"));
-        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("MimeType"));
-        for (int i = 0, total = e.keyCount(); i < total; ++i) {
-            const QString key = QLatin1String(e.key(i));
-            settings.setValue(key, iconOverlay(static_cast<Theme::MimeType>(i)));
         }
         settings.endGroup();
     }
@@ -272,7 +267,7 @@ void Theme::readSettings(QSettings &settings)
     }
     {
         settings.beginGroup(QLatin1String("Colors"));
-        QMetaEnum e = m.enumerator(m.indexOfEnumerator("ColorRole"));
+        QMetaEnum e = m.enumerator(m.indexOfEnumerator("Color"));
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
             const QString key = QLatin1String(e.key(i));
             QTC_ASSERT(settings.contains(key), return);;
@@ -281,8 +276,17 @@ void Theme::readSettings(QSettings &settings)
         settings.endGroup();
     }
     {
+        settings.beginGroup(QLatin1String("ImageFiles"));
+        QMetaEnum e = m.enumerator(m.indexOfEnumerator("ImageFile"));
+        for (int i = 0, total = e.keyCount(); i < total; ++i) {
+            const QString key = QLatin1String(e.key(i));
+            d->imageFiles[i] = settings.value(key).toString();
+        }
+        settings.endGroup();
+    }
+    {
         settings.beginGroup(QLatin1String("Gradients"));
-        QMetaEnum e = m.enumerator(m.indexOfEnumerator("GradientRole"));
+        QMetaEnum e = m.enumerator(m.indexOfEnumerator("Gradient"));
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
             const QString key = QLatin1String(e.key(i));
             QGradientStops stops;
@@ -296,17 +300,7 @@ void Theme::readSettings(QSettings &settings)
                 stops.append(qMakePair(pos, c));
             }
             settings.endArray();
-            d->gradientStops[i] = stops;
-        }
-        settings.endGroup();
-    }
-    {
-        settings.beginGroup(QLatin1String("IconOverlay"));
-        QMetaEnum e = m.enumerator(m.indexOfEnumerator("MimeType"));
-        for (int i = 0, total = e.keyCount(); i < total; ++i) {
-            const QString key = QLatin1String(e.key(i));
-            QTC_ASSERT(settings.contains(key), return);;
-            d->iconOverlays[i] = settings.value(key).toString();
+            d->gradients[i] = stops;
         }
         settings.endGroup();
     }
@@ -320,14 +314,6 @@ void Theme::readSettings(QSettings &settings)
         }
         settings.endGroup();
     }
-}
-
-QIcon Theme::standardIcon(QStyle::StandardPixmap standardPixmap, const QStyleOption *opt, const QWidget *widget) const
-{
-    Q_UNUSED(standardPixmap);
-    Q_UNUSED(opt);
-    Q_UNUSED(widget);
-    return QIcon();
 }
 
 QPalette Theme::palette(const QPalette &base) const

@@ -307,6 +307,8 @@ CppModelManager::CppModelManager(QObject *parent)
             this, SLOT(onCoreAboutToClose()));
 
     qRegisterMetaType<CPlusPlus::Document::Ptr>("CPlusPlus::Document::Ptr");
+    qRegisterMetaType<QList<CPlusPlus::Document::DiagnosticMessage>>(
+                "QList<CPlusPlus::Document::DiagnosticMessage>");
 
     d->m_modelManagerSupportFallback.reset(new ModelManagerSupportInternal);
     CppToolsPlugin::instance()->codeModelSettings()->setDefaultId(
@@ -934,7 +936,7 @@ void CppModelManager::GC()
     if (!d->m_enableGC)
         return;
 
-    // Collect files of CppEditorSupport and AbstractEditorSupport.
+    // Collect files of opened editors and editor supports (e.g. ui code model)
     QStringList filesInEditorSupports;
     foreach (const EditorDocumentHandle *cppEditor, cppEditors())
         filesInEditorSupports << cppEditor->filePath();

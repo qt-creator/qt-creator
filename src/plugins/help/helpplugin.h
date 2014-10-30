@@ -94,7 +94,8 @@ private slots:
     void activateContents();
 
     void saveExternalWindowSettings();
-    void switchToHelpMode(const QUrl &source);
+    void showLinkInHelpMode(const QUrl &source);
+    void showLinksInHelpMode(const QMap<QString, QUrl> &links, const QString &key);
     void slotHideRightPane();
 
     void updateSideBarSource();

@@ -123,7 +123,7 @@ DebuggerItemManager::DebuggerItemManager(QObject *parent)
             this, SLOT(saveDebuggers()));
 }
 
-QObject *DebuggerItemManager::instance()
+DebuggerItemManager *DebuggerItemManager::instance()
 {
     return m_instance;
 }

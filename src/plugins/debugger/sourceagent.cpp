@@ -144,7 +144,7 @@ void SourceAgent::updateLocationMarker()
     if (d->engine->stackHandler()->currentFrame().file == d->path) {
         int lineNumber = d->engine->stackHandler()->currentFrame().line;
         d->locationMark = new TextEditor::TextMark(QString(), lineNumber);
-        d->locationMark->setIcon(debuggerCore()->locationMarkIcon());
+        d->locationMark->setIcon(Internal::locationMarkIcon());
         d->locationMark->setPriority(TextEditor::TextMark::HighPriority);
         d->editor->textDocument()->addMark(d->locationMark);
         QTextCursor tc = d->editor->textCursor();

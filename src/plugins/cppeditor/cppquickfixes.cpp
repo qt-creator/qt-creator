@@ -81,7 +81,6 @@ namespace Internal {
 void registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
 {
     plugIn->addAutoReleasedObject(new AddIncludeForUndefinedIdentifier);
-    plugIn->addAutoReleasedObject(new AddIncludeForForwardDeclaration);
 
     plugIn->addAutoReleasedObject(new FlipLogicalOperands);
     plugIn->addAutoReleasedObject(new InverseLogicalComparison);
@@ -1529,123 +1528,6 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
 
 namespace {
 
-class AddIncludeForForwardDeclarationOp: public CppQuickFixOperation
-{
-public:
-    AddIncludeForForwardDeclarationOp(const CppQuickFixInterface &interface, int priority,
-                                      Symbol *fwdClass)
-        : CppQuickFixOperation(interface, priority)
-        , fwdClass(fwdClass)
-    {
-        setDescription(QApplication::translate("CppTools::QuickFix",
-                                               "#include Header File"));
-    }
-
-    void perform()
-    {
-        QTC_ASSERT(fwdClass != 0, return);
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(fileName());
-
-        SymbolFinder symbolFinder;
-        if (Class *k = symbolFinder.findMatchingClassDeclaration(fwdClass, snapshot())) {
-            const QString headerFile = QString::fromUtf8(k->fileName(), k->fileNameLength());
-
-            // collect the fwd headers
-            Snapshot fwdHeaders;
-            fwdHeaders.insert(snapshot().document(headerFile));
-            foreach (Document::Ptr doc, snapshot()) {
-                QFileInfo headerFileInfo(doc->fileName());
-                if (doc->globalSymbolCount() == 0 && doc->resolvedIncludes().size() == 1)
-                    fwdHeaders.insert(doc);
-                else if (headerFileInfo.suffix().isEmpty())
-                    fwdHeaders.insert(doc);
-            }
-
-            QStringList candidates = fwdHeaders.filesDependingOn(headerFile);
-
-            const QString className = QString::fromUtf8(k->identifier()->chars());
-
-            QString best;
-            foreach (const QString &c, candidates) {
-                QFileInfo headerFileInfo(c);
-                if (headerFileInfo.fileName() == className) {
-                    best = c;
-                    break;
-                } else if (headerFileInfo.fileName().at(0).isUpper()) {
-                    best = c;
-                    // and continue
-                } else if (!best.isEmpty()) {
-                    if (c.count(QLatin1Char('/')) < best.count(QLatin1Char('/')))
-                        best = c;
-                }
-            }
-
-            if (best.isEmpty())
-                best = headerFile;
-
-            const QString include = QString::fromLatin1("<%1>").arg(QFileInfo(best).fileName());
-            insertNewIncludeDirective(include, currentFile, semanticInfo().doc);
-        }
-    }
-
-    static Symbol *checkName(const CppQuickFixInterface &interface, NameAST *ast)
-    {
-        if (ast && interface.isCursorOn(ast)) {
-            if (const Name *name = ast->name) {
-                unsigned line, column;
-                interface.semanticInfo().doc->translationUnit()->getTokenStartPosition(ast->firstToken(), &line, &column);
-
-                Symbol *fwdClass = 0;
-
-                foreach (const LookupItem &r,
-                         interface.context().lookup(name, interface.semanticInfo().doc->scopeAt(line, column))) {
-                    if (!r.declaration())
-                        continue;
-                    else if (ForwardClassDeclaration *fwd = r.declaration()->asForwardClassDeclaration())
-                        fwdClass = fwd;
-                    else if (r.declaration()->isClass())
-                        return 0; // nothing to do.
-                }
-
-                return fwdClass;
-            }
-        }
-
-        return 0;
-    }
-
-private:
-    Symbol *fwdClass;
-};
-
-} // anonymous namespace
-
-void AddIncludeForForwardDeclaration::match(const CppQuickFixInterface &interface,
-                                            QuickFixOperations &result)
-{
-    const QList<AST *> &path = interface.path();
-
-    for (int index = path.size() - 1; index != -1; --index) {
-        AST *ast = path.at(index);
-        if (NamedTypeSpecifierAST *namedTy = ast->asNamedTypeSpecifier()) {
-            if (Symbol *fwdClass = AddIncludeForForwardDeclarationOp::checkName(interface,
-                                                                                namedTy->name)) {
-                result.append(new AddIncludeForForwardDeclarationOp(interface, index, fwdClass));
-                return;
-            }
-        } else if (ElaboratedTypeSpecifierAST *eTy = ast->asElaboratedTypeSpecifier()) {
-            if (Symbol *fwdClass = AddIncludeForForwardDeclarationOp::checkName(interface,
-                                                                                eTy->name)) {
-                result.append(new AddIncludeForForwardDeclarationOp(interface, index, fwdClass));
-                return;
-            }
-        }
-    }
-}
-
-namespace {
-
 class AddLocalDeclarationOp: public CppQuickFixOperation
 {
 public:
@@ -1858,28 +1740,21 @@ QString findShortestInclude(const QString currentDocumentFilePath,
     return result;
 }
 
-QString findIncludeForQtClass(const QString &className,
-                              const ProjectPart::HeaderPaths &headerPaths,
-                              bool classFoundInLocator)
+QString findQtIncludeWithSameName(const QString &className,
+                                  const ProjectPart::HeaderPaths &headerPaths)
 {
     QString result;
 
-    // for QSomething, propose a <QSomething> include -- if such a class was in the locator
-    if (classFoundInLocator) {
-        result = QLatin1Char('<') + className + QLatin1Char('>');
+    // Check for a header file with the same name in the Qt include paths
+    foreach (const ProjectPart::HeaderPath &headerPath, headerPaths) {
+        if (!headerPath.path.contains(QLatin1String("/Qt"))) // "QtCore", "QtGui" etc...
+            continue;
 
-    // otherwise, check for a header file with the same name in the Qt include paths
-    } else {
-        foreach (const ProjectPart::HeaderPath &headerPath, headerPaths) {
-            if (!headerPath.path.contains(QLatin1String("/Qt"))) // "QtCore", "QtGui" etc...
-                continue;
-
-            const QString headerPathCandidate = headerPath.path + QLatin1Char('/') + className;
-            const QFileInfo fileInfo(headerPathCandidate);
-            if (fileInfo.exists() && fileInfo.isFile()) {
-                result = QLatin1Char('<') + className + QLatin1Char('>');
-                break;
-            }
+        const QString headerPathCandidate = headerPath.path + QLatin1Char('/') + className;
+        const QFileInfo fileInfo(headerPathCandidate);
+        if (fileInfo.exists() && fileInfo.isFile()) {
+            result = QLatin1Char('<') + className + QLatin1Char('>');
+            break;
         }
     }
 
@@ -1925,7 +1800,7 @@ NameAST *nameUnderCursor(const QList<AST *> &path)
     return nameAst;
 }
 
-bool canLookup(const CppQuickFixInterface &interface, const NameAST *nameAst)
+bool canLookupDefinition(const CppQuickFixInterface &interface, const NameAST *nameAst)
 {
     QTC_ASSERT(nameAst, return false);
 
@@ -1937,10 +1812,22 @@ bool canLookup(const CppQuickFixInterface &interface, const NameAST *nameAst)
     if (!scope)
         return false;
 
-    // Check if the name resolves to something
+    // Try to find the class/template definition
     const Name *name = nameAst->name;
-    const QList<LookupItem> existingResults = interface.context().lookup(name, scope);
-    return !existingResults.isEmpty();
+    const QList<LookupItem> results = interface.context().lookup(name, scope);
+    foreach (const LookupItem &item, results) {
+        if (Symbol *declaration = item.declaration()) {
+            if (declaration->isClass())
+                return true;
+            if (Template *templ = declaration->asTemplate()) {
+                Symbol *declaration = templ->declaration();
+                if (declaration && declaration->isClass())
+                    return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 QString templateNameAsString(const TemplateNameId *templateName)
@@ -1967,6 +1854,18 @@ QString unqualifiedNameForLocator(const Name *name)
     }
 }
 
+Snapshot forwardingHeaders(const CppQuickFixInterface &interface)
+{
+    Snapshot result;
+
+    foreach (Document::Ptr doc, interface.snapshot()) {
+        if (doc->globalSymbolCount() == 0 && doc->resolvedIncludes().size() == 1)
+            result.insert(doc);
+    }
+
+    return result;
+}
+
 } // anonymous namespace
 
 void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interface,
@@ -1976,8 +1875,8 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
     if (!nameAst)
         return;
 
-    if (canLookup(interface, nameAst))
-        return; // There are results, so include isn't needed
+    if (canLookupDefinition(interface, nameAst))
+        return;
 
     const QString className = unqualifiedNameForLocator(nameAst->name);
     if (className.isEmpty())
@@ -1987,29 +1886,48 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
     const ProjectPart::HeaderPaths headerPaths = relevantHeaderPaths(currentDocumentFilePath);
 
     // Find an include file through the locator
-    bool classFoundInLocator = false;
-    QFutureInterface<Core::LocatorFilterEntry> dummyInterface;
     if (CppClassesFilter *classesFilter
             = ExtensionSystem::PluginManager::getObject<CppClassesFilter>()) {
-        const QList<Core::LocatorFilterEntry> matches
-                = classesFilter->matchesFor(dummyInterface, className);
+        QFutureInterface<Core::LocatorFilterEntry> dummy;
+        const QList<Core::LocatorFilterEntry> matches = classesFilter->matchesFor(dummy, className);
+
+        const Snapshot forwardHeaders = forwardingHeaders(interface);
         foreach (const Core::LocatorFilterEntry &entry, matches) {
             IndexItem::Ptr info = entry.internalData.value<IndexItem::Ptr>();
             if (info->symbolName() != className)
                 continue;
-            classFoundInLocator = true;
 
-            // Find the shortest way to include fileName given the includePaths
-            const QString include = findShortestInclude(currentDocumentFilePath, info->fileName(),
-                                                        headerPaths);
-            if (!include.isEmpty())
-                result.append(new AddIncludeForUndefinedIdentifierOp(interface, 0, include));
+            Snapshot localForwardHeaders = forwardHeaders;
+            localForwardHeaders.insert(interface.snapshot().document(info->fileName()));
+            QStringList headerAndItsForwardingHeaders;
+            headerAndItsForwardingHeaders << info->fileName();
+            headerAndItsForwardingHeaders += localForwardHeaders.filesDependingOn(info->fileName());
+
+            foreach (const QString &header, headerAndItsForwardingHeaders) {
+                const QString include = findShortestInclude(currentDocumentFilePath, header,
+                                                            headerPaths);
+                if (!include.isEmpty()) {
+                    const QString headerFileName = QFileInfo(info->fileName()).fileName();
+                    QTC_ASSERT(!headerFileName.isEmpty(), break);
+
+                    int priority = 0;
+                    if (headerFileName == className)
+                        priority = 2;
+                    else if (headerFileName.at(1).isUpper())
+                        priority = 1;
+
+                    result.append(new AddIncludeForUndefinedIdentifierOp(interface, priority,
+                                                                         include));
+                }
+            }
         }
     }
 
-    // If e.g. QString was found in "<qstring.h>" propose an extra prioritized entry "<QString>".
+    // The header file we are looking for might not be (yet) included in any file we have parsed.
+    // As such, it will not be findable via locator. At least for Qt classes, check also for
+    // headers with the same name.
     if (className.size() > 2 && className.at(0) == QLatin1Char('Q') && className.at(1).isUpper()) {
-        const QString include = findIncludeForQtClass(className, headerPaths, classFoundInLocator);
+        const QString include = findQtIncludeWithSameName(className, headerPaths);
         if (!include.isEmpty())
             result.append(new AddIncludeForUndefinedIdentifierOp(interface, 1, include));
     }

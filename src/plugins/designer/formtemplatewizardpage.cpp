@@ -31,8 +31,12 @@
 #include "formtemplatewizardpage.h"
 #include "formeditorw.h"
 
+#include <projectexplorer/jsonwizard/jsonwizardpagefactory.h>
+
+#include <utils/qtcassert.h>
 #include <utils/wizard.h>
 
+#include <QCoreApplication>
 #include <QDesignerNewFormWidgetInterface>
 #include <QDebug>
 #include <QXmlStreamReader>
@@ -48,10 +52,39 @@
 namespace Designer {
 namespace Internal {
 
+FormPageFactory::FormPageFactory()
+{
+    setTypeIdsSuffix(QLatin1String("Form"));
+}
+
+Utils::WizardPage *FormPageFactory::create(ProjectExplorer::JsonWizard *wizard, Core::Id typeId,
+                                           const QVariant &data)
+{
+    Q_UNUSED(wizard);
+    Q_UNUSED(data);
+
+    QTC_ASSERT(canCreate(typeId), return 0);
+
+    FormTemplateWizardPage *page = new FormTemplateWizardPage;
+    return page;
+}
+
+bool FormPageFactory::validateData(Core::Id typeId, const QVariant &data, QString *errorMessage)
+{
+    QTC_ASSERT(canCreate(typeId), return false);
+    if (!data.isNull() && (data.type() != QVariant::Map || !data.toMap().isEmpty())) {
+        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
+                                                    "\"data\" for a \"Form\" page needs to be unset or an empty object.");
+        return false;
+    }
+
+    return true;
+}
+
 // ----------------- FormTemplateWizardPage
 
 FormTemplateWizardPage::FormTemplateWizardPage(QWidget * parent) :
-    QWizardPage(parent),
+    Utils::WizardPage(parent),
     m_newFormWidget(QDesignerNewFormWidgetInterface::createNewFormWidget(FormEditorW::designerEditor())),
     m_templateSelected(m_newFormWidget->hasCurrentTemplate())
 {
@@ -89,6 +122,7 @@ bool FormTemplateWizardPage::validatePage()
         QMessageBox::critical(this, tr("%1 - Error").arg(title()), errorMessage);
         return false;
     }
+    wizard()->setProperty("FormContents", m_templateContents.replace(QLatin1Char('\n'), QLatin1String("\\n")));
     return true;
 }
 

@@ -219,11 +219,11 @@ QuickFixTestCase::~QuickFixTestCase()
 }
 
 void QuickFixTestCase::run(const QList<QuickFixTestDocument::Ptr> &theTestFiles,
-                           CppQuickFixFactory *factory, const QString &incPath)
+                           CppQuickFixFactory *factory, const QString &incPath, int resultIndex)
 {
     ProjectPart::HeaderPaths hps;
     hps += ProjectPart::HeaderPath(incPath, ProjectPart::HeaderPath::IncludePath);
-    QuickFixTestCase(theTestFiles, factory, hps);
+    QuickFixTestCase(theTestFiles, factory, hps, resultIndex);
 }
 
 /// Delegates directly to AddIncludeForUndefinedIdentifierOp for easier testing.
@@ -2402,6 +2402,137 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_onTemplateN
     // Do not use the test factory, at least once we want to go through the "full stack".
     AddIncludeForUndefinedIdentifier factory;
     QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
+}
+
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_withForwardDeclaration()
+{
+    QList<QuickFixTestDocument::Ptr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = "class Foo {};\n";
+    expected = original;
+    testFiles << QuickFixTestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                              + "/afile.h", original, expected);
+
+    // Source File
+    original =
+        "#include \"header.h\"\n"
+        "\n"
+        "class Foo;\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    @Foo foo;\n"
+        "}\n"
+        ;
+    expected =
+        "#include \"afile.h\"\n"
+        "#include \"header.h\"\n"
+        "\n"
+        "class Foo;\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    Foo foo;\n"
+        "}\n"
+        ;
+    testFiles << QuickFixTestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                              + "/afile.cpp", original, expected);
+
+    // Do not use the test factory, at least once we want to go through the "full stack".
+    AddIncludeForUndefinedIdentifier factory;
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
+}
+
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_withForwardDeclaration2()
+{
+    QList<QuickFixTestDocument::Ptr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = "template<class T> class Foo {};\n";
+    expected = original;
+    testFiles << QuickFixTestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                              + "/afile.h", original, expected);
+
+    // Source File
+    original =
+        "#include \"header.h\"\n"
+        "\n"
+        "template<class T> class Foo;\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    @Foo foo;\n"
+        "}\n"
+        ;
+    expected =
+        "#include \"afile.h\"\n"
+        "#include \"header.h\"\n"
+        "\n"
+        "template<class T> class Foo;\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    Foo foo;\n"
+        "}\n"
+        ;
+    testFiles << QuickFixTestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                              + "/afile.cpp", original, expected);
+
+    // Do not use the test factory, at least once we want to go through the "full stack".
+    AddIncludeForUndefinedIdentifier factory;
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
+}
+
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_withForwardHeader()
+{
+    QList<QuickFixTestDocument::Ptr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = "template<class T> class QMyClass {};\n";
+    expected = original;
+    testFiles << QuickFixTestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                              + "/qmyclass.h", original, expected);
+
+    // Forward Header File
+    original = "#include \"qmyclass.h\"\n";
+    expected = original;
+    testFiles << QuickFixTestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                              + "/QMyClass", original, expected);
+
+    // Source File
+    original =
+        "#include \"header.h\"\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    @QMyClass c;\n"
+        "}\n"
+        ;
+    expected =
+        "#include \"QMyClass\"\n"
+        "#include \"header.h\"\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    QMyClass c;\n"
+        "}\n"
+        ;
+    testFiles << QuickFixTestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                              + "/afile.cpp", original, expected);
+
+    // Do not use the test factory, at least once we want to go through the "full stack".
+    AddIncludeForUndefinedIdentifier factory;
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath(), 1);
 }
 
 /// Check: Ignore *.moc includes

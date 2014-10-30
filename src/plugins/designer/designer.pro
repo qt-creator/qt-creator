@@ -10,7 +10,6 @@ HEADERS += formeditorplugin.h \
         formeditorfactory.h \
         formwindoweditor.h \
         formwindowfile.h \
-        formwizard.h \
         qtcreatorintegration.h \
         designerconstants.h \
         settingspage.h \
@@ -18,7 +17,6 @@ HEADERS += formeditorplugin.h \
         formeditorw.h \
         settingsmanager.h \
         formtemplatewizardpage.h \
-        formwizarddialog.h \
         codemodelhelpers.h \
         designer_export.h \
     designercontext.h \
@@ -31,14 +29,12 @@ SOURCES += formeditorplugin.cpp \
         formeditorfactory.cpp \
         formwindoweditor.cpp \
         formwindowfile.cpp \
-        formwizard.cpp \
         qtcreatorintegration.cpp \
         settingspage.cpp \
         editorwidget.cpp \
         formeditorw.cpp \
         settingsmanager.cpp \
         formtemplatewizardpage.cpp \
-        formwizarddialog.cpp \
         codemodelhelpers.cpp \
     designercontext.cpp \
     formeditorstack.cpp \

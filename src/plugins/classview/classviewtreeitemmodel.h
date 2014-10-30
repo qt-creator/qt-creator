@@ -43,21 +43,19 @@ class TreeItemModel : public QStandardItemModel
     Q_OBJECT
 
 public:
-    explicit TreeItemModel(QObject *parent=0);
+    explicit TreeItemModel(QObject *parent = 0);
     virtual ~TreeItemModel();
 
     void moveRootToTarget(const QStandardItem *target);
 
-    //! \implements QStandardItemModel::data
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    bool canFetchMore(const QModelIndex &parent) const;
+    void fetchMore(const QModelIndex &parent);
+    bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
 
-    //! \implements QStandardItemModel::canFetchMore
-    virtual bool canFetchMore(const QModelIndex &parent) const;
-
-    //! \implements QStandardItemModel::fetchMore
-    virtual void fetchMore(const QModelIndex &parent);
-
-    virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
+    Qt::DropActions supportedDragActions() const;
+    QStringList mimeTypes() const;
+    QMimeData *mimeData(const QModelIndexList &indexes) const;
 
 private:
     //! private class data pointer

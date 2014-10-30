@@ -37,7 +37,7 @@
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerkitinformation.h>
-#include <debugger/debuggerrunner.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/toolchain.h>
@@ -171,7 +171,7 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
     }
 
     DebuggerRunControl * const debuggerRunControl
-        = DebuggerPlugin::createDebugger(params, runConfig, errorMessage);
+        = DebuggerRunControlFactory::doCreate(params, runConfig, errorMessage);
     if (debuggerRunControl)
         new IosDebugSupport(runConfig, debuggerRunControl, cppDebug, qmlDebug);
     return debuggerRunControl;
@@ -189,8 +189,8 @@ IosDebugSupport::IosDebugSupport(IosRunConfiguration *runConfig,
 
     connect(m_runner, SIGNAL(gotServerPorts(int,int)),
         SLOT(handleServerPorts(int,int)));
-    connect(m_runner, SIGNAL(gotInferiorPid(Q_PID, int)),
-        SLOT(handleGotInferiorPid(Q_PID, int)));
+    connect(m_runner, SIGNAL(gotInferiorPid(Q_PID,int)),
+        SLOT(handleGotInferiorPid(Q_PID,int)));
     connect(m_runner, SIGNAL(finished(bool)),
         SLOT(handleRemoteProcessFinished(bool)));
 
@@ -230,9 +230,9 @@ void IosDebugSupport::handleRemoteProcessFinished(bool cleanEnd)
 {
     if (m_runControl) {
         if (!cleanEnd)
-            m_runControl->showMessage(tr("Run ended with error."), AppStuff);
+            m_runControl->appendMessage(tr("Run ended with error."), Utils::DebugFormat);
         else
-            m_runControl->showMessage(tr("Run ended."), AppStuff);
+            m_runControl->appendMessage(tr("Run ended."), Utils::DebugFormat);
         m_runControl->engine()->abortDebugger();
     }
 }
@@ -243,7 +243,7 @@ void IosDebugSupport::handleRemoteOutput(const QString &output)
         if (m_runControl->engine())
             m_runControl->engine()->showMessage(output, AppOutput);
         else
-            m_runControl->showMessage(output, AppOutput);
+            m_runControl->appendMessage(output, Utils::StdOutFormatSameLine);
     }
 }
 
@@ -253,7 +253,7 @@ void IosDebugSupport::handleRemoteErrorOutput(const QString &output)
         if (m_runControl->engine())
             m_runControl->engine()->showMessage(output, AppError);
         else
-            m_runControl->showMessage(output, AppError);
+            m_runControl->appendMessage(output, Utils::StdErrFormatSameLine);
     }
 }
 

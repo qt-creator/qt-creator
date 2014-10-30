@@ -297,7 +297,6 @@ void BreakHandler::saveBreakpoints()
 {
     const QString one = _("1");
     //qDebug() << "SAVING BREAKPOINTS...";
-    QTC_ASSERT(debuggerCore(), return);
     QList<QVariant> list;
     ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
     for ( ; it != et; ++it) {
@@ -1210,7 +1209,7 @@ void BreakHandler::timerEvent(QTimerEvent *event)
     killTimer(m_syncTimerId);
     m_syncTimerId = -1;
     saveBreakpoints();  // FIXME: remove?
-    debuggerCore()->synchronizeBreakpoints();
+    Internal::synchronizeBreakpoints();
 }
 
 void BreakHandler::gotoLocation(BreakpointModelId id) const

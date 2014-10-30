@@ -33,7 +33,7 @@
 #include "debuggerinternalconstants.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
-#include "debuggerrunner.h"
+#include "debuggerruncontrol.h"
 #include "debuggerstringutils.h"
 #include "debuggerstartparameters.h"
 #include "debuggertooltipmanager.h"
@@ -315,7 +315,6 @@ public:
     bool m_isStateDebugging;
 
     Utils::FileInProjectFinder m_fileFinder;
-
 };
 
 
@@ -494,11 +493,22 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
     if (channel == ConsoleOutput && consoleManager)
         consoleManager->printToConsolePane(QmlJS::ConsoleItem::UndefinedType, msg);
 
-    debuggerCore()->showMessage(msg, channel, timeout);
-    if (d->m_runControl)
-        d->m_runControl->showMessage(msg, channel);
-    else
+    Internal::showMessage(msg, channel, timeout);
+    if (d->m_runControl) {
+        switch (channel) {
+            case AppOutput:
+                d->m_runControl->appendMessage(msg, Utils::StdOutFormatSameLine);
+                break;
+            case AppError:
+                d->m_runControl->appendMessage(msg, Utils::StdErrFormatSameLine);
+                break;
+            case AppStuff:
+                d->m_runControl->appendMessage(msg, Utils::DebugFormat);
+                break;
+        }
+    } else {
         qWarning("Warning: %s (no active run control)", qPrintable(msg));
+    }
 }
 
 void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
@@ -567,7 +577,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
 
     if (loc.needsMarker()) {
         d->m_locationMark.reset(new TextEditor::TextMark(file, line));
-        d->m_locationMark->setIcon(debuggerCore()->locationMarkIcon());
+        d->m_locationMark->setIcon(Internal::locationMarkIcon());
         d->m_locationMark->setPriority(TextEditor::TextMark::HighPriority);
     }
 
@@ -961,7 +971,7 @@ void DebuggerEngine::notifyInferiorSpontaneousStop()
     showStatusMessage(tr("Stopped."));
     setState(InferiorStopOk);
     if (boolSetting(RaiseOnInterrupt))
-        ICore::raiseWindow(debuggerCore()->mainWindow());
+        ICore::raiseWindow(Internal::mainWindow());
 }
 
 void DebuggerEngine::notifyInferiorStopFailed()
@@ -1209,7 +1219,7 @@ void DebuggerEngine::updateViews()
     // The slave engines are not entitled to change the view. Their wishes
     // should be coordinated by their master engine.
     if (isMasterEngine())
-        debuggerCore()->updateState(this);
+        Internal::updateState(this);
 }
 
 bool DebuggerEngine::isSlaveEngine() const
@@ -1302,7 +1312,7 @@ qint64 DebuggerEngine::inferiorPid() const
 
 bool DebuggerEngine::isReverseDebugging() const
 {
-    return debuggerCore()->isReverseDebugging();
+    return Internal::isReverseDebugging();
 }
 
 // Called by DebuggerRunControl.
@@ -1789,7 +1799,7 @@ void DebuggerEngine::validateExecutable(DebuggerStartParameters *sp)
         Utils::ElfData elfData = reader.readHeaders();
         QString error = reader.errorString();
 
-        debuggerCore()->showMessage(_("EXAMINING ") + binary, LogDebug);
+        Internal::showMessage(_("EXAMINING ") + binary, LogDebug);
         QByteArray msg = "ELF SECTIONS: ";
 
         static QList<QByteArray> interesting;
@@ -1813,16 +1823,16 @@ void DebuggerEngine::validateExecutable(DebuggerStartParameters *sp)
             if (interesting.contains(header.name))
                 seen.insert(header.name);
         }
-        debuggerCore()->showMessage(_(msg), LogDebug);
+        Internal::showMessage(_(msg), LogDebug);
 
         if (!error.isEmpty()) {
-            debuggerCore()->showMessage(_("ERROR WHILE READING ELF SECTIONS: ") + error,
+            Internal::showMessage(_("ERROR WHILE READING ELF SECTIONS: ") + error,
                                         LogDebug);
             return;
         }
 
         if (elfData.sectionHeaders.isEmpty()) {
-            debuggerCore()->showMessage(_("NO SECTION HEADERS FOUND. IS THIS AN EXECUTABLE?"),
+            Internal::showMessage(_("NO SECTION HEADERS FOUND. IS THIS AN EXECUTABLE?"),
                                         LogDebug);
             return;
         }
@@ -1832,11 +1842,11 @@ void DebuggerEngine::validateExecutable(DebuggerStartParameters *sp)
         bool hasEmbeddedInfo = elfData.indexOf(".debug_info") >= 0;
         bool hasLink = elfData.indexOf(".gnu_debuglink") >= 0;
         if (hasEmbeddedInfo) {
-            QSharedPointer<GlobalDebuggerOptions> options = debuggerCore()->globalDebuggerOptions();
+            QSharedPointer<GlobalDebuggerOptions> options = Internal::globalDebuggerOptions();
             SourcePathRegExpMap globalRegExpSourceMap;
             globalRegExpSourceMap.reserve(options->sourcePathRegExpMap.size());
             foreach (auto entry, options->sourcePathRegExpMap) {
-                const QString expanded = Utils::globalMacroExpander()->expandedString(entry.second);
+                const QString expanded = Utils::globalMacroExpander()->expand(entry.second);
                 if (!expanded.isEmpty())
                     globalRegExpSourceMap.push_back(qMakePair(entry.first, expanded));
             }

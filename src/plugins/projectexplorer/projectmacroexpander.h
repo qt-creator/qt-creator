@@ -32,24 +32,15 @@
 #define PROJECTMACROEXPANDER_H
 
 #include "projectexplorer_export.h"
-#include <utils/stringutils.h>
-#include <QFileInfo>
+#include <utils/macroexpander.h>
 
 namespace ProjectExplorer {
 class Kit;
 
-class PROJECTEXPLORER_EXPORT ProjectMacroExpander : public Utils::AbstractMacroExpander
+class PROJECTEXPLORER_EXPORT ProjectMacroExpander : public Utils::MacroExpander
 {
 public:
-    ProjectMacroExpander(const QString &projectFilePath, const QString &projectName, const Kit *k, const QString &bcName);
-    bool resolveProjectMacro(const QString &name, QString *ret);
-    bool resolveMacro(const QString &name, QString *ret);
-
-private:
-    QFileInfo m_projectFile;
-    QString m_projectName;
-    const Kit *m_kit;
-    QString m_bcName;
+    ProjectMacroExpander(const QString &projectName, const Kit *kit, const QString &bcName);
 };
 
 } // namespace ProjectExplorer

@@ -90,9 +90,9 @@ macx {
     BINDIST_SOURCE = "$$OUT_PWD/bin/Qt Creator.app"
     BINDIST_INSTALLER_SOURCE = $$BINDIST_SOURCE
     deployqt.commands = $$PWD/scripts/deployqtHelper_mac.sh \"$${APPBUNDLE}\" \"$$[QT_INSTALL_TRANSLATIONS]\" \"$$[QT_INSTALL_PLUGINS]\" \"$$[QT_INSTALL_IMPORTS]\" \"$$[QT_INSTALL_QML]\"
-    codesign.commands = codesign -s \"$(SIGNING_IDENTITY)\" $(SIGNING_FLAGS) \"$${APPBUNDLE}\"
+    codesign.commands = codesign --deep -s \"$(SIGNING_IDENTITY)\" $(SIGNING_FLAGS) \"$${APPBUNDLE}\"
     dmg.commands = $$PWD/scripts/makedmg.sh $$OUT_PWD/bin $${BASENAME}.dmg
-    dmg.depends = deployqt
+    #dmg.depends = deployqt
     QMAKE_EXTRA_TARGETS += codesign dmg
 } else {
     BINDIST_SOURCE = "$(INSTALL_ROOT)$$QTC_PREFIX"
@@ -113,9 +113,9 @@ isEmpty(INSTALLER_ARCHIVE_FROM_ENV) {
     INSTALLER_ARCHIVE = $$OUT_PWD/$$(INSTALLER_ARCHIVE)
 }
 
-bindist.depends = deployqt
+#bindist.depends = deployqt
 bindist.commands = 7z a -mx9 $$OUT_PWD/$${BASENAME}.7z \"$$BINDIST_SOURCE\"
-bindist_installer.depends = deployqt
+#bindist_installer.depends = deployqt
 bindist_installer.commands = 7z a -mx9 $${INSTALLER_ARCHIVE} \"$$BINDIST_INSTALLER_SOURCE\"
 installer.depends = bindist_installer
 installer.commands = python -u $$PWD/scripts/packageIfw.py -i \"$(IFW_PATH)\" -v $${QTCREATOR_VERSION} -a \"$${INSTALLER_ARCHIVE}\" "$$INSTALLER_NAME"

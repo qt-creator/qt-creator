@@ -101,14 +101,8 @@ public:
 
     QVariant loadResource(int type, const QUrl &name);
 
-    bool hasAnchorAt(const QPoint& pos);
-    void openLink(bool newPage);
     void scaleUp();
     void scaleDown();
-
-public slots:
-    void openLink();
-    void openLinkInNewPage();
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
@@ -117,10 +111,13 @@ protected:
     void mousePressEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
 
+private:
+    QString linkAt(const QPoint& pos);
+    void openLink(const QUrl &url, bool newPage);
+
 public:
     int zoomCount;
     bool forceFont;
-    QString lastAnchor;
     bool m_openInNewPageActionVisible;
     TextBrowserHelpViewer *m_parent;
 };

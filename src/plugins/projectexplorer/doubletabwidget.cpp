@@ -31,6 +31,7 @@
 #include "doubletabwidget.h"
 #include "ui_doubletabwidget.h"
 
+#include <utils/fileutils.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
@@ -56,10 +57,10 @@ static void drawFirstLevelSeparator(QPainter *painter, QPoint top, QPoint bottom
 {
     QLinearGradient grad(top, bottom);
     if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
-        grad.setColorAt(0, QColor(255, 0, 255, 20));
-        grad.setColorAt(0.4, QColor(255, 0, 255, 60));
-        grad.setColorAt(0.7, QColor(255, 0, 255, 50));
-        grad.setColorAt(1, QColor(255, 0, 255, 40));
+        grad.setColorAt(0, QColor(255, 255, 255, 20));
+        grad.setColorAt(0.4, QColor(255, 255, 255, 60));
+        grad.setColorAt(0.7, QColor(255, 255, 255, 50));
+        grad.setColorAt(1, QColor(255, 255, 255, 40));
         painter->setPen(QPen(grad, 0));
         painter->drawLine(top, bottom);
         grad.setColorAt(0, QColor(0, 0, 0, 30));
@@ -78,10 +79,10 @@ static void drawSecondLevelSeparator(QPainter *painter, QPoint top, QPoint botto
 {
     QLinearGradient grad(top, bottom);
     if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
-        grad.setColorAt(0, QColor(255, 255, 255, 20));
-        grad.setColorAt(0.4, QColor(255, 255, 255, 60));
-        grad.setColorAt(0.7, QColor(255, 255, 255, 50));
-        grad.setColorAt(1, QColor(255, 255, 255, 40));
+        grad.setColorAt(0, QColor(255, 255, 255, 0));
+        grad.setColorAt(0.4, QColor(255, 255, 255, 100));
+        grad.setColorAt(0.7, QColor(255, 255, 255, 100));
+        grad.setColorAt(1, QColor(255, 255, 255, 0));
         painter->setPen(QPen(grad, 0));
         painter->drawLine(top, bottom);
         grad.setColorAt(0, QColor(0, 0, 0, 0));
@@ -563,10 +564,12 @@ bool DoubleTabWidget::event(QEvent *event)
     if (event->type() == QEvent::ToolTip) {
         QHelpEvent *helpevent = static_cast<QHelpEvent*>(event);
         QPair<HitArea, int> hit = convertPosToTab(helpevent->pos());
-        if (hit.first == HITTAB && m_tabs.at(m_currentTabIndices.at(hit.second)).nameIsUnique)
-            QToolTip::showText(helpevent->globalPos(), m_tabs.at(m_currentTabIndices.at(hit.second)).fullName, this);
-        else
+        if (hit.first == HITTAB && m_tabs.at(m_currentTabIndices.at(hit.second)).nameIsUnique) {
+            const QString &fileName = m_tabs.at(m_currentTabIndices.at(hit.second)).fullName;
+            QToolTip::showText(helpevent->globalPos(), FileName::fromString(fileName).toUserOutput(), this);
+        } else {
             QToolTip::showText(helpevent->globalPos(), QString(), this);
+        }
     }
     return QWidget::event(event);
 }

@@ -42,7 +42,7 @@
 
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
-#include <debugger/debuggerrunner.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerkitinformation.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/project.h>
@@ -153,15 +153,15 @@ ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(ProjectExplorer
         BlackBerryApplicationRunner *runner = new BlackBerryApplicationRunner(launchFlags, rc, runControl);
 
         connect(runner, SIGNAL(finished()), runControl, SLOT(notifyRemoteFinished()));
-        connect(runner, SIGNAL(output(QString, Utils::OutputFormat)),
-                runControl, SLOT(logApplicationMessage(QString, Utils::OutputFormat)));
+        connect(runner, SIGNAL(output(QString,Utils::OutputFormat)),
+                runControl, SLOT(logApplicationMessage(QString,Utils::OutputFormat)));
         connect(runControl, SIGNAL(starting(const Analyzer::AnalyzerRunControl*)),
                 runner, SLOT(start()));
         connect(runControl, SIGNAL(finished()), runner, SLOT(stop()));
         return runControl;
     }
     Debugger::DebuggerRunControl * const runControl =
-            Debugger::DebuggerPlugin::createDebugger(startParameters(rc), runConfiguration, errorMessage);
+            Debugger::DebuggerRunControlFactory::doCreate(startParameters(rc), runConfiguration, errorMessage);
     if (!runControl)
         return 0;
 

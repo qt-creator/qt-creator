@@ -277,7 +277,6 @@ EditorManagerPrivate::~EditorManagerPrivate()
         delete area;
     }
     m_editorAreas.clear();
-    delete m_windowPopup;
 
     DocumentModel::destroy();
     d = 0;
@@ -471,7 +470,8 @@ void EditorManagerPrivate::init()
 
     updateActions();
 
-    m_windowPopup = new OpenEditorsWindow;
+    // The popup needs a parent to get keyboard focus.
+    m_windowPopup = new OpenEditorsWindow(mainEditorArea);
     m_windowPopup->hide();
 
     m_autoSaveTimer = new QTimer(this);

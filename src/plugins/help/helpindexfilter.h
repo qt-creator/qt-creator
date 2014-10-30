@@ -54,6 +54,7 @@ public:
 
 signals:
     void linkActivated(const QUrl &link) const;
+    void linksActivated(const QMap<QString, QUrl> &links, const QString &key) const;
 
 private:
     QIcon m_icon;

@@ -594,6 +594,5 @@ void ExternalToolConfig::addCategory()
 
 void ExternalToolConfig::updateEffectiveArguments()
 {
-    ui->arguments->setToolTip(Utils::QtcProcess::expandMacros(ui->arguments->text(),
-            Utils::globalMacroExpander()));
+    ui->arguments->setToolTip(Utils::globalMacroExpander()->expandProcessArgs(ui->arguments->text()));
 }

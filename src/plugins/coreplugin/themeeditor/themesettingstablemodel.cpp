@@ -65,7 +65,7 @@ int ThemeSettingsTableModel::sectionRowCount(int section) const
         case SectionWidgetStyle:  return 1;
         case SectionColors:       return m_colors->numColorRoles();
         case SectionFlags:        return m_flags.size();
-        case SectionIconOverlays: return m_iconOverlays.size();
+        case SectionImageFiles:   return m_imageFiles.size();
         default:                  return 0;
     }
 }
@@ -110,11 +110,11 @@ QVariant ThemeSettingsTableModel::sectionBodyData(int section, int row, int colu
             return QVariant::fromValue(makeDecoration(Qt::transparent));
         return QVariant();
     }
-    case SectionIconOverlays: {
+    case SectionImageFiles: {
         if (column == 0 && role == Qt::DisplayRole)
-            return m_iconOverlays[row].first;
+            return m_imageFiles[row].first;
         else if (column == 1 && role == Qt::DisplayRole)
-            return m_iconOverlays[row].second;
+            return m_imageFiles[row].second;
         else if (column == 0 && role == Qt::DecorationRole)
             return QVariant::fromValue(makeDecoration(Qt::transparent));
         return QVariant();
@@ -131,7 +131,7 @@ QVariant ThemeSettingsTableModel::sectionHeaderData(int section, int role) const
         case SectionWidgetStyle:  return tr("Widget Style");
         case SectionColors:       return tr("Colors");
         case SectionFlags:        return tr("Flags");
-        case SectionIconOverlays: return tr("Icon Overlays");
+        case SectionImageFiles:   return tr("Image Files");
         default:                  return QString();
         }
     }
@@ -159,7 +159,7 @@ Qt::ItemFlags ThemeSettingsTableModel::sectionBodyFlags(int section, int row, in
     case SectionFlags:
         return (column == 0) ? Qt::ItemIsEnabled
                              : Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
-    case SectionIconOverlays:
+    case SectionImageFiles:
         return Qt::ItemIsEnabled;
     default: return Qt::ItemIsEnabled;
     }
@@ -200,11 +200,11 @@ void ThemeSettingsTableModel::initFrom(Theme *theme)
     const QMetaObject &metaObject = Theme::staticMetaObject;
     // Colors
     {
-        QMetaEnum e = metaObject.enumerator(metaObject.indexOfEnumerator("ColorRole"));
+        QMetaEnum e = metaObject.enumerator(metaObject.indexOfEnumerator("Color"));
         QMap<QString, ColorVariable::Ptr> varLookup;
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
             const QString key = QLatin1String(e.key(i));
-            QPair<QColor, QString> c = theme->d->colors[static_cast<Theme::ColorRole>(i)];
+            QPair<QColor, QString> c = theme->d->colors[static_cast<Theme::Color>(i)];
             if (c.second.isEmpty()) {
                 ColorVariable::Ptr v = colors()->createVariable(c.first);
                 colors()->createRole(key, v);
@@ -225,12 +225,12 @@ void ThemeSettingsTableModel::initFrom(Theme *theme)
             m_flags.append(qMakePair(key, theme->flag(static_cast<Theme::Flag>(i))));
         }
     }
-    // IconOverlays
+    // ImageFiles
     {
-        QMetaEnum e = metaObject.enumerator(metaObject.indexOfEnumerator("MimeType"));
+        QMetaEnum e = metaObject.enumerator(metaObject.indexOfEnumerator("ImageFile"));
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
             const QString key = QLatin1String(e.key(i));
-            m_iconOverlays.append(qMakePair(key, theme->iconOverlay(static_cast<Theme::MimeType>(i))));
+            m_imageFiles.append(qMakePair(key, theme->imageFile(static_cast<Theme::ImageFile>(i), QString())));
         }
     }
 
@@ -243,7 +243,7 @@ void ThemeSettingsTableModel::toTheme(Theme *t) const
     ThemePrivate *theme = t->d;
     // Colors
     {
-        QMetaEnum e = Theme::staticMetaObject.enumerator(Theme::staticMetaObject.indexOfEnumerator("ColorRole"));
+        QMetaEnum e = Theme::staticMetaObject.enumerator(Theme::staticMetaObject.indexOfEnumerator("Color"));
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
             ColorRole::Ptr role = colors()->colorRole(i);
             ColorVariable::Ptr var = role->colorVariable();
@@ -256,12 +256,11 @@ void ThemeSettingsTableModel::toTheme(Theme *t) const
         for (int i = 0; i < theme->flags.size(); ++i)
             theme->flags[i] = m_flags[i].second;
     }
-    // IconOveralys
+    // ImageFiles
     {
-        const int nOverlays = theme->iconOverlays.size();
-        QTC_ASSERT(nOverlays == m_iconOverlays.size(), return);
-        for (int i = 0; i < nOverlays; ++i)
-            theme->iconOverlays[i] = m_iconOverlays[i].second;
+        const int nImageFiles = theme->imageFiles.size();
+        for (int i = 0; i < nImageFiles; ++i)
+            theme->imageFiles[i] = m_imageFiles.at(i).second;
     }
 
     theme->widgetStyle = m_widgetStyle;

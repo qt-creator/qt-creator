@@ -38,6 +38,8 @@ namespace Internal {
 CppIncludeHierarchyTreeView::CppIncludeHierarchyTreeView(QWidget *parent/* = 0*/)
     : NavigationTreeView(parent)
 {
+    setDragEnabled(true);
+    setDragDropMode(QAbstractItemView::DragOnly);
 }
 
 void CppIncludeHierarchyTreeView::keyPressEvent(QKeyEvent *event)

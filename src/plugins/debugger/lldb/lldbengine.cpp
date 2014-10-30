@@ -35,7 +35,6 @@
 #include <debugger/debuggerdialogs.h>
 #include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggermainwindow.h>
-#include <debugger/debuggerplugin.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerstringutils.h>
@@ -467,7 +466,7 @@ void LldbEngine::handleResponse(const QByteArray &response)
 
 void LldbEngine::showFullBacktrace(const GdbMi &data)
 {
-    debuggerCore()->openTextEditor(_("Backtrace $"),
+    Internal::openTextEditor(_("Backtrace $"),
         QString::fromUtf8(QByteArray::fromHex(data.data())));
 }
 
@@ -806,7 +805,7 @@ void LldbEngine::refreshSymbols(const GdbMi &symbols)
         symbol.demangled = item["demangled"].toUtf8();
         syms.append(symbol);
     }
-   debuggerCore()->showModuleSymbols(moduleName, syms);
+   Internal::showModuleSymbols(moduleName, syms);
 }
 
 
@@ -1233,7 +1232,7 @@ void LldbEngine::refreshLocation(const GdbMi &reportedLocation)
 
 void LldbEngine::reloadRegisters()
 {
-    if (debuggerCore()->isDockVisible(QLatin1String(DOCKWIDGET_REGISTER)))
+    if (Internal::isDockVisible(QLatin1String(DOCKWIDGET_REGISTER)))
         runCommand("reportRegisters");
 }
 

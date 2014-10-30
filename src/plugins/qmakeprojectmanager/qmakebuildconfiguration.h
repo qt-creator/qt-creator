@@ -68,6 +68,10 @@ public:
     QtSupport::BaseQtVersion::QmakeBuildConfigs qmakeBuildConfiguration() const;
     void setQMakeBuildConfiguration(QtSupport::BaseQtVersion::QmakeBuildConfigs config);
 
+    /// suffix should be unique
+    static QString shadowBuildDirectory(const QString &profilePath, const ProjectExplorer::Kit *k,
+                                 const QString &suffix);
+
     /// \internal for qmakestep
     // used by qmake step to notify that the qmake args have changed
     // not really nice, the build configuration should save the arguments

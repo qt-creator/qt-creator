@@ -12,8 +12,7 @@ SUBDIRS   = \
     qmldebug \
     qmleditorwidgets \
     glsl \
-    ssh \
-    zeroconf
+    ssh
 
 for(l, SUBDIRS) {
     QTC_LIB_DEPENDS =

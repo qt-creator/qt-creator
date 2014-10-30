@@ -48,23 +48,24 @@
 
 #include <QSettings>
 
-static const char KIT_DATA_KEY[] = "Profile.";
-static const char KIT_COUNT_KEY[] = "Profile.Count";
-static const char KIT_FILE_VERSION_KEY[] = "Version";
-static const char KIT_DEFAULT_KEY[] = "Profile.Default";
-static const char KIT_FILENAME[] = "/qtcreator/profiles.xml";
-
-using Utils::PersistentSettingsWriter;
-using Utils::PersistentSettingsReader;
-
-static Utils::FileName settingsFileName()
-{
-    QFileInfo settingsLocation(Core::ICore::settings()->fileName());
-    return Utils::FileName::fromString(settingsLocation.absolutePath() + QLatin1String(KIT_FILENAME));
-}
+using namespace Core;
+using namespace Utils;
+using namespace ProjectExplorer::Internal;
 
 namespace ProjectExplorer {
 namespace Internal {
+
+const char KIT_DATA_KEY[] = "Profile.";
+const char KIT_COUNT_KEY[] = "Profile.Count";
+const char KIT_FILE_VERSION_KEY[] = "Version";
+const char KIT_DEFAULT_KEY[] = "Profile.Default";
+const char KIT_FILENAME[] = "/qtcreator/profiles.xml";
+
+static FileName settingsFileName()
+{
+    QFileInfo settingsLocation(ICore::settings()->fileName());
+    return FileName::fromString(settingsLocation.absolutePath() + QLatin1String(KIT_FILENAME));
+}
 
 // --------------------------------------------------------------------------
 // KitManagerPrivate:
@@ -76,41 +77,11 @@ public:
     KitManagerPrivate();
     ~KitManagerPrivate();
 
-    void insertKit(Kit *k)
-    {
-        // Keep list of kits sorted by displayname:
-        int i =0;
-        for (; i < m_kitList.count(); ++i)
-            if (m_kitList.at(i)->displayName() > k->displayName())
-                break;
-        m_kitList.insert(i, k);
-    }
-
-    void moveKit(int pos)
-    {
-        if (pos < 0 || pos >= m_kitList.count())
-            return;
-
-        Kit *current = m_kitList.at(pos);
-        int prev = pos - 1;
-        int next = pos + 1;
-
-        if (prev >= 0
-                && m_kitList.at(prev)->displayName() > current->displayName()) {
-            std::swap(m_kitList[prev], m_kitList[pos]);
-            moveKit(prev);
-        } else if (next < m_kitList.count()
-                   && m_kitList.at(next)->displayName() < current->displayName()) {
-            std::swap(m_kitList[pos], m_kitList[next]);
-            moveKit(next);
-        }
-    }
-
     Kit *m_defaultKit;
     bool m_initialized;
     QList<KitInformation *> m_informationList;
     QList<Kit *> m_kitList;
-    Utils::PersistentSettingsWriter *m_writer;
+    PersistentSettingsWriter *m_writer;
 };
 
 KitManagerPrivate::KitManagerPrivate() :
@@ -132,7 +103,7 @@ KitManagerPrivate::~KitManagerPrivate()
 static Internal::KitManagerPrivate *d;
 static KitManager *m_instance;
 
-QObject *KitManager::instance()
+KitManager *KitManager::instance()
 {
     return m_instance;
 }
@@ -140,19 +111,16 @@ QObject *KitManager::instance()
 KitManager::KitManager(QObject *parent) :
     QObject(parent)
 {
-    d = new Internal::KitManagerPrivate;
+    d = new KitManagerPrivate;
     QTC_CHECK(!m_instance);
     m_instance = this;
 
-    connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()),
-            this, SLOT(saveKits()));
+    connect(ICore::instance(), &ICore::saveSettingsRequested,
+            this, &KitManager::saveKits);
 
-    connect(this, SIGNAL(kitAdded(ProjectExplorer::Kit*)),
-            this, SIGNAL(kitsChanged()));
-    connect(this, SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
-            this, SIGNAL(kitsChanged()));
-    connect(this, SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
-            this, SIGNAL(kitsChanged()));
+    connect(this, &KitManager::kitAdded, this, &KitManager::kitsChanged);
+    connect(this, &KitManager::kitRemoved, this, &KitManager::kitsChanged);
+    connect(this, &KitManager::kitUpdated, this, &KitManager::kitsChanged);
 }
 
 void KitManager::restoreKits()
@@ -171,10 +139,10 @@ void KitManager::restoreKits()
     QList<Kit *> kitsToCheck;
 
     // read all kits from SDK
-    QFileInfo systemSettingsFile(Core::ICore::settings(QSettings::SystemScope)->fileName());
+    QFileInfo systemSettingsFile(ICore::settings(QSettings::SystemScope)->fileName());
     QFileInfo kitFile(systemSettingsFile.absolutePath() + QLatin1String(KIT_FILENAME));
     if (kitFile.exists()) {
-        KitList system = restoreKits(Utils::FileName(kitFile));
+        KitList system = restoreKits(FileName(kitFile));
         // make sure we mark these as autodetected and run additional setup logic
         foreach (Kit *k, system.kits) {
             k->setAutoDetected(true);
@@ -190,7 +158,7 @@ void KitManager::restoreKits()
 
     // read all kits from user file
     KitList userKits;
-    Utils::FileName userSettingsFile(settingsFileName());
+    FileName userSettingsFile(settingsFileName());
     if (userSettingsFile.toFileInfo().exists())
         userKits = restoreKits(userSettingsFile);
     foreach (Kit *k, userKits.kits) {
@@ -240,7 +208,7 @@ void KitManager::restoreKits()
         defaultKit->setUnexpandedDisplayName(tr("Desktop"));
         defaultKit->setSdkProvided(false);
         defaultKit->setAutoDetected(false);
-        defaultKit->setIconPath(Utils::FileName::fromLatin1(":///DESKTOP///"));
+        defaultKit->setIconPath(FileName::fromLatin1(":///DESKTOP///"));
 
         defaultKit->setup();
 
@@ -252,14 +220,12 @@ void KitManager::restoreKits()
     if (k) {
         setDefaultKit(k);
     } else if (!defaultKit()) {
-        k = Utils::findOr(kitsToRegister, 0, [](Kit *k) {
-                              return k->isValid();
-                          });
+        k = Utils::findOr(kitsToRegister, 0, [](Kit *k) { return k->isValid(); });
         if (k)
             setDefaultKit(k);
     }
 
-    d->m_writer = new Utils::PersistentSettingsWriter(settingsFileName(), QLatin1String("QtCreatorProfiles"));
+    d->m_writer = new PersistentSettingsWriter(settingsFileName(), QLatin1String("QtCreatorProfiles"));
     d->m_initialized = true;
     emit kitsLoaded();
     emit kitsChanged();
@@ -293,7 +259,7 @@ void KitManager::saveKits()
     data.insert(QLatin1String(KIT_COUNT_KEY), count);
     data.insert(QLatin1String(KIT_DEFAULT_KEY),
                 d->m_defaultKit ? QString::fromLatin1(d->m_defaultKit->id().name()) : QString());
-    d->m_writer->save(data, Core::ICore::mainWindow());
+    d->m_writer->save(data, ICore::mainWindow());
 }
 
 static bool isLoaded()
@@ -354,9 +320,9 @@ QString KitManager::displayNameForPlatform(const QString &platform)
     return QString();
 }
 
-Core::FeatureSet KitManager::availableFeatures(const QString &platform)
+FeatureSet KitManager::availableFeatures(const QString &platform)
 {
-    Core::FeatureSet features;
+    FeatureSet features;
     foreach (const Kit *k, kits()) {
         QSet<QString> kitPlatforms = k->availablePlatforms();
         if (kitPlatforms.isEmpty() || kitPlatforms.contains(platform))
@@ -365,7 +331,7 @@ Core::FeatureSet KitManager::availableFeatures(const QString &platform)
     return features;
 }
 
-KitManager::KitList KitManager::restoreKits(const Utils::FileName &fileName)
+KitManager::KitList KitManager::restoreKits(const FileName &fileName)
 {
     KitList result;
 
@@ -401,7 +367,7 @@ KitManager::KitList KitManager::restoreKits(const Utils::FileName &fileName)
                      qPrintable(fileName.toUserOutput()), i);
         }
     }
-    const Core::Id id = Core::Id::fromSetting(data.value(QLatin1String(KIT_DEFAULT_KEY)));
+    const Id id = Id::fromSetting(data.value(QLatin1String(KIT_DEFAULT_KEY)));
     if (!id.isValid())
         return result;
 
@@ -419,6 +385,21 @@ QList<Kit *> KitManager::kits()
     return d->m_kitList;
 }
 
+QList<Kit *> KitManager::sortedKits()
+{
+    // This method was added to delay the sorting of kits as long as possible.
+    // Since the displayName can contain variables it can be costly (e.g. involve
+    // calling executables to find version information, etc.) to call that
+    // method!
+    // Avoid lots of potentially expensive calls to Kit::displayName():
+    QList<QPair<QString, Kit *> > sortList
+            = Utils::transform(d->m_kitList, [](Kit *k) { return qMakePair(k->displayName(), k); });
+    Utils::sort(sortList, [](const QPair<QString, Kit *> &a, const QPair<QString, Kit *> &b) {
+        return a.first < b.first;
+    });
+    return Utils::transform(sortList, [](const QPair<QString, Kit *> &a) { return a.second; });
+}
+
 QList<Kit *> KitManager::matchingKits(const KitMatcher &matcher)
 {
     QList<Kit *> result;
@@ -428,7 +409,7 @@ QList<Kit *> KitManager::matchingKits(const KitMatcher &matcher)
     return result;
 }
 
-Kit *KitManager::find(Core::Id id)
+Kit *KitManager::find(Id id)
 {
     if (!id.isValid())
         return 0;
@@ -453,9 +434,9 @@ QList<KitInformation *> KitManager::kitInformation()
     return d->m_informationList;
 }
 
-Internal::KitManagerConfigWidget *KitManager::createConfigWidget(Kit *k)
+KitManagerConfigWidget *KitManager::createConfigWidget(Kit *k)
 {
-    Internal::KitManagerConfigWidget *result = new Internal::KitManagerConfigWidget(k);
+    KitManagerConfigWidget *result = new KitManagerConfigWidget(k);
     foreach (KitInformation *ki, kitInformation())
         result->addConfigWidget(ki->createConfigWidget(result->workingCopy()));
 
@@ -549,10 +530,10 @@ void KitManager::addKit(Kit *k)
         }
     }
 
-    d->insertKit(k);
+    d->m_kitList.append(k);
 }
 
-void KitInformation::addToEnvironment(const Kit *k, Utils::Environment &env) const
+void KitInformation::addToEnvironment(const Kit *k, Environment &env) const
 {
     Q_UNUSED(k);
     Q_UNUSED(env);
@@ -583,18 +564,16 @@ QString KitInformation::displayNameForPlatform(const Kit *k, const QString &plat
     return QString();
 }
 
-Core::FeatureSet KitInformation::availableFeatures(const Kit *k) const
+FeatureSet KitInformation::availableFeatures(const Kit *k) const
 {
     Q_UNUSED(k);
-    return Core::FeatureSet();
+    return FeatureSet();
 }
 
-bool KitInformation::resolveMacro(const Kit *kit, const QString &name, QString *ret) const
+void KitInformation::addToMacroExpander(Kit *k, MacroExpander *expander) const
 {
-    Q_UNUSED(kit);
-    Q_UNUSED(name);
-    Q_UNUSED(ret);
-    return false;
+    Q_UNUSED(k);
+    Q_UNUSED(expander);
 }
 
 void KitInformation::notifyAboutUpdate(Kit *k)
@@ -607,17 +586,17 @@ void KitInformation::notifyAboutUpdate(Kit *k)
 // KitFeatureProvider:
 // --------------------------------------------------------------------
 
-Core::FeatureSet Internal::KitFeatureProvider::availableFeatures(const QString &platform) const
+FeatureSet KitFeatureProvider::availableFeatures(const QString &platform) const
 {
     return KitManager::availableFeatures(platform);
 }
 
-QStringList Internal::KitFeatureProvider::availablePlatforms() const
+QStringList KitFeatureProvider::availablePlatforms() const
 {
     return KitManager::availablePlatforms().toList();
 }
 
-QString Internal::KitFeatureProvider::displayNameForPlatform(const QString &string) const
+QString KitFeatureProvider::displayNameForPlatform(const QString &string) const
 {
     return KitManager::displayNameForPlatform(string);
 }

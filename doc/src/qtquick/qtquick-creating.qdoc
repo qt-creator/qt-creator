@@ -27,7 +27,7 @@
     \contentspage {Qt Creator Manual}
     \previouspage creator-visual-editor.html
     \page quick-projects.html
-    \nextpage creator-using-qt-quick-designer.html
+    \nextpage creator-quick-ui-forms.html
 
     \title Creating Qt Quick Projects
 
@@ -101,6 +101,13 @@
 
         \li .qml file defines an UI item, such as a component, screen, or the
             whole application UI.
+
+        \li .qml.ui files defines a form for the application UI. It is created
+            if you select \gui {Qt Quick Controls 1.3}, or later, or
+            \gui {Qt Quick 2.4}, or later. The forms can contain a subset of the
+            QML language. Similarly as with the UI forms for \QD, it is
+            recommended that you use \QMLD to edit the UI forms. For more
+            information, see \l{Qt Quick UI Forms}.
 
     \endlist
 

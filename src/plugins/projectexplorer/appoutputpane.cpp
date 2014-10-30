@@ -60,9 +60,9 @@ enum { debug = 0 };
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-static QObject *debuggerCore()
+static QObject *debuggerPlugin()
 {
-    return ExtensionSystem::PluginManager::getObjectByName(QLatin1String("DebuggerCore"));
+    return ExtensionSystem::PluginManager::getObjectByName(QLatin1String("DebuggerPlugin"));
 }
 
 static QString msgAttachDebuggerTooltip(const QString &handleDescription = QString())
@@ -433,7 +433,7 @@ void AppOutputPane::attachToRunControl()
     QTC_ASSERT(index != -1, return);
     RunControl *rc = m_runControlTabs.at(index).runControl;
     QTC_ASSERT(rc->isRunning(), return);
-    ExtensionSystem::Invoker<void>(debuggerCore(), "attachExternalApplication", rc);
+    ExtensionSystem::Invoker<void>(debuggerPlugin(), "attachExternalApplication", rc);
 }
 
 void AppOutputPane::stopRunControl()
@@ -538,7 +538,7 @@ void AppOutputPane::enableButtons(const RunControl *rc /* = 0 */, bool isRunning
         m_reRunButton->setEnabled(!isRunning);
         m_reRunButton->setIcon(QIcon(rc->icon()));
         m_stopAction->setEnabled(isRunning);
-        if (isRunning && debuggerCore() && rc->applicationProcessHandle().isValid()) {
+        if (isRunning && debuggerPlugin() && rc->applicationProcessHandle().isValid()) {
             m_attachButton->setEnabled(true);
             m_attachButton->setToolTip(msgAttachDebuggerTooltip(rc->applicationProcessHandle().toString()));
         } else {

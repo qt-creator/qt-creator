@@ -59,13 +59,13 @@ ColumnLayout {
         Component {
             id: flatBackground
             Rectangle {
-                color: creatorTheme.sideBar_BackgroundColor
+                color: creatorTheme.Welcome_SideBar_BackgroundColor
             }
         }
         Loader {
             id: topLeftLoader
             anchors.fill: parent
-            sourceComponent: creatorTheme.widgetStyle === 'flat' ? flatBackground : imageBackground;
+            sourceComponent: creatorTheme.WidgetStyle === 'StyleFlat' ? flatBackground : imageBackground;
         }
 
         Tabs {
@@ -78,7 +78,8 @@ ColumnLayout {
         }
 
         Rectangle {
-            color: creatorTheme.widgetStyle === 'flat' ? creatorTheme.sideBar_BackgroundColor : creatorTheme.dividerColor
+            color: creatorTheme.WidgetStyle === 'StyleFlat' ?
+                       creatorTheme.Welcome_SideBar_BackgroundColor : creatorTheme.Welcome_DividerColor
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
@@ -87,7 +88,8 @@ ColumnLayout {
         }
 
         Rectangle {
-            color: creatorTheme.widgetStyle === 'flat' ? creatorTheme.sideBar_BackgroundColor : creatorTheme.dividerColor
+            color: creatorTheme.WidgetStyle === 'StyleFlat' ?
+                       creatorTheme.Welcome_SideBar_BackgroundColor : creatorTheme.Welcome_DividerColor
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
@@ -97,7 +99,8 @@ ColumnLayout {
         }
 
         Rectangle {
-            color: creatorTheme.widgetStyle === 'flat' ? creatorTheme.sideBar_BackgroundColor : creatorTheme.dividerColor
+            color: creatorTheme.WidgetStyle === 'StyleFlat' ?
+                       creatorTheme.Welcome_SideBar_BackgroundColor : creatorTheme.Welcome_DividerColor
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
@@ -108,7 +111,7 @@ ColumnLayout {
     }
 
     Rectangle {
-        color: creatorTheme.sideBar_BackgroundColor
+        color: creatorTheme.Welcome_SideBar_BackgroundColor
 
         Layout.fillWidth: true
         Layout.preferredWidth: innerColumn.width + 20
@@ -129,7 +132,7 @@ ColumnLayout {
 
             NativeText {
                 text: qsTr("New to Qt?")
-                color: creatorTheme.textColorNormal
+                color: creatorTheme.Welcome_TextColorNormal
                 font.pixelSize: 18
             }
 
@@ -139,7 +142,7 @@ ColumnLayout {
                 Layout.preferredWidth: innerColumn.width
 
                 text: qsTr("Learn how to develop your own applications and explore Qt Creator.")
-                color: creatorTheme.textColorNormal
+                color: creatorTheme.Welcome_TextColorNormal
                 font.pixelSize: 12
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             }

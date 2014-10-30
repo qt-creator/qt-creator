@@ -45,6 +45,7 @@
 
 #include <utils/uncommentselection.h>
 
+#include <QLabel>
 #include <QPlainTextEdit>
 #include <functional>
 
@@ -356,6 +357,8 @@ public:
     };
     void setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections);
     QList<QTextEdit::ExtraSelection> extraSelections(ExtraSelectionKind kind) const;
+    void setExtraSelections(Core::Id kind, const QList<QTextEdit::ExtraSelection> &selections);
+    QList<QTextEdit::ExtraSelection> extraSelections(Core::Id kind) const;
     QString extraSelectionTooltip(int pos) const;
 
     RefactorMarkers refactorMarkers() const;
@@ -377,6 +380,7 @@ public:
     virtual void rewrapParagraph();
     virtual void unCommentSelection();
 
+public slots: // Qt4-style connect used in EditorConfiguration
     virtual void setDisplaySettings(const TextEditor::DisplaySettings &);
     virtual void setMarginSettings(const TextEditor::MarginSettings &);
     void setBehaviorSettings(const TextEditor::BehaviorSettings &);
@@ -385,6 +389,7 @@ public:
     void setCompletionSettings(const TextEditor::CompletionSettings &);
     void setExtraEncodingSettings(const TextEditor::ExtraEncodingSettings &);
 
+public:
     void circularPaste();
     void switchUtf8bom();
 
@@ -621,6 +626,24 @@ private:
     friend class Internal::TextEditorWidgetPrivate;
     friend class Internal::TextEditorOverlay;
     friend class RefactorOverlay;
+};
+
+class TEXTEDITOR_EXPORT TextEditorLinkLabel : public QLabel
+{
+public:
+    TextEditorLinkLabel(QWidget *parent = 0);
+
+    void setLink(TextEditorWidget::Link link);
+    TextEditorWidget::Link link() const;
+
+protected:
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+
+private:
+    QPoint m_dragStartPosition;
+    TextEditorWidget::Link m_link;
 };
 
 class TEXTEDITOR_EXPORT TextEditorFactory : public Core::IEditorFactory

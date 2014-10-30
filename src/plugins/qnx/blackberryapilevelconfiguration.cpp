@@ -221,7 +221,7 @@ QnxAbstractQtVersion *BlackBerryApiLevelConfiguration::createQtVersion(
 {
     QnxAbstractQtVersion *version = new BlackBerryQtVersion(
             arch, qmakePath, true, QString(), envFile().toString());
-    version->setUnexpandedDisplayName(tr("Qt %{Qt:version} for %2")
+    version->setUnexpandedDisplayName(tr("Qt %{Qt:Version} for %2")
                                       .arg(version->qtVersionString(), versionName));
     QtVersionManager::addVersion(version);
     return version;

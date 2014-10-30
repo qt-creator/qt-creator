@@ -32,23 +32,14 @@
 #define DEBUGGERPLUGIN_H
 
 #include "debugger_global.h"
-
 #include <extensionsystem/iplugin.h>
 
-QT_FORWARD_DECLARE_CLASS(QAction)
-
-namespace ProjectExplorer {
-class RunConfiguration;
-class RunControl;
-}
+namespace ProjectExplorer { class RunControl; }
 
 namespace Debugger {
+namespace Internal {
 
-class DebuggerMainWindow;
-class DebuggerRunControl;
-class DebuggerStartParameters;
-
-class DEBUGGER_EXPORT DebuggerPlugin : public ExtensionSystem::IPlugin
+class DebuggerPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Debugger.json")
@@ -57,16 +48,13 @@ public:
     DebuggerPlugin();
     ~DebuggerPlugin();
 
-    static DebuggerRunControl *createDebugger(const DebuggerStartParameters &sp,
-                                              ProjectExplorer::RunConfiguration *rc,
-                                              QString *errorMessage);
-
 private:
     // IPlugin implementation.
     bool initialize(const QStringList &arguments, QString *errorMessage);
     QObject *remoteCommand(const QStringList &options, const QStringList &arguments);
     ShutdownFlag aboutToShutdown();
     void extensionsInitialized();
+    Q_SLOT void attachExternalApplication(ProjectExplorer::RunControl *rc);
 
 #ifdef WITH_TESTS
 private slots:
@@ -78,6 +66,7 @@ private slots:
 #endif
 };
 
+} // namespace Internal
 } // namespace Debugger
 
 #endif // DEBUGGERPLUGIN_H

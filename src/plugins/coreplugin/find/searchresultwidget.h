@@ -81,6 +81,7 @@ public:
     void notifyVisibilityChanged(bool visible);
 
     void setTextEditorFont(const QFont &font, const SearchResultColor &color);
+    void setTabWidth(int tabWidth);
 
     void setAutoExpandResults(bool expand);
     void expandAll();

@@ -68,9 +68,7 @@ Item {
                 Rectangle {
                     z: -4
                     // background of session item
-                    color: (iArea.hovered || text.hovered || area2.hovered)
-                           ? creatorTheme.sessionItem_BackgroundColorHover
-                           : creatorTheme.sessionItem_BackgroundColorNormal
+                    color: creatorTheme.Welcome_SessionItem_BackgroundColorHover
                     anchors.fill: parent
                     visible: iArea.containsMouse || text.hovered
                     anchors.topMargin: 1
@@ -118,7 +116,7 @@ Item {
                         NativeText {
                             text: projectsName[index]
                             font: fonts.boldDescription
-                            color: creatorTheme.textColorNormal
+                            color: creatorTheme.Welcome_TextColorNormal
                         }
                         NativeText {
                             x: 4
@@ -143,7 +141,7 @@ Item {
                             maximumLineCount: 2
                             elide: Text.ElideRight
                             height: lineCount == 2 ? font.pixelSize * 2 + 4 : font.pixelSize + 2
-                            color: creatorTheme.projectItem_TextColorFilepath
+                            color: creatorTheme.Welcome_ProjectItem_TextColorFilepath
                             width: delegate.ListView.view.width - 48
                             MouseArea {
                                 anchors.fill: parent
@@ -226,8 +224,8 @@ Item {
             id: collapseButton
             visible: text.hovered || iArea.containsMouse || delegate.expanded
 
-            property color color: iArea.containsMouse ? creatorTheme.sessionItem_BackgroundColorHover
-                                                      : creatorTheme.sessionItemExpanded_BackgroundColor
+            property color color: iArea.containsMouse ? creatorTheme.Welcome_SessionItemExpanded_BackgroundColorHover
+                                                      : creatorTheme.Welcome_SessionItemExpanded_BackgroundColorNormal
 
             anchors.fill: parent
             Image {
@@ -243,7 +241,7 @@ Item {
             Rectangle {
                 color: collapseButton.color
                 z: -1
-                radius: creatorTheme.widgetStyle === 'flat' ? 0 : 6
+                radius: creatorTheme.WidgetStyle === 'StyleFlat' ? 0 : 6
                 anchors.fill: parent
                 anchors.topMargin: 1
                 anchors.bottomMargin: 1

@@ -5,8 +5,10 @@
 <!-- Modified by Rui Santana <santana.rui@gmail.com> -->
 <!-- v2.0 by Andreas Nordal <andreas.nordal@gmail.com> -->
 <!-- small priority to allow for example Makefile.cpp to be detected as cpp file -->
+<!-- v2.1 by Alex Turbov <i.zaufi@gmail.com>
+     improve comments handling -->
 <language name="Makefile" section="Other"
-          version="2.0" kateversion="2.4"
+          version="2.1" kateversion="3.4"
           extensions="GNUmakefile;Makefile;makefile;GNUmakefile.*;Makefile.*;makefile.*;*.mk"
           mimetype="text/x-makefile"
           author="Per Wigren (wigren@home.se)" license="">
@@ -64,7 +66,7 @@
     <contexts>
       <context name="normal" attribute="Normal" lineEndContext="#stay">
         <DetectSpaces/>
-        <RegExpr attribute="Comment"  context="#stay" String="#.*$"/>
+        <DetectChar attribute="Comment" context="Comment" char="#"/>
         <keyword attribute="Keyword"  context="#stay" String="keywords"/>
         <RegExpr attribute="Variable" context="assign" String="[^\s:+?]*\s*(?=:=|=|\+=|\?=)"/>
         <RegExpr attribute="Section"  context="prereq" String="^\.[^.][^:]*:"/>
@@ -85,7 +87,7 @@
         <DetectChar attribute="Operator" context="dollar" char="$"/>
         <Detect2Chars attribute="Special" context="#stay" char="\" char1="#"/>
         <Detect2Chars attribute="Special" context="#stay" char="\" char1="\"/>
-        <RegExpr attribute="Comment"  context="#stay" String="#.*$"/>
+        <DetectChar attribute="Comment" context="Comment" char="#"/>
       </context>
 
       <context name="rule" attribute="Normal" lineEndContext="#stay">
@@ -102,7 +104,7 @@
         <Detect2Chars attribute="Special" context="#stay" char="\" char1="#"/>
         <Detect2Chars attribute="Special" context="#stay" char="\" char1="\"/>
         <AnyChar attribute="Operator" context="silent" String="@-" firstNonSpace="1"/>
-        <RegExpr attribute="Comment" context="#stay" String="#.*$"/>
+        <DetectChar attribute="Comment" context="Comment" char="#"/>
       </context>
 
       <context name="silent" attribute="Silent" lineEndContext="#pop">
@@ -114,7 +116,7 @@
         <DetectChar attribute="Operator" context="dollar" char="$"/>
         <Detect2Chars attribute="Special" context="#stay" char="\" char1="#"/>
         <Detect2Chars attribute="Special" context="#stay" char="\" char1="\"/>
-        <RegExpr attribute="Comment" context="#stay" String="#.*$"/>
+        <DetectChar attribute="Comment" context="Comment" char="#"/>
       </context>
 
       <context name="string&quot;" attribute="String" lineEndContext="#pop">
@@ -180,6 +182,12 @@
         <DetectChar attribute="Operator" context="dollar" char="$"/>
         <DetectChar attribute="Keyword" context="#stay" char=","/>
         <DetectChar attribute="String" context="string'" char="'"/>
+      </context>
+
+      <context attribute="Comment" lineEndContext="#pop" name="Comment">
+        <LineContinue attribute="Comment" context="#stay" />
+        <IncludeRules context="##Alerts" />
+        <IncludeRules context="##Modelines" />
       </context>
 
     </contexts>

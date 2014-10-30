@@ -264,7 +264,7 @@ QString QbsRunConfiguration::workingDirectory() const
     EnvironmentAspect *aspect = extraAspect<EnvironmentAspect>();
     QTC_ASSERT(aspect, baseWorkingDirectory());
     return QDir::cleanPath(aspect->environment().expandVariables(
-                Utils::expandMacros(baseWorkingDirectory(), macroExpander())));
+                macroExpander()->expand(baseWorkingDirectory())));
 }
 
 QString QbsRunConfiguration::baseWorkingDirectory() const
@@ -282,7 +282,7 @@ QString QbsRunConfiguration::baseWorkingDirectory() const
 
 QString QbsRunConfiguration::commandLineArguments() const
 {
-    return Utils::QtcProcess::expandMacros(m_commandLineArguments, macroExpander());
+    return macroExpander()->expandProcessArgs(m_commandLineArguments);
 }
 
 QString QbsRunConfiguration::rawCommandLineArguments() const

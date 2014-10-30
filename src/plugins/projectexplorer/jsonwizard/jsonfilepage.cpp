@@ -30,6 +30,8 @@
 
 #include "jsonfilepage.h"
 
+#include "jsonwizard.h"
+
 #include <QFileInfo>
 #include <QVariant>
 
@@ -38,6 +40,18 @@ namespace ProjectExplorer {
 JsonFilePage::JsonFilePage(QWidget *parent) :
     Utils::FileWizardPage(parent)
 { }
+
+void JsonFilePage::initializePage()
+{
+    JsonWizard *wiz = qobject_cast<JsonWizard *>(wizard());
+    if (!wiz)
+        return;
+
+    if (fileName().isEmpty())
+        setFileName(wiz->value(QLatin1String("InitialFileName")).toString());
+    if (path().isEmpty())
+        setPath(wiz->value(QLatin1String("InitialPath")).toString());
+}
 
 bool JsonFilePage::validatePage()
 {

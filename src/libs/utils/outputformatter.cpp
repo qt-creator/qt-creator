@@ -115,7 +115,6 @@ void OutputFormatter::initFormats()
 {
     if (!plainTextEdit())
         return;
-    QPalette p = plainTextEdit()->palette();
 
     QFont boldFont = m_font;
     boldFont.setBold(true);

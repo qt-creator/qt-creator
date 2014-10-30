@@ -202,12 +202,13 @@ AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
     m_statusLabel(new StatusLabel)
 {
     m_toolBox->setObjectName(QLatin1String("AnalyzerManagerToolBox"));
-    connect(m_toolBox, SIGNAL(activated(int)), SLOT(selectToolboxAction(int)));
+    connect(m_toolBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+            this, &AnalyzerManagerPrivate::selectToolboxAction);
 
     setupActions();
 
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    connect(pe, SIGNAL(updateRunActions()), SLOT(updateRunActions()));
+    connect(pe, &ProjectExplorerPlugin::updateRunActions, this, &AnalyzerManagerPrivate::updateRunActions);
 }
 
 AnalyzerManagerPrivate::~AnalyzerManagerPrivate()
@@ -226,7 +227,7 @@ void AnalyzerManagerPrivate::setupActions()
     Command *command = 0;
 
     // Menus
-    m_menu = Core::ActionManager::createMenu(M_DEBUG_ANALYZER);
+    m_menu = ActionManager::createMenu(M_DEBUG_ANALYZER);
     m_menu->menu()->setTitle(tr("&Analyze"));
     m_menu->menu()->setEnabled(true);
 
@@ -235,19 +236,19 @@ void AnalyzerManagerPrivate::setupActions()
     m_menu->appendGroup(G_ANALYZER_REMOTE_TOOLS);
     m_menu->appendGroup(G_ANALYZER_OPTIONS);
 
-    ActionContainer *menubar = Core::ActionManager::actionContainer(MENU_BAR);
-    ActionContainer *mtools = Core::ActionManager::actionContainer(M_TOOLS);
+    ActionContainer *menubar = ActionManager::actionContainer(MENU_BAR);
+    ActionContainer *mtools = ActionManager::actionContainer(M_TOOLS);
     menubar->addMenu(mtools, m_menu);
 
     m_startAction = new QAction(tr("Start"), m_menu);
     m_startAction->setIcon(QIcon(QLatin1String(ANALYZER_CONTROL_START_ICON)));
-    Core::ActionManager::registerAction(m_startAction, "Analyzer.Start", globalcontext);
-    connect(m_startAction, SIGNAL(triggered()), this, SLOT(startTool()));
+    ActionManager::registerAction(m_startAction, "Analyzer.Start", globalcontext);
+    connect(m_startAction, &QAction::triggered, this, &AnalyzerManagerPrivate::startTool);
 
     m_stopAction = new QAction(tr("Stop"), m_menu);
     m_stopAction->setEnabled(false);
     m_stopAction->setIcon(QIcon(QLatin1String(ANALYZER_CONTROL_STOP_ICON)));
-    command = Core::ActionManager::registerAction(m_stopAction, "Analyzer.Stop", globalcontext);
+    command = ActionManager::registerAction(m_stopAction, "Analyzer.Stop", globalcontext);
     m_menu->addAction(command, G_ANALYZER_CONTROL);
 
     m_menu->addSeparator(globalcontext, G_ANALYZER_TOOLS);
@@ -263,11 +264,11 @@ void AnalyzerManagerPrivate::delayedInit()
     m_mode = new AnalyzerMode(q);
     createModeMainWindow();
 
-    connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
-            this, SLOT(modeChanged(Core::IMode*)));
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
+            this, &AnalyzerManagerPrivate::modeChanged);
 
     // Right-side window with editor, output etc.
-    MiniSplitter *mainWindowSplitter = new MiniSplitter;
+    auto mainWindowSplitter = new MiniSplitter;
     mainWindowSplitter->addWidget(m_mainWindow);
     mainWindowSplitter->addWidget(new OutputPanePlaceHolder(m_mode, mainWindowSplitter));
     mainWindowSplitter->setStretchFactor(0, 10);
@@ -275,35 +276,36 @@ void AnalyzerManagerPrivate::delayedInit()
     mainWindowSplitter->setOrientation(Qt::Vertical);
 
     // Navigation + right-side window.
-    MiniSplitter *splitter = new MiniSplitter;
+    auto splitter = new MiniSplitter;
     splitter->addWidget(new NavigationWidgetPlaceHolder(m_mode));
     splitter->addWidget(mainWindowSplitter);
     splitter->setStretchFactor(0, 0);
     splitter->setStretchFactor(1, 1);
-    Core::IContext *modeContextObject = new Core::IContext(this);
-    modeContextObject->setContext(Core::Context(Core::Constants::C_EDITORMANAGER));
+
+    auto modeContextObject = new IContext(this);
+    modeContextObject->setContext(Context(C_EDITORMANAGER));
     modeContextObject->setWidget(splitter);
-    Core::ICore::addContextObject(modeContextObject);
+    ICore::addContextObject(modeContextObject);
     m_mode->setWidget(splitter);
 
     AnalyzerPlugin::instance()->addAutoReleasedObject(m_mode);
 
     // Populate Windows->Views menu with standard actions.
     Context analyzerContext(C_ANALYZEMODE);
-    ActionContainer *viewsMenu = Core::ActionManager::actionContainer(Id(M_WINDOW_VIEWS));
-    Command *cmd = Core::ActionManager::registerAction(m_mainWindow->menuSeparator1(),
+    ActionContainer *viewsMenu = ActionManager::actionContainer(M_WINDOW_VIEWS);
+    Command *cmd = ActionManager::registerAction(m_mainWindow->menuSeparator1(),
         "Analyzer.Views.Separator1", analyzerContext);
     cmd->setAttribute(Command::CA_Hide);
     viewsMenu->addAction(cmd, G_DEFAULT_THREE);
-    cmd = Core::ActionManager::registerAction(m_mainWindow->autoHideTitleBarsAction(),
+    cmd = ActionManager::registerAction(m_mainWindow->autoHideTitleBarsAction(),
         "Analyzer.Views.AutoHideTitleBars", analyzerContext);
     cmd->setAttribute(Command::CA_Hide);
     viewsMenu->addAction(cmd, G_DEFAULT_THREE);
-    cmd = Core::ActionManager::registerAction(m_mainWindow->menuSeparator2(),
+    cmd = ActionManager::registerAction(m_mainWindow->menuSeparator2(),
         "Analyzer.Views.Separator2", analyzerContext);
     cmd->setAttribute(Command::CA_Hide);
     viewsMenu->addAction(cmd, G_DEFAULT_THREE);
-    cmd = Core::ActionManager::registerAction(m_mainWindow->resetLayoutAction(),
+    cmd = ActionManager::registerAction(m_mainWindow->resetLayoutAction(),
         "Analyzer.Views.ResetSimple", analyzerContext);
     cmd->setAttribute(Command::CA_Hide);
     viewsMenu->addAction(cmd, G_DEFAULT_THREE);
@@ -311,7 +313,7 @@ void AnalyzerManagerPrivate::delayedInit()
 
 static QToolButton *toolButton(QAction *action)
 {
-    QToolButton *button = new QToolButton;
+    auto button = new QToolButton;
     button->setDefaultAction(action);
     return button;
 }
@@ -323,26 +325,27 @@ void AnalyzerManagerPrivate::createModeMainWindow()
     m_mainWindow->setDocumentMode(true);
     m_mainWindow->setDockNestingEnabled(true);
     m_mainWindow->setDockActionsVisible(false);
-    connect(m_mainWindow, SIGNAL(resetLayout()), SLOT(resetLayout()));
+    connect(m_mainWindow, &FancyMainWindow::resetLayout, this, &AnalyzerManagerPrivate::resetLayout);
 
-    QBoxLayout *editorHolderLayout = new QVBoxLayout;
+    auto editorHolderLayout = new QVBoxLayout;
     editorHolderLayout->setMargin(0);
     editorHolderLayout->setSpacing(0);
 
-    QWidget *editorAndFindWidget = new QWidget;
+    auto editorAndFindWidget = new QWidget;
     editorAndFindWidget->setLayout(editorHolderLayout);
     editorHolderLayout->addWidget(new EditorManagerPlaceHolder(m_mode));
     editorHolderLayout->addWidget(new FindToolBarPlaceHolder(editorAndFindWidget));
 
-    MiniSplitter *documentAndRightPane = new MiniSplitter;
+    auto documentAndRightPane = new MiniSplitter;
     documentAndRightPane->addWidget(editorAndFindWidget);
     documentAndRightPane->addWidget(new RightPanePlaceHolder(m_mode));
     documentAndRightPane->setStretchFactor(0, 1);
     documentAndRightPane->setStretchFactor(1, 0);
 
-    StyledBar *analyzeToolBar = new StyledBar;
+    auto analyzeToolBar = new StyledBar;
     analyzeToolBar->setProperty("topBorder", true);
-    QHBoxLayout *analyzeToolBarLayout = new QHBoxLayout(analyzeToolBar);
+
+    auto analyzeToolBarLayout = new QHBoxLayout(analyzeToolBar);
     analyzeToolBarLayout->setMargin(0);
     analyzeToolBarLayout->setSpacing(0);
     analyzeToolBarLayout->addWidget(toolButton(m_startAction));
@@ -353,7 +356,7 @@ void AnalyzerManagerPrivate::createModeMainWindow()
     analyzeToolBarLayout->addWidget(m_statusLabel);
     analyzeToolBarLayout->addStretch();
 
-    QDockWidget *dock = new QDockWidget(tr("Analyzer Toolbar"));
+    auto dock = new QDockWidget(tr("Analyzer Toolbar"));
     dock->setObjectName(QLatin1String("Analyzer Toolbar"));
     dock->setWidget(analyzeToolBar);
     dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
@@ -364,10 +367,10 @@ void AnalyzerManagerPrivate::createModeMainWindow()
     m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dock);
     m_mainWindow->setToolBarDockWidget(dock);
 
-    QWidget *centralWidget = new QWidget;
+    auto centralWidget = new QWidget;
     m_mainWindow->setCentralWidget(centralWidget);
 
-    QVBoxLayout *centralLayout = new QVBoxLayout(centralWidget);
+    auto centralLayout = new QVBoxLayout(centralWidget);
     centralWidget->setLayout(centralLayout);
     centralLayout->setMargin(0);
     centralLayout->setSpacing(0);
@@ -389,7 +392,7 @@ void AnalyzerManagerPrivate::activateDock(Qt::DockWidgetArea area, QDockWidget *
         Id("Analyzer.").withSuffix(dockWidget->objectName()), globalContext);
     cmd->setAttribute(Command::CA_Hide);
 
-    ActionContainer *viewsMenu = Core::ActionManager::actionContainer(Id(M_WINDOW_VIEWS));
+    ActionContainer *viewsMenu = ActionManager::actionContainer(Id(M_WINDOW_VIEWS));
     viewsMenu->addAction(cmd);
 }
 
@@ -537,7 +540,7 @@ void AnalyzerManagerPrivate::addAction(AnalyzerAction *action)
     m_actions.append(action);
     m_toolBox->addItem(action->text());
     m_toolBox->blockSignals(blocked);
-    connect(action, SIGNAL(triggered()), SLOT(selectMenuAction()));
+    connect(action, &QAction::triggered, this, &AnalyzerManagerPrivate::selectMenuAction);
     m_toolBox->setEnabled(true);
 }
 

@@ -41,18 +41,23 @@
 #include <QProcess>
 #include <QUuid>
 
+#ifdef WITH_TESTS
+#    include <QTest>
+#    include "debuggerplugin.h"
+#endif
+
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-static const char DEBUGGER_INFORMATION_COMMAND[] = "Binary";
-static const char DEBUGGER_INFORMATION_DISPLAYNAME[] = "DisplayName";
-static const char DEBUGGER_INFORMATION_ID[] = "Id";
-static const char DEBUGGER_INFORMATION_ENGINETYPE[] = "EngineType";
-static const char DEBUGGER_INFORMATION_AUTODETECTED[] = "AutoDetected";
-static const char DEBUGGER_INFORMATION_AUTODETECTION_SOURCE[] = "AutoDetectionSource";
-static const char DEBUGGER_INFORMATION_VERSION[] = "Version";
-static const char DEBUGGER_INFORMATION_ABIS[] = "Abis";
+const char DEBUGGER_INFORMATION_COMMAND[] = "Binary";
+const char DEBUGGER_INFORMATION_DISPLAYNAME[] = "DisplayName";
+const char DEBUGGER_INFORMATION_ID[] = "Id";
+const char DEBUGGER_INFORMATION_ENGINETYPE[] = "EngineType";
+const char DEBUGGER_INFORMATION_AUTODETECTED[] = "AutoDetected";
+const char DEBUGGER_INFORMATION_AUTODETECTION_SOURCE[] = "AutoDetectionSource";
+const char DEBUGGER_INFORMATION_VERSION[] = "Version";
+const char DEBUGGER_INFORMATION_ABIS[] = "Abis";
 
 namespace Debugger {
 
@@ -165,13 +170,13 @@ void DebuggerItem::reinitializeFromFile()
 QString DebuggerItem::engineTypeName() const
 {
     switch (m_engineType) {
-    case Debugger::NoEngineType:
+    case NoEngineType:
         return DebuggerOptionsPage::tr("Not recognized");
-    case Debugger::GdbEngineType:
+    case GdbEngineType:
         return QLatin1String("GDB");
-    case Debugger::CdbEngineType:
+    case CdbEngineType:
         return QLatin1String("CDB");
-    case Debugger::LldbEngineType:
+    case LldbEngineType:
         return QLatin1String("LLDB");
     default:
         return QString();
@@ -302,19 +307,16 @@ DebuggerItem::MatchLevel DebuggerItem::matchTarget(const Abi &targetAbi) const
     return bestMatch;
 }
 
-bool Debugger::DebuggerItem::isValid() const
+bool DebuggerItem::isValid() const
 {
     return !m_id.isNull();
 }
 
-} // namespace Debugger;
-
 #ifdef WITH_TESTS
 
-#    include <QTest>
-#    include "debuggerplugin.h"
+namespace Internal {
 
-void Debugger::DebuggerPlugin::testDebuggerMatching_data()
+void DebuggerPlugin::testDebuggerMatching_data()
 {
     QTest::addColumn<QStringList>("debugger");
     QTest::addColumn<QString>("target");
@@ -394,7 +396,7 @@ void Debugger::DebuggerPlugin::testDebuggerMatching_data()
             << int(DebuggerItem::DoesNotMatch);
 }
 
-void Debugger::DebuggerPlugin::testDebuggerMatching()
+void DebuggerPlugin::testDebuggerMatching()
 {
     QFETCH(QStringList, debugger);
     QFETCH(QString, target);
@@ -415,4 +417,9 @@ void Debugger::DebuggerPlugin::testDebuggerMatching()
 
     QCOMPARE(expectedLevel, level);
 }
+
+} // namespace Internal
+
 #endif
+
+} // namespace Debugger;

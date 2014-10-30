@@ -44,10 +44,12 @@
 namespace CppTools {
 
 class CPPTOOLS_EXPORT CheckSymbols:
+        public QObject,
         protected CPlusPlus::ASTVisitor,
         public QRunnable,
         public QFutureInterface<TextEditor::HighlightingResult>
 {
+    Q_OBJECT
 public:
     virtual ~CheckSymbols();
 
@@ -70,6 +72,9 @@ public:
     static Future go(CPlusPlus::Document::Ptr doc,
                      const CPlusPlus::LookupContext &context,
                      const QList<Result> &macroUses);
+    static CheckSymbols * create(CPlusPlus::Document::Ptr doc,
+                                 const CPlusPlus::LookupContext &context,
+                                 const QList<Result> &macroUses);
 
     static QMap<int, QVector<Result> > chunks(const QFuture<Result> &future, int from, int to)
     {
@@ -86,6 +91,10 @@ public:
 
         return chunks;
     }
+
+signals:
+    void codeWarningsUpdated(CPlusPlus::Document::Ptr document,
+                             const QList<CPlusPlus::Document::DiagnosticMessage> selections);
 
 protected:
     using ASTVisitor::visit;
@@ -182,6 +191,7 @@ private:
     QSet<QByteArray> _potentialStatics;
     QList<CPlusPlus::AST *> _astStack;
     QVector<Result> _usages;
+    QList<CPlusPlus::Document::DiagnosticMessage> _diagMsgs;
     int _chunkSize;
     unsigned _lineOfLastUsage;
     QList<Result> _macroUses;

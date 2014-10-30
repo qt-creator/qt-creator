@@ -40,7 +40,10 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/abi.h>
+#include <ssh/sshconnection.h>
+
 #include <utils/algorithm.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -416,6 +419,30 @@ KitInformation::ItemList DeviceKitInformation::toUserOutput(const Kit *k) const
 {
     IDevice::ConstPtr dev = device(k);
     return ItemList() << qMakePair(tr("Device"), dev.isNull() ? tr("Unconfigured") : dev->displayName());
+}
+
+void DeviceKitInformation::addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const
+{
+    expander->registerVariable("Device:HostAddress", tr("Host address"),
+        [this, kit]() -> QString {
+            const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+            return device ? device->sshParameters().host : QString();
+    });
+    expander->registerVariable("Device:SshPort", tr("SSH port"),
+        [this, kit]() -> QString {
+            const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+            return device ? QString::number(device->sshParameters().port) : QString();
+    });
+    expander->registerVariable("Device:UserName", tr("User name"),
+        [this, kit]() -> QString {
+            const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+            return device ? device->sshParameters().userName : QString();
+    });
+    expander->registerVariable("Device:KeyFile", tr("Private key file"),
+        [this, kit]() -> QString {
+            const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+            return device ? device->sshParameters().privateKeyFile : QString();
+    });
 }
 
 Core::Id DeviceKitInformation::id()

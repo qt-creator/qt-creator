@@ -32,10 +32,8 @@
 #define BOOKMARKMANAGER_H
 
 #include <utils/itemviews.h>
-#include <coreplugin/icontext.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/inavigationwidgetfactory.h>
-
-#include <texteditor/texteditor.h>
 
 #include <QAbstractItemModel>
 #include <QMultiMap>
@@ -94,11 +92,7 @@ public:
         Note = Qt::UserRole + 4
     };
 
-    void handleBookmarkRequest(TextEditor::TextEditorWidget *widget, int line,
-                               TextEditor::TextMarkRequestKind kind);
-
-    void handleBookmarkTooltipRequest(TextEditor::TextEditorWidget *widget,
-                                      const QPoint &pos, int line);
+    void handleBookmarkTooltipRequest(Core::IEditor *editor, const QPoint &pos, int line);
 
     void toggleBookmark(bool);
     void toggleBookmark(const QString &fileName, int lineNumber);
@@ -127,7 +121,7 @@ private:
     void addBookmark(const QString &s);
     static QString bookmarkToString(const Bookmark *b);
     void saveBookmarks();
-    void operateTooltip(TextEditor::TextEditorWidget *widget, const QPoint &pos, Bookmark *mark);
+    void operateTooltip(QWidget *widget, const QPoint &pos, Bookmark *mark);
 
     typedef QMultiMap<QString, Bookmark *> FileNameBookmarksMap;
     typedef QMap<QString, FileNameBookmarksMap *> DirectoryFileBookmarksMap;

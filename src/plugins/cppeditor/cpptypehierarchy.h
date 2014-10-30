@@ -36,18 +36,20 @@
 #include <QString>
 #include <QWidget>
 #include <QStackedWidget>
+#include <QStandardItemModel>
 
 QT_BEGIN_NAMESPACE
 class QLabel;
 class QModelIndex;
 class QStackedLayout;
 class QStandardItem;
-class QStandardItemModel;
 template <class> class QVector;
 template <class> class QList;
 QT_END_NAMESPACE
 
 namespace Core { class IEditor; }
+
+namespace TextEditor { class TextEditorLinkLabel; }
 
 namespace Utils {
 class NavigationTreeView;
@@ -60,6 +62,18 @@ namespace Internal {
 class CppEditorWidget;
 class CppClass;
 class CppClassLabel;
+
+class CppTypeHierarchyModel : public QStandardItemModel
+{
+    Q_OBJECT
+
+public:
+    CppTypeHierarchyModel(QObject *parent);
+
+    Qt::DropActions supportedDragActions() const;
+    QStringList mimeTypes() const;
+    QMimeData *mimeData(const QModelIndexList &indexes) const;
+};
 
 class CppTypeHierarchyWidget : public QWidget
 {
@@ -86,7 +100,7 @@ private:
     QStackedLayout *m_stackLayout;
     QStandardItemModel *m_model;
     Utils::AnnotatedItemDelegate *m_delegate;
-    CppClassLabel *m_inspectedClass;
+    TextEditor::TextEditorLinkLabel *m_inspectedClass;
     QLabel *m_noTypeHierarchyAvailableLabel;
 };
 

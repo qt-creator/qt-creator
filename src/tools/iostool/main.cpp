@@ -585,8 +585,8 @@ void IosTool::run(const QStringList &args)
             SLOT(isTransferringApp(QString,QString,int,QString)));
     connect(manager,SIGNAL(didTransferApp(QString,QString,Ios::IosDeviceManager::OpStatus)),
             SLOT(didTransferApp(QString,QString,Ios::IosDeviceManager::OpStatus)));
-    connect(manager,SIGNAL(didStartApp(QString,QString,Ios::IosDeviceManager::OpStatus,int,Ios::DeviceSession *)),
-            SLOT(didStartApp(QString,QString,Ios::IosDeviceManager::OpStatus,int,Ios::DeviceSession *)));
+    connect(manager,SIGNAL(didStartApp(QString,QString,Ios::IosDeviceManager::OpStatus,int,Ios::DeviceSession*)),
+            SLOT(didStartApp(QString,QString,Ios::IosDeviceManager::OpStatus,int,Ios::DeviceSession*)));
     connect(manager,SIGNAL(deviceInfo(QString,Ios::IosDeviceManager::Dict)),
             SLOT(deviceInfo(QString,Ios::IosDeviceManager::Dict)));
     connect(manager,SIGNAL(appOutput(QString)), SLOT(appOutput(QString)));

@@ -124,6 +124,8 @@ public:
     virtual Utils::Environment qmakeRunEnvironment() const;
 
     virtual Utils::FileName sourcePath() const;
+    bool isInSourceDirectory(const Utils::FileName &filePath);
+
     // used by UiCodeModelSupport
     virtual QString uicCommand() const;
     virtual QString designerCommand() const;

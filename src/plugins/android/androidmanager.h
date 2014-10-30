@@ -57,6 +57,7 @@ public:
     static bool supportsAndroid(const ProjectExplorer::Target *target);
 
     static QString packageName(ProjectExplorer::Target *target);
+    static QString packageName(const Utils::FileName &manifestFile);
 
     static QString intentName(ProjectExplorer::Target *target);
     static QString activityName(ProjectExplorer::Target *target);

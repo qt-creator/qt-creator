@@ -24,33 +24,22 @@
 
     \title Setting Up a Qbs Project
 
-    The Qt Build Suite (Qbs) and the Qbs plugin are still experimental, and
-    therefore, you must first enable the plugin manually. If you build \QC
-    yourself from our Git repository, you also need to fetch the Qbs submodule
-    to get Qbs support.
-
     To use Qbs to build a project, you must create a .qbs file for the project.
-    For more information, see the
-    \l{http://qt-project.org/doc/qbs/index.html}{Qbs Manual}.
-
-    \section1 Enabling the Qbs Plugin
-
-    If you use a \QC binary release, you need to enable the plugin by
-    selecting \gui Help > \gui {About Plugins} > \gui {Build Systems}
-    > \gui {QbsProjectManager} and restarting \QC.
+    You can use \QC to create a C or C++ project that is built with Qbs.
+    For more information about Qbs, see
+    the \l{http://qt-project.org/doc/qbs/index.html}{Qbs Manual}.
 
     \section1 Building Qbs
 
-    To build the Qbs plugin yourself from the \QC git repository:
+    If you build \QC yourself from the \QC Git repository, you also need to
+    fetch the Qbs submodule to get Qbs support:
 
     \list 1
 
         \li Fetch the Qbs submodule in your \QC git checkout with
             \c {git submodule update --init}.
 
-        \li Use Qbs or qmake and make to build \QC again.
-
-        \li Enable the Qbs plugin as described above.
+        \li Run qmake on \QC and build \QC again.
 
     \endlist
 

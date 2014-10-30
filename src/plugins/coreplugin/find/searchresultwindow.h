@@ -169,6 +169,7 @@ public:
                            const QColor &textBackgroundColor,
                            const QColor &highlightForegroundColor,
                            const QColor &highlightBackgroundColor);
+    void setTabWidth(int width);
     void openNewSearchPanel();
 
     // The search result window owns the returned SearchResult

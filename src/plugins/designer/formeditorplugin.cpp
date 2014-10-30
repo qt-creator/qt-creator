@@ -31,8 +31,8 @@
 #include "formeditorplugin.h"
 #include "formeditorfactory.h"
 #include "formeditorw.h"
+#include "formtemplatewizardpage.h"
 #include "formwindoweditor.h"
-#include "formwizard.h"
 
 #ifdef CPP_ENABLED
 #  include "cpp/formclasswizard.h"
@@ -49,6 +49,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
 #include <cpptools/cpptoolsconstants.h>
+#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
 #include <QApplication>
 #include <QDebug>
@@ -84,6 +85,7 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
 
     initializeTemplates();
 
+    ProjectExplorer::JsonWizardFactory::registerPageFactory(new Internal::FormPageFactory);
     addAutoReleasedObject(new FormEditorFactory);
     addAutoReleasedObject(new SettingsPageProvider);
     addAutoReleasedObject(new QtDesignerFormClassCodeGenerator);
@@ -128,18 +130,8 @@ void FormEditorPlugin::extensionsInitialized()
 
 void FormEditorPlugin::initializeTemplates()
 {
-    IWizardFactory *wizard = new FormWizard;
-    wizard->setWizardKind(IWizardFactory::FileWizard);
-    wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
-    wizard->setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
-    wizard->setDisplayName(tr("Qt Designer Form"));
-    wizard->setId(QLatin1String("D.Form"));
-    wizard->setDescription(tr("Creates a Qt Designer form that you can add to a Qt Widget Project. "
-                                       "This is useful if you already have an existing class for the UI business logic."));
-    addAutoReleasedObject(wizard);
-
 #ifdef CPP_ENABLED
-    wizard = new FormClassWizard;
+    IWizardFactory *wizard = new FormClassWizard;
     wizard->setWizardKind(IWizardFactory::ClassWizard);
     wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
     wizard->setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));

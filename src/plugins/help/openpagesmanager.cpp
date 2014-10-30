@@ -129,14 +129,12 @@ void OpenPagesManager::setupInitialPages()
     const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
     const int option = engine.customValue(QLatin1String("StartOption"),
         Help::Constants::ShowLastPages).toInt();
-    QString homePage = engine.customValue(QLatin1String("DefaultHomePage"),
-        Help::Constants::AboutBlank).toString();
+    QString homePage = LocalHelpManager::homePage();
 
     int initialPage = 0;
     switch (option) {
         case Help::Constants::ShowHomePage: {
-            m_model->addPage(engine.customValue(QLatin1String("HomePage"),
-                homePage).toString());
+            m_model->addPage(homePage);
         }   break;
 
         case Help::Constants::ShowBlankPage: {

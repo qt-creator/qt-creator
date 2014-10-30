@@ -29,9 +29,9 @@
 ****************************************************************************/
 
 #include "debuggerdialogs.h"
-#include "debuggerstartparameters.h"
 
 #include "debuggerkitinformation.h"
+#include "debuggerruncontrol.h"
 #include "debuggerstringutils.h"
 #include "cdb/cdbengine.h"
 
@@ -408,7 +408,9 @@ bool StartApplicationDialog::run(QWidget *parent, DebuggerStartParameters *sp)
     }
 
     Kit *kit = dialog.d->kitChooser->currentKit();
-    QTC_ASSERT(kit && fillParameters(sp, kit), return false);
+    QTC_ASSERT(kit, return false);
+    bool res = DebuggerRunControlFactory::fillParametersFromKit(sp, kit);
+    QTC_ASSERT(res, return false);
 
     sp->executable = newParameters.localExecutable;
     const QString inputAddress = dialog.d->serverAddressEdit->text();

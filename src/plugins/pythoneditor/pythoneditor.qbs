@@ -34,16 +34,4 @@ QtcPlugin {
             "pythonindenter.cpp", "pythonindenter.h"
         ]
     }
-
-    Group {
-        name: "Wizard"
-        prefix: "wizard/"
-        files: [
-            "pythonclassnamepage.cpp", "pythonclassnamepage.h",
-            "pythonclasswizard.h", "pythonclasswizard.cpp",
-            "pythonclasswizarddialog.h", "pythonclasswizarddialog.cpp",
-            "pythonsourcegenerator.h", "pythonsourcegenerator.cpp"
-        ]
-    }
 }
-

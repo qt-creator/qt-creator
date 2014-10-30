@@ -34,8 +34,7 @@
 
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerkitinformation.h>
-#include <debugger/debuggerplugin.h>
-#include <debugger/debuggerrunner.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
@@ -122,7 +121,7 @@ RunControl *WinRtDebugSupport::createDebugRunControl(WinRtRunConfiguration *runC
                 }
                 server.close();
                 Debugger::DebuggerRunControl *debugRunControl
-                        = DebuggerPlugin::createDebugger(params, runConfig, errorMessage);
+                        = DebuggerRunControlFactory::doCreate(params, runConfig, errorMessage);
                 runner->setRunControl(debugRunControl);
                 new WinRtDebugSupport(debugRunControl, runner);
                 return debugRunControl;

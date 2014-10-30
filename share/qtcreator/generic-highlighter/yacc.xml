@@ -25,7 +25,7 @@ This code is released under the LGPL as part of kdelibs/kate.
 
 ========================================================================
 -->
-<language name="Yacc/Bison" version="1.03" kateversion="2.4" section="Sources" extensions="*.y;*.yy" author="Jan Villat (jan.villat@net2000.ch)" license="LGPL">
+<language name="Yacc/Bison" version="1.04" kateversion="2.4" section="Sources" extensions="*.y;*.yy" author="Jan Villat (jan.villat@net2000.ch)" license="LGPL">
 
 <highlighting>
 <contexts>
@@ -100,7 +100,7 @@ This code is released under the LGPL as part of kdelibs/kate.
     <DetectChar attribute="Data Type" context="#pop" char="&gt;" />
   </context>
 
-  <context name="Comment" attribute="Comment">
+  <context name="Comment" attribute="Comment" lineEndContext="#stay">
     <Detect2Chars attribute="Comment" context="CommentStar" char="/" char1="*" />
     <!-- not sure that strict yacc allows that ... but I saw it in some sources ... -->
     <Detect2Chars attribute="Comment" context="CommentSlash" char="/" char1="/" />
@@ -112,7 +112,7 @@ This code is released under the LGPL as part of kdelibs/kate.
     <RegExpr attribute="Comment" context="#pop" String="[^\\]$" />
   </context>
 
-  <context name="StringOrChar" attribute="NormalText">
+  <context name="StringOrChar" attribute="NormalText" lineEndContext="#stay">
     <DetectChar attribute="String Char" context="Char" char="'" />
     <DetectChar attribute="String" context="String" char="&quot;" />
   </context>
@@ -131,10 +131,10 @@ This code is released under the LGPL as part of kdelibs/kate.
     <IncludeRules context="##C++" />
     <DetectChar attribute="Directive" context="Dol" char="$" />
   </context>
-  <context name="Dol" attribute="Normal Text" fallthrough="true" fallthroughContext="DolEnd">
+  <context name="Dol" attribute="Normal Text" fallthrough="true" fallthroughContext="DolEnd" lineEndContext="#stay">
     <RegExpr attribute="Data Type" context="DolEnd" String="&lt;[^&gt;]+&gt;" />
   </context>
-  <context name="DolEnd" attribute="Normal Text">
+  <context name="DolEnd" attribute="Normal Text" lineEndContext="#stay">
     <RegExpr attribute="Directive" context="#pop#pop" String="\d+" />
     <DetectChar attribute="Directive" context="#pop#pop" char="$" />
   </context>

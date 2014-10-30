@@ -34,6 +34,7 @@
 #include "classviewutils.h"
 
 #include <cplusplus/Icons.h>
+#include <utils/fileutils.h>
 
 namespace ClassView {
 namespace Internal {
@@ -131,6 +132,35 @@ bool TreeItemModel::hasChildren(const QModelIndex &parent) const
         return true;
 
     return Manager::instance()->hasChildren(itemFromIndex(parent));
+}
+
+Qt::DropActions TreeItemModel::supportedDragActions() const
+{
+    return Qt::MoveAction | Qt::CopyAction;
+}
+
+QStringList TreeItemModel::mimeTypes() const
+{
+    return ::Utils::FileDropSupport::mimeTypesForFilePaths();
+}
+
+QMimeData *TreeItemModel::mimeData(const QModelIndexList &indexes) const
+{
+    auto mimeData = new ::Utils::FileDropMimeData;
+    mimeData->setOverrideFileDropAction(Qt::CopyAction);
+    foreach (const QModelIndex &index, indexes) {
+        const QSet<SymbolLocation> locations = Utils::roleToLocations(
+                    data(index, Constants::SymbolLocationsRole).toList());
+        if (locations.isEmpty())
+            continue;
+        const SymbolLocation loc = *locations.constBegin();
+        mimeData->addFile(loc.fileName(), loc.line(), loc.column());
+    }
+    if (mimeData->files().isEmpty()) {
+        delete mimeData;
+        return 0;
+    }
+    return mimeData;
 }
 
 /*!

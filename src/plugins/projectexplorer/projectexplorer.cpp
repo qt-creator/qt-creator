@@ -41,7 +41,6 @@
 #include "jsonwizard/jsonwizardpagefactory_p.h"
 #include "project.h"
 #include "projectexplorersettings.h"
-#include "projectmacroexpander.h"
 #include "removetaskhandler.h"
 #include "unconfiguredprojectpanel.h"
 #include "kitfeatureprovider.h"
@@ -120,6 +119,7 @@
 #include <coreplugin/fileutils.h>
 #include <coreplugin/removefiledialog.h>
 #include <texteditor/findinfiles.h>
+#include <ssh/sshconnection.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -179,6 +179,12 @@ static BuildConfiguration *activeBuildConfiguration()
 {
     Target *target = activeTarget();
     return target ? target->activeBuildConfiguration() : 0;
+}
+
+static Kit *currentKit()
+{
+    Target *target = activeTarget();
+    return target ? target->kit() : 0;
 }
 
 class ProjectExplorerPluginPrivate : public QObject
@@ -346,27 +352,6 @@ ProjectExplorerPlugin *ProjectExplorerPlugin::instance()
     return m_instance;
 }
 
-static QString variableValue(const char *variable)
-{
-    QString projectName;
-    QString projectFilePath;
-    Kit *kit = 0;
-    QString buildConfigurationName;
-    if (Project *project = ProjectExplorerPlugin::currentProject()) {
-        projectName = project->displayName();
-        if (IDocument *doc = project->document())
-            projectFilePath = doc->filePath();
-        if (BuildConfiguration *buildConfiguration = activeBuildConfiguration())
-            buildConfigurationName = buildConfiguration->displayName();
-        if (project->activeTarget())
-            kit = project->activeTarget()->kit();
-    }
-    ProjectMacroExpander expander(projectFilePath, projectName, kit, buildConfigurationName);
-    QString result;
-    expander.resolveProjectMacro(QString::fromUtf8(variable), &result);
-    return result;
-}
-
 bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *error)
 {
     Q_UNUSED(error);
@@ -463,6 +448,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // For JsonWizard:
     JsonWizardFactory::registerPageFactory(new FieldPageFactory);
     JsonWizardFactory::registerPageFactory(new FilePageFactory);
+    JsonWizardFactory::registerPageFactory(new KitsPageFactory);
+    JsonWizardFactory::registerPageFactory(new ProjectPageFactory);
     JsonWizardFactory::registerPageFactory(new SummaryPageFactory);
 
     JsonWizardFactory::registerGeneratorFactory(new FileGeneratorFactory);
@@ -1136,6 +1123,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     updateWelcomePage();
 
+    // FIXME: These are mostly "legacy"/"convenience" entries, relying on
+    // the global entry point ProjectExplorer::currentProject(). They should
+    // not be used in the Run/Build configuration pages.
     Utils::MacroExpander *expander = Utils::globalMacroExpander();
     expander->registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX,
         tr("Current project's main file"),
@@ -1155,41 +1145,74 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         });
 
     expander->registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
-        tr("The current project's name."),
-        []() { return variableValue(Constants::VAR_CURRENTPROJECT_NAME); });
+        tr("The name of the current project."),
+        [this]() -> QString {
+            Project *project = ProjectExplorerPlugin::currentProject();
+            return project ? project->displayName() : QString();
+        });
 
     expander->registerVariable(Constants::VAR_CURRENTKIT_NAME,
-        tr("The currently active kit's name."),
-        []() { return variableValue(Constants::VAR_CURRENTKIT_NAME); });
+        tr("The name of the currently active kit."),
+        []() -> QString {
+            Kit *kit = currentKit();
+            return kit ? kit->displayName() : QString();
+        });
 
     expander->registerVariable(Constants::VAR_CURRENTKIT_FILESYSTEMNAME,
-        tr("The currently active kit's name in a filesystem friendly version."),
-        []() { return variableValue(Constants::VAR_CURRENTKIT_FILESYSTEMNAME); });
+        tr("The name of the currently active kit in a filesystem friendly version."),
+        []() -> QString {
+            Kit *kit = currentKit();
+            return kit ? kit->fileSystemFriendlyName() : QString();
+        });
 
     expander->registerVariable(Constants::VAR_CURRENTKIT_ID,
-        tr("The currently active kit's id."),
-        []() { return variableValue(Constants::VAR_CURRENTKIT_ID); });
+        tr("The id of the currently active kit."),
+        []() -> QString {
+            Kit *kit = currentKit();
+            return kit ? kit->id().toString() : QString();
+        });
 
     expander->registerVariable(Constants::VAR_CURRENTDEVICE_HOSTADDRESS,
         tr("The host address of the device in the currently active kit."),
-        []() { return variableValue(Constants::VAR_CURRENTDEVICE_HOSTADDRESS); });
+        []() -> QString {
+            Kit *kit = currentKit();
+            const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+            return device ? device->sshParameters().host : QString();
+        });
 
     expander->registerVariable(Constants::VAR_CURRENTDEVICE_SSHPORT,
         tr("The SSH port of the device in the currently active kit."),
-        []() { return variableValue(Constants::VAR_CURRENTDEVICE_SSHPORT); });
+        []() -> QString {
+            Kit *kit = currentKit();
+            const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+            return device ? QString::number(device->sshParameters().port) : QString();
+        });
 
     expander->registerVariable(Constants::VAR_CURRENTDEVICE_USERNAME,
         tr("The username with which to log into the device in the currently active kit."),
-        []() { return variableValue(Constants::VAR_CURRENTDEVICE_USERNAME); });
+        []() -> QString {
+            Kit *kit = currentKit();
+            const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+            return device ? device->sshParameters().userName : QString();
+        });
+
 
     expander->registerVariable(Constants::VAR_CURRENTDEVICE_PRIVATEKEYFILE,
         tr("The private key file with which to authenticate when logging into the device "
            "in the currently active kit."),
-        []() { return variableValue(Constants::VAR_CURRENTDEVICE_PRIVATEKEYFILE); });
+        []() -> QString {
+            Kit *kit = currentKit();
+            const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+            return device ? device->sshParameters().privateKeyFile : QString();
+        });
 
     expander->registerVariable(Constants::VAR_CURRENTBUILD_NAME,
         tr("The currently active build configuration's name."),
-        []() { return variableValue(Constants::VAR_CURRENTBUILD_NAME); });
+        [&]() -> QString {
+            BuildConfiguration *bc = activeBuildConfiguration();
+            return bc ? bc->displayName() : QString();
+        });
+
 
     expander->registerVariable(Constants::VAR_CURRENTBUILD_TYPE,
         tr("The currently active build configuration's type."),

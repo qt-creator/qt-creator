@@ -117,7 +117,7 @@ DisassemblerAgentPrivate::DisassemblerAgentPrivate()
     mimeType(_("text/x-qtcreator-generic-asm")),
     resetLocationScheduled(false)
 {
-    locationMark.setIcon(debuggerCore()->locationMarkIcon());
+    locationMark.setIcon(Internal::locationMarkIcon());
     locationMark.setPriority(TextMark::HighPriority);
 }
 
