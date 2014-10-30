@@ -72,6 +72,13 @@ def getHighlightsInHtml(htmlCode):
         res += "%s " % curr.group(1)
     return res
 
+def verifySelection(expected):
+    selText = str(__getSelectedText__())
+    if test.xverify(selText, "Verify that there is a selection"): # QTCREATORBUG-13239
+        # verify if search keyword is found in results
+        test.verify(expected.lower() in selText.lower(),
+                    "'%s' search result can be found" % expected)
+
 def main():
     global sdkPath
     noMatch = "Your search did not match any documents."
@@ -116,9 +123,7 @@ def main():
             type(waitForObject(":Hits_QCLuceneResultWidget"), "<Tab>")
             type(waitForObject(":Hits_QCLuceneResultWidget"), "<Return>")
             waitFor("__getUrl__() != url or selText != __getSelectedText__()", 20000)
-            # verify if search keyword is found in results
-            test.verify(searchKeyword.lower() in __getSelectedText__().lower(),
-                        searchKeyword + " search result can be found")
+            verifySelection(searchKeyword)
         else:
             test.verify(waitFor("noMatch in "
                                 "str(waitForObject(':Hits_QCLuceneResultWidget').plainText)", 1000),
@@ -149,13 +154,11 @@ def main():
     mouseClick(resultsView, 1, 1, 0, Qt.LeftButton)
     type(resultsView, "<Tab>")
     type(resultsView, "<Return>")
-    test.verify("printing" in str(__getSelectedText__()).lower(),
-                "printing advanced search result can be found")
+    verifySelection("printing")
     for i in range(2):
         type(resultsView, "<Tab>")
     type(resultsView, "<Return>")
-    test.verify("sql" in str(__getSelectedText__()).lower(),
-                "sql advanced search result can be found")
+    verifySelection("sql")
     # verify if simple search is properly disabled
     test.verify(not searchLineEdit.enabled,
                 "Verifying if simple search is not active in advanced mode.")
