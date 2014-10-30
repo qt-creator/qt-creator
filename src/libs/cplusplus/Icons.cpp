@@ -46,10 +46,16 @@ Icons::Icons()
       _funcPublicIcon(QLatin1String(":/codemodel/images/func.png")),
       _funcProtectedIcon(QLatin1String(":/codemodel/images/func_prot.png")),
       _funcPrivateIcon(QLatin1String(":/codemodel/images/func_priv.png")),
+      _funcPublicStaticIcon(QLatin1String(":/codemodel/images/func_st.png")),
+      _funcProtectedStaticIcon(QLatin1String(":/codemodel/images/func_prot_st.png")),
+      _funcPrivateStaticIcon(QLatin1String(":/codemodel/images/func_priv_st.png")),
       _namespaceIcon(QLatin1String(":/codemodel/images/namespace.png")),
       _varPublicIcon(QLatin1String(":/codemodel/images/var.png")),
       _varProtectedIcon(QLatin1String(":/codemodel/images/var_prot.png")),
       _varPrivateIcon(QLatin1String(":/codemodel/images/var_priv.png")),
+      _varPublicStaticIcon(QLatin1String(":/codemodel/images/var_st.png")),
+      _varProtectedStaticIcon(QLatin1String(":/codemodel/images/var_prot_st.png")),
+      _varPrivateStaticIcon(QLatin1String(":/codemodel/images/var_priv_st.png")),
       _signalIcon(QLatin1String(":/codemodel/images/signal.png")),
       _slotPublicIcon(QLatin1String(":/codemodel/images/slot.png")),
       _slotProtectedIcon(QLatin1String(":/codemodel/images/slot_prot.png")),
@@ -99,21 +105,22 @@ Icons::IconType Icons::iconTypeForSymbol(const Symbol *symbol)
         } else if (function->isSignal()) {
             return SignalIconType;
         } else if (symbol->isPublic()) {
-            return FuncPublicIconType;
+            return symbol->isStatic() ? FuncPublicStaticIconType : FuncPublicIconType;
         } else if (symbol->isProtected()) {
-            return FuncProtectedIconType;
+            return symbol->isStatic() ? FuncProtectedStaticIconType : FuncProtectedIconType;
         } else if (symbol->isPrivate()) {
-            return FuncPrivateIconType;
+            return symbol->isStatic() ? FuncPrivateStaticIconType : FuncPrivateIconType;
         }
     } else if (symbol->enclosingScope() && symbol->enclosingScope()->isEnum()) {
         return EnumeratorIconType;
     } else if (symbol->isDeclaration() || symbol->isArgument()) {
-        if (symbol->isPublic())
-            return VarPublicIconType;
-        else if (symbol->isProtected())
-            return VarProtectedIconType;
-        else if (symbol->isPrivate())
-            return VarPrivateIconType;
+        if (symbol->isPublic()) {
+            return symbol->isStatic() ? VarPublicStaticIconType : VarPublicIconType;
+        } else if (symbol->isProtected()) {
+            return symbol->isStatic() ? VarProtectedStaticIconType : VarProtectedIconType;
+        } else if (symbol->isPrivate()) {
+            return symbol->isStatic() ? VarPrivateStaticIconType : VarPrivateIconType;
+        }
     } else if (symbol->isEnum()) {
         return EnumIconType;
     } else if (symbol->isForwardClassDeclaration()) {
@@ -156,6 +163,12 @@ QIcon Icons::iconForType(IconType type) const
         return _funcProtectedIcon;
     case FuncPrivateIconType:
         return _funcPrivateIcon;
+    case FuncPublicStaticIconType:
+        return _funcPublicStaticIcon;
+    case FuncProtectedStaticIconType:
+        return _funcProtectedStaticIcon;
+    case FuncPrivateStaticIconType:
+        return _funcPrivateStaticIcon;
     case NamespaceIconType:
         return _namespaceIcon;
     case VarPublicIconType:
@@ -164,6 +177,12 @@ QIcon Icons::iconForType(IconType type) const
         return _varProtectedIcon;
     case VarPrivateIconType:
         return _varPrivateIcon;
+    case VarPublicStaticIconType:
+        return _varPublicStaticIcon;
+    case VarProtectedStaticIconType:
+        return _varProtectedStaticIcon;
+    case VarPrivateStaticIconType:
+        return _varPrivateStaticIcon;
     case SignalIconType:
         return _signalIcon;
     case SlotPublicIconType:

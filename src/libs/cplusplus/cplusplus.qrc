@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/codemodel" >
+    <qresource prefix="/codemodel">
         <file>images/class.png</file>
         <file>images/struct.png</file>
         <file>images/enum.png</file>
@@ -17,5 +17,11 @@
         <file>images/var.png</file>
         <file>images/var_priv.png</file>
         <file>images/var_prot.png</file>
+        <file>images/func_priv_st.png</file>
+        <file>images/func_prot_st.png</file>
+        <file>images/func_st.png</file>
+        <file>images/var_priv_st.png</file>
+        <file>images/var_prot_st.png</file>
+        <file>images/var_st.png</file>
     </qresource>
 </RCC>
