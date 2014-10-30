@@ -34,7 +34,8 @@
 #include <QQuickPaintedItem>
 #include <QJSValue>
 #include "timelinezoomcontrol.h"
-#include "timelinemodelaggregator.h"
+#include "timelinemodel.h"
+#include "qmlprofilernotesmodel.h"
 
 namespace QmlProfiler {
 namespace Internal {
@@ -42,13 +43,11 @@ namespace Internal {
 class TimelineRenderer : public QQuickPaintedItem
 {
     Q_OBJECT
-    Q_PROPERTY(QObject *profilerModelProxy READ profilerModelProxy WRITE setProfilerModelProxy NOTIFY profilerModelProxyChanged)
-    Q_PROPERTY(QObject *zoomer READ zoomer WRITE setZoomer NOTIFY zoomerChanged)
+    Q_PROPERTY(QmlProfiler::QmlProfilerTimelineModel *model READ model WRITE setModel NOTIFY modelChanged)
+    Q_PROPERTY(QmlProfiler::TimelineZoomControl *zoomer READ zoomer WRITE setZoomer NOTIFY zoomerChanged)
+    Q_PROPERTY(QmlProfiler::QmlProfilerNotesModel *notes READ notes WRITE setNotes NOTIFY notesChanged)
     Q_PROPERTY(bool selectionLocked READ selectionLocked WRITE setSelectionLocked NOTIFY selectionLockedChanged)
-    Q_PROPERTY(int selectedItem READ selectedItem NOTIFY selectedItemChanged)
-    Q_PROPERTY(int selectedModel READ selectedModel NOTIFY selectedModelChanged)
-    Q_PROPERTY(int startDragArea READ startDragArea WRITE setStartDragArea NOTIFY startDragAreaChanged)
-    Q_PROPERTY(int endDragArea READ endDragArea WRITE setEndDragArea NOTIFY endDragAreaChanged)
+    Q_PROPERTY(int selectedItem READ selectedItem WRITE setSelectedItem NOTIFY selectedItemChanged)
 
 public:
     explicit TimelineRenderer(QQuickPaintedItem *parent = 0);
@@ -63,93 +62,32 @@ public:
         return m_selectedItem;
     }
 
-    int selectedModel() const
-    {
-        return m_selectedModel;
-    }
-
-    int startDragArea() const
-    {
-        return m_startDragArea;
-    }
-
-    int endDragArea() const
-    {
-        return m_endDragArea;
-    }
-
-    TimelineModelAggregator *profilerModelProxy() const { return m_profilerModelProxy; }
-    void setProfilerModelProxy(QObject *profilerModelProxy);
+    QmlProfilerTimelineModel *model() const { return m_model; }
+    void setModel(QmlProfilerTimelineModel *model);
 
     TimelineZoomControl *zoomer() const { return m_zoomer; }
-    void setZoomer(QObject *zoomer);
+    void setZoomer(TimelineZoomControl *zoomer);
 
-    Q_INVOKABLE int getYPosition(int modelIndex, int index) const;
+    QmlProfilerNotesModel *notes() const { return m_notes; }
+    void setNotes(QmlProfilerNotesModel *notes);
 
-    Q_INVOKABLE void selectFromEventIndex(int modelIndex, int index);
-    Q_INVOKABLE void selectNextFromSelectionId(int modelIndex, int selectionId);
-    Q_INVOKABLE void selectPrevFromSelectionId(int modelIndex, int selectionId);
+    Q_INVOKABLE int getYPosition(int index) const;
+
+    Q_INVOKABLE void selectNextFromSelectionId(int selectionId);
+    Q_INVOKABLE void selectPrevFromSelectionId(int selectionId);
 
 signals:
-    void profilerModelProxyChanged(TimelineModelAggregator *list);
+    void modelChanged(TimelineModel *model);
     void zoomerChanged(TimelineZoomControl *zoomer);
+    void notesChanged(QmlProfilerNotesModel *notes);
+
     void selectionLockedChanged(bool locked);
     void selectedItemChanged(int itemIndex);
-    void selectedModelChanged(int modelIndex);
-    void selectionChanged(int modelIndex, int itemIndex);
-    void startDragAreaChanged(int startDragArea);
-    void endDragAreaChanged(int endDragArea);
-    void itemPressed(int modelIndex, int pressedItem);
+    void itemPressed(int pressedItem);
 
 public slots:
     void clearData();
     void requestPaint();
-    void swapSelections(int modelIndex1, int modelIndex2);
-
-    void setSelectionLocked(bool locked)
-    {
-        if (m_selectionLocked != locked) {
-            m_selectionLocked = locked;
-            update();
-            emit selectionLockedChanged(locked);
-        }
-    }
-
-    void setStartDragArea(int startDragArea)
-    {
-        if (m_startDragArea != startDragArea) {
-            m_startDragArea = startDragArea;
-            emit startDragAreaChanged(startDragArea);
-        }
-    }
-
-    void setEndDragArea(int endDragArea)
-    {
-        if (m_endDragArea != endDragArea) {
-            m_endDragArea = endDragArea;
-            emit endDragAreaChanged(endDragArea);
-        }
-    }
-
-protected:
-    virtual void paint(QPainter *);
-    virtual void componentComplete();
-    virtual void mousePressEvent(QMouseEvent *event);
-    virtual void mouseReleaseEvent(QMouseEvent *event);
-    virtual void mouseMoveEvent(QMouseEvent *event);
-    virtual void hoverMoveEvent(QHoverEvent *event);
-
-private:
-    void drawItemsToPainter(QPainter *p, int modelIndex, int fromIndex, int toIndex);
-    void drawSelectionBoxes(QPainter *p, int modelIndex, int fromIndex, int toIndex);
-    void drawBindingLoopMarkers(QPainter *p, int modelIndex, int fromIndex, int toIndex);
-    void drawNotes(QPainter *p);
-
-    int modelFromPosition(int y);
-    int rowFromPosition(int y);
-
-    void manageClicked();
-    void manageHovered(int mouseX, int mouseY);
 
     void setSelectedItem(int itemIndex)
     {
@@ -160,43 +98,55 @@ private:
         }
     }
 
-    void setSelectedModel(int modelIndex)
+    void setSelectionLocked(bool locked)
     {
-        if (m_selectedModel != modelIndex) {
-            m_selectedModel = modelIndex;
+        if (m_selectionLocked != locked) {
+            m_selectionLocked = locked;
             update();
-            emit selectedModelChanged(modelIndex);
+            emit selectionLockedChanged(locked);
         }
     }
 
+protected:
+    virtual void paint(QPainter *);
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event);
+    virtual void hoverMoveEvent(QHoverEvent *event);
+
 private:
-    enum IdType { SelectionId, TypeId };
+    void drawItemsToPainter(QPainter *p, int fromIndex, int toIndex);
+    void drawSelectionBoxes(QPainter *p, int fromIndex, int toIndex);
+    void drawBindingLoopMarkers(QPainter *p, int fromIndex, int toIndex);
+    void drawNotes(QPainter *p);
+
+    int rowFromPosition(int y);
+
+    void manageClicked();
+    void manageHovered(int mouseX, int mouseY);
 
     static const int OutOfScreenMargin = 3; // margin to make sure the rectangles stay invisible
     static const int MinimumItemWidth = 3;
 
-    inline void getItemXExtent(int modelIndex, int i, int &currentX, int &itemWidth);
+    inline void getItemXExtent(int i, int &currentX, int &itemWidth);
     void resetCurrentSelection();
 
     qreal m_spacing;
     qreal m_spacedDuration;
 
-    TimelineModelAggregator *m_profilerModelProxy;
+    QmlProfilerTimelineModel *m_model;
     TimelineZoomControl *m_zoomer;
+    QmlProfilerNotesModel *m_notes;
 
     struct {
         qint64 startTime;
         qint64 endTime;
         int row;
         int eventIndex;
-        int modelIndex;
     } m_currentSelection;
 
     int m_selectedItem;
-    int m_selectedModel;
     bool m_selectionLocked;
-    int m_startDragArea;
-    int m_endDragArea;
 };
 
 } // namespace Internal

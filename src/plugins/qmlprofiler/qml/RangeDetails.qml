@@ -45,7 +45,10 @@ Item {
     property int selectedModel: -1
     property int selectedItem: -1
 
-    property bool locked: view.selectionLocked
+    property bool locked
+
+    property var models
+    property var notes
 
     width: col.width + 25
     height: col.height + 30
@@ -84,7 +87,8 @@ Item {
 
         selectedModel = model;
         selectedItem = item;
-        var eventData = qmlProfilerModelProxy.details(selectedModel, selectedItem)
+        var timelineModel = models[selectedModel];
+        var eventData = timelineModel.details(selectedItem)
         eventInfo.clear();
         for (var k in eventData) {
             if (k === "displayName") {
@@ -96,7 +100,7 @@ Item {
         }
         rangeDetails.visible = true;
 
-        var location = qmlProfilerModelProxy.location(selectedModel, selectedItem)
+        var location = timelineModel.location(selectedItem)
         if (location.hasOwnProperty("file")) { // not empty
             file = location.file;
             line = location.line;
@@ -109,7 +113,8 @@ Item {
         }
 
         noteEdit.focus = false;
-        noteEdit.text = qmlProfilerModelProxy.noteText(selectedModel, selectedItem);
+        var noteId = notes.get(timelineModel.modelId, selectedItem);
+        noteEdit.text = (noteId !== -1) ? notes.text(noteId) : "";
     }
 
     function fitInView() {
@@ -225,7 +230,7 @@ Item {
             onFocusChanged: {
                 if (!focus && selectedModel != -1 && selectedItem != -1) {
                     saveTimer.stop();
-                    qmlProfilerModelProxy.setNoteText(selectedModel, selectedItem, text);
+                    notes.setText(models[selectedModel].modelId, selectedItem, text);
                 }
             }
 
@@ -233,8 +238,7 @@ Item {
                 id: saveTimer
                 onTriggered: {
                     if (selectedModel != -1 && selectedItem != -1)
-                        qmlProfilerModelProxy.setNoteText(selectedModel, selectedItem,
-                                                          noteEdit.text);
+                        notes.setText(models[selectedModel].modelId, selectedItem, noteEdit.text);
                 }
                 interval: 1000
             }
@@ -250,7 +254,7 @@ Item {
         drag.maximumY: root.height - parent.height
         onClicked: {
             root.gotoSourceLocation(file, line, column);
-            root.recenterOnItem(view.selectedModel, view.selectedItem);
+            root.recenterOnItem();
         }
     }
 
@@ -294,10 +298,7 @@ Item {
         renderType: Text.NativeRendering
         MouseArea {
             anchors.fill: parent
-            onClicked: {
-                rangeDetails.hide();
-                view.selectFromEventIndex(view.selectedModel, -1);
-            }
+            onClicked:  root.propagateSelection(-1, -1);
         }
     }
 

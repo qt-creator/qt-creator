@@ -101,6 +101,8 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
     groupLayout->setContentsMargins(0, 0, 0, 0);
     groupLayout->setSpacing(0);
 
+    qmlRegisterType<TimelineZoomControl>();
+    qmlRegisterType<QmlProfilerTimelineModel>();
     qmlRegisterType<QmlProfilerNotesModel>();
 
     d->m_mainView = new QmlProfilerQuickView(this);
@@ -195,7 +197,8 @@ void QmlProfilerTraceView::selectBySourceLocation(const QString &filename, int l
         return;
 
     for (int modelIndex = 0; modelIndex < d->m_modelProxy->modelCount(); ++modelIndex) {
-        int typeId = d->m_modelProxy->selectionIdForLocation(modelIndex, filename, line, column);
+        int typeId = d->m_modelProxy->model(modelIndex)->selectionIdForLocation(filename, line,
+                                                                                column);
         if (typeId != -1) {
             QMetaObject::invokeMethod(rootObject, "selectBySelectionId",
                                       Q_ARG(QVariant,QVariant(modelIndex)),
@@ -264,7 +267,7 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
     if (d->m_viewContainer->hasGlobalStats())
         getGlobalStatsAction->setEnabled(false);
 
-    if (!d->m_modelProxy->isEmpty()) {
+    if (d->m_zoomControl->traceDuration() > 0) {
         menu.addSeparator();
         viewAllAction = menu.addAction(tr("Reset Zoom"));
     }

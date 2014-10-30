@@ -98,8 +98,9 @@ Canvas {
         onDataAvailable: {
             dataReady = true;
             increment = 0;
-            for (var i = 0; i < qmlProfilerModelProxy.modelCount(); ++i)
-                increment += qmlProfilerModelProxy.count(i);
+            var models = qmlProfilerModelProxy.models;
+            for (var i = 0; i < models.length; ++i)
+                increment += models[i].count;
             increment = Math.ceil(increment / eventsPerPass);
             offset = -1;
             requestPaint();
@@ -119,8 +120,9 @@ Canvas {
     onPaint: {
         var context = (canvas.context === null) ? getContext("2d") : canvas.context;
 
-        Plotter.qmlProfilerModelProxy = qmlProfilerModelProxy;
+        Plotter.models = qmlProfilerModelProxy.models;
         Plotter.zoomControl = zoomControl;
+        Plotter.notes = qmlProfilerModelProxy.notes;
 
         if (offset < 0) {
             context.reset();
@@ -143,6 +145,7 @@ Canvas {
 
     Canvas {
         property alias bump: canvas.bump
+        property alias spacing: canvas.spacing
         property bool doPaint: false
         onDoPaintChanged: {
             if (doPaint)

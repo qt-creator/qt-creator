@@ -52,6 +52,7 @@ class QMLPROFILER_EXPORT TimelineModel : public QObject
     Q_PROPERTY(int rowCount READ rowCount NOTIFY rowCountChanged)
     Q_PROPERTY(QVariantList labels READ labels NOTIFY labelsChanged)
     Q_PROPERTY(int count READ count NOTIFY emptyChanged)
+    Q_PROPERTY(int defaultRowHeight READ defaultRowHeight CONSTANT)
 
 public:
     class TimelineModelPrivate;

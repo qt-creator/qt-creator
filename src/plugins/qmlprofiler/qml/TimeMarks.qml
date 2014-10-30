@@ -36,6 +36,9 @@ Canvas {
     objectName: "TimeMarks"
     contextType: "2d"
 
+    property QtObject model
+    property bool startOdd
+
     readonly property int scaleMinHeight: 60
     readonly property int scaleStepping: 30
     readonly property string units: " kMGT"
@@ -45,11 +48,14 @@ Canvas {
     property real timePerPixel
 
     Connections {
-        target: labels
+        target: model
         onHeightChanged: requestPaint()
     }
 
+    onStartTimeChanged: requestPaint()
+    onEndTimeChanged: requestPaint()
     onYChanged: requestPaint()
+    onHeightChanged: requestPaint()
 
     onPaint: {
         var context = (timeMarks.context === null) ? getContext("2d") : timeMarks.context;
@@ -70,33 +76,23 @@ Canvas {
 
         timePerPixel = timePerBlock/pixelsPerBlock;
 
-        var lineStart = y < 0 ? -y : 0;
-        var lineEnd = Math.min(height, labels.height - y);
 
         for (var ii = 0; ii < blockCount+1; ii++) {
             var x = Math.floor(ii*pixelsPerBlock - realStartPos);
             context.strokeStyle = "#B0B0B0";
             context.beginPath();
-            context.moveTo(x, lineStart);
-            context.lineTo(x, lineEnd);
+            context.moveTo(x, 0);
+            context.lineTo(x, height);
             context.stroke();
 
             context.strokeStyle = "#CCCCCC";
             for (var jj=1; jj < 5; jj++) {
                 var xx = Math.floor(ii*pixelsPerBlock + jj*pixelsPerSection - realStartPos);
                 context.beginPath();
-                context.moveTo(xx, lineStart);
-                context.lineTo(xx, lineEnd);
+                context.moveTo(xx, 0);
+                context.lineTo(xx, height);
                 context.stroke();
             }
-        }
-    }
-
-    function updateMarks(start, end) {
-        if (startTime !== start || endTime !== end) {
-            startTime = start;
-            endTime = end;
-            requestPaint();
         }
     }
 
@@ -117,82 +113,65 @@ Canvas {
     }
 
     function drawBackgroundBars( context, region ) {
-        var colorIndex = true;
+        var colorIndex = startOdd;
 
         context.font = "8px sans-serif";
 
         // separators
-        var cumulatedHeight = y < 0 ? -y : 0;
-        for (var modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); ++modelIndex) {
-            var modelHeight = qmlProfilerModelProxy.models[modelIndex].height;
-            if (modelHeight === 0)
+        var cumulatedHeight = 0;
+
+        for (var row = 0; row < model.rowCount; ++row) {
+            // row background
+            var rowHeight = model.rowHeight(row)
+            cumulatedHeight += rowHeight;
+            colorIndex = !colorIndex;
+            if (cumulatedHeight < y - rowHeight)
                 continue;
-            if (cumulatedHeight + modelHeight < y) {
-                cumulatedHeight += modelHeight;
-                if (qmlProfilerModelProxy.rowCount(modelIndex) % 2 !== 0)
-                    colorIndex = !colorIndex;
-                continue;
-            }
+            context.strokeStyle = context.fillStyle = colorIndex ? "#f0f0f0" : "white";
+            context.fillRect(0, cumulatedHeight - rowHeight - y, width, rowHeight);
 
-            for (var row = 0; row < qmlProfilerModelProxy.rowCount(modelIndex); ++row) {
-                // row background
-                var rowHeight = qmlProfilerModelProxy.rowHeight(modelIndex, row)
-                cumulatedHeight += rowHeight;
-                colorIndex = !colorIndex;
-                if (cumulatedHeight < y - rowHeight)
-                    continue;
-                context.strokeStyle = context.fillStyle = colorIndex ? "#f0f0f0" : "white";
-                context.fillRect(0, cumulatedHeight - rowHeight - y, width, rowHeight);
+            if (rowHeight >= scaleMinHeight) {
+                var minVal = model.rowMinValue(row);
+                var maxVal = model.rowMaxValue(row);
+                if (minVal !== maxVal) {
+                    context.strokeStyle = context.fillStyle = "#B0B0B0";
 
-                if (rowHeight >= scaleMinHeight) {
-                    var minVal = qmlProfilerModelProxy.rowMinValue(modelIndex, row);
-                    var maxVal = qmlProfilerModelProxy.rowMaxValue(modelIndex, row);
-                    if (minVal !== maxVal) {
-                        context.strokeStyle = context.fillStyle = "#B0B0B0";
+                    var stepValUgly = Math.ceil((maxVal - minVal) /
+                                            Math.floor(rowHeight / scaleStepping));
 
-                        var stepValUgly = Math.ceil((maxVal - minVal) /
-                                                Math.floor(rowHeight / scaleStepping));
+                    // align to clean 2**x
+                    var stepVal = 1;
+                    while (stepValUgly >>= 1)
+                        stepVal <<= 1;
 
-                        // align to clean 2**x
-                        var stepVal = 1;
-                        while (stepValUgly >>= 1)
-                            stepVal <<= 1;
+                    var stepHeight = rowHeight / (maxVal - minVal);
 
-                        var stepHeight = rowHeight / (maxVal - minVal);
-
-                        for (var step = minVal; step <= maxVal - stepVal; step += stepVal) {
-                            var offset = cumulatedHeight - step * stepHeight - y;
-                            context.beginPath();
-                            context.moveTo(0, offset);
-                            context.lineTo(width, offset);
-                            context.stroke();
-                            context.fillText(prettyPrintScale(step), 5, offset - 2);
-                        }
+                    for (var step = minVal; step <= maxVal - stepVal; step += stepVal) {
+                        var offset = cumulatedHeight - step * stepHeight - y;
                         context.beginPath();
-                        context.moveTo(0, cumulatedHeight - rowHeight - y);
-                        context.lineTo(width, cumulatedHeight - rowHeight - y);
+                        context.moveTo(0, offset);
+                        context.lineTo(width, offset);
                         context.stroke();
-                        context.fillText(prettyPrintScale(maxVal), 5,
-                                         cumulatedHeight - rowHeight - y + 8);
-
+                        context.fillText(prettyPrintScale(step), 5, offset - 2);
                     }
-                }
+                    context.beginPath();
+                    context.moveTo(0, cumulatedHeight - rowHeight - y);
+                    context.lineTo(width, cumulatedHeight - rowHeight - y);
+                    context.stroke();
+                    context.fillText(prettyPrintScale(maxVal), 5,
+                                     cumulatedHeight - rowHeight - y + 8);
 
-                if (cumulatedHeight > y + height)
-                    return;
+                }
             }
 
-            context.strokeStyle = "#B0B0B0";
-            context.beginPath();
-            context.moveTo(0, cumulatedHeight - y);
-            context.lineTo(width, cumulatedHeight - y);
-            context.stroke();
+            if (cumulatedHeight > y + height)
+                return;
         }
 
-        // bottom
-        if (height > labels.height - y) {
-            context.fillStyle = "#f5f5f5";
-            context.fillRect(0, labels.height - y, width, height - labels.height + y);
-        }
+        context.strokeStyle = "#B0B0B0";
+        context.beginPath();
+        context.moveTo(0, cumulatedHeight - y);
+        context.lineTo(width, cumulatedHeight - y);
+        context.stroke();
     }
 }

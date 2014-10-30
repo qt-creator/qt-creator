@@ -34,42 +34,41 @@ import QtQuick.Controls.Styles 1.2
 
 Item {
     id: labelContainer
-    property string text: trigger(1) ? qmlProfilerModelProxy.displayName(modelIndex) : ""
-    property bool expanded: trigger(qmlProfilerModelProxy.expanded(modelIndex))
-    property int modelIndex: index
-    property int bindingTrigger: 1
+
+    property QtObject model
+    property bool mockup
+    property string text: model ? model.displayName : ""
+    property bool expanded: model && model.expanded
     property var descriptions: []
     property var extdescriptions: []
     property var selectionIds: []
     property bool dragging
+    property int visualIndex
+    property int dragOffset
     property Item draggerParent
 
     signal dragStarted;
     signal dragStopped;
+    signal dropped(int sourceIndex, int targetIndex)
+
+    signal selectById(int eventId)
+    signal selectNextBySelectionId(int selectionId)
+    signal selectPrevBySelectionId(int selectionId)
 
     readonly property int dragHeight: 5
 
-    function trigger(i) {
-        return i * bindingTrigger * bindingTrigger;
-    }
-
     property bool reverseSelect: false
 
-    visible: trigger(!qmlProfilerModelProxy.models[modelIndex].hidden &&
-                     !qmlProfilerModelProxy.models[modelIndex].empty)
+    visible: model && (mockup || (!model.hidden && !model.empty))
 
-    height: trigger(qmlProfilerModelProxy.models[modelIndex].height)
+    height: model ? Math.max(txt.height, model.height) : 0
     width: 150
 
     function updateDescriptions() {
-        bindingTrigger = -bindingTrigger;
-        if (!visible)
-            return;
-
         var desc=[];
         var ids=[];
         var extdesc=[];
-        var labelList = qmlProfilerModelProxy.labels(modelIndex);
+        var labelList = model.labels;
         for (var i = 0; i < labelList.length; i++ ) {
             extdesc[i] = desc[i] = (labelList[i].description || qsTr("<bytecode>"));
             ids[i] = labelList[i].id;
@@ -82,16 +81,8 @@ Item {
     }
 
     Connections {
-        target: qmlProfilerModelProxy.models[modelIndex]
-        onExpandedChanged: updateDescriptions()
-        onRowHeightChanged: updateDescriptions()
-        onHiddenChanged: updateDescriptions()
-    }
-
-    Connections {
-        target: qmlProfilerModelProxy
-        onStateChanged: updateDescriptions()
-        onModelsChanged: updateDescriptions()
+        target: model
+        onLabelsChanged: updateDescriptions()
     }
 
     MouseArea {
@@ -99,20 +90,22 @@ Item {
         anchors.fill: txt
         drag.target: dragger
         cursorShape: dragging ? Qt.ClosedHandCursor : Qt.OpenHandCursor
+        drag.minimumY: dragging ? 0 : -dragOffset // Account for parent change below
+        drag.maximumY: draggerParent.height - (dragging ? 0 : dragOffset)
     }
 
     DropArea {
         id: dropArea
 
         onPositionChanged: {
-            if ((drag.source.modelIndex > labelContainer.modelIndex &&
-                    drag.source.y < labelContainer.y + drag.source.height) ||
-                    (drag.source.modelIndex < labelContainer.modelIndex &&
-                    drag.source.y > labelContainer.y + labelContainer.height -
-                    drag.source.height)) {
-                qmlProfilerModelProxy.swapModels(drag.source.modelIndex,
-                                                 labelContainer.modelIndex);
-                drag.source.modelIndex = labelContainer.modelIndex;
+            var sourceIndex = drag.source.visualIndex;
+            if (drag.source.y + drag.source.height > dragOffset + labelContainer.height &&
+                    sourceIndex !== visualIndex && sourceIndex !== visualIndex + 1) {
+                var moveTo = sourceIndex > visualIndex ? visualIndex + 1 : visualIndex;
+                labelContainer.dropped(sourceIndex, moveTo);
+            } else if (drag.source.y === 0) {
+                // special case for first position.
+                labelContainer.dropped(sourceIndex, 0);
             }
         }
 
@@ -125,7 +118,7 @@ Item {
         font.pixelSize: 12
         text: labelContainer.text
         color: "#232323"
-        height: trigger(qmlProfilerModelProxy.rowHeight(modelIndex, 0))
+        height: model ? model.defaultRowHeight : 0
         width: 140
         verticalAlignment: Text.AlignVCenter
         renderType: Text.NativeRendering
@@ -140,19 +133,21 @@ Item {
     }
 
     Column {
+        id: column
+        property QtObject parentModel: model
         anchors.top: txt.bottom
         visible: expanded
         Repeater {
             model: descriptions.length
             Button {
                 width: labelContainer.width
-                height: trigger(qmlProfilerModelProxy.rowHeight(modelIndex, index + 1))
+                height: column.parentModel ? column.parentModel.rowHeight(index + 1) : 0
                 action: Action {
                     onTriggered: {
                         if (reverseSelect)
-                            view.selectPrevFromSelectionId(modelIndex,selectionIds[index]);
+                            labelContainer.selectPrevBySelectionId(selectionIds[index]);
                         else
-                            view.selectNextFromSelectionId(modelIndex,selectionIds[index]);
+                            labelContainer.selectNextBySelectionId(selectionIds[index]);
                     }
 
                     tooltip: extdescriptions[index]
@@ -186,8 +181,10 @@ Item {
                     cursorShape: Qt.SizeVerCursor
 
                     onMouseYChanged: {
-                        if (resizing)
-                            qmlProfilerModelProxy.setRowHeight(modelIndex, index + 1, y + mouseY);
+                        if (resizing) {
+                            column.parentModel.setRowHeight(index + 1, y + mouseY);
+                            parent.height = column.parentModel.rowHeight(index + 1);
+                        }
                     }
                 }
             }
@@ -203,22 +200,22 @@ Item {
         property var eventIds: []
         property var texts: []
         property int currentNote: -1
+        property var notesModel: qmlProfilerModelProxy.notes
         Connections {
-            target: qmlProfilerModelProxy
-            onModelsChanged: notesButton.updateNotes()
-            onNotesChanged: {
-                if (arguments[1] === -1 || arguments[1] === modelIndex)
+            target: notesButton.notesModel
+            onChanged: {
+                if (arguments[1] === -1 || arguments[1] === model.modelId)
                     notesButton.updateNotes();
             }
         }
 
         function updateNotes() {
-            var notes = qmlProfilerModelProxy.notesByTimelineModel(modelIndex);
+            var notes = notesModel.byTimelineModel(model.modelId);
             var newTexts = [];
             var newEventIds = [];
             for (var i in notes) {
-                newTexts.push(qmlProfilerModelProxy.noteText(notes[i]))
-                newEventIds.push(qmlProfilerModelProxy.noteTimelineIndex(notes[i]));
+                newTexts.push(notesModel.text(notes[i]))
+                newEventIds.push(notesModel.timelineIndex(notes[i]));
             }
 
             // Bindings are only triggered when assigning the whole array.
@@ -232,7 +229,7 @@ Item {
         onClicked: {
             if (++currentNote >= eventIds.length)
                 currentNote = 0;
-            view.selectFromEventIndex(modelIndex, eventIds[currentNote]);
+            labelContainer.selectById(eventIds[currentNote]);
         }
     }
 
@@ -242,15 +239,15 @@ Item {
         anchors.right: parent.right
         implicitWidth: 17
         implicitHeight: txt.height - 1
-        enabled: expanded || trigger(qmlProfilerModelProxy.count(modelIndex)) > 0
+        enabled: expanded || (model && !model.empty)
         iconSource: expanded ? "arrow_down.png" : "arrow_right.png"
         tooltip: expanded ? qsTr("Collapse category") : qsTr("Expand category.")
-        onClicked: qmlProfilerModelProxy.setExpanded(modelIndex, !expanded);
+        onClicked: model.expanded = !expanded
     }
 
     Rectangle {
         id: dragger
-        property int modelIndex
+        property int visualIndex: labelContainer.visualIndex
         width: labelContainer.width
         height: 0
         color: "black"
@@ -262,10 +259,9 @@ Item {
 
         Drag.active: dragArea.drag.active
         Drag.onActiveChanged: {
-            // We don't want height, text, or modelIndex to be changed when reordering occurs, so we
-            // don't make them properties.
+            // We don't want height or text to be changed when reordering occurs, so we don't make
+            // them properties.
             draggerText.text = txt.text;
-            modelIndex = labelContainer.modelIndex;
             if (Drag.active) {
                 height = labelContainer.height;
                 labelContainer.dragStarted();

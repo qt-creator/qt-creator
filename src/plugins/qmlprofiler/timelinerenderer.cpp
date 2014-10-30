@@ -41,45 +41,47 @@
 
 #include <math.h>
 
+using namespace QmlProfiler;
 using namespace QmlProfiler::Internal;
 
 TimelineRenderer::TimelineRenderer(QQuickPaintedItem *parent) :
-    QQuickPaintedItem(parent), m_spacing(0), m_spacedDuration(0), m_profilerModelProxy(0),
-    m_zoomer(0), m_selectedItem(-1), m_selectedModel(-1), m_selectionLocked(true),
-    m_startDragArea(-1), m_endDragArea(-1)
+    QQuickPaintedItem(parent), m_spacing(0), m_spacedDuration(0),
+    m_model(0), m_zoomer(0), m_notes(0), m_selectedItem(-1), m_selectionLocked(true)
 {
     resetCurrentSelection();
     setAcceptedMouseButtons(Qt::LeftButton);
     setAcceptHoverEvents(true);
+
+    connect(this, &QQuickItem::yChanged, this, &TimelineRenderer::requestPaint);
+    connect(this, &QQuickItem::xChanged, this, &TimelineRenderer::requestPaint);
+    connect(this, &QQuickItem::widthChanged, this, &TimelineRenderer::requestPaint);
+    connect(this, &QQuickItem::heightChanged, this, &TimelineRenderer::requestPaint);
 }
 
-void TimelineRenderer::setProfilerModelProxy(QObject *profilerModelProxy)
+void TimelineRenderer::setModel(QmlProfilerTimelineModel *model)
 {
-    if (m_profilerModelProxy) {
-        disconnect(m_profilerModelProxy, SIGNAL(expandedChanged()), this, SLOT(requestPaint()));
-        disconnect(m_profilerModelProxy, SIGNAL(hiddenChanged()), this, SLOT(requestPaint()));
-        disconnect(m_profilerModelProxy, SIGNAL(rowHeightChanged()), this, SLOT(requestPaint()));
-        disconnect(m_profilerModelProxy, SIGNAL(modelsChanged(int,int)),
-                   this, SLOT(swapSelections(int,int)));
-        disconnect(m_profilerModelProxy, SIGNAL(notesChanged()), this, SLOT(requestPaint()));
-    }
-    m_profilerModelProxy = qobject_cast<TimelineModelAggregator *>(profilerModelProxy);
+    if (m_model == model)
+        return;
 
-    if (m_profilerModelProxy) {
-        connect(m_profilerModelProxy, SIGNAL(expandedChanged()), this, SLOT(requestPaint()));
-        connect(m_profilerModelProxy, SIGNAL(hiddenChanged()), this, SLOT(requestPaint()));
-        connect(m_profilerModelProxy, SIGNAL(rowHeightChanged()), this, SLOT(requestPaint()));
-        connect(m_profilerModelProxy, SIGNAL(modelsChanged(int,int)),
-                this, SLOT(swapSelections(int,int)));
-        connect(m_profilerModelProxy, SIGNAL(notesChanged(int,int,int)),
-                this, SLOT(requestPaint()));
+    if (m_model) {
+        disconnect(m_model, SIGNAL(expandedChanged()), this, SLOT(requestPaint()));
+        disconnect(m_model, SIGNAL(hiddenChanged()), this, SLOT(requestPaint()));
+        disconnect(m_model, SIGNAL(rowHeightChanged()), this, SLOT(requestPaint()));
     }
-    emit profilerModelProxyChanged(m_profilerModelProxy);
+
+    m_model = model;
+    if (m_model) {
+        connect(m_model, SIGNAL(expandedChanged()), this, SLOT(requestPaint()));
+        connect(m_model, SIGNAL(hiddenChanged()), this, SLOT(requestPaint()));
+        connect(m_model, SIGNAL(rowHeightChanged()), this, SLOT(requestPaint()));
+    }
+
+    emit modelChanged(m_model);
+    update();
 }
 
-void TimelineRenderer::setZoomer(QObject *zoomControl)
+void TimelineRenderer::setZoomer(TimelineZoomControl *zoomer)
 {
-    TimelineZoomControl *zoomer = qobject_cast<TimelineZoomControl *>(zoomControl);
     if (zoomer != m_zoomer) {
         if (m_zoomer != 0)
             disconnect(m_zoomer, SIGNAL(rangeChanged(qint64,qint64)), this, SLOT(requestPaint()));
@@ -91,17 +93,20 @@ void TimelineRenderer::setZoomer(QObject *zoomControl)
     }
 }
 
-void TimelineRenderer::componentComplete()
+void TimelineRenderer::setNotes(QmlProfilerNotesModel *notes)
 {
-    const QMetaObject *metaObject = this->metaObject();
-    int propertyCount = metaObject->propertyCount();
-    int requestPaintMethod = metaObject->indexOfMethod("requestPaint()");
-    for (int ii = TimelineRenderer::staticMetaObject.propertyCount(); ii < propertyCount; ++ii) {
-        QMetaProperty p = metaObject->property(ii);
-        if (p.hasNotifySignal())
-            QMetaObject::connect(this, p.notifySignalIndex(), this, requestPaintMethod, 0, 0);
-    }
-    QQuickItem::componentComplete();
+    if (m_notes == notes)
+        return;
+
+    if (m_notes)
+        disconnect(m_notes, &QmlProfilerNotesModel::changed, this, &TimelineRenderer::requestPaint);
+
+    m_notes = notes;
+    if (m_notes)
+        connect(m_notes, &QmlProfilerNotesModel::changed, this, &TimelineRenderer::requestPaint);
+
+    emit notesChanged(m_notes);
+    update();
 }
 
 void TimelineRenderer::requestPaint()
@@ -109,36 +114,22 @@ void TimelineRenderer::requestPaint()
     update();
 }
 
-void TimelineRenderer::swapSelections(int modelIndex1, int modelIndex2)
+inline void TimelineRenderer::getItemXExtent(int i, int &currentX, int &itemWidth)
 {
-    // Any hovered event is most likely useless now. Reset it.
-    resetCurrentSelection();
-
-    // Explicitly selected events can be tracked in a useful way.
-    if (m_selectedModel == modelIndex1)
-        setSelectedModel(modelIndex2);
-    else if (m_selectedModel == modelIndex2)
-        setSelectedModel(modelIndex1);
-
-    update();
-}
-
-inline void TimelineRenderer::getItemXExtent(int modelIndex, int i, int &currentX, int &itemWidth)
-{
-    qint64 start = m_profilerModelProxy->startTime(modelIndex, i) - m_zoomer->rangeStart();
+    qint64 start = m_model->startTime(i) - m_zoomer->rangeStart();
 
     // avoid integer overflows by using floating point for width calculations. m_spacing is qreal,
     // too, so for some intermediate calculations we have to use floats anyway.
     qreal rawWidth;
     if (start > 0) {
         currentX = static_cast<int>(start * m_spacing);
-        rawWidth = m_profilerModelProxy->duration(modelIndex, i) * m_spacing;
+        rawWidth = m_model->duration(i) * m_spacing;
     } else {
         currentX = -OutOfScreenMargin;
         // Explicitly round the "start" part down, away from 0, to match the implicit rounding of
         // currentX in the > 0 case. If we don't do that we get glitches where a pixel is added if
         // the element starts outside the screen and subtracted if it starts inside the screen.
-        rawWidth = m_profilerModelProxy->duration(modelIndex, i) * m_spacing +
+        rawWidth = m_model->duration(i) * m_spacing +
                 floor(start * m_spacing) + OutOfScreenMargin;
     }
     if (rawWidth < MinimumItemWidth) {
@@ -157,12 +148,11 @@ void TimelineRenderer::resetCurrentSelection()
     m_currentSelection.endTime = -1;
     m_currentSelection.row = -1;
     m_currentSelection.eventIndex = -1;
-    m_currentSelection.modelIndex = -1;
 }
 
 void TimelineRenderer::paint(QPainter *p)
 {
-    if (m_zoomer->rangeDuration() <= 0)
+    if (height() <= 0 || m_zoomer->rangeDuration() <= 0)
         return;
 
     m_spacing = width() / m_zoomer->rangeDuration();
@@ -170,56 +160,52 @@ void TimelineRenderer::paint(QPainter *p)
 
     p->setPen(Qt::transparent);
 
-    for (int modelIndex = 0; modelIndex < m_profilerModelProxy->modelCount(); modelIndex++) {
-        if (m_profilerModelProxy->hidden(modelIndex))
-            continue;
-        int lastIndex = m_profilerModelProxy->lastIndex(modelIndex, m_zoomer->rangeEnd());
-        if (lastIndex >= 0 && lastIndex < m_profilerModelProxy->count(modelIndex)) {
-            int firstIndex = m_profilerModelProxy->firstIndex(modelIndex, m_zoomer->rangeStart());
-            if (firstIndex >= 0) {
-                drawItemsToPainter(p, modelIndex, firstIndex, lastIndex);
-                if (m_selectedModel == modelIndex)
-                    drawSelectionBoxes(p, modelIndex, firstIndex, lastIndex);
-                drawBindingLoopMarkers(p, modelIndex, firstIndex, lastIndex);
-            }
+    int lastIndex = m_model->lastIndex(m_zoomer->rangeEnd());
+    if (lastIndex >= 0 && lastIndex < m_model->count()) {
+        int firstIndex = m_model->firstIndex(m_zoomer->rangeStart());
+        if (firstIndex >= 0) {
+            drawItemsToPainter(p, firstIndex, lastIndex);
+            drawSelectionBoxes(p, firstIndex, lastIndex);
+            drawBindingLoopMarkers(p, firstIndex, lastIndex);
         }
     }
     drawNotes(p);
 }
 
-void TimelineRenderer::drawItemsToPainter(QPainter *p, int modelIndex, int fromIndex, int toIndex)
+void TimelineRenderer::mousePressEvent(QMouseEvent *event)
+{
+    Q_UNUSED(event);
+}
+
+void TimelineRenderer::drawItemsToPainter(QPainter *p, int fromIndex, int toIndex)
 {
     p->save();
     p->setPen(Qt::transparent);
-    int modelRowStart = 0;
-    for (int mi = 0; mi < modelIndex; mi++)
-        modelRowStart += m_profilerModelProxy->model(mi)->height();
-
     for (int i = fromIndex; i <= toIndex; i++) {
         int currentX, currentY, itemWidth, itemHeight;
 
-        int rowNumber = m_profilerModelProxy->row(modelIndex, i);
-        currentY = modelRowStart + m_profilerModelProxy->rowOffset(modelIndex, rowNumber) - y();
+        int rowNumber = m_model->row(i);
+        currentY = m_model->rowOffset(rowNumber) - y();
         if (currentY >= height())
             continue;
 
-        itemHeight = m_profilerModelProxy->rowHeight(modelIndex, rowNumber) *
-                m_profilerModelProxy->relativeHeight(modelIndex, i);
+        int rowHeight = m_model->rowHeight(rowNumber);
+        itemHeight = rowHeight * m_model->relativeHeight(i);
 
-        currentY += m_profilerModelProxy->rowHeight(modelIndex, rowNumber) - itemHeight;
+        currentY += rowHeight - itemHeight;
         if (currentY + itemHeight < 0)
             continue;
 
-        getItemXExtent(modelIndex, i, currentX, itemWidth);
+        getItemXExtent(i, currentX, itemWidth);
 
         // normal events
-        p->setBrush(m_profilerModelProxy->color(modelIndex, i));
+        p->setBrush(m_model->color(i));
         p->drawRect(currentX, currentY, itemWidth, itemHeight);
     }
     p->restore();
 }
 
-void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromIndex, int toIndex)
+void TimelineRenderer::drawSelectionBoxes(QPainter *p, int fromIndex, int toIndex)
 {
     const uint strongLineWidth = 3;
     const uint lightLineWidth = 2;
@@ -231,12 +217,7 @@ void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromI
     if (m_selectedItem == -1)
         return;
 
-
-    int id = m_profilerModelProxy->selectionId(modelIndex, m_selectedItem);
-
-    int modelRowStart = 0;
-    for (int mi = 0; mi < modelIndex; mi++)
-        modelRowStart += m_profilerModelProxy->model(mi)->height();
+    int id = m_model->selectionId(m_selectedItem);
 
     p->save();
 
@@ -249,19 +230,18 @@ void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromI
 
     int currentX, currentY, itemWidth;
     for (int i = fromIndex; i <= toIndex; i++) {
-        if (m_profilerModelProxy->selectionId(modelIndex, i) != id)
+        if (m_model->selectionId(i) != id)
             continue;
 
-        int row = m_profilerModelProxy->row(modelIndex, i);
-        int rowHeight = m_profilerModelProxy->rowHeight(modelIndex, row);
-        int itemHeight = rowHeight * m_profilerModelProxy->relativeHeight(modelIndex, i);
+        int row = m_model->row(i);
+        int rowHeight = m_model->rowHeight(row);
+        int itemHeight = rowHeight * m_model->relativeHeight(i);
 
-        currentY = modelRowStart + m_profilerModelProxy->rowOffset(modelIndex, row) + rowHeight -
-                itemHeight - y();
+        currentY = m_model->rowOffset(row) + rowHeight - itemHeight - y();
         if (currentY + itemHeight < 0 || height() < currentY)
             continue;
 
-        getItemXExtent(modelIndex, i, currentX, itemWidth);
+        getItemXExtent(i, currentX, itemWidth);
 
         if (i == m_selectedItem)
             p->setPen(strongPen);
@@ -297,7 +277,7 @@ void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromI
     p->restore();
 }
 
-void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int modelIndex, int fromIndex, int toIndex)
+void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int fromIndex, int toIndex)
 {
     int destindex;
     int xfrom, xto, width;
@@ -310,19 +290,17 @@ void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int modelIndex, int f
 
     p->save();
     for (int i = fromIndex; i <= toIndex; i++) {
-        destindex = m_profilerModelProxy->bindingLoopDest(modelIndex, i);
+        destindex = m_model->bindingLoopDest(i);
         if (destindex >= 0) {
             // to
-            getItemXExtent(modelIndex, destindex, xto, width);
+            getItemXExtent(destindex, xto, width);
             xto += width / 2;
-            yto = getYPosition(modelIndex, destindex) + m_profilerModelProxy->rowHeight(modelIndex,
-                    m_profilerModelProxy->row(modelIndex, destindex)) / 2 - y();
+            yto = getYPosition(destindex) + m_model->rowHeight(m_model->row(destindex)) / 2 - y();
 
             // from
-            getItemXExtent(modelIndex, i, xfrom, width);
+            getItemXExtent(i, xfrom, width);
             xfrom += width / 2;
-            yfrom = getYPosition(modelIndex, i) + m_profilerModelProxy->rowHeight(modelIndex,
-                    m_profilerModelProxy->row(modelIndex, i)) / 2 - y();
+            yfrom = getYPosition(i) + m_model->rowHeight(m_model->row(i)) / 2 - y();
 
             // radius (derived from width of origin event)
             radius = 5;
@@ -365,25 +343,19 @@ void TimelineRenderer::drawNotes(QPainter *p)
     static const int annotationSpace = 4;
     static const int shadowOffset = 2;
 
-    QmlProfilerNotesModel *notes = m_profilerModelProxy->notes();
-    for (int i = 0; i < notes->count(); ++i) {
-        int managerIndex = notes->timelineModel(i);
-        if (managerIndex == -1)
+    for (int i = 0; i < m_notes->count(); ++i) {
+        int modelId = m_notes->timelineModel(i);
+        if (modelId == -1 || modelId != m_model->modelId())
             continue;
-        int modelIndex = m_profilerModelProxy->modelIndexFromManagerIndex(managerIndex);
-        if (m_profilerModelProxy->hidden(modelIndex))
-            continue;
-        int eventIndex = notes->timelineIndex(i);
-        int row = m_profilerModelProxy->row(modelIndex, eventIndex);
-        int rowHeight = m_profilerModelProxy->rowHeight(modelIndex, row);
-        int currentY = m_profilerModelProxy->rowOffset(modelIndex, row) - y();
-        for (int mi = 0; mi < modelIndex; mi++)
-            currentY += m_profilerModelProxy->model(mi)->height();
+        int eventIndex = m_notes->timelineIndex(i);
+        int row = m_model->row(eventIndex);
+        int rowHeight = m_model->rowHeight(row);
+        int currentY = m_model->rowOffset(row) - y();
         if (currentY + rowHeight < 0 || height() < currentY)
             continue;
         int currentX;
         int itemWidth;
-        getItemXExtent(modelIndex, eventIndex, currentX, itemWidth);
+        getItemXExtent(eventIndex, currentX, itemWidth);
 
         // shadow
         int annoX = currentX + (itemWidth - annotationWidth) / 2;
@@ -406,47 +378,20 @@ void TimelineRenderer::drawNotes(QPainter *p)
 int TimelineRenderer::rowFromPosition(int y)
 {
     int ret = 0;
-    for (int modelIndex = 0; modelIndex < m_profilerModelProxy->modelCount(); modelIndex++) {
-        int modelHeight = m_profilerModelProxy->model(modelIndex)->height();
-        if (y < modelHeight) {
-            for (int row = 0; row < m_profilerModelProxy->rowCount(modelIndex); ++row) {
-                y -= m_profilerModelProxy->rowHeight(modelIndex, row);
-                if (y < 0) return ret;
-                ++ret;
-            }
-        } else {
-            y -= modelHeight;
-            ret += m_profilerModelProxy->rowCount(modelIndex);
-        }
+
+    for (int row = 0; row < m_model->rowCount(); ++row) {
+        y -= m_model->rowHeight(row);
+        if (y < 0) return ret;
+        ++ret;
     }
+
     return ret;
-}
-
-int TimelineRenderer::modelFromPosition(int y)
-{
-    for (int modelIndex = 0; modelIndex < m_profilerModelProxy->modelCount(); modelIndex++) {
-        y -= m_profilerModelProxy->model(modelIndex)->height();
-        if (y < 0)
-            return modelIndex;
-    }
-    return 0;
-}
-
-void TimelineRenderer::mousePressEvent(QMouseEvent *event)
-{
-    // special case: if there is a drag area below me, don't accept the
-    // events unless I'm actually clicking inside an item
-    if (m_currentSelection.eventIndex == -1 &&
-            event->pos().x()+x() >= m_startDragArea &&
-            event->pos().x()+x() <= m_endDragArea)
-        event->setAccepted(false);
-
 }
 
 void TimelineRenderer::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
-    if (!m_profilerModelProxy->isEmpty())
+    if (!m_model->isEmpty())
         manageClicked();
 }
 
@@ -467,18 +412,19 @@ void TimelineRenderer::hoverMoveEvent(QHoverEvent *event)
 void TimelineRenderer::manageClicked()
 {
     if (m_currentSelection.eventIndex != -1) {
-        if (m_currentSelection.eventIndex == m_selectedItem && m_currentSelection.modelIndex == m_selectedModel)
+        if (m_currentSelection.eventIndex == m_selectedItem)
             setSelectionLocked(!m_selectionLocked);
         else
             setSelectionLocked(true);
 
         // itemPressed() will trigger an update of the events and JavaScript views. Make sure the
         // correct event is already selected when that happens, to prevent confusion.
-        selectFromEventIndex(m_currentSelection.modelIndex, m_currentSelection.eventIndex);
-        emit itemPressed(m_currentSelection.modelIndex, m_currentSelection.eventIndex);
+        setSelectedItem(m_currentSelection.eventIndex);
+        emit itemPressed(m_currentSelection.eventIndex);
     } else {
         setSelectionLocked(false);
-        selectFromEventIndex(m_currentSelection.modelIndex, m_currentSelection.eventIndex);
+        setSelectedItem(-1);
+        emit itemPressed(-1);
     }
 }
 
@@ -492,49 +438,41 @@ void TimelineRenderer::manageHovered(int mouseX, int mouseY)
     qint64 startTime = (mouseX - 1) * duration / width() + m_zoomer->rangeStart();
     qint64 endTime = (mouseX + 1) * duration / width() + m_zoomer->rangeStart();
     int row = rowFromPosition(mouseY + y());
-    int modelIndex = modelFromPosition(mouseY + y());
 
-    // already covered? nothing to do
+    // already covered? Only recheck selectionLocked and make sure m_selectedItem is correct.
     if (m_currentSelection.eventIndex != -1 &&
             endTime >= m_currentSelection.startTime &&
             startTime <= m_currentSelection.endTime &&
             row == m_currentSelection.row) {
+        if (!m_selectionLocked)
+            setSelectedItem(m_currentSelection.eventIndex);
         return;
     }
 
     // find if there's items in the time range
-    int eventFrom = m_profilerModelProxy->firstIndex(modelIndex, startTime);
-    int eventTo = m_profilerModelProxy->lastIndex(modelIndex, endTime);
-    if (eventFrom == -1 ||
-            eventTo < eventFrom || eventTo >= m_profilerModelProxy->count(modelIndex)) {
+    int eventFrom = m_model->firstIndex(startTime);
+    int eventTo = m_model->lastIndex(endTime);
+    if (eventFrom == -1 || eventTo < eventFrom || eventTo >= m_model->count()) {
         m_currentSelection.eventIndex = -1;
         return;
     }
 
-    int modelRowStart = 0;
-    for (int mi = 0; mi < modelIndex; mi++)
-        modelRowStart += m_profilerModelProxy->rowCount(mi);
-
     // find if we are in the right column
-    int itemRow;
     for (int i=eventTo; i>=eventFrom; --i) {
-        itemRow = modelRowStart + m_profilerModelProxy->row(modelIndex, i);
-
-        if (itemRow == row) {
+        if ( m_model->row(i) == row) {
             // There can be small events that don't reach the cursor position after large events
             // that do but are in a different row.
-            qint64 itemEnd = m_profilerModelProxy->endTime(modelIndex, i);
+            qint64 itemEnd = m_model->endTime(i);
             if (itemEnd < startTime)
                 continue;
 
             // match
             m_currentSelection.eventIndex = i;
-            m_currentSelection.startTime = m_profilerModelProxy->startTime(modelIndex, i);
+            m_currentSelection.startTime = m_model->startTime(i);
             m_currentSelection.endTime = itemEnd;
             m_currentSelection.row = row;
-            m_currentSelection.modelIndex = modelIndex;
             if (!m_selectionLocked)
-                selectFromEventIndex(modelIndex, i);
+                setSelectedItem(i);
             return;
         }
     }
@@ -549,43 +487,26 @@ void TimelineRenderer::clearData()
     m_spacedDuration = 0;
     resetCurrentSelection();
     setSelectedItem(-1);
-    setSelectedModel(-1);
     setSelectionLocked(true);
-    setStartDragArea(-1);
-    setEndDragArea(-1);
 }
 
-int TimelineRenderer::getYPosition(int modelIndex, int index) const
+int TimelineRenderer::getYPosition(int index) const
 {
-    Q_ASSERT(m_profilerModelProxy);
-    if (index >= m_profilerModelProxy->count(modelIndex))
+    Q_ASSERT(m_model);
+    if (index >= m_model->count())
         return 0;
 
-    int modelRowStart = 0;
-    for (int mi = 0; mi < modelIndex; mi++)
-        modelRowStart += m_profilerModelProxy->model(mi)->height();
-
-    return modelRowStart + m_profilerModelProxy->rowOffset(modelIndex,
-            m_profilerModelProxy->row(modelIndex, index));
+    return m_model->rowOffset(m_model->row(index));
 }
 
-void TimelineRenderer::selectFromEventIndex(int modelIndex, int eventIndex)
+void TimelineRenderer::selectNextFromSelectionId(int selectionId)
 {
-    if (modelIndex != m_selectedModel || eventIndex != m_selectedItem) {
-        setSelectedModel(modelIndex);
-        setSelectedItem(eventIndex);
-        emit selectionChanged(modelIndex, eventIndex);
-    }
+    setSelectedItem(m_model->nextItemBySelectionId(selectionId, m_zoomer->rangeStart(),
+                                                   m_selectedItem));
 }
 
-void TimelineRenderer::selectNextFromSelectionId(int modelIndex, int selectionId)
+void TimelineRenderer::selectPrevFromSelectionId(int selectionId)
 {
-    selectFromEventIndex(modelIndex, m_profilerModelProxy->model(modelIndex)->nextItemBySelectionId(
-                             selectionId, m_zoomer->rangeStart(), m_selectedItem));
-}
-
-void TimelineRenderer::selectPrevFromSelectionId(int modelIndex, int selectionId)
-{
-    selectFromEventIndex(modelIndex, m_profilerModelProxy->model(modelIndex)->prevItemBySelectionId(
-                             selectionId, m_zoomer->rangeStart(), m_selectedItem));
+    setSelectedItem(m_model->prevItemBySelectionId(selectionId, m_zoomer->rangeStart(),
+                                                   m_selectedItem));
 }

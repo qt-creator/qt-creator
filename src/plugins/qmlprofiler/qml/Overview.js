@@ -30,7 +30,8 @@
 
 .pragma library
 
-var qmlProfilerModelProxy = 0;
+var models = 0;
+var notes = 0;
 var zoomControl = 0;
 
 //draw background of the graph
@@ -43,28 +44,25 @@ function drawGraph(canvas, ctxt)
 //draw the actual data to be graphed
 function drawData(canvas, ctxt)
 {
-    if (!zoomControl || !qmlProfilerModelProxy || qmlProfilerModelProxy.isEmpty())
+    if (!zoomControl || !models)
         return;
 
-    for (var modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); ++modelIndex) {
-        for (var ii = canvas.offset; ii < qmlProfilerModelProxy.count(modelIndex);
-             ii += canvas.increment) {
+    for (var modelIndex = 0; modelIndex < models.length; ++modelIndex) {
+        var model = models[modelIndex];
+        for (var ii = canvas.offset; ii < model.count; ii += canvas.increment) {
+            var xx = (model.startTime(ii) - zoomControl.traceStart) * canvas.spacing;
 
-            var xx = (qmlProfilerModelProxy.startTime(modelIndex,ii) - zoomControl.traceStart) *
-                     canvas.spacing;
-
-            var eventWidth = qmlProfilerModelProxy.duration(modelIndex,ii) * canvas.spacing;
+            var eventWidth = model.duration(ii) * canvas.spacing;
 
             if (eventWidth < 1)
                 eventWidth = 1;
 
             xx = Math.round(xx);
 
-            var itemHeight = qmlProfilerModelProxy.relativeHeight(modelIndex, ii) *
-                    canvas.blockHeight;
+            var itemHeight = model.relativeHeight(ii) * canvas.blockHeight;
             var yy = (modelIndex + 1) * canvas.blockHeight - itemHeight ;
 
-            ctxt.fillStyle = qmlProfilerModelProxy.color(modelIndex, ii);
+            ctxt.fillStyle = model.color(ii);
             ctxt.fillRect(xx, canvas.bump + yy, eventWidth, itemHeight);
         }
     }
@@ -74,12 +72,11 @@ function drawBindingLoops(canvas, ctxt) {
     ctxt.strokeStyle = "orange";
     ctxt.lineWidth = 2;
     var radius = 1;
-    for (var modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); ++modelIndex) {
-        for (var ii = canvas.offset - canvas.increment; ii < qmlProfilerModelProxy.count(modelIndex);
-             ii += canvas.increment) {
-            if (qmlProfilerModelProxy.bindingLoopDest(modelIndex,ii) >= 0) {
-                var xcenter = Math.round(qmlProfilerModelProxy.startTime(modelIndex,ii) +
-                                         qmlProfilerModelProxy.duration(modelIndex,ii) / 2 -
+    for (var modelIndex = 0; modelIndex < models.length; ++modelIndex) {
+        var model = models[modelIndex];
+        for (var ii = canvas.offset - canvas.increment; ii < model.count; ii += canvas.increment) {
+            if (model.bindingLoopDest(ii) >= 0) {
+                var xcenter = Math.round(model.startTime(ii) + model.duration(ii) / 2 -
                                          zoomControl.traceStart) * canvas.spacing;
                 var ycenter = Math.round(canvas.bump + canvas.blockHeight * modelIndex +
                                          canvas.blockHeight / 2);
@@ -93,25 +90,30 @@ function drawBindingLoops(canvas, ctxt) {
 
 function drawNotes(canvas, ctxt)
 {
-    if (!zoomControl || !qmlProfilerModelProxy || qmlProfilerModelProxy.noteCount() === 0)
+    if (!zoomControl || !models || !notes || notes.count === 0)
         return;
 
-    var spacing = canvas.width / zoomControl.traceDuration;
+    var modelsById = models.reduce(function(prev, model) {
+        prev[model.modelId] = model;
+        return prev;
+    }, {});
+
     // divide canvas height in 7 parts: margin, 3*line, space, dot, margin
     var vertSpace = (canvas.height - canvas.bump) / 7;
 
     ctxt.strokeStyle = "orange";
     ctxt.lineWidth = 2;
-    for (var i = 0; i < qmlProfilerModelProxy.noteCount(); ++i) {
-        var timelineModel = qmlProfilerModelProxy.noteTimelineModel(i);
-        var timelineIndex = qmlProfilerModelProxy.noteTimelineIndex(i);
+    for (var i = 0; i < notes.count; ++i) {
+        var timelineModel = notes.timelineModel(i);
+        var timelineIndex = notes.timelineIndex(i);
         if (timelineIndex === -1)
             continue;
-        var start = Math.max(qmlProfilerModelProxy.startTime(timelineModel, timelineIndex),
+        var start = Math.max(modelsById[timelineModel].startTime(timelineIndex),
                              zoomControl.traceStart);
-        var end = Math.min(qmlProfilerModelProxy.endTime(timelineModel, timelineIndex),
-                           zoomControl.traceStart);
-        var annoX = Math.round(((start + end) / 2 - zoomControl.traceStart) * spacing);
+        var end = Math.min(modelsById[timelineModel].endTime(timelineIndex),
+                           zoomControl.traceEnd);
+
+        var annoX = Math.round(((start + end) / 2 - zoomControl.traceStart) * canvas.spacing);
 
         ctxt.moveTo(annoX, canvas.bump + vertSpace)
         ctxt.lineTo(annoX, canvas.bump + vertSpace * 4)
