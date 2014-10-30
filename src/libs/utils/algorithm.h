@@ -35,6 +35,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <QStringList>
 
 namespace Utils
 {
@@ -140,13 +141,100 @@ auto equal(R (S::*function)() const, T value)
 // transform
 /////////////////
 
-// transform taking a member function pointer
-template<typename T, typename R, typename S>
-Q_REQUIRED_RESULT
-auto transform(const QList<T> &container, R (S::*p)() const)
-    -> QList<typename std::remove_cv<typename std::remove_reference<R>::type>::type>
+namespace {
+// needed for msvc 2010, that doesn't have a declval
+// can be removed once we stop supporting it
+template<typename T>
+T &&declval();
+
+/////////////////
+// helper code for transform to use back_inserter and thus push_back for everything
+// and insert for QSet<>
+//
+
+// QSetInsertIterator, straight from the standard for insert_iterator
+// just without the additional parameter to insert
+template <class Container>
+  class QSetInsertIterator :
+    public std::iterator<std::output_iterator_tag,void,void,void,void>
 {
-    QList<typename std::remove_cv<typename std::remove_reference<R>::type>::type> result;
+protected:
+  Container *container;
+
+public:
+  typedef Container container_type;
+  explicit QSetInsertIterator (Container &x)
+    : container(&x) {}
+  QSetInsertIterator<Container> &operator=(const typename Container::value_type &value)
+    { container->insert(value); return *this; }
+  QSetInsertIterator<Container> &operator= (typename Container::value_type &&value)
+    { container->insert(std::move(value)); return *this; }
+  QSetInsertIterator<Container >&operator*()
+    { return *this; }
+  QSetInsertIterator<Container> &operator++()
+    { return *this; }
+  QSetInsertIterator<Container> operator++(int)
+    { return *this; }
+};
+
+// inserter helper function, returns a std::back_inserter for most containers
+// and is overloaded for QSet<> to return a QSetInsertIterator
+template<typename C>
+inline std::back_insert_iterator<C>
+inserter(C &container)
+{
+    return std::back_inserter(container);
+}
+
+template<typename X>
+inline QSetInsertIterator<QSet<X>>
+inserter(QSet<X> &container)
+{
+    return QSetInsertIterator<QSet<X>>(container);
+}
+
+// helper: removes const, volatile and references from a type
+template<typename T>
+struct RemoveCvAndReference
+{
+    typedef typename std::remove_cv<typename std::remove_reference<T>::type>::type type;
+};
+
+template<typename F, typename T>
+struct ResultOfFunctionWithoutCvAndReference
+{
+    typedef typename RemoveCvAndReference<decltype(declval<F>()(declval<T>()))>::type type;
+};
+
+// actual implementation of transform
+template<template<typename> class C, // result container type
+         template<typename> class SC, // input container type
+         typename T, // element type of input container
+         typename F> // function type
+Q_REQUIRED_RESULT
+auto transform_impl(const SC<T> &container, F function)
+     -> C<typename ResultOfFunctionWithoutCvAndReference<F, T>::type>
+{
+    C<typename ResultOfFunctionWithoutCvAndReference<F, T>::type> result;
+    result.reserve(container.size());
+    std::transform(container.begin(), container.end(),
+                   inserter(result),
+                   function);
+    return result;
+}
+
+}
+
+// transform taking a member function pointer
+template<template<typename> class C,
+        typename T,
+        typename R,
+        typename S>
+Q_REQUIRED_RESULT
+auto transform(const C<T> &container, R (S::*p)() const)
+    -> C<typename RemoveCvAndReference<R>::type>
+{
+    C<typename RemoveCvAndReference<R>::type> result;
     result.reserve(container.size());
     std::transform(container.begin(), container.end(),
                    std::back_inserter(result),
@@ -154,25 +242,53 @@ auto transform(const QList<T> &container, R (S::*p)() const)
     return result;
 }
 
-namespace {
-// needed for msvc 2010, that doesn't have a declval
-// can be removed once we stop supporting it
-template<typename T>
-T &&declval();
+// same container type for input and output, e.g. transforming a QList<QString> into QList<int>
+template<template<typename> class C, // container
+         typename T, // element type
+         typename F> // function type
+Q_REQUIRED_RESULT
+auto transform(const C<T> &container, F function)
+     -> C<typename RemoveCvAndReference<decltype(declval<F>()(declval<T>()))>::type>
+{
+    return transform_impl<QList>(container, function);
 }
 
-// Note: add overloads for other container types as needed
-template<typename T, typename F>
+// different container types for input and output, e.g. transforming a QList into a QSet
+template<template<typename> class C, // result container type
+         template<typename> class SC, // input container type
+         typename T, // element type of input container
+         typename F> // function type
 Q_REQUIRED_RESULT
-auto transform(const QList<T> &container, F function)
-     -> QList<typename std::remove_cv<typename std::remove_reference<decltype(function(declval<T>()))>::type>::type>
+auto transform(const SC<T> &container, F function)
+     -> C<typename RemoveCvAndReference<decltype(declval<F>()(declval<T>()))>::type>
 {
-    QList<typename std::remove_cv<typename std::remove_reference<decltype(function(declval<T>()))>::type>::type> result;
-    result.reserve(container.size());
-    std::transform(container.begin(), container.end(),
-                   std::back_inserter(result),
-                   function);
-    return result;
+    return transform_impl(container, function);
+}
+
+
+//////////
+// transform for QStringList, because that isn't a specialization but a separate type
+// and g++ doesn't want to use the above templates for that
+// clang and msvc do find the base class QList<QString>
+//////////
+
+// QStringList -> QList<>
+template<typename F> // function type
+Q_REQUIRED_RESULT
+auto transform(const QStringList &container, F function)
+     -> QList<typename RemoveCvAndReference<decltype(declval<F>()(declval<QString>()))>::type>
+{
+    return transform_impl<QList>(QList<QString>(container), function);
+}
+
+// QStringList -> any container type
+template<template<typename> class C, // result container type
+         typename F> // function type
+Q_REQUIRED_RESULT
+auto transform(const QStringList &container, F function)
+     -> C<typename RemoveCvAndReference<decltype(declval<F>()(declval<QString>()))>::type>
+{
+    return transform_impl<C>(QList<QString>(container), function);
 }
 
 //////////////////

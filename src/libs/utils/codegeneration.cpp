@@ -110,8 +110,8 @@ void writeQtIncludeSection(const QStringList &qt4,
     else
         trans = [](const QString &i) { return i.mid(i.indexOf(QLatin1Char('/')) + 1); };
 
-    QSet<QString> qt4Only = QSet<QString>::fromList(Utils::transform(qt4, trans));
-    QSet<QString> qt5Only = QSet<QString>::fromList(Utils::transform(qt5, trans));
+    QSet<QString> qt4Only = Utils::transform<QSet>(qt4, trans);
+    QSet<QString> qt5Only = Utils::transform<QSet>(qt5, trans);
 
     if (addQtVersionCheck) {
         QSet<QString> common = qt4Only;
