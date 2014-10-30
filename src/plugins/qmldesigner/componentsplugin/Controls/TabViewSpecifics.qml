@@ -54,7 +54,7 @@ Column {
 
             Label {
                 text: qsTr("Frame visible")
-                toolTip:  qsTr("Determines the visibility of the tab frame around contents.")
+                tooltip: qsTr("Determines the visibility of the tab frame around contents.")
             }
 
             SecondColumnLayout {
@@ -70,7 +70,7 @@ Column {
 
             Label {
                 text: qsTr("Tabs visible")
-                toolTip:  qsTr("Determines the visibility of the the tab bar.")
+                tooltip: qsTr("Determines the visibility of the the tab bar.")
             }
 
             SecondColumnLayout {
@@ -86,7 +86,7 @@ Column {
 
             Label {
                 text: qsTr("Tab position")
-                toolTip: qsTr("Determines the position of the tabs.")
+                tooltip: qsTr("Determines the position of the tabs.")
             }
 
             SecondColumnLayout {

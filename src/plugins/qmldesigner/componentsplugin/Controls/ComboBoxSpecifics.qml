@@ -45,7 +45,7 @@ Column {
 
             Label {
                 text: qsTr("Focus on press")
-                toolTip: "Determines whether the combobox gets focus if pressed."
+                tooltip: qsTr("Determines whether the combobox gets focus if pressed.")
             }
 
             SecondColumnLayout {

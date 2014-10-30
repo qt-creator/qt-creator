@@ -45,7 +45,7 @@ Column {
 
             Label {
                 text: qsTr("Text")
-                toolTip:  qsTr("Text shown on the check box.")
+                tooltip: qsTr("Text shown on the check box.")
             }
 
             SecondColumnLayout {
@@ -57,7 +57,7 @@ Column {
 
             Label {
                 text: qsTr("Checked")
-                toolTip: qsTr("State of the check box.")
+                tooltip: qsTr("State of the check box.")
             }
 
             SecondColumnLayout {
@@ -74,7 +74,7 @@ Column {
 
             Label {
                 text: qsTr("Focus on press")
-                toolTip: qsTr("Determines whether the check box gets focus if pressed.")
+                tooltip: qsTr("Determines whether the check box gets focus if pressed.")
             }
 
             SecondColumnLayout {

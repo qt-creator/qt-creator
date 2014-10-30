@@ -59,7 +59,7 @@ Column {
 
             Label {
                 text: qsTr("Text")
-                toolTip:  qsTr("Text shown on the text area.")
+                tooltip: qsTr("Text shown on the text area.")
             }
 
             SecondColumnLayout {
@@ -72,7 +72,7 @@ Column {
 
             Label {
                 text: qsTr("Read only")
-                toolTip: qsTr("Determines whether the text area is read only.")
+                tooltip: qsTr("Determines whether the text area is read only.")
             }
 
             SecondColumnLayout {
@@ -88,7 +88,7 @@ Column {
 
             Label {
                 text: qsTr("Document margins")
-                toolTip: qsTr("Margins of the text area.")
+                tooltip: qsTr("Margins of the text area.")
             }
 
             SectionLayout {
@@ -107,7 +107,7 @@ Column {
 
             Label {
                 text: qsTr("Frame width")
-                toolTip: qsTr("Width of the frame.")
+                tooltip: qsTr("Width of the frame.")
             }
 
             SectionLayout {
@@ -125,7 +125,7 @@ Column {
 
             Label {
                 text: qsTr("Contents frame")
-                toolTip: qsTr("Determines whether the frame around contents is shown.")
+                tooltip: qsTr("Determines whether the frame around contents is shown.")
             }
 
             SecondColumnLayout {
@@ -157,7 +157,7 @@ Column {
 
             Label {
                 text: qsTr("Highlight on focus")
-                toolTip: qsTr("Determines whether the text area is highlighted on focus.")
+                tooltip: qsTr("Determines whether the text area is highlighted on focus.")
             }
 
             SecondColumnLayout {
@@ -173,7 +173,7 @@ Column {
 
             Label {
                 text: qsTr("Tab changes focus")
-                toolTip: qsTr("Determines whether tab changes the focus of the text area.")
+                tooltip: qsTr("Determines whether tab changes the focus of the text area.")
             }
 
             SecondColumnLayout {
@@ -189,7 +189,7 @@ Column {
 
             Label {
                 text: qsTr("Focus on press")
-                toolTip: qsTr("Determines whether the text area gets focus if pressed.")
+                tooltip: qsTr("Determines whether the text area gets focus if pressed.")
             }
 
             SecondColumnLayout {

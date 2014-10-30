@@ -45,7 +45,7 @@ Column {
 
             Label {
                 text: qsTr("Text")
-                toolTip:  qsTr("Text displayed on the button.")
+                tooltip:  qsTr("Text displayed on the button.")
             }
 
             SecondColumnLayout {
@@ -57,7 +57,7 @@ Column {
 
             Label {
                 text: qsTr("Checked")
-                toolTip: qsTr("State of the button.")
+                tooltip: qsTr("State of the button.")
             }
 
             SecondColumnLayout {
@@ -74,7 +74,7 @@ Column {
 
             Label {
                 text: qsTr("Checkable")
-                toolTip: qsTr("Determines whether the button is checkable or not.")
+                tooltip: qsTr("Determines whether the button is checkable or not.")
             }
 
             SecondColumnLayout {
@@ -97,7 +97,7 @@ Column {
 
             Label {
                 text: qsTr("Enabled")
-                toolTip: qsTr("Determines whether the button is enabled or not.")
+                tooltip: qsTr("Determines whether the button is enabled or not.")
             }
 
             SecondColumnLayout {
@@ -114,7 +114,7 @@ Column {
 
             Label {
                 text: qsTr("Default button")
-                toolTip: qsTr("Sets the button as the default button in a dialog.")
+                tooltip: qsTr("Sets the button as the default button in a dialog.")
             }
 
             SecondColumnLayout {
@@ -130,7 +130,7 @@ Column {
 
             Label {
                 text: qsTr("Tool tip")
-                toolTip: qsTr("The tool tip shown for the button.")
+                tooltip: qsTr("The tool tip shown for the button.")
             }
 
             SecondColumnLayout {
@@ -142,7 +142,7 @@ Column {
 
             Label {
                 text: qsTr("Focus on press")
-                toolTip: "Determines whether the button gets focus if pressed."
+                tooltip: qsTr("Determines whether the button gets focus if pressed.")
             }
 
             SecondColumnLayout {
@@ -159,7 +159,7 @@ Column {
 
             Label {
                 text: qsTr("Icon source")
-                toolTip: qsTr("The URL of an icon resource.")
+                tooltip: qsTr("The URL of an icon resource.")
             }
 
             SecondColumnLayout {
