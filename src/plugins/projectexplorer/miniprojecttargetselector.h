@@ -95,6 +95,7 @@ class KitAreaWidget : public QWidget
     Q_OBJECT
 public:
     explicit KitAreaWidget(QWidget *parent = 0);
+    ~KitAreaWidget();
 
 public slots:
     void setKit(ProjectExplorer::Kit *k);
