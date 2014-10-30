@@ -55,8 +55,6 @@ ClangParser::ClangParser() :
     m_expectSnippet(false)
 {
     setObjectName(QLatin1String("ClangParser"));
-
-    appendOutputParser(new LdParser);
 }
 
 void ClangParser::stdError(const QString &line)
