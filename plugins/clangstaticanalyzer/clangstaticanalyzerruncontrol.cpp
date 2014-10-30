@@ -53,6 +53,8 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
         ProjectExplorer::RunConfiguration *runConfiguration)
     : AnalyzerRunControl(startParams, runConfiguration)
     , m_initialFilesToProcessSize(0)
+    , m_filesAnalyzed(0)
+    , m_filesNotAnalyzed(0)
 {
 }
 
@@ -126,6 +128,8 @@ bool ClangStaticAnalyzerRunControl::startEngine()
     }
     m_filesToProcess = filesToProcess;
     m_initialFilesToProcessSize = m_filesToProcess.count();
+    m_filesAnalyzed = 0;
+    m_filesNotAnalyzed = 0;
 
     // Set up progress information
     using namespace Core;
@@ -156,7 +160,10 @@ void ClangStaticAnalyzerRunControl::stopEngine()
     }
     m_runners.clear();
     m_filesToProcess.clear();
-    analyzeNextFile(); // emits finished
+    appendMessage(tr("Clang Static Analyzer stopped by user.") + QLatin1Char('\n'),
+                  Utils::NormalMessageFormat);
+    m_progress.reportFinished();
+    emit finished();
 }
 
 void ClangStaticAnalyzerRunControl::analyzeNextFile()
@@ -166,7 +173,11 @@ void ClangStaticAnalyzerRunControl::analyzeNextFile()
 
     if (m_filesToProcess.isEmpty()) {
         if (m_runners.size() == 0) {
-            appendMessage(tr("Clang Static Analyzer finished.") + QLatin1Char('\n'),
+            appendMessage(tr("Clang Static Analyzer finished: "
+                             "Processed %1 files successfully, %2 failed.")
+                                .arg(m_filesAnalyzed)
+                                .arg(m_filesNotAnalyzed)
+                             + QLatin1Char('\n'),
                           Utils::NormalMessageFormat);
             m_progress.reportFinished();
             emit finished();
@@ -182,6 +193,8 @@ void ClangStaticAnalyzerRunControl::analyzeNextFile()
     m_runners.insert(runner);
     qCDebug(LOG) << "analyzeNextFile:" << filePath;
     QTC_ASSERT(runner->run(filePath, options), return);
+    appendMessage(tr("Analyzing \"%1\".").arg(filePath) + QLatin1Char('\n'),
+                  Utils::StdOutFormat);
 }
 
 ClangStaticAnalyzerRunner *ClangStaticAnalyzerRunControl::createRunner()
@@ -201,21 +214,36 @@ ClangStaticAnalyzerRunner *ClangStaticAnalyzerRunControl::createRunner()
 void ClangStaticAnalyzerRunControl::onRunnerFinishedWithSuccess(const QString &logFilePath)
 {
     qCDebug(LOG) << "onRunnerFinishedWithSuccess:" << logFilePath;
-    handleFinished();
 
     QString errorMessage;
     const QList<Diagnostic> diagnostics = LogFileReader::read(logFilePath, &errorMessage);
-    QTC_CHECK(errorMessage.isEmpty());
-    if (!errorMessage.isEmpty())
+    if (!errorMessage.isEmpty()) {
         qCDebug(LOG) << "onRunnerFinishedWithSuccess: Error reading log file:" << errorMessage;
-    if (!diagnostics.isEmpty())
-        emit newDiagnosticsAvailable(diagnostics);
+        const QString filePath = qobject_cast<ClangStaticAnalyzerRunner *>(sender())->filePath();
+        appendMessage(tr("Failed to analyze \"%1\": %2").arg(filePath, errorMessage)
+                        + QLatin1Char('\n')
+                      , Utils::StdErrFormat);
+    } else {
+        ++m_filesAnalyzed;
+        if (!diagnostics.isEmpty())
+            emit newDiagnosticsAvailable(diagnostics);
+    }
+
+    handleFinished();
 }
 
 void ClangStaticAnalyzerRunControl::onRunnerFinishedWithFailure(const QString &errorMessage,
                                                                 const QString &errorDetails)
 {
     qCDebug(LOG) << "onRunnerFinishedWithFailure:" << errorMessage << errorDetails;
+
+    ++m_filesNotAnalyzed;
+    const QString filePath = qobject_cast<ClangStaticAnalyzerRunner *>(sender())->filePath();
+    appendMessage(tr("Failed to analyze \"%1\": %2").arg(filePath, errorMessage)
+                  + QLatin1Char('\n')
+                  , Utils::StdErrFormat);
+    appendMessage(errorDetails, Utils::StdErrFormat);
+
     handleFinished();
 }
 

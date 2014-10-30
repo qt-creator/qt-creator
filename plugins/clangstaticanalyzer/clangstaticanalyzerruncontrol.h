@@ -76,6 +76,8 @@ private:
     QList<SourceFileConfiguration> m_filesToProcess;
     QSet<ClangStaticAnalyzerRunner *> m_runners;
     int m_initialFilesToProcessSize;
+    int m_filesAnalyzed;
+    int m_filesNotAnalyzed;
 };
 
 } // namespace Internal

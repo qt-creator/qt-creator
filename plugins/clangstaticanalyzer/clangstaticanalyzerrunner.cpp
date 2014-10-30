@@ -99,6 +99,7 @@ bool ClangStaticAnalyzerRunner::run(const QString &filePath, const QStringList &
     QTC_CHECK(!compilerOptions.contains(QLatin1String("-o")));
     QTC_CHECK(!compilerOptions.contains(filePath));
 
+    m_filePath = filePath;
     m_processOutput.clear();
 
     m_logFile = createLogFile(filePath);
@@ -110,6 +111,11 @@ bool ClangStaticAnalyzerRunner::run(const QString &filePath, const QStringList &
     qCDebug(LOG) << "Starting" << m_commandLine;
     m_process.start(m_clangExecutable, arguments);
     return true;
+}
+
+QString ClangStaticAnalyzerRunner::filePath() const
+{
+    return m_filePath;
 }
 
 void ClangStaticAnalyzerRunner::onProcessStarted()
@@ -161,8 +167,8 @@ QString ClangStaticAnalyzerRunner::createLogFile(const QString &filePath) const
 QString ClangStaticAnalyzerRunner::processCommandlineAndOutput() const
 {
     return QObject::tr("Command line: \"%1\"\n"
-                       "Process Error: \"%2\"\n"
-                       "Output:\n\"%3\"")
+                       "Process Error: %2\n"
+                       "Output:\n%3")
                             .arg(m_commandLine,
                                  QString::number(m_process.error()),
                                  QString::fromLocal8Bit(m_processOutput));

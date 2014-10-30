@@ -45,6 +45,8 @@ public:
     //   (2) -o output-file
     bool run(const QString &filePath, const QStringList &compilerOptions = QStringList());
 
+    QString filePath() const;
+
 signals:
     void started();
     void finishedWithSuccess(const QString &logFilePath);
@@ -62,6 +64,7 @@ private:
 private:
     QString m_clangExecutable;
     QString m_clangLogFileDir;
+    QString m_filePath;
     QString m_logFile;
     QString m_commandLine;
     QProcess m_process;
