@@ -112,23 +112,31 @@ void writeQtIncludeSection(const QStringList &qt4,
 
     QSet<QString> qt4Only = QSet<QString>::fromList(Utils::transform(qt4, trans));
     QSet<QString> qt5Only = QSet<QString>::fromList(Utils::transform(qt5, trans));
-    QSet<QString> common = qt4Only;
 
-    common.intersect(qt5Only);
-    qt4Only.subtract(common);
-    qt5Only.subtract(common);
+    if (addQtVersionCheck) {
+        QSet<QString> common = qt4Only;
+        common.intersect(qt5Only);
 
-    qtSection(common.toList(), str);
+        qt4Only.subtract(common);
+        qt5Only.subtract(common);
 
-    if (!qt4Only.isEmpty() || !qt5Only.isEmpty()) {
-        if (addQtVersionCheck)
-            writeBeginQtVersionCheck(str);
-        qtSection(qt5Only.toList(), str);
-        if (addQtVersionCheck)
-            str << QLatin1String("#else\n");
-        qtSection(qt4Only.toList(), str);
-        if (addQtVersionCheck)
-            str << QLatin1String("#endif\n");
+        qtSection(common.toList(), str);
+
+        if (!qt4Only.isEmpty() || !qt5Only.isEmpty()) {
+            if (addQtVersionCheck)
+                writeBeginQtVersionCheck(str);
+            qtSection(qt5Only.toList(), str);
+            if (addQtVersionCheck)
+                str << QLatin1String("#else\n");
+            qtSection(qt4Only.toList(), str);
+            if (addQtVersionCheck)
+                str << QLatin1String("#endif\n");
+        }
+    } else {
+        if (!qt5Only.isEmpty()) // default to Qt5
+            qtSection(qt5Only.toList(), str);
+        else
+            qtSection(qt4Only.toList(), str);
     }
 }
 
