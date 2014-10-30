@@ -458,8 +458,9 @@ static void ChildSignal(int /*arg*/) {
     appSpec = startOnly ? nil : [[self FindClassByName:@"DTiPhoneSimulatorApplicationSpecifier"] specifierWithApplicationPath:path];
 
   if (verbose) {
-      msgprintf(@"App Spec: %@", appSpec);
-    msgprintf(@"SDK Root: %@", sdkRoot);
+      msgprintf(@"App Spec: %@\n", appSpec);
+      msgprintf(@"SDK Root: %@\n", sdkRoot);
+      msgprintf(@"SDK Version: %@\n", [sdkRoot sdkVersion]);
 
     for (id key in environment) {
       msgprintf(@"Env: %@ = %@", key, [environment objectForKey:key]);
