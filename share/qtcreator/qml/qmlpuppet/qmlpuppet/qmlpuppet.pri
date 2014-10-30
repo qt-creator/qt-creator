@@ -29,7 +29,7 @@ unix:!macx:LIBS += -lrt # posix shared memory
 DISTFILES += Info.plist
 macx {
     CONFIG -= app_bundle
-    QMAKE_LFLAGS += -sectcreate __TEXT __info_plist \"$$PWD/Info.plist\"
+    QMAKE_LFLAGS += -Wl,-sectcreate,__TEXT,__info_plist,\"$$PWD/Info.plist\"
 } else {
     target.path  = $$QTC_PREFIX/bin
     INSTALLS    += target

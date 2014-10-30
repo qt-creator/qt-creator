@@ -44,7 +44,7 @@ unix:!osx:LIBS += -lrt # posix shared memory
 
 osx {
     CONFIG -= app_bundle
-    QMAKE_LFLAGS += -sectcreate __TEXT __info_plist $$system_quote($$PWD/Info.plist)
+    QMAKE_LFLAGS += -Wl,-sectcreate,__TEXT,__info_plist,$$system_quote($$PWD/Info.plist)
 } else {
     target.path  = $$QTC_PREFIX/bin
     INSTALLS    += target
