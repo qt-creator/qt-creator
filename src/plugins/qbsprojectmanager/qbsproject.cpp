@@ -559,6 +559,7 @@ void QbsProject::updateAfterBuild()
     QTC_ASSERT(m_qbsProject.isValid(), return);
     m_projectData = m_qbsProject.projectData();
     updateBuildTargetData();
+    updateCppCompilerCallData();
 }
 
 void QbsProject::registerQbsProjectParser(QbsProjectParser *p)
@@ -682,9 +683,7 @@ void QbsProject::updateCppCodeModel()
     QtSupport::BaseQtVersion *qtVersion =
             QtSupport::QtKitInformation::qtVersion(activeTarget()->kit());
 
-    CppTools::CppModelManager *modelmanager =
-        CppTools::CppModelManager::instance();
-
+    CppTools::CppModelManager *modelmanager = CppTools::CppModelManager::instance();
     if (!modelmanager)
         return;
 
@@ -780,8 +779,50 @@ void QbsProject::updateCppCodeModel()
 
     QtSupport::UiCodeModelManager::update(this, uiFiles);
 
-    // Register update the code model:
+    // Update the code model
     m_codeModelFuture = modelmanager->updateProjectInfo(pinfo);
+    m_codeModelProjectInfo = modelmanager->projectInfo(this);
+}
+
+void QbsProject::updateCppCompilerCallData()
+{
+    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
+    QTC_ASSERT(m_codeModelProjectInfo == modelManager->projectInfo(this), return);
+
+    CppTools::ProjectInfo::CompilerCallData data;
+    foreach (const qbs::ProductData &product, m_projectData.allProducts()) {
+        if (!product.isEnabled())
+            continue;
+
+        foreach (const qbs::GroupData &group, product.groups()) {
+            if (!group.isEnabled())
+                continue;
+
+            foreach (const QString &file, group.allFilePaths()) {
+                if (!CppTools::ProjectFile::isSource(CppTools::ProjectFile::classify(file)))
+                    continue;
+
+                qbs::ErrorInfo errorInfo;
+                const qbs::RuleCommandList ruleCommands
+                       = m_qbsProject.ruleCommands(product, file, QLatin1String("obj"), &errorInfo);
+                if (errorInfo.hasError())
+                    continue;
+
+                QList<QStringList> calls;
+                foreach (const qbs::RuleCommand &ruleCommand, ruleCommands) {
+                    if (ruleCommand.type() == qbs::RuleCommand::ProcessCommandType)
+                        calls << ruleCommand.arguments();
+                }
+
+                if (!calls.isEmpty())
+                    data.insert(file, calls);
+            }
+        }
+    }
+
+    m_codeModelProjectInfo.setCompilerCallData(data);
+    const QFuture<void> future = modelManager->updateProjectInfo(m_codeModelProjectInfo);
+    QTC_CHECK(future.isFinished()); // No reparse of files expected
 }
 
 void QbsProject::updateQmlJsCodeModel()
