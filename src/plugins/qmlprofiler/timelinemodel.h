@@ -47,7 +47,11 @@ class QMLPROFILER_EXPORT TimelineModel : public QObject
     Q_PROPERTY(QString displayName READ displayName CONSTANT)
     Q_PROPERTY(bool empty READ isEmpty NOTIFY emptyChanged)
     Q_PROPERTY(bool hidden READ hidden WRITE setHidden NOTIFY hiddenChanged)
+    Q_PROPERTY(bool expanded READ expanded WRITE setExpanded NOTIFY expandedChanged)
     Q_PROPERTY(int height READ height NOTIFY heightChanged)
+    Q_PROPERTY(int rowCount READ rowCount NOTIFY rowCountChanged)
+    Q_PROPERTY(QVariantList labels READ labels NOTIFY labelsChanged)
+    Q_PROPERTY(int count READ count NOTIFY emptyChanged)
 
 public:
     class TimelineModelPrivate;
@@ -58,15 +62,15 @@ public:
     // Methods implemented by the abstract model itself
     bool isEmpty() const;
     int modelId() const;
-    int rowHeight(int rowNumber) const;
-    int rowOffset(int rowNumber) const;
-    void setRowHeight(int rowNumber, int height);
+    Q_INVOKABLE int rowHeight(int rowNumber) const;
+    Q_INVOKABLE int rowOffset(int rowNumber) const;
+    Q_INVOKABLE void setRowHeight(int rowNumber, int height);
     int height() const;
     int count() const;
-    qint64 duration(int index) const;
-    qint64 startTime(int index) const;
-    qint64 endTime(int index) const;
-    int selectionId(int index) const;
+    Q_INVOKABLE qint64 duration(int index) const;
+    Q_INVOKABLE qint64 startTime(int index) const;
+    Q_INVOKABLE qint64 endTime(int index) const;
+    Q_INVOKABLE int selectionId(int index) const;
 
     int firstIndex(qint64 startTime) const;
     int lastIndex(qint64 endTime) const;
@@ -79,20 +83,21 @@ public:
     int rowCount() const;
 
     // Methods that have to be implemented by child models
-    virtual QColor color(int index) const = 0;
+    Q_INVOKABLE virtual QColor color(int index) const = 0;
     virtual QVariantList labels() const = 0;
-    virtual QVariantMap details(int index) const = 0;
-    virtual int row(int index) const = 0;
+    Q_INVOKABLE virtual QVariantMap details(int index) const = 0;
+    Q_INVOKABLE virtual int row(int index) const = 0;
 
     // Methods which can optionally be implemented by child models.
     // returned map should contain "file", "line", "column" properties, or be empty
-    virtual QVariantMap location(int index) const;
-    virtual int typeId(int index) const;
-    virtual bool handlesTypeId(int typeId) const;
-    virtual int selectionIdForLocation(const QString &filename, int line, int column) const;
-    virtual float relativeHeight(int index) const;
-    virtual int rowMinValue(int rowNumber) const;
-    virtual int rowMaxValue(int rowNumber) const;
+    Q_INVOKABLE virtual QVariantMap location(int index) const;
+    Q_INVOKABLE virtual int typeId(int index) const;
+    Q_INVOKABLE virtual bool handlesTypeId(int typeId) const;
+    Q_INVOKABLE virtual int selectionIdForLocation(const QString &filename, int line,
+                                                   int column) const;
+    Q_INVOKABLE virtual float relativeHeight(int index) const;
+    Q_INVOKABLE virtual int rowMinValue(int rowNumber) const;
+    Q_INVOKABLE virtual int rowMaxValue(int rowNumber) const;
 
     Q_INVOKABLE int nextItemBySelectionId(int selectionId, qint64 time, int currentItem) const;
     Q_INVOKABLE int nextItemByTypeId(int typeId, qint64 time, int currentItem) const;
@@ -107,6 +112,8 @@ signals:
     void rowHeightChanged();
     void emptyChanged();
     void heightChanged();
+    void rowCountChanged();
+    void labelsChanged();
 
 protected:
     QColor colorBySelectionId(int index) const;

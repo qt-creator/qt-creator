@@ -107,7 +107,11 @@ int TimelineModel::collapsedRowCount() const
 void TimelineModel::setCollapsedRowCount(int rows)
 {
     Q_D(TimelineModel);
-    d->collapsedRowCount = rows;
+    if (d->collapsedRowCount != rows) {
+        d->collapsedRowCount = rows;
+        if (!d->expanded)
+            emit rowCountChanged();
+    }
 }
 
 int TimelineModel::expandedRowCount() const
@@ -119,7 +123,11 @@ int TimelineModel::expandedRowCount() const
 void QmlProfiler::TimelineModel::setExpandedRowCount(int rows)
 {
     Q_D(TimelineModel);
-    d->expandedRowCount = rows;
+    if (d->expandedRowCount != rows) {
+        d->expandedRowCount = rows;
+        if (d->expanded)
+            emit rowCountChanged();
+    }
 }
 
 
@@ -135,6 +143,7 @@ void TimelineModel::TimelineModelPrivate::init(TimelineModel *q)
     connect(q,SIGNAL(rowHeightChanged()),q,SIGNAL(heightChanged()));
     connect(q,SIGNAL(expandedChanged()),q,SIGNAL(heightChanged()));
     connect(q,SIGNAL(hiddenChanged()),q,SIGNAL(heightChanged()));
+    connect(q,SIGNAL(emptyChanged()),q,SIGNAL(heightChanged()));
 }
 
 
@@ -221,11 +230,10 @@ int TimelineModel::height() const
     if (d->hidden || isEmpty())
         return 0;
 
-    int depth = rowCount();
-    if (d->hidden || !d->expanded || d->rowOffsets.empty())
-        return depth * TimelineModelPrivate::DefaultRowHeight;
+    if (!d->expanded || d->rowOffsets.empty())
+        return rowCount() * TimelineModelPrivate::DefaultRowHeight;
 
-    return d->rowOffsets.last() + (depth - d->rowOffsets.size()) *
+    return d->rowOffsets.last() + (rowCount() - d->rowOffsets.size()) *
             TimelineModelPrivate::DefaultRowHeight;
 }
 
@@ -442,6 +450,8 @@ void TimelineModel::setExpanded(bool expanded)
     if (expanded != d->expanded) {
         d->expanded = expanded;
         emit expandedChanged();
+        if (d->collapsedRowCount != d->expandedRowCount)
+            emit rowCountChanged();
     }
 }
 
@@ -489,10 +499,12 @@ int TimelineModel::selectionId(int index) const
 void TimelineModel::clear()
 {
     Q_D(TimelineModel);
-    d->collapsedRowCount = d->expandedRowCount = 1;
+    bool hadRows = (rowCount() != 1);
     bool wasExpanded = d->expanded;
     bool wasHidden = d->hidden;
     bool hadRowHeights = !d->rowOffsets.empty();
+    bool wasEmpty = isEmpty();
+    d->collapsedRowCount = d->expandedRowCount = 1;
     d->rowOffsets.clear();
     d->expanded = false;
     d->hidden = false;
@@ -504,6 +516,10 @@ void TimelineModel::clear()
         emit expandedChanged();
     if (wasHidden)
         emit hiddenChanged();
+    if (hadRows)
+        emit rowCountChanged();
+    if (!wasEmpty)
+        emit emptyChanged();
 }
 
 int TimelineModel::nextItemBySelectionId(int selectionId, qint64 time, int currentItem) const

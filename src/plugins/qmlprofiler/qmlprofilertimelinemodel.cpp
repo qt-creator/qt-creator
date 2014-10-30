@@ -101,6 +101,8 @@ void QmlProfilerTimelineModel::dataChanged()
     default:
         break;
     }
+
+    emit labelsChanged();
 }
 
 int QmlProfilerTimelineModel::bindingLoopDest(int index) const
