@@ -20,6 +20,8 @@
 
 #include "clangstaticanalyzerconstants.h"
 
+#include <utils/synchronousprocess.h>
+
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
@@ -83,14 +85,7 @@ ClangStaticAnalyzerRunner::ClangStaticAnalyzerRunner(const QString &clangExecuta
 
 ClangStaticAnalyzerRunner::~ClangStaticAnalyzerRunner()
 {
-    const QProcess::ProcessState processState = m_process.state();
-    if (processState == QProcess::Starting || processState == QProcess::Running) {
-        m_process.terminate();
-        if (!m_process.waitForFinished(500)) {
-            m_process.kill();
-            m_process.waitForFinished();
-        }
-    }
+    Utils::SynchronousProcess::stopProcess(m_process);
 }
 
 bool ClangStaticAnalyzerRunner::run(const QString &filePath, const QStringList &compilerOptions)
