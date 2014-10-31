@@ -215,6 +215,7 @@ public slots:
     static void clearDefaultDevices(ProjectExplorer::Project *project);
     static void updateToolChainList();
     static void updateAutomaticKitList();
+    static bool force32bitEmulator();
 
 signals:
     void updated();
@@ -228,6 +229,7 @@ private:
     AndroidConfig m_config;
 
     QMap<ProjectExplorer::Project *, QMap<QString, QString> > m_defaultDeviceForAbi;
+    bool m_force32bit;
 };
 
 } // namespace Android
