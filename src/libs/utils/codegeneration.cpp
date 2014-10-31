@@ -117,6 +117,12 @@ void writeQtIncludeSection(const QStringList &qt4,
         QSet<QString> common = qt4Only;
         common.intersect(qt5Only);
 
+        // qglobal.h is needed for QT_VERSION
+        if (includeQtModule)
+            common.insert(QLatin1String("QtCore/qglobal.h"));
+        else
+            common.insert(QLatin1String("qglobal.h"));
+
         qt4Only.subtract(common);
         qt5Only.subtract(common);
 
