@@ -1,17 +1,14 @@
-%{Cpp:LicenseTemplate}
-
+%{Cpp:LicenseTemplate}\
 #include "%{HdrFileName}"
-
 %{JS: Cpp.openNamespaces('%{Class}')}
 @if '%{IncludeQSharedData}'
-
 class %{CN}Data : public QSharedData
 {
 public:
 
 };
-@endif
 
+@endif
 @if '%{Base}' === 'QObject'
 %{CN}::%{CN}(QObject *parent) : QObject(parent)%{JS: ('%{SharedDataInit}') ? ', %{SharedDataInit}' : ''}
 @elsif '%{Base}' === 'QWidget' || '%{Base}' === 'QMainWindow'
@@ -41,5 +38,4 @@ public:
 {
 
 }
-
-%{JS: Cpp.closeNamespaces('%{Class}')}
+%{JS: Cpp.closeNamespaces('%{Class}')}\
