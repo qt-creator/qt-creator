@@ -63,7 +63,7 @@ def checkQtCreatorHelpVersion(expectedVersion):
                      'Qt Creator Manual %s' % expectedVersion,
                      'Verifying whether manual uses expected version.')
     except:
-        test.fail("Missing Qt Creator Manual.")
+        test.xverify(False, "Missing Qt Creator Manual (QTCREATORBUG-13233).")
 
 def setKeyboardShortcutForAboutQtC():
     invokeMenuItem("Tools", "Options...")
