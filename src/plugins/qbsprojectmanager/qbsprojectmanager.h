@@ -70,8 +70,8 @@ public:
     ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString);
 
     // QBS profiles management:
-    QString profileForKit(const ProjectExplorer::Kit *k) const;
-    void setProfileForKit(const QString &name, const ProjectExplorer::Kit *k);
+    static QString profileForKit(const ProjectExplorer::Kit *k);
+    static void setProfileForKit(const QString &name, const ProjectExplorer::Kit *k);
 
     static qbs::Settings *settings() { return m_settings; }
     static Internal::QbsLogSink *logSink() { return m_logSink; }

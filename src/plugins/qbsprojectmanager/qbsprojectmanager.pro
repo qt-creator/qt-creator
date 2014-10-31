@@ -18,6 +18,7 @@ DEFINES += \
     QBSPROJECTMANAGER_LIBRARY
 
 HEADERS = \
+    customqbspropertiesdialog.h \
     defaultpropertyprovider.h \
     propertyprovider.h \
     qbsbuildconfiguration.h \
@@ -30,6 +31,7 @@ HEADERS = \
     qbslogsink.h \
     qbsnodes.h \
     qbsparser.h \
+    qbsprofilessettingspage.h \
     qbsproject.h \
     qbsprojectfile.h \
     qbsprojectmanager.h \
@@ -42,6 +44,7 @@ HEADERS = \
     qbsconstants.h
 
 SOURCES = \
+    customqbspropertiesdialog.cpp \
     defaultpropertyprovider.cpp \
     qbsbuildconfiguration.cpp \
     qbsbuildconfigurationwidget.cpp \
@@ -52,6 +55,7 @@ SOURCES = \
     qbslogsink.cpp \
     qbsnodes.cpp \
     qbsparser.cpp \
+    qbsprofilessettingspage.cpp \
     qbsproject.cpp \
     qbsprojectfile.cpp \
     qbsprojectmanager.cpp \
@@ -61,9 +65,11 @@ SOURCES = \
     qbsrunconfiguration.cpp
 
 FORMS = \
+    customqbspropertiesdialog.ui \
     qbsbuildstepconfigwidget.ui \
     qbscleanstepconfigwidget.ui \
-    qbsinstallstepconfigwidget.ui
+    qbsinstallstepconfigwidget.ui \
+    qbsprofilessettingswidget.ui
 
 RESOURCES += \
    qbsprojectmanager.qrc

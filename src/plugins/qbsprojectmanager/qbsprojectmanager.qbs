@@ -61,7 +61,9 @@ QtcPlugin {
     cpp.dynamicLibraries: base.concat(externalQbsDynamicLibraries)
 
     files: [
-        "qbsprojectmanager.qrc",
+        "customqbspropertiesdialog.h",
+        "customqbspropertiesdialog.cpp",
+        "customqbspropertiesdialog.ui",
         "defaultpropertyprovider.cpp",
         "defaultpropertyprovider.h",
         "propertyprovider.h",
@@ -88,12 +90,16 @@ QtcPlugin {
         "qbsnodes.h",
         "qbsparser.cpp",
         "qbsparser.h",
+        "qbsprofilessettingspage.cpp",
+        "qbsprofilessettingspage.h",
+        "qbsprofilessettingswidget.ui",
         "qbsproject.cpp",
         "qbsproject.h",
         "qbsprojectfile.cpp",
         "qbsprojectfile.h",
         "qbsprojectmanager.cpp",
         "qbsprojectmanager.h",
+        "qbsprojectmanager.qrc",
         "qbsprojectmanager_global.h",
         "qbsprojectmanagerconstants.h",
         "qbsprojectmanagerplugin.cpp",

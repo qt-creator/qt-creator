@@ -110,7 +110,7 @@ ProjectExplorer::Project *QbsManager::openProject(const QString &fileName, QStri
     return new Internal::QbsProject(this, fileName);
 }
 
-QString QbsManager::profileForKit(const ProjectExplorer::Kit *k) const
+QString QbsManager::profileForKit(const ProjectExplorer::Kit *k)
 {
     if (!k)
         return QString();
