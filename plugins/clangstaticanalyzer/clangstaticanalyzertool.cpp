@@ -144,15 +144,18 @@ void ClangStaticAnalyzerTool::startTool(StartMode mode)
     QTC_ASSERT(mode == Analyzer::StartLocal, return);
 
     AnalyzerManager::showMode();
-    if (Project *pro = SessionManager::startupProject())
-        ProjectExplorerPlugin::instance()->runProject(pro, runMode());
+
+    m_diagnosticModel->clear();
+    setBusyCursor(true);
+    Project *pro = SessionManager::startupProject();
+    QTC_ASSERT(pro, return);
+    ProjectExplorerPlugin::instance()->runProject(pro, runMode());
 }
 
 void ClangStaticAnalyzerTool::onEngineIsStarting()
 {
     QTC_ASSERT(m_diagnosticModel, return);
-    m_diagnosticModel->clear();
-    setBusyCursor(true);
+
 }
 
 void ClangStaticAnalyzerTool::onNewDiagnosticsAvailable(const QList<Diagnostic> &diagnostics)
