@@ -72,7 +72,7 @@ def getHighlightsInHtml(htmlCode):
 
 def verifySelection(expected):
     selText = str(__getSelectedText__())
-    if test.xverify(selText, "Verify that there is a selection"): # QTCREATORBUG-13239
+    if test.verify(selText, "Verify that there is a selection"):
         # verify if search keyword is found in results
         test.verify(expected.lower() in selText.lower(),
                     "'%s' search result can be found" % expected)

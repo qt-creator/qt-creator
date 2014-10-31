@@ -137,7 +137,7 @@ void SearchWidget::showEvent(QShowEvent *event)
         connect(queryWidget, SIGNAL(search()), this, SLOT(search()));
         connect(resultWidget, &QHelpSearchResultWidget::requestShowLink, this,
                 [this](const QUrl &url) {
-                    emit linkActivated(url, false/*newPage*/);
+                    emit linkActivated(url, currentSearchTerms(), false/*newPage*/);
                 });
 
         connect(searchEngine, SIGNAL(searchingStarted()), this,
@@ -232,7 +232,7 @@ bool SearchWidget::eventFilter(QObject *o, QEvent *e)
             bool controlPressed = me->modifiers() & Qt::ControlModifier;
             if ((me->button() == Qt::LeftButton && controlPressed)
                 || (me->button() == Qt::MidButton)) {
-                    emit linkActivated(link, true/*newPage*/);
+                    emit linkActivated(link, currentSearchTerms(), true/*newPage*/);
             }
         }
     }
@@ -269,11 +269,33 @@ void SearchWidget::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
 
     QAction *usedAction = menu.exec(mapToGlobal(contextMenuEvent->pos()));
     if (usedAction == openLink)
-        emit linkActivated(link, false/*newPage*/);
+        emit linkActivated(link, currentSearchTerms(), false/*newPage*/);
     else if (usedAction == openLinkInNewTab)
-        emit linkActivated(link, true/*newPage*/);
+        emit linkActivated(link, currentSearchTerms(), true/*newPage*/);
     else if (usedAction == copyAnchorAction)
         QApplication::clipboard()->setText(link.toString());
+}
+
+QStringList SearchWidget::currentSearchTerms() const
+{
+    QList<QHelpSearchQuery> queryList = searchEngine->query();
+
+    QStringList terms;
+    foreach (const QHelpSearchQuery &query, queryList) {
+        switch (query.fieldName) {
+        case QHelpSearchQuery::ALL:
+        case QHelpSearchQuery::PHRASE:
+        case QHelpSearchQuery::DEFAULT:
+        case QHelpSearchQuery::ATLEAST: {
+                foreach (QString term, query.wordList)
+                    terms.append(term.remove(QLatin1Char('"')));
+            }
+            break;
+        default:
+            break;
+        }
+    }
+    return terms;
 }
 
 // #pragma mark -- SearchSideBarItem
@@ -282,7 +304,8 @@ SearchSideBarItem::SearchSideBarItem()
     : SideBarItem(new SearchWidget, QLatin1String(Constants::HELP_SEARCH))
 {
     widget()->setWindowTitle(tr(Constants::SB_SEARCH));
-    connect(widget(), SIGNAL(linkActivated(QUrl,bool)), this, SIGNAL(linkActivated(QUrl,bool)));
+    connect(widget(), SIGNAL(linkActivated(QUrl,QStringList,bool)),
+            this, SIGNAL(linkActivated(QUrl,QStringList,bool)));
 }
 
 QList<QToolButton *> SearchSideBarItem::createToolBarWidgets()

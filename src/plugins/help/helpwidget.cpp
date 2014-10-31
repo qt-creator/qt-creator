@@ -432,7 +432,7 @@ int HelpWidget::currentIndex() const
     return m_viewerStack->currentIndex();
 }
 
-void HelpWidget::addViewer(HelpViewer *viewer, bool highlightSearchTerms)
+void HelpWidget::addViewer(HelpViewer *viewer)
 {
     m_viewerStack->addWidget(viewer);
     viewer->setFocus(Qt::OtherFocusReason);
@@ -456,8 +456,7 @@ void HelpWidget::addViewer(HelpViewer *viewer, bool highlightSearchTerms)
     if (m_style == ExternalWindow)
         connect(viewer, SIGNAL(titleChanged()), this, SLOT(updateWindowTitle()));
 
-    if (highlightSearchTerms)
-        connect(viewer, &HelpViewer::loadFinished, this, &HelpWidget::highlightSearchTerms);
+    connect(viewer, &HelpViewer::loadFinished, this, &HelpWidget::highlightSearchTerms);
 
     updateCloseButton();
 }
@@ -523,14 +522,14 @@ void HelpWidget::setSource(const QUrl &url)
     viewer->setFocus(Qt::OtherFocusReason);
 }
 
-void HelpWidget::openFromSearch(const QUrl &url, bool newPage)
+void HelpWidget::openFromSearch(const QUrl &url, const QStringList &searchTerms, bool newPage)
 {
+    m_searchTerms = searchTerms;
     if (newPage)
-        OpenPagesManager::instance().createPageFromSearch(url);
+        OpenPagesManager::instance().createPage(url);
     else {
         HelpViewer* viewer = currentViewer();
         QTC_ASSERT(viewer, return);
-        connect(viewer, &HelpViewer::loadFinished, this, &HelpWidget::highlightSearchTerms);
         viewer->setSource(url);
         viewer->setFocus(Qt::OtherFocusReason);
     }
@@ -655,29 +654,13 @@ void HelpWidget::print(HelpViewer *viewer)
 
 void HelpWidget::highlightSearchTerms()
 {
-    if (HelpViewer *viewer = qobject_cast<HelpViewer *>(sender())) {
-        QHelpSearchEngine *searchEngine =
-            LocalHelpManager::helpEngine().searchEngine();
-        QList<QHelpSearchQuery> queryList = searchEngine->query();
-
-        QStringList terms;
-        foreach (const QHelpSearchQuery &query, queryList) {
-            switch (query.fieldName) {
-                default: break;
-                case QHelpSearchQuery::ALL: {
-                case QHelpSearchQuery::PHRASE:
-                case QHelpSearchQuery::DEFAULT:
-                case QHelpSearchQuery::ATLEAST:
-                    foreach (QString term, query.wordList)
-                        terms.append(term.remove(QLatin1Char('"')));
-                }
-            }
-        }
-
-        foreach (const QString& term, terms)
-            viewer->findText(term, 0, false, true);
-        disconnect(viewer, &HelpViewer::loadFinished, this, &HelpWidget::highlightSearchTerms);
-    }
+    if (m_searchTerms.isEmpty())
+        return;
+    HelpViewer *viewer = qobject_cast<HelpViewer *>(sender());
+    QTC_ASSERT(viewer, return);
+    foreach (const QString& term, m_searchTerms)
+        viewer->findText(term, 0, false, true);
+    m_searchTerms.clear();
 }
 
 } // Internal
