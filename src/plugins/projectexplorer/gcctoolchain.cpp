@@ -97,7 +97,8 @@ static QByteArray runGcc(const FileName &gcc, const QStringList &arguments, cons
         return QByteArray();
     }
 
-    const QByteArray stdErr = cpp.readAllStandardError();
+    const QByteArray stdErr = SynchronousProcess::normalizeNewlines(
+                QString::fromLocal8Bit(cpp.readAllStandardError())).toLocal8Bit();
     if (cpp.exitCode() != 0) {
         qWarning().nospace()
             << Q_FUNC_INFO << ": " << gcc.toUserOutput() << ' '
@@ -106,7 +107,8 @@ static QByteArray runGcc(const FileName &gcc, const QStringList &arguments, cons
         return QByteArray();
     }
 
-    QByteArray data = cpp.readAllStandardOutput();
+    QByteArray data = SynchronousProcess::normalizeNewlines(
+                QString::fromLocal8Bit(cpp.readAllStandardOutput())).toLocal8Bit();
     if (!data.isEmpty() && !data.endsWith('\n'))
         data.append('\n');
     data.append(stdErr);
