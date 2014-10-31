@@ -24,10 +24,14 @@
 
 #include <analyzerbase/analyzermanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icore.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
 
+#include <utils/checkablemessagebox.h>
 #include <utils/fancymainwindow.h>
 
 #include <QDockWidget>
@@ -139,23 +143,60 @@ AnalyzerRunControl *ClangStaticAnalyzerTool::createRunControl(
     return engine;
 }
 
+static bool dontStartAfterHintForDebugMode()
+{
+    const Project *project = SessionManager::startupProject();
+    BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
+    if (project) {
+        if (const Target *target = project->activeTarget()) {
+            if (const BuildConfiguration *buildConfig = target->activeBuildConfiguration())
+                buildType = buildConfig->buildType();
+        }
+    }
+
+    if (buildType == BuildConfiguration::Release) {
+        const QString wrongMode = ClangStaticAnalyzerTool::tr("Release");
+        const QString toolName = ClangStaticAnalyzerTool::tr("Clang Static Analyzer");
+        const QString title = ClangStaticAnalyzerTool::tr("Run %1 in %2 Mode?").arg(toolName)
+                .arg(wrongMode);
+        const QString message = ClangStaticAnalyzerTool::tr(
+            "<html><head/><body>"
+            "<p>You are trying to run the tool \"%1\" on an application in %2 mode. The tool is "
+            "designed to be used in Debug mode since enabled assertions can reduce the number of "
+            "false positives.</p>"
+            "<p>Do you want to continue and run the tool in %2 mode?</p>"
+            "</body></html>")
+                .arg(toolName).arg(wrongMode);
+        if (Utils::CheckableMessageBox::doNotAskAgainQuestion(Core::ICore::mainWindow(),
+                title, message, Core::ICore::settings(),
+                QLatin1String("ClangStaticAnalyzerCorrectModeWarning"),
+                QDialogButtonBox::Yes|QDialogButtonBox::Cancel,
+                QDialogButtonBox::Cancel, QDialogButtonBox::Yes) != QDialogButtonBox::Yes)
+            return true;
+    }
+
+    return false;
+}
+
 void ClangStaticAnalyzerTool::startTool(StartMode mode)
 {
     QTC_ASSERT(mode == Analyzer::StartLocal, return);
 
     AnalyzerManager::showMode();
 
+    if (dontStartAfterHintForDebugMode())
+        return;
+
     m_diagnosticModel->clear();
     setBusyCursor(true);
-    Project *pro = SessionManager::startupProject();
-    QTC_ASSERT(pro, return);
-    ProjectExplorerPlugin::instance()->runProject(pro, runMode());
+    Project *project = SessionManager::startupProject();
+    QTC_ASSERT(project, return);
+    ProjectExplorerPlugin::instance()->runProject(project, runMode());
 }
 
 void ClangStaticAnalyzerTool::onEngineIsStarting()
 {
     QTC_ASSERT(m_diagnosticModel, return);
-
 }
 
 void ClangStaticAnalyzerTool::onNewDiagnosticsAvailable(const QList<Diagnostic> &diagnostics)
