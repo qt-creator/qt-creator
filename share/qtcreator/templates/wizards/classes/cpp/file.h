@@ -28,13 +28,13 @@ class %{CN}
 {
 @if '%{isQObject}'
      Q_OBJECT
+@endif
 public:
+@if '%{Base}' === 'QObject'
     explicit %{CN}(QObject *parent = 0);
 @elsif '%{Base}' === 'QWidget' || '%{Base}' === 'QMainWindow'
-public
     explicit %{CN}(QWidget *parent = 0);
 @else
-public:
     %{CN}();
 @endif
 @if '%{IncludeQSharedData}'
