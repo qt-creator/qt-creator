@@ -1994,6 +1994,8 @@ public:
 
     void pasteText(bool afterCursor);
 
+    void cutSelectedText();
+
     void joinLines(int count, bool preserveSpace = false);
 
     void insertNewLine();
@@ -3336,11 +3338,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
             && g.submode != DownCaseSubMode
             && g.submode != UpCaseSubMode) {
             yankText(currentRange(), m_register);
-            if (g.movetype == MoveLineWise)
-                setRegister(m_register, registerContents(m_register), RangeLineMode);
         }
-
-        m_positionPastEnd = m_anchorPastEnd = false;
     }
 
     QString dotCommand;
@@ -4179,39 +4177,14 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             && isVisualMode()) {
         pushUndoState();
         setDotCommand(visualDotCommand() + QLatin1Char('x'));
-        if (isVisualCharMode()) {
-            leaveVisualMode();
-            g.submode = DeleteSubMode;
-            finishMovement();
-        } else if (isVisualLineMode()) {
-            leaveVisualMode();
-            yankText(currentRange(), m_register);
-            removeText(currentRange());
-            handleStartOfLine();
-        } else if (isVisualBlockMode()) {
-            leaveVisualMode();
-            yankText(currentRange(), m_register);
-            removeText(currentRange());
-            setPosition(qMin(position(), anchor()));
-        }
+        cutSelectedText();
     } else if (input.is('D') && isNoVisualMode()) {
         handleAs(_("%1d$"));
-    } else if ((input.is('D') || input.is('X')) &&
-         (isVisualCharMode() || isVisualLineMode())) {
+    } else if ((input.is('D') || input.is('X')) && isVisualMode()) {
         setDotCommand(visualDotCommand() + QLatin1Char('X'));
-        leaveVisualMode();
-        g.rangemode = RangeLineMode;
-        g.submode = NoSubMode;
-        yankText(currentRange(), m_register);
-        removeText(currentRange());
-        moveToFirstNonBlankOnLine();
-    } else if ((input.is('D') || input.is('X')) && isVisualBlockMode()) {
-        setDotCommand(visualDotCommand() + QLatin1Char('X'));
-        leaveVisualMode();
-        g.rangemode = RangeBlockAndTailMode;
-        yankText(currentRange(), m_register);
-        removeText(currentRange());
-        setPosition(qMin(position(), anchor()));
+        if (isVisualCharMode())
+            toggleVisualMode(VisualLineMode);
+        cutSelectedText();
     } else if (input.isControl('d')) {
         const int scrollOffset = windowScrollOffset();
         int sline = cursorLine() < scrollOffset ? scrollOffset : cursorLineOnScreen();
@@ -4380,8 +4353,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         if (leftDist() > 0) {
             setAnchor();
             moveLeft(qMin(count(), leftDist()));
-            yankText(currentRange(), m_register);
-            removeText(currentRange());
+            cutSelectedText();
         }
     } else if (input.is('Y') && isNoVisualMode())  {
         handleAs(_("%1yy"));
@@ -4421,10 +4393,6 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         pushUndoState();
         if (isVisualMode()) {
             setDotCommand(visualDotCommand() + QString::number(count()) + input.raw());
-            if (isVisualLineMode())
-                g.rangemode = RangeLineMode;
-            else if (isVisualBlockMode())
-                g.rangemode = RangeBlockMode;
             leaveVisualMode();
             if (input.is('~'))
                 g.submode = InvertCaseSubMode;
@@ -4522,12 +4490,6 @@ bool FakeVimHandler::Private::handleReplaceSubMode(const Input &input)
     setDotCommand(visualDotCommand() + QLatin1Char('r') + input.asChar());
     if (isVisualMode()) {
         pushUndoState();
-        if (isVisualLineMode())
-            g.rangemode = RangeLineMode;
-        else if (isVisualBlockMode())
-            g.rangemode = RangeBlockMode;
-        else
-            g.rangemode = RangeCharMode;
         leaveVisualMode();
         Range range = currentRange();
         if (g.rangemode == RangeCharMode)
@@ -7185,30 +7147,8 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
     // In visual mode paste text only inside selection.
     bool pasteAfter = isVisualMode() ? false : afterCursor;
 
-    bool visualCharMode = isVisualCharMode();
-    if (visualCharMode) {
-        leaveVisualMode();
-        g.rangemode = RangeCharMode;
-        Range range = currentRange();
-        range.endPos++;
-        yankText(range, m_register);
-        removeText(range);
-    } else if (isVisualLineMode()) {
-        leaveVisualMode();
-        g.rangemode = RangeLineMode;
-        Range range = currentRange();
-        range.endPos++;
-        yankText(range, m_register);
-        removeText(range);
-        handleStartOfLine();
-    } else if (isVisualBlockMode()) {
-        leaveVisualMode();
-        g.rangemode = RangeBlockMode;
-        Range range = currentRange();
-        yankText(range, m_register);
-        removeText(range);
-        setPosition(qMin(position(), anchor()));
-    }
+    if (isVisualMode())
+        cutSelectedText();
 
     switch (rangeMode) {
         case RangeCharMode: {
@@ -7226,10 +7166,7 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
         case RangeLineMode:
         case RangeLineModeExclusive: {
             QTextCursor tc = m_cursor;
-            if (visualCharMode)
-                tc.insertBlock();
-            else
-                moveToStartOfLine();
+            moveToStartOfLine();
             m_targetColumn = 0;
             bool lastLine = false;
             if (pasteAfter) {
@@ -7290,6 +7227,26 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
     }
 
     endEditBlock();
+}
+
+void FakeVimHandler::Private::cutSelectedText()
+{
+    bool visualMode = isVisualMode();
+    leaveVisualMode();
+
+    Range range = currentRange();
+    if (visualMode && g.rangemode == RangeCharMode)
+        ++range.endPos;
+
+    g.submode = DeleteSubMode;
+    yankText(range, m_register);
+    removeText(range);
+    g.submode = NoSubMode;
+
+    if (g.rangemode == RangeLineMode)
+        handleStartOfLine();
+    else if (g.rangemode == RangeBlockMode)
+        setPosition(qMin(position(), anchor()));
 }
 
 void FakeVimHandler::Private::joinLines(int count, bool preserveSpace)
@@ -7821,9 +7778,7 @@ void FakeVimHandler::Private::enterVisualInsertMode(QChar command)
             m_visualBlockInsert = ChangeBlockInsertMode;
             pushUndoState();
             beginEditBlock();
-            Range range(position(), anchor(), RangeBlockMode);
-            yankText(range, m_register);
-            removeText(range);
+            cutSelectedText();
             endEditBlock();
         } else {
             m_visualBlockInsert = InsertBlockInsertMode;
@@ -7869,6 +7824,8 @@ void FakeVimHandler::Private::enterCommandMode(Mode returnToMode)
     g.mode = CommandMode;
     clearCommandMode();
     g.returnToMode = returnToMode;
+    m_positionPastEnd = false;
+    m_anchorPastEnd = false;
 }
 
 void FakeVimHandler::Private::enterExMode(const QString &contents)
