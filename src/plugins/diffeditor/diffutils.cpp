@@ -918,39 +918,39 @@ static FileData readGitHeaderAndChunks(const QString &headerAndChunks,
         fileData.rightFileInfo.typeInfo = indexRegExp.cap(2);
 
         patch.remove(0, indexRegExp.matchedLength());
+    }
 
-        const QRegExp leftFileRegExp(QLatin1String("^-{3} ")                 // "--- "
-                                     + leftFileName                          // "a/fileName" or "/dev/null"
-                                     + QLatin1String("(?:\\t[^\\n]*)*\\n")); // optionally followed by: \t anything \t anything ...)
-        const QRegExp rightFileRegExp(QLatin1String("^\\+{3} ")               // "+++ "
-                                      + rightFileName                         // "b/fileName" or "/dev/null"
-                                      + QLatin1String("(?:\\t[^\\n]*)*\\n")); // optionally followed by: \t anything \t anything ...)
-        const QRegExp binaryRegExp(QLatin1String("^Binary files ")
-                                   + leftFileName
-                                   + QLatin1String(" and ")
-                                   + rightFileName
-                                   + QLatin1String(" differ$"));
+    const QRegExp leftFileRegExp(QLatin1String("^-{3} ")                 // "--- "
+                                 + leftFileName                          // "a/fileName" or "/dev/null"
+                                 + QLatin1String("(?:\\t[^\\n]*)*\\n")); // optionally followed by: \t anything \t anything ...)
+    const QRegExp rightFileRegExp(QLatin1String("^\\+{3} ")               // "+++ "
+                                  + rightFileName                         // "b/fileName" or "/dev/null"
+                                  + QLatin1String("(?:\\t[^\\n]*)*\\n")); // optionally followed by: \t anything \t anything ...)
+    const QRegExp binaryRegExp(QLatin1String("^Binary files ")
+                               + leftFileName
+                               + QLatin1String(" and ")
+                               + rightFileName
+                               + QLatin1String(" differ$"));
 
-        // empty or followed either by leftFileRegExp or by binaryRegExp
-        if (patch.isEmpty() && (fileData.fileOperation == FileData::NewFile
-                             || fileData.fileOperation == FileData::DeleteFile)) {
-            readOk = true;
-        } else if (leftFileRegExp.indexIn(patch) == 0) {
-            patch.remove(0, leftFileRegExp.matchedLength());
+    // empty or followed either by leftFileRegExp or by binaryRegExp
+    if (patch.isEmpty() && (fileData.fileOperation == FileData::NewFile
+                         || fileData.fileOperation == FileData::DeleteFile)) {
+        readOk = true;
+    } else if (leftFileRegExp.indexIn(patch) == 0) {
+        patch.remove(0, leftFileRegExp.matchedLength());
 
-            // followed by rightFileRegExp
-            if (rightFileRegExp.indexIn(patch) == 0) {
-                patch.remove(0, rightFileRegExp.matchedLength());
+        // followed by rightFileRegExp
+        if (rightFileRegExp.indexIn(patch) == 0) {
+            patch.remove(0, rightFileRegExp.matchedLength());
 
-                fileData.chunks = readChunks(patch,
-                                             ignoreWhitespace,
-                                             &fileData.lastChunkAtTheEndOfFile,
-                                             &readOk);
-            }
-        } else if (binaryRegExp.indexIn(patch) == 0) {
-            readOk = true;
-            fileData.binaryFiles = true;
+            fileData.chunks = readChunks(patch,
+                                         ignoreWhitespace,
+                                         &fileData.lastChunkAtTheEndOfFile,
+                                         &readOk);
         }
+    } else if (binaryRegExp.indexIn(patch) == 0) {
+        readOk = true;
+        fileData.binaryFiles = true;
     }
 
     if (ok)
