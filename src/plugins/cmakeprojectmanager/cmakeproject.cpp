@@ -875,12 +875,16 @@ void CMakeCbpParser::sortFiles()
         } else {
             int bestLength = -1;
             int bestIndex = -1;
+            int bestIncludeCount = -1;
 
             for (int i = 0; i < m_buildTargets.size(); ++i) {
                 const CMakeBuildTarget &target = m_buildTargets.at(i);
-                if (fileName.isChildOf(Utils::FileName::fromString(target.sourceDirectory))
-                                       && target.sourceDirectory.size() > bestLength) {
+                if (fileName.isChildOf(Utils::FileName::fromString(target.sourceDirectory)) &&
+                    (target.sourceDirectory.size() > bestLength ||
+                     (target.sourceDirectory.size() == bestLength &&
+                      target.includeFiles.count() > bestIncludeCount))) {
                     bestLength = target.sourceDirectory.size();
+                    bestIncludeCount = target.includeFiles.count();
                     bestIndex = i;
                 }
             }
