@@ -314,7 +314,8 @@ void Lexer::scan_helper(Token *tok)
             yyinp();
             scanDigitSequence(); // this is optional: we already skipped over the first digit
             scanExponentPart();
-            scanOptionalFloatingSuffix();
+            if (!scanOptionalFloatingSuffix())
+                scanOptionalUserDefinedLiteral(tok);
             if (std::isalnum(_yychar) || _yychar == '_') {
                 do {
                     yyinp();
@@ -683,6 +684,7 @@ void Lexer::scanStringLiteral(Token *tok, unsigned char hint)
         tok->f.kind = T_STRING_LITERAL;
 
     scanUntilQuote(tok, '"');
+    scanOptionalUserDefinedLiteral(tok);
 }
 
 void Lexer::scanRawStringLiteral(Token *tok, unsigned char hint)
@@ -758,6 +760,7 @@ void Lexer::scanCharLiteral(Token *tok, unsigned char hint)
         tok->f.kind = T_CHAR_LITERAL;
 
     scanUntilQuote(tok, '\'');
+    scanOptionalUserDefinedLiteral(tok);
 }
 
 void Lexer::scanUntilQuote(Token *tok, unsigned char quote)
@@ -802,13 +805,16 @@ bool Lexer::scanExponentPart()
     return scanDigitSequence();
 }
 
-void Lexer::scanOptionalFloatingSuffix()
+bool Lexer::scanOptionalFloatingSuffix()
 {
-    if (_yychar == 'f' || _yychar == 'l' || _yychar == 'F' || _yychar == 'L')
+    if (_yychar == 'f' || _yychar == 'l' || _yychar == 'F' || _yychar == 'L') {
         yyinp();
+        return true;
+    }
+    return false;
 }
 
-void Lexer::scanOptionalIntegerSuffix(bool allowU)
+bool Lexer::scanOptionalIntegerSuffix(bool allowU)
 {
     switch(_yychar) {
     case 'u':
@@ -817,19 +823,28 @@ void Lexer::scanOptionalIntegerSuffix(bool allowU)
             yyinp();
             scanOptionalIntegerSuffix(false);
         }
-        return;
+        return true;
     case 'l':
         yyinp();
         if (_yychar == 'l')
             yyinp();
-        return;
+        return true;
     case 'L':
         yyinp();
         if (_yychar == 'L')
             yyinp();
-        return;
+        return true;
     default:
-        return;
+        return false;
+    }
+}
+
+void Lexer::scanOptionalUserDefinedLiteral(Token *tok)
+{
+    if (_languageFeatures.cxx11Enabled && _yychar == '_') {
+        tok->f.userDefinedLiteral = true;
+        while (std::isalnum(_yychar) || _yychar == '_' || isByteOfMultiByteCodePoint(_yychar))
+            yyinp();
     }
 }
 
@@ -844,19 +859,22 @@ void Lexer::scanNumericLiteral(Token *tok)
                    (_yychar >= 'A' && _yychar <= 'F')) {
                 yyinp();
             }
-            scanOptionalIntegerSuffix();
+            if (!scanOptionalIntegerSuffix())
+                scanOptionalUserDefinedLiteral(tok);
             goto theEnd;
         } else if (_yychar == 'b' || _yychar == 'B') { // see n3472
             yyinp();
             while (_yychar == '0' || _yychar == '1')
                 yyinp();
-            scanOptionalIntegerSuffix();
+            if (!scanOptionalIntegerSuffix())
+                scanOptionalUserDefinedLiteral(tok);
             goto theEnd;
         } else if (_yychar >= '0' && _yychar <= '7') {
             do {
                 yyinp();
             } while (_yychar >= '0' && _yychar <= '7');
-            scanOptionalIntegerSuffix();
+            if (!scanOptionalIntegerSuffix())
+                scanOptionalUserDefinedLiteral(tok);
             goto theEnd;
         }
     }
@@ -866,16 +884,18 @@ void Lexer::scanNumericLiteral(Token *tok)
             yyinp();
             scanDigitSequence(); // this is optional: "1." is a valid floating point number
             scanExponentPart();
-            scanOptionalFloatingSuffix();
+            if (!scanOptionalFloatingSuffix())
+                scanOptionalUserDefinedLiteral(tok);
             break;
         } else if (_yychar == 'e' || _yychar == 'E') {
-            if (scanExponentPart())
-                scanOptionalFloatingSuffix();
+            if (scanExponentPart() && !scanOptionalFloatingSuffix())
+                scanOptionalUserDefinedLiteral(tok);
             break;
         } else if (std::isdigit(_yychar)) {
             yyinp();
         } else {
-            scanOptionalIntegerSuffix();
+            if (!scanOptionalIntegerSuffix())
+                scanOptionalUserDefinedLiteral(tok);
             break;
         }
     }
@@ -911,6 +931,7 @@ void Lexer::scanPreprocessorNumber(Token *tok, bool dotAlreadySkipped)
         } else if (std::isalnum(_yychar) || _yychar == '_' || _yychar == '.') {
             yyinp();
         } else {
+            scanOptionalUserDefinedLiteral(tok);
             break;
         }
     }

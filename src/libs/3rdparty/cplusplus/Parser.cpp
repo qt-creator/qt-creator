@@ -1274,6 +1274,14 @@ bool Parser::parseOperator(OperatorAST *&node) // ### FIXME
         } else if (LA() == T_LBRACKET && LA(2) == T_RBRACKET) {
             ast->op_token = ast->open_token = consumeToken();
             ast->close_token = consumeToken();
+        } else if (_languageFeatures.cxx11Enabled &&
+                   LA() == T_STRING_LITERAL && LA(2) == T_IDENTIFIER &&
+                   !tok().f.userDefinedLiteral && tok().string->size() == 0 &&
+                   tok(2).identifier->size() > 1 && tok(2).identifier->chars()[0] == '_') {
+            // C++11 user-defined literal operator, e.g.:
+            // int operator"" _abc123(const char *str, size_t size) { ... }
+            ast->op_token = consumeToken();
+            consumeToken(); // consume literal operator identifier
         } else {
             return false;
         }

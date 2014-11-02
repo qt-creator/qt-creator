@@ -100,8 +100,9 @@ private:
     void scanUntilQuote(Token *tok, unsigned char quote);
     bool scanDigitSequence();
     bool scanExponentPart();
-    void scanOptionalFloatingSuffix();
-    void scanOptionalIntegerSuffix(bool allowU = true);
+    bool scanOptionalFloatingSuffix();
+    bool scanOptionalIntegerSuffix(bool allowU = true);
+    void scanOptionalUserDefinedLiteral(Token *tok);
     void scanNumericLiteral(Token *tok);
     void scanPreprocessorNumber(Token *tok, bool dotAlreadySkipped);
     void scanIdentifier(Token *tok, unsigned extraProcessedChars = 0);

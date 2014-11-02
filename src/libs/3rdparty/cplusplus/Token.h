@@ -302,6 +302,7 @@ public:
     inline bool joined() const { return f.joined; }
     inline bool expanded() const { return f.expanded; }
     inline bool generated() const { return f.generated; }
+    inline bool userDefinedLiteral() const { return f.userDefinedLiteral; }
 
     inline unsigned bytes() const { return f.bytes; }
     inline unsigned bytesBegin() const { return byteOffset; }
@@ -363,8 +364,11 @@ public:
         // Tokens '1', '+', '2', and ';' are all expanded. However only tokens '+' and ';'
         // are generated.
         unsigned generated     : 1;
+        // The token is C++11 user-defined literal such as:
+        // 12_km, 0.5_Pa, 'c'_X, "abd"_L, u16"xyz"_M
+        unsigned userDefinedLiteral : 1;
         // Unused...
-        unsigned pad           : 3;
+        unsigned pad           : 2;
         // The token length in bytes and UTF16 chars.
         unsigned bytes         : 16;
         unsigned utf16chars    : 16;

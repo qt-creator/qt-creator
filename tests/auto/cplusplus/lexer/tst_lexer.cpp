@@ -61,7 +61,8 @@ public:
         CompareBytesEnd        = 1 << 4,
         CompareUtf16Chars      = 1 << 5,
         CompareUtf16CharsBegin = 1 << 6,
-        CompareUtf16CharsEnd   = 1 << 7
+        CompareUtf16CharsEnd   = 1 << 7,
+        CompareUserDefinedLiteral = 1 << 8
     };
     Q_DECLARE_FLAGS(TokenCompareFlags, TokenCompareFlag)
 
@@ -77,6 +78,8 @@ private slots:
 
     void bytes_and_utf16chars();
     void bytes_and_utf16chars_data();
+    void user_defined_literals();
+    void user_defined_literals_data();
     void offsets();
     void offsets_data();
 
@@ -87,7 +90,8 @@ private:
              const Tokens &expectedTokens,
              bool preserveState,
              TokenCompareFlags compareFlags,
-             bool preprocessorMode = false);
+             bool preprocessorMode = false,
+             const LanguageFeatures &extraLanguageFeatures = LanguageFeatures());
 
     int _state;
 };
@@ -109,12 +113,18 @@ void tst_SimpleLexer::run(const QByteArray &source,
                           const Tokens &expectedTokens,
                           bool preserveState,
                           TokenCompareFlags compareFlags,
-                          bool preprocessorMode)
+                          bool preprocessorMode,
+                          const LanguageFeatures &extraLanguageFeatures)
 {
     QVERIFY(compareFlags);
 
     SimpleLexer lexer;
     lexer.setPreprocessorMode(preprocessorMode);
+    if (extraLanguageFeatures.flags) {
+        LanguageFeatures languageFeatures = lexer.languageFeatures();
+        languageFeatures.flags |= extraLanguageFeatures.flags;
+        lexer.setLanguageFeatures(languageFeatures);
+    }
     const Tokens tokens = lexer(source, preserveState ? _state : 0);
     if (preserveState)
         _state = lexer.state();
@@ -146,6 +156,8 @@ void tst_SimpleLexer::run(const QByteArray &source,
             QCOMPARE(token.utf16charsBegin(), expectedToken.utf16charsBegin());
         if (compareFlags & CompareUtf16CharsEnd)
             QCOMPARE(token.utf16charsEnd(), expectedToken.utf16charsEnd());
+        if (compareFlags & CompareUserDefinedLiteral)
+            QCOMPARE(token.userDefinedLiteral(), expectedToken.userDefinedLiteral());
     }
 
     QString msg = QLatin1String("Less tokens than expected: got %1, expected %2.");
@@ -364,12 +376,14 @@ void tst_SimpleLexer::bytes_and_utf16chars()
     run(source, expectedTokens, false, compareFlags);
 }
 
-static Tokens createToken(unsigned kind, unsigned bytes, unsigned utf16chars)
+static Tokens createToken(unsigned kind, unsigned bytes, unsigned utf16chars,
+                          bool userDefinedLiteral = false)
 {
     Token t;
     t.f.kind = kind;
     t.f.bytes = bytes;
     t.f.utf16chars = utf16chars;
+    t.f.userDefinedLiteral = userDefinedLiteral;
     return Tokens() << t;
 }
 
@@ -443,6 +457,43 @@ void tst_SimpleLexer::bytes_and_utf16chars_data()
         << _("\"hello\"") << createToken(T_STRING_LITERAL, 7, 7);
     QTest::newRow("non-latin1 string literal")
         << _("\"" UC_U00FC UC_U4E8C UC_U10302 "\"") << createToken(T_STRING_LITERAL, 11, 6);
+}
+
+void tst_SimpleLexer::user_defined_literals()
+{
+    QFETCH(QByteArray, source);
+    QFETCH(Tokens, expectedTokens);
+
+    const TokenCompareFlags compareFlags = CompareKind | CompareBytes | CompareUtf16Chars | CompareUserDefinedLiteral;
+    LanguageFeatures languageFeatures;
+    languageFeatures.cxx11Enabled = true;
+    run(source, expectedTokens, false, compareFlags, false, languageFeatures);
+}
+
+void tst_SimpleLexer::user_defined_literals_data()
+{
+    QTest::addColumn<QByteArray>("source");
+    QTest::addColumn<Tokens>("expectedTokens");
+
+    typedef QByteArray _;
+
+    // String User-defined Literals
+    QTest::newRow("latin1 string non-user-defined literal")
+        << _("\"hello\"") << createToken(T_STRING_LITERAL, 7, 7, false);
+    QTest::newRow("latin1 string user-defined literal")
+        << _("\"hello\"_udl") << createToken(T_STRING_LITERAL, 11, 11, true);
+
+    // Numeric User-defined Literals
+    QTest::newRow("numeric non user-defined literal with integer suffix")
+        << _("11LL") << createToken(T_NUMERIC_LITERAL, 4, 4, false);
+    QTest::newRow("numeric non user-defined literal with decimal part")
+        << _("11.1") << createToken(T_NUMERIC_LITERAL, 4, 4, false);
+    QTest::newRow("numeric non user-defined literal with float suffix")
+        << _("11.1f") << createToken(T_NUMERIC_LITERAL, 5, 5, false);
+    QTest::newRow("numeric user-defined literal without decimal part")
+        << _("11_udl") << createToken(T_NUMERIC_LITERAL, 6, 6, true);
+    QTest::newRow("numeric user-defined literal with decimal part")
+        << _("11.1_udl") << createToken(T_NUMERIC_LITERAL, 8, 8, true);
 }
 
 static Token createToken(unsigned kind, unsigned byteOffset, unsigned bytes,
