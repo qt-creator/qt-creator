@@ -161,6 +161,15 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     mfind->addAction(cmd, Constants::G_FIND_CURRENTDOCUMENT);
     connect(m_findInDocumentAction, SIGNAL(triggered()), this, SLOT(openFind()));
 
+    // Pressing the find shortcut while focus is in the tool bar should not change the search text,
+    // so register a different find action for the tool bar
+    auto localFindAction = new QAction(this);
+    cmd = ActionManager::registerAction(localFindAction, Constants::FIND_IN_DOCUMENT,
+                                        Context(Constants::C_FINDTOOLBAR));
+    connect(localFindAction, &QAction::triggered, this, [this]() {
+        openFindToolBar(OpenFlags(UpdateAll & ~UpdateFindText));
+    });
+
     if (QApplication::clipboard()->supportsFindBuffer()) {
         m_enterFindStringAction = new QAction(tr("Enter Find String"), this);
         cmd = Core::ActionManager::registerAction(m_enterFindStringAction, "Find.EnterFindString", globalcontext);
@@ -531,7 +540,6 @@ void FindToolBar::putSelectionToFindClipboard()
     openFind(false);
     const QString text = m_currentDocumentFind->currentFindString();
     QApplication::clipboard()->setText(text, QClipboard::FindBuffer);
-    setFindText(text);
 }
 
 
@@ -669,10 +677,13 @@ bool FindToolBar::canShowAllControls(bool replaceIsVisible) const
 void FindToolBar::openFind(bool focus)
 {
     setBackward(false);
-    openFindToolBar(focus);
+    OpenFlags flags = UpdateAll;
+    if (!focus) // remove focus flag
+        flags = flags & ~UpdateFocusAndSelect;
+    openFindToolBar(flags);
 }
 
-void FindToolBar::openFindToolBar(bool focus)
+void FindToolBar::openFindToolBar(OpenFlags flags)
 {
     installEventFilters();
     Core::FindToolBarPlaceHolder *holder = findToolBarPlaceHolder();
@@ -688,30 +699,33 @@ void FindToolBar::openFindToolBar(bool focus)
     m_currentDocumentFind->acceptCandidate();
     holder->setVisible(true);
     setVisible(true);
-    // We do not want to change the text when we currently have the focus and user presses the
-    // find shortcut
-    if (!focus || !toolBarHasFocus()) {
+//     We do not want to change the text when we currently have the focus and user presses the
+//     find shortcut
+//    if (!focus || !toolBarHasFocus()) {
+    if (flags & UpdateFindText) {
         QString text = m_currentDocumentFind->currentFindString();
         if (!text.isEmpty())
             setFindText(text);
     }
-    if (focus)
+    if (flags & UpdateFocusAndSelect)
         setFocus();
-    m_currentDocumentFind->defineFindScope();
-    m_currentDocumentFind->highlightAll(getFindText(), effectiveFindFlags());
-    if (focus)
+    if (flags & UpdateFindScope)
+        m_currentDocumentFind->defineFindScope();
+    if (flags & UpdateHighlight)
+        m_currentDocumentFind->highlightAll(getFindText(), effectiveFindFlags());
+    if (flags & UpdateFocusAndSelect)
         selectFindText();
 }
 
 void FindToolBar::findNextSelected()
 {
-    openFind(false);
+    openFindToolBar(OpenFlags(UpdateAll & ~UpdateFocusAndSelect));
     invokeFindNext();
 }
 
 void FindToolBar::findPreviousSelected()
 {
-    openFind(false);
+    openFindToolBar(OpenFlags(UpdateAll & ~UpdateFocusAndSelect));
     invokeFindPrevious();
 }
 

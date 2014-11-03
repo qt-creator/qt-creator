@@ -75,13 +75,22 @@ class FindToolBar : public Utils::StyledBar
     Q_OBJECT
 
 public:
+    enum OpenFlag {
+        UpdateFocusAndSelect = 0x01,
+        UpdateFindScope = 0x02,
+        UpdateFindText = 0x04,
+        UpdateHighlight = 0x08,
+        UpdateAll = 0x0F
+    };
+    Q_DECLARE_FLAGS(OpenFlags, OpenFlag)
+
     explicit FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumentFind);
     ~FindToolBar();
 
     void readSettings();
     void writeSettings();
 
-    void openFindToolBar(bool focus = true);
+    void openFindToolBar(OpenFlags flags = UpdateAll);
     void setUseFakeVim(bool on);
 
     void setLightColoredIcon(bool lightColored);
