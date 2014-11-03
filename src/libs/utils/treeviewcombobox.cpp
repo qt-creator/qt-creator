@@ -111,12 +111,12 @@ void TreeViewComboBox::keyPressEvent(QKeyEvent *e)
         setCurrentIndex(indexBelow(m_view->currentIndex()));
     } else if (e->key() == Qt::Key_Home) {
         QModelIndex index = m_view->model()->index(0, 0);
-        if (index.isValid() && !model()->flags(index) & Qt::ItemIsSelectable)
+        if (index.isValid() && !(model()->flags(index) & Qt::ItemIsSelectable))
             index = indexBelow(index);
         setCurrentIndex(index);
     } else if (e->key() == Qt::Key_End) {
         QModelIndex index = lastIndex(m_view->rootIndex());
-        if (index.isValid() && !model()->flags(index) & Qt::ItemIsSelectable)
+        if (index.isValid() && !(model()->flags(index) & Qt::ItemIsSelectable))
             index = indexAbove(index);
         setCurrentIndex(index);
     } else {
