@@ -502,6 +502,11 @@ void QmlProfilerTool::showErrorDialog(const QString &error)
     errorDialog->show();
 }
 
+void QmlProfilerTool::showLoadOption()
+{
+    d->m_loadQmlTrace->setEnabled(!d->m_profilerState->serverRecording());
+}
+
 void QmlProfilerTool::showSaveOption()
 {
     d->m_saveQmlTrace->setEnabled(!d->m_profilerModelManager->isEmpty());
@@ -685,6 +690,7 @@ void QmlProfilerTool::clientRecordingChanged()
 
 void QmlProfilerTool::serverRecordingChanged()
 {
+    showLoadOption();
     if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppRunning) {
         // clear the old data each time we start a new profiling session
         if (d->m_profilerState->serverRecording()) {

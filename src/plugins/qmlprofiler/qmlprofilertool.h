@@ -84,6 +84,7 @@ private slots:
     void updateTimeDisplay();
 
     void showSaveOption();
+    void showLoadOption();
     void showSaveDialog();
     void showLoadDialog();
 
