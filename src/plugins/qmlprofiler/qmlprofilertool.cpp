@@ -348,6 +348,7 @@ void QmlProfilerTool::setRecording(bool recording)
                                                  QLatin1String(":/qmlprofiler/recordOff.png")));
 
     d->m_recordButton->setChecked(recording);
+    d->m_profilerState->setClientRecording(recording);
 
     // manage timer
     if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppRunning) {
