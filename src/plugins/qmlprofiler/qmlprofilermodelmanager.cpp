@@ -38,6 +38,7 @@
 
 #include <QDebug>
 #include <QFile>
+#include <QMessageBox>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -447,6 +448,7 @@ void QmlProfilerModelManager::clear()
     d->model->clear();
     d->v8Model->clear();
     d->traceTime->clear();
+    d->notesModel->clear();
 
     setState(QmlProfilerDataState::Empty);
 }
