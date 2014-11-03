@@ -49,6 +49,7 @@ ProjectPart::ProjectPart()
     , languageExtensions(NoExtensions)
     , qtVersion(UnknownQt)
     , warningFlags(ProjectExplorer::ToolChain::WarningsDefault)
+    , selectedForBuilding(true)
 {
 }
 

@@ -510,6 +510,7 @@ void QmakeProject::updateCppCodeModel()
         templatePart->project = this;
         templatePart->displayName = pro->displayName();
         templatePart->projectFile = pro->path();
+        templatePart->selectedForBuilding = pro->includedInExactParse();
 
         if (pro->variableValue(ConfigVar).contains(QLatin1String("qt")))
             templatePart->qtVersion = qtVersionForPart;

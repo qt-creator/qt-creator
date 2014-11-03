@@ -129,6 +129,7 @@ public: // fields
     LanguageExtensions languageExtensions;
     QtVersion qtVersion;
     ProjectExplorer::ToolChain::WarningFlags warningFlags;
+    bool selectedForBuilding;
 };
 
 inline uint qHash(const ProjectPart::HeaderPath &key, uint seed = 0)
