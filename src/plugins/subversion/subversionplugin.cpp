@@ -504,8 +504,8 @@ bool SubversionPlugin::submitEditorAboutToClose()
             VcsCommand *commitCmd = m_client->createCommitCmd(m_commitRepository,
                                                               fileList,
                                                               m_commitMessageFileName);
-            QObject::connect(commitCmd, SIGNAL(success(QVariant)),
-                             this, SLOT(cleanCommitMessageFile()));
+            QObject::connect(commitCmd, &VcsCommand::finished,
+                             this, [this]() { cleanCommitMessageFile(); });
             commitCmd->execute();
         }
     }
