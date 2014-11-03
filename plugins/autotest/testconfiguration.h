@@ -37,7 +37,7 @@ class TestConfiguration : public QObject
     Q_OBJECT
 public:
     explicit TestConfiguration(const QString &testClass, const QStringList &testCases,
-                               QObject *parent = 0);
+                               int testCaseCount = 0, QObject *parent = 0);
     ~TestConfiguration();
 
     void setTargetFile(const QString &targetFile);
@@ -49,6 +49,7 @@ public:
 
     QString testClass() const { return m_testClass; }
     QStringList testCases() const { return m_testCases; }
+    int testCaseCount() const { return m_testCaseCount; }
     QString proFile() const { return m_proFile; }
     QString targetFile() const { return m_targetFile; }
     QString targetName() const { return m_targetName; }
@@ -64,6 +65,7 @@ public slots:
 private:
     QString m_testClass;
     QStringList m_testCases;
+    int m_testCaseCount;
     QString m_proFile;
     QString m_targetFile;
     QString m_targetName;

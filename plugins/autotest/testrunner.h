@@ -43,6 +43,8 @@ public:
     void setSelectedTests(const QList<TestConfiguration *> &selected);
 
 signals:
+    void testRunStarted();
+    void testRunFinished();
 
 public slots:
     void runTests();

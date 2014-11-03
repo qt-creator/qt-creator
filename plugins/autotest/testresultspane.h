@@ -82,6 +82,8 @@ private slots:
 private:
     explicit TestResultsPane(QObject *parent = 0);
     void createToolButtons();
+    void onTestRunStarted();
+    void onTestRunFinished();
 
     Utils::ListView *m_listView;
     TestResultModel *m_model;
@@ -89,6 +91,7 @@ private:
     Core::IContext *m_context;
     QToolButton *m_runAll;
     QToolButton *m_runSelected;
+    QToolButton *m_stopTestRun;
     QToolButton *m_filterButton;
     QMenu *m_filterMenu;
 };

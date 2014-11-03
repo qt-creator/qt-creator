@@ -305,7 +305,8 @@ QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
     for (int row = 0; row < count; ++row) {
         TestTreeItem *child = m_autoTestRootItem->child(row);
 
-        TestConfiguration *tc = new TestConfiguration(child->name(), QStringList());
+        TestConfiguration *tc = new TestConfiguration(child->name(), QStringList(),
+                                                      child->childCount());
         addProjectInformation(tc, child->filePath());
         result << tc;
     }
@@ -325,7 +326,7 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
         case Qt::Unchecked:
             continue;
         case Qt::Checked:
-            tc = new TestConfiguration(child->name(), QStringList());
+            tc = new TestConfiguration(child->name(), QStringList(), child->childCount());
             addProjectInformation(tc, child->filePath());
             result << tc;
             continue;

@@ -104,9 +104,15 @@ void TestRunner::runTests()
         }
     }
 
+    int testCaseCount = 0;
+    foreach (const TestConfiguration *config, m_selectedTests)
+        testCaseCount += config->testCaseCount();
+
     // clear old log and output pane
     m_xmlLog.clear();
     TestResultsPane::instance()->clearContents();
+
+    emit testRunStarted();
 
     foreach (TestConfiguration *tc, m_selectedTests) {
         QString cmd = tc->targetFile();
@@ -121,11 +127,18 @@ void TestRunner::runTests()
         exec(cmd, args, workDir, env);
     }
     qDebug("test run finished");
+    emit testRunFinished();
 }
 
 void TestRunner::stopTestRun()
 {
-
+    if (m_runner.state() != QProcess::NotRunning) {
+        m_runner.kill();
+        m_runner.waitForFinished();
+        TestResultsPane::instance()->addTestResult(
+                    TestResult(QString(), QString(), QString(), ResultType::MESSAGE_FATAL,
+                               tr("*** Test Run canceled by user ***")));
+    }
 }
 
 /******************** XML line parser helper ********************/

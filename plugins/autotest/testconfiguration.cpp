@@ -24,12 +24,16 @@ namespace Autotest {
 namespace Internal {
 
 TestConfiguration::TestConfiguration(const QString &testClass, const QStringList &testCases,
-                                     QObject *parent)
+                                     int testCaseCount, QObject *parent)
     : QObject(parent),
       m_testClass(testClass),
       m_testCases(testCases),
+      m_testCaseCount(testCaseCount),
       m_project(0)
 {
+    if (testCases.size() != 0) {
+        m_testCaseCount = testCases.size();
+    }
 }
 
 TestConfiguration::~TestConfiguration()

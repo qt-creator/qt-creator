@@ -52,6 +52,10 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     connect(m_listView, &Utils::ListView::activated, this, &TestResultsPane::onItemActivated);
     connect(m_listView->selectionModel(), &QItemSelectionModel::currentChanged,
             trd, &TestResultDelegate::currentChanged);
+    connect(TestRunner::instance(), &TestRunner::testRunStarted,
+            this, &TestResultsPane::onTestRunStarted);
+    connect(TestRunner::instance(), &TestRunner::testRunFinished,
+            this, &TestResultsPane::onTestRunFinished);
 }
 
 void TestResultsPane::createToolButtons()
@@ -65,6 +69,12 @@ void TestResultsPane::createToolButtons()
     m_runSelected->setIcon(QIcon(QLatin1String(":/images/runselected.png")));
     m_runSelected->setToolTip(tr("Run Selected Tests"));
     connect(m_runSelected, &QToolButton::clicked, this, &TestResultsPane::onRunSelectedTriggered);
+
+    m_stopTestRun = new QToolButton(m_listView);
+    m_stopTestRun->setIcon(QIcon(QLatin1String(":/images/stop.png")));
+    m_stopTestRun->setToolTip(tr("Stop Test Run"));
+    m_stopTestRun->setEnabled(false);
+    connect(m_stopTestRun, &QToolButton::clicked, TestRunner::instance(), &TestRunner::stopTestRun);
 
     m_filterButton = new QToolButton(m_listView);
     m_filterButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
@@ -114,7 +124,7 @@ QWidget *TestResultsPane::outputWidget(QWidget *parent)
 
 QList<QWidget *> TestResultsPane::toolBarWidgets() const
 {
-    return QList<QWidget *>() << m_runAll << m_runSelected << m_filterButton;
+    return QList<QWidget *>() << m_runAll << m_runSelected << m_stopTestRun << m_filterButton;
 }
 
 QString TestResultsPane::displayName() const
@@ -252,6 +262,20 @@ void TestResultsPane::filterMenuTriggered(QAction *action)
 {
     m_filterModel->toggleTestResultType(static_cast<ResultType>(action->data().value<int>()));
     navigateStateChanged();
+}
+
+void TestResultsPane::onTestRunStarted()
+{
+    m_stopTestRun->setEnabled(true);
+    m_runAll->setEnabled(false);
+    m_runSelected->setEnabled(false);
+}
+
+void TestResultsPane::onTestRunFinished()
+{
+    m_stopTestRun->setEnabled(false);
+    m_runAll->setEnabled(true);
+    m_runSelected->setEnabled(true);
 }
 
 } // namespace Internal
