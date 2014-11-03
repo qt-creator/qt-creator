@@ -61,6 +61,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 #include <proparser/prowriter.h>
@@ -1549,14 +1550,21 @@ QByteArray QmakeProFileNode::cxxDefines() const
 {
     QByteArray result;
     foreach (const QString &def, variableValue(DefinesVar)) {
+        // 'def' is shell input, so interpret it.
+        QtcProcess::SplitError error = QtcProcess::SplitOk;
+        const QStringList args = QtcProcess::splitArgs(def, HostOsInfo::hostOs(), false, &error);
+        if (error != QtcProcess::SplitOk || args.size() == 0)
+            continue;
+
         result += "#define ";
-        const int index = def.indexOf(QLatin1Char('='));
+        const QString defInterpreted = args.first();
+        const int index = defInterpreted.indexOf(QLatin1Char('='));
         if (index == -1) {
-            result += def.toLatin1();
+            result += defInterpreted.toLatin1();
             result += " 1\n";
         } else {
-            const QString name = def.left(index);
-            const QString value = def.mid(index + 1);
+            const QString name = defInterpreted.left(index);
+            const QString value = defInterpreted.mid(index + 1);
             result += name.toLatin1();
             result += ' ';
             result += value.toLocal8Bit();
