@@ -135,6 +135,9 @@ static QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyzeFromProje
     QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyze;
 
     foreach (const ProjectPart::Ptr &projectPart, projectParts) {
+        if (!projectPart->selectedForBuilding)
+            continue;
+
         foreach (const ProjectFile &file, projectPart->files) {
             if (file.path == CppModelManager::configurationFileName())
                 continue;
