@@ -1178,9 +1178,6 @@ QString SubversionPlugin::vcsGetRepositoryURL(const QString &directory)
 bool SubversionPlugin::managesDirectory(const QString &directory, QString *topLevel /* = 0 */) const
 {
     const QDir dir(directory);
-    if (!dir.exists())
-        return false;
-
     if (topLevel)
         topLevel->clear();
 
@@ -1188,12 +1185,13 @@ bool SubversionPlugin::managesDirectory(const QString &directory, QString *topLe
      * furthest parent containing ".svn/wc.db". Need to check for furthest parent as closer
      * parents may be svn:externals. */
     QDir parentDir = dir;
-    while (!parentDir.isRoot() && parentDir.cdUp()) {
+    while (!parentDir.isRoot()) {
         if (checkSVNSubDir(parentDir, QLatin1String("wc.db"))) {
             if (topLevel)
                 *topLevel = parentDir.absolutePath();
             return true;
         }
+        parentDir.cdUp();
     }
 
     /* Subversion < 1.7 has ".svn" directory in each directory
@@ -1230,10 +1228,10 @@ bool SubversionPlugin::checkSVNSubDir(const QDir &directory, const QString &file
 {
     const int dirCount = m_svnDirectories.size();
     for (int i = 0; i < dirCount; i++) {
-        const QString svnDir = directory.absoluteFilePath(m_svnDirectories.at(i));
-        if (!QFileInfo(svnDir).isDir())
+        const QDir svnDir(directory.absoluteFilePath(m_svnDirectories.at(i)));
+        if (!svnDir.exists())
             continue;
-        if (!fileName.isEmpty() && !QDir(svnDir).exists(fileName))
+        if (!fileName.isEmpty() && !svnDir.exists(fileName))
             continue;
         return true;
     }
