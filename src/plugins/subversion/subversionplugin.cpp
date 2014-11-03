@@ -1089,8 +1089,8 @@ bool SubversionPlugin::vcsDelete(const QString &workingDir, const QString &rawFi
 {
     const QString file = QDir::toNativeSeparators(rawFileName);
 
-    QStringList args(QLatin1String("delete"));
-    args.push_back(file);
+    QStringList args;
+    args << QLatin1String("delete") << QLatin1String("--force") << file;
 
     const SubversionResponse response =
             runSvn(workingDir, args, m_settings.timeOutMs(),
