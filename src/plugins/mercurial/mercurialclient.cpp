@@ -352,7 +352,8 @@ void MercurialClient::view(const QString &source, const QString &id,
                            const QStringList &extraOptions)
 {
     QStringList args;
-    args << QLatin1String("log") << QLatin1String("-p") << QLatin1String("-g");
+    args << QLatin1String("-v") << QLatin1String("log")
+         << QLatin1String("-p") << QLatin1String("-g");
     VcsBaseClient::view(source, id, args << extraOptions);
 }
 
