@@ -567,178 +567,6 @@ int TimelineRenderer::getYPosition(int modelIndex, int index) const
             m_profilerModelProxy->row(modelIndex, index));
 }
 
-void TimelineRenderer::selectNext()
-{
-    if (m_profilerModelProxy->isEmpty())
-        return;
-
-    qint64 searchTime = m_zoomer->rangeStart();
-    if (m_selectedItem != -1)
-        searchTime = m_profilerModelProxy->startTime(m_selectedModel, m_selectedItem);
-
-    QVarLengthArray<int> itemIndexes(m_profilerModelProxy->modelCount());
-    for (int i = 0; i < m_profilerModelProxy->modelCount(); i++) {
-        if (m_profilerModelProxy->count(i) > 0) {
-            if (m_selectedModel == i) {
-                itemIndexes[i] = (m_selectedItem + 1) % m_profilerModelProxy->count(i);
-            } else {
-                if (m_profilerModelProxy->startTime(i, 0) > searchTime)
-                    itemIndexes[i] = 0;
-                else
-                    itemIndexes[i] = (m_profilerModelProxy->lastIndex(i, searchTime) + 1) % m_profilerModelProxy->count(i);
-            }
-        } else {
-            itemIndexes[i] = -1;
-        }
-    }
-
-    int candidateModelIndex = -1;
-    qint64 candidateStartTime = m_zoomer->traceEnd();
-    for (int i = 0; i < m_profilerModelProxy->modelCount(); i++) {
-        if (itemIndexes[i] == -1)
-            continue;
-        qint64 newStartTime = m_profilerModelProxy->startTime(i, itemIndexes[i]);
-        if (newStartTime > searchTime && newStartTime < candidateStartTime) {
-            candidateStartTime = newStartTime;
-            candidateModelIndex = i;
-        }
-    }
-
-    int itemIndex;
-    if (candidateModelIndex != -1) {
-        itemIndex = itemIndexes[candidateModelIndex];
-    } else {
-        // find the first index of them all (todo: the modelproxy should do this)
-        itemIndex = -1;
-        candidateStartTime = m_zoomer->traceEnd();
-        for (int i = 0; i < m_profilerModelProxy->modelCount(); i++)
-            if (m_profilerModelProxy->count(i) > 0 &&
-                    m_profilerModelProxy->startTime(i,0) < candidateStartTime) {
-                candidateModelIndex = i;
-                itemIndex = 0;
-                candidateStartTime = m_profilerModelProxy->startTime(i,0);
-            }
-    }
-
-    selectFromEventIndex(candidateModelIndex, itemIndex);
-}
-
-void TimelineRenderer::selectPrev()
-{
-    if (m_profilerModelProxy->isEmpty())
-        return;
-
-    qint64 searchTime = m_zoomer->rangeEnd();
-    if (m_selectedItem != -1)
-        searchTime = m_profilerModelProxy->startTime(m_selectedModel, m_selectedItem);
-
-    QVarLengthArray<int> itemIndexes(m_profilerModelProxy->modelCount());
-    for (int i = 0; i < m_profilerModelProxy->modelCount(); i++) {
-        if (m_selectedModel == i) {
-            itemIndexes[i] = m_selectedItem - 1;
-            if (itemIndexes[i] < 0)
-                itemIndexes[i] = m_profilerModelProxy->count(m_selectedModel) -1;
-        }
-        else
-            itemIndexes[i] = m_profilerModelProxy->lastIndex(i, searchTime);
-    }
-
-    int candidateModelIndex = -1;
-    qint64 candidateStartTime = m_zoomer->traceStart();
-    for (int i = 0; i < m_profilerModelProxy->modelCount(); i++) {
-        if (itemIndexes[i] == -1
-                || itemIndexes[i] >= m_profilerModelProxy->count(i))
-            continue;
-        qint64 newStartTime = m_profilerModelProxy->startTime(i, itemIndexes[i]);
-        if (newStartTime < searchTime && newStartTime > candidateStartTime) {
-            candidateStartTime = newStartTime;
-            candidateModelIndex = i;
-        }
-    }
-
-    int itemIndex = -1;
-    if (candidateModelIndex != -1) {
-        itemIndex = itemIndexes[candidateModelIndex];
-    } else {
-        // find the last index of them all (todo: the modelproxy should do this)
-        candidateModelIndex = 0;
-        candidateStartTime = m_zoomer->traceStart();
-        for (int i = 0; i < m_profilerModelProxy->modelCount(); i++)
-            if (m_profilerModelProxy->count(i) > 0 &&
-                    m_profilerModelProxy->startTime(i,m_profilerModelProxy->count(i)-1) > candidateStartTime) {
-                candidateModelIndex = i;
-                itemIndex = m_profilerModelProxy->count(candidateModelIndex) - 1;
-                candidateStartTime = m_profilerModelProxy->startTime(i,m_profilerModelProxy->count(i)-1);
-            }
-    }
-
-    selectFromEventIndex(candidateModelIndex, itemIndex);
-}
-
-int TimelineRenderer::nextItemFromSelectionId(int modelIndex, int selectionId) const
-{
-    return nextItemFromId(modelIndex, SelectionId, selectionId);
-}
-
-int TimelineRenderer::nextItemFromTypeId(int modelIndex, int typeId) const
-{
-    return nextItemFromId(modelIndex, TypeId, typeId);
-}
-
-int TimelineRenderer::prevItemFromSelectionId(int modelIndex, int selectionId) const
-{
-    return prevItemFromId(modelIndex, SelectionId, selectionId);
-}
-
-int TimelineRenderer::prevItemFromTypeId(int modelIndex, int typeId) const
-{
-    return prevItemFromId(modelIndex, TypeId, typeId);
-}
-
-int TimelineRenderer::nextItemFromId(int modelIndex, IdType idType, int id) const
-{
-    int modelCount = m_profilerModelProxy->count(modelIndex);
-    if (modelCount == 0)
-        return -1;
-
-    int ndx = -1;
-    if (m_selectedItem == -1 || modelIndex != m_selectedModel)
-        ndx = m_profilerModelProxy->firstIndexNoParents(modelIndex, m_zoomer->rangeStart());
-    else
-        ndx = m_selectedItem + 1;
-
-    if (ndx < 0 || ndx >= modelCount)
-        ndx = 0;
-    int startIndex = ndx;
-    do {
-        if ((idType == TypeId && m_profilerModelProxy->typeId(modelIndex, ndx) == id) ||
-                (idType == SelectionId && m_profilerModelProxy->selectionId(modelIndex, ndx) == id))
-            return ndx;
-        ndx = (ndx + 1) % modelCount;
-    } while (ndx != startIndex);
-    return -1;
-}
-
-int TimelineRenderer::prevItemFromId(int modelIndex, IdType idType, int id) const
-{
-    int ndx = -1;
-    if (m_selectedItem == -1 || modelIndex != m_selectedModel)
-        ndx = m_profilerModelProxy->firstIndexNoParents(modelIndex, m_zoomer->rangeStart());
-    else
-        ndx = m_selectedItem - 1;
-    if (ndx < 0)
-        ndx = m_profilerModelProxy->count(modelIndex) - 1;
-    int startIndex = ndx;
-    do {
-        if ((idType == TypeId && m_profilerModelProxy->typeId(modelIndex, ndx) == id) ||
-                (idType == SelectionId && m_profilerModelProxy->selectionId(modelIndex, ndx) == id))
-            return ndx;
-        if (--ndx < 0)
-            ndx = m_profilerModelProxy->count(modelIndex)-1;
-    } while (ndx != startIndex);
-    return -1;
-}
-
 void TimelineRenderer::selectFromEventIndex(int modelIndex, int eventIndex)
 {
     if (modelIndex != m_selectedModel || eventIndex != m_selectedItem) {
@@ -748,12 +576,14 @@ void TimelineRenderer::selectFromEventIndex(int modelIndex, int eventIndex)
     }
 }
 
-void TimelineRenderer::selectNextFromSelectionId(int modelIndex, int typeId)
+void TimelineRenderer::selectNextFromSelectionId(int modelIndex, int selectionId)
 {
-    selectFromEventIndex(modelIndex, nextItemFromSelectionId(modelIndex, typeId));
+    selectFromEventIndex(modelIndex, m_profilerModelProxy->model(modelIndex)->nextItemBySelectionId(
+                             selectionId, m_zoomer->rangeStart(), m_selectedItem));
 }
 
-void TimelineRenderer::selectPrevFromSelectionId(int modelIndex, int typeId)
+void TimelineRenderer::selectPrevFromSelectionId(int modelIndex, int selectionId)
 {
-    selectFromEventIndex(modelIndex, prevItemFromSelectionId(modelIndex, typeId));
+    selectFromEventIndex(modelIndex, m_profilerModelProxy->model(modelIndex)->prevItemBySelectionId(
+                             selectionId, m_zoomer->rangeStart(), m_selectedItem));
 }

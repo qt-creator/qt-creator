@@ -214,11 +214,6 @@ int TimelineModelAggregator::firstIndex(int modelIndex, qint64 startTime) const
     return d->modelList[modelIndex]->firstIndex(startTime);
 }
 
-int TimelineModelAggregator::firstIndexNoParents(int modelIndex, qint64 startTime) const
-{
-    return d->modelList[modelIndex]->firstIndexNoParents(startTime);
-}
-
 int TimelineModelAggregator::lastIndex(int modelIndex, qint64 endTime) const
 {
     return d->modelList[modelIndex]->lastIndex(endTime);
@@ -374,6 +369,115 @@ void TimelineModelAggregator::dataChanged()
 int TimelineModelAggregator::modelCount() const
 {
     return d->modelList.count();
+}
+
+QVariantMap TimelineModelAggregator::nextItem(int selectedModel, int selectedItem,
+                                              qint64 time) const
+{
+    if (selectedItem != -1)
+        time = model(selectedModel)->startTime(selectedItem);
+
+    QVarLengthArray<int> itemIndexes(modelCount());
+    for (int i = 0; i < modelCount(); i++) {
+        const QmlProfilerTimelineModel *currentModel = model(i);
+        if (currentModel->count() > 0) {
+            if (selectedModel == i) {
+                itemIndexes[i] = (selectedItem + 1) % currentModel->count();
+            } else {
+                if (currentModel->startTime(0) > time)
+                    itemIndexes[i] = 0;
+                else
+                    itemIndexes[i] = (currentModel->lastIndex(time) + 1) % currentModel->count();
+            }
+        } else {
+            itemIndexes[i] = -1;
+        }
+    }
+
+    int candidateModelIndex = -1;
+    qint64 candidateStartTime = std::numeric_limits<qint64>::max();
+    for (int i = 0; i < modelCount(); i++) {
+        if (itemIndexes[i] == -1)
+            continue;
+        qint64 newStartTime = model(i)->startTime(itemIndexes[i]);
+        if (newStartTime > time && newStartTime < candidateStartTime) {
+            candidateStartTime = newStartTime;
+            candidateModelIndex = i;
+        }
+    }
+
+    int itemIndex;
+    if (candidateModelIndex != -1) {
+        itemIndex = itemIndexes[candidateModelIndex];
+    } else {
+        itemIndex = -1;
+        candidateStartTime = std::numeric_limits<qint64>::max();
+        for (int i = 0; i < modelCount(); i++) {
+            const QmlProfilerTimelineModel *currentModel = model(i);
+            if (currentModel->count() > 0 && currentModel->startTime(0) < candidateStartTime) {
+                candidateModelIndex = i;
+                itemIndex = 0;
+                candidateStartTime = currentModel->startTime(0);
+            }
+        }
+    }
+
+    QVariantMap ret;
+    ret.insert(QLatin1String("model"), candidateModelIndex);
+    ret.insert(QLatin1String("item"), itemIndex);
+    return ret;
+}
+
+QVariantMap TimelineModelAggregator::prevItem(int selectedModel, int selectedItem,
+                                              qint64 time) const
+{
+    if (selectedItem != -1)
+        time = model(selectedModel)->startTime(selectedItem);
+
+    QVarLengthArray<int> itemIndexes(modelCount());
+    for (int i = 0; i < modelCount(); i++) {
+        if (selectedModel == i) {
+            itemIndexes[i] = selectedItem - 1;
+            if (itemIndexes[i] < 0)
+                itemIndexes[i] = model(selectedModel)->count() -1;
+        }
+        else
+            itemIndexes[i] = model(i)->lastIndex(time);
+    }
+
+    int candidateModelIndex = -1;
+    qint64 candidateStartTime = std::numeric_limits<qint64>::min();
+    for (int i = 0; i < modelCount(); i++) {
+        const QmlProfilerTimelineModel *currentModel = model(i);
+        if (itemIndexes[i] == -1 || itemIndexes[i] >= currentModel->count())
+            continue;
+        qint64 newStartTime = currentModel->startTime(itemIndexes[i]);
+        if (newStartTime < time && newStartTime > candidateStartTime) {
+            candidateStartTime = newStartTime;
+            candidateModelIndex = i;
+        }
+    }
+
+    int itemIndex = -1;
+    if (candidateModelIndex != -1) {
+        itemIndex = itemIndexes[candidateModelIndex];
+    } else {
+        candidateStartTime = std::numeric_limits<qint64>::min();
+        for (int i = 0; i < modelCount(); i++) {
+            const QmlProfilerTimelineModel *currentModel = model(i);
+            if (currentModel->count() > 0 &&
+                    currentModel->startTime(currentModel->count() - 1) > candidateStartTime) {
+                candidateModelIndex = i;
+                itemIndex = currentModel->count() - 1;
+                candidateStartTime = currentModel->startTime(itemIndex);
+            }
+        }
+    }
+
+    QVariantMap ret;
+    ret.insert(QLatin1String("model"), candidateModelIndex);
+    ret.insert(QLatin1String("item"), itemIndex);
+    return ret;
 }
 
 } // namespace Internal

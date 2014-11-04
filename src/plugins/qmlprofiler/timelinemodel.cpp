@@ -275,7 +275,7 @@ int TimelineModel::typeId(int index) const
 int TimelineModel::firstIndex(qint64 startTime) const
 {
     Q_D(const TimelineModel);
-    int index = firstIndexNoParents(startTime);
+    int index = d->firstIndexNoParents(startTime);
     if (index == -1)
         return -1;
     int parent = d->ranges[index].parent;
@@ -286,18 +286,17 @@ int TimelineModel::firstIndex(qint64 startTime) const
     Looks up the first range with an end time later than the specified \a startTime and
     returns its index. If no such range is found, it returns -1.
 */
-int TimelineModel::firstIndexNoParents(qint64 startTime) const
+int TimelineModel::TimelineModelPrivate::firstIndexNoParents(qint64 startTime) const
 {
-    Q_D(const TimelineModel);
     // in the "endtime" list, find the first event that ends after startTime
-    if (d->endTimes.isEmpty())
+    if (endTimes.isEmpty())
         return -1;
-    if (d->endTimes.count() == 1 || d->endTimes.first().end > startTime)
-        return d->endTimes.first().startIndex;
-    if (d->endTimes.last().end <= startTime)
+    if (endTimes.count() == 1 || endTimes.first().end > startTime)
+        return endTimes.first().startIndex;
+    if (endTimes.last().end <= startTime)
         return -1;
 
-    return d->endTimes[d->lowerBound(d->endTimes, startTime) + 1].startIndex;
+    return endTimes[lowerBound(endTimes, startTime) + 1].startIndex;
 }
 
 /*!
@@ -504,6 +503,80 @@ void TimelineModel::clear()
         emit expandedChanged();
     if (wasHidden)
         emit hiddenChanged();
+}
+
+int TimelineModel::nextItemBySelectionId(int selectionId, qint64 time, int currentItem) const
+{
+    Q_D(const TimelineModel);
+    return d->nextItemById(TimelineModelPrivate::SelectionId, selectionId, time, currentItem);
+}
+
+int TimelineModel::nextItemByTypeId(int typeId, qint64 time, int currentItem) const
+{
+    Q_D(const TimelineModel);
+    return d->nextItemById(TimelineModelPrivate::TypeId, typeId, time, currentItem);
+}
+
+int TimelineModel::prevItemBySelectionId(int selectionId, qint64 time, int currentItem) const
+{
+    Q_D(const TimelineModel);
+    return d->prevItemById(TimelineModelPrivate::SelectionId, selectionId, time, currentItem);
+}
+
+int TimelineModel::prevItemByTypeId(int typeId, qint64 time, int currentItem) const
+{
+    Q_D(const TimelineModel);
+    return d->prevItemById(TimelineModelPrivate::TypeId, typeId, time, currentItem);
+}
+
+int TimelineModel::TimelineModelPrivate::nextItemById(IdType idType, int id, qint64 time,
+                                                      int currentItem) const
+{
+    Q_Q(const TimelineModel);
+    if (ranges.empty())
+        return -1;
+
+    int ndx = -1;
+    if (currentItem == -1)
+        ndx = firstIndexNoParents(time);
+    else
+        ndx = currentItem + 1;
+
+    if (ndx < 0 || ndx >= ranges.count())
+        ndx = 0;
+    int startIndex = ndx;
+    do {
+        if ((idType == TypeId && q->typeId(ndx) == id) ||
+                (idType == SelectionId && ranges[ndx].selectionId == id))
+            return ndx;
+        ndx = (ndx + 1) % ranges.count();
+    } while (ndx != startIndex);
+    return -1;
+}
+
+int TimelineModel::TimelineModelPrivate::prevItemById(IdType idType, int id, qint64 time,
+                                                      int currentItem) const
+{
+    Q_Q(const TimelineModel);
+    if (ranges.empty())
+        return -1;
+
+    int ndx = -1;
+    if (currentItem == -1)
+        ndx = firstIndexNoParents(time);
+    else
+        ndx = currentItem - 1;
+    if (ndx < 0)
+        ndx = ranges.count() - 1;
+    int startIndex = ndx;
+    do {
+        if ((idType == TypeId && q->typeId(ndx) == id) ||
+                (idType == SelectionId && ranges[ndx].selectionId == id))
+            return ndx;
+        if (--ndx < 0)
+            ndx = ranges.count()-1;
+    } while (ndx != startIndex);
+    return -1;
 }
 
 }

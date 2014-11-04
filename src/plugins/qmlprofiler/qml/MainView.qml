@@ -254,8 +254,16 @@ Rectangle {
         height: 24
         onZoomControlChanged: zoomSliderToolBar.visible = !zoomSliderToolBar.visible
         onFilterMenuChanged: filterMenu.visible = !filterMenu.visible
-        onJumpToNext: view.selectNext();
-        onJumpToPrev: view.selectPrev();
+        onJumpToNext: {
+            var next = qmlProfilerModelProxy.nextItem(view.selectedModel, view.selectedItem,
+                                                      zoomControl.rangeStart);
+            view.selectFromEventIndex(next.model, next.item);
+        }
+        onJumpToPrev: {
+            var prev = qmlProfilerModelProxy.prevItem(view.selectedModel, view.selectedItem,
+                                                      zoomControl.rangeEnd);
+            view.selectFromEventIndex(prev.model, prev.item);
+        }
         onRangeSelectChanged: selectionRangeMode = rangeButtonChecked();
         onLockChanged: selectionLocked = !lockButtonChecked();
     }

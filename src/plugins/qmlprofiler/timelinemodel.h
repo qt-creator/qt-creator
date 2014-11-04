@@ -69,7 +69,6 @@ public:
     int selectionId(int index) const;
 
     int firstIndex(qint64 startTime) const;
-    int firstIndexNoParents(qint64 startTime) const;
     int lastIndex(qint64 endTime) const;
 
     bool expanded() const;
@@ -94,6 +93,11 @@ public:
     virtual float relativeHeight(int index) const;
     virtual int rowMinValue(int rowNumber) const;
     virtual int rowMaxValue(int rowNumber) const;
+
+    Q_INVOKABLE int nextItemBySelectionId(int selectionId, qint64 time, int currentItem) const;
+    Q_INVOKABLE int nextItemByTypeId(int typeId, qint64 time, int currentItem) const;
+    Q_INVOKABLE int prevItemBySelectionId(int selectionId, qint64 time, int currentItem) const;
+    Q_INVOKABLE int prevItemByTypeId(int typeId, qint64 time, int currentItem) const;
 
     static int defaultRowHeight();
 

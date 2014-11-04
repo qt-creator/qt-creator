@@ -78,7 +78,6 @@ public:
     Q_INVOKABLE int rowMaxValue(int modelIndex, int row) const;
 
     Q_INVOKABLE int firstIndex(int modelIndex, qint64 startTime) const;
-    Q_INVOKABLE int firstIndexNoParents(int modelIndex, qint64 startTime) const;
     Q_INVOKABLE int lastIndex(int modelIndex, qint64 endTime) const;
 
     Q_INVOKABLE int row(int modelIndex, int index) const;
@@ -110,6 +109,9 @@ public:
     Q_INVOKABLE QVariantList notesByTimelineModel(int modelIndex) const;
     Q_INVOKABLE QVariantList notesByTypeId(int typeId) const;
     Q_INVOKABLE int noteCount() const;
+
+    Q_INVOKABLE QVariantMap nextItem(int selectedModel, int selectedItem, qint64 time) const;
+    Q_INVOKABLE QVariantMap prevItem(int selectedModel, int selectedItem, qint64 time) const;
 
 signals:
     void dataAvailable();
