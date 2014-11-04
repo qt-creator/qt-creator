@@ -32,6 +32,7 @@
 
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
+#include <texteditor/syntaxhighlighter.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/qtcassert.h>
 
@@ -43,21 +44,13 @@
 
 //see the git submit widget for details of the syntax Highlighter
 
-//TODO Check to see when the Highlighter has been moved to a base class and use that instead
-
 namespace Mercurial {
 namespace Internal {
-
-// Retrieve the comment char format from the text editor.
-static QTextCharFormat commentFormat()
-{
-    return TextEditor::TextEditorSettings::fontSettings().toTextCharFormat(TextEditor::C_COMMENT);
-}
 
 // Highlighter for Mercurial submit messages. Make the first line bold, indicates
 // comments as such (retrieving the format from the text editor) and marks up
 // keywords (words in front of a colon as in 'Task: <bla>').
-class MercurialSubmitHighlighter : QSyntaxHighlighter
+class MercurialSubmitHighlighter : TextEditor::SyntaxHighlighter
 {
 public:
     explicit MercurialSubmitHighlighter(QTextEdit *parent);
@@ -65,17 +58,21 @@ public:
 
 private:
     enum State { Header, Comment, Other };
-    const QTextCharFormat m_commentFormat;
+    enum Format { Format_Comment };
     QRegExp m_keywordPattern;
     const QChar m_hashChar;
 };
 
 MercurialSubmitHighlighter::MercurialSubmitHighlighter(QTextEdit *parent) :
-        QSyntaxHighlighter(parent),
-        m_commentFormat(commentFormat()),
+        TextEditor::SyntaxHighlighter(parent),
         m_keywordPattern(QLatin1String("^\\w+:")),
         m_hashChar(QLatin1Char('#'))
 {
+    static QVector<TextEditor::TextStyle> categories;
+    if (categories.isEmpty())
+        categories << TextEditor::C_COMMENT;
+
+    setTextFormatCategories(categories);
     QTC_CHECK(m_keywordPattern.isValid());
 }
 
@@ -93,13 +90,13 @@ void MercurialSubmitHighlighter::highlightBlock(const QString &text)
     // Apply format.
     switch (state) {
     case Header: {
-            QTextCharFormat charFormat = format(0);
-            charFormat.setFontWeight(QFont::Bold);
-            setFormat(0, text.size(), charFormat);
-        }
+        QTextCharFormat charFormat = format(0);
+        charFormat.setFontWeight(QFont::Bold);
+        setFormat(0, text.size(), charFormat);
         break;
+    }
     case Comment:
-        setFormat(0, text.size(), m_commentFormat);
+        setFormat(0, text.size(), formatForCategory(Format_Comment));
         break;
     case Other:
         // Format key words ("Task:") italic
