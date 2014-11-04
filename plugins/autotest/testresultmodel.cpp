@@ -109,6 +109,7 @@ void TestResultModel::addTestResult(const TestResult &testResult)
     beginInsertRows(QModelIndex(), m_testResults.size(), m_testResults.size());
     m_testResults.append(testResult);
     endInsertRows();
+    m_availableResultTypes.insert(testResult.result());
 }
 
 void TestResultModel::clearTestResults()
@@ -121,6 +122,7 @@ void TestResultModel::clearTestResults()
     m_maxWidthOfFileName = 0;
     m_widthOfLineNumber = 0;
     endRemoveRows();
+    m_availableResultTypes.clear();
 }
 
 TestResult TestResultModel::testResult(const QModelIndex &index) const

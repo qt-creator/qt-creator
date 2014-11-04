@@ -76,11 +76,12 @@ private slots:
     void onItemActivated(const QModelIndex &index);
     void onRunAllTriggered();
     void onRunSelectedTriggered();
-    void initializeFilterMenu();
+    void updateFilterMenu();
     void filterMenuTriggered(QAction *action);
 
 private:
     explicit TestResultsPane(QObject *parent = 0);
+    void initializeFilterMenu();
     void createToolButtons();
     void onTestRunStarted();
     void onTestRunFinished();

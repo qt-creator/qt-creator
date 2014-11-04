@@ -86,6 +86,7 @@ void TestResultsPane::createToolButtons()
     m_filterButton->setPopupMode(QToolButton::InstantPopup);
     m_filterMenu = new QMenu(m_filterButton);
     initializeFilterMenu();
+    connect(m_filterMenu, &QMenu::aboutToShow, this, &TestResultsPane::updateFilterMenu);
     connect(m_filterMenu, &QMenu::triggered, this, &TestResultsPane::filterMenuTriggered);
     m_filterButton->setMenu(m_filterMenu);
 }
@@ -241,7 +242,6 @@ void TestResultsPane::onRunSelectedTriggered()
 void TestResultsPane::initializeFilterMenu()
 {
     QMap<ResultType, QString> textAndType;
-    textAndType.clear();
     textAndType.insert(ResultType::PASS, QLatin1String("Pass"));
     textAndType.insert(ResultType::FAIL, QLatin1String("Fail"));
     textAndType.insert(ResultType::EXPECTED_FAIL, QLatin1String("Expected Fail"));
@@ -257,6 +257,14 @@ void TestResultsPane::initializeFilterMenu()
         action->setChecked(true);
         action->setData(result);
         m_filterMenu->addAction(action);
+    }
+}
+
+void TestResultsPane::updateFilterMenu()
+{
+    foreach (QAction *action, m_filterMenu->actions()) {
+        action->setEnabled(m_model->hasResultType(
+                               static_cast<ResultType>(action->data().value<int>())));
     }
 }
 

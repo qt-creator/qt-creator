@@ -52,6 +52,7 @@ public:
 
     void enableAllResultTypes();
     void toggleTestResultType(ResultType type);
+    bool hasResultType(ResultType type) { return m_availableResultTypes.contains(type); }
 
 signals:
 
@@ -63,6 +64,7 @@ private:
     int m_maxWidthOfFileName;
     int m_lastMaxWidthIndex;
     QFont m_measurementFont;
+    QSet<ResultType> m_availableResultTypes;
 };
 
 class TestResultFilterModel : public QSortFilterProxyModel
