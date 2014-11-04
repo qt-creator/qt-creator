@@ -188,6 +188,26 @@ int QmlProfilerNotesModel::add(int typeId, qint64 start, qint64 duration, const 
     return m_data.count() - 1;
 }
 
+void QmlProfilerNotesModel::setText(int noteId, const QString &text)
+{
+    if (text.length() > 0) {
+        update(noteId, text);
+    } else {
+        remove(noteId);
+    }
+}
+
+void QmlProfilerNotesModel::setText(int modelIndex, int index, const QString &text)
+{
+    int noteId = get(modelIndex, index);
+    if (noteId == -1) {
+        if (text.length() > 0)
+            add(modelIndex, index, text);
+    } else {
+        setText(noteId, text);
+    }
+}
+
 void QmlProfilerNotesModel::clear()
 {
     m_data.clear();

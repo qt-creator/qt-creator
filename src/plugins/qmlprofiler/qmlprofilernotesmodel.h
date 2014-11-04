@@ -39,6 +39,7 @@
 namespace QmlProfiler {
 class QMLPROFILER_EXPORT QmlProfilerNotesModel : public QObject {
     Q_OBJECT
+    Q_PROPERTY(int count READ count NOTIFY changed)
 public:
     struct Note {
         // Saved properties
@@ -55,21 +56,23 @@ public:
     void setModelManager(QmlProfilerModelManager *modelManager);
     void addTimelineModel(const AbstractTimelineModel *timelineModel);
 
-    int typeId(int index) const;
-    QString text(int index) const;
-    int timelineModel(int index) const;
-    int timelineIndex(int index) const;
+    Q_INVOKABLE int typeId(int index) const;
+    Q_INVOKABLE QString text(int index) const;
+    Q_INVOKABLE int timelineModel(int index) const;
+    Q_INVOKABLE int timelineIndex(int index) const;
 
-    QVariantList byTypeId(int typeId) const;
+    Q_INVOKABLE QVariantList byTypeId(int typeId) const;
+    Q_INVOKABLE QVariantList byTimelineModel(int timelineModel) const;
 
-    QVariantList byTimelineModel(int timelineModel) const;
+    Q_INVOKABLE int get(int timelineModel, int timelineIndex) const;
+    Q_INVOKABLE int add(int timelineModel, int timelineIndex, const QString &text);
+    Q_INVOKABLE void update(int index, const QString &text);
+    Q_INVOKABLE void remove(int index);
 
-    int get(int timelineModel, int timelineIndex) const;
-    int add(int timelineModel, int timelineIndex, const QString &text);
-    void update(int index, const QString &text);
-    void remove(int index);
+    Q_INVOKABLE void setText(int noteId, const QString &text);
+    Q_INVOKABLE void setText(int modelIndex, int index, const QString &text);
+
     bool isModified() const;
-
     void loadData();
     void saveData();
     void clear();
