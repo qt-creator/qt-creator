@@ -87,15 +87,10 @@ QWidget *ThemeSettingsItemDelegate::createColorEditor(QWidget *parent, const QSt
     const bool   isUnnamed    = colorRole->colorVariable()->variableName().isEmpty();
     const QColor currentColor = colorRole->colorVariable()->color();
 
-    int k = 0;
-    if (isUnnamed) {
-        cb->addItem(makeIcon(currentColor), tr("<Unnamed> (Current)"));
-        ++k;
-    } else {
-        cb->addItem(makeIcon(currentColor),
-                    colorRole->colorVariable()->variableName()+QString(tr(" (Current)")));
-        ++k;
-    }
+    cb->addItem(makeIcon(currentColor),
+                isUnnamed ? tr("<Unnamed> (Current)")
+                          : colorRole->colorVariable()->variableName() + tr(" (Current)"));
+    int k = 1;
 
     foreach (ColorVariable::Ptr namedColor, model->m_colors->colorVariables()) {
         if (namedColor->variableName().isEmpty())
@@ -148,16 +143,13 @@ QWidget *ThemeSettingsItemDelegate::createEditor(QWidget *parent, const QStyleOp
         m_comboBox = cb;
         return cb;
     }
-    case ThemeSettingsTableModel::SectionColors: {
+    case ThemeSettingsTableModel::SectionColors:
         return createColorEditor(parent, option, index);
-    }
-    case ThemeSettingsTableModel::SectionFlags: {
+    case ThemeSettingsTableModel::SectionFlags:
         return QStyledItemDelegate::createEditor(parent, option, index);
-    }
-    default: {
+    default:
         qWarning("unhandled section");
         return 0;
-    }
     } // switch
 }
 
@@ -166,7 +158,7 @@ void ThemeSettingsItemDelegate::setEditorData(QWidget *editor, const QModelIndex
     QStyledItemDelegate::setEditorData(editor, index);
 }
 
-void ThemeSettingsItemDelegate::setModelData (QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+void ThemeSettingsItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
     ThemeSettingsTableModel *themeSettingsModel = qobject_cast<ThemeSettingsTableModel *>(sourceModel(model));
 
