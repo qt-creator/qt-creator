@@ -31,8 +31,8 @@
 #include "annotationhighlighter.h"
 #include "constants.h"
 
-using namespace Mercurial::Internal;
-using namespace Mercurial;
+namespace Mercurial {
+namespace Internal  {
 
 MercurialAnnotationHighlighter::MercurialAnnotationHighlighter(const ChangeNumbers &changeNumbers,
                                                                QTextDocument *document)
@@ -47,3 +47,6 @@ QString MercurialAnnotationHighlighter::changeNumber(const QString &block) const
         return changeset.cap(1);
     return QString();
 }
+
+} // namespace Internal
+} // namespace Mercurial

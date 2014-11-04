@@ -44,8 +44,8 @@
 #include <QFileInfo>
 #include <QDebug>
 
-using namespace Mercurial::Internal;
-using namespace Mercurial;
+namespace Mercurial {
+namespace Internal  {
 
 MercurialEditorWidget::MercurialEditorWidget() :
         exactIdentifier12(QLatin1String(Constants::CHANGEIDEXACT12)),
@@ -109,3 +109,6 @@ QStringList MercurialEditorWidget::annotationPreviousVersions(const QString &rev
     // Retrieve parent revisions
     return MercurialPlugin::client()->parentRevisionsSync(workingDirectory, fi.fileName(), revision);
 }
+
+} // namespace Internal
+} // namespace Mercurial

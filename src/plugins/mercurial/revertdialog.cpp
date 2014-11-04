@@ -30,7 +30,8 @@
 
 #include "revertdialog.h"
 
-using namespace Mercurial::Internal;
+namespace Mercurial {
+namespace Internal  {
 
 RevertDialog::RevertDialog(QWidget *parent) :
     QDialog(parent),
@@ -48,3 +49,6 @@ QString RevertDialog::revision() const
 {
     return m_ui->revisionLineEdit->text();
 }
+
+} // namespace Internal
+} // namespace Mercurial

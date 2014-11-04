@@ -30,7 +30,8 @@
 
 #include "clonewizardpage.h"
 
-using namespace Mercurial::Internal;
+namespace Mercurial {
+namespace Internal  {
 
 CloneWizardPage::CloneWizardPage(QWidget *parent)
         : VcsBase::BaseCheckoutWizardPage(parent)
@@ -53,3 +54,6 @@ QString CloneWizardPage::directoryFromRepository(const QString &repository) cons
     // Take the basename or the repository url.
     return repo.mid(repo.lastIndexOf(slash) + 1);
 }
+
+} // namespace Internal
+} // namespace Mercurial

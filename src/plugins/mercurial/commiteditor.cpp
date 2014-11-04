@@ -37,8 +37,10 @@
 #include <QDebug>
 #include <QDir> //TODO REMOVE WHEN BASE FILE CHANGES ARE PULLED
 
-using namespace Mercurial::Internal;
 using namespace VcsBase;
+
+namespace Mercurial {
+namespace Internal  {
 
 CommitEditor::CommitEditor(const VcsBaseSubmitEditorParameters *parameters)
         : VcsBaseSubmitEditor(parameters, new MercurialCommitWidget),
@@ -96,3 +98,6 @@ QString CommitEditor::repoRoot()
 {
     return commitWidget()->repoRoot();
 }
+
+} // namespace Internal
+} // namespace Mercurial

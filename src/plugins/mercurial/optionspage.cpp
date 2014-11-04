@@ -38,8 +38,8 @@
 
 #include <QTextStream>
 
-using namespace Mercurial::Internal;
-using namespace Mercurial;
+namespace Mercurial {
+namespace Internal  {
 
 OptionsPageWidget::OptionsPageWidget(QWidget *parent) :
         QWidget(parent)
@@ -101,3 +101,6 @@ void OptionsPage::finish()
 {
     delete optionsPageWidget;
 }
+
+} // namespace Internal
+} // namespace Mercurial
