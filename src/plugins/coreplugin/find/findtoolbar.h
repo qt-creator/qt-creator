@@ -99,13 +99,19 @@ public slots:
 
 private slots:
     void invokeFindNext();
+    void invokeGlobalFindNext();
     void invokeFindPrevious();
+    void invokeGlobalFindPrevious();
     void invokeFindStep();
     void invokeReplace();
+    void invokeGlobalReplace();
     void invokeReplaceNext();
+    void invokeGlobalReplaceNext();
     void invokeReplacePrevious();
+    void invokeGlobalReplacePrevious();
     void invokeReplaceStep();
     void invokeReplaceAll();
+    void invokeGlobalReplaceAll();
     void invokeResetIncrementalSearch();
 
     void invokeFindIncremental();
@@ -118,7 +124,7 @@ private slots:
     void openFind(bool focus = true);
     void findNextSelected();
     void findPreviousSelected();
-    void updateFindAction();
+    void updateGlobalActions();
     void updateToolBar();
     void findFlagsChanged();
     void findEditButtonClicked();
@@ -145,6 +151,7 @@ private:
     Core::FindToolBarPlaceHolder *findToolBarPlaceHolder() const;
     bool toolBarHasFocus() const;
     bool canShowAllControls(bool replaceIsVisible) const;
+    void acceptCandidateAndMoveToolBar();
 
     bool eventFilter(QObject *obj, QEvent *event);
     void setFindText(const QString &text);

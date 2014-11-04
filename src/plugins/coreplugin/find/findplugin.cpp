@@ -181,8 +181,7 @@ void FindPlugin::openFindFilter()
 
 void FindPlugin::openFindDialog(IFindFilter *filter)
 {
-    if (d->m_currentDocumentFind->candidateIsEnabled())
-        d->m_currentDocumentFind->acceptCandidate();
+    d->m_currentDocumentFind->acceptCandidate();
     const QString currentFindString =
         d->m_currentDocumentFind->isEnabled() ?
         d->m_currentDocumentFind->currentFindString() : QString();
