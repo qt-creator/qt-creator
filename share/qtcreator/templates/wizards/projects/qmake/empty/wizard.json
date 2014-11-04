@@ -23,7 +23,7 @@
             "typeId": "Project"
         },
         {
-            "trDisplayName": "Kits",
+            "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
             "enabled": "%{IsTopLevelProject}",
