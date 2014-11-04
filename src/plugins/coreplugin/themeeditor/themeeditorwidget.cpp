@@ -79,6 +79,8 @@ ThemeEditorWidget::~ThemeEditorWidget()
 
 void ThemeEditorWidget::changeColor(const QModelIndex &index)
 {
+    if (!(m_ui->tableView->editTriggers() & QAbstractItemView::DoubleClicked))
+        return;
     if (m_model->inSectionBody(index.row()) != ThemeSettingsTableModel::SectionColors)
         return;
     if (index.column() == 1)
@@ -114,7 +116,9 @@ void ThemeEditorWidget::changeColor(const QModelIndex &index)
 void ThemeEditorWidget::setReadOnly(bool readOnly)
 {
     m_readOnly = readOnly;
-    m_ui->tableView->setEnabled(!readOnly);
+    m_ui->tableView->setEditTriggers(
+                readOnly ? QAbstractItemView::NoEditTriggers
+                         : QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
     m_ui->filter->setEnabled(!readOnly);
 }
 
