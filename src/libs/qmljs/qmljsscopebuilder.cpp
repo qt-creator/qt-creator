@@ -67,26 +67,27 @@ void ScopeBuilder::push(AST::Node *node)
     // JS signal handler scope
     if (UiScriptBinding *script = cast<UiScriptBinding *>(node)) {
         QString name;
-        if (script->qualifiedId)
+        if (script->qualifiedId) {
             name = script->qualifiedId->name.toString();
-        if (!_scopeChain->qmlScopeObjects().isEmpty()
-                && name.startsWith(QLatin1String("on"))
-                && !script->qualifiedId->next) {
-            const ObjectValue *owner = 0;
-            const Value *value = 0;
-            // try to find the name on the scope objects
-            foreach (const ObjectValue *scope, _scopeChain->qmlScopeObjects()) {
-                value = scope->lookupMember(name, _scopeChain->context(), &owner);
-                if (value)
-                    break;
-            }
-            // signals defined in QML
-            if (const ASTSignal *astsig = value_cast<ASTSignal>(value)) {
-                _scopeChain->appendJsScope(astsig->bodyScope());
-            // signals defined in C++
-            } else if (const CppComponentValue *qmlObject = value_cast<CppComponentValue>(owner)) {
-                if (const ObjectValue *scope = qmlObject->signalScope(name))
-                    _scopeChain->appendJsScope(scope);
+            if (!_scopeChain->qmlScopeObjects().isEmpty()
+                    && name.startsWith(QLatin1String("on"))
+                    && !script->qualifiedId->next) {
+                const ObjectValue *owner = 0;
+                const Value *value = 0;
+                // try to find the name on the scope objects
+                foreach (const ObjectValue *scope, _scopeChain->qmlScopeObjects()) {
+                    value = scope->lookupMember(name, _scopeChain->context(), &owner);
+                    if (value)
+                        break;
+                }
+                // signals defined in QML
+                if (const ASTSignal *astsig = value_cast<ASTSignal>(value)) {
+                    _scopeChain->appendJsScope(astsig->bodyScope());
+                // signals defined in C++
+                } else if (const CppComponentValue *qmlObject = value_cast<CppComponentValue>(owner)) {
+                    if (const ObjectValue *scope = qmlObject->signalScope(name))
+                        _scopeChain->appendJsScope(scope);
+                }
             }
         }
     }
