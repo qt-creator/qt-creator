@@ -1862,6 +1862,9 @@ void FakeVimPlugin::test_vim_copy_paste()
     KEYS("yj", "ab" X "c" N "def");
     data.setText("abc" N "de" X "f");
     KEYS("yk", "ab" X "c" N "def");
+    data.setText("ab" X "c" N "def");
+    KEYS("yy", "ab" X "c" N "def");
+    KEYS("2yy", "ab" X "c" N "def");
 
     // copy empty line
     data.setText(X "a" N "" N "b");

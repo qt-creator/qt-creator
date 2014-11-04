@@ -3359,6 +3359,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
             if (g.rangemode == RangeLineMode) {
                 if (isVisualModeYank)
                     moveToStartOfLine();
+                else
+                    moveToTargetColumn();
             }
         }
         setTargetColumn();
