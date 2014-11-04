@@ -52,7 +52,6 @@ public:
         SectionWidgetStyle,
         SectionColors,
         SectionFlags,
-        SectionImageFiles,
         SectionInvalid // end
     };
 

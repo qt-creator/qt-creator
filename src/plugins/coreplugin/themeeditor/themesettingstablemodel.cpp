@@ -65,7 +65,6 @@ int ThemeSettingsTableModel::sectionRowCount(int section) const
         case SectionWidgetStyle:  return 1;
         case SectionColors:       return m_colors->numColorRoles();
         case SectionFlags:        return m_flags.size();
-        case SectionImageFiles:   return m_imageFiles.size();
         default:                  return 0;
     }
 }
@@ -110,15 +109,6 @@ QVariant ThemeSettingsTableModel::sectionBodyData(int section, int row, int colu
             return QVariant::fromValue(makeDecoration(Qt::transparent));
         return QVariant();
     }
-    case SectionImageFiles: {
-        if (column == 0 && role == Qt::DisplayRole)
-            return m_imageFiles[row].first;
-        else if (column == 1 && role == Qt::DisplayRole)
-            return m_imageFiles[row].second;
-        else if (column == 0 && role == Qt::DecorationRole)
-            return QVariant::fromValue(makeDecoration(Qt::transparent));
-        return QVariant();
-    }
     default:
         return QVariant();
     }
@@ -131,7 +121,6 @@ QVariant ThemeSettingsTableModel::sectionHeaderData(int section, int role) const
         case SectionWidgetStyle:  return tr("Widget Style");
         case SectionColors:       return tr("Colors");
         case SectionFlags:        return tr("Flags");
-        case SectionImageFiles:   return tr("Image Files");
         default:                  return QString();
         }
     }
@@ -159,8 +148,6 @@ Qt::ItemFlags ThemeSettingsTableModel::sectionBodyFlags(int section, int row, in
     case SectionFlags:
         return (column == 0) ? Qt::ItemIsEnabled
                              : Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
-    case SectionImageFiles:
-        return Qt::ItemIsEnabled;
     default: return Qt::ItemIsEnabled;
     }
 }
