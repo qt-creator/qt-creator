@@ -147,6 +147,8 @@ private slots:
     static void configureEditor(Core::IEditor *editor, const QString &fileName);
     static void markSessionFileDirty(bool makeDefaultVirginDirty = true);
     static void projectDisplayNameChanged();
+private:
+    static void configureEditors(Project *project);
 };
 
 } // namespace ProjectExplorer

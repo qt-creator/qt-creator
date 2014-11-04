@@ -320,8 +320,14 @@ void SessionManager::addProjects(const QList<Project*> &projects)
         }
     }
 
-    foreach (Project *pro, clearedList)
+    foreach (Project *pro, clearedList) {
         emit m_instance->projectAdded(pro);
+        configureEditors(pro);
+        connect(pro, &Project::fileListChanged,
+                [pro](){
+                    configureEditors(pro);
+                });
+    }
 
     if (clearedList.count() == 1)
         emit m_instance->singleProjectAdded(clearedList.first());
@@ -608,6 +614,19 @@ void SessionManager::configureEditor(Core::IEditor *editor, const QString &fileN
         // Global settings are the default.
         if (project)
             project->editorConfiguration()->configureEditor(textEditor);
+    }
+}
+
+void SessionManager::configureEditors(Project *project)
+{
+    foreach (IDocument *document, DocumentModel::openedDocuments()) {
+        if (d->projectContainsFile(project, document->filePath())) {
+            foreach (IEditor *editor, DocumentModel::editorsForDocument(document)) {
+                if (TextEditor::BaseTextEditor *textEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor)) {
+                        project->editorConfiguration()->configureEditor(textEditor);
+                }
+            }
+        }
     }
 }
 
