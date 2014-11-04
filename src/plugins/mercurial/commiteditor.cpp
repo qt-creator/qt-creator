@@ -35,7 +35,6 @@
 #include <vcsbase/submitfilemodel.h>
 
 #include <QDebug>
-#include <QDir> //TODO REMOVE WHEN BASE FILE CHANGES ARE PULLED
 
 using namespace VcsBase;
 
@@ -66,7 +65,6 @@ void CommitEditor::setFields(const QFileInfo &repositoryRoot, const QString &bra
 
     fileModel = new SubmitFileModel(this);
 
-    //TODO Messy tidy this up
     QStringList shouldTrack;
 
     foreach (const VcsBaseClient::StatusItem &item, repoStatus) {
