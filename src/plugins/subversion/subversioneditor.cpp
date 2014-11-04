@@ -46,8 +46,8 @@ using namespace Subversion;
 using namespace Subversion::Internal;
 
 SubversionEditorWidget::SubversionEditorWidget() :
-    m_changeNumberPattern(QLatin1String("^\\d+$")),
-    m_revisionNumberPattern(QLatin1String("^r\\d+$"))
+    m_changeNumberPattern(QLatin1String("^\\s*(?<area>(?<rev>\\d+))\\s+.*$")),
+    m_revisionNumberPattern(QLatin1String("\\b(?<area>(r|[rR]evision )(?<rev>\\d+))\\b"))
 {
     QTC_ASSERT(m_changeNumberPattern.isValid(), return);
     QTC_ASSERT(m_revisionNumberPattern.isValid(), return);
@@ -93,17 +93,33 @@ QString SubversionEditorWidget::changeUnderCursor(const QTextCursor &c) const
 {
     QTextCursor cursor = c;
     // Any number is regarded as change number.
-    cursor.select(QTextCursor::WordUnderCursor);
+    cursor.select(QTextCursor::LineUnderCursor);
     if (!cursor.hasSelection())
         return QString();
     QString change = cursor.selectedText();
-    // Annotation output has number, log output has revision numbers
-    // as r1, r2...
-    if (m_changeNumberPattern.exactMatch(change))
-        return change;
-    if (m_revisionNumberPattern.exactMatch(change)) {
-        change.remove(0, 1);
-        return change;
+    const int pos = c.position() - cursor.selectionStart() + 1;
+    // Annotation output has number, log output has revision numbers,
+    // both at the start of the line.
+    auto matchIter = m_changeNumberPattern.globalMatch(change);
+    if (!matchIter.hasNext())
+        matchIter = m_revisionNumberPattern.globalMatch(change);
+
+    // We may have several matches of our regexp and we way have
+    // several () in the regexp
+    const QString areaName = QLatin1String("area");
+    while (matchIter.hasNext()) {
+        auto match = matchIter.next();
+        const QString rev = match.captured(QLatin1String("rev"));
+        if (rev.isEmpty())
+            continue;
+
+        const QString area = match.captured(areaName);
+        QTC_ASSERT(area.contains(rev), continue);
+
+        const int start = match.capturedStart(areaName);
+        const int end = match.capturedEnd(areaName);
+        if (pos > start && pos <= end)
+            return rev;
     }
     return QString();
 }
