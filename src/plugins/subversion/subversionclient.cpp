@@ -209,6 +209,25 @@ QStringList SubversionClient::addAuthenticationOptions(const QStringList &args,
     return rc;
 }
 
+QString SubversionClient::synchronousTopic(const QString &repository)
+{
+    QStringList args;
+    args << QLatin1String("info");
+
+    QByteArray stdOut;
+    if (!vcsFullySynchronousExec(repository, args, &stdOut))
+        return QString();
+
+    const QString revisionString = QLatin1String("Revision: ");
+    // stdOut is ASCII only (at least in those areas we care about).
+    QString output = SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(stdOut));
+    foreach (const QString &line, output.split(QLatin1Char('\n'))) {
+        if (line.startsWith(revisionString))
+            return QString::fromLatin1("r") + line.mid(revisionString.count());
+    }
+    return QString();
+}
+
 void SubversionClient::diff(const QString &workingDir, const QStringList &files,
                            const QStringList &extraOptions)
 {

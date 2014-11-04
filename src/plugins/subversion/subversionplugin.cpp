@@ -1074,6 +1074,25 @@ SubversionPlugin *SubversionPlugin::instance()
     return m_subversionPluginInstance;
 }
 
+QString SubversionPlugin::monitorFile(const QString &repository) const
+{
+    QTC_ASSERT(!repository.isEmpty(), return QString());
+    QDir repoDir(repository);
+    foreach (const QString &svnDir, m_svnDirectories) {
+        if (repoDir.exists(svnDir)) {
+            QFileInfo fi(repoDir.absoluteFilePath(svnDir + QLatin1String("/wc.db")));
+            if (fi.exists() && fi.isFile())
+                return fi.absoluteFilePath();
+        }
+    }
+    return QString();
+}
+
+QString SubversionPlugin::synchronousTopic(const QString &repository) const
+{
+    return m_client->synchronousTopic(repository);
+}
+
 bool SubversionPlugin::vcsAdd(const QString &workingDir, const QString &rawFileName)
 {
     const QString file = QDir::toNativeSeparators(rawFileName);

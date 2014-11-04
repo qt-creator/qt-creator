@@ -81,6 +81,8 @@ public:
                                                 const QString &userName = QString(),
                                                 const QString &password = QString());
 
+    QString synchronousTopic(const QString &repository);
+
 protected:
     Core::Id vcsEditorKind(VcsCommandTag cmd) const;
     VcsBase::VcsBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,

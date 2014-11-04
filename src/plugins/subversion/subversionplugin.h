@@ -91,6 +91,9 @@ public:
 
     static SubversionPlugin *instance();
 
+    QString monitorFile(const QString &repository) const;
+    QString synchronousTopic(const QString &repository) const;
+
 public slots:
     void vcsAnnotate(const QString &workingDir, const QString &file,
                      const QString &revision = QString(), int lineNumber = -1);
