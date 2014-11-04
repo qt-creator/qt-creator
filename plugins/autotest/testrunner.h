@@ -51,22 +51,15 @@ public slots:
     void stopTestRun();
 
 private slots:
-    void processOutput();
-    void onRunnerFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void buildProject(ProjectExplorer::Project *project);
     void buildFinished(bool success);
 
 private:
     explicit TestRunner(QObject *parent = 0);
-    bool exec(const QString &cmd, const QStringList &args, const QString &workingDir = QString(),
-              const Utils::Environment &env = Utils::Environment(), int timeout = 60000);
 
-    QProcess m_runner;
     QList<TestConfiguration *> m_selectedTests;
     bool m_building;
     bool m_buildSucceeded;
-
-    QStringList m_xmlLog; // holds complete xml log of the last test run
 
 };
 

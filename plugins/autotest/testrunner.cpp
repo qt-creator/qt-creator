@@ -16,22 +16,32 @@
 **
 ****************************************************************************/
 
+#include "autotestconstants.h"
 #include "testresultspane.h"
 #include "testrunner.h"
 
 #include <QDebug> // REMOVE
+
+#include <coreplugin/progressmanager/futureprogress.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorersettings.h>
 
+#include <utils/multitask.h>
+
+#include <QFuture>
+#include <QFutureInterface>
 #include <QTime>
 
 namespace Autotest {
 namespace Internal {
 
-static TestRunner* m_instance = 0;
+static TestRunner *m_instance = 0;
+static QProcess *m_runner = 0;
+static QFutureInterface<void> *m_currentFuture = 0;
 
 TestRunner *TestRunner::instance()
 {
@@ -44,13 +54,6 @@ TestRunner::TestRunner(QObject *parent) :
     QObject(parent),
     m_building(false)
 {
-    m_runner.setReadChannelMode(QProcess::MergedChannels);
-    m_runner.setReadChannel(QProcess::StandardOutput);
-
-    connect(&m_runner, &QProcess::readyReadStandardOutput,
-            this, &TestRunner::processOutput, Qt::DirectConnection);
-    connect(&m_runner, SIGNAL(finished(int,QProcess::ExitStatus)),
-            this, SLOT(onRunnerFinished(int,QProcess::ExitStatus)), Qt::DirectConnection);
 }
 
 TestRunner::~TestRunner()
@@ -58,6 +61,8 @@ TestRunner::~TestRunner()
     qDeleteAll(m_selectedTests);
     m_selectedTests.clear();
     m_instance = 0;
+    if (m_runner)
+        delete m_runner;
 }
 
 void TestRunner::setSelectedTests(const QList<TestConfiguration *> &selected)
@@ -65,80 +70,6 @@ void TestRunner::setSelectedTests(const QList<TestConfiguration *> &selected)
      qDeleteAll(m_selectedTests);
      m_selectedTests.clear();
      m_selectedTests = selected;
-}
-
-void TestRunner::runTests()
-{
-    if (m_selectedTests.empty()) {
-        TestResultsPane::instance()->addTestResult(
-                    TestResult(QString(), QString(), QString(), ResultType::MESSAGE_FATAL,
-                               tr("*** No tests selected - canceling Test Run ***")));
-        return;
-    }
-
-    ProjectExplorer::Project *project = m_selectedTests.at(0)->project();
-
-    if (!project) {// add a warning or info to output? possible at all?
-        return;
-    }
-
-    ProjectExplorer::ProjectExplorerPlugin *pep = ProjectExplorer::ProjectExplorerPlugin::instance();
-    ProjectExplorer::Internal::ProjectExplorerSettings pes = pep->projectExplorerSettings();
-    if (pes.buildBeforeDeploy) {
-        if (!project->hasActiveBuildSettings()) {
-            TestResultsPane::instance()->addTestResult(
-                        TestResult(QString(), QString(), QString(), ResultType::MESSAGE_FATAL,
-                                   tr("*** Project is not configured - canceling Test Run ***")));
-            return;
-        }
-        buildProject(project);
-        while (m_building) {
-            qApp->processEvents();
-        }
-
-        if (!m_buildSucceeded) {
-            TestResultsPane::instance()->addTestResult(
-                        TestResult(QString(), QString(), QString(), ResultType::MESSAGE_FATAL,
-                                   tr("*** Build failed - canceling Test Run ***")));
-            return;
-        }
-    }
-
-    int testCaseCount = 0;
-    foreach (const TestConfiguration *config, m_selectedTests)
-        testCaseCount += config->testCaseCount();
-
-    // clear old log and output pane
-    m_xmlLog.clear();
-    TestResultsPane::instance()->clearContents();
-
-    emit testRunStarted();
-
-    foreach (TestConfiguration *tc, m_selectedTests) {
-        QString cmd = tc->targetFile();
-        QString workDir = tc->workingDirectory();
-        QStringList args;
-        Utils::Environment env = tc->environment();
-
-        args << QLatin1String("-xml");
-        if (tc->testCases().count())
-            args << tc->testCases();
-
-        exec(cmd, args, workDir, env);
-    }
-    qDebug("test run finished");
-    emit testRunFinished();
-}
-
-void TestRunner::stopTestRun()
-{
-    if (m_runner.state() != QProcess::NotRunning) {
-        m_runner.kill();
-        m_runner.waitForFinished();
-        TestResultsPane::instance()->addTestResult(
-                    TestResult(QString(), QString(), QString(), ResultType::MESSAGE_FATAL,
-                               tr("*** Test Run canceled by user ***")));
-    }
 }
 
 /******************** XML line parser helper ********************/
@@ -182,8 +113,10 @@ static bool xmlExtractTypeFileLine(const QString &code, const QString &tagStart,
 
 /****************** XML line parser helper end ******************/
 
-void TestRunner::processOutput()
+void processOutput()
 {
+    if (!m_runner)
+        return;
     static QString className;
     static QString testCase;
     static QString dataTag;
@@ -196,11 +129,9 @@ void TestRunner::processOutput()
     static QString qtVersion;
     static QString qtestVersion;
 
-    while (m_runner.canReadLine()) {
+    while (m_runner->canReadLine()) {
         // TODO Qt5 uses UTF-8 - while Qt4 uses ISO-8859-1 - could this be a problem?
-        QString line = QString::fromUtf8(m_runner.readLine());
-        line = line.trimmed();
-        m_xmlLog.append(line);
+        const QString line = QString::fromUtf8(m_runner->readLine()).trimmed();
         if (line.isEmpty() || line.startsWith(QLatin1String("<?xml version"))) {
             className = QString();
             continue;
@@ -233,7 +164,7 @@ void TestRunner::processOutput()
             if (line.endsWith(QLatin1String("/>"))) {
                 TestResult testResult(className, testCase, dataTag, result, description);
                 if (!file.isEmpty())
-                    file = QFileInfo(m_runner.workingDirectory(), file).canonicalFilePath();
+                    file = QFileInfo(m_runner->workingDirectory(), file).canonicalFilePath();
                 testResult.setFileName(file);
                 testResult.setLine(lineNumber);
                 TestResultsPane::instance()->addTestResult(testResult);
@@ -243,18 +174,19 @@ void TestRunner::processOutput()
         if (line == QLatin1String("</Message>") || line == QLatin1String("</Incident>")) {
             TestResult testResult(className, testCase, dataTag, result, description);
             if (!file.isEmpty())
-                file = QFileInfo(m_runner.workingDirectory(), file).canonicalFilePath();
+                file = QFileInfo(m_runner->workingDirectory(), file).canonicalFilePath();
             testResult.setFileName(file);
             testResult.setLine(lineNumber);
             TestResultsPane::instance()->addTestResult(testResult);
             description = QString();
         } else if (line == QLatin1String("</TestFunction>") && !duration.isEmpty()) {
             TestResult testResult(className, testCase, QString(), ResultType::MESSAGE_INTERNAL,
-                                  tr("execution took %1ms").arg(duration));
+                                  QObject::tr("execution took %1ms").arg(duration));
             TestResultsPane::instance()->addTestResult(testResult);
+            m_currentFuture->setProgressValue(m_currentFuture->progressValue() + 1);
         } else if (line == QLatin1String("</TestCase>") && !duration.isEmpty()) {
             TestResult testResult(className, QString(), QString(), ResultType::MESSAGE_INTERNAL,
-                                  tr("Test execution took %1ms").arg(duration));
+                                  QObject::tr("Test execution took %1ms").arg(duration));
             TestResultsPane::instance()->addTestResult(testResult);
         } else if (readingDescription) {
             if (line.endsWith(QLatin1String("]]></Description>"))) {
@@ -268,20 +200,180 @@ void TestRunner::processOutput()
         } else if (xmlStartsWith(line, QLatin1String("<QtVersion>"), qtVersion)) {
             TestResultsPane::instance()->addTestResult(
                         TestResult(QString(), QString(), QString(), ResultType::MESSAGE_INTERNAL,
-                                   tr("Qt Version: %1").arg(qtVersion)));
+                                   QObject::tr("Qt Version: %1").arg(qtVersion)));
         } else if (xmlStartsWith(line, QLatin1String("<QTestVersion>"), qtestVersion)) {
             TestResultsPane::instance()->addTestResult(
                         TestResult(QString(), QString(), QString(), ResultType::MESSAGE_INTERNAL,
-                                   tr("QTest Version: %1").arg(qtestVersion)));
+                                   QObject::tr("QTest Version: %1").arg(qtestVersion)));
         } else {
 //            qDebug() << "Unhandled line:" << line; // TODO remove
         }
     }
 }
 
-void TestRunner::onRunnerFinished(int exitCode, QProcess::ExitStatus exitStatus)
+static QString which(const QString &path, const QString &cmd)
 {
-    qDebug("runnerFinished");
+    if (path.isEmpty() || cmd.isEmpty())
+        return QString();
+
+    QStringList paths;
+#ifdef Q_OS_WIN
+    paths = path.split(QLatin1Char(';'));
+#else
+    paths = path.split(QLatin1Char(':'));
+#endif
+
+    foreach (const QString p, paths) {
+        const QString fName = p + QDir::separator() + cmd;
+        QFileInfo fi(fName);
+        if (fi.exists() && fi.isExecutable())
+            return fName;
+#ifdef Q_OS_WIN
+        fi = QFileInfo(fName + QLatin1String(".exe"));
+        if (fi.exists())
+            return fi.absoluteFilePath();
+        fi = QFileInfo(fName + QLatin1String(".bat"));
+        if (fi.exists())
+            return fi.absoluteFilePath();
+        fi = QFileInfo(fName + QLatin1String(".cmd"));
+        if (fi.exists())
+            return fi.absoluteFilePath();
+#endif
+    }
+    return QString();
+}
+
+bool performExec(const QString &cmd, const QStringList &args, const QString &workingDir,
+                 const Utils::Environment &env, int timeout = 60000)
+{
+    QString runCmd;
+    if (!QDir::toNativeSeparators(cmd).contains(QDir::separator())) {
+        if (env.hasKey(QLatin1String("PATH")))
+            runCmd = which(env.value(QLatin1String("PATH")), cmd);
+    } else if (QFileInfo(cmd).exists()) {
+        runCmd = cmd;
+    }
+
+    if (runCmd.isEmpty()) {
+        TestResultsPane::instance()->addTestResult(
+                    TestResult(QString(), QString(), QString(), ResultType::MESSAGE_FATAL,
+                               QObject::tr("*** Could not find command '%1' ***").arg(cmd)));
+        return false;
+    }
+
+    m_runner->setWorkingDirectory(workingDir);
+    m_runner->setProcessEnvironment(env.toProcessEnvironment());
+    QTime executionTimer;
+
+    if (args.count()) {
+        m_runner->start(runCmd, args);
+    } else {
+        m_runner->start(runCmd);
+    }
+
+    bool ok = m_runner->waitForStarted();
+    executionTimer.start();
+    if (ok) {
+        while (m_runner->state() == QProcess::Running && executionTimer.elapsed() < timeout) {
+            if (m_currentFuture->isCanceled()) {
+                m_runner->kill();
+                m_runner->waitForFinished();
+                TestResultsPane::instance()->addTestResult(
+                            TestResult(QString(), QString(), QString(), ResultType::MESSAGE_FATAL,
+                                       QObject::tr("*** Test Run canceled by user ***")));
+            }
+            qApp->processEvents();
+        }
+    }
+    if (ok && executionTimer.elapsed() < timeout) {
+        return m_runner->exitCode() == 0;
+    } else {
+        return false;
+    }
+}
+
+void performTestRun(QFutureInterface<void> &future, const QList<TestConfiguration *> selectedTests)
+{
+    int testCaseCount = 0;
+    foreach (const TestConfiguration *config, selectedTests)
+        testCaseCount += config->testCaseCount();
+
+    m_currentFuture = &future;
+    m_runner = new QProcess;
+    m_runner->setReadChannelMode(QProcess::MergedChannels);
+    m_runner->setReadChannel(QProcess::StandardOutput);
+
+    QObject::connect(m_runner, &QProcess::readyReadStandardOutput, &processOutput);
+
+    future.setProgressRange(0, testCaseCount);
+    future.setProgressValue(0);
+
+    foreach (const TestConfiguration *tc, selectedTests) {
+        if (future.isCanceled())
+            break;
+        QString cmd = tc->targetFile();
+        QString workDir = tc->workingDirectory();
+        QStringList args;
+        Utils::Environment env = tc->environment();
+
+        args << QLatin1String("-xml");
+        if (tc->testCases().count())
+            args << tc->testCases();
+
+        performExec(cmd, args, workDir, env);
+    }
+    future.setProgressValue(testCaseCount);
+
+    delete m_runner;
+    m_runner = 0;
+    m_currentFuture = 0;
+}
+
+void TestRunner::runTests()
+{
+    if (m_selectedTests.empty()) {
+        TestResultsPane::instance()->addTestResult(
+                    TestResult(QString(), QString(), QString(), ResultType::MESSAGE_FATAL,
+                               tr("*** No tests selected - canceling Test Run ***")));
+        return;
+    }
+
+    ProjectExplorer::Project *project = m_selectedTests.at(0)->project();
+
+    if (!project) // add a warning or info to output? possible at all?
+        return;
+
+    ProjectExplorer::ProjectExplorerPlugin *pep = ProjectExplorer::ProjectExplorerPlugin::instance();
+    ProjectExplorer::Internal::ProjectExplorerSettings pes = pep->projectExplorerSettings();
+    if (pes.buildBeforeDeploy) {
+        if (!project->hasActiveBuildSettings()) {
+            TestResultsPane::instance()->addTestResult(
+                        TestResult(QString(), QString(), QString(), ResultType::MESSAGE_FATAL,
+                                   tr("*** Project is not configured - canceling Test Run ***")));
+            return;
+        }
+        buildProject(project);
+        while (m_building) {
+            qApp->processEvents();
+        }
+
+        if (!m_buildSucceeded) {
+            TestResultsPane::instance()->addTestResult(
+                        TestResult(QString(), QString(), QString(), ResultType::MESSAGE_FATAL,
+                                   tr("*** Build failed - canceling Test Run ***")));
+            return;
+        }
+    }
+
+    // clear old log and output pane
+    TestResultsPane::instance()->clearContents();
+
+    emit testRunStarted();
+    QFuture<void> future = QtConcurrent::run(&performTestRun , m_selectedTests);
+    Core::FutureProgress *progress = Core::ProgressManager::addTask(future, tr("Running Tests"),
+                                                                    Autotest::Constants::TASK_INDEX);
+    connect(progress, &Core::FutureProgress::finished,
+            TestRunner::instance(), &TestRunner::testRunFinished);
 }
 
 void TestRunner::buildProject(ProjectExplorer::Project *project)
@@ -306,80 +398,10 @@ void TestRunner::buildFinished(bool success)
     m_buildSucceeded = success;
 }
 
-static QString which(const QString &path, const QString &cmd)
+void TestRunner::stopTestRun()
 {
-    if (path.isEmpty() || cmd.isEmpty())
-        return QString();
-
-    QStringList paths;
-#ifdef Q_OS_WIN
-    paths = path.split(QLatin1Char(';'));
-#else
-    paths = path.split(QLatin1Char(':'));
-#endif
-
-    foreach (const QString p, paths) {
-        QString fName = p + QDir::separator() + cmd;
-        QFileInfo fi(fName);
-        if (fi.exists() && fi.isExecutable())
-            return fName;
-#ifdef Q_OS_WIN
-        fi = QFileInfo(fName + QLatin1String(".exe"));
-        if (fi.exists())
-            return fi.absoluteFilePath();
-        fi = QFileInfo(fName + QLatin1String(".bat"));
-        if (fi.exists())
-            return fi.absoluteFilePath();
-        fi = QFileInfo(fName + QLatin1String(".cmd"));
-        if (fi.exists())
-            return fi.absoluteFilePath();
-#endif
-    }
-    return QString();
-}
-
-bool TestRunner::exec(const QString &cmd, const QStringList &args, const QString &workingDir,
-                      const Utils::Environment &env, int timeout)
-{
-    if (m_runner.state() != QProcess::NotRunning) { // kill the runner if it's running already
-        m_runner.kill();
-        m_runner.waitForFinished();
-    }
-    QString runCmd;
-    if (!QDir::toNativeSeparators(cmd).contains(QDir::separator())) {
-        if (env.hasKey(QLatin1String("PATH")))
-            runCmd = which(env.value(QLatin1String("PATH")), cmd);
-    } else if (QFileInfo(cmd).exists()) {
-        runCmd = cmd;
-    }
-
-    if (runCmd.isEmpty()) {
-        qDebug("Could not find cmd...");
-        return false;
-    }
-
-    m_runner.setWorkingDirectory(workingDir);
-    m_runner.setProcessEnvironment(env.toProcessEnvironment());
-    QTime executionTimer;
-
-    if (args.count()) {
-        m_runner.start(runCmd, args);
-    } else {
-        m_runner.start(runCmd);
-    }
-
-    bool ok = m_runner.waitForStarted();
-    executionTimer.start();
-    if (ok) {
-        while (m_runner.state() == QProcess::Running && executionTimer.elapsed() < timeout) {
-            qApp->processEvents();
-        }
-    }
-    if (ok && executionTimer.elapsed() < timeout) {
-        return m_runner.exitCode() == 0;
-    } else {
-        return false;
-    }
+    if (m_runner && m_runner->state() != QProcess::NotRunning && m_currentFuture)
+        m_currentFuture->cancel();
 }
 
 } // namespace Internal
