@@ -33,6 +33,7 @@
 #include "qmlprofilerstatemanager.h"
 #include "qmlprofilermodelmanager.h"
 #include "timelinemodelaggregator.h"
+#include "qmlprofilernotesmodel.h"
 
 // Needed for the load&save actions in the context menu
 #include <analyzerbase/ianalyzertool.h>
@@ -99,6 +100,8 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
     QVBoxLayout *groupLayout = new QVBoxLayout;
     groupLayout->setContentsMargins(0, 0, 0, 0);
     groupLayout->setSpacing(0);
+
+    qmlRegisterType<QmlProfilerNotesModel>();
 
     d->m_mainView = new QmlProfilerQuickView(this);
     d->m_mainView->setResizeMode(QQuickView::SizeRootObjectToView);

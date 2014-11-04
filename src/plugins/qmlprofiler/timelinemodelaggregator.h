@@ -42,6 +42,7 @@ class TimelineModelAggregator : public QObject
     Q_OBJECT
     Q_PROPERTY(int height READ height NOTIFY heightChanged)
     Q_PROPERTY(QVariantList models READ models NOTIFY modelsChanged)
+    Q_PROPERTY(QmlProfiler::QmlProfilerNotesModel *notes READ notes CONSTANT)
 public:
     TimelineModelAggregator(QObject *parent = 0);
     ~TimelineModelAggregator();
@@ -53,7 +54,7 @@ public:
     QVariantList models() const;
     int modelIndexFromManagerIndex(int modelManagerIndex) const;
 
-    Q_INVOKABLE QmlProfilerNotesModel *notes() const;
+    QmlProfilerNotesModel *notes() const;
     Q_INVOKABLE int count(int modelIndex) const;
     void clear();
     Q_INVOKABLE int modelCount() const;
