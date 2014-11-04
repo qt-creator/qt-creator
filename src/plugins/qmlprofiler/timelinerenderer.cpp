@@ -211,6 +211,13 @@ void TimelineRenderer::drawItemsToPainter(QPainter *p, int modelIndex, int fromI
 
 void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromIndex, int toIndex)
 {
+    const uint strongLineWidth = 3;
+    const uint lightLineWidth = 2;
+    static const QColor strongColor = Qt::blue;
+    static const QColor lockedStrongColor = QColor(96,0,255);
+    static const QColor lightColor = strongColor.lighter(130);
+    static const QColor lockedLightColor = lockedStrongColor.lighter(130);
+
     if (m_selectedItem == -1)
         return;
 
@@ -223,17 +230,14 @@ void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromI
 
     p->save();
 
-    QColor selectionColor = Qt::blue;
-    if (m_selectionLocked)
-        selectionColor = QColor(96,0,255);
-    QPen strongPen(selectionColor, 3);
-    QPen lightPen(QBrush(selectionColor.lighter(130)), 2);
+    QPen strongPen(m_selectionLocked ? lockedStrongColor : strongColor, strongLineWidth);
+    strongPen.setJoinStyle(Qt::MiterJoin);
+    QPen lightPen(m_selectionLocked ? lockedLightColor : lightColor, lightLineWidth);
     lightPen.setJoinStyle(Qt::MiterJoin);
     p->setPen(lightPen);
     p->setBrush(Qt::transparent);
 
     int currentX, currentY, itemWidth;
-    QRect selectedItemRect(0,0,0,0);
     for (int i = fromIndex; i <= toIndex; i++) {
         if (m_profilerModelProxy->selectionId(modelIndex, i) != id)
             continue;
@@ -250,15 +254,34 @@ void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromI
         getItemXExtent(modelIndex, i, currentX, itemWidth);
 
         if (i == m_selectedItem)
-            selectedItemRect = QRect(currentX, currentY - 1, itemWidth, itemHeight + 1);
-        else
-            p->drawRect(currentX, currentY, itemWidth, itemHeight);
-    }
-
-    // draw the selected item rectangle the last, so that it's overlayed
-    if (selectedItemRect.width() != 0) {
             p->setPen(strongPen);
-            p->drawRect(selectedItemRect);
+
+        // Draw the lines at the right offsets. The lines have a width and we don't want them to
+        // bleed into the previous or next row as that may belong to a different model and get cut
+        // off.
+        int lineWidth = p->pen().width();
+        itemWidth -= lineWidth;
+        itemHeight -= lineWidth;
+        currentX += lineWidth / 2;
+        currentY += lineWidth / 2;
+
+        // If it's only a line or point, draw it left/top aligned.
+        if (itemWidth > 0) {
+            if (itemHeight > 0) {
+                p->drawRect(currentX, currentY, itemWidth, itemHeight);
+            } else {
+                p->drawLine(currentX, currentY + itemHeight, currentX + itemWidth,
+                            currentY + itemHeight);
+            }
+        } else if (itemHeight > 0) {
+            p->drawLine(currentX + itemWidth, currentY, currentX + itemWidth,
+                        currentY + itemHeight);
+        } else {
+            p->drawPoint(currentX + itemWidth, currentY + itemHeight);
+        }
+
+        if (i == m_selectedItem)
+            p->setPen(lightPen);
     }
 
     p->restore();
