@@ -1764,6 +1764,15 @@ public:
     void moveDown(int n = 1);
     void moveUpVisually(int n = 1) { moveDownVisually(-n); }
     void moveDownVisually(int n = 1);
+    void moveVertically(int n = 1) {
+        if (g.gflag) {
+            g.movetype = MoveExclusive;
+            moveDownVisually(n);
+        } else {
+            g.movetype = MoveLineWise;
+            moveDown(n);
+        }
+    }
     void movePageDown(int count = 1);
     void movePageUp(int count = 1) { movePageDown(-count); }
     void dump(const char *msg) const {
@@ -1773,7 +1782,6 @@ public:
             << "VISUAL: " << g.visualMode;
     }
     void moveRight(int n = 1) {
-        //dump("RIGHT 1");
         if (isVisualCharMode()) {
             const QTextBlock currentBlock = block();
             const int max = currentBlock.position() + currentBlock.length() - 1;
@@ -1784,10 +1792,21 @@ public:
         }
         if (atEndOfLine())
             emit q->fold(1, false);
-        //dump("RIGHT 2");
+        setTargetColumn();
     }
     void moveLeft(int n = 1) {
         m_cursor.movePosition(Left, KeepAnchor, n);
+        setTargetColumn();
+    }
+    void moveToNextCharacter() {
+        moveRight();
+        if (atEndOfLine())
+            moveRight();
+    }
+    void moveToPreviousCharacter() {
+        moveLeft();
+        if (atBlockStart())
+            moveLeft();
     }
     void setAnchor() {
         m_cursor.setPosition(position(), MoveAnchor);
@@ -1819,6 +1838,10 @@ public:
         else if (editor())
             m_cursor = EDITOR(textCursor());
     }
+
+    // Update selection, record jump and target column if cursor position
+    // changes externally (e.g. by code completion).
+    void updateCursorPosition();
 
     // Values to save when starting FakeVim processing.
     int m_firstVisibleLine;
@@ -2270,15 +2293,14 @@ void FakeVimHandler::Private::focus()
 
     stopIncrementalFind();
     if (!isInsertMode()) {
-        if (g.subsubmode == SearchSubSubMode) {
-            setPosition(m_searchStartPosition);
-            scrollToLine(m_searchFromScreenLine);
-            setTargetColumn();
-            setAnchor();
-            commitCursor();
-        } else if (g.submode != NoSubMode || g.mode == ExMode) {
-            leaveVisualMode();
-            setPosition(qMin(position(), anchor()));
+        if (g.subsubmode == SearchSubSubMode || g.submode != NoSubMode || g.mode == ExMode) {
+            if (g.subsubmode == SearchSubSubMode) {
+                setPosition(m_searchStartPosition);
+                scrollToLine(m_searchFromScreenLine);
+            } else {
+                leaveVisualMode();
+                setPosition(qMin(position(), anchor()));
+            }
             setTargetColumn();
             setAnchor();
             commitCursor();
@@ -2312,17 +2334,8 @@ void FakeVimHandler::Private::enterFakeVim()
     removeEventFilter();
 
     updateFirstVisibleLine();
-    importSelection();
 
-    // Position changed externally, e.g. by code completion.
-    if (position() != m_oldInternalPosition) {
-        // record external jump to different line
-        if (m_oldInternalPosition != -1 && lineForPosition(m_oldInternalPosition) != lineForPosition(position()))
-            recordJump(m_oldInternalPosition);
-        setTargetColumn();
-        if (atEndOfLine() && !isVisualMode() && !isInsertMode())
-            moveLeft();
-    }
+    updateCursorPosition();
 
     if (m_fakeEnd)
         moveRight();
@@ -2491,14 +2504,10 @@ void FakeVimHandler::Private::setupWidget()
     m_wasReadOnly = EDITOR(isReadOnly());
 
     updateEditor();
-    importSelection();
     updateMiniBuffer();
     updateCursorShape();
 
-    recordJump();
-    setTargetColumn();
-    if (atEndOfLine() && !isVisualMode() && !isInsertMode())
-        moveLeft();
+    updateCursorPosition();
 
     leaveFakeVim();
 }
@@ -3107,6 +3116,21 @@ void FakeVimHandler::Private::movePageDown(int count)
         scrollToLine(qMax(0, cursorLine() - screenLines + 1));
 }
 
+void FakeVimHandler::Private::updateCursorPosition()
+{
+    importSelection();
+
+    if (position() != m_oldInternalPosition) {
+        // record external jump to different line
+        if (m_oldInternalPosition != -1 && lineForPosition(m_oldInternalPosition) != lineForPosition(position()))
+            recordJump(m_oldInternalPosition);
+
+        setTargetColumn();
+        if (atEndOfLine() && !isVisualMode() && !isInsertMode())
+            moveLeft();
+    }
+}
+
 bool FakeVimHandler::Private::moveToNextParagraph(int count)
 {
     const bool forward = count > 0;
@@ -3175,6 +3199,7 @@ void FakeVimHandler::Private::moveBehindEndOfLine()
     int pos = qMin(block().position() + block().length() - 1,
         lastPositionInDocument() + 1);
     setPosition(pos);
+    setTargetColumn();
 }
 
 void FakeVimHandler::Private::moveToStartOfLine()
@@ -3340,10 +3365,6 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         dotCommand = _("d");
         if (g.movetype == MoveLineWise)
             handleStartOfLine();
-        if (atEndOfLine())
-            moveLeft();
-        else
-            setTargetColumn();
         endEditBlock();
     } else if (g.submode == YankSubMode) {
         bool isVisualModeYank = isVisualMode();
@@ -3697,7 +3718,6 @@ bool FakeVimHandler::Private::handleCount(const Input &input)
 bool FakeVimHandler::Private::handleMovement(const Input &input)
 {
     bool handled = true;
-    QString movement;
     int count = this->count();
 
     if (handleCount(input)) {
@@ -3773,7 +3793,6 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
     } else if (input.is('|')) {
         moveToStartOfLine();
         moveRight(qMin(count, rightDist()) - 1);
-        setTargetColumn();
     } else if (input.is('}')) {
         handled = moveToNextParagraph(count);
     } else if (input.is('{')) {
@@ -3782,21 +3801,16 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         moveToStartOfLine();
         moveDown();
         moveToFirstNonBlankOnLine();
-        g.movetype = MoveLineWise;
     } else if (input.is('-')) {
         moveToStartOfLine();
         moveUp(count);
         moveToFirstNonBlankOnLine();
-        g.movetype = MoveLineWise;
     } else if (input.is('+')) {
         moveToStartOfLine();
         moveDown(count);
         moveToFirstNonBlankOnLine();
-        g.movetype = MoveLineWise;
     } else if (input.isKey(Key_Home)) {
         moveToStartOfLine();
-        setTargetColumn();
-        movement = _("<HOME>");
     } else if (input.is('$') || input.isKey(Key_End)) {
         if (g.gflag) {
             if (count > 1)
@@ -3808,12 +3822,10 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
             moveToEndOfLine();
         }
         g.movetype = atEmptyLine() ? MoveExclusive : MoveInclusive;
-        setTargetColumn();
         if (g.submode == NoSubMode)
             m_targetColumn = -1;
         if (isVisualMode())
             m_visualTargetColumn = -1;
-        movement = _("$");
     } else if (input.is('%')) {
         recordJump();
         if (g.mvcount == 0) {
@@ -3827,37 +3839,22 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
             g.movetype = MoveLineWise;
         }
     } else if (input.is('b') || input.isShift(Key_Left)) {
-        g.movetype = MoveExclusive;
         moveToNextWordStart(count, false, false);
-        setTargetColumn();
-        movement = _("b");
     } else if (input.is('B')) {
-        g.movetype = MoveExclusive;
         moveToNextWordStart(count, true, false);
-        setTargetColumn();
     } else if (input.is('e') && g.gflag) {
-        g.movetype = MoveInclusive;
         moveToNextWordEnd(count, false, false);
-        setTargetColumn();
     } else if (input.is('e') || input.isShift(Key_Right)) {
-        g.movetype = MoveInclusive;
         moveToNextWordEnd(count, false, true, false);
-        setTargetColumn();
-        movement = _("e");
     } else if (input.is('E') && g.gflag) {
-        g.movetype = MoveInclusive;
         moveToNextWordEnd(count, true, false);
-        setTargetColumn();
     } else if (input.is('E')) {
-        g.movetype = MoveInclusive;
         moveToNextWordEnd(count, true, true, false);
-        setTargetColumn();
     } else if (input.isControl('e')) {
         // FIXME: this should use the "scroll" option, and "count"
         if (cursorLineOnScreen() == 0)
             moveDown(1);
         scrollDown(1);
-        movement = _("<C-E>");
     } else if (input.is('f')) {
         g.subsubmode = FtSubSubMode;
         g.movetype = MoveInclusive;
@@ -3894,38 +3891,19 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         if (m_fakeEnd && block().length() > 1)
             ++n;
         moveLeft(n);
-        setTargetColumn();
-        movement = _("h");
     } else if (input.is('H')) {
         const CursorPosition pos(lineToBlockNumber(lineOnTop(count)), 0);
         setCursorPosition(&m_cursor, pos);
         handleStartOfLine();
     } else if (input.is('j') || input.isKey(Key_Down)
             || input.isControl('j') || input.isControl('n')) {
-        if (g.gflag) {
-            g.movetype = MoveExclusive;
-            moveDownVisually(count);
-            movement = _("gj");
-        } else {
-            g.movetype = MoveLineWise;
-            moveDown(count);
-            movement = _("j");
-        }
+        moveVertically(count);
     } else if (input.is('k') || input.isKey(Key_Up) || input.isControl('p')) {
-        if (g.gflag) {
-            g.movetype = MoveExclusive;
-            moveUpVisually(count);
-            movement = _("gk");
-        } else {
-            g.movetype = MoveLineWise;
-            moveUp(count);
-            movement = _("k");
-        }
+        moveVertically(-count);
     } else if (input.is('l') || input.isKey(Key_Right) || input.is(' ')) {
         g.movetype = MoveExclusive;
         bool pastEnd = count >= rightDist() - 1;
         moveRight(qMax(0, qMin(count, rightDist() - (g.submode == NoSubMode))));
-        setTargetColumn();
         if (pastEnd && isVisualMode())
             m_visualTargetColumn = -1;
     } else if (input.is('L')) {
@@ -3970,7 +3948,6 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         bool simple = input.is('W');
         if (g.submode == ChangeSubMode && !document()->characterAt(position()).isSpace()) {
             moveToWordEnd(count, simple, true);
-            g.movetype = MoveInclusive;
         } else {
             moveToNextWordStart(count, simple, true);
             // Command 'dw' deletes to the next word on the same line or to end of line.
@@ -3978,9 +3955,7 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
                 const QTextBlock currentBlock = document()->findBlock(anchor());
                 setPosition(qMin(position(), currentBlock.position() + currentBlock.length()));
             }
-            g.movetype = MoveExclusive;
         }
-        setTargetColumn();
     } else if (input.is('z')) {
         g.movetype =  MoveLineWise;
         g.subsubmode = ZSubSubMode;
@@ -3991,11 +3966,9 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
     } else if (input.isKey(Key_PageDown) || input.isControl('f')) {
         movePageDown(count);
         handleStartOfLine();
-        movement = _("f");
     } else if (input.isKey(Key_PageUp) || input.isControl('b')) {
         movePageUp(count);
         handleStartOfLine();
-        movement = _("b");
     } else {
         handled = false;
     }
@@ -4008,7 +3981,7 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
             const QString dotMovement =
                 (count > 1 ? QString::number(count) : QString())
                 + _(g.gflag ? "g" : "")
-                + (movement.isNull() ? QString(input.asChar()) : movement);
+                + input.toString();
             finishMovement(dotMovement);
             setTargetColumn();
         }
@@ -4774,10 +4747,8 @@ void FakeVimHandler::Private::handleReplaceMode(const Input &input)
         g.dotCommand.append(m_buffer->lastInsertion + _("<ESC>"));
     } else if (input.isKey(Key_Left)) {
         moveLeft();
-        setTargetColumn();
     } else if (input.isKey(Key_Right)) {
         moveRight();
-        setTargetColumn();
     } else if (input.isKey(Key_Up)) {
         moveUp();
     } else if (input.isKey(Key_Down)) {
@@ -4880,7 +4851,6 @@ void FakeVimHandler::Private::finishInsertMode()
     g.dotCommand.append(m_buffer->lastInsertion + _("<ESC>"));
 
     enterCommandMode();
-    setTargetColumn();
 }
 
 void FakeVimHandler::Private::handleInsertMode(const Input &input)
@@ -4959,10 +4929,8 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         g.mode = ReplaceMode;
     } else if (input.isKey(Key_Left)) {
         moveLeft();
-        setTargetColumn();
     } else if (input.isControl(Key_Left)) {
         moveToNextWordStart(1, false, false);
-        setTargetColumn();
     } else if (input.isKey(Key_Down)) {
         g.submode = NoSubMode;
         moveDown();
@@ -4971,17 +4939,13 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         moveUp();
     } else if (input.isKey(Key_Right)) {
         moveRight();
-        setTargetColumn();
     } else if (input.isControl(Key_Right)) {
         moveToNextWordStart(1, false, true);
         moveRight(); // we need one more move since we are in insert mode
-        setTargetColumn();
     } else if (input.isKey(Key_Home)) {
         moveToStartOfLine();
-        setTargetColumn();
     } else if (input.isKey(Key_End)) {
         moveBehindEndOfLine();
-        setTargetColumn();
         m_targetColumn = -1;
     } else if (input.isReturn() || input.isControl('j') || input.isControl('m')) {
         if (!input.isReturn() || !handleInsertInEditor(input)) {
@@ -5528,7 +5492,6 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
         setPosition(lastBlock.position());
         setAnchor();
         moveToFirstNonBlankOnLine();
-        setTargetColumn();
 
         endEditBlock();
     }
@@ -5952,7 +5915,6 @@ bool FakeVimHandler::Private::handleExReadCommand(const ExCommand &cmd)
     beginEditBlock();
 
     moveToStartOfLine();
-    setTargetColumn();
     moveDown();
     int pos = position();
 
@@ -6355,6 +6317,7 @@ void FakeVimHandler::Private::highlightMatches(const QString &needle)
 
 void FakeVimHandler::Private::moveToFirstNonBlankOnLine()
 {
+    g.movetype = MoveLineWise;
     moveToFirstNonBlankOnLine(&m_cursor);
     setTargetColumn();
 }
@@ -6453,7 +6416,6 @@ void FakeVimHandler::Private::shiftRegionRight(int repeat)
 
     setPosition(targetPos);
     handleStartOfLine();
-    setTargetColumn();
 
     const int lines = endLine - beginLine + 1;
     if (lines > 2) {
@@ -6667,12 +6629,16 @@ void FakeVimHandler::Private::moveToNextWord(bool end, int count, bool simple, b
 
 void FakeVimHandler::Private::moveToNextWordStart(int count, bool simple, bool forward, bool emptyLines)
 {
+    g.movetype = MoveExclusive;
     moveToNextWord(false, count, simple, forward, emptyLines);
+    setTargetColumn();
 }
 
 void FakeVimHandler::Private::moveToNextWordEnd(int count, bool simple, bool forward, bool emptyLines)
 {
+    g.movetype = MoveInclusive;
     moveToNextWord(true, count, simple, forward, emptyLines);
+    setTargetColumn();
 }
 
 void FakeVimHandler::Private::moveToWordStart(int count, bool simple, bool forward, bool emptyLines)
@@ -7943,6 +7909,7 @@ void FakeVimHandler::Private::jump(int distance)
         setCursorPosition(from.top());
         from.pop();
     }
+    setTargetColumn();
 }
 
 Column FakeVimHandler::Private::indentation(const QString &line) const
@@ -8065,13 +8032,9 @@ void FakeVimHandler::Private::selectTextObject(bool simple, bool inner)
         moveToBoundaryStart(1, simple, false);
         setAnchor();
     } else if (forward) {
-        moveRight();
-        if (atEndOfLine())
-            moveRight();
+        moveToNextCharacter();
     } else {
-        moveLeft();
-        if (atBlockStart())
-            moveLeft();
+        moveToPreviousCharacter();
     }
 
     if (inner) {
@@ -8115,15 +8078,10 @@ void FakeVimHandler::Private::selectTextObject(bool simple, bool inner)
             }
 
             if (i + 1 < repeat) {
-                if (forward) {
-                    moveRight();
-                    if (atEndOfLine())
-                        moveRight();
-                } else {
-                    moveLeft();
-                    if (atBlockStart())
-                        moveLeft();
-                }
+                if (forward)
+                    moveToNextCharacter();
+                else
+                    moveToPreviousCharacter();
             }
         }
     }
@@ -8132,13 +8090,10 @@ void FakeVimHandler::Private::selectTextObject(bool simple, bool inner)
         g.movetype = MoveInclusive;
     } else {
         g.movetype = MoveExclusive;
-        if (isNoVisualMode()) {
-            moveRight();
-            if (atEndOfLine())
-                moveRight();
-        } else if (isVisualLineMode()) {
+        if (isNoVisualMode())
+            moveToNextCharacter();
+        else if (isVisualLineMode())
             g.visualMode = VisualCharMode;
-        }
     }
 
     setTargetColumn();
