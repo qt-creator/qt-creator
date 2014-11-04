@@ -134,6 +134,7 @@ QWidget *ThemeSettingsItemDelegate::createEditor(QWidget *parent, const QStyleOp
         QMetaEnum e = Theme::staticMetaObject.enumerator(Theme::staticMetaObject.indexOfEnumerator("WidgetStyle"));
         for (int i = 0, total = e.keyCount(); i < total; ++i)
             cb->addItem(QLatin1String(e.key(i)));
+        cb->setCurrentIndex(model->m_widgetStyle);
         connect(cb, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
                 this, [this, cb]() {
             ThemeSettingsItemDelegate *me = const_cast<ThemeSettingsItemDelegate *>(this);
