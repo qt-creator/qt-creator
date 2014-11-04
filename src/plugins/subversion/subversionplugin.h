@@ -137,13 +137,7 @@ private:
     Core::IEditor * showOutputInEditor(const QString& title, const QString &output,
                                        int editorType, const QString &source,
                                        QTextCodec *codec);
-    // Run using the settings' authentication options.
     SubversionResponse runSvn(const QString &workingDir,
-                              const QStringList &arguments, int timeOut,
-                              unsigned flags, QTextCodec *outputCodec = 0) const;
-    // Run using custom authentication options.
-    SubversionResponse runSvn(const QString &workingDir,
-                              const QString &userName, const QString &password,
                               const QStringList &arguments, int timeOut,
                               unsigned flags, QTextCodec *outputCodec = 0) const;
 

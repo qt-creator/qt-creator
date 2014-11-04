@@ -76,19 +76,14 @@ VcsCommand *CheckoutWizard::createCommand(FileName *checkoutDir)
     const QString directory = cwp->directory();
     QStringList args;
     args << QLatin1String("checkout");
+    args << SubversionClient::addAuthenticationOptions(settings) << cwp->repository() << directory;
     args << QLatin1String(Constants::NON_INTERACTIVE_OPTION);
     if (cwp->trustServerCert())
         args << QLatin1String("--trust-server-cert");
     args << cwp->repository() << directory;
     const QString workingDirectory = cwp->path();
-
     *checkoutDir = FileName::fromString(workingDirectory + QLatin1Char('/') + directory);
 
-    if (settings.hasAuthentication()) {
-        const QString user = settings.stringValue(SubversionSettings::userKey);
-        const QString pwd = settings.stringValue(SubversionSettings::passwordKey);
-        args = SubversionClient::addAuthenticationOptions(args, user, pwd);
-    }
     VcsCommand *command = new VcsCommand(binary, workingDirectory,
                                          QProcessEnvironment::systemEnvironment());
     command->addJob(args, -1);

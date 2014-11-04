@@ -117,7 +117,7 @@ VcsCommand *SubversionClient::createCommitCmd(const QString &repositoryRoot,
 {
     const QStringList svnExtraOptions =
             QStringList(extraOptions)
-            << authenticationOptions(SubversionClient::CommitCommand)
+            << SubversionClient::addAuthenticationOptions(*settings())
             << QLatin1String(Constants::NON_INTERACTIVE_OPTION)
             << QLatin1String("--encoding") << QLatin1String("utf8")
             << QLatin1String("--file") << commitMessageFile;
@@ -178,28 +178,18 @@ SubversionClient::Version SubversionClient::svnVersion()
     return v;
 }
 
-QStringList SubversionClient::authenticationOptions(VcsCommandTag cmd) const
-{
-    const bool hasAuth = settings()->hasAuthentication();
-    const QString userName = hasAuth ? settings()->stringValue(SubversionSettings::userKey) : QString();
-    const QString password = hasAuth ? settings()->stringValue(SubversionSettings::passwordKey) : QString();
-    QStringList args(vcsCommandString(cmd));
-    args = SubversionClient::addAuthenticationOptions(args, userName, password);
-    args.removeFirst();
-    return args;
-}
-
 // Add authorization options to the command line arguments.
-// SVN pre 1.5 does not accept "--userName" for "add", which is most likely
-// an oversight. As no password is needed for the option, generally omit it.
-QStringList SubversionClient::addAuthenticationOptions(const QStringList &args,
-                                                       const QString &userName,
-                                                       const QString &password)
+QStringList SubversionClient::addAuthenticationOptions(const SubversionSettings &settings)
 {
+    if (!settings.hasAuthentication())
+        return QStringList();
+
+    const QString userName = settings.stringValue(SubversionSettings::userKey);
+    const QString password = settings.stringValue(SubversionSettings::passwordKey);
+
     if (userName.isEmpty())
-        return args;
-    if (!args.empty() && args.front() == QLatin1String("add"))
-        return args;
+        return QStringList();
+
     QStringList rc;
     rc.push_back(QLatin1String("--username"));
     rc.push_back(userName);
@@ -207,7 +197,6 @@ QStringList SubversionClient::addAuthenticationOptions(const QStringList &args,
         rc.push_back(QLatin1String("--password"));
         rc.push_back(password);
     }
-    rc.append(args);
     return rc;
 }
 
@@ -233,14 +222,10 @@ QString SubversionClient::synchronousTopic(const QString &repository)
 void SubversionClient::diff(const QString &workingDir, const QStringList &files,
                            const QStringList &extraOptions)
 {
-    QStringList args(extraOptions);
+    QStringList args;
+    args << addAuthenticationOptions(*settings());
     args.append(QLatin1String("--internal-diff"));
-
-    const bool hasAuth = settings()->hasAuthentication();
-    const QString userName = hasAuth ? settings()->stringValue(SubversionSettings::userKey) : QString();
-    const QString password = hasAuth ? settings()->stringValue(SubversionSettings::passwordKey) : QString();
-    args = addAuthenticationOptions(args, userName, password);
-
+    args << extraOptions;
     VcsBaseClient::diff(workingDir, files, args);
 }
 
