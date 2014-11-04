@@ -122,6 +122,7 @@ VcsCommand *SubversionClient::createCommitCmd(const QString &repositoryRoot,
             << QLatin1String("--file") << commitMessageFile;
 
     VcsCommand *cmd = createCommand(repositoryRoot);
+    cmd->addFlags(VcsBasePlugin::ShowStdOutInLogWindow);
     QStringList args(vcsCommandString(CommitCommand));
     cmd->addJob(args << svnExtraOptions << files);
     return cmd;
