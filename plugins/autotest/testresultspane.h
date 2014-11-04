@@ -84,6 +84,7 @@ private:
     void createToolButtons();
     void onTestRunStarted();
     void onTestRunFinished();
+    void onTestTreeModelChanged();
 
     Utils::ListView *m_listView;
     TestResultModel *m_model;

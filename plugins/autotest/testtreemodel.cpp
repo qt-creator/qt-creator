@@ -424,6 +424,7 @@ void TestTreeModel::modifyAutoTestSubtree(int row, TestTreeItem *newItem)
         } // remove rest of the items
         removeRows(newChildCount, childCount - newChildCount, toBeModifiedIndex);
     }
+    emit testTreeModelChanged();
 }
 
 void TestTreeModel::removeAutoTestSubtreeByFilePath(const QString &file)
@@ -438,6 +439,7 @@ void TestTreeModel::removeAutoTestSubtreeByFilePath(const QString &file)
             break;
         }
     }
+    emit testTreeModelChanged();
 }
 
 void TestTreeModel::addAutoTest(TestTreeItem *newItem)
@@ -445,6 +447,7 @@ void TestTreeModel::addAutoTest(TestTreeItem *newItem)
     beginInsertRows(index(0, 0), m_autoTestRootItem->childCount(), m_autoTestRootItem->childCount());
     m_autoTestRootItem->appendChild(newItem);
     endInsertRows();
+    emit testTreeModelChanged();
 }
 
 void TestTreeModel::removeAllAutoTests()
@@ -452,6 +455,7 @@ void TestTreeModel::removeAllAutoTests()
     beginResetModel();
     m_autoTestRootItem->removeChildren();
     endResetModel();
+    emit testTreeModelChanged();
 }
 
 } // namespace Internal

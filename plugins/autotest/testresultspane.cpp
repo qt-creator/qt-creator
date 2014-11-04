@@ -56,6 +56,8 @@ TestResultsPane::TestResultsPane(QObject *parent) :
             this, &TestResultsPane::onTestRunStarted);
     connect(TestRunner::instance(), &TestRunner::testRunFinished,
             this, &TestResultsPane::onTestRunFinished);
+    connect(TestTreeModel::instance(), &TestTreeModel::testTreeModelChanged,
+            this, &TestResultsPane::onTestTreeModelChanged);
 }
 
 void TestResultsPane::createToolButtons()
@@ -276,6 +278,13 @@ void TestResultsPane::onTestRunFinished()
     m_stopTestRun->setEnabled(false);
     m_runAll->setEnabled(true);
     m_runSelected->setEnabled(true);
+}
+
+void TestResultsPane::onTestTreeModelChanged()
+{
+    bool enable = TestTreeModel::instance()->hasTests();
+    m_runAll->setEnabled(enable);
+    m_runSelected->setEnabled(enable);
 }
 
 } // namespace Internal

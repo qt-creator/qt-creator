@@ -66,6 +66,7 @@ public:
     void addAutoTest(TestTreeItem *newItem);
     void removeAllAutoTests();
 signals:
+    void testTreeModelChanged();
 
 public slots:
 

@@ -331,6 +331,9 @@ void performTestRun(QFutureInterface<void> &future, const QList<TestConfiguratio
 
 void TestRunner::runTests()
 {
+    // clear old log and output pane
+    TestResultsPane::instance()->clearContents();
+
     if (m_selectedTests.empty()) {
         TestResultsPane::instance()->addTestResult(
                     TestResult(QString(), QString(), QString(), ResultType::MESSAGE_FATAL,
@@ -339,7 +342,6 @@ void TestRunner::runTests()
     }
 
     ProjectExplorer::Project *project = m_selectedTests.at(0)->project();
-
     if (!project) // add a warning or info to output? possible at all?
         return;
 
@@ -364,9 +366,6 @@ void TestRunner::runTests()
             return;
         }
     }
-
-    // clear old log and output pane
-    TestResultsPane::instance()->clearContents();
 
     emit testRunStarted();
     QFuture<void> future = QtConcurrent::run(&performTestRun , m_selectedTests);
