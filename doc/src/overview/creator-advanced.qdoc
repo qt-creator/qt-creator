@@ -24,7 +24,7 @@
 
 /*!
     \contentspage {Qt Creator Manual}
-    \previouspage creator-running-valgrind-remotely.html
+    \previouspage creator-clang-static-analyzer.html
     \page creator-advanced.html
     \nextpage creator-os-supported-platforms.html
 
