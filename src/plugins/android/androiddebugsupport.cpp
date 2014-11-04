@@ -166,7 +166,7 @@ AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
         [this](const QString &errorMsg) {
             QTC_ASSERT(m_runControl, return);
             m_runControl->appendMessage(errorMsg, Utils::DebugFormat);
-            m_engine->notifyInferiorExited();
+            QMetaObject::invokeMethod(m_engine, "notifyInferiorExited", Qt::QueuedConnection);
         });
 
     connect(m_runner, &AndroidRunner::remoteErrorOutput,
