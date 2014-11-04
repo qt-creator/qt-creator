@@ -36,11 +36,9 @@
 #include <texteditor/texteditorconstants.h>
 #include <utils/qtcassert.h>
 
+#include <QRegExp>
 #include <QSyntaxHighlighter>
 #include <QTextEdit>
-
-#include <QDebug>
-#include <QRegExp>
 
 //see the git submit widget for details of the syntax Highlighter
 
@@ -57,16 +55,14 @@ public:
     void highlightBlock(const QString &text);
 
 private:
-    enum State { Header, Comment, Other };
+    enum State { None = -1, Header, Other };
     enum Format { Format_Comment };
     QRegExp m_keywordPattern;
-    const QChar m_hashChar;
 };
 
 MercurialSubmitHighlighter::MercurialSubmitHighlighter(QTextEdit *parent) :
         TextEditor::SyntaxHighlighter(parent),
-        m_keywordPattern(QLatin1String("^\\w+:")),
-        m_hashChar(QLatin1Char('#'))
+        m_keywordPattern(QLatin1String("^\\w+:"))
 {
     static QVector<TextEditor::TextStyle> categories;
     if (categories.isEmpty())
@@ -79,25 +75,35 @@ MercurialSubmitHighlighter::MercurialSubmitHighlighter(QTextEdit *parent) :
 void MercurialSubmitHighlighter::highlightBlock(const QString &text)
 {
     // figure out current state
-    State state = Other;
-    const QTextBlock block = currentBlock();
-    if (block.position() == 0) {
-        state = Header;
-    } else {
-        if (text.startsWith(m_hashChar))
-            state = Comment;
+    State state = static_cast<State>(previousBlockState());
+    if (text.startsWith(QLatin1String("HG:"))) {
+        setFormat(0, text.size(), formatForCategory(Format_Comment));
+        setCurrentBlockState(state);
+        return;
     }
+
+    if (state == None) {
+        if (text.isEmpty()) {
+            setCurrentBlockState(state);
+            return;
+        }
+        state = Header;
+    } else if (state == Header) {
+        state = Other;
+    }
+
+    setCurrentBlockState(state);
+
     // Apply format.
     switch (state) {
+    case None:
+        break;
     case Header: {
         QTextCharFormat charFormat = format(0);
         charFormat.setFontWeight(QFont::Bold);
         setFormat(0, text.size(), charFormat);
         break;
     }
-    case Comment:
-        setFormat(0, text.size(), formatForCategory(Format_Comment));
-        break;
     case Other:
         // Format key words ("Task:") italic
         if (m_keywordPattern.indexIn(text, 0, QRegExp::CaretAtZero) == 0) {
