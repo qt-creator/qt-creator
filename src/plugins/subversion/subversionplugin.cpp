@@ -917,10 +917,10 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
         return;
     if (Subversion::Constants::debug)
         qDebug() << Q_FUNC_INFO << source << topLevel << changeNr;
-    // Number must be > 1
+    // Number must be >= 1
     bool ok;
     const int number = changeNr.toInt(&ok);
-    if (!ok || number < 2)
+    if (!ok || number < 1)
         return;
     // Run log to obtain message (local utf8)
     QString description;
@@ -970,7 +970,7 @@ void SubversionPlugin::slotDescribe()
     QInputDialog inputDialog(ICore::dialogParent());
     inputDialog.setWindowFlags(inputDialog.windowFlags() & ~Qt::WindowContextHelpButtonHint);
     inputDialog.setInputMode(QInputDialog::IntInput);
-    inputDialog.setIntRange(2, INT_MAX);
+    inputDialog.setIntRange(1, INT_MAX);
     inputDialog.setWindowTitle(tr("Describe"));
     inputDialog.setLabelText(tr("Revision number:"));
     if (inputDialog.exec() != QDialog::Accepted)
