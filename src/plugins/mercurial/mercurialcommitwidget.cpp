@@ -151,5 +151,14 @@ QString MercurialCommitWidget::repoRoot()
     return mercurialCommitPanelUi.repositoryLabel->text();
 }
 
+QString MercurialCommitWidget::cleanupDescription(const QString &input) const
+{
+    const QRegularExpression commentLine(QLatin1String("^HG:[^\\n]*(\\n|$)"),
+                                         QRegularExpression::MultilineOption);
+    QString message = input;
+    message.remove(commentLine);
+    return message;
+}
+
 } // namespace Internal
 } // namespace Mercurial

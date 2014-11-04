@@ -53,6 +53,9 @@ public:
     QString committer();
     QString repoRoot();
 
+protected:
+    QString cleanupDescription(const QString &input) const;
+
 private:
     QWidget *mercurialCommitPanel;
     Ui::MercurialCommitPanel mercurialCommitPanelUi;
