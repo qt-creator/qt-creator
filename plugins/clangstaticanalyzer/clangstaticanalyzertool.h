@@ -20,6 +20,7 @@
 #define CLANGSTATICANALYZERTOOL_H
 
 #include <analyzerbase/ianalyzertool.h>
+#include <cpptools/cppprojects.h>
 
 namespace Analyzer { class DetailedErrorView; }
 
@@ -36,6 +37,8 @@ class ClangStaticAnalyzerTool : public Analyzer::IAnalyzerTool
 
 public:
     explicit ClangStaticAnalyzerTool(QObject *parent = 0);
+    CppTools::ProjectInfo projectInfo() const;
+    void resetCursorAndProjectInfo();
 
 private:
     QWidget *createWidgets();
@@ -50,6 +53,8 @@ private:
     void setBusyCursor(bool busy);
 
 private:
+    CppTools::ProjectInfo m_projectInfo;
+
     ClangStaticAnalyzerDiagnosticModel *m_diagnosticModel;
     Analyzer::DetailedErrorView *m_diagnosticView;
 

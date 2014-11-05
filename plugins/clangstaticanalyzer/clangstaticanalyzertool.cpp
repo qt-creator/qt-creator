@@ -25,6 +25,7 @@
 #include <analyzerbase/analyzermanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -133,7 +134,11 @@ AnalyzerRunControl *ClangStaticAnalyzerTool::createRunControl(
         const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration)
 {
-    ClangStaticAnalyzerRunControl *engine = new ClangStaticAnalyzerRunControl(sp, runConfiguration);
+    QTC_ASSERT(runConfiguration, return 0);
+    QTC_ASSERT(m_projectInfo.isValid(), return 0);
+
+    ClangStaticAnalyzerRunControl *engine = new ClangStaticAnalyzerRunControl(sp, runConfiguration,
+                                                                              m_projectInfo);
     connect(engine, &ClangStaticAnalyzerRunControl::starting,
             this, &ClangStaticAnalyzerTool::onEngineIsStarting);
     connect(engine, &ClangStaticAnalyzerRunControl::newDiagnosticsAvailable,
@@ -192,6 +197,18 @@ void ClangStaticAnalyzerTool::startTool(StartMode mode)
     Project *project = SessionManager::startupProject();
     QTC_ASSERT(project, return);
     ProjectExplorerPlugin::instance()->runProject(project, runMode());
+    m_projectInfo = CppTools::CppModelManager::instance()->projectInfo(project);
+}
+
+CppTools::ProjectInfo ClangStaticAnalyzerTool::projectInfo() const
+{
+    return m_projectInfo;
+}
+
+void ClangStaticAnalyzerTool::resetCursorAndProjectInfo()
+{
+    setBusyCursor(false);
+    m_projectInfo = CppTools::ProjectInfo();
 }
 
 void ClangStaticAnalyzerTool::onEngineIsStarting()
@@ -210,10 +227,12 @@ void ClangStaticAnalyzerTool::onEngineFinished()
     QTC_ASSERT(m_goBack, return);
     QTC_ASSERT(m_goNext, return);
     QTC_ASSERT(m_diagnosticModel, return);
+
+    resetCursorAndProjectInfo();
+
     const int issuesFound = m_diagnosticModel->rowCount();
     m_goBack->setEnabled(issuesFound > 1);
     m_goNext->setEnabled(issuesFound > 1);
-    setBusyCursor(false);
 
     AnalyzerManager::showStatusMessage(issuesFound > 0
       ? AnalyzerManager::tr("Clang Static Analyzer finished, %n issues were found.", 0, issuesFound)

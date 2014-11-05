@@ -46,7 +46,8 @@ public:
 
 public:
     explicit ClangStaticAnalyzerRunControl(const Analyzer::AnalyzerStartParameters &startParams,
-                                           ProjectExplorer::RunConfiguration *runConfiguration);
+                                           ProjectExplorer::RunConfiguration *runConfiguration,
+                                           const CppTools::ProjectInfo &projectInfo);
 
     bool startEngine();
     void stopEngine();
@@ -66,6 +67,8 @@ private:
     void updateProgressValue();
 
 private:
+    const CppTools::ProjectInfo m_projectInfo;
+
     QString m_clangExecutable;
     QString m_clangLogFileDir;
     QFutureInterface<void> m_progress;

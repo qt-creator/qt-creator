@@ -49,9 +49,11 @@ namespace ClangStaticAnalyzer {
 namespace Internal {
 
 ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
-        const Analyzer::AnalyzerStartParameters &startParams,
-        ProjectExplorer::RunConfiguration *runConfiguration)
+            const Analyzer::AnalyzerStartParameters &startParams,
+            ProjectExplorer::RunConfiguration *runConfiguration,
+            const ProjectInfo &projectInfo)
     : AnalyzerRunControl(startParams, runConfiguration)
+    , m_projectInfo(projectInfo)
     , m_initialFilesToProcessSize(0)
     , m_filesAnalyzed(0)
     , m_filesNotAnalyzed(0)
@@ -145,10 +147,9 @@ static QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyzeFromProje
     return unitsToAnalyze;
 }
 
-static QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyze(Project *project)
+static QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyze(
+            const CppTools::ProjectInfo &projectInfo)
 {
-    QTC_ASSERT(project, return QList<ClangStaticAnalyzerRunControl::AnalyzeUnit>());
-    ProjectInfo projectInfo = CppModelManager::instance()->projectInfo(project);
     QTC_ASSERT(projectInfo.isValid(), return QList<ClangStaticAnalyzerRunControl::AnalyzeUnit>());
 
     const ProjectInfo::CompilerCallData compilerCallData = projectInfo.compilerCallData();
@@ -161,14 +162,8 @@ bool ClangStaticAnalyzerRunControl::startEngine()
 {
     emit starting(this);
 
-    RunConfiguration *runConfig = runConfiguration();
-    QTC_ASSERT(runConfig, emit finished(); return false);
-    Target *target = runConfig->target();
-    QTC_ASSERT(target, emit finished(); return false);
-    Project *project = target->project();
-    QTC_ASSERT(project, emit finished(); return false);
-
-    const QString projectFile = project->projectFilePath().toString();
+    QTC_ASSERT(m_projectInfo.isValid(), emit finished(); return false);
+    const QString projectFile = m_projectInfo.project()->projectFilePath().toString();
     appendMessage(tr("Running Clang Static Analyzer on %1").arg(projectFile) + QLatin1Char('\n'),
                         Utils::NormalMessageFormat);
 
@@ -196,7 +191,7 @@ bool ClangStaticAnalyzerRunControl::startEngine()
     m_clangLogFileDir = temporaryDir.path();
 
     // Collect files
-    const QList<AnalyzeUnit> filesToProcess = unitsToAnalyze(project);
+    const QList<AnalyzeUnit> filesToProcess = unitsToAnalyze(m_projectInfo);
     qCDebug(LOG) << "Files to process:";
     foreach (const AnalyzeUnit &fileConfig, filesToProcess)
         qCDebug(LOG) << fileConfig.file;

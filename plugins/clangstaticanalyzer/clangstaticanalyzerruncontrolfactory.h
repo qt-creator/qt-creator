@@ -19,6 +19,8 @@
 #ifndef CLANGSTATICANALYZERRUNCONTROLFACTORY_H
 #define CLANGSTATICANALYZERRUNCONTROLFACTORY_H
 
+#include "clangstaticanalyzertool.h"
+
 #include <projectexplorer/runconfiguration.h>
 
 namespace ClangStaticAnalyzer {
@@ -29,7 +31,8 @@ class ClangStaticAnalyzerRunControlFactory : public ProjectExplorer::IRunControl
     Q_OBJECT
 
 public:
-    explicit ClangStaticAnalyzerRunControlFactory(QObject *parent = 0);
+    explicit ClangStaticAnalyzerRunControlFactory(ClangStaticAnalyzerTool *tool,
+                                                  QObject *parent = 0);
 
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
                 ProjectExplorer::RunMode runMode) const;
@@ -37,6 +40,9 @@ public:
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
                                         ProjectExplorer::RunMode runMode,
                                         QString *errorMessage);
+
+private:
+    ClangStaticAnalyzerTool *m_tool;
 };
 
 } // namespace Internal
