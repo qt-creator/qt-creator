@@ -47,8 +47,13 @@ public:
 
     void addFile(const DeployableFile &file)
     {
-        if (!m_files.contains(file))
-            m_files << file;
+        for (int i = 0; i < m_files.size(); ++i) {
+            if (m_files.at(i).localFilePath() == file.localFilePath()) {
+                m_files[i] = file;
+                return;
+            }
+        }
+        m_files << file;
     }
 
     void addFile(const QString &localFilePath, const QString &remoteDirectory,
