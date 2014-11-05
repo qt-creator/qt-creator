@@ -1191,7 +1191,8 @@ bool SubversionPlugin::managesDirectory(const QString &directory, QString *topLe
                 *topLevel = parentDir.absolutePath();
             return true;
         }
-        parentDir.cdUp();
+        if (!parentDir.cdUp())
+            break;
     }
 
     /* Subversion < 1.7 has ".svn" directory in each directory
