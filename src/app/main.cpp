@@ -511,10 +511,6 @@ int main(int argc, char **argv)
     QObject::connect(&app, SIGNAL(fileOpenRequest(QString)), coreplugin->plugin(),
                      SLOT(fileOpenRequest(QString)));
 
-    // quit when last window (relevant window, see WA_QuitOnClose) is closed
-    // this should actually be the default, but doesn't work in Qt 5
-    // QTBUG-31569
-    QObject::connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
     // shutdown plugin manager on the exit
     QObject::connect(&app, SIGNAL(aboutToQuit()), &pluginManager, SLOT(shutdown()));
 
