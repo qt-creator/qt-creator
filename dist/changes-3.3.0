@@ -112,9 +112,27 @@ Diff Viewer
    * Fixed reloading patch files (QTCREATORBUG-13241)
 
 Version Control Systems
-   * Removed support for Gitorious
    * Fixed commit editor line wrapping for lines that end with a dash
      (QTCREATORBUG-8528)
+   * Git
+      * Removed support for Gitorious
+   * Subversion
+      * Dropped support for Subversion versions earlier than 1.7.0
+      * Fixed deleting of files that were added but not committed
+        (QTCREATORBUG-13271)
+      * Fixed detection of .svn directory when opening a file in the
+        root directory of the repository (QTCREATORBUG-7763)
+      * Added support for describing the first commit
+      * Added support for topic display (shows current revision number
+        in the window title and next to the project node)
+      * Fixed that commit output was not displayed (QTCREATORBUG-12929)
+      * Fixed false positive matches for revision number (QTCREATORBUG-11845)
+      * Added support for trusting server certificate on checkout (QTCREATORBUG-3753)
+   * Mercurial
+      * Fixed that describe commit showed its summary but not the full message
+      * Fixed highlighting of commit message
+      * Fixed wrong comment notation in commit editor - comment line prefix was
+        changed to "HG:" instead of "#"
 
 FakeVim
    * Fixed issues with Save As
