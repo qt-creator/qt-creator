@@ -49,7 +49,7 @@ typedef QVector<MacroExpander *> MacroExpanders;
 
 class QTCREATOR_UTILS_EXPORT MacroExpander
 {
-    Q_DECLARE_TR_FUNCTIONS("MacroExpander")
+    Q_DECLARE_TR_FUNCTIONS(Utils::MacroExpander)
     Q_DISABLE_COPY(MacroExpander)
 
 public:

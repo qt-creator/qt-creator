@@ -349,19 +349,19 @@ void MacroExpander::registerFileVariables(const QByteArray &prefix,
     const QString &heading, const StringFunction &base)
 {
     registerVariable(prefix + kFilePathPostfix,
-         QCoreApplication::translate("Utils::MacroExpander", "%1: Full path including file name.").arg(heading),
+         tr("%1: Full path including file name.").arg(heading),
          [base]() -> QString { QString tmp = base(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).filePath(); });
 
     registerVariable(prefix + kPathPostfix,
-         QCoreApplication::translate("Utils::MacroExpander", "%1: Full path excluding file name.").arg(heading),
+         tr("%1: Full path excluding file name.").arg(heading),
          [base]() -> QString { QString tmp = base(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).path(); });
 
     registerVariable(prefix + kFileNamePostfix,
-         QCoreApplication::translate("Utils::MacroExpander", "%1: File name without path.").arg(heading),
+         tr("%1: File name without path.").arg(heading),
          [base]() -> QString { QString tmp = base(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).fileName(); });
 
     registerVariable(prefix + kFileBaseNamePostfix,
-         QCoreApplication::translate("Utils::MacroExpander", "%1: File base name without path and suffix.").arg(heading),
+         tr("%1: File base name without path and suffix.").arg(heading),
          [base]() -> QString { QString tmp = base(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).baseName(); });
 }
 
@@ -438,12 +438,10 @@ void MacroExpander::setAccumulating(bool on)
 
 class GlobalMacroExpander : public MacroExpander
 {
-    Q_DECLARE_TR_FUNCTIONS(Utils::MacroExpander)
-
 public:
     GlobalMacroExpander()
     {
-        setDisplayName(tr("Global variables"));
+        setDisplayName(MacroExpander::tr("Global variables"));
         registerPrefix("Env", tr("Access environment variables."),
            [](const QString &value) { return QString::fromLocal8Bit(qgetenv(value.toLocal8Bit())); });
     }
