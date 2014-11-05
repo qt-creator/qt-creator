@@ -103,13 +103,16 @@ public:
         // without relying on the currentKit() discovery process there.
         m_macroExpander.registerVariable(Constants::VAR_CURRENTKIT_NAME,
             tr("The name of the currently active kit."),
-            [kit] { return kit->displayName(); });
+            [kit] { return kit->displayName(); },
+            false);
         m_macroExpander.registerVariable(Constants::VAR_CURRENTKIT_FILESYSTEMNAME,
             tr("The name of the currently active kit in a filesystem friendly version."),
-            [kit] { return kit->fileSystemFriendlyName(); });
+            [kit] { return kit->fileSystemFriendlyName(); },
+            false);
         m_macroExpander.registerVariable(Constants::VAR_CURRENTKIT_ID,
             tr("The id of the currently active kit."),
-            [kit] { return kit->id().toString(); });
+            [kit] { return kit->id().toString(); },
+            false);
     }
 
     QString m_unexpandedDisplayName;

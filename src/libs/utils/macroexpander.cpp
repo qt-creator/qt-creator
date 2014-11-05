@@ -101,6 +101,7 @@ public:
 
     QHash<QByteArray, MacroExpander::StringFunction> m_map;
     QHash<QByteArray, MacroExpander::PrefixFunction> m_prefixMap;
+    QSet<QByteArray> m_invisbleInChooser;
     QVector<MacroExpander::ResolverFunction> m_extraResolvers;
     QMap<QByteArray, QString> m_descriptions;
     QString m_displayName;
@@ -301,8 +302,10 @@ void MacroExpander::registerPrefix(const QByteArray &prefix, const QString &desc
  * \sa registerFileVariables(), registerIntVariable(), registerPrefix()
  */
 void MacroExpander::registerVariable(const QByteArray &variable,
-    const QString &description, const StringFunction &value)
+    const QString &description, const StringFunction &value, bool visibleInChooser)
 {
+    if (!visibleInChooser)
+        d->m_invisbleInChooser.insert(variable);
     d->m_descriptions.insert(variable, description);
     d->m_map.insert(variable, value);
 }
@@ -362,9 +365,15 @@ void MacroExpander::registerExtraResolver(const MacroExpander::ResolverFunction 
  * \sa registerVariable()
  * \sa registerFileVariables()
  */
-QList<QByteArray> MacroExpander::variables() const
+QList<QByteArray> MacroExpander::visibleVariables() const
 {
-    return d->m_descriptions.keys();
+    QList<QByteArray> res;
+    for (auto it = d->m_descriptions.begin(), end = d->m_descriptions.end(); it != end; ++it) {
+        if (!d->m_invisbleInChooser.contains(it.key()))
+            res.append(it.key());
+    }
+
+    return res;
 }
 
 /*!

@@ -74,7 +74,8 @@ public:
         const QString &description, const PrefixFunction &value);
 
     void registerVariable(const QByteArray &variable,
-        const QString &description, const StringFunction &value);
+        const QString &description, const StringFunction &value,
+        bool visibleInChooser = true);
 
     void registerIntVariable(const QByteArray &variable,
         const QString &description, const IntFunction &value);
@@ -84,7 +85,7 @@ public:
 
     void registerExtraResolver(const ResolverFunction &value);
 
-    QList<QByteArray> variables() const;
+    QList<QByteArray> visibleVariables() const;
     QString variableDescription(const QByteArray &variable) const;
 
     MacroExpanders subExpanders() const;

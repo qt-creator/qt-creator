@@ -260,7 +260,7 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
 
 void VariableGroupItem::populateGroup(MacroExpander *expander)
 {
-    foreach (const QByteArray &variable, expander->variables()) {
+    foreach (const QByteArray &variable, expander->visibleVariables()) {
         auto item = new VariableItem;
         item->m_variable = QString::fromUtf8(variable);
         item->m_expander = expander;
