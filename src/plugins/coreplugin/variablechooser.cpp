@@ -372,6 +372,18 @@ void VariableChooser::addSupportedWidget(QWidget *textcontrol, const QByteArray 
     textcontrol->setProperty(kVariableNameProperty, ownName);
 }
 
+void VariableChooser::addSupportForChildWidgets(QWidget *parent, MacroExpander *expander)
+{
+     auto chooser = new VariableChooser(parent);
+     chooser->addMacroExpanderProvider([expander] { return expander; });
+     foreach (QWidget *child, parent->findChildren<QWidget *>()) {
+         if (qobject_cast<QLineEdit *>(child)
+                 || qobject_cast<QTextEdit *>(child)
+                 || qobject_cast<QPlainTextEdit *>(child))
+             chooser->addSupportedWidget(child);
+     }
+}
+
 /*!
  * \internal
  */

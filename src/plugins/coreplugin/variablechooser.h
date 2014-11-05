@@ -55,6 +55,8 @@ public:
     void addMacroExpanderProvider(const Utils::MacroExpanderProvider &provider);
     void addSupportedWidget(QWidget *textcontrol, const QByteArray &ownName = QByteArray());
 
+    static void addSupportForChildWidgets(QWidget *parent, Utils::MacroExpander *expander);
+
 protected:
     void keyPressEvent(QKeyEvent *ev);
     bool eventFilter(QObject *, QEvent *event);
