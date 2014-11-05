@@ -33,6 +33,10 @@
 
 #include <vcsbase/basecheckoutwizardpage.h>
 
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+QT_END_NAMESPACE
+
 namespace Subversion {
 namespace Internal {
 
@@ -41,8 +45,13 @@ class CheckoutWizardPage : public VcsBase::BaseCheckoutWizardPage {
 public:
     CheckoutWizardPage(QWidget *parent = 0);
 
+    bool trustServerCert() const;
+
 protected:
     QString directoryFromRepository(const QString &r) const;
+
+private:
+    QCheckBox *m_trustServerCertBox;
 };
 
 } // namespace Internal

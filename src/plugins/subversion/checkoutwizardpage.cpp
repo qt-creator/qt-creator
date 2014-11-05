@@ -30,16 +30,26 @@
 
 #include "checkoutwizardpage.h"
 
+#include <QCheckBox>
+
 namespace Subversion {
 namespace Internal {
 
 CheckoutWizardPage::CheckoutWizardPage(QWidget *parent) :
-    VcsBase::BaseCheckoutWizardPage(parent)
+    VcsBase::BaseCheckoutWizardPage(parent),
+    m_trustServerCertBox(new QCheckBox(tr("Trust Server Certificate")))
 {
     setTitle(tr("Location"));
     setSubTitle(tr("Specify repository URL, checkout directory and path."));
     setRepositoryLabel(tr("Repository:"));
     setBranchSelectorVisible(false);
+
+    addLocalControl(m_trustServerCertBox);
+}
+
+bool CheckoutWizardPage::trustServerCert() const
+{
+    return m_trustServerCertBox->isChecked();
 }
 
 QString CheckoutWizardPage::directoryFromRepository(const QString &repoIn) const

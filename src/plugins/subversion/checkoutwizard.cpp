@@ -30,6 +30,7 @@
 
 #include "checkoutwizard.h"
 #include "checkoutwizardpage.h"
+#include "subversionconstants.h"
 #include "subversionplugin.h"
 #include "subversionclient.h"
 
@@ -74,7 +75,11 @@ VcsCommand *CheckoutWizard::createCommand(FileName *checkoutDir)
     const FileName binary = settings.binaryPath();
     const QString directory = cwp->directory();
     QStringList args;
-    args << QLatin1String("checkout") << cwp->repository() << directory;
+    args << QLatin1String("checkout");
+    args << QLatin1String(Constants::NON_INTERACTIVE_OPTION);
+    if (cwp->trustServerCert())
+        args << QLatin1String("--trust-server-cert");
+    args << cwp->repository() << directory;
     const QString workingDirectory = cwp->path();
 
     *checkoutDir = FileName::fromString(workingDirectory + QLatin1Char('/') + directory);
