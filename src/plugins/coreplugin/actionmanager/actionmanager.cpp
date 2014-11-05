@@ -254,7 +254,7 @@ Command *ActionManager::registerAction(QAction *action, Id id, const Context &co
     if (a) {
         a->addOverrideAction(action, context, scriptable);
         emit m_instance->commandListChanged();
-        emit m_instance->commandAdded(id.toString());
+        emit m_instance->commandAdded(id);
     }
     return a;
 }

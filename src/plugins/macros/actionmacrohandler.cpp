@@ -59,8 +59,8 @@ ActionMacroHandler::ActionMacroHandler():
     connect(m_mapper, SIGNAL(mapped(QString)),
             this, SLOT(addActionEvent(QString)));
 
-    connect(ActionManager::instance(), SIGNAL(commandAdded(QString)),
-            this, SLOT(addCommand(QString)));
+    connect(ActionManager::instance(), &ActionManager::commandAdded,
+            this, &ActionMacroHandler::addCommand);
 
     // Register all existing scriptable actions
     QList<Command *> commands = ActionManager::commands();
@@ -113,9 +113,8 @@ void ActionMacroHandler::registerCommand(Id id)
     }
 }
 
-void ActionMacroHandler::addCommand(const QString &name)
+void ActionMacroHandler::addCommand(Id id)
 {
-    const Id id = Id::fromString(name);
     const Command *command = ActionManager::command(id);
     if (command->isScriptable())
         registerCommand(id);

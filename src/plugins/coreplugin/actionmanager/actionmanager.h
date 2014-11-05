@@ -73,7 +73,7 @@ public:
 
 signals:
     void commandListChanged();
-    void commandAdded(const QString &id);
+    void commandAdded(Core::Id id);
 
 private:
     ActionManager(QObject *parent = 0);
