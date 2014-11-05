@@ -53,6 +53,7 @@ DeployConfiguration::DeployConfiguration(Target *target, Core::Id id) :
     m_stepList->setDefaultDisplayName(tr("Deploy"));
     //: Default DeployConfiguration display name
     setDefaultDisplayName(tr("Deploy locally"));
+    macroExpander()->registerSubProvider([target] { return target->macroExpander(); });
 }
 
 DeployConfiguration::DeployConfiguration(Target *target, DeployConfiguration *source) :
@@ -63,6 +64,7 @@ DeployConfiguration::DeployConfiguration(Target *target, DeployConfiguration *so
     // Do not clone stepLists here, do that in the derived constructor instead
     // otherwise BuildStepFactories might reject to set up a BuildStep for us
     // since we are not yet the derived class!
+    macroExpander()->registerSubProvider([target] { return target->macroExpander(); });
 }
 
 DeployConfiguration::~DeployConfiguration()

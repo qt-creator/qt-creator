@@ -138,6 +138,29 @@ Target::Target(Project *project, Kit *k) :
             this, SLOT(handleKitUpdates(ProjectExplorer::Kit*)));
     connect(km, SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
             this, SLOT(handleKitRemoval(ProjectExplorer::Kit*)));
+
+    Utils::MacroExpander *expander = macroExpander();
+
+    expander->registerSubProvider([this] { return kit()->macroExpander(); });
+
+    // Legacy support.
+    expander->registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
+            QCoreApplication::translate("ProjectExplorer", "Name of current project"),
+            [project] { return project->displayName(); },
+            false);
+
+    expander->registerVariable(Constants::VAR_CURRENTBUILD_NAME,
+            QCoreApplication::translate("ProjectExplorer", "Name of current build"),
+            [this] { return activeBuildConfiguration() ? activeBuildConfiguration()->displayName() : QString(); },
+            false);
+
+    expander->registerVariable("sourceDir", tr("Source directory"),
+            [project] { return project->projectDirectory().toUserOutput(); });
+
+    expander->registerVariable("buildDir", tr("Build directory"),
+            [this] { return activeBuildConfiguration()
+                        ? activeBuildConfiguration()->buildDirectory().toUserOutput()
+                        : QString() ; });
 }
 
 Target::~Target()

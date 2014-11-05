@@ -75,6 +75,8 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id) :
     connect(target, SIGNAL(kitChanged()),
             this, SLOT(handleKitUpdate()));
     connect(this, SIGNAL(environmentChanged()), this, SLOT(emitBuildDirectoryChanged()));
+
+    macroExpander()->registerSubProvider([target] { return target->macroExpander(); });
 }
 
 BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *source) :
@@ -92,29 +94,8 @@ BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *sourc
 
     connect(target, SIGNAL(kitChanged()),
             this, SLOT(handleKitUpdate()));
-}
 
-void BuildConfiguration::setupMacroExpander()
-{
-    Utils::MacroExpander *expander = macroExpander();
-
-    expander->registerSubProvider(
-            [this] { return target()->kit()->macroExpander(); });
-
-    // Legacy support.
-    expander->registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
-            QCoreApplication::translate("ProjectExplorer", "Name of current project"),
-            [this] { return target()->project()->displayName(); });
-
-    expander->registerVariable(Constants::VAR_CURRENTBUILD_NAME,
-            QCoreApplication::translate("ProjectExplorer", "Name of current build"),
-            [this] { return displayName(); });
-
-    expander->registerVariable("sourceDir", tr("Source directory"),
-            [this] { return target()->project()->projectDirectory().toUserOutput(); });
-
-    expander->registerVariable("buildDir", tr("Build directory"),
-            [this] { return buildDirectory().toUserOutput(); });
+    macroExpander()->registerSubProvider([target] { return target->macroExpander(); });
 }
 
 BuildConfiguration::~BuildConfiguration()

@@ -107,7 +107,6 @@ private slots:
 
 private:
     void emitEnvironmentChanged();
-    void setupMacroExpander();
 
     bool m_clearSystemEnvironment;
     QList<Utils::EnvironmentItem> m_userEnvironmentChanges;

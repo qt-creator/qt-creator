@@ -253,6 +253,8 @@ void RunConfiguration::addExtraAspect(IRunConfigurationAspect *aspect)
 void RunConfiguration::ctor()
 {
     connect(this, SIGNAL(enabledChanged()), this, SIGNAL(requestRunActionsUpdate()));
+
+    macroExpander()->registerSubProvider([this] { return target()->macroExpander(); });
 }
 
 /*!
