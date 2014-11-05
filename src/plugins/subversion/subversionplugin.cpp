@@ -711,23 +711,6 @@ void SubversionPlugin::startCommit(const QString &workingDir, const QStringList 
     editor->setStatusList(statusOutput);
 }
 
-bool SubversionPlugin::commit(const QString &messageFile,
-                              const QStringList &subVersionFileList)
-{
-    if (Subversion::Constants::debug)
-        qDebug() << Q_FUNC_INFO << messageFile << subVersionFileList;
-    // Transform the status list which is sth
-    // "[ADM]<blanks>file" into an args list. The files of the status log
-    // can be relative or absolute depending on where the command was run.
-    QStringList args = QStringList(QLatin1String("commit"));
-    args << QLatin1String(Constants::NON_INTERACTIVE_OPTION) << QLatin1String("--file") << messageFile;
-    args.append(subVersionFileList);
-    const SubversionResponse response =
-            runSvn(m_commitRepository, args, 10 * m_settings.timeOutMs(),
-                   SshPasswordPrompt|ShowStdOutInLogWindow);
-    return !response.error ;
-}
-
 void SubversionPlugin::filelogCurrentFile()
 {
     const VcsBasePluginState state = currentState();

@@ -154,7 +154,6 @@ private:
     void svnUpdate(const QString &workingDir, const QString &relativePath = QString());
     bool checkSVNSubDir(const QDir &directory, const QString &fileName = QString()) const;
     void startCommit(const QString &workingDir, const QStringList &files = QStringList());
-    bool commit(const QString &messageFile, const QStringList &subVersionFileList);
     inline SubversionControl *subVersionControl() const;
 
     const QStringList m_svnDirectories;
