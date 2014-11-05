@@ -79,6 +79,7 @@ private slots:
     void onRunAllTriggered();
     void onRunSelectedTriggered();
     void updateFilterMenu();
+    void enableAllFilter();
     void filterMenuTriggered(QAction *action);
 
 private:

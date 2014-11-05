@@ -50,8 +50,6 @@ public:
     int maxWidthOfFileName(const QFont &font);
     int maxWidthOfLineNumber(const QFont &font);
 
-    void enableAllResultTypes();
-    void toggleTestResultType(ResultType type);
     bool hasResultType(ResultType type) { return m_availableResultTypes.contains(type); }
     int resultTypeCount(ResultType type);
 
