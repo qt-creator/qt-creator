@@ -27,7 +27,8 @@ namespace Internal {
 class TestInfo
 {
 public:
-    explicit TestInfo(const QString &className, const QStringList &functions = QStringList(),
+    explicit TestInfo(const QString &className = QString(),
+                      const QStringList &functions = QStringList(),
                       unsigned revision = 0, unsigned editorRevision = 0);
 
     ~TestInfo();

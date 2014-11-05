@@ -171,12 +171,14 @@ void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr doc)
             const QList<CPlusPlus::LookupItem>  toeItems = toe(tc.toUtf8(), doc->globalNamespace());
             if (toeItems.size()) {
                 CPlusPlus::Class *toeClass = toeItems.first().declaration()->asClass();
-                declFileName = QLatin1String(toeClass->fileId()->chars(),
-                                             toeClass->fileId()->size());
-                declaringDoc = cppMM->snapshot().document(declFileName);
-                ttItem->setFilePath(declFileName);
-                ttItem->setLine(toeClass->line());
-                ttItem->setColumn(toeClass->column() - 1);
+                if (toeClass) {
+                    declFileName = QLatin1String(toeClass->fileId()->chars(),
+                                                 toeClass->fileId()->size());
+                    declaringDoc = cppMM->snapshot().document(declFileName);
+                    ttItem->setFilePath(declFileName);
+                    ttItem->setLine(toeClass->line());
+                    ttItem->setColumn(toeClass->column() - 1);
+                }
             }
             if (declaringDoc.isNull()) {
                 delete ttItem;
@@ -196,45 +198,40 @@ void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr doc)
 
             // TODO refactoring?
             // update model and internal map
-            TestInfo *info;
+            TestInfo info;
             int count;
             if (m_cppDocMap.contains(file)) {
-                info = m_cppDocMap[file];
+                info = m_cppDocMap.value(file);
                 count = autoTestRootItem->childCount();
                 for (int i = 0; i < count; ++i) {
                     TestTreeItem *currentItem = autoTestRootItem->child(i);
                     if (currentItem->filePath() == file) {
                         m_model->modifyAutoTestSubtree(i, ttItem);
-                        m_cppDocMap.insert(file, new TestInfo(tc, privSlots.keys(),
-                                                              doc->revision(),
-                                                              doc->editorRevision()));
-                        delete info;
+                        m_cppDocMap.insert(file, TestInfo(tc, privSlots.keys(),
+                                                          doc->revision(),
+                                                          doc->editorRevision()));
                         break;
                     }
                 }
-                info = m_cppDocMap[declFileName];
+                info = m_cppDocMap.value(declFileName);
                 count = autoTestRootItem->childCount();
                 for (int i = 0; i < count; ++i) {
                     TestTreeItem *currentItem = autoTestRootItem->child(i);
                     if (currentItem->filePath() == declFileName) {
                         m_model->modifyAutoTestSubtree(i, ttItem);
-                        TestInfo *ti = new TestInfo(tc, privSlots.keys(),
-                                                    doc->revision(),
-                                                    doc->editorRevision());
-                        ti->setReferencingFile(file);
+                        TestInfo ti(tc, privSlots.keys(), doc->revision(), doc->editorRevision());
+                        ti.setReferencingFile(file);
                         m_cppDocMap.insert(declFileName, ti);
-                        delete info;
                         break;
                     }
                 }
                 delete ttItem;
             } else {
                 m_model->addAutoTest(ttItem);
-                m_cppDocMap.insert(file, new TestInfo(tc, privSlots.keys(),
-                                                      doc->revision(), doc->editorRevision()));
-                TestInfo *ti = new TestInfo(tc, privSlots.keys(),
-                                            doc->revision(), doc->editorRevision());
-                ti->setReferencingFile(file);
+                m_cppDocMap.insert(file, TestInfo(tc, privSlots.keys(), doc->revision(),
+                                                  doc->editorRevision()));
+                TestInfo ti(tc, privSlots.keys(), doc->revision(), doc->editorRevision());
+                ti.setReferencingFile(file);
                 m_cppDocMap.insert(declFileName, ti);
             }
         }
@@ -242,10 +239,10 @@ void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr doc)
         // could not find the class to test, but QTest is included and QT_TESTLIB_LIB defined
         // maybe file is only a referenced file
         if (m_cppDocMap.contains(file)) {
-            const TestInfo *info = m_cppDocMap[file];
+            const TestInfo info = m_cppDocMap[file];
             CPlusPlus::Snapshot snapshot = cppMM->snapshot();
-            if (snapshot.contains(info->referencingFile())) {
-                checkDocumentForTestCode(snapshot.find(info->referencingFile()).value());
+            if (snapshot.contains(info.referencingFile())) {
+                checkDocumentForTestCode(snapshot.find(info.referencingFile()).value());
             }
         }
     }
@@ -257,8 +254,8 @@ void TestCodeParser::onDocumentUpdated(CPlusPlus::Document::Ptr doc)
         return;
     const QString fileName = doc->fileName();
     if (m_cppDocMap.contains(fileName)) {
-        if (m_cppDocMap[fileName]->revision() == doc->revision()
-                && m_cppDocMap[fileName]->editorRevision() == doc->editorRevision()) {
+        if (m_cppDocMap[fileName].revision() == doc->revision()
+                && m_cppDocMap[fileName].editorRevision() == doc->editorRevision()) {
             qDebug("Skipped due revision equality"); // added to verify if this ever happens..
             return;
         }
@@ -272,10 +269,8 @@ void TestCodeParser::removeFiles(const QStringList &files)
 {
     foreach (const QString file, files) {
         if (m_cppDocMap.contains(file)) {
-            TestInfo *info = m_cppDocMap.value(file);
             m_cppDocMap.remove(file);
             m_model->removeAutoTestSubtreeByFilePath(file);
-            delete info;
         }
     }
 }
@@ -296,11 +291,6 @@ void TestCodeParser::scanForTests()
 
 void TestCodeParser::clearMaps()
 {
-    QMap<QString, TestInfo *>::iterator it = m_cppDocMap.begin();
-    while (it != m_cppDocMap.end()) {
-        delete it.value();
-        ++it;
-    }
     m_cppDocMap.clear();
 }
 

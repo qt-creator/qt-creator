@@ -55,7 +55,7 @@ private:
     void clearMaps();
 
     TestTreeModel *m_model;
-    QMap<QString, TestInfo*> m_cppDocMap;
+    QMap<QString, TestInfo> m_cppDocMap;
     ProjectExplorer::Project *m_currentProject;
 };
 
