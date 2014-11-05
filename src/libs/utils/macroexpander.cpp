@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "macroexpander.h"
+#include "qtcassert.h"
 #include "qtcprocess.h"
 
 #include "algorithm.h"
@@ -49,7 +50,7 @@ const char kFileBaseNamePostfix[] = ":FileBaseName";
 class MacroExpanderPrivate : public AbstractMacroExpander
 {
 public:
-    MacroExpanderPrivate() : m_accumulating(false) {}
+    MacroExpanderPrivate() : m_accumulating(false), m_lockDepth(0) {}
 
     bool resolveMacro(const QString &name, QString *ret)
     {
@@ -108,6 +109,8 @@ public:
     QVector<MacroExpanderProvider> m_subProviders;
     QVector<MacroExpander *> m_subExpanders; // Not owned
     bool m_accumulating;
+
+    int m_lockDepth;
 };
 
 } // Internal
@@ -261,8 +264,16 @@ QString MacroExpander::value(const QByteArray &variable, bool *found) const
  */
 QString MacroExpander::expand(const QString &stringWithVariables) const
 {
+    if (d->m_lockDepth > 3) // Limit recursion.
+        return QString();
+
+    ++d->m_lockDepth;
+
     QString res = stringWithVariables;
     Utils::expandMacros(&res, d);
+
+    --d->m_lockDepth;
+
     return res;
 }
 
