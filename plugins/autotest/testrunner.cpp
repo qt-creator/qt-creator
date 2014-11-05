@@ -288,6 +288,14 @@ bool performExec(const QString &cmd, const QStringList &args, const QString &wor
     if (ok && executionTimer.elapsed() < timeout) {
         return m_runner->exitCode() == 0;
     } else {
+        if (m_runner->state() != QProcess::NotRunning) {
+            m_runner->kill();
+            m_runner->waitForFinished();
+            TestResultsPane::instance()->addTestResult(
+                        TestResult(QString(), QString(), QString(), ResultType::MESSAGE_FATAL,
+                                   QObject::tr("*** Test Case canceled due to timeout ***\n"
+                                               "Maybe raise the timeout?")));
+        }
         return false;
     }
 }

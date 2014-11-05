@@ -309,6 +309,10 @@ void TestResultsPane::updateSummaryLabel()
     if (count)
         labelText.append(QString::fromLatin1(", %1 %2")
                          .arg(QString::number(count), tr("expected fails")));
+    count = m_model->resultTypeCount(ResultType::MESSAGE_FATAL);
+    if (count)
+        labelText.append(QString::fromLatin1(", %1 %2")
+                         .arg(QString::number(count), tr("fatals")));
     labelText.append(QLatin1String(".</p>"));
     m_summaryLabel->setText(labelText);
 }
