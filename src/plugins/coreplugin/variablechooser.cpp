@@ -545,9 +545,14 @@ static bool handleEscapePressed(QKeyEvent *ke, QWidget *widget)
 /*!
  * \internal
  */
-void VariableChooser::keyPressEvent(QKeyEvent *ev)
+bool VariableChooser::event(QEvent *ev)
 {
-    handleEscapePressed(ev, this);
+    if (ev->type() == QEvent::KeyPress || ev->type() == QEvent::ShortcutOverride) {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(ev);
+        if (handleEscapePressed(ke, this))
+            return true;
+    }
+    return QWidget::event(ev);
 }
 
 /*!
@@ -557,7 +562,7 @@ bool VariableChooser::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj != d->currentWidget())
         return false;
-    if (event->type() == QEvent::KeyPress && isVisible()) {
+    if ((event->type() == QEvent::KeyPress || event->type() == QEvent::ShortcutOverride) && isVisible()) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
         return handleEscapePressed(ke, this);
     } else if (event->type() == QEvent::Resize) {
