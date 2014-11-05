@@ -254,7 +254,13 @@ void RunConfiguration::ctor()
 {
     connect(this, SIGNAL(enabledChanged()), this, SIGNAL(requestRunActionsUpdate()));
 
-    macroExpander()->registerSubProvider([this] { return target()->macroExpander(); });
+    Utils::MacroExpander *expander = macroExpander();
+    expander->setDisplayName(tr("Run Settings"));
+    expander->setAccumulating(true);
+    expander->registerSubProvider([this]() -> Utils::MacroExpander * {
+        BuildConfiguration *bc = target()->activeBuildConfiguration();
+        return bc ? bc->macroExpander() : target()->macroExpander();
+    });
 }
 
 /*!

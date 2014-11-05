@@ -76,7 +76,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id) :
             this, SLOT(handleKitUpdate()));
     connect(this, SIGNAL(environmentChanged()), this, SLOT(emitBuildDirectoryChanged()));
 
-    macroExpander()->registerSubProvider([target] { return target->macroExpander(); });
+    ctor();
 }
 
 BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *source) :
@@ -95,7 +95,22 @@ BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *sourc
     connect(target, SIGNAL(kitChanged()),
             this, SLOT(handleKitUpdate()));
 
-    macroExpander()->registerSubProvider([target] { return target->macroExpander(); });
+    ctor();
+}
+
+void BuildConfiguration::ctor()
+{
+    Utils::MacroExpander *expander = macroExpander();
+    expander->setDisplayName(tr("Build Settings"));
+    expander->setAccumulating(true);
+    expander->registerSubProvider([this] { return target()->macroExpander(); });
+
+    expander->registerVariable("buildDir", tr("Build directory"),
+            [this] { return buildDirectory().toUserOutput(); });
+
+    expander->registerVariable(Constants::VAR_CURRENTBUILD_NAME,
+            QCoreApplication::translate("ProjectExplorer", "Name of current build"),
+            [this] { return displayName(); }, false);
 }
 
 BuildConfiguration::~BuildConfiguration()

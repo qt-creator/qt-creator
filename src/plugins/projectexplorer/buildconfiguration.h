@@ -107,6 +107,7 @@ private slots:
 
 private:
     void emitEnvironmentChanged();
+    void ctor();
 
     bool m_clearSystemEnvironment;
     QList<Utils::EnvironmentItem> m_userEnvironmentChanges;

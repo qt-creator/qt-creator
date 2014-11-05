@@ -54,9 +54,6 @@ public:
 protected:
     explicit LocalApplicationRunConfiguration(Target *target, Core::Id id);
     explicit LocalApplicationRunConfiguration(Target *target, LocalApplicationRunConfiguration *rc);
-
-private:
-    void setupMacroExpander();
 };
 
 } // namespace ProjectExplorer

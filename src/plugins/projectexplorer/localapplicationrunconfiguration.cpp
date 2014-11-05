@@ -44,13 +44,11 @@ namespace ProjectExplorer {
 LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Target *target, Core::Id id) :
     RunConfiguration(target, id)
 {
-    setupMacroExpander();
 }
 
 LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Target *target, LocalApplicationRunConfiguration *rc) :
     RunConfiguration(target, rc)
 {
-    setupMacroExpander();
 }
 
 LocalApplicationRunConfiguration::~LocalApplicationRunConfiguration()
@@ -60,19 +58,6 @@ LocalApplicationRunConfiguration::~LocalApplicationRunConfiguration()
 void LocalApplicationRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
 {
     Q_UNUSED(env);
-}
-
-void LocalApplicationRunConfiguration::setupMacroExpander()
-{
-    // Legacy
-    macroExpander()->registerSubProvider([this]() -> Utils::MacroExpander * {
-        if (BuildConfiguration *bc = activeBuildConfiguration())
-            return bc->macroExpander();
-        return 0;
-    });
-
-    macroExpander()->registerVariable("sourceDir", tr("Project source directory"),
-            [this] { return target()->project()->projectDirectory().toUserOutput(); });
 }
 
 } // namespace ProjectExplorer

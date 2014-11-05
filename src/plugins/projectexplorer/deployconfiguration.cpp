@@ -31,6 +31,7 @@
 #include "deployconfiguration.h"
 
 #include "buildsteplist.h"
+#include "buildconfiguration.h"
 #include "kitinformation.h"
 #include "project.h"
 #include "projectexplorer.h"
@@ -53,7 +54,7 @@ DeployConfiguration::DeployConfiguration(Target *target, Core::Id id) :
     m_stepList->setDefaultDisplayName(tr("Deploy"));
     //: Default DeployConfiguration display name
     setDefaultDisplayName(tr("Deploy locally"));
-    macroExpander()->registerSubProvider([target] { return target->macroExpander(); });
+    ctor();
 }
 
 DeployConfiguration::DeployConfiguration(Target *target, DeployConfiguration *source) :
@@ -64,7 +65,18 @@ DeployConfiguration::DeployConfiguration(Target *target, DeployConfiguration *so
     // Do not clone stepLists here, do that in the derived constructor instead
     // otherwise BuildStepFactories might reject to set up a BuildStep for us
     // since we are not yet the derived class!
-    macroExpander()->registerSubProvider([target] { return target->macroExpander(); });
+    ctor();
+}
+
+void DeployConfiguration::ctor()
+{
+    Utils::MacroExpander *expander = macroExpander();
+    expander->setDisplayName(tr("Deploy Settings"));
+    expander->setAccumulating(true);
+    expander->registerSubProvider([this]() -> Utils::MacroExpander * {
+        BuildConfiguration *bc = target()->activeBuildConfiguration();
+        return bc ? bc->macroExpander() : target()->macroExpander();
+    });
 }
 
 DeployConfiguration::~DeployConfiguration()
