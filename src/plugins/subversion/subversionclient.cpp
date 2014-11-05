@@ -119,6 +119,7 @@ VcsCommand *SubversionClient::createCommitCmd(const QString &repositoryRoot,
             QStringList(extraOptions)
             << authenticationOptions(SubversionClient::CommitCommand)
             << QLatin1String(Constants::NON_INTERACTIVE_OPTION)
+            << QLatin1String("--encoding") << QLatin1String("utf8")
             << QLatin1String("--file") << commitMessageFile;
 
     VcsCommand *cmd = createCommand(repositoryRoot);
