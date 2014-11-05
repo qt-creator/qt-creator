@@ -167,7 +167,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     cmd = ActionManager::registerAction(localFindAction, Constants::FIND_IN_DOCUMENT,
                                         Context(Constants::C_FINDTOOLBAR));
     connect(localFindAction, &QAction::triggered, this, [this]() {
-        openFindToolBar(OpenFlags(UpdateAll & ~UpdateFindText));
+        openFindToolBar(FindToolBar::OpenFlags(UpdateAll & ~UpdateFindText));
     });
 
     if (QApplication::clipboard()->supportsFindBuffer()) {
