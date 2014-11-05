@@ -35,6 +35,7 @@
 #include "qmakebuildconfiguration.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/variablechooser.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtkitinformation.h>
@@ -294,6 +295,8 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
 
     connect(qmakeRunConfiguration, SIGNAL(enabledChanged()),
             this, SLOT(runConfigurationEnabledChange()));
+
+    Core::VariableChooser::addSupportForChildWidgets(this, m_qmakeRunConfiguration->macroExpander());
 }
 
 DesktopQmakeRunConfigurationWidget::~DesktopQmakeRunConfigurationWidget()
