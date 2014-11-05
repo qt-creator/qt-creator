@@ -50,14 +50,15 @@ typedef QVector<MacroExpander *> MacroExpanders;
 class QTCREATOR_UTILS_EXPORT MacroExpander
 {
     Q_DECLARE_TR_FUNCTIONS("MacroExpander")
+    Q_DISABLE_COPY(MacroExpander)
 
 public:
     explicit MacroExpander();
-    virtual ~MacroExpander();
+    ~MacroExpander();
 
-    virtual bool resolveMacro(const QString &name, QString *ret) const;
+    bool resolveMacro(const QString &name, QString *ret) const;
 
-    virtual QString value(const QByteArray &variable, bool *found = 0) const;
+    QString value(const QByteArray &variable, bool *found = 0) const;
 
     QString expand(const QString &stringWithVariables) const;
     QByteArray expand(const QByteArray &stringWithVariables) const;
@@ -98,9 +99,6 @@ public:
     void setAccumulating(bool on);
 
 private:
-    MacroExpander(const MacroExpander &) Q_DECL_EQ_DELETE;
-    void operator=(const MacroExpander &) Q_DECL_EQ_DELETE;
-
     friend class Internal::MacroExpanderPrivate;
     Internal::MacroExpanderPrivate *d;
 };
