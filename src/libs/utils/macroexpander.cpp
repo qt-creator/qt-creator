@@ -29,10 +29,11 @@
 ****************************************************************************/
 
 #include "macroexpander.h"
-#include "qtcassert.h"
-#include "qtcprocess.h"
 
 #include "algorithm.h"
+#include "qtcassert.h"
+#include "qtcprocess.h"
+#include "stringutils.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -415,11 +416,6 @@ MacroExpanders MacroExpander::subExpanders() const
                 expanders.append(expander);
 
     return expanders;
-}
-
-AbstractMacroExpander *MacroExpander::abstractExpander() const
-{
-    return d;
 }
 
 QString MacroExpander::displayName() const

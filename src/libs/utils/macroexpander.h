@@ -31,7 +31,7 @@
 #ifndef UTILS_MACROEXPANDER_H
 #define UTILS_MACROEXPANDER_H
 
-#include "stringutils.h"
+#include "utils_global.h"
 
 #include <functional>
 
@@ -89,7 +89,6 @@ public:
     QString variableDescription(const QByteArray &variable) const;
 
     MacroExpanders subExpanders() const;
-    AbstractMacroExpander *abstractExpander() const;
 
     QString displayName() const;
     void setDisplayName(const QString &displayName);
