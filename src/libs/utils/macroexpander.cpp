@@ -50,7 +50,9 @@ const char kFileBaseNamePostfix[] = ":FileBaseName";
 class MacroExpanderPrivate : public AbstractMacroExpander
 {
 public:
-    MacroExpanderPrivate() : m_accumulating(false), m_lockDepth(0) {}
+    MacroExpanderPrivate()
+        : m_accumulating(false), m_aborted(false), m_lockDepth(0)
+    {}
 
     bool resolveMacro(const QString &name, QString *ret)
     {
@@ -110,6 +112,7 @@ public:
     QVector<MacroExpander *> m_subExpanders; // Not owned
     bool m_accumulating;
 
+    bool m_aborted;
     int m_lockDepth;
 };
 
@@ -264,8 +267,13 @@ QString MacroExpander::value(const QByteArray &variable, bool *found) const
  */
 QString MacroExpander::expand(const QString &stringWithVariables) const
 {
-    if (d->m_lockDepth > 3) // Limit recursion.
+    if (d->m_lockDepth == 0)
+        d->m_aborted = false;
+
+    if (d->m_lockDepth > 3) { // Limit recursion.
+        d->m_aborted = true;
         return QString();
+    }
 
     ++d->m_lockDepth;
 
@@ -273,6 +281,9 @@ QString MacroExpander::expand(const QString &stringWithVariables) const
     Utils::expandMacros(&res, d);
 
     --d->m_lockDepth;
+
+    if (d->m_lockDepth == 0 && d->m_aborted)
+        return tr("Infinite recursion error") + QLatin1String(": ") + stringWithVariables;
 
     return res;
 }
