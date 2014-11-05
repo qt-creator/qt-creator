@@ -61,7 +61,7 @@ void CppLocatorData::onDocumentUpdated(const CPlusPlus::Document::Ptr &document)
         }
     }
 
-    if (i == ei)
+    if (i == ei && QFileInfo(document->fileName()).suffix() != QLatin1String("moc"))
         m_pendingDocuments.append(document);
 
     flushPendingDocument(false);
