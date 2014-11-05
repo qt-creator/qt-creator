@@ -34,7 +34,8 @@
 #include <QVariant>
 #include <QDataStream>
 
-using namespace Macros::Internal;
+namespace Macros {
+namespace Internal {
 
 /*!
     \class Macros::MacroEvent
@@ -50,57 +51,21 @@ using namespace Macros::Internal;
     The information are stored in a map of QVariants (using quint8 for keys).
 */
 
-class MacroEvent::MacroEventPrivate
-{
-public:
-    Core::Id id;
-    QMap<quint8, QVariant> values;
-};
-
-
-// ---------- MacroEvent ------------
-
-MacroEvent::MacroEvent():
-    d(new MacroEventPrivate)
-{
-}
-
-MacroEvent::MacroEvent(const MacroEvent &other):
-    d(new MacroEventPrivate)
-{
-    d->id = other.d->id;
-    d->values = other.d->values;
-}
-
-MacroEvent::~MacroEvent()
-{
-    delete d;
-}
-
-MacroEvent& MacroEvent::operator=(const MacroEvent &other)
-{
-    if (this == &other)
-        return *this;
-    d->id = other.d->id;
-    d->values = other.d->values;
-    return *this;
-}
-
 QVariant MacroEvent::value(quint8 id) const
 {
-    return d->values.value(id);
+    return m_values.value(id);
 }
 
 void MacroEvent::setValue(quint8 id, const QVariant &value)
 {
-    d->values[id] = value;
+    m_values[id] = value;
 }
 
 void MacroEvent::load(QDataStream &stream)
 {
     QByteArray ba;
     stream >> ba;
-    d->id = Core::Id::fromName(ba);
+    m_id = Core::Id::fromName(ba);
     int count;
     stream >> count;
     quint8 id;
@@ -108,15 +73,15 @@ void MacroEvent::load(QDataStream &stream)
     for (int i = 0; i < count; ++i) {
         stream >> id;
         stream >> value;
-        d->values[id] = value;
+        m_values[id] = value;
     }
 }
 
 void MacroEvent::save(QDataStream &stream) const
 {
-    stream << d->id.name();
-    stream << d->values.count();
-    QMapIterator<quint8, QVariant> i(d->values);
+    stream << m_id.name();
+    stream << m_values.count();
+    QMapIterator<quint8, QVariant> i(m_values);
     while (i.hasNext()) {
         i.next();
         stream << i.key() << i.value();
@@ -125,10 +90,13 @@ void MacroEvent::save(QDataStream &stream) const
 
 Core::Id MacroEvent::id() const
 {
-    return d->id;
+    return m_id;
 }
 
 void MacroEvent::setId(Core::Id id)
 {
-    d->id = id;
+    m_id = id;
 }
+
+} // namespace Internal
+} // namespace Macro

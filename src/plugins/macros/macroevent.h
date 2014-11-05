@@ -47,10 +47,7 @@ namespace Internal {
 class MacroEvent
 {
 public:
-    MacroEvent();
-    MacroEvent(const MacroEvent &other);
-    virtual ~MacroEvent();
-    MacroEvent& operator=(const MacroEvent &other);
+    MacroEvent() {}
 
     Core::Id id() const;
     void setId(Core::Id id);
@@ -62,8 +59,8 @@ public:
     void save(QDataStream &stream) const;
 
 private:
-    class MacroEventPrivate;
-    MacroEventPrivate* d;
+    Core::Id m_id;
+    QMap<quint8, QVariant> m_values;
 };
 
 } // namespace Internal
