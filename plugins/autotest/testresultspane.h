@@ -23,6 +23,8 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
+class QFrame;
+class QLabel;
 class QModelIndex;
 class QMenu;
 class QToolButton;
@@ -82,11 +84,15 @@ private slots:
 private:
     explicit TestResultsPane(QObject *parent = 0);
     void initializeFilterMenu();
+    void updateSummaryLabel();
     void createToolButtons();
     void onTestRunStarted();
     void onTestRunFinished();
     void onTestTreeModelChanged();
 
+    QWidget *m_outputWidget;
+    QFrame *m_summaryWidget;
+    QLabel *m_summaryLabel;
     Utils::ListView *m_listView;
     TestResultModel *m_model;
     TestResultFilterModel *m_filterModel;

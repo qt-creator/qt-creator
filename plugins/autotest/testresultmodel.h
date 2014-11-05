@@ -53,6 +53,7 @@ public:
     void enableAllResultTypes();
     void toggleTestResultType(ResultType type);
     bool hasResultType(ResultType type) { return m_availableResultTypes.contains(type); }
+    int resultTypeCount(ResultType type);
 
 signals:
 
@@ -60,6 +61,7 @@ public slots:
 
 private:
     QList<TestResult> m_testResults;
+    QMap<ResultType, int> m_testResultCount;
     int m_widthOfLineNumber;
     int m_maxWidthOfFileName;
     int m_lastMaxWidthIndex;

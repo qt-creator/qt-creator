@@ -108,6 +108,8 @@ void TestResultModel::addTestResult(const TestResult &testResult)
 {
     beginInsertRows(QModelIndex(), m_testResults.size(), m_testResults.size());
     m_testResults.append(testResult);
+    int count = m_testResultCount.value(testResult.result(), 0);
+    m_testResultCount.insert(testResult.result(), ++count);
     endInsertRows();
     m_availableResultTypes.insert(testResult.result());
 }
@@ -118,6 +120,7 @@ void TestResultModel::clearTestResults()
         return;
     beginRemoveRows(QModelIndex(), 0, m_testResults.size() - 1);
     m_testResults.clear();
+    m_testResultCount.clear();
     m_lastMaxWidthIndex = 0;
     m_maxWidthOfFileName = 0;
     m_widthOfLineNumber = 0;
@@ -163,6 +166,11 @@ int TestResultModel::maxWidthOfLineNumber(const QFont &font)
         m_widthOfLineNumber = fm.width(QLatin1String("88888"));
     }
     return m_widthOfLineNumber;
+}
+
+int TestResultModel::resultTypeCount(ResultType type)
+{
+    return m_testResultCount.value(type, 0);
 }
 
 /********************************** Filter Model **********************************/

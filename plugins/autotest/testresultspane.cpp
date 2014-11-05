@@ -28,9 +28,12 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/itemviews.h>
+#include <utils/theme/theme.h>
 
 #include <QDebug>
+#include <QHBoxLayout>
 #include <QToolButton>
+#include <QVBoxLayout>
 
 namespace Autotest {
 namespace Internal {
@@ -39,13 +42,39 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     Core::IOutputPane(parent),
     m_context(new Core::IContext(this))
 {
-    m_listView = new Utils::ListView;
+    m_outputWidget = new QWidget;
+    QVBoxLayout *outputLayout = new QVBoxLayout;
+    outputLayout->setMargin(0);
+    outputLayout->setSpacing(0);
+    m_outputWidget->setLayout(outputLayout);
+
+    QPalette pal;
+    pal.setColor(QPalette::Window,
+                 Utils::creatorTheme()->color(Utils::Theme::SearchResultWidgetBackgroundColor));
+    pal.setColor(QPalette::WindowText,
+                 Utils::creatorTheme()->color(Utils::Theme::SearchResultWidgetTextColor));
+    m_summaryWidget = new QFrame;
+    m_summaryWidget->setPalette(pal);
+    m_summaryWidget->setAutoFillBackground(true);
+    QHBoxLayout *layout = new QHBoxLayout;
+    layout->setMargin(6);
+    m_summaryWidget->setLayout(layout);
+    m_summaryLabel = new QLabel;
+    m_summaryLabel->setPalette(pal);
+    layout->addWidget(m_summaryLabel);
+    m_summaryWidget->setVisible(false);
+
+    outputLayout->addWidget(m_summaryWidget);
+
+    m_listView = new Utils::ListView(m_outputWidget);
     m_model = new TestResultModel(this);
     m_filterModel = new TestResultFilterModel(m_model, this);
     m_filterModel->setDynamicSortFilter(true);
     m_listView->setModel(m_filterModel);
     TestResultDelegate *trd = new TestResultDelegate(this);
     m_listView->setItemDelegate(trd);
+
+    outputLayout->addWidget(m_listView);
 
     createToolButtons();
 
@@ -117,12 +146,12 @@ void TestResultsPane::addTestResult(const TestResult &result)
 
 QWidget *TestResultsPane::outputWidget(QWidget *parent)
 {
-    if (m_listView) {
-        m_listView->setParent(parent);
+    if (m_outputWidget) {
+        m_outputWidget->setParent(parent);
     } else {
-        m_listView = new Utils::ListView(parent);
+        qDebug() << "This should not happen...";
     }
-    return m_listView;
+    return m_outputWidget;
 }
 
 QList<QWidget *> TestResultsPane::toolBarWidgets() const
@@ -144,6 +173,7 @@ void TestResultsPane::clearContents()
 {
     m_filterModel->clearTestResults();
     navigateStateChanged();
+    m_summaryWidget->setVisible(false);
 }
 
 void TestResultsPane::visibilityChanged(bool)
@@ -242,14 +272,14 @@ void TestResultsPane::onRunSelectedTriggered()
 void TestResultsPane::initializeFilterMenu()
 {
     QMap<ResultType, QString> textAndType;
-    textAndType.insert(ResultType::PASS, QLatin1String("Pass"));
-    textAndType.insert(ResultType::FAIL, QLatin1String("Fail"));
-    textAndType.insert(ResultType::EXPECTED_FAIL, QLatin1String("Expected Fail"));
-    textAndType.insert(ResultType::UNEXPECTED_PASS, QLatin1String("Unexpected Pass"));
-    textAndType.insert(ResultType::SKIP, QLatin1String("Skip"));
-    textAndType.insert(ResultType::MESSAGE_DEBUG, QLatin1String("Debug Messages"));
-    textAndType.insert(ResultType::MESSAGE_WARN, QLatin1String("Warning Messages"));
-    textAndType.insert(ResultType::MESSAGE_INTERNAL, QLatin1String("Internal Messages"));
+    textAndType.insert(ResultType::PASS, tr("Pass"));
+    textAndType.insert(ResultType::FAIL, tr("Fail"));
+    textAndType.insert(ResultType::EXPECTED_FAIL, tr("Expected Fail"));
+    textAndType.insert(ResultType::UNEXPECTED_PASS, tr("Unexpected Pass"));
+    textAndType.insert(ResultType::SKIP, tr("Skip"));
+    textAndType.insert(ResultType::MESSAGE_DEBUG, tr("Debug Messages"));
+    textAndType.insert(ResultType::MESSAGE_WARN, tr("Warning Messages"));
+    textAndType.insert(ResultType::MESSAGE_INTERNAL, tr("Internal Messages"));
     foreach (ResultType result, textAndType.keys()) {
         QAction *action = new QAction(m_filterMenu);
         action->setText(textAndType.value(result));
@@ -258,6 +288,23 @@ void TestResultsPane::initializeFilterMenu()
         action->setData(result);
         m_filterMenu->addAction(action);
     }
+}
+
+void TestResultsPane::updateSummaryLabel()
+{
+    QString labelText = QString::fromLatin1("<p><b>Test Summary:</b>&nbsp;&nbsp; %1 %2, %3 %4")
+            .arg(QString::number(m_model->resultTypeCount(ResultType::PASS)), tr("passes"),
+                 QString::number(m_model->resultTypeCount(ResultType::FAIL)), tr("fails"));
+    int count = m_model->resultTypeCount(ResultType::UNEXPECTED_PASS);
+    if (count)
+        labelText.append(QString::fromLatin1(", %1 %2")
+                         .arg(QString::number(count), tr("unexpected passes")));
+    count = m_model->resultTypeCount(ResultType::EXPECTED_FAIL);
+    if (count)
+        labelText.append(QString::fromLatin1(", %1 %2")
+                         .arg(QString::number(count), tr("expected fails")));
+    labelText.append(QLatin1String(".</p>"));
+    m_summaryLabel->setText(labelText);
 }
 
 void TestResultsPane::updateFilterMenu()
@@ -279,6 +326,7 @@ void TestResultsPane::onTestRunStarted()
     m_stopTestRun->setEnabled(true);
     m_runAll->setEnabled(false);
     m_runSelected->setEnabled(false);
+    m_summaryWidget->setVisible(false);
 }
 
 void TestResultsPane::onTestRunFinished()
@@ -286,6 +334,8 @@ void TestResultsPane::onTestRunFinished()
     m_stopTestRun->setEnabled(false);
     m_runAll->setEnabled(true);
     m_runSelected->setEnabled(true);
+    updateSummaryLabel();
+    m_summaryWidget->setVisible(true);
 }
 
 void TestResultsPane::onTestTreeModelChanged()
