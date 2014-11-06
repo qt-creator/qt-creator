@@ -181,6 +181,14 @@ private:
     QAction *m_wholeWordAction;
     QAction *m_regularExpressionAction;
     QAction *m_preserveCaseAction;
+
+    QAction *m_localFindNextAction;
+    QAction *m_localFindPreviousAction;
+    QAction *m_localReplaceAction;
+    QAction *m_localReplaceNextAction;
+    QAction *m_localReplacePreviousAction;
+    QAction *m_localReplaceAllAction;
+
     FindFlags m_findFlags;
 
     QTimer m_findIncrementalTimer;
