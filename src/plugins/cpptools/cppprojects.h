@@ -140,7 +140,6 @@ public:
     ProjectInfo();
     ProjectInfo(QPointer<ProjectExplorer::Project> project);
 
-    operator bool() const;
     bool isValid() const;
 
     QPointer<ProjectExplorer::Project> project() const;
