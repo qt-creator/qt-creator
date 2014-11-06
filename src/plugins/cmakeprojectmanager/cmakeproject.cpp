@@ -362,7 +362,7 @@ QStringList CMakeProject::buildTargetTitles(bool runnable) const
 {
     QStringList results;
     foreach (const CMakeBuildTarget &ct, m_buildTargets) {
-        if (runnable && (ct.executable.isEmpty() || ct.library))
+        if (runnable && (ct.executable.isEmpty() || ct.targetType != ExecutableType))
             continue;
         results << ct.title;
     }
@@ -626,7 +626,7 @@ void CMakeProject::updateRunConfigurations(Target *t)
     }
 
     foreach (const CMakeBuildTarget &ct, buildTargets()) {
-        if (ct.library)
+        if (ct.targetType != ExecutableType)
             continue;
         if (ct.executable.isEmpty())
             continue;
@@ -692,8 +692,9 @@ void CMakeProject::updateApplicationAndDeploymentTargets()
         if (ct.executable.isEmpty())
             continue;
 
-        deploymentData.addFile(ct.executable, deploymentPrefix + buildDir.relativeFilePath(QFileInfo(ct.executable).dir().path()), DeployableFile::TypeExecutable);
-        if (!ct.library) {
+        if (ct.targetType == ExecutableType || ct.targetType == DynamicLibraryType)
+            deploymentData.addFile(ct.executable, deploymentPrefix + buildDir.relativeFilePath(QFileInfo(ct.executable).dir().path()), DeployableFile::TypeExecutable);
+        if (ct.targetType == ExecutableType) {
             // TODO: Put a path to corresponding .cbp file into projectFilePath?
             appTargetList.list << BuildTargetInfo(ct.title,
                                                   Utils::FileName::fromString(ct.executable),
@@ -1000,7 +1001,7 @@ void CMakeCbpParser::parseBuildTargetOption()
     } else if (attributes().hasAttribute(QLatin1String("type"))) {
         const QStringRef value = attributes().value(QLatin1String("type"));
         if (value == QLatin1String("2") || value == QLatin1String("3"))
-            m_buildTarget.library = true;
+            m_buildTarget.targetType = TargetType(value.toInt());
     } else if (attributes().hasAttribute(QLatin1String("working_dir"))) {
         m_buildTarget.workingDirectory = attributes().value(QLatin1String("working_dir")).toString();
         QDir dir(m_buildDirectory);
@@ -1227,7 +1228,7 @@ void CMakeBuildTarget::clear()
     workingDirectory.clear();
     sourceDirectory.clear();
     title.clear();
-    library = false;
+    targetType = ExecutableType;
     includeFiles.clear();
     compilerOptions.clear();
     defines.clear();
