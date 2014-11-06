@@ -250,7 +250,7 @@ void TestResultsPane::onItemActivated(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    TestResult tr = m_filterModel->testResult(index);
+    const TestResult tr = m_filterModel->testResult(index);
     if (!tr.fileName().isEmpty())
         Core::EditorManager::openEditorAt(tr.fileName(), tr.line(), 0);
 }
@@ -360,7 +360,7 @@ void TestResultsPane::onTestRunFinished()
 
 void TestResultsPane::onTestTreeModelChanged()
 {
-    bool enable = TestTreeModel::instance()->hasTests();
+    const bool enable = TestTreeModel::instance()->hasTests();
     m_runAll->setEnabled(enable);
     m_runSelected->setEnabled(enable);
 }

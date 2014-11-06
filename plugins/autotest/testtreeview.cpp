@@ -71,8 +71,8 @@ TestTreeViewWidget::TestTreeViewWidget(QWidget *parent) :
 
 void TestTreeViewWidget::contextMenuEvent(QContextMenuEvent *event)
 {
-    bool enabled = !TestRunner::instance()->isTestRunning();
-    bool hasTests = m_model->hasTests();
+    const bool enabled = !TestRunner::instance()->isTestRunning();
+    const bool hasTests = m_model->hasTests();
     QMenu menu;
     QAction *runAll = new QAction(tr("Run All Tests"), &menu);
     QAction *runSelected = new QAction(tr("Run Selected Tests"), &menu);
@@ -207,14 +207,14 @@ void TestTreeView::deselectAll()
 // this avoids the re-evaluation of parent nodes when modifying the child nodes (setData())
 void TestTreeView::selectOrDeselectAll(const Qt::CheckState checkState)
 {
-    TestTreeModel *model = TestTreeModel::instance();
+    const TestTreeModel *model = TestTreeModel::instance();
     QModelIndex autoTestsIndex = model->index(0, 0, rootIndex());
     if (!autoTestsIndex.isValid())
         return;
     int count = model->rowCount(autoTestsIndex);
     QModelIndex last;
     for (int i = 0; i < count; ++i) {
-        QModelIndex classesIndex = model->index(i, 0, autoTestsIndex);
+        const QModelIndex classesIndex = model->index(i, 0, autoTestsIndex);
         int funcCount = model->rowCount(classesIndex);
         TestTreeItem *item = static_cast<TestTreeItem *>(classesIndex.internalPointer());
         if (item) {

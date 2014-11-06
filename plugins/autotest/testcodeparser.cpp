@@ -213,16 +213,19 @@ void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr doc)
                         break;
                     }
                 }
-                info = m_cppDocMap.value(declFileName);
-                count = autoTestRootItem->childCount();
-                for (int i = 0; i < count; ++i) {
-                    TestTreeItem *currentItem = autoTestRootItem->child(i);
-                    if (currentItem->filePath() == declFileName) {
-                        m_model->modifyAutoTestSubtree(i, ttItem);
-                        TestInfo ti(tc, privSlots.keys(), doc->revision(), doc->editorRevision());
-                        ti.setReferencingFile(file);
-                        m_cppDocMap.insert(declFileName, ti);
-                        break;
+                if (declFileName != file) {
+                    info = m_cppDocMap.value(declFileName);
+                    count = autoTestRootItem->childCount();
+                    for (int i = 0; i < count; ++i) {
+                        TestTreeItem *currentItem = autoTestRootItem->child(i);
+                        if (currentItem->filePath() == declFileName) {
+                            m_model->modifyAutoTestSubtree(i, ttItem);
+                            TestInfo ti(tc, privSlots.keys(), doc->revision(),
+                                        doc->editorRevision());
+                            ti.setReferencingFile(file);
+                            m_cppDocMap.insert(declFileName, ti);
+                            break;
+                        }
                     }
                 }
                 delete ttItem;
@@ -230,9 +233,11 @@ void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr doc)
                 m_model->addAutoTest(ttItem);
                 m_cppDocMap.insert(file, TestInfo(tc, privSlots.keys(), doc->revision(),
                                                   doc->editorRevision()));
-                TestInfo ti(tc, privSlots.keys(), doc->revision(), doc->editorRevision());
-                ti.setReferencingFile(file);
-                m_cppDocMap.insert(declFileName, ti);
+                if (declFileName != file) {
+                    TestInfo ti(tc, privSlots.keys(), doc->revision(), doc->editorRevision());
+                    ti.setReferencingFile(file);
+                    m_cppDocMap.insert(declFileName, ti);
+                }
             }
         }
     } else {
