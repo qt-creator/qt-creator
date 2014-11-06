@@ -247,6 +247,12 @@ public:
         return true;
     }
 
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const
+    {
+        Q_UNUSED(state)
+        return type == TypeRemoved ? BehaviorSilent : BehaviorAsk;
+    }
+
     bool save(QString *errorString, const QString &fn, bool autoSave)
     {
         QTC_ASSERT(!autoSave, return true); // bineditor does not support autosave - it would be a bit expensive
