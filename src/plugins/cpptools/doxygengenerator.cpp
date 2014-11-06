@@ -80,7 +80,7 @@ QString DoxygenGenerator::generate(QTextCursor cursor)
     QTextBlock block = cursor.block();
     while (block.isValid()) {
         const QString &text = block.text();
-        const QList<Token> &tks = lexer(text);
+        const Tokens &tks = lexer(text);
         foreach (const Token &tk, tks) {
             if (tk.is(T_SEMICOLON) || tk.is(T_LBRACE)) {
                 // No need to continue beyond this, we might already have something meaningful.

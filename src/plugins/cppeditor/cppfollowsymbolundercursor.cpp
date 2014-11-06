@@ -408,7 +408,7 @@ FollowSymbolUnderCursor::~FollowSymbolUnderCursor()
     delete m_virtualFunctionAssistProvider;
 }
 
-static int skipMatchingParentheses(const QList<Token> &tokens, int idx, int initialDepth)
+static int skipMatchingParentheses(const Tokens &tokens, int idx, int initialDepth)
 {
     int j = idx;
     int depth = initialDepth;
@@ -476,8 +476,7 @@ TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &curs
     SimpleLexer tokenize;
     tokenize.setLanguageFeatures(features);
     const QString blockText = cursor.block().text();
-    const QList<Token> tokens = tokenize(blockText,
-                                         BackwardsScanner::previousBlockState(cursor.block()));
+    const Tokens tokens = tokenize(blockText, BackwardsScanner::previousBlockState(cursor.block()));
 
     bool recognizedQtMethod = false;
 

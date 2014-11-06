@@ -1449,7 +1449,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
     *savedPaddingDepth = qMax(0, *savedPaddingDepth);
 }
 
-void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, int lexerState, int *indentDepth, int *paddingDepth) const
+void QtStyleCodeFormatter::adjustIndent(const Tokens &tokens, int lexerState, int *indentDepth, int *paddingDepth) const
 {
     State topState = state();
     State previousState = state(1);

@@ -34,12 +34,13 @@
 #include <cplusplus/Token.h>
 
 #include <QString>
-#include <QList>
+#include <QVector>
 
 namespace CPlusPlus {
 
 class SimpleLexer;
 class Token;
+typedef QVector<Token> Tokens;
 
 class CPLUSPLUS_EXPORT SimpleLexer
 {
@@ -55,18 +56,18 @@ public:
 
     bool endedJoined() const;
 
-    QList<Token> operator()(const QString &text, int state = 0);
+    Tokens operator()(const QString &text, int state = 0);
 
     int state() const
     { return _lastState; }
 
-    static int tokenAt(const QList<Token> &tokens, unsigned utf16charsOffset);
+    static int tokenAt(const Tokens &tokens, unsigned utf16charsOffset);
     static Token tokenAt(const QString &text,
                          unsigned utf16charsOffset,
                          int state,
                          bool qtMocRunEnabled = false);
 
-    static int tokenBefore(const QList<Token> &tokens, unsigned utf16charsOffset);
+    static int tokenBefore(const Tokens &tokens, unsigned utf16charsOffset);
 
 private:
     int _lastState;

@@ -40,7 +40,7 @@ using namespace CppEditor;
 using namespace Internal;
 using namespace CPlusPlus;
 
-static const Token tokenAtPosition(const QList<Token> &tokens, const unsigned pos)
+static const Token tokenAtPosition(const Tokens &tokens, const unsigned pos)
 {
     for (int i = tokens.size() - 1; i >= 0; --i) {
         const Token tk = tokens.at(i);
@@ -63,7 +63,7 @@ static bool isInCommentHelper(const QTextCursor &cursor, Token *retToken = 0)
     tokenize.setLanguageFeatures(features);
 
     const int prevState = BackwardsScanner::previousBlockState(cursor.block()) & 0xFF;
-    const QList<Token> tokens = tokenize(cursor.block().text(), prevState);
+    const Tokens tokens = tokenize(cursor.block().text(), prevState);
 
     const unsigned pos = cursor.selectionEnd() - cursor.block().position();
 
@@ -98,7 +98,7 @@ static bool isInStringHelper(const QTextCursor &cursor, Token *retToken = 0)
     tokenize.setLanguageFeatures(features);
 
     const int prevState = BackwardsScanner::previousBlockState(cursor.block()) & 0xFF;
-    const QList<Token> tokens = tokenize(cursor.block().text(), prevState);
+    const Tokens tokens = tokenize(cursor.block().text(), prevState);
 
     const unsigned pos = cursor.selectionEnd() - cursor.block().position();
 

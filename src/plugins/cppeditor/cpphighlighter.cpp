@@ -85,7 +85,7 @@ void CppHighlighter::highlightBlock(const QString &text)
     tokenize.setLanguageFeatures(features);
 
     int initialLexerState = lexerState;
-    const QList<Token> tokens = tokenize(text, initialLexerState);
+    const Tokens tokens = tokenize(text, initialLexerState);
     lexerState = tokenize.state(); // refresh lexer state
 
     initialLexerState &= ~0x80; // discard newline expected bit
