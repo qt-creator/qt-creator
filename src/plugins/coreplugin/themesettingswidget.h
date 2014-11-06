@@ -28,46 +28,43 @@
 **
 ****************************************************************************/
 
-#include "themesettings.h"
-#include "themesettingswidget.h"
-#include "coreconstants.h"
+#ifndef THEMESETTINGSWIDGET_H
+#define THEMESETTINGSWIDGET_H
+
+#include <QWidget>
 
 namespace Core {
 namespace Internal {
 
-ThemeSettings::ThemeSettings() :
-    m_widget(0)
-{
-    setId(Core::Constants::SETTINGS_ID_ENVIRONMENT);
-    setDisplayName(tr("Theme"));
-    setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE));
-    setCategoryIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
-}
+class ThemeSettingsPrivate;
 
-ThemeSettings::~ThemeSettings()
+class ThemeSettingsWidget : public QWidget
 {
-    delete m_widget;
-}
+    Q_OBJECT
 
-QWidget *ThemeSettings::widget()
-{
-    if (!m_widget)
-        m_widget = new ThemeSettingsWidget;
-    return m_widget;
-}
+public:
+    ThemeSettingsWidget(QWidget *parent = 0);
+    ~ThemeSettingsWidget();
 
-void ThemeSettings::apply()
-{
-    if (m_widget)
-        m_widget->apply();
-}
+    static QString defaultThemeFileName(const QString &fileName = QString());
 
-void ThemeSettings::finish()
-{
-    delete m_widget;
-    m_widget = 0;
-}
+    void apply();
+
+private slots:
+    void themeSelected(int index);
+    void copyTheme();
+    void renameTheme();
+    void copyThemeByName(const QString &);
+    void confirmDeleteTheme();
+    void deleteTheme();
+    void maybeSaveTheme();
+
+private:
+    void refreshThemeList();
+    ThemeSettingsPrivate *d;
+};
 
 } // namespace Internal
 } // namespace Core
+
+#endif // THEMESETTINGSWIDGET_H
