@@ -358,23 +358,27 @@ void MacroExpander::registerIntVariable(const QByteArray &variable,
  * \sa registerVariable(), registerIntVariable(), registerPrefix()
  */
 void MacroExpander::registerFileVariables(const QByteArray &prefix,
-    const QString &heading, const StringFunction &base)
+    const QString &heading, const StringFunction &base, bool visibleInChooser)
 {
     registerVariable(prefix + kFilePathPostfix,
          tr("%1: Full path including file name.").arg(heading),
-         [base]() -> QString { QString tmp = base(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).filePath(); });
+         [base]() -> QString { QString tmp = base(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).filePath(); },
+         visibleInChooser);
 
     registerVariable(prefix + kPathPostfix,
          tr("%1: Full path excluding file name.").arg(heading),
-         [base]() -> QString { QString tmp = base(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).path(); });
+         [base]() -> QString { QString tmp = base(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).path(); },
+         visibleInChooser);
 
     registerVariable(prefix + kFileNamePostfix,
          tr("%1: File name without path.").arg(heading),
-         [base]() -> QString { QString tmp = base(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).fileName(); });
+         [base]() -> QString { QString tmp = base(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).fileName(); },
+         visibleInChooser);
 
     registerVariable(prefix + kFileBaseNamePostfix,
          tr("%1: File base name without path and suffix.").arg(heading),
-         [base]() -> QString { QString tmp = base(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).baseName(); });
+         [base]() -> QString { QString tmp = base(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).baseName(); },
+         visibleInChooser);
 }
 
 void MacroExpander::registerExtraResolver(const MacroExpander::ResolverFunction &value)

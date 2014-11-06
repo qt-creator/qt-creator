@@ -1228,13 +1228,16 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             return tr("unknown");
         });
 
-    expander->registerFileVariables(Constants::VAR_CURRENTSESSION_PREFIX,
-        tr("File where current session is saved."),
-        []() { return SessionManager::sessionNameToFileName(SessionManager::activeSession()).toString(); });
 
-    expander->registerVariable(Constants::VAR_CURRENTSESSION_NAME,
-        tr("Name of current session."),
-        []() { return SessionManager::activeSession(); });
+    QString fileDescription = tr("File where current session is saved.");
+    auto fileHandler = [] { return SessionManager::sessionNameToFileName(SessionManager::activeSession()).toString(); };
+    expander->registerFileVariables("Session", fileDescription, fileHandler);
+    expander->registerFileVariables("CurrentSession", fileDescription, fileHandler, false);
+
+    QString nameDescription = tr("Name of current session.");
+    auto nameHandler = [] { return SessionManager::activeSession(); };
+    expander->registerVariable("Session:Name", nameDescription, nameHandler);
+    expander->registerVariable("CurrentSession:Name", nameDescription, nameHandler, false);
 
     return true;
 }

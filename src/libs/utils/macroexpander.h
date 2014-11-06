@@ -81,7 +81,8 @@ public:
         const QString &description, const IntFunction &value);
 
     void registerFileVariables(const QByteArray &prefix,
-        const QString &heading, const StringFunction &value);
+        const QString &heading, const StringFunction &value,
+        bool visibleInChooser = true);
 
     void registerExtraResolver(const ResolverFunction &value);
 
