@@ -128,11 +128,7 @@ const VcsBaseEditorParameters editorParameters[] = {
 {    AnnotateOutput,
     "Subversion Annotation Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "Subversion Annotation Editor"),   // display_name
-    "text/vnd.qtcreator.svn.annotation"},
-{   DiffOutput,
-    "Subversion Diff Editor",  // id
-    QT_TRANSLATE_NOOP("VCS", "Subversion Diff Editor"),   // display_name
-    "text/x-patch"}
+    "text/vnd.qtcreator.svn.annotation"}
 };
 
 // Utility to find a parameter set by type
@@ -912,49 +908,14 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
         qDebug() << Q_FUNC_INFO << source << topLevel << changeNr;
     // Number must be >= 1
     bool ok;
+
     const int number = changeNr.toInt(&ok);
     if (!ok || number < 1)
         return;
-    // Run log to obtain message (local utf8)
-    QString description;
-    QStringList args(QLatin1String("log"));
-    args << SubversionClient::addAuthenticationOptions(settings());
-    args.push_back(QLatin1String("-r"));
-    args.push_back(changeNr);
-    const SubversionResponse logResponse =
-            runSvn(topLevel, args, m_settings.timeOutMs(), SshPasswordPrompt);
-    if (logResponse.error)
-        return;
-    description = logResponse.stdOut;
 
-    // Run diff (encoding via source codec)
-    args.clear();
-    args.push_back(QLatin1String("diff"));
-    args << SubversionClient::addAuthenticationOptions(settings());
-    args.push_back(QLatin1String("-r"));
-    QString diffArg;
-    QTextStream(&diffArg) << (number - 1) << ':' << number;
-    args.push_back(diffArg);
+    const QString title = QString::fromLatin1("svn describe %1#%2").arg(fi.fileName(), changeNr);
 
-    QTextCodec *codec = VcsBaseEditor::getCodec(source);
-    const SubversionResponse response =
-            runSvn(topLevel, args, m_settings.timeOutMs(),
-                   SshPasswordPrompt, codec);
-    if (response.error)
-        return;
-    description += response.stdOut;
-
-    // Re-use an existing view if possible to support
-    // the common usage pattern of continuously changing and diffing a file
-    const QString tag = VcsBaseEditor::editorTag(DiffOutput, source, QStringList(), changeNr);
-    if (IEditor *editor = VcsBaseEditor::locateEditorByTag(tag)) {
-        editor->document()->setContents(description.toUtf8());
-        EditorManager::activateEditor(editor);
-    } else {
-        const QString title = QString::fromLatin1("svn describe %1#%2").arg(fi.fileName(), changeNr);
-        IEditor *newEditor = showOutputInEditor(title, description, DiffOutput, source, codec);
-        VcsBaseEditor::tagEditor(newEditor, tag);
-    }
+    m_client->describe(topLevel, number, title);
 }
 
 void SubversionPlugin::slotDescribe()
@@ -1233,39 +1194,6 @@ SubversionControl *SubversionPlugin::subVersionControl() const
 }
 
 #ifdef WITH_TESTS
-void SubversionPlugin::testDiffFileResolving_data()
-{
-    QTest::addColumn<QByteArray>("header");
-    QTest::addColumn<QByteArray>("fileName");
-
-    QTest::newRow("New") << QByteArray(
-            "Index: src/plugins/subversion/subversioneditor.cpp\n"
-            "===================================================================\n"
-            "--- src/plugins/subversion/subversioneditor.cpp\t(revision 0)\n"
-            "+++ src/plugins/subversion/subversioneditor.cpp\t(revision 0)\n"
-            "@@ -0,0 +125 @@\n\n")
-        << QByteArray("src/plugins/subversion/subversioneditor.cpp");
-    QTest::newRow("Deleted") << QByteArray(
-            "Index: src/plugins/subversion/subversioneditor.cpp\n"
-            "===================================================================\n"
-            "--- src/plugins/subversion/subversioneditor.cpp\t(revision 42)\n"
-            "+++ src/plugins/subversion/subversioneditor.cpp\t(working copy)\n"
-            "@@ -1,125 +0,0 @@\n\n")
-        << QByteArray("src/plugins/subversion/subversioneditor.cpp");
-    QTest::newRow("Normal") << QByteArray(
-            "Index: src/plugins/subversion/subversioneditor.cpp\n"
-            "===================================================================\n"
-            "--- src/plugins/subversion/subversioneditor.cpp\t(revision 42)\n"
-            "+++ src/plugins/subversion/subversioneditor.cpp\t(working copy)\n"
-            "@@ -120,7 +120,7 @@\n\n")
-        << QByteArray("src/plugins/subversion/subversioneditor.cpp");
-}
-
-void SubversionPlugin::testDiffFileResolving()
-{
-    VcsBaseEditorWidget::testDiffFileResolving(editorParameters[2].id);
-}
-
 void SubversionPlugin::testLogResolving()
 {
     QByteArray data(

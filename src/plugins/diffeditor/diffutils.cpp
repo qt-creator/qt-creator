@@ -540,8 +540,11 @@ static QList<RowData> readLines(const QString &patch,
     int i;
     for (i = 0; i < lines.count(); i++) {
         const QString line = lines.at(i);
-        if (line.isEmpty())
-            break; // need to have at least one character (1 column)
+        if (line.isEmpty()) { // need to have at least one character (1 column)
+            if (lastChunk)
+                i = lines.count(); // pretend as we've read all the lines (we just ignore the rest)
+            break;
+        }
         QChar firstCharacter = line.at(0);
         if (firstCharacter == QLatin1Char('\\')) { // no new line marker
             if (!lastChunk) // can only appear in last chunk of the file
@@ -567,14 +570,17 @@ static QList<RowData> readLines(const QString &patch,
             }
         } else {
             Diff::Command command = Diff::Equal;
-            if (firstCharacter == QLatin1Char(' ')) // common line
+            if (firstCharacter == QLatin1Char(' ')) { // common line
                 command = Diff::Equal;
-            else if (firstCharacter == QLatin1Char('-')) // deleted line
+            } else if (firstCharacter == QLatin1Char('-')) { // deleted line
                 command = Diff::Delete;
-            else if (firstCharacter == QLatin1Char('+')) // inserted line
+            } else if (firstCharacter == QLatin1Char('+')) { // inserted line
                 command = Diff::Insert;
-            else
-                break; // no other character may exist as the first character
+            } else { // no other character may exist as the first character
+                if (lastChunk)
+                    i = lines.count(); // pretend as we've read all the lines (we just ignore the rest)
+                break;
+            }
 
             Diff diffToBeAdded(command, line.mid(1) + newLine);
 

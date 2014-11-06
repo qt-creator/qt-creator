@@ -48,6 +48,7 @@ DiffEditorController::DiffEditorController(QObject *parent)
       m_chunkIndex(-1),
       m_descriptionEnabled(false),
       m_contextLinesNumber(3),
+      m_contextLinesNumberEnabled(true),
       m_ignoreWhitespace(true),
       m_reloader(0)
 {
@@ -95,6 +96,11 @@ bool DiffEditorController::isDescriptionEnabled() const
 int DiffEditorController::contextLinesNumber() const
 {
     return m_contextLinesNumber;
+}
+
+bool DiffEditorController::isContextLinesNumberEnabled() const
+{
+    return m_contextLinesNumberEnabled;
 }
 
 bool DiffEditorController::isIgnoreWhitespace() const
@@ -150,7 +156,7 @@ void DiffEditorController::setReloader(DiffEditorReloader *reloader)
     if (m_reloader)
         m_reloader->setController(this);
 
-    emit reloaderChanged(m_reloader);
+    emit reloaderChanged();
 }
 
 void DiffEditorController::clear()
@@ -180,10 +186,6 @@ void DiffEditorController::setDescription(const QString &description)
         return;
 
     m_description = description;
-    // Empty line before headers and commit message
-    const int emptyLine = m_description.indexOf(QLatin1String("\n\n"));
-    if (emptyLine != -1)
-        m_description.insert(emptyLine, QLatin1Char('\n') + QLatin1String(Constants::EXPAND_BRANCHES));
     emit descriptionChanged(m_description);
 }
 
@@ -248,6 +250,15 @@ void DiffEditorController::setContextLinesNumber(int lines)
     s->endGroup();
 
     emit contextLinesNumberChanged(l);
+}
+
+void DiffEditorController::setContextLinesNumberEnabled(bool on)
+{
+    if (m_contextLinesNumberEnabled == on)
+        return;
+
+    m_contextLinesNumberEnabled = on;
+    emit contextLinesNumberEnablementChanged(on);
 }
 
 void DiffEditorController::setIgnoreWhitespace(bool ignore)

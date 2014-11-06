@@ -93,6 +93,9 @@ public:
 
     QString monitorFile(const QString &repository) const;
     QString synchronousTopic(const QString &repository) const;
+    SubversionResponse runSvn(const QString &workingDir,
+                              const QStringList &arguments, int timeOut,
+                              unsigned flags, QTextCodec *outputCodec = 0) const;
 
 public slots:
     void vcsAnnotate(const QString &workingDir, const QString &file,
@@ -123,8 +126,6 @@ private slots:
     void statusRepository();
     void updateRepository();
 #ifdef WITH_TESTS
-    void testDiffFileResolving_data();
-    void testDiffFileResolving();
     void testLogResolving();
 #endif
 
@@ -137,9 +138,6 @@ private:
     Core::IEditor * showOutputInEditor(const QString& title, const QString &output,
                                        int editorType, const QString &source,
                                        QTextCodec *codec);
-    SubversionResponse runSvn(const QString &workingDir,
-                              const QStringList &arguments, int timeOut,
-                              unsigned flags, QTextCodec *outputCodec = 0) const;
 
     void filelog(const QString &workingDir,
                  const QString &file = QString(),

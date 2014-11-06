@@ -349,7 +349,7 @@ QWidget *DiffEditor::toolBar()
     reloadButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_RELOAD_GRAY)));
     reloadButton->setToolTip(tr("Reload Editor"));
     m_reloadAction = m_toolBar->addWidget(reloadButton);
-    slotReloaderChanged(m_controller->reloader());
+    slotReloaderChanged();
 
     QToolButton *toggleSync = new QToolButton(m_toolBar);
     toggleSync->setIcon(QIcon(QLatin1String(Core::Constants::ICON_LINK)));
@@ -378,8 +378,10 @@ QWidget *DiffEditor::toolBar()
             this, SLOT(slotDiffEditorSwitched()));
     connect(reloadButton, SIGNAL(clicked()),
             m_controller, SLOT(requestReload()));
-    connect(m_controller, SIGNAL(reloaderChanged(DiffEditorReloader*)),
-            this, SLOT(slotReloaderChanged(DiffEditorReloader*)));
+    connect(m_controller, SIGNAL(reloaderChanged()),
+            this, SLOT(slotReloaderChanged()));
+    connect(m_controller, SIGNAL(contextLinesNumberEnablementChanged(bool)),
+            this, SLOT(slotReloaderChanged()));
 
     return m_toolBar;
 }
@@ -495,11 +497,14 @@ void DiffEditor::slotDescriptionVisibilityChanged()
     m_toggleDescriptionAction->setVisible(enabled);
 }
 
-void DiffEditor::slotReloaderChanged(DiffEditorReloader *reloader)
+void DiffEditor::slotReloaderChanged()
 {
+    const DiffEditorReloader *reloader = m_controller->reloader();
+    const bool contextVisible = m_controller->isContextLinesNumberEnabled();
+
     m_whitespaceButtonAction->setVisible(reloader);
-    m_contextLabelAction->setVisible(reloader);
-    m_contextSpinBoxAction->setVisible(reloader);
+    m_contextLabelAction->setVisible(reloader && contextVisible);
+    m_contextSpinBoxAction->setVisible(reloader && contextVisible);
     m_reloadAction->setVisible(reloader);
 }
 

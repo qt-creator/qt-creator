@@ -83,7 +83,7 @@ private slots:
     void entryActivated(int index);
     void slotDescriptionChanged(const QString &description);
     void slotDescriptionVisibilityChanged();
-    void slotReloaderChanged(DiffEditorReloader *reloader);
+    void slotReloaderChanged();
     void slotDiffEditorSwitched();
 
 private:

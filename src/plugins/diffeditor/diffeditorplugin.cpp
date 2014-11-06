@@ -894,6 +894,66 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileDataList7 << fileData1;
     QTest::newRow("Dirty submodule") << patch
                                      << fileDataList7;
+
+    //////////////
+
+    // Subversion New
+    patch = _("Index: src/plugins/subversion/subversioneditor.cpp\n"
+              "===================================================================\n"
+              "--- src/plugins/subversion/subversioneditor.cpp\t(revision 0)\n"
+              "+++ src/plugins/subversion/subversioneditor.cpp\t(revision 0)\n"
+              "@@ -0,0 +125 @@\n\n");
+    fileData1 = FileData();
+    fileData1.leftFileInfo = DiffFileInfo(_("src/plugins/subversion/subversioneditor.cpp"));
+    fileData1.rightFileInfo = DiffFileInfo(_("src/plugins/subversion/subversioneditor.cpp"));
+    chunkData1 = ChunkData();
+    chunkData1.leftStartingLineNumber = -1;
+    chunkData1.rightStartingLineNumber = 124;
+    fileData1.chunks << chunkData1;
+    QList<FileData> fileDataList8;
+    fileDataList8 << fileData1;
+    QTest::newRow("Subversion New") << patch
+                                    << fileDataList8;
+
+    //////////////
+
+    // Subversion Deleted
+    patch = _("Index: src/plugins/subversion/subversioneditor.cpp\n"
+              "===================================================================\n"
+              "--- src/plugins/subversion/subversioneditor.cpp\t(revision 42)\n"
+              "+++ src/plugins/subversion/subversioneditor.cpp\t(working copy)\n"
+              "@@ -1,125 +0,0 @@\n\n");
+    fileData1 = FileData();
+    fileData1.leftFileInfo = DiffFileInfo(_("src/plugins/subversion/subversioneditor.cpp"));
+    fileData1.rightFileInfo = DiffFileInfo(_("src/plugins/subversion/subversioneditor.cpp"));
+    chunkData1 = ChunkData();
+    chunkData1.leftStartingLineNumber = 0;
+    chunkData1.rightStartingLineNumber = -1;
+    fileData1.chunks << chunkData1;
+    QList<FileData> fileDataList9;
+    fileDataList9 << fileData1;
+    QTest::newRow("Subversion Deleted") << patch
+                                        << fileDataList9;
+
+    //////////////
+
+    // Subversion Normal
+    patch = _("Index: src/plugins/subversion/subversioneditor.cpp\n"
+              "===================================================================\n"
+              "--- src/plugins/subversion/subversioneditor.cpp\t(revision 42)\n"
+              "+++ src/plugins/subversion/subversioneditor.cpp\t(working copy)\n"
+              "@@ -120,7 +120,7 @@\n\n");
+    fileData1 = FileData();
+    fileData1.leftFileInfo = DiffFileInfo(_("src/plugins/subversion/subversioneditor.cpp"));
+    fileData1.rightFileInfo = DiffFileInfo(_("src/plugins/subversion/subversioneditor.cpp"));
+    chunkData1 = ChunkData();
+    chunkData1.leftStartingLineNumber = 119;
+    chunkData1.rightStartingLineNumber = 119;
+    fileData1.chunks << chunkData1;
+    QList<FileData> fileDataList10;
+    fileDataList10 << fileData1;
+    QTest::newRow("Subversion Normal") << patch
+                                       << fileDataList10;
 }
 
 void DiffEditor::Internal::DiffEditorPlugin::testReadPatch()

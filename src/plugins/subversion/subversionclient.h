@@ -41,6 +41,7 @@ namespace Subversion {
 namespace Internal {
 
 class SubversionSettings;
+class SubversionDiffEditorReloader;
 
 class SubversionClient : public VcsBase::VcsBaseClient
 {
@@ -60,8 +61,8 @@ public:
                 const QString &commitMessageFile,
                 const QStringList &extraOptions = QStringList());
 
-    void diff(const QString &workingDir, const QStringList &files,
-              const QStringList &extraOptions = QStringList());
+    void diff(const QString &workingDirectory, const QStringList &files);
+    void describe(const QString &workingDirectory, int changeNumber, const QString &title);
     QString findTopLevelForFile(const QFileInfo &file) const;
     QStringList revisionSpec(const QString &revision) const;
     StatusItem parseStatusLine(const QString &line) const;
@@ -73,12 +74,15 @@ public:
 
 protected:
     Core::Id vcsEditorKind(VcsCommandTag cmd) const;
-    VcsBase::VcsBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
-                                                            const QStringList &files,
-                                                            const QStringList &extraOptions);
+
 private:
-    Utils::FileName m_svnVersionBinary;
-    QString m_svnVersion;
+    SubversionDiffEditorReloader *findOrCreateDiffEditor(const QString &documentId,
+                                                         const QString &source,
+                                                         const QString &title,
+                                                         const QString &workingDirectory) const;
+
+    mutable Utils::FileName m_svnVersionBinary;
+    mutable QString m_svnVersion;
 };
 
 } // namespace Internal

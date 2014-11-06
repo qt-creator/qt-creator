@@ -4,4 +4,5 @@ QTC_LIB_DEPENDS += \
 QTC_PLUGIN_DEPENDS += \
     texteditor \
     coreplugin \
-    vcsbase
+    vcsbase \
+    diffeditor

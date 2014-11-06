@@ -828,6 +828,7 @@ GitDiffEditorReloader *GitClient::findOrCreateDiffEditor(const QString &document
 
         reloader->setWorkingDirectory(workingDirectory);
     }
+    QTC_ASSERT(reloader, return 0);
 
     VcsBasePlugin::setSource(diffEditorDocument, source);
     EditorManager::activateEditorForDocument(diffEditorDocument);
@@ -2464,6 +2465,12 @@ QString GitClient::extendedShowDescription(const QString &workingDirectory, cons
         modText.insert(lastHeaderLine, QLatin1String("Precedes: ") + precedes + QLatin1Char('\n'));
     if (!follows.isEmpty())
         modText.insert(lastHeaderLine, QLatin1String("Follows: ") + follows + QLatin1Char('\n'));
+
+    // Empty line before headers and commit message
+    const int emptyLine = modText.indexOf(QLatin1String("\n\n"));
+    if (emptyLine != -1)
+        modText.insert(emptyLine, QLatin1Char('\n') + QLatin1String(DiffEditor::Constants::EXPAND_BRANCHES));
+
     return modText;
 }
 

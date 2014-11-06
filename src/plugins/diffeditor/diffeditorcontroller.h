@@ -54,6 +54,7 @@ public:
     QString description() const;
     bool isDescriptionEnabled() const;
     int contextLinesNumber() const;
+    bool isContextLinesNumberEnabled() const;
     bool isIgnoreWhitespace() const;
 
     QString makePatch(bool revert, bool addPrefix = false) const;
@@ -69,6 +70,7 @@ public slots:
     void setDescription(const QString &description);
     void setDescriptionEnabled(bool on);
     void setContextLinesNumber(int lines);
+    void setContextLinesNumberEnabled(bool on);
     void setIgnoreWhitespace(bool ignore);
     void requestReload();
     void requestChunkActions(QMenu *menu,
@@ -86,12 +88,13 @@ signals:
     void descriptionChanged(const QString &description);
     void descriptionEnablementChanged(bool on);
     void contextLinesNumberChanged(int lines);
+    void contextLinesNumberEnablementChanged(bool on);
     void ignoreWhitespaceChanged(bool ignore);
     void chunkActionsRequested(QMenu *menu, bool isValid);
     void saveStateRequested();
     void restoreStateRequested();
     void expandBranchesRequested(const QString &revision);
-    void reloaderChanged(DiffEditorReloader *reloader);
+    void reloaderChanged();
 
 private:
     QString prepareBranchesForCommit(const QString &output);
@@ -104,6 +107,7 @@ private:
     QString m_description;
     bool m_descriptionEnabled;
     int m_contextLinesNumber;
+    bool m_contextLinesNumberEnabled;
     bool m_ignoreWhitespace;
     DiffEditorReloader *m_reloader;
 };
