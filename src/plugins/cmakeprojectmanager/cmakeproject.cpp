@@ -868,6 +868,20 @@ void CMakeCbpParser::sortFiles()
     CMakeBuildTarget *last = 0;
     Utils::FileName parentDirectory;
 
+    // find a good build target to fall back
+    int fallbackIndex = 0;
+    {
+        int bestIncludeCount = -1;
+        for (int i = 0; i < m_buildTargets.size(); ++i) {
+            const CMakeBuildTarget &target = m_buildTargets.at(i);
+            if (target.sourceDirectory == m_sourceDirectory
+                    && target.includeFiles.count() > bestIncludeCount) {
+                bestIncludeCount = target.includeFiles.count();
+                fallbackIndex = i;
+            }
+        }
+    }
+
     foreach (const Utils::FileName &fileName, fileNames) {
         if (fileName.parentDir() == parentDirectory && last) {
             // easy case, same parent directory as last file
@@ -890,7 +904,7 @@ void CMakeCbpParser::sortFiles()
             }
 
             if (bestIndex == -1 && !m_buildTargets.isEmpty())
-                bestIndex = 0;
+                bestIndex = fallbackIndex;
 
             if (bestIndex != -1) {
                 m_buildTargets[bestIndex].files.append(fileName.toString());
