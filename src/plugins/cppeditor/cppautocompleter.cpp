@@ -102,7 +102,7 @@ static bool isInStringHelper(const QTextCursor &cursor, Token *retToken = 0)
 
     const unsigned pos = cursor.selectionEnd() - cursor.block().position();
 
-    if (tokens.isEmpty() || pos < tokens.first().utf16charsBegin())
+    if (tokens.isEmpty() || pos <= tokens.first().utf16charsBegin())
         return false;
 
     if (pos >= tokens.last().utf16charsEnd()) {
@@ -113,7 +113,7 @@ static bool isInStringHelper(const QTextCursor &cursor, Token *retToken = 0)
     Token tk = tokenAtPosition(tokens, pos);
     if (retToken)
         *retToken = tk;
-    return tk.isStringLiteral();
+    return tk.isStringLiteral() && pos > tk.utf16charsBegin();
 }
 
 bool CppAutoCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor,
