@@ -115,6 +115,9 @@
     anymore and will not work. The minimal supported version is GDB 7.4.1,
     using Python version 2.6, 2.7, or 3.x.
 
+    For remote debugging using GDB and GDB server, the minimal
+    supported version of GDB server on the target device is 7.0.
+
     \section2 Supported CDB Versions
 
     All versions of CDB targeting platforms supported by Qt
