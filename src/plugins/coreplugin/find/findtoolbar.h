@@ -75,13 +75,22 @@ class FindToolBar : public Utils::StyledBar
     Q_OBJECT
 
 public:
+    enum OpenFlag {
+        UpdateFocusAndSelect = 0x01,
+        UpdateFindScope = 0x02,
+        UpdateFindText = 0x04,
+        UpdateHighlight = 0x08,
+        UpdateAll = 0x0F
+    };
+    Q_DECLARE_FLAGS(OpenFlags, OpenFlag)
+
     explicit FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumentFind);
     ~FindToolBar();
 
     void readSettings();
     void writeSettings();
 
-    void openFindToolBar(bool focus = true);
+    void openFindToolBar(OpenFlags flags = UpdateAll);
     void setUseFakeVim(bool on);
 
     void setLightColoredIcon(bool lightColored);
@@ -90,13 +99,19 @@ public slots:
 
 private slots:
     void invokeFindNext();
+    void invokeGlobalFindNext();
     void invokeFindPrevious();
+    void invokeGlobalFindPrevious();
     void invokeFindStep();
     void invokeReplace();
+    void invokeGlobalReplace();
     void invokeReplaceNext();
+    void invokeGlobalReplaceNext();
     void invokeReplacePrevious();
+    void invokeGlobalReplacePrevious();
     void invokeReplaceStep();
     void invokeReplaceAll();
+    void invokeGlobalReplaceAll();
     void invokeResetIncrementalSearch();
 
     void invokeFindIncremental();
@@ -109,7 +124,7 @@ private slots:
     void openFind(bool focus = true);
     void findNextSelected();
     void findPreviousSelected();
-    void updateFindAction();
+    void updateGlobalActions();
     void updateToolBar();
     void findFlagsChanged();
     void findEditButtonClicked();
@@ -136,6 +151,7 @@ private:
     Core::FindToolBarPlaceHolder *findToolBarPlaceHolder() const;
     bool toolBarHasFocus() const;
     bool canShowAllControls(bool replaceIsVisible) const;
+    void acceptCandidateAndMoveToolBar();
 
     bool eventFilter(QObject *obj, QEvent *event);
     void setFindText(const QString &text);
@@ -165,6 +181,14 @@ private:
     QAction *m_wholeWordAction;
     QAction *m_regularExpressionAction;
     QAction *m_preserveCaseAction;
+
+    QAction *m_localFindNextAction;
+    QAction *m_localFindPreviousAction;
+    QAction *m_localReplaceAction;
+    QAction *m_localReplaceNextAction;
+    QAction *m_localReplacePreviousAction;
+    QAction *m_localReplaceAllAction;
+
     FindFlags m_findFlags;
 
     QTimer m_findIncrementalTimer;

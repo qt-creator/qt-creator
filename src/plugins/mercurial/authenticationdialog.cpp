@@ -31,7 +31,8 @@
 #include "authenticationdialog.h"
 #include "ui_authenticationdialog.h"
 
-using namespace Mercurial::Internal;
+namespace Mercurial {
+namespace Internal  {
 
 AuthenticationDialog::AuthenticationDialog(const QString &username, const QString &password, QWidget *parent) :
     QDialog(parent),
@@ -61,3 +62,6 @@ QString AuthenticationDialog::getPassword()
 {
     return ui->password->text();
 }
+
+} // namespace Internal
+} // namespace Mercurial

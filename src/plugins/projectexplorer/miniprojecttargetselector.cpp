@@ -549,13 +549,20 @@ KitAreaWidget::KitAreaWidget(QWidget *parent) : QWidget(parent),
     m_layout(new QGridLayout(this)), m_kit(0)
 {
     m_layout->setMargin(3);
+}
+
+KitAreaWidget::~KitAreaWidget()
+{
     setKit(0);
 }
 
 void KitAreaWidget::setKit(Kit *k)
 {
+    if (k == m_kit)
+        return;
+
     foreach (KitConfigWidget *w, m_widgets)
-        w->deleteLater();
+        delete(w);
     m_widgets.clear();
     foreach (QLabel *l, m_labels)
         l->deleteLater();

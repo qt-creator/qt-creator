@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <template openeditor="main.qml" priority="AW"
-    featuresRequired="QtSupport.Wizards.FeatureQtQuick.Controls.1.3"
+    featuresRequired="QtSupport.Wizards.FeatureQtQuick.Controls.1.3, QtSupport.Wizards.FeatureQtQuick.UiFiles"
     qrcdeployment="qrcdeployment.pri"
     stubversionminor="1">
     <displayname>Qt Quick Controls 1.3</displayname>
-    <description>Creates a deployable Qt Quick 2 application using Qt Quick Controls. Requires Qt 5.4 or newer.</description>
+    <description>Creates a deployable Qt Quick 2 application that contains a .ui.qml file and uses Qt Quick Controls. You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. This project requires that you have installed Qt Quick Controls for your Qt version. Requires Qt 5.4 or newer.</description>
 </template>

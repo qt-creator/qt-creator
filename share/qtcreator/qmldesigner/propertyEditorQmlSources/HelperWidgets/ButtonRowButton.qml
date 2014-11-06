@@ -43,7 +43,7 @@ Item {
 
     signal clicked()
 
-    property alias toolTip: toolTipArea.toolTip
+    property alias tooltip: toolTipArea.tooltip
 
     width: 24 + leftPadding
     height: 24

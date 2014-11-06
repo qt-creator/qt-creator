@@ -1,4 +1,4 @@
-%{Cpp:LicenseTemplate}
+%{Cpp:LicenseTemplate}\
 #ifndef %{JS: Cpp.headerGuard('%{FileName}')}
 #define %{JS: Cpp.headerGuard('%{FileName}')}
 

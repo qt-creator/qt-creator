@@ -475,7 +475,7 @@ void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
     if (d->m_defaultHandler->canHandle(task)) {
         d->m_defaultHandler->handle(task);
     } else {
-        if (!task.file.toFileInfo().exists())
+        if (!task.file.exists())
             d->m_model->setFileNotFound(index, true);
     }
 }

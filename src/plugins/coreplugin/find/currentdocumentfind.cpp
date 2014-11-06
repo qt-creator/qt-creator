@@ -72,9 +72,9 @@ bool CurrentDocumentFind::isEnabled() const
     return m_currentFind && (!m_currentWidget || m_currentWidget->isVisible());
 }
 
-bool CurrentDocumentFind::candidateIsEnabled() const
+IFindSupport *CurrentDocumentFind::candidate() const
 {
-    return (m_candidateFind != 0);
+    return m_candidateFind;
 }
 
 bool CurrentDocumentFind::supportsReplace() const

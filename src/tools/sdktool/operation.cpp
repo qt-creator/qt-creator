@@ -102,7 +102,7 @@ QVariantMap Operation::load(const QString &file)
 
     // Read values from original file:
     Utils::FileName path = Settings::instance()->getPath(file);
-    if (path.toFileInfo().exists()) {
+    if (path.exists()) {
         Utils::PersistentSettingsReader reader;
         if (!reader.load(path))
             return QVariantMap();

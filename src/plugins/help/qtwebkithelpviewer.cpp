@@ -402,6 +402,10 @@ QtWebKitHelpViewer::QtWebKitHelpViewer(qreal zoom, QWidget *parent)
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_webView, 10);
 
+    QPalette p = palette();
+    p.setColor(QPalette::Base, Qt::white);
+    setPalette(p);
+
     connect(m_webView, SIGNAL(urlChanged(QUrl)), this, SIGNAL(sourceChanged(QUrl)));
     connect(m_webView, SIGNAL(loadStarted()), this, SLOT(slotLoadStarted()));
     connect(m_webView, SIGNAL(loadFinished(bool)), this, SLOT(slotLoadFinished()));

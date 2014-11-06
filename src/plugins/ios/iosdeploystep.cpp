@@ -272,7 +272,7 @@ void IosDeployStep::checkProvisioningProfile()
 
     // the file is a signed plist stored in DER format
     // we simply search for start and end of the plist instead of decoding the DER payload
-    if (!provisioningFilePath.toFileInfo().exists())
+    if (!provisioningFilePath.exists())
         return;
     QFile provisionFile(provisioningFilePath.toString());
     if (!provisionFile.open(QIODevice::ReadOnly))

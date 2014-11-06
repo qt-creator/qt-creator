@@ -72,6 +72,7 @@ public:
     static FileName fromUserInput(const QString &filename);
     QString toString() const;
     QString toUserOutput() const;
+    bool exists() const;
 
     FileName parentDir() const;
 

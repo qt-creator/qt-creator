@@ -31,6 +31,7 @@
 #include "customexecutableconfigurationwidget.h"
 #include "customexecutablerunconfiguration.h"
 
+#include <coreplugin/variablechooser.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
@@ -118,6 +119,8 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     // or keep them on cancel
     if (mode == InstantApply)
         connect(m_runConfiguration, SIGNAL(changed()), this, SLOT(changed()));
+
+    Core::VariableChooser::addSupportForChildWidgets(this, m_runConfiguration->macroExpander());
 }
 
 void CustomExecutableConfigurationWidget::environmentWasChanged()

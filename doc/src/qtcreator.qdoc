@@ -254,6 +254,7 @@
                     \li \l{Profiling Function Execution}
                     \li \l{Running Valgrind Tools on External Applications}
                 \endlist
+                \li \l{Using Clang Static Analyzer}
             \endlist
 
         \endlist

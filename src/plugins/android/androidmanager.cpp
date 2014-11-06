@@ -587,7 +587,7 @@ bool AndroidManager::checkCertificatePassword(const QString &keystorePath, const
 bool AndroidManager::checkForQt51Files(Utils::FileName fileName)
 {
     fileName.appendPath(QLatin1String("android")).appendPath(QLatin1String("version.xml"));
-    if (!fileName.toFileInfo().exists())
+    if (!fileName.exists())
         return false;
     QDomDocument dstVersionDoc;
     if (!openXmlFile(dstVersionDoc, fileName))
@@ -684,7 +684,7 @@ bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target)
     AndroidBuildApkStep *buildApkStep
         = AndroidGlobal::buildStep<AndroidBuildApkStep>(target->activeBuildConfiguration());
 
-    if (!buildApkStep || !buildApkStep->androidPackageSourceDir().appendPath(QLatin1String("gradlew")).toFileInfo().exists())
+    if (!buildApkStep || !buildApkStep->androidPackageSourceDir().appendPath(QLatin1String("gradlew")).exists())
         return false;
 
     GradleProperties localProperties;

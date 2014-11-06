@@ -126,6 +126,7 @@
 #include <utils/macroexpander.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QtPlugin>
 #include <QDebug>

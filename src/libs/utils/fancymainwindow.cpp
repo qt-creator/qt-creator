@@ -324,8 +324,7 @@ void DockWidget::handleMouseTimeout()
 
 void DockWidget::handleToplevelChanged(bool floating)
 {
-    if (!floating)
-        m_titleBar->setActive(false);
+    m_titleBar->setActive(floating);
 }
 
 

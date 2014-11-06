@@ -203,7 +203,7 @@ def invokeMenuItem(menu, item, *subItems):
         except:
             nativeMouseClick(waitForObject(":Qt Creator_Core::Internal::MainWindow", 1000), 20, 20, 0, Qt.LeftButton)
     # HACK to avoid squish crash using Qt5.2 on Squish 5.0.1 - remove asap
-    if platform.system() == "Darwin" and not isQt4Build:
+    if platform.system() == "Darwin":
         if menu == "Tools" and item == "Options...":
             nativeType("<Command+,>")
             return

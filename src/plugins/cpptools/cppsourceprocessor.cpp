@@ -42,6 +42,7 @@
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDir>
+#include <QLoggingCategory>
 #include <QTextCodec>
 
 /*!
@@ -60,6 +61,8 @@ using namespace CppTools;
 using namespace CppTools::Internal;
 
 typedef Document::DiagnosticMessage Message;
+
+static Q_LOGGING_CATEGORY(log, "qtc.cpptools.sourceprocessor")
 
 namespace {
 
@@ -112,7 +115,6 @@ inline const Macro revision(const WorkingCopy &workingCopy,
 CppSourceProcessor::CppSourceProcessor(const Snapshot &snapshot, DocumentCallback documentFinished)
     : m_snapshot(snapshot),
       m_documentFinished(documentFinished),
-      m_dumpFileNameWhileParsing(false),
       m_preprocess(this, &m_env),
       m_revision(0),
       m_defaultCodec(Core::EditorManager::defaultTextCodec())
@@ -445,8 +447,7 @@ void CppSourceProcessor::sourceNeeded(unsigned line, const QString &fileName, In
         return;
     }
 
-    if (m_dumpFileNameWhileParsing)
-        qDebug() << "Parsing:" << absoluteFileName << "contents:" << contents.size() << "bytes";
+    qCDebug(log) << "Parsing:" << absoluteFileName << "contents:" << contents.size() << "bytes";
 
     Document::Ptr document = Document::create(absoluteFileName);
     document->setRevision(m_revision);

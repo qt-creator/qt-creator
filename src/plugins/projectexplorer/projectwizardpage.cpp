@@ -73,7 +73,7 @@ class BestNodeSelector
 {
 public:
     BestNodeSelector(const QString &commonDirectory, const QStringList &files);
-    void inspect(AddNewTree *tree);
+    void inspect(AddNewTree *tree, bool isContextNode);
     AddNewTree *bestChoice() const;
     bool deploys();
     QString deployingProjects() const;
@@ -102,7 +102,7 @@ BestNodeSelector::BestNodeSelector(const QString &commonDirectory, const QString
 // Otherwise consider their common path. Either a direct match on the directory
 // or the directory with the longest matching path (list containing"/project/subproject1"
 // matching common path "/project/subproject1/newuserpath").
-void BestNodeSelector::inspect(AddNewTree *tree)
+void BestNodeSelector::inspect(AddNewTree *tree, bool isContextNode)
 {
     FolderNode *node = tree->node();
     if (node->nodeType() == ProjectNodeType) {
@@ -115,7 +115,7 @@ void BestNodeSelector::inspect(AddNewTree *tree)
         return;
     const QString projectDirectory = ProjectExplorerPlugin::directoryFor(node);
     const int projectDirectorySize = projectDirectory.size();
-    if (!m_commonDirectory.startsWith(projectDirectory))
+    if (!m_commonDirectory.startsWith(projectDirectory) && !isContextNode)
         return;
     bool betterMatch = tree->priority() > 0
             && (projectDirectorySize > m_bestMatchLength
@@ -173,7 +173,7 @@ static inline AddNewTree *buildAddProjectTree(ProjectNode *root, const QString &
         if (projectPath.isEmpty() || root->canAddSubProject(projectPath)) {
             FolderNode::AddNewInformation info = root->addNewInformation(QStringList() << projectPath, contextNode);
             AddNewTree *item = new AddNewTree(root, children, info);
-            selector->inspect(item);
+            selector->inspect(item, root == contextNode);
             return item;
         }
     }
@@ -208,7 +208,7 @@ static inline AddNewTree *buildAddFilesTree(FolderNode *root, const QStringList 
     if (list.contains(AddNewFile) && !list.contains(InheritedFromParent)) {
         FolderNode::AddNewInformation info = root->addNewInformation(files, contextNode);
         AddNewTree *item = new AddNewTree(root, children, info);
-        selector->inspect(item);
+        selector->inspect(item, root == contextNode);
         return item;
     }
     if (children.isEmpty())

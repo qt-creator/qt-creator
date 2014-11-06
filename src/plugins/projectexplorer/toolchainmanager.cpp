@@ -192,7 +192,7 @@ void ToolChainManager::restoreToolChains()
     // read all tool chains from user file.
     // Read legacy settings once and keep them around...
     FileName fileName = settingsFileName(QLatin1String(TOOLCHAIN_FILENAME));
-    if (!fileName.toFileInfo().exists())
+    if (!fileName.exists())
         fileName = settingsFileName(QLatin1String(LEGACY_TOOLCHAIN_FILENAME));
     readTcs = restoreFromFile(fileName);
 

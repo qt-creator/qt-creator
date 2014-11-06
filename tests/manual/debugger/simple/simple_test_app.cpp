@@ -175,7 +175,9 @@ void dummyStatement(...) {}
 #include <QStandardItemModel>
 #include <QTextCursor>
 #include <QTextDocument>
-#include <QTimeZone>
+# if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+#  include <QTimeZone>
+# endif
 #endif
 
 #if USE_SCRIPTLIB
@@ -718,10 +720,12 @@ namespace qdatetime {
 
     void testQTimeZone()
     {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
         QTimeZone zz;
         QTimeZone tz("UTC+05:00");
         BREAK_HERE;
         dummyStatement(&zz, &tz);
+#endif
     }
 
     void testQDate()
@@ -3258,9 +3262,11 @@ namespace stdmap {
 
     void testStdMultiSetInt()
     {
+#ifndef Q_CC_MSVC
         std::multiset<int> set = {1, 1, 2, 3, 3, 3};
         BREAK_HERE;
         dummyStatement(&set);
+#endif
     }
 
     void testStdMap()
@@ -5522,11 +5528,13 @@ namespace basic {
 
     void testLongEvaluation1()
     {
-        QTimeZone tz("UTC+05:00");
         QDateTime time = QDateTime::currentDateTime();
         const int N = 10000;
         QDateTime x = time;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+        QTimeZone tz("UTC+05:00");
         x.setTimeZone(tz);
+#endif
         QDateTime bigv[N];
         for (int i = 0; i < 10000; ++i) {
             bigv[i] = time;

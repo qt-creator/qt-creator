@@ -65,22 +65,40 @@ QString BuildableHelperLibrary::qtChooserToQmakePath(const QString &path)
     return result;
 }
 
+static bool isQmake(const QString &path)
+{
+    if (path.isEmpty())
+        return false;
+    QFileInfo fi(path);
+    if (BuildableHelperLibrary::isQtChooser(fi))
+        fi.setFile(BuildableHelperLibrary::qtChooserToQmakePath(fi.symLinkTarget()));
+
+    return !BuildableHelperLibrary::qtVersionForQMake(fi.absoluteFilePath()).isEmpty();
+}
+
 FileName BuildableHelperLibrary::findSystemQt(const Environment &env)
 {
+    const QString qmake = QLatin1String("qmake");
     QStringList paths = env.path();
     foreach (const QString &path, paths) {
-        QString prefix = path;
-        if (!prefix.endsWith(QLatin1Char('/')))
-            prefix.append(QLatin1Char('/'));
-        foreach (const QString &possibleCommand, possibleQMakeCommands()) {
-            QFileInfo qmake(prefix + possibleCommand);
-            if (qmake.exists()) {
-                if (isQtChooser(qmake))
-                    qmake.setFile(qtChooserToQmakePath(qmake.symLinkTarget()));
+        if (path.isEmpty())
+            continue;
 
-                if (!qtVersionForQMake(qmake.absoluteFilePath()).isNull())
-                    return FileName(qmake);
-            }
+        QDir dir(path);
+
+        if (dir.exists(qmake)) {
+            const QString qmakePath = dir.absoluteFilePath(qmake);
+            if (isQmake(qmakePath))
+                return FileName::fromString(qmakePath);
+        }
+
+        // Prefer qmake-qt5 to qmake-qt4 by sorting the filenames in reverse order.
+        foreach (const QFileInfo &fi, dir.entryInfoList(possibleQMakeCommands(), QDir::Files, QDir::Name | QDir::Reversed)) {
+            if (fi.fileName() == qmake)
+                continue;
+
+            if (isQmake(fi.absoluteFilePath()))
+                return FileName(fi);
         }
     }
     return FileName();
@@ -88,20 +106,12 @@ FileName BuildableHelperLibrary::findSystemQt(const Environment &env)
 
 QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath)
 {
-    bool qmakeIsExecutable;
-    return BuildableHelperLibrary::qtVersionForQMake(qmakePath, &qmakeIsExecutable);
-}
-
-QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath, bool *qmakeIsExecutable)
-{
-    *qmakeIsExecutable = !qmakePath.isEmpty();
-    if (!*qmakeIsExecutable)
+    if (qmakePath.isEmpty())
         return QString();
 
     QProcess qmake;
     qmake.start(qmakePath, QStringList(QLatin1String("--version")));
     if (!qmake.waitForStarted()) {
-        *qmakeIsExecutable = false;
         qWarning("Cannot start '%s': %s", qPrintable(qmakePath), qPrintable(qmake.errorString()));
         return QString();
     }
@@ -111,7 +121,6 @@ QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath, bool
         return QString();
     }
     if (qmake.exitStatus() != QProcess::NormalExit) {
-        *qmakeIsExecutable = false;
         qWarning("'%s' crashed.", qPrintable(qmakePath));
         return QString();
     }
@@ -260,7 +269,7 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
     log->append(newline);
 
     const FileName makeFullPath = arguments.environment.searchInPath(arguments.makeCommand);
-    if (QFileInfo(arguments.directory + QLatin1String("/Makefile")).exists()) {
+    if (QFileInfo::exists(arguments.directory + QLatin1String("/Makefile"))) {
         if (makeFullPath.isEmpty()) {
             *errorMessage = QCoreApplication::translate("ProjectExplorer::DebuggingHelperLibrary",
                                                        "%1 not found in PATH\n").arg(arguments.makeCommand);

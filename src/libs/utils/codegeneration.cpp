@@ -110,25 +110,39 @@ void writeQtIncludeSection(const QStringList &qt4,
     else
         trans = [](const QString &i) { return i.mid(i.indexOf(QLatin1Char('/')) + 1); };
 
-    QSet<QString> qt4Only = QSet<QString>::fromList(Utils::transform(qt4, trans));
-    QSet<QString> qt5Only = QSet<QString>::fromList(Utils::transform(qt5, trans));
-    QSet<QString> common = qt4Only;
+    QSet<QString> qt4Only = Utils::transform<QSet>(qt4, trans);
+    QSet<QString> qt5Only = Utils::transform<QSet>(qt5, trans);
 
-    common.intersect(qt5Only);
-    qt4Only.subtract(common);
-    qt5Only.subtract(common);
+    if (addQtVersionCheck) {
+        QSet<QString> common = qt4Only;
+        common.intersect(qt5Only);
 
-    qtSection(common.toList(), str);
+        // qglobal.h is needed for QT_VERSION
+        if (includeQtModule)
+            common.insert(QLatin1String("QtCore/qglobal.h"));
+        else
+            common.insert(QLatin1String("qglobal.h"));
 
-    if (!qt4Only.isEmpty() || !qt5Only.isEmpty()) {
-        if (addQtVersionCheck)
-            writeBeginQtVersionCheck(str);
-        qtSection(qt5Only.toList(), str);
-        if (addQtVersionCheck)
-            str << QLatin1String("#else\n");
-        qtSection(qt4Only.toList(), str);
-        if (addQtVersionCheck)
-            str << QLatin1String("#endif\n");
+        qt4Only.subtract(common);
+        qt5Only.subtract(common);
+
+        qtSection(common.toList(), str);
+
+        if (!qt4Only.isEmpty() || !qt5Only.isEmpty()) {
+            if (addQtVersionCheck)
+                writeBeginQtVersionCheck(str);
+            qtSection(qt5Only.toList(), str);
+            if (addQtVersionCheck)
+                str << QLatin1String("#else\n");
+            qtSection(qt4Only.toList(), str);
+            if (addQtVersionCheck)
+                str << QLatin1String("#endif\n");
+        }
+    } else {
+        if (!qt5Only.isEmpty()) // default to Qt5
+            qtSection(qt5Only.toList(), str);
+        else
+            qtSection(qt4Only.toList(), str);
     }
 }
 

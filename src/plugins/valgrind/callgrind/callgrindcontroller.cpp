@@ -171,9 +171,7 @@ void CallgrindController::processFinished(int rc, QProcess::ExitStatus status)
             run(Dump);
             return;
         case Pause:
-            // on pause, reset profiling info (for now)
-            run(ResetEventCounters);
-            return;
+            break;
         case Dump:
             emit statusMessage(tr("Callgrind dumped profiling info"));
             break;

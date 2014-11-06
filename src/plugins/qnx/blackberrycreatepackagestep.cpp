@@ -187,7 +187,7 @@ static bool addQtAssets(BarDescriptorAssetList &assetList, BlackBerryQtVersion *
          it != qtFolders.constEnd(); ++it) {
         const QString target = it->first;
         const QString qtFolder = it->second;
-        if (QFileInfo(qtFolder).exists()) {
+        if (QFileInfo::exists(qtFolder)) {
             BarDescriptorAsset asset;
             asset.source = qtFolder;
             asset.destination = target;

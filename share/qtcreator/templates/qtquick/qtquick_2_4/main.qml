@@ -3,18 +3,11 @@ import QtQuick.Window 2.2
 
 Window {
     visible: true
-    width: 360
-    height: 360
-
-    MouseArea {
+    MainForm {
         anchors.fill: parent
-        onClicked: {
+        mouseArea.onClicked: {
             Qt.quit();
         }
-    }
 
-    Text {
-        text: qsTr("Hello World")
-        anchors.centerIn: parent
     }
 }

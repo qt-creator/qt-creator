@@ -44,7 +44,7 @@ Column {
         SectionLayout {
             Label {
                 text: qsTr("Enabled")
-                toolTip: qsTr("This property holds whether the item accepts mouse events.")
+                tooltip: qsTr("This property holds whether the item accepts mouse events.")
             }
 
             SecondColumnLayout {
@@ -59,7 +59,7 @@ Column {
 
             Label {
                 text: qsTr("Hover Enabled")
-                toolTip: qsTr("This property holds whether hover events are handled.")
+                tooltip: qsTr("This property holds whether hover events are handled.")
             }
 
             SecondColumnLayout {

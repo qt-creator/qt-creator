@@ -44,7 +44,7 @@ Column {
         SectionLayout {
             Label {
                 text: qsTr("Orientation")
-                toolTip:  qsTr("Orientation of the split view.")
+                tooltip: qsTr("Orientation of the split view.")
             }
 
             SecondColumnLayout {

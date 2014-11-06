@@ -421,18 +421,22 @@ bool Action::hasAttribute(Command::CommandAttribute attr) const
 }
 
 
+void Command::augmentActionWithShortcutToolTip(QAction *a) const
+{
+    a->setToolTip(stringWithAppendedShortcut(a->text()));
+    QObject::connect(this, &Core::Command::keySequenceChanged, a, [this, a]() {
+        a->setToolTip(stringWithAppendedShortcut(a->text()));
+    });
+    QObject::connect(a, &QAction::changed, this, [this, a]() {
+        a->setToolTip(stringWithAppendedShortcut(a->text()));
+    });
+}
+
 QToolButton *Command::toolButtonWithAppendedShortcut(QAction *action, Command *cmd)
 {
     QToolButton *button = new QToolButton;
     button->setDefaultAction(action);
-    if (cmd) {
-        action->setToolTip(cmd->stringWithAppendedShortcut(action->text()));
-        QObject::connect(cmd, &Core::Command::keySequenceChanged, action, [cmd, action]() {
-            action->setToolTip(cmd->stringWithAppendedShortcut(action->text()));
-        });
-        QObject::connect(action, &QAction::changed, cmd, [cmd, action]() {
-            action->setToolTip(cmd->stringWithAppendedShortcut(action->text()));
-        });
-    }
+    if (cmd)
+        cmd->augmentActionWithShortcutToolTip(action);
     return button;
 }

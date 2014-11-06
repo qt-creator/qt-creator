@@ -517,7 +517,6 @@ QString DiffUtils::makePatch(const QList<FileData> &fileDataList)
 }
 
 static QList<RowData> readLines(const QString &patch,
-                                bool ignoreWhitespace,
                                 bool lastChunk,
                                 bool *lastChunkAtTheEndOfFile,
                                 bool *ok)
@@ -678,28 +677,16 @@ static QList<RowData> readLines(const QString &patch,
     QList<Diff> outputLeftDiffList;
     QList<Diff> outputRightDiffList;
 
-    if (ignoreWhitespace) {
-        const QList<Diff> leftIntermediate =
-                Differ::moveWhitespaceIntoEqualities(leftDiffList);
-        const QList<Diff> rightIntermediate =
-                Differ::moveWhitespaceIntoEqualities(rightDiffList);
-        Differ::ignoreWhitespaceBetweenEqualities(leftIntermediate,
-                                                  rightIntermediate,
-                                                  &outputLeftDiffList,
-                                                  &outputRightDiffList);
-    } else {
-        Differ::diffBetweenEqualities(leftDiffList,
-                                      rightDiffList,
-                                      &outputLeftDiffList,
-                                      &outputRightDiffList);
-    }
+    Differ::diffBetweenEqualities(leftDiffList,
+                                  rightDiffList,
+                                  &outputLeftDiffList,
+                                  &outputRightDiffList);
 
     return DiffUtils::calculateOriginalData(outputLeftDiffList,
                                             outputRightDiffList).rows;
 }
 
 static QList<ChunkData> readChunks(const QString &patch,
-                                   bool ignoreWhitespace,
                                    bool *lastChunkAtTheEndOfFile,
                                    bool *ok)
 {
@@ -728,7 +715,6 @@ static QList<ChunkData> readChunks(const QString &patch,
                 const QString lines = patch.mid(endOfLastChunk,
                                                 pos - endOfLastChunk);
                 chunkDataList.last().rows = readLines(lines,
-                                                      ignoreWhitespace,
                                                       false,
                                                       lastChunkAtTheEndOfFile,
                                                       &readOk);
@@ -747,7 +733,6 @@ static QList<ChunkData> readChunks(const QString &patch,
         if (endOfLastChunk > 0) {
             const QString lines = patch.mid(endOfLastChunk);
             chunkDataList.last().rows = readLines(lines,
-                                                  ignoreWhitespace,
                                                   true,
                                                   lastChunkAtTheEndOfFile,
                                                   &readOk);
@@ -761,7 +746,6 @@ static QList<ChunkData> readChunks(const QString &patch,
 }
 
 static FileData readDiffHeaderAndChunks(const QString &headerAndChunks,
-                                        bool ignoreWhitespace,
                                         bool *ok)
 {
     QString patch = headerAndChunks;
@@ -789,7 +773,6 @@ static FileData readDiffHeaderAndChunks(const QString &headerAndChunks,
             fileData.rightFileInfo.fileName = rightFileRegExp.cap(1);
 
             fileData.chunks = readChunks(patch,
-                                         ignoreWhitespace,
                                          &fileData.lastChunkAtTheEndOfFile,
                                          &readOk);
         }
@@ -811,7 +794,6 @@ static FileData readDiffHeaderAndChunks(const QString &headerAndChunks,
 }
 
 static QList<FileData> readDiffPatch(const QString &patch,
-                                     bool ignoreWhitespace,
                                      bool *ok)
 {
     const QRegExp diffRegExp(QLatin1String("(?:\\n|^)"          // new line of the beginning of a patch
@@ -844,7 +826,6 @@ static QList<FileData> readDiffPatch(const QString &patch,
                                                           pos - lastPos);
 
                 const FileData fileData = readDiffHeaderAndChunks(headerAndChunks,
-                                                                  ignoreWhitespace,
                                                                   &readOk);
 
                 if (!readOk)
@@ -861,7 +842,6 @@ static QList<FileData> readDiffPatch(const QString &patch,
                                                       patch.count() - lastPos - 1);
 
             const FileData fileData = readDiffHeaderAndChunks(headerAndChunks,
-                                                              ignoreWhitespace,
                                                               &readOk);
 
             if (readOk)
@@ -880,7 +860,6 @@ static QList<FileData> readDiffPatch(const QString &patch,
 
 static FileData readGitHeaderAndChunks(const QString &headerAndChunks,
                                        const QString &fileName,
-                                       bool ignoreWhitespace,
                                        bool *ok)
 {
     FileData fileData;
@@ -918,39 +897,38 @@ static FileData readGitHeaderAndChunks(const QString &headerAndChunks,
         fileData.rightFileInfo.typeInfo = indexRegExp.cap(2);
 
         patch.remove(0, indexRegExp.matchedLength());
+    }
 
-        const QRegExp leftFileRegExp(QLatin1String("^-{3} ")                 // "--- "
-                                     + leftFileName                          // "a/fileName" or "/dev/null"
-                                     + QLatin1String("(?:\\t[^\\n]*)*\\n")); // optionally followed by: \t anything \t anything ...)
-        const QRegExp rightFileRegExp(QLatin1String("^\\+{3} ")               // "+++ "
-                                      + rightFileName                         // "b/fileName" or "/dev/null"
-                                      + QLatin1String("(?:\\t[^\\n]*)*\\n")); // optionally followed by: \t anything \t anything ...)
-        const QRegExp binaryRegExp(QLatin1String("^Binary files ")
-                                   + leftFileName
-                                   + QLatin1String(" and ")
-                                   + rightFileName
-                                   + QLatin1String(" differ$"));
+    const QRegExp leftFileRegExp(QLatin1String("^-{3} ")                 // "--- "
+                                 + leftFileName                          // "a/fileName" or "/dev/null"
+                                 + QLatin1String("(?:\\t[^\\n]*)*\\n")); // optionally followed by: \t anything \t anything ...)
+    const QRegExp rightFileRegExp(QLatin1String("^\\+{3} ")               // "+++ "
+                                  + rightFileName                         // "b/fileName" or "/dev/null"
+                                  + QLatin1String("(?:\\t[^\\n]*)*\\n")); // optionally followed by: \t anything \t anything ...)
+    const QRegExp binaryRegExp(QLatin1String("^Binary files ")
+                               + leftFileName
+                               + QLatin1String(" and ")
+                               + rightFileName
+                               + QLatin1String(" differ$"));
 
-        // empty or followed either by leftFileRegExp or by binaryRegExp
-        if (patch.isEmpty() && (fileData.fileOperation == FileData::NewFile
-                             || fileData.fileOperation == FileData::DeleteFile)) {
-            readOk = true;
-        } else if (leftFileRegExp.indexIn(patch) == 0) {
-            patch.remove(0, leftFileRegExp.matchedLength());
+    // empty or followed either by leftFileRegExp or by binaryRegExp
+    if (patch.isEmpty() && (fileData.fileOperation == FileData::NewFile
+                         || fileData.fileOperation == FileData::DeleteFile)) {
+        readOk = true;
+    } else if (leftFileRegExp.indexIn(patch) == 0) {
+        patch.remove(0, leftFileRegExp.matchedLength());
 
-            // followed by rightFileRegExp
-            if (rightFileRegExp.indexIn(patch) == 0) {
-                patch.remove(0, rightFileRegExp.matchedLength());
+        // followed by rightFileRegExp
+        if (rightFileRegExp.indexIn(patch) == 0) {
+            patch.remove(0, rightFileRegExp.matchedLength());
 
-                fileData.chunks = readChunks(patch,
-                                             ignoreWhitespace,
-                                             &fileData.lastChunkAtTheEndOfFile,
-                                             &readOk);
-            }
-        } else if (binaryRegExp.indexIn(patch) == 0) {
-            readOk = true;
-            fileData.binaryFiles = true;
+            fileData.chunks = readChunks(patch,
+                                         &fileData.lastChunkAtTheEndOfFile,
+                                         &readOk);
         }
+    } else if (binaryRegExp.indexIn(patch) == 0) {
+        readOk = true;
+        fileData.binaryFiles = true;
     }
 
     if (ok)
@@ -966,7 +944,6 @@ static FileData readCopyRenameChunks(const QString &copyRenameChunks,
                                      FileData::FileOperation fileOperation,
                                      const QString &leftFileName,
                                      const QString &rightFileName,
-                                     bool ignoreWhitespace,
                                      bool *ok)
 {
     FileData fileData;
@@ -1005,7 +982,6 @@ static FileData readCopyRenameChunks(const QString &copyRenameChunks,
                     patch.remove(0, rightFileRegExp.matchedLength());
 
                     fileData.chunks = readChunks(patch,
-                                                 ignoreWhitespace,
                                                  &fileData.lastChunkAtTheEndOfFile,
                                                  &readOk);
                 }
@@ -1024,7 +1000,7 @@ static FileData readCopyRenameChunks(const QString &copyRenameChunks,
     return fileData;
 }
 
-static QList<FileData> readGitPatch(const QString &patch, bool ignoreWhitespace, bool *ok)
+static QList<FileData> readGitPatch(const QString &patch, bool *ok)
 {
     const QRegExp simpleGitRegExp(QLatin1String("(?:\\n|^)diff --git a/([^\\n]+) b/\\1\\n")); // diff --git a/cap1 b/cap1
 
@@ -1074,14 +1050,12 @@ static QList<FileData> readGitPatch(const QString &patch, bool ignoreWhitespace,
                 if (lastOperation == FileData::ChangeFile) {
                     fileData = readGitHeaderAndChunks(headerAndChunks,
                                                       lastLeftFileName,
-                                                      ignoreWhitespace,
                                                       &readOk);
                 } else {
                     fileData = readCopyRenameChunks(headerAndChunks,
                                                     lastOperation,
                                                     lastLeftFileName,
                                                     lastRightFileName,
-                                                    ignoreWhitespace,
                                                     &readOk);
                 }
                 if (!readOk)
@@ -1124,14 +1098,12 @@ static QList<FileData> readGitPatch(const QString &patch, bool ignoreWhitespace,
 
                 fileData = readGitHeaderAndChunks(headerAndChunks,
                                                   lastLeftFileName,
-                                                  ignoreWhitespace,
                                                   &readOk);
             } else {
                 fileData = readCopyRenameChunks(headerAndChunks,
                                                 lastOperation,
                                                 lastLeftFileName,
                                                 lastRightFileName,
-                                                ignoreWhitespace,
                                                 &readOk);
             }
             if (readOk)
@@ -1148,7 +1120,7 @@ static QList<FileData> readGitPatch(const QString &patch, bool ignoreWhitespace,
     return fileDataList;
 }
 
-QList<FileData> DiffUtils::readPatch(const QString &patch, bool ignoreWhitespace, bool *ok)
+QList<FileData> DiffUtils::readPatch(const QString &patch, bool *ok)
 {
     bool readOk = false;
 
@@ -1161,9 +1133,9 @@ QList<FileData> DiffUtils::readPatch(const QString &patch, bool ignoreWhitespace
     if (pos != -1)
         croppedPatch = patch.left(pos + 1); // crop the ending for git format-patch
 
-    fileDataList = readGitPatch(croppedPatch, ignoreWhitespace, &readOk);
+    fileDataList = readGitPatch(croppedPatch, &readOk);
     if (!readOk)
-        fileDataList = readDiffPatch(croppedPatch, ignoreWhitespace, &readOk);
+        fileDataList = readDiffPatch(croppedPatch, &readOk);
 
     if (ok)
         *ok = readOk;

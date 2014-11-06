@@ -752,7 +752,7 @@ SettingsAccessor::IssueInfo SettingsAccessor::findIssues(const QVariantMap &data
     defaultSettingsPath.appendString(m_userSuffix);
 
     int version = versionFromMap(data);
-    if (!path.toFileInfo().exists()) {
+    if (!path.exists()) {
         return result;
     } else if (data.isEmpty() || version < firstSupportedVersion() || version > currentVersion()) {
         result.title = QApplication::translate("Utils::SettingsAccessor", "No Valid Settings Found");

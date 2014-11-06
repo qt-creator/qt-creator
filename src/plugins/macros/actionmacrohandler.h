@@ -55,13 +55,13 @@ public:
     bool canExecuteEvent(const MacroEvent &macroEvent);
     bool executeEvent(const MacroEvent &macroEvent);
 
+private slots:
+    void addActionEvent(const QString &id);
+
 private:
     void registerCommand(Core::Id id);
     Core::Command *command(const QString &id);
-
-private slots:
-    void addCommand(const QString &id);
-    void addActionEvent(const QString &id);
+    void addCommand(Core::Id id);
 
 private:
     QSet<Core::Id> m_commandIds;

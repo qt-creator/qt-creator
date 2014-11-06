@@ -147,10 +147,7 @@ CMakeManager *CMakeOpenProjectWizard::cmakeManager() const
 
 bool CMakeOpenProjectWizard::hasInSourceBuild() const
 {
-    QFileInfo fi(m_sourceDirectory + QLatin1String("/CMakeCache.txt"));
-    if (fi.exists())
-        return true;
-    return false;
+    return QFileInfo::exists(m_sourceDirectory + QLatin1String("/CMakeCache.txt"));
 }
 
 bool CMakeOpenProjectWizard::compatibleKitExist() const

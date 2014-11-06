@@ -4,7 +4,6 @@ import QtcPlugin
 
 QtcPlugin {
     name: "Welcome"
-    minimumQtVersion: "5.1"
 
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
     Depends { name: "Qt.quick"; condition: product.condition; }

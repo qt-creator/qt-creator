@@ -59,6 +59,12 @@
             You can detect problems in memory management by using the Memcheck
             tool and find cache misses in the code by using the Callgrind tool.
 
+        \li \l{Using Clang Static Analyzer}{Clang Static Analyzer}
+
+            In \QC Enterprise, you can detect problems in C, C++, and
+            Objective-C programs by using the experimental plugin that
+            integrates the Clang Static Analyzer source code analysis tool.
+
     \endlist
 
 */

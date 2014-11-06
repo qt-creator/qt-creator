@@ -31,7 +31,7 @@
 #ifndef UTILS_MACROEXPANDER_H
 #define UTILS_MACROEXPANDER_H
 
-#include "stringutils.h"
+#include "utils_global.h"
 
 #include <functional>
 
@@ -49,15 +49,16 @@ typedef QVector<MacroExpander *> MacroExpanders;
 
 class QTCREATOR_UTILS_EXPORT MacroExpander
 {
-    Q_DECLARE_TR_FUNCTIONS("MacroExpander")
+    Q_DECLARE_TR_FUNCTIONS(Utils::MacroExpander)
+    Q_DISABLE_COPY(MacroExpander)
 
 public:
     explicit MacroExpander();
-    virtual ~MacroExpander();
+    ~MacroExpander();
 
-    virtual bool resolveMacro(const QString &name, QString *ret) const;
+    bool resolveMacro(const QString &name, QString *ret) const;
 
-    virtual QString value(const QByteArray &variable, bool *found = 0) const;
+    QString value(const QByteArray &variable, bool *found = 0) const;
 
     QString expand(const QString &stringWithVariables) const;
     QByteArray expand(const QByteArray &stringWithVariables) const;
@@ -73,7 +74,8 @@ public:
         const QString &description, const PrefixFunction &value);
 
     void registerVariable(const QByteArray &variable,
-        const QString &description, const StringFunction &value);
+        const QString &description, const StringFunction &value,
+        bool visibleInChooser = true);
 
     void registerIntVariable(const QByteArray &variable,
         const QString &description, const IntFunction &value);
@@ -83,11 +85,10 @@ public:
 
     void registerExtraResolver(const ResolverFunction &value);
 
-    QList<QByteArray> variables() const;
+    QList<QByteArray> visibleVariables() const;
     QString variableDescription(const QByteArray &variable) const;
 
     MacroExpanders subExpanders() const;
-    AbstractMacroExpander *abstractExpander() const;
 
     QString displayName() const;
     void setDisplayName(const QString &displayName);
@@ -98,9 +99,6 @@ public:
     void setAccumulating(bool on);
 
 private:
-    MacroExpander(const MacroExpander &) Q_DECL_EQ_DELETE;
-    void operator=(const MacroExpander &) Q_DECL_EQ_DELETE;
-
     friend class Internal::MacroExpanderPrivate;
     Internal::MacroExpanderPrivate *d;
 };

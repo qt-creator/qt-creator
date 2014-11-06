@@ -1016,35 +1016,30 @@ void BaseQtVersion::updateVersionInfo() const
     // Now check for a qt that is configured with a prefix but not installed
     QString installDir = qmakeProperty(m_versionInfo, "QT_HOST_BINS");
     if (!installDir.isNull()) {
-        QFileInfo fi(installDir);
-        if (!fi.exists())
+        if (!QFileInfo::exists(installDir))
             m_installed = false;
     }
     // Framework builds for Qt 4.8 don't use QT_INSTALL_HEADERS
     // so we don't check on mac
     if (!HostOsInfo::isMacHost()) {
         if (!qtHeaderData.isNull()) {
-            const QFileInfo fi(qtHeaderData);
-            if (!fi.exists())
+            if (!QFileInfo::exists(qtHeaderData))
                 m_installed = false;
         }
     }
     const QString qtInstallDocs = qmakeProperty(m_versionInfo, "QT_INSTALL_DOCS");
     if (!qtInstallDocs.isNull()) {
-        const QFileInfo fi(qtInstallDocs);
-        if (fi.exists())
+        if (QFileInfo::exists(qtInstallDocs))
             m_hasDocumentation = true;
     }
     const QString qtInstallExamples = qmakeProperty(m_versionInfo, "QT_INSTALL_EXAMPLES");
     if (!qtInstallExamples.isNull()) {
-        const QFileInfo fi(qtInstallExamples);
-        if (fi.exists())
+        if (QFileInfo::exists(qtInstallExamples))
             m_hasExamples = true;
     }
     const QString qtInstallDemos = qmakeProperty(m_versionInfo, "QT_INSTALL_DEMOS");
     if (!qtInstallDemos.isNull()) {
-        const QFileInfo fi(qtInstallDemos);
-        if (fi.exists())
+        if (QFileInfo::exists(qtInstallDemos))
             m_hasDemos = true;
     }
     m_qtVersionString = qmakeProperty(m_versionInfo, "QT_VERSION");
@@ -1406,7 +1401,7 @@ FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QString> &ver
                             QString possibleFullPath = QString::fromLocal8Bit(temp.at(1).trimmed().constData());
                             // We sometimes get a mix of different slash styles here...
                             possibleFullPath = possibleFullPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
-                            if (QFileInfo(possibleFullPath).exists()) // Only if the path exists
+                            if (QFileInfo::exists(possibleFullPath)) // Only if the path exists
                                 mkspecFullPath = FileName::fromUserInput(possibleFullPath);
                         }
                         break;

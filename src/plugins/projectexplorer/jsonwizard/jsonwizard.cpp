@@ -44,12 +44,24 @@ namespace ProjectExplorer {
 JsonWizard::JsonWizard(QWidget *parent) :
     Utils::Wizard(parent)
 {
+    setMinimumSize(800, 500);
     m_expander.registerExtraResolver([this](const QString &name, QString *ret) -> bool {
         QVariant v = value(name);
-        if (v.isValid())
-            *ret = v.toString();
+        if (v.isValid()) {
+            if (v.type() == QVariant::Bool)
+                *ret = v.toBool() ? QLatin1String("true") : QString();
+            else
+                *ret = v.toString();
+        }
         return v.isValid();
     });
+    m_expander.registerPrefix("Exists", tr("Check whether a variable exists. Returns \"true\" if it does and an empty string if not."),
+                   [this](const QString &value) -> QString
+    {
+        const QString key = QString::fromLatin1("%{") + value + QLatin1Char('}');
+        return m_expander.expand(key) == key ? QString() : QLatin1String("true");
+    });
+
 }
 
 JsonWizard::~JsonWizard()
@@ -150,14 +162,12 @@ void JsonWizard::accept()
     Utils::Wizard::accept();
 
     QString errorMessage;
-    GeneratorFiles list = fileList();
-
-    if (list.isEmpty())
+    if (fileList().isEmpty())
         return;
 
     emit prePromptForOverwrite(m_files);
     JsonWizardGenerator::OverwriteResult overwrite =
-            JsonWizardGenerator::promptForOverwrite(&list, &errorMessage);
+            JsonWizardGenerator::promptForOverwrite(&m_files, &errorMessage);
     if (overwrite == JsonWizardGenerator::OverwriteError) {
         if (!errorMessage.isEmpty())
             QMessageBox::warning(this, tr("Failed to Overwrite Files"), errorMessage);
@@ -165,27 +175,27 @@ void JsonWizard::accept()
     }
 
     emit preFormatFiles(m_files);
-    if (!JsonWizardGenerator::formatFiles(this, &list, &errorMessage)) {
+    if (!JsonWizardGenerator::formatFiles(this, &m_files, &errorMessage)) {
         if (!errorMessage.isEmpty())
             QMessageBox::warning(this, tr("Failed to Format Files"), errorMessage);
         return;
     }
 
     emit preWriteFiles(m_files);
-    if (!JsonWizardGenerator::writeFiles(this, &list, &errorMessage)) {
+    if (!JsonWizardGenerator::writeFiles(this, &m_files, &errorMessage)) {
         if (!errorMessage.isEmpty())
             QMessageBox::warning(this, tr("Failed to Write Files"), errorMessage);
         return;
     }
 
     emit postProcessFiles(m_files);
-    if (!JsonWizardGenerator::postWrite(this, &list, &errorMessage)) {
+    if (!JsonWizardGenerator::postWrite(this, &m_files, &errorMessage)) {
         if (!errorMessage.isEmpty())
             QMessageBox::warning(this, tr("Failed to Post-Process Files"), errorMessage);
         return;
     }
     emit filesReady(m_files);
-    if (!JsonWizardGenerator::allDone(this, &list, &errorMessage)) {
+    if (!JsonWizardGenerator::allDone(this, &m_files, &errorMessage)) {
         if (!errorMessage.isEmpty())
             QMessageBox::warning(this, tr("Failed to Open Files"), errorMessage);
         return;

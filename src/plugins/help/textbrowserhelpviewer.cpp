@@ -63,6 +63,7 @@ TextBrowserHelpViewer::TextBrowserHelpViewer(qreal zoom, QWidget *parent)
         p.color(QPalette::Active, QPalette::Highlight));
     p.setColor(QPalette::Inactive, QPalette::HighlightedText,
         p.color(QPalette::Active, QPalette::HighlightedText));
+    p.setColor(QPalette::Base, Qt::white);
     setPalette(p);
 
     connect(m_textBrowser, SIGNAL(sourceChanged(QUrl)), this, SIGNAL(titleChanged()));

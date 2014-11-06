@@ -91,7 +91,7 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
 
     // Some people don't like it when files are created as a side effect of opening a project,
     // so do not store the build graph if the build directory does not exist yet.
-    params.setDryRun(!QFileInfo(dir).exists());
+    params.setDryRun(!QFileInfo::exists(dir));
 
     params.setBuildRoot(dir);
     params.setProjectFilePath(m_projectFilePath);

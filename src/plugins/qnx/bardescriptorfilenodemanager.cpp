@@ -148,7 +148,7 @@ void BarDescriptorFileNodeManager::updateBarDescriptorNodes(ProjectExplorer::Pro
         if (!projectNode)
             continue;
 
-        if (!QFileInfo(package.appDescriptorPath()).exists()) {
+        if (!QFileInfo::exists(package.appDescriptorPath())) {
             if (!attemptCreate)
                 continue;
 
@@ -241,7 +241,7 @@ bool BarDescriptorFileNodeManager::createBarDescriptor(ProjectExplorer::Project 
     content.replace(QLatin1String("TARGETNAME"), targetName);
     content.replace(QLatin1String("ID"), QLatin1String("com.example.") + projectName);
 
-    if (project->projectDirectory().appendPath(QLatin1String("qml")).toFileInfo().exists())
+    if (project->projectDirectory().appendPath(QLatin1String("qml")).exists())
         content.replace(QLatin1String("</qnx>"),
                         QLatin1String("    <asset path=\"qml\">qml</asset>\n</qnx>"));
 

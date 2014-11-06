@@ -243,7 +243,7 @@ Item {
         implicitHeight: txt.height - 1
         enabled: expanded || trigger(qmlProfilerModelProxy.count(modelIndex)) > 0
         iconSource: expanded ? "arrow_down.png" : "arrow_right.png"
-        tooltip: qsTr(expanded ? "Collapse category" : "Expand category.")
+        tooltip: expanded ? qsTr("Collapse category") : qsTr("Expand category.")
         onClicked: qmlProfilerModelProxy.setExpanded(modelIndex, !expanded);
     }
 

@@ -66,8 +66,7 @@ public:
 
 public slots:
     HelpViewer *createPage();
-    HelpViewer *createPageFromSearch(const QUrl &url);
-    HelpViewer *createPage(const QUrl &url, bool fromSearch = false);
+    HelpViewer *createPage(const QUrl &url);
 
     void setCurrentPage(int index);
     void setCurrentPage(const QModelIndex &index);

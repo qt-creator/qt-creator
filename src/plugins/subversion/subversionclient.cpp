@@ -119,9 +119,11 @@ VcsCommand *SubversionClient::createCommitCmd(const QString &repositoryRoot,
             QStringList(extraOptions)
             << authenticationOptions(SubversionClient::CommitCommand)
             << QLatin1String(Constants::NON_INTERACTIVE_OPTION)
+            << QLatin1String("--encoding") << QLatin1String("utf8")
             << QLatin1String("--file") << commitMessageFile;
 
     VcsCommand *cmd = createCommand(repositoryRoot);
+    cmd->addFlags(VcsBasePlugin::ShowStdOutInLogWindow);
     QStringList args(vcsCommandString(CommitCommand));
     cmd->addJob(args << svnExtraOptions << files);
     return cmd;
@@ -209,15 +211,30 @@ QStringList SubversionClient::addAuthenticationOptions(const QStringList &args,
     return rc;
 }
 
+QString SubversionClient::synchronousTopic(const QString &repository)
+{
+    QStringList args;
+    args << QLatin1String("info");
+
+    QByteArray stdOut;
+    if (!vcsFullySynchronousExec(repository, args, &stdOut))
+        return QString();
+
+    const QString revisionString = QLatin1String("Revision: ");
+    // stdOut is ASCII only (at least in those areas we care about).
+    QString output = SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(stdOut));
+    foreach (const QString &line, output.split(QLatin1Char('\n'))) {
+        if (line.startsWith(revisionString))
+            return QString::fromLatin1("r") + line.mid(revisionString.count());
+    }
+    return QString();
+}
+
 void SubversionClient::diff(const QString &workingDir, const QStringList &files,
                            const QStringList &extraOptions)
 {
     QStringList args(extraOptions);
-    Version v = svnVersion();
-
-    // --internal-diff is new in v1.7.0
-    if (v.majorVersion > 1 || (v.majorVersion == 1 && v.minorVersion >= 7))
-        args.append(QLatin1String("--internal-diff"));
+    args.append(QLatin1String("--internal-diff"));
 
     const bool hasAuth = settings()->hasAuthentication();
     const QString userName = hasAuth ? settings()->stringValue(SubversionSettings::userKey) : QString();

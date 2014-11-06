@@ -117,10 +117,10 @@ def qdump__CPlusPlus__Token(d, value):
     k = value["f"]["kind"]
     if int(k) == 6:
         d.putValue("T_IDENTIFIER. offset: %d, len: %d"
-            % (value["offset"], value["f"]["length"]))
+            % (value["utf16charOffset"], value["f"]["utf16chars"]))
     elif int(k) == 7:
-        d.putValue("T_NUMERIC_LITERAL. offset: %d, value: %d"
-            % (value["offset"], value["f"]["length"]))
+        d.putValue("T_NUMERIC_LITERAL. offset: %d, len: %d"
+            % (value["utf16charOffset"], value["f"]["utf16chars"]))
     else:
         val = str(k.cast(d.lookupType("CPlusPlus::Kind")))
         d.putValue(val[11:]) # Strip "CPlusPlus::"

@@ -260,7 +260,7 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
 
 void VariableGroupItem::populateGroup(MacroExpander *expander)
 {
-    foreach (const QByteArray &variable, expander->variables()) {
+    foreach (const QByteArray &variable, expander->visibleVariables()) {
         auto item = new VariableItem;
         item->m_variable = QString::fromUtf8(variable);
         item->m_expander = expander;
@@ -370,6 +370,18 @@ void VariableChooser::addSupportedWidget(QWidget *textcontrol, const QByteArray 
     QTC_ASSERT(textcontrol, return);
     textcontrol->setProperty(kVariableSupportProperty, QVariant::fromValue<QWidget *>(this));
     textcontrol->setProperty(kVariableNameProperty, ownName);
+}
+
+void VariableChooser::addSupportForChildWidgets(QWidget *parent, MacroExpander *expander)
+{
+     auto chooser = new VariableChooser(parent);
+     chooser->addMacroExpanderProvider([expander] { return expander; });
+     foreach (QWidget *child, parent->findChildren<QWidget *>()) {
+         if (qobject_cast<QLineEdit *>(child)
+                 || qobject_cast<QTextEdit *>(child)
+                 || qobject_cast<QPlainTextEdit *>(child))
+             chooser->addSupportedWidget(child);
+     }
 }
 
 /*!
@@ -533,9 +545,14 @@ static bool handleEscapePressed(QKeyEvent *ke, QWidget *widget)
 /*!
  * \internal
  */
-void VariableChooser::keyPressEvent(QKeyEvent *ev)
+bool VariableChooser::event(QEvent *ev)
 {
-    handleEscapePressed(ev, this);
+    if (ev->type() == QEvent::KeyPress || ev->type() == QEvent::ShortcutOverride) {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(ev);
+        if (handleEscapePressed(ke, this))
+            return true;
+    }
+    return QWidget::event(ev);
 }
 
 /*!
@@ -545,7 +562,7 @@ bool VariableChooser::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj != d->currentWidget())
         return false;
-    if (event->type() == QEvent::KeyPress && isVisible()) {
+    if ((event->type() == QEvent::KeyPress || event->type() == QEvent::ShortcutOverride) && isVisible()) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
         return handleEscapePressed(ke, this);
     } else if (event->type() == QEvent::Resize) {

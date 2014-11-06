@@ -41,11 +41,11 @@ MouseArea {
 
     hoverEnabled: true
 
-    property string toolTip
+    property string tooltip
 
     Timer {
         interval: 1000
-        running: mouseArea.containsMouse && toolTip.length
-        onTriggered: Tooltip.showText(mouseArea, Qt.point(mouseArea.mouseX, mouseArea.mouseY), toolTip)
+        running: mouseArea.containsMouse && tooltip.length
+        onTriggered: Tooltip.showText(mouseArea, Qt.point(mouseArea.mouseX, mouseArea.mouseY), tooltip)
     }
 }

@@ -114,7 +114,7 @@ void AddTabDesignerAction::addNewTab()
         QString directoryPath = QFileInfo(selectionContext().view()->model()->fileUrl().toLocalFile()).absolutePath();
         QString newFilePath = directoryPath +QStringLiteral("/") + tabName + QStringLiteral(".qml");
 
-        if (QFileInfo(newFilePath).exists()) {
+        if (QFileInfo::exists(newFilePath)) {
             QMessageBox::warning(Core::ICore::mainWindow(), tr("Naming Error"), tr("Component already exists."));
         } else {
             const QString sourceString = QStringLiteral("import QtQuick 2.1\nimport QtQuick.Controls 1.0\n\nItem {\n    anchors.fill: parent\n}");

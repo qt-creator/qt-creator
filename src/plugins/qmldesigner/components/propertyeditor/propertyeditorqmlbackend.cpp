@@ -93,7 +93,7 @@ PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyE
         m_view(new Quick2PropertyEditorView), m_propertyEditorTransaction(new PropertyEditorTransaction(propertyEditor)), m_dummyPropertyEditorValue(new PropertyEditorValue()),
         m_contextObject(new PropertyEditorContextObject())
 {
-    Q_ASSERT(QFileInfo(":/images/button_normal.png").exists());
+    Q_ASSERT(QFileInfo::exists(":/images/button_normal.png"));
 
     m_view->engine()->setOutputWarningsToStandardError(
                 !qgetenv("QTCREATOR_QTQUICKDESIGNER_PROPERTYEDITOR_SHOW_WARNINGS").isEmpty());
@@ -436,7 +436,7 @@ QString PropertyEditorQmlBackend::fileFromUrl(const QUrl &url)
 
 bool PropertyEditorQmlBackend::checkIfUrlExists(const QUrl &url)
 {
-    return (QFileInfo(fileFromUrl(url)).exists());
+    return QFileInfo::exists(fileFromUrl(url));
 }
 
 void PropertyEditorQmlBackend::emitSelectionToBeChanged()

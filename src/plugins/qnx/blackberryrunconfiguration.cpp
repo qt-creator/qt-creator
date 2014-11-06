@@ -123,7 +123,7 @@ bool BlackBerryRunConfiguration::fromMap(const QVariantMap &map)
         return false;
 
     m_proFilePath = map.value(QLatin1String(Constants::QNX_PROFILEPATH_KEY)).toString();
-    if (m_proFilePath.isEmpty() || !QFileInfo(m_proFilePath).exists())
+    if (m_proFilePath.isEmpty() || !QFileInfo::exists(m_proFilePath))
         return false;
 
     init();

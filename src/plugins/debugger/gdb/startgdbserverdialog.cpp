@@ -172,22 +172,22 @@ void GdbServerStarter::attach(int port)
     QString binary;
     QString localExecutable;
     QString candidate = sysroot + d->process.exe;
-    if (QFileInfo(candidate).exists())
+    if (QFileInfo::exists(candidate))
         localExecutable = candidate;
     if (localExecutable.isEmpty()) {
         binary = d->process.cmdLine.section(QLatin1Char(' '), 0, 0);
         candidate = sysroot + QLatin1Char('/') + binary;
-        if (QFileInfo(candidate).exists())
+        if (QFileInfo::exists(candidate))
             localExecutable = candidate;
     }
     if (localExecutable.isEmpty()) {
         candidate = sysroot + QLatin1String("/usr/bin/") + binary;
-        if (QFileInfo(candidate).exists())
+        if (QFileInfo::exists(candidate))
             localExecutable = candidate;
     }
     if (localExecutable.isEmpty()) {
         candidate = sysroot + QLatin1String("/bin/") + binary;
-        if (QFileInfo(candidate).exists())
+        if (QFileInfo::exists(candidate))
             localExecutable = candidate;
     }
     if (localExecutable.isEmpty()) {

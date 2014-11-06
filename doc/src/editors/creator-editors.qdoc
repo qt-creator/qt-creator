@@ -529,6 +529,56 @@
         \li
 
     \row
+        \li  M208
+        \li  Error
+        \li  This type (%1) is not supported as a root element by \QMLD.
+        \li
+
+    \row
+        \li  M220
+        \li  Error
+        \li  This type (%1) is not supported as a root element of a Qt Quick UI
+             form.
+        \li
+
+    \row
+        \li  M221
+        \li  Error
+        \li  This type (%1) is not supported in a Qt Quick UI form.
+        \li
+
+    \row
+        \li  M222
+        \li  Error
+        \li  Functions are not supported in a Qt Quick UI form.
+        \li
+
+    \row
+        \li  M223
+        \li  Error
+        \li  Java Script blocks are not supported in a Qt Quick UI form.
+        \li
+
+    \row
+        \li  M224
+        \li  Error
+        \li  Behavior type is not supported in a Qt Quick UI form.
+        \li
+
+    \row
+        \li  M225
+        \li  Error
+        \li  States are only supported in the root item in a Qt Quick UI form.
+        \li
+
+    \row
+        \li  M226
+        \li  Error
+        \li  Referencing the parent of the root item is not supported in a Qt
+             Quick UI form.
+        \li
+
+    \row
         \li  M300
         \li  Error
         \li  Unknown component
@@ -669,6 +719,12 @@
         \li  M323
         \li  Error
         \li  'Number' elements expected in array value
+        \li
+
+    \row
+        \li  M324
+        \li  Warning
+        \li  Using Qt Quick 1 code model instead of Qt Quick 2
         \li
 
     \endtable

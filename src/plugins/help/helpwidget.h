@@ -71,7 +71,7 @@ public:
     HelpViewer *currentViewer() const;
     void setCurrentViewer(HelpViewer *viewer);
     int currentIndex() const;
-    void addViewer(HelpViewer *viewer, bool highlightSearchTerms = false);
+    void addViewer(HelpViewer *viewer);
     void removeViewerAt(int index);
 
     void setViewerFont(const QFont &font);
@@ -81,7 +81,7 @@ public:
     HelpViewer *viewerAt(int index) const;
 
     void open(const QUrl &url, bool newPage = false);
-    void openFromSearch(const QUrl &url, bool newPage = false);
+    void openFromSearch(const QUrl &url, const QStringList &searchTerms, bool newPage = false);
     void showTopicChooser(const QMap<QString, QUrl> &links, const QString &key,
                           bool newPage = false);
     void activateSideBarItem(const QString &id);
@@ -148,6 +148,8 @@ private:
     QAction *m_bookmarkAction;
     QAction *m_searchAction;
     QAction *m_openPagesAction;
+
+    QStringList m_searchTerms;
 };
 
 } // Internal

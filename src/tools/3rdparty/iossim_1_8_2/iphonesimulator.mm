@@ -491,7 +491,7 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
       } else if (strcmp(argv[i], "--env") == 0) {
         i++;
         NSString *envFilePath = [[NSString stringWithUTF8String:argv[i]] expandPath];
-        environment = [NSDictionary dictionaryWithContentsOfFile:envFilePath];
+        environment = [NSMutableDictionary dictionaryWithContentsOfFile:envFilePath];
         if (!environment) {
           fprintf(stdout, "<msg>Could not read environment from file: %s</msg>\n", argv[i]);
           [self printUsage];

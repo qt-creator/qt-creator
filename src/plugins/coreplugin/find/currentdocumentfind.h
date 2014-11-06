@@ -53,7 +53,7 @@ public:
     QString completedFindString() const;
 
     bool isEnabled() const;
-    bool candidateIsEnabled() const;
+    IFindSupport *candidate() const;
     void highlightAll(const QString &txt, FindFlags findFlags);
     IFindSupport::Result findIncremental(const QString &txt, FindFlags findFlags);
     IFindSupport::Result findStep(const QString &txt, FindFlags findFlags);

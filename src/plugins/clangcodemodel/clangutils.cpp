@@ -41,6 +41,7 @@
 
 #include <QDir>
 #include <QFile>
+#include <QLoggingCategory>
 #include <QSet>
 #include <QString>
 
@@ -49,10 +50,10 @@ using namespace ClangCodeModel::Internal;
 using namespace Core;
 using namespace CppTools;
 
-static const bool BeVerbose = qgetenv("QTC_CLANG_VERBOSE") == "1";
-
 namespace ClangCodeModel {
 namespace Utils {
+
+Q_LOGGING_CATEGORY(verboseRunLog, "qtc.clangcodemodel.verboserun")
 
 namespace {
 bool isBlacklisted(const QString &path)
@@ -139,7 +140,7 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, ProjectFile::Kind 
     if (pPart.isNull())
         return result;
 
-    if (BeVerbose)
+    if (verboseRunLog().isDebugEnabled())
         result << QLatin1String("-v");
 
     const bool objcExt = pPart->languageExtensions & ProjectPart::ObjectiveCExtensions;

@@ -46,6 +46,7 @@ public:
 
     QString fileName;
     QString name;
+    QStringList preferredStyles;
     QVector<QPair<QColor, QString> > colors;
     QVector<QString> imageFiles;
     QVector<QGradientStops> gradients;

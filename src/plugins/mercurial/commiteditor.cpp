@@ -35,10 +35,11 @@
 #include <vcsbase/submitfilemodel.h>
 
 #include <QDebug>
-#include <QDir> //TODO REMOVE WHEN BASE FILE CHANGES ARE PULLED
 
-using namespace Mercurial::Internal;
 using namespace VcsBase;
+
+namespace Mercurial {
+namespace Internal  {
 
 CommitEditor::CommitEditor(const VcsBaseSubmitEditorParameters *parameters)
         : VcsBaseSubmitEditor(parameters, new MercurialCommitWidget),
@@ -64,7 +65,6 @@ void CommitEditor::setFields(const QFileInfo &repositoryRoot, const QString &bra
 
     fileModel = new SubmitFileModel(this);
 
-    //TODO Messy tidy this up
     QStringList shouldTrack;
 
     foreach (const VcsBaseClient::StatusItem &item, repoStatus) {
@@ -96,3 +96,6 @@ QString CommitEditor::repoRoot()
 {
     return commitWidget()->repoRoot();
 }
+
+} // namespace Internal
+} // namespace Mercurial

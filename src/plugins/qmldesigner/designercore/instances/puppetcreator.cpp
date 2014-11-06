@@ -111,7 +111,7 @@ bool PuppetCreator::useOnlyFallbackPuppet() const
 {
     DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
     return  settings.useOnlyFallbackPuppet
-            || !qgetenv("USE_ONLY_FALLBACK_PUPPET").isEmpty();
+            || !qgetenv("USE_ONLY_FALLBACK_PUPPET").isEmpty() || m_kit == 0 || !m_kit->isValid();
 }
 
 PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreatorVersion)
@@ -166,7 +166,8 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
     puppetProcess->setProcessEnvironment(processEnvironment());
     QObject::connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), puppetProcess, SLOT(kill()));
     QObject::connect(puppetProcess, SIGNAL(finished(int,QProcess::ExitStatus)), handlerObject, finishSlot);
-    bool fowardQmlpuppetOutput = !qgetenv("FORWARD_QML_PUPPET_OUTPUT").isEmpty();
+    QString forwardOutputMode = qgetenv("FORWARD_QML_PUPPET_OUTPUT").toLower();
+    bool fowardQmlpuppetOutput = forwardOutputMode == puppetMode || forwardOutputMode == "true";
     if (fowardQmlpuppetOutput) {
         puppetProcess->setProcessChannelMode(QProcess::MergedChannels);
         QObject::connect(puppetProcess, SIGNAL(readyRead()), handlerObject, outputSlot);
@@ -261,7 +262,7 @@ void PuppetCreator::createQml1PuppetExecutableIfMissing()
 {
     m_availablePuppetType = FallbackPuppet;
 
-    if (!useOnlyFallbackPuppet() && m_kit) {
+    if (!useOnlyFallbackPuppet()) {
         if (m_qml1PuppetForKitPuppetHash.contains(m_kit->id())) {
             m_availablePuppetType = m_qml1PuppetForKitPuppetHash.value(m_kit->id());
         } else if (checkQmlpuppetIsReady()) {
@@ -283,7 +284,7 @@ void PuppetCreator::createQml2PuppetExecutableIfMissing()
 {
     m_availablePuppetType = FallbackPuppet;
 
-    if (!useOnlyFallbackPuppet() && m_kit) {
+    if (!useOnlyFallbackPuppet()) {
         if (m_qml2PuppetForKitPuppetHash.contains(m_kit->id())) {
             m_availablePuppetType = m_qml2PuppetForKitPuppetHash.value(m_kit->id());
         } else if (checkQml2PuppetIsReady()) {

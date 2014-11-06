@@ -384,7 +384,7 @@ FileName AndroidConfig::androidToolPath() const
         // Java and I've made some progress on it. So if android.exe exists, return that instead.
         FileName path = m_sdkLocation;
         path.appendPath(QLatin1String("tools/android" QTC_HOST_EXE_SUFFIX));
-        if (path.toFileInfo().exists())
+        if (path.exists())
             return path;
         path = m_sdkLocation;
         return path.appendPath(QLatin1String("tools/android" ANDROID_BAT_SUFFIX));
@@ -1213,7 +1213,7 @@ static FileName javaHomeForJavac(const FileName &location)
     while (tries > 0) {
         QDir dir = fileInfo.dir();
         dir.cdUp();
-        if (QFileInfo(dir.filePath(QLatin1String("lib/tools.jar"))).exists())
+        if (QFileInfo::exists(dir.filePath(QLatin1String("lib/tools.jar"))))
             return FileName::fromString(dir.path());
         if (fileInfo.isSymLink())
             fileInfo.setFile(fileInfo.symLinkTarget());
@@ -1252,7 +1252,7 @@ void AndroidConfigurations::load()
             }
         } else if (HostOsInfo::isMacHost()) {
             QString javaHome = QLatin1String("/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home");
-            if (QFileInfo(javaHome).exists())
+            if (QFileInfo::exists(javaHome))
                 m_config.setOpenJDKLocation(Utils::FileName::fromString(javaHome));
         } else if (HostOsInfo::isWindowsHost()) {
             QSettings settings(QLatin1String("HKEY_LOCAL_MACHINE\\SOFTWARE\\Javasoft\\Java Development Kit"), QSettings::NativeFormat);
@@ -1275,7 +1275,7 @@ void AndroidConfigurations::load()
                     settings.beginGroup(version);
                     QString tmpJavaHome = settings.value(QLatin1String("JavaHome")).toString();
                     settings.endGroup();
-                    if (!QFileInfo(tmpJavaHome).exists())
+                    if (!QFileInfo::exists(tmpJavaHome))
                         continue;
 
                     major = tmpMajor;
@@ -1299,7 +1299,7 @@ void AndroidConfigurations::load()
 void AndroidConfigurations::updateAndroidDevice()
 {
     DeviceManager * const devMgr = DeviceManager::instance();
-    if (m_instance->m_config.adbToolPath().toFileInfo().exists())
+    if (m_instance->m_config.adbToolPath().exists())
         devMgr->addDevice(IDevice::Ptr(new Internal::AndroidDevice));
     else if (devMgr->find(Constants::ANDROID_DEVICE_ID))
         devMgr->removeDevice(Core::Id(Constants::ANDROID_DEVICE_ID));

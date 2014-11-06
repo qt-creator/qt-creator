@@ -91,6 +91,9 @@ public:
 
     static SubversionPlugin *instance();
 
+    QString monitorFile(const QString &repository) const;
+    QString synchronousTopic(const QString &repository) const;
+
 public slots:
     void vcsAnnotate(const QString &workingDir, const QString &file,
                      const QString &revision = QString(), int lineNumber = -1);
@@ -149,9 +152,8 @@ private:
                  bool enableAnnotationContextMenu = false);
     void svnStatus(const QString &workingDir, const QString &relativePath = QString());
     void svnUpdate(const QString &workingDir, const QString &relativePath = QString());
-    bool checkSVNSubDir(const QDir &directory, const QString &fileName = QString()) const;
+    bool checkSVNSubDir(const QDir &directory) const;
     void startCommit(const QString &workingDir, const QStringList &files = QStringList());
-    bool commit(const QString &messageFile, const QStringList &subVersionFileList);
     inline SubversionControl *subVersionControl() const;
 
     const QStringList m_svnDirectories;

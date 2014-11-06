@@ -49,24 +49,15 @@
 #include <windows.h>
 #endif
 
-int main(int argc, char *argv[])
+int internalMain(QGuiApplication *application)
 {
-    // Since we always render text into an FBO, we need to globally disable
-    // subpixel antialiasing and instead use gray.
-    qputenv("QSG_DISTANCEFIELD_ANTIALIASING", "gray");
-#ifdef Q_OS_MAC //This keeps qml2puppet from stealing focus
-    qputenv("QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "true");
-#endif
-
-    QApplication application(argc, argv);
-
     QCoreApplication::setOrganizationName("QtProject");
     QCoreApplication::setOrganizationDomain("qt-project.org");
     QCoreApplication::setApplicationName("Qml2Puppet");
     QCoreApplication::setApplicationVersion("1.0.0");
 
-    if (application.arguments().count() < 2
-            || (application.arguments().at(1) == "--readcapturedstream" && application.arguments().count() < 3)) {
+    if (application->arguments().count() < 2
+            || (application->arguments().at(1) == "--readcapturedstream" && application->arguments().count() < 3)) {
         qDebug() << "Usage:\n";
         qDebug() << "--test";
         qDebug() << "--version";
@@ -75,16 +66,16 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    if (application.arguments().at(1) == "--readcapturedstream" && application.arguments().count() > 2) {
-        QFileInfo inputStreamFileInfo(application.arguments().at(2));
+    if (application->arguments().at(1) == "--readcapturedstream" && application->arguments().count() > 2) {
+        QFileInfo inputStreamFileInfo(application->arguments().at(2));
         if (!inputStreamFileInfo.exists()) {
             qDebug() << "Input stream does not exist:" << inputStreamFileInfo.absoluteFilePath();
 
             return -1;
         }
 
-        if (application.arguments().count() > 3) {
-            QFileInfo controlStreamFileInfo(application.arguments().at(3));
+        if (application->arguments().count() > 3) {
+            QFileInfo controlStreamFileInfo(application->arguments().at(3));
             if (!controlStreamFileInfo.exists()) {
                 qDebug() << "Output stream does not exist:" << controlStreamFileInfo.absoluteFilePath();
 
@@ -93,7 +84,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (application.arguments().count() == 2 && application.arguments().at(1) == "--test") {
+    if (application->arguments().count() == 2 && application->arguments().at(1) == "--test") {
         qDebug() << QCoreApplication::applicationVersion();
         QQmlEngine engine;
 
@@ -112,13 +103,13 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    if (application.arguments().count() == 2 && application.arguments().at(1) == "--version") {
+    if (application->arguments().count() == 2 && application->arguments().at(1) == "--version") {
         std::cout << 2;
         return 0;
     }
 
-    if (application.arguments().at(1) != "--readcapturedstream" && application.arguments().count() < 4) {
-        qDebug() << "Wrong argument count: " << application.arguments().count();
+    if (application->arguments().at(1) != "--readcapturedstream" && application->arguments().count() < 4) {
+        qDebug() << "Wrong argument count: " << application->arguments().count();
         return -1;
     }
 
@@ -128,14 +119,36 @@ int main(int argc, char *argv[])
     QtSystemExceptionHandler systemExceptionHandler;
 #endif
 
-    new QmlDesigner::Qt5NodeInstanceClientProxy(&application);
+    new QmlDesigner::Qt5NodeInstanceClientProxy(application);
 
 #if defined(Q_OS_WIN) && defined(QT_NO_DEBUG)
     SetErrorMode(SEM_NOGPFAULTERRORBOX); //We do not want to see any message boxes
 #endif
 
-    if (application.arguments().at(1) == "--readcapturedstream")
+    if (application->arguments().at(1) == "--readcapturedstream")
         return 0;
 
-    return application.exec();
+    return application->exec();
+}
+
+int main(int argc, char *argv[])
+{
+    // Since we always render text into an FBO, we need to globally disable
+    // subpixel antialiasing and instead use gray.
+    qputenv("QSG_DISTANCEFIELD_ANTIALIASING", "gray");
+#ifdef Q_OS_OSX //This keeps qml2puppet from stealing focus
+    qputenv("QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "true");
+#endif
+
+    //If a style different from Desktop is set we have to use QGuiApplication
+    bool useGuiApplication = !qgetenv("QT_QUICK_CONTROLS_STYLE").isEmpty()
+            && qgetenv("QT_QUICK_CONTROLS_STYLE") != "Desktop";
+
+    if (useGuiApplication) {
+        QGuiApplication application(argc, argv);
+        return internalMain(&application);
+    } else {
+        QApplication application(argc, argv);
+        return internalMain(&application);
+    }
 }

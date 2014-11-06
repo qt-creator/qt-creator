@@ -33,7 +33,7 @@
 
 #include <vcsbase/vcsbaseeditor.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace Subversion {
 namespace Internal {
@@ -51,8 +51,8 @@ private:
     VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const;
     QStringList annotationPreviousVersions(const QString &) const;
 
-    mutable QRegExp m_changeNumberPattern;
-    mutable QRegExp m_revisionNumberPattern;
+    QRegularExpression m_changeNumberPattern;
+    QRegularExpression m_revisionNumberPattern;
 };
 
 } // namespace Internal

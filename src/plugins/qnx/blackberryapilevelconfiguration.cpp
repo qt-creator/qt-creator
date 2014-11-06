@@ -130,10 +130,10 @@ void BlackBerryApiLevelConfiguration::ctor()
     QString host = qnxHost().toString();
     FileName qmake4Path = FileName::fromString(Utils::HostOsInfo::withExecutableSuffix(host + QLatin1String("/usr/bin/qmake")));
     FileName qmake5Path = FileName::fromString(Utils::HostOsInfo::withExecutableSuffix(host + QLatin1String("/usr/bin/qt5/qmake")));
-    if (qmake4Path.toFileInfo().exists())
+    if (qmake4Path.exists())
         m_qmake4BinaryFile = qmake4Path;
 
-    if (qmake5Path.toFileInfo().exists())
+    if (qmake5Path.exists())
         m_qmake5BinaryFile = qmake5Path;
 }
 
@@ -183,8 +183,8 @@ bool BlackBerryApiLevelConfiguration::isValid() const
     return QnxBaseConfiguration::isValid() &&
             ((!m_qmake4BinaryFile.isEmpty() || !m_qmake5BinaryFile.isEmpty())
             && (m_autoDetectionSource.isEmpty() ||
-                m_autoDetectionSource.toFileInfo().exists())
-            && (!m_sysRoot.isEmpty() && m_sysRoot.toFileInfo().exists()));
+                m_autoDetectionSource.exists())
+            && (!m_sysRoot.isEmpty() && m_sysRoot.exists()));
 }
 
 
@@ -276,10 +276,10 @@ QStringList BlackBerryApiLevelConfiguration::validationErrors() const
     if (m_qmake4BinaryFile.isEmpty() && m_qmake5BinaryFile.isEmpty())
         errorStrings << tr("- No Qt version found.");
 
-    if (!m_autoDetectionSource.isEmpty() && !m_autoDetectionSource.toFileInfo().exists())
+    if (!m_autoDetectionSource.isEmpty() && !m_autoDetectionSource.exists())
         errorStrings << tr("- No auto detection source found.");
 
-    if (m_sysRoot.isEmpty() && m_sysRoot.toFileInfo().exists())
+    if (m_sysRoot.isEmpty() && m_sysRoot.exists())
         errorStrings << tr("- No sysroot found.");
 
 

@@ -129,7 +129,7 @@ signals:
 public slots:
     void slotClear();
     void slotRequestDump();
-    void loadExternalXmlLogFile();
+    void loadExternalLogFile();
 
     void selectFunction(const Valgrind::Callgrind::Function *);
     void setCostFormat(Valgrind::Internal::CostDelegate::CostFormat format);
@@ -562,11 +562,6 @@ void CallgrindTool::startTool(StartMode mode)
     d->setBusyCursor(true);
 }
 
-void CallgrindTool::loadExternalXmlLogFile()
-{
-    d->loadExternalXmlLogFile();
-}
-
 void CallgrindTool::handleShowCostsOfFunction()
 {
    d->handleShowCostsOfFunction();
@@ -662,11 +657,11 @@ QWidget *CallgrindToolPrivate::createWidgets()
     layout->setSpacing(0);
     widget->setLayout(layout);
 
-    // load external XML log file
+    // load external log file
     action = new QAction(this);
     action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_OPENFILE)));
-    action->setToolTip(tr("Load External XML Log File"));
-    connect(action, SIGNAL(triggered(bool)), this, SLOT(loadExternalXmlLogFile()));
+    action->setToolTip(tr("Load External Log File"));
+    connect(action, SIGNAL(triggered(bool)), this, SLOT(loadExternalLogFile()));
     layout->addWidget(createToolButton(action));
     m_loadExternalLogFile = action;
 
@@ -928,7 +923,7 @@ void CallgrindToolPrivate::slotRequestDump()
     dumpRequested();
 }
 
-void CallgrindToolPrivate::loadExternalXmlLogFile()
+void CallgrindToolPrivate::loadExternalLogFile()
 {
     const QString filePath = QFileDialog::getOpenFileName(
                 Core::ICore::mainWindow(),

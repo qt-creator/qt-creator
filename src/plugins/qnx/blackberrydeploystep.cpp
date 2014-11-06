@@ -114,7 +114,7 @@ void BlackBerryDeployStep::run(QFutureInterface<bool> &fi)
 
     QList<BarPackageDeployInformation> packagesToDeploy = deployConfig->deploymentInfo()->enabledPackages();
     foreach (const BarPackageDeployInformation &info, packagesToDeploy) {
-        if (!QFileInfo(info.packagePath()).exists()) {
+        if (!QFileInfo::exists(info.packagePath())) {
             raiseError(tr("Package \"%1\" does not exist. Create the package first.").arg(info.packagePath()));
             fi.reportResult(false);
             return;

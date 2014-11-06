@@ -104,6 +104,9 @@ private:
     DiffEditorGuiController *m_guiController;
     QToolBar *m_toolBar;
     QComboBox *m_entriesComboBox;
+    QAction *m_whitespaceButtonAction;
+    QAction *m_contextLabelAction;
+    QAction *m_contextSpinBoxAction;
     QAction *m_toggleDescriptionAction;
     QAction *m_reloadAction;
     QToolButton *m_diffEditorSwitcher;

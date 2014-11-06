@@ -33,9 +33,8 @@
 
 namespace DiffEditor {
 
-DiffEditorReloader::DiffEditorReloader(QObject *parent)
-    : QObject(parent),
-      m_controller(0),
+DiffEditorReloader::DiffEditorReloader()
+    : m_controller(0),
       m_reloading(false)
 {
 }

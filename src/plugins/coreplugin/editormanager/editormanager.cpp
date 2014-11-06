@@ -679,8 +679,7 @@ void EditorManagerPrivate::doEscapeKeyFocusMoveMagic()
     if (findPane && findPane->isVisible() && findPane->isUsedByWidget(focus)) {
         findPane->hide();
         stuffHidden = true;
-    }
-    if (!( editorViewVisible && !editorViewActive && editorView->window() == activeWindow )) {
+    } else if (!( editorViewVisible && !editorViewActive && editorView->window() == activeWindow )) {
         QWidget *outputPane = OutputPanePlaceHolder::getCurrent();
         if (outputPane && outputPane->isVisible() && outputPane->window() == activeWindow) {
             OutputPaneManager::instance()->slotHide();
@@ -689,6 +688,10 @@ void EditorManagerPrivate::doEscapeKeyFocusMoveMagic()
         QWidget *rightPane = RightPanePlaceHolder::current();
         if (rightPane && rightPane->isVisible() && rightPane->window() == activeWindow) {
             RightPaneWidget::instance()->setShown(false);
+            stuffHidden = true;
+        }
+        if (findPane && findPane->isVisible() && findPane->window() == activeWindow) {
+            findPane->hide();
             stuffHidden = true;
         }
     }

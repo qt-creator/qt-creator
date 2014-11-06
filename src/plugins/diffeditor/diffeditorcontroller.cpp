@@ -64,7 +64,7 @@ DiffEditorController::DiffEditorController(QObject *parent)
 
 DiffEditorController::~DiffEditorController()
 {
-
+    delete m_reloader;
 }
 
 QString DiffEditorController::clearMessage() const
@@ -137,20 +137,20 @@ DiffEditorReloader *DiffEditorController::reloader() const
     return m_reloader;
 }
 
+// The ownership of reloader is passed to the controller
 void DiffEditorController::setReloader(DiffEditorReloader *reloader)
 {
     if (m_reloader == reloader)
         return; // nothing changes
 
-    if (m_reloader)
-        m_reloader->setController(0);
+    delete m_reloader;
 
     m_reloader = reloader;
 
     if (m_reloader)
         m_reloader->setController(this);
 
-    reloaderChanged(m_reloader);
+    emit reloaderChanged(m_reloader);
 }
 
 void DiffEditorController::clear()

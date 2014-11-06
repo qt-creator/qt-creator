@@ -256,9 +256,9 @@ void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
         m_ui->gdbWarningLabel->setVisible(false);
         if (m_androidConfig.ndkLocation().isEmpty()) {
             m_ndkState = NotSet;
-        } else if (!platformPath.appendPath(QLatin1String("platforms")).toFileInfo().exists()
-                || !toolChainPath.appendPath(QLatin1String("toolchains")).toFileInfo().exists()
-                || !sourcesPath.appendPath(QLatin1String("sources/cxx-stl")).toFileInfo().exists()) {
+        } else if (!platformPath.appendPath(QLatin1String("platforms")).exists()
+                || !toolChainPath.appendPath(QLatin1String("toolchains")).exists()
+                || !sourcesPath.appendPath(QLatin1String("sources/cxx-stl")).exists()) {
             m_ndkState = Error;
             m_ndkErrorMessage = tr("\"%1\" does not seem to be an Android NDK top folder.")
                     .arg(m_androidConfig.ndkLocation().toUserOutput());
@@ -277,7 +277,7 @@ void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
                 if (ati.architecture != ProjectExplorer::Abi::ArmArchitecture)
                     continue;
                 Utils::FileName gdbPath = m_androidConfig.gdbPath(ati.architecture, ati.version);
-                if (gdbPath.toFileInfo().exists())
+                if (gdbPath.exists())
                     gdbPaths << gdbPath.toString();
             }
 
@@ -325,8 +325,7 @@ void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
         } else {
             Utils::FileName bin = m_androidConfig.openJDKLocation();
             bin.appendPath(QLatin1String("bin/javac" QTC_HOST_EXE_SUFFIX));
-            if (!m_androidConfig.openJDKLocation().toFileInfo().exists()
-                    || !bin.toFileInfo().exists())
+            if (!m_androidConfig.openJDKLocation().exists() || !bin.exists())
                 m_javaState = Error;
         }
     }
@@ -407,15 +406,15 @@ bool AndroidSettingsWidget::sdkLocationIsValid() const
     Utils::FileName androidExe = m_androidConfig.sdkLocation();
     Utils::FileName androidBat = m_androidConfig.sdkLocation();
     Utils::FileName emulator = m_androidConfig.sdkLocation();
-    return (androidExe.appendPath(QLatin1String("/tools/android" QTC_HOST_EXE_SUFFIX)).toFileInfo().exists()
-            || androidBat.appendPath(QLatin1String("/tools/android" ANDROID_BAT_SUFFIX)).toFileInfo().exists())
-            && emulator.appendPath(QLatin1String("/tools/emulator" QTC_HOST_EXE_SUFFIX)).toFileInfo().exists();
+    return (androidExe.appendPath(QLatin1String("/tools/android" QTC_HOST_EXE_SUFFIX)).exists()
+            || androidBat.appendPath(QLatin1String("/tools/android" ANDROID_BAT_SUFFIX)).exists())
+            && emulator.appendPath(QLatin1String("/tools/emulator" QTC_HOST_EXE_SUFFIX)).exists();
 }
 
 bool AndroidSettingsWidget::sdkPlatformToolsInstalled() const
 {
     Utils::FileName adb = m_androidConfig.sdkLocation();
-    return adb.appendPath(QLatin1String("platform-tools/adb" QTC_HOST_EXE_SUFFIX)).toFileInfo().exists();
+    return adb.appendPath(QLatin1String("platform-tools/adb" QTC_HOST_EXE_SUFFIX)).exists();
 }
 
 void AndroidSettingsWidget::saveSettings()
@@ -477,7 +476,7 @@ void AndroidSettingsWidget::searchForAnt(const Utils::FileName &location)
                 ant.appendPath(QLatin1String("ant.bat"));
             else
                 ant.appendPath(QLatin1String("ant"));
-            if (ant.toFileInfo().exists()) {
+            if (ant.exists()) {
                 m_androidConfig.setAntLocation(ant);
                 m_ui->AntLocationPathChooser->setFileName(ant);
             }

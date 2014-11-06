@@ -866,6 +866,9 @@ void DebuggerEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &re
                 rc.replace(sepIndex + 1, rc.count() - sepIndex - 1,
                            QString::number(result.gdbServerPort));
             }
+        } else if (result.inferiorPid != InvalidPid && startParameters().startMode == AttachExternal) {
+            // e.g. iOS Simulator
+            startParameters().attachPID = result.inferiorPid;
         }
 
         if (result.qmlServerPort != InvalidPort) {

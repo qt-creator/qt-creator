@@ -159,7 +159,7 @@ void KitManager::restoreKits()
     // read all kits from user file
     KitList userKits;
     FileName userSettingsFile(settingsFileName());
-    if (userSettingsFile.toFileInfo().exists())
+    if (userSettingsFile.exists())
         userKits = restoreKits(userSettingsFile);
     foreach (Kit *k, userKits.kits) {
         if (k->isSdkProvided())

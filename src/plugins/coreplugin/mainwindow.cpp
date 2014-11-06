@@ -161,22 +161,23 @@ MainWindow::MainWindow() :
     QCoreApplication::setApplicationVersion(QLatin1String(Core::Constants::IDE_VERSION_LONG));
     QCoreApplication::setOrganizationName(QLatin1String(Constants::IDE_SETTINGSVARIANT_STR));
     QString baseName = QApplication::style()->objectName();
-    if (Utils::HostOsInfo::isAnyUnixHost() && !Utils::HostOsInfo::isMacHost()) {
-        if (baseName == QLatin1String("windows")) {
-            // Sometimes we get the standard windows 95 style as a fallback
-            if (QStyleFactory::keys().contains(QLatin1String("Fusion"))) {
-                baseName = QLatin1String("fusion"); // Qt5
-            } else { // Qt4
-                // e.g. if we are running on a KDE4 desktop
-                QByteArray desktopEnvironment = qgetenv("DESKTOP_SESSION");
-                if (desktopEnvironment == "kde")
-                    baseName = QLatin1String("plastique");
-                else
-                    baseName = QLatin1String("cleanlooks");
-            }
+    // Sometimes we get the standard windows 95 style as a fallback
+    if (Utils::HostOsInfo::isAnyUnixHost() && !Utils::HostOsInfo::isMacHost()
+            && baseName == QLatin1String("windows")) {
+        baseName = QLatin1String("fusion");
+    }
+
+    // if the user has specified as base style in the theme settings,
+    // prefer that
+    const QStringList available = QStyleFactory::keys();
+    foreach (const QString &s, Utils::creatorTheme()->preferredStyles()) {
+        if (available.contains(s, Qt::CaseInsensitive)) {
+            baseName = s;
+            break;
         }
     }
-    qApp->setStyle(new ManhattanStyle(baseName));
+
+    QApplication::setStyle(new ManhattanStyle(baseName));
 
     setDockNestingEnabled(true);
 

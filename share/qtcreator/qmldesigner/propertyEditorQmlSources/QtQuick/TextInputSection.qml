@@ -73,7 +73,7 @@ Section {
         Label {
             visible: textInputSection.isTextInput
             text: qsTr("Pass. char")
-            toolTip: qsTr("Character displayed when users enter passwords.")
+            tooltip: qsTr("Character displayed when users enter passwords.")
         }
 
         LineEdit {

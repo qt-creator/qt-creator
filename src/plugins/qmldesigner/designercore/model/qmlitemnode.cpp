@@ -189,7 +189,7 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
             QString relativeImageName = imageName;
 
             //use relative path
-            if (QFileInfo(view->model()->fileUrl().toLocalFile()).exists()) {
+            if (QFileInfo::exists(view->model()->fileUrl().toLocalFile())) {
                 QDir fileDir(QFileInfo(view->model()->fileUrl().toLocalFile()).absolutePath());
                 relativeImageName = fileDir.relativeFilePath(imageName);
                 propertyPairList.append(qMakePair(PropertyName("source"), QVariant(relativeImageName)));

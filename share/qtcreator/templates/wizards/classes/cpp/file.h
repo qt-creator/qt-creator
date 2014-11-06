@@ -1,4 +1,4 @@
-%{Cpp:LicenseTemplate}
+%{Cpp:LicenseTemplate}\
 #ifndef %{GUARD}
 #define %{GUARD}
 
@@ -12,10 +12,8 @@
                              ( '%{IncludeQMainWindow}' )      ? 'QtWidgets/%{IncludeQMainWindow}'          : '',
                              ( '%{IncludeQDeclarativeItem}' ) ? 'QtQuick1/%{IncludeQDeclarativeItem}'      : '',
                              ( '%{IncludeQQuickItem}' )       ? 'QtDeclarative/%{IncludeQQuickItem}'       : '',
-                             ( '%{IncludeQSharedData}' )      ? 'QtCore/QSharedDataPointer'                : '' ])}
-
+                             ( '%{IncludeQSharedData}' )      ? 'QtCore/QSharedDataPointer'                : '' ])}\
 %{JS: Cpp.openNamespaces('%{Class}')}
-
 @if '%{IncludeQSharedData}'
 class %{CN}Data;
 
@@ -28,13 +26,13 @@ class %{CN}
 {
 @if '%{isQObject}'
      Q_OBJECT
+@endif
 public:
+@if '%{Base}' === 'QObject'
     explicit %{CN}(QObject *parent = 0);
 @elsif '%{Base}' === 'QWidget' || '%{Base}' === 'QMainWindow'
-public
     explicit %{CN}(QWidget *parent = 0);
 @else
-public:
     %{CN}();
 @endif
 @if '%{IncludeQSharedData}'
@@ -54,7 +52,5 @@ private:
     QSharedDataPointer<%{CN}Data> data;
 @endif
 };
-
 %{JS: Cpp.closeNamespaces('%{Class}')}
-
-#endif // %{GUARD}
+#endif // %{GUARD}\

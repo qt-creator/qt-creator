@@ -69,23 +69,17 @@ BlackBerrySigningUtils::BlackBerrySigningUtils(QObject *parent) :
 
 bool BlackBerrySigningUtils::hasRegisteredKeys()
 {
-    QFileInfo cskFile(BlackBerryConfigurationManager::instance()->idTokenPath());
-
-    return cskFile.exists();
+    return QFileInfo::exists(BlackBerryConfigurationManager::instance()->idTokenPath());
 }
 
 bool BlackBerrySigningUtils::hasLegacyKeys()
 {
-    QFileInfo cskFile(BlackBerryConfigurationManager::instance()->barsignerCskPath());
-
-    return cskFile.exists();
+    return QFileInfo::exists(BlackBerryConfigurationManager::instance()->barsignerCskPath());
 }
 
 bool BlackBerrySigningUtils::hasDefaultCertificate()
 {
-    QFileInfo keystore(BlackBerryConfigurationManager::instance()->defaultKeystorePath());
-
-    return keystore.exists();
+    return QFileInfo::exists(BlackBerryConfigurationManager::instance()->defaultKeystorePath());
 }
 
 QString BlackBerrySigningUtils::cskPassword(QWidget *passwordPromptParent, bool *ok)

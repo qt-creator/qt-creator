@@ -254,7 +254,7 @@
     \contentspage {Qt Creator Manual}
     \previouspage creator-cache-profiler.html
     \page creator-running-valgrind-remotely.html
-    \nextpage creator-advanced.html
+    \nextpage creator-clang-static-analyzer.html
 
     \title Running Valgrind Tools on External Applications
 

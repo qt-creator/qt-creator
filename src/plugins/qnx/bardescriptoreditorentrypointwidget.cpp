@@ -145,7 +145,7 @@ void BarDescriptorEditorEntryPointWidget::handleIconChanged(const QString &path)
         emit imageRemoved(m_prevIconPath);
 
     m_prevIconPath = path;
-    if (QFileInfo(path).exists())
+    if (QFileInfo::exists(path))
         emit imageAdded(path);
 }
 

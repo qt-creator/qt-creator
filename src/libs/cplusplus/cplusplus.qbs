@@ -44,7 +44,6 @@ QtcLibrary {
             "Keywords.cpp",
             "Lexer.cpp",
             "Lexer.h",
-            "LiteralTable.cpp",
             "LiteralTable.h",
             "Literals.cpp",
             "Literals.h",

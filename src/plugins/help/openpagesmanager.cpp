@@ -187,12 +187,7 @@ HelpViewer *OpenPagesManager::createPage()
     return createPage(QUrl(Help::Constants::AboutBlank));
 }
 
-HelpViewer *OpenPagesManager::createPageFromSearch(const QUrl &url)
-{
-    return createPage(url, true);
-}
-
-HelpViewer *OpenPagesManager::createPage(const QUrl &url, bool fromSearch)
+HelpViewer *OpenPagesManager::createPage(const QUrl &url)
 {
     if (url.isValid() && HelpViewer::launchWithExternalApp(url))
         return 0;
@@ -201,7 +196,7 @@ HelpViewer *OpenPagesManager::createPage(const QUrl &url, bool fromSearch)
 
     const int index = m_model->rowCount() - 1;
     HelpViewer * const page = m_model->pageAt(index);
-    CentralWidget::instance()->addViewer(page, fromSearch);
+    CentralWidget::instance()->addViewer(page);
 
     emit pagesChanged();
     setCurrentPage(index);

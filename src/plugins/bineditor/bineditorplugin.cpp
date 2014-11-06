@@ -247,6 +247,12 @@ public:
         return true;
     }
 
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const
+    {
+        Q_UNUSED(state)
+        return type == TypeRemoved ? BehaviorSilent : BehaviorAsk;
+    }
+
     bool save(QString *errorString, const QString &fn, bool autoSave)
     {
         QTC_ASSERT(!autoSave, return true); // bineditor does not support autosave - it would be a bit expensive
@@ -363,8 +369,7 @@ public:
     BinEditor(BinEditorWidget *widget)
     {
         setWidget(widget);
-        m_widget = widget;
-        m_file = new BinEditorDocument(m_widget);
+        m_file = new BinEditorDocument(widget);
         m_context.add(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
         m_context.add(Constants::C_BINEDITOR);
         m_addressEdit = new QLineEdit;
@@ -387,13 +392,14 @@ public:
 
         widget->setEditor(this);
 
-        connect(m_widget, SIGNAL(cursorPositionChanged(int)), SLOT(updateCursorPosition(int)));
+        connect(widget, SIGNAL(cursorPositionChanged(int)), SLOT(updateCursorPosition(int)));
         connect(m_addressEdit, SIGNAL(editingFinished()), SLOT(jumpToAddress()));
-        connect(m_widget, SIGNAL(modificationChanged(bool)), m_file, SIGNAL(changed()));
-        updateCursorPosition(m_widget->cursorPosition());
+        connect(widget, SIGNAL(modificationChanged(bool)), m_file, SIGNAL(changed()));
+        updateCursorPosition(widget->cursorPosition());
     }
 
-    ~BinEditor() {
+    ~BinEditor()
+    {
         delete m_widget;
     }
 
@@ -407,16 +413,22 @@ public:
 
 private slots:
     void updateCursorPosition(int position) {
-        m_addressEdit->setText(QString::number(m_widget->baseAddress() + position, 16));
+        m_addressEdit->setText(QString::number(editorWidget()->baseAddress() + position, 16));
     }
 
     void jumpToAddress() {
-        m_widget->jumpToAddress(m_addressEdit->text().toULongLong(0, 16));
-        updateCursorPosition(m_widget->cursorPosition());
+        editorWidget()->jumpToAddress(m_addressEdit->text().toULongLong(0, 16));
+        updateCursorPosition(editorWidget()->cursorPosition());
     }
 
 private:
-    BinEditorWidget *m_widget;
+    inline BinEditorWidget *editorWidget() const
+    {
+        QTC_ASSERT(qobject_cast<BinEditorWidget *>(m_widget.data()), return 0);
+        return static_cast<BinEditorWidget *>(m_widget.data());
+    }
+
+private:
     BinEditorDocument *m_file;
     QToolBar *m_toolBar;
     QLineEdit *m_addressEdit;

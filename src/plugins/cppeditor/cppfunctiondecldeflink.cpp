@@ -672,8 +672,10 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
 
         // the number of parameters in sourceFunction or targetFunction
         const int existingParamCount = declaredParameterCount(sourceFunction);
-        QTC_ASSERT(existingParamCount == declaredParameterCount(targetFunction), return changes);
-        QTC_ASSERT(existingParamCount == targetParameterDecls.size(), return changes);
+        if (existingParamCount != declaredParameterCount(targetFunction))
+            return changes;
+        if (existingParamCount != targetParameterDecls.size())
+            return changes;
 
         const int newParamCount = declaredParameterCount(newFunction);
 

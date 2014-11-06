@@ -1,0 +1,77 @@
+
+/****************************************************************************
+**
+** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of Qt Creator
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage creator-running-valgrind-remotely.html
+    \page creator-clang-static-analyzer.html
+    \nextpage creator-advanced.html
+
+    \title Using Clang Static Analyzer
+
+    \QC Enterprise integrates the \l{http://clang-analyzer.llvm.org}
+    {Clang Static Analyzer} for finding problems in C, C++, and Objective-C
+    programs. You must have Clang installed to use the plugin. At the time of
+    this writing, the plugin is experimental and only available on Linux and
+    OS X.
+
+    \image qtcreator-clang-static-analyzer.png
+
+    The Clang Static Analyzer runs with all the default checkers enabled. For
+    more information about the checkers, see
+    \l{http://clang-analyzer.llvm.org/available_checks.html}{Available Checkers}.
+
+    To set up the Clang Static Analyzer:
+
+    \list 1
+
+        \li Select \gui Help > \gui {About Plugins} > \gui {Code Analyzer} >
+            \gui {Clang Static Analyzer} to enable the experimental plugin.
+
+        \li Restart \QC to be able to use the plugin.
+
+        \li Select \gui Tools > \gui Options > \gui Analyzer >
+            \gui {Clang Static Analyzer} to check that the path to the Clang
+            executable is set correctly in the \gui {Clang executable} field.
+
+            \image qtcreator-clang-static-analyzer-options.png
+
+    \endlist
+
+    To run the Clang Static Analyzer to analyze an open project:
+
+    \list 1
+
+        \li Select \gui Analyze > \gui {Clang Static Analyzer}.
+
+        \li Select the
+            \inlineimage qtcreator-analyze-start-button.png
+            (\gui Start) button to run the Clang Static Analyzer on the
+            application.
+
+    \endlist
+
+*/
+

@@ -116,8 +116,7 @@ EditorConfiguration::EditorConfiguration() : d(new EditorConfigurationPrivate)
     d->m_defaultCodeStyle->setDisplayName(tr("Project", "Settings"));
     d->m_defaultCodeStyle->setId("Project");
     // if setCurrentDelegate is 0 values are read from *this prefs
-    d->m_defaultCodeStyle->setCurrentDelegate(d->m_useGlobal
-                    ? TextEditorSettings::codeStyle() : 0);
+    d->m_defaultCodeStyle->setCurrentDelegate(TextEditorSettings::codeStyle());
 
     connect(SessionManager::instance(), SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
             this, SLOT(slotAboutToRemoveProject(ProjectExplorer::Project*)));
@@ -224,8 +223,6 @@ QVariantMap EditorConfiguration::toMap() const
 
 void EditorConfiguration::fromMap(const QVariantMap &map)
 {
-    d->m_useGlobal = map.value(kUseGlobal, d->m_useGlobal).toBool();
-
     const QByteArray &codecName = map.value(kCodec, d->m_textCodec->name()).toByteArray();
     d->m_textCodec = QTextCodec::codecForName(codecName);
     if (!d->m_textCodec)
@@ -251,6 +248,7 @@ void EditorConfiguration::fromMap(const QVariantMap &map)
     d->m_behaviorSettings.fromMap(kPrefix, map);
     d->m_extraEncodingSettings.fromMap(kPrefix, map);
     d->m_marginSettings.fromMap(kPrefix, map);
+    setUseGlobalSettings(map.value(kUseGlobal, d->m_useGlobal).toBool());
 }
 
 void EditorConfiguration::configureEditor(BaseTextEditor *textEditor) const
@@ -280,8 +278,7 @@ void EditorConfiguration::deconfigureEditor(BaseTextEditor *textEditor) const
 void EditorConfiguration::setUseGlobalSettings(bool use)
 {
     d->m_useGlobal = use;
-    d->m_defaultCodeStyle->setCurrentDelegate(d->m_useGlobal
-                    ? TextEditorSettings::codeStyle() : 0);
+    d->m_defaultCodeStyle->setCurrentDelegate(use ? TextEditorSettings::codeStyle() : 0);
     foreach (Core::IEditor *editor, Core::DocumentModel::editorsForOpenedDocuments()) {
         if (TextEditorWidget *widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
             Project *project = SessionManager::projectForFile(editor->document()->filePath());

@@ -88,6 +88,7 @@ public:
 
     virtual void setKeySequence(const QKeySequence &key) = 0;
     virtual QString stringWithAppendedShortcut(const QString &str) const = 0;
+    void augmentActionWithShortcutToolTip(QAction *action) const;
     static QToolButton *toolButtonWithAppendedShortcut(QAction *action, Command *cmd);
 
     virtual bool isScriptable() const = 0;

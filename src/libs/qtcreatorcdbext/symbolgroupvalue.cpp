@@ -1225,6 +1225,8 @@ static KnownType knownClassTypeHelper(const std::string &type,
             return KT_QMetaEnum;
         if (!type.compare(qPos, 9, "QTextItem"))
             return KT_QTextItem;
+        if (!type.compare(qPos, 9, "QTimeZone"))
+            return KT_QTimeZone;
         if (!type.compare(qPos, 9, "QVector2D"))
             return KT_QVector2D;
         if (!type.compare(qPos, 9, "QVector3D"))
@@ -1789,12 +1791,25 @@ static bool dumpQByteArrayFromQPrivateClass(const SymbolGroupValue &v,
     const ULONG64 byteArrayAddress = addressOfQPrivateMember(v, mode, additionalOffset);
     if (!byteArrayAddress)
         return false;
-    const std::string dumpType = QtInfo::get(v.context()).prependQtCoreModule("QByteArray");
-    const std::string symbolName = SymbolGroupValue::pointedToSymbolName(byteArrayAddress , dumpType);
+    std::string dumpType = QtInfo::get(v.context()).prependQtCoreModule("QByteArray");
+    std::string symbolName = SymbolGroupValue::pointedToSymbolName(byteArrayAddress , dumpType);
+    if (SymbolGroupValue::verbose > 1)
+        DebugPrint() <<  "dumpQByteArrayFromQPrivateClass of " << v.name() << '/'
+                     << v.type() << " mode=" << mode
+                     << " offset=" << additionalOffset << " address=0x" << std::hex << byteArrayAddress
+                     << std::dec << " expr=" << symbolName;
     SymbolGroupNode *byteArrayNode =
             v.node()->symbolGroup()->addSymbol(v.module(), symbolName, std::string(), &errorMessage);
-    if (!byteArrayNode)
-        return false;
+    if (!byteArrayNode && errorMessage.find("DEBUG_ANY_ID") != std::string::npos) {
+        // HACK:
+        // In some rare cases the AddSymbol can't create a node with a given module name,
+        // but is able to add the symbol without any modulename.
+        dumpType = QtInfo::get(v.context()).prependModuleAndNameSpace("QByteArray", "", QtInfo::get(v.context()).nameSpace);
+        symbolName = SymbolGroupValue::pointedToSymbolName(byteArrayAddress , dumpType);
+        byteArrayNode = v.node()->symbolGroup()->addSymbol(v.module(), symbolName, std::string(), &errorMessage);
+        if (!byteArrayNode)
+            return false;
+    }
     return dumpQByteArray(SymbolGroupValue(byteArrayNode, v.context()), str);
 }
 
@@ -2132,6 +2147,11 @@ static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str)
                                        timeAddr, SymbolGroupValue::intSize(), 0);
     str << date << '/' << time;
     return true;
+}
+
+static bool dumpQTimeZone(const SymbolGroupValue &v, std::wostream &str)
+{
+    return dumpQByteArrayFromQPrivateClass(v, QPDM_qSharedDataPadded, SymbolGroupValue::pointerSize(), str);
 }
 
 static bool dumpQPixmap(const SymbolGroupValue &v, std::wostream &str)
@@ -2753,6 +2773,9 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
             break;
         case KT_QDateTime:
             rc = dumpQDateTime(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QTimeZone:
+            rc = dumpQTimeZone(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
         case KT_QPoint:
         case KT_QPointF:

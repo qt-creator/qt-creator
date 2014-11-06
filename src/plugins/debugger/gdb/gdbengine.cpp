@@ -1417,7 +1417,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     //qDebug() << "BP " << rid << data.toString();
     // Quickly set the location marker.
     if (lineNumber && !boolSetting(OperateByInstruction)
-            && QFileInfo(fullName).exists()
+            && QFileInfo::exists(fullName)
             && !isQmlStepBreakpoint(rid)
             && !isQFatalBreakpoint(rid))
         gotoLocation(Location(fullName, lineNumber));

@@ -39,10 +39,14 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/TranslationUnit.h>
 
+#include <QLoggingCategory>
+
 enum { debug = 0 };
 
 using namespace CPlusPlus;
 using namespace CppTools;
+
+static Q_LOGGING_CATEGORY(log, "qtc.cpptools.semanticinfoupdater")
 
 namespace CppTools {
 
@@ -105,8 +109,7 @@ void SemanticInfoUpdaterPrivate::setSemanticInfo(const SemanticInfo &semanticInf
         m_semanticInfo = semanticInfo;
     }
     if (emitSignal) {
-        if (debug)
-            qDebug() << "SemanticInfoUpdater: emiting new info";
+        qCDebug(log) << "emiting new info";
         emit q->updated(semanticInfo);
     }
 }
@@ -115,9 +118,6 @@ SemanticInfo SemanticInfoUpdaterPrivate::update(const SemanticInfo::Source &sour
                                                 bool emitSignalWhenFinished,
                                                 FuturizedTopLevelDeclarationProcessor *processor)
 {
-    if (debug)
-        qDebug() << "SemanticInfoUpdater: update() - source revision" << source.revision;
-
     SemanticInfo newSemanticInfo;
     newSemanticInfo.revision = source.revision;
     newSemanticInfo.snapshot = source.snapshot;
@@ -130,9 +130,8 @@ SemanticInfo SemanticInfoUpdaterPrivate::update(const SemanticInfo::Source &sour
         newSemanticInfo.complete = false;
     newSemanticInfo.doc = doc;
 
-    if (debug)
-        qDebug() << "SemanticInfoUpdater: update() - re-calculated document. Canceled ="
-                 << !newSemanticInfo.complete;
+    qCDebug(log) << "update() for source revision:" << source.revision
+                 << "canceled:" << !newSemanticInfo.complete;
 
     setSemanticInfo(newSemanticInfo, emitSignalWhenFinished);
     return newSemanticInfo;
@@ -156,9 +155,7 @@ bool SemanticInfoUpdaterPrivate::reuseCurrentSemanticInfo(const SemanticInfo::So
         newSemanticInfo.snapshot = source.snapshot;
         newSemanticInfo.doc = currentSemanticInfo.doc;
         setSemanticInfo(newSemanticInfo, emitSignalWhenFinished);
-        if (debug)
-            qDebug() << "SemanticInfoUpdater: re-using current semantic info - source.revision"
-                     << source.revision;
+        qCDebug(log) << "re-using current semantic info, source revision:" << source.revision;
         return true;
     }
 
@@ -185,8 +182,7 @@ SemanticInfoUpdater::~SemanticInfoUpdater()
 
 SemanticInfo SemanticInfoUpdater::update(const SemanticInfo::Source &source)
 {
-    if (debug)
-        qDebug() << "SemanticInfoUpdater: update() - synchronous";
+    qCDebug(log) << "update() - synchronous";
     d->m_future.cancel();
 
     const bool emitSignalWhenFinished = false;
@@ -200,8 +196,7 @@ SemanticInfo SemanticInfoUpdater::update(const SemanticInfo::Source &source)
 
 void SemanticInfoUpdater::updateDetached(const SemanticInfo::Source source)
 {
-    if (debug)
-        qDebug() << "SemanticInfoUpdater: updateDetached() - asynchronous";
+    qCDebug(log) << "updateDetached() - asynchronous";
     d->m_future.cancel();
 
     const bool emitSignalWhenFinished = true;

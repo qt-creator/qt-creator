@@ -320,8 +320,14 @@ void SessionManager::addProjects(const QList<Project*> &projects)
         }
     }
 
-    foreach (Project *pro, clearedList)
+    foreach (Project *pro, clearedList) {
         emit m_instance->projectAdded(pro);
+        configureEditors(pro);
+        connect(pro, &Project::fileListChanged,
+                [pro](){
+                    configureEditors(pro);
+                });
+    }
 
     if (clearedList.count() == 1)
         emit m_instance->singleProjectAdded(clearedList.first());
@@ -611,6 +617,19 @@ void SessionManager::configureEditor(Core::IEditor *editor, const QString &fileN
     }
 }
 
+void SessionManager::configureEditors(Project *project)
+{
+    foreach (IDocument *document, DocumentModel::openedDocuments()) {
+        if (d->projectContainsFile(project, document->filePath())) {
+            foreach (IEditor *editor, DocumentModel::editorsForDocument(document)) {
+                if (TextEditor::BaseTextEditor *textEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor)) {
+                        project->editorConfiguration()->configureEditor(textEditor);
+                }
+            }
+        }
+    }
+}
+
 void SessionManager::removeProjects(QList<Project *> remove)
 {
     QMap<QString, QStringList> resMap;
@@ -883,7 +902,7 @@ bool SessionManager::loadSession(const QString &session)
     // Try loading the file
     FileName fileName = sessionNameToFileName(session);
     PersistentSettingsReader reader;
-    if (fileName.toFileInfo().exists()) {
+    if (fileName.exists()) {
         if (!reader.load(fileName)) {
             QMessageBox::warning(ICore::dialogParent(), tr("Error while restoring session"),
                                  tr("Could not restore session %1").arg(fileName.toUserOutput()));
@@ -919,7 +938,7 @@ bool SessionManager::loadSession(const QString &session)
     d->m_sessionName = session;
     EditorManager::updateWindowTitles();
 
-    if (fileName.toFileInfo().exists()) {
+    if (fileName.exists()) {
         d->m_virginSession = false;
 
         ProgressManager::addTask(d->m_future.future(), tr("Loading Session"),
@@ -1021,7 +1040,7 @@ QStringList SessionManager::projectsForSessionName(const QString &session)
 {
     const FileName fileName = sessionNameToFileName(session);
     PersistentSettingsReader reader;
-    if (fileName.toFileInfo().exists()) {
+    if (fileName.exists()) {
         if (!reader.load(fileName)) {
             qWarning() << "Could not restore session" << fileName.toUserOutput();
             return QStringList();

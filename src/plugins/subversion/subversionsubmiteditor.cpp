@@ -55,7 +55,6 @@ void SubversionSubmitEditor::setStatusList(const QList<StatusFilePair> &statusOu
     // Hack to allow completion in "description" field : completion needs a root repository, the
     // checkScriptWorkingDirectory property is fine (at this point it was set by SubversionPlugin)
     setFileModel(model, this->checkScriptWorkingDirectory());
-
 }
 
 /*

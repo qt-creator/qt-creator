@@ -78,8 +78,7 @@ bool WinRtPackageDeploymentStep::init()
 
     m_targetFilePath = appTargetFilePath.toString();
     if (m_targetFilePath.isEmpty()) {
-        // ### raise error in 3.3
-        // raiseError(tr("No executable to deploy found in %1.").arg(rc->proFilePath()));
+        raiseError(tr("No executable to deploy found in %1.").arg(rc->proFilePath()));
         return false;
     }
 
@@ -99,21 +98,31 @@ bool WinRtPackageDeploymentStep::init()
     QString args = QtcProcess::quoteArg(QDir::toNativeSeparators(m_targetFilePath));
     args += QLatin1Char(' ') + m_args;
 
-    m_manifestFileName = QStringLiteral("AppxManifest");
-
     if (qt->type() == QLatin1String(Constants::WINRT_WINPHONEQT)) {
         m_createMappingFile = true;
-        if (qt->mkspec().toString().contains(QLatin1String("msvc2012")))
-            m_manifestFileName = QStringLiteral("WMAppManifest");
+        args += QLatin1String(" -list mapping");
     }
 
+    ProcessParameters *params = processParameters();
+    params->setCommand(QLatin1String("windeployqt.exe"));
+    params->setArguments(args);
+    params->setEnvironment(target()->activeBuildConfiguration()->environment());
+
+    return AbstractProcessStep::init();
+}
+
+void WinRtPackageDeploymentStep::run(QFutureInterface<bool> &fi)
+{
+    AbstractProcessStep::run(fi);
+
+    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target()->kit());
+    if (!qt)
+        return;
+
+    m_manifestFileName = QStringLiteral("AppxManifest");
+
     if (m_createMappingFile) {
-        args += QLatin1String(" -list mapping");
         m_mappingFileContent = QLatin1String("[Files]\n");
-        if (qt->mkspec().toString().contains(QLatin1String("msvc2012"))) {
-            m_mappingFileContent += QLatin1Char('"') + QDir::toNativeSeparators(m_targetDirPath) + m_manifestFileName
-                    + QLatin1String(".xml\" \"") + m_manifestFileName + QLatin1String(".xml\"\n");
-        }
 
         QDir assetDirectory(m_targetDirPath + QLatin1String("assets"));
         if (assetDirectory.exists()) {
@@ -123,7 +132,7 @@ bool WinRtPackageDeploymentStep::init()
             if (!parseIconsAndExecutableFromManifest(fullManifestPath, &iconsToDeploy,
                                                      &m_executablePathInManifest)) {
                 raiseError(tr("Cannot parse manifest file %1.").arg(fullManifestPath));
-                return false;
+                return;
             }
             foreach (const QString &icon, iconsToDeploy) {
                 m_mappingFileContent += QLatin1Char('"')
@@ -132,13 +141,6 @@ bool WinRtPackageDeploymentStep::init()
             }
         }
     }
-
-    ProcessParameters *params = processParameters();
-    params->setCommand(QLatin1String("windeployqt.exe"));
-    params->setArguments(args);
-    params->setEnvironment(target()->activeBuildConfiguration()->environment());
-
-    return AbstractProcessStep::init();
 }
 
 bool WinRtPackageDeploymentStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
@@ -160,8 +162,8 @@ bool WinRtPackageDeploymentStep::processSucceeded(int exitCode, QProcess::ExitSt
             installableFilesList.append(QPair<QString, QString>(localFilePath, remoteFilePath));
         }
 
-        // if there are no INSTALLS set we just deploy the files from windeployqt, the manifest (in case of 2012)
-        // and the icons referenced in there and the actual build target
+        // if there are no INSTALLS set we just deploy the files from windeployqt,
+        // the icons referenced in the manifest file and the actual build target
         QString baseDir;
         if (targetInstallationPath.isEmpty()) {
             if (!m_targetFilePath.endsWith(QLatin1String(".exe")))
@@ -185,24 +187,8 @@ bool WinRtPackageDeploymentStep::processSucceeded(int exitCode, QProcess::ExitSt
                 relativeRemotePath = QDir(baseDir).relativeFilePath(pair.second);
 
             if (QDir(relativeRemotePath).isAbsolute() || relativeRemotePath.startsWith(QLatin1String(".."))) {
-                // special case for winphone 8.0 font deployment
-                const QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target()->kit());
-                if (!qt)
-                    return false;
-                if (qt->mkspec().toString().contains(QLatin1String("msvc2012"))) {
-                    const QString fileName = relativeRemotePath.mid(relativeRemotePath.lastIndexOf(QLatin1Char('/')) + 1);
-                    if (QFile::exists(m_targetDirPath + QLatin1String("fonts/") + fileName)) {
-                        relativeRemotePath = QLatin1String("fonts/") + fileName;
-                    } else {
-                        // for 3.3?
-                        // raiseWarning(tr("File %1 is outside of the executable's directory. These files cannot be installed.").arg(relativeRemotePath));
-                        continue;
-                    }
-                } else {
-                    // for 3.3?
-                    // raiseWarning(tr("File %1 is outside of the executable's directory. These files cannot be installed.").arg(relativeRemotePath));
-                    continue;
-                }
+                raiseWarning(tr("File %1 is outside of the executable's directory. These files cannot be installed.").arg(relativeRemotePath));
+                continue;
             }
 
             m_mappingFileContent += QLatin1Char('"') + QDir::toNativeSeparators(pair.first)
@@ -257,6 +243,13 @@ void WinRtPackageDeploymentStep::raiseError(const QString &errorMessage)
 {
     emit addOutput(errorMessage, BuildStep::ErrorMessageOutput);
     emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error, errorMessage, Utils::FileName(), -1,
+                                       ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT));
+}
+
+void WinRtPackageDeploymentStep::raiseWarning(const QString &warningMessage)
+{
+    emit addOutput(warningMessage, BuildStep::MessageOutput);
+    emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Warning, warningMessage, Utils::FileName(), -1,
                                        ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT));
 }
 

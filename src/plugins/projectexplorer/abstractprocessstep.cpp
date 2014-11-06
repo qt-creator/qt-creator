@@ -203,10 +203,8 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
         }
     }
 
-
-
     QString effectiveCommand = m_param.effectiveCommand();
-    if (!QFileInfo(effectiveCommand).exists()) {
+    if (!QFileInfo::exists(effectiveCommand)) {
         processStartupFailed();
         fi.reportResult(false);
         emit finished();

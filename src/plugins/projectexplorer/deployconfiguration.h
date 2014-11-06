@@ -76,6 +76,8 @@ protected:
     void cloneSteps(DeployConfiguration *source);
 
 private:
+    void ctor();
+
     BuildStepList *m_stepList;
 };
 

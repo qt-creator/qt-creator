@@ -122,7 +122,7 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
     env.set(QLatin1String("ANDROID_NDK_TOOLS_PREFIX"), AndroidConfig::toolsPrefix(targetAbi().architecture()));
     env.set(QLatin1String("ANDROID_NDK_TOOLCHAIN_VERSION"), m_ndkToolChainVersion);
     QString javaHome = AndroidConfigurations::currentConfig().openJDKLocation().toString();
-    if (!javaHome.isEmpty() && QFileInfo(javaHome).exists())
+    if (!javaHome.isEmpty() && QFileInfo::exists(javaHome))
         env.set(QLatin1String("JAVA_HOME"), javaHome);
     env.set(QLatin1String("ANDROID_HOME"), AndroidConfigurations::currentConfig().sdkLocation().toString());
     env.set(QLatin1String("ANDROID_SDK_ROOT"), AndroidConfigurations::currentConfig().sdkLocation().toString());
@@ -151,13 +151,13 @@ FileName AndroidToolChain::suggestedGdbServer() const
     Utils::FileName path = AndroidConfigurations::currentConfig().ndkLocation();
     path.appendPath(QString::fromLatin1("prebuilt/android-%1/gdbserver/gdbserver")
                     .arg(Abi::toString(targetAbi().architecture())));
-    if (path.toFileInfo().exists())
+    if (path.exists())
         return path;
     path = AndroidConfigurations::currentConfig().ndkLocation();
     path.appendPath(QString::fromLatin1("toolchains/%1-%2/prebuilt/gdbserver")
                                .arg(AndroidConfig::toolchainPrefix(targetAbi().architecture()))
                                .arg(m_ndkToolChainVersion));
-    if (path.toFileInfo().exists())
+    if (path.exists())
         return path;
 
     return Utils::FileName();

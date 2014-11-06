@@ -36,13 +36,35 @@
 
 #include <QFileInfo>
 
-using namespace Subversion;
-using namespace Subversion::Internal;
+namespace Subversion {
+namespace Internal {
+
+class SubversionTopicCache : public Core::IVersionControl::TopicCache
+{
+public:
+    SubversionTopicCache(SubversionPlugin *plugin) :
+        m_plugin(plugin)
+    { }
+
+protected:
+    QString trackFile(const QString &repository)
+    {
+        return m_plugin->monitorFile(repository);
+    }
+
+    QString refreshTopic(const QString &repository)
+    {
+        return m_plugin->synchronousTopic(repository);
+    }
+
+private:
+    SubversionPlugin *m_plugin;
+};
 
 SubversionControl::SubversionControl(SubversionPlugin *plugin) :
+    Core::IVersionControl(new SubversionTopicCache(plugin)),
     m_plugin(plugin)
-{
-}
+{ }
 
 QString SubversionControl::displayName() const
 {
@@ -153,3 +175,6 @@ void SubversionControl::emitConfigurationChanged()
 {
     emit configurationChanged();
 }
+
+} // namespace Internal
+} // namespace Subversion

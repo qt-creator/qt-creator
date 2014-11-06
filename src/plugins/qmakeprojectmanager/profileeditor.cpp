@@ -144,7 +144,7 @@ ProFileEditorWidget::Link ProFileEditorWidget::findLinkAt(const QTextCursor &cur
         if (fi.isDir()) {
             QDir subDir(fi.absoluteFilePath());
             QString subProject = subDir.filePath(subDir.dirName() + QLatin1String(".pro"));
-            if (QFileInfo(subProject).exists())
+            if (QFileInfo::exists(subProject))
                 fileName = subProject;
             else
                 return link;

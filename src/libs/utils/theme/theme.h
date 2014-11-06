@@ -184,7 +184,8 @@ public:
         DrawProgressBarSunken,
         DrawIndicatorBranch,
         ComboBoxDrawTextShadow,
-        DerivePaletteFromTheme
+        DerivePaletteFromTheme,
+        ApplyThemePaletteGlobally
     };
 
     enum WidgetStyle {
@@ -198,6 +199,7 @@ public:
     QString imageFile(ImageFile imageFile, const QString &fallBack) const;
     QGradientStops gradient(Gradient role) const;
     QPalette palette(const QPalette &base) const;
+    QStringList preferredStyles() const;
 
     QString fileName() const;
     void setName(const QString &name);

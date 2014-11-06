@@ -54,8 +54,7 @@ class SimpleDiffEditorReloader : public DiffEditorReloader
 {
     Q_OBJECT
 public:
-    SimpleDiffEditorReloader(QObject *parent,
-                             const QString &leftFileName,
+    SimpleDiffEditorReloader(const QString &leftFileName,
                              const QString &rightFileName);
 
 protected:
@@ -66,11 +65,9 @@ private:
     QString m_rightFileName;
 };
 
-SimpleDiffEditorReloader::SimpleDiffEditorReloader(QObject *parent,
-                                                   const QString &leftFileName,
+SimpleDiffEditorReloader::SimpleDiffEditorReloader(const QString &leftFileName,
                                                    const QString &rightFileName)
-    : DiffEditorReloader(parent),
-      m_leftFileName(leftFileName),
+    : m_leftFileName(leftFileName),
       m_rightFileName(rightFileName)
 {
 }
@@ -206,7 +203,7 @@ void DiffEditorPlugin::diff()
     DiffEditorController *controller = document->controller();
     if (!controller->reloader()) {
         SimpleDiffEditorReloader *reloader =
-                new SimpleDiffEditorReloader(controller, fileName1, fileName2);
+                new SimpleDiffEditorReloader(fileName1, fileName2);
         controller->setReloader(reloader);
     }
 
@@ -475,7 +472,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch()
     QCOMPARE(result, patchText);
 
     bool ok;
-    QList<FileData> resultList = DiffUtils::readPatch(result, false, &ok);
+    QList<FileData> resultList = DiffUtils::readPatch(result, &ok);
 
     QVERIFY(ok);
     QCOMPARE(resultList.count(), 1);
@@ -871,6 +868,32 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     QTest::newRow("Multiple renames") << patch
                                       << fileDataList6;
 
+    //////////////
+
+    // Dirty submodule
+    patch = _("diff --git a/src/shared/qbs b/src/shared/qbs\n"
+              "--- a/src/shared/qbs\n"
+              "+++ b/src/shared/qbs\n"
+              "@@ -1 +1 @@\n"
+              "-Subproject commit eda76354077a427d692fee05479910de31040d3f\n"
+              "+Subproject commit eda76354077a427d692fee05479910de31040d3f-dirty\n"
+              );
+    fileData1 = FileData();
+    fileData1.leftFileInfo = DiffFileInfo(_("src/shared/qbs"));
+    fileData1.rightFileInfo = DiffFileInfo(_("src/shared/qbs"));
+    chunkData1.leftStartingLineNumber = 0;
+    chunkData1.rightStartingLineNumber = 0;
+    rows1.clear();
+    rows1 << RowData(_("Subproject commit eda76354077a427d692fee05479910de31040d3f"),
+                     _("Subproject commit eda76354077a427d692fee05479910de31040d3f-dirty"));
+    chunkData1.rows = rows1;
+    fileData1.chunks.clear();
+    fileData1.chunks <<  chunkData1;
+
+    QList<FileData> fileDataList7;
+    fileDataList7 << fileData1;
+    QTest::newRow("Dirty submodule") << patch
+                                     << fileDataList7;
 }
 
 void DiffEditor::Internal::DiffEditorPlugin::testReadPatch()
@@ -879,7 +902,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch()
     QFETCH(QList<FileData>, fileDataList);
 
     bool ok;
-    QList<FileData> result = DiffUtils::readPatch(sourcePatch, false, &ok);
+    QList<FileData> result = DiffUtils::readPatch(sourcePatch, &ok);
 
     QVERIFY(ok);
     QCOMPARE(fileDataList.count(), result.count());

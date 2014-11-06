@@ -32,6 +32,8 @@
 
 #include <coreplugin/documentmanager.h>
 
+#include <utils/qtcassert.h>
+
 #include <QDir>
 #include <QVariant>
 
@@ -43,12 +45,9 @@ JsonProjectPage::JsonProjectPage(QWidget *parent) :
 
 void JsonProjectPage::initializePage()
 {
-    if (Core::DocumentManager::useProjectsDirectory()) {
-        setPath(Core::DocumentManager::projectsDirectory());
-    } else {
-        if (JsonWizard *wiz = qobject_cast<JsonWizard *>(wizard()))
-            setPath(wiz->value(QLatin1String("InitialPath")).toString());
-    }
+    JsonWizard *wiz = qobject_cast<JsonWizard *>(wizard());
+    QTC_ASSERT(wiz, return);
+    setPath(wiz->value(QLatin1String("InitialPath")).toString());
 
     setProjectName(uniqueProjectName(path()));
 }

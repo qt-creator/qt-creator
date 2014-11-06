@@ -45,7 +45,7 @@ Column {
 
             Label {
                 text: qsTr("Text")
-                toolTip:  qsTr("Text shown on the text field.")
+                tooltip: qsTr("Text shown on the text field.")
             }
 
             SecondColumnLayout {
@@ -59,7 +59,7 @@ Column {
 
             Label {
                 text:  qsTr("Placeholder text")
-                toolTip: qsTr("Placeholder text.")
+                tooltip: qsTr("Placeholder text.")
             }
 
             SecondColumnLayout {
@@ -71,7 +71,7 @@ Column {
 
             Label {
                 text: qsTr("Read only")
-                toolTip: qsTr("Determines whether the text field is read only.")
+                tooltip: qsTr("Determines whether the text field is read only.")
             }
 
             SecondColumnLayout {
@@ -87,7 +87,7 @@ Column {
 
             Label {
                 text: qsTr("Input mask")
-                toolTip: qsTr("Restricts the valid text in the text field.")
+                tooltip: qsTr("Restricts the valid text in the text field.")
             }
 
             SecondColumnLayout {
@@ -99,7 +99,7 @@ Column {
 
             Label {
                 text: qsTr("Echo mode")
-                toolTip: qsTr("Specifies how the text is displayed in the text field.")
+                tooltip: qsTr("Specifies how the text is displayed in the text field.")
             }
 
             SecondColumnLayout {

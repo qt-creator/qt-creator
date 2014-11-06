@@ -170,7 +170,7 @@ void BlackBerryDeviceConfigurationWidget::requestDebugToken()
 void BlackBerryDeviceConfigurationWidget::uploadDebugToken()
 {
     // check the debug token path before even laucnhing the uploader process
-    if (!QFileInfo(ui->debugToken->currentText()).exists()) {
+    if (!QFileInfo::exists(ui->debugToken->currentText())) {
         QMessageBox::critical(this, tr("Error"), tr("Invalid debug token path."));
         return;
     }
@@ -184,7 +184,7 @@ void BlackBerryDeviceConfigurationWidget::uploadDebugToken()
 void BlackBerryDeviceConfigurationWidget::updateUploadButton()
 {
     const QString path = ui->debugToken->currentText();
-    ui->uploadButton->setEnabled(QFileInfo(path).exists());
+    ui->uploadButton->setEnabled(QFileInfo::exists(path));
 }
 
 void BlackBerryDeviceConfigurationWidget::uploadFinished(int status)

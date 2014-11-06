@@ -1125,6 +1125,9 @@ public:
 
     QString toString() const
     {
+        if (!m_text.isEmpty())
+            return QString(m_text).replace(_("<"), _("<LT>"));
+
         QString key = vimKeyNames().key(m_key);
         bool namedKey = !key.isEmpty();
 
@@ -6894,11 +6897,12 @@ QString FakeVimHandler::Private::selectText(const Range &range) const
         return tc.selection().toPlainText();
     }
     if (range.rangemode == RangeLineMode) {
+        const QTextBlock firstBlock = document()->findBlock(range.beginPos);
+        int firstPos = firstBlock.isValid() ? firstBlock.position() : 0;
+        QTextBlock lastBlock = document()->findBlock(range.endPos);
+        bool endOfDoc = lastBlock == document()->lastBlock();
+        int lastPos = endOfDoc ? lastPositionInDocument(true) : lastBlock.next().position();
         QTextCursor tc(document());
-        int firstPos = firstPositionInLine(lineForPosition(range.beginPos));
-        int lastLine = lineForPosition(range.endPos);
-        bool endOfDoc = lastLine == lineNumber(document()->lastBlock());
-        int lastPos = endOfDoc ? lastPositionInDocument(true) : firstPositionInLine(lastLine + 1);
         tc.setPosition(firstPos, MoveAnchor);
         tc.setPosition(lastPos, KeepAnchor);
         return tc.selection().toPlainText() + _(endOfDoc? "\n" : "");

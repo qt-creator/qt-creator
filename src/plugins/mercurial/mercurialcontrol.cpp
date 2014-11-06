@@ -41,7 +41,8 @@
 #include <QStringList>
 #include <QDir>
 
-using namespace Mercurial::Internal;
+namespace Mercurial {
+namespace Internal {
 
 class MercurialTopicCache : public Core::IVersionControl::TopicCache
 {
@@ -199,3 +200,6 @@ void MercurialControl::emitConfigurationChanged()
 {
     emit configurationChanged();
 }
+
+} // namespace Internal
+} // namespace Mercurial

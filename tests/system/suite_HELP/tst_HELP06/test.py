@@ -45,10 +45,7 @@ def invokeContextMenuItemOnBookmarkFolder(view, item, menuItem):
                                "window=':Add Bookmark_BookmarkDialog'}" % aboveWidget), menuItem)
 
 def textForQtVersion(text):
-    if isQt4Build:
-        return "QtCreator : " + text
-    else:
-        return text + " | QtCreator"
+    return text + " | QtCreator"
 
 def main():
     startApplication("qtcreator" + SettingsPath)

@@ -123,7 +123,7 @@ public:
     ExampleProjectConfigurator(const QString &projectFile)
     {
         const QString projectUserFile = projectFile + _(".user");
-        QVERIFY(!QFileInfo(projectUserFile).exists());
+        QVERIFY(!QFileInfo::exists(projectUserFile));
 
         // Open project
         QString errorOpeningProject;

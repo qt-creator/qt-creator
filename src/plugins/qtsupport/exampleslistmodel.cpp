@@ -272,7 +272,7 @@ static bool isValidExampleOrDemo(ExampleItem &item)
                                                                     doesn't have any namespace */
     QString reason;
     bool ok = true;
-    if (!item.hasSourceCode || !QFileInfo(item.projectPath).exists()) {
+    if (!item.hasSourceCode || !QFileInfo::exists(item.projectPath)) {
         ok = false;
         reason = QString::fromLatin1("projectPath \"%1\" empty or does not exist").arg(item.projectPath);
     } else if (item.imageUrl.startsWith(invalidPrefix) || !QUrl(item.imageUrl).isValid()) {

@@ -30,7 +30,7 @@
 
 import QtQuick 2.1
 import QtQuick.Controls 1.1 as Controls
-import QtQuick.Controls.Styles 1.1
+import QtQuick.Controls.Styles 1.2
 
 ComboBoxStyle {
     property color borderColor: "#222"
@@ -104,6 +104,13 @@ ComboBoxStyle {
             text: control.currentText
             renderType: Text.NativeRendering
             color: textColor
+        }
+    }
+
+    __dropDownStyle: MenuStyle {
+        __maxPopupHeight: 600
+        __menuItemType: "comboboxitem"
+        frame: Rectangle {
         }
     }
 }

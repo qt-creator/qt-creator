@@ -317,7 +317,7 @@ def createNewQmlExtension(workingDir, targets=Targets.DESKTOP_474_GCC, qtQuickVe
     return checkedTargets
 
 def createEmptyQtProject(workingDir=None, projectName=None, targets=Targets.desktopTargetClasses()):
-    __createProjectOrFileSelectType__("  Other Project", "Empty Qt Project")
+    __createProjectOrFileSelectType__("  Other Project", "Empty qmake Project")
     if workingDir == None:
         workingDir = tempDir()
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)

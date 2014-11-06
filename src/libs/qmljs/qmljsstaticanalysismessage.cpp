@@ -225,19 +225,19 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(ErrUnsupportedRootTypeInVisualDesigner, Error,
            tr("This type (%1) is not supported as a root element by Qt Quick Designer."), 1);
     newMsg(ErrUnsupportedRootTypeInQmlUi, Error,
-           tr("This type (%1) is not supported as a root element of a Qt Quick ui file."), 1);
+           tr("This type (%1) is not supported as a root element of a Qt Quick UI form."), 1);
     newMsg(ErrUnsupportedTypeInQmlUi, Error,
-            tr("This type (%1) is not supported in a Qt Quick ui file."), 1);
+            tr("This type (%1) is not supported in a Qt Quick UI form."), 1);
     newMsg(ErrFunctionsNotSupportedInQmlUi, Error,
-            tr("Functions are not supported in a Qt Quick ui file."));
+            tr("Functions are not supported in a Qt Quick UI form."));
     newMsg(ErrBlocksNotSupportedInQmlUi, Error,
-            tr("Java Script blocks are not supported in a Qt Quick ui file."));
+            tr("Java Script blocks are not supported in a Qt Quick UI form."));
     newMsg(ErrBehavioursNotSupportedInQmlUi, Error,
-            tr("Behaviours are not supported in a Qt Quick ui file."));
+            tr("Behavior type is not supported in a Qt Quick UI form."));
     newMsg(ErrStatesOnlyInRootItemInQmlUi, Error,
-            tr("States are only supported in the root item in a Qt Quick ui file."));
+            tr("States are only supported in the root item in a Qt Quick UI form."));
     newMsg(ErrReferenceToParentItemNotSupportedInQmlUi, Error,
-            tr("Referencing the parent of the root item is not supported in a Qt Quick ui file."));
+            tr("Referencing the parent of the root item is not supported in a Qt Quick UI form."));
 }
 
 } // anonymous namespace

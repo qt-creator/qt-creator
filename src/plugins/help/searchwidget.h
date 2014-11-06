@@ -57,7 +57,7 @@ public:
     QList<QToolButton *> createToolBarWidgets();
 
 signals:
-    void linkActivated(const QUrl &url, bool newPage);
+    void linkActivated(const QUrl &url, const QStringList &searchTerms, bool newPage);
 };
 
 class SearchWidget : public QWidget
@@ -77,7 +77,7 @@ public slots:
     void reindexDocumentation();
 
 signals:
-    void linkActivated(const QUrl &link, bool newPage);
+    void linkActivated(const QUrl &link, const QStringList &searchTerms, bool newPage);
 
 protected:
     void showEvent(QShowEvent *event);
@@ -94,6 +94,7 @@ private slots:
 private:
     bool eventFilter(QObject* o, QEvent *e);
     void contextMenuEvent(QContextMenuEvent *contextMenuEvent);
+    QStringList currentSearchTerms() const;
 
 private:
     int zoomCount;

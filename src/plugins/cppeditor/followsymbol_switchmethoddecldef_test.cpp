@@ -931,6 +931,45 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
         "};\n"
     );
 
+    QTest::newRow("matchFunctionSignature_FollowCall_1") << _(
+        "class Bar {};\n"
+        "void $foo(int) {}\n"
+        "void foo(const char *) {}\n"
+        "void foo(const Bar &) {}\n"
+        "void foo(char) {}\n"
+        "\n"
+        "void t()\n"
+        "{\n"
+        "    @foo(5);\n"
+        "}\n"
+    );
+
+    QTest::newRow("matchFunctionSignature_FollowCall_2") << _(
+        "class Bar {};\n"
+        "void foo(int) {}\n"
+        "void $foo(const char *) {}\n"
+        "void foo(const Bar &) {}\n"
+        "void foo(char) {}\n"
+        "\n"
+        "void t()\n"
+        "{\n"
+        "    @foo(\"hoo\");\n"
+        "}\n"
+    );
+
+    QTest::newRow("matchFunctionSignature_FollowCall_3") << _(
+        "class Bar {};\n"
+        "void foo(int) {}\n"
+        "void foo(const char *) {}\n"
+        "void foo(const Bar &) {}\n"
+        "void $foo(char) {}\n"
+        "\n"
+        "void t()\n"
+        "{\n"
+        "    @foo('a');\n"
+        "}\n"
+    );
+
     QTest::newRow("infiniteLoopLocalTypedef_QTCREATORBUG-11999") << _(
         "template<class MyTree>\n"
         "class TreeConstIterator\n"

@@ -188,10 +188,10 @@ void BlackBerryNDKSettingsWidget::updateConfigurationList()
         // TODO: Do the same if qmake, qcc, debugger are no longer detected...
         if (!config->isValid()) {
             QString toolTip = tr("Invalid target %1:").arg(config->targetName());
-            if (config->isAutoDetected() && !config->autoDetectionSource().toFileInfo().exists())
+            if (config->isAutoDetected() && !config->autoDetectionSource().exists())
                 toolTip += QLatin1Char('\n') + tr("- Target no longer installed.");
 
-            if (!config->envFile().toFileInfo().exists())
+            if (!config->envFile().exists())
                 toolTip += QLatin1Char('\n') + tr("- No NDK environment file found.");
 
             if (config->qmake4BinaryFile().isEmpty()

@@ -504,8 +504,8 @@ bool SubversionPlugin::submitEditorAboutToClose()
             VcsCommand *commitCmd = m_client->createCommitCmd(m_commitRepository,
                                                               fileList,
                                                               m_commitMessageFileName);
-            QObject::connect(commitCmd, SIGNAL(success(QVariant)),
-                             this, SLOT(cleanCommitMessageFile()));
+            QObject::connect(commitCmd, &VcsCommand::finished,
+                             this, [this]() { cleanCommitMessageFile(); });
             commitCmd->execute();
         }
     }
@@ -711,23 +711,6 @@ void SubversionPlugin::startCommit(const QString &workingDir, const QStringList 
     editor->setStatusList(statusOutput);
 }
 
-bool SubversionPlugin::commit(const QString &messageFile,
-                              const QStringList &subVersionFileList)
-{
-    if (Subversion::Constants::debug)
-        qDebug() << Q_FUNC_INFO << messageFile << subVersionFileList;
-    // Transform the status list which is sth
-    // "[ADM]<blanks>file" into an args list. The files of the status log
-    // can be relative or absolute depending on where the command was run.
-    QStringList args = QStringList(QLatin1String("commit"));
-    args << QLatin1String(Constants::NON_INTERACTIVE_OPTION) << QLatin1String("--file") << messageFile;
-    args.append(subVersionFileList);
-    const SubversionResponse response =
-            runSvn(m_commitRepository, args, 10 * m_settings.timeOutMs(),
-                   SshPasswordPrompt|ShowStdOutInLogWindow);
-    return !response.error ;
-}
-
 void SubversionPlugin::filelogCurrentFile()
 {
     const VcsBasePluginState state = currentState();
@@ -917,10 +900,10 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
         return;
     if (Subversion::Constants::debug)
         qDebug() << Q_FUNC_INFO << source << topLevel << changeNr;
-    // Number must be > 1
+    // Number must be >= 1
     bool ok;
     const int number = changeNr.toInt(&ok);
-    if (!ok || number < 2)
+    if (!ok || number < 1)
         return;
     // Run log to obtain message (local utf8)
     QString description;
@@ -970,7 +953,7 @@ void SubversionPlugin::slotDescribe()
     QInputDialog inputDialog(ICore::dialogParent());
     inputDialog.setWindowFlags(inputDialog.windowFlags() & ~Qt::WindowContextHelpButtonHint);
     inputDialog.setInputMode(QInputDialog::IntInput);
-    inputDialog.setIntRange(2, INT_MAX);
+    inputDialog.setIntRange(1, INT_MAX);
     inputDialog.setWindowTitle(tr("Describe"));
     inputDialog.setLabelText(tr("Revision number:"));
     if (inputDialog.exec() != QDialog::Accepted)
@@ -1074,6 +1057,25 @@ SubversionPlugin *SubversionPlugin::instance()
     return m_subversionPluginInstance;
 }
 
+QString SubversionPlugin::monitorFile(const QString &repository) const
+{
+    QTC_ASSERT(!repository.isEmpty(), return QString());
+    QDir repoDir(repository);
+    foreach (const QString &svnDir, m_svnDirectories) {
+        if (repoDir.exists(svnDir)) {
+            QFileInfo fi(repoDir.absoluteFilePath(svnDir + QLatin1String("/wc.db")));
+            if (fi.exists() && fi.isFile())
+                return fi.absoluteFilePath();
+        }
+    }
+    return QString();
+}
+
+QString SubversionPlugin::synchronousTopic(const QString &repository) const
+{
+    return m_client->synchronousTopic(repository);
+}
+
 bool SubversionPlugin::vcsAdd(const QString &workingDir, const QString &rawFileName)
 {
     const QString file = QDir::toNativeSeparators(rawFileName);
@@ -1089,8 +1091,8 @@ bool SubversionPlugin::vcsDelete(const QString &workingDir, const QString &rawFi
 {
     const QString file = QDir::toNativeSeparators(rawFileName);
 
-    QStringList args(QLatin1String("delete"));
-    args.push_back(file);
+    QStringList args;
+    args << QLatin1String("delete") << QLatin1String("--force") << file;
 
     const SubversionResponse response =
             runSvn(workingDir, args, m_settings.timeOutMs(),
@@ -1178,9 +1180,6 @@ QString SubversionPlugin::vcsGetRepositoryURL(const QString &directory)
 bool SubversionPlugin::managesDirectory(const QString &directory, QString *topLevel /* = 0 */) const
 {
     const QDir dir(directory);
-    if (!dir.exists())
-        return false;
-
     if (topLevel)
         topLevel->clear();
 
@@ -1188,32 +1187,17 @@ bool SubversionPlugin::managesDirectory(const QString &directory, QString *topLe
      * furthest parent containing ".svn/wc.db". Need to check for furthest parent as closer
      * parents may be svn:externals. */
     QDir parentDir = dir;
-    while (!parentDir.isRoot() && parentDir.cdUp()) {
-        if (checkSVNSubDir(parentDir, QLatin1String("wc.db"))) {
+    while (!parentDir.isRoot()) {
+        if (checkSVNSubDir(parentDir)) {
             if (topLevel)
                 *topLevel = parentDir.absolutePath();
             return true;
         }
+        if (!parentDir.cdUp())
+            break;
     }
 
-    /* Subversion < 1.7 has ".svn" directory in each directory
-     * it manages. The top level is the first directory
-     * under the directory that does not have a  ".svn".*/
-    if (!checkSVNSubDir(dir))
-        return false;
-
-     if (topLevel) {
-         QDir lastDirectory = dir;
-         for (parentDir = lastDirectory;
-              !parentDir.isRoot() && parentDir.cdUp();
-              lastDirectory = parentDir) {
-             if (!checkSVNSubDir(parentDir)) {
-                 *topLevel = lastDirectory.absolutePath();
-                 break;
-            }
-        }
-    }
-    return true;
+    return false;
 }
 
 bool SubversionPlugin::managesFile(const QString &workingDirectory, const QString &fileName) const
@@ -1226,14 +1210,14 @@ bool SubversionPlugin::managesFile(const QString &workingDirectory, const QStrin
 }
 
 // Check whether SVN management subdirs exist.
-bool SubversionPlugin::checkSVNSubDir(const QDir &directory, const QString &fileName) const
+bool SubversionPlugin::checkSVNSubDir(const QDir &directory) const
 {
     const int dirCount = m_svnDirectories.size();
     for (int i = 0; i < dirCount; i++) {
-        const QString svnDir = directory.absoluteFilePath(m_svnDirectories.at(i));
-        if (!QFileInfo(svnDir).isDir())
+        const QDir svnDir(directory.absoluteFilePath(m_svnDirectories.at(i)));
+        if (!svnDir.exists())
             continue;
-        if (!fileName.isEmpty() && !QDir(svnDir).exists(fileName))
+        if (!svnDir.exists(QLatin1String("wc.db")))
             continue;
         return true;
     }

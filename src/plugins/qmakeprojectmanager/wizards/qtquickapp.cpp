@@ -291,14 +291,38 @@ void QtQuickApp::handleCurrentProFileTemplateLine(const QString &line,
 }
 
 #ifndef CREATORLESSTEST
+
+static QFileInfoList allFilesRecursive(const QString &path)
+{
+    const QDir currentDirectory(path);
+
+    QFileInfoList allFiles = currentDirectory.entryInfoList(QDir::Files);
+
+    foreach (const QFileInfo &subDirectory, currentDirectory.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot))
+        allFiles.append(allFilesRecursive(subDirectory.absoluteFilePath()));
+
+    return allFiles;
+}
+
 Core::GeneratedFiles QtQuickApp::generateFiles(QString *errorMessage) const
 {
     Core::GeneratedFiles files = AbstractMobileApp::generateFiles(errorMessage);
+
+    const QFileInfoList templateFiles = allFilesRecursive(originsRoot());
+
+    //Deploy additional .qml files
+    foreach (const QFileInfo &templateFile, templateFiles) {
+        QString targetFileName = templateFile.fileName();
+        if (templateFile.suffix() == QLatin1String("qml")
+                && targetFileName != QLatin1String("main.qml"))
+            files.append(file(readBlob(templateFile.absoluteFilePath(), errorMessage), outputPathBase() + targetFileName));
+    }
+
     if (!useExistingMainQml()) {
         files.append(file(generateFile(QtQuickAppGeneratedFileInfo::MainQmlFile, errorMessage), path(MainQml)));
         files.last().setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     }
-    if (QFileInfo(path(MainQrcOrigin)).exists()) {
+    if (QFileInfo::exists(path(MainQrcOrigin))) {
         files.append(file(generateFile(QtQuickAppGeneratedFileInfo::MainQrcFile, errorMessage), path(MainQrc)));
     }
     if (!qrcDeployment().isEmpty()) {

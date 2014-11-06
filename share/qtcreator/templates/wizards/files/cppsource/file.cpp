@@ -1,1 +1,1 @@
-%{Cpp:LicenseTemplate}
+%{Cpp:LicenseTemplate}\

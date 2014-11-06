@@ -202,8 +202,6 @@ void MercurialPlugin::createMenu()
     createRepositoryActions(context);
     mercurialContainer->addSeparator(context);
     createRepositoryManagementActions(context);
-    mercurialContainer->addSeparator(context);
-    createLessUsedActions(context);
 
     // Request the Tools menu and add the Mercurial menu to it
     Core::ActionContainer *toolsMenu = Core::ActionManager::actionContainer(Core::Id(Core::Constants::M_TOOLS));
@@ -656,13 +654,6 @@ void MercurialPlugin::createRepositoryManagementActions(const Core::Context &con
     //    Core::Command *command = Core::ActionManager::registerAction(action, Constants::BRANCH, context);
     //    //    connect(action, SIGNAL(triggered()), this, SLOT(branch()));
     //    mercurialContainer->addAction(command);
-}
-
-void MercurialPlugin::createLessUsedActions(const Core::Context &context)
-{
-    //TODO create menue for these options
-    Q_UNUSED(context);
-    return;
 }
 
 void MercurialPlugin::updateActions(VcsBasePlugin::ActionState as)

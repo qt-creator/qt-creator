@@ -96,7 +96,7 @@ bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSa
 
     m_formWindow->setDirty(false);
     setFilePath(fi.absoluteFilePath());
-    emit changed();
+    updateIsModified();
 
     return true;
 }

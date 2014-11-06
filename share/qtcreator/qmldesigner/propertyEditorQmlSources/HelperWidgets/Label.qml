@@ -36,7 +36,7 @@ import QtQuick.Controls.Private 1.0
 Controls.Label {
     id: label
 
-    property alias toolTip: toolTipArea.toolTip
+    property alias tooltip: toolTipArea.tooltip
 
     width: Math.max(Math.min(240, parent.width - 220), 80)
     color: "#eee"
@@ -49,6 +49,6 @@ Controls.Label {
     ToolTipArea {
         id: toolTipArea
         anchors.fill: parent
-        toolTip: label.text
+        tooltip: label.text
     }
 }

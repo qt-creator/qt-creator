@@ -29,9 +29,11 @@
 ****************************************************************************/
 
 #include "macroexpander.h"
-#include "qtcprocess.h"
 
 #include "algorithm.h"
+#include "qtcassert.h"
+#include "qtcprocess.h"
+#include "stringutils.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -49,7 +51,9 @@ const char kFileBaseNamePostfix[] = ":FileBaseName";
 class MacroExpanderPrivate : public AbstractMacroExpander
 {
 public:
-    MacroExpanderPrivate() : m_accumulating(false) {}
+    MacroExpanderPrivate()
+        : m_accumulating(false), m_aborted(false), m_lockDepth(0)
+    {}
 
     bool resolveMacro(const QString &name, QString *ret)
     {
@@ -101,12 +105,16 @@ public:
 
     QHash<QByteArray, MacroExpander::StringFunction> m_map;
     QHash<QByteArray, MacroExpander::PrefixFunction> m_prefixMap;
+    QSet<QByteArray> m_invisbleInChooser;
     QVector<MacroExpander::ResolverFunction> m_extraResolvers;
     QMap<QByteArray, QString> m_descriptions;
     QString m_displayName;
     QVector<MacroExpanderProvider> m_subProviders;
     QVector<MacroExpander *> m_subExpanders; // Not owned
     bool m_accumulating;
+
+    bool m_aborted;
+    int m_lockDepth;
 };
 
 } // Internal
@@ -260,8 +268,24 @@ QString MacroExpander::value(const QByteArray &variable, bool *found) const
  */
 QString MacroExpander::expand(const QString &stringWithVariables) const
 {
+    if (d->m_lockDepth == 0)
+        d->m_aborted = false;
+
+    if (d->m_lockDepth > 3) { // Limit recursion.
+        d->m_aborted = true;
+        return QString();
+    }
+
+    ++d->m_lockDepth;
+
     QString res = stringWithVariables;
     Utils::expandMacros(&res, d);
+
+    --d->m_lockDepth;
+
+    if (d->m_lockDepth == 0 && d->m_aborted)
+        return tr("Infinite recursion error") + QLatin1String(": ") + stringWithVariables;
+
     return res;
 }
 
@@ -301,8 +325,10 @@ void MacroExpander::registerPrefix(const QByteArray &prefix, const QString &desc
  * \sa registerFileVariables(), registerIntVariable(), registerPrefix()
  */
 void MacroExpander::registerVariable(const QByteArray &variable,
-    const QString &description, const StringFunction &value)
+    const QString &description, const StringFunction &value, bool visibleInChooser)
 {
+    if (!visibleInChooser)
+        d->m_invisbleInChooser.insert(variable);
     d->m_descriptions.insert(variable, description);
     d->m_map.insert(variable, value);
 }
@@ -335,19 +361,19 @@ void MacroExpander::registerFileVariables(const QByteArray &prefix,
     const QString &heading, const StringFunction &base)
 {
     registerVariable(prefix + kFilePathPostfix,
-         QCoreApplication::translate("Utils::MacroExpander", "%1: Full path including file name.").arg(heading),
+         tr("%1: Full path including file name.").arg(heading),
          [base]() -> QString { QString tmp = base(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).filePath(); });
 
     registerVariable(prefix + kPathPostfix,
-         QCoreApplication::translate("Utils::MacroExpander", "%1: Full path excluding file name.").arg(heading),
+         tr("%1: Full path excluding file name.").arg(heading),
          [base]() -> QString { QString tmp = base(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).path(); });
 
     registerVariable(prefix + kFileNamePostfix,
-         QCoreApplication::translate("Utils::MacroExpander", "%1: File name without path.").arg(heading),
+         tr("%1: File name without path.").arg(heading),
          [base]() -> QString { QString tmp = base(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).fileName(); });
 
     registerVariable(prefix + kFileBaseNamePostfix,
-         QCoreApplication::translate("Utils::MacroExpander", "%1: File base name without path and suffix.").arg(heading),
+         tr("%1: File base name without path and suffix.").arg(heading),
          [base]() -> QString { QString tmp = base(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).baseName(); });
 }
 
@@ -362,9 +388,15 @@ void MacroExpander::registerExtraResolver(const MacroExpander::ResolverFunction 
  * \sa registerVariable()
  * \sa registerFileVariables()
  */
-QList<QByteArray> MacroExpander::variables() const
+QList<QByteArray> MacroExpander::visibleVariables() const
 {
-    return d->m_descriptions.keys();
+    QList<QByteArray> res;
+    for (auto it = d->m_descriptions.begin(), end = d->m_descriptions.end(); it != end; ++it) {
+        if (!d->m_invisbleInChooser.contains(it.key()))
+            res.append(it.key());
+    }
+
+    return res;
 }
 
 /*!
@@ -384,11 +416,6 @@ MacroExpanders MacroExpander::subExpanders() const
                 expanders.append(expander);
 
     return expanders;
-}
-
-AbstractMacroExpander *MacroExpander::abstractExpander() const
-{
-    return d;
 }
 
 QString MacroExpander::displayName() const
@@ -418,12 +445,10 @@ void MacroExpander::setAccumulating(bool on)
 
 class GlobalMacroExpander : public MacroExpander
 {
-    Q_DECLARE_TR_FUNCTIONS(Utils::MacroExpander)
-
 public:
     GlobalMacroExpander()
     {
-        setDisplayName(tr("Global variables"));
+        setDisplayName(MacroExpander::tr("Global variables"));
         registerPrefix("Env", tr("Access environment variables."),
            [](const QString &value) { return QString::fromLocal8Bit(qgetenv(value.toLocal8Bit())); });
     }

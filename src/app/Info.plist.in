@@ -248,5 +248,7 @@
 	<string>$$QTCREATOR_VERSION</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$$QTCREATOR_VERSION</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.7.0</string>
 </dict>
 </plist>

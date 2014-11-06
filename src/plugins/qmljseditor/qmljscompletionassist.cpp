@@ -921,7 +921,7 @@ bool QmlJSCompletionAssistProcessor::completeFileName(const QString &relativeBas
     } else {
         directoryPrefix = fileInfo.path();
     }
-    if (!QFileInfo(directoryPrefix).exists())
+    if (!QFileInfo::exists(directoryPrefix))
         return false;
 
     QDirIterator dirIterator(directoryPrefix,

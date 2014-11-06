@@ -1,5 +1,6 @@
 [General]
 ThemeName=default
+PreferredStyles=
 
 [Palette]
 brightText = ffffffff
@@ -102,6 +103,7 @@ DrawIndicatorBranch=false
 DrawProgressBarSunken=true
 DrawSearchResultWidgetFrame=true
 DrawTargetSelectorBottom=true
+ApplyThemePaletteGlobally=false
 
 [Gradients]
 DetailsWidgetHeaderGradient\1\color=ffffff

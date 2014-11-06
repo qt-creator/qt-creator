@@ -1895,7 +1895,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFeatureFile(
         }
 #ifdef QMAKE_BUILTIN_PRFS
         fn.prepend(QLatin1String(":/qmake/features/"));
-        if (QFileInfo(fn).exists())
+        if (QFileInfo::exists(fn))
             goto cool;
 #endif
         fn = QLatin1String(""); // Indicate failed lookup. See comment above.

@@ -98,7 +98,7 @@ Section {
 
         Label {
             text: qsTr("Behavior")
-            toolTip: qsTr("Bounds behavior")
+            tooltip: qsTr("Bounds behavior")
         }
 
         SecondColumnLayout {
@@ -126,7 +126,7 @@ Section {
 
         Label {
             text: qsTr("Max. velocity")
-            toolTip: qsTr("Maximum flick velocity")
+            tooltip: qsTr("Maximum flick velocity")
         }
 
         SecondColumnLayout {
@@ -143,7 +143,7 @@ Section {
 
         Label {
             text: qsTr("Deceleration")
-            toolTip: qsTr("Flick deceleration")
+            tooltip: qsTr("Flick deceleration")
         }
 
         SecondColumnLayout {

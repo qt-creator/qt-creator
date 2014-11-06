@@ -59,6 +59,7 @@ private:
     QRegExp m_failureRe;
     QRegExp m_successRe;
     QRegExp m_buildRe;
+    QRegExp m_replacingSignatureRe;
     XcodebuildStatus m_xcodeBuildParserState;
     QString m_lastTarget;
     QString m_lastProject;

@@ -32,75 +32,78 @@
 
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
+#include <texteditor/syntaxhighlighter.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/qtcassert.h>
 
+#include <QRegExp>
 #include <QSyntaxHighlighter>
 #include <QTextEdit>
 
-#include <QDebug>
-#include <QRegExp>
-
 //see the git submit widget for details of the syntax Highlighter
-
-//TODO Check to see when the Highlighter has been moved to a base class and use that instead
 
 namespace Mercurial {
 namespace Internal {
 
-// Retrieve the comment char format from the text editor.
-static QTextCharFormat commentFormat()
-{
-    return TextEditor::TextEditorSettings::fontSettings().toTextCharFormat(TextEditor::C_COMMENT);
-}
-
 // Highlighter for Mercurial submit messages. Make the first line bold, indicates
 // comments as such (retrieving the format from the text editor) and marks up
 // keywords (words in front of a colon as in 'Task: <bla>').
-class MercurialSubmitHighlighter : QSyntaxHighlighter
+class MercurialSubmitHighlighter : TextEditor::SyntaxHighlighter
 {
 public:
     explicit MercurialSubmitHighlighter(QTextEdit *parent);
     void highlightBlock(const QString &text);
 
 private:
-    enum State { Header, Comment, Other };
-    const QTextCharFormat m_commentFormat;
+    enum State { None = -1, Header, Other };
+    enum Format { Format_Comment };
     QRegExp m_keywordPattern;
-    const QChar m_hashChar;
 };
 
 MercurialSubmitHighlighter::MercurialSubmitHighlighter(QTextEdit *parent) :
-        QSyntaxHighlighter(parent),
-        m_commentFormat(commentFormat()),
-        m_keywordPattern(QLatin1String("^\\w+:")),
-        m_hashChar(QLatin1Char('#'))
+        TextEditor::SyntaxHighlighter(parent),
+        m_keywordPattern(QLatin1String("^\\w+:"))
 {
+    static QVector<TextEditor::TextStyle> categories;
+    if (categories.isEmpty())
+        categories << TextEditor::C_COMMENT;
+
+    setTextFormatCategories(categories);
     QTC_CHECK(m_keywordPattern.isValid());
 }
 
 void MercurialSubmitHighlighter::highlightBlock(const QString &text)
 {
     // figure out current state
-    State state = Other;
-    const QTextBlock block = currentBlock();
-    if (block.position() == 0) {
-        state = Header;
-    } else {
-        if (text.startsWith(m_hashChar))
-            state = Comment;
+    State state = static_cast<State>(previousBlockState());
+    if (text.startsWith(QLatin1String("HG:"))) {
+        setFormat(0, text.size(), formatForCategory(Format_Comment));
+        setCurrentBlockState(state);
+        return;
     }
+
+    if (state == None) {
+        if (text.isEmpty()) {
+            setCurrentBlockState(state);
+            return;
+        }
+        state = Header;
+    } else if (state == Header) {
+        state = Other;
+    }
+
+    setCurrentBlockState(state);
+
     // Apply format.
     switch (state) {
+    case None:
+        break;
     case Header: {
-            QTextCharFormat charFormat = format(0);
-            charFormat.setFontWeight(QFont::Bold);
-            setFormat(0, text.size(), charFormat);
-        }
+        QTextCharFormat charFormat = format(0);
+        charFormat.setFontWeight(QFont::Bold);
+        setFormat(0, text.size(), charFormat);
         break;
-    case Comment:
-        setFormat(0, text.size(), m_commentFormat);
-        break;
+    }
     case Other:
         // Format key words ("Task:") italic
         if (m_keywordPattern.indexIn(text, 0, QRegExp::CaretAtZero) == 0) {
@@ -149,6 +152,15 @@ QString MercurialCommitWidget::committer()
 QString MercurialCommitWidget::repoRoot()
 {
     return mercurialCommitPanelUi.repositoryLabel->text();
+}
+
+QString MercurialCommitWidget::cleanupDescription(const QString &input) const
+{
+    const QRegularExpression commentLine(QLatin1String("^HG:[^\\n]*(\\n|$)"),
+                                         QRegularExpression::MultilineOption);
+    QString message = input;
+    message.remove(commentLine);
+    return message;
 }
 
 } // namespace Internal

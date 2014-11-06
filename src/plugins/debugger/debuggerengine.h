@@ -318,8 +318,7 @@ protected:
     virtual void notifyInferiorStopOk();
     virtual void notifyInferiorSpontaneousStop();
     virtual void notifyInferiorStopFailed();
-public:
-    virtual void notifyInferiorExited();
+    Q_SLOT virtual void notifyInferiorExited();
 
 protected:
     virtual void notifyInferiorShutdownOk();

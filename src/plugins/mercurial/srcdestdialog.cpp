@@ -37,7 +37,9 @@
 #include <QUrl>
 
 using namespace VcsBase;
-using namespace Mercurial::Internal;
+
+namespace Mercurial {
+namespace Internal  {
 
 SrcDestDialog::SrcDestDialog(Direction dir, QWidget *parent) :
     QDialog(parent),
@@ -118,3 +120,6 @@ QUrl SrcDestDialog::getRepoUrl() const
         url = settings.value(QLatin1String("paths/default")).toUrl();
     return url;
 }
+
+} // namespace Internal
+} // namespace Mercurial

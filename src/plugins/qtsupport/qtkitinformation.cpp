@@ -35,6 +35,7 @@
 #include "qtversionmanager.h"
 #include "qtparser.h"
 
+#include <utils/algorithm.h>
 #include <utils/buildablehelperlibrary.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
@@ -59,23 +60,31 @@ QVariant QtKitInformation::defaultValue(ProjectExplorer::Kit *k) const
     Q_UNUSED(k);
 
     // find "Qt in PATH":
-    Utils::FileName qmake = Utils::BuildableHelperLibrary::findSystemQt(Utils::Environment::systemEnvironment());
-
-    if (qmake.isEmpty())
-        return -1;
-
     QList<BaseQtVersion *> versionList = QtVersionManager::versions();
-    BaseQtVersion *fallBack = 0;
-    foreach (BaseQtVersion *v, versionList) {
-        if (qmake == v->qmakeCommand())
-            return v->uniqueId();
-        if (v->type() == QLatin1String(QtSupport::Constants::DESKTOPQT) && !fallBack)
-            fallBack = v;
-    }
-    if (fallBack)
-        return fallBack->uniqueId();
+    BaseQtVersion *result = findOrDefault(versionList, [](const BaseQtVersion *v) {
+        return v->autodetectionSource() == QLatin1String("PATH");
+    });
 
-    return -1;
+    if (result)
+        return result->uniqueId();
+
+    // Legacy: Check for system qmake path: Remove in 3.5 (or later):
+    // This check is expensive as it will potentially run binaries (qmake --version)!
+    const FileName qmakePath
+            = BuildableHelperLibrary::findSystemQt(Utils::Environment::systemEnvironment());
+
+    if (!qmakePath.isEmpty()) {
+        result = findOrDefault(versionList, [qmakePath](const BaseQtVersion *v) {
+            return v->qmakeCommand() == qmakePath;
+        });
+    }
+
+    // Use *any* desktop Qt:
+    result = findOrDefault(versionList, [](const BaseQtVersion *v) {
+        return v->type() == QLatin1String(QtSupport::Constants::DESKTOPQT);
+    });
+
+    return result ? result->uniqueId() : -1;
 }
 
 QList<ProjectExplorer::Task> QtKitInformation::validate(const ProjectExplorer::Kit *k) const

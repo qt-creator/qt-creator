@@ -1557,7 +1557,10 @@ bool Check::visit(CallExpression *ast)
             && name != QLatin1String("Boolean")
             && name != QLatin1String("Date")
             && name != QLatin1String("Number")
-            && name != QLatin1String("Object")) {
+            && name != QLatin1String("Object")
+            && name != QLatin1String("QT_TR_NOOP")
+            && name != QLatin1String("QT_TRANSLATE_NOOP")
+            && name != QLatin1String("QT_TRID_NOOP")) {
         addMessage(WarnExpectedNewWithUppercaseFunction, location);
     }
     if (cast<IdentifierExpression *>(ast->base) && name == QLatin1String("eval"))
