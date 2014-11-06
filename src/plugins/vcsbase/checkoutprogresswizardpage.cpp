@@ -76,8 +76,7 @@ CheckoutProgressWizardPage::CheckoutProgressWizardPage(QWidget *parent) :
 
 CheckoutProgressWizardPage::~CheckoutProgressWizardPage()
 {
-    if (m_state == Running) // Paranoia!
-        QApplication::restoreOverrideCursor();
+    QTC_ASSERT(m_state != Running, QApplication::restoreOverrideCursor());
     delete m_formatter;
 }
 
@@ -96,8 +95,9 @@ void CheckoutProgressWizardPage::start(VcsCommand *command)
     QTC_ASSERT(m_state != Running, return);
     m_command = command;
     command->setProgressiveOutput(true);
-    connect(command, SIGNAL(output(QString)), this, SLOT(slotOutput(QString)));
-    connect(command, SIGNAL(finished(bool,int,QVariant)), this, SLOT(slotFinished(bool,int,QVariant)));
+    connect(command, &VcsCommand::output, this, &CheckoutProgressWizardPage::reportStdOut);
+    connect(command, &VcsCommand::errorText, this, &CheckoutProgressWizardPage::reportStdErr);
+    connect(command, &VcsCommand::finished, this, &CheckoutProgressWizardPage::slotFinished);
     QApplication::setOverrideCursor(Qt::WaitCursor);
     m_logPlainTextEdit->clear();
     m_overwriteOutput = false;
@@ -109,39 +109,40 @@ void CheckoutProgressWizardPage::start(VcsCommand *command)
 
 void CheckoutProgressWizardPage::slotFinished(bool ok, int exitCode, const QVariant &)
 {
-    if (ok && exitCode == 0) {
-        if (m_state == Running) {
-            m_state = Succeeded;
-            QApplication::restoreOverrideCursor();
-            m_statusLabel->setText(tr("Succeeded."));
-            QPalette palette;
-            palette.setColor(QPalette::Active, QPalette::Text, Qt::green);
-            m_statusLabel->setPalette(palette);
-            emit completeChanged();
-            emit terminated(true);
-        }
+    QTC_ASSERT(m_state == Running, return);
+
+    const bool success = (ok && exitCode == 0);
+    QString message;
+    QPalette palette;
+
+    if (success) {
+        m_state = Succeeded;
+        message = tr("Succeeded.");
+        palette.setColor(QPalette::Active, QPalette::Text, Qt::green);
     } else {
-        m_logPlainTextEdit->appendPlainText(m_error);
-        if (m_state == Running) {
-            m_state = Failed;
-            QApplication::restoreOverrideCursor();
-            m_statusLabel->setText(tr("Failed."));
-            QPalette palette;
-            palette.setColor(QPalette::Active, QPalette::Text, Qt::red);
-            m_statusLabel->setPalette(palette);
-            emit terminated(false);
-        }
+        m_state = Failed;
+        message = tr("Failed.");
+        palette.setColor(QPalette::Active, QPalette::Text, Qt::red);
     }
+
+    m_statusLabel->setText(message);
+    m_statusLabel->setPalette(palette);
+
+    QApplication::restoreOverrideCursor();
+
+    if (success)
+        emit completeChanged();
+    emit terminated(success);
 }
 
-void CheckoutProgressWizardPage::slotOutput(const QString &text)
+void CheckoutProgressWizardPage::reportStdOut(const QString &text)
 {
     m_formatter->appendMessage(text, Utils::StdOutFormat);
 }
 
-void CheckoutProgressWizardPage::slotError(const QString &text)
+void CheckoutProgressWizardPage::reportStdErr(const QString &text)
 {
-    m_error.append(text);
+    m_formatter->appendMessage(text, Utils::StdErrFormat);
 }
 
 void CheckoutProgressWizardPage::terminate()

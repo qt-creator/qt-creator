@@ -69,8 +69,8 @@ signals:
 
 private slots:
     void slotFinished(bool ok, int exitCode, const QVariant &cookie);
-    void slotOutput(const QString &text);
-    void slotError(const QString &text);
+    void reportStdOut(const QString &text);
+    void reportStdErr(const QString &text);
 
 private:
     QPlainTextEdit *m_logPlainTextEdit;
@@ -79,7 +79,6 @@ private:
 
     VcsCommand *m_command;
     QString m_startedStatus;
-    QString m_error;
     bool m_overwriteOutput;
 
     State m_state;
