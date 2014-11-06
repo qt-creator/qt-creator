@@ -71,6 +71,7 @@ TestTreeViewWidget::TestTreeViewWidget(QWidget *parent) :
 
 void TestTreeViewWidget::contextMenuEvent(QContextMenuEvent *event)
 {
+    bool enabled = !TestRunner::instance()->isTestRunning();
     bool hasTests = m_model->hasTests();
     QMenu menu;
     QAction *runAll = new QAction(tr("Run All Tests"), &menu);
@@ -87,10 +88,11 @@ void TestTreeViewWidget::contextMenuEvent(QContextMenuEvent *event)
     connect(rescan, &QAction::triggered,
             TestTreeModel::instance()->parser(), &TestCodeParser::updateTestTree);
 
-    runAll->setEnabled(hasTests);
-    runSelected->setEnabled(hasTests);
-    selectAll->setEnabled(hasTests);
-    deselectAll->setEnabled(hasTests);
+    runAll->setEnabled(enabled && hasTests);
+    runSelected->setEnabled(enabled && hasTests);
+    selectAll->setEnabled(enabled && hasTests);
+    deselectAll->setEnabled(enabled && hasTests);
+    rescan->setEnabled(enabled);
 
     menu.addAction(runAll);
     menu.addAction(runSelected);

@@ -41,6 +41,7 @@ public:
     ~TestRunner();
 
     void setSelectedTests(const QList<TestConfiguration *> &selected);
+    bool isTestRunning() const { return m_executingTests; }
 
 signals:
     void testRunStarted();
@@ -53,6 +54,7 @@ public slots:
 private slots:
     void buildProject(ProjectExplorer::Project *project);
     void buildFinished(bool success);
+    void onFinished();
 
 private:
     explicit TestRunner(QObject *parent = 0);
@@ -60,6 +62,7 @@ private:
     QList<TestConfiguration *> m_selectedTests;
     bool m_building;
     bool m_buildSucceeded;
+    bool m_executingTests;
 
 };
 

@@ -52,7 +52,8 @@ TestRunner *TestRunner::instance()
 
 TestRunner::TestRunner(QObject *parent) :
     QObject(parent),
-    m_building(false)
+    m_building(false),
+    m_executingTests(false)
 {
 }
 
@@ -375,12 +376,13 @@ void TestRunner::runTests()
         }
     }
 
+    m_executingTests = true;
     emit testRunStarted();
     QFuture<void> future = QtConcurrent::run(&performTestRun , m_selectedTests);
     Core::FutureProgress *progress = Core::ProgressManager::addTask(future, tr("Running Tests"),
                                                                     Autotest::Constants::TASK_INDEX);
     connect(progress, &Core::FutureProgress::finished,
-            TestRunner::instance(), &TestRunner::testRunFinished);
+            TestRunner::instance(), &TestRunner::onFinished);
 }
 
 void TestRunner::buildProject(ProjectExplorer::Project *project)
@@ -403,6 +405,12 @@ void TestRunner::buildFinished(bool success)
                this, &TestRunner::buildFinished);
     m_building = false;
     m_buildSucceeded = success;
+}
+
+void TestRunner::onFinished()
+{
+    m_executingTests = false;
+    emit testRunFinished();
 }
 
 void TestRunner::stopTestRun()
