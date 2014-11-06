@@ -169,6 +169,7 @@ ThemeSettingsPrivate::ThemeSettingsPrivate(QWidget *widget)
 {
     m_currentTheme = ThemeEntry(creatorTheme()->fileName(), true);
     m_ui->setupUi(widget);
+    m_ui->editor->hide(); // TODO: Restore after improving the editor
     m_ui->themeComboBox->setModel(m_themeListModel);
 }
 

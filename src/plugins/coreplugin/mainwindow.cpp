@@ -132,7 +132,6 @@ MainWindow::MainWindow() :
     m_rightPaneWidget(0),
     m_versionDialog(0),
     m_generalSettings(new GeneralSettings),
-    m_themeSettings(new ThemeSettings),
     m_shortcutSettings(new ShortcutSettings),
     m_toolSettings(new ToolSettings),
     m_mimeTypeSettings(new MimeTypeSettings),
@@ -256,7 +255,6 @@ MainWindow::~MainWindow()
 
     ExtensionSystem::PluginManager::removeObject(m_shortcutSettings);
     ExtensionSystem::PluginManager::removeObject(m_generalSettings);
-    ExtensionSystem::PluginManager::removeObject(m_themeSettings);
     ExtensionSystem::PluginManager::removeObject(m_toolSettings);
     ExtensionSystem::PluginManager::removeObject(m_mimeTypeSettings);
     ExtensionSystem::PluginManager::removeObject(m_systemEditor);
@@ -268,8 +266,6 @@ MainWindow::~MainWindow()
     m_shortcutSettings = 0;
     delete m_generalSettings;
     m_generalSettings = 0;
-    delete m_themeSettings;
-    m_themeSettings = 0;
     delete m_toolSettings;
     m_toolSettings = 0;
     delete m_mimeTypeSettings;
@@ -327,7 +323,6 @@ bool MainWindow::init(QString *errorMessage)
     m_progressManager->init(); // needs the status bar manager
 
     ExtensionSystem::PluginManager::addObject(m_generalSettings);
-    ExtensionSystem::PluginManager::addObject(m_themeSettings);
     ExtensionSystem::PluginManager::addObject(m_shortcutSettings);
     ExtensionSystem::PluginManager::addObject(m_toolSettings);
     ExtensionSystem::PluginManager::addObject(m_mimeTypeSettings);
