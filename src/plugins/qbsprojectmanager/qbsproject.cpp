@@ -780,6 +780,7 @@ void QbsProject::updateCppCodeModel()
     QtSupport::UiCodeModelManager::update(this, uiFiles);
 
     // Update the code model
+    m_codeModelFuture.cancel();
     m_codeModelFuture = modelmanager->updateProjectInfo(pinfo);
     m_codeModelProjectInfo = modelmanager->projectInfo(this);
 }
