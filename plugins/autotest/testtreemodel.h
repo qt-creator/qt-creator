@@ -60,11 +60,19 @@ public:
     bool hasTests() const;
     QList<TestConfiguration *> getAllTestCases() const;
     QList<TestConfiguration *> getSelectedTests() const;
+    TestTreeItem *unnamedQuickTests() const;
 
     void modifyAutoTestSubtree(int row, TestTreeItem *newItem);
     void removeAutoTestSubtreeByFilePath(const QString &file);
     void addAutoTest(TestTreeItem *newItem);
     void removeAllAutoTests();
+
+    void modifyQuickTestSubtree(int row, TestTreeItem *newItem);
+    void removeQuickTestSubtreeByFilePath(const QString &file);
+    void addQuickTest(TestTreeItem *newItem);
+    void removeAllQuickTests();
+    void removeUnnamedQuickTest(const QString &filePath);
+
 signals:
     void testTreeModelChanged();
 
@@ -72,10 +80,11 @@ public slots:
 
 private:
     explicit TestTreeModel(QObject *parent = 0);
+    void modifyTestSubtree(QModelIndex &toBeModifiedIndex, TestTreeItem *newItem);
 
     TestTreeItem *m_rootItem;
     TestTreeItem *m_autoTestRootItem;
-//    TestTreeItem *m_quickTestRootItem;
+    TestTreeItem *m_quickTestRootItem;
     TestCodeParser *m_parser;
 
 };

@@ -41,6 +41,26 @@ TestConfiguration::~TestConfiguration()
     m_testCases.clear();
 }
 
+/**
+ * @brief sets the test cases for this test configuration.
+ *
+ * Watch out for special handling of test configurations, because this method also
+ * updates the test case count to the current size of \a testCases.
+ *
+ * @param testCases list of names of the test functions / test cases
+ */
+void TestConfiguration::setTestCases(const QStringList &testCases)
+{
+    m_testCases.clear();
+    m_testCases << testCases;
+    m_testCaseCount = m_testCases.size();
+}
+
+void TestConfiguration::setTestCaseCount(int count)
+{
+    m_testCaseCount = count;
+}
+
 void TestConfiguration::setTargetFile(const QString &targetFile)
 {
     m_targetFile = targetFile;

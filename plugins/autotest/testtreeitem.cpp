@@ -94,6 +94,10 @@ bool TestTreeItem::modifyContent(const TestTreeItem *modified)
         m_line = modified->m_line;
         hasBeenModified = true;
     }
+    if (m_mainFile != modified->m_mainFile) {
+        m_mainFile = modified->m_mainFile;
+        hasBeenModified = true;
+    }
     return hasBeenModified;
 }
 

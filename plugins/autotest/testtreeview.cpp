@@ -32,6 +32,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 
+#include <qmljstools/qmljsmodelmanager.h>
+
 #include <texteditor/texteditor.h>
 
 #include <QToolButton>
@@ -61,9 +63,14 @@ TestTreeViewWidget::TestTreeViewWidget(QWidget *parent) :
 
     CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
     connect(cppMM, &CppTools::CppModelManager::documentUpdated,
-            parser, &TestCodeParser::onDocumentUpdated, Qt::QueuedConnection);
-
+            parser, &TestCodeParser::onCppDocumentUpdated, Qt::QueuedConnection);
     connect(cppMM, &CppTools::CppModelManager::aboutToRemoveFiles,
+            parser, &TestCodeParser::removeFiles, Qt::QueuedConnection);
+
+    QmlJS::ModelManagerInterface *qmlJsMM = QmlJSTools::Internal::ModelManager::instance();
+    connect(qmlJsMM, &QmlJS::ModelManagerInterface::documentUpdated,
+            parser, &TestCodeParser::onQmlDocumentUpdated, Qt::QueuedConnection);
+    connect(qmlJsMM, &QmlJS::ModelManagerInterface::aboutToRemoveFiles,
             parser, &TestCodeParser::removeFiles, Qt::QueuedConnection);
 
     connect(m_view, &TestTreeView::activated, this, &TestTreeViewWidget::onItemActivated);
@@ -208,28 +215,32 @@ void TestTreeView::deselectAll()
 void TestTreeView::selectOrDeselectAll(const Qt::CheckState checkState)
 {
     const TestTreeModel *model = TestTreeModel::instance();
-    QModelIndex autoTestsIndex = model->index(0, 0, rootIndex());
-    if (!autoTestsIndex.isValid())
-        return;
-    int count = model->rowCount(autoTestsIndex);
-    QModelIndex last;
-    for (int i = 0; i < count; ++i) {
-        const QModelIndex classesIndex = model->index(i, 0, autoTestsIndex);
-        int funcCount = model->rowCount(classesIndex);
-        TestTreeItem *item = static_cast<TestTreeItem *>(classesIndex.internalPointer());
-        if (item) {
-            item->setChecked(checkState);
-            if (!item->childCount())
-                last = classesIndex;
-        }
-        for (int j = 0; j < funcCount; ++j) {
-            last = model->index(j, 0, classesIndex);
-            TestTreeItem *item = static_cast<TestTreeItem *>(last.internalPointer());
-            if (item)
+
+    // 2 == Auto Tests and Quick Tests - must be raised if there will be others
+    for (int rootRow = 0; rootRow < 2; ++rootRow) {
+        QModelIndex currentRootIndex = model->index(rootRow, 0, rootIndex());
+        if (!currentRootIndex.isValid())
+            return;
+        int count = model->rowCount(currentRootIndex);
+        QModelIndex last;
+        for (int classesRow = 0; classesRow < count; ++classesRow) {
+            const QModelIndex classesIndex = model->index(classesRow, 0, currentRootIndex);
+            int funcCount = model->rowCount(classesIndex);
+            TestTreeItem *item = static_cast<TestTreeItem *>(classesIndex.internalPointer());
+            if (item) {
                 item->setChecked(checkState);
+                if (!item->childCount())
+                    last = classesIndex;
+            }
+            for (int functionRow = 0; functionRow < funcCount; ++functionRow) {
+                last = model->index(functionRow, 0, classesIndex);
+                TestTreeItem *item = static_cast<TestTreeItem *>(last.internalPointer());
+                if (item)
+                    item->setChecked(checkState);
+            }
         }
+        emit dataChanged(currentRootIndex, last);
     }
-    emit dataChanged(autoTestsIndex, last);
 }
 
 } // namespace Internal

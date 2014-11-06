@@ -40,6 +40,8 @@ public:
                                int testCaseCount = 0, QObject *parent = 0);
     ~TestConfiguration();
 
+    void setTestCases(const QStringList &testCases);
+    void setTestCaseCount(int count);
     void setTargetFile(const QString &targetFile);
     void setTargetName(const QString &targetName);
     void setProFile(const QString &proFile);

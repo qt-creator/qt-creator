@@ -224,7 +224,7 @@ static QString which(const QString &path, const QString &cmd)
     paths = path.split(QLatin1Char(':'));
 #endif
 
-    foreach (const QString p, paths) {
+    foreach (const QString &p, paths) {
         const QString fName = p + QDir::separator() + cmd;
         QFileInfo fi(fName);
         if (fi.exists() && fi.isExecutable())

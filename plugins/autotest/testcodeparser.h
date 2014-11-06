@@ -21,6 +21,8 @@
 
 #include <cplusplus/CppDocument.h>
 
+#include <qmljs/qmljsdocument.h>
+
 #include <QObject>
 #include <QMap>
 
@@ -46,8 +48,10 @@ signals:
 public slots:
     void updateTestTree();
     void checkDocumentForTestCode(CPlusPlus::Document::Ptr doc);
+    void handleQtQuickTest(CPlusPlus::Document::Ptr doc);
 
-    void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
+    void onCppDocumentUpdated(const CPlusPlus::Document::Ptr &doc);
+    void onQmlDocumentUpdated(const QmlJS::Document::Ptr &doc);
     void removeFiles(const QStringList &files);
 
 private:
@@ -56,6 +60,7 @@ private:
 
     TestTreeModel *m_model;
     QMap<QString, TestInfo> m_cppDocMap;
+    QMap<QString, TestInfo> m_quickDocMap;
     ProjectExplorer::Project *m_currentProject;
 };
 

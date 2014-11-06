@@ -24,6 +24,9 @@
 #include <cplusplus/Scope.h>
 #include <cplusplus/SymbolVisitor.h>
 
+#include <qmljs/parser/qmljsastvisitor_p.h>
+#include <qmljs/qmljsdocument.h>
+
 #include <QMap>
 #include <QString>
 
@@ -66,6 +69,30 @@ private:
     QString m_className;
     CPlusPlus::Scope *m_currentScope;
     CPlusPlus::Document::Ptr m_currentDoc;
+
+};
+
+class TestQmlVisitor : public QmlJS::AST::Visitor
+{
+public:
+    TestQmlVisitor(QmlJS::Document::Ptr doc);
+    virtual ~TestQmlVisitor();
+
+    bool visit(QmlJS::AST::UiObjectDefinition *ast);
+    bool visit(QmlJS::AST::ExpressionStatement *ast);
+    bool visit(QmlJS::AST::UiScriptBinding *ast);
+    bool visit(QmlJS::AST::FunctionDeclaration *ast);
+    bool visit(QmlJS::AST::StringLiteral *ast);
+
+    QString testCaseName() const { return m_currentTestCaseName; }
+    TestCodeLocation testCaseLocation() const { return m_testCaseLocation; }
+    QMap<QString, TestCodeLocation> testFunctions() const { return m_testFunctions; }
+
+private:
+    QmlJS::Document::Ptr m_currentDoc;
+    QString m_currentTestCaseName;
+    TestCodeLocation m_testCaseLocation;
+    QMap<QString, TestCodeLocation> m_testFunctions;
 
 };
 

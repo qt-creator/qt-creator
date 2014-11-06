@@ -4,10 +4,12 @@ QTC_PLUGIN_DEPENDS += \
     coreplugin \
     projectexplorer \
     cpptools \
+    qmljstools \
     licensechecker
 
 QTC_LIB_DEPENDS += \
     cplusplus \
+    qmljs \
     utils
 
 #QTC_PLUGIN_RECOMMENDS += \

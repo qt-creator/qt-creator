@@ -53,6 +53,8 @@ public:
     unsigned line() const { return m_line; }
     void setColumn(unsigned column) { m_column = column; }
     unsigned column() const { return m_column; }
+    QString mainFile() const { return m_mainFile; }
+    void setMainFile(const QString &mainFile) { m_mainFile = mainFile; }
     void setChecked(const Qt::CheckState checked);
     Qt::CheckState checked() const { return m_checked; }
     Type type() const { return m_type; }
@@ -66,6 +68,7 @@ private:
     Type m_type;
     unsigned m_line;
     unsigned m_column;
+    QString m_mainFile;
     TestTreeItem *m_parent;
     QList<TestTreeItem *> m_children;
 };
