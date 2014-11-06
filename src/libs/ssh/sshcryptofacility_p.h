@@ -53,9 +53,13 @@ public:
     quint32 macLength() const { return m_macLength; }
 
 protected:
+    enum Mode { CbcMode, CtrMode };
+
     SshAbstractCryptoFacility();
     void convert(QByteArray &data, quint32 offset, quint32 dataSize) const;
     QByteArray sessionId() const { return m_sessionId; }
+    Botan::Keyed_Filter *makeCtrCipherMode(Botan::BlockCipher *cipher,
+        const Botan::InitializationVector &iv, const Botan::SymmetricKey &key);
 
 private:
     SshAbstractCryptoFacility(const SshAbstractCryptoFacility &);
@@ -64,15 +68,14 @@ private:
     virtual QByteArray cryptAlgoName(const SshKeyExchange &kex) const = 0;
     virtual QByteArray hMacAlgoName(const SshKeyExchange &kex) const = 0;
     virtual Botan::Keyed_Filter *makeCipherMode(Botan::BlockCipher *cipher,
-        Botan::BlockCipherModePaddingMethod *paddingMethod,
-        const Botan::InitializationVector &iv,
-        const Botan::SymmetricKey &key) = 0;
+        Mode mode, const Botan::InitializationVector &iv, const Botan::SymmetricKey &key) = 0;
     virtual char ivChar() const = 0;
     virtual char keyChar() const = 0;
     virtual char macChar() const = 0;
 
     QByteArray generateHash(const SshKeyExchange &kex, char c, quint32 length);
     void checkInvariant() const;
+    static Mode getMode(const QByteArray &algoName);
 
     QByteArray m_sessionId;
     QScopedPointer<Botan::Pipe> m_pipe;
@@ -98,8 +101,7 @@ private:
     virtual QByteArray cryptAlgoName(const SshKeyExchange &kex) const;
     virtual QByteArray hMacAlgoName(const SshKeyExchange &kex) const;
     virtual Botan::Keyed_Filter *makeCipherMode(Botan::BlockCipher *cipher,
-        Botan::BlockCipherModePaddingMethod *paddingMethod,
-        const Botan::InitializationVector &iv, const Botan::SymmetricKey &key);
+        Mode mode, const Botan::InitializationVector &iv, const Botan::SymmetricKey &key);
     virtual char ivChar() const { return 'A'; }
     virtual char keyChar() const { return 'C'; }
     virtual char macChar() const { return 'E'; }
@@ -130,8 +132,7 @@ private:
     virtual QByteArray cryptAlgoName(const SshKeyExchange &kex) const;
     virtual QByteArray hMacAlgoName(const SshKeyExchange &kex) const;
     virtual Botan::Keyed_Filter *makeCipherMode(Botan::BlockCipher *cipher,
-        Botan::BlockCipherModePaddingMethod *paddingMethod,
-        const Botan::InitializationVector &iv, const Botan::SymmetricKey &key);
+        Mode mode, const Botan::InitializationVector &iv, const Botan::SymmetricKey &key);
     virtual char ivChar() const { return 'B'; }
     virtual char keyChar() const { return 'D'; }
     virtual char macChar() const { return 'F'; }
