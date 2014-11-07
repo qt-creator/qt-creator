@@ -32,6 +32,8 @@
 #include "themesettingswidget.h"
 #include "coreconstants.h"
 
+#include <QCoreApplication>
+
 namespace Core {
 namespace Internal {
 

@@ -36,6 +36,7 @@
 #include <utils/theme/theme.h>
 #include <utils/qtcassert.h>
 
+#include <QDebug>
 #include <QDir>
 #include <QInputDialog>
 #include <QMessageBox>
