@@ -701,12 +701,6 @@ static inline QString currentDocumentPath()
     return QString();
 }
 
-static inline QStringList statusArguments()
-{
-    return QStringList() << QLatin1String("-c") << QLatin1String("color.status=false")
-                         << QLatin1String("status");
-}
-
 static inline void msgCannotRun(const QString &message, QString *errorMessage)
 {
     if (errorMessage)
@@ -1024,8 +1018,8 @@ void GitClient::merge(const QString &workingDirectory,
 
 void GitClient::status(const QString &workingDirectory)
 {
-    QStringList statusArgs = statusArguments();
-    statusArgs << QLatin1String("-u");
+    QStringList statusArgs;
+    statusArgs << QLatin1String("status") << QLatin1String("-u");
     VcsOutputWindow::setRepository(workingDirectory);
     VcsCommand *command = executeGit(workingDirectory, statusArgs, 0, true);
     connect(command, SIGNAL(finished(bool,int,QVariant)), VcsOutputWindow::instance(), SLOT(clearRepository()),
@@ -2311,14 +2305,15 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, St
     QByteArray outputText;
     QByteArray errorText;
 
-    QStringList statusArgs = statusArguments();
+    QStringList statusArgs;
+    statusArgs << QLatin1String("status");
     if (mode & NoUntracked)
         statusArgs << QLatin1String("--untracked-files=no");
     else
         statusArgs << QLatin1String("--untracked-files=all");
     if (mode & NoSubmodules)
         statusArgs << QLatin1String("--ignore-submodules=all");
-    statusArgs << QLatin1String("-s") << QLatin1String("-b");
+    statusArgs << QLatin1String("--porcelain") << QLatin1String("-b");
 
     const bool statusRc = fullySynchronousGit(workingDirectory, statusArgs,
                                               &outputText, &errorText, false);
