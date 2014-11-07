@@ -29,72 +29,20 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import Monitor 1.0
 
-Canvas {
+Item {
     id: timeMarks
-    objectName: "TimeMarks"
-    contextType: "2d"
-
+    visible: model && (mockup || (!model.hidden && !model.empty))
     property QtObject model
     property bool startOdd
+    property bool mockup
 
     readonly property int scaleMinHeight: 60
     readonly property int scaleStepping: 30
     readonly property string units: " kMGT"
 
-    property real startTime
-    property real endTime
-    property real timePerPixel
 
-    Connections {
-        target: model
-        onHeightChanged: requestPaint()
-    }
-
-    onStartTimeChanged: requestPaint()
-    onEndTimeChanged: requestPaint()
-    onYChanged: requestPaint()
-    onHeightChanged: requestPaint()
-
-    onPaint: {
-        var context = (timeMarks.context === null) ? getContext("2d") : timeMarks.context;
-        context.reset();
-        drawBackgroundBars( context, region );
-
-        var totalTime = endTime - startTime;
-        var spacing = width / totalTime;
-
-        var initialBlockLength = 120;
-        var timePerBlock = Math.pow(2, Math.floor( Math.log( totalTime / width * initialBlockLength ) / Math.LN2 ) );
-        var pixelsPerBlock = timePerBlock * spacing;
-        var pixelsPerSection = pixelsPerBlock / 5;
-        var blockCount = width / pixelsPerBlock;
-
-        var realStartTime = Math.floor(startTime/timePerBlock) * timePerBlock;
-        var realStartPos = (startTime-realStartTime) * spacing;
-
-        timePerPixel = timePerBlock/pixelsPerBlock;
-
-
-        for (var ii = 0; ii < blockCount+1; ii++) {
-            var x = Math.floor(ii*pixelsPerBlock - realStartPos);
-            context.strokeStyle = "#B0B0B0";
-            context.beginPath();
-            context.moveTo(x, 0);
-            context.lineTo(x, height);
-            context.stroke();
-
-            context.strokeStyle = "#CCCCCC";
-            for (var jj=1; jj < 5; jj++) {
-                var xx = Math.floor(ii*pixelsPerBlock + jj*pixelsPerSection - realStartPos);
-                context.beginPath();
-                context.moveTo(xx, 0);
-                context.lineTo(xx, height);
-                context.stroke();
-            }
-        }
-    }
+    property int rowCount: model ? model.rowCount : 0
 
     function prettyPrintScale(amount) {
         var unitOffset = 0;
@@ -112,66 +60,88 @@ Canvas {
         }
     }
 
-    function drawBackgroundBars( context, region ) {
-        var colorIndex = startOdd;
+    Connections {
+        target: model
+        onRowHeightChanged: {
+            if (row >= 0)
+                rowRepeater.itemAt(row).height = height;
+        }
+    }
 
-        context.font = "8px sans-serif";
 
-        // separators
-        var cumulatedHeight = 0;
+    Column {
+        id: rows
+        anchors.left: parent.left
+        anchors.right: parent.right
+        Repeater {
+            id: rowRepeater
+            model: timeMarks.rowCount
+            Rectangle {
+                id: row
+                color: ((index + (startOdd ? 1 : 0)) % 2) ? "#f0f0f0" : "white"
+                anchors.left: rows.left
+                anchors.right: rows.right
+                height: timeMarks.model ? timeMarks.model.rowHeight(index) : 0
 
-        for (var row = 0; row < model.rowCount; ++row) {
-            // row background
-            var rowHeight = model.rowHeight(row)
-            cumulatedHeight += rowHeight;
-            colorIndex = !colorIndex;
-            if (cumulatedHeight < y - rowHeight)
-                continue;
-            context.strokeStyle = context.fillStyle = colorIndex ? "#f0f0f0" : "white";
-            context.fillRect(0, cumulatedHeight - rowHeight - y, width, rowHeight);
+                property int minVal: timeMarks.model ? timeMarks.model.rowMinValue(index) : 0
+                property int maxVal: timeMarks.model ? timeMarks.model.rowMaxValue(index) : 0
+                property int valDiff: maxVal - minVal
+                property bool scaleVisible: timeMarks.model && timeMarks.model.expanded &&
+                                            height > scaleMinHeight && valDiff > 0
 
-            if (rowHeight >= scaleMinHeight) {
-                var minVal = model.rowMinValue(row);
-                var maxVal = model.rowMaxValue(row);
-                if (minVal !== maxVal) {
-                    context.strokeStyle = context.fillStyle = "#B0B0B0";
-
-                    var stepValUgly = Math.ceil((maxVal - minVal) /
-                                            Math.floor(rowHeight / scaleStepping));
-
-                    // align to clean 2**x
-                    var stepVal = 1;
-                    while (stepValUgly >>= 1)
-                        stepVal <<= 1;
-
-                    var stepHeight = rowHeight / (maxVal - minVal);
-
-                    for (var step = minVal; step <= maxVal - stepVal; step += stepVal) {
-                        var offset = cumulatedHeight - step * stepHeight - y;
-                        context.beginPath();
-                        context.moveTo(0, offset);
-                        context.lineTo(width, offset);
-                        context.stroke();
-                        context.fillText(prettyPrintScale(step), 5, offset - 2);
+                property int stepVal: {
+                    var ret = 1;
+                    var ugly = Math.ceil(valDiff / Math.floor(height / scaleStepping));
+                    while (isFinite(ugly) && ugly > 1) {
+                        ugly >>= 1;
+                        ret <<= 1;
                     }
-                    context.beginPath();
-                    context.moveTo(0, cumulatedHeight - rowHeight - y);
-                    context.lineTo(width, cumulatedHeight - rowHeight - y);
-                    context.stroke();
-                    context.fillText(prettyPrintScale(maxVal), 5,
-                                     cumulatedHeight - rowHeight - y + 8);
+                    return ret;
+                }
 
+                Text {
+                    id: scaleTopLabel
+                    renderType: Text.NativeRendering
+                    visible: parent.scaleVisible
+                    color: "#B0B0B0"
+                    font.pixelSize: 8
+                    anchors.top: parent.top
+                    anchors.leftMargin: 2
+                    anchors.topMargin: 2
+                    anchors.left: parent.left
+                    text: prettyPrintScale(row.maxVal)
+                }
+
+                Repeater {
+                    model: parent.scaleVisible ? row.valDiff / row.stepVal : 0
+
+                    Item {
+                        anchors.left: row.left
+                        anchors.right: row.right
+                        height: row.stepVal * row.height / row.valDiff
+                        y: row.height - (index + 1) * height
+                        visible: y > scaleTopLabel.height
+                        Text {
+                            renderType: Text.NativeRendering
+                            color: "#B0B0B0"
+                            font.pixelSize: 8
+                            anchors.bottom: parent.bottom
+                            anchors.bottomMargin: 2
+                            anchors.leftMargin: 2
+                            anchors.left: parent.left
+                            text: prettyPrintScale(index * row.stepVal)
+                        }
+
+                        Rectangle {
+                            height: 1
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.bottom: parent.bottom
+                            color: "#B0B0B0"
+                        }
+                    }
                 }
             }
-
-            if (cumulatedHeight > y + height)
-                return;
         }
-
-        context.strokeStyle = "#B0B0B0";
-        context.beginPath();
-        context.moveTo(0, cumulatedHeight - y);
-        context.lineTo(width, cumulatedHeight - y);
-        context.stroke();
     }
 }

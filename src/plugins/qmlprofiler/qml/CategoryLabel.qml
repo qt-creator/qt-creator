@@ -124,14 +124,6 @@ Item {
         renderType: Text.NativeRendering
     }
 
-    Rectangle {
-        height: 1
-        width: parent.width
-        color: "#999999"
-        anchors.bottom: parent.bottom
-        z: 2
-    }
-
     Column {
         id: column
         property QtObject parentModel: model

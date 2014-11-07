@@ -105,7 +105,6 @@ Rectangle {
         zoomSlider.externalUpdate = true;
         zoomSlider.value = zoomSlider.minimumValue;
         overview.clear();
-        timeDisplay.clear();
     }
 
     function propagateSelection(newModel, newItem) {
@@ -190,46 +189,64 @@ Rectangle {
     Keys.onReleased: shiftPressed = false;
 
     Flickable {
-        id: labelsflick
+        id: categories
         flickableDirection: Flickable.VerticalFlick
         interactive: false
         anchors.top: buttonsBar.bottom
         anchors.bottom: overview.top
         anchors.left: parent.left
-        width: labels.width
+        anchors.right: parent.right
         contentY: flick.contentY
 
         // reserve some more space than needed to prevent weird effects when resizing
-        contentHeight: labels.height + height
+        contentHeight: categoryContent.height + height
 
-        Rectangle {
-            id: labels
+        // Dispatch the cursor shape to all labels. When dragging the DropArea receiving
+        // the drag events is not necessarily related to the MouseArea receiving the mouse
+        // events, so we can't use the drag events to determine the cursor shape.
+        property bool dragging: false
+
+        Column {
+            id: categoryContent
             anchors.left: parent.left
-            width: 150
-            color: root.color
-            height: col.height
+            anchors.right: parent.right
 
-            Column {
-                id: col
+            DelegateModel {
+                id: labelsModel
 
-                // Dispatch the cursor shape to all labels. When dragging the DropArea receiving
-                // the drag events is not necessarily related to the MouseArea receiving the mouse
-                // events, so we can't use the drag events to determine the cursor shape.
-                property bool dragging: false
+                // As we cannot retrieve items by visible index we keep an array of row counts here,
+                // for the time marks to draw the row backgrounds in the right colors.
+                property var rowCounts: new Array(qmlProfilerModelProxy.models.length)
 
-                DelegateModel {
-                    id: labelsModel
-                    model: qmlProfilerModelProxy.models
-                    delegate: CategoryLabel {
+                function updateRowCount(visualIndex, rowCount) {
+                    if (rowCounts[visualIndex] !== rowCount) {
+                        rowCounts[visualIndex] = rowCount;
+                        // Array don't "change" if entries change. We have to signal manually.
+                        rowCountsChanged();
+                    }
+                }
+
+                model: qmlProfilerModelProxy.models
+                delegate: Rectangle {
+                    color: root.color
+
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    property int visualIndex: DelegateModel.itemsIndex
+                    height: label.visible ? label.height : 0
+
+                    CategoryLabel {
+                        id: label
                         model: modelData
-                        mockup: qmlProfilerModelProxy.height == 0
-                        visualIndex: DelegateModel.itemsIndex
-                        dragging: col.dragging
+                        mockup: qmlProfilerModelProxy.height === 0
+                        visualIndex: parent.visualIndex
+                        dragging: categories.dragging
                         reverseSelect: root.shiftPressed
-                        onDragStarted: col.dragging = true
-                        onDragStopped: col.dragging = false
-                        draggerParent: labels
-                        dragOffset: y
+                        onDragStarted: categories.dragging = true
+                        onDragStopped: categories.dragging = false
+                        draggerParent: categories
+                        width: 150
+                        dragOffset: parent.y
 
                         onDropped: {
                             timelineModel.items.move(sourceIndex, targetIndex);
@@ -251,26 +268,62 @@ Rectangle {
                                     zoomControl.rangeStart,
                                     root.selectedModel === index ? root.selectedItem : -1));
                         }
+                    }
 
+                    TimeMarks {
+                        id: timeMarks
+                        model: modelData
+                        mockup: qmlProfilerModelProxy.height === 0
+                        anchors.right: parent.right
+                        anchors.left: label.right
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        property int visualIndex: parent.visualIndex
 
+                        // Quite a mouthful, but works fine: Add up all the row counts up to the one
+                        // for this visual index and check if the result is even or odd.
+                        startOdd: (labelsModel.rowCounts.slice(0, visualIndex).reduce(
+                                       function(prev, rows) {return prev + rows}, 0) % 2) === 0
+
+                        onRowCountChanged: labelsModel.updateRowCount(visualIndex, rowCount)
+                        onVisualIndexChanged: labelsModel.updateRowCount(visualIndex, rowCount)
+                    }
+
+                    Rectangle {
+                        visible: label.visible
+                        opacity: parent.y == 0 ? 0 : 1
+                        color: "#B0B0B0"
+                        height: 1
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.top: parent.top
                     }
                 }
-
-                Repeater {
-                    model: labelsModel
-                }
             }
+
+            Repeater {
+                model: labelsModel
+            }
+        }
+
+        Rectangle {
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: categoryContent.bottom
+            height: 1
+            color: "#B0B0B0"
         }
     }
 
-    // border between labels and timeline
-    Rectangle {
-        id: labelsborder
-        anchors.left: labelsflick.right
+    TimeDisplay {
+        id: timeDisplay
         anchors.top: parent.top
+        anchors.left: buttonsBar.right
+        anchors.right: parent.right
         anchors.bottom: overview.top
-        width: 1
-        color: "#858585"
+        zoomer: zoomControl
+        contentX: flick.contentX
+        clip: true
     }
 
     ButtonsBar {
@@ -297,21 +350,12 @@ Rectangle {
         onLockChanged: selectionLocked = !lockButtonChecked();
     }
 
-    TimeDisplay {
-        id: timeDisplay
-        anchors.top: parent.top
-        anchors.left: labelsborder.right
-        anchors.right: parent.right
-        height: 24
-    }
-
     Flickable {
         id: flick
-        contentHeight: labels.height
+        contentHeight: categoryContent.height
         contentWidth: zoomControl.windowDuration * width / Math.max(1, zoomControl.rangeDuration)
         flickableDirection: Flickable.HorizontalAndVerticalFlick
         boundsBehavior: Flickable.StopAtBounds
-        clip:true
 
         // ScrollView will try to deinteractivate it. We don't want that
         // as the horizontal flickable is interactive, too. We do occasionally
@@ -375,9 +419,6 @@ Rectangle {
             signal clearChildren
             signal select(int modelIndex, int eventIndex)
 
-            // As we cannot retrieve items by visible index we keep an array of row counts here,
-            // for the time marks to draw the row backgrounds in the right colors.
-            property var rowCounts: new Array(qmlProfilerModelProxy.models.length)
 
             DelegateModel {
                 id: timelineModel
@@ -386,34 +427,7 @@ Rectangle {
                     id: spacer
                     height: modelData.height
                     width: flick.contentWidth
-                    property int rowCount: (modelData.empty || modelData.hidden) ?
-                                               0 : modelData.rowCount
                     property int visualIndex: DelegateModel.itemsIndex
-
-                    function updateRowParentCount() {
-                        if (timelineView.rowCounts[visualIndex] !== rowCount) {
-                            timelineView.rowCounts[visualIndex] = rowCount;
-                            // Array don't "change" if entries change. We have to signal manually.
-                            timelineView.rowCountsChanged();
-                        }
-                    }
-
-                    onRowCountChanged: updateRowParentCount()
-                    onVisualIndexChanged: updateRowParentCount()
-
-                    TimeMarks {
-                        model: modelData
-                        id: backgroundMarks
-                        anchors.fill: renderer
-                        startTime: zoomControl.rangeStart
-                        endTime: zoomControl.rangeEnd
-
-                        // Quite a mouthful, but works fine: Add up all the row counts up to the one
-                        // for this visual index and check if the result is even or odd.
-                        startOdd: (timelineView.rowCounts.slice(0, spacer.visualIndex).reduce(
-                                       function(prev, rows) {return prev + rows}, 0) % 2) === 0
-                        onStartOddChanged: requestPaint()
-                    }
 
                     TimelineRenderer {
                         id: renderer
@@ -543,8 +557,8 @@ Rectangle {
     ScrollView {
         id: scroller
         contentItem: flick
-        anchors.left: labelsborder.right
-        anchors.top: timeDisplay.bottom
+        anchors.left: buttonsBar.right
+        anchors.top: categories.top
         anchors.bottom: overview.top
         anchors.right: parent.right
     }
@@ -566,11 +580,19 @@ Rectangle {
     }
 
     Rectangle {
+        anchors.left: buttonsBar.right
+        anchors.bottom: overview.top
+        anchors.top: parent.top
+        width: 1
+        color: "#B0B0B0"
+    }
+
+    Rectangle {
         id: filterMenu
         color: "#9b9b9b"
         enabled: buttonsBar.enabled
         visible: false
-        width: labels.width
+        width: buttonsBar.width
         anchors.left: parent.left
         anchors.top: buttonsBar.bottom
         height: qmlProfilerModelProxy.models.length * buttonsBar.height
@@ -598,7 +620,7 @@ Rectangle {
         color: "#9b9b9b"
         enabled: buttonsBar.enabled
         visible: false
-        width: labels.width
+        width: categoryContent.width
         height: buttonsBar.height
         anchors.left: parent.left
         anchors.top: buttonsBar.bottom

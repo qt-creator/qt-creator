@@ -29,92 +29,156 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import Monitor 1.0
 
-Canvas {
+Item {
     id: timeDisplay
-    objectName: "TimeDisplay"
-    contextType: "2d"
 
-    Connections {
-        target: zoomControl
-        onRangeChanged: requestPaint();
-    }
+    property QtObject zoomer
 
-    onPaint: {
-        var context = (timeDisplay.context === null) ? getContext("2d") : timeDisplay.context;
+    readonly property int labelsHeight: 24
 
-        context.reset();
-        context.fillStyle = "white";
-        context.fillRect(0, 0, width, height);
+    readonly property int initialBlockLength: 120
 
-        var totalTime = Math.max(1, zoomControl.rangeDuration);
-        var spacing = width / totalTime;
+    property double spacing: width / rangeDuration
 
-        var initialBlockLength = 120;
-        var timePerBlock = Math.pow(2, Math.floor( Math.log( totalTime / width * initialBlockLength ) / Math.LN2 ) );
-        var pixelsPerBlock = timePerBlock * spacing;
-        var pixelsPerSection = pixelsPerBlock / 5;
-        var blockCount = width / pixelsPerBlock;
+    property double timePerBlock: Math.pow(2, Math.floor(Math.log(initialBlockLength / spacing) /
+                                                       Math.LN2))
 
-        var realStartTime = Math.floor(zoomControl.rangeStart / timePerBlock) * timePerBlock;
-        var startPos = (zoomControl.rangeStart - realStartTime) * spacing;
+    property double rangeDuration: Math.max(1, Math.round(zoomer.rangeDuration))
+    property double alignedWindowStart: Math.round(zoomer.windowStart - (zoomer.windowStart % timePerBlock))
+    property double pixelsPerBlock: timeDisplay.timePerBlock * timeDisplay.spacing
+    property double pixelsPerSection: pixelsPerBlock / 5
 
-        var timePerPixel = timePerBlock/pixelsPerBlock;
+    property int contentX
+    property int offsetX: contentX + Math.round((zoomer.windowStart % timePerBlock) * spacing)
 
-        var initialColor = Math.floor(realStartTime/timePerBlock) % 2;
-
-        context.fillStyle = "#000000";
-        context.font = "8px sans-serif";
-        for (var ii = 0; ii < blockCount+1; ii++) {
-            var x = Math.floor(ii*pixelsPerBlock - startPos);
-
-            context.fillStyle = (ii+initialColor)%2 ? "#E6E6E6":"white";
-            context.fillRect(x, 0, pixelsPerBlock, height);
-
-            context.strokeStyle = "#B0B0B0";
-            context.beginPath();
-            context.moveTo(x, 0);
-            context.lineTo(x, height);
-            context.stroke();
-
-            context.fillStyle = "#000000";
-            context.fillText(prettyPrintTime(ii*timePerBlock + realStartTime), x + 5, height/2 + 5);
-        }
-
-        context.strokeStyle = "#525252";
-        context.beginPath();
-        context.moveTo(0, height-1);
-        context.lineTo(width, height-1);
-        context.stroke();
-    }
-
-    function clear()
-    {
-        requestPaint();
-    }
-
-    function prettyPrintTime( t )
-    {
+    readonly property var timeUnits: ["μs", "ms", "s"]
+    function prettyPrintTime(t, rangeDuration) {
         var round = 1;
         var barrier = 1;
-        var units = ["μs", "ms", "s"];
 
-        for (var i = 0; i < units.length; ++i) {
+        for (var i = 0; i < timeUnits.length; ++i) {
             barrier *= 1000;
-            if (zoomControl.rangeDuration < barrier)
+            if (rangeDuration < barrier)
                 round *= 1000;
-            else if (zoomControl.rangeDuration < barrier * 10)
+            else if (rangeDuration < barrier * 10)
                 round *= 100;
-            else if (zoomControl.rangeDuration < barrier * 100)
+            else if (rangeDuration < barrier * 100)
                 round *= 10;
             if (t < barrier * 1000)
-                return Math.floor(t / (barrier / round)) / round + units[i];
+                return Math.floor(t / (barrier / round)) / round + timeUnits[i];
         }
 
         t /= barrier;
         var m = Math.floor(t / 60);
         var s = Math.floor((t - m * 60) * round) / round;
         return m + "m" + s + "s";
+    }
+
+    Item {
+        x: Math.floor(firstBlock * timeDisplay.pixelsPerBlock - timeDisplay.offsetX)
+        y: 0
+        id: row
+
+        property int firstBlock: timeDisplay.offsetX / timeDisplay.pixelsPerBlock
+        property int offset: firstBlock % repeater.model
+
+        Repeater {
+            id: repeater
+            model: Math.floor(timeDisplay.width / timeDisplay.initialBlockLength * 2 + 2)
+
+            Item {
+                id: column
+
+                // Changing the text in text nodes is expensive. We minimize the number of changes
+                // by rotating the nodes during scrolling.
+                property int stableIndex: row.offset > index ? repeater.model - row.offset + index :
+                                                               index - row.offset
+                height: timeDisplay.height
+                y: 0
+                x: width * stableIndex
+                width: timeDisplay.pixelsPerBlock
+
+                // Manually control this. We don't want it to happen when firstBlock
+                // changes before stableIndex changes.
+                onStableIndexChanged: block = row.firstBlock + stableIndex
+                property int block: -1
+                property double blockStartTime: block * timeDisplay.timePerBlock +
+                                                timeDisplay.alignedWindowStart
+
+                Rectangle {
+                    id: timeLabel
+
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    height: timeDisplay.labelsHeight
+
+                    color: (Math.round(column.block + timeDisplay.alignedWindowStart /
+                                       timeDisplay.timePerBlock) % 2) ?
+                               "#E6E6E6" : "white";
+
+                    Text {
+                        id: labelText
+                        renderType: Text.NativeRendering
+                        font.pixelSize: 8
+                        font.family: "sans-serif"
+                        anchors.fill: parent
+                        anchors.leftMargin: 5
+                        anchors.bottomMargin: 5
+                        verticalAlignment: Text.AlignBottom
+                        text: prettyPrintTime(column.blockStartTime, timeDisplay.rangeDuration)
+                    }
+                }
+
+                Row {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.top: timeLabel.bottom
+                    anchors.bottom: parent.bottom
+
+                    Repeater {
+                        model: 4
+                        Item {
+                            anchors.top: parent.top
+                            anchors.bottom: parent.bottom
+                            width: timeDisplay.pixelsPerSection
+
+                            Rectangle {
+                                color: "#CCCCCC"
+                                width: 1
+                                anchors.top: parent.top
+                                anchors.bottom: parent.bottom
+                                anchors.right: parent.right
+                            }
+                        }
+                    }
+                }
+
+                Rectangle {
+                    color: "#B0B0B0"
+                    width: 1
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    anchors.right: parent.right
+                }
+            }
+        }
+    }
+
+    Rectangle {
+        height: 2
+        anchors.left: parent.left
+        anchors.right: parent.right
+        y: labelsHeight - 2
+        color: "#B0B0B0"
+    }
+
+    Rectangle {
+        height: 1
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: row.bottom
+        color: "#B0B0B0"
     }
 }
