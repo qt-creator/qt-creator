@@ -64,7 +64,7 @@ static QList<ClangStaticAnalyzerRunControl::SourceFileConfiguration> calculateFi
     typedef ClangStaticAnalyzerRunControl::SourceFileConfiguration SourceFileConfiguration;
     QTC_ASSERT(project, return QList<SourceFileConfiguration>());
     ProjectInfo projectInfo = CppModelManager::instance()->projectInfo(project);
-    QTC_ASSERT(projectInfo, return QList<SourceFileConfiguration>());
+    QTC_ASSERT(projectInfo.isValid(), return QList<SourceFileConfiguration>());
 
     QList<SourceFileConfiguration> files;
     const QList<ProjectPart::Ptr> projectParts = projectInfo.projectParts();
