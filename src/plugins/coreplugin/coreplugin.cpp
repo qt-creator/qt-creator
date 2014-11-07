@@ -95,6 +95,7 @@ void CorePlugin::parseArguments(const QStringList &arguments)
     QString themeName = QLatin1String("default");
     QColor overrideColor;
     bool overrideTheme = false;
+    bool presentationMode = false;
 
     for (int i = 0; i < arguments.size(); ++i) {
         if (arguments.at(i) == QLatin1String("-color")) {
@@ -103,7 +104,7 @@ void CorePlugin::parseArguments(const QStringList &arguments)
             i++; // skip the argument
         }
         if (arguments.at(i) == QLatin1String("-presentationMode"))
-            ActionManager::setPresentationModeEnabled(true);
+            presentationMode = true;
         if (arguments.at(i) == QLatin1String("-theme")) {
             overrideTheme = true;
             themeName = arguments.at(i + 1);
@@ -137,6 +138,7 @@ void CorePlugin::parseArguments(const QStringList &arguments)
     // defer creation of these widgets until here,
     // because they need a valid theme set
     m_mainWindow = new MainWindow;
+    ActionManager::setPresentationModeEnabled(presentationMode);
     m_findPlugin = new FindPlugin;
     m_locator = new Locator;
 
