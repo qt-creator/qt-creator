@@ -174,14 +174,14 @@ ProjectNode *QbsProject::rootProjectNode() const
 
 static void collectFilesForProject(const qbs::ProjectData &project, QSet<QString> &result)
 {
-    result.insert(project.location().fileName());
+    result.insert(project.location().filePath());
     foreach (const qbs::ProductData &prd, project.products()) {
         foreach (const qbs::GroupData &grp, prd.groups()) {
             foreach (const QString &file, grp.allFilePaths())
                 result.insert(file);
-            result.insert(grp.location().fileName());
+            result.insert(grp.location().filePath());
         }
-        result.insert(prd.location().fileName());
+        result.insert(prd.location().filePath());
     }
     foreach (const qbs::ProjectData &subProject, project.subProjects())
         collectFilesForProject(subProject, result);
@@ -259,7 +259,7 @@ bool QbsProject::addFilesToProduct(QbsBaseProjectNode *node, const QStringList &
 {
     QTC_ASSERT(m_qbsProject.isValid(), return false);
     QStringList allPaths = groupData.allFilePaths();
-    const QString productFilePath = productData.location().fileName();
+    const QString productFilePath = productData.location().filePath();
     ChangeExpector expector(productFilePath, m_qbsDocuments);
     ensureWriteableQbsFile(productFilePath);
     foreach (const QString &path, filePaths) {
@@ -285,7 +285,7 @@ bool QbsProject::removeFilesFromProduct(QbsBaseProjectNode *node, const QStringL
 {
     QTC_ASSERT(m_qbsProject.isValid(), return false);
     QStringList allPaths = groupData.allFilePaths();
-    const QString productFilePath = productData.location().fileName();
+    const QString productFilePath = productData.location().filePath();
     ChangeExpector expector(productFilePath, m_qbsDocuments);
     ensureWriteableQbsFile(productFilePath);
     foreach (const QString &path, filePaths) {
@@ -598,7 +598,7 @@ void QbsProject::generateErrors(const qbs::ErrorInfo &e)
     foreach (const qbs::ErrorItem &item, e.items())
         TaskHub::addTask(Task::Error, item.description(),
                          ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM,
-                         FileName::fromString(item.codeLocation().fileName()),
+                         FileName::fromString(item.codeLocation().filePath()),
                          item.codeLocation().line());
 
 }
@@ -754,7 +754,7 @@ void QbsProject::updateCppCodeModel()
 
             ppBuilder.setDisplayName(grp.name());
             ppBuilder.setProjectFile(QString::fromLatin1("%1:%2:%3")
-                    .arg(grp.location().fileName())
+                    .arg(grp.location().filePath())
                     .arg(grp.location().line())
                     .arg(grp.location().column()));
 
@@ -807,7 +807,7 @@ void QbsProject::updateApplicationTargets()
         if (productData.targetArtifacts().isEmpty()) { // No build yet.
             applications.list << ProjectExplorer::BuildTargetInfo(displayName,
                     Utils::FileName(),
-                    Utils::FileName::fromString(productData.location().fileName()));
+                    Utils::FileName::fromString(productData.location().filePath()));
             continue;
         }
         foreach (const qbs::TargetArtifact &ta, productData.targetArtifacts()) {
@@ -816,7 +816,7 @@ void QbsProject::updateApplicationTargets()
                 continue;
             applications.list << ProjectExplorer::BuildTargetInfo(displayName,
                     Utils::FileName::fromString(ta.filePath()),
-                    Utils::FileName::fromString(productData.location().fileName()));
+                    Utils::FileName::fromString(productData.location().filePath()));
         }
     }
     activeTarget()->setApplicationTargets(applications);

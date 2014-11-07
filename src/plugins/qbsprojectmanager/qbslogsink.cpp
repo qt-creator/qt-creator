@@ -73,7 +73,7 @@ void QbsLogSink::doPrintWarning(const qbs::ErrorInfo &warning)
     foreach (const qbs::ErrorItem &item, warning.items())
         emit newTask(ProjectExplorer::Task(ProjectExplorer::Task::Warning,
                                            item.description(),
-                                           Utils::FileName::fromString(item.codeLocation().fileName()),
+                                           Utils::FileName::fromString(item.codeLocation().filePath()),
                                            item.codeLocation().line(),
                                            ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
 }

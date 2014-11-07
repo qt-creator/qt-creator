@@ -353,7 +353,7 @@ QbsGroupNode::QbsGroupNode(const qbs::GroupData &grp, const QString &productPath
 
     setIcon(m_groupIcon);
 
-    QbsFileNode *idx = new QbsFileNode(grp.location().fileName(),
+    QbsFileNode *idx = new QbsFileNode(grp.location().filePath(),
                                        ProjectExplorer::ProjectFileType, false,
                                        grp.location().line());
     addFileNodes(QList<ProjectExplorer::FileNode *>() << idx);
@@ -447,7 +447,7 @@ void QbsGroupNode::updateQbsGroupData(const qbs::GroupData &grp, const QString &
     m_productPath = productPath;
     m_qbsGroupData = grp;
 
-    setPath(grp.location().fileName());
+    setPath(grp.location().filePath());
     setDisplayName(grp.name());
 
     QbsFileNode *idx = 0;
@@ -457,7 +457,7 @@ void QbsGroupNode::updateQbsGroupData(const qbs::GroupData &grp, const QString &
             break;
     }
     QTC_ASSERT(idx, return);
-    idx->setPathAndLine(grp.location().fileName(), grp.location().line());
+    idx->setPathAndLine(grp.location().filePath(), grp.location().line());
 
     setupFiles(this, grp.allFilePaths(), productPath, updateExisting);
 
@@ -565,14 +565,14 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
 // --------------------------------------------------------------------
 
 QbsProductNode::QbsProductNode(const qbs::Project &project, const qbs::ProductData &prd) :
-    QbsBaseProjectNode(prd.location().fileName())
+    QbsBaseProjectNode(prd.location().filePath())
 {
     if (m_productIcon.isNull())
         m_productIcon = generateIcon(QString::fromLatin1(Constants::QBS_PRODUCT_OVERLAY_ICON));
 
     setIcon(m_productIcon);
 
-    ProjectExplorer::FileNode *idx = new QbsFileNode(prd.location().fileName(),
+    ProjectExplorer::FileNode *idx = new QbsFileNode(prd.location().filePath(),
                                                      ProjectExplorer::ProjectFileType, false,
                                                      prd.location().line());
     addFileNodes(QList<ProjectExplorer::FileNode *>() << idx);
@@ -658,8 +658,8 @@ void QbsProductNode::setQbsProductData(const qbs::Project &project, const qbs::P
     bool updateExisting = productWasEnabled != productIsEnabled;
 
     setDisplayName(QbsProject::productDisplayName(project, prd));
-    setPath(prd.location().fileName());
-    const QString &productPath = QFileInfo(prd.location().fileName()).absolutePath();
+    setPath(prd.location().filePath());
+    const QString &productPath = QFileInfo(prd.location().filePath()).absolutePath();
 
     // Find the QbsFileNode we added earlier:
     QbsFileNode *idx = 0;
@@ -669,7 +669,7 @@ void QbsProductNode::setQbsProductData(const qbs::Project &project, const qbs::P
             break;
     }
     QTC_ASSERT(idx, return);
-    idx->setPathAndLine(prd.location().fileName(), prd.location().line());
+    idx->setPathAndLine(prd.location().filePath(), prd.location().line());
 
     QList<ProjectExplorer::ProjectNode *> toAdd;
     QList<ProjectExplorer::ProjectNode *> toRemove = subProjectNodes();
@@ -751,7 +751,7 @@ void QbsProjectNode::update(const qbs::Project &qbsProject, const qbs::ProjectDa
     foreach (const qbs::ProjectData &subData, prjData.subProjects()) {
         QbsProjectNode *qn = findProjectNode(subData.name());
         if (!qn) {
-            QbsProjectNode *subProject = new QbsProjectNode(subData.location().fileName());
+            QbsProjectNode *subProject = new QbsProjectNode(subData.location().filePath());
             subProject->update(qbsProject, subData);
             toAdd << subProject;
         } else {
@@ -856,13 +856,13 @@ void QbsRootProjectNode::update()
 static QSet<QString> referencedBuildSystemFiles(const qbs::ProjectData &data)
 {
     QSet<QString> result;
-    result.insert(data.location().fileName());
+    result.insert(data.location().filePath());
     foreach (const qbs::ProjectData &subProject, data.subProjects())
         result.unite(referencedBuildSystemFiles(subProject));
     foreach (const qbs::ProductData &product, data.products()) {
-        result.insert(product.location().fileName());
+        result.insert(product.location().filePath());
         foreach (const qbs::GroupData &group, product.groups())
-            result.insert(group.location().fileName());
+            result.insert(group.location().filePath());
     }
 
     return result;

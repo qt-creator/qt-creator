@@ -21,6 +21,7 @@ Project {
         id: qbsProject
         property string qbsBaseDir: path + "/shared/qbs"
         condition: qbsSubModuleExists && !useExternalQbs
+        qbsSearchPaths: [qbsBaseDir + "/qbs-resources"]
 
         property bool enableUnitTests: false
         property bool enableProjectFileUpdates: true

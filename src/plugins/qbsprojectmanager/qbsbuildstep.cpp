@@ -216,7 +216,7 @@ void QbsBuildStep::buildingDone(bool success)
     // Report errors:
     foreach (const qbs::ErrorItem &item, m_job->error().items())
         createTaskAndOutput(ProjectExplorer::Task::Error, item.description(),
-                            item.codeLocation().fileName(), item.codeLocation().line());
+                            item.codeLocation().filePath(), item.codeLocation().line());
 
     QbsProject *pro = static_cast<QbsProject *>(project());
 
