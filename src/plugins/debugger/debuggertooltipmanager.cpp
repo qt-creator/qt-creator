@@ -651,7 +651,7 @@ public:
     QStandardItemModel m_defaultModel;
 };
 
-static void hide()
+static void hideAllToolTips()
 {
     purgeClosedToolTips();
     foreach (const QPointer<DebuggerToolTipWidget> &tw, m_tooltips)
@@ -1066,19 +1066,19 @@ void slotUpdateVisibleToolTips()
     if (m_tooltips.isEmpty())
         return;
     if (!m_debugModeActive) {
-        hide();
+        hideAllToolTips();
         return;
     }
 
     BaseTextEditor *toolTipEditor = BaseTextEditor::currentTextEditor();
     if (!toolTipEditor) {
-        hide();
+        hideAllToolTips();
         return;
     }
 
     const QString fileName = toolTipEditor->textDocument()->filePath();
     if (fileName.isEmpty()) {
-        hide();
+        hideAllToolTips();
         return;
     }
 
@@ -1269,7 +1269,7 @@ void DebuggerToolTipManager::leavingDebugMode()
     // Remove all signals in debug mode.
     if (m_debugModeActive) {
         m_debugModeActive = false;
-        hide();
+        hideAllToolTips();
         if (QWidget *topLevel = ICore::mainWindow()->topLevelWidget())
             topLevel->removeEventFilter(this);
         foreach (IEditor *e, DocumentModel::editorsForOpenedDocuments()) {
