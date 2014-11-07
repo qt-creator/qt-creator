@@ -86,7 +86,7 @@ Button {
                             color: (creatorTheme.WidgetStyle === 'StyleFlat') ? "#232323" : "#eeeeee"
                         }
                     }
-                    border.color: creatorTheme.Welcome_Button_BorderColor
+                    border.color: creatorTheme.Welcome_Button_BorderColorNormal
                 }
 
                 Rectangle {
@@ -114,7 +114,7 @@ Button {
                             color: (creatorTheme.WidgetStyle === 'StyleFlat') ? "#151515" : "#424242"
                         }
                     }
-                    border.color: creatorTheme.Welcome_Button_BorderColor
+                    border.color: creatorTheme.Welcome_Button_BorderColorPressed
 
                 }
             }
