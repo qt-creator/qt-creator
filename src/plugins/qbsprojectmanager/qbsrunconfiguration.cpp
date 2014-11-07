@@ -119,6 +119,9 @@ QbsRunConfiguration::QbsRunConfiguration(Target *parent, Core::Id id) :
 {
     addExtraAspect(new LocalEnvironmentAspect(this));
 
+    m_runModeForced = false;
+    m_runMode = isConsoleApplication() ? ApplicationLauncher::Console : ApplicationLauncher::Gui;
+
     ctor();
 }
 
@@ -127,6 +130,7 @@ QbsRunConfiguration::QbsRunConfiguration(Target *parent, QbsRunConfiguration *so
     m_uniqueProductName(source->m_uniqueProductName),
     m_commandLineArguments(source->m_commandLineArguments),
     m_runMode(source->m_runMode),
+    m_runModeForced(source->m_runModeForced),
     m_userWorkingDirectory(source->m_userWorkingDirectory),
     m_currentInstallStep(0), // no need to copy this, we will get if from the DC anyway.
     m_currentBuildStepList(0) // ditto
@@ -156,15 +160,17 @@ void QbsRunConfiguration::ctor()
     setDefaultDisplayName(defaultDisplayName());
 
     QbsProject *project = static_cast<QbsProject *>(target()->project());
-    connect(project, SIGNAL(projectParsingStarted()), this, SIGNAL(enabledChanged()));
-    connect(project, SIGNAL(projectParsingDone(bool)), this, SIGNAL(enabledChanged()));
+    connect(project, &QbsProject::projectParsingStarted, this, &RunConfiguration::enabledChanged);
+    connect(project, &QbsProject::projectParsingDone, this, [this](bool success) {
+        if (success && !m_runModeForced)
+            m_runMode = isConsoleApplication() ? ApplicationLauncher::Console
+                                               : ApplicationLauncher::Gui;
+        emit enabledChanged();
+    });
 
-    connect(target(), SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),
-            this, SLOT(installStepChanged()));
+    connect(target(), &Target::activeDeployConfigurationChanged,
+            this, &QbsRunConfiguration::installStepChanged);
     installStepChanged();
-
-    if (isConsoleApplication())
-        m_runMode = ApplicationLauncher::Console;
 }
 
 QWidget *QbsRunConfiguration::createConfigurationWidget()
@@ -176,7 +182,8 @@ QVariantMap QbsRunConfiguration::toMap() const
 {
     QVariantMap map(LocalApplicationRunConfiguration::toMap());
     map.insert(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY), m_commandLineArguments);
-    map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == ApplicationLauncher::Console);
+    if (m_runModeForced)
+        map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == ApplicationLauncher::Console);
     map.insert(QLatin1String(USER_WORKING_DIRECTORY_KEY), m_userWorkingDirectory);
     return map;
 }
@@ -184,8 +191,11 @@ QVariantMap QbsRunConfiguration::toMap() const
 bool QbsRunConfiguration::fromMap(const QVariantMap &map)
 {
     m_commandLineArguments = map.value(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY)).toString();
-    m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY), false).toBool() ?
-                ApplicationLauncher::Console : ApplicationLauncher::Gui;
+    if (map.contains(QLatin1String(USE_TERMINAL_KEY))) {
+        m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY), false).toBool() ?
+                    ApplicationLauncher::Console : ApplicationLauncher::Gui;
+        m_runModeForced = true;
+    }
 
     m_userWorkingDirectory = map.value(QLatin1String(USER_WORKING_DIRECTORY_KEY)).toString();
 
@@ -251,12 +261,7 @@ bool QbsRunConfiguration::isConsoleApplication() const
 {
     QbsProject *pro = static_cast<QbsProject *>(target()->project());
     const qbs::ProductData product = findProduct(pro->qbsProjectData(), m_uniqueProductName);
-    foreach (const qbs::TargetArtifact &ta, product.targetArtifacts()) {
-        if (ta.isExecutable())
-            return !ta.properties().getProperty(QLatin1String("consoleApplication")).toBool();
-    }
-
-    return false;
+    return product.properties().value(QLatin1String("consoleApplication"), false).toBool();
 }
 
 QString QbsRunConfiguration::workingDirectory() const
@@ -309,6 +314,10 @@ void QbsRunConfiguration::setCommandLineArguments(const QString &argumentsString
 
 void QbsRunConfiguration::setRunMode(ApplicationLauncher::Mode runMode)
 {
+    if (m_runMode == runMode)
+        return;
+
+    m_runModeForced = true;
     m_runMode = runMode;
     emit runModeChanged(runMode);
 }
