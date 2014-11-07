@@ -68,6 +68,10 @@ using namespace TextEditor;
 namespace Debugger {
 namespace Internal {
 
+class DebuggerToolTipWidget;
+QList<QPointer<DebuggerToolTipWidget>> m_tooltips;
+bool m_debugModeActive;
+
 // Expire tooltips after n days on (no longer load them) in order
 // to avoid them piling up.
 enum { toolTipsExpiryDays = 6 };
@@ -93,6 +97,13 @@ const char modelElementC[] = "model";
 const char modelColumnCountAttributeC[] = "columncount";
 const char modelRowElementC[] = "row";
 const char modelItemElementC[] = "item";
+
+static void purgeClosedToolTips()
+{
+    for (int i = m_tooltips.size(); --i >= 0; )
+        if (!m_tooltips.at(i))
+            m_tooltips.removeAt(i);
+}
 
 // Forward a stream reader across end elements looking for the
 // next start element of a desired type.
@@ -462,27 +473,134 @@ private:
     StandardItemTreeModelBuilder m_builder;
 };
 
-class DebuggerToolTipWidget;
+/*!
+    \class Debugger::Internal::DebuggerToolTipTreeView
 
-class DebuggerToolTipManagerData
+    \brief The DebuggerToolTipTreeView class is a treeview that adapts its size
+    to the model contents (also while expanding)
+    to be used within DebuggerTreeViewToolTipWidget.
+
+*/
+
+class DebuggerToolTipTreeView : public QTreeView
 {
 public:
-    DebuggerToolTipManagerData()
-        : m_debugModeActive(false)
-    {}
+    explicit DebuggerToolTipTreeView(QWidget *parent = 0);
 
-    void purgeClosedToolTips()
-    {
-        for (int i = m_tooltips.size(); --i >= 0; )
-            if (!m_tooltips.at(i))
-                m_tooltips.removeAt(i);
-    }
+    QSize sizeHint() const { return m_size; }
 
-    QList<QPointer<DebuggerToolTipWidget> > m_tooltips;
-    bool m_debugModeActive;
+    void computeSize();
+
+private:
+    void expandNode(const QModelIndex &idx);
+    void collapseNode(const QModelIndex &idx);
+    int computeHeight(const QModelIndex &index) const;
+
+    QSize m_size;
 };
 
-static DebuggerToolTipManagerData *d = 0;
+DebuggerToolTipTreeView::DebuggerToolTipTreeView(QWidget *parent) :
+    QTreeView(parent)
+{
+    setHeaderHidden(true);
+    setEditTriggers(NoEditTriggers);
+
+    setUniformRowHeights(true);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    connect(this, &QTreeView::collapsed, this, &DebuggerToolTipTreeView::computeSize,
+        Qt::QueuedConnection);
+    connect(this, &QTreeView::expanded, this, &DebuggerToolTipTreeView::computeSize,
+        Qt::QueuedConnection);
+
+    connect(this, &QTreeView::expanded,
+        this, &DebuggerToolTipTreeView::expandNode);
+    connect(this, &QTreeView::collapsed,
+        this, &DebuggerToolTipTreeView::collapseNode);
+}
+
+void DebuggerToolTipTreeView::expandNode(const QModelIndex &idx)
+{
+    model()->setData(idx, true, LocalsExpandedRole);
+}
+
+void DebuggerToolTipTreeView::collapseNode(const QModelIndex &idx)
+{
+    model()->setData(idx, false, LocalsExpandedRole);
+}
+
+int DebuggerToolTipTreeView::computeHeight(const QModelIndex &index) const
+{
+    int s = rowHeight(index);
+    const int rowCount = model()->rowCount(index);
+    for (int i = 0; i < rowCount; ++i)
+        s += computeHeight(model()->index(i, 0, index));
+    return s;
+}
+
+void DebuggerToolTipTreeView::computeSize()
+{
+    int columns = 30; // Decoration
+    int rows = 0;
+    bool rootDecorated = false;
+
+    if (QAbstractItemModel *m = model()) {
+        WatchTreeView::reexpand(this, m->index(0, 0));
+        const int columnCount = m->columnCount();
+        rootDecorated = m->rowCount() > 0;
+        if (rootDecorated)
+        for (int i = 0; i < columnCount; ++i) {
+            resizeColumnToContents(i);
+            columns += sizeHintForColumn(i);
+        }
+        if (columns < 100)
+            columns = 100; // Prevent toolbar from shrinking when displaying 'Previous'
+        rows += computeHeight(QModelIndex());
+
+        // Fit tooltip to screen, showing/hiding scrollbars as needed.
+        // Add a bit of space to account for tooltip border, and not
+        // touch the border of the screen.
+        QPoint pos(x(), y());
+        QTC_ASSERT(QApplication::desktop(), return);
+        QRect desktopRect = QApplication::desktop()->availableGeometry(pos);
+        const int maxWidth = desktopRect.right() - pos.x() - 5 - 5;
+        const int maxHeight = desktopRect.bottom() - pos.y() - 5 - 5;
+
+        if (columns > maxWidth)
+            rows += horizontalScrollBar()->height();
+
+        if (rows > maxHeight) {
+            setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+            rows = maxHeight;
+            columns += verticalScrollBar()->width();
+        } else {
+            setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        }
+
+        if (columns > maxWidth) {
+            setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+            columns = maxWidth;
+        } else {
+            setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        }
+    }
+
+    m_size = QSize(columns + 5, rows + 5);
+    setMinimumSize(m_size);
+    setMaximumSize(m_size);
+    setRootIsDecorated(rootDecorated);
+}
+
+QString DebuggerToolTipManager::treeModelClipboardContents(const QAbstractItemModel *model)
+{
+    QString rc;
+    QTC_ASSERT(model, return rc);
+    QTextStream str(&rc);
+    DumpTreeModelVisitor v(model, DumpTreeModelVisitor::ClipboardMode, str);
+    v.run();
+    return rc;
+}
 
 
 /////////////////////////////////////////////////////////////////////////
@@ -532,6 +650,13 @@ public:
     TooltipFilterModel m_filterModel; //!< Pointing to a valid watchModel
     QStandardItemModel m_defaultModel;
 };
+
+static void hide()
+{
+    purgeClosedToolTips();
+    foreach (const QPointer<DebuggerToolTipWidget> &tw, m_tooltips)
+        tw->hide();
+}
 
 void DebuggerToolTipWidget::pin()
 {
@@ -767,7 +892,7 @@ void DebuggerToolTipWidget::positionShow(const TextEditorWidget *editorWidget)
 
 static DebuggerToolTipWidget *findOrCreateWidget(const DebuggerToolTipContext &context)
 {
-    foreach (const QPointer<DebuggerToolTipWidget> &tw, d->m_tooltips)
+    foreach (const QPointer<DebuggerToolTipWidget> &tw, m_tooltips)
         if (tw && tw->m_context.isSame(context))
             return tw;
 
@@ -776,7 +901,7 @@ static DebuggerToolTipWidget *findOrCreateWidget(const DebuggerToolTipContext &c
     tw->setObjectName(QLatin1String("DebuggerTreeViewToolTipWidget: ") + QLatin1String(context.iname));
     tw->m_context.creationDate = QDate::currentDate();
 
-    d->m_tooltips.push_back(tw);
+    m_tooltips.push_back(tw);
 
     return tw;
 }
@@ -826,7 +951,7 @@ static QDate dateFromString(const QString &date)
         QDate();
 }
 
-static void loadSessionDataI(QXmlStreamReader &r)
+static void loadSessionDataHelper(QXmlStreamReader &r)
 {
     if (!readStartElement(r, toolTipElementC))
         return;
@@ -907,118 +1032,6 @@ void DebuggerToolTipWidget::saveSessionData(QXmlStreamWriter &w) const
 }
 
 /*!
-    \class Debugger::Internal::DebuggerToolTipTreeView
-
-    \brief The DebuggerToolTipTreeView class is a treeview that adapts its size
-    to the model contents (also while expanding)
-    to be used within DebuggerTreeViewToolTipWidget.
-
-*/
-
-DebuggerToolTipTreeView::DebuggerToolTipTreeView(QWidget *parent) :
-    QTreeView(parent)
-{
-    setHeaderHidden(true);
-    setEditTriggers(NoEditTriggers);
-
-    setUniformRowHeights(true);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-    connect(this, &QTreeView::collapsed, this, &DebuggerToolTipTreeView::computeSize,
-        Qt::QueuedConnection);
-    connect(this, &QTreeView::expanded, this, &DebuggerToolTipTreeView::computeSize,
-        Qt::QueuedConnection);
-
-    connect(this, &QTreeView::expanded,
-        this, &DebuggerToolTipTreeView::expandNode);
-    connect(this, &QTreeView::collapsed,
-        this, &DebuggerToolTipTreeView::collapseNode);
-}
-
-void DebuggerToolTipTreeView::expandNode(const QModelIndex &idx)
-{
-    model()->setData(idx, true, LocalsExpandedRole);
-}
-
-void DebuggerToolTipTreeView::collapseNode(const QModelIndex &idx)
-{
-    model()->setData(idx, false, LocalsExpandedRole);
-}
-
-int DebuggerToolTipTreeView::computeHeight(const QModelIndex &index) const
-{
-    int s = rowHeight(index);
-    const int rowCount = model()->rowCount(index);
-    for (int i = 0; i < rowCount; ++i)
-        s += computeHeight(model()->index(i, 0, index));
-    return s;
-}
-
-void DebuggerToolTipTreeView::computeSize()
-{
-    int columns = 30; // Decoration
-    int rows = 0;
-    bool rootDecorated = false;
-
-    if (QAbstractItemModel *m = model()) {
-        WatchTreeView::reexpand(this, m->index(0, 0));
-        const int columnCount = m->columnCount();
-        rootDecorated = m->rowCount() > 0;
-        if (rootDecorated)
-        for (int i = 0; i < columnCount; ++i) {
-            resizeColumnToContents(i);
-            columns += sizeHintForColumn(i);
-        }
-        if (columns < 100)
-            columns = 100; // Prevent toolbar from shrinking when displaying 'Previous'
-        rows += computeHeight(QModelIndex());
-
-        // Fit tooltip to screen, showing/hiding scrollbars as needed.
-        // Add a bit of space to account for tooltip border, and not
-        // touch the border of the screen.
-        QPoint pos(x(), y());
-        QTC_ASSERT(QApplication::desktop(), return);
-        QRect desktopRect = QApplication::desktop()->availableGeometry(pos);
-        const int maxWidth = desktopRect.right() - pos.x() - 5 - 5;
-        const int maxHeight = desktopRect.bottom() - pos.y() - 5 - 5;
-
-        if (columns > maxWidth)
-            rows += horizontalScrollBar()->height();
-
-        if (rows > maxHeight) {
-            setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-            rows = maxHeight;
-            columns += verticalScrollBar()->width();
-        } else {
-            setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        }
-
-        if (columns > maxWidth) {
-            setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-            columns = maxWidth;
-        } else {
-            setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        }
-    }
-
-    m_size = QSize(columns + 5, rows + 5);
-    setMinimumSize(m_size);
-    setMaximumSize(m_size);
-    setRootIsDecorated(rootDecorated);
-}
-
-QString DebuggerToolTipManager::treeModelClipboardContents(const QAbstractItemModel *model)
-{
-    QString rc;
-    QTC_ASSERT(model, return rc);
-    QTextStream str(&rc);
-    DumpTreeModelVisitor v(model, DumpTreeModelVisitor::ClipboardMode, str);
-    v.run();
-    return rc;
-}
-
-/*!
     \class Debugger::Internal::DebuggerToolTipManager
 
     \brief The DebuggerToolTipManager class manages the pinned tooltip widgets,
@@ -1033,14 +1046,13 @@ QString DebuggerToolTipManager::treeModelClipboardContents(const QAbstractItemMo
     (by file name and function) acquire the engine, others release.
 */
 
+
 DebuggerToolTipManager::DebuggerToolTipManager()
 {
-    d = new DebuggerToolTipManagerData;
 }
 
 DebuggerToolTipManager::~DebuggerToolTipManager()
 {
-    delete d;
 }
 
 void DebuggerToolTipManager::registerEngine(DebuggerEngine *)
@@ -1048,142 +1060,12 @@ void DebuggerToolTipManager::registerEngine(DebuggerEngine *)
     loadSessionData();
 }
 
-void DebuggerToolTipManager::updateEngine(DebuggerEngine *engine)
+void slotUpdateVisibleToolTips()
 {
-    QTC_ASSERT(engine, return);
-    d->purgeClosedToolTips();
-    if (d->m_tooltips.isEmpty())
+    purgeClosedToolTips();
+    if (m_tooltips.isEmpty())
         return;
-
-    // Stack frame changed: All tooltips of that file acquire the engine,
-    // all others release (arguable, this could be more precise?)
-    QString fileName;
-    QString function;
-    const int index = engine->stackHandler()->currentIndex();
-    if (index >= 0) {
-        const StackFrame frame = engine->stackHandler()->currentFrame();
-        if (frame.usable) {
-            fileName = frame.file;
-            function = frame.function;
-        }
-    }
-    foreach (const QPointer<DebuggerToolTipWidget> &tw, d->m_tooltips)
-        tw->handleStackFrameCompleted(fileName, function);
-    slotUpdateVisibleToolTips(); // Move out when stepping in same file.
-}
-
-void DebuggerToolTipManager::deregisterEngine(DebuggerEngine *engine)
-{
-    QTC_ASSERT(engine, return);
-    foreach (const QPointer<DebuggerToolTipWidget> &tw, d->m_tooltips)
-        if (tw && tw->m_context.engineType == engine->objectName())
-            tw->releaseEngine();
-    saveSessionData();
-}
-
-bool DebuggerToolTipManager::hasToolTips()
-{
-    return !d->m_tooltips.isEmpty();
-}
-
-void DebuggerToolTipManager::showToolTip
-    (const DebuggerToolTipContext &context, DebuggerEngine *engine)
-{
-    QTC_ASSERT(engine, return);
-    QTC_ASSERT(!context.expression.isEmpty(), qDebug(" BUT EMPTY"); return);
-
-    DebuggerToolTipWidget *tw = findOrCreateWidget(context);
-    tw->setWatchModel(engine->watchHandler()->model());
-    tw->acquireEngine();
-
-    const Utils::WidgetContent widgetContent(tw, true);
-    Utils::ToolTip::show(context.mousePosition, widgetContent, Internal::mainWindow());
-}
-
-bool DebuggerToolTipManager::eventFilter(QObject *o, QEvent *e)
-{
-    if (!hasToolTips())
-        return false;
-    switch (e->type()) {
-    case QEvent::Move: { // Move along with parent (toplevel)
-        const QMoveEvent *me = static_cast<const QMoveEvent *>(e);
-        const QPoint dist = me->pos() - me->oldPos();
-        d->purgeClosedToolTips();
-        foreach (const QPointer<DebuggerToolTipWidget> &tw, d->m_tooltips)
-            if (tw->isVisible())
-                tw->move(tw->pos() + dist);
-        }
-        break;
-    case QEvent::WindowStateChange: { // Hide/Show along with parent (toplevel)
-        const QWindowStateChangeEvent *se = static_cast<const QWindowStateChangeEvent *>(e);
-        const bool wasMinimized = se->oldState() & Qt::WindowMinimized;
-        const bool isMinimized  = static_cast<const QWidget *>(o)->windowState() & Qt::WindowMinimized;
-        if (wasMinimized ^ isMinimized) {
-            d->purgeClosedToolTips();
-            foreach (const QPointer<DebuggerToolTipWidget> &tw, d->m_tooltips)
-                tw->setVisible(!isMinimized);
-        }
-    }
-        break;
-    default:
-        break;
-    }
-    return false;
-}
-
-void DebuggerToolTipManager::sessionAboutToChange()
-{
-    closeAllToolTips();
-}
-
-void DebuggerToolTipManager::loadSessionData()
-{
-    const QString data = sessionValue(sessionSettingsKeyC).toString();
-    QXmlStreamReader r(data);
-    r.readNextStartElement();
-    if (r.tokenType() == QXmlStreamReader::StartElement && r.name() == QLatin1String(sessionDocumentC))
-        while (!r.atEnd())
-            loadSessionDataI(r);
-}
-
-void DebuggerToolTipManager::saveSessionData()
-{
-    QString data;
-    d->purgeClosedToolTips();
-
-    QXmlStreamWriter w(&data);
-    w.writeStartDocument();
-    w.writeStartElement(QLatin1String(sessionDocumentC));
-    w.writeAttribute(QLatin1String(sessionVersionAttributeC), QLatin1String("1.0"));
-    foreach (const QPointer<DebuggerToolTipWidget> &tw, d->m_tooltips)
-        if (tw->isPinned())
-            tw->saveSessionData(w);
-    w.writeEndDocument();
-
-    setSessionValue(sessionSettingsKeyC, QVariant(data));
-}
-
-void DebuggerToolTipManager::closeAllToolTips()
-{
-    d->purgeClosedToolTips();
-    foreach (const QPointer<DebuggerToolTipWidget> &tw, d->m_tooltips)
-        tw->close();
-    d->m_tooltips.clear();
-}
-
-void DebuggerToolTipManager::hide()
-{
-    d->purgeClosedToolTips();
-    foreach (const QPointer<DebuggerToolTipWidget> &tw, d->m_tooltips)
-        tw->hide();
-}
-
-void DebuggerToolTipManager::slotUpdateVisibleToolTips()
-{
-    d->purgeClosedToolTips();
-    if (d->m_tooltips.isEmpty())
-        return;
-    if (!d->m_debugModeActive) {
+    if (!m_debugModeActive) {
         hide();
         return;
     }
@@ -1201,7 +1083,7 @@ void DebuggerToolTipManager::slotUpdateVisibleToolTips()
     }
 
     // Reposition and show all tooltips of that file.
-    foreach (const QPointer<DebuggerToolTipWidget> &tw, d->m_tooltips) {
+    foreach (const QPointer<DebuggerToolTipWidget> &tw, m_tooltips) {
         if (tw->fileName() == fileName)
             tw->positionShow(toolTipEditor->editorWidget());
         else
@@ -1209,57 +1091,99 @@ void DebuggerToolTipManager::slotUpdateVisibleToolTips()
     }
 }
 
-void DebuggerToolTipManager::slotEditorOpened(IEditor *e)
+void DebuggerToolTipManager::updateEngine(DebuggerEngine *engine)
 {
-    // Move tooltip along when scrolled.
-    if (BaseTextEditor *textEditor = qobject_cast<BaseTextEditor *>(e)) {
-        TextEditorWidget *widget = textEditor->editorWidget();
-        QObject::connect(widget->verticalScrollBar(), &QScrollBar::valueChanged,
-                         this, &DebuggerToolTipManager::slotUpdateVisibleToolTips);
-        QObject::connect(widget, &TextEditorWidget::tooltipOverrideRequested,
-                         this, &DebuggerToolTipManager::slotTooltipOverrideRequested);
-    }
-}
+    QTC_ASSERT(engine, return);
+    purgeClosedToolTips();
+    if (m_tooltips.isEmpty())
+        return;
 
-void DebuggerToolTipManager::debugModeEntered()
-{
-    // Hook up all signals in debug mode.
-    if (!d->m_debugModeActive) {
-        d->m_debugModeActive = true;
-        QWidget *topLevel = ICore::mainWindow()->topLevelWidget();
-        topLevel->installEventFilter(this);
-        EditorManager *em = EditorManager::instance();
-        connect(em, &EditorManager::currentEditorChanged,
-                this, &DebuggerToolTipManager::slotUpdateVisibleToolTips);
-        connect(em, &EditorManager::editorOpened,
-                this, &DebuggerToolTipManager::slotEditorOpened);
-        foreach (IEditor *e, DocumentModel::editorsForOpenedDocuments())
-            slotEditorOpened(e);
-        // Position tooltips delayed once all the editor placeholder layouting is done.
-        if (!d->m_tooltips.isEmpty())
-            QTimer::singleShot(0, this, &DebuggerToolTipManager::slotUpdateVisibleToolTips);
-    }
-}
-
-void DebuggerToolTipManager::leavingDebugMode()
-{
-    // Remove all signals in debug mode.
-    if (d->m_debugModeActive) {
-        d->m_debugModeActive = false;
-        hide();
-        if (QWidget *topLevel = ICore::mainWindow()->topLevelWidget())
-            topLevel->removeEventFilter(this);
-        foreach (IEditor *e, DocumentModel::editorsForOpenedDocuments()) {
-            if (BaseTextEditor *toolTipEditor = qobject_cast<BaseTextEditor *>(e)) {
-                toolTipEditor->editorWidget()->verticalScrollBar()->disconnect(this);
-                toolTipEditor->disconnect(this);
-            }
+    // Stack frame changed: All tooltips of that file acquire the engine,
+    // all others release (arguable, this could be more precise?)
+    QString fileName;
+    QString function;
+    const int index = engine->stackHandler()->currentIndex();
+    if (index >= 0) {
+        const StackFrame frame = engine->stackHandler()->currentFrame();
+        if (frame.usable) {
+            fileName = frame.file;
+            function = frame.function;
         }
-        EditorManager::instance()->disconnect(this);
     }
+    foreach (const QPointer<DebuggerToolTipWidget> &tw, m_tooltips)
+        tw->handleStackFrameCompleted(fileName, function);
+    slotUpdateVisibleToolTips(); // Move out when stepping in same file.
 }
 
-void DebuggerToolTipManager::slotTooltipOverrideRequested
+void DebuggerToolTipManager::deregisterEngine(DebuggerEngine *engine)
+{
+    QTC_ASSERT(engine, return);
+    foreach (const QPointer<DebuggerToolTipWidget> &tw, m_tooltips)
+        if (tw && tw->m_context.engineType == engine->objectName())
+            tw->releaseEngine();
+    saveSessionData();
+}
+
+bool DebuggerToolTipManager::hasToolTips()
+{
+    return !m_tooltips.isEmpty();
+}
+
+void DebuggerToolTipManager::showToolTip
+    (const DebuggerToolTipContext &context, DebuggerEngine *engine)
+{
+    QTC_ASSERT(engine, return);
+    QTC_ASSERT(!context.expression.isEmpty(), qDebug(" BUT EMPTY"); return);
+
+    DebuggerToolTipWidget *tw = findOrCreateWidget(context);
+    tw->setWatchModel(engine->watchHandler()->model());
+    tw->acquireEngine();
+
+    const Utils::WidgetContent widgetContent(tw, true);
+    Utils::ToolTip::show(context.mousePosition, widgetContent, Internal::mainWindow());
+}
+
+void DebuggerToolTipManager::sessionAboutToChange()
+{
+    closeAllToolTips();
+}
+
+void DebuggerToolTipManager::loadSessionData()
+{
+    const QString data = sessionValue(sessionSettingsKeyC).toString();
+    QXmlStreamReader r(data);
+    r.readNextStartElement();
+    if (r.tokenType() == QXmlStreamReader::StartElement && r.name() == QLatin1String(sessionDocumentC))
+        while (!r.atEnd())
+            loadSessionDataHelper(r);
+}
+
+void DebuggerToolTipManager::saveSessionData()
+{
+    QString data;
+    purgeClosedToolTips();
+
+    QXmlStreamWriter w(&data);
+    w.writeStartDocument();
+    w.writeStartElement(QLatin1String(sessionDocumentC));
+    w.writeAttribute(QLatin1String(sessionVersionAttributeC), QLatin1String("1.0"));
+    foreach (const QPointer<DebuggerToolTipWidget> &tw, m_tooltips)
+        if (tw->isPinned())
+            tw->saveSessionData(w);
+    w.writeEndDocument();
+
+    setSessionValue(sessionSettingsKeyC, QVariant(data));
+}
+
+void DebuggerToolTipManager::closeAllToolTips()
+{
+    purgeClosedToolTips();
+    foreach (const QPointer<DebuggerToolTipWidget> &tw, m_tooltips)
+        tw->close();
+    m_tooltips.clear();
+}
+
+static void slotTooltipOverrideRequested
     (TextEditorWidget *editorWidget, const QPoint &point, int pos, bool *handled)
 {
     QTC_ASSERT(handled, return);
@@ -1283,7 +1207,7 @@ void DebuggerToolTipManager::slotTooltipOverrideRequested
     context.expression = fixCppExpression(raw);
 
     if (context.expression.isEmpty()) {
-        const Utils::WidgetContent widgetContent(new QLabel(tr("No valid expression")), true);
+        const Utils::WidgetContent widgetContent(new QLabel(DebuggerToolTipManager::tr("No valid expression")), true);
         Utils::ToolTip::show(context.mousePosition, widgetContent, Internal::mainWindow());
         *handled = true;
         return;
@@ -1295,7 +1219,7 @@ void DebuggerToolTipManager::slotTooltipOverrideRequested
         if (context.expression.isEmpty())
             context.expression = localVariable->name;
         context.iname = localVariable->iname;
-        showToolTip(context, engine);
+        DebuggerToolTipManager::showToolTip(context, engine);
         *handled = true;
         return;
     }
@@ -1309,15 +1233,95 @@ void DebuggerToolTipManager::slotTooltipOverrideRequested
 }
 
 
+static void slotEditorOpened(IEditor *e)
+{
+    // Move tooltip along when scrolled.
+    if (BaseTextEditor *textEditor = qobject_cast<BaseTextEditor *>(e)) {
+        TextEditorWidget *widget = textEditor->editorWidget();
+        QObject::connect(widget->verticalScrollBar(), &QScrollBar::valueChanged,
+                         slotUpdateVisibleToolTips);
+        QObject::connect(widget, &TextEditorWidget::tooltipOverrideRequested,
+                         slotTooltipOverrideRequested);
+    }
+}
+
+void DebuggerToolTipManager::debugModeEntered()
+{
+    // Hook up all signals in debug mode.
+    if (!m_debugModeActive) {
+        m_debugModeActive = true;
+        QWidget *topLevel = ICore::mainWindow()->topLevelWidget();
+        topLevel->installEventFilter(this);
+        EditorManager *em = EditorManager::instance();
+        connect(em, &EditorManager::currentEditorChanged, slotUpdateVisibleToolTips);
+        connect(em, &EditorManager::editorOpened, slotEditorOpened);
+
+        foreach (IEditor *e, DocumentModel::editorsForOpenedDocuments())
+            slotEditorOpened(e);
+        // Position tooltips delayed once all the editor placeholder layouting is done.
+        if (!m_tooltips.isEmpty())
+            QTimer::singleShot(0, slotUpdateVisibleToolTips);
+    }
+}
+
+void DebuggerToolTipManager::leavingDebugMode()
+{
+    // Remove all signals in debug mode.
+    if (m_debugModeActive) {
+        m_debugModeActive = false;
+        hide();
+        if (QWidget *topLevel = ICore::mainWindow()->topLevelWidget())
+            topLevel->removeEventFilter(this);
+        foreach (IEditor *e, DocumentModel::editorsForOpenedDocuments()) {
+            if (BaseTextEditor *toolTipEditor = qobject_cast<BaseTextEditor *>(e)) {
+                toolTipEditor->editorWidget()->verticalScrollBar()->disconnect(this);
+                toolTipEditor->disconnect(this);
+            }
+        }
+        EditorManager::instance()->disconnect(this);
+    }
+}
+
 DebuggerToolTipContexts DebuggerToolTipManager::treeWidgetExpressions
     (DebuggerEngine *, const QString &fileName, const QString &function)
 {
     DebuggerToolTipContexts rc;
-    foreach (const QPointer<DebuggerToolTipWidget> &tw, d->m_tooltips) {
+    foreach (const QPointer<DebuggerToolTipWidget> &tw, m_tooltips) {
         if (tw && tw->context().matchesFrame(fileName, function))
             rc.push_back(tw->context());
     }
     return rc;
+}
+
+bool DebuggerToolTipManager::eventFilter(QObject *o, QEvent *e)
+{
+    if (m_tooltips.isEmpty())
+        return false;
+    switch (e->type()) {
+    case QEvent::Move: { // Move along with parent (toplevel)
+        const QMoveEvent *me = static_cast<const QMoveEvent *>(e);
+        const QPoint dist = me->pos() - me->oldPos();
+        purgeClosedToolTips();
+        foreach (const QPointer<DebuggerToolTipWidget> &tw, m_tooltips)
+            if (tw->isVisible())
+                tw->move(tw->pos() + dist);
+        }
+        break;
+    case QEvent::WindowStateChange: { // Hide/Show along with parent (toplevel)
+        const QWindowStateChangeEvent *se = static_cast<const QWindowStateChangeEvent *>(e);
+        const bool wasMinimized = se->oldState() & Qt::WindowMinimized;
+        const bool isMinimized  = static_cast<const QWidget *>(o)->windowState() & Qt::WindowMinimized;
+        if (wasMinimized ^ isMinimized) {
+            purgeClosedToolTips();
+            foreach (const QPointer<DebuggerToolTipWidget> &tw, m_tooltips)
+                tw->setVisible(!isMinimized);
+        }
+    }
+        break;
+    default:
+        break;
+    }
+    return false;
 }
 
 } // namespace Internal

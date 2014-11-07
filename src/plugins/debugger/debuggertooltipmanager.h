@@ -35,16 +35,14 @@
 
 #include <QCoreApplication>
 #include <QDate>
-#include <QTreeView>
+#include <QPoint>
 
 QT_BEGIN_NAMESPACE
-class QDebug;
+class QAbstractItemModel;
 QT_END_NAMESPACE
 
-namespace Core { class IEditor; }
-namespace TextEditor { class BaseTextEditor; class TextEditorWidget; }
-
 namespace Debugger {
+
 class DebuggerEngine;
 
 namespace Internal {
@@ -71,27 +69,6 @@ public:
 };
 
 typedef QList<DebuggerToolTipContext> DebuggerToolTipContexts;
-
-
-QDebug operator<<(QDebug, const DebuggerToolTipContext &);
-
-class DebuggerToolTipTreeView : public QTreeView
-{
-public:
-    explicit DebuggerToolTipTreeView(QWidget *parent = 0);
-
-    QAbstractItemModel *swapModel(QAbstractItemModel *model);
-    QSize sizeHint() const { return m_size; }
-
-    void computeSize();
-
-private:
-    void expandNode(const QModelIndex &idx);
-    void collapseNode(const QModelIndex &idx);
-    int computeHeight(const QModelIndex &index) const;
-
-    QSize m_size;
-};
 
 class DebuggerToolTipManager : public QObject
 {
@@ -123,13 +100,6 @@ public:
     static void loadSessionData();
     static void saveSessionData();
     static void closeAllToolTips();
-    static void hide();
-
-private:
-    static void slotUpdateVisibleToolTips();
-    void slotEditorOpened(Core::IEditor *);
-    void slotTooltipOverrideRequested(TextEditor::TextEditorWidget *editorWidget,
-            const QPoint &point, int pos, bool *handled);
 };
 
 } // namespace Internal
