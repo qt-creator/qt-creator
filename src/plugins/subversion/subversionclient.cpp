@@ -151,33 +151,6 @@ Core::Id SubversionClient::vcsEditorKind(VcsCommandTag cmd) const
     }
 }
 
-SubversionClient::Version SubversionClient::svnVersion()
-{
-    if (m_svnVersionBinary != settings()->binaryPath()) {
-        QStringList args;
-        args << QLatin1String("--version") << QLatin1String("-q");
-        const SynchronousProcessResponse response =
-                VcsBasePlugin::runVcs(QDir().absolutePath(), settings()->binaryPath(),
-                                      args, settings()->timeOutMs());
-        if (response.result == SynchronousProcessResponse::Finished &&
-                response.exitCode == 0) {
-            m_svnVersionBinary = settings()->binaryPath();
-            m_svnVersion = response.stdOut.trimmed();
-        } else {
-            m_svnVersionBinary.clear();
-            m_svnVersion.clear();
-        }
-    }
-
-    SubversionClient::Version v;
-    if (::sscanf(m_svnVersion.toLatin1().constData(), "%d.%d.%d",
-                 &v.majorVersion, &v.minorVersion, &v.patchVersion) != 3) {
-        v.majorVersion = v.minorVersion = v.patchVersion = -1;
-    }
-
-    return v;
-}
-
 // Add authorization options to the command line arguments.
 QStringList SubversionClient::addAuthenticationOptions(const SubversionSettings &settings)
 {

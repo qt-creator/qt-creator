@@ -66,15 +66,6 @@ public:
     QStringList revisionSpec(const QString &revision) const;
     StatusItem parseStatusLine(const QString &line) const;
 
-    class Version {
-    public:
-        int majorVersion;
-        int minorVersion;
-        int patchVersion;
-    };
-
-    Version svnVersion();
-
     // Add authorization options to the command line arguments.
     static QStringList addAuthenticationOptions(const SubversionSettings &settings);
 
