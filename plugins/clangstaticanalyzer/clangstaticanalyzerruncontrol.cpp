@@ -37,6 +37,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
+#include <utils/algorithm.h>
+
 #include <QLoggingCategory>
 #include <QTemporaryDir>
 
@@ -191,11 +193,15 @@ bool ClangStaticAnalyzerRunControl::startEngine()
     m_clangLogFileDir = temporaryDir.path();
 
     // Collect files
-    const QList<AnalyzeUnit> filesToProcess = unitsToAnalyze(m_projectInfo);
+    QList<AnalyzeUnit> unitsToProcess = unitsToAnalyze(m_projectInfo);
+    Utils::sort(unitsToProcess, [](const AnalyzeUnit &a1, const AnalyzeUnit &a2) -> bool {
+        return a1.file < a2.file;
+    });
+
     qCDebug(LOG) << "Files to process:";
-    foreach (const AnalyzeUnit &fileConfig, filesToProcess)
+    foreach (const AnalyzeUnit &fileConfig, unitsToProcess)
         qCDebug(LOG) << fileConfig.file;
-    m_unitsToProcess = filesToProcess;
+    m_unitsToProcess = unitsToProcess;
     m_initialFilesToProcessSize = m_unitsToProcess.count();
     m_filesAnalyzed = 0;
     m_filesNotAnalyzed = 0;
