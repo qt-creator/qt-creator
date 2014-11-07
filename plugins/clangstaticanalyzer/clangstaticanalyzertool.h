@@ -37,8 +37,8 @@ class ClangStaticAnalyzerTool : public Analyzer::IAnalyzerTool
 
 public:
     explicit ClangStaticAnalyzerTool(QObject *parent = 0);
-    CppTools::ProjectInfo projectInfo() const;
-    void resetCursorAndProjectInfo();
+    CppTools::ProjectInfo projectInfoBeforeBuild() const;
+    void resetCursorAndProjectInfoBeforeBuild();
 
 private:
     QWidget *createWidgets();
@@ -53,7 +53,7 @@ private:
     void setBusyCursor(bool busy);
 
 private:
-    CppTools::ProjectInfo m_projectInfo;
+    CppTools::ProjectInfo m_projectInfoBeforeBuild;
 
     ClangStaticAnalyzerDiagnosticModel *m_diagnosticModel;
     Analyzer::DetailedErrorView *m_diagnosticView;

@@ -71,19 +71,19 @@ RunControl *ClangStaticAnalyzerRunControlFactory::create(RunConfiguration *runCo
     Q_UNUSED(runMode);
 
     using namespace CppTools;
-    const ProjectInfo projectInfoAtAnalyzerStart = m_tool->projectInfo();
-    QTC_ASSERT(projectInfoAtAnalyzerStart.isValid(), return 0);
+    const ProjectInfo projectInfoBeforeBuild = m_tool->projectInfoBeforeBuild();
+    QTC_ASSERT(projectInfoBeforeBuild.isValid(), return 0);
 
     Project *project = SessionManager::startupProject();
     QTC_ASSERT(project, return 0);
-    const ProjectInfo projectInfoNow = CppModelManager::instance()->projectInfo(project);
+    const ProjectInfo projectInfoAfterBuild = CppModelManager::instance()->projectInfo(project);
 
-    if (projectInfoNow.configurationOrFilesChanged(projectInfoAtAnalyzerStart)) {
+    if (projectInfoAfterBuild.configurationOrFilesChanged(projectInfoBeforeBuild)) {
         // If it's more than a release/debug build configuration change, e.g.
         // a version control checkout, files might be not valid C++ anymore
         // or even gone, so better stop here.
 
-        m_tool->resetCursorAndProjectInfo();
+        m_tool->resetCursorAndProjectInfoBeforeBuild();
         if (errorMessage) {
             *errorMessage = tr(
                 "The project configuration changed since the start of the Clang Static Analyzer. "

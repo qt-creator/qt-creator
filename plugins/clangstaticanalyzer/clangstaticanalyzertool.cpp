@@ -135,10 +135,21 @@ AnalyzerRunControl *ClangStaticAnalyzerTool::createRunControl(
         ProjectExplorer::RunConfiguration *runConfiguration)
 {
     QTC_ASSERT(runConfiguration, return 0);
-    QTC_ASSERT(m_projectInfo.isValid(), return 0);
+    QTC_ASSERT(m_projectInfoBeforeBuild.isValid(), return 0);
 
-    ClangStaticAnalyzerRunControl *engine = new ClangStaticAnalyzerRunControl(sp, runConfiguration,
-                                                                              m_projectInfo);
+    // Some projects provides CompilerCallData once a build is finished,
+    // so pass on the updated Project Info unless no configuration change
+    // (defines/includes/files) happened.
+    Project *project = SessionManager::startupProject();
+    QTC_ASSERT(project, return 0);
+    const CppTools::ProjectInfo projectInfoAfterBuild
+            = CppTools::CppModelManager::instance()->projectInfo(project);
+    QTC_ASSERT(!projectInfoAfterBuild.configurationOrFilesChanged(m_projectInfoBeforeBuild),
+               return 0);
+    m_projectInfoBeforeBuild = CppTools::ProjectInfo();
+
+    ClangStaticAnalyzerRunControl *engine
+            = new ClangStaticAnalyzerRunControl(sp, runConfiguration, projectInfoAfterBuild);
     connect(engine, &ClangStaticAnalyzerRunControl::starting,
             this, &ClangStaticAnalyzerTool::onEngineIsStarting);
     connect(engine, &ClangStaticAnalyzerRunControl::newDiagnosticsAvailable,
@@ -196,19 +207,20 @@ void ClangStaticAnalyzerTool::startTool(StartMode mode)
     setBusyCursor(true);
     Project *project = SessionManager::startupProject();
     QTC_ASSERT(project, return);
+    m_projectInfoBeforeBuild = CppTools::CppModelManager::instance()->projectInfo(project);
+    QTC_ASSERT(m_projectInfoBeforeBuild.isValid(), return);
     ProjectExplorerPlugin::instance()->runProject(project, runMode());
-    m_projectInfo = CppTools::CppModelManager::instance()->projectInfo(project);
 }
 
-CppTools::ProjectInfo ClangStaticAnalyzerTool::projectInfo() const
+CppTools::ProjectInfo ClangStaticAnalyzerTool::projectInfoBeforeBuild() const
 {
-    return m_projectInfo;
+    return m_projectInfoBeforeBuild;
 }
 
-void ClangStaticAnalyzerTool::resetCursorAndProjectInfo()
+void ClangStaticAnalyzerTool::resetCursorAndProjectInfoBeforeBuild()
 {
     setBusyCursor(false);
-    m_projectInfo = CppTools::ProjectInfo();
+    m_projectInfoBeforeBuild = CppTools::ProjectInfo();
 }
 
 void ClangStaticAnalyzerTool::onEngineIsStarting()
@@ -228,7 +240,7 @@ void ClangStaticAnalyzerTool::onEngineFinished()
     QTC_ASSERT(m_goNext, return);
     QTC_ASSERT(m_diagnosticModel, return);
 
-    resetCursorAndProjectInfo();
+    resetCursorAndProjectInfoBeforeBuild();
 
     const int issuesFound = m_diagnosticModel->rowCount();
     m_goBack->setEnabled(issuesFound > 1);
