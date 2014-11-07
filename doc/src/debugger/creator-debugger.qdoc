@@ -457,7 +457,7 @@
 
        \li To continue running the program, press \key{F5}.
 
-       \li To run to the line containing the cursor, press \ke{yCtrl+F10}
+       \li To run to the line containing the cursor, press \key{Ctrl+F10}
            (\key{Shift+F8} on OS X).
 
        \li To run to the selected function when you are stepping into a nested
