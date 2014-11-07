@@ -41,6 +41,7 @@ namespace Debugger {
 namespace Internal {
 
 class SeparatedView;
+class WatchModel;
 
 // Special formats. Keep in sync with dumper.py.
 enum DisplayFormat
@@ -112,8 +113,6 @@ class DebuggerEngine;
 
 namespace Internal {
 
-class WatchModel;
-
 class UpdateParameters
 {
 public:
@@ -126,6 +125,19 @@ public:
 
 typedef QHash<QString, QStringList> DumperTypeFormats; // Type name -> Dumper Formats
 
+class WatchModelBase : public QAbstractItemModel
+{
+    Q_OBJECT
+
+public:
+    WatchModelBase() {}
+
+signals:
+    void currentIndexRequested(const QModelIndex &idx);
+    void itemIsExpanded(const QModelIndex &idx);
+    void columnAdjustmentRequested();
+};
+
 class WatchHandler : public QObject
 {
     Q_OBJECT
@@ -134,7 +146,7 @@ public:
     explicit WatchHandler(DebuggerEngine *engine);
     ~WatchHandler();
 
-    QAbstractItemModel *model() const;
+    WatchModelBase *model() const;
 
     void cleanup();
     void watchExpression(const QString &exp, const QString &name = QString());

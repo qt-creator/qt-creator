@@ -1140,14 +1140,13 @@ public:
     DebuggerEngine *m_currentEngine;
     DebuggerSettings *m_debuggerSettings;
     QStringList m_arguments;
-    DebuggerToolTipManager *m_toolTipManager;
+    DebuggerToolTipManager m_toolTipManager;
     CommonOptionsPage *m_commonOptionsPage;
     DummyEngine *m_dummyEngine;
     const QSharedPointer<GlobalDebuggerOptions> m_globalDebuggerOptions;
 };
 
 DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
-    m_toolTipManager(new DebuggerToolTipManager(this)),
     m_dummyEngine(0),
     m_globalDebuggerOptions(new GlobalDebuggerOptions)
 {
@@ -2036,7 +2035,7 @@ void DebuggerPluginPrivate::setInitialState()
     setBusyCursor(false);
     m_reverseDirectionAction->setChecked(false);
     m_reverseDirectionAction->setEnabled(false);
-    m_toolTipManager->closeAllToolTips();
+    m_toolTipManager.closeAllToolTips();
 
     m_startAndDebugApplicationAction->setEnabled(true);
     m_attachToQmlPortAction->setEnabled(true);
@@ -2269,14 +2268,14 @@ void DebuggerPluginPrivate::onModeChanged(IMode *mode)
     m_mainWindow->onModeChanged(mode);
 
     if (mode->id() != Constants::MODE_DEBUG) {
-        m_toolTipManager->leavingDebugMode();
+        m_toolTipManager.leavingDebugMode();
         return;
     }
 
     if (IEditor *editor = EditorManager::currentEditor())
         editor->widget()->setFocus();
 
-    m_toolTipManager->debugModeEntered();
+    m_toolTipManager.debugModeEntered();
 }
 
 void DebuggerPluginPrivate::showSettingsDialog()
@@ -2334,7 +2333,7 @@ void DebuggerPluginPrivate::sessionLoaded()
 
 void DebuggerPluginPrivate::aboutToUnloadSession()
 {
-    m_toolTipManager->sessionAboutToChange();
+    m_toolTipManager.sessionAboutToChange();
 }
 
 void DebuggerPluginPrivate::aboutToSaveSession()

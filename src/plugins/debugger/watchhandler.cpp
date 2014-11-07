@@ -141,7 +141,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 //
-// WatchModel
+// SeparatedView
 //
 ///////////////////////////////////////////////////////////////////////
 
@@ -153,7 +153,7 @@ public:
     SeparatedView() : QTabWidget(Internal::mainWindow())
     {
         setTabsClosable(true);
-        connect(this, SIGNAL(tabCloseRequested(int)), SLOT(closeTab(int)));
+        connect(this, &QTabWidget::tabCloseRequested, this, &SeparatedView::closeTab);
         setWindowFlags(windowFlags() | Qt::Window);
         setWindowTitle(WatchHandler::tr("Debugger - Qt Creator"));
 
@@ -175,7 +175,7 @@ public:
         }
     }
 
-    Q_SLOT void closeTab(int index)
+    void closeTab(int index)
     {
         if (QObject *o = widget(index)) {
             QByteArray iname = o->property(INameProperty).toByteArray();
@@ -224,10 +224,14 @@ public:
 };
 
 
-class WatchModel : public QAbstractItemModel
-{
-    Q_OBJECT
+///////////////////////////////////////////////////////////////////////
+//
+// WatchModel
+//
+///////////////////////////////////////////////////////////////////////
 
+class WatchModel : public WatchModelBase
+{
 private:
     explicit WatchModel(WatchHandler *handler);
     ~WatchModel();
@@ -241,11 +245,6 @@ public:
 
     static QString nameForFormat(int format);
     TypeFormatList typeFormatList(const WatchData &value) const;
-
-signals:
-    void currentIndexRequested(const QModelIndex &idx);
-    void itemIsExpanded(const QModelIndex &idx);
-    void columnAdjustmentRequested();
 
 private:
     QVariant data(const QModelIndex &idx, int role) const;
@@ -272,7 +271,7 @@ private:
         const WatchItem *parentItem, const QModelIndex &parentIndex) const;
 
     void insertDataItem(const WatchData &data, bool destructive);
-    Q_SLOT void reinsertAllData();
+    void reinsertAllData();
     void reinsertAllDataHelper(WatchItem *item, QList<WatchData> *data);
     bool ancestorChanged(const QSet<QByteArray> &parentINames, WatchItem *item) const;
     void insertBulkData(const QList<WatchData> &data);
@@ -288,7 +287,7 @@ private:
 
     void dump();
     void dumpHelper(WatchItem *item);
-    Q_SLOT void emitAllChanged();
+    void emitAllChanged();
 
     void showInEditorHelper(QString *contents, WatchItem *item, int level);
     void setCurrentItem(const QByteArray &iname);
@@ -350,12 +349,12 @@ WatchModel::WatchModel(WatchHandler *handler)
     m_returnRoot = createItem("return", tr("Return Value"), m_root);
     m_tooltipRoot = createItem("tooltip", tr("Tooltip"), m_root);
 
-    connect(action(SortStructMembers), SIGNAL(valueChanged(QVariant)),
-        SLOT(reinsertAllData()));
-    connect(action(ShowStdNamespace), SIGNAL(valueChanged(QVariant)),
-        SLOT(reinsertAllData()));
-    connect(action(ShowQtNamespace), SIGNAL(valueChanged(QVariant)),
-        SLOT(reinsertAllData()));
+    connect(action(SortStructMembers), &Utils::SavedAction::valueChanged,
+        this, &WatchModel::reinsertAllData);
+    connect(action(ShowStdNamespace), &Utils::SavedAction::valueChanged,
+        this, &WatchModel::reinsertAllData);
+    connect(action(ShowQtNamespace), &Utils::SavedAction::valueChanged,
+        this, &WatchModel::reinsertAllData);
 }
 
 WatchModel::~WatchModel()
@@ -1987,7 +1986,7 @@ void WatchHandler::loadSessionData()
         watchExpression(exp);
 }
 
-QAbstractItemModel *WatchHandler::model() const
+WatchModelBase *WatchHandler::model() const
 {
     return m_model;
 }

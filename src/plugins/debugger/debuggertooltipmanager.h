@@ -33,8 +33,8 @@
 
 #include "debuggerconstants.h"
 
+#include <QCoreApplication>
 #include <QDate>
-#include <QPointer>
 #include <QTreeView>
 
 QT_BEGIN_NAMESPACE
@@ -77,20 +77,17 @@ QDebug operator<<(QDebug, const DebuggerToolTipContext &);
 
 class DebuggerToolTipTreeView : public QTreeView
 {
-    Q_OBJECT
-
 public:
     explicit DebuggerToolTipTreeView(QWidget *parent = 0);
 
     QAbstractItemModel *swapModel(QAbstractItemModel *model);
     QSize sizeHint() const { return m_size; }
 
-private slots:
     void computeSize();
-    void expandNode(const QModelIndex &idx);
-    void collapseNode(const QModelIndex &idx);
 
 private:
+    void expandNode(const QModelIndex &idx);
+    void collapseNode(const QModelIndex &idx);
     int computeHeight(const QModelIndex &index) const;
 
     QSize m_size;
@@ -98,10 +95,10 @@ private:
 
 class DebuggerToolTipManager : public QObject
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(Debugger::DebuggerToolTipManager)
 
 public:
-    explicit DebuggerToolTipManager(QObject *parent = 0);
+    DebuggerToolTipManager();
     ~DebuggerToolTipManager();
 
     static void registerEngine(DebuggerEngine *engine);
@@ -120,7 +117,6 @@ public:
 
     static QString treeModelClipboardContents(const QAbstractItemModel *model);
 
-public slots:
     void debugModeEntered();
     void leavingDebugMode();
     void sessionAboutToChange();
@@ -129,9 +125,8 @@ public slots:
     static void closeAllToolTips();
     static void hide();
 
-private slots:
+private:
     static void slotUpdateVisibleToolTips();
-    void slotDebuggerStateChanged(Debugger::DebuggerState);
     void slotEditorOpened(Core::IEditor *);
     void slotTooltipOverrideRequested(TextEditor::TextEditorWidget *editorWidget,
             const QPoint &point, int pos, bool *handled);

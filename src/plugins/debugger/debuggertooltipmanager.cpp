@@ -65,31 +65,34 @@
 using namespace Core;
 using namespace TextEditor;
 
+namespace Debugger {
+namespace Internal {
+
 // Expire tooltips after n days on (no longer load them) in order
 // to avoid them piling up.
 enum { toolTipsExpiryDays = 6 };
 
-static const char sessionSettingsKeyC[] = "DebuggerToolTips";
-static const char sessionDocumentC[] = "DebuggerToolTips";
-static const char sessionVersionAttributeC[] = "version";
-static const char toolTipElementC[] = "DebuggerToolTip";
-static const char toolTipClassAttributeC[] = "class";
-static const char fileNameAttributeC[] = "name";
-static const char functionAttributeC[] = "function";
-static const char textPositionAttributeC[] = "position";
-static const char textLineAttributeC[] = "line";
-static const char textColumnAttributeC[] = "column";
-static const char offsetXAttributeC[] = "offset_x";
-static const char offsetYAttributeC[] = "offset_y";
-static const char engineTypeAttributeC[] = "engine";
-static const char dateAttributeC[] = "date";
-static const char treeElementC[] = "tree";
-static const char treeExpressionAttributeC[] = "expression";
-static const char treeInameAttributeC[] = "iname";
-static const char modelElementC[] = "model";
-static const char modelColumnCountAttributeC[] = "columncount";
-static const char modelRowElementC[] = "row";
-static const char modelItemElementC[] = "item";
+const char sessionSettingsKeyC[] = "DebuggerToolTips";
+const char sessionDocumentC[] = "DebuggerToolTips";
+const char sessionVersionAttributeC[] = "version";
+const char toolTipElementC[] = "DebuggerToolTip";
+const char toolTipClassAttributeC[] = "class";
+const char fileNameAttributeC[] = "name";
+const char functionAttributeC[] = "function";
+const char textPositionAttributeC[] = "position";
+const char textLineAttributeC[] = "line";
+const char textColumnAttributeC[] = "column";
+const char offsetXAttributeC[] = "offset_x";
+const char offsetYAttributeC[] = "offset_y";
+const char engineTypeAttributeC[] = "engine";
+const char dateAttributeC[] = "date";
+const char treeElementC[] = "tree";
+const char treeExpressionAttributeC[] = "expression";
+const char treeInameAttributeC[] = "iname";
+const char modelElementC[] = "model";
+const char modelColumnCountAttributeC[] = "columncount";
+const char modelRowElementC[] = "row";
+const char modelItemElementC[] = "item";
 
 // Forward a stream reader across end elements looking for the
 // next start element of a desired type.
@@ -111,19 +114,6 @@ static bool readStartElement(QXmlStreamReader &r, const char *name)
         }
     return true;
 }
-
-#if 0
-static void debugMode(const QAbstractItemModel *model)
-{
-    QDebug nospace = qDebug().nospace();
-    nospace << model << '\n';
-    for (int r = 0; r < model->rowCount(); r++)
-        nospace << '#' << r << ' ' << model->data(model->index(r, 0)).toString() << '\n';
-}
-#endif
-
-namespace Debugger {
-namespace Internal {
 
 // A label that can be dragged to drag something else.
 
@@ -503,8 +493,6 @@ static DebuggerToolTipManagerData *d = 0;
 
 class DebuggerToolTipWidget : public QWidget
 {
-    Q_OBJECT
-
 public:
     DebuggerToolTipWidget(const DebuggerToolTipContext &context);
 
@@ -519,10 +507,13 @@ public:
     void releaseEngine();
 
     void saveSessionData(QXmlStreamWriter &w) const;
-    void setWatchModel(QAbstractItemModel *watchModel);
+    void setWatchModel(WatchModelBase *watchModel);
     void handleStackFrameCompleted(const QString &frameFile, const QString &frameFunction);
 
-public slots:
+    void copy();
+    void positionShow(const TextEditorWidget *editorWidget);
+    void pin();
+
     void handleItemIsExpanded(const QModelIndex &sourceIdx)
     {
         QTC_ASSERT(m_filterModel.sourceModel() == sourceIdx.model(), return);
@@ -530,10 +521,6 @@ public slots:
         if (!m_treeView->isExpanded(mappedIdx))
             m_treeView->expand(mappedIdx);
     }
-
-    void copy();
-    void positionShow(const TextEditorWidget *editorWidget);
-    void pin();
 
 public:
     bool m_isPinned;
@@ -691,14 +678,14 @@ DebuggerToolTipWidget::DebuggerToolTipWidget(const DebuggerToolTipContext &conte
     connect(copyButton, &QAbstractButton::clicked, this, &DebuggerToolTipWidget::copy);
 }
 
-void DebuggerToolTipWidget::setWatchModel(QAbstractItemModel *watchModel)
+void DebuggerToolTipWidget::setWatchModel(WatchModelBase *watchModel)
 {
     QTC_ASSERT(watchModel, return);
     m_filterModel.setSourceModel(watchModel);
-    connect(watchModel, SIGNAL(itemIsExpanded(QModelIndex)),
-            this, SLOT(handleItemIsExpanded(QModelIndex)), Qt::UniqueConnection);
-    connect(watchModel, SIGNAL(columnAdjustmentRequested()),
-            m_treeView, SLOT(computeSize()), Qt::UniqueConnection);
+    connect(watchModel, &WatchModelBase::itemIsExpanded,
+            this, &DebuggerToolTipWidget::handleItemIsExpanded, Qt::UniqueConnection);
+    connect(watchModel, &WatchModelBase::columnAdjustmentRequested,
+            m_treeView, &DebuggerToolTipTreeView::computeSize, Qt::UniqueConnection);
 }
 
 void DebuggerToolTipWidget::handleStackFrameCompleted(const QString &frameFile, const QString &frameFunction)
@@ -938,15 +925,15 @@ DebuggerToolTipTreeView::DebuggerToolTipTreeView(QWidget *parent) :
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    connect(this, SIGNAL(collapsed(QModelIndex)), this, SLOT(computeSize()),
+    connect(this, &QTreeView::collapsed, this, &DebuggerToolTipTreeView::computeSize,
         Qt::QueuedConnection);
-    connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(computeSize()),
+    connect(this, &QTreeView::expanded, this, &DebuggerToolTipTreeView::computeSize,
         Qt::QueuedConnection);
 
-    connect(this, SIGNAL(expanded(QModelIndex)),
-        SLOT(expandNode(QModelIndex)));
-    connect(this, SIGNAL(collapsed(QModelIndex)),
-        SLOT(collapseNode(QModelIndex)));
+    connect(this, &QTreeView::expanded,
+        this, &DebuggerToolTipTreeView::expandNode);
+    connect(this, &QTreeView::collapsed,
+        this, &DebuggerToolTipTreeView::collapseNode);
 }
 
 void DebuggerToolTipTreeView::expandNode(const QModelIndex &idx)
@@ -1046,19 +1033,14 @@ QString DebuggerToolTipManager::treeModelClipboardContents(const QAbstractItemMo
     (by file name and function) acquire the engine, others release.
 */
 
-static DebuggerToolTipManager *m_instance = 0;
-
-DebuggerToolTipManager::DebuggerToolTipManager(QObject *parent) :
-    QObject(parent)
+DebuggerToolTipManager::DebuggerToolTipManager()
 {
     d = new DebuggerToolTipManagerData;
-    m_instance = this;
 }
 
 DebuggerToolTipManager::~DebuggerToolTipManager()
 {
     delete d;
-    m_instance = 0;
 }
 
 void DebuggerToolTipManager::registerEngine(DebuggerEngine *)
@@ -1227,33 +1209,15 @@ void DebuggerToolTipManager::slotUpdateVisibleToolTips()
     }
 }
 
-void DebuggerToolTipManager::slotDebuggerStateChanged(DebuggerState state)
-{
-    const QObject *engine = sender();
-    QTC_ASSERT(engine, return);
-
-    // Release at earliest possible convenience.
-    switch (state) {
-    case InferiorShutdownRequested:
-    case EngineShutdownRequested:
-    case DebuggerFinished:
-    case EngineShutdownOk: {
-        break;
-    }
-    default:
-        break;
-    }
-}
-
 void DebuggerToolTipManager::slotEditorOpened(IEditor *e)
 {
     // Move tooltip along when scrolled.
     if (BaseTextEditor *textEditor = qobject_cast<BaseTextEditor *>(e)) {
         TextEditorWidget *widget = textEditor->editorWidget();
-        connect(widget->verticalScrollBar(), &QScrollBar::valueChanged,
-                this, &DebuggerToolTipManager::slotUpdateVisibleToolTips);
-        connect(widget, &TextEditorWidget::tooltipOverrideRequested,
-                this, &DebuggerToolTipManager::slotTooltipOverrideRequested);
+        QObject::connect(widget->verticalScrollBar(), &QScrollBar::valueChanged,
+                         this, &DebuggerToolTipManager::slotUpdateVisibleToolTips);
+        QObject::connect(widget, &TextEditorWidget::tooltipOverrideRequested,
+                         this, &DebuggerToolTipManager::slotTooltipOverrideRequested);
     }
 }
 
@@ -1273,7 +1237,7 @@ void DebuggerToolTipManager::debugModeEntered()
             slotEditorOpened(e);
         // Position tooltips delayed once all the editor placeholder layouting is done.
         if (!d->m_tooltips.isEmpty())
-            QTimer::singleShot(0, this, SLOT(slotUpdateVisibleToolTips()));
+            QTimer::singleShot(0, this, &DebuggerToolTipManager::slotUpdateVisibleToolTips);
     }
 }
 
@@ -1358,5 +1322,3 @@ DebuggerToolTipContexts DebuggerToolTipManager::treeWidgetExpressions
 
 } // namespace Internal
 } // namespace Debugger
-
-#include "debuggertooltipmanager.moc"
