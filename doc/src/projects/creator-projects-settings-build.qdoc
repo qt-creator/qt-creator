@@ -96,17 +96,10 @@
 
     You can use \QC variables in arguments, executable paths, and working
     directories. The variables take care of quoting their expansions, so you do
-    not need to put them in quotes.
-
-    The following \QC variables are available:
-
-    \list
-
-        \li  %{buildDir}
-
-        \li  %{sourceDir}
-
-    \endlist
+    not need to put them in quotes. Select the
+    \inlineimage qtcreator-variables-button.png
+    (\gui {Variables}) button in a field to select from a list of variables that
+    are available in a particular context.
 
     \section1 Build Steps
 
