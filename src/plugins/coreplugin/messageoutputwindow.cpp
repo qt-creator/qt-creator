@@ -62,7 +62,7 @@ MessageOutputWindow::~MessageOutputWindow()
 
 bool MessageOutputWindow::hasFocus() const
 {
-    return m_widget->hasFocus();
+    return m_widget->window()->focusWidget() == m_widget;
 }
 
 bool MessageOutputWindow::canFocus() const

@@ -565,7 +565,7 @@ void TaskWindow::clearContents()
 
 bool TaskWindow::hasFocus() const
 {
-    return d->m_listview->hasFocus();
+    return d->m_listview->window()->focusWidget() == d->m_listview;
 }
 
 bool TaskWindow::canFocus() const

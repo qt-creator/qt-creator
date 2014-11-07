@@ -154,7 +154,7 @@ void CompileOutputWindow::updateWordWrapMode()
 
 bool CompileOutputWindow::hasFocus() const
 {
-    return m_outputWindow->hasFocus();
+    return m_outputWindow->window()->focusWidget() == m_outputWindow;
 }
 
 bool CompileOutputWindow::canFocus() const

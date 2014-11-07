@@ -449,7 +449,10 @@ void SearchResultWindow::clearContents()
 */
 bool SearchResultWindow::hasFocus() const
 {
-    return d->m_widget->focusWidget() && d->m_widget->focusWidget()->hasFocus();
+    QWidget *widget = d->m_widget->focusWidget();
+    if (!widget)
+        return false;
+    return widget->window()->focusWidget() == widget;
 }
 
 /*!

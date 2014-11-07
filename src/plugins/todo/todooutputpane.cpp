@@ -99,7 +99,7 @@ void TodoOutputPane::setFocus()
 
 bool TodoOutputPane::hasFocus() const
 {
-    return m_todoTreeView->hasFocus();
+    return m_todoTreeView->window()->focusWidget() == m_todoTreeView;
 }
 
 bool TodoOutputPane::canFocus() const

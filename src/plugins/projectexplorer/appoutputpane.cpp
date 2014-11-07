@@ -306,7 +306,10 @@ void AppOutputPane::visibilityChanged(bool /* b */)
 
 bool AppOutputPane::hasFocus() const
 {
-    return m_tabWidget->currentWidget() && m_tabWidget->currentWidget()->hasFocus();
+    QWidget *widget = m_tabWidget->currentWidget();
+    if (!widget)
+        return false;
+    return widget->window()->focusWidget() == widget;
 }
 
 bool AppOutputPane::canFocus() const
