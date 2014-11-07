@@ -85,7 +85,7 @@ Column {
                     model: ["LeftToRight", "TopToBottom"]
                     backendValue: backendValues.flow
                     Layout.fillWidth: true
-                    scope: "Qt"
+                    scope: "Grid"
                 }
             }
 
