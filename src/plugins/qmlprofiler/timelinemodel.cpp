@@ -140,7 +140,7 @@ TimelineModel::TimelineModelPrivate::TimelineModelPrivate(int modelId, const QSt
 void TimelineModel::TimelineModelPrivate::init(TimelineModel *q)
 {
     q_ptr = q;
-    connect(q,SIGNAL(rowHeightChanged()),q,SIGNAL(heightChanged()));
+    connect(q,SIGNAL(rowHeightChanged(int,int)),q,SIGNAL(heightChanged()));
     connect(q,SIGNAL(expandedChanged()),q,SIGNAL(heightChanged()));
     connect(q,SIGNAL(hiddenChanged()),q,SIGNAL(heightChanged()));
     connect(q,SIGNAL(emptyChanged()),q,SIGNAL(heightChanged()));
@@ -217,10 +217,10 @@ void TimelineModel::setRowHeight(int rowNumber, int height)
     int difference = height - d->rowOffsets[rowNumber] +
             (rowNumber > 0 ? d->rowOffsets[rowNumber - 1] : 0);
     if (difference != 0) {
-        for (; rowNumber < d->rowOffsets.size(); ++rowNumber) {
-            d->rowOffsets[rowNumber] += difference;
+        for (int offsetRow = rowNumber; offsetRow < d->rowOffsets.size(); ++offsetRow) {
+            d->rowOffsets[offsetRow] += difference;
         }
-        emit rowHeightChanged();
+        emit rowHeightChanged(rowNumber, height);
     }
 }
 
@@ -511,7 +511,7 @@ void TimelineModel::clear()
     d->ranges.clear();
     d->endTimes.clear();
     if (hadRowHeights)
-        emit rowHeightChanged();
+        emit rowHeightChanged(-1, -1);
     if (wasExpanded)
         emit expandedChanged();
     if (wasHidden)

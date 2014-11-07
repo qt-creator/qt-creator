@@ -110,7 +110,7 @@ public:
 signals:
     void expandedChanged();
     void hiddenChanged();
-    void rowHeightChanged();
+    void rowHeightChanged(int row, int height);
     void emptyChanged();
     void heightChanged();
     void rowCountChanged();

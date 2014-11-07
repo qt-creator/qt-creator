@@ -66,14 +66,14 @@ void TimelineRenderer::setModel(QmlProfilerTimelineModel *model)
     if (m_model) {
         disconnect(m_model, SIGNAL(expandedChanged()), this, SLOT(requestPaint()));
         disconnect(m_model, SIGNAL(hiddenChanged()), this, SLOT(requestPaint()));
-        disconnect(m_model, SIGNAL(rowHeightChanged()), this, SLOT(requestPaint()));
+        disconnect(m_model, SIGNAL(rowHeightChanged(int,int)), this, SLOT(requestPaint()));
     }
 
     m_model = model;
     if (m_model) {
         connect(m_model, SIGNAL(expandedChanged()), this, SLOT(requestPaint()));
         connect(m_model, SIGNAL(hiddenChanged()), this, SLOT(requestPaint()));
-        connect(m_model, SIGNAL(rowHeightChanged()), this, SLOT(requestPaint()));
+        connect(m_model, SIGNAL(rowHeightChanged(int,int)), this, SLOT(requestPaint()));
     }
 
     emit modelChanged(m_model);
