@@ -650,7 +650,6 @@ void FormEditorData::setupActions()
 
     mformtools->addSeparator(m_contexts, Core::Constants::G_DEFAULT_THREE);
     m_actionAboutPlugins = new QAction(tr("About Qt Designer Plugins..."), m_instance);
-    m_actionAboutPlugins->setMenuRole(QAction::NoRole);
     addToolAction(m_actionAboutPlugins, m_contexts, "FormEditor.AboutPlugins", mformtools,
                   QString(), Core::Constants::G_DEFAULT_THREE);
     QObject::connect(m_actionAboutPlugins, &QAction::triggered,

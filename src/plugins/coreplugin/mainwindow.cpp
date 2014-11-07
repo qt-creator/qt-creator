@@ -562,9 +562,9 @@ void MainWindow::registerDefaultActions()
     // Exit Action
     icon = QIcon::fromTheme(QLatin1String("application-exit"));
     m_exitAction = new QAction(icon, tr("E&xit"), this);
+    m_exitAction->setMenuRole(QAction::QuitRole);
     cmd = ActionManager::registerAction(m_exitAction, Constants::EXIT, globalContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Q")));
-    cmd->action()->setMenuRole(QAction::QuitRole);
     mfile->addAction(cmd, Constants::G_FILE_OTHER);
     connect(m_exitAction, SIGNAL(triggered()), this, SLOT(exit()));
 
@@ -633,11 +633,9 @@ void MainWindow::registerDefaultActions()
     mtools->addSeparator(globalContext, Constants::G_TOOLS_OPTIONS);
 
     m_optionsAction = new QAction(tr("&Options..."), this);
+    m_optionsAction->setMenuRole(QAction::PreferencesRole);
     cmd = ActionManager::registerAction(m_optionsAction, Constants::OPTIONS, globalContext);
-    if (UseMacShortcuts) {
-        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+,")));
-        cmd->action()->setMenuRole(QAction::PreferencesRole);
-    }
+    cmd->setDefaultKeySequence(QKeySequence::Preferences);
     mtools->addAction(cmd, Constants::G_TOOLS_OPTIONS);
     connect(m_optionsAction, SIGNAL(triggered()), this, SLOT(showOptionsDialog()));
 
@@ -660,7 +658,6 @@ void MainWindow::registerDefaultActions()
 
     // Full Screen Action
     QAction *toggleFullScreenAction = new QAction(tr("Full Screen"), this);
-    toggleFullScreenAction->setMenuRole(QAction::NoRole);
     toggleFullScreenAction->setCheckable(!Utils::HostOsInfo::isMacHost());
     toggleFullScreenAction->setEnabled(false); // actual implementation in WindowSupport
     cmd = ActionManager::registerAction(toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN, globalContext);
@@ -716,18 +713,16 @@ void MainWindow::registerDefaultActions()
         tmpaction = new QAction(icon, tr("About &Qt Creator"), this); // it's convention not to add dots to the about menu
     else
         tmpaction = new QAction(icon, tr("About &Qt Creator..."), this);
+    tmpaction->setMenuRole(QAction::AboutRole);
     cmd = ActionManager::registerAction(tmpaction, Constants::ABOUT_QTCREATOR, globalContext);
-    if (Utils::HostOsInfo::isMacHost())
-        cmd->action()->setMenuRole(QAction::ApplicationSpecificRole);
     mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
     tmpaction->setEnabled(true);
     connect(tmpaction, SIGNAL(triggered()), this,  SLOT(aboutQtCreator()));
 
     //About Plugins Action
     tmpaction = new QAction(tr("About &Plugins..."), this);
+    tmpaction->setMenuRole(QAction::ApplicationSpecificRole);
     cmd = ActionManager::registerAction(tmpaction, Constants::ABOUT_PLUGINS, globalContext);
-    if (Utils::HostOsInfo::isMacHost())
-        cmd->action()->setMenuRole(QAction::ApplicationSpecificRole);
     mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
     tmpaction->setEnabled(true);
     connect(tmpaction, SIGNAL(triggered()), this,  SLOT(aboutPlugins()));
