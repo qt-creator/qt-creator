@@ -77,7 +77,7 @@ private:
     const Token &fetchToken(int tokenIndex);
 
 private:
-    QList<Token> _tokens;
+    Tokens _tokens;
     int _offset;
     int _blocksTokenized;
     QTextBlock _block;

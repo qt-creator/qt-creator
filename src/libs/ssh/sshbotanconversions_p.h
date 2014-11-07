@@ -32,6 +32,7 @@
 #define SSHBOTANCONVERSIONS_P_H
 
 #include "sshcapabilities_p.h"
+#include "sshexception_p.h"
 
 #include <botan/botan.h>
 
@@ -63,10 +64,22 @@ inline const char *botanKeyExchangeAlgoName(const QByteArray &rfcAlgoName)
 
 inline const char *botanCryptAlgoName(const QByteArray &rfcAlgoName)
 {
-    Q_ASSERT(rfcAlgoName == SshCapabilities::CryptAlgo3Des
-        || rfcAlgoName == SshCapabilities::CryptAlgoAes128);
-    return rfcAlgoName == SshCapabilities::CryptAlgo3Des
-        ? "TripleDES" : "AES-128";
+    if (rfcAlgoName == SshCapabilities::CryptAlgoAes128Cbc
+            || rfcAlgoName == SshCapabilities::CryptAlgoAes128Ctr) {
+        return "AES-128";
+    }
+    if (rfcAlgoName == SshCapabilities::CryptAlgo3DesCbc
+            || rfcAlgoName == SshCapabilities::CryptAlgo3DesCtr) {
+        return "TripleDES";
+    }
+    if (rfcAlgoName == SshCapabilities::CryptAlgoAes192Ctr) {
+        return "AES-192";
+    }
+    if (rfcAlgoName == SshCapabilities::CryptAlgoAes256Ctr) {
+        return "AES-256";
+    }
+    throw SshClientException(SshInternalError, SSH_TR("Unexpected cipher \"%1\"")
+                             .arg(QString::fromLatin1(rfcAlgoName)));
 }
 
 inline const char *botanEmsaAlgoName(const QByteArray &rfcAlgoName)

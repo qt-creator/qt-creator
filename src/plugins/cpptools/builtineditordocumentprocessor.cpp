@@ -95,7 +95,7 @@ CppTools::CheckSymbols *createHighlighter(const CPlusPlus::Document::Ptr &doc,
         SimpleLexer tokenize;
         tokenize.setLanguageFeatures(features);
 
-        const QList<Token> tokens = tokenize(name);
+        const Tokens tokens = tokenize(name);
         if (tokens.length() && (tokens.at(0).isKeyword() || tokens.at(0).isObjCAtKeyword()))
             continue;
 

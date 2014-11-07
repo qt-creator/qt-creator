@@ -1107,6 +1107,8 @@ bool QmakePriFileNode::renameFile(const QString &filePath, const QString &newFil
     if (newFilePath.isEmpty())
         return false;
 
+    m_setCurrentNodeDelayed = newFilePath;
+
     bool changeProFileOptional = deploysFolder(QFileInfo(filePath).absolutePath());
     const Core::MimeType mt = Core::MimeDatabase::findByFile(newFilePath);
     QStringList dummy;
@@ -1117,7 +1119,6 @@ bool QmakePriFileNode::renameFile(const QString &filePath, const QString &newFil
     changeFiles(mt.type(), QStringList() << newFilePath, &dummy, AddToProFile);
     if (!dummy.isEmpty() && !changeProFileOptional)
         return false;
-    m_setCurrentNodeDelayed = newFilePath;
     return true;
 }
 

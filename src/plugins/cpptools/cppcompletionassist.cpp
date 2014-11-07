@@ -387,7 +387,7 @@ int CppFunctionHintModel::activeArgument(const QString &prefix) const
     int argnr = 0;
     int parcount = 0;
     SimpleLexer tokenize;
-    QList<Token> tokens = tokenize(prefix);
+    Tokens tokens = tokenize(prefix);
     for (int i = 0; i < tokens.count(); ++i) {
         const Token &tk = tokens.at(i);
         if (tk.is(T_LPAREN))
@@ -686,7 +686,7 @@ bool CppCompletionAssistProcessor::accepts() const
                     tokenize.setLanguageFeatures(features);
                     tokenize.setSkipComments(false);
 
-                    const QList<Token> &tokens = tokenize(tc.block().text(), BackwardsScanner::previousBlockState(tc.block()));
+                    const Tokens &tokens = tokenize(tc.block().text(), BackwardsScanner::previousBlockState(tc.block()));
                     const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1));
                     const Token tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
 
@@ -789,7 +789,7 @@ int CppCompletionAssistProcessor::startOfOperator(int pos,
         SimpleLexer tokenize;
         tokenize.setLanguageFeatures(m_languageFeatures);
         tokenize.setSkipComments(false);
-        const QList<Token> &tokens = tokenize(tc.block().text(), BackwardsScanner::previousBlockState(tc.block()));
+        const Tokens &tokens = tokenize(tc.block().text(), BackwardsScanner::previousBlockState(tc.block()));
         const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1)); // get the token at the left of the cursor
         const Token tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
 

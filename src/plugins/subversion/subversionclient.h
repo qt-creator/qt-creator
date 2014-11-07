@@ -76,10 +76,7 @@ public:
     Version svnVersion();
 
     // Add authorization options to the command line arguments.
-    QStringList authenticationOptions(VcsCommandTag cmd) const;
-    static QStringList addAuthenticationOptions(const QStringList &args,
-                                                const QString &userName = QString(),
-                                                const QString &password = QString());
+    static QStringList addAuthenticationOptions(const SubversionSettings &settings);
 
     QString synchronousTopic(const QString &repository);
 

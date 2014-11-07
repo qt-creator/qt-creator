@@ -90,7 +90,7 @@ public:
     Core::Id m_id;
     QList<Target *> m_targets;
     Target *m_activeTarget;
-    EditorConfiguration *m_editorConfiguration;
+    EditorConfiguration m_editorConfiguration;
     Core::Context m_projectContext;
     Core::Context m_projectLanguages;
     QVariantMap m_pluginSettings;
@@ -102,7 +102,6 @@ public:
 
 ProjectPrivate::ProjectPrivate() :
     m_activeTarget(0),
-    m_editorConfiguration(new EditorConfiguration()),
     m_accessor(0)
 { }
 
@@ -115,7 +114,6 @@ Project::Project() : d(new ProjectPrivate)
 Project::~Project()
 {
     qDeleteAll(d->m_targets);
-    delete d->m_editorConfiguration;
     delete d;
 }
 
@@ -338,7 +336,7 @@ QVariantMap Project::toMap() const
     for (int i = 0; i < ts.size(); ++i)
         map.insert(QString::fromLatin1(TARGET_KEY_PREFIX) + QString::number(i), ts.at(i)->toMap());
 
-    map.insert(QLatin1String(EDITOR_SETTINGS_KEY), d->m_editorConfiguration->toMap());
+    map.insert(QLatin1String(EDITOR_SETTINGS_KEY), d->m_editorConfiguration.toMap());
     map.insert(QLatin1String(PLUGIN_SETTINGS_KEY), d->m_pluginSettings);
 
     return map;
@@ -361,7 +359,7 @@ bool Project::fromMap(const QVariantMap &map)
 {
     if (map.contains(QLatin1String(EDITOR_SETTINGS_KEY))) {
         QVariantMap values(map.value(QLatin1String(EDITOR_SETTINGS_KEY)).toMap());
-        d->m_editorConfiguration->fromMap(values);
+        d->m_editorConfiguration.fromMap(values);
     }
 
     if (map.contains(QLatin1String(PLUGIN_SETTINGS_KEY)))
@@ -397,7 +395,7 @@ bool Project::fromMap(const QVariantMap &map)
 
 EditorConfiguration *Project::editorConfiguration() const
 {
-    return d->m_editorConfiguration;
+    return &d->m_editorConfiguration;
 }
 
 QString Project::generatedUiHeader(const QString & /* formFile */) const

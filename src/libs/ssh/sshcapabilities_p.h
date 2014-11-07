@@ -48,8 +48,12 @@ public:
     static const QByteArray PubKeyRsa;
     static const QList<QByteArray> PublicKeyAlgorithms;
 
-    static const QByteArray CryptAlgo3Des;
-    static const QByteArray CryptAlgoAes128;
+    static const QByteArray CryptAlgo3DesCbc;
+    static const QByteArray CryptAlgo3DesCtr;
+    static const QByteArray CryptAlgoAes128Cbc;
+    static const QByteArray CryptAlgoAes128Ctr;
+    static const QByteArray CryptAlgoAes192Ctr;
+    static const QByteArray CryptAlgoAes256Ctr;
     static const QList<QByteArray> EncryptionAlgorithms;
 
     static const QByteArray HMacSha1;

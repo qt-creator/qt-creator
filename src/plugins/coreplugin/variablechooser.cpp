@@ -338,7 +338,7 @@ VariableChooser::VariableChooser(QWidget *parent) :
     d(new VariableChooserPrivate(this))
 {
     setWindowTitle(tr("Variables"));
-    setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint);
+    setWindowFlags(Qt::Tool);
     setFocusPolicy(Qt::StrongFocus);
     setFocusProxy(d->m_variableTree);
     addMacroExpanderProvider([]() { return globalMacroExpander(); });

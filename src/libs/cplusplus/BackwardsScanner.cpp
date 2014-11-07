@@ -59,7 +59,7 @@ BackwardsScanner::BackwardsScanner(const QTextCursor &cursor,
     if (! suffix.isEmpty())
         _text += suffix;
 
-    _tokens.append(_tokenize(_text, previousBlockState(_block)));
+    _tokens += _tokenize(_text, previousBlockState(_block));
 
     _startToken = _tokens.size();
 }
@@ -85,7 +85,7 @@ const Token &BackwardsScanner::fetchToken(int tokenIndex)
             _text.prepend(QLatin1Char('\n'));
             _text.prepend(blockText);
 
-            QList<Token> adaptedTokens;
+            Tokens adaptedTokens;
             for (int i = 0; i < _tokens.size(); ++i) {
                 Token t = _tokens.at(i);
                 t.utf16charOffset += blockText.length() + 1;

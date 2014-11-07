@@ -74,7 +74,7 @@ public:
 
 protected:
     virtual void onEnter(int newState, int *indentDepth, int *savedIndentDepth, int *paddingDepth, int *savedPaddingDepth) const = 0;
-    virtual void adjustIndent(const QList<CPlusPlus::Token> &tokens, int lexerState, int *indentDepth, int *paddingDepth) const = 0;
+    virtual void adjustIndent(const CPlusPlus::Tokens &tokens, int lexerState, int *indentDepth, int *paddingDepth) const = 0;
 
     class State;
     class BlockData
@@ -251,7 +251,7 @@ private:
     QStack<State> m_currentState;
     QStack<State> m_newStates;
 
-    QList<CPlusPlus::Token> m_tokens;
+    CPlusPlus::Tokens m_tokens;
     QString m_currentLine;
     CPlusPlus::Token m_currentToken;
     int m_tokenIndex;
@@ -276,7 +276,7 @@ public:
 
 protected:
     virtual void onEnter(int newState, int *indentDepth, int *savedIndentDepth, int *paddingDepth, int *savedPaddingDepth) const;
-    virtual void adjustIndent(const QList<CPlusPlus::Token> &tokens, int lexerState, int *indentDepth, int *paddingDepth) const;
+    virtual void adjustIndent(const CPlusPlus::Tokens &tokens, int lexerState, int *indentDepth, int *paddingDepth) const;
 
     virtual void saveBlockData(QTextBlock *block, const BlockData &data) const;
     virtual bool loadBlockData(const QTextBlock &block, BlockData *data) const;

@@ -107,7 +107,7 @@ void GenericProjectPlugin::test_simple()
     const QByteArray mainFile("testdata_simpleproject/main.cpp");
     ProjectInfo pInfo(
                 setupProject("testdata_simpleproject/simpleproject.creator", mainFile, pHelper));
-    QVERIFY(pInfo);
+    QVERIFY(pInfo.isValid());
     QCOMPARE(pInfo.projectParts().size(), 1);
 
     ProjectPart::Ptr pPart = pInfo.projectParts().first();
@@ -138,7 +138,7 @@ void GenericProjectPlugin::test_mixed1()
                 setupProject("testdata_mixedproject1/mixedproject1.creator",
                              "testdata_mixedproject1/main.cpp",
                              pHelper));
-    QVERIFY(pInfo);
+    QVERIFY(pInfo.isValid());
     QCOMPARE(pInfo.projectParts().size(), 3);
 
     QList<ProjectPart::Ptr> parts = pInfo.projectParts();
@@ -183,7 +183,7 @@ void GenericProjectPlugin::test_mixed2()
                 setupProject("testdata_mixedproject2/mixedproject2.creator",
                              "testdata_mixedproject2/main.cpp",
                              pHelper));
-    QVERIFY(pInfo);
+    QVERIFY(pInfo.isValid());
     QCOMPARE(pInfo.projectParts().size(), 2);
 
     QList<ProjectPart::Ptr> parts = pInfo.projectParts();
