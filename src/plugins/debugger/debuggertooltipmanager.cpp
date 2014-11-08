@@ -1060,7 +1060,7 @@ void DebuggerToolTipManager::registerEngine(DebuggerEngine *)
     loadSessionData();
 }
 
-void slotUpdateVisibleToolTips()
+void DebuggerToolTipManager::slotUpdateVisibleToolTips()
 {
     purgeClosedToolTips();
     if (m_tooltips.isEmpty())
@@ -1239,7 +1239,7 @@ static void slotEditorOpened(IEditor *e)
     if (BaseTextEditor *textEditor = qobject_cast<BaseTextEditor *>(e)) {
         TextEditorWidget *widget = textEditor->editorWidget();
         QObject::connect(widget->verticalScrollBar(), &QScrollBar::valueChanged,
-                         slotUpdateVisibleToolTips);
+                         &DebuggerToolTipManager::slotUpdateVisibleToolTips);
         QObject::connect(widget, &TextEditorWidget::tooltipOverrideRequested,
                          slotTooltipOverrideRequested);
     }
@@ -1253,14 +1253,15 @@ void DebuggerToolTipManager::debugModeEntered()
         QWidget *topLevel = ICore::mainWindow()->topLevelWidget();
         topLevel->installEventFilter(this);
         EditorManager *em = EditorManager::instance();
-        connect(em, &EditorManager::currentEditorChanged, slotUpdateVisibleToolTips);
+        connect(em, &EditorManager::currentEditorChanged,
+                &DebuggerToolTipManager::slotUpdateVisibleToolTips);
         connect(em, &EditorManager::editorOpened, slotEditorOpened);
 
         foreach (IEditor *e, DocumentModel::editorsForOpenedDocuments())
             slotEditorOpened(e);
         // Position tooltips delayed once all the editor placeholder layouting is done.
         if (!m_tooltips.isEmpty())
-            QTimer::singleShot(0, slotUpdateVisibleToolTips);
+            QTimer::singleShot(0, this, SLOT(slotUpdateVisibleToolTips()));
     }
 }
 

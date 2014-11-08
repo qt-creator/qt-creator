@@ -72,7 +72,7 @@ typedef QList<DebuggerToolTipContext> DebuggerToolTipContexts;
 
 class DebuggerToolTipManager : public QObject
 {
-    Q_DECLARE_TR_FUNCTIONS(Debugger::DebuggerToolTipManager)
+    Q_OBJECT
 
 public:
     DebuggerToolTipManager();
@@ -100,6 +100,9 @@ public:
     static void loadSessionData();
     static void saveSessionData();
     static void closeAllToolTips();
+
+public slots:
+    static void slotUpdateVisibleToolTips();
 };
 
 } // namespace Internal
