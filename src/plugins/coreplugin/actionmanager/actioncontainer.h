@@ -72,6 +72,7 @@ public:
     virtual void addMenu(ActionContainer *menu, Id group = Id()) = 0;
     virtual void addMenu(ActionContainer *before, ActionContainer *menu, Id group = Id()) = 0;
     virtual Command *addSeparator(const Context &context, Id group = Id(), QAction **outSeparator = 0) = 0;
+    virtual void setEnabled(bool enabled) = 0;
 
     // This clears this menu and submenus from all actions and submenus.
     // It does not destroy the submenus and commands, just removes them from their parents.
