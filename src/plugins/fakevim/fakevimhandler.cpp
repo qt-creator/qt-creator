@@ -1170,6 +1170,42 @@ private:
 // mapping to <Nop> (do nothing)
 static const Input Nop(-1, Qt::KeyboardModifiers(-1), QString());
 
+static SubMode letterCaseModeFromInput(const Input &input)
+{
+    if (input.is('~'))
+        return InvertCaseSubMode;
+    if (input.is('u'))
+        return DownCaseSubMode;
+    if (input.is('U'))
+        return UpCaseSubMode;
+
+    return NoSubMode;
+}
+
+static SubMode indentModeFromInput(const Input &input)
+{
+    if (input.is('<'))
+        return ShiftLeftSubMode;
+    if (input.is('>'))
+        return ShiftRightSubMode;
+    if (input.is('='))
+        return IndentSubMode;
+
+    return NoSubMode;
+}
+
+static SubMode changeDeleteYankModeFromInput(const Input &input)
+{
+    if (input.is('c'))
+        return ChangeSubMode;
+    if (input.is('d'))
+        return DeleteSubMode;
+    if (input.is('y'))
+        return YankSubMode;
+
+    return NoSubMode;
+}
+
 QDebug operator<<(QDebug ts, const Input &input) { return input.dump(ts); }
 
 class Inputs : public QVector<Input>
@@ -4124,24 +4160,20 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         resetCommandMode();
         g.dotCommand = savedCommand;
     } else if (input.is('<') || input.is('>') || input.is('=')) {
+        g.submode = indentModeFromInput(input);
         if (isNoVisualMode()) {
-            if (input.is('<'))
-                g.submode = ShiftLeftSubMode;
-            else if (input.is('>'))
-                g.submode = ShiftRightSubMode;
-            else
-                g.submode = IndentSubMode;
             setAnchor();
         } else {
             leaveVisualMode();
             const int lines = qAbs(lineForPosition(position()) - lineForPosition(anchor())) + 1;
             const int repeat = count();
-            if (input.is('<'))
+            if (g.submode == ShiftLeftSubMode)
                 shiftRegionLeft(repeat);
-            else if (input.is('>'))
+            else if (g.submode == ShiftRightSubMode)
                 shiftRegionRight(repeat);
             else
                 indentSelectedText();
+            g.submode = NoSubMode;
             const QString selectDotCommand =
                     (lines > 1) ? QString::fromLatin1("V%1j").arg(lines - 1): QString();
             setDotCommand(selectDotCommand + QString::fromLatin1("%1%2%2").arg(repeat).arg(input.raw()));
@@ -4165,13 +4197,13 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if (input.isControl('a')) {
         if (changeNumberTextObject(count()))
             setDotCommand(_("%1<c-a>"), count());
-    } else if ((input.is('c') || input.is('d')) && isNoVisualMode()) {
+    } else if ((input.is('c') || input.is('d') || input.is('y')) && isNoVisualMode()) {
         setAnchor();
         g.opcount = g.mvcount;
         g.mvcount = 0;
         g.rangemode = RangeCharMode;
         g.movetype = MoveExclusive;
-        g.submode = input.is('c') ? ChangeSubMode : DeleteSubMode;
+        g.submode = changeDeleteYankModeFromInput(input);
     } else if ((input.is('c') || input.is('C') || input.is('s') || input.is('R'))
           && (isVisualCharMode() || isVisualLineMode())) {
         setDotCommand(visualDotCommand() + input.asChar());
@@ -4377,11 +4409,6 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         if (cursorLineOnScreen() == linesOnScreen() - 1)
             moveUp(1);
         scrollUp(1);
-    } else if (input.is('y') && isNoVisualMode()) {
-        setAnchor();
-        g.rangemode = RangeCharMode;
-        g.movetype = MoveExclusive;
-        g.submode = YankSubMode;
     } else if (input.is('y') && isVisualCharMode()) {
         g.rangemode = RangeCharMode;
         g.movetype = MoveInclusive;
@@ -4405,42 +4432,32 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         g.submode = CapitalZSubMode;
     } else if ((input.is('~') || input.is('u') || input.is('U'))) {
         g.movetype = MoveExclusive;
+        g.submode = letterCaseModeFromInput(input);
         pushUndoState();
         if (isVisualMode()) {
             setDotCommand(visualDotCommand() + QString::number(count()) + input.raw());
             leaveVisualMode();
-            if (input.is('~'))
-                g.submode = InvertCaseSubMode;
-            else if (input.is('u'))
-                g.submode = DownCaseSubMode;
-            else if (input.is('U'))
-                g.submode = UpCaseSubMode;
             finishMovement();
-        } else if (g.gflag || (input.is('~') && hasConfig(ConfigTildeOp))) {
+        } else if (g.gflag || (g.submode == InvertCaseSubMode && hasConfig(ConfigTildeOp))) {
             if (atEndOfLine())
                 moveLeft();
             setAnchor();
-            if (input.is('~'))
-                g.submode = InvertCaseSubMode;
-            else if (input.is('u'))
-                g.submode = DownCaseSubMode;
-            else if (input.is('U'))
-                g.submode = UpCaseSubMode;
         } else {
             beginEditBlock();
             if (atEndOfLine())
                 moveLeft();
             setAnchor();
             moveRight(qMin(count(), rightDist()));
-            if (input.is('~')) {
+            if (g.submode == InvertCaseSubMode) {
                 const int pos = position();
                 invertCase(currentRange());
                 setPosition(pos);
-            } else if (input.is('u')) {
+            } else if (g.submode == DownCaseSubMode) {
                 downCase(currentRange());
-            } else if (input.is('U')) {
+            } else {
                 upCase(currentRange());
             }
+            g.submode = NoSubMode;
             setDotCommand(QString::fromLatin1("%1%2").arg(count()).arg(input.raw()));
             endEditBlock();
         }
@@ -4465,15 +4482,12 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
 
 bool FakeVimHandler::Private::handleChangeDeleteYankSubModes(const Input &input)
 {
-    if ((g.submode == ChangeSubMode && input.is('c'))
-        || (g.submode == DeleteSubMode && input.is('d'))
-        || (g.submode == YankSubMode && input.is('y')))
-    {
-        handleChangeDeleteYankSubModes();
-        return true;
-    }
+    if (g.submode != changeDeleteYankModeFromInput(input))
+        return false;
 
-    return false;
+    handleChangeDeleteYankSubModes();
+
+    return true;
 }
 
 void FakeVimHandler::Private::handleChangeDeleteYankSubModes()
@@ -4559,40 +4573,36 @@ bool FakeVimHandler::Private::handleRegisterSubMode(const Input &input)
 
 bool FakeVimHandler::Private::handleShiftSubMode(const Input &input)
 {
-    bool handled = false;
-    if ((g.submode == ShiftLeftSubMode && input.is('<'))
-        || (g.submode == ShiftRightSubMode && input.is('>'))
-        || (g.submode == IndentSubMode && input.is('='))) {
-        g.movetype = MoveLineWise;
-        pushUndoState();
-        moveDown(count() - 1);
-        setDotCommand(QString::fromLatin1("%2%1%1").arg(input.asChar()), count());
-        finishMovement();
-        handled = true;
-        g.submode = NoSubMode;
-    }
-    return handled;
+    if (g.submode != indentModeFromInput(input))
+        return false;
+
+    g.movetype = MoveLineWise;
+    pushUndoState();
+    moveDown(count() - 1);
+    setDotCommand(QString::fromLatin1("%2%1%1").arg(input.asChar()), count());
+    finishMovement();
+    g.submode = NoSubMode;
+
+    return true;
 }
 
 bool FakeVimHandler::Private::handleChangeCaseSubMode(const Input &input)
 {
-    bool handled = false;
-    if ((g.submode == InvertCaseSubMode && input.is('~'))
-        || (g.submode == DownCaseSubMode && input.is('u'))
-        || (g.submode == UpCaseSubMode && input.is('U'))) {
-        if (!isFirstNonBlankOnLine(position())) {
-            moveToStartOfLine();
-            moveToFirstNonBlankOnLine();
-        }
-        setTargetColumn();
-        pushUndoState();
-        setAnchor();
-        setPosition(lastPositionInLine(cursorLine() + count()) + 1);
-        finishMovement(QString::fromLatin1("%1%2").arg(count()).arg(input.raw()));
-        handled = true;
-        g.submode = NoSubMode;
+    if (g.submode != letterCaseModeFromInput(input))
+        return false;
+
+    if (!isFirstNonBlankOnLine(position())) {
+        moveToStartOfLine();
+        moveToFirstNonBlankOnLine();
     }
-    return handled;
+    setTargetColumn();
+    pushUndoState();
+    setAnchor();
+    setPosition(lastPositionInLine(cursorLine() + count()) + 1);
+    finishMovement(QString::fromLatin1("%1%2").arg(count()).arg(input.raw()));
+    g.submode = NoSubMode;
+
+    return true;
 }
 
 bool FakeVimHandler::Private::handleWindowSubMode(const Input &input)
