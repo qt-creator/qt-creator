@@ -132,6 +132,7 @@ static GitPlugin *m_instance = 0;
 
 GitPlugin::GitPlugin() :
     m_commandLocator(0),
+    m_gitContainer(0),
     m_submitCurrentAction(0),
     m_diffSelectedFilesAction(0),
     m_undoAction(0),
@@ -308,16 +309,16 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     //register actions
     ActionContainer *toolsContainer = ActionManager::actionContainer(Core::Constants::M_TOOLS);
 
-    ActionContainer *gitContainer = ActionManager::createMenu("Git");
-    gitContainer->menu()->setTitle(tr("&Git"));
-    toolsContainer->addMenu(gitContainer);
-    m_menuAction = gitContainer->menu()->menuAction();
+    m_gitContainer = ActionManager::createMenu("Git");
+    m_gitContainer->menu()->setTitle(tr("&Git"));
+    toolsContainer->addMenu(m_gitContainer);
+    m_menuAction = m_gitContainer->menu()->menuAction();
 
 
     /*  "Current File" menu */
     ActionContainer *currentFileMenu = ActionManager::createMenu("Git.CurrentFileMenu");
     currentFileMenu->menu()->setTitle(tr("Current &File"));
-    gitContainer->addMenu(currentFileMenu);
+    m_gitContainer->addMenu(currentFileMenu);
 
     createFileAction(currentFileMenu, tr("Diff Current File"), tr("Diff of \"%1\""),
                      "Git.Diff", globalcontext, true, SLOT(diffCurrentFile()),
@@ -353,7 +354,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     /*  "Current Project" menu */
     ActionContainer *currentProjectMenu = ActionManager::createMenu("Git.CurrentProjectMenu");
     currentProjectMenu->menu()->setTitle(tr("Current &Project"));
-    gitContainer->addMenu(currentProjectMenu);
+    m_gitContainer->addMenu(currentProjectMenu);
 
     createProjectAction(currentProjectMenu, tr("Diff Current Project"), tr("Diff Project \"%1\""),
                         "Git.DiffProject", globalcontext, true, SLOT(diffCurrentProject()),
@@ -370,7 +371,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     /*  "Local Repository" menu */
     ActionContainer *localRepositoryMenu = ActionManager::createMenu("Git.LocalRepositoryMenu");
     localRepositoryMenu->menu()->setTitle(tr("&Local Repository"));
-    gitContainer->addMenu(localRepositoryMenu);
+    m_gitContainer->addMenu(localRepositoryMenu);
 
     createRepositoryAction(localRepositoryMenu, tr("Diff"), "Git.DiffRepository",
                            globalcontext, true, SLOT(diffRepository()));
@@ -518,7 +519,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     /*  "Remote Repository" menu */
     ActionContainer *remoteRepositoryMenu = ActionManager::createMenu("Git.RemoteRepositoryMenu");
     remoteRepositoryMenu->menu()->setTitle(tr("&Remote Repository"));
-    gitContainer->addMenu(remoteRepositoryMenu);
+    m_gitContainer->addMenu(remoteRepositoryMenu);
 
     createRepositoryAction(remoteRepositoryMenu, tr("Fetch"), "Git.Fetch",
                            globalcontext, true, SLOT(fetch()));
@@ -582,7 +583,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     /*  "Git Tools" menu */
     ActionContainer *gitToolsMenu = ActionManager::createMenu("Git.GitToolsMenu");
     gitToolsMenu->menu()->setTitle(tr("Git &Tools"));
-    gitContainer->addMenu(gitToolsMenu);
+    m_gitContainer->addMenu(gitToolsMenu);
 
     createRepositoryAction(gitToolsMenu,
                            tr("Gitk"), "Git.LaunchGitK",
@@ -616,15 +617,16 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     /* \"Git Tools" menu */
 
     // --------------
-    gitContainer->addSeparator(globalcontext);
+    m_gitContainer->addSeparator(globalcontext);
 
-    createRepositoryAction(gitContainer, tr("Actions on Commits..."), "Git.ChangeActions",
+    createRepositoryAction(m_gitContainer, tr("Actions on Commits..."), "Git.ChangeActions",
                            globalcontext, false, SLOT(startChangeRelatedAction()));
 
-    QAction *repositoryAction = new QAction(tr("Create Repository..."), this);
-    Core::Command *createRepositoryCommand = ActionManager::registerAction(repositoryAction, "Git.CreateRepository", globalcontext);
-    connect(repositoryAction, SIGNAL(triggered()), this, SLOT(createRepository()));
-    gitContainer->addAction(createRepositoryCommand);
+    m_createRepositryAction = new QAction(tr("Create Repository..."), this);
+    Core::Command *createRepositoryCommand = ActionManager::registerAction(
+                m_createRepositryAction, "Git.CreateRepository", globalcontext);
+    connect(m_createRepositryAction, SIGNAL(triggered()), this, SLOT(createRepository()));
+    m_gitContainer->addAction(createRepositoryCommand);
 
     // Submit editor
     Context submitContext(Constants::GITSUBMITEDITOR_ID);
@@ -1324,6 +1326,8 @@ void GitPlugin::updateActions(VcsBasePlugin::ActionState as)
         m_remoteDialog->refresh(currentState().topLevel(), false);
 
     m_commandLocator->setEnabled(repositoryEnabled);
+    m_gitContainer->setEnabled(repositoryEnabled);
+    m_createRepositryAction->setEnabled(true);
     if (!enableMenuAction(as, m_menuAction))
         return;
     if (repositoryEnabled)
