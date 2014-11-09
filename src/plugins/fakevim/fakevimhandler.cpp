@@ -4161,22 +4161,13 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         g.dotCommand = savedCommand;
     } else if (input.is('<') || input.is('>') || input.is('=')) {
         g.submode = indentModeFromInput(input);
-        if (isNoVisualMode()) {
-            setAnchor();
-        } else {
-            leaveVisualMode();
+        if (isVisualMode()) {
             const int lines = qAbs(lineForPosition(position()) - lineForPosition(anchor())) + 1;
-            const int repeat = count();
-            if (g.submode == ShiftLeftSubMode)
-                shiftRegionLeft(repeat);
-            else if (g.submode == ShiftRightSubMode)
-                shiftRegionRight(repeat);
-            else
-                indentSelectedText();
-            g.submode = NoSubMode;
-            const QString selectDotCommand =
-                    (lines > 1) ? QString::fromLatin1("V%1j").arg(lines - 1): QString();
-            setDotCommand(selectDotCommand + QString::fromLatin1("%1%2%2").arg(repeat).arg(input.raw()));
+            const QString movementCommand =
+                    (lines > 1) ? QString::fromLatin1("%1j").arg(lines - 1) : QString();
+            handleAs(_("%1") + input.toString() + movementCommand);
+        } else {
+            setAnchor();
         }
     } else if ((!isVisualMode() && input.is('a')) || (isVisualMode() && input.is('A'))) {
         if (isVisualMode()) {
@@ -4386,22 +4377,13 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         toggleVisualMode(VisualBlockMode);
     } else if (input.isControl('w')) {
         g.submode = WindowSubMode;
-    } else if (input.is('x') && isNoVisualMode()) { // = _("dl")
-        g.movetype = MoveExclusive;
-        g.submode = DeleteSubMode;
-        const int n = qMin(count(), rightDist());
-        setAnchorAndPosition(position(), position() + n);
-        setDotCommand(_("%1x"), count());
-        finishMovement();
+    } else if (input.is('x') && isNoVisualMode()) {
+        handleAs(_("%1dl"));
     } else if (input.isControl('x')) {
         if (changeNumberTextObject(-count()))
             setDotCommand(_("%1<c-x>"), count());
     } else if (input.is('X')) {
-        if (leftDist() > 0) {
-            setAnchor();
-            moveLeft(qMin(count(), leftDist()));
-            cutSelectedText();
-        }
+        handleAs(_("%1dh"));
     } else if (input.is('Y') && isNoVisualMode())  {
         handleAs(_("%1yy"));
     } else if (input.isControl('y')) {
@@ -4443,23 +4425,8 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
                 moveLeft();
             setAnchor();
         } else {
-            beginEditBlock();
-            if (atEndOfLine())
-                moveLeft();
-            setAnchor();
-            moveRight(qMin(count(), rightDist()));
-            if (g.submode == InvertCaseSubMode) {
-                const int pos = position();
-                invertCase(currentRange());
-                setPosition(pos);
-            } else if (g.submode == DownCaseSubMode) {
-                downCase(currentRange());
-            } else {
-                upCase(currentRange());
-            }
-            g.submode = NoSubMode;
-            setDotCommand(QString::fromLatin1("%1%2").arg(count()).arg(input.raw()));
-            endEditBlock();
+            const QString movementCommand = QString::fromLatin1("%1l%1l").arg(count());
+            handleAs(_("g") + input.toString() + movementCommand);
         }
     } else if (input.is('@')) {
         g.submode = MacroExecuteSubMode;
@@ -4563,7 +4530,6 @@ bool FakeVimHandler::Private::handleRegisterSubMode(const Input &input)
     QChar reg = input.asChar();
     if (QString::fromLatin1("*+.%#:-\"").contains(reg) || reg.isLetterOrNumber()) {
         m_register = reg.unicode();
-        g.rangemode = RangeLineMode;
         handled = true;
     }
     g.submode = NoSubMode;
@@ -5077,9 +5043,16 @@ void FakeVimHandler::Private::stopRecording()
 
 void FakeVimHandler::Private::handleAs(const QString &command)
 {
-    const QString cmd = QString(_("\"%1")).arg(QChar(m_register)) + command.arg(count());
+    QString cmd = QString(_("\"%1")).arg(QChar(m_register));
+
+    if (command.contains(_("%1")))
+        cmd.append(command.arg(count()));
+    else
+        cmd.append(command);
+
     const int rev = revision();
 
+    leaveVisualMode();
     beginLargeEditBlock();
     replay(cmd);
     endEditBlock();
