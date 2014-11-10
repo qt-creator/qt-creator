@@ -67,6 +67,7 @@ public:
 
     int versionControlIndex() const;
     void setVersionControlIndex(int);
+    Core::IVersionControl *currentVersionControl();
 
     // Returns the common path
     void setFiles(const QStringList &files);
@@ -79,13 +80,14 @@ public:
 
 signals:
     void projectNodeChanged();
+    void versionControlChanged(int);
 
 public slots:
     void initializeVersionControls();
 
 private slots:
-    void slotProjectChanged(int);
-    void slotManageVcs();
+    void projectChanged(int);
+    void manageVcs();
 
 private:
     void setAdditionalInfo(const QString &text);

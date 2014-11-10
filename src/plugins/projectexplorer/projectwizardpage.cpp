@@ -252,8 +252,10 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent) :
     m_ui->setupUi(this);
     m_ui->vcsManageButton->setText(Core::ICore::msgShowOptionsDialog());
     connect(m_ui->projectComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(slotProjectChanged(int)));
-    connect(m_ui->vcsManageButton, SIGNAL(clicked()), this, SLOT(slotManageVcs()));
+            this, SLOT(projectChanged(int)));
+    connect(m_ui->addToVersionControlComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &ProjectWizardPage::versionControlChanged);
+    connect(m_ui->vcsManageButton, &QAbstractButton::clicked, this, &ProjectWizardPage::manageVcs);
     setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Summary"));
 
     connect(Core::VcsManager::instance(), SIGNAL(configurationChanged(const IVersionControl*)),
@@ -447,6 +449,14 @@ void ProjectWizardPage::setVersionControlIndex(int idx)
     m_ui->addToVersionControlComboBox->setCurrentIndex(idx);
 }
 
+IVersionControl *ProjectWizardPage::currentVersionControl()
+{
+    int index = m_ui->addToVersionControlComboBox->currentIndex() - 1; // Subtract "<None>"
+    if (index < 0 || index > m_activeVersionControls.count())
+        return 0; // <None>
+    return m_activeVersionControls.at(index);
+}
+
 void ProjectWizardPage::setFiles(const QStringList &fileNames)
 {
     m_commonDirectory = Utils::commonPath(fileNames);
@@ -491,14 +501,14 @@ void ProjectWizardPage::setProjectToolTip(const QString &tt)
     m_ui->projectLabel->setToolTip(tt);
 }
 
-void ProjectWizardPage::slotProjectChanged(int index)
+void ProjectWizardPage::projectChanged(int index)
 {
     setProjectToolTip(index >= 0 && index < m_projectToolTips.size() ?
                       m_projectToolTips.at(index) : QString());
     emit projectNodeChanged();
 }
 
-void ProjectWizardPage::slotManageVcs()
+void ProjectWizardPage::manageVcs()
 {
     Core::ICore::showOptionsDialog(VcsBase::Constants::VCS_SETTINGS_CATEGORY,
                                    VcsBase::Constants::VCS_COMMON_SETTINGS_ID,
