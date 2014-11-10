@@ -231,7 +231,7 @@
 :scrollArea.environment_QTreeView	{container=':Qt Creator.scrollArea_QScrollArea' type='QTreeView' unnamed='1' visible='1'}
 :scrollArea.qmlDebuggingLibraryCheckBox_QCheckBox	{name='qmlDebuggingLibraryCheckBox' type='QCheckBox' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :sourceFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Source file:_QLabel' name='sourceFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}
-:splitter.Commit File(s)_VcsBase::QActionPushButton	{container=':Qt Creator.splitter_QSplitter' text~='(Commit .+/.+ File.*)' type='VcsBase::QActionPushButton' unnamed='1' visible='1'}
+:splitter.Commit File(s)_VcsBase::QActionPushButton	{text~='(Commit .+/.+ File.*)' type='VcsBase::QActionPushButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :splitter.Description_QGroupBox	{container=':Qt Creator.splitter_QSplitter' name='descriptionBox' title='Description' type='QGroupBox' visible='1'}
 :splitter.Files_QGroupBox	{container=':Qt Creator.splitter_QSplitter' name='groupBox' title='Files' type='QGroupBox' visible='1'}
 :stackedWidget.plainTextEdit_QPlainTextEdit	{container=':Send to Codepaster.stackedWidget_QStackedWidget' name='plainTextEdit' type='QPlainTextEdit' visible='1'}
