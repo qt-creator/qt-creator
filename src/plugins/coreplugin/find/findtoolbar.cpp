@@ -225,12 +225,12 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     m_ui.replaceButton->setDefaultAction(m_localReplaceAction);
 
     m_replaceNextAction = new QAction(tr("Replace && Find"), this);
-    m_replaceNextAction->setIconText(tr("Replace && Find")); // work around bug in Qt that kills ampersands in tool button
     cmd = Core::ActionManager::registerAction(m_replaceNextAction, Constants::REPLACE_NEXT, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+=")));
     mfind->addAction(cmd, Constants::G_FIND_ACTIONS);
     connect(m_replaceNextAction, SIGNAL(triggered()), this, SLOT(invokeGlobalReplaceNext()));
     m_localReplaceNextAction = new QAction(m_replaceNextAction->text(), this);
+    m_localReplaceNextAction->setIconText(m_replaceNextAction->text()); // Workaround QTBUG-23396
     cmd = ActionManager::registerAction(m_localReplaceNextAction, Constants::REPLACE_NEXT, findcontext);
     cmd->augmentActionWithShortcutToolTip(m_localReplaceNextAction);
     connect(m_localReplaceNextAction, &QAction::triggered, this, &FindToolBar::invokeReplaceNext);
