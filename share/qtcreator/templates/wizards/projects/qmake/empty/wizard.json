@@ -45,6 +45,11 @@
                     "source": "file.pro",
                     "target": "%{ProFileName}",
                     "openAsProject": true
+                },
+                {
+                    "source": "../git.ignore",
+                    "target": "%{ProjectDirectory}/.gitignore",
+                    "condition": "%{JS: ('%{VersionControl}%{IsSubproject}' === 'G.Git') ? 'yes' : ''}"
                 }
             ]
         }
