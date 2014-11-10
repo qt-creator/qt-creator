@@ -49,17 +49,21 @@ public:
     JsonSummaryPage(QWidget *parent = 0);
 
     void initializePage();
+    bool validatePage();
     void cleanupPage();
 
 public slots:
     void triggerCommit(const JsonWizard::GeneratorFiles &files);
     void addToProject(const JsonWizard::GeneratorFiles &files);
     void projectNodeHasChanged();
+    void versionControlHasChanged();
 
 private:
+    void updateFileList();
     void updateProjectData(FolderNode *node);
 
     JsonWizard *m_wizard;
+    JsonWizard::GeneratorFiles m_fileList;
 };
 
 } // namespace ProjectExplorer

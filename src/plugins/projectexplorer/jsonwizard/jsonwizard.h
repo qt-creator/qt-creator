@@ -61,7 +61,7 @@ public:
         JsonWizardGenerator *generator;
     };
     typedef QList<GeneratorFile> GeneratorFiles;
-    Q_PROPERTY(GeneratorFiles fileList READ fileList)
+    Q_PROPERTY(GeneratorFiles generateFileList READ generateFileList)
 
     explicit JsonWizard(QWidget *parent = 0);
     ~JsonWizard();
@@ -70,8 +70,8 @@ public:
 
     Utils::MacroExpander *expander();
 
-    void resetFileList();
-    GeneratorFiles fileList();
+    GeneratorFiles generateFileList();
+    void commitToFileList(const GeneratorFiles &list);
 
     QVariant value(const QString &n) const;
     void setValue(const QString &key, const QVariant &value);
@@ -81,8 +81,8 @@ public:
     void removeAttributeFromAllFiles(Core::GeneratedFile::Attribute a);
 
 signals:
-    void preGenerateFiles(); // emitted before files are generated.
-    void postGenerateFiles(const JsonWizard::GeneratorFiles &files); // emitted after files are generated.
+    void preGenerateFiles(); // emitted before files are generated (can happen several times!)
+    void postGenerateFiles(const JsonWizard::GeneratorFiles &files); // emitted after commitToFileList was called.
     void prePromptForOverwrite(const JsonWizard::GeneratorFiles &files); // emitted before overwriting checks are done.
     void preFormatFiles(const JsonWizard::GeneratorFiles &files); // emitted before files are formatted.
     void preWriteFiles(const JsonWizard::GeneratorFiles &files); // emitted before files are written to disk.

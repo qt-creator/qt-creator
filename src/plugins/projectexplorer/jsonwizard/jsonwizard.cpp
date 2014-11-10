@@ -82,23 +82,16 @@ Utils::MacroExpander *JsonWizard::expander()
     return &m_expander;
 }
 
-void JsonWizard::resetFileList()
-{
-    m_files.clear();
-}
-
-JsonWizard::GeneratorFiles JsonWizard::fileList()
+JsonWizard::GeneratorFiles JsonWizard::generateFileList()
 {
     QString errorMessage;
     GeneratorFiles list;
 
     QString targetPath = value(QLatin1String("TargetPath")).toString();
-    if (targetPath.isEmpty()) {
+    if (targetPath.isEmpty())
         errorMessage = tr("Could not determine target path. \"TargetPath\" was not set on any page.");
-        return list;
-    }
 
-    if (m_files.isEmpty()) {
+    if (m_files.isEmpty() && errorMessage.isEmpty()) {
         emit preGenerateFiles();
         foreach (JsonWizardGenerator *gen, m_generators) {
             Core::GeneratedFiles tmp = gen->fileList(&m_expander, value(QStringLiteral("WizardDir")).toString(),
@@ -108,10 +101,6 @@ JsonWizard::GeneratorFiles JsonWizard::fileList()
             list.append(Utils::transform(tmp, [&gen](const Core::GeneratedFile &f)
                                               { return JsonWizard::GeneratorFile(f, gen); }));
         }
-
-        if (errorMessage.isEmpty())
-            m_files = list;
-        emit postGenerateFiles(m_files);
     }
 
     if (!errorMessage.isEmpty()) {
@@ -122,7 +111,13 @@ JsonWizard::GeneratorFiles JsonWizard::fileList()
         return GeneratorFiles();
     }
 
-    return m_files;
+    return list;
+}
+
+void JsonWizard::commitToFileList(const JsonWizard::GeneratorFiles &list)
+{
+    m_files = list;
+    emit postGenerateFiles(m_files);
 }
 
 QVariant JsonWizard::value(const QString &n) const
@@ -162,8 +157,11 @@ void JsonWizard::accept()
     Utils::Wizard::accept();
 
     QString errorMessage;
-    if (fileList().isEmpty())
-        return;
+    if (m_files.isEmpty()) {
+        commitToFileList(generateFileList()); // The Summary page does this for us, but a wizard
+                                              // does not need to have one.
+    }
+    QTC_ASSERT(!m_files.isEmpty(), return);
 
     emit prePromptForOverwrite(m_files);
     JsonWizardGenerator::OverwriteResult overwrite =
