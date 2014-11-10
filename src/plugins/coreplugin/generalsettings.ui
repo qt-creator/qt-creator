@@ -347,7 +347,7 @@
   <customwidget>
    <class>Core::Internal::ThemeSettingsWidget</class>
    <extends>QWidget</extends>
-   <header>themesettingswidget.h</header>
+   <header location="global">coreplugin/themesettingswidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
