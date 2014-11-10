@@ -774,6 +774,7 @@ DebuggerToolTipWidget::DebuggerToolTipWidget(const DebuggerToolTipContext &conte
     m_titleLabel = new DraggableLabel(this);
     m_titleLabel->setText(msgReleasedText());
     m_titleLabel->setMinimumWidth(40); // Ensure a draggable area even if text is empty.
+    m_titleLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 
     auto toolBar = new QToolBar(this);
     toolBar->setProperty("_q_custom_style_disabled", QVariant(true));
@@ -781,8 +782,8 @@ DebuggerToolTipWidget::DebuggerToolTipWidget(const DebuggerToolTipContext &conte
     if (!pinIconSizes.isEmpty())
         toolBar->setIconSize(pinIconSizes.front());
     toolBar->addWidget(m_toolButton);
-    toolBar->addWidget(m_titleLabel);
     toolBar->addWidget(copyButton);
+    toolBar->addWidget(m_titleLabel);
 
     m_treeView = new DebuggerToolTipTreeView(this);
     m_treeView->setFocusPolicy(Qt::NoFocus);
