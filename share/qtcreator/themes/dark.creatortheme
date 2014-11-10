@@ -149,6 +149,10 @@ IconOverlayPri=:/qtsupport/images/dark_qt_project.png
 IconOverlayPro=:/qtsupport/images/dark_qt_project.png
 StandardPixmapFileIcon=:/core/images/dark_fileicon.png
 StandardPixmapDirIcon=:/core/images/dark_foldericon.png
+BuildStepDisable=:/projectexplorer/images/lightdisabledbuildstep.png
+BuildStepRemove=:/core/images/lightclose.png
+BuildStepMoveDown=:/core/images/lightarrowdown.png
+BuildStepMoveUp=:/core/images/lightarrowup.png
 
 [Style]
 WidgetStyle=StyleFlat

@@ -204,7 +204,11 @@ public:
         IconOverlayPrf,
         IconOverlayPro,
         StandardPixmapFileIcon,
-        StandardPixmapDirIcon
+        StandardPixmapDirIcon,
+        BuildStepDisable,
+        BuildStepRemove,
+        BuildStepMoveDown,
+        BuildStepMoveUp
     };
 
     enum Flag {

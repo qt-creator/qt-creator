@@ -74,6 +74,12 @@
         <file>images/darkarrowup@2x.png</file>
         <file>images/darkclose.png</file>
         <file>images/darkclose@2x.png</file>
+        <file>images/lightarrowdown.png</file>
+        <file>images/lightarrowdown@2x.png</file>
+        <file>images/lightarrowup.png</file>
+        <file>images/lightarrowup@2x.png</file>
+        <file>images/lightclose.png</file>
+        <file>images/lightclose@2x.png</file>
         <file>images/arrowdown.png</file>
         <file>images/arrowdown@2x.png</file>
         <file>images/arrowup.png</file>

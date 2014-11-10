@@ -663,6 +663,37 @@
        y1="595.09448"
        x2="28.495188"
        y2="598.53198" />
+    <filter
+       id="lightenUp"
+       x="0"
+       y="0"
+       width="1"
+       height="1"
+       inkscape:label="lighten up"
+       inkscape:menu="Color"
+       inkscape:menu-tooltip="Increase or decrease lightness and contrast"
+       color-interpolation-filters="sRGB">
+      <feFlood
+         id="feFlood3736"
+         result="result1"
+         flood-opacity="0.65000000000000002"
+         flood-color="rgb(255,255,255)" />
+      <feBlend
+         id="feBlend3738"
+         in2="SourceGraphic"
+         mode="normal"
+         result="result2" />
+      <feComposite
+         id="feComposite3740"
+         in2="SourceGraphic"
+         k2="1"
+         operator="arithmetic"
+         result="result3" />
+      <feComposite
+         id="feComposite3742"
+         in2="SourceGraphic"
+         operator="in" />
+    </filter>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -1946,6 +1977,42 @@
          d="m 52,564 c 8,-8 8,-8 8,-8"
          style="fill:none;stroke:#505050;stroke-width:1.42;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
     </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/plugins/coreplugin/images/darkarrowdown"
+       id="src/plugins/coreplugin/images/lightarrowdown"
+       transform="translate(64,0)"
+       width="800"
+       height="600"
+       style="filter:url(#lightenUp)" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/plugins/coreplugin/images/darkarrowup"
+       id="src/plugins/coreplugin/images/lightarrowup"
+       transform="translate(64,0)"
+       width="800"
+       height="600"
+       style="filter:url(#lightenUp)" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/plugins/coreplugin/images/darkclose"
+       id="src/plugins/coreplugin/images/lightclose"
+       transform="translate(64,0)"
+       width="800"
+       height="600"
+       style="filter:url(#lightenUp)" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/plugins/projectexplorer/images/disabledbuildstep"
+       id="src/plugins/projectexplorer/images/lightdisabledbuildstep"
+       transform="translate(64,0)"
+       width="800"
+       height="600"
+       style="filter:url(#lightenUp)" />
   </g>
   <g
      inkscape:groupmode="layer"

@@ -40,6 +40,7 @@
 #include <utils/qtcassert.h>
 #include <utils/detailswidget.h>
 #include <utils/hostosinfo.h>
+#include <utils/theme/theme.h>
 
 #include <QSignalMapper>
 
@@ -74,7 +75,8 @@ ToolWidget::ToolWidget(QWidget *parent)
     m_disableButton->setAutoRaise(true);
     m_disableButton->setToolTip(BuildStepListWidget::tr("Disable"));
     m_disableButton->setFixedSize(buttonSize);
-    m_disableButton->setIcon(QIcon(QLatin1String(":/projectexplorer/images/disabledbuildstep.png")));
+    m_disableButton->setIcon(QIcon(creatorTheme()->imageFile(Theme::BuildStepDisable,
+            QLatin1String(":/projectexplorer/images/disabledbuildstep.png"))));
     m_disableButton->setCheckable(true);
     hbox->addWidget(m_disableButton);
     layout->addWidget(m_firstWidget);
@@ -90,21 +92,24 @@ ToolWidget::ToolWidget(QWidget *parent)
     m_upButton->setAutoRaise(true);
     m_upButton->setToolTip(BuildStepListWidget::tr("Move Up"));
     m_upButton->setFixedSize(buttonSize);
-    m_upButton->setIcon(QIcon(QLatin1String(":/core/images/darkarrowup.png")));
+    m_upButton->setIcon(QIcon(creatorTheme()->imageFile(Theme::BuildStepMoveUp,
+            QLatin1String(":/core/images/darkarrowup.png"))));
     hbox->addWidget(m_upButton);
 
     m_downButton = new QToolButton(m_secondWidget);
     m_downButton->setAutoRaise(true);
     m_downButton->setToolTip(BuildStepListWidget::tr("Move Down"));
     m_downButton->setFixedSize(buttonSize);
-    m_downButton->setIcon(QIcon(QLatin1String(":/core/images/darkarrowdown.png")));
+    m_downButton->setIcon(QIcon(creatorTheme()->imageFile(Theme::BuildStepMoveDown,
+            QLatin1String(":/core/images/darkarrowdown.png"))));
     hbox->addWidget(m_downButton);
 
     m_removeButton  = new QToolButton(m_secondWidget);
     m_removeButton->setAutoRaise(true);
     m_removeButton->setToolTip(BuildStepListWidget::tr("Remove Item"));
     m_removeButton->setFixedSize(buttonSize);
-    m_removeButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_DARK_CLOSE)));
+    m_removeButton->setIcon(QIcon(creatorTheme()->imageFile(Theme::BuildStepRemove,
+            QLatin1String(Core::Constants::ICON_DARK_CLOSE))));
     hbox->addWidget(m_removeButton);
 
     layout->addWidget(m_secondWidget);
