@@ -89,16 +89,15 @@ JsonSummaryPage::JsonSummaryPage(QWidget *parent) :
 
 void JsonSummaryPage::initializePage()
 {
-    JsonWizard *wiz = qobject_cast<JsonWizard *>(wizard());
-    QTC_ASSERT(wiz, return);
+    m_wizard = qobject_cast<JsonWizard *>(wizard());
 
-    connect(wiz, &JsonWizard::filesReady, this, &JsonSummaryPage::triggerCommit);
-    connect(wiz, &JsonWizard::filesReady, this, &JsonSummaryPage::addToProject);
+    connect(m_wizard, &JsonWizard::filesReady, this, &JsonSummaryPage::triggerCommit);
+    connect(m_wizard, &JsonWizard::filesReady, this, &JsonSummaryPage::addToProject);
 
-    JsonWizard::GeneratorFiles files = wiz->fileList();
+    JsonWizard::GeneratorFiles files = m_wizard->fileList();
     QStringList filePaths = Utils::transform(files, [](const JsonWizard::GeneratorFile &f)
                                                     { return f.file.path(); });
-    IWizardFactory::WizardKind kind = wizardKind(wiz);
+    IWizardFactory::WizardKind kind = wizardKind(m_wizard);
     bool isProject = (kind == IWizardFactory::ProjectWizard);
 
     setFiles(filePaths);
@@ -112,7 +111,7 @@ void JsonSummaryPage::initializePage()
         filePaths << f.file.path();
     }
 
-    Node *contextNode = wiz->value(QLatin1String(Constants::PREFERRED_PROJECT_NODE))
+    Node *contextNode = m_wizard->value(QLatin1String(Constants::PREFERRED_PROJECT_NODE))
             .value<Node *>();
     initializeProjectTree(contextNode, filePaths, kind,
                           isProject ? AddSubProject : AddNewFile);
@@ -122,12 +121,9 @@ void JsonSummaryPage::initializePage()
 
 void JsonSummaryPage::cleanupPage()
 {
-    JsonWizard *wiz = qobject_cast<JsonWizard *>(wizard());
-    QTC_ASSERT(wiz, return);
+    m_wizard->resetFileList();
 
-    wiz->resetFileList();
-
-    disconnect(wiz, &JsonWizard::filesReady, this, 0);
+    disconnect(m_wizard, &JsonWizard::filesReady, this, 0);
 }
 
 void JsonSummaryPage::triggerCommit(const JsonWizard::GeneratorFiles &files)
@@ -146,24 +142,21 @@ void JsonSummaryPage::triggerCommit(const JsonWizard::GeneratorFiles &files)
 
 void JsonSummaryPage::addToProject(const JsonWizard::GeneratorFiles &files)
 {
-    JsonWizard *wiz = qobject_cast<JsonWizard *>(wizard());
-    QTC_ASSERT(wiz, return);
-
     QString generatedProject = generatedProjectFilePath(files);
-    IWizardFactory::WizardKind kind = wizardKind(wiz);
+    IWizardFactory::WizardKind kind = wizardKind(m_wizard);
 
     FolderNode *folder = currentNode();
     if (!folder)
         return;
     if (kind == IWizardFactory::ProjectWizard) {
         if (!static_cast<ProjectNode *>(folder)->addSubProjects(QStringList(generatedProject))) {
-            QMessageBox::critical(wizard(), tr("Failed to Add to Project"),
+            QMessageBox::critical(m_wizard, tr("Failed to Add to Project"),
                                   tr("Failed to add subproject \"%1\"\nto project \"%2\".")
                                   .arg(QDir::toNativeSeparators(generatedProject))
                                   .arg(QDir::toNativeSeparators(folder->path())));
             return;
         }
-        wiz->removeAttributeFromAllFiles(GeneratedFile::OpenProjectAttribute);
+        m_wizard->removeAttributeFromAllFiles(GeneratedFile::OpenProjectAttribute);
     } else {
         QStringList filePaths = Utils::transform(files, [](const JsonWizard::GeneratorFile &f) {
             return f.file.path();

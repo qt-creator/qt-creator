@@ -58,6 +58,8 @@ public slots:
 
 private:
     void updateProjectData(FolderNode *node);
+
+    JsonWizard *m_wizard;
 };
 
 } // namespace ProjectExplorer
