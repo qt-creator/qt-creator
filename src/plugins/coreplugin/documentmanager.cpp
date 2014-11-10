@@ -200,7 +200,7 @@ DocumentManagerPrivate::DocumentManagerPrivate() :
     m_linkWatcher(0),
     m_blockActivated(false),
     m_lastVisitedDirectory(QDir::currentPath()),
-    m_useProjectsDirectory(Utils::HostOsInfo::isMacHost()), // Creator is in bizarre places when launched via finder.
+    m_useProjectsDirectory(true),
     m_blockedIDocument(0)
 {
 }
