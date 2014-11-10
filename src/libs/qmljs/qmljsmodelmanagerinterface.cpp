@@ -965,7 +965,7 @@ struct ScanItem {
 void ModelManagerInterface::importScan(QFutureInterface<void> &future,
                               ModelManagerInterface::WorkingCopy workingCopy,
                               PathsAndLanguages paths, ModelManagerInterface *modelManager,
-                              bool emitDocChangedOnDisk)
+                              bool emitDocChangedOnDisk, bool libOnly)
 {
     // paths we have scanned for files and added to the files list
     QSet<QString> scannedPaths;
@@ -993,7 +993,6 @@ void ModelManagerInterface::importScan(QFutureInterface<void> &future,
     int progressRange = pathsToScan.size() * (1 << (2 + maxScanDepth));
     int totalWork(progressRange), workDone(0);
     future.setProgressRange(0, progressRange); // update max length while iterating?
-    const bool libOnly = true; // FIXME remove when tested more
     const Snapshot snapshot = modelManager->snapshot();
     while (!pathsToScan.isEmpty() && !future.isCanceled()) {
         ScanItem toScan = pathsToScan.last();
@@ -1075,7 +1074,7 @@ void ModelManagerInterface::maybeScan(const PathsAndLanguages &importPaths)
     if (pathToScan.length() > 1) {
         QFuture<void> result = QtConcurrent::run(&ModelManagerInterface::importScan,
                                                   workingCopyInternal(), pathToScan,
-                                                  this, true);
+                                                  this, true, true);
 
         if (m_synchronizer.futures().size() > 10) {
             QList<QFuture<void> > futures = m_synchronizer.futures();

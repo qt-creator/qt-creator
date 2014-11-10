@@ -210,7 +210,7 @@ public:
                     WorkingCopy workingCopyInternal,
                     PathsAndLanguages paths,
                     ModelManagerInterface *modelManager,
-                    bool emitDocChangedOnDisk);
+                    bool emitDocChangedOnDisk, bool libOnly = true);
 public slots:
     virtual void resetCodeModel();
     void removeProjectInfo(ProjectExplorer::Project *project);
