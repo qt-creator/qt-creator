@@ -1,5 +1,4 @@
 import qbs
-import QtcTool
 
 QtcTool {
     name: "buildoutputparser"

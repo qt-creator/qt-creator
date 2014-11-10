@@ -1,8 +1,5 @@
 import qbs 1.0
 
-import QtcFunctions
-import QtcPlugin
-
 QtcPlugin {
     name: "ProjectExplorer"
 

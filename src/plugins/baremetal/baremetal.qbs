@@ -1,7 +1,5 @@
 import qbs
 
-import QtcPlugin
-
 QtcPlugin {
     name: "BareMetal"
 

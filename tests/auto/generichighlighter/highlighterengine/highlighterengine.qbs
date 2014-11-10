@@ -1,5 +1,4 @@
 import qbs
-import QtcAutotest
 
 QtcAutotest {
     name: "Highlighter engine autotest"

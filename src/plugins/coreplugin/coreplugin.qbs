@@ -1,6 +1,5 @@
 import qbs 1.0
 import qbs.FileInfo
-import QtcPlugin
 
 QtcPlugin {
     name: "Core"

@@ -1,7 +1,5 @@
 import qbs 1.0
 
-import QtcPlugin
-
 QtcPlugin {
     name: "HelloWorld"
 
