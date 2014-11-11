@@ -86,9 +86,11 @@ class tst_Lookup: public QObject
 {
     Q_OBJECT
 
-private Q_SLOTS:
+private slots:
     void base_class_defined_1();
-    void document_functionAt_1();
+
+    void document_functionAt_data();
+    void document_functionAt();
 
     // Objective-C
     void simple_class_1();
@@ -155,8 +157,13 @@ void tst_Lookup::base_class_defined_1()
     QVERIFY(classToAST.value(derivedClass) != 0);
 }
 
-void tst_Lookup::document_functionAt_1()
+void tst_Lookup::document_functionAt_data()
 {
+    QTest::addColumn<QByteArray>("source");
+    QTest::addColumn<int>("line");
+    QTest::addColumn<int>("column");
+    QTest::addColumn<QString>("expectedFunction");
+
     const QByteArray source = "\n"
             "void Foo::Bar() {\n" // line 1
             "    \n" // line 2
@@ -164,19 +171,29 @@ void tst_Lookup::document_functionAt_1()
             "        \n" // line 4
             "    }\n"
             "}\n"; // line 7
+    const QString expectedFunction = QString::fromLatin1("Foo::Bar");
+    QTest::newRow("nonInline1") << source << 1 << 2 << QString();
+    QTest::newRow("nonInline2") << source << 1 << 11 << expectedFunction;
+    QTest::newRow("nonInline3") << source << 2 << 2 << expectedFunction;
+    QTest::newRow("nonInline4") << source << 3 << 10 << expectedFunction;
+    QTest::newRow("nonInline5") << source << 4 << 3 << expectedFunction;
+    QTest::newRow("nonInline6") << source << 6 << 1 << expectedFunction;
+}
 
-    Document::Ptr doc = Document::create("document_functionAt_1");
+void tst_Lookup::document_functionAt()
+{
+    QFETCH(QByteArray, source);
+    QFETCH(int, line);
+    QFETCH(int, column);
+    QFETCH(QString, expectedFunction);
+
+    Document::Ptr doc = Document::create("document_functionAt");
     doc->setUtf8Source(source);
     doc->parse();
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->functionAt(1,  2), QString());
-    QCOMPARE(doc->functionAt(1, 11), QString::fromLatin1("Foo::Bar"));
-    QCOMPARE(doc->functionAt(2,  2), QString::fromLatin1("Foo::Bar"));
-    QCOMPARE(doc->functionAt(3, 10), QString::fromLatin1("Foo::Bar"));
-    QCOMPARE(doc->functionAt(4, 3), QString::fromLatin1("Foo::Bar"));
-    QCOMPARE(doc->functionAt(6, 1), QString::fromLatin1("Foo::Bar"));
+    QCOMPARE(doc->functionAt(line, column), expectedFunction);
 }
 
 void tst_Lookup::simple_class_1()
