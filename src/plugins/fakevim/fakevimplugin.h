@@ -62,6 +62,12 @@ private:
 private slots:
     void cleanup();
     void test_vim_movement();
+    void test_vim_target_column_normal();
+    void test_vim_target_column_visual_char();
+    void test_vim_target_column_visual_block();
+    void test_vim_target_column_visual_line();
+    void test_vim_target_column_insert();
+    void test_vim_target_column_replace();
     void test_vim_insert();
     void test_vim_fFtT();
     void test_vim_transform_numbers();

@@ -539,6 +539,147 @@ void FakeVimPlugin::test_vim_movement()
          X "");
 }
 
+void FakeVimPlugin::test_vim_target_column_normal()
+{
+    TestData data;
+    setup(&data);
+    data.setText("a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+
+    // normal mode movement
+    KEYS("",  X  "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("$",    "a"   "b"   "c"   N   "d" X "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("k",    "a"   "b" X "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("3j",   "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m" X "n");
+    KEYS("02k",  "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N   "d"   "e"   N X ""   N   "k"   "l"   "m"   "n");
+    KEYS("$",    "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
+    KEYS("2k",   "a"   "b" X "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("jj2|", "a"   "b"   "c"   N   "d"   "e"   N X ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k" X "l"   "m"   "n");
+    KEYS("gg", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("^k", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+}
+
+void FakeVimPlugin::test_vim_target_column_visual_char()
+{
+    TestData data;
+    setup(&data);
+    data.setText("a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+
+    KEYS("v", X  "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("$",    "a"   "b"   "c"   N   "d"   "e" X N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("k",    "a"   "b"   "c" X N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("3j",   "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n" X);
+    KEYS("02k",  "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N   "d"   "e"   N X ""   N   "k"   "l"   "m"   "n");
+    KEYS("$",    "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
+    KEYS("2k",   "a"   "b"   "c" X N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("jj2|", "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k" X "l"   "m"   "n");
+    KEYS("gg", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("^k", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("lO", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<ESC>j",
+                 "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+}
+
+void FakeVimPlugin::test_vim_target_column_visual_block()
+{
+    TestData data;
+    setup(&data);
+    data.setText("a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+
+    KEYS("<C-V>",
+                 "a" X "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N   "d" X "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("$",    "a"   "b"   "c"   N   "d"   "e" X N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("k",    "a"   "b"   "c" X N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("3j",   "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n" X);
+    KEYS("02k",  "a"   "b"   "c"   N   "d" X "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
+    KEYS("$",    "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
+    KEYS("2k",   "a"   "b"   "c" X N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("jj2|", "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l" X "m"   "n");
+    KEYS("gg",   "a" X "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N   "d" X "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("^k",   "a" X "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("lO", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<ESC>j",
+                 "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+}
+
+void FakeVimPlugin::test_vim_target_column_visual_line()
+{
+    TestData data;
+    setup(&data);
+    data.setText("a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+
+    KEYS("lV<ESC>",    "a" X "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("Vj<ESC>",    "a"   "b"   "c"   N   "d" X "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("Vj<ESC>",    "a"   "b"   "c"   N   "d"   "e"   N X ""   N   "k"   "l"   "m"   "n");
+    KEYS("Vj<ESC>",    "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k" X "l"   "m"   "n");
+    KEYS("Vgg<ESC>", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+
+    NOT_IMPLEMENTED
+    // Movement inside selection is not supported.
+}
+
+void FakeVimPlugin::test_vim_target_column_insert()
+{
+    TestData data;
+    setup(&data);
+    data.setText("a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+
+    KEYS("i", X  "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>j",    "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>$",    "a"   "b"   "c"   N   "d"   "e" X N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>k",    "a"   "b"   "c" X N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>3j",   "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n" X);
+    KEYS("<C-O>0<C-O>2k",
+                      "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>j",    "a"   "b"   "c"   N   "d"   "e"   N X ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>$",    "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>2k",   "a"   "b"   "c" X N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<down><down><c-o>2|",
+                      "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>j",    "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k" X "l"   "m"   "n");
+    KEYS("<C-O>gg", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>j",    "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>^<up>",
+                    X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+}
+
+void FakeVimPlugin::test_vim_target_column_replace()
+{
+    TestData data;
+    setup(&data);
+    data.setText("a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+
+    KEYS("i<insert>",
+                   X  "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>j",    "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>$",    "a"   "b"   "c"   N   "d"   "e" X N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>k",    "a"   "b"   "c" X N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>3j",   "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n" X);
+    KEYS("<C-O>0<C-O>2k",
+                      "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>j",    "a"   "b"   "c"   N   "d"   "e"   N X ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>$",    "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>2k",   "a"   "b"   "c" X N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<down><down><c-o>2|",
+                      "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>j",    "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k" X "l"   "m"   "n");
+    KEYS("<C-O>gg", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>j",    "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>^<up>",
+                    X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+}
+
 void FakeVimPlugin::test_vim_insert()
 {
     TestData data;
