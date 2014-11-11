@@ -7834,8 +7834,12 @@ void FakeVimHandler::Private::enterCommandMode(Mode returnToMode)
     if (g.isRecording && isCommandLineMode())
         record(Input(Key_Escape, NoModifier));
 
-    if (isNoVisualMode() && atEndOfLine())
-        moveLeft();
+    if (isNoVisualMode() && atEndOfLine()) {
+        m_cursor.movePosition(Left, KeepAnchor);
+        if (m_targetColumn != -1)
+            setTargetColumn();
+    }
+
     g.mode = CommandMode;
     clearCommandMode();
     g.returnToMode = returnToMode;
