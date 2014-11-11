@@ -493,8 +493,12 @@ void Document::setGlobalNamespace(Namespace *globalNamespace)
  *
  * \param line the line number, starting with line 1
  * \param column the column number, starting with column 1
+ * \param lineOpeningDeclaratorParenthesis optional output parameter, the line of the opening
+          parenthesis of the declarator starting with 1
+ * \param lineClosingBrace optional output parameter, the line of the closing brace starting with 1
  */
-QString Document::functionAt(int line, int column) const
+QString Document::functionAt(int line, int column, int *lineOpeningDeclaratorParenthesis,
+                             int *lineClosingBrace) const
 {
     if (line < 1 || column < 1)
         return QString();
@@ -517,7 +521,19 @@ QString Document::functionAt(int line, int column) const
     if (!scope)
         return QString();
 
-    // We found the function scope, extract its name.
+    // We found the function scope
+    if (lineOpeningDeclaratorParenthesis) {
+        unsigned line;
+        translationUnit()->getPosition(scope->startOffset(), &line);
+        *lineOpeningDeclaratorParenthesis = static_cast<int>(line);
+    }
+
+    if (lineClosingBrace) {
+        unsigned line;
+        translationUnit()->getPosition(scope->endOffset(), &line);
+        *lineClosingBrace = static_cast<int>(line);
+    }
+
     const QList<const Name *> fullyQualifiedName = LookupContext::fullyQualifiedName(scope);
     return Overview().prettyName(fullyQualifiedName);
 }

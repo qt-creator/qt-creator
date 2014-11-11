@@ -101,7 +101,8 @@ public:
     QList<Macro> definedMacros() const
     { return _definedMacros; }
 
-    QString functionAt(int line, int column) const;
+    QString functionAt(int line, int column, int *lineOpeningDeclaratorParenthesis = 0,
+                       int *lineClosingBrace = 0) const;
     Symbol *lastVisibleSymbolAt(unsigned line, unsigned column = 0) const;
     Scope *scopeAt(unsigned line, unsigned column = 0);
 
