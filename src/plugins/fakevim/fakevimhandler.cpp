@@ -3844,7 +3844,10 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
             g.movetype = MoveLineWise;
     } else if (input.is('|')) {
         moveToStartOfLine();
-        moveRight(qMin(count, rightDist()) - 1);
+        const int column = count - 1;
+        moveRight(qMin(column, rightDist() - 1));
+        m_targetColumn = column;
+        m_visualTargetColumn = column;
     } else if (input.is('}')) {
         handled = moveToNextParagraph(count);
     } else if (input.is('{')) {
