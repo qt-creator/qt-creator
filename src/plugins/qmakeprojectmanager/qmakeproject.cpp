@@ -1628,7 +1628,7 @@ bool QmakeProject::matchesKit(const Kit *kit)
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
     if (!parentQts.isEmpty())
         return parentQts.contains(version);
-    return true;
+    return false;
 }
 
 QString QmakeProject::executableFor(const QmakeProFileNode *node)
