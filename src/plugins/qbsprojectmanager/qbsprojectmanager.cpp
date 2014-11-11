@@ -50,7 +50,6 @@
 
 #include <qbs.h>
 #include <qtprofilesetup.h>
-#include <tools/profile.h> // TODO: Do this in qbs.h.
 
 const QChar sep = QLatin1Char('.');
 
@@ -68,7 +67,14 @@ QbsManager::QbsManager() :
     m_settings = new qbs::Settings(Core::ICore::userResourcePath());
 
     setObjectName(QLatin1String("QbsProjectManager"));
-    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsChanged()), this, SLOT(pushKitsToQbs()));
+    connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitsLoaded, this,
+            [this]() { m_kitsToBeSetupForQbs = ProjectExplorer::KitManager::kits(); } );
+    connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitAdded, this,
+            &QbsManager::addProfileFromKit);
+    connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitUpdated, this,
+            &QbsManager::handleKitUpdate);
+    connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitRemoved, this,
+            &QbsManager::handleKitRemoval);
 
     m_logSink = new Internal::QbsLogSink(this);
     int level = qbs::LoggerWarning;
@@ -122,21 +128,18 @@ void QbsManager::setProfileForKit(const QString &name, const ProjectExplorer::Ki
     m_settings->setValue(qtcProfilePrefix() + k->id().toString(), name);
 }
 
+void QbsManager::updateProfileIfNecessary(ProjectExplorer::Kit *kit)
+{
+    if (m_kitsToBeSetupForQbs.removeOne(kit)) // kit in list <=> yes, it is necessary
+        addProfileFromKit(kit);
+}
+
 void QbsManager::addProfile(const QString &name, const QVariantMap &data)
 {
     qbs::Profile profile(name, settings());
     const QVariantMap::ConstIterator cend = data.constEnd();
     for (QVariantMap::ConstIterator it = data.constBegin(); it != cend; ++it)
         profile.setValue(it.key(), it.value());
-}
-
-void QbsManager::removeCreatorProfiles()
-{
-    foreach (const QString &key, m_settings->allKeysWithPrefix(qtcProfileGroup())) {
-        const QString fullKey = qtcProfilePrefix() + key;
-        qbs::Profile(m_settings->value(fullKey).toString(), m_settings).removeProfile();
-        m_settings->remove(fullKey);
-    }
 }
 
 void QbsManager::addQtProfileFromKit(const QString &profileName, const ProjectExplorer::Kit *k)
@@ -182,8 +185,7 @@ void QbsManager::addQtProfileFromKit(const QString &profileName, const ProjectEx
 
 void QbsManager::addProfileFromKit(const ProjectExplorer::Kit *k)
 {
-    const QString name = ProjectExplorer::Project::makeUnique(
-                QString::fromLatin1("qtc_") + k->fileSystemFriendlyName(), m_settings->profiles());
+    const QString name = QString::fromLatin1("qtc_") + k->fileSystemFriendlyName();
     setProfileForKit(name, k);
     addQtProfileFromKit(name, k);
 
@@ -198,14 +200,19 @@ void QbsManager::addProfileFromKit(const ProjectExplorer::Kit *k)
     addProfile(name, data);
 }
 
-void QbsManager::pushKitsToQbs()
+void QbsManager::handleKitUpdate(ProjectExplorer::Kit *kit)
 {
-    // Get all keys
-    removeCreatorProfiles();
+    m_kitsToBeSetupForQbs.removeOne(kit);
+    addProfileFromKit(kit);
+}
 
-    // add definitions from our kits
-    foreach (const ProjectExplorer::Kit *k, ProjectExplorer::KitManager::kits())
-        addProfileFromKit(k);
+void QbsManager::handleKitRemoval(ProjectExplorer::Kit *kit)
+{
+    m_kitsToBeSetupForQbs.removeOne(kit);
+    const QString key = qtcProfilePrefix() + kit->id().toString();
+    const QString profileName = m_settings->value(key).toString();
+    m_settings->remove(key);
+    qbs::Profile(profileName, m_settings).removeProfile();
 }
 
 } // namespace QbsProjectManager
