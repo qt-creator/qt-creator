@@ -164,20 +164,33 @@ void tst_Lookup::document_functionAt_data()
     QTest::addColumn<int>("column");
     QTest::addColumn<QString>("expectedFunction");
 
-    const QByteArray source = "\n"
+    QByteArray source = "\n"
             "void Foo::Bar() {\n" // line 1
-            "    \n" // line 2
-            "    for (int i=0; i < 10; ++i) {\n"
-            "        \n" // line 4
-            "    }\n"
-            "}\n"; // line 7
-    const QString expectedFunction = QString::fromLatin1("Foo::Bar");
+            "    \n"
+            "    for (int i=0; i < 10; ++i) {\n" // line 3
+            "        \n"
+            "    }\n" // line 5
+            "}\n";
+    QString expectedFunction = QString::fromLatin1("Foo::Bar");
     QTest::newRow("nonInline1") << source << 1 << 2 << QString();
     QTest::newRow("nonInline2") << source << 1 << 11 << expectedFunction;
     QTest::newRow("nonInline3") << source << 2 << 2 << expectedFunction;
     QTest::newRow("nonInline4") << source << 3 << 10 << expectedFunction;
     QTest::newRow("nonInline5") << source << 4 << 3 << expectedFunction;
     QTest::newRow("nonInline6") << source << 6 << 1 << expectedFunction;
+
+    source = "\n"
+            "namespace N {\n" // line 1
+            "class C {\n"
+            "    void f()\n" // line 3
+            "    {\n"
+            "    }\n" // line 5
+            "};\n"
+            "}\n"; // line 7
+    expectedFunction = QString::fromLatin1("N::C::f");
+    QTest::newRow("inline1") << source << 1 << 2 << QString();
+    QTest::newRow("inline2") << source << 2 << 10 << QString();
+    QTest::newRow("inline2") << source << 3 << 10 << expectedFunction;
 }
 
 void tst_Lookup::document_functionAt()

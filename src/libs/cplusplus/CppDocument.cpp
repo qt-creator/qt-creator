@@ -518,21 +518,8 @@ QString Document::functionAt(int line, int column) const
         return QString();
 
     // We found the function scope, extract its name.
-    const Overview o;
-    QString rc = o.prettyName(scope->name());
-
-    // Prepend namespace "Foo::Foo::foo()" up to empty root namespace
-    for (const Symbol *owner = scope->enclosingNamespace();
-         owner; owner = owner->enclosingNamespace()) {
-        const QString name = o.prettyName(owner->name());
-        if (name.isEmpty()) {
-            break;
-        } else {
-            rc.prepend(QLatin1String("::"));
-            rc.prepend(name);
-        }
-    }
-    return rc;
+    const QList<const Name *> fullyQualifiedName = LookupContext::fullyQualifiedName(scope);
+    return Overview().prettyName(fullyQualifiedName);
 }
 
 Scope *Document::scopeAt(unsigned line, unsigned column)
