@@ -102,6 +102,44 @@ bool DiffEditorController::isIgnoreWhitespace() const
     return m_ignoreWhitespace;
 }
 
+// ### fixme: git-specific handling should be done in the git plugin:
+// Remove unexpanded branches and follows-tag, clear indentation
+// and create E-mail
+static void formatGitDescription(QString *description)
+{
+    QString result;
+    result.reserve(description->size());
+    foreach (QString line, description->split(QLatin1Char('\n'))) {
+        if (line.startsWith(QLatin1String("commit "))
+            || line.startsWith(QLatin1String("Branches: <Expand>"))) {
+            continue;
+        }
+        if (line.startsWith(QLatin1String("Author: ")))
+            line.replace(0, 8, QStringLiteral("From: "));
+        else if (line.startsWith(QLatin1String("    ")))
+            line.remove(0, 4);
+        result.append(line);
+        result.append(QLatin1Char('\n'));
+    }
+    *description = result;
+}
+
+QString DiffEditorController::contents() const
+{
+    QString result = m_description;
+    const int formattingOptions = DiffUtils::GitFormat;
+    if (formattingOptions & DiffUtils::GitFormat)
+        formatGitDescription(&result);
+
+    const QString diff = DiffUtils::makePatch(diffFiles(), formattingOptions);
+    if (!diff.isEmpty()) {
+        if (!result.isEmpty())
+            result += QLatin1Char('\n');
+        result += diff;
+    }
+    return result;
+}
+
 QString DiffEditorController::makePatch(bool revert, bool addPrefix) const
 {
     if (m_diffFileIndex < 0 || m_chunkIndex < 0)

@@ -31,6 +31,7 @@
 #include "diffutils.h"
 #include "differ.h"
 #include <QStringList>
+#include <QTextStream>
 #include "texteditor/fontsettings.h"
 
 namespace DiffEditor {
@@ -483,31 +484,35 @@ QString DiffUtils::makePatch(const ChunkData &chunkData,
     return diffText;
 }
 
-QString DiffUtils::makePatch(const QList<FileData> &fileDataList)
+QString DiffUtils::makePatch(const QList<FileData> &fileDataList, unsigned formatFlags)
 {
     QString diffText;
+    QTextStream str(&diffText);
 
     for (int i = 0; i < fileDataList.count(); i++) {
         const FileData &fileData = fileDataList.at(i);
-
+        if (formatFlags & GitFormat) {
+            str << "diff --git a/" << fileData.leftFileInfo.fileName
+                << " b/" << fileData.rightFileInfo.fileName << '\n';
+        }
         if (fileData.binaryFiles) {
-            const QString binaryLine = QLatin1String("Binary files ")
-                    + fileData.leftFileInfo.fileName
-                    + QLatin1String(" and ")
-                    + fileData.rightFileInfo.fileName
-                    + QLatin1String(" differ\n");
-            diffText += binaryLine;
+            str << "Binary files ";
+            if (formatFlags & AddLevel)
+                str << "a/";
+            str << fileData.leftFileInfo.fileName << " and ";
+            if (formatFlags & AddLevel)
+                str << "b/";
+            str << fileData.rightFileInfo.fileName << " differ\n";
         } else {
-            const QString leftFileInfo = QLatin1String("--- ")
-                    + fileData.leftFileInfo.fileName + QLatin1Char('\n');
-            const QString rightFileInfo = QLatin1String("+++ ")
-                    + fileData.rightFileInfo.fileName + QLatin1Char('\n');
-
-            diffText += leftFileInfo;
-            diffText += rightFileInfo;
-
+            str << "--- ";
+            if (formatFlags & AddLevel)
+                str << "a/";
+            str << fileData.leftFileInfo.fileName << "\n+++ ";
+            if (formatFlags & AddLevel)
+                str << "b/";
+            str << fileData.rightFileInfo.fileName << '\n';
             for (int j = 0; j < fileData.chunks.count(); j++) {
-                diffText += makePatch(fileData.chunks.at(j),
+                str << makePatch(fileData.chunks.at(j),
                                       (j == fileData.chunks.count() - 1)
                                       && fileData.lastChunkAtTheEndOfFile);
             }

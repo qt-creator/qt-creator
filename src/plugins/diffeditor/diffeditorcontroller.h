@@ -57,6 +57,7 @@ public:
     bool isIgnoreWhitespace() const;
 
     QString makePatch(bool revert, bool addPrefix = false) const;
+    QString contents() const;
 
     DiffEditorReloader *reloader() const;
     void setReloader(DiffEditorReloader *reloader);

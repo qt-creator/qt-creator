@@ -78,9 +78,7 @@ bool DiffEditorDocument::save(QString *errorString, const QString &fileName, boo
     Q_UNUSED(errorString)
     Q_UNUSED(autoSave)
 
-    const QString contents = DiffUtils::makePatch(m_controller->diffFiles());
-
-    const bool ok = write(fileName, format(), contents, errorString);
+    const bool ok = write(fileName, format(), m_controller->contents(), errorString);
 
     if (!ok)
         return false;
