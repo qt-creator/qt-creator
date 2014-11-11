@@ -4168,10 +4168,19 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if (input.is('<') || input.is('>') || input.is('=')) {
         g.submode = indentModeFromInput(input);
         if (isVisualMode()) {
+            leaveVisualMode();
             const int lines = qAbs(lineForPosition(position()) - lineForPosition(anchor())) + 1;
-            const QString movementCommand =
-                    (lines > 1) ? QString::fromLatin1("%1j").arg(lines - 1) : QString();
-            handleAs(_("%1") + input.toString() + movementCommand);
+            const int repeat = count();
+            if (g.submode == ShiftLeftSubMode)
+                shiftRegionLeft(repeat);
+            else if (g.submode == ShiftRightSubMode)
+                shiftRegionRight(repeat);
+            else
+                indentSelectedText();
+            g.submode = NoSubMode;
+            const QString selectDotCommand =
+                    (lines > 1) ? QString::fromLatin1("V%1j").arg(lines - 1): QString();
+            setDotCommand(selectDotCommand + QString::fromLatin1("%1%2%2").arg(repeat).arg(input.raw()));
         } else {
             setAnchor();
         }
