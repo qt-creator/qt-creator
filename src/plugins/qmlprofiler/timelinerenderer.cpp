@@ -112,22 +112,28 @@ void TimelineRenderer::swapSelections(int modelIndex1, int modelIndex2)
 inline void TimelineRenderer::getItemXExtent(int modelIndex, int i, int &currentX, int &itemWidth)
 {
     qint64 start = m_profilerModelProxy->startTime(modelIndex, i) - m_startTime;
+
+    // avoid integer overflows by using floating point for width calculations. m_spacing is qreal,
+    // too, so for some intermediate calculations we have to use floats anyway.
+    qreal rawWidth;
     if (start > 0) {
-        currentX = start * m_spacing;
-        itemWidth = m_profilerModelProxy->duration(modelIndex, i) * m_spacing;
+        currentX = static_cast<int>(start * m_spacing);
+        rawWidth = m_profilerModelProxy->duration(modelIndex, i) * m_spacing;
     } else {
         currentX = -OutOfScreenMargin;
         // Explicitly round the "start" part down, away from 0, to match the implicit rounding of
         // currentX in the > 0 case. If we don't do that we get glitches where a pixel is added if
         // the element starts outside the screen and subtracted if it starts inside the screen.
-        itemWidth = m_profilerModelProxy->duration(modelIndex, i) * m_spacing +
+        rawWidth = m_profilerModelProxy->duration(modelIndex, i) * m_spacing +
                 floor(start * m_spacing) + OutOfScreenMargin;
     }
-    if (itemWidth < MinimumItemWidth) {
-        currentX -= (MinimumItemWidth - itemWidth) / 2;
+    if (rawWidth < MinimumItemWidth) {
+        currentX -= static_cast<int>((MinimumItemWidth - rawWidth) / 2);
         itemWidth = MinimumItemWidth;
-    } else if (itemWidth > m_spacedDuration) {
-        itemWidth = m_spacedDuration;
+    } else if (rawWidth > m_spacedDuration) {
+        itemWidth = static_cast<int>(m_spacedDuration);
+    } else {
+        itemWidth = static_cast<int>(rawWidth);
     }
 }
 
