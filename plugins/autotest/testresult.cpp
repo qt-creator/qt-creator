@@ -55,18 +55,53 @@ ResultType TestResult::resultFromString(const QString &resultString)
     return UNKNOWN;
 }
 
+ResultType TestResult::toResultType(int rt)
+{
+    switch(rt) {
+    case PASS:
+        return PASS;
+    case FAIL:
+        return FAIL;
+    case EXPECTED_FAIL:
+        return EXPECTED_FAIL;
+    case UNEXPECTED_PASS:
+        return UNEXPECTED_PASS;
+    case SKIP:
+        return SKIP;
+    case MESSAGE_DEBUG:
+        return MESSAGE_DEBUG;
+    case MESSAGE_WARN:
+        return MESSAGE_WARN;
+    case MESSAGE_FATAL:
+        return MESSAGE_FATAL;
+    case MESSAGE_INTERNAL:
+        return MESSAGE_INTERNAL;
+    default:
+        return UNKNOWN;
+    }
+}
+
 QString TestResult::resultToString(const ResultType type)
 {
     switch(type) {
-    case PASS: return QLatin1String("PASS");
-    case FAIL: return QLatin1String("FAIL");
-    case EXPECTED_FAIL: return QLatin1String("XFAIL");
-    case UNEXPECTED_PASS: return QLatin1String("XPASS");
-    case SKIP: return QLatin1String("SKIP");
-    case MESSAGE_DEBUG: return QLatin1String("DEBUG");
-    case MESSAGE_WARN: return QLatin1String("WARN");
-    case MESSAGE_FATAL: return QLatin1String("FATAL");
-    case MESSAGE_INTERNAL: return QString();
+    case PASS:
+        return QLatin1String("PASS");
+    case FAIL:
+        return QLatin1String("FAIL");
+    case EXPECTED_FAIL:
+        return QLatin1String("XFAIL");
+    case UNEXPECTED_PASS:
+        return QLatin1String("XPASS");
+    case SKIP:
+        return QLatin1String("SKIP");
+    case MESSAGE_DEBUG:
+        return QLatin1String("DEBUG");
+    case MESSAGE_WARN:
+        return QLatin1String("WARN");
+    case MESSAGE_FATAL:
+        return QLatin1String("FATAL");
+    case MESSAGE_INTERNAL:
+        return QString();
     default:
         return QLatin1String("UNKNOWN");
     }
@@ -75,15 +110,24 @@ QString TestResult::resultToString(const ResultType type)
 QColor TestResult::colorForType(const ResultType type)
 {
     switch(type) {
-    case PASS: return QColor("#009900");
-    case FAIL: return QColor("#a00000");
-    case EXPECTED_FAIL: return QColor("#00ff00");
-    case UNEXPECTED_PASS: return QColor("#ff0000");
-    case SKIP: return QColor("#787878");
-    case MESSAGE_DEBUG: return QColor("#329696");
-    case MESSAGE_WARN: return QColor("#d0bb00");
-    case MESSAGE_FATAL: return QColor("#640000");
-    case MESSAGE_INTERNAL: return QColor("transparent");
+    case PASS:
+        return QColor("#009900");
+    case FAIL:
+        return QColor("#a00000");
+    case EXPECTED_FAIL:
+        return QColor("#00ff00");
+    case UNEXPECTED_PASS:
+        return QColor("#ff0000");
+    case SKIP:
+        return QColor("#787878");
+    case MESSAGE_DEBUG:
+        return QColor("#329696");
+    case MESSAGE_WARN:
+        return QColor("#d0bb00");
+    case MESSAGE_FATAL:
+        return QColor("#640000");
+    case MESSAGE_INTERNAL:
+        return QColor("transparent");
     default:
         return QColor("#000000");
     }

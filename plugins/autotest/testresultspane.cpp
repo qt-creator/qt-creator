@@ -322,7 +322,7 @@ void TestResultsPane::updateFilterMenu()
     foreach (QAction *action, m_filterMenu->actions()) {
         if (action->isCheckable())
             action->setEnabled(m_model->hasResultType(
-                                   static_cast<ResultType>(action->data().value<int>())));
+                                   TestResult::toResultType(action->data().value<int>())));
     }
 }
 
@@ -337,7 +337,7 @@ void TestResultsPane::enableAllFilter()
 
 void TestResultsPane::filterMenuTriggered(QAction *action)
 {
-    m_filterModel->toggleTestResultType(static_cast<ResultType>(action->data().value<int>()));
+    m_filterModel->toggleTestResultType(TestResult::toResultType(action->data().value<int>()));
     navigateStateChanged();
 }
 

@@ -35,6 +35,7 @@ public:
 
     TestTreeItem(const QString &name, const QString &filePath, Type type, TestTreeItem *parent = 0);
     virtual ~TestTreeItem();
+    TestTreeItem(const TestTreeItem& other);
 
     TestTreeItem *child(int row);
     TestTreeItem *parent() const;
@@ -58,6 +59,7 @@ public:
     void setChecked(const Qt::CheckState checked);
     Qt::CheckState checked() const { return m_checked; }
     Type type() const { return m_type; }
+    void setParent(TestTreeItem *parent) { m_parent = parent; }
 
 private:
     void revalidateCheckState();

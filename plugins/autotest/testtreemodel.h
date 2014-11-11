@@ -24,6 +24,7 @@
 #include <cplusplus/CppDocument.h>
 
 #include <QAbstractItemModel>
+#include <QSortFilterProxyModel>
 
 namespace {
     enum ItemRole {
@@ -71,7 +72,7 @@ public:
     void removeQuickTestSubtreeByFilePath(const QString &file);
     void addQuickTest(TestTreeItem *newItem);
     void removeAllQuickTests();
-    void removeUnnamedQuickTest(const QString &filePath);
+    bool removeUnnamedQuickTests(const QString &filePath);
 
 signals:
     void testTreeModelChanged();
@@ -86,6 +87,39 @@ private:
     TestTreeItem *m_autoTestRootItem;
     TestTreeItem *m_quickTestRootItem;
     TestCodeParser *m_parser;
+
+};
+
+class TestTreeSortFilterModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+public:
+    enum SortMode {
+        Alphabetically,
+        Naturally
+    };
+
+    enum FilterMode {
+        Basic,
+        ShowInitAndCleanup = 0x01,
+        ShowTestData       = 0x02,
+        ShowAll            = ShowInitAndCleanup | ShowTestData
+    };
+
+    TestTreeSortFilterModel(TestTreeModel *sourceModel, QObject *parent = 0);
+    void setSortMode(SortMode sortMode);
+    void setFilterMode(FilterMode filterMode);
+    void toggleFilter(FilterMode filterMode);
+    static FilterMode toFilterMode(int f);
+
+protected:
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+
+private:
+    TestTreeModel *m_sourceModel;
+    SortMode m_sortMode;
+    FilterMode m_filterMode;
 
 };
 

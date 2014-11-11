@@ -23,6 +23,7 @@
 #include "testtreemodel.h"
 #include "testtreeview.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 
 #include <coreplugin/find/itemviewfind.h>
@@ -47,8 +48,11 @@ TestTreeViewWidget::TestTreeViewWidget(QWidget *parent) :
 {
     setWindowTitle(tr("Tests"));
     m_model = TestTreeModel::instance();
+    m_sortFilterModel = new TestTreeSortFilterModel(m_model, m_model);
+    m_sortFilterModel->setDynamicSortFilter(true);
     m_view = new TestTreeView(this);
-    m_view->setModel(m_model);
+    m_view->setModel(m_sortFilterModel);
+    m_view->setSortingEnabled(true);
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
@@ -116,10 +120,21 @@ QList<QToolButton *> TestTreeViewWidget::createToolButtons()
 {
     QList<QToolButton *> list;
 
+    m_filterButton = new QToolButton(m_view);
+    m_filterButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
+    m_filterButton->setToolTip(tr("Filter Test Tree"));
+    m_filterButton->setProperty("noArrow", true);
+    m_filterButton->setAutoRaise(true);
+    m_filterButton->setPopupMode(QToolButton::InstantPopup);
+    m_filterMenu = new QMenu(m_filterButton);
+    initializeFilterMenu();
+    connect(m_filterMenu, &QMenu::triggered, this, &TestTreeViewWidget::onFilterMenuTriggered);
+    m_filterButton->setMenu(m_filterMenu);
+
     m_sortAlphabetically = true;
     m_sort = new QToolButton(this);
     m_sort->setIcon((QIcon(QLatin1String(":/images/leafsort.png"))));
-    m_sort->setToolTip(tr("Sort Naturally (not implemented yet)"));
+    m_sort->setToolTip(tr("Sort Naturally"));
 
     QToolButton *expand = new QToolButton(this);
     expand->setIcon(QIcon(QLatin1String(":/images/expand.png")));
@@ -133,7 +148,7 @@ QList<QToolButton *> TestTreeViewWidget::createToolButtons()
     connect(collapse, &QToolButton::clicked, m_view, &TestTreeView::collapseAll);
     connect(m_sort, &QToolButton::clicked, this, &TestTreeViewWidget::onSortClicked);
 
-    list << m_sort << expand << collapse;
+    list << m_filterButton << m_sort << expand << collapse;
     return list;
 }
 
@@ -167,12 +182,35 @@ void TestTreeViewWidget::onSortClicked()
     if (m_sortAlphabetically) {
         m_sort->setIcon((QIcon(QLatin1String(":/images/sort.png"))));
         m_sort->setToolTip(tr("Sort Alphabetically"));
+        m_sortFilterModel->setSortMode(TestTreeSortFilterModel::Naturally);
     } else {
         m_sort->setIcon((QIcon(QLatin1String(":/images/leafsort.png"))));
-        m_sort->setToolTip(tr("Sort Naturally (not implemented yet)"));
+        m_sort->setToolTip(tr("Sort Naturally"));
+        m_sortFilterModel->setSortMode(TestTreeSortFilterModel::Alphabetically);
     }
-    // TODO trigger the sorting change..
     m_sortAlphabetically = !m_sortAlphabetically;
+}
+
+void TestTreeViewWidget::onFilterMenuTriggered(QAction *action)
+{
+    m_sortFilterModel->toggleFilter(
+                TestTreeSortFilterModel::toFilterMode(action->data().value<int>()));
+}
+
+void TestTreeViewWidget::initializeFilterMenu()
+{
+    QAction *action = new QAction(m_filterMenu);
+    action->setText(tr("Show init and cleanup functions"));
+    action->setCheckable(true);
+    action->setChecked(false);
+    action->setData(TestTreeSortFilterModel::ShowInitAndCleanup);
+    m_filterMenu->addAction(action);
+    action = new QAction(m_filterMenu);
+    action->setText(tr("Show data functions"));
+    action->setCheckable(true);
+    action->setChecked(false);
+    action->setData(TestTreeSortFilterModel::ShowTestData);
+    m_filterMenu->addAction(action);
 }
 
 TestViewFactory::TestViewFactory()

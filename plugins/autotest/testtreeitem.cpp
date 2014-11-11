@@ -36,6 +36,23 @@ TestTreeItem::~TestTreeItem()
     removeChildren();
 }
 
+TestTreeItem::TestTreeItem(const TestTreeItem &other)
+    : m_name(other.m_name),
+      m_filePath(other.m_filePath),
+      m_checked(other.m_checked),
+      m_type(other.m_type),
+      m_line(other.m_line),
+      m_column(other.m_column),
+      m_mainFile(other.m_mainFile),
+      m_parent(other.m_parent)
+{
+    foreach (const TestTreeItem *child, other.m_children) {
+        TestTreeItem *reparentedChild = new TestTreeItem(*child);
+        reparentedChild->m_parent = this;
+        m_children.append(reparentedChild);
+    }
+}
+
 TestTreeItem *TestTreeItem::child(int row)
 {
     return m_children.at(row);

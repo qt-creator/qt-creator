@@ -24,6 +24,8 @@
 #include <utils/navigationtreeview.h>
 
 QT_BEGIN_NAMESPACE
+class QAction;
+class QMenu;
 class QModelIndex;
 class QToolButton;
 QT_END_NAMESPACE
@@ -36,6 +38,7 @@ namespace Autotest {
 namespace Internal {
 
 class TestTreeModel;
+class TestTreeSortFilterModel;
 
 class TestTreeView : public Utils::NavigationTreeView
 {
@@ -71,11 +74,17 @@ private slots:
     void onRunAllTriggered();
     void onRunSelectedTriggered();
     void onSortClicked();
+    void onFilterMenuTriggered(QAction *action);
 
 private:
+    void initializeFilterMenu();
+
     TestTreeModel *m_model;
+    TestTreeSortFilterModel *m_sortFilterModel;
     TestTreeView *m_view;
     QToolButton *m_sort;
+    QToolButton *m_filterButton;
+    QMenu *m_filterMenu;
     bool m_sortAlphabetically;
 
 };

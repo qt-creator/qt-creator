@@ -19,6 +19,8 @@
 #ifndef AUTOTESTCONSTANTS_H
 #define AUTOTESTCONSTANTS_H
 
+#include <QtGlobal>
+
 namespace Autotest {
 namespace Constants {
 
@@ -27,6 +29,7 @@ const char MENU_ID[]             = "AutoTest.Menu";
 const char AUTOTEST_ID[]         = "AutoTest.ATP";
 const char AUTOTEST_CONTEXT[]    = "Auto Tests";
 const char TASK_INDEX[]          = "AutoTest.Task.Index";
+const char UNNAMED_QUICKTESTS[]  = QT_TR_NOOP("<unnamed>");
 
 } // namespace Autotest
 } // namespace Constants

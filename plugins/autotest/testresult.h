@@ -57,6 +57,7 @@ public:
     void setLine(int line) { m_line = line; }
 
     static ResultType resultFromString(const QString &resultString);
+    static ResultType toResultType(int rt);
     static QString resultToString(const ResultType type);
     static QColor colorForType(const ResultType type);
 

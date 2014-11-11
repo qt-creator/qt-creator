@@ -16,6 +16,7 @@
 **
 ****************************************************************************/
 
+#include "autotestconstants.h"
 #include "testcodeparser.h"
 #include "testtreeitem.h"
 #include "testtreemodel.h"
@@ -152,7 +153,7 @@ QVariant TestTreeModel::data(const QModelIndex &index, int role) const
             return QString(item->name() + tr(" (none)"));
         } else {
             if (item->name().isEmpty())
-                return tr("<unnamed>");
+                return tr(Constants::UNNAMED_QUICKTESTS);
             return item->name();
         }
 
@@ -535,19 +536,24 @@ void TestTreeModel::removeAllQuickTests()
     emit testTreeModelChanged();
 }
 
-void TestTreeModel::removeUnnamedQuickTest(const QString &filePath)
+bool TestTreeModel::removeUnnamedQuickTests(const QString &filePath)
 {
     TestTreeItem *unnamedQT = unnamedQuickTests();
     if (!unnamedQT)
-        return;
+        return false;
 
+    bool removed = false;
     const QModelIndex unnamedQTIndex = index(1, 0).child(unnamedQT->row(), 0);
     for (int childRow = unnamedQT->childCount() - 1; childRow >= 0; --childRow) {
         const TestTreeItem *child = unnamedQT->child(childRow);
         if (filePath == child->filePath())
-            removeRow(childRow, unnamedQTIndex);
+            removed |= removeRow(childRow, unnamedQTIndex);
     }
+
+    if (unnamedQT->childCount() == 0)
+        removeRow(unnamedQT->row(), unnamedQTIndex.parent());
     emit testTreeModelChanged();
+    return removed;
 }
 
 void TestTreeModel::modifyTestSubtree(QModelIndex &toBeModifiedIndex, TestTreeItem *newItem)
@@ -566,6 +572,7 @@ void TestTreeModel::modifyTestSubtree(QModelIndex &toBeModifiedIndex, TestTreeIt
     const int newChildCount = newItem->childCount();
 
     // for keeping the CheckState on modifications
+    // TODO might still fail for duplicate entries (e.g. unnamed Quick Tests)
     QHash<QString, Qt::CheckState> originalItems;
     for (int row = 0; row < childCount; ++row) {
         const TestTreeItem *child = toBeModifiedItem->child(row);
@@ -594,9 +601,8 @@ void TestTreeModel::modifyTestSubtree(QModelIndex &toBeModifiedIndex, TestTreeIt
         if (childCount < newChildCount) { // add aditional items
             for (int row = childCount; row < newChildCount; ++row) {
                 TestTreeItem *newChild = newItem->child(row);
-                TestTreeItem *toBeAdded = new TestTreeItem(newChild->name(), newChild->filePath(),
-                                                           newChild->type(), toBeModifiedItem);
-                toBeAdded->setLine(newChild->line());
+                TestTreeItem *toBeAdded = new TestTreeItem(*newChild);
+                toBeAdded->setParent(toBeModifiedItem);
                 beginInsertRows(toBeModifiedIndex, row, row);
                 toBeModifiedItem->appendChild(toBeAdded);
                 endInsertRows();
@@ -626,6 +632,98 @@ void TestTreeModel::modifyTestSubtree(QModelIndex &toBeModifiedIndex, TestTreeIt
         removeRows(newChildCount, childCount - newChildCount, toBeModifiedIndex);
     }
     emit testTreeModelChanged();
+}
+
+/***************************** Sort/Filter Model **********************************/
+
+TestTreeSortFilterModel::TestTreeSortFilterModel(TestTreeModel *sourceModel, QObject *parent)
+    : QSortFilterProxyModel(parent),
+      m_sourceModel(sourceModel),
+      m_sortMode(Alphabetically),
+      m_filterMode(Basic)
+{
+    setSourceModel(sourceModel);
+}
+
+void TestTreeSortFilterModel::setSortMode(SortMode sortMode)
+{
+    m_sortMode = sortMode;
+    invalidate();
+}
+
+void TestTreeSortFilterModel::setFilterMode(FilterMode filterMode)
+{
+    m_filterMode = filterMode;
+    invalidateFilter();
+}
+
+void TestTreeSortFilterModel::toggleFilter(FilterMode filterMode)
+{
+    m_filterMode = toFilterMode(m_filterMode ^ filterMode);
+    invalidateFilter();
+}
+
+TestTreeSortFilterModel::FilterMode TestTreeSortFilterModel::toFilterMode(int f)
+{
+    switch (f) {
+    case TestTreeSortFilterModel::ShowInitAndCleanup:
+        return TestTreeSortFilterModel::ShowInitAndCleanup;
+    case TestTreeSortFilterModel::ShowTestData:
+        return TestTreeSortFilterModel::ShowTestData;
+    case TestTreeSortFilterModel::ShowAll:
+        return TestTreeSortFilterModel::ShowAll;
+    default:
+        return TestTreeSortFilterModel::Basic;
+    }
+}
+
+bool TestTreeSortFilterModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+{
+    // root items keep the intended order: 1st Auto Tests, 2nd Quick Tests
+    const TestTreeItem *leftItem = static_cast<TestTreeItem *>(left.internalPointer());
+    if (leftItem->type() == TestTreeItem::ROOT)
+        return left.row() > right.row();
+
+    const QString leftVal = m_sourceModel->data(left).toString();
+    const QString rightVal = m_sourceModel->data(right).toString();
+
+    // unnamed Quick Tests will always be listed first
+    if (leftVal == tr(Constants::UNNAMED_QUICKTESTS))
+        return false;
+    if (rightVal == tr(Constants::UNNAMED_QUICKTESTS))
+        return true;
+
+    switch (m_sortMode) {
+    case Alphabetically:
+        return leftVal > rightVal;
+    case Naturally: {
+        const TextEditor::TextEditorWidget::Link leftLink =
+                m_sourceModel->data(left, LinkRole).value<TextEditor::TextEditorWidget::Link>();
+        const TextEditor::TextEditorWidget::Link rightLink =
+                m_sourceModel->data(right, LinkRole).value<TextEditor::TextEditorWidget::Link>();
+
+        if (leftLink.targetFileName == rightLink.targetFileName) {
+            return leftLink.targetLine == rightLink.targetLine
+                    ? leftLink.targetColumn > rightLink.targetColumn
+                    : leftLink.targetLine > rightLink.targetLine;
+        } else {
+            return leftLink.targetFileName > rightLink.targetFileName;
+        }
+    }
+    default:
+        return true;
+    }
+}
+
+bool TestTreeSortFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+{
+    // TODO add filtering capabilities
+    QModelIndex index = m_sourceModel->index(sourceRow, 0,sourceParent);
+    if (!index.isValid())
+        return false;
+
+
+    return true;
 }
 
 } // namespace Internal
