@@ -2015,10 +2015,10 @@ const WatchData *WatchHandler::findCppLocalVariable(const QString &name) const
     QByteArray iname = localsPrefix + name.toLatin1();
     if (const WatchData *wd = findData(iname))
         return wd;
-    // Nope, try a 'local.this.m_foo'.
-    iname.insert(localsPrefix.size(), "this.");
-    if (const WatchData *wd = findData(iname))
-        return wd;
+//    // Nope, try a 'local.this.m_foo'.
+//    iname.insert(localsPrefix.size(), "this.");
+//    if (const WatchData *wd = findData(iname))
+//        return wd;
     return 0;
 }
 

@@ -442,28 +442,14 @@ void CdbEngine::syncVerboseLog(bool verboseLog)
 }
 
 bool CdbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editorWidget,
-                                     const DebuggerToolTipContext &contextIn)
+                                     const DebuggerToolTipContext &context)
 {
-    if (debug)
-        qDebug() << Q_FUNC_INFO;
-    // Need a stopped debuggee and a cpp file in a valid frame
-    if (state() != InferiorStopOk || !isCppEditor(editorWidget) || stackHandler()->currentIndex() < 0)
-        return false;
-    // Determine expression and function
-    int line;
-    int column;
-    DebuggerToolTipContext context = contextIn;
-    QString exp = fixCppExpression(cppExpressionAt(editorWidget, context.position, &line, &column, &context.function));
-    // Are we in the current stack frame
-    if (context.function.isEmpty() || exp.isEmpty() || context.function != stackHandler()->currentFrame().function)
-        return false;
-    // Show tooltips of local variables only. Anything else can slow debugging down.
-    const WatchData *localVariable = watchHandler()->findCppLocalVariable(exp);
-    if (!localVariable)
-        return false;
-    context.iname = localVariable->iname;
-    DebuggerToolTipManager::showToolTip(context, this);
-    return true;
+    Q_UNUSED(editorWidget);
+    Q_UNUSED(context);
+    // Tooltips matching local variables are already handled in the
+    // base class. We don't handle anything else here in CDB
+    // as it can slow debugging down.
+    return false;
 }
 
 // Determine full path to the CDB extension library.

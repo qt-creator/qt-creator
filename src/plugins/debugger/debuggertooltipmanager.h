@@ -83,12 +83,7 @@ public:
     static void updateEngine(DebuggerEngine *engine);
     static bool hasToolTips();
 
-    // Collect all expressions of DebuggerTreeViewToolTipWidget
-    static DebuggerToolTipContexts treeWidgetExpressions(DebuggerEngine *engine,
-        const QString &fileName, const QString &function = QString());
-
-    static void showToolTip(const DebuggerToolTipContext &context,
-                            DebuggerEngine *engine);
+    static DebuggerToolTipContexts pendingTooltips(DebuggerEngine *engine);
 
     virtual bool eventFilter(QObject *, QEvent *);
 
@@ -100,9 +95,12 @@ public:
     static void loadSessionData();
     static void saveSessionData();
     static void closeAllToolTips();
+    static void resetLocation();
 
 public slots:
     static void slotUpdateVisibleToolTips();
+    void slotItemIsExpanded(const QModelIndex &idx);
+    void slotColumnAdjustmentRequested();
 };
 
 } // namespace Internal

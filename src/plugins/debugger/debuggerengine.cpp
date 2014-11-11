@@ -269,6 +269,7 @@ public slots:
         m_watchHandler.resetLocation();
         m_threadsHandler.resetLocation();
         m_disassemblerAgent.resetLocation();
+        DebuggerToolTipManager::resetLocation();
     }
 
 public:

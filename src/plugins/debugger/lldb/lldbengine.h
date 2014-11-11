@@ -218,9 +218,6 @@ private:
     QMap<QPointer<DisassemblerAgent>, int> m_disassemblerAgents;
     QMap<QPointer<MemoryAgent>, int> m_memoryAgents;
     QHash<int, QPointer<QObject> > m_memoryAgentTokens;
-    DebuggerToolTipContext m_toolTipContext;
-
-    void showToolTip();
 
     // Console handling.
     Q_SLOT void stubError(const QString &msg);

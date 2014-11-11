@@ -74,11 +74,6 @@ using namespace Utils;
 namespace Debugger {
 namespace Internal {
 
-static QByteArray tooltipIName(const QString &exp)
-{
-    return "tooltip." + exp.toLatin1().toHex();
-}
-
 ///////////////////////////////////////////////////////////////////////
 //
 // LldbEngine
@@ -815,41 +810,25 @@ void LldbEngine::refreshSymbols(const GdbMi &symbols)
 //
 //////////////////////////////////////////////////////////////////////
 
-static WatchData m_toolTip;
-static QPoint m_toolTipPos;
-static QHash<QString, WatchData> m_toolTipCache;
-
-void LldbEngine::showToolTip()
-{
-    if (m_toolTipContext.expression.isEmpty())
-        return;
-    //const QString expression = m_toolTipContext->expression;
-    // qDebug() << "LldbEngine::showToolTip " << expression << m_toolTipContext->iname << (*m_toolTipContext);
-
-    DebuggerToolTipManager::showToolTip(m_toolTipContext, this);
-    // Prevent tooltip from re-occurring (classic GDB, QTCREATORBUG-4711).
-    m_toolTipContext.expression.clear();
-}
-
 void LldbEngine::resetLocation()
 {
-    m_toolTipContext.expression.clear();
     DebuggerEngine::resetLocation();
 }
 
 bool LldbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editorWidget, const DebuggerToolTipContext &context)
 {
+    return false; // FIXME
+
     if (state() != InferiorStopOk || !isCppEditor(editorWidget)) {
         //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED "
         // " OR NOT A CPPEDITOR";
         return false;
     }
 
-    m_toolTipContext = context;
-
     UpdateParameters params;
     params.tryPartial = true;
     params.tooltipOnly = true;
+    params.tooltipExpression = context.expression;
     params.varList = context.iname;
     doUpdateLocals(params);
 
@@ -924,6 +903,7 @@ void LldbEngine::doUpdateLocals(UpdateParameters params)
     cmd.arg("tooltiponly", params.tooltipOnly);
 
     cmd.beginList("watchers");
+
     // Watchers
     QHashIterator<QByteArray, int> it(WatchHandler::watcherNames());
     while (it.hasNext()) {
@@ -933,38 +913,16 @@ void LldbEngine::doUpdateLocals(UpdateParameters params)
             .arg("exp", it.key().toHex())
         .endGroup();
     }
-    // Tooltip
-    const StackFrame frame = stackHandler()->currentFrame();
-    if (!frame.file.isEmpty()) {
-        // Re-create tooltip items that are not filters on existing local variables in
-        // the tooltip model.
-        DebuggerToolTipContexts toolTips =
-            DebuggerToolTipManager::treeWidgetExpressions(this, frame.file, frame.function);
 
-        const QString currentExpression = m_toolTipContext.expression;
-        if (!currentExpression.isEmpty()) {
-            int currentIndex = -1;
-            for (int i = 0; i < toolTips.size(); ++i) {
-                if (toolTips.at(i).expression == currentExpression) {
-                    currentIndex = i;
-                    break;
-                }
-            }
-            if (currentIndex < 0) {
-                DebuggerToolTipContext context;
-                context.expression = currentExpression;
-                context.iname = tooltipIName(currentExpression);
-                toolTips.push_back(context);
-            }
-        }
-        foreach (const DebuggerToolTipContext &p, toolTips) {
-            if (p.iname.startsWith("tooltip"))
-                cmd.beginGroup()
-                    .arg("iname", p.iname)
-                    .arg("exp", p.expression.toLatin1().toHex())
-                .endGroup();
-        }
+    // Tooltips
+    DebuggerToolTipContexts toolTips = DebuggerToolTipManager::pendingTooltips(this);
+    foreach (const DebuggerToolTipContext &p, toolTips) {
+        cmd.beginGroup()
+                .arg("iname", p.iname)
+                .arg("exp", p.expression.toLatin1().toHex())
+        .endGroup();
     }
+
     cmd.endList();
 
     //cmd.arg("resultvarname", m_resultVarName);
@@ -1083,7 +1041,7 @@ void LldbEngine::refreshLocals(const GdbMi &vars)
     }
     handler->insertData(list);
 
-    showToolTip();
+    DebuggerToolTipManager::updateEngine(this);
  }
 
 void LldbEngine::refreshStack(const GdbMi &stack)
