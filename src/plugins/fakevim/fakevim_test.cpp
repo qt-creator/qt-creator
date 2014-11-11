@@ -95,7 +95,6 @@ static QByteArray textWithCursor(const QByteArray &text, const QTextBlock &block
     do { \
         QByteArray beforeText(data.text()); \
         int beforePosition = data.position(); \
-        data.doKeys("<ESC>"); \
         data.doKeys(keys); \
         QByteArray actual(data.text()); \
         QByteArray expected = expectedText; \
@@ -598,6 +597,7 @@ void FakeVimPlugin::test_vim_insert()
     // <C-O>
     data.setText("abc" N "d" X "ef");
     KEYS("i<c-o>xX", "abc" N "dX" X "f");
+    data.doKeys("<ESC>");
     KEYS("i<c-o><end>", "abc" N "dXf" X);
     data.setText("ab" X "c" N "def");
     KEYS("i<c-o>rX", "ab" X "X" N "def");
@@ -632,6 +632,7 @@ void FakeVimPlugin::test_vim_insert()
     // delete in insert mode is part of dot command
     data.setText("abc" N "def");
     KEYS("iX<delete>Y", "XY" X "bc" N "def");
+    data.doKeys("<ESC>");
     KEYS("0j.", "XYbc" N "X" X "Yef");
 
     data.setText("abc" N "def");
@@ -640,10 +641,12 @@ void FakeVimPlugin::test_vim_insert()
 
     data.setText("abc" N "def");
     KEYS("i<delete>XY", "XY" X "bc" N "def");
+    data.doKeys("<ESC>");
     KEYS("0j.", "XYbc" N "X" X "Yef");
 
     data.setText("ab" X "c" N "def");
     KEYS("i<bs>XY", "aXY" X "c" N "def");
+    data.doKeys("<ESC>");
     KEYS("j.", "aXYc" N "dX" X "Yf");
 
     // insert in visual mode
@@ -1135,10 +1138,13 @@ void FakeVimPlugin::test_vim_change_replace()
     // change in empty document
     data.setText("");
     KEYS("ccABC", "ABC" X);
+    data.doKeys("<ESC>");
     KEYS("u", "");
     KEYS("SABC", "ABC" X);
+    data.doKeys("<ESC>");
     KEYS("u", "");
     KEYS("sABC", "ABC" X);
+    data.doKeys("<ESC>");
     KEYS("u", "");
     KEYS("rA", "" X);
 
@@ -1775,6 +1781,7 @@ void FakeVimPlugin::test_vim_current_column()
     KEYS("<up>", "  abc" N "  def 12" X "3" N "" N "  ghi");
     // ... in insert
     KEYS("i<end><up>", "  abc" X N "  def 123" N "" N "  ghi");
+    data.doKeys("<ESC>");
     KEYS("<down>i<end><up><down>", "  abc" N "  def 123" X N "" N "  ghi");
 
     // vertical movement doesn't reset column
@@ -1798,11 +1805,14 @@ void FakeVimPlugin::test_vim_current_column()
     data.setText("  abc" N "  def" N "  ghi");
     KEYS("lljj", "  abc" N "  def" N "  " X "ghi");
     KEYS("i123<up>", "  abc" N "  def" X N "  123ghi");
+    data.doKeys("<ESC>");
     KEYS("a456<up><down>", "  abc" N "  def456" X N "  123ghi");
 
     data.setText("  abc" N X "  def 123" N "" N "  ghi");
     KEYS("A<down><down>", "  abc" N "  def 123" N "" N "  ghi" X);
+    data.doKeys("<ESC>");
     KEYS("A<up><up>", "  abc" N "  def" X " 123" N "" N "  ghi");
+    data.doKeys("<ESC>");
     KEYS("A<down><down><up><up>", "  abc" N "  def 123" X N "" N "  ghi");
 
     data.setText("  abc" N X "  def 123" N "" N "  ghi");
@@ -2061,6 +2071,7 @@ void FakeVimPlugin::test_vim_code_autoindent()
          "   return 0;" N
          "}" N
          "");
+    data.doKeys("<ESC>");
     KEYS("^i" "int x = 1;" N,
          "int main()" N
          "{" N
@@ -2070,6 +2081,7 @@ void FakeVimPlugin::test_vim_code_autoindent()
          "   return 0;" N
          "}" N
          "");
+    data.doKeys("<ESC>");
     KEYS("c2k" "if (true) {" N ";" N "}",
          "int main()" N
          "{" N
@@ -2079,12 +2091,14 @@ void FakeVimPlugin::test_vim_code_autoindent()
          "   return 0;" N
          "}" N
          "");
+    data.doKeys("<ESC>");
     KEYS("jci{" "return 1;",
          "int main()" N
          "{" N
          "   return 1;" X N
          "}" N
          "");
+    data.doKeys("<ESC>");
     KEYS("di{",
          "int main()" N
          "{" N
@@ -2215,8 +2229,7 @@ void FakeVimPlugin::test_vim_code_completion()
     data.completeText("st");
     data.doKeys("1");
     data.completeText("Var");
-    data.doKeys(" = 0");
-    KEYS("",
+    KEYS(" = 0<ESC>",
         "int test1Var;" N
         "int test2Var;" N
         "int main() {" N
@@ -2228,8 +2241,7 @@ void FakeVimPlugin::test_vim_code_completion()
     data.completeText("st");
     data.doKeys("2");
     data.completeText("Var");
-    data.doKeys(" = 1;");
-    KEYS("",
+    KEYS(" = 1;<ESC>",
         "int test1Var;" N
         "int test2Var;" N
         "int main() {" N
@@ -2237,6 +2249,7 @@ void FakeVimPlugin::test_vim_code_completion()
         "    test2Var = 1" X ";" N
         "}" N
         "");
+    data.doKeys("<ESC>");
 
     // repeat text insertion with completion
     KEYS(".",
@@ -3515,18 +3528,21 @@ void FakeVimPlugin::test_vim_qtcreator()
          "    ;" X N
          "}" N
          "");
+    data.doKeys("<ESC>");
     KEYS("cc" "assert(arg1 != 0",
          "void f(int arg1) {" N
          "    // TODO" N
          "    assert(arg1 != 0" X ")" N
          "}" N
          "");
+    data.doKeys("<ESC>");
     KEYS("k" "." "A;",
          "void f(int arg1) {" N
          "    assert(arg1 != 0);" X N
          "    assert(arg1 != 0)" N
          "}" N
          "");
+    data.doKeys("<ESC>");
     KEYS("j.",
          "void f(int arg1) {" N
          "    assert(arg1 != 0);" N
@@ -3710,6 +3726,7 @@ void FakeVimPlugin::test_vim_qtcreator()
          "    if (arg1 > 0) return true;" N
          "}" N
          "");
+    data.doKeys("<ESC>");
     KEYS("`'",
          "bool f(int arg1, int arg2 = 0) {" N
          "    assert(arg1 >= 0);" N
@@ -3724,6 +3741,7 @@ void FakeVimPlugin::test_vim_qtcreator()
          "    if (arg1 > 0) return false;" X N
          "}" N
          "");
+    data.doKeys("<ESC>");
     KEYS("k.",
          "bool f(int arg1, int arg2 = 0) {" N
          "    assert(arg1 >= 0);" N
