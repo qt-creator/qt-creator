@@ -3152,6 +3152,9 @@ void FakeVimHandler::Private::moveDownVisually(int n)
         m_targetColumnWrapped = targetColumn;
     }
 
+    if (!isInsertMode() && atEndOfLine())
+        m_cursor.movePosition(Left, KeepAnchor);
+
     updateScrollOffset();
 }
 
