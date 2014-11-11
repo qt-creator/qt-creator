@@ -55,7 +55,8 @@ Item {
 
     property bool reverseSelect: false
 
-    visible: trigger(qmlProfilerModelProxy.rowCount(modelIndex)) > 0
+    visible: trigger(!qmlProfilerModelProxy.models[modelIndex].hidden &&
+                     !qmlProfilerModelProxy.models[modelIndex].empty)
 
     height: trigger(qmlProfilerModelProxy.models[modelIndex].height)
     width: 150

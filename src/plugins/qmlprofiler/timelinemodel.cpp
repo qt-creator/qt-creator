@@ -218,6 +218,9 @@ void TimelineModel::setRowHeight(int rowNumber, int height)
 int TimelineModel::height() const
 {
     Q_D(const TimelineModel);
+    if (d->hidden || isEmpty())
+        return 0;
+
     int depth = rowCount();
     if (d->hidden || !d->expanded || d->rowOffsets.empty())
         return depth * TimelineModelPrivate::DefaultRowHeight;
@@ -466,8 +469,6 @@ QString TimelineModel::displayName() const
 int TimelineModel::rowCount() const
 {
     Q_D(const TimelineModel);
-    if (d->hidden || isEmpty())
-        return 0;
     return d->expanded ? d->expandedRowCount : d->collapsedRowCount;
 }
 

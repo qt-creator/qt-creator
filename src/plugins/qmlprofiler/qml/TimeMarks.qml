@@ -125,6 +125,8 @@ Canvas {
         var cumulatedHeight = y < 0 ? -y : 0;
         for (var modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); ++modelIndex) {
             var modelHeight = qmlProfilerModelProxy.models[modelIndex].height;
+            if (modelHeight === 0)
+                continue;
             if (cumulatedHeight + modelHeight < y) {
                 cumulatedHeight += modelHeight;
                 if (qmlProfilerModelProxy.rowCount(modelIndex) % 2 !== 0)
