@@ -509,10 +509,8 @@ QString Document::functionAt(int line, int column, int *lineOpeningDeclaratorPar
 
     // Find the enclosing function scope (which might be several levels up, or we might be standing
     // on it)
-    Scope *scope;
-    if (symbol->isScope())
-        scope = symbol->asScope();
-    else
+    Scope *scope = symbol->asScope();
+    if (!scope)
         scope = symbol->enclosingScope();
 
     while (scope && !scope->isFunction() )
