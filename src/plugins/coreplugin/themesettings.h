@@ -36,7 +36,7 @@
 namespace Core {
 namespace Internal {
 
-class ThemeSettingsPrivate;
+class ThemeSettingsWidget;
 
 class ThemeSettings : public IOptionsPage
 {
@@ -50,20 +50,7 @@ public:
     void apply();
     void finish();
 
-    static QString defaultThemeFileName(const QString &fileName = QString());
-
-private slots:
-    void themeSelected(int index);
-    void copyTheme();
-    void renameTheme();
-    void copyThemeByName(const QString &);
-    void confirmDeleteTheme();
-    void deleteTheme();
-    void maybeSaveTheme();
-
-private:
-    void refreshThemeList();
-    ThemeSettingsPrivate *d;
+    ThemeSettingsWidget *m_widget;
 };
 
 } // namespace Internal

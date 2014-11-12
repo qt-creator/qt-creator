@@ -139,8 +139,8 @@ QList<BuildInfo *> QmakeProjectImporter::import(const FileName &importPath, bool
         QtcProcess::addArgs(&specArgument, additionalArguments);
 
         // Find kits (can be more than one, e.g. (Linux-)Desktop and embedded linux):
-        QList<Kit *> kitList = KitManager::kits();
-        foreach (Kit *k, kitList) {
+        QList<Kit *> kitList;
+        foreach (Kit *k, KitManager::kits()) {
             BaseQtVersion *kitVersion = QtKitInformation::qtVersion(k);
             FileName kitSpec = QmakeKitInformation::mkspec(k);
             ToolChain *tc = ToolChainKitInformation::toolChain(k);

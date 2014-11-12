@@ -72,7 +72,6 @@ namespace Internal {
 class ActionManagerPrivate;
 class FancyTabWidget;
 class GeneralSettings;
-class ThemeSettings;
 class ProgressManagerPrivate;
 class ShortcutSettings;
 class ToolSettings;
@@ -192,7 +191,6 @@ private:
     QMap<QWidget *, IContext *> m_contextWidgets;
 
     GeneralSettings *m_generalSettings;
-    ThemeSettings *m_themeSettings;
     ShortcutSettings *m_shortcutSettings;
     ToolSettings *m_toolSettings;
     MimeTypeSettings *m_mimeTypeSettings;

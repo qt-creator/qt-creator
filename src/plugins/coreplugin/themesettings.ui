@@ -2,15 +2,19 @@
 <ui version="4.0">
  <class>Core::Internal::ThemeSettings</class>
  <widget class="QWidget" name="Core::Internal::ThemeSettings">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>527</width>
-    <height>359</height>
-   </rect>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
@@ -66,8 +70,6 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="core.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

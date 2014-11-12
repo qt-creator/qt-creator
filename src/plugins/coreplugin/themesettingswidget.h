@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Thorben Kroeger <thorbenkroeger@gmail.com>.
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -28,33 +28,43 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import QtQuick.Controls 1.0
+#ifndef THEMESETTINGSWIDGET_H
+#define THEMESETTINGSWIDGET_H
 
-Rectangle {
-    id: projectList
-    height: column.height + 200
-    width: column.width
-    color: creatorTheme.Welcome_BackgroundColorNormal
+#include <QWidget>
 
-    property alias model: repeater.model
-//    Behavior on verticalScrollBar.opacity  {
-//        PropertyAnimation {
+namespace Core {
+namespace Internal {
 
-//        }
-//    }
+class ThemeSettingsPrivate;
 
-//    frameVisible: false
+class ThemeSettingsWidget : public QWidget
+{
+    Q_OBJECT
 
-    Column {
-        id: column
+public:
+    ThemeSettingsWidget(QWidget *parent = 0);
+    ~ThemeSettingsWidget();
 
-        Repeater {
-            id: repeater
-            ProjectItem {
-                projectName: displayName
-                projectPath: prettyFilePath
-            }
-        }
-    }
-}
+    static QString defaultThemeFileName(const QString &fileName = QString());
+
+    void apply();
+
+private slots:
+    void themeSelected(int index);
+    void copyTheme();
+    void renameTheme();
+    void copyThemeByName(const QString &);
+    void confirmDeleteTheme();
+    void deleteTheme();
+    void maybeSaveTheme();
+
+private:
+    void refreshThemeList();
+    ThemeSettingsPrivate *d;
+};
+
+} // namespace Internal
+} // namespace Core
+
+#endif // THEMESETTINGSWIDGET_H

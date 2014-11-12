@@ -33,12 +33,16 @@
 #include "coreconstants.h"
 #include "icore.h"
 
+#include <utils/theme/theme.h>
+
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QToolButton>
 
 static const char C_SUPPRESSED_WARNINGS[] = "SuppressedWarnings";
+
+using namespace Utils;
 
 namespace Core {
 
@@ -202,8 +206,8 @@ void InfoBarDisplay::update()
         QFrame *infoWidget = new QFrame;
 
         QPalette pal;
-        pal.setColor(QPalette::Window, QColor(255, 255, 225));
-        pal.setColor(QPalette::WindowText, Qt::black);
+        pal.setColor(QPalette::Window, creatorTheme()->color(Theme::InfoBarBackground));
+        pal.setColor(QPalette::WindowText, Theme::InfoBarText);
 
         infoWidget->setPalette(pal);
         infoWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);

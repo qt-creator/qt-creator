@@ -84,6 +84,7 @@ private slots:
     void updateTimeDisplay();
 
     void showSaveOption();
+    void showLoadOption();
     void showSaveDialog();
     void showLoadDialog();
 
@@ -94,6 +95,7 @@ private:
     void populateFileFinder(QString projectDirectory = QString(), QString activeSysroot = QString());
     template<QmlDebug::ProfileFeature feature>
     void updateFeaturesMenu(quint64 features);
+    bool checkForUnsavedNotes();
 
     class QmlProfilerToolPrivate;
     QmlProfilerToolPrivate *d;

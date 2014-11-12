@@ -144,7 +144,7 @@ private:
 
     Core::ICore *core;
     Core::CommandLocator *m_commandLocator;
-    Core::ActionContainer *mercurialContainer;
+    Core::ActionContainer *m_mercurialContainer;
 
     QList<QAction *> m_repositoryActionList;
 

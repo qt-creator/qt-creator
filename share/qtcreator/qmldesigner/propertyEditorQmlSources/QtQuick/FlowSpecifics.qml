@@ -50,7 +50,7 @@ Column {
                 ComboBox {
                     model: ["LeftToRight", "TopToBottom"]
                     backendValue: backendValues.flow
-                    scope: "Qt"
+                    scope: "Flow"
                 }
 
                 ExpandingSpacer {

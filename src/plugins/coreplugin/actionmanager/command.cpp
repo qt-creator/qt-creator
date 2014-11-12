@@ -313,6 +313,10 @@ void Action::addOverrideAction(QAction *action, const Core::Context &context, bo
 {
     if (Utils::HostOsInfo::isMacHost())
         action->setIconVisibleInMenu(false);
+    // disallow TextHeuristic menu role, because it doesn't work with translations,
+    // e.g. QTCREATORBUG-13101
+    if (action->menuRole() == QAction::TextHeuristicRole)
+        action->setMenuRole(QAction::NoRole);
     if (isEmpty())
         m_action->initialize(action);
     if (context.isEmpty()) {

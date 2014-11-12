@@ -1,6 +1,6 @@
 Label {
     text: "%1"
-    toolTip: "%1"
+    tooltip: "%1"
 }
 SpinBox {
     maximumValue: 9999999

@@ -1,5 +1,4 @@
 import qbs 1.0
-import QtcProduct
 
 QtcProduct {
     type: "application" // no Mac app bundle

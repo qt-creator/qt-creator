@@ -85,8 +85,9 @@ bool DiffEditorDocument::save(QString *errorString, const QString &fileName, boo
     if (!ok)
         return false;
 
-    if (m_controller->reloader())
-        m_controller->setReloader(0);
+    m_controller->setReloader(0);
+    m_controller->setDescription(QString());
+    m_controller->setDescriptionEnabled(false);
 
     DiffEditorManager::removeDocument(this);
     const QFileInfo fi(fileName);

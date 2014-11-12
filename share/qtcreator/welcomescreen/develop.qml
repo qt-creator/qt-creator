@@ -40,7 +40,7 @@ Controls.ScrollView {
     Item {
         id: canvas
 
-        implicitWidth: childrenRect.width + 200
+        implicitWidth: childrenRect.width
         implicitHeight: childrenRect.height
 
         Button {
@@ -97,8 +97,6 @@ Controls.ScrollView {
 
             anchors.top: recentProjectsTitle.bottom
             anchors.topMargin: 20
-            anchors.right: parent.right
-            anchors.rightMargin: 60
 
             model: projectList
         }

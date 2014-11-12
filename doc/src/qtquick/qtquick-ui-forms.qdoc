@@ -31,7 +31,7 @@
 
     \title Qt Quick UI Forms
 
-    You can use \QC wizards to create UI forms tha have the filename extension
+    You can use \QC wizards to create UI forms that have the filename extension
     \e .ui.qml. The UI forms contain a purely declarative subset of the QML
     language. It is recommended that you edit the forms in the \gui Design mode.
     \QC enforces the use of the supported QML features by displaying error

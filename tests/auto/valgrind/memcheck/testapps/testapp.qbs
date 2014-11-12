@@ -1,5 +1,4 @@
 import qbs
-import QtcAutotest
 
 QtcAutotest {
     name: "Memcheck " + testName + " autotest"

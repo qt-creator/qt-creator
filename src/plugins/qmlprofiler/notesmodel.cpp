@@ -32,7 +32,7 @@
 
 namespace QmlProfiler {
 
-NotesModel::NotesModel(QObject *parent) : QObject(parent), m_modelManager(0)
+NotesModel::NotesModel(QObject *parent) : QObject(parent), m_modelManager(0), m_modified(false)
 {
 }
 
@@ -114,6 +114,7 @@ int NotesModel::add(int timelineModel, int timelineIndex, const QString &text)
     int typeId = model->range(timelineIndex).typeId;
     Note note = { text, timelineModel, timelineIndex };
     m_data << note;
+    m_modified = true;
     emit changed(typeId, timelineModel, timelineIndex);
     return m_data.count() - 1;
 }
@@ -123,6 +124,7 @@ void NotesModel::update(int index, const QString &text)
     Note &note = m_data[index];
     if (text != note.text) {
         note.text = text;
+        m_modified = true;
         emit changed(typeId(index), note.timelineModel, note.timelineIndex);
     }
 }
@@ -134,7 +136,13 @@ void NotesModel::remove(int index)
     int timelineModel = note.timelineModel;
     int timelineIndex = note.timelineIndex;
     m_data.removeAt(index);
+    m_modified = true;
     emit changed(noteType, timelineModel, timelineIndex);
+}
+
+bool NotesModel::isModified() const
+{
+    return m_modified;
 }
 
 void NotesModel::removeTimelineModel(QObject *timelineModel)
@@ -176,12 +184,14 @@ int NotesModel::add(int typeId, qint64 start, qint64 duration, const QString &te
 
     Note note = { text, timelineModel, timelineIndex };
     m_data << note;
+    m_modified = true;
     return m_data.count() - 1;
 }
 
 void NotesModel::clear()
 {
     m_data.clear();
+    m_modified = false;
     emit changed(-1, -1, -1);
 }
 
@@ -194,6 +204,7 @@ void NotesModel::loadData()
         const QmlProfilerDataModel::QmlEventNoteData &note = notes[i];
         add(note.typeIndex, note.startTime, note.duration, note.text);
     }
+    m_modified = false; // reset after loading
     emit changed(-1, -1, -1);
 }
 
@@ -213,5 +224,6 @@ void NotesModel::saveData()
         notes.append(save);
     }
     m_modelManager->qmlModel()->setNoteData(notes);
+    m_modified = false;
 }
 }

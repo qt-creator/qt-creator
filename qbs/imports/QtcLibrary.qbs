@@ -1,6 +1,5 @@
 import qbs 1.0
 import QtcFunctions
-import QtcProduct
 
 QtcProduct {
     type: "dynamiclibrary"

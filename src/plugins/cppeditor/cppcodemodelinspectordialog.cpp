@@ -1365,9 +1365,8 @@ void CppCodeModelInspectorDialog::refresh()
     if (editor) {
         const QString editorFilePath = editor->document()->filePath();
         editorDocument = cmmi->editorDocument(editorFilePath);
-        if (editorDocument) {
-            const CPlusPlus::Snapshot editorSnapshot
-                = BuiltinEditorDocumentParser::get(editorFilePath)->snapshot();
+        if (auto *builtinDocumentParser = BuiltinEditorDocumentParser::get(editorFilePath)) {
+            const CPlusPlus::Snapshot editorSnapshot = builtinDocumentParser->snapshot();
             m_snapshotInfos->append(SnapshotInfo(editorSnapshot, SnapshotInfo::EditorSnapshot));
             const QString editorSnapshotTitle
                 = QString::fromLatin1("Current Editor's Snapshot (%1 Documents)")

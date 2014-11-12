@@ -1,6 +1,5 @@
 import qbs
 import qbs.FileInfo
-import QtcProduct
 
 QtcProduct {
     type: "application"

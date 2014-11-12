@@ -567,6 +567,8 @@ bool VariableChooser::eventFilter(QObject *obj, QEvent *event)
         return handleEscapePressed(ke, this);
     } else if (event->type() == QEvent::Resize) {
         d->updateButtonGeometry();
+    } else if (event->type() == QEvent::Hide) {
+        close();
     }
     return false;
 }

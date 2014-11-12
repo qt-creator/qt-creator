@@ -53,20 +53,6 @@ private:
     Q_DECLARE_PUBLIC(QmlProfilerDataModel)
 };
 
-QString getInitialDetails(const QmlProfilerDataModel::QmlEventTypeData &event);
-
-QmlDebug::QmlEventLocation getLocation(const QmlProfilerDataModel::QmlEventTypeData &event)
-{
-    QmlDebug::QmlEventLocation eventLocation = event.location;
-    if ((event.rangeType == QmlDebug::Creating || event.rangeType == QmlDebug::Compiling)
-            && eventLocation.filename.isEmpty()) {
-        eventLocation.filename = getInitialDetails(event);
-        eventLocation.line = 1;
-        eventLocation.column = 1;
-    }
-    return eventLocation;
-}
-
 QString getDisplayName(const QmlProfilerDataModel::QmlEventTypeData &event)
 {
     if (event.location.filename.isEmpty()) {
@@ -214,7 +200,6 @@ void QmlProfilerDataModel::complete()
     int n = d->eventTypes.count();
     for (int i = 0; i < n; i++) {
         QmlEventTypeData *event = &d->eventTypes[i];
-        event->location = getLocation(*event);
         event->displayName = getDisplayName(*event);
         event->data = getInitialDetails(*event);
 
@@ -253,6 +238,14 @@ void QmlProfilerDataModel::addQmlEvent(QmlDebug::Message message, QmlDebug::Rang
     QString displayName;
 
     QmlEventTypeData typeData = {displayName, location, message, rangeType, detailType, data};
+
+    // Special case for QtQuick 1 Compiling and Creating events: filename is in the "data" field.
+    if ((rangeType == QmlDebug::Compiling || rangeType == QmlDebug::Creating) &&
+            location.filename.isEmpty()) {
+        typeData.location.filename = data;
+        typeData.location.line = typeData.location.column = 1;
+    }
+
     QmlEventData eventData = {-1, startTime, duration, ndata1, ndata2, ndata3, ndata4, ndata5};
 
     QHash<QmlEventTypeData, int>::Iterator it = d->eventTypeIds.find(typeData);

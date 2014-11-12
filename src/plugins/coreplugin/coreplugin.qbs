@@ -1,6 +1,5 @@
 import qbs 1.0
 import qbs.FileInfo
-import QtcPlugin
 
 QtcPlugin {
     name: "Core"
@@ -98,9 +97,8 @@ QtcPlugin {
             "styleanimator.cpp", "styleanimator.h",
             "tabpositionindicator.cpp", "tabpositionindicator.h",
             "textdocument.cpp", "textdocument.h",
-            "themesettings.cpp",
-            "themesettings.h",
-            "themesettings.ui",
+            "themesettings.cpp", "themesettings.h", "themesettings.ui",
+            "themesettingswidget.cpp", "themesettingswidget.h",
             "toolsettings.cpp", "toolsettings.h",
             "variablechooser.cpp", "variablechooser.h",
             "vcsmanager.cpp", "vcsmanager.h",

@@ -1,5 +1,4 @@
 import qbs 1.0
-import QtcTool
 
 QtcTool {
     name: "qtcreator_crash_handler"

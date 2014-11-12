@@ -931,45 +931,6 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
         "};\n"
     );
 
-    QTest::newRow("matchFunctionSignature_FollowCall_1") << _(
-        "class Bar {};\n"
-        "void $foo(int) {}\n"
-        "void foo(const char *) {}\n"
-        "void foo(const Bar &) {}\n"
-        "void foo(char) {}\n"
-        "\n"
-        "void t()\n"
-        "{\n"
-        "    @foo(5);\n"
-        "}\n"
-    );
-
-    QTest::newRow("matchFunctionSignature_FollowCall_2") << _(
-        "class Bar {};\n"
-        "void foo(int) {}\n"
-        "void $foo(const char *) {}\n"
-        "void foo(const Bar &) {}\n"
-        "void foo(char) {}\n"
-        "\n"
-        "void t()\n"
-        "{\n"
-        "    @foo(\"hoo\");\n"
-        "}\n"
-    );
-
-    QTest::newRow("matchFunctionSignature_FollowCall_3") << _(
-        "class Bar {};\n"
-        "void foo(int) {}\n"
-        "void foo(const char *) {}\n"
-        "void foo(const Bar &) {}\n"
-        "void $foo(char) {}\n"
-        "\n"
-        "void t()\n"
-        "{\n"
-        "    @foo('a');\n"
-        "}\n"
-    );
-
     QTest::newRow("infiniteLoopLocalTypedef_QTCREATORBUG-11999") << _(
         "template<class MyTree>\n"
         "class TreeConstIterator\n"
@@ -990,6 +951,73 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
 void CppEditorPlugin::test_FollowSymbolUnderCursor()
 {
     QFETCH(QByteArray, source);
+    F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source));
+}
+
+void CppEditorPlugin::test_FollowSymbolUnderCursor_followCall_data()
+{
+    QTest::addColumn<QByteArray>("variableDeclaration"); // without semicolon, can be ""
+    QTest::addColumn<QByteArray>("callArgument");
+    QTest::addColumn<QByteArray>("expectedSignature"); // you might need to add a function
+                                                       // declaration with such a signature
+
+    QTest::newRow("intLiteral-to-int")
+            << _("")
+            << _("5")
+            << _("int");
+    QTest::newRow("charLiteral-to-const-char-ptr")
+            << _("")
+            << _("\"hoo\"")
+            << _("const char *");
+    QTest::newRow("charLiteral-to-int")
+            << _("")
+            << _("'a'")
+            << _("char");
+
+    QTest::newRow("charPtr-to-constCharPtr")
+            << _("char *var = \"var\"")
+            << _("var")
+            << _("const char *");
+    QTest::newRow("charPtr-to-constCharPtr")
+            << _("char *var = \"var\"")
+            << _("var")
+            << _("const char *");
+    QTest::newRow("constCharPtr-to-constCharPtr")
+            << _("const char *var = \"var\"")
+            << _("var")
+            << _("const char *");
+
+    QTest::newRow("Bar-to-constBarRef")
+            << _("Bar var")
+            << _("var")
+            << _("const Bar &");
+}
+
+void CppEditorPlugin::test_FollowSymbolUnderCursor_followCall()
+{
+    QFETCH(QByteArray, variableDeclaration);
+    QFETCH(QByteArray, callArgument);
+    QFETCH(QByteArray, expectedSignature);
+
+    const QByteArray templateSource =
+        "class Bar {};\n"
+        "void fun(int);\n"
+        "void fun(const char *);\n"
+        "void fun(const Bar &);\n"
+        "void fun(char);\n"
+        "void fun(double);\n"
+        "\n"
+        "void t()\n"
+        "{\n"
+        "   " + variableDeclaration + ";\n"
+        "   @fun(" + callArgument + ");\n"
+        "}\n";
+
+    const QByteArray matchText = " fun(" + expectedSignature + ")";
+    const QByteArray replaceText = " $fun(" + expectedSignature + ")";
+    QByteArray source = templateSource;
+    source.replace(matchText, replaceText);
+    QVERIFY(source != templateSource);
     F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source));
 }
 

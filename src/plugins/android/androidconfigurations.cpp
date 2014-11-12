@@ -131,6 +131,33 @@ namespace {
         }
         return res;
     }
+
+    static bool is32BitUserSpace()
+    {
+        // Do the exact same check as android's emulator is doing:
+        if (Utils::HostOsInfo::isLinuxHost()) {
+            if (QSysInfo::WordSize == 32 ) {
+                Utils::Environment env = Utils::Environment::systemEnvironment();
+                QString executable = env.searchInPath(QLatin1String("file")).toString();
+                QString shell = env.value(QLatin1String("SHELL"));
+                if (executable.isEmpty() || shell.isEmpty())
+                    return true; // we can't detect, but creator is 32bit so assume 32bit
+
+                QProcess proc;
+                proc.setProcessChannelMode(QProcess::MergedChannels);
+                proc.start(executable, QStringList() << shell);
+                if (!proc.waitForFinished(2000)) {
+                    proc.kill();
+                    return true;
+                }
+                if (proc.readAll().contains("x86-64"))
+                    return false;
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
 
 //////////////////////////////////
@@ -660,9 +687,13 @@ bool AndroidConfig::startAVDAsync(const QString &avdName) const
     avdProcess->connect(avdProcess, SIGNAL(finished(int)), avdProcess, SLOT(deleteLater()));
 
     // start the emulator
-    avdProcess->start(emulatorToolPath().toString(),
-                        QStringList() << QLatin1String("-partition-size") << QString::number(partitionSize())
-                        << QLatin1String("-avd") << avdName);
+    QStringList arguments;
+    if (AndroidConfigurations::force32bitEmulator())
+        arguments << QLatin1String("-force-32bit");
+
+    arguments << QLatin1String("-partition-size") << QString::number(partitionSize())
+              << QLatin1String("-avd") << avdName;
+    avdProcess->start(emulatorToolPath().toString(), arguments);
     if (!avdProcess->waitForStarted(-1)) {
         delete avdProcess;
         return false;
@@ -1166,6 +1197,11 @@ void AndroidConfigurations::updateAutomaticKitList()
     }
 }
 
+bool AndroidConfigurations::force32bitEmulator()
+{
+    return m_instance->m_force32bit;
+}
+
 /**
  * Workaround for '????????????' serial numbers
  * @return ("-d") for buggy devices, ("-s", <serial no>) for normal
@@ -1202,6 +1238,8 @@ AndroidConfigurations::AndroidConfigurations(QObject *parent)
 
     connect(ProjectExplorer::SessionManager::instance(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             this, SLOT(clearDefaultDevices(ProjectExplorer::Project*)));
+
+    m_force32bit = is32BitUserSpace();
 
     m_instance = this;
 }

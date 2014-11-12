@@ -33,6 +33,8 @@
 
 #include "qbsprojectmanager.h"
 
+#include <cpptools/cppprojects.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/task.h>
@@ -134,6 +136,7 @@ private:
     void prepareForParsing();
     void updateDocuments(const QSet<QString> &files);
     void updateCppCodeModel();
+    void updateCppCompilerCallData();
     void updateQmlJsCodeModel();
     void updateApplicationTargets();
     void updateDeploymentInfo();
@@ -161,6 +164,7 @@ private:
     } m_cancelStatus;
 
     QFuture<void> m_codeModelFuture;
+    CppTools::ProjectInfo m_codeModelProjectInfo;
 
     QbsBuildConfiguration *m_currentBc;
 

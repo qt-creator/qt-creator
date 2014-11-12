@@ -612,7 +612,7 @@
             \li  Alt+Z, Alt+C
             \li  Alt+C, Alt+C
             \li  Alt+G, Alt+C
-            \li  Alt+H, Alt+C
+            \li  Alt+G, Alt+C
             \li  Alt+P, Alt+S
             \li  Alt+S, Alt+C
         \row
@@ -620,7 +620,7 @@
             \li  Alt+Z, Alt+D
             \li  Alt+C, Alt+D
             \li  Alt+G, Alt+D
-            \li  Alt+H, Alt+D
+            \li  Alt+G, Alt+D
             \li
             \li  Alt+S, Alt+D
         \row
@@ -644,7 +644,7 @@
             \li  Alt+Z, Alt+L
             \li
             \li  Alt+G, Alt+L
-            \li  Alt+H, Alt+L
+            \li  Alt+G, Alt+L
             \li  Alt+P, Alt+F
             \li
         \row
@@ -660,7 +660,7 @@
             \li  Alt+Z, Alt+S
             \li
             \li
-            \li  Alt+H, Alt+S
+            \li  Alt+G, Alt+S
             \li
             \li
         \row

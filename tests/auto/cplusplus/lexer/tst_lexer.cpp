@@ -39,11 +39,10 @@
 //#define DEBUG_TOKENS
 
 typedef QList<unsigned> TokenKindList;
-typedef QList<CPlusPlus::Token> TokenList;
 typedef QByteArray _;
 
 Q_DECLARE_METATYPE(TokenKindList)
-Q_DECLARE_METATYPE(TokenList)
+Q_DECLARE_METATYPE(CPlusPlus::Tokens)
 
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;
@@ -78,10 +77,10 @@ private slots:
     void offsets_data();
 
 private:
-    static TokenList toTokenList(const TokenKindList &tokenKinds);
+    static Tokens toTokens(const TokenKindList &tokenKinds);
 
     void run(const QByteArray &source,
-             const TokenList &expectedTokenList,
+             const Tokens &expectedTokens,
              bool preserveState,
              TokenCompareFlags compareFlags);
 
@@ -90,9 +89,9 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(tst_SimpleLexer::TokenCompareFlags)
 
-TokenList tst_SimpleLexer::toTokenList(const TokenKindList &tokenKinds)
+Tokens tst_SimpleLexer::toTokens(const TokenKindList &tokenKinds)
 {
-    TokenList tokens;
+    Tokens tokens;
     foreach (unsigned tokenKind, tokenKinds) {
         Token token;
         token.f.kind = tokenKind;
@@ -102,23 +101,23 @@ TokenList tst_SimpleLexer::toTokenList(const TokenKindList &tokenKinds)
 }
 
 void tst_SimpleLexer::run(const QByteArray &source,
-                          const TokenList &expectedTokenList,
+                          const Tokens &expectedTokens,
                           bool preserveState,
                           TokenCompareFlags compareFlags)
 {
     QVERIFY(compareFlags);
 
     SimpleLexer lexer;
-    const QList<Token> tokenList = lexer(source, preserveState ? _state : 0);
+    const Tokens tokens = lexer(source, preserveState ? _state : 0);
     if (preserveState)
         _state = lexer.state();
 
     int i = 0;
-    for (; i < tokenList.size(); ++i) {
-        QVERIFY2(i < expectedTokenList.size(), "More tokens than expected.");
+    for (; i < tokens.size(); ++i) {
+        QVERIFY2(i < expectedTokens.size(), "More tokens than expected.");
 
-        const Token token = tokenList.at(i);
-        const Token expectedToken = expectedTokenList.at(i);
+        const Token token = tokens.at(i);
+        const Token expectedToken = expectedTokens.at(i);
 #ifdef DEBUG_TOKENS
         qDebug("Comparing (i=%d): \"%s\" \"%s\"", i,
                Token::name(token.kind()),
@@ -141,7 +140,7 @@ void tst_SimpleLexer::run(const QByteArray &source,
         if (compareFlags & CompareUtf16CharsEnd)
             QCOMPARE(token.utf16charsEnd(), expectedToken.utf16charsEnd());
     }
-    QVERIFY2(i == expectedTokenList.size(), "Less tokens than expected.");
+    QVERIFY2(i == expectedTokens.size(), "Less tokens than expected.");
 }
 
 void tst_SimpleLexer::basic()
@@ -149,7 +148,7 @@ void tst_SimpleLexer::basic()
     QFETCH(QByteArray, source);
     QFETCH(TokenKindList, expectedTokenKindList);
 
-    run(source, toTokenList(expectedTokenKindList), false, CompareKind);
+    run(source, toTokens(expectedTokenKindList), false, CompareKind);
 }
 
 void tst_SimpleLexer::basic_data()
@@ -258,25 +257,25 @@ void tst_SimpleLexer::basic_data()
 void tst_SimpleLexer::bytes_and_utf16chars()
 {
     QFETCH(QByteArray, source);
-    QFETCH(QList<Token>, expectedTokenList);
+    QFETCH(Tokens, expectedTokens);
 
     const TokenCompareFlags compareFlags = CompareKind | CompareBytes | CompareUtf16Chars;
-    run(source, expectedTokenList, false, compareFlags);
+    run(source, expectedTokens, false, compareFlags);
 }
 
-static QList<Token> createToken(unsigned kind, unsigned bytes, unsigned utf16chars)
+static Tokens createToken(unsigned kind, unsigned bytes, unsigned utf16chars)
 {
     Token t;
     t.f.kind = kind;
     t.f.bytes = bytes;
     t.f.utf16chars = utf16chars;
-    return QList<Token>() << t;
+    return Tokens() << t;
 }
 
 void tst_SimpleLexer::bytes_and_utf16chars_data()
 {
     QTest::addColumn<QByteArray>("source");
-    QTest::addColumn<QList<Token> >("expectedTokenList");
+    QTest::addColumn<Tokens>("expectedTokens");
 
     typedef QByteArray _;
 
@@ -360,7 +359,7 @@ static Token createToken(unsigned kind, unsigned byteOffset, unsigned bytes,
 void tst_SimpleLexer::offsets()
 {
     QFETCH(QByteArray, source);
-    QFETCH(QList<Token>, expectedTokenList);
+    QFETCH(Tokens, expectedTokens);
 
     const TokenCompareFlags compareFlags = CompareKind
             | CompareBytesBegin
@@ -368,31 +367,31 @@ void tst_SimpleLexer::offsets()
             | CompareUtf16CharsBegin
             | CompareUtf16CharsEnd
             ;
-    run(source, expectedTokenList, false, compareFlags);
+    run(source, expectedTokens, false, compareFlags);
 }
 
 void tst_SimpleLexer::offsets_data()
 {
     QTest::addColumn<QByteArray>("source");
-    QTest::addColumn<QList<Token> >("expectedTokenList");
+    QTest::addColumn<Tokens>("expectedTokens");
 
     typedef QByteArray _;
 
     // LATIN1 Identifier
     QTest::newRow("latin1 identifiers")
-        << _("var var") << (QList<Token>()
+        << _("var var") << (Tokens()
             << createToken(T_IDENTIFIER, 0, 3, 0, 3)
             << createToken(T_IDENTIFIER, 4, 3, 4, 3)
         );
 
     // NON-LATIN1 identifier
     QTest::newRow("non-latin1 identifiers 1")
-        << _("var_" UC_U00FC " var_" UC_U00FC) << (QList<Token>()
+        << _("var_" UC_U00FC " var_" UC_U00FC) << (Tokens()
             << createToken(T_IDENTIFIER, 0, 6, 0, 5)
             << createToken(T_IDENTIFIER, 7, 6, 6, 5)
         );
     QTest::newRow("non-latin1 identifiers 2")
-        << _(UC_U00FC UC_U4E8C UC_U10302 " " UC_U00FC UC_U4E8C UC_U10302) << (QList<Token>()
+        << _(UC_U00FC UC_U4E8C UC_U10302 " " UC_U00FC UC_U4E8C UC_U10302) << (Tokens()
             << createToken(T_IDENTIFIER, 0, 9, 0, 4)
             << createToken(T_IDENTIFIER, 10, 9, 5, 4)
         );
@@ -402,7 +401,7 @@ void tst_SimpleLexer::offsets_data()
              "{\n"                              // 17 / 12
              "public:\n"                        // 19 / 14
              "    v" UC_U00FC UC_U4E8C UC_U10302 "();\n" // 27 / 22
-             "};\n") << (QList<Token>()         // 45 / 35
+             "};\n") << (Tokens()         // 45 / 35
             << createToken(T_CLASS, 0, 5, 0, 5)         // class
             << createToken(T_IDENTIFIER, 6, 10, 6, 5)   // non-latin1 id
             << createToken(T_LBRACE, 17, 1, 12, 1)      // {
@@ -422,7 +421,7 @@ void tst_SimpleLexer::incremental()
     QFETCH(QByteArray, source);
     QFETCH(TokenKindList, expectedTokenKindList);
 
-    run(source, toTokenList(expectedTokenKindList), true, CompareKind);
+    run(source, toTokens(expectedTokenKindList), true, CompareKind);
 }
 
 void tst_SimpleLexer::incremental_data()

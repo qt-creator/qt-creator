@@ -45,7 +45,7 @@ ThemeColorsTableView::ThemeColorsTableView(QWidget *parent)
 
 void ThemeColorsTableView::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton) {
+    if ((editTriggers() & NoEditTriggers) && (event->button() == Qt::LeftButton)) {
         QModelIndex index = indexAt(event->pos());
         if (model()->flags(index) & Qt::ItemIsEditable && index.column() == 1) {
             setCurrentIndex(index);

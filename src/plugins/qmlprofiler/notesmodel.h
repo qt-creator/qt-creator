@@ -68,9 +68,11 @@ public:
     int add(int timelineModel, int timelineIndex, const QString &text);
     void update(int index, const QString &text);
     void remove(int index);
+    bool isModified() const;
 
     void loadData();
     void saveData();
+    void clear();
 
 signals:
     void changed(int typeId, int timelineModel, int timelineIndex);
@@ -82,9 +84,9 @@ protected:
     QmlProfilerModelManager *m_modelManager;
     QList<Note> m_data;
     QHash<int, const AbstractTimelineModel *> m_timelineModels;
+    bool m_modified;
 
     int add(int typeId, qint64 startTime, qint64 duration, const QString &text);
-    void clear();
 };
 }
 #endif // NOTESMODEL_H

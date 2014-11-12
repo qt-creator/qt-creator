@@ -1,7 +1,6 @@
 import qbs 1.0
 import qbs.FileInfo
 import QtcFunctions
-import QtcProduct
 
 QtcProduct {
     type: ["dynamiclibrary", "pluginSpec"]

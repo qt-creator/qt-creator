@@ -493,8 +493,12 @@ void Document::setGlobalNamespace(Namespace *globalNamespace)
  *
  * \param line the line number, starting with line 1
  * \param column the column number, starting with column 1
+ * \param lineOpeningDeclaratorParenthesis optional output parameter, the line of the opening
+          parenthesis of the declarator starting with 1
+ * \param lineClosingBrace optional output parameter, the line of the closing brace starting with 1
  */
-QString Document::functionAt(int line, int column) const
+QString Document::functionAt(int line, int column, int *lineOpeningDeclaratorParenthesis,
+                             int *lineClosingBrace) const
 {
     if (line < 1 || column < 1)
         return QString();
@@ -505,10 +509,8 @@ QString Document::functionAt(int line, int column) const
 
     // Find the enclosing function scope (which might be several levels up, or we might be standing
     // on it)
-    Scope *scope;
-    if (symbol->isScope())
-        scope = symbol->asScope();
-    else
+    Scope *scope = symbol->asScope();
+    if (!scope)
         scope = symbol->enclosingScope();
 
     while (scope && !scope->isFunction() )
@@ -517,22 +519,21 @@ QString Document::functionAt(int line, int column) const
     if (!scope)
         return QString();
 
-    // We found the function scope, extract its name.
-    const Overview o;
-    QString rc = o.prettyName(scope->name());
-
-    // Prepend namespace "Foo::Foo::foo()" up to empty root namespace
-    for (const Symbol *owner = scope->enclosingNamespace();
-         owner; owner = owner->enclosingNamespace()) {
-        const QString name = o.prettyName(owner->name());
-        if (name.isEmpty()) {
-            break;
-        } else {
-            rc.prepend(QLatin1String("::"));
-            rc.prepend(name);
-        }
+    // We found the function scope
+    if (lineOpeningDeclaratorParenthesis) {
+        unsigned line;
+        translationUnit()->getPosition(scope->startOffset(), &line);
+        *lineOpeningDeclaratorParenthesis = static_cast<int>(line);
     }
-    return rc;
+
+    if (lineClosingBrace) {
+        unsigned line;
+        translationUnit()->getPosition(scope->endOffset(), &line);
+        *lineClosingBrace = static_cast<int>(line);
+    }
+
+    const QList<const Name *> fullyQualifiedName = LookupContext::fullyQualifiedName(scope);
+    return Overview().prettyName(fullyQualifiedName);
 }
 
 Scope *Document::scopeAt(unsigned line, unsigned column)

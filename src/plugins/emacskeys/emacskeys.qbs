@@ -1,7 +1,5 @@
 import qbs.base 1.0
 
-import QtcPlugin
-
 QtcPlugin {
     name: "EmacsKeys"
 

@@ -100,6 +100,9 @@ private slots:
     void test_FollowSymbolUnderCursor_data();
     void test_FollowSymbolUnderCursor();
 
+    void test_FollowSymbolUnderCursor_followCall_data();
+    void test_FollowSymbolUnderCursor_followCall();
+
     void test_FollowSymbolUnderCursor_QObject_connect_data();
     void test_FollowSymbolUnderCursor_QObject_connect();
 

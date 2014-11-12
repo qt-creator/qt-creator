@@ -38,6 +38,7 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerdetailsrewriter.h"
 #include "timelinerenderer.h"
+#include "notesmodel.h"
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerruncontrol.h>
@@ -272,7 +273,10 @@ QWidget *QmlProfilerTool::createWidgets()
     d->m_clearButton->setIcon(QIcon(QLatin1String(":/qmlprofiler/clean_pane_small.png")));
     d->m_clearButton->setToolTip(tr("Discard data"));
 
-    connect(d->m_clearButton,SIGNAL(clicked()), this, SLOT(clearData()));
+    connect(d->m_clearButton, &QAbstractButton::clicked, [this](){
+        if (checkForUnsavedNotes())
+            clearData();
+    });
 
     layout->addWidget(d->m_clearButton);
 
@@ -324,7 +328,16 @@ void QmlProfilerTool::populateFileFinder(QString projectDirectory, QString activ
 
 void QmlProfilerTool::recordingButtonChanged(bool recording)
 {
-    d->m_profilerState->setClientRecording(recording);
+    if (recording && d->m_profilerState->currentState() == QmlProfilerStateManager::AppRunning) {
+        if (checkForUnsavedNotes()) {
+            clearData(); // clear right away, before the application starts
+            d->m_profilerState->setClientRecording(true);
+        } else {
+            d->m_recordButton->setChecked(false);
+        }
+    } else {
+        d->m_profilerState->setClientRecording(recording);
+    }
 }
 
 void QmlProfilerTool::setRecording(bool recording)
@@ -335,6 +348,7 @@ void QmlProfilerTool::setRecording(bool recording)
                                                  QLatin1String(":/qmlprofiler/recordOff.png")));
 
     d->m_recordButton->setChecked(recording);
+    d->m_profilerState->setClientRecording(recording);
 
     // manage timer
     if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppRunning) {
@@ -447,6 +461,13 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
 
 void QmlProfilerTool::startTool(StartMode mode)
 {
+    if (d->m_recordButton->isChecked()) {
+        if (!checkForUnsavedNotes())
+            return;
+        else
+            clearData(); // clear right away to suppress second warning on server recording change
+    }
+
     // Make sure mode is shown.
     AnalyzerManager::showMode();
 
@@ -481,6 +502,11 @@ void QmlProfilerTool::showErrorDialog(const QString &error)
     errorDialog->show();
 }
 
+void QmlProfilerTool::showLoadOption()
+{
+    d->m_loadQmlTrace->setEnabled(!d->m_profilerState->serverRecording());
+}
+
 void QmlProfilerTool::showSaveOption()
 {
     d->m_saveQmlTrace->setEnabled(!d->m_profilerModelManager->isEmpty());
@@ -499,6 +525,9 @@ void QmlProfilerTool::showSaveDialog()
 
 void QmlProfilerTool::showLoadDialog()
 {
+    if (!checkForUnsavedNotes())
+        return;
+
     if (ModeManager::currentMode()->id() != MODE_ANALYZE)
         AnalyzerManager::showMode();
 
@@ -512,6 +541,22 @@ void QmlProfilerTool::showLoadDialog()
         d->m_profilerModelManager->setFilename(filename);
         QTimer::singleShot(100, d->m_profilerModelManager, SLOT(load()));
     }
+}
+
+/*!
+    Checks if we have unsaved notes. If so, shows a warning dialog. Returns true if we can continue
+    with a potentially destructive operation and discard the warnings, or false if not. We don't
+    want to show a save/discard dialog here because that will often result in a confusing series of
+    different dialogs: first "save" and then immediately "load" or "connect".
+ */
+bool QmlProfilerTool::checkForUnsavedNotes()
+{
+    if (!d->m_profilerModelManager->notesModel()->isModified())
+        return true;
+    return QMessageBox::warning(QApplication::activeWindow(), tr("QML Profiler"),
+                                tr("You are about to discard the profiling data, including unsaved "
+                                   "notes. Do you want to continue?"),
+                                QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
 }
 
 void QmlProfilerTool::clientsDisconnected()
@@ -645,14 +690,27 @@ void QmlProfilerTool::clientRecordingChanged()
 
 void QmlProfilerTool::serverRecordingChanged()
 {
+    showLoadOption();
     if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppRunning) {
-        setRecording(d->m_profilerState->serverRecording());
         // clear the old data each time we start a new profiling session
         if (d->m_profilerState->serverRecording()) {
+            // We cannot stop it here, so we cannot give the usual yes/no dialog. Show a dialog
+            // offering to immediately save the data instead.
+            if (d->m_profilerModelManager->notesModel()->isModified() &&
+                    QMessageBox::warning(QApplication::activeWindow(), tr("QML Profiler"),
+                                         tr("Starting a new profiling session will discard the "
+                                            "previous data, including unsaved notes.\nDo you want "
+                                            "to save the data first?"),
+                                         QMessageBox::Save, QMessageBox::Discard) ==
+                    QMessageBox::Save)
+                showSaveDialog();
+
+            setRecording(true);
             d->m_clearButton->setEnabled(false);
             clearData();
             d->m_profilerModelManager->prepareForWriting();
         } else {
+            setRecording(false);
             d->m_clearButton->setEnabled(true);
         }
     } else {

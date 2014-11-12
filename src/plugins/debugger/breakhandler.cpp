@@ -190,7 +190,6 @@ static inline bool fileNameMatch(const QString &f1, const QString &f2)
 
 static bool isSimilarTo(const BreakpointParameters &data, const BreakpointResponse &needle)
 {
-    // Clear hit.
     // Clear miss.
     if (needle.type != UnknownBreakpointType && data.type != UnknownBreakpointType
             && data.type != needle.type)
@@ -198,6 +197,10 @@ static bool isSimilarTo(const BreakpointParameters &data, const BreakpointRespon
 
     // Clear hit.
     if (data.address && data.address == needle.address)
+        return true;
+
+    // Clear hit.
+    if (data == needle)
         return true;
 
     // At least at a position we were looking for.

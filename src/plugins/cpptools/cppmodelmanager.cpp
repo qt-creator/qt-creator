@@ -629,21 +629,9 @@ public:
         , m_newSourceFiles(newProjectInfo.sourceFiles())
     {}
 
-    bool definesChanged() const
-    {
-        return m_new.defines() != m_old.defines();
-    }
-
-    bool configurationChanged() const
-    {
-        return definesChanged()
-            || m_new.headerPaths() != m_old.headerPaths();
-    }
-
-    bool nothingChanged() const
-    {
-        return !configurationChanged() && m_new.sourceFiles() == m_old.sourceFiles();
-    }
+    bool definesChanged() const { return m_new.definesChanged(m_old); }
+    bool configurationChanged() const { return m_new.configurationChanged(m_old); }
+    bool configurationOrFilesChanged() const { return m_new.configurationOrFilesChanged(m_old); }
 
     QSet<QString> addedFiles() const
     {
@@ -735,8 +723,12 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
         ProjectInfo oldProjectInfo = d->m_projectToProjectsInfo.value(project);
         if (oldProjectInfo.isValid()) {
             ProjectInfoComparer comparer(oldProjectInfo, newProjectInfo);
-            if (comparer.nothingChanged())
+
+            if (!comparer.configurationOrFilesChanged()) {
+                // Some other attached data might have changed
+                d->m_projectToProjectsInfo.insert(project, newProjectInfo);
                 return QFuture<void>();
+            }
 
             // If the project configuration changed, do a full reindexing
             if (comparer.configurationChanged()) {

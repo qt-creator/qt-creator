@@ -307,6 +307,18 @@ Command *ActionContainerPrivate::addSeparator(const Context &context, Id group, 
     return cmd;
 }
 
+void ActionContainerPrivate::setEnabled(bool enabled)
+{
+    foreach (const Group &group, m_groups) {
+        foreach (QObject *item, group.items) {
+            if (Command *command = qobject_cast<Command *>(item))
+                command->action()->setEnabled(enabled);
+            else if (ActionContainer *container = qobject_cast<ActionContainer *>(item))
+                container->setEnabled(enabled);
+        }
+    }
+}
+
 void ActionContainerPrivate::clear()
 {
     QMutableListIterator<Group> it(m_groups);

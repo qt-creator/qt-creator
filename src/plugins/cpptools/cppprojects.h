@@ -129,6 +129,7 @@ public: // fields
     LanguageExtensions languageExtensions;
     QtVersion qtVersion;
     ProjectExplorer::ToolChain::WarningFlags warningFlags;
+    bool selectedForBuilding;
 };
 
 inline uint qHash(const ProjectPart::HeaderPath &key, uint seed = 0)
@@ -142,6 +143,12 @@ public:
 
     bool isValid() const;
 
+    bool operator ==(const ProjectInfo &other) const;
+    bool operator !=(const ProjectInfo &other) const;
+    bool definesChanged(const ProjectInfo &other) const;
+    bool configurationChanged(const ProjectInfo &other) const;
+    bool configurationOrFilesChanged(const ProjectInfo &other) const;
+
     QPointer<ProjectExplorer::Project> project() const;
     const QList<ProjectPart::Ptr> projectParts() const;
 
@@ -153,10 +160,16 @@ public:
     const QSet<QString> sourceFiles() const;
     const QByteArray defines() const;
 
+    // Source file --> List of compiler calls
+    typedef QHash<QString, QList<QStringList>> CompilerCallData;
+    void setCompilerCallData(const CompilerCallData &data);
+    CompilerCallData compilerCallData() const;
+
 private:
     QPointer<ProjectExplorer::Project> m_project;
     QList<ProjectPart::Ptr> m_projectParts;
-    // The members below are (re)calculated from the project parts once a part is appended.
+    CompilerCallData m_compilerCallData;
+    // The members below are (re)calculated from the project parts with finish()
     ProjectPart::HeaderPaths m_headerPaths;
     QSet<QString> m_sourceFiles;
     QByteArray m_defines;

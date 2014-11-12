@@ -111,8 +111,8 @@ public:
         ProgressBarColorError,
         ProgressBarColorFinished,
         ProgressBarColorNormal,
-        SearchResultWidgetBackgroundColor,
-        SearchResultWidgetTextColor,
+        InfoBarBackground,
+        InfoBarText,
         TextColorDisabled,
         TextColorHighlight,
         TextColorNormal,
@@ -136,7 +136,8 @@ public:
         Welcome_TextColorHeading,  // #535353 // Sessions, Recent Projects
         Welcome_BackgroundColorNormal,   // #ffffff
         Welcome_DividerColor,      // #737373
-        Welcome_Button_BorderColor,
+        Welcome_Button_BorderColorNormal,
+        Welcome_Button_BorderColorPressed,
         Welcome_Button_TextColorNormal,
         Welcome_Button_TextColorPressed,
         Welcome_Link_TextColorNormal,
