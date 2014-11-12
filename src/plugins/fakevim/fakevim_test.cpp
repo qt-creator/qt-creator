@@ -748,6 +748,8 @@ void FakeVimPlugin::test_vim_insert()
     KEYS("i<c-o>0x", "abc" N "x" X "def");
     data.setText("abc" N "de" X "f");
     KEYS("i<c-o>ggx", "x" X "abc" N "def");
+    data.setText("abc" N "def" N "ghi");
+    KEYS("i<c-o>vjlolx", "a" X "f" N "ghi");
 
     // <INSERT> to toggle between insert and replace mode
     data.setText("abc" N "def");

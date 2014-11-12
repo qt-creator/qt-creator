@@ -3492,7 +3492,9 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
 
 void FakeVimHandler::Private::leaveCurrentMode()
 {
-    if (g.returnToMode == CommandMode)
+    if (isVisualMode())
+        enterCommandMode(g.returnToMode);
+    else if (g.returnToMode == CommandMode)
         enterCommandMode();
     else if (g.returnToMode == InsertMode)
         enterInsertMode();
