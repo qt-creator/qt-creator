@@ -127,4 +127,29 @@ bool DiffEditorDocument::open(QString *errorString, const QString &fileName)
     return true;
 }
 
+QString DiffEditorDocument::suggestedFileName() const
+{
+    QString result = QStringLiteral("0001");
+    const QString description = m_controller->description();
+    if (!description.isEmpty()) {
+        // Derive "git format-patch-type" file name from subject.
+        const int pos = description.indexOf(QLatin1String("\n\n    "));
+        const int endPos = pos >= 0 ? description.indexOf(QLatin1Char('\n'), pos + 6) : -1;
+        if (endPos > pos) {
+            const QChar space(QLatin1Char(' '));
+            const QChar dash(QLatin1Char('-'));
+            QString subject = description.mid(pos, endPos - pos);
+            for (int i = 0; i < subject.size(); ++i) {
+                if (!subject.at(i).isLetterOrNumber())
+                    subject[i] = space;
+            }
+            subject = subject.simplified();
+            subject.replace(space, dash);
+            result += dash;
+            result += subject;
+        }
+    }
+    return result + QStringLiteral(".patch");
+}
+
 } // namespace DiffEditor

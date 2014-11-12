@@ -50,7 +50,7 @@ public:
 
     bool setContents(const QByteArray &contents);
     QString defaultPath() const;
-    QString suggestedFileName() const { return QString(); }
+    QString suggestedFileName() const Q_DECL_OVERRIDE;
 
     bool isModified() const { return false; }
     bool isSaveAsAllowed() const { return true; }
