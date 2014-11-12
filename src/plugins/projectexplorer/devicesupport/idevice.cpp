@@ -123,6 +123,7 @@ const char AuthKey[] = "Authentication";
 const char KeyFileKey[] = "KeyFile";
 const char PasswordKey[] = "Password";
 const char TimeoutKey[] = "Timeout";
+const char HostKeyCheckingKey[] = "HostKeyChecking";
 
 const char DebugServerKey[] = "DebugServerKey";
 
@@ -161,7 +162,9 @@ PortsGatheringMethod::~PortsGatheringMethod() { }
 DeviceTester::DeviceTester(QObject *parent) : QObject(parent) { }
 
 IDevice::IDevice() : d(new Internal::IDevicePrivate)
-{ }
+{
+    d->sshParameters.hostKeyDatabase = DeviceManager::instance()->hostKeyDatabase();
+}
 
 IDevice::IDevice(Core::Id type, Origin origin, MachineType machineType, Core::Id id)
     : d(new Internal::IDevicePrivate)
@@ -171,6 +174,7 @@ IDevice::IDevice(Core::Id type, Origin origin, MachineType machineType, Core::Id
     d->machineType = machineType;
     QTC_CHECK(origin == ManuallyAdded || id.isValid());
     d->id = id.isValid() ? id : newId();
+    d->sshParameters.hostKeyDatabase = DeviceManager::instance()->hostKeyDatabase();
 }
 
 IDevice::IDevice(const IDevice &other) : d(new Internal::IDevicePrivate)
@@ -322,6 +326,8 @@ void IDevice::fromMap(const QVariantMap &map)
     d->sshParameters.password = map.value(QLatin1String(PasswordKey)).toString();
     d->sshParameters.privateKeyFile = map.value(QLatin1String(KeyFileKey), defaultPrivateKeyFilePath()).toString();
     d->sshParameters.timeout = map.value(QLatin1String(TimeoutKey), DefaultTimeout).toInt();
+    d->sshParameters.hostKeyCheckingMode = static_cast<QSsh::SshHostKeyCheckingMode>
+            (map.value(QLatin1String(HostKeyCheckingKey), QSsh::SshHostKeyCheckingNone).toInt());
 
     d->freePorts = Utils::PortList::fromString(map.value(QLatin1String(PortsSpecKey),
         QLatin1String("10000-10100")).toString());
@@ -353,6 +359,7 @@ QVariantMap IDevice::toMap() const
     map.insert(QLatin1String(PasswordKey), d->sshParameters.password);
     map.insert(QLatin1String(KeyFileKey), d->sshParameters.privateKeyFile);
     map.insert(QLatin1String(TimeoutKey), d->sshParameters.timeout);
+    map.insert(QLatin1String(HostKeyCheckingKey), d->sshParameters.hostKeyCheckingMode);
 
     map.insert(QLatin1String(PortsSpecKey), d->freePorts.toString());
     map.insert(QLatin1String(VersionKey), d->version);
@@ -392,6 +399,7 @@ QSsh::SshConnectionParameters IDevice::sshParameters() const
 void IDevice::setSshParameters(const QSsh::SshConnectionParameters &sshParameters)
 {
     d->sshParameters = sshParameters;
+    d->sshParameters.hostKeyDatabase = DeviceManager::instance()->hostKeyDatabase();
 }
 
 QString IDevice::qmlProfilerHost() const

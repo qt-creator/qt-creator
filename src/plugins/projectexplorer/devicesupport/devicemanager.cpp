@@ -32,9 +32,11 @@
 #include "idevicefactory.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <ssh/sshhostkeydatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
 #include <utils/persistentsettings.h>
@@ -75,6 +77,7 @@ public:
     static DeviceManager *clonedInstance;
     QList<IDevice::Ptr> devices;
     QHash<Core::Id, Core::Id> defaultDevices;
+    QSsh::SshHostKeyDatabasePtr hostKeyDatabase;
 
     Utils::PersistentSettingsWriter *writer;
 };
@@ -136,6 +139,7 @@ void DeviceManager::save()
     QVariantMap data;
     data.insert(QLatin1String(DeviceManagerKey), toMap());
     d->writer->save(data, Core::ICore::mainWindow());
+    d->hostKeyDatabase->store(hostKeysFilePath());
 }
 
 void DeviceManager::load()
@@ -308,6 +312,11 @@ bool DeviceManager::isLoaded() const
     return d->writer;
 }
 
+QSsh::SshHostKeyDatabasePtr DeviceManager::hostKeyDatabase() const
+{
+    return d->hostKeyDatabase;
+}
+
 void DeviceManager::setDefaultDevice(Core::Id id)
 {
     QTC_ASSERT(this != instance(), return);
@@ -343,6 +352,13 @@ DeviceManager::DeviceManager(bool isInstance) : d(new DeviceManagerPrivate)
     if (isInstance) {
         QTC_ASSERT(!m_instance, return);
         m_instance = this;
+        d->hostKeyDatabase = QSsh::SshHostKeyDatabasePtr::create();
+        const QString keyFilePath = hostKeysFilePath();
+        if (QFileInfo(keyFilePath).exists()) {
+            QString error;
+            if (!d->hostKeyDatabase->load(keyFilePath, &error))
+                Core::MessageManager::write(error);
+        }
         connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()), SLOT(save()));
     }
 }
@@ -413,6 +429,11 @@ IDevice::ConstPtr DeviceManager::fromRawPointer(const IDevice *device) const
 {
     // The const_cast is safe, because we convert the Ptr back to a ConstPtr before returning it.
     return fromRawPointer(const_cast<IDevice *>(device));
+}
+
+QString DeviceManager::hostKeysFilePath()
+{
+    return settingsFilePath(QLatin1String("/ssh-hostkeys")).toString();
 }
 
 } // namespace ProjectExplorer

@@ -63,6 +63,8 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
     connect(m_ui->portsLineEdit, SIGNAL(editingFinished()), this, SLOT(handleFreePortsChanged()));
     connect(m_ui->createKeyButton, SIGNAL(clicked()), SLOT(createNewKey()));
     connect(m_ui->gdbServerLineEdit, SIGNAL(editingFinished()), SLOT(gdbServerEditingFinished()));
+    connect(m_ui->hostKeyCheckBox, &QCheckBox::toggled, this,
+            &GenericLinuxDeviceConfigurationWidget::hostKeyCheckingChanged);
 
     initGui();
 }
@@ -158,6 +160,14 @@ void GenericLinuxDeviceConfigurationWidget::createNewKey()
         setPrivateKey(dialog.privateKeyFilePath());
 }
 
+void GenericLinuxDeviceConfigurationWidget::hostKeyCheckingChanged(bool doCheck)
+{
+    SshConnectionParameters sshParams = device()->sshParameters();
+    sshParams.hostKeyCheckingMode
+            = doCheck ? QSsh::SshHostKeyCheckingAllowNoMatch : QSsh::SshHostKeyCheckingNone;
+    device()->setSshParameters(sshParams);
+}
+
 void GenericLinuxDeviceConfigurationWidget::updateDeviceFromUi()
 {
     hostNameEditingFinished();
@@ -200,6 +210,7 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
     m_ui->timeoutSpinBox->setValue(sshParams.timeout);
     m_ui->hostLineEdit->setEnabled(!device()->isAutoDetected());
     m_ui->sshPortSpinBox->setEnabled(!device()->isAutoDetected());
+    m_ui->hostKeyCheckBox->setChecked(sshParams.hostKeyCheckingMode != SshHostKeyCheckingNone);
 
     m_ui->hostLineEdit->setText(sshParams.host);
     m_ui->sshPortSpinBox->setValue(sshParams.port);

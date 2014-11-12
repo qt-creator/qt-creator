@@ -76,8 +76,9 @@ namespace {
 
 } // anonymous namespace
 
-SshKeyExchange::SshKeyExchange(SshSendFacility &sendFacility)
-    : m_sendFacility(sendFacility)
+SshKeyExchange::SshKeyExchange(const SshConnectionParameters &connParams,
+                               SshSendFacility &sendFacility)
+    : m_connParams(connParams), m_sendFacility(sendFacility)
 {
 }
 
@@ -210,7 +211,45 @@ void SshKeyExchange::sendNewKeysPacket(const SshIncomingPacket &dhReply,
             "Invalid signature in SSH_MSG_KEXDH_REPLY packet.");
     }
 
+    checkHostKey(reply.k_s);
+
     m_sendFacility.sendNewKeysPacket();
+}
+
+void SshKeyExchange::checkHostKey(const QByteArray &hostKey)
+{
+    if (m_connParams.hostKeyCheckingMode == SshHostKeyCheckingNone) {
+        if (m_connParams.hostKeyDatabase)
+            m_connParams.hostKeyDatabase->insertHostKey(m_connParams.host, hostKey);
+        return;
+    }
+
+    if (!m_connParams.hostKeyDatabase) {
+        throw SshClientException(SshInternalError,
+                                 SSH_TR("Host key database must exist "
+                                        "if host key checking is enabled."));
+    }
+
+    switch (m_connParams.hostKeyDatabase->matchHostKey(m_connParams.host, hostKey)) {
+    case SshHostKeyDatabase::KeyLookupMatch:
+        return; // Nothing to do.
+    case SshHostKeyDatabase::KeyLookupMismatch:
+        if (m_connParams.hostKeyCheckingMode != SshHostKeyCheckingAllowMismatch)
+            throwHostKeyException();
+        break;
+    case SshHostKeyDatabase::KeyLookupNoMatch:
+        if (m_connParams.hostKeyCheckingMode == SshHostKeyCheckingStrict)
+            throwHostKeyException();
+        break;
+    }
+    m_connParams.hostKeyDatabase->insertHostKey(m_connParams.host, hostKey);
+}
+
+void SshKeyExchange::throwHostKeyException()
+{
+    throw SshServerException(SSH_DISCONNECT_HOST_KEY_NOT_VERIFIABLE, "Host key changed",
+                             SSH_TR("Host key of machine \"%1\" has changed.")
+                             .arg(m_connParams.host));
 }
 
 } // namespace Internal

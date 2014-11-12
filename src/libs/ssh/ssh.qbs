@@ -27,6 +27,8 @@ QtcLibrary {
         "sshdirecttcpiptunnel.h", "sshdirecttcpiptunnel_p.h", "sshdirecttcpiptunnel.cpp",
         "ssherrors.h",
         "sshexception_p.h",
+        "sshhostkeydatabase.cpp",
+        "sshhostkeydatabase.h",
         "sshincomingpacket_p.h", "sshincomingpacket.cpp",
         "sshinit_p.h", "sshinit.cpp",
         "sshkeycreationdialog.cpp", "sshkeycreationdialog.h", "sshkeycreationdialog.ui",

@@ -27,51 +27,47 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#ifndef SSHHOSTKEYDATABASE_H
+#define SSHHOSTKEYDATABASE_H
 
-#ifndef REMOTELINUX_GENERICLINUXDEVICECONFIGURATIONWIDGET_H
-#define REMOTELINUX_GENERICLINUXDEVICECONFIGURATIONWIDGET_H
+#include "ssh_global.h"
 
-#include <projectexplorer/devicesupport/idevicewidget.h>
+#include <QSharedPointer>
 
-#include "remotelinux_export.h"
+QT_BEGIN_NAMESPACE
+class QByteArray;
+class QString;
+QT_END_NAMESPACE
 
-namespace RemoteLinux {
+namespace QSsh {
+class SshHostKeyDatabase;
+typedef QSharedPointer<SshHostKeyDatabase> SshHostKeyDatabasePtr;
 
-namespace Ui { class GenericLinuxDeviceConfigurationWidget; }
-
-class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWidget
-        : public ProjectExplorer::IDeviceWidget
+class QSSH_EXPORT SshHostKeyDatabase
 {
-    Q_OBJECT
+    friend class QSharedPointer<SshHostKeyDatabase>; // To give create() access to our constructor.
 
 public:
-    explicit GenericLinuxDeviceConfigurationWidget(
-        const ProjectExplorer::IDevice::Ptr &deviceConfig, QWidget *parent = 0);
-    ~GenericLinuxDeviceConfigurationWidget();
+    enum KeyLookupResult {
+        KeyLookupMatch,
+        KeyLookupNoMatch,
+        KeyLookupMismatch
+    };
 
-private slots:
-    void authenticationTypeChanged();
-    void hostNameEditingFinished();
-    void sshPortEditingFinished();
-    void timeoutEditingFinished();
-    void userNameEditingFinished();
-    void passwordEditingFinished();
-    void keyFileEditingFinished();
-    void gdbServerEditingFinished();
-    void showPassword(bool showClearText);
-    void handleFreePortsChanged();
-    void setPrivateKey(const QString &path);
-    void createNewKey();
-    void hostKeyCheckingChanged(bool doCheck);
+    ~SshHostKeyDatabase();
+
+    bool load(const QString &filePath, QString *error = 0);
+    bool store(const QString &filePath, QString *error = 0) const;
+    KeyLookupResult matchHostKey(const QString &hostName, const QByteArray &key) const;
+    void insertHostKey(const QString &hostName, const QByteArray &key);
 
 private:
-    void updateDeviceFromUi();
-    void updatePortsWarningLabel();
-    void initGui();
+    SshHostKeyDatabase();
 
-    Ui::GenericLinuxDeviceConfigurationWidget *m_ui;
+    class SshHostKeyDatabasePrivate;
+    SshHostKeyDatabasePrivate * const d;
 };
 
-} // namespace RemoteLinux
+} // namespace QSsh
 
-#endif // REMOTELINUX_GENERICLINUXDEVICECONFIGURATIONWIDGET_H
+#endif // Include guard.

@@ -32,6 +32,7 @@
 #define SSHCONNECTION_H
 
 #include "ssherrors.h"
+#include "sshhostkeydatabase.h"
 
 #include "ssh_global.h"
 
@@ -56,6 +57,13 @@ enum SshConnectionOption {
 
 Q_DECLARE_FLAGS(SshConnectionOptions, SshConnectionOption)
 
+enum SshHostKeyCheckingMode {
+    SshHostKeyCheckingNone,
+    SshHostKeyCheckingStrict,
+    SshHostKeyCheckingAllowNoMatch,
+    SshHostKeyCheckingAllowMismatch
+};
+
 class QSSH_EXPORT SshConnectionParameters
 {
 public:
@@ -78,6 +86,8 @@ public:
     AuthenticationType authenticationType;
     quint16 port;
     SshConnectionOptions options;
+    SshHostKeyCheckingMode hostKeyCheckingMode;
+    SshHostKeyDatabasePtr hostKeyDatabase;
 };
 
 QSSH_EXPORT bool operator==(const SshConnectionParameters &p1, const SshConnectionParameters &p2);

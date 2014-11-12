@@ -31,6 +31,8 @@
 #ifndef SSHKEYEXCHANGE_P_H
 #define SSHKEYEXCHANGE_P_H
 
+#include "sshconnection.h"
+
 #include <QByteArray>
 #include <QScopedPointer>
 
@@ -48,7 +50,7 @@ class SshIncomingPacket;
 class SshKeyExchange
 {
 public:
-    SshKeyExchange(SshSendFacility &sendFacility);
+    SshKeyExchange(const SshConnectionParameters &connParams, SshSendFacility &sendFacility);
     ~SshKeyExchange();
 
     void sendKexInitPacket(const QByteArray &serverId);
@@ -68,6 +70,9 @@ public:
     QByteArray hMacAlgoServerToClient() const { return m_s2cHMacAlgo; }
 
 private:
+    void checkHostKey(const QByteArray &hostKey);
+    Q_NORETURN void throwHostKeyException();
+
     QByteArray m_serverId;
     QByteArray m_clientKexInitPayload;
     QByteArray m_serverKexInitPayload;
@@ -80,6 +85,7 @@ private:
     QByteArray m_c2sHMacAlgo;
     QByteArray m_s2cHMacAlgo;
     QScopedPointer<Botan::HashFunction> m_hash;
+    const SshConnectionParameters m_connParams;
     SshSendFacility &m_sendFacility;
 };
 

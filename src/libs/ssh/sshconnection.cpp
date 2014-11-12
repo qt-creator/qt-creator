@@ -65,7 +65,8 @@ namespace QSsh {
 const QByteArray ClientId("SSH-2.0-QtCreator\r\n");
 
 SshConnectionParameters::SshConnectionParameters() :
-    timeout(0),  authenticationType(AuthenticationTypePublicKey), port(0)
+    timeout(0),  authenticationType(AuthenticationTypePublicKey), port(0),
+    hostKeyCheckingMode(SshHostKeyCheckingNone)
 {
     options |= SshIgnoreDefaultProxy;
     options |= SshEnableStrictConformanceChecks;
@@ -77,6 +78,7 @@ static inline bool equals(const SshConnectionParameters &p1, const SshConnection
             && p1.authenticationType == p2.authenticationType
             && (p1.authenticationType == SshConnectionParameters::AuthenticationTypePassword ?
                     p1.password == p2.password : p1.privateKeyFile == p2.privateKeyFile)
+            && p1.hostKeyCheckingMode == p2.hostKeyCheckingMode
             && p1.timeout == p2.timeout && p1.port == p2.port;
 }
 
@@ -90,7 +92,6 @@ bool operator!=(const SshConnectionParameters &p1, const SshConnectionParameters
     return !equals(p1, p2);
 }
 
-// TODO: Mechanism for checking the host key. First connection to host: save, later: compare
 
 SshConnection::SshConnection(const SshConnectionParameters &serverInfo, QObject *parent)
     : QObject(parent)
@@ -411,7 +412,7 @@ void SshConnectionPrivate::handleServerId()
         }
     }
 
-    m_keyExchange.reset(new SshKeyExchange(m_sendFacility));
+    m_keyExchange.reset(new SshKeyExchange(m_connParams, m_sendFacility));
     m_keyExchange->sendKexInitPacket(m_serverId);
     m_keyExchangeState = KexInitSent;
 }
@@ -460,7 +461,7 @@ void SshConnectionPrivate::handleKeyExchangeInitPacket()
 
     // Server-initiated re-exchange.
     if (m_keyExchangeState == NoKeyExchange) {
-        m_keyExchange.reset(new SshKeyExchange(m_sendFacility));
+        m_keyExchange.reset(new SshKeyExchange(m_connParams, m_sendFacility));
         m_keyExchange->sendKexInitPacket(m_serverId);
     }
 

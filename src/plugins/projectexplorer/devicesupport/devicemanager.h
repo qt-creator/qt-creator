@@ -36,6 +36,7 @@
 
 #include <QObject>
 
+namespace QSsh { class SshHostKeyDatabase; }
 namespace Utils { class FileName; }
 
 namespace ProjectExplorer {
@@ -105,6 +106,8 @@ private:
     IDevice::Ptr fromRawPointer(IDevice *device) const;
     IDevice::ConstPtr fromRawPointer(const IDevice *device) const;
 
+    static QString hostKeysFilePath();
+    QSharedPointer<QSsh::SshHostKeyDatabase> hostKeyDatabase() const;
     static Utils::FileName settingsFilePath(const QString &extension);
     static Utils::FileName systemSettingsFilePath(const QString &deviceFileRelativePath);
     static void copy(const DeviceManager *source, DeviceManager *target, bool deep);
