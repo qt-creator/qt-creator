@@ -723,13 +723,16 @@ QString DocumentManager::getSaveAsFileName(const IDocument *document, const QStr
         return QLatin1String("");
     QString absoluteFilePath = document->filePath();
     const QFileInfo fi(absoluteFilePath);
-    QString fileName = fi.fileName();
-    QString path = fi.absolutePath();
+    QString path;
+    QString fileName;
     if (absoluteFilePath.isEmpty()) {
         fileName = document->suggestedFileName();
         const QString defaultPath = document->defaultPath();
         if (!defaultPath.isEmpty())
             path = defaultPath;
+    } else {
+        path = fi.absolutePath();
+        fileName = fi.fileName();
     }
 
     QString filterString;
