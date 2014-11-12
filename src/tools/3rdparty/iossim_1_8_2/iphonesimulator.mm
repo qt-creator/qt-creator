@@ -458,14 +458,24 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
         useGDB = YES;
       } else if (strcmp(argv[i], "--developer-path") == 0) {
         ++i;
+          if (i == argc) {
+              nsprintf(@"<msg>missing arg after --developer-path</msg>");
+              [self doExit:EXIT_FAILURE];
+              return;
+          }
       } else if (strcmp(argv[i], "--timeout") == 0) {
         if (i + 1 < argc) {
           timeout = [[NSString stringWithUTF8String:argv[++i]] doubleValue];
-          NSLog(@"<msg>Timeout: %f second(s)</msg>", timeout);
+          nsprintf(@"<msg>Timeout: %f second(s)</msg>", timeout);
         }
       }
       else if (strcmp(argv[i], "--sdk") == 0) {
         i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --sdk</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         NSString* ver = [NSString stringWithCString:argv[i] encoding:NSUTF8StringEncoding];
         id tClass = objc_getClass("DTiPhoneSimulatorSystemRoot");
         NSArray *roots;
@@ -489,6 +499,11 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
         }
       } else if (strcmp(argv[i], "--family") == 0) {
         i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --family</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         family = [NSString stringWithUTF8String:argv[i]];
       } else if (strcmp(argv[i], "--uuid") == 0) {
         i++;
@@ -496,7 +511,7 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
       } else if (strcmp(argv[i], "--devicetypeid") == 0) {
           i++;
           if (i == argc) {
-              NSLog(@"<msg>missing arg after --devicetypeid</msg>");
+              nsprintf(@"<msg>missing arg after --devicetypeid</msg>");
               [self doExit:EXIT_FAILURE];
               return;
           }
@@ -520,7 +535,7 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
       } else if (strcmp(argv[i], "--setenv") == 0) {
         i++;
         if (i == argc) {
-            NSLog(@"<msg>missing arg after --setenv</msg>");
+            nsprintf(@"<msg>missing arg after --setenv</msg>");
             [self doExit:EXIT_FAILURE];
             return;
         }
@@ -528,6 +543,11 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
         [environment setObject:[parts objectAtIndex:1] forKey:[parts objectAtIndex:0]];
       } else if (strcmp(argv[i], "--env") == 0) {
         i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --env</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         NSString *envFilePath = [[NSString stringWithUTF8String:argv[i]] expandPath];
         environment = [NSMutableDictionary dictionaryWithContentsOfFile:envFilePath];
         if (!environment) {
@@ -537,12 +557,22 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
         }
       } else if (strcmp(argv[i], "--stdout") == 0) {
         i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --stdout</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         stdoutPath = [[NSString stringWithUTF8String:argv[i]] expandPath];
-        NSLog(@"stdoutPath: %@", stdoutPath);
+        nsprintf(@"<msg>stdoutPath: %@</msg>", stdoutPath);
       } else if (strcmp(argv[i], "--stderr") == 0) {
         i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --stderr</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         stderrPath = [[NSString stringWithUTF8String:argv[i]] expandPath];
-        NSLog(@"stderrPath: %@", stderrPath);
+        nsprintf(@"<msg>stderrPath: %@</msg>", stderrPath);
       } else if (strcmp(argv[i], "--retina") == 0) {
           retinaDevice = YES;
       } else if (strcmp(argv[i], "--tall") == 0) {

@@ -792,6 +792,11 @@ static void ChildSignal(int /*arg*/) {
         useGDB = YES;
       } else if (strcmp(argv[i], "--developer-path") == 0) {
         ++i;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --developer-path</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
       } else if (strcmp(argv[i], "--timeout") == 0) {
         if (i + 1 < argc) {
           timeout = [[NSString stringWithUTF8String:argv[++i]] doubleValue];
@@ -801,7 +806,12 @@ static void ChildSignal(int /*arg*/) {
       else if (strcmp(argv[i], "--sdk") == 0) {
         [self printDeprecation:argv[i]];
         i++;
-	   [self LoadSimulatorFramework:developerDir];
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --sdk</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
+       [self LoadSimulatorFramework:developerDir];
         NSString* ver = [NSString stringWithCString:argv[i] encoding:NSUTF8StringEncoding];
         Class systemRootClass = [self FindClassByName:@"DTiPhoneSimulatorSystemRoot"];
         NSArray *roots = [systemRootClass knownRoots];
@@ -820,19 +830,44 @@ static void ChildSignal(int /*arg*/) {
       } else if (strcmp(argv[i], "--family") == 0) {
         [self printDeprecation:argv[i]];
         i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --sdkfamilymsg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         family = [NSString stringWithUTF8String:argv[i]];
       } else if (strcmp(argv[i], "--uuid") == 0) {
         i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --uuid</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         uuid = [NSString stringWithUTF8String:argv[i]];
       } else if (strcmp(argv[i], "--devicetypeid") == 0) {
-          i++;
-          deviceTypeId = [NSString stringWithUTF8String:argv[i]];
+        i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --devicetypeid</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
+        deviceTypeId = [NSString stringWithUTF8String:argv[i]];
       } else if (strcmp(argv[i], "--setenv") == 0) {
         i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --setenv</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         NSArray *parts = [[NSString stringWithUTF8String:argv[i]] componentsSeparatedByString:@"="];
         [environment setObject:[parts objectAtIndex:1] forKey:[parts objectAtIndex:0]];
       } else if (strcmp(argv[i], "--env") == 0) {
         i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --env</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         NSString *envFilePath = [[NSString stringWithUTF8String:argv[i]] expandPath];
         [environment setValuesForKeysWithDictionary:[NSDictionary dictionaryWithContentsOfFile:envFilePath]];
         if (!environment) {
@@ -842,14 +877,29 @@ static void ChildSignal(int /*arg*/) {
         }
       } else if (strcmp(argv[i], "--stdout") == 0) {
         i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --stdout</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         stdoutPath = [[NSString stringWithUTF8String:argv[i]] expandPath];
         NSLog(@"stdoutPath: %@", stdoutPath);
       } else if (strcmp(argv[i], "--stderr") == 0) {
           i++;
+          if (i == argc) {
+              nsprintf(@"<msg>missing arg after --stderr</msg>");
+              [self doExit:EXIT_FAILURE];
+              return;
+          }
           stderrPath = [[NSString stringWithUTF8String:argv[i]] expandPath];
           NSLog(@"stderrPath: %@", stderrPath);
       } else if (strcmp(argv[i], "--xctest") == 0) {
           i++;
+          if (i == argc) {
+              nsprintf(@"<msg>missing arg after --xctest</msg>");
+              [self doExit:EXIT_FAILURE];
+              return;
+          }
           xctest = [[NSString stringWithUTF8String:argv[i]] expandPath];
           NSLog(@"xctest: %@", xctest);
       } else if (strcmp(argv[i], "--retina") == 0) {
