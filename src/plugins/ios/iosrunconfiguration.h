@@ -32,6 +32,7 @@
 
 #include "iosconstants.h"
 #include "iosconfigurations.h"
+#include "iossimulator.h"
 
 #include <projectexplorer/runconfiguration.h>
 #include <utils/fileutils.h>
@@ -42,16 +43,6 @@ class QmakeProFileNode;
 
 namespace Ios {
 namespace Internal {
-
-enum { nSimulatedDevices = 4 };
-static const IosDeviceType::Enum simulatedDevices[nSimulatedDevices] = {
-    // skip iPhone as it does not support iOS7
-    // TODO: clean solution would be to check also sdk version or make it configurable
-    IosDeviceType::SimulatedIphoneRetina3_5Inch,
-    IosDeviceType::SimulatedIphoneRetina4Inch,
-    IosDeviceType::SimulatedIpad,
-    IosDeviceType::SimulatedIpadRetina
-};
 
 class IosDeployStep;
 class IosRunConfigurationFactory;
@@ -76,8 +67,8 @@ public:
     Utils::FileName localExecutable() const;
     bool isEnabled() const;
     QString disabledReason() const;
-    IosDeviceType::Enum deviceType() const;
-    void setDeviceType(IosDeviceType::Enum deviceType);
+    IosDeviceType deviceType() const;
+    void setDeviceType(const IosDeviceType &deviceType);
 
     bool fromMap(const QVariantMap &map) Q_DECL_OVERRIDE;
     QVariantMap toMap() const Q_DECL_OVERRIDE;
@@ -102,7 +93,7 @@ private:
     bool m_lastIsEnabled;
     bool m_parseInProgress;
     bool m_parseSuccess;
-    IosDeviceType::Enum m_deviceType;
+    IosDeviceType m_deviceType;
 };
 
 } // namespace Internal

@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "iosdevice.h"
+#include "iossimulator.h"
 #include "iosconstants.h"
 #include "iosconfigurations.h"
 #include "iostoolhandler.h"
@@ -291,7 +292,7 @@ void IosDeviceManager::deviceDisconnected(const QString &uid)
 
 void IosDeviceManager::updateInfo(const QString &devId)
 {
-    IosToolHandler *requester = new IosToolHandler(IosDeviceType::IosDevice, this);
+    IosToolHandler *requester = new IosToolHandler(IosDeviceType(), this);
     connect(requester, SIGNAL(deviceInfo(Ios::IosToolHandler*,QString,Ios::IosToolHandler::Dict)),
             SLOT(deviceInfo(Ios::IosToolHandler*,QString,Ios::IosToolHandler::Dict)), Qt::QueuedConnection);
     connect(requester, SIGNAL(finished(Ios::IosToolHandler*)),

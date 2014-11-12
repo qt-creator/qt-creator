@@ -32,7 +32,7 @@
 
 #include "iosconfigurations.h"
 #include "iostoolhandler.h"
-#include "iosconstants.h"
+#include "iossimulator.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
 
@@ -90,7 +90,7 @@ private:
     QString m_bundleDir;
     QStringList m_arguments;
     ProjectExplorer::IDevice::ConstPtr m_device;
-    IosDeviceType::Enum m_deviceType;
+    IosDeviceType m_deviceType;
     bool m_cppDebug;
     bool m_qmlDebug;
     bool m_cleanExit;

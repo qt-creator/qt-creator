@@ -47,6 +47,7 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <QList>
+#include <QStandardItemModel>
 
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
@@ -79,6 +80,7 @@ private slots:
 private:
     Ui::IosRunConfiguration *m_ui;
     IosRunConfiguration *m_runConfiguration;
+    QStandardItemModel m_deviceTypeModel;
 };
 
 IosRunConfiguration::IosRunConfiguration(Target *parent, Core::Id id, const QString &path)
@@ -103,7 +105,6 @@ void IosRunConfiguration::init()
     m_parseInProgress = project->parseInProgress(m_profilePath);
     m_lastIsEnabled = isEnabled();
     m_lastDisabledReason = disabledReason();
-    m_deviceType = IosDeviceType::IosDevice;
     updateDisplayNames();
     connect(DeviceManager::instance(), SIGNAL(updated()),
             SLOT(deviceChanges()));
@@ -161,9 +162,9 @@ QStringList IosRunConfiguration::commandLineArguments()
 void IosRunConfiguration::updateDisplayNames()
 {
     if (DeviceTypeKitInformation::deviceTypeId(target()->kit()) == Constants::IOS_DEVICE_TYPE)
-        m_deviceType = IosDeviceType::IosDevice;
-    else if (m_deviceType == IosDeviceType::IosDevice)
-        m_deviceType = IosDeviceType::SimulatedIphoneRetina4Inch;
+        m_deviceType = IosDeviceType();
+    else if (m_deviceType.type == IosDeviceType::IosDevice)
+        m_deviceType = IosDeviceType(IosDeviceType::SimulatedDevice);
     IDevice::ConstPtr dev = DeviceKitInformation::device(target()->kit());
     const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
     setDefaultDisplayName(tr("Run on %1").arg(devName));
@@ -264,19 +265,14 @@ Utils::FileName IosRunConfiguration::localExecutable() const
 bool IosRunConfiguration::fromMap(const QVariantMap &map)
 {
     m_arguments = map.value(runConfigurationKey).toStringList();
-    IosDeviceType::Enum deviceType = static_cast<IosDeviceType::Enum>(map.value(deviceTypeKey)
-                                                                      .toInt());
-    bool valid = false;
-    for (int i = 0 ; i < nSimulatedDevices; ++i)
-        if (simulatedDevices[i] == m_deviceType)
-            valid = true;
-    if (valid)
-        m_deviceType = deviceType;
-    else if (DeviceTypeKitInformation::deviceTypeId(target()->kit()) == Constants::IOS_DEVICE_TYPE)
-        m_deviceType = IosDeviceType::IosDevice;
-    else
-        m_deviceType = IosDeviceType::SimulatedIphoneRetina4Inch;
-
+    bool deviceTypeIsInt;
+    map.value(deviceTypeKey).toInt(&deviceTypeIsInt);
+    if (deviceTypeIsInt || !m_deviceType.fromMap(map.value(deviceTypeKey).toMap())) {
+        if (DeviceTypeKitInformation::deviceTypeId(target()->kit()) == Constants::IOS_DEVICE_TYPE)
+            m_deviceType = IosDeviceType(IosDeviceType::IosDevice);
+        else
+            m_deviceType = IosDeviceType(IosDeviceType::SimulatedDevice);
+    }
     return RunConfiguration::fromMap(map);
 }
 
@@ -284,7 +280,7 @@ QVariantMap IosRunConfiguration::toMap() const
 {
     QVariantMap res = RunConfiguration::toMap();
     res[runConfigurationKey] = m_arguments;
-    res[deviceTypeKey] = m_deviceType;
+    res[deviceTypeKey] = deviceType().toMap();
     return res;
 }
 
@@ -358,12 +354,29 @@ QString IosRunConfiguration::disabledReason() const
     return RunConfiguration::disabledReason();
 }
 
-IosDeviceType::Enum IosRunConfiguration::deviceType() const
+IosDeviceType IosRunConfiguration::deviceType() const
 {
+    QList<IosDeviceType> availableSimulators;
+    if (m_deviceType.type == IosDeviceType::SimulatedDevice)
+        availableSimulators = IosSimulator::availableDevices();
+    if (!availableSimulators.isEmpty()) {
+        QList<IosDeviceType> elegibleDevices;
+        QString devname = m_deviceType.identifier.split(QLatin1Char(',')).value(0);
+        foreach (const IosDeviceType &dType, availableSimulators) {
+            if (dType == m_deviceType)
+                return m_deviceType;
+            if (!devname.isEmpty() && dType.identifier.startsWith(devname)
+                    && dType.identifier.split(QLatin1Char(',')).value(0) == devname)
+                elegibleDevices << dType;
+        }
+        if (!elegibleDevices.isEmpty())
+            return elegibleDevices.last();
+        return availableSimulators.last();
+    }
     return m_deviceType;
 }
 
-void IosRunConfiguration::setDeviceType(IosDeviceType::Enum deviceType)
+void IosRunConfiguration::setDeviceType(const IosDeviceType &deviceType)
 {
     m_deviceType = deviceType;
 }
@@ -372,6 +385,7 @@ IosRunConfigurationWidget::IosRunConfigurationWidget(IosRunConfiguration *runCon
     m_ui(new Ui::IosRunConfiguration), m_runConfiguration(runConfiguration)
 {
     m_ui->setupUi(this);
+    m_ui->deviceTypeComboBox->setModel(&m_deviceTypeModel);
 
     updateValues();
     connect(m_ui->deviceTypeComboBox, SIGNAL(currentIndexChanged(int)),
@@ -436,25 +450,46 @@ void IosRunConfigurationWidget::argumentsLineEditTextEdited()
 
 void IosRunConfigurationWidget::setDeviceTypeIndex(int devIndex)
 {
-    if (devIndex >= 0 && devIndex < nSimulatedDevices)
-        m_runConfiguration->setDeviceType(simulatedDevices[devIndex]);
-    else
-        m_runConfiguration->setDeviceType(IosDeviceType::SimulatedIphoneRetina4Inch);
+    QVariant selectedDev = m_deviceTypeModel.data(m_deviceTypeModel.index(devIndex, 0), Qt::UserRole + 1);
+    if (selectedDev.isValid())
+        m_runConfiguration->setDeviceType(selectedDev.value<IosDeviceType>());
 }
 
 
 void IosRunConfigurationWidget::updateValues()
 {
-    bool showDeviceSelector = m_runConfiguration->deviceType() != IosDeviceType::IosDevice;
+    bool showDeviceSelector = m_runConfiguration->deviceType().type != IosDeviceType::IosDevice;
     m_ui->deviceTypeLabel->setVisible(showDeviceSelector);
     m_ui->deviceTypeComboBox->setVisible(showDeviceSelector);
+    if (showDeviceSelector && m_deviceTypeModel.rowCount() == 0) {
+        foreach (const IosDeviceType &dType, IosSimulator::availableDevices()) {
+            QStandardItem *item = new QStandardItem(dType.displayName);
+            QVariant v;
+            v.setValue(dType);
+            item->setData(v);
+            m_deviceTypeModel.appendRow(item);
+        }
+    }
     QStringList args = m_runConfiguration->commandLineArguments();
     QString argsString = argListToString(args);
 
-    if (m_runConfiguration->deviceType() == IosDeviceType::IosDevice)
-        for (int i = 0; i < nSimulatedDevices; ++i)
-            if (simulatedDevices[i] == m_runConfiguration->deviceType())
+    IosDeviceType currentDType = m_runConfiguration->deviceType();
+    if (!m_ui->deviceTypeComboBox->currentData().isValid()
+            || currentDType != m_ui->deviceTypeComboBox->currentData().value<IosDeviceType>()) {
+        bool didSet = false;
+        for (int i = 0; m_deviceTypeModel.hasIndex(i, 0); ++i) {
+            QVariant vData = m_deviceTypeModel.data(m_deviceTypeModel.index(i, 0), Qt::UserRole + 1);
+            IosDeviceType dType = vData.value<IosDeviceType>();
+            if (dType == currentDType) {
                 m_ui->deviceTypeComboBox->setCurrentIndex(i);
+                didSet = true;
+                break;
+            }
+        }
+        if (!didSet) {
+            qCWarning(iosLog) << "could not set " << currentDType << " as it is not in model";
+        }
+    }
     m_ui->argumentsLineEdit->setText(argsString);
     m_ui->executableLineEdit->setText(m_runConfiguration->localExecutable().toUserOutput());
 }

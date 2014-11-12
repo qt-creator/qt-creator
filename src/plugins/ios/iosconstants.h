@@ -38,17 +38,6 @@ namespace Internal {
 Q_DECLARE_LOGGING_CATEGORY(iosLog)
 } // namespace Internal
 
-namespace IosDeviceType {
-enum Enum {
-    IosDevice,
-    SimulatedIphone,
-    SimulatedIpad,
-    SimulatedIphoneRetina4Inch,
-    SimulatedIphoneRetina3_5Inch,
-    SimulatedIpadRetina
-};
-}
-
 namespace Constants {
 const char IOS_SETTINGS_ID[] = "ZZ.Ios Configurations";
 const char IOS_SETTINGS_CATEGORY[] = "XA.Ios";

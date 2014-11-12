@@ -284,13 +284,24 @@ NSString* FindDeveloperDir() {
 
 - (int) showDeviceTypes {
     Class simDeviceSet = NSClassFromString(@"SimDeviceSet");
+    nsprintf(@"<device_info>");
+    bool hasDevices = false;
     if (simDeviceSet) {
         SimDeviceSet* deviceSet = [simDeviceSet defaultSet];
         NSArray* devices = [deviceSet availableDevices];
         for (SimDevice* device in devices) {
-            nsfprintf(stderr, @"%@, %@", device.deviceType.identifier, device.runtime.versionString);
+            hasDevices = true;
+            nsfprintf(stdout, @"<item><key>%@, %@</key><value>%@</value></item>",device.deviceType.identifier, device.runtime.versionString, device.deviceType.name);
         }
     }
+    if (!hasDevices) {
+        // fallback devices for Xcode 5.x
+        nsprintf(@"<item><key>com.apple.CoreSimulator.SimDeviceType.iPhone-4s</key><value>iPhone 3.5-inch Retina Display</value></item>");
+        nsprintf(@"<item><key>com.apple.CoreSimulator.SimDeviceType.iPhone-5s</key><value>iPhone 4-inch Retina Display</value></item>");
+        nsprintf(@"<item><key>com.apple.CoreSimulator.SimDeviceType.iPad-2</key><value>iPad</value></item>");
+        nsprintf(@"<item><key>com.apple.CoreSimulator.SimDeviceType.iPad-Retina</key><value>iPad Retina Display</value></item>");
+    }
+    nsprintf(@"</device_info>");
 
     return EXIT_SUCCESS;
 }
@@ -620,7 +631,21 @@ static void ChildSignal(int /*arg*/) {
 
 - (NSString*) changeDeviceType:(NSString *)family retina:(BOOL)retina isTallDevice:(BOOL)isTallDevice is64Bit:(BOOL)is64Bit {
   NSString *devicePropertyValue;
-  if (retina) {
+  if (self->deviceTypeId) {
+    if ([deviceTypeIdIphone4s isEqual: deviceTypeId])
+        devicePropertyValue = deviceIphoneRetina3_5Inch;
+    else if ([deviceTypeIdIphone5s isEqual: deviceTypeId])
+        devicePropertyValue = deviceIphoneRetina4_0Inch;
+    else if ([deviceTypeIdIpad2 isEqual: deviceTypeId])
+        devicePropertyValue = deviceIpad;
+    else if ([deviceTypeIdIpadRetina isEqual: deviceTypeId])
+        devicePropertyValue = deviceIpadRetina;
+    else {
+        nsprintf(@"<msg>Unknown or unsupported device type: %@</msg>\n", deviceTypeId);
+        [self doExit:EXIT_FAILURE];
+        return nil;
+    }
+  } else if (retina) {
     if (verbose) {
       msgprintf(@"using retina");
     }
@@ -690,8 +715,8 @@ static void ChildSignal(int /*arg*/) {
   }
   NSString* developerDir = FindDeveloperDir();
   if (!developerDir) {
-    nsprintf(@"Unable to find developer directory.");
-    exit(EXIT_FAILURE);
+    nsprintf(@"<msg>Unable to find developer directory.</msg>");
+    [self doExit:EXIT_FAILURE];
   }
   NSString *xcodePlistPath = [developerDir stringByAppendingPathComponent:@"../Info.plist"];
   NSAssert([[NSFileManager defaultManager] fileExistsAtPath:xcodePlistPath isDirectory:NULL],
@@ -717,15 +742,15 @@ static void ChildSignal(int /*arg*/) {
   }
   if (strcmp(argv[1], "showsdks") == 0) {
 	[self LoadSimulatorFramework:developerDir];
-    exit([self showSDKs]);
+    [self doExit:[self showSDKs]];
   } else if (strcmp(argv[1], "showdevicetypes") == 0) {
     [self LoadSimulatorFramework:developerDir];
-     exit([self showDeviceTypes]);
+    [self doExit:[self showDeviceTypes]];
   } else if (strcmp(argv[1], "launch") == 0 || startOnly) {
     if (strcmp(argv[1], "launch") == 0 && argc < 3) {
       msgprintf(@"Missing application path argument");
       [self printUsage];
-      exit(EXIT_FAILURE);
+      [self doExit:EXIT_FAILURE];
     }
 
     NSString *appPath = nil;

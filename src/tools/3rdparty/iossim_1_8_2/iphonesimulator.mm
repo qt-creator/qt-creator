@@ -400,7 +400,16 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
   startOnly = strcmp(argv[1], "start") == 0;
   nsprintf(@"<query_result>");
 
-  if (strcmp(argv[1], "showsdks") == 0) {
+  if (strcmp(argv[1], "showdevicetypes") == 0) {
+     nsprintf(@"<deviceinfo>");
+     nsprintf(@"<item><key>com.apple.CoreSimulator.SimDeviceType.iPhone-4s</key><value>iPhone 3.5-inch Retina Display</value></item>");
+     nsprintf(@"<item><key>com.apple.CoreSimulator.SimDeviceType.iPhone-5s</key><value>iPhone 4-inch Retina Display</value></item>");
+     nsprintf(@"<item><key>com.apple.CoreSimulator.SimDeviceType.iPad-2</key><value>iPad</value></item>");
+     nsprintf(@"<item><key>com.apple.CoreSimulator.SimDeviceType.iPad-Retina</key><value>iPad Retina Display</value></item>");
+     nsprintf(@"</deviceinfo>");
+    [self doExit:0];
+    return;
+  } else if (strcmp(argv[1], "showsdks") == 0) {
     [self doExit:[self showSDKs]];
     return;
   } else if (strcmp(argv[1], "launch") == 0 || startOnly) {
@@ -484,8 +493,37 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
       } else if (strcmp(argv[i], "--uuid") == 0) {
         i++;
         uuid = [NSString stringWithUTF8String:argv[i]];
+      } else if (strcmp(argv[i], "--devicetypeid") == 0) {
+          i++;
+          if (i == argc) {
+              NSLog(@"<msg>missing arg after --devicetypeid</msg>");
+              [self doExit:EXIT_FAILURE];
+              return;
+          }
+          if (strcmp(argv[i], "com.apple.CoreSimulator.SimDeviceType.iPhone-4s") == 0) {
+              family = [NSString stringWithUTF8String:"iphone"];
+              retinaDevice = YES;
+          } else if (strcmp(argv[i], "com.apple.CoreSimulator.SimDeviceType.iPad-2") == 0) {
+              family = [NSString stringWithUTF8String:"ipad"];
+          } else if (strcmp(argv[i], "com.apple.CoreSimulator.SimDeviceType.iPhone-5s") == 0) {
+              family = [NSString stringWithUTF8String:"iphone"];
+              retinaDevice = YES;
+              tallDevice = YES;
+          } else if (strcmp(argv[i], "com.apple.CoreSimulator.SimDeviceType.iPad-Retina") == 0) {
+              family = [NSString stringWithUTF8String:"ipad"];
+              retinaDevice = YES;
+          } else {
+              fprintf(stdout,"<msg>Unknown or unsupported device type: %s</msg>\n",argv[i]);
+              [self doExit:EXIT_FAILURE];
+              return;
+          }
       } else if (strcmp(argv[i], "--setenv") == 0) {
         i++;
+        if (i == argc) {
+            NSLog(@"<msg>missing arg after --setenv</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         NSArray *parts = [[NSString stringWithUTF8String:argv[i]] componentsSeparatedByString:@"="];
         [environment setObject:[parts objectAtIndex:1] forKey:[parts objectAtIndex:0]];
       } else if (strcmp(argv[i], "--env") == 0) {

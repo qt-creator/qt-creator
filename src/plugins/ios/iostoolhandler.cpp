@@ -31,6 +31,7 @@
 #include "iostoolhandler.h"
 #include "iosconfigurations.h"
 #include "iosconstants.h"
+#include "iossimulator.h"
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
@@ -126,7 +127,7 @@ public:
         OpAppRun
     };
 
-    explicit IosToolHandlerPrivate(IosDeviceType::Enum devType, IosToolHandler *q);
+    explicit IosToolHandlerPrivate(const IosDeviceType &devType, IosToolHandler *q);
     virtual ~IosToolHandlerPrivate() {}
     virtual void requestTransferApp(const QString &bundlePath, const QString &deviceId,
                                     int timeout = 1000) = 0;
@@ -170,7 +171,7 @@ protected:
     IosToolHandler::RunKind runKind;
     State state;
     Op op;
-    IosDeviceType::Enum devType;
+    IosDeviceType devType;
     static const int lookaheadSize = 67;
     int iBegin, iEnd, gdbSocket;
     QList<ParserState> stack;
@@ -179,7 +180,7 @@ protected:
 class IosDeviceToolHandlerPrivate : public IosToolHandlerPrivate
 {
 public:
-    explicit IosDeviceToolHandlerPrivate(IosDeviceType::Enum devType, IosToolHandler *q);
+    explicit IosDeviceToolHandlerPrivate(const IosDeviceType &devType, IosToolHandler *q);
     virtual void requestTransferApp(const QString &bundlePath, const QString &deviceId,
                                     int timeout = 1000);
     virtual void requestRunApp(const QString &bundlePath, const QStringList &extraArgs,
@@ -192,7 +193,7 @@ public:
 class IosSimulatorToolHandlerPrivate : public IosToolHandlerPrivate
 {
 public:
-    explicit IosSimulatorToolHandlerPrivate(IosDeviceType::Enum devType, IosToolHandler *q);
+    explicit IosSimulatorToolHandlerPrivate(const IosDeviceType &devType, IosToolHandler *q);
     virtual void requestTransferApp(const QString &bundlePath, const QString &deviceId,
                                     int timeout = 1000);
     virtual void requestRunApp(const QString &bundlePath, const QStringList &extraArgs,
@@ -204,7 +205,7 @@ private:
     void addDeviceArguments(QStringList &args) const;
 };
 
-IosToolHandlerPrivate::IosToolHandlerPrivate(IosDeviceType::Enum devType,
+IosToolHandlerPrivate::IosToolHandlerPrivate(const IosDeviceType &devType,
                                              Ios::IosToolHandler *q) :
     q(q), state(NonStarted), devType(devType), iBegin(0), iEnd(0),
     gdbSocket(-1)
@@ -578,7 +579,7 @@ void IosToolHandlerPrivate::subprocessHasData()
 
 // IosDeviceToolHandlerPrivate
 
-IosDeviceToolHandlerPrivate::IosDeviceToolHandlerPrivate(IosDeviceType::Enum devType,
+IosDeviceToolHandlerPrivate::IosDeviceToolHandlerPrivate(const IosDeviceType &devType,
                                                          IosToolHandler *q)
     : IosToolHandlerPrivate(devType, q)
 { }
@@ -637,7 +638,7 @@ bool IosDeviceToolHandlerPrivate::expectsFileDescriptor()
 
 // IosSimulatorToolHandlerPrivate
 
-IosSimulatorToolHandlerPrivate::IosSimulatorToolHandlerPrivate(IosDeviceType::Enum devType,
+IosSimulatorToolHandlerPrivate::IosSimulatorToolHandlerPrivate(const IosDeviceType &devType,
                                                          IosToolHandler *q)
     : IosToolHandlerPrivate(devType, q)
 { }
@@ -684,7 +685,7 @@ void IosSimulatorToolHandlerPrivate::requestDeviceInfo(const QString &deviceId, 
     Q_UNUSED(timeout);
     this->deviceId = deviceId;
     QStringList args;
-    args << QLatin1String("showsdks");
+    args << QLatin1String("showdevicetypes");
     op = OpDeviceInfo;
     start(IosToolHandler::iosSimulatorToolPath(), args);
 }
@@ -696,27 +697,11 @@ bool IosSimulatorToolHandlerPrivate::expectsFileDescriptor()
 
 void IosSimulatorToolHandlerPrivate::addDeviceArguments(QStringList &args) const
 {
-    switch (devType) {
-    case IosDeviceType::IosDevice:
-        qCWarning(toolHandlerLog) << "IosSimulatorToolHandlerPrivate has device type IosDeviceType";
-        break;
-    case IosDeviceType::SimulatedIphone:
-        args << QLatin1String("--family") << QLatin1String("iphone");
-        break;
-    case IosDeviceType::SimulatedIpad:
-        args << QLatin1String("--family") << QLatin1String("ipad");
-        break;
-    case IosDeviceType::SimulatedIphoneRetina4Inch:
-        args << QLatin1String("--family") << QLatin1String("iphone")
-             << QLatin1String("--retina") << QLatin1String("--tall");
-        break;
-    case IosDeviceType::SimulatedIphoneRetina3_5Inch:
-        args << QLatin1String("--family") << QLatin1String("iphone") << QLatin1String("--retina");
-        break;
-    case IosDeviceType::SimulatedIpadRetina:
-        args << QLatin1String("--family") << QLatin1String("ipad") << QLatin1String("--retina");
-        break;
+    if (devType.type != IosDeviceType::SimulatedDevice) {
+        qCWarning(toolHandlerLog) << "IosSimulatorToolHandlerPrivate device type is not SimulatedDevice";
+        return;
     }
+    args << QLatin1String("--devicetypeid") << devType.identifier;
 }
 
 void IosToolHandlerPrivate::killProcess()
@@ -745,10 +730,10 @@ QString IosToolHandler::iosSimulatorToolPath()
     return res;
 }
 
-IosToolHandler::IosToolHandler(IosDeviceType::Enum devType, QObject *parent) :
+IosToolHandler::IosToolHandler(const Internal::IosDeviceType &devType, QObject *parent) :
     QObject(parent)
 {
-    if (devType == IosDeviceType::IosDevice)
+    if (devType.type == Internal::IosDeviceType::IosDevice)
         d = new Internal::IosDeviceToolHandlerPrivate(devType, this);
     else
         d = new Internal::IosSimulatorToolHandlerPrivate(devType, this);
