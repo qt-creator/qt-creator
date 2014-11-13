@@ -484,6 +484,8 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
             this, SLOT(userArgumentsChanged()));
     connect(step, SIGNAL(linkQmlDebuggingLibraryChanged()),
             this, SLOT(linkQmlDebuggingLibraryChanged()));
+    connect(step->project(), &Project::projectLanguagesUpdated,
+            this, &QMakeStepConfigWidget::linkQmlDebuggingLibraryChanged);
     connect(step, &QMakeStep::useQtQuickCompilerChanged,
             this, &QMakeStepConfigWidget::useQtQuickCompilerChanged);
     connect(step->qmakeBuildConfiguration(), SIGNAL(qmakeBuildConfigurationChanged()),
