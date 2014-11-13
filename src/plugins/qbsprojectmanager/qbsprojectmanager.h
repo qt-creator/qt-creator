@@ -72,7 +72,7 @@ public:
     ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString);
 
     // QBS profiles management:
-    QString profileForKit(const ProjectExplorer::Kit *k) const;
+    QString profileForKit(ProjectExplorer::Kit *k);
     void setProfileForKit(const QString &name, const ProjectExplorer::Kit *k);
 
     void updateProfileIfNecessary(ProjectExplorer::Kit *kit);
