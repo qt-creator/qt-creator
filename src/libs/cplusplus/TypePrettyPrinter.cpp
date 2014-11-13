@@ -454,6 +454,17 @@ void TypePrettyPrinter::visit(Function *type)
             appendSpace();
             _text += QLatin1String("volatile");
         }
+
+        // add ref-qualifier
+        if (type->refQualifier() != Function::NoRefQualifier) {
+            if (!_overview->starBindFlags.testFlag(Overview::BindToLeftSpecifier)
+                    || (!type->isConst() && !type->isVolatile())) {
+                appendSpace();
+            }
+            _text += type->refQualifier() == Function::LvalueRefQualifier
+                        ? QLatin1String("&")
+                        : QLatin1String("&&");
+        }
     }
 }
 

@@ -93,6 +93,33 @@ static FullySpecifiedType fnTy(const QString &name, const FullySpecifiedType &re
     return FullySpecifiedType(fn);
 }
 
+static FullySpecifiedType refThis(const FullySpecifiedType &type)
+{
+    FullySpecifiedType result(type);
+    Function *f = dynamic_cast<Function*>(result.type());
+    Q_ASSERT(f);
+    f->setRefQualifier(Function::LvalueRefQualifier);
+    return result;
+}
+
+static FullySpecifiedType rrefThis(const FullySpecifiedType &type)
+{
+    FullySpecifiedType result(type);
+    Function *function = dynamic_cast<Function*>(result.type());
+    Q_ASSERT(function);
+    function->setRefQualifier(Function::RvalueRefQualifier);
+    return result;
+}
+
+static FullySpecifiedType cnstThis(const FullySpecifiedType &type)
+{
+    FullySpecifiedType result(type);
+    Function *function = dynamic_cast<Function*>(result.type());
+    Q_ASSERT(function);
+    function->setConst(true);
+    return result;
+}
+
 static FullySpecifiedType ptr(const FullySpecifiedType &el)
 { return FullySpecifiedType(new PointerType(el)); }
 
@@ -166,6 +193,14 @@ void tst_TypePrettyPrinter::basic_data()
 
     addRow(fnTy("foo", voidTy(), intTy()), bindToNothing, "void foo(int)", "foo");
     addRow(fnTy("foo", voidTy(), intTy()), bindToAll, "void foo(int)", "foo");
+    addRow(refThis(fnTy("foo", voidTy())), bindToNothing, "void foo() &", "foo");
+    addRow(rrefThis(fnTy("foo", voidTy())), bindToNothing, "void foo() &&", "foo");
+    addRow(refThis(fnTy("foo", voidTy())), bindToAll, "void foo() &", "foo");
+    addRow(rrefThis(fnTy("foo", voidTy())), bindToAll, "void foo() &&", "foo");
+    addRow(cnstThis(refThis(fnTy("foo", voidTy()))), bindToNothing, "void foo() const &", "foo");
+    addRow(cnstThis(rrefThis(fnTy("foo", voidTy()))), bindToNothing, "void foo() const &&", "foo");
+    addRow(cnstThis(refThis(fnTy("foo", voidTy()))), bindToAll, "void foo() const&", "foo");
+    addRow(cnstThis(rrefThis(fnTy("foo", voidTy()))), bindToAll, "void foo() const&&", "foo");
 
     // Pointers to functions and arrays are also excluded. It seems to be quite unusal to have
     // a space there.

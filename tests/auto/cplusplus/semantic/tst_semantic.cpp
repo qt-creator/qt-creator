@@ -50,6 +50,9 @@
 
 using namespace CPlusPlus;
 
+// to use in tests directly w/o convertion to int
+Q_DECLARE_METATYPE(Function::RefQualifier)
+
 class tst_Semantic: public QObject
 {
     Q_OBJECT
@@ -150,6 +153,8 @@ public:
 private slots:
     void function_declaration_1();
     void function_declaration_2();
+    void function_declaration_ref_qualifier_data();
+    void function_declaration_ref_qualifier();
     void function_definition_1();
     void nested_class_1();
     void alias_declaration_1();
@@ -202,6 +207,7 @@ void tst_Semantic::function_declaration_1()
     QVERIFY(funTy);
     QVERIFY(funTy->returnType()->isVoidType());
     QCOMPARE(funTy->argumentCount(), 0U);
+    QCOMPARE(funTy->refQualifier(), Function::NoRefQualifier);
 
     QVERIFY(decl->name()->isNameId());
     const Identifier *funId = decl->name()->asNameId()->identifier();
@@ -225,6 +231,7 @@ void tst_Semantic::function_declaration_2()
     QVERIFY(funTy);
     QVERIFY(funTy->returnType()->isVoidType());
     QCOMPARE(funTy->argumentCount(), 1U);
+    QCOMPARE(funTy->refQualifier(), Function::NoRefQualifier);
 
     // check the formal argument.
     Argument *arg = funTy->argumentAt(0)->asArgument();
@@ -261,6 +268,103 @@ void tst_Semantic::function_declaration_2()
     QCOMPARE(foo, QByteArray("foo"));
 }
 
+void tst_Semantic::function_declaration_ref_qualifier_data()
+{
+    QTest::addColumn<QString>("code");
+    QTest::addColumn<bool>("success");
+    QTest::addColumn<Function::RefQualifier>("refQualifier");
+
+    QTest::newRow("no")
+            << "void f();" << true << Function::NoRefQualifier;
+
+    QTest::newRow("no_const")
+            << "void f() const;" << true << Function::NoRefQualifier;
+
+    QTest::newRow("no_const_noexcept")
+            << "void f() const noexcept;" << true << Function::NoRefQualifier;
+
+    QTest::newRow("lvalue")
+            << "void f() &;" << true << Function::LvalueRefQualifier;
+
+    QTest::newRow("lvalue_const")
+            << "void f() const &;" << true << Function::LvalueRefQualifier;
+
+    QTest::newRow("lvalue_const_noexcept")
+            << "void f() const & noexcept;" << true << Function::LvalueRefQualifier;
+
+    QTest::newRow("rvalue")
+            << "void f() &&;" << true << Function::RvalueRefQualifier;
+
+    QTest::newRow("rvalue_const")
+            << "void f() const &&;" << true << Function::RvalueRefQualifier;
+
+    QTest::newRow("rvalue_const_noexcept")
+            << "void f() const && noexcept;" << true << Function::RvalueRefQualifier;
+
+    QTest::newRow("lvalue_more_spaces")
+            << "void f()  const    &;" << true << Function::LvalueRefQualifier;
+
+    QTest::newRow("rvalue_more_spaces")
+            << "void f()       &&    noexcept;" << true << Function::RvalueRefQualifier;
+
+    QTest::newRow("lvalue_more_newline")
+            << "void f() const\n&;" << true << Function::LvalueRefQualifier;
+
+    QTest::newRow("rvalue_more_newline")
+            << "void f() const\n&&;" << true << Function::RvalueRefQualifier;
+
+    QTest::newRow("lvalue_no_space")
+            << "void f() const& noexcept;" << true << Function::LvalueRefQualifier;
+
+    QTest::newRow("rvalue_no_space")
+            << "void f() const&& noexcept;" << true << Function::RvalueRefQualifier;
+
+    QTest::newRow("lvalue_before_const")
+            << "void f() & const;" << false << Function::NoRefQualifier;
+
+    QTest::newRow("rvalue_before_const")
+            << "void f() && const;" << false << Function::NoRefQualifier;
+
+    QTest::newRow("lvalue_after_noexcept")
+            << "void f() const noexcept &;" << false << Function::NoRefQualifier;
+
+    QTest::newRow("rvalue_after_noexcept")
+            << "void f() const noexcept &&;" << false << Function::NoRefQualifier;
+
+    QTest::newRow("lvalue_double")
+            << "void f() const & & noexcept;" << false << Function::NoRefQualifier;
+
+    QTest::newRow("rvalue_double")
+            << "void f() const && && noexcept;" << false << Function::NoRefQualifier;
+}
+
+void tst_Semantic::function_declaration_ref_qualifier()
+{
+    QFETCH(QString, code);
+    QFETCH(bool, success);
+    QFETCH(Function::RefQualifier, refQualifier);
+
+    QSharedPointer<Document> doc = document(code.toUtf8(), false, false, true);
+    if (!success) {
+        QVERIFY(doc->errorCount > 0);
+        return;
+    }
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
+
+    Declaration *decl = doc->globals->memberAt(0)->asDeclaration();
+    QVERIFY(decl);
+
+    FullySpecifiedType declTy = decl->type();
+    Function *funTy = declTy->asFunctionType();
+    QVERIFY(funTy);
+    QVERIFY(funTy->returnType()->isVoidType());
+    QCOMPARE(funTy->argumentCount(), 0U);
+
+    // check the ref-qualifier
+    QCOMPARE(funTy->refQualifier(), refQualifier);
+}
+
 void tst_Semantic::function_definition_1()
 {
     QSharedPointer<Document> doc = document("void foo() {}");
@@ -271,6 +375,7 @@ void tst_Semantic::function_definition_1()
     QVERIFY(funTy);
     QVERIFY(funTy->returnType()->isVoidType());
     QCOMPARE(funTy->argumentCount(), 0U);
+    QCOMPARE(funTy->refQualifier(), Function::NoRefQualifier);
 
     QVERIFY(funTy->name()->isNameId());
     const Identifier *funId = funTy->name()->asNameId()->identifier();
