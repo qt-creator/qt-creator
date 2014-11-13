@@ -207,7 +207,7 @@ void InfoBarDisplay::update()
 
         QPalette pal;
         pal.setColor(QPalette::Window, creatorTheme()->color(Theme::InfoBarBackground));
-        pal.setColor(QPalette::WindowText, Theme::InfoBarText);
+        pal.setColor(QPalette::WindowText, creatorTheme()->color(Theme::InfoBarText));
 
         infoWidget->setPalette(pal);
         infoWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
