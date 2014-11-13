@@ -58,7 +58,7 @@ def registerCommand(name, func):
     Command()
 
 
-def listOfLocals(varList):
+def listOfLocals():
     frame = gdb.selected_frame()
 
     try:
@@ -444,30 +444,30 @@ class Dumper(DumperBase):
         # Locals
         #
         self.output.append('data=[')
-        locals = []
-        fullUpdateNeeded = True
-        if self.partialUpdate and len(self.varList) == 1 and not self.tooltipOnly:
+        if self.partialUpdate and len(self.varList) == 1:
             #warn("PARTIAL: %s" % self.varList)
             parts = self.varList[0].split('.')
             #warn("PARTIAL PARTS: %s" % parts)
             name = parts[1]
             #warn("PARTIAL VAR: %s" % name)
-            #fullUpdateNeeded = False
+            item = LocalItem()
+            item.iname = parts[0] + '.' + name
+            item.name = name
             try:
-                frame = gdb.selected_frame()
-                item = LocalItem()
-                item.iname = "local." + name
-                item.name = name
-                item.value = frame.read_var(name)
-                locals = [item]
-                #warn("PARTIAL LOCALS: %s" % locals)
-                fullUpdateNeeded = False
+                if parts[0] == 'local':
+                    frame = gdb.selected_frame()
+                    item.value = frame.read_var(name)
+                else:
+                    item.name = self.hexdecode(name)
+                    item.value = gdb.parse_and_eval(item.name)
+            except RuntimeError as error:
+                item.value = error
             except:
-                pass
-            self.varList = []
-
-        if fullUpdateNeeded and not self.tooltipOnly:
-            locals = listOfLocals(self.varList)
+                item.value = "<no value>"
+            locals = [item]
+            #warn("PARTIAL LOCALS: %s" % locals)
+        else:
+            locals = listOfLocals()
 
         # Take care of the return value of the last function call.
         if len(self.resultVarName) > 0:
