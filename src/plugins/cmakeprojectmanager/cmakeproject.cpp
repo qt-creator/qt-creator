@@ -674,10 +674,14 @@ void CMakeProject::updateApplicationAndDeploymentTargets()
     QFile deploymentFile;
     QTextStream deploymentStream;
     QString deploymentPrefix;
-    QDir sourceDir;
 
-    sourceDir.setPath(t->project()->projectDirectory().toString());
+    QDir sourceDir(t->project()->projectDirectory().toString());
+    QDir buildDir(t->activeBuildConfiguration()->buildDirectory().toString());
+
     deploymentFile.setFileName(sourceDir.filePath(QLatin1String("QtCreatorDeployment.txt")));
+    // If we don't have a global QtCreatorDeployment.txt check for one created by the active build configuration
+    if (!deploymentFile.exists())
+        deploymentFile.setFileName(buildDir.filePath(QLatin1String("QtCreatorDeployment.txt")));
     if (deploymentFile.open(QFile::ReadOnly | QFile::Text)) {
         deploymentStream.setDevice(&deploymentFile);
         deploymentPrefix = deploymentStream.readLine();
@@ -687,7 +691,7 @@ void CMakeProject::updateApplicationAndDeploymentTargets()
 
     BuildTargetInfoList appTargetList;
     DeploymentData deploymentData;
-    QDir buildDir(t->activeBuildConfiguration()->buildDirectory().toString());
+
     foreach (const CMakeBuildTarget &ct, m_buildTargets) {
         if (ct.executable.isEmpty())
             continue;

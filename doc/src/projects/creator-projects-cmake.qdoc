@@ -115,7 +115,10 @@
     \QC cannot extract files to be installed from a CMake project, and
     therefore, only executable targets are automatically added to deployment
     files. You must specify all other files in the \c QtCreatorDeployment.txt
-    file that you create and place in the root directory of the CMake project.
+    file that you create and place in either the root directory of the CMake
+    project or the build directory of the active build configuration.
+    Currently, Qt Creator first checks the root directory and only if no
+    \c QtCreatorDeployment.txt exists it checks the active build directory.
 
     Use the following syntax in the file:
 
