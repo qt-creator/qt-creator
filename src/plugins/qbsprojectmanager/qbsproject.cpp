@@ -727,6 +727,8 @@ void QbsProject::updateCppCodeModel()
                 int pos = data.indexOf('=');
                 if (pos >= 0)
                     data[pos] = ' ';
+                else
+                    data.append(" 1"); // cpp.defines: [ "FOO" ] is considered to be "FOO=1"
                 grpDefines += (QByteArray("#define ") + data + '\n');
             }
             ppBuilder.setDefines(grpDefines);
