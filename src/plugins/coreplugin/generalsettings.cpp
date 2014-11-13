@@ -188,6 +188,7 @@ void GeneralSettings::apply()
     PatchTool::setPatchCommand(m_page->patchChooser->path());
     EditorManagerPrivate::setAutoSaveEnabled(m_page->autoSaveCheckBox->isChecked());
     EditorManagerPrivate::setAutoSaveInterval(m_page->autoSaveInterval->value());
+    m_page->themeWidget->apply();
 }
 
 void GeneralSettings::finish()
