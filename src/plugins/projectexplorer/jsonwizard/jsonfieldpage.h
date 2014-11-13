@@ -34,13 +34,13 @@
 #include <utils/pathchooser.h>
 #include <utils/wizardpage.h>
 
+#include <QRegularExpression>
 #include <QVariant>
 
 QT_BEGIN_NAMESPACE
 class QFormLayout;
 class QLabel;
 class QLineEdit;
-class QRegularExpression;
 class QTextEdit;
 QT_END_NAMESPACE
 
@@ -90,7 +90,7 @@ public:
 
         virtual bool parseData(const QVariant &data, QString *errorMessage) = 0;
         virtual void initializeData(Utils::MacroExpander *expander) { Q_UNUSED(expander); }
-        virtual QWidget *widget(const QString &displayName) = 0;
+        virtual QWidget *widget(const QString &displayName, JsonFieldPage *page) = 0;
         virtual void setup(JsonFieldPage *page, const QString &name)
         { Q_UNUSED(page); Q_UNUSED(name); }
 
@@ -103,7 +103,7 @@ public:
         LabelField();
 
     private:
-        QWidget *widget(const QString &displayName);
+        QWidget *widget(const QString &displayName, JsonFieldPage *page);
         bool parseData(const QVariant &data, QString *errorMessage);
 
         bool m_wordWrap;
@@ -119,7 +119,7 @@ public:
 
     private:
         bool parseData(const QVariant &data, QString *errorMessage);
-        QWidget *widget(const QString &displayName);
+        QWidget *widget(const QString &displayName, JsonFieldPage *page);
 
         int m_factor;
     };
@@ -128,23 +128,23 @@ public:
     {
     public:
         LineEditField();
-        ~LineEditField();
 
     private:
         bool parseData(const QVariant &data, QString *errorMessage);
-        QWidget *widget(const QString &displayName);
+        QWidget *widget(const QString &displayName, JsonFieldPage *page);
 
         void setup(JsonFieldPage *page, const QString &name);
 
         bool validate(Utils::MacroExpander *expander, QString *message);
         void initializeData(Utils::MacroExpander *expander);
 
+        bool m_isModified;
+        bool m_isValidating;
         QString m_placeholderText;
         QString m_defaultText;
         QString m_disabledText;
-        QRegularExpression *m_validatorRegExp;
-
-        bool m_isModified;
+        QRegularExpression m_validatorRegExp;
+        QString m_fixupExpando;
         mutable QString m_currentText;
     };
 
@@ -155,7 +155,7 @@ public:
 
     private:
         bool parseData(const QVariant &data, QString *errorMessage);
-        QWidget *widget(const QString &displayName);
+        QWidget *widget(const QString &displayName, JsonFieldPage *page);
 
         void setup(JsonFieldPage *page, const QString &name);
 
@@ -177,7 +177,7 @@ public:
     private:
         bool parseData(const QVariant &data, QString *errorMessage);
 
-        QWidget *widget(const QString &displayName);
+        QWidget *widget(const QString &displayName, JsonFieldPage *page);
         void setEnabled(bool e);
 
         void setup(JsonFieldPage *page, const QString &name);
@@ -202,7 +202,7 @@ public:
     private:
         bool parseData(const QVariant &data, QString *errorMessage);
 
-        QWidget *widget(const QString &displayName);
+        QWidget *widget(const QString &displayName, JsonFieldPage *page);
 
         void setup(JsonFieldPage *page, const QString &name);
 
@@ -224,7 +224,7 @@ public:
     private:
         bool parseData(const QVariant &data, QString *errorMessage);
 
-        QWidget *widget(const QString &displayName);
+        QWidget *widget(const QString &displayName, JsonFieldPage *page);
 
         void setup(JsonFieldPage *page, const QString &name);
 

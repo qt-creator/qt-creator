@@ -45,7 +45,6 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include <QRegularExpression>
 #include <QRegularExpressionValidator>
 #include <QTextEdit>
 #include <QVariant>
@@ -87,6 +86,45 @@ static JsonFieldPage::Field *createFieldData(const QString &type)
         return new JsonFieldPage::ComboBoxField;
     return 0;
 }
+
+class LineEditValidator : public QRegularExpressionValidator
+{
+public:
+    LineEditValidator(MacroExpander *expander, const QRegularExpression &pattern, QObject *parent) :
+        QRegularExpressionValidator(pattern, parent)
+    {
+        m_expander.setDisplayName(tr("Line Edit Validator Expander"));
+        m_expander.setAccumulating(true);
+        m_expander.registerVariable("INPUT", tr("The text edit input to fix up."),
+                                    [this]() { return m_currentInput; });
+        m_expander.registerSubProvider([expander]() -> Utils::MacroExpander * { return expander; });
+    }
+
+    void setFixupExpando(const QString &expando)
+    {
+        m_fixupExpando = expando;
+    }
+
+    QValidator::State validate(QString &input, int &pos) const
+    {
+        fixup(input);
+        return QRegularExpressionValidator::validate(input, pos);
+    }
+
+    void fixup(QString &fixup) const
+    {
+        if (m_fixupExpando.isEmpty())
+            return;
+
+        m_currentInput = fixup;
+        fixup = m_expander.expand(m_fixupExpando);
+    }
+
+private:
+    MacroExpander m_expander;
+    QString m_fixupExpando;
+    mutable QString m_currentInput;
+};
 
 // --------------------------------------------------------------------
 // JsonFieldPage::FieldData:
@@ -144,7 +182,7 @@ JsonFieldPage::Field *JsonFieldPage::Field::parse(const QVariant &input, QString
 
 void JsonFieldPage::Field::createWidget(JsonFieldPage *page)
 {
-    QWidget *w = widget(displayName);
+    QWidget *w = widget(displayName, page);
     w->setObjectName(name);
     QFormLayout *layout = page->layout();
 
@@ -200,9 +238,10 @@ bool JsonFieldPage::LabelField::parseData(const QVariant &data, QString *errorMe
     return true;
 }
 
-QWidget *JsonFieldPage::LabelField::widget(const QString &displayName)
+QWidget *JsonFieldPage::LabelField::widget(const QString &displayName, JsonFieldPage *page)
 {
     Q_UNUSED(displayName);
+    Q_UNUSED(page);
     QTC_ASSERT(!m_widget, return m_widget);
 
     QLabel *w = new QLabel();
@@ -246,9 +285,10 @@ bool JsonFieldPage::SpacerField::parseData(const QVariant &data, QString *errorM
     return true;
 }
 
-QWidget *JsonFieldPage::SpacerField::widget(const QString &displayName)
+QWidget *JsonFieldPage::SpacerField::widget(const QString &displayName, JsonFieldPage *page)
 {
     Q_UNUSED(displayName);
+    Q_UNUSED(page);
     QTC_ASSERT(!m_widget, return m_widget);
 
     int size = qApp->style()->pixelMetric(QStyle::PM_DefaultLayoutSpacing) * m_factor;
@@ -264,14 +304,8 @@ QWidget *JsonFieldPage::SpacerField::widget(const QString &displayName)
 // JsonFieldPage::LineEditFieldData:
 // --------------------------------------------------------------------
 
-JsonFieldPage::LineEditField::LineEditField() :
-    m_validatorRegExp(0), m_isModified(false)
+JsonFieldPage::LineEditField::LineEditField() : m_isModified(false), m_isValidating(false)
 { }
-
-JsonFieldPage::LineEditField::~LineEditField()
-{
-    delete m_validatorRegExp;
-}
 
 bool JsonFieldPage::LineEditField::parseData(const QVariant &data, QString *errorMessage)
 {
@@ -291,29 +325,31 @@ bool JsonFieldPage::LineEditField::parseData(const QVariant &data, QString *erro
     m_placeholderText = JsonWizardFactory::localizedString(tmp.value(QLatin1String("trPlaceholder")).toString());
     QString pattern = tmp.value(QLatin1String("validator")).toString();
     if (!pattern.isEmpty()) {
-        m_validatorRegExp = new QRegularExpression(pattern);
-        if (!m_validatorRegExp->isValid()) {
+        m_validatorRegExp = QRegularExpression(pattern);
+        if (!m_validatorRegExp.isValid()) {
             *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
                                                         "Invalid regular expression \"%1\" in \"validator\".")
                     .arg(pattern);
-            delete m_validatorRegExp;
-            m_validatorRegExp = 0;
+            m_validatorRegExp = QRegularExpression();
             return false;
         }
     }
+    m_fixupExpando = tmp.value(QLatin1String("fixup")).toString();
 
     return true;
 }
 
-QWidget *JsonFieldPage::LineEditField::widget(const QString &displayName)
+QWidget *JsonFieldPage::LineEditField::widget(const QString &displayName, JsonFieldPage *page)
 {
     Q_UNUSED(displayName);
     QTC_ASSERT(!m_widget, return m_widget);
     QLineEdit *w = new QLineEdit;
-    connect(w, &QLineEdit::textEdited, [this](){ m_isModified = true; });
 
-    if (m_validatorRegExp)
-        w->setValidator(new QRegularExpressionValidator(*m_validatorRegExp, w));
+    if (m_validatorRegExp.isValid()) {
+        LineEditValidator *lv = new LineEditValidator(page->expander(), m_validatorRegExp, w);
+        lv->setFixupExpando(m_fixupExpando);
+        w->setValidator(lv);
+    }
 
     m_widget = w;
     return m_widget;
@@ -323,25 +359,37 @@ void JsonFieldPage::LineEditField::setup(JsonFieldPage *page, const QString &nam
 {
     QLineEdit *w = static_cast<QLineEdit *>(m_widget);
     page->registerFieldWithName(name, w);
-    connect(w, &QLineEdit::textChanged, page, [page](QString) { page->completeChanged(); });
+    connect(w, &QLineEdit::textChanged,
+            page, [this, page]() -> void { m_isModified = true; emit page->completeChanged(); });
 }
 
 bool JsonFieldPage::LineEditField::validate(MacroExpander *expander, QString *message)
 {
     Q_UNUSED(message);
+    if (m_isValidating)
+        return true;
+
+    m_isValidating = true;
+
     QLineEdit *w = static_cast<QLineEdit *>(m_widget);
 
-    if (!m_isModified) {
-        w->setText(expander->expand(m_defaultText));
-    } else if (!w->isEnabled() && !m_disabledText.isNull() && m_currentText.isNull()) {
-        m_currentText = w->text();
-        w->setText(expander->expand(m_disabledText));
-    } else if (w->isEnabled() && !m_currentText.isNull()) {
-        w->setText(m_currentText);
-        m_currentText.clear();
+    if (w->isEnabled()) {
+        if (m_isModified) {
+            if (!m_currentText.isNull()) {
+                w->setText(m_currentText);
+                m_currentText.clear();
+            }
+        } else {
+            w->setText(expander->expand(m_defaultText));
+            m_isModified = false;
+        }
+    } else {
+        if (!m_disabledText.isNull() && m_currentText.isNull())
+            m_currentText = w->text();
     }
 
-    // TODO: Add support for validators
+    m_isValidating = false;
+
     return !w->text().isEmpty();
 }
 
@@ -349,11 +397,12 @@ void JsonFieldPage::LineEditField::initializeData(MacroExpander *expander)
 {
     QTC_ASSERT(m_widget, return);
 
-    m_isModified = false;
-
     QLineEdit *w = static_cast<QLineEdit *>(m_widget);
+    m_isValidating = true;
     w->setText(expander->expand(m_defaultText));
     w->setPlaceholderText(m_placeholderText);
+    m_isModified = false;
+    m_isValidating = false;
 }
 
 // --------------------------------------------------------------------
@@ -385,10 +434,11 @@ bool JsonFieldPage::TextEditField::parseData(const QVariant &data, QString *erro
     return true;
 }
 
-QWidget *JsonFieldPage::TextEditField::widget(const QString &displayName)
+QWidget *JsonFieldPage::TextEditField::widget(const QString &displayName, JsonFieldPage *page)
 {
     // TODO: Set up modification monitoring...
     Q_UNUSED(displayName);
+    Q_UNUSED(page);
     QTC_ASSERT(!m_widget, return m_widget);
     QTextEdit *w = new QTextEdit;
     w->setAcceptRichText(m_acceptRichText);
@@ -478,9 +528,10 @@ bool JsonFieldPage::PathChooserField::parseData(const QVariant &data, QString *e
     return true;
 }
 
-QWidget *JsonFieldPage::PathChooserField::widget(const QString &displayName)
+QWidget *JsonFieldPage::PathChooserField::widget(const QString &displayName, JsonFieldPage *page)
 {
     Q_UNUSED(displayName);
+    Q_UNUSED(page);
     QTC_ASSERT(!m_widget, return m_widget);
     m_widget = new PathChooser;
     return m_widget;
@@ -556,8 +607,9 @@ bool JsonFieldPage::CheckBoxField::parseData(const QVariant &data, QString *erro
     return true;
 }
 
-QWidget *JsonFieldPage::CheckBoxField::widget(const QString &displayName)
+QWidget *JsonFieldPage::CheckBoxField::widget(const QString &displayName, JsonFieldPage *page)
 {
+    Q_UNUSED(page);
     QTC_ASSERT(!m_widget, return m_widget);
     TextFieldCheckBox *w = new TextFieldCheckBox(displayName);
     m_widget = w;
@@ -671,9 +723,10 @@ bool JsonFieldPage::ComboBoxField::parseData(const QVariant &data, QString *erro
     return true;
 }
 
-QWidget *JsonFieldPage::ComboBoxField::widget(const QString &displayName)
+QWidget *JsonFieldPage::ComboBoxField::widget(const QString &displayName, JsonFieldPage *page)
 {
     Q_UNUSED(displayName);
+    Q_UNUSED(page);
     QTC_ASSERT(!m_widget, return m_widget);
     m_widget = new TextFieldComboBox;
     return m_widget;
