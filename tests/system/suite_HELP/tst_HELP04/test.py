@@ -94,7 +94,7 @@ def main():
     # try to search empty string
     clickButton(waitForObject("{text='Search' type='QPushButton' unnamed='1' visible='1' "
                               "window=':Qt Creator_Core::Internal::MainWindow'}"))
-    progressBarWait()
+    progressBarWait(120000)
     test.verify(waitFor("noMatch in "
                         "str(waitForObject(':Hits_QCLuceneResultWidget').plainText)", 2000),
                         "Verifying if search did not match anything.")
