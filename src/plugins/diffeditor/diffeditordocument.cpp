@@ -129,6 +129,7 @@ bool DiffEditorDocument::open(QString *errorString, const QString &fileName)
 
 QString DiffEditorDocument::suggestedFileName() const
 {
+    enum { maxSubjectLength = 50 };
     QString result = QStringLiteral("0001");
     const QString description = m_controller->description();
     if (!description.isEmpty()) {
@@ -144,6 +145,10 @@ QString DiffEditorDocument::suggestedFileName() const
                     subject[i] = space;
             }
             subject = subject.simplified();
+            if (subject.size() > maxSubjectLength) {
+                const int lastSpace = subject.lastIndexOf(space, maxSubjectLength);
+                subject.truncate(lastSpace > 0 ? lastSpace : maxSubjectLength);
+             }
             subject.replace(space, dash);
             result += dash;
             result += subject;
