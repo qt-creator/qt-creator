@@ -155,4 +155,9 @@ QString DiffEditorDocument::suggestedFileName() const
     return result + QStringLiteral(".patch");
 }
 
+QString DiffEditorDocument::plainText() const
+{
+    return m_controller->contents();
+}
+
 } // namespace DiffEditor

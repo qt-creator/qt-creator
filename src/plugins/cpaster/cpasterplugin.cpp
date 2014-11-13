@@ -215,8 +215,13 @@ void CodepasterPlugin::postEditor()
     if (const BaseTextEditor *textEditor = qobject_cast<const BaseTextEditor *>(editor))
         data = textEditor->selectedText();
     if (data.isEmpty()) {
-        if (auto textDocument = qobject_cast<const TextDocument *>(document))
+        if (auto textDocument = qobject_cast<const TextDocument *>(document)) {
             data = textDocument->plainText();
+        } else {
+            const QVariant textV = document->property("plainText"); // Diff Editor.
+            if (textV.type() == QVariant::String)
+                data = textV.toString();
+        }
     }
     post(data, mimeType);
 }
