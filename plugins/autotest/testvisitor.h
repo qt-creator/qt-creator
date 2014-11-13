@@ -19,6 +19,8 @@
 #ifndef TESTVISITOR_H
 #define TESTVISITOR_H
 
+#include "testtreeitem.h"
+
 #include <cplusplus/ASTVisitor.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Scope.h>
@@ -33,10 +35,11 @@
 namespace Autotest {
 namespace Internal {
 
-struct TestCodeLocation {
+struct TestCodeLocationAndType {
     QString m_fileName;
     unsigned m_line;
     unsigned m_column;
+    TestTreeItem::Type m_type;
 };
 
 class TestVisitor : public CPlusPlus::SymbolVisitor
@@ -45,13 +48,13 @@ public:
     TestVisitor(const QString &fullQualifiedClassName);
     virtual ~TestVisitor();
 
-    QMap<QString, TestCodeLocation> privateSlots() const { return m_privSlots; }
+    QMap<QString, TestCodeLocationAndType> privateSlots() const { return m_privSlots; }
 
     bool visit(CPlusPlus::Class *symbol);
 
 private:
     QString m_className;
-    QMap<QString, TestCodeLocation> m_privSlots;
+    QMap<QString, TestCodeLocationAndType> m_privSlots;
 };
 
 class TestAstVisitor : public CPlusPlus::ASTVisitor
@@ -85,14 +88,14 @@ public:
     bool visit(QmlJS::AST::StringLiteral *ast);
 
     QString testCaseName() const { return m_currentTestCaseName; }
-    TestCodeLocation testCaseLocation() const { return m_testCaseLocation; }
-    QMap<QString, TestCodeLocation> testFunctions() const { return m_testFunctions; }
+    TestCodeLocationAndType testCaseLocation() const { return m_testCaseLocation; }
+    QMap<QString, TestCodeLocationAndType> testFunctions() const { return m_testFunctions; }
 
 private:
     QmlJS::Document::Ptr m_currentDoc;
     QString m_currentTestCaseName;
-    TestCodeLocation m_testCaseLocation;
-    QMap<QString, TestCodeLocation> m_testFunctions;
+    TestCodeLocationAndType m_testCaseLocation;
+    QMap<QString, TestCodeLocationAndType> m_testFunctions;
 
 };
 

@@ -44,7 +44,7 @@ TestVisitor::~TestVisitor()
 {
 }
 
-static QList<QString> ignoredFunctions = QList<QString>() << QLatin1String("initTestCase")
+static QList<QString> specialFunctions = QList<QString>() << QLatin1String("initTestCase")
                                                           << QLatin1String("cleanupTestCase")
                                                           << QLatin1String("init")
                                                           << QLatin1String("cleanup");
@@ -66,14 +66,18 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
         if (const auto func = type->asFunctionType()) {
             if (func->isSlot() && member->isPrivate()) {
                 const QString name = o.prettyName(func->name());
-                if (!ignoredFunctions.contains(name) && !name.endsWith(QLatin1String("_data"))) {
-                    // TODO use definition of function instead of declaration!
-                    TestCodeLocation location;
-                    location.m_fileName = QLatin1String(member->fileName());
-                    location.m_line = member->line();
-                    location.m_column = member->column() - 1;
-                    m_privSlots.insert(name, location);
-                }
+                // TODO use definition of function instead of declaration!
+                TestCodeLocationAndType locationAndType;
+                locationAndType.m_fileName = QLatin1String(member->fileName());
+                locationAndType.m_line = member->line();
+                locationAndType.m_column = member->column() - 1;
+                if (specialFunctions.contains(name))
+                    locationAndType.m_type = TestTreeItem::TEST_SPECIALFUNCTION;
+                else if (name.endsWith(QLatin1String("_data")))
+                    locationAndType.m_type = TestTreeItem::TEST_DATAFUNCTION;
+                else
+                    locationAndType.m_type = TestTreeItem::TEST_FUNCTION;
+                m_privSlots.insert(name, locationAndType);
             }
         }
     }
@@ -146,13 +150,14 @@ bool TestQmlVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
     const QStringRef name = ast->qualifiedTypeNameId->name;
     if (name != QLatin1String("TestCase"))
-        return false;
+        return true; // find nested TestCase items as well
 
     m_currentTestCaseName.clear();
     const auto sourceLocation = ast->firstSourceLocation();
     m_testCaseLocation.m_fileName = m_currentDoc->fileName();
     m_testCaseLocation.m_line = sourceLocation.startLine;
     m_testCaseLocation.m_column = sourceLocation.startColumn - 1;
+    m_testCaseLocation.m_type = TestTreeItem::TEST_CLASS;
     return true;
 }
 
@@ -173,12 +178,13 @@ bool TestQmlVisitor::visit(QmlJS::AST::FunctionDeclaration *ast)
     const QStringRef name = ast->name;
     if (name.startsWith(QLatin1String("test_"))) {
         const auto sourceLocation = ast->firstSourceLocation();
-        TestCodeLocation location;
-        location.m_fileName = m_currentDoc->fileName();
-        location.m_line = sourceLocation.startLine;
-        location.m_column = sourceLocation.startColumn - 1;
+        TestCodeLocationAndType locationAndType;
+        locationAndType.m_fileName = m_currentDoc->fileName();
+        locationAndType.m_line = sourceLocation.startLine;
+        locationAndType.m_column = sourceLocation.startColumn - 1;
+        locationAndType.m_type = TestTreeItem::TEST_FUNCTION;
 
-        m_testFunctions.insert(name.toString(), location);
+        m_testFunctions.insert(name.toString(), locationAndType);
     }
     return false;
 }

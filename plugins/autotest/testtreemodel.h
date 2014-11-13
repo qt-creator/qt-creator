@@ -29,7 +29,8 @@
 namespace {
     enum ItemRole {
 //        AnnotationRole = Qt::UserRole + 1,
-        LinkRole = Qt::UserRole + 2 // can be removed if AnnotationRole comes back
+        LinkRole = Qt::UserRole + 2, // can be removed if AnnotationRole comes back
+        ItalicRole // used only inside the delegate
     };
 }
 

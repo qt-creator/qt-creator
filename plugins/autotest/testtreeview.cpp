@@ -20,6 +20,7 @@
 #include "testcodeparser.h"
 #include "testrunner.h"
 #include "testtreeitem.h"
+#include "testtreeitemdelegate.h"
 #include "testtreemodel.h"
 #include "testtreeview.h"
 
@@ -53,6 +54,7 @@ TestTreeViewWidget::TestTreeViewWidget(QWidget *parent) :
     m_view = new TestTreeView(this);
     m_view->setModel(m_sortFilterModel);
     m_view->setSortingEnabled(true);
+    m_view->setItemDelegate(new TestTreeItemDelegate(this));
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);

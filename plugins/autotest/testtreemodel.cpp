@@ -135,6 +135,8 @@ static QIcon testTreeIcon(TestTreeItem::Type type)
         QIcon(QLatin1String(":/images/class.png")),
         QIcon(QLatin1String(":/images/func.png"))
     };
+    if (type >= 3)
+        return icons[2];
     return icons[type];
 }
 
@@ -169,14 +171,45 @@ QVariant TestTreeModel::data(const QModelIndex &index, int role) const
     case Qt::DecorationRole:
         return testTreeIcon(item->type());
     case Qt::CheckStateRole:
-        if (item->type() == TestTreeItem::ROOT)
+        switch (item->type()) {
+        case TestTreeItem::ROOT:
+        case TestTreeItem::TEST_DATAFUNCTION:
+        case TestTreeItem::TEST_SPECIALFUNCTION:
             return QVariant();
-        return item->checked();
-    case LinkRole:
+        case TestTreeItem::TEST_CLASS:
+            if (item->name().isEmpty())
+                return QVariant();
+            else
+                return item->checked();
+        case TestTreeItem::TEST_FUNCTION:
+            if (TestTreeItem *parent = item->parent())
+                return parent->name().isEmpty() ? QVariant() : item->checked();
+            else
+                return item->checked();
+        default:
+            return item->checked();
+        }
+    case LinkRole: {
         QVariant itemLink;
         TextEditor::TextEditorWidget::Link link(item->filePath(), item->line(), item->column());
         itemLink.setValue(link);
         return itemLink;
+    }
+    case ItalicRole:
+        switch (item->type()) {
+        case TestTreeItem::TEST_DATAFUNCTION:
+        case TestTreeItem::TEST_SPECIALFUNCTION:
+            return true;
+        case TestTreeItem::TEST_CLASS:
+            return item->name().isEmpty();
+        case TestTreeItem::TEST_FUNCTION:
+            if (TestTreeItem *parent = item->parent())
+                return parent->name().isEmpty();
+            else
+                return false;
+        default:
+            return false;
+        }
     }
 
     // TODO ?
@@ -222,15 +255,18 @@ Qt::ItemFlags TestTreeModel::flags(const QModelIndex &index) const
     switch(item->type()) {
     case TestTreeItem::TEST_CLASS:
         if (item->name().isEmpty())
-            return Qt::ItemIsSelectable | Qt::ItemIsTristate;
+            return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsTristate | Qt::ItemIsUserCheckable;
     case TestTreeItem::TEST_FUNCTION:
         if (item->parent()->name().isEmpty())
-            return Qt::ItemIsSelectable;
+            return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
     case TestTreeItem::ROOT:
-    default:
         return Qt::ItemIsEnabled;
+    case TestTreeItem::TEST_DATAFUNCTION:
+    case TestTreeItem::TEST_SPECIALFUNCTION:
+    default:
+        return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     }
 }
 
@@ -261,18 +297,38 @@ bool TestTreeModel::hasTests() const
 
 static void addProjectInformation(TestConfiguration *config, const QString &filePath)
 {
+    const ProjectExplorer::SessionManager *session = ProjectExplorer::SessionManager::instance();
+    if (!session || !session->hasProjects())
+        return;
+
+    ProjectExplorer::Project *project = session->startupProject();
+    if (!project)
+        return;
+
     QString targetFile;
     QString targetName;
     QString workDir;
     QString proFile;
+    QString displayName;
     Utils::Environment env;
-    ProjectExplorer::Project *project = 0;
+    bool hasDesktopTarget = false;
     CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
-    QList<CppTools::ProjectPart::Ptr> projParts = cppMM->projectPart(filePath);
+    QList<CppTools::ProjectPart::Ptr> projParts = cppMM->projectInfo(project).projectParts();
+
     if (!projParts.empty()) {
-        proFile = projParts.at(0)->projectFile;
-        project = projParts.at(0)->project; // necessary to grab this here? or should this be the current active startup project anyway?
+        foreach (const CppTools::ProjectPart::Ptr &part, projParts) {
+            foreach (const CppTools::ProjectFile currentFile, part->files) {
+                if (currentFile.path == filePath) {
+                    proFile = part->projectFile;
+                    displayName = part->displayName;
+                    break;
+                }
+            }
+            if (!proFile.isEmpty()) // maybe better use a goto instead of the break above??
+                break;
+        }
     }
+
     if (project) {
         if (auto target = project->activeTarget()) {
             ProjectExplorer::BuildTargetInfoList appTargets = target->applicationTargets();
@@ -289,6 +345,7 @@ static void addProjectInformation(TestConfiguration *config, const QString &file
                 if (ProjectExplorer::LocalApplicationRunConfiguration *localRunConfiguration
                         = qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(rc)) {
                     if (localRunConfiguration->executable() == targetFile) {
+                        hasDesktopTarget = true;
                         workDir = Utils::FileUtils::normalizePathName(
                                     localRunConfiguration->workingDirectory());
                         ProjectExplorer::EnvironmentAspect *envAsp
@@ -300,12 +357,19 @@ static void addProjectInformation(TestConfiguration *config, const QString &file
             }
         }
     }
-    config->setTargetFile(targetFile);
-    config->setTargetName(targetName);
-    config->setWorkingDirectory(workDir);
-    config->setProFile(proFile);
-    config->setEnvironment(env);
-    config->setProject(project);
+
+    if (hasDesktopTarget) {
+        config->setTargetFile(targetFile);
+        config->setTargetName(targetName);
+        config->setWorkingDirectory(workDir);
+        config->setProFile(proFile);
+        config->setEnvironment(env);
+        config->setProject(project);
+        config->setDisplayName(displayName);
+    } else {
+        config->setProFile(proFile);
+        config->setDisplayName(displayName);
+    }
 }
 
 QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
@@ -392,17 +456,18 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
 
     QMap<QString, TestConfiguration *> foundMains;
 
-    TestTreeItem *unnamed = unnamedQuickTests();
-    for (int childRow = 0, ccount = unnamed->childCount(); childRow < ccount; ++ childRow) {
-        const TestTreeItem *grandChild = unnamed->child(childRow);
-        const QString mainFile = grandChild->mainFile();
-        if (foundMains.contains(mainFile)) {
-            foundMains[mainFile]->setTestCaseCount(tc->testCaseCount() + 1);
-        } else {
-            TestConfiguration *tc = new TestConfiguration(QString(), QStringList());
-            tc->setTestCaseCount(1);
-            addProjectInformation(tc, mainFile);
-            foundMains.insert(mainFile, tc);
+    if (TestTreeItem *unnamed = unnamedQuickTests()) {
+        for (int childRow = 0, ccount = unnamed->childCount(); childRow < ccount; ++ childRow) {
+            const TestTreeItem *grandChild = unnamed->child(childRow);
+            const QString mainFile = grandChild->mainFile();
+            if (foundMains.contains(mainFile)) {
+                foundMains[mainFile]->setTestCaseCount(tc->testCaseCount() + 1);
+            } else {
+                TestConfiguration *tc = new TestConfiguration(QString(), QStringList());
+                tc->setTestCaseCount(1);
+                addProjectInformation(tc, mainFile);
+                foundMains.insert(mainFile, tc);
+            }
         }
     }
 
@@ -695,6 +760,8 @@ bool TestTreeSortFilterModel::lessThan(const QModelIndex &left, const QModelInde
 
     switch (m_sortMode) {
     case Alphabetically:
+        if (leftVal == rightVal)
+            return left.row() > right.row();
         return leftVal > rightVal;
     case Naturally: {
         const TextEditor::TextEditorWidget::Link leftLink =
@@ -717,13 +784,20 @@ bool TestTreeSortFilterModel::lessThan(const QModelIndex &left, const QModelInde
 
 bool TestTreeSortFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
-    // TODO add filtering capabilities
     QModelIndex index = m_sourceModel->index(sourceRow, 0,sourceParent);
     if (!index.isValid())
         return false;
 
+    const TestTreeItem *item = static_cast<TestTreeItem *>(index.internalPointer());
 
-    return true;
+    switch (item->type()) {
+    case TestTreeItem::TEST_DATAFUNCTION:
+        return m_filterMode & ShowTestData;
+    case TestTreeItem::TEST_SPECIALFUNCTION:
+        return m_filterMode & ShowInitAndCleanup;
+    default:
+        return true;
+    }
 }
 
 } // namespace Internal

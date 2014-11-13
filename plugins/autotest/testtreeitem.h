@@ -30,7 +30,11 @@ class TestTreeItem
 
 public:
     enum Type {
-        ROOT, TEST_CLASS, TEST_FUNCTION
+        ROOT,
+        TEST_CLASS,
+        TEST_FUNCTION,
+        TEST_DATAFUNCTION,
+        TEST_SPECIALFUNCTION
     };
 
     TestTreeItem(const QString &name, const QString &filePath, Type type, TestTreeItem *parent = 0);
@@ -57,7 +61,7 @@ public:
     QString mainFile() const { return m_mainFile; }
     void setMainFile(const QString &mainFile) { m_mainFile = mainFile; }
     void setChecked(const Qt::CheckState checked);
-    Qt::CheckState checked() const { return m_checked; }
+    Qt::CheckState checked() const;
     Type type() const { return m_type; }
     void setParent(TestTreeItem *parent) { m_parent = parent; }
 

@@ -24,11 +24,29 @@ namespace Internal {
 TestTreeItem::TestTreeItem(const QString &name, const QString &filePath, Type type, TestTreeItem *parent)
     : m_name(name),
       m_filePath(filePath),
-      m_checked(type == ROOT ? Qt::Unchecked : Qt::Checked),
       m_type(type),
       m_line(0),
       m_parent(parent)
 {
+    switch (m_type) {
+    case ROOT:
+        m_checked = Qt::Unchecked;
+        break;
+    case TEST_CLASS:
+    case TEST_FUNCTION:
+        m_checked = Qt::Checked;
+        break;
+    case TEST_DATAFUNCTION:
+    case TEST_SPECIALFUNCTION:
+        if (m_parent)
+            m_checked = m_parent->checked() == Qt::PartiallyChecked ? Qt::Unchecked
+                                                                    : m_parent->checked();
+        else
+            m_checked = Qt::Unchecked;
+        break;
+    default:
+        m_checked = Qt::Unchecked;
+    }
 }
 
 TestTreeItem::~TestTreeItem()
@@ -121,19 +139,37 @@ bool TestTreeItem::modifyContent(const TestTreeItem *modified)
 void TestTreeItem::setChecked(const Qt::CheckState checkState)
 {
     switch (m_type) {
-    case ROOT:
-        return;
-    case TEST_FUNCTION:
+    case TEST_FUNCTION: {
         m_checked = (checkState == Qt::Unchecked ? Qt::Unchecked : Qt::Checked);
         m_parent->revalidateCheckState();
         break;
-    case TEST_CLASS:
+    }
+    case TEST_CLASS: {
         Qt::CheckState usedState = (checkState == Qt::Unchecked ? Qt::Unchecked : Qt::Checked);
         foreach (TestTreeItem *child, m_children) {
             child->setChecked(usedState);
         }
         m_checked = usedState;
     }
+    default:
+        return;
+    }
+}
+
+Qt::CheckState TestTreeItem::checked() const
+{
+    switch (m_type) {
+    case TEST_CLASS:
+    case TEST_FUNCTION:
+        return m_checked;
+    case TEST_DATAFUNCTION:
+    case TEST_SPECIALFUNCTION:
+        return m_parent->m_checked == Qt::PartiallyChecked ? Qt::Unchecked : m_parent->m_checked;
+    default:
+        if (m_parent)
+            return m_parent->m_checked;
+    }
+    return Qt::Unchecked;
 }
 
 void TestTreeItem::revalidateCheckState()
@@ -143,8 +179,16 @@ void TestTreeItem::revalidateCheckState()
     bool foundChecked = false;
     bool foundUnchecked = false;
     foreach (const TestTreeItem *child, m_children) {
-        foundChecked |= (child->m_checked != Qt::Unchecked);
-        foundUnchecked |= (child->m_checked == Qt::Unchecked);
+        switch (child->type()) {
+        case TEST_DATAFUNCTION:
+        case TEST_SPECIALFUNCTION:
+            continue;
+        default:
+            break;
+        }
+
+        foundChecked |= (child->checked() != Qt::Unchecked);
+        foundUnchecked |= (child->checked() == Qt::Unchecked);
         if (foundChecked && foundUnchecked) {
             m_checked = Qt::PartiallyChecked;
             return;

@@ -351,8 +351,14 @@ void TestRunner::runTests()
     }
 
     ProjectExplorer::Project *project = m_selectedTests.at(0)->project();
-    if (!project) // add a warning or info to output? possible at all?
+    if (!project) {
+        TestResultsPane::instance()->addTestResult(
+                    TestResult(QString(), QString(), QString(), ResultType::MESSAGE_WARN,
+                               tr("*** Project is null - canceling Test Run ***\n"
+                                  "Actually only Desktop kits are supported - make sure the "
+                                  "current active kit is a Desktop kit.")));
         return;
+    }
 
     ProjectExplorer::ProjectExplorerPlugin *pep = ProjectExplorer::ProjectExplorerPlugin::instance();
     ProjectExplorer::Internal::ProjectExplorerSettings pes = pep->projectExplorerSettings();

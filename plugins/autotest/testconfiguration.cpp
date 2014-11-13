@@ -81,6 +81,11 @@ void TestConfiguration::setWorkingDirectory(const QString &workingDirectory)
     m_workingDir = workingDirectory;
 }
 
+void TestConfiguration::setDisplayName(const QString &displayName)
+{
+    m_displayName = displayName;
+}
+
 void TestConfiguration::setEnvironment(const Utils::Environment &env)
 {
     m_environment = env;

@@ -21,7 +21,8 @@ SOURCES += \
     testresult.cpp \
     testresultspane.cpp \
     testresultmodel.cpp \
-    testresultdelegate.cpp
+    testresultdelegate.cpp \
+    testtreeitemdelegate.cpp
 
 HEADERS += \
     testtreeview.h \
@@ -38,7 +39,8 @@ HEADERS += \
     testresult.h \
     testresultspane.h \
     testresultmodel.h \
-    testresultdelegate.h
+    testresultdelegate.h \
+    testtreeitemdelegate.h
 
 RESOURCES += \
     autotest.qrc

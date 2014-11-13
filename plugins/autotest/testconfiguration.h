@@ -46,6 +46,7 @@ public:
     void setTargetName(const QString &targetName);
     void setProFile(const QString &proFile);
     void setWorkingDirectory(const QString &workingDirectory);
+    void setDisplayName(const QString &displayName);
     void setEnvironment(const Utils::Environment &env);
     void setProject(ProjectExplorer::Project *project);
 
@@ -56,6 +57,7 @@ public:
     QString targetFile() const { return m_targetFile; }
     QString targetName() const { return m_targetName; }
     QString workingDirectory() const { return m_workingDir; }
+    QString displayName() const { return m_displayName; }
     Utils::Environment environment() const { return m_environment; }
     ProjectExplorer::Project *project() const { return m_project; }
 
@@ -72,6 +74,7 @@ private:
     QString m_targetFile;
     QString m_targetName;
     QString m_workingDir;
+    QString m_displayName;
     Utils::Environment m_environment;
     ProjectExplorer::Project *m_project;
 };

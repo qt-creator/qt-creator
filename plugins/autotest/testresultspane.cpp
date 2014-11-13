@@ -50,9 +50,9 @@ TestResultsPane::TestResultsPane(QObject *parent) :
 
     QPalette pal;
     pal.setColor(QPalette::Window,
-                 Utils::creatorTheme()->color(Utils::Theme::SearchResultWidgetBackgroundColor));
+                 Utils::creatorTheme()->color(Utils::Theme::InfoBarBackground));
     pal.setColor(QPalette::WindowText,
-                 Utils::creatorTheme()->color(Utils::Theme::SearchResultWidgetTextColor));
+                 Utils::creatorTheme()->color(Utils::Theme::InfoBarText));
     m_summaryWidget = new QFrame;
     m_summaryWidget->setPalette(pal);
     m_summaryWidget->setAutoFillBackground(true);

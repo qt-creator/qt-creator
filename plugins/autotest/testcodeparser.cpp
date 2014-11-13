@@ -60,8 +60,10 @@ void TestCodeParser::updateTestTree()
     m_model->removeAllAutoTests();
     m_model->removeAllQuickTests();
     const ProjectExplorer::SessionManager *session = ProjectExplorer::SessionManager::instance();
-    if (!session || !session->hasProjects())
+    if (!session || !session->hasProjects()) {
+        m_currentProject = 0;
         return;
+    }
 
     m_currentProject = session->startupProject();
     if (!m_currentProject)
@@ -285,13 +287,13 @@ void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr doc)
             }
             TestVisitor myVisitor(tc);
             myVisitor.accept(declaringDoc->globalNamespace());
-            const QMap<QString, TestCodeLocation> privSlots = myVisitor.privateSlots();
+            const QMap<QString, TestCodeLocationAndType> privSlots = myVisitor.privateSlots();
             foreach (const QString &privS, privSlots.keys()) {
-                const TestCodeLocation location = privSlots.value(privS);
-                TestTreeItem *ttSub = new TestTreeItem(privS, location.m_fileName,
-                                                       TestTreeItem::TEST_FUNCTION, ttItem);
-                ttSub->setLine(location.m_line);
-                ttSub->setColumn(location.m_column);
+                const TestCodeLocationAndType locationAndType = privSlots.value(privS);
+                TestTreeItem *ttSub = new TestTreeItem(privS, locationAndType.m_fileName,
+                                                       locationAndType.m_type, ttItem);
+                ttSub->setLine(locationAndType.m_line);
+                ttSub->setColumn(locationAndType.m_column);
                 ttItem->appendChild(ttSub);
             }
 
@@ -374,8 +376,8 @@ void TestCodeParser::handleQtQuickTest(CPlusPlus::Document::Ptr doc)
         QmlJS::AST::Node::accept(ast, &qmlVisitor);
 
         const QString tcName = qmlVisitor.testCaseName();
-        const TestCodeLocation tcLocation = qmlVisitor.testCaseLocation();
-        const QMap<QString, TestCodeLocation> testFunctions = qmlVisitor.testFunctions();
+        const TestCodeLocationAndType tcLocationAndType = qmlVisitor.testCaseLocation();
+        const QMap<QString, TestCodeLocationAndType> testFunctions = qmlVisitor.testFunctions();
 
         const QModelIndex quickTestRootIndex = m_model->index(1, 0);
         TestTreeItem *quickTestRootItem = static_cast<TestTreeItem *>(quickTestRootIndex.internalPointer());
@@ -417,11 +419,11 @@ void TestCodeParser::handleQtQuickTest(CPlusPlus::Document::Ptr doc)
             }
 
             foreach (const QString &func, testFunctions.keys()) {
-                const TestCodeLocation location = testFunctions.value(func);
-                TestTreeItem *ttSub = new TestTreeItem(func, location.m_fileName,
-                                                       TestTreeItem::TEST_FUNCTION, ttItem);
-                ttSub->setLine(location.m_line);
-                ttSub->setColumn(location.m_column);
+                const TestCodeLocationAndType locationAndType = testFunctions.value(func);
+                TestTreeItem *ttSub = new TestTreeItem(func, locationAndType.m_fileName,
+                                                       locationAndType.m_type, ttItem);
+                ttSub->setLine(locationAndType.m_line);
+                ttSub->setColumn(locationAndType.m_column);
                 ttSub->setMainFile(doc->fileName());
                 ttItem->appendChild(ttSub);
             }
@@ -445,23 +447,23 @@ void TestCodeParser::handleQtQuickTest(CPlusPlus::Document::Ptr doc)
         } // end of handling test cases without name property
 
         // construct new/modified TestTreeItem
-        TestTreeItem *ttItem = new TestTreeItem(tcName, tcLocation.m_fileName,
-                                                TestTreeItem::TEST_CLASS, quickTestRootItem);
-        ttItem->setLine(tcLocation.m_line);
-        ttItem->setColumn(tcLocation.m_column);
+        TestTreeItem *ttItem = new TestTreeItem(tcName, tcLocationAndType.m_fileName,
+                                                tcLocationAndType.m_type, quickTestRootItem);
+        ttItem->setLine(tcLocationAndType.m_line);
+        ttItem->setColumn(tcLocationAndType.m_column);
         ttItem->setMainFile(doc->fileName());
 
         foreach (const QString &func, testFunctions.keys()) {
-            const TestCodeLocation location = testFunctions.value(func);
-            TestTreeItem *ttSub = new TestTreeItem(func, location.m_fileName,
-                                                   TestTreeItem::TEST_FUNCTION, ttItem);
-            ttSub->setLine(location.m_line);
-            ttSub->setColumn(location.m_column);
+            const TestCodeLocationAndType locationAndType = testFunctions.value(func);
+            TestTreeItem *ttSub = new TestTreeItem(func, locationAndType.m_fileName,
+                                                   locationAndType.m_type, ttItem);
+            ttSub->setLine(locationAndType.m_line);
+            ttSub->setColumn(locationAndType.m_column);
             ttItem->appendChild(ttSub);
         }
 
         // update model and internal map
-        const QString fileName(tcLocation.m_fileName);
+        const QString fileName(tcLocationAndType.m_fileName);
         const QmlJS::Document::Ptr qmlDoc =
                 QmlJSTools::Internal::ModelManager::instance()->snapshot().document(fileName);
 
@@ -497,7 +499,7 @@ void TestCodeParser::handleQtQuickTest(CPlusPlus::Document::Ptr doc)
             m_model->addQuickTest(ttItem);
             TestInfo ti(tcName, testFunctions.keys(), 0, qmlDoc->editorRevision());
             ti.setReferencingFile(doc->fileName());
-            m_quickDocMap.insert(tcLocation.m_fileName, ti);
+            m_quickDocMap.insert(tcLocationAndType.m_fileName, ti);
         }
     }
 }
