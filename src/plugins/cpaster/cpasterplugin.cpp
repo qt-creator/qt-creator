@@ -90,13 +90,13 @@ void CodePasterService::postText(const QString &text, const QString &mimeType)
 void CodePasterService::postCurrentEditor()
 {
     QTC_ASSERT(CodepasterPlugin::instance(), return);
-    CodepasterPlugin::instance()->postEditor();
+    CodepasterPlugin::instance()->post(CodepasterPlugin::PasteEditor);
 }
 
 void CodePasterService::postClipboard()
 {
     QTC_ASSERT(CodepasterPlugin::instance(), return);
-    CodepasterPlugin::instance()->postClipboard();
+    CodepasterPlugin::instance()->post(CodepasterPlugin::PasteClipboard);
 }
 
 // ---------- CodepasterPlugin
@@ -104,7 +104,7 @@ CodepasterPlugin *CodepasterPlugin::m_instance = 0;
 
 CodepasterPlugin::CodepasterPlugin() :
     m_settings(new Settings),
-    m_postEditorAction(0), m_postClipboardAction(0), m_fetchAction(0)
+    m_postEditorAction(0), m_fetchAction(0)
 {
     CodepasterPlugin::m_instance = this;
 }
@@ -165,12 +165,7 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
     m_postEditorAction = new QAction(tr("Paste Snippet..."), this);
     command = Core::ActionManager::registerAction(m_postEditorAction, "CodePaster.Post", globalcontext);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+P") : tr("Alt+C,Alt+P")));
-    connect(m_postEditorAction, SIGNAL(triggered()), this, SLOT(postEditor()));
-    cpContainer->addAction(command);
-
-    m_postClipboardAction = new QAction(tr("Paste Clipboard..."), this);
-    command = Core::ActionManager::registerAction(m_postClipboardAction, "CodePaster.PostClipboard", globalcontext);
-    connect(m_postClipboardAction, SIGNAL(triggered()), this, SLOT(postClipboard()));
+    connect(m_postEditorAction, &QAction::triggered, this, &CodepasterPlugin::pasteSnippet);
     cpContainer->addAction(command);
 
     m_fetchAction = new QAction(tr("Fetch Snippet..."), this);
@@ -204,13 +199,12 @@ ExtensionSystem::IPlugin::ShutdownFlag CodepasterPlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
-void CodepasterPlugin::postEditor()
+static inline void textFromCurrentEditor(QString *text, QString *mimeType)
 {
     IEditor *editor = EditorManager::currentEditor();
     if (!editor)
         return;
     const IDocument *document = editor->document();
-    const QString mimeType = document->mimeType();
     QString data;
     if (const BaseTextEditor *textEditor = qobject_cast<const BaseTextEditor *>(editor))
         data = textEditor->selectedText();
@@ -223,15 +217,10 @@ void CodepasterPlugin::postEditor()
                 data = textV.toString();
         }
     }
-    post(data, mimeType);
-}
-
-void CodepasterPlugin::postClipboard()
-{
-    QString subtype = QLatin1String("plain");
-    const QString text = qApp->clipboard()->text(subtype, QClipboard::Clipboard);
-    if (!text.isEmpty())
-        post(text, QString());
+    if (!data.isEmpty()) {
+        *text = data;
+        *mimeType = document->mimeType();
+    }
 }
 
 static inline void fixSpecialCharacters(QString &data)
@@ -254,6 +243,19 @@ static inline void fixSpecialCharacters(QString &data)
             break;
         }
     }
+}
+
+void CodepasterPlugin::post(PasteSources pasteSources)
+{
+    QString data;
+    QString mimeType;
+    if (pasteSources & PasteEditor)
+        textFromCurrentEditor(&data, &mimeType);
+    if (data.isEmpty() && (pasteSources & PasteClipboard)) {
+        QString subType = QStringLiteral("plain");
+        data = qApp->clipboard()->text(subType, QClipboard::Clipboard);
+    }
+    post(data, mimeType);
 }
 
 void CodepasterPlugin::post(QString data, const QString &mimeType)
@@ -287,6 +289,11 @@ void CodepasterPlugin::fetchUrl()
             return;
     } while (!url.isValid());
     m_urlOpen->fetch(url.toString());
+}
+
+void CodepasterPlugin::pasteSnippet()
+{
+    post(PasteEditor | PasteClipboard);
 }
 
 void CodepasterPlugin::fetch()
