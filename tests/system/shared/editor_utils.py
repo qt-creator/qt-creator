@@ -308,6 +308,20 @@ def maskSpecialCharsForSearchResult(filename):
     filename = filename.replace("_", "\\_").replace(".","\\.")
     return filename
 
+def waitForSearchResults():
+    def __noCancelButton__():
+        global passes
+        passes += 1
+        return not object.exists("{text='Cancel' type='QToolButton' unnamed='1' visible='1' "
+                                 "window=':Qt Creator_Core::Internal::MainWindow'}")
+
+    global passes
+    passes = 0
+    waitFor("__noCancelButton__()", 20000)
+    if passes < 2:
+        test.warning("Did not have to wait for search results.",
+                     "Either Creator was really quick or the GUI was changed.")
+
 def validateSearchResult(expectedCount):
     searchResult = waitForObject(":Qt Creator_SearchResult_Core::Internal::OutputPaneToggleButton")
     ensureChecked(searchResult)
