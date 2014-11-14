@@ -24,6 +24,19 @@
 namespace ClangStaticAnalyzer {
 namespace Internal {
 
+class ClangStaticAnalyzerDiagnosticView : public Analyzer::DetailedErrorView
+{
+    Q_OBJECT
+
+public:
+    ClangStaticAnalyzerDiagnosticView(QWidget *parent = 0);
+
+private:
+    void contextMenuEvent(QContextMenuEvent *e);
+
+    QAction *m_copyAction;
+};
+
 class ClangStaticAnalyzerDiagnosticDelegate : public Analyzer::DetailedErrorDelegate
 {
 public:

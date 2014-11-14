@@ -70,8 +70,7 @@ QWidget *ClangStaticAnalyzerTool::createWidgets()
     //
     // Diagnostic View
     //
-    m_diagnosticView = new DetailedErrorView;
-    m_diagnosticView->setItemDelegate(new ClangStaticAnalyzerDiagnosticDelegate(m_diagnosticView));
+    m_diagnosticView = new ClangStaticAnalyzerDiagnosticView;
     m_diagnosticView->setObjectName(QLatin1String("ClangStaticAnalyzerIssuesView"));
     m_diagnosticView->setFrameStyle(QFrame::NoFrame);
     m_diagnosticView->setAttribute(Qt::WA_MacShowFocusRect, false);

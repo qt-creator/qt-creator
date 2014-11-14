@@ -21,12 +21,19 @@
 #include "clangstaticanalyzerlogfilereader.h"
 #include "clangstaticanalyzerutils.h"
 
+#include <coreplugin/coreconstants.h>
+
 #include <utils/qtcassert.h>
 
+#include <QAction>
+#include <QApplication>
+#include <QClipboard>
+#include <QContextMenuEvent>
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFileInfo>
 #include <QLabel>
+#include <QMenu>
 #include <QVBoxLayout>
 
 using namespace Analyzer;
@@ -90,29 +97,32 @@ QLabel *createExplainingStepLabel(const QFont &font, bool useAlternateRowPalette
 }
 
 QString createLocationString(const ClangStaticAnalyzer::Internal::Location &location,
-                             bool withMarkup)
+                             bool withMarkup, bool withAbsolutePath)
 {
     const QString filePath = location.filePath;
-    const QString fileName = QFileInfo(filePath).fileName();
     const QString lineNumber = QString::number(location.line);
     const QString columnNumber = QString::number(location.column - 1);
-    const QString fileNameAndLine = fileName + QLatin1Char(':') + lineNumber;
+    const QString fileAndLine = (withAbsolutePath ? filePath : QFileInfo(filePath).fileName())
+            + QLatin1Char(':') + lineNumber;
 
     if (withMarkup) {
         return QLatin1String("in <a href=\"file://")
                 + filePath + QLatin1Char(':') + lineNumber + QLatin1Char(':') + columnNumber
                 + QLatin1String("\">")
-                + fileNameAndLine
+                + fileAndLine
                 + QLatin1String("</a>");
     } else {
-        return QLatin1String("in ") + fileNameAndLine;
+        return QLatin1String("in ") + fileAndLine;
     }
 }
 
-QString createExplainingStepNumberString(int number)
+QString createExplainingStepNumberString(int number, bool withMarkup)
 {
     const int fieldWidth = 2;
-    return QString::fromLatin1("<code style='white-space:pre'>%1:</code>").arg(number, fieldWidth);
+    const QString result = QString::fromLatin1("%1:").arg(number, fieldWidth);
+    return withMarkup
+        ? QLatin1String("<code style='white-space:pre'>") + result + QLatin1String("</code>")
+        : result;
 }
 
 QString createExplainingStepToolTipString(const ClangStaticAnalyzer::Internal::ExplainingStep &step)
@@ -154,6 +164,17 @@ QString createExplainingStepToolTipString(const ClangStaticAnalyzer::Internal::E
     return html;
 }
 
+QString createExplainingStepString(
+        const ClangStaticAnalyzer::Internal::ExplainingStep &explainingStep,
+        int number, bool withMarkup, bool withAbsolutePath)
+{
+    return createExplainingStepNumberString(number, withMarkup)
+            + QLatin1Char(' ')
+            + explainingStep.extendedMessage
+            + QLatin1Char(' ')
+            + createLocationString(explainingStep.location, withMarkup, withAbsolutePath);
+}
+
 } // anonymous namespace
 
 namespace ClangStaticAnalyzer {
@@ -172,13 +193,36 @@ DetailedErrorDelegate::SummaryLineInfo ClangStaticAnalyzerDiagnosticDelegate::su
 
     DetailedErrorDelegate::SummaryLineInfo info;
     info.errorText = diagnostic.description;
-    info.errorLocation = createLocationString(diagnostic.location, /*withMarkup=*/ false);
+    info.errorLocation = createLocationString(diagnostic.location,
+                                              /*withMarkup=*/ false,
+                                              /*withAbsolutePath=*/ false);
     return info;
 }
 
 void ClangStaticAnalyzerDiagnosticDelegate::copy()
 {
-    qDebug() << Q_FUNC_INFO;
+    QTC_ASSERT(m_detailsIndex.isValid(), return);
+
+    const Diagnostic diagnostic = m_detailsIndex.data(Qt::UserRole).value<Diagnostic>();
+    QTC_ASSERT(diagnostic.isValid(), return);
+
+    // Create summary
+    QString clipboardText = diagnostic.category + QLatin1String(": ") + diagnostic.type;
+    if (diagnostic.type != diagnostic.description)
+        clipboardText += QLatin1String(": ") + diagnostic.description;
+    clipboardText += QLatin1Char('\n');
+
+    // Create explaining steps
+    int explainingStepNumber = 1;
+    foreach (const ExplainingStep &explainingStep, diagnostic.explainingSteps) {
+        clipboardText += createExplainingStepString(explainingStep,
+                                                    explainingStepNumber++,
+                                                    /*withMarkup=*/ false,
+                                                    /*withAbsolutePath=*/ true) + QLatin1Char('\n');
+    }
+
+    clipboardText.chop(1); // Remove \n
+    QApplication::clipboard()->setText(clipboardText);
 }
 
 QWidget *ClangStaticAnalyzerDiagnosticDelegate::createDetailsWidget(const QFont &font,
@@ -201,12 +245,10 @@ QWidget *ClangStaticAnalyzerDiagnosticDelegate::createDetailsWidget(const QFont 
     // Add labels for explaining steps
     int explainingStepNumber = 1;
     foreach (const ExplainingStep &explainingStep, diagnostic.explainingSteps) {
-        const QString text = createExplainingStepNumberString(explainingStepNumber++)
-                + QLatin1Char(' ')
-                + explainingStep.extendedMessage
-                + QLatin1Char(' ')
-                + createLocationString(explainingStep.location, /*withMarkup=*/ true);
-
+        const QString text = createExplainingStepString(explainingStep,
+                                                        explainingStepNumber++,
+                                                        /*withMarkup=*/ true,
+                                                        /*withAbsolutePath=*/ false);
         QLabel *label = createExplainingStepLabel(font, explainingStepNumber % 2 == 0);
         label->setParent(widget);
         label->setText(text);
@@ -220,6 +262,33 @@ QWidget *ClangStaticAnalyzerDiagnosticDelegate::createDetailsWidget(const QFont 
     layout->setSpacing(0);
     widget->setLayout(layout);
     return widget;
+}
+
+ClangStaticAnalyzerDiagnosticView::ClangStaticAnalyzerDiagnosticView(QWidget *parent)
+    : Analyzer::DetailedErrorView(parent)
+{
+    ClangStaticAnalyzerDiagnosticDelegate *delegate
+            = new ClangStaticAnalyzerDiagnosticDelegate(this);
+    setItemDelegate(delegate);
+
+    m_copyAction = new QAction(this);
+    m_copyAction->setText(tr("Copy"));
+    m_copyAction->setIcon(QIcon(QLatin1String(Core::Constants::ICON_COPY)));
+    m_copyAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
+    m_copyAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    connect(m_copyAction, &QAction::triggered,
+            delegate, &ClangStaticAnalyzerDiagnosticDelegate::copy);
+    addAction(m_copyAction);
+}
+
+void ClangStaticAnalyzerDiagnosticView::contextMenuEvent(QContextMenuEvent *e)
+{
+    if (selectionModel()->selectedRows().isEmpty())
+        return;
+
+    QMenu menu;
+    menu.addAction(m_copyAction);
+    menu.exec(e->globalPos());
 }
 
 } // namespace Internal
