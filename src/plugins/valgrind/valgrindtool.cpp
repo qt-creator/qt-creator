@@ -126,9 +126,8 @@ static void startLocalTool(IAnalyzerTool *tool)
             "Do you want to continue and run the tool in %2 mode?</p></body></html>")
                 .arg(toolName).arg(currentMode).arg(toolModeString);
         if (Utils::CheckableMessageBox::doNotAskAgainQuestion(ICore::mainWindow(),
-                title, message, ICore::settings(), QLatin1String("AnalyzerCorrectModeWarning"),
-                QDialogButtonBox::Yes|QDialogButtonBox::Cancel,
-                QDialogButtonBox::Cancel, QDialogButtonBox::Yes) != QDialogButtonBox::Yes)
+                title, message, ICore::settings(), QLatin1String("AnalyzerCorrectModeWarning"))
+                    != QDialogButtonBox::Yes)
             return;
     }
 
