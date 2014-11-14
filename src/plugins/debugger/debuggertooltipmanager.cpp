@@ -52,6 +52,7 @@
 #include <QClipboard>
 #include <QDebug>
 #include <QDesktopWidget>
+#include <QFileInfo>
 #include <QLabel>
 #include <QScrollBar>
 #include <QSortFilterProxyModel>
@@ -772,15 +773,22 @@ DebuggerToolTipContext::DebuggerToolTipContext()
 {
 }
 
+static bool filesMatch(const QString &file1, const QString &file2)
+{
+    QFileInfo f1(file1);
+    QFileInfo f2(file2);
+    return f1.canonicalFilePath() == f2.canonicalFilePath();
+}
+
 bool DebuggerToolTipContext::matchesFrame(const QString &frameFile, const QString &frameFunction) const
 {
-    return (fileName.isEmpty() || frameFile.isEmpty() || fileName == frameFile)
+    return (fileName.isEmpty() || frameFile.isEmpty() || filesMatch(fileName, frameFile))
             && (function.isEmpty() || frameFunction.isEmpty() || function == frameFunction);
 }
 
 bool DebuggerToolTipContext::isSame(const DebuggerToolTipContext &other) const
 {
-    return fileName == other.fileName
+    return filesMatch(fileName, other.fileName)
             && function == other.function
             && iname == other.iname;
 }
