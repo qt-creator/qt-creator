@@ -140,6 +140,7 @@ private slots:
     static void handleContextChange(const QList<Core::IContext *> &context);
 
     static void copyFilePathFromContextMenu();
+    void copyLocationFromContextMenu();
     static void copyFileNameFromContextMenu();
     static void saveDocumentFromContextMenu();
     static void saveDocumentAsFromContextMenu();
@@ -212,6 +213,7 @@ private:
     QAction *m_gotoNextSplitAction;
 
     QAction *m_copyFilePathContextAction;
+    QAction *m_copyLocationContextAction; // Copy path and line number.
     QAction *m_copyFileNameContextAction;
     QAction *m_saveCurrentEditorContextAction;
     QAction *m_saveAsCurrentEditorContextAction;

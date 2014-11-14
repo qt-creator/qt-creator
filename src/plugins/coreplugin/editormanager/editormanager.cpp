@@ -239,6 +239,7 @@ EditorManagerPrivate::EditorManagerPrivate(QObject *parent) :
     m_goBackAction(new QAction(QIcon(QLatin1String(Constants::ICON_PREV)), EditorManager::tr("Go Back"), this)),
     m_goForwardAction(new QAction(QIcon(QLatin1String(Constants::ICON_NEXT)), EditorManager::tr("Go Forward"), this)),
     m_copyFilePathContextAction(new QAction(EditorManager::tr("Copy Full Path to Clipboard"), this)),
+    m_copyLocationContextAction(new QAction(EditorManager::tr("Copy Path and Line Number"), this)),
     m_copyFileNameContextAction(new QAction(EditorManager::tr("Copy File Name to Clipboard"), this)),
     m_saveCurrentEditorContextAction(new QAction(EditorManager::tr("&Save"), this)),
     m_saveAsCurrentEditorContextAction(new QAction(EditorManager::tr("Save &As..."), this)),
@@ -357,6 +358,8 @@ void EditorManagerPrivate::init()
     //Save XXX Context Actions
     connect(m_copyFilePathContextAction, SIGNAL(triggered()),
             this, SLOT(copyFilePathFromContextMenu()));
+    connect(m_copyLocationContextAction, SIGNAL(triggered()),
+            this, SLOT(copyLocationFromContextMenu()));
     connect(m_copyFileNameContextAction, SIGNAL(triggered()),
             this, SLOT(copyFileNameFromContextMenu()));
     connect(m_saveCurrentEditorContextAction, SIGNAL(triggered()),
@@ -1586,6 +1589,17 @@ void EditorManagerPrivate::copyFilePathFromContextMenu()
                                            d->m_contextMenuEntry->fileName()).toUserOutput());
 }
 
+void EditorManagerPrivate::copyLocationFromContextMenu()
+{
+    const QAction *action = qobject_cast<const QAction *>(sender());
+    if (!d->m_contextMenuEntry || !action)
+        return;
+    const QString text =
+        Utils::FileName::fromString(d->m_contextMenuEntry->fileName()).toUserOutput()
+        + QLatin1Char(':') + action->data().toString();
+    QApplication::clipboard()->setText(text);
+}
+
 void EditorManagerPrivate::copyFileNameFromContextMenu()
 {
     if (!d->m_contextMenuEntry)
@@ -1911,8 +1925,15 @@ void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentMod
     const QString filePath = entry ? entry->fileName() : QString();
     const bool copyActionsEnabled = !filePath.isEmpty();
     d->m_copyFilePathContextAction->setEnabled(copyActionsEnabled);
+    d->m_copyLocationContextAction->setEnabled(copyActionsEnabled);
     d->m_copyFileNameContextAction->setEnabled(copyActionsEnabled);
     contextMenu->addAction(d->m_copyFilePathContextAction);
+    if (editor && entry) {
+        if (const int lineNumber = editor->currentLine()) {
+            d->m_copyLocationContextAction->setData(QVariant(lineNumber));
+            contextMenu->addAction(d->m_copyLocationContextAction);
+        }
+    }
     contextMenu->addAction(d->m_copyFileNameContextAction);
     contextMenu->addSeparator();
 
