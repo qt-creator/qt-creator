@@ -61,6 +61,7 @@
 #include <QFuture>
 #include <QCoreApplication>
 #include <QProcess>
+#include <QRegExp>
 
 using namespace Core;
 using namespace QtSupport;
@@ -1399,6 +1400,13 @@ FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QString> &ver
                         const QList<QByteArray> &temp = line.split('=');
                         if (temp.size() == 2) {
                             QString possibleFullPath = QString::fromLocal8Bit(temp.at(1).trimmed().constData());
+                            if (possibleFullPath.contains(QLatin1Char('$'))) { // QTBUG-28792
+                                const QRegExp rex(QLatin1String("\\binclude\\(([^)]+)/qmake\\.conf\\)"));
+                                if (rex.indexIn(QString::fromLocal8Bit(f2.readAll())) != -1) {
+                                    possibleFullPath = mkspecFullPath.toString() + QLatin1Char('/')
+                                            + rex.cap(1);
+                                }
+                            }
                             // We sometimes get a mix of different slash styles here...
                             possibleFullPath = possibleFullPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
                             if (QFileInfo::exists(possibleFullPath)) // Only if the path exists
