@@ -1976,7 +1976,6 @@ public:
     int m_register;
     BlockInsertMode m_visualBlockInsert;
 
-    bool m_fakeEnd;
     bool m_anchorPastEnd;
     bool m_positionPastEnd; // '$' & 'l' in visual mode can move past eol
 
@@ -2301,7 +2300,6 @@ void FakeVimHandler::Private::init()
     m_inFakeVim = false;
     m_findStartPosition = -1;
     m_visualBlockInsert = NoneBlockInsertMode;
-    m_fakeEnd = false;
     m_positionPastEnd = false;
     m_anchorPastEnd = false;
     m_register = '"';
@@ -2360,9 +2358,6 @@ void FakeVimHandler::Private::enterFakeVim()
     pullCursor();
 
     updateFirstVisibleLine();
-
-    if (m_fakeEnd)
-        moveRight();
 }
 
 void FakeVimHandler::Private::leaveFakeVim(bool needUpdate)
@@ -2371,16 +2366,6 @@ void FakeVimHandler::Private::leaveFakeVim(bool needUpdate)
 
     // The command might have destroyed the editor.
     if (m_textedit || m_plaintextedit) {
-        // We fake vi-style end-of-line behaviour
-        m_fakeEnd = atEndOfLine() && g.mode == CommandMode && !isVisualBlockMode()
-            && !isVisualCharMode();
-
-        //QTC_ASSERT(g.mode == InsertMode || g.mode == ReplaceMode
-        //        || !atBlockEnd() || block().length() <= 1,
-        //    qDebug() << "Cursor at EOL after key handler");
-        if (m_fakeEnd)
-            moveLeft();
-
         if (hasConfig(ConfigShowMarks))
             updateSelection();
 
@@ -3888,8 +3873,6 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
     } else if (input.is('h') || input.isKey(Key_Left) || input.isBackspace()) {
         g.movetype = MoveExclusive;
         int n = qMin(count, leftDist());
-        if (m_fakeEnd && block().length() > 1)
-            ++n;
         moveLeft(n);
     } else if (input.is('H')) {
         const CursorPosition pos(lineToBlockNumber(lineOnTop(count)), 0);
@@ -8507,7 +8490,6 @@ void FakeVimHandler::setTextCursorPosition(int position)
         d->setPosition(pos);
     else
         d->setAnchorAndPosition(pos, pos);
-    d->m_fakeEnd = false;
     d->setTargetColumn();
 
     if (!d->m_inFakeVim)
