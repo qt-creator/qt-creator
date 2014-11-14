@@ -2149,7 +2149,6 @@ public:
 
         QStack<CursorPosition> jumpListUndo;
         QStack<CursorPosition> jumpListRedo;
-        CursorPosition lastChangePosition;
 
         VisualMode lastVisualMode;
         bool lastVisualModeInverted;
@@ -2970,10 +2969,13 @@ void FakeVimHandler::Private::pushUndoState(bool overwrite)
         }
     }
 
+    CursorPosition lastChangePosition(document(), pos);
+    setMark(QLatin1Char('.'), lastChangePosition);
+
     m_buffer->redo.clear();
-    m_buffer->lastChangePosition = CursorPosition(document(), pos);
-    m_buffer->undoState = State(revision(), m_buffer->lastChangePosition, m_buffer->marks,
-                              m_buffer->lastVisualMode, m_buffer->lastVisualModeInverted);
+    m_buffer->undoState = State(
+                revision(), lastChangePosition, m_buffer->marks,
+                m_buffer->lastVisualMode, m_buffer->lastVisualModeInverted);
 }
 
 void FakeVimHandler::Private::moveDown(int n)
@@ -7655,15 +7657,15 @@ void FakeVimHandler::Private::undoRedo(bool undo)
     --m_buffer->editBlockLevel;
 
     if (state.isValid()) {
-        m_buffer->lastChangePosition = state.position;
         Marks marks = m_buffer->marks;
         marks.swap(state.marks);
         updateMarks(marks);
         m_buffer->lastVisualMode = state.lastVisualMode;
         m_buffer->lastVisualModeInverted = state.lastVisualModeInverted;
+        setMark(QLatin1Char('.'), state.position);
         setMark(QLatin1Char('\''), lastPos);
         setMark(QLatin1Char('`'), lastPos);
-        setCursorPosition(m_buffer->lastChangePosition);
+        setCursorPosition(state.position);
         setAnchor();
         state.revision = previousRevision;
     } else {
@@ -8201,8 +8203,7 @@ Mark FakeVimHandler::Private::mark(QChar code) const
         if (code == QLatin1Char('>'))
             return CursorPosition(document(), qMax(anchor(), position()));
     }
-    if (code == QLatin1Char('.'))
-        return m_buffer->lastChangePosition;
+
     if (code.isUpper())
         return g.marks.value(code);
 
