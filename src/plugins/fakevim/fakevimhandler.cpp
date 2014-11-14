@@ -2340,14 +2340,9 @@ void FakeVimHandler::Private::focus()
             commitCursor();
         }
 
-        bool exitCommandLine = isCommandLineMode();
         leaveCurrentMode();
-        if (exitCommandLine)
-            updateMiniBuffer();
     }
     updateCursorShape();
-    if (g.mode != CommandMode)
-        updateMiniBuffer();
     updateHighlights();
 
     leaveFakeVim(false);
@@ -2403,6 +2398,8 @@ void FakeVimHandler::Private::leaveFakeVim(bool needUpdate)
             updateCursorShape();
         }
 
+        updateMiniBuffer();
+
         installEventFilter();
     }
 
@@ -2441,7 +2438,6 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
             return false;
         }
         KEY_DEBUG(" NOT PASSING CTRL KEY");
-        //updateMiniBuffer();
         return true;
     }
 
@@ -2468,8 +2464,6 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
         //    qDebug() << "FINISHED...";
         //    return EventHandled;
         //}
-        g.passing = false;
-        updateMiniBuffer();
         KEY_DEBUG("   PASS TO CORE");
         return EventPassedToCore;
     }
@@ -2530,8 +2524,6 @@ void FakeVimHandler::Private::setupWidget()
     m_wasReadOnly = EDITOR(isReadOnly());
 
     updateEditor();
-    updateMiniBuffer();
-    updateCursorShape();
 
     leaveFakeVim();
 }
@@ -2640,8 +2632,6 @@ void FakeVimHandler::Private::updateEditor()
 
 void FakeVimHandler::Private::restoreWidget(int tabSize)
 {
-    //clearMessage();
-    //updateMiniBuffer();
     //EDITOR(removeEventFilter(q));
     //EDITOR(setReadOnly(m_wasReadOnly));
     const int charWidth = QFontMetrics(EDITOR(font())).width(QLatin1Char(' '));
@@ -2747,7 +2737,6 @@ void FakeVimHandler::Private::prependMapping(const Inputs &inputs)
         clearPendingInput();
         g.pendingInput.append(inputs);
         showMessage(MessageError, Tr::tr("Recursive mapping"));
-        updateMiniBuffer();
         return;
     }
 
@@ -2795,7 +2784,6 @@ void FakeVimHandler::Private::endMapping()
     g.mapStates.pop_back();
     if (g.mapStates.isEmpty())
         g.commandBuffer.setHistoryAutoSave(true);
-    updateMiniBuffer();
 }
 
 bool FakeVimHandler::Private::canHandleMapping()
@@ -2829,7 +2817,6 @@ void FakeVimHandler::Private::waitForMapping()
     g.currentCommand.clear();
     foreach (const Input &input, g.currentMap.currentInputs())
         g.currentCommand.append(input.toString());
-    updateMiniBuffer();
 
     // wait for user to press any key or trigger complete mapping after interval
     g.inputTimer = startTimer(1000);
@@ -4082,8 +4069,6 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
             handled = false;
     }
 
-    updateMiniBuffer();
-
     m_positionPastEnd = (m_visualTargetColumn == -1) && isVisualMode() && !atEmptyLine();
 
     return handled ? EventHandled : EventCancelled;
@@ -4657,8 +4642,6 @@ EventResult FakeVimHandler::Private::handleInsertOrReplaceMode(const Input &inpu
         m_visualBlockInsert = NoneBlockInsertMode;
     }
 
-    updateMiniBuffer();
-
     // We don't want fancy stuff in insert mode.
     return EventHandled;
 }
@@ -5089,7 +5072,7 @@ EventResult FakeVimHandler::Private::handleExMode(const Input &input)
         qDebug() << "IGNORED IN EX-MODE: " << input.key() << input.text();
         return EventUnhandled;
     }
-    updateMiniBuffer();
+
     return EventHandled;
 }
 
@@ -5133,9 +5116,7 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
     if (input.isReturn() || input.isEscape()) {
         g.searchBuffer.clear();
         leaveCurrentMode();
-        updateMiniBuffer();
     } else {
-        updateMiniBuffer();
         updateFind(false);
     }
 
@@ -5542,7 +5523,7 @@ bool FakeVimHandler::Private::handleExHistoryCommand(const ExCommand &cmd)
     } else {
         notImplementedYet();
     }
-    updateMiniBuffer();
+
     return true;
 }
 
@@ -5569,7 +5550,7 @@ bool FakeVimHandler::Private::handleExRegisterCommand(const ExCommand &cmd)
         info += QString::fromLatin1("\"%1   %2\n").arg(reg).arg(value);
     }
     emit q->extraInformationChanged(info);
-    updateMiniBuffer();
+
     return true;
 }
 
@@ -5949,7 +5930,7 @@ bool FakeVimHandler::Private::handleExUndoRedoCommand(const ExCommand &cmd)
         return false;
 
     undoRedo(undo);
-    updateMiniBuffer();
+
     return true;
 }
 
@@ -7461,7 +7442,6 @@ void FakeVimHandler::Private::toggleVisualMode(VisualMode visualMode)
         m_anchorPastEnd = false;
         g.visualMode = visualMode;
         m_buffer->lastVisualMode = visualMode;
-        updateMiniBuffer();
     }
 }
 
@@ -7482,7 +7462,6 @@ void FakeVimHandler::Private::leaveVisualMode()
     }
 
     g.visualMode = NoVisualMode;
-    updateMiniBuffer();
 }
 
 void FakeVimHandler::Private::saveLastVisualMode()
