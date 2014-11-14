@@ -63,7 +63,9 @@ QString createSummaryText(const ClangStaticAnalyzer::Internal::Diagnostic &diagn
     const QString location = fileName + QLatin1Char(' ')
             + QString::number(diagnostic.location.line);
     return QString::fromLatin1("%1&nbsp;&nbsp;<span %3>%2</span>")
-                                    .arg(diagnostic.description, location, linkStyle);
+                                    .arg(diagnostic.description.toHtmlEscaped(),
+                                         location,
+                                         linkStyle);
 }
 
 QLabel *createSummaryLabel(const ClangStaticAnalyzer::Internal::Diagnostic &diagnostic)
@@ -136,12 +138,12 @@ QString createExplainingStepToolTipString(const ClangStaticAnalyzer::Internal::E
     if (!step.message.isEmpty()) {
         lines << qMakePair(
             QCoreApplication::translate("ClangStaticAnalyzer::ExplainingStep", "Message:"),
-                step.message);
+                step.message.toHtmlEscaped());
     }
     if (!step.extendedMessage.isEmpty()) {
         lines << qMakePair(
             QCoreApplication::translate("ClangStaticAnalyzer::ExplainingStep", "Extended Message:"),
-                step.extendedMessage);
+                step.extendedMessage.toHtmlEscaped());
     }
 
     lines << qMakePair(
@@ -170,7 +172,9 @@ QString createExplainingStepString(
 {
     return createExplainingStepNumberString(number, withMarkup)
             + QLatin1Char(' ')
-            + explainingStep.extendedMessage
+            + (withMarkup
+               ? explainingStep.extendedMessage.toHtmlEscaped()
+               : explainingStep.extendedMessage)
             + QLatin1Char(' ')
             + createLocationString(explainingStep.location, withMarkup, withAbsolutePath);
 }
