@@ -46,8 +46,6 @@ public:
     ThemeSettingsWidget(QWidget *parent = 0);
     ~ThemeSettingsWidget();
 
-    static QString defaultThemeFileName(const QString &fileName = QString());
-
     void apply();
 
 private slots:

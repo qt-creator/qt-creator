@@ -267,7 +267,6 @@ void ThemeSettingsTableModel::toTheme(Theme *t) const
     theme->widgetStyle = m_widgetStyle;
     theme->name = m_name;
     theme->preferredStyles = m_preferredStyles;
-    emit t->changed();
 }
 
 Qt::ItemFlags ThemeSettingsTableModel::sectionHeaderFlags(int section) const

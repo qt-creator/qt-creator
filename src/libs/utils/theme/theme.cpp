@@ -65,10 +65,11 @@ void setCreatorTheme(Theme *theme)
     m_creatorTheme = theme;
 }
 
-Theme::Theme(QObject *parent)
+Theme::Theme(const QString &name, QObject *parent)
   : QObject(parent)
   , d(new ThemePrivate)
 {
+    d->name = name;
 }
 
 Theme::~Theme()
@@ -121,9 +122,14 @@ QPair<QColor, QString> Theme::readNamedColor(const QString &color) const
     return qMakePair(QColor::fromRgba(rgba), QString());
 }
 
-QString Theme::fileName() const
+QString Theme::filePath() const
 {
     return d->fileName;
+}
+
+QString Theme::name() const
+{
+    return d->name;
 }
 
 void Theme::setName(const QString &name)

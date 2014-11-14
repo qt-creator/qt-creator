@@ -48,6 +48,7 @@
 #include <utils/savefile.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
+#include <utils/theme/theme_p.h>
 
 #include <QtPlugin>
 #include <QDebug>
@@ -90,11 +91,36 @@ CorePlugin::~CorePlugin()
     setCreatorTheme(0);
 }
 
+static QString absoluteThemePath(const QString &themeName)
+{
+    if (themeName.isEmpty())
+        return themeName;
+    QString res = QDir::fromNativeSeparators(themeName);
+    QFileInfo fi(res);
+    // Try the given name
+    if (fi.exists())
+        return fi.absoluteFilePath();
+    const QString suffix = QLatin1String("creatortheme");
+    // Try name.creatortheme
+    if (fi.suffix() != suffix) {
+        res = themeName + QLatin1Char('.') + suffix;
+        fi.setFile(res);
+        if (fi.exists())
+            return fi.absoluteFilePath();
+    }
+    if (fi.path().isEmpty())
+        return QString(); // absolute/relative path, but not found
+    // If only name was given, look it up in qtcreator/themes
+    res.prepend(ICore::resourcePath() + QLatin1String("/themes/"));
+    return QFileInfo::exists(res) ? res : QString();
+}
+
 void CorePlugin::parseArguments(const QStringList &arguments)
 {
-    QString themeName = QLatin1String("default");
+    const QString defaultTheme = QLatin1String("default");
+    QString themeName = ICore::settings()->value(
+                QLatin1String(Constants::SETTINGS_THEME), defaultTheme).toString();
     QColor overrideColor;
-    bool overrideTheme = false;
     bool presentationMode = false;
 
     for (int i = 0; i < arguments.size(); ++i) {
@@ -106,34 +132,27 @@ void CorePlugin::parseArguments(const QStringList &arguments)
         if (arguments.at(i) == QLatin1String("-presentationMode"))
             presentationMode = true;
         if (arguments.at(i) == QLatin1String("-theme")) {
-            overrideTheme = true;
             themeName = arguments.at(i + 1);
             i++;
         }
     }
 
-    QSettings *settings = Core::ICore::settings();
-    QString themeURI = settings->value(QLatin1String(Core::Constants::SETTINGS_THEME)).toString();
-
-    if (!QFileInfo::exists(themeURI) || overrideTheme) {
-        const QString builtInTheme = QStringLiteral("%1/themes/%2.creatortheme")
-            .arg(ICore::resourcePath()).arg(themeName);
-        if (QFile::exists(builtInTheme)) {
-            themeURI = builtInTheme;
-        } else if (themeName.endsWith(QLatin1String(".creatortheme"))) {
-            themeURI = themeName;
-        } else { // TODO: Fallback to default theme
+    QString themeURI = absoluteThemePath(themeName);
+    if (themeURI.isEmpty()) {
+        themeName = defaultTheme;
+        themeURI = QStringLiteral("%1/themes/%2.creatortheme").arg(ICore::resourcePath()).arg(themeName);
+        if (themeURI.isEmpty()) {
             qCritical("%s", qPrintable(QCoreApplication::translate("Application", "No valid theme '%1'")
                                        .arg(themeName)));
         }
     }
 
     QSettings themeSettings(themeURI, QSettings::IniFormat);
-    Theme *theme = new Theme(qApp);
+    Theme *theme = new Theme(themeName, qApp);
     theme->readSettings(themeSettings);
-    setCreatorTheme(theme);
     if (theme->flag(Theme::ApplyThemePaletteGlobally))
-        QApplication::setPalette(creatorTheme()->palette());
+        QApplication::setPalette(theme->palette());
+    setCreatorTheme(theme);
 
     // defer creation of these widgets until here,
     // because they need a valid theme set

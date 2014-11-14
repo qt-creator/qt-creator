@@ -258,7 +258,7 @@ void WelcomeMode::initPlugins()
     ctx->setContextProperty(QLatin1String("pagesModel"), QVariant::fromValue(m_pluginList));
 
     onThemeChanged();
-    connect(creatorTheme(), &Theme::changed, this, &WelcomeMode::onThemeChanged);
+    connect(Core::ICore::instance(), &Core::ICore::themeChanged, this, &WelcomeMode::onThemeChanged);
     ctx->setContextProperty(QLatin1String("creatorTheme"), &m_themeProperties);
 
     QString path = resourcePath() + QLatin1String("/welcomescreen/welcomescreen.qml");

@@ -31,9 +31,11 @@
 #include "themesettingswidget.h"
 #include "coreconstants.h"
 #include "icore.h"
+#include "manhattanstyle.h"
 #include "themeeditor/themesettingstablemodel.h"
 
 #include <utils/theme/theme.h>
+#include <utils/theme/theme_p.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -41,6 +43,7 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QSettings>
+#include <QStyleFactory>
 
 #include "ui_themesettings.h"
 
@@ -53,9 +56,7 @@ const char themeNameKey[] = "ThemeName";
 
 static QString customThemesPath()
 {
-    QString path = Core::ICore::userResourcePath();
-    path.append(QLatin1String("/themes/"));
-    return path;
+    return ICore::userResourcePath() + QLatin1String("/themes/");
 }
 
 static QString createThemeFileName(const QString &pattern)
@@ -84,23 +85,27 @@ static QString createThemeFileName(const QString &pattern)
 struct ThemeEntry
 {
     ThemeEntry() {}
-    ThemeEntry(const QString &fileName, bool readOnly):
-        m_fileName(fileName),
+    ThemeEntry(const QString &name, const QString &filePath, bool readOnly):
+        m_name(name),
+        m_filePath(filePath),
         m_readOnly(readOnly)
-    { }
+    {
+    }
 
-    QString fileName() const { return m_fileName; }
-    QString name() const;
+    QString name() const { return m_name; }
+    QString displayName() const;
+    QString filePath() const { return m_filePath; }
     bool readOnly() const { return m_readOnly; }
 
 private:
-    QString m_fileName;
+    QString m_name;
+    QString m_filePath;
     bool m_readOnly;
 };
 
-QString ThemeEntry::name() const
+QString ThemeEntry::displayName() const
 {
-    QSettings settings(m_fileName, QSettings::IniFormat);
+    QSettings settings(filePath(), QSettings::IniFormat);
     QString n = settings.value(QLatin1String(themeNameKey), QCoreApplication::tr("unnamed")).toString();
     return m_readOnly ? QCoreApplication::tr("%1 (built-in)").arg(n) : n;
 }
@@ -122,7 +127,7 @@ public:
     QVariant data(const QModelIndex &index, int role) const
     {
         if (role == Qt::DisplayRole)
-            return m_themes.at(index.row()).name();
+            return m_themes.at(index.row()).displayName();
         return QVariant();
     }
 
@@ -168,7 +173,7 @@ ThemeSettingsPrivate::ThemeSettingsPrivate(QWidget *widget)
     , m_refreshingThemeList(false)
     , m_ui(new Ui::ThemeSettings)
 {
-    m_currentTheme = ThemeEntry(creatorTheme()->fileName(), true);
+    m_currentTheme = ThemeEntry(creatorTheme()->name(), creatorTheme()->filePath(), true);
     m_ui->setupUi(widget);
     m_ui->editor->hide(); // TODO: Restore after improving the editor
     m_ui->themeComboBox->setModel(m_themeListModel);
@@ -203,22 +208,24 @@ void ThemeSettingsWidget::refreshThemeList()
 {
     QList<ThemeEntry> themes;
 
-    QString resourcePath = Core::ICore::resourcePath();
-    QDir themeDir(resourcePath + QLatin1String("/themes"));
+    QDir themeDir(ICore::resourcePath() + QLatin1String("/themes"));
     themeDir.setNameFilters(QStringList() << QLatin1String("*.creatortheme"));
     themeDir.setFilter(QDir::Files);
 
     int selected = 0;
 
     QStringList themeList = themeDir.entryList();
-    QString defaultTheme = QFileInfo(defaultThemeFileName()).fileName();
-    if (themeList.removeAll(defaultTheme))
+    const QString defaultTheme = QLatin1String("default.creatortheme");
+    if (themeList.removeOne(defaultTheme))
         themeList.prepend(defaultTheme);
-    foreach (const QString &file, themeList) {
-        const QString fileName = themeDir.absoluteFilePath(file);
-        if (d->m_currentTheme.fileName() == fileName)
-            selected = themes.size();
-        themes.append(ThemeEntry(fileName, true));
+    const QLatin1String extension(".creatortheme");
+    for (int i = 0, total = themeList.count(); i < total; ++i) {
+        const QString fileName = themeList.at(i);
+        if (d->m_currentTheme.name() + extension == fileName)
+            selected = i;
+        QString name = fileName;
+        name.remove(extension);
+        themes.append(ThemeEntry(name, themeDir.absoluteFilePath(fileName), true));
     }
 
     if (themes.isEmpty())
@@ -227,9 +234,9 @@ void ThemeSettingsWidget::refreshThemeList()
     themeDir.setPath(customThemesPath());
     foreach (const QString &file, themeDir.entryList()) {
         const QString fileName = themeDir.absoluteFilePath(file);
-        if (d->m_currentTheme.fileName() == fileName)
+        if (d->m_currentTheme.name() == fileName)
             selected = themes.size();
-        themes.append(ThemeEntry(fileName, false));
+        themes.append(ThemeEntry(fileName, fileName, false));
     }
 
     d->m_currentTheme = themes[selected];
@@ -238,19 +245,6 @@ void ThemeSettingsWidget::refreshThemeList()
     d->m_themeListModel->setThemes(themes);
     d->m_ui->themeComboBox->setCurrentIndex(selected);
     d->m_refreshingThemeList = false;
-}
-
-QString ThemeSettingsWidget::defaultThemeFileName(const QString &fileName)
-{
-    QString defaultScheme = Core::ICore::resourcePath();
-    defaultScheme += QLatin1String("/themes/");
-
-    if (!fileName.isEmpty() && QFile::exists(defaultScheme + fileName))
-        defaultScheme += fileName;
-    else
-        defaultScheme += QLatin1String("default.creatortheme");
-
-    return defaultScheme;
 }
 
 void ThemeSettingsWidget::themeSelected(int index)
@@ -265,8 +259,8 @@ void ThemeSettingsWidget::themeSelected(int index)
         readOnly = entry.readOnly();
         d->m_currentTheme = entry;
 
-        QSettings settings(entry.fileName(), QSettings::IniFormat);
-        Theme theme;
+        QSettings settings(entry.filePath(), QSettings::IniFormat);
+        Theme theme(entry.name());
         theme.readSettings(settings);
         d->m_ui->editor->initFrom(&theme);
     }
@@ -288,7 +282,7 @@ void ThemeSettingsWidget::confirmDeleteTheme()
 
     QMessageBox *messageBox = new QMessageBox(QMessageBox::Warning,
                                               tr("Delete Theme"),
-                                              tr("Are you sure you want to delete the theme '%1' permanently?").arg(entry.name()),
+                                              tr("Are you sure you want to delete the theme '%1' permanently?").arg(entry.displayName()),
                                               QMessageBox::Discard | QMessageBox::Cancel,
                                               d->m_ui->deleteButton->window());
 
@@ -312,7 +306,7 @@ void ThemeSettingsWidget::deleteTheme()
     const ThemeEntry &entry = d->m_themeListModel->themeAt(index);
     QTC_ASSERT(!entry.readOnly(), return);
 
-    if (QFile::remove(entry.fileName()))
+    if (QFile::remove(entry.filePath()))
         d->m_themeListModel->removeTheme(index);
 }
 
@@ -339,7 +333,7 @@ void ThemeSettingsWidget::maybeSaveTheme()
     QMessageBox *messageBox = new QMessageBox(QMessageBox::Warning,
                                               tr("Theme Changed"),
                                               tr("The theme \"%1\" was modified, do you want to save the changes?")
-                                                  .arg(d->m_currentTheme.name()),
+                                                  .arg(d->m_currentTheme.displayName()),
                                               QMessageBox::Discard | QMessageBox::Save,
                                               d->m_ui->themeComboBox->window());
 
@@ -350,9 +344,9 @@ void ThemeSettingsWidget::maybeSaveTheme()
     messageBox->setDefaultButton(QMessageBox::Save);
 
     if (messageBox->exec() == QMessageBox::Save) {
-        Theme newTheme;
+        Theme newTheme(d->m_currentTheme.name());
         d->m_ui->editor->model()->toTheme(&newTheme);
-        newTheme.writeSettings(d->m_currentTheme.fileName());
+        newTheme.writeSettings(d->m_currentTheme.filePath());
     }
 }
 
@@ -378,10 +372,10 @@ void ThemeSettingsWidget::renameTheme()
         return;
 
     // overwrite file with new name
-    Theme newTheme;
+    Theme newTheme(entry.name());
     d->m_ui->editor->model()->toTheme(&newTheme);
     newTheme.setName(newName);
-    newTheme.writeSettings(entry.fileName());
+    newTheme.writeSettings(entry.filePath());
 
     refreshThemeList();
 }
@@ -394,7 +388,7 @@ void ThemeSettingsWidget::copyThemeByName(const QString &name)
 
     const ThemeEntry &entry = d->m_themeListModel->themeAt(index);
 
-    QString baseFileName = QFileInfo(entry.fileName()).completeBaseName();
+    QString baseFileName = QFileInfo(entry.filePath()).completeBaseName();
     baseFileName += QLatin1String("_copy%1.creatortheme");
     QString fileName = createThemeFileName(baseFileName);
 
@@ -404,36 +398,46 @@ void ThemeSettingsWidget::copyThemeByName(const QString &name)
     // Ask about saving any existing modifactions
     maybeSaveTheme();
 
-    Theme newTheme;
+    Theme newTheme(fileName);
     d->m_ui->editor->model()->toTheme(&newTheme);
     newTheme.setName(name);
     newTheme.writeSettings(fileName);
 
-    d->m_currentTheme = ThemeEntry(fileName, true);
+    d->m_currentTheme = ThemeEntry(fileName, fileName, true);
 
     refreshThemeList();
 }
 
 void ThemeSettingsWidget::apply()
 {
-    {
-        d->m_ui->editor->model()->toTheme(creatorTheme());
-        if (creatorTheme()->flag(Theme::ApplyThemePaletteGlobally))
-            QApplication::setPalette(creatorTheme()->palette());
-        foreach (QWidget *w, QApplication::topLevelWidgets())
-            w->update();
+    const QString themeName = d->m_currentTheme.name();
+    Theme *newTheme = new Theme(themeName);
+    if (d->m_currentTheme.readOnly()) {
+        QSettings themeSettings(d->m_currentTheme.filePath(), QSettings::IniFormat);
+        newTheme->readSettings(themeSettings);
+    } else {
+        d->m_ui->editor->model()->toTheme(newTheme);
+        newTheme->writeSettings(d->m_currentTheme.filePath());
     }
-
-    // save definition of theme
-    if (!d->m_currentTheme.readOnly()) {
-        Theme newTheme;
-        d->m_ui->editor->model()->toTheme(&newTheme);
-        newTheme.writeSettings(d->m_currentTheme.fileName());
+    setCreatorTheme(newTheme);
+    emit ICore::instance()->themeChanged();
+    QPalette pal = newTheme->flag(Theme::ApplyThemePaletteGlobally) ? newTheme->palette()
+                                                                    : Theme::initialPalette();
+    QApplication::setPalette(pal);
+    if (ManhattanStyle *style = qobject_cast<ManhattanStyle *>(QApplication::style())) {
+        QStyle *baseStyle = 0;
+        foreach (const QString &s, creatorTheme()->preferredStyles()) {
+            if ((baseStyle = QStyleFactory::create(s)))
+                break;
+        }
+        style->setBaseStyle(baseStyle);
     }
+    foreach (QWidget *w, QApplication::topLevelWidgets())
+        w->update();
 
     // save filename of selected theme in global config
     QSettings *settings = Core::ICore::settings();
-    settings->setValue(QLatin1String(Core::Constants::SETTINGS_THEME), d->m_currentTheme.fileName());
+    settings->setValue(QLatin1String(Core::Constants::SETTINGS_THEME), themeName);
 }
 
 } // namespace Internal
