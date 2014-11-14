@@ -168,6 +168,7 @@ DetailedErrorDelegate::SummaryLineInfo ClangStaticAnalyzerDiagnosticDelegate::su
         const QModelIndex &index) const
 {
     const Diagnostic diagnostic = index.data(Qt::UserRole).value<Diagnostic>();
+    QTC_ASSERT(diagnostic.isValid(), return SummaryLineInfo());
 
     DetailedErrorDelegate::SummaryLineInfo info;
     info.errorText = diagnostic.description;
@@ -188,6 +189,8 @@ QWidget *ClangStaticAnalyzerDiagnosticDelegate::createDetailsWidget(const QFont 
     QVBoxLayout *layout = new QVBoxLayout;
 
     const Diagnostic diagnostic = index.data(Qt::UserRole).value<Diagnostic>();
+    if (!diagnostic.isValid())
+        return widget;
 
     // Add summary label
     QLabel *summaryLineLabel = createSummaryLabel(diagnostic);
