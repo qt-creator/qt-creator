@@ -2323,23 +2323,22 @@ void FakeVimHandler::Private::focus()
     enterFakeVim();
 
     stopIncrementalFind();
-    if (!isInsertMode()) {
-        if (g.subsubmode == SearchSubSubMode || g.submode != NoSubMode || g.mode == ExMode) {
-            if (g.subsubmode == SearchSubSubMode) {
-                setPosition(m_searchStartPosition);
-                scrollToLine(m_searchFromScreenLine);
-            } else {
-                leaveVisualMode();
-                setPosition(qMin(position(), anchor()));
-            }
-            setTargetColumn();
-            setAnchor();
-            commitCursor();
+    if (isCommandLineMode()) {
+        if (g.subsubmode == SearchSubSubMode) {
+            setPosition(m_searchStartPosition);
+            scrollToLine(m_searchFromScreenLine);
+        } else {
+            leaveVisualMode();
+            setPosition(qMin(position(), anchor()));
         }
-
         leaveCurrentMode();
+        setTargetColumn();
+        setAnchor();
+        commitCursor();
+    } else {
+        clearCurrentMode();
+        updateCursorShape();
     }
-    updateCursorShape();
     updateHighlights();
 
     leaveFakeVim(false);
@@ -2379,7 +2378,6 @@ void FakeVimHandler::Private::leaveFakeVim(bool needUpdate)
             updateScrollOffset();
 
             commitCursor();
-            updateCursorShape();
         }
 
         updateMiniBuffer();
@@ -3083,6 +3081,8 @@ void FakeVimHandler::Private::commitCursor()
     } else {
         tc.clearSelection();
     }
+
+    updateCursorShape();
 
     if (isVisualBlockMode()) {
         emit q->requestSetBlockSelection(tc);
@@ -4521,9 +4521,9 @@ bool FakeVimHandler::Private::handleWindowSubMode(const Input &input)
         return true;
 
     leaveVisualMode();
+    leaveCurrentMode();
     emit q->windowCommandRequested(input.toString(), count());
 
-    g.submode = NoSubMode;
     return true;
 }
 
@@ -6383,7 +6383,7 @@ int FakeVimHandler::Private::charClass(QChar c, bool simple) const
 void FakeVimHandler::Private::miniBufferTextEdited(const QString &text, int cursorPos,
     int anchorPos)
 {
-    if (g.subsubmode != SearchSubSubMode && g.mode != ExMode) {
+    if (!isCommandLineMode()) {
         editor()->setFocus();
     } else if (text.isEmpty()) {
         // editing cancelled
@@ -6392,7 +6392,6 @@ void FakeVimHandler::Private::miniBufferTextEdited(const QString &text, int curs
         leaveFakeVim();
 
         editor()->setFocus();
-        updateCursorShape();
     } else {
         CommandBuffer &cmdBuf = (g.mode == ExMode) ? g.commandBuffer : g.searchBuffer;
         int pos = qMax(1, cursorPos);
@@ -7243,8 +7242,6 @@ bool FakeVimHandler::Private::passEventToEditor(QEvent &event, QTextCursor &tc)
     if (!m_textedit && !m_plaintextedit)
         return false;
 
-    updateCursorShape();
-
     if (accepted)
         tc = EDITOR(textCursor());
 
@@ -7676,10 +7673,7 @@ void FakeVimHandler::Private::redo()
 
 void FakeVimHandler::Private::updateCursorShape()
 {
-    bool thinCursor = g.mode == ExMode
-            || g.subsubmode == SearchSubSubMode
-            || g.mode == InsertMode
-            || (isVisualMode() && !isVisualCharMode());
+    bool thinCursor = g.mode == InsertMode || isVisualLineMode() || isVisualBlockMode();
     EDITOR(setOverwriteMode(!thinCursor));
 }
 
