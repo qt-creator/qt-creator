@@ -93,6 +93,7 @@
 #include <algorithm>
 #include <climits>
 #include <ctype.h>
+#include <functional>
 
 //#define DEBUG_KEY  1
 #if DEBUG_KEY
@@ -239,7 +240,7 @@ enum MoveType
     \value RangeLineMode   Entered by pressing \key V. The range includes
                            all lines between the line of the cursor and
                            the line of the anchor.
-    \value RangeLineModeExclusice Like \l RangeLineMode, but keeps one
+    \value RangeLineModeExclusive Like \l RangeLineMode, but keeps one
                            newline when deleting.
     \value RangeBlockMode  Entered by pressing \key Ctrl-v. The range includes
                            all characters with line and column coordinates
@@ -2001,35 +2002,22 @@ public:
     int anchor() const { return m_cursor.anchor(); }
     int position() const { return m_cursor.position(); }
 
-    struct TransformationData
-    {
-        TransformationData(const QString &s, const QVariant &d)
-            : from(s), extraData(d) {}
-        QString from;
-        QString to;
-        QVariant extraData;
-    };
-    typedef void (Private::*Transformation)(TransformationData *td);
-    void transformText(const Range &range, Transformation transformation,
-        const QVariant &extraData = QVariant());
+    // Transform text selected by cursor in current visual mode.
+    typedef std::function<QString(const QString &)> Transformation;
+    void transformText(const Range &range, QTextCursor &tc, const std::function<void()> &transform) const;
+    void transformText(const Range &range, const Transformation &transform);
 
     void insertText(QTextCursor &tc, const QString &text);
     void insertText(const Register &reg);
     void removeText(const Range &range);
-    void removeTransform(TransformationData *td);
 
     void invertCase(const Range &range);
-    void invertCaseTransform(TransformationData *td);
 
     void upCase(const Range &range);
-    void upCaseTransform(TransformationData *td);
 
     void downCase(const Range &range);
-    void downCaseTransform(TransformationData *td);
 
     void replaceText(const Range &range, const QString &str);
-    void replaceByStringTransform(TransformationData *td);
-    void replaceByCharTransform(TransformationData *td);
 
     QString selectText(const Range &range) const;
     void setCurrentRange(const Range &range);
@@ -4477,16 +4465,18 @@ bool FakeVimHandler::Private::handleReplaceSubMode(const Input &input)
 {
     bool handled = true;
 
-    setDotCommand(visualDotCommand() + QLatin1Char('r') + input.asChar());
+    const QChar c = input.asChar();
+    setDotCommand(visualDotCommand() + QLatin1Char('r') + c);
     if (isVisualMode()) {
         pushUndoState();
         leaveVisualMode();
         Range range = currentRange();
         if (g.rangemode == RangeCharMode)
             ++range.endPos;
-        Transformation tr =
-                &FakeVimHandler::Private::replaceByCharTransform;
-        transformText(range, tr, input.asChar());
+        // Replace each character but preserve lines.
+        transformText(range, [&c](const QString &text) {
+            return QString(text).replace(QRegExp(_("[^\\n]")), c);
+        });
     } else if (count() <= rightDist()) {
         pushUndoState();
         setAnchor();
@@ -4498,7 +4488,7 @@ bool FakeVimHandler::Private::handleReplaceSubMode(const Input &input)
             insertText(QString::fromLatin1("\n"));
             endEditBlock();
         } else {
-            replaceText(range, QString(count(), input.asChar()));
+            replaceText(range, QString(count(), c));
             moveRight(count() - 1);
         }
         setTargetColumn();
@@ -6869,50 +6859,11 @@ int FakeVimHandler::Private::lastPositionInDocument(bool ignoreMode) const
 
 QString FakeVimHandler::Private::selectText(const Range &range) const
 {
-    if (range.rangemode == RangeCharMode) {
-        QTextCursor tc(document());
-        tc.setPosition(range.beginPos, MoveAnchor);
-        tc.setPosition(range.endPos, KeepAnchor);
-        return tc.selection().toPlainText();
-    }
-    if (range.rangemode == RangeLineMode) {
-        const QTextBlock firstBlock = blockAt(range.beginPos);
-        int firstPos = firstBlock.isValid() ? firstBlock.position() : 0;
-        QTextBlock lastBlock = blockAt(range.endPos);
-        bool endOfDoc = lastBlock == document()->lastBlock();
-        int lastPos = endOfDoc ? lastPositionInDocument(true) : lastBlock.next().position();
-        QTextCursor tc(document());
-        tc.setPosition(firstPos, MoveAnchor);
-        tc.setPosition(lastPos, KeepAnchor);
-        return tc.selection().toPlainText() + _(endOfDoc? "\n" : "");
-    }
-    // FIXME: Performance?
-    int beginLine = lineForPosition(range.beginPos);
-    int endLine = lineForPosition(range.endPos);
-    int beginColumn = 0;
-    int endColumn = INT_MAX;
-    if (range.rangemode == RangeBlockMode) {
-        int column1 = columnAt(range.beginPos);
-        int column2 = columnAt(range.endPos);
-        beginColumn = qMin(column1, column2);
-        endColumn = qMax(column1, column2);
-    }
-    int len = endColumn - beginColumn + 1;
     QString contents;
-    QTextBlock block = document()->findBlockByLineNumber(beginLine - 1);
-    for (int i = beginLine; i <= endLine && block.isValid(); ++i) {
-        QString line = block.text();
-        if (range.rangemode == RangeBlockMode) {
-            line = line.mid(beginColumn, len);
-            if (line.size() < len)
-                line += QString(len - line.size(), QLatin1Char(' '));
-        }
-        contents += line;
-        if (!contents.endsWith(QLatin1Char('\n')))
-            contents += QLatin1Char('\n');
-        block = block.next();
-    }
-    //qDebug() << "SELECTED: " << contents;
+    const QString lineEnd = range.rangemode == RangeBlockMode ? QString(QLatin1Char('\n')) : QString();
+    QTextCursor tc = m_cursor;
+    transformText(range, tc,
+        [&tc, &contents, &lineEnd]() { contents.append(tc.selection().toPlainText() + lineEnd); });
     return contents;
 }
 
@@ -6945,26 +6896,20 @@ void FakeVimHandler::Private::yankText(const Range &range, int reg)
         showMessage(MessageInfo, Tr::tr("%n lines yanked.", 0, lines));
 }
 
-void FakeVimHandler::Private::transformText(const Range &range,
-    Transformation transformFunc, const QVariant &extra)
+void FakeVimHandler::Private::transformText(
+        const Range &range, QTextCursor &tc, const std::function<void()> &transform) const
 {
-    QTextCursor tc = m_cursor;
-    int posAfter = range.beginPos;
     switch (range.rangemode) {
         case RangeCharMode: {
             // This can span multiple lines.
-            beginEditBlock();
             tc.setPosition(range.beginPos, MoveAnchor);
             tc.setPosition(range.endPos, KeepAnchor);
-            TransformationData td(tc.selectedText(), extra);
-            (this->*transformFunc)(&td);
-            insertText(tc, td.to);
-            endEditBlock();
+            transform();
+            tc.setPosition(range.beginPos);
             break;
         }
         case RangeLineMode:
         case RangeLineModeExclusive: {
-            beginEditBlock();
             tc.setPosition(range.beginPos, MoveAnchor);
             tc.movePosition(StartOfLine, MoveAnchor);
             tc.setPosition(range.endPos, KeepAnchor);
@@ -6986,41 +6931,41 @@ void FakeVimHandler::Private::transformText(const Range &range,
                     tc.movePosition(Right, KeepAnchor, 1);
                 }
             }
-            TransformationData td(tc.selectedText(), extra);
-            (this->*transformFunc)(&td);
-            posAfter = tc.anchor();
-            insertText(tc, td.to);
-            endEditBlock();
+            const int posAfter = tc.anchor();
+            transform();
+            tc.setPosition(posAfter);
             break;
         }
         case RangeBlockAndTailMode:
         case RangeBlockMode: {
-            int beginLine = lineForPosition(range.beginPos);
-            int endLine = lineForPosition(range.endPos);
-            int column1 = columnAt(range.beginPos);
-            int column2 = columnAt(range.endPos);
-            int beginColumn = qMin(column1, column2);
-            int endColumn = qMax(column1, column2);
+            int beginColumn = columnAt(range.beginPos);
+            int endColumn = columnAt(range.endPos);
+            if (endColumn < beginColumn)
+                std::swap(beginColumn, endColumn);
             if (range.rangemode == RangeBlockAndTailMode)
                 endColumn = INT_MAX - 1;
-            QTextBlock block = document()->findBlockByLineNumber(endLine - 1);
-            beginEditBlock();
-            for (int i = beginLine; i <= endLine && block.isValid(); ++i) {
+            QTextBlock block = document()->findBlock(range.beginPos);
+            const QTextBlock lastBlock = document()->findBlock(range.endPos);
+            while (block.isValid() && block.position() <= lastBlock.position()) {
                 int bCol = qMin(beginColumn, block.length() - 1);
                 int eCol = qMin(endColumn + 1, block.length() - 1);
                 tc.setPosition(block.position() + bCol, MoveAnchor);
                 tc.setPosition(block.position() + eCol, KeepAnchor);
-                TransformationData td(tc.selectedText(), extra);
-                (this->*transformFunc)(&td);
-                insertText(tc, td.to);
-                block = block.previous();
+                transform();
+                block = block.next();
             }
-            endEditBlock();
+            tc.setPosition(range.beginPos);
             break;
         }
     }
+}
 
-    setPosition(posAfter);
+void FakeVimHandler::Private::transformText(const Range &range, const Transformation &transform)
+{
+    beginEditBlock();
+    transformText(range, m_cursor,
+        [this, &transform] { m_cursor.insertText(transform(m_cursor.selection().toPlainText())); });
+    endEditBlock();
     setTargetColumn();
 }
 
@@ -7052,66 +6997,35 @@ void FakeVimHandler::Private::insertText(const Register &reg)
 
 void FakeVimHandler::Private::removeText(const Range &range)
 {
-    //qDebug() << "REMOVE: " << range;
-    transformText(range, &FakeVimHandler::Private::removeTransform);
-}
-
-void FakeVimHandler::Private::removeTransform(TransformationData *td)
-{
-    Q_UNUSED(td);
+    transformText(range, [](const QString &) { return QString(); });
 }
 
 void FakeVimHandler::Private::downCase(const Range &range)
 {
-    transformText(range, &FakeVimHandler::Private::downCaseTransform);
-}
-
-void FakeVimHandler::Private::downCaseTransform(TransformationData *td)
-{
-    td->to = td->from.toLower();
+    transformText(range, [](const QString &text) { return text.toLower(); } );
 }
 
 void FakeVimHandler::Private::upCase(const Range &range)
 {
-    transformText(range, &FakeVimHandler::Private::upCaseTransform);
-}
-
-void FakeVimHandler::Private::upCaseTransform(TransformationData *td)
-{
-    td->to = td->from.toUpper();
+    transformText(range, [](const QString &text) { return text.toUpper(); } );
 }
 
 void FakeVimHandler::Private::invertCase(const Range &range)
 {
-    transformText(range, &FakeVimHandler::Private::invertCaseTransform);
-}
-
-void FakeVimHandler::Private::invertCaseTransform(TransformationData *td)
-{
-    foreach (QChar c, td->from)
-        td->to += c.isUpper() ? c.toLower() : c.toUpper();
+    transformText(range,
+        [](const QString &text) {
+            QString result = text;
+            for (int i = 0; i < result.length(); ++i) {
+                QCharRef c = result[i];
+                c = c.isUpper() ? c.toLower() : c.toUpper();
+            }
+            return result;
+        });
 }
 
 void FakeVimHandler::Private::replaceText(const Range &range, const QString &str)
 {
-    Transformation tr = &FakeVimHandler::Private::replaceByStringTransform;
-    transformText(range, tr, str);
-}
-
-void FakeVimHandler::Private::replaceByStringTransform(TransformationData *td)
-{
-    td->to = td->extraData.toString();
-}
-
-void FakeVimHandler::Private::replaceByCharTransform(TransformationData *td)
-{
-    // Replace each character but preserve lines.
-    const int len = td->from.size();
-    td->to = QString(len, td->extraData.toChar());
-    for (int i = 0; i < len; ++i) {
-        if (td->from.at(i) == ParagraphSeparator)
-            td->to[i] = ParagraphSeparator;
-    }
+    transformText(range, [&str](const QString &) { return str; } );
 }
 
 void FakeVimHandler::Private::pasteText(bool afterCursor)
@@ -8355,8 +8269,11 @@ void FakeVimHandler::Private::setRegister(int reg, const QString &contents, Rang
     getRegisterType(reg, &copyToClipboard, &copyToSelection);
 
     QString contents2 = contents;
-    if (mode == RangeLineMode && !contents2.endsWith(QLatin1Char('\n')))
+    if ((mode == RangeLineMode || mode == RangeLineModeExclusive)
+            && !contents2.endsWith(QLatin1Char('\n')))
+    {
         contents2.append(QLatin1Char('\n'));
+    }
 
     if (copyToClipboard || copyToSelection) {
         if (copyToClipboard)
