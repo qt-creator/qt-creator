@@ -1157,6 +1157,8 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
         notifyEngineRunFailed();
     else if (newState == "inferiorsetupok")
         notifyInferiorSetupOk();
+    else if (newState == "inferiorsetupfailed")
+        notifyInferiorSetupFailed();
     else if (newState == "enginerunandinferiorrunok") {
         if (startParameters().continueAfterAttach)
             m_continueAtNextSpontaneousStop = true;
