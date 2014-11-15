@@ -992,9 +992,8 @@ void LldbEngine::handleLldbFinished(int code, QProcess::ExitStatus type)
 void LldbEngine::readLldbStandardError()
 {
     QByteArray err = m_lldbProc.readAllStandardError();
-    qDebug() << "\nLLDB STDERR" << err;
-    //qWarning() << "Unexpected lldb stderr:" << err;
-    showMessage(_(err), LogError);
+    qDebug() << "\nLLDB STDERR UNEXPECTED: " << err;
+    showMessage(_("Lldb stderr: " + err), LogError);
 }
 
 void LldbEngine::readLldbStandardOutput()
