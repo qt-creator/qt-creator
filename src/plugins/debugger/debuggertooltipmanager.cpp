@@ -688,7 +688,7 @@ public:
         if (parentWidget()) {
             // We are currently within a text editor tooltip:
             // Rip out of parent widget and re-show as a tooltip
-            Utils::WidgetContent::pinToolTip(this);
+            Utils::WidgetContent::pinToolTip(this, ICore::mainWindow());
         } else {
             // We have just be restored from session data.
             setWindowFlags(Qt::ToolTip);

@@ -217,20 +217,6 @@ WidgetTip::WidgetTip(QWidget *parent) :
     setLayout(m_layout);
 }
 
-QWidget *WidgetTip::takeWidget(Qt::WindowFlags wf)
-{
-    // Remove widget from layout
-    if (!m_layout->count())
-        return 0;
-    QLayoutItem *item = m_layout->takeAt(0);
-    QWidget *widget = item->widget();
-    delete item;
-    if (!widget)
-        return 0;
-    widget->setParent(0, wf);
-    return widget;
-}
-
 void WidgetTip::configure(const QPoint &pos, QWidget *)
 {
     const WidgetContent &anyContent = static_cast<const WidgetContent &>(content());
@@ -244,16 +230,24 @@ void WidgetTip::configure(const QPoint &pos, QWidget *)
     adjustSize();
 }
 
-void WidgetTip::pinToolTipWidget()
+void WidgetTip::pinToolTipWidget(QWidget *parent)
 {
     QTC_ASSERT(m_layout->count(), return);
 
     // Pin the content widget: Rip the widget out of the layout
     // and re-show as a tooltip, with delete on close.
     const QPoint screenPos = mapToGlobal(QPoint(0, 0));
-    QWidget *widget = takeWidget(Qt::ToolTip);
-    QTC_ASSERT(widget, return);
+    // Remove widget from layout
+    if (!m_layout->count())
+        return;
 
+    QLayoutItem *item = m_layout->takeAt(0);
+    QWidget *widget = item->widget();
+    delete item;
+    if (!widget)
+        return;
+
+    widget->setParent(parent, Qt::Tool|Qt::FramelessWindowHint);
     widget->move(screenPos);
     widget->show();
     widget->setAttribute(Qt::WA_DeleteOnClose);

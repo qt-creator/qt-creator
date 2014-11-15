@@ -107,11 +107,9 @@ public:
     virtual bool canHandleContentReplacement(const TipContent &content) const;
 
 public slots:
-    void pinToolTipWidget();
+    void pinToolTipWidget(QWidget *parent);
 
 private:
-    QWidget *takeWidget(Qt::WindowFlags wf = 0);
-
     QVBoxLayout *m_layout;
 };
 

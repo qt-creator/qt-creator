@@ -114,7 +114,7 @@ public:
 
     // Helper to 'pin' (show as real window) a tooltip shown
     // using WidgetContent
-    static bool pinToolTip(QWidget *w);
+    static bool pinToolTip(QWidget *w, QWidget *parent);
 
     static const int WIDGET_CONTENT_ID = 42;
 
