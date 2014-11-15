@@ -81,7 +81,7 @@ const char sessionSettingsKeyC[] = "DebuggerToolTips";
 const char sessionDocumentC[] = "DebuggerToolTips";
 const char sessionVersionAttributeC[] = "version";
 const char toolTipElementC[] = "DebuggerToolTip";
-const char toolTipClassAttributeC[] = "class";
+//const char toolTipClassAttributeC[] = "class";
 const char fileNameAttributeC[] = "name";
 const char functionAttributeC[] = "function";
 const char textPositionAttributeC[] = "position";
@@ -739,6 +739,7 @@ public:
     QStandardItemModel defaultModel;
 
     State state;
+    bool showNeeded;
 };
 
 static void hideAllToolTips()
@@ -850,6 +851,7 @@ DebuggerToolTipHolder::DebuggerToolTipHolder(const DebuggerToolTipContext &conte
     context.creationDate = QDate::currentDate();
 
     state = New;
+    showNeeded = true;
 
     filterModel.m_iname = context.iname;
 
@@ -873,7 +875,9 @@ void DebuggerToolTipHolder::updateTooltip(const StackFrame &frame)
 {
     const bool sameFrame = context.matchesFrame(frame);
     DEBUG("UPDATE TOOLTIP: STATE " << state << context.iname
-          << "PINNED: " << widget->isPinned << "SAME FRAME: " << sameFrame);
+          << "PINNED: " << widget->isPinned
+          << "SHOW NEEDED: " << widget->isPinned
+          << "SAME FRAME: " << sameFrame);
 
     if (state == Pending) {
         acquireEngine();
@@ -883,8 +887,9 @@ void DebuggerToolTipHolder::updateTooltip(const StackFrame &frame)
         acquireEngine();
     }
 
-    if (!widget->isPinned) {
-        DEBUG("SHOW UNPINNED");
+    if (showNeeded) {
+        showNeeded = false;
+        DEBUG("INITIAL SHOW");
         const Utils::WidgetContent widgetContent(widget, true);
         Utils::ToolTip::show(context.mousePosition, widgetContent, Internal::mainWindow());
     }
@@ -1349,6 +1354,7 @@ static void slotTooltipOverrideRequested
     if (localVariable) {
         tooltip->acquireEngine();
         DEBUG("SYNC IN STATE" << tooltip->state);
+        tooltip->showNeeded = false;
         const Utils::WidgetContent widgetContent(tooltip->widget, true);
         Utils::ToolTip::show(context.mousePosition, widgetContent, Internal::mainWindow());
         *handled = true;
