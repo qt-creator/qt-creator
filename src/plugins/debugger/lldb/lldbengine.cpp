@@ -1176,15 +1176,16 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
 
 void LldbEngine::refreshLocation(const GdbMi &reportedLocation)
 {
-    if (boolSetting(OperateByInstruction)) {
-        Location loc(reportedLocation["addr"].toAddress());
+    qulonglong addr = reportedLocation["addr"].toAddress();
+    QString file = reportedLocation["file"].toUtf8();
+    int line = reportedLocation["line"].toInt();
+    Location loc = Location(file, line);
+    if (boolSetting(OperateByInstruction) || !QFileInfo::exists(file) || line <= 0) {
+        loc = Location(addr);
         loc.setNeedsMarker(true);
-        gotoLocation(loc);
-    } else {
-        QString file = reportedLocation["file"].toUtf8();
-        int line = reportedLocation["line"].toInt();
-        gotoLocation(Location(file, line));
+        loc.setUseAssembler(true);
     }
+    gotoLocation(loc);
 }
 
 void LldbEngine::reloadRegisters()
