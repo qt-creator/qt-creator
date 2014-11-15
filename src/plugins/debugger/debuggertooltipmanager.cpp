@@ -709,13 +709,20 @@ public:
 //
 /////////////////////////////////////////////////////////////////////////
 
+enum DebuggerTootipState
+{
+    New, // All new, widget not shown, not async (yet)
+    PendingUnshown, // Widget not (yet) shown, async.
+    PendingShown, // Widget shown, async
+    Acquired, // Widget shown, engine attached
+    Released // Widget shown, engine released
+};
+
 class DebuggerToolTipHolder : public QObject
 {
 public:
     DebuggerToolTipHolder(const DebuggerToolTipContext &context);
     ~DebuggerToolTipHolder();
-
-    enum State { New, Pending, Acquired, Released };
 
     void acquireEngine();
     void releaseEngine();
@@ -728,7 +735,8 @@ public:
     void handleItemIsExpanded(const QModelIndex &sourceIdx);
     void updateTooltip(const StackFrame &frame);
 
-    void setState(State newState);
+    void setState(DebuggerTootipState newState);
+    void destroy();
 
 public:
     QPointer<DebuggerToolTipWidget> widget;
@@ -738,8 +746,7 @@ public:
     TooltipFilterModel filterModel; //!< Pointing to a valid watchModel
     QStandardItemModel defaultModel;
 
-    State state;
-    bool showNeeded;
+    DebuggerTootipState state;
 };
 
 static void hideAllToolTips()
@@ -851,7 +858,6 @@ DebuggerToolTipHolder::DebuggerToolTipHolder(const DebuggerToolTipContext &conte
     context.creationDate = QDate::currentDate();
 
     state = New;
-    showNeeded = true;
 
     filterModel.m_iname = context.iname;
 
@@ -871,6 +877,14 @@ DebuggerToolTipHolder::~DebuggerToolTipHolder()
     delete widget; widget.clear();
 }
 
+// This is called back from the engines after they populated the
+// WatchModel. If the populating result from evaluation of this
+// tooltip here, we are in "PendingUnshown" state (no Widget show yet),
+// or "PendingShown" state (old widget reused).
+//
+// If we are in "Acquired" or "Released", this is an update
+// after normal WatchModel update.
+
 void DebuggerToolTipHolder::updateTooltip(const StackFrame &frame)
 {
     const bool sameFrame = context.matchesFrame(frame);
@@ -879,19 +893,19 @@ void DebuggerToolTipHolder::updateTooltip(const StackFrame &frame)
           << "SHOW NEEDED: " << widget->isPinned
           << "SAME FRAME: " << sameFrame);
 
-    if (state == Pending) {
+    if (state == PendingUnshown) {
+        const Utils::WidgetContent widgetContent(widget, true);
+        Utils::ToolTip::show(context.mousePosition, widgetContent, Internal::mainWindow());
+        setState(PendingShown);
+    }
+
+    if (state == PendingShown) {
         acquireEngine();
+        Utils::ToolTip::move(context.mousePosition, Internal::mainWindow());
     } else if (state == Acquired && !sameFrame) {
         releaseEngine();
     } else if (state == Released && sameFrame) {
         acquireEngine();
-    }
-
-    if (showNeeded) {
-        showNeeded = false;
-        DEBUG("INITIAL SHOW");
-        const Utils::WidgetContent widgetContent(widget, true);
-        Utils::ToolTip::show(context.mousePosition, widgetContent, Internal::mainWindow());
     }
 
     if (state == Acquired) {
@@ -906,23 +920,32 @@ void DebuggerToolTipHolder::updateTooltip(const StackFrame &frame)
     }
 }
 
-void DebuggerToolTipHolder::setState(DebuggerToolTipHolder::State newState)
+void DebuggerToolTipHolder::setState(DebuggerTootipState newState)
 {
-    bool ok = (state == New && newState == Pending)
-        || (state == Pending && (newState == Acquired || newState == Released))
+    bool ok = (state == New && newState == PendingUnshown)
+        || (state == PendingUnshown && newState == PendingShown)
+        || (state == PendingShown && newState == Acquired)
         || (state == Acquired && (newState == Released))
         || (state == Released && (newState == Acquired));
 
     // FIXME: These happen when a tooltip is re-used in findOrCreate.
     ok = ok
-        || (state == Acquired && newState == Pending)
-        || (state == Released && newState == Pending);
+        || (state == Acquired && newState == PendingShown)
+        || (state == Released && newState == PendingShown);
 
     DEBUG("TRANSITION STATE FROM " << state << " TO " << newState);
     QTC_ASSERT(ok, qDebug() << "Unexpected tooltip state transition from "
                             << state << " to " << newState);
 
     state = newState;
+}
+
+void DebuggerToolTipHolder::destroy()
+{
+    if (widget) {
+        widget->close();
+        widget = 0;
+    }
 }
 
 void DebuggerToolTipHolder::acquireEngine()
@@ -981,15 +1004,19 @@ void DebuggerToolTipHolder::positionShow(const TextEditorWidget *editorWidget)
     }
 }
 
-static DebuggerToolTipHolder *findOrCreateTooltip(const DebuggerToolTipContext &context)
+static DebuggerToolTipHolder *findOrCreateTooltip(const DebuggerToolTipContext &context, bool allowReuse = true)
 {
     purgeClosedToolTips();
 
     for (int i = 0, n = m_tooltips.size(); i != n; ++i) {
         DebuggerToolTipHolder *tooltip = m_tooltips.at(i);
-        if (tooltip->context.isSame(context))
-            return tooltip;
+        if (tooltip->context.isSame(context)) {
+            if (allowReuse)
+                return tooltip;
+            tooltip->destroy();
+        }
     }
+    purgeClosedToolTips();
 
     auto newTooltip = new DebuggerToolTipHolder(context);
     m_tooltips.push_back(newTooltip);
@@ -1227,8 +1254,8 @@ void DebuggerToolTipManager::deregisterEngine(DebuggerEngine *engine)
 
     // FIXME: For now remove all.
     purgeClosedToolTips();
-    foreach (const DebuggerToolTipHolder *tooltip, m_tooltips)
-        tooltip->widget->close();
+    foreach (DebuggerToolTipHolder *tooltip, m_tooltips)
+        tooltip->destroy();
     purgeClosedToolTips();
     return;
 
@@ -1287,7 +1314,7 @@ void DebuggerToolTipManager::saveSessionData()
 void DebuggerToolTipManager::closeAllToolTips()
 {
     foreach (DebuggerToolTipHolder *tooltip, m_tooltips)
-        tooltip->widget->close();
+        tooltip->destroy();
     m_tooltips.clear();
 }
 
@@ -1316,7 +1343,6 @@ static void slotTooltipOverrideRequested
     context.engineType = engine->objectName();
     context.fileName = editorWidget->textDocument()->filePath();
     context.position = pos;
-    context.mousePosition = point;
     editorWidget->convertPosition(pos, &context.line, &context.column);
     QString raw = cppExpressionAt(editorWidget, context.position, &context.line, &context.column,
                                   &context.function, &context.scopeFromLine, &context.scopeToLine);
@@ -1324,7 +1350,7 @@ static void slotTooltipOverrideRequested
 
     if (context.expression.isEmpty()) {
         const Utils::TextContent text(DebuggerToolTipManager::tr("No valid expression"));
-        Utils::ToolTip::show(context.mousePosition, text, Internal::mainWindow());
+        Utils::ToolTip::show(point, text, Internal::mainWindow());
         *handled = true;
         return;
     }
@@ -1340,31 +1366,43 @@ static void slotTooltipOverrideRequested
         context.iname = "tooltip." + context.expression.toLatin1().toHex();
     }
 
-    DebuggerToolTipHolder *tooltip = findOrCreateTooltip(context);
-    if (tooltip->state == DebuggerToolTipHolder::Pending) {
+    bool allowReuse = false;
+    DebuggerToolTipHolder *tooltip = findOrCreateTooltip(context, allowReuse);
+    tooltip->context.mousePosition = point;
+    if (tooltip->state == PendingUnshown || tooltip->state == PendingShown) {
         DEBUG("FOUND PENDING TOOLTIP, WAITING...");
         *handled = true;
         return;
     }
 
     tooltip->filterModel.setSourceModel(engine->watchHandler()->model());
-    tooltip->widget->titleLabel->setText(DebuggerToolTipManager::tr("Updating"));
-    tooltip->setState(DebuggerToolTipHolder::Pending);
 
     if (localVariable) {
-        tooltip->acquireEngine();
         DEBUG("SYNC IN STATE" << tooltip->state);
-        tooltip->showNeeded = false;
-        const Utils::WidgetContent widgetContent(tooltip->widget, true);
-        Utils::ToolTip::show(context.mousePosition, widgetContent, Internal::mainWindow());
+        if (tooltip->state == New) {
+            tooltip->setState(PendingUnshown);
+            tooltip->setState(PendingShown);
+            tooltip->acquireEngine();
+            const Utils::WidgetContent widgetContent(tooltip->widget, true);
+            Utils::ToolTip::show(point, widgetContent, Internal::mainWindow());
+        } else {
+            tooltip->acquireEngine();
+            Utils::ToolTip::move(point, Internal::mainWindow());
+        }
         *handled = true;
     } else {
         DEBUG("ASYNC TIP IN STATE" << tooltip->state);
+        if (tooltip->state == New)
+            tooltip->setState(PendingUnshown);
+        else if (tooltip->state == Acquired || tooltip->state == Released)
+            tooltip->setState(PendingShown);
+        else
+            QTC_CHECK(false);
         *handled = engine->setToolTipExpression(editorWidget, context);
         if (!*handled) {
             const Utils::TextContent text(DebuggerToolTipManager::tr("Expression too complex"));
-            Utils::ToolTip::show(context.mousePosition, text, Internal::mainWindow());
-            tooltip->widget->close();
+            Utils::ToolTip::show(point, text, Internal::mainWindow());
+            tooltip->destroy();
         }
     }
 }

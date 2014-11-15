@@ -73,6 +73,7 @@ public:
 
     static void show(const QPoint &pos, const TipContent &content, QWidget *w = 0);
     static void show(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect);
+    static void move(const QPoint &pos, QWidget *w);
     static void hide();
     static bool isVisible();
 

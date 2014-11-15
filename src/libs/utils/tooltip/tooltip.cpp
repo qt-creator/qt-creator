@@ -71,6 +71,12 @@ void ToolTip::show(const QPoint &pos, const TipContent &content, QWidget *w, con
     instance()->showInternal(pos, content, w, rect);
 }
 
+void ToolTip::move(const QPoint &pos, QWidget *w)
+{
+    if (isVisible())
+        instance()->placeTip(pos, w);
+}
+
 void ToolTip::show(const QPoint &pos, const TipContent &content, QWidget *w)
 {
     show(pos, content, w, QRect());
