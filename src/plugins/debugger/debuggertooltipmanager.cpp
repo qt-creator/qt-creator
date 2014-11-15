@@ -726,7 +726,7 @@ public:
     void positionShow(const TextEditorWidget *editorWidget);
 
     void handleItemIsExpanded(const QModelIndex &sourceIdx);
-    void updateTooltip(const QString &frameFile, const QString &frameFunction);
+    void updateTooltip(const StackFrame &frame);
 
     void setState(State newState);
 
@@ -769,7 +769,7 @@ void DebuggerToolTipHolder::handleItemIsExpanded(const QModelIndex &sourceIdx)
 */
 
 DebuggerToolTipContext::DebuggerToolTipContext()
-    : position(0), line(0), column(0)
+    : position(0), line(0), column(0), scopeFromLine(0), scopeToLine(0)
 {
 }
 
@@ -780,25 +780,26 @@ static bool filesMatch(const QString &file1, const QString &file2)
     return f1.canonicalFilePath() == f2.canonicalFilePath();
 }
 
-bool DebuggerToolTipContext::matchesFrame(const QString &frameFile, const QString &frameFunction) const
+bool DebuggerToolTipContext::matchesFrame(const StackFrame &frame) const
 {
-    return (fileName.isEmpty() || frameFile.isEmpty() || filesMatch(fileName, frameFile))
-            && (function.isEmpty() || frameFunction.isEmpty() || function == frameFunction);
+    return (fileName.isEmpty() || frame.file.isEmpty() || filesMatch(fileName, frame.file))
+            //&& (function.isEmpty() || frame.function.isEmpty() || function == frame.function);
+            && (frame.line <= 0 || (scopeFromLine <= frame.line && frame.line <= scopeToLine));
 }
 
 bool DebuggerToolTipContext::isSame(const DebuggerToolTipContext &other) const
 {
     return filesMatch(fileName, other.fileName)
-            && function == other.function
+            && scopeFromLine == other.scopeFromLine
+            && scopeToLine == other.scopeToLine
             && iname == other.iname;
 }
 
 QDebug operator<<(QDebug d, const DebuggerToolTipContext &c)
 {
     QDebug nsp = d.nospace();
-    nsp << c.fileName << '@' << c.line << ',' << c.column << " (" << c.position << ')' << "INAME: " << c.iname << " EXP: " << c.expression;
-    if (!c.function.isEmpty())
-        nsp << ' ' << c.function << "()";
+    nsp << c.fileName << '@' << c.line << ',' << c.column << " (" << c.position << ')'
+        << "INAME: " << c.iname << " EXP: " << c.expression << " FUNCTION: " << c.function;
     return d;
 }
 
@@ -868,9 +869,9 @@ DebuggerToolTipHolder::~DebuggerToolTipHolder()
     delete widget; widget.clear();
 }
 
-void DebuggerToolTipHolder::updateTooltip(const QString &frameFile, const QString &frameFunction)
+void DebuggerToolTipHolder::updateTooltip(const StackFrame &frame)
 {
-    const bool sameFrame = context.matchesFrame(frameFile, frameFunction);
+    const bool sameFrame = context.matchesFrame(frame);
     DEBUG("UPDATE TOOLTIP: STATE " << state << context.iname
           << "PINNED: " << widget->isPinned << "SAME FRAME: " << sameFrame);
 
@@ -1197,18 +1198,9 @@ void DebuggerToolTipManager::updateEngine(DebuggerEngine *engine)
 
     // Stack frame changed: All tooltips of that file acquire the engine,
     // all others release (arguable, this could be more precise?)
-    QString fileName;
-    QString function;
-    const int index = engine->stackHandler()->currentIndex();
-    if (index >= 0) {
-        const StackFrame frame = engine->stackHandler()->currentFrame();
-        if (frame.usable) {
-            fileName = frame.file;
-            function = frame.function;
-        }
-    }
+    StackFrame frame = engine->stackHandler()->currentFrame();
     foreach (DebuggerToolTipHolder *tooltip, m_tooltips)
-        tooltip->updateTooltip(fileName, function);
+        tooltip->updateTooltip(frame);
     slotUpdateVisibleToolTips(); // Move tooltip when stepping in same file.
 }
 
@@ -1321,7 +1313,8 @@ static void slotTooltipOverrideRequested
     context.position = pos;
     context.mousePosition = point;
     editorWidget->convertPosition(pos, &context.line, &context.column);
-    QString raw = cppExpressionAt(editorWidget, context.position, &context.line, &context.column, &context.function);
+    QString raw = cppExpressionAt(editorWidget, context.position, &context.line, &context.column,
+                                  &context.function, &context.scopeFromLine, &context.scopeToLine);
     context.expression = fixCppExpression(raw);
 
     if (context.expression.isEmpty()) {
@@ -1426,9 +1419,9 @@ DebuggerToolTipContexts DebuggerToolTipManager::pendingTooltips(DebuggerEngine *
     StackFrame frame = engine->stackHandler()->currentFrame();
     DebuggerToolTipContexts rc;
     foreach (DebuggerToolTipHolder *tooltip, m_tooltips) {
-        if (tooltip->context.iname.startsWith("tooltip")
-                && tooltip->context.matchesFrame(frame.file, frame.function))
-            rc.push_back(tooltip->context);
+        const DebuggerToolTipContext &context = tooltip->context;
+        if (context.iname.startsWith("tooltip") && context.matchesFrame(frame))
+            rc.push_back(context);
     }
     return rc;
 }

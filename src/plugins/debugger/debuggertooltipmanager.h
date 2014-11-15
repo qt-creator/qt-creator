@@ -47,19 +47,23 @@ class DebuggerEngine;
 
 namespace Internal {
 
+class StackFrame;
+
 class DebuggerToolTipContext
 {
 public:
     DebuggerToolTipContext();
     bool isValid() const { return !expression.isEmpty(); }
-    bool matchesFrame(const QString &frameFile, const QString &frameFunction) const;
+    bool matchesFrame(const StackFrame &frame) const;
     bool isSame(const DebuggerToolTipContext &other) const;
 
     QString fileName;
     int position;
     int line;
     int column;
-    QString function; //!< Optional function. This must be set by the engine as it is language-specific.
+    int scopeFromLine;
+    int scopeToLine;
+    QString function; //!< Optional, informational only.
     QString engineType;
     QDate creationDate;
 
