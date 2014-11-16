@@ -129,7 +129,7 @@ protected:
     bool submitEditorAboutToClose();
 
 private:
-    void createMenu();
+    void createMenu(const Core::Context &context);
     void createSubmitEditorActions();
     void createFileActions(const Core::Context &context);
     void createDirectoryActions(const Core::Context &context);

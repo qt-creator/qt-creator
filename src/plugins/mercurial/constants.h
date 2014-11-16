@@ -37,6 +37,7 @@ namespace Constants {
 enum { debug = 0 };
 const char MERCURIALREPO[] = ".hg";
 const char MERCURIALDEFAULT[] = "hg";
+const char MERCURIAL_CONTEXT[] = "Mercurial Context";
 
 // Changeset identifiers
 const char CHANGESETID12[] = " ([a-f0-9]{12,12}) "; //match 12 hex chars and capture

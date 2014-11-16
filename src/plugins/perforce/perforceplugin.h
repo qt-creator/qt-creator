@@ -207,7 +207,6 @@ private:
     static PerforceVersionControl *perforceVersionControl();
 
     Core::CommandLocator *m_commandLocator;
-    Core::ActionContainer *m_perforceContainer;
     Utils::ParameterAction *m_editAction;
     Utils::ParameterAction *m_addAction;
     Utils::ParameterAction *m_deleteAction;

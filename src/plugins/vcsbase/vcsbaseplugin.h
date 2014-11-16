@@ -48,6 +48,7 @@ QT_END_NAMESPACE
 namespace Utils { struct SynchronousProcessResponse; }
 
 namespace Core {
+class Context;
 class IVersionControl;
 class Id;
 class IDocument;
@@ -131,7 +132,7 @@ class VCSBASE_EXPORT VcsBasePlugin : public ExtensionSystem::IPlugin
 protected:
     explicit VcsBasePlugin();
 
-    void initializeVcs(Core::IVersionControl *vc);
+    void initializeVcs(Core::IVersionControl *vc, const Core::Context &context);
     virtual void extensionsInitialized();
 
 public:

@@ -529,6 +529,7 @@ public:
 
     QPointer<VcsBaseSubmitEditor> m_submitEditor;
     Core::IVersionControl *m_versionControl;
+    Core::Context m_context;
     VcsBasePluginState m_state;
     int m_actionState;
 
@@ -558,9 +559,10 @@ VcsBasePlugin::~VcsBasePlugin()
     delete d;
 }
 
-void VcsBasePlugin::initializeVcs(Core::IVersionControl *vc)
+void VcsBasePlugin::initializeVcs(Core::IVersionControl *vc, const Core::Context &context)
 {
     d->m_versionControl = vc;
+    d->m_context = context;
     addAutoReleasedObject(vc);
 
     Internal::VcsPlugin *plugin = Internal::VcsPlugin::instance();
@@ -609,6 +611,7 @@ void VcsBasePlugin::slotStateChanged(const VcsBase::Internal::State &newInternal
         if (!d->m_state.equals(newInternalState)) {
             d->m_state.setState(newInternalState);
             updateActions(VcsEnabled);
+            Core::ICore::addAdditionalContext(d->m_context);
         }
     } else {
         // Some other VCS plugin or state changed: Reset us to empty state.
@@ -619,6 +622,7 @@ void VcsBasePlugin::slotStateChanged(const VcsBase::Internal::State &newInternal
             d->m_state = emptyState;
             updateActions(newActionState);
         }
+        Core::ICore::removeAdditionalContext(d->m_context);
     }
 }
 

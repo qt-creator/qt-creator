@@ -64,7 +64,6 @@ public:
     void addMenu(ActionContainer *menu, Id group = Id());
     void addMenu(ActionContainer *before, ActionContainer *menu, Id group = Id());
     Command *addSeparator(const Context &context, Id group = Id(), QAction **outSeparator = 0);
-    void setEnabled(bool enabled);
     virtual void clear();
 
     Id id() const;

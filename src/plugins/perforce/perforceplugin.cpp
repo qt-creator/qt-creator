@@ -83,6 +83,7 @@ const char SUBMIT_CURRENT[] = "Perforce.SubmitCurrentLog";
 const char DIFF_SELECTED[] = "Perforce.DiffSelectedFilesInLog";
 const char SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.p4.submit";
 
+const char PERFORCE_CONTEXT[] = "Perforce Context";
 const char PERFORCE_SUBMIT_EDITOR_ID[] = "Perforce.SubmitEditor";
 const char PERFORCE_SUBMIT_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Perforce.SubmitEditor");
 
@@ -182,7 +183,6 @@ PerforcePlugin *PerforcePlugin::m_instance = NULL;
 
 PerforcePlugin::PerforcePlugin() :
     m_commandLocator(0),
-    m_perforceContainer(0),
     m_editAction(0),
     m_addAction(0),
     m_deleteAction(0),
@@ -221,7 +221,9 @@ static const VcsBaseSubmitEditorParameters submitParameters = {
 
 bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *errorMessage)
 {
-    initializeVcs(new PerforceVersionControl(this));
+    Context context(PERFORCE_CONTEXT);
+
+    initializeVcs(new PerforceVersionControl(this), context);
 
     if (!MimeDatabase::addMimeTypes(QLatin1String(":/trolltech.perforce/Perforce.mimetypes.xml"), errorMessage))
         return false;
@@ -247,177 +249,176 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 
     ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
 
-    m_perforceContainer = ActionManager::createMenu(CMD_ID_PERFORCE_MENU);
-    m_perforceContainer->menu()->setTitle(tr("&Perforce"));
-    mtools->addMenu(m_perforceContainer);
-    m_menuAction = m_perforceContainer->menu()->menuAction();
+    Core::ActionContainer *perforceContainer = ActionManager::createMenu(CMD_ID_PERFORCE_MENU);
+    perforceContainer->menu()->setTitle(tr("&Perforce"));
+    mtools->addMenu(perforceContainer);
+    m_menuAction = perforceContainer->menu()->menuAction();
 
-    Context globalcontext(Core::Constants::C_GLOBAL);
     Context perforcesubmitcontext(PERFORCE_SUBMIT_EDITOR_ID);
 
     Core::Command *command;
 
     m_diffFileAction = new ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_diffFileAction, CMD_ID_DIFF_CURRENT, globalcontext);
+    command = ActionManager::registerAction(m_diffFileAction, CMD_ID_DIFF_CURRENT, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDescription(tr("Diff Current File"));
     connect(m_diffFileAction, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
-    m_perforceContainer->addAction(command);
+    perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_annotateCurrentAction = new ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_annotateCurrentAction, CMD_ID_ANNOTATE_CURRENT, globalcontext);
+    command = ActionManager::registerAction(m_annotateCurrentAction, CMD_ID_ANNOTATE_CURRENT, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDescription(tr("Annotate Current File"));
     connect(m_annotateCurrentAction, SIGNAL(triggered()), this, SLOT(annotateCurrentFile()));
-    m_perforceContainer->addAction(command);
+    perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_filelogCurrentAction = new ParameterAction(tr("Filelog Current File"), tr("Filelog \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_filelogCurrentAction, CMD_ID_FILELOG_CURRENT, globalcontext);
+    command = ActionManager::registerAction(m_filelogCurrentAction, CMD_ID_FILELOG_CURRENT, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+P,Meta+F") : tr("Alt+P,Alt+F")));
     command->setDescription(tr("Filelog Current File"));
     connect(m_filelogCurrentAction, SIGNAL(triggered()), this, SLOT(filelogCurrentFile()));
-    m_perforceContainer->addAction(command);
+    perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_perforceContainer->addSeparator(globalcontext);
+    perforceContainer->addSeparator(context);
 
     m_editAction = new ParameterAction(tr("Edit"), tr("Edit \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_editAction, CMD_ID_EDIT, globalcontext);
+    command = ActionManager::registerAction(m_editAction, CMD_ID_EDIT, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+P,Meta+E") : tr("Alt+P,Alt+E")));
     command->setDescription(tr("Edit File"));
     connect(m_editAction, SIGNAL(triggered()), this, SLOT(openCurrentFile()));
-    m_perforceContainer->addAction(command);
+    perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_addAction = new ParameterAction(tr("Add"), tr("Add \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_addAction, CMD_ID_ADD, globalcontext);
+    command = ActionManager::registerAction(m_addAction, CMD_ID_ADD, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+P,Meta+A") : tr("Alt+P,Alt+A")));
     command->setDescription(tr("Add File"));
     connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
-    m_perforceContainer->addAction(command);
+    perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_deleteAction = new ParameterAction(tr("Delete..."), tr("Delete \"%1\"..."), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_deleteAction, CMD_ID_DELETE_FILE, globalcontext);
+    command = ActionManager::registerAction(m_deleteAction, CMD_ID_DELETE_FILE, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDescription(tr("Delete File"));
     connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(promptToDeleteCurrentFile()));
-    m_perforceContainer->addAction(command);
+    perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_revertFileAction = new ParameterAction(tr("Revert"), tr("Revert \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_revertFileAction, CMD_ID_REVERT, globalcontext);
+    command = ActionManager::registerAction(m_revertFileAction, CMD_ID_REVERT, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+P,Meta+R") : tr("Alt+P,Alt+R")));
     command->setDescription(tr("Revert File"));
     connect(m_revertFileAction, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
-    m_perforceContainer->addAction(command);
+    perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_perforceContainer->addSeparator(globalcontext);
+    perforceContainer->addSeparator(context);
 
     const QString diffProjectDefaultText = tr("Diff Current Project/Session");
     m_diffProjectAction = new ParameterAction(diffProjectDefaultText, tr("Diff Project \"%1\""), ParameterAction::AlwaysEnabled, this);
-    command = ActionManager::registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT, globalcontext);
+    command = ActionManager::registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+P,Meta+D") : tr("Alt+P,Alt+D")));
     command->setDescription(diffProjectDefaultText);
     connect(m_diffProjectAction, SIGNAL(triggered()), this, SLOT(diffCurrentProject()));
-    m_perforceContainer->addAction(command);
+    perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_logProjectAction = new ParameterAction(tr("Log Project"), tr("Log Project \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_logProjectAction, CMD_ID_PROJECTLOG, globalcontext);
+    command = ActionManager::registerAction(m_logProjectAction, CMD_ID_PROJECTLOG, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_logProjectAction, SIGNAL(triggered()), this, SLOT(logProject()));
-    m_perforceContainer->addAction(command);
+    perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_submitProjectAction = new ParameterAction(tr("Submit Project"), tr("Submit Project \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_submitProjectAction, CMD_ID_SUBMIT, globalcontext);
+    command = ActionManager::registerAction(m_submitProjectAction, CMD_ID_SUBMIT, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+P,Meta+S") : tr("Alt+P,Alt+S")));
     connect(m_submitProjectAction, SIGNAL(triggered()), this, SLOT(startSubmitProject()));
-    m_perforceContainer->addAction(command);
+    perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     const QString updateProjectDefaultText = tr("Update Current Project");
     m_updateProjectAction = new ParameterAction(updateProjectDefaultText, tr("Update Project \"%1\""), ParameterAction::AlwaysEnabled, this);
-    command = ActionManager::registerAction(m_updateProjectAction, CMD_ID_UPDATE_PROJECT, globalcontext);
+    command = ActionManager::registerAction(m_updateProjectAction, CMD_ID_UPDATE_PROJECT, context);
     command->setDescription(updateProjectDefaultText);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_updateProjectAction, SIGNAL(triggered()), this, SLOT(updateCurrentProject()));
-    m_perforceContainer->addAction(command);
+    perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_revertUnchangedAction = new ParameterAction(tr("Revert Unchanged"), tr("Revert Unchanged Files of Project \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_revertUnchangedAction, CMD_ID_REVERT_UNCHANGED_PROJECT, globalcontext);
+    command = ActionManager::registerAction(m_revertUnchangedAction, CMD_ID_REVERT_UNCHANGED_PROJECT, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_revertUnchangedAction, SIGNAL(triggered()), this, SLOT(revertUnchangedCurrentProject()));
-    m_perforceContainer->addAction(command);
+    perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_revertProjectAction = new ParameterAction(tr("Revert Project"), tr("Revert Project \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_revertProjectAction, CMD_ID_REVERT_PROJECT, globalcontext);
+    command = ActionManager::registerAction(m_revertProjectAction, CMD_ID_REVERT_PROJECT, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_revertProjectAction, SIGNAL(triggered()), this, SLOT(revertCurrentProject()));
-    m_perforceContainer->addAction(command);
+    perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_perforceContainer->addSeparator(globalcontext);
+    perforceContainer->addSeparator(context);
 
     m_diffAllAction = new QAction(tr("Diff Opened Files"), this);
-    command = ActionManager::registerAction(m_diffAllAction, CMD_ID_DIFF_ALL, globalcontext);
+    command = ActionManager::registerAction(m_diffAllAction, CMD_ID_DIFF_ALL, context);
     connect(m_diffAllAction, SIGNAL(triggered()), this, SLOT(diffAllOpened()));
-    m_perforceContainer->addAction(command);
+    perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_openedAction = new QAction(tr("Opened"), this);
-    command = ActionManager::registerAction(m_openedAction, CMD_ID_OPENED, globalcontext);
+    command = ActionManager::registerAction(m_openedAction, CMD_ID_OPENED, context);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+P,Meta+O") : tr("Alt+P,Alt+O")));
     connect(m_openedAction, SIGNAL(triggered()), this, SLOT(printOpenedFileList()));
-    m_perforceContainer->addAction(command);
+    perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_logRepositoryAction = new QAction(tr("Repository Log"), this);
-    command = ActionManager::registerAction(m_logRepositoryAction, CMD_ID_REPOSITORYLOG, globalcontext);
+    command = ActionManager::registerAction(m_logRepositoryAction, CMD_ID_REPOSITORYLOG, context);
     connect(m_logRepositoryAction, SIGNAL(triggered()), this, SLOT(logRepository()));
-    m_perforceContainer->addAction(command);
+    perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_pendingAction = new QAction(tr("Pending Changes..."), this);
-    command = ActionManager::registerAction(m_pendingAction, CMD_ID_PENDING_CHANGES, globalcontext);
+    command = ActionManager::registerAction(m_pendingAction, CMD_ID_PENDING_CHANGES, context);
     connect(m_pendingAction, SIGNAL(triggered()), this, SLOT(printPendingChanges()));
-    m_perforceContainer->addAction(command);
+    perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_updateAllAction = new QAction(tr("Update All"), this);
-    command = ActionManager::registerAction(m_updateAllAction, CMD_ID_UPDATEALL, globalcontext);
+    command = ActionManager::registerAction(m_updateAllAction, CMD_ID_UPDATEALL, context);
     connect(m_updateAllAction, SIGNAL(triggered()), this, SLOT(updateAll()));
-    m_perforceContainer->addAction(command);
+    perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_perforceContainer->addSeparator(globalcontext);
+    perforceContainer->addSeparator(context);
 
     m_describeAction = new QAction(tr("Describe..."), this);
-    command = ActionManager::registerAction(m_describeAction, CMD_ID_DESCRIBE, globalcontext);
+    command = ActionManager::registerAction(m_describeAction, CMD_ID_DESCRIBE, context);
     connect(m_describeAction, SIGNAL(triggered()), this, SLOT(describeChange()));
-    m_perforceContainer->addAction(command);
+    perforceContainer->addAction(command);
 
     m_annotateAction = new QAction(tr("Annotate..."), this);
-    command = ActionManager::registerAction(m_annotateAction, CMD_ID_ANNOTATE, globalcontext);
+    command = ActionManager::registerAction(m_annotateAction, CMD_ID_ANNOTATE, context);
     connect(m_annotateAction, SIGNAL(triggered()), this, SLOT(annotate()));
-    m_perforceContainer->addAction(command);
+    perforceContainer->addAction(command);
 
     m_filelogAction = new QAction(tr("Filelog..."), this);
-    command = ActionManager::registerAction(m_filelogAction, CMD_ID_FILELOG, globalcontext);
+    command = ActionManager::registerAction(m_filelogAction, CMD_ID_FILELOG, context);
     connect(m_filelogAction, SIGNAL(triggered()), this, SLOT(filelog()));
-    m_perforceContainer->addAction(command);
+    perforceContainer->addAction(command);
 
     m_submitCurrentLogAction = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Submit"), this);
     command = ActionManager::registerAction(m_submitCurrentLogAction, SUBMIT_CURRENT, perforcesubmitcontext);
@@ -796,7 +797,6 @@ void PerforcePlugin::updateActions(VcsBasePlugin::ActionState as)
 {
     const bool menuActionEnabled = enableMenuAction(as, m_menuAction);
     const bool enableActions = currentState().hasTopLevel() && menuActionEnabled;
-    m_perforceContainer->setEnabled(enableActions);
     m_commandLocator->setEnabled(enableActions);
     if (!menuActionEnabled)
         return;

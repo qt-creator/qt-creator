@@ -36,6 +36,7 @@ namespace Constants {
 const char BAZAAR[] = "bazaar";
 const char BAZAARREPO[] = ".bzr";
 const char BAZAARDEFAULT[] = "bzr";
+const char BAZAAR_CONTEXT[] = "Bazaar Context";
 
 // Changeset identifiers
 const char CHANGESET_ID[] = "^("
