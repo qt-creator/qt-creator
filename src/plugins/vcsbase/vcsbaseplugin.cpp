@@ -636,16 +636,16 @@ bool VcsBasePlugin::enableMenuAction(ActionState as, QAction *menuAction) const
     if (debug)
         qDebug() << "enableMenuAction" << menuAction->text() << as;
     switch (as) {
-    case VcsBase::VcsBasePlugin::NoVcsEnabled: {
+    case NoVcsEnabled: {
         const bool supportsCreation = d->supportsRepositoryCreation();
         menuAction->setVisible(supportsCreation);
         menuAction->setEnabled(supportsCreation);
         return supportsCreation;
     }
-    case VcsBase::VcsBasePlugin::OtherVcsEnabled:
+    case OtherVcsEnabled:
         menuAction->setVisible(false);
         return false;
-    case VcsBase::VcsBasePlugin::VcsEnabled:
+    case VcsEnabled:
         menuAction->setVisible(true);
         menuAction->setEnabled(true);
         break;
