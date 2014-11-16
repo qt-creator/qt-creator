@@ -953,6 +953,13 @@ inline QString msgMarkNotSet(const QString &text)
     return Tr::tr("Mark \"%1\" not set.").arg(text);
 }
 
+static void initSingleShotTimer(QTimer *timer, int interval, QObject *receiver, const char *slot)
+{
+    timer->setSingleShot(true);
+    timer->setInterval(interval);
+    QObject::connect(timer, SIGNAL(timeout()), receiver, slot);
+}
+
 class Input
 {
 public:
@@ -1639,6 +1646,9 @@ public:
 
     void init();
     void focus();
+    void unfocus();
+    void fixExternalCursor(bool focus);
+    void fixExternalCursorPosition(bool focus);
 
     // Call before any FakeVim processing (import cursor position from editor)
     void enterFakeVim();
@@ -1901,6 +1911,8 @@ public:
     void updateSelection();
     void updateHighlights();
     void updateCursorShape();
+    void setThinCursor(bool enable = true);
+    bool hasThinCursor() const;
     QWidget *editor() const;
     QTextDocument *document() const { return EDITOR(document()); }
     QChar characterAt(int pos) const { return document()->characterAt(pos); }
@@ -1915,6 +1927,9 @@ public:
     Q_SLOT void onContentsChanged(int position, int charsRemoved, int charsAdded);
     Q_SLOT void onCursorPositionChanged();
     Q_SLOT void onUndoCommandAdded();
+
+    Q_SLOT void onInputTimeout();
+    Q_SLOT void onFixCursorTimeout();
 
     bool isCommandLineMode() const { return g.mode == ExMode || g.subsubmode == SearchSubSubMode; }
     bool isInsertMode() const { return g.mode == InsertMode || g.mode == ReplaceMode; }
@@ -2115,8 +2130,6 @@ public:
     bool handleExWriteCommand(const ExCommand &cmd);
     bool handleExEchoCommand(const ExCommand &cmd);
 
-    void timerEvent(QTimerEvent *ev);
-
     void setupCharClass();
     int charClass(QChar c, bool simple) const;
     signed char m_charClass[256];
@@ -2124,6 +2137,9 @@ public:
     int m_ctrlVAccumulator;
     int m_ctrlVLength;
     int m_ctrlVBase;
+
+    QTimer m_fixCursorTimer;
+    QTimer m_inputTimer;
 
     void miniBufferTextEdited(const QString &text, int cursorPos, int anchorPos);
 
@@ -2190,7 +2206,6 @@ public:
             , gflag(false)
             , mappings()
             , currentMap(&mappings)
-            , inputTimer(-1)
             , mapDepth(0)
             , currentMessageLevel(MessageInfo)
             , lastSearchForward(false)
@@ -2235,7 +2250,6 @@ public:
         // Input.
         QList<Input> pendingInput;
         MappingsIterator currentMap;
-        int inputTimer;
         QStack<MappingState> mapStates;
         int mapDepth;
 
@@ -2313,6 +2327,9 @@ void FakeVimHandler::Private::init()
     m_ctrlVLength = 0;
     m_ctrlVBase = 0;
 
+    initSingleShotTimer(&m_fixCursorTimer, 0, this, SLOT(onFixCursorTimeout()));
+    initSingleShotTimer(&m_inputTimer, 1000, this, SLOT(onInputTimeout()));
+
     pullOrCreateBufferData();
     pullCursor();
     setupCharClass();
@@ -2337,11 +2354,42 @@ void FakeVimHandler::Private::focus()
         commitCursor();
     } else {
         clearCurrentMode();
-        updateCursorShape();
     }
+    fixExternalCursor(true);
     updateHighlights();
 
     leaveFakeVim(false);
+}
+
+void FakeVimHandler::Private::unfocus()
+{
+    fixExternalCursor(false);
+}
+
+void FakeVimHandler::Private::fixExternalCursor(bool focus)
+{
+    if (isVisualCharMode() && !focus && !hasThinCursor()) {
+        // Select the character under thick cursor for external operations with text selection.
+        fixExternalCursorPosition(false);
+        m_fixCursorTimer.stop();
+    } else if (isVisualCharMode() && focus && hasThinCursor()) {
+        // Fix cursor position if changing its shape.
+        // The fix is postponed so context menu action can be finished.
+        m_fixCursorTimer.start();
+    } else {
+        updateCursorShape();
+    }
+}
+
+void FakeVimHandler::Private::fixExternalCursorPosition(bool focus)
+{
+    QTextCursor tc = EDITOR(textCursor());
+    if (tc.anchor() < tc.position()) {
+        tc.movePosition(focus ? Left : Right, KeepAnchor);
+        EDITOR(setTextCursor(tc));
+    }
+
+    setThinCursor(!focus);
 }
 
 void FakeVimHandler::Private::enterFakeVim()
@@ -2368,6 +2416,8 @@ void FakeVimHandler::Private::leaveFakeVim(bool needUpdate)
         if (hasConfig(ConfigShowMarks))
             updateSelection();
 
+        updateMiniBuffer();
+
         if (needUpdate) {
             // Move cursor line to middle of screen if it's not visible.
             const int line = cursorLine();
@@ -2379,8 +2429,6 @@ void FakeVimHandler::Private::leaveFakeVim(bool needUpdate)
 
             commitCursor();
         }
-
-        updateMiniBuffer();
 
         installEventFilter();
     }
@@ -2620,7 +2668,7 @@ void FakeVimHandler::Private::restoreWidget(int tabSize)
     EDITOR(setTabStopWidth(charWidth * tabSize));
     g.visualMode = NoVisualMode;
     // Force "ordinary" cursor.
-    EDITOR(setOverwriteMode(false));
+    setThinCursor();
     updateSelection();
     updateHighlights();
 }
@@ -2801,14 +2849,13 @@ void FakeVimHandler::Private::waitForMapping()
         g.currentCommand.append(input.toString());
 
     // wait for user to press any key or trigger complete mapping after interval
-    g.inputTimer = startTimer(1000);
+    m_inputTimer.start();
 }
 
 EventResult FakeVimHandler::Private::stopWaitForMapping(bool hasInput)
 {
-    if (g.inputTimer != -1) {
-        killTimer(g.inputTimer);
-        g.inputTimer = -1;
+    if (m_inputTimer.isActive()) {
+        m_inputTimer.stop();
         g.currentCommand.clear();
         if (!hasInput && !expandCompleteMapping()) {
             // Cannot complete mapping so handle the first input from it as default command.
@@ -2817,15 +2864,6 @@ EventResult FakeVimHandler::Private::stopWaitForMapping(bool hasInput)
     }
 
     return EventHandled;
-}
-
-void FakeVimHandler::Private::timerEvent(QTimerEvent *ev)
-{
-    if (ev->timerId() == g.inputTimer) {
-        enterFakeVim();
-        EventResult result = handleKey(Input());
-        leaveFakeVim(result == EventHandled);
-    }
 }
 
 void FakeVimHandler::Private::stopIncrementalFind()
@@ -3072,6 +3110,8 @@ void FakeVimHandler::Private::commitCursor()
         } else if (isVisualCharMode()) {
             if (anc > pos)
                 ++anc;
+            else if (!editor()->hasFocus() || isCommandLineMode())
+                m_fixCursorTimer.start();
         } else {
             QTC_CHECK(false);
         }
@@ -3122,6 +3162,11 @@ void FakeVimHandler::Private::pullCursor()
         g.visualMode = VisualCharMode;
     else
         g.visualMode = NoVisualMode;
+
+    // Keep visually the text selection same.
+    // With thick text cursor, the character under cursor is treated as selected.
+    if (isVisualCharMode() && hasThinCursor())
+        moveLeft();
 
     // Cursor position can be after the end of line only in some modes.
     if (atEndOfLine() && !isVisualMode() && !isInsertMode())
@@ -7234,7 +7279,7 @@ bool FakeVimHandler::Private::passEventToEditor(QEvent &event, QTextCursor &tc)
     removeEventFilter();
     emit q->requestDisableBlockSelection();
 
-    EDITOR(setOverwriteMode(false));
+    setThinCursor();
     EDITOR(setTextCursor(tc));
 
     bool accepted = QApplication::sendEvent(editor(), &event);
@@ -7555,8 +7600,14 @@ void FakeVimHandler::Private::onContentsChanged(int position, int charsRemoved, 
 
 void FakeVimHandler::Private::onCursorPositionChanged()
 {
-    if (!m_inFakeVim)
+    if (!m_inFakeVim) {
         m_cursorNeedsUpdate = true;
+
+        // Selecting text with mouse disables the thick cursor so it's more obvious
+        // that extra character under cursor is not selected when moving text around or
+        // making operations on text outside FakeVim mode.
+        setThinCursor(g.mode == InsertMode || EDITOR(textCursor()).hasSelection());
+    }
 }
 
 void FakeVimHandler::Private::onUndoCommandAdded()
@@ -7578,6 +7629,19 @@ void FakeVimHandler::Private::onUndoCommandAdded()
     // External change while FakeVim disabled.
     if (m_buffer->editBlockLevel == 0 && !m_buffer->undo.isEmpty() && !isInsertMode())
         m_buffer->undo.push(State());
+}
+
+void FakeVimHandler::Private::onInputTimeout()
+{
+    enterFakeVim();
+    EventResult result = handleKey(Input());
+    leaveFakeVim(result == EventHandled);
+}
+
+void FakeVimHandler::Private::onFixCursorTimeout()
+{
+    if (editor())
+        fixExternalCursorPosition(editor()->hasFocus() && !isCommandLineMode());
 }
 
 char FakeVimHandler::Private::currentModeCode() const
@@ -7672,8 +7736,22 @@ void FakeVimHandler::Private::redo()
 
 void FakeVimHandler::Private::updateCursorShape()
 {
-    bool thinCursor = g.mode == InsertMode || isVisualLineMode() || isVisualBlockMode();
-    EDITOR(setOverwriteMode(!thinCursor));
+    setThinCursor(
+        g.mode == InsertMode
+        || isVisualLineMode()
+        || isVisualBlockMode()
+        || isCommandLineMode()
+        || !editor()->hasFocus());
+}
+
+void FakeVimHandler::Private::setThinCursor(bool enable)
+{
+    EDITOR(setOverwriteMode(!enable));
+}
+
+bool FakeVimHandler::Private::hasThinCursor() const
+{
+    return !EDITOR(overwriteMode());
 }
 
 void FakeVimHandler::Private::enterReplaceMode()
@@ -7803,6 +7881,7 @@ void FakeVimHandler::Private::enterExMode(const QString &contents)
     g.mode = ExMode;
     g.submode = NoSubMode;
     g.subsubmode = NoSubSubMode;
+    unfocus();
 }
 
 void FakeVimHandler::Private::recordJump(int position)
@@ -8386,6 +8465,11 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
         }
         KEY_DEBUG("NO SHORTCUT OVERRIDE" << kev->key());
         return true;
+    }
+
+    if (ev->type() == QEvent::FocusOut && ob == d->editor()) {
+        d->unfocus();
+        return false;
     }
 
     if (ev->type() == QEvent::FocusIn && ob == d->editor())
