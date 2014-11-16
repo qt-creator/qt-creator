@@ -334,12 +334,12 @@ void SideBar::activateItem(const QString &id)
     d->m_itemMap.value(id)->widget()->setFocus();
 }
 
-void SideBar::setShortcutMap(const QMap<QString, Core::Command*> &shortcutMap)
+void SideBar::setShortcutMap(const QMap<QString, Command*> &shortcutMap)
 {
     d->m_shortcutMap = shortcutMap;
 }
 
-QMap<QString, Core::Command*> SideBar::shortcutMap() const
+QMap<QString, Command*> SideBar::shortcutMap() const
 {
     return d->m_shortcutMap;
 }

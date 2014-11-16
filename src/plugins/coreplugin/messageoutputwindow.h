@@ -38,7 +38,7 @@ class OutputWindow;
 
 namespace Internal {
 
-class MessageOutputWindow : public Core::IOutputPane
+class MessageOutputWindow : public IOutputPane
 {
     Q_OBJECT
 

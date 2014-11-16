@@ -64,7 +64,7 @@ class CORE_EXPORT FeatureSet : private QSet<Feature>
 public:
     FeatureSet() {}
 
-    FeatureSet(Core::Id id)
+    FeatureSet(Id id)
     {
         if (id.isValid())
             insert(id);

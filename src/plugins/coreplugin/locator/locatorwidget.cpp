@@ -225,7 +225,7 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     m_completionList(new CompletionList(this)),
     m_filterMenu(new QMenu(this)),
     m_refreshAction(new QAction(tr("Refresh"), this)),
-    m_configureAction(new QAction(Core::ICore::msgShowOptionsDialog(), this)),
+    m_configureAction(new QAction(ICore::msgShowOptionsDialog(), this)),
     m_fileLineEdit(new Utils::FancyLineEdit),
     m_updateRequested(false),
     m_acceptRequested(false),
@@ -249,7 +249,7 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     layout->addWidget(m_fileLineEdit);
 
     setWindowIcon(QIcon(QLatin1String(":/locator/images/locator.png")));
-    const QPixmap image = Utils::StyleHelper::dpiSpecificImageFile(QLatin1String(Core::Constants::ICON_MAGNIFIER));
+    const QPixmap image = Utils::StyleHelper::dpiSpecificImageFile(QLatin1String(Constants::ICON_MAGNIFIER));
     m_fileLineEdit->setFiltering(true);
     m_fileLineEdit->setButtonPixmap(Utils::FancyLineEdit::Left, image);
     m_fileLineEdit->setButtonToolTip(Utils::FancyLineEdit::Left, tr("Options"));
@@ -314,7 +314,7 @@ void LocatorWidget::updateFilterList()
             // register new action
             action = new QAction(filter->displayName(), this);
             cmd = ActionManager::registerAction(action, locatorId,
-                               Context(Core::Constants::C_GLOBAL));
+                               Context(Constants::C_GLOBAL));
             cmd->setAttribute(Command::CA_UpdateText);
             connect(action, SIGNAL(triggered()), this, SLOT(filterSelected()));
             action->setData(qVariantFromValue(filter));
@@ -425,7 +425,7 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
 
 void LocatorWidget::setFocusToCurrentMode()
 {
-    Core::ModeManager::setFocusToCurrentMode();
+    ModeManager::setFocusToCurrentMode();
 }
 
 void LocatorWidget::showCompletionList()
@@ -596,7 +596,7 @@ void LocatorWidget::showEvent(QShowEvent *event)
 
 void LocatorWidget::showConfigureDialog()
 {
-    ICore::showOptionsDialog(Core::Constants::SETTINGS_CATEGORY_CORE, Constants::FILTER_OPTIONS_PAGE);
+    ICore::showOptionsDialog(Constants::SETTINGS_CATEGORY_CORE, Constants::FILTER_OPTIONS_PAGE);
 }
 
 } // namespace Core

@@ -492,7 +492,7 @@ Action *ActionManagerPrivate::overridableAction(Id id)
 
 void ActionManagerPrivate::readUserSettings(Id id, Action *cmd)
 {
-    QSettings *settings = Core::ICore::settings();
+    QSettings *settings = ICore::settings();
     settings->beginGroup(QLatin1String(kKeyboardSettingsKey));
     if (settings->contains(id.toString()))
         cmd->setKeySequence(QKeySequence(settings->value(id.toString()).toString()));
@@ -511,7 +511,7 @@ void ActionManagerPrivate::initialize()
     // settings->contains(QLatin1String(kKeyboardSettingsKey) + QLatin1Char('/')
     //                    + QLatin1String(kKeyboardSettingsTransferredKey))
     // check if settings in old style (pre 3.1) exist
-    QSettings *settings = Core::ICore::settings();
+    QSettings *settings = ICore::settings();
     if (settings->contains(QLatin1String(kKeyboardSettingsKey) + QLatin1Char('/')
                            + QLatin1String(kKeyboardSettingsTransferredKey))) {
         return;

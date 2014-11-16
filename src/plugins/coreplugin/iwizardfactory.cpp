@@ -193,7 +193,7 @@ bool IWizardFactory::isAvailable(const QString &platformName) const
 {
     FeatureSet availableFeatures = pluginFeatures();
 
-    foreach (const Core::IFeatureProvider *featureManager, s_providerList)
+    foreach (const IFeatureProvider *featureManager, s_providerList)
         availableFeatures |= featureManager->availableFeatures(platformName);
 
     return availableFeatures.contains(requiredFeatures());
@@ -215,7 +215,7 @@ QStringList IWizardFactory::allAvailablePlatforms()
 {
     QStringList platforms;
 
-    foreach (const Core::IFeatureProvider *featureManager, s_providerList)
+    foreach (const IFeatureProvider *featureManager, s_providerList)
         platforms.append(featureManager->availablePlatforms());
 
     return platforms;
@@ -223,7 +223,7 @@ QStringList IWizardFactory::allAvailablePlatforms()
 
 QString IWizardFactory::displayNameForPlatform(const QString &string)
 {
-    foreach (const Core::IFeatureProvider *featureManager, s_providerList) {
+    foreach (const IFeatureProvider *featureManager, s_providerList) {
         QString displayName = featureManager->displayNameForPlatform(string);
         if (!displayName.isEmpty())
             return displayName;

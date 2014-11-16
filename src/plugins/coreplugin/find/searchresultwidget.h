@@ -129,8 +129,8 @@ private:
     QString m_dontAskAgainGroup;
     bool m_preserveCaseSupported;
     QFrame *m_messageWidget;
-    Core::InfoBar m_infoBar;
-    Core::InfoBarDisplay m_infoBarDisplay;
+    InfoBar m_infoBar;
+    InfoBarDisplay m_infoBarDisplay;
     bool m_isShowingReplaceUI;
     QLabel *m_replaceLabel;
     QLineEdit *m_replaceTextEdit;

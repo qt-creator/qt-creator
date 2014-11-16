@@ -446,8 +446,8 @@ void ThemeSettingsWidget::apply()
         w->update();
 
     // save filename of selected theme in global config
-    QSettings *settings = Core::ICore::settings();
-    settings->setValue(QLatin1String(Core::Constants::SETTINGS_THEME), themeName);
+    QSettings *settings = ICore::settings();
+    settings->setValue(QLatin1String(Constants::SETTINGS_THEME), themeName);
 }
 
 } // namespace Internal

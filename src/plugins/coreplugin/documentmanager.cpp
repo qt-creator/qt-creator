@@ -1189,7 +1189,7 @@ void DocumentManager::saveSettings()
         recentEditorIds.append(file.second.toString());
     }
 
-    QSettings *s = Core::ICore::settings();
+    QSettings *s = ICore::settings();
     s->beginGroup(QLatin1String(settingsGroupC));
     s->setValue(QLatin1String(filesKeyC), recentFiles);
     s->setValue(QLatin1String(editorsKeyC), recentEditorIds);
@@ -1203,7 +1203,7 @@ void DocumentManager::saveSettings()
 
 void readSettings()
 {
-    QSettings *s = Core::ICore::settings();
+    QSettings *s = ICore::settings();
     d->m_recentFiles.clear();
     s->beginGroup(QLatin1String(settingsGroupC));
     QStringList recentFiles = s->value(QLatin1String(filesKeyC)).toStringList();

@@ -198,7 +198,7 @@ void OpenEditorsWindow::selectEditor(QTreeWidgetItem *item)
         EditorManagerPrivate::activateEditorForDocument(view, document);
     } else {
         if (!EditorManager::openEditor(
-                    item->toolTip(0), item->data(0, Qt::UserRole+2).value<Core::Id>())) {
+                    item->toolTip(0), item->data(0, Qt::UserRole+2).value<Id>())) {
             DocumentModel::removeDocument(item->toolTip(0));
             delete item;
         }

@@ -204,7 +204,7 @@ bool FileUtils::renameFile(const QString &orgFilePath, const QString &newFilePat
         result = fileSystemRenameFile(orgFilePath, newFilePath);
     if (result) {
         // yeah we moved, tell the filemanager about it
-        Core::DocumentManager::renamedFile(orgFilePath, newFilePath);
+        DocumentManager::renamedFile(orgFilePath, newFilePath);
     }
     return result;
 }

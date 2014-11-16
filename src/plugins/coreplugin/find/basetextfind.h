@@ -67,7 +67,7 @@ public:
     void defineFindScope();
     void clearFindScope();
 
-    void highlightAll(const QString &txt, Core::FindFlags findFlags);
+    void highlightAll(const QString &txt, FindFlags findFlags);
 
 signals:
     void highlightAllRequested(const QString &txt, Core::FindFlags findFlags);

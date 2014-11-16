@@ -43,24 +43,24 @@
 namespace Core {
 namespace Internal {
 
-class OpenDocumentsFilter : public Core::ILocatorFilter
+class OpenDocumentsFilter : public ILocatorFilter
 {
     Q_OBJECT
 
 public:
     OpenDocumentsFilter();
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
-    void accept(Core::LocatorFilterEntry selection) const;
+    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry);
+    void accept(LocatorFilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
 
 public slots:
     void refreshInternally();
 
 private:
-    QList<Core::DocumentModel::Entry> editors() const;
+    QList<DocumentModel::Entry> editors() const;
 
     mutable QMutex m_mutex;
-    QList<Core::DocumentModel::Entry> m_editors;
+    QList<DocumentModel::Entry> m_editors;
 };
 
 } // namespace Internal

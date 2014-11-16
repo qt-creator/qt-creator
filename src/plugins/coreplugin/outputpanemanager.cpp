@@ -175,7 +175,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     toolLayout->addWidget(m_closeButton);
     mainlayout->addWidget(m_toolBar);
     mainlayout->addWidget(m_outputWidgetPane, 10);
-    mainlayout->addWidget(new Core::FindToolBarPlaceHolder(this));
+    mainlayout->addWidget(new FindToolBarPlaceHolder(this));
     setLayout(mainlayout);
 
     m_buttonsWidget = new QWidget;
@@ -313,7 +313,7 @@ void OutputPaneManager::shortcutTriggered()
     QTC_ASSERT(action, return);
     int idx = m_actions.indexOf(action);
     QTC_ASSERT(idx != -1, return);
-    Core::IOutputPane *outputPane = m_panes.at(idx);
+    IOutputPane *outputPane = m_panes.at(idx);
     // Now check the special case, the output window is already visible,
     // we are already on that page but the outputpane doesn't have focus
     // then just give it focus.
@@ -413,7 +413,7 @@ void OutputPaneManager::slotHide()
         QTC_ASSERT(idx >= 0, return);
         m_buttons.at(idx)->setChecked(false);
         m_panes.value(idx)->visibilityChanged(false);
-        if (IEditor *editor = Core::EditorManager::currentEditor()) {
+        if (IEditor *editor = EditorManager::currentEditor()) {
             QWidget *w = editor->widget()->focusWidget();
             if (!w)
                 w = editor->widget();

@@ -40,18 +40,18 @@ namespace Core {
 class Command;
 struct CommandLocatorPrivate;
 
-class CORE_EXPORT CommandLocator : public Core::ILocatorFilter
+class CORE_EXPORT CommandLocator : public ILocatorFilter
 {
     Q_OBJECT
 
 public:
-    CommandLocator(Core::Id id, const QString &displayName,
+    CommandLocator(Id id, const QString &displayName,
                    const QString &shortCutString, QObject *parent = 0);
     ~CommandLocator();
 
-    void appendCommand(Core::Command *cmd);
+    void appendCommand(Command *cmd);
 
-    QList<LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
+    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry);
     void accept(LocatorFilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
 

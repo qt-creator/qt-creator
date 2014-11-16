@@ -40,14 +40,14 @@ namespace Core {
 
 struct CommandLocatorPrivate
 {
-    QList<Core::Command *> commands;
+    QList<Command *> commands;
 };
 
-CommandLocator::CommandLocator(Core::Id id,
+CommandLocator::CommandLocator(Id id,
                                const QString &displayName,
                                const QString &shortCutString,
                                QObject *parent) :
-    Core::ILocatorFilter(parent),
+    ILocatorFilter(parent),
     d(new CommandLocatorPrivate)
 {
     setId(id);
@@ -60,12 +60,12 @@ CommandLocator::~CommandLocator()
     delete d;
 }
 
-void CommandLocator::appendCommand(Core::Command *cmd)
+void CommandLocator::appendCommand(Command *cmd)
 {
     d->commands.push_back(cmd);
 }
 
-QList<Core::LocatorFilterEntry> CommandLocator::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
+QList<LocatorFilterEntry> CommandLocator::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
 {
     QList<LocatorFilterEntry> goodEntries;
     QList<LocatorFilterEntry> betterEntries;
@@ -93,7 +93,7 @@ QList<Core::LocatorFilterEntry> CommandLocator::matchesFor(QFutureInterface<Core
     return betterEntries;
 }
 
-void CommandLocator::accept(Core::LocatorFilterEntry entry) const
+void CommandLocator::accept(LocatorFilterEntry entry) const
 {
     // Retrieve action via index.
     const int index = entry.internalData.toInt();

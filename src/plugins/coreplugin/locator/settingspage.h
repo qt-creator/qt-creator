@@ -50,7 +50,7 @@ namespace Internal {
 
 class Locator;
 
-class SettingsPage : public Core::IOptionsPage
+class SettingsPage : public IOptionsPage
 {
     Q_OBJECT
 

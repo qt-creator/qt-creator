@@ -94,10 +94,10 @@ public:
     void aboutToShutdown();
 
     IContext *contextObject(QWidget *widget);
-    void addContextObject(IContext *contex);
-    void removeContextObject(IContext *contex);
+    void addContextObject(IContext *context);
+    void removeContextObject(IContext *context);
 
-    Core::IDocument *openFiles(const QStringList &fileNames, ICore::OpenFilesFlags flags);
+    IDocument *openFiles(const QStringList &fileNames, ICore::OpenFilesFlags flags);
 
     inline SettingsDatabase *settingsDatabase() const { return m_settingsDatabase; }
     virtual QPrinter *printer() const;
@@ -182,7 +182,7 @@ private:
     FancyTabWidget *m_modeStack;
     NavigationWidget *m_navigationWidget;
     RightPaneWidget *m_rightPaneWidget;
-    Core::StatusBarWidget *m_outputView;
+    StatusBarWidget *m_outputView;
     VersionDialog *m_versionDialog;
     QPointer<NewDialog> m_newDialog;
 

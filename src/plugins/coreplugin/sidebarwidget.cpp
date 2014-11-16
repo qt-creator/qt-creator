@@ -53,7 +53,7 @@ public:
     explicit SideBarComboBox(SideBarWidget *sideBarWidget) : m_sideBarWidget(sideBarWidget) {}
 
 private:
-    virtual const Core::Command *command(const QString &text) const
+    virtual const Command *command(const QString &text) const
         { return m_sideBarWidget->command(text); }
 
     SideBarWidget *m_sideBarWidget;
@@ -200,13 +200,13 @@ void SideBarWidget::setCurrentIndex(int)
     emit currentWidgetChanged();
 }
 
-Core::Command *SideBarWidget::command(const QString &title) const
+Command *SideBarWidget::command(const QString &title) const
 {
     const QString id = m_sideBar->idForTitle(title);
     if (id.isEmpty())
         return 0;
-    const QMap<QString, Core::Command*> shortcutMap = m_sideBar->shortcutMap();
-    QMap<QString, Core::Command*>::const_iterator r = shortcutMap.find(id);
+    const QMap<QString, Command*> shortcutMap = m_sideBar->shortcutMap();
+    QMap<QString, Command*>::const_iterator r = shortcutMap.find(id);
     if (r != shortcutMap.end())
         return r.value();
     return 0;

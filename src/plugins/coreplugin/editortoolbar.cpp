@@ -304,8 +304,8 @@ void EditorToolBar::setToolbarCreationFlags(ToolbarCreationFlags flags)
 {
     d->m_isStandalone = flags & FlagsStandalone;
     if (d->m_isStandalone) {
-        EditorManager *em = EditorManager::instance();
-        connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)), SLOT(updateEditorListSelection(Core::IEditor*)));
+        connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+                this, &EditorToolBar::updateEditorListSelection);
 
         disconnect(d->m_editorList, SIGNAL(activated(int)), this, SIGNAL(listSelectionActivated(int)));
         connect(d->m_editorList, SIGNAL(activated(int)), this, SLOT(changeActiveEditor(int)));

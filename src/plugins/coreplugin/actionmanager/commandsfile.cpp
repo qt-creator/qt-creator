@@ -141,7 +141,7 @@ bool CommandsFile::exportCommands(const QList<ShortcutItem *> &items)
         w.writeStartDocument();
         w.writeDTD(QLatin1String("<!DOCTYPE KeyboardMappingScheme>"));
         w.writeComment(QString::fromLatin1(" Written by Qt Creator %1, %2. ").
-                       arg(QLatin1String(Core::Constants::IDE_VERSION_LONG),
+                       arg(QLatin1String(Constants::IDE_VERSION_LONG),
                            QDateTime::currentDateTime().toString(Qt::ISODate)));
         w.writeStartElement(ctx.mappingElement);
         foreach (const ShortcutItem *item, items) {

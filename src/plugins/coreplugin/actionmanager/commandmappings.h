@@ -47,7 +47,7 @@ namespace Core {
 
 namespace Internal { class CommandMappingsPrivate; }
 
-class CORE_EXPORT CommandMappings : public Core::IOptionsPage
+class CORE_EXPORT CommandMappings : public IOptionsPage
 {
     Q_OBJECT
 

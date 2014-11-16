@@ -57,7 +57,7 @@ ExecuteFilter::ExecuteFilter()
     connect(&m_runTimer, SIGNAL(timeout()), this, SLOT(runHeadCommand()));
 }
 
-QList<LocatorFilterEntry> ExecuteFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
+QList<LocatorFilterEntry> ExecuteFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                              const QString &entry)
 {
     QList<LocatorFilterEntry> value;

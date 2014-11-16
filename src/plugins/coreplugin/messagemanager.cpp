@@ -85,7 +85,7 @@ void MessageManager::write(const QString &text, PrintToOutputPaneFlags flags)
     } else if (flags & Silent) {
         // Do nothing
     } else {
-        m_messageOutputWindow->popup(Core::IOutputPane::Flag(int(flags)));
+        m_messageOutputWindow->popup(IOutputPane::Flag(int(flags)));
     }
 
     m_messageOutputWindow->append(text + QLatin1Char('\n'));

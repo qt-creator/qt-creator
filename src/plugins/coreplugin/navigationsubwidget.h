@@ -68,7 +68,7 @@ public:
     void saveSettings();
     void restoreSettings();
 
-    Core::Command *command(const QString &title) const;
+    Command *command(const QString &title) const;
 
 signals:
     void splitMe();
@@ -100,7 +100,7 @@ protected:
     bool event(QEvent *event);
 
 private:
-    virtual const Core::Command *command(const QString &text) const = 0;
+    virtual const Command *command(const QString &text) const = 0;
 };
 
 
@@ -113,7 +113,7 @@ public:
         m_navSubWidget(navSubWidget) {}
 
 private:
-    virtual const Core::Command *command(const QString &text) const
+    virtual const Command *command(const QString &text) const
         { return m_navSubWidget->command(text); }
 
     NavigationSubWidget *m_navSubWidget;

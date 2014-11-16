@@ -74,7 +74,7 @@ OpenEditorsWidget::~OpenEditorsWidget()
 {
 }
 
-void OpenEditorsWidget::updateCurrentItem(Core::IEditor *editor)
+void OpenEditorsWidget::updateCurrentItem(IEditor *editor)
 {
     IDocument *document = editor ? editor->document() : 0;
     QModelIndex index = m_model->index(DocumentModel::indexOfDocument(document), 0);
@@ -138,7 +138,7 @@ OpenEditorsViewFactory::OpenEditorsViewFactory()
 {
     setId("Open Documents");
     setDisplayName(OpenEditorsWidget::tr("Open Documents"));
-    setActivationSequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+O") : tr("Alt+O")));
+    setActivationSequence(QKeySequence(UseMacShortcuts ? tr("Meta+O") : tr("Alt+O")));
     setPriority(200);
 }
 

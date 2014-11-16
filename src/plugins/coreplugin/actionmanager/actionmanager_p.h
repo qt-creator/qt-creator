@@ -58,8 +58,8 @@ class ActionManagerPrivate : public QObject
     Q_OBJECT
 
 public:
-    typedef QHash<Core::Id, Action *> IdCmdMap;
-    typedef QHash<Core::Id, ActionContainerPrivate *> IdContainerMap;
+    typedef QHash<Id, Action *> IdCmdMap;
+    typedef QHash<Id, ActionContainerPrivate *> IdContainerMap;
 
     explicit ActionManagerPrivate();
     ~ActionManagerPrivate();

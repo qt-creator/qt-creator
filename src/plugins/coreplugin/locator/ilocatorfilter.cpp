@@ -173,7 +173,7 @@ bool ILocatorFilter::isEnabled() const
     return m_enabled;
 }
 
-Core::Id ILocatorFilter::id() const
+Id ILocatorFilter::id() const
 {
     return m_id;
 }
@@ -193,7 +193,7 @@ void ILocatorFilter::setEnabled(bool enabled)
     m_enabled = enabled;
 }
 
-void ILocatorFilter::setId(Core::Id id)
+void ILocatorFilter::setId(Id id)
 {
     m_id = id;
 }

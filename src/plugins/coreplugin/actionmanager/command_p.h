@@ -47,7 +47,7 @@
 namespace Core {
 namespace Internal {
 
-class Action : public Core::Command
+class Action : public Command
 {
     Q_OBJECT
 public:

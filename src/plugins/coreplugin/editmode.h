@@ -44,7 +44,7 @@ class EditorManager;
 
 namespace Internal {
 
-class EditMode : public Core::IMode
+class EditMode : public IMode
 {
     Q_OBJECT
 
@@ -52,10 +52,9 @@ public:
     EditMode();
     ~EditMode();
 
-private slots:
-    void grabEditorManager(Core::IMode *mode);
-
 private:
+    void grabEditorManager(IMode *mode);
+
     QSplitter *m_splitter;
     QVBoxLayout *m_rightSplitWidgetLayout;
 };

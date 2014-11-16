@@ -293,9 +293,9 @@ bool optionsPageLessThan(const IOptionsPage *p1, const IOptionsPage *p2)
     return p1->id().alphabeticallyBefore(p2->id());
 }
 
-static inline QList<Core::IOptionsPage*> sortedOptionsPages()
+static inline QList<IOptionsPage*> sortedOptionsPages()
 {
-    QList<Core::IOptionsPage*> rc = ExtensionSystem::PluginManager::getObjects<IOptionsPage>();
+    QList<IOptionsPage*> rc = ExtensionSystem::PluginManager::getObjects<IOptionsPage>();
     qStableSort(rc.begin(), rc.end(), optionsPageLessThan);
     return rc;
 }

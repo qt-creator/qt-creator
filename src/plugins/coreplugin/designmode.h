@@ -47,7 +47,7 @@ namespace Internal { class DesignModeCoreListener; }
 
 class DesignModePrivate;
 
-class CORE_EXPORT DesignMode : public Core::IMode
+class CORE_EXPORT DesignMode : public IMode
 {
     Q_OBJECT
 
@@ -71,11 +71,11 @@ signals:
     void actionsUpdated(Core::IEditor *editor);
 
 private slots:
-    void currentEditorChanged(Core::IEditor *editor);
     void updateActions();
-    void updateContext(Core::IMode *newMode, Core::IMode *oldMode);
 
 private:
+    void currentEditorChanged(IEditor *editor);
+    void updateContext(IMode *newMode, IMode *oldMode);
     void setActiveContext(const Context &context);
 
     DesignModePrivate *d;

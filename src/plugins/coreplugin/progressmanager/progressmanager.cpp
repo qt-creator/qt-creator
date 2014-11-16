@@ -305,7 +305,7 @@ void ProgressManagerPrivate::init()
 {
     readSettings();
 
-    m_statusBarWidgetContainer = new Core::StatusBarWidget;
+    m_statusBarWidgetContainer = new StatusBarWidget;
     m_statusBarWidget = new QWidget;
     QHBoxLayout *layout = new QHBoxLayout(m_statusBarWidget);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -328,7 +328,7 @@ void ProgressManagerPrivate::init()
     ToggleButton *toggleButton = new ToggleButton(m_statusBarWidget);
     layout->addWidget(toggleButton);
     m_statusBarWidgetContainer->setWidget(m_statusBarWidget);
-    m_statusBarWidgetContainer->setPosition(Core::StatusBarWidget::RightCorner);
+    m_statusBarWidgetContainer->setPosition(StatusBarWidget::RightCorner);
     ExtensionSystem::PluginManager::addObject(m_statusBarWidgetContainer);
     m_statusBarWidget->installEventFilter(this);
 

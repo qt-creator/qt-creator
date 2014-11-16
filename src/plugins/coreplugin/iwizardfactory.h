@@ -101,7 +101,7 @@ public:
     static void registerFeatureProvider(IFeatureProvider *provider);
 
 protected:
-    Core::FeatureSet pluginFeatures() const;
+    FeatureSet pluginFeatures() const;
 
 private:
     static void destroyFeatureProvider();

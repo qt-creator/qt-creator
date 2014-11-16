@@ -56,7 +56,7 @@ enum {
 
 namespace Internal {
 
-class DesignModeCoreListener : public Core::ICoreListener
+class DesignModeCoreListener : public ICoreListener
 {
 public:
     DesignModeCoreListener(DesignMode* mode);
@@ -93,7 +93,7 @@ public:
 
 public:
     Internal::DesignModeCoreListener *m_coreListener;
-    QPointer<Core::IEditor> m_currentEditor;
+    QPointer<IEditor> m_currentEditor;
     bool m_isActive;
     bool m_isRequired;
     QList<DesignEditorInfo*> m_editors;
@@ -124,11 +124,11 @@ DesignMode::DesignMode()
 
     ExtensionSystem::PluginManager::addObject(d->m_coreListener);
 
-    connect(EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(currentEditorChanged(Core::IEditor*)));
+    connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+            this, &DesignMode::currentEditorChanged);
 
-    connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*,Core::IMode*)),
-            this, SLOT(updateContext(Core::IMode*,Core::IMode*)));
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
+            this, &DesignMode::updateContext);
 }
 
 DesignMode::~DesignMode()
@@ -195,7 +195,7 @@ void DesignMode::unregisterDesignWidget(QWidget *widget)
 }
 
 // if editor changes, check if we have valid mimetype registered.
-void DesignMode::currentEditorChanged(Core::IEditor *editor)
+void DesignMode::currentEditorChanged(IEditor *editor)
 {
     if (editor && (d->m_currentEditor.data() == editor))
         return;
@@ -226,7 +226,7 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
     if (!mimeEditorAvailable) {
         setActiveContext(Context());
         if (ModeManager::currentMode() == this)
-            ModeManager::activateMode(Core::Constants::MODE_EDIT);
+            ModeManager::activateMode(Constants::MODE_EDIT);
         setEnabled(false);
         d->m_currentEditor = 0;
         emit actionsUpdated(d->m_currentEditor.data());
@@ -245,7 +245,7 @@ void DesignMode::updateActions()
     emit actionsUpdated(d->m_currentEditor.data());
 }
 
-void DesignMode::updateContext(Core::IMode *newMode, Core::IMode *oldMode)
+void DesignMode::updateContext(IMode *newMode, IMode *oldMode)
 {
     if (newMode == this)
         ICore::addAdditionalContext(d->m_activeContext);
@@ -259,7 +259,7 @@ void DesignMode::setActiveContext(const Context &context)
         return;
 
     if (ModeManager::currentMode() == this)
-        Core::ICore::updateAdditionalContexts(d->m_activeContext, context);
+        ICore::updateAdditionalContexts(d->m_activeContext, context);
 
     d->m_activeContext = context;
 }

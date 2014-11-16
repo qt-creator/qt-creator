@@ -55,7 +55,7 @@ public:
 
     // ILocatorFilter
     void prepareSearch(const QString &entry);
-    QList<LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
+    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry);
     void accept(LocatorFilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
 

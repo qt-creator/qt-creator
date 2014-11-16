@@ -90,9 +90,6 @@ public:
     void setCloseSplitEnabled(bool enable);
     void setCloseSplitIcon(const QIcon &icon);
 
-public slots:
-    void updateDocumentStatus(Core::IDocument *document);
-
 signals:
     void closeClicked();
     void goBackClicked();
@@ -108,7 +105,6 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
 private slots:
-    void updateEditorListSelection(Core::IEditor *newSelection);
     void changeActiveEditor(int row);
     void makeEditorWritable();
 
@@ -117,6 +113,8 @@ private slots:
     void updateActionShortcuts();
 
 private:
+    void updateDocumentStatus(IDocument *document);
+    void updateEditorListSelection(IEditor *newSelection);
     void fillListContextMenu(QMenu *menu);
     void updateToolBar(QWidget *toolBar);
 

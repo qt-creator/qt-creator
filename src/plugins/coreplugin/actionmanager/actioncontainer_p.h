@@ -46,7 +46,7 @@ struct Group
     QList<QObject *> items; // Command * or ActionContainer *
 };
 
-class ActionContainerPrivate : public Core::ActionContainer
+class ActionContainerPrivate : public ActionContainer
 {
     Q_OBJECT
 

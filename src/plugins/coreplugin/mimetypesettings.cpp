@@ -543,12 +543,12 @@ MimeTypeSettings::MimeTypeSettings(QObject *parent)
     : IOptionsPage(parent)
     , d(new MimeTypeSettingsPrivate)
 {
-    setId(Core::Constants::SETTINGS_ID_MIMETYPES);
+    setId(Constants::SETTINGS_ID_MIMETYPES);
     setDisplayName(tr("MIME Types"));
-    setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
+    setCategory(Constants::SETTINGS_CATEGORY_CORE);
     setDisplayCategory(QCoreApplication::translate("Core",
-        Core::Constants::SETTINGS_TR_CATEGORY_CORE));
-    setCategoryIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
+        Constants::SETTINGS_TR_CATEGORY_CORE));
+    setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
 MimeTypeSettings::~MimeTypeSettings()

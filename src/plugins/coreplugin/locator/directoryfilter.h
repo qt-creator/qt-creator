@@ -47,7 +47,7 @@ class DirectoryFilter : public BaseFileFilter
     Q_OBJECT
 
 public:
-    DirectoryFilter(Core::Id id);
+    DirectoryFilter(Id id);
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
     bool openConfigDialog(QWidget *parent, bool &needsRefresh);

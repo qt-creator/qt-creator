@@ -30,6 +30,7 @@
 
 #include "rightpane.h"
 
+#include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
 
 #include <QSettings>
@@ -49,13 +50,13 @@ RightPanePlaceHolder* RightPanePlaceHolder::current()
     return m_current;
 }
 
-RightPanePlaceHolder::RightPanePlaceHolder(Core::IMode *mode, QWidget *parent)
+RightPanePlaceHolder::RightPanePlaceHolder(IMode *mode, QWidget *parent)
     :QWidget(parent), m_mode(mode)
 {
     setLayout(new QVBoxLayout);
     layout()->setMargin(0);
-    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
-            this, SLOT(currentModeChanged(Core::IMode*)));
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
+            this, &RightPanePlaceHolder::currentModeChanged);
 }
 
 RightPanePlaceHolder::~RightPanePlaceHolder()
@@ -96,7 +97,7 @@ void RightPanePlaceHolder::applyStoredSize(int width)
 // m_current points to the current PlaceHolder, or zero if there
 // is no PlaceHolder in this mode
 // And that the parent of the RightPaneWidget gets the correct parent
-void RightPanePlaceHolder::currentModeChanged(Core::IMode *mode)
+void RightPanePlaceHolder::currentModeChanged(IMode *mode)
 {
     if (m_current == this) {
         m_current = 0;

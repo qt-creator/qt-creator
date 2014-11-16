@@ -111,8 +111,8 @@ public:
     void closeAllWidgets();
     void activateItem(const QString &id);
 
-    void setShortcutMap(const QMap<QString, Core::Command *> &shortcutMap);
-    QMap<QString, Core::Command *> shortcutMap() const;
+    void setShortcutMap(const QMap<QString, Command *> &shortcutMap);
+    QMap<QString, Command *> shortcutMap() const;
 
 signals:
     void sideBarClosed();

@@ -194,8 +194,8 @@
     interact with it.
 */
 
-using namespace Core;
-using namespace Core::Internal;
+namespace Core {
+namespace Internal {
 
 /*!
   \class Action
@@ -275,7 +275,7 @@ QString Action::description() const
     return id().toString();
 }
 
-void Action::setCurrentContext(const Core::Context &context)
+void Action::setCurrentContext(const Context &context)
 {
     m_context = context;
 
@@ -309,7 +309,7 @@ static QString msgActionWarning(QAction *newAction, Id id, QAction *oldAction)
     return msg;
 }
 
-void Action::addOverrideAction(QAction *action, const Core::Context &context, bool scriptable)
+void Action::addOverrideAction(QAction *action, const Context &context, bool scriptable)
 {
     if (Utils::HostOsInfo::isMacHost())
         action->setIconVisibleInMenu(false);
@@ -369,7 +369,7 @@ bool Action::isScriptable() const
     return m_scriptableMap.values().contains(true);
 }
 
-bool Action::isScriptable(const Core::Context &context) const
+bool Action::isScriptable(const Context &context) const
 {
     if (context == m_context && m_scriptableMap.contains(m_action->action()))
         return m_scriptableMap.value(m_action->action());
@@ -387,16 +387,16 @@ void Action::setAttribute(CommandAttribute attr)
 {
     m_attributes |= attr;
     switch (attr) {
-    case Core::Command::CA_Hide:
+    case Command::CA_Hide:
         m_action->setAttribute(Utils::ProxyAction::Hide);
         break;
-    case Core::Command::CA_UpdateText:
+    case Command::CA_UpdateText:
         m_action->setAttribute(Utils::ProxyAction::UpdateText);
         break;
-    case Core::Command::CA_UpdateIcon:
+    case Command::CA_UpdateIcon:
         m_action->setAttribute(Utils::ProxyAction::UpdateIcon);
         break;
-    case Core::Command::CA_NonConfigurable:
+    case Command::CA_NonConfigurable:
         break;
     }
 }
@@ -405,16 +405,16 @@ void Action::removeAttribute(CommandAttribute attr)
 {
     m_attributes &= ~attr;
     switch (attr) {
-    case Core::Command::CA_Hide:
+    case Command::CA_Hide:
         m_action->removeAttribute(Utils::ProxyAction::Hide);
         break;
-    case Core::Command::CA_UpdateText:
+    case Command::CA_UpdateText:
         m_action->removeAttribute(Utils::ProxyAction::UpdateText);
         break;
-    case Core::Command::CA_UpdateIcon:
+    case Command::CA_UpdateIcon:
         m_action->removeAttribute(Utils::ProxyAction::UpdateIcon);
         break;
-    case Core::Command::CA_NonConfigurable:
+    case Command::CA_NonConfigurable:
         break;
     }
 }
@@ -424,11 +424,12 @@ bool Action::hasAttribute(Command::CommandAttribute attr) const
     return (m_attributes & attr);
 }
 
+} // namespace Internal
 
 void Command::augmentActionWithShortcutToolTip(QAction *a) const
 {
     a->setToolTip(stringWithAppendedShortcut(a->text()));
-    QObject::connect(this, &Core::Command::keySequenceChanged, a, [this, a]() {
+    QObject::connect(this, &Command::keySequenceChanged, a, [this, a]() {
         a->setToolTip(stringWithAppendedShortcut(a->text()));
     });
     QObject::connect(a, &QAction::changed, this, [this, a]() {
@@ -444,3 +445,5 @@ QToolButton *Command::toolButtonWithAppendedShortcut(QAction *action, Command *c
         cmd->augmentActionWithShortcutToolTip(action);
     return button;
 }
+
+} // namespace Core

@@ -28,10 +28,10 @@
 **
 ****************************************************************************/
 
+#include "imode.h"
+#include "modemanager.h"
 #include "outputpane.h"
 #include "outputpanemanager.h"
-
-#include "modemanager.h"
 
 #include <QSplitter>
 #include <QVBoxLayout>
@@ -39,22 +39,22 @@
 namespace Core {
 
 struct OutputPanePlaceHolderPrivate {
-    explicit OutputPanePlaceHolderPrivate(Core::IMode *mode, QSplitter *parent);
+    explicit OutputPanePlaceHolderPrivate(IMode *mode, QSplitter *parent);
 
-    Core::IMode *m_mode;
+    IMode *m_mode;
     QSplitter *m_splitter;
     int m_lastNonMaxSize;
     static OutputPanePlaceHolder* m_current;
 };
 
-OutputPanePlaceHolderPrivate::OutputPanePlaceHolderPrivate(Core::IMode *mode, QSplitter *parent) :
+OutputPanePlaceHolderPrivate::OutputPanePlaceHolderPrivate(IMode *mode, QSplitter *parent) :
     m_mode(mode), m_splitter(parent), m_lastNonMaxSize(0)
 {
 }
 
 OutputPanePlaceHolder *OutputPanePlaceHolderPrivate::m_current = 0;
 
-OutputPanePlaceHolder::OutputPanePlaceHolder(Core::IMode *mode, QSplitter* parent)
+OutputPanePlaceHolder::OutputPanePlaceHolder(IMode *mode, QSplitter* parent)
    : QWidget(parent), d(new OutputPanePlaceHolderPrivate(mode, parent))
 {
     setVisible(false);
@@ -65,8 +65,8 @@ OutputPanePlaceHolder::OutputPanePlaceHolder(Core::IMode *mode, QSplitter* paren
     sp.setHorizontalStretch(0);
     setSizePolicy(sp);
     layout()->setMargin(0);
-    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
-            this, SLOT(currentModeChanged(Core::IMode*)));
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
+            this, &OutputPanePlaceHolder::currentModeChanged);
 }
 
 OutputPanePlaceHolder::~OutputPanePlaceHolder()
@@ -80,7 +80,7 @@ OutputPanePlaceHolder::~OutputPanePlaceHolder()
     delete d;
 }
 
-void OutputPanePlaceHolder::currentModeChanged(Core::IMode *mode)
+void OutputPanePlaceHolder::currentModeChanged(IMode *mode)
 {
     if (d->m_current == this) {
         d->m_current = 0;

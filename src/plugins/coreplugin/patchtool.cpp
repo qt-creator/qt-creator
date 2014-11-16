@@ -46,7 +46,7 @@ namespace Core {
 
 static QString readLegacyCommand()
 {
-    QSettings *s = Core::ICore::settings();
+    QSettings *s = ICore::settings();
 
     s->beginGroup(QLatin1String(legacySettingsGroupC));
     const bool legacyExists = s->contains(QLatin1String(patchCommandKeyC));
@@ -63,7 +63,7 @@ static QString readLegacyCommand()
 
 QString PatchTool::patchCommand()
 {
-    QSettings *s = Core::ICore::settings();
+    QSettings *s = ICore::settings();
 
     const QString defaultCommand = readLegacyCommand(); // replace it with QLatin1String(patchCommandDefaultC) when dropping legacy stuff
 
@@ -76,7 +76,7 @@ QString PatchTool::patchCommand()
 
 void PatchTool::setPatchCommand(const QString &newCommand)
 {
-    QSettings *s = Core::ICore::settings();
+    QSettings *s = ICore::settings();
     s->beginGroup(QLatin1String(settingsGroupC));
     s->setValue(QLatin1String(patchCommandKeyC), newCommand);
     s->endGroup();

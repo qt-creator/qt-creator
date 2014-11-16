@@ -64,8 +64,8 @@ public:
         FindBackwardDirection
     };
 
-    Core::FindFlags findFlags() const;
-    bool hasFindFlag(Core::FindFlag flag);
+    FindFlags findFlags() const;
+    bool hasFindFlag(FindFlag flag);
     void updateFindCompletion(const QString &text);
     void updateReplaceCompletion(const QString &text);
     QStringListModel *findCompletionModel() const;

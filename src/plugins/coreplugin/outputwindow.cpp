@@ -45,7 +45,7 @@ namespace Core {
 
 /*******************/
 
-OutputWindow::OutputWindow(Core::Context context, QWidget *parent)
+OutputWindow::OutputWindow(Context context, QWidget *parent)
     : QPlainTextEdit(parent)
     , m_formatter(0)
     , m_enforceNewline(false)
@@ -60,7 +60,7 @@ OutputWindow::OutputWindow(Core::Context context, QWidget *parent)
     setMouseTracking(true);
     setUndoRedoEnabled(false);
 
-    m_outputWindowContext = new Core::IContext;
+    m_outputWindowContext = new IContext;
     m_outputWindowContext->setContext(context);
     m_outputWindowContext->setWidget(this);
     ICore::addContextObject(m_outputWindowContext);
@@ -72,12 +72,12 @@ OutputWindow::OutputWindow(Core::Context context, QWidget *parent)
     QAction *pasteAction = new QAction(this);
     QAction *selectAllAction = new QAction(this);
 
-    ActionManager::registerAction(undoAction, Core::Constants::UNDO, context);
-    ActionManager::registerAction(redoAction, Core::Constants::REDO, context);
-    ActionManager::registerAction(cutAction, Core::Constants::CUT, context);
-    ActionManager::registerAction(copyAction, Core::Constants::COPY, context);
-    ActionManager::registerAction(pasteAction, Core::Constants::PASTE, context);
-    ActionManager::registerAction(selectAllAction, Core::Constants::SELECTALL, context);
+    ActionManager::registerAction(undoAction, Constants::UNDO, context);
+    ActionManager::registerAction(redoAction, Constants::REDO, context);
+    ActionManager::registerAction(cutAction, Constants::CUT, context);
+    ActionManager::registerAction(copyAction, Constants::COPY, context);
+    ActionManager::registerAction(pasteAction, Constants::PASTE, context);
+    ActionManager::registerAction(selectAllAction, Constants::SELECTALL, context);
 
     connect(undoAction, SIGNAL(triggered()), this, SLOT(undo()));
     connect(redoAction, SIGNAL(triggered()), this, SLOT(redo()));
@@ -99,7 +99,7 @@ OutputWindow::OutputWindow(Core::Context context, QWidget *parent)
 
 OutputWindow::~OutputWindow()
 {
-    Core::ICore::removeContextObject(m_outputWindowContext);
+    ICore::removeContextObject(m_outputWindowContext);
     delete m_outputWindowContext;
 }
 

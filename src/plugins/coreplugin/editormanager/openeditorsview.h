@@ -77,26 +77,24 @@ public:
     OpenEditorsWidget();
     ~OpenEditorsWidget();
 
-private slots:
-    void handleActivated(const QModelIndex &);
-    void updateCurrentItem(Core::IEditor*);
-    void contextMenuRequested(QPoint pos);
-
 private:
+    void handleActivated(const QModelIndex &);
+    void updateCurrentItem(IEditor*);
+    void contextMenuRequested(QPoint pos);
     void activateEditor(const QModelIndex &index);
     void closeDocument(const QModelIndex &index);
 
     ProxyModel *m_model;
 };
 
-class OpenEditorsViewFactory : public Core::INavigationWidgetFactory
+class OpenEditorsViewFactory : public INavigationWidgetFactory
 {
     Q_OBJECT
 
 public:
     OpenEditorsViewFactory();
 
-    Core::NavigationView createWidget();
+    NavigationView createWidget();
 };
 
 } // namespace Internal

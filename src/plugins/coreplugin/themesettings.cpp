@@ -40,11 +40,11 @@ namespace Internal {
 ThemeSettings::ThemeSettings() :
     m_widget(0)
 {
-    setId(Core::Constants::SETTINGS_ID_ENVIRONMENT);
+    setId(Constants::SETTINGS_ID_ENVIRONMENT);
     setDisplayName(tr("Theme"));
-    setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE));
-    setCategoryIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
+    setCategory(Constants::SETTINGS_CATEGORY_CORE);
+    setDisplayCategory(QCoreApplication::translate("Core", Constants::SETTINGS_TR_CATEGORY_CORE));
+    setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
 ThemeSettings::~ThemeSettings()

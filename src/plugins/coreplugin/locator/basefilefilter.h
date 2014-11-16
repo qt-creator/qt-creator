@@ -37,14 +37,14 @@
 
 namespace Core {
 
-class CORE_EXPORT BaseFileFilter : public Core::ILocatorFilter
+class CORE_EXPORT BaseFileFilter : public ILocatorFilter
 {
     Q_OBJECT
 
 public:
     BaseFileFilter();
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
-    void accept(Core::LocatorFilterEntry selection) const;
+    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry);
+    void accept(LocatorFilterEntry selection) const;
 
 protected:
     /* Generates the file names from the list of file paths in m_files. */

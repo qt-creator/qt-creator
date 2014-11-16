@@ -60,11 +60,11 @@ namespace Internal {
 GeneralSettings::GeneralSettings()
     : m_page(0), m_dialog(0)
 {
-    setId(Core::Constants::SETTINGS_ID_ENVIRONMENT);
+    setId(Constants::SETTINGS_ID_ENVIRONMENT);
     setDisplayName(tr("General"));
-    setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE));
-    setCategoryIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
+    setCategory(Constants::SETTINGS_CATEGORY_CORE);
+    setDisplayCategory(QCoreApplication::translate("Core", Constants::SETTINGS_TR_CATEGORY_CORE));
+    setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
 static bool hasQmFilesForLocale(const QString &locale, const QString &creatorTrPath)

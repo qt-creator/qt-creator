@@ -49,10 +49,10 @@ SettingsPage::SettingsPage(Locator *plugin)
     : m_plugin(plugin), m_widget(0)
 {
     setId(Constants::FILTER_OPTIONS_PAGE);
-    setDisplayName(QCoreApplication::translate("Locator", Core::Constants::FILTER_OPTIONS_PAGE));
-    setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE));
-    setCategoryIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
+    setDisplayName(QCoreApplication::translate("Locator", Constants::FILTER_OPTIONS_PAGE));
+    setCategory(Constants::SETTINGS_CATEGORY_CORE);
+    setDisplayCategory(QCoreApplication::translate("Core", Constants::SETTINGS_TR_CATEGORY_CORE));
+    setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
 QWidget *SettingsPage::widget()
@@ -182,7 +182,7 @@ void SettingsPage::configureFilter(QListWidgetItem *item)
 void SettingsPage::addCustomFilter()
 {
     ILocatorFilter *filter = new DirectoryFilter(
-                Core::Id(Constants::CUSTOM_FILTER_BASEID).withSuffix(m_customFilters.size() + 1));
+                Id(Constants::CUSTOM_FILTER_BASEID).withSuffix(m_customFilters.size() + 1));
     bool needsRefresh = false;
     if (filter->openConfigDialog(m_widget, needsRefresh)) {
         m_filters.append(filter);

@@ -90,7 +90,7 @@ QString UtilsJsExtension::absoluteFilePath(const QString &in) const
 
 QString UtilsJsExtension::preferredSuffix(const QString &mimetype) const
 {
-    return Core::MimeDatabase::preferredSuffixByType(mimetype);
+    return MimeDatabase::preferredSuffixByType(mimetype);
 }
 
 QString UtilsJsExtension::fileName(const QString &path, const QString &extension) const

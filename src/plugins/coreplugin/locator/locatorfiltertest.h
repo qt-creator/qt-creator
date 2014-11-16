@@ -43,15 +43,15 @@ namespace Tests {
 class CORE_EXPORT BasicLocatorFilterTest
 {
 public:
-    BasicLocatorFilterTest(Core::ILocatorFilter *filter);
+    BasicLocatorFilterTest(ILocatorFilter *filter);
 
-    QList<Core::LocatorFilterEntry> matchesFor(const QString &searchText = QString());
+    QList<LocatorFilterEntry> matchesFor(const QString &searchText = QString());
 
 private:
     virtual void doBeforeLocatorRun() {}
     virtual void doAfterLocatorRun() {}
 
-    Core::ILocatorFilter *m_filter;
+    ILocatorFilter *m_filter;
 };
 
 class CORE_EXPORT ResultData

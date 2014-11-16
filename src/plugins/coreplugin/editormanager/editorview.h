@@ -173,7 +173,7 @@ class SplitterOrView  : public QWidget
 {
     Q_OBJECT
 public:
-    explicit SplitterOrView(Core::IEditor *editor = 0);
+    explicit SplitterOrView(IEditor *editor = 0);
     explicit SplitterOrView(EditorView *view);
     ~SplitterOrView();
 
@@ -183,9 +183,9 @@ public:
     inline bool isView() const { return m_view != 0; }
     inline bool isSplitter() const { return m_splitter != 0; }
 
-    inline Core::IEditor *editor() const { return m_view ? m_view->currentEditor() : 0; }
-    inline QList<Core::IEditor *> editors() const { return m_view ? m_view->editors() : QList<Core::IEditor*>(); }
-    inline bool hasEditor(Core::IEditor *editor) const { return m_view && m_view->hasEditor(editor); }
+    inline IEditor *editor() const { return m_view ? m_view->currentEditor() : 0; }
+    inline QList<IEditor *> editors() const { return m_view ? m_view->editors() : QList<IEditor*>(); }
+    inline bool hasEditor(IEditor *editor) const { return m_view && m_view->hasEditor(editor); }
     inline bool hasEditors() const { return m_view && m_view->editorCount() != 0; }
     inline EditorView *view() const { return m_view; }
     inline QSplitter *splitter() const { return m_splitter; }

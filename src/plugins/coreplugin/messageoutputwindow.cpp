@@ -36,11 +36,12 @@
 
 #include <aggregation/aggregate.h>
 
-using namespace Core::Internal;
+namespace Core {
+namespace Internal {
 
 MessageOutputWindow::MessageOutputWindow()
 {
-    m_widget = new Core::OutputWindow(Core::Context(Core::Constants::C_GENERAL_OUTPUT_PANE));
+    m_widget = new OutputWindow(Context(Constants::C_GENERAL_OUTPUT_PANE));
     m_widget->setReadOnly(true);
     // Let selected text be colored as if the text edit was editable,
     // otherwise the highlight for searching is too light
@@ -52,7 +53,7 @@ MessageOutputWindow::MessageOutputWindow()
     m_widget->setPalette(p);
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
     agg->add(m_widget);
-    agg->add(new Core::BaseTextFind(m_widget));
+    agg->add(new BaseTextFind(m_widget));
 }
 
 MessageOutputWindow::~MessageOutputWindow()
@@ -129,3 +130,6 @@ bool MessageOutputWindow::canNavigate() const
 {
     return false;
 }
+
+} // namespace Internal
+} // namespace Core

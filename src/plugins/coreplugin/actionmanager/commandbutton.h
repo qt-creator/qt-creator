@@ -57,7 +57,7 @@ private slots:
     void updateToolTip();
 
 private:
-    QPointer<Core::Command> m_command;
+    QPointer<Command> m_command;
     QString m_toolTipBase;
 };
 

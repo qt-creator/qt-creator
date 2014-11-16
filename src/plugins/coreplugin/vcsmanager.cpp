@@ -330,7 +330,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
                                   .arg(versionControl->displayName()),
                                   InfoBarEntry::GlobalSuppressionEnabled);
                 d->m_unconfiguredVcs = versionControl;
-                info.setCustomButtonInfo(Core::ICore::msgShowOptionsDialog(), []() {
+                info.setCustomButtonInfo(ICore::msgShowOptionsDialog(), []() {
                     QTC_ASSERT(d->m_unconfiguredVcs, return);
                     ICore::showOptionsDialog(Id(VcsBase::Constants::VCS_SETTINGS_CATEGORY),
                                              d->m_unconfiguredVcs->id());
@@ -373,7 +373,7 @@ IVersionControl *VcsManager::checkout(const QString &versionControlType,
 {
     foreach (IVersionControl *versionControl, allVersionControls()) {
         if (versionControl->displayName() == versionControlType
-            && versionControl->supportsOperation(Core::IVersionControl::CheckoutOperation)) {
+            && versionControl->supportsOperation(IVersionControl::CheckoutOperation)) {
             if (versionControl->vcsCheckout(directory, url)) {
                 d->cache(versionControl, directory, directory);
                 return versionControl;
@@ -441,7 +441,7 @@ QStringList VcsManager::additionalToolsPath()
 void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNames)
 {
     IVersionControl *vc = findVersionControlForDirectory(directory);
-    if (!vc || !vc->supportsOperation(Core::IVersionControl::AddOperation))
+    if (!vc || !vc->supportsOperation(IVersionControl::AddOperation))
         return;
 
     QStringList unmanagedFiles;
@@ -453,7 +453,7 @@ void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNa
     if (unmanagedFiles.isEmpty())
         return;
 
-    Internal::AddToVcsDialog dlg(Core::ICore::mainWindow(), VcsManager::msgAddToVcsTitle(),
+    Internal::AddToVcsDialog dlg(ICore::mainWindow(), VcsManager::msgAddToVcsTitle(),
                                  unmanagedFiles, vc->displayName());
     if (dlg.exec() == QDialog::Accepted) {
         QStringList notAddedToVc;
@@ -463,7 +463,7 @@ void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNa
         }
 
         if (!notAddedToVc.isEmpty()) {
-            QMessageBox::warning(Core::ICore::mainWindow(), VcsManager::msgAddToVcsFailedTitle(),
+            QMessageBox::warning(ICore::mainWindow(), VcsManager::msgAddToVcsFailedTitle(),
                                  VcsManager::msgToAddToVcsFailed(notAddedToVc, vc));
         }
     }

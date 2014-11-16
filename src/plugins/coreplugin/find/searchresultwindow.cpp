@@ -190,10 +190,10 @@ namespace Internal {
         QTC_ASSERT(widget, return);
         int internalIndex = m_searchResultWidgets.indexOf(widget) + 1/*account for "new search" entry*/;
         setCurrentIndex(internalIndex, focus);
-        q->popup(focus ? Core::IOutputPane::ModeSwitch | Core::IOutputPane::WithFocus
-                       : Core::IOutputPane::NoModeSwitch);
+        q->popup(focus ? IOutputPane::ModeSwitch | IOutputPane::WithFocus
+                       : IOutputPane::NoModeSwitch);
     }
-}
+} // namespace Internal
 
 using namespace Core::Internal;
 
@@ -307,10 +307,10 @@ SearchResultWindow::SearchResultWindow(QWidget *newSearchPanel)
     d->m_expandCollapseAction = new QAction(tr("Expand All"), this);
     d->m_expandCollapseAction->setCheckable(true);
     d->m_expandCollapseAction->setIcon(QIcon(QLatin1String(":/find/images/expand.png")));
-    Core::Command *cmd = Core::ActionManager::registerAction(
+    Command *cmd = ActionManager::registerAction(
             d->m_expandCollapseAction, "Find.ExpandAll",
-            Core::Context(Core::Constants::C_GLOBAL));
-    cmd->setAttribute(Core::Command::CA_UpdateText);
+            Context(Constants::C_GLOBAL));
+    cmd->setAttribute(Command::CA_UpdateText);
     d->m_expandCollapseButton->setDefaultAction(cmd->action());
 
     connect(d->m_expandCollapseAction, SIGNAL(toggled(bool)), this, SLOT(handleExpandCollapseToolButton(bool)));
@@ -535,7 +535,7 @@ void SearchResultWindow::handleExpandCollapseToolButton(bool checked)
 */
 void SearchResultWindow::readSettings()
 {
-    QSettings *s = Core::ICore::settings();
+    QSettings *s = ICore::settings();
     s->beginGroup(QLatin1String(SETTINGSKEYSECTIONNAME));
     d->m_expandCollapseAction->setChecked(s->value(QLatin1String(SETTINGSKEYEXPANDRESULTS), d->m_initiallyExpand).toBool());
     s->endGroup();
@@ -546,7 +546,7 @@ void SearchResultWindow::readSettings()
 */
 void SearchResultWindow::writeSettings()
 {
-    QSettings *s = Core::ICore::settings();
+    QSettings *s = ICore::settings();
     s->beginGroup(QLatin1String(SETTINGSKEYSECTIONNAME));
     s->setValue(QLatin1String(SETTINGSKEYEXPANDRESULTS), d->m_expandCollapseAction->isChecked());
     s->endGroup();

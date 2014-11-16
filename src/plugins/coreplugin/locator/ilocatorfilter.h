@@ -90,7 +90,7 @@ public:
     virtual ~ILocatorFilter() {}
 
     /* Internal Id. */
-    Core::Id id() const;
+    Id id() const;
 
     /* Visible name. */
     QString displayName() const;
@@ -108,7 +108,7 @@ public:
 
     /* List of matches for the given user entry. This runs in a separate thread, but only
        a single thread at a time. */
-    virtual QList<LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry) = 0;
+    virtual QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry) = 0;
 
     /* User has selected the given entry that belongs to this filter. */
     virtual void accept(LocatorFilterEntry selection) const = 0;
@@ -153,13 +153,13 @@ protected:
     void setShortcutString(const QString &shortcut);
     void setIncludedByDefault(bool includedByDefault);
     void setHidden(bool hidden);
-    void setId(Core::Id id);
+    void setId(Id id);
     void setPriority(Priority priority);
     void setDisplayName(const QString &displayString);
     void setConfigurable(bool configurable);
 
 private:
-    Core::Id m_id;
+    Id m_id;
     QString m_shortcut;
     Priority m_priority;
     QString m_displayName;

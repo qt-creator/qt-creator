@@ -47,7 +47,7 @@ class CORE_EXPORT OutputWindow : public QPlainTextEdit
     Q_OBJECT
 
 public:
-    OutputWindow(Core::Context context, QWidget *parent = 0);
+    OutputWindow(Context context, QWidget *parent = 0);
     ~OutputWindow();
 
     Utils::OutputFormatter* formatter() const;
@@ -83,7 +83,7 @@ private:
     void enableUndoRedo();
     QString doNewlineEnforcement(const QString &out);
 
-    Core::IContext *m_outputWindowContext;
+    IContext *m_outputWindowContext;
     Utils::OutputFormatter *m_formatter;
 
     bool m_enforceNewline;

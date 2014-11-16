@@ -248,7 +248,7 @@ void InfoBarDisplay::update()
 
         if (info.cancelButtonText.isEmpty()) {
             infoWidgetCloseButton->setAutoRaise(true);
-            infoWidgetCloseButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLEAR)));
+            infoWidgetCloseButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLEAR)));
             infoWidgetCloseButton->setToolTip(tr("Close"));
             if (infoWidgetSuppressButton)
                 hbox->addWidget(infoWidgetSuppressButton);

@@ -56,16 +56,15 @@ class CORE_EXPORT NavigationWidgetPlaceHolder : public QWidget
     friend class Core::NavigationWidget;
 
 public:
-    explicit NavigationWidgetPlaceHolder(Core::IMode *mode, QWidget *parent = 0);
+    explicit NavigationWidgetPlaceHolder(IMode *mode, QWidget *parent = 0);
     virtual ~NavigationWidgetPlaceHolder();
     static NavigationWidgetPlaceHolder* current();
     void applyStoredSize(int width);
 
-private slots:
-    void currentModeAboutToChange(Core::IMode *);
-
 private:
-    Core::IMode *m_mode;
+    void currentModeAboutToChange(IMode *);
+
+    IMode *m_mode;
     static NavigationWidgetPlaceHolder* m_current;
 };
 
@@ -104,7 +103,7 @@ public:
     // Called from the place holders
     void placeHolderChanged(NavigationWidgetPlaceHolder *holder);
 
-    QHash<Id, Core::Command *> commandMap() const;
+    QHash<Id, Command *> commandMap() const;
     QAbstractItemModel *factoryModel() const;
 
 protected:

@@ -141,7 +141,7 @@ QFrame *ItemViewFind::createSearchableWrapper(QAbstractItemView *treeView, Color
     vbox->setMargin(0);
     vbox->setSpacing(0);
     vbox->addWidget(treeView);
-    auto placeHolder = new Core::FindToolBarPlaceHolder(widget);
+    auto placeHolder = new FindToolBarPlaceHolder(widget);
     placeHolder->setLightColored(lightColored);
     vbox->addWidget(placeHolder);
 

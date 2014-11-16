@@ -184,7 +184,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         painter.restore();
     }
 
-    QRect iconRect(0, 0, Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE);
+    QRect iconRect(0, 0, Constants::TARGET_ICON_SIZE, Constants::TARGET_ICON_SIZE);
     // draw popup texts
     if (isTitledAction) {
 

@@ -51,6 +51,7 @@
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/icorelistener.h>
+#include <coreplugin/imode.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/mimedatabase.h>
@@ -127,14 +128,14 @@ using namespace Utils;
 
 //===================EditorManager=====================
 
-EditorManagerPlaceHolder::EditorManagerPlaceHolder(Core::IMode *mode, QWidget *parent)
+EditorManagerPlaceHolder::EditorManagerPlaceHolder(IMode *mode, QWidget *parent)
     : QWidget(parent), m_mode(mode)
 {
     setLayout(new QVBoxLayout);
     layout()->setMargin(0);
     setFocusProxy(EditorManagerPrivate::mainEditorArea());
-    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
-            this, SLOT(currentModeChanged(Core::IMode*)));
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
+            this, &EditorManagerPlaceHolder::currentModeChanged);
 
     currentModeChanged(ModeManager::currentMode());
 }
@@ -149,7 +150,7 @@ EditorManagerPlaceHolder::~EditorManagerPlaceHolder()
     }
 }
 
-void EditorManagerPlaceHolder::currentModeChanged(Core::IMode *mode)
+void EditorManagerPlaceHolder::currentModeChanged(IMode *mode)
 {
     if (m_mode == mode) {
         QWidget *previousFocus = 0;
@@ -216,7 +217,7 @@ static void setFocusToEditorViewAndUnmaximizePanes(EditorView *view)
 /* For something that has a 'QString id' (IEditorFactory
  * or IExternalEditor), find the one matching a id. */
 template <class EditorFactoryLike>
-EditorFactoryLike *findById(Core::Id id)
+EditorFactoryLike *findById(Id id)
 {
     return ExtensionSystem::PluginManager::getObject<EditorFactoryLike>(
         [&id](EditorFactoryLike *efl) {
@@ -286,8 +287,8 @@ EditorManagerPrivate::~EditorManagerPrivate()
 void EditorManagerPrivate::init()
 {
     DocumentModel::init();
-    connect(ICore::instance(), SIGNAL(contextAboutToChange(QList<Core::IContext*>)),
-            this, SLOT(handleContextChange(QList<Core::IContext*>)));
+    connect(ICore::instance(), &ICore::contextAboutToChange,
+            this, &EditorManagerPrivate::handleContextChange);
 
     const Context editManagerContext(Constants::C_EDITORMANAGER);
     // combined context for edit & design modes
@@ -322,7 +323,7 @@ void EditorManagerPrivate::init()
     // Close Action
     cmd = ActionManager::registerAction(m_closeCurrentEditorAction, Constants::CLOSE, editManagerContext, true);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+W")));
-    cmd->setAttribute(Core::Command::CA_UpdateText);
+    cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(m_closeCurrentEditorAction->text());
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
     connect(m_closeCurrentEditorAction, SIGNAL(triggered()),
@@ -346,7 +347,7 @@ void EditorManagerPrivate::init()
     // Close All Others Action
     cmd = ActionManager::registerAction(m_closeOtherDocumentsAction, Constants::CLOSEOTHERS, editManagerContext, true);
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
-    cmd->setAttribute(Core::Command::CA_UpdateText);
+    cmd->setAttribute(Command::CA_UpdateText);
     connect(m_closeOtherDocumentsAction, SIGNAL(triggered()), m_instance, SLOT(closeOtherDocuments()));
 
     // Close All Others Except Visible Action
@@ -590,7 +591,7 @@ IEditor *EditorManagerPrivate::openEditorAt(EditorView *view, const QString &fil
     EditorManager::cutForwardNavigationHistory();
     EditorManager::addCurrentPositionToNavigationHistory();
     EditorManager::OpenEditorFlags tempFlags = flags | EditorManager::IgnoreNavigationHistory;
-    Core::IEditor *editor = openEditor(view, fileName, editorId, tempFlags, newEditor);
+    IEditor *editor = openEditor(view, fileName, editorId, tempFlags, newEditor);
     if (editor && line != -1)
         editor->gotoLine(line, column);
     return editor;
@@ -1010,14 +1011,14 @@ IEditor *EditorManagerPrivate::activateEditor(EditorView *view, IEditor *editor,
         if (!(flags & EditorManager::DoNotMakeVisible)) {
             // switch to design mode?
             if (!(flags & EditorManager::DoNotSwitchToDesignMode) && editor->isDesignModePreferred()) {
-                ModeManager::activateMode(Core::Constants::MODE_DESIGN);
+                ModeManager::activateMode(Constants::MODE_DESIGN);
                 ModeManager::setFocusToCurrentMode();
             } else {
                 int index;
                 findEditorArea(view, &index);
                 if (index == 0) // main window --> we might need to switch mode
                     if (!editor->widget()->isVisible())
-                        ModeManager::activateMode(Core::Constants::MODE_EDIT);
+                        ModeManager::activateMode(Constants::MODE_EDIT);
                 editor->widget()->setFocus();
                 ICore::raiseWindow(editor->widget());
             }
@@ -1758,14 +1759,14 @@ void EditorManagerPrivate::showInGraphicalShell()
 {
     if (!d->m_contextMenuEntry || d->m_contextMenuEntry->fileName().isEmpty())
         return;
-    Core::FileUtils::showInGraphicalShell(ICore::mainWindow(), d->m_contextMenuEntry->fileName());
+    FileUtils::showInGraphicalShell(ICore::mainWindow(), d->m_contextMenuEntry->fileName());
 }
 
 void EditorManagerPrivate::openTerminal()
 {
     if (!d->m_contextMenuEntry || d->m_contextMenuEntry->fileName().isEmpty())
         return;
-    Core::FileUtils::openTerminal(QFileInfo(d->m_contextMenuEntry->fileName()).path());
+    FileUtils::openTerminal(QFileInfo(d->m_contextMenuEntry->fileName()).path());
 }
 
 void EditorManagerPrivate::findInDirectory()
@@ -2006,7 +2007,7 @@ void EditorManager::revertToSaved()
     EditorManagerPrivate::revertToSaved(currentDocument());
 }
 
-void EditorManager::closeEditor(Core::IEditor *editor, bool askAboutModifiedEditors)
+void EditorManager::closeEditor(IEditor *editor, bool askAboutModifiedEditors)
 {
     if (!editor)
         return;
@@ -2175,7 +2176,7 @@ void EditorManager::activateEditorForEntry(DocumentModel::Entry *entry, OpenEdit
                                                  entry, flags);
 }
 
-void EditorManager::activateEditor(Core::IEditor *editor, OpenEditorFlags flags)
+void EditorManager::activateEditor(IEditor *editor, OpenEditorFlags flags)
 {
     QTC_ASSERT(editor, return);
     EditorView *view = EditorManagerPrivate::viewForEditor(editor);
@@ -2293,7 +2294,7 @@ bool EditorManager::isAutoSaveFile(const QString &fileName)
     return fileName.endsWith(QLatin1String(".autosave"));
 }
 
-bool EditorManager::openExternalEditor(const QString &fileName, Core::Id editorId)
+bool EditorManager::openExternalEditor(const QString &fileName, Id editorId)
 {
     IExternalEditor *ee = findById<IExternalEditor>(editorId);
     if (!ee)
@@ -2520,7 +2521,7 @@ bool EditorManager::restoreState(const QByteArray &state)
         stream >> fileName;
         QString displayName;
         stream >> displayName;
-        Core::Id id;
+        Id id;
         stream >> id;
 
         if (!fileName.isEmpty() && !displayName.isEmpty()) {
@@ -2571,7 +2572,7 @@ void EditorManager::hideEditorStatusBar(const QString &id)
 
 QTextCodec *EditorManager::defaultTextCodec()
 {
-    QSettings *settings = Core::ICore::settings();
+    QSettings *settings = ICore::settings();
     if (QTextCodec *candidate = QTextCodec::codecForName(
             settings->value(QLatin1String(Constants::SETTINGS_DEFAULTTEXTENCODING)).toByteArray()))
         return candidate;

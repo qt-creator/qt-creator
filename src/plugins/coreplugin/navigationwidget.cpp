@@ -38,6 +38,7 @@
 #include "actionmanager/actionmanager.h"
 #include "actionmanager/command.h"
 #include "id.h"
+#include "imode.h"
 
 #include <QDebug>
 #include <QSettings>
@@ -58,13 +59,13 @@ NavigationWidgetPlaceHolder* NavigationWidgetPlaceHolder::current()
     return m_current;
 }
 
-NavigationWidgetPlaceHolder::NavigationWidgetPlaceHolder(Core::IMode *mode, QWidget *parent)
+NavigationWidgetPlaceHolder::NavigationWidgetPlaceHolder(IMode *mode, QWidget *parent)
     :QWidget(parent), m_mode(mode)
 {
     setLayout(new QVBoxLayout);
     layout()->setMargin(0);
-    connect(Core::ModeManager::instance(), SIGNAL(currentModeAboutToChange(Core::IMode*)),
-            this, SLOT(currentModeAboutToChange(Core::IMode*)));
+    connect(ModeManager::instance(), &ModeManager::currentModeAboutToChange,
+            this, &NavigationWidgetPlaceHolder::currentModeAboutToChange);
 }
 
 NavigationWidgetPlaceHolder::~NavigationWidgetPlaceHolder()
@@ -107,7 +108,7 @@ void NavigationWidgetPlaceHolder::applyStoredSize(int width)
 // m_current points to the current PlaceHolder, or zero if there
 // is no PlaceHolder in this mode
 // And that the parent of the NavigationWidget gets the correct parent
-void NavigationWidgetPlaceHolder::currentModeAboutToChange(Core::IMode *mode)
+void NavigationWidgetPlaceHolder::currentModeAboutToChange(IMode *mode)
 {
     NavigationWidget *navigationWidget = NavigationWidget::instance();
 
@@ -137,8 +138,8 @@ struct NavigationWidgetPrivate
     ~NavigationWidgetPrivate() { delete m_factoryModel; }
 
     QList<Internal::NavigationSubWidget *> m_subWidgets;
-    QHash<QAction *, Core::Id> m_actionMap;
-    QHash<Core::Id, Core::Command *> m_commandMap;
+    QHash<QAction *, Id> m_actionMap;
+    QHash<Id, Command *> m_commandMap;
     QStandardItemModel *m_factoryModel;
 
     bool m_shown;
@@ -180,7 +181,7 @@ NavigationWidget *NavigationWidget::instance()
 
 void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> &factories)
 {
-    Context navicontext(Core::Constants::C_NAVIGATION_PANE);
+    Context navicontext(Constants::C_NAVIGATION_PANE);
 
     foreach (INavigationWidgetFactory *factory, factories) {
         const Id id = factory->id();
@@ -417,7 +418,7 @@ void NavigationWidget::setSuppressed(bool b)
 int NavigationWidget::factoryIndex(Id id)
 {
     for (int row = 0; row < d->m_factoryModel->rowCount(); ++row) {
-        if (d->m_factoryModel->data(d->m_factoryModel->index(row, 0), FactoryIdRole).value<Core::Id>() == id)
+        if (d->m_factoryModel->data(d->m_factoryModel->index(row, 0), FactoryIdRole).value<Id>() == id)
             return row;
     }
     return -1;

@@ -37,7 +37,7 @@
 
 namespace Core {
 
-uint qHash(const Core::LocatorFilterEntry &entry)
+uint qHash(const LocatorFilterEntry &entry)
 {
     if (entry.internalData.canConvert(QVariant::String))
         return QT_PREPEND_NAMESPACE(qHash)(entry.internalData.toString());

@@ -61,7 +61,7 @@ void MimeTypeMagicDialog::validateAccept()
 {
     if (ui.valueLineEdit->text().isEmpty()
             || (ui.byteRadioButton->isChecked()
-                && !Core::MagicByteRule::validateByteSequence(ui.valueLineEdit->text()))) {
+                && !MagicByteRule::validateByteSequence(ui.valueLineEdit->text()))) {
         QMessageBox::critical(0, tr("Error"), tr("Not a valid byte pattern."));
         return;
     }
@@ -71,7 +71,7 @@ void MimeTypeMagicDialog::validateAccept()
 void MimeTypeMagicDialog::setMagicData(const MagicData &data)
 {
     ui.valueLineEdit->setText(data.m_value);
-    if (data.m_type == Core::MagicStringRule::kMatchType)
+    if (data.m_type == MagicStringRule::kMatchType)
         ui.stringRadioButton->setChecked(true);
     else
         ui.byteRadioButton->setChecked(true);
@@ -85,9 +85,9 @@ MagicData MimeTypeMagicDialog::magicData() const
     MagicData data;
     data.m_value = ui.valueLineEdit->text();
     if (ui.stringRadioButton->isChecked())
-        data.m_type = Core::MagicStringRule::kMatchType;
+        data.m_type = MagicStringRule::kMatchType;
     else
-        data.m_type = Core::MagicByteRule::kMatchType;
+        data.m_type = MagicByteRule::kMatchType;
     data.m_start = ui.startRangeSpinBox->value();
     data.m_end = ui.endRangeSpinBox->value();
     data.m_priority = ui.prioritySpinBox->value();

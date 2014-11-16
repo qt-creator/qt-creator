@@ -157,7 +157,7 @@ MainWindow::MainWindow() :
     if (Utils::HostOsInfo::isLinuxHost())
         QApplication::setWindowIcon(QIcon(QLatin1String(Constants::ICON_QTLOGO_128)));
     QCoreApplication::setApplicationName(QLatin1String("QtCreator"));
-    QCoreApplication::setApplicationVersion(QLatin1String(Core::Constants::IDE_VERSION_LONG));
+    QCoreApplication::setApplicationVersion(QLatin1String(Constants::IDE_VERSION_LONG));
     QCoreApplication::setOrganizationName(QLatin1String(Constants::IDE_SETTINGSVARIANT_STR));
     QString baseName = QApplication::style()->objectName();
     // Sometimes we get the standard windows 95 style as a fallback
@@ -330,9 +330,9 @@ bool MainWindow::init(QString *errorMessage)
 
     // Add widget to the bottom, we create the view here instead of inside the
     // OutputPaneManager, since the StatusBarManager needs to be initialized before
-    m_outputView = new Core::StatusBarWidget;
+    m_outputView = new StatusBarWidget;
     m_outputView->setWidget(OutputPaneManager::instance()->buttonsWidget());
-    m_outputView->setPosition(Core::StatusBarWidget::Second);
+    m_outputView->setPosition(StatusBarWidget::Second);
     ExtensionSystem::PluginManager::addObject(m_outputView);
     MessageManager::init();
     return true;
@@ -791,7 +791,7 @@ IDocument *MainWindow::openFiles(const QStringList &fileNames, ICore::OpenFilesF
                 if (!res)
                     res = document;
                 if (flags & ICore::SwitchMode)
-                    ModeManager::activateMode(Id(Core::Constants::MODE_EDIT));
+                    ModeManager::activateMode(Id(Constants::MODE_EDIT));
             }
         } else {
             QFlags<EditorManager::OpenEditorFlag> emFlags;
@@ -1068,7 +1068,7 @@ void MainWindow::aboutToShowRecentFiles()
     if (hasRecentFiles) {
         menu->addSeparator();
         QAction *action = menu->addAction(QCoreApplication::translate(
-                                                     "Core", Core::Constants::TR_CLEAR_MENU));
+                                                     "Core", Constants::TR_CLEAR_MENU));
         connect(action, SIGNAL(triggered()), DocumentManager::instance(), SLOT(clearRecentFiles()));
     }
 }

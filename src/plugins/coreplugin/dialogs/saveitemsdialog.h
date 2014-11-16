@@ -54,13 +54,12 @@ class SaveItemsDialog : public QDialog
     Q_OBJECT
 
 public:
-    SaveItemsDialog(QWidget *parent,
-        QList<Core::IDocument *> items);
+    SaveItemsDialog(QWidget *parent, QList<IDocument *> items);
 
     void setMessage(const QString &msg);
     void setAlwaysSaveMessage(const QString &msg);
     bool alwaysSaveChecked();
-    QList<Core::IDocument *> itemsToSave() const;
+    QList<IDocument *> itemsToSave() const;
 
 private slots:
     void collectItemsToSave();
@@ -71,7 +70,7 @@ private:
     void adjustButtonWidths();
 
     Ui::SaveItemsDialog m_ui;
-    QList<Core::IDocument*> m_itemsToSave;
+    QList<IDocument*> m_itemsToSave;
 };
 
 } // namespace Internal

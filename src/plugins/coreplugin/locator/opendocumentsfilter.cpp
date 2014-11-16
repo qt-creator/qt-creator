@@ -55,7 +55,7 @@ OpenDocumentsFilter::OpenDocumentsFilter()
             this, SLOT(refreshInternally()));
 }
 
-QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry_)
+QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry_)
 {
     QList<LocatorFilterEntry> goodEntries;
     QList<LocatorFilterEntry> betterEntries;

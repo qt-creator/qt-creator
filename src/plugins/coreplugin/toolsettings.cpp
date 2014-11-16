@@ -49,11 +49,11 @@ using namespace Core::Internal;
 ToolSettings::ToolSettings(QObject *parent) :
     IOptionsPage(parent)
 {
-    setId(Core::Constants::SETTINGS_ID_TOOLS);
+    setId(Constants::SETTINGS_ID_TOOLS);
     setDisplayName(tr("External Tools"));
-    setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
+    setCategory(Constants::SETTINGS_CATEGORY_CORE);
     setDisplayCategory(QCoreApplication::translate("Core", Constants::SETTINGS_TR_CATEGORY_CORE));
-    setCategoryIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
+    setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
 

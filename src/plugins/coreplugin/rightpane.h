@@ -51,16 +51,14 @@ class CORE_EXPORT RightPanePlaceHolder : public QWidget
     Q_OBJECT
 
 public:
-    explicit RightPanePlaceHolder(Core::IMode *mode, QWidget *parent = 0);
+    explicit RightPanePlaceHolder(IMode *mode, QWidget *parent = 0);
     ~RightPanePlaceHolder();
     static RightPanePlaceHolder *current();
 
-private slots:
-    void currentModeChanged(Core::IMode *);
-
 private:
+    void currentModeChanged(IMode *);
     void applyStoredSize(int width);
-    Core::IMode *m_mode;
+    IMode *m_mode;
     static RightPanePlaceHolder* m_current;
 };
 

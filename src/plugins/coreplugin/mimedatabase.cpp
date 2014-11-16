@@ -1801,7 +1801,7 @@ QList<MimeGlobPattern> MimeDatabasePrivate::toGlobPatterns(const QStringList &pa
 {
     QList<MimeGlobPattern> globPatterns;
     foreach (const QString &pattern, patterns)
-        globPatterns.append(Core::MimeGlobPattern(pattern, weight));
+        globPatterns.append(MimeGlobPattern(pattern, weight));
     return globPatterns;
 }
 

@@ -44,8 +44,8 @@
 #include <QWidget>
 #include <QIcon>
 
-using namespace Core;
-using namespace Core::Internal;
+namespace Core {
+namespace Internal {
 
 EditMode::EditMode() :
     m_splitter(new MiniSplitter),
@@ -73,7 +73,7 @@ EditMode::EditMode() :
     MiniSplitter *splitter = new MiniSplitter;
     splitter->setOrientation(Qt::Vertical);
     splitter->insertWidget(0, rightPaneSplitter);
-    QWidget *outputPane = new Core::OutputPanePlaceHolder(this, splitter);
+    QWidget *outputPane = new OutputPanePlaceHolder(this, splitter);
     outputPane->setObjectName(QLatin1String("EditModeOutputPanePlaceHolder"));
     splitter->insertWidget(1, outputPane);
     splitter->setStretchFactor(0, 3);
@@ -84,8 +84,8 @@ EditMode::EditMode() :
     m_splitter->setStretchFactor(0, 0);
     m_splitter->setStretchFactor(1, 1);
 
-    connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
-            this, SLOT(grabEditorManager(Core::IMode*)));
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
+            this, &EditMode::grabEditorManager);
     m_splitter->setFocusProxy(editorPlaceHolder);
 
     IContext *modeContextObject = new IContext(this);
@@ -103,7 +103,7 @@ EditMode::~EditMode()
     delete m_splitter;
 }
 
-void EditMode::grabEditorManager(Core::IMode *mode)
+void EditMode::grabEditorManager(IMode *mode)
 {
     if (mode != this)
         return;
@@ -111,3 +111,6 @@ void EditMode::grabEditorManager(Core::IMode *mode)
     if (EditorManager::currentEditor())
         EditorManager::currentEditor()->widget()->setFocus();
 }
+
+} // namespace Internal
+} // namespace Core

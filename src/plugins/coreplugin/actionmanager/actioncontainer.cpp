@@ -44,8 +44,8 @@
 
 Q_DECLARE_METATYPE(Core::Internal::MenuActionContainer*)
 
-using namespace Core;
-using namespace Core::Internal;
+namespace Core {
+namespace Internal {
 
 /*!
     \class ActionContainer
@@ -565,3 +565,5 @@ bool MenuBarActionContainer::canBeAddedToMenu() const
     return false;
 }
 
+} // namespace Internal
+} // namespace Core

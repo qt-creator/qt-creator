@@ -43,7 +43,7 @@ LocatorFiltersFilter::LocatorFiltersFilter(Locator *plugin,
                                                LocatorWidget *locatorWidget):
     m_plugin(plugin),
     m_locatorWidget(locatorWidget),
-    m_icon(QIcon(QLatin1String(Core::Constants::ICON_NEXT)))
+    m_icon(QIcon(QLatin1String(Constants::ICON_NEXT)))
 {
     setId("FiltersFilter");
     setDisplayName(tr("Available filters"));
@@ -74,7 +74,7 @@ void LocatorFiltersFilter::prepareSearch(const QString &entry)
     }
 }
 
-QList<LocatorFilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
+QList<LocatorFilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
 {
     Q_UNUSED(entry) // search is already done in the GUI thread in prepareSearch
     QList<LocatorFilterEntry> entries;

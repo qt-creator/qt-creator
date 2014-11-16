@@ -551,7 +551,7 @@ void EditorView::goForwardInNavigationHistory()
 }
 
 
-SplitterOrView::SplitterOrView(Core::IEditor *editor)
+SplitterOrView::SplitterOrView(IEditor *editor)
 {
     m_layout = new QStackedLayout(this);
     m_layout->setSizeConstraint(QLayout::SetNoConstraint);
@@ -840,8 +840,8 @@ void SplitterOrView::restoreState(const QByteArray &state)
         if (!QFile::exists(fileName))
             return;
         IEditor *e = EditorManagerPrivate::openEditor(view(), fileName, Id::fromString(id),
-                                                      Core::EditorManager::IgnoreNavigationHistory
-                                                      | Core::EditorManager::DoNotChangeCurrentEditor);
+                                                      EditorManager::IgnoreNavigationHistory
+                                                      | EditorManager::DoNotChangeCurrentEditor);
 
         if (!e) {
             DocumentModel::Entry *entry = DocumentModel::firstRestoredEntry();

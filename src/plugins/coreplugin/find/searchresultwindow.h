@@ -128,7 +128,7 @@ private:
     QVariant m_userData;
 };
 
-class CORE_EXPORT SearchResultWindow : public Core::IOutputPane
+class CORE_EXPORT SearchResultWindow : public IOutputPane
 {
     Q_OBJECT
 

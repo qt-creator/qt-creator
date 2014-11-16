@@ -90,7 +90,7 @@ class CORE_EXPORT IOptionsPageProvider : public QObject
 public:
     IOptionsPageProvider(QObject *parent = 0) : QObject(parent) {}
 
-    Core::Id category() const { return m_category; }
+    Id category() const { return m_category; }
     QString displayCategory() const { return m_displayCategory; }
     QIcon categoryIcon() const { return QIcon(m_categoryIcon); }
 
@@ -98,11 +98,11 @@ public:
     virtual bool matches(const QString & /* searchKeyWord*/) const = 0;
 
 protected:
-    void setCategory(Core::Id category) { m_category = category; }
+    void setCategory(Id category) { m_category = category; }
     void setDisplayCategory(const QString &displayCategory) { m_displayCategory = displayCategory; }
     void setCategoryIcon(const QString &categoryIcon) { m_categoryIcon = categoryIcon; }
 
-    Core::Id m_category;
+    Id m_category;
     QString m_displayCategory;
     QString m_categoryIcon;
 };

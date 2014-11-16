@@ -115,7 +115,7 @@ void Locator::loadSettingsHelper(S *settings)
     QList<ILocatorFilter *> customFilters;
     const QStringList keys = settings->childKeys();
     int count = 0;
-    Core::Id baseId(Constants::CUSTOM_FILTER_BASEID);
+    Id baseId(Constants::CUSTOM_FILTER_BASEID);
     foreach (const QString &key, keys) {
         ILocatorFilter *filter = new DirectoryFilter(baseId.withSuffix(++count));
         filter->restoreState(settings->value(key).toByteArray());

@@ -49,19 +49,19 @@
 
 Q_DECLARE_METATYPE(Core::Internal::ShortcutItem*)
 
-using namespace Core;
-using namespace Core::Internal;
+namespace Core {
+namespace Internal {
 
 ShortcutSettings::ShortcutSettings(QObject *parent)
     : CommandMappings(parent), m_initialized(false)
 {
     connect(ActionManager::instance(), SIGNAL(commandListChanged()), this, SLOT(initialize()));
 
-    setId(Core::Constants::SETTINGS_ID_SHORTCUTS);
+    setId(Constants::SETTINGS_ID_SHORTCUTS);
     setDisplayName(tr("Keyboard"));
-    setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE));
-    setCategoryIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
+    setCategory(Constants::SETTINGS_CATEGORY_CORE);
+    setDisplayCategory(QCoreApplication::translate("Core", Constants::SETTINGS_TR_CATEGORY_CORE));
+    setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
 QWidget *ShortcutSettings::widget()
@@ -411,3 +411,5 @@ void ShortcutSettings::markCollisions(ShortcutItem *item)
     item->m_item->setForeground(2, hasCollision ? Qt::red : commandList()->palette().foreground());
 }
 
+} // namespace Internal
+} // namespace Core

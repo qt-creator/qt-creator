@@ -109,7 +109,7 @@ QObject *HelpManager::instance()
 
 QString HelpManager::collectionFilePath()
 {
-    return QDir::cleanPath(Core::ICore::userResourcePath()
+    return QDir::cleanPath(ICore::userResourcePath()
         + QLatin1String("/helpcollection.qhc"));
 }
 
@@ -448,7 +448,7 @@ void HelpManager::verifyDocumenation()
 
 QStringList HelpManagerPrivate::documentationFromInstaller()
 {
-    QSettings *installSettings = Core::ICore::settings();
+    QSettings *installSettings = ICore::settings();
     QStringList documentationPaths = installSettings->value(QLatin1String("Help/InstalledDocumentation"))
             .toStringList();
     QStringList documentationFiles;

@@ -97,13 +97,13 @@ void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
 
     QAction *action = new QAction(m_locatorWidget->windowIcon(), m_locatorWidget->windowTitle(), this);
     Command *cmd = ActionManager::registerAction(action, "QtCreator.Locate",
-                                                             Context(Core::Constants::C_GLOBAL));
+                                                             Context(Constants::C_GLOBAL));
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+K")));
     connect(action, SIGNAL(triggered()), this, SLOT(openLocator()));
     connect(cmd, SIGNAL(keySequenceChanged()), this, SLOT(updatePlaceholderText()));
     updatePlaceholderText(cmd);
 
-    ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
+    ActionContainer *mtools = ActionManager::actionContainer(Constants::M_TOOLS);
     mtools->addAction(cmd);
 
     m_corePlugin->addObject(new LocatorManager(m_locatorWidget));
@@ -252,7 +252,7 @@ void Locator::refresh(QList<ILocatorFilter *> filters)
         filters = m_filters;
     QFuture<void> task = QtConcurrent::run(&ILocatorFilter::refresh, filters);
     FutureProgress *progress =
-        ProgressManager::addTask(task, tr("Updating Locator Caches"), Core::Constants::TASK_INDEX);
+        ProgressManager::addTask(task, tr("Updating Locator Caches"), Constants::TASK_INDEX);
     connect(progress, SIGNAL(finished()), this, SLOT(saveSettings()));
 }
 

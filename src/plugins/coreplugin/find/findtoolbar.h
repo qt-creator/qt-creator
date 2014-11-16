@@ -148,7 +148,7 @@ private:
     void setFindFlag(FindFlag flag, bool enabled);
     bool hasFindFlag(FindFlag flag);
     FindFlags effectiveFindFlags();
-    Core::FindToolBarPlaceHolder *findToolBarPlaceHolder() const;
+    FindToolBarPlaceHolder *findToolBarPlaceHolder() const;
     bool toolBarHasFocus() const;
     bool canShowAllControls(bool replaceIsVisible) const;
     void acceptCandidateAndMoveToolBar();

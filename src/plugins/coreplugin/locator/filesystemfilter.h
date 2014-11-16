@@ -44,15 +44,15 @@ namespace Internal {
 
 class LocatorWidget;
 
-class FileSystemFilter : public Core::ILocatorFilter
+class FileSystemFilter : public ILocatorFilter
 {
     Q_OBJECT
 
 public:
     explicit FileSystemFilter(LocatorWidget *locatorWidget);
     void prepareSearch(const QString &entry);
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
-    void accept(Core::LocatorFilterEntry selection) const;
+    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry);
+    void accept(LocatorFilterEntry selection) const;
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
     bool openConfigDialog(QWidget *parent, bool &needsRefresh);

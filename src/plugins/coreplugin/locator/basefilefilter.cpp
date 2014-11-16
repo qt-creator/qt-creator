@@ -45,7 +45,7 @@ BaseFileFilter::BaseFileFilter()
 {
 }
 
-QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &origEntry)
+QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &origEntry)
 {
     QList<LocatorFilterEntry> betterEntries;
     QList<LocatorFilterEntry> goodEntries;
@@ -105,7 +105,7 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<Core::Loca
     return betterEntries;
 }
 
-void BaseFileFilter::accept(Core::LocatorFilterEntry selection) const
+void BaseFileFilter::accept(LocatorFilterEntry selection) const
 {
     EditorManager::openEditor(selection.internalData.toString(), Id(),
                               EditorManager::CanContainLineNumber);

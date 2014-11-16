@@ -205,7 +205,7 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
 
 SearchResultWidget::~SearchResultWidget()
 {
-    if (m_infoBar.containsInfo(Core::Id(SIZE_WARNING_ID)))
+    if (m_infoBar.containsInfo(Id(SIZE_WARNING_ID)))
         cancelAfterSizeWarning();
 }
 
@@ -240,10 +240,10 @@ void SearchResultWidget::addResults(const QList<SearchResultItem> &items, Search
     updateMatchesFoundLabel();
     if (firstItems) {
         if (!m_dontAskAgainGroup.isEmpty()) {
-            Core::Id undoWarningId = Core::Id("warninglabel/").withSuffix(m_dontAskAgainGroup);
+            Id undoWarningId = Id("warninglabel/").withSuffix(m_dontAskAgainGroup);
             if (m_infoBar.canInfoBeAdded(undoWarningId)) {
-                Core::InfoBarEntry info(undoWarningId, tr("This change cannot be undone."),
-                                        Core::InfoBarEntry::GlobalSuppressionEnabled);
+                InfoBarEntry info(undoWarningId, tr("This change cannot be undone."),
+                                  InfoBarEntry::GlobalSuppressionEnabled);
                 m_infoBar.addInfo(info);
             }
         }
@@ -261,13 +261,13 @@ void SearchResultWidget::addResults(const QList<SearchResultItem> &items, Search
     } else if (m_count <= SEARCHRESULT_WARNING_LIMIT) {
         return;
     } else {
-        Core::Id sizeWarningId(SIZE_WARNING_ID);
+        Id sizeWarningId(SIZE_WARNING_ID);
         if (!m_infoBar.canInfoBeAdded(sizeWarningId))
             return;
         emit paused(true);
-        Core::InfoBarEntry info(sizeWarningId,
-                                tr("The search resulted in more than %n items, do you still want to continue?",
-                                0, SEARCHRESULT_WARNING_LIMIT));
+        InfoBarEntry info(sizeWarningId,
+                          tr("The search resulted in more than %n items, do you still want to continue?",
+                             0, SEARCHRESULT_WARNING_LIMIT));
         info.setCancelButtonInfo(tr("Cancel"), [this]() { cancelAfterSizeWarning(); });
         info.setCustomButtonInfo(tr("Continue"), [this]() { continueAfterSizeWarning(); });
         m_infoBar.addInfo(info);
@@ -402,7 +402,7 @@ void SearchResultWidget::restart()
     m_replaceButton->setEnabled(false);
     m_searchResultTreeView->clear();
     m_count = 0;
-    Core::Id sizeWarningId(SIZE_WARNING_ID);
+    Id sizeWarningId(SIZE_WARNING_ID);
     m_infoBar.removeInfo(sizeWarningId);
     m_infoBar.enableInfo(sizeWarningId);
     m_cancelButton->setVisible(true);
@@ -425,7 +425,7 @@ void SearchResultWidget::setSearchAgainEnabled(bool enabled)
 
 void SearchResultWidget::finishSearch(bool canceled)
 {
-    Core::Id sizeWarningId(SIZE_WARNING_ID);
+    Id sizeWarningId(SIZE_WARNING_ID);
     m_infoBar.removeInfo(sizeWarningId);
     m_infoBar.enableInfo(sizeWarningId);
     m_replaceTextEdit->setEnabled(m_count > 0);
@@ -443,13 +443,13 @@ void SearchResultWidget::sendRequestPopup()
 
 void SearchResultWidget::continueAfterSizeWarning()
 {
-    m_infoBar.suppressInfo(Core::Id(SIZE_WARNING_ID));
+    m_infoBar.suppressInfo(Id(SIZE_WARNING_ID));
     emit paused(false);
 }
 
 void SearchResultWidget::cancelAfterSizeWarning()
 {
-    m_infoBar.suppressInfo(Core::Id(SIZE_WARNING_ID));
+    m_infoBar.suppressInfo(Id(SIZE_WARNING_ID));
     emit cancelled();
     emit paused(false);
 }
@@ -473,7 +473,7 @@ void SearchResultWidget::handleReplaceButton()
 void SearchResultWidget::cancel()
 {
     m_cancelButton->setVisible(false);
-    if (m_infoBar.containsInfo(Core::Id(SIZE_WARNING_ID)))
+    if (m_infoBar.containsInfo(Id(SIZE_WARNING_ID)))
         cancelAfterSizeWarning();
     else
         emit cancelled();

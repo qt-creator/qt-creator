@@ -228,7 +228,7 @@ class CORE_EXPORT TestVersionControl : public IVersionControl
 {
     Q_OBJECT
 public:
-    TestVersionControl(Core::Id id, const QString &name) :
+    TestVersionControl(Id id, const QString &name) :
         m_id(id), m_displayName(name), m_dirCount(0), m_fileCount(0)
     { }
     ~TestVersionControl();

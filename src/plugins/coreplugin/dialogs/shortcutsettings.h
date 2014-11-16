@@ -56,7 +56,7 @@ struct ShortcutItem
 };
 
 
-class ShortcutSettings : public Core::CommandMappings
+class ShortcutSettings : public CommandMappings
 {
     Q_OBJECT
 

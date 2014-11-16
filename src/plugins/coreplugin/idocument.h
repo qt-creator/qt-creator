@@ -78,8 +78,8 @@ public:
     IDocument(QObject *parent = 0);
     virtual ~IDocument();
 
-    void setId(Core::Id id);
-    Core::Id id() const;
+    void setId(Id id);
+    Id id() const;
 
     virtual bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false) = 0;
     virtual bool setContents(const QByteArray &contents);

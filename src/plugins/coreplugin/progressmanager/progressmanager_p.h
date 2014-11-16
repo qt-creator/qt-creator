@@ -105,7 +105,7 @@ private:
     QList<FutureProgress *> m_taskList;
     QMap<QFutureWatcher<void> *, Id> m_runningTasks;
     QFutureWatcher<void> *m_applicationTask;
-    Core::StatusBarWidget *m_statusBarWidgetContainer;
+    StatusBarWidget *m_statusBarWidgetContainer;
     QWidget *m_statusBarWidget;
     QWidget *m_summaryProgressWidget;
     QHBoxLayout *m_summaryProgressLayout;

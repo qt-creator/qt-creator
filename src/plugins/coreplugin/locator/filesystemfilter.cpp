@@ -76,7 +76,8 @@ void FileSystemFilter::prepareSearch(const QString &entry)
     }
 }
 
-QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
+QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
+                                                       const QString &entry)
 {
     QList<LocatorFilterEntry> goodEntries;
     QList<LocatorFilterEntry> betterEntries;
