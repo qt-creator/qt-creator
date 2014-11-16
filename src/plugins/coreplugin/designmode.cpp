@@ -247,13 +247,10 @@ void DesignMode::updateActions()
 
 void DesignMode::updateContext(Core::IMode *newMode, Core::IMode *oldMode)
 {
-    if (newMode == this) {
-        // Apply active context
-        Core::ICore::updateAdditionalContexts(Context(), d->m_activeContext);
-    } else if (oldMode == this) {
-        // Remove active context
-        Core::ICore::updateAdditionalContexts(d->m_activeContext, Context());
-    }
+    if (newMode == this)
+        ICore::addAdditionalContext(d->m_activeContext);
+    else if (oldMode == this)
+        ICore::removeAdditionalContext(d->m_activeContext);
 }
 
 void DesignMode::setActiveContext(const Context &context)
