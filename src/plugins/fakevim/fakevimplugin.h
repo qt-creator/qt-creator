@@ -148,6 +148,7 @@ private slots:
 
     void test_vim_visual_d();
     void test_vim_Visual_d();
+    void test_vim_visual_block_D();
 
     void test_macros();
 

@@ -3584,6 +3584,21 @@ void FakeVimPlugin::test_vim_Visual_d()
     KEYS("P",     '|' + lmid(0,1)+'\n' + lmid(3));
 }
 
+void FakeVimPlugin::test_vim_visual_block_D()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText("abc def" N "ghi" N "" N "jklm");
+    KEYS("l<C-V>3j", "abc def" N "ghi" N "" N "jk" X "lm");
+    KEYS("D", X "a" N "g" N "" N "j");
+
+    KEYS("u", "a" X "bc def" N "ghi" N "" N "jklm");
+    KEYS("<C-R>", X "a" N "g" N "" N "j");
+    KEYS("u", "a" X "bc def" N "ghi" N "" N "jklm");
+    KEYS(".", X "a" N "g" N "" N "j");
+}
+
 void FakeVimPlugin::test_macros()
 {
     TestData data;

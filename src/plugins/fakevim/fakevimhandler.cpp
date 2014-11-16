@@ -2940,6 +2940,8 @@ void FakeVimHandler::Private::pushUndoState(bool overwrite)
             pos = qMin(pos, anchor());
             if (isVisualLineMode())
                 pos = firstPositionInLine(lineForPosition(pos));
+            else if (isVisualBlockMode())
+                pos = blockAt(pos).position() + qMin(columnAt(anchor()), columnAt(position()));
         } else if (g.movetype == MoveLineWise && hasConfig(ConfigStartOfLine)) {
             QTextCursor tc = m_cursor;
             if (g.submode == ShiftLeftSubMode || g.submode == ShiftRightSubMode
@@ -3885,10 +3887,7 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         moveVertically(-count);
     } else if (input.is('l') || input.isKey(Key_Right) || input.is(' ')) {
         g.movetype = MoveExclusive;
-        bool pastEnd = count >= rightDist() - 1;
         moveRight(qMax(0, qMin(count, rightDist() - (g.submode == NoSubMode))));
-        if (pastEnd && isVisualMode())
-            m_visualTargetColumn = -1;
     } else if (input.is('L')) {
         const CursorPosition pos(lineToBlockNumber(lineOnBottom(count)), 0);
         setCursorPosition(&m_cursor, pos);
@@ -4156,15 +4155,16 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             leaveVisualMode();
     } else if ((input.is('d') || input.is('x') || input.isKey(Key_Delete))
             && isVisualMode()) {
-        pushUndoState();
         setDotCommand(visualDotCommand() + QLatin1Char('x'));
         cutSelectedText();
     } else if (input.is('D') && isNoVisualMode()) {
         handleAs(_("%1d$"));
     } else if ((input.is('D') || input.is('X')) && isVisualMode()) {
-        setDotCommand(visualDotCommand() + QLatin1Char('X'));
+        setDotCommand(visualDotCommand() + input.toString());
         if (isVisualCharMode())
             toggleVisualMode(VisualLineMode);
+        if (isVisualBlockMode() && input.is('D'))
+            m_visualTargetColumn = -1;
         cutSelectedText();
     } else if (input.isControl('d')) {
         const int scrollOffset = windowScrollOffset();
@@ -7161,6 +7161,8 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
 
 void FakeVimHandler::Private::cutSelectedText()
 {
+    pushUndoState();
+
     bool visualMode = isVisualMode();
     leaveVisualMode();
 
@@ -7439,7 +7441,7 @@ void FakeVimHandler::Private::leaveVisualMode()
         g.rangemode = RangeCharMode;
         g.movetype = MoveInclusive;
     } else if (isVisualBlockMode()) {
-        g.rangemode = RangeBlockMode;
+        g.rangemode = m_visualTargetColumn == -1 ? RangeBlockAndTailMode : RangeBlockMode;
         g.movetype = MoveInclusive;
     }
 
@@ -7735,7 +7737,6 @@ void FakeVimHandler::Private::enterVisualInsertMode(QChar command)
                                                              : AppendBlockInsertMode;
         } else if (change) {
             m_visualBlockInsert = ChangeBlockInsertMode;
-            pushUndoState();
             beginEditBlock();
             cutSelectedText();
             endEditBlock();
