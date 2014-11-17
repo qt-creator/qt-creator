@@ -42,13 +42,15 @@ int MemoryUsageModel::rowMaxValue(int rowNumber) const
     return m_maxSize;
 }
 
-int MemoryUsageModel::row(int index) const
+int MemoryUsageModel::expandedRow(int index) const
 {
     int type = selectionId(index);
-    if (type == QmlDebug::HeapPage || type == QmlDebug::LargeItem)
-        return 1;
-    else
-        return 2;
+    return (type == QmlDebug::HeapPage || type == QmlDebug::LargeItem) ? 1 : 2;
+}
+
+int MemoryUsageModel::collapsedRow(int index) const
+{
+    return expandedRow(index);
 }
 
 int MemoryUsageModel::typeId(int index) const

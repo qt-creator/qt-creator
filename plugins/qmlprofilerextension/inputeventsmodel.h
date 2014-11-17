@@ -38,7 +38,8 @@ public:
     QColor color(int index) const;
     QVariantList labels() const;
     QVariantMap details(int index) const;
-    int row(int index) const;
+    int expandedRow(int index) const;
+    int collapsedRow(int index) const;
     void loadData();
     void clear();
 

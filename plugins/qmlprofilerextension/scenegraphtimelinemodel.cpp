@@ -77,9 +77,14 @@ SceneGraphTimelineModel::SceneGraphTimelineModel(QmlProfilerModelManager *manage
     announceFeatures(1 << QmlDebug::ProfileSceneGraph);
 }
 
-int SceneGraphTimelineModel::row(int index) const
+int SceneGraphTimelineModel::expandedRow(int index) const
 {
-    return expanded() ? (selectionId(index) + 1) : m_data[index].rowNumberCollapsed;
+    return selectionId(index) + 1;
+}
+
+int SceneGraphTimelineModel::collapsedRow(int index) const
+{
+    return m_data[index].rowNumberCollapsed;
 }
 
 int SceneGraphTimelineModel::typeId(int index) const

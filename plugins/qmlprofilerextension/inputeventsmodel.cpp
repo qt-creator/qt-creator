@@ -70,11 +70,15 @@ QVariantMap InputEventsModel::details(int index) const
     return result;
 }
 
-int InputEventsModel::row(int index) const
+int InputEventsModel::expandedRow(int index) const
 {
-    if (!expanded())
-        return 1;
     return selectionId(index) == QmlDebug::Mouse ? 1 : 2;
+}
+
+int InputEventsModel::collapsedRow(int index) const
+{
+    Q_UNUSED(index)
+    return 1;
 }
 
 void InputEventsModel::loadData()

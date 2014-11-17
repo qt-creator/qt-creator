@@ -43,10 +43,13 @@ int PixmapCacheModel::rowMaxValue(int rowNumber) const
     }
 }
 
-int PixmapCacheModel::row(int index) const
+int PixmapCacheModel::expandedRow(int index) const
 {
-    if (expanded())
-        return selectionId(index) + 1;
+    return selectionId(index) + 1;
+}
+
+int PixmapCacheModel::collapsedRow(int index) const
+{
     return m_data[index].rowNumberCollapsed;
 }
 
