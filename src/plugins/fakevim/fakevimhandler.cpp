@@ -3377,12 +3377,17 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         || g.submode == YankSubMode
         || g.submode == InvertCaseSubMode
         || g.submode == DownCaseSubMode
-        || g.submode == UpCaseSubMode) {
+        || g.submode == UpCaseSubMode
+        || g.submode == IndentSubMode
+        || g.submode == ShiftLeftSubMode
+        || g.submode == ShiftRightSubMode)
+    {
         fixSelection();
 
-        if (g.submode != InvertCaseSubMode
-            && g.submode != DownCaseSubMode
-            && g.submode != UpCaseSubMode) {
+        if (g.submode == ChangeSubMode
+            || g.submode == DeleteSubMode
+            || g.submode == YankSubMode)
+        {
             yankText(currentRange(), m_register);
         }
     }
@@ -8133,16 +8138,26 @@ bool FakeVimHandler::Private::selectBlockTextObject(bool inner,
     if (p2 == -1)
         return false;
 
-    if (inner)
+    g.movetype = MoveExclusive;
+
+    if (inner) {
         p1 += sleft.size();
-    else
+        bool moveStart = characterAt(p1) == ParagraphSeparator;
+        bool moveEnd = isFirstNonBlankOnLine(p2);
+        if (moveStart)
+            ++p1;
+        if (moveEnd)
+            p2 = blockAt(p2).position() - 1;
+        if (moveStart && moveEnd)
+            g.movetype = MoveLineWise;
+    } else {
         p2 -= sright.size() - 2;
+    }
 
     if (isVisualMode())
         --p2;
 
     setAnchorAndPosition(p1, p2);
-    g.movetype = MoveExclusive;
 
     return true;
 }

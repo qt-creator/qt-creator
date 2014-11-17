@@ -1829,6 +1829,59 @@ void FakeVimPlugin::test_vim_indent()
     data.setText("abc");
     KEYS(">>", "\t\t abc");
     INTEGRITY(false);
+
+    // indent inner block
+    data.doCommand("set expandtab");
+    data.doCommand("set shiftwidth=2");
+    data.setText("int main()" N
+         "{" N
+         "int i = 0;" N
+         X "return i;" N
+         "}" N
+         "");
+    KEYS(">i{",
+         "int main()" N
+         "{" N
+         "  " X "int i = 0;" N
+         "  return i;" N
+         "}" N
+         "");
+    KEYS(">i}",
+         "int main()" N
+         "{" N
+         "    " X "int i = 0;" N
+         "    return i;" N
+         "}" N
+         "");
+    KEYS("<i}",
+         "int main()" N
+         "{" N
+         "  " X "int i = 0;" N
+         "  return i;" N
+         "}" N
+         "");
+
+    data.doCommand("set expandtab");
+    data.doCommand("set shiftwidth=2");
+    data.setText("int main() {" N
+         "return i;" N
+         X "}" N
+         "");
+    KEYS("l>i{",
+         "int main() {" N
+         "  " X "return i;" N
+         "}" N
+         "");
+    KEYS("l>i}",
+         "int main() {" N
+         "    " X "return i;" N
+         "}" N
+         "");
+    KEYS("l<i}",
+         "int main() {" N
+         "  " X "return i;" N
+         "}" N
+         "");
 }
 
 void FakeVimPlugin::test_vim_marks()
