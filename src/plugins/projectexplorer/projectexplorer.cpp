@@ -294,6 +294,7 @@ public:
     bool m_ignoreDocumentManagerChangedFile;
     QStringList m_arguments;
     QList<ProjectPanelFactory *> m_panelFactories;
+    QString m_renameFileError;
 };
 
 ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
@@ -3265,11 +3266,12 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &to)
         FolderNode *folderNode = node->parentFolderNode();
         QString projectDisplayName = folderNode->projectNode()->displayName();
         if (!folderNode->renameFile(orgFilePath, newFilePath)) {
-            QMessageBox::warning(ICore::mainWindow(), tr("Project Editing Failed"),
-                                 tr("The file %1 was renamed to %2, but the project file %3 could not be automatically changed.")
-                                 .arg(orgFilePath)
-                                 .arg(newFilePath)
-                                 .arg(projectDisplayName));
+            dd->m_renameFileError = tr("The file %1 was renamed to %2, but the project file %3 could not be automatically changed.")
+                    .arg(orgFilePath)
+                    .arg(newFilePath)
+                    .arg(projectDisplayName);
+
+            QTimer::singleShot(0, m_instance, SLOT(showRenameFileError()));
         } else {
             dd->setCurrent(SessionManager::projectForFile(newFilePath), newFilePath, 0);
         }
@@ -3279,6 +3281,11 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &to)
 void ProjectExplorerPlugin::setStartupProject()
 {
     setStartupProject(dd->m_currentProject);
+}
+
+void ProjectExplorerPlugin::showRenameFileError()
+{
+    QMessageBox::warning(ICore::mainWindow(), tr("Project Editing Failed"), dd->m_renameFileError);
 }
 
 void ProjectExplorerPlugin::populateOpenWithMenu()
