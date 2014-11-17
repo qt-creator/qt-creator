@@ -433,7 +433,13 @@ DebuggerSettings::DebuggerSettings()
     item->setSettingsKey(debugModeGroup, QLatin1String("CloseBuffersOnExit"));
     item->setCheckable(true);
     item->setDefaultValue(false);
-    insertItem(CloseBuffersOnExit, item);
+    insertItem(CloseSourceBuffersOnExit, item);
+
+    item = new SavedAction(this);
+    item->setSettingsKey(debugModeGroup, QLatin1String("CloseMemoryBuffersOnExit"));
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    insertItem(CloseMemoryBuffersOnExit, item);
 
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("SwitchModeOnExit"));

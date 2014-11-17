@@ -1982,21 +1982,22 @@ void DebuggerPluginPrivate::cleanupViews()
     m_reverseDirectionAction->setChecked(false);
     m_reverseDirectionAction->setEnabled(false);
 
-    if (!boolSetting(CloseBuffersOnExit))
-        return;
+    const bool closeSource = boolSetting(CloseSourceBuffersOnExit);
+    const bool closeMemory = boolSetting(CloseMemoryBuffersOnExit);
 
     QList<IDocument *> toClose;
     foreach (IDocument *document, DocumentModel::openedDocuments()) {
+        const bool isMemory = document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool();
         if (document->property(Constants::OPENED_BY_DEBUGGER).toBool()) {
             bool keepIt = true;
-            if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool())
-                keepIt = false;
-            else if (document->isModified())
+            if (document->isModified())
                 keepIt = true;
             else if (document->filePath().contains(_("qeventdispatcher")))
                 keepIt = false;
+            else if (isMemory)
+                keepIt = !closeMemory;
             else
-                keepIt = (document == EditorManager::currentDocument());
+                keepIt = !closeSource;
 
             if (keepIt)
                 document->setProperty(Constants::OPENED_BY_DEBUGGER, false);

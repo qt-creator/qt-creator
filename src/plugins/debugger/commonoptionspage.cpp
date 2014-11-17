@@ -69,7 +69,8 @@ private:
     QCheckBox *checkBoxFontSizeFollowsEditor;
     QCheckBox *checkBoxUseToolTipsInMainEditor;
     QCheckBox *checkBoxListSourceFiles;
-    QCheckBox *checkBoxCloseBuffersOnExit;
+    QCheckBox *checkBoxCloseSourceBuffersOnExit;
+    QCheckBox *checkBoxCloseMemoryBuffersOnExit;
     QCheckBox *checkBoxSwitchModeOnExit;
     QCheckBox *checkBoxBringToForegroundOnInterrrupt;
     QCheckBox *checkBoxShowQmlObjectTree;
@@ -105,12 +106,17 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     checkBoxListSourceFiles->setToolTip(tr("Populates the source file view automatically. This might slow down debugger startup considerably."));
     checkBoxListSourceFiles->setText(tr("Populate source file view automatically"));
 
-    checkBoxCloseBuffersOnExit = new QCheckBox(behaviorBox);
-    checkBoxCloseBuffersOnExit->setText(tr("Close temporary views on debugger exit"));
-    checkBoxCloseBuffersOnExit->setToolTip(tr("Stopping and stepping in the debugger "
-        "will automatically open source or disassembler views associated with the "
-        "current location. Select this option to automatically close them when "
-        "the debugger exits."));
+    QString t = tr("Stopping and stepping in the debugger "
+        "will automatically open views associated with the current location.") + QLatin1Char('\n');
+    checkBoxCloseSourceBuffersOnExit = new QCheckBox(behaviorBox);
+    checkBoxCloseSourceBuffersOnExit->setText(tr("Close temporary source views on debugger exit"));
+    checkBoxCloseSourceBuffersOnExit->setToolTip(t + tr("Select this option to close "
+            "automatically opened source views when the debugger exits."));
+
+    checkBoxCloseMemoryBuffersOnExit = new QCheckBox(behaviorBox);
+    checkBoxCloseMemoryBuffersOnExit->setText(tr("Close temporary memory views on debugger exit"));
+    checkBoxCloseMemoryBuffersOnExit->setToolTip(t + tr("Select this option to close "
+             "automatically opened memory views when the debugger exits."));
 
     checkBoxSwitchModeOnExit = new QCheckBox(behaviorBox);
     checkBoxSwitchModeOnExit->setText(tr("Switch to previous mode on debugger exit"));
@@ -160,11 +166,12 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     QGridLayout *gridLayout = new QGridLayout(behaviorBox);
     gridLayout->addWidget(checkBoxUseAlternatingRowColors, 0, 0, 1, 1);
     gridLayout->addWidget(checkBoxUseToolTipsInMainEditor, 1, 0, 1, 1);
-    gridLayout->addWidget(checkBoxCloseBuffersOnExit, 2, 0, 1, 1);
-    gridLayout->addWidget(checkBoxBringToForegroundOnInterrrupt, 3, 0, 1, 1);
-    gridLayout->addWidget(checkBoxBreakpointsFullPath, 4, 0, 1, 1);
-    gridLayout->addWidget(checkBoxWarnOnReleaseBuilds, 5, 0, 1, 1);
-    gridLayout->addLayout(horizontalLayout, 6, 0, 1, 2);
+    gridLayout->addWidget(checkBoxCloseSourceBuffersOnExit, 2, 0, 1, 1);
+    gridLayout->addWidget(checkBoxCloseMemoryBuffersOnExit, 3, 0, 1, 1);
+    gridLayout->addWidget(checkBoxBringToForegroundOnInterrrupt, 4, 0, 1, 1);
+    gridLayout->addWidget(checkBoxBreakpointsFullPath, 5, 0, 1, 1);
+    gridLayout->addWidget(checkBoxWarnOnReleaseBuilds, 6, 0, 1, 1);
+    gridLayout->addLayout(horizontalLayout, 7, 0, 1, 2);
 
     gridLayout->addWidget(checkBoxFontSizeFollowsEditor, 0, 1, 1, 1);
     gridLayout->addWidget(checkBoxListSourceFiles, 1, 1, 1, 1);
@@ -186,8 +193,10 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
         checkBoxUseAlternatingRowColors);
     m_group->insert(action(UseToolTipsInMainEditor),
         checkBoxUseToolTipsInMainEditor);
-    m_group->insert(action(CloseBuffersOnExit),
-        checkBoxCloseBuffersOnExit);
+    m_group->insert(action(CloseSourceBuffersOnExit),
+        checkBoxCloseSourceBuffersOnExit);
+    m_group->insert(action(CloseMemoryBuffersOnExit),
+        checkBoxCloseMemoryBuffersOnExit);
     m_group->insert(action(SwitchModeOnExit),
         checkBoxSwitchModeOnExit);
     m_group->insert(action(BreakpointsFullPathByDefault),
