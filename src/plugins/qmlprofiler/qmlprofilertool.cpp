@@ -375,16 +375,10 @@ void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber,
     if (!fileInfo.exists() || !fileInfo.isReadable())
         return;
 
-    IEditor *editor = EditorManager::openEditor(projectFileName);
-    TextEditor::BaseTextEditor *textEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor);
-
-    if (textEditor) {
-        EditorManager::addCurrentPositionToNavigationHistory();
-        // textEditor counts columns starting with 0, but the ASTs store the
-        // location starting with 1, therefore the -1 in the call to gotoLine
-        textEditor->gotoLine(lineNumber, columnNumber - 1);
-        textEditor->widget()->setFocus();
-    }
+    // The text editors count columns starting with 0, but the ASTs store the
+    // location starting with 1, therefore the -1.
+    EditorManager::openEditorAt(projectFileName, lineNumber, columnNumber - 1, Id(),
+                                EditorManager::DoNotSwitchToDesignMode);
 }
 
 void QmlProfilerTool::updateTimeDisplay()
