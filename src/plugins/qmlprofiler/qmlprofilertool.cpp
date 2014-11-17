@@ -328,14 +328,21 @@ void QmlProfilerTool::populateFileFinder(QString projectDirectory, QString activ
 
 void QmlProfilerTool::recordingButtonChanged(bool recording)
 {
+    // clientRecording is our intention for new sessions. That may differ from the state of the
+    // current session, as indicated by the button. To synchronize it, toggle once.
+
     if (recording && d->m_profilerState->currentState() == QmlProfilerStateManager::AppRunning) {
         if (checkForUnsavedNotes()) {
             clearData(); // clear right away, before the application starts
+            if (d->m_profilerState->clientRecording())
+                d->m_profilerState->setClientRecording(false);
             d->m_profilerState->setClientRecording(true);
         } else {
             d->m_recordButton->setChecked(false);
         }
     } else {
+        if (d->m_profilerState->clientRecording() == recording)
+            d->m_profilerState->setClientRecording(!recording);
         d->m_profilerState->setClientRecording(recording);
     }
 }
@@ -348,7 +355,6 @@ void QmlProfilerTool::setRecording(bool recording)
                                                  QLatin1String(":/qmlprofiler/recordOff.png")));
 
     d->m_recordButton->setChecked(recording);
-    d->m_profilerState->setClientRecording(recording);
 
     // manage timer
     if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppRunning) {
