@@ -1903,8 +1903,8 @@ public:
     void updateCursorShape();
     QWidget *editor() const;
     QTextDocument *document() const { return EDITOR(document()); }
-    QChar characterAtCursor() const
-        { return document()->characterAt(position()); }
+    QChar characterAt(int pos) const { return document()->characterAt(pos); }
+    QChar characterAtCursor() const { return characterAt(position()); }
 
     void joinPreviousEditBlock();
     void beginEditBlock(bool largeEditBlock = false);
@@ -2524,7 +2524,7 @@ void FakeVimHandler::Private::commitInsertState()
     // Escape special characters and spaces inserted by user (not by auto-indentation).
     for (int i = lastInsertion.size() - 1; i >= 0; --i) {
         const int pos = insertState.pos1 + i;
-        const ushort c = document()->characterAt(pos).unicode();
+        const ushort c = characterAt(pos).unicode();
         if (c == '<')
             lastInsertion.replace(i, 1, _("<LT>"));
         else if ((c == ' ' || c == '\t') && insertState.spaces.contains(pos))
@@ -2893,8 +2893,8 @@ bool FakeVimHandler::Private::atBoundary(bool end, bool simple, bool onlyWords,
     if (atEmptyLine(tc))
         return true;
     int pos = tc.position();
-    QChar c1 = document()->characterAt(pos);
-    QChar c2 = document()->characterAt(pos + (end ? 1 : -1));
+    QChar c1 = characterAt(pos);
+    QChar c2 = characterAt(pos + (end ? 1 : -1));
     int thisClass = charClass(c1, simple);
     return (!onlyWords || thisClass != 0)
         && (c2.isNull() || c2 == ParagraphSeparator || thisClass != charClass(c2, simple));
@@ -3224,12 +3224,12 @@ void FakeVimHandler::Private::fixSelection()
 
     if (g.movetype == MoveInclusive) {
         // If position or anchor is after end of non-empty line, include line break in selection.
-        if (document()->characterAt(position()) == ParagraphSeparator) {
+        if (characterAtCursor() == ParagraphSeparator) {
             if (!atEmptyLine()) {
                 setPosition(position() + 1);
                 return;
             }
-        } else if (document()->characterAt(anchor()) == ParagraphSeparator) {
+        } else if (characterAt(anchor()) == ParagraphSeparator) {
             QTextCursor tc = m_cursor;
             tc.setPosition(anchor());
             if (!atEmptyLine(tc)) {
@@ -3928,7 +3928,7 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         // cursor is on a non-blank - except if the cursor is on the last
         // character of a word: only the current word will be changed
         bool simple = input.is('W');
-        if (g.submode == ChangeSubMode && !document()->characterAt(position()).isSpace()) {
+        if (g.submode == ChangeSubMode && !characterAtCursor().isSpace()) {
             moveToWordEnd(count, simple, true);
         } else {
             moveToNextWordStart(count, simple, true);
@@ -6081,7 +6081,7 @@ void FakeVimHandler::Private::searchBalanced(bool forward, QChar needle, QChar o
             --pos;
         if (pos == npos)
             return;
-        QChar c = document()->characterAt(pos);
+        QChar c = characterAt(pos);
         if (c == other)
             ++level;
         else if (c == needle)
@@ -6235,11 +6235,10 @@ void FakeVimHandler::Private::moveToFirstNonBlankOnLineVisually()
 
 void FakeVimHandler::Private::moveToNonBlankOnLine(QTextCursor *tc)
 {
-    QTextDocument *doc = tc->document();
     const QTextBlock block = tc->block();
     const int maxPos = block.position() + block.length() - 1;
     int i = tc->position();
-    while (doc->characterAt(i).isSpace() && i < maxPos)
+    while (characterAt(i).isSpace() && i < maxPos)
         ++i;
     tc->setPosition(i, KeepAnchor);
 }
@@ -6459,17 +6458,16 @@ void FakeVimHandler::Private::setupCharClass()
 
 void FakeVimHandler::Private::moveToBoundary(bool simple, bool forward)
 {
-    QTextDocument *doc = document();
-    QTextCursor tc(doc);
+    QTextCursor tc(document());
     tc.setPosition(position());
     if (forward ? tc.atBlockEnd() : tc.atBlockStart())
         return;
 
-    QChar c = document()->characterAt(tc.position() + (forward ? -1 : 1));
+    QChar c = characterAt(tc.position() + (forward ? -1 : 1));
     int lastClass = tc.atStart() ? -1 : charClass(c, simple);
     QTextCursor::MoveOperation op = forward ? Right : Left;
     while (true) {
-        c = doc->characterAt(tc.position());
+        c = characterAt(tc.position());
         int thisClass = charClass(c, simple);
         if (thisClass != lastClass || (forward ? tc.atBlockEnd() : tc.atBlockStart())) {
             if (tc != m_cursor)
@@ -6556,14 +6554,13 @@ bool FakeVimHandler::Private::handleFfTt(const QString &key, bool repeats)
     bool exclusive =  g.subsubdata.is('t') || g.subsubdata.is('T');
     int repeat = count();
     int n = block().position() + (forward ? block().length() : - 1);
-    QTextDocument *doc = document();
     const int d = forward ? 1 : -1;
     // FIXME: This also depends on whether 'cpositions' Vim option contains ';'.
     const int skip = (repeats && repeat == 1 && exclusive) ? d : 0;
     int pos = position() + d + skip;
 
     for (; repeat > 0 && (forward ? pos < n : pos > n); pos += d) {
-        if (doc->characterAt(pos).unicode() == key0)
+        if (characterAt(pos).unicode() == key0)
             --repeat;
     }
 
@@ -6586,7 +6583,7 @@ void FakeVimHandler::Private::moveToMatchingParanthesis()
 
     // If no known parenthesis symbol is under cursor find one on the current line after cursor.
     static const QString parenthesesChars(_("([{}])"));
-    while (!parenthesesChars.contains(document()->characterAt(tc.position())) && !tc.atBlockEnd())
+    while (!parenthesesChars.contains(characterAt(tc.position())) && !tc.atBlockEnd())
         tc.setPosition(tc.position() + 1);
 
     if (tc.atBlockEnd())
@@ -7540,7 +7537,7 @@ void FakeVimHandler::Private::onContentsChanged(int position, int charsRemoved, 
                 }
             } else if (charsAdded > 0 && insertState.insertingSpaces) {
                 for (int i = position; i < position + charsAdded; ++i) {
-                    const QChar c = document()->characterAt(i);
+                    const QChar c = characterAt(i);
                     if (c.unicode() == ' ' || c.unicode() == '\t')
                         insertState.spaces.insert(i);
                 }
@@ -7982,7 +7979,7 @@ void FakeVimHandler::Private::selectTextObject(bool simple, bool inner)
                 moveToWordStart(1, simple, false);
 
             // select trailing spaces if no leading space
-            QChar afterCursor = document()->characterAt(position() + direction);
+            QChar afterCursor = characterAt(position() + direction);
             if (!leadingSpace && afterCursor.isSpace() && afterCursor != ParagraphSeparator
                 && !atBlockStart()) {
                 if (forward)
@@ -7996,7 +7993,7 @@ void FakeVimHandler::Private::selectTextObject(bool simple, bool inner)
             if (setupAnchor && (!characterAtCursor().isSpace() || atBlockEnd())) {
                 int min = block().position();
                 int pos = anchor();
-                while (pos >= min && document()->characterAt(--pos).isSpace()) {}
+                while (pos >= min && characterAt(--pos).isSpace()) {}
                 if (pos >= min)
                     setAnchorAndPosition(pos + 1, position());
             }
@@ -8157,7 +8154,7 @@ bool FakeVimHandler::Private::selectQuotedStringTextObject(bool inner,
     int p2 = tc2.position();
     if (inner) {
         p2 = qMax(p1, p2 - sz);
-        if (document()->characterAt(p1) == ParagraphSeparator)
+        if (characterAt(p1) == ParagraphSeparator)
             ++p1;
     } else {
         p1 -= sz;
