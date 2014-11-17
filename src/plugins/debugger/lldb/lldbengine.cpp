@@ -676,7 +676,8 @@ void LldbEngine::updateBreakpointData(const GdbMi &bkpt, bool added)
         response.address = location["addr"].toAddress();
         response.functionName = location["func"].toUtf8();
     } else {
-        QTC_CHECK(false);
+        // This can happen for pending breakpoints.
+        showMessage(_("NO LOCATIONS (YET) FOR BP %1").arg(response.toString()));
     }
     handler->setResponse(id, response);
     if (added)
