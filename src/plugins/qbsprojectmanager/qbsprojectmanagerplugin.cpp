@@ -373,7 +373,11 @@ void QbsProjectManagerPlugin::buildProductContextMenu()
     QTC_ASSERT(m_selectedNode, return);
     QTC_ASSERT(m_selectedProject, return);
 
-    buildProducts(m_selectedProject, QStringList(m_selectedNode->displayName()));
+    const QbsProductNode * const productNode = qobject_cast<QbsProductNode *>(m_selectedNode);
+    QTC_ASSERT(productNode, return);
+
+    buildProducts(m_selectedProject,
+                  QStringList(QbsProject::uniqueProductName(productNode->qbsProductData())));
 }
 
 void QbsProjectManagerPlugin::buildProduct()
@@ -386,7 +390,8 @@ void QbsProjectManagerPlugin::buildProduct()
     if (!product)
         return;
 
-    buildProducts(m_editorProject, QStringList(product->displayName()));
+    buildProducts(m_editorProject,
+                  QStringList(QbsProject::uniqueProductName(product->qbsProductData())));
 }
 
 void QbsProjectManagerPlugin::buildSubprojectContextMenu()
