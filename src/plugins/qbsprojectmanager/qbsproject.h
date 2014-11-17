@@ -84,7 +84,7 @@ public:
             const QString &newPath, const qbs::ProductData &productData,
             const qbs::GroupData &groupData);
 
-    qbs::BuildJob *build(const qbs::BuildOptions &opts, QStringList products = QStringList());
+    qbs::BuildJob *build(const qbs::BuildOptions &opts, QStringList products, QString &error);
     qbs::CleanJob *clean(const qbs::CleanOptions &opts);
     qbs::InstallJob *install(const qbs::InstallOptions &opts);
 

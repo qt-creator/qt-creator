@@ -98,6 +98,7 @@ void QbsInstallStep::run(QFutureInterface<bool> &fi)
 
     if (!m_job) {
         m_fi->reportResult(false);
+        emit finished();
         return;
     }
 
