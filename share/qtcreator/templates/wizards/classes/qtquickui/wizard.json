@@ -3,7 +3,7 @@
     "kind": "file",
     "id": "R.QtQuickUi",
     "category": "R.Qt",
-    "trDescription": "Creates a QML file with boilerplate code, starting with \"import QtQuick 2.4\".",
+    "trDescription": "Creates a Qt Quick Designer UI form along with a matching QML file for implementation purposes. You can add the form and file to an existing Qt Quick Project.",
     "trDisplayName": "QtQuick UI File",
     "trDisplayCategory": "Qt",
     "icon": "../../global/genericfilewizard.png",
@@ -24,7 +24,7 @@
             [
                 {
                     "name": "Class",
-                    "trDisplayName": "Class name:",
+                    "trDisplayName": "Component name:",
                     "mandatory": true,
                     "type": "LineEdit",
                     "data": { "validator": "(?:[A-Z_][a-zA-Z_0-9]*|)" }
@@ -37,7 +37,7 @@
                 },
                 {
                     "name": "FormClass",
-                    "trDisplayName": "Ui Class name:",
+                    "trDisplayName": "Component form name:",
                     "mandatory": true,
                     "type": "LineEdit",
                     "data": {
