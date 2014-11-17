@@ -519,7 +519,8 @@ void LldbEngine::activateFrame(int frameIndex)
     cmd.arg("thread", threadsHandler()->currentThread().raw());
     runCommand(cmd);
 
-    updateAll();
+    reloadRegisters();
+    updateLocals();
 }
 
 void LldbEngine::selectThread(ThreadId threadId)
