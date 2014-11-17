@@ -308,6 +308,12 @@ void DebuggerKitInformation::addToMacroExpander(Kit *kit, MacroExpander *expande
                                    const DebuggerItem *item = debugger(kit);
                                    return item ? item->engineTypeName() : tr("unknown");
                                });
+    // FIXME: Use better strings.
+    expander->registerVariable("Debugger:Name", tr("Debugger"),
+                               [this, kit]() -> QString {
+                                   const DebuggerItem *item = debugger(kit);
+                                   return item ? item->displayName() : tr("unknown");
+                               });
 }
 
 KitInformation::ItemList DebuggerKitInformation::toUserOutput(const Kit *k) const
