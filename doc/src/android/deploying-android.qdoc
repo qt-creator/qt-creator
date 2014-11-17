@@ -25,9 +25,9 @@
 
     \title Deploying Applications to Android Devices
 
-    On Android, applications are distributed in specially structured type of ZIP
-    packages called APK. \QC supports the following methods of deployment for
-    Android applications:
+    On Android, applications are distributed in a specially structured type of
+    ZIP package called an APK. \QC supports the following methods of deployment
+    for Android applications:
 
      \list
 
