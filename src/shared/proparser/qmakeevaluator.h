@@ -251,6 +251,8 @@ public:
     enum { m_skipLevel = 0 };
 #endif
 
+    static QString quoteValue(const ProString &val);
+
 #ifdef PROEVALUATOR_DEBUG
     void debugMsgInternal(int level, const char *fmt, ...) const;
     void traceMsgInternal(const char *fmt, ...) const;

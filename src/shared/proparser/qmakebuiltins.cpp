@@ -215,8 +215,8 @@ static QString windowsErrorCode()
 }
 #endif
 
-static QString
-quoteValue(const ProString &val)
+QString
+QMakeEvaluator::quoteValue(const ProString &val)
 {
     QString ret;
     ret.reserve(val.size());
