@@ -52,7 +52,7 @@ class AndroidDeviceDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AndroidDeviceDialog(int apiLevel, const QString &abi, QWidget *parent = 0);
+    explicit AndroidDeviceDialog(int apiLevel, const QString &abi, AndroidConfigurations::Options opts, QWidget *parent = 0);
     ~AndroidDeviceDialog();
 
     AndroidDeviceInfo device();

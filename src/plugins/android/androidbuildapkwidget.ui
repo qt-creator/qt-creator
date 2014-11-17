@@ -139,6 +139,9 @@
           <property name="pixmap">
            <pixmap resource="../coreplugin/core.qrc">:/core/images/error.png</pixmap>
           </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+          </property>
          </widget>
         </item>
         <item>
@@ -150,7 +153,8 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Signing an APK that uses &quot;Deploy local Qt libraries&quot; is not allowed</string>
+           <string>Signing an APK that uses &quot;Deploy local Qt libraries&quot; is not allowed.
+Deploying local Qt libraries is incompatible with Android 5</string>
           </property>
          </widget>
         </item>

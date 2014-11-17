@@ -72,10 +72,8 @@ AndroidBuildApkStep::AndroidBuildApkStep(ProjectExplorer::BuildStepList *parent,
       m_buildTargetSdk(AndroidConfig::apiLevelNameFor(AndroidConfigurations::currentConfig().highestAndroidSdk()))
 {
     const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    if (version && version->qtVersion() >=  QtSupport::QtVersionNumber(5, 4, 0)) {
-        m_deployAction = DebugDeployment;
+    if (version && version->qtVersion() >=  QtSupport::QtVersionNumber(5, 4, 0))
         m_useGradle = AndroidConfigurations::currentConfig().useGrandle();
-    }
     //: AndroidBuildApkStep default display name
     setDefaultDisplayName(tr("Build Android APK"));
 }
@@ -159,12 +157,7 @@ void AndroidBuildApkStep::processFinished(int exitCode, QProcess::ExitStatus sta
 
 bool AndroidBuildApkStep::fromMap(const QVariantMap &map)
 {
-    AndroidDeployAction defaultDeploy = BundleLibrariesDeployment;
-    const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    if (version && version->qtVersion() >=  QtSupport::QtVersionNumber(5, 4, 0))
-        defaultDeploy = DebugDeployment;
-
-    m_deployAction = AndroidDeployAction(map.value(DeployActionKey, defaultDeploy).toInt());
+    m_deployAction = AndroidDeployAction(map.value(DeployActionKey, BundleLibrariesDeployment).toInt());
     if ( m_deployAction == DebugDeployment
          && QtSupport::QtKitInformation::qtVersion(target()->kit())->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0)) {
         m_deployAction = BundleLibrariesDeployment;

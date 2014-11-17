@@ -989,7 +989,9 @@ void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
     emit m_instance->updated();
 }
 
-AndroidDeviceInfo AndroidConfigurations::showDeviceDialog(ProjectExplorer::Project *project, int apiLevel, const QString &abi)
+AndroidDeviceInfo AndroidConfigurations::showDeviceDialog(ProjectExplorer::Project *project,
+                                                          int apiLevel, const QString &abi,
+                                                          Options options)
 {
     QString serialNumber = defaultDevice(project, abi);
     if (!serialNumber.isEmpty()) {
@@ -1005,7 +1007,7 @@ AndroidDeviceInfo AndroidConfigurations::showDeviceDialog(ProjectExplorer::Proje
                 return info;
     }
 
-    AndroidDeviceDialog dialog(apiLevel, abi, Core::ICore::mainWindow());
+    AndroidDeviceDialog dialog(apiLevel, abi, options, Core::ICore::mainWindow());
     if (dialog.exec() == QDialog::Accepted) {
         AndroidDeviceInfo info = dialog.device();
         if (dialog.saveDeviceSelection()) {
