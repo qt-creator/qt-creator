@@ -51,9 +51,15 @@ SUBDIRS   = \
     beautifier \
     qmakeandroidsupport \
     winrt \
-    qmldesigner \
     qmlprofiler \
     welcome
+
+DO_NOT_BUILD_QMLDESIGNER = $$(DO_NOT_BUILD_QMLDESIGNER)
+isEmpty(DO_NOT_BUILD_QMLDESIGNER) {
+    SUBDIRS += qmldesigner
+} else {
+    warning("QmlDesigner plugin has been disabled.")
+}
 
 
 isEmpty(QBS_INSTALL_DIR): QBS_INSTALL_DIR = $$(QBS_INSTALL_DIR)
