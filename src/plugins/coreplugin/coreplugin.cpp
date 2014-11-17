@@ -133,7 +133,7 @@ void CorePlugin::parseArguments(const QStringList &arguments)
     theme->readSettings(themeSettings);
     setCreatorTheme(theme);
     if (theme->flag(Theme::ApplyThemePaletteGlobally))
-        QApplication::setPalette(creatorTheme()->palette(QApplication::palette()));
+        QApplication::setPalette(creatorTheme()->palette());
 
     // defer creation of these widgets until here,
     // because they need a valid theme set
@@ -148,6 +148,7 @@ void CorePlugin::parseArguments(const QStringList &arguments)
 
 bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
+    Theme::initialPalette(); // Initialize palette before setting it
     qsrand(QDateTime::currentDateTime().toTime_t());
     parseArguments(arguments);
     const bool success = m_mainWindow->init(errorMessage);

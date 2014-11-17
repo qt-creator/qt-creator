@@ -33,8 +33,9 @@
 
 #include "../utils_global.h"
 
-#include <QStyle>
 #include <QFlags>
+#include <QPalette>
+#include <QStyle>
 
 QT_FORWARD_DECLARE_CLASS(QSettings)
 
@@ -199,7 +200,7 @@ public:
     QColor color(Color role) const;
     QString imageFile(ImageFile imageFile, const QString &fallBack) const;
     QGradientStops gradient(Gradient role) const;
-    QPalette palette(const QPalette &base) const;
+    QPalette palette() const;
     QStringList preferredStyles() const;
 
     QString fileName() const;
@@ -209,6 +210,9 @@ public:
 
     void writeSettings(const QString &filename) const;
     void readSettings(QSettings &settings);
+
+    static QPalette initialPalette();
+
     ThemePrivate *d;
 
 signals:
