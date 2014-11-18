@@ -1006,7 +1006,7 @@ IEditor *EditorManagerPrivate::activateEditor(EditorView *view, IEditor *editor,
         setCurrentEditor(editor, (flags & EditorManager::IgnoreNavigationHistory));
         if (!(flags & EditorManager::DoNotMakeVisible)) {
             // switch to design mode?
-            if (editor->isDesignModePreferred()) {
+            if (!(flags & EditorManager::DoNotSwitchToDesignMode) && editor->isDesignModePreferred()) {
                 ModeManager::activateMode(Core::Constants::MODE_DESIGN);
                 ModeManager::setFocusToCurrentMode();
             } else {
