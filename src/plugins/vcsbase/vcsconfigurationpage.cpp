@@ -57,7 +57,7 @@ VcsConfigurationPage::VcsConfigurationPage(const Core::IVersionControl *vc, QWid
     QWizardPage(parent),
     d(new Internal::VcsConfigurationPagePrivate)
 {
-    QTC_CHECK(vc);
+    QTC_ASSERT(vc, return);
     setTitle(tr("Configuration"));
     setSubTitle(tr("Please configure <b>%1</b> now.").arg(vc->displayName()));
 
