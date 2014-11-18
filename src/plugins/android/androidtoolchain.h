@@ -69,7 +69,7 @@ protected:
     QList<ProjectExplorer::Abi> detectSupportedAbis() const;
 
 private:
-    explicit AndroidToolChain(ProjectExplorer::Abi::Architecture arch, const QString &ndkToolChainVersion, Detection d);
+    explicit AndroidToolChain(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion, Detection d);
     AndroidToolChain();
     AndroidToolChain(const AndroidToolChain &);
 
@@ -110,7 +110,7 @@ public:
     {
     public:
         Utils::FileName compilerCommand;
-        ProjectExplorer::Abi::Architecture architecture;
+        ProjectExplorer::Abi abi;
         QString version;
     };
 
@@ -120,9 +120,9 @@ public:
     static QList<int> versionNumberFromString(const QString &version);
     static bool versionCompareLess(const QList<int> &a, const QList<int> &b);
     static bool versionCompareLess(AndroidToolChain *atc, AndroidToolChain *btc);
-    static QList<int> newestToolChainVersionForArch(ProjectExplorer::Abi::Architecture arch);
+    static QList<int> newestToolChainVersionForArch(const ProjectExplorer::Abi &abi);
 private:
-    static QMap<ProjectExplorer::Abi::Architecture, QList<int> > m_newestVersionForArch;
+    static QHash<ProjectExplorer::Abi, QList<int> > m_newestVersionForAbi;
     static Utils::FileName m_ndkLocation;
 };
 

@@ -240,6 +240,9 @@ static QList<Abi> abiOf(const QByteArray &data)
         case 40: // EM_ARM
             result.append(Abi(Abi::ArmArchitecture, os, flavor, Abi::ElfFormat, 32));
             break;
+        case 183: // EM_AARCH64
+            result.append(Abi(Abi::ArmArchitecture, os, flavor, Abi::ElfFormat, 64));
+            break;
         case 62: // EM_X86_64
             result.append(Abi(Abi::X86Architecture, os, flavor, Abi::ElfFormat, 64));
             break;

@@ -282,9 +282,9 @@ void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
             QStringList gdbPaths;
             foreach (const AndroidToolChainFactory::AndroidToolChainInformation &ati, compilerPaths) {
                 // we only check the arm gdbs, that's indicative enough
-                if (ati.architecture != ProjectExplorer::Abi::ArmArchitecture)
+                if (ati.abi.architecture() != ProjectExplorer::Abi::ArmArchitecture)
                     continue;
-                Utils::FileName gdbPath = m_androidConfig.gdbPath(ati.architecture, ati.version);
+                Utils::FileName gdbPath = m_androidConfig.gdbPath(ati.abi, ati.version);
                 if (gdbPath.exists())
                     gdbPaths << gdbPath.toString();
             }
@@ -295,32 +295,29 @@ void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
             }
 
             // See if we have qt versions for those toolchains
-            QSet<ProjectExplorer::Abi::Architecture> toolchainsForArch;
+            QSet<ProjectExplorer::Abi> toolchainsForAbi;
             foreach (const AndroidToolChainFactory::AndroidToolChainInformation &ati, compilerPaths)
-                toolchainsForArch.insert(ati.architecture);
+                toolchainsForAbi.insert(ati.abi);
 
-            QSet<ProjectExplorer::Abi::Architecture> qtVersionsForArch;
+            QSet<ProjectExplorer::Abi> qtVersionsForAbi;
             foreach (QtSupport::BaseQtVersion *qtVersion, QtSupport::QtVersionManager::versions()) {
                 if (qtVersion->type() != QLatin1String(Constants::ANDROIDQT) || qtVersion->qtAbis().isEmpty())
                     continue;
-                qtVersionsForArch.insert(qtVersion->qtAbis().first().architecture());
+                qtVersionsForAbi.insert(qtVersion->qtAbis().first());
             }
 
-            QSet<ProjectExplorer::Abi::Architecture> missingQtArchs = toolchainsForArch.subtract(qtVersionsForArch);
+            QSet<ProjectExplorer::Abi> missingQtArchs = toolchainsForAbi.subtract(qtVersionsForAbi);
             if (missingQtArchs.isEmpty()) {
                 m_ndkMissingQtArchs.clear();
             } else {
                 if (missingQtArchs.count() == 1) {
                     m_ndkMissingQtArchs = tr("Qt version for architecture %1 is missing.\n"
                                              "To add the Qt version, select Options > Build & Run > Qt Versions.")
-                            .arg(ProjectExplorer::Abi::toString((*missingQtArchs.constBegin())));
+                            .arg((*missingQtArchs.constBegin()).toString());
                 } else {
-                    QStringList missingArchs;
-                    foreach (ProjectExplorer::Abi::Architecture arch, missingQtArchs)
-                        missingArchs.append(ProjectExplorer::Abi::toString(arch));
-                    m_ndkMissingQtArchs = tr("Qt versions for architectures %1 are missing.\n"
+                    m_ndkMissingQtArchs = tr("Qt versions for %1 architectures are missing.\n"
                                              "To add the Qt versions, select Options > Build & Run > Qt Versions.")
-                            .arg(missingArchs.join(QLatin1String(", ")));
+                            .arg(missingQtArchs.size());
                 }
             }
         }

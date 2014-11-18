@@ -126,8 +126,8 @@ public:
     Utils::FileName emulatorToolPath() const;
 
 
-    Utils::FileName gccPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
-    Utils::FileName gdbPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
+    Utils::FileName gccPath(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion) const;
+    Utils::FileName gdbPath(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion) const;
 
     Utils::FileName keytoolPath() const;
 
@@ -156,9 +156,10 @@ public:
     QString waitForAvd(int apiLevel, const QString &cpuAbi, const QFutureInterface<bool> &fi = QFutureInterface<bool>()) const;
     QString bestNdkPlatformMatch(int target) const;
 
-    static ProjectExplorer::Abi::Architecture architectureForToolChainPrefix(const QString &toolchainprefix);
-    static QLatin1String toolchainPrefix(ProjectExplorer::Abi::Architecture architecture);
-    static QLatin1String toolsPrefix(ProjectExplorer::Abi::Architecture architecture);
+    static ProjectExplorer::Abi abiForToolChainPrefix(const QString &toolchainPrefix);
+    static QLatin1String toolchainPrefix(const ProjectExplorer::Abi &abi);
+    static QLatin1String toolsPrefix(const ProjectExplorer::Abi &abi);
+    static QLatin1String displayName(const ProjectExplorer::Abi &abi);
 
     QString getProductModel(const QString &device) const;
     bool hasFinishedBooting(const QString &device) const;
@@ -170,7 +171,7 @@ private:
     static CreateAvdInfo createAVDImpl(CreateAvdInfo info, Utils::FileName androidToolPath, Utils::Environment env);
     static QVector<AndroidDeviceInfo> androidVirtualDevicesImpl(const Utils::FileName &androidTool, const Utils::Environment &environment);
 
-    Utils::FileName toolPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
+    Utils::FileName toolPath(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion) const;
     Utils::FileName openJDKBinPath() const;
     int getSDKVersion(const QString &device) const;
     QStringList getAbis(const QString &device) const;

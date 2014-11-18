@@ -34,6 +34,7 @@
 #include "projectexplorer_export.h"
 
 #include <QList>
+#include <QHash>
 
 namespace Utils { class FileName; }
 
@@ -150,6 +151,15 @@ private:
     unsigned char m_wordWidth;
 };
 
+inline int qHash(const ProjectExplorer::Abi &abi)
+{
+    int h = abi.architecture()
+            + (abi.os() << 3)
+            + (abi.osFlavor() << 6)
+            + (abi.binaryFormat() << 10)
+            + (abi.wordWidth() << 13);
+    return QT_PREPEND_NAMESPACE(qHash)(h);
+}
 } // namespace ProjectExplorer
 
 #endif // PROJECTEXPLORER_ABI_H

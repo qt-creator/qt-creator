@@ -90,12 +90,25 @@ namespace {
     const QLatin1String DefaultDevice("DefaultDevice");
     const QLatin1String PartitionSizeKey("PartitionSize");
     const QLatin1String ToolchainHostKey("ToolchainHost");
+
     const QLatin1String ArmToolchainPrefix("arm-linux-androideabi");
     const QLatin1String X86ToolchainPrefix("x86");
     const QLatin1String MipsToolchainPrefix("mipsel-linux-android");
+    const QLatin1String AArch64ToolchainPrefix("aarch64-linux-android");
+    const QLatin1String X86_64ToolchainPrefix("x86_64");
+
     const QLatin1String ArmToolsPrefix("arm-linux-androideabi");
     const QLatin1String X86ToolsPrefix("i686-linux-android");
     const QLatin1String MipsToolsPrefix("mipsel-linux-android");
+    const QLatin1String AArch64ToolsPrefix("aarch64-linux-android");
+    const QLatin1String X86_64ToolsPrefix("x86_64-linux-android");
+
+    const QLatin1String ArmToolsDisplayName("arm");
+    const QLatin1String X86ToolsDisplayName("i686");
+    const QLatin1String MipsToolsDisplayName("mipsel");
+    const QLatin1String AArch64ToolsDisplayName("aarch64");
+    const QLatin1String X86_64ToolsDisplayName("x86_64");
+
     const QLatin1String Unknown("unknown");
     const QLatin1String keytoolName("keytool");
     const QLatin1String jarsignerName("jarsigner");
@@ -164,23 +177,41 @@ namespace {
 // AndroidConfig
 //////////////////////////////////
 
-Abi::Architecture AndroidConfig::architectureForToolChainPrefix(const QString& toolchainprefix)
+Abi AndroidConfig::abiForToolChainPrefix(const QString &toolchainPrefix)
 {
-    if (toolchainprefix == ArmToolchainPrefix)
-        return Abi::ArmArchitecture;
-    if (toolchainprefix == X86ToolchainPrefix)
-        return Abi::X86Architecture;
-    if (toolchainprefix == MipsToolchainPrefix)
-        return Abi::MipsArchitecture;
-    return Abi::UnknownArchitecture;
+    Abi::Architecture arch = Abi::UnknownArchitecture;
+    unsigned char wordWidth = 32;
+    if (toolchainPrefix == ArmToolchainPrefix) {
+        arch = Abi::ArmArchitecture;
+    } else if (toolchainPrefix == X86ToolchainPrefix) {
+        arch = Abi::X86Architecture;
+    } else if (toolchainPrefix == MipsToolchainPrefix) {
+        arch = Abi::MipsArchitecture;
+    } else if (toolchainPrefix == AArch64ToolchainPrefix) {
+        arch = Abi::ArmArchitecture;
+        wordWidth = 64;
+    } else if (toolchainPrefix == X86_64ToolchainPrefix) {
+        arch = Abi::X86Architecture;
+        wordWidth = 64;
+    }
+
+    Abi abi = ProjectExplorer::Abi(arch,
+                                   ProjectExplorer::Abi::LinuxOS,
+                                   ProjectExplorer::Abi::AndroidLinuxFlavor, ProjectExplorer::Abi::ElfFormat,
+                                   wordWidth);
+    return abi;
 }
 
-QLatin1String AndroidConfig::toolchainPrefix(Abi::Architecture architecture)
+QLatin1String AndroidConfig::toolchainPrefix(const Abi &abi)
 {
-    switch (architecture) {
+    switch (abi.architecture()) {
     case Abi::ArmArchitecture:
+        if (abi.wordWidth() == 64)
+            return AArch64ToolchainPrefix;
         return ArmToolchainPrefix;
     case Abi::X86Architecture:
+        if (abi.wordWidth() == 64)
+            return X86_64ToolchainPrefix;
         return X86ToolchainPrefix;
     case Abi::MipsArchitecture:
         return MipsToolchainPrefix;
@@ -189,15 +220,37 @@ QLatin1String AndroidConfig::toolchainPrefix(Abi::Architecture architecture)
     }
 }
 
-QLatin1String AndroidConfig::toolsPrefix(Abi::Architecture architecture)
+QLatin1String AndroidConfig::toolsPrefix(const Abi &abi)
 {
-    switch (architecture) {
+    switch (abi.architecture()) {
     case Abi::ArmArchitecture:
+        if (abi.wordWidth() == 64)
+            return AArch64ToolsPrefix;
         return ArmToolsPrefix;
     case Abi::X86Architecture:
+        if (abi.wordWidth() == 64)
+            return X86_64ToolsPrefix;
         return X86ToolsPrefix;
     case Abi::MipsArchitecture:
         return MipsToolsPrefix;
+    default:
+        return Unknown;
+    }
+}
+
+QLatin1String AndroidConfig::displayName(const Abi &abi)
+{
+    switch (abi.architecture()) {
+    case Abi::ArmArchitecture:
+        if (abi.wordWidth() == 64)
+            return AArch64ToolsDisplayName;
+        return ArmToolsDisplayName;
+    case Abi::X86Architecture:
+        if (abi.wordWidth() == 64)
+            return X86_64ToolsDisplayName;
+        return X86ToolsDisplayName;
+    case Abi::MipsArchitecture:
+        return MipsToolsDisplayName;
     default:
         return Unknown;
     }
@@ -433,24 +486,24 @@ FileName AndroidConfig::emulatorToolPath() const
     return path.appendPath(QLatin1String("tools/emulator" QTC_HOST_EXE_SUFFIX));
 }
 
-FileName AndroidConfig::toolPath(Abi::Architecture architecture, const QString &ndkToolChainVersion) const
+FileName AndroidConfig::toolPath(const Abi &abi, const QString &ndkToolChainVersion) const
 {
     FileName path = m_ndkLocation;
     return path.appendPath(QString::fromLatin1("toolchains/%1-%2/prebuilt/%3/bin/%4")
-            .arg(toolchainPrefix(architecture))
+            .arg(toolchainPrefix(abi))
             .arg(ndkToolChainVersion)
             .arg(toolchainHost())
-            .arg(toolsPrefix(architecture)));
+            .arg(toolsPrefix(abi)));
 }
 
-FileName AndroidConfig::gccPath(Abi::Architecture architecture, const QString &ndkToolChainVersion) const
+FileName AndroidConfig::gccPath(const Abi &abi, const QString &ndkToolChainVersion) const
 {
-    return toolPath(architecture, ndkToolChainVersion).appendString(QLatin1String("-gcc" QTC_HOST_EXE_SUFFIX));
+    return toolPath(abi, ndkToolChainVersion).appendString(QLatin1String("-gcc" QTC_HOST_EXE_SUFFIX));
 }
 
-FileName AndroidConfig::gdbPath(Abi::Architecture architecture, const QString &ndkToolChainVersion) const
+FileName AndroidConfig::gdbPath(const Abi &abi, const QString &ndkToolChainVersion) const
 {
-    return toolPath(architecture, ndkToolChainVersion).appendString(QLatin1String("-gdb" QTC_HOST_EXE_SUFFIX));
+    return toolPath(abi, ndkToolChainVersion).appendString(QLatin1String("-gdb" QTC_HOST_EXE_SUFFIX));
 }
 
 FileName AndroidConfig::openJDKBinPath() const
@@ -1138,14 +1191,14 @@ void AndroidConfigurations::updateAutomaticKitList()
         existingKits << k;
     }
 
-    QMap<Abi::Architecture, QList<QtSupport::BaseQtVersion *> > qtVersionsForArch;
+    QHash<Abi, QList<QtSupport::BaseQtVersion *> > qtVersionsForArch;
     foreach (QtSupport::BaseQtVersion *qtVersion, QtSupport::QtVersionManager::versions()) {
         if (qtVersion->type() != QLatin1String(Constants::ANDROIDQT))
             continue;
         QList<Abi> qtAbis = qtVersion->qtAbis();
         if (qtAbis.empty())
             continue;
-        qtVersionsForArch[qtAbis.first().architecture()].append(qtVersion);
+        qtVersionsForArch[qtAbis.first()].append(qtVersion);
     }
 
     DeviceManager *dm = DeviceManager::instance();
@@ -1162,7 +1215,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     foreach (AndroidToolChain *tc, toolchains) {
         if (tc->isSecondaryToolChain())
             continue;
-        QList<QtSupport::BaseQtVersion *> qtVersions = qtVersionsForArch.value(tc->targetAbi().architecture());
+        QList<QtSupport::BaseQtVersion *> qtVersions = qtVersionsForArch.value(tc->targetAbi());
         foreach (QtSupport::BaseQtVersion *qt, qtVersions) {
             Kit *newKit = new Kit;
             newKit->setAutoDetected(true);
