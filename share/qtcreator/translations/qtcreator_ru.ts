@@ -541,6 +541,10 @@ Do you want to uninstall the existing package next time?</source>
         <translation>Уровень API устройства: %1.</translation>
     </message>
     <message>
+        <source>Android 5 devices are incompatible with deploying Qt to a temporary directory.</source>
+        <translation>Устройства на базе Android 5 не поддерживают установку Qt во временный каталог.</translation>
+    </message>
+    <message>
         <source>Incompatible devices</source>
         <translation>Несовместимые устройства</translation>
     </message>
@@ -858,6 +862,14 @@ Do you want to uninstall the existing package next time?</source>
         <translation>Не удалось пробросить порты отладки С++.</translation>
     </message>
     <message>
+        <source>Failed to forward ping pong ports. Reason: %1.</source>
+        <translation>Не удалось пробросить порты ping pong: %1.</translation>
+    </message>
+    <message>
+        <source>Failed to forward ping pong ports.</source>
+        <translation>Не удалось пробросить порты ping pong.</translation>
+    </message>
+    <message>
         <source>Failed to forward QML debugging ports. Reason: %1.</source>
         <translation>Не удалось пробросить порты отладки QML: %1.</translation>
     </message>
@@ -868,6 +880,10 @@ Do you want to uninstall the existing package next time?</source>
     <message>
         <source>Failed to start the activity. Reason: %1.</source>
         <translation>Не удалось запустить activity: %1.</translation>
+    </message>
+    <message>
+        <source>Failed to contact debugging port.</source>
+        <translation>Не удалось подключиться к порту отладки.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; terminated.</source>
@@ -1033,10 +1049,6 @@ Install an SDK of at least API version %1.</source>
         <translation>Алиас сертификата:</translation>
     </message>
     <message>
-        <source>Signing an APK that uses &quot;Deploy local Qt libraries&quot; is not allowed</source>
-        <translation>Подписывание APK, использующего локальные библиотеки Qt, запрещено</translation>
-    </message>
-    <message>
         <source>Application</source>
         <translation>Приложение</translation>
     </message>
@@ -1089,6 +1101,12 @@ The APK will not be usable on any other device.</source>
     <message>
         <source>Deploy local Qt libraries to temporary directory</source>
         <translation>Устанавливать Qt во временный каталог</translation>
+    </message>
+    <message>
+        <source>Signing an APK that uses &quot;Deploy local Qt libraries&quot; is not allowed.
+Deploying local Qt libraries is incompatible with Android 5</source>
+        <translation>Подписывание APK, использующего локальные библиотеки Qt, запрещено.
+Установка локальных библиотек Qt не поддерживается на Android 5</translation>
     </message>
 </context>
 <context>
@@ -4199,10 +4217,6 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     <message>
         <source>Meta+C,Meta+P</source>
         <translation>Meta+C,Meta+P</translation>
-    </message>
-    <message>
-        <source>Paste Clipboard...</source>
-        <translation>Вставить из буфера обмена...</translation>
     </message>
     <message>
         <source>Fetch Snippet...</source>
@@ -10018,14 +10032,6 @@ This feature is only available for GDB.</source>
         <translation>Автоматически заполнять представление исходных текстов</translation>
     </message>
     <message>
-        <source>Close temporary views on debugger exit</source>
-        <translation>Закрывать временные обзоры при завершении отладчика</translation>
-    </message>
-    <message>
-        <source>Stopping and stepping in the debugger will automatically open source or disassembler views associated with the current location. Select this option to automatically close them when the debugger exits.</source>
-        <translation>Остановка и пошаговая отладка автоматически открывают обзор исходников или дизассемблера соответствующий текущему положению. Включение этого параметра приведёт к их автоматическому закрытию при завершении отладки.</translation>
-    </message>
-    <message>
         <source>Switch to previous mode on debugger exit</source>
         <translation>Переключаться в предыдущий режим при завершении отладчика</translation>
     </message>
@@ -10052,6 +10058,26 @@ This feature is only available for GDB.</source>
     <message>
         <source>Show QML object tree</source>
         <translation>Показывать дерево объектов QML</translation>
+    </message>
+    <message>
+        <source>Stopping and stepping in the debugger will automatically open views associated with the current location.</source>
+        <translation>Остановка и пошаговая отладка автоматически открывают обзор кода соответствующий текущему положению.</translation>
+    </message>
+    <message>
+        <source>Close temporary source views on debugger exit</source>
+        <translation>Закрывать временные обзоры кода при завершении отладки</translation>
+    </message>
+    <message>
+        <source>Select this option to close automatically opened source views when the debugger exits.</source>
+        <translation>Включение закрытия автоматически открытых обзоров исходников при завершении отладки.</translation>
+    </message>
+    <message>
+        <source>Close temporary memory views on debugger exit</source>
+        <translation>Закрывать временные обзоры памяти при завершении отладки</translation>
+    </message>
+    <message>
+        <source>Select this option to close automatically opened memory views when the debugger exits.</source>
+        <translation>Включение закрытия автоматически открытых обзоров памяти при завершении отладки.</translation>
     </message>
     <message>
         <source>Set breakpoints using a full absolute path</source>
@@ -19863,6 +19889,10 @@ Ids must begin with a lowercase letter.</source>
         <translation>Процесс завершился с кодом %1.</translation>
     </message>
     <message>
+        <source>[Only %1 MB of output shown]</source>
+        <translation>[Отображено только %1 МБ вывода]</translation>
+    </message>
+    <message>
         <source>The commit message check failed. Do you want to submit this change list?</source>
         <translation>Проверки сообщения о фиксации завершилась с ошибкой. Отправить указанные изменения?</translation>
     </message>
@@ -23164,6 +23194,17 @@ to project &quot;%2&quot;.</source>
     <message>
         <source>Make Default</source>
         <translation>Сделать по умолчанию</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::LineEditValidator</name>
+    <message>
+        <source>Line Edit Validator Expander</source>
+        <translation>Расширитель валидатора строкового редактора</translation>
+    </message>
+    <message>
+        <source>The text edit input to fix up.</source>
+        <translation>Данные для исправления в текстовом редакторе.</translation>
     </message>
 </context>
 <context>
