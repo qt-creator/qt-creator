@@ -254,6 +254,7 @@ public:
     bool parseDesignator(DesignatorAST *&node);
 
     bool skipUntil(int token);
+    void skipUntilAfterSemicolonOrRightBrace();
     void skipUntilDeclaration();
     bool skipUntilStatement();
     bool skip(int l, int r);

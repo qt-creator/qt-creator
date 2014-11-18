@@ -66,6 +66,8 @@ public:
 
 int DebugRule::depth = 0;
 
+const int declarationsInRowAllowedToFail = 2;
+
 inline bool lookAtAssignmentOperator(int tokenKind)
 {
     switch (tokenKind) {
@@ -308,6 +310,20 @@ bool Parser::skipUntil(int token)
     }
 
     return false;
+}
+
+void Parser::skipUntilAfterSemicolonOrRightBrace()
+{
+    while (int tk = LA()) {
+        switch (tk) {
+            case T_SEMICOLON:
+            case T_RBRACE:
+                consumeToken();
+                return;
+            default:
+                consumeToken();
+        }
+    }
 }
 
 void Parser::skipUntilDeclaration()
@@ -626,19 +642,25 @@ bool Parser::parseTranslationUnit(TranslationUnitAST *&node)
     TranslationUnitAST *ast = new (_pool) TranslationUnitAST;
     DeclarationListAST **decl = &ast->declaration_list;
 
+    int declarationsInRowFailedToParse = 0;
+
     while (LA()) {
         unsigned start_declaration = cursor();
 
         DeclarationAST *declaration = 0;
 
         if (parseDeclaration(declaration)) {
+            declarationsInRowFailedToParse = 0;
             *decl = new (_pool) DeclarationListAST;
             (*decl)->value = declaration;
             decl = &(*decl)->next;
         } else {
             error(start_declaration, "expected a declaration");
             rewind(start_declaration + 1);
-            skipUntilDeclaration();
+            if (++declarationsInRowFailedToParse == declarationsInRowAllowedToFail)
+                skipUntilAfterSemicolonOrRightBrace();
+            else
+                skipUntilDeclaration();
         }
 
 
@@ -787,6 +809,8 @@ bool Parser::parseLinkageBody(DeclarationAST *&node)
         ast->lbrace_token = consumeToken();
         DeclarationListAST **declaration_ptr = &ast->declaration_list;
 
+        int declarationsInRowFailedToParse = 0;
+
         while (int tk = LA()) {
             if (tk == T_RBRACE)
                 break;
@@ -794,13 +818,17 @@ bool Parser::parseLinkageBody(DeclarationAST *&node)
             unsigned start_declaration = cursor();
             DeclarationAST *declaration = 0;
             if (parseDeclaration(declaration)) {
+                declarationsInRowFailedToParse = 0;
                 *declaration_ptr = new (_pool) DeclarationListAST;
                 (*declaration_ptr)->value = declaration;
                 declaration_ptr = &(*declaration_ptr)->next;
             } else {
                 error(start_declaration, "expected a declaration");
                 rewind(start_declaration + 1);
-                skipUntilDeclaration();
+                if (++declarationsInRowFailedToParse == declarationsInRowAllowedToFail)
+                    skipUntilAfterSemicolonOrRightBrace();
+                else
+                    skipUntilDeclaration();
             }
 
             _templateArgumentList.clear();
