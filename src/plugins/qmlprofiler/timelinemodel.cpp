@@ -30,6 +30,9 @@
 
 #include "timelinemodel.h"
 #include "timelinemodel_p.h"
+#include "timelineitemsrenderpass.h"
+#include "timelineselectionrenderpass.h"
+#include "timelinenotesrenderpass.h"
 
 #include <QLinkedList>
 
@@ -398,6 +401,15 @@ int TimelineModel::rowMaxValue(int rowNumber) const
 int TimelineModel::defaultRowHeight()
 {
     return TimelineModelPrivate::DefaultRowHeight;
+}
+
+QList<const TimelineRenderPass *> TimelineModel::supportedRenderPasses() const
+{
+    QList<const TimelineRenderPass *> passes;
+    passes << TimelineItemsRenderPass::instance()
+           << TimelineSelectionRenderPass::instance()
+           << TimelineNotesRenderPass::instance();
+    return passes;
 }
 
 QColor TimelineModel::colorBySelectionId(int index) const

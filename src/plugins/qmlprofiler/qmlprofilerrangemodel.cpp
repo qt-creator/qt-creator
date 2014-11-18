@@ -31,6 +31,10 @@
 #include "qmlprofilerrangemodel.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerdatamodel.h"
+#include "qmlprofilerbindingloopsrenderpass.h"
+#include "timelinenotesrenderpass.h"
+#include "timelineitemsrenderpass.h"
+#include "timelineselectionrenderpass.h"
 
 #include <QCoreApplication>
 #include <QVector>
@@ -59,6 +63,11 @@ void QmlProfilerRangeModel::clear()
     m_expandedRowTypes << -1;
     m_data.clear();
     QmlProfilerTimelineModel::clear();
+}
+
+bool QmlProfilerRangeModel::supportsBindingLoops() const
+{
+    return rangeType() == QmlDebug::Binding || rangeType() == QmlDebug::HandlingSignal;
 }
 
 void QmlProfilerRangeModel::loadData()
@@ -97,7 +106,8 @@ void QmlProfilerRangeModel::loadData()
 
     updateProgress(4, 6);
 
-    findBindingLoops();
+    if (supportsBindingLoops())
+        findBindingLoops();
 
     updateProgress(5, 6);
 
@@ -152,9 +162,6 @@ void QmlProfilerRangeModel::computeExpandedLevels()
 
 void QmlProfilerRangeModel::findBindingLoops()
 {
-    if (rangeType() != QmlDebug::Binding && rangeType() != QmlDebug::HandlingSignal)
-        return;
-
     typedef QPair<int, int> CallStackEntry;
     QStack<CallStackEntry> callStack;
 
@@ -277,7 +284,20 @@ int QmlProfilerRangeModel::selectionIdForLocation(const QString &filename, int l
     return -1;
 }
 
+QList<const TimelineRenderPass *> QmlProfilerRangeModel::supportedRenderPasses() const
+{
+    if (supportsBindingLoops()) {
+        QList<const TimelineRenderPass *> passes;
+        passes << TimelineItemsRenderPass::instance()
+               << QmlProfilerBindingLoopsRenderPass::instance()
+               << TimelineSelectionRenderPass::instance()
+               << TimelineNotesRenderPass::instance();
+        return passes;
+    } else {
+        return QmlProfilerTimelineModel::supportedRenderPasses();
+    }
 
+}
 
 }
 }

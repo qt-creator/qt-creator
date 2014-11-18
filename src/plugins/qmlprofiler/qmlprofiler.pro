@@ -34,7 +34,13 @@ SOURCES += \
     timelinemodel.cpp \
     timelinemodelaggregator.cpp \
     timelinerenderer.cpp \
-    timelinezoomcontrol.cpp
+    timelinezoomcontrol.cpp \
+    timelineitemsrenderpass.cpp \
+    qmlprofilerbindingloopsrenderpass.cpp \
+    timelineselectionrenderpass.cpp \
+    timelinenotesrenderpass.cpp \
+    timelinerenderpass.cpp \
+    timelinerenderstate.cpp
 
 HEADERS += \
     abstractqmlprofilerrunner.h \
@@ -71,7 +77,13 @@ HEADERS += \
     timelinemodel_p.h \
     timelinemodelaggregator.h \
     timelinerenderer.h \
-    timelinezoomcontrol.h
+    timelinezoomcontrol.h \
+    timelineitemsrenderpass.h \
+    qmlprofilerbindingloopsrenderpass.h \
+    timelineselectionrenderpass.h \
+    timelinenotesrenderpass.h \
+    timelinerenderpass.h \
+    timelinerenderstate.h
 
 RESOURCES += \
     qml/qmlprofiler.qrc
@@ -87,4 +99,10 @@ DISTFILES += \
     qml/TimeMarks.qml \
     qml/SelectionRange.qml \
     qml/SelectionRangeDetails.qml \
-    qml/Overview.qml
+    qml/Overview.qml \
+    qml/timelineitems.frag \
+    qml/timelineitems.vert \
+    qml/bindingloops.frag \
+    qml/bindingloops.vert \
+    qml/notes.frag \
+    qml/notes.vert

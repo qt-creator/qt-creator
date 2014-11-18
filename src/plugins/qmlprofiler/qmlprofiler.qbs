@@ -26,6 +26,7 @@ QtcPlugin {
             "qmlprofileranimationsmodel.h", "qmlprofileranimationsmodel.cpp",
             "qmlprofilerattachdialog.cpp", "qmlprofilerattachdialog.h",
             "qmlprofilerbasemodel.cpp", "qmlprofilerbasemodel.h", "qmlprofilerbasemodel_p.h",
+            "qmlprofilerbindingloopsrenderpass.cpp","qmlprofilerbindingloopsrenderpass.h",
             "qmlprofilerclientmanager.cpp", "qmlprofilerclientmanager.h",
             "qmlprofilerconstants.h",
             "qmlprofilerdatamodel.cpp", "qmlprofilerdatamodel.h",
@@ -49,9 +50,14 @@ QtcPlugin {
             "qmlprofilerviewmanager.cpp", "qmlprofilerviewmanager.h",
             "qv8profilerdatamodel.cpp", "qv8profilerdatamodel.h",
             "qv8profilereventview.h", "qv8profilereventview.cpp",
+            "timelineitemsrenderpass.cpp", "timelineitemsrenderpass.h",
             "timelinemodel.cpp", "timelinemodel.h", "timelinemodel_p.h",
             "timelinemodelaggregator.cpp", "timelinemodelaggregator.h",
+            "timelinenotesrenderpass.cpp", "timelinenotesrenderpass.h",
             "timelinerenderer.cpp", "timelinerenderer.h",
+            "timelinerenderpass.cpp", "timelinerenderpass.h",
+            "timelinerenderstate.cpp", "timelinerenderstate.h",
+            "timelineselectionrenderpass.cpp", "timelineselectionrenderpass.h",
             "timelinezoomcontrol.cpp", "timelinezoomcontrol.h"
         ]
     }
@@ -72,7 +78,15 @@ QtcPlugin {
             "SelectionRangeDetails.qml",
             "TimeDisplay.qml",
             "TimeMarks.qml",
+
             "qmlprofiler.qrc",
+
+            "bindingloops.frag",
+            "bindingloops.vert",
+            "notes.frag",
+            "notes.vert",
+            "timelineitems.frag",
+            "timelineitems.vert"
         ]
     }
 }

@@ -416,106 +416,80 @@ Rectangle {
             signal clearChildren
             signal select(int modelIndex, int eventIndex)
 
-
             DelegateModel {
                 id: timelineModel
                 model: qmlProfilerModelProxy.models
-                delegate: Item {
-                    id: spacer
+                delegate: TimelineRenderer {
+                    id: renderer
+                    model: modelData
+                    notes: qmlProfilerModelProxy.notes
+                    zoomer: zoomControl
+                    selectionLocked: root.selectionLocked
+                    x: 0
+
                     height: modelData.height
-                    width: flick.contentWidth
                     property int visualIndex: DelegateModel.itemsIndex
 
-                    TimelineRenderer {
-                        id: renderer
-                        model: modelData
-                        notes: qmlProfilerModelProxy.notes
-                        zoomer: zoomControl
-                        selectionLocked: root.selectionLocked
-                        x: flick.contentX
+                    // paint "under" the vertical scrollbar, so that it always matches with the
+                    // timemarks
+                    width: flick.contentWidth
 
-                        // paint "under" the vertical scrollbar, so that it always matches with the
-                        // timemarks
-                        width: scroller.width
-                        property int yScrollStartDiff: flick.contentY - parent.y
-                        property int yScrollEndDiff: flick.height - parent.height + yScrollStartDiff
-                        y: Math.min(parent.height, Math.max(0, yScrollStartDiff))
-                        height: {
-                            if (yScrollStartDiff > 0) {
-                                return Math.max(0, Math.min(flick.height,
-                                                            parent.height - yScrollStartDiff));
-                            } else if (yScrollEndDiff < 0) {
-                                return Math.max(0, Math.min(flick.height,
-                                                            parent.height + yScrollEndDiff));
-                            } else {
-                                return parent.height;
+                    Connections {
+                        target: timelineView
+                        onClearChildren: renderer.clearData()
+                        onSelect: {
+                            if (modelIndex === index || modelIndex === -1) {
+                                renderer.selectedItem = eventIndex;
+                                if (eventIndex !== -1)
+                                    renderer.recenter();
                             }
                         }
+                    }
 
-                        Connections {
-                            target: timelineView
-                            onClearChildren: renderer.clearData()
-                            onSelect: {
-                                if (modelIndex === index || modelIndex === -1) {
-                                    renderer.selectedItem = eventIndex;
-                                    if (eventIndex !== -1)
-                                        renderer.recenter();
-                                }
-                            }
-                        }
-
-                        Connections {
-                            target: root
-                            onSelectionLockedChanged: {
-                                renderer.selectionLocked = root.selectionLocked;
-                            }
-                        }
-
+                    Connections {
+                        target: root
                         onSelectionLockedChanged: {
-                            root.selectionLocked = renderer.selectionLocked;
+                            renderer.selectionLocked = root.selectionLocked;
+                        }
+                    }
+
+                    onSelectionLockedChanged: {
+                        root.selectionLocked = renderer.selectionLocked;
+                    }
+
+                    function recenter() {
+                        if (modelData.endTime(selectedItem) < zoomer.rangeStart ||
+                                modelData.startTime(selectedItem) > zoomer.rangeEnd) {
+
+                            var newStart = (modelData.startTime(selectedItem) +
+                                            modelData.endTime(selectedItem) -
+                                            zoomer.rangeDuration) / 2;
+                            zoomer.setRange(Math.max(newStart, zoomer.traceStart),
+                                            Math.min(newStart + zoomer.rangeDuration,
+                                                     zoomer.traceEnd));
                         }
 
-                        function recenter() {
-                            if (modelData.endTime(selectedItem) < zoomer.rangeStart ||
-                                    modelData.startTime(selectedItem) > zoomer.rangeEnd) {
+                        var row = modelData.row(selectedItem);
+                        var rowStart = modelData.rowOffset(row) + y;
+                        var rowEnd = rowStart + modelData.rowHeight(row);
+                        if (rowStart < flick.contentY || rowEnd - scroller.height > flick.contentY)
+                            flick.contentY = (rowStart + rowEnd - scroller.height) / 2;
+                    }
 
-                                var newStart = (modelData.startTime(selectedItem) +
-                                                modelData.endTime(selectedItem) -
-                                                zoomer.rangeDuration) / 2;
-                                zoomer.setRange(Math.max(newStart, zoomer.traceStart),
-                                                Math.min(newStart + zoomer.rangeDuration,
-                                                         zoomer.traceEnd));
-                            }
+                    onSelectedItemChanged: {
+                        root.propagateSelection(index, selectedItem);
+                    }
 
-                            if (spacer.y + spacer.height < flick.contentY)
-                                flick.contentY = spacer.y + spacer.height;
-                            else if (spacer.y - flick.height > flick.contentY)
-                                flick.contentY = spacer.y - flick.height;
-
-                            var row = modelData.row(selectedItem);
-                            var rowStart = modelData.rowOffset(row);
-                            var rowEnd = rowStart + modelData.rowHeight(row);
-                            if (rowStart < y)
-                                flick.contentY -= y - rowStart;
-                            else if (rowEnd > y + height)
-                                flick.contentY += rowEnd - y - height;
-                        }
-
-                        onSelectedItemChanged: {
-                            root.propagateSelection(index, selectedItem);
-                        }
-
-                        onItemPressed: {
-                            if (pressedItem === -1) {
-                                // User clicked on empty space. Remove selection.
-                                root.propagateSelection(-1, -1);
-                            } else {
-                                var location = model.location(pressedItem);
-                                if (location.hasOwnProperty("file")) // not empty
-                                    root.gotoSourceLocation(location.file, location.line, location.column);
-                                root.typeId = model.typeId(pressedItem);
-                                root.updateCursorPosition();
-                            }
+                    onItemPressed: {
+                        if (pressedItem === -1) {
+                            // User clicked on empty space. Remove selection.
+                            root.propagateSelection(-1, -1);
+                        } else {
+                            var location = model.location(pressedItem);
+                            if (location.hasOwnProperty("file")) // not empty
+                                root.gotoSourceLocation(location.file, location.line, location.column);
+                            root.typeId = model.typeId(pressedItem);
+                            root.updateCursorPosition();
                         }
                     }
                 }

@@ -35,6 +35,7 @@
 #include "qmlprofiler_global.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerdatamodel.h"
+#include "timelinerenderpass.h"
 #include <QVariant>
 #include <QColor>
 
@@ -119,6 +120,7 @@ public:
     Q_INVOKABLE int prevItemByTypeId(int typeId, qint64 time, int currentItem) const;
 
     static int defaultRowHeight();
+    virtual QList<const TimelineRenderPass *> supportedRenderPasses() const;
 
 signals:
     void expandedChanged();

@@ -78,11 +78,15 @@ public:
     int typeId(int index) const;
     int selectionIdForLocation(const QString &filename, int line, int column) const;
 
+    virtual QList<const TimelineRenderPass *> supportedRenderPasses() const;
+
 protected:
     void loadData();
     void clear();
 
 private:
+
+    bool supportsBindingLoops() const;
     void computeNestingContracted();
     void computeExpandedLevels();
     void findBindingLoops();

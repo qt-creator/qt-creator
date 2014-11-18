@@ -29,65 +29,80 @@
 ****************************************************************************/
 
 #include "timelinerenderer.h"
+#include "timelinerenderpass.h"
 #include "qmlprofilernotesmodel.h"
+#include "timelineitemsrenderpass.h"
+#include "qmlprofilerbindingloopsrenderpass.h"
+#include "timelineselectionrenderpass.h"
+#include "timelinenotesrenderpass.h"
 
+#include <QElapsedTimer>
 #include <QQmlContext>
 #include <QQmlProperty>
 #include <QTimer>
 #include <QPixmap>
-#include <QPainter>
 #include <QGraphicsSceneMouseEvent>
 #include <QVarLengthArray>
+#include <QSGTransformNode>
+#include <QSGSimpleRectNode>
 
 #include <math.h>
 
 using namespace QmlProfiler;
 using namespace QmlProfiler::Internal;
 
-TimelineRenderer::TimelineRenderer(QQuickPaintedItem *parent) :
-    QQuickPaintedItem(parent), m_spacing(0), m_spacedDuration(0),
-    m_model(0), m_zoomer(0), m_notes(0), m_selectedItem(-1), m_selectionLocked(true)
+TimelineRenderer::TimelineRenderer(QQuickItem *parent) :
+    QQuickItem(parent), m_model(0), m_zoomer(0), m_notes(0),
+    m_selectedItem(-1), m_selectionLocked(true), m_modelDirty(false),
+    m_rowHeightsDirty(false), m_rowCountsDirty(false), m_lastState(0)
 {
+    setFlag(QQuickItem::ItemHasContents);
     resetCurrentSelection();
     setAcceptedMouseButtons(Qt::LeftButton);
     setAcceptHoverEvents(true);
-
-    connect(this, &QQuickItem::yChanged, this, &TimelineRenderer::requestPaint);
-    connect(this, &QQuickItem::xChanged, this, &TimelineRenderer::requestPaint);
-    connect(this, &QQuickItem::widthChanged, this, &TimelineRenderer::requestPaint);
-    connect(this, &QQuickItem::heightChanged, this, &TimelineRenderer::requestPaint);
 }
 
-void TimelineRenderer::setModel(QmlProfilerTimelineModel *model)
+void TimelineRenderer::setModel(TimelineModel *model)
 {
     if (m_model == model)
         return;
 
     if (m_model) {
-        disconnect(m_model, SIGNAL(expandedChanged()), this, SLOT(requestPaint()));
-        disconnect(m_model, SIGNAL(hiddenChanged()), this, SLOT(requestPaint()));
-        disconnect(m_model, SIGNAL(expandedRowHeightChanged(int,int)), this, SLOT(requestPaint()));
+        disconnect(m_model, SIGNAL(expandedChanged()), this, SLOT(update()));
+        disconnect(m_model, SIGNAL(hiddenChanged()), this, SLOT(update()));
+        disconnect(m_model, SIGNAL(expandedRowHeightChanged(int,int)),
+                   this, SLOT(setRowHeightsDirty()));
+        disconnect(m_model, SIGNAL(emptyChanged()), this, SLOT(setModelDirty()));
+        disconnect(m_model, SIGNAL(expandedRowCountChanged()), this, SLOT(setRowCountsDirty()));
+        disconnect(m_model, SIGNAL(collapsedRowCountChanged()), this, SLOT(setRowCountsDirty()));
     }
 
     m_model = model;
     if (m_model) {
-        connect(m_model, SIGNAL(expandedChanged()), this, SLOT(requestPaint()));
-        connect(m_model, SIGNAL(hiddenChanged()), this, SLOT(requestPaint()));
-        connect(m_model, SIGNAL(expandedRowHeightChanged(int,int)), this, SLOT(requestPaint()));
+        connect(m_model, SIGNAL(expandedChanged()), this, SLOT(update()));
+        connect(m_model, SIGNAL(hiddenChanged()), this, SLOT(update()));
+        connect(m_model, SIGNAL(expandedRowHeightChanged(int,int)),
+                this, SLOT(setRowHeightsDirty()));
+        connect(m_model, SIGNAL(emptyChanged()), this, SLOT(setModelDirty()));
+        connect(m_model, SIGNAL(expandedRowCountChanged()), this, SLOT(setRowCountsDirty()));
+        connect(m_model, SIGNAL(collapsedRowCountChanged()), this, SLOT(setRowCountsDirty()));
+        m_renderPasses = model->supportedRenderPasses();
     }
 
+    setModelDirty();
+    setRowHeightsDirty();
+    setRowCountsDirty();
     emit modelChanged(m_model);
-    update();
 }
 
 void TimelineRenderer::setZoomer(TimelineZoomControl *zoomer)
 {
     if (zoomer != m_zoomer) {
         if (m_zoomer != 0)
-            disconnect(m_zoomer, SIGNAL(rangeChanged(qint64,qint64)), this, SLOT(requestPaint()));
+            disconnect(m_zoomer, SIGNAL(windowChanged(qint64,qint64)), this, SLOT(update()));
         m_zoomer = zoomer;
         if (m_zoomer != 0)
-            connect(m_zoomer, SIGNAL(rangeChanged(qint64,qint64)), this, SLOT(requestPaint()));
+            connect(m_zoomer, SIGNAL(windowChanged(qint64,qint64)), this, SLOT(update()));
         emit zoomerChanged(zoomer);
         update();
     }
@@ -99,47 +114,31 @@ void TimelineRenderer::setNotes(QmlProfilerNotesModel *notes)
         return;
 
     if (m_notes)
-        disconnect(m_notes, &QmlProfilerNotesModel::changed, this, &TimelineRenderer::requestPaint);
+        disconnect(m_notes, &QmlProfilerNotesModel::changed,
+                   this, &TimelineRenderer::setNotesDirty);
 
     m_notes = notes;
     if (m_notes)
-        connect(m_notes, &QmlProfilerNotesModel::changed, this, &TimelineRenderer::requestPaint);
+        connect(m_notes, &QmlProfilerNotesModel::changed,
+                this, &TimelineRenderer::setNotesDirty);
 
     emit notesChanged(m_notes);
     update();
 }
 
-void TimelineRenderer::requestPaint()
+bool TimelineRenderer::modelDirty() const
 {
-    update();
+    return m_modelDirty;
 }
 
-inline void TimelineRenderer::getItemXExtent(int i, int &currentX, int &itemWidth)
+bool TimelineRenderer::notesDirty() const
 {
-    qint64 start = m_model->startTime(i) - m_zoomer->rangeStart();
+    return m_notesDirty;
+}
 
-    // avoid integer overflows by using floating point for width calculations. m_spacing is qreal,
-    // too, so for some intermediate calculations we have to use floats anyway.
-    qreal rawWidth;
-    if (start > 0) {
-        currentX = static_cast<int>(start * m_spacing);
-        rawWidth = m_model->duration(i) * m_spacing;
-    } else {
-        currentX = -OutOfScreenMargin;
-        // Explicitly round the "start" part down, away from 0, to match the implicit rounding of
-        // currentX in the > 0 case. If we don't do that we get glitches where a pixel is added if
-        // the element starts outside the screen and subtracted if it starts inside the screen.
-        rawWidth = m_model->duration(i) * m_spacing +
-                floor(start * m_spacing) + OutOfScreenMargin;
-    }
-    if (rawWidth < MinimumItemWidth) {
-        currentX -= static_cast<int>((MinimumItemWidth - rawWidth) / 2);
-        itemWidth = MinimumItemWidth;
-    } else if (rawWidth > m_spacedDuration - static_cast<qreal>(currentX - OutOfScreenMargin)) {
-        itemWidth = static_cast<int>(m_spacedDuration) - currentX  + OutOfScreenMargin;
-    } else {
-        itemWidth = static_cast<int>(rawWidth);
-    }
+bool TimelineRenderer::rowHeightsDirty() const
+{
+    return m_rowHeightsDirty;
 }
 
 void TimelineRenderer::resetCurrentSelection()
@@ -150,229 +149,161 @@ void TimelineRenderer::resetCurrentSelection()
     m_currentSelection.eventIndex = -1;
 }
 
-void TimelineRenderer::paint(QPainter *p)
+TimelineRenderState *TimelineRenderer::findRenderState()
 {
-    if (height() <= 0 || m_zoomer->rangeDuration() <= 0)
-        return;
+    int newLevel = 0;
+    int newOffset = 0;
+    int level;
+    int offset;
 
-    m_spacing = width() / m_zoomer->rangeDuration();
-    m_spacedDuration = width() + 2 * OutOfScreenMargin;
+    qint64 newStart = m_zoomer->traceStart();
+    qint64 newEnd = m_zoomer->traceEnd();
+    qint64 start;
+    qint64 end;
+    do {
+        level = newLevel;
+        offset = newOffset;
+        start = newStart;
+        end = newEnd;
 
-    p->setPen(Qt::transparent);
+        newLevel = level + 1;
+        qint64 range = m_zoomer->traceDuration() >> newLevel;
+        newOffset = (m_zoomer->windowStart() - m_zoomer->traceStart() + range / 2) / range;
+        newStart = m_zoomer->traceStart() + newOffset * range - range / 2;
+        newEnd = newStart + range;
+    } while (newStart < m_zoomer->windowStart() && newEnd > m_zoomer->windowEnd());
 
-    int lastIndex = m_model->lastIndex(m_zoomer->rangeEnd());
-    if (lastIndex >= 0 && lastIndex < m_model->count()) {
-        int firstIndex = m_model->firstIndex(m_zoomer->rangeStart());
-        if (firstIndex >= 0) {
-            drawItemsToPainter(p, firstIndex, lastIndex);
-            drawSelectionBoxes(p, firstIndex, lastIndex);
-            drawBindingLoopMarkers(p, firstIndex, lastIndex);
+
+    if (m_renderStates.length() <= level)
+        m_renderStates.resize(level + 1);
+    if (m_renderStates[level].length() <= offset)
+        m_renderStates[level].resize(offset + 1);
+    TimelineRenderState *state = m_renderStates[level][offset];
+    if (state == 0) {
+        state = new TimelineRenderState(start, end, 1.0 / static_cast<qreal>(SafeFloatMax),
+                                        m_renderPasses.size());
+        m_renderStates[level][offset] = state;
+    }
+    return state;
+}
+
+QSGNode *TimelineRenderer::updatePaintNode(QSGNode *node,
+                                           UpdatePaintNodeData *updatePaintNodeData)
+{
+    Q_UNUSED(updatePaintNodeData)
+
+    if (!m_model || m_model->hidden() || m_model->isEmpty() || m_zoomer->windowDuration() <= 0) {
+        delete node;
+        return 0;
+    } else if (node == 0) {
+        node = new QSGTransformNode;
+    }
+
+    qreal spacing = width() / m_zoomer->windowDuration();
+
+    if (m_modelDirty || m_rowCountsDirty) {
+        node->removeAllChildNodes();
+        foreach (QVector<TimelineRenderState *> stateVector, m_renderStates)
+            qDeleteAll(stateVector);
+        m_renderStates.clear();
+        m_lastState = 0;
+    }
+
+    TimelineRenderState *state = findRenderState();
+
+    int lastIndex = m_model->lastIndex(m_zoomer->windowEnd());
+    int firstIndex = m_model->firstIndex(m_zoomer->windowStart());
+
+    for (int i = 0; i < m_renderPasses.length(); ++i)
+        state->setPassState(i, m_renderPasses[i]->update(this, state, state->passState(i),
+                                                         firstIndex, lastIndex + 1,
+                                                         state != m_lastState, spacing));
+
+    if (state->isEmpty()) { // new state
+        for (int pass = 0; pass < m_renderPasses.length(); ++pass) {
+            const TimelineRenderPass::State *passState = state->passState(pass);
+            if (!passState)
+                continue;
+            if (passState->expandedOverlay)
+                state->expandedOverlayRoot()->appendChildNode(passState->expandedOverlay);
+            if (passState->collapsedOverlay)
+                state->collapsedOverlayRoot()->appendChildNode(passState->collapsedOverlay);
+        }
+
+        int row = 0;
+        for (int i = 0; i < m_model->expandedRowCount(); ++i) {
+            QSGTransformNode *rowNode = new QSGTransformNode;
+            for (int pass = 0; pass < m_renderPasses.length(); ++pass) {
+                const TimelineRenderPass::State *passState = state->passState(pass);
+                if (passState && passState->expandedRows.length() > row) {
+                    QSGNode *rowChildNode = passState->expandedRows[row];
+                    if (rowChildNode)
+                        rowNode->appendChildNode(rowChildNode);
+                }
+            }
+            state->expandedRowRoot()->appendChildNode(rowNode);
+            ++row;
+        }
+
+        for (int row = 0; row < m_model->collapsedRowCount(); ++row) {
+            QSGTransformNode *rowNode = new QSGTransformNode;
+            QMatrix4x4 matrix;
+            matrix.translate(0, row * TimelineModel::defaultRowHeight(), 0);
+            rowNode->setMatrix(matrix);
+            for (int pass = 0; pass < m_renderPasses.length(); ++pass) {
+                const TimelineRenderPass::State *passState = state->passState(pass);
+                if (passState && passState->collapsedRows.length() > row) {
+                    QSGNode *rowChildNode = passState->collapsedRows[row];
+                    if (rowChildNode)
+                        rowNode->appendChildNode(rowChildNode);
+                }
+            }
+            state->collapsedRowRoot()->appendChildNode(rowNode);
         }
     }
-    drawNotes(p);
+
+    if (m_rowHeightsDirty || state != m_lastState) {
+        int row = 0;
+        qreal offset = 0;
+        for (QSGNode *rowNode = state->expandedRowRoot()->firstChild(); rowNode != 0;
+             rowNode = rowNode->nextSibling()) {
+            qreal rowHeight = m_model->expandedRowHeight(row++);
+            QMatrix4x4 matrix;
+            matrix.translate(0, offset, 0);
+            matrix.scale(1, rowHeight / TimelineModel::defaultRowHeight(), 1);
+            offset += rowHeight;
+            static_cast<QSGTransformNode *>(rowNode)->setMatrix(matrix);
+        }
+    }
+
+    m_modelDirty = false;
+    m_notesDirty = false;
+    m_rowCountsDirty = false;
+    m_rowHeightsDirty = false;
+    m_lastState = state;
+
+    QSGNode *rowNode = m_model->expanded() ? state->expandedRowRoot() : state->collapsedRowRoot();
+    QSGNode *overlayNode = m_model->expanded() ? state->expandedOverlayRoot() :
+                                                 state->collapsedOverlayRoot();
+
+    QMatrix4x4 matrix;
+    matrix.translate((state->start() - m_zoomer->windowStart()) * spacing, 0, 0);
+    matrix.scale(spacing / state->scale(), 1, 1);
+
+    QSGTransformNode *transform = static_cast<QSGTransformNode *>(node);
+    transform->setMatrix(matrix);
+
+    if (node->firstChild() != rowNode || node->lastChild() != overlayNode) {
+        node->removeAllChildNodes();
+        node->appendChildNode(rowNode);
+        node->appendChildNode(overlayNode);
+    }
+    return node;
 }
 
 void TimelineRenderer::mousePressEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
-}
-
-void TimelineRenderer::drawItemsToPainter(QPainter *p, int fromIndex, int toIndex)
-{
-    p->save();
-    p->setPen(Qt::transparent);
-    for (int i = fromIndex; i <= toIndex; i++) {
-        int currentX, currentY, itemWidth, itemHeight;
-
-        int rowNumber = m_model->row(i);
-        currentY = m_model->rowOffset(rowNumber) - y();
-        if (currentY >= height())
-            continue;
-
-        int rowHeight = m_model->rowHeight(rowNumber);
-        itemHeight = rowHeight * m_model->relativeHeight(i);
-
-        currentY += rowHeight - itemHeight;
-        if (currentY + itemHeight < 0)
-            continue;
-
-        getItemXExtent(i, currentX, itemWidth);
-
-        // normal events
-        p->setBrush(m_model->color(i));
-        p->drawRect(currentX, currentY, itemWidth, itemHeight);
-    }
-    p->restore();
-}
-
-void TimelineRenderer::drawSelectionBoxes(QPainter *p, int fromIndex, int toIndex)
-{
-    const uint strongLineWidth = 3;
-    const uint lightLineWidth = 2;
-    static const QColor strongColor = Qt::blue;
-    static const QColor lockedStrongColor = QColor(96,0,255);
-    static const QColor lightColor = strongColor.lighter(130);
-    static const QColor lockedLightColor = lockedStrongColor.lighter(130);
-
-    if (m_selectedItem == -1)
-        return;
-
-    int id = m_model->selectionId(m_selectedItem);
-
-    p->save();
-
-    QPen strongPen(m_selectionLocked ? lockedStrongColor : strongColor, strongLineWidth);
-    strongPen.setJoinStyle(Qt::MiterJoin);
-    QPen lightPen(m_selectionLocked ? lockedLightColor : lightColor, lightLineWidth);
-    lightPen.setJoinStyle(Qt::MiterJoin);
-    p->setPen(lightPen);
-    p->setBrush(Qt::transparent);
-
-    int currentX, currentY, itemWidth;
-    for (int i = fromIndex; i <= toIndex; i++) {
-        if (m_model->selectionId(i) != id)
-            continue;
-
-        int row = m_model->row(i);
-        int rowHeight = m_model->rowHeight(row);
-        int itemHeight = rowHeight * m_model->relativeHeight(i);
-
-        currentY = m_model->rowOffset(row) + rowHeight - itemHeight - y();
-        if (currentY + itemHeight < 0 || height() < currentY)
-            continue;
-
-        getItemXExtent(i, currentX, itemWidth);
-
-        if (i == m_selectedItem)
-            p->setPen(strongPen);
-
-        // Draw the lines at the right offsets. The lines have a width and we don't want them to
-        // bleed into the previous or next row as that may belong to a different model and get cut
-        // off.
-        int lineWidth = p->pen().width();
-        itemWidth -= lineWidth;
-        itemHeight -= lineWidth;
-        currentX += lineWidth / 2;
-        currentY += lineWidth / 2;
-
-        // If it's only a line or point, draw it left/top aligned.
-        if (itemWidth > 0) {
-            if (itemHeight > 0) {
-                p->drawRect(currentX, currentY, itemWidth, itemHeight);
-            } else {
-                p->drawLine(currentX, currentY + itemHeight, currentX + itemWidth,
-                            currentY + itemHeight);
-            }
-        } else if (itemHeight > 0) {
-            p->drawLine(currentX + itemWidth, currentY, currentX + itemWidth,
-                        currentY + itemHeight);
-        } else {
-            p->drawPoint(currentX + itemWidth, currentY + itemHeight);
-        }
-
-        if (i == m_selectedItem)
-            p->setPen(lightPen);
-    }
-
-    p->restore();
-}
-
-void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int fromIndex, int toIndex)
-{
-    int destindex;
-    int xfrom, xto, width;
-    int yfrom, yto;
-    int radius = 10;
-    QPen shadowPen = QPen(QColor("grey"),2);
-    QPen markerPen = QPen(QColor("orange"),2);
-    QBrush shadowBrush = QBrush(QColor("grey"));
-    QBrush markerBrush = QBrush(QColor("orange"));
-
-    p->save();
-    for (int i = fromIndex; i <= toIndex; i++) {
-        destindex = m_model->bindingLoopDest(i);
-        if (destindex >= 0) {
-            // to
-            getItemXExtent(destindex, xto, width);
-            xto += width / 2;
-            yto = getYPosition(destindex) + m_model->rowHeight(m_model->row(destindex)) / 2 - y();
-
-            // from
-            getItemXExtent(i, xfrom, width);
-            xfrom += width / 2;
-            yfrom = getYPosition(i) + m_model->rowHeight(m_model->row(i)) / 2 - y();
-
-            // radius (derived from width of origin event)
-            radius = 5;
-            if (radius * 2 > width)
-                radius = width / 2;
-            if (radius < 2)
-                radius = 2;
-
-            int shadowoffset = 2;
-            if ((yfrom + radius + shadowoffset < 0 && yto + radius + shadowoffset < 0) ||
-                    (yfrom - radius >= height() && yto - radius >= height()))
-                continue;
-
-            // shadow
-            p->setPen(shadowPen);
-            p->setBrush(shadowBrush);
-            p->drawEllipse(QPoint(xfrom, yfrom + shadowoffset), radius, radius);
-            p->drawEllipse(QPoint(xto, yto + shadowoffset), radius, radius);
-            p->drawLine(QPoint(xfrom, yfrom + shadowoffset), QPoint(xto, yto + shadowoffset));
-
-
-            // marker
-            p->setPen(markerPen);
-            p->setBrush(markerBrush);
-            p->drawEllipse(QPoint(xfrom, yfrom), radius, radius);
-            p->drawEllipse(QPoint(xto, yto), radius, radius);
-            p->drawLine(QPoint(xfrom, yfrom), QPoint(xto, yto));
-        }
-    }
-    p->restore();
-}
-
-void TimelineRenderer::drawNotes(QPainter *p)
-{
-    static const QColor shadowBrush("grey");
-    static const QColor markerBrush("orange");
-    static const int annotationWidth = 4;
-    static const int annotationHeight1 = 16;
-    static const int annotationHeight2 = 4;
-    static const int annotationSpace = 4;
-    static const int shadowOffset = 2;
-
-    for (int i = 0; i < m_notes->count(); ++i) {
-        int modelId = m_notes->timelineModel(i);
-        if (modelId == -1 || modelId != m_model->modelId())
-            continue;
-        int eventIndex = m_notes->timelineIndex(i);
-        int row = m_model->row(eventIndex);
-        int rowHeight = m_model->rowHeight(row);
-        int currentY = m_model->rowOffset(row) - y();
-        if (currentY + rowHeight < 0 || height() < currentY)
-            continue;
-        int currentX;
-        int itemWidth;
-        getItemXExtent(eventIndex, currentX, itemWidth);
-
-        // shadow
-        int annoX = currentX + (itemWidth - annotationWidth) / 2;
-        int annoY = currentY + rowHeight / 2 -
-                (annotationHeight1 + annotationHeight2 + annotationSpace) / 2;
-
-        p->setBrush(shadowBrush);
-        p->drawRect(annoX, annoY + shadowOffset, annotationWidth, annotationHeight1);
-        p->drawRect(annoX, annoY + annotationHeight1 + annotationSpace + shadowOffset,
-                annotationWidth, annotationHeight2);
-
-        // marker
-        p->setBrush(markerBrush);
-        p->drawRect(annoX, annoY, annotationWidth, annotationHeight1);
-        p->drawRect(annoX, annoY + annotationHeight1 + annotationSpace,
-                annotationWidth, annotationHeight2);
-    }
 }
 
 int TimelineRenderer::rowFromPosition(int y)
@@ -432,15 +363,15 @@ void TimelineRenderer::manageClicked()
 
 void TimelineRenderer::manageHovered(int mouseX, int mouseY)
 {
-    qint64 duration = m_zoomer->rangeDuration();
+    qint64 duration = m_zoomer->windowDuration();
     if (duration <= 0)
         return;
 
     // Make the "selected" area 3 pixels wide by adding/subtracting 1 to catch very narrow events.
-    qint64 startTime = (mouseX - 1) * duration / width() + m_zoomer->rangeStart();
-    qint64 endTime = (mouseX + 1) * duration / width() + m_zoomer->rangeStart();
+    qint64 startTime = (mouseX - 1) * duration / width() + m_zoomer->windowStart();
+    qint64 endTime = (mouseX + 1) * duration / width() + m_zoomer->windowStart();
     qint64 exactTime = (startTime + endTime) / 2;
-    int row = rowFromPosition(mouseY + y());
+    int row = rowFromPosition(mouseY);
 
     // already covered? Only recheck selectionLocked and make sure m_selectedItem is correct.
     if (m_currentSelection.eventIndex != -1 &&
@@ -489,20 +420,9 @@ void TimelineRenderer::manageHovered(int mouseX, int mouseY)
 
 void TimelineRenderer::clearData()
 {
-    m_spacing = 0;
-    m_spacedDuration = 0;
     resetCurrentSelection();
     setSelectedItem(-1);
     setSelectionLocked(true);
-}
-
-int TimelineRenderer::getYPosition(int index) const
-{
-    Q_ASSERT(m_model);
-    if (index >= m_model->count())
-        return 0;
-
-    return m_model->rowOffset(m_model->row(index));
 }
 
 void TimelineRenderer::selectNextFromSelectionId(int selectionId)
@@ -516,3 +436,27 @@ void TimelineRenderer::selectPrevFromSelectionId(int selectionId)
     setSelectedItem(m_model->prevItemBySelectionId(selectionId, m_zoomer->rangeStart(),
                                                    m_selectedItem));
 }
+
+void TimelineRenderer::setModelDirty()
+{
+    m_modelDirty = true;
+    update();
+}
+
+void TimelineRenderer::setRowHeightsDirty()
+{
+    m_rowHeightsDirty = true;
+    update();
+}
+
+void TimelineRenderer::setNotesDirty()
+{
+    m_notesDirty = true;
+    update();
+}
+
+void TimelineRenderer::setRowCountsDirty()
+{
+    m_rowCountsDirty = true;
+}
+

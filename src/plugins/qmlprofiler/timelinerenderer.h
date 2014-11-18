@@ -31,26 +31,31 @@
 #ifndef TIMELINERENDERER_H
 #define TIMELINERENDERER_H
 
-#include <QQuickPaintedItem>
-#include <QJSValue>
+#include <QSGTransformNode>
+#include <QQuickItem>
 #include "timelinezoomcontrol.h"
 #include "timelinemodel.h"
 #include "qmlprofilernotesmodel.h"
+#include "timelinerenderpass.h"
 
 namespace QmlProfiler {
 namespace Internal {
 
-class TimelineRenderer : public QQuickPaintedItem
+class TimelineRenderPass;
+class TimelineRenderState;
+
+class TimelineRenderer : public QQuickItem
 {
     Q_OBJECT
-    Q_PROPERTY(QmlProfiler::QmlProfilerTimelineModel *model READ model WRITE setModel NOTIFY modelChanged)
+    Q_PROPERTY(QmlProfiler::TimelineModel *model READ model WRITE setModel NOTIFY modelChanged)
     Q_PROPERTY(QmlProfiler::TimelineZoomControl *zoomer READ zoomer WRITE setZoomer NOTIFY zoomerChanged)
     Q_PROPERTY(QmlProfiler::QmlProfilerNotesModel *notes READ notes WRITE setNotes NOTIFY notesChanged)
     Q_PROPERTY(bool selectionLocked READ selectionLocked WRITE setSelectionLocked NOTIFY selectionLockedChanged)
     Q_PROPERTY(int selectedItem READ selectedItem WRITE setSelectedItem NOTIFY selectedItemChanged)
 
 public:
-    explicit TimelineRenderer(QQuickPaintedItem *parent = 0);
+
+    explicit TimelineRenderer(QQuickItem *parent = 0);
 
     bool selectionLocked() const
     {
@@ -62,8 +67,8 @@ public:
         return m_selectedItem;
     }
 
-    QmlProfilerTimelineModel *model() const { return m_model; }
-    void setModel(QmlProfilerTimelineModel *model);
+    TimelineModel *model() const { return m_model; }
+    void setModel(TimelineModel *model);
 
     TimelineZoomControl *zoomer() const { return m_zoomer; }
     void setZoomer(TimelineZoomControl *zoomer);
@@ -71,13 +76,18 @@ public:
     QmlProfilerNotesModel *notes() const { return m_notes; }
     void setNotes(QmlProfilerNotesModel *notes);
 
-    Q_INVOKABLE int getYPosition(int index) const;
+    bool modelDirty() const;
+    bool notesDirty() const;
+    bool rowHeightsDirty() const;
 
     Q_INVOKABLE void selectNextFromSelectionId(int selectionId);
     Q_INVOKABLE void selectPrevFromSelectionId(int selectionId);
 
+    // TODO: We could add some Q_INVOKABLE functions to enable or disable render passes when the the
+    // need arises.
+
 signals:
-    void modelChanged(TimelineModel *model);
+    void modelChanged(const TimelineModel *model);
     void zoomerChanged(TimelineZoomControl *zoomer);
     void notesChanged(QmlProfilerNotesModel *notes);
 
@@ -87,7 +97,6 @@ signals:
 
 public slots:
     void clearData();
-    void requestPaint();
 
     void setSelectedItem(int itemIndex)
     {
@@ -107,34 +116,32 @@ public slots:
         }
     }
 
+private slots:
+    void setModelDirty();
+    void setRowHeightsDirty();
+    void setNotesDirty();
+    void setRowCountsDirty();
+
 protected:
-    virtual void paint(QPainter *);
+    virtual QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData);
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
     virtual void mouseMoveEvent(QMouseEvent *event);
     virtual void hoverMoveEvent(QHoverEvent *event);
 
 private:
-    void drawItemsToPainter(QPainter *p, int fromIndex, int toIndex);
-    void drawSelectionBoxes(QPainter *p, int fromIndex, int toIndex);
-    void drawBindingLoopMarkers(QPainter *p, int fromIndex, int toIndex);
-    void drawNotes(QPainter *p);
-
     int rowFromPosition(int y);
 
     void manageClicked();
     void manageHovered(int mouseX, int mouseY);
 
-    static const int OutOfScreenMargin = 3; // margin to make sure the rectangles stay invisible
-    static const int MinimumItemWidth = 3;
+    static const int SafeFloatMax = 1 << 12;
 
-    inline void getItemXExtent(int i, int &currentX, int &itemWidth);
     void resetCurrentSelection();
 
-    qreal m_spacing;
-    qreal m_spacedDuration;
+    TimelineRenderState *findRenderState();
 
-    QmlProfilerTimelineModel *m_model;
+    TimelineModel *m_model;
     TimelineZoomControl *m_zoomer;
     QmlProfilerNotesModel *m_notes;
 
@@ -147,6 +154,14 @@ private:
 
     int m_selectedItem;
     bool m_selectionLocked;
+    bool m_modelDirty;
+    bool m_rowHeightsDirty;
+    bool m_notesDirty;
+    bool m_rowCountsDirty;
+
+    QList<const TimelineRenderPass *> m_renderPasses;
+    QVector<QVector<TimelineRenderState *> > m_renderStates;
+    TimelineRenderState *m_lastState;
 };
 
 } // namespace Internal

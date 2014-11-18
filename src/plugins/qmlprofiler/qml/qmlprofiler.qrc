@@ -30,5 +30,11 @@
         <file>ico_note.png</file>
         <file>ButtonsBar.qml</file>
         <file>ico_filter.png</file>
+        <file>timelineitems.vert</file>
+        <file>timelineitems.frag</file>
+        <file>bindingloops.vert</file>
+        <file>bindingloops.frag</file>
+        <file>notes.vert</file>
+        <file>notes.frag</file>
     </qresource>
 </RCC>

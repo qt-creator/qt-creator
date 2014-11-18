@@ -102,7 +102,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
     groupLayout->setSpacing(0);
 
     qmlRegisterType<TimelineZoomControl>();
-    qmlRegisterType<QmlProfilerTimelineModel>();
+    qmlRegisterType<TimelineModel>();
     qmlRegisterType<QmlProfilerNotesModel>();
 
     d->m_mainView = new QmlProfilerQuickView(this);
