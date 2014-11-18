@@ -497,7 +497,7 @@ ComponentVersion TypeDescriptionReader::readNumericVersionBinding(UiScriptBindin
     ComponentVersion invalidVersion;
 
     if (!ast || !ast->statement) {
-        addError(ast->colonToken, tr("Expected numeric literal after colon."));
+        addError((ast ? ast->colonToken : SourceLocation()), tr("Expected numeric literal after colon."));
         return invalidVersion;
     }
 
