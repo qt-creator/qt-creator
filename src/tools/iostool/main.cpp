@@ -563,7 +563,7 @@ void IosTool::run(const QStringList &args)
                 printHelp = true;
             }
         } else if (arg == QLatin1String("-extra-args")) {
-            extraArgs = args.mid(iarg, args.size() - iarg);
+            extraArgs = args.mid(iarg + 1, args.size() - iarg - 1);
             iarg = args.size();
         } else if (arg == QLatin1String("-help") || arg == QLatin1String("--help")) {
             printHelp = true;
