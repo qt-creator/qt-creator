@@ -238,8 +238,6 @@ bool QmakeAndroidBuildApkStep::init()
         arguments << QLatin1String("--ant")
                   << AndroidConfigurations::currentConfig().antToolPath().toString();
 
-    if (buildConfiguration()->buildType() == ProjectExplorer::BuildConfiguration::Release)
-        arguments << QLatin1String("--release");
 
     QStringList argumentsPasswordConcealed = arguments;
 
