@@ -267,7 +267,7 @@ bool QbsRunConfiguration::isConsoleApplication() const
 QString QbsRunConfiguration::workingDirectory() const
 {
     EnvironmentAspect *aspect = extraAspect<EnvironmentAspect>();
-    QTC_ASSERT(aspect, baseWorkingDirectory());
+    QTC_ASSERT(aspect, return baseWorkingDirectory());
     return QDir::cleanPath(aspect->environment().expandVariables(
                 macroExpander()->expand(baseWorkingDirectory())));
 }
