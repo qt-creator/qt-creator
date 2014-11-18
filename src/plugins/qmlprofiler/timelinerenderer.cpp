@@ -282,14 +282,14 @@ void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int modelIndex, int f
             // to
             getItemXExtent(modelIndex, destindex, xto, width);
             xto += width / 2;
-            yto = getYPosition(modelIndex, destindex) +
-                    m_profilerModelProxy->rowHeight(modelIndex, destindex) / 2 - y();
+            yto = getYPosition(modelIndex, destindex) + m_profilerModelProxy->rowHeight(modelIndex,
+                    m_profilerModelProxy->row(modelIndex, destindex)) / 2 - y();
 
             // from
             getItemXExtent(modelIndex, i, xfrom, width);
             xfrom += width / 2;
-            yfrom = getYPosition(modelIndex, i) +
-                    m_profilerModelProxy->rowHeight(modelIndex, i) / 2 - y();
+            yfrom = getYPosition(modelIndex, i) + m_profilerModelProxy->rowHeight(modelIndex,
+                    m_profilerModelProxy->row(modelIndex, i)) / 2 - y();
 
             // radius (derived from width of origin event)
             radius = 5;
