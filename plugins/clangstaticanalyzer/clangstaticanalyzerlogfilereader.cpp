@@ -253,7 +253,7 @@ ExplainingStep ClangStaticAnalyzerLogFileReader::readPathDict()
         }
     }
 
-    bool depthOk;
+    bool depthOk = false;
 
     while (m_xml.readNextStartElement()) {
         if (m_xml.name() == QLatin1String("key")) {
@@ -291,7 +291,7 @@ Location ClangStaticAnalyzerLogFileReader::readLocationDict(bool elementIsRead)
     int line = 0;
     int column = 0;
     int fileIndex = 0;
-    bool lineOk, columnOk, fileIndexOk;
+    bool lineOk = false, columnOk = false, fileIndexOk = false;
 
     // Collect values
     while (m_xml.readNextStartElement()) {
