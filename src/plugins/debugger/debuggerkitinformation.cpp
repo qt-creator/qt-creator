@@ -303,7 +303,7 @@ KitConfigWidget *DebuggerKitInformation::createConfigWidget(Kit *k) const
 
 void DebuggerKitInformation::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
-    expander->registerVariable("Debugger:EngineType", tr("Type of Debugger Backend"),
+    expander->registerVariable("Debugger:Type", tr("Type of Debugger Backend"),
                                [this, kit]() -> QString {
                                    const DebuggerItem *item = debugger(kit);
                                    return item ? item->engineTypeName() : tr("unknown");
