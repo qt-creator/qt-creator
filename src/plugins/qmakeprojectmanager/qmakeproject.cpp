@@ -1675,6 +1675,11 @@ ProjectImporter *QmakeProject::createProjectImporter() const
     return new QmakeProjectImporter(projectFilePath().toString());
 }
 
+QmakeProject::AsyncUpdateState QmakeProject::asyncUpdateState() const
+{
+    return m_asyncUpdateState;
+}
+
 } // namespace QmakeProjectManager
 
 #include "qmakeproject.moc"
