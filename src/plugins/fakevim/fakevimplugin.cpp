@@ -2273,6 +2273,7 @@ void FakeVimPlugin::setupTest(QString *title, FakeVimHandler **handler, QWidget 
     Core::EditorManager::activateEditor(iedit);
     *edit = iedit->widget();
     *handler = d->m_editorToHandler.value(iedit, 0);
+    (*handler)->setupWidget();
     (*handler)->handleCommand(_("set startofline"));
 
 //    *handler = 0;

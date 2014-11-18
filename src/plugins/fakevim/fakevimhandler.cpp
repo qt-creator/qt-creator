@@ -2312,7 +2312,6 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
         connect(EDITOR(document()), SIGNAL(contentsChange(int,int,int)),
                 SLOT(onContentsChanged(int,int,int)));
         connect(EDITOR(document()), SIGNAL(undoCommandAdded()), SLOT(onUndoCommandAdded()));
-        connect(editor(), SIGNAL(cursorPositionChanged()), SLOT(onCursorPositionChanged()));
         m_buffer->lastRevision = revision();
     }
 }
@@ -2341,7 +2340,6 @@ void FakeVimHandler::Private::init()
     initSingleShotTimer(&m_inputTimer, 1000, this, SLOT(onInputTimeout()));
 
     pullOrCreateBufferData();
-    pullCursor();
     setupCharClass();
 }
 
@@ -2558,6 +2556,10 @@ void FakeVimHandler::Private::removeEventFilter()
 
 void FakeVimHandler::Private::setupWidget()
 {
+    m_cursorNeedsUpdate = true;
+    connect(editor(), SIGNAL(cursorPositionChanged()),
+            SLOT(onCursorPositionChanged()), Qt::UniqueConnection);
+
     enterFakeVim();
 
     leaveCurrentMode();
@@ -2681,6 +2683,7 @@ void FakeVimHandler::Private::restoreWidget(int tabSize)
     setThinCursor();
     updateSelection();
     updateHighlights();
+    disconnect(editor(), SIGNAL(cursorPositionChanged()), this, SLOT(onCursorPositionChanged()));
 }
 
 EventResult FakeVimHandler::Private::handleKey(const Input &input)
