@@ -121,10 +121,9 @@ bool ClangStaticAnalyzerPlugin::initializeEnterpriseFeatures(const QStringList &
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
 
-    addAutoReleasedObject(new ClangStaticAnalyzerOptionsPage);
-    addAutoReleasedObject(new ClangStaticAnalyzerRunControlFactory);
-
     m_analyzerTool = new ClangStaticAnalyzerTool(this);
+    addAutoReleasedObject(new ClangStaticAnalyzerRunControlFactory(m_analyzerTool));
+    addAutoReleasedObject(new ClangStaticAnalyzerOptionsPage);
 
     const QString toolTip = tr("Clang Static Analyzer uses the analyzer from the clang project "
                                "to find bugs.");

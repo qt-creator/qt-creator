@@ -3,6 +3,7 @@
     \"Version\" : \"$$QTCREATOR_VERSION\",
     \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
     \"Experimental\" : true,
+    \"Platform\" : \"(Linux.*)|(OS X.*)\",
     \"Vendor\" : \"Digia Plc\",
     \"Copyright\" : \"(C) 2014 Digia Plc\",
     \"License\" : [ \"Commercial Usage\",

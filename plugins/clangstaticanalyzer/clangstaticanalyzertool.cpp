@@ -24,10 +24,15 @@
 
 #include <analyzerbase/analyzermanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icore.h>
+#include <cpptools/cppmodelmanager.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
 
+#include <utils/checkablemessagebox.h>
 #include <utils/fancymainwindow.h>
 
 #include <QDockWidget>
@@ -129,7 +134,22 @@ AnalyzerRunControl *ClangStaticAnalyzerTool::createRunControl(
         const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration)
 {
-    ClangStaticAnalyzerRunControl *engine = new ClangStaticAnalyzerRunControl(sp, runConfiguration);
+    QTC_ASSERT(runConfiguration, return 0);
+    QTC_ASSERT(m_projectInfoBeforeBuild.isValid(), return 0);
+
+    // Some projects provides CompilerCallData once a build is finished,
+    // so pass on the updated Project Info unless no configuration change
+    // (defines/includes/files) happened.
+    Project *project = SessionManager::startupProject();
+    QTC_ASSERT(project, return 0);
+    const CppTools::ProjectInfo projectInfoAfterBuild
+            = CppTools::CppModelManager::instance()->projectInfo(project);
+    QTC_ASSERT(!projectInfoAfterBuild.configurationOrFilesChanged(m_projectInfoBeforeBuild),
+               return 0);
+    m_projectInfoBeforeBuild = CppTools::ProjectInfo();
+
+    ClangStaticAnalyzerRunControl *engine
+            = new ClangStaticAnalyzerRunControl(sp, runConfiguration, projectInfoAfterBuild);
     connect(engine, &ClangStaticAnalyzerRunControl::starting,
             this, &ClangStaticAnalyzerTool::onEngineIsStarting);
     connect(engine, &ClangStaticAnalyzerRunControl::newDiagnosticsAvailable,
@@ -139,20 +159,73 @@ AnalyzerRunControl *ClangStaticAnalyzerTool::createRunControl(
     return engine;
 }
 
+static bool dontStartAfterHintForDebugMode()
+{
+    const Project *project = SessionManager::startupProject();
+    BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
+    if (project) {
+        if (const Target *target = project->activeTarget()) {
+            if (const BuildConfiguration *buildConfig = target->activeBuildConfiguration())
+                buildType = buildConfig->buildType();
+        }
+    }
+
+    if (buildType == BuildConfiguration::Release) {
+        const QString wrongMode = ClangStaticAnalyzerTool::tr("Release");
+        const QString toolName = ClangStaticAnalyzerTool::tr("Clang Static Analyzer");
+        const QString title = ClangStaticAnalyzerTool::tr("Run %1 in %2 Mode?").arg(toolName)
+                .arg(wrongMode);
+        const QString message = ClangStaticAnalyzerTool::tr(
+            "<html><head/><body>"
+            "<p>You are trying to run the tool \"%1\" on an application in %2 mode. The tool is "
+            "designed to be used in Debug mode since enabled assertions can reduce the number of "
+            "false positives.</p>"
+            "<p>Do you want to continue and run the tool in %2 mode?</p>"
+            "</body></html>")
+                .arg(toolName).arg(wrongMode);
+        if (Utils::CheckableMessageBox::doNotAskAgainQuestion(Core::ICore::mainWindow(),
+                title, message, Core::ICore::settings(),
+                QLatin1String("ClangStaticAnalyzerCorrectModeWarning"),
+                QDialogButtonBox::Yes|QDialogButtonBox::Cancel,
+                QDialogButtonBox::Cancel, QDialogButtonBox::Yes) != QDialogButtonBox::Yes)
+            return true;
+    }
+
+    return false;
+}
+
 void ClangStaticAnalyzerTool::startTool(StartMode mode)
 {
     QTC_ASSERT(mode == Analyzer::StartLocal, return);
 
     AnalyzerManager::showMode();
-    if (Project *pro = SessionManager::startupProject())
-        ProjectExplorerPlugin::instance()->runProject(pro, runMode());
+
+    if (dontStartAfterHintForDebugMode())
+        return;
+
+    m_diagnosticModel->clear();
+    setBusyCursor(true);
+    Project *project = SessionManager::startupProject();
+    QTC_ASSERT(project, return);
+    m_projectInfoBeforeBuild = CppTools::CppModelManager::instance()->projectInfo(project);
+    QTC_ASSERT(m_projectInfoBeforeBuild.isValid(), return);
+    ProjectExplorerPlugin::instance()->runProject(project, runMode());
+}
+
+CppTools::ProjectInfo ClangStaticAnalyzerTool::projectInfoBeforeBuild() const
+{
+    return m_projectInfoBeforeBuild;
+}
+
+void ClangStaticAnalyzerTool::resetCursorAndProjectInfoBeforeBuild()
+{
+    setBusyCursor(false);
+    m_projectInfoBeforeBuild = CppTools::ProjectInfo();
 }
 
 void ClangStaticAnalyzerTool::onEngineIsStarting()
 {
     QTC_ASSERT(m_diagnosticModel, return);
-    m_diagnosticModel->clear();
-    setBusyCursor(true);
 }
 
 void ClangStaticAnalyzerTool::onNewDiagnosticsAvailable(const QList<Diagnostic> &diagnostics)
@@ -166,10 +239,12 @@ void ClangStaticAnalyzerTool::onEngineFinished()
     QTC_ASSERT(m_goBack, return);
     QTC_ASSERT(m_goNext, return);
     QTC_ASSERT(m_diagnosticModel, return);
+
+    resetCursorAndProjectInfoBeforeBuild();
+
     const int issuesFound = m_diagnosticModel->rowCount();
     m_goBack->setEnabled(issuesFound > 1);
     m_goNext->setEnabled(issuesFound > 1);
-    setBusyCursor(false);
 
     AnalyzerManager::showStatusMessage(issuesFound > 0
       ? AnalyzerManager::tr("Clang Static Analyzer finished, %n issues were found.", 0, issuesFound)

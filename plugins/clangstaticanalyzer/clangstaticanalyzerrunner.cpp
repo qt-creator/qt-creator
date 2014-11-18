@@ -20,6 +20,8 @@
 
 #include "clangstaticanalyzerconstants.h"
 
+#include <utils/synchronousprocess.h>
+
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
@@ -83,14 +85,7 @@ ClangStaticAnalyzerRunner::ClangStaticAnalyzerRunner(const QString &clangExecuta
 
 ClangStaticAnalyzerRunner::~ClangStaticAnalyzerRunner()
 {
-    const QProcess::ProcessState processState = m_process.state();
-    if (processState == QProcess::Starting || processState == QProcess::Running) {
-        m_process.terminate();
-        if (!m_process.waitForFinished(500)) {
-            m_process.kill();
-            m_process.waitForFinished();
-        }
-    }
+    Utils::SynchronousProcess::stopProcess(m_process);
 }
 
 bool ClangStaticAnalyzerRunner::run(const QString &filePath, const QStringList &compilerOptions)
@@ -99,6 +94,7 @@ bool ClangStaticAnalyzerRunner::run(const QString &filePath, const QStringList &
     QTC_CHECK(!compilerOptions.contains(QLatin1String("-o")));
     QTC_CHECK(!compilerOptions.contains(filePath));
 
+    m_filePath = filePath;
     m_processOutput.clear();
 
     m_logFile = createLogFile(filePath);
@@ -110,6 +106,11 @@ bool ClangStaticAnalyzerRunner::run(const QString &filePath, const QStringList &
     qCDebug(LOG) << "Starting" << m_commandLine;
     m_process.start(m_clangExecutable, arguments);
     return true;
+}
+
+QString ClangStaticAnalyzerRunner::filePath() const
+{
+    return m_filePath;
 }
 
 void ClangStaticAnalyzerRunner::onProcessStarted()
@@ -161,8 +162,8 @@ QString ClangStaticAnalyzerRunner::createLogFile(const QString &filePath) const
 QString ClangStaticAnalyzerRunner::processCommandlineAndOutput() const
 {
     return QObject::tr("Command line: \"%1\"\n"
-                       "Process Error: \"%2\"\n"
-                       "Output:\n\"%3\"")
+                       "Process Error: %2\n"
+                       "Output:\n%3")
                             .arg(m_commandLine,
                                  QString::number(m_process.error()),
                                  QString::fromLocal8Bit(m_processOutput));

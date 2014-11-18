@@ -46,5 +46,10 @@ bool ExplainingStep::isValid() const
     return location.isValid() && !ranges.isEmpty() && !message.isEmpty();
 }
 
+bool Diagnostic::isValid() const
+{
+    return !description.isEmpty();
+}
+
 } // namespace Internal
 } // namespace ClangStaticAnalyzer
