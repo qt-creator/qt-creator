@@ -258,6 +258,16 @@ bool AndroidDeployQtStep::init()
         }
         if (androidBuildApkStep->useGradle())
             Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--gradle"));
+
+        if (androidBuildApkStep->signPackage()) {
+            // The androiddeployqt tool is not really written to do stand-alone installations.
+            // This hack forces it to use the correct filename for the apk file when installing
+            // as a temporary fix until androiddeployqt gets the support. Since the --sign is
+            // only used to get the correct file name of the apk, its parameters are ignored.
+            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--sign"));
+            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("foo"));
+            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("bar"));
+        }
     } else {
         m_uninstallPreviousPackageRun = true;
         pp->setCommand(AndroidConfigurations::currentConfig().adbToolPath().toString());
