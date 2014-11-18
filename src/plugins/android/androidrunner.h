@@ -37,6 +37,7 @@
 
 #include <QObject>
 #include <QTimer>
+#include <QTcpSocket>
 #include <QThread>
 #include <QProcess>
 #include <QMutex>
@@ -49,6 +50,11 @@ namespace Internal {
 class AndroidRunner : public QThread
 {
     Q_OBJECT
+
+    enum DebugHandShakeType {
+        PingPongFiles,
+        SocketHandShake
+    };
 
 public:
     AndroidRunner(QObject *parent, AndroidRunConfiguration *runConfig,
@@ -114,6 +120,9 @@ private:
     bool m_isBusyBox;
     QStringList m_selector;
     QMutex m_mutex;
+    DebugHandShakeType m_handShakeMethod;
+    QTcpSocket *m_socket;
+    bool m_customPort;
 };
 
 } // namespace Internal
