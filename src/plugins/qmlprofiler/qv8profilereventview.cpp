@@ -643,7 +643,7 @@ QV8ProfilerEventRelativesView::~QV8ProfilerEventRelativesView()
 void QV8ProfilerEventRelativesView::displayType(int index)
 {
     QV8ProfilerDataModel::QV8EventData *event = m_v8Model->v8EventDescription(index);
-    QTC_CHECK(event);
+    QTC_ASSERT(event, return);
 
     QList<QV8ProfilerDataModel::QV8EventSub*> events;
     if (m_type == ParentsView)
