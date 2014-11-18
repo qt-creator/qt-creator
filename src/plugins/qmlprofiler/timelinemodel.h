@@ -49,6 +49,8 @@ class QMLPROFILER_EXPORT TimelineModel : public QObject
     Q_PROPERTY(bool hidden READ hidden WRITE setHidden NOTIFY hiddenChanged)
     Q_PROPERTY(bool expanded READ expanded WRITE setExpanded NOTIFY expandedChanged)
     Q_PROPERTY(int height READ height NOTIFY heightChanged)
+    Q_PROPERTY(int expandedRowCount READ expandedRowCount NOTIFY expandedRowCountChanged)
+    Q_PROPERTY(int collapsedRowCount READ collapsedRowCount NOTIFY collapsedRowCountChanged)
     Q_PROPERTY(int rowCount READ rowCount NOTIFY rowCountChanged)
     Q_PROPERTY(QVariantList labels READ labels NOTIFY labelsChanged)
     Q_PROPERTY(int count READ count NOTIFY emptyChanged)
@@ -63,9 +65,16 @@ public:
     // Methods implemented by the abstract model itself
     bool isEmpty() const;
     int modelId() const;
+
+    Q_INVOKABLE int collapsedRowHeight(int rowNumber) const;
+    Q_INVOKABLE int expandedRowHeight(int rowNumber) const;
     Q_INVOKABLE int rowHeight(int rowNumber) const;
+    Q_INVOKABLE void setExpandedRowHeight(int rowNumber, int height);
+
+    Q_INVOKABLE int collapsedRowOffset(int rowNumber) const;
+    Q_INVOKABLE int expandedRowOffset(int rowNumber) const;
     Q_INVOKABLE int rowOffset(int rowNumber) const;
-    Q_INVOKABLE void setRowHeight(int rowNumber, int height);
+
     int height() const;
     int count() const;
     Q_INVOKABLE qint64 duration(int index) const;
@@ -81,13 +90,17 @@ public:
     void setExpanded(bool expanded);
     void setHidden(bool hidden);
     QString displayName() const;
+    int expandedRowCount() const;
+    int collapsedRowCount() const;
     int rowCount() const;
 
     // Methods that have to be implemented by child models
     Q_INVOKABLE virtual QColor color(int index) const = 0;
     virtual QVariantList labels() const = 0;
     Q_INVOKABLE virtual QVariantMap details(int index) const = 0;
-    Q_INVOKABLE virtual int row(int index) const = 0;
+    Q_INVOKABLE virtual int expandedRow(int index) const = 0;
+    Q_INVOKABLE virtual int collapsedRow(int index) const = 0;
+    Q_INVOKABLE int row(int index) const;
 
     // Methods which can optionally be implemented by child models.
     // returned map should contain "file", "line", "column" properties, or be empty
@@ -110,9 +123,11 @@ public:
 signals:
     void expandedChanged();
     void hiddenChanged();
-    void rowHeightChanged(int row, int height);
+    void expandedRowHeightChanged(int row, int height);
     void emptyChanged();
     void heightChanged();
+    void expandedRowCountChanged();
+    void collapsedRowCountChanged();
     void rowCountChanged();
     void labelsChanged();
 
@@ -126,10 +141,7 @@ protected:
     void insertEnd(int index, qint64 duration);
     void computeNesting();
 
-    int collapsedRowCount() const;
     void setCollapsedRowCount(int rows);
-
-    int expandedRowCount() const;
     void setExpandedRowCount(int rows);
 
     virtual void clear();

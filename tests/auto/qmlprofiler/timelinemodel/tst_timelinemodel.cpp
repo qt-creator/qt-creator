@@ -49,7 +49,8 @@ public:
     QColor color(int) const { return QColor(); }
     QVariantList labels() const { return QVariantList(); }
     QVariantMap details(int) const { return QVariantMap(); }
-    int row(int) const { return 1; }
+    int expandedRow(int) const { return 1; }
+    int collapsedRow(int) const { return 1; }
     quint64 features() const { return 0; }
 
 protected:
@@ -102,22 +103,21 @@ void tst_TimelineModel::rowHeight()
     DummyModel dummy;
     QCOMPARE(dummy.rowHeight(0), DefaultRowHeight);
 
-    // Cannot set while not expanded
-    dummy.setRowHeight(0, 100);
+    dummy.setExpandedRowHeight(0, 100);
     QCOMPARE(dummy.rowHeight(0), DefaultRowHeight);
 
     dummy.setExpanded(true);
-    QCOMPARE(dummy.rowHeight(0), DefaultRowHeight);
+    QCOMPARE(dummy.rowHeight(0), 100);
 
     // Cannot set smaller than default
-    dummy.setRowHeight(0, DefaultRowHeight - 1);
+    dummy.setExpandedRowHeight(0, DefaultRowHeight - 1);
     QCOMPARE(dummy.rowHeight(0), DefaultRowHeight);
 
-    dummy.setRowHeight(0, 100);
+    dummy.setExpandedRowHeight(0, 100);
     QCOMPARE(dummy.rowHeight(0), 100);
 
     dummy.loadData();
-    dummy.setRowHeight(1, 50);
+    dummy.setExpandedRowHeight(1, 50);
     QCOMPARE(dummy.rowHeight(0), 100);
     QCOMPARE(dummy.rowHeight(1), 50);
 
@@ -142,11 +142,11 @@ void tst_TimelineModel::rowOffset()
     QCOMPARE(dummy.rowOffset(0), 0);
     QCOMPARE(dummy.rowOffset(1), DefaultRowHeight);
 
-    dummy.setRowHeight(0, 100);
+    dummy.setExpandedRowHeight(0, 100);
     QCOMPARE(dummy.rowOffset(0), 0);
     QCOMPARE(dummy.rowOffset(1), 100);
 
-    dummy.setRowHeight(1, 50);
+    dummy.setExpandedRowHeight(1, 50);
     QCOMPARE(dummy.rowOffset(0), 0);
     QCOMPARE(dummy.rowOffset(1), 100);
 
@@ -169,7 +169,7 @@ void tst_TimelineModel::height()
     QCOMPARE(dummy.height(), 2 * DefaultRowHeight);
     dummy.setExpanded(true);
     QCOMPARE(dummy.height(), 2 * DefaultRowHeight);
-    dummy.setRowHeight(0, 80);
+    dummy.setExpandedRowHeight(0, 80);
     QCOMPARE(dummy.height(), DefaultRowHeight + 80);
 }
 

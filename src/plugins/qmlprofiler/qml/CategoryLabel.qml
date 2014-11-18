@@ -174,7 +174,7 @@ Item {
 
                     onMouseYChanged: {
                         if (resizing) {
-                            column.parentModel.setRowHeight(index + 1, y + mouseY);
+                            column.parentModel.setExpandedRowHeight(index + 1, y + mouseY);
                             parent.height = column.parentModel.rowHeight(index + 1);
                         }
                     }

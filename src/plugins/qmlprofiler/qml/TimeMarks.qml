@@ -62,8 +62,8 @@ Item {
 
     Connections {
         target: model
-        onRowHeightChanged: {
-            if (row >= 0)
+        onExpandedRowHeightChanged: {
+            if (model && model.expanded && row >= 0)
                 rowRepeater.itemAt(row).height = height;
         }
     }

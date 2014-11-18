@@ -66,7 +66,8 @@ public:
 
     static QString categoryLabel(QmlDebug::RangeType categoryIndex);
 
-    int row(int index) const;
+    Q_INVOKABLE int expandedRow(int index) const;
+    Q_INVOKABLE int collapsedRow(int index) const;
     int bindingLoopDest(int index) const;
     QColor color(int index) const;
 

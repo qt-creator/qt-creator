@@ -65,7 +65,8 @@ public:
     int rowMaxValue(int rowNumber) const;
 
     int typeId(int index) const;
-    int row(int index) const;
+    Q_INVOKABLE int expandedRow(int index) const;
+    Q_INVOKABLE int collapsedRow(int index) const;
 
     QColor color(int index) const;
     float relativeHeight(int index) const;

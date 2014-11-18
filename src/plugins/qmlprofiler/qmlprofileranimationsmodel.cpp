@@ -135,11 +135,6 @@ int QmlProfilerAnimationsModel::rowFromThreadId(int threadId) const
     return (threadId == QmlDebug::GuiThread || m_maxGuiThreadAnimations == 0) ? 1 : 2;
 }
 
-int QmlProfilerAnimationsModel::row(int index) const
-{
-    return rowFromThreadId(selectionId(index));
-}
-
 int QmlProfilerAnimationsModel::rowMaxValue(int rowNumber) const
 {
     switch (rowNumber) {
@@ -155,6 +150,16 @@ int QmlProfilerAnimationsModel::rowMaxValue(int rowNumber) const
 int QmlProfilerAnimationsModel::typeId(int index) const
 {
     return m_data[index].typeId;
+}
+
+int QmlProfilerAnimationsModel::expandedRow(int index) const
+{
+    return rowFromThreadId(selectionId(index));
+}
+
+int QmlProfilerAnimationsModel::collapsedRow(int index) const
+{
+    return rowFromThreadId(selectionId(index));
 }
 
 QColor QmlProfilerAnimationsModel::color(int index) const

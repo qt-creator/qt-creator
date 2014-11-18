@@ -188,12 +188,14 @@ QString QmlProfilerRangeModel::categoryLabel(QmlDebug::RangeType rangeType)
             QmlProfilerModelManager::featureName(QmlDebug::featureFromRangeType(rangeType)));
 }
 
-int QmlProfilerRangeModel::row(int index) const
+int QmlProfilerRangeModel::expandedRow(int index) const
 {
-    if (expanded())
-        return m_data[index].displayRowExpanded;
-    else
-        return m_data[index].displayRowCollapsed;
+    return m_data[index].displayRowExpanded;
+}
+
+int QmlProfilerRangeModel::collapsedRow(int index) const
+{
+    return m_data[index].displayRowCollapsed;
 }
 
 int QmlProfilerRangeModel::bindingLoopDest(int index) const
