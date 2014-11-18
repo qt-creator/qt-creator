@@ -165,8 +165,78 @@
 
     \section3 Signing Android Packages
 
-    In the \gui {Sign Package} group you can sign the Android package by using
-    a private key from the keystore. To create new keys, select \gui Create.
+    To publish your application, you must sign it by using a \e {public-private
+    key pair} that consists of a \e certificate and a corresponding
+    \e {private key} and is identified by an \e alias. The key pair is used to
+    verify that the future versions of your application are actually created by
+    you.
+
+    \warning Keep the key pair in a safe place and take back up copies, because
+    you cannot update the application if you lose the key pair.
+
+    You can use \QC to generate a keystore and a \e {self-signed} certificate.
+    The generated certificate has the structure of an X.509 v3 digital
+    certificate. It contains information about the version, serial number, and
+    validity period of the certificate, the ID of the algorithm that is used to
+    encrypt the data, the organization that issued the certificate, and the
+    \e subject (owner) of the certificate. In case of a self-signed certificate,
+    the issuer and owner of the certificate are the same. In addition, the
+    certificate contains information about the algorithm that is used to sign
+    the certificate, as well as the signature of the certificate.
+
+    The keystore is protected by a password. In addition, you can protect each
+    alias with its individual password.
+
+    When you sign an Android application, you must select a keystore that
+    contains certificates and a certificate alias from the keystore. The public
+    key (certificate) for the alias is embedded into the APK during signing.
+
+    To create a keystore and a self-signed certificate:
+
+    \list 1
+
+        \li In the \gui Keystore field, select \gui Create to create a new
+            keystore that contains one key pair in the \gui {Create Keystore and
+            a Certificate} dialog:
+
+            \image qtcreator-android-certificate.png
+
+        \li In the \gui Keystore group, enter a password to protect the
+            keystore.
+
+        \li In the \gui Certificate group, specify the key size and validity
+            period of the certificate. You can specify a separate password to
+            protect the key pair or use the keystore password.
+
+        \li In the \gui {Certificate Distinguished Names} group, enter
+            information about yourself and your company or organization that
+            identifies the issuer and the owner of the key pair.
+
+        \li Select \gui Save.
+
+        \li In the \gui {Keystore File Name} dialog, enter a name for the
+            keystore and select a location for it.
+
+        \li In the \gui Keystore dialog, enter the keystore password to create
+            the key pair in the keystore.
+
+    \endlist
+
+    To sign an Android package by using a key pair, specify settings in the
+    \gui {Sign package} group:
+
+    \list 1
+
+        \li In the \gui Keystore field, select \gui Choose to select an existing
+            keystore.
+
+        \li In the \gui {Certificate alias} field, select an alias from the list
+            of key pairs that the keystore contains.
+
+        \li Select the \gui {Sign package} check box to use the alias to
+            sign the Android package.
+
+    \endlist
 
     \section3 Adding External Libraries
 
