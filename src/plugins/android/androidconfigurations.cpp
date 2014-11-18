@@ -840,6 +840,24 @@ bool AndroidConfig::hasFinishedBooting(const QString &device) const
 QStringList AndroidConfig::getAbis(const QString &device) const
 {
     QStringList result;
+    // First try via ro.product.cpu.abilist
+    QStringList arguments = AndroidDeviceInfo::adbSelector(device);
+    arguments << QLatin1String("shell") << QLatin1String("getprop");
+    arguments << QLatin1String("ro.product.cpu.abilist");
+    QProcess adbProc;
+    adbProc.start(adbToolPath().toString(), arguments);
+    if (!adbProc.waitForFinished(10000)) {
+        adbProc.kill();
+        return result;
+    }
+    QString output = QString::fromLocal8Bit(adbProc.readAll().trimmed());
+    if (!output.isEmpty()) {
+        QStringList result = output.split(QLatin1Char(','));
+        if (!result.isEmpty())
+            return result;
+    }
+
+    // Fall back to ro.product.cpu.abi, ro.product.cpu.abi2 ...
     for (int i = 1; i < 6; ++i) {
         QStringList arguments = AndroidDeviceInfo::adbSelector(device);
         arguments << QLatin1String("shell") << QLatin1String("getprop");
