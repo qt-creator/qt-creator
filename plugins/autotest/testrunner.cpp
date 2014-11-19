@@ -343,9 +343,25 @@ void TestRunner::runTests()
     // clear old log and output pane
     TestResultsPane::instance()->clearContents();
 
+    // handle faulty test configurations
+    QList<TestConfiguration *> toBeRemoved;
+    foreach (TestConfiguration *config, m_selectedTests)
+        if (!config->project()) {
+            toBeRemoved.append(config);
+            TestResultsPane::instance()->addTestResult(
+                        TestResult(QString(), QString(), QString(), ResultType::MESSAGE_WARN,
+                                   tr("*** Project is null for '%1' - removing from Test Run ***\n"
+                                      "This might be the case for a faulty environment or similar."
+                                      ).arg(config->displayName())));
+        }
+    foreach (TestConfiguration *config, toBeRemoved) {
+        m_selectedTests.removeOne(config);
+        delete config;
+    }
+
     if (m_selectedTests.empty()) {
         TestResultsPane::instance()->addTestResult(
-                    TestResult(QString(), QString(), QString(), ResultType::MESSAGE_FATAL,
+                    TestResult(QString(), QString(), QString(), ResultType::MESSAGE_WARN,
                                tr("*** No tests selected - canceling Test Run ***")));
         return;
     }

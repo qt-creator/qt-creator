@@ -46,7 +46,7 @@ ResultType TestResult::resultFromString(const QString &resultString)
         return SKIP;
     if (resultString == QLatin1String("qdebug"))
         return MESSAGE_DEBUG;
-    if (resultString == QLatin1String("warn"))
+    if (resultString == QLatin1String("warn") || resultString == QLatin1String("qwarn"))
         return MESSAGE_WARN;
     if (resultString == QLatin1String("qfatal"))
         return MESSAGE_FATAL;
