@@ -421,10 +421,12 @@ void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
 
 void PluginDumper::dump(const Plugin &plugin)
 {
+    ModelManagerInterface::ProjectInfo info = m_modelManager->defaultProjectInfo();
+    const Snapshot snapshot = m_modelManager->snapshot();
+    LibraryInfo libraryInfo = snapshot.libraryInfo(plugin.qmldirPath);
+
     // if there are type infos, don't dump!
     if (!plugin.typeInfoPaths.isEmpty()) {
-        const Snapshot snapshot = m_modelManager->snapshot();
-        LibraryInfo libraryInfo = snapshot.libraryInfo(plugin.qmldirPath);
         if (!libraryInfo.isValid())
             return;
 
@@ -432,11 +434,7 @@ void PluginDumper::dump(const Plugin &plugin)
         return;
     }
 
-    ModelManagerInterface::ProjectInfo info = m_modelManager->defaultProjectInfo();
-
     if (!info.tryQmlDump || info.qmlDumpPath.isEmpty()) {
-        const Snapshot snapshot = m_modelManager->snapshot();
-        LibraryInfo libraryInfo = snapshot.libraryInfo(plugin.qmldirPath);
         if (!libraryInfo.isValid())
             return;
 
