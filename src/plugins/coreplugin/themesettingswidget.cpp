@@ -100,14 +100,20 @@ struct ThemeEntry
 private:
     QString m_name;
     QString m_filePath;
+    mutable QString m_displayName;
     bool m_readOnly;
 };
 
 QString ThemeEntry::displayName() const
 {
-    QSettings settings(filePath(), QSettings::IniFormat);
-    QString n = settings.value(QLatin1String(themeNameKey), QCoreApplication::tr("unnamed")).toString();
-    return m_readOnly ? QCoreApplication::tr("%1 (built-in)").arg(n) : n;
+    if (m_displayName.isEmpty()) {
+        QSettings settings(filePath(), QSettings::IniFormat);
+        m_displayName = settings.value(QLatin1String(themeNameKey),
+                                       QCoreApplication::tr("unnamed")).toString();
+        if (m_readOnly)
+            m_displayName = QCoreApplication::tr("%1 (built-in)").arg(m_displayName);
+    }
+    return m_displayName;
 }
 
 
