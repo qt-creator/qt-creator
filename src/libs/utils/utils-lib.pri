@@ -93,7 +93,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/treeviewcombobox.cpp \
     $$PWD/proxycredentialsdialog.cpp \
     $$PWD/macroexpander.cpp \
-    $$PWD/theme/theme.cpp
+    $$PWD/theme/theme.cpp \
+    $$PWD/messagebox.cpp
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
@@ -192,7 +193,8 @@ HEADERS += \
     $$PWD/proxycredentialsdialog.h \
     $$PWD/macroexpander.h \
     $$PWD/theme/theme.h \
-    $$PWD/theme/theme_p.h
+    $$PWD/theme/theme_p.h \
+    $$PWD/ messagebox.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
