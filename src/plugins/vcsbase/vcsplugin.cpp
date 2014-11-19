@@ -42,7 +42,7 @@
 #include <coreplugin/vcsmanager.h>
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 
 #include <utils/macroexpander.h>
 
@@ -94,7 +94,7 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
         tr("Name of the version control system in use by the current project."),
         []() -> QString {
             IVersionControl *vc = 0;
-            if (Project *project = ProjectExplorerPlugin::currentProject())
+            if (Project *project = ProjectTree::currentProject())
                 vc = VcsManager::findVersionControlForDirectory(project->projectDirectory().toString());
             return vc ? vc->displayName() : QString();
         });
@@ -104,7 +104,7 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
         []() -> QString {
             IVersionControl *vc = 0;
             QString topLevel;
-            if (Project *project = ProjectExplorerPlugin::currentProject())
+            if (Project *project = ProjectTree::currentProject())
                 vc = VcsManager::findVersionControlForDirectory(project->projectDirectory().toString(), &topLevel);
             return vc ? vc->vcsTopic(topLevel) : QString();
         });
@@ -112,7 +112,7 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     expander->registerVariable(Constants::VAR_VCS_TOPLEVELPATH,
         tr("The top level path to the repository the current project is in."),
         []() -> QString {
-            if (Project *project = ProjectExplorerPlugin::currentProject())
+            if (Project *project = ProjectTree::currentProject())
                 return VcsManager::findTopLevelForDirectory(project->projectDirectory().toString());
             return QString();
         });

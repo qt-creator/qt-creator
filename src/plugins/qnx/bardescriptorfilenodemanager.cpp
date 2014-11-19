@@ -46,7 +46,7 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <qmakeprojectmanager/qmakenodes.h>
@@ -65,9 +65,8 @@ const char SKIP_BAR_DESCRIPTOR_CREATION_KEY[] = "Qnx.BlackBerry.BarDescriptorFil
 BarDescriptorFileNodeManager::BarDescriptorFileNodeManager(QObject *parent)
     : QObject(parent)
 {
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
-            SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
-            this, SLOT(setCurrentProject(ProjectExplorer::Project*)));
+    connect(ProjectExplorer::ProjectTree::instance(), &ProjectExplorer::ProjectTree::currentProjectChanged,
+            this, &BarDescriptorFileNodeManager::setCurrentProject);
 }
 
 void BarDescriptorFileNodeManager::setCurrentProject(ProjectExplorer::Project *project)

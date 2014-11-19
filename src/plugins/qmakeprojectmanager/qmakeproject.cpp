@@ -42,7 +42,6 @@
 #include "wizards/qtquickapp.h"
 
 #include <utils/algorithm.h>
-#include <coreplugin/documentmanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -55,7 +54,6 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
 #include <proparser/qmakevfs.h>
 #include <qtsupport/profilereader.h>
 #include <qtsupport/qtkitinformation.h>
@@ -842,11 +840,6 @@ void QmakeProject::decrementPendingEvaluateFutures()
                     updateBoilerPlateCodeFiles(&qtQuickApp, path);
                 }
             }
-
-            ProjectExplorer::Node *node = ProjectExplorer::SessionManager::nodeForFile(Core::DocumentManager::currentFile());
-            if (node)
-                ProjectExplorerPlugin::setCurrentNode(node);
-
             m_checkForTemplateUpdate = false;
         }
 

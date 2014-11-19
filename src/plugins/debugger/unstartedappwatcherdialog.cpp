@@ -39,7 +39,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/localapplicationrunconfiguration.h>
@@ -88,7 +88,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     m_kitChooser->populate();
     m_kitChooser->setVisible(true);
 
-    Project *project = ProjectExplorerPlugin::currentProject();
+    Project *project = ProjectTree::currentProject();
     if (project && project->activeTarget() && project->activeTarget()->kit())
         m_kitChooser->setCurrentKitId(project->activeTarget()->kit()->id());
     else if (KitManager::defaultKit())
@@ -163,7 +163,7 @@ void UnstartedAppWatcherDialog::selectExecutable()
 {
     QString path;
 
-    Project *project = ProjectExplorerPlugin::currentProject();
+    Project *project = ProjectTree::currentProject();
 
     if (project && project->activeTarget() && project->activeTarget()->activeRunConfiguration()) {
 

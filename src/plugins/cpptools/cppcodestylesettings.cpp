@@ -36,7 +36,7 @@
 
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 
 #include <utils/qtcassert.h>
 #include <utils/settingsutils.h>
@@ -210,7 +210,7 @@ static void configureOverviewWithCodeStyleSettings(CPlusPlus::Overview &overview
 
 CPlusPlus::Overview CppCodeStyleSettings::currentProjectCodeStyleOverview()
 {
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectTree::currentProject();
     if (!project)
         return currentGlobalCodeStyleOverview();
 

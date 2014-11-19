@@ -35,9 +35,11 @@
 #include "project.h"
 #include "session.h"
 #include "projectmodels.h"
+#include "projecttree.h"
 
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -127,6 +129,7 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
     m_view->setModel(m_model);
     m_view->setItemDelegate(new ProjectTreeItemDelegate(this));
     setFocusProxy(m_view);
+    m_view->installEventFilter(this);
     initView();
 
     QVBoxLayout *layout = new QVBoxLayout();
@@ -149,6 +152,8 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
     // connections
     connect(m_model, SIGNAL(modelReset()),
             this, SLOT(initView()));
+    connect(m_model, &FlatModel::renamed,
+            this, &ProjectTreeWidget::renamed);
     connect(m_view, SIGNAL(activated(QModelIndex)),
             this, SLOT(openItem(QModelIndex)));
     connect(m_view->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
@@ -179,11 +184,13 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
     setAutoSynchronization(true);
 
     m_projectTreeWidgets << this;
+    ProjectTree::registerWidget(this);
 }
 
 ProjectTreeWidget::~ProjectTreeWidget()
 {
     m_projectTreeWidgets.removeOne(this);
+    ProjectTree::unregisterWidget(this);
 }
 
 // returns how many nodes need to be expanded to make node visible
@@ -208,21 +215,32 @@ int ProjectTreeWidget::expandedCount(Node *node)
     return count;
 }
 
-void ProjectTreeWidget::rowsInserted(const QModelIndex &parent, int, int)
+void ProjectTreeWidget::rowsInserted(const QModelIndex &parent, int start, int end)
 {
     const QString &path = m_model->nodeForIndex(parent)->path();
     if (m_toExpand.contains(path)) {
         m_view->expand(parent);
         m_toExpand.remove(path);
     }
+    int i = start;
+    while (i <= end) {
+        QModelIndex idx = m_model->index(i, 0, parent);
+        Node *n = m_model->nodeForIndex(idx);
+        if (n && n->path() == m_delayedRename) {
+            m_view->setCurrentIndex(idx);
+            m_delayedRename.clear();
+            break;
+        }
+        ++i;
+    }
 }
 
-Node *ProjectTreeWidget::nodeForFile(const QString &fileName, Project *project)
+Node *ProjectTreeWidget::nodeForFile(const QString &fileName)
 {
     Node *bestNode = 0;
     int bestNodeExpandCount = INT_MAX;
 
-    foreach (Node *node, SessionManager::nodesForFile(fileName, project)) {
+    foreach (Node *node, SessionManager::nodesForFile(fileName)) {
         if (!bestNode) {
             bestNode = node;
             bestNodeExpandCount = ProjectTreeWidget::expandedCount(node->parentFolderNode());
@@ -304,7 +322,7 @@ bool ProjectTreeWidget::autoSynchronization() const
     return m_autoSync;
 }
 
-void ProjectTreeWidget::setAutoSynchronization(bool sync, bool syncNow)
+void ProjectTreeWidget::setAutoSynchronization(bool sync)
 {
     m_toggleSync->setChecked(sync);
     if (sync == m_autoSync)
@@ -314,14 +332,12 @@ void ProjectTreeWidget::setAutoSynchronization(bool sync, bool syncNow)
 
     if (debug)
         qDebug() << (m_autoSync ? "Enabling auto synchronization" : "Disabling auto synchronization");
+
     if (m_autoSync) {
-        connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::currentNodeChanged,
-                this, &ProjectTreeWidget::setCurrentItem);
-        if (syncNow)
-            setCurrentItem(ProjectExplorerPlugin::currentNode(), ProjectExplorerPlugin::currentProject());
-    } else {
-        disconnect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::currentNodeChanged,
-                   this, &ProjectTreeWidget::setCurrentItem);
+        // sync from document manager
+        const QString &fileName = Core::DocumentManager::currentFile();
+        if (!currentNode() || currentNode()->path() != fileName)
+            setCurrentItem(ProjectTreeWidget::nodeForFile(fileName));
     }
 }
 
@@ -332,19 +348,27 @@ void ProjectTreeWidget::collapseAll()
 
 void ProjectTreeWidget::editCurrentItem()
 {
+    m_delayedRename.clear();
     if (m_view->selectionModel()->currentIndex().isValid())
         m_view->edit(m_view->selectionModel()->currentIndex());
 }
 
-void ProjectTreeWidget::setCurrentItem(Node *node, Project *project)
+
+void ProjectTreeWidget::renamed(const QString &oldPath, const QString &newPath)
 {
-    if (debug)
-        qDebug() << "ProjectTreeWidget::setCurrentItem(" << (project ? project->displayName() : QLatin1String("0"))
-                 << ", " <<  (node ? node->path() : QLatin1String("0")) << ")";
+    Q_UNUSED(oldPath);
+    if (!currentNode() || currentNode()->path() != newPath) {
+        // try to find the node
+        Node *node = nodeForFile(newPath);
+        if (node)
+            m_view->setCurrentIndex(m_model->indexForNode(node));
+        else
+            m_delayedRename = newPath;
+    }
+}
 
-    if (!project)
-        return;
-
+void ProjectTreeWidget::setCurrentItem(Node *node)
+{
     const QModelIndex mainIndex = m_model->indexForNode(node);
 
     if (mainIndex.isValid()) {
@@ -353,8 +377,6 @@ void ProjectTreeWidget::setCurrentItem(Node *node, Project *project)
             m_view->scrollTo(mainIndex);
         }
     } else {
-        if (debug)
-            qDebug() << "clear selection";
         m_view->clearSelection();
     }
 
@@ -362,12 +384,19 @@ void ProjectTreeWidget::setCurrentItem(Node *node, Project *project)
 
 void ProjectTreeWidget::handleCurrentItemChange(const QModelIndex &current)
 {
-    Node *node = m_model->nodeForIndex(current);
-    // node might be 0. that's okay
-    bool autoSync = autoSynchronization();
-    setAutoSynchronization(false);
-    ProjectExplorerPlugin::setCurrentNode(node);
-    setAutoSynchronization(autoSync, false);
+    Q_UNUSED(current);
+    ProjectTree::nodeChanged(this);
+}
+
+Node *ProjectTreeWidget::currentNode()
+{
+    return m_model->nodeForIndex(m_view->currentIndex());
+}
+
+void ProjectTreeWidget::sync(Node *node)
+{
+    if (m_autoSync)
+        setCurrentItem(node);
 }
 
 void ProjectTreeWidget::showContextMenu(const QPoint &pos)
@@ -413,7 +442,7 @@ void ProjectTreeWidget::initView()
     for (int i = 0; i < m_model->rowCount(sessionIndex); ++i)
         m_view->expand(m_model->index(i, 0, sessionIndex));
 
-    setCurrentItem(ProjectExplorerPlugin::currentNode(), ProjectExplorerPlugin::currentProject());
+    setCurrentItem(ProjectTree::currentNode());
 }
 
 void ProjectTreeWidget::openItem(const QModelIndex &mainIndex)
@@ -496,5 +525,5 @@ void ProjectTreeWidgetFactory::restoreSettings(int position, QWidget *widget)
     const QString baseKey = QLatin1String("ProjectTreeWidget.") + QString::number(position);
     ptw->setProjectFilter(settings->value(baseKey + QLatin1String(".ProjectFilter"), false).toBool());
     ptw->setGeneratedFilesFilter(settings->value(baseKey + QLatin1String(".GeneratedFilter"), true).toBool());
-    ptw->setAutoSynchronization(settings->value(baseKey +  QLatin1String(".SyncWithEditor"), true).toBool());
+    ptw->setAutoSynchronization(settings->value(baseKey +  QLatin1String(".SyncWithEditor")).toBool());
 }

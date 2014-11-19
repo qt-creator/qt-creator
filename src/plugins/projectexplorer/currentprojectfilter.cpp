@@ -29,7 +29,7 @@
 ****************************************************************************/
 
 #include "currentprojectfilter.h"
-#include "projectexplorer.h"
+#include "projecttree.h"
 #include "project.h"
 
 #include <utils/algorithm.h>
@@ -49,8 +49,8 @@ CurrentProjectFilter::CurrentProjectFilter()
     setShortcutString(QString(QLatin1Char('p')));
     setIncludedByDefault(false);
 
-    connect(ProjectExplorerPlugin::instance(), SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
-            this, SLOT(currentProjectChanged(ProjectExplorer::Project*)));
+    connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
+            this, &CurrentProjectFilter::currentProjectChanged);
 }
 
 void CurrentProjectFilter::markFilesAsOutOfDate()

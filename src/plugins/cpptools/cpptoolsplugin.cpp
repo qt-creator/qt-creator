@@ -53,6 +53,7 @@
 #include <coreplugin/jsexpander.h>
 #include <coreplugin/vcsmanager.h>
 #include <cppeditor/cppeditorconstants.h>
+#include <projectexplorer/projecttree.h>
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -431,7 +432,7 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader)
     }
 
     // Find files in the current project
-    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectExplorerPlugin::currentProject();
+    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectTree::currentProject();
     if (currentProject) {
         const QString path = correspondingHeaderOrSourceInProject(fi, candidateFileNames,
                                                                   currentProject);

@@ -40,7 +40,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <qmljs/qmljsbind.h>
@@ -224,8 +225,8 @@ void ModelManager::delayedInitialization()
 
     connect(ProjectExplorer::SessionManager::instance(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             this, SLOT(removeProjectInfo(ProjectExplorer::Project*)));
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
-            SLOT(updateDefaultProjectInfo()));
+    connect(ProjectExplorer::ProjectTree::instance(), &ProjectExplorer::ProjectTree::currentProjectChanged,
+            this, &ModelManager::updateDefaultProjectInfo);
 
     QmlJS::ViewerContext qbsVContext;
     qbsVContext.language = Dialect::QmlQbs;
@@ -264,7 +265,7 @@ ModelManagerInterface::WorkingCopy ModelManager::workingCopyInternal() const
 void ModelManager::updateDefaultProjectInfo()
 {
     // needs to be performed in the ui therad
-    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectExplorerPlugin::currentProject();
+    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectTree::currentProject();
     ProjectInfo newDefaultProjectInfo = projectInfo(currentProject,
                                                     defaultProjectInfoForProject(currentProject));
     setDefaultProject(projectInfo(currentProject,newDefaultProjectInfo), currentProject);

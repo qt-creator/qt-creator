@@ -536,6 +536,26 @@ QList<Project *> SessionManager::projectOrder(Project *project)
     return result;
 }
 
+QList<Node *> SessionManager::nodesForFile(const QString &fileName)
+{
+    FindNodesForFileVisitor findNodes(fileName);
+    sessionNode()->accept(&findNodes);
+    return findNodes.nodes();
+}
+
+// node for file returns a randomly selected node if there are multiple
+// prefer to use nodesForFile and figure out which node you want
+Node *SessionManager::nodeForFile(const QString &fileName)
+{
+    Node *node = 0;
+    foreach (Node *n, nodesForFile(fileName)) {
+        // prefer file nodes
+        if (!node || (node->nodeType() != FileNodeType && n->nodeType() == FileNodeType))
+            node = n;
+    }
+    return node;
+}
+
 Project *SessionManager::projectForNode(Node *node)
 {
     if (!node)
@@ -553,47 +573,14 @@ Project *SessionManager::projectForNode(Node *node)
     return Utils::findOrDefault(d->m_projects, Utils::equal(&Project::rootProjectNode, rootProjectNode));
 }
 
-QList<Node *> SessionManager::nodesForFile(const QString &fileName, Project *project)
-{
-    if (!project)
-        project = projectForFile(fileName);
-
-    if (project) {
-        FindNodesForFileVisitor findNodes(fileName);
-        project->rootProjectNode()->accept(&findNodes);
-        return findNodes.nodes();
-    }
-
-    return QList<Node *>();
-}
-
-// node for file returns a randomly selected node if there are multiple
-// prefer to use nodesForFile and figure out which node you want
-Node *SessionManager::nodeForFile(const QString &fileName, Project *project)
-{
-    Node *node = 0;
-    foreach (Node *n, nodesForFile(fileName, project)) {
-        // prefer file nodes
-        if (!node || (node->nodeType() != FileNodeType && n->nodeType() == FileNodeType))
-            node = n;
-    }
-    return node;
-}
-
 Project *SessionManager::projectForFile(const QString &fileName)
 {
     if (debug)
         qDebug() << "SessionManager::projectForFile(" << fileName << ")";
 
     const QList<Project *> &projectList = projects();
-
-    // Check current project first
-    Project *currentProject = ProjectExplorerPlugin::currentProject();
-    if (currentProject && d->projectContainsFile(currentProject, fileName))
-        return currentProject;
-
     foreach (Project *p, projectList)
-        if (p != currentProject && d->projectContainsFile(p, fileName))
+        if (d->projectContainsFile(p, fileName))
             return p;
 
     return 0;
@@ -1023,15 +1010,7 @@ void SessionManager::projectDisplayNameChanged()
 {
     Project *pro = qobject_cast<Project*>(m_instance->sender());
     if (pro) {
-        Node *currentNode = 0;
-        if (ProjectExplorerPlugin::currentProject() == pro)
-            currentNode = ProjectExplorerPlugin::currentNode();
-
         d->m_sessionNode->projectDisplayNameChanged(pro->rootProjectNode());
-
-        if (currentNode)
-            ProjectExplorerPlugin::setCurrentNode(currentNode);
-
         emit m_instance->projectDisplayNameChanged(pro);
     }
 }

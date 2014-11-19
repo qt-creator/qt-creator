@@ -352,7 +352,14 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
     if (role != Qt::EditRole)
         return false;
 
-    ProjectExplorerPlugin::renameFile(nodeForIndex(index), value.toString());
+    Node *node = nodeForIndex(index);
+
+    QString orgFilePath = QFileInfo(node->path()).absoluteFilePath();
+    QString dir = QFileInfo(orgFilePath).absolutePath();
+    QString newFilePath = dir + QLatin1Char('/') + value.toString();
+
+    ProjectExplorerPlugin::renameFile(node, newFilePath);
+    emit renamed(orgFilePath, newFilePath);
     return true;
 }
 

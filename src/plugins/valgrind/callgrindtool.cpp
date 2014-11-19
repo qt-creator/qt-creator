@@ -65,7 +65,7 @@
 #include <utils/styledbar.h>
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 
 #include <QFile>
 #include <QFileInfo>
@@ -399,7 +399,7 @@ void CallgrindToolPrivate::updateCostFormat()
 
 void CallgrindToolPrivate::handleFilterProjectCosts()
 {
-    ProjectExplorer::Project *pro = ProjectExplorer::ProjectExplorerPlugin::currentProject();
+    ProjectExplorer::Project *pro = ProjectExplorer::ProjectTree::currentProject();
     QTC_ASSERT(pro, return);
 
     if (m_filterProjectCosts->isChecked()) {

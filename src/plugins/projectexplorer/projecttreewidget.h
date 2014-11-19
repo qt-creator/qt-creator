@@ -58,12 +58,14 @@ public:
     ~ProjectTreeWidget();
 
     bool autoSynchronization() const;
-    void setAutoSynchronization(bool sync, bool syncNow = true);
+    void setAutoSynchronization(bool sync);
     bool projectFilter();
     bool generatedFilesFilter();
     QToolButton *toggleSync();
+    Node *currentNode();
+    void sync(ProjectExplorer::Node *node);
 
-    static Node *nodeForFile(const QString &fileName, Project *project);
+    static Node *nodeForFile(const QString &fileName);
 
 public slots:
     void toggleAutoSynchronization();
@@ -71,7 +73,6 @@ public slots:
     void collapseAll();
 
 private slots:
-    void setCurrentItem(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
     void setProjectFilter(bool filter);
     void setGeneratedFilesFilter(bool filter);
 
@@ -87,10 +88,12 @@ private slots:
     void disableAutoExpand();
 
 private:
+    void setCurrentItem(ProjectExplorer::Node *node);
     void recursiveLoadExpandData(const QModelIndex &index, QSet<QString> &data);
     void recursiveSaveExpandData(const QModelIndex &index, QStringList *data);
     static int expandedCount(Node *node);
-    void rowsInserted(const QModelIndex &parent, int, int);
+    void rowsInserted(const QModelIndex &parent, int start, int end);
+    void renamed(const QString &oldPath, const QString &newPath);
 
     QSet<QString> m_toExpand;
     QTreeView *m_view;
@@ -103,6 +106,7 @@ private:
     QString m_modelId;
     bool m_autoSync;
     bool m_autoExpand;
+    QString m_delayedRename;
 
     static QList<ProjectTreeWidget *> m_projectTreeWidgets;
     friend class ProjectTreeWidgetFactory;

@@ -78,6 +78,9 @@ public:
     bool projectFilterEnabled();
     bool generatedFilesFilterEnabled();
 
+signals:
+    void renamed(const QString &oldName, const QString &newName);
+
 public slots:
     void setProjectFilterEnabled(bool filter);
     void setGeneratedFilesFilterEnabled(bool filter);

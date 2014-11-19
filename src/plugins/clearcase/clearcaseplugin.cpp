@@ -54,7 +54,7 @@
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/locator/commandlocator.h>
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/iprojectmanager.h>
 #include <utils/algorithm.h>
@@ -453,8 +453,8 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     m_settings.fromSettings(ICore::settings());
 
     // update view name when changing active project
-    connect(ProjectExplorerPlugin::instance(), SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
-            this, SLOT(projectChanged(ProjectExplorer::Project*)));
+    connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
+            this, &ClearCasePlugin::projectChanged);
 
     addAutoReleasedObject(new SettingsPage);
 
@@ -2055,7 +2055,7 @@ void ClearCasePlugin::updateIndex()
 {
     QTC_ASSERT(currentState().hasTopLevel(), return);
     ProgressManager::cancelTasks(ClearCase::Constants::TASK_INDEX);
-    Project *project = ProjectExplorerPlugin::currentProject();
+    Project *project = ProjectTree::currentProject();
     if (!project)
         return;
     m_checkInAllAction->setEnabled(false);

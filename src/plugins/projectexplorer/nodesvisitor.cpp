@@ -101,6 +101,11 @@ void FindNodesForFileVisitor::visitFolderNode(FolderNode *node)
     }
 }
 
+void FindNodesForFileVisitor::visitSessionNode(SessionNode *node)
+{
+    visitFolderNode(node);
+}
+
 /*!
   \class FindAllFilesVisitor
 

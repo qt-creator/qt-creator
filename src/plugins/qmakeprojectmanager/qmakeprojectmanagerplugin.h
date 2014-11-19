@@ -41,7 +41,6 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 class Node;
 class Project;
-class ProjectExplorerPlugin;
 class KitInformation;
 class Target;
 }
@@ -79,7 +78,6 @@ private slots:
 #endif
 
 private:
-    ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
     QmakeManager *m_qmakeProjectManager;
     QmakeProject *m_previousStartupProject;
     ProjectExplorer::Target *m_previousTarget;

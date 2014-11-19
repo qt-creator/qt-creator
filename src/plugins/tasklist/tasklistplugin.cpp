@@ -38,7 +38,7 @@
 #include <coreplugin/idocumentfactory.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/mimedatabase.h>
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/task.h>
@@ -209,7 +209,7 @@ bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMess
     m_fileFactory = new IDocumentFactory;
     m_fileFactory->addMimeType(QLatin1String("text/x-tasklist"));
     m_fileFactory->setOpener([this](const QString &fileName) -> IDocument * {
-        ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
+        ProjectExplorer::Project *project = ProjectExplorer::ProjectTree::currentProject();
         return this->openTasks(project ? project->projectDirectory().toString() : QString(), fileName);
     });
 

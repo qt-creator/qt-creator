@@ -64,6 +64,7 @@ public:
 
     void visitProjectNode(ProjectNode *node);
     void visitFolderNode(FolderNode *node);
+    void visitSessionNode(SessionNode *node);
 private:
     QString m_path;
     QList<Node*> m_nodes;

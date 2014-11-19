@@ -53,7 +53,7 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/session.h>
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/coreconstants.h>
@@ -99,8 +99,6 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
 
     if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":qmakeprojectmanager/QmakeProjectManager.mimetypes.xml"), errorMessage))
         return false;
-
-    m_projectExplorer = ProjectExplorerPlugin::instance();
 
     //create and register objects
     m_qmakeProjectManager = new QmakeManager;
@@ -235,8 +233,8 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
             this, SLOT(buildStateChanged(ProjectExplorer::Project*)));
     connect(SessionManager::instance(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(startupProjectChanged()));
-    connect(m_projectExplorer, SIGNAL(currentNodeChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)),
-            this, SLOT(updateContextActions(ProjectExplorer::Node*,ProjectExplorer::Project*)));
+    connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
+            this, &QmakeProjectManagerPlugin::updateContextActions);
 
     Core::ActionContainer *contextMenu = Core::ActionManager::createMenu(QmakeProjectManager::Constants::M_CONTEXT);
 
@@ -307,9 +305,9 @@ void QmakeProjectManagerPlugin::activeTargetChanged()
 void QmakeProjectManagerPlugin::updateRunQMakeAction()
 {
     bool enable = true;
-    if (BuildManager::isBuilding(m_projectExplorer->currentProject()))
+    if (BuildManager::isBuilding(ProjectTree::currentProject()))
         enable = false;
-    QmakeProject *pro = qobject_cast<QmakeProject *>(m_projectExplorer->currentProject());
+    QmakeProject *pro = qobject_cast<QmakeProject *>(ProjectTree::currentProject());
     if (!pro
             || !pro->activeTarget()
             || !pro->activeTarget()->activeBuildConfiguration())
@@ -380,10 +378,10 @@ void QmakeProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node
 
 void QmakeProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *pro)
 {
-    ProjectExplorer::Project *currentProject = m_projectExplorer->currentProject();
+    ProjectExplorer::Project *currentProject = ProjectTree::currentProject();
     if (pro == currentProject) {
         updateRunQMakeAction();
-        updateContextActions(ProjectExplorerPlugin::currentNode(), pro);
+        updateContextActions(ProjectTree::currentNode(), pro);
         updateBuildFileAction();
     }
 }

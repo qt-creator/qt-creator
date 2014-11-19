@@ -53,6 +53,7 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
@@ -184,9 +185,8 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     connect(m_buildSubproject, SIGNAL(triggered()), this, SLOT(buildSubproject()));
 
     // Connect
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
-            SIGNAL(currentNodeChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)),
-            this, SLOT(nodeSelectionChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)));
+    connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
+            this, &QbsProjectManagerPlugin::nodeSelectionChanged);
 
     connect(BuildManager::instance(), SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
             this, SLOT(buildStateChanged(ProjectExplorer::Project*)));

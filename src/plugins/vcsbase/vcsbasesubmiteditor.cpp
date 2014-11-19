@@ -51,7 +51,7 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
 
 #include <QDebug>
@@ -739,7 +739,7 @@ QStringList VcsBaseSubmitEditor::currentProjectFiles(bool nativeSeparators, QStr
     if (name)
         name->clear();
 
-    if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectExplorerPlugin::currentProject()) {
+    if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectTree::currentProject()) {
         QStringList files = currentProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
         if (name)
             *name = currentProject->displayName();

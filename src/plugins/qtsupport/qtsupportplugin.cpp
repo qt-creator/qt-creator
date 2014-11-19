@@ -49,7 +49,7 @@
 #include <coreplugin/jsexpander.h>
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
 #include <utils/macroexpander.h>
 
@@ -102,7 +102,7 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 
 static QString qmakeProperty(const char *propertyName)
 {
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectTree::currentProject();
     if (!project || !project->activeTarget())
         return QString();
 

@@ -30,8 +30,8 @@
 
 #include "currentprojectfind.h"
 
-#include "projectexplorer.h"
 #include "project.h"
+#include "projecttree.h"
 #include "session.h"
 
 #include <utils/qtcassert.h>
@@ -46,8 +46,8 @@ using namespace TextEditor;
 
 CurrentProjectFind::CurrentProjectFind()
 {
-    connect(ProjectExplorerPlugin::instance(), SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
-            this, SLOT(handleProjectChanged()));
+    connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
+            this, &CurrentProjectFind::handleProjectChanged);
     connect(SessionManager::instance(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             this, SLOT(handleProjectChanged()));
     connect(SessionManager::instance(), SIGNAL(projectAdded(ProjectExplorer::Project*)),
@@ -66,12 +66,12 @@ QString CurrentProjectFind::displayName() const
 
 bool CurrentProjectFind::isEnabled() const
 {
-    return ProjectExplorerPlugin::currentProject() != 0 && BaseFileFind::isEnabled();
+    return ProjectTree::currentProject() != 0 && BaseFileFind::isEnabled();
 }
 
 QVariant CurrentProjectFind::additionalParameters() const
 {
-    Project *project = ProjectExplorerPlugin::currentProject();
+    Project *project = ProjectTree::currentProject();
     if (project && project->document())
         return qVariantFromValue(project->projectFilePath().toString());
     return QVariant();
@@ -92,8 +92,8 @@ Utils::FileIterator *CurrentProjectFind::files(const QStringList &nameFilters,
 
 QString CurrentProjectFind::label() const
 {
-    QTC_ASSERT(ProjectExplorerPlugin::currentProject(), return QString());
-    return tr("Project \"%1\":").arg(ProjectExplorerPlugin::currentProject()->displayName());
+    QTC_ASSERT(ProjectTree::currentProject(), return QString());
+    return tr("Project \"%1\":").arg(ProjectTree::currentProject()->displayName());
 }
 
 void CurrentProjectFind::handleProjectChanged()

@@ -44,6 +44,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 #include <extensionsystem/pluginmanager.h>
@@ -202,9 +203,8 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     m_renameResourceFile->setEnabled(false);
     m_removeResourceFile->setEnabled(false);
 
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(currentNodeChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)),
-            this, SLOT(updateContextActions(ProjectExplorer::Node*,ProjectExplorer::Project*)));
-
+    connect(ProjectExplorer::ProjectTree::instance(), &ProjectTree::currentNodeChanged,
+            this, &ResourceEditorPlugin::updateContextActions);
 
     return true;
 }
@@ -236,13 +236,13 @@ void ResourceEditorPlugin::addPrefixContextMenu()
     QString prefix = dialog.prefix();
     if (prefix.isEmpty())
         return;
-    ResourceTopLevelNode *topLevel = static_cast<ResourceTopLevelNode *>(ProjectExplorer::ProjectExplorerPlugin::currentNode());
+    ResourceTopLevelNode *topLevel = static_cast<ResourceTopLevelNode *>(ProjectTree::currentNode());
     topLevel->addPrefix(prefix, dialog.lang());
 }
 
 void ResourceEditorPlugin::removePrefixContextMenu()
 {
-    ResourceFolderNode *rfn = static_cast<ResourceFolderNode *>(ProjectExplorer::ProjectExplorerPlugin::instance()->currentNode());
+    ResourceFolderNode *rfn = static_cast<ResourceFolderNode *>(ProjectTree::currentNode());
     if (QMessageBox::question(Core::ICore::mainWindow(),
                               tr("Remove Prefix"),
                               tr("Remove prefix %1 and all its files?").arg(rfn->displayName()))
@@ -259,7 +259,7 @@ void ResourceEditorPlugin::renameFileContextMenu()
 
 void ResourceEditorPlugin::removeFileContextMenu()
 {
-    ResourceFolderNode *rfn = static_cast<ResourceFolderNode *>(ProjectExplorer::ProjectExplorerPlugin::instance()->currentNode());
+    ResourceFolderNode *rfn = static_cast<ResourceFolderNode *>(ProjectTree::currentNode());
     QString path = rfn->path();
     ProjectExplorer::FolderNode *parent = rfn->parentFolderNode();
     if (!parent->removeFiles(QStringList() << path))
@@ -270,33 +270,33 @@ void ResourceEditorPlugin::removeFileContextMenu()
 
 void ResourceEditorPlugin::openEditorContextMenu()
 {
-    ResourceTopLevelNode *topLevel = static_cast<ResourceTopLevelNode *>(ProjectExplorer::ProjectExplorerPlugin::instance()->currentNode());
+    ResourceTopLevelNode *topLevel = static_cast<ResourceTopLevelNode *>(ProjectTree::currentNode());
     QString path = topLevel->path();
     Core::EditorManager::openEditor(path);
 }
 
 void ResourceEditorPlugin::openTextEditorContextMenu()
 {
-    ResourceTopLevelNode *topLevel = static_cast<ResourceTopLevelNode *>(ProjectExplorerPlugin::currentNode());
+    ResourceTopLevelNode *topLevel = static_cast<ResourceTopLevelNode *>(ProjectTree::currentNode());
     QString path = topLevel->path();
     Core::EditorManager::openEditor(path, Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
 }
 
 void ResourceEditorPlugin::copyPathContextMenu()
 {
-    ResourceFileNode *node = static_cast<ResourceFileNode *>(ProjectExplorerPlugin::currentNode());
+    ResourceFileNode *node = static_cast<ResourceFileNode *>(ProjectTree::currentNode());
     QApplication::clipboard()->setText(QLatin1String(resourcePrefix) + node->qrcPath());
 }
 
 void ResourceEditorPlugin::copyUrlContextMenu()
 {
-    ResourceFileNode *node = static_cast<ResourceFileNode *>(ProjectExplorerPlugin::currentNode());
+    ResourceFileNode *node = static_cast<ResourceFileNode *>(ProjectTree::currentNode());
     QApplication::clipboard()->setText(QLatin1String(urlPrefix) + node->qrcPath());
 }
 
 void ResourceEditorPlugin::renamePrefixContextMenu()
 {
-    ResourceFolderNode *node = static_cast<ResourceFolderNode *>(ProjectExplorerPlugin::currentNode());
+    ResourceFolderNode *node = static_cast<ResourceFolderNode *>(ProjectTree::currentNode());
 
     PrefixLangDialog dialog(tr("Rename Prefix"), node->prefix(), node->lang(), Core::ICore::mainWindow());
     if (dialog.exec() != QDialog::Accepted)

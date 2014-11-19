@@ -41,7 +41,7 @@
 #include <viewmanager.h>
 #include <nodeinstanceview.h>
 
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
@@ -639,8 +639,7 @@ static bool isFileInProject(DesignDocument *designDocument, ProjectExplorer::Pro
 
 static inline ProjectExplorer::Kit *getActiveKit(DesignDocument *designDocument)
 {
-    ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
-    ProjectExplorer::Project *currentProject = projectExplorer->currentProject();
+    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectTree::currentProject();
 
     if (!currentProject)
         currentProject = ProjectExplorer::SessionManager::projectForFile(designDocument->fileName());
@@ -651,7 +650,8 @@ static inline ProjectExplorer::Kit *getActiveKit(DesignDocument *designDocument)
     if (!isFileInProject(designDocument, currentProject))
         return 0;
 
-    designDocument->connect(projectExplorer, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)), designDocument, SLOT(updateActiveQtVersion()), Qt::UniqueConnection);
+    QObject::connect(ProjectExplorer::ProjectTree::instance(), &ProjectExplorer::ProjectTree::currentProjectChanged,
+                     designDocument, &DesignDocument::updateActiveQtVersion, Qt::UniqueConnection);
 
     designDocument->connect(currentProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)), designDocument, SLOT(updateActiveQtVersion()), Qt::UniqueConnection);
 

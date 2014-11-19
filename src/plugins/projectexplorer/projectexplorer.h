@@ -76,12 +76,6 @@ public:
     Q_SLOT void openProjectWelcomePage(const QString &fileName);
     static void unloadProject(Project *project);
 
-    static Project *currentProject();
-    static Node *currentNode();
-
-    static void setCurrentFile(Project *project, const QString &file);
-    static void setCurrentNode(Node *node);
-
     static bool saveModifiedFiles();
 
     static void showContextMenu(QWidget *view, const QPoint &globalPos, Node *node);
@@ -98,7 +92,7 @@ public:
     static void showRunErrorMessage(const QString &errorMessage);
 
     // internal public for FlatModel
-    static void renameFile(Node *node, const QString &to);
+    static void renameFile(Node *node, const QString &newFilePath);
     static QStringList projectFilePatterns();
     static bool coreAboutToClose();
     static QList<QPair<QString, QString> > recentProjects();
@@ -133,8 +127,6 @@ signals:
     // or the file list of a specific project has changed.
     void fileListChanged();
 
-    void currentProjectChanged(ProjectExplorer::Project *project);
-    void currentNodeChanged(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
     void aboutToExecuteProject(ProjectExplorer::Project *project, RunMode runMode);
     void recentProjectsChanged();
 
@@ -203,12 +195,7 @@ private slots:
     void updateUnloadProjectMenu();
     void openTerminalHere();
 
-    // for keeping current node / current project up to date
     void invalidateProject(ProjectExplorer::Project *project);
-    void foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode*> &);
-    void filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &);
-
-    void setCurrentFile(const QString &filePath);
 
     void runControlFinished();
 
@@ -225,10 +212,8 @@ private slots:
     void loadCustomWizards();
 
     void updateWelcomePage();
-    void updateExternalFileWarning();
 
     void updateActions();
-    void updateContext();
     void runConfigurationConfigurationFinished();
     void showRenameFileError();
 

@@ -49,7 +49,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <cppeditor/cppeditorconstants.h>
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -108,7 +108,7 @@ void ArtisticStyle::formatFile()
 
     if (m_settings->useOtherFiles()) {
         if (const ProjectExplorer::Project *project
-                = ProjectExplorer::ProjectExplorerPlugin::currentProject()) {
+                = ProjectExplorer::ProjectTree::currentProject()) {
             const QStringList files = project->files(ProjectExplorer::Project::AllFiles);
             for (int i = 0, total = files.size(); i < total; ++i) {
                 const QString &file = files.at(i);

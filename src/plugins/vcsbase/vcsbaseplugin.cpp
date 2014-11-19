@@ -42,7 +42,7 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/vcsmanager.h>
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
@@ -217,9 +217,9 @@ StateListener::StateListener(QObject *parent) :
     connect(Core::VcsManager::instance(), SIGNAL(repositoryChanged(QString)),
             this, SLOT(slotStateChanged()));
 
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
-            SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
-            this, SLOT(slotStateChanged()));
+    connect(ProjectExplorer::ProjectTree::instance(),
+            &ProjectExplorer::ProjectTree::currentProjectChanged,
+            this, &StateListener::slotStateChanged);
 
     Core::EditorManager::setWindowTitleVcsTopicHandler(&StateListener::windowTitleVcsTopic);
 }
@@ -308,7 +308,7 @@ void StateListener::slotStateChanged()
     }
     // Check for project, find the control
     Core::IVersionControl *projectControl = 0;
-    if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectExplorerPlugin::currentProject()) {
+    if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectTree::currentProject()) {
         state.currentProjectPath = currentProject->projectDirectory().toString();
         state.currentProjectName = currentProject->displayName();
         projectControl = Core::VcsManager::findVersionControlForDirectory(state.currentProjectPath,
@@ -677,7 +677,7 @@ void VcsBasePlugin::createRepository()
     QTC_ASSERT(d->m_versionControl->supportsOperation(Core::IVersionControl::CreateRepositoryOperation), return);
     // Find current starting directory
     QString directory;
-    if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectExplorerPlugin::currentProject())
+    if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectTree::currentProject())
         directory = QFileInfo(currentProject->document()->filePath()).absolutePath();
     // Prompt for a directory that is not under version control yet
     QWidget *mw = Core::ICore::mainWindow();

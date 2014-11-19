@@ -93,6 +93,7 @@
 #include <projectexplorer/devicesupport/deviceprocesslist.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
@@ -481,7 +482,7 @@ public:
 bool DummyEngine::hasCapability(unsigned cap) const
 {
     // This can only be a first approximation of what to expect when running.
-    Project *project = ProjectExplorerPlugin::currentProject();
+    Project *project = ProjectTree::currentProject();
     if (!project)
         return 0;
     Target *target = project->activeTarget();
@@ -3437,7 +3438,7 @@ void DebuggerPlugin::extensionsInitialized()
 
 void DebuggerPluginPrivate::testLoadProject(const QString &proFile, const TestCallBack &cb)
 {
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::currentProjectChanged,
+    connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &DebuggerPluginPrivate::testProjectLoaded);
 
     m_testCallbacks.append(cb);

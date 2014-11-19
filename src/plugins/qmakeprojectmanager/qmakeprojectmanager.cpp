@@ -42,6 +42,7 @@
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
@@ -139,7 +140,7 @@ void QmakeManager::addLibrary()
 
 void QmakeManager::addLibraryContextMenu()
 {
-    Node *node = ProjectExplorerPlugin::currentNode();
+    Node *node = ProjectTree::currentNode();
     if (qobject_cast<QmakeProFileNode *>(node))
         addLibrary(node->path());
 }

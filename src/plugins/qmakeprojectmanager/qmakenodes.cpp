@@ -772,10 +772,6 @@ void QmakePriFileNode::update(const Internal::PriFileEvalResult &result)
     }
 
     contents.updateSubFolders(this);
-    if (!m_setCurrentNodeDelayed.isEmpty()) {
-        ProjectExplorer::ProjectExplorerPlugin::setCurrentFile(m_project, m_setCurrentNodeDelayed);
-        m_setCurrentNodeDelayed.clear();
-    }
 }
 
 void QmakePriFileNode::watchFolders(const QSet<QString> &folders)
@@ -1106,8 +1102,6 @@ bool QmakePriFileNode::renameFile(const QString &filePath, const QString &newFil
 {
     if (newFilePath.isEmpty())
         return false;
-
-    m_setCurrentNodeDelayed = newFilePath;
 
     bool changeProFileOptional = deploysFolder(QFileInfo(filePath).absolutePath());
     const Core::MimeType mt = Core::MimeDatabase::findByFile(newFilePath);

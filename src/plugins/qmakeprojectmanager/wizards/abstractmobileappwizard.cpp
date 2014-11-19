@@ -131,11 +131,8 @@ bool AbstractMobileAppWizard::postGenerateFiles(const QWizard *w,
     }
     if (success) {
         const QString fileToOpen = fileToOpenPostGeneration();
-        if (!fileToOpen.isEmpty()) {
+        if (!fileToOpen.isEmpty())
             EditorManager::openEditor(fileToOpen);
-            Project *project = SessionManager::projectForFile(fileToOpen);
-            ProjectExplorerPlugin::setCurrentFile(project, fileToOpen);
-        }
     }
     return success;
 }
