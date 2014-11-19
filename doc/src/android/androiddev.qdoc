@@ -154,7 +154,7 @@
 
             \endlist
 
-        \li Select \gui File > \gui {New File or Project} > \gui Applications >
+        \li Select \gui File > \gui {New File or Project} > \gui Application >
             \gui {Qt Quick Application} > \gui Choose, and
             follow the instructions of the wizard. For more information, see
             \l{Creating Qt Quick Projects}.

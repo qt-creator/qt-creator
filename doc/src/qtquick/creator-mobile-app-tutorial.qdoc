@@ -61,7 +61,7 @@
 
     \list 1
 
-        \li Select \gui File > \gui {New File or Project} > \gui Applications >
+        \li Select \gui File > \gui {New File or Project} > \gui Application >
             \gui {Qt Quick Application} > \gui Choose.
 
         \li In the \gui{Name} field, type \b{accelbubble}.

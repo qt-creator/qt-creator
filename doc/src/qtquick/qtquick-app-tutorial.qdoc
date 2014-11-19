@@ -47,7 +47,7 @@
 
     \list 1
 
-        \li Select \gui{File > New File or Project > Applications >
+        \li Select \gui{File > New File or Project > Application >
             Qt Quick Application > Choose}.
 
         \li In the \gui{Name} field, type \b {Transitions}.

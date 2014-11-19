@@ -41,7 +41,7 @@
 
     \list 1
 
-        \li Select \gui{File > New File or Project > Applications > Qt Widgets
+        \li Select \gui{File > New File or Project > Application > Qt Widgets
             Application > Choose}.
 
             \image qtcreator-new-qt-gui-application.png "New File or Project dialog"
