@@ -454,7 +454,6 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
     sp.analyzerPort = port;
 
     AnalyzerRunControl *rc = tool->createRunControl(sp, 0);
-    QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));
 
     ProjectExplorerPlugin::startRunControl(rc, tool->runMode());
 }
