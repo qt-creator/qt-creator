@@ -373,11 +373,11 @@ DebuggerSettings::DebuggerSettings()
     insertItem(LoadGdbInit, item);
 
     item = new SavedAction(this);
-    item->setSettingsKey(debugModeGroup, QLatin1String("LoadGdbDumpers1"));
+    item->setSettingsKey(debugModeGroup, QLatin1String("LoadGdbDumpers2"));
     item->setDefaultValue(QString());
     item->setCheckable(true);
-    item->setDefaultValue(true);
-    item->setValue(true);
+    item->setDefaultValue(false);
+    item->setValue(false);
     insertItem(LoadGdbDumpers, item);
 
     item = new SavedAction(this);
