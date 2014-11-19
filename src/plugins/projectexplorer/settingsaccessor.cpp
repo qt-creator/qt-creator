@@ -47,6 +47,7 @@
 #include <utils/qtcprocess.h>
 
 #include <QApplication>
+#include <QDir>
 
 using namespace Utils;
 
@@ -518,6 +519,80 @@ public:
     QList<VersionUpgrader *> m_upgraders;
     Utils::PersistentSettingsWriter *m_writer;
 };
+
+// Return path to shared directory for .user files, create if necessary.
+static inline QString determineSharedUserFileDir()
+{
+    const char userFilePathVariable[] = "QTC_USER_FILE_PATH";
+    if (!qEnvironmentVariableIsSet(userFilePathVariable))
+        return QString();
+    const QFileInfo fi(QFile::decodeName(qgetenv(userFilePathVariable)));
+    const QString path = fi.absoluteFilePath();
+    if (fi.isDir() || fi.isSymLink())
+        return path;
+    if (fi.exists()) {
+        qWarning() << userFilePathVariable << '=' << QDir::toNativeSeparators(path)
+            << " points to an existing file";
+        return QString();
+    }
+    QDir dir;
+    if (!dir.mkpath(path)) {
+        qWarning() << "Cannot create: " << QDir::toNativeSeparators(path);
+        return QString();
+    }
+    return path;
+}
+
+static QString sharedUserFileDir()
+{
+    static const QString sharedDir = determineSharedUserFileDir();
+    return sharedDir;
+}
+
+// Return a suitable relative path to be created under the shared .user directory.
+static QString makeRelative(QString path)
+{
+    const QChar slash(QLatin1Char('/'));
+    // Windows network shares: "//server.domain-a.com/foo' -> 'serverdomainacom/foo'
+    if (path.startsWith(QLatin1String("//"))) {
+        path.remove(0, 2);
+        const int nextSlash = path.indexOf(slash);
+        if (nextSlash > 0) {
+            for (int p = nextSlash; p >= 0; --p) {
+                if (!path.at(p).isLetterOrNumber())
+                    path.remove(p, 1);
+            }
+        }
+        return path;
+    }
+    // Windows drives: "C:/foo' -> 'c/foo'
+    if (path.size() > 3 && path.at(1) == QLatin1Char(':')) {
+        path.remove(1, 1);
+        path[0] = path.at(0).toLower();
+        return path;
+    }
+    if (path.startsWith(slash)) // Standard UNIX paths: '/foo' -> 'foo'
+        path.remove(0, 1);
+    return path;
+}
+
+// Return complete file path of the .user file.
+static Utils::FileName userFilePath(const ProjectExplorer::Project *project, const QString &suffix)
+{
+    Utils::FileName result;
+    const Utils::FileName projectFilePath = project->projectFilePath();
+    if (sharedUserFileDir().isEmpty()) {
+        result = projectFilePath;
+    } else {
+        // Recreate the relative project file hierarchy under the shared directory.
+        // PersistentSettingsWriter::write() takes care of creating the path.
+        result = Utils::FileName::fromString(sharedUserFileDir());
+        result.appendString(QLatin1Char('/') + makeRelative(projectFilePath.toString()));
+    }
+    result.appendString(suffix);
+    return result;
+}
+
 } // end namespace
 
 SettingsAccessor::SettingsAccessor(Project *project) :
@@ -748,8 +823,7 @@ SettingsAccessor::IssueInfo SettingsAccessor::findIssues(const QVariantMap &data
 {
     SettingsAccessor::IssueInfo result;
 
-    Utils::FileName defaultSettingsPath = project()->projectFilePath();
-    defaultSettingsPath.appendString(m_userSuffix);
+    const Utils::FileName defaultSettingsPath = userFilePath(project(), m_userSuffix);
 
     int version = versionFromMap(data);
     if (!path.exists()) {
@@ -909,12 +983,16 @@ QList<FileName> SettingsAccessor::settingsFiles(const QString &suffix) const
 {
     QList<Utils::FileName> result;
 
-    const Utils::FileName baseName = project()->projectFilePath();
-    QFileInfo fi = baseName.toFileInfo();
-    QDir dir = QDir(fi.absolutePath());
-    QString filter = fi.fileName() + suffix + QLatin1Char('*');
+    QFileInfoList list;
+    const QFileInfo pfi = project()->projectFilePath().toFileInfo();
+    const QStringList filter(pfi.fileName() + suffix + QLatin1Char('*'));
 
-    QFileInfoList list = dir.entryInfoList(QStringList() << filter, QDir::Files);
+    if (!sharedUserFileDir().isEmpty()) {
+        const QString sharedPath = sharedUserFileDir() + QLatin1Char('/')
+            + makeRelative(pfi.absolutePath());
+        list.append(QDir(sharedPath).entryInfoList(filter, QDir::Files));
+    }
+    list.append(QDir(pfi.dir()).entryInfoList(filter, QDir::Files));
 
     foreach (const QFileInfo &fi, list) {
         const Utils::FileName path = Utils::FileName::fromString(fi.absoluteFilePath());
@@ -936,7 +1014,7 @@ QByteArray SettingsAccessor::creatorId()
 
 QString SettingsAccessor::defaultFileName(const QString &suffix) const
 {
-    return project()->projectFilePath().toString() + suffix;
+    return userFilePath(project(), suffix).toString();
 }
 
 int SettingsAccessor::currentVersion() const
