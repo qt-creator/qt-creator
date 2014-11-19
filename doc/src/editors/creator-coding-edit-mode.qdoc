@@ -48,7 +48,7 @@
     (\gui {Go Forward}).
 
     To go to any open file, select it from the \gui{Open files} drop-down menu (1).
-    Right-click the menu title and select \gui {Copy Full Path to Clipboard} to
+    Right-click the menu title and select \gui {Copy Full Path} to
     copy the path and name of the current file to the clipboard.
 
     To jump to any symbol used in the current file, select it from the
