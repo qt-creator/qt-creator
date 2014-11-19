@@ -874,6 +874,8 @@ void CMakeCbpParser::sortFiles()
         int bestIncludeCount = -1;
         for (int i = 0; i < m_buildTargets.size(); ++i) {
             const CMakeBuildTarget &target = m_buildTargets.at(i);
+            if (target.includeFiles.isEmpty())
+                continue;
             if (target.sourceDirectory == m_sourceDirectory
                     && target.includeFiles.count() > bestIncludeCount) {
                 bestIncludeCount = target.includeFiles.count();
@@ -893,6 +895,8 @@ void CMakeCbpParser::sortFiles()
 
             for (int i = 0; i < m_buildTargets.size(); ++i) {
                 const CMakeBuildTarget &target = m_buildTargets.at(i);
+                if (target.includeFiles.isEmpty())
+                    continue;
                 if (fileName.isChildOf(Utils::FileName::fromString(target.sourceDirectory)) &&
                     (target.sourceDirectory.size() > bestLength ||
                      (target.sourceDirectory.size() == bestLength &&
