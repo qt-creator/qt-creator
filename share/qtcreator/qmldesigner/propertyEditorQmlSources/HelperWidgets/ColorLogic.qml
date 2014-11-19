@@ -42,6 +42,7 @@ QtObject {
     property bool baseStateFlag: isBaseState;
     property bool isInModel: backendValue.isInModel;
     property bool isInSubState: backendValue.isInSubState;
+    property bool highlight: textColor == Constants.colorsChangedBaseText
 
     onBackendValueChanged: {
         evaluate();
