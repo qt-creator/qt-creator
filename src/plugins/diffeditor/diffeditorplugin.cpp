@@ -194,9 +194,8 @@ void DiffEditorPlugin::diff()
 
     const QString documentId = QLatin1String("Diff ") + fileName1
             + QLatin1String(", ") + fileName2;
-    DiffEditorDocument *document = DiffEditorManager::find(documentId);
     QString title = tr("Diff \"%1\", \"%2\"").arg(fileName1).arg(fileName2);
-    document = DiffEditorManager::findOrCreate(documentId, title);
+    DiffEditorDocument * const document = DiffEditorManager::findOrCreate(documentId, title);
     if (!document)
         return;
 
