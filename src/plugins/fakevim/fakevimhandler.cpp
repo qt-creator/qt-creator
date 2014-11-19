@@ -7024,7 +7024,7 @@ void FakeVimHandler::Private::upCase(const Range &range)
 void FakeVimHandler::Private::invertCase(const Range &range)
 {
     transformText(range,
-        [](const QString &text) {
+        [] (const QString &text) -> QString {
             QString result = text;
             for (int i = 0; i < result.length(); ++i) {
                 QCharRef c = result[i];
