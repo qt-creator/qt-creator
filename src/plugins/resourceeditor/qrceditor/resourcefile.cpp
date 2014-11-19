@@ -183,15 +183,8 @@ bool ResourceFile::load()
     return true;
 }
 
-bool ResourceFile::save()
+QString ResourceFile::contents() const
 {
-    m_error_message.clear();
-
-    if (m_file_name.isEmpty()) {
-        m_error_message = tr("The file name is empty.");
-        return false;
-    }
-
     QDomDocument doc;
     QDomElement root = doc.createElement(QLatin1String("RCC"));
     doc.appendChild(root);
@@ -222,11 +215,19 @@ bool ResourceFile::save()
                 felt.setAttribute(QLatin1String("threshold"), file.threshold);
         }
     }
+    return doc.toString(4);
+}
 
-    QString data = doc.toString(4);
-    if (!m_textFileFormat.writeFile(m_file_name, data, &m_error_message))
+bool ResourceFile::save()
+{
+    m_error_message.clear();
+
+    if (m_file_name.isEmpty()) {
+        m_error_message = tr("The file name is empty.");
         return false;
-    return true;
+    }
+
+    return m_textFileFormat.writeFile(m_file_name, contents(), &m_error_message);
 }
 
 void ResourceFile::refresh()

@@ -139,6 +139,7 @@ public:
     QString fileName() const { return m_file_name; }
     bool load();
     bool save();
+    QString contents() const;
     QString errorMessage() const { return m_error_message; }
     void refresh();
 
@@ -252,6 +253,8 @@ private:
 public:
     virtual bool reload();
     virtual bool save();
+    QString contents() const { return m_resource_file.contents(); }
+
     // QString errorMessage() const { return m_resource_file.errorMessage(); }
 
     bool dirty() const { return m_dirty; }

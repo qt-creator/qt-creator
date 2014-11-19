@@ -381,6 +381,11 @@ bool ResourceView::save()
     return m_qrcModel->save();
 }
 
+QString ResourceView::contents() const
+{
+    return m_qrcModel->contents();
+}
+
 QString ResourceView::currentAlias() const
 {
     const QModelIndex current = currentIndex();

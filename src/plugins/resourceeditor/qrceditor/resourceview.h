@@ -85,6 +85,7 @@ public:
 
     bool load(const QString &fileName);
     bool save();
+    QString contents() const;
     QString errorMessage() const { return m_qrcFile.errorMessage(); }
     QString fileName() const;
     void setFileName(const QString &fileName);

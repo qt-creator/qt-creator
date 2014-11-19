@@ -49,6 +49,7 @@ public:
 
     bool load(const QString &fileName);
     bool save();
+    QString contents() const;
     QTreeView *treeView() { return m_treeview; }
     QString errorMessage() const { return m_treeview->errorMessage(); }
 

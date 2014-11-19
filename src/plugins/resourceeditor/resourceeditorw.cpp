@@ -187,6 +187,11 @@ bool ResourceEditorDocument::save(QString *errorString, const QString &name, boo
     return true;
 }
 
+QString ResourceEditorDocument::plainText() const
+{
+    return m_parent->m_resourceEditor->contents();
+}
+
 bool ResourceEditorDocument::setContents(const QByteArray &contents)
 {
     Utils::TempFileSaver saver;
