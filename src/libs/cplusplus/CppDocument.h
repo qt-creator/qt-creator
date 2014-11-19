@@ -127,6 +127,7 @@ public:
     bool isTokenized() const;
     void tokenize();
 
+    void setRetryHarderToParseDeclarations(bool yesno);
     bool isParsed() const;
     bool parse(ParseMode mode = ParseTranlationUnit);
 

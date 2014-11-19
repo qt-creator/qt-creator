@@ -66,8 +66,6 @@ public:
 
 int DebugRule::depth = 0;
 
-const int declarationsInRowAllowedToFail = 2;
-
 inline bool lookAtAssignmentOperator(int tokenKind)
 {
     switch (tokenKind) {
@@ -267,12 +265,13 @@ inline void debugPrintCheckCache(bool) {}
     return true; \
 }
 
-Parser::Parser(TranslationUnit *unit)
+Parser::Parser(TranslationUnit *unit, int retryParseDeclarationLimit)
     : _translationUnit(unit),
       _control(unit->control()),
       _pool(unit->memoryPool()),
       _languageFeatures(unit->languageFeatures()),
       _tokenIndex(1),
+      _retryParseDeclarationLimit(retryParseDeclarationLimit),
       _templateArguments(0),
       _inFunctionBody(false),
       _inExpressionStatement(false),
@@ -657,7 +656,7 @@ bool Parser::parseTranslationUnit(TranslationUnitAST *&node)
         } else {
             error(start_declaration, "expected a declaration");
             rewind(start_declaration + 1);
-            if (++declarationsInRowFailedToParse == declarationsInRowAllowedToFail)
+            if (++declarationsInRowFailedToParse == _retryParseDeclarationLimit)
                 skipUntilAfterSemicolonOrRightBrace();
             else
                 skipUntilDeclaration();
@@ -825,7 +824,7 @@ bool Parser::parseLinkageBody(DeclarationAST *&node)
             } else {
                 error(start_declaration, "expected a declaration");
                 rewind(start_declaration + 1);
-                if (++declarationsInRowFailedToParse == declarationsInRowAllowedToFail)
+                if (++declarationsInRowFailedToParse == _retryParseDeclarationLimit)
                     skipUntilAfterSemicolonOrRightBrace();
                 else
                     skipUntilDeclaration();

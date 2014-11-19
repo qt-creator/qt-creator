@@ -33,7 +33,7 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT Parser
 {
 public:
-    Parser(TranslationUnit *translationUnit);
+    Parser(TranslationUnit *translationUnit, int retryParseDeclarationLimit);
     ~Parser();
 
     bool parseTranslationUnit(TranslationUnitAST *&node);
@@ -317,6 +317,7 @@ private:
     MemoryPool *_pool;
     LanguageFeatures _languageFeatures;
     unsigned _tokenIndex;
+    int _retryParseDeclarationLimit;
     bool _templateArguments: 1;
     bool _inFunctionBody: 1;
     bool _inExpressionStatement: 1;

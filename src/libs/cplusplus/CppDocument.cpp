@@ -623,6 +623,13 @@ void Document::tokenize()
     _translationUnit->tokenize();
 }
 
+void Document::setRetryHarderToParseDeclarations(bool yesno)
+{
+    _translationUnit->setRetryParseDeclarationLimit(
+                yesno ? 1000
+                      : TranslationUnit::defaultRetryParseDeclarationLimit());
+}
+
 bool Document::isParsed() const
 {
     return _translationUnit->isParsed();
