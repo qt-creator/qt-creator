@@ -150,6 +150,13 @@
     You can illustrate your documentation by using screen shots, diagrams, and
     other images.
 
+    Use the \c {\image} and \c {\inlineimage} QDoc commands to refer to images
+    from the text. You do not need to add paths to image names. For example:
+
+    \code
+    \image riot.png
+    \endcode
+
     \section2 Taking Screen Shots
 
     \QC has the native look and feel on Windows, Linux, and OS X, and
@@ -200,7 +207,11 @@
     Before committing images, optimize them by using an image optimization tool.
 
     Optimization should not visibly reduce image quality. If it does, do not do
-    it. You can use the Radical Image Optimization Tool (RIOT) on Windows (very
+    it.
+
+    You can use a web service, such as \l{https://tinypng.com}, or an image
+    optimization tool to shrink the images. For example, you
+    can use the Radical Image Optimization Tool (RIOT) on Windows (very
     efficient) or ImageOptim on OS X (much less efficient), or some other tool
     available on Linux.
 
@@ -208,17 +219,6 @@
     application. The following section describes the settings to use for RIOT.
 
     \section3 Using RIOT
-
-    Use the \c {\image} and \c {\inlineimage} QDoc commands to refer to images
-    from the text. You do not need to add paths to image names. For example:
-
-    \code
-
-    \image riot.png
-
-    \endcode
-
-    \section2 Optimizing Images
 
     Download and install \l{http://luci.criosweb.ro/riot/}{RIOT}.
 
@@ -255,18 +255,26 @@
 
     The content and formatting of documentation are separated in QDoc.
     The documentation configuration, style sheets, and templates have
-    changed over time, so they differ between Qt and \QC versions. In Qt 4,
-    separate style sheets are used to generate help files for \QC and online
-    documentation for the Web.
+    changed over time, so they differ between Qt and \QC versions. Since \QC
+    version 3.3, only Qt 5 is supported for building documentation. The
+    templates to use are defined by the
+    \c qt5\qtbase\doc\global\qt-html-templates-offline.qdocconf} and
+    \c {qt5\qtbase\doc\global\qt-html-templates-online.qdocconf} configuration
+    file. They are fetched from Qt sources by adding the following lines to the
+    qdocconf file:
 
-    In Qt 5, only one set of templates is used, as defined by the
-    \c {qt5\qtbase\doc\global\qt-module-defaults.qdocconf} configuration file.
-    It is fetched from Qt sources by adding the following line to the qdocconf
-    file:
+    \list
 
-    \c {include ($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)}
+        \li \c {include ($QT_INSTALL_DOCS/global/qt-html-templates-offline.qdocconf)}
+            for publishing on the web
+        \li \c {include ($QT_INSTALL_DOCS/global/qt-html-templates-online.qdocconf)}
+            for help files
+    \endlist
 
-    To pick the Qt to use, run qmake from either Qt 4 or Qt 5.
+    \note If the styles look wrong to you when reading help files in \QC or \QA,
+    you might be looking at them in the QTextBrowser instead of the WebKit
+    browser. This happens if you build \QC and \QA with a self-built Qt and did
+    not build Qt WebKit.
 
     To build documentation for the sources from the qtcreator master branch, use
     build scripts defined in the doc.pri file. To build all \QC docs in the
@@ -288,7 +296,7 @@
     on OS X. You can view the HTML files in a browser and the help files in
     the \QC \gui Help mode. For more information about adding the help files to
     \QC, see
-    \l{http://qt-project.org/doc/qtcreator-2.8/creator-help.html#adding-external-documentation}
+    \l{http://qt-project.org/doc/qtcreator/creator-help.html#adding-external-documentation}
     {Adding External Documentation}.
 
     Besides \c docs, you have the following options:
