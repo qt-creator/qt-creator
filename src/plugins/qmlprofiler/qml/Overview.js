@@ -81,7 +81,7 @@ function drawBindingLoops(canvas, ctxt) {
              ii += canvas.increment) {
             if (qmlProfilerModelProxy.bindingLoopDest(modelIndex,ii) >= 0) {
                 var xcenter = Math.round(qmlProfilerModelProxy.startTime(modelIndex,ii) +
-                                         qmlProfilerModelProxy.duration(modelIndex,ii) -
+                                         qmlProfilerModelProxy.duration(modelIndex,ii) / 2 -
                                          qmlProfilerModelProxy.traceStartTime()) * spacing;
                 var ycenter = Math.round(canvas.bump + canvas.blockHeight * modelIndex +
                                          canvas.blockHeight / 2);
