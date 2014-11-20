@@ -284,6 +284,8 @@
 
     When you have completed the steps, the main.qml file should look as follows:
 
-    \quotefile accelbubble/main.qml
+    \quotefromfile accelbubble/main.qml
+    \skipto import
+    \printuntil /^\}/
 
 */
