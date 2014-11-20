@@ -40,6 +40,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
@@ -96,18 +97,13 @@ void JsonKitsPage::setupProjectFiles(const JsonWizard::GeneratorFiles &files)
             if (mt.isNull())
                 continue;
 
-            foreach (IProjectManager *manager, managerList) {
-                if (manager->mimeType() == mt.type()) {
-                    project = manager->openProject(path, &errorMessage);
-                    break;
-                }
-            }
-
+            auto manager = Utils::findOrDefault(managerList, Utils::equal(&IProjectManager::mimeType, mt.type()));
+            project = manager ? manager->openProject(path, &errorMessage) : 0;
             if (project) {
-                bool success = setupProject(project);
-                if (success)
+                if (setupProject(project))
                     project->saveSettings();
                 delete project;
+                project = 0;
             }
         }
     }
