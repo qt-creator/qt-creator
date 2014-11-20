@@ -852,6 +852,15 @@ void CMakeBuildSettingsWidget::runCMake()
 // CMakeCbpParser
 ////
 
+namespace {
+int distance(const QString &targetDirectory, const Utils::FileName &fileName)
+{
+    const QString commonParent = Utils::commonPath(QStringList() << targetDirectory << fileName.toString());
+    return targetDirectory.mid(commonParent.size()).count(QLatin1Char('/'))
+            + fileName.toString().mid(commonParent.size()).count(QLatin1Char('/'));
+}
+}
+
 // called after everything is parsed
 // this function tries to figure out to which CMakeBuildTarget
 // each file belongs, so that it gets the appropriate defines and
@@ -889,7 +898,7 @@ void CMakeCbpParser::sortFiles()
             // easy case, same parent directory as last file
             last->files.append(fileName.toString());
         } else {
-            int bestLength = -1;
+            int bestDistance = std::numeric_limits<int>::max();
             int bestIndex = -1;
             int bestIncludeCount = -1;
 
@@ -897,11 +906,11 @@ void CMakeCbpParser::sortFiles()
                 const CMakeBuildTarget &target = m_buildTargets.at(i);
                 if (target.includeFiles.isEmpty())
                     continue;
-                if (fileName.isChildOf(Utils::FileName::fromString(target.sourceDirectory)) &&
-                    (target.sourceDirectory.size() > bestLength ||
-                     (target.sourceDirectory.size() == bestLength &&
-                      target.includeFiles.count() > bestIncludeCount))) {
-                    bestLength = target.sourceDirectory.size();
+                int dist = distance(target.sourceDirectory, fileName);
+                if (dist < bestDistance ||
+                     (dist == bestDistance &&
+                      target.includeFiles.count() > bestIncludeCount)) {
+                    bestDistance = dist;
                     bestIncludeCount = target.includeFiles.count();
                     bestIndex = i;
                 }
