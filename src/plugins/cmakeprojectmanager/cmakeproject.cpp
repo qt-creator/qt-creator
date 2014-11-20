@@ -867,6 +867,7 @@ int distance(const QString &targetDirectory, const Utils::FileName &fileName)
 // compiler flags
 void CMakeCbpParser::sortFiles()
 {
+    QLoggingCategory log("qtc.cmakeprojectmanager.filetargetmapping");
     QList<Utils::FileName> fileNames = Utils::transform(m_fileList, [] (FileNode *node) {
         return Utils::FileName::fromString(node->path());
     });
@@ -876,6 +877,13 @@ void CMakeCbpParser::sortFiles()
 
     CMakeBuildTarget *last = 0;
     Utils::FileName parentDirectory;
+
+    qCDebug(log) << "###############";
+    qCDebug(log) << "# Pre Dump    #";
+    qCDebug(log) << "###############";
+    foreach (const CMakeBuildTarget &target, m_buildTargets)
+        qCDebug(log) << target.title << target.sourceDirectory <<
+                 target.includeFiles << target.defines << target.files << "\n";
 
     // find a good build target to fall back
     int fallbackIndex = 0;
@@ -893,10 +901,16 @@ void CMakeCbpParser::sortFiles()
         }
     }
 
+    qCDebug(log) << "###############";
+    qCDebug(log) << "# Sorting     #";
+    qCDebug(log) << "###############";
+
     foreach (const Utils::FileName &fileName, fileNames) {
+        qCDebug(log) << fileName;
         if (fileName.parentDir() == parentDirectory && last) {
             // easy case, same parent directory as last file
             last->files.append(fileName.toString());
+            qCDebug(log) << "  into" << last->title;
         } else {
             int bestDistance = std::numeric_limits<int>::max();
             int bestIndex = -1;
@@ -907,6 +921,7 @@ void CMakeCbpParser::sortFiles()
                 if (target.includeFiles.isEmpty())
                     continue;
                 int dist = distance(target.sourceDirectory, fileName);
+                qCDebug(log) << "distance to target" << target.title << dist;
                 if (dist < bestDistance ||
                      (dist == bestDistance &&
                       target.includeFiles.count() > bestIncludeCount)) {
@@ -916,16 +931,25 @@ void CMakeCbpParser::sortFiles()
                 }
             }
 
-            if (bestIndex == -1 && !m_buildTargets.isEmpty())
+            if (bestIndex == -1 && !m_buildTargets.isEmpty()) {
                 bestIndex = fallbackIndex;
+                qCDebug(log) << "  using fallbackIndex";
+            }
 
             if (bestIndex != -1) {
                 m_buildTargets[bestIndex].files.append(fileName.toString());
                 last = &m_buildTargets[bestIndex];
                 parentDirectory = fileName.parentDir();
+                qCDebug(log) << "  into" << last->title;
             }
         }
     }
+
+    qCDebug(log) << "###############";
+    qCDebug(log) << "# After Dump  #";
+    qCDebug(log) << "###############";
+    foreach (const CMakeBuildTarget &target, m_buildTargets)
+        qCDebug(log) << target.title << target.sourceDirectory << target.includeFiles << target.defines << target.files << "\n";
 }
 
 bool CMakeCbpParser::parseCbpFile(const QString &fileName, const QString &sourceDirectory)
