@@ -876,6 +876,8 @@ void ModelManagerInterface::parseLoop(QSet<QString> &scannedPaths,
             language = mainLanguage;
         if (language == Dialect::Qml && mainLanguage == Dialect::QmlQtQuick2Ui)
             language = Dialect::QmlQtQuick2;
+        if (language == Dialect::QmlTypeInfo || language == Dialect::QmlProject)
+            continue;
         QString contents;
         int documentRevision = 0;
 
