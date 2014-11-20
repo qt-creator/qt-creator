@@ -34,8 +34,9 @@
 #include <app/app_version.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <QSysInfo>
 #include <QApplication>
+#include <QLibraryInfo>
+#include <QSysInfo>
 
 /*!
     \namespace Core
@@ -469,9 +470,10 @@ QString ICore::versionString()
 
 QString ICore::buildCompatibilityString()
 {
-    return tr("Based on Qt %1 (%2, %3 bit)").arg(QLatin1String(qVersion()),
-                                                 compilerString(),
-                                                 QString::number(QSysInfo::WordSize));
+    return tr("Based on Qt %1 (%2, %3 bit) built on %4").arg(QLatin1String(qVersion()),
+                                 compilerString(),
+                                 QString::number(QSysInfo::WordSize),
+                                 QLibraryInfo::buildDate().toString(QLatin1String("MMM dd yyyy")));
 }
 
 IContext *ICore::currentContextObject()
