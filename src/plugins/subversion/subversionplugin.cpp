@@ -1133,7 +1133,6 @@ bool SubversionPlugin::vcsCheckout(const QString &directory, const QByteArray &u
     }
 
     args << QLatin1String(tempUrl.toEncoded()) << directory;
-    args << QLatin1String(url) << directory;
 
     const SubversionResponse response = runSvn(directory, args,
                                                10 * m_settings.timeOutMs(),

@@ -76,7 +76,7 @@ VcsCommand *CheckoutWizard::createCommand(FileName *checkoutDir)
     const QString directory = cwp->directory();
     QStringList args;
     args << QLatin1String("checkout");
-    args << SubversionClient::addAuthenticationOptions(settings) << cwp->repository() << directory;
+    args << SubversionClient::addAuthenticationOptions(settings);
     args << QLatin1String(Constants::NON_INTERACTIVE_OPTION);
     if (cwp->trustServerCert())
         args << QLatin1String("--trust-server-cert");
