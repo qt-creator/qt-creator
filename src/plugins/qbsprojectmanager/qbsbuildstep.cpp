@@ -53,6 +53,7 @@ static const char QBS_CONFIG[] = "Qbs.Configuration";
 static const char QBS_DRY_RUN[] = "Qbs.DryRun";
 static const char QBS_KEEP_GOING[] = "Qbs.DryKeepGoing";
 static const char QBS_MAXJOBCOUNT[] = "Qbs.MaxJobs";
+static const char QBS_SHOWCOMMANDLINES[] = "Qbs.ShowCommandLines";
 
 // --------------------------------------------------------------------
 // Constants:
@@ -181,6 +182,11 @@ bool QbsBuildStep::keepGoing() const
     return m_qbsBuildOptions.keepGoing();
 }
 
+bool QbsBuildStep::showCommandLines() const
+{
+    return m_qbsBuildOptions.showCommandLines();
+}
+
 int QbsBuildStep::maxJobs() const
 {
     if (m_qbsBuildOptions.maxJobCount() > 0)
@@ -197,6 +203,7 @@ bool QbsBuildStep::fromMap(const QVariantMap &map)
     m_qbsBuildOptions.setDryRun(map.value(QLatin1String(QBS_DRY_RUN)).toBool());
     m_qbsBuildOptions.setKeepGoing(map.value(QLatin1String(QBS_KEEP_GOING)).toBool());
     m_qbsBuildOptions.setMaxJobCount(map.value(QLatin1String(QBS_MAXJOBCOUNT)).toInt());
+    m_qbsBuildOptions.setShowCommandLines(map.value(QLatin1String(QBS_SHOWCOMMANDLINES)).toBool());
     return true;
 }
 
@@ -207,6 +214,7 @@ QVariantMap QbsBuildStep::toMap() const
     map.insert(QLatin1String(QBS_DRY_RUN), m_qbsBuildOptions.dryRun());
     map.insert(QLatin1String(QBS_KEEP_GOING), m_qbsBuildOptions.keepGoing());
     map.insert(QLatin1String(QBS_MAXJOBCOUNT), m_qbsBuildOptions.maxJobCount());
+    map.insert(QLatin1String(QBS_SHOWCOMMANDLINES), m_qbsBuildOptions.showCommandLines());
     return map;
 }
 
@@ -351,6 +359,14 @@ void QbsBuildStep::setMaxJobs(int jobcount)
     emit qbsBuildOptionsChanged();
 }
 
+void QbsBuildStep::setShowCommandLines(bool show)
+{
+    if (m_qbsBuildOptions.showCommandLines() == show)
+        return;
+    m_qbsBuildOptions.setShowCommandLines(show);
+    emit qbsBuildOptionsChanged();
+}
+
 void QbsBuildStep::parseProject()
 {
     m_parsingProject = true;
@@ -426,6 +442,8 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     connect(m_ui->dryRunCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeDryRun(bool)));
     connect(m_ui->keepGoingCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeKeepGoing(bool)));
     connect(m_ui->jobSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changeJobCount(int)));
+    connect(m_ui->showCommandLinesCheckBox, &QCheckBox::toggled, this,
+            &QbsBuildStepConfigWidget::changeShowCommandLines);
     connect(m_ui->propertyEdit, SIGNAL(propertiesChanged()), this, SLOT(changeProperties()));
     connect(m_ui->qmlDebuggingLibraryCheckBox, SIGNAL(toggled(bool)),
             this, SLOT(linkQmlDebuggingLibraryChecked(bool)));
@@ -450,6 +468,7 @@ void QbsBuildStepConfigWidget::updateState()
         m_ui->dryRunCheckBox->setChecked(m_step->dryRun());
         m_ui->keepGoingCheckBox->setChecked(m_step->keepGoing());
         m_ui->jobSpinBox->setValue(m_step->maxJobs());
+        m_ui->showCommandLinesCheckBox->setChecked(m_step->showCommandLines());
         updatePropertyEdit(m_step->qbsConfiguration());
         m_ui->qmlDebuggingLibraryCheckBox->setChecked(m_step->isQmlDebuggingEnabled());
     }
@@ -467,6 +486,8 @@ void QbsBuildStepConfigWidget::updateState()
         command += QLatin1String("--dry-run ");
     if (m_step->keepGoing())
         command += QLatin1String("--keep-going ");
+    if (m_step->showCommandLines())
+        command += QLatin1String("--show-command-lines ");
     command += QString::fromLatin1("--jobs %1 ").arg(m_step->maxJobs());
     command += QString::fromLatin1("%1 profile:%2").arg(buildVariant, m_step->profile());
 
@@ -535,6 +556,13 @@ void QbsBuildStepConfigWidget::changeDryRun(bool dr)
 {
     m_ignoreChange = true;
     m_step->setDryRun(dr);
+    m_ignoreChange = false;
+}
+
+void QbsBuildStepConfigWidget::changeShowCommandLines(bool show)
+{
+    m_ignoreChange = true;
+    m_step->setShowCommandLines(show);
     m_ignoreChange = false;
 }
 

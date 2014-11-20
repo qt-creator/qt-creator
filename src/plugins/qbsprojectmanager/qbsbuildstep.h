@@ -67,6 +67,7 @@ public:
 
     bool dryRun() const;
     bool keepGoing() const;
+    bool showCommandLines() const;
     int maxJobs() const;
     QString buildVariant() const;
 
@@ -97,6 +98,7 @@ private:
     void setDryRun(bool dr);
     void setKeepGoing(bool kg);
     void setMaxJobs(int jobcount);
+    void setShowCommandLines(bool show);
 
     void parseProject();
     void build();
@@ -139,6 +141,7 @@ private slots:
 
     void changeBuildVariant(int);
     void changeDryRun(bool dr);
+    void changeShowCommandLines(bool show);
     void changeKeepGoing(bool kg);
     void changeJobCount(int count);
     void changeProperties();

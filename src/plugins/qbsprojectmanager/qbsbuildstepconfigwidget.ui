@@ -181,6 +181,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QCheckBox" name="showCommandLinesCheckBox">
+       <property name="text">
+        <string>Show command lines</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="checkBoxSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
