@@ -210,7 +210,7 @@ void AndroidConfig::load(const QSettings &settings)
     m_sdkLocation = FileName::fromString(settings.value(SDKLocationKey).toString());
     m_ndkLocation = FileName::fromString(settings.value(NDKLocationKey).toString());
     m_antLocation = FileName::fromString(settings.value(AntLocationKey).toString());
-    m_useGradle = settings.value(UseGradleKey, true).toBool();
+    m_useGradle = settings.value(UseGradleKey, false).toBool();
     m_openJDKLocation = FileName::fromString(settings.value(OpenJDKLocationKey).toString());
     m_keystoreLocation = FileName::fromString(settings.value(KeystoreLocationKey).toString());
     m_toolchainHost = settings.value(ToolchainHostKey).toString();
@@ -244,7 +244,7 @@ void AndroidConfig::load(const QSettings &settings)
 }
 
 AndroidConfig::AndroidConfig()
-    : m_useGradle(true),
+    : m_useGradle(false),
       m_availableSdkPlatformsUpToDate(false),
       m_NdkInformationUpToDate(false)
 {
