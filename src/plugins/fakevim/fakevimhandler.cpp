@@ -2868,7 +2868,7 @@ void FakeVimHandler::Private::waitForMapping()
 
 EventResult FakeVimHandler::Private::stopWaitForMapping(bool hasInput)
 {
-    if (m_inputTimer.isActive()) {
+    if (!hasInput || m_inputTimer.isActive()) {
         m_inputTimer.stop();
         g.currentCommand.clear();
         if (!hasInput && !expandCompleteMapping()) {
