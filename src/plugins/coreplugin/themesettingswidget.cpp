@@ -110,7 +110,7 @@ QString ThemeEntry::displayName() const
         QSettings settings(filePath(), QSettings::IniFormat);
         m_displayName = settings.value(QLatin1String(themeNameKey),
                                        QCoreApplication::tr("unnamed")).toString();
-        if (m_readOnly)
+        if (false) // TODO: Revert to m_readOnly
             m_displayName = QCoreApplication::tr("%1 (built-in)").arg(m_displayName);
     }
     return m_displayName;
