@@ -120,7 +120,7 @@
 
         \li Click \gui Design to open the file in \QMLD.
 
-        \li In the \gui Navigator pane, select \gui Text and press \key Delete
+        \li In the \gui Navigator pane, select \gui Label and press \key Delete
             to delete it.
 
         \li In the \gui Library view, \gui Resources tab, select Bluebubble.svg
