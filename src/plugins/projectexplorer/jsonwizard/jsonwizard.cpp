@@ -124,10 +124,16 @@ QVariant JsonWizard::value(const QString &n) const
 {
     QVariant v = property(n.toUtf8());
     if (v.isValid()) {
-        if (v.type() == QVariant::String)
+        if (v.type() == QVariant::String) {
             return m_expander.expand(v.toString());
-        else
+        } if (v.type() == QVariant::StringList) {
+            QStringList tmp = Utils::transform(v.toStringList(), [this](const QString &i) -> QString {
+                return m_expander.expand(i).replace(QLatin1Char('\''), QLatin1String("\\'"));
+            });
+            return QString(QString(QLatin1Char('\'')) + tmp.join(QLatin1String("', '")) + QString(QLatin1Char('\'')));
+        } else {
             return v;
+        }
     }
     if (hasField(n))
         return field(n); // Can not contain macros!

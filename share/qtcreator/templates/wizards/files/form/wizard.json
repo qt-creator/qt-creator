@@ -10,7 +10,7 @@
     "featuresRequired": [ "Plugin.Designer" ],
 
     "options": [
-        { "key": "UiClass", "value": "%{JS: QtSupport.uiClassName('%{FormContents}') }" },
+        { "key": "UiClass", "value": "%{JS: QtSupport.uiClassName([ %{FormContents} ].join('\\n'))}" },
         { "key": "Extension", "value": "%{JS: Util.preferredSuffix('application/x-designer')}"},
         { "key": "InitialFileName", "value": "%{JS: Cpp.classToFileName('%{UiClass}', '%{Extension}') }" }
     ],
