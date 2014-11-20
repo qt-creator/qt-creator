@@ -376,7 +376,6 @@ QmakeProject::~QmakeProject()
     m_codeModelFuture.cancel();
     m_asyncUpdateState = ShuttingDown;
     m_manager->unregisterProject(this);
-    delete m_qmakeVfs;
     delete m_projectFiles;
     m_cancelEvaluate = true;
     // Deleting the root node triggers a few things, make sure rootProjectNode
@@ -385,6 +384,7 @@ QmakeProject::~QmakeProject()
     m_rootProjectNode = 0;
     delete root;
     Q_ASSERT(m_qmakeGlobalsRefCnt == 0);
+    delete m_qmakeVfs;
 }
 
 void QmakeProject::updateFileList()
