@@ -590,7 +590,7 @@ QList<ProjectInfo> CppModelManager::projectInfos() const
 ProjectInfo CppModelManager::projectInfo(ProjectExplorer::Project *project) const
 {
     QMutexLocker locker(&d->m_projectMutex);
-    return d->m_projectToProjectsInfo.value(project, ProjectInfo(project));
+    return d->m_projectToProjectsInfo.value(project, ProjectInfo());
 }
 
 /// \brief Remove all files and their includes (recursively) of given ProjectInfo from the snapshot.

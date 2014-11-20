@@ -218,15 +218,6 @@ void ProjectInfo::finish()
     }
 }
 
-void ProjectInfo::clearProjectParts()
-{
-    m_projectParts.clear();
-    m_headerPaths.clear();
-    m_sourceFiles.clear();
-    m_defines.clear();
-    m_compilerCallData.clear();
-}
-
 const ProjectPart::HeaderPaths ProjectInfo::headerPaths() const
 {
     return m_headerPaths;

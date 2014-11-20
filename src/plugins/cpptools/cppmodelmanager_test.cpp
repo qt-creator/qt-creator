@@ -94,8 +94,7 @@ public:
             projectFiles << projectDir.file(file);
 
         Project *project = modelManagerTestHelper->createProject(name);
-        projectInfo = CppModelManager::instance()->projectInfo(project);
-        QCOMPARE(projectInfo.project().data(), project);
+        projectInfo = ProjectInfo(project);
 
         ProjectPart::Ptr part(new ProjectPart);
         part->languageVersion = ProjectPart::CXX14;
@@ -215,8 +214,7 @@ void CppToolsPlugin::test_modelmanager_paths_are_clean()
     const MyTestDataDir testDataDir(_("testdata"));
 
     Project *project = helper.createProject(_("test_modelmanager_paths_are_clean"));
-    ProjectInfo pi = mm->projectInfo(project);
-    QCOMPARE(pi.project().data(), project);
+    ProjectInfo pi = ProjectInfo(project);
 
     typedef ProjectPart::HeaderPath HeaderPath;
 
@@ -251,8 +249,7 @@ void CppToolsPlugin::test_modelmanager_framework_headers()
     const MyTestDataDir testDataDir(_("testdata"));
 
     Project *project = helper.createProject(_("test_modelmanager_framework_headers"));
-    ProjectInfo pi = mm->projectInfo(project);
-    QCOMPARE(pi.project().data(), project);
+    ProjectInfo pi = ProjectInfo(project);
 
     typedef ProjectPart::HeaderPath HeaderPath;
 
@@ -304,8 +301,7 @@ void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
 
     Project *project = helper.createProject(
                 _("test_modelmanager_refresh_also_includes_of_project_files"));
-    ProjectInfo pi = mm->projectInfo(project);
-    QCOMPARE(pi.project().data(), project);
+    ProjectInfo pi = ProjectInfo(project);
 
     typedef ProjectPart::HeaderPath HeaderPath;
 
@@ -333,7 +329,7 @@ void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
 
     // Introduce a define that will enable another define once the document is reparsed.
     part->projectDefines = QByteArray("#define TEST_DEFINE 1\n");
-    pi.clearProjectParts();
+    pi = ProjectInfo(project);
     pi.appendProjectPart(part);
     pi.finish();
 
@@ -367,8 +363,7 @@ void CppToolsPlugin::test_modelmanager_refresh_several_times()
     const QString testCpp(testDataDir.file(_("source.cpp")));
 
     Project *project = helper.createProject(_("test_modelmanager_refresh_several_times"));
-    ProjectInfo pi = mm->projectInfo(project);
-    QCOMPARE(pi.project().data(), project);
+    ProjectInfo pi = ProjectInfo(project);
 
     ProjectPart::Ptr part(new ProjectPart);
     part->languageVersion = ProjectPart::CXX14;
@@ -386,7 +381,7 @@ void CppToolsPlugin::test_modelmanager_refresh_several_times()
 
     QByteArray defines = "#define FIRST_DEFINE";
     for (int i = 0; i < 2; ++i) {
-        pi.clearProjectParts();
+        pi = ProjectInfo(project);
         ProjectPart::Ptr part(new ProjectPart);
         // Simulate project configuration change by having different defines each time.
         defines += "\n#define ANOTHER_DEFINE";
@@ -434,8 +429,7 @@ void CppToolsPlugin::test_modelmanager_refresh_test_for_changes()
     const QString testCpp(testDataDir.file(_("source.cpp")));
 
     Project *project = helper.createProject(_("test_modelmanager_refresh_2"));
-    ProjectInfo pi = mm->projectInfo(project);
-    QCOMPARE(pi.project().data(), project);
+    ProjectInfo pi = ProjectInfo(project);
 
     ProjectPart::Ptr part(new ProjectPart);
     part->languageVersion = ProjectPart::CXX14;
@@ -472,8 +466,7 @@ void CppToolsPlugin::test_modelmanager_refresh_added_and_purge_removed()
     const QString testCpp(testDataDir.file(_("source.cpp")));
 
     Project *project = helper.createProject(_("test_modelmanager_refresh_3"));
-    ProjectInfo pi = mm->projectInfo(project);
-    QCOMPARE(pi.project().data(), project);
+    ProjectInfo pi = ProjectInfo(project);
 
     ProjectPart::Ptr part(new ProjectPart);
     part->languageVersion = ProjectPart::CXX14;
@@ -497,7 +490,7 @@ void CppToolsPlugin::test_modelmanager_refresh_added_and_purge_removed()
     QVERIFY(snapshot.contains(testCpp));
 
     // Now add testHeader2 and remove testHeader1
-    pi.clearProjectParts();
+    pi = ProjectInfo(project);
     ProjectPart::Ptr newPart(new ProjectPart);
     newPart->languageVersion = ProjectPart::CXX14;
     newPart->qtVersion = ProjectPart::Qt5;
@@ -531,15 +524,14 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
     CppModelManager *mm = CppModelManager::instance();
 
     Project *project = helper.createProject(_("test_modelmanager_refresh_timeStampModified"));
-    ProjectInfo pi = mm->projectInfo(project);
-    QCOMPARE(pi.project().data(), project);
+    ProjectInfo pi = ProjectInfo(project);
 
     ProjectPart::Ptr part(new ProjectPart);
     part->languageVersion = ProjectPart::CXX14;
     part->qtVersion = ProjectPart::Qt5;
     foreach (const ProjectFile &file, initialProjectFiles)
         part->files.append(file);
-    pi.clearProjectParts();
+    pi = ProjectInfo(project);
     pi.appendProjectPart(part);
     pi.finish();
 
@@ -573,7 +565,7 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
     part->files.clear();
     foreach (const ProjectFile &file, finalProjectFiles)
         part->files.append(file);
-    pi.clearProjectParts();
+    pi = ProjectInfo(project);
     pi.appendProjectPart(part);
     pi.finish();
 
@@ -844,7 +836,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
     part2->headerPaths = QList<HeaderPath>()
             << HeaderPath(testDataDirectory.includeDir(false), HeaderPath::IncludePath);
 
-    ProjectInfo pi = mm->projectInfo(project);
+    ProjectInfo pi = ProjectInfo(project);
     pi.appendProjectPart(part1);
     pi.appendProjectPart(part2);
     pi.finish();
@@ -915,7 +907,7 @@ void CppToolsPlugin::test_modelmanager_precompiled_headers()
     part2->headerPaths = QList<HeaderPath>()
             << HeaderPath(testDataDirectory.includeDir(false), HeaderPath::IncludePath);
 
-    ProjectInfo pi = mm->projectInfo(project);
+    ProjectInfo pi = ProjectInfo(project);
     pi.appendProjectPart(part1);
     pi.appendProjectPart(part2);
     pi.finish();
@@ -997,7 +989,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
     part2->headerPaths = QList<HeaderPath>()
             << HeaderPath(testDataDirectory.includeDir(false), HeaderPath::IncludePath);
 
-    ProjectInfo pi = mm->projectInfo(project);
+    ProjectInfo pi = ProjectInfo(project);
     pi.appendProjectPart(part1);
     pi.appendProjectPart(part2);
     pi.finish();
@@ -1081,7 +1073,7 @@ void CppToolsPlugin::test_modelmanager_updateEditorsAfterProjectUpdate()
     part->languageVersion = ProjectPart::CXX11;
     part->qtVersion = ProjectPart::NoQt;
 
-    ProjectInfo pi = mm->projectInfo(project);
+    ProjectInfo pi = ProjectInfo(project);
     pi.appendProjectPart(part);
     pi.finish();
     updateProjectInfo(mm, &helper, pi);

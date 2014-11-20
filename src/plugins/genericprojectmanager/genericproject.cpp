@@ -352,9 +352,7 @@ void GenericProject::refreshCppCodeModel()
 
     m_codeModelFuture.cancel();
 
-    CppTools::ProjectInfo pInfo = modelManager->projectInfo(this);
-    pInfo.clearProjectParts();
-
+    CppTools::ProjectInfo pInfo = CppTools::ProjectInfo(this);
     CppTools::ProjectPartBuilder ppBuilder(pInfo);
     ppBuilder.setIncludePaths(projectIncludePaths());
     ppBuilder.setConfigFileName(configFileName());

@@ -109,7 +109,6 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     m_qbsUpdateFutureInterface(0),
     m_parsingScheduled(false),
     m_cancelStatus(CancelStatusNone),
-    m_codeModelProjectInfo(this),
     m_currentBc(0)
 {
     m_parsingDelay.setInterval(1000); // delay parsing by 1s.
@@ -693,9 +692,7 @@ void QbsProject::updateCppCodeModel()
     if (!modelmanager)
         return;
 
-    CppTools::ProjectInfo pinfo = modelmanager->projectInfo(this);
-    pinfo.clearProjectParts();
-
+    CppTools::ProjectInfo pinfo = CppTools::ProjectInfo(this);
     CppTools::ProjectPartBuilder ppBuilder(pinfo);
 
     if (qtVersion) {
@@ -791,6 +788,7 @@ void QbsProject::updateCppCodeModel()
     m_codeModelFuture.cancel();
     m_codeModelFuture = modelmanager->updateProjectInfo(pinfo);
     m_codeModelProjectInfo = modelmanager->projectInfo(this);
+    QTC_CHECK(m_codeModelProjectInfo == pinfo);
 }
 
 void QbsProject::updateCppCompilerCallData()

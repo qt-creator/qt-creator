@@ -154,7 +154,6 @@ public:
 
     void appendProjectPart(const ProjectPart::Ptr &part);
     void finish();
-    void clearProjectParts();
 
     const ProjectPart::HeaderPaths headerPaths() const;
     const QSet<QString> sourceFiles() const;

@@ -408,9 +408,7 @@ void AutotoolsProject::updateCppCodeModel()
         return;
 
     m_codeModelFuture.cancel();
-    CppTools::ProjectInfo pInfo = modelManager->projectInfo(this);
-    pInfo.clearProjectParts();
-
+    CppTools::ProjectInfo pInfo = CppTools::ProjectInfo(this);
     CppTools::ProjectPartBuilder ppBuilder(pInfo);
 
     const QStringList cflags = m_makefileParserThread->cflags();
