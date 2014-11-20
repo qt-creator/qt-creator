@@ -2376,10 +2376,11 @@ void FakeVimHandler::Private::unfocus()
 
 void FakeVimHandler::Private::fixExternalCursor(bool focus)
 {
+    m_fixCursorTimer.stop();
+
     if (isVisualCharMode() && !focus && !hasThinCursor()) {
         // Select the character under thick cursor for external operations with text selection.
         fixExternalCursorPosition(false);
-        m_fixCursorTimer.stop();
     } else if (isVisualCharMode() && focus && hasThinCursor()) {
         // Fix cursor position if changing its shape.
         // The fix is postponed so context menu action can be finished.
