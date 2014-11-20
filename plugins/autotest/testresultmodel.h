@@ -24,6 +24,7 @@
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
 #include <QFont>
+#include <QReadWriteLock>
 #include <QSet>
 
 namespace Autotest {
@@ -65,6 +66,7 @@ private:
     int m_lastMaxWidthIndex;
     QFont m_measurementFont;
     QSet<ResultType> m_availableResultTypes;
+    mutable QReadWriteLock m_rwLock;
 };
 
 class TestResultFilterModel : public QSortFilterProxyModel

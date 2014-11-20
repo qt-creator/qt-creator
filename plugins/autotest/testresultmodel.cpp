@@ -36,6 +36,7 @@ TestResultModel::TestResultModel(QObject *parent) :
 
 TestResultModel::~TestResultModel()
 {
+    QWriteLocker lock(&m_rwLock);
     m_testResults.clear();
 }
 
@@ -53,6 +54,7 @@ QModelIndex TestResultModel::parent(const QModelIndex &) const
 
 int TestResultModel::rowCount(const QModelIndex &parent) const
 {
+    // do not use the QReadLocker here or this will produce a deadlock
     return parent.isValid() ? 0 : m_testResults.size();
 }
 
@@ -80,6 +82,7 @@ static QIcon testResultIcon(ResultType result) {
 
 QVariant TestResultModel::data(const QModelIndex &index, int role) const
 {
+    QReadLocker lock(&m_rwLock);
     if (!index.isValid() || index.row() >= m_testResults.count() || index.column() != 0)
         return QVariant();
     if (role == Qt::DisplayRole) {
@@ -106,8 +109,12 @@ QVariant TestResultModel::data(const QModelIndex &index, int role) const
 
 void TestResultModel::addTestResult(const TestResult &testResult)
 {
+    QReadLocker rLock(&m_rwLock);
     beginInsertRows(QModelIndex(), m_testResults.size(), m_testResults.size());
+    rLock.unlock();
+    QWriteLocker wLock(&m_rwLock);
     m_testResults.append(testResult);
+    wLock.unlock();
     int count = m_testResultCount.value(testResult.result(), 0);
     m_testResultCount.insert(testResult.result(), ++count);
     endInsertRows();
@@ -116,10 +123,14 @@ void TestResultModel::addTestResult(const TestResult &testResult)
 
 void TestResultModel::clearTestResults()
 {
+    QReadLocker rLock(&m_rwLock);
     if (m_testResults.size() == 0)
         return;
     beginRemoveRows(QModelIndex(), 0, m_testResults.size() - 1);
+    rLock.unlock();
+    QWriteLocker wLock(&m_rwLock);
     m_testResults.clear();
+    wLock.unlock();
     m_testResultCount.clear();
     m_lastMaxWidthIndex = 0;
     m_maxWidthOfFileName = 0;
@@ -132,12 +143,15 @@ TestResult TestResultModel::testResult(const QModelIndex &index) const
 {
     if (!index.isValid())
         return TestResult(QString(), QString());
+    QReadLocker lock(&m_rwLock);
     return m_testResults.at(index.row());
 }
 
 int TestResultModel::maxWidthOfFileName(const QFont &font)
 {
+    QReadLocker lock(&m_rwLock);
     int count = m_testResults.size();
+    lock.unlock();
     if (count == 0)
         return 0;
     if (m_maxWidthOfFileName > 0 && font == m_measurementFont && m_lastMaxWidthIndex == count - 1)
@@ -147,7 +161,9 @@ int TestResultModel::maxWidthOfFileName(const QFont &font)
     m_measurementFont = font;
 
     for (int i = m_lastMaxWidthIndex; i < count; ++i) {
+        lock.relock();
         QString filename = m_testResults.at(i).fileName();
+        lock.unlock();
         const int pos = filename.lastIndexOf(QLatin1Char('/'));
         if (pos != -1)
             filename = filename.mid(pos +1);
