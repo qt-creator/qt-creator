@@ -2107,7 +2107,7 @@ public:
     QString registerContents(int reg) const;
     void setRegister(int reg, const QString &contents, RangeMode mode);
     RangeMode registerRangeMode(int reg) const;
-    void getRegisterType(int reg, bool *isClipboard, bool *isSelection) const;
+    void getRegisterType(int *reg, bool *isClipboard, bool *isSelection, bool *append = 0) const;
 
     void recordJump(int position = -1);
     void jump(int distance);
@@ -8247,7 +8247,7 @@ RangeMode FakeVimHandler::Private::registerRangeMode(int reg) const
 {
     bool isClipboard;
     bool isSelection;
-    getRegisterType(reg, &isClipboard, &isSelection);
+    getRegisterType(&reg, &isClipboard, &isSelection);
 
     if (isClipboard || isSelection) {
         QClipboard *clipboard = QApplication::clipboard();
@@ -8275,7 +8275,8 @@ void FakeVimHandler::Private::setRegister(int reg, const QString &contents, Rang
 {
     bool copyToClipboard;
     bool copyToSelection;
-    getRegisterType(reg, &copyToClipboard, &copyToSelection);
+    bool append;
+    getRegisterType(&reg, &copyToClipboard, &copyToSelection, &append);
 
     QString contents2 = contents;
     if ((mode == RangeLineMode || mode == RangeLineModeExclusive)
@@ -8290,7 +8291,10 @@ void FakeVimHandler::Private::setRegister(int reg, const QString &contents, Rang
         if (copyToSelection)
             setClipboardData(contents2, mode, QClipboard::Selection);
     } else {
-        g.registers[reg].contents = contents2;
+        if (append)
+            g.registers[reg].contents.append(contents2);
+        else
+            g.registers[reg].contents = contents2;
         g.registers[reg].rangemode = mode;
     }
 }
@@ -8299,7 +8303,7 @@ QString FakeVimHandler::Private::registerContents(int reg) const
 {
     bool copyFromClipboard;
     bool copyFromSelection;
-    getRegisterType(reg, &copyFromClipboard, &copyFromSelection);
+    getRegisterType(&reg, &copyFromClipboard, &copyFromSelection);
 
     if (copyFromClipboard || copyFromSelection) {
         QClipboard *clipboard = QApplication::clipboard();
@@ -8312,18 +8316,25 @@ QString FakeVimHandler::Private::registerContents(int reg) const
     return g.registers[reg].contents;
 }
 
-void FakeVimHandler::Private::getRegisterType(int reg, bool *isClipboard, bool *isSelection) const
+void FakeVimHandler::Private::getRegisterType(int *reg, bool *isClipboard, bool *isSelection, bool *append) const
 {
     bool clipboard = false;
     bool selection = false;
 
-    if (reg == QLatin1Char('"')) {
+    // If register is uppercase, append content to lower case register on yank/delete.
+    const QChar c(*reg);
+    if (append != 0)
+        *append = c.isUpper();
+    if (c.isUpper())
+        *reg = c.toLower().unicode();
+
+    if (c == QLatin1Char('"')) {
         QStringList list = config(ConfigClipboard).toString().split(QLatin1Char(','));
         clipboard = list.contains(_("unnamedplus"));
         selection = list.contains(_("unnamed"));
-    } else if (reg == QLatin1Char('+')) {
+    } else if (c == QLatin1Char('+')) {
         clipboard = true;
-    } else if (reg == QLatin1Char('*')) {
+    } else if (c == QLatin1Char('*')) {
         selection = true;
     }
 

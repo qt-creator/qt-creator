@@ -2615,6 +2615,43 @@ void FakeVimPlugin::test_vim_ex_yank()
         "aaabcb" X "cabcbc def" N
         "ghi jkl" N
     );
+
+    // uppercase register appends to lowercase
+    data.setText(
+        "abc" N
+        "def" N
+        "ghi" N
+    );
+    KEYS("\"zdd" "\"zp",
+        "def" N
+        X "abc" N
+        "ghi" N
+    );
+    KEYS("k\"Zyy" "jj\"zp",
+        "def" N
+        "abc" N
+        "ghi" N
+        X "abc" N
+        "def" N
+    );
+    KEYS("k\"Zdd" "j\"Zp",
+        "def" N
+        "abc" N
+        "abc" N
+        "def" N
+        X "abc" N
+        "def" N
+        "ghi" N
+    );
+    KEYS("\"zdk" "gg\"zp",
+        "def" N
+        X "def" N
+        "abc" N
+        "abc" N
+        "abc" N
+        "def" N
+        "ghi" N
+    );
 }
 
 void FakeVimPlugin::test_vim_ex_delete()
