@@ -96,6 +96,8 @@ private slots:
     void clearTasks(Core::Id categoryId);
     void setCategoryVisibility(Core::Id categoryId, bool visible);
     void currentChanged(const QModelIndex &index);
+    void saveSettings();
+    void loadSettings();
 
     void triggerDefaultHandler(const QModelIndex &index);
     void actionTriggered();

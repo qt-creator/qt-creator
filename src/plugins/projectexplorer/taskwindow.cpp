@@ -32,6 +32,7 @@
 
 #include "itaskhandler.h"
 #include "projectexplorerconstants.h"
+#include "session.h"
 #include "task.h"
 #include "taskhub.h"
 #include "taskmodel.h"
@@ -42,6 +43,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/itemviews.h>
 
@@ -54,6 +56,8 @@
 
 namespace {
 const int ELLIPSIS_GRADIENT_WIDTH = 16;
+const char SESSION_FILTER_CATEGORIES[] = "TaskWindow.Categories";
+const char SESSION_FILTER_WARNINGS[] = "TaskWindow.IncludeWarnings";
 }
 
 namespace ProjectExplorer {
@@ -303,6 +307,10 @@ TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
             [this]() { emit setBadgeNumber(d->m_filter->rowCount()); });
     connect(d->m_filter, &TaskFilterModel::modelReset,
             [this]() { emit setBadgeNumber(d->m_filter->rowCount()); });
+
+    SessionManager *session = SessionManager::instance();
+    connect(session, &SessionManager::aboutToSaveSession, this, &TaskWindow::saveSettings);
+    connect(session, &SessionManager::sessionLoaded, this, &TaskWindow::loadSettings);
 }
 
 TaskWindow::~TaskWindow()
@@ -395,6 +403,30 @@ void TaskWindow::currentChanged(const QModelIndex &index)
     foreach (QAction *action, d->m_actions) {
         ITaskHandler *h = handler(action);
         action->setEnabled((task.isNull() || !h) ? false : h->canHandle(task));
+    }
+}
+
+void TaskWindow::saveSettings()
+{
+    QStringList categories = Utils::transform(d->m_filter->filteredCategories(), &Core::Id::toString);
+    SessionManager::setValue(QLatin1String(SESSION_FILTER_CATEGORIES), categories);
+    SessionManager::setValue(QLatin1String(SESSION_FILTER_WARNINGS), d->m_filter->filterIncludesWarnings());
+}
+
+void TaskWindow::loadSettings()
+{
+    QVariant value = SessionManager::value(QLatin1String(SESSION_FILTER_CATEGORIES));
+    if (value.isValid()) {
+        QList<Core::Id> categories
+                = Utils::transform(value.toStringList(), &Core::Id::fromString);
+        d->m_filter->setFilteredCategories(categories);
+    }
+    value = SessionManager::value(QLatin1String(SESSION_FILTER_WARNINGS));
+    if (value.isValid()) {
+        bool includeWarnings = value.toBool();
+        d->m_filter->setFilterIncludesWarnings(includeWarnings);
+        d->m_filter->setFilterIncludesUnknowns(includeWarnings);
+        d->m_filterWarningsButton->setDown(d->m_filter->filterIncludesWarnings());
     }
 }
 
