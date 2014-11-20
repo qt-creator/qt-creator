@@ -61,23 +61,37 @@ private:
 #ifdef WITH_TESTS
 private slots:
     void cleanup();
+
     void test_vim_movement();
+
     void test_vim_target_column_normal();
     void test_vim_target_column_visual_char();
     void test_vim_target_column_visual_block();
     void test_vim_target_column_visual_line();
     void test_vim_target_column_insert();
     void test_vim_target_column_replace();
+
     void test_vim_insert();
     void test_vim_fFtT();
     void test_vim_transform_numbers();
     void test_vim_delete();
+
     void test_vim_delete_inner_word();
     void test_vim_delete_a_word();
     void test_vim_change_a_word();
+
     void test_vim_change_replace();
+
     void test_vim_block_selection();
     void test_vim_block_selection_insert();
+
+    void test_vim_delete_inner_paragraph();
+    void test_vim_delete_a_paragraph();
+    void test_vim_change_inner_paragraph();
+    void test_vim_change_a_paragraph();
+    void test_vim_select_inner_paragraph();
+    void test_vim_select_a_paragraph();
+
     void test_vim_repeat();
     void test_vim_search();
     void test_vim_indent();

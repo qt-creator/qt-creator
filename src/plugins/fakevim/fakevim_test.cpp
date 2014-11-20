@@ -1573,6 +1573,432 @@ void FakeVimPlugin::test_vim_block_selection_insert()
         "a" X "bXYZc" N
         "  XYZ" N
         "deXYZf" N
+         );
+}
+
+void FakeVimPlugin::test_vim_delete_inner_paragraph()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText(
+        "abc" N
+        "def" N
+        "" N
+        "" N
+        "ghi" N
+        "" N
+        "jkl" N
+    );
+
+    KEYS("dip",
+        X "" N
+        "" N
+        "ghi" N
+        "" N
+        "jkl" N
+    );
+    KEYS("dip",
+        X "ghi" N
+        "" N
+        "jkl" N
+    );
+    KEYS("2dip",
+        X "jkl" N
+    );
+}
+
+void FakeVimPlugin::test_vim_delete_a_paragraph()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText(
+        "abc" N
+        "def" N
+        "" N
+        "" N
+        "ghi" N
+        "" N
+        "jkl" N
+    );
+
+    KEYS("dap",
+        X "ghi" N
+        "" N
+        "jkl" N
+    );
+    KEYS("dap",
+        X "jkl" N
+    );
+    KEYS("u",
+        X "ghi" N
+        "" N
+        "jkl" N
+    );
+
+    data.setText(
+        "abc" N
+        "" N
+        "" N
+        "def"
+    );
+    KEYS("Gdap",
+        X "abc"
+    );
+}
+
+void FakeVimPlugin::test_vim_change_inner_paragraph()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText(
+        "abc" N
+        "def" N
+        "" N
+        "" N
+        "ghi" N
+        "" N
+        "jkl" N
+    );
+
+    KEYS("cipXXX<ESC>",
+        "XX" X "X" N
+        "" N
+        "" N
+        "ghi" N
+        "" N
+        "jkl" N
+    );
+    KEYS("3j" "cipYYY<ESC>",
+        "XXX" N
+        "" N
+        "" N
+        "YY" X "Y" N
+        "" N
+        "jkl" N
+    );
+}
+
+void FakeVimPlugin::test_vim_change_a_paragraph()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText(
+        "abc" N
+        "def" N
+        "" N
+        "" N
+        "ghi" N
+        "" N
+        "jkl" N
+    );
+
+    KEYS("4j" "capXXX<ESC>",
+        "abc" N
+        "def" N
+        "" N
+        "" N
+        "XX" X "X" N
+        "jkl" N
+    );
+    KEYS("gg" "capYYY<ESC>",
+        "YY" X "Y" N
+        "XXX" N
+        "jkl" N
+    );
+
+    data.setText(
+        "abc" N
+        "" N
+        "" N
+        "def"
+    );
+    KEYS("GcapXXX<ESC>",
+        "abc" N
+        "XX" X "X"
+         );
+}
+
+void FakeVimPlugin::test_vim_select_inner_paragraph()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText(
+        "" N
+        X "abc" N
+        "def" N
+        "" N
+        "ghi"
+    );
+    KEYS("vip" "r-",
+        "" N
+        X "---" N
+        "---" N
+        "" N
+        "ghi"
+    );
+
+    data.setText(
+        "" N
+        X "abc" N
+        "def" N
+        "" N
+        "ghi"
+    );
+    KEYS("vip" ":s/^/-<CR>",
+        "" N
+        "-abc" N
+        X "-def" N
+        "" N
+        "ghi"
+    );
+
+    data.setText(
+        "" N
+        X "abc" N
+        "def" N
+        "" N
+        "ghi"
+    );
+    KEYS("v2ip" ":s/^/-<CR>",
+        "" N
+        "-abc" N
+        "-def" N
+        X "-" N
+        "ghi"
+    );
+
+    data.setText(
+        "" N
+        X "abc" N
+        "def" N
+        "" N
+        "ghi"
+    );
+    KEYS("Vj" "ip" ":s/^/-<CR>",
+        "" N
+        "-abc" N
+        "-def" N
+        X "-" N
+        "ghi"
+    );
+
+    data.setText(
+        "" N
+        X "abc" N
+        "def" N
+        "" N
+        "ghi"
+    );
+    KEYS("vj" "ip" ":s/^/-<CR>",
+        "" N
+        "-abc" N
+        "-def" N
+        "-" N
+        "ghi"
+    );
+
+    data.setText(
+        "" N
+        X "abc" N
+        "def" N
+        "ghi" N
+        "" N
+        "jkl"
+    );
+    KEYS("vj" "ip" ":s/^/-<CR>",
+        "" N
+        "-abc" N
+        "-def" N
+        "-ghi" N
+        "" N
+        "jkl"
+    );
+
+    data.setText(
+        "" N
+        X "abc" N
+        "def" N
+        "" N
+        "ghi"
+    );
+    KEYS("vip" "r-",
+        "" N
+        X "---" N
+        "---" N
+        "" N
+        "ghi"
+    );
+
+    data.setText(
+        "abc" N
+        "" N
+        "def"
+    );
+    KEYS("G" "vip" "r-",
+        "abc" N
+        "" N
+        "---"
+    );
+
+    data.setText(
+        "" N
+        "" N
+        "ghi"
+    );
+    KEYS("vip" ":s/^/-<CR>",
+        "-" N
+        "-" N
+        "ghi"
+    );
+
+    data.setText(
+        "" N
+        "ghi"
+    );
+    KEYS("vip" "ip" ":s/^/-<CR>",
+        "-" N
+        X "-ghi"
+    );
+
+    data.setText(
+        "abc" N
+        "" N
+        ""
+    );
+    KEYS("j" "vip" ":s/^/-<CR>",
+        "abc" N
+        "-" N
+        "-"
+    );
+
+    // Don't move anchor if it's on different line.
+    data.setText(
+        "" N
+        "abc" N
+        X "def" N
+        "ghi" N
+        "" N
+        "jkl"
+    );
+    KEYS("vj" "ip" ":s/^/-<CR>",
+        "" N
+        "abc" N
+        "-def" N
+        "-ghi" N
+        X "-" N
+        "jkl"
+    );
+
+    // Don't change selection mode if anchor is on different line.
+    data.setText(
+        "" N
+        "abc" N
+        X "def" N
+        "ghi" N
+        "" N
+        "jkl"
+    );
+    KEYS("vj" "2ip" "r-",
+        "" N
+        "abc" N
+        X "---" N
+        "---" N
+        "" N
+        "-kl"
+    );
+    KEYS("gv" ":s/^/X<CR>",
+        "" N
+        "abc" N
+        "X---" N
+        "X---" N
+        "X" N
+        X "X-kl"
+    );
+
+    data.setText(
+        "" N
+        "abc" N
+        X "def" N
+        "ghi" N
+        "" N
+        "jkl"
+    );
+    KEYS("<C-V>j" "2ip" "r-",
+        "" N
+        "abc" N
+        X "-ef" N
+        "-hi" N
+        "" N
+        "-kl"
+    );
+    KEYS("gv" "IX<ESC>",
+        "" N
+        "abc" N
+        "X-ef" N
+        "X-hi" N
+        "X" N
+        "X-kl"
+    );
+}
+
+void FakeVimPlugin::test_vim_select_a_paragraph()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText(
+        "abc" N
+        "def" N
+        "" N
+        "ghi"
+    );
+    KEYS("vap" ":s/^/-<CR>",
+        "-abc" N
+        "-def" N
+        "-" N
+        "ghi"
+    );
+
+    data.setText(
+        "" N
+        "abc" N
+        "def" N
+        "" N
+        "ghi"
+    );
+    KEYS("vap" ":s/^/-<CR>",
+        "-" N
+        "-abc" N
+        "-def" N
+        "" N
+        "ghi"
+    );
+
+    data.setText(
+        "abc" N
+        "def" N
+        ""
+    );
+    KEYS("j" "vap" ":s/^/-<CR>",
+        "-abc" N
+        "-def" N
+        "-"
+    );
+
+    data.setText(
+        "" N
+        "abc" N
+        "def"
+    );
+    KEYS("j" "vap" ":s/^/-<CR>",
+        "-" N
+        "-abc" N
+        "-def"
     );
 }
 

@@ -1776,6 +1776,7 @@ public:
     int lineNumber(const QTextBlock &block) const;
 
     int columnAt(int pos) const;
+    int blockNumberAt(int pos) const;
     QTextBlock blockAt(int pos) const;
     QTextBlock nextLine(const QTextBlock &block) const; // following line (respects wrapped parts)
     QTextBlock previousLine(const QTextBlock &block) const; // previous line (respects wrapped parts)
@@ -1916,8 +1917,9 @@ public:
     QTextCursor m_cursor;
     bool m_cursorNeedsUpdate;
 
-    bool moveToPreviousParagraph(int count) { return moveToNextParagraph(-count); }
-    bool moveToNextParagraph(int count);
+    bool moveToPreviousParagraph(int count = 1) { return moveToNextParagraph(-count); }
+    bool moveToNextParagraph(int count = 1);
+    void moveToParagraphStartOrEnd(int direction = 1);
 
     bool handleFfTt(const QString &key, bool repeats = false);
 
@@ -3197,7 +3199,6 @@ bool FakeVimHandler::Private::moveToNextParagraph(int count)
 {
     const bool forward = count > 0;
     int repeat = forward ? count : -count;
-    int pos = position();
     QTextBlock block = this->block();
 
     if (block.isValid() && block.length() == 1)
@@ -3209,21 +3210,37 @@ bool FakeVimHandler::Private::moveToNextParagraph(int count)
                 break;
             while (block.isValid() && block.length() == 1)
                 block = forward ? block.next() : block.previous();
+            if (!block.isValid())
+                break;
         }
     }
 
-    if (repeat == 0)
-        setPosition(block.position());
-    else if (repeat == 1)
-        setPosition(forward ? lastPositionInDocument() : 0);
-    else
+    if (!block.isValid())
+        --repeat;
+
+    if (repeat > 0)
         return false;
 
-    recordJump(pos);
-    setTargetColumn();
-    g.movetype = MoveExclusive;
+    if (block.isValid())
+        setPosition(block.position());
+    else
+        setPosition(forward ? lastPositionInDocument() : 0);
 
     return true;
+}
+
+void FakeVimHandler::Private::moveToParagraphStartOrEnd(int direction)
+{
+    bool emptyLine = atEmptyLine();
+    int oldPos = -1;
+
+    while (atEmptyLine() == emptyLine && oldPos != position()) {
+        oldPos = position();
+        moveDown(direction);
+    }
+
+    if (oldPos != position())
+        moveUp(direction);
 }
 
 void FakeVimHandler::Private::moveToEndOfLine()
@@ -3836,10 +3853,16 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         moveRight(qMin(column, rightDist() - 1));
         m_targetColumn = column;
         m_visualTargetColumn = column;
-    } else if (input.is('}')) {
-        handled = moveToNextParagraph(count);
-    } else if (input.is('{')) {
-        handled = moveToPreviousParagraph(count);
+    } else if (input.is('{') || input.is('}')) {
+        const int oldPosition = position();
+        handled = input.is('}')
+            ? moveToNextParagraph(count)
+            : moveToPreviousParagraph(count);
+        if (handled) {
+            recordJump(oldPosition);
+            setTargetColumn();
+            g.movetype = MoveExclusive;
+        }
     } else if (input.isReturn()) {
         moveToStartOfLine();
         moveDown();
@@ -7333,6 +7356,11 @@ int FakeVimHandler::Private::columnAt(int pos) const
     return pos - blockAt(pos).position();
 }
 
+int FakeVimHandler::Private::blockNumberAt(int pos) const
+{
+    return blockAt(pos).blockNumber();
+}
+
 QTextBlock FakeVimHandler::Private::blockAt(int pos) const
 {
     return document()->findBlock(pos);
@@ -8044,7 +8072,81 @@ void FakeVimHandler::Private::selectSentenceTextObject(bool inner)
 
 void FakeVimHandler::Private::selectParagraphTextObject(bool inner)
 {
-    Q_UNUSED(inner);
+    const QTextCursor oldCursor = m_cursor;
+    const VisualMode oldVisualMode = g.visualMode;
+
+    const int anchorBlock = blockNumberAt(anchor());
+    const int positionBlock = blockNumberAt(position());
+    const bool setupAnchor = anchorBlock == positionBlock;
+    int repeat = count();
+
+    // If anchor and position are in the same block,
+    // start line selection at beginning of current paragraph.
+    if (setupAnchor) {
+        moveToParagraphStartOrEnd(-1);
+        setAnchor();
+
+        if (!isVisualLineMode() && isVisualMode())
+            toggleVisualMode(VisualLineMode);
+    }
+
+    const bool forward = anchor() <= position();
+    const int d = forward ? 1 : -1;
+
+    bool startsAtParagraph = !atEmptyLine(position());
+
+    moveToParagraphStartOrEnd(d);
+
+    // If selection already changed, decreate count.
+    if ((setupAnchor && g.submode != NoSubMode)
+        || oldVisualMode != g.visualMode
+        || m_cursor != oldCursor)
+    {
+        --repeat;
+        if (!inner) {
+            moveDown(d);
+            moveToParagraphStartOrEnd(d);
+            startsAtParagraph = !startsAtParagraph;
+        }
+    }
+
+    if (repeat > 0) {
+        bool isCountEven = repeat % 2 == 0;
+        bool endsOnParagraph =
+                inner ? isCountEven == startsAtParagraph : startsAtParagraph;
+
+        if (inner) {
+            repeat = repeat / 2;
+            if (!isCountEven || endsOnParagraph)
+                ++repeat;
+        } else {
+            if (endsOnParagraph)
+                ++repeat;
+        }
+
+        if (!moveToNextParagraph(d * repeat)) {
+            m_cursor = oldCursor;
+            g.visualMode = oldVisualMode;
+            return;
+        }
+
+        if (endsOnParagraph && atEmptyLine())
+            moveUp(d);
+        else
+            moveToParagraphStartOrEnd(d);
+    }
+
+    if (!inner && setupAnchor && !atEmptyLine() && !atEmptyLine(anchor())) {
+        // If position cannot select empty lines, try to select them with anchor.
+        setAnchorAndPosition(position(), anchor());
+        moveToNextParagraph(-d);
+        moveToParagraphStartOrEnd(-d);
+        setAnchorAndPosition(position(), anchor());
+    }
+
+    recordJump(oldCursor.position());
+    setTargetColumn();
+    g.movetype = MoveLineWise;
 }
 
 bool FakeVimHandler::Private::selectBlockTextObject(bool inner,
