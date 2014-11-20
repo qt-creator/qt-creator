@@ -46,10 +46,9 @@
 #include <nodeabstractproperty.h>
 #include <rewriterview.h>
 
-#include <qmldesignerwarning.h>
-
 #include <coreplugin/icore.h>
 #include <utils/fileutils.h>
+#include <utils/messagebox.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -58,7 +57,6 @@
 #include <QDebug>
 #include <QTimer>
 #include <QShortcut>
-#include <QMessageBox>
 #include <QApplication>
 
 enum {
@@ -159,9 +157,9 @@ void PropertyEditorView::changeValue(const QString &name)
             value->setValue(m_selectedNode.id());
             m_locked = false;
             if (!m_selectedNode.isValidId(newId))
-                QmlDesignerWarning::show(tr("Invalid Id"),  tr("%1 is an invalid id.").arg(newId));
+                Utils::AsynchronousMessageBox::warning(tr("Invalid Id"),  tr("%1 is an invalid id.").arg(newId));
             else
-                QmlDesignerWarning::show(tr("Invalid Id"),  tr("%1 already exists.").arg(newId));
+                Utils::AsynchronousMessageBox::warning(tr("Invalid Id"),  tr("%1 already exists.").arg(newId));
         }
         return;
     }

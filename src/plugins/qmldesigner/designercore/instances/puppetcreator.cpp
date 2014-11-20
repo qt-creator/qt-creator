@@ -41,13 +41,14 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/toolchain.h>
 #include <utils/environment.h>
+#include <utils/messagebox.h>
 #include <coreplugin/icore.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <coreplugin/icore.h>
 
-#include <qmldesignerwarning.h>
+
 #include <qmldesignerplugin.h>
 #include <designersettings.h>
 #include "puppetbuildprogressdialog.h"
@@ -229,19 +230,19 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
             }
 
             if (!buildSucceeded)
-                QmlDesignerWarning::show(QCoreApplication::translate("PuppetCreator", "QML Emulation Layer (QML Puppet) Building was Unsuccessful"),
-                                         QCoreApplication::translate("PuppetCreator",
+                Utils::AsynchronousMessageBox::warning(QCoreApplication::translate("PuppetCreator", "QML Emulation Layer (QML Puppet) Building was Unsuccessful"),
+                                                       QCoreApplication::translate("PuppetCreator",
                                                                      "The QML emulation layer (QML Puppet) cannot be built. "
                                                                      "The fallback emulation layer, which does not support all features, will be used."
                                                                      ));
         }
     } else {
-        QmlDesignerWarning::show(QCoreApplication::translate("PuppetCreator", "Qt Version is not supported"),
-                                 QCoreApplication::translate("PuppetCreator",
-                                                             "The QML emulation layer (QML Puppet) cannot be built because the Qt version is too old "
-                                                             "or it cannot run natively on your computer. "
-                                                             "The fallback emulation layer, which does not support all features, will be used."
-                                                             ));
+        Utils::AsynchronousMessageBox::warning(QCoreApplication::translate("PuppetCreator", "Qt Version is not supported"),
+                                               QCoreApplication::translate("PuppetCreator",
+                                                                           "The QML emulation layer (QML Puppet) cannot be built because the Qt version is too old "
+                                                                           "or it cannot run natively on your computer. "
+                                                                           "The fallback emulation layer, which does not support all features, will be used."
+                                                                           ));
     }
 
     return buildSucceeded;
@@ -249,13 +250,13 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
 
 static void warnAboutInvalidKit()
 {
-    QmlDesignerWarning::show(QCoreApplication::translate("PuppetCreator", "Kit is invalid"),
-                             QCoreApplication::translate("PuppetCreator",
-                                                         "The QML emulation layer (QML Puppet) cannot be built because the kit is not configured correctly. "
-                                                         "For example the compiler can be misconfigured. "
-                                                         "Fix the kit configuration and restart Qt Creator. "
-                                                         "Otherwise, the fallback emulation layer, which does not support all features, will be used."
-                                                         ));
+    Utils::AsynchronousMessageBox::warning(QCoreApplication::translate("PuppetCreator", "Kit is invalid"),
+                                           QCoreApplication::translate("PuppetCreator",
+                                                                       "The QML emulation layer (QML Puppet) cannot be built because the kit is not configured correctly. "
+                                                                       "For example the compiler can be misconfigured. "
+                                                                       "Fix the kit configuration and restart Qt Creator. "
+                                                                       "Otherwise, the fallback emulation layer, which does not support all features, will be used."
+                                                                       ));
 }
 
 void PuppetCreator::createQml1PuppetExecutableIfMissing()

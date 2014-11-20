@@ -49,6 +49,8 @@
 #include <QApplication>
 #include <QPointF>
 
+#include <utils/messagebox.h>
+
 #include <QtDebug>
 
 #define DISABLE_VISIBLE_PROPERTIES
@@ -344,7 +346,7 @@ void NavigatorTreeModel::updateItemRow(const ModelNode &node)
 
 static void handleWrongId(QStandardItem *item, const ModelNode &modelNode, const QString &errorTitle, const QString &errorMessage, NavigatorTreeModel *treeModel)
 {
-    QMessageBox::warning(Core::ICore::dialogParent(), errorTitle,  errorMessage);
+    Utils::AsynchronousMessageBox::warning(errorTitle,  errorMessage);
     bool blockSingals = treeModel->blockItemChangedSignal(true);
     item->setText(modelNode.id());
     treeModel->blockItemChangedSignal(blockSingals);

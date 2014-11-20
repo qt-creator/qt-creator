@@ -75,10 +75,10 @@
 #include "qmldesignerplugin.h"
 
 #include "puppetcreator.h"
-#include <qmldesignerwarning.h>
 
 #include <coreplugin/icore.h>
 #include <utils/hostosinfo.h>
+#include <utils/messagebox.h>
 #include <projectexplorer/kit.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/baseqtversion.h>
@@ -101,9 +101,9 @@ static bool hasQtQuick1(NodeInstanceView *nodeInstanceView)
 
 static void showCannotConnectToPuppetWarningAndSwitchToEditMode()
 {
-    QmlDesignerWarning::show(QCoreApplication::translate("NodeInstanceServerProxy", "Cannot Connect to QML Emulation Layer (QML Puppet)"),
-                             QCoreApplication::translate("NodeInstanceServerProxy", "The executable of the QML emulation layer (QML Puppet) may not be responding. "
-                                                                                    "Switching to another kit might help."));
+    Utils::AsynchronousMessageBox::warning(QCoreApplication::translate("NodeInstanceServerProxy", "Cannot Connect to QML Emulation Layer (QML Puppet)"),
+                                           QCoreApplication::translate("NodeInstanceServerProxy", "The executable of the QML emulation layer (QML Puppet) may not be responding. "
+                                                                                                  "Switching to another kit might help."));
 
     QmlDesignerPlugin::instance()->switchToTextModeDeferred();
 
@@ -201,8 +201,8 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
        }
 
    } else {
-       QmlDesignerWarning::show(tr("Cannot Start QML Emulation Layer (QML Puppet)"),
-                            tr("The executable of the QML emulation layer (QML Puppet) process cannot be started or does not respond."));
+       Utils::AsynchronousMessageBox::warning(tr("Cannot Start QML Emulation Layer (QML Puppet)"),
+                                              tr("The executable of the QML emulation layer (QML Puppet) process cannot be started or does not respond."));
 
        QmlDesignerPlugin::instance()->switchToTextModeDeferred();
    }
@@ -385,7 +385,7 @@ void NodeInstanceServerProxy::processFinished(int exitCode, QProcess::ExitStatus
     if (m_captureFileForTest.isOpen()) {
         m_captureFileForTest.close();
         m_captureFileForTest.remove();
-        QMessageBox::warning(Core::ICore::dialogParent(), tr("QML Emulation Layer (QML Puppet) Crashed"),
+        Utils::AsynchronousMessageBox::warning(tr("QML Emulation Layer (QML Puppet) Crashed"),
                              tr("You are recording a puppet stream and the emulations layer crashed. "
                                 "It is recommended to reopen the Qt Quick Designer and start again."));
     }
