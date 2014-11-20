@@ -1628,7 +1628,7 @@ bool QmakeProject::matchesKit(const Kit *kit)
     QList<QtSupport::BaseQtVersion *> parentQts;
     Utils::FileName filePath = projectFilePath();
     foreach (QtSupport::BaseQtVersion *version, QtSupport::QtVersionManager::validVersions()) {
-        if (version->isInSourceDirectory(filePath))
+        if (version->isSubProject(filePath))
             parentQts.append(version);
     }
 

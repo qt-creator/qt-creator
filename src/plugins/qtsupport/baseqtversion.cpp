@@ -1478,16 +1478,27 @@ FileName BaseQtVersion::sourcePath(const QHash<QString, QString> &versionInfo)
     return FileName::fromUserInput(sourcePath);
 }
 
-bool BaseQtVersion::isInSourceDirectory(const Utils::FileName &filePath)
+bool BaseQtVersion::isSubProject(const Utils::FileName &filePath)
 {
     const Utils::FileName &source = sourcePath();
-    if (source.isEmpty())
-        return false;
-    QDir dir = QDir(source.toString());
-    if (dir.dirName() == QLatin1String("qtbase"))
-        dir.cdUp();
+    if (!source.isEmpty()) {
+        QDir dir = QDir(source.toString());
+        if (dir.dirName() == QLatin1String("qtbase"))
+            dir.cdUp();
 
-    return filePath.isChildOf(dir);
+        if (filePath.isChildOf(dir))
+            return true;
+    }
+
+    const QString &examples = examplesPath();
+    if (!examples.isEmpty() && filePath.isChildOf(QDir(examples)))
+        return true;
+
+    const QString &demos = demosPath();
+    if (!demos.isEmpty() && filePath.isChildOf(QDir(demos)))
+        return true;
+
+    return false;
 }
 
 bool BaseQtVersion::isQmlDebuggingSupported(Kit *k, QString *reason)

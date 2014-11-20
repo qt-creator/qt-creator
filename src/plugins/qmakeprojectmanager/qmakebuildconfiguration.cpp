@@ -651,7 +651,7 @@ QmakeBuildInfo *QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
 
     // check if this project is in the source directory:
     Utils::FileName projectFilePath = Utils::FileName::fromString(projectPath);
-    if (version->isInSourceDirectory(projectFilePath)) {
+    if (version->isSubProject(projectFilePath)) {
         // assemble build directory
         QString projectDirectory = projectFilePath.toFileInfo().absolutePath();
         QDir qtSourceDir = QDir(version->sourcePath().toString());
