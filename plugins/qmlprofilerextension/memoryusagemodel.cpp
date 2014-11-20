@@ -44,6 +44,8 @@ MemoryUsageModel::MemoryUsageModel(QObject *parent)
                             tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileMemory)),
                             QmlDebug::MemoryAllocation, QmlDebug::MaximumRangeType, parent)
 {
+    Q_D(MemoryUsageModel);
+    d->maxSize = 1;
 }
 
 quint64 MemoryUsageModel::features() const
