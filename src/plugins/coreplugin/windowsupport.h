@@ -44,9 +44,8 @@ QT_END_NAMESPACE
 namespace Core {
 namespace Internal {
 
-class WindowList : public QObject
+class WindowList
 {
-    Q_OBJECT
 public:
     static void addWindow(QWidget *window);
     static void removeWindow(QWidget *window);
