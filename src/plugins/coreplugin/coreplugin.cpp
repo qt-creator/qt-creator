@@ -123,7 +123,7 @@ void CorePlugin::parseArguments(const QStringList &arguments)
         } else if (themeName.endsWith(QLatin1String(".creatortheme"))) {
             themeURI = themeName;
         } else { // TODO: Fallback to default theme
-            qCritical("%s", qPrintable(QCoreApplication::translate("Application", "No valid theme '%1'")
+            qCritical("%s", qPrintable(QCoreApplication::translate("Application", "No valid theme \"%1\"")
                                        .arg(themeName)));
         }
     }

@@ -115,7 +115,7 @@ QPair<QColor, QString> Theme::readNamedColor(const QString &color) const
     bool ok = true;
     const QRgb rgba = color.toLongLong(&ok, 16);
     if (!ok) {
-        qWarning("Color '%s' is neither a named color nor a valid color", qPrintable(color));
+        qWarning("Color \"%s\" is neither a named color nor a valid color", qPrintable(color));
         return qMakePair(Qt::black, QString());
     }
     return qMakePair(QColor::fromRgba(rgba), QString());

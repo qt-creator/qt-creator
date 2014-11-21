@@ -288,7 +288,7 @@ void ThemeSettingsWidget::confirmDeleteTheme()
 
     QMessageBox *messageBox = new QMessageBox(QMessageBox::Warning,
                                               tr("Delete Theme"),
-                                              tr("Are you sure you want to delete the theme '%1' permanently?").arg(entry.name()),
+                                              tr("Are you sure you want to delete the theme \"%1\" permanently?").arg(entry.name()),
                                               QMessageBox::Discard | QMessageBox::Cancel,
                                               d->m_ui->deleteButton->window());
 
