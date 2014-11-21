@@ -44,16 +44,17 @@ class JsonKitsPage : public TargetSetupPage
 public:
     JsonKitsPage(QWidget *parent = 0);
 
-    void setProjectFilePath(const QString &path) { m_projectFilePath = path; }
-
     void initializePage();
     void cleanupPage();
+
+    void setUnexpandedProjectPath(const QString &path);
+    QString unexpandedProjectPath() const;
 
 private slots:
     void setupProjectFiles(const JsonWizard::GeneratorFiles &files);
 
 private:
-    QString m_projectFilePath;
+    QString m_unexpandedProjectPath;
 };
 
 } // namespace ProjectExplorer
