@@ -36,7 +36,9 @@ namespace QmlProfiler {
 
 QmlProfilerBaseModel::QmlProfilerBaseModel(Utils::FileInProjectFinder *fileFinder,
                                            QmlProfilerModelManager *manager,
-                                           QmlProfilerBaseModelPrivate *dd) : d_ptr(dd)
+                                           QmlProfilerBaseModelPrivate *dd)
+    : QObject(manager)
+    , d_ptr(dd)
 {
     Q_D(QmlProfilerBaseModel);
     d->modelManager = manager;
