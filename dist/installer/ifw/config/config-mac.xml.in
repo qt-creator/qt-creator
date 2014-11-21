@@ -7,7 +7,7 @@
     <ProductUrl>http://qt-project.org</ProductUrl>
 
     <InstallerWindowIcon>logo.png</InstallerWindowIcon>
-    <Watermark>watermark.png</Watermark>
+    <Background>background.png</Background>
     <UninstallerName>Uninstall Qt Creator</UninstallerName>
     <!-- @homeDir@ and @rootDir@ are some of the supported vars -->
     <TargetDir>@homeDir@/Applications/Qt Creator {version}</TargetDir>
