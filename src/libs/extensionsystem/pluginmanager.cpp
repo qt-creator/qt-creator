@@ -1251,8 +1251,10 @@ void PluginManagerPrivate::readPluginPaths()
 
     foreach (const QString &pluginFile, pluginFiles) {
         PluginSpec *spec = new PluginSpec;
-        if (!spec->d->read(pluginFile)) // not a Qt Creator plugin
+        if (!spec->d->read(pluginFile)) { // not a Qt Creator plugin
+            delete spec;
             continue;
+        }
 
         PluginCollection *collection = 0;
         // find correct plugin collection or create a new one
