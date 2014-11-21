@@ -47,7 +47,6 @@ class DummyModel : public AbstractTimelineModel
     friend class tst_AbstractTimelineModel;
 public:
     DummyModel(QString displayName = tr("dummy"), QObject *parent = 0);
-    const QmlProfilerModelManager *modelManager() const;
     int selectionId(int index) const { return index; }
     QColor color(int) const { return QColor(); }
     QVariantList labels() const { return QVariantList(); }
@@ -58,71 +57,43 @@ protected:
     void loadData();
 };
 
-
-class DummyModelPrivate : public AbstractTimelineModel::AbstractTimelineModelPrivate
-{
-    Q_DECLARE_PUBLIC(DummyModel)
-};
-
 class tst_AbstractTimelineModel : public QObject
 {
     Q_OBJECT
 
 private slots:
-    void modelManager();
     void isEmpty();
     void rowHeight();
     void rowOffset();
     void height();
-    void traceTime();
     void accepted();
     void expand();
     void hide();
     void displayName();
     void defaultValues();
     void colorByHue();
-    void colorByTypeId();
+    void colorBySelectionId();
     void colorByFraction();
 };
 
 DummyModel::DummyModel(QString displayName, QObject *parent) :
-    AbstractTimelineModel(new DummyModelPrivate, displayName, QmlDebug::MaximumMessage,
-                          QmlDebug::MaximumRangeType, parent)
+    AbstractTimelineModel(new QmlProfilerModelManager(0, parent), displayName,
+                          QmlDebug::MaximumMessage, QmlDebug::MaximumRangeType, parent)
 {
-}
-
-const QmlProfilerModelManager *DummyModel::modelManager() const
-{
-    Q_D(const DummyModel);
-    return d->modelManager;
 }
 
 void DummyModel::loadData()
 {
-    Q_D(DummyModel);
     for (int i = 0; i < NumItems; ++i)
         insert(i * ItemSpacing, ItemDuration, 0);
-    d->collapsedRowCount = d->expandedRowCount = 2;
-}
-
-void tst_AbstractTimelineModel::modelManager()
-{
-    DummyModel dummy;
-    QCOMPARE(dummy.modelManager(), (QmlProfilerModelManager *)0);
-    QmlProfilerModelManager manager(0);
-    dummy.setModelManager(&manager);
-    QCOMPARE(dummy.modelManager(), &manager);
-    QmlProfilerModelManager manager2(0);
-    dummy.setModelManager(&manager2);
-    QCOMPARE(dummy.modelManager(), &manager2);
+    setCollapsedRowCount(2);
+    setExpandedRowCount(2);
 }
 
 void tst_AbstractTimelineModel::isEmpty()
 {
     DummyModel dummy;
     QVERIFY(dummy.isEmpty());
-    QmlProfilerModelManager manager(0);
-    dummy.setModelManager(&manager);
     dummy.loadData();
     QVERIFY(!dummy.isEmpty());
     dummy.clear();
@@ -196,8 +167,6 @@ void tst_AbstractTimelineModel::rowOffset()
 void tst_AbstractTimelineModel::height()
 {
     DummyModel dummy;
-    QmlProfilerModelManager manager(0);
-    dummy.setModelManager(&manager);
     QCOMPARE(dummy.height(), DefaultRowHeight);
     dummy.loadData();
     QCOMPARE(dummy.height(), 2 * DefaultRowHeight);
@@ -205,16 +174,6 @@ void tst_AbstractTimelineModel::height()
     QCOMPARE(dummy.height(), 2 * DefaultRowHeight);
     dummy.setRowHeight(0, 80);
     QCOMPARE(dummy.height(), DefaultRowHeight + 80);
-}
-
-void tst_AbstractTimelineModel::traceTime()
-{
-    DummyModel dummy;
-    QmlProfilerModelManager manager(0);
-    dummy.setModelManager(&manager);
-    QCOMPARE(dummy.traceStartTime(), -1);
-    QCOMPARE(dummy.traceEndTime(), -1);
-    QCOMPARE(dummy.traceDuration(), 0);
 }
 
 void tst_AbstractTimelineModel::accepted()
@@ -282,7 +241,6 @@ void tst_AbstractTimelineModel::defaultValues()
     DummyModel dummy;
     dummy.loadData();
     QCOMPARE(dummy.location(0), QVariantMap());
-    QCOMPARE(dummy.isSelectionIdValid(0), false);
     QCOMPARE(dummy.selectionIdForLocation(QString(), 0, 0), -1);
     QCOMPARE(dummy.bindingLoopDest(0), -1);
     QCOMPARE(dummy.relativeHeight(0), 1.0);
@@ -297,11 +255,11 @@ void tst_AbstractTimelineModel::colorByHue()
     QCOMPARE(dummy.colorByHue(500), QColor::fromHsl(140, 150, 166));
 }
 
-void tst_AbstractTimelineModel::colorByTypeId()
+void tst_AbstractTimelineModel::colorBySelectionId()
 {
     DummyModel dummy;
     dummy.loadData();
-    QCOMPARE(dummy.colorBySelectionId(5), QColor::fromHsl(5 * 25, 150, 166));
+    QCOMPARE(dummy.colorBySelectionId(5), QColor::fromHsl(0, 150, 166));
 }
 
 void tst_AbstractTimelineModel::colorByFraction()
