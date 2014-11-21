@@ -141,7 +141,10 @@ BreakHandler::BreakHandler()
 }
 
 BreakHandler::~BreakHandler()
-{}
+{
+    for (Iterator it = m_storage.begin(), end = m_storage.end(); it != end; ++it)
+        it->destroyMarker();
+}
 
 QIcon BreakHandler::breakpointIcon()
 {
