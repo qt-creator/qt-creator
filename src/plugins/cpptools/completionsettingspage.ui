@@ -120,6 +120,11 @@
       </item>
       <item row="6" column="0">
        <widget class="QCheckBox" name="autoSplitStrings">
+        <property name="toolTip">
+         <string>Splits a string into two lines by adding an end quote at the cursor position when you press Enter and a start quote to the next line, before the rest of the string.
+
+In addition, Shift+Enter inserts an escape character at the cursor position and moves the rest of the string to the next line.</string>
+        </property>
         <property name="text">
          <string>Automatically split strings</string>
         </property>
