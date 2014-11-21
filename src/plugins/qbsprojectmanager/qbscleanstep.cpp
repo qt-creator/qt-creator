@@ -272,6 +272,11 @@ QbsCleanStepConfigWidget::QbsCleanStepConfigWidget(QbsCleanStep *step) :
     updateState();
 }
 
+QbsCleanStepConfigWidget::~QbsCleanStepConfigWidget()
+{
+    delete m_ui;
+}
+
 QString QbsCleanStepConfigWidget::summaryText() const
 {
     return m_summary;

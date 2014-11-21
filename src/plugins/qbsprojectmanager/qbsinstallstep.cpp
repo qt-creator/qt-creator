@@ -291,6 +291,11 @@ QbsInstallStepConfigWidget::QbsInstallStepConfigWidget(QbsInstallStep *step) :
     updateState();
 }
 
+QbsInstallStepConfigWidget::~QbsInstallStepConfigWidget()
+{
+    delete m_ui;
+}
+
 QString QbsInstallStepConfigWidget::summaryText() const
 {
     return m_summary;

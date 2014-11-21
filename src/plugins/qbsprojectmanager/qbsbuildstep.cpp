@@ -436,6 +436,11 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     updateState();
 }
 
+QbsBuildStepConfigWidget::~QbsBuildStepConfigWidget()
+{
+    delete m_ui;
+}
+
 QString QbsBuildStepConfigWidget::summaryText() const
 {
     return m_summary;
