@@ -78,6 +78,16 @@ void JsonKitsPage::cleanupPage()
     TargetSetupPage::cleanupPage();
 }
 
+void JsonKitsPage::setUnexpandedProjectPath(const QString &path)
+{
+    m_unexpandedProjectPath = path;
+}
+
+QString JsonKitsPage::unexpandedProjectPath() const
+{
+    return m_unexpandedProjectPath;
+}
+
 void JsonKitsPage::setupProjectFiles(const JsonWizard::GeneratorFiles &files)
 {
     Project *project = 0;
