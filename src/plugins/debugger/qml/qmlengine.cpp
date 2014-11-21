@@ -1176,6 +1176,8 @@ void QmlEngine::updateCurrentContext()
             context = grandParentData->name;
     }
 
+    synchronizeWatchers();
+
     QmlJS::ConsoleManagerInterface *consoleManager = qmlConsoleManager();
     if (consoleManager)
         consoleManager->setContext(tr("Context:") + QLatin1Char(' ') + context);
