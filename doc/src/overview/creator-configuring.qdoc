@@ -102,8 +102,8 @@
     colors, and icons.
 
     To switch from the default theme to a dark theme, select \gui Tools >
-    \gui Options > \gui Environment, and then select \gui {Dark (built-in)} in
-    the \gui Theme field.
+    \gui Options > \gui Environment, and then select \gui Dark in the \gui Theme
+    field.
 
     You can use the \QC text and code editors with your favorite color scheme
     that defines how code
