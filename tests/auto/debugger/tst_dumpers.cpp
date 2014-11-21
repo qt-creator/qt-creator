@@ -4273,10 +4273,12 @@ void tst_Dumpers::dumper_data()
 
                // Known issue: Clang produces "std::vector<std::allocator<bool>>
                + Check("b0", "<0 items>", "std::vector<bool>") % GdbEngine
-               + Check("b0", "<0 items>", "std::vector<std::allocator<bool>>") % LldbEngine
+               + Check("b0", "<0 items>", "std::vector<bool>") % ClangVersion(600)
+               + Check("b0", "<0 items>", "std::vector<std::allocator<bool>>") % ClangVersion(0, 599)
 
                + Check("b1", "<5 items>", "std::vector<bool>") % GdbEngine
-               + Check("b1", "<5 items>", "std::vector<std::allocator<bool>>") % LldbEngine
+               + Check("b1", "<5 items>", "std::vector<bool>") % ClangVersion(600)
+               + Check("b1", "<5 items>", "std::vector<std::allocator<bool>>") % ClangVersion(0, 599)
                + Check("b1.0", "[0]", "1", "bool")
                + Check("b1.1", "[1]", "0", "bool")
                + Check("b1.2", "[2]", "0", "bool")
@@ -4284,13 +4286,14 @@ void tst_Dumpers::dumper_data()
                + Check("b1.4", "[4]", "0", "bool")
 
                + Check("b2", "<65 items>", "std::vector<bool>") % GdbEngine
-               + Check("b2", "<65 items>", "std::vector<std::allocator<bool>>") % LldbEngine
+               + Check("b2", "<65 items>", "std::vector<bool>") % ClangVersion(600)
+               + Check("b2", "<65 items>", "std::vector<std::allocator<bool>>") % ClangVersion(0, 599)
                + Check("b2.0", "[0]", "1", "bool")
                + Check("b2.64", "[64]", "1", "bool")
 
-               + Check("b3", "<300 items>", "std::vector<bool>") %
-GdbEngine
-               + Check("b3", "<300 items>", "std::vector<std::allocator<bool>>") % LldbEngine
+               + Check("b3", "<300 items>", "std::vector<bool>") % GdbEngine
+               + Check("b3", "<300 items>", "std::vector<bool>") % ClangVersion(600)
+               + Check("b3", "<300 items>", "std::vector<std::allocator<bool>>") % ClangVersion(0, 599)
                + Check("b3.0", "[0]", "0", "bool")
                + Check("b3.299", "[299]", "0", "bool");
 
