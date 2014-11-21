@@ -741,7 +741,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // unload action
     dd->m_unloadAction = new Utils::ParameterAction(tr("Close Project"), tr("Close Project \"%1\""),
-                                                      Utils::ParameterAction::EnabledWithParameter, this);
+                                                      Utils::ParameterAction::AlwaysEnabled, this);
     cmd = ActionManager::registerAction(dd->m_unloadAction, Constants::UNLOAD, globalcontext);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(dd->m_unloadAction->text());
@@ -2148,7 +2148,7 @@ void ProjectExplorerPluginPrivate::updateActions()
     QString projectName = project ? project->displayName() : QString();
     QString projectNameContextMenu = m_currentProject ? m_currentProject->displayName() : QString();
 
-    m_unloadAction->setParameter(projectNameContextMenu);
+    m_unloadAction->setParameter(projectName);
     m_unloadActionContextMenu->setParameter(projectNameContextMenu);
 
     // Normal actions
@@ -2198,6 +2198,7 @@ void ProjectExplorerPluginPrivate::updateActions()
     // Session actions
     m_closeAllProjects->setEnabled(SessionManager::hasProjects());
     m_unloadAction->setVisible(SessionManager::projects().size() <= 1);
+    m_unloadAction->setEnabled(SessionManager::projects().size() == 1);
     m_unloadActionContextMenu->setEnabled(SessionManager::hasProjects());
 
     ActionContainer *aci =
