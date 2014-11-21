@@ -46,14 +46,8 @@ JsonWizard::JsonWizard(QWidget *parent) :
 {
     setMinimumSize(800, 500);
     m_expander.registerExtraResolver([this](const QString &name, QString *ret) -> bool {
-        QVariant v = value(name);
-        if (v.isValid()) {
-            if (v.type() == QVariant::Bool)
-                *ret = v.toBool() ? QLatin1String("true") : QString();
-            else
-                *ret = v.toString();
-        }
-        return v.isValid();
+        *ret = stringValue(name);
+        return !ret->isNull();
     });
     m_expander.registerPrefix("Exists", tr("Check whether a variable exists. Returns \"true\" if it does and an empty string if not."),
                    [this](const QString &value) -> QString
@@ -87,14 +81,14 @@ JsonWizard::GeneratorFiles JsonWizard::generateFileList()
     QString errorMessage;
     GeneratorFiles list;
 
-    QString targetPath = value(QLatin1String("TargetPath")).toString();
+    QString targetPath = stringValue(QLatin1String("TargetPath"));
     if (targetPath.isEmpty())
         errorMessage = tr("Could not determine target path. \"TargetPath\" was not set on any page.");
 
     if (m_files.isEmpty() && errorMessage.isEmpty()) {
         emit preGenerateFiles();
         foreach (JsonWizardGenerator *gen, m_generators) {
-            Core::GeneratedFiles tmp = gen->fileList(&m_expander, value(QStringLiteral("WizardDir")).toString(),
+            Core::GeneratedFiles tmp = gen->fileList(&m_expander, stringValue(QStringLiteral("WizardDir")),
                                                      targetPath, &errorMessage);
             if (!errorMessage.isEmpty())
                 break;
@@ -120,29 +114,40 @@ void JsonWizard::commitToFileList(const JsonWizard::GeneratorFiles &list)
     emit postGenerateFiles(m_files);
 }
 
-QVariant JsonWizard::value(const QString &n) const
+QString JsonWizard::stringValue(const QString &n) const
 {
-    QVariant v = property(n.toUtf8());
-    if (v.isValid()) {
-        if (v.type() == QVariant::String) {
-            return m_expander.expand(v.toString());
-        } if (v.type() == QVariant::StringList) {
-            QStringList tmp = Utils::transform(v.toStringList(), [this](const QString &i) -> QString {
-                return m_expander.expand(i).replace(QLatin1Char('\''), QLatin1String("\\'"));
-            });
-            return QString(QString(QLatin1Char('\'')) + tmp.join(QLatin1String("', '")) + QString(QLatin1Char('\'')));
-        } else {
-            return v;
-        }
+    QVariant v = value(n);
+    if (!v.isValid())
+        return QString();
+
+    if (v.type() == QVariant::Bool)
+        return v.toBool() ? QString::fromLatin1("true") : QString();
+
+    if (v.type() == QVariant::String)
+        return m_expander.expand(v.toString());
+
+    if (v.type() == QVariant::StringList) {
+        QStringList tmp = Utils::transform(v.toStringList(), [this](const QString &i) -> QString {
+            return m_expander.expand(i).replace(QLatin1Char('\''), QLatin1String("\\'"));
+        });
+        return QString(QString(QLatin1Char('\'')) + tmp.join(QLatin1String("', '")) + QString(QLatin1Char('\'')));
     }
-    if (hasField(n))
-        return field(n); // Can not contain macros!
-    return QVariant();
+    return v.toString();
 }
 
 void JsonWizard::setValue(const QString &key, const QVariant &value)
 {
     setProperty(key.toUtf8(), value);
+}
+
+QVariant JsonWizard::value(const QString &n) const
+{
+    QVariant v = property(n.toUtf8());
+    if (v.isValid())
+        return v;
+    if (hasField(n))
+        return field(n); // Can not contain macros!
+    return QVariant();
 }
 
 bool JsonWizard::boolFromVariant(const QVariant &v, Utils::MacroExpander *expander)

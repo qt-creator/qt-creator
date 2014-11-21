@@ -65,7 +65,7 @@ static QString generatedProjectFilePath(const QList<JsonWizard::GeneratorFile> &
 static IWizardFactory::WizardKind wizardKind(JsonWizard *wiz)
 {
     IWizardFactory::WizardKind kind = IWizardFactory::ProjectWizard;
-    const QString kindStr = wiz->value(QLatin1String("kind")).toString();
+    const QString kindStr = wiz->stringValue(QLatin1String("kind"));
     if (kindStr == QLatin1String(Core::Constants::WIZARD_KIND_PROJECT))
         kind = IWizardFactory::ProjectWizard;
     else if (kindStr == QLatin1String(Core::Constants::WIZARD_KIND_CLASS))

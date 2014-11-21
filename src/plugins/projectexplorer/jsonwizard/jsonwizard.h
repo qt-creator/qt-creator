@@ -73,6 +73,8 @@ public:
     GeneratorFiles generateFileList();
     void commitToFileList(const GeneratorFiles &list);
 
+    QString stringValue(const QString &n) const;
+
     QVariant value(const QString &n) const;
     void setValue(const QString &key, const QVariant &value);
 

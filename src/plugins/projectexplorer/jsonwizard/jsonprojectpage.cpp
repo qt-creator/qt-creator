@@ -48,7 +48,7 @@ void JsonProjectPage::initializePage()
 {
     JsonWizard *wiz = qobject_cast<JsonWizard *>(wizard());
     QTC_ASSERT(wiz, return);
-    setPath(wiz->value(QLatin1String("InitialPath")).toString());
+    setPath(wiz->stringValue(QLatin1String("InitialPath")));
 
     setProjectName(uniqueProjectName(path()));
 }

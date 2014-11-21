@@ -57,7 +57,7 @@ void JsonKitsPage::initializePage()
 
     connect(wiz, &JsonWizard::filesReady, this, &JsonKitsPage::setupProjectFiles);
 
-    const QString platform = wiz->value(QLatin1String("Platform")).toString();
+    const QString platform = wiz->stringValue(QLatin1String("Platform"));
     const Core::FeatureSet preferred = Core::FeatureSet::fromStringList(wiz->value(QLatin1String("PreferredFeatures")).toStringList());
     const Core::FeatureSet required = Core::FeatureSet::fromStringList(wiz->value(QLatin1String("RequiredFeatures")).toStringList());
 

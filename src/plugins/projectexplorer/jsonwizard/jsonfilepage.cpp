@@ -48,9 +48,9 @@ void JsonFilePage::initializePage()
         return;
 
     if (fileName().isEmpty())
-        setFileName(wiz->value(QLatin1String("InitialFileName")).toString());
+        setFileName(wiz->stringValue(QLatin1String("InitialFileName")));
     if (path().isEmpty())
-        setPath(wiz->value(QLatin1String("InitialPath")).toString());
+        setPath(wiz->stringValue(QLatin1String("InitialPath")));
 }
 
 bool JsonFilePage::validatePage()
