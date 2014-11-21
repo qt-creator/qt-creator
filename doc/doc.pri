@@ -24,19 +24,15 @@ QHP_FILE = $$OUT_PWD/doc/html/qtcreator.qhp
 QCH_FILE = $$IDE_DOC_PATH/qtcreator.qch
 
 HELP_DEP_FILES = $$PWD/src/qtcreator.qdoc \
-                 $$PWD/config/compat.qdocconf \
                  $$PWD/config/macros.qdocconf \
                  $$PWD/config/qt-cpp-ignore.qdocconf \
-                 $$PWD/config/qt-defines.qdocconf \
-                 $$PWD/config/qt-html-templates.qdocconf \
-                 $$PWD/config/qt-html-default-styles.qdocconf \
-                 $$PWD/qtcreator$${COMPAT}.qdocconf
+                 $$PWD/config/qt-defines.qdocconf
 
-html_docs.commands = $$qdoc($$OUT_PWD/doc/html) $$PWD/qtcreator$${COMPAT}.qdocconf
+html_docs.commands = $$qdoc($$OUT_PWD/doc/html) $$PWD/qtcreator.qdocconf
 html_docs.depends += $$HELP_DEP_FILES
 html_docs.files = $$QHP_FILE
 
-html_docs_online.commands = $$qdoc($$OUT_PWD/doc/html) $$PWD/qtcreator-online$${COMPAT}.qdocconf
+html_docs_online.commands = $$qdoc($$OUT_PWD/doc/html) $$PWD/qtcreator-online.qdocconf
 html_docs_online.depends += $$HELP_DEP_FILES
 
 qch_docs.commands = $$HELPGENERATOR -o \"$$QCH_FILE\" $$QHP_FILE
@@ -57,12 +53,14 @@ DEV_HELP_DEP_FILES = \
     $$PWD/api/plugin-metadata.qdoc \
     $$PWD/api/plugin-lifecycle.qdoc \
     $$PWD/api/pluginmanager.qdoc \
-    $$PWD/api/qtcreator-dev$${COMPAT}.qdocconf
+    $$PWD/api/qtcreator-documentation.qdoc \
+    $$PWD/api/qtcreator-ui-text.qdoc \
+    $$PWD/api/qtcreator-dev.qdocconf
 
-dev_html_docs.commands = $$qdoc($$OUT_PWD/doc/html-dev) $$PWD/api/qtcreator-dev$${COMPAT}.qdocconf
+dev_html_docs.commands = $$qdoc($$OUT_PWD/doc/html-dev) $$PWD/api/qtcreator-dev.qdocconf
 dev_html_docs.depends += $$DEV_HELP_DEP_FILES
 
-dev_html_docs_online.commands = $$qdoc($$OUT_PWD/doc/html-dev) $$PWD/api/qtcreator-dev-online$${COMPAT}.qdocconf
+dev_html_docs_online.commands = $$qdoc($$OUT_PWD/doc/html-dev) $$PWD/api/qtcreator-dev-online.qdocconf
 dev_html_docs_online.depends += $$DEV_HELP_DEP_FILES
 
 dev_qch_docs.commands = $$HELPGENERATOR -o \"$$DEV_QCH_FILE\" $$DEV_QHP_FILE
