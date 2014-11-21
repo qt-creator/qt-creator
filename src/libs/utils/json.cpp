@@ -42,8 +42,10 @@ using namespace Utils;
 
 JsonMemoryPool::~JsonMemoryPool()
 {
-    foreach (char *obj, _objs)
+    foreach (char *obj, _objs) {
+        reinterpret_cast<JsonValue *>(obj)->~JsonValue();
         delete[] obj;
+    }
 }
 
 JsonValue::JsonValue(Kind kind)
