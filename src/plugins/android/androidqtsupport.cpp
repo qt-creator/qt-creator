@@ -51,17 +51,11 @@ Utils::FileName Android::AndroidQtSupport::apkPath(ProjectExplorer::Target *targ
         apkPath = QLatin1String("/build/outputs/apk/android-build-");
     else
         apkPath = QLatin1String("/bin/QtApp-");
-    if (buildApkStep->buildConfiguration()->buildType() == ProjectExplorer::BuildConfiguration::Release) {
-        apkPath += QLatin1String("release-");
-        if (!buildApkStep->signPackage())
-            apkPath += QLatin1String("un");
-        apkPath += QLatin1String("signed.apk");
-    } else {
-        apkPath += QLatin1String("debug");
-        if (buildApkStep->signPackage())
-            apkPath += QLatin1String("-signed");
-        apkPath += QLatin1String(".apk");
-    }
+    if (buildApkStep->signPackage())
+        apkPath += QLatin1String("release.apk");
+    else
+        apkPath += QLatin1String("debug.apk");
+
     return target->activeBuildConfiguration()->buildDirectory()
             .appendPath(QLatin1String(Android::Constants::ANDROID_BUILDDIRECTORY))
             .appendPath(apkPath);
