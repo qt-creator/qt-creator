@@ -3284,7 +3284,7 @@ void FakeVimHandler::Private::fixSelection()
     if (g.movetype == MoveInclusive) {
         // If position or anchor is after end of non-empty line, include line break in selection.
         if (characterAtCursor() == ParagraphSeparator) {
-            if (!atEmptyLine()) {
+            if (!atEmptyLine() && !atDocumentEnd()) {
                 setPosition(position() + 1);
                 return;
             }
