@@ -1950,6 +1950,8 @@ public:
     void endEditBlock();
     void breakEditBlock() { m_buffer->breakEditBlock = true; }
 
+    bool canModifyBufferData() const { return m_buffer->currentHandler == this; }
+
     Q_SLOT void onContentsChanged(int position, int charsRemoved, int charsAdded);
     Q_SLOT void onCursorPositionChanged();
     Q_SLOT void onUndoCommandAdded();
@@ -2197,6 +2199,10 @@ public:
         } insertState;
 
         QString lastInsertion;
+
+        // If there are multiple editors with same document,
+        // only the handler with last focused editor can change buffer data.
+        QPointer<QObject> currentHandler;
     };
 
     typedef QSharedPointer<BufferData> BufferDataPtr;
@@ -2348,6 +2354,8 @@ void FakeVimHandler::Private::init()
 
 void FakeVimHandler::Private::focus()
 {
+    m_buffer->currentHandler = this;
+
     enterFakeVim();
 
     stopIncrementalFind();
@@ -6506,6 +6514,9 @@ void FakeVimHandler::Private::pullOrCreateBufferData()
         m_buffer = BufferDataPtr(new BufferData);
         document()->setProperty("FakeVimSharedData", QVariant::fromValue(m_buffer));
     }
+
+    if (editor()->hasFocus())
+        m_buffer->currentHandler = this;
 }
 
 // Helper to parse a-z,A-Z,48-57,_
@@ -7518,7 +7529,7 @@ void FakeVimHandler::Private::endEditBlock()
 void FakeVimHandler::Private::onContentsChanged(int position, int charsRemoved, int charsAdded)
 {
     // Record inserted and deleted text in insert mode.
-    if (isInsertMode() && (charsAdded > 0 || charsRemoved > 0)) {
+    if (isInsertMode() && (charsAdded > 0 || charsRemoved > 0) && canModifyBufferData()) {
         BufferData::InsertState &insertState = m_buffer->insertState;
         const int oldPosition = insertState.pos2;
         if (!isInsertStateValid()) {
@@ -7577,6 +7588,9 @@ void FakeVimHandler::Private::onCursorPositionChanged()
 
 void FakeVimHandler::Private::onUndoCommandAdded()
 {
+    if (!canModifyBufferData())
+        return;
+
     // Undo commands removed?
     UNDO_DEBUG("Undo added" << "previous: REV" << m_buffer->lastRevision);
     if (m_buffer->lastRevision >= revision()) {
