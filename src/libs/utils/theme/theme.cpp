@@ -354,6 +354,7 @@ QPalette Theme::palette() const
     pal.setBrush(QPalette::ButtonText,      color(Theme::TextColorNormal));
     pal.setBrush(QPalette::ToolTipBase,     color(Theme::BackgroundColorSelected));
     pal.setColor(QPalette::Highlight,       color(Theme::BackgroundColorSelected));
+    pal.setColor(QPalette::Dark,            color(Theme::BackgroundColorDark));
     pal.setColor(QPalette::HighlightedText, Qt::white);
     pal.setColor(QPalette::ToolTipText,     color(Theme::TextColorNormal));
     return pal;
