@@ -204,15 +204,17 @@ void ToolChainManager::restoreToolChains()
     }
     readTcs.clear();
 
-    // Remove TCs configured by the SDK:
-    foreach (ToolChain *tc, tcsToRegister) {
-        for (int i = tcsToCheck.count() - 1; i >= 0; --i) {
-            if (tcsToCheck.at(i)->id() == tc->id()) {
-                delete tcsToCheck.at(i);
-                tcsToCheck.removeAt(i);
-            }
-        }
-    }
+    Utils::erase(tcsToCheck, [tcsToRegister](ToolChain *toCheck) -> bool {
+        // Remove TCs configured by the SDK and found in the user settings:
+        if (Utils::anyOf(tcsToRegister, Utils::equal(&ToolChain::id, toCheck->id())))
+            return true;
+
+        // Remove TCs from user settings that are no longer configured by the SDK:
+        if (toCheck->detection() == ToolChain::AutoDetectionFromSettings
+                && !Utils::anyOf(tcsToRegister, Utils::equal(&ToolChain::id, toCheck->id())))
+            return true;
+        return false;
+    });
 
     // Then auto detect
     QList<ToolChain *> detectedTcs;
