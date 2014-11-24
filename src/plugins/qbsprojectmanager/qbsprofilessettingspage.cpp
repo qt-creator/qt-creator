@@ -178,7 +178,7 @@ void QbsProfilesSettingsWidget::displayCurrentProfile()
     const Core::Id kitId = Core::Id::fromSetting(m_ui.kitsComboBox->currentData());
     const ProjectExplorer::Kit * const kit = ProjectExplorer::KitManager::find(kitId);
     QTC_ASSERT(kit, return);
-    const QString profileName = QString::fromLatin1("qtc_") + kit->fileSystemFriendlyName();
+    const QString profileName = QbsManager::instance()->profileForKit(kit);
     m_ui.profileValueLabel->setText(profileName);
     for (int i = 0; i < m_model.rowCount(); ++i) {
         const QModelIndex profilesIndex = m_model.index(i, 0);
@@ -227,7 +227,7 @@ void QbsProfilesSettingsWidget::mergeCustomPropertiesIntoModel()
         const ProjectExplorer::Kit * const kit = ProjectExplorer::KitManager::find(kitId);
         QTC_ASSERT(kit, continue);
         const QString keyPrefix = QLatin1String("profiles.")
-                + QString::fromLatin1("qtc_") + kit->fileSystemFriendlyName() + QLatin1Char('.');
+                + QbsManager::instance()->profileForKit(kit) + QLatin1Char('.');
         for (QVariantMap::ConstIterator it2 = it.value().constBegin(); it2 != it.value().constEnd();
              ++it2) {
             customProperties.insert(keyPrefix + it2.key(), it2.value());

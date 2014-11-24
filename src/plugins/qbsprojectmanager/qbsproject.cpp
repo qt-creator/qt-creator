@@ -48,7 +48,6 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <cpptools/cppmodelmanager.h>
-#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildtargetinfo.h>
@@ -631,9 +630,7 @@ void QbsProject::parse(const QVariantMap &config, const Environment &env, const 
 
     registerQbsProjectParser(new QbsProjectParser(this, m_qbsUpdateFutureInterface));
 
-    QbsManager * const qbsManager = ExtensionSystem::PluginManager::getObject<QbsManager>();
-    QTC_ASSERT(qbsManager, return);
-    qbsManager->updateProfileIfNecessary(activeTarget()->kit());
+    QbsManager::instance()->updateProfileIfNecessary(activeTarget()->kit());
     m_qbsProjectParser->parse(config, env, dir);
     emit projectParsingStarted();
 }

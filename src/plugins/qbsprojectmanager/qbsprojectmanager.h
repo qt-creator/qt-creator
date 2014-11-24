@@ -79,6 +79,7 @@ public:
 
     static qbs::Settings *settings() { return m_settings; }
     static Internal::QbsLogSink *logSink() { return m_logSink; }
+    static QbsManager *instance() { return m_instance; }
 
 private:
     void addProfile(const QString &name, const QVariantMap &data);
@@ -93,6 +94,7 @@ private:
 
     DefaultPropertyProvider *m_defaultPropertyProvider;
     QList<ProjectExplorer::Kit *> m_kitsToBeSetupForQbs;
+    static QbsManager *m_instance;
 };
 
 } // namespace QbsProjectManager

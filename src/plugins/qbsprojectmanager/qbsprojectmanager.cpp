@@ -60,11 +60,13 @@ namespace QbsProjectManager {
 
 qbs::Settings *QbsManager::m_settings = 0;
 Internal::QbsLogSink *QbsManager::m_logSink = 0;
+QbsManager *QbsManager::m_instance = 0;
 
 QbsManager::QbsManager() :
     m_defaultPropertyProvider(new DefaultPropertyProvider)
 {
     m_settings = new qbs::Settings(Core::ICore::userResourcePath());
+    m_instance = this;
 
     setObjectName(QLatin1String("QbsProjectManager"));
     connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitsLoaded, this,
@@ -97,6 +99,7 @@ QbsManager::~QbsManager()
 {
     delete m_defaultPropertyProvider;
     delete m_settings;
+    m_instance = 0;
 }
 
 QString QbsManager::mimeType() const
