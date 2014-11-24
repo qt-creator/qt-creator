@@ -1014,7 +1014,7 @@ void CppToolsPlugin::test_modelmanager_updateEditorsAfterProjectUpdate()
     EditorCloser closerA(editorA);
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
 
-    EditorDocumentHandle *editorDocumentA = mm->editorDocument(fileA);
+    CppEditorDocumentHandle *editorDocumentA = mm->cppEditorDocument(fileA);
     QVERIFY(editorDocumentA);
     ProjectPart::Ptr documentAProjectPart = editorDocumentA->processor()->parser()->projectPart();
     QVERIFY(!documentAProjectPart->project);
@@ -1025,7 +1025,7 @@ void CppToolsPlugin::test_modelmanager_updateEditorsAfterProjectUpdate()
     EditorCloser closerB(editorB);
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 2);
 
-    EditorDocumentHandle *editorDocumentB = mm->editorDocument(fileB);
+    CppEditorDocumentHandle *editorDocumentB = mm->cppEditorDocument(fileB);
     QVERIFY(editorDocumentB);
     ProjectPart::Ptr documentBProjectPart = editorDocumentB->processor()->parser()->projectPart();
     QVERIFY(!documentBProjectPart->project);

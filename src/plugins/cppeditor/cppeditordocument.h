@@ -117,7 +117,7 @@ private:
     CppTools::CppCompletionAssistProvider *m_completionAssistProvider;
 
     // (Un)Registration in CppModelManager
-    QScopedPointer<CppTools::EditorDocumentHandle> m_editorDocumentHandle;
+    QScopedPointer<CppTools::CppEditorDocumentHandle> m_editorDocumentHandle;
 };
 
 } // namespace Internal

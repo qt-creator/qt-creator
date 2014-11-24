@@ -107,8 +107,8 @@ void BaseEditorDocumentParser::setEditorDefines(const QByteArray &editorDefines)
 BaseEditorDocumentParser *BaseEditorDocumentParser::get(const QString &filePath)
 {
     CppModelManager *cmmi = CppModelManager::instance();
-    if (EditorDocumentHandle *editorDocument = cmmi->editorDocument(filePath)) {
-        if (BaseEditorDocumentProcessor *processor = editorDocument->processor())
+    if (CppEditorDocumentHandle *cppEditorDocument = cmmi->cppEditorDocument(filePath)) {
+        if (BaseEditorDocumentProcessor *processor = cppEditorDocument->processor())
             return processor->parser();
     }
     return 0;

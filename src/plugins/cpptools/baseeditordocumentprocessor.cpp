@@ -66,8 +66,8 @@ TextEditor::TextDocument *BaseEditorDocumentProcessor::baseTextDocument() const
 BaseEditorDocumentProcessor *BaseEditorDocumentProcessor::get(const QString &filePath)
 {
     CppModelManager *cmmi = CppModelManager::instance();
-    if (EditorDocumentHandle *editorDocument = cmmi->editorDocument(filePath))
-        return editorDocument->processor();
+    if (CppEditorDocumentHandle *cppEditorDocument = cmmi->cppEditorDocument(filePath))
+        return cppEditorDocument->processor();
     return 0;
 }
 

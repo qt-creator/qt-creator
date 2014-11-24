@@ -139,8 +139,8 @@ public:
     QByteArray m_definedMacros;
 
     // Editor integration
-    mutable QMutex m_cppEditorsMutex;
-    QMap<QString, EditorDocumentHandle *> m_cppEditors;
+    mutable QMutex m_cppEditorDocumentsMutex;
+    QMap<QString, CppEditorDocumentHandle *> m_cppEditorDocuments;
     QSet<AbstractEditorSupport *> m_extraEditorSupports;
 
     // Completion & highlighting
@@ -462,27 +462,27 @@ void CppModelManager::removeExtraEditorSupport(AbstractEditorSupport *editorSupp
     d->m_extraEditorSupports.remove(editorSupport);
 }
 
-EditorDocumentHandle *CppModelManager::editorDocument(const QString &filePath) const
+CppEditorDocumentHandle *CppModelManager::cppEditorDocument(const QString &filePath) const
 {
     if (filePath.isEmpty())
         return 0;
 
-    QMutexLocker locker(&d->m_cppEditorsMutex);
-    return d->m_cppEditors.value(filePath, 0);
+    QMutexLocker locker(&d->m_cppEditorDocumentsMutex);
+    return d->m_cppEditorDocuments.value(filePath, 0);
 }
 
-void CppModelManager::registerEditorDocument(EditorDocumentHandle *editorDocument)
+void CppModelManager::registerCppEditorDocument(CppEditorDocumentHandle *editorDocument)
 {
     QTC_ASSERT(editorDocument, return);
     const QString filePath = editorDocument->filePath();
     QTC_ASSERT(!filePath.isEmpty(), return);
 
-    QMutexLocker locker(&d->m_cppEditorsMutex);
-    QTC_ASSERT(d->m_cppEditors.value(filePath, 0) == 0, return);
-    d->m_cppEditors.insert(filePath, editorDocument);
+    QMutexLocker locker(&d->m_cppEditorDocumentsMutex);
+    QTC_ASSERT(d->m_cppEditorDocuments.value(filePath, 0) == 0, return);
+    d->m_cppEditorDocuments.insert(filePath, editorDocument);
 }
 
-void CppModelManager::unregisterEditorDocument(const QString &filePath)
+void CppModelManager::unregisterCppEditorDocument(const QString &filePath)
 {
     QTC_ASSERT(!filePath.isEmpty(), return);
 
@@ -490,10 +490,10 @@ void CppModelManager::unregisterEditorDocument(const QString &filePath)
     int openCppDocuments = 0;
 
     {
-        QMutexLocker locker(&d->m_cppEditorsMutex);
-        QTC_ASSERT(d->m_cppEditors.value(filePath, 0), return);
-        QTC_CHECK(d->m_cppEditors.remove(filePath) == 1);
-        openCppDocuments = d->m_cppEditors.size();
+        QMutexLocker locker(&d->m_cppEditorDocumentsMutex);
+        QTC_ASSERT(d->m_cppEditorDocuments.value(filePath, 0), return);
+        QTC_CHECK(d->m_cppEditorDocuments.remove(filePath) == 1);
+        openCppDocuments = d->m_cppEditorDocuments.size();
     }
 
     ++closedCppDocuments;
@@ -542,8 +542,11 @@ WorkingCopy CppModelManager::buildWorkingCopyList()
 {
     WorkingCopy workingCopy;
 
-    foreach (const EditorDocumentHandle *cppEditor, cppEditors())
-        workingCopy.insert(cppEditor->filePath(), cppEditor->contents(), cppEditor->revision());
+    foreach (const CppEditorDocumentHandle *cppEditorDocument, cppEditorDocuments()) {
+        workingCopy.insert(cppEditorDocument->filePath(),
+                           cppEditorDocument->contents(),
+                           cppEditorDocument->revision());
+    }
 
     QSetIterator<AbstractEditorSupport *> it(d->m_extraEditorSupports);
     while (it.hasNext()) {
@@ -608,10 +611,10 @@ void CppModelManager::removeProjectInfoFilesAndIncludesFromSnapshot(const Projec
     }
 }
 
-QList<EditorDocumentHandle *> CppModelManager::cppEditors() const
+QList<CppEditorDocumentHandle *> CppModelManager::cppEditorDocuments() const
 {
-    QMutexLocker locker(&d->m_cppEditorsMutex);
-    return d->m_cppEditors.values();
+    QMutexLocker locker(&d->m_cppEditorDocumentsMutex);
+    return d->m_cppEditorDocuments.values();
 }
 
 /// \brief Remove all given files from the snapshot.
@@ -699,9 +702,10 @@ void CppModelManager::updateCppEditorDocuments() const
     QSet<Core::IDocument *> visibleCppEditorDocuments;
     foreach (Core::IEditor *editor, Core::EditorManager::visibleEditors()) {
         if (Core::IDocument *document = editor->document()) {
-            if (EditorDocumentHandle *cppEditorDocument = editorDocument(document->filePath().toString())) {
+            const QString filePath = document->filePath().toString();
+            if (CppEditorDocumentHandle *theCppEditorDocument = cppEditorDocument(filePath)) {
                 visibleCppEditorDocuments.insert(document);
-                cppEditorDocument->processor()->run();
+                theCppEditorDocument->processor()->run();
             }
         }
     }
@@ -711,8 +715,9 @@ void CppModelManager::updateCppEditorDocuments() const
         = Core::DocumentModel::openedDocuments().toSet();
     invisibleCppEditorDocuments.subtract(visibleCppEditorDocuments);
     foreach (Core::IDocument *document, invisibleCppEditorDocuments) {
-        if (EditorDocumentHandle *cppEditorDocument = editorDocument(document->filePath().toString()))
-            cppEditorDocument->setNeedsRefresh(true);
+        const QString filePath = document->filePath().toString();
+        if (CppEditorDocumentHandle *theCppEditorDocument = cppEditorDocument(filePath))
+            theCppEditorDocument->setNeedsRefresh(true);
     }
 }
 
@@ -887,11 +892,11 @@ void CppModelManager::onCurrentEditorChanged(Core::IEditor *editor)
     if (!editor || !editor->document())
         return;
 
-    if (EditorDocumentHandle *cppEditorDocument =
-            editorDocument(editor->document()->filePath().toString())) {
-        if (cppEditorDocument->needsRefresh()) {
-            cppEditorDocument->setNeedsRefresh(false);
-            cppEditorDocument->processor()->run();
+    const QString filePath = editor->document()->filePath().toString();
+    if (CppEditorDocumentHandle *theCppEditorDocument = cppEditorDocument(filePath)) {
+        if (theCppEditorDocument->needsRefresh()) {
+            theCppEditorDocument->setNeedsRefresh(false);
+            theCppEditorDocument->processor()->run();
         }
     }
 }
@@ -955,8 +960,8 @@ void CppModelManager::GC()
 
     // Collect files of opened editors and editor supports (e.g. ui code model)
     QStringList filesInEditorSupports;
-    foreach (const EditorDocumentHandle *cppEditor, cppEditors())
-        filesInEditorSupports << cppEditor->filePath();
+    foreach (const CppEditorDocumentHandle *editorDocument, cppEditorDocuments())
+        filesInEditorSupports << editorDocument->filePath();
 
     QSetIterator<AbstractEditorSupport *> jt(d->m_extraEditorSupports);
     while (jt.hasNext()) {

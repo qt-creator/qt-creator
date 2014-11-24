@@ -36,11 +36,11 @@
 
 namespace CppTools {
 
-class CPPTOOLS_EXPORT EditorDocumentHandle
+class CPPTOOLS_EXPORT CppEditorDocumentHandle
 {
 public:
-    EditorDocumentHandle();
-    virtual ~EditorDocumentHandle();
+    CppEditorDocumentHandle();
+    virtual ~CppEditorDocumentHandle();
 
     bool needsRefresh() const;
     void setNeedsRefresh(bool needsRefresh);

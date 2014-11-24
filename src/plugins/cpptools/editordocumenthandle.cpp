@@ -39,21 +39,21 @@ namespace CppTools {
            C++ editor document.
 */
 
-EditorDocumentHandle::EditorDocumentHandle()
+CppEditorDocumentHandle::CppEditorDocumentHandle()
     : m_needsRefresh(false)
 {
 }
 
-EditorDocumentHandle::~EditorDocumentHandle()
+CppEditorDocumentHandle::~CppEditorDocumentHandle()
 {
 }
 
-bool EditorDocumentHandle::needsRefresh() const
+bool CppEditorDocumentHandle::needsRefresh() const
 {
     return m_needsRefresh;
 }
 
-void EditorDocumentHandle::setNeedsRefresh(bool needsRefresh)
+void CppEditorDocumentHandle::setNeedsRefresh(bool needsRefresh)
 {
     m_needsRefresh = needsRefresh;
 }

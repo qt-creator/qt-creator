@@ -55,7 +55,7 @@ namespace CppTools {
 class AbstractEditorSupport;
 class BaseEditorDocumentProcessor;
 class CppCompletionAssistProvider;
-class EditorDocumentHandle;
+class CppEditorDocumentHandle;
 class CppIndexingSupport;
 class ModelManagerSupport;
 class WorkingCopy;
@@ -117,9 +117,9 @@ public:
     void addExtraEditorSupport(AbstractEditorSupport *editorSupport);
     void removeExtraEditorSupport(AbstractEditorSupport *editorSupport);
 
-    EditorDocumentHandle *editorDocument(const QString &filePath) const;
-    void registerEditorDocument(EditorDocumentHandle *editorDocument);
-    void unregisterEditorDocument(const QString &filePath);
+    CppEditorDocumentHandle *cppEditorDocument(const QString &filePath) const;
+    void registerCppEditorDocument(CppEditorDocumentHandle *cppEditorDocument);
+    void unregisterCppEditorDocument(const QString &filePath);
 
     QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
@@ -198,7 +198,7 @@ private:
     void removeFilesFromSnapshot(const QSet<QString> &removedFiles);
     void removeProjectInfoFilesAndIncludesFromSnapshot(const ProjectInfo &projectInfo);
 
-    QList<EditorDocumentHandle *> cppEditors() const;
+    QList<CppEditorDocumentHandle *> cppEditorDocuments() const;
 
     WorkingCopy buildWorkingCopyList();
 

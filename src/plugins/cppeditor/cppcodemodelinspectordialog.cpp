@@ -1362,10 +1362,10 @@ void CppCodeModelInspectorDialog::refresh()
     dumper.dumpSnapshot(globalSnapshot, globalSnapshotTitle, /*isGlobalSnapshot=*/ true);
 
     TextEditor::BaseTextEditor *editor = currentEditor();
-    EditorDocumentHandle *editorDocument = 0;
+    CppEditorDocumentHandle *cppEditorDocument = 0;
     if (editor) {
         const QString editorFilePath = editor->document()->filePath().toString();
-        editorDocument = cmmi->editorDocument(editorFilePath);
+        cppEditorDocument = cmmi->cppEditorDocument(editorFilePath);
         if (auto *documentProcessor = BaseEditorDocumentProcessor::get(editorFilePath)) {
             const CPlusPlus::Snapshot editorSnapshot = documentProcessor->snapshot();
             m_snapshotInfos->append(SnapshotInfo(editorSnapshot, SnapshotInfo::EditorSnapshot));
@@ -1416,8 +1416,8 @@ void CppCodeModelInspectorDialog::refresh()
     onSnapshotSelected(snapshotIndex);
 
     // Project Parts
-    const ProjectPart::Ptr editorsProjectPart = editorDocument
-        ? editorDocument->processor()->parser()->projectPart()
+    const ProjectPart::Ptr editorsProjectPart = cppEditorDocument
+        ? cppEditorDocument->processor()->parser()->projectPart()
         : ProjectPart::Ptr();
 
     const QList<ProjectInfo> projectInfos = cmmi->projectInfos();
