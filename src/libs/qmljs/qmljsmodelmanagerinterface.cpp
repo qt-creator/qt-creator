@@ -1324,6 +1324,8 @@ LibraryInfo ModelManagerInterface::builtins(const Document::Ptr &doc) const
     ProjectInfo info = projectInfoForPath(doc->path());
     if (!info.isValid())
         return LibraryInfo();
+    if (!info.qtQmlPath.isEmpty())
+        return m_validSnapshot.libraryInfo(info.qtQmlPath);
     return m_validSnapshot.libraryInfo(info.qtImportsPath);
 }
 
