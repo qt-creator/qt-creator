@@ -207,6 +207,7 @@ void CppEditorDocument::onFilePathChanged(const QString &oldPath, const QString 
         connect(this, SIGNAL(contentsChanged()), this, SLOT(scheduleProcessDocument()));
 
         // Un-Register/Register in ModelManager
+        m_editorDocumentHandle.reset();
         m_editorDocumentHandle.reset(new CppEditorDocumentHandle(this));
 
         resetProcessor();
