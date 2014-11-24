@@ -461,7 +461,7 @@ void PluginDumper::dump(const Plugin &plugin)
     if (plugin.importUri.isEmpty())
         return; // dumping with --path always fails
     if (info.qmlDumpHasRelocatableFlag)
-        args << QLatin1String("-relocatable");
+        args << QLatin1String("-nonrelocatable");
     args << plugin.importUri;
     args << plugin.importVersion;
     args << plugin.importPath;
