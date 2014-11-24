@@ -52,13 +52,10 @@ class ProjectExplorerPlugin;
 } // namespace ProjectExplorer
 
 namespace QbsProjectManager {
-
 namespace Internal {
+class DefaultPropertyProvider;
 class QbsLogSink;
 class QbsProject;
-} // namespace Internal
-
-class DefaultPropertyProvider;
 
 class QbsManager : public ProjectExplorer::IProjectManager
 {
@@ -89,7 +86,7 @@ private:
     void handleKitUpdate(ProjectExplorer::Kit *kit);
     void handleKitRemoval(ProjectExplorer::Kit *kit);
 
-    static Internal::QbsLogSink *m_logSink;
+    static QbsLogSink *m_logSink;
     static qbs::Settings *m_settings;
 
     DefaultPropertyProvider *m_defaultPropertyProvider;
@@ -97,6 +94,7 @@ private:
     static QbsManager *m_instance;
 };
 
+} // namespace Internal
 } // namespace QbsProjectManager
 
 #endif // QBSPROJECTMANAGER_H

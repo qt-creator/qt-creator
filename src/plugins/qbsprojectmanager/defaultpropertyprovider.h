@@ -34,6 +34,7 @@
 #include "propertyprovider.h"
 
 namespace QbsProjectManager {
+namespace Internal {
 
 class DefaultPropertyProvider : public PropertyProvider
 {
@@ -48,6 +49,7 @@ private:
                                         const QVariantMap &defaultData) const;
 };
 
+} // namespace Internal
 } // namespace QbsProjectManager
 
 #endif // DEFAULTPROPERTYPROVIDER_H

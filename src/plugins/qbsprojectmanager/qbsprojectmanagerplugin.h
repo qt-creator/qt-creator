@@ -48,8 +48,6 @@ class Target;
 } // namespace ProjectExplorer
 
 namespace QbsProjectManager {
-class QbsManager;
-
 namespace Internal {
 
 class QbsProject;

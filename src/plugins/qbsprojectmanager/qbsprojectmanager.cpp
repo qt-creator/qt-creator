@@ -57,6 +57,7 @@ static QString qtcProfileGroup() { return QLatin1String("preferences.qtcreator.k
 static QString qtcProfilePrefix() { return qtcProfileGroup() + sep; }
 
 namespace QbsProjectManager {
+namespace Internal {
 
 qbs::Settings *QbsManager::m_settings = 0;
 Internal::QbsLogSink *QbsManager::m_logSink = 0;
@@ -78,7 +79,7 @@ QbsManager::QbsManager() :
     connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitRemoved, this,
             &QbsManager::handleKitRemoval);
 
-    m_logSink = new Internal::QbsLogSink(this);
+    m_logSink = new QbsLogSink(this);
     int level = qbs::LoggerWarning;
     const QString levelEnv = QString::fromLocal8Bit(qgetenv("QBS_LOG_LEVEL"));
     if (!levelEnv.isEmpty()) {
@@ -116,7 +117,7 @@ ProjectExplorer::Project *QbsManager::openProject(const QString &fileName, QStri
         return 0;
     }
 
-    return new Internal::QbsProject(this, fileName);
+    return new QbsProject(this, fileName);
 }
 
 QString QbsManager::profileForKit(const ProjectExplorer::Kit *k)
@@ -221,4 +222,5 @@ void QbsManager::handleKitRemoval(ProjectExplorer::Kit *kit)
     qbs::Profile(profileName, m_settings).removeProfile();
 }
 
+} // namespace Internal
 } // namespace QbsProjectManager
