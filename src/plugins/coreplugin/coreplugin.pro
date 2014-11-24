@@ -6,7 +6,6 @@ QT += help \
     sql
 
 include(../../qtcreatorplugin.pri)
-include(../../shared/scriptwrapper/scriptwrapper.pri)
 win32-msvc*:QMAKE_CXXFLAGS += -wd4251 -wd4290 -wd4250
 SOURCES += corejsextensions.cpp \
     mainwindow.cpp \
