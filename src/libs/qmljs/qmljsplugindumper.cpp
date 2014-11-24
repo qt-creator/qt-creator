@@ -435,6 +435,9 @@ void PluginDumper::dump(const Plugin &plugin)
         return;
     }
 
+    if (plugin.importUri.isEmpty())
+        return; // initial scan without uri, ignore
+
     if (!info.tryQmlDump || info.qmlDumpPath.isEmpty()) {
         if (!libraryInfo.isValid())
             return;
@@ -459,8 +462,6 @@ void PluginDumper::dump(const Plugin &plugin)
     connect(process, SIGNAL(finished(int)), SLOT(qmlPluginTypeDumpDone(int)));
     connect(process, SIGNAL(error(QProcess::ProcessError)), SLOT(qmlPluginTypeDumpError(QProcess::ProcessError)));
     QStringList args;
-    if (plugin.importUri.isEmpty())
-        return; // dumping with --path always fails
     if (info.qmlDumpHasRelocatableFlag)
         args << QLatin1String("-nonrelocatable");
     args << plugin.importUri;
