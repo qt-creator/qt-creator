@@ -307,10 +307,12 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
         return;
     const Snapshot snapshot = m_modelManager->snapshot();
     LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);
+    bool privatePlugin = libraryPath.endsWith(QLatin1String("private"));
 
     if (exitCode != 0) {
         const QString errorMessages = qmlPluginDumpErrorMessage(process);
-        ModelManagerInterface::writeWarning(qmldumpErrorMessage(libraryPath, errorMessages));
+        if (!privatePlugin)
+            ModelManagerInterface::writeWarning(qmldumpErrorMessage(libraryPath, errorMessages));
         libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError, qmldumpFailedMessage(libraryPath, errorMessages));
     }
 
@@ -325,7 +327,8 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
         if (!error.isEmpty()) {
             libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError,
                                                 qmldumpErrorMessage(libraryPath, error));
-            printParseWarnings(libraryPath, libraryInfo.pluginTypeInfoError());
+            if (!privatePlugin)
+                printParseWarnings(libraryPath, libraryInfo.pluginTypeInfoError());
         } else {
             libraryInfo.setMetaObjects(objectsList.values());
             libraryInfo.setModuleApis(moduleApis);
@@ -350,16 +353,14 @@ void PluginDumper::qmlPluginTypeDumpError(QProcess::ProcessError)
     const QString libraryPath = m_runningQmldumps.take(process);
     if (libraryPath.isEmpty())
         return;
-
     const QString errorMessages = qmlPluginDumpErrorMessage(process);
-    ModelManagerInterface::writeWarning(qmldumpErrorMessage(libraryPath, errorMessages));
-    if (!libraryPath.isEmpty()) {
-        const Snapshot snapshot = m_modelManager->snapshot();
-        LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);
-        libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError, qmldumpFailedMessage(libraryPath, errorMessages));
-        libraryInfo.updateFingerprint();
-        m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
-    }
+    const Snapshot snapshot = m_modelManager->snapshot();
+    LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);
+    if (!libraryPath.endsWith(QLatin1String("private"), Qt::CaseInsensitive))
+        ModelManagerInterface::writeWarning(qmldumpErrorMessage(libraryPath, errorMessages));
+    libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError, qmldumpFailedMessage(libraryPath, errorMessages));
+    libraryInfo.updateFingerprint();
+    m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
 }
 
 void PluginDumper::pluginChanged(const QString &pluginLibrary)

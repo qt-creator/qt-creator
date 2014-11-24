@@ -487,8 +487,10 @@ bool LinkPrivate::importLibrary(Document::Ptr doc,
         } else if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::DumpError
                    || libraryInfo.pluginTypeInfoStatus() == LibraryInfo::TypeInfoFileError) {
             // Only underline import if package isn't described in .qmltypes anyway
+            // and is not a private package
             QString packageName = importInfo.name();
-            if (errorLoc.isValid() && (packageName.isEmpty() || !valueOwner->cppQmlTypes().hasModule(packageName))) {
+            if (errorLoc.isValid() && (packageName.isEmpty() || !valueOwner->cppQmlTypes().hasModule(packageName))
+                    && !packageName.endsWith(QLatin1String("private"), Qt::CaseInsensitive)) {
                 error(doc, errorLoc, libraryInfo.pluginTypeInfoError());
                 import->valid = false;
             }
