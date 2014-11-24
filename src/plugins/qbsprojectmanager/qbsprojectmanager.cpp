@@ -116,7 +116,7 @@ ProjectExplorer::Project *QbsManager::openProject(const QString &fileName, QStri
     return new Internal::QbsProject(this, fileName);
 }
 
-QString QbsManager::profileForKit(ProjectExplorer::Kit *k)
+QString QbsManager::profileForKit(const ProjectExplorer::Kit *k)
 {
     if (!k)
         return QString();
@@ -129,9 +129,11 @@ void QbsManager::setProfileForKit(const QString &name, const ProjectExplorer::Ki
     m_settings->setValue(qtcProfilePrefix() + k->id().toString(), name);
 }
 
-void QbsManager::updateProfileIfNecessary(ProjectExplorer::Kit *kit)
+void QbsManager::updateProfileIfNecessary(const ProjectExplorer::Kit *kit)
 {
-    if (m_kitsToBeSetupForQbs.removeOne(kit)) // kit in list <=> yes, it is necessary
+    // kit in list <=> profile update is necessary
+    // Note that the const_cast is safe, as we do not call any non-const methods on the object.
+    if (m_kitsToBeSetupForQbs.removeOne(const_cast<ProjectExplorer::Kit *>(kit)))
         addProfileFromKit(kit);
 }
 
