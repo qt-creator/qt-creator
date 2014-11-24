@@ -165,6 +165,7 @@ private slots:
     void buildConfigurationSelected();
     void linkQmlDebuggingLibraryChecked(bool checked);
     void useQtQuickCompilerChecked(bool checked);
+    void askForRebuild();
 
 private slots:
     void recompileMessageBoxFinished(int button);
@@ -174,7 +175,6 @@ private:
     void updateQmlDebuggingOption();
     void updateQtQuickCompilerOption();
     void updateEffectiveQMakeCall();
-    void askForRebuild();
 
     void setSummaryText(const QString &);
 

@@ -64,6 +64,12 @@ class CodepasterPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CodePaster.json")
 
 public:
+    enum PasteSource {
+        PasteEditor = 0x1,
+        PasteClipboard = 0x2
+    };
+    Q_DECLARE_FLAGS(PasteSources, PasteSource)
+
     CodepasterPlugin();
     ~CodepasterPlugin();
 
@@ -74,14 +80,14 @@ public:
     static CodepasterPlugin *instance();
 
 public slots:
-    void postEditor();
-    void postClipboard();
+    void pasteSnippet();
     void fetch();
     void finishPost(const QString &link);
     void finishFetch(const QString &titleDescription,
                      const QString &content,
                      bool error);
 
+    void post(PasteSources pasteSources);
     void post(QString data, const QString &mimeType);
     void fetchUrl();
 private:
@@ -89,13 +95,14 @@ private:
     static CodepasterPlugin *m_instance;
     const QSharedPointer<Settings> m_settings;
     QAction *m_postEditorAction;
-    QAction *m_postClipboardAction;
     QAction *m_fetchAction;
     QAction *m_fetchUrlAction;
     QList<Protocol*> m_protocols;
     QStringList m_fetchedSnippets;
     Protocol *m_urlOpen;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(CodepasterPlugin::PasteSources)
 
 } // namespace CodePaster
 

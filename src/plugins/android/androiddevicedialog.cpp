@@ -213,7 +213,7 @@ public:
 class AndroidDeviceModel : public QAbstractItemModel
 {
 public:
-    AndroidDeviceModel(int apiLevel, const QString &abi);
+    AndroidDeviceModel(int apiLevel, const QString &abi, AndroidConfigurations::Options options);
     QModelIndex index(int row, int column,
                       const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &child) const;
@@ -229,6 +229,7 @@ public:
 private:
     int m_apiLevel;
     QString m_abi;
+    AndroidConfigurations::Options m_options;
     AndroidDeviceModelNode *m_root;
 };
 
@@ -237,8 +238,8 @@ private:
 /////////////////
 // AndroidDeviceModel
 /////////////////
-AndroidDeviceModel::AndroidDeviceModel(int apiLevel, const QString &abi)
-    : m_apiLevel(apiLevel), m_abi(abi), m_root(0)
+AndroidDeviceModel::AndroidDeviceModel(int apiLevel, const QString &abi, AndroidConfigurations::Options options)
+    : m_apiLevel(apiLevel), m_abi(abi), m_options(options), m_root(0)
 {
 }
 
@@ -347,6 +348,8 @@ void AndroidDeviceModel::setDevices(const QVector<AndroidDeviceInfo> &devices)
         } else if (device.sdk < m_apiLevel) {
             error = AndroidDeviceDialog::tr("API Level of device is: %1.")
                     .arg(device.sdk);
+        } else if (device.sdk > 20 && (m_options & AndroidConfigurations::FilterAndroid5)) {
+            error = AndroidDeviceDialog::tr("Android 5 devices are incompatible with deploying Qt to a temporary directory.");
         } else {
             new AndroidDeviceModelNode(compatibleDevices, device);
             continue;
@@ -386,9 +389,9 @@ static inline QString msgAdbListDevices()
     return AndroidDeviceDialog::tr("<p>The adb tool in the Android SDK lists all connected devices if run via &quot;adb devices&quot;.</p>");
 }
 
-AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, QWidget *parent) :
+AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, AndroidConfigurations::Options options, QWidget *parent) :
     QDialog(parent),
-    m_model(new AndroidDeviceModel(apiLevel, abi)),
+    m_model(new AndroidDeviceModel(apiLevel, abi, options)),
     m_ui(new Ui::AndroidDeviceDialog),
     m_apiLevel(apiLevel),
     m_abi(abi)

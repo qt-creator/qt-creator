@@ -133,8 +133,10 @@ MercurialPlugin::~MercurialPlugin()
 
 bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * /*errorMessage */)
 {
+    Core::Context context(Constants::MERCURIAL_CONTEXT);
+
     m_client = new MercurialClient(&mercurialSettings);
-    initializeVcs(new MercurialControl(m_client));
+    initializeVcs(new MercurialControl(m_client), context);
 
     optionsPage = new OptionsPage();
     addAutoReleasedObject(optionsPage);
@@ -166,7 +168,7 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
     m_commandLocator = new Core::CommandLocator("Mercurial", prefix, prefix);
     addAutoReleasedObject(m_commandLocator);
 
-    createMenu();
+    createMenu(context);
 
     createSubmitEditorActions();
 
@@ -186,10 +188,8 @@ void MercurialPlugin::setSettings(const MercurialSettings &settings)
     }
 }
 
-void MercurialPlugin::createMenu()
+void MercurialPlugin::createMenu(const Core::Context &context)
 {
-    Core::Context context(Core::Constants::C_GLOBAL);
-
     // Create menu item for Mercurial
     m_mercurialContainer = Core::ActionManager::createMenu("Mercurial.MercurialMenu");
     QMenu *menu = m_mercurialContainer->menu();
@@ -659,13 +659,11 @@ void MercurialPlugin::createRepositoryManagementActions(const Core::Context &con
 void MercurialPlugin::updateActions(VcsBasePlugin::ActionState as)
 {
     if (!enableMenuAction(as, m_menuAction)) {
-        m_mercurialContainer->setEnabled(false);
         m_commandLocator->setEnabled(false);
         return;
     }
     const QString filename = currentState().currentFileName();
     const bool repoEnabled = currentState().hasTopLevel();
-    m_mercurialContainer->setEnabled(repoEnabled);
     m_commandLocator->setEnabled(repoEnabled);
 
     annotateFile->setParameter(filename);

@@ -1,1 +1,1 @@
-%{FormContents}\
+%{JS: [ %{FormContents} ].join('\n')}\

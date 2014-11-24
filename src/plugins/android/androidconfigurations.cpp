@@ -210,7 +210,7 @@ void AndroidConfig::load(const QSettings &settings)
     m_sdkLocation = FileName::fromString(settings.value(SDKLocationKey).toString());
     m_ndkLocation = FileName::fromString(settings.value(NDKLocationKey).toString());
     m_antLocation = FileName::fromString(settings.value(AntLocationKey).toString());
-    m_useGradle = settings.value(UseGradleKey, true).toBool();
+    m_useGradle = settings.value(UseGradleKey, false).toBool();
     m_openJDKLocation = FileName::fromString(settings.value(OpenJDKLocationKey).toString());
     m_keystoreLocation = FileName::fromString(settings.value(KeystoreLocationKey).toString());
     m_toolchainHost = settings.value(ToolchainHostKey).toString();
@@ -244,7 +244,7 @@ void AndroidConfig::load(const QSettings &settings)
 }
 
 AndroidConfig::AndroidConfig()
-    : m_useGradle(true),
+    : m_useGradle(false),
       m_availableSdkPlatformsUpToDate(false),
       m_NdkInformationUpToDate(false)
 {
@@ -840,6 +840,24 @@ bool AndroidConfig::hasFinishedBooting(const QString &device) const
 QStringList AndroidConfig::getAbis(const QString &device) const
 {
     QStringList result;
+    // First try via ro.product.cpu.abilist
+    QStringList arguments = AndroidDeviceInfo::adbSelector(device);
+    arguments << QLatin1String("shell") << QLatin1String("getprop");
+    arguments << QLatin1String("ro.product.cpu.abilist");
+    QProcess adbProc;
+    adbProc.start(adbToolPath().toString(), arguments);
+    if (!adbProc.waitForFinished(10000)) {
+        adbProc.kill();
+        return result;
+    }
+    QString output = QString::fromLocal8Bit(adbProc.readAll().trimmed());
+    if (!output.isEmpty()) {
+        QStringList result = output.split(QLatin1Char(','));
+        if (!result.isEmpty())
+            return result;
+    }
+
+    // Fall back to ro.product.cpu.abi, ro.product.cpu.abi2 ...
     for (int i = 1; i < 6; ++i) {
         QStringList arguments = AndroidDeviceInfo::adbSelector(device);
         arguments << QLatin1String("shell") << QLatin1String("getprop");
@@ -989,7 +1007,9 @@ void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
     emit m_instance->updated();
 }
 
-AndroidDeviceInfo AndroidConfigurations::showDeviceDialog(ProjectExplorer::Project *project, int apiLevel, const QString &abi)
+AndroidDeviceInfo AndroidConfigurations::showDeviceDialog(ProjectExplorer::Project *project,
+                                                          int apiLevel, const QString &abi,
+                                                          Options options)
 {
     QString serialNumber = defaultDevice(project, abi);
     if (!serialNumber.isEmpty()) {
@@ -1005,7 +1025,7 @@ AndroidDeviceInfo AndroidConfigurations::showDeviceDialog(ProjectExplorer::Proje
                 return info;
     }
 
-    AndroidDeviceDialog dialog(apiLevel, abi, Core::ICore::mainWindow());
+    AndroidDeviceDialog dialog(apiLevel, abi, options, Core::ICore::mainWindow());
     if (dialog.exec() == QDialog::Accepted) {
         AndroidDeviceInfo info = dialog.device();
         if (dialog.saveDeviceSelection()) {

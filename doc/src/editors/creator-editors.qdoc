@@ -1005,7 +1005,7 @@
     the URL in the \gui {General Messages} output pane.
 
     To paste any content that you copied to the clipboard, select \gui Tools >
-    \gui {Code Pasting} > \gui {Paste Clipboard}.
+    \gui {Code Pasting} > \gui {Paste Snippet}.
 
     To fetch a snippet of code from the server, select \gui{Tools} >
     \gui{Code Pasting} > \gui{Fetch Snippet} or press \key{Alt+C,Alt+F}. Select

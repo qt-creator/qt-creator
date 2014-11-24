@@ -61,7 +61,11 @@ void tst_fileutils::parentDir_data()
     QTest::newRow("/tmp/dir") << QString::fromLatin1("/tmp/dir") << QString::fromLatin1("/tmp") << QString();
     QTest::newRow("relative/path") << QString::fromLatin1("relative/path") << QString::fromLatin1("relative") << QString();
     QTest::newRow("relativepath") << QString::fromLatin1("relativepath") << QString::fromLatin1(".")
+#if QT_VERSION < QT_VERSION_CHECK(5, 4, 0)
                                   << QString::fromLatin1("see QTBUG-23892");
+#else
+                                  << QString();
+#endif
 
     // Windows stuff:
 #ifdef Q_OS_WIN

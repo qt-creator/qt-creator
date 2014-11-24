@@ -3632,43 +3632,16 @@ void GdbEngine::handleRegisterListValues(const GdbResponse &response)
 //
 //////////////////////////////////////////////////////////////////////
 
-//void GdbEngine::showToolTip()
-//{
-//    const QString expression = m_toolTipContext.expression;
-//    if (DebuggerToolTipManager::debug())
-//        qDebug() << "GdbEngine::showToolTip " << expression << m_toolTipContext.iname << m_toolTipContext;
-
-//    if (m_toolTipContext.iname.startsWith("tooltip")
-//        && (!boolSetting(UseToolTipsInMainEditor)
-//            || !watchHandler()->isValidToolTip(m_toolTipContext.iname))) {
-//        watchHandler()->removeData(m_toolTipContext.iname);
-//        return;
-//    }
-
-//    DebuggerToolTipManager::showToolTip(m_toolTipContext, this);
-//}
-
-void GdbEngine::resetLocation()
-{
-    m_toolTipContext.expression.clear();
-    DebuggerEngine::resetLocation();
-}
-
 bool GdbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editor,
     const DebuggerToolTipContext &context)
 {
-    if (state() != InferiorStopOk || !isCppEditor(editor)) {
-        //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED "
-        // " OR NOT A CPPEDITOR";
+    if (state() != InferiorStopOk || !isCppEditor(editor))
         return false;
-    }
-
-    m_toolTipContext = context;
-    //  qDebug() << "GdbEngine::setToolTipExpression2 " << exp << m_toolTipContext;
 
     UpdateParameters params;
     params.tryPartial = true;
     params.tooltipOnly = true;
+    params.tooltipExpression = context.expression;
     params.varList = context.iname;
     updateLocalsPython(params);
     return true;
@@ -3736,10 +3709,6 @@ void GdbEngine::rebuildWatchModel()
     showMessage(_("<Rebuild Watchmodel %1>").arg(count), LogMiscInput);
     showStatusMessage(tr("Finished retrieving data"), 400);
 
-    if (m_toolTipContext.isValid()) {
-        DebuggerToolTipManager::showToolTip(m_toolTipContext, this);
-        m_toolTipContext = DebuggerToolTipContext();
-    }
     DebuggerToolTipManager::updateEngine(this);
 }
 
@@ -4829,42 +4798,16 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
         + " displaystringlimit:"
         + action(DisplayStringLimit)->value().toByteArray();
 
-
+    // Re-create tooltip items that are not filters on existing local variables in
+    // the tooltip model.
     QByteArray watchers;
-    const QString fileName = stackHandler()->currentFrame().file;
-    const QString function = stackHandler()->currentFrame().function;
-    if (!fileName.isEmpty()) {
-        // Re-create tooltip items that are not filters on existing local variables in
-        // the tooltip model.
-        DebuggerToolTipContexts toolTips =
-            DebuggerToolTipManager::treeWidgetExpressions(this, fileName, function);
-
-        const QString currentExpression = m_toolTipContext.expression;
-        if (!currentExpression.isEmpty()) {
-            int currentIndex = -1;
-            for (int i = 0; i < toolTips.size(); ++i) {
-                if (toolTips.at(i).expression == currentExpression) {
-                    currentIndex = i;
-                    break;
-                }
-            }
-            if (currentIndex < 0) {
-                DebuggerToolTipContext context;
-                context.expression = currentExpression;
-                context.iname = tooltipIName(currentExpression);
-                toolTips.push_back(context);
-            }
-        }
-
-        foreach (const DebuggerToolTipContext &p, toolTips) {
-            if (p.iname.startsWith("tooltip")) {
-                if (!watchers.isEmpty())
-                    watchers += "##";
-                watchers += p.expression.toLatin1();
-                watchers += '#';
-                watchers += p.iname;
-            }
-        }
+    DebuggerToolTipContexts toolTips = DebuggerToolTipManager::pendingTooltips(this);
+    foreach (const DebuggerToolTipContext &p, toolTips) {
+        if (!watchers.isEmpty())
+            watchers += "##";
+        watchers += p.expression.toLatin1();
+        watchers += '#';
+        watchers += p.iname;
     }
 
     QHash<QByteArray, int> watcherNames = handler->watcherNames();

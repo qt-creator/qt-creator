@@ -51,10 +51,35 @@
     target: $object$
     $$
 }</snippet>
-<snippet group="QML" trigger="NumberAnimation" id="qml_numberanimationwithtargets" complement="with targets">NumberAnimation { targets: [$object$]; properties: "$name$"; duration: $200$ }</snippet>
-<snippet group="QML" trigger="NumberAnimation" id="qml_numberanimationwithtarget" complement="with target">NumberAnimation { target: $object$; property: "$name$"; duration: $200$; easing.type: Easing.$InOutQuad$ }</snippet>
-<snippet group="QML" trigger="PropertyAction" id="qml_propertyactionwithtargets" complement="with targets">PropertyAction { targets: [$object$]; properties: "$name$" }</snippet>
-<snippet group="QML" trigger="PropertyAction" id="qml_propertyactionwithtarget" complement="with target">PropertyAction { target: $object$; property: "$name$" }</snippet>
-<snippet group="QML" trigger="PauseAnimation" id="qml_pauseanimation">PauseAnimation { duration: $200$ }</snippet>
-<snippet group="QML" trigger="ColorAnimation" id="qml_coloranimation">ColorAnimation { from: $"white"$; to: $"black"$; duration: $200$ }</snippet>
+<snippet group="QML" trigger="NumberAnimation" id="qml_numberanimationwithtargets" complement="with targets">
+NumberAnimation {
+    targets: [$object$]
+    properties: "$name$"
+    duration: $200$
+}</snippet>
+<snippet group="QML" trigger="NumberAnimation" id="qml_numberanimationwithtarget" complement="with target">
+NumberAnimation {
+    target: $object$
+    property: "$name$"
+    duration: $200$
+    easing.type: Easing.$InOutQuad$
+}</snippet>
+<snippet group="QML" trigger="PropertyAction" id="qml_propertyactionwithtargets" complement="with targets">
+PropertyAction {
+    targets: [$object$]
+    properties: "$name$"
+}</snippet>
+<snippet group="QML" trigger="PropertyAction" id="qml_propertyactionwithtarget" complement="with target">
+PropertyAction {
+    target: $object$; property: "$name$" }</snippet>
+<snippet group="QML" trigger="PauseAnimation" id="qml_pauseanimation">
+PauseAnimation {
+    duration: $200$
+}</snippet>
+<snippet group="QML" trigger="ColorAnimation" id="qml_coloranimation">
+ColorAnimation {
+    from: $"white"$
+    to: $"black"$
+    duration: $200$
+}</snippet>
 </snippets>

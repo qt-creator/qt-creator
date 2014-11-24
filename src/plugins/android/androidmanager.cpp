@@ -308,7 +308,8 @@ QString AndroidManager::androidNameForApiLevel(int x)
     case 19:
         return QLatin1String("Android 4.4");
     case 20:
-        return QLatin1String("Android L"); // prelimary name?
+    case 21:
+        return QLatin1String("Android 5.0");
     default:
         return tr("Unknown Android version. API Level: %1").arg(QString::number(x));
     }
@@ -478,7 +479,7 @@ void AndroidManager::cleanLibsOnDevice(ProjectExplorer::Target *target)
     if (targetArch.isEmpty())
         return;
     int deviceAPILevel = AndroidManager::minimumSDK(target);
-    AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(target->project(), deviceAPILevel, targetArch);
+    AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(target->project(), deviceAPILevel, targetArch, AndroidConfigurations::None);
     if (info.serialNumber.isEmpty()) // aborted
         return;
 
@@ -508,7 +509,7 @@ void AndroidManager::installQASIPackage(ProjectExplorer::Target *target, const Q
     if (targetArch.isEmpty())
         return;
     int deviceAPILevel = AndroidManager::minimumSDK(target);
-    AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(target->project(), deviceAPILevel, targetArch);
+    AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(target->project(), deviceAPILevel, targetArch, AndroidConfigurations::None);
     if (info.serialNumber.isEmpty()) // aborted
         return;
 

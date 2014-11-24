@@ -125,6 +125,7 @@ def performMacroRenaming(newMacroName):
         type(cppEditorStr, "<Left>")
     invokeContextMenuItem(waitForObject(cppEditorStr), "Refactor",
                           "Rename Symbol Under Cursor")
+    waitForSearchResults()
     validateSearchResult(2)
     replaceLineEdit = waitForObject("{leftWidget={text='Replace with:' type='QLabel' "
                                     "unnamed='1' visible='1'} "

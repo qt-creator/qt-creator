@@ -149,6 +149,9 @@ public:
     LanguageFeatures languageFeatures() const { return _languageFeatures; }
     void setLanguageFeatures(LanguageFeatures features) { _languageFeatures = features; }
 
+    static int defaultRetryParseDeclarationLimit() { return 2; }
+    void setRetryParseDeclarationLimit(int limit) { _retryParseDeclarationLimit = limit; }
+
 private:
     struct PPLine {
         unsigned utf16charOffset;
@@ -210,6 +213,8 @@ private:
         Flags f;
     };
     LanguageFeatures _languageFeatures;
+
+    int _retryParseDeclarationLimit;
 };
 
 } // namespace CPlusPlus

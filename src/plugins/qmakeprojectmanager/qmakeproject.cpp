@@ -42,6 +42,7 @@
 #include "wizards/qtquickapp.h"
 
 #include <utils/algorithm.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -54,6 +55,7 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
 #include <proparser/qmakevfs.h>
 #include <qtsupport/profilereader.h>
 #include <qtsupport/qtkitinformation.h>
@@ -374,7 +376,6 @@ QmakeProject::~QmakeProject()
     m_codeModelFuture.cancel();
     m_asyncUpdateState = ShuttingDown;
     m_manager->unregisterProject(this);
-    delete m_qmakeVfs;
     delete m_projectFiles;
     m_cancelEvaluate = true;
     // Deleting the root node triggers a few things, make sure rootProjectNode
@@ -383,6 +384,7 @@ QmakeProject::~QmakeProject()
     m_rootProjectNode = 0;
     delete root;
     Q_ASSERT(m_qmakeGlobalsRefCnt == 0);
+    delete m_qmakeVfs;
 }
 
 void QmakeProject::updateFileList()
@@ -649,10 +651,8 @@ void QmakeProject::updateQmlJSCodeModel()
     // library then chances of the project being a QML project is quite high.
     // This assumption fails when there are no QDeclarativeEngine/QDeclarativeView (QtQuick 1)
     // or QQmlEngine/QQuickView (QtQuick 2) instances.
-    Core::Context pl(ProjectExplorer::Constants::LANG_CXX);
     if (hasQmlLib)
-        pl.add(ProjectExplorer::Constants::LANG_QMLJS);
-    setProjectLanguages(pl);
+        addProjectLanguage(ProjectExplorer::Constants::LANG_QMLJS);
 
     projectInfo.activeResourceFiles.removeDuplicates();
     projectInfo.allResourceFiles.removeDuplicates();
@@ -842,6 +842,11 @@ void QmakeProject::decrementPendingEvaluateFutures()
                     updateBoilerPlateCodeFiles(&qtQuickApp, path);
                 }
             }
+
+            ProjectExplorer::Node *node = ProjectExplorer::SessionManager::nodeForFile(Core::DocumentManager::currentFile());
+            if (node)
+                ProjectExplorerPlugin::setCurrentNode(node);
+
             m_checkForTemplateUpdate = false;
         }
 
@@ -1623,14 +1628,14 @@ bool QmakeProject::matchesKit(const Kit *kit)
     QList<QtSupport::BaseQtVersion *> parentQts;
     Utils::FileName filePath = projectFilePath();
     foreach (QtSupport::BaseQtVersion *version, QtSupport::QtVersionManager::validVersions()) {
-        if (version->isInSourceDirectory(filePath))
+        if (version->isSubProject(filePath))
             parentQts.append(version);
     }
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
     if (!parentQts.isEmpty())
         return parentQts.contains(version);
-    return true;
+    return false;
 }
 
 QString QmakeProject::executableFor(const QmakeProFileNode *node)
@@ -1668,6 +1673,11 @@ void QmakeProject::emitBuildDirectoryInitialized()
 ProjectImporter *QmakeProject::createProjectImporter() const
 {
     return new QmakeProjectImporter(projectFilePath().toString());
+}
+
+QmakeProject::AsyncUpdateState QmakeProject::asyncUpdateState() const
+{
+    return m_asyncUpdateState;
 }
 
 } // namespace QmakeProjectManager

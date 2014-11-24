@@ -10,16 +10,17 @@
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** conditions see http://www.qt.io/licensing.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
 ** rights.  These rights are described in the Digia Qt LGPL Exception
@@ -40,6 +41,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
@@ -55,15 +57,13 @@ void JsonKitsPage::initializePage()
 
     connect(wiz, &JsonWizard::filesReady, this, &JsonKitsPage::setupProjectFiles);
 
-    const QString platform = wiz->value(QLatin1String("Platform")).toString();
+    const QString platform = wiz->stringValue(QLatin1String("Platform"));
     const Core::FeatureSet preferred = Core::FeatureSet::fromStringList(wiz->value(QLatin1String("PreferredFeatures")).toStringList());
     const Core::FeatureSet required = Core::FeatureSet::fromStringList(wiz->value(QLatin1String("RequiredFeatures")).toStringList());
-    const QString path = wiz->expander()->expand(m_projectFilePath);
-
-    setProjectPath(path);
 
     setRequiredKitMatcher(KitMatcher([required](const Kit *k) { return k->hasFeatures(required); }));
     setPreferredKitMatcher(KitMatcher([platform, preferred](const Kit *k) { return k->hasPlatform(platform) && k->hasFeatures(preferred); }));
+    setProjectPath(wiz->expander()->expand(unexpandedProjectPath()));
 
     TargetSetupPage::initializePage();
 }
@@ -76,6 +76,16 @@ void JsonKitsPage::cleanupPage()
     disconnect(wiz, &JsonWizard::filesReady, this, 0);
 
     TargetSetupPage::cleanupPage();
+}
+
+void JsonKitsPage::setUnexpandedProjectPath(const QString &path)
+{
+    m_unexpandedProjectPath = path;
+}
+
+QString JsonKitsPage::unexpandedProjectPath() const
+{
+    return m_unexpandedProjectPath;
 }
 
 void JsonKitsPage::setupProjectFiles(const JsonWizard::GeneratorFiles &files)
@@ -96,18 +106,13 @@ void JsonKitsPage::setupProjectFiles(const JsonWizard::GeneratorFiles &files)
             if (mt.isNull())
                 continue;
 
-            foreach (IProjectManager *manager, managerList) {
-                if (manager->mimeType() == mt.type()) {
-                    project = manager->openProject(path, &errorMessage);
-                    break;
-                }
-            }
-
+            auto manager = Utils::findOrDefault(managerList, Utils::equal(&IProjectManager::mimeType, mt.type()));
+            project = manager ? manager->openProject(path, &errorMessage) : 0;
             if (project) {
-                bool success = setupProject(project);
-                if (success)
+                if (setupProject(project))
                     project->saveSettings();
                 delete project;
+                project = 0;
             }
         }
     }

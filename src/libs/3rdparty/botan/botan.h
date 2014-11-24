@@ -11,6 +11,7 @@
 #ifdef USE_SYSTEM_BOTAN
 #include <botan/auto_rng.h>
 #include <botan/cbc.h>
+#include <botan/ctr.h>
 #include <botan/der_enc.h>
 #include <botan/dh.h>
 #include <botan/dl_group.h>

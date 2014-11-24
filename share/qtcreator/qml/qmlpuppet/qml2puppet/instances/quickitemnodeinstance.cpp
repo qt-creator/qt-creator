@@ -36,6 +36,7 @@
 #include <QQuickView>
 #include <cmath>
 
+#include <private/qquicktext_p.h>
 #include <private/qquicktextinput_p.h>
 #include <private/qquicktextedit_p.h>
 
@@ -189,6 +190,21 @@ bool QuickItemNodeInstance::hasContent() const
         return true;
 
     return childItemsHaveContent(quickItem());
+}
+
+static void disableNativeTextRendering(QQuickItem *item)
+{
+    QQuickText *text = qobject_cast<QQuickText*>(item);
+    if (text)
+        text->setRenderType(QQuickText::QtRendering);
+
+    QQuickTextInput *textInput = qobject_cast<QQuickTextInput*>(item);
+    if (textInput)
+        textInput->setRenderType(QQuickTextInput::QtRendering);
+
+    QQuickTextEdit *textEdit = qobject_cast<QQuickTextEdit*>(item);
+    if (textEdit)
+        textEdit->setRenderType(QQuickTextEdit::QtRendering);
 }
 
 static void disableTextCursor(QQuickItem *item)
@@ -464,6 +480,7 @@ void QuickItemNodeInstance::updateDirtyNodesRecursive(QQuickItem *parentItem) co
             updateDirtyNodesRecursive(childItem);
     }
 
+    disableNativeTextRendering(parentItem);
     DesignerSupport::updateDirtyNode(parentItem);
 }
 

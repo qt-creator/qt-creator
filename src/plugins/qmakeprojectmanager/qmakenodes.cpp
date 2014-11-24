@@ -2026,6 +2026,11 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
     if (!m_readerExact)
         return;
 
+    if (m_project->asyncUpdateState() == QmakeProject::ShuttingDown) {
+        cleanupProFileReaders();
+        return;
+    }
+
     foreach (const QString &error, evalResult->errors)
         QmakeProject::proFileParseError(error);
 
@@ -2258,6 +2263,11 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
 
     updateUiFiles(buildDirectory);
 
+    cleanupProFileReaders();
+}
+
+void QmakeProFileNode::cleanupProFileReaders()
+{
     m_project->destroyProFileReader(m_readerExact);
     m_project->destroyProFileReader(m_readerCumulative);
 

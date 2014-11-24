@@ -476,14 +476,20 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
             this, SLOT(qmakeArgumentsLineEdited()));
     connect(m_ui->buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(buildConfigurationSelected()));
-    connect(m_ui->qmlDebuggingLibraryCheckBox, SIGNAL(toggled(bool)),
-            this, SLOT(linkQmlDebuggingLibraryChecked(bool)));
+    connect(m_ui->qmlDebuggingLibraryCheckBox, &QCheckBox::toggled,
+            this, &QMakeStepConfigWidget::linkQmlDebuggingLibraryChecked);
+    connect(m_ui->qmlDebuggingLibraryCheckBox, &QCheckBox::clicked,
+            this, &QMakeStepConfigWidget::askForRebuild);
     connect(m_ui->qtQuickCompilerCheckBox, &QAbstractButton::toggled,
             this, &QMakeStepConfigWidget::useQtQuickCompilerChecked);
+    connect(m_ui->qtQuickCompilerCheckBox, &QCheckBox::clicked,
+            this, &QMakeStepConfigWidget::askForRebuild);
     connect(step, SIGNAL(userArgumentsChanged()),
             this, SLOT(userArgumentsChanged()));
     connect(step, SIGNAL(linkQmlDebuggingLibraryChanged()),
             this, SLOT(linkQmlDebuggingLibraryChanged()));
+    connect(step->project(), &Project::projectLanguagesUpdated,
+            this, &QMakeStepConfigWidget::linkQmlDebuggingLibraryChanged);
     connect(step, &QMakeStep::useQtQuickCompilerChanged,
             this, &QMakeStepConfigWidget::useQtQuickCompilerChanged);
     connect(step->qmakeBuildConfiguration(), SIGNAL(qmakeBuildConfigurationChanged()),
@@ -603,7 +609,6 @@ void QMakeStepConfigWidget::linkQmlDebuggingLibraryChecked(bool checked)
     updateSummaryLabel();
     updateEffectiveQMakeCall();
     updateQmlDebuggingOption();
-    askForRebuild();
 }
 
 void QMakeStepConfigWidget::askForRebuild()
@@ -629,7 +634,6 @@ void QMakeStepConfigWidget::useQtQuickCompilerChecked(bool checked)
     updateSummaryLabel();
     updateEffectiveQMakeCall();
     updateQtQuickCompilerOption();
-    askForRebuild();
 }
 
 void QMakeStepConfigWidget::updateSummaryLabel()

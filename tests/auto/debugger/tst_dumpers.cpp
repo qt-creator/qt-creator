@@ -202,6 +202,13 @@ struct GccVersion : VersionBase
     {}
 };
 
+struct ClangVersion : VersionBase
+{
+    ClangVersion(int minimum = 0, int maximum = INT_MAX)
+        : VersionBase(minimum, maximum)
+    {}
+};
+
 struct GdbVersion : VersionBase
 {
     GdbVersion(int minimum = 0, int maximum = INT_MAX)
@@ -237,11 +244,12 @@ static QString toHex(const QString &str)
 
 struct Context
 {
-    Context() : qtVersion(0), gccVersion(0) {}
+    Context() : qtVersion(0), gccVersion(0), clangVersion(0) {}
 
     QByteArray nameSpace;
     int qtVersion;
     int gccVersion;
+    int clangVersion;
 };
 
 struct Name
@@ -449,6 +457,8 @@ struct CheckBase
     CheckBase() : enginesForCheck(AllEngines) {}
     mutable int enginesForCheck;
     mutable VersionBase debuggerVersionForCheck;
+    mutable VersionBase gccVersionForCheck;
+    mutable VersionBase clangVersionForCheck;
     mutable QtVersion qtVersionForCheck;
 };
 
@@ -467,11 +477,13 @@ struct Check : CheckBase
           expectedValue(value), expectedType(type)
     {}
 
-    bool matches(DebuggerEngine engine, int debuggerVersion, int qtVersion) const
+    bool matches(DebuggerEngine engine, int debuggerVersion, const Context &context) const
     {
         return (engine & enginesForCheck)
             && debuggerVersionForCheck.covers(debuggerVersion)
-            && qtVersionForCheck.covers(qtVersion);
+            && gccVersionForCheck.covers(context.gccVersion)
+            && clangVersionForCheck.covers(context.clangVersion)
+            && qtVersionForCheck.covers(context.qtVersion);
     }
 
     const Check &operator%(DebuggerEngine engine)
@@ -484,6 +496,27 @@ struct Check : CheckBase
     {
         enginesForCheck = GdbEngine;
         debuggerVersionForCheck = version;
+        return *this;
+    }
+
+    const Check &operator%(LldbVersion version)
+    {
+        enginesForCheck = LldbEngine;
+        debuggerVersionForCheck = version;
+        return *this;
+    }
+
+    const Check &operator%(GccVersion version)
+    {
+        enginesForCheck = GdbEngine;
+        gccVersionForCheck = version;
+        return *this;
+    }
+
+    const Check &operator%(ClangVersion version)
+    {
+        enginesForCheck = GdbEngine;
+        clangVersionForCheck = version;
         return *this;
     }
 
@@ -601,6 +634,7 @@ struct DataBase
     mutable LldbVersion neededLldbVersion;
     mutable QtVersion neededQtVersion;       // HEX! 0x50300
     mutable GccVersion neededGccVersion;     // DEC. 40702  for 4.7.2
+    mutable ClangVersion neededClangVersion; // DEC.
     mutable BoostVersion neededBoostVersion; // DEC. 105400 for 1.54.0
 };
 
@@ -635,6 +669,12 @@ public:
     const Data &operator+(const GccVersion &gccVersion) const
     {
         neededGccVersion = gccVersion;
+        return *this;
+    }
+
+    const Data &operator+(const ClangVersion &clangVersion) const
+    {
+        neededClangVersion = clangVersion;
         return *this;
     }
 
@@ -1085,15 +1125,20 @@ void tst_Dumpers::dumper()
             "\n{"
             "\n    int qtversion = " + (data.useQt ? "QT_VERSION" : "0") + ";"
             "\n#ifdef __GNUC__"
-            "\n    int gccversion = 0x10000 * __GNUC__ + 0x100 * __GNUC_MINOR__;"
+            "\n    int gccversion = 10000 * __GNUC__ + 100 * __GNUC_MINOR__;"
             "\n#else"
             "\n    int gccversion = 0;"
+            "\n#endif"
+            "\n#ifdef __clang__"
+            "\n    int clangversion = 10000 * __clang_major__ + 100 * __clang_minor__;"
+            "\n#else"
+            "\n    int clangversion = 0;"
             "\n#endif"
             "\n" + (data.useQHash ?
                 "\n#if QT_VERSION >= 0x050000"
                 "\nqt_qhash_seed.store(0);"
                 "\n#endif\n" : "") +
-            "\n    unused(&argc, &argv, &qtversion, &gccversion);\n"
+            "\n    unused(&argc, &argv, &qtversion, &gccversion, &clangversion);\n"
             "\n" + data.code +
             "\n    BREAK;"
             "\n    return 0;"
@@ -1302,6 +1347,8 @@ void tst_Dumpers::dumper()
             context.qtVersion = child["value"].toInt();
         else if (dummy.iname == "local.gccversion")
             context.gccVersion = child["value"].toInt();
+        else if (dummy.iname == "local.clangversion")
+            context.clangVersion = child["value"].toInt();
         else
             parseWatchData(expandedINames, dummy, child, &list);
     }
@@ -1317,7 +1364,7 @@ void tst_Dumpers::dumper()
             //qDebug() << "CHECKS" << i << check.iname;
             if ("local." + check.iname == item.iname) {
                 data.checks.removeAt(i);
-                if (check.matches(m_debuggerEngine, m_debuggerVersion, context.qtVersion)) {
+                if (check.matches(m_debuggerEngine, m_debuggerVersion, context)) {
                     //qDebug() << "USING MATCHING TEST FOR " << item.iname;
                     if (!check.expectedName.matches(item.name.toLatin1(), context)) {
                         qDebug() << "INAME        : " << item.iname;
@@ -1348,7 +1395,7 @@ void tst_Dumpers::dumper()
     if (!data.checks.isEmpty()) {
         for (int i = data.checks.size(); --i >= 0; ) {
             Check check = data.checks.at(i);
-            if (!check.matches(m_debuggerEngine, m_debuggerVersion, context.qtVersion))
+            if (!check.matches(m_debuggerEngine, m_debuggerVersion, context))
                 data.checks.removeAt(i);
         }
     }
@@ -4226,10 +4273,12 @@ void tst_Dumpers::dumper_data()
 
                // Known issue: Clang produces "std::vector<std::allocator<bool>>
                + Check("b0", "<0 items>", "std::vector<bool>") % GdbEngine
-               + Check("b0", "<0 items>", "std::vector<std::allocator<bool>>") % LldbEngine
+               + Check("b0", "<0 items>", "std::vector<bool>") % ClangVersion(600)
+               + Check("b0", "<0 items>", "std::vector<std::allocator<bool>>") % ClangVersion(0, 599)
 
                + Check("b1", "<5 items>", "std::vector<bool>") % GdbEngine
-               + Check("b1", "<5 items>", "std::vector<std::allocator<bool>>") % LldbEngine
+               + Check("b1", "<5 items>", "std::vector<bool>") % ClangVersion(600)
+               + Check("b1", "<5 items>", "std::vector<std::allocator<bool>>") % ClangVersion(0, 599)
                + Check("b1.0", "[0]", "1", "bool")
                + Check("b1.1", "[1]", "0", "bool")
                + Check("b1.2", "[2]", "0", "bool")
@@ -4237,13 +4286,14 @@ void tst_Dumpers::dumper_data()
                + Check("b1.4", "[4]", "0", "bool")
 
                + Check("b2", "<65 items>", "std::vector<bool>") % GdbEngine
-               + Check("b2", "<65 items>", "std::vector<std::allocator<bool>>") % LldbEngine
+               + Check("b2", "<65 items>", "std::vector<bool>") % ClangVersion(600)
+               + Check("b2", "<65 items>", "std::vector<std::allocator<bool>>") % ClangVersion(0, 599)
                + Check("b2.0", "[0]", "1", "bool")
                + Check("b2.64", "[64]", "1", "bool")
 
-               + Check("b3", "<300 items>", "std::vector<bool>") %
-GdbEngine
-               + Check("b3", "<300 items>", "std::vector<std::allocator<bool>>") % LldbEngine
+               + Check("b3", "<300 items>", "std::vector<bool>") % GdbEngine
+               + Check("b3", "<300 items>", "std::vector<bool>") % ClangVersion(600)
+               + Check("b3", "<300 items>", "std::vector<std::allocator<bool>>") % ClangVersion(0, 599)
                + Check("b3.0", "[0]", "0", "bool")
                + Check("b3.299", "[299]", "0", "bool");
 

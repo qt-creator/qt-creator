@@ -629,6 +629,11 @@ ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfoForPath(QSt
     return res;
 }
 
+bool ModelManagerInterface::isIdle() const
+{
+    return m_synchronizer.futures().isEmpty();
+}
+
 void ModelManagerInterface::emitDocumentChangedOnDisk(Document::Ptr doc)
 { emit documentChangedOnDisk(doc); }
 

@@ -199,7 +199,6 @@ private:
     void updateVersionWarning();
 
     Core::CommandLocator *m_commandLocator;
-    Core::ActionContainer *m_gitContainer;
 
     QAction *m_submitCurrentAction;
     QAction *m_diffSelectedFilesAction;

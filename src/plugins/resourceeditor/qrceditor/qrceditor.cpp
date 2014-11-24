@@ -136,6 +136,11 @@ bool QrcEditor::save()
     return m_treeview->save();
 }
 
+QString QrcEditor::contents() const
+{
+    return m_treeview->contents();
+}
+
 bool QrcEditor::isDirty()
 {
     return m_treeview->isDirty();

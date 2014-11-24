@@ -230,6 +230,7 @@ private slots:
     void updateActions();
     void updateContext();
     void runConfigurationConfigurationFinished();
+    void showRenameFileError();
 
 #ifdef WITH_TESTS
     void testAnsiFilterOutputParser_data();

@@ -50,12 +50,14 @@ class ResourceEditorDocument
   : public Core::IDocument
 {
     Q_OBJECT
+    Q_PROPERTY(QString plainText READ plainText STORED false) // For access by code pasters
 
 public:
     ResourceEditorDocument(ResourceEditorW *parent = 0);
 
     //IDocument
     bool save(QString *errorString, const QString &fileName, bool autoSave);
+    QString plainText() const;
     bool setContents(const QByteArray &contents);
     bool shouldAutoSave() const;
     bool isModified() const;

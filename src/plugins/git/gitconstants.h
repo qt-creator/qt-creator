@@ -47,6 +47,7 @@ const char GIT_COMMIT_TEXT_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git
 const char GIT_REBASE_EDITOR_ID[] = "Git Rebase Editor";
 const char GIT_REBASE_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Rebase Editor");
 
+const char GIT_CONTEXT[] = "Git Context";
 const char GITSUBMITEDITOR_ID[] = "Git Submit Editor";
 const char GITSUBMITEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Submit Editor");
 const char SUBMIT_CURRENT[] = "Git.SubmitCurrentLog";

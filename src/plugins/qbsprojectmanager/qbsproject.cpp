@@ -110,6 +110,7 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     m_qbsUpdateFutureInterface(0),
     m_parsingScheduled(false),
     m_cancelStatus(CancelStatusNone),
+    m_codeModelProjectInfo(this),
     m_currentBc(0)
 {
     m_parsingDelay.setInterval(1000); // delay parsing by 1s.
@@ -344,29 +345,32 @@ void QbsProject::invalidate()
     prepareForParsing();
 }
 
-qbs::BuildJob *QbsProject::build(const qbs::BuildOptions &opts, QStringList productNames)
+qbs::BuildJob *QbsProject::build(const qbs::BuildOptions &opts, QStringList productNames,
+                                 QString &error)
 {
-    if (!qbsProject().isValid() || isParsing())
-        return 0;
-    if (productNames.isEmpty()) {
-        return qbsProject().buildAllProducts(opts);
-    } else {
-        QList<qbs::ProductData> products;
-        foreach (const QString &productName, productNames) {
-            bool found = false;
-            foreach (const qbs::ProductData &data, qbsProjectData().allProducts()) {
-                if (uniqueProductName(data) == productName) {
-                    found = true;
-                    products.append(data);
-                    break;
-                }
-            }
-            if (!found)
-                return 0;
-        }
+    QTC_ASSERT(qbsProject().isValid(), return 0);
+    QTC_ASSERT(!isParsing(), return 0);
 
-        return qbsProject().buildSomeProducts(products, opts);
+    if (productNames.isEmpty())
+        return qbsProject().buildAllProducts(opts);
+
+    QList<qbs::ProductData> products;
+    foreach (const QString &productName, productNames) {
+        bool found = false;
+        foreach (const qbs::ProductData &data, qbsProjectData().allProducts()) {
+            if (uniqueProductName(data) == productName) {
+                found = true;
+                products.append(data);
+                break;
+            }
+        }
+        if (!found) {
+            error = QLatin1String("Cannot build: Selected products do not exist anymore."); // TODO: Use tr() in 3.4
+            return 0;
+        }
     }
+
+    return qbsProject().buildSomeProducts(products, opts);
 }
 
 qbs::CleanJob *QbsProject::clean(const qbs::CleanOptions &opts)
@@ -727,6 +731,8 @@ void QbsProject::updateCppCodeModel()
                 int pos = data.indexOf('=');
                 if (pos >= 0)
                     data[pos] = ' ';
+                else
+                    data.append(" 1"); // cpp.defines: [ "FOO" ] is considered to be "FOO=1"
                 grpDefines += (QByteArray("#define ") + data + '\n');
             }
             ppBuilder.setDefines(grpDefines);

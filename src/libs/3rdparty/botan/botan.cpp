@@ -40267,8 +40267,9 @@ EMSA2::EMSA2(HashFunction* hash_in) : hash(hash_in)
 
    if(hash_id == 0)
       {
+      const std::string hashName = hash->name();
       delete hash;
-      throw Encoding_Error("EMSA2 cannot be used with " + hash->name());
+      throw Encoding_Error("EMSA2 cannot be used with " + hashName);
       }
    }
 
@@ -44282,10 +44283,12 @@ Randpool::Randpool(BlockCipher* cipher_in,
       !cipher->valid_keylength(OUTPUT_LENGTH) ||
       !mac->valid_keylength(OUTPUT_LENGTH))
       {
+      const std::string cipherName = cipher->name();
+      const std::string macName = mac->name();
       delete cipher;
       delete mac;
       throw Internal_Error("Randpool: Invalid algorithm combination " +
-                           cipher->name() + "/" + mac->name());
+                           cipherName + "/" + macName);
       }
 
    buffer.resize(BLOCK_SIZE);

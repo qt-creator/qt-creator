@@ -47,19 +47,23 @@ class DebuggerEngine;
 
 namespace Internal {
 
+class StackFrame;
+
 class DebuggerToolTipContext
 {
 public:
     DebuggerToolTipContext();
     bool isValid() const { return !expression.isEmpty(); }
-    bool matchesFrame(const QString &frameFile, const QString &frameFunction) const;
+    bool matchesFrame(const StackFrame &frame) const;
     bool isSame(const DebuggerToolTipContext &other) const;
 
     QString fileName;
     int position;
     int line;
     int column;
-    QString function; //!< Optional function. This must be set by the engine as it is language-specific.
+    int scopeFromLine;
+    int scopeToLine;
+    QString function; //!< Optional, informational only.
     QString engineType;
     QDate creationDate;
 
@@ -83,12 +87,7 @@ public:
     static void updateEngine(DebuggerEngine *engine);
     static bool hasToolTips();
 
-    // Collect all expressions of DebuggerTreeViewToolTipWidget
-    static DebuggerToolTipContexts treeWidgetExpressions(DebuggerEngine *engine,
-        const QString &fileName, const QString &function = QString());
-
-    static void showToolTip(const DebuggerToolTipContext &context,
-                            DebuggerEngine *engine);
+    static DebuggerToolTipContexts pendingTooltips(DebuggerEngine *engine);
 
     virtual bool eventFilter(QObject *, QEvent *);
 
@@ -100,9 +99,12 @@ public:
     static void loadSessionData();
     static void saveSessionData();
     static void closeAllToolTips();
+    static void resetLocation();
 
 public slots:
     static void slotUpdateVisibleToolTips();
+    void slotItemIsExpanded(const QModelIndex &idx);
+    void slotColumnAdjustmentRequested();
 };
 
 } // namespace Internal

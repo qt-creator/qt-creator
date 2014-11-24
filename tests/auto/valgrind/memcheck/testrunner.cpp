@@ -49,7 +49,7 @@
 const QString appSrcDir(TESTRUNNER_SRC_DIR);
 const QString appBinDir(TESTRUNNER_APP_DIR);
 
-#define HEADER_LENGTH 29
+#define HEADER_LENGTH 30
 
 bool on64bit()
 {

@@ -98,6 +98,7 @@ void QbsInstallStep::run(QFutureInterface<bool> &fi)
 
     if (!m_job) {
         m_fi->reportResult(false);
+        emit finished();
         return;
     }
 
@@ -288,6 +289,11 @@ QbsInstallStepConfigWidget::QbsInstallStepConfigWidget(QbsInstallStep *step) :
     connect(project, SIGNAL(projectParsingDone(bool)), this, SLOT(updateState()));
 
     updateState();
+}
+
+QbsInstallStepConfigWidget::~QbsInstallStepConfigWidget()
+{
+    delete m_ui;
 }
 
 QString QbsInstallStepConfigWidget::summaryText() const

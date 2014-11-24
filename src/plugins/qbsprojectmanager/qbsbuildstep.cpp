@@ -381,10 +381,12 @@ void QbsBuildStep::build()
     options.setFilesToConsider(m_changedFiles);
     options.setActiveFileTags(m_activeFileTags);
 
-    m_job = qbsProject()->build(options, m_products);
-
+    QString error;
+    m_job = qbsProject()->build(options, m_products, error);
     if (!m_job) {
+        emit addOutput(error, ErrorMessageOutput);
         m_fi->reportResult(false);
+        emit finished();
         return;
     }
 
@@ -450,6 +452,11 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     connect(QtSupport::QtVersionManager::instance(), SIGNAL(dumpUpdatedFor(Utils::FileName)),
             this, SLOT(updateQmlDebuggingOption()));
     updateState();
+}
+
+QbsBuildStepConfigWidget::~QbsBuildStepConfigWidget()
+{
+    delete m_ui;
 }
 
 QString QbsBuildStepConfigWidget::summaryText() const

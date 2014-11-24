@@ -76,9 +76,7 @@ QString StringTable::insert(const QString &string)
 
 void StringTable::scheduleGC()
 {
-    QMutexLocker locker(&m_lock);
-
-    m_gcCountDown.start();
+    QMetaObject::invokeMethod(&m_gcCountDown, "start", Qt::QueuedConnection);
 }
 
 void StringTable::startGC()

@@ -65,7 +65,7 @@ static QString generatedProjectFilePath(const QList<JsonWizard::GeneratorFile> &
 static IWizardFactory::WizardKind wizardKind(JsonWizard *wiz)
 {
     IWizardFactory::WizardKind kind = IWizardFactory::ProjectWizard;
-    const QString kindStr = wiz->value(QLatin1String("kind")).toString();
+    const QString kindStr = wiz->stringValue(QLatin1String("kind"));
     if (kindStr == QLatin1String(Core::Constants::WIZARD_KIND_PROJECT))
         kind = IWizardFactory::ProjectWizard;
     else if (kindStr == QLatin1String(Core::Constants::WIZARD_KIND_CLASS))
@@ -108,18 +108,23 @@ void JsonSummaryPage::initializePage()
     IWizardFactory::WizardKind kind = wizardKind(m_wizard);
     bool isProject = (kind == IWizardFactory::ProjectWizard);
 
-    QStringList projectFiles;
+    QStringList files;
     if (isProject) {
         JsonWizard::GeneratorFile f
                 = Utils::findOrDefault(m_fileList, [](const JsonWizard::GeneratorFile &f) {
             return f.file.attributes() & GeneratedFile::OpenProjectAttribute;
         });
-        projectFiles << f.file.path();
+        files << f.file.path();
+    } else {
+        files = Utils::transform(m_fileList,
+                                 [](const JsonWizard::GeneratorFile &f) {
+                                    return f.file.path();
+                                 });
     }
 
     Node *contextNode = m_wizard->value(QLatin1String(Constants::PREFERRED_PROJECT_NODE))
             .value<Node *>();
-    initializeProjectTree(contextNode, projectFiles, kind,
+    initializeProjectTree(contextNode, files, kind,
                           isProject ? AddSubProject : AddNewFile);
 
     initializeVersionControls();

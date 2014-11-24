@@ -48,7 +48,7 @@ RowLayout {
     id: urlChooser
     property variant backendValue
 
-    property color textColor: "white"
+    property color textColor: colorLogic.highlight ? colorLogic.textColor : "white"
 
     property string filter: "*.png *.gif *.jpg *.bmp *.jpeg *.svg"
 
@@ -59,8 +59,12 @@ RowLayout {
         id: fileModel
     }
 
-    Controls.ComboBox {
+    ColorLogic {
+        id: colorLogic
+        backendValue: urlChooser.backendValue
+    }
 
+    Controls.ComboBox {
         id: comboBox
 
         property bool isComplete: false

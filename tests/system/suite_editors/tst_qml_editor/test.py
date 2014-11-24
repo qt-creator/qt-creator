@@ -30,8 +30,6 @@
 
 source("../../shared/qtcreator.py")
 
-searchFinished = False
-
 def main():
     sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/keyinteraction/focus")
     proFile = "focus.pro"
@@ -43,7 +41,6 @@ def main():
     # add docs to have the correct tool tips
     addHelpDocumentation([os.path.join(sdkPath, "Documentation", "qt.qch")])
     templateDir = prepareTemplate(sourceExample)
-    installLazySignalHandler("{type='Core::FutureProgress' unnamed='1'}", "finished()", "__handleFutureProgress__")
     openQmakeProject(os.path.join(templateDir,proFile), Targets.DESKTOP_480_GCC)
     openDocument("focus.QML.qml.focus\\.qml")
     testRenameId()
@@ -53,7 +50,6 @@ def main():
     invokeMenuItem("File", "Exit")
 
 def testRenameId():
-    global searchFinished
     test.log("Testing rename of id")
     navTree = waitForObject("{type='Utils::NavigationTreeView' unnamed='1' visible='1' "
                             "window=':Qt Creator_Core::Internal::MainWindow'}")
@@ -77,9 +73,8 @@ def testRenameId():
         test.fatal("File seems to have changed... Canceling current test")
         return False
     type(editor, "<Down>")
-    searchFinished = False
     invokeContextMenuItem(editor, "Rename Symbol Under Cursor")
-    waitFor("searchFinished")
+    waitForSearchResults()
     type(waitForObject("{leftWidget={text='Replace with:' type='QLabel' unnamed='1' visible='1'} "
                        "type='Core::Internal::WideEnoughLineEdit' unnamed='1' visible='1' "
                        "window=':Qt Creator_Core::Internal::MainWindow'}"), "renamedView")
@@ -99,7 +94,6 @@ def testRenameId():
     invokeMenuItem("File","Save All")
 
 def __invokeFindUsage__(treeView, filename, line, additionalKeyPresses, expectedCount):
-    global searchFinished
     openDocument("focus.QML.qml.%s" % filename)
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     if not placeCursorToLine(editor, line, True):
@@ -107,9 +101,8 @@ def __invokeFindUsage__(treeView, filename, line, additionalKeyPresses, expected
         return
     for ty in additionalKeyPresses:
         type(editor, ty)
-    searchFinished = False
     invokeContextMenuItem(editor, "Find Usages")
-    waitFor("searchFinished")
+    waitForSearchResults()
     validateSearchResult(expectedCount)
 
 def testFindUsages():
@@ -196,8 +189,3 @@ def maskSpecialCharsForProjectTree(filename):
     # undoing mask operations on chars masked by mistake
     filename = filename.replace("/?","\\?").replace("/*","\\*")
     return filename
-
-def __handleFutureProgress__(*args):
-    global searchFinished
-    if className(args[0]) == "Core::FutureProgress":
-        searchFinished = True

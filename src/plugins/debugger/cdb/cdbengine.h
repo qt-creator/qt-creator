@@ -78,7 +78,7 @@ public:
     // Factory function that returns 0 if the debug engine library cannot be found.
 
     virtual bool setToolTipExpression(TextEditor::TextEditorWidget *editorWidget,
-                                      const DebuggerToolTipContext &ctx);
+                                      const DebuggerToolTipContext &context);
     virtual void setupEngine();
     virtual void setupInferior();
     virtual void runEngine();

@@ -182,6 +182,7 @@ public:
     void emitDocumentChangedOnDisk(QmlJS::Document::Ptr doc);
     void updateQrcFile(const QString &path);
     ProjectInfo projectInfoForPath(QString path) const;
+    bool isIdle() const ;
 
     PathsAndLanguages importPaths() const;
     QmlJS::QmlLanguageBundles activeBundles() const;

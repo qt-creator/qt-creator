@@ -303,6 +303,8 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
             this, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)));
     connect(d->m_behaviorSettingsPage, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
             this, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)));
+    connect(d->m_behaviorSettingsPage, SIGNAL(extraEncodingSettingsChanged(TextEditor::ExtraEncodingSettings)),
+            this, SIGNAL(extraEncodingSettingsChanged(TextEditor::ExtraEncodingSettings)));
     connect(d->m_displaySettingsPage, SIGNAL(marginSettingsChanged(TextEditor::MarginSettings)),
             this, SIGNAL(marginSettingsChanged(TextEditor::MarginSettings)));
     connect(d->m_displaySettingsPage, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),

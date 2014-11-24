@@ -42,9 +42,12 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/kitmanager.h>
-#include <limits>
-#include <utils/qtcassert.h>
+
 #include <utils/algorithm.h>
+#include <utils/macroexpander.h>
+#include <utils/qtcassert.h>
+
+#include <limits>
 
 /*!
     \class ProjectExplorer::Project
@@ -98,6 +101,8 @@ public:
 
     KitMatcher m_requiredKitMatcher;
     KitMatcher m_preferredKitMatcher;
+
+    Utils::MacroExpander m_macroExpander;
 };
 
 ProjectPrivate::ProjectPrivate() :
@@ -109,7 +114,11 @@ ProjectPrivate::~ProjectPrivate()
 { delete m_accessor; }
 
 Project::Project() : d(new ProjectPrivate)
-{ }
+{
+    d->m_macroExpander.setDisplayName(tr("Project"));
+    d->m_macroExpander.registerVariable("Project:Name", tr("Project Name"),
+            [this] { return displayName(); });
+}
 
 Project::~Project()
 {
@@ -514,6 +523,11 @@ void Project::setup(QList<const BuildInfo *> infoList)
         t->updateDefaultRunConfigurations();
         addTarget(t);
     }
+}
+
+Utils::MacroExpander *Project::macroExpander() const
+{
+    return &d->m_macroExpander;
 }
 
 ProjectImporter *Project::createProjectImporter() const

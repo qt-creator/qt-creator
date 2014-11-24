@@ -45,6 +45,8 @@ class IDocument;
 class Context;
 }
 
+namespace Utils { class MacroExpander; }
+
 namespace ProjectExplorer {
 
 class BuildInfo;
@@ -141,6 +143,7 @@ public:
     virtual bool needsSpecialDeployment() const;
 
     void setup(QList<const BuildInfo *> infoList);
+    Utils::MacroExpander *macroExpander() const;
 
 signals:
     void displayNameChanged();

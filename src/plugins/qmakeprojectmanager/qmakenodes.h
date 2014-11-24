@@ -447,6 +447,7 @@ private:
     void applyEvaluate(Internal::EvalResult *parseResult);
 
     void asyncEvaluate(QFutureInterface<Internal::EvalResult *> &fi, Internal::EvalInput input);
+    void cleanupProFileReaders();
 
     typedef QHash<QmakeVariable, QStringList> QmakeVariablesHash;
 

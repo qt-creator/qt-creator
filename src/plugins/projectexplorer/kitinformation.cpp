@@ -208,6 +208,17 @@ void ToolChainKitInformation::addToEnvironment(const Kit *k, Utils::Environment 
         tc->addToEnvironment(env);
 }
 
+void ToolChainKitInformation::addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const
+{
+    // FIXME: Use better strings
+    expander->registerVariable("Compiler:Name", tr("Compiler"),
+                               [this, kit]() -> QString {
+                                   const ToolChain *tc = toolChain(kit);
+                                   return tc ? tc->displayName() : tr("None");
+                               });
+}
+
+
 IOutputParser *ToolChainKitInformation::createOutputParser(const Kit *k) const
 {
     ToolChain *tc = toolChain(k);

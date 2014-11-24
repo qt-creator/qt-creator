@@ -376,7 +376,6 @@ void ProjectPartBuilder::setIncludePaths(const QStringList &includePaths)
             if (slashIdx != -1) {
                 hp = ProjectPart::HeaderPath(includeFile.left(slashIdx),
                                              ProjectPart::HeaderPath::FrameworkPath);
-                continue;
             }
         }
 

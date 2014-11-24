@@ -65,10 +65,11 @@ void setCreatorTheme(Theme *theme)
     m_creatorTheme = theme;
 }
 
-Theme::Theme(QObject *parent)
+Theme::Theme(const QString &name, QObject *parent)
   : QObject(parent)
   , d(new ThemePrivate)
 {
+    d->name = name;
 }
 
 Theme::~Theme()
@@ -121,9 +122,14 @@ QPair<QColor, QString> Theme::readNamedColor(const QString &color) const
     return qMakePair(QColor::fromRgba(rgba), QString());
 }
 
-QString Theme::fileName() const
+QString Theme::filePath() const
 {
     return d->fileName;
+}
+
+QString Theme::name() const
+{
+    return d->name;
 }
 
 void Theme::setName(const QString &name)
@@ -324,14 +330,20 @@ void Theme::readSettings(QSettings &settings)
     }
 }
 
-QPalette Theme::palette(const QPalette &base) const
+QPalette Theme::initialPalette()
 {
+    static QPalette palette = QApplication::palette();
+    return palette;
+}
+
+QPalette Theme::palette() const
+{
+    QPalette pal = initialPalette();
     if (!flag(DerivePaletteFromTheme))
-        return base;
+        return pal;
 
     // FIXME: introduce some more color roles for this
 
-    QPalette pal = base;
     pal.setColor(QPalette::All, QPalette::Window,        color(Theme::BackgroundColorNormal));
     pal.setBrush(QPalette::All, QPalette::WindowText,    color(Theme::TextColorNormal));
     pal.setColor(QPalette::All, QPalette::Base,          color(Theme::BackgroundColorNormal));

@@ -126,6 +126,7 @@ private:
 
     // Cached startup sub project information
     ProjectExplorer::ApplicationLauncher::Mode m_runMode;
+    bool m_runModeForced;
     QString m_userWorkingDirectory;
 
     QbsInstallStep *m_currentInstallStep; // We do not take ownership!

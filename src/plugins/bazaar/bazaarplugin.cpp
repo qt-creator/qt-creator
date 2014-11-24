@@ -162,8 +162,10 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
     Q_UNUSED(arguments);
     Q_UNUSED(errorMessage);
 
+    Context context(Constants::BAZAAR_CONTEXT);
+
     m_client = new BazaarClient(&m_bazaarSettings);
-    initializeVcs(new BazaarControl(m_client));
+    initializeVcs(new BazaarControl(m_client), context);
 
     addAutoReleasedObject(new OptionsPage);
     m_bazaarSettings.readSettings(ICore::settings());
@@ -193,7 +195,7 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
     m_commandLocator = new CommandLocator("Bazaar", prefix, prefix);
     addAutoReleasedObject(m_commandLocator);
 
-    createMenu();
+    createMenu(context);
 
     createSubmitEditorActions();
 
@@ -226,10 +228,8 @@ void BazaarPlugin::setSettings(const BazaarSettings &settings)
     }
 }
 
-void BazaarPlugin::createMenu()
+void BazaarPlugin::createMenu(const Context &context)
 {
-    Context context(Core::Constants::C_GLOBAL);
-
     // Create menu item for Bazaar
     m_bazaarContainer = ActionManager::createMenu("Bazaar.BazaarMenu");
     QMenu *menu = m_bazaarContainer->menu();

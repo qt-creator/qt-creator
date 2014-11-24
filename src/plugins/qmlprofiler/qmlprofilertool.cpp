@@ -328,14 +328,21 @@ void QmlProfilerTool::populateFileFinder(QString projectDirectory, QString activ
 
 void QmlProfilerTool::recordingButtonChanged(bool recording)
 {
+    // clientRecording is our intention for new sessions. That may differ from the state of the
+    // current session, as indicated by the button. To synchronize it, toggle once.
+
     if (recording && d->m_profilerState->currentState() == QmlProfilerStateManager::AppRunning) {
         if (checkForUnsavedNotes()) {
             clearData(); // clear right away, before the application starts
+            if (d->m_profilerState->clientRecording())
+                d->m_profilerState->setClientRecording(false);
             d->m_profilerState->setClientRecording(true);
         } else {
             d->m_recordButton->setChecked(false);
         }
     } else {
+        if (d->m_profilerState->clientRecording() == recording)
+            d->m_profilerState->setClientRecording(!recording);
         d->m_profilerState->setClientRecording(recording);
     }
 }
@@ -348,7 +355,6 @@ void QmlProfilerTool::setRecording(bool recording)
                                                  QLatin1String(":/qmlprofiler/recordOff.png")));
 
     d->m_recordButton->setChecked(recording);
-    d->m_profilerState->setClientRecording(recording);
 
     // manage timer
     if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppRunning) {
@@ -375,16 +381,10 @@ void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber,
     if (!fileInfo.exists() || !fileInfo.isReadable())
         return;
 
-    IEditor *editor = EditorManager::openEditor(projectFileName);
-    TextEditor::BaseTextEditor *textEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor);
-
-    if (textEditor) {
-        EditorManager::addCurrentPositionToNavigationHistory();
-        // textEditor counts columns starting with 0, but the ASTs store the
-        // location starting with 1, therefore the -1 in the call to gotoLine
-        textEditor->gotoLine(lineNumber, columnNumber - 1);
-        textEditor->widget()->setFocus();
-    }
+    // The text editors count columns starting with 0, but the ASTs store the
+    // location starting with 1, therefore the -1.
+    EditorManager::openEditorAt(projectFileName, lineNumber, columnNumber - 1, Id(),
+                                EditorManager::DoNotSwitchToDesignMode);
 }
 
 void QmlProfilerTool::updateTimeDisplay()
@@ -454,7 +454,6 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
     sp.analyzerPort = port;
 
     AnalyzerRunControl *rc = tool->createRunControl(sp, 0);
-    QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));
 
     ProjectExplorerPlugin::startRunControl(rc, tool->runMode());
 }

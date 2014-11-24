@@ -154,7 +154,7 @@ MainWindow::MainWindow() :
     Utils::HistoryCompleter::setSettings(PluginManager::settings());
 
     setWindowTitle(tr("Qt Creator"));
-    if (!Utils::HostOsInfo::isMacHost())
+    if (Utils::HostOsInfo::isLinuxHost())
         QApplication::setWindowIcon(QIcon(QLatin1String(Constants::ICON_QTLOGO_128)));
     QCoreApplication::setApplicationName(QLatin1String("QtCreator"));
     QCoreApplication::setApplicationVersion(QLatin1String(Core::Constants::IDE_VERSION_LONG));

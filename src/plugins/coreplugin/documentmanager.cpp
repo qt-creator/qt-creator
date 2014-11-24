@@ -723,13 +723,16 @@ QString DocumentManager::getSaveAsFileName(const IDocument *document, const QStr
         return QLatin1String("");
     QString absoluteFilePath = document->filePath();
     const QFileInfo fi(absoluteFilePath);
-    QString fileName = fi.fileName();
-    QString path = fi.absolutePath();
+    QString path;
+    QString fileName;
     if (absoluteFilePath.isEmpty()) {
         fileName = document->suggestedFileName();
         const QString defaultPath = document->defaultPath();
         if (!defaultPath.isEmpty())
             path = defaultPath;
+    } else {
+        path = fi.absolutePath();
+        fileName = fi.fileName();
     }
 
     QString filterString;
@@ -905,13 +908,15 @@ void DocumentManager::checkForReload()
     if (!QApplication::activeWindow())
         return;
 
-    if (QApplication::activeModalWidget()) { // a modal dialog, recheck later
+    if (QApplication::activeModalWidget() || d->m_blockActivated) {
+        // We do not want to prompt for modified file if we currently have some modal dialog open.
+        // If d->m_blockActivated is true, then it means that the event processing of either the
+        // file modified dialog, or of loading large files, has delivered a file change event from
+        // a watcher *and* the timer triggered. We may never end up here in a nested way, so
+        // recheck later.
         QTimer::singleShot(200, this, SLOT(checkForReload()));
         return;
     }
-
-    if (d->m_blockActivated)
-        return;
 
     d->m_blockActivated = true;
 
@@ -1005,6 +1010,14 @@ void DocumentManager::checkForReload()
 
         // handle it!
         d->m_blockedIDocument = document;
+
+        // Update file info, also handling if e.g. link target has changed.
+        // We need to do that before the file is reloaded, because removing the watcher will
+        // loose any pending change events. Loosing change events *before* the file is reloaded
+        // doesn't matter, because in that case we then reload the new version of the file already
+        // anyhow.
+        removeFileInfo(document);
+        addFileInfo(document);
 
         bool success = true;
         QString errorString;
@@ -1107,9 +1120,6 @@ void DocumentManager::checkForReload()
                 errorStrings << errorString;
         }
 
-        // update file info, also handling if e.g. link target has changed
-        removeFileInfo(document);
-        addFileInfo(document);
         d->m_blockedIDocument = 0;
     }
     if (!errorStrings.isEmpty())

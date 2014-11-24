@@ -21,7 +21,7 @@ ApplicationWindow {
         }
     }
 
-    Text {
+    Label {
         text: qsTr("Hello World")
         anchors.centerIn: parent
     }

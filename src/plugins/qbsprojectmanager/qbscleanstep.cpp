@@ -105,6 +105,7 @@ void QbsCleanStep::run(QFutureInterface<bool> &fi)
 
     if (!m_job) {
         m_fi->reportResult(false);
+        emit finished();
         return;
     }
 
@@ -269,6 +270,11 @@ QbsCleanStepConfigWidget::QbsCleanStepConfigWidget(QbsCleanStep *step) :
     connect(m_ui->keepGoingCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeKeepGoing(bool)));
 
     updateState();
+}
+
+QbsCleanStepConfigWidget::~QbsCleanStepConfigWidget()
+{
+    delete m_ui;
 }
 
 QString QbsCleanStepConfigWidget::summaryText() const

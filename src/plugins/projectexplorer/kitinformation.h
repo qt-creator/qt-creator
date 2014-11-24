@@ -93,6 +93,7 @@ public:
     ItemList toUserOutput(const Kit *k) const;
 
     void addToEnvironment(const Kit *k, Utils::Environment &env) const;
+    void addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const;
     IOutputParser *createOutputParser(const Kit *k) const;
 
     static Core::Id id();

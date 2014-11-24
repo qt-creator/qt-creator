@@ -111,6 +111,7 @@ using namespace Utils;
 namespace ClearCase {
 namespace Internal {
 
+static const char CLEARCASE_CONTEXT[]         = "ClearCase Context";
 static const char CMD_ID_CLEARCASE_MENU[]     = "ClearCase.Menu";
 static const char CMD_ID_CHECKOUT[]           = "ClearCase.CheckOut";
 static const char CMD_ID_CHECKIN[]            = "ClearCase.CheckInCurrent";
@@ -437,7 +438,9 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     using namespace Constants;
     using namespace Core::Constants;
 
-    initializeVcs(new ClearCaseControl(this));
+    Context context(CLEARCASE_CONTEXT);
+
+    initializeVcs(new ClearCaseControl(this), context);
 
     m_clearcasePluginInstance = this;
     connect(ICore::instance(), SIGNAL(coreAboutToClose()), this, SLOT(closing()));
@@ -478,12 +481,11 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     clearcaseMenu->menu()->setTitle(tr("C&learCase"));
     toolsContainer->addMenu(clearcaseMenu);
     m_menuAction = clearcaseMenu->menu()->menuAction();
-    Context globalcontext(C_GLOBAL);
     Command *command;
 
     m_checkOutAction = new ParameterAction(tr("Check Out..."), tr("Check &Out \"%1\"..."), ParameterAction::AlwaysEnabled, this);
     command = ActionManager::registerAction(m_checkOutAction, CMD_ID_CHECKOUT,
-        globalcontext);
+        context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+O") : tr("Alt+L,Alt+O")));
     connect(m_checkOutAction, SIGNAL(triggered()), this, SLOT(checkOutCurrentFile()));
@@ -491,7 +493,7 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     m_commandLocator->appendCommand(command);
 
     m_checkInCurrentAction = new ParameterAction(tr("Check &In..."), tr("Check &In \"%1\"..."), ParameterAction::AlwaysEnabled, this);
-    command = ActionManager::registerAction(m_checkInCurrentAction, CMD_ID_CHECKIN, globalcontext);
+    command = ActionManager::registerAction(m_checkInCurrentAction, CMD_ID_CHECKIN, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+I") : tr("Alt+L,Alt+I")));
     connect(m_checkInCurrentAction, SIGNAL(triggered()), this, SLOT(startCheckInCurrentFile()));
@@ -499,7 +501,7 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     m_commandLocator->appendCommand(command);
 
     m_undoCheckOutAction = new ParameterAction(tr("Undo Check Out"), tr("&Undo Check Out \"%1\""), ParameterAction::AlwaysEnabled, this);
-    command = ActionManager::registerAction(m_undoCheckOutAction, CMD_ID_UNDOCHECKOUT, globalcontext);
+    command = ActionManager::registerAction(m_undoCheckOutAction, CMD_ID_UNDOCHECKOUT, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+U") : tr("Alt+L,Alt+U")));
     connect(m_undoCheckOutAction, SIGNAL(triggered()), this, SLOT(undoCheckOutCurrent()));
@@ -507,18 +509,18 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     m_commandLocator->appendCommand(command);
 
     m_undoHijackAction = new ParameterAction(tr("Undo Hijack"), tr("Undo Hi&jack \"%1\""), ParameterAction::AlwaysEnabled, this);
-    command = ActionManager::registerAction(m_undoHijackAction, CMD_ID_UNDOHIJACK, globalcontext);
+    command = ActionManager::registerAction(m_undoHijackAction, CMD_ID_UNDOHIJACK, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+R") : tr("Alt+L,Alt+R")));
     connect(m_undoHijackAction, SIGNAL(triggered()), this, SLOT(undoHijackCurrent()));
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    clearcaseMenu->addSeparator(globalcontext);
+    clearcaseMenu->addSeparator(context);
 
     m_diffCurrentAction = new ParameterAction(tr("Diff Current File"), tr("&Diff \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_diffCurrentAction,
-        CMD_ID_DIFF_CURRENT, globalcontext);
+        CMD_ID_DIFF_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+D") : tr("Alt+L,Alt+D")));
     connect(m_diffCurrentAction, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
@@ -527,7 +529,7 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
 
     m_historyCurrentAction = new ParameterAction(tr("History Current File"), tr("&History \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_historyCurrentAction,
-        CMD_ID_HISTORY_CURRENT, globalcontext);
+        CMD_ID_HISTORY_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+H") : tr("Alt+L,Alt+H")));
     connect(m_historyCurrentAction, SIGNAL(triggered()), this,
@@ -537,7 +539,7 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
 
     m_annotateCurrentAction = new ParameterAction(tr("Annotate Current File"), tr("&Annotate \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_annotateCurrentAction,
-        CMD_ID_ANNOTATE, globalcontext);
+        CMD_ID_ANNOTATE, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+A") : tr("Alt+L,Alt+A")));
     connect(m_annotateCurrentAction, SIGNAL(triggered()), this,
@@ -546,52 +548,52 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     m_commandLocator->appendCommand(command);
 
     m_addFileAction = new ParameterAction(tr("Add File..."), tr("Add File \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_addFileAction, CMD_ID_ADD_FILE, globalcontext);
+    command = ActionManager::registerAction(m_addFileAction, CMD_ID_ADD_FILE, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_addFileAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
     clearcaseMenu->addAction(command);
 
-    clearcaseMenu->addSeparator(globalcontext);
+    clearcaseMenu->addSeparator(context);
 
     m_diffActivityAction = new QAction(tr("Diff A&ctivity..."), this);
     m_diffActivityAction->setEnabled(false);
-    command = ActionManager::registerAction(m_diffActivityAction, CMD_ID_DIFF_ACTIVITY, globalcontext);
+    command = ActionManager::registerAction(m_diffActivityAction, CMD_ID_DIFF_ACTIVITY, context);
     connect(m_diffActivityAction, SIGNAL(triggered()), this, SLOT(diffActivity()));
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_checkInActivityAction = new ParameterAction(tr("Ch&eck In Activity"), tr("Chec&k In Activity \"%1\"..."), ParameterAction::EnabledWithParameter, this);
     m_checkInActivityAction->setEnabled(false);
-    command = ActionManager::registerAction(m_checkInActivityAction, CMD_ID_CHECKIN_ACTIVITY, globalcontext);
+    command = ActionManager::registerAction(m_checkInActivityAction, CMD_ID_CHECKIN_ACTIVITY, context);
     connect(m_checkInActivityAction, SIGNAL(triggered()), this, SLOT(startCheckInActivity()));
     command->setAttribute(Command::CA_UpdateText);
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    clearcaseMenu->addSeparator(globalcontext);
+    clearcaseMenu->addSeparator(context);
 
     m_updateIndexAction = new QAction(tr("Update Index"), this);
-    command = ActionManager::registerAction(m_updateIndexAction, CMD_ID_UPDATEINDEX, globalcontext);
+    command = ActionManager::registerAction(m_updateIndexAction, CMD_ID_UPDATEINDEX, context);
     connect(m_updateIndexAction, SIGNAL(triggered()), this, SLOT(updateIndex()));
     clearcaseMenu->addAction(command);
 
     m_updateViewAction = new ParameterAction(tr("Update View"), tr("U&pdate View \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_updateViewAction, CMD_ID_UPDATE_VIEW, globalcontext);
+    command = ActionManager::registerAction(m_updateViewAction, CMD_ID_UPDATE_VIEW, context);
     connect(m_updateViewAction, SIGNAL(triggered()), this, SLOT(updateView()));
     command->setAttribute(Command::CA_UpdateText);
     clearcaseMenu->addAction(command);
 
-    clearcaseMenu->addSeparator(globalcontext);
+    clearcaseMenu->addSeparator(context);
 
     m_checkInAllAction = new QAction(tr("Check In All &Files..."), this);
-    command = ActionManager::registerAction(m_checkInAllAction, CMD_ID_CHECKIN_ALL, globalcontext);
+    command = ActionManager::registerAction(m_checkInAllAction, CMD_ID_CHECKIN_ALL, context);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+F") : tr("Alt+L,Alt+F")));
     connect(m_checkInAllAction, SIGNAL(triggered()), this, SLOT(startCheckInAll()));
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_statusAction = new QAction(tr("View &Status"), this);
-    command = ActionManager::registerAction(m_statusAction, CMD_ID_STATUS, globalcontext);
+    command = ActionManager::registerAction(m_statusAction, CMD_ID_STATUS, context);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+S") : tr("Alt+L,Alt+S")));
     connect(m_statusAction, SIGNAL(triggered()), this, SLOT(viewStatus()));
     clearcaseMenu->addAction(command);

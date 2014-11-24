@@ -1388,17 +1388,17 @@ void CppQmlTypesLoader::parseQmlTypeDescriptions(const QByteArray &contents,
                                                  QString *errorMessage,
                                                  QString *warningMessage, const QString &fileName)
 {
-    if (!contents.isEmpty()) {
-        unsigned char c = contents.at(0);
-        switch (c) {
-        case 0xfe:
-        case 0xef:
-        case 0xff:
-        case 0xee:
-        case 0x00:
-            qWarning() << fileName << "seems not to be encoded in UTF8 or has a BOM.";
-        default: break;
-        }
+    if (contents.isEmpty())
+        return;
+    unsigned char c = contents.at(0);
+    switch (c) {
+    case 0xfe:
+    case 0xef:
+    case 0xff:
+    case 0xee:
+    case 0x00:
+        qWarning() << fileName << "seems not to be encoded in UTF8 or has a BOM.";
+    default: break;
     }
 
     errorMessage->clear();

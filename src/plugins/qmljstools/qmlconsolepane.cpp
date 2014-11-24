@@ -187,7 +187,7 @@ bool QmlConsolePane::canFocus() const
 
 bool QmlConsolePane::hasFocus() const
 {
-    return m_consoleWidget->hasFocus();
+    return m_consoleWidget->window()->focusWidget() == m_consoleWidget;
 }
 
 void QmlConsolePane::setFocus()

@@ -33,6 +33,8 @@
 
 #include <extensionsystem/iplugin.h>
 
+namespace Utils { class Theme; }
+
 namespace Core {
 
 class DesignMode;

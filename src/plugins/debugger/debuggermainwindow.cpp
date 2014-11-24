@@ -346,15 +346,14 @@ void DebuggerMainWindowPrivate::activateQmlCppLayout()
 
     if (m_previousDebugLanguages & QmlLanguage) {
         m_dockWidgetActiveStateQmlCpp = q->saveSettings();
-        ICore::updateAdditionalContexts(qmlCppContext, Context());
+        ICore::removeAdditionalContext(qmlCppContext);
     } else if (m_previousDebugLanguages & CppLanguage) {
         m_dockWidgetActiveStateCpp = q->saveSettings();
-        ICore::updateAdditionalContexts(m_contextsForLanguage.value(CppLanguage),
-            Context());
+        ICore::removeAdditionalContext(m_contextsForLanguage.value(CppLanguage));
     }
 
     q->restoreSettings(m_dockWidgetActiveStateQmlCpp);
-    ICore::updateAdditionalContexts(Context(), qmlCppContext);
+    ICore::addAdditionalContext(qmlCppContext);
 }
 
 void DebuggerMainWindowPrivate::activateCppLayout()
@@ -368,17 +367,16 @@ void DebuggerMainWindowPrivate::activateCppLayout()
 
     if (m_previousDebugLanguages & QmlLanguage) {
         m_dockWidgetActiveStateQmlCpp = q->saveSettings();
-        ICore::updateAdditionalContexts(qmlCppContext, Context());
+        ICore::removeAdditionalContext(qmlCppContext);
     } else if (m_previousDebugLanguages & CppLanguage) {
         m_dockWidgetActiveStateCpp = q->saveSettings();
-        ICore::updateAdditionalContexts(m_contextsForLanguage.value(CppLanguage),
-            Context());
+        ICore::removeAdditionalContext(m_contextsForLanguage.value(CppLanguage));
     }
 
     q->restoreSettings(m_dockWidgetActiveStateCpp);
 
     const Context &cppContext = m_contextsForLanguage.value(CppLanguage);
-    ICore::updateAdditionalContexts(Context(), cppContext);
+    ICore::addAdditionalContext(cppContext);
 }
 
 void DebuggerMainWindow::setToolBar(DebuggerLanguage language, QWidget *widget)

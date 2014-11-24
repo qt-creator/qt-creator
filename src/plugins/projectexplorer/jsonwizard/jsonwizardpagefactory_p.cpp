@@ -139,7 +139,7 @@ Utils::WizardPage *KitsPageFactory::create(JsonWizard *wizard, Core::Id typeId, 
     QTC_ASSERT(canCreate(typeId), return 0);
 
     JsonKitsPage *page = new JsonKitsPage;
-    page->setProjectFilePath(data.toMap().value(QLatin1String("projectFilePath")).toString());
+    page->setUnexpandedProjectPath(data.toMap().value(QLatin1String("projectFilePath")).toString());
 
     return page;
 }

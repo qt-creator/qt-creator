@@ -77,13 +77,14 @@ QVariant QtKitInformation::defaultValue(ProjectExplorer::Kit *k) const
         result = findOrDefault(versionList, [qmakePath](const BaseQtVersion *v) {
             return v->qmakeCommand() == qmakePath;
         });
+        if (result)
+            return result->uniqueId();
     }
 
     // Use *any* desktop Qt:
     result = findOrDefault(versionList, [](const BaseQtVersion *v) {
         return v->type() == QLatin1String(QtSupport::Constants::DESKTOPQT);
     });
-
     return result ? result->uniqueId() : -1;
 }
 

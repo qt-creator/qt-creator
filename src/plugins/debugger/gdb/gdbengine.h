@@ -298,7 +298,6 @@ private: ////////// View & Data Stuff //////////
 
     void selectThread(ThreadId threadId);
     void activateFrame(int index);
-    void resetLocation();
 
     //
     // Breakpoint specific stuff
@@ -469,7 +468,6 @@ protected:
     void showExecutionError(const QString &message);
 
     static QByteArray tooltipIName(const QString &exp);
-    DebuggerToolTipContext m_toolTipContext;
 
     // For short-circuiting stack and thread list evaluation.
     bool m_stackNeeded;

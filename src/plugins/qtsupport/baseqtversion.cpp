@@ -61,6 +61,7 @@
 #include <QFuture>
 #include <QCoreApplication>
 #include <QProcess>
+#include <QRegExp>
 
 using namespace Core;
 using namespace QtSupport;
@@ -1399,6 +1400,13 @@ FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QString> &ver
                         const QList<QByteArray> &temp = line.split('=');
                         if (temp.size() == 2) {
                             QString possibleFullPath = QString::fromLocal8Bit(temp.at(1).trimmed().constData());
+                            if (possibleFullPath.contains(QLatin1Char('$'))) { // QTBUG-28792
+                                const QRegExp rex(QLatin1String("\\binclude\\(([^)]+)/qmake\\.conf\\)"));
+                                if (rex.indexIn(QString::fromLocal8Bit(f2.readAll())) != -1) {
+                                    possibleFullPath = mkspecFullPath.toString() + QLatin1Char('/')
+                                            + rex.cap(1);
+                                }
+                            }
                             // We sometimes get a mix of different slash styles here...
                             possibleFullPath = possibleFullPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
                             if (QFileInfo::exists(possibleFullPath)) // Only if the path exists
@@ -1470,16 +1478,27 @@ FileName BaseQtVersion::sourcePath(const QHash<QString, QString> &versionInfo)
     return FileName::fromUserInput(sourcePath);
 }
 
-bool BaseQtVersion::isInSourceDirectory(const Utils::FileName &filePath)
+bool BaseQtVersion::isSubProject(const Utils::FileName &filePath)
 {
     const Utils::FileName &source = sourcePath();
-    if (source.isEmpty())
-        return false;
-    QDir dir = QDir(source.toString());
-    if (dir.dirName() == QLatin1String("qtbase"))
-        dir.cdUp();
+    if (!source.isEmpty()) {
+        QDir dir = QDir(source.toString());
+        if (dir.dirName() == QLatin1String("qtbase"))
+            dir.cdUp();
 
-    return filePath.isChildOf(dir);
+        if (filePath.isChildOf(dir))
+            return true;
+    }
+
+    const QString &examples = examplesPath();
+    if (!examples.isEmpty() && filePath.isChildOf(QDir(examples)))
+        return true;
+
+    const QString &demos = demosPath();
+    if (!demos.isEmpty() && filePath.isChildOf(QDir(demos)))
+        return true;
+
+    return false;
 }
 
 bool BaseQtVersion::isQmlDebuggingSupported(Kit *k, QString *reason)

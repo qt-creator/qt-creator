@@ -78,9 +78,7 @@ bool DiffEditorDocument::save(QString *errorString, const QString &fileName, boo
     Q_UNUSED(errorString)
     Q_UNUSED(autoSave)
 
-    const QString contents = DiffUtils::makePatch(m_controller->diffFiles());
-
-    const bool ok = write(fileName, format(), contents, errorString);
+    const bool ok = write(fileName, format(), m_controller->contents(), errorString);
 
     if (!ok)
         return false;
@@ -125,6 +123,41 @@ bool DiffEditorDocument::open(QString *errorString, const QString &fileName)
     setFilePath(QDir::cleanPath(fi.absoluteFilePath()));
     m_controller->setDiffFiles(fileDataList, fi.absolutePath());
     return true;
+}
+
+QString DiffEditorDocument::suggestedFileName() const
+{
+    enum { maxSubjectLength = 50 };
+    QString result = QStringLiteral("0001");
+    const QString description = m_controller->description();
+    if (!description.isEmpty()) {
+        // Derive "git format-patch-type" file name from subject.
+        const int pos = description.indexOf(QLatin1String("\n\n    "));
+        const int endPos = pos >= 0 ? description.indexOf(QLatin1Char('\n'), pos + 6) : -1;
+        if (endPos > pos) {
+            const QChar space(QLatin1Char(' '));
+            const QChar dash(QLatin1Char('-'));
+            QString subject = description.mid(pos, endPos - pos);
+            for (int i = 0; i < subject.size(); ++i) {
+                if (!subject.at(i).isLetterOrNumber())
+                    subject[i] = space;
+            }
+            subject = subject.simplified();
+            if (subject.size() > maxSubjectLength) {
+                const int lastSpace = subject.lastIndexOf(space, maxSubjectLength);
+                subject.truncate(lastSpace > 0 ? lastSpace : maxSubjectLength);
+             }
+            subject.replace(space, dash);
+            result += dash;
+            result += subject;
+        }
+    }
+    return result + QStringLiteral(".patch");
+}
+
+QString DiffEditorDocument::plainText() const
+{
+    return m_controller->contents();
 }
 
 } // namespace DiffEditor

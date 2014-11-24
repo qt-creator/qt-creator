@@ -100,6 +100,7 @@ public:
     void setNeedsRaise(bool on) { m_needsRaise = on; }
     void setNeedsMarker(bool on) { m_needsMarker = on; }
     void setFileName(const QString &fileName) { m_fileName = fileName; }
+    void setUseAssembler(bool on) { m_hasDebugInfo = !on; }
     bool needsRaise() const { return m_needsRaise; }
     bool needsMarker() const { return m_needsMarker; }
     bool hasDebugInfo() const { return m_hasDebugInfo; }

@@ -61,7 +61,7 @@
 
     \list 1
 
-        \li Select \gui File > \gui {New File or Project} > \gui Applications >
+        \li Select \gui File > \gui {New File or Project} > \gui Application >
             \gui {Qt Quick Application} > \gui Choose.
 
         \li In the \gui{Name} field, type \b{accelbubble}.
@@ -120,7 +120,7 @@
 
         \li Click \gui Design to open the file in \QMLD.
 
-        \li In the \gui Navigator pane, select \gui Text and press \key Delete
+        \li In the \gui Navigator pane, select \gui Label and press \key Delete
             to delete it.
 
         \li In the \gui Library view, \gui Resources tab, select Bluebubble.svg
@@ -284,6 +284,8 @@
 
     When you have completed the steps, the main.qml file should look as follows:
 
-    \quotefile accelbubble/main.qml
+    \quotefromfile accelbubble/main.qml
+    \skipto import
+    \printuntil /^\}/
 
 */

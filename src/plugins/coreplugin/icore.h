@@ -107,6 +107,8 @@ public:
     // Adds and removes additional active contexts, these contexts are appended
     // to the currently active contexts.
     static void updateAdditionalContexts(const Context &remove, const Context &add);
+    static void addAdditionalContext(const Context &context);
+    static void removeAdditionalContext(const Context &context);
     static void addContextObject(IContext *context);
     static void removeContextObject(IContext *context);
 
@@ -137,6 +139,7 @@ signals:
     void coreAboutToClose();
     void contextAboutToChange(const QList<Core::IContext *> &context);
     void contextChanged(const QList<Core::IContext *> &context, const Core::Context &additionalContexts);
+    void themeChanged();
 };
 
 } // namespace Core

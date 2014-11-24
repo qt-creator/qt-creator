@@ -51,7 +51,9 @@ public:
                            TranslationUnit::ParseMode mode,
                            bool blockErrors = false,
                            bool qtMocRun = false,
-                           bool cxx11Enabled = false)
+                           bool cxx11Enabled = false,
+                           int retryParseDeclarationLimit
+                            = TranslationUnit::defaultRetryParseDeclarationLimit())
     {
         const StringLiteral *fileId = control.stringLiteral("<stdin>");
         LanguageFeatures features;
@@ -62,6 +64,7 @@ public:
         features.qtMocRunEnabled = qtMocRun;
         TranslationUnit *unit = new TranslationUnit(&control, fileId);
         unit->setLanguageFeatures(features);
+        unit->setRetryParseDeclarationLimit(retryParseDeclarationLimit);
         unit->setSource(source.constData(), source.length());
         unit->blockErrors(blockErrors);
         unit->parse(mode);
@@ -199,6 +202,7 @@ private slots:
     void unnamed_class();
     void unnamed_class_data();
     void expensiveExpression();
+    void invalidCode();
 };
 
 void tst_AST::gcc_attributes_1()
@@ -1854,6 +1858,27 @@ void tst_AST::expensiveExpression()
             "(g31(0))))))))))))))))))))))))))))))));\n"
         "}\n"));
     QVERIFY(unit->ast());
+}
+
+void tst_AST::invalidCode()
+{
+    const QByteArray invalidCode = "static inValidLine()\n"
+                                   "class Foo {};\n";
+
+    QSharedPointer<TranslationUnit> unit(parse(invalidCode, TranslationUnit::ParseTranlationUnit,
+                                               false, false, false, 1000));
+    QVERIFY(unit->ast());
+    TranslationUnitAST *unitAST = unit->ast()->asTranslationUnit();
+    QVERIFY(unitAST->declaration_list);
+    QVERIFY(unitAST->declaration_list->value);
+    SimpleDeclarationAST *simpleDecl = unitAST->declaration_list->value->asSimpleDeclaration();
+    QVERIFY(simpleDecl);
+    QVERIFY(simpleDecl->decl_specifier_list);
+    QVERIFY(simpleDecl->decl_specifier_list->value);
+    ClassSpecifierAST *classSpecifier = simpleDecl->decl_specifier_list->value->asClassSpecifier();
+    QVERIFY(classSpecifier);
+
+    QVERIFY(diag.errorCount != 0);
 }
 
 void tst_AST::initTestCase()

@@ -269,11 +269,7 @@ bool isCppEditor(TextEditorWidget *editorWidget)
 
 QString cppFunctionAt(const QString &fileName, int line, int column)
 {
-    CppModelManager *modelManager = CppModelManager::instance();
-    if (!modelManager)
-        return QString();
-
-    const Snapshot snapshot = modelManager->snapshot();
+    const Snapshot snapshot = CppModelManager::instance()->snapshot();
     if (const Document::Ptr document = snapshot.document(fileName))
         return document->functionAt(line, column);
 
@@ -283,7 +279,8 @@ QString cppFunctionAt(const QString &fileName, int line, int column)
 
 // Return the Cpp expression, and, if desired, the function
 QString cppExpressionAt(TextEditorWidget *editorWidget, int pos,
-                        int *line, int *column, QString *function /* = 0 */)
+                        int *line, int *column, QString *function,
+                        int *scopeFromLine, int *scopeToLine)
 {
     *line = *column = 0;
     if (function)
@@ -291,8 +288,7 @@ QString cppExpressionAt(TextEditorWidget *editorWidget, int pos,
 
     QTextCursor tc = editorWidget->textCursor();
     QString expr = tc.selectedText();
-    CppModelManager *modelManager = CppModelManager::instance();
-    if (expr.isEmpty() && modelManager) {
+    if (expr.isEmpty()) {
         tc.setPosition(pos);
         const QChar ch = editorWidget->characterAt(pos);
         if (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
@@ -308,8 +304,15 @@ QString cppExpressionAt(TextEditorWidget *editorWidget, int pos,
         *line = tc.blockNumber();
     }
 
-    if (function && !expr.isEmpty())
-        *function = cppFunctionAt(editorWidget->textDocument()->filePath(), *line, *column);
+    if (!expr.isEmpty()) {
+        QString fileName = editorWidget->textDocument()->filePath();
+        const Snapshot snapshot = CppModelManager::instance()->snapshot();
+        if (const Document::Ptr document = snapshot.document(fileName)) {
+            QString func = document->functionAt(*line, *column, scopeFromLine, scopeToLine);
+            if (function)
+                *function = func;
+        }
+    }
 
     return expr;
 }

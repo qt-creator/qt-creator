@@ -158,14 +158,14 @@ void WindowList::addWindow(QWidget *window)
     m_windowActionIds.append(id);
     auto action = new QAction(window->windowTitle(), 0);
     m_windowActions.append(action);
-    connect(action, &QAction::triggered, [action]() { WindowList::activateWindow(action); });
+    QObject::connect(action, &QAction::triggered, [action]() { WindowList::activateWindow(action); });
     action->setCheckable(true);
     action->setChecked(false);
     Command *cmd = ActionManager::registerAction(action, id,
                                                  Context(Constants::C_GLOBAL));
     cmd->setAttribute(Command::CA_UpdateText);
     ActionManager::actionContainer(Constants::M_WINDOW)->addAction(cmd, Constants::G_WINDOW_LIST);
-    connect(window, &QWidget::windowTitleChanged, [window]() { WindowList::updateTitle(window); });
+    QObject::connect(window, &QWidget::windowTitleChanged, [window]() { WindowList::updateTitle(window); });
     if (m_dockMenu)
         m_dockMenu->addAction(action);
     if (window->isActiveWindow())
@@ -200,7 +200,7 @@ void WindowList::removeWindow(QWidget *window)
     QTC_ASSERT(index >= 0, return);
 
     ActionManager::unregisterAction(m_windowActions.last(), m_windowActionIds.last());
-    m_windowActions.removeLast();
+    delete m_windowActions.takeLast();
     m_windowActionIds.removeLast();
 
     m_windows.removeOne(window);

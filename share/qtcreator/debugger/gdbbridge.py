@@ -58,7 +58,7 @@ def registerCommand(name, func):
     Command()
 
 
-def listOfLocals(varList):
+def listOfLocals():
     frame = gdb.selected_frame()
 
     try:
@@ -100,20 +100,16 @@ def listOfLocals(varList):
             try:
                 item.value = frame.read_var(name, block)
                 #warn("READ 1: %s" % item.value)
-                if not item.value.is_optimized_out:
-                    #warn("ITEM 1: %s" % item.value)
-                    items.append(item)
-                    continue
+                items.append(item)
+                continue
             except:
                 pass
 
             try:
-                item.value = frame.read_var(name)
                 #warn("READ 2: %s" % item.value)
-                if not item.value.is_optimized_out:
-                    #warn("ITEM 2: %s" % item.value)
-                    items.append(item)
-                    continue
+                item.value = frame.read_var(name)
+                items.append(item)
+                continue
             except:
                 # RuntimeError: happens for
                 #     void foo() { std::string s; std::wstring w; }
@@ -444,30 +440,30 @@ class Dumper(DumperBase):
         # Locals
         #
         self.output.append('data=[')
-        locals = []
-        fullUpdateNeeded = True
-        if self.partialUpdate and len(self.varList) == 1 and not self.tooltipOnly:
+        if self.partialUpdate and len(self.varList) == 1:
             #warn("PARTIAL: %s" % self.varList)
             parts = self.varList[0].split('.')
             #warn("PARTIAL PARTS: %s" % parts)
             name = parts[1]
             #warn("PARTIAL VAR: %s" % name)
-            #fullUpdateNeeded = False
+            item = LocalItem()
+            item.iname = parts[0] + '.' + name
+            item.name = name
             try:
-                frame = gdb.selected_frame()
-                item = LocalItem()
-                item.iname = "local." + name
-                item.name = name
-                item.value = frame.read_var(name)
-                locals = [item]
-                #warn("PARTIAL LOCALS: %s" % locals)
-                fullUpdateNeeded = False
+                if parts[0] == 'local':
+                    frame = gdb.selected_frame()
+                    item.value = frame.read_var(name)
+                else:
+                    item.name = self.hexdecode(name)
+                    item.value = gdb.parse_and_eval(item.name)
+            except RuntimeError as error:
+                item.value = error
             except:
-                pass
-            self.varList = []
-
-        if fullUpdateNeeded and not self.tooltipOnly:
-            locals = listOfLocals(self.varList)
+                item.value = "<no value>"
+            locals = [item]
+            #warn("PARTIAL LOCALS: %s" % locals)
+        else:
+            locals = listOfLocals()
 
         # Take care of the return value of the last function call.
         if len(self.resultVarName) > 0:
@@ -998,6 +994,13 @@ class Dumper(DumperBase):
 
         type = value.type.unqualified()
         typeName = str(type)
+
+        if value.is_optimized_out:
+            self.putValue("<optimized out>")
+            self.putType(typeName)
+            self.putNumChild(0)
+            return
+
         tryDynamic &= self.useDynamicType
         self.addToCache(type) # Fill type cache
         if tryDynamic:
@@ -1049,9 +1052,7 @@ class Dumper(DumperBase):
 
         if type.code == IntCode or type.code == CharCode:
             self.putType(typeName)
-            if value.is_optimized_out:
-                self.putValue("<optimized out>")
-            elif type.sizeof == 1:
+            if type.sizeof == 1:
                 # Force unadorned value transport for char and Co.
                 self.putValue(int(value) & 0xff)
             else:
@@ -1061,28 +1062,19 @@ class Dumper(DumperBase):
 
         if type.code == FloatCode or type.code == BoolCode:
             self.putType(typeName)
-            if value.is_optimized_out:
-                self.putValue("<optimized out>")
-            else:
-                self.putValue(value)
+            self.putValue(value)
             self.putNumChild(0)
             return
 
         if type.code == EnumCode:
             self.putType(typeName)
-            if value.is_optimized_out:
-                self.putValue("<optimized out>")
-            else:
-                self.putValue("%s (%d)" % (value, value))
+            self.putValue("%s (%d)" % (value, value))
             self.putNumChild(0)
             return
 
         if type.code == ComplexCode:
             self.putType(typeName)
-            if value.is_optimized_out:
-                self.putValue("<optimized out>")
-            else:
-                self.putValue("%s" % value)
+            self.putValue("%s" % value)
             self.putNumChild(0)
             return
 
@@ -1118,10 +1110,6 @@ class Dumper(DumperBase):
         if type.code == PointerCode:
             # This could still be stored in a register and
             # potentially dereferencable.
-            if value.is_optimized_out:
-                self.putValue("<optimized out>")
-                return
-
             self.putFormattedPointer(value)
             return
 

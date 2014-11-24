@@ -304,7 +304,9 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
 
     QStringList addedFiles;
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(m_target->kit());
-    if (!version || version->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0)) {
+    if (!version)
+        return;
+    if (version->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0)) {
         const QString src(version->qmakeProperty("QT_INSTALL_PREFIX")
                 .append(QLatin1String("/src/android/java/AndroidManifest.xml")));
         FileUtils::copyRecursively(FileName::fromString(src),

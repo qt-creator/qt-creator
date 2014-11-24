@@ -1534,6 +1534,7 @@ class Dumper(DumperBase):
     def selectThread(self, args):
         self.process.SetSelectedThreadByID(args['id'])
         self.reportData()
+        self.reportStack()
 
     def requestModuleSymbols(self, frame):
         self.handleCommand("target module list " + frame)

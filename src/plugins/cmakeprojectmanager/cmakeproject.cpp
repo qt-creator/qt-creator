@@ -853,12 +853,22 @@ void CMakeBuildSettingsWidget::runCMake()
 // CMakeCbpParser
 ////
 
+namespace {
+int distance(const QString &targetDirectory, const Utils::FileName &fileName)
+{
+    const QString commonParent = Utils::commonPath(QStringList() << targetDirectory << fileName.toString());
+    return targetDirectory.mid(commonParent.size()).count(QLatin1Char('/'))
+            + fileName.toString().mid(commonParent.size()).count(QLatin1Char('/'));
+}
+}
+
 // called after everything is parsed
 // this function tries to figure out to which CMakeBuildTarget
 // each file belongs, so that it gets the appropriate defines and
 // compiler flags
 void CMakeCbpParser::sortFiles()
 {
+    QLoggingCategory log("qtc.cmakeprojectmanager.filetargetmapping");
     QList<Utils::FileName> fileNames = Utils::transform(m_fileList, [] (FileNode *node) {
         return Utils::FileName::fromString(node->path());
     });
@@ -869,12 +879,21 @@ void CMakeCbpParser::sortFiles()
     CMakeBuildTarget *last = 0;
     Utils::FileName parentDirectory;
 
+    qCDebug(log) << "###############";
+    qCDebug(log) << "# Pre Dump    #";
+    qCDebug(log) << "###############";
+    foreach (const CMakeBuildTarget &target, m_buildTargets)
+        qCDebug(log) << target.title << target.sourceDirectory <<
+                 target.includeFiles << target.defines << target.files << "\n";
+
     // find a good build target to fall back
     int fallbackIndex = 0;
     {
         int bestIncludeCount = -1;
         for (int i = 0; i < m_buildTargets.size(); ++i) {
             const CMakeBuildTarget &target = m_buildTargets.at(i);
+            if (target.includeFiles.isEmpty())
+                continue;
             if (target.sourceDirectory == m_sourceDirectory
                     && target.includeFiles.count() > bestIncludeCount) {
                 bestIncludeCount = target.includeFiles.count();
@@ -883,37 +902,55 @@ void CMakeCbpParser::sortFiles()
         }
     }
 
+    qCDebug(log) << "###############";
+    qCDebug(log) << "# Sorting     #";
+    qCDebug(log) << "###############";
+
     foreach (const Utils::FileName &fileName, fileNames) {
+        qCDebug(log) << fileName;
         if (fileName.parentDir() == parentDirectory && last) {
             // easy case, same parent directory as last file
             last->files.append(fileName.toString());
+            qCDebug(log) << "  into" << last->title;
         } else {
-            int bestLength = -1;
+            int bestDistance = std::numeric_limits<int>::max();
             int bestIndex = -1;
             int bestIncludeCount = -1;
 
             for (int i = 0; i < m_buildTargets.size(); ++i) {
                 const CMakeBuildTarget &target = m_buildTargets.at(i);
-                if (fileName.isChildOf(Utils::FileName::fromString(target.sourceDirectory)) &&
-                    (target.sourceDirectory.size() > bestLength ||
-                     (target.sourceDirectory.size() == bestLength &&
-                      target.includeFiles.count() > bestIncludeCount))) {
-                    bestLength = target.sourceDirectory.size();
+                if (target.includeFiles.isEmpty())
+                    continue;
+                int dist = distance(target.sourceDirectory, fileName);
+                qCDebug(log) << "distance to target" << target.title << dist;
+                if (dist < bestDistance ||
+                     (dist == bestDistance &&
+                      target.includeFiles.count() > bestIncludeCount)) {
+                    bestDistance = dist;
                     bestIncludeCount = target.includeFiles.count();
                     bestIndex = i;
                 }
             }
 
-            if (bestIndex == -1 && !m_buildTargets.isEmpty())
+            if (bestIndex == -1 && !m_buildTargets.isEmpty()) {
                 bestIndex = fallbackIndex;
+                qCDebug(log) << "  using fallbackIndex";
+            }
 
             if (bestIndex != -1) {
                 m_buildTargets[bestIndex].files.append(fileName.toString());
                 last = &m_buildTargets[bestIndex];
                 parentDirectory = fileName.parentDir();
+                qCDebug(log) << "  into" << last->title;
             }
         }
     }
+
+    qCDebug(log) << "###############";
+    qCDebug(log) << "# After Dump  #";
+    qCDebug(log) << "###############";
+    foreach (const CMakeBuildTarget &target, m_buildTargets)
+        qCDebug(log) << target.title << target.sourceDirectory << target.includeFiles << target.defines << target.files << "\n";
 }
 
 bool CMakeCbpParser::parseCbpFile(const QString &fileName, const QString &sourceDirectory)

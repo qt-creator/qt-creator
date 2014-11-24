@@ -412,7 +412,6 @@ void SettingsDialog::createGui()
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok |
                                                        QDialogButtonBox::Apply |
                                                        QDialogButtonBox::Cancel);
-    buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
     connect(buttonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
@@ -425,6 +424,9 @@ void SettingsDialog::createGui()
     mainGridLayout->addWidget(buttonBox,        2, 0, 1, 2);
     mainGridLayout->setColumnStretch(1, 4);
     setLayout(mainGridLayout);
+
+    buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+
     setMinimumSize(1000, 550);
     if (Utils::HostOsInfo::isMacHost())
         setMinimumHeight(minimumHeight() * 1.1);

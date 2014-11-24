@@ -42,6 +42,7 @@ class DiffEditorController;
 class DIFFEDITOR_EXPORT DiffEditorDocument : public Core::BaseTextDocument
 {
     Q_OBJECT
+    Q_PROPERTY(QString plainText READ plainText STORED false) // For access by code pasters
 public:
     explicit DiffEditorDocument();
     virtual ~DiffEditorDocument();
@@ -50,13 +51,15 @@ public:
 
     bool setContents(const QByteArray &contents);
     QString defaultPath() const;
-    QString suggestedFileName() const { return QString(); }
+    QString suggestedFileName() const Q_DECL_OVERRIDE;
 
     bool isModified() const { return false; }
     bool isSaveAsAllowed() const { return true; }
     bool save(QString *errorString, const QString &fileName, bool autoSave);
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
     bool open(QString *errorString, const QString &fileName);
+
+    QString plainText() const;
 
 private:
     DiffEditorController *m_controller;

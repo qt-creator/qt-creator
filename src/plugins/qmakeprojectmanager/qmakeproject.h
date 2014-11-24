@@ -141,6 +141,9 @@ public:
 
     ProjectExplorer::ProjectImporter *createProjectImporter() const;
 
+    enum AsyncUpdateState { Base, AsyncFullUpdatePending, AsyncPartialUpdatePending, AsyncUpdateInProgress, ShuttingDown };
+    AsyncUpdateState asyncUpdateState() const;
+
 signals:
     void proFileUpdated(QmakeProjectManager::QmakeProFileNode *node, bool, bool);
     void buildDirectoryInitialized();
@@ -203,7 +206,6 @@ private:
     QTimer m_asyncUpdateTimer;
     QFutureInterface<void> *m_asyncUpdateFutureInterface;
     int m_pendingEvaluateFuturesCount;
-    enum AsyncUpdateState { Base, AsyncFullUpdatePending, AsyncPartialUpdatePending, AsyncUpdateInProgress, ShuttingDown };
     AsyncUpdateState m_asyncUpdateState;
     bool m_cancelEvaluate;
     QList<QmakeProFileNode *> m_partialEvaluate;

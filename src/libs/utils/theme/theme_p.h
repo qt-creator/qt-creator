@@ -55,6 +55,8 @@ public:
     QMap<QString, QColor> palette;
 };
 
+QTCREATOR_UTILS_EXPORT void setCreatorTheme(Theme *theme);
+
 } // namespace Utils
 
 #endif // THEME_P_H

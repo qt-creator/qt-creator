@@ -35,7 +35,9 @@
     To deploy Qt applications to BlackBerry 10 devices:
 
     \list 1
-        \li Select \gui File > \gui {New File or Project} > \gui {Applications} to create a \gui {Qt Quick Application}, \gui {Qt Widgets Application}, or \gui {BlackBerry Cascades Application}.
+        \li Select \gui File > \gui {New File or Project} > \gui {Application}
+            to create a \gui {Qt Quick Application}, \gui {Qt Widgets
+            Application}, or \gui {BlackBerry Cascades Application}.
         \li Select a BlackBerry 10 \l{glossary-buildandrun-kit}{kit} for either device or simulator. For more information about adding kits, see \l{Connecting BlackBerry 10 Devices}.
         \li When \QC prompts you to generate a BAR descriptor file, answer \gui Yes to generate the file and enable the packaging process.
         \li You can use the BAR descriptor editor to customize the appearance and behavior of the application.

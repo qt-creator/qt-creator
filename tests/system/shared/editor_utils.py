@@ -308,6 +308,13 @@ def maskSpecialCharsForSearchResult(filename):
     filename = filename.replace("_", "\\_").replace(".","\\.")
     return filename
 
+def waitForSearchResults():
+    cancelButton = ("{text='Cancel' type='QToolButton' unnamed='1' visible='1' "
+                    "window=':Qt Creator_Core::Internal::MainWindow'}")
+
+    waitFor("object.exists(cancelButton)", 3000)
+    waitFor("not object.exists(cancelButton)", 20000)
+
 def validateSearchResult(expectedCount):
     searchResult = waitForObject(":Qt Creator_SearchResult_Core::Internal::OutputPaneToggleButton")
     ensureChecked(searchResult)

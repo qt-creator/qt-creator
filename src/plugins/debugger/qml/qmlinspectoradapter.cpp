@@ -226,7 +226,7 @@ void QmlInspectorAdapter::toolsClientStateChanged(QmlDebugClient::State state)
                                             Core::Id(Constants::QML_UPDATE_ON_SAVE),
                                             m_inspectorToolsContext);
 
-        Core::ICore::updateAdditionalContexts(Core::Context(), m_inspectorToolsContext);
+        Core::ICore::addAdditionalContext(m_inspectorToolsContext);
 
         m_toolsClientConnected = true;
         onEngineStateChanged(m_engine->state());
@@ -246,7 +246,7 @@ void QmlInspectorAdapter::toolsClientStateChanged(QmlDebugClient::State state)
         Core::ActionManager::unregisterAction(m_updateOnSaveAction,
                                               Core::Id(Constants::QML_UPDATE_ON_SAVE));
 
-        Core::ICore::updateAdditionalContexts(m_inspectorToolsContext, Core::Context());
+        Core::ICore::removeAdditionalContext(m_inspectorToolsContext);
 
         enableTools(false);
         m_toolsClientConnected = false;

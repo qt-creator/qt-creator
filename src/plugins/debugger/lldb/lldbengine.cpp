@@ -74,11 +74,6 @@ using namespace Utils;
 namespace Debugger {
 namespace Internal {
 
-static QByteArray tooltipIName(const QString &exp)
-{
-    return "tooltip." + exp.toLatin1().toHex();
-}
-
 ///////////////////////////////////////////////////////////////////////
 //
 // LldbEngine
@@ -254,7 +249,7 @@ void LldbEngine::startLldb()
     args.append(_("-i"));
     args.append(Core::ICore::resourcePath() + _("/debugger/lldbbridge.py"));
     args.append(m_lldbCmd);
-    showMessage(_("STARTING LLDB ") + args.join(QLatin1Char(' ')));
+    showMessage(_("STARTING LLDB: python ") + args.join(QLatin1Char(' ')));
     m_lldbProc.setEnvironment(startParameters().environment.toStringList());
     if (!startParameters().workingDirectory.isEmpty())
         m_lldbProc.setWorkingDirectory(startParameters().workingDirectory);
@@ -524,7 +519,8 @@ void LldbEngine::activateFrame(int frameIndex)
     cmd.arg("thread", threadsHandler()->currentThread().raw());
     runCommand(cmd);
 
-    updateAll();
+    reloadRegisters();
+    updateLocals();
 }
 
 void LldbEngine::selectThread(ThreadId threadId)
@@ -680,7 +676,8 @@ void LldbEngine::updateBreakpointData(const GdbMi &bkpt, bool added)
         response.address = location["addr"].toAddress();
         response.functionName = location["func"].toUtf8();
     } else {
-        QTC_CHECK(false);
+        // This can happen for pending breakpoints.
+        showMessage(_("NO LOCATIONS (YET) FOR BP %1").arg(response.toString()));
     }
     handler->setResponse(id, response);
     if (added)
@@ -815,25 +812,8 @@ void LldbEngine::refreshSymbols(const GdbMi &symbols)
 //
 //////////////////////////////////////////////////////////////////////
 
-static WatchData m_toolTip;
-static QPoint m_toolTipPos;
-static QHash<QString, WatchData> m_toolTipCache;
-
-void LldbEngine::showToolTip()
-{
-    if (m_toolTipContext.expression.isEmpty())
-        return;
-    //const QString expression = m_toolTipContext->expression;
-    // qDebug() << "LldbEngine::showToolTip " << expression << m_toolTipContext->iname << (*m_toolTipContext);
-
-    DebuggerToolTipManager::showToolTip(m_toolTipContext, this);
-    // Prevent tooltip from re-occurring (classic GDB, QTCREATORBUG-4711).
-    m_toolTipContext.expression.clear();
-}
-
 void LldbEngine::resetLocation()
 {
-    m_toolTipContext.expression.clear();
     DebuggerEngine::resetLocation();
 }
 
@@ -845,11 +825,10 @@ bool LldbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editorWidget
         return false;
     }
 
-    m_toolTipContext = context;
-
     UpdateParameters params;
     params.tryPartial = true;
     params.tooltipOnly = true;
+    params.tooltipExpression = context.expression;
     params.varList = context.iname;
     doUpdateLocals(params);
 
@@ -924,6 +903,7 @@ void LldbEngine::doUpdateLocals(UpdateParameters params)
     cmd.arg("tooltiponly", params.tooltipOnly);
 
     cmd.beginList("watchers");
+
     // Watchers
     QHashIterator<QByteArray, int> it(WatchHandler::watcherNames());
     while (it.hasNext()) {
@@ -933,38 +913,16 @@ void LldbEngine::doUpdateLocals(UpdateParameters params)
             .arg("exp", it.key().toHex())
         .endGroup();
     }
-    // Tooltip
-    const StackFrame frame = stackHandler()->currentFrame();
-    if (!frame.file.isEmpty()) {
-        // Re-create tooltip items that are not filters on existing local variables in
-        // the tooltip model.
-        DebuggerToolTipContexts toolTips =
-            DebuggerToolTipManager::treeWidgetExpressions(this, frame.file, frame.function);
 
-        const QString currentExpression = m_toolTipContext.expression;
-        if (!currentExpression.isEmpty()) {
-            int currentIndex = -1;
-            for (int i = 0; i < toolTips.size(); ++i) {
-                if (toolTips.at(i).expression == currentExpression) {
-                    currentIndex = i;
-                    break;
-                }
-            }
-            if (currentIndex < 0) {
-                DebuggerToolTipContext context;
-                context.expression = currentExpression;
-                context.iname = tooltipIName(currentExpression);
-                toolTips.push_back(context);
-            }
-        }
-        foreach (const DebuggerToolTipContext &p, toolTips) {
-            if (p.iname.startsWith("tooltip"))
-                cmd.beginGroup()
-                    .arg("iname", p.iname)
-                    .arg("exp", p.expression.toLatin1().toHex())
-                .endGroup();
-        }
+    // Tooltips
+    DebuggerToolTipContexts toolTips = DebuggerToolTipManager::pendingTooltips(this);
+    foreach (const DebuggerToolTipContext &p, toolTips) {
+        cmd.beginGroup()
+                .arg("iname", p.iname)
+                .arg("exp", p.expression.toLatin1().toHex())
+        .endGroup();
     }
+
     cmd.endList();
 
     //cmd.arg("resultvarname", m_resultVarName);
@@ -1034,9 +992,8 @@ void LldbEngine::handleLldbFinished(int code, QProcess::ExitStatus type)
 void LldbEngine::readLldbStandardError()
 {
     QByteArray err = m_lldbProc.readAllStandardError();
-    qDebug() << "\nLLDB STDERR" << err;
-    //qWarning() << "Unexpected lldb stderr:" << err;
-    showMessage(_(err), LogError);
+    qDebug() << "\nLLDB STDERR UNEXPECTED: " << err;
+    showMessage(_("Lldb stderr: " + err), LogError);
 }
 
 void LldbEngine::readLldbStandardOutput()
@@ -1083,7 +1040,7 @@ void LldbEngine::refreshLocals(const GdbMi &vars)
     }
     handler->insertData(list);
 
-    showToolTip();
+    DebuggerToolTipManager::updateEngine(this);
  }
 
 void LldbEngine::refreshStack(const GdbMi &stack)
@@ -1199,6 +1156,8 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
         notifyEngineRunFailed();
     else if (newState == "inferiorsetupok")
         notifyInferiorSetupOk();
+    else if (newState == "inferiorsetupfailed")
+        notifyInferiorSetupFailed();
     else if (newState == "enginerunandinferiorrunok") {
         if (startParameters().continueAfterAttach)
             m_continueAtNextSpontaneousStop = true;
@@ -1219,15 +1178,16 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
 
 void LldbEngine::refreshLocation(const GdbMi &reportedLocation)
 {
-    if (boolSetting(OperateByInstruction)) {
-        Location loc(reportedLocation["addr"].toAddress());
+    qulonglong addr = reportedLocation["addr"].toAddress();
+    QString file = reportedLocation["file"].toUtf8();
+    int line = reportedLocation["line"].toInt();
+    Location loc = Location(file, line);
+    if (boolSetting(OperateByInstruction) || !QFileInfo::exists(file) || line <= 0) {
+        loc = Location(addr);
         loc.setNeedsMarker(true);
-        gotoLocation(loc);
-    } else {
-        QString file = reportedLocation["file"].toUtf8();
-        int line = reportedLocation["line"].toInt();
-        gotoLocation(Location(file, line));
+        loc.setUseAssembler(true);
     }
+    gotoLocation(loc);
 }
 
 void LldbEngine::reloadRegisters()

@@ -33,8 +33,9 @@
 
 #include "../utils_global.h"
 
-#include <QStyle>
 #include <QFlags>
+#include <QPalette>
+#include <QStyle>
 
 QT_FORWARD_DECLARE_CLASS(QSettings)
 
@@ -53,7 +54,7 @@ class QTCREATOR_UTILS_EXPORT Theme : public QObject
     Q_ENUMS(WidgetStyle)
 
 public:
-    Theme(QObject *parent = 0);
+    Theme(const QString &name, QObject *parent = 0);
     ~Theme();
 
     enum Color {
@@ -199,27 +200,27 @@ public:
     QColor color(Color role) const;
     QString imageFile(ImageFile imageFile, const QString &fallBack) const;
     QGradientStops gradient(Gradient role) const;
-    QPalette palette(const QPalette &base) const;
+    QPalette palette() const;
     QStringList preferredStyles() const;
 
-    QString fileName() const;
+    QString filePath() const;
+    QString name() const;
     void setName(const QString &name);
 
     QVariantHash values() const;
 
     void writeSettings(const QString &filename) const;
     void readSettings(QSettings &settings);
-    ThemePrivate *d;
 
-signals:
-    void changed();
+    static QPalette initialPalette();
+
+    ThemePrivate *d;
 
 private:
     QPair<QColor, QString> readNamedColor(const QString &color) const;
 };
 
 QTCREATOR_UTILS_EXPORT Theme *creatorTheme();
-QTCREATOR_UTILS_EXPORT void setCreatorTheme(Theme *theme);
 
 } // namespace Utils
 

@@ -698,7 +698,7 @@ class DumperBase:
         code = (None, "b", "H", None, "I")[tsize]
         base = toInteger(p)
         blob = self.extractBlob(base, maximum).toBytes()
-        for i in xrange(0, maximum / tsize):
+        for i in xrange(0, int(maximum / tsize)):
             t = struct.unpack_from(code, blob, i)[0]
             if t == 0:
                 return 0, i, self.hexencode(blob[:i])

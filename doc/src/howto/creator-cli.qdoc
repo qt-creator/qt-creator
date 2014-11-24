@@ -137,6 +137,11 @@
                  press them. Mostly useful when presenting \QC to someone else.
 
         \row
+            \li  -theme <default | dark>
+            \li  Core plugin: apply a dark color theme to \QC, without using
+                 stylesheets.
+
+        \row
             \li  -debug <pid>
             \li  Debugger plugin: attach to the process with the given process ID.
 
@@ -200,5 +205,8 @@
     may make some items difficult to see. Also, setting a stylesheet may affect
     the \l{Specifying Text Editor Settings}{text editor color scheme} and the
     styling of the integrated \QD.
+
+    You can also switch to a dark theme to customize the appearance of widgets,
+    colors, and icons without using stylesheets.
 
     */
