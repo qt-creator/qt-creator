@@ -181,6 +181,27 @@
     development PCs. To share settings, incorporate them into the build system.
     For example, if you use qmake, make the changes in the \c{.pro} file.
 
+    \section2 Batch Editing
+
+    To modify environment variable values for build or run environments,
+    select \gui {Batch Edit} in the build or run settings and enter environment
+    variables in the \gui {Edit Environment} dialog.
+
+    To remove a variable value from the environment, enter the variable name.
+    For example, \c TEST sets the value of the \c TEST variable empty when
+    building or running the project.
+
+    To add a variable value to the environment, enter the variable name and
+    value, separated by the equals sign. For example, the following line
+    prepends \c /opt/bin to the existing PATH:
+
+    \c {PATH=/opt/bin:${PATH}}
+
+    To add or remove several variables, place them on separate lines. The order
+    is important. If you remove a value on a line, you cannot refer to it on the
+    following lines. However, you can remove a value after you have referred to
+    it on an earlier line.
+
     \section2 Clearing the System Environment
 
     To build with a clean system environment, select the \gui {Clear system
