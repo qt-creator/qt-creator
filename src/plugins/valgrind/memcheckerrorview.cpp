@@ -137,7 +137,8 @@ static QString relativeToPath()
 }
 
 static QString errorLocation(const QModelIndex &index, const Error &error,
-                      bool link = false, const QString &linkAttr = QString())
+                             bool link = false, bool absolutePath = false,
+                             const QString &linkAttr = QString())
 {
     if (!index.isValid())
         return QString();
@@ -149,8 +150,9 @@ static QString errorLocation(const QModelIndex &index, const Error &error,
     }
     QTC_ASSERT(model, return QString());
 
+    const QString relativePath = absolutePath ? QString() : relativeToPath();
     return QCoreApplication::translate("Valgrind::Internal", "in %1").
-            arg(makeFrameName(model->findRelevantFrame(error), relativeToPath(),
+            arg(makeFrameName(model->findRelevantFrame(error), relativePath,
                               link, linkAttr));
 }
 
@@ -181,7 +183,9 @@ QWidget *MemcheckErrorDelegate::createDetailsWidget(const QFont & font,
     p.setBrush(QPalette::Text, p.highlightedText());
     errorLabel->setPalette(p);
     errorLabel->setText(QString::fromLatin1("%1&nbsp;&nbsp;<span %4>%2</span>")
-                            .arg(error.what(), errorLocation(errorIndex, error, true, linkStyle),
+                            .arg(error.what(),
+                                 errorLocation(errorIndex, error, /*link=*/ true,
+                                               /*absolutePath=*/ false, linkStyle),
                                  linkStyle));
     connect(errorLabel, &QLabel::linkActivated,
             this, &MemcheckErrorDelegate::openLinkInEditor);
@@ -265,17 +269,16 @@ void MemcheckErrorDelegate::copy()
     const Error error = m_detailsIndex.data(ErrorListModel::ErrorRole).value<Error>();
 
     stream << error.what() << "\n";
-    stream << "  " << errorLocation(m_detailsIndex, error) << "\n";
-
-    const QString relativeTo = relativeToPath();
+    stream << "  "
+           << errorLocation(m_detailsIndex, error, /*link=*/ false, /*absolutePath=*/ true)
+           << "\n";
 
     foreach (const Stack &stack, error.stacks()) {
         if (!stack.auxWhat().isEmpty())
             stream << stack.auxWhat();
         int i = 1;
-        foreach (const Frame &frame, stack.frames()) {
-            stream << "  " << i++ << ": " << makeFrameName(frame, relativeTo) << "\n";
-        }
+        foreach (const Frame &frame, stack.frames())
+            stream << "  " << i++ << ": " << makeFrameName(frame, QString(), false) << "\n";
     }
 
     stream.flush();
