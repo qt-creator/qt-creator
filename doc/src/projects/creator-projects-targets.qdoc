@@ -107,8 +107,9 @@
             it is referred to as \b{Qt in PATH} and selected as the Qt
             version to use for the \gui Desktop kit that is created by default.
 
-        \li In the \gui {Qt mkspec} field, specify build instructions for qmake.
-            If you leave this field empty, the default value is used.
+        \li In the \gui {Qt mkspec} field, specify the name of the mkspec
+            configuration that should be used by qmake. If you leave this field
+            empty, the default mkspec of the selected Qt version is used.
 
     \endlist
 
