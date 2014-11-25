@@ -1184,7 +1184,15 @@ IEditor *PerforcePlugin::showOutputInEditor(const QString &title,
         qDebug() << "PerforcePlugin::showOutputInEditor" << title << id.name()
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
+    QString content = output;
+    const int maxSize = EditorManager::maxTextFileSize() - 1000;
+    if (content.size() >= maxSize) {
+        content = tr("[Only %1 MB of output shown]").arg(maxSize / 1024 / 1024) + QLatin1Char('\n')
+                + content.rightRef(maxSize);
+
+    }
+    IEditor *editor = EditorManager::openEditorWithContents(id, &s, content.toUtf8());
+    QTC_ASSERT(editor, return 0);
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
             this, SLOT(vcsAnnotate(QString,QString,QString,int)));
     PerforceEditorWidget *e = qobject_cast<PerforceEditorWidget*>(editor->widget());
