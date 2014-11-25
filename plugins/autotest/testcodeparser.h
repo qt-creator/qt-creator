@@ -53,10 +53,13 @@ public slots:
     void onCppDocumentUpdated(const CPlusPlus::Document::Ptr &doc);
     void onQmlDocumentUpdated(const QmlJS::Document::Ptr &doc);
     void removeFiles(const QStringList &files);
+    void onProFileEvaluated();
 
 private:
-    void scanForTests();
+    void scanForTests(const QStringList &fileList = QStringList());
     void clearMaps();
+    void removeTestsIfNecessary(const QString &fileName);
+    void removeTestsIfNecessaryByProFile(const QString &proFile);
 
     TestTreeModel *m_model;
     QMap<QString, TestInfo> m_cppDocMap;

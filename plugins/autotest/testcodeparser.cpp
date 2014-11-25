@@ -31,6 +31,7 @@
 
 #include <projectexplorer/session.h>
 
+#include <qmakeprojectmanager/qmakeproject.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsdialect.h>
 #include <qmljstools/qmljsmodelmanager.h>
@@ -61,6 +62,13 @@ void TestCodeParser::updateTestTree()
     m_model->removeAllQuickTests();
     const ProjectExplorer::SessionManager *session = ProjectExplorer::SessionManager::instance();
     if (!session || !session->hasProjects()) {
+        if (m_currentProject) {
+            if (QmakeProjectManager::QmakeProject *qmproj
+                    = qobject_cast<QmakeProjectManager::QmakeProject *>(m_currentProject)) {
+                disconnect(qmproj, &QmakeProjectManager::QmakeProject::proFilesEvaluated,
+                           this, &TestCodeParser::onProFileEvaluated);
+            }
+        }
         m_currentProject = 0;
         return;
     }
@@ -68,6 +76,13 @@ void TestCodeParser::updateTestTree()
     m_currentProject = session->startupProject();
     if (!m_currentProject)
         return;
+    else {
+        if (QmakeProjectManager::QmakeProject *qmproj
+                = qobject_cast<QmakeProjectManager::QmakeProject *>(m_currentProject)) {
+            connect(qmproj, &QmakeProjectManager::QmakeProject::proFilesEvaluated,
+                    this, &TestCodeParser::onProFileEvaluated);
+        }
+    }
     scanForTests();
 }
 
@@ -241,6 +256,13 @@ void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr doc)
     const QString file = doc->fileName();
     const CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
 
+    QList<CppTools::ProjectPart::Ptr> projParts = cppMM->projectPart(file);
+    if (projParts.size())
+        if (!projParts.at(0)->selectedForBuilding) {
+            removeTestsIfNecessary(file);
+            return;
+        }
+
     if (includesQtQuickTest(doc, cppMM)) {
         handleQtQuickTest(doc);
         return;
@@ -299,6 +321,11 @@ void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr doc)
 
             // TODO refactoring?
             // update model and internal map
+            QString proFile;
+            QList<CppTools::ProjectPart::Ptr> ppList = cppMM->projectPart(file);
+            if (ppList.size())
+                proFile = ppList.at(0)->projectFile;
+
             TestInfo info;
             int count;
             if (m_cppDocMap.contains(file)) {
@@ -308,9 +335,9 @@ void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr doc)
                     TestTreeItem *currentItem = autoTestRootItem->child(i);
                     if (currentItem->filePath() == file) {
                         m_model->modifyAutoTestSubtree(i, ttItem);
-                        m_cppDocMap.insert(file, TestInfo(tc, privSlots.keys(),
-                                                          doc->revision(),
-                                                          doc->editorRevision()));
+                        TestInfo ti(tc, privSlots.keys(), doc->revision(), doc->editorRevision());
+                        ti.setProfile(proFile);
+                        m_cppDocMap.insert(file, ti);
                         break;
                     }
                 }
@@ -324,6 +351,7 @@ void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr doc)
                             TestInfo ti(tc, privSlots.keys(), doc->revision(),
                                         doc->editorRevision());
                             ti.setReferencingFile(file);
+                            ti.setProfile(proFile);
                             m_cppDocMap.insert(declFileName, ti);
                             break;
                         }
@@ -332,11 +360,13 @@ void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr doc)
                 delete ttItem;
             } else {
                 m_model->addAutoTest(ttItem);
-                m_cppDocMap.insert(file, TestInfo(tc, privSlots.keys(), doc->revision(),
-                                                  doc->editorRevision()));
+                TestInfo ti(tc, privSlots.keys(), doc->revision(), doc->editorRevision());
+                ti.setProfile(proFile);
+                m_cppDocMap.insert(file, ti);
                 if (declFileName != file) {
                     TestInfo ti(tc, privSlots.keys(), doc->revision(), doc->editorRevision());
                     ti.setReferencingFile(file);
+                    ti.setProfile(proFile);
                     m_cppDocMap.insert(declFileName, ti);
                 }
             }
@@ -466,6 +496,10 @@ void TestCodeParser::handleQtQuickTest(CPlusPlus::Document::Ptr doc)
         const QString fileName(tcLocationAndType.m_fileName);
         const QmlJS::Document::Ptr qmlDoc =
                 QmlJSTools::Internal::ModelManager::instance()->snapshot().document(fileName);
+        QString proFile;
+        QList<CppTools::ProjectPart::Ptr> ppList = cppMM->projectPart(doc->fileName());
+        if (ppList.size())
+            proFile = ppList.at(0)->projectFile;
 
         if (m_quickDocMap.contains(fileName)) {
             for (int i = 0; i < quickTestRootItem->childCount(); ++i) {
@@ -473,6 +507,7 @@ void TestCodeParser::handleQtQuickTest(CPlusPlus::Document::Ptr doc)
                     m_model->modifyQuickTestSubtree(i, ttItem);
                     TestInfo ti(tcName, testFunctions.keys(), 0, qmlDoc->editorRevision());
                     ti.setReferencingFile(doc->fileName());
+                    ti.setProfile(proFile);
                     m_quickDocMap.insert(fileName, ti);
                     break;
                 }
@@ -499,6 +534,7 @@ void TestCodeParser::handleQtQuickTest(CPlusPlus::Document::Ptr doc)
             m_model->addQuickTest(ttItem);
             TestInfo ti(tcName, testFunctions.keys(), 0, qmlDoc->editorRevision());
             ti.setReferencingFile(doc->fileName());
+            ti.setProfile(proFile);
             m_quickDocMap.insert(tcLocationAndType.m_fileName, ti);
         }
     }
@@ -557,21 +593,19 @@ void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &doc)
 
 void TestCodeParser::removeFiles(const QStringList &files)
 {
-    foreach (const QString &file, files) {
-        if (m_cppDocMap.contains(file)) {
-            m_cppDocMap.remove(file);
-            m_model->removeAutoTestSubtreeByFilePath(file);
-        }
-        if (m_quickDocMap.contains(file)) {
-            m_quickDocMap.remove(file);
-            m_model->removeQuickTestSubtreeByFilePath(file);
-        }
-    }
+    foreach (const QString &file, files)
+        removeTestsIfNecessary(file);
 }
 
-void TestCodeParser::scanForTests()
+void TestCodeParser::scanForTests(const QStringList &fileList)
 {
-    const QStringList list = m_currentProject->files(ProjectExplorer::Project::AllFiles);
+    QStringList list;
+    if (fileList.isEmpty()) {
+        list = m_currentProject->files(ProjectExplorer::Project::AllFiles);
+    } else {
+        list << fileList;
+    }
+
     CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
     CPlusPlus::Snapshot snapshot = cppMM->snapshot();
 
@@ -587,6 +621,123 @@ void TestCodeParser::clearMaps()
 {
     m_cppDocMap.clear();
     m_quickDocMap.clear();
+}
+
+void TestCodeParser::removeTestsIfNecessary(const QString &fileName)
+{
+    // check if this file was listed before and remove if necessary (switched config,...)
+    if (m_cppDocMap.contains(fileName)) {
+        m_cppDocMap.remove(fileName);
+        m_model->removeAutoTestSubtreeByFilePath(fileName);
+    } else { // handle Qt Quick Tests
+        QList<QString> toBeRemoved;
+        foreach (const QString &file, m_quickDocMap.keys()) {
+            if (file == fileName) {
+                toBeRemoved.append(file);
+                continue;
+            }
+            const TestInfo info = m_quickDocMap.value(file);
+            if (info.referencingFile() == fileName)
+                toBeRemoved.append(file);
+        }
+        foreach (const QString &file, toBeRemoved) {
+            m_quickDocMap.remove(file);
+            m_model->removeQuickTestSubtreeByFilePath(file);
+        }
+        // unnamed Quick Tests must be handled separately
+        QSet<QString> filePaths;
+        QList<QString> functionNames;
+        if (TestTreeItem *unnamedQT = m_model->unnamedQuickTests()) {
+            for (int i = 0; i < unnamedQT->childCount(); ++i) {
+                const TestTreeItem *child = unnamedQT->child(i);
+                if (child->mainFile() == fileName) {
+                    filePaths.insert(child->filePath());
+                    functionNames.append(child->name());
+                }
+            }
+            foreach (const QString &file, filePaths)
+                m_model->removeUnnamedQuickTests(file);
+            // update info map
+            TestInfo unnamedInfo = m_quickDocMap[tr(Constants::UNNAMED_QUICKTESTS)];
+            QStringList functions = unnamedInfo.testFunctions();
+            foreach (const QString &func, functionNames)
+                functions.removeOne(func);
+            unnamedInfo.setTestFunctions(functions);
+            if (functions.size() == 0)
+                m_quickDocMap.remove(tr(Constants::UNNAMED_QUICKTESTS));
+            else
+                m_quickDocMap.insert(tr(Constants::UNNAMED_QUICKTESTS), unnamedInfo);
+        }
+    }
+}
+
+
+void TestCodeParser::removeTestsIfNecessaryByProFile(const QString &proFile)
+{
+    QList<QString> fl;
+    foreach (const QString &fn, m_cppDocMap.keys()) {
+        if (m_cppDocMap[fn].proFile() == proFile)
+            fl.append(fn);
+    }
+    foreach (const QString &fn, fl) {
+        m_cppDocMap.remove(fn);
+        m_model->removeAutoTestSubtreeByFilePath(fn);
+    }
+    fl.clear();
+    foreach (const QString &fn, m_quickDocMap.keys()) {
+       if (m_quickDocMap[fn].proFile() == proFile)
+           fl.append(fn);
+    }
+    foreach (const QString &fn, fl) {
+        m_quickDocMap.remove(fn);
+        m_model->removeQuickTestSubtreeByFilePath(fn);
+    }
+    // handle unnamed Quick Tests
+    fl.clear(); // will now be re-used as function names storage
+    QSet<QString> filePaths;
+    CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
+    if (TestTreeItem *unnamedQT = m_model->unnamedQuickTests()) {
+        for (int i = 0; i < unnamedQT->childCount(); ++i) {
+            const TestTreeItem *child = unnamedQT->child(i);
+            QList<CppTools::ProjectPart::Ptr> ppList = cppMM->projectPart(child->mainFile());
+            if (ppList.size() && ppList.at(0)->projectFile == proFile) {
+                filePaths.insert(child->filePath());
+                fl.append(child->name());
+            }
+        }
+    }
+    foreach (const QString &fp, filePaths) {
+        m_model->removeUnnamedQuickTests(fp);
+    }
+    // update info map
+    TestInfo unnamedInfo = m_quickDocMap[tr(Constants::UNNAMED_QUICKTESTS)];
+    QStringList functions = unnamedInfo.testFunctions();
+    foreach (const QString &func, fl)
+        functions.removeOne(func);
+    unnamedInfo.setTestFunctions(functions);
+    if (functions.size() == 0)
+        m_quickDocMap.remove(tr(Constants::UNNAMED_QUICKTESTS));
+    else
+        m_quickDocMap.insert(tr(Constants::UNNAMED_QUICKTESTS), unnamedInfo);
+}
+
+void TestCodeParser::onProFileEvaluated()
+{
+    if (!m_currentProject)
+        return;
+
+    CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
+    const QList<CppTools::ProjectPart::Ptr> pp = cppMM->projectInfo(m_currentProject).projectParts();
+    foreach (const CppTools::ProjectPart::Ptr &p, pp) {
+        if (!p->selectedForBuilding)
+            removeTestsIfNecessaryByProFile(p->projectFile);
+        else {
+            QStringList files;
+            foreach (auto projectFile, p->files)
+                files.append(projectFile.path);
+            scanForTests(files);
+        }
+    }
 }
 
 } // namespace Internal

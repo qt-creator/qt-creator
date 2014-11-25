@@ -41,7 +41,9 @@ public:
     unsigned editorRevision() const { return m_editorRevision; }
     void setEditorRevision(unsigned editorRevision) { m_editorRevision = editorRevision; }
     const QString referencingFile() const { return m_referencingFile; }
-    void setReferencingFile(const QString &refFile) {m_referencingFile = refFile; }
+    void setReferencingFile(const QString &refFile) { m_referencingFile = refFile; }
+    const QString proFile() const { return m_proFile; }
+    void setProfile(const QString &proFile) { m_proFile = proFile; }
 
 private:
     QString m_className;
@@ -49,6 +51,7 @@ private:
     unsigned m_revision;
     unsigned m_editorRevision;
     QString m_referencingFile;
+    QString m_proFile;
 };
 
 } // namespace Internal

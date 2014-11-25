@@ -5,6 +5,7 @@ QTC_PLUGIN_DEPENDS += \
     projectexplorer \
     cpptools \
     qmljstools \
+    qmakeprojectmanager \
     licensechecker
 
 QTC_LIB_DEPENDS += \
