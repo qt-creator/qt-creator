@@ -85,9 +85,7 @@ SshRemoteProcess::SshRemoteProcess(quint32 channelId, Internal::SshSendFacility 
 
 SshRemoteProcess::~SshRemoteProcess()
 {
-    Q_ASSERT(d->channelState() == Internal::SshRemoteProcessPrivate::Inactive
-        || d->channelState() == Internal::SshRemoteProcessPrivate::CloseRequested
-        || d->channelState() == Internal::SshRemoteProcessPrivate::Closed);
+    close();
     delete d;
 }
 
