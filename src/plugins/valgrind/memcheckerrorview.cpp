@@ -286,7 +286,7 @@ MemcheckErrorView::MemcheckErrorView(QWidget *parent)
     setItemDelegate(delegate);
 
     m_copyAction = new QAction(this);
-    m_copyAction->setText(tr("Copy Selection"));
+    m_copyAction->setText(tr("Copy"));
     m_copyAction->setIcon(QIcon(QLatin1String(Core::Constants::ICON_COPY)));
     m_copyAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
     m_copyAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
