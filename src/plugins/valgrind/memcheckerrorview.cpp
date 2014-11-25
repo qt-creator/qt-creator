@@ -154,9 +154,13 @@ static QString errorLocation(const QModelIndex &index, const Error &error,
                               link, linkAttr));
 }
 
-QWidget *MemcheckErrorDelegate::createDetailsWidget(const QFont & font, const QModelIndex &errorIndex, QWidget *parent) const
+QWidget *MemcheckErrorDelegate::createDetailsWidget(const QFont & font,
+                                                    const QModelIndex &errorIndex,
+                                                    QWidget *parent) const
 {
     QWidget *widget = new QWidget(parent);
+    QTC_ASSERT(errorIndex.isValid(), return widget);
+
     QVBoxLayout *layout = new QVBoxLayout;
     // code + white-space:pre so the padding (see below) works properly
     // don't include frameName here as it should wrap if required and pre-line is not supported

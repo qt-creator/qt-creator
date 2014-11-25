@@ -51,6 +51,9 @@ DetailedErrorDelegate::DetailedErrorDelegate(QListView *parent)
 QSize DetailedErrorDelegate::sizeHint(const QStyleOptionViewItem &opt,
                                       const QModelIndex &index) const
 {
+    if (!index.isValid())
+        return QStyledItemDelegate::sizeHint(opt, index);
+
     const QListView *view = qobject_cast<const QListView *>(parent());
     const int viewportWidth = view->viewport()->width();
     const bool isSelected = view->selectionModel()->currentIndex() == index;
