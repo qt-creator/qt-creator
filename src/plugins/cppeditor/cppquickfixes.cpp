@@ -38,6 +38,7 @@
 #include "cppinsertvirtualmethods.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagebox.h>
 
 #include <cpptools/cppclassesfilter.h>
 #include <cpptools/cppcodestylesettings.h>
@@ -62,7 +63,6 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QInputDialog>
-#include <QMessageBox>
 #include <QSharedPointer>
 #include <QStack>
 #include <QTextCursor>
@@ -3187,10 +3187,9 @@ public:
             return QString();
 
         if (!isValidIdentifier(name)) {
-            QMessageBox::critical(0,
-                                  QCoreApplication::translate("QuickFix::ExtractFunction",
-                                                              "Extract Function Refactoring"),
-                                  QCoreApplication::translate("QuickFix::ExtractFunction",
+            Core::AsynchronousMessageBox::critical(QCoreApplication::translate("QuickFix::ExtractFunction",
+                                                                               "Extract Function Refactoring"),
+                                                   QCoreApplication::translate("QuickFix::ExtractFunction",
                                                               "Invalid function name"));
             return QString();
         }
