@@ -71,6 +71,7 @@ QtcPlugin {
             "jsexpander.cpp", "jsexpander.h",
             "mainwindow.cpp", "mainwindow.h",
             "manhattanstyle.cpp", "manhattanstyle.h",
+            "messagebox.cpp", "messagebox.h",
             "messagemanager.cpp", "messagemanager.h",
             "messageoutputwindow.cpp", "messageoutputwindow.h",
             "mimedatabase.cpp", "mimedatabase.h",

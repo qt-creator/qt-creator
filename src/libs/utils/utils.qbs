@@ -106,8 +106,6 @@ QtcLibrary {
         "listutils.h",
         "macroexpander.cpp",
         "macroexpander.h",
-        "messagebox.cpp",
-        "messagebox.h",
         "multitask.h",
         "navigationtreeview.cpp",
         "navigationtreeview.h",

@@ -28,40 +28,23 @@
 **
 ****************************************************************************/
 
-#include "messagebox.h"
+#ifndef MESSAGEBOX_H
+#define MESSAGEBOX_H
 
-#include <QMessageBox>
-#include <QApplication>
+#include "core_global.h"
 
-namespace Utils {
+QT_BEGIN_NAMESPACE
+class QString;
+QT_END_NAMESPACE
+
+namespace Core {
 namespace AsynchronousMessageBox {
 
-namespace {
-QWidget *dialogParent()
-{
-    QWidget *active = QApplication::activeModalWidget();
-
-    if (!active) {
-        QList<QWidget*> topLevelWidgets = QApplication::topLevelWidgets();
-        if (!topLevelWidgets.isEmpty())
-            return topLevelWidgets.first();
-    }
-
-    return nullptr;
+    CORE_EXPORT void warning(const QString &title, const QString &desciption);
+    CORE_EXPORT void information(const QString &title, const QString &desciption);
+    CORE_EXPORT void critical(const QString &title, const QString &desciption);
 }
-}
-void warning(const QString &title, const QString &desciption)
-{
-    QMessageBox *messageBox = new QMessageBox(QMessageBox::Warning,
-                                              title,
-                                              desciption,
-                                              QMessageBox::Ok,
-                                              dialogParent());
-
-    messageBox->setAttribute(Qt::WA_DeleteOnClose);
-    messageBox->setModal(true);
-    messageBox->show();
 }
 
-}
-}
+#endif // MESSAGEBOX_H
+

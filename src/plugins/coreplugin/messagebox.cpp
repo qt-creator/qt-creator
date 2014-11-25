@@ -28,21 +28,45 @@
 **
 ****************************************************************************/
 
-#ifndef MESSAGEBOX_H
-#define MESSAGEBOX_H
+#include "messagebox.h"
 
-#include "utils_global.h"
+#include <QMessageBox>
 
-QT_BEGIN_NAMESPACE
-class QString;
-QT_END_NAMESPACE
+#include "icore.h"
 
-namespace Utils {
+namespace Core {
 namespace AsynchronousMessageBox {
 
-    QTCREATOR_UTILS_EXPORT void warning(const QString &title, const QString &desciption);
+namespace {
+
+void message(QMessageBox::Icon icon, const QString &title, const QString &desciption)
+{
+    QMessageBox *messageBox = new QMessageBox(icon,
+                                              title,
+                                              desciption,
+                                              QMessageBox::Ok,
+                                              Core::ICore::dialogParent());
+
+    messageBox->setAttribute(Qt::WA_DeleteOnClose);
+    messageBox->setModal(true);
+    messageBox->show();
 }
 }
 
-#endif // MESSAGEBOX_H
+void warning(const QString &title, const QString &desciption)
+{
+    message(QMessageBox::Warning, title, desciption);
+}
 
+void information(const QString &title, const QString &desciption)
+{
+    message(QMessageBox::Information, title, desciption);
+}
+
+void critical(const QString &title, const QString &desciption)
+{
+    message(QMessageBox::Critical, title, desciption);
+}
+}
+
+}

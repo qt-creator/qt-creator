@@ -110,7 +110,8 @@ SOURCES += corejsextensions.cpp \
     themeeditor/colorrole.cpp \
     themeeditor/themesettingstablemodel.cpp \
     themeeditor/sectionedtablemodel.cpp \
-    themeeditor/themesettingsitemdelegate.cpp
+    themeeditor/themesettingsitemdelegate.cpp \
+    messagebox.cpp
 
 HEADERS += corejsextensions.h \
     mainwindow.h \
@@ -226,6 +227,7 @@ HEADERS += corejsextensions.h \
     themeeditor/themesettingstablemodel.h \
     themeeditor/sectionedtablemodel.h \
     themeeditor/themesettingsitemdelegate.h \
+    messagebox.h
 
 FORMS += dialogs/newdialog.ui \
     dialogs/saveitemsdialog.ui \
