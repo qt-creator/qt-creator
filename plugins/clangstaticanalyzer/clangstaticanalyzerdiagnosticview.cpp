@@ -234,11 +234,12 @@ QWidget *ClangStaticAnalyzerDiagnosticDelegate::createDetailsWidget(const QFont 
                                                                     QWidget *parent) const
 {
     QWidget *widget = new QWidget(parent);
-    QVBoxLayout *layout = new QVBoxLayout;
 
     const Diagnostic diagnostic = index.data(Qt::UserRole).value<Diagnostic>();
     if (!diagnostic.isValid())
         return widget;
+
+    QVBoxLayout *layout = new QVBoxLayout;
 
     // Add summary label
     QLabel *summaryLineLabel = createSummaryLabel(diagnostic);
