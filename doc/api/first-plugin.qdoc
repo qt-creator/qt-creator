@@ -35,6 +35,12 @@
     build and use one for actually developing, and the other for testing
     your plugin with.
 
+    You need to make sure that you use the same \QC version that you want
+    to develop for to create the plugin. Because of the
+    \l{Binary and Source Compatibility} rules of \QC, the \QC plugin wizard
+    creates a plugin that might only compile and run with the same \QC
+    version that it was created with.
+
     \list 1
         \li Select \gui{File > New File or Project > Libraries > Qt Creator Plugin > Choose}.
 
