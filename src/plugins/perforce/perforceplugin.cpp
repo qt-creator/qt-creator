@@ -1188,7 +1188,7 @@ IEditor *PerforcePlugin::showOutputInEditor(const QString &title,
     const int maxSize = EditorManager::maxTextFileSize() - 1000;
     if (content.size() >= maxSize) {
         content = tr("[Only %1 MB of output shown]").arg(maxSize / 1024 / 1024) + QLatin1Char('\n')
-                + content.rightRef(maxSize);
+                + content.right(maxSize);
 
     }
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, content.toUtf8());
