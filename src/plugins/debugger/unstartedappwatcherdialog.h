@@ -70,6 +70,7 @@ public slots:
     void startStopWatching(bool start);
     void findProcess();
     void stopAndCheckExecutable();
+    void kitChanged();
 
 signals:
     void processFound();
