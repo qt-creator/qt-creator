@@ -40,12 +40,11 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/messagebox.h>
 
 #include <utils/qtcassert.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/invoker.h>
-
-#include <QMessageBox>
 
 #include <cstring>
 
@@ -197,7 +196,7 @@ void MemoryAgent::createBinEditor(quint64 addr, unsigned flags,
                                   const QString &title, QWidget *parent)
 {
     if (!doCreateBinEditor(addr, flags, ml, pos, title, parent))
-        showMessageBox(QMessageBox::Warning,
+        Core::AsynchronousMessageBox::warning(
             tr("No Memory Viewer Available"),
             tr("The memory contents cannot be shown as no viewer plugin "
                "for binary data has been loaded."));

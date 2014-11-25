@@ -49,7 +49,6 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
-#include <QMessageBox>
 #include <QMenu>
 #include <QSpinBox>
 #include <QTextEdit>

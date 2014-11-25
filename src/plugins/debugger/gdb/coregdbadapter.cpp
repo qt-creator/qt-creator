@@ -30,6 +30,8 @@
 
 #include "coregdbadapter.h"
 
+#include <coreplugin/messagebox.h>
+
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggerstartparameters.h>
@@ -39,7 +41,6 @@
 #include <utils/qtcassert.h>
 
 #include <QDir>
-#include <QMessageBox>
 #include <QTemporaryFile>
 
 using namespace Utils;
@@ -185,7 +186,7 @@ void GdbCoreEngine::continueSetupEngine()
         if (cinfo.isCore) {
             m_executable = cinfo.foundExecutableName;
             if (m_executable.isEmpty()) {
-                showMessageBox(QMessageBox::Warning,
+                Core::AsynchronousMessageBox::warning(
                     tr("Error Loading Symbols"),
                     tr("No executable to load symbols from specified core."));
                 notifyEngineSetupFailed();
@@ -196,7 +197,7 @@ void GdbCoreEngine::continueSetupEngine()
     if (isCore) {
         startGdb();
     } else {
-        showMessageBox(QMessageBox::Warning,
+        Core::AsynchronousMessageBox::warning(
             tr("Error Loading Core File"),
             tr("The specified file does not appear to be a core file."));
         notifyEngineSetupFailed();

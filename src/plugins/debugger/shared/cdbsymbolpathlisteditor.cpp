@@ -31,6 +31,7 @@
 #include "cdbsymbolpathlisteditor.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagebox.h>
 
 #include <utils/pathchooser.h>
 #include <utils/checkablemessagebox.h>
@@ -98,15 +99,15 @@ void CacheDirectoryDialog::accept()
     }
     // Does a file of the same name exist?
     if (fi.exists()) {
-        QMessageBox::warning(this, tr("Already Exists"),
-                             tr("A file named \"%1\" already exists.").arg(cache));
+        Core::AsynchronousMessageBox::warning(tr("Already Exists"),
+                                              tr("A file named \"%1\" already exists.").arg(cache));
         return;
     }
     // Create
     QDir root(QDir::root());
     if (!root.mkpath(cache)) {
-        QMessageBox::warning(this, tr("Cannot Create"),
-                             tr("The folder \"%1\" could not be created.").arg(cache));
+        Core::AsynchronousMessageBox::warning(tr("Cannot Create"),
+                                              tr("The folder \"%1\" could not be created.").arg(cache));
         return;
     }
     QDialog::accept();

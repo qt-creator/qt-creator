@@ -78,6 +78,7 @@
 #include <coreplugin/imode.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagebox.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/modemanager.h>
 
@@ -1589,8 +1590,8 @@ DebuggerRunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     QTC_ASSERT(device, return 0);
     if (process.pid == 0) {
-        QMessageBox::warning(ICore::dialogParent(), tr("Warning"),
-            tr("Cannot attach to process with PID 0"));
+        Core::AsynchronousMessageBox::warning(tr("Warning"),
+                                              tr("Cannot attach to process with PID 0"));
         return 0;
     }
 
@@ -1598,14 +1599,14 @@ DebuggerRunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     if (const ToolChain *tc = ToolChainKitInformation::toolChain(kit))
         isWindows = tc->targetAbi().os() == Abi::WindowsOS;
     if (isWindows && isWinProcessBeingDebugged(process.pid)) {
-        QMessageBox::warning(ICore::mainWindow(), tr("Process Already Under Debugger Control"),
+        Core::AsynchronousMessageBox::warning(tr("Process Already Under Debugger Control"),
                              tr("The process %1 is already under the control of a debugger.\n"
                                 "Qt Creator cannot attach to it.").arg(process.pid));
         return 0;
     }
 
     if (device->type() != PE::DESKTOP_DEVICE_TYPE) {
-        QMessageBox::warning(ICore::mainWindow(), tr("Not a Desktop Device Type"),
+        Core::AsynchronousMessageBox::warning(tr("Not a Desktop Device Type"),
                              tr("It is only possible to attach to a locally running process."));
         return 0;
     }

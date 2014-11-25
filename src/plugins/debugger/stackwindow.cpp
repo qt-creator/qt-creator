@@ -37,6 +37,7 @@
 #include "debuggerdialogs.h"
 #include "memoryagent.h"
 
+#include <coreplugin/messagebox.h>
 
 #include <utils/savedaction.h>
 
@@ -50,7 +51,6 @@
 #include <QContextMenuEvent>
 #include <QInputDialog>
 #include <QFileDialog>
-#include <QMessageBox>
 #include <QMenu>
 
 namespace Debugger {
@@ -127,7 +127,7 @@ void saveTaskFile(QWidget *parent, const StackHandler *sh)
         const QString fileName = fileDialog.selectedFiles().front();
         file.setFileName(fileName);
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            QMessageBox::warning(parent, StackTreeView::tr("Cannot Open Task File"),
+            Core::AsynchronousMessageBox::warning(StackTreeView::tr("Cannot Open Task File"),
                                  StackTreeView::tr("Cannot open \"%1\": %2").arg(QDir::toNativeSeparators(fileName), file.errorString()));
         }
     }

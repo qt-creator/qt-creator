@@ -37,6 +37,7 @@
 #include <debugger/debuggerstartparameters.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagebox.h>
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/devicesupport/deviceprocesslist.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
@@ -45,7 +46,6 @@
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 
-#include <QMessageBox>
 #include <QFileInfo>
 
 using namespace Core;
@@ -90,7 +90,7 @@ GdbServerStarter::~GdbServerStarter()
 
 void GdbServerStarter::handleRemoteError(const QString &errorMsg)
 {
-    QMessageBox::critical(0, tr("Remote Error"), errorMsg);
+    Core::AsynchronousMessageBox::critical(tr("Remote Error"), errorMsg);
 }
 
 void GdbServerStarter::portGathererError(const QString &text)
@@ -191,7 +191,7 @@ void GdbServerStarter::attach(int port)
             localExecutable = candidate;
     }
     if (localExecutable.isEmpty()) {
-        QMessageBox::warning(ICore::mainWindow(), tr("Warning"),
+        Core::AsynchronousMessageBox::warning(tr("Warning"),
             tr("Cannot find local executable for remote process \"%1\".")
                 .arg(d->process.exe));
         return;
@@ -199,7 +199,7 @@ void GdbServerStarter::attach(int port)
 
     QList<Abi> abis = Abi::abisOfBinary(Utils::FileName::fromString(localExecutable));
     if (abis.isEmpty()) {
-        QMessageBox::warning(ICore::mainWindow(), tr("Warning"),
+        Core::AsynchronousMessageBox::warning(tr("Warning"),
             tr("Cannot find ABI for remote process \"%1\".")
                 .arg(d->process.exe));
         return;

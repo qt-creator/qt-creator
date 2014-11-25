@@ -42,7 +42,6 @@
 QT_BEGIN_NAMESPACE
 class QDebug;
 class QPoint;
-class QMessageBox;
 class QAbstractItemModel;
 QT_END_NAMESPACE
 

@@ -52,6 +52,7 @@
 #include <texteditor/texteditor.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagebox.h>
 
 #include <QDateTime>
 #include <QDebug>
@@ -61,7 +62,6 @@
 #include <QVariant>
 
 #include <QApplication>
-#include <QMessageBox>
 #include <QToolTip>
 
 
@@ -198,7 +198,7 @@ void PdbEngine::setupInferior()
     QString fileName = QFileInfo(startParameters().executable).absoluteFilePath();
     QFile scriptFile(fileName);
     if (!scriptFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
-        showMessageBox(QMessageBox::Critical, tr("Python Error"),
+        Core::AsynchronousMessageBox::critical(tr("Python Error"),
             _("Cannot open script file %1:\n%2").
                arg(fileName, scriptFile.errorString()));
         notifyInferiorSetupFailed();
@@ -555,8 +555,8 @@ void PdbEngine::handlePdbError(QProcess::ProcessError error)
     default:
         //setState(EngineShutdownRequested, true);
         m_pdbProc.kill();
-        showMessageBox(QMessageBox::Critical, tr("Pdb I/O Error"),
-                       errorMessage(error));
+        Core::AsynchronousMessageBox::critical(tr("Pdb I/O Error"),
+                                               errorMessage(error));
         break;
     }
 }

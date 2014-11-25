@@ -55,6 +55,7 @@
 #include <debugger/shared/hostutils.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagebox.h>
 #include <projectexplorer/taskhub.h>
 #include <texteditor/texteditor.h>
 
@@ -72,7 +73,6 @@
 #include <cpptools/cppworkingcopy.h>
 
 #include <QDir>
-#include <QMessageBox>
 
 #include <cctype>
 
@@ -534,7 +534,7 @@ void CdbEngine::consoleStubError(const QString &msg)
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineIll")
         notifyEngineIll();
     }
-    showMessageBox(QMessageBox::Critical, tr("Debugger Error"), msg);
+    Core::AsynchronousMessageBox::critical(tr("Debugger Error"), msg);
 }
 
 void CdbEngine::consoleStubProcessStarted()
@@ -552,7 +552,7 @@ void CdbEngine::consoleStubProcessStarted()
     QString errorMessage;
     if (!launchCDB(attachParameters, &errorMessage)) {
         showMessage(errorMessage, LogError);
-        showMessageBox(QMessageBox::Critical, tr("Failed to Start the Debugger"), errorMessage);
+        Core::AsynchronousMessageBox::critical(tr("Failed to Start the Debugger"), errorMessage);
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupFailed")
         notifyEngineSetupFailed();
     }
@@ -599,7 +599,7 @@ void CdbEngine::setupEngine()
         qDebug("<setupEngine ok=%d", ok);
     if (!ok) {
         showMessage(errorMessage, LogError);
-        showMessageBox(QMessageBox::Critical, tr("Failed to Start the Debugger"), errorMessage);
+        Core::AsynchronousMessageBox::critical(tr("Failed to Start the Debugger"), errorMessage);
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupFailed")
         notifyEngineSetupFailed();
     }

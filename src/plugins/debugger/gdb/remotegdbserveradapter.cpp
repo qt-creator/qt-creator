@@ -38,12 +38,13 @@
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerstringutils.h>
 
+#include <coreplugin/messagebox.h>
+
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 #include <QFileInfo>
-#include <QMessageBox>
 
 namespace Debugger {
 namespace Internal {
@@ -130,7 +131,7 @@ void GdbRemoteServerEngine::uploadProcError(QProcess::ProcessError error)
     }
 
     showMessage(msg, StatusBar);
-    showMessageBox(QMessageBox::Critical, tr("Error"), msg);
+    Core::AsynchronousMessageBox::critical(tr("Error"), msg);
 }
 
 void GdbRemoteServerEngine::readUploadStandardOutput()

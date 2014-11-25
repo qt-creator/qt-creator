@@ -39,8 +39,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
-
-#include <QMessageBox>
+#include <coreplugin/messagebox.h>
 
 using namespace Utils;
 
@@ -188,7 +187,7 @@ void GdbTermEngine::interruptInferior2()
 
 void GdbTermEngine::stubError(const QString &msg)
 {
-    showMessageBox(QMessageBox::Critical, tr("Debugger Error"), msg);
+    Core::AsynchronousMessageBox::critical(tr("Debugger Error"), msg);
 }
 
 void GdbTermEngine::stubExited()

@@ -52,6 +52,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagebox.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 
@@ -71,8 +72,6 @@
 #include <QTimer>
 #include <QFileInfo>
 #include <QDir>
-
-#include <QMessageBox>
 
 using namespace Core;
 using namespace Debugger::Internal;
@@ -1733,7 +1732,7 @@ void DebuggerEngine::showStoppedBySignalMessageBox(QString meaning, QString name
                            "<table><tr><td>Signal name : </td><td>%1</td></tr>"
                            "<tr><td>Signal meaning : </td><td>%2</td></tr></table>")
             .arg(name, meaning);
-    showMessageBox(QMessageBox::Information, tr("Signal received"), msg);
+    Core::AsynchronousMessageBox::information(tr("Signal received"), msg);
 }
 
 void DebuggerEngine::showStoppedByExceptionMessageBox(const QString &description)
@@ -1741,7 +1740,7 @@ void DebuggerEngine::showStoppedByExceptionMessageBox(const QString &description
     const QString msg =
         tr("<p>The inferior stopped because it triggered an exception.<p>%1").
                          arg(description);
-    showMessageBox(QMessageBox::Information, tr("Exception Triggered"), msg);
+    Core::AsynchronousMessageBox::information(tr("Exception Triggered"), msg);
 }
 
 void DebuggerEngine::openMemoryView(quint64 startAddr, unsigned flags,
@@ -1897,7 +1896,7 @@ void DebuggerEngine::validateExecutable(DebuggerStartParameters *sp)
         return;
     }
     if (warnOnRelease) {
-        showMessageBox(QMessageBox::Information, tr("Warning"),
+        Core::AsynchronousMessageBox::information(tr("Warning"),
                        tr("This does not seem to be a \"Debug\" build.\n"
                           "Setting breakpoints by file name and line number may fail.")
                        + QLatin1Char('\n') + detailedWarning);

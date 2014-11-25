@@ -65,6 +65,7 @@
 #include <debugger/shared/hostutils.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagebox.h>
 #include <projectexplorer/devicesupport/deviceprocess.h>
 #include <projectexplorer/itaskhandler.h>
 #include <projectexplorer/taskhub.h>
@@ -1072,7 +1073,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
                 // with helpers enabled. In this case we get a second response with
                 // msg="Cannot find new threads: generic error"
                 showMessage(_("APPLYING WORKAROUND #1"));
-                showMessageBox(QMessageBox::Critical,
+                Core::AsynchronousMessageBox::critical(
                     tr("Executable failed"), QString::fromLocal8Bit(msg));
                 showStatusMessage(tr("Process failed to start"));
                 //shutdown();
@@ -1098,7 +1099,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
                 //showStatusMessage(tr("Executable failed: %1")
                 //    .arg(QString::fromLocal8Bit(msg)));
                 //shutdown();
-                //showMessageBox(QMessageBox::Critical,
+                //Core::AsynchronousMessageBox::critical(
                 //    tr("Executable failed"), QString::fromLocal8Bit(msg));
             } else if (msg.contains("Cannot insert breakpoint")) {
                 // For breakpoints set by address to non-existent addresses we
@@ -1112,7 +1113,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
                 // long as the breakpoints are enabled.
                 // FIXME: Should we silently disable the offending breakpoints?
                 showMessage(_("APPLYING WORKAROUND #5"));
-                showMessageBox(QMessageBox::Critical,
+                Core::AsynchronousMessageBox::critical(
                     tr("Setting breakpoints failed"), QString::fromLocal8Bit(msg));
                 QTC_CHECK(state() == InferiorRunOk);
                 notifyInferiorSpontaneousStop();
@@ -1128,7 +1129,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
                 if (!m_lastWinException.isEmpty())
                     logMsg = m_lastWinException + QLatin1Char('\n');
                 logMsg += QString::fromLocal8Bit(msg);
-                showMessageBox(QMessageBox::Critical, tr("Executable Failed"), logMsg);
+                Core::AsynchronousMessageBox::critical(tr("Executable Failed"), logMsg);
                 showStatusMessage(tr("Executable failed: %1").arg(logMsg));
             }
         }
@@ -1793,7 +1794,7 @@ void GdbEngine::handlePythonSetup(const GdbResponse &response)
             QString out1 = _("The selected build of GDB does not support Python scripting.");
             QString out2 = _("It cannot be used in Qt Creator.");
             showStatusMessage(out1 + QLatin1Char(' ') + out2);
-            showMessageBox(QMessageBox::Critical, tr("Execution Error"), out1 + _("<br>") + out2);
+            Core::AsynchronousMessageBox::critical(tr("Execution Error"), out1 + _("<br>") + out2);
         }
         notifyEngineSetupFailed();
     }
@@ -1801,7 +1802,7 @@ void GdbEngine::handlePythonSetup(const GdbResponse &response)
 
 void GdbEngine::showExecutionError(const QString &message)
 {
-    showMessageBox(QMessageBox::Critical, tr("Execution Error"),
+    Core::AsynchronousMessageBox::critical(tr("Execution Error"),
        tr("Cannot continue debugged process:") + QLatin1Char('\n') + message);
 }
 
@@ -1933,7 +1934,7 @@ void GdbEngine::handleInferiorShutdown(const GdbResponse &response)
         notifyInferiorShutdownOk();
         return;
     }
-    showMessageBox(QMessageBox::Critical,
+    Core::AsynchronousMessageBox::critical(
         tr("Failed to shut down application"),
         msgInferiorStopFailed(QString::fromLocal8Bit(ba)));
     notifyInferiorShutdownFailed();
@@ -2206,7 +2207,7 @@ void GdbEngine::handleExecuteNext(const GdbResponse &response)
         showExecutionError(QString::fromLocal8Bit(msg));
         notifyInferiorRunFailed();
     } else {
-        showMessageBox(QMessageBox::Critical, tr("Execution Error"),
+        Core::AsynchronousMessageBox::critical(tr("Execution Error"),
            tr("Cannot continue debugged process:") + QLatin1Char('\n') + QString::fromLocal8Bit(msg));
         notifyInferiorIll();
     }
@@ -3061,7 +3062,7 @@ void GdbEngine::handleShowModuleSymbols(const GdbResponse &response)
         file.remove();
         Internal::showModuleSymbols(modulePath, symbols);
     } else {
-        showMessageBox(QMessageBox::Critical, tr("Cannot Read Symbols"),
+        Core::AsynchronousMessageBox::critical(tr("Cannot Read Symbols"),
             tr("Cannot read symbols for module \"%1\".").arg(fileName));
     }
 }
@@ -3528,7 +3529,7 @@ void GdbEngine::createSnapshot()
         postCommand("gcore " + fileName.toLocal8Bit(),
             NeedsStop|ConsoleCommand, CB(handleMakeSnapshot), fileName);
     } else {
-        showMessageBox(QMessageBox::Critical, tr("Snapshot Creation Error"),
+        Core::AsynchronousMessageBox::critical(tr("Snapshot Creation Error"),
             tr("Cannot create snapshot file."));
     }
 }
@@ -3551,7 +3552,7 @@ void GdbEngine::handleMakeSnapshot(const GdbResponse &response)
         DebuggerRunControlFactory::createAndScheduleRun(sp);
     } else {
         QByteArray msg = response.data["msg"].data();
-        showMessageBox(QMessageBox::Critical, tr("Snapshot Creation Error"),
+        Core::AsynchronousMessageBox::critical(tr("Snapshot Creation Error"),
             tr("Cannot create snapshot:") + QLatin1Char('\n') + QString::fromLocal8Bit(msg));
     }
 }
@@ -4299,7 +4300,7 @@ void GdbEngine::loadInitScript()
         if (QFileInfo(script).isReadable()) {
             postCommand("source " + script.toLocal8Bit());
         } else {
-            showMessageBox(QMessageBox::Warning,
+            Core::AsynchronousMessageBox::warning(
             tr("Cannot find debugger initialization script"),
             tr("The debugger settings point to a script file at \"%1\" "
                "which is not accessible. If a script file is not needed, "
@@ -4336,7 +4337,7 @@ void GdbEngine::handleGdbError(QProcess::ProcessError error)
     default:
         //m_gdbProc->kill();
         //notifyEngineIll();
-        showMessageBox(QMessageBox::Critical, tr("GDB I/O Error"), msg);
+        Core::AsynchronousMessageBox::critical(tr("GDB I/O Error"), msg);
         break;
     }
 }
@@ -4364,7 +4365,7 @@ void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
         const QString msg = type == QProcess::CrashExit ?
                     tr("The gdb process terminated.") :
                     tr("The gdb process terminated unexpectedly (code %1)").arg(code);
-        showMessageBox(QMessageBox::Critical, tr("Unexpected GDB Exit"), msg);
+        Core::AsynchronousMessageBox::critical(tr("Unexpected GDB Exit"), msg);
         break;
     }
     }
@@ -4531,7 +4532,7 @@ void GdbEngine::notifyInferiorSetupFailed(const QString &msg)
         return; // Adapter crashed meanwhile, so this notification is meaningless.
     }
     showMessage(_("INFERIOR START FAILED"));
-    showMessageBox(QMessageBox::Critical, tr("Failed to start application"), msg);
+    Core::AsynchronousMessageBox::critical(tr("Failed to start application"), msg);
     DebuggerEngine::notifyInferiorSetupFailed();
 }
 
@@ -4553,7 +4554,7 @@ void GdbEngine::handleAdapterCrashed(const QString &msg)
     m_gdbProc->kill();
 
     if (!msg.isEmpty())
-        showMessageBox(QMessageBox::Critical, tr("Adapter crashed"), msg);
+        Core::AsynchronousMessageBox::critical(tr("Adapter crashed"), msg);
 }
 
 void GdbEngine::createFullBacktrace()

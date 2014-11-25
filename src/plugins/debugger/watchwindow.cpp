@@ -44,6 +44,8 @@
 
 #include <texteditor/syntaxhighlighter.h>
 
+#include <coreplugin/messagebox.h>
+
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 #include <utils/fancylineedit.h>
@@ -55,7 +57,6 @@
 #include <QInputDialog>
 #include <QItemDelegate>
 #include <QMenu>
-#include <QMessageBox>
 #include <QMetaProperty>
 #include <QMimeData>
 #include <QScrollBar>
@@ -436,7 +437,7 @@ static void addStackLayoutMemoryView(DebuggerEngine *engine, bool separateView,
         end += 8 - remainder;
     // Anything found and everything in a sensible range (static data in-between)?
     if (end <= start || end - start > 100 * 1024) {
-        QMessageBox::information(parent,
+        Core::AsynchronousMessageBox::information(
             WatchTreeView::tr("Cannot Display Stack Layout"),
             WatchTreeView::tr("Could not determine a suitable address range."));
         return;

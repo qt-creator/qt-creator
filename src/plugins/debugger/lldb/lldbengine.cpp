@@ -55,6 +55,7 @@
 #include <utils/qtcprocess.h>
 
 #include <texteditor/texteditor.h>
+#include <coreplugin/messagebox.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
 
@@ -66,7 +67,6 @@
 #include <QVariant>
 
 #include <QApplication>
-#include <QMessageBox>
 #include <QToolTip>
 
 using namespace Utils;
@@ -949,7 +949,7 @@ void LldbEngine::handleLldbError(QProcess::ProcessError error)
     default:
         //setState(EngineShutdownRequested, true);
         m_lldbProc.kill();
-        showMessageBox(QMessageBox::Critical, tr("LLDB I/O Error"),
+        Core::AsynchronousMessageBox::critical(tr("LLDB I/O Error"),
                        errorMessage(error));
         break;
     }
@@ -1441,7 +1441,7 @@ void LldbEngine::stubStarted()
 
 void LldbEngine::stubError(const QString &msg)
 {
-    showMessageBox(QMessageBox::Critical, tr("Debugger Error"), msg);
+    Core::AsynchronousMessageBox::critical(tr("Debugger Error"), msg);
 }
 
 void LldbEngine::stubExited()

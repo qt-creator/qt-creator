@@ -37,8 +37,9 @@
 #include <debugger/debuggerstringutils.h>
 #include <qmldebug/qmldebugclient.h>
 
+#include <coreplugin/messagebox.h>
+
 #include <QFileInfo>
-#include <QMessageBox>
 #include <utils/qtcassert.h>
 
 using QmlDebug::QmlDebugStream;
@@ -448,7 +449,7 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
                       .arg(error.toHtmlEscaped())
                     : tr("<p>An uncaught exception occurred in \"%1\":</p><p>%2</p>")
                       .arg(QLatin1String(stackFrames.value(0).fileUrl), error.toHtmlEscaped());
-            showMessageBox(QMessageBox::Information, tr("Uncaught Exception"), msg);
+            Core::AsynchronousMessageBox::information(tr("Uncaught Exception"), msg);
         } else {
             QString file;
             int line = -1;
