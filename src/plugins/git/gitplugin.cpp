@@ -63,6 +63,7 @@
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/coreconstants.h>
 
+#include <coreplugin/messagebox.h>
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
 
@@ -81,7 +82,6 @@
 
 #include <QAction>
 #include <QFileDialog>
-#include <QMessageBox>
 #include <QScopedPointer>
 
 #ifdef WITH_TESTS
@@ -1186,19 +1186,18 @@ void GitPlugin::cleanRepository(const QString &directory)
     const bool gotFiles = m_gitClient->synchronousCleanList(directory, &files, &ignoredFiles, &errorMessage);
     QApplication::restoreOverrideCursor();
 
-    QWidget *parent = ICore::mainWindow();
     if (!gotFiles) {
-        QMessageBox::warning(parent, tr("Unable to retrieve file list"), errorMessage);
+        Core::AsynchronousMessageBox::warning(tr("Unable to retrieve file list"), errorMessage);
         return;
     }
     if (files.isEmpty() && ignoredFiles.isEmpty()) {
-        QMessageBox::information(parent, tr("Repository Clean"),
-                                 tr("The repository is clean."));
+        Core::AsynchronousMessageBox::information(tr("Repository Clean"),
+                                                   tr("The repository is clean."));
         return;
     }
 
     // Show in dialog
-    CleanDialog dialog(parent);
+    CleanDialog dialog(ICore::dialogParent());
     dialog.setFileList(directory, files, ignoredFiles);
     dialog.exec();
 }

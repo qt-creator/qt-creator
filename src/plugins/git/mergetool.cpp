@@ -36,6 +36,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <vcsbase/vcsoutputwindow.h>
+#include <coreplugin/messagebox.h>
 
 #include <QMessageBox>
 #include <QProcess>
@@ -93,8 +94,8 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
     arguments << QLatin1String("mergetool") << QLatin1String("-y");
     if (!files.isEmpty()) {
         if (m_gitClient->gitVersion() < 0x010708) {
-            QMessageBox::warning(Core::ICore::dialogParent(), tr("Error"),
-                                 tr("File input for the merge tool requires Git 1.7.8, or later."));
+            Core::AsynchronousMessageBox::warning(tr("Error"),
+                                                   tr("File input for the merge tool requires Git 1.7.8, or later."));
             return false;
         }
         arguments << files;

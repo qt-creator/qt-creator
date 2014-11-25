@@ -35,11 +35,11 @@
 
 #include <vcsbase/vcsbaseconstants.h>
 #include <utils/hostosinfo.h>
+#include <coreplugin/messagebox.h>
 
 #include <QDir>
 #include <QDebug>
 #include <QTextStream>
-#include <QMessageBox>
 
 namespace Git {
 namespace Internal {
@@ -118,7 +118,7 @@ void SettingsPage::apply()
         QString errorMessage;
         newSettings.gitExecutable(&gitFoundOk, &errorMessage);
         if (!gitFoundOk)
-            QMessageBox::warning(m_widget, tr("Git Settings"), errorMessage);
+            Core::AsynchronousMessageBox::warning(tr("Git Settings"), errorMessage);
     }
 
     GitPlugin::instance()->setSettings(newSettings);

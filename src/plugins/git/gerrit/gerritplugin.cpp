@@ -57,6 +57,7 @@
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <utils/synchronousprocess.h>
+#include <coreplugin/messagebox.h>
 
 #include <QDebug>
 #include <QProcess>
@@ -371,8 +372,8 @@ void GerritPlugin::openView()
 {
     if (m_dialog.isNull()) {
         while (!m_parameters->isValid()) {
-            QMessageBox::warning(ICore::dialogParent(), tr("Error"),
-                    tr("Invalid Gerrit configuration. Host, user and ssh binary are mandatory."));
+            Core::AsynchronousMessageBox::warning(tr("Error"),
+                                                   tr("Invalid Gerrit configuration. Host, user and ssh binary are mandatory."));
             const Id group = VcsBase::Constants::VCS_SETTINGS_CATEGORY;
             if (!ICore::showOptionsDialog(group, "Gerrit"))
                 return;
