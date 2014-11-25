@@ -41,7 +41,7 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/toolchain.h>
 #include <utils/environment.h>
-#include <utils/messagebox.h>
+#include <coreplugin/messagebox.h>
 #include <coreplugin/icore.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
@@ -230,14 +230,14 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
             }
 
             if (!buildSucceeded)
-                Utils::AsynchronousMessageBox::warning(QCoreApplication::translate("PuppetCreator", "QML Emulation Layer (QML Puppet) Building was Unsuccessful"),
+                Core::AsynchronousMessageBox::warning(QCoreApplication::translate("PuppetCreator", "QML Emulation Layer (QML Puppet) Building was Unsuccessful"),
                                                        QCoreApplication::translate("PuppetCreator",
                                                                      "The QML emulation layer (QML Puppet) cannot be built. "
                                                                      "The fallback emulation layer, which does not support all features, will be used."
                                                                      ));
         }
     } else {
-        Utils::AsynchronousMessageBox::warning(QCoreApplication::translate("PuppetCreator", "Qt Version is not supported"),
+        Core::AsynchronousMessageBox::warning(QCoreApplication::translate("PuppetCreator", "Qt Version is not supported"),
                                                QCoreApplication::translate("PuppetCreator",
                                                                            "The QML emulation layer (QML Puppet) cannot be built because the Qt version is too old "
                                                                            "or it cannot run natively on your computer. "
@@ -250,7 +250,7 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
 
 static void warnAboutInvalidKit()
 {
-    Utils::AsynchronousMessageBox::warning(QCoreApplication::translate("PuppetCreator", "Kit is invalid"),
+    Core::AsynchronousMessageBox::warning(QCoreApplication::translate("PuppetCreator", "Kit is invalid"),
                                            QCoreApplication::translate("PuppetCreator",
                                                                        "The QML emulation layer (QML Puppet) cannot be built because the kit is not configured correctly. "
                                                                        "For example the compiler can be misconfigured. "

@@ -49,7 +49,7 @@
 #include <QApplication>
 #include <QPointF>
 
-#include <utils/messagebox.h>
+#include <coreplugin/messagebox.h>
 
 #include <QtDebug>
 
@@ -346,7 +346,7 @@ void NavigatorTreeModel::updateItemRow(const ModelNode &node)
 
 static void handleWrongId(QStandardItem *item, const ModelNode &modelNode, const QString &errorTitle, const QString &errorMessage, NavigatorTreeModel *treeModel)
 {
-    Utils::AsynchronousMessageBox::warning(errorTitle,  errorMessage);
+    Core::AsynchronousMessageBox::warning(errorTitle,  errorMessage);
     bool blockSingals = treeModel->blockItemChangedSignal(true);
     item->setText(modelNode.id());
     treeModel->blockItemChangedSignal(blockSingals);

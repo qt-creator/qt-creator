@@ -37,7 +37,7 @@
 
 #include <QCoreApplication>
 
-#include <utils/messagebox.h>
+#include <coreplugin/messagebox.h>
 
 /*!
 \defgroup CoreExceptions
@@ -155,7 +155,7 @@ QString Exception::description() const
 void Exception::showException(const QString &title) const
 {
     QString composedTitle = title.isEmpty() ? QCoreApplication::translate("QmlDesigner", "Error") : title;
-    Utils::AsynchronousMessageBox::warning(composedTitle, description());
+    Core::AsynchronousMessageBox::warning(composedTitle, description());
 }
 
 /*!

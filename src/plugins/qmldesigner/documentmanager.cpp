@@ -44,7 +44,7 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/icore.h>
-#include <utils/messagebox.h>
+#include <coreplugin/messagebox.h>
 
 #include <QMessageBox>
 
@@ -338,7 +338,7 @@ void DocumentManager::addFileToVersionControl(const QString &directoryPath, cons
                                       Core::VcsManager::msgPromptToAddToVcs(QStringList(newFilePath), versionControl),
                                       QMessageBox::Yes | QMessageBox::No);
         if (button == QMessageBox::Yes && !versionControl->vcsAdd(newFilePath)) {
-            Utils::AsynchronousMessageBox::warning(Core::VcsManager::msgAddToVcsFailedTitle(),
+            Core::AsynchronousMessageBox::warning(Core::VcsManager::msgAddToVcsFailedTitle(),
                                                    Core::VcsManager::msgToAddToVcsFailed(QStringList(newFilePath), versionControl));
         }
     }

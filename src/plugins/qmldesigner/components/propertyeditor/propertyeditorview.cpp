@@ -48,7 +48,7 @@
 
 #include <coreplugin/icore.h>
 #include <utils/fileutils.h>
-#include <utils/messagebox.h>
+#include <coreplugin/messagebox.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -157,9 +157,9 @@ void PropertyEditorView::changeValue(const QString &name)
             value->setValue(m_selectedNode.id());
             m_locked = false;
             if (!m_selectedNode.isValidId(newId))
-                Utils::AsynchronousMessageBox::warning(tr("Invalid Id"),  tr("%1 is an invalid id.").arg(newId));
+                Core::AsynchronousMessageBox::warning(tr("Invalid Id"),  tr("%1 is an invalid id.").arg(newId));
             else
-                Utils::AsynchronousMessageBox::warning(tr("Invalid Id"),  tr("%1 already exists.").arg(newId));
+                Core::AsynchronousMessageBox::warning(tr("Invalid Id"),  tr("%1 already exists.").arg(newId));
         }
         return;
     }

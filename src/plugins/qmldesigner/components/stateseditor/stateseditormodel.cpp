@@ -38,7 +38,7 @@
 #include <variantproperty.h>
 
 #include <coreplugin/icore.h>
-#include <utils/messagebox.h>
+#include <coreplugin/messagebox.h>
 
 enum {
     debug = false
@@ -176,7 +176,7 @@ void StatesEditorModel::renameState(int internalNodeId, const QString &newName)
         return;
 
     if (newName.isEmpty() ||! m_statesEditorView->validStateName(newName)) {
-        Utils::AsynchronousMessageBox::warning(tr("Invalid state name"),
+        Core::AsynchronousMessageBox::warning(tr("Invalid state name"),
                                                newName.isEmpty() ?
                                                    tr("The empty string as a name is reserved for the base state.") :
                                                    tr("Name already used in another state"));
