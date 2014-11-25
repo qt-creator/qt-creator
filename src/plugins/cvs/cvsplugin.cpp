@@ -50,6 +50,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/messagebox.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -617,8 +618,8 @@ void CvsPlugin::revertAll()
     if (revertResponse.result == CvsResponse::Ok)
         cvsVersionControl()->emitRepositoryChanged(state.topLevel());
     else
-        QMessageBox::warning(ICore::dialogParent(), title,
-                             tr("Revert failed: %1").arg(revertResponse.message), QMessageBox::Ok);
+        Core::AsynchronousMessageBox::warning(title,
+                                              tr("Revert failed: %1").arg(revertResponse.message));
 }
 
 void CvsPlugin::revertCurrentFile()
