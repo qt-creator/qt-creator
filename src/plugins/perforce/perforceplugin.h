@@ -192,6 +192,7 @@ private:
                   const QString &changeList = QString(), int lineNumber = -1);
     void filelog(const QString &workingDir, const QString &fileName = QString(),
                  bool enableAnnotationContextMenu = false);
+    void changelists(const QString &workingDir, const QString &fileName = QString());
     void cleanCommitMessageFile();
     bool isCommitEditorOpen() const;
     static QSharedPointer<Utils::TempFileSaver> createTemporaryArgumentFile(const QStringList &extraArgs,

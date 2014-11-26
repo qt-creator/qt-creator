@@ -760,14 +760,14 @@ void PerforcePlugin::logProject()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
-    filelog(state.currentProjectTopLevel(), perforceRelativeFileArguments(state.relativeCurrentProject()));
+    changelists(state.currentProjectTopLevel(), perforceRelativeFileArguments(state.relativeCurrentProject()));
 }
 
 void PerforcePlugin::logRepository()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    filelog(state.topLevel(), perforceRelativeFileArguments(QString()));
+    changelists(state.topLevel(), perforceRelativeFileArguments(QString()));
 }
 
 void PerforcePlugin::filelog(const QString &workingDir, const QString &fileName,
@@ -790,6 +790,27 @@ void PerforcePlugin::filelog(const QString &workingDir, const QString &fileName,
                                 VcsBase::LogOutput, source, codec);
         if (enableAnnotationContextMenu)
             VcsBaseEditor::getVcsBaseEditor(editor)->setFileLogAnnotateEnabled(true);
+    }
+}
+
+void PerforcePlugin::changelists(const QString &workingDir, const QString &fileName)
+{
+    const QString id = VcsBaseEditor::getTitleId(workingDir, QStringList(fileName));
+    QTextCodec *codec = VcsBaseEditor::getCodec(workingDir, QStringList(fileName));
+    QStringList args;
+    args << QLatin1String("changelists") << QLatin1String("-lit");
+    if (m_settings.logCount() > 0)
+        args << QLatin1String("-m") << QString::number(m_settings.logCount());
+    if (!fileName.isEmpty())
+        args.append(fileName);
+    const PerforceResponse result = runP4Cmd(workingDir, args,
+                                             CommandToWindow|StdErrToWindow|ErrorToWindow,
+                                             QStringList(), QByteArray(), codec);
+    if (!result.error) {
+        const QString source = VcsBaseEditor::getSource(workingDir, fileName);
+        IEditor *editor = showOutputInEditor(tr("p4 changelists %1").arg(id), result.stdOut,
+                                             VcsBase::LogOutput, source, codec);
+        VcsBaseEditor::gotoLineOfEditor(editor, 1);
     }
 }
 
