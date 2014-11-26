@@ -32,6 +32,7 @@ MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager, QObject *pa
                              tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileMemory)),
                              QmlDebug::MemoryAllocation, QmlDebug::MaximumRangeType, parent)
 {
+    m_maxSize = 1;
     announceFeatures((1 << QmlDebug::ProfileMemory) | QmlDebug::Constants::QML_JS_RANGE_FEATURES);
 }
 
