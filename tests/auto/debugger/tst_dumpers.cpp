@@ -1441,7 +1441,10 @@ void tst_Dumpers::dumper_data()
             "public:\n"
             "    Foo(int i = 0)\n"
             "        : a(i), b(2)\n"
-            "    {}\n"
+            "    {\n"
+            "       for (int j = 0; j < 6; ++j)\n"
+            "           x[j] = 'a' + j;\n"
+            "    }\n"
             "    virtual ~Foo()\n"
             "    {\n"
             "        a = 5;\n"
@@ -4845,12 +4848,12 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("Reference")
-            << Data(fooData +
-                    "#include <string>\n"
+            << Data("#include <string>\n"
                     "#include <QString>\n"
 
                     "using namespace std;\n"
-                    "string fooxx() { return \"bababa\"; }\n",
+                    "string fooxx() { return \"bababa\"; }\n"
+                    + fooData,
 
                     "int a1 = 43;\n"
                     "const int &b1 = a1;\n"
@@ -4888,7 +4891,7 @@ void tst_Dumpers::dumper_data()
                + Check("a2", "\"hello\"", "std::string")
                + Check("b2", "\"bababa\"", Pattern("(std::)?string &")) // Clang...
                + Check("c2", "\"world\"", "std::string")
-               + Check("d2", "\"hello\"", "Ref2")
+               + Check("d2", "\"hello\"", "Ref2") % NoLldbEngine
 
                + Check("a3", "\"hello\"", "@QString")
                + Check("b3", "\"hello\"", "@QString &")
@@ -4900,7 +4903,6 @@ void tst_Dumpers::dumper_data()
                + Check("b4.a", "12", "int")
                //+ Check("d4", "\"hello\"", "Ref4");  FIXME: We get "Foo &" instead
                + Check("d4.a", "12", "int");
-
 
     QTest::newRow("DynamicReference")
             << Data("struct BaseClass { virtual ~BaseClass() {} };\n"

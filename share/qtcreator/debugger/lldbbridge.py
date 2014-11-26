@@ -920,7 +920,6 @@ class Dumper(DumperBase):
         return False
 
     def putItem(self, value, tryDynamic=True):
-        #value = value.GetDynamicValue(lldb.eDynamicCanRunTarget)
         typeName = value.GetType().GetUnqualifiedType().GetName()
         if self.isGoodLldb:
             value.SetPreferDynamicValue(tryDynamic)
@@ -965,10 +964,11 @@ class Dumper(DumperBase):
             realType = value.GetType()
             if hasattr(realType, 'GetCanonicalType'):
                 baseType = realType.GetCanonicalType()
-                baseValue = value.Cast(baseType.unqualified())
-                self.putItem(baseValue)
-                self.putBetterType(realType)
-                return
+                if baseType != realType:
+                    baseValue = value.Cast(baseType.unqualified())
+                    self.putItem(baseValue)
+                    self.putBetterType(realType)
+                    return
 
         # Our turf now.
         if self.isGoodLldb:
@@ -986,11 +986,24 @@ class Dumper(DumperBase):
 
         # References
         if value.GetType().IsReferenceType():
-            origType = value.GetTypeName();
             type = value.GetType().GetDereferencedType().unqualified()
-            addr = value.GetLoadAddress()
-            self.putItem(value.CreateValueFromAddress(None, addr, type))
-            self.putBetterType(origType)
+            addr = value.GetValueAsUnsigned()
+            #warn("FROM: %s" % value)
+            #warn("ADDR: 0x%x" % addr)
+            #warn("TYPE: %s" % type)
+            # Works:
+            #item = self.currentThread().GetSelectedFrame().EvaluateExpression(
+            #    "(%s*)0x%x" % (type, addr)).Dereference()
+            # Works:
+            item = value.CreateValueFromExpression(None,
+                "(%s*)0x%x" % (type, addr), lldb.SBExpressionOptions()).Dereference()
+            # Does not work:
+            #item = value.CreateValueFromAddress(None, addr, type)
+            # Does not work:
+            #item = value.Cast(type.GetPointerType()).Dereference()
+            #warn("TOOO: %s" % item)
+            self.putItem(item)
+            self.putBetterType(value.GetTypeName())
             return
 
         # Pointers
@@ -1534,7 +1547,6 @@ class Dumper(DumperBase):
     def selectThread(self, args):
         self.process.SetSelectedThreadByID(args['id'])
         self.reportData()
-        self.reportStack()
 
     def requestModuleSymbols(self, frame):
         self.handleCommand("target module list " + frame)
