@@ -231,7 +231,6 @@ public:
     QStringList newProjectFilesCumlative;
     ProFile *fileForCurrentProjectCumlative; // probably only used in parser thread
     TargetInformation targetInformation;
-    QString resolvedMkspecPath;
     InstallsList installsList;
     QHash<QmakeVariable, QStringList> newVarValues;
     bool isDeployable;
@@ -1892,7 +1891,6 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
             }
         }
         result->targetInformation = targetInformation(input.readerExact, readerBuildPass, input.buildDirectory, input.projectFilePath);
-        result->resolvedMkspecPath = input.readerExact->resolvedMkSpec();
         result->installsList = installsList(readerBuildPass, input.projectFilePath, input.projectDir);
 
         // update other variables
@@ -2237,7 +2235,6 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
     if (m_validParse) {
         // update TargetInformation
         m_qmakeTargetInformation = result->targetInformation;
-        m_resolvedMkspecPath = result->resolvedMkspecPath;
 
         m_subProjectsNotToDeploy = result->subProjectsNotToDeploy;
         m_installsList = result->installsList;
@@ -2317,13 +2314,10 @@ QStringList QmakeProFileNode::includePaths(QtSupport::ProFileReader *reader, con
     }
 
     paths.append(reader->absolutePathValues(QLatin1String("INCLUDEPATH"), projectDir));
-    paths.append(reader->absolutePathValues(QLatin1String("QMAKE_INCDIR"), projectDir));
     // paths already contains moc dir and ui dir, due to corrrectly parsing uic.prf and moc.prf
     // except if those directories don't exist at the time of parsing
     // thus we add those directories manually (without checking for existence)
     paths << mocDirPath(reader, buildDir) << uiDirPath(reader, buildDir);
-    // qmake always adds "."
-    paths << projectDir;
     paths.removeDuplicates();
     return paths;
 }
@@ -2425,11 +2419,6 @@ TargetInformation QmakeProFileNode::targetInformation(QtSupport::ProFileReader *
 TargetInformation QmakeProFileNode::targetInformation() const
 {
     return m_qmakeTargetInformation;
-}
-
-QString QmakeProFileNode::resolvedMkspecPath() const
-{
-    return m_resolvedMkspecPath;
 }
 
 InstallsList QmakeProFileNode::installsList(const QtSupport::ProFileReader *reader, const QString &projectFilePath, const QString &projectDir)

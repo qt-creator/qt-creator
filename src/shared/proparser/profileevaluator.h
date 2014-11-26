@@ -93,8 +93,6 @@ public:
             const ProFile *pro) const;
     QString propertyValue(const QString &val) const;
 
-    QString resolvedMkSpec() const;
-
 private:
     QString sysrootify(const QString &path, const QString &baseDir) const;
 

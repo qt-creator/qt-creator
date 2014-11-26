@@ -538,10 +538,6 @@ void QmakeProject::updateCppCodeModel()
             }
         }
 
-        if (QmakeProFileNode *node = rootQmakeProjectNode())
-            templatePart->headerPaths += ProjectPart::HeaderPath(node->resolvedMkspecPath(),
-                                                         ProjectPart::HeaderPath::IncludePath);
-
         // part->precompiledHeaders
         templatePart->precompiledHeaders.append(pro->variableValue(PrecompiledHeaderVar));
 

@@ -415,7 +415,6 @@ public:
     QString objectsDirectory() const;
     QByteArray cxxDefines() const;
     bool isDeployable() const;
-    QString resolvedMkspecPath() const;
 
     enum AsyncUpdateDelay { ParseNow, ParseLater };
     void scheduleUpdate(AsyncUpdateDelay delay);
@@ -473,7 +472,6 @@ private:
 
     QMap<QString, QDateTime> m_uitimestamps;
     TargetInformation m_qmakeTargetInformation;
-    QString m_resolvedMkspecPath;
     QStringList m_subProjectsNotToDeploy;
     InstallsList m_installsList;
 

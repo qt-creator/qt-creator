@@ -197,17 +197,30 @@ bool ProFileEvaluator::loadNamedSpec(const QString &specDir, bool hostSpec)
 
 bool ProFileEvaluator::accept(ProFile *pro, QMakeEvaluator::LoadFlags flags)
 {
-    return d->visitProFile(pro, QMakeHandler::EvalProjectFile, flags) == QMakeEvaluator::ReturnTrue;
+    if (d->visitProFile(pro, QMakeHandler::EvalProjectFile, flags) != QMakeEvaluator::ReturnTrue)
+        return false;
+
+    if (flags & QMakeEvaluator::LoadPostFiles) {
+        // This is postprocessing which is hard-coded inside qmake's generators.
+
+        ProStringList &incpath = d->valuesRef(ProKey("INCLUDEPATH"));
+        incpath += d->values(ProKey("QMAKE_INCDIR"));
+        if (!d->isActiveConfig(QStringLiteral("no_include_pwd"))) {
+            incpath.prepend(ProString(pro->directoryName()));
+            // It's pretty stupid that this is appended - it should be the second entry.
+            if (pro->directoryName() != d->m_outputDir)
+                incpath << ProString(d->m_outputDir);
+        }
+        // The location of this is inconsistent among generators.
+        incpath << ProString(d->m_qmakespec);
+    }
+
+    return true;
 }
 
 QString ProFileEvaluator::propertyValue(const QString &name) const
 {
     return d->m_option->propertyValue(ProKey(name)).toQString();
-}
-
-QString ProFileEvaluator::resolvedMkSpec() const
-{
-    return d->m_qmakespec;
 }
 
 #ifdef PROEVALUATOR_CUMULATIVE
