@@ -38,6 +38,10 @@
 #include <projectexplorer/abstractprocessstep.h>
 #include <qtsupport/baseqtversion.h>
 
+namespace Utils {
+class QtcProcess;
+}
+
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
 QT_END_NAMESPACE
@@ -66,7 +70,7 @@ public:
                                       ProjectExplorer::BuildStep *product);
 };
 
-class AndroidDeployQtStep : public ProjectExplorer::AbstractProcessStep
+class AndroidDeployQtStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
     friend class AndroidDeployQtStepFactory;
@@ -89,6 +93,10 @@ public:
 public slots:
     void setUninstallPreviousPackage(bool uninstall);
 
+signals:
+    void askForUninstall();
+    void setSerialNumber(const QString &serialNumber);
+
 private:
     AndroidDeployQtStep(ProjectExplorer::BuildStepList *bc,
         AndroidDeployQtStep *other);
@@ -97,11 +105,21 @@ private:
 
     bool init();
     void run(QFutureInterface<bool> &fi);
+    enum DeployResult { Success, Failure, AskUinstall };
+    DeployResult runDeploy(QFutureInterface<bool> &fi);
+    void slotAskForUninstall();
+    void slotSetSerialNumber(const QString &serialNumber);
+
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     bool immutable() const { return true; }
+
+    void processReadyReadStdOutput();
     void stdOutput(const QString &line);
+    void processReadyReadStdError();
     void stdError(const QString &line);
-    virtual bool processSucceeded(int exitCode, QProcess::ExitStatus status);
+
+    void slotProcessFinished(int, QProcess::ExitStatus);
+    void processFinished(int exitCode, QProcess::ExitStatus status);
 
     Utils::FileName m_manifestName;
     QString m_serialNumber;
@@ -112,13 +130,17 @@ private:
     QString m_targetArch;
     int m_deviceAPILevel;
     bool m_uninstallPreviousPackage;
-    bool m_uninstallPreviousPackageTemp;
     bool m_uninstallPreviousPackageRun;
     static const Core::Id Id;
     bool m_installOk;
     bool m_useAndroiddeployqt;
-    AndroidBuildApkStep::AndroidDeployAction m_deployAction;
     QString m_androiddeployqtArgs;
+    QString m_adbPath;
+    QString m_command;
+    QString m_workingDirectory;
+    Utils::Environment m_environment;
+    Utils::QtcProcess *m_process;
+    bool m_askForUinstall;
 };
 
 }

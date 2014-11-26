@@ -142,14 +142,14 @@ ProjectExplorer::BuildStep *AndroidDeployQtStepFactory::clone(ProjectExplorer::B
 /////////////////
 
 AndroidDeployQtStep::AndroidDeployQtStep(ProjectExplorer::BuildStepList *parent)
-    : ProjectExplorer::AbstractProcessStep(parent, Id)
+    : ProjectExplorer::BuildStep(parent, Id)
 {
     ctor();
 }
 
 AndroidDeployQtStep::AndroidDeployQtStep(ProjectExplorer::BuildStepList *parent,
     AndroidDeployQtStep *other)
-    : ProjectExplorer::AbstractProcessStep(parent, other)
+    : ProjectExplorer::BuildStep(parent, other)
 {
     ctor();
 }
@@ -157,11 +157,17 @@ AndroidDeployQtStep::AndroidDeployQtStep(ProjectExplorer::BuildStepList *parent,
 void AndroidDeployQtStep::ctor()
 {
     m_uninstallPreviousPackage = QtSupport::QtKitInformation::qtVersion(target()->kit())->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0);
-    m_uninstallPreviousPackageTemp = false;
     m_uninstallPreviousPackageRun = false;
 
     //: AndroidDeployQtStep default display name
     setDefaultDisplayName(tr("Deploy to Android device"));
+
+    connect(this, &AndroidDeployQtStep::askForUninstall,
+            this, &AndroidDeployQtStep::slotAskForUninstall,
+            Qt::BlockingQueuedConnection);
+
+    connect(this, &AndroidDeployQtStep::setSerialNumber,
+            this, &AndroidDeployQtStep::slotSetSerialNumber);
 }
 
 bool AndroidDeployQtStep::init()
@@ -208,12 +214,10 @@ bool AndroidDeployQtStep::init()
     if (!version)
         return false;
 
-    m_uninstallPreviousPackageRun = m_uninstallPreviousPackage || m_uninstallPreviousPackageTemp;
-    m_uninstallPreviousPackageTemp = false;
-    if (m_uninstallPreviousPackageRun) {
+    m_uninstallPreviousPackageRun = m_uninstallPreviousPackage;
+    if (m_uninstallPreviousPackageRun)
         m_manifestName = AndroidManager::manifestPath(target());
-    }
-    ProjectExplorer::ProcessParameters *pp = processParameters();
+
     m_useAndroiddeployqt = version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
     if (m_useAndroiddeployqt) {
         Utils::FileName tmp = AndroidManager::androidQtSupport(target())->androiddeployqtPath(target());
@@ -222,14 +226,12 @@ bool AndroidDeployQtStep::init()
             return false;
         }
 
-
-        pp->setCommand(tmp.toString());
-        const QString output(bc->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY)).toString());
-        pp->setWorkingDirectory(output);
+        m_command = tmp.toString();
+        m_workingDirectory = bc->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY)).toString();
 
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--verbose"));
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--output"));
-        Utils::QtcProcess::addArg(&m_androiddeployqtArgs, output);
+        Utils::QtcProcess::addArg(&m_androiddeployqtArgs, m_workingDirectory);
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--no-build"));
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--input"));
         tmp = AndroidManager::androidQtSupport(target())->androiddeployJsonPath(target());
@@ -238,11 +240,6 @@ bool AndroidDeployQtStep::init()
             return false;
         }
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, tmp.toString());
-
-        if (m_uninstallPreviousPackageRun)
-            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--install"));
-        else
-            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--reinstall"));
 
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--deployment"));
         switch (androidBuildApkStep->deployAction()) {
@@ -270,26 +267,137 @@ bool AndroidDeployQtStep::init()
         }
     } else {
         m_uninstallPreviousPackageRun = true;
-        pp->setCommand(AndroidConfigurations::currentConfig().adbToolPath().toString());
+        m_command = AndroidConfigurations::currentConfig().adbToolPath().toString();
         m_apkPath = AndroidManager::androidQtSupport(target())->apkPath(target()).toString();
-        pp->setWorkingDirectory(bc->buildDirectory().toString());
+        m_workingDirectory = bc->buildDirectory().toString();
     }
-    pp->setMacroExpander(bc->macroExpander());
-    Utils::Environment env = bc->environment();
-    pp->setEnvironment(env);
+    m_environment = bc->environment();
+
     m_buildDirectory = bc->buildDirectory().toString();
-    bool result = AbstractProcessStep::init();
-    if (!result)
-        return false;
+
+    m_adbPath = AndroidConfigurations::currentConfig().adbToolPath().toString();
 
     if (AndroidConfigurations::currentConfig().findAvd(m_deviceAPILevel, m_targetArch).isEmpty())
         AndroidConfigurations::currentConfig().startAVDAsync(m_avdName);
     return true;
 }
 
-void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
+AndroidDeployQtStep::DeployResult AndroidDeployQtStep::runDeploy(QFutureInterface<bool> &fi)
 {
     m_installOk = true;
+    QString args;
+    if (m_useAndroiddeployqt) {
+        args = m_androiddeployqtArgs;
+        if (m_uninstallPreviousPackageRun)
+            Utils::QtcProcess::addArg(&args, QLatin1String("--install"));
+        else
+            Utils::QtcProcess::addArg(&args, QLatin1String("--reinstall"));
+
+        if (!m_serialNumber.isEmpty() && !m_serialNumber.startsWith(QLatin1String("????"))) {
+            Utils::QtcProcess::addArg(&args, QLatin1String("--device"));
+            Utils::QtcProcess::addArg(&args, m_serialNumber);
+        }
+    } else {
+        if (m_uninstallPreviousPackageRun) {
+            const QString packageName = AndroidManager::packageName(m_manifestName);
+            if (packageName.isEmpty()) {
+                emit addOutput(tr("Cannot find the package name."), ErrorOutput);
+                return Failure;
+            }
+
+            emit addOutput(tr("Uninstall previous package %1.").arg(packageName), MessageOutput);
+            runCommand(m_adbPath,
+                       AndroidDeviceInfo::adbSelector(m_serialNumber)
+                       << QLatin1String("uninstall") << packageName);
+        }
+
+        foreach (const QString &arg, AndroidDeviceInfo::adbSelector(m_serialNumber))
+            Utils::QtcProcess::addArg(&args, arg);
+
+        Utils::QtcProcess::addArg(&args, QLatin1String("install"));
+        Utils::QtcProcess::addArg(&args, QLatin1String("-r"));
+        Utils::QtcProcess::addArg(&args, m_apkPath);
+    }
+
+    m_process = new Utils::QtcProcess;
+    m_process->setCommand(m_command, args);
+    m_process->setWorkingDirectory(m_workingDirectory);
+    m_process->setEnvironment(m_environment);
+
+    if (Utils::HostOsInfo::isWindowsHost())
+        m_process->setUseCtrlCStub(true);
+
+    connect(m_process, &Utils::QtcProcess::readyReadStandardOutput,
+            this, &AndroidDeployQtStep::processReadyReadStdOutput, Qt::DirectConnection);
+    connect(m_process, &Utils::QtcProcess::readyReadStandardError,
+            this, &AndroidDeployQtStep::processReadyReadStdError, Qt::DirectConnection);
+
+    m_process->start();
+
+    emit addOutput(tr("Starting: \"%1\" %2")
+                   .arg(QDir::toNativeSeparators(m_command), args),
+                   BuildStep::MessageOutput);
+
+    while (!m_process->waitForFinished(200)) {
+        if (fi.isCanceled()) {
+            m_process->kill();
+            m_process->waitForFinished();
+        }
+    }
+
+    QString line = QString::fromLocal8Bit(m_process->readAllStandardError());
+    if (!line.isEmpty())
+        stdError(line);
+
+    line = QString::fromLocal8Bit(m_process->readAllStandardOutput());
+    if (!line.isEmpty())
+        stdOutput(line);
+
+    QProcess::ExitStatus exitStatus = m_process->exitStatus();
+    int exitCode = m_process->exitCode();
+    delete m_process;
+    m_process = 0;
+
+    if (exitStatus == QProcess::NormalExit && exitCode == 0) {
+        emit addOutput(tr("The process \"%1\" exited normally.").arg(m_command),
+                       BuildStep::MessageOutput);
+    } else if (exitStatus == QProcess::NormalExit) {
+        emit addOutput(tr("The process \"%1\" exited with code %2.")
+                       .arg(m_command, QString::number(exitCode)),
+                       BuildStep::ErrorMessageOutput);
+    } else {
+        emit addOutput(tr("The process \"%1\" crashed.").arg(m_command), BuildStep::ErrorMessageOutput);
+    }
+
+    if (exitCode == 0 && exitStatus == QProcess::NormalExit) {
+        if (!m_installOk) {
+            if (!m_uninstallPreviousPackageRun)
+                return AskUinstall;
+            else
+                return Failure;
+        }
+        return Success;
+    }
+    return Failure;
+}
+
+void AndroidDeployQtStep::slotAskForUninstall()
+{
+    int button = QMessageBox::critical(0, tr("Install failed"),
+                                       tr("Another application with the same package id but signed with "
+                                          "different certificate already exists.\n"
+                                          "Do you want to uninstall the existing package?"),
+                                       QMessageBox::Yes, QMessageBox::No);
+    m_askForUinstall = button == QMessageBox::Yes;
+}
+
+void AndroidDeployQtStep::slotSetSerialNumber(const QString &serialNumber)
+{
+    AndroidManager::setDeviceSerialNumber(target(), serialNumber);
+}
+
+void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
+{
     if (!m_avdName.isEmpty()) {
         QString serialNumber = AndroidConfigurations::currentConfig().waitForAvd(m_deviceAPILevel, m_targetArch, fi);
         if (serialNumber.isEmpty()) {
@@ -298,54 +406,30 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
             return;
         }
         m_serialNumber = serialNumber;
-        AndroidManager::setDeviceSerialNumber(target(), serialNumber);
+        emit setSerialNumber(serialNumber);
     }
 
-    ProjectExplorer::ProcessParameters *pp = processParameters();
-    if (m_useAndroiddeployqt) {
-        if (!m_serialNumber.isEmpty() && !m_serialNumber.startsWith(QLatin1String("????"))) {
-            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--device"));
-            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, m_serialNumber);
+    DeployResult returnValue = runDeploy(fi);
+    if (returnValue == AskUinstall) {
+        emit askForUninstall();
+        if (m_askForUinstall) {
+            m_uninstallPreviousPackageRun = true;
+            returnValue = runDeploy(fi);
         }
-        pp->setArguments(m_androiddeployqtArgs);
-    } else {
-        if (m_uninstallPreviousPackageRun) {
-            const QString packageName = AndroidManager::packageName(m_manifestName);
-            if (packageName.isEmpty()){
-                emit addOutput(tr("Cannot find the package name."), ErrorOutput);
-                fi.reportResult(false);
-                emit finished();
-                return;
-            }
-
-            emit addOutput(tr("Uninstall previous package %1.").arg(packageName), MessageOutput);
-            runCommand(AndroidConfigurations::currentConfig().adbToolPath().toString(),
-                       AndroidDeviceInfo::adbSelector(m_serialNumber)
-                       << QLatin1String("uninstall") << packageName);
-        }
-
-        QString args;
-        foreach (const QString &arg, AndroidDeviceInfo::adbSelector(m_serialNumber))
-            Utils::QtcProcess::addArg(&args, arg);
-
-        Utils::QtcProcess::addArg(&args, QLatin1String("install"));
-        Utils::QtcProcess::addArg(&args, QLatin1String("-r"));
-        Utils::QtcProcess::addArg(&args, m_apkPath);
-        pp->setArguments(args);
     }
-    pp->resolveAll();
-
-    AbstractProcessStep::run(fi);
 
     emit addOutput(tr("Pulling files necessary for debugging."), MessageOutput);
-    runCommand(AndroidConfigurations::currentConfig().adbToolPath().toString(),
+    runCommand(m_adbPath,
                AndroidDeviceInfo::adbSelector(m_serialNumber)
                << QLatin1String("pull") << QLatin1String("/system/bin/app_process")
                << QString::fromLatin1("%1/app_process").arg(m_buildDirectory));
-    runCommand(AndroidConfigurations::currentConfig().adbToolPath().toString(),
+    runCommand(m_adbPath,
                AndroidDeviceInfo::adbSelector(m_serialNumber) << QLatin1String("pull")
                << QLatin1String("/system/lib/libc.so")
                << QString::fromLatin1("%1/libc.so").arg(m_buildDirectory));
+
+    fi.reportResult(returnValue == Success ? true : false);
+    fi.reportFinished();
 }
 
 void AndroidDeployQtStep::runCommand(const QString &program, const QStringList &arguments)
@@ -376,32 +460,36 @@ ProjectExplorer::BuildStepConfigWidget *AndroidDeployQtStep::createConfigWidget(
     return new AndroidDeployQtWidget(this);
 }
 
+void AndroidDeployQtStep::processReadyReadStdOutput()
+{
+    m_process->setReadChannel(QProcess::StandardOutput);
+    while (m_process->canReadLine()) {
+        QString line = QString::fromLocal8Bit(m_process->readLine());
+        stdOutput(line);
+    }
+}
+
 void AndroidDeployQtStep::stdOutput(const QString &line)
 {
     if (line.contains(InstallFailedInconsistentCertificatesString))
         m_installOk = false;
-    AbstractProcessStep::stdOutput(line);
+    emit addOutput(line, BuildStep::NormalOutput, BuildStep::DontAppendNewline);
+}
+
+void AndroidDeployQtStep::processReadyReadStdError()
+{
+    m_process->setReadChannel(QProcess::StandardError);
+    while (m_process->canReadLine()) {
+        QString line = QString::fromLocal8Bit(m_process->readLine());
+        stdError(line);
+    }
 }
 
 void AndroidDeployQtStep::stdError(const QString &line)
 {
     if (line.contains(InstallFailedInconsistentCertificatesString))
         m_installOk = false;
-    AbstractProcessStep::stdError(line);
-}
-
-bool AndroidDeployQtStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
-{
-    if (!m_installOk && !m_uninstallPreviousPackageRun &&
-            QMessageBox::critical(0, tr("Install failed"),
-                                  tr("Another application with the same package id but signed with "
-                                     "different certificate already exists.\n"
-                                     "Do you want to uninstall the existing package next time?"),
-                                  QMessageBox::Yes, QMessageBox::No)
-            == QMessageBox::Yes)  {
-        m_uninstallPreviousPackageTemp = true;
-    }
-    return m_installOk && AbstractProcessStep::processSucceeded(exitCode, status);
+    emit addOutput(line, BuildStep::ErrorOutput, BuildStep::DontAppendNewline);
 }
 
 bool AndroidDeployQtStep::fromMap(const QVariantMap &map)
@@ -424,7 +512,7 @@ void AndroidDeployQtStep::setUninstallPreviousPackage(bool uninstall)
 
 bool AndroidDeployQtStep::runInGuiThread() const
 {
-    return true;
+    return false;
 }
 
 AndroidDeployQtStep::UninstallType AndroidDeployQtStep::uninstallPreviousPackage()
