@@ -330,8 +330,10 @@ QList<IDocument *> DocumentModel::openedDocuments()
 
 IDocument *DocumentModel::documentForFilePath(const QString &filePath)
 {
-    Entry *e = Utils::findOrDefault(d->m_entries, Utils::equal(&Entry::fileName, filePath));
-    return e ? e->document : 0;
+    const int index = d->indexOfFilePath(filePath);
+    if (index < 0)
+        return 0;
+    return d->m_entries.at(index)->document;
 }
 
 QList<IEditor *> DocumentModel::editorsForFilePath(const QString &filePath)
