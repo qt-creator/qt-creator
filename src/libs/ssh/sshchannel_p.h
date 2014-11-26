@@ -34,8 +34,7 @@
 #include <QByteArray>
 #include <QObject>
 #include <QString>
-
-QT_FORWARD_DECLARE_CLASS(QTimer)
+#include <QTimer>
 
 namespace QSsh {
 namespace Internal {
@@ -95,7 +94,7 @@ protected:
     void checkChannelActive();
 
     SshSendFacility &m_sendFacility;
-    QTimer * const m_timeoutTimer;
+    QTimer m_timeoutTimer;
 
 private:
     virtual void handleOpenSuccessInternal() = 0;

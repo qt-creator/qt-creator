@@ -160,7 +160,7 @@ void SshDirectTcpIpTunnel::initialize()
             d->m_remotePort, d->m_connectionInfo.localAddress.toString().toUtf8(),
             d->m_connectionInfo.localPort);
         d->setChannelState(AbstractSshChannel::SessionRequested);
-        d->m_timeoutTimer->start(d->ReplyTimeout);
+        d->m_timeoutTimer.start(d->ReplyTimeout);
     }  catch (Botan::Exception &e) { // Won't happen, but let's play it safe.
         qDebug("Botan error: %s", e.what());
         d->closeChannel();
