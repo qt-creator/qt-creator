@@ -988,7 +988,7 @@ class Dumper(DumperBase):
         if value.GetType().IsReferenceType():
             origType = value.GetTypeName();
             type = value.GetType().GetDereferencedType().unqualified()
-            addr = int(value) & 0xFFFFFFFFFFFFFFFF
+            addr = value.GetLoadAddress()
             self.putItem(value.CreateValueFromAddress(None, addr, type))
             self.putBetterType(origType)
             return
