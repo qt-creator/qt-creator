@@ -400,7 +400,16 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
   startOnly = strcmp(argv[1], "start") == 0;
   nsprintf(@"<query_result>");
 
-  if (strcmp(argv[1], "showsdks") == 0) {
+  if (strcmp(argv[1], "showdevicetypes") == 0) {
+     nsprintf(@"<deviceinfo>");
+     nsprintf(@"<item><key>com.apple.CoreSimulator.SimDeviceType.iPhone-4s</key><value>iPhone 3.5-inch Retina Display</value></item>");
+     nsprintf(@"<item><key>com.apple.CoreSimulator.SimDeviceType.iPhone-5s</key><value>iPhone 4-inch Retina Display</value></item>");
+     nsprintf(@"<item><key>com.apple.CoreSimulator.SimDeviceType.iPad-2</key><value>iPad</value></item>");
+     nsprintf(@"<item><key>com.apple.CoreSimulator.SimDeviceType.iPad-Retina</key><value>iPad Retina Display</value></item>");
+     nsprintf(@"</deviceinfo>");
+    [self doExit:0];
+    return;
+  } else if (strcmp(argv[1], "showsdks") == 0) {
     [self doExit:[self showSDKs]];
     return;
   } else if (strcmp(argv[1], "launch") == 0 || startOnly) {
@@ -449,14 +458,24 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
         useGDB = YES;
       } else if (strcmp(argv[i], "--developer-path") == 0) {
         ++i;
+          if (i == argc) {
+              nsprintf(@"<msg>missing arg after --developer-path</msg>");
+              [self doExit:EXIT_FAILURE];
+              return;
+          }
       } else if (strcmp(argv[i], "--timeout") == 0) {
         if (i + 1 < argc) {
           timeout = [[NSString stringWithUTF8String:argv[++i]] doubleValue];
-          NSLog(@"<msg>Timeout: %f second(s)</msg>", timeout);
+          nsprintf(@"<msg>Timeout: %f second(s)</msg>", timeout);
         }
       }
       else if (strcmp(argv[i], "--sdk") == 0) {
         i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --sdk</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         NSString* ver = [NSString stringWithCString:argv[i] encoding:NSUTF8StringEncoding];
         id tClass = objc_getClass("DTiPhoneSimulatorSystemRoot");
         NSArray *roots;
@@ -480,16 +499,55 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
         }
       } else if (strcmp(argv[i], "--family") == 0) {
         i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --family</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         family = [NSString stringWithUTF8String:argv[i]];
       } else if (strcmp(argv[i], "--uuid") == 0) {
         i++;
         uuid = [NSString stringWithUTF8String:argv[i]];
+      } else if (strcmp(argv[i], "--devicetypeid") == 0) {
+          i++;
+          if (i == argc) {
+              nsprintf(@"<msg>missing arg after --devicetypeid</msg>");
+              [self doExit:EXIT_FAILURE];
+              return;
+          }
+          if (strcmp(argv[i], "com.apple.CoreSimulator.SimDeviceType.iPhone-4s") == 0) {
+              family = [NSString stringWithUTF8String:"iphone"];
+              retinaDevice = YES;
+          } else if (strcmp(argv[i], "com.apple.CoreSimulator.SimDeviceType.iPad-2") == 0) {
+              family = [NSString stringWithUTF8String:"ipad"];
+          } else if (strcmp(argv[i], "com.apple.CoreSimulator.SimDeviceType.iPhone-5s") == 0) {
+              family = [NSString stringWithUTF8String:"iphone"];
+              retinaDevice = YES;
+              tallDevice = YES;
+          } else if (strcmp(argv[i], "com.apple.CoreSimulator.SimDeviceType.iPad-Retina") == 0) {
+              family = [NSString stringWithUTF8String:"ipad"];
+              retinaDevice = YES;
+          } else {
+              fprintf(stdout,"<msg>Unknown or unsupported device type: %s</msg>\n",argv[i]);
+              [self doExit:EXIT_FAILURE];
+              return;
+          }
       } else if (strcmp(argv[i], "--setenv") == 0) {
         i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --setenv</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         NSArray *parts = [[NSString stringWithUTF8String:argv[i]] componentsSeparatedByString:@"="];
         [environment setObject:[parts objectAtIndex:1] forKey:[parts objectAtIndex:0]];
       } else if (strcmp(argv[i], "--env") == 0) {
         i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --env</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         NSString *envFilePath = [[NSString stringWithUTF8String:argv[i]] expandPath];
         environment = [NSMutableDictionary dictionaryWithContentsOfFile:envFilePath];
         if (!environment) {
@@ -499,12 +557,22 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
         }
       } else if (strcmp(argv[i], "--stdout") == 0) {
         i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --stdout</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         stdoutPath = [[NSString stringWithUTF8String:argv[i]] expandPath];
-        NSLog(@"stdoutPath: %@", stdoutPath);
+        nsprintf(@"<msg>stdoutPath: %@</msg>", stdoutPath);
       } else if (strcmp(argv[i], "--stderr") == 0) {
         i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --stderr</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         stderrPath = [[NSString stringWithUTF8String:argv[i]] expandPath];
-        NSLog(@"stderrPath: %@", stderrPath);
+        nsprintf(@"<msg>stderrPath: %@</msg>", stderrPath);
       } else if (strcmp(argv[i], "--retina") == 0) {
           retinaDevice = YES;
       } else if (strcmp(argv[i], "--tall") == 0) {

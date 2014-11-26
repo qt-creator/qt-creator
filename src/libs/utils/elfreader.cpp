@@ -34,6 +34,8 @@
 #include <QDir>
 #include <QDebug>
 
+#include <new> // std::bad_alloc
+
 namespace Utils {
 
 quint16 getHalfWord(const unsigned char *&s, const ElfData &context)
@@ -113,7 +115,11 @@ bool ElfMapper::map()
     ustart = file.map(0, fdlen);
     if (ustart == 0) {
         // Try reading the data into memory instead.
-        raw = file.readAll();
+        try {
+            raw = file.readAll();
+        } catch (std::bad_alloc &) {
+            return false;
+        }
         start = raw.constData();
         fdlen = raw.size();
     }

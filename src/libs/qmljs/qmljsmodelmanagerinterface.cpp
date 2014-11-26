@@ -876,6 +876,8 @@ void ModelManagerInterface::parseLoop(QSet<QString> &scannedPaths,
             language = mainLanguage;
         if (language == Dialect::Qml && mainLanguage == Dialect::QmlQtQuick2Ui)
             language = Dialect::QmlQtQuick2;
+        if (language == Dialect::QmlTypeInfo || language == Dialect::QmlProject)
+            continue;
         QString contents;
         int documentRevision = 0;
 
@@ -1321,6 +1323,8 @@ LibraryInfo ModelManagerInterface::builtins(const Document::Ptr &doc) const
     ProjectInfo info = projectInfoForPath(doc->path());
     if (!info.isValid())
         return LibraryInfo();
+    if (!info.qtQmlPath.isEmpty())
+        return m_validSnapshot.libraryInfo(info.qtQmlPath);
     return m_validSnapshot.libraryInfo(info.qtImportsPath);
 }
 

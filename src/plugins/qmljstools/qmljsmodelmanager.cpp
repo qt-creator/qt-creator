@@ -265,7 +265,8 @@ void ModelManager::updateDefaultProjectInfo()
 {
     // needs to be performed in the ui therad
     ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectExplorerPlugin::currentProject();
-    ProjectInfo newDefaultProjectInfo = defaultProjectInfoForProject(currentProject);
+    ProjectInfo newDefaultProjectInfo = projectInfo(currentProject,
+                                                    defaultProjectInfoForProject(currentProject));
     setDefaultProject(projectInfo(currentProject,newDefaultProjectInfo), currentProject);
 }
 

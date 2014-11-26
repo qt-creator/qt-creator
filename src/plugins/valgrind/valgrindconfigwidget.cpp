@@ -159,9 +159,12 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings,
     if (!global) {
         // In project settings we want a flat vertical list.
         QVBoxLayout *l = new QVBoxLayout;
-        while (layout()->count())
-            if (QWidget *w = layout()->takeAt(0)->widget())
+        while (layout()->count()) {
+            QLayoutItem *item = layout()->takeAt(0);
+            if (QWidget *w = item->widget())
                 l->addWidget(w);
+            delete item;
+        }
         delete layout();
         setLayout(l);
     }

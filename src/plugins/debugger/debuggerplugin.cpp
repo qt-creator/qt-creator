@@ -1576,8 +1576,8 @@ void DebuggerPluginPrivate::continueOnAttach(Debugger::DebuggerState state)
     if (state != InferiorStopOk)
         return;
     // disconnect and continue
-    disconnect(currentEngine(), SIGNAL(stateChanged(Debugger::DebuggerState)),
-               this, SLOT(continueOnAttach(Debugger::DebuggerState)));
+    disconnect(currentEngine(), &DebuggerEngine::stateChanged,
+               this, &DebuggerPluginPrivate::continueOnAttach);
     handleExecContinue();
 }
 

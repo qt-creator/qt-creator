@@ -33,6 +33,8 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <utils/fileutils.h>
 
+#include <QMutex>
+#include <QDebug>
 #include <QSharedPointer>
 
 namespace ProjectExplorer { class Kit; }
@@ -41,12 +43,38 @@ namespace Internal {
 class IosConfigurations;
 class IosSimulatorFactory;
 
+class IosDeviceType {
+public:
+    enum Type {
+        IosDevice,
+        SimulatedDevice
+    };
+    IosDeviceType(Type type = IosDevice, const QString &identifier = QString(),
+                  const QString &displayName = QString());
+
+    bool fromMap(const QVariantMap &map);
+    QVariantMap toMap() const;
+
+    bool operator ==(const IosDeviceType &o) const;
+    bool operator !=(const IosDeviceType &o) const { return !(*this == o); }
+    bool operator <(const IosDeviceType &o) const;
+
+    Type type;
+    QString identifier;
+    QString displayName;
+};
+QDebug operator <<(QDebug debug, const IosDeviceType &deviceType);
+
 class IosSimulator : public ProjectExplorer::IDevice
 {
 public:
     typedef QSharedPointer<const IosSimulator> ConstPtr;
     typedef QSharedPointer<IosSimulator> Ptr;
     ProjectExplorer::IDevice::DeviceInfo deviceInformation() const Q_DECL_OVERRIDE;
+
+    static QList<IosDeviceType> availableDevices();
+    static void setAvailableDevices(QList<IosDeviceType> value);
+    static void updateAvailableDevices();
 
     QString displayType() const Q_DECL_OVERRIDE;
     ProjectExplorer::IDeviceWidget *createWidget() Q_DECL_OVERRIDE;
@@ -60,7 +88,6 @@ public:
     bool canAutoDetectPorts() const Q_DECL_OVERRIDE;
 
     ProjectExplorer::IDevice::Ptr clone() const Q_DECL_OVERRIDE;
-
 protected:
     friend class IosSimulatorFactory;
     friend class IosConfigurations;
@@ -69,6 +96,8 @@ protected:
     IosSimulator(const IosSimulator &other);
 private:
     mutable quint16 m_lastPort;
+    static QMutex _mutex;
+    static QList<IosDeviceType> _availableDevices;
 };
 
 namespace IosKitInformation {
@@ -76,5 +105,7 @@ IosSimulator::ConstPtr simulator(ProjectExplorer::Kit *kit);
 } // namespace IosKitInformation
 } // namespace Internal
 } // namespace Ios
+
+Q_DECLARE_METATYPE(Ios::Internal::IosDeviceType)
 
 #endif // IOSSIMULATOR_H

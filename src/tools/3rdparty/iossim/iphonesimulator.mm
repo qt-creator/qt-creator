@@ -284,13 +284,24 @@ NSString* FindDeveloperDir() {
 
 - (int) showDeviceTypes {
     Class simDeviceSet = NSClassFromString(@"SimDeviceSet");
+    nsprintf(@"<device_info>");
+    bool hasDevices = false;
     if (simDeviceSet) {
         SimDeviceSet* deviceSet = [simDeviceSet defaultSet];
         NSArray* devices = [deviceSet availableDevices];
         for (SimDevice* device in devices) {
-            nsfprintf(stderr, @"%@, %@", device.deviceType.identifier, device.runtime.versionString);
+            hasDevices = true;
+            nsfprintf(stdout, @"<item><key>%@, %@</key><value>%@</value></item>",device.deviceType.identifier, device.runtime.versionString, device.deviceType.name);
         }
     }
+    if (!hasDevices) {
+        // fallback devices for Xcode 5.x
+        nsprintf(@"<item><key>com.apple.CoreSimulator.SimDeviceType.iPhone-4s</key><value>iPhone 3.5-inch Retina Display</value></item>");
+        nsprintf(@"<item><key>com.apple.CoreSimulator.SimDeviceType.iPhone-5s</key><value>iPhone 4-inch Retina Display</value></item>");
+        nsprintf(@"<item><key>com.apple.CoreSimulator.SimDeviceType.iPad-2</key><value>iPad</value></item>");
+        nsprintf(@"<item><key>com.apple.CoreSimulator.SimDeviceType.iPad-Retina</key><value>iPad Retina Display</value></item>");
+    }
+    nsprintf(@"</device_info>");
 
     return EXIT_SUCCESS;
 }
@@ -620,7 +631,21 @@ static void ChildSignal(int /*arg*/) {
 
 - (NSString*) changeDeviceType:(NSString *)family retina:(BOOL)retina isTallDevice:(BOOL)isTallDevice is64Bit:(BOOL)is64Bit {
   NSString *devicePropertyValue;
-  if (retina) {
+  if (self->deviceTypeId) {
+    if ([deviceTypeIdIphone4s isEqual: deviceTypeId])
+        devicePropertyValue = deviceIphoneRetina3_5Inch;
+    else if ([deviceTypeIdIphone5s isEqual: deviceTypeId])
+        devicePropertyValue = deviceIphoneRetina4_0Inch;
+    else if ([deviceTypeIdIpad2 isEqual: deviceTypeId])
+        devicePropertyValue = deviceIpad;
+    else if ([deviceTypeIdIpadRetina isEqual: deviceTypeId])
+        devicePropertyValue = deviceIpadRetina;
+    else {
+        nsprintf(@"<msg>Unknown or unsupported device type: %@</msg>\n", deviceTypeId);
+        [self doExit:EXIT_FAILURE];
+        return nil;
+    }
+  } else if (retina) {
     if (verbose) {
       msgprintf(@"using retina");
     }
@@ -690,8 +715,8 @@ static void ChildSignal(int /*arg*/) {
   }
   NSString* developerDir = FindDeveloperDir();
   if (!developerDir) {
-    nsprintf(@"Unable to find developer directory.");
-    exit(EXIT_FAILURE);
+    nsprintf(@"<msg>Unable to find developer directory.</msg>");
+    [self doExit:EXIT_FAILURE];
   }
   NSString *xcodePlistPath = [developerDir stringByAppendingPathComponent:@"../Info.plist"];
   NSAssert([[NSFileManager defaultManager] fileExistsAtPath:xcodePlistPath isDirectory:NULL],
@@ -717,15 +742,15 @@ static void ChildSignal(int /*arg*/) {
   }
   if (strcmp(argv[1], "showsdks") == 0) {
 	[self LoadSimulatorFramework:developerDir];
-    exit([self showSDKs]);
+    [self doExit:[self showSDKs]];
   } else if (strcmp(argv[1], "showdevicetypes") == 0) {
     [self LoadSimulatorFramework:developerDir];
-     exit([self showDeviceTypes]);
+    [self doExit:[self showDeviceTypes]];
   } else if (strcmp(argv[1], "launch") == 0 || startOnly) {
     if (strcmp(argv[1], "launch") == 0 && argc < 3) {
       msgprintf(@"Missing application path argument");
       [self printUsage];
-      exit(EXIT_FAILURE);
+      [self doExit:EXIT_FAILURE];
     }
 
     NSString *appPath = nil;
@@ -767,6 +792,11 @@ static void ChildSignal(int /*arg*/) {
         useGDB = YES;
       } else if (strcmp(argv[i], "--developer-path") == 0) {
         ++i;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --developer-path</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
       } else if (strcmp(argv[i], "--timeout") == 0) {
         if (i + 1 < argc) {
           timeout = [[NSString stringWithUTF8String:argv[++i]] doubleValue];
@@ -776,7 +806,12 @@ static void ChildSignal(int /*arg*/) {
       else if (strcmp(argv[i], "--sdk") == 0) {
         [self printDeprecation:argv[i]];
         i++;
-	   [self LoadSimulatorFramework:developerDir];
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --sdk</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
+       [self LoadSimulatorFramework:developerDir];
         NSString* ver = [NSString stringWithCString:argv[i] encoding:NSUTF8StringEncoding];
         Class systemRootClass = [self FindClassByName:@"DTiPhoneSimulatorSystemRoot"];
         NSArray *roots = [systemRootClass knownRoots];
@@ -795,19 +830,44 @@ static void ChildSignal(int /*arg*/) {
       } else if (strcmp(argv[i], "--family") == 0) {
         [self printDeprecation:argv[i]];
         i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --sdkfamilymsg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         family = [NSString stringWithUTF8String:argv[i]];
       } else if (strcmp(argv[i], "--uuid") == 0) {
         i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --uuid</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         uuid = [NSString stringWithUTF8String:argv[i]];
       } else if (strcmp(argv[i], "--devicetypeid") == 0) {
-          i++;
-          deviceTypeId = [NSString stringWithUTF8String:argv[i]];
+        i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --devicetypeid</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
+        deviceTypeId = [NSString stringWithUTF8String:argv[i]];
       } else if (strcmp(argv[i], "--setenv") == 0) {
         i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --setenv</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         NSArray *parts = [[NSString stringWithUTF8String:argv[i]] componentsSeparatedByString:@"="];
         [environment setObject:[parts objectAtIndex:1] forKey:[parts objectAtIndex:0]];
       } else if (strcmp(argv[i], "--env") == 0) {
         i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --env</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         NSString *envFilePath = [[NSString stringWithUTF8String:argv[i]] expandPath];
         [environment setValuesForKeysWithDictionary:[NSDictionary dictionaryWithContentsOfFile:envFilePath]];
         if (!environment) {
@@ -817,14 +877,29 @@ static void ChildSignal(int /*arg*/) {
         }
       } else if (strcmp(argv[i], "--stdout") == 0) {
         i++;
+        if (i == argc) {
+            nsprintf(@"<msg>missing arg after --stdout</msg>");
+            [self doExit:EXIT_FAILURE];
+            return;
+        }
         stdoutPath = [[NSString stringWithUTF8String:argv[i]] expandPath];
         NSLog(@"stdoutPath: %@", stdoutPath);
       } else if (strcmp(argv[i], "--stderr") == 0) {
           i++;
+          if (i == argc) {
+              nsprintf(@"<msg>missing arg after --stderr</msg>");
+              [self doExit:EXIT_FAILURE];
+              return;
+          }
           stderrPath = [[NSString stringWithUTF8String:argv[i]] expandPath];
           NSLog(@"stderrPath: %@", stderrPath);
       } else if (strcmp(argv[i], "--xctest") == 0) {
           i++;
+          if (i == argc) {
+              nsprintf(@"<msg>missing arg after --xctest</msg>");
+              [self doExit:EXIT_FAILURE];
+              return;
+          }
           xctest = [[NSString stringWithUTF8String:argv[i]] expandPath];
           NSLog(@"xctest: %@", xctest);
       } else if (strcmp(argv[i], "--retina") == 0) {

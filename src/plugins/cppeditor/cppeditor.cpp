@@ -149,7 +149,6 @@ void CppEditorWidget::finalizeInitialization()
     d->m_cppEditorDocument = qobject_cast<CppEditorDocument *>(textDocument());
 
     setLanguageSettingsId(CppTools::Constants::CPP_SETTINGS_ID);
-    setRevisionsVisible(true);
 
     // function combo box sorting
     connect(CppEditorPlugin::instance(), &CppEditorPlugin::outlineSortingChanged,

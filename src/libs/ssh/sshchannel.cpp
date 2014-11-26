@@ -137,10 +137,16 @@ void AbstractSshChannel::flushSendBuffer()
 void AbstractSshChannel::handleOpenSuccess(quint32 remoteChannelId,
     quint32 remoteWindowSize, quint32 remoteMaxPacketSize)
 {
-    if (m_state != SessionRequested) {
-       throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
-           "Invalid SSH_MSG_CHANNEL_OPEN_CONFIRMATION packet.");
-   }
+    switch (m_state) {
+    case SessionRequested:
+        break; // Ok, continue.
+    case CloseRequested:
+        return; // Late server reply; we requested a channel close in the meantime.
+    default:
+        throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
+            "Unexpected SSH_MSG_CHANNEL_OPEN_CONFIRMATION packet.");
+    }
+
     m_timeoutTimer->stop();
 
    if (remoteMaxPacketSize < MinMaxPacketSize) {
@@ -162,10 +168,16 @@ void AbstractSshChannel::handleOpenSuccess(quint32 remoteChannelId,
 
 void AbstractSshChannel::handleOpenFailure(const QString &reason)
 {
-    if (m_state != SessionRequested) {
-       throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
-           "Invalid SSH_MSG_CHANNEL_OPEN_FAILURE packet.");
-   }
+    switch (m_state) {
+    case SessionRequested:
+        break; // Ok, continue.
+    case CloseRequested:
+        return; // Late server reply; we requested a channel close in the meantime.
+    default:
+        throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
+            "Unexpected SSH_MSG_CHANNEL_OPEN_CONFIRMATION packet.");
+    }
+
     m_timeoutTimer->stop();
 
 #ifdef CREATOR_SSH_DEBUG

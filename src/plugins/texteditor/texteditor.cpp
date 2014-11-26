@@ -7211,7 +7211,6 @@ bool TextEditorWidget::isMissingSyntaxDefinition() const
 // The remnants of PlainTextEditor.
 void TextEditorWidget::setupAsPlainEditor()
 {
-    setRevisionsVisible(true);
     setMarksVisible(true);
     setLineSeparatorsAllowed(true);
 

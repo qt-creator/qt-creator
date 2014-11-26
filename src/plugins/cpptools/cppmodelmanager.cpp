@@ -693,8 +693,8 @@ void CppModelManager::updateVisibleEditorDocuments() const
     foreach (Core::IEditor *editor, Core::EditorManager::visibleEditors()) {
         if (const Core::IDocument *document = editor->document()) {
             const QString filePath = document->filePath();
-            QTC_ASSERT(!filePath.isEmpty(), continue);
-            visibleDocumentsInEditMode.insert(filePath);
+            if (!filePath.isEmpty())
+                visibleDocumentsInEditMode.insert(filePath);
         }
     }
 

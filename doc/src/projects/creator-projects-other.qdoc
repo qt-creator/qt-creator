@@ -31,7 +31,9 @@
     \title Using Other Build Systems
 
     \QC project wizards create projects that are configured to use qmake. Most
-    of the instructions in this manual apply to using qmake.
+    of the instructions in this manual apply to using qmake. However, \QC is
+    also integrated to other build systems, as described in the the following
+    sections:
 
     \list
 

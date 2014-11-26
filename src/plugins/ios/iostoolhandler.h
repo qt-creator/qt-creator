@@ -31,8 +31,6 @@
 #ifndef IOSTOOLHANDLER_H
 #define IOSTOOLHANDLER_H
 
-#include "iosconstants.h"
-
 #include <QObject>
 #include <QMap>
 #include <QString>
@@ -41,7 +39,10 @@
 
 
 namespace Ios {
-namespace Internal { class IosToolHandlerPrivate; }
+namespace Internal {
+class IosToolHandlerPrivate;
+class IosDeviceType;
+}
 
 class IosToolHandler : public QObject
 {
@@ -61,7 +62,7 @@ public:
     static QString iosDeviceToolPath();
     static QString iosSimulatorToolPath();
 
-    explicit IosToolHandler(IosDeviceType::Enum = IosDeviceType::IosDevice, QObject *parent = 0);
+    explicit IosToolHandler(const Internal::IosDeviceType &type, QObject *parent = 0);
     ~IosToolHandler();
     void requestTransferApp(const QString &bundlePath, const QString &deviceId, int timeout = 1000);
     void requestRunApp(const QString &bundlePath, const QStringList &extraArgs, RunKind runType,

@@ -420,10 +420,11 @@ void IosConfigurations::updateSimulators()
     DeviceManager *devManager = DeviceManager::instance();
     Core::Id devId = Constants::IOS_SIMULATOR_DEVICE_ID;
     IDevice::ConstPtr dev = devManager->find(devId);
-    if (!dev.isNull())
-        return;
-    IosSimulator *newDev = new IosSimulator(devId);
-    devManager->addDevice(IDevice::ConstPtr(newDev));
+    if (dev.isNull()) {
+        dev = IDevice::ConstPtr(new IosSimulator(devId));
+        devManager->addDevice(dev);
+    }
+    IosSimulator::updateAvailableDevices();
 }
 
 void IosConfigurations::setDeveloperPath(const FileName &devPath)

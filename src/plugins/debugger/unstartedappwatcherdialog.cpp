@@ -31,6 +31,7 @@
 #include "unstartedappwatcherdialog.h"
 
 #include "debuggerdialogs.h"
+#include "debuggerkitinformation.h"
 
 #include <utils/pathchooser.h>
 
@@ -151,6 +152,9 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     connect(m_pathChooser, SIGNAL(pathChanged(QString)), this, SLOT(stopAndCheckExecutable()));
     connect(m_closePushButton, SIGNAL(clicked()), this, SLOT(reject()));
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(findProcess()));
+    connect(m_kitChooser, &ProjectExplorer::KitChooser::currentIndexChanged,
+            this, &UnstartedAppWatcherDialog::kitChanged);
+    kitChanged();
 
     setWaitingState(checkExecutableString() ? NotWatchingState : InvalidWacherState);
 }
@@ -224,10 +228,10 @@ void UnstartedAppWatcherDialog::startStopTimer(bool start)
 
 void UnstartedAppWatcherDialog::findProcess()
 {
-    QString appName = m_pathChooser->path();
+    const QString &appName = Utils::FileUtils::normalizePathName(m_pathChooser->path());
     DeviceProcessItem fallback;
     foreach (const DeviceProcessItem &p, DeviceProcessList::localProcesses()) {
-        if (p.exe == appName) {
+        if (Utils::FileUtils::normalizePathName(p.exe) == appName) {
             pidFound(p);
             return;
         }
@@ -242,6 +246,19 @@ void UnstartedAppWatcherDialog::stopAndCheckExecutable()
 {
     startStopTimer(false);
     setWaitingState(checkExecutableString() ? NotWatchingState : InvalidWacherState);
+}
+
+void UnstartedAppWatcherDialog::kitChanged()
+{
+    const DebuggerItem *debugger = DebuggerKitInformation::debugger(m_kitChooser->currentKit());
+    if (!debugger)
+        return;
+    if (debugger->engineType() == Debugger::CdbEngineType) {
+        m_continueOnAttachCheckBox->setEnabled(false);
+        m_continueOnAttachCheckBox->setChecked(true);
+    } else {
+        m_continueOnAttachCheckBox->setEnabled(true);
+    }
 }
 
 bool UnstartedAppWatcherDialog::checkExecutableString() const
@@ -270,7 +287,7 @@ bool UnstartedAppWatcherDialog::hideOnAttach() const
 
 bool UnstartedAppWatcherDialog::continueOnAttach() const
 {
-    return m_continueOnAttachCheckBox->isChecked();
+    return m_continueOnAttachCheckBox->isEnabled() && m_continueOnAttachCheckBox->isChecked();
 }
 
 void UnstartedAppWatcherDialog::setWaitingState(UnstartedAppWacherState state)
