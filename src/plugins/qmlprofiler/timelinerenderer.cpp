@@ -338,6 +338,8 @@ void TimelineRenderer::drawNotes(QPainter *p)
         if (managerIndex == -1)
             continue;
         int modelIndex = m_profilerModelProxy->modelIndexFromManagerIndex(managerIndex);
+        if (m_profilerModelProxy->hidden(modelIndex))
+            continue;
         int eventIndex = notes->timelineIndex(i);
         int row = m_profilerModelProxy->row(modelIndex, eventIndex);
         int rowHeight = m_profilerModelProxy->rowHeight(modelIndex, row);
