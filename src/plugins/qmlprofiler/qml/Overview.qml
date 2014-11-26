@@ -63,11 +63,14 @@ Canvas {
     function updateRange() {
         if (recursionGuard)
             return;
-        var newStartTime = Math.round(rangeMover.rangeLeft * zoomControl.traceDuration / width) +
+        recursionGuard = true;
+        var newStartTime = rangeMover.rangeLeft * zoomControl.traceDuration / width +
                 zoomControl.traceStart;
-        var newEndTime = Math.max(Math.round(rangeMover.rangeRight * zoomControl.traceDuration /
-                width) + zoomControl.traceStart, newStartTime + 500);
-        zoomControl.setRange(newStartTime, newEndTime);
+        var newEndTime = rangeMover.rangeRight * zoomControl.traceDuration / width +
+                zoomControl.traceStart;
+        if (isFinite(newStartTime) && isFinite(newEndTime) && newEndTime - newStartTime > 500)
+            zoomControl.setRange(newStartTime, newEndTime);
+        recursionGuard = false;
     }
 
     function clamp(val, min, max) {
@@ -78,6 +81,8 @@ Canvas {
     Connections {
         target: zoomControl
         onRangeChanged: {
+            if (recursionGuard)
+                return;
             recursionGuard = true;
             var newRangeX = (zoomControl.rangeStart - zoomControl.traceStart) * width /
                     zoomControl.traceDuration;

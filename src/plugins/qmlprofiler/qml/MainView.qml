@@ -98,7 +98,6 @@ Rectangle {
     function clear() {
         flick.contentY = 0;
         flick.contentX = 0;
-        flick.contentWidth = 0;
         timelineView.clearChildren();
         rangeDetails.hide();
         selectionRangeMode = false;
@@ -353,9 +352,9 @@ Rectangle {
     Flickable {
         id: flick
         contentHeight: categoryContent.height
-        contentWidth: zoomControl.windowDuration * width / Math.max(1, zoomControl.rangeDuration)
         flickableDirection: Flickable.HorizontalAndVerticalFlick
         boundsBehavior: Flickable.StopAtBounds
+        pixelAligned: true
 
         // ScrollView will try to deinteractivate it. We don't want that
         // as the horizontal flickable is interactive, too. We do occasionally
@@ -365,22 +364,22 @@ Rectangle {
         onStayInteractiveChanged: interactive = stayInteractive
 
         property bool recursionGuard: false
-        property int intX: contentX
-        property int intWidth: scroller.width
+
 
         // Update the zoom control on srolling.
-        onIntXChanged: {
+        onContentXChanged: {
             if (recursionGuard)
                 return;
 
             recursionGuard = true;
 
-            var newStartTime = intX * zoomControl.rangeDuration / intWidth +
+            var newStartTime = contentX * zoomControl.rangeDuration / scroller.width +
                     zoomControl.windowStart;
-            if (Math.abs(newStartTime - zoomControl.rangeStart) >= 1) {
-                var newEndTime = (intX + intWidth) * zoomControl.rangeDuration / intWidth +
-                        zoomControl.windowStart;
-                zoomControl.setRange(newStartTime, newEndTime);
+            if (isFinite(newStartTime) && Math.abs(newStartTime - zoomControl.rangeStart) >= 1) {
+                var newEndTime = (contentX + scroller.width) * zoomControl.rangeDuration /
+                        scroller.width + zoomControl.windowStart;
+                if (isFinite(newEndTime))
+                    zoomControl.setRange(newStartTime, newEndTime);
             }
             recursionGuard = false;
         }
@@ -389,19 +388,17 @@ Rectangle {
         function updateWindow() {
             if (recursionGuard || zoomControl.rangeDuration <= 0)
                 return;
-
             recursionGuard = true;
 
-            // This triggers an unwanted automatic change in contentX. We ignore that by
-            // checking recursionGuard in this function and in updateZoomControl.
-            flick.contentWidth = zoomControl.windowDuration * intWidth /
+            var newWidth = zoomControl.windowDuration * scroller.width /
                     zoomControl.rangeDuration;
+            if (isFinite(newWidth) && Math.abs(newWidth - contentWidth) >= 1)
+                contentWidth = newWidth;
 
-            var newStartX = (zoomControl.rangeStart - zoomControl.windowStart) * intWidth /
+            var newStartX = (zoomControl.rangeStart - zoomControl.windowStart) * scroller.width /
                     zoomControl.rangeDuration;
-
-            if (isFinite(newStartX) && Math.abs(newStartX - flick.contentX) >= 1)
-                flick.contentX = newStartX;
+            if (isFinite(newStartX) && Math.abs(newStartX - contentX) >= 1)
+                contentX = newStartX;
 
             recursionGuard = false;
         }
