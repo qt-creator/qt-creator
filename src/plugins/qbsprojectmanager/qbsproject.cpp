@@ -364,7 +364,7 @@ qbs::BuildJob *QbsProject::build(const qbs::BuildOptions &opts, QStringList prod
             }
         }
         if (!found) {
-            error = QLatin1String("Cannot build: Selected products do not exist anymore."); // TODO: Use tr() in 3.4
+            error = tr("Cannot build: Selected products do not exist anymore.");
             return 0;
         }
     }
