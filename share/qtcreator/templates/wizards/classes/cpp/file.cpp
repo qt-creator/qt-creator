@@ -32,10 +32,10 @@ public:
         data.operator=(rhs.data);
     return *this;
 }
-@endif
 
 %{CN}::~%{CN}()
 {
 
 }
+@endif
 %{JS: Cpp.closeNamespaces('%{Class}')}\

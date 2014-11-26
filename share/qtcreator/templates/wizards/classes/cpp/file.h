@@ -38,8 +38,8 @@ public:
 @if '%{IncludeQSharedData}'
     %{CN}(const %{CN} &);
     %{CN} &operator=(const %{CN} &);
-@endif
     ~%{CN}();
+@endif
 @if '%{isQObject}'
 
 signals:
