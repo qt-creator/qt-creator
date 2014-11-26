@@ -4254,7 +4254,7 @@ void InsertQtPropertyMembers::match(const CppQuickFixInterface &interface,
 
     AST * const ast = path.last();
     QtPropertyDeclarationAST *qtPropertyDeclaration = ast->asQtPropertyDeclaration();
-    if (!qtPropertyDeclaration)
+    if (!qtPropertyDeclaration || !qtPropertyDeclaration->type_id)
         return;
 
     ClassSpecifierAST *klass = 0;
