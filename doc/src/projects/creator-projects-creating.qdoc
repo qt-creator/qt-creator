@@ -50,7 +50,7 @@
     the necessary files for you. You can add your own custom wizards to
     standardize the way subprojects and classes are added to a project.
 
-    The wizards create projects that use the Qt build tool, qmake. It is a
+    Most wizards create projects that use the Qt build tool, qmake. It is a
     cross-platform system for build automation that helps simplify the build
     process for development projects across different platforms. qmake
     automates the generation of build configurations so that only a few lines
@@ -59,9 +59,11 @@
     You can modify the build and run settings for qmake projects in the
     \gui Projects mode.
 
-    Alternatively, you can use the CMake build automation system and set up the
-    projects manually. In addition, you can import projects as
-    \e {generic projects} that do not use qmake or CMake. This enables you to
+    You can use wizards also to create plain C or C++ projects that use Qbs or
+    CMake, but do not use the Qt library.
+
+    In addition, you can import projects as \e {generic projects} that do not
+    use qmake, Qbs, or CMake. This enables you to
     use \QC as a code editor and to fully control the steps and commands used to
     build the project.
 
@@ -196,8 +198,7 @@
             \li Plain C or C++ Project (Qbs Build)
 
                 Plain C or C++ project that uses Qbs but does not use the Qt
-                library. This project type is listed if the experimental Qbs
-                plugin has been enabled in \gui Help > \gui {About Plugins}.
+                library.
 
         \endlist
 
