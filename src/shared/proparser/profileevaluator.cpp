@@ -213,6 +213,25 @@ bool ProFileEvaluator::accept(ProFile *pro, QMakeEvaluator::LoadFlags flags)
         }
         // The location of this is inconsistent among generators.
         incpath << ProString(d->m_qmakespec);
+
+        // We ignore CFLAGS and LFLAGS, as they are not used higher up anyway.
+        ProStringList &cxxflags = d->valuesRef(ProKey("QMAKE_CXXFLAGS"));
+        switch (templateType()) {
+        case TT_Application:
+            cxxflags += d->values(ProKey("QMAKE_CXXFLAGS_APP"));
+            break;
+        case TT_Library:
+            if (d->isActiveConfig(QStringLiteral("dll"))) {
+                bool plugin = d->isActiveConfig(QStringLiteral("plugin"));
+                if (!plugin || !d->isActiveConfig(QStringLiteral("plugin_no_share_shlib_cflags")))
+                    cxxflags += d->values(ProKey("QMAKE_CXXFLAGS_SHLIB"));
+                if (plugin)
+                    cxxflags += d->values(ProKey("QMAKE_CXXFLAGS_PLUGIN"));
+            }
+            break;
+        default:
+            break;
+        }
     }
 
     return true;
