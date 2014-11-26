@@ -58,19 +58,20 @@ static QString createDiagnosticToolTipString(const Diagnostic &diagnostic)
     if (!diagnostic.category.isEmpty()) {
         lines << qMakePair(
                      QCoreApplication::translate("ClangStaticAnalyzer::Diagnostic", "Category:"),
-                     diagnostic.category);
+                     diagnostic.category.toHtmlEscaped());
     }
 
     if (!diagnostic.type.isEmpty()) {
         lines << qMakePair(
                      QCoreApplication::translate("ClangStaticAnalyzer::Diagnostic", "Type:"),
-                     diagnostic.type);
+                     diagnostic.type.toHtmlEscaped());
     }
 
     if (!diagnostic.issueContext.isEmpty() && !diagnostic.issueContextKind.isEmpty()) {
         lines << qMakePair(
                      QCoreApplication::translate("ClangStaticAnalyzer::Diagnostic", "Context:"),
-                     diagnostic.issueContextKind + QLatin1Char(' ') + diagnostic.issueContext);
+                     diagnostic.issueContextKind.toHtmlEscaped() + QLatin1Char(' ')
+                     + diagnostic.issueContext.toHtmlEscaped());
     }
 
     lines << qMakePair(

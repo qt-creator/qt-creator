@@ -70,8 +70,7 @@ QWidget *ClangStaticAnalyzerTool::createWidgets()
     //
     // Diagnostic View
     //
-    m_diagnosticView = new DetailedErrorView;
-    m_diagnosticView->setItemDelegate(new ClangStaticAnalyzerDiagnosticDelegate(m_diagnosticView));
+    m_diagnosticView = new ClangStaticAnalyzerDiagnosticView;
     m_diagnosticView->setObjectName(QLatin1String("ClangStaticAnalyzerIssuesView"));
     m_diagnosticView->setFrameStyle(QFrame::NoFrame);
     m_diagnosticView->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -185,9 +184,7 @@ static bool dontStartAfterHintForDebugMode()
                 .arg(toolName).arg(wrongMode);
         if (Utils::CheckableMessageBox::doNotAskAgainQuestion(Core::ICore::mainWindow(),
                 title, message, Core::ICore::settings(),
-                QLatin1String("ClangStaticAnalyzerCorrectModeWarning"),
-                QDialogButtonBox::Yes|QDialogButtonBox::Cancel,
-                QDialogButtonBox::Cancel, QDialogButtonBox::Yes) != QDialogButtonBox::Yes)
+                QLatin1String("ClangStaticAnalyzerCorrectModeWarning")) != QDialogButtonBox::Yes)
             return true;
     }
 
