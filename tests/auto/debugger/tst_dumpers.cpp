@@ -935,6 +935,7 @@ void tst_Dumpers::initTestCase()
     } else if (m_debuggerEngine == CdbEngine) {
         setupCdb(&m_makeBinary, &m_env);
     } else if (m_debuggerEngine == LldbEngine) {
+        qDebug() << "Dumper dir         : " << DUMPERDIR;
         QProcess debugger;
         QString cmd = QString::fromUtf8(m_debuggerBinary + " -v");
         debugger.start(cmd);
