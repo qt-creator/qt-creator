@@ -105,7 +105,10 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerPlugin::aboutToShutdown()
 
 QList<QmlProfilerTimelineModel *> QmlProfilerPlugin::getModels(QmlProfilerModelManager *manager) const
 {
-    return factory->create(manager);
+    if (factory)
+        return factory->create(manager);
+    else
+        return QList<QmlProfilerTimelineModel *>();
 }
 
 } // namespace Internal

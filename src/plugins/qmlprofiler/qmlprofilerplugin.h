@@ -46,7 +46,7 @@ class QmlProfilerPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfiler.json")
 
 public:
-    QmlProfilerPlugin() {}
+    QmlProfilerPlugin() : factory(0) {}
 
     bool initialize(const QStringList &arguments, QString *errorString);
     void extensionsInitialized();
