@@ -1637,7 +1637,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods()
 
     InsertVirtualMethods factory(
                 new Tests::InsertVirtualMethodsDialogTest(implementationMode, insertVirtualKeyword));
-    Tests::QuickFixTestCase(Tests::singleDocument(original, expected), &factory);
+    Tests::QuickFixOperationTest(Tests::singleDocument(original, expected), &factory);
 }
 
 /// Check: Insert in implementation file
@@ -1683,7 +1683,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_implementationFile()
 
     InsertVirtualMethods factory(new Tests::InsertVirtualMethodsDialogTest(
                                      InsertVirtualMethodsDialog::ModeImplementationFile, true));
-    Tests::QuickFixTestCase(testFiles, &factory);
+    Tests::QuickFixOperationTest(testFiles, &factory);
 }
 
 /// Check: Qualified names.
@@ -1735,7 +1735,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_BaseClassInNamespace()
 
     InsertVirtualMethods factory(new Tests::InsertVirtualMethodsDialogTest(
                                      InsertVirtualMethodsDialog::ModeImplementationFile, true));
-    Tests::QuickFixTestCase(testFiles, &factory);
+    Tests::QuickFixOperationTest(testFiles, &factory);
 }
 #endif // WITH_TESTS
 

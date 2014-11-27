@@ -44,13 +44,14 @@ namespace CppEditor {
 namespace Internal {
 namespace Tests {
 
-/**
- * Represents a test document before and after applying the quick fix.
- *
- * A TestDocument's source may contain an '@' character to denote
- * the cursor position. This marker is removed before the Editor reads
- * the document.
- */
+///
+/// Represents a test document before and after applying the quick fix.
+///
+/// A TestDocument's source may contain an '@' character to denote
+/// the cursor position. This marker is removed before the Editor reads
+/// the document.
+///
+
 class QuickFixTestDocument : public TestDocument
 {
 public:
@@ -60,42 +61,49 @@ public:
                          const QByteArray &expectedSource);
 
     static Ptr create(const QByteArray &fileName, const QByteArray &source,
-                                  const QByteArray &expectedSource);
+                      const QByteArray &expectedSource);
 
 public:
     QString m_expectedSource;
 };
 
-/**
- * Encapsulates the whole process of setting up an editor, getting the
- * quick-fix, applying it, and checking the result.
- */
-class QuickFixTestCase : public TestCase
+class BaseQuickFixTestCase : public TestCase
 {
 public:
-    QuickFixTestCase(const QList<QuickFixTestDocument::Ptr> &theTestFiles,
-                     CppQuickFixFactory *factory,
-                     const CppTools::ProjectPart::HeaderPaths &includePaths =
-                            CppTools::ProjectPart::HeaderPaths(),
-                     int resultIndex = 0,
-                     const QByteArray &expectedFailMessage = QByteArray());
-    ~QuickFixTestCase();
+    /// Exactly one QuickFixTestDocument must contain the cursor position marker '@'.
+    BaseQuickFixTestCase(const QList<QuickFixTestDocument::Ptr> &testDocuments,
+                         const CppTools::ProjectPart::HeaderPaths &headerPaths
+                            = CppTools::ProjectPart::HeaderPaths());
 
-    static void run(const QList<QuickFixTestDocument::Ptr> &theTestFiles,
-                    CppQuickFixFactory *factory, const QString &incPath, int resultIndex = 0);
-private:
-    QSharedPointer<TextEditor::QuickFixOperation> getFix(CppQuickFixFactory *factory,
-                                                         CppEditorWidget *editorWidget,
-                                                         int resultIndex = 0);
+    ~BaseQuickFixTestCase();
+
+protected:
+    QuickFixTestDocument::Ptr m_documentWithMarker;
+    QList<QuickFixTestDocument::Ptr> m_testDocuments;
 
 private:
-    QList<QuickFixTestDocument::Ptr> m_testFiles;
-
     CppTools::CppCodeStylePreferences *m_cppCodeStylePreferences;
     QByteArray m_cppCodeStylePreferencesOriginalDelegateId;
 
     CppTools::ProjectPart::HeaderPaths m_headerPathsToRestore;
     bool m_restoreHeaderPaths;
+};
+
+/// Tests a concrete QuickFixOperation of a given CppQuickFixFactory
+class QuickFixOperationTest : public BaseQuickFixTestCase
+{
+public:
+    QuickFixOperationTest(const QList<QuickFixTestDocument::Ptr> &testDocuments,
+                          CppQuickFixFactory *factory,
+                          const CppTools::ProjectPart::HeaderPaths &headerPaths
+                            = CppTools::ProjectPart::HeaderPaths(),
+                          int operationIndex = 0,
+                          const QByteArray &expectedFailMessage = QByteArray());
+
+    static void run(const QList<QuickFixTestDocument::Ptr> &testDocuments,
+                    CppQuickFixFactory *factory,
+                    const QString &headerPath,
+                    int operationIndex = 0);
 };
 
 QList<QuickFixTestDocument::Ptr> singleDocument(const QByteArray &original,
