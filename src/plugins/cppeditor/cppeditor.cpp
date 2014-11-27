@@ -765,7 +765,7 @@ void CppEditorWidget::abortDeclDefLink()
 
 void CppEditorWidget::showPreProcessorWidget()
 {
-    const QString &fileName = textDocument()->filePath();
+    const Utils::FileName fileName = Utils::FileName::fromString(textDocument()->filePath());
 
     // Check if this editor belongs to a project
     QList<ProjectPart::Ptr> projectParts = d->m_modelManager->projectPart(fileName);

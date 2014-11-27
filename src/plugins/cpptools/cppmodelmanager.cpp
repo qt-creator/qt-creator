@@ -49,6 +49,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
@@ -129,7 +130,7 @@ public:
     // Project integration
     mutable QMutex m_projectMutex;
     QMap<ProjectExplorer::Project *, ProjectInfo> m_projectToProjectsInfo;
-    QMap<QString, QList<CppTools::ProjectPart::Ptr> > m_fileToProjectParts;
+    QMap<Utils::FileName, QList<CppTools::ProjectPart::Ptr> > m_fileToProjectParts;
     QMap<QString, CppTools::ProjectPart::Ptr> m_projectFileToProjectPart;
     // The members below are cached/(re)calculated from the projects and/or their project parts
     bool m_dirty;
@@ -686,7 +687,8 @@ void CppModelManager::recalculateFileToProjectParts()
         foreach (const ProjectPart::Ptr &projectPart, projectInfo.projectParts()) {
             d->m_projectFileToProjectPart[projectPart->projectFile] = projectPart;
             foreach (const ProjectFile &cxxFile, projectPart->files)
-                d->m_fileToProjectParts[cxxFile.path].append(projectPart);
+                d->m_fileToProjectParts[Utils::FileName::fromString(cxxFile.path)].append(
+                            projectPart);
 
         }
     }
@@ -805,21 +807,21 @@ ProjectPart::Ptr CppModelManager::projectPartForProjectFile(const QString &proje
     return d->m_projectFileToProjectPart.value(projectFile);
 }
 
-QList<ProjectPart::Ptr> CppModelManager::projectPart(const QString &fileName) const
+QList<ProjectPart::Ptr> CppModelManager::projectPart(const Utils::FileName &fileName) const
 {
     QMutexLocker locker(&d->m_projectMutex);
     return d->m_fileToProjectParts.value(fileName);
 }
 
-QList<ProjectPart::Ptr> CppModelManager::projectPartFromDependencies(const QString &fileName) const
+QList<ProjectPart::Ptr> CppModelManager::projectPartFromDependencies(
+        const Utils::FileName &fileName) const
 {
     QSet<ProjectPart::Ptr> parts;
     const Utils::FileNameList deps = snapshot().filesDependingOn(fileName);
 
     QMutexLocker locker(&d->m_projectMutex);
     foreach (const Utils::FileName &dep, deps) {
-        parts.unite(QSet<ProjectPart::Ptr>::fromList(
-                        d->m_fileToProjectParts.value(dep.toString())));
+        parts.unite(QSet<ProjectPart::Ptr>::fromList(d->m_fileToProjectParts.value(dep)));
     }
 
     return parts.values();

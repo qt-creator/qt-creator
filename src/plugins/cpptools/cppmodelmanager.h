@@ -96,10 +96,12 @@ public:
     /// \return The project part with the given project file
     ProjectPart::Ptr projectPartForProjectFile(const QString &projectFile) const;
     /// \return All project parts that mention the given file name as one of the sources/headers.
-    QList<ProjectPart::Ptr> projectPart(const QString &fileName) const;
+    QList<ProjectPart::Ptr> projectPart(const Utils::FileName &fileName) const;
+    QList<ProjectPart::Ptr> projectPart(const QString &fileName) const
+    { return projectPart(Utils::FileName::fromString(fileName)); }
     /// This is a fall-back function: find all files that includes the file directly or indirectly,
     /// and return its \c ProjectPart list for use with this file.
-    QList<ProjectPart::Ptr> projectPartFromDependencies(const QString &fileName) const;
+    QList<ProjectPart::Ptr> projectPartFromDependencies(const Utils::FileName &fileName) const;
     /// \return A synthetic \c ProjectPart which consists of all defines/includes/frameworks from
     ///         all loaded projects.
     ProjectPart::Ptr fallbackProjectPart() const;

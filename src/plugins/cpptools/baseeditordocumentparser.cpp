@@ -130,7 +130,7 @@ void BaseEditorDocumentParser::updateProjectPart()
             return;
 
         // Fall-back step 1: Get some parts through the dependency table:
-        projectParts = cmm->projectPartFromDependencies(m_filePath);
+        projectParts = cmm->projectPartFromDependencies(Utils::FileName::fromString(m_filePath));
         if (projectParts.isEmpty())
             // Fall-back step 2: Use fall-back part from the model manager:
             m_projectPart = cmm->fallbackProjectPart();
