@@ -45,6 +45,7 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppTools::CppModelManager *ma
     setId("Methods in current Document");
     setDisplayName(tr("C++ Symbols in Current Document"));
     setShortcutString(QString(QLatin1Char('.')));
+    setPriority(High);
     setIncludedByDefault(false);
 
     search.setSymbolsToSearchFor(SymbolSearcher::Declarations |

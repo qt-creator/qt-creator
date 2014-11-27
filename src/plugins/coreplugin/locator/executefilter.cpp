@@ -44,6 +44,7 @@ ExecuteFilter::ExecuteFilter()
     setId("Execute custom commands");
     setDisplayName(tr("Execute Custom Commands"));
     setShortcutString(QString(QLatin1Char('!')));
+    setPriority(High);
     setIncludedByDefault(false);
 
     m_process = new Utils::QtcProcess(this);

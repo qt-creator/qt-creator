@@ -50,6 +50,7 @@ CMakeLocatorFilter::CMakeLocatorFilter()
     setId("Build CMake target");
     setDisplayName(tr("Build CMake target"));
     setShortcutString(QLatin1String("cm"));
+    setPriority(High);
 
     connect(SessionManager::instance(), SIGNAL(projectAdded(ProjectExplorer::Project*)),
             this, SLOT(slotProjectListUpdated()));

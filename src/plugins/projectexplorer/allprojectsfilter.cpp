@@ -46,7 +46,6 @@ AllProjectsFilter::AllProjectsFilter() : m_filesUpToDate(false)
     setId("Files in any project");
     setDisplayName(tr("Files in Any Project"));
     setShortcutString(QString(QLatin1Char('a')));
-    setPriority(Low);
     setIncludedByDefault(true);
 
     connect(ProjectExplorerPlugin::instance(), SIGNAL(fileListChanged()),

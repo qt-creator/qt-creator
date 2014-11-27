@@ -47,6 +47,7 @@ OpenDocumentsFilter::OpenDocumentsFilter()
     setId("Open documents");
     setDisplayName(tr("Open Documents"));
     setShortcutString(QString(QLatin1Char('o')));
+    setPriority(High);
     setIncludedByDefault(true);
 
     connect(EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),

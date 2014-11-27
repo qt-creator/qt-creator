@@ -84,7 +84,7 @@ class CORE_EXPORT ILocatorFilter : public QObject
     Q_OBJECT
 
 public:
-    enum Priority {High = 0, Medium = 1, Low = 2};
+    enum Priority {Highest = 0, High = 1, Medium = 2, Low = 3};
 
     ILocatorFilter(QObject *parent = 0);
     virtual ~ILocatorFilter() {}

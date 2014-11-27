@@ -50,7 +50,7 @@ LocatorFiltersFilter::LocatorFiltersFilter(Locator *plugin,
     setDisplayName(tr("Available filters"));
     setIncludedByDefault(true);
     setHidden(true);
-    setPriority(High);
+    setPriority(Highest);
     setConfigurable(false);
 }
 

@@ -45,7 +45,6 @@ CurrentProjectFilter::CurrentProjectFilter()
 {
     setId("Files in current project");
     setDisplayName(tr("Files in Current Project"));
-    setPriority(Low);
     setShortcutString(QString(QLatin1Char('p')));
     setIncludedByDefault(false);
 
