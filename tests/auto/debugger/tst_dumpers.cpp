@@ -4845,7 +4845,8 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("Reference")
-            << Data("#include <string>\n"
+            << Data(fooData +
+                    "#include <string>\n"
                     "#include <QString>\n"
 
                     "using namespace std;\n"
@@ -4869,7 +4870,13 @@ void tst_Dumpers::dumper_data()
                     "const QString &b3 = a3;\n"
                     "typedef QString &Ref3;\n"
                     "const Ref3 d3 = const_cast<Ref3>(a3);\n"
-                    "unused(&a3, &b3, &d3);\n")
+                    "unused(&a3, &b3, &d3);\n\n"
+
+                    "Foo a4(12);\n"
+                    "const Foo &b4 = a4;\n"
+                    "typedef Foo &Ref4;\n"
+                    "const Ref4 d4 = const_cast<Ref4>(a4);\n"
+                    "unused(&a4, &b4, &d4);\n")
 
                + CoreProfile()
 
@@ -4885,7 +4892,14 @@ void tst_Dumpers::dumper_data()
 
                + Check("a3", "\"hello\"", "@QString")
                + Check("b3", "\"hello\"", "@QString &")
-               + Check("d3", "\"hello\"", "Ref3");
+               + Check("d3", "\"hello\"", "Ref3")
+
+               + Check("a4", "", "Foo")
+               + Check("a4.a", "12", "int")
+               + Check("b4", "", "Foo &")
+               + Check("b4.a", "12", "int")
+               //+ Check("d4", "\"hello\"", "Ref4");  FIXME: We get "Foo &" instead
+               + Check("d4.a", "12", "int");
 
 
     QTest::newRow("DynamicReference")
@@ -4967,6 +4981,8 @@ void tst_Dumpers::dumper_data()
            << Data(fooData +
                    "void testPassByReference(Foo &f) {\n"
                    "   BREAK;\n"
+                   "   int dummy = 2;\n"
+                   "   unused(&f, &dummy);\n"
                    "}\n",
                    "Foo f(12);\n"
                    "testPassByReference(f);\n")
