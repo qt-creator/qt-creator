@@ -137,11 +137,11 @@ void AbstractSshChannel::flushSendBuffer()
 void AbstractSshChannel::handleOpenSuccess(quint32 remoteChannelId,
     quint32 remoteWindowSize, quint32 remoteMaxPacketSize)
 {
-    switch (m_state) {
+    const ChannelState oldState = m_state;
+    switch (oldState) {
+    case CloseRequested:   // closeChannel() was called while we were in SessionRequested state
     case SessionRequested:
         break; // Ok, continue.
-    case CloseRequested:
-        return; // Late server reply; we requested a channel close in the meantime.
     default:
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Unexpected SSH_MSG_CHANNEL_OPEN_CONFIRMATION packet.");
@@ -163,7 +163,10 @@ void AbstractSshChannel::handleOpenSuccess(quint32 remoteChannelId,
    m_remoteWindowSize = remoteWindowSize;
    m_remoteMaxPacketSize = remoteMaxPacketSize;
    setChannelState(SessionEstablished);
-   handleOpenSuccessInternal();
+   if (oldState == CloseRequested)
+       closeChannel();
+   else
+       handleOpenSuccessInternal();
 }
 
 void AbstractSshChannel::handleOpenFailure(const QString &reason)
@@ -260,8 +263,12 @@ void AbstractSshChannel::closeChannel()
             setChannelState(Closed);
         } else {
             setChannelState(CloseRequested);
-            m_sendFacility.sendChannelEofPacket(m_remoteChannel);
-            m_sendFacility.sendChannelClosePacket(m_remoteChannel);
+            if (m_remoteChannel != NoChannel) {
+                m_sendFacility.sendChannelEofPacket(m_remoteChannel);
+                m_sendFacility.sendChannelClosePacket(m_remoteChannel);
+            } else {
+                QSSH_ASSERT(m_state == SessionRequested);
+            }
         }
     }
 }

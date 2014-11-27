@@ -31,6 +31,7 @@
 #include "sshremoteprocess.h"
 #include "sshremoteprocess_p.h"
 
+#include "ssh_global.h"
 #include "sshincomingpacket_p.h"
 #include "sshsendfacility_p.h"
 
@@ -85,6 +86,7 @@ SshRemoteProcess::SshRemoteProcess(quint32 channelId, Internal::SshSendFacility 
 
 SshRemoteProcess::~SshRemoteProcess()
 {
+    QSSH_ASSERT(d->channelState() != Internal::AbstractSshChannel::SessionEstablished);
     close();
     delete d;
 }
