@@ -174,16 +174,9 @@ QColor QmlProfilerAnimationsModel::color(int index) const
 
 float QmlProfilerAnimationsModel::relativeHeight(int index) const
 {
-    const int thread = selectionId(index);
-
-    // Add some height to the events if we're far from the scale threshold of 2 * DefaultRowHeight.
-    // Like that you can see the smaller events more easily.
-    int scaleThreshold = 2 * defaultRowHeight() - rowHeight(rowFromThreadId(thread));
-    float boost = scaleThreshold > 0 ? (0.15 * scaleThreshold / defaultRowHeight()) : 0;
-
-    return boost + (1.0 - boost) * (float)m_data[index].animationcount /
-            (float)(thread == QmlDebug::GuiThread ? m_maxGuiThreadAnimations :
-                                                    m_maxRenderThreadAnimations);
+    return (float)m_data[index].animationcount / (float)(selectionId(index) == QmlDebug::GuiThread ?
+                                                             m_maxGuiThreadAnimations :
+                                                             m_maxRenderThreadAnimations);
 }
 
 QVariantList QmlProfilerAnimationsModel::labels() const
