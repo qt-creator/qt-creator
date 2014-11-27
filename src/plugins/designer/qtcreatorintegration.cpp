@@ -537,12 +537,14 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     } else {
         const CppTools::WorkingCopy workingCopy =
                 CppTools::CppModelManager::instance()->workingCopy();
-        QHashIterator<QString, QPair<QByteArray, unsigned> > it = workingCopy.iterator();
+        const Utils::FileName configFileName =
+                Utils::FileName::fromString(CppTools::CppModelManager::configurationFileName());
+        QHashIterator<Utils::FileName, QPair<QByteArray, unsigned> > it = workingCopy.iterator();
         while (it.hasNext()) {
             it.next();
-            const QString fileName = it.key();
-            if (fileName != CppTools::CppModelManager::configurationFileName())
-                newDocTable.insert(docTable.document(fileName));
+            const Utils::FileName &fileName = it.key();
+            if (fileName != configFileName)
+                newDocTable.insert(docTable.document(fileName.toString()));
         }
     }
     docTable = newDocTable;

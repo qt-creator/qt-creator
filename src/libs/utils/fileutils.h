@@ -102,6 +102,7 @@ private:
     FileName(const QString &string);
 };
 
+QTCREATOR_UTILS_EXPORT QTextStream &operator<<(QTextStream &s, const FileName &fn);
 
 class QTCREATOR_UTILS_EXPORT FileUtils {
 public:

@@ -580,10 +580,10 @@ void Dumper::dumpWorkingCopy(const WorkingCopy &workingCopy)
     m_out << "Working Copy contains " << workingCopy.size() << " entries{{{1\n";
 
     const QByteArray i1 = indent(1);
-    QHashIterator<QString, QPair<QByteArray, unsigned> > it = workingCopy.iterator();
+    QHashIterator<::Utils::FileName, QPair<QByteArray, unsigned> > it = workingCopy.iterator();
     while (it.hasNext()) {
         it.next();
-        const QString filePath = it.key();
+        const ::Utils::FileName &filePath = it.key();
         unsigned sourcRevision = it.value().second;
         m_out << i1 << "rev=" << sourcRevision << ", " << filePath << "\n";
     }

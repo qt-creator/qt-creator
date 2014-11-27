@@ -1087,10 +1087,11 @@ void WorkingCopyModel::configure(const WorkingCopy &workingCopy)
 {
     emit layoutAboutToBeChanged();
     m_workingCopyList.clear();
-    QHashIterator<QString, QPair<QByteArray, unsigned> > it = workingCopy.iterator();
+    QHashIterator<Utils::FileName, QPair<QByteArray, unsigned> > it = workingCopy.iterator();
     while (it.hasNext()) {
         it.next();
-        m_workingCopyList << WorkingCopyEntry(it.key(), it.value().first, it.value().second);
+        m_workingCopyList << WorkingCopyEntry(it.key().toString(), it.value().first,
+                                              it.value().second);
     }
     emit layoutChanged();
 }

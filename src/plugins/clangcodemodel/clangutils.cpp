@@ -74,17 +74,17 @@ UnsavedFiles createUnsavedFiles(WorkingCopy workingCopy)
     // TODO: change the modelmanager to hold one working copy, and amend it every time we ask for one.
     // TODO: Reason: the UnsavedFile needs a QByteArray.
 
-    QSet<QString> modifiedFiles;
+    QSet<::Utils::FileName> modifiedFiles;
     foreach (IDocument *doc, Core::DocumentManager::modifiedDocuments())
-        modifiedFiles.insert(doc->filePath());
+        modifiedFiles.insert(::Utils::FileName::fromString(doc->filePath()));
 
     UnsavedFiles result;
-    QHashIterator<QString, QPair<QByteArray, unsigned> > wcIter = workingCopy.iterator();
+    QHashIterator<::Utils::FileName, QPair<QByteArray, unsigned> > wcIter = workingCopy.iterator();
     while (wcIter.hasNext()) {
         wcIter.next();
-        const QString &fileName = wcIter.key();
-        if (modifiedFiles.contains(fileName) && QFile(fileName).exists())
-            result.insert(fileName, wcIter.value().first);
+        const ::Utils::FileName &fileName = wcIter.key();
+        if (modifiedFiles.contains(fileName) && QFile(fileName.toString()).exists())
+            result.insert(fileName.toString(), wcIter.value().first);
     }
 
     return result;

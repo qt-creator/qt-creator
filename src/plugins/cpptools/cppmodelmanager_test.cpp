@@ -684,10 +684,10 @@ void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
     QCOMPARE(workingCopy.size(), 2); // mm->configurationFileName() and "ui_*.h"
 
     QStringList fileNamesInWorkinCopy;
-    QHashIterator<QString, QPair<QByteArray, unsigned> > it = workingCopy.iterator();
+    QHashIterator<Utils::FileName, QPair<QByteArray, unsigned> > it = workingCopy.iterator();
     while (it.hasNext()) {
         it.next();
-        fileNamesInWorkinCopy << QFileInfo(it.key()).fileName();
+        fileNamesInWorkinCopy << QFileInfo(it.key().toString()).fileName();
     }
     fileNamesInWorkinCopy.sort();
     const QString expectedUiHeaderFileName = _("ui_mainwindow.h");

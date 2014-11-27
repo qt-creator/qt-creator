@@ -33,6 +33,8 @@
 
 #include "cpptools_global.h"
 
+#include <utils/fileutils.h>
+
 #include <QHash>
 #include <QString>
 #include <QPair>
@@ -45,28 +47,43 @@ public:
     WorkingCopy();
 
     void insert(const QString &fileName, const QByteArray &source, unsigned revision = 0)
+    { insert(Utils::FileName::fromString(fileName), source, revision); }
+
+    void insert(const Utils::FileName &fileName, const QByteArray &source, unsigned revision = 0)
     { _elements.insert(fileName, qMakePair(source, revision)); }
 
     bool contains(const QString &fileName) const
+    { return contains(Utils::FileName::fromString(fileName)); }
+
+    bool contains(const Utils::FileName &fileName) const
     { return _elements.contains(fileName); }
 
     QByteArray source(const QString &fileName) const
+    { return source(Utils::FileName::fromString(fileName)); }
+
+    QByteArray source(const Utils::FileName &fileName) const
     { return _elements.value(fileName).first; }
 
     unsigned revision(const QString &fileName) const
+    { return revision(Utils::FileName::fromString(fileName)); }
+
+    unsigned revision(const Utils::FileName &fileName) const
     { return _elements.value(fileName).second; }
 
     QPair<QByteArray, unsigned> get(const QString &fileName) const
+    { return get(Utils::FileName::fromString(fileName)); }
+
+    QPair<QByteArray, unsigned> get(const Utils::FileName &fileName) const
     { return _elements.value(fileName); }
 
-    QHashIterator<QString, QPair<QByteArray, unsigned> > iterator() const
-    { return QHashIterator<QString, QPair<QByteArray, unsigned> >(_elements); }
+    QHashIterator<Utils::FileName, QPair<QByteArray, unsigned> > iterator() const
+    { return QHashIterator<Utils::FileName, QPair<QByteArray, unsigned> >(_elements); }
 
     int size() const
     { return _elements.size(); }
 
 private:
-    typedef QHash<QString, QPair<QByteArray, unsigned> > Table;
+    typedef QHash<Utils::FileName, QPair<QByteArray, unsigned> > Table;
     Table _elements;
 };
 

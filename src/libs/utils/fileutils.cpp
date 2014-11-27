@@ -721,6 +721,11 @@ FileName &FileName::appendString(QChar str)
     return *this;
 }
 
+QTextStream &operator<<(QTextStream &s, const FileName &fn)
+{
+    return s << fn.toString();
+}
+
 static bool isFileDrop(const QMimeData *d, QList<FileDropSupport::FileSpec> *files = 0)
 {
     // internal drop
