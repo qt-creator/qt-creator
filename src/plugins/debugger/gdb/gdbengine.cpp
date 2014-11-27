@@ -2382,6 +2382,8 @@ void GdbEngine::updateResponse(BreakpointResponse &response, const GdbMi &bkpt)
             response.condition = child.data();
         } else if (child.hasName("enabled")) {
             response.enabled = (child.data() == "y");
+        } else if (child.hasName("disp")) {
+            response.oneShot = child.data() == "del";
         } else if (child.hasName("pending")) {
             // Any content here would be interesting only if we did accept
             // spontaneously appearing breakpoints (user using gdb commands).
