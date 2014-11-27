@@ -34,13 +34,14 @@
 
 using namespace CPlusPlus;
 
-QStringList DependencyTable::filesDependingOn(const QString &fileName) const
+Utils::FileNameList DependencyTable::filesDependingOn(const Utils::FileName &fileName) const
 {
+    Utils::FileNameList deps;
+
     int index = fileIndex.value(fileName, -1);
     if (index == -1)
-        return QStringList();
+        return deps;
 
-    QStringList deps;
     for (int i = 0; i < files.size(); ++i) {
         const QBitArray &bits = includeMap.at(i);
 
@@ -53,7 +54,6 @@ QStringList DependencyTable::filesDependingOn(const QString &fileName) const
 
 void DependencyTable::build(const Snapshot &snapshot)
 {
-    includesPerFile.clear();
     files.clear();
     fileIndex.clear();
     includes.clear();
@@ -71,15 +71,14 @@ void DependencyTable::build(const Snapshot &snapshot)
     }
 
     for (int i = 0; i < files.size(); ++i) {
-        const QString fileName = files.at(i);
-        if (Document::Ptr doc = snapshot.document(files.at(i))) {
+        const Utils::FileName &fileName = files.at(i);
+        if (Document::Ptr doc = snapshot.document(fileName)) {
             QBitArray bitmap(files.size());
             QList<int> directIncludes;
             const QStringList documentIncludes = doc->includedFiles();
-            includesPerFile.insert(fileName, documentIncludes);
 
             foreach (const QString &includedFile, documentIncludes) {
-                int index = fileIndex.value(includedFile);
+                int index = fileIndex.value(Utils::FileName::fromString(includedFile));
 
                 if (index == -1)
                     continue;

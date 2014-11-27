@@ -116,9 +116,9 @@ void BuiltinEditorDocumentParser::update(WorkingCopy workingCopy)
         m_snapshot = Snapshot();
     } else {
         // Remove changed files from the snapshot
-        QSet<QString> toRemove;
+        QSet<Utils::FileName> toRemove;
         foreach (const Document::Ptr &doc, m_snapshot) {
-            QString fileName = doc->fileName();
+            const Utils::FileName fileName = Utils::FileName::fromString(doc->fileName());
             if (workingCopy.contains(fileName)) {
                 if (workingCopy.get(fileName).second != doc->editorRevision())
                     addFileAndDependencies(&toRemove, fileName);
@@ -131,7 +131,7 @@ void BuiltinEditorDocumentParser::update(WorkingCopy workingCopy)
 
         if (!toRemove.isEmpty()) {
             invalidateSnapshot = true;
-            foreach (const QString &fileName, toRemove)
+            foreach (const Utils::FileName &fileName, toRemove)
                 m_snapshot.remove(fileName);
         }
     }
@@ -183,7 +183,7 @@ void BuiltinEditorDocumentParser::update(WorkingCopy workingCopy)
         m_snapshot = sourceProcessor.snapshot();
         Snapshot newSnapshot = m_snapshot.simplified(document());
         for (Snapshot::const_iterator i = m_snapshot.begin(), ei = m_snapshot.end(); i != ei; ++i) {
-            if (Client::isInjectedFile(i.key()))
+            if (Client::isInjectedFile(i.key().toString()))
                 newSnapshot.insert(i.value());
         }
         m_snapshot = newSnapshot;
@@ -231,12 +231,12 @@ BuiltinEditorDocumentParser *BuiltinEditorDocumentParser::get(const QString &fil
     return 0;
 }
 
-void BuiltinEditorDocumentParser::addFileAndDependencies(QSet<QString> *toRemove,
-                                                         const QString &fileName) const
+void BuiltinEditorDocumentParser::addFileAndDependencies(QSet<Utils::FileName> *toRemove,
+                                                         const Utils::FileName &fileName) const
 {
     toRemove->insert(fileName);
-    if (fileName != filePath()) {
-        QStringList deps = m_snapshot.filesDependingOn(fileName);
-        toRemove->unite(QSet<QString>::fromList(deps));
+    if (fileName != Utils::FileName::fromString(filePath())) {
+        Utils::FileNameList deps = m_snapshot.filesDependingOn(fileName);
+        toRemove->unite(QSet<Utils::FileName>::fromList(deps));
     }
 }

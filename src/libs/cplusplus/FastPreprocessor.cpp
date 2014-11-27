@@ -53,8 +53,8 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc, const QByteArray &source)
         _merged.insert(fileName);
 
         for (Snapshot::const_iterator i = _snapshot.begin(), ei = _snapshot.end(); i != ei; ++i) {
-            if (isInjectedFile(i.key()))
-                mergeEnvironment(i.key());
+            if (isInjectedFile(i.key().toString()))
+                mergeEnvironment(i.key().toString());
         }
 
         foreach (const Document::Include &i, doc->resolvedIncludes())

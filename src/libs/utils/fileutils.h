@@ -70,6 +70,7 @@ public:
     static FileName fromString(const QString &filename, const QString &defaultExtension);
     static FileName fromLatin1(const QByteArray &filename);
     static FileName fromUserInput(const QString &filename);
+    static FileName fromUtf8(const char *filename, int filenameSize = -1);
     QString toString() const;
     QString toUserOutput() const;
     bool exists() const;
@@ -103,6 +104,17 @@ private:
 };
 
 QTCREATOR_UTILS_EXPORT QTextStream &operator<<(QTextStream &s, const FileName &fn);
+
+class QTCREATOR_UTILS_EXPORT FileNameList : public QList<FileName>
+{
+public:
+    inline FileNameList() { }
+    inline explicit FileNameList(const FileName &i) { append(i); }
+    inline FileNameList(const FileNameList &l) : QList<FileName>(l) { }
+    inline FileNameList(const QList<FileName> &l) : QList<FileName>(l) { }
+
+    int removeDuplicates();
+};
 
 class QTCREATOR_UTILS_EXPORT FileUtils {
 public:

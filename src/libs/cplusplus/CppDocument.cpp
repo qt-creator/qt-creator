@@ -741,17 +741,17 @@ bool Snapshot::isEmpty() const
     return _documents.isEmpty();
 }
 
-Snapshot::const_iterator Snapshot::find(const QString &fileName) const
+Snapshot::const_iterator Snapshot::find(const Utils::FileName &fileName) const
 {
     return _documents.find(fileName);
 }
 
-void Snapshot::remove(const QString &fileName)
+void Snapshot::remove(const Utils::FileName &fileName)
 {
     _documents.remove(fileName);
 }
 
-bool Snapshot::contains(const QString &fileName) const
+bool Snapshot::contains(const Utils::FileName &fileName) const
 {
     return _documents.contains(fileName);
 }
@@ -759,15 +759,15 @@ bool Snapshot::contains(const QString &fileName) const
 void Snapshot::insert(Document::Ptr doc)
 {
     if (doc) {
-        _documents.insert(doc->fileName(), doc);
+        _documents.insert(Utils::FileName::fromString(doc->fileName()), doc);
         m_deps.files.clear(); // Will trigger re-build when accessed.
     }
 }
 
 Document::Ptr Snapshot::preprocessedDocument(const QByteArray &source,
-                                             const QString &fileName) const
+                                             const Utils::FileName &fileName) const
 {
-    Document::Ptr newDoc = Document::create(fileName);
+    Document::Ptr newDoc = Document::create(fileName.toString());
     if (Document::Ptr thisDocument = document(fileName)) {
         newDoc->_revision = thisDocument->_revision;
         newDoc->_editorRevision = thisDocument->_editorRevision;
@@ -821,7 +821,7 @@ QList<Snapshot::IncludeLocation> Snapshot::includeLocationsOfDocument(const QStr
     return result;
 }
 
-QStringList Snapshot::filesDependingOn(const QString &fileName) const
+Utils::FileNameList Snapshot::filesDependingOn(const Utils::FileName &fileName) const
 {
     updateDependencyTable();
     return m_deps.filesDependingOn(fileName);
@@ -850,7 +850,7 @@ void Snapshot::allIncludesForDocument_helper(const QString &fileName, QSet<QStri
     }
 }
 
-Document::Ptr Snapshot::document(const QString &fileName) const
+Document::Ptr Snapshot::document(const Utils::FileName &fileName) const
 {
     return _documents.value(fileName);
 }

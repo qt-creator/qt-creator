@@ -528,11 +528,10 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     Snapshot newDocTable;
     const Project *uiProject = SessionManager::projectForFile(currentUiFile);
     if (uiProject) {
-        Snapshot::const_iterator end = docTable.end();
-        for (Snapshot::iterator it = docTable.begin(); it != end; ++it) {
-            const Project *project = SessionManager::projectForFile(it.key());
+        for (Snapshot::const_iterator i = docTable.begin(), ei = docTable.end(); i != ei; ++i) {
+            const Project *project = SessionManager::projectForFile(i.key().toString());
             if (project == uiProject)
-                newDocTable.insert(it.value());
+                newDocTable.insert(i.value());
         }
     } else {
         const CppTools::WorkingCopy workingCopy =

@@ -814,12 +814,12 @@ QList<ProjectPart::Ptr> CppModelManager::projectPart(const QString &fileName) co
 QList<ProjectPart::Ptr> CppModelManager::projectPartFromDependencies(const QString &fileName) const
 {
     QSet<ProjectPart::Ptr> parts;
-    const QStringList deps = snapshot().filesDependingOn(fileName);
+    const Utils::FileNameList deps = snapshot().filesDependingOn(fileName);
 
-    {
-        QMutexLocker locker(&d->m_projectMutex);
-        foreach (const QString &dep, deps)
-            parts.unite(QSet<ProjectPart::Ptr>::fromList(d->m_fileToProjectParts.value(dep)));
+    QMutexLocker locker(&d->m_projectMutex);
+    foreach (const Utils::FileName &dep, deps) {
+        parts.unite(QSet<ProjectPart::Ptr>::fromList(
+                        d->m_fileToProjectParts.value(dep.toString())));
     }
 
     return parts.values();
@@ -963,7 +963,7 @@ void CppModelManager::GC()
     }
 
     Snapshot currentSnapshot = snapshot();
-    QSet<QString> reachableFiles;
+    QSet<Utils::FileName> reachableFiles;
     // The configuration file is part of the project files, which is just fine.
     // If single files are open, without any project, then there is no need to
     // keep the configuration file around.
@@ -974,9 +974,10 @@ void CppModelManager::GC()
         const QString file = todo.last();
         todo.removeLast();
 
-        if (reachableFiles.contains(file))
+        const Utils::FileName fileName = Utils::FileName::fromString(file);
+        if (reachableFiles.contains(fileName))
             continue;
-        reachableFiles.insert(file);
+        reachableFiles.insert(fileName);
 
         if (Document::Ptr doc = currentSnapshot.document(file))
             todo += doc->includedFiles();
@@ -986,12 +987,12 @@ void CppModelManager::GC()
     QStringList notReachableFiles;
     Snapshot newSnapshot;
     for (Snapshot::const_iterator it = currentSnapshot.begin(); it != currentSnapshot.end(); ++it) {
-        const QString fileName = it.key();
+        const Utils::FileName &fileName = it.key();
 
         if (reachableFiles.contains(fileName))
             newSnapshot.insert(it.value());
         else
-            notReachableFiles.append(fileName);
+            notReachableFiles.append(fileName.toString());
     }
 
     // Announce removing files and replace the snapshot

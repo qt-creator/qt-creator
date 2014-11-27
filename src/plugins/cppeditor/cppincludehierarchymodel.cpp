@@ -341,7 +341,7 @@ void CppIncludeHierarchyModel::buildHierarchyIncludedBy_helper(const QString &fi
     cyclic->insert(filePath);
     Snapshot::const_iterator citEnd = snapshot.end();
     for (Snapshot::const_iterator cit = snapshot.begin(); cit != citEnd; ++cit) {
-        const QString filePathFromSnapshot = cit.key();
+        const QString filePathFromSnapshot = cit.key().toString();
         Document::Ptr doc = cit.value();
         foreach (const Document::Include &includeFile, doc->resolvedIncludes()) {
             const QString includedFilePath = includeFile.resolvedFileName();

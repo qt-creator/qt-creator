@@ -65,7 +65,7 @@ public:
     static BuiltinEditorDocumentParser *get(const QString &filePath);
 
 private:
-    void addFileAndDependencies(QSet<QString> *toRemove, const QString &fileName) const;
+    void addFileAndDependencies(QSet<Utils::FileName> *toRemove, const Utils::FileName &fileName) const;
 
 private:
     QByteArray m_configFile;

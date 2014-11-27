@@ -55,7 +55,7 @@ using namespace CppTools::Internal;
 using namespace CppTools;
 using namespace CPlusPlus;
 
-static QByteArray getSource(const QString &fileName,
+static QByteArray getSource(const Utils::FileName &fileName,
                             const WorkingCopy &workingCopy)
 {
     if (workingCopy.contains(fileName)) {
@@ -66,7 +66,7 @@ static QByteArray getSource(const QString &fileName,
         QString error;
         QTextCodec *defaultCodec = EditorManager::defaultTextCodec();
         Utils::TextFileFormat::ReadResult result = Utils::TextFileFormat::readFile(
-                    fileName, defaultCodec, &fileContents, &format, &error);
+                    fileName.toString(), defaultCodec, &fileContents, &format, &error);
         if (result != Utils::TextFileFormat::ReadSuccess)
             qWarning() << "Could not read " << fileName << ". Error: " << error;
 
@@ -188,7 +188,7 @@ public:
           future(future)
     { }
 
-    QList<Usage> operator()(const QString &fileName)
+    QList<Usage> operator()(const Utils::FileName &fileName)
     {
         QList<Usage> usages;
         if (future->isPaused())
@@ -205,7 +205,7 @@ public:
         Document::Ptr doc;
         const QByteArray unpreprocessedSource = getSource(fileName, workingCopy);
 
-        if (symbolDocument && fileName == symbolDocument->fileName()) {
+        if (symbolDocument && fileName == Utils::FileName::fromString(symbolDocument->fileName())) {
             doc = symbolDocument;
         } else {
             doc = snapshot.preprocessedDocument(unpreprocessedSource, fileName);
@@ -278,22 +278,24 @@ static void find_helper(QFutureInterface<Usage> &future,
 
     const Snapshot snapshot = context.snapshot();
 
-    const QString sourceFile = QString::fromUtf8(symbol->fileName(), symbol->fileNameLength());
-    QStringList files(sourceFile);
+    const Utils::FileName sourceFile = Utils::FileName::fromUtf8(symbol->fileName(),
+                                                                 symbol->fileNameLength());
+    Utils::FileNameList files(sourceFile);
 
     if (symbol->isClass()
         || symbol->isForwardClassDeclaration()
         || (symbol->enclosingScope()
             && !symbol->isStatic()
             && symbol->enclosingScope()->isNamespace())) {
-        foreach (const Document::Ptr &doc, context.snapshot()) {
-            if (doc->fileName() == sourceFile)
+        const Snapshot snapshotFromContext = context.snapshot();
+        for (auto i = snapshotFromContext.begin(), ei = snapshotFromContext.end(); i != ei; ++i) {
+            if (i.key() == sourceFile)
                 continue;
 
-            Control *control = doc->control();
+            const Control *control = i.value()->control();
 
             if (control->findIdentifier(symbolId->chars(), symbolId->size()))
-                files.append(doc->fileName());
+                files.append(i.key());
         }
     } else {
         files += snapshot.filesDependingOn(sourceFile);
@@ -452,7 +454,8 @@ CPlusPlus::Symbol *CppFindReferences::findSymbol(const CppFindReferencesParamete
 
     Document::Ptr newSymbolDocument = snapshot.document(symbolFile);
     // document is not parsed and has no bindings yet, do it
-    QByteArray source = getSource(newSymbolDocument->fileName(), m_modelManager->workingCopy());
+    QByteArray source = getSource(Utils::FileName::fromString(newSymbolDocument->fileName()),
+                                  m_modelManager->workingCopy());
     Document::Ptr doc =
             snapshot.preprocessedDocument(source, newSymbolDocument->fileName());
     doc->check();
@@ -543,7 +546,7 @@ public:
         : workingCopy(workingCopy), snapshot(snapshot), macro(macro), future(future)
     { }
 
-    QList<Usage> operator()(const QString &fileName)
+    QList<Usage> operator()(const Utils::FileName &fileName)
     {
         QList<Usage> usages;
         Document::Ptr doc = snapshot.document(fileName);
@@ -573,7 +576,7 @@ restart_search:
                 if (macro.name() == useMacro.name()) {
                     unsigned column;
                     const QString &lineSource = matchingLine(use.bytesBegin(), source, &column);
-                    usages.append(Usage(fileName, lineSource, use.beginLine(), column,
+                    usages.append(Usage(fileName.toString(), lineSource, use.beginLine(), column,
                                         useMacro.nameToQString().size()));
                 }
             }
@@ -614,8 +617,8 @@ static void findMacroUses_helper(QFutureInterface<Usage> &future,
                                  const Snapshot snapshot,
                                  const Macro macro)
 {
-    const QString& sourceFile = macro.fileName();
-    QStringList files(sourceFile);
+    const Utils::FileName sourceFile = Utils::FileName::fromString(macro.fileName());
+    Utils::FileNameList files(sourceFile);
     files += snapshot.filesDependingOn(sourceFile);
     files.removeDuplicates();
 
@@ -662,7 +665,8 @@ void CppFindReferences::findMacroUses(const Macro &macro, const QString &replace
 
     // add the macro definition itself
     {
-        const QByteArray &source = getSource(macro.fileName(), workingCopy);
+        const QByteArray &source = getSource(Utils::FileName::fromString(macro.fileName()),
+                                             workingCopy);
         unsigned column;
         const QString line = FindMacroUsesInFile::matchingLine(macro.bytesOffset(), source,
                                                                &column);

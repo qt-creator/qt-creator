@@ -641,7 +641,7 @@ void Parser::resetData(const CPlusPlus::Snapshot &snapshot)
     CPlusPlus::Snapshot::const_iterator cur = snapshot.begin();
     CPlusPlus::Snapshot::const_iterator end = snapshot.end();
     for (; cur != end; ++cur)
-        d->documentList[cur.key()] = cur.value();
+        d->documentList[cur.key().toString()] = cur.value();
 
     d->docLocker.unlock();
 

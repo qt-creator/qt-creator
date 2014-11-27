@@ -195,9 +195,13 @@ void TypeHierarchyBuilder::buildDerived(TypeHierarchy *typeHierarchy,
 
 QStringList TypeHierarchyBuilder::filesDependingOn(CPlusPlus::Symbol *symbol) const
 {
+    QStringList deps;
     if (!symbol)
-        return QStringList();
+        return deps;
 
-    const QString file = QString::fromUtf8(symbol->fileName(), symbol->fileNameLength());
-    return QStringList() << file << _snapshot.filesDependingOn(file);
+    Utils::FileName file = Utils::FileName::fromUtf8(symbol->fileName(), symbol->fileNameLength());
+    deps << file.toString();
+    foreach (const Utils::FileName &fileName, _snapshot.filesDependingOn(file))
+        deps.append(fileName.toString());
+    return deps;
 }

@@ -624,6 +624,13 @@ FileName FileName::fromUserInput(const QString &filename)
     return FileName(clean);
 }
 
+/// Constructs a FileName from \a fileName, which is encoded as UTF-8.
+/// \a fileName is not checked for validity.
+FileName FileName::fromUtf8(const char *filename, int filenameSize)
+{
+    return FileName(QString::fromUtf8(filename, filenameSize));
+}
+
 FileName::FileName(const QString &string)
     : QString(string)
 {
@@ -724,6 +731,25 @@ FileName &FileName::appendString(QChar str)
 QTextStream &operator<<(QTextStream &s, const FileName &fn)
 {
     return s << fn.toString();
+}
+
+int FileNameList::removeDuplicates()
+{
+    QSet<FileName> seen;
+    int removed = 0;
+
+    for (int i = 0; i < size(); ) {
+        const FileName &fn = at(i);
+        if (seen.contains(fn)) {
+            removeAt(i);
+            ++removed;
+        } else {
+            seen.insert(fn);
+            ++i;
+        }
+    }
+
+    return removed;
 }
 
 static bool isFileDrop(const QMimeData *d, QList<FileDropSupport::FileSpec> *files = 0)
