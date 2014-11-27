@@ -245,6 +245,26 @@ void QuickFixOperationTest::run(const QList<QuickFixTestDocument::Ptr> &testDocu
     QuickFixOperationTest(testDocuments, factory, headerPaths, operationIndex);
 }
 
+QuickFixOfferedOperationsTest::QuickFixOfferedOperationsTest(
+        const QList<QuickFixTestDocument::Ptr> &testDocuments,
+        CppQuickFixFactory *factory,
+        const ProjectPart::HeaderPaths &headerPaths,
+        const QStringList &expectedOperations)
+    : BaseQuickFixTestCase(testDocuments, headerPaths)
+{
+    // Get operations
+    CppQuickFixInterface quickFixInterface(m_documentWithMarker->m_editorWidget, ExplicitlyInvoked);
+    TextEditor::QuickFixOperations actualOperations;
+    factory->match(quickFixInterface, actualOperations);
+
+    // Convert to QStringList
+    QStringList actualOperationsAsStringList;
+    foreach (const QuickFixOperation::Ptr &operation, actualOperations)
+        actualOperationsAsStringList << operation->description();
+
+    QCOMPARE(actualOperationsAsStringList, expectedOperations);
+}
+
 /// Delegates directly to AddIncludeForUndefinedIdentifierOp for easier testing.
 class AddIncludeForUndefinedIdentifierTestFactory : public CppQuickFixFactory
 {
@@ -3090,7 +3110,32 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_c
 
     AddIncludeForUndefinedIdentifier factory;
     QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalQtCoreIncludePath());
+}
 
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noDoubleQtHeaderInclude()
+{
+    QList<QuickFixTestDocument::Ptr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    const QByteArray base = TestIncludePaths::directoryOfTestFile().toUtf8();
+
+    // This file makes the QDir definition available so that locator finds it.
+    original = expected = "#include <QDir>\n"
+                          "void avoidBeingRecognizedAsForwardingHeader();";
+    testFiles << QuickFixTestDocument::create(base + "/fileUsingQDir.cpp", original, expected);
+
+    original = expected = "@QDir dir;\n";
+    testFiles << QuickFixTestDocument::create(base + "/fileWantsToUseQDir.cpp", original, expected);
+
+    ProjectPart::HeaderPaths headerPaths;
+    headerPaths += ProjectPart::HeaderPath(TestIncludePaths::globalQtCoreIncludePath(),
+                                           ProjectPart::HeaderPath::IncludePath);
+
+    AddIncludeForUndefinedIdentifier factory;
+    const QStringList expectedOperations = QStringList() << QLatin1String("Add #include <QDir>");
+    QuickFixOfferedOperationsTest(testFiles, &factory, headerPaths, expectedOperations);
 }
 
 /// Check: Move definition from header to cpp.

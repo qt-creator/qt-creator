@@ -106,6 +106,17 @@ public:
                     int operationIndex = 0);
 };
 
+/// Tests the offered operations provided by a given CppQuickFixFactory
+class QuickFixOfferedOperationsTest : public BaseQuickFixTestCase
+{
+public:
+    QuickFixOfferedOperationsTest(const QList<QuickFixTestDocument::Ptr> &testDocuments,
+                                  CppQuickFixFactory *factory,
+                                  const CppTools::ProjectPart::HeaderPaths &headerPaths
+                                    = CppTools::ProjectPart::HeaderPaths(),
+                                  const QStringList &expectedOperations = QStringList());
+};
+
 QList<QuickFixTestDocument::Ptr> singleDocument(const QByteArray &original,
                                                 const QByteArray &expected);
 
