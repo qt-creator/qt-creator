@@ -411,15 +411,9 @@ QString MacroExpander::variableDescription(const QByteArray &variable) const
     return d->m_descriptions.value(variable);
 }
 
-MacroExpanders MacroExpander::subExpanders() const
+MacroExpanderProviders MacroExpander::subProviders() const
 {
-    MacroExpanders expanders;
-    foreach (const MacroExpanderProvider &provider, d->m_subProviders)
-        if (provider)
-            if (MacroExpander *expander = provider())
-                expanders.append(expander);
-
-    return expanders;
+    return d->m_subProviders;
 }
 
 QString MacroExpander::displayName() const
