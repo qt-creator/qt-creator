@@ -101,4 +101,10 @@
     \gui {Use QML emulation layer which is built by the selected Qt} radio button.
     \QC builds the emulation layer when you select the \gui Design mode.
 
+    A plugin should behave differently depending on whether it is run by the
+    emulation layer or an application. For example, animations should not be run
+    in the \gui Design mode. You can use the value of the QML_PUPPET_MODE
+    environment variable to check whether the plugin is currently being run
+    by an application or edited in the \gui Design mode.
+
 */
