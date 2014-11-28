@@ -352,7 +352,7 @@ void DesignDocument::deleteSelected()
                 QmlObjectNode(node).destroy();
         }
 
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         e.showException();
     }
 }
@@ -515,7 +515,7 @@ void DesignDocument::paste()
             }
 
             view.setSelectedModelNodes(pastedNodeList);
-        } catch (RewritingException &e) {
+        } catch (const RewritingException &e) {
             qWarning() << e.description(); //silent error
         }
     } else {
@@ -553,7 +553,7 @@ void DesignDocument::paste()
             NodeMetaInfo::clearCache();
 
             view.setSelectedModelNodes(QList<ModelNode>() << pastedNode);
-        } catch (RewritingException &e) {
+        } catch (const RewritingException &e) {
             qWarning() << e.description(); //silent error
         }
     }

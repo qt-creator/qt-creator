@@ -329,13 +329,13 @@ void SshConnectionPrivate::handleIncomingData()
         if (m_serverId.isEmpty())
             handleServerId();
         handlePackets();
-    } catch (SshServerException &e) {
+    } catch (const SshServerException &e) {
         closeConnection(e.error, SshProtocolError, e.errorStringServer,
             tr("SSH Protocol error: %1").arg(e.errorStringUser));
-    } catch (SshClientException &e) {
+    } catch (const SshClientException &e) {
         closeConnection(SSH_DISCONNECT_BY_APPLICATION, e.error, "",
             e.errorString);
-    } catch (Botan::Exception &e) {
+    } catch (const Botan::Exception &e) {
         closeConnection(SSH_DISCONNECT_BY_APPLICATION, SshInternalError, "",
             tr("Botan library exception: %1").arg(QString::fromLatin1(e.what())));
     }
@@ -784,7 +784,7 @@ void SshConnectionPrivate::closeConnection(SshErrorCode sshError,
     try {
         m_channelManager->closeAllChannels(SshChannelManager::CloseAllAndReset);
         m_sendFacility.sendDisconnectPacket(sshError, serverErrorString);
-    } catch (Botan::Exception &) {}  // Nothing sensible to be done here.
+    } catch (const Botan::Exception &) {}  // Nothing sensible to be done here.
     if (m_error != SshNoError)
         emit error(userError);
     if (m_state == ConnectionEstablished)

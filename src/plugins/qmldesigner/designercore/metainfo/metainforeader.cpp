@@ -301,7 +301,7 @@ void MetaInfoReader::insertItemLibraryEntry()
 
     try {
         m_metaInfo.itemLibraryInfo()->addEntry(m_currentEntry, m_overwriteDuplicates);
-    } catch (InvalidMetaInfoException &) {
+    } catch (const InvalidMetaInfoException &) {
         addError(tr("Invalid or duplicate item library entry %1").arg(m_currentEntry.name()), currentSourceLocation());
     }
 }

@@ -84,7 +84,7 @@ public:
         Error();
         Error(const QmlJS::DiagnosticMessage &qmlError, const QUrl &document);
         Error(const QString &shortDescription);
-        Error(Exception *exception);
+        Error(const Exception *exception);
 
         Type type() const
         { return m_type; }

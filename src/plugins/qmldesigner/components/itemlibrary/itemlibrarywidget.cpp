@@ -330,7 +330,7 @@ void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
         QApplication::restoreOverrideCursor();
         block = false;
         m_filterFlag = flag;
-    } catch (RewritingException &) {
+    } catch (const RewritingException &) {
         QApplication::restoreOverrideCursor();
         m_filterFlag = oldfilterFlag;
         block = false;

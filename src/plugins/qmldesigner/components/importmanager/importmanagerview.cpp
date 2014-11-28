@@ -250,7 +250,7 @@ void ImportManagerView::removeImport(const Import &import)
         if (model())
             model()->changeImports(QList<Import>(), QList<Import>() << import);
     }
-    catch (RewritingException &e) {
+    catch (const RewritingException &e) {
         e.showException();
     }
 }
@@ -261,7 +261,7 @@ void ImportManagerView::addImport(const Import &import)
         if (model())
             model()->changeImports(QList<Import>() << import, QList<Import>());
     }
-    catch (RewritingException &e) {
+    catch (const RewritingException &e) {
         e.showException();
     }
 }

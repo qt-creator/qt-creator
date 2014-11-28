@@ -215,7 +215,7 @@ void PropertyEditorView::changeValue(const QString &name)
                 }
             }
         }
-        catch (RewritingException &e) {
+        catch (const RewritingException &e) {
             e.showException();
         }
 }
@@ -291,7 +291,7 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
         transaction.commit(); //committing in the try block
     }
 
-    catch (RewritingException &e) {
+    catch (const RewritingException &e) {
         e.showException();
     }
 }

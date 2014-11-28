@@ -175,7 +175,7 @@ QSharedPointer<HighlightDefinition> Manager::definition(const QString &id)
         m_isBuildingDefinition.insert(id);
         try {
             reader.parse(source);
-        } catch (HighlighterException &) {
+        } catch (const HighlighterException &) {
             definition.clear();
         }
         m_isBuildingDefinition.remove(id);

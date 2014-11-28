@@ -210,7 +210,7 @@ void SshRemoteProcess::sendSignal(Signal signal)
             QSSH_ASSERT_AND_RETURN(signalString);
             d->m_sendFacility.sendChannelSignalPacket(d->remoteChannel(), signalString);
         }
-    }  catch (Botan::Exception &e) {
+    }  catch (const Botan::Exception &e) {
         setErrorString(QString::fromLatin1(e.what()));
         d->closeChannel();
     }

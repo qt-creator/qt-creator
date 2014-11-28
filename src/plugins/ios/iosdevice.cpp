@@ -410,7 +410,7 @@ void deviceConnectedCallback(void *refCon, io_iterator_t iterator)
             kr = IOObjectRelease(usbDevice);
         }
     }
-    catch (std::exception &e) {
+    catch (const std::exception &e) {
         qCWarning(detectLog) << "Exception " << e.what() << " in iosdevice.cpp deviceConnectedCallback";
     }
     catch (...) {
@@ -449,7 +449,7 @@ void deviceDisconnectedCallback(void *refCon, io_iterator_t iterator)
             kr = IOObjectRelease(usbDevice);
         }
     }
-    catch (std::exception &e) {
+    catch (const std::exception &e) {
         qCWarning(detectLog) << "Exception " << e.what() << " in iosdevice.cpp deviceDisconnectedCallback";
     }
     catch (...) {

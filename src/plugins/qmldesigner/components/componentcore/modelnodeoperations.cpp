@@ -186,7 +186,7 @@ void toFront(const SelectionContext &selectionState)
             maximumZ++;
             node.setVariantProperty("z", maximumZ);
         }
-    } catch (RewritingException &e) { //better save then sorry
+    } catch (const RewritingException &e) { //better save then sorry
         e.showException();
     }
 }
@@ -204,7 +204,7 @@ void toBack(const SelectionContext &selectionState)
             node.setVariantProperty("z", minimumZ);
         }
 
-    } catch (RewritingException &e) { //better save then sorry
+    } catch (const RewritingException &e) { //better save then sorry
         e.showException();
     }
 }
@@ -224,7 +224,7 @@ void raise(const SelectionContext &selectionState)
                 node.setVariantProperty("z", z);
             }
         }
-    } catch (RewritingException &e) { //better save then sorry
+    } catch (const RewritingException &e) { //better save then sorry
          e.showException();
     }
 }
@@ -245,7 +245,7 @@ void lower(const SelectionContext &selectionState)
                 node.setVariantProperty("z", z);
             }
         }
-    } catch (RewritingException &e) { //better save then sorry
+    } catch (const RewritingException &e) { //better save then sorry
         e.showException();
     }
 }
@@ -269,7 +269,7 @@ void setVisible(const SelectionContext &selectionState)
 
     try {
         selectionState.selectedModelNodes().first().variantProperty("visible").setValue(selectionState.toggled());
-    } catch (RewritingException &e) { //better save then sorry
+    } catch (const RewritingException &e) { //better save then sorry
         e.showException();
     }
 }
@@ -282,7 +282,7 @@ void setFillWidth(const SelectionContext &selectionState)
 
     try {
         selectionState.firstSelectedModelNode().variantProperty("Layout.fillWidth").setValue(selectionState.toggled());
-    } catch (RewritingException &e) { //better save then sorry
+    } catch (const RewritingException &e) { //better save then sorry
         e.showException();
     }
 }
@@ -295,7 +295,7 @@ void setFillHeight(const SelectionContext &selectionState)
 
     try {
         selectionState.firstSelectedModelNode().variantProperty("Layout.fillHeight").setValue(selectionState.toggled());
-    } catch (RewritingException &e) { //better save then sorry
+    } catch (const RewritingException &e) { //better save then sorry
         e.showException();
     }
 }
@@ -311,7 +311,7 @@ void resetSize(const SelectionContext &selectionState)
             node.removeProperty("width");
             node.removeProperty("height");
         }
-    } catch (RewritingException &e) { //better save then sorry
+    } catch (const RewritingException &e) { //better save then sorry
         e.showException();
     }
 }
@@ -327,7 +327,7 @@ void resetPosition(const SelectionContext &selectionState)
             node.removeProperty("x");
             node.removeProperty("y");
         }
-    } catch (RewritingException &e) { //better save then sorry
+    } catch (const RewritingException &e) { //better save then sorry
         e.showException();
     }
 }
@@ -392,7 +392,7 @@ void anchorsFill(const SelectionContext &selectionState)
         }
 
         transaction.commit();
-    } catch (RewritingException &e) { //better save then sorry
+    } catch (const RewritingException &e) { //better save then sorry
         e.showException();
     }
 }

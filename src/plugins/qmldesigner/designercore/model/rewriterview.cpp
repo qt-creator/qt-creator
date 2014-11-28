@@ -56,7 +56,7 @@ RewriterView::Error::Error():
 {
 }
 
-RewriterView::Error::Error(Exception *exception):
+RewriterView::Error::Error(const Exception *exception):
         m_type(InternalError),
         m_line(exception->line()),
         m_column(-1),
@@ -521,7 +521,7 @@ void RewriterView::applyChanges()
         modelToTextMerger()->applyChanges();
         if (!errors().isEmpty())
             enterErrorState(errors().first().description());
-    } catch (Exception &e) {
+    } catch (const Exception &e) {
         const QString content = textModifierContent();
         qDebug() << "RewriterException:" << m_rewritingErrorMessage;
         qDebug() << "Content:" << content;

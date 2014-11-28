@@ -88,7 +88,7 @@ quint32 SftpIncomingPacket::extractServerVersion() const
     Q_ASSERT(type() == SSH_FXP_VERSION);
     try {
         return SshPacketParser::asUint32(m_data, TypeOffset + 1);
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Invalid SSH_FXP_VERSION packet.");
     }
@@ -104,7 +104,7 @@ SftpHandleResponse SftpIncomingPacket::asHandleResponse() const
         response.requestId = SshPacketParser::asUint32(m_data, &offset);
         response.handle = SshPacketParser::asString(m_data, &offset);
         return response;
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Invalid SSH_FXP_HANDLE packet");
     }
@@ -122,7 +122,7 @@ SftpStatusResponse SftpIncomingPacket::asStatusResponse() const
         response.errorString = SshPacketParser::asUserString(m_data, &offset);
         response.language = SshPacketParser::asString(m_data, &offset);
         return response;
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Invalid SSH_FXP_STATUS packet.");
     }
@@ -140,7 +140,7 @@ SftpNameResponse SftpIncomingPacket::asNameResponse() const
         for (quint32 i = 0; i < count; ++i)
             response.files << asFile(offset);
         return response;
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Invalid SSH_FXP_NAME packet.");
     }
@@ -156,7 +156,7 @@ SftpDataResponse SftpIncomingPacket::asDataResponse() const
         response.requestId = SshPacketParser::asUint32(m_data, &offset);
         response.data = SshPacketParser::asString(m_data, &offset);
         return response;
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Invalid SSH_FXP_DATA packet.");
     }
@@ -172,7 +172,7 @@ SftpAttrsResponse SftpIncomingPacket::asAttrsResponse() const
         response.requestId = SshPacketParser::asUint32(m_data, &offset);
         response.attrs = asFileAttributes(offset);
         return response;
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Invalid SSH_FXP_ATTRS packet.");
     }

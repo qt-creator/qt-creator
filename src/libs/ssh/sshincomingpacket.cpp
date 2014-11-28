@@ -161,7 +161,7 @@ SshKeyExchangeInit SshIncomingPacket::extractKeyExchangeInitData() const
             = SshPacketParser::asNameList(m_data, &offset);
         exchangeData.firstKexPacketFollows
             = SshPacketParser::asBool(m_data, &offset);
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_KEY_EXCHANGE_FAILED,
             "Key exchange failed: Server sent invalid SSH_MSG_KEXINIT packet.");
     }
@@ -200,7 +200,7 @@ SshKeyExchangeReply SshIncomingPacket::extractKeyExchangeReply(const QByteArray 
             throw SshPacketParseException();
         replyData.signatureBlob = SshPacketParser::asString(m_data, &offset);
         return replyData;
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_KEY_EXCHANGE_FAILED,
             "Key exchange failed: "
             "Server sent invalid SSH_MSG_KEXDH_REPLY packet.");
@@ -218,7 +218,7 @@ SshDisconnect SshIncomingPacket::extractDisconnect() const
         msg.reasonCode = SshPacketParser::asUint32(m_data, &offset);
         msg.description = SshPacketParser::asUserString(m_data, &offset);
         msg.language = SshPacketParser::asString(m_data, &offset);
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Invalid SSH_MSG_DISCONNECT.");
     }
@@ -237,7 +237,7 @@ SshUserAuthBanner SshIncomingPacket::extractUserAuthBanner() const
         msg.message = SshPacketParser::asUserString(m_data, &offset);
         msg.language = SshPacketParser::asString(m_data, &offset);
         return msg;
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Invalid SSH_MSG_USERAUTH_BANNER.");
     }
@@ -262,7 +262,7 @@ SshUserAuthInfoRequestPacket SshIncomingPacket::extractUserAuthInfoRequest() con
             msg.echos << SshPacketParser::asBool(m_data, &offset);
         }
         return msg;
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Invalid SSH_MSG_USERAUTH_INFO_REQUEST.");
     }
@@ -280,7 +280,7 @@ SshDebug SshIncomingPacket::extractDebug() const
         msg.message = SshPacketParser::asUserString(m_data, &offset);
         msg.language = SshPacketParser::asString(m_data, &offset);
         return msg;
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Invalid SSH_MSG_DEBUG.");
     }
@@ -296,7 +296,7 @@ SshUnimplemented SshIncomingPacket::extractUnimplemented() const
         quint32 offset = TypeOffset + 1;
         msg.invalidMsgSeqNr = SshPacketParser::asUint32(m_data, &offset);
         return msg;
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Invalid SSH_MSG_UNIMPLEMENTED.");
     }
@@ -314,7 +314,7 @@ SshChannelOpenFailure SshIncomingPacket::extractChannelOpenFailure() const
         openFailure.reasonCode = SshPacketParser::asUint32(m_data, &offset);
         openFailure.reasonString = QString::fromLocal8Bit(SshPacketParser::asString(m_data, &offset));
         openFailure.language = SshPacketParser::asString(m_data, &offset);
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Server sent invalid SSH_MSG_CHANNEL_OPEN_FAILURE packet.");
     }
@@ -333,7 +333,7 @@ SshChannelOpenConfirmation SshIncomingPacket::extractChannelOpenConfirmation() c
         confirmation.remoteChannel = SshPacketParser::asUint32(m_data, &offset);
         confirmation.remoteWindowSize = SshPacketParser::asUint32(m_data, &offset);
         confirmation.remoteMaxPacketSize = SshPacketParser::asUint32(m_data, &offset);
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Server sent invalid SSH_MSG_CHANNEL_OPEN_CONFIRMATION packet.");
     }
@@ -350,7 +350,7 @@ SshChannelWindowAdjust SshIncomingPacket::extractWindowAdjust() const
         quint32 offset = TypeOffset + 1;
         adjust.localChannel = SshPacketParser::asUint32(m_data, &offset);
         adjust.bytesToAdd = SshPacketParser::asUint32(m_data, &offset);
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Invalid SSH_MSG_CHANNEL_WINDOW_ADJUST packet.");
     }
@@ -367,7 +367,7 @@ SshChannelData SshIncomingPacket::extractChannelData() const
         quint32 offset = TypeOffset + 1;
         data.localChannel = SshPacketParser::asUint32(m_data, &offset);
         data.data = SshPacketParser::asString(m_data, &offset);
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Invalid SSH_MSG_CHANNEL_DATA packet.");
     }
@@ -385,7 +385,7 @@ SshChannelExtendedData SshIncomingPacket::extractChannelExtendedData() const
         data.localChannel = SshPacketParser::asUint32(m_data, &offset);
         data.type = SshPacketParser::asUint32(m_data, &offset);
         data.data = SshPacketParser::asString(m_data, &offset);
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Invalid SSH_MSG_CHANNEL_EXTENDED_DATA packet.");
     }
@@ -407,7 +407,7 @@ SshChannelExitStatus SshIncomingPacket::extractChannelExitStatus() const
         if (SshPacketParser::asBool(m_data, &offset))
             throw SshPacketParseException();
         exitStatus.exitStatus = SshPacketParser::asUint32(m_data, &offset);
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Invalid exit-status packet.");
     }
@@ -432,7 +432,7 @@ SshChannelExitSignal SshIncomingPacket::extractChannelExitSignal() const
         exitSignal.coreDumped = SshPacketParser::asBool(m_data, &offset);
         exitSignal.error = SshPacketParser::asUserString(m_data, &offset);
         exitSignal.language = SshPacketParser::asString(m_data, &offset);
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Invalid exit-signal packet.");
     }
@@ -446,7 +446,7 @@ quint32 SshIncomingPacket::extractRecipientChannel() const
     try {
         quint32 offset = TypeOffset + 1;
         return SshPacketParser::asUint32(m_data, &offset);
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Server sent invalid packet.");
     }
@@ -461,7 +461,7 @@ QByteArray SshIncomingPacket::extractChannelRequestType() const
         quint32 offset = TypeOffset + 1;
         SshPacketParser::asUint32(m_data, &offset);
         return SshPacketParser::asString(m_data, &offset);
-    } catch (SshPacketParseException &) {
+    } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Invalid SSH_MSG_CHANNEL_REQUEST packet.");
     }

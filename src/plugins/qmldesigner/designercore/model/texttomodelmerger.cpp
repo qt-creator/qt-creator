@@ -966,7 +966,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
         setActive(false);
         return true;
-    } catch (Exception &e) {
+    } catch (const Exception &e) {
         RewriterView::Error error(&e);
         // Somehow, the error below gets eaten in upper levels, so printing the
         // exception info here for debugging purposes:

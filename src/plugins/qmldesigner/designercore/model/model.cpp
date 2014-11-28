@@ -157,7 +157,7 @@ void ModelPrivate::notifyImportsChanged(const QList<Import> &addedImports, const
     try {
         if (rewriterView())
             rewriterView()->importsChanged(addedImports, removedImports);
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -309,7 +309,7 @@ void ModelPrivate::changeNodeId(const InternalNode::Pointer& internalNodePointer
 
     try {
         notifyNodeIdChanged(internalNodePointer, id, oldId);
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id, e.description());
     }
 }
@@ -337,7 +337,7 @@ void ModelPrivate::notifyAuxiliaryDataChanged(const InternalNodePointer &interna
             ModelNode node(internalNode, model(), rewriterView());
             rewriterView()->auxiliaryDataChanged(node, name, data);
         }
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -368,7 +368,7 @@ void ModelPrivate::notifyNodeSourceChanged(const InternalNodePointer &internalNo
             ModelNode node(internalNode, model(), rewriterView());
             rewriterView()->nodeSourceChanged(node, newNodeSource);
         }
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -397,7 +397,7 @@ void ModelPrivate::notifyRootNodeTypeChanged(const QString &type, int majorVersi
     try {
         if (rewriterView())
             rewriterView()->rootNodeTypeChanged(type, majorVersion, minorVersion);
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -443,7 +443,7 @@ void ModelPrivate::notifyInstancesCompleted(const QVector<ModelNode> &nodeVector
     try {
         if (rewriterView())
             rewriterView()->instancesCompleted(toModelNodeVector(internalVector, rewriterView()));
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -481,7 +481,7 @@ void ModelPrivate::notifyInstancesInformationsChange(const QMultiHash<ModelNode,
     try {
         if (rewriterView())
             rewriterView()->instanceInformationsChange(convertModelNodeInformationHash(informationChangeHash, rewriterView()));
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -508,7 +508,7 @@ void ModelPrivate::notifyInstancesRenderImageChanged(const QVector<ModelNode> &n
     try {
         if (rewriterView())
             rewriterView()->instancesRenderImageChanged(toModelNodeVector(internalVector, rewriterView()));
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -535,7 +535,7 @@ void ModelPrivate::notifyInstancesPreviewImageChanged(const QVector<ModelNode> &
     try {
         if (rewriterView())
             rewriterView()->instancesPreviewImageChanged(toModelNodeVector(internalVector, rewriterView()));
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -562,7 +562,7 @@ void ModelPrivate::notifyInstancesChildrenChanged(const QVector<ModelNode> &node
     try {
         if (rewriterView())
             rewriterView()->instancesChildrenChanged(toModelNodeVector(internalVector, rewriterView()));
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -589,7 +589,7 @@ void ModelPrivate::notifyCurrentStateChanged(const ModelNode &node)
     try {
         if (rewriterView())
             rewriterView()->currentStateChanged(ModelNode(node.internalNode(), model(), rewriterView()));
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -614,7 +614,7 @@ void ModelPrivate::notifyRewriterBeginTransaction()
     try {
         if (rewriterView())
             rewriterView()->rewriterBeginTransaction();
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -639,7 +639,7 @@ void ModelPrivate::notifyRewriterEndTransaction()
     try {
         if (rewriterView())
             rewriterView()->rewriterEndTransaction();
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -667,7 +667,7 @@ void ModelPrivate::notifyInstanceToken(const QString &token, int number, const Q
     try {
         if (rewriterView())
             rewriterView()->instancesToken(token, number, toModelNodeVector(internalVector, rewriterView()));
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -694,7 +694,7 @@ void ModelPrivate::notifyCustomNotification(const AbstractView *senderView, cons
     try {
         if (rewriterView())
             rewriterView()->customNotification(senderView, identifier, toModelNodeList(internalList, rewriterView()), data);
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -727,7 +727,7 @@ void ModelPrivate::notifyPropertiesRemoved(const QList<PropertyPair> &propertyPa
 
             rewriterView()->propertiesRemoved(propertyList);
         }
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -772,7 +772,7 @@ void ModelPrivate::notifyPropertiesAboutToBeRemoved(const QList<InternalProperty
 
             rewriterView()->propertiesAboutToBeRemoved(propertyList);
         }
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -786,7 +786,7 @@ void ModelPrivate::notifyPropertiesAboutToBeRemoved(const QList<InternalProperty
         }
         try {
             view->propertiesAboutToBeRemoved(propertyList);
-        } catch (RewritingException &e) {
+        } catch (const RewritingException &e) {
             description = e.description();
             resetModel = true;
         }
@@ -856,7 +856,7 @@ void ModelPrivate::notifyNodeCreated(const InternalNode::Pointer &newInternalNod
             ModelNode createdNode(newInternalNodePointer, model(), rewriterView());
             rewriterView()->nodeCreated(createdNode);
         }
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -886,7 +886,7 @@ void ModelPrivate::notifyNodeAboutToBeRemoved(const InternalNode::Pointer &inter
             ModelNode modelNode(internalNodePointer, model(), rewriterView());
             rewriterView()->nodeAboutToBeRemoved(modelNode);
         }
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -920,7 +920,7 @@ void ModelPrivate::notifyNodeRemoved(const InternalNodePointer &internalNodePoin
             NodeAbstractProperty parentProperty(parentPropertyName, parentNodePointer, model(), rewriterView());
             rewriterView()->nodeRemoved(modelNode, parentProperty, propertyChange);
         }
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -953,7 +953,7 @@ void ModelPrivate::notifyNodeIdChanged(const InternalNode::Pointer& internalNode
             ModelNode modelNode(internalNodePointer, model(), rewriterView());
             rewriterView()->nodeIdChanged(modelNode, newId, oldId);
         }
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -987,7 +987,7 @@ void ModelPrivate::notifyBindingPropertiesChanged(const QList<InternalBindingPro
             }
             rewriterView()->bindingPropertiesChanged(propertyList, propertyChange);
         }
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -1028,7 +1028,7 @@ void ModelPrivate::notifySignalHandlerPropertiesChanged(const QVector<InternalSi
             }
             rewriterView()->signalHandlerPropertiesChanged(propertyList, propertyChange);
         }
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -1065,7 +1065,7 @@ void ModelPrivate::notifyScriptFunctionsChanged(const InternalNodePointer &inter
             ModelNode node(internalNodePointer, model(), rewriterView());
             rewriterView()->scriptFunctionsChanged(node, scriptFunctionList);
         }
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -1106,7 +1106,7 @@ void ModelPrivate::notifyVariantPropertiesChanged(const InternalNodePointer &int
             ModelNode node(internalNodePointer, model(), rewriterView());
             rewriterView()->variantPropertiesChanged(propertyList, propertyChange);
         }
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -1163,7 +1163,7 @@ void ModelPrivate::notifyNodeAboutToBeReparent(const InternalNodePointer &intern
             ModelNode modelNode(internalNodePointer, model(), rewriterView());
             rewriterView()->nodeAboutToBeReparented(modelNode, newProperty, oldProperty, propertyChange);
         }
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -1224,7 +1224,7 @@ void ModelPrivate::notifyNodeReparent(const InternalNode::Pointer &internalNodeP
             ModelNode node(internalNodePointer, model(), rewriterView());
             rewriterView()->nodeReparented(node, newProperty, oldProperty, propertyChange);
         }
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
@@ -1274,7 +1274,7 @@ void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListPropertyPointer 
             rewriterView()->nodeOrderChanged(NodeListProperty(internalListPropertyPointer, model(), rewriterView()),
                                ModelNode(internalNodePointer, model(), rewriterView()),
                                oldIndex);
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }

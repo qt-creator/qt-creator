@@ -68,7 +68,7 @@ void SshChannelManager::handleChannelOpenFailure(const SshIncomingPacket &packet
    ChannelIterator it = lookupChannelAsIterator(failure.localChannel);
    try {
        it.value()->handleOpenFailure(failure.reasonString);
-   } catch (SshServerException &e) {
+   } catch (const SshServerException &e) {
        removeChannel(it);
        throw e;
    }

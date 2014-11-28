@@ -366,7 +366,7 @@ void DragTool::commitTransaction()
 {
     try {
         m_rewriterTransaction.commit();
-    } catch (RewritingException &e) {
+    } catch (const RewritingException &e) {
         e.showException();
     }
 }

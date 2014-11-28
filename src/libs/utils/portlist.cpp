@@ -63,7 +63,7 @@ public:
         try {
             if (!atEnd())
                 parseElemList();
-        } catch (ParseException &e) {
+        } catch (const ParseException &e) {
             qWarning("Malformed ports specification: %s", e.error);
         }
         return m_portList;

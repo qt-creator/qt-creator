@@ -79,7 +79,7 @@ void AbstractSshChannel::requestSessionStart()
         m_sendFacility.sendSessionPacket(m_localChannel, initialWindowSize(), maxPacketSize());
         setChannelState(SessionRequested);
         m_timeoutTimer.start(ReplyTimeout);
-    }  catch (Botan::Exception &e) {
+    }  catch (const Botan::Exception &e) {
         qDebug("Botan error: %s", e.what());
         closeChannel();
     }
@@ -90,7 +90,7 @@ void AbstractSshChannel::sendData(const QByteArray &data)
     try {
         m_sendBuffer += data;
         flushSendBuffer();
-    }  catch (Botan::Exception &e) {
+    }  catch (const Botan::Exception &e) {
         qDebug("Botan error: %s", e.what());
         closeChannel();
     }

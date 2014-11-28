@@ -283,7 +283,7 @@ void ModelToTextMerger::applyChanges()
         textModifier->commitGroup();
 
         textModifier->reactivateChangeSignals();
-    } catch (Exception &e) {
+    } catch (const Exception &e) {
         m_rewriterView->enterErrorState(e.description());
 
         qDeleteAll(m_rewriteActions);

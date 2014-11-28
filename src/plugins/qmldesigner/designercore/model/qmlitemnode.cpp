@@ -154,7 +154,7 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
 
         Q_ASSERT(newQmlItemNode.isValid());
     }
-    catch (RewritingException &e) {
+    catch (const RewritingException &e) {
         e.showException();
     }
 

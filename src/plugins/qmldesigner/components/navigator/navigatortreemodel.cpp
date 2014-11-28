@@ -634,7 +634,7 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
                 }
             }
         }
-    }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
+    }  catch (const RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
         exception.showException();
     }
 }

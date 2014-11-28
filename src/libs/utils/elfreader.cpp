@@ -117,7 +117,7 @@ bool ElfMapper::map()
         // Try reading the data into memory instead.
         try {
             raw = file.readAll();
-        } catch (std::bad_alloc &) {
+        } catch (const std::bad_alloc &) {
             return false;
         }
         start = raw.constData();

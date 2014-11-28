@@ -158,7 +158,7 @@ void StatesEditorView::removeState(int nodeId)
 
             stateNode.destroy();
         }
-    }  catch (RewritingException &e) {
+    }  catch (const RewritingException &e) {
         e.showException();
     }
 }
@@ -209,7 +209,7 @@ void StatesEditorView::addState()
             model()->changeImports(QList<Import>() << Import::createLibraryImport("QtQuick", "1.0"), QList<Import>());
         ModelNode newState = rootStateGroup().addState(newStateName);
         setCurrentState(newState);
-    }  catch (RewritingException &e) {
+    }  catch (const RewritingException &e) {
         e.showException();
     }
 }
@@ -304,7 +304,7 @@ void StatesEditorView::renameState(int internalNodeId, const QString &newName)
                 state.setName(newName);
                 setCurrentState(oldState);
             }
-        }  catch (RewritingException &e) {
+        }  catch (const RewritingException &e) {
             e.showException();
         }
     }
