@@ -3311,7 +3311,7 @@ void tst_Dumpers::dumper_data()
                //+ Check("var72", "", "@QVariant (QRegion)")    FIXME
                + Check("var73", "", "@QVariant (QBitmap)")
                + Check("var74", "", "@QVariant (QCursor)")
-               + Check("var75", "", "@QVariant (QKeySequence)")
+               + Check("var75", "", "@QVariant (QKeySequence)") % NoLldbEngine // FIXME
                + Check("var76", "", "@QVariant (QPen)")
                + Check("var77", "", "@QVariant (QTextLength)")
                //+ Check("var78", Value5(""), "@QVariant (QTextFormat)")
