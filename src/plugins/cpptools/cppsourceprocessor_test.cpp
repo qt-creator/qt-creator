@@ -143,7 +143,7 @@ void CppToolsPlugin::test_cppsourceprocessor_includes_cyclic()
 
     // Check editor snapshot
     const QString filePath = editor->document()->filePath();
-    BuiltinEditorDocumentParser *parser = BuiltinEditorDocumentParser::get(filePath);
+    auto *parser = BuiltinEditorDocumentParser::get(filePath);
     QVERIFY(parser);
     Snapshot snapshot = parser->snapshot();
     QCOMPARE(snapshot.size(), 3); // Configuration file included

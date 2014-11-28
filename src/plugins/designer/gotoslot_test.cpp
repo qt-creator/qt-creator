@@ -196,9 +196,14 @@ public:
         }
 
         // Compare
-        const Document::Ptr cppDocument = BuiltinEditorDocumentParser::get(cppFile)->document();
+        BuiltinEditorDocumentParser *cppDocumentParser = BuiltinEditorDocumentParser::get(cppFile);
+        QVERIFY(cppDocumentParser);
+        const Document::Ptr cppDocument = cppDocumentParser->document();
         QVERIFY(checkDiagsnosticMessages(cppDocument));
-        const Document::Ptr hDocument = BuiltinEditorDocumentParser::get(hFile)->document();
+
+        BuiltinEditorDocumentParser *hDocumentParser = BuiltinEditorDocumentParser::get(hFile);
+        QVERIFY(hDocumentParser);
+        const Document::Ptr hDocument = hDocumentParser->document();
         QVERIFY(checkDiagsnosticMessages(hDocument));
 
         QVERIFY(documentContainsFunctionDefinition(cppDocument,

@@ -40,6 +40,7 @@
 
 #include <cplusplus/CppDocument.h>
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 #include <QSet>
 
@@ -183,8 +184,9 @@ void CppIncludeHierarchyModel::fetchMore(const QModelIndex &parent)
         }
 
         if (item == m_includesItem) {
-            const Snapshot editorDocumentSnapshot
-                = BuiltinEditorDocumentParser::get(editorFilePath)->snapshot();
+            auto *parser = BuiltinEditorDocumentParser::get(editorFilePath);
+            QTC_ASSERT(parser, return);
+            const Snapshot editorDocumentSnapshot = parser->snapshot();
             buildHierarchyIncludes_helper(parentItem->filePath(), parentItem,
                                           editorDocumentSnapshot, &cyclic);
         } else {
@@ -284,7 +286,9 @@ void CppIncludeHierarchyModel::buildHierarchyIncludes(const QString &currentFile
         return;
 
     const QString editorFilePath = m_editor->document()->filePath();
-    const Snapshot snapshot = BuiltinEditorDocumentParser::get(editorFilePath)->snapshot();
+    auto *parser = BuiltinEditorDocumentParser::get(editorFilePath);
+    QTC_ASSERT(parser, return);
+    const Snapshot snapshot = parser->snapshot();
     QSet<QString> cyclic;
     buildHierarchyIncludes_helper(currentFilePath, m_includesItem, snapshot, &cyclic);
 }
