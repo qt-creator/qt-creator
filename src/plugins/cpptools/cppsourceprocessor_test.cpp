@@ -30,7 +30,7 @@
 
 #include "cpptoolsplugin.h"
 
-#include "builtineditordocumentparser.h"
+#include "baseeditordocumentprocessor.h"
 #include "cppmodelmanager.h"
 #include "cppsourceprocessertesthelper.h"
 #include "cppsourceprocessor.h"
@@ -143,9 +143,9 @@ void CppToolsPlugin::test_cppsourceprocessor_includes_cyclic()
 
     // Check editor snapshot
     const QString filePath = editor->document()->filePath();
-    auto *parser = BuiltinEditorDocumentParser::get(filePath);
-    QVERIFY(parser);
-    Snapshot snapshot = parser->snapshot();
+    auto *processor = BaseEditorDocumentProcessor::get(filePath);
+    QVERIFY(processor);
+    Snapshot snapshot = processor->snapshot();
     QCOMPARE(snapshot.size(), 3); // Configuration file included
 
     // Check includes
