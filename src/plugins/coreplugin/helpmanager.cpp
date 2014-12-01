@@ -33,6 +33,7 @@
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>
+#include <utils/qtcassert.h>
 
 #include <QDateTime>
 #include <QDebug>
@@ -88,7 +89,7 @@ struct DbCleaner
 HelpManager::HelpManager(QObject *parent) :
     QObject(parent)
 {
-    Q_ASSERT(!m_instance);
+    QTC_CHECK(!m_instance);
     m_instance = this;
     d = new HelpManagerPrivate;
 }
@@ -186,8 +187,7 @@ static QUrl buildQUrl(const QString &ns, const QString &folder,
 QMap<QString, QUrl> HelpManager::linksForKeyword(const QString &key)
 {
     QMap<QString, QUrl> links;
-    if (d->m_needsSetup)
-        return links;
+    QTC_ASSERT(!d->m_needsSetup, return links);
 
     const QLatin1String sqlite("QSQLITE");
     const QLatin1String name("HelpManager::linksForKeyword");
@@ -218,8 +218,8 @@ QMap<QString, QUrl> HelpManager::linksForKeyword(const QString &key)
 
 QMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &id)
 {
-    if (d->m_needsSetup)
-        return QMap<QString, QUrl>();
+    QMap<QString, QUrl> empty;
+    QTC_ASSERT(!d->m_needsSetup, return empty);
     return d->m_helpEngine->linksForIdentifier(id);
 }
 
@@ -227,8 +227,7 @@ QMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &id)
 QStringList HelpManager::findKeywords(const QString &key, Qt::CaseSensitivity caseSensitivity,
                                       int maxHits)
 {
-    if (d->m_needsSetup)
-        return QStringList();
+    QTC_ASSERT(!d->m_needsSetup, return QStringList());
 
     const QLatin1String sqlite("QSQLITE");
     const QLatin1String name("HelpManager::findKeywords");
@@ -271,15 +270,13 @@ QStringList HelpManager::findKeywords(const QString &key, Qt::CaseSensitivity ca
 
 QUrl HelpManager::findFile(const QUrl &url)
 {
-    if (d->m_needsSetup)
-        return QUrl();
+    QTC_ASSERT(!d->m_needsSetup, return QUrl());
     return d->m_helpEngine->findFile(url);
 }
 
 QByteArray HelpManager::fileData(const QUrl &url)
 {
-    if (d->m_needsSetup)
-        return QByteArray();
+    QTC_ASSERT(!d->m_needsSetup, return QByteArray());
     return d->m_helpEngine->fileData(url);
 }
 
@@ -295,22 +292,19 @@ void HelpManager::handleHelpRequest(const QString &url, HelpViewerLocation locat
 
 QStringList HelpManager::registeredNamespaces()
 {
-    if (d->m_needsSetup)
-        return QStringList();
+    QTC_ASSERT(!d->m_needsSetup, return QStringList());
     return d->m_helpEngine->registeredDocumentations();
 }
 
 QString HelpManager::namespaceFromFile(const QString &file)
 {
-    if (d->m_needsSetup)
-        return QString();
+    QTC_ASSERT(!d->m_needsSetup, return QString());
     return d->m_helpEngine->namespaceName(file);
 }
 
 QString HelpManager::fileFromNamespace(const QString &nameSpace)
 {
-    if (d->m_needsSetup)
-        return QString();
+    QTC_ASSERT(!d->m_needsSetup, return QString());
     return d->m_helpEngine->documentationFileName(nameSpace);
 }
 
@@ -326,15 +320,13 @@ void HelpManager::setCustomValue(const QString &key, const QVariant &value)
 
 QVariant HelpManager::customValue(const QString &key, const QVariant &value)
 {
-    if (d->m_needsSetup)
-        return QVariant();
+    QTC_ASSERT(!d->m_needsSetup, return QVariant());
     return d->m_helpEngine->customValue(key, value);
 }
 
 HelpManager::Filters HelpManager::filters()
 {
-    if (d->m_needsSetup)
-        return Filters();
+    QTC_ASSERT(!d->m_needsSetup, return Filters());
 
     Filters filters;
     const QStringList &customFilters = d->m_helpEngine->customFilters();
@@ -346,8 +338,7 @@ HelpManager::Filters HelpManager::filters()
 HelpManager::Filters HelpManager::fixedFilters()
 {
     Filters fixedFilters;
-    if (d->m_needsSetup)
-        return fixedFilters;
+    QTC_ASSERT(!d->m_needsSetup, return fixedFilters);
 
     const QLatin1String sqlite("QSQLITE");
     const QLatin1String name("HelpManager::fixedCustomFilters");
@@ -374,8 +365,7 @@ HelpManager::Filters HelpManager::fixedFilters()
 
 HelpManager::Filters HelpManager::userDefinedFilters()
 {
-    if (d->m_needsSetup)
-        return Filters();
+    QTC_ASSERT(!d->m_needsSetup, return Filters());
 
     Filters all = filters();
     const Filters &fixed = fixedFilters();
@@ -386,8 +376,7 @@ HelpManager::Filters HelpManager::userDefinedFilters()
 
 void HelpManager::removeUserDefinedFilter(const QString &filter)
 {
-    if (d->m_needsSetup)
-        return;
+    QTC_ASSERT(!d->m_needsSetup, return);
 
     if (d->m_helpEngine->removeCustomFilter(filter))
         emit m_instance->collectionFileChanged();
@@ -395,8 +384,7 @@ void HelpManager::removeUserDefinedFilter(const QString &filter)
 
 void HelpManager::addUserDefinedFilter(const QString &filter, const QStringList &attr)
 {
-    if (d->m_needsSetup)
-        return;
+    QTC_ASSERT(!d->m_needsSetup, return);
 
     if (d->m_helpEngine->addCustomFilter(filter, attr))
         emit m_instance->collectionFileChanged();
