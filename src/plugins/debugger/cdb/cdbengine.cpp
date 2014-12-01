@@ -783,7 +783,9 @@ static QByteArray msvcRunTime(const Abi::OSFlavor flavour)
     case Abi::WindowsMsvc2010Flavor:
         return "MSVCR100";
     case Abi::WindowsMsvc2012Flavor:
-        return "MSVCR110"; // #FIXME: VS2012 beta, will probably be 12 in final?
+        return "MSVCR110";
+    case Abi::WindowsMsvc2013Flavor:
+        return "MSVCR120";
     default:
         break;
     }
