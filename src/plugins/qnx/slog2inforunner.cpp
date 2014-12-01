@@ -32,7 +32,8 @@
 
 #include "slog2inforunner.h"
 
-#include <projectexplorer/devicesupport/sshdeviceprocess.h>
+#include "qnxdeviceconfiguration.h"
+
 #include <utils/qtcassert.h>
 
 using namespace Qnx;
@@ -48,13 +49,13 @@ Slog2InfoRunner::Slog2InfoRunner(const QString &applicationId, const RemoteLinux
     // We need to limit length of ApplicationId to 63 otherwise it would not match one in slog2info.
     m_applicationId.truncate(63);
 
-    m_testProcess = new ProjectExplorer::SshDeviceProcess(device, this);
+    m_testProcess = new QnxDeviceProcess(device, this);
     connect(m_testProcess, SIGNAL(finished()), this, SLOT(handleTestProcessCompleted()));
 
     m_launchDateTimeProcess = new ProjectExplorer::SshDeviceProcess(device, this);
     connect(m_launchDateTimeProcess, SIGNAL(finished()), this, SLOT(launchSlog2Info()));
 
-    m_logProcess = new ProjectExplorer::SshDeviceProcess(device, this);
+    m_logProcess = new QnxDeviceProcess(device, this);
     connect(m_logProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(readLogStandardOutput()));
     connect(m_logProcess, SIGNAL(readyReadStandardError()), this, SLOT(readLogStandardError()));
     connect(m_logProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(handleLogError()));

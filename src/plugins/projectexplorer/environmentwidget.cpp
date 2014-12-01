@@ -128,12 +128,11 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     d->m_unsetButton->setText(tr("&Unset"));
     buttonLayout->addWidget(d->m_unsetButton);
 
-    QSpacerItem *verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
-    buttonLayout->addItem(verticalSpacer);
-
     d->m_batchEditButton = new QPushButton(this);
     d->m_batchEditButton->setText(tr("&Batch Edit..."));
     buttonLayout->addWidget(d->m_batchEditButton);
+
+    buttonLayout->addStretch();
 
     horizontalLayout->addLayout(buttonLayout);
     vbox2->addLayout(horizontalLayout);

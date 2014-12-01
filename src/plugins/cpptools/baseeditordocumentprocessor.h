@@ -59,6 +59,7 @@ public:
     virtual void run() = 0;
     virtual void semanticRehighlight(bool force) = 0;
     virtual CppTools::SemanticInfo recalculateSemanticInfo() = 0;
+    virtual CPlusPlus::Snapshot snapshot() = 0;
     virtual BaseEditorDocumentParser *parser() = 0;
     virtual bool isParserRunning() const = 0;
 

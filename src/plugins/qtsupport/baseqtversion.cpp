@@ -1556,6 +1556,13 @@ bool BaseQtVersion::isQtQuickCompilerSupported(QString *reason) const
         return false;
     }
 
+    const QString qtQuickCompilerExecutable =
+            HostOsInfo::withExecutableSuffix(binPath().toString() + QLatin1String("/qtquickcompiler"));
+    if (!QFileInfo::exists(qtQuickCompilerExecutable)) {
+        // TODO: Add reason string in master
+        return false;
+    }
+
     return true;
 }
 

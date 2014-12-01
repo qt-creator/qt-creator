@@ -82,6 +82,9 @@
     fetches information about the \gui {Device Environment} from the device.
     Usually, it does not make sense to edit the device environment.
 
+    To modify the environment variable values for the run environment, select
+    \gui {Batch Edit}. For more information, see \l{Batch Editing}.
+
     \section1 Specifying a Custom Executable to Run
 
     If you use CMake or the generic project type in \QC, or want

@@ -93,10 +93,10 @@ void PluginDumper::scheduleMaybeRedumpBuiltins(const QmlJS::ModelManagerInterfac
 
 void PluginDumper::onLoadBuiltinTypes(const QmlJS::ModelManagerInterface::ProjectInfo &info, bool force)
 {
-    if (info.qmlDumpPath.isEmpty() || (info.qtImportsPath.isEmpty() && info.qtQmlPath.isEmpty()))
+    const QString baseImportsPath = info.qtQmlPath.isEmpty() ? info.qtImportsPath : info.qtQmlPath;
+    if (info.qmlDumpPath.isEmpty() || baseImportsPath.isEmpty())
         return;
 
-    const QString baseImportsPath = info.qtQmlPath.isEmpty() ? info.qtImportsPath : info.qtQmlPath;
     const QString importsPath = QDir::cleanPath(baseImportsPath);
     if (m_runningQmldumps.values().contains(importsPath))
         return;
@@ -109,7 +109,7 @@ void PluginDumper::onLoadBuiltinTypes(const QmlJS::ModelManagerInterface::Projec
             return;
     }
     builtinInfo = LibraryInfo(LibraryInfo::Found);
-    m_modelManager->updateLibraryInfo(info.qtImportsPath, builtinInfo);
+    m_modelManager->updateLibraryInfo(baseImportsPath, builtinInfo);
 
     // prefer QTDIR/qml/builtins.qmltypes if available
     const QString builtinQmltypesPath = baseImportsPath + QLatin1String("/builtins.qmltypes");

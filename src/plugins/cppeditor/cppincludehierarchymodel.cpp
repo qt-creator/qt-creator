@@ -33,13 +33,14 @@
 #include "cppincludehierarchyitem.h"
 
 #include <coreplugin/fileiconprovider.h>
-#include <cpptools/builtineditordocumentparser.h>
+#include <cpptools/baseeditordocumentprocessor.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/editordocumenthandle.h>
 #include <texteditor/texteditor.h>
 
 #include <cplusplus/CppDocument.h>
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 #include <QSet>
 
@@ -183,8 +184,9 @@ void CppIncludeHierarchyModel::fetchMore(const QModelIndex &parent)
         }
 
         if (item == m_includesItem) {
-            const Snapshot editorDocumentSnapshot
-                = BuiltinEditorDocumentParser::get(editorFilePath)->snapshot();
+            auto *processor = BaseEditorDocumentProcessor::get(editorFilePath);
+            QTC_ASSERT(processor, return);
+            const Snapshot editorDocumentSnapshot = processor->snapshot();
             buildHierarchyIncludes_helper(parentItem->filePath(), parentItem,
                                           editorDocumentSnapshot, &cyclic);
         } else {
@@ -284,9 +286,11 @@ void CppIncludeHierarchyModel::buildHierarchyIncludes(const QString &currentFile
         return;
 
     const QString editorFilePath = m_editor->document()->filePath();
-    const Snapshot snapshot = BuiltinEditorDocumentParser::get(editorFilePath)->snapshot();
+    auto *documentProcessor = BaseEditorDocumentProcessor::get(editorFilePath);
+    QTC_ASSERT(documentProcessor, return);
+    const Snapshot editorDocumentSnapshot = documentProcessor->snapshot();
     QSet<QString> cyclic;
-    buildHierarchyIncludes_helper(currentFilePath, m_includesItem, snapshot, &cyclic);
+    buildHierarchyIncludes_helper(currentFilePath, m_includesItem, editorDocumentSnapshot, &cyclic);
 }
 
 void CppIncludeHierarchyModel::buildHierarchyIncludes_helper(const QString &filePath,

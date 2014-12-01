@@ -135,7 +135,6 @@ public:
     QList<int> debuggerCommands;
 
     //Cache
-    QStringList watchedExpressions;
     QList<int> currentFrameScopes;
     QHash<int, int> stackIndexLookup;
 
@@ -722,9 +721,7 @@ QmlV8ObjectData extractData(const QVariant &data, const QVariant &refsVal)
 
 void QmlV8DebuggerClientPrivate::clearCache()
 {
-    watchedExpressions.clear();
     currentFrameScopes.clear();
-    evaluatingExpression.clear();
     updateLocalsAndWatchers.clear();
 }
 
@@ -958,15 +955,12 @@ void QmlV8DebuggerClient::synchronizeWatchers(const QStringList &watchers)
 {
     SDEBUG(watchers);
     foreach (const QString &exp, watchers) {
-        if (!d->watchedExpressions.contains(exp)) {
-            StackHandler *stackHandler = d->engine->stackHandler();
-            if (stackHandler->isContentsValid() && stackHandler->currentFrame().isUsable()) {
-                d->evaluate(exp, false, false, stackHandler->currentIndex());
-                d->evaluatingExpression.insert(d->sequence, exp);
-            }
+        StackHandler *stackHandler = d->engine->stackHandler();
+        if (stackHandler->isContentsValid() && stackHandler->currentFrame().isUsable()) {
+            d->evaluate(exp, false, false, stackHandler->currentIndex());
+            d->evaluatingExpression.insert(d->sequence, exp);
         }
     }
-    d->watchedExpressions = watchers;
 }
 
 void QmlV8DebuggerClient::expandObject(const QByteArray &iname, quint64 objectId)

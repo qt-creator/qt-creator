@@ -160,6 +160,11 @@ CppTools::BaseEditorDocumentParser *ClangEditorDocumentProcessor::parser()
     return &m_parser;
 }
 
+CPlusPlus::Snapshot ClangEditorDocumentProcessor::snapshot()
+{
+   return m_builtinProcessor.snapshot();
+}
+
 bool ClangEditorDocumentProcessor::isParserRunning() const
 {
     return m_parserWatcher.isRunning();

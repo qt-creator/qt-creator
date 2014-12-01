@@ -53,6 +53,8 @@
     To copy Qt libraries and files to the project directory and to bundle them
     as part of the APK, select the \gui {Bundle Qt libraries in APK} option.
 
+    \note Android 5 devices support only this option.
+
     \section1 Using Ministro to Install Qt Libraries
 
     To minimize the size of your APK, you can package the application with an

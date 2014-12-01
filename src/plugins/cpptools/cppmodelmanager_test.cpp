@@ -946,7 +946,8 @@ void CppToolsPlugin::test_modelmanager_precompiled_headers()
         QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
         QVERIFY(mm->isCppEditor(editor));
 
-        BuiltinEditorDocumentParser *parser = BuiltinEditorDocumentParser::get(fileName);
+        auto *parser = BuiltinEditorDocumentParser::get(fileName);
+        QVERIFY(parser);
         parser->setUsePrecompiledHeaders(true);
         parser->update(mm->workingCopy());
 

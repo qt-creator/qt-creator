@@ -878,6 +878,7 @@ void DebuggerEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &re
         }
 
     } else {
+        d->setRemoteSetupState(RemoteSetupFailed);
         showMessage(_("NOTE: REMOTE SETUP FAILED: ") + result.reason);
     }
 }

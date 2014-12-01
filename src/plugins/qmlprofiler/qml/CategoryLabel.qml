@@ -98,7 +98,7 @@ Item {
         id: dragArea
         anchors.fill: txt
         drag.target: dragger
-        cursorShape: dragging ? Qt.DragMoveCursor : Qt.OpenHandCursor
+        cursorShape: dragging ? Qt.ClosedHandCursor : Qt.OpenHandCursor
     }
 
     DropArea {

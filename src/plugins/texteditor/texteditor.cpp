@@ -7077,6 +7077,12 @@ void TextEditorWidget::inSnippetMode(bool *active)
 
 void TextEditorWidget::invokeAssist(AssistKind kind, IAssistProvider *provider)
 {
+    if (kind == QuickFix && d->m_snippetOverlay->isVisible()) {
+        d->m_snippetOverlay->setVisible(false);
+        d->m_snippetOverlay->mangle();
+        d->m_snippetOverlay->clear();
+    }
+
     bool previousMode = overwriteMode();
     setOverwriteMode(false);
     ensureCursorVisible();

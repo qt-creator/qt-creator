@@ -935,6 +935,7 @@ void tst_Dumpers::initTestCase()
     } else if (m_debuggerEngine == CdbEngine) {
         setupCdb(&m_makeBinary, &m_env);
     } else if (m_debuggerEngine == LldbEngine) {
+        qDebug() << "Dumper dir         : " << DUMPERDIR;
         QProcess debugger;
         QString cmd = QString::fromUtf8(m_debuggerBinary + " -v");
         debugger.start(cmd);
@@ -1440,7 +1441,10 @@ void tst_Dumpers::dumper_data()
             "public:\n"
             "    Foo(int i = 0)\n"
             "        : a(i), b(2)\n"
-            "    {}\n"
+            "    {\n"
+            "       for (int j = 0; j < 6; ++j)\n"
+            "           x[j] = 'a' + j;\n"
+            "    }\n"
             "    virtual ~Foo()\n"
             "    {\n"
             "        a = 5;\n"
@@ -3307,7 +3311,7 @@ void tst_Dumpers::dumper_data()
                //+ Check("var72", "", "@QVariant (QRegion)")    FIXME
                + Check("var73", "", "@QVariant (QBitmap)")
                + Check("var74", "", "@QVariant (QCursor)")
-               + Check("var75", "", "@QVariant (QKeySequence)")
+               + Check("var75", "", "@QVariant (QKeySequence)") % NoLldbEngine // FIXME
                + Check("var76", "", "@QVariant (QPen)")
                + Check("var77", "", "@QVariant (QTextLength)")
                //+ Check("var78", Value5(""), "@QVariant (QTextFormat)")
@@ -4848,7 +4852,8 @@ void tst_Dumpers::dumper_data()
                     "#include <QString>\n"
 
                     "using namespace std;\n"
-                    "string fooxx() { return \"bababa\"; }\n",
+                    "string fooxx() { return \"bababa\"; }\n"
+                    + fooData,
 
                     "int a1 = 43;\n"
                     "const int &b1 = a1;\n"
@@ -4868,7 +4873,13 @@ void tst_Dumpers::dumper_data()
                     "const QString &b3 = a3;\n"
                     "typedef QString &Ref3;\n"
                     "const Ref3 d3 = const_cast<Ref3>(a3);\n"
-                    "unused(&a3, &b3, &d3);\n")
+                    "unused(&a3, &b3, &d3);\n\n"
+
+                    "Foo a4(12);\n"
+                    "const Foo &b4 = a4;\n"
+                    "typedef Foo &Ref4;\n"
+                    "const Ref4 d4 = const_cast<Ref4>(a4);\n"
+                    "unused(&a4, &b4, &d4);\n")
 
                + CoreProfile()
 
@@ -4880,12 +4891,18 @@ void tst_Dumpers::dumper_data()
                + Check("a2", "\"hello\"", "std::string")
                + Check("b2", "\"bababa\"", Pattern("(std::)?string &")) // Clang...
                + Check("c2", "\"world\"", "std::string")
-               + Check("d2", "\"hello\"", "Ref2")
+               + Check("d2", "\"hello\"", "Ref2") % NoLldbEngine
 
                + Check("a3", "\"hello\"", "@QString")
                + Check("b3", "\"hello\"", "@QString &")
-               + Check("d3", "\"hello\"", "Ref3");
+               + Check("d3", "\"hello\"", "Ref3")
 
+               + Check("a4", "", "Foo")
+               + Check("a4.a", "12", "int")
+               + Check("b4", "", "Foo &")
+               + Check("b4.a", "12", "int")
+               //+ Check("d4", "\"hello\"", "Ref4");  FIXME: We get "Foo &" instead
+               + Check("d4.a", "12", "int");
 
     QTest::newRow("DynamicReference")
             << Data("struct BaseClass { virtual ~BaseClass() {} };\n"
@@ -4966,6 +4983,8 @@ void tst_Dumpers::dumper_data()
            << Data(fooData +
                    "void testPassByReference(Foo &f) {\n"
                    "   BREAK;\n"
+                   "   int dummy = 2;\n"
+                   "   unused(&f, &dummy);\n"
                    "}\n",
                    "Foo f(12);\n"
                    "testPassByReference(f);\n")

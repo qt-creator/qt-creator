@@ -31,6 +31,8 @@
 #include "targetsettingswidget.h"
 #include "ui_targetsettingswidget.h"
 
+#include <utils/theme/theme.h>
+
 #include <QPushButton>
 
 using namespace ProjectExplorer::Internal;
@@ -41,9 +43,15 @@ TargetSettingsWidget::TargetSettingsWidget(QWidget *parent) :
     m_targetSelector(new TargetSelector(this))
 {
     ui->setupUi(this);
-    ui->header->setStyleSheet(QLatin1String("QWidget#header {"
-        "border-image: url(:/projectexplorer/images/targetseparatorbackground.png) 43 0 0 0 repeat;"
-        "}"));
+
+    if (Utils::creatorTheme()->widgetStyle() == Utils::Theme::StyleFlat) {
+        ui->separator->setVisible(false);
+        ui->shadow->setVisible(false);
+    } else {
+        ui->header->setStyleSheet(QLatin1String("QWidget#header {"
+                                                "border-image: url(:/projectexplorer/images/targetseparatorbackground.png) 43 0 0 0 repeat;"
+                                                "}"));
+    }
 
     QHBoxLayout *headerLayout = new QHBoxLayout;
     headerLayout->setContentsMargins(5, 3, 0, 0);

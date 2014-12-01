@@ -66,7 +66,7 @@ const char QMAKE_BS_ID[] = "QtProjectManager.QMakeBuildStep";
 
 const char QMAKE_ARGUMENTS_KEY[] = "QtProjectManager.QMakeBuildStep.QMakeArguments";
 const char QMAKE_FORCED_KEY[] = "QtProjectManager.QMakeBuildStep.QMakeForced";
-const char QMAKE_USE_qtQuickCompiler[] = "QtProjectManager.QMakeBuildStep.UseqtQuickCompiler";
+const char QMAKE_USE_QTQUICKCOMPILER[] = "QtProjectManager.QMakeBuildStep.UseQtQuickCompiler";
 const char QMAKE_QMLDEBUGLIBAUTO_KEY[] = "QtProjectManager.QMakeBuildStep.LinkQmlDebuggingLibraryAuto";
 const char QMAKE_QMLDEBUGLIB_KEY[] = "QtProjectManager.QMakeBuildStep.LinkQmlDebuggingLibrary";
 }
@@ -178,7 +178,7 @@ QStringList QMakeStep::deducedArguments()
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     arguments << QmakeBuildConfiguration::deduceArgumnetsForTargetAbi(targetAbi, version);
-    if (linkQmlDebuggingLibrary() && version) {
+    if (linkQmlDebuggingLibrary() && version && !useQtQuickCompiler()) {
         arguments << QLatin1String(Constants::QMAKEVAR_QUICK1_DEBUG);
         if (version->qtVersion().majorVersion >= 5)
             arguments << QLatin1String(Constants::QMAKEVAR_QUICK2_DEBUG);
@@ -377,9 +377,6 @@ void QMakeStep::setLinkQmlDebuggingLibrary(bool enable)
 
 bool QMakeStep::useQtQuickCompiler() const
 {
-    const Core::Context languages = project()->projectLanguages();
-    if (!languages.contains(ProjectExplorer::Constants::LANG_QMLJS))
-        return false;
     return m_useQtQuickCompiler;
 }
 
@@ -430,7 +427,7 @@ QVariantMap QMakeStep::toMap() const
     map.insert(QLatin1String(QMAKE_QMLDEBUGLIBAUTO_KEY), m_linkQmlDebuggingLibrary == DebugLink);
     map.insert(QLatin1String(QMAKE_QMLDEBUGLIB_KEY), m_linkQmlDebuggingLibrary == DoLink);
     map.insert(QLatin1String(QMAKE_FORCED_KEY), m_forced);
-    map.insert(QLatin1String(QMAKE_USE_qtQuickCompiler), m_useQtQuickCompiler);
+    map.insert(QLatin1String(QMAKE_USE_QTQUICKCOMPILER), m_useQtQuickCompiler);
     return map;
 }
 
@@ -438,7 +435,7 @@ bool QMakeStep::fromMap(const QVariantMap &map)
 {
     m_userArgs = map.value(QLatin1String(QMAKE_ARGUMENTS_KEY)).toString();
     m_forced = map.value(QLatin1String(QMAKE_FORCED_KEY), false).toBool();
-    m_useQtQuickCompiler = map.value(QLatin1String(QMAKE_USE_qtQuickCompiler), false).toBool();
+    m_useQtQuickCompiler = map.value(QLatin1String(QMAKE_USE_QTQUICKCOMPILER), false).toBool();
     if (map.value(QLatin1String(QMAKE_QMLDEBUGLIBAUTO_KEY), false).toBool()) {
         m_linkQmlDebuggingLibrary = DebugLink;
     } else {
@@ -524,6 +521,7 @@ void QMakeStepConfigWidget::qtVersionChanged()
     updateSummaryLabel();
     updateEffectiveQMakeCall();
     updateQmlDebuggingOption();
+    updateQtQuickCompilerOption();
 }
 
 void QMakeStepConfigWidget::qmakeBuildConfigChanged()
@@ -561,11 +559,11 @@ void QMakeStepConfigWidget::useQtQuickCompilerChanged()
 {
     if (m_ignoreChange)
         return;
-//    m_ui->qtQuickCompilerCheckBox->setChecked(m_step->useQtQuickCompiler());
 
     updateSummaryLabel();
     updateEffectiveQMakeCall();
     updateQtQuickCompilerOption();
+    updateQmlDebuggingOption();
 }
 
 void QMakeStepConfigWidget::qmakeArgumentsLineEdited()
@@ -633,6 +631,7 @@ void QMakeStepConfigWidget::useQtQuickCompilerChecked(bool checked)
 
     updateSummaryLabel();
     updateEffectiveQMakeCall();
+    updateQmlDebuggingOption();
     updateQtQuickCompilerOption();
 }
 
@@ -654,7 +653,9 @@ void QMakeStepConfigWidget::updateQmlDebuggingOption()
 {
     QString warningText;
     bool supported = QtSupport::BaseQtVersion::isQmlDebuggingSupported(m_step->target()->kit(),
-                                                                     &warningText);
+                                                                     &warningText)
+            && !m_step->useQtQuickCompiler();
+
     m_ui->qmlDebuggingLibraryCheckBox->setEnabled(supported);
     m_ui->debuggingLibraryLabel->setText(tr("Enable QML debugging:"));
 

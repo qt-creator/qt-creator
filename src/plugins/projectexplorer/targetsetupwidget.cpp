@@ -232,7 +232,7 @@ void TargetSetupWidget::manageKit()
     page->showKit(m_kit);
     Core::ICore::showOptionsDialog(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
                                    Constants::KITS_SETTINGS_PAGE_ID,
-                                   this);
+                                   this->parentWidget());
 }
 
 void TargetSetupWidget::setProjectPath(const QString &projectPath)

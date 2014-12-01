@@ -37,7 +37,6 @@
 #include "cpptools_global.h"
 #include "semantichighlighter.h"
 
-
 namespace CppTools {
 
 class CPPTOOLS_EXPORT BuiltinEditorDocumentProcessor : public BaseEditorDocumentProcessor
@@ -55,6 +54,7 @@ public:
     void semanticRehighlight(bool force) Q_DECL_OVERRIDE;
     CppTools::SemanticInfo recalculateSemanticInfo() Q_DECL_OVERRIDE;
     BaseEditorDocumentParser *parser() Q_DECL_OVERRIDE;
+    CPlusPlus::Snapshot snapshot() Q_DECL_OVERRIDE;
     bool isParserRunning() const Q_DECL_OVERRIDE;
 
 private:

@@ -369,8 +369,6 @@ void IosConfigurations::initialize()
 {
     QTC_CHECK(m_instance == 0);
     m_instance = new IosConfigurations(0);
-    m_instance->updateSimulators();
-    QTimer::singleShot(10000, IosDeviceManager::instance(), SLOT(monitorAvailableDevices()));
 }
 
 bool IosConfigurations::ignoreAllDevices()
@@ -429,10 +427,15 @@ void IosConfigurations::updateSimulators()
 
 void IosConfigurations::setDeveloperPath(const FileName &devPath)
 {
+    static bool hasDevPath = false;
     if (devPath != m_instance->m_developerPath) {
         m_instance->m_developerPath = devPath;
         m_instance->save();
-        updateAutomaticKitList();
+        if (!hasDevPath && !devPath.isEmpty()) {
+            hasDevPath = true;
+            QTimer::singleShot(1000, IosDeviceManager::instance(), SLOT(monitorAvailableDevices()));
+            m_instance->updateSimulators();
+        }
         emit m_instance->updated();
     }
 }

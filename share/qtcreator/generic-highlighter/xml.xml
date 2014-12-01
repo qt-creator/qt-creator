@@ -134,7 +134,7 @@
   <itemData name="Doctype" defStyleNum="dsDataType" bold="1" spellChecking="false" />
   <itemData name="Element" defStyleNum="dsKeyword" spellChecking="false" />
   <itemData name="Attribute" defStyleNum="dsOthers" spellChecking="false" />
-  <itemData name="Value" defStyleNum="dsString" color="#a00" spellChecking="false" />
+  <itemData name="Value" defStyleNum="dsString" spellChecking="false" />
   <itemData name="EntityRef" defStyleNum="dsDecVal" spellChecking="false" />
   <itemData name="PEntityRef" defStyleNum="dsDecVal" spellChecking="false" />
   <itemData name="Error" defStyleNum="dsError" spellChecking="false" />

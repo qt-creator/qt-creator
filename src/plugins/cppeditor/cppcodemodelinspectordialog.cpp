@@ -35,7 +35,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <cpptools/builtineditordocumentparser.h>
+#include <cpptools/baseeditordocumentprocessor.h>
 #include <cpptools/cppcodemodelinspectordumper.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppworkingcopy.h>
@@ -1365,8 +1365,8 @@ void CppCodeModelInspectorDialog::refresh()
     if (editor) {
         const QString editorFilePath = editor->document()->filePath();
         editorDocument = cmmi->editorDocument(editorFilePath);
-        if (auto *builtinDocumentParser = BuiltinEditorDocumentParser::get(editorFilePath)) {
-            const CPlusPlus::Snapshot editorSnapshot = builtinDocumentParser->snapshot();
+        if (auto *documentProcessor = BaseEditorDocumentProcessor::get(editorFilePath)) {
+            const CPlusPlus::Snapshot editorSnapshot = documentProcessor->snapshot();
             m_snapshotInfos->append(SnapshotInfo(editorSnapshot, SnapshotInfo::EditorSnapshot));
             const QString editorSnapshotTitle
                 = QString::fromLatin1("Current Editor's Snapshot (%1 Documents)")

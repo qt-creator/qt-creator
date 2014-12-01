@@ -39,19 +39,61 @@
 #include <projectexplorer/devicesupport/sshdeviceprocess.h>
 #include <ssh/sshconnection.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QApplication>
 #include <QRegExp>
 #include <QStringList>
 #include <QThread>
 
-using namespace Qnx;
-using namespace Qnx::Internal;
+using namespace ProjectExplorer;
+using namespace Utils;
 
-namespace {
+namespace Qnx {
+namespace Internal {
+
 const char QnxVersionKey[] = "QnxVersion";
 const char DeployQtLibrariesActionId [] = "Qnx.Qnx.DeployQtLibrariesAction";
+
+static int pidFileCounter = 0;
+
+QnxDeviceProcess::QnxDeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent)
+    : SshDeviceProcess(device, parent)
+{
+    setEnvironment(Environment(OsTypeLinux));
+    m_pidFile = QString::fromLatin1("/var/run/qtc.%1.pid").arg(++pidFileCounter);
 }
+
+QString QnxDeviceProcess::fullCommandLine() const
+{
+    QStringList args = arguments();
+    args.prepend(executable());
+    QString cmd = QtcProcess::Arguments::createUnixArgs(args).toString();
+
+    QString fullCommandLine = QLatin1String(
+        "test -f /etc/profile && . /etc/profile ; "
+        "test -f $HOME/profile && . $HOME/profile ; "
+    );
+
+    if (!m_workingDir.isEmpty())
+        fullCommandLine += QString::fromLatin1("cd %1 ; ").arg(QtcProcess::quoteArg(m_workingDir));
+
+    for (auto it = environment().constBegin(); it != environment().constEnd(); ++it)
+        fullCommandLine += QString::fromLatin1("%1='%2' ").arg(it.key()).arg(it.value());
+
+    fullCommandLine += QString::fromLatin1("%1 & echo $! > %2").arg(cmd).arg(m_pidFile);
+
+    return fullCommandLine;
+}
+
+void QnxDeviceProcess::doSignal(int sig)
+{
+    auto signaler = new SshDeviceProcess(device(), this);
+    QString cmd = QString::fromLatin1("kill -%2 `cat %1`").arg(m_pidFile).arg(sig);
+    connect(signaler, &SshDeviceProcess::finished, signaler, &QObject::deleteLater);
+    signaler->start(cmd, QStringList());
+}
+
 
 class QnxPortsGatheringMethod : public ProjectExplorer::PortsGatheringMethod
 {
@@ -196,6 +238,11 @@ ProjectExplorer::DeviceTester *QnxDeviceConfiguration::createDeviceTester() cons
     return new QnxDeviceTester;
 }
 
+ProjectExplorer::DeviceProcess *QnxDeviceConfiguration::createProcess(QObject *parent) const
+{
+    return new QnxDeviceProcess(sharedFromThis(), parent);
+}
+
 QList<Core::Id> QnxDeviceConfiguration::actionIds() const
 {
     QList<Core::Id> actions = RemoteLinux::LinuxDevice::actionIds();
@@ -228,3 +275,6 @@ ProjectExplorer::DeviceProcessSignalOperation::Ptr QnxDeviceConfiguration::signa
     return ProjectExplorer::DeviceProcessSignalOperation::Ptr(
                 new QnxDeviceProcessSignalOperation(sshParameters()));
 }
+
+} // namespace Internal
+} // namespace Qnx

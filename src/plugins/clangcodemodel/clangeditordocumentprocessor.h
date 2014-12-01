@@ -37,7 +37,6 @@
 #include <cpptools/builtineditordocumentprocessor.h>
 #include <cpptools/semantichighlighter.h>
 
-
 #include <QFutureWatcher>
 
 namespace ClangCodeModel {
@@ -55,6 +54,7 @@ public:
     void semanticRehighlight(bool force) Q_DECL_OVERRIDE;
     CppTools::SemanticInfo recalculateSemanticInfo() Q_DECL_OVERRIDE;
     CppTools::BaseEditorDocumentParser *parser() Q_DECL_OVERRIDE;
+    CPlusPlus::Snapshot snapshot() Q_DECL_OVERRIDE;
     bool isParserRunning() const Q_DECL_OVERRIDE;
 
 private slots:

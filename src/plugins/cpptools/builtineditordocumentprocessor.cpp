@@ -174,6 +174,11 @@ BaseEditorDocumentParser *BuiltinEditorDocumentProcessor::parser()
     return &m_parser;
 }
 
+CPlusPlus::Snapshot BuiltinEditorDocumentProcessor::snapshot()
+{
+    return m_parser.snapshot();
+}
+
 void BuiltinEditorDocumentProcessor::semanticRehighlight(bool force)
 {
     const auto source = createSemanticInfoSource(force);

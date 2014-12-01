@@ -1292,6 +1292,14 @@ void GdbEngine::handleExecuteJumpToLine(const GdbResponse &response)
         // All is fine. Waiting for a *running
         // and the temporary breakpoint to be hit.
         notifyInferiorRunOk(); // Only needed for gdb < 7.0.
+    } else if (response.resultClass == GdbResultError) {
+        // Could be "Unreasonable jump request" or similar.
+        QString out = tr("Cannot jump. Stopped");
+        QByteArray msg = response.data["msg"].data();
+        if (!msg.isEmpty())
+            out += QString::fromLatin1(". " + msg);
+        showStatusMessage(out);
+        notifyInferiorRunFailed();
     } else if (response.resultClass == GdbResultDone) {
         // This happens on old gdb. Trigger the effect of a '*stopped'.
         showStatusMessage(tr("Jumped. Stopped"));
@@ -2374,6 +2382,8 @@ void GdbEngine::updateResponse(BreakpointResponse &response, const GdbMi &bkpt)
             response.condition = child.data();
         } else if (child.hasName("enabled")) {
             response.enabled = (child.data() == "y");
+        } else if (child.hasName("disp")) {
+            response.oneShot = child.data() == "del";
         } else if (child.hasName("pending")) {
             // Any content here would be interesting only if we did accept
             // spontaneously appearing breakpoints (user using gdb commands).
