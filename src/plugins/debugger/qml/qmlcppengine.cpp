@@ -780,6 +780,12 @@ void QmlCppEngine::reloadDebuggingHelpers()
         m_cppEngine->reloadDebuggingHelpers();
 }
 
+void QmlCppEngine::debugLastCommand()
+{
+    if (m_cppEngine)
+        m_cppEngine->debugLastCommand();
+}
+
 DebuggerEngine *QmlCppEngine::cppEngine() const
 {
     return m_cppEngine;
