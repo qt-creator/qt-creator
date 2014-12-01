@@ -50,6 +50,10 @@ ResultType TestResult::resultFromString(const QString &resultString)
         return MESSAGE_WARN;
     if (resultString == QLatin1String("qfatal"))
         return MESSAGE_FATAL;
+    if (resultString == QLatin1String("bpass"))
+        return BLACKLISTED_PASS;
+    if (resultString == QLatin1String("bfail"))
+        return BLACKLISTED_FAIL;
     qDebug(" unexpected testresult...");
     qDebug(resultString.toLatin1());
     return UNKNOWN;
@@ -68,6 +72,10 @@ ResultType TestResult::toResultType(int rt)
         return UNEXPECTED_PASS;
     case SKIP:
         return SKIP;
+    case BLACKLISTED_PASS:
+        return BLACKLISTED_PASS;
+    case BLACKLISTED_FAIL:
+        return BLACKLISTED_FAIL;
     case MESSAGE_DEBUG:
         return MESSAGE_DEBUG;
     case MESSAGE_WARN:
@@ -102,6 +110,10 @@ QString TestResult::resultToString(const ResultType type)
         return QLatin1String("FATAL");
     case MESSAGE_INTERNAL:
         return QString();
+    case BLACKLISTED_PASS:
+        return QLatin1String("BPASS");
+    case BLACKLISTED_FAIL:
+        return QLatin1String("BFAIL");
     default:
         return QLatin1String("UNKNOWN");
     }
@@ -120,6 +132,10 @@ QColor TestResult::colorForType(const ResultType type)
         return QColor("#ff0000");
     case SKIP:
         return QColor("#787878");
+    case BLACKLISTED_PASS:
+        return QColor(0, 0, 0);
+    case BLACKLISTED_FAIL:
+        return QColor(0, 0, 0);
     case MESSAGE_DEBUG:
         return QColor("#329696");
     case MESSAGE_WARN:

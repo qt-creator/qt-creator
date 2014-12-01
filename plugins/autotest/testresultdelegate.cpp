@@ -91,6 +91,8 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     case ResultType::FAIL:
     case ResultType::EXPECTED_FAIL:
     case ResultType::UNEXPECTED_PASS:
+    case ResultType::BLACKLISTED_FAIL:
+    case ResultType::BLACKLISTED_PASS:
         output = testResult.className() + QLatin1String("::") + testResult.testCase();
         if (!testResult.dataTag().isEmpty())
             output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));
@@ -192,6 +194,8 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
         case ResultType::FAIL:
         case ResultType::EXPECTED_FAIL:
         case ResultType::UNEXPECTED_PASS:
+        case ResultType::BLACKLISTED_FAIL:
+        case ResultType::BLACKLISTED_PASS:
             output = testResult.className() + QLatin1String("::") + testResult.testCase();
             if (!testResult.dataTag().isEmpty())
                 output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));

@@ -313,6 +313,12 @@ void TestResultsPane::updateSummaryLabel()
     if (count)
         labelText.append(QString::fromLatin1(", %1 %2")
                          .arg(QString::number(count), tr("fatals")));
+    count = m_model->resultTypeCount(ResultType::BLACKLISTED_FAIL)
+            + m_model->resultTypeCount(ResultType::BLACKLISTED_PASS);
+    if (count)
+        labelText.append(QString::fromLatin1(", %1 %2")
+                         .arg(QString::number(count), tr("blacklisted")));
+
     labelText.append(QLatin1String(".</p>"));
     m_summaryLabel->setText(labelText);
 }
