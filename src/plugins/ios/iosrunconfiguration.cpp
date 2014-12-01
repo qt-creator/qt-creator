@@ -162,7 +162,7 @@ QStringList IosRunConfiguration::commandLineArguments()
 void IosRunConfiguration::updateDisplayNames()
 {
     if (DeviceTypeKitInformation::deviceTypeId(target()->kit()) == Constants::IOS_DEVICE_TYPE)
-        m_deviceType = IosDeviceType();
+        m_deviceType = IosDeviceType(IosDeviceType::IosDevice);
     else if (m_deviceType.type == IosDeviceType::IosDevice)
         m_deviceType = IosDeviceType(IosDeviceType::SimulatedDevice);
     IDevice::ConstPtr dev = DeviceKitInformation::device(target()->kit());
@@ -474,8 +474,10 @@ void IosRunConfigurationWidget::updateValues()
     QString argsString = argListToString(args);
 
     IosDeviceType currentDType = m_runConfiguration->deviceType();
-    if (!m_ui->deviceTypeComboBox->currentData().isValid()
-            || currentDType != m_ui->deviceTypeComboBox->currentData().value<IosDeviceType>()) {
+    if (currentDType.type == IosDeviceType::SimulatedDevice && !currentDType.identifier.isEmpty()
+            && (!m_ui->deviceTypeComboBox->currentData().isValid()
+                || currentDType != m_ui->deviceTypeComboBox->currentData().value<IosDeviceType>()))
+    {
         bool didSet = false;
         for (int i = 0; m_deviceTypeModel.hasIndex(i, 0); ++i) {
             QVariant vData = m_deviceTypeModel.data(m_deviceTypeModel.index(i, 0), Qt::UserRole + 1);
