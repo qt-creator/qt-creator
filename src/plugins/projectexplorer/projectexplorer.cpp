@@ -1277,7 +1277,10 @@ void ProjectExplorerPlugin::unloadProject()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::unloadProject";
 
-    unloadProject(dd->m_currentProject);
+    QList<Project *> projects = SessionManager::projects();
+    QTC_ASSERT(!projects.isEmpty(), return);
+
+    unloadProject(projects.first());
 }
 
 void ProjectExplorerPlugin::unloadProject(Project *project)
