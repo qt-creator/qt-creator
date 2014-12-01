@@ -112,6 +112,37 @@ static bool xmlExtractTypeFileLine(const QString &code, const QString &tagStart,
     return false;
 }
 
+static bool xmlExtractBenchmarkInformation(const QString &code, const QString &tagStart,
+                                           QString &description)
+{
+    if (code.startsWith(tagStart)) {
+        int start = code.indexOf(QLatin1String(" metric=\"")) + 9;
+        const QString metric = code.mid(start, code.indexOf(QLatin1Char('"'), start) - start);
+        start = code.indexOf(QLatin1String(" value=\"")) + 8;
+        const double value = code.mid(start, code.indexOf(QLatin1Char('"'), start) - start).toDouble();
+        start = code.indexOf(QLatin1String(" iterations=\"")) + 13;
+        const int iterations = code.mid(start, code.indexOf(QLatin1Char('"'), start) - start).toInt();
+        QString metricsTxt;
+        if (metric == QLatin1String("WalltimeMilliseconds"))         // default
+            metricsTxt = QLatin1String("msecs");
+        else if (metric == QLatin1String("CPUTicks"))                // -tickcounter
+            metricsTxt = QLatin1String("CPU ticks");
+        else if (metric == QLatin1String("Events"))                  // -eventcounter
+            metricsTxt = QLatin1String("events");
+        else if (metric == QLatin1String("InstructionReads"))        // -callgrind
+            metricsTxt = QLatin1String("instruction reads");
+        else if (metric == QLatin1String("CPUCycles"))               // -perf
+            metricsTxt = QLatin1String("CPU cycles");
+        description = QObject::tr("%1 %2 per iteration (total: %3, iterations: %4)")
+                .arg(QString::number(value, 'f', 6))
+                .arg(metricsTxt)
+                .arg(QString::number(value * (double)iterations, 'g', 3))
+                .arg(iterations);
+        return true;
+    }
+    return false;
+}
+
 /****************** XML line parser helper end ******************/
 
 void processOutput()
@@ -129,6 +160,7 @@ void processOutput()
     static bool readingDescription = false;
     static QString qtVersion;
     static QString qtestVersion;
+    static QString bmDescription;
 
     while (m_runner->canReadLine()) {
         // TODO Qt5 uses UTF-8 - while Qt4 uses ISO-8859-1 - could this be a problem?
@@ -170,6 +202,11 @@ void processOutput()
                 testResult.setLine(lineNumber);
                 TestResultsPane::instance()->addTestResult(testResult);
             }
+            continue;
+        }
+        if (xmlExtractBenchmarkInformation(line, QLatin1String("<BenchmarkResult"), bmDescription)) {
+            TestResult testResult(className, testCase, dataTag, ResultType::BENCHMARK, bmDescription);
+            TestResultsPane::instance()->addTestResult(testResult);
             continue;
         }
         if (line == QLatin1String("</Message>") || line == QLatin1String("</Incident>")) {

@@ -85,6 +85,7 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         painter->setPen(tmp);
     }
 
+    const QString desc = testResult.description();
     QString output;
     switch (type) {
     case ResultType::PASS:
@@ -96,13 +97,23 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         output = testResult.className() + QLatin1String("::") + testResult.testCase();
         if (!testResult.dataTag().isEmpty())
             output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));
-        if (selected && !testResult.description().isEmpty()) {
-            output.append(QLatin1Char('\n'));
-            output.append(testResult.description());
+        if (selected && !desc.isEmpty()) {
+            output.append(QLatin1Char('\n')).append(desc);
+        }
+        break;
+    case ResultType::BENCHMARK:
+        output = testResult.className() + QLatin1String("::") + testResult.testCase();
+        if (!testResult.dataTag().isEmpty())
+            output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));
+        if (!desc.isEmpty()) {
+            int breakPos = desc.indexOf(QLatin1Char('('));
+            output.append(QLatin1String(" - ")).append(desc.left(breakPos));
+            if (selected)
+                output.append(QLatin1Char('\n')).append(desc.mid(breakPos));
         }
         break;
     default:
-        output = testResult.description();
+        output = desc;
         if (!selected)
             output = output.split(QLatin1Char('\n')).first();
     }
@@ -188,6 +199,7 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
     if (selected) {
         TestResult testResult = resultModel->testResult(resultFilterModel->mapToSource(index));
 
+        QString desc = testResult.description();
         QString output;
         switch (testResult.result()) {
         case ResultType::PASS:
@@ -199,13 +211,23 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
             output = testResult.className() + QLatin1String("::") + testResult.testCase();
             if (!testResult.dataTag().isEmpty())
                 output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));
-            if (!testResult.description().isEmpty()) {
-                output.append(QLatin1Char('\n'));
-                output.append(testResult.description());
+            if (!desc.isEmpty()) {
+                output.append(QLatin1Char('\n')).append(desc);
+            }
+            break;
+        case ResultType::BENCHMARK:
+            output = testResult.className() + QLatin1String("::") + testResult.testCase();
+            if (!testResult.dataTag().isEmpty())
+                output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));
+            if (!desc.isEmpty()) {
+                int breakPos = desc.indexOf(QLatin1Char('('));
+                output.append(QLatin1String(" - ")).append(desc.left(breakPos));
+            if (selected)
+                output.append(QLatin1Char('\n')).append(desc.mid(breakPos));
             }
             break;
         default:
-            output = testResult.description();
+            output = desc;
         }
 
         output.replace(QLatin1Char('\n'), QChar::LineSeparator);

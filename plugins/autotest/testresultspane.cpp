@@ -277,6 +277,7 @@ void TestResultsPane::initializeFilterMenu()
     textAndType.insert(ResultType::EXPECTED_FAIL, tr("Expected Fail"));
     textAndType.insert(ResultType::UNEXPECTED_PASS, tr("Unexpected Pass"));
     textAndType.insert(ResultType::SKIP, tr("Skip"));
+    textAndType.insert(ResultType::BENCHMARK, tr("Benchmarks"));
     textAndType.insert(ResultType::MESSAGE_DEBUG, tr("Debug Messages"));
     textAndType.insert(ResultType::MESSAGE_WARN, tr("Warning Messages"));
     textAndType.insert(ResultType::MESSAGE_INTERNAL, tr("Internal Messages"));

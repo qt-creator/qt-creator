@@ -64,7 +64,7 @@ int TestResultModel::columnCount(const QModelIndex &parent) const
 }
 
 static QIcon testResultIcon(ResultType result) {
-    static QIcon icons[10] = {
+    static QIcon icons[11] = {
         QIcon(QLatin1String(":/images/pass.png")),
         QIcon(QLatin1String(":/images/fail.png")),
         QIcon(QLatin1String(":/images/xfail.png")),
@@ -72,6 +72,7 @@ static QIcon testResultIcon(ResultType result) {
         QIcon(QLatin1String(":/images/skip.png")),
         QIcon(QLatin1String(":/images/blacklisted_pass.png")),
         QIcon(QLatin1String(":/images/blacklisted_fail.png")),
+        QIcon(QLatin1String(":/images/benchmark.png")),
         QIcon(QLatin1String(":/images/debug.png")),
         QIcon(QLatin1String(":/images/warn.png")),
         QIcon(QLatin1String(":/images/fatal.png")),
@@ -97,6 +98,7 @@ QVariant TestResultModel::data(const QModelIndex &index, int role) const
         case ResultType::SKIP:
         case ResultType::BLACKLISTED_PASS:
         case ResultType::BLACKLISTED_FAIL:
+        case ResultType::BENCHMARK:
             return QString::fromLatin1("%1::%2 (%3) - %4").arg(tr.className(), tr.testCase(),
                                                                tr.dataTag(), tr.fileName());
         default:
@@ -209,7 +211,7 @@ void TestResultFilterModel::enableAllResultTypes()
               << ResultType::UNEXPECTED_PASS << ResultType::SKIP << ResultType::MESSAGE_DEBUG
               << ResultType::MESSAGE_WARN << ResultType::MESSAGE_INTERNAL
               << ResultType::MESSAGE_FATAL << ResultType::UNKNOWN << ResultType::BLACKLISTED_PASS
-              << ResultType::BLACKLISTED_FAIL;
+              << ResultType::BLACKLISTED_FAIL << ResultType::BENCHMARK;
     invalidateFilter();
 }
 

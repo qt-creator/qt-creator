@@ -76,6 +76,8 @@ ResultType TestResult::toResultType(int rt)
         return BLACKLISTED_PASS;
     case BLACKLISTED_FAIL:
         return BLACKLISTED_FAIL;
+    case BENCHMARK:
+        return BENCHMARK;
     case MESSAGE_DEBUG:
         return MESSAGE_DEBUG;
     case MESSAGE_WARN:
@@ -102,6 +104,8 @@ QString TestResult::resultToString(const ResultType type)
         return QLatin1String("XPASS");
     case SKIP:
         return QLatin1String("SKIP");
+    case BENCHMARK:
+        return QLatin1String("BENCH");
     case MESSAGE_DEBUG:
         return QLatin1String("DEBUG");
     case MESSAGE_WARN:

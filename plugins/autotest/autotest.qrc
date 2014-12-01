@@ -16,6 +16,7 @@
         <file>images/xpass.png</file>
         <file>images/blacklisted_fail.png</file>
         <file>images/blacklisted_pass.png</file>
+        <file>images/benchmark.png</file>
         <file>images/run.png</file>
         <file>images/runselected.png</file>
         <file>images/stop.png</file>
