@@ -288,6 +288,49 @@ QMessageBox::StandardButton CheckableMessageBox::dialogButtonBoxToMessageBoxButt
     return static_cast<QMessageBox::StandardButton>(int(db));
 }
 
+bool askAgain(QSettings *settings, const QString &settingsSubKey)
+{
+    QTC_CHECK(settings);
+    if (settings) {
+        settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
+        bool shouldNotAsk = settings->value(settingsSubKey, false).toBool();
+        settings->endGroup();
+        if (shouldNotAsk)
+            return false;
+    }
+    return true;
+}
+
+enum DoNotAskAgainType{Question, Information};
+
+void initDoNotAskAgainMessageBox(CheckableMessageBox &messageBox, const QString &title,
+                                 const QString &text, QDialogButtonBox::StandardButtons buttons,
+                                 QDialogButtonBox::StandardButton defaultButton,
+                                 DoNotAskAgainType type)
+{
+    messageBox.setWindowTitle(title);
+    messageBox.setIconPixmap(QMessageBox::standardIcon(type == Information
+                                               ? QMessageBox::Information
+                                               : QMessageBox::Question));
+    messageBox.setText(text);
+    messageBox.setCheckBoxVisible(true);
+    messageBox.setCheckBoxText(type == Information ? CheckableMessageBox::msgDoNotShowAgain()
+                                                   : CheckableMessageBox::msgDoNotAskAgain());
+    messageBox.setChecked(false);
+    messageBox.setStandardButtons(buttons);
+    messageBox.setDefaultButton(defaultButton);
+}
+
+void doNotAskAgain(QSettings *settings, const QString &settingsSubKey)
+{
+    if (!settings)
+        return;
+
+    settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
+    settings->setValue(settingsSubKey, true);
+    settings->endGroup();
+}
+
 /*!
     Shows a message box with given \a title and \a text, and a \gui {Do not ask again} check box.
     If the user checks the check box and accepts the dialog with the \a acceptButton,
@@ -306,35 +349,44 @@ CheckableMessageBox::doNotAskAgainQuestion(QWidget *parent, const QString &title
                                            QDialogButtonBox::StandardButton acceptButton)
 
 {
-    QTC_CHECK(settings);
-    if (settings) {
-        settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
-        bool shouldNotAsk = settings->value(settingsSubKey, false).toBool();
-        settings->endGroup();
-        if (shouldNotAsk)
-            return acceptButton;
-    }
+    if (!askAgain(settings, settingsSubKey))
+        return acceptButton;
 
-    CheckableMessageBox mb(parent);
-    mb.setWindowTitle(title);
-    mb.setIconPixmap(QMessageBox::standardIcon(QMessageBox::Question));
-    mb.setText(text);
-    mb.setCheckBoxVisible(true);
-    mb.setCheckBoxText(CheckableMessageBox::msgDoNotAskAgain());
-    mb.setChecked(false);
-    mb.setStandardButtons(buttons);
-    mb.setDefaultButton(defaultButton);
-    mb.exec();
+    CheckableMessageBox messageBox(parent);
+    initDoNotAskAgainMessageBox(messageBox, title, text, buttons, defaultButton, Question);
+    messageBox.exec();
+    if (messageBox.isChecked() && (messageBox.clickedStandardButton() == acceptButton))
+        doNotAskAgain(settings, settingsSubKey);
 
-    if (settings) {
-        settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
-        if (mb.isChecked() && (mb.clickedStandardButton() == acceptButton))
-            settings->setValue(settingsSubKey, true);
-        else // clean up doesn't hurt
-            settings->remove(settingsSubKey);
-        settings->endGroup();
-    }
-    return mb.clickedStandardButton();
+    return messageBox.clickedStandardButton();
+}
+
+/*!
+    Shows a message box with given \a title and \a text, and a \gui {Do not show again} check box.
+    If the user checks the check box and quits the dialog, further invocations of this
+    function with the same \a settings and \a settingsSubKey will not show the dialog, but instantly return.
+
+    Returns the clicked button, or QDialogButtonBox::NoButton if the user rejects the dialog
+    with the escape key, or \a defaultButton if the dialog is suppressed.
+*/
+QDialogButtonBox::StandardButton
+CheckableMessageBox::doNotShowAgainInformation(QWidget *parent, const QString &title,
+                                           const QString &text, QSettings *settings,
+                                           const QString &settingsSubKey,
+                                           QDialogButtonBox::StandardButtons buttons,
+                                           QDialogButtonBox::StandardButton defaultButton)
+
+{
+    if (!askAgain(settings, settingsSubKey))
+            return defaultButton;
+
+    CheckableMessageBox messageBox(parent);
+    initDoNotAskAgainMessageBox(messageBox, title, text, buttons, defaultButton, Information);
+    messageBox.exec();
+    if (messageBox.isChecked())
+        doNotAskAgain(settings, settingsSubKey);
+
+    return messageBox.clickedStandardButton();
 }
 
 /*!
@@ -375,6 +427,15 @@ bool CheckableMessageBox::hasSuppressedQuestions(QSettings *settings)
 QString CheckableMessageBox::msgDoNotAskAgain()
 {
     return QApplication::translate("Utils::CheckableMessageBox", "Do not &ask again");
+}
+
+/*!
+    Returns the standard \gui {Do not show again} check box text.
+    \sa doNotShowAgainInformation()
+*/
+QString CheckableMessageBox::msgDoNotShowAgain()
+{
+    return QApplication::translate("Utils::CheckableMessageBox", "Do not &show again");
 }
 
 } // namespace Utils

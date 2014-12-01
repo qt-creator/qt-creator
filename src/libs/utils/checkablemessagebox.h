@@ -86,6 +86,15 @@ public:
                               QDialogButtonBox::StandardButton defaultButton = QDialogButtonBox::No,
                               QDialogButtonBox::StandardButton acceptButton = QDialogButtonBox::Yes);
 
+    static QDialogButtonBox::StandardButton
+        doNotShowAgainInformation(QWidget *parent,
+                                  const QString &title,
+                                  const QString &text,
+                                  QSettings *settings,
+                                  const QString &settingsSubKey,
+                                  QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Ok,
+                                  QDialogButtonBox::StandardButton defaultButton = QDialogButtonBox::NoButton);
+
     QString text() const;
     void setText(const QString &);
 
@@ -119,6 +128,7 @@ public:
     static void resetAllDoNotAskAgainQuestions(QSettings *settings);
     static bool hasSuppressedQuestions(QSettings *settings);
     static QString msgDoNotAskAgain();
+    static QString msgDoNotShowAgain();
 
 private slots:
     void slotClicked(QAbstractButton *b);
