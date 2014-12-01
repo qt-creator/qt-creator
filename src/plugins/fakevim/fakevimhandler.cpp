@@ -1678,6 +1678,7 @@ public:
     // Call after any FakeVim processing
     // (if needUpdate is true, export cursor position to editor and scroll)
     void leaveFakeVim(bool needUpdate = true);
+    void leaveFakeVim(EventResult eventResult);
 
     EventResult handleKey(const Input &input);
     EventResult handleDefaultKey(const Input &input);
@@ -2447,6 +2448,11 @@ void FakeVimHandler::Private::leaveFakeVim(bool needUpdate)
     m_inFakeVim = false;
 }
 
+void FakeVimHandler::Private::leaveFakeVim(EventResult eventResult)
+{
+    leaveFakeVim(eventResult == EventHandled || eventResult == EventCancelled);
+}
+
 bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
 {
     const int key = ev->key();
@@ -2542,7 +2548,7 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 
     enterFakeVim();
     EventResult result = handleKey(Input(key, mods, ev->text()));
-    leaveFakeVim(result == EventHandled);
+    leaveFakeVim(result);
 
     return result;
 }
@@ -7594,7 +7600,7 @@ void FakeVimHandler::Private::onInputTimeout()
 {
     enterFakeVim();
     EventResult result = handleKey(Input());
-    leaveFakeVim(result == EventHandled);
+    leaveFakeVim(result);
 }
 
 void FakeVimHandler::Private::onFixCursorTimeout()
