@@ -55,6 +55,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #endif
+#include <thread>
 
 // avoid utils dependency
 #define QTC_CHECK(cond) if (cond) {} else { qWarning() << "assert failed " << #cond << " " \
@@ -149,6 +150,7 @@ class GdbRunner: public QObject
     Q_OBJECT
 public:
     GdbRunner(IosTool *iosTool, int gdbFd);
+    void stop(int phase);
 public slots:
     void run();
 signals:
@@ -174,7 +176,9 @@ public:
     void writeMaybeBin(const QString &extraMsg, const char *msg, quintptr len);
 public slots:
     void errorMsg(const QString &msg);
+    void stopGdbRunner();
 private slots:
+    void stopGdbRunner2();
     void isTransferringApp(const QString &bundlePath, const QString &deviceId, int progress,
                            const QString &info);
     void didTransferApp(const QString &bundlePath, const QString &deviceId,
@@ -185,6 +189,8 @@ private slots:
     void deviceInfo(const QString &deviceId, const Ios::IosDeviceManager::Dict &info);
     void appOutput(const QString &output);
 private:
+    void readStdin();
+
     QMutex m_xmlMutex;
     int maxProgress;
     int opLeft;
@@ -198,6 +204,7 @@ private:
     QXmlStreamWriter out;
     SingleRelayServer *gdbServer;
     GenericRelayServer *qmlServer;
+    GdbRunner *gdbRunner;
     friend class GdbRunner;
 };
 
@@ -738,20 +745,17 @@ void IosTool::didStartApp(const QString &bundlePath, const QString &deviceId,
         outFile.flush();
     }
     if (!debug) {
-        GdbRunner *gdbRunner = new GdbRunner(this, gdbFd);
-        if (qmlServer) {
-            // we should not stop the event handling of the main thread
-            // all output moves to the new thread (other option would be to signal it back)
-            QThread *gdbProcessThread = new QThread();
-            gdbRunner->moveToThread(gdbProcessThread);
-            QObject::connect(gdbProcessThread, SIGNAL(started()), gdbRunner, SLOT(run()));
-            QObject::connect(gdbRunner, SIGNAL(finished()), gdbProcessThread, SLOT(quit()));
-            QObject::connect(gdbProcessThread, SIGNAL(finished()), gdbProcessThread, SLOT(deleteLater()));
-            gdbProcessThread->start();
-        } else {
-            gdbRunner->setParent(this);
-            gdbRunner->run();
-        }
+        gdbRunner = new GdbRunner(this, gdbFd);
+        // we should not stop the event handling of the main thread
+        // all output moves to the new thread (other option would be to signal it back)
+        QThread *gdbProcessThread = new QThread();
+        gdbRunner->moveToThread(gdbProcessThread);
+        QObject::connect(gdbProcessThread, SIGNAL(started()), gdbRunner, SLOT(run()));
+        QObject::connect(gdbRunner, SIGNAL(finished()), gdbProcessThread, SLOT(quit()));
+        QObject::connect(gdbProcessThread, SIGNAL(finished()), gdbProcessThread, SLOT(deleteLater()));
+        gdbProcessThread->start();
+
+        new std::thread([this]() -> void { readStdin();});
     }
 }
 
@@ -849,9 +853,34 @@ void IosTool::appOutput(const QString &output)
     outFile.flush();
 }
 
+void IosTool::readStdin()
+{
+    int c = getchar();
+    if (c == 'k') {
+        QMetaObject::invokeMethod(this, "stopGdbRunner");
+        errorMsg(QLatin1String("iostool: Killing inferior.\n"));
+    } else if (c != EOF) {
+        errorMsg(QLatin1String("iostool: Unexpected character in stdin, stop listening.\n"));
+    }
+}
+
 void IosTool::errorMsg(const QString &msg)
 {
     writeMsg(msg);
+}
+
+void IosTool::stopGdbRunner()
+{
+    if (gdbRunner) {
+        gdbRunner->stop(0);
+        QTimer::singleShot(100, this, SLOT(stopGdbRunner2()));
+    }
+}
+
+void IosTool::stopGdbRunner2()
+{
+    if (gdbRunner)
+        gdbRunner->stop(1);
 }
 
 void IosTool::stopRelayServers(int errorCode)
@@ -886,9 +915,6 @@ int main(int argc, char *argv[])
     exit(res);
 }
 
-#include "main.moc"
-
-
 GdbRunner::GdbRunner(IosTool *iosTool, int gdbFd) :
     QObject(0), m_iosTool(iosTool), m_gdbFd(gdbFd)
 {
@@ -917,3 +943,10 @@ void GdbRunner::run()
     m_iosTool->doExit();
     emit finished();
 }
+
+void GdbRunner::stop(int phase)
+{
+    Ios::IosDeviceManager::instance()->stopGdbServer(m_gdbFd, phase);
+}
+
+#include "main.moc"
