@@ -456,7 +456,7 @@ CppEnumerator::CppEnumerator(CPlusPlus::EnumeratorDeclaration *declaration)
 
     Overview overview;
 
-    Symbol *enumSymbol = declaration->enclosingScope()->asEnum();
+    Symbol *enumSymbol = declaration->enclosingScope();
     const QString enumName = overview.prettyName(LookupContext::fullyQualifiedName(enumSymbol));
     const QString enumeratorName = overview.prettyName(declaration->name());
     QString enumeratorValue;

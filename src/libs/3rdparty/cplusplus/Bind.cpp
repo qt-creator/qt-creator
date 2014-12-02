@@ -33,7 +33,7 @@
 #include <vector>
 #include <string>
 #include <memory>
-
+#include <sstream>
 
 using namespace CPlusPlus;
 
@@ -459,6 +459,58 @@ bool Bind::visit(EnumeratorAST *ast)
     return false;
 }
 
+namespace {
+
+bool isInteger(const StringLiteral *stringLiteral)
+{
+    const int size = stringLiteral->size();
+    const char *chars = stringLiteral->chars();
+    for (int i = 0; i < size; ++i) {
+        if (!isdigit(chars[i]))
+            return false;
+    }
+    return true;
+}
+
+bool stringLiteralToInt(const StringLiteral *stringLiteral, int *output)
+{
+    if (!output)
+        return false;
+
+    if (!isInteger(stringLiteral)) {
+        *output = 0;
+        return false;
+    }
+
+    std::stringstream ss(std::string(stringLiteral->chars(), stringLiteral->size()));
+    const bool ok = ss >> *output;
+    if (!ok)
+        *output = 0;
+
+    return ok;
+}
+
+void calculateConstantValue(const Symbol *symbol, EnumeratorDeclaration *e, Control *control)
+{
+    if (symbol) {
+        if (const Declaration *decl = symbol->asDeclaration()) {
+            if (const EnumeratorDeclaration *previousEnumDecl = decl->asEnumeratorDeclarator()) {
+                if (const StringLiteral *constantValue = previousEnumDecl->constantValue()) {
+                    int constantValueAsInt = 0;
+                    if (stringLiteralToInt(constantValue, &constantValueAsInt)) {
+                        ++constantValueAsInt;
+                        const std::string buffer = std::to_string(constantValueAsInt);
+                        e->setConstantValue(control->stringLiteral(buffer.c_str(),
+                                                                   unsigned(buffer.size())));
+                    }
+                }
+            }
+        }
+    }
+}
+
+} // anonymous namespace
+
 void Bind::enumerator(EnumeratorAST *ast, Enum *symbol)
 {
     (void) symbol;
@@ -477,6 +529,10 @@ void Bind::enumerator(EnumeratorAST *ast, Enum *symbol)
 
         if (ExpressionAST *expr = ast->expression)
             e->setConstantValue(asStringLiteral(expr->firstToken(), expr->lastToken()));
+        else if (!symbol->isEmpty())
+            calculateConstantValue(*(symbol->lastMember()-1), e, control());
+        else
+            e->setConstantValue(control()->stringLiteral("0", 1));
 
         symbol->addMember(e);
     }

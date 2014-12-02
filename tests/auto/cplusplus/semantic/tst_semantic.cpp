@@ -184,6 +184,11 @@ private slots:
     void lambda_2();
 
     void diagnostic_error();
+
+    void enum_constantValue1();
+    void enum_constantValue2();
+    void enum_constantValue3();
+    void enum_constantValue4();
 };
 
 void tst_Semantic::function_declaration_1()
@@ -781,6 +786,108 @@ void tst_Semantic::diagnostic_error()
 
     QCOMPARE(doc->errorCount, 1U);
     QCOMPARE(doc->globals->memberCount(), 1U);
+}
+
+namespace {
+void testEnumaratorDeclarator(Enum *e, int enumDeclIndex, const char *expectedConstantValue)
+{
+    Declaration *enumMemberDeclaration = e->memberAt(enumDeclIndex)->asDeclaration();
+    QVERIFY(enumMemberDeclaration);
+    EnumeratorDeclaration *enumeratorDeclaration = enumMemberDeclaration->asEnumeratorDeclarator();
+    QVERIFY(enumeratorDeclaration);
+    if (const StringLiteral *constantValue = enumeratorDeclaration->constantValue())
+        QCOMPARE(constantValue->chars(), expectedConstantValue);
+    else
+        QVERIFY(!expectedConstantValue);
+}
+} // anonymous
+
+void tst_Semantic::enum_constantValue1()
+{
+    QSharedPointer<Document> doc = document("\n"
+                                            "enum {\n"
+                                            "E1,\n"
+                                            "E2,\n"
+                                            "E3\n"
+                                            "};\n"
+                                            );
+
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
+    Enum *e = doc->globals->memberAt(0)->asEnum();
+    QVERIFY(e);
+    QCOMPARE(e->memberCount(), 3U);
+
+    testEnumaratorDeclarator(e, 0, "0");
+    testEnumaratorDeclarator(e, 1, "1");
+    testEnumaratorDeclarator(e, 2, "2");
+}
+
+void tst_Semantic::enum_constantValue2()
+{
+    QSharedPointer<Document> doc = document("\n"
+                                            "enum {\n"
+                                            "E1=10,\n"
+                                            "E2,\n"
+                                            "E3\n"
+                                            "};\n"
+                                            );
+
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
+    Enum *e = doc->globals->memberAt(0)->asEnum();
+    QVERIFY(e);
+    QCOMPARE(e->memberCount(), 3U);
+
+    testEnumaratorDeclarator(e, 0, "10");
+    testEnumaratorDeclarator(e, 1, "11");
+    testEnumaratorDeclarator(e, 2, "12");
+}
+
+void tst_Semantic::enum_constantValue3()
+{
+    QSharedPointer<Document> doc = document("\n"
+                                            "enum {\n"
+                                            "E1,\n"
+                                            "E2=10,\n"
+                                            "E3\n"
+                                            "};\n"
+                                            );
+
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
+    Enum *e = doc->globals->memberAt(0)->asEnum();
+    QVERIFY(e);
+    QCOMPARE(e->memberCount(), 3U);
+
+    testEnumaratorDeclarator(e, 0, "0");
+    testEnumaratorDeclarator(e, 1, "10");
+    testEnumaratorDeclarator(e, 2, "11");
+}
+
+void tst_Semantic::enum_constantValue4()
+{
+    QSharedPointer<Document> doc = document("\n"
+                                            "enum {\n"
+                                            "E1,\n"
+                                            "E2=E1+10,\n"
+                                            "E3,\n"
+                                            "E4=10,\n"
+                                            "E5\n"
+                                            "};\n"
+                                            );
+
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
+    Enum *e = doc->globals->memberAt(0)->asEnum();
+    QVERIFY(e);
+    QCOMPARE(e->memberCount(), 5U);
+
+    testEnumaratorDeclarator(e, 0, "0");
+    testEnumaratorDeclarator(e, 1, "E1+10");
+    testEnumaratorDeclarator(e, 2, NULL);
+    testEnumaratorDeclarator(e, 3, "10");
+    testEnumaratorDeclarator(e, 4, "11");
 }
 
 QTEST_MAIN(tst_Semantic)
