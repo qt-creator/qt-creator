@@ -716,6 +716,18 @@ QString decodeData(const QByteArray &ba, int encoding)
             }
             return dateTime.toString();
         }
+        case Hex2EncodedFloat4: {
+            const QByteArray s = QByteArray::fromHex(ba);
+            QTC_ASSERT(s.size() == 4, break);
+            union { char c[4]; float f; } u = { { s[3], s[2], s[1], s[0] } };
+            return QString::number(u.f);
+        }
+        case Hex2EncodedFloat8: {
+            const QByteArray s = QByteArray::fromHex(ba);
+            QTC_ASSERT(s.size() == 8, break);
+            union { char c[8]; double d; } u = { { s[7], s[6], s[5], s[4], s[3], s[2], s[1], s[0] } };
+            return QString::number(u.d);
+        }
     }
     qDebug() << "ENCODING ERROR: " << encoding;
     return QCoreApplication::translate("Debugger", "<Encoding error>");

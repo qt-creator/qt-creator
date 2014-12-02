@@ -2253,28 +2253,64 @@ def qdump__QXmlStreamAttribute(d, value):
 #
 #######################################################################
 
-def qdump__QV4__String(d, value):
-    d.putStringValue(value["identifier"]["string"])
-    d.putNumChild(0)
-
 def qdump__QV4__TypedValue(d, value):
     qdump__QV4__Value(d, d.directBaseObject(value))
     d.putBetterType(value.type)
 
-def qdump__QV4__Value(d, value):
-    try:
-        if d.is64bit():
-            vtable = value["m"]["internalClass"]["vtable"]
-            if toInteger(vtable["isString"]):
-                d.putBetterType(d.qtNamespace() + "QV4::Value (String)")
-                d.putStringValue(value["s"]["identifier"]["string"])
-                d.putNumChild(0)
-                return
-    except:
-        pass
+def qdump__QV4__CallData(d, value):
+    argc = toInteger(value["argc"])
+    d.putValue("<%s args>" % argc)
+    d.putNumChild(1)
+    if d.isExpanded():
+        with Children(d):
+            for i in range(0, argc + 1):
+                d.putSubItem(i, value["args"][i])
+            d.putFields(value)
 
-    # Fall back for cases that we do not handle specifically.
-    d.putPlainChildren(value)
+def qdump__QV4__Value(d, value):
+    v = toInteger(str(value["val"]))
+    NaNEncodeMask          = 0xffff800000000000
+    IsInt32Mask            = 0x0002000000000000
+    IsDoubleMask           = 0xfffc000000000000
+    IsNumberMask           = IsInt32Mask | IsDoubleMask
+    IsNullOrUndefinedMask  = 0x0000800000000000
+    IsNullOrBooleanMask    = 0x0001000000000000
+    IsConvertibleToIntMask = IsInt32Mask | IsNullOrBooleanMask
+    ns = d.qtNamespace()
+    if v & IsInt32Mask:
+        d.putBetterType("%sQV4::Value (int32)" % ns)
+        d.putValue(value["int_32"])
+    elif v & IsDoubleMask:
+        d.putBetterType("%sQV4::Value (double)" % ns)
+        d.putValue("%x" % (v ^ 0xffff800000000000), Hex2EncodedFloat8)
+    elif d.isNull(v):
+        d.putBetterType("%sQV4::Value (null)" % ns)
+        d.putValue("(null)")
+    elif v & IsNullOrUndefinedMask:
+        d.putBetterType("%sQV4::Value (null/undef)" % ns)
+        d.putValue("(null/undef)")
+    elif v & IsNullOrBooleanMask:
+        d.putBetterType("%sQV4::Value (null/bool)" % ns)
+        d.putValue("(null/bool)")
+    else:
+        vtable = value["m"]["data"]["internalClass"]["vtable"]
+        if toInteger(vtable["isString"]):
+            d.putBetterType("%sQV4::Value (string)" % ns)
+            d.putStringValue(d.extractPointer(value) + 2 * d.ptrSize())
+        elif toInteger(vtable["isObject"]):
+            d.putBetterType("%sQV4::Value (object)" % ns)
+            d.putValue("[0x%x]" % v)
+        else:
+            d.putBetterType("%sQV4::Value (unknown)" % ns)
+            d.putValue("[0x%x]" % v)
+    d.putNumChild(1)
+    if d.isExpanded():
+        with Children(d):
+            with SubItem(d, "[raw]"):
+                d.putValue("[0x%x]" % v)
+                d.putType(" ");
+                d.putNumChild(0)
+            d.putFields(value)
 
 
 #######################################################################

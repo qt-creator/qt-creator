@@ -554,7 +554,9 @@ class DumperBase:
         self.putValue(data, Hex4EncodedLittleEndian, elided=elided)
 
     def putStringValue(self, value):
-        elided, data = self.encodeStringHelper(self.extractPointer(value), self.displayStringLimit)
+        elided, data = self.encodeStringHelper(
+            self.extractPointer(value),
+            self.displayStringLimit)
         self.putValue(data, Hex4EncodedLittleEndian, elided=elided)
 
     def putAddressItem(self, name, value, type = ""):
