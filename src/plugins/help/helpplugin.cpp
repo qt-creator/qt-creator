@@ -170,8 +170,6 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         SLOT(setupHelpEngineIfNeeded()));
     connect(HelpManager::instance(), SIGNAL(collectionFileChanged()), this,
         SLOT(setupHelpEngineIfNeeded()));
-    connect(HelpManager::instance(), SIGNAL(setupFinished()), this,
-            SLOT(unregisterOldQtCreatorDocumentation()));
 
     Command *cmd;
     QAction *action;
@@ -263,22 +261,6 @@ ExtensionSystem::IPlugin::ShutdownFlag HelpPlugin::aboutToShutdown()
     if (m_rightPaneSideBarWidget)
         delete m_rightPaneSideBarWidget;
     return SynchronousShutdown;
-}
-
-void HelpPlugin::unregisterOldQtCreatorDocumentation()
-{
-    const QString &nsInternal = QString::fromLatin1("org.qt-project.qtcreator.%1%2%3")
-        .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE);
-
-    QStringList documentationToUnregister;
-    foreach (const QString &ns, HelpManager::registeredNamespaces()) {
-        if (ns.startsWith(QLatin1String("org.qt-project.qtcreator."))
-                && ns != nsInternal) {
-            documentationToUnregister << ns;
-        }
-    }
-    if (!documentationToUnregister.isEmpty())
-        HelpManager::unregisterDocumentation(documentationToUnregister);
 }
 
 void HelpPlugin::resetFilter()

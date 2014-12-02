@@ -85,8 +85,6 @@ public:
     static HelpViewer *createHelpViewer(qreal zoom);
 
 private slots:
-    void unregisterOldQtCreatorDocumentation();
-
     void modeChanged(Core::IMode *mode, Core::IMode *old);
 
     void showContextHelp();

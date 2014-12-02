@@ -57,7 +57,7 @@ private slots:
 private:
     bool eventFilter(QObject *object, QEvent *event);
     void removeDocumentation(const QList<QListWidgetItem *> &items);
-    void addItem(const QString &nameSpace, const QString &fileName);
+    void addItem(const QString &nameSpace, const QString &fileName, bool userManaged);
 
 private:
     Ui::DocSettingsPage m_ui;
@@ -67,6 +67,7 @@ private:
 
     typedef QHash<QString, QString> NameSpaceToPathHash;
     NameSpaceToPathHash m_filesToRegister;
+    QHash<QString, bool> m_filesToRegisterUserManaged;
     NameSpaceToPathHash m_filesToUnregister;
 };
 

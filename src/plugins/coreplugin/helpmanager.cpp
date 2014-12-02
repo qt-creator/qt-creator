@@ -48,6 +48,8 @@
 #include <QSqlError>
 #include <QSqlQuery>
 
+static const char kUserDocumentationKey[] = "Help/UserDocumentation";
+
 namespace Core {
 
 struct HelpManagerPrivate
@@ -57,14 +59,20 @@ struct HelpManagerPrivate
     {}
 
     QStringList documentationFromInstaller();
+    void readSettings();
+    void writeSettings();
+    void cleanUpDocumentation();
 
     bool m_needsSetup;
     QHelpEngineCore *m_helpEngine;
     Utils::FileSystemWatcher *m_collectionWatcher;
 
-    QStringList m_filesToRegister;
-    QStringList m_nameSpacesToUnregister;
+    // data for delayed initialization
+    QSet<QString> m_filesToRegister;
+    QSet<QString> m_nameSpacesToUnregister;
     QHash<QString, QVariant> m_customValues;
+
+    QSet<QString> m_userRegisteredFiles;
 };
 
 static HelpManager *m_instance = 0;
@@ -96,6 +104,7 @@ HelpManager::HelpManager(QObject *parent) :
 
 HelpManager::~HelpManager()
 {
+    d->writeSettings();
     delete d->m_helpEngine;
     d->m_helpEngine = 0;
     m_instance = 0;
@@ -117,7 +126,8 @@ QString HelpManager::collectionFilePath()
 void HelpManager::registerDocumentation(const QStringList &files)
 {
     if (d->m_needsSetup) {
-        d->m_filesToRegister.append(files);
+        foreach (const QString &filePath, files)
+            d->m_filesToRegister.insert(filePath);
         return;
     }
 
@@ -154,22 +164,37 @@ void HelpManager::registerDocumentation(const QStringList &files)
 void HelpManager::unregisterDocumentation(const QStringList &nameSpaces)
 {
     if (d->m_needsSetup) {
-        d->m_nameSpacesToUnregister.append(nameSpaces);
+        foreach (const QString &name, nameSpaces)
+            d->m_nameSpacesToUnregister.insert(name);
         return;
     }
 
     bool docsChanged = false;
     foreach (const QString &nameSpace, nameSpaces) {
+        const QString filePath = d->m_helpEngine->documentationFileName(nameSpace);
         if (d->m_helpEngine->unregisterDocumentation(nameSpace)) {
             docsChanged = true;
+            d->m_userRegisteredFiles.remove(filePath);
         } else {
             qWarning() << "Error unregistering namespace '" << nameSpace
-                << "' from file '" << d->m_helpEngine->documentationFileName(nameSpace)
+                << "' from file '" << filePath
                 << "': " << d->m_helpEngine->error();
         }
     }
     if (docsChanged)
         emit m_instance->documentationChanged();
+}
+
+void HelpManager::registerUserDocumentation(const QStringList &filePaths)
+{
+    foreach (const QString &filePath, filePaths)
+        d->m_userRegisteredFiles.insert(filePath);
+    registerDocumentation(filePaths);
+}
+
+QSet<QString> HelpManager::userDocumentationPaths()
+{
+    return d->m_userRegisteredFiles;
 }
 
 static QUrl buildQUrl(const QString &ns, const QString &folder,
@@ -398,21 +423,26 @@ void HelpManager::setupHelpManager()
         return;
     d->m_needsSetup = false;
 
+    d->readSettings();
+
+    // create the help engine
     d->m_helpEngine = new QHelpEngineCore(collectionFilePath(), m_instance);
     d->m_helpEngine->setAutoSaveFilter(false);
     d->m_helpEngine->setCurrentFilter(tr("Unfiltered"));
     d->m_helpEngine->setupData();
-    verifyDocumenation();
+
+    foreach (const QString &filePath, d->documentationFromInstaller())
+        d->m_filesToRegister.insert(filePath);
+
+    d->cleanUpDocumentation();
 
     if (!d->m_nameSpacesToUnregister.isEmpty()) {
-        unregisterDocumentation(d->m_nameSpacesToUnregister);
+        unregisterDocumentation(d->m_nameSpacesToUnregister.toList());
         d->m_nameSpacesToUnregister.clear();
     }
 
-    d->m_filesToRegister << d->documentationFromInstaller();
-
     if (!d->m_filesToRegister.isEmpty()) {
-        registerDocumentation(d->m_filesToRegister);
+        registerDocumentation(d->m_filesToRegister.toList());
         d->m_filesToRegister.clear();
     }
 
@@ -425,12 +455,18 @@ void HelpManager::setupHelpManager()
 
 // -- private
 
-void HelpManager::verifyDocumenation()
+void HelpManagerPrivate::cleanUpDocumentation()
 {
-    const QStringList &registeredDocs = d->m_helpEngine->registeredDocumentations();
+    // mark documentation for removal for which there is no documentation file anymore
+    // mark documentation for removal that is neither user registered, nor marked for registration
+    const QStringList &registeredDocs = m_helpEngine->registeredDocumentations();
     foreach (const QString &nameSpace, registeredDocs) {
-        if (!QFileInfo::exists(d->m_helpEngine->documentationFileName(nameSpace)))
-            d->m_nameSpacesToUnregister.append(nameSpace);
+        const QString filePath = m_helpEngine->documentationFileName(nameSpace);
+        if (!QFileInfo::exists(filePath)
+                || (!m_filesToRegister.contains(filePath)
+                    && !m_userRegisteredFiles.contains(filePath))) {
+            m_nameSpacesToUnregister.insert(nameSpace);
+        }
     }
 }
 
@@ -453,6 +489,18 @@ QStringList HelpManagerPrivate::documentationFromInstaller()
         }
     }
     return documentationFiles;
+}
+
+void HelpManagerPrivate::readSettings()
+{
+    m_userRegisteredFiles = ICore::settings()->value(QLatin1String(kUserDocumentationKey))
+            .toStringList().toSet();
+}
+
+void HelpManagerPrivate::writeSettings()
+{
+    const QStringList list = m_userRegisteredFiles.toList();
+    ICore::settings()->setValue(QLatin1String(kUserDocumentationKey), list);
 }
 
 }   // Core

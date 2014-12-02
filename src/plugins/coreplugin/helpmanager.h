@@ -69,6 +69,9 @@ public:
     static void registerDocumentation(const QStringList &fileNames);
     static void unregisterDocumentation(const QStringList &nameSpaces);
 
+    static void registerUserDocumentation(const QStringList &filePaths);
+    static QSet<QString> userDocumentationPaths();
+
     static QMap<QString, QUrl> linksForKeyword(const QString &key);
     static QMap<QString, QUrl> linksForIdentifier(const QString &id);
     static QStringList findKeywords(const QString &key,
@@ -109,7 +112,6 @@ private:
     ~HelpManager();
 
     static void setupHelpManager();
-    static void verifyDocumenation();
     friend class Core::Internal::CorePlugin; // setupHelpManager
     friend class Core::Internal::MainWindow; // constructor/destructor
 };

@@ -63,9 +63,13 @@ QWidget *DocSettingsPage::widget()
         m_ui.docsListWidget->installEventFilter(this);
 
         const QStringList nameSpaces = HelpManager::registeredNamespaces();
+        const QSet<QString> userDocumentationPaths = HelpManager::userDocumentationPaths();
         foreach (const QString &nameSpace, nameSpaces) {
-            addItem(nameSpace, HelpManager::fileFromNamespace(nameSpace));
-            m_filesToRegister.insert(nameSpace, HelpManager::fileFromNamespace(nameSpace));
+            const QString filePath = HelpManager::fileFromNamespace(nameSpace);
+            bool user = userDocumentationPaths.contains(filePath);
+            addItem(nameSpace, filePath, user);
+            m_filesToRegister.insert(nameSpace, filePath);
+            m_filesToRegisterUserManaged.insert(nameSpace, user);
         }
 
         m_filesToUnregister.clear();
@@ -98,8 +102,9 @@ void DocSettingsPage::addDocumentation()
             continue;
         }
 
-        addItem(nameSpace, file);
+        addItem(nameSpace, file, true/*user managed*/);
         m_filesToRegister.insert(nameSpace, QDir::toNativeSeparators(filePath));
+        m_filesToRegisterUserManaged.insert(nameSpace, true/*user managed*/);
 
         // If the files to unregister contains the namespace, grab a copy of all paths added and try to
         // remove the current file path. Afterwards remove the whole entry and add the clean list back.
@@ -150,7 +155,14 @@ void DocSettingsPage::removeDocumentation()
 void DocSettingsPage::apply()
 {
     HelpManager::unregisterDocumentation(m_filesToUnregister.keys());
-    HelpManager::registerDocumentation(m_filesToRegister.values());
+    QStringList files;
+    auto it = m_filesToRegisterUserManaged.constBegin();
+    while (it != m_filesToRegisterUserManaged.constEnd()) {
+        if (it.value()/*userManaged*/)
+            files << m_filesToRegister.value(it.key());
+        ++it;
+    }
+    HelpManager::registerUserDocumentation(files);
 
     m_filesToUnregister.clear();
 }
@@ -185,9 +197,10 @@ void DocSettingsPage::removeDocumentation(const QList<QListWidgetItem*> &items)
 
     int row = 0;
     foreach (QListWidgetItem* item, items) {
-        const QString nameSpace = item->text();
+        const QString nameSpace = item->data(Qt::UserRole).toString();
 
         m_filesToRegister.remove(nameSpace);
+        m_filesToRegisterUserManaged.remove(nameSpace);
         m_filesToUnregister.insertMulti(nameSpace, QDir::cleanPath(HelpManager::fileFromNamespace(nameSpace)));
 
         row = m_ui.docsListWidget->row(item);
@@ -198,9 +211,11 @@ void DocSettingsPage::removeDocumentation(const QList<QListWidgetItem*> &items)
         QItemSelectionModel::ClearAndSelect);
 }
 
-void DocSettingsPage::addItem(const QString &nameSpace, const QString &fileName)
+void DocSettingsPage::addItem(const QString &nameSpace, const QString &fileName, bool userManaged)
 {
-    QListWidgetItem* item = new QListWidgetItem(nameSpace);
+    const QString name = userManaged ? nameSpace : tr("%1 (auto-detected)").arg(nameSpace);
+    QListWidgetItem* item = new QListWidgetItem(name);
     item->setToolTip(fileName);
+    item->setData(Qt::UserRole, nameSpace);
     m_ui.docsListWidget->addItem(item);
 }
