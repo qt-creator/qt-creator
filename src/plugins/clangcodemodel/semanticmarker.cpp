@@ -83,6 +83,7 @@ void SemanticMarker::setCompilationOptions(const QStringList &options)
         return;
 
     m_unit->setCompilationOptions(options);
+    m_unit->unload();
 }
 
 void SemanticMarker::reparse(const UnsavedFiles &unsavedFiles)
