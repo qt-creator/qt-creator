@@ -810,11 +810,16 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
             break;
         p = pp;
     }
+
+    bool showExpressionActions = (canHandleWatches || state == DebuggerNotReady) && m_type == WatchersType;
+
     QString removeExp = p.data(LocalsExpressionRole).toString();
     QAction actRemoveWatchExpression(removeWatchActionText(removeExp), 0);
-    actRemoveWatchExpression.setEnabled(
-        (canHandleWatches || state == DebuggerNotReady)
-                && !exp.isEmpty() && m_type == WatchersType);
+    actRemoveWatchExpression.setEnabled(showExpressionActions && !exp.isEmpty());
+
+    QAction actRemoveAllWatchExpression(tr("Remove All Expression Evaluators"), 0);
+    actRemoveAllWatchExpression.setEnabled(showExpressionActions
+                                           && !handler->watchedExpressions().isEmpty());
 
     QMenu formatMenu(tr("Change Local Display Format..."));
     if (mi0.isValid())
@@ -891,6 +896,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(&actInsertNewWatchItem);
     menu.addAction(&actWatchExpression);
     menu.addAction(&actRemoveWatchExpression);
+    menu.addAction(&actRemoveAllWatchExpression);
     menu.addAction(&actSelectWidgetToWatch);
     menu.addSeparator();
 
@@ -950,6 +956,8 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
         watchExpression(exp, name);
     } else if (act == &actRemoveWatchExpression) {
         handler->removeData(p.data(LocalsINameRole).toByteArray());
+    } else if (act == &actRemoveAllWatchExpression) {
+        handler->clearWatches();
     } else if (act == &actCopy) {
         copyToClipboard(DebuggerToolTipManager::treeModelClipboardContents(model()));
     } else if (act == &actCopyValue) {

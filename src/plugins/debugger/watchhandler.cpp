@@ -41,10 +41,13 @@
 #include "imageviewer.h"
 #include "watchutils.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
+#include <utils/checkablemessagebox.h>
 
 #include <QDebug>
 #include <QFile>
@@ -1883,6 +1886,14 @@ void WatchHandler::clearWatches()
 {
     if (theWatcherNames.isEmpty())
         return;
+
+    const QDialogButtonBox::StandardButton ret = Utils::CheckableMessageBox::doNotAskAgainQuestion(
+                Core::ICore::mainWindow(), tr("Remove All Expression Evaluators"),
+                tr("Are you sure you want to remove all expression evaluators?"),
+                Core::ICore::settings(), QLatin1String("RemoveAllWatchers"));
+    if (ret != QDialogButtonBox::Yes)
+        return;
+
     m_model->destroyChildren(m_model->m_watchRoot);
     theWatcherNames.clear();
     m_watcherCounter = 0;
