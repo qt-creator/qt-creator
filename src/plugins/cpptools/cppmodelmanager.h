@@ -184,12 +184,13 @@ private slots:
     void onProjectAdded(ProjectExplorer::Project *project);
     void onAboutToRemoveProject(ProjectExplorer::Project *project);
     void onSourceFilesRefreshed() const;
+    void onCurrentEditorChanged(Core::IEditor *editor);
     void onCoreAboutToClose();
 
 private:
     void delayedGC();
     void recalculateFileToProjectParts();
-    void updateVisibleEditorDocuments() const;
+    void updateCppEditorDocuments() const;
 
     void replaceSnapshot(const CPlusPlus::Snapshot &newSnapshot);
     void removeFilesFromSnapshot(const QSet<QString> &removedFiles);

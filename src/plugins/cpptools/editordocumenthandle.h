@@ -42,6 +42,9 @@ public:
     EditorDocumentHandle();
     virtual ~EditorDocumentHandle();
 
+    bool needsRefresh() const;
+    void setNeedsRefresh(bool needsRefresh);
+
     // For the Working Copy
     virtual QString filePath() const = 0;
     virtual QByteArray contents() const = 0;
@@ -49,6 +52,9 @@ public:
 
     // For updating if new project info is set
     virtual BaseEditorDocumentProcessor *processor() = 0;
+
+private:
+    bool m_needsRefresh;
 };
 
 } // namespace CppTools

@@ -1037,6 +1037,69 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
     }
 }
 
+void CppToolsPlugin::test_modelmanager_updateEditorsAfterProjectUpdate()
+{
+    ModelManagerTestHelper helper;
+    CppModelManager *mm = CppModelManager::instance();
+
+    MyTestDataDir testDataDirectory(_("testdata_defines"));
+    const QString fileA = testDataDirectory.file(_("main1.cpp")); // content not relevant
+    const QString fileB = testDataDirectory.file(_("main2.cpp")); // content not relevant
+
+    // Open file A in editor
+    Core::IEditor *editorA = Core::EditorManager::openEditor(fileA);
+    QVERIFY(editorA);
+    EditorCloser closerA(editorA);
+    QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
+
+    EditorDocumentHandle *editorDocumentA = mm->editorDocument(fileA);
+    QVERIFY(editorDocumentA);
+    ProjectPart::Ptr documentAProjectPart = editorDocumentA->processor()->parser()->projectPart();
+    QVERIFY(!documentAProjectPart->project);
+
+    // Open file B in editor
+    Core::IEditor *editorB = Core::EditorManager::openEditor(fileB);
+    QVERIFY(editorB);
+    EditorCloser closerB(editorB);
+    QCOMPARE(Core::DocumentModel::openedDocuments().size(), 2);
+
+    EditorDocumentHandle *editorDocumentB = mm->editorDocument(fileB);
+    QVERIFY(editorDocumentB);
+    ProjectPart::Ptr documentBProjectPart = editorDocumentB->processor()->parser()->projectPart();
+    QVERIFY(!documentBProjectPart->project);
+
+    // Switch back to document A
+    Core::EditorManager::activateEditor(editorA);
+
+    // Open/update related project
+    Project *project = helper.createProject(_("test_modelmanager_updateEditorsAfterProjectUpdate"));
+
+    ProjectPart::Ptr part(new ProjectPart);
+    part->project = project;
+    part->files.append(ProjectFile(fileA, ProjectFile::CXXSource));
+    part->files.append(ProjectFile(fileB, ProjectFile::CXXSource));
+    part->languageVersion = ProjectPart::CXX11;
+    part->qtVersion = ProjectPart::NoQt;
+
+    ProjectInfo pi = mm->projectInfo(project);
+    pi.appendProjectPart(part);
+    pi.finish();
+    updateProjectInfo(mm, &helper, pi);
+
+    // ... and check for updated editor document A
+    while (editorDocumentA->processor()->isParserRunning())
+        QCoreApplication::processEvents();
+    documentAProjectPart = editorDocumentA->processor()->parser()->projectPart();
+    QCOMPARE(documentAProjectPart->project, project);
+
+    // Switch back to document B and check if that's updated, too
+    Core::EditorManager::activateEditor(editorB);
+    while (editorDocumentB->processor()->isParserRunning())
+        QCoreApplication::processEvents();
+    documentBProjectPart = editorDocumentB->processor()->parser()->projectPart();
+    QCOMPARE(documentBProjectPart->project, project);
+}
+
 void CppToolsPlugin::test_modelmanager_renameIncludes()
 {
     struct ModelManagerGCHelper {

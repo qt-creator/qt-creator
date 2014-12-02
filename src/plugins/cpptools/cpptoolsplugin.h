@@ -151,6 +151,7 @@ private slots:
     void test_modelmanager_dont_gc_opened_files();
     void test_modelmanager_defines_per_project();
     void test_modelmanager_defines_per_editor();
+    void test_modelmanager_updateEditorsAfterProjectUpdate();
     void test_modelmanager_precompiled_headers();
     void test_modelmanager_renameIncludes();
 

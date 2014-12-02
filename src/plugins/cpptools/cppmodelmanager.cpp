@@ -300,6 +300,10 @@ CppModelManager::CppModelManager(QObject *parent)
             this, SLOT(onAboutToLoadSession()));
     connect(sessionManager, SIGNAL(aboutToUnloadSession(QString)),
             this, SLOT(onAboutToUnloadSession()));
+
+    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
+            this, &CppModelManager::onCurrentEditorChanged);
+
     connect(Core::DocumentManager::instance(), &Core::DocumentManager::allDocumentsRenamed,
             this, &CppModelManager::renameIncludes);
 
@@ -687,21 +691,32 @@ void CppModelManager::recalculateFileToProjectParts()
     }
 }
 
-void CppModelManager::updateVisibleEditorDocuments() const
+void CppModelManager::updateCppEditorDocuments() const
 {
-    QSet<QString> visibleDocumentsInEditMode;
+    // Refresh visible documents
+    QSet<Core::IDocument *> visibleCppEditorDocuments;
     foreach (Core::IEditor *editor, Core::EditorManager::visibleEditors()) {
-        if (const Core::IDocument *document = editor->document()) {
+        if (Core::IDocument *document = editor->document()) {
             const QString filePath = document->filePath();
-            if (!filePath.isEmpty())
-                visibleDocumentsInEditMode.insert(filePath);
+            if (filePath.isEmpty())
+                continue;
+            if (EditorDocumentHandle *editor = editorDocument(filePath)) {
+                visibleCppEditorDocuments.insert(document);
+                editor->processor()->run();
+            }
         }
     }
 
-    // Re-process these documents
-    foreach (const QString &filePath, visibleDocumentsInEditMode) {
-        if (EditorDocumentHandle *editor = editorDocument(filePath))
-            editor->processor()->run();
+    // Mark invisible documents dirty
+    QSet<Core::IDocument *> invisibleCppEditorDocuments
+        = Core::DocumentModel::openedDocuments().toSet();
+    invisibleCppEditorDocuments.subtract(visibleCppEditorDocuments);
+    foreach (Core::IDocument *document, invisibleCppEditorDocuments) {
+        const QString filePath = document->filePath();
+        if (filePath.isEmpty())
+            continue;
+        if (EditorDocumentHandle *document = editorDocument(filePath))
+            document->setNeedsRefresh(true);
     }
 }
 
@@ -784,7 +799,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
     // However, on e.g. a session restore first the editor documents are created and then the
     // project updates come in. That is, there are no reasonable dependency tables based on
     // resolved includes that we could rely on.
-    updateVisibleEditorDocuments();
+    updateCppEditorDocuments();
 
     // Trigger reindexing
     return updateSourceFiles(filesToReindex, ForcedProgressNotification);
@@ -868,6 +883,19 @@ void CppModelManager::onSourceFilesRefreshed() const
     if (BuiltinIndexingSupport::isFindErrorsIndexingActive()) {
         QTimer::singleShot(1, QCoreApplication::instance(), SLOT(quit()));
         qDebug("FindErrorsIndexing: Done, requesting Qt Creator to quit.");
+    }
+}
+
+void CppModelManager::onCurrentEditorChanged(Core::IEditor *editor)
+{
+    if (!editor || !editor->document())
+        return;
+
+    if (EditorDocumentHandle *cppEditorDocument = editorDocument(editor->document()->filePath())) {
+        if (cppEditorDocument->needsRefresh()) {
+            cppEditorDocument->setNeedsRefresh(false);
+            cppEditorDocument->processor()->run();
+        }
     }
 }
 
