@@ -83,9 +83,10 @@
     \endcode
 
     The property alias exports the button to the QML code that uses the form.
-    In \QC Enterprise you can use the
+    You can use the
     \inlineimage qmldesigner-export-item-button.png
-    (\gui Export) button in the \gui Navigator to export an item as a property:
+    (\gui Export) button in the \gui Navigator to export an item as a property
+    (commercial only):
 
     \image qmldesigner-export-item.png
 

@@ -58,6 +58,10 @@
             You can combine basic QML types with ready-made Qt Quick Controls,
             Dialogs, and Layouts (available since Qt 5.1) to create screens. You
             can use states and transitions to navigate between screens.
+        \li \l {Using Qt Quick Designer Extensions}
+
+            \QMLD contains commercial features that make developing Qt Quick
+            applications faster and easier.
         \li \l {Exporting Designs from Graphics Software}
 
             You can export designs from graphics software, such as Adobe

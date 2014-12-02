@@ -49,16 +49,21 @@
             to the project, and
             other resources.
 
-        \li \gui Canvas (3) is the working area where you create QML components and
+        \li \gui Connections pane (3) enables you to create connections between
+            objects, signals, and object properties (commercial only). For more
+            information, see \l{Adding Connections}.
+
+        \li \gui Canvas (4) is the working area where you create QML components and
             design applications.
 
-        \li \gui {Properties} pane (4) organizes the properties of the selected item.
+        \li \gui {Properties} pane (5) organizes the properties of the selected item.
             You can change the properties also in the code editor.
 
-        \li \gui {State} pane (5) displays the different states of the item.
+        \li \gui {State} pane (6) displays the different states of the item.
             QML states typically describe user interface configurations, such as
             the UI controls, their properties and behavior and the available
             actions.
+
 
     \endlist
 
@@ -335,6 +340,16 @@
     a time.
 
     For more information on Transform types, see \l{Transform}.
+
+    \section2 Editing Properties Inline
+
+    You can double-click objects on the canvas to edit their text, color, or
+    source properties inline (commercial only).
+    Because you can specify several of these properties for some QML types, such
+    as TextEdit, you can also right-click objects to open the inline editors
+    from a context-menu.
+
+    \image qmldesigner-inline-editing.png
 
     \section1 Adding States
 
