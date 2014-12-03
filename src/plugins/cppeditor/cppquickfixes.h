@@ -507,6 +507,15 @@ public:
 };
 
 /*!
+ Moves all member function definitions outside the class or to the implementation file.
+ */
+class MoveAllFuncDefOutside: public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+};
+
+/*!
  Moves the definition of a function to its declaration.
  */
 class MoveFuncDefToDecl: public CppQuickFixFactory

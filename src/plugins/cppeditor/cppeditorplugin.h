@@ -174,6 +174,11 @@ private slots:
     void test_quickfix_MoveFuncDefOutside_respectWsInOperatorNames2();
     void test_quickfix_MoveFuncDefOutside_macroUses();
 
+    void test_quickfix_MoveAllFuncDefOutside_MemberFuncToCpp();
+    void test_quickfix_MoveAllFuncDefOutside_MemberFuncOutside();
+    void test_quickfix_MoveAllFuncDefOutside_DoNotTriggerOnBaseClass();
+    void test_quickfix_MoveAllFuncDefOutside_classWithBaseClass();
+
     void test_quickfix_MoveFuncDefToDecl_MemberFunc();
     void test_quickfix_MoveFuncDefToDecl_MemberFuncOutside();
     void test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNS();

@@ -2089,6 +2089,42 @@
 
             \li Function signature
         \row
+            \li Move All Function Definitions
+            \li Moves all function definitions to the implementation file or outside the class. For example, rewrites:
+
+    \code
+    class Foo
+    {
+      void bar()
+      {
+          // do stuff here
+      }
+      void baz()
+      {
+          // do stuff here
+      }
+    };
+    \endcode
+
+    as
+    \code
+    class Foo
+    {
+      void bar();
+      void baz();
+    };
+
+    void Foo::bar() {
+        // do stuff here
+    }
+
+    void Foo::baz() {
+        // do stuff here
+    }
+    \endcode
+
+            \li Class name
+        \row
             \li Assign to Local Variable
             \li Adds a local variable which stores the return value of a function call or a new expression. For example, rewrites:
 

@@ -3981,6 +3981,132 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_override()
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
+/// Check: Move all definitions from header to cpp.
+void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_MemberFuncToCpp()
+{
+    QList<QuickFixTestDocument::Ptr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "class Fo@o {\n"
+        "  int numberA() const\n"
+        "  {\n"
+        "    return 5;\n"
+        "  }\n"
+        "  int numberB() const\n"
+        "  {\n"
+        "    return 5;\n"
+        "  }\n"
+        "};\n";
+    expected =
+        "class Foo {\n"
+        "  int numberA() const;\n"
+        "  int numberB() const;\n"
+        "};\n";
+    testFiles << QuickFixTestDocument::create("file.h", original, expected);
+
+    // Source File
+    original =
+        "#include \"file.h\"\n";
+    expected =
+        "#include \"file.h\"\n"
+        "\n"
+        "\n"
+        "int Foo::numberA() const\n"
+        "{\n"
+        "    return 5;\n"
+        "}\n"
+        "\n\n"
+        "int Foo::numberB() const\n"
+        "{\n"
+        "    return 5;\n"
+        "}\n"
+        ;
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+
+    MoveAllFuncDefOutside factory;
+    QuickFixOperationTest(testFiles, &factory);
+}
+
+/// Check: Move all definition outside class
+void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_MemberFuncOutside()
+{
+    QByteArray original =
+        "class F@oo {\n"
+        "    int f1()\n"
+        "    {\n"
+        "        return 1;\n"
+        "    }\n"
+        "    int f2() const\n"
+        "    {\n"
+        "        return 2;\n"
+        "    }\n"
+        "};\n";
+    QByteArray expected =
+        "class Foo {\n"
+        "    int f1();\n"
+        "    int f2() const;\n"
+        "};\n"
+        "\n\n"
+        "int Foo::f1()\n"
+        "{\n"
+        "    return 1;\n"
+        "}\n"
+        "\n\n"
+        "int Foo::f2() const\n"
+        "{\n"
+        "    return 2;\n"
+        "}\n";
+
+    MoveAllFuncDefOutside factory;
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
+}
+
+/// Check: Move all definition outside class
+void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_DoNotTriggerOnBaseClass()
+{
+    QByteArray original =
+        "class Bar;\n"
+        "class Foo : public Ba@r {\n"
+        "    int f1()\n"
+        "    {\n"
+        "        return 1;\n"
+        "    }\n"
+        "};\n";
+    QByteArray expected = original;
+
+    MoveAllFuncDefOutside factory;
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
+}
+
+/// Check: Move all definition outside class
+void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_classWithBaseClass()
+{
+    QByteArray original =
+        "class Bar;\n"
+        "class Fo@o : public Bar {\n"
+        "    int f1()\n"
+        "    {\n"
+        "        return 1;\n"
+        "    }\n"
+        "};\n";
+    QByteArray expected =
+        "class Bar;\n"
+        "class Foo : public Bar {\n"
+        "    int f1();\n"
+        "};\n"
+        "\n\n"
+        "int Foo::f1()\n"
+        "{\n"
+        "    return 1;\n"
+        "}\n";
+
+    MoveAllFuncDefOutside factory;
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
+}
+
 void CppEditorPlugin::test_quickfix_AssignToLocalVariable_templates()
 {
 
