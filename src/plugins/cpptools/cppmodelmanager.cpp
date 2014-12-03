@@ -464,7 +464,8 @@ void CppModelManager::removeExtraEditorSupport(AbstractEditorSupport *editorSupp
 
 EditorDocumentHandle *CppModelManager::editorDocument(const QString &filePath) const
 {
-    QTC_ASSERT(!filePath.isEmpty(), return 0);
+    if (filePath.isEmpty())
+        return 0;
 
     QMutexLocker locker(&d->m_cppEditorsMutex);
     return d->m_cppEditors.value(filePath, 0);
@@ -697,12 +698,9 @@ void CppModelManager::updateCppEditorDocuments() const
     QSet<Core::IDocument *> visibleCppEditorDocuments;
     foreach (Core::IEditor *editor, Core::EditorManager::visibleEditors()) {
         if (Core::IDocument *document = editor->document()) {
-            const QString filePath = document->filePath();
-            if (filePath.isEmpty())
-                continue;
-            if (EditorDocumentHandle *editor = editorDocument(filePath)) {
+            if (EditorDocumentHandle *cppEditorDocument = editorDocument(document->filePath())) {
                 visibleCppEditorDocuments.insert(document);
-                editor->processor()->run();
+                cppEditorDocument->processor()->run();
             }
         }
     }
@@ -712,11 +710,8 @@ void CppModelManager::updateCppEditorDocuments() const
         = Core::DocumentModel::openedDocuments().toSet();
     invisibleCppEditorDocuments.subtract(visibleCppEditorDocuments);
     foreach (Core::IDocument *document, invisibleCppEditorDocuments) {
-        const QString filePath = document->filePath();
-        if (filePath.isEmpty())
-            continue;
-        if (EditorDocumentHandle *document = editorDocument(filePath))
-            document->setNeedsRefresh(true);
+        if (EditorDocumentHandle *cppEditorDocument = editorDocument(document->filePath()))
+            cppEditorDocument->setNeedsRefresh(true);
     }
 }
 
