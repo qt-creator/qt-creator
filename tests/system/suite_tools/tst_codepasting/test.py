@@ -73,7 +73,10 @@ def main():
         clickButton(waitForObject(":Send to Codepaster.Paste_QPushButton"))
         outputWindow = waitForObject(":Qt Creator_Core::OutputWindow")
         waitFor("'http://' in str(outputWindow.plainText)", 20000)
-        output = str(outputWindow.plainText).splitlines()[-1]
+        try:
+            output = str(outputWindow.plainText).splitlines()[-1]
+        except:
+            output = ""
         stdErrOut = aut.readStderr()
         match = re.search("^%s protocol error: (.*)$" % protocol, stdErrOut, re.MULTILINE)
         if match:
