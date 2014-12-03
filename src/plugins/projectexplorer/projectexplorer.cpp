@@ -1089,7 +1089,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(dd->m_runWithoutDeployAction, SIGNAL(triggered()), this, SLOT(runProjectWithoutDeploy()));
     connect(dd->m_cancelBuildAction, SIGNAL(triggered()), this, SLOT(cancelBuild()));
     connect(dd->m_unloadAction, SIGNAL(triggered()), this, SLOT(unloadProject()));
-    connect(dd->m_unloadActionContextMenu, SIGNAL(triggered()), this, SLOT(unloadProject()));
+    connect(dd->m_unloadActionContextMenu, SIGNAL(triggered()), this, SLOT(unloadProjectContextMenu()));
     connect(dd->m_closeAllProjects, SIGNAL(triggered()), this, SLOT(closeAllProjects()));
     connect(dd->m_addNewFileAction, SIGNAL(triggered()), this, SLOT(addNewFile()));
     connect(dd->m_addExistingFilesAction, SIGNAL(triggered()), this, SLOT(addExistingFiles()));
@@ -1270,6 +1270,15 @@ void ProjectExplorerPlugin::loadAction()
     if (!errorMessage.isEmpty())
         QMessageBox::critical(ICore::mainWindow(), tr("Failed to open project."), errorMessage);
     updateActions();
+}
+
+void ProjectExplorerPlugin::unloadProjectContextMenu()
+{
+    if (debug)
+        qDebug() << "ProjectExplorerPlugin::unloadProjectContextMenu";
+
+    if (Project *p = currentProject())
+        unloadProject(p);
 }
 
 void ProjectExplorerPlugin::unloadProject()
