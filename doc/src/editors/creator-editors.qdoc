@@ -1259,7 +1259,7 @@
     To always use spaces for alignment, select \gui {With Spaces}. To follow the
     \gui {Tab policy}, select \gui {With Regular Indent}.
 
-    \section2 Speficying Typing Options
+    \section2 Specifying Typing Options
 
     When you type text or code, it is indented automatically according to the selected
     text editor or code style options. Specify typing options in the
