@@ -44,6 +44,7 @@
 #include "cpptoolsreuse.h"
 #include "cppprojectfile.h"
 #include "cpplocatordata.h"
+#include "cppincludesfilter.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -160,6 +161,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(locatorData);
     addAutoReleasedObject(new CppLocatorFilter(locatorData));
     addAutoReleasedObject(new CppClassesFilter(locatorData));
+    addAutoReleasedObject(new CppIncludesFilter);
     addAutoReleasedObject(new CppFunctionsFilter(locatorData));
     addAutoReleasedObject(new CppCurrentDocumentFilter(modelManager, m_stringTable));
     addAutoReleasedObject(new CppFileSettingsPage(m_fileSettings));

@@ -28,6 +28,7 @@ HEADERS += \
     cppfilesettingspage.h \
     cppfindreferences.h \
     cppfunctionsfilter.h \
+    cppincludesfilter.h \
     cppindexingsupport.h \
     cpplocalsymbols.h \
     cpplocatordata.h \
@@ -89,6 +90,7 @@ SOURCES += \
     cppfilesettingspage.cpp \
     cppfindreferences.cpp \
     cppfunctionsfilter.cpp \
+    cppincludesfilter.cpp \
     cppindexingsupport.cpp \
     cpplocalsymbols.cpp \
     cpplocatordata.cpp \

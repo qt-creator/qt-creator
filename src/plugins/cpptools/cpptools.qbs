@@ -46,6 +46,7 @@ QtcPlugin {
         "cppfilesettingspage.cpp", "cppfilesettingspage.h", "cppfilesettingspage.ui",
         "cppfindreferences.cpp", "cppfindreferences.h",
         "cppfunctionsfilter.cpp", "cppfunctionsfilter.h",
+        "cppincludesfilter.cpp", "cppincludesfilter.h",
         "cppindexingsupport.cpp", "cppindexingsupport.h",
         "cpplocalsymbols.cpp", "cpplocalsymbols.h",
         "cpplocatordata.cpp", "cpplocatordata.h",
