@@ -120,6 +120,8 @@ QtcPlugin {
             "projectmodels.cpp", "projectmodels.h",
             "projectnodes.cpp", "projectnodes.h",
             "projectpanelfactory.cpp", "projectpanelfactory.h",
+            "projecttree.cpp",
+            "projecttree.h",
             "projecttreewidget.cpp", "projecttreewidget.h",
             "projectwindow.cpp", "projectwindow.h",
             "projectwizardpage.cpp", "projectwizardpage.h", "projectwizardpage.ui",
