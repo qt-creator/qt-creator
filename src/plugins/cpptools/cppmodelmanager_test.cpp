@@ -75,7 +75,7 @@ public:
     { return directory(_("frameworks"), cleaned); }
 
     QString fileFromSourcesDir(const QString &fileName) const
-    { return directory(_("sources")) + fileName; }
+    { return directory(_("sources")) + QLatin1Char('/') + fileName; }
 };
 
 // TODO: When possible, use this helper class in all tests
