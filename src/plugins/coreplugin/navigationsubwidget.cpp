@@ -41,6 +41,7 @@
 #include <QDebug>
 
 #include <QHBoxLayout>
+#include <QMenu>
 #include <QResizeEvent>
 #include <QToolButton>
 
@@ -75,6 +76,12 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
     QToolButton *splitAction = new QToolButton();
     splitAction->setIcon(QIcon(QLatin1String(Constants::ICON_SPLIT_HORIZONTAL)));
     splitAction->setToolTip(tr("Split"));
+    splitAction->setPopupMode(QToolButton::InstantPopup);
+    splitAction->setProperty("noArrow", true);
+    m_splitMenu = new QMenu(splitAction);
+    splitAction->setMenu(m_splitMenu);
+    connect(m_splitMenu, &QMenu::aboutToShow, this, &NavigationSubWidget::populateSplitMenu);
+
     QToolButton *close = new QToolButton();
     close->setIcon(QIcon(QLatin1String(Constants::ICON_BUTTON_CLOSE)));
     close->setToolTip(tr("Close"));
@@ -88,7 +95,6 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
     setLayout(lay);
     lay->addWidget(m_toolBar);
 
-    connect(splitAction, SIGNAL(clicked()), this, SIGNAL(splitMe()));
     connect(close, SIGNAL(clicked()), this, SIGNAL(closeMe()));
 
     setFactoryIndex(factoryIndex);
@@ -134,6 +140,18 @@ void NavigationSubWidget::comboBoxIndexChanged(int factoryIndex)
     }
 
     restoreSettings();
+}
+
+void NavigationSubWidget::populateSplitMenu()
+{
+    m_splitMenu->clear();
+    QAbstractItemModel *factoryModel = m_parentWidget->factoryModel();
+    int count = factoryModel->rowCount();
+    for (int i = 0; i < count; ++i) {
+        QModelIndex index = factoryModel->index(i, 0);
+        QAction *action = m_splitMenu->addAction(factoryModel->data(index).toString());
+        connect(action, &QAction::triggered, this, [this, i]() { emit splitMe(i); });
+    }
 }
 
 void NavigationSubWidget::setFocusWidget()

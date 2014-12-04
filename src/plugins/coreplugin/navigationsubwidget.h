@@ -36,6 +36,7 @@
 #include <QList>
 
 QT_BEGIN_NAMESPACE
+class QMenu;
 class QToolButton;
 QT_END_NAMESPACE
 
@@ -71,15 +72,18 @@ public:
     Command *command(const QString &title) const;
 
 signals:
-    void splitMe();
+    void splitMe(int factoryIndex);
     void closeMe();
 
 private slots:
     void comboBoxIndexChanged(int);
 
 private:
+    void populateSplitMenu();
+
     NavigationWidget *m_parentWidget;
     QComboBox *m_navigationComboBox;
+    QMenu *m_splitMenu;
     QWidget *m_navigationWidget;
     INavigationWidgetFactory *m_navigationWidgetFactory;
     Utils::StyledBar *m_toolBar;

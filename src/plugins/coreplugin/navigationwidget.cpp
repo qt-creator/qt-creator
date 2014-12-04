@@ -247,7 +247,8 @@ Internal::NavigationSubWidget *NavigationWidget::insertSubItem(int position,int 
     }
 
     Internal::NavigationSubWidget *nsw = new Internal::NavigationSubWidget(this, position, index);
-    connect(nsw, SIGNAL(splitMe()), this, SLOT(splitSubWidget()));
+    connect(nsw, &Internal::NavigationSubWidget::splitMe,
+            this, &NavigationWidget::splitSubWidget);
     connect(nsw, SIGNAL(closeMe()), this, SLOT(closeSubWidget()));
     insertWidget(position, nsw);
     d->m_subWidgets.insert(position, nsw);
@@ -281,11 +282,11 @@ void NavigationWidget::activateSubWidget(Id factoryId)
     }
 }
 
-void NavigationWidget::splitSubWidget()
+void NavigationWidget::splitSubWidget(int factoryIndex)
 {
     Internal::NavigationSubWidget *original = qobject_cast<Internal::NavigationSubWidget *>(sender());
     int pos = indexOf(original) + 1;
-    insertSubItem(pos, original->factoryIndex());
+    insertSubItem(pos, factoryIndex);
 }
 
 void NavigationWidget::closeSubWidget()

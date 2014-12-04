@@ -111,7 +111,7 @@ protected:
 
 private slots:
     void activateSubWidget();
-    void splitSubWidget();
+    void splitSubWidget(int factoryIndex);
     void closeSubWidget();
 
 private:
