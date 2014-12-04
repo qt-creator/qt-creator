@@ -377,11 +377,13 @@ void TimelineRenderer::drawNotes(QPainter *p)
 
 int TimelineRenderer::rowFromPosition(int y)
 {
-    int ret = 0;
+    if (!m_model->expanded())
+        return y / TimelineModel::defaultRowHeight();
 
-    for (int row = 0; row < m_model->rowCount(); ++row) {
-        y -= m_model->rowHeight(row);
-        if (y < 0) return ret;
+    int ret = 0;
+    for (int row = 0; row < m_model->expandedRowCount(); ++row) {
+        y -= m_model->expandedRowHeight(row);
+        if (y <= 0) return ret;
         ++ret;
     }
 
