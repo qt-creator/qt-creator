@@ -22,3 +22,7 @@
 "<QVector>"	"QVector<QCoreApplication> vec;"	"vec[0]"	"."	"vec[0]."
 "<QVector>"	"QVector<QCoreApplication *> vec;"	"vec[0]"	"."	"vec[0]->"
 ""	"struct Foo { int foo; }; Foo *baz;"	"baz"	"."	"baz->"
+"<QString>"	"auto s = QString();"	"s"	"."	"s."
+"<QString>"	"auto *s = QString();"	"s"	"."	"s."
+"<QString>"	"auto s = new QString();"	"s"	"."	"s->"
+"<QString>"	"auto *s = new QString();"	"s"	"."	"s->"
