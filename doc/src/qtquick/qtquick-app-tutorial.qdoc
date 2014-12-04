@@ -90,7 +90,7 @@
     directory in the Qt installation directory. For example:
     \c {C:\Qt\Qt5.3.0\5.3.0\msvc2010\examples\declarative\animation\states}. The
     image appears
-    in the \gui Resources pane. You can also use any other image or a QML
+    in \gui Resources. You can also use any other image or a QML
     type, instead.
 
     \list 1
@@ -102,7 +102,7 @@
 
             \image qmldesigner-tutorial-desing-mode.png "Transitions project in Design Mode"
 
-        \li In the \gui Navigator pane, select \gui Text and press \key Delete to
+        \li In the \gui Navigator, select \gui Text and press \key Delete to
             delete it.
 
         \li Select \gui Window to edit its properties.
@@ -124,7 +124,7 @@
 
         \endlist
 
-        \li In the \gui Library view, \gui Resources tab, select states.png and
+        \li In \gui Library > \gui Resources, select states.png and
             drag and drop it to the canvas.
 
             \image qmldesigner-tutorial-user-icon.png "Image properties"
@@ -184,7 +184,7 @@
 
         \endlist
 
-        \li In the \gui Navigator pane, drag and drop the \gui {Mouse Area}
+        \li In the \gui Navigator, drag and drop the \gui {Mouse Area}
             from \e page to \e topLeftRect to make it apply only to the
             rectangle and not to the whole page.
 
@@ -220,7 +220,7 @@
             \printuntil }
             \printuntil }
 
-        \li In the \gui Navigator pane, copy topLeftRect (by pressing
+        \li In the \gui Navigator, copy topLeftRect (by pressing
             \key {Ctrl+C}) and paste it to the canvas twice (by pressing
             \key {Ctrl+V}). \QC renames the new instances of the type
             topLeftRect1 and topLeftRect2.

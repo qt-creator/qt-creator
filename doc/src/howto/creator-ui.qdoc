@@ -105,7 +105,8 @@
 
     \section1 Browsing Project Contents
 
-    The sidebar is available in the \gui Edit and \gui Debug modes. Use the
+    The sidebar is available in the \gui Edit and \gui Debug modes, and with a
+    different set of views in the \gui Design mode. Use the
     sidebar to browse projects, files, and bookmarks, and to view the class
     hierarchy.
 
@@ -137,6 +138,9 @@
             and which files include the current file.
 
     \endlist
+
+    For more information about the sidebar views that are only available in
+    \QMLD, see \l{Using Qt Quick Designer}.
 
     You can change the view of the sidebar in the following ways:
 

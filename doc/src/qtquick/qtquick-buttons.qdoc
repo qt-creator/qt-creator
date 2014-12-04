@@ -37,12 +37,12 @@
         \li Select \gui {File > New File or Project > Qt > QML File > Choose}
             to create a QML file called Button.qml (for example).
 
-            \note Components are listed in the \gui Library pane only if the
+            \note Components are listed in the \gui Library only if the
             filename begins with a capital letter.
 
         \li Click \gui {Design} to edit the file in the visual editor.
 
-        \li In the \gui Navigator pane, click \gui Rectangle to set properties
+        \li In the \gui Navigator, click \gui Rectangle to set properties
             for it.
 
         \li In the \gui Properties pane, modify the appearance of the button.
@@ -163,14 +163,14 @@
 
         \li Click \gui {Design} to edit the file in the visual editor.
 
-        \li Drag and drop two \gui {Border Image} items from the \gui Library pane
+        \li Drag and drop two \gui {Border Image} items from the \gui Library
             to the canvas.
 
         \li Drag and drop a \gui Text item to the canvas.
 
         \li Drag and drop a \gui {Mouse Area} to the canvas.
 
-        \li In the \gui Navigator pane, select \gui border_image1 to specify
+        \li In the \gui Navigator, select \gui border_image1 to specify
             settings for it in the \gui Properties pane:
 
         \list a

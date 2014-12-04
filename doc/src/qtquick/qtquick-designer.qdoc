@@ -36,22 +36,38 @@
 
     \image qmldesigner-visual-editor.png "Visual editor"
 
-    Use the visual editor panes to manage your project:
+    Use the visual editor to manage your project:
 
     \list
 
-        \li \gui {Navigator} pane (1) displays the items in the current QML
-            file as tree structure.
+        \li Use the sidebar to select QML types to use in the project and to
+            view them in a tree structure, as well as to create connections
+            and browse projects and files. You can select the content of the
+            sidebar in the sidebar menu:
 
-        \li \gui {Library} pane (2) displays the building blocks that you can use to
-            design applications: predefined QML types, your own QML
-            components, Qt Quick components or Qt Quick Controls that you import
-            to the project, and
-            other resources.
+        \list
 
-        \li \gui Connections pane (3) enables you to create connections between
-            objects, signals, and object properties (commercial only). For more
-            information, see \l{Adding Connections}.
+            \li \gui {Navigator} (1) displays the items in the current QML
+                file as tree structure.
+
+            \li \gui {Library} (2) displays the building blocks that you can use
+                to design applications: predefined QML types, your own QML
+                components, Qt Quick components or Qt Quick Controls that you
+                import to the project, and other resources.
+
+            \li \gui Connections (3) enables you to create connections between
+                objects, signals, and object properties (commercial only). For
+                more information, see \l{Adding Connections}.
+
+            \li \gui {Projects} shows a list of projects open in the current
+                session. For more information, see \l{Viewing Project Files}.
+
+            \li \gui {File System} shows all files in the currently selected
+                directory. For more information, see \l{Viewing the File System}.
+
+            \li \gui {Open Documents} sidebar view shows currently open files.
+
+        \endlist
 
         \li \gui Canvas (4) is the working area where you create QML components and
             design applications.
@@ -64,15 +80,15 @@
             the UI controls, their properties and behavior and the available
             actions.
 
-
     \endlist
 
     \section1 Managing Item Hierarchy
 
-    The \gui Navigator pane displays the items in the current QML file and their relationships.
+    The \gui Navigator displays the items in the current QML file and their
+    relationships.
     Items (1) are listed in a tree structure, below their parent (2).
 
-    \image qmldesigner-navigator.png "Navigator pane"
+    \image qmldesigner-navigator.png "Navigator"
 
     You can select items in the \gui Navigator to edit their properties
     in the \gui Properties pane. Items can access the properties of their
@@ -132,7 +148,7 @@
     key before you drag and drop the item into a new position. The topmost
     item under the cursor becomes the new parent of the item.
 
-    You can change the parent of an item also in the \gui Navigator pane.
+    You can change the parent of an item also in the \gui Navigator.
     Drag and drop the item to another position in the tree or use the arrow
     buttons (1) to move the item in the tree.
 
@@ -140,10 +156,10 @@
 
     \section1 QML Type Library
 
-    The \gui {Library} pane enables you to select QML types, UI components, and
+    The \gui {Library} enables you to select QML types, UI components, and
     resources, as well as to manage imports.
 
-    The \gui {QML Types} pane displays the QML types grouped by category: your own QML
+    \gui {QML Types} displays the QML types grouped by category: your own QML
     components, basic types, layouts, positioner types, and views.
 
     Sets of UI components with the look and feel of a particular mobile device
@@ -151,15 +167,15 @@
     Quick Controls, Dialogs, and Layouts are available for creating user
     interfaces using Qt Quick 2.1. The components and controls are based on
     standard QML types. To view the components and controls in the
-    \gui {Library} pane, import the component sets in the \gui Imports pane.
+    \gui {Library}, import the component sets in \gui Imports.
 
     The \gui {Qt Quick Application} wizards for a particular platform add the
-    import statements automatically. You can remove import statements in the
-    \gui Imports pane.
+    import statements automatically. You can remove import statements in
+    \gui Imports
 
-    \image qmldesigner-qml-components.png "QML Components pane"
+    \image qmldesigner-qml-components.png "QML Components"
 
-    The \gui {Resources} pane displays the images and other files that you copy
+    \gui {Resources} displays the images and other files that you copy
     to the project folder (to the same subfolder as the QML files).
 
     \section1 Specifying Item Properties
@@ -461,7 +477,7 @@
 
     To experiment with different component sizes, enter values in the
     \gui Height and \gui Width fields (1) on the canvas toolbar. The changes are
-    displayed in the \gui States pane (2) and on the canvas (3), but the property
+    displayed in the \gui State pane (2) and on the canvas (3), but the property
     values are not changed permanently in the QML file. You can permanently
     change the property values in the \gui Properties pane (4).
 

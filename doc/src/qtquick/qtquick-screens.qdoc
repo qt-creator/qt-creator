@@ -36,7 +36,7 @@
     main window of an application.
 
     The QML files in the project folder are displayed in \gui {QML Components}
-    in the \gui Library pane.
+    in the \gui Library.
 
     You can also use ready-made Qt Quick 1 Components (for Qt 4) to create
     screens with a native look and feel for a particular target platform.
@@ -48,9 +48,9 @@
 
     \list 1
 
-        \li Drag and drop components from the \gui Library pane to the editor.
+        \li Drag and drop components from the \gui Library to the editor.
 
-        \li Select components in the \gui Navigator pane to edit their
+        \li Select components in the \gui Navigator to edit their
             properties in the \gui Properties pane.
 
             For example, you can anchor components to a position on the screen.
