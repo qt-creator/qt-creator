@@ -439,12 +439,13 @@ void TimelineRenderer::manageHovered(int mouseX, int mouseY)
     // Make the "selected" area 3 pixels wide by adding/subtracting 1 to catch very narrow events.
     qint64 startTime = (mouseX - 1) * duration / width() + m_zoomer->rangeStart();
     qint64 endTime = (mouseX + 1) * duration / width() + m_zoomer->rangeStart();
+    qint64 exactTime = (startTime + endTime) / 2;
     int row = rowFromPosition(mouseY + y());
 
     // already covered? Only recheck selectionLocked and make sure m_selectedItem is correct.
     if (m_currentSelection.eventIndex != -1 &&
-            endTime >= m_currentSelection.startTime &&
-            startTime <= m_currentSelection.endTime &&
+            exactTime >= m_currentSelection.startTime &&
+            exactTime < m_currentSelection.endTime &&
             row == m_currentSelection.row) {
         if (!m_selectionLocked)
             setSelectedItem(m_currentSelection.eventIndex);
@@ -454,12 +455,13 @@ void TimelineRenderer::manageHovered(int mouseX, int mouseY)
     // find if there's items in the time range
     int eventFrom = m_model->firstIndex(startTime);
     int eventTo = m_model->lastIndex(endTime);
-    if (eventFrom == -1 || eventTo < eventFrom || eventTo >= m_model->count()) {
-        m_currentSelection.eventIndex = -1;
+
+    m_currentSelection.eventIndex = -1;
+    if (eventFrom == -1 || eventTo < eventFrom || eventTo >= m_model->count())
         return;
-    }
 
     // find if we are in the right column
+    qint64 bestOffset = std::numeric_limits<qint64>::max();
     for (int i=eventTo; i>=eventFrom; --i) {
         if ( m_model->row(i) == row) {
             // There can be small events that don't reach the cursor position after large events
@@ -468,19 +470,21 @@ void TimelineRenderer::manageHovered(int mouseX, int mouseY)
             if (itemEnd < startTime)
                 continue;
 
-            // match
-            m_currentSelection.eventIndex = i;
-            m_currentSelection.startTime = m_model->startTime(i);
-            m_currentSelection.endTime = itemEnd;
-            m_currentSelection.row = row;
-            if (!m_selectionLocked)
-                setSelectedItem(i);
-            return;
+            qint64 itemStart = m_model->startTime(i);
+
+            qint64 offset = qAbs(itemEnd - exactTime) + qAbs(itemStart - exactTime);
+            if (offset < bestOffset) {
+                // match
+                m_currentSelection.eventIndex = i;
+                m_currentSelection.startTime = itemStart;
+                m_currentSelection.endTime = itemEnd;
+                m_currentSelection.row = row;
+                bestOffset = offset;
+            }
         }
     }
-
-    m_currentSelection.eventIndex = -1;
-    return;
+    if (!m_selectionLocked && m_currentSelection.eventIndex != -1)
+        setSelectedItem(m_currentSelection.eventIndex);
 }
 
 void TimelineRenderer::clearData()
