@@ -847,7 +847,7 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
             if (!import.version().isValid())
                 continue;
             foreach (const PathAndLanguage &importPath, importPaths) {
-                const QString targetPath = importPath.path().toFileInfo().dir().filePath(import.path());
+                const QString targetPath = importPath.path().appendPath(import.path()).toString();
                 findNewQmlLibrary(targetPath, import.version(), snapshot, modelManager,
                                   importedFiles, scannedPaths, newLibraries);
             }
