@@ -245,7 +245,16 @@ QList<ProjectExplorer::DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles()
 
     QTC_ASSERT(qtVersion, return result);
 
-    result.append(gatherFiles(qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_LIBS"))));
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        result.append(gatherFiles(qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_LIBS")),
+                    QString(), QStringList() << QLatin1String("*.so.?")));
+        result.append(gatherFiles(qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_LIBS"))
+                    + QLatin1String("/fonts")));
+    } else {
+        result.append(gatherFiles(
+                    qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_LIBS"))));
+    }
+
     result.append(gatherFiles(qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_PLUGINS"))));
     result.append(gatherFiles(qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_IMPORTS"))));
     result.append(gatherFiles(qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_QML"))));
@@ -254,14 +263,15 @@ QList<ProjectExplorer::DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles()
 }
 
 QList<ProjectExplorer::DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles(
-        const QString &dirPath, const QString &baseDirPath)
+        const QString &dirPath, const QString &baseDirPath, const QStringList &nameFilters)
 {
     QList<ProjectExplorer::DeployableFile> result;
     if (dirPath.isEmpty())
         return result;
 
     QDir dir(dirPath);
-    QFileInfoList list = dir.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
+    QFileInfoList list = dir.entryInfoList(nameFilters,
+            QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
 
     for (int i = 0; i < list.size(); ++i) {
         QFileInfo fileInfo = list.at(i);
