@@ -19,6 +19,8 @@
 #include "autotestplugin.h"
 #include "autotestconstants.h"
 #include "testrunner.h"
+#include "testsettings.h"
+#include "testsettingspage.h"
 #include "testtreeview.h"
 #include "testtreemodel.h"
 #include "testresultspane.h"
@@ -43,9 +45,13 @@
 
 using namespace Autotest::Internal;
 
+static AutotestPlugin *m_instance = 0;
+
 AutotestPlugin::AutotestPlugin()
+    : m_settings(new TestSettings)
 {
     // Create your members
+    m_instance = this;
 }
 
 AutotestPlugin::~AutotestPlugin()
@@ -56,6 +62,11 @@ AutotestPlugin::~AutotestPlugin()
     delete model;
     TestRunner *runner = TestRunner::instance();
     delete runner;
+}
+
+AutotestPlugin *AutotestPlugin::instance()
+{
+    return m_instance;
 }
 
 bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorString)
@@ -89,6 +100,10 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
     menu->menu()->setTitle(tr("Tests"));
     menu->addAction(cmd);
     Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
+
+    m_settings->fromSettings(Core::ICore::settings());
+    TestSettingsPage *settingsPage = new TestSettingsPage(m_settings);
+    addAutoReleasedObject(settingsPage);
 
     addAutoReleasedObject(new TestViewFactory);
     addAutoReleasedObject(TestResultsPane::instance());

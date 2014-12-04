@@ -22,7 +22,9 @@ SOURCES += \
     testresultspane.cpp \
     testresultmodel.cpp \
     testresultdelegate.cpp \
-    testtreeitemdelegate.cpp
+    testtreeitemdelegate.cpp \
+    testsettings.cpp \
+    testsettingspage.cpp
 
 HEADERS += \
     testtreeview.h \
@@ -40,8 +42,13 @@ HEADERS += \
     testresultspane.h \
     testresultmodel.h \
     testresultdelegate.h \
-    testtreeitemdelegate.h
+    testtreeitemdelegate.h \
+    testsettings.h \
+    testsettingspage.h
 
 RESOURCES += \
     autotest.qrc
+
+FORMS += \
+    testsettingspage.ui
 

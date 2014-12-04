@@ -17,8 +17,10 @@
 ****************************************************************************/
 
 #include "autotestconstants.h"
+#include "autotestplugin.h"
 #include "testresultspane.h"
 #include "testrunner.h"
+#include "testsettings.h"
 
 #include <QDebug> // REMOVE
 
@@ -112,6 +114,53 @@ static bool xmlExtractTypeFileLine(const QString &code, const QString &tagStart,
     return false;
 }
 
+// adapted from qplaintestlogger.cpp
+static QString formatResult(double value)
+{
+    if (value < 0 || value == NAN)
+        return QLatin1String("NAN");
+    if (value == 0)
+        return QLatin1String("0");
+
+    int significantDigits = 0;
+    qreal divisor = 1;
+
+    while (value / divisor >= 1) {
+        divisor *= 10;
+        ++significantDigits;
+    }
+
+    QString beforeDecimalPoint = QString::number(value, 'f', 0);
+    QString afterDecimalPoint = QString::number(value, 'f', 20);
+    afterDecimalPoint.remove(0, beforeDecimalPoint.count() + 1);
+
+    const int beforeUse = qMin(beforeDecimalPoint.count(), significantDigits);
+    const int beforeRemove = beforeDecimalPoint.count() - beforeUse;
+
+    beforeDecimalPoint.chop(beforeRemove);
+    for (int i = 0; i < beforeRemove; ++i)
+        beforeDecimalPoint.append(QLatin1Char('0'));
+
+    int afterUse = significantDigits - beforeUse;
+    if (beforeDecimalPoint == QLatin1String("0") && !afterDecimalPoint.isEmpty()) {
+        ++afterUse;
+        int i = 0;
+        while (i < afterDecimalPoint.count() && afterDecimalPoint.at(i) == QLatin1Char('0'))
+            ++i;
+        afterUse += i;
+    }
+
+    const int afterRemove = afterDecimalPoint.count() - afterUse;
+    afterDecimalPoint.chop(afterRemove);
+
+    QString result = beforeDecimalPoint;
+    if (afterUse > 0)
+        result.append(QLatin1Char('.'));
+    result += afterDecimalPoint;
+
+    return result;
+}
+
 static bool xmlExtractBenchmarkInformation(const QString &code, const QString &tagStart,
                                            QString &description)
 {
@@ -134,9 +183,9 @@ static bool xmlExtractBenchmarkInformation(const QString &code, const QString &t
         else if (metric == QLatin1String("CPUCycles"))               // -perf
             metricsTxt = QLatin1String("CPU cycles");
         description = QObject::tr("%1 %2 per iteration (total: %3, iterations: %4)")
-                .arg(QString::number(value, 'f', 6))
+                .arg(formatResult(value))
                 .arg(metricsTxt)
-                .arg(QString::number(value * (double)iterations, 'g', 3))
+                .arg(formatResult(value * (double)iterations))
                 .arg(iterations);
         return true;
     }
@@ -282,7 +331,7 @@ static QString which(const QString &path, const QString &cmd)
 }
 
 bool performExec(const QString &cmd, const QStringList &args, const QString &workingDir,
-                 const Utils::Environment &env, int timeout = 60000)
+                 const Utils::Environment &env, int timeout)
 {
     QString runCmd;
     if (!QDir::toNativeSeparators(cmd).contains(QDir::separator())) {
@@ -354,6 +403,10 @@ void performTestRun(QFutureInterface<void> &future, const QList<TestConfiguratio
     future.setProgressRange(0, testCaseCount);
     future.setProgressValue(0);
 
+    const QSharedPointer<TestSettings> settings = AutotestPlugin::instance()->settings();
+    const int timeout = settings->timeout;
+    const QString metricsOption = TestSettings::metricsTypeToOption(settings->metrics);
+
     foreach (const TestConfiguration *tc, selectedTests) {
         if (future.isCanceled())
             break;
@@ -363,10 +416,12 @@ void performTestRun(QFutureInterface<void> &future, const QList<TestConfiguratio
         Utils::Environment env = tc->environment();
 
         args << QLatin1String("-xml");
+        if (!metricsOption.isEmpty())
+            args << metricsOption;
         if (tc->testCases().count())
             args << tc->testCases();
 
-        performExec(cmd, args, workDir, env);
+        performExec(cmd, args, workDir, env, timeout);
     }
     future.setProgressValue(testCaseCount);
 

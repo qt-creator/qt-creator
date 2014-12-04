@@ -16,44 +16,51 @@
 **
 ****************************************************************************/
 
-#ifndef AUTOTESTPLUGIN_H
-#define AUTOTESTPLUGIN_H
+#ifndef TESTSETTINGSPAGE_H
+#define TESTSETTINGSPAGE_H
 
-#include "autotest_global.h"
+#include "ui_testsettingspage.h"
 
-#include <extensionsystem/iplugin.h>
+#include <coreplugin/dialogs/ioptionspage.h>
+
+#include <QPointer>
 
 namespace Autotest {
 namespace Internal {
 
 struct TestSettings;
 
-class AutotestPlugin : public ExtensionSystem::IPlugin
+class TestSettingsWidget : public QWidget
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "AutoTest.json")
-
 public:
-    AutotestPlugin();
-    ~AutotestPlugin();
+    explicit TestSettingsWidget(QWidget *parent = 0);
 
-    static AutotestPlugin *instance();
-
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
-
-    QSharedPointer<TestSettings> settings() const { return m_settings; }
-
-private slots:
-    void triggerAction();
+    void setSettings(const TestSettings &settings);
+    TestSettings settings() const;
 
 private:
-    const QSharedPointer<TestSettings> m_settings;
+    Ui::TestSettingsPage m_ui;
+
+};
+
+class TestSettingsPage : public Core::IOptionsPage
+{
+    Q_OBJECT
+public:
+    explicit TestSettingsPage(const QSharedPointer<TestSettings> &settings);
+    ~TestSettingsPage();
+
+    QWidget *widget();
+    void apply();
+    void finish() { }
+
+private:
+    QSharedPointer<TestSettings> m_settings;
+    QPointer<TestSettingsWidget> m_widget;
 };
 
 } // namespace Internal
 } // namespace Autotest
 
-#endif // AUTOTESTPLUGIN_H
-
+#endif // TESTSETTINGSPAGE_H

@@ -16,44 +16,43 @@
 **
 ****************************************************************************/
 
-#ifndef AUTOTESTPLUGIN_H
-#define AUTOTESTPLUGIN_H
+#ifndef TESTSETTINGS_H
+#define TESTSETTINGS_H
 
-#include "autotest_global.h"
+#include <QtGlobal>
 
-#include <extensionsystem/iplugin.h>
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
 
 namespace Autotest {
 namespace Internal {
 
-struct TestSettings;
-
-class AutotestPlugin : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "AutoTest.json")
-
-public:
-    AutotestPlugin();
-    ~AutotestPlugin();
-
-    static AutotestPlugin *instance();
-
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
-
-    QSharedPointer<TestSettings> settings() const { return m_settings; }
-
-private slots:
-    void triggerAction();
-
-private:
-    const QSharedPointer<TestSettings> m_settings;
+enum MetricsType {
+    Walltime,
+    TickCounter,
+    EventCounter,
+    CallGrind,
+    Perf
 };
+
+struct TestSettings
+{
+    TestSettings();
+    void toSettings(QSettings *s) const;
+    void fromSettings(const QSettings *s);
+    bool equals(const TestSettings &rhs) const;
+    static QString metricsTypeToOption(const MetricsType type);
+
+    int timeout;
+    MetricsType metrics;
+    bool omitInternalMssg;
+};
+
+inline bool operator==(const TestSettings &s1, const TestSettings &s2) { return s1.equals(s2); }
+inline bool operator!=(const TestSettings &s1, const TestSettings &s2) { return !s1.equals(s2); }
 
 } // namespace Internal
 } // namespace Autotest
 
-#endif // AUTOTESTPLUGIN_H
-
+#endif // TESTSETTINGS_H

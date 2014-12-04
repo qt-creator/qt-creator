@@ -16,10 +16,12 @@
 **
 ****************************************************************************/
 
+#include "autotestplugin.h"
 #include "testresultspane.h"
 #include "testresultmodel.h"
 #include "testresultdelegate.h"
 #include "testrunner.h"
+#include "testsettings.h"
 #include "testtreemodel.h"
 
 #include <coreplugin/coreconstants.h>
@@ -271,6 +273,11 @@ void TestResultsPane::onRunSelectedTriggered()
 
 void TestResultsPane::initializeFilterMenu()
 {
+    const bool omitIntern = AutotestPlugin::instance()->settings()->omitInternalMssg;
+    // FilterModel has all messages enabled by default
+    if (omitIntern)
+        m_filterModel->toggleTestResultType(ResultType::MESSAGE_INTERNAL);
+
     QMap<ResultType, QString> textAndType;
     textAndType.insert(ResultType::PASS, tr("Pass"));
     textAndType.insert(ResultType::FAIL, tr("Fail"));
@@ -285,7 +292,7 @@ void TestResultsPane::initializeFilterMenu()
         QAction *action = new QAction(m_filterMenu);
         action->setText(textAndType.value(result));
         action->setCheckable(true);
-        action->setChecked(true);
+        action->setChecked(result != ResultType::MESSAGE_INTERNAL || !omitIntern);
         action->setData(result);
         m_filterMenu->addAction(action);
     }

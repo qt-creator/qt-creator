@@ -24,12 +24,13 @@
 namespace Autotest {
 namespace Constants {
 
-const char ACTION_ID[]           = "AutoTest.Action";
-const char MENU_ID[]             = "AutoTest.Menu";
-const char AUTOTEST_ID[]         = "AutoTest.ATP";
-const char AUTOTEST_CONTEXT[]    = "Auto Tests";
-const char TASK_INDEX[]          = "AutoTest.Task.Index";
-const char UNNAMED_QUICKTESTS[]  = QT_TR_NOOP("<unnamed>");
+const char ACTION_ID[]                  = "AutoTest.Action";
+const char MENU_ID[]                    = "AutoTest.Menu";
+const char AUTOTEST_ID[]                = "AutoTest.ATP";
+const char AUTOTEST_CONTEXT[]           = "Auto Tests";
+const char TASK_INDEX[]                 = "AutoTest.Task.Index";
+const char UNNAMED_QUICKTESTS[]         = QT_TR_NOOP("<unnamed>");
+const char AUTOTEST_SETTINGS_CATEGORY[] = "ZY.Tests";
 
 } // namespace Autotest
 } // namespace Constants

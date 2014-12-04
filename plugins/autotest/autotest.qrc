@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
+        <file>images/autotest.png</file>
         <file>images/class.png</file>
         <file>images/func.png</file>
         <file>images/expand.png</file>
