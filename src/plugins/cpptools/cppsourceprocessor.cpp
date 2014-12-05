@@ -272,19 +272,33 @@ QString CppSourceProcessor::resolveFile_helper(const QString &fileName, IncludeT
     if (QFileInfo(fileName).isAbsolute())
         return checkFile(fileName) ? fileName : QString();
 
-    if (type == IncludeLocal && m_currentDoc) {
-        const QFileInfo currentFileInfo(m_currentDoc->fileName());
-        const QString path = cleanPath(currentFileInfo.absolutePath()) + fileName;
-        if (checkFile(path))
-            return path;
-        // Fall through! "16.2 Source file inclusion" from the standard states to continue
-        // searching as if this would be a global include.
+    auto headerPathsIt = m_headerPaths.begin();
+    auto headerPathsEnd = m_headerPaths.end();
+    if (m_currentDoc) {
+        if (type == IncludeLocal) {
+            const QFileInfo currentFileInfo(m_currentDoc->fileName());
+            const QString path = cleanPath(currentFileInfo.absolutePath()) + fileName;
+            if (checkFile(path))
+                return path;
+            // Fall through! "16.2 Source file inclusion" from the standard states to continue
+            // searching as if this would be a global include.
+
+        } else if (type == IncludeNext) {
+            const QFileInfo currentFileInfo(m_currentDoc->fileName());
+            const QString currentDirPath = cleanPath(currentFileInfo.dir().path());
+            for (; headerPathsIt != headerPathsEnd; ++headerPathsIt) {
+                if (headerPathsIt->path == currentDirPath) {
+                    ++headerPathsIt;
+                    break;
+                }
+            }
+        }
     }
 
-    foreach (const ProjectPart::HeaderPath &headerPath, m_headerPaths) {
-        if (headerPath.isFrameworkPath())
+    for (; headerPathsIt != headerPathsEnd; ++headerPathsIt) {
+        if (headerPathsIt->isFrameworkPath())
             continue;
-        const QString path = headerPath.path + fileName;
+        const QString path = headerPathsIt->path + fileName;
         if (m_workingCopy.contains(path) || checkFile(path))
             return path;
     }

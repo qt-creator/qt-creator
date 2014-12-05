@@ -133,6 +133,7 @@ private slots:
     void test_cppsourceprocessor_includes_cyclic();
     void test_cppsourceprocessor_includes_allDiagnostics();
     void test_cppsourceprocessor_macroUses();
+    void test_cppsourceprocessor_includeNext();
 
     void test_functionutils_virtualFunctions();
     void test_functionutils_virtualFunctions_data();

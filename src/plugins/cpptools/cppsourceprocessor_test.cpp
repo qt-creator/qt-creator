@@ -37,6 +37,7 @@
 #include "cpptoolstestcase.h"
 #include "editordocumenthandle.h"
 
+#include <coreplugin/testdatadir.h>
 #include <texteditor/texteditor.h>
 
 #include <cplusplus/CppDocument.h>
@@ -202,4 +203,39 @@ void CppToolsPlugin::test_cppsourceprocessor_macroUses()
     QCOMPARE(macroUse.utf16charsBegin(), 25U);
     QCOMPARE(macroUse.utf16charsEnd(), 35U);
     QCOMPARE(macroUse.beginLine(), 2U);
+}
+
+static bool isMacroDefinedInDocument(const QByteArray &macroName, const Document::Ptr &document)
+{
+    foreach (const Macro &macro, document->definedMacros()) {
+        if (macro.name() == macroName)
+            return true;
+    }
+
+    return false;
+}
+
+static inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
+
+void CppToolsPlugin::test_cppsourceprocessor_includeNext()
+{
+    const Core::Tests::TestDataDir data(
+        _(SRCDIR "/../../../tests/auto/cplusplus/preprocessor/data/include_next-data/"));
+    const QString mainFilePath = data.file(QLatin1String("main.cpp"));
+    const QString customHeaderPath = data.directory(QLatin1String("customIncludePath"));
+    const QString systemHeaderPath = data.directory(QLatin1String("systemIncludePath"));
+
+    CppSourceProcessor::DocumentCallback documentCallback = [](const CPlusPlus::Document::Ptr &){};
+    CppSourceProcessor sourceProcessor(Snapshot(), documentCallback);
+    ProjectPart::HeaderPaths headerPaths = ProjectPart::HeaderPaths()
+        << ProjectPart::HeaderPath(customHeaderPath, ProjectPart::HeaderPath::IncludePath)
+        << ProjectPart::HeaderPath(systemHeaderPath, ProjectPart::HeaderPath::IncludePath);
+    sourceProcessor.setHeaderPaths(headerPaths);
+
+    sourceProcessor.run(mainFilePath);
+    const Snapshot snapshot = sourceProcessor.snapshot();
+    QVERIFY(!snapshot.isEmpty());
+    const Document::Ptr mainDocument = snapshot.document(mainFilePath);
+    QVERIFY(mainDocument);
+    QVERIFY(isMacroDefinedInDocument("OK_FEATURE_X_ENABLED", mainDocument));
 }

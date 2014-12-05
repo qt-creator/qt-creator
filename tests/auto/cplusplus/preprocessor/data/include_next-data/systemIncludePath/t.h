@@ -1,0 +1,5 @@
+#define SYSTEM_HEADER_INCLUDED
+
+#ifdef ENABLE_FEATURE_X
+#define FEATURE_X_ENABLED
+#endif
