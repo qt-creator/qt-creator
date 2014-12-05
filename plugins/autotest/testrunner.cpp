@@ -451,9 +451,9 @@ void TestRunner::buildProject(ProjectExplorer::Project *project)
     ProjectExplorer::BuildManager *mgr = static_cast<ProjectExplorer::BuildManager *>(
                 ProjectExplorer::BuildManager::instance());
     ProjectExplorer::ProjectExplorerPlugin *pep = ProjectExplorer::ProjectExplorerPlugin::instance();
-    pep->buildProject(project);
     connect(mgr, &ProjectExplorer::BuildManager::buildQueueFinished,
             this, &TestRunner::buildFinished);
+    pep->buildProject(project);
 }
 
 void TestRunner::buildFinished(bool success)
