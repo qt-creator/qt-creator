@@ -187,6 +187,7 @@ private:
     void loadBreakpoints();
     void saveBreakpoints();
     void cleanupBreakpoint(BreakpointModelId id);
+    void appendBreakpointInternal(const BreakpointParameters &data);
     Q_SLOT void changeLineNumberFromMarkerHelper(Debugger::Internal::BreakpointModelId id, int lineNumber);
 
     struct BreakpointItem

@@ -404,7 +404,7 @@ void BreakHandler::loadBreakpoints()
         if (v.isValid())
             data.message = v.toString();
         if (data.isValid())
-            appendBreakpoint(data);
+            appendBreakpointInternal(data);
         else
             qWarning("Not restoring invalid breakpoint: %s", qPrintable(data.toString()));
     }
@@ -845,7 +845,7 @@ void BreakHandler::setEngine(BreakpointModelId id, DebuggerEngine *value)
     it->state = BreakpointInsertRequested;
     it->response = BreakpointResponse();
     it->updateMarker(id);
-    scheduleSynchronization();
+    //scheduleSynchronization();
 }
 
 static bool isAllowedTransition(BreakpointState from, BreakpointState to)
@@ -1054,6 +1054,12 @@ static int currentId = 0;
 
 void BreakHandler::appendBreakpoint(const BreakpointParameters &data)
 {
+    appendBreakpointInternal(data);
+    scheduleSynchronization();
+}
+
+void BreakHandler::appendBreakpointInternal(const BreakpointParameters &data)
+{
     if (!data.isValid()) {
         qWarning("Not adding invalid breakpoint: %s", qPrintable(data.toString()));
         return;
@@ -1068,8 +1074,6 @@ void BreakHandler::appendBreakpoint(const BreakpointParameters &data)
     // Create marker after copy is inserted into hash.
     it->data = data;
     it->updateMarker(id);
-
-    scheduleSynchronization();
 }
 
 void BreakHandler::handleAlienBreakpoint(const BreakpointResponse &response, DebuggerEngine *engine)
@@ -1095,7 +1099,7 @@ void BreakHandler::handleAlienBreakpoint(const BreakpointResponse &response, Deb
         it->updateMarker(id);
 
         layoutChanged();
-        scheduleSynchronization();
+        //scheduleSynchronization();
     }
 }
 
