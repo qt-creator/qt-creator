@@ -205,6 +205,10 @@ bool QmakeAndroidBuildApkStep::init()
     QString outputDir = bc->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY)).toString();
 
     const auto *pro = static_cast<QmakeProjectManager::QmakeProject *>(project());
+    m_skipBuilding = m_proFilePathForInputFile.isEmpty();
+    if (m_skipBuilding)
+        return true;
+
     const QmakeProjectManager::QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(m_proFilePathForInputFile);
     if (!node) { // should never happen
         emit addOutput(tr("Internal Error: Could not find .pro file."), BuildStep::ErrorMessageOutput);
@@ -268,6 +272,17 @@ bool QmakeAndroidBuildApkStep::init()
     m_argumentsPasswordConcealed = pp2.prettyArguments();
 
     return true;
+}
+
+void QmakeAndroidBuildApkStep::run(QFutureInterface<bool> &fi)
+{
+    if (m_skipBuilding) {
+        emit addOutput(tr("No application .pro file found, not building an APK."), BuildStep::ErrorMessageOutput);
+        fi.reportResult(true);
+        emit finished();
+        return;
+    }
+    AndroidBuildApkStep::run(fi);
 }
 
 void QmakeAndroidBuildApkStep::setupProcessParameters(ProjectExplorer::ProcessParameters *pp,

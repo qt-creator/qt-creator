@@ -69,6 +69,7 @@ public:
     QString proFilePathForInputFile() const;
     void setProFilePathForInputFile(const QString &path);
 
+
 protected:
     friend class QmakeAndroidBuildApkStepFactory;
     QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepList *bc,
@@ -79,6 +80,7 @@ protected:
 protected:
     void ctor();
     bool init();
+    void run(QFutureInterface<bool> &fi);
     void processStarted();
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     bool fromMap(const QVariantMap &map);
@@ -98,6 +100,7 @@ private:
     QString m_proFilePathForInputFile;
     QString m_command;
     QString m_argumentsPasswordConcealed;
+    bool m_skipBuilding;
 };
 
 } // namespace Internal
