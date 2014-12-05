@@ -32,6 +32,8 @@
 
 #include "hostosinfo.h"
 
+#include <utils/algorithm.h>
+
 #include <QDir>
 
 #include <limits.h>
@@ -87,7 +89,12 @@ QTCREATOR_UTILS_EXPORT QString commonPrefix(const QStringList &strings)
 
 QTCREATOR_UTILS_EXPORT QString commonPath(const QStringList &files)
 {
-    QString common = commonPrefix(files);
+    QStringList appendedSlashes = Utils::transform(files, [](const QString &file) -> QString {
+        if (!file.endsWith(QLatin1Char('/')))
+            return QString(file + QLatin1Char('/'));
+        return file;
+    });
+    QString common = commonPrefix(appendedSlashes);
     // Find common directory part: "C:\foo\bar" -> "C:\foo"
     int lastSeparatorPos = common.lastIndexOf(QLatin1Char('/'));
     if (lastSeparatorPos == -1)
