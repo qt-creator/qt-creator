@@ -34,6 +34,9 @@
 #include "qmlprofilermodelmanager.h"
 #include "timelinemodelaggregator.h"
 #include "qmlprofilernotesmodel.h"
+#include "qmlprofileranimationsmodel.h"
+#include "qmlprofilerrangemodel.h"
+#include "qmlprofilerplugin.h"
 
 // Needed for the load&save actions in the context menu
 #include <analyzerbase/ianalyzertool.h>
@@ -117,11 +120,9 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
 
     d->m_profilerTool = profilerTool;
     d->m_viewContainer = container;
-    d->m_modelManager = modelManager;
-    d->m_modelProxy = new TimelineModelAggregator(this);
-    d->m_modelProxy->setModelManager(modelManager);
-    connect(d->m_modelManager, SIGNAL(stateChanged()),
-            this, SLOT(profilerDataModelStateChanged()));
+
+    d->m_modelProxy = new TimelineModelAggregator(modelManager->notesModel(), this);
+    setModelManager(modelManager);
     d->m_mainView->rootContext()->setContextProperty(QLatin1String("qmlProfilerModelProxy"),
                                                      d->m_modelProxy);
     d->m_profilerState = profilerState;
@@ -129,6 +130,33 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
     // Minimum height: 5 rows of 20 pixels + scrollbar of 50 pixels + 20 pixels margin
     setMinimumHeight(170);
 }
+
+void QmlProfilerTraceView::setModelManager(QmlProfilerModelManager *modelManager)
+{
+    d->m_modelManager = modelManager;
+    connect(modelManager,SIGNAL(dataAvailable()),
+            d->m_modelProxy,SIGNAL(dataAvailable()));
+
+    // external models pushed on top
+    foreach (QmlProfilerTimelineModel *timelineModel,
+             QmlProfilerPlugin::instance->getModels(modelManager)) {
+        d->m_modelProxy->addModel(timelineModel);
+    }
+
+    d->m_modelProxy->addModel(new QmlProfilerAnimationsModel(modelManager,
+                                                             d->m_modelProxy));
+
+    for (int i = 0; i < QmlDebug::MaximumRangeType; ++i)
+        d->m_modelProxy->addModel(new QmlProfilerRangeModel(modelManager, (QmlDebug::RangeType)i,
+                                                            d->m_modelProxy));
+
+    // Connect this last so that it's executed after the models have updated their data.
+    connect(modelManager->qmlModel(), SIGNAL(changed()),
+            d->m_modelProxy, SIGNAL(stateChanged()));
+    connect(d->m_modelManager, SIGNAL(stateChanged()),
+            this, SLOT(profilerDataModelStateChanged()));
+}
+
 
 QmlProfilerTraceView::~QmlProfilerTraceView()
 {

@@ -54,7 +54,7 @@ public:
     int count() const;
 
     void setModelManager(QmlProfilerModelManager *modelManager);
-    void addTimelineModel(const QmlProfilerTimelineModel *timelineModel);
+    void addTimelineModel(const TimelineModel *timelineModel);
 
     Q_INVOKABLE int typeId(int index) const;
     Q_INVOKABLE QString text(int index) const;
@@ -86,7 +86,7 @@ private slots:
 protected:
     QmlProfilerModelManager *m_modelManager;
     QList<Note> m_data;
-    QHash<int, const QmlProfilerTimelineModel *> m_timelineModels;
+    QHash<int, const TimelineModel *> m_timelineModels;
     bool m_modified;
 
     int add(int typeId, qint64 startTime, qint64 duration, const QString &text);

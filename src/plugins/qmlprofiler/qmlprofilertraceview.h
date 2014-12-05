@@ -88,6 +88,7 @@ private:
 private:
     class QmlProfilerTraceViewPrivate;
     QmlProfilerTraceViewPrivate *d;
+    void setModelManager(QmlProfilerModelManager *modelManager);
 };
 
 class QmlProfilerQuickView : public QQuickView {

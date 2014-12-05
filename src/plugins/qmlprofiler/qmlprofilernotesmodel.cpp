@@ -47,9 +47,9 @@ void QmlProfilerNotesModel::setModelManager(QmlProfilerModelManager *modelManage
     m_modelManager = modelManager;
 }
 
-void QmlProfilerNotesModel::addTimelineModel(const QmlProfilerTimelineModel *timelineModel)
+void QmlProfilerNotesModel::addTimelineModel(const TimelineModel *timelineModel)
 {
-    connect(timelineModel, &QmlProfilerTimelineModel::destroyed,
+    connect(timelineModel, &TimelineModel::destroyed,
             this, &QmlProfilerNotesModel::removeTimelineModel);
     m_timelineModels.insert(timelineModel->modelId(), timelineModel);
 }
@@ -111,7 +111,7 @@ int QmlProfilerNotesModel::get(int timelineModel, int timelineIndex) const
 
 int QmlProfilerNotesModel::add(int timelineModel, int timelineIndex, const QString &text)
 {
-    const QmlProfilerTimelineModel *model = m_timelineModels[timelineModel];
+    const TimelineModel *model = m_timelineModels[timelineModel];
     int typeId = model->typeId(timelineIndex);
     Note note = { text, timelineModel, timelineIndex };
     m_data << note;
@@ -160,10 +160,8 @@ int QmlProfilerNotesModel::add(int typeId, qint64 start, qint64 duration, const 
 {
     int timelineModel = -1;
     int timelineIndex = -1;
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
-            m_modelManager->qmlModel()->getEventTypes();
-    foreach (const QmlProfilerTimelineModel *model, m_timelineModels) {
-        if (model->accepted(types[typeId])) {
+    foreach (const TimelineModel *model, m_timelineModels) {
+        if (model->handlesTypeId(typeId)) {
             for (int i = model->firstIndex(start); i <= model->lastIndex(start + duration); ++i) {
                 if (i < 0)
                     continue;
@@ -237,7 +235,7 @@ void QmlProfilerNotesModel::saveData()
         if (it == m_timelineModels.end())
             continue;
 
-        const QmlProfilerTimelineModel *model = it.value();
+        const TimelineModel *model = it.value();
         QmlProfilerDataModel::QmlEventNoteData save = {
             model->typeId(note.timelineIndex), model->startTime(note.timelineIndex),
             model->duration(note.timelineIndex), note.text

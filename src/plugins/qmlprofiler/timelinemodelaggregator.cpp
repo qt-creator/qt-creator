@@ -49,15 +49,18 @@ public:
 
     TimelineModelAggregator *q;
 
-    QList <QmlProfilerTimelineModel *> modelList;
-    QmlProfilerModelManager *modelManager;
+    QList <TimelineModel *> modelList;
+    QmlProfilerNotesModel *notesModel;
 };
 
-TimelineModelAggregator::TimelineModelAggregator(QObject *parent)
+TimelineModelAggregator::TimelineModelAggregator(QmlProfilerNotesModel *notes, QObject *parent)
     : QObject(parent), d(new TimelineModelAggregatorPrivate(this))
 {
+    d->notesModel = notes;
     connect(this,SIGNAL(modelsChanged()),this,SIGNAL(heightChanged()));
     connect(this,SIGNAL(stateChanged()),this,SIGNAL(heightChanged()));
+    connect(notes, SIGNAL(changed(int,int,int)), this, SIGNAL(notesChanged(int,int,int)));
+
 }
 
 TimelineModelAggregator::~TimelineModelAggregator()
@@ -70,37 +73,15 @@ int TimelineModelAggregator::height() const
     return modelOffset(d->modelList.length());
 }
 
-void TimelineModelAggregator::setModelManager(QmlProfilerModelManager *modelManager)
-{
-    d->modelManager = modelManager;
-    connect(modelManager,SIGNAL(dataAvailable()),this,SIGNAL(dataAvailable()));
-
-    // external models pushed on top
-    foreach (QmlProfilerTimelineModel *timelineModel,
-             QmlProfilerPlugin::instance->getModels(modelManager)) {
-        addModel(timelineModel);
-    }
-
-    addModel(new QmlProfilerAnimationsModel(modelManager, this));
-
-    for (int i = 0; i < QmlDebug::MaximumRangeType; ++i)
-        addModel(new QmlProfilerRangeModel(modelManager, (QmlDebug::RangeType)i, this));
-
-    // Connect this last so that it's executed after the models have updated their data.
-    connect(modelManager->qmlModel(),SIGNAL(changed()),this,SIGNAL(stateChanged()));
-    connect(modelManager->notesModel(), SIGNAL(changed(int,int,int)),
-            this, SIGNAL(notesChanged(int,int,int)));
-}
-
-void TimelineModelAggregator::addModel(QmlProfilerTimelineModel *m)
+void TimelineModelAggregator::addModel(TimelineModel *m)
 {
     d->modelList << m;
     connect(m,SIGNAL(heightChanged()),this,SIGNAL(heightChanged()));
-    d->modelManager->notesModel()->addTimelineModel(m);
+    d->notesModel->addTimelineModel(m);
     emit modelsChanged();
 }
 
-const QmlProfilerTimelineModel *TimelineModelAggregator::model(int modelIndex) const
+const TimelineModel *TimelineModelAggregator::model(int modelIndex) const
 {
     return d->modelList[modelIndex];
 }
@@ -108,14 +89,14 @@ const QmlProfilerTimelineModel *TimelineModelAggregator::model(int modelIndex) c
 QVariantList TimelineModelAggregator::models() const
 {
     QVariantList ret;
-    foreach (QmlProfilerTimelineModel *model, d->modelList)
+    foreach (TimelineModel *model, d->modelList)
         ret << QVariant::fromValue(model);
     return ret;
 }
 
 QmlProfilerNotesModel *TimelineModelAggregator::notes() const
 {
-    return d->modelManager->notesModel();
+    return d->notesModel;
 }
 
 int TimelineModelAggregator::modelOffset(int modelIndex) const
@@ -139,7 +120,7 @@ QVariantMap TimelineModelAggregator::nextItem(int selectedModel, int selectedIte
 
     QVarLengthArray<int> itemIndexes(modelCount());
     for (int i = 0; i < modelCount(); i++) {
-        const QmlProfilerTimelineModel *currentModel = model(i);
+        const TimelineModel *currentModel = model(i);
         if (currentModel->count() > 0) {
             if (selectedModel == i) {
                 itemIndexes[i] = (selectedItem + 1) % currentModel->count();
@@ -173,7 +154,7 @@ QVariantMap TimelineModelAggregator::nextItem(int selectedModel, int selectedIte
         itemIndex = -1;
         candidateStartTime = std::numeric_limits<qint64>::max();
         for (int i = 0; i < modelCount(); i++) {
-            const QmlProfilerTimelineModel *currentModel = model(i);
+            const TimelineModel *currentModel = model(i);
             if (currentModel->count() > 0 && currentModel->startTime(0) < candidateStartTime) {
                 candidateModelIndex = i;
                 itemIndex = 0;
@@ -208,7 +189,7 @@ QVariantMap TimelineModelAggregator::prevItem(int selectedModel, int selectedIte
     int candidateModelIndex = -1;
     qint64 candidateStartTime = std::numeric_limits<qint64>::min();
     for (int i = 0; i < modelCount(); i++) {
-        const QmlProfilerTimelineModel *currentModel = model(i);
+        const TimelineModel *currentModel = model(i);
         if (itemIndexes[i] == -1 || itemIndexes[i] >= currentModel->count())
             continue;
         qint64 newStartTime = currentModel->startTime(itemIndexes[i]);
@@ -224,7 +205,7 @@ QVariantMap TimelineModelAggregator::prevItem(int selectedModel, int selectedIte
     } else {
         candidateStartTime = std::numeric_limits<qint64>::min();
         for (int i = 0; i < modelCount(); i++) {
-            const QmlProfilerTimelineModel *currentModel = model(i);
+            const TimelineModel *currentModel = model(i);
             if (currentModel->count() > 0 &&
                     currentModel->startTime(currentModel->count() - 1) > candidateStartTime) {
                 candidateModelIndex = i;

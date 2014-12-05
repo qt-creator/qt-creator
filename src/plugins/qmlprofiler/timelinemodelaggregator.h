@@ -33,6 +33,7 @@
 
 #include "qmlprofilertimelinemodel.h"
 #include "qmlprofilermodelmanager.h"
+#include "timelinerenderer.h"
 
 namespace QmlProfiler {
 namespace Internal {
@@ -44,13 +45,13 @@ class TimelineModelAggregator : public QObject
     Q_PROPERTY(QVariantList models READ models NOTIFY modelsChanged)
     Q_PROPERTY(QmlProfiler::QmlProfilerNotesModel *notes READ notes CONSTANT)
 public:
-    TimelineModelAggregator(QObject *parent = 0);
+    TimelineModelAggregator(QmlProfilerNotesModel *notes, QObject *parent = 0);
     ~TimelineModelAggregator();
 
     int height() const;
-    void setModelManager(QmlProfilerModelManager *modelManager);
-    void addModel(QmlProfilerTimelineModel *m);
-    const QmlProfilerTimelineModel *model(int modelIndex) const;
+
+    void addModel(TimelineModel *m);
+    const TimelineModel *model(int modelIndex) const;
     QVariantList models() const;
 
     QmlProfilerNotesModel *notes() const;
