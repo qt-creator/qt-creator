@@ -1251,7 +1251,7 @@ void GdbEngine::updateAll()
     //PENDING_DEBUG("UPDATING ALL\n");
     QTC_CHECK(state() == InferiorUnrunnable || state() == InferiorStopOk);
     reloadModulesInternal();
-    postCommand("-stack-list-frames", CB(handleStackListFrames),
+    postCommand("stackListFrames", CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, true)));
     stackHandler()->setCurrentIndex(0);
     postCommand("-thread-info", CB(handleThreadInfo), 0);
@@ -3240,7 +3240,7 @@ void GdbEngine::reloadFullStack()
 {
     PENDING_DEBUG("RELOAD FULL STACK");
     resetLocation();
-    postCommand("-stack-list-frames", Discardable, CB(handleStackListFrames),
+    postCommand("stackListFrames", Discardable, CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(true, true)));
 }
 
@@ -3331,7 +3331,7 @@ void GdbEngine::handleQmlStackTrace(const GdbResponse &response)
 void GdbEngine::reloadStack(bool forceGotoLocation)
 {
     PENDING_DEBUG("RELOAD STACK");
-    QByteArray cmd = "-stack-list-frames";
+    QByteArray cmd = "stackListFrames";
     int stackDepth = action(MaximalStackDepth)->value().toInt();
     if (stackDepth)
         cmd += " 0 " + QByteArray::number(stackDepth);
@@ -3354,8 +3354,10 @@ StackFrame GdbEngine::parseStackFrame(const GdbMi &frameMi, int level)
     frame.line = frameMi["line"].toInt();
     frame.address = frameMi["addr"].toAddress();
     frame.usable = QFileInfo(frame.file).isReadable();
-    if (frameMi["language"].data() == "js")
+    if (frameMi["language"].data() == "js") {
         frame.language = QmlLanguage;
+        frame.fixQmlFrame(startParameters());
+    }
     return frame;
 }
 
@@ -3373,7 +3375,11 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
     StackCookie cookie = response.cookie.value<StackCookie>();
     QList<StackFrame> stackFrames;
 
-    GdbMi stack = response.data["stack"];
+    //GdbMi stack = response.data["stack"];
+    QByteArray out = response.consoleStreamOutput;
+    GdbMi stack;
+    stack.fromStringMultiple(out);
+
     if (!stack.isValid()) {
         qDebug() << "FIXME: stack:" << stack.toString();
         return;

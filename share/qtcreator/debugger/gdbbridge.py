@@ -1696,6 +1696,38 @@ class Dumper(DumperBase):
         return type
 
 
+    def stackListFrames(self, n):
+        self.prepare("options:pe")
+        self.output = []
+
+        frame = gdb.newest_frame()
+        i = 0
+        t1 = 'frame={level="%s",addr="0x%x",func="%s",'
+        t1 += 'file="%s",fullname="%s",line="%s",from="%s"}'
+        while i < n and frame:
+            with OutputSafer(self):
+                name = frame.name()
+                functionName = "??" if name is None else name
+                fileName = ""
+                objfile = ""
+                fullName = ""
+                pc = frame.pc()
+                sal = frame.find_sal()
+                line = -1
+                if sal:
+                    line = sal.line
+                    symtab = sal.symtab
+                    if not symtab is None:
+                        objfile = symtab.objfile.filename
+                        fileName = symtab.filename
+                        fullName = symtab.fullname()
+                self.put(t1 % (i, pc, functionName, fileName, fullName, line, objfile))
+
+            frame = frame.older()
+            i += 1
+
+        return ''.join(self.output)
+
 class CliDumper(Dumper):
     def __init__(self):
         Dumper.__init__(self)
@@ -1870,6 +1902,19 @@ def reloadDumper(arg):
     bbsetup()
 
 registerCommand("reload", reloadDumper)
+
+#######################################################################
+#
+# StackFrames Command
+#
+#######################################################################
+
+def stackListFrames(arg):
+    args = arg.split(' ')
+    limit = int(args[1]) if len(args) >= 2 else 1000
+    return theDumper.stackListFrames(limit)
+
+registerCommand("stackListFrames", stackListFrames)
 
 #######################################################################
 #
