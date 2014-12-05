@@ -1107,7 +1107,7 @@ static void loadSessionDataHelper(QXmlStreamReader &r)
         DebuggerToolTipHolder *tw = findOrCreateTooltip(context);
         restoreTreeModel(r, &tw->defaultModel);
         tw->widget->pin();
-        tw->widget->titleLabel->setText(DebuggerToolTipManager::tr("%1 (Restored").arg(context.expression));
+        tw->widget->titleLabel->setText(DebuggerToolTipManager::tr("%1 (Restored)").arg(context.expression));
         tw->widget->treeView->setModel(&tw->defaultModel);
         tw->widget->treeView->setRootIndex(tw->defaultModel.index(0, 0));
         tw->widget->treeView->expandAll();

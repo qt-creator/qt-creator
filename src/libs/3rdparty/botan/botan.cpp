@@ -44444,7 +44444,7 @@ void ANSI_X931_RNG::add_entropy(const byte input[], size_t length)
    }
 
 /*
-* Check if the the PRNG is seeded
+* Check if the PRNG is seeded
 */
 bool ANSI_X931_RNG::is_seeded() const
    {

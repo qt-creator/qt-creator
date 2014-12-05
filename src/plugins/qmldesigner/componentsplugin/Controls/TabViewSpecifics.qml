@@ -70,7 +70,7 @@ Column {
 
             Label {
                 text: qsTr("Tabs visible")
-                tooltip: qsTr("Determines the visibility of the the tab bar.")
+                tooltip: qsTr("Determines the visibility of the tab bar.")
             }
 
             SecondColumnLayout {

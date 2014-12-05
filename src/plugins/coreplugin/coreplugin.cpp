@@ -198,9 +198,9 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                []() { return QDate::currentDate().toString(Qt::DefaultLocaleShortDate); });
     expander->registerVariable("CurrentTime:Locale", tr("The current time (Locale)."),
                                []() { return QTime::currentTime().toString(Qt::DefaultLocaleShortDate); });
-    expander->registerPrefix("CurrentDate:", tr("The current date (QDate formatstring)"),
+    expander->registerPrefix("CurrentDate:", tr("The current date (QDate formatstring)."),
                              [](const QString &fmt) { return QDate::currentDate().toString(fmt); });
-    expander->registerPrefix("CurrentTime:", tr("The current time (QTime formatstring)"),
+    expander->registerPrefix("CurrentTime:", tr("The current time (QTime formatstring)."),
                              [](const QString &fmt) { return QTime::currentTime().toString(fmt); });
 
     return success;
