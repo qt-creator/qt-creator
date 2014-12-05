@@ -160,8 +160,11 @@ Item {
         drag.minimumY: 0
         drag.maximumY: root.height - parent.height + 0
         onClicked: {
-            if ((selectionRange.x < flick.contentX) ^ (selectionRange.x+selectionRange.width > flick.contentX + flick.width)) {
-                root.recenter(selectionRange.startTime + selectionRange.duration/2);
+            if ((selectionRange.startTime < zoomControl.rangeStart) ^
+                    (selectionRange.endTime > zoomControl.rangeEnd)) {
+                var center = selectionRange.startTime + selectionRange.duration / 2;
+                var halfDuration = Math.max(selectionRange.duration, zoomControl.rangeDuration / 2);
+                zoomControl.setRange(center - halfDuration, center + halfDuration);
             }
         }
     }
@@ -176,10 +179,7 @@ Item {
         MouseArea {
             anchors.fill: parent
             anchors.leftMargin: -8
-            onClicked: {
-                root.selectionRangeMode = false;
-                root.updateRangeButton();
-            }
+            onClicked: root.selectionRangeMode = false;
         }
     }
 

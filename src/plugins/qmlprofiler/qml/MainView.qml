@@ -101,7 +101,6 @@ Rectangle {
         view.clearData();
         rangeDetails.hide();
         selectionRangeMode = false;
-        buttonsBar.updateRangeButton(selectionRangeMode);
         zoomSlider.externalUpdate = true;
         zoomSlider.value = zoomSlider.minimumValue;
         overview.clear();

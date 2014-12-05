@@ -36,11 +36,13 @@ RangeMover {
     property bool ready: visible && creationState === 3
 
     property string startTimeString: detailedPrintTime(startTime)
-    property string endTimeString: detailedPrintTime(startTime+duration)
+    property string endTimeString: detailedPrintTime(endTime)
     property string durationString: detailedPrintTime(duration)
 
     property double startTime: rangeLeft * viewTimePerPixel + zoomControl.windowStart
     property double duration: Math.max(rangeWidth * viewTimePerPixel, 500)
+    property double endTime: startTime + duration
+
     property double viewTimePerPixel: 1
     property double creationReference : 0
     property int creationState : 0
@@ -59,7 +61,7 @@ RangeMover {
     }
 
     onRangeDoubleClicked: {
-        zoomControl.setRange(startTime, startTime + duration);
+        zoomControl.setRange(startTime, endTime);
         root.selectionRangeMode = false;
     }
 
