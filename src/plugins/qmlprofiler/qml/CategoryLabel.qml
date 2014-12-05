@@ -36,6 +36,7 @@ Item {
     id: labelContainer
 
     property QtObject model
+    property QtObject notesModel
     property bool mockup
     property string text: model ? model.displayName : ""
     property bool expanded: model && model.expanded
@@ -192,9 +193,8 @@ Item {
         property var eventIds: []
         property var texts: []
         property int currentNote: -1
-        property var notesModel: qmlProfilerModelProxy.notes
         Connections {
-            target: notesButton.notesModel
+            target: notesModel
             onChanged: {
                 if (arguments[1] === -1 || arguments[1] === model.modelId)
                     notesButton.updateNotes();

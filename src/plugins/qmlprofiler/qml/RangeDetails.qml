@@ -50,12 +50,12 @@ Item {
     property var models
     property var notes
 
+    signal recenterOnItem
+    signal toggleSelectionLocked
+    signal clearSelection
+
     width: col.width + 25
     height: col.height + 30
-    z: 1
-    visible: false
-    x: 200
-    y: 25
 
     function hide() {
         noteEdit.focus = false;
@@ -70,9 +70,9 @@ Item {
         isBindingLoop = false;
     }
 
-    // keep inside view
     Connections {
-        target: root
+        target: rangeDetails.parent
+        // keep inside view
         onWidthChanged: fitInView();
         onHeightChanged: fitInView();
     }
@@ -119,15 +119,15 @@ Item {
 
     function fitInView() {
         // don't reposition if it does not fit
-        if (root.width < width || root.height < height)
+        if (parent.width < width || parent.height < height)
             return;
 
-        if (x + width > root.width)
-            x = root.width - width;
+        if (x + width > parent.width)
+            x = parent.width - width;
         if (x < 0)
             x = 0;
-        if (y + height > root.height)
-            y = root.height - height;
+        if (y + height > parent.height)
+            y = parent.height - height;
         if (y < 0)
             y = 0;
     }
@@ -249,13 +249,10 @@ Item {
         anchors.fill: parent
         drag.target: parent
         drag.minimumX: 0
-        drag.maximumX: root.width - parent.width
+        drag.maximumX: rangeDetails.parent.width - rangeDetails.width
         drag.minimumY: 0
-        drag.maximumY: root.height - parent.height
-        onClicked: {
-            root.gotoSourceLocation(file, line, column);
-            root.recenterOnItem();
-        }
+        drag.maximumY: rangeDetails.parent.height - rangeDetails.height
+        onClicked: rangeDetails.recenterOnItem()
     }
 
     Image {
@@ -282,9 +279,7 @@ Item {
         height: 12
         MouseArea {
             anchors.fill: parent
-            onClicked: {
-                root.selectionLocked = !root.selectionLocked;
-            }
+            onClicked: rangeDetails.toggleSelectionLocked()
         }
     }
 
@@ -298,7 +293,7 @@ Item {
         renderType: Text.NativeRendering
         MouseArea {
             anchors.fill: parent
-            onClicked:  root.propagateSelection(-1, -1);
+            onClicked: rangeDetails.clearSelection()
         }
     }
 

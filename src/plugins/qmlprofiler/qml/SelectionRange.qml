@@ -32,42 +32,26 @@ import QtQuick 2.1
 
 RangeMover {
     id: selectionRange
+    property QtObject zoomer;
 
-    property bool ready: visible && creationState === 3
+    readonly property int creationInactive: 0
+    readonly property int creationFirstLimit: 1
+    readonly property int creationSecondLimit: 2
+    readonly property int creationFinished: 3
 
-    property string startTimeString: detailedPrintTime(startTime)
-    property string endTimeString: detailedPrintTime(endTime)
-    property string durationString: detailedPrintTime(duration)
+    property bool ready: visible && creationState === creationFinished
 
-    property double startTime: rangeLeft * viewTimePerPixel + zoomControl.windowStart
+    property double startTime: rangeLeft * viewTimePerPixel + zoomer.windowStart
     property double duration: Math.max(rangeWidth * viewTimePerPixel, 500)
     property double endTime: startTime + duration
 
     property double viewTimePerPixel: 1
     property double creationReference : 0
-    property int creationState : 0
-
-    Connections {
-        target: zoomControl
-        onRangeChanged: {
-            var oldTimePerPixel = selectionRange.viewTimePerPixel;
-            selectionRange.viewTimePerPixel = zoomControl.rangeDuration / scroller.width;
-            if (creationState === 3 && oldTimePerPixel != selectionRange.viewTimePerPixel) {
-                var newWidth = rangeWidth * oldTimePerPixel / viewTimePerPixel;
-                rangeLeft = rangeLeft * oldTimePerPixel / viewTimePerPixel;
-                rangeRight = rangeLeft + newWidth;
-            }
-        }
-    }
-
-    onRangeDoubleClicked: {
-        zoomControl.setRange(startTime, endTime);
-        root.selectionRangeMode = false;
-    }
+    property int creationState : creationInactive
 
     function reset() {
         rangeRight = rangeLeft + 1;
-        creationState = 0;
+        creationState = creationInactive;
         creationReference = 0;
     }
 
@@ -78,12 +62,12 @@ RangeMover {
             pos = width;
 
         switch (creationState) {
-        case 1:
+        case creationFirstLimit:
             creationReference = pos;
             rangeLeft = pos;
             rangeRight = pos + 1;
             break;
-        case 2:
+        case creationSecondLimit:
             if (pos > creationReference) {
                 rangeLeft = creationReference;
                 rangeRight = pos;
@@ -93,44 +77,5 @@ RangeMover {
             }
             break;
         }
-    }
-
-
-    function detailedPrintTime( t )
-    {
-        if (t <= 0) return "0";
-        if (t<1000) return t+" ns";
-        t = Math.floor(t/1000);
-        if (t<1000) return t+" μs";
-        if (t<1e6) return (t/1000) + " ms";
-        return (t/1e6) + " s";
-    }
-
-    // creation control
-    function releasedOnCreation() {
-        if (selectionRange.creationState === 2) {
-            flick.stayInteractive = true;
-            selectionRange.creationState = 3;
-            selectionRangeControl.enabled = false;
-        }
-    }
-
-    function pressedOnCreation() {
-        if (selectionRange.creationState === 1) {
-            flick.stayInteractive = false;
-            selectionRange.setPos(selectionRangeControl.mouseX + flick.contentX);
-            selectionRange.creationState = 2;
-        }
-    }
-
-    function movedOnCreation() {
-        if (selectionRange.creationState === 0) {
-            selectionRange.creationState = 1;
-        }
-
-        if (!selectionRangeControl.pressed && selectionRange.creationState==3)
-            return;
-
-        selectionRange.setPos(selectionRangeControl.mouseX + flick.contentX);
     }
 }

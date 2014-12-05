@@ -37,12 +37,15 @@ Canvas {
     objectName: "Overview"
     contextType: "2d"
 
+    property QtObject modelProxy
+    property QtObject zoomer
+
     readonly property int eventsPerPass: 512
     property int increment: -1
     property int offset: -1
     readonly property int bump: 10;
-    readonly property int blockHeight: (height - bump) / qmlProfilerModelProxy.models.length;
-    readonly property double spacing: width / zoomControl.traceDuration
+    readonly property int blockHeight: (height - bump) / modelProxy.models.length;
+    readonly property double spacing: width / zoomer.traceDuration
 
     // ***** properties
     height: 50
@@ -64,12 +67,12 @@ Canvas {
         if (recursionGuard)
             return;
         recursionGuard = true;
-        var newStartTime = rangeMover.rangeLeft * zoomControl.traceDuration / width +
-                zoomControl.traceStart;
-        var newEndTime = rangeMover.rangeRight * zoomControl.traceDuration / width +
-                zoomControl.traceStart;
+        var newStartTime = rangeMover.rangeLeft * zoomer.traceDuration / width +
+                zoomer.traceStart;
+        var newEndTime = rangeMover.rangeRight * zoomer.traceDuration / width +
+                zoomer.traceStart;
         if (isFinite(newStartTime) && isFinite(newEndTime) && newEndTime - newStartTime > 500)
-            zoomControl.setRange(newStartTime, newEndTime);
+            zoomer.setRange(newStartTime, newEndTime);
         recursionGuard = false;
     }
 
@@ -79,14 +82,14 @@ Canvas {
 
     // ***** connections to external objects
     Connections {
-        target: zoomControl
+        target: zoomer
         onRangeChanged: {
             if (recursionGuard)
                 return;
             recursionGuard = true;
-            var newRangeX = (zoomControl.rangeStart - zoomControl.traceStart) * width /
-                    zoomControl.traceDuration;
-            var newWidth = zoomControl.rangeDuration * width / zoomControl.traceDuration;
+            var newRangeX = (zoomer.rangeStart - zoomer.traceStart) * width /
+                    zoomer.traceDuration;
+            var newWidth = zoomer.rangeDuration * width / zoomer.traceDuration;
             var widthChanged = Math.abs(newWidth - rangeMover.rangeWidth) > 1;
             var leftChanged = Math.abs(newRangeX - rangeMover.rangeLeft) > 1;
             if (leftChanged)
@@ -99,11 +102,11 @@ Canvas {
     }
 
     Connections {
-        target: qmlProfilerModelProxy
+        target: modelProxy
         onDataAvailable: {
             dataReady = true;
             increment = 0;
-            var models = qmlProfilerModelProxy.models;
+            var models = modelProxy.models;
             for (var i = 0; i < models.length; ++i)
                 increment += models[i].count;
             increment = Math.ceil(increment / eventsPerPass);
@@ -125,9 +128,9 @@ Canvas {
     onPaint: {
         var context = (canvas.context === null) ? getContext("2d") : canvas.context;
 
-        Plotter.models = qmlProfilerModelProxy.models;
-        Plotter.zoomControl = zoomControl;
-        Plotter.notes = qmlProfilerModelProxy.notes;
+        Plotter.models = modelProxy.models;
+        Plotter.zoomControl = zoomer;
+        Plotter.notes = modelProxy.notes;
 
         if (offset < 0) {
             context.reset();

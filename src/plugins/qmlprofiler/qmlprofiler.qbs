@@ -77,6 +77,8 @@ QtcPlugin {
             "SelectionRange.qml",
             "SelectionRangeDetails.qml",
             "TimeDisplay.qml",
+            "TimelineContent.qml",
+            "TimelineLabels.qml",
             "TimeMarks.qml",
 
             "qmlprofiler.qrc",

@@ -36,5 +36,7 @@
         <file>bindingloops.frag</file>
         <file>notes.vert</file>
         <file>notes.frag</file>
+        <file>TimelineLabels.qml</file>
+        <file>TimelineContent.qml</file>
     </qresource>
 </RCC>

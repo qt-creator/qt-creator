@@ -34,6 +34,9 @@ import Monitor 1.0
 Item {
     id: selectionRangeDetails
 
+    signal recenter
+    signal close
+
     property string startTime
     property string endTime
     property string duration
@@ -41,29 +44,35 @@ Item {
 
     width: Math.max(150, col.width + 25)
     height: col.height + 30
-    z: 1
-    visible: false
-    x: 200
-    y: 125
 
     // keep inside view
     Connections {
-        target: root
+        target: selectionRangeDetails.parent
         onWidthChanged: fitInView();
         onHeightChanged: fitInView();
     }
 
+    function detailedPrintTime( t )
+    {
+        if (t <= 0) return "0";
+        if (t<1000) return t+" ns";
+        t = Math.floor(t/1000);
+        if (t<1000) return t+" μs";
+        if (t<1e6) return (t/1000) + " ms";
+        return (t/1e6) + " s";
+    }
+
     function fitInView() {
         // don't reposition if it does not fit
-        if (root.width < width || root.height < height)
+        if (parent.width < width || parent.height < height)
             return;
 
-        if (x + width > root.width)
-            x = root.width - width;
+        if (x + width > parent.width)
+            x = parent.width - width;
         if (x < 0)
             x = 0;
-        if (y + height > root.height)
-            y = root.height - height;
+        if (y + height > parent.height)
+            y = parent.height - height;
         if (y < 0)
             y = 0;
     }
@@ -138,11 +147,11 @@ Item {
             Repeater {
                 model: [
                     qsTr("Start") + ":",
-                    startTime,
+                    detailedPrintTime(startTime),
                     showDuration ? (qsTr("End") + ":") : "",
-                    showDuration ? endTime : "",
+                    showDuration ? detailedPrintTime(endTime) : "",
                     showDuration ? (qsTr("Duration") + ":") : "",
-                    showDuration ? duration : ""
+                    showDuration ? detailedPrintTime(duration) : ""
                 ]
                 Detail {
                     isLabel: index % 2 === 0
@@ -156,17 +165,10 @@ Item {
         anchors.fill: parent
         drag.target: parent
         drag.minimumX: 0
-        drag.maximumX: root.width - parent.width
+        drag.maximumX: selectionRangeDetails.parent.width - width
         drag.minimumY: 0
-        drag.maximumY: root.height - parent.height + 0
-        onClicked: {
-            if ((selectionRange.startTime < zoomControl.rangeStart) ^
-                    (selectionRange.endTime > zoomControl.rangeEnd)) {
-                var center = selectionRange.startTime + selectionRange.duration / 2;
-                var halfDuration = Math.max(selectionRange.duration, zoomControl.rangeDuration / 2);
-                zoomControl.setRange(center - halfDuration, center + halfDuration);
-            }
-        }
+        drag.maximumY: selectionRangeDetails.parent.height - height
+        onClicked: selectionRangeDetails.recenter()
     }
 
     Text {
@@ -179,8 +181,7 @@ Item {
         MouseArea {
             anchors.fill: parent
             anchors.leftMargin: -8
-            onClicked: root.selectionRangeMode = false;
+            onClicked: selectionRangeDetails.close()
         }
     }
-
 }

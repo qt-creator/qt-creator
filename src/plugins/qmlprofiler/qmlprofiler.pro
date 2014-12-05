@@ -96,6 +96,8 @@ DISTFILES += \
     qml/RangeDetails.qml \
     qml/RangeMover.qml \
     qml/TimeDisplay.qml \
+    qml/TimelineContent.qml \
+    qml/TimelineLabels.qml \
     qml/TimeMarks.qml \
     qml/SelectionRange.qml \
     qml/SelectionRangeDetails.qml \
