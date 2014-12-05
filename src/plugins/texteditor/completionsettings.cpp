@@ -35,6 +35,7 @@
 static const char groupPostfix[] = "Completion";
 static const char caseSensitivityKey[] = "CaseSensitivity";
 static const char completionTriggerKey[] = "CompletionTrigger";
+static const char automaticProposalTimeoutKey[] = "AutomaticProposalTimeout";
 static const char autoInsertBracesKey[] = "AutoInsertBraces";
 static const char surroundingAutoBracketsKey[] = "SurroundingAutoBrackets";
 static const char partiallyCompleteKey[] = "PartiallyComplete";
@@ -46,6 +47,7 @@ using namespace TextEditor;
 CompletionSettings::CompletionSettings()
     : m_caseSensitivity(CaseInsensitive)
     , m_completionTrigger(AutomaticCompletion)
+    , m_automaticProposalTimeoutInMs(400)
     , m_autoInsertBrackets(true)
     , m_surroundingAutoBrackets(true)
     , m_partiallyComplete(true)
@@ -63,6 +65,7 @@ void CompletionSettings::toSettings(const QString &category, QSettings *s) const
     s->beginGroup(group);
     s->setValue(QLatin1String(caseSensitivityKey), (int) m_caseSensitivity);
     s->setValue(QLatin1String(completionTriggerKey), (int) m_completionTrigger);
+    s->setValue(QLatin1String(automaticProposalTimeoutKey), m_automaticProposalTimeoutInMs);
     s->setValue(QLatin1String(autoInsertBracesKey), m_autoInsertBrackets);
     s->setValue(QLatin1String(surroundingAutoBracketsKey), m_surroundingAutoBrackets);
     s->setValue(QLatin1String(partiallyCompleteKey), m_partiallyComplete);
@@ -82,6 +85,7 @@ void CompletionSettings::fromSettings(const QString &category, const QSettings *
 
     m_caseSensitivity = (CaseSensitivity) s->value(group + QLatin1String(caseSensitivityKey), m_caseSensitivity).toInt();
     m_completionTrigger = (CompletionTrigger) s->value(group + QLatin1String(completionTriggerKey), m_completionTrigger).toInt();
+    m_automaticProposalTimeoutInMs = s->value(group + QLatin1String(automaticProposalTimeoutKey), m_automaticProposalTimeoutInMs).toInt();
     m_autoInsertBrackets = s->value(group + QLatin1String(autoInsertBracesKey), m_autoInsertBrackets).toBool();
     m_surroundingAutoBrackets = s->value(group + QLatin1String(surroundingAutoBracketsKey), m_surroundingAutoBrackets).toBool();
     m_partiallyComplete = s->value(group + QLatin1String(partiallyCompleteKey), m_partiallyComplete).toBool();
@@ -93,6 +97,7 @@ bool CompletionSettings::equals(const CompletionSettings &cs) const
 {
     return m_caseSensitivity == cs.m_caseSensitivity
         && m_completionTrigger == cs.m_completionTrigger
+        && m_automaticProposalTimeoutInMs == cs.m_automaticProposalTimeoutInMs
         && m_autoInsertBrackets == cs.m_autoInsertBrackets
         && m_surroundingAutoBrackets == cs.m_surroundingAutoBrackets
         && m_partiallyComplete == cs.m_partiallyComplete

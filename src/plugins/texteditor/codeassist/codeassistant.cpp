@@ -82,7 +82,7 @@ public:
     void startAutomaticProposalTimer();
     void automaticProposalTimeout();
     void clearAbortedPosition();
-    void updateCompletionSettings(const TextEditor::CompletionSettings &settings);
+    void updateFromCompletionSettings(const TextEditor::CompletionSettings &settings);
 
     virtual bool eventFilter(QObject *o, QEvent *e);
 
@@ -115,8 +115,6 @@ private:
 // --------------------
 const QChar CodeAssistantPrivate::m_null;
 
-static const int AutomaticProposalTimerInterval = 400;
-
 CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
     : q(assistant)
     , m_editorWidget(0)
@@ -125,17 +123,14 @@ CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
     , m_assistKind(TextEditor::Completion)
     , m_proposalWidget(0)
     , m_receivedContentWhileWaiting(false)
-    , m_settings(TextEditorSettings::completionSettings())
     , m_abortedBasePosition(-1)
 {
     m_automaticProposalTimer.setSingleShot(true);
-    m_automaticProposalTimer.setInterval(AutomaticProposalTimerInterval);
-
     connect(&m_automaticProposalTimer, &QTimer::timeout,
             this, &CodeAssistantPrivate::automaticProposalTimeout);
 
     connect(TextEditorSettings::instance(), &TextEditorSettings::completionSettingsChanged,
-            this, &CodeAssistantPrivate::updateCompletionSettings);
+            this, &CodeAssistantPrivate::updateFromCompletionSettings);
 
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
             this, &CodeAssistantPrivate::clearAbortedPosition);
@@ -456,9 +451,11 @@ void CodeAssistantPrivate::stopAutomaticProposalTimer()
         m_automaticProposalTimer.stop();
 }
 
-void CodeAssistantPrivate::updateCompletionSettings(const TextEditor::CompletionSettings &settings)
+void CodeAssistantPrivate::updateFromCompletionSettings(
+        const TextEditor::CompletionSettings &settings)
 {
     m_settings = settings;
+    m_automaticProposalTimer.setInterval(m_settings.m_automaticProposalTimeoutInMs);
 }
 
 void CodeAssistantPrivate::explicitlyAborted()
@@ -518,6 +515,11 @@ CodeAssistant::~CodeAssistant()
 void CodeAssistant::configure(TextEditorWidget *editorWidget)
 {
     d->configure(editorWidget);
+}
+
+void CodeAssistant::updateFromCompletionSettings(const CompletionSettings &settings)
+{
+    d->updateFromCompletionSettings(settings);
 }
 
 void CodeAssistant::process()

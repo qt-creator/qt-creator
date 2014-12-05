@@ -17,10 +17,10 @@
       <string>Behavior</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="4" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout">
+      <item row="5" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <spacer name="horizontalSpacer_2">
+         <spacer name="horizontalSpacer_4">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -36,52 +36,16 @@
          </spacer>
         </item>
         <item>
-         <widget class="QCheckBox" name="surroundSelectedText">
-          <property name="toolTip">
-           <string>When typing a matching character and there is a text selection, instead of removing the selection, surrounds it with the corresponding characters.</string>
+         <widget class="QCheckBox" name="spaceAfterFunctionName">
+          <property name="enabled">
+           <bool>true</bool>
           </property>
           <property name="text">
-           <string>Surround &amp;text selections</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
+           <string>Insert &amp;space after function name</string>
           </property>
          </widget>
         </item>
        </layout>
-      </item>
-      <item row="0" column="2" colspan="2">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>70</width>
-          <height>24</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="completionTriggerLabel">
-        <property name="text">
-         <string>Activate completion:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3">
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>24</height>
-         </size>
-        </property>
-       </spacer>
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="caseSensitivityLabel">
@@ -118,6 +82,39 @@
         </item>
        </widget>
       </item>
+      <item row="4" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>30</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="surroundSelectedText">
+          <property name="toolTip">
+           <string>When typing a matching character and there is a text selection, instead of removing the selection, surrounds it with the corresponding characters.</string>
+          </property>
+          <property name="text">
+           <string>Surround &amp;text selections</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
       <item row="6" column="0">
        <widget class="QCheckBox" name="autoSplitStrings">
         <property name="toolTip">
@@ -129,6 +126,32 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
          <string>Automatically split strings</string>
         </property>
        </widget>
+      </item>
+      <item row="1" column="5">
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>24</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="2" colspan="4">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>70</width>
+          <height>24</height>
+         </size>
+        </property>
+       </spacer>
       </item>
       <item row="1" column="1" colspan="2">
        <widget class="QComboBox" name="completionTrigger">
@@ -149,6 +172,13 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         </item>
        </widget>
       </item>
+      <item row="1" column="3">
+       <widget class="QLabel" name="automaticProposalTimeoutLabel">
+        <property name="text">
+         <string>Timeout in ms:</string>
+        </property>
+       </widget>
+      </item>
       <item row="2" column="0">
        <widget class="QCheckBox" name="partiallyComplete">
         <property name="toolTip">
@@ -159,6 +189,13 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         </property>
         <property name="checked">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="completionTriggerLabel">
+        <property name="text">
+         <string>Activate completion:</string>
         </property>
        </widget>
       </item>
@@ -175,35 +212,18 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <spacer name="horizontalSpacer_4">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Fixed</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>30</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="spaceAfterFunctionName">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>Insert &amp;space after function name</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+      <item row="1" column="4">
+       <widget class="QSpinBox" name="automaticProposalTimeoutSpinBox">
+        <property name="maximum">
+         <number>500</number>
+        </property>
+        <property name="singleStep">
+         <number>50</number>
+        </property>
+        <property name="value">
+         <number>400</number>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

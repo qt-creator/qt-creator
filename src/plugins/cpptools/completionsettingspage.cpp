@@ -64,6 +64,10 @@ QWidget *CompletionSettingsPage::widget()
         m_page = new Ui::CompletionSettingsPage;
         m_page->setupUi(m_widget);
 
+        connect(m_page->completionTrigger,
+                static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                this, &CompletionSettingsPage::onCompletionTriggerChanged);
+
         const TextEditor::CompletionSettings &settings =
                 TextEditor::TextEditorSettings::completionSettings();
 
@@ -95,6 +99,7 @@ QWidget *CompletionSettingsPage::widget()
 
         m_page->caseSensitivity->setCurrentIndex(caseSensitivityIndex);
         m_page->completionTrigger->setCurrentIndex(completionTriggerIndex);
+        m_page->automaticProposalTimeoutSpinBox->setValue(settings.m_automaticProposalTimeoutInMs);
         m_page->autoInsertBrackets->setChecked(settings.m_autoInsertBrackets);
         m_page->surroundSelectedText->setChecked(settings.m_surroundingAutoBrackets);
         m_page->partiallyComplete->setChecked(settings.m_partiallyComplete);
@@ -115,6 +120,7 @@ void CompletionSettingsPage::apply()
     TextEditor::CompletionSettings settings;
     settings.m_caseSensitivity = caseSensitivity();
     settings.m_completionTrigger = completionTrigger();
+    settings.m_automaticProposalTimeoutInMs = m_page->automaticProposalTimeoutSpinBox->value();
     settings.m_autoInsertBrackets = m_page->autoInsertBrackets->isChecked();
     settings.m_surroundingAutoBrackets = m_page->surroundSelectedText->isChecked();
     settings.m_partiallyComplete = m_page->partiallyComplete->isChecked();
@@ -156,6 +162,13 @@ TextEditor::CompletionTrigger CompletionSettingsPage::completionTrigger() const
     default:
         return TextEditor::AutomaticCompletion;
     }
+}
+
+void CompletionSettingsPage::onCompletionTriggerChanged()
+{
+    const bool enableTimeoutWidgets = completionTrigger() == TextEditor::AutomaticCompletion;
+    m_page->automaticProposalTimeoutLabel->setEnabled(enableTimeoutWidgets);
+    m_page->automaticProposalTimeoutSpinBox->setEnabled(enableTimeoutWidgets);
 }
 
 void CompletionSettingsPage::finish()

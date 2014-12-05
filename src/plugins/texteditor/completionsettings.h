@@ -66,6 +66,7 @@ public:
 
     CaseSensitivity m_caseSensitivity;
     CompletionTrigger m_completionTrigger;
+    int m_automaticProposalTimeoutInMs;
     bool m_autoInsertBrackets;
     bool m_surroundingAutoBrackets;
     bool m_partiallyComplete;

@@ -66,6 +66,8 @@ private:
     TextEditor::CaseSensitivity caseSensitivity() const;
     TextEditor::CompletionTrigger completionTrigger() const;
 
+    void onCompletionTriggerChanged();
+
     bool requireCommentsSettingsUpdate() const;
 
     Ui::CompletionSettingsPage *m_page;

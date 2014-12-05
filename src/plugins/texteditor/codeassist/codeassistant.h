@@ -40,6 +40,7 @@
 namespace TextEditor {
 
 class CodeAssistantPrivate;
+class CompletionSettings;
 class IAssistProvider;
 class TextEditorWidget;
 
@@ -52,6 +53,7 @@ public:
     ~CodeAssistant();
 
     void configure(TextEditorWidget *editorWidget);
+    void updateFromCompletionSettings(const TextEditor::CompletionSettings &settings);
 
     void process();
     void notifyChange();

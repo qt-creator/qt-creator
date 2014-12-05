@@ -6210,6 +6210,7 @@ void TextEditorWidget::setCompletionSettings(const CompletionSettings &completio
     d->m_autoCompleter->setAutoParenthesesEnabled(completionSettings.m_autoInsertBrackets);
     d->m_autoCompleter->setSurroundWithEnabled(completionSettings.m_autoInsertBrackets
                                                && completionSettings.m_surroundingAutoBrackets);
+    d->m_codeAssistant.updateFromCompletionSettings(completionSettings);
 }
 
 void TextEditorWidget::setExtraEncodingSettings(const ExtraEncodingSettings &extraEncodingSettings)
