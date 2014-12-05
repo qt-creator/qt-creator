@@ -276,7 +276,7 @@ CMakeEditorFactory::CMakeEditorFactory(CMakeSettingsPage *settingsPage)
     setEditorCreator([]() { return new CMakeEditor; });
     setEditorWidgetCreator([]() { return new CMakeEditorWidget; });
     setDocumentCreator([]() { return new CMakeDocument; });
-    setGenericSyntaxHighlighter(QLatin1String(Constants::CMAKEMIMETYPE));
+    setGenericSyntaxHighlighterByName(QLatin1String("CMake"));
     setCommentStyle(Utils::CommentDefinition::HashStyle);
     setCodeFoldingSupported(true);
 

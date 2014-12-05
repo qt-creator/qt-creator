@@ -667,6 +667,7 @@ public:
     void setIndenterCreator(const IndenterCreator &creator);
     void setSyntaxHighlighterCreator(const SyntaxHighLighterCreator &creator);
     void setGenericSyntaxHighlighter(const QString &mimeType);
+    void setGenericSyntaxHighlighterByName(const QString &name);
     void setAutoCompleterCreator(const AutoCompleterCreator &creator);
 
     void setEditorActionHandlers(Core::Id contextId, uint optionalActions);
