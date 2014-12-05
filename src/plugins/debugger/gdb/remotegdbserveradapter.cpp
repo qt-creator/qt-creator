@@ -59,7 +59,7 @@ namespace Internal {
 ///////////////////////////////////////////////////////////////////////
 
 GdbRemoteServerEngine::GdbRemoteServerEngine(const DebuggerStartParameters &startParameters)
-    : GdbEngine(startParameters)
+    : GdbEngine(startParameters), m_startAttempted(false)
 {
     if (Utils::HostOsInfo::isWindowsHost())
         m_gdbProc->setUseCtrlCStub(startParameters.useCtrlCStub); // This is only set for QNX/BlackBerry
@@ -483,7 +483,7 @@ void GdbRemoteServerEngine::notifyEngineRemoteServerRunning
 void GdbRemoteServerEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    DebuggerEngine::notifyEngineRemoteSetupFinished(result);
+    GdbEngine::notifyEngineRemoteSetupFinished(result);
 
     if (result.success) {
         if (!m_startAttempted)
