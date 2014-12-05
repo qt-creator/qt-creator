@@ -370,6 +370,7 @@ void TestResultsPane::onTestRunFinished()
     m_runSelected->setEnabled(true);
     updateSummaryLabel();
     m_summaryWidget->setVisible(true);
+    m_model->removeCurrentTestMessage();
 }
 
 void TestResultsPane::onTestTreeModelChanged()

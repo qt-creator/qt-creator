@@ -228,6 +228,10 @@ void processOutput()
             result = ResultType::UNKNOWN;
             lineNumber = 0;
             readingDescription = false;
+            TestResultsPane::instance()->addTestResult(
+                        TestResult(className, testCase, QString(), ResultType::MESSAGE_CURRENT_TEST,
+                                   QObject::tr("Entering Test Function %1::%2")
+                                   .arg(className).arg(testCase)));
             continue;
         }
         if (xmlStartsWith(line, QLatin1String("<Duration msecs=\""), duration)) {

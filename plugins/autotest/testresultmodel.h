@@ -43,6 +43,7 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
 
     void addTestResult(const TestResult &testResult);
+    void removeCurrentTestMessage();
     void clearTestResults();
 
     bool hasResults() const { return m_testResults.size() > 0; }

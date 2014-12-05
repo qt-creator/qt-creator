@@ -38,6 +38,7 @@ enum ResultType {
     MESSAGE_WARN,
     MESSAGE_FATAL,
     MESSAGE_INTERNAL,
+    MESSAGE_CURRENT_TEST,
     UNKNOWN             // ???
 };
 

@@ -115,16 +115,46 @@ QVariant TestResultModel::data(const QModelIndex &index, int role) const
 
 void TestResultModel::addTestResult(const TestResult &testResult)
 {
+    const bool isCurrentTestMssg = testResult.result() == ResultType::MESSAGE_CURRENT_TEST;
+    const bool hasCurrentTestMssg = m_availableResultTypes.contains(ResultType::MESSAGE_CURRENT_TEST);
+
     QReadLocker rLock(&m_rwLock);
-    beginInsertRows(QModelIndex(), m_testResults.size(), m_testResults.size());
+    int position = m_testResults.size();
     rLock.unlock();
+
     QWriteLocker wLock(&m_rwLock);
-    m_testResults.append(testResult);
+    if (hasCurrentTestMssg && isCurrentTestMssg) {
+        beginRemoveRows(QModelIndex(), position, position);
+        m_testResults.replace(position - 1, testResult);
+        endRemoveRows();
+    } else {
+        if (!isCurrentTestMssg && position) // decrement only if at least one other item
+            --position;
+        beginInsertRows(QModelIndex(), position, position);
+        m_testResults.insert(position, testResult);
+        endInsertRows();
+    }
     wLock.unlock();
-    int count = m_testResultCount.value(testResult.result(), 0);
-    m_testResultCount.insert(testResult.result(), ++count);
-    endInsertRows();
+
+    if (!isCurrentTestMssg) {
+        int count = m_testResultCount.value(testResult.result(), 0);
+        m_testResultCount.insert(testResult.result(), ++count);
+    }
+
     m_availableResultTypes.insert(testResult.result());
+}
+
+void TestResultModel::removeCurrentTestMessage()
+{
+    QReadLocker rLock(&m_rwLock);
+    if (m_availableResultTypes.contains(ResultType::MESSAGE_CURRENT_TEST)) {
+        rLock.unlock();
+        QWriteLocker wLock(&m_rwLock);
+        beginRemoveRows(QModelIndex(), m_testResults.size() - 1, m_testResults.size() - 1);
+        m_testResults.removeLast();
+        endRemoveRows();
+        m_availableResultTypes.remove(ResultType::MESSAGE_CURRENT_TEST);
+    }
 }
 
 void TestResultModel::clearTestResults()
@@ -211,7 +241,8 @@ void TestResultFilterModel::enableAllResultTypes()
               << ResultType::UNEXPECTED_PASS << ResultType::SKIP << ResultType::MESSAGE_DEBUG
               << ResultType::MESSAGE_WARN << ResultType::MESSAGE_INTERNAL
               << ResultType::MESSAGE_FATAL << ResultType::UNKNOWN << ResultType::BLACKLISTED_PASS
-              << ResultType::BLACKLISTED_FAIL << ResultType::BENCHMARK;
+              << ResultType::BLACKLISTED_FAIL << ResultType::BENCHMARK
+              << ResultType::MESSAGE_CURRENT_TEST;
     invalidateFilter();
 }
 

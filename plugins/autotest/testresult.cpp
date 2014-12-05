@@ -86,6 +86,8 @@ ResultType TestResult::toResultType(int rt)
         return MESSAGE_FATAL;
     case MESSAGE_INTERNAL:
         return MESSAGE_INTERNAL;
+    case MESSAGE_CURRENT_TEST:
+        return MESSAGE_CURRENT_TEST;
     default:
         return UNKNOWN;
     }
@@ -113,6 +115,7 @@ QString TestResult::resultToString(const ResultType type)
     case MESSAGE_FATAL:
         return QLatin1String("FATAL");
     case MESSAGE_INTERNAL:
+    case MESSAGE_CURRENT_TEST:
         return QString();
     case BLACKLISTED_PASS:
         return QLatin1String("BPASS");
@@ -147,6 +150,7 @@ QColor TestResult::colorForType(const ResultType type)
     case MESSAGE_FATAL:
         return QColor("#640000");
     case MESSAGE_INTERNAL:
+    case MESSAGE_CURRENT_TEST:
         return QColor("transparent");
     default:
         return QColor("#000000");
