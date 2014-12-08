@@ -469,4 +469,28 @@
     For a list of useful \QC features described in other parts of the
     documentation, see \l{Tips and Tricks}.
 
+    \section1 Platform Notes
+
+    \QC uses standard names and locations for standard features, such as
+    \e options or \e preferences. In this manual, the names and locations on
+    Windows and Linux are usually used to keep the instructions short. Here are
+    some places to check if you cannot find a function, dialog, or keyboard
+    shortcut on OS X when following the instructions:
+
+    \table
+        \header
+            \li For
+            \li Look In
+        \row
+            \li \gui Tools > \gui Options
+            \li \gui {Qt Creator} > \gui Preferences
+        \row
+            \li \gui Help > \gui {About Plugins}
+            \li \gui {Qt Creator} > \gui {About Plugins}
+        \row
+            \li Keyboard shortcuts
+            \li \gui {Qt Creator} > \gui Preferences > \gui Environment >
+                \gui Keyboard
+    \endtable
+
 */

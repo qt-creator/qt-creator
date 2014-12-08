@@ -64,8 +64,9 @@
             and click \gui Next or \gui Continue.
 
             \note If only one kit is specified in \gui Tools > \gui Options >
-            \gui {Build & Run} > \gui Kits, this dialog is
-            skipped.
+            \gui {Build & Run} > \gui Kits (on Windows and Linux) or in
+            \gui {Qt Creator} > \gui Preferences \gui {Build & Run} > \gui Kits
+            (on OS X), this dialog is skipped.
 
             The \gui{Class Information} dialog opens.
 
