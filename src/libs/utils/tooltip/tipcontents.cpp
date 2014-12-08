@@ -39,146 +39,51 @@
 namespace Utils {
 
 TipContent::TipContent()
-{}
-
-TipContent::~TipContent()
-{}
-
-ColorContent::ColorContent(const QColor &color) : m_color(color)
-{}
-
-ColorContent::~ColorContent()
-{}
-
-TipContent *ColorContent::clone() const
-{
-    return new ColorContent(*this);
-}
-
-int ColorContent::typeId() const
-{
-    return COLOR_CONTENT_ID;
-}
-
-bool ColorContent::isValid() const
-{
-    return m_color.isValid();
-}
-
-bool ColorContent::isInteractive() const
-{
-    return false;
-}
-
-int ColorContent::showTime() const
-{
-    return 4000;
-}
-
-bool ColorContent::equals(const TipContent &tipContent) const
-{
-    if (typeId() == tipContent.typeId()) {
-        if (m_color == static_cast<const ColorContent &>(tipContent).m_color)
-            return true;
-    }
-    return false;
-}
-
-const QColor &ColorContent::color() const
-{
-    return m_color;
-}
-
-TextContent::TextContent(const QString &text) : m_text(text)
-{}
-
-TextContent::~TextContent()
-{}
-
-TipContent *TextContent::clone() const
-{
-    return new TextContent(*this);
-}
-
-int TextContent::typeId() const
-{
-    return TEXT_CONTENT_ID;
-}
-
-bool TextContent::isValid() const
-{
-    return !m_text.isEmpty();
-}
-
-bool TextContent::isInteractive() const
-{
-    return false;
-}
-
-int TextContent::showTime() const
-{
-    return 10000 + 40 * qMax(0, m_text.length() - 100);
-}
-
-bool TextContent::equals(const TipContent &tipContent) const
-{
-    if (typeId() == tipContent.typeId()) {
-        if (m_text == static_cast<const TextContent &>(tipContent).m_text)
-            return true;
-    }
-    return false;
-}
-
-const QString &TextContent::text() const
-{
-    return m_text;
-}
-
-WidgetContent::WidgetContent(QWidget *w, bool interactive) :
-    m_widget(w), m_interactive(interactive)
+    : m_typeId(0), m_widget(0), m_interactive(false)
 {
 }
 
-TipContent *WidgetContent::clone() const
+TipContent::TipContent(const QString &text)
+    : m_typeId(TEXT_CONTENT_ID), m_text(text), m_widget(0), m_interactive(false)
 {
-    return new WidgetContent(m_widget, m_interactive);
 }
 
-int WidgetContent::typeId() const
+TipContent::TipContent(const QColor &color)
+    : m_typeId(COLOR_CONTENT_ID), m_color(color), m_widget(0), m_interactive(false)
 {
-    return WIDGET_CONTENT_ID;
 }
 
-bool WidgetContent::isValid() const
+TipContent::TipContent(QWidget *w, bool interactive)
+    : m_typeId(WIDGET_CONTENT_ID), m_widget(w), m_interactive(interactive)
 {
+}
+
+bool TipContent::isValid() const
+{
+    if (m_typeId == TEXT_CONTENT_ID)
+        return !m_text.isEmpty();
+    if (m_typeId == COLOR_CONTENT_ID)
+        return m_color.isValid();
     return m_widget;
 }
 
-bool WidgetContent::isInteractive() const
+int TipContent::showTime() const
 {
-    return m_interactive;
-}
-
-void WidgetContent::setInteractive(bool i)
-{
-    m_interactive = i;
-}
-
-int WidgetContent::showTime() const
-{
+    if (m_typeId == TEXT_CONTENT_ID)
+        return 10000 + 40 * qMax(0, m_text.length() - 100);
+    if (m_typeId == COLOR_CONTENT_ID)
+        return 4000;
     return 30000;
 }
 
-bool WidgetContent::equals(const TipContent &tipContent) const
+bool TipContent::equals(const TipContent &other) const
 {
-    if (typeId() == tipContent.typeId()) {
-        if (m_widget == static_cast<const WidgetContent &>(tipContent).m_widget)
-            return true;
-    }
-    return false;
+    return m_typeId == other.m_typeId
+            && m_text == other.m_text
+            && m_widget == other.m_widget;
 }
 
-bool WidgetContent::pinToolTip(QWidget *w, QWidget *parent)
+bool TipContent::pinToolTip(QWidget *w, QWidget *parent)
 {
     QTC_ASSERT(w, return false);
     // Find the parent WidgetTip, tell it to pin/release the

@@ -42,7 +42,6 @@
 #include <projectexplorer/session.h>
 #include <texteditor/texteditor.h>
 #include <utils/tooltip/tooltip.h>
-#include <utils/tooltip/tipcontents.h>
 #include <utils/qtcassert.h>
 #include <utils/checkablemessagebox.h>
 
@@ -834,7 +833,7 @@ void BookmarkManager::operateTooltip(QWidget *widget, const QPoint &pos, Bookmar
     if (mark->note().isEmpty())
         ToolTip::hide();
     else
-        ToolTip::show(pos, TextContent(mark->note()), widget);
+        ToolTip::show(pos, mark->note(), widget);
 }
 
 /* Loads the bookmarks from the session settings. */

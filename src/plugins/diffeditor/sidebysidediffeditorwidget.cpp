@@ -61,7 +61,6 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <utils/tooltip/tipcontents.h>
 #include <utils/tooltip/tooltip.h>
 
 //static const int FILE_LEVEL = 1;
@@ -298,7 +297,7 @@ SideDiffEditorWidget::SideDiffEditorWidget(QWidget *parent)
         int block = document()->findBlock(position).blockNumber();
         auto it = m_fileInfo.constFind(block);
         if (it != m_fileInfo.constEnd())
-            ToolTip::show(point, TextContent(it.value().fileName), this);
+            ToolTip::show(point, it.value().fileName, this);
         else
             ToolTip::hide();
     });

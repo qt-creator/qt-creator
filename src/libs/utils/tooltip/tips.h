@@ -31,13 +31,13 @@
 #ifndef TIPS_H
 #define TIPS_H
 
+#include "tipcontents.h"
+
 #include <QSharedPointer>
 #include <QLabel>
 #include <QPixmap>
 
 QT_FORWARD_DECLARE_CLASS(QVBoxLayout)
-
-namespace Utils { class TipContent; }
 
 #ifndef Q_MOC_RUN
 namespace Utils {
@@ -55,7 +55,7 @@ public:
     virtual ~QTipLabel();
 
     void setContent(const TipContent &content);
-    const TipContent &content() const;
+    const TipContent &content() const { return m_tipContent; }
 
     virtual void configure(const QPoint &pos, QWidget *w) = 0;
     virtual bool canHandleContentReplacement(const TipContent &content) const = 0;
@@ -63,7 +63,22 @@ public:
     bool isInteractive() const;
 
 private:
-    TipContent *m_tipContent;
+    TipContent m_tipContent;
+};
+
+class TextTip : public QTipLabel
+{
+    Q_OBJECT
+public:
+    TextTip(QWidget *parent);
+    virtual ~TextTip();
+
+    virtual void configure(const QPoint &pos, QWidget *w);
+    virtual bool canHandleContentReplacement(const TipContent &content) const;
+
+private:
+    virtual void paintEvent(QPaintEvent *event);
+    virtual void resizeEvent(QResizeEvent *event);
 };
 
 class ColorTip : public QTipLabel
@@ -80,21 +95,6 @@ private:
     virtual void paintEvent(QPaintEvent *event);
 
     QPixmap m_tilePixMap;
-};
-
-class TextTip : public QTipLabel
-{
-    Q_OBJECT
-public:
-    TextTip(QWidget *parent);
-    virtual ~TextTip();
-
-    virtual void configure(const QPoint &pos, QWidget *w);
-    virtual bool canHandleContentReplacement(const TipContent &content) const;
-
-private:
-    virtual void paintEvent(QPaintEvent *event);
-    virtual void resizeEvent(QResizeEvent *event);
 };
 
 class WidgetTip : public QTipLabel

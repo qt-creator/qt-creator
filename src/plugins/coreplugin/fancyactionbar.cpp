@@ -35,7 +35,6 @@
 #include <utils/stylehelper.h>
 #include <utils/stringutils.h>
 #include <utils/tooltip/tooltip.h>
-#include <utils/tooltip/tipcontents.h>
 #include <utils/theme/theme.h>
 
 #include <QPainter>
@@ -82,7 +81,7 @@ bool FancyToolButton::event(QEvent *e)
     case QEvent::ToolTip:
         {
             QHelpEvent *he = static_cast<QHelpEvent *>(e);
-            ToolTip::show(mapToGlobal(he->pos()), TextContent(toolTip()), this);
+            ToolTip::show(mapToGlobal(he->pos()), toolTip(), this);
             return true;
         }
     default:

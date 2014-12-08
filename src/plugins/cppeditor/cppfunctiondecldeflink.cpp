@@ -46,7 +46,6 @@
 
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
-#include <utils/tooltip/tipcontents.h>
 #include <utils/tooltip/tooltip.h>
 
 #include <QtConcurrentRun>
@@ -310,7 +309,7 @@ void FunctionDeclDefLink::apply(CppEditorWidget *editor, bool jumpToMatch)
         newTargetFile->apply();
     } else {
         ToolTip::show(editor->toolTipPosition(linkSelection),
-                     TextContent(tr("Target file was changed, could not apply changes")));
+                     tr("Target file was changed, could not apply changes"));
     }
 }
 

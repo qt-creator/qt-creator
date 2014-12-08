@@ -49,7 +49,6 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/helpitem.h>
 #include <utils/tooltip/tooltip.h>
-#include <utils/tooltip/tipcontents.h>
 
 #include <QDir>
 #include <QList>
@@ -373,9 +372,9 @@ void QmlJSHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPo
     if (toolTip().isEmpty())
         Utils::ToolTip::hide();
     else if (m_colorTip.isValid())
-        Utils::ToolTip::show(point, Utils::ColorContent(m_colorTip), editorWidget);
+        Utils::ToolTip::show(point, m_colorTip, editorWidget);
     else
-        Utils::ToolTip::show(point, Utils::TextContent(toolTip()), editorWidget);
+        Utils::ToolTip::show(point, toolTip(), editorWidget);
 }
 
 void QmlJSHoverHandler::prettyPrintTooltip(const QmlJS::Value *value,

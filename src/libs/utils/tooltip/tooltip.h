@@ -71,19 +71,16 @@ public:
 
     static ToolTip *instance();
 
-    static void show(const QPoint &pos, const TipContent &content, QWidget *w = 0);
-    static void show(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect);
+    static void show(const QPoint &pos, const QString &content, QWidget *w = 0, const QRect &rect = QRect());
+    static void show(const QPoint &pos, const QColor &color, QWidget *w = 0, const QRect &rect = QRect());
+    static void show(const QPoint &pos, QWidget *content, QWidget *w = 0, const QRect &rect = QRect());
     static void move(const QPoint &pos, QWidget *w);
     static void hide();
     static bool isVisible();
 
-protected slots:
-    void hideTipImmediately();
-
-protected:
-    void showInternal(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect);
-
 private:
+    void showInternal(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect);
+    void hideTipImmediately();
     bool acceptShow(const TipContent &content, const QPoint &pos, QWidget *w, const QRect &rect);
     bool validateContent(const TipContent &content);
     void setUp(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect);

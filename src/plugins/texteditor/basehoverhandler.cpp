@@ -33,7 +33,6 @@
 
 #include <coreplugin/icore.h>
 #include <utils/tooltip/tooltip.h>
-#include <utils/tooltip/tipcontents.h>
 
 #include <QPoint>
 
@@ -144,7 +143,7 @@ void BaseHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoi
     if (m_toolTip.isEmpty())
         Utils::ToolTip::hide();
     else
-        Utils::ToolTip::show(point, Utils::TextContent(m_toolTip), editorWidget);
+        Utils::ToolTip::show(point, m_toolTip, editorWidget);
 }
 
 } // namespace TextEditor

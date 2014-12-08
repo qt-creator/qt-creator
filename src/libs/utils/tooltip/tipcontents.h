@@ -41,86 +41,37 @@ namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT TipContent
 {
-protected:
+public:
     TipContent();
+    explicit TipContent(const QString &text);
+    explicit TipContent(const QColor &color);
+    explicit TipContent(QWidget *w, bool interactive);
 
-public:
-    virtual ~TipContent();
+    int typeId() const { return m_typeId; }
+    bool isValid() const;
+    bool isInteractive() const { return m_interactive; }
+    int showTime() const;
+    bool equals(const TipContent &other) const;
 
-    virtual TipContent *clone() const = 0;
-    virtual int typeId() const = 0;
-    virtual bool isValid() const = 0;
-    virtual bool isInteractive() const = 0;
-    virtual int showTime() const = 0;
-    virtual bool equals(const TipContent &tipContent) const = 0;
-};
+    const QString &text() const { return m_text; }
+    const QColor &color() const { return m_color; }
+    QWidget *widget() const { return m_widget; }
 
-class QTCREATOR_UTILS_EXPORT ColorContent : public TipContent
-{
-public:
-    ColorContent(const QColor &color);
-    virtual ~ColorContent();
+    enum {
+        COLOR_CONTENT_ID = 0,
+        TEXT_CONTENT_ID = 1,
+        WIDGET_CONTENT_ID = 42
+    };
 
-    virtual TipContent *clone() const;
-    virtual int typeId() const;
-    virtual bool isValid() const;
-    virtual bool isInteractive() const;
-    virtual int showTime() const;
-    virtual bool equals(const TipContent &tipContent) const;
-
-    const QColor &color() const;
-
-    static const int COLOR_CONTENT_ID = 0;
-
-private:
-    QColor m_color;
-};
-
-class QTCREATOR_UTILS_EXPORT TextContent : public TipContent
-{
-public:
-    TextContent(const QString &text);
-    virtual ~TextContent();
-
-    virtual TipContent *clone() const;
-    virtual int typeId() const;
-    virtual bool isValid() const;
-    virtual bool isInteractive() const;
-    virtual int showTime() const;
-    virtual bool equals(const TipContent &tipContent) const;
-
-    const QString &text() const;
-
-    static const int TEXT_CONTENT_ID = 1;
-
-private:
-    QString m_text;
-};
-
-// A content for displaying any widget (with a layout).
-class QTCREATOR_UTILS_EXPORT WidgetContent : public TipContent
-{
-public:
-    explicit WidgetContent(QWidget *w, bool interactive = false);
-
-    virtual TipContent *clone() const;
-    virtual int typeId() const;
-    virtual bool isValid() const;
-    virtual int showTime() const;
-    virtual bool isInteractive() const;
-    void setInteractive(bool i);
-
-    virtual bool equals(const TipContent &tipContent) const;
-
+    void setInteractive(bool i) { m_interactive = i; }
     // Helper to 'pin' (show as real window) a tooltip shown
     // using WidgetContent
     static bool pinToolTip(QWidget *w, QWidget *parent);
 
-    static const int WIDGET_CONTENT_ID = 42;
-
-    QWidget *widget() const { return m_widget; }
-
 private:
+    int m_typeId;
+    QString m_text;
+    QColor m_color;
     QWidget *m_widget;
     bool m_interactive;
 };

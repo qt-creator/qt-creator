@@ -51,8 +51,8 @@ using namespace Internal;
 
 ToolTip::ToolTip() : m_tip(0), m_widget(0)
 {
-    connect(&m_showTimer, SIGNAL(timeout()), this, SLOT(hideTipImmediately()));
-    connect(&m_hideDelayTimer, SIGNAL(timeout()), this, SLOT(hideTipImmediately()));
+    connect(&m_showTimer, &QTimer::timeout, this, &ToolTip::hideTipImmediately);
+    connect(&m_hideDelayTimer, &QTimer::timeout, this, &ToolTip::hideTipImmediately);
 }
 
 ToolTip::~ToolTip()
@@ -66,20 +66,25 @@ ToolTip *ToolTip::instance()
     return &tooltip;
 }
 
-void ToolTip::show(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect)
+void ToolTip::show(const QPoint &pos, const QString &content, QWidget *w, const QRect &rect)
 {
-    instance()->showInternal(pos, content, w, rect);
+    instance()->showInternal(pos, TipContent(content), w, rect);
+}
+
+void ToolTip::show(const QPoint &pos, const QColor &color, QWidget *w, const QRect &rect)
+{
+    instance()->showInternal(pos, TipContent(color), w, rect);
+}
+
+void ToolTip::show(const QPoint &pos, QWidget *content, QWidget *w, const QRect &rect)
+{
+    instance()->showInternal(pos, TipContent(content, true), w, rect);
 }
 
 void ToolTip::move(const QPoint &pos, QWidget *w)
 {
     if (isVisible())
         instance()->placeTip(pos, w);
-}
-
-void ToolTip::show(const QPoint &pos, const TipContent &content, QWidget *w)
-{
-    show(pos, content, w, QRect());
 }
 
 bool ToolTip::acceptShow(const TipContent &content,
@@ -209,13 +214,13 @@ void ToolTip::showInternal(const QPoint &pos, const TipContent &content, QWidget
             target = w;
 
         switch (content.typeId()) {
-            case TextContent::TEXT_CONTENT_ID:
-                m_tip = new TextTip(target);
-                break;
-            case ColorContent::COLOR_CONTENT_ID:
+            case TipContent::COLOR_CONTENT_ID:
                 m_tip = new ColorTip(target);
                 break;
-            case WidgetContent::WIDGET_CONTENT_ID:
+            case TipContent::TEXT_CONTENT_ID:
+                m_tip = new TextTip(target);
+                break;
+            case TipContent::WIDGET_CONTENT_ID:
                 m_tip = new WidgetTip(target);
                 break;
         }

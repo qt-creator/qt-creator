@@ -51,47 +51,38 @@
 namespace Utils {
     namespace Internal {
 
-namespace {
-    // @todo: Reuse...
-    QPixmap tilePixMap(int size)
-    {
-        const int checkerbordSize= size;
-        QPixmap tilePixmap(checkerbordSize * 2, checkerbordSize * 2);
-        tilePixmap.fill(Qt::white);
-        QPainter tilePainter(&tilePixmap);
-        QColor color(220, 220, 220);
-        tilePainter.fillRect(0, 0, checkerbordSize, checkerbordSize, color);
-        tilePainter.fillRect(checkerbordSize, checkerbordSize, checkerbordSize, checkerbordSize, color);
-        return tilePixmap;
-    }
+// @todo: Reuse...
+static QPixmap tilePixMap(int size)
+{
+    const int checkerbordSize= size;
+    QPixmap tilePixmap(checkerbordSize * 2, checkerbordSize * 2);
+    tilePixmap.fill(Qt::white);
+    QPainter tilePainter(&tilePixmap);
+    QColor color(220, 220, 220);
+    tilePainter.fillRect(0, 0, checkerbordSize, checkerbordSize, color);
+    tilePainter.fillRect(checkerbordSize, checkerbordSize, checkerbordSize, checkerbordSize, color);
+    return tilePixmap;
 }
 
+
 QTipLabel::QTipLabel(QWidget *parent) :
-    QLabel(parent, Qt::ToolTip | Qt::BypassGraphicsProxyWidget),
-    m_tipContent(0)
+    QLabel(parent, Qt::ToolTip | Qt::BypassGraphicsProxyWidget)
 {}
 
 QTipLabel::~QTipLabel()
 {
-    TipContent *tmpTipContent = m_tipContent;
-    m_tipContent = 0;
-    delete tmpTipContent;
 }
 
 bool QTipLabel::isInteractive() const
 {
-    return m_tipContent && m_tipContent->isInteractive();
+    return m_tipContent.isInteractive();
 }
 
 void QTipLabel::setContent(const TipContent &content)
 {
-    TipContent *tmpTipContent = m_tipContent;
-    m_tipContent = content.clone();
-    delete tmpTipContent;
+    m_tipContent = content;
 }
 
-const TipContent &QTipLabel::content() const
-{ return *m_tipContent; }
 
 ColorTip::ColorTip(QWidget *parent) : QTipLabel(parent)
 {
@@ -112,16 +103,14 @@ void ColorTip::configure(const QPoint &pos, QWidget *w)
 
 bool ColorTip::canHandleContentReplacement(const TipContent &content) const
 {
-    if (content.typeId() == ColorContent::COLOR_CONTENT_ID)
-        return true;
-    return false;
+    return content.typeId() == TipContent::COLOR_CONTENT_ID;
 }
 
 void ColorTip::paintEvent(QPaintEvent *event)
 {
     QTipLabel::paintEvent(event);
 
-    const QColor &color = static_cast<const ColorContent &>(content()).color();
+    const QColor &color = content().color();
 
     QPen pen;
     pen.setWidth(1);
@@ -155,8 +144,7 @@ TextTip::~TextTip()
 
 void TextTip::configure(const QPoint &pos, QWidget *w)
 {
-    const QString &text = static_cast<const TextContent &>(content()).text();
-    setText(text);
+    setText(content().text());
 
     // Make it look good with the default ToolTip font on Mac, which has a small descent.
     QFontMetrics fm(font());
@@ -183,9 +171,7 @@ void TextTip::configure(const QPoint &pos, QWidget *w)
 
 bool TextTip::canHandleContentReplacement(const TipContent &content) const
 {
-    if (content.typeId() == TextContent::TEXT_CONTENT_ID)
-        return true;
-    return false;
+    return content.typeId() == TipContent::TEXT_CONTENT_ID;
 }
 
 void TextTip::paintEvent(QPaintEvent *event)
@@ -219,8 +205,7 @@ WidgetTip::WidgetTip(QWidget *parent) :
 
 void WidgetTip::configure(const QPoint &pos, QWidget *)
 {
-    const WidgetContent &anyContent = static_cast<const WidgetContent &>(content());
-    QWidget *widget = anyContent.widget();
+    QWidget *widget = content().widget();
 
     QTC_ASSERT(widget && m_layout->count() == 0, return);
 

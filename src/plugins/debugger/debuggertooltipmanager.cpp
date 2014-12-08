@@ -688,7 +688,7 @@ public:
         if (parentWidget()) {
             // We are currently within a text editor tooltip:
             // Rip out of parent widget and re-show as a tooltip
-            Utils::WidgetContent::pinToolTip(this, ICore::mainWindow());
+            Utils::TipContent::pinToolTip(this, ICore::mainWindow());
         } else {
             // We have just be restored from session data.
             setWindowFlags(Qt::ToolTip);
@@ -894,8 +894,7 @@ void DebuggerToolTipHolder::updateTooltip(const StackFrame &frame)
           << "SAME FRAME: " << sameFrame);
 
     if (state == PendingUnshown) {
-        const Utils::WidgetContent widgetContent(widget, true);
-        Utils::ToolTip::show(context.mousePosition, widgetContent, Internal::mainWindow());
+        Utils::ToolTip::show(context.mousePosition, widget, Internal::mainWindow());
         setState(PendingShown);
     }
 
@@ -1349,8 +1348,8 @@ static void slotTooltipOverrideRequested
     context.expression = fixCppExpression(raw);
 
     if (context.expression.isEmpty()) {
-        const Utils::TextContent text(DebuggerToolTipManager::tr("No valid expression"));
-        Utils::ToolTip::show(point, text, Internal::mainWindow());
+        Utils::ToolTip::show(point, DebuggerToolTipManager::tr("No valid expression"),
+                             Internal::mainWindow());
         *handled = true;
         return;
     }
@@ -1383,8 +1382,7 @@ static void slotTooltipOverrideRequested
             tooltip->setState(PendingUnshown);
             tooltip->setState(PendingShown);
             tooltip->acquireEngine();
-            const Utils::WidgetContent widgetContent(tooltip->widget, true);
-            Utils::ToolTip::show(point, widgetContent, Internal::mainWindow());
+            Utils::ToolTip::show(point, tooltip->widget, Internal::mainWindow());
         } else {
             tooltip->acquireEngine();
             Utils::ToolTip::move(point, Internal::mainWindow());
@@ -1400,8 +1398,8 @@ static void slotTooltipOverrideRequested
             QTC_CHECK(false);
         *handled = engine->setToolTipExpression(editorWidget, context);
         if (!*handled) {
-            const Utils::TextContent text(DebuggerToolTipManager::tr("Expression too complex"));
-            Utils::ToolTip::show(point, text, Internal::mainWindow());
+            Utils::ToolTip::show(point, DebuggerToolTipManager::tr("Expression too complex"),
+                                 Internal::mainWindow());
             tooltip->destroy();
         }
     }

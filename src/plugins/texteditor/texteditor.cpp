@@ -75,7 +75,6 @@
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/tooltip/tooltip.h>
-#include <utils/tooltip/tipcontents.h>
 #include <utils/uncommentselection.h>
 
 #include <QAbstractTextDocumentLayout>
@@ -3012,9 +3011,8 @@ bool TextEditorWidget::viewportEvent(QEvent *event)
 
         RefactorMarker refactorMarker = d->m_refactorOverlay->markerAt(pos);
         if (refactorMarker.isValid() && !refactorMarker.tooltip.isEmpty()) {
-            ToolTip::show(he->globalPos(), TextContent(refactorMarker.tooltip),
-                                      viewport(),
-                                      refactorMarker.rect);
+            ToolTip::show(he->globalPos(), refactorMarker.tooltip,
+                          viewport(), refactorMarker.rect);
             return true;
         }
 
