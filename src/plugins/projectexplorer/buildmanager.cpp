@@ -155,7 +155,7 @@ BuildManager::BuildManager(QObject *parent, QAction *cancelBuildAction)
             this, SLOT(finish()));
 }
 
-QObject *BuildManager::instance()
+BuildManager *BuildManager::instance()
 {
     return m_instance;
 }
