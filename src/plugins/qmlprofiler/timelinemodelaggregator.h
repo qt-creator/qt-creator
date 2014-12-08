@@ -66,7 +66,6 @@ public:
 signals:
     void dataAvailable();
     void stateChanged();
-    void notesChanged(int typeId, int modelIndex, int eventIndex);
     void modelsChanged();
     void heightChanged();
 

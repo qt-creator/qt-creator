@@ -59,8 +59,6 @@ TimelineModelAggregator::TimelineModelAggregator(QmlProfilerNotesModel *notes, Q
     d->notesModel = notes;
     connect(this,SIGNAL(modelsChanged()),this,SIGNAL(heightChanged()));
     connect(this,SIGNAL(stateChanged()),this,SIGNAL(heightChanged()));
-    connect(notes, SIGNAL(changed(int,int,int)), this, SIGNAL(notesChanged(int,int,int)));
-
 }
 
 TimelineModelAggregator::~TimelineModelAggregator()

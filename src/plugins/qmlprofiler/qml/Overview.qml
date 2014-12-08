@@ -113,7 +113,11 @@ Canvas {
             offset = -1;
             requestPaint();
         }
-        onNotesChanged: notes.doPaint = true;
+    }
+
+    Connections {
+        target: modelProxy.notes
+        onChanged: notes.doPaint = true
     }
 
     Timer {
