@@ -108,18 +108,18 @@ void TimelineRenderer::setZoomer(TimelineZoomControl *zoomer)
     }
 }
 
-void TimelineRenderer::setNotes(QmlProfilerNotesModel *notes)
+void TimelineRenderer::setNotes(TimelineNotesModel *notes)
 {
     if (m_notes == notes)
         return;
 
     if (m_notes)
-        disconnect(m_notes, &QmlProfilerNotesModel::changed,
+        disconnect(m_notes, &TimelineNotesModel::changed,
                    this, &TimelineRenderer::setNotesDirty);
 
     m_notes = notes;
     if (m_notes)
-        connect(m_notes, &QmlProfilerNotesModel::changed,
+        connect(m_notes, &TimelineNotesModel::changed,
                 this, &TimelineRenderer::setNotesDirty);
 
     emit notesChanged(m_notes);

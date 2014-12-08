@@ -106,7 +106,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
 
     qmlRegisterType<TimelineZoomControl>();
     qmlRegisterType<TimelineModel>();
-    qmlRegisterType<QmlProfilerNotesModel>();
+    qmlRegisterType<TimelineNotesModel>();
 
     d->m_mainView = new QmlProfilerQuickView(this);
     d->m_mainView->setResizeMode(QQuickView::SizeRootObjectToView);

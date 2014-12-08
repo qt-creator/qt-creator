@@ -50,10 +50,10 @@ public:
     TimelineModelAggregator *q;
 
     QList <TimelineModel *> modelList;
-    QmlProfilerNotesModel *notesModel;
+    TimelineNotesModel *notesModel;
 };
 
-TimelineModelAggregator::TimelineModelAggregator(QmlProfilerNotesModel *notes, QObject *parent)
+TimelineModelAggregator::TimelineModelAggregator(TimelineNotesModel *notes, QObject *parent)
     : QObject(parent), d(new TimelineModelAggregatorPrivate(this))
 {
     d->notesModel = notes;
@@ -92,7 +92,7 @@ QVariantList TimelineModelAggregator::models() const
     return ret;
 }
 
-QmlProfilerNotesModel *TimelineModelAggregator::notes() const
+TimelineNotesModel *TimelineModelAggregator::notes() const
 {
     return d->notesModel;
 }

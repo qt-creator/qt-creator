@@ -102,7 +102,7 @@ TimelineRenderPass::State *TimelineNotesRenderPass::update(const TimelineRendere
     Q_UNUSED(lastIndex);
     Q_UNUSED(spacing);
 
-    const QmlProfilerNotesModel *notes = renderer->notes();
+    const TimelineNotesModel *notes = renderer->notes();
     const TimelineModel *model = renderer->model();
 
     TimelineNotesRenderPassState *state;

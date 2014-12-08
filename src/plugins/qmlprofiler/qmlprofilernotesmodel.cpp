@@ -32,14 +32,9 @@
 
 namespace QmlProfiler {
 
-QmlProfilerNotesModel::QmlProfilerNotesModel(QObject *parent) : QObject(parent), m_modelManager(0),
-    m_modified(false)
+QmlProfilerNotesModel::QmlProfilerNotesModel(QObject *parent) : TimelineNotesModel(parent),
+    m_modelManager(0)
 {
-}
-
-int QmlProfilerNotesModel::count() const
-{
-    return m_data.count();
 }
 
 void QmlProfilerNotesModel::setModelManager(QmlProfilerModelManager *modelManager)
@@ -47,120 +42,11 @@ void QmlProfilerNotesModel::setModelManager(QmlProfilerModelManager *modelManage
     m_modelManager = modelManager;
 }
 
-void QmlProfilerNotesModel::addTimelineModel(const TimelineModel *timelineModel)
-{
-    connect(timelineModel, &TimelineModel::destroyed,
-            this, &QmlProfilerNotesModel::removeTimelineModel);
-    m_timelineModels.insert(timelineModel->modelId(), timelineModel);
-}
-
-int QmlProfilerNotesModel::typeId(int index) const
-{
-    const Note &note = m_data[index];
-    auto it = m_timelineModels.find(note.timelineModel);
-    if (it == m_timelineModels.end())
-        return -1; // This can happen if one of the timeline models has been removed
-    return it.value()->typeId(note.timelineIndex);
-}
-
-QString QmlProfilerNotesModel::text(int index) const
-{
-    return m_data[index].text;
-}
-
-int QmlProfilerNotesModel::timelineModel(int index) const
-{
-    return m_data[index].timelineModel;
-}
-
-int QmlProfilerNotesModel::timelineIndex(int index) const
-{
-    return m_data[index].timelineIndex;
-}
-
-QVariantList QmlProfilerNotesModel::byTypeId(int selectedType) const
-{
-    QVariantList ret;
-    for (int noteId = 0; noteId < count(); ++noteId) {
-        if (selectedType == typeId(noteId))
-            ret << noteId;
-    }
-    return ret;
-}
-
-QVariantList QmlProfilerNotesModel::byTimelineModel(int timelineModel) const
-{
-    QVariantList ret;
-    for (int noteId = 0; noteId < count(); ++noteId) {
-        if (m_data[noteId].timelineModel == timelineModel)
-            ret << noteId;
-    }
-    return ret;
-}
-
-int QmlProfilerNotesModel::get(int timelineModel, int timelineIndex) const
-{
-    for (int noteId = 0; noteId < count(); ++noteId) {
-        const Note &note = m_data[noteId];
-        if (note.timelineModel == timelineModel && note.timelineIndex == timelineIndex)
-            return noteId;
-    }
-
-    return -1;
-}
-
-int QmlProfilerNotesModel::add(int timelineModel, int timelineIndex, const QString &text)
-{
-    const TimelineModel *model = m_timelineModels[timelineModel];
-    int typeId = model->typeId(timelineIndex);
-    Note note = { text, timelineModel, timelineIndex };
-    m_data << note;
-    m_modified = true;
-    emit changed(typeId, timelineModel, timelineIndex);
-    return m_data.count() - 1;
-}
-
-void QmlProfilerNotesModel::update(int index, const QString &text)
-{
-    Note &note = m_data[index];
-    if (text != note.text) {
-        note.text = text;
-        m_modified = true;
-        emit changed(typeId(index), note.timelineModel, note.timelineIndex);
-    }
-}
-
-void QmlProfilerNotesModel::remove(int index)
-{
-    Note &note = m_data[index];
-    int noteType = typeId(index);
-    int timelineModel = note.timelineModel;
-    int timelineIndex = note.timelineIndex;
-    m_data.removeAt(index);
-    m_modified = true;
-    emit changed(noteType, timelineModel, timelineIndex);
-}
-
-bool QmlProfilerNotesModel::isModified() const
-{
-    return m_modified;
-}
-
-void QmlProfilerNotesModel::removeTimelineModel(QObject *timelineModel)
-{
-    for (auto i = m_timelineModels.begin(); i != m_timelineModels.end();) {
-        if (i.value() == timelineModel)
-            i = m_timelineModels.erase(i);
-        else
-            ++i;
-    }
-}
-
 int QmlProfilerNotesModel::add(int typeId, qint64 start, qint64 duration, const QString &text)
 {
     int timelineModel = -1;
     int timelineIndex = -1;
-    foreach (const TimelineModel *model, m_timelineModels) {
+    foreach (const TimelineModel *model, timelineModels()) {
         if (model->handlesTypeId(typeId)) {
             for (int i = model->firstIndex(start); i <= model->lastIndex(start + duration); ++i) {
                 if (i < 0)
@@ -180,49 +66,22 @@ int QmlProfilerNotesModel::add(int typeId, qint64 start, qint64 duration, const 
     if (timelineModel == -1 || timelineIndex == -1)
         return -1;
 
-    Note note = { text, timelineModel, timelineIndex };
-    m_data << note;
-    m_modified = true;
-    return m_data.count() - 1;
+    return TimelineNotesModel::add(timelineModel, timelineIndex, text);
 }
 
-void QmlProfilerNotesModel::setText(int noteId, const QString &text)
-{
-    if (text.length() > 0) {
-        update(noteId, text);
-    } else {
-        remove(noteId);
-    }
-}
-
-void QmlProfilerNotesModel::setText(int modelIndex, int index, const QString &text)
-{
-    int noteId = get(modelIndex, index);
-    if (noteId == -1) {
-        if (text.length() > 0)
-            add(modelIndex, index, text);
-    } else {
-        setText(noteId, text);
-    }
-}
-
-void QmlProfilerNotesModel::clear()
-{
-    m_data.clear();
-    m_modified = false;
-    emit changed(-1, -1, -1);
-}
 
 void QmlProfilerNotesModel::loadData()
 {
-    m_data.clear();
+    blockSignals(true);
+    clear();
     const QVector<QmlProfilerDataModel::QmlEventNoteData> &notes =
             m_modelManager->qmlModel()->getEventNotes();
     for (int i = 0; i != notes.size(); ++i) {
         const QmlProfilerDataModel::QmlEventNoteData &note = notes[i];
         add(note.typeIndex, note.startTime, note.duration, note.text);
     }
-    m_modified = false; // reset after loading
+    resetModified();
+    blockSignals(false);
     emit changed(-1, -1, -1);
 }
 
@@ -230,19 +89,20 @@ void QmlProfilerNotesModel::saveData()
 {
     QVector<QmlProfilerDataModel::QmlEventNoteData> notes;
     for (int i = 0; i < count(); ++i) {
-        const Note &note = m_data[i];
-        auto it = m_timelineModels.find(note.timelineModel);
-        if (it == m_timelineModels.end())
+        const TimelineModel *model = timelineModelByModelId(timelineModel(i));
+        if (!model)
             continue;
 
-        const TimelineModel *model = it.value();
+        int index = timelineIndex(i);
         QmlProfilerDataModel::QmlEventNoteData save = {
-            model->typeId(note.timelineIndex), model->startTime(note.timelineIndex),
-            model->duration(note.timelineIndex), note.text
+            model->typeId(index),
+            model->startTime(index),
+            model->duration(index),
+            text(i)
         };
         notes.append(save);
     }
     m_modelManager->qmlModel()->setNoteData(notes);
-    m_modified = false;
+    resetModified();
 }
 }

@@ -28,28 +28,37 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERNOTESMODEL_H
-#define QMLPROFILERNOTESMODEL_H
+#ifndef TIMELINENOTESMODEL_P_H
+#define TIMELINENOTESMODEL_P_H
 
-#include "qmlprofilermodelmanager.h"
 #include "timelinenotesmodel.h"
-#include <QList>
-#include <QHash>
 
 namespace QmlProfiler {
-class QMLPROFILER_EXPORT QmlProfilerNotesModel : public TimelineNotesModel {
-    Q_OBJECT
+
+class TimelineNotesModel::TimelineNotesModelPrivate {
 public:
-    QmlProfilerNotesModel(QObject *parent);
+    TimelineNotesModelPrivate(TimelineNotesModel *q);
 
-    void setModelManager(QmlProfilerModelManager *modelManager);
-    void loadData();
-    void saveData();
+    struct Note {
+        // Saved properties
+        QString text;
 
-protected:
-    QmlProfilerModelManager *m_modelManager;
+        // Cache, created on loading
+        int timelineModel;
+        int timelineIndex;
+    };
 
-    int add(int typeId, qint64 startTime, qint64 duration, const QString &text);
+    QList<Note> data;
+    QHash<int, const TimelineModel *> timelineModels;
+    bool modified;
+
+    void _q_removeTimelineModel(QObject *model);
+
+private:
+    TimelineNotesModel *q_ptr;
+    Q_DECLARE_PUBLIC(TimelineNotesModel)
 };
+
 }
-#endif // NOTESMODEL_H
+#endif // TIMELINENOTESMODEL_P_H
+

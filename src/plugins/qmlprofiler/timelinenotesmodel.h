@@ -28,53 +28,58 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINEMODELAGGREGATOR_H
-#define TIMELINEMODELAGGREGATOR_H
+#ifndef TIMELINENOTESMODEL_H
+#define TIMELINENOTESMODEL_H
 
-#include "qmlprofilertimelinemodel.h"
-#include "qmlprofilermodelmanager.h"
-#include "timelinerenderer.h"
+#include "timelinemodel.h"
 
 namespace QmlProfiler {
-namespace Internal {
 
-class TimelineModelAggregator : public QObject
+class QMLPROFILER_EXPORT TimelineNotesModel : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int height READ height NOTIFY heightChanged)
-    Q_PROPERTY(QVariantList models READ models NOTIFY modelsChanged)
-    Q_PROPERTY(QmlProfiler::TimelineNotesModel *notes READ notes CONSTANT)
+    Q_PROPERTY(int count READ count NOTIFY changed)
 public:
-    TimelineModelAggregator(TimelineNotesModel *notes, QObject *parent = 0);
-    ~TimelineModelAggregator();
+    TimelineNotesModel(QObject *parent);
+    ~TimelineNotesModel();
 
-    int height() const;
+    int count() const;
+    void addTimelineModel(const TimelineModel *timelineModel);
+    const TimelineModel *timelineModelByModelId(int timelineModel) const;
+    QList<const TimelineModel *> timelineModels() const;
 
-    void addModel(TimelineModel *m);
-    const TimelineModel *model(int modelIndex) const;
-    QVariantList models() const;
+    Q_INVOKABLE int typeId(int index) const;
+    Q_INVOKABLE QString text(int index) const;
+    Q_INVOKABLE int timelineModel(int index) const;
+    Q_INVOKABLE int timelineIndex(int index) const;
 
-    TimelineNotesModel *notes() const;
+    Q_INVOKABLE QVariantList byTypeId(int typeId) const;
+    Q_INVOKABLE QVariantList byTimelineModel(int timelineModel) const;
+
+    Q_INVOKABLE int get(int timelineModel, int timelineIndex) const;
+    Q_INVOKABLE int add(int timelineModel, int timelineIndex, const QString &text);
+    Q_INVOKABLE void update(int index, const QString &text);
+    Q_INVOKABLE void remove(int index);
+
+    Q_INVOKABLE void setText(int noteId, const QString &text);
+    Q_INVOKABLE void setText(int modelIndex, int index, const QString &text);
+
+    bool isModified() const;
+    void resetModified();
+
     void clear();
-    int modelCount() const;
-
-    Q_INVOKABLE int modelOffset(int modelIndex) const;
-
-    Q_INVOKABLE QVariantMap nextItem(int selectedModel, int selectedItem, qint64 time) const;
-    Q_INVOKABLE QVariantMap prevItem(int selectedModel, int selectedItem, qint64 time) const;
 
 signals:
-    void dataAvailable();
-    void stateChanged();
-    void modelsChanged();
-    void heightChanged();
+    void changed(int typeId, int timelineModel, int timelineIndex);
 
 private:
-    class TimelineModelAggregatorPrivate;
-    TimelineModelAggregatorPrivate *d;
+    class TimelineNotesModelPrivate;
+    TimelineNotesModelPrivate *d_ptr;
+
+    Q_DECLARE_PRIVATE(TimelineNotesModel)
+    Q_PRIVATE_SLOT(d_ptr, void _q_removeTimelineModel(QObject *timelineModel))
 };
 
 }
-}
 
-#endif // TIMELINEMODELAGGREGATOR_H
+#endif // TIMELINENOTESMODEL_H

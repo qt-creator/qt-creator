@@ -35,7 +35,7 @@
 #include <QQuickItem>
 #include "timelinezoomcontrol.h"
 #include "timelinemodel.h"
-#include "qmlprofilernotesmodel.h"
+#include "timelinenotesmodel.h"
 #include "timelinerenderpass.h"
 
 namespace QmlProfiler {
@@ -49,7 +49,7 @@ class TimelineRenderer : public QQuickItem
     Q_OBJECT
     Q_PROPERTY(QmlProfiler::TimelineModel *model READ model WRITE setModel NOTIFY modelChanged)
     Q_PROPERTY(QmlProfiler::TimelineZoomControl *zoomer READ zoomer WRITE setZoomer NOTIFY zoomerChanged)
-    Q_PROPERTY(QmlProfiler::QmlProfilerNotesModel *notes READ notes WRITE setNotes NOTIFY notesChanged)
+    Q_PROPERTY(QmlProfiler::TimelineNotesModel *notes READ notes WRITE setNotes NOTIFY notesChanged)
     Q_PROPERTY(bool selectionLocked READ selectionLocked WRITE setSelectionLocked NOTIFY selectionLockedChanged)
     Q_PROPERTY(int selectedItem READ selectedItem WRITE setSelectedItem NOTIFY selectedItemChanged)
 
@@ -73,8 +73,8 @@ public:
     TimelineZoomControl *zoomer() const { return m_zoomer; }
     void setZoomer(TimelineZoomControl *zoomer);
 
-    QmlProfilerNotesModel *notes() const { return m_notes; }
-    void setNotes(QmlProfilerNotesModel *notes);
+    TimelineNotesModel *notes() const { return m_notes; }
+    void setNotes(TimelineNotesModel *notes);
 
     bool modelDirty() const;
     bool notesDirty() const;
@@ -89,7 +89,7 @@ public:
 signals:
     void modelChanged(const TimelineModel *model);
     void zoomerChanged(TimelineZoomControl *zoomer);
-    void notesChanged(QmlProfilerNotesModel *notes);
+    void notesChanged(TimelineNotesModel *notes);
 
     void selectionLockedChanged(bool locked);
     void selectedItemChanged(int itemIndex);
@@ -143,7 +143,7 @@ private:
 
     TimelineModel *m_model;
     TimelineZoomControl *m_zoomer;
-    QmlProfilerNotesModel *m_notes;
+    TimelineNotesModel *m_notes;
 
     struct {
         qint64 startTime;
