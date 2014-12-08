@@ -82,7 +82,7 @@ Rectangle {
 
 
     Connections {
-        target: qmlProfilerModelProxy
+        target: timelineModelAggregator
         onDataAvailable: {
             content.clearChildren();
             zoomControl.setRange(zoomControl.traceStart,
@@ -116,20 +116,20 @@ Rectangle {
 
         var itemIndex = -1;
         var modelIndex = -1;
-        var notes = qmlProfilerModelProxy.notesByTypeId(typeId);
+        var notes = timelineModelAggregator.notesByTypeId(typeId);
         if (notes.length !== 0) {
-            modelIndex = qmlProfilerModelProxy.noteTimelineModel(notes[0]);
-            itemIndex = qmlProfilerModelProxy.noteTimelineIndex(notes[0]);
+            modelIndex = timelineModelAggregator.noteTimelineModel(notes[0]);
+            itemIndex = timelineModelAggregator.noteTimelineIndex(notes[0]);
         } else {
-            for (modelIndex = 0; modelIndex < qmlProfilerModelProxy.models.length; ++modelIndex) {
+            for (modelIndex = 0; modelIndex < timelineModelAggregator.models.length; ++modelIndex) {
                 if (modelIndex === selectedModel && selectedItem !== -1 &&
-                        typeId === qmlProfilerModelProxy.models[modelIndex].typeId(selectedItem))
+                        typeId === timelineModelAggregator.models[modelIndex].typeId(selectedItem))
                     break;
 
-                if (!qmlProfilerModelProxy.models[modelIndex].handlesTypeId(typeId))
+                if (!timelineModelAggregator.models[modelIndex].handlesTypeId(typeId))
                     continue;
 
-                itemIndex = qmlProfilerModelProxy.models[modelIndex].nextItemByTypeId(typeId,
+                itemIndex = timelineModelAggregator.models[modelIndex].nextItemByTypeId(typeId,
                         zoomControl.rangeStart, selectedItem);
                 if (itemIndex !== -1)
                     break;
@@ -158,7 +158,7 @@ Rectangle {
         selectedModel: root.selectedModel
         selectedItem: root.selectedItem
         color: root.color
-        modelProxy: qmlProfilerModelProxy
+        modelProxy: timelineModelAggregator
         zoomer: zoomControl
         reverseSelect: shiftPressed
 
@@ -187,12 +187,12 @@ Rectangle {
         onZoomControlChanged: zoomSliderToolBar.visible = !zoomSliderToolBar.visible
         onFilterMenuChanged: filterMenu.visible = !filterMenu.visible
         onJumpToNext: {
-            var next = qmlProfilerModelProxy.nextItem(root.selectedModel, root.selectedItem,
+            var next = timelineModelAggregator.nextItem(root.selectedModel, root.selectedItem,
                                                       zoomControl.rangeStart);
             content.select(next.model, next.item);
         }
         onJumpToPrev: {
-            var prev = qmlProfilerModelProxy.prevItem(root.selectedModel, root.selectedItem,
+            var prev = timelineModelAggregator.prevItem(root.selectedModel, root.selectedItem,
                                                       zoomControl.rangeEnd);
             content.select(prev.model, prev.item);
         }
@@ -209,7 +209,7 @@ Rectangle {
         anchors.right: parent.right
         selectionLocked: true
         zoomer: zoomControl
-        modelProxy: qmlProfilerModelProxy
+        modelProxy: timelineModelAggregator
 
         onSelectionLockedChanged: {
             buttonsBar.updateLockButton(selectionLocked);
@@ -230,7 +230,7 @@ Rectangle {
                 rangeDetails.showInfo(selectedModel, selectedItem);
 
                 // update in other views
-                var model = qmlProfilerModelProxy.models[selectedModel];
+                var model = timelineModelAggregator.models[selectedModel];
                 var eventLocation = model.location(selectedItem);
                 gotoSourceLocation(eventLocation.file, eventLocation.line,
                                    eventLocation.column);
@@ -344,8 +344,8 @@ Rectangle {
         y: 25
 
         property alias locked: content.selectionLocked
-        models: qmlProfilerModelProxy.models
-        notes: qmlProfilerModelProxy.notes
+        models: timelineModelAggregator.models
+        notes: timelineModelAggregator.notes
         onRecenterOnItem: {
             content.gotoSourceLocation(file, line, column);
             content.select(selectedModel, selectedItem)
@@ -374,11 +374,11 @@ Rectangle {
         width: buttonsBar.width
         anchors.left: parent.left
         anchors.top: buttonsBar.bottom
-        height: qmlProfilerModelProxy.models.length * buttonsBar.height
+        height: timelineModelAggregator.models.length * buttonsBar.height
 
         Repeater {
             id: filterMenuInner
-            model: qmlProfilerModelProxy.models
+            model: timelineModelAggregator.models
             CheckBox {
                 anchors.left: filterMenu.left
                 anchors.right: filterMenu.right
@@ -438,7 +438,7 @@ Rectangle {
                 var fixedPoint = (zoomControl.rangeStart + zoomControl.rangeEnd) / 2;
                 if (root.selectedItem !== -1) {
                     // center on selected item if it's inside the current screen
-                    var model = qmlProfilerModelProxy.models[root.selectedModel]
+                    var model = timelineModelAggregator.models[root.selectedModel]
                     var newFixedPoint = (model.startTime(root.selectedItem) +
                                          model.endTime(root.selectedItem)) / 2;
                     if (newFixedPoint >= zoomControl.rangeStart &&
@@ -458,7 +458,7 @@ Rectangle {
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         anchors.left: parent.left
-        modelProxy: qmlProfilerModelProxy
+        modelProxy: timelineModelAggregator
         zoomer: zoomControl
     }
 }

@@ -123,7 +123,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
 
     d->m_modelProxy = new TimelineModelAggregator(modelManager->notesModel(), this);
     setModelManager(modelManager);
-    d->m_mainView->rootContext()->setContextProperty(QLatin1String("qmlProfilerModelProxy"),
+    d->m_mainView->rootContext()->setContextProperty(QLatin1String("timelineModelAggregator"),
                                                      d->m_modelProxy);
     d->m_profilerState = profilerState;
 
