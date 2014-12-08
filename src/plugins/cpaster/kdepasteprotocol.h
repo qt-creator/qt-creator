@@ -82,7 +82,7 @@ class KdePasteProtocol : public StickyNotesPasteProtocol
 public:
     KdePasteProtocol()
     {
-        setHostUrl(QLatin1String("http://pastebin.kde.org/"));
+        setHostUrl(QLatin1String("https://pastebin.kde.org/"));
     }
 
     QString name() const { return protocolName(); }

@@ -33,9 +33,11 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QXmlStreamReader>
 #include <QByteArray>
 #include <QStringList>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 #include <QNetworkReply>
 
@@ -45,7 +47,7 @@ enum { debug = 0 };
 
 static inline QByteArray expiryParameter(int daysRequested)
 {
-    // Obtained by 'pastebin.kde.org/api/xml/parameter/expire' on 26.03.2014
+    // Obtained by 'pastebin.kde.org/api/json/parameter/expire' on 26.03.2014
     static const int expiryTimesSec[] = {1800, 21600, 86400, 604800, 2592000, 31536000};
     const int *end = expiryTimesSec + sizeof(expiryTimesSec) / sizeof(expiryTimesSec[0]);
     // Find the first element >= requested span, search up to n - 1 such that 'end' defaults to last value.
@@ -80,13 +82,13 @@ bool StickyNotesPasteProtocol::checkConfiguration(QString *errorMessage)
 {
     if (m_hostChecked)  // Check the host once.
         return true;
-    const bool ok = httpStatus(m_hostUrl, errorMessage);
+    const bool ok = httpStatus(m_hostUrl, errorMessage, true);
     if (ok)
         m_hostChecked = true;
     return ok;
 }
 
-// Query 'http://pastebin.kde.org/api/xml/parameter/language' to obtain the valid values.
+// Query 'http://pastebin.kde.org/api/json/parameter/language' to obtain the valid values.
 static inline QByteArray pasteLanguage(Protocol::ContentType ct)
 {
     switch (ct) {
@@ -130,7 +132,7 @@ void StickyNotesPasteProtocol::paste(const QString &text,
         pasteData += QUrl::toPercentEncoding(description.left(maxDescriptionLength));
     }
 
-    m_pasteReply = httpPost(m_hostUrl + QLatin1String("api/xml/create"), pasteData);
+    m_pasteReply = httpPost(m_hostUrl + QLatin1String("api/json/create"), pasteData);
     connect(m_pasteReply, SIGNAL(finished()), this, SLOT(pasteFinished()));
     if (debug)
         qDebug() << "paste: sending " << m_pasteReply << pasteData;
@@ -139,12 +141,26 @@ void StickyNotesPasteProtocol::paste(const QString &text,
 // Parse for an element and return its contents
 static QString parseElement(QIODevice *device, const QString &elementName)
 {
-    QXmlStreamReader reader(device);
-    while (!reader.atEnd()) {
-        if (reader.readNext() == QXmlStreamReader::StartElement
-            && reader.name() == elementName)
-            return reader.readElementText();
+    const QJsonDocument doc = QJsonDocument::fromJson(device->readAll());
+    if (doc.isEmpty() || !doc.isObject())
+        return QString();
+
+    QJsonObject obj= doc.object();
+    const QString resultKey = QLatin1String("result");
+
+    if (obj.contains(resultKey)) {
+        QJsonValue value = obj.value(resultKey);
+        if (value.isObject()) {
+            obj = value.toObject();
+            if (obj.contains(elementName)) {
+                value = obj.value(elementName);
+                return value.toString();
+            }
+        } else if (value.isArray()) {
+            qWarning() << "JsonArray not expected.";
+        }
     }
+
     return QString();
 }
 
@@ -175,7 +191,7 @@ void StickyNotesPasteProtocol::fetch(const QString &id)
     const int lastSlashPos = m_fetchId.lastIndexOf(QLatin1Char('/'));
     if (lastSlashPos != -1)
         m_fetchId.remove(0, lastSlashPos + 1);
-    QString url = m_hostUrl + QLatin1String("api/xml/show/") + m_fetchId;
+    QString url = m_hostUrl + QLatin1String("api/json/show/") + m_fetchId;
     if (debug)
         qDebug() << "fetch: sending " << url;
 
@@ -209,7 +225,7 @@ void StickyNotesPasteProtocol::list()
     QTC_ASSERT(!m_listReply, return);
 
     // Trailing slash is important to prevent redirection.
-    QString url = m_hostUrl + QLatin1String("api/xml/list");
+    QString url = m_hostUrl + QLatin1String("api/json/list");
     m_listReply = httpGet(url);
     connect(m_listReply, SIGNAL(finished()), this, SLOT(listFinished()));
     if (debug)
@@ -220,11 +236,27 @@ void StickyNotesPasteProtocol::list()
 static inline QStringList parseList(QIODevice *device)
 {
     QStringList result;
-    QXmlStreamReader reader(device);
-    const QString pasteElement = QLatin1String("paste");
-    while (!reader.atEnd()) {
-        if (reader.readNext() == QXmlStreamReader::StartElement && reader.name() == pasteElement)
-            result.append(reader.readElementText());
+    const QJsonDocument doc = QJsonDocument::fromJson(device->readAll());
+    if (doc.isEmpty() || !doc.isObject())
+        return result;
+
+    QJsonObject obj= doc.object();
+    const QString resultKey = QLatin1String("result");
+    const QString pastesKey = QLatin1String("pastes");
+
+    if (obj.contains(resultKey)) {
+        QJsonValue value = obj.value(resultKey);
+        if (value.isObject()) {
+            obj = value.toObject();
+            if (obj.contains(pastesKey)) {
+                value = obj.value(pastesKey);
+                if (value.isArray()) {
+                    QJsonArray array = value.toArray();
+                    foreach (const QJsonValue &val, array)
+                        result.append(val.toString());
+                }
+            }
+        }
     }
     return result;
 }
