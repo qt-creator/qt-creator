@@ -351,14 +351,6 @@ signals:
     void filesRemoved();
     void nodeSortKeyAboutToChange(Node *node);
     void nodeSortKeyChanged();
-
-private:
-
-    // let project & session emit signals
-    friend class ProjectNode;
-    friend class FolderNode;
-    friend class SessionNode;
-    friend class Node;
 };
 
 template<class T1, class T3>
