@@ -137,7 +137,7 @@ void ProjectTree::focusChanged()
 
 void ProjectTree::updateFromFocus(bool invalidCurrentNode)
 {
-    ProjectTreeWidget *focus = Utils::findOrDefault(s_instance->m_projectTreeWidgets,
+    ProjectTreeWidget *focus = Utils::findOrDefault(m_projectTreeWidgets,
                                                     &ProjectTree::hasFocus);
 
     if (focus)
@@ -148,8 +148,8 @@ void ProjectTree::updateFromFocus(bool invalidCurrentNode)
 
 void ProjectTree::updateFromProjectTreeWidget(ProjectTreeWidget *widget)
 {
-    ProjectExplorer::Node *currentNode = widget->currentNode();
-    ProjectExplorer::Project *project = projectForNode(currentNode);
+    Node *currentNode = widget->currentNode();
+    Project *project = projectForNode(currentNode);
 
     update(currentNode, project);
 }
@@ -180,13 +180,13 @@ void ProjectTree::updateFromDocumentManager(bool invalidCurrentNode)
 {
     const QString &fileName = Core::DocumentManager::currentFile();
 
-    ProjectExplorer::Node *currentNode = 0;
+    Node *currentNode = 0;
     if (!invalidCurrentNode && m_currentNode && m_currentNode->path() == fileName)
         currentNode = m_currentNode;
     else
         currentNode = ProjectTreeWidget::nodeForFile(fileName);
 
-    ProjectExplorer::Project *project = projectForNode(currentNode);
+    Project *project = projectForNode(currentNode);
 
     update(currentNode, project);
     foreach (ProjectTreeWidget *widget, m_projectTreeWidgets)
@@ -339,7 +339,7 @@ void ProjectTree::updateExternalFileWarning()
                                         Core::InfoBarEntry::GlobalSuppressionEnabled));
 }
 
-bool ProjectExplorer::ProjectTree::hasFocus(ProjectExplorer::Internal::ProjectTreeWidget *widget)
+bool ProjectTree::hasFocus(ProjectTreeWidget *widget)
 {
     return widget && widget->focusWidget() && widget->focusWidget()->hasFocus();
 }

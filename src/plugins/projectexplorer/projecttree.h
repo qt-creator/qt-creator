@@ -35,18 +35,13 @@
 
 #include <coreplugin/icontext.h>
 
-#include <QObject>
-
 namespace ProjectExplorer {
 class FileNode;
 class FolderNode;
 class Node;
 class Project;
-class ProjectNode;
 
-namespace Internal {
-class ProjectTreeWidget;
-}
+namespace Internal { class ProjectTreeWidget; }
 
 class PROJECTEXPLORER_EXPORT ProjectTree : public QObject
 {
@@ -60,9 +55,9 @@ public:
     static Node *currentNode();
 
     // Integration with ProjectTreeWidget
-    static void registerWidget(ProjectExplorer::Internal::ProjectTreeWidget *widget);
-    static void unregisterWidget(ProjectExplorer::Internal::ProjectTreeWidget *widget);
-    static void nodeChanged(ProjectExplorer::Internal::ProjectTreeWidget *widget);
+    static void registerWidget(Internal::ProjectTreeWidget *widget);
+    static void unregisterWidget(Internal::ProjectTreeWidget *widget);
+    static void nodeChanged(Internal::ProjectTreeWidget *widget);
     static void focusChanged();
     static Project *projectForNode(Node *node);
 
@@ -71,7 +66,7 @@ signals:
     void currentNodeChanged(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
 
 private:
-    void updateFromProjectTreeWidget(ProjectExplorer::Internal::ProjectTreeWidget *widget);
+    void updateFromProjectTreeWidget(Internal::ProjectTreeWidget *widget);
     void documentManagerCurrentFileChanged();
     void updateFromDocumentManager(bool invalidCurrentNode = false);
     void update(Node *node, Project *project);
@@ -82,7 +77,7 @@ private:
     void foldersRemoved();
     void filesAboutToBeRemoved(FolderNode *, const QList<FileNode *> &list);
     void filesRemoved();
-    void aboutToRemoveProject(ProjectExplorer::Project *project);
+    void aboutToRemoveProject(Project *project);
     void projectRemoved();
 
     void nodesAdded();
@@ -93,7 +88,7 @@ private:
 
 
     static ProjectTree *s_instance;
-    QList<ProjectExplorer::Internal::ProjectTreeWidget *> m_projectTreeWidgets;
+    QList<Internal::ProjectTreeWidget *> m_projectTreeWidgets;
     Node *m_currentNode;
     Project *m_currentProject;
     bool m_resetCurrentNodeFolder;
