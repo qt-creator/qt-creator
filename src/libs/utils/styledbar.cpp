@@ -41,7 +41,6 @@ StyledBar::StyledBar(QWidget *parent)
     setProperty("panelwidget", true);
     setProperty("panelwidget_singlerow", true);
     setProperty("lightColored", false);
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 }
 
 void StyledBar::setSingleRow(bool singleRow)
