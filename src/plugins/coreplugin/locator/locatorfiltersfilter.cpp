@@ -33,6 +33,7 @@
 #include "locatorwidget.h"
 
 #include <coreplugin/coreconstants.h>
+#include <utils/qtcassert.h>
 
 using namespace Core;
 using namespace Core::Internal;
@@ -83,7 +84,7 @@ QList<LocatorFilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<Loca
             break;
         LocatorFilterEntry filterEntry(this,
                                 m_filterShortcutStrings.at(i),
-                                m_filterShortcutStrings.at(i),
+                                i,
                                 m_icon);
         filterEntry.extraInfo = m_filterDisplayNames.at(i);
         entries.append(filterEntry);
@@ -93,7 +94,10 @@ QList<LocatorFilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<Loca
 
 void LocatorFiltersFilter::accept(LocatorFilterEntry selection) const
 {
-    const QString shortcutString = selection.internalData.toString();
+    bool ok;
+    int index = selection.internalData.toInt(&ok);
+    QTC_ASSERT(ok && index >= 0 && index < m_filterShortcutStrings.size(), return);
+    const QString shortcutString = m_filterShortcutStrings.at(index);
     if (!shortcutString.isEmpty())
         m_locatorWidget->show(shortcutString + QLatin1Char(' '),
                               shortcutString.length() + 1);
