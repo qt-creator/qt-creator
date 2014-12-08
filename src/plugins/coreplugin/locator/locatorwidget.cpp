@@ -143,12 +143,6 @@ int LocatorModel::columnCount(const QModelIndex &parent) const
     return parent.isValid() ? 0 : 2;
 }
 
-/*!
- * When asked for the icon via Qt::DecorationRole, the LocatorModel lazily
- * resolves and caches the Greehouse-specific file icon when
- * FilterEntry::resolveFileIcon is true. FilterEntry::internalData is assumed
- * to be the filename.
- */
 QVariant LocatorModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= mEntries.size())
