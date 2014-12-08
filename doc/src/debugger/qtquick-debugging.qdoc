@@ -222,10 +222,20 @@
     application to jump to their definitions in the code. The properties of the
     selected item are displayed in the \gui {Locals and Expressions} view.
 
-    You can also right-click an item in the running application to view the
-    item hierarchy as a context menu.
+    You can also view the item hierarchy in the running application:
 
-    \image qml-observer-context-menu.png "QML item hierarchy"
+    \list
+
+        \li When debugging Qt Quick 1 applications, right-click an item in the
+            running application to view the item hierarchy as a context menu.
+
+            \image qml-observer-context-menu.png "QML item hierarchy"
+
+        \li When debugging Qt Quick 2 applications, double-click an item in the
+            running application to cycle through the item stack at the cursor
+            position.
+
+    \endlist
 
     To switch to the zoom mode, click the \gui Zoom button. Click in the
     running application to zoom in. Right-click to open a context menu that
