@@ -1008,7 +1008,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     addAutoReleasedObject(new ProjectTreeWidgetFactory);
     addAutoReleasedObject(new FolderNavigationWidgetFactory);
-    addAutoReleasedObject(new DeployConfigurationFactory);
+    addAutoReleasedObject(new DefaultDeployConfigurationFactory);
 
     QSettings *s = ICore::settings();
     const QStringList fileNames =

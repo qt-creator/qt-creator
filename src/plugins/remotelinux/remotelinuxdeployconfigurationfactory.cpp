@@ -115,6 +115,11 @@ DeployConfiguration *RemoteLinuxDeployConfigurationFactory::restore(Target *pare
     return dc;
 }
 
+bool RemoteLinuxDeployConfigurationFactory::canClone(Target *parent, DeployConfiguration *product) const
+{
+    return canCreate(parent, product->id());
+}
+
 DeployConfiguration *RemoteLinuxDeployConfigurationFactory::clone(Target *parent,
     DeployConfiguration *product)
 {

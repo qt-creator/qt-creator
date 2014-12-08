@@ -69,6 +69,7 @@ public:
     ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, Core::Id id);
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
     ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
+    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::DeployConfiguration *product) const;
     ProjectExplorer::DeployConfiguration *clone(ProjectExplorer::Target *parent,
                                                 ProjectExplorer::DeployConfiguration *product);
 };

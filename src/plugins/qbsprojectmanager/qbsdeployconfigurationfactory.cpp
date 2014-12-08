@@ -142,6 +142,11 @@ ProjectExplorer::DeployConfiguration
     return dc;
 }
 
+bool QbsDeployConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::DeployConfiguration *product) const
+{
+    return canCreate(parent, product->id());
+}
+
 ProjectExplorer::DeployConfiguration
 *QbsDeployConfigurationFactory::clone(ProjectExplorer::Target *parent,
                                       ProjectExplorer::DeployConfiguration *product)

@@ -58,7 +58,7 @@ public:
                   ProjectExplorer::DeployConfiguration *source) const;
     ProjectExplorer::DeployConfiguration *clone(ProjectExplorer::Target *parent,
                                                 ProjectExplorer::DeployConfiguration *source);
-
+private:
     bool canHandle(ProjectExplorer::Target *t) const;
 };
 

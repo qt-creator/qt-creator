@@ -128,10 +128,5 @@ QString IosDeployConfigurationFactory::displayNameForId(Core::Id id) const
     return QString();
 }
 
-bool IosDeployConfigurationFactory::canHandle(Target *parent) const
-{
-    return IosManager::supportsIos(parent);
-}
-
 } // namespace Internal
 } // namespace Ios

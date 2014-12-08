@@ -84,7 +84,7 @@ private:
 class PROJECTEXPLORER_EXPORT DefaultDeployConfiguration : public DeployConfiguration
 {
     Q_OBJECT
-    friend class DeployConfigurationFactory; // for the ctors
+    friend class DefaultDeployConfigurationFactory; // for the ctors
 protected:
     DefaultDeployConfiguration(Target *target, Core::Id id);
     DefaultDeployConfiguration(Target *target, DeployConfiguration *source);
@@ -100,17 +100,17 @@ public:
     virtual ~DeployConfigurationFactory();
 
     // used to show the list of possible additons to a target, returns a list of types
-    virtual QList<Core::Id> availableCreationIds(Target *parent) const;
+    virtual QList<Core::Id> availableCreationIds(Target *parent) const = 0;
     // used to translate the types to names to display to the user
-    virtual QString displayNameForId(Core::Id id) const;
+    virtual QString displayNameForId(Core::Id id) const = 0;
 
-    virtual bool canCreate(Target *parent, Core::Id id) const;
-    virtual DeployConfiguration *create(Target *parent, Core::Id id);
+    virtual bool canCreate(Target *parent, Core::Id id) const = 0;
+    virtual DeployConfiguration *create(Target *parent, Core::Id id) = 0;
     // used to recreate the runConfigurations when restoring settings
-    virtual bool canRestore(Target *parent, const QVariantMap &map) const;
-    virtual DeployConfiguration *restore(Target *parent, const QVariantMap &map);
-    virtual bool canClone(Target *parent, DeployConfiguration *product) const;
-    virtual DeployConfiguration *clone(Target *parent, DeployConfiguration *product);
+    virtual bool canRestore(Target *parent, const QVariantMap &map) const = 0;
+    virtual DeployConfiguration *restore(Target *parent, const QVariantMap &map) = 0;
+    virtual bool canClone(Target *parent, DeployConfiguration *product) const = 0;
+    virtual DeployConfiguration *clone(Target *parent, DeployConfiguration *product) = 0;
 
     static DeployConfigurationFactory *find(Target *parent, const QVariantMap &map);
     static QList<DeployConfigurationFactory *> find(Target *parent);
@@ -118,11 +118,22 @@ public:
 
 signals:
     void availableCreationIdsChanged();
+};
 
-protected:
-    virtual bool canHandle(Target *parent) const;
-
+class DefaultDeployConfigurationFactory : public DeployConfigurationFactory
+{
+public:
+    QList<Core::Id> availableCreationIds(Target *parent) const;
+    // used to translate the types to names to display to the user
+    QString displayNameForId(Core::Id id) const;
+    bool canCreate(Target *parent, Core::Id id) const;
+    DeployConfiguration *create(Target *parent, Core::Id id);
+    bool canRestore(Target *parent, const QVariantMap &map) const;
+    DeployConfiguration *restore(Target *parent, const QVariantMap &map);
+    bool canClone(Target *parent, DeployConfiguration *product) const;
+    DeployConfiguration *clone(Target *parent, DeployConfiguration *product);
 private:
+    bool canHandle(Target *parent) const;
 };
 
 } // namespace ProjectExplorer

@@ -182,64 +182,6 @@ DeployConfigurationFactory::DeployConfigurationFactory(QObject *parent) :
 DeployConfigurationFactory::~DeployConfigurationFactory()
 { }
 
-QList<Core::Id> DeployConfigurationFactory::availableCreationIds(Target *parent) const
-{
-    if (!canHandle(parent))
-        return QList<Core::Id>();
-    return QList<Core::Id>() << Core::Id(Constants::DEFAULT_DEPLOYCONFIGURATION_ID);
-}
-
-QString DeployConfigurationFactory::displayNameForId(Core::Id id) const
-{
-    if (id == Constants::DEFAULT_DEPLOYCONFIGURATION_ID)
-        //: Display name of the default deploy configuration
-        return tr("Deploy Configuration");
-    return QString();
-}
-
-bool DeployConfigurationFactory::canCreate(Target *parent, Core::Id id) const
-{
-    if (!canHandle(parent))
-        return false;
-    return id == Constants::DEFAULT_DEPLOYCONFIGURATION_ID;
-}
-
-DeployConfiguration *DeployConfigurationFactory::create(Target *parent, Core::Id id)
-{
-    if (!canCreate(parent, id))
-        return 0;
-    return new DefaultDeployConfiguration(parent, id);
-}
-
-bool DeployConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
-{
-    return canCreate(parent, idFromMap(map));
-}
-
-DeployConfiguration *DeployConfigurationFactory::restore(Target *parent, const QVariantMap &map)
-{
-    if (!canRestore(parent, map))
-        return 0;
-    DefaultDeployConfiguration *dc = new DefaultDeployConfiguration(parent, idFromMap(map));
-    if (!dc->fromMap(map)) {
-        delete dc;
-        return 0;
-    }
-    return dc;
-}
-
-bool DeployConfigurationFactory::canClone(Target *parent, DeployConfiguration *product) const
-{
-    return canCreate(parent, product->id());
-}
-
-DeployConfiguration *DeployConfigurationFactory::clone(Target *parent, DeployConfiguration *product)
-{
-    if (!canClone(parent, product))
-        return 0;
-    return new DefaultDeployConfiguration(parent, product);
-}
-
 DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent, const QVariantMap &map)
 {
     return ExtensionSystem::PluginManager::getObject<DeployConfigurationFactory>(
@@ -264,7 +206,69 @@ DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent, Dep
         });
 }
 
-bool DeployConfigurationFactory::canHandle(Target *parent) const
+///
+// DefaultDeployConfigurationFactory
+///
+
+QList<Core::Id> DefaultDeployConfigurationFactory::availableCreationIds(Target *parent) const
+{
+    if (!canHandle(parent))
+        return QList<Core::Id>();
+    return QList<Core::Id>() << Core::Id(Constants::DEFAULT_DEPLOYCONFIGURATION_ID);
+}
+
+QString DefaultDeployConfigurationFactory::displayNameForId(Core::Id id) const
+{
+    if (id == Constants::DEFAULT_DEPLOYCONFIGURATION_ID)
+        //: Display name of the default deploy configuration
+        return tr("Deploy Configuration");
+    return QString();
+}
+
+bool DefaultDeployConfigurationFactory::canCreate(Target *parent, Core::Id id) const
+{
+    if (!canHandle(parent))
+        return false;
+    return id == Constants::DEFAULT_DEPLOYCONFIGURATION_ID;
+}
+
+DeployConfiguration *DefaultDeployConfigurationFactory::create(Target *parent, Core::Id id)
+{
+    if (!canCreate(parent, id))
+        return 0;
+    return new DefaultDeployConfiguration(parent, id);
+}
+
+bool DefaultDeployConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
+{
+    return canCreate(parent, idFromMap(map));
+}
+
+DeployConfiguration *DefaultDeployConfigurationFactory::restore(Target *parent, const QVariantMap &map)
+{
+    if (!canRestore(parent, map))
+        return 0;
+    DefaultDeployConfiguration *dc = new DefaultDeployConfiguration(parent, idFromMap(map));
+    if (!dc->fromMap(map)) {
+        delete dc;
+        return 0;
+    }
+    return dc;
+}
+
+bool DefaultDeployConfigurationFactory::canClone(Target *parent, DeployConfiguration *product) const
+{
+    return canCreate(parent, product->id());
+}
+
+DeployConfiguration *DefaultDeployConfigurationFactory::clone(Target *parent, DeployConfiguration *product)
+{
+    if (!canClone(parent, product))
+        return 0;
+    return new DefaultDeployConfiguration(parent, product);
+}
+
+bool DefaultDeployConfigurationFactory::canHandle(Target *parent) const
 {
     if (!parent->project()->supportsKit(parent->kit()) || parent->project()->needsSpecialDeployment())
         return false;

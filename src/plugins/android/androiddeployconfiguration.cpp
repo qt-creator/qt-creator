@@ -135,10 +135,5 @@ QString AndroidDeployConfigurationFactory::displayNameForId(Core::Id id) const
     return QString();
 }
 
-bool AndroidDeployConfigurationFactory::canHandle(Target *parent) const
-{
-    return AndroidManager::supportsAndroid(parent);
-}
-
 } // namespace Internal
 } // namespace Android

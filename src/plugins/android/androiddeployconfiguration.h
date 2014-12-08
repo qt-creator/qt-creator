@@ -70,9 +70,6 @@ public:
     QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
     // used to translate the ids to names to display to the user
     QString displayNameForId(Core::Id id) const;
-
-private:
-    bool canHandle(ProjectExplorer::Target *parent) const;
 };
 
 } // namespace Internal

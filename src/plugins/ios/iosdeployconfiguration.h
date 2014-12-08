@@ -72,9 +72,6 @@ public:
     QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const Q_DECL_OVERRIDE;
     // used to translate the ids to names to display to the user
     QString displayNameForId(Core::Id id) const Q_DECL_OVERRIDE;
-
-private:
-    bool canHandle(ProjectExplorer::Target *parent) const Q_DECL_OVERRIDE;
 };
 
 } // namespace Internal
