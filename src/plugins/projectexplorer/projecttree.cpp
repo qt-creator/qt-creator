@@ -57,9 +57,9 @@ ProjectTree::ProjectTree(QObject *parent)
     : QObject(parent),
       m_currentNode(0),
       m_currentProject(0),
-      m_resetCurrentNodeFolder(0),
-      m_resetCurrentNodeFile(0),
-      m_resetCurrentNodeProject(0)
+      m_resetCurrentNodeFolder(false),
+      m_resetCurrentNodeFile(false),
+      m_resetCurrentNodeProject(false)
 {
     s_instance = this;
 
