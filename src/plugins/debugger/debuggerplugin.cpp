@@ -1758,8 +1758,8 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
         QAction *act = new QAction(menu);
         act->setData(QVariant::fromValue(id));
         act->setText(tr("Remove Breakpoint %1").arg(id.toString()));
-        connect(act, SIGNAL(triggered()),
-            SLOT(breakpointRemoveMarginActionTriggered()));
+        connect(act, &QAction::triggered,
+            this, &DebuggerPluginPrivate::breakpointRemoveMarginActionTriggered);
         menu->addAction(act);
 
         // Enable/disable existing breakpoint.
@@ -1767,19 +1767,19 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
         act->setData(QVariant::fromValue(id));
         if (breakHandler()->isEnabled(id)) {
             act->setText(tr("Disable Breakpoint %1").arg(id.toString()));
-            connect(act, SIGNAL(triggered()),
-                SLOT(breakpointDisableMarginActionTriggered()));
+            connect(act, &QAction::triggered,
+                this, &DebuggerPluginPrivate::breakpointDisableMarginActionTriggered);
         } else {
             act->setText(tr("Enable Breakpoint %1").arg(id.toString()));
-            connect(act, SIGNAL(triggered()),
-                SLOT(breakpointEnableMarginActionTriggered()));
+            connect(act, &QAction::triggered,
+                this, &DebuggerPluginPrivate::breakpointEnableMarginActionTriggered);
         }
         menu->addAction(act);
 
         // Edit existing breakpoint.
         act = new QAction(menu);
         act->setText(tr("Edit Breakpoint %1...").arg(id.toString()));
-        connect(act, SIGNAL(triggered()), SLOT(slotEditBreakpoint()));
+        connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::slotEditBreakpoint);
         act->setData(QVariant::fromValue(id));
         menu->addAction(act);
     } else {
@@ -1790,8 +1790,8 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
         QAction *act = new QAction(text, menu);
         act->setData(QVariant::fromValue(args));
         act->setEnabled(contextUsable);
-        connect(act, SIGNAL(triggered()),
-            SLOT(breakpointSetMarginActionTriggered()));
+        connect(act, &QAction::triggered,
+            this, &DebuggerPluginPrivate::breakpointSetMarginActionTriggered);
         menu->addAction(act);
         // Message trace point
         args.mode = BreakpointMenuContextData::MessageTracePoint;
@@ -1801,8 +1801,8 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
         act = new QAction(tracePointText, menu);
         act->setData(QVariant::fromValue(args));
         act->setEnabled(contextUsable);
-        connect(act, SIGNAL(triggered()),
-            SLOT(breakpointSetMarginActionTriggered()));
+        connect(act, &QAction::triggered,
+            this, &DebuggerPluginPrivate::breakpointSetMarginActionTriggered);
         menu->addAction(act);
     }
     // Run to, jump to line below in stopped state.
@@ -1814,7 +1814,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
                 : DebuggerEngine::tr("Run to Line %1").arg(args.lineNumber);
             QAction *runToLineAction  = new QAction(runText, menu);
             runToLineAction->setData(QVariant::fromValue(args));
-            connect(runToLineAction, SIGNAL(triggered()), SLOT(slotRunToLine()));
+            connect(runToLineAction, &QAction::triggered, this, &DebuggerPluginPrivate::slotRunToLine);
             menu->addAction(runToLineAction);
         }
         if (currentEngine()->hasCapability(JumpToLineCapability)) {
@@ -1823,7 +1823,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
                 : DebuggerEngine::tr("Jump to Line %1").arg(args.lineNumber);
             QAction *jumpToLineAction  = new QAction(jumpText, menu);
             jumpToLineAction->setData(QVariant::fromValue(args));
-            connect(jumpToLineAction, SIGNAL(triggered()), SLOT(slotJumpToLine()));
+            connect(jumpToLineAction, &QAction::triggered, this, &DebuggerPluginPrivate::slotJumpToLine);
             menu->addAction(jumpToLineAction);
         }
         // Disassemble current function in stopped state.
@@ -1837,7 +1837,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
                     .arg(frame.function);
                 QAction *disassembleAction = new QAction(text, menu);
                 disassembleAction->setData(QVariant::fromValue(frame));
-                connect(disassembleAction, SIGNAL(triggered()), SLOT(slotDisassembleFunction()));
+                connect(disassembleAction, &QAction::triggered, this, &DebuggerPluginPrivate::slotDisassembleFunction);
                 menu->addAction(disassembleAction );
             }
         }
@@ -2537,7 +2537,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_debuggerSettings = new DebuggerSettings;
     m_debuggerSettings->readSettings();
 
-    connect(ICore::instance(), SIGNAL(coreAboutToClose()), this, SLOT(coreShutdown()));
+    connect(ICore::instance(), &ICore::coreAboutToClose, this, &DebuggerPluginPrivate::coreShutdown);
 
     const Context globalcontext(CC::C_GLOBAL);
     const Context cppDebuggercontext(C_CPPDEBUGGER);
@@ -2610,22 +2610,22 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_snapshotWindow = addSearch(m_snapshotView, tr("Snapshots"), DOCKWIDGET_SNAPSHOTS);
 
     // Watchers
-    connect(m_localsView->header(), SIGNAL(sectionResized(int,int,int)),
-        SLOT(updateWatchersHeader(int,int,int)), Qt::QueuedConnection);
+    connect(m_localsView->header(), &QHeaderView::sectionResized,
+        this, &DebuggerPluginPrivate::updateWatchersHeader, Qt::QueuedConnection);
 
     QAction *act = 0;
 
     act = m_continueAction = new QAction(tr("Continue"), this);
     act->setIcon(m_continueIcon);
-    connect(act, SIGNAL(triggered()), SLOT(handleExecContinue()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecContinue);
 
     act = m_exitAction = new QAction(tr("Stop Debugger"), this);
     act->setIcon(m_exitIcon);
-    connect(act, SIGNAL(triggered()), SLOT(handleExecExit()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecExit);
 
     act = m_interruptAction = new QAction(tr("Interrupt"), this);
     act->setIcon(m_interruptIcon);
-    connect(act, SIGNAL(triggered()), SLOT(handleExecInterrupt()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecInterrupt);
 
     // A "disabled pause" seems to be a good choice.
     act = m_undisturbableAction = new QAction(tr("Debugger is Busy"), this);
@@ -2635,46 +2635,46 @@ void DebuggerPluginPrivate::extensionsInitialized()
     act = m_abortAction = new QAction(tr("Abort Debugging"), this);
     act->setToolTip(tr("Aborts debugging and "
         "resets the debugger to the initial state."));
-    connect(act, SIGNAL(triggered()), SLOT(handleAbort()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleAbort);
 
     act = m_resetAction = new QAction(tr("Restart Debugging"),this);
     act->setToolTip(tr("Restart the debugging session."));
     act->setIcon(m_resetIcon);
-    connect(act,SIGNAL(triggered()),SLOT(handleReset()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleReset);
 
     act = m_nextAction = new QAction(tr("Step Over"), this);
     act->setIcon(QIcon(QLatin1String(":/debugger/images/debugger_stepover_small.png")));
-    connect(act, SIGNAL(triggered()), SLOT(handleExecNext()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecNext);
 
     act = m_stepAction = new QAction(tr("Step Into"), this);
     act->setIcon(QIcon(QLatin1String(":/debugger/images/debugger_stepinto_small.png")));
-    connect(act, SIGNAL(triggered()), SLOT(handleExecStep()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecStep);
 
     act = m_stepOutAction = new QAction(tr("Step Out"), this);
     act->setIcon(QIcon(QLatin1String(":/debugger/images/debugger_stepout_small.png")));
-    connect(act, SIGNAL(triggered()), SLOT(handleExecStepOut()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecStepOut);
 
     act = m_runToLineAction = new QAction(tr("Run to Line"), this);
-    connect(act, SIGNAL(triggered()), SLOT(handleExecRunToLine()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecRunToLine);
 
     act = m_runToSelectedFunctionAction =
         new QAction(tr("Run to Selected Function"), this);
-    connect(act, SIGNAL(triggered()), SLOT(handleExecRunToSelectedFunction()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecRunToSelectedFunction);
 
     act = m_returnFromFunctionAction =
         new QAction(tr("Immediately Return From Inner Function"), this);
-    connect(act, SIGNAL(triggered()), SLOT(handleExecReturn()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecReturn);
 
     act = m_jumpToLineAction = new QAction(tr("Jump to Line"), this);
-    connect(act, SIGNAL(triggered()), SLOT(handleExecJumpToLine()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecJumpToLine);
 
     m_breakAction = new QAction(tr("Toggle Breakpoint"), this);
 
     act = m_watchAction1 = new QAction(tr("Add Expression Evaluator"), this);
-    connect(act, SIGNAL(triggered()), SLOT(handleAddToWatchWindow()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleAddToWatchWindow);
 
     act = m_watchAction2 = new QAction(tr("Add Expression Evaluator"), this);
-    connect(act, SIGNAL(triggered()), SLOT(handleAddToWatchWindow()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleAddToWatchWindow);
 
     //m_snapshotAction = new QAction(tr("Create Snapshot"), this);
     //m_snapshotAction->setProperty(Role, RequestCreateSnapshotRole);
@@ -2690,10 +2690,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
     act->setIconVisibleInMenu(false);
 
     act = m_frameDownAction = new QAction(tr("Move to Called Frame"), this);
-    connect(act, SIGNAL(triggered()), SLOT(handleFrameDown()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleFrameDown);
 
     act = m_frameUpAction = new QAction(tr("Move to Calling Frame"), this);
-    connect(act, SIGNAL(triggered()), SLOT(handleFrameUp()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleFrameUp);
 
     connect(action(OperateByInstruction), SIGNAL(triggered(bool)),
         SLOT(handleOperateByInstructionTriggered(bool)));
@@ -2703,16 +2703,16 @@ void DebuggerPluginPrivate::extensionsInitialized()
     // Dock widgets
     QDockWidget *dock = 0;
     dock = m_mainWindow->createDockWidget(CppLanguage, m_modulesWindow);
-    connect(dock->toggleViewAction(), SIGNAL(toggled(bool)),
-        SLOT(modulesDockToggled(bool)), Qt::QueuedConnection);
+    connect(dock->toggleViewAction(), &QAction::toggled,
+        this, &DebuggerPluginPrivate::modulesDockToggled, Qt::QueuedConnection);
 
     dock = m_mainWindow->createDockWidget(CppLanguage, m_registerWindow);
-    connect(dock->toggleViewAction(), SIGNAL(toggled(bool)),
-        SLOT(registerDockToggled(bool)), Qt::QueuedConnection);
+    connect(dock->toggleViewAction(), &QAction::toggled,
+        this, &DebuggerPluginPrivate::registerDockToggled, Qt::QueuedConnection);
 
     dock = m_mainWindow->createDockWidget(CppLanguage, m_sourceFilesWindow);
-    connect(dock->toggleViewAction(), SIGNAL(toggled(bool)),
-        SLOT(sourceFilesDockToggled(bool)), Qt::QueuedConnection);
+    connect(dock->toggleViewAction(), &QAction::toggled,
+        this, &DebuggerPluginPrivate::sourceFilesDockToggled, Qt::QueuedConnection);
 
     dock = m_mainWindow->createDockWidget(AnyLanguage, m_logWindow);
     dock->setProperty(DOCKWIDGET_DEFAULT_AREA, Qt::TopDockWidgetArea);
@@ -2743,49 +2743,49 @@ void DebuggerPluginPrivate::extensionsInitialized()
     debuggerIcon.addFile(QLatin1String(":/projectexplorer/images/debugger_start.png"));
     act->setIcon(debuggerIcon);
     act->setText(tr("Start Debugging"));
-    connect(act, SIGNAL(triggered()), this, SLOT(debugProject()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::debugProject);
 
     act = m_debugWithoutDeployAction = new QAction(this);
     act->setText(tr("Start Debugging Without Deployment"));
-    connect(act, SIGNAL(triggered()), this, SLOT(debugProjectWithoutDeploy()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::debugProjectWithoutDeploy);
 
     act = m_startAndDebugApplicationAction = new QAction(this);
     act->setText(tr("Start and Debug External Application..."));
-    connect(act, SIGNAL(triggered()), SLOT(startAndDebugApplication()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::startAndDebugApplication);
 
     act = m_attachToCoreAction = new QAction(this);
     act->setText(tr("Load Core File..."));
-    connect(act, SIGNAL(triggered()), SLOT(attachCore()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::attachCore);
 
     act = m_attachToRemoteServerAction = new QAction(this);
     act->setText(tr("Attach to Remote Debug Server..."));
-    connect(act, SIGNAL(triggered()), SLOT(attachToRemoteServer()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::attachToRemoteServer);
 
     act = m_startRemoteServerAction = new QAction(this);
     act->setText(tr("Start Remote Debug Server Attached to Process..."));
-    connect(act, SIGNAL(triggered()), SLOT(startRemoteServer()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::startRemoteServer);
 
     act = m_attachToRunningApplication = new QAction(this);
     act->setText(tr("Attach to Running Application..."));
-    connect(act, SIGNAL(triggered()), SLOT(attachToRunningApplication()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::attachToRunningApplication);
 
     act = m_attachToUnstartedApplication = new QAction(this);
     act->setText(tr("Attach to Unstarted Application..."));
-    connect(act, SIGNAL(triggered()), SLOT(attachToUnstartedApplicationDialog()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::attachToUnstartedApplicationDialog);
 
     act = m_attachToQmlPortAction = new QAction(this);
     act->setText(tr("Attach to QML Port..."));
-    connect(act, SIGNAL(triggered()), SLOT(attachToQmlPort()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::attachToQmlPort);
 
     if (HostOsInfo::isWindowsHost()) {
         m_startRemoteCdbAction = new QAction(tr("Attach to Remote CDB Session..."), this);
-        connect(m_startRemoteCdbAction, SIGNAL(triggered()),
-                SLOT(startRemoteCdbSession()));
+        connect(m_startRemoteCdbAction, &QAction::triggered,
+                this, &DebuggerPluginPrivate::startRemoteCdbSession);
     }
 
     act = m_detachAction = new QAction(this);
     act->setText(tr("Detach Debugger"));
-    connect(act, SIGNAL(triggered()), SLOT(handleExecDetach()));
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecDetach);
 
     // "Start Debugging" sub-menu
     // groups:
@@ -2970,8 +2970,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
         "Debugger.ToggleBreak", globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("F8") : tr("F9")));
     debugMenu->addAction(cmd);
-    connect(m_breakAction, SIGNAL(triggered()),
-        SLOT(toggleBreakpoint()));
+    connect(m_breakAction, &QAction::triggered,
+        this, &DebuggerPluginPrivate::toggleBreakpoint);
 
     debugMenu->addSeparator(globalcontext);
 
@@ -3046,12 +3046,12 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_plugin->addAutoReleasedObject(new LocalsAndExpressionsOptionsPage);
     m_plugin->addAutoReleasedObject(new DebuggerOptionsPage);
 
-    connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
-        SLOT(onModeChanged(Core::IMode*)));
-    connect(ICore::instance(), SIGNAL(coreAboutToOpen()),
-        SLOT(onCoreAboutToOpen()));
-    connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
-            this, SLOT(updateDebugWithoutDeployMenu()));
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
+        this, &DebuggerPluginPrivate::onModeChanged);
+    connect(ICore::instance(), &ICore::coreAboutToOpen,
+        this, &DebuggerPluginPrivate::onCoreAboutToOpen);
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
+        this, &DebuggerPluginPrivate::updateDebugWithoutDeployMenu);
 
     // Debug mode setup
     DebugMode *debugMode = new DebugMode;
