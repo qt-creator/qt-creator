@@ -31,6 +31,8 @@
 #include "cpptoolstestcase.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/codeassist/iassistproposalmodel.h>
@@ -39,6 +41,8 @@
 #include <utils/fileutils.h>
 
 #include <QtTest>
+
+using namespace ProjectExplorer;
 
 static bool closeEditorsWithoutGarbageCollectorInvocation(const QList<Core::IEditor *> &editors)
 {
@@ -181,6 +185,24 @@ QList<CPlusPlus::Document::Ptr> TestCase::waitForFilesInGlobalSnapshot(
     return result;
 }
 
+bool TestCase::waitUntilCppModelManagerIsAwareOf(Project *project, int timeOut)
+{
+    if (!project)
+        return false;
+
+    QTime t;
+    t.start();
+
+    CppModelManager *modelManager = CppModelManager::instance();
+    forever {
+        if (modelManager->projectInfo(project).isValid())
+            return true;
+        if (t.elapsed() > timeOut)
+            return false;
+        QCoreApplication::processEvents();
+    }
+}
+
 bool TestCase::writeFile(const QString &filePath, const QByteArray &contents)
 {
     Utils::FileSaver saver(filePath);
@@ -190,6 +212,60 @@ bool TestCase::writeFile(const QString &filePath, const QByteArray &contents)
         return false;
     }
     return true;
+}
+
+ProjectOpenerAndCloser::ProjectOpenerAndCloser()
+{
+    QVERIFY(!SessionManager::hasProjects());
+}
+
+ProjectOpenerAndCloser::~ProjectOpenerAndCloser()
+{
+    foreach (Project *project, m_openProjects)
+        ProjectExplorerPlugin::unloadProject(project);
+}
+
+ProjectInfo ProjectOpenerAndCloser::open(const QString &projectFile)
+{
+    QString error;
+    Project *project = ProjectExplorerPlugin::openProject(projectFile, &error);
+    if (!error.isEmpty())
+        qWarning() << error;
+    if (!project)
+        return ProjectInfo();
+    m_openProjects.append(project);
+
+    if (TestCase::waitUntilCppModelManagerIsAwareOf(project))
+        return CppModelManager::instance()->projectInfo(project);
+
+    return ProjectInfo();
+}
+
+TemporaryCopiedDir::TemporaryCopiedDir(const QString &sourceDirPath)
+    : m_temporaryDir(QDir::tempPath() + QLatin1String("/qtcreator-tests-XXXXXX"))
+    , m_isValid(m_temporaryDir.isValid())
+{
+    if (!m_isValid)
+        return;
+
+    if (!sourceDirPath.isEmpty()) {
+        QFileInfo fi(sourceDirPath);
+        if (!fi.exists() || !fi.isReadable()) {
+            m_isValid = false;
+            return;
+        }
+
+        if (!Utils::FileUtils::copyRecursively(Utils::FileName::fromString(sourceDirPath),
+                                               Utils::FileName::fromString(path()))) {
+            m_isValid = false;
+            return;
+        }
+    }
+}
+
+QString TemporaryCopiedDir::absolutePath(const QByteArray &relativePath) const
+{
+    return m_temporaryDir.path() + QLatin1Char('/') + QString::fromUtf8(relativePath);
 }
 
 FileWriterAndRemover::FileWriterAndRemover(const QString &filePath, const QByteArray &contents)

@@ -37,6 +37,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <QStringList>
+#include <QTemporaryDir>
 
 namespace CPlusPlus {
 class Document;
@@ -44,6 +45,7 @@ class Snapshot;
 }
 
 namespace Core { class IEditor; }
+namespace ProjectExplorer { class Project; }
 
 namespace TextEditor {
 class BaseTextEditor;
@@ -87,6 +89,8 @@ public:
     static CPlusPlus::Snapshot globalSnapshot();
     static bool garbageCollectGlobalSnapshot();
 
+    static bool waitUntilCppModelManagerIsAwareOf(ProjectExplorer::Project *project,
+                                                  int timeOut = 30 * 1000 /*= 30 secs*/);
     static CPlusPlus::Document::Ptr waitForFileInGlobalSnapshot(const QString &filePath);
     static QList<CPlusPlus::Document::Ptr> waitForFilesInGlobalSnapshot(
             const QStringList &filePaths);
@@ -100,6 +104,32 @@ protected:
 private:
     QList<Core::IEditor *> m_editorsToClose;
     bool m_runGarbageCollector;
+};
+
+class CPPTOOLS_EXPORT ProjectOpenerAndCloser
+{
+public:
+    ProjectOpenerAndCloser();
+    ~ProjectOpenerAndCloser(); // Closes opened projects
+
+    ProjectInfo open(const QString &projectFile);
+
+private:
+    QList<ProjectExplorer::Project *> m_openProjects;
+};
+
+class CPPTOOLS_EXPORT TemporaryCopiedDir
+{
+public:
+    TemporaryCopiedDir(const QString &sourceDirPath);
+
+    bool isValid() const { return m_isValid; }
+    QString path() const { return m_temporaryDir.path(); }
+    QString absolutePath(const QByteArray &relativePath) const;
+
+private:
+    QTemporaryDir m_temporaryDir;
+    bool m_isValid;
 };
 
 class FileWriterAndRemover

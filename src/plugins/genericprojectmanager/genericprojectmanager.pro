@@ -23,7 +23,6 @@ RESOURCES += genericproject.qrc
 FORMS += genericmakestep.ui
 
 equals(TEST, 1) {
-    SOURCES += genericprojectplugin_test.cpp cppmodelmanagerhelper.cpp
-    HEADERS += cppmodelmanagerhelper.h
+    SOURCES += genericprojectplugin_test.cpp
     DEFINES += SRCDIR=\\\"$$PWD\\\"
 }

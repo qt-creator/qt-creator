@@ -40,10 +40,7 @@ QtcPlugin {
     Group {
         name: "Tests"
         condition: project.testsEnabled
-        files: [
-            "cppmodelmanagerhelper.cpp", "cppmodelmanagerhelper.h",
-            "genericprojectplugin_test.cpp",
-        ]
+        files: [ "genericprojectplugin_test.cpp" ]
 
         cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])
     }

@@ -28,92 +28,52 @@
 **
 ****************************************************************************/
 
-#include "cppmodelmanagerhelper.h"
 #include "genericprojectplugin.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 
+#include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpptoolstestcase.h>
+
 #include <QFileInfo>
+#include <QTemporaryDir>
 #include <QTest>
 
 using namespace CppTools;
+using namespace CppTools::Tests;
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
-using namespace GenericProjectManager::Internal::Tests;
 using namespace ProjectExplorer;
 
-inline static QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
-inline static QString projectFilePath(const QString &project)
+namespace {
+
+inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
+inline QString sourceProjectPath(const QString &project)
 {
     const QString fileName(_(SRCDIR "/../../../tests/genericprojectmanager/") + project);
     return QFileInfo(fileName).absoluteFilePath();
 }
 
-namespace {
-class ProjectExplorerHelper
-{
-public:
-    ProjectExplorerHelper()
-    {
-        QVERIFY(!SessionManager::hasProjects());
-    }
-
-    ~ProjectExplorerHelper()
-    {
-        foreach (Project *project, m_openProjects)
-            ProjectExplorerPlugin::unloadProject(project);
-    }
-
-    Project *openProject(const QString &projectFile)
-    {
-        QString error;
-        Project *project = ProjectExplorerPlugin::openProject(projectFile, &error);
-        if (!error.isEmpty())
-            qWarning() << error;
-        if (!project)
-            return 0;
-        m_openProjects.append(project);
-        return project;
-    }
-
-private:
-    QList<Project *> m_openProjects;
-};
 } // anonymous namespace
-
-static ProjectInfo setupProject(const QByteArray &projectFile, const QByteArray &mainFile,
-                                ProjectExplorerHelper &pHelper)
-{
-    CppModelManagerHelper cppHelper;
-    Project *project = pHelper.openProject(projectFilePath(_(projectFile)));
-    if (!project)
-        return ProjectInfo();
-
-    // Wait only for a single file: we don't really care if the file is refreshed or not, but at
-    // this point we know that the C++ model manager got notified of all project parts and we can
-    // retrieve them for inspection.
-    cppHelper.waitForSourceFilesRefreshed(projectFilePath(_(mainFile)));
-
-    CppModelManager *mm = cppHelper.cppModelManager();
-    return mm->projectInfo(project);
-}
 
 void GenericProjectPlugin::test_simple()
 {
-    ProjectExplorerHelper pHelper;
+    TemporaryCopiedDir temporaryDir(sourceProjectPath(_("testdata_simpleproject")));
+    QVERIFY(temporaryDir.isValid());
+    const QString mainFile = temporaryDir.absolutePath("main.cpp");
+    const QString projectFile = temporaryDir.absolutePath("simpleproject.creator");
 
-    const QByteArray mainFile("testdata_simpleproject/main.cpp");
-    ProjectInfo pInfo(
-                setupProject("testdata_simpleproject/simpleproject.creator", mainFile, pHelper));
+    ProjectOpenerAndCloser projects;
+    const ProjectInfo pInfo = projects.open(projectFile);
     QVERIFY(pInfo.isValid());
     QCOMPARE(pInfo.projectParts().size(), 1);
 
     ProjectPart::Ptr pPart = pInfo.projectParts().first();
     QVERIFY(pPart);
     QCOMPARE(pPart->files.size(), 1);
-    QCOMPARE(pPart->files.first().path, projectFilePath(_(mainFile)));
+    QCOMPARE(pPart->files.first().path, mainFile);
     QCOMPARE(pPart->files.first().kind, ProjectFile::CXXSource);
 }
 
@@ -133,11 +93,12 @@ static QStringList simplify(const QList<CppTools::ProjectFile> &files, const QSt
 
 void GenericProjectPlugin::test_mixed1()
 {
-    ProjectExplorerHelper pHelper;
-    ProjectInfo pInfo(
-                setupProject("testdata_mixedproject1/mixedproject1.creator",
-                             "testdata_mixedproject1/main.cpp",
-                             pHelper));
+    TemporaryCopiedDir temporaryDir(sourceProjectPath(_("testdata_mixedproject1/")));
+    QVERIFY(temporaryDir.isValid());
+    const QString projectFile = temporaryDir.absolutePath("mixedproject1.creator");
+
+    ProjectOpenerAndCloser projects;
+    const ProjectInfo pInfo = projects.open(projectFile);
     QVERIFY(pInfo.isValid());
     QCOMPARE(pInfo.projectParts().size(), 3);
 
@@ -147,9 +108,10 @@ void GenericProjectPlugin::test_mixed1()
         return p1->displayName < p2->displayName;
     });
 
-    QStringList part0files = simplify(parts[0]->files,projectFilePath(_("testdata_mixedproject1/")));
-    QStringList part1files = simplify(parts[1]->files,projectFilePath(_("testdata_mixedproject1/")));
-    QStringList part2files = simplify(parts[2]->files,projectFilePath(_("testdata_mixedproject1/")));
+    const QString dirPathWithSlash = temporaryDir.path() + QLatin1Char('/');
+    const QStringList part0files = simplify(parts[0]->files, dirPathWithSlash);
+    const QStringList part1files = simplify(parts[1]->files, dirPathWithSlash);
+    const QStringList part2files = simplify(parts[2]->files, dirPathWithSlash);
 
     QCOMPARE(parts[0]->displayName, _("mixedproject1 (C++11)"));
     QCOMPARE(parts[0]->files.size(), 4);
@@ -178,11 +140,12 @@ void GenericProjectPlugin::test_mixed1()
 
 void GenericProjectPlugin::test_mixed2()
 {
-    ProjectExplorerHelper pHelper;
-    ProjectInfo pInfo(
-                setupProject("testdata_mixedproject2/mixedproject2.creator",
-                             "testdata_mixedproject2/main.cpp",
-                             pHelper));
+    TemporaryCopiedDir temporaryDir(sourceProjectPath(_("testdata_mixedproject2/")));
+    QVERIFY(temporaryDir.isValid());
+    const QString projectFile = temporaryDir.absolutePath("mixedproject2.creator");
+
+    ProjectOpenerAndCloser projects;
+    const ProjectInfo pInfo = projects.open(projectFile);
     QVERIFY(pInfo.isValid());
     QCOMPARE(pInfo.projectParts().size(), 2);
 
@@ -192,8 +155,9 @@ void GenericProjectPlugin::test_mixed2()
         return p1->displayName < p2->displayName;
     });
 
-    QStringList part0files = simplify(parts[0]->files,projectFilePath(_("testdata_mixedproject2/")));
-    QStringList part1files = simplify(parts[1]->files,projectFilePath(_("testdata_mixedproject2/")));
+    const QString dirPathWithSlash = temporaryDir.path() + QLatin1Char('/');
+    const QStringList part0files = simplify(parts[0]->files, dirPathWithSlash);
+    const QStringList part1files = simplify(parts[1]->files, dirPathWithSlash);
 
     QCOMPARE(parts[0]->displayName, _("mixedproject2 (C++11)"));
     QCOMPARE(parts[0]->files.size(), 2);
