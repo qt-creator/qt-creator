@@ -41,7 +41,8 @@ SOURCES += \
     timelinenotesrenderpass.cpp \
     timelinerenderpass.cpp \
     timelinerenderstate.cpp \
-    timelinenotesmodel.cpp
+    timelinenotesmodel.cpp \
+    timelineabstractrenderer.cpp
 
 HEADERS += \
     abstractqmlprofilerrunner.h \
@@ -88,7 +89,9 @@ HEADERS += \
     timelinenotesmodel.h \
     timelinenotesmodel_p.h \
     timelinerenderer_p.h \
-    timelinerenderstate_p.h
+    timelinerenderstate_p.h \
+    timelineabstractrenderer.h \
+    timelineabstractrenderer_p.h
 
 RESOURCES += \
     qml/qmlprofiler.qrc

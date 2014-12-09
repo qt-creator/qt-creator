@@ -149,7 +149,7 @@ void updateNodes(const QmlProfilerRangeModel *model, int from, int to,
 }
 
 Timeline::TimelineRenderPass::State *QmlProfilerBindingLoopsRenderPass::update(
-        const Timeline::TimelineRenderer *renderer,
+        const Timeline::TimelineAbstractRenderer *renderer,
         const Timeline::TimelineRenderState *parentState, State *oldState,
         int indexFrom, int indexTo, bool stateChanged, qreal spacing) const
 {

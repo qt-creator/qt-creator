@@ -96,7 +96,7 @@ TimelineNotesRenderPass::TimelineNotesRenderPass()
 {
 }
 
-TimelineRenderPass::State *TimelineNotesRenderPass::update(const TimelineRenderer *renderer,
+TimelineRenderPass::State *TimelineNotesRenderPass::update(const TimelineAbstractRenderer *renderer,
                                                            const TimelineRenderState *parentState,
                                                            State *oldState, int firstIndex,
                                                            int lastIndex, bool stateChanged,

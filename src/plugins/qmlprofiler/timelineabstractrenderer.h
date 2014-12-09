@@ -28,54 +28,72 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINERENDERER_H
-#define TIMELINERENDERER_H
+#ifndef TIMELINEABSTRACTRENDERER_H
+#define TIMELINEABSTRACTRENDERER_H
+
+#include <QQuickItem>
 
 #include <QSGTransformNode>
 #include <QQuickItem>
 #include "timelinezoomcontrol.h"
 #include "timelinemodel.h"
 #include "timelinenotesmodel.h"
-#include "timelineabstractrenderer.h"
+#include "timelinerenderpass.h"
 
 namespace Timeline {
 
 class TimelineRenderPass;
 class TimelineRenderState;
 
-class TimelineRenderer : public TimelineAbstractRenderer
+class TimelineAbstractRenderer : public QQuickItem
 {
     Q_OBJECT
+    Q_PROPERTY(Timeline::TimelineModel *model READ model WRITE setModel NOTIFY modelChanged)
+    Q_PROPERTY(Timeline::TimelineNotesModel *notes READ notes WRITE setNotes NOTIFY notesChanged)
+    Q_PROPERTY(Timeline::TimelineZoomControl *zoomer READ zoomer WRITE setZoomer NOTIFY zoomerChanged)
+    Q_PROPERTY(bool selectionLocked READ selectionLocked WRITE setSelectionLocked NOTIFY selectionLockedChanged)
+    Q_PROPERTY(int selectedItem READ selectedItem WRITE setSelectedItem NOTIFY selectedItemChanged)
 
 public:
-    explicit TimelineRenderer(QQuickItem *parent = 0);
+    bool selectionLocked() const;
+    int selectedItem() const;
 
-    Q_INVOKABLE void selectNextFromSelectionId(int selectionId);
-    Q_INVOKABLE void selectPrevFromSelectionId(int selectionId);
+    TimelineModel *model() const;
+    void setModel(TimelineModel *model);
 
-    // TODO: We could add some Q_INVOKABLE functions to enable or disable render passes when the the
-    // need arises.
+    TimelineNotesModel *notes() const;
+    void setNotes(TimelineNotesModel *notes);
+
+    TimelineZoomControl *zoomer() const;
+    void setZoomer(TimelineZoomControl *zoomer);
+
+    bool modelDirty() const;
+    bool notesDirty() const;
+    bool rowHeightsDirty() const;
 
 signals:
-    void itemPressed(int pressedItem);
+    void modelChanged(const TimelineModel *model);
+    void notesChanged(TimelineNotesModel *notes);
+    void zoomerChanged(TimelineZoomControl *zoomer);
+    void selectionLockedChanged(bool locked);
+    void selectedItemChanged(int itemIndex);
 
 public slots:
-    void clearData();
+    void setSelectedItem(int itemIndex);
+    void setSelectionLocked(bool locked);
+
+    void setModelDirty();
+    void setNotesDirty();
+    void setRowHeightsDirty();
 
 protected:
-    virtual QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData);
-    virtual void mousePressEvent(QMouseEvent *event);
-    virtual void mouseReleaseEvent(QMouseEvent *event);
-    virtual void mouseMoveEvent(QMouseEvent *event);
-    virtual void hoverMoveEvent(QHoverEvent *event);
-
-private:
-    class TimelineRendererPrivate;
-    Q_DECLARE_PRIVATE(TimelineRenderer)
+    class TimelineAbstractRendererPrivate;
+    TimelineAbstractRenderer(TimelineAbstractRendererPrivate &dd, QQuickItem *parent = 0);
+    TimelineAbstractRendererPrivate *d_ptr;
+    Q_DECLARE_PRIVATE(TimelineAbstractRenderer)
 };
 
 } // namespace Timeline
 
-QML_DECLARE_TYPE(Timeline::TimelineRenderer)
 
-#endif // TIMELINERENDERER_H
+#endif // TIMELINEABSTRACTRENDERER_H

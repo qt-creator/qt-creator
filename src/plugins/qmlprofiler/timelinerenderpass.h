@@ -36,7 +36,7 @@
 QT_FORWARD_DECLARE_CLASS(QSGNode)
 namespace Timeline {
 
-class TimelineRenderer;
+class TimelineAbstractRenderer;
 class TimelineRenderState;
 
 class TimelineRenderPass {
@@ -50,7 +50,8 @@ public:
     };
 
     virtual ~TimelineRenderPass();
-    virtual State *update(const TimelineRenderer *renderer, const TimelineRenderState *parentState,
+    virtual State *update(const TimelineAbstractRenderer *renderer,
+                          const TimelineRenderState *parentState,
                           State *state, int indexFrom, int indexTo, bool stateChanged,
                           qreal spacing) const = 0;
 };

@@ -31,7 +31,7 @@
 #ifndef QMLPROFILERBINDINGLOOPSRENDERPASS_H
 #define QMLPROFILERBINDINGLOOPSRENDERPASS_H
 
-#include "timelinerenderer.h"
+#include "timelineabstractrenderer.h"
 #include "timelinerenderpass.h"
 #include "timelinerenderstate.h"
 #include "qmlprofilerrangemodel.h"
@@ -44,7 +44,7 @@ class QmlProfilerBindingLoopsRenderPass : public Timeline::TimelineRenderPass
 {
 public:
     static const QmlProfilerBindingLoopsRenderPass *instance();
-    State *update(const Timeline::TimelineRenderer *renderer,
+    State *update(const Timeline::TimelineAbstractRenderer *renderer,
                   const Timeline::TimelineRenderState *parentState,
                   State *oldState, int indexFrom, int indexTo, bool stateChanged,
                   qreal spacing) const;

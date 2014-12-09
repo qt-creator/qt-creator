@@ -31,7 +31,7 @@
 #ifndef TIMELINEITEMSRENDERPASS_H
 #define TIMELINEITEMSRENDERPASS_H
 
-#include "timelinerenderer.h"
+#include "timelineabstractrenderer.h"
 #include "timelinerenderpass.h"
 #include <QSGMaterial>
 
@@ -41,7 +41,7 @@ class TimelineItemsRenderPass : public TimelineRenderPass
 {
 public:
     static const TimelineItemsRenderPass *instance();
-    State *update(const TimelineRenderer *renderer, const TimelineRenderState *parentState,
+    State *update(const TimelineAbstractRenderer *renderer, const TimelineRenderState *parentState,
                   State *state, int firstIndex, int lastIndex, bool stateChanged,
                   qreal spacing) const;
 protected:

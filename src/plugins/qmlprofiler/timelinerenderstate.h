@@ -33,6 +33,7 @@
 
 #include <QSGNode>
 #include "timelinerenderpass.h"
+#include "timelinemodel.h"
 
 namespace Timeline {
 
@@ -60,6 +61,10 @@ public:
     QSGNode *collapsedOverlayRoot();
 
     bool isEmpty() const;
+    void assembleNodeTree(const TimelineModel *model, int defaultRowHeight, int defaultRowOffset);
+    void updateExpandedRowHeights(const TimelineModel *model, int defaultRowHeight,
+                                  int defaultRowOffset);
+    QSGTransformNode *finalize(QSGNode *oldNode, bool expanded, const QMatrix4x4 &transform);
 
 private:
     class TimelineRenderStatePrivate;

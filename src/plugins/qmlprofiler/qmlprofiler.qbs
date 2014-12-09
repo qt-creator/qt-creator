@@ -50,6 +50,8 @@ QtcPlugin {
             "qmlprofilerviewmanager.cpp", "qmlprofilerviewmanager.h",
             "qv8profilerdatamodel.cpp", "qv8profilerdatamodel.h",
             "qv8profilereventview.h", "qv8profilereventview.cpp",
+            "timelineabstractrenderer.cpp", "timelineabstractrenderer.h",
+            "timelineabstractrenderer_p.h",
             "timelineitemsrenderpass.cpp", "timelineitemsrenderpass.h",
             "timelinemodel.cpp", "timelinemodel.h", "timelinemodel_p.h",
             "timelinemodelaggregator.cpp", "timelinemodelaggregator.h",

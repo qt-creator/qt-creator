@@ -51,139 +51,17 @@
 namespace Timeline {
 
 TimelineRenderer::TimelineRendererPrivate::TimelineRendererPrivate(TimelineRenderer *q) :
-    model(0), zoomer(0), notes(0), selectedItem(-1), selectionLocked(true), modelDirty(false),
-    rowHeightsDirty(false), rowCountsDirty(false), lastState(0), q_ptr(q)
+    lastState(0), q_ptr(q)
 {
     resetCurrentSelection();
 }
 
 TimelineRenderer::TimelineRenderer(QQuickItem *parent) :
-    QQuickItem(parent), d_ptr(new TimelineRendererPrivate(this))
+    TimelineAbstractRenderer(*(new TimelineRendererPrivate(this)), parent)
 {
     setFlag(QQuickItem::ItemHasContents);
     setAcceptedMouseButtons(Qt::LeftButton);
     setAcceptHoverEvents(true);
-}
-
-bool TimelineRenderer::selectionLocked() const
-{
-    Q_D(const TimelineRenderer);
-    return d->selectionLocked;
-}
-
-int TimelineRenderer::selectedItem() const
-{
-    Q_D(const TimelineRenderer);
-    return d->selectedItem;
-}
-
-TimelineModel *TimelineRenderer::model() const
-{
-    Q_D(const TimelineRenderer);
-    return d->model;
-}
-
-void TimelineRenderer::setModel(TimelineModel *model)
-{
-    Q_D(TimelineRenderer);
-    if (d->model == model)
-        return;
-
-    if (d->model) {
-        disconnect(d->model, SIGNAL(expandedChanged()), this, SLOT(update()));
-        disconnect(d->model, SIGNAL(hiddenChanged()), this, SLOT(update()));
-        disconnect(d->model, SIGNAL(expandedRowHeightChanged(int,int)),
-                   this, SLOT(setRowHeightsDirty()));
-        disconnect(d->model, SIGNAL(emptyChanged()), this, SLOT(setModelDirty()));
-        disconnect(d->model, SIGNAL(expandedRowCountChanged()), this, SLOT(setRowCountsDirty()));
-        disconnect(d->model, SIGNAL(collapsedRowCountChanged()), this, SLOT(setRowCountsDirty()));
-    }
-
-    d->model = model;
-    if (d->model) {
-        connect(d->model, SIGNAL(expandedChanged()), this, SLOT(update()));
-        connect(d->model, SIGNAL(hiddenChanged()), this, SLOT(update()));
-        connect(d->model, SIGNAL(expandedRowHeightChanged(int,int)),
-                this, SLOT(setRowHeightsDirty()));
-        connect(d->model, SIGNAL(emptyChanged()), this, SLOT(setModelDirty()));
-        connect(d->model, SIGNAL(expandedRowCountChanged()), this, SLOT(setRowCountsDirty()));
-        connect(d->model, SIGNAL(collapsedRowCountChanged()), this, SLOT(setRowCountsDirty()));
-        d->renderPasses = d->model->supportedRenderPasses();
-    }
-
-    setModelDirty();
-    setRowHeightsDirty();
-    setRowCountsDirty();
-    emit modelChanged(d->model);
-}
-
-TimelineZoomControl *TimelineRenderer::zoomer() const
-{
-    Q_D(const TimelineRenderer);
-    return d->zoomer;
-}
-
-void TimelineRenderer::setZoomer(TimelineZoomControl *zoomer)
-{
-    Q_D(TimelineRenderer);
-    if (zoomer != d->zoomer) {
-        if (d->zoomer != 0)
-            disconnect(d->zoomer, SIGNAL(windowChanged(qint64,qint64)), this, SLOT(update()));
-        d->zoomer = zoomer;
-        if (d->zoomer != 0)
-            connect(d->zoomer, SIGNAL(windowChanged(qint64,qint64)), this, SLOT(update()));
-        emit zoomerChanged(zoomer);
-        update();
-    }
-}
-
-TimelineNotesModel *TimelineRenderer::notes() const
-{
-    Q_D(const TimelineRenderer);
-    return d->notes;
-}
-
-void TimelineRenderer::setNotes(TimelineNotesModel *notes)
-{
-    Q_D(TimelineRenderer);
-    if (d->notes == notes)
-        return;
-
-    if (d->notes)
-        disconnect(d->notes, &TimelineNotesModel::changed,
-                   this, &TimelineRenderer::setNotesDirty);
-
-    d->notes = notes;
-    if (d->notes)
-        connect(d->notes, &TimelineNotesModel::changed,
-                this, &TimelineRenderer::setNotesDirty);
-
-    emit notesChanged(d->notes);
-    update();
-}
-
-bool TimelineRenderer::modelDirty() const
-{
-    Q_D(const TimelineRenderer);
-    return d->modelDirty;
-}
-
-bool TimelineRenderer::notesDirty() const
-{
-    Q_D(const TimelineRenderer);
-    return d->notesDirty;
-}
-
-bool TimelineRenderer::rowHeightsDirty() const
-{
-    Q_D(const TimelineRenderer);
-    return d->rowHeightsDirty;
-}
-
-bool TimelineRenderer::rowCountsDirty() const
-{
-    Q_D(const TimelineRenderer);
-    return d->rowCountsDirty;
 }
 
 void TimelineRenderer::TimelineRendererPrivate::resetCurrentSelection()
@@ -241,14 +119,13 @@ QSGNode *TimelineRenderer::updatePaintNode(QSGNode *node, UpdatePaintNodeData *u
             d->zoomer->windowDuration() <= 0) {
         delete node;
         return 0;
-    } else if (node == 0) {
-        node = new QSGTransformNode;
     }
 
     qreal spacing = width() / d->zoomer->windowDuration();
 
-    if (d->modelDirty || d->rowCountsDirty) {
-        node->removeAllChildNodes();
+    if (d->modelDirty) {
+        if (node)
+            node->removeAllChildNodes();
         foreach (QVector<TimelineRenderState *> stateVector, d->renderStates)
             qDeleteAll(stateVector);
         d->renderStates.clear();
@@ -266,91 +143,23 @@ QSGNode *TimelineRenderer::updatePaintNode(QSGNode *node, UpdatePaintNodeData *u
                                                          state != d->lastState, spacing));
 
     if (state->isEmpty()) { // new state
-        for (int pass = 0; pass < d->renderPasses.length(); ++pass) {
-            const TimelineRenderPass::State *passState = state->passState(pass);
-            if (!passState)
-                continue;
-            if (passState->expandedOverlay())
-                state->expandedOverlayRoot()->appendChildNode(passState->expandedOverlay());
-            if (passState->collapsedOverlay())
-                state->collapsedOverlayRoot()->appendChildNode(passState->collapsedOverlay());
-        }
-
-        int row = 0;
-        for (int i = 0; i < d->model->expandedRowCount(); ++i) {
-            QSGTransformNode *rowNode = new QSGTransformNode;
-            for (int pass = 0; pass < d->renderPasses.length(); ++pass) {
-                const TimelineRenderPass::State *passState = state->passState(pass);
-                if (!passState)
-                    continue;
-                const QVector<QSGNode *> &rows = passState->expandedRows();
-                if (rows.length() > row) {
-                    QSGNode *rowChildNode = rows[row];
-                    if (rowChildNode)
-                        rowNode->appendChildNode(rowChildNode);
-                }
-            }
-            state->expandedRowRoot()->appendChildNode(rowNode);
-            ++row;
-        }
-
-        for (int row = 0; row < d->model->collapsedRowCount(); ++row) {
-            QSGTransformNode *rowNode = new QSGTransformNode;
-            QMatrix4x4 matrix;
-            matrix.translate(0, row * TimelineModel::defaultRowHeight(), 0);
-            rowNode->setMatrix(matrix);
-            for (int pass = 0; pass < d->renderPasses.length(); ++pass) {
-                const TimelineRenderPass::State *passState = state->passState(pass);
-                if (!passState)
-                    continue;
-                const QVector<QSGNode *> &rows = passState->collapsedRows();
-                if (rows.length() > row) {
-                    QSGNode *rowChildNode = rows[row];
-                    if (rowChildNode)
-                        rowNode->appendChildNode(rowChildNode);
-                }
-            }
-            state->collapsedRowRoot()->appendChildNode(rowNode);
-        }
-    }
-
-    if (d->rowHeightsDirty || state != d->lastState) {
-        int row = 0;
-        qreal offset = 0;
-        for (QSGNode *rowNode = state->expandedRowRoot()->firstChild(); rowNode != 0;
-             rowNode = rowNode->nextSibling()) {
-            qreal rowHeight = d->model->expandedRowHeight(row++);
-            QMatrix4x4 matrix;
-            matrix.translate(0, offset, 0);
-            matrix.scale(1, rowHeight / TimelineModel::defaultRowHeight(), 1);
-            offset += rowHeight;
-            static_cast<QSGTransformNode *>(rowNode)->setMatrix(matrix);
-        }
+        state->assembleNodeTree(d->model, TimelineModel::defaultRowHeight(),
+                                TimelineModel::defaultRowHeight());
+    } else if (d->rowHeightsDirty || state != d->lastState) {
+        state->updateExpandedRowHeights(d->model, TimelineModel::defaultRowHeight(),
+                                        TimelineModel::defaultRowHeight());
     }
 
     d->modelDirty = false;
     d->notesDirty = false;
-    d->rowCountsDirty = false;
     d->rowHeightsDirty = false;
     d->lastState = state;
-
-    QSGNode *rowNode = d->model->expanded() ? state->expandedRowRoot() : state->collapsedRowRoot();
-    QSGNode *overlayNode = d->model->expanded() ? state->expandedOverlayRoot() :
-                                                 state->collapsedOverlayRoot();
 
     QMatrix4x4 matrix;
     matrix.translate((state->start() - d->zoomer->windowStart()) * spacing, 0, 0);
     matrix.scale(spacing / state->scale(), 1, 1);
 
-    QSGTransformNode *transform = static_cast<QSGTransformNode *>(node);
-    transform->setMatrix(matrix);
-
-    if (node->firstChild() != rowNode || node->lastChild() != overlayNode) {
-        node->removeAllChildNodes();
-        node->appendChildNode(rowNode);
-        node->appendChildNode(overlayNode);
-    }
-    return node;
+    return state->finalize(node, d->model->expanded(), matrix);
 }
 
 void TimelineRenderer::mousePressEvent(QMouseEvent *event)
@@ -481,26 +290,6 @@ void TimelineRenderer::clearData()
     setSelectionLocked(true);
 }
 
-void TimelineRenderer::setSelectedItem(int itemIndex)
-{
-    Q_D(TimelineRenderer);
-    if (d->selectedItem != itemIndex) {
-        d->selectedItem = itemIndex;
-        update();
-        emit selectedItemChanged(itemIndex);
-    }
-}
-
-void TimelineRenderer::setSelectionLocked(bool locked)
-{
-    Q_D(TimelineRenderer);
-    if (d->selectionLocked != locked) {
-        d->selectionLocked = locked;
-        update();
-        emit selectionLockedChanged(locked);
-    }
-}
-
 void TimelineRenderer::selectNextFromSelectionId(int selectionId)
 {
     Q_D(TimelineRenderer);
@@ -513,34 +302,6 @@ void TimelineRenderer::selectPrevFromSelectionId(int selectionId)
     Q_D(TimelineRenderer);
     setSelectedItem(d->model->prevItemBySelectionId(selectionId, d->zoomer->rangeStart(),
                                                    d->selectedItem));
-}
-
-void TimelineRenderer::setModelDirty()
-{
-    Q_D(TimelineRenderer);
-    d->modelDirty = true;
-    update();
-}
-
-void TimelineRenderer::setRowHeightsDirty()
-{
-    Q_D(TimelineRenderer);
-    d->rowHeightsDirty = true;
-    update();
-}
-
-void TimelineRenderer::setNotesDirty()
-{
-    Q_D(TimelineRenderer);
-    d->notesDirty = true;
-    update();
-}
-
-void TimelineRenderer::setRowCountsDirty()
-{
-    Q_D(TimelineRenderer);
-    d->rowCountsDirty = true;
-    update();
 }
 
 } // namespace Timeline

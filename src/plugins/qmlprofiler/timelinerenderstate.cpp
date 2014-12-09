@@ -134,6 +134,98 @@ bool TimelineRenderState::isEmpty() const
             d->collapsedOverlayRoot->childCount() == 0 && d->expandedOverlayRoot->childCount() == 0;
 }
 
+void TimelineRenderState::assembleNodeTree(const TimelineModel *model, int defaultRowHeight,
+                                           int defaultRowOffset)
+{
+    Q_D(TimelineRenderState);
+    for (int pass = 0; pass < d->passes.length(); ++pass) {
+        const TimelineRenderPass::State *passState = d->passes[pass];
+        if (!passState)
+            continue;
+        if (passState->expandedOverlay())
+            d->expandedOverlayRoot->appendChildNode(passState->expandedOverlay());
+        if (passState->collapsedOverlay())
+            d->collapsedOverlayRoot->appendChildNode(passState->collapsedOverlay());
+    }
+
+    int row = 0;
+    for (int i = 0; i < model->expandedRowCount(); ++i) {
+        QSGTransformNode *rowNode = new QSGTransformNode;
+        for (int pass = 0; pass < d->passes.length(); ++pass) {
+            const TimelineRenderPass::State *passState = d->passes[pass];
+            if (!passState)
+                continue;
+            const QVector<QSGNode *> &rows = passState->expandedRows();
+            if (rows.length() > row) {
+                QSGNode *rowChildNode = rows[row];
+                if (rowChildNode)
+                    rowNode->appendChildNode(rowChildNode);
+            }
+        }
+        d->expandedRowRoot->appendChildNode(rowNode);
+        ++row;
+    }
+
+    for (int row = 0; row < model->collapsedRowCount(); ++row) {
+        QSGTransformNode *rowNode = new QSGTransformNode;
+        QMatrix4x4 matrix;
+        matrix.translate(0, row * defaultRowOffset, 0);
+        matrix.scale(1.0, static_cast<float>(defaultRowHeight) /
+                     static_cast<float>(TimelineModel::defaultRowHeight()), 1.0);
+        rowNode->setMatrix(matrix);
+        for (int pass = 0; pass < d->passes.length(); ++pass) {
+            const TimelineRenderPass::State *passState = d->passes[pass];
+            if (!passState)
+                continue;
+            const QVector<QSGNode *> &rows = passState->collapsedRows();
+            if (rows.length() > row) {
+                QSGNode *rowChildNode = rows[row];
+                if (rowChildNode)
+                    rowNode->appendChildNode(rowChildNode);
+            }
+        }
+        d->collapsedRowRoot->appendChildNode(rowNode);
+    }
+
+    updateExpandedRowHeights(model, defaultRowHeight, defaultRowOffset);
+}
+
+void TimelineRenderState::updateExpandedRowHeights(const TimelineModel *model, int defaultRowHeight,
+                                                   int defaultRowOffset)
+{
+    Q_D(TimelineRenderState);
+    int row = 0;
+    qreal offset = 0;
+    for (QSGNode *rowNode = d->expandedRowRoot->firstChild(); rowNode != 0;
+         rowNode = rowNode->nextSibling()) {
+        qreal rowHeight = model->expandedRowHeight(row++);
+        QMatrix4x4 matrix;
+        matrix.translate(0, offset, 0);
+        matrix.scale(1, rowHeight / defaultRowHeight, 1);
+        offset += defaultRowOffset * rowHeight / defaultRowHeight;
+        static_cast<QSGTransformNode *>(rowNode)->setMatrix(matrix);
+    }
+}
+
+QSGTransformNode *TimelineRenderState::finalize(QSGNode *oldNode, bool expanded,
+                                                const QMatrix4x4 &transform)
+{
+    Q_D(TimelineRenderState);
+    QSGNode *rowNode = expanded ? d->expandedRowRoot : d->collapsedRowRoot;
+    QSGNode *overlayNode = expanded ?d->expandedOverlayRoot : d->collapsedOverlayRoot;
+
+    QSGTransformNode *node = oldNode ? static_cast<QSGTransformNode *>(oldNode) :
+                                            new QSGTransformNode;
+    node->setMatrix(transform);
+
+    if (node->firstChild() != rowNode || node->lastChild() != overlayNode) {
+        node->removeAllChildNodes();
+        node->appendChildNode(rowNode);
+        node->appendChildNode(overlayNode);
+    }
+    return node;
+}
+
 TimelineRenderPass::State *TimelineRenderState::passState(int i)
 {
     Q_D(TimelineRenderState);

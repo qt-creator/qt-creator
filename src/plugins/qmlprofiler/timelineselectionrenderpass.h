@@ -31,7 +31,7 @@
 #ifndef TIMELINESELECTIONRENDERPASS_H
 #define TIMELINESELECTIONRENDERPASS_H
 
-#include "timelinerenderer.h"
+#include "timelineabstractrenderer.h"
 #include "timelinerenderpass.h"
 #include "timelinerenderstate.h"
 
@@ -42,7 +42,7 @@ class TimelineSelectionRenderPass : public TimelineRenderPass
 public:
     static const TimelineSelectionRenderPass *instance();
 
-    State *update(const TimelineRenderer *renderer, const TimelineRenderState *parentState,
+    State *update(const TimelineAbstractRenderer *renderer, const TimelineRenderState *parentState,
                   State *state, int firstIndex, int lastIndex, bool stateChanged,
                   qreal spacing) const;
 

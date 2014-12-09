@@ -32,10 +32,12 @@
 #define TIMELINERENDERER_P_H
 
 #include "timelinerenderer.h"
+#include "timelineabstractrenderer_p.h"
 
 namespace Timeline {
 
-class TimelineRenderer::TimelineRendererPrivate {
+class TimelineRenderer::TimelineRendererPrivate :
+        TimelineAbstractRenderer::TimelineAbstractRendererPrivate {
 public:
     TimelineRendererPrivate(TimelineRenderer *q);
 
@@ -50,10 +52,6 @@ public:
 
     TimelineRenderState *findRenderState();
 
-    TimelineModel *model;
-    TimelineZoomControl *zoomer;
-    TimelineNotesModel *notes;
-
     struct {
         qint64 startTime;
         qint64 endTime;
@@ -61,14 +59,6 @@ public:
         int eventIndex;
     } currentSelection;
 
-    int selectedItem;
-    bool selectionLocked;
-    bool modelDirty;
-    bool rowHeightsDirty;
-    bool notesDirty;
-    bool rowCountsDirty;
-
-    QList<const TimelineRenderPass *> renderPasses;
     QVector<QVector<TimelineRenderState *> > renderStates;
     TimelineRenderState *lastState;
 

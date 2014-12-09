@@ -190,10 +190,9 @@ public:
     virtual ~TimelineExpandedRowNode() {}
 };
 
-static void updateNodes(int from, int to, const TimelineRenderer *renderer,
+static void updateNodes(int from, int to, const TimelineModel *model,
                         const TimelineRenderState *parentState, TimelineItemsRenderPassState *state)
 {
-    const TimelineModel *model = renderer->model();
     float defaultRowHeight = TimelineModel::defaultRowHeight();
 
     QVector<TimelineItemsGeometry> expandedPerRow(model->expandedRowCount());
@@ -274,7 +273,7 @@ const TimelineItemsRenderPass *TimelineItemsRenderPass::instance()
     return &pass;
 }
 
-TimelineRenderPass::State *TimelineItemsRenderPass::update(const TimelineRenderer *renderer,
+TimelineRenderPass::State *TimelineItemsRenderPass::update(const TimelineAbstractRenderer *renderer,
                                                            const TimelineRenderState *parentState,
                                                            State *oldState, int indexFrom,
                                                            int indexTo, bool stateChanged,
@@ -315,16 +314,16 @@ TimelineRenderPass::State *TimelineItemsRenderPass::update(const TimelineRendere
             for (int i = indexFrom; i < state->indexFrom;
                  i+= TimelineItemsGeometry::maxEventsPerNode)
                 updateNodes(i, qMin(i + TimelineItemsGeometry::maxEventsPerNode, state->indexFrom),
-                            renderer, parentState, state);
+                            model, parentState, state);
         }
         if (indexTo > state->indexTo) {
             for (int i = state->indexTo; i < indexTo; i+= TimelineItemsGeometry::maxEventsPerNode)
-                updateNodes(i, qMin(i + TimelineItemsGeometry::maxEventsPerNode, indexTo), renderer,
+                updateNodes(i, qMin(i + TimelineItemsGeometry::maxEventsPerNode, indexTo), model,
                             parentState, state);
         }
     } else {
         for (int i = indexFrom; i < indexTo; i+= TimelineItemsGeometry::maxEventsPerNode)
-            updateNodes(i, qMin(i + TimelineItemsGeometry::maxEventsPerNode, indexTo), renderer,
+            updateNodes(i, qMin(i + TimelineItemsGeometry::maxEventsPerNode, indexTo), model,
                         parentState, state);
     }
 

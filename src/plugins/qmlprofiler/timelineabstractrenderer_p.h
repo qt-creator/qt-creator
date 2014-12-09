@@ -28,28 +28,33 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINENOTESRENDERPASS_H
-#define TIMELINENOTESRENDERPASS_H
+#ifndef TIMELINEABSTRACTRENDERER_P_H
+#define TIMELINEABSTRACTRENDERER_P_H
 
 #include "timelineabstractrenderer.h"
-#include <QSGMaterial>
 
 namespace Timeline {
 
-class TimelineNotesRenderPass : public TimelineRenderPass
-{
+class TimelineAbstractRenderer::TimelineAbstractRendererPrivate {
 public:
-    static const TimelineNotesRenderPass *instance();
+    TimelineAbstractRendererPrivate();
 
-    State *update(const TimelineAbstractRenderer *renderer, const TimelineRenderState *parentState,
-                  State *oldState, int firstIndex, int lastIndex, bool stateChanged,
-                  qreal spacing) const;
+    int selectedItem;
+    bool selectionLocked;
+    TimelineModel *model;
+    TimelineNotesModel *notes;
+    TimelineZoomControl *zoomer;
 
-private:
-    TimelineNotesRenderPass();
+    bool modelDirty;
+    bool rowHeightsDirty;
+    bool notesDirty;
+
+    QList<const TimelineRenderPass *> renderPasses;
+
+
 };
 
-} // namespace Timeline
+}
 
-#endif // TIMELINENOTESRENDERPASS_H
+#endif // TIMELINEABSTRACTRENDERER_P_H
 

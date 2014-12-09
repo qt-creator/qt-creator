@@ -55,9 +55,9 @@ struct TimelineSelectionRenderPassState : public TimelineRenderPass::State {
     QSGNode *collapsedOverlay() const { return m_collapsedOverlay; }
 };
 
-TimelineRenderPass::State *TimelineSelectionRenderPass::update(const TimelineRenderer *renderer,
-        const TimelineRenderState *parentState, State *oldState, int firstIndex, int lastIndex,
-        bool stateChanged, qreal spacing) const
+TimelineRenderPass::State *TimelineSelectionRenderPass::update(
+        const TimelineAbstractRenderer *renderer, const TimelineRenderState *parentState,
+        State *oldState, int firstIndex, int lastIndex, bool stateChanged, qreal spacing) const
 {
     Q_UNUSED(stateChanged);
 
