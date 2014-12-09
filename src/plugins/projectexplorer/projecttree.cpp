@@ -135,20 +135,6 @@ void ProjectTree::focusChanged()
     s_instance->updateFromFocus();
 }
 
-bool ProjectTree::editorHasFocus()
-{
-    Core::IEditor *editor = Core::EditorManager::currentEditor();
-    if (!editor)
-        return false;
-    QWidget *widget = editor->widget();
-    if (!widget)
-        return false;
-    widget = widget->focusWidget();
-    if (!widget)
-        return false;
-    return widget->hasFocus();
-}
-
 void ProjectTree::updateFromFocus(bool invalidCurrentNode)
 {
     ProjectTreeWidget *focus = Utils::findOrDefault(s_instance->m_projectTreeWidgets,
@@ -156,7 +142,7 @@ void ProjectTree::updateFromFocus(bool invalidCurrentNode)
 
     if (focus)
         updateFromProjectTreeWidget(focus);
-    else if (editorHasFocus())
+    else
         updateFromDocumentManager(invalidCurrentNode);
 }
 
@@ -170,8 +156,7 @@ void ProjectTree::updateFromProjectTreeWidget(ProjectTreeWidget *widget)
 
 void ProjectTree::documentManagerCurrentFileChanged()
 {
-    if (editorHasFocus())
-        updateFromDocumentManager();
+    updateFromFocus();
 }
 
 Project *ProjectTree::projectForNode(Node *node)

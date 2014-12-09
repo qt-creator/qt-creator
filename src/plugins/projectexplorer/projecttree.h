@@ -89,7 +89,6 @@ private:
     void updateFromFocus(bool invalidCurrentNode = false);
 
     void updateExternalFileWarning();
-    bool editorHasFocus();
     static bool hasFocus(Internal::ProjectTreeWidget *widget);
 
 
