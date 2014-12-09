@@ -38,7 +38,6 @@
 #include <cpptools/cpptoolstestcase.h>
 
 #include <QFileInfo>
-#include <QTemporaryDir>
 #include <QTest>
 
 using namespace CppTools;

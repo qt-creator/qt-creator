@@ -77,8 +77,12 @@ TestDocument::TestDocument(const QByteArray &fileName, const QByteArray &source,
 
 QString TestDocument::filePath() const
 {
+    if (!m_baseDirectory.isEmpty())
+        return QDir::cleanPath(m_baseDirectory + QLatin1Char('/') + m_fileName);
+
     if (!QFileInfo(m_fileName).isAbsolute())
         return QDir::tempPath() + QLatin1Char('/') + m_fileName;
+
     return m_fileName;
 }
 
@@ -263,9 +267,25 @@ void ProjectOpenerAndCloser::onGcFinished()
     m_gcFinished = true;
 }
 
-TemporaryCopiedDir::TemporaryCopiedDir(const QString &sourceDirPath)
+TemporaryDir::TemporaryDir()
     : m_temporaryDir(QDir::tempPath() + QLatin1String("/qtcreator-tests-XXXXXX"))
     , m_isValid(m_temporaryDir.isValid())
+{
+}
+
+QString TemporaryDir::createFile(const QByteArray &relativePath, const QByteArray &contents)
+{
+    const QString relativePathString = QString::fromUtf8(relativePath);
+    if (relativePathString.isEmpty() || QFileInfo(relativePathString).isAbsolute())
+        return QString();
+
+    const QString filePath = m_temporaryDir.path() + QLatin1Char('/') + relativePathString;
+    if (!TestCase::writeFile(filePath, contents))
+        return QString();
+    return filePath;
+}
+
+TemporaryCopiedDir::TemporaryCopiedDir(const QString &sourceDirPath)
 {
     if (!m_isValid)
         return;

@@ -87,15 +87,18 @@ public:
         }
 
         // Write source to temprorary file
-        const QString filePath = QDir::tempPath() + QLatin1String("/file.h");
-        Document::Ptr document = Document::create(filePath);
-        QVERIFY(writeFile(document->fileName(), sourceWithoutCursorMarker.toUtf8()));
+        Tests::TemporaryDir temporaryDir;
+        QVERIFY(temporaryDir.isValid());
+        const QString filePath = temporaryDir.createFile("file.h",
+                                                         sourceWithoutCursorMarker.toUtf8());
+        QVERIFY(!filePath.isEmpty());
 
         // Preprocess source
         Environment env;
         Preprocessor preprocess(0, &env);
         const QByteArray preprocessedSource = preprocess.run(filePath, sourceWithoutCursorMarker);
 
+        Document::Ptr document = Document::create(filePath);
         document->setUtf8Source(preprocessedSource);
         document->parse(parseMode);
         document->check();

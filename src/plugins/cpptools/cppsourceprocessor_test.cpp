@@ -63,22 +63,16 @@ public:
         cleanUp();
     }
 
-    Document::Ptr run(const QByteArray &source)
+    Document::Ptr run(const QString &filePath)
     {
-        const QString fileName = TestIncludePaths::testFilePath();
-
-        FileWriterAndRemover scopedFile(fileName, source);
-        if (!scopedFile.writtenSuccessfully())
-            return Document::Ptr();
-
         QScopedPointer<CppSourceProcessor> sourceProcessor(
                     CppModelManager::createSourceProcessor());
         const ProjectPart::HeaderPath hp(TestIncludePaths::directoryOfTestFile(),
                                          ProjectPart::HeaderPath::IncludePath);
         sourceProcessor->setHeaderPaths(ProjectPart::HeaderPaths() << hp);
-        sourceProcessor->run(fileName);
+        sourceProcessor->run(filePath);
 
-        Document::Ptr document = m_cmm->document(fileName);
+        Document::Ptr document = m_cmm->document(filePath);
         return document;
     }
 
@@ -101,14 +95,11 @@ private:
 /// Check: Resolved and unresolved includes are properly tracked.
 void CppToolsPlugin::test_cppsourceprocessor_includes_resolvedUnresolved()
 {
-    QByteArray source =
-        "#include \"header.h\"\n"
-        "#include \"notresolvable.h\"\n"
-        "\n"
-        ;
+    const QString testFilePath
+            = TestIncludePaths::testFilePath(QLatin1String("test_main_resolvedUnresolved.cpp"));
 
     SourcePreprocessor processor;
-    Document::Ptr document = processor.run(source);
+    Document::Ptr document = processor.run(testFilePath);
     QVERIFY(document);
 
     const QList<Document::Include> resolvedIncludes = document->resolvedIncludes();
@@ -167,15 +158,11 @@ void CppToolsPlugin::test_cppsourceprocessor_includes_cyclic()
 /// Check: All include errors are reported as diagnostic messages.
 void CppToolsPlugin::test_cppsourceprocessor_includes_allDiagnostics()
 {
-    QByteArray source =
-        "#include <NotResolvable1>\n"
-        "#include <NotResolvable2>\n"
-        "#include \"/some/nonexisting/file123.h\"\n"
-        "\n"
-        ;
+    const QString testFilePath
+            = TestIncludePaths::testFilePath(QLatin1String("test_main_allDiagnostics.cpp"));
 
     SourcePreprocessor processor;
-    Document::Ptr document = processor.run(source);
+    Document::Ptr document = processor.run(testFilePath);
     QVERIFY(document);
 
     QCOMPARE(document->resolvedIncludes().size(), 0);
@@ -185,15 +172,11 @@ void CppToolsPlugin::test_cppsourceprocessor_includes_allDiagnostics()
 
 void CppToolsPlugin::test_cppsourceprocessor_macroUses()
 {
-    QByteArray source =
-        "#define SOMEDEFINE 1\n"
-        "#if SOMEDEFINE == 1\n"
-        "    int someNumber;\n"
-        "#endif\n"
-        ;
+    const QString testFilePath
+            = TestIncludePaths::testFilePath(QLatin1String("test_main_macroUses.cpp"));
 
     SourcePreprocessor processor;
-    Document::Ptr document = processor.run(source);
+    Document::Ptr document = processor.run(testFilePath);
     QVERIFY(document);
     const QList<Document::MacroUse> macroUses = document->macroUses();
     QCOMPARE(macroUses.size(), 1);

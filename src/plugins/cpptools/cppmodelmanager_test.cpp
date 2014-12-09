@@ -46,7 +46,6 @@
 
 #include <QDebug>
 #include <QFileInfo>
-#include <QTemporaryDir>
 #include <QtTest>
 
 using namespace CppTools;
@@ -78,6 +77,15 @@ public:
     QString fileFromSourcesDir(const QString &fileName) const
     { return directory(_("sources")) + fileName; }
 };
+
+QStringList toAbsolutePaths(const QStringList &relativePathList,
+                            const Tests::TemporaryCopiedDir &temporaryDir)
+{
+    QStringList result;
+    foreach (const QString &file, relativePathList)
+        result << temporaryDir.absolutePath(file.toUtf8());
+    return result;
+}
 
 // TODO: When possible, use this helper class in all tests
 class ProjectCreator
@@ -478,8 +486,14 @@ void CppToolsPlugin::test_modelmanager_refresh_added_and_purge_removed()
 void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_change()
 {
     QFETCH(QString, fileToChange);
-    QFETCH(QList<ProjectFile>, initialProjectFiles);
-    QFETCH(QList<ProjectFile>, finalProjectFiles);
+    QFETCH(QStringList, initialProjectFiles);
+    QFETCH(QStringList, finalProjectFiles);
+
+    Tests::TemporaryCopiedDir temporaryDir(
+                MyTestDataDir(QLatin1String("testdata_refresh2")).path());
+    fileToChange = temporaryDir.absolutePath(fileToChange.toUtf8());
+    initialProjectFiles = toAbsolutePaths(initialProjectFiles, temporaryDir);
+    finalProjectFiles = toAbsolutePaths(finalProjectFiles, temporaryDir);
 
     ModelManagerTestHelper helper;
     CppModelManager *mm = CppModelManager::instance();
@@ -490,8 +504,8 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
     ProjectPart::Ptr part(new ProjectPart);
     part->languageVersion = ProjectPart::CXX14;
     part->qtVersion = ProjectPart::Qt5;
-    foreach (const ProjectFile &file, initialProjectFiles)
-        part->files.append(file);
+    foreach (const QString &file, initialProjectFiles)
+        part->files.append(ProjectFile(file, ProjectFile::CXXSource));
     pi = ProjectInfo(project);
     pi.appendProjectPart(part);
     pi.finish();
@@ -504,9 +518,9 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
 
     QCOMPARE(refreshedFiles.size(), initialProjectFiles.size());
     snapshot = mm->snapshot();
-    foreach (const ProjectFile &file, initialProjectFiles) {
-        QVERIFY(refreshedFiles.contains(file.path));
-        QVERIFY(snapshot.contains(file.path));
+    foreach (const QString &file, initialProjectFiles) {
+        QVERIFY(refreshedFiles.contains(file));
+        QVERIFY(snapshot.contains(file));
     }
 
     document = snapshot.document(fileToChange);
@@ -524,8 +538,8 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
 
     // Add or remove source file. The configuration stays the same.
     part->files.clear();
-    foreach (const ProjectFile &file, finalProjectFiles)
-        part->files.append(file);
+    foreach (const QString &file, finalProjectFiles)
+        part->files.append(ProjectFile(file, ProjectFile::CXXSource));
     pi = ProjectInfo(project);
     pi.appendProjectPart(part);
     pi.finish();
@@ -534,9 +548,9 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
 
     QCOMPARE(refreshedFiles.size(), finalProjectFiles.size());
     snapshot = mm->snapshot();
-    foreach (const ProjectFile &file, finalProjectFiles) {
-        QVERIFY(refreshedFiles.contains(file.path));
-        QVERIFY(snapshot.contains(file.path));
+    foreach (const QString &file, finalProjectFiles) {
+        QVERIFY(refreshedFiles.contains(file));
+        QVERIFY(snapshot.contains(file));
     }
     document = snapshot.document(fileToChange);
     const QDateTime lastModifiedAfter = document->lastModified();
@@ -549,19 +563,15 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
 void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_change_data()
 {
     QTest::addColumn<QString>("fileToChange");
-    QTest::addColumn<QList<ProjectFile> >("initialProjectFiles");
-    QTest::addColumn<QList<ProjectFile> >("finalProjectFiles");
+    QTest::addColumn<QStringList>("initialProjectFiles");
+    QTest::addColumn<QStringList>("finalProjectFiles");
 
-    const MyTestDataDir testDataDir(_("testdata_refresh2"));
-    const QString testCpp(testDataDir.file(_("source.cpp")));
-    const QString testCpp2(testDataDir.file(_("source2.cpp")));
+    const QString testCpp = QLatin1String("source.cpp");
+    const QString testCpp2 = QLatin1String("source2.cpp");
 
     const QString fileToChange = testCpp;
-    QList<ProjectFile> projectFiles1 = QList<ProjectFile>()
-        << ProjectFile(testCpp, ProjectFile::CXXSource);
-    QList<ProjectFile> projectFiles2 = QList<ProjectFile>()
-        << ProjectFile(testCpp, ProjectFile::CXXSource)
-        << ProjectFile(testCpp2, ProjectFile::CXXSource);
+    const QStringList projectFiles1 = QStringList() << testCpp;
+    const QStringList projectFiles2 = QStringList() << testCpp << testCpp2;
 
     // Add a file
     QTest::newRow("case: add project file") << fileToChange << projectFiles1 << projectFiles2;
@@ -1059,7 +1069,7 @@ void CppToolsPlugin::test_modelmanager_renameIncludes()
     } GCHelper;
     Q_UNUSED(GCHelper); // do not warn about being unused
 
-    QTemporaryDir tmpDir;
+    TemporaryDir tmpDir;
     QVERIFY(tmpDir.isValid());
 
     const QDir workingDir(tmpDir.path());

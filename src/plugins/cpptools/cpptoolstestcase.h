@@ -60,10 +60,13 @@ class CPPTOOLS_EXPORT TestDocument
 public:
     TestDocument(const QByteArray &fileName, const QByteArray &source, char cursorMarker = '@');
 
+    void setBaseDirectory(const QString &baseDirectory) { m_baseDirectory = baseDirectory; }
+
     QString filePath() const;
     bool writeToDisk() const;
 
 public:
+    QString m_baseDirectory;
     QString m_fileName;
     QString m_source;
     char m_cursorMarker;
@@ -124,18 +127,31 @@ private:
     QList<ProjectExplorer::Project *> m_openProjects;
 };
 
-class CPPTOOLS_EXPORT TemporaryCopiedDir
+class TemporaryDir
 {
+    Q_DISABLE_COPY(TemporaryDir)
+
 public:
-    TemporaryCopiedDir(const QString &sourceDirPath);
+    TemporaryDir();
 
     bool isValid() const { return m_isValid; }
     QString path() const { return m_temporaryDir.path(); }
+
+    QString createFile(const QByteArray &relativePath, const QByteArray &contents);
+
+protected:
+    QTemporaryDir m_temporaryDir;
+    bool m_isValid;
+};
+
+class CPPTOOLS_EXPORT TemporaryCopiedDir : public TemporaryDir
+{
+public:
+    TemporaryCopiedDir(const QString &sourceDirPath);
     QString absolutePath(const QByteArray &relativePath) const;
 
 private:
-    QTemporaryDir m_temporaryDir;
-    bool m_isValid;
+    TemporaryCopiedDir();
 };
 
 class CPPTOOLS_EXPORT VerifyCleanCppModelManager

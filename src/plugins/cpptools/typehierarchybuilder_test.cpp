@@ -103,11 +103,17 @@ public:
     {
         QVERIFY(succeededSoFar());
 
+        Tests::TemporaryDir temporaryDir;
+        QVERIFY(temporaryDir.isValid());
+
+        QList<Tests::TestDocument> documents_ = documents;
+
         // Write files
         QSet<QString> filePaths;
-        foreach (const Tests::TestDocument &document, documents) {
-            QVERIFY(document.writeToDisk());
-            filePaths << document.filePath();
+        for (int i = 0, size = documents_.size(); i < size; ++i) {
+            documents_[i].setBaseDirectory(temporaryDir.path());
+            QVERIFY(documents_[i].writeToDisk());
+            filePaths << documents_[i].filePath();
         }
 
         // Parse files
@@ -115,7 +121,7 @@ public:
         const Snapshot snapshot = globalSnapshot();
 
         // Get class for which to generate the hierarchy
-        const Document::Ptr firstDocument = snapshot.document(documents.first().filePath());
+        const Document::Ptr firstDocument = snapshot.document(documents_.first().filePath());
         QVERIFY(firstDocument);
         QVERIFY(firstDocument->diagnosticMessages().isEmpty());
         Class *clazz = FindFirstClassInDocument()(firstDocument);

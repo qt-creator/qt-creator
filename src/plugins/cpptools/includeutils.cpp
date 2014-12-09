@@ -544,14 +544,8 @@ bool IncludeGroup::hasCommonIncludeDir() const
 using namespace Tests;
 using CppTools::Internal::CppToolsPlugin;
 
-static QList<Include> includesForSource(const QByteArray &source)
+static QList<Include> includesForSource(const QString &filePath)
 {
-    const QString fileName = TestIncludePaths::testFilePath();
-
-    FileWriterAndRemover scopedFile(fileName, source);
-    if (!scopedFile.writtenSuccessfully())
-        return QList<Include>();
-
     using namespace CppTools::Internal;
     CppModelManager *cmm = CppModelManager::instance();
     cmm->GC();
@@ -560,44 +554,18 @@ static QList<Include> includesForSource(const QByteArray &source)
                                     << ProjectPart::HeaderPath(
                                         TestIncludePaths::globalIncludePath(),
                                         ProjectPart::HeaderPath::IncludePath));
-    sourceProcessor->run(fileName);
+    sourceProcessor->run(filePath);
 
-    Document::Ptr document = cmm->document(fileName);
+    Document::Ptr document = cmm->document(filePath);
     return document->resolvedIncludes();
 }
 
 void CppToolsPlugin::test_includeGroups_detectIncludeGroupsByNewLines()
 {
-    // Source referencing those files
-    QByteArray source =
-        "#include \"header.h\"\n"
-        "\n"
-        "#include \"file.h\"\n"
-        "#include \"fileother.h\"\n"
-        "\n"
-        "#include <lib/fileother.h>\n"
-        "#include <lib/file.h>\n"
-        "\n"
-        "#include \"otherlib/file.h\"\n"
-        "#include \"otherlib/fileother.h\"\n"
-        "\n"
-        "#include \"utils/utils.h\"\n"
-        "\n"
-        "#include <QDebug>\n"
-        "#include <QDir>\n"
-        "#include <QString>\n"
-        "\n"
-        "#include <iostream>\n"
-        "#include <string>\n"
-        "#include <except>\n"
-        "\n"
-        "#include <iostream>\n"
-        "#include \"stuff\"\n"
-        "#include <except>\n"
-        "\n"
-        ;
+    const QString testFilePath = TestIncludePaths::testFilePath(
+                QLatin1String("test_main_detectIncludeGroupsByNewLines.cpp"));
 
-    QList<Include> includes = includesForSource(source);
+    QList<Include> includes = includesForSource(testFilePath);
     QCOMPARE(includes.size(), 17);
     QList<IncludeGroup> includeGroups
         = IncludeGroup::detectIncludeGroupsByNewLines(includes);
@@ -636,20 +604,10 @@ void CppToolsPlugin::test_includeGroups_detectIncludeGroupsByNewLines()
 
 void CppToolsPlugin::test_includeGroups_detectIncludeGroupsByIncludeDir()
 {
-    QByteArray source =
-        "#include \"file.h\"\n"
-        "#include \"fileother.h\"\n"
-        "#include <lib/file.h>\n"
-        "#include <lib/fileother.h>\n"
-        "#include \"otherlib/file.h\"\n"
-        "#include \"otherlib/fileother.h\"\n"
-        "#include <iostream>\n"
-        "#include <string>\n"
-        "#include <except>\n"
-        "\n"
-        ;
+    const QString testFilePath = TestIncludePaths::testFilePath(
+                QLatin1String("test_main_detectIncludeGroupsByIncludeDir.cpp"));
 
-    QList<Include> includes = includesForSource(source);
+    QList<Include> includes = includesForSource(testFilePath);
     QCOMPARE(includes.size(), 9);
     QList<IncludeGroup> includeGroups
         = IncludeGroup::detectIncludeGroupsByIncludeDir(includes);
@@ -670,20 +628,10 @@ void CppToolsPlugin::test_includeGroups_detectIncludeGroupsByIncludeDir()
 
 void CppToolsPlugin::test_includeGroups_detectIncludeGroupsByIncludeType()
 {
-    QByteArray source =
-        "#include \"file.h\"\n"
-        "#include \"fileother.h\"\n"
-        "#include <lib/file.h>\n"
-        "#include <lib/fileother.h>\n"
-        "#include \"otherlib/file.h\"\n"
-        "#include \"otherlib/fileother.h\"\n"
-        "#include <iostream>\n"
-        "#include <string>\n"
-        "#include <except>\n"
-        "\n"
-        ;
+    const QString testFilePath = TestIncludePaths::testFilePath(
+                QLatin1String("test_main_detectIncludeGroupsByIncludeType.cpp"));
 
-    QList<Include> includes = includesForSource(source);
+    QList<Include> includes = includesForSource(testFilePath);
     QCOMPARE(includes.size(), 9);
     QList<IncludeGroup> includeGroups
         = IncludeGroup::detectIncludeGroupsByIncludeDir(includes);

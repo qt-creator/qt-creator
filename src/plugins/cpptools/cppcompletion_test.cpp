@@ -73,8 +73,10 @@ public:
         m_source[m_position] = ' ';
 
         // Write source to file
-        const QString fileName = QDir::tempPath() + QLatin1String("/file.h");
-        QVERIFY(writeFile(fileName, m_source));
+        m_temporaryDir.reset(new Tests::TemporaryDir());
+        QVERIFY(m_temporaryDir->isValid());
+        const QString fileName = m_temporaryDir->createFile("file.h", m_source);
+        QVERIFY(!fileName.isEmpty());
 
         // Open in editor
         m_editor = EditorManager::openEditor(fileName);
@@ -150,6 +152,7 @@ private:
     QByteArray m_source;
     int m_position;
     Snapshot m_snapshot;
+    QScopedPointer<Tests::TemporaryDir> m_temporaryDir;
     TextEditorWidget *m_editorWidget;
     QTextDocument *m_textDocument;
     IEditor *m_editor;

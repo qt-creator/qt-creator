@@ -30,6 +30,7 @@
 
 #include "cpptoolsplugin.h"
 #include "cpptoolsreuse.h"
+#include "cpptoolstestcase.h"
 #include "cppfilesettingspage.h"
 
 #include <utils/fileutils.h>
@@ -60,15 +61,16 @@ void CppToolsPlugin::test_headersource()
     QFETCH(QString, sourceFileName);
     QFETCH(QString, headerFileName);
 
-    bool wasHeader;
-    const QString baseDir = baseTestDir();
-    QDir path = QDir(baseDir + _(QTest::currentDataTag()));
+    Tests::TemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
 
+    const QDir path = QDir(temporaryDir.path() + QLatin1Char('/') + _(QTest::currentDataTag()));
     const QString sourcePath = path.absoluteFilePath(sourceFileName);
     const QString headerPath = path.absoluteFilePath(headerFileName);
     createTempFile(sourcePath);
     createTempFile(headerPath);
 
+    bool wasHeader;
     clearHeaderSourceCache();
     QCOMPARE(correspondingHeaderOrSource(sourcePath, &wasHeader), headerPath);
     QVERIFY(!wasHeader);
