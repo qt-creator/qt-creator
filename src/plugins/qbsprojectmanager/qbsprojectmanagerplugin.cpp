@@ -297,7 +297,7 @@ void QbsProjectManagerPlugin::updateBuildActions()
         }
         QbsProjectNode *subprojectNode
                 = qobject_cast<QbsProjectNode *>(productNode ? productNode->parentFolderNode() : 0);
-        if (subprojectNode && subprojectNode != m_editorProject->rootProjectNode()) {
+        if (subprojectNode && m_editorProject && subprojectNode != m_editorProject->rootProjectNode()) {
             subprojectVisible = true;
             subprojectName = subprojectNode->displayName();
         }
