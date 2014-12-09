@@ -227,7 +227,7 @@ void DebuggerItemManager::autoDetectGdbOrLldbDebuggers()
     }
     */
 
-    QFileInfoList suspects;
+    QList<FileName> suspects;
 
     if (HostOsInfo::isMacHost()) {
         QProcess lldbInfo;
@@ -238,32 +238,35 @@ void DebuggerItemManager::autoDetectGdbOrLldbDebuggers()
             lldbInfo.waitForFinished();
         } else {
             QByteArray lPath = lldbInfo.readAll();
-            suspects.append(QFileInfo(QString::fromLocal8Bit(lPath.data(), lPath.size() -1)));
+            const QFileInfo fi(QString::fromLocal8Bit(lPath.data(), lPath.size() -1));
+            if (fi.exists() && fi.isExecutable() && !fi.isDir())
+                suspects.append(FileName::fromString(fi.absoluteFilePath()));
         }
     }
 
     QStringList path = Environment::systemEnvironment().path();
+    path.removeDuplicates();
+    QDir dir;
+    dir.setNameFilters(filters);
+    dir.setFilter(QDir::Files | QDir::Executable);
     foreach (const QString &base, path) {
-        QDir dir(base);
-        dir.setNameFilters(filters);
-        suspects += dir.entryInfoList();
+        dir.setPath(base);
+        foreach (const QString &entry, dir.entryList())
+            suspects.append(FileName::fromString(dir.absoluteFilePath(entry)));
     }
 
-    foreach (const QFileInfo &fi, suspects) {
-        if (fi.exists() && fi.isExecutable() && !fi.isDir()) {
-            FileName command = FileName::fromString(fi.absoluteFilePath());
-            if (findByCommand(command))
-                continue;
-            DebuggerItem item;
-            item.createId();
-            item.setCommand(command);
-            item.reinitializeFromFile();
-            //: %1: Debugger engine type (GDB, LLDB, CDB...), %2: Path
-            item.setDisplayName(tr("System %1 at %2")
-                .arg(item.engineTypeName()).arg(QDir::toNativeSeparators(fi.absoluteFilePath())));
-            item.setAutoDetected(true);
-            addDebugger(item);
-        }
+    foreach (const FileName &command, suspects) {
+        if (findByCommand(command))
+            continue;
+        DebuggerItem item;
+        item.createId();
+        item.setCommand(command);
+        item.reinitializeFromFile();
+        //: %1: Debugger engine type (GDB, LLDB, CDB...), %2: Path
+        item.setDisplayName(tr("System %1 at %2")
+            .arg(item.engineTypeName()).arg(command.toUserOutput()));
+        item.setAutoDetected(true);
+        addDebugger(item);
     }
 }
 
