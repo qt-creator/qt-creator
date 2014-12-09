@@ -14,7 +14,6 @@
         <file>ico_edit.png</file>
         <file>TimeMarks.qml</file>
         <file>Overview.qml</file>
-        <file>Overview.js</file>
         <file>SelectionRange.qml</file>
         <file>SelectionRangeDetails.qml</file>
         <file>arrow_down.png</file>

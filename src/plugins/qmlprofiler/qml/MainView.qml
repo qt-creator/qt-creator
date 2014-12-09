@@ -102,7 +102,6 @@ Rectangle {
         selectionRangeMode = false;
         zoomSlider.externalUpdate = true;
         zoomSlider.value = zoomSlider.minimumValue;
-        overview.clear();
     }
 
     function enableButtonsBar(enable) {

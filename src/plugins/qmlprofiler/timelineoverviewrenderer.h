@@ -28,22 +28,28 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINEOVERVIEWRENDERER_P_H
-#define TIMELINEOVERVIEWRENDERER_P_H
+#ifndef TIMELINEOVERVIEWRENDERER_H
+#define TIMELINEOVERVIEWRENDERER_H
 
-#include "timelineoverviewrenderer.h"
-#include "timelineabstractrenderer_p.h"
+#include "timelineabstractrenderer.h"
 
 namespace Timeline {
 
-class TimelineOverviewRenderer::TimelineOverviewRendererPrivate :
-        public TimelineAbstractRenderer::TimelineAbstractRendererPrivate
+class TimelineOverviewRenderer : public TimelineAbstractRenderer
 {
 public:
-    TimelineRenderState *renderState;
+    TimelineOverviewRenderer(QQuickItem *parent = 0);
+    ~TimelineOverviewRenderer();
+
+protected:
+    virtual QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData);
+
+    class TimelineOverviewRendererPrivate;
+    Q_DECLARE_PRIVATE(TimelineOverviewRenderer)
 };
 
 } // namespace Timeline
 
-#endif // TIMELINEOVERVIEWRENDERER_P_H
+QML_DECLARE_TYPE(Timeline::TimelineOverviewRenderer)
 
+#endif // TIMELINEOVERVIEWRENDERER_H

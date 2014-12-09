@@ -37,6 +37,7 @@
 #include "qmlprofileranimationsmodel.h"
 #include "qmlprofilerrangemodel.h"
 #include "qmlprofilerplugin.h"
+#include "timelineoverviewrenderer.h"
 
 // Needed for the load&save actions in the context menu
 #include <analyzerbase/ianalyzertool.h>
@@ -100,6 +101,8 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
     groupLayout->setSpacing(0);
 
     qmlRegisterType<Timeline::TimelineRenderer>("TimelineRenderer", 1, 0, "TimelineRenderer");
+    qmlRegisterType<Timeline::TimelineOverviewRenderer>("TimelineOverviewRenderer", 1, 0,
+                                                        "TimelineOverviewRenderer");
     qmlRegisterType<Timeline::TimelineZoomControl>();
     qmlRegisterType<Timeline::TimelineModel>();
     qmlRegisterType<Timeline::TimelineNotesModel>();

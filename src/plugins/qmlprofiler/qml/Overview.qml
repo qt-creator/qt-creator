@@ -29,38 +29,16 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import "Overview.js" as Plotter
+import TimelineOverviewRenderer 1.0
 
-Canvas {
-    id: canvas
+Rectangle {
+    id: overview
     objectName: "Overview"
-    contextType: "2d"
+    color: parent.color
 
     property QtObject modelProxy
     property QtObject zoomer
-
-    readonly property int eventsPerPass: 512
-    property int increment: -1
-    property int offset: -1
-    readonly property int bump: 10;
-    readonly property int blockHeight: (height - bump) / modelProxy.models.length;
-    readonly property double spacing: width / zoomer.traceDuration
-
-    // ***** properties
-    height: 50
-    property bool dataReady: false
     property bool recursionGuard: false
-
-    onWidthChanged: offset = -1
-
-    // ***** functions
-    function clear()
-    {
-        dataReady = false;
-        increment = -1;
-        offset = -1;
-        requestPaint();
-    }
 
     function updateRange() {
         if (recursionGuard)
@@ -75,11 +53,6 @@ Canvas {
         recursionGuard = false;
     }
 
-    function clamp(val, min, max) {
-        return Math.min(Math.max(val, min), max);
-    }
-
-    // ***** connections to external objects
     Connections {
         target: zoomer
         onRangeChanged: {
@@ -100,90 +73,95 @@ Canvas {
         }
     }
 
-    Connections {
-        target: modelProxy
-        onDataAvailable: {
-            dataReady = true;
-            increment = 0;
-            var models = modelProxy.models;
-            for (var i = 0; i < models.length; ++i)
-                increment += models[i].count;
-            increment = Math.ceil(increment / eventsPerPass);
-            offset = -1;
-            requestPaint();
-        }
+    TimeDisplay {
+        id: timebar
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        textMargin: 2
+        bottomBorderHeight: 0
+        topBorderHeight: 1
+        height: 10
+        fontSize: 6
+        labelsHeight: 10
+        color1: "#cccccc"
+        color2: "#cccccc"
+        windowStart: zoomer.traceStart
+        alignedWindowStart: zoomer.traceStart
+        rangeDuration: zoomer.traceDuration
+        contentX: 0
+        offsetX: 0
     }
 
-    Connections {
-        target: modelProxy.notes
-        onChanged: notes.doPaint = true
-    }
 
-    Timer {
-        id: paintTimer
-        repeat: true
-        running: offset >= 0
-        interval: offset == 0 ? 1000 : 14 // Larger initial delay to avoid flickering on resize
-        onTriggered: canvas.requestPaint()
-    }
+    Column {
+        anchors.top: timebar.bottom
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
 
-    // ***** slots
-    onPaint: {
-        var context = (canvas.context === null) ? getContext("2d") : canvas.context;
+        id: column
 
-        Plotter.models = modelProxy.models;
-        Plotter.zoomControl = zoomer;
-        Plotter.notes = modelProxy.notes;
-
-        if (offset < 0) {
-            context.reset();
-            Plotter.drawGraph(canvas, context);
-            if (dataReady) {
-                Plotter.drawTimeBar(canvas, context);
-                offset = 0;
+        Repeater {
+            model: modelProxy.models
+            TimelineOverviewRenderer {
+                model: modelData
+                zoomer: overview.zoomer
+                notes: modelProxy.notes
+                width: column.width
+                height: column.height / modelProxy.models.length
             }
-        } else if (offset < increment) {
-            Plotter.drawData(canvas, context);
-            ++offset;
-        } else if (offset < 2 * increment) {
-            Plotter.drawBindingLoops(canvas, context);
-            ++offset;
-        } else {
-            notes.doPaint = true;
-            offset = -1;
         }
     }
 
-    Canvas {
-        property alias bump: canvas.bump
-        property alias spacing: canvas.spacing
-        property bool doPaint: false
-        onDoPaintChanged: {
-            if (doPaint)
-                requestPaint();
-        }
+    Repeater {
+        id: noteSigns
+        property var modelsById: modelProxy.models.reduce(function(prev, model) {
+            prev[model.modelId] = model;
+            return prev;
+        }, {});
 
-        id: notes
-        anchors.fill: parent
-        onPaint: {
-            if (doPaint) {
-                var context = (notes.context === null) ? getContext("2d") : notes.context;
-                context.reset();
-                Plotter.drawNotes(notes, context);
-                doPaint = false;
+        property int vertSpace: column.height / 7
+        property color noteColor: "orange"
+        readonly property double spacing: parent.width / zoomer.traceDuration
+
+        model: modelProxy.notes.count
+        Item {
+            property int timelineIndex: modelProxy.notes.timelineIndex(index)
+            property int timelineModel: modelProxy.notes.timelineModel(index)
+            property double startTime: noteSigns.modelsById[timelineModel].startTime(timelineIndex)
+            property double endTime: noteSigns.modelsById[timelineModel].endTime(timelineIndex)
+            x: ((startTime + endTime) / 2 - zoomer.traceStart) * noteSigns.spacing
+            y: timebar.height + noteSigns.vertSpace
+            height: noteSigns.vertSpace * 5
+            width: 2
+            Rectangle {
+                color: noteSigns.noteColor
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                height: noteSigns.vertSpace * 3
+            }
+
+            Rectangle {
+                color: noteSigns.noteColor
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                height: noteSigns.vertSpace
             }
         }
     }
 
     // ***** child items
     MouseArea {
-        anchors.fill: canvas
+        anchors.fill: parent
         function jumpTo(posX) {
             var newX = posX - rangeMover.rangeWidth / 2;
             if (newX < 0)
                 newX = 0;
-            if (newX + rangeMover.rangeWidth > canvas.width)
-                newX = canvas.width - rangeMover.rangeWidth;
+            if (newX + rangeMover.rangeWidth > overview.width)
+                newX = overview.width - rangeMover.rangeWidth;
 
             if (newX < rangeMover.rangeLeft) {
                 // Changing left border will change width, so precompute right border here.
@@ -206,9 +184,9 @@ Canvas {
 
     RangeMover {
         id: rangeMover
-        visible: dataReady
-        onRangeLeftChanged: canvas.updateRange()
-        onRangeRightChanged: canvas.updateRange()
+        visible: modelProxy.height > 0
+        onRangeLeftChanged: overview.updateRange()
+        onRangeRightChanged: overview.updateRange()
     }
 
     Rectangle {
