@@ -102,7 +102,6 @@ QmlProfilerStateWidget::QmlProfilerStateWidget(QmlProfilerStateManager *stateMan
             this, SLOT(profilerStateChanged()));
 
     updateDisplay();
-    connect(parent,SIGNAL(resized()),this,SLOT(reposition()));
 }
 
 QmlProfilerStateWidget::~QmlProfilerStateWidget()

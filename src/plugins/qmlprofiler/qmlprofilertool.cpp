@@ -128,8 +128,6 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_clearButton = 0;
     d->m_timeLabel = 0;
 
-    qmlRegisterType<TimelineRenderer>("Monitor", 1, 0,"TimelineRenderer");
-
     d->m_profilerState = new QmlProfilerStateManager(this);
     connect(d->m_profilerState, SIGNAL(stateChanged()), this, SLOT(profilerStateChanged()));
     connect(d->m_profilerState, SIGNAL(clientRecordingChanged()), this, SLOT(clientRecordingChanged()));

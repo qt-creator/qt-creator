@@ -70,11 +70,6 @@ class QmlProfilerTraceView::QmlProfilerTraceViewPrivate
 {
 public:
     QmlProfilerTraceViewPrivate(QmlProfilerTraceView *qq) : q(qq) {}
-    ~QmlProfilerTraceViewPrivate()
-    {
-        delete m_mainView;
-    }
-
     QmlProfilerTraceView *q;
 
     QmlProfilerStateManager *m_profilerState;
@@ -104,6 +99,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
     groupLayout->setContentsMargins(0, 0, 0, 0);
     groupLayout->setSpacing(0);
 
+    qmlRegisterType<TimelineRenderer>("TimelineRenderer", 1, 0, "TimelineRenderer");
     qmlRegisterType<TimelineZoomControl>();
     qmlRegisterType<TimelineModel>();
     qmlRegisterType<TimelineNotesModel>();
@@ -113,8 +109,6 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
     QWidget *mainViewContainer = QWidget::createWindowContainer(d->m_mainView);
     mainViewContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    enableToolbar(false);
-
     groupLayout->addWidget(mainViewContainer);
     setLayout(groupLayout);
 
@@ -122,20 +116,9 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
     d->m_viewContainer = container;
 
     d->m_modelProxy = new TimelineModelAggregator(modelManager->notesModel(), this);
-    setModelManager(modelManager);
-    d->m_mainView->rootContext()->setContextProperty(QLatin1String("timelineModelAggregator"),
-                                                     d->m_modelProxy);
-    d->m_profilerState = profilerState;
-
-    // Minimum height: 5 rows of 20 pixels + scrollbar of 50 pixels + 20 pixels margin
-    setMinimumHeight(170);
-}
-
-void QmlProfilerTraceView::setModelManager(QmlProfilerModelManager *modelManager)
-{
     d->m_modelManager = modelManager;
-    connect(modelManager,SIGNAL(dataAvailable()),
-            d->m_modelProxy,SIGNAL(dataAvailable()));
+
+    connect(modelManager,SIGNAL(dataAvailable()), d->m_modelProxy,SIGNAL(dataAvailable()));
 
     // external models pushed on top
     foreach (QmlProfilerTimelineModel *timelineModel,
@@ -143,35 +126,35 @@ void QmlProfilerTraceView::setModelManager(QmlProfilerModelManager *modelManager
         d->m_modelProxy->addModel(timelineModel);
     }
 
-    d->m_modelProxy->addModel(new QmlProfilerAnimationsModel(modelManager,
-                                                             d->m_modelProxy));
+    d->m_modelProxy->addModel(new QmlProfilerAnimationsModel(modelManager, d->m_modelProxy));
 
     for (int i = 0; i < QmlDebug::MaximumRangeType; ++i)
         d->m_modelProxy->addModel(new QmlProfilerRangeModel(modelManager, (QmlDebug::RangeType)i,
                                                             d->m_modelProxy));
 
     // Connect this last so that it's executed after the models have updated their data.
-    connect(modelManager->qmlModel(), SIGNAL(changed()),
-            d->m_modelProxy, SIGNAL(stateChanged()));
-    connect(d->m_modelManager, SIGNAL(stateChanged()),
-            this, SLOT(profilerDataModelStateChanged()));
-}
+    connect(modelManager->qmlModel(), SIGNAL(changed()), d->m_modelProxy, SIGNAL(stateChanged()));
+    connect(d->m_modelManager, SIGNAL(stateChanged()), this, SLOT(profilerDataModelStateChanged()));
 
+    d->m_profilerState = profilerState;
 
-QmlProfilerTraceView::~QmlProfilerTraceView()
-{
-    delete d;
-}
+    // Minimum height: 5 rows of 20 pixels + scrollbar of 50 pixels + 20 pixels margin
+    setMinimumHeight(170);
 
-/////////////////////////////////////////////////////////
-// Initialize widgets
-void QmlProfilerTraceView::reset()
-{
-    d->m_mainView->rootContext()->setContextProperty(QLatin1String("zoomControl"), d->m_zoomControl);
+    d->m_mainView->rootContext()->setContextProperty(QLatin1String("timelineModelAggregator"),
+                                                     d->m_modelProxy);
+    d->m_mainView->rootContext()->setContextProperty(QLatin1String("zoomControl"),
+                                                     d->m_zoomControl);
     d->m_mainView->setSource(QUrl(QLatin1String("qrc:/qmlprofiler/MainView.qml")));
 
     QQuickItem *rootObject = d->m_mainView->rootObject();
     connect(rootObject, SIGNAL(updateCursorPosition()), this, SLOT(updateCursorPosition()));
+}
+
+QmlProfilerTraceView::~QmlProfilerTraceView()
+{
+    delete d->m_mainView;
+    delete d;
 }
 
 /////////////////////////////////////////////////////////
@@ -181,12 +164,6 @@ bool QmlProfilerTraceView::hasValidSelection() const
     if (rootObject)
         return rootObject->property("selectionRangeReady").toBool();
     return false;
-}
-
-void QmlProfilerTraceView::enableToolbar(bool enable)
-{
-    QMetaObject::invokeMethod(d->m_mainView->rootObject(), "enableButtonsBar",
-                              Q_ARG(QVariant,QVariant(enable)));
 }
 
 qint64 QmlProfilerTraceView::selectionStart() const
@@ -247,13 +224,6 @@ void QmlProfilerTraceView::updateCursorPosition()
                                 rootObject->property("columnNumber").toInt());
 
     emit typeSelected(rootObject->property("typeId").toInt());
-}
-
-////////////////////////////////////////////////////////
-void QmlProfilerTraceView::resizeEvent(QResizeEvent *event)
-{
-    QWidget::resizeEvent(event);
-    emit resized();
 }
 
 void QmlProfilerTraceView::mousePressEvent(QMouseEvent *event)
@@ -325,12 +295,10 @@ void QmlProfilerTraceView::profilerDataModelStateChanged()
         case QmlProfilerDataState::Empty: break;
         case QmlProfilerDataState::ClearingData:
             d->m_mainView->hide();
-            enableToolbar(false);
         break;
         case QmlProfilerDataState::AcquiringData: break;
         case QmlProfilerDataState::ProcessingData: break;
         case QmlProfilerDataState::Done:
-            enableToolbar(true);
             d->m_mainView->show();
         break;
     default:

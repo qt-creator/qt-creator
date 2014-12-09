@@ -29,7 +29,6 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import Monitor 1.0
 import "Overview.js" as Plotter
 
 Canvas {

@@ -46,16 +46,16 @@ namespace Internal {
 class QmlProfilerStateManager;
 class QmlProfilerViewManager;
 
-
 class QmlProfilerTraceView : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerTool *profilerTool, QmlProfilerViewManager *container, QmlProfilerModelManager *modelManager, QmlProfilerStateManager *profilerState);
+    explicit QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerTool *profilerTool,
+                                  QmlProfilerViewManager *container,
+                                  QmlProfilerModelManager *modelManager,
+                                  QmlProfilerStateManager *profilerState);
     ~QmlProfilerTraceView();
-
-    void reset();
 
     bool hasValidSelection() const;
     qint64 selectionStart() const;
@@ -72,7 +72,6 @@ private slots:
     void profilerDataModelStateChanged();
 
 protected:
-    virtual void resizeEvent(QResizeEvent *event);
     virtual void contextMenuEvent(QContextMenuEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
@@ -80,15 +79,10 @@ protected:
 signals:
     void gotoSourceLocation(const QString &fileUrl, int lineNumber, int columNumber);
     void typeSelected(int typeId);
-    void resized();
-
-private:
-    void enableToolbar(bool);
 
 private:
     class QmlProfilerTraceViewPrivate;
     QmlProfilerTraceViewPrivate *d;
-    void setModelManager(QmlProfilerModelManager *modelManager);
 };
 
 class QmlProfilerQuickView : public QQuickView {

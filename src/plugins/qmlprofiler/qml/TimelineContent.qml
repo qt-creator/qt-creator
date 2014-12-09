@@ -30,7 +30,7 @@
 
 import QtQuick 2.0
 import QtQuick.Controls 1.2
-import Monitor 1.0
+import TimelineRenderer 1.0
 import QtQml.Models 2.1
 
 ScrollView {
