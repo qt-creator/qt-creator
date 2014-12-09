@@ -28,45 +28,29 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINERENDERSTATE_H
-#define TIMELINERENDERSTATE_H
+#ifndef TIMELINERENDERSTATE_P_H
+#define TIMELINERENDERSTATE_P_H
 
-#include <QSGNode>
-#include "timelinerenderpass.h"
+#include "timelinerenderstate.h"
 
 namespace Timeline {
 
-class TimelineRenderState {
+class TimelineRenderState::TimelineRenderStatePrivate {
 public:
-    TimelineRenderState(qint64 start, qint64 end, qreal scale, int numPasses);
-    ~TimelineRenderState();
+    QSGNode *expandedRowRoot;
+    QSGNode *collapsedRowRoot;
+    QSGNode *expandedOverlayRoot;
+    QSGNode *collapsedOverlayRoot;
 
-    qint64 start() const;
-    qint64 end() const;
-    qreal scale() const;
+    qint64 start;
+    qint64 end;
 
-    TimelineRenderPass::State *passState(int i);
-    const TimelineRenderPass::State *passState(int i) const;
-    void setPassState(int i, TimelineRenderPass::State *state);
+    qreal scale;  // "native" scale, this stays the same through the life time of a state
 
-    const QSGNode *expandedRowRoot() const;
-    const QSGNode *collapsedRowRoot() const;
-    const QSGNode *expandedOverlayRoot() const;
-    const QSGNode *collapsedOverlayRoot() const;
-
-    QSGNode *expandedRowRoot();
-    QSGNode *collapsedRowRoot();
-    QSGNode *expandedOverlayRoot();
-    QSGNode *collapsedOverlayRoot();
-
-    bool isEmpty() const;
-
-private:
-    class TimelineRenderStatePrivate;
-    TimelineRenderStatePrivate *d_ptr;
-    Q_DECLARE_PRIVATE(TimelineRenderState)
+    QVector<TimelineRenderPass::State *> passes;
 };
 
 } // namespace Timeline
 
-#endif // TIMELINERENDERSTATE_H
+#endif // TIMELINERENDERSTATE_P_H
+

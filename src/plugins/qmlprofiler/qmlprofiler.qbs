@@ -57,7 +57,7 @@ QtcPlugin {
             "timelinenotesrenderpass.cpp", "timelinenotesrenderpass.h",
             "timelinerenderer.cpp", "timelinerenderer.h", "timelinerenderer_p.h",
             "timelinerenderpass.cpp", "timelinerenderpass.h",
-            "timelinerenderstate.cpp", "timelinerenderstate.h",
+            "timelinerenderstate.cpp", "timelinerenderstate.h", "timelinerenderstate_p.h",
             "timelineselectionrenderpass.cpp", "timelineselectionrenderpass.h",
             "timelinezoomcontrol.cpp", "timelinezoomcontrol.h"
         ]

@@ -28,83 +28,128 @@
 **
 ****************************************************************************/
 
-#include "timelinerenderstate.h"
+#include "timelinerenderstate_p.h"
 
 namespace Timeline {
 
 TimelineRenderState::TimelineRenderState(qint64 start, qint64 end, qreal scale, int numPasses) :
-    m_expandedRowRoot(new QSGNode), m_collapsedRowRoot(new QSGNode),
-    m_expandedOverlayRoot(new QSGNode), m_collapsedOverlayRoot(new QSGNode),
-    m_start(start), m_end(end), m_scale(scale), m_passes(numPasses)
+    d_ptr(new TimelineRenderStatePrivate)
 {
-    m_expandedRowRoot->setFlag(QSGNode::OwnedByParent, false);
-    m_collapsedRowRoot->setFlag(QSGNode::OwnedByParent, false);
-    m_expandedOverlayRoot->setFlag(QSGNode::OwnedByParent, false);
-    m_collapsedOverlayRoot->setFlag(QSGNode::OwnedByParent, false);
+    Q_D(TimelineRenderState);
+    d->expandedRowRoot = new QSGNode;
+    d->collapsedRowRoot = new QSGNode;
+    d->expandedOverlayRoot = new QSGNode;
+    d->collapsedOverlayRoot = new QSGNode;
+    d->start = start;
+    d->end = end;
+    d->scale = scale;
+    d->passes.resize(numPasses);
+
+    d->expandedRowRoot->setFlag(QSGNode::OwnedByParent, false);
+    d->collapsedRowRoot->setFlag(QSGNode::OwnedByParent, false);
+    d->expandedOverlayRoot->setFlag(QSGNode::OwnedByParent, false);
+    d->collapsedOverlayRoot->setFlag(QSGNode::OwnedByParent, false);
 }
 
 TimelineRenderState::~TimelineRenderState()
 {
-    delete m_expandedRowRoot;
-    delete m_collapsedRowRoot;
-    delete m_expandedOverlayRoot;
-    delete m_collapsedOverlayRoot;
+    Q_D(TimelineRenderState);
+    delete d->expandedRowRoot;
+    delete d->collapsedRowRoot;
+    delete d->expandedOverlayRoot;
+    delete d->collapsedOverlayRoot;
+    delete d;
 }
 
 qint64 TimelineRenderState::start() const
 {
-    return m_start;
+    Q_D(const TimelineRenderState);
+    return d->start;
 }
 
 qint64 TimelineRenderState::end() const
 {
-    return m_end;
+    Q_D(const TimelineRenderState);
+    return d->end;
 }
 
 qreal TimelineRenderState::scale() const
 {
-    return m_scale;
+    Q_D(const TimelineRenderState);
+    return d->scale;
 }
 
-QSGNode *TimelineRenderState::expandedRowRoot() const
+const QSGNode *TimelineRenderState::expandedRowRoot() const
 {
-    return m_expandedRowRoot;
+    Q_D(const TimelineRenderState);
+    return d->expandedRowRoot;
 }
 
-QSGNode *TimelineRenderState::collapsedRowRoot() const
+const QSGNode *TimelineRenderState::collapsedRowRoot() const
 {
-    return m_collapsedRowRoot;
+    Q_D(const TimelineRenderState);
+    return d->collapsedRowRoot;
 }
 
-QSGNode *TimelineRenderState::expandedOverlayRoot() const
+const QSGNode *TimelineRenderState::expandedOverlayRoot() const
 {
-    return m_expandedOverlayRoot;
+    Q_D(const TimelineRenderState);
+    return d->expandedOverlayRoot;
 }
 
-QSGNode *TimelineRenderState::collapsedOverlayRoot() const
+const QSGNode *TimelineRenderState::collapsedOverlayRoot() const
 {
-    return m_collapsedOverlayRoot;
+    Q_D(const TimelineRenderState);
+    return d->collapsedOverlayRoot;
+}
+
+QSGNode *TimelineRenderState::expandedRowRoot()
+{
+    Q_D(TimelineRenderState);
+    return d->expandedRowRoot;
+}
+
+QSGNode *TimelineRenderState::collapsedRowRoot()
+{
+    Q_D(TimelineRenderState);
+    return d->collapsedRowRoot;
+}
+
+QSGNode *TimelineRenderState::expandedOverlayRoot()
+{
+    Q_D(TimelineRenderState);
+    return d->expandedOverlayRoot;
+}
+
+QSGNode *TimelineRenderState::collapsedOverlayRoot()
+{
+    Q_D(TimelineRenderState);
+    return d->collapsedOverlayRoot;
 }
 
 bool TimelineRenderState::isEmpty() const
 {
-    return m_collapsedRowRoot->childCount() == 0 && m_expandedRowRoot->childCount() == 0 &&
-            m_collapsedOverlayRoot->childCount() == 0 && m_expandedOverlayRoot->childCount() == 0;
+    Q_D(const TimelineRenderState);
+    return d->collapsedRowRoot->childCount() == 0 && d->expandedRowRoot->childCount() == 0 &&
+            d->collapsedOverlayRoot->childCount() == 0 && d->expandedOverlayRoot->childCount() == 0;
 }
 
 TimelineRenderPass::State *TimelineRenderState::passState(int i)
 {
-    return m_passes[i];
+    Q_D(TimelineRenderState);
+    return d->passes[i];
 }
 
 const TimelineRenderPass::State *TimelineRenderState::passState(int i) const
 {
-    return m_passes[i];
+    Q_D(const TimelineRenderState);
+    return d->passes[i];
 }
 
 void TimelineRenderState::setPassState(int i, TimelineRenderPass::State *state)
 {
-    m_passes[i] = state;
+    Q_D(TimelineRenderState);
+    d->passes[i] = state;
 }
 
 } // namespace Timeline

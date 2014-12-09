@@ -87,7 +87,8 @@ HEADERS += \
     timelinerenderstate.h \
     timelinenotesmodel.h \
     timelinenotesmodel_p.h \
-    timelinerenderer_p.h
+    timelinerenderer_p.h \
+    timelinerenderstate_p.h
 
 RESOURCES += \
     qml/qmlprofiler.qrc
