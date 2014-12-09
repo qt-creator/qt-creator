@@ -73,19 +73,17 @@ class LocatorModel : public QAbstractListModel
 public:
     LocatorModel(QObject *parent = 0)
         : QAbstractListModel(parent)
-//        , mDisplayCount(64)
     {}
 
+    void clear();
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
-    void setEntries(const QList<LocatorFilterEntry> &entries);
-    //void setDisplayCount(int count);
+    void addEntries(const QList<LocatorFilterEntry> &entries);
 
 private:
     mutable QList<LocatorFilterEntry> mEntries;
-    //int mDisplayCount;
 };
 
 class CompletionList : public QTreeView
@@ -133,8 +131,17 @@ using namespace Core::Internal;
 
 // =========== LocatorModel ===========
 
-int LocatorModel::rowCount(const QModelIndex & /* parent */) const
+void LocatorModel::clear()
 {
+    beginResetModel();
+    mEntries.clear();
+    endResetModel();
+}
+
+int LocatorModel::rowCount(const QModelIndex & parent) const
+{
+    if (parent.isValid())
+        return 0;
     return mEntries.size();
 }
 
@@ -175,11 +182,11 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void LocatorModel::setEntries(const QList<LocatorFilterEntry> &entries)
+void LocatorModel::addEntries(const QList<LocatorFilterEntry> &entries)
 {
-    beginResetModel();
-    mEntries = entries;
-    endResetModel();
+    beginInsertRows(QModelIndex(), mEntries.size(), mEntries.size() + entries.size() - 1);
+    mEntries.append(entries);
+    endInsertRows();
 }
 
 // =========== CompletionList ===========
@@ -221,6 +228,7 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     m_refreshAction(new QAction(tr("Refresh"), this)),
     m_configureAction(new QAction(ICore::msgShowOptionsDialog(), this)),
     m_fileLineEdit(new Utils::FancyLineEdit),
+    m_needsClearResult(true),
     m_updateRequested(false),
     m_acceptRequested(false),
     m_possibleToolTipRequest(false)
@@ -274,7 +282,10 @@ LocatorWidget::LocatorWidget(Locator *qop) :
             this, SLOT(scheduleAcceptCurrentEntry()));
 
     m_entriesWatcher = new QFutureWatcher<LocatorFilterEntry>(this);
-    connect(m_entriesWatcher, SIGNAL(finished()), SLOT(updateEntries()));
+    connect(m_entriesWatcher, &QFutureWatcher<LocatorFilterEntry>::resultsReadyAt,
+            this, &LocatorWidget::addSearchResults);
+    connect(m_entriesWatcher, &QFutureWatcher<LocatorFilterEntry>::finished,
+            this, &LocatorWidget::handleSearchFinished);
 
     m_showPopupTimer = new QTimer(this);
     m_showPopupTimer->setInterval(100);
@@ -484,6 +495,7 @@ void LocatorWidget::updateCompletionList(const QString &text)
         return;
     }
 
+    m_needsClearResult = true;
     QString searchText;
     const QList<ILocatorFilter *> filters = filtersFor(text, searchText);
 
@@ -493,9 +505,13 @@ void LocatorWidget::updateCompletionList(const QString &text)
     m_entriesWatcher->setFuture(future);
 }
 
-void LocatorWidget::updateEntries()
+void LocatorWidget::handleSearchFinished()
 {
     m_updateRequested = false;
+    if (m_acceptRequested) {
+        acceptCurrentEntry();
+        return;
+    }
     if (m_entriesWatcher->future().isCanceled()) {
         const QString text = m_requestedCompletionText;
         m_requestedCompletionText.clear();
@@ -503,15 +519,10 @@ void LocatorWidget::updateEntries()
         return;
     }
 
-    const QList<LocatorFilterEntry> entries = m_entriesWatcher->future().results();
-    m_locatorModel->setEntries(entries);
-    if (m_locatorModel->rowCount() > 0)
-        m_completionList->setCurrentIndex(m_locatorModel->index(0, 0));
-#if 0
-    m_completionList->updatePreferredSize();
-#endif
-    if (m_acceptRequested)
-        acceptCurrentEntry();
+    if (m_needsClearResult) {
+        m_locatorModel->clear();
+        m_needsClearResult = false;
+    }
 }
 
 void LocatorWidget::scheduleAcceptCurrentEntry()
@@ -520,6 +531,8 @@ void LocatorWidget::scheduleAcceptCurrentEntry()
         // don't just accept the selected entry, since the list is not up to date
         // accept will be called after the update finished
         m_acceptRequested = true;
+        // do not wait for the rest of the search to finish
+        m_entriesWatcher->future().cancel();
     } else {
         acceptCurrentEntry();
     }
@@ -591,6 +604,21 @@ void LocatorWidget::showEvent(QShowEvent *event)
 void LocatorWidget::showConfigureDialog()
 {
     ICore::showOptionsDialog(Constants::SETTINGS_CATEGORY_CORE, Constants::FILTER_OPTIONS_PAGE);
+}
+
+void LocatorWidget::addSearchResults(int firstIndex, int endIndex)
+{
+    if (m_needsClearResult) {
+        m_locatorModel->clear();
+        m_needsClearResult = false;
+    }
+    const bool selectFirst = m_locatorModel->rowCount() == 0;
+    QList<LocatorFilterEntry> entries;
+    for (int i = firstIndex; i < endIndex; ++i)
+        entries.append(m_entriesWatcher->resultAt(i));
+    m_locatorModel->addEntries(entries);
+    if (selectFirst)
+        m_completionList->setCurrentIndex(m_locatorModel->index(0, 0));
 }
 
 } // namespace Core

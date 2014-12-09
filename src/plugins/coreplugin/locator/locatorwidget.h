@@ -71,7 +71,8 @@ private slots:
     void acceptCurrentEntry();
     void filterSelected();
     void showConfigureDialog();
-    void updateEntries();
+    void addSearchResults(int firstIndex, int endIndex);
+    void handleSearchFinished();
     void scheduleAcceptCurrentEntry();
     void setFocusToCurrentMode();
 
@@ -96,6 +97,7 @@ private:
     QFutureWatcher<LocatorFilterEntry> *m_entriesWatcher;
     QMap<Id, QAction *> m_filterActionMap;
     QString m_requestedCompletionText;
+    bool m_needsClearResult;
     bool m_updateRequested;
     bool m_acceptRequested;
     bool m_possibleToolTipRequest;
