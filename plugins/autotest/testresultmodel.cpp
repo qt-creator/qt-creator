@@ -54,7 +54,7 @@ QModelIndex TestResultModel::parent(const QModelIndex &) const
 
 int TestResultModel::rowCount(const QModelIndex &parent) const
 {
-    // do not use the QReadLocker here or this will produce a deadlock
+    QReadLocker lock(&m_rwLock);
     return parent.isValid() ? 0 : m_testResults.size();
 }
 
@@ -122,19 +122,21 @@ void TestResultModel::addTestResult(const TestResult &testResult)
     int position = m_testResults.size();
     rLock.unlock();
 
-    QWriteLocker wLock(&m_rwLock);
     if (hasCurrentTestMssg && isCurrentTestMssg) {
         beginRemoveRows(QModelIndex(), position, position);
+        QWriteLocker wLock(&m_rwLock);
         m_testResults.replace(position - 1, testResult);
+        wLock.unlock();
         endRemoveRows();
     } else {
         if (!isCurrentTestMssg && position) // decrement only if at least one other item
             --position;
         beginInsertRows(QModelIndex(), position, position);
+        QWriteLocker wLock(&m_rwLock);
         m_testResults.insert(position, testResult);
+        wLock.unlock();
         endInsertRows();
     }
-    wLock.unlock();
 
     if (!isCurrentTestMssg) {
         int count = m_testResultCount.value(testResult.result(), 0);
@@ -148,10 +150,11 @@ void TestResultModel::removeCurrentTestMessage()
 {
     QReadLocker rLock(&m_rwLock);
     if (m_availableResultTypes.contains(ResultType::MESSAGE_CURRENT_TEST)) {
+        beginRemoveRows(QModelIndex(), m_testResults.size() - 1, m_testResults.size() - 1);
         rLock.unlock();
         QWriteLocker wLock(&m_rwLock);
-        beginRemoveRows(QModelIndex(), m_testResults.size() - 1, m_testResults.size() - 1);
         m_testResults.removeLast();
+        wLock.unlock();
         endRemoveRows();
         m_availableResultTypes.remove(ResultType::MESSAGE_CURRENT_TEST);
     }
