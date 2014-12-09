@@ -45,6 +45,12 @@ struct BindingLoopsRenderPassState : public Timeline::TimelineRenderPass::State 
     BindingLoopMaterial material;
     int indexFrom;
     int indexTo;
+
+    QVector<QSGNode *> m_expandedRows;
+    const QVector<QSGNode *> &expandedRows() const { return m_expandedRows; }
+
+    QSGNode *m_collapsedOverlay;
+    QSGNode *collapsedOverlay() const { return m_collapsedOverlay; }
 };
 
 struct Point2DWithOffset {
@@ -106,13 +112,13 @@ void updateNodes(const QmlProfilerRangeModel *model, int from, int to,
         BindlingLoopsGeometry &row = expandedPerRow[i];
         if (row.usedVertices > 0) {
             row.allocate(&state->material);
-            state->expandedRows[i]->appendChildNode(row.node);
+            state->m_expandedRows[i]->appendChildNode(row.node);
         }
     }
 
     if (collapsed.usedVertices > 0) {
         collapsed.allocate(&state->material);
-        state->collapsedOverlay->appendChildNode(collapsed.node);
+        state->m_collapsedOverlay->appendChildNode(collapsed.node);
     }
 
     int rowHeight = Timeline::TimelineModel::defaultRowHeight();
@@ -150,24 +156,22 @@ Timeline::TimelineRenderPass::State *QmlProfilerBindingLoopsRenderPass::update(
     Q_UNUSED(stateChanged);
     Q_UNUSED(spacing);
 
-    BindingLoopsRenderPassState *state;
-    if (oldState == 0)
-        state = new BindingLoopsRenderPassState;
-    else
-        state = static_cast<BindingLoopsRenderPassState *>(oldState);
-
     const QmlProfilerRangeModel *model = qobject_cast<const QmlProfilerRangeModel *>(
                 renderer->model());
+
+    BindingLoopsRenderPassState *state;
+    if (oldState == 0) {
+        state = new BindingLoopsRenderPassState;
+        state->m_expandedRows.reserve(model->expandedRowCount());
+        for (int i = 0; i < model->expandedRowCount(); ++i)
+            state->m_expandedRows << new QSGNode;
+        state->m_collapsedOverlay = new QSGNode;
+    } else {
+        state = static_cast<BindingLoopsRenderPassState *>(oldState);
+    }
+
     if (!model)
         return state;
-
-    if (state->expandedRows.isEmpty()) {
-        state->expandedRows.reserve(model->expandedRowCount());
-        for (int i = 0; i < model->expandedRowCount(); ++i)
-            state->expandedRows << new QSGNode;
-    }
-    if (state->collapsedOverlay == 0)
-        state->collapsedOverlay = new QSGNode;
 
     if (indexFrom < 0 || indexTo > model->count())
         return state;

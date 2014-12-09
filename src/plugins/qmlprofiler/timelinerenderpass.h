@@ -41,16 +41,15 @@ class TimelineRenderState;
 
 class TimelineRenderPass {
 public:
-    struct State {
-        State() : expandedOverlay(0), collapsedOverlay(0) {}
-
-        QVector<QSGNode *> expandedRows;
-        QVector<QSGNode *> collapsedRows;
-        QSGNode *expandedOverlay;
-        QSGNode *collapsedOverlay;
+    class State {
+    public:
+        virtual const QVector<QSGNode *> &expandedRows() const;
+        virtual const QVector<QSGNode *> &collapsedRows() const;
+        virtual QSGNode *expandedOverlay() const;
+        virtual QSGNode *collapsedOverlay() const;
     };
 
-    virtual ~TimelineRenderPass() {}
+    virtual ~TimelineRenderPass();
     virtual State *update(const TimelineRenderer *renderer, const TimelineRenderState *parentState,
                           State *state, int indexFrom, int indexTo, bool stateChanged,
                           qreal spacing) const = 0;

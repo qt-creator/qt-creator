@@ -270,10 +270,10 @@ QSGNode *TimelineRenderer::updatePaintNode(QSGNode *node, UpdatePaintNodeData *u
             const TimelineRenderPass::State *passState = state->passState(pass);
             if (!passState)
                 continue;
-            if (passState->expandedOverlay)
-                state->expandedOverlayRoot()->appendChildNode(passState->expandedOverlay);
-            if (passState->collapsedOverlay)
-                state->collapsedOverlayRoot()->appendChildNode(passState->collapsedOverlay);
+            if (passState->expandedOverlay())
+                state->expandedOverlayRoot()->appendChildNode(passState->expandedOverlay());
+            if (passState->collapsedOverlay())
+                state->collapsedOverlayRoot()->appendChildNode(passState->collapsedOverlay());
         }
 
         int row = 0;
@@ -281,8 +281,11 @@ QSGNode *TimelineRenderer::updatePaintNode(QSGNode *node, UpdatePaintNodeData *u
             QSGTransformNode *rowNode = new QSGTransformNode;
             for (int pass = 0; pass < d->renderPasses.length(); ++pass) {
                 const TimelineRenderPass::State *passState = state->passState(pass);
-                if (passState && passState->expandedRows.length() > row) {
-                    QSGNode *rowChildNode = passState->expandedRows[row];
+                if (!passState)
+                    continue;
+                const QVector<QSGNode *> &rows = passState->expandedRows();
+                if (rows.length() > row) {
+                    QSGNode *rowChildNode = rows[row];
                     if (rowChildNode)
                         rowNode->appendChildNode(rowChildNode);
                 }
@@ -298,8 +301,11 @@ QSGNode *TimelineRenderer::updatePaintNode(QSGNode *node, UpdatePaintNodeData *u
             rowNode->setMatrix(matrix);
             for (int pass = 0; pass < d->renderPasses.length(); ++pass) {
                 const TimelineRenderPass::State *passState = state->passState(pass);
-                if (passState && passState->collapsedRows.length() > row) {
-                    QSGNode *rowChildNode = passState->collapsedRows[row];
+                if (!passState)
+                    continue;
+                const QVector<QSGNode *> &rows = passState->collapsedRows();
+                if (rows.length() > row) {
+                    QSGNode *rowChildNode = rows[row];
                     if (rowChildNode)
                         rowNode->appendChildNode(rowChildNode);
                 }

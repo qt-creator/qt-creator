@@ -32,4 +32,28 @@
 
 namespace Timeline {
 
+const QVector<QSGNode *> &TimelineRenderPass::State::expandedRows() const
+{
+    static const QVector<QSGNode *> empty;
+    return empty;
+}
+
+const QVector<QSGNode *> &TimelineRenderPass::State::collapsedRows() const
+{
+    static const QVector<QSGNode *> empty;
+    return empty;
+}
+
+QSGNode *TimelineRenderPass::State::expandedOverlay() const
+{
+    return 0;
+}
+
+QSGNode *TimelineRenderPass::State::collapsedOverlay() const
+{
+    return 0;
+}
+
+TimelineRenderPass::~TimelineRenderPass() {}
+
 } // namespace Timeline
