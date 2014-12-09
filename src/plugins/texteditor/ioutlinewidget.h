@@ -33,6 +33,7 @@
 
 #include <texteditor/texteditor_global.h>
 #include <QWidget>
+#include <QVariantMap>
 
 namespace Core { class IEditor; }
 
@@ -47,8 +48,8 @@ public:
     virtual QList<QAction*> filterMenuActions() const = 0;
     virtual void setCursorSynchronization(bool syncWithCursor) = 0;
 
-    virtual void restoreSettings(int position) { Q_UNUSED(position); }
-    virtual void saveSettings(int position) { Q_UNUSED(position); }
+    virtual void restoreSettings(const QVariantMap & /*map*/) { }
+    virtual QVariantMap settings() const { return QVariantMap(); }
 };
 
 class TEXTEDITOR_EXPORT IOutlineWidgetFactory : public QObject {

@@ -160,19 +160,17 @@ void QmlJSOutlineWidget::setCursorSynchronization(bool syncWithCursor)
         updateSelectionInTree(m_editor->outlineModelIndex());
 }
 
-void QmlJSOutlineWidget::restoreSettings(int position)
+void QmlJSOutlineWidget::restoreSettings(const QVariantMap &map)
 {
-    QSettings *settings = Core::ICore::settings();
-    bool showBindings = settings->value(
-                QString::fromLatin1("QmlJSOutline.%1.ShowBindings").arg(position), true).toBool();
+    bool showBindings = map.value(QString::fromLatin1("QmlJSOutline.ShowBindings"), true).toBool();
     m_showBindingsAction->setChecked(showBindings);
 }
 
-void QmlJSOutlineWidget::saveSettings(int position)
+QVariantMap QmlJSOutlineWidget::settings() const
 {
-    QSettings *settings = Core::ICore::settings();
-    settings->setValue(QString::fromLatin1("QmlJSOutline.%1.ShowBindings").arg(position),
-                       m_showBindingsAction->isChecked());
+    QVariantMap map;
+    map.insert(QLatin1String("QmlJSOutline.ShowBindings"), m_showBindingsAction->isChecked());
+    return map;
 }
 
 void QmlJSOutlineWidget::modelUpdated()

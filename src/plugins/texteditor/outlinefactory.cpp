@@ -45,8 +45,7 @@ namespace Internal {
 OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     QStackedWidget(),
     m_factory(factory),
-    m_syncWithEditor(true),
-    m_position(-1)
+    m_syncWithEditor(true)
 {
     QLabel *label = new QLabel(tr("No outline available"), this);
     label->setAlignment(Qt::AlignCenter);
@@ -91,32 +90,37 @@ QToolButton *OutlineWidgetStack::filterButton()
     return m_filterButton;
 }
 
-static inline QString outLineKey(int position)
-{
-    return QLatin1String("Outline.") + QString::number(position) + QLatin1String(".SyncWithEditor");
-}
-
 void OutlineWidgetStack::restoreSettings(int position)
 {
-    m_position = position; // save it so that we can save/restore in updateCurrentEditor
-
     QSettings *settings = Core::ICore::settings();
-    const bool toggleSync = settings->value(outLineKey(position), true).toBool();
-    toggleSyncButton()->setChecked(toggleSync);
+    settings->beginGroup(QLatin1String("Sidebar.Outline.") + QString::number(position));
 
+    bool syncWithEditor = true;
+    m_widgetSettings.clear();
+    foreach (const QString &key, settings->allKeys()) {
+        if (key == QLatin1String("SyncWithEditor")) {
+            syncWithEditor = settings->value(key).toBool();
+            continue;
+        }
+        m_widgetSettings.insert(key, settings->value(key));
+    }
+    settings->endGroup();
+
+    toggleSyncButton()->setChecked(syncWithEditor);
     if (IOutlineWidget *outlineWidget = qobject_cast<IOutlineWidget*>(currentWidget()))
-        outlineWidget->restoreSettings(position);
+        outlineWidget->restoreSettings(m_widgetSettings);
 }
 
 void OutlineWidgetStack::saveSettings(int position)
 {
-    Q_ASSERT(position == m_position);
-
     QSettings *settings = Core::ICore::settings();
-    settings->setValue(outLineKey(position), toggleSyncButton()->isEnabled());
+    settings->beginGroup(QLatin1String("Sidebar.Outline.") + QString::number(position));
 
-    if (IOutlineWidget *outlineWidget = qobject_cast<IOutlineWidget*>(currentWidget()))
-        outlineWidget->saveSettings(position);
+    settings->setValue(QLatin1String("SyncWithEditor"), toggleSyncButton()->isChecked());
+    for (auto iter = m_widgetSettings.constBegin(); iter != m_widgetSettings.constEnd(); ++iter)
+        settings->setValue(iter.key(), iter.value());
+
+    settings->endGroup();
 }
 
 bool OutlineWidgetStack::isCursorSynchronized() const
@@ -158,14 +162,14 @@ void OutlineWidgetStack::updateCurrentEditor(Core::IEditor *editor)
     if (newWidget != currentWidget()) {
         // delete old widget
         if (IOutlineWidget *outlineWidget = qobject_cast<IOutlineWidget*>(currentWidget())) {
-            if (m_position > -1)
-                outlineWidget->saveSettings(m_position);
+            QVariantMap widgetSettings = outlineWidget->settings();
+            for (auto iter = widgetSettings.constBegin(); iter != widgetSettings.constEnd(); ++iter)
+                m_widgetSettings.insert(iter.key(), iter.value());
             removeWidget(outlineWidget);
             delete outlineWidget;
         }
         if (newWidget) {
-            if (m_position > -1)
-                newWidget->restoreSettings(m_position);
+            newWidget->restoreSettings(m_widgetSettings);
             newWidget->setCursorSynchronization(m_syncWithEditor);
             addWidget(newWidget);
             setCurrentWidget(newWidget);

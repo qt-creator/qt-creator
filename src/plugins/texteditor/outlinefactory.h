@@ -71,8 +71,8 @@ private:
     QToolButton *m_toggleSync;
     QToolButton *m_filterButton;
     QMenu *m_filterMenu;
+    QVariantMap m_widgetSettings;
     bool m_syncWithEditor;
-    int m_position;
 };
 
 class OutlineFactory : public Core::INavigationWidgetFactory

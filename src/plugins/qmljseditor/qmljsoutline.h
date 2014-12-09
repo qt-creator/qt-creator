@@ -74,8 +74,8 @@ public:
     // IOutlineWidget
     virtual QList<QAction*> filterMenuActions() const;
     virtual void setCursorSynchronization(bool syncWithCursor);
-    virtual void restoreSettings(int position);
-    virtual void saveSettings(int position);
+    virtual void restoreSettings(const QVariantMap &map);
+    virtual QVariantMap settings() const;
 
 private slots:
     void modelUpdated();
