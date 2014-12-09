@@ -51,7 +51,6 @@ void Qt5PreviewNodeInstanceServer::createScene(const CreateSceneCommand &command
 {
     initializeView();
     setupScene(command);
-
     startRenderTimer();
 }
 void Qt5PreviewNodeInstanceServer::startRenderTimer()

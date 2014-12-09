@@ -64,7 +64,7 @@ protected:
     void initializeView() Q_DECL_OVERRIDE;
     void resizeCanvasSizeToRootItemSize() Q_DECL_OVERRIDE;
     void resetAllItems();
-    QList<ServerNodeInstance> setupScene(const CreateSceneCommand &command) Q_DECL_OVERRIDE;
+    void setupScene(const CreateSceneCommand &command) Q_DECL_OVERRIDE;
     QList<QQuickItem*> allItems() const;
 
 private:

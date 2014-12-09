@@ -88,17 +88,14 @@ void Qt5NodeInstanceServer::resetAllItems()
         DesignerSupport::resetDirty(item);
 }
 
-QList<ServerNodeInstance> Qt5NodeInstanceServer::setupScene(const CreateSceneCommand &command)
+void Qt5NodeInstanceServer::setupScene(const CreateSceneCommand &command)
 {
     setupFileUrl(command.fileUrl());
     setupImports(command.imports());
     setupDummyData(command.fileUrl());
 
-    QList<ServerNodeInstance> instanceList = setupInstances(command);
-
+    setupInstances(command);
     quickView()->resize(rootNodeInstance().boundingRect().size().toSize());
-
-    return instanceList;
 }
 
 QList<QQuickItem*> subItems(QQuickItem *parentItem)

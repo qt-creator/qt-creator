@@ -250,10 +250,8 @@ void NodeInstanceServer::createScene(const CreateSceneCommand &command)
     QUnifiedTimer::instance()->setSlowdownFactor(0.00001);
     QUnifiedTimer::instance()->setSlowModeEnabled(true);
 
-    QList<ServerNodeInstance> instanceList = setupScene(command);
-
+    setupScene(command);
     refreshBindings();
-
     startRenderTimer();
 }
 

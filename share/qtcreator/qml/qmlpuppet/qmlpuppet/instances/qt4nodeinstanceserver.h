@@ -61,7 +61,7 @@ protected:
     void resizeCanvasSizeToRootItemSize();
     void resetAllItems();
     bool nonInstanceChildIsDirty(QGraphicsObject *graphicsObject) const;
-    QList<ServerNodeInstance> setupScene(const CreateSceneCommand &command);
+    void setupScene(const CreateSceneCommand &command);
     void refreshScreenObject();
 
 private:

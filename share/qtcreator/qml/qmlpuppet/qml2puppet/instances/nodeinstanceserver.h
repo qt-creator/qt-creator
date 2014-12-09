@@ -171,7 +171,7 @@ protected:
     void setSlowRenderTimerInterval(int timerInterval);
 
     virtual void initializeView() = 0;
-    virtual QList<ServerNodeInstance> setupScene(const CreateSceneCommand &command) = 0;
+    virtual void setupScene(const CreateSceneCommand &command) = 0;
     void loadDummyDataFiles(const QString& directory);
     void loadDummyDataContext(const QString& directory);
     void loadDummyDataFile(const QFileInfo& fileInfo);

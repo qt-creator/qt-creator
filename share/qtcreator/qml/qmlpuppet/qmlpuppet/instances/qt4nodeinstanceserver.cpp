@@ -121,7 +121,7 @@ bool Qt4NodeInstanceServer::nonInstanceChildIsDirty(QGraphicsObject *graphicsObj
     return false;
 }
 
-QList<ServerNodeInstance> Qt4NodeInstanceServer::setupScene(const CreateSceneCommand &command)
+void Qt4NodeInstanceServer::setupScene(const CreateSceneCommand &command)
 {
     setupFileUrl(command.fileUrl());
     setupImports(command.imports());
@@ -129,11 +129,8 @@ QList<ServerNodeInstance> Qt4NodeInstanceServer::setupScene(const CreateSceneCom
 
     static_cast<QGraphicsScenePrivate*>(QObjectPrivate::get(declarativeView()->scene()))->processDirtyItemsEmitted = true;
 
-    QList<ServerNodeInstance> instanceList = setupInstances(command);
-
+    setupInstances(command);
     declarativeView()->scene()->setSceneRect(rootNodeInstance().boundingRect());
-
-    return instanceList;
 }
 
 void Qt4NodeInstanceServer::refreshBindings()
