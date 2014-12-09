@@ -29,7 +29,7 @@
 
 #include "timelinezoomcontrol.h"
 
-namespace QmlProfiler {
+namespace Timeline {
 
 TimelineZoomControl::TimelineZoomControl(QObject *parent) : QObject(parent), m_traceStart(-1), m_traceEnd(-1),
     m_windowStart(-1), m_windowEnd(-1), m_rangeStart(-1), m_rangeEnd(-1), m_windowLocked(false)
@@ -170,4 +170,4 @@ void TimelineZoomControl::clampRangeToWindow()
         setRange(rangeStart, rangeEnd);
 }
 
-}
+} // namespace Timeline

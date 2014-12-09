@@ -35,8 +35,7 @@
 #include "timelinerenderpass.h"
 #include "timelinerenderstate.h"
 
-namespace QmlProfiler {
-namespace Internal {
+namespace Timeline {
 
 class TimelineSelectionRenderPass : public TimelineRenderPass
 {
@@ -51,8 +50,7 @@ protected:
     TimelineSelectionRenderPass();
 };
 
-}
-}
+} // namespace Timeline
 
 #endif // TIMELINESELECTIONRENDERPASS_H
 

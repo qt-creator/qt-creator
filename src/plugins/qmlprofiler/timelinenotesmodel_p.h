@@ -33,7 +33,7 @@
 
 #include "timelinenotesmodel.h"
 
-namespace QmlProfiler {
+namespace Timeline {
 
 class TimelineNotesModel::TimelineNotesModelPrivate {
 public:
@@ -59,6 +59,7 @@ private:
     Q_DECLARE_PUBLIC(TimelineNotesModel)
 };
 
-}
+} // namespace Timeline
+
 #endif // TIMELINENOTESMODEL_P_H
 

@@ -33,7 +33,7 @@
 
 #include "timelinemodel.h"
 
-namespace QmlProfiler {
+namespace Timeline {
 
 class QMLPROFILER_EXPORT TimelineModel::TimelineModelPrivate {
 public:
@@ -135,5 +135,6 @@ private:
     Q_DECLARE_PUBLIC(TimelineModel)
 };
 
-}
+} // namespace Timeline
+
 #endif // TIMELINEMODEL_P_H

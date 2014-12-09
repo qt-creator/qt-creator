@@ -30,7 +30,7 @@
 
 #include "timelinenotesmodel_p.h"
 
-namespace QmlProfiler {
+namespace Timeline {
 
 TimelineNotesModel::TimelineNotesModelPrivate::TimelineNotesModelPrivate(TimelineNotesModel *q) :
     modified(false), q_ptr(q)
@@ -220,6 +220,6 @@ void TimelineNotesModel::clear()
     emit changed(-1, -1, -1);
 }
 
-}
+} // namespace Timeline
 
 #include "moc_timelinenotesmodel.cpp"

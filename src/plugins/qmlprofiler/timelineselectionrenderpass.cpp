@@ -33,8 +33,7 @@
 #include <QtMath>
 #include <QSGSimpleRectNode>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace Timeline {
 
 QSGSimpleRectNode *createSelectionNode()
 {
@@ -135,5 +134,4 @@ TimelineSelectionRenderPass::TimelineSelectionRenderPass()
 {
 }
 
-}
-}
+} // namespace Timeline

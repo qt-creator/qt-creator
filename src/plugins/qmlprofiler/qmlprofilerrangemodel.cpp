@@ -284,14 +284,14 @@ int QmlProfilerRangeModel::selectionIdForLocation(const QString &filename, int l
     return -1;
 }
 
-QList<const TimelineRenderPass *> QmlProfilerRangeModel::supportedRenderPasses() const
+QList<const Timeline::TimelineRenderPass *> QmlProfilerRangeModel::supportedRenderPasses() const
 {
     if (supportsBindingLoops()) {
-        QList<const TimelineRenderPass *> passes;
-        passes << TimelineItemsRenderPass::instance()
+        QList<const Timeline::TimelineRenderPass *> passes;
+        passes << Timeline::TimelineItemsRenderPass::instance()
                << QmlProfilerBindingLoopsRenderPass::instance()
-               << TimelineSelectionRenderPass::instance()
-               << TimelineNotesRenderPass::instance();
+               << Timeline::TimelineSelectionRenderPass::instance()
+               << Timeline::TimelineNotesRenderPass::instance();
         return passes;
     } else {
         return QmlProfilerTimelineModel::supportedRenderPasses();

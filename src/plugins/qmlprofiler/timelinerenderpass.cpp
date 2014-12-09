@@ -30,8 +30,6 @@
 
 #include "timelinerenderpass.h"
 
-namespace QmlProfiler {
-namespace Internal {
+namespace Timeline {
 
-}
-}
+} // namespace Timeline

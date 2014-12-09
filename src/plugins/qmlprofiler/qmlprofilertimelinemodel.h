@@ -35,7 +35,7 @@
 
 namespace QmlProfiler {
 
-class QMLPROFILER_EXPORT QmlProfilerTimelineModel : public TimelineModel {
+class QMLPROFILER_EXPORT QmlProfilerTimelineModel : public Timeline::TimelineModel {
     Q_OBJECT
     Q_PROPERTY(QmlDebug::RangeType rangeType READ rangeType CONSTANT)
     Q_PROPERTY(QmlDebug::Message message READ message CONSTANT)

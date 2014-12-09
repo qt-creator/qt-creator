@@ -35,8 +35,7 @@
 #include "timelinerenderpass.h"
 #include <QSGMaterial>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace Timeline {
 
 class TimelineItemsRenderPass : public TimelineRenderPass
 {
@@ -49,8 +48,6 @@ protected:
     TimelineItemsRenderPass();
 };
 
-}
-}
+} // namespace Timeline
 
 #endif // TIMELINEITEMSRENDERPASS_H
-

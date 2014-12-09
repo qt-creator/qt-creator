@@ -38,8 +38,7 @@
 #include "timelinenotesmodel.h"
 #include "timelinerenderpass.h"
 
-namespace QmlProfiler {
-namespace Internal {
+namespace Timeline {
 
 class TimelineRenderPass;
 class TimelineRenderState;
@@ -47,9 +46,9 @@ class TimelineRenderState;
 class TimelineRenderer : public QQuickItem
 {
     Q_OBJECT
-    Q_PROPERTY(QmlProfiler::TimelineModel *model READ model WRITE setModel NOTIFY modelChanged)
-    Q_PROPERTY(QmlProfiler::TimelineZoomControl *zoomer READ zoomer WRITE setZoomer NOTIFY zoomerChanged)
-    Q_PROPERTY(QmlProfiler::TimelineNotesModel *notes READ notes WRITE setNotes NOTIFY notesChanged)
+    Q_PROPERTY(Timeline::TimelineModel *model READ model WRITE setModel NOTIFY modelChanged)
+    Q_PROPERTY(Timeline::TimelineZoomControl *zoomer READ zoomer WRITE setZoomer NOTIFY zoomerChanged)
+    Q_PROPERTY(Timeline::TimelineNotesModel *notes READ notes WRITE setNotes NOTIFY notesChanged)
     Q_PROPERTY(bool selectionLocked READ selectionLocked WRITE setSelectionLocked NOTIFY selectionLockedChanged)
     Q_PROPERTY(int selectedItem READ selectedItem WRITE setSelectedItem NOTIFY selectedItemChanged)
 
@@ -164,9 +163,8 @@ private:
     TimelineRenderState *m_lastState;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace Timeline
 
-QML_DECLARE_TYPE(QmlProfiler::Internal::TimelineRenderer)
+QML_DECLARE_TYPE(Timeline::TimelineRenderer)
 
 #endif // TIMELINERENDERER_H

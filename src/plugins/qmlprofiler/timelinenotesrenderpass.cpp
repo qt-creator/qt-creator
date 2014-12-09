@@ -32,8 +32,7 @@
 #include "timelinerenderstate.h"
 #include "qmlprofilernotesmodel.h"
 
-namespace QmlProfiler {
-namespace Internal {
+namespace Timeline {
 
 struct Point2DWithDistanceFromTop {
     float x, y, d;
@@ -255,5 +254,4 @@ void Point2DWithDistanceFromTop::set(float nx, float ny, float nd)
     x = nx; y = ny; d = nd;
 }
 
-}
-}
+} // namespace Timeline

@@ -33,7 +33,7 @@
 
 #include "timelinemodel.h"
 
-namespace QmlProfiler {
+namespace Timeline {
 
 class QMLPROFILER_EXPORT TimelineNotesModel : public QObject
 {
@@ -80,6 +80,6 @@ private:
     Q_PRIVATE_SLOT(d_ptr, void _q_removeTimelineModel(QObject *timelineModel))
 };
 
-}
+} // namespace Timeline
 
 #endif // TIMELINENOTESMODEL_H

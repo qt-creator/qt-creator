@@ -34,8 +34,7 @@
 #include "timelinerenderer.h"
 #include <QSGMaterial>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace Timeline {
 
 class TimelineNotesRenderPass : public TimelineRenderPass
 {
@@ -50,9 +49,7 @@ private:
     TimelineNotesRenderPass();
 };
 
-}
-}
-
+} // namespace Timeline
 
 #endif // TIMELINENOTESRENDERPASS_H
 

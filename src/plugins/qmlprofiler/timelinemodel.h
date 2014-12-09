@@ -39,7 +39,7 @@
 #include <QVariant>
 #include <QColor>
 
-namespace QmlProfiler {
+namespace Timeline {
 
 class QMLPROFILER_EXPORT TimelineModel : public QObject
 {
@@ -155,6 +155,6 @@ private:
     Q_DECLARE_PRIVATE(TimelineModel)
 };
 
-}
+} // namespace Timeline
 
 #endif // TIMELINEMODEL_H

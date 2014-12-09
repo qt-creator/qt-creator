@@ -36,7 +36,7 @@
 
 #include <QLinkedList>
 
-namespace QmlProfiler {
+namespace Timeline {
 
 /*!
     \class QmlProfiler::TimelineModel
@@ -623,6 +623,6 @@ int TimelineModel::TimelineModelPrivate::prevItemById(IdType idType, int id, qin
     return -1;
 }
 
-}
+} // namespace Timeline
 
 #include "moc_timelinemodel.cpp"

@@ -48,8 +48,7 @@
 
 #include <math.h>
 
-using namespace QmlProfiler;
-using namespace QmlProfiler::Internal;
+namespace Timeline {
 
 TimelineRenderer::TimelineRenderer(QQuickItem *parent) :
     QQuickItem(parent), m_model(0), m_zoomer(0), m_notes(0),
@@ -460,3 +459,4 @@ void TimelineRenderer::setRowCountsDirty()
     m_rowCountsDirty = true;
 }
 
+} // namespace Timeline

@@ -78,7 +78,7 @@ public:
     int typeId(int index) const;
     int selectionIdForLocation(const QString &filename, int line, int column) const;
 
-    virtual QList<const TimelineRenderPass *> supportedRenderPasses() const;
+    virtual QList<const Timeline::TimelineRenderPass *> supportedRenderPasses() const;
 
 protected:
     void loadData();

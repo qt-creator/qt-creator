@@ -34,8 +34,7 @@
 #include <QSGVertexColorMaterial>
 #include <QtAlgorithms>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace Timeline {
 
 class TimelineItemsMaterial : public QSGMaterial {
 public:
@@ -453,5 +452,4 @@ void OpaqueColoredPoint2DWithSize::set(float nx, float ny, float nw, float nh, f
     r = nr; g = ng, b = nb; a = 255;
 }
 
-}
-}
+} // namespace Timeline

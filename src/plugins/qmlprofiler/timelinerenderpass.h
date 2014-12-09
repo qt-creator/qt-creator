@@ -34,8 +34,7 @@
 #include <QVector>
 
 QT_FORWARD_DECLARE_CLASS(QSGNode)
-namespace QmlProfiler {
-namespace Internal {
+namespace Timeline {
 
 class TimelineRenderer;
 class TimelineRenderState;
@@ -57,6 +56,6 @@ public:
                           qreal spacing) const = 0;
 };
 
-}
-}
+} // namespace Timeline
+
 #endif // TIMELINERENDERPASS_H

@@ -46,7 +46,7 @@ int QmlProfilerNotesModel::add(int typeId, qint64 start, qint64 duration, const 
 {
     int timelineModel = -1;
     int timelineIndex = -1;
-    foreach (const TimelineModel *model, timelineModels()) {
+    foreach (const Timeline::TimelineModel *model, timelineModels()) {
         if (model->handlesTypeId(typeId)) {
             for (int i = model->firstIndex(start); i <= model->lastIndex(start + duration); ++i) {
                 if (i < 0)
@@ -89,7 +89,7 @@ void QmlProfilerNotesModel::saveData()
 {
     QVector<QmlProfilerDataModel::QmlEventNoteData> notes;
     for (int i = 0; i < count(); ++i) {
-        const TimelineModel *model = timelineModelByModelId(timelineModel(i));
+        const Timeline::TimelineModel *model = timelineModelByModelId(timelineModel(i));
         if (!model)
             continue;
 

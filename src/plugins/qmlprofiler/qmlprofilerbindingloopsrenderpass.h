@@ -40,11 +40,12 @@
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerBindingLoopsRenderPass : public TimelineRenderPass
+class QmlProfilerBindingLoopsRenderPass : public Timeline::TimelineRenderPass
 {
 public:
     static const QmlProfilerBindingLoopsRenderPass *instance();
-    State *update(const TimelineRenderer *renderer, const TimelineRenderState *parentState,
+    State *update(const Timeline::TimelineRenderer *renderer,
+                  const Timeline::TimelineRenderState *parentState,
                   State *oldState, int indexFrom, int indexTo, bool stateChanged,
                   qreal spacing) const;
 protected:

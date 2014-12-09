@@ -80,10 +80,10 @@ public:
 
     QQuickView *m_mainView;
     QmlProfilerModelManager *m_modelManager;
-    TimelineModelAggregator *m_modelProxy;
+    Timeline::TimelineModelAggregator *m_modelProxy;
 
 
-    TimelineZoomControl *m_zoomControl;
+    Timeline::TimelineZoomControl *m_zoomControl;
 };
 
 QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerTool *profilerTool, QmlProfilerViewManager *container, QmlProfilerModelManager *modelManager, QmlProfilerStateManager *profilerState)
@@ -91,18 +91,18 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
 {
     setObjectName(QLatin1String("QML Profiler"));
 
-    d->m_zoomControl = new TimelineZoomControl(this);
+    d->m_zoomControl = new Timeline::TimelineZoomControl(this);
     connect(modelManager->traceTime(), &QmlProfilerTraceTime::timeChanged,
-            d->m_zoomControl, &TimelineZoomControl::setTrace);
+            d->m_zoomControl, &Timeline::TimelineZoomControl::setTrace);
 
     QVBoxLayout *groupLayout = new QVBoxLayout;
     groupLayout->setContentsMargins(0, 0, 0, 0);
     groupLayout->setSpacing(0);
 
-    qmlRegisterType<TimelineRenderer>("TimelineRenderer", 1, 0, "TimelineRenderer");
-    qmlRegisterType<TimelineZoomControl>();
-    qmlRegisterType<TimelineModel>();
-    qmlRegisterType<TimelineNotesModel>();
+    qmlRegisterType<Timeline::TimelineRenderer>("TimelineRenderer", 1, 0, "TimelineRenderer");
+    qmlRegisterType<Timeline::TimelineZoomControl>();
+    qmlRegisterType<Timeline::TimelineModel>();
+    qmlRegisterType<Timeline::TimelineNotesModel>();
 
     d->m_mainView = new QmlProfilerQuickView(this);
     d->m_mainView->setResizeMode(QQuickView::SizeRootObjectToView);
@@ -115,7 +115,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
     d->m_profilerTool = profilerTool;
     d->m_viewContainer = container;
 
-    d->m_modelProxy = new TimelineModelAggregator(modelManager->notesModel(), this);
+    d->m_modelProxy = new Timeline::TimelineModelAggregator(modelManager->notesModel(), this);
     d->m_modelManager = modelManager;
 
     connect(modelManager,SIGNAL(dataAvailable()), d->m_modelProxy,SIGNAL(dataAvailable()));

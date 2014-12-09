@@ -40,7 +40,7 @@ public:
     BindingLoopMaterial();
 };
 
-struct BindingLoopsRenderPassState : public TimelineRenderPass::State {
+struct BindingLoopsRenderPassState : public Timeline::TimelineRenderPass::State {
     BindingLoopsRenderPassState() : indexFrom(std::numeric_limits<int>::max()), indexTo(-1) {}
     BindingLoopMaterial material;
     int indexFrom;
@@ -81,7 +81,8 @@ QmlProfilerBindingLoopsRenderPass::QmlProfilerBindingLoopsRenderPass()
 }
 
 void updateNodes(const QmlProfilerRangeModel *model, int from, int to,
-                 const TimelineRenderState *parentState, BindingLoopsRenderPassState *state)
+                 const Timeline::TimelineRenderState *parentState,
+                 BindingLoopsRenderPassState *state)
 {
     QVector<BindlingLoopsGeometry> expandedPerRow(model->expandedRowCount());
     BindlingLoopsGeometry collapsed;
@@ -114,7 +115,7 @@ void updateNodes(const QmlProfilerRangeModel *model, int from, int to,
         state->collapsedOverlay->appendChildNode(collapsed.node);
     }
 
-    int rowHeight = TimelineModel::defaultRowHeight();
+    int rowHeight = Timeline::TimelineModel::defaultRowHeight();
     for (int i = from; i < to; ++i) {
         int bindingLoopDest = model->bindingLoopDest(i);
         if (bindingLoopDest == -1)
@@ -141,8 +142,9 @@ void updateNodes(const QmlProfilerRangeModel *model, int from, int to,
     }
 }
 
-TimelineRenderPass::State *QmlProfilerBindingLoopsRenderPass::update(
-        const TimelineRenderer *renderer, const TimelineRenderState *parentState, State *oldState,
+Timeline::TimelineRenderPass::State *QmlProfilerBindingLoopsRenderPass::update(
+        const Timeline::TimelineRenderer *renderer,
+        const Timeline::TimelineRenderState *parentState, State *oldState,
         int indexFrom, int indexTo, bool stateChanged, qreal spacing) const
 {
     Q_UNUSED(stateChanged);
@@ -238,7 +240,7 @@ void BindlingLoopsGeometry::allocate(QSGMaterial *material)
 
 void BindlingLoopsGeometry::addExpandedEvent(float itemCenter)
 {
-    float verticalCenter = TimelineModel::defaultRowHeight() / 2.0;
+    float verticalCenter = Timeline::TimelineModel::defaultRowHeight() / 2.0;
     Point2DWithOffset *v = vertexData() + usedVertices;
     v[0].set(itemCenter, verticalCenter, -1.0f, currentY);
     v[1].set(itemCenter, verticalCenter, +1.0f, currentY);

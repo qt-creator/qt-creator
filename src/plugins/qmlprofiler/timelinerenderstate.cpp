@@ -30,8 +30,7 @@
 
 #include "timelinerenderstate.h"
 
-namespace QmlProfiler {
-namespace Internal {
+namespace Timeline {
 
 TimelineRenderState::TimelineRenderState(qint64 start, qint64 end, qreal scale, int numPasses) :
     m_expandedRowRoot(new QSGNode), m_collapsedRowRoot(new QSGNode),
@@ -108,5 +107,4 @@ void TimelineRenderState::setPassState(int i, TimelineRenderPass::State *state)
     m_passes[i] = state;
 }
 
-}
-}
+} // namespace Timeline

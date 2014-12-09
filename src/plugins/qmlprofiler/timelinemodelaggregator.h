@@ -35,15 +35,14 @@
 #include "qmlprofilermodelmanager.h"
 #include "timelinerenderer.h"
 
-namespace QmlProfiler {
-namespace Internal {
+namespace Timeline {
 
 class TimelineModelAggregator : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int height READ height NOTIFY heightChanged)
     Q_PROPERTY(QVariantList models READ models NOTIFY modelsChanged)
-    Q_PROPERTY(QmlProfiler::TimelineNotesModel *notes READ notes CONSTANT)
+    Q_PROPERTY(Timeline::TimelineNotesModel *notes READ notes CONSTANT)
 public:
     TimelineModelAggregator(TimelineNotesModel *notes, QObject *parent = 0);
     ~TimelineModelAggregator();
@@ -74,7 +73,6 @@ private:
     TimelineModelAggregatorPrivate *d;
 };
 
-}
-}
+} // namespace Timeline
 
 #endif // TIMELINEMODELAGGREGATOR_H

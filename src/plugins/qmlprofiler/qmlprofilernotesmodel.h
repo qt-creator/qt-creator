@@ -37,7 +37,7 @@
 #include <QHash>
 
 namespace QmlProfiler {
-class QMLPROFILER_EXPORT QmlProfilerNotesModel : public TimelineNotesModel {
+class QMLPROFILER_EXPORT QmlProfilerNotesModel : public Timeline::TimelineNotesModel {
     Q_OBJECT
 public:
     QmlProfilerNotesModel(QObject *parent);
@@ -51,5 +51,5 @@ protected:
 
     int add(int typeId, qint64 startTime, qint64 duration, const QString &text);
 };
-}
-#endif // NOTESMODEL_H
+} // namespace QmlProfiler
+#endif // QMLPROFILERNOTESMODEL_H

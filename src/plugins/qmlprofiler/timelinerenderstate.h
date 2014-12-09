@@ -34,8 +34,7 @@
 #include <QSGNode>
 #include "timelinerenderpass.h"
 
-namespace QmlProfiler {
-namespace Internal {
+namespace Timeline {
 
 class TimelineRenderState {
 public:
@@ -71,7 +70,6 @@ private:
     QVector<TimelineRenderPass::State *> m_passes;
 };
 
-}
-}
+} // namespace Timeline
 
 #endif // TIMELINERENDERSTATE_H

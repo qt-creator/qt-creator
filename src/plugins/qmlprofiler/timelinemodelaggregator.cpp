@@ -38,9 +38,7 @@
 #include <QStringList>
 #include <QVariant>
 
-namespace QmlProfiler {
-namespace Internal {
-
+namespace Timeline {
 
 class TimelineModelAggregator::TimelineModelAggregatorPrivate {
 public:
@@ -219,5 +217,4 @@ QVariantMap TimelineModelAggregator::prevItem(int selectedModel, int selectedIte
     return ret;
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace Timeline

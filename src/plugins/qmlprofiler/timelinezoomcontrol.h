@@ -33,7 +33,7 @@
 
 #include <QTimer>
 
-namespace QmlProfiler {
+namespace Timeline {
 
 class TimelineZoomControl : public QObject {
     Q_OBJECT
@@ -101,5 +101,7 @@ protected:
     void rebuildWindow();
     void clampRangeToWindow();
 };
-}
+
+} // namespace Timeline
+
 #endif // TIMELINEZOOMCONTROL_H
