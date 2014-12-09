@@ -56,28 +56,22 @@ public:
 
     explicit TimelineRenderer(QQuickItem *parent = 0);
 
-    bool selectionLocked() const
-    {
-        return m_selectionLocked;
-    }
+    bool selectionLocked() const;
+    int selectedItem() const;
 
-    int selectedItem() const
-    {
-        return m_selectedItem;
-    }
-
-    TimelineModel *model() const { return m_model; }
+    TimelineModel *model() const;
     void setModel(TimelineModel *model);
 
-    TimelineZoomControl *zoomer() const { return m_zoomer; }
+    TimelineZoomControl *zoomer() const;
     void setZoomer(TimelineZoomControl *zoomer);
 
-    TimelineNotesModel *notes() const { return m_notes; }
+    TimelineNotesModel *notes() const;
     void setNotes(TimelineNotesModel *notes);
 
     bool modelDirty() const;
     bool notesDirty() const;
     bool rowHeightsDirty() const;
+    bool rowCountsDirty() const;
 
     Q_INVOKABLE void selectNextFromSelectionId(int selectionId);
     Q_INVOKABLE void selectPrevFromSelectionId(int selectionId);
@@ -97,25 +91,9 @@ signals:
 public slots:
     void clearData();
 
-    void setSelectedItem(int itemIndex)
-    {
-        if (m_selectedItem != itemIndex) {
-            m_selectedItem = itemIndex;
-            update();
-            emit selectedItemChanged(itemIndex);
-        }
-    }
+    void setSelectedItem(int itemIndex);
+    void setSelectionLocked(bool locked);
 
-    void setSelectionLocked(bool locked)
-    {
-        if (m_selectionLocked != locked) {
-            m_selectionLocked = locked;
-            update();
-            emit selectionLockedChanged(locked);
-        }
-    }
-
-private slots:
     void setModelDirty();
     void setRowHeightsDirty();
     void setNotesDirty();
@@ -129,38 +107,9 @@ protected:
     virtual void hoverMoveEvent(QHoverEvent *event);
 
 private:
-    int rowFromPosition(int y);
-
-    void manageClicked();
-    void manageHovered(int mouseX, int mouseY);
-
-    static const int SafeFloatMax = 1 << 12;
-
-    void resetCurrentSelection();
-
-    TimelineRenderState *findRenderState();
-
-    TimelineModel *m_model;
-    TimelineZoomControl *m_zoomer;
-    TimelineNotesModel *m_notes;
-
-    struct {
-        qint64 startTime;
-        qint64 endTime;
-        int row;
-        int eventIndex;
-    } m_currentSelection;
-
-    int m_selectedItem;
-    bool m_selectionLocked;
-    bool m_modelDirty;
-    bool m_rowHeightsDirty;
-    bool m_notesDirty;
-    bool m_rowCountsDirty;
-
-    QList<const TimelineRenderPass *> m_renderPasses;
-    QVector<QVector<TimelineRenderState *> > m_renderStates;
-    TimelineRenderState *m_lastState;
+    class TimelineRendererPrivate;
+    TimelineRendererPrivate *d_ptr;
+    Q_DECLARE_PRIVATE(TimelineRenderer)
 };
 
 } // namespace Timeline

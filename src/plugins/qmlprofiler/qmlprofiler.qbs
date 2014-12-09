@@ -55,7 +55,7 @@ QtcPlugin {
             "timelinemodelaggregator.cpp", "timelinemodelaggregator.h",
             "timelinenotesmodel.cpp", "timelinenotesmodel.h", "timelinenotesmodel_p.h",
             "timelinenotesrenderpass.cpp", "timelinenotesrenderpass.h",
-            "timelinerenderer.cpp", "timelinerenderer.h",
+            "timelinerenderer.cpp", "timelinerenderer.h", "timelinerenderer_p.h",
             "timelinerenderpass.cpp", "timelinerenderpass.h",
             "timelinerenderstate.cpp", "timelinerenderstate.h",
             "timelineselectionrenderpass.cpp", "timelineselectionrenderpass.h",
