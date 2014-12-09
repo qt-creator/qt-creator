@@ -49,9 +49,10 @@
 #include <QTemporaryDir>
 #include <QtTest>
 
-using namespace CppTools::Internal;
-using namespace ProjectExplorer;
 using namespace CppTools;
+using namespace CppTools::Internal;
+using namespace CppTools::Tests;
+using namespace ProjectExplorer;
 
 typedef CPlusPlus::Document Document;
 
@@ -110,46 +111,6 @@ public:
     ModelManagerTestHelper *modelManagerTestHelper;
     ProjectInfo projectInfo;
     QStringList projectFiles;
-};
-
-/// Open and configure given project as example project and remove
-/// generated *.user file on destruction.
-///
-/// Requirement: No *.user file exists for the project.
-class ExampleProjectConfigurator
-{
-public:
-    ExampleProjectConfigurator(const QString &projectFile)
-    {
-        const QString projectUserFile = projectFile + _(".user");
-        QVERIFY(!QFileInfo::exists(projectUserFile));
-
-        // Open project
-        QString errorOpeningProject;
-        m_project = ProjectExplorerPlugin::openProject(projectFile, &errorOpeningProject);
-        QVERIFY(m_project);
-        QVERIFY(errorOpeningProject.isEmpty());
-
-        // Configure project
-        m_project->configureAsExampleProject(QStringList());
-
-        m_fileToRemove = projectUserFile;
-    }
-
-    ~ExampleProjectConfigurator()
-    {
-        QVERIFY(!m_fileToRemove.isEmpty());
-        QVERIFY(QFile::remove(m_fileToRemove));
-    }
-
-    Project *project() const
-    {
-        return m_project;
-    }
-
-private:
-    Project *m_project;
-    QString m_fileToRemove;
 };
 
 /// Changes a file on the disk and restores its original contents on destruction
@@ -657,16 +618,19 @@ void CppToolsPlugin::test_modelmanager_snapshot_after_two_projects()
 ///            is added for the ui_* file.
 /// Check: (2) The CppSourceProcessor can successfully resolve the ui_* file
 ///            though it might not be actually generated in the build dir.
+///
+
 void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
 {
-    ModelManagerTestHelper helper;
+    VerifyCleanCppModelManager verify;
 
-    MyTestDataDir testDataDirectory(_("testdata_guiproject1"));
-    const QString projectFile = testDataDirectory.file(_("testdata_guiproject1.pro"));
+    TemporaryCopiedDir temporaryDir(MyTestDataDir(QLatin1String("testdata_guiproject1")).path());
+    QVERIFY(temporaryDir.isValid());
+    const QString projectFile = temporaryDir.absolutePath("testdata_guiproject1.pro");
 
-    // Open project with *.ui file
-    ExampleProjectConfigurator exampleProjectConfigurator(projectFile);
-    Project *project = exampleProjectConfigurator.project();
+    ProjectOpenerAndCloser projects(/*waitForFinishedGcOnDestruction=*/ true);
+    ProjectInfo projectInfo = projects.open(projectFile, /*configureAsExampleProject=*/ true);
+    QVERIFY(projectInfo.isValid());
 
     // Check working copy.
     // An AbstractEditorSupport object should have been added for the ui_* file.
@@ -688,7 +652,7 @@ void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
 
     // Check CppSourceProcessor / includes.
     // The CppSourceProcessor is expected to find the ui_* file in the working copy.
-    const QString fileIncludingTheUiFile = testDataDirectory.file(_("mainwindow.cpp"));
+    const QString fileIncludingTheUiFile = temporaryDir.absolutePath("mainwindow.cpp");
     while (!mm->snapshot().document(fileIncludingTheUiFile))
         QCoreApplication::processEvents();
 
@@ -699,10 +663,6 @@ void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
     QCOMPARE(includedFiles.size(), 2);
     QCOMPARE(QFileInfo(includedFiles.at(0)).fileName(), _("mainwindow.h"));
     QCOMPARE(QFileInfo(includedFiles.at(1)).fileName(), _("ui_mainwindow.h"));
-
-    // Close Project
-    SessionManager::removeProject(project);
-    helper.waitForFinishedGc();
 }
 
 /// QTCREATORBUG-9828: Locator shows symbols of closed files

@@ -106,15 +106,21 @@ private:
     bool m_runGarbageCollector;
 };
 
-class CPPTOOLS_EXPORT ProjectOpenerAndCloser
+class CPPTOOLS_EXPORT ProjectOpenerAndCloser : public QObject
 {
+    Q_OBJECT
+
 public:
-    ProjectOpenerAndCloser();
+    ProjectOpenerAndCloser(bool waitForFinishedGcOnDestruction = false);
     ~ProjectOpenerAndCloser(); // Closes opened projects
 
-    ProjectInfo open(const QString &projectFile);
+    ProjectInfo open(const QString &projectFile, bool configureAsExampleProject = false);
 
 private:
+    void onGcFinished();
+
+    bool m_waitForFinishedGcOnDestruction;
+    bool m_gcFinished;
     QList<ProjectExplorer::Project *> m_openProjects;
 };
 
@@ -130,6 +136,14 @@ public:
 private:
     QTemporaryDir m_temporaryDir;
     bool m_isValid;
+};
+
+class VerifyCleanCppModelManager
+{
+public:
+    VerifyCleanCppModelManager() { verify(); }
+    ~VerifyCleanCppModelManager() { verify(); }
+    static void verify();
 };
 
 class FileWriterAndRemover

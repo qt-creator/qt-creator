@@ -30,6 +30,7 @@
 
 #include "modelmanagertesthelper.h"
 
+#include "cpptoolstestcase.h"
 #include "cppworkingcopy.h"
 
 #include <QtTest>
@@ -68,13 +69,13 @@ ModelManagerTestHelper::ModelManagerTestHelper(QObject *parent) :
     connect(mm, SIGNAL(gcFinished()), this, SLOT(gcFinished()));
 
     cleanup();
-    verifyClean();
+    Tests::VerifyCleanCppModelManager::verify();
 }
 
 ModelManagerTestHelper::~ModelManagerTestHelper()
 {
     cleanup();
-    verifyClean();
+    Tests::VerifyCleanCppModelManager::verify();
 }
 
 void ModelManagerTestHelper::cleanup()
@@ -88,20 +89,6 @@ void ModelManagerTestHelper::cleanup()
 
     if (!pies.isEmpty())
         waitForFinishedGc();
-}
-
-void ModelManagerTestHelper::verifyClean()
-{
-    CppModelManager *mm = CppModelManager::instance();
-    assert(mm);
-
-    QVERIFY(mm->projectInfos().isEmpty());
-    QVERIFY(mm->headerPaths().isEmpty());
-    QVERIFY(mm->definedMacros().isEmpty());
-    QVERIFY(mm->projectFiles().isEmpty());
-    QVERIFY(mm->snapshot().isEmpty());
-    QCOMPARE(mm->workingCopy().size(), 1);
-    QVERIFY(mm->workingCopy().contains(mm->configurationFileName()));
 }
 
 ModelManagerTestHelper::Project *ModelManagerTestHelper::createProject(const QString &name)

@@ -30,6 +30,8 @@
 
 #include "cpptoolstestcase.h"
 
+#include "cppworkingcopy.h"
+
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
@@ -214,18 +216,30 @@ bool TestCase::writeFile(const QString &filePath, const QByteArray &contents)
     return true;
 }
 
-ProjectOpenerAndCloser::ProjectOpenerAndCloser()
+ProjectOpenerAndCloser::ProjectOpenerAndCloser(bool waitForFinishedGcOnDestruction)
+    : m_waitForFinishedGcOnDestruction(waitForFinishedGcOnDestruction)
+    , m_gcFinished(false)
 {
     QVERIFY(!SessionManager::hasProjects());
+    if (m_waitForFinishedGcOnDestruction) {
+        CppModelManager *mm = CppModelManager::instance();
+        connect(mm, &CppModelManager::gcFinished, this, &ProjectOpenerAndCloser::onGcFinished);
+    }
 }
 
 ProjectOpenerAndCloser::~ProjectOpenerAndCloser()
 {
     foreach (Project *project, m_openProjects)
         ProjectExplorerPlugin::unloadProject(project);
+
+    if (m_waitForFinishedGcOnDestruction) {
+        m_gcFinished = false;
+        while (!m_gcFinished)
+            QCoreApplication::processEvents();
+    }
 }
 
-ProjectInfo ProjectOpenerAndCloser::open(const QString &projectFile)
+ProjectInfo ProjectOpenerAndCloser::open(const QString &projectFile, bool configureAsExampleProject)
 {
     QString error;
     Project *project = ProjectExplorerPlugin::openProject(projectFile, &error);
@@ -235,10 +249,18 @@ ProjectInfo ProjectOpenerAndCloser::open(const QString &projectFile)
         return ProjectInfo();
     m_openProjects.append(project);
 
+    if (configureAsExampleProject)
+        project->configureAsExampleProject(QStringList());
+
     if (TestCase::waitUntilCppModelManagerIsAwareOf(project))
         return CppModelManager::instance()->projectInfo(project);
 
     return ProjectInfo();
+}
+
+void ProjectOpenerAndCloser::onGcFinished()
+{
+    m_gcFinished = true;
 }
 
 TemporaryCopiedDir::TemporaryCopiedDir(const QString &sourceDirPath)
@@ -299,6 +321,19 @@ IAssistProposalScopedPointer::~IAssistProposalScopedPointer()
 {
     if (d && d->model())
         delete d->model();
+}
+
+void VerifyCleanCppModelManager::verify()
+{
+    CppModelManager *mm = CppModelManager::instance();
+    QVERIFY(mm);
+    QVERIFY(mm->projectInfos().isEmpty());
+    QVERIFY(mm->headerPaths().isEmpty());
+    QVERIFY(mm->definedMacros().isEmpty());
+    QVERIFY(mm->projectFiles().isEmpty());
+    QVERIFY(mm->snapshot().isEmpty());
+    QCOMPARE(mm->workingCopy().size(), 1);
+    QVERIFY(mm->workingCopy().contains(mm->configurationFileName()));
 }
 
 } // namespace Tests

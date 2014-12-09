@@ -59,6 +59,11 @@ QString TestDataDir::file(const QString &fileName) const
     return directory() + fileName;
 }
 
+QString TestDataDir::path() const
+{
+    return m_directory;
+}
+
 QString TestDataDir::directory(const QString &subdir, bool clean) const
 {
     QString path = m_directory;

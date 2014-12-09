@@ -51,8 +51,11 @@ class CORE_EXPORT TestDataDir
 {
 public:
     TestDataDir(const QString &directory);
+
     QString file(const QString &fileName) const;
     QString directory(const QString &subdir = QString(), bool clean = true) const;
+
+    QString path() const;
 
 private:
     QString m_directory;
