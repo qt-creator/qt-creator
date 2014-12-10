@@ -84,7 +84,7 @@ ToolBar {
             anchors.bottom: parent.bottom
             implicitWidth: buttonWidth
 
-            iconSource: "qrc:/qmlprofiler/ico_prev.png"
+            iconSource: "qrc:/timeline/ico_prev.png"
             tooltip: qsTr("Jump to previous event.")
             onClicked: buttons.jumpToPrev()
         }
@@ -95,7 +95,7 @@ ToolBar {
             anchors.bottom: parent.bottom
             implicitWidth: buttonWidth
 
-            iconSource: "qrc:/qmlprofiler/ico_next.png"
+            iconSource: "qrc:/timeline/ico_next.png"
             tooltip: qsTr("Jump to next event.")
             onClicked: buttons.jumpToNext()
         }
@@ -106,7 +106,7 @@ ToolBar {
             anchors.bottom: parent.bottom
             implicitWidth: buttonWidth
 
-            iconSource: "qrc:/qmlprofiler/ico_zoom.png"
+            iconSource: "qrc:/timeline/ico_zoom.png"
             tooltip: qsTr("Show zoom slider.")
             checkable: true
             checked: false
@@ -119,7 +119,7 @@ ToolBar {
             anchors.bottom: parent.bottom
             implicitWidth: buttonWidth
 
-            iconSource: "qrc:/qmlprofiler/ico_filter.png"
+            iconSource: "qrc:/timeline/ico_filter.png"
             tooltip: qsTr("Filter Categories")
             checkable: true
             onCheckedChanged: buttons.filterMenuChanged()
@@ -131,8 +131,8 @@ ToolBar {
             anchors.bottom: parent.bottom
             implicitWidth: buttonWidth
 
-            iconSource: checked ? "qrc:/qmlprofiler/ico_rangeselected.png" :
-                                  "qrc:/qmlprofiler/ico_rangeselection.png"
+            iconSource: checked ? "qrc:/timeline/ico_rangeselected.png" :
+                                  "qrc:/timeline/ico_rangeselection.png"
             tooltip: qsTr("Select range.")
             checkable: true
             checked: false
@@ -145,7 +145,7 @@ ToolBar {
             anchors.bottom: parent.bottom
             implicitWidth: buttonWidth
 
-            iconSource: "qrc:/qmlprofiler/ico_selectionmode.png"
+            iconSource: "qrc:/timeline/ico_selectionmode.png"
             tooltip: qsTr("View event information on mouseover.")
             checkable: true
             checked: false

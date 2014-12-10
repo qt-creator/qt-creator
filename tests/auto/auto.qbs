@@ -18,6 +18,7 @@ Project {
         "profilewriter/profilewriter.qbs",
         "qml/qml.qbs",
         "qtcprocess/qtcprocess.qbs",
+        "timeline/timeline.qbs",
         "treeviewfind/treeviewfind.qbs",
         "utils/utils.qbs",
         "utils_stringutils/utils_stringutils.qbs",

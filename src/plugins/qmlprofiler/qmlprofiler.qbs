@@ -3,13 +3,13 @@ import qbs 1.0
 QtcPlugin {
     name: "QmlProfiler"
 
-    Depends { name: "Qt"; submodules: ["widgets", "network"] }
-    Depends { name: "Qt.quick"; condition: product.condition; }
+    Depends { name: "Qt"; submodules: ["widgets", "network", "quick"] }
     Depends { name: "Aggregation" }
     Depends { name: "QmlJS" }
     Depends { name: "QmlDebug" }
     Depends { name: "QtcSsh" }
     Depends { name: "Utils" }
+    Depends { name: "Timeline" }
 
     Depends { name: "Core" }
     Depends { name: "AnalyzerBase" }
@@ -50,49 +50,12 @@ QtcPlugin {
             "qmlprofilerviewmanager.cpp", "qmlprofilerviewmanager.h",
             "qv8profilerdatamodel.cpp", "qv8profilerdatamodel.h",
             "qv8profilereventview.h", "qv8profilereventview.cpp",
-            "timelineabstractrenderer.cpp", "timelineabstractrenderer.h",
-            "timelineabstractrenderer_p.h",
-            "timelineitemsrenderpass.cpp", "timelineitemsrenderpass.h",
-            "timelinemodel.cpp", "timelinemodel.h", "timelinemodel_p.h",
-            "timelinemodelaggregator.cpp", "timelinemodelaggregator.h",
-            "timelinenotesmodel.cpp", "timelinenotesmodel.h", "timelinenotesmodel_p.h",
-            "timelinenotesrenderpass.cpp", "timelinenotesrenderpass.h",
-            "timelineoverviewrenderer.cpp", "timelineoverviewrenderer.h",
-            "timelineoverviewrenderer_p.h",
-            "timelinerenderer.cpp", "timelinerenderer.h", "timelinerenderer_p.h",
-            "timelinerenderpass.cpp", "timelinerenderpass.h",
-            "timelinerenderstate.cpp", "timelinerenderstate.h", "timelinerenderstate_p.h",
-            "timelineselectionrenderpass.cpp", "timelineselectionrenderpass.h",
-            "timelinezoomcontrol.cpp", "timelinezoomcontrol.h"
         ]
     }
 
     Group {
         name: "QML"
         prefix: "qml/"
-        files: [
-            "ButtonsBar.qml",
-            "Detail.qml",
-            "CategoryLabel.qml",
-            "MainView.qml",
-            "Overview.qml",
-            "RangeDetails.qml",
-            "RangeMover.qml",
-            "SelectionRange.qml",
-            "SelectionRangeDetails.qml",
-            "TimeDisplay.qml",
-            "TimelineContent.qml",
-            "TimelineLabels.qml",
-            "TimeMarks.qml",
-
-            "qmlprofiler.qrc",
-
-            "bindingloops.frag",
-            "bindingloops.vert",
-            "notes.frag",
-            "notes.vert",
-            "timelineitems.frag",
-            "timelineitems.vert"
-        ]
+        files: ["qmlprofiler.qrc"]
     }
 }

@@ -40,7 +40,7 @@
 namespace Timeline {
 
 /*!
-    \class QmlProfiler::TimelineModel
+    \class Timeline::TimelineModel
     \brief The TimelineModel class provides a sorted model for timeline data.
 
     The TimelineModel lets you keep range data sorted by both start and end times, so that

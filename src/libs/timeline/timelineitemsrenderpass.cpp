@@ -372,9 +372,8 @@ private:
 TimelineItemsMaterialShader::TimelineItemsMaterialShader()
     : QSGMaterialShader()
 {
-    setShaderSourceFile(QOpenGLShader::Vertex, QStringLiteral(":/qmlprofiler/timelineitems.vert"));
-    setShaderSourceFile(QOpenGLShader::Fragment,
-                        QStringLiteral(":/qmlprofiler/timelineitems.frag"));
+    setShaderSourceFile(QOpenGLShader::Vertex, QStringLiteral(":/timeline/timelineitems.vert"));
+    setShaderSourceFile(QOpenGLShader::Fragment, QStringLiteral(":/timeline/timelineitems.frag"));
 }
 
 void TimelineItemsMaterialShader::updateState(const RenderState &state, QSGMaterial *newMaterial,

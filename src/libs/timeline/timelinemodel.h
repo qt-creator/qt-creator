@@ -31,17 +31,14 @@
 #ifndef TIMELINEMODEL_H
 #define TIMELINEMODEL_H
 
-
-#include "qmlprofiler_global.h"
-#include "qmlprofilermodelmanager.h"
-#include "qmlprofilerdatamodel.h"
+#include "timeline_global.h"
 #include "timelinerenderpass.h"
 #include <QVariant>
 #include <QColor>
 
 namespace Timeline {
 
-class QMLPROFILER_EXPORT TimelineModel : public QObject
+class TIMELINE_EXPORT TimelineModel : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int modelId READ modelId CONSTANT)

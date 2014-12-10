@@ -20,5 +20,5 @@ SUBDIRS += \
     valgrind
 
 qtHaveModule(declarative) {
-    SUBDIRS += qml qmlprofiler
+    SUBDIRS += qml timeline
 }

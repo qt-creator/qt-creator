@@ -32,9 +32,9 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerdatamodel.h"
 #include "qmlprofilerbindingloopsrenderpass.h"
-#include "timelinenotesrenderpass.h"
-#include "timelineitemsrenderpass.h"
-#include "timelineselectionrenderpass.h"
+#include "timeline/timelinenotesrenderpass.h"
+#include "timeline/timelineitemsrenderpass.h"
+#include "timeline/timelineselectionrenderpass.h"
 
 #include <QCoreApplication>
 #include <QVector>

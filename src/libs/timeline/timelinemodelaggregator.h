@@ -28,28 +28,50 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINEOVERVIEWRENDERER_H
-#define TIMELINEOVERVIEWRENDERER_H
+#ifndef TIMELINEMODELAGGREGATOR_H
+#define TIMELINEMODELAGGREGATOR_H
 
-#include "timelineabstractrenderer.h"
+#include "timelinemodel.h"
+#include "timelinenotesmodel.h"
 
 namespace Timeline {
 
-class TimelineOverviewRenderer : public TimelineAbstractRenderer
+class TIMELINE_EXPORT TimelineModelAggregator : public QObject
 {
+    Q_OBJECT
+    Q_PROPERTY(int height READ height NOTIFY heightChanged)
+    Q_PROPERTY(QVariantList models READ models NOTIFY modelsChanged)
+    Q_PROPERTY(Timeline::TimelineNotesModel *notes READ notes CONSTANT)
 public:
-    TimelineOverviewRenderer(QQuickItem *parent = 0);
-    ~TimelineOverviewRenderer();
+    TimelineModelAggregator(TimelineNotesModel *notes, QObject *parent = 0);
+    ~TimelineModelAggregator();
 
-protected:
-    virtual QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData);
+    int height() const;
 
-    class TimelineOverviewRendererPrivate;
-    Q_DECLARE_PRIVATE(TimelineOverviewRenderer)
+    void addModel(TimelineModel *m);
+    const TimelineModel *model(int modelIndex) const;
+    QVariantList models() const;
+
+    TimelineNotesModel *notes() const;
+    void clear();
+    int modelCount() const;
+
+    Q_INVOKABLE int modelOffset(int modelIndex) const;
+
+    Q_INVOKABLE QVariantMap nextItem(int selectedModel, int selectedItem, qint64 time) const;
+    Q_INVOKABLE QVariantMap prevItem(int selectedModel, int selectedItem, qint64 time) const;
+
+signals:
+    void dataAvailable();
+    void stateChanged();
+    void modelsChanged();
+    void heightChanged();
+
+private:
+    class TimelineModelAggregatorPrivate;
+    TimelineModelAggregatorPrivate *d;
 };
 
 } // namespace Timeline
 
-QML_DECLARE_TYPE(Timeline::TimelineOverviewRenderer)
-
-#endif // TIMELINEOVERVIEWRENDERER_H
+#endif // TIMELINEMODELAGGREGATOR_H

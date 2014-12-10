@@ -31,7 +31,10 @@
 #ifndef QMLPROFILERTIMELINEMODEL_H
 #define QMLPROFILERTIMELINEMODEL_H
 
-#include "timelinemodel.h"
+#include "qmlprofiler_global.h"
+#include "qmlprofilermodelmanager.h"
+#include "qmlprofilerdatamodel.h"
+#include "timeline/timelinemodel.h"
 
 namespace QmlProfiler {
 

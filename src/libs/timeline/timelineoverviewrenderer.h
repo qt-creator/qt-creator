@@ -28,50 +28,28 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINERENDERSTATE_H
-#define TIMELINERENDERSTATE_H
+#ifndef TIMELINEOVERVIEWRENDERER_H
+#define TIMELINEOVERVIEWRENDERER_H
 
-#include <QSGNode>
-#include "timelinerenderpass.h"
-#include "timelinemodel.h"
+#include "timelineabstractrenderer.h"
 
 namespace Timeline {
 
-class TimelineRenderState {
+class TIMELINE_EXPORT TimelineOverviewRenderer : public TimelineAbstractRenderer
+{
 public:
-    TimelineRenderState(qint64 start, qint64 end, qreal scale, int numPasses);
-    ~TimelineRenderState();
+    TimelineOverviewRenderer(QQuickItem *parent = 0);
+    ~TimelineOverviewRenderer();
 
-    qint64 start() const;
-    qint64 end() const;
-    qreal scale() const;
+protected:
+    virtual QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData);
 
-    TimelineRenderPass::State *passState(int i);
-    const TimelineRenderPass::State *passState(int i) const;
-    void setPassState(int i, TimelineRenderPass::State *state);
-
-    const QSGNode *expandedRowRoot() const;
-    const QSGNode *collapsedRowRoot() const;
-    const QSGNode *expandedOverlayRoot() const;
-    const QSGNode *collapsedOverlayRoot() const;
-
-    QSGNode *expandedRowRoot();
-    QSGNode *collapsedRowRoot();
-    QSGNode *expandedOverlayRoot();
-    QSGNode *collapsedOverlayRoot();
-
-    bool isEmpty() const;
-    void assembleNodeTree(const TimelineModel *model, int defaultRowHeight, int defaultRowOffset);
-    void updateExpandedRowHeights(const TimelineModel *model, int defaultRowHeight,
-                                  int defaultRowOffset);
-    QSGTransformNode *finalize(QSGNode *oldNode, bool expanded, const QMatrix4x4 &transform);
-
-private:
-    class TimelineRenderStatePrivate;
-    TimelineRenderStatePrivate *d_ptr;
-    Q_DECLARE_PRIVATE(TimelineRenderState)
+    class TimelineOverviewRendererPrivate;
+    Q_DECLARE_PRIVATE(TimelineOverviewRenderer)
 };
 
 } // namespace Timeline
 
-#endif // TIMELINERENDERSTATE_H
+QML_DECLARE_TYPE(Timeline::TimelineOverviewRenderer)
+
+#endif // TIMELINEOVERVIEWRENDERER_H

@@ -28,26 +28,28 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINEITEMSRENDERPASS_H
-#define TIMELINEITEMSRENDERPASS_H
+#ifndef TIMELINENOTESRENDERPASS_H
+#define TIMELINENOTESRENDERPASS_H
 
 #include "timelineabstractrenderer.h"
-#include "timelinerenderpass.h"
 #include <QSGMaterial>
 
 namespace Timeline {
 
-class TimelineItemsRenderPass : public TimelineRenderPass
+class TIMELINE_EXPORT TimelineNotesRenderPass : public TimelineRenderPass
 {
 public:
-    static const TimelineItemsRenderPass *instance();
+    static const TimelineNotesRenderPass *instance();
+
     State *update(const TimelineAbstractRenderer *renderer, const TimelineRenderState *parentState,
-                  State *state, int firstIndex, int lastIndex, bool stateChanged,
+                  State *oldState, int firstIndex, int lastIndex, bool stateChanged,
                   qreal spacing) const;
-protected:
-    TimelineItemsRenderPass();
+
+private:
+    TimelineNotesRenderPass();
 };
 
 } // namespace Timeline
 
-#endif // TIMELINEITEMSRENDERPASS_H
+#endif // TIMELINENOTESRENDERPASS_H
+

@@ -12,7 +12,8 @@ SUBDIRS   = \
     qmldebug \
     qmleditorwidgets \
     glsl \
-    ssh
+    ssh \
+    timeline
 
 for(l, SUBDIRS) {
     QTC_LIB_DEPENDS =

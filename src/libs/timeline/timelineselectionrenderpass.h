@@ -28,28 +28,29 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERNOTESMODEL_H
-#define QMLPROFILERNOTESMODEL_H
+#ifndef TIMELINESELECTIONRENDERPASS_H
+#define TIMELINESELECTIONRENDERPASS_H
 
-#include "qmlprofilermodelmanager.h"
-#include "timeline/timelinenotesmodel.h"
-#include <QList>
-#include <QHash>
+#include "timelineabstractrenderer.h"
+#include "timelinerenderpass.h"
+#include "timelinerenderstate.h"
 
-namespace QmlProfiler {
-class QMLPROFILER_EXPORT QmlProfilerNotesModel : public Timeline::TimelineNotesModel {
-    Q_OBJECT
+namespace Timeline {
+
+class TIMELINE_EXPORT TimelineSelectionRenderPass : public TimelineRenderPass
+{
 public:
-    QmlProfilerNotesModel(QObject *parent);
+    static const TimelineSelectionRenderPass *instance();
 
-    void setModelManager(QmlProfilerModelManager *modelManager);
-    void loadData();
-    void saveData();
+    State *update(const TimelineAbstractRenderer *renderer, const TimelineRenderState *parentState,
+                  State *state, int firstIndex, int lastIndex, bool stateChanged,
+                  qreal spacing) const;
 
 protected:
-    QmlProfilerModelManager *m_modelManager;
-
-    int add(int typeId, qint64 startTime, qint64 duration, const QString &text);
+    TimelineSelectionRenderPass();
 };
-} // namespace QmlProfiler
-#endif // QMLPROFILERNOTESMODEL_H
+
+} // namespace Timeline
+
+#endif // TIMELINESELECTIONRENDERPASS_H
+

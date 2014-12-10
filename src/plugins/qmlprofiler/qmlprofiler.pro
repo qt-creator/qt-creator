@@ -9,6 +9,7 @@ SOURCES += \
     qmlprofileranimationsmodel.cpp \
     qmlprofilerattachdialog.cpp \
     qmlprofilerbasemodel.cpp \
+    qmlprofilerbindingloopsrenderpass.cpp \
     qmlprofilerclientmanager.cpp \
     qmlprofilerdatamodel.cpp \
     qmlprofilerdetailsrewriter.cpp \
@@ -30,20 +31,7 @@ SOURCES += \
     qmlprofilertreeview.cpp \
     qmlprofilerviewmanager.cpp \
     qv8profilerdatamodel.cpp \
-    qv8profilereventview.cpp \
-    timelinemodel.cpp \
-    timelinemodelaggregator.cpp \
-    timelinerenderer.cpp \
-    timelinezoomcontrol.cpp \
-    timelineitemsrenderpass.cpp \
-    qmlprofilerbindingloopsrenderpass.cpp \
-    timelineselectionrenderpass.cpp \
-    timelinenotesrenderpass.cpp \
-    timelinerenderpass.cpp \
-    timelinerenderstate.cpp \
-    timelinenotesmodel.cpp \
-    timelineabstractrenderer.cpp \
-    timelineoverviewrenderer.cpp
+    qv8profilereventview.cpp
 
 HEADERS += \
     abstractqmlprofilerrunner.h \
@@ -53,6 +41,7 @@ HEADERS += \
     qmlprofilerattachdialog.h \
     qmlprofilerbasemodel.h \
     qmlprofilerbasemodel_p.h \
+    qmlprofilerbindingloopsrenderpass.h \
     qmlprofilerclientmanager.h \
     qmlprofilerconstants.h \
     qmlprofilerdatamodel.h \
@@ -75,47 +64,11 @@ HEADERS += \
     qmlprofilertreeview.h \
     qmlprofilerviewmanager.h \
     qv8profilerdatamodel.h \
-    qv8profilereventview.h \
-    timelinemodel.h \
-    timelinemodel_p.h \
-    timelinemodelaggregator.h \
-    timelinerenderer.h \
-    timelinezoomcontrol.h \
-    timelineitemsrenderpass.h \
-    qmlprofilerbindingloopsrenderpass.h \
-    timelineselectionrenderpass.h \
-    timelinenotesrenderpass.h \
-    timelinerenderpass.h \
-    timelinerenderstate.h \
-    timelinenotesmodel.h \
-    timelinenotesmodel_p.h \
-    timelinerenderer_p.h \
-    timelinerenderstate_p.h \
-    timelineabstractrenderer.h \
-    timelineabstractrenderer_p.h \
-    timelineoverviewrenderer_p.h \
-    timelineoverviewrenderer.h
+    qv8profilereventview.h
 
 RESOURCES += \
     qml/qmlprofiler.qrc
 
 DISTFILES += \
-    qml/ButtonsBar.qml \
-    qml/Detail.qml \
-    qml/CategoryLabel.qml \
-    qml/MainView.qml \
-    qml/RangeDetails.qml \
-    qml/RangeMover.qml \
-    qml/TimeDisplay.qml \
-    qml/TimelineContent.qml \
-    qml/TimelineLabels.qml \
-    qml/TimeMarks.qml \
-    qml/SelectionRange.qml \
-    qml/SelectionRangeDetails.qml \
-    qml/Overview.qml \
-    qml/timelineitems.frag \
-    qml/timelineitems.vert \
     qml/bindingloops.frag \
-    qml/bindingloops.vert \
-    qml/notes.frag \
-    qml/notes.vert
+    qml/bindingloops.vert

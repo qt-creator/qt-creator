@@ -30,10 +30,8 @@
 
 #include "timelinemodelaggregator.h"
 
-#include "qmlprofilerrangemodel.h"
-#include "qmlprofileranimationsmodel.h"
-#include "qmlprofilerplugin.h"
-#include "qmlprofilernotesmodel.h"
+#include "timelinemodel.h"
+#include "timelinenotesmodel.h"
 
 #include <QStringList>
 #include <QVariant>

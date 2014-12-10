@@ -29,9 +29,8 @@
 ****************************************************************************/
 
 #include <QtTest>
-#include <qmlprofiler/timelinemodel.h>
-
-using namespace Timeline;
+#include <QColor>
+#include <timeline/timelinemodel.h>
 
 static const int DefaultRowHeight = 30;
 static const int NumItems = 10;
@@ -39,7 +38,7 @@ static const qint64 ItemDuration = 1 << 19;
 static const qint64 ItemSpacing = 1 << 20;
 
 class DummyModelPrivate;
-class DummyModel : public TimelineModel
+class DummyModel : public Timeline::TimelineModel
 {
     Q_OBJECT
     friend class tst_TimelineModel;

@@ -31,21 +31,21 @@
 #ifndef TIMELINEABSTRACTRENDERER_H
 #define TIMELINEABSTRACTRENDERER_H
 
-#include <QQuickItem>
-
-#include <QSGTransformNode>
-#include <QQuickItem>
 #include "timelinezoomcontrol.h"
 #include "timelinemodel.h"
 #include "timelinenotesmodel.h"
 #include "timelinerenderpass.h"
+
+#include <QQuickItem>
+#include <QSGTransformNode>
+#include <QQuickItem>
 
 namespace Timeline {
 
 class TimelineRenderPass;
 class TimelineRenderState;
 
-class TimelineAbstractRenderer : public QQuickItem
+class TIMELINE_EXPORT TimelineAbstractRenderer : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(Timeline::TimelineModel *model READ model WRITE setModel NOTIFY modelChanged)

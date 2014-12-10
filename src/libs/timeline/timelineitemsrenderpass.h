@@ -28,34 +28,26 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINERENDERPASS_H
-#define TIMELINERENDERPASS_H
+#ifndef TIMELINEITEMSRENDERPASS_H
+#define TIMELINEITEMSRENDERPASS_H
 
-#include <QVector>
+#include "timelineabstractrenderer.h"
+#include "timelinerenderpass.h"
+#include <QSGMaterial>
 
-QT_FORWARD_DECLARE_CLASS(QSGNode)
 namespace Timeline {
 
-class TimelineAbstractRenderer;
-class TimelineRenderState;
-
-class TimelineRenderPass {
+class TIMELINE_EXPORT TimelineItemsRenderPass : public TimelineRenderPass
+{
 public:
-    class State {
-    public:
-        virtual const QVector<QSGNode *> &expandedRows() const;
-        virtual const QVector<QSGNode *> &collapsedRows() const;
-        virtual QSGNode *expandedOverlay() const;
-        virtual QSGNode *collapsedOverlay() const;
-    };
-
-    virtual ~TimelineRenderPass();
-    virtual State *update(const TimelineAbstractRenderer *renderer,
-                          const TimelineRenderState *parentState,
-                          State *state, int indexFrom, int indexTo, bool stateChanged,
-                          qreal spacing) const = 0;
+    static const TimelineItemsRenderPass *instance();
+    State *update(const TimelineAbstractRenderer *renderer, const TimelineRenderState *parentState,
+                  State *state, int firstIndex, int lastIndex, bool stateChanged,
+                  qreal spacing) const;
+protected:
+    TimelineItemsRenderPass();
 };
 
 } // namespace Timeline
 
-#endif // TIMELINERENDERPASS_H
+#endif // TIMELINEITEMSRENDERPASS_H

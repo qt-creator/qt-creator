@@ -31,9 +31,9 @@
 #ifndef QMLPROFILERBINDINGLOOPSRENDERPASS_H
 #define QMLPROFILERBINDINGLOOPSRENDERPASS_H
 
-#include "timelineabstractrenderer.h"
-#include "timelinerenderpass.h"
-#include "timelinerenderstate.h"
+#include "timeline/timelineabstractrenderer.h"
+#include "timeline/timelinerenderpass.h"
+#include "timeline/timelinerenderstate.h"
 #include "qmlprofilerrangemodel.h"
 #include <QSGMaterial>
 

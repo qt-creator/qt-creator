@@ -1,4 +1,4 @@
-QTC_PLUGIN_DEPENDS += qmlprofiler
+QTC_LIB_DEPENDS += timeline
 include(../../qttest.pri)
 
 SOURCES += \

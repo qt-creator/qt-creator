@@ -31,11 +31,12 @@
 #ifndef TIMELINEZOOMCONTROL_H
 #define TIMELINEZOOMCONTROL_H
 
+#include "timeline_global.h"
 #include <QTimer>
 
 namespace Timeline {
 
-class TimelineZoomControl : public QObject {
+class TIMELINE_EXPORT TimelineZoomControl : public QObject {
     Q_OBJECT
 
     Q_PROPERTY(qint64 traceStart READ traceStart WRITE setTraceStart NOTIFY traceChanged)

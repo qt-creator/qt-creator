@@ -30,9 +30,8 @@
 
 #include "timelinerenderer_p.h"
 #include "timelinerenderpass.h"
-#include "qmlprofilernotesmodel.h"
+#include "timelinenotesmodel.h"
 #include "timelineitemsrenderpass.h"
-#include "qmlprofilerbindingloopsrenderpass.h"
 #include "timelineselectionrenderpass.h"
 #include "timelinenotesrenderpass.h"
 
@@ -41,7 +40,6 @@
 #include <QQmlProperty>
 #include <QTimer>
 #include <QPixmap>
-#include <QGraphicsSceneMouseEvent>
 #include <QVarLengthArray>
 #include <QSGTransformNode>
 #include <QSGSimpleRectNode>

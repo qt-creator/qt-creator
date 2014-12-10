@@ -28,51 +28,50 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINEMODELAGGREGATOR_H
-#define TIMELINEMODELAGGREGATOR_H
+#ifndef TIMELINERENDERSTATE_H
+#define TIMELINERENDERSTATE_H
 
-#include "qmlprofilertimelinemodel.h"
-#include "qmlprofilermodelmanager.h"
-#include "timelinerenderer.h"
+#include <QSGNode>
+#include "timelinerenderpass.h"
+#include "timelinemodel.h"
 
 namespace Timeline {
 
-class TimelineModelAggregator : public QObject
-{
-    Q_OBJECT
-    Q_PROPERTY(int height READ height NOTIFY heightChanged)
-    Q_PROPERTY(QVariantList models READ models NOTIFY modelsChanged)
-    Q_PROPERTY(Timeline::TimelineNotesModel *notes READ notes CONSTANT)
+class TIMELINE_EXPORT TimelineRenderState {
 public:
-    TimelineModelAggregator(TimelineNotesModel *notes, QObject *parent = 0);
-    ~TimelineModelAggregator();
+    TimelineRenderState(qint64 start, qint64 end, qreal scale, int numPasses);
+    ~TimelineRenderState();
 
-    int height() const;
+    qint64 start() const;
+    qint64 end() const;
+    qreal scale() const;
 
-    void addModel(TimelineModel *m);
-    const TimelineModel *model(int modelIndex) const;
-    QVariantList models() const;
+    TimelineRenderPass::State *passState(int i);
+    const TimelineRenderPass::State *passState(int i) const;
+    void setPassState(int i, TimelineRenderPass::State *state);
 
-    TimelineNotesModel *notes() const;
-    void clear();
-    int modelCount() const;
+    const QSGNode *expandedRowRoot() const;
+    const QSGNode *collapsedRowRoot() const;
+    const QSGNode *expandedOverlayRoot() const;
+    const QSGNode *collapsedOverlayRoot() const;
 
-    Q_INVOKABLE int modelOffset(int modelIndex) const;
+    QSGNode *expandedRowRoot();
+    QSGNode *collapsedRowRoot();
+    QSGNode *expandedOverlayRoot();
+    QSGNode *collapsedOverlayRoot();
 
-    Q_INVOKABLE QVariantMap nextItem(int selectedModel, int selectedItem, qint64 time) const;
-    Q_INVOKABLE QVariantMap prevItem(int selectedModel, int selectedItem, qint64 time) const;
-
-signals:
-    void dataAvailable();
-    void stateChanged();
-    void modelsChanged();
-    void heightChanged();
+    bool isEmpty() const;
+    void assembleNodeTree(const TimelineModel *model, int defaultRowHeight, int defaultRowOffset);
+    void updateExpandedRowHeights(const TimelineModel *model, int defaultRowHeight,
+                                  int defaultRowOffset);
+    QSGTransformNode *finalize(QSGNode *oldNode, bool expanded, const QMatrix4x4 &transform);
 
 private:
-    class TimelineModelAggregatorPrivate;
-    TimelineModelAggregatorPrivate *d;
+    class TimelineRenderStatePrivate;
+    TimelineRenderStatePrivate *d_ptr;
+    Q_DECLARE_PRIVATE(TimelineRenderState)
 };
 
 } // namespace Timeline
 
-#endif // TIMELINEMODELAGGREGATOR_H
+#endif // TIMELINERENDERSTATE_H

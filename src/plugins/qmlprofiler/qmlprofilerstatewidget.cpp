@@ -71,7 +71,7 @@ QmlProfilerStateWidget::QmlProfilerStateWidget(QmlProfilerStateManager *stateMan
     QVBoxLayout *layout = new QVBoxLayout(this);
     resize(200,70);
 
-    d->shadowPic.load(QLatin1String(":/qmlprofiler/dialog_shadow.png"));
+    d->shadowPic.load(QLatin1String(":/timeline/dialog_shadow.png"));
 
     d->text = new QLabel(this);
     d->text->setAlignment(Qt::AlignCenter);

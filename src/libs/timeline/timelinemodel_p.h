@@ -35,7 +35,7 @@
 
 namespace Timeline {
 
-class QMLPROFILER_EXPORT TimelineModel::TimelineModelPrivate {
+class TIMELINE_EXPORT TimelineModel::TimelineModelPrivate {
 public:
     static const int DefaultRowHeight = 30;
 

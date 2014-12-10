@@ -308,8 +308,7 @@ BindingLoopMaterialShader::BindingLoopMaterialShader()
     : QSGMaterialShader()
 {
     setShaderSourceFile(QOpenGLShader::Vertex, QStringLiteral(":/qmlprofiler/bindingloops.vert"));
-    setShaderSourceFile(QOpenGLShader::Fragment,
-                        QStringLiteral(":/qmlprofiler/bindingloops.frag"));
+    setShaderSourceFile(QOpenGLShader::Fragment, QStringLiteral(":/qmlprofiler/bindingloops.frag"));
 }
 
 void BindingLoopMaterialShader::updateState(const RenderState &state, QSGMaterial *, QSGMaterial *)

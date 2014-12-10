@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "qmlprofilernotesmodel.h"
+#include "qmlprofilerdatamodel.h"
 
 namespace QmlProfiler {
 

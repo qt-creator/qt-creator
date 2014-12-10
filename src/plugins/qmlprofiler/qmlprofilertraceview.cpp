@@ -32,19 +32,21 @@
 #include "qmlprofilertool.h"
 #include "qmlprofilerstatemanager.h"
 #include "qmlprofilermodelmanager.h"
-#include "timelinemodelaggregator.h"
 #include "qmlprofilernotesmodel.h"
 #include "qmlprofileranimationsmodel.h"
 #include "qmlprofilerrangemodel.h"
 #include "qmlprofilerplugin.h"
-#include "timelineoverviewrenderer.h"
-
-// Needed for the load&save actions in the context menu
-#include <analyzerbase/ianalyzertool.h>
 
 // Communication with the other views (limit events to range)
 #include "qmlprofilerviewmanager.h"
-#include "timelinezoomcontrol.h"
+
+#include "timeline/timelinezoomcontrol.h"
+#include "timeline/timelinemodelaggregator.h"
+#include "timeline/timelinerenderer.h"
+#include "timeline/timelineoverviewrenderer.h"
+
+// Needed for the load&save actions in the context menu
+#include <analyzerbase/ianalyzertool.h>
 
 #include <utils/styledbar.h>
 
@@ -148,7 +150,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
                                                      d->m_modelProxy);
     d->m_mainView->rootContext()->setContextProperty(QLatin1String("zoomControl"),
                                                      d->m_zoomControl);
-    d->m_mainView->setSource(QUrl(QLatin1String("qrc:/qmlprofiler/MainView.qml")));
+    d->m_mainView->setSource(QUrl(QLatin1String("qrc:/timeline/MainView.qml")));
 
     QQuickItem *rootObject = d->m_mainView->rootObject();
     connect(rootObject, SIGNAL(updateCursorPosition()), this, SLOT(updateCursorPosition()));

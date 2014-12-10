@@ -28,28 +28,16 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINENOTESRENDERPASS_H
-#define TIMELINENOTESRENDERPASS_H
+#ifndef TIMELINE_GLOBAL_H
+#define TIMELINE_GLOBAL_H
 
-#include "timelineabstractrenderer.h"
-#include <QSGMaterial>
+#include <QtGlobal>
 
-namespace Timeline {
+#if defined(TIMELINE_LIBRARY)
+#  define TIMELINE_EXPORT Q_DECL_EXPORT
+#else
+#  define TIMELINE_EXPORT Q_DECL_IMPORT
+#endif
 
-class TimelineNotesRenderPass : public TimelineRenderPass
-{
-public:
-    static const TimelineNotesRenderPass *instance();
-
-    State *update(const TimelineAbstractRenderer *renderer, const TimelineRenderState *parentState,
-                  State *oldState, int firstIndex, int lastIndex, bool stateChanged,
-                  qreal spacing) const;
-
-private:
-    TimelineNotesRenderPass();
-};
-
-} // namespace Timeline
-
-#endif // TIMELINENOTESRENDERPASS_H
+#endif // TIMELINE_GLOBAL_H
 

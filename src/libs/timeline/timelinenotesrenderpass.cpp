@@ -30,7 +30,7 @@
 
 #include "timelinenotesrenderpass.h"
 #include "timelinerenderstate.h"
-#include "qmlprofilernotesmodel.h"
+#include "timelinenotesmodel.h"
 
 namespace Timeline {
 
@@ -222,8 +222,8 @@ private:
 NotesMaterialShader::NotesMaterialShader()
     : QSGMaterialShader()
 {
-    setShaderSourceFile(QOpenGLShader::Vertex, QStringLiteral(":/qmlprofiler/notes.vert"));
-    setShaderSourceFile(QOpenGLShader::Fragment, QStringLiteral(":/qmlprofiler/notes.frag"));
+    setShaderSourceFile(QOpenGLShader::Vertex, QStringLiteral(":/timeline/notes.vert"));
+    setShaderSourceFile(QOpenGLShader::Fragment, QStringLiteral(":/timeline/notes.frag"));
 }
 
 void NotesMaterialShader::updateState(const RenderState &state, QSGMaterial *, QSGMaterial *)

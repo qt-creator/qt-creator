@@ -5,6 +5,7 @@ QTC_LIB_DEPENDS += \
     qmldebug \
     qmljs \
     ssh \
+    timeline \
     utils
 QTC_PLUGIN_DEPENDS += \
     analyzerbase \

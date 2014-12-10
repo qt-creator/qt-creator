@@ -28,58 +28,55 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINENOTESMODEL_H
-#define TIMELINENOTESMODEL_H
+#ifndef TIMELINERENDERER_H
+#define TIMELINERENDERER_H
 
+#include "timelinezoomcontrol.h"
 #include "timelinemodel.h"
+#include "timelinenotesmodel.h"
+#include "timelineabstractrenderer.h"
+
+#include <QSGTransformNode>
+#include <QQuickItem>
 
 namespace Timeline {
 
-class QMLPROFILER_EXPORT TimelineNotesModel : public QObject
+class TimelineRenderPass;
+class TimelineRenderState;
+
+class TIMELINE_EXPORT TimelineRenderer : public TimelineAbstractRenderer
 {
     Q_OBJECT
-    Q_PROPERTY(int count READ count NOTIFY changed)
+
 public:
-    TimelineNotesModel(QObject *parent);
-    ~TimelineNotesModel();
+    explicit TimelineRenderer(QQuickItem *parent = 0);
 
-    int count() const;
-    void addTimelineModel(const TimelineModel *timelineModel);
-    const TimelineModel *timelineModelByModelId(int timelineModel) const;
-    QList<const TimelineModel *> timelineModels() const;
+    Q_INVOKABLE void selectNextFromSelectionId(int selectionId);
+    Q_INVOKABLE void selectPrevFromSelectionId(int selectionId);
 
-    Q_INVOKABLE int typeId(int index) const;
-    Q_INVOKABLE QString text(int index) const;
-    Q_INVOKABLE int timelineModel(int index) const;
-    Q_INVOKABLE int timelineIndex(int index) const;
-
-    Q_INVOKABLE QVariantList byTypeId(int typeId) const;
-    Q_INVOKABLE QVariantList byTimelineModel(int timelineModel) const;
-
-    Q_INVOKABLE int get(int timelineModel, int timelineIndex) const;
-    Q_INVOKABLE int add(int timelineModel, int timelineIndex, const QString &text);
-    Q_INVOKABLE void update(int index, const QString &text);
-    Q_INVOKABLE void remove(int index);
-
-    Q_INVOKABLE void setText(int noteId, const QString &text);
-    Q_INVOKABLE void setText(int modelIndex, int index, const QString &text);
-
-    bool isModified() const;
-    void resetModified();
-
-    void clear();
+    // TODO: We could add some Q_INVOKABLE functions to enable or disable render passes when the the
+    // need arises.
 
 signals:
-    void changed(int typeId, int timelineModel, int timelineIndex);
+    void itemPressed(int pressedItem);
+
+public slots:
+    void clearData();
+
+protected:
+    virtual QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData);
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event);
+    virtual void hoverMoveEvent(QHoverEvent *event);
 
 private:
-    class TimelineNotesModelPrivate;
-    TimelineNotesModelPrivate *d_ptr;
-
-    Q_DECLARE_PRIVATE(TimelineNotesModel)
-    Q_PRIVATE_SLOT(d_ptr, void _q_removeTimelineModel(QObject *timelineModel))
+    class TimelineRendererPrivate;
+    Q_DECLARE_PRIVATE(TimelineRenderer)
 };
 
 } // namespace Timeline
 
-#endif // TIMELINENOTESMODEL_H
+QML_DECLARE_TYPE(Timeline::TimelineRenderer)
+
+#endif // TIMELINERENDERER_H
