@@ -73,9 +73,13 @@ public:
     {
         QVERIFY(succeededSoFar());
 
+        // Write files to disk
+        CppTools::Tests::TemporaryDir temporaryDir;
+        QVERIFY(temporaryDir.isValid());
         TestDocument testDocument("file.cpp", original, '|');
         QVERIFY(testDocument.hasCursorMarker());
         testDocument.m_source.remove(testDocument.m_cursorPosition, 1);
+        testDocument.setBaseDirectory(temporaryDir.path());
         QVERIFY(testDocument.writeToDisk());
 
         // Update Code Model

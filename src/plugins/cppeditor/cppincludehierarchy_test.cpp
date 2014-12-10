@@ -82,22 +82,24 @@ public:
 
         QSet<QString> filePaths;
         const int sourceListSize = sourceList.size();
+
+        CppTools::Tests::TemporaryDir temporaryDir;
+        QVERIFY(temporaryDir.isValid());
+
         for (int i = 0; i < sourceListSize; ++i) {
             const QByteArray &source = sourceList.at(i);
 
             // Write source to file
-            const QString fileName = QString::fromLatin1("%1/file%2.h").arg(QDir::tempPath())
-                    .arg(i+1);
-            QVERIFY(writeFile(fileName, source));
-
-            filePaths << fileName;
+            const QString fileName = QString::fromLatin1("file%1.h").arg(i+1);
+            const QString absoluteFilePath = temporaryDir.createFile(fileName.toLatin1(), source);
+            filePaths << absoluteFilePath;
         }
 
         // Update Code Model
         QVERIFY(parseFiles(filePaths));
 
         // Open Editor
-        const QString fileName = QDir::tempPath() + QLatin1String("/file1.h");
+        const QString fileName = temporaryDir.path() + QLatin1String("/file1.h");
         CppEditor *editor;
         QVERIFY(openCppEditor(fileName, &editor));
         closeEditorAtEndOfTestCase(editor);

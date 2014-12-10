@@ -60,6 +60,7 @@ class CPPTOOLS_EXPORT TestDocument
 public:
     TestDocument(const QByteArray &fileName, const QByteArray &source, char cursorMarker = '@');
 
+    QString baseDirectory() const { return m_baseDirectory; }
     void setBaseDirectory(const QString &baseDirectory) { m_baseDirectory = baseDirectory; }
 
     QString filePath() const;
@@ -127,7 +128,7 @@ private:
     QList<ProjectExplorer::Project *> m_openProjects;
 };
 
-class TemporaryDir
+class CPPTOOLS_EXPORT TemporaryDir
 {
     Q_DISABLE_COPY(TemporaryDir)
 

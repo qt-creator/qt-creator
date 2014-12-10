@@ -82,6 +82,8 @@ protected:
     QList<QuickFixTestDocument::Ptr> m_testDocuments;
 
 private:
+    QScopedPointer<CppTools::Tests::TemporaryDir> m_temporaryDirectory;
+
     CppTools::CppCodeStylePreferences *m_cppCodeStylePreferences;
     QByteArray m_cppCodeStylePreferencesOriginalDelegateId;
 

@@ -89,6 +89,10 @@ UseSelectionsTestCase::UseSelectionsTestCase(TestDocument &testFile,
 
     QVERIFY(testFile.hasCursorMarker());
     testFile.m_source.remove(testFile.m_cursorPosition, 1);
+
+    CppTools::Tests::TemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    testFile.setBaseDirectory(temporaryDir.path());
     testFile.writeToDisk();
 
     QVERIFY(openCppEditor(testFile.filePath(), &testFile.m_editor, &m_editorWidget));

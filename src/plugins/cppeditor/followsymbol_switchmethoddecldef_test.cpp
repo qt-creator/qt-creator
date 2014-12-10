@@ -270,8 +270,13 @@ F2TestCase::F2TestCase(CppEditorAction action,
         "No test file with target cursor marker is provided.");
 
     // Write files to disk
-    foreach (TestDocumentPtr testFile, testFiles)
+    CppTools::Tests::TemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    foreach (TestDocumentPtr testFile, testFiles) {
+        QVERIFY(testFile->baseDirectory().isEmpty());
+        testFile->setBaseDirectory(temporaryDir.path());
         QVERIFY(testFile->writeToDisk());
+    }
 
     // Update Code Model
     QSet<QString> filePaths;
