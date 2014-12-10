@@ -109,6 +109,9 @@ TimelineRenderPass::State *TimelineNotesRenderPass::update(const TimelineAbstrac
     const TimelineNotesModel *notes = renderer->notes();
     const TimelineModel *model = renderer->model();
 
+    if (!model || !notes)
+        return oldState;
+
     TimelineNotesRenderPassState *state;
     if (oldState == 0) {
         state = new TimelineNotesRenderPassState(model->expandedRowCount());

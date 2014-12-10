@@ -61,6 +61,10 @@ TimelineRenderPass::State *TimelineSelectionRenderPass::update(
 {
     Q_UNUSED(stateChanged);
 
+    const TimelineModel *model = renderer->model();
+    if (!model)
+        return oldState;
+
     TimelineSelectionRenderPassState *state;
 
     if (oldState == 0) {
@@ -71,7 +75,6 @@ TimelineRenderPass::State *TimelineSelectionRenderPass::update(
         state = static_cast<TimelineSelectionRenderPassState *>(oldState);
     }
 
-    const TimelineModel *model = renderer->model();
     QSGSimpleRectNode *selectionNode = static_cast<QSGSimpleRectNode *>(model->expanded() ?
                                                                         state->m_expandedOverlay :
                                                                         state->m_collapsedOverlay);

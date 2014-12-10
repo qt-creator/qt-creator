@@ -280,6 +280,10 @@ TimelineRenderPass::State *TimelineItemsRenderPass::update(const TimelineAbstrac
                                                            qreal spacing) const
 {
     Q_UNUSED(stateChanged);
+    const TimelineModel *model = renderer->model();
+    if (!model || indexFrom < 0 || indexTo > model->count())
+        return oldState;
+
     QColor selectionColor = (renderer->selectionLocked() ? QColor(96,0,255) :
                                                            QColor(Qt::blue)).lighter(130);
 
@@ -289,7 +293,7 @@ TimelineRenderPass::State *TimelineItemsRenderPass::update(const TimelineAbstrac
     else
         state = static_cast<TimelineItemsRenderPassState *>(oldState);
 
-    const TimelineModel *model = renderer->model();
+
     float selectedItem = renderer->selectedItem() == -1 ? -1 :
             model->selectionId(renderer->selectedItem());
 
@@ -305,9 +309,6 @@ TimelineRenderPass::State *TimelineItemsRenderPass::update(const TimelineAbstrac
         for (int i = 0; i < model->collapsedRowCount(); ++i)
             state->m_collapsedRows << new QSGNode;
     }
-
-    if (indexFrom < 0 || indexTo > model->count())
-        return state;
 
     if (state->indexFrom < state->indexTo) {
         if (indexFrom < state->indexFrom) {

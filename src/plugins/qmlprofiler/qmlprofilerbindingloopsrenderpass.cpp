@@ -159,6 +159,9 @@ Timeline::TimelineRenderPass::State *QmlProfilerBindingLoopsRenderPass::update(
     const QmlProfilerRangeModel *model = qobject_cast<const QmlProfilerRangeModel *>(
                 renderer->model());
 
+    if (!model || indexFrom < 0 || indexTo > model->count())
+        return oldState;
+
     BindingLoopsRenderPassState *state;
     if (oldState == 0) {
         state = new BindingLoopsRenderPassState;
@@ -169,12 +172,6 @@ Timeline::TimelineRenderPass::State *QmlProfilerBindingLoopsRenderPass::update(
     } else {
         state = static_cast<BindingLoopsRenderPassState *>(oldState);
     }
-
-    if (!model)
-        return state;
-
-    if (indexFrom < 0 || indexTo > model->count())
-        return state;
 
     if (state->indexFrom < state->indexTo) {
         if (indexFrom < state->indexFrom) {
