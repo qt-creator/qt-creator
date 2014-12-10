@@ -60,6 +60,8 @@ inline QString sourceProjectPath(const QString &project)
 
 void GenericProjectPlugin::test_simple()
 {
+    Tests::VerifyCleanCppModelManager verify;
+
     TemporaryCopiedDir temporaryDir(sourceProjectPath(_("testdata_simpleproject")));
     QVERIFY(temporaryDir.isValid());
     const QString mainFile = temporaryDir.absolutePath("main.cpp");
@@ -93,6 +95,8 @@ static QStringList simplify(const QList<CppTools::ProjectFile> &files, const QSt
 
 void GenericProjectPlugin::test_mixed1()
 {
+    Tests::VerifyCleanCppModelManager verify;
+
     TemporaryCopiedDir temporaryDir(sourceProjectPath(_("testdata_mixedproject1/")));
     QVERIFY(temporaryDir.isValid());
     const QString projectFile = temporaryDir.absolutePath("mixedproject1.creator");
@@ -140,6 +144,8 @@ void GenericProjectPlugin::test_mixed1()
 
 void GenericProjectPlugin::test_mixed2()
 {
+    Tests::VerifyCleanCppModelManager verify;
+
     TemporaryCopiedDir temporaryDir(sourceProjectPath(_("testdata_mixedproject2/")));
     QVERIFY(temporaryDir.isValid());
     const QString projectFile = temporaryDir.absolutePath("mixedproject2.creator");

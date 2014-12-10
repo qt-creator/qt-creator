@@ -153,6 +153,8 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter()
     QFETCH(QString, searchText);
     QFETCH(ResultDataList, expectedResults);
 
+    Tests::VerifyCleanCppModelManager verify;
+
     CppLocatorFilterTestCase(filter, testFile, searchText, expectedResults);
 }
 

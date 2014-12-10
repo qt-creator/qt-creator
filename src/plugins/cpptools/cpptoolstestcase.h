@@ -111,7 +111,7 @@ class CPPTOOLS_EXPORT ProjectOpenerAndCloser : public QObject
     Q_OBJECT
 
 public:
-    ProjectOpenerAndCloser(bool waitForFinishedGcOnDestruction = false);
+    ProjectOpenerAndCloser(bool waitForFinishedGcOnDestruction = true);
     ~ProjectOpenerAndCloser(); // Closes opened projects
 
     ProjectInfo open(const QString &projectFile, bool configureAsExampleProject = false);
@@ -138,7 +138,7 @@ private:
     bool m_isValid;
 };
 
-class VerifyCleanCppModelManager
+class CPPTOOLS_EXPORT VerifyCleanCppModelManager
 {
 public:
     VerifyCleanCppModelManager() { verify(); }

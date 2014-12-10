@@ -628,7 +628,7 @@ void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
     QVERIFY(temporaryDir.isValid());
     const QString projectFile = temporaryDir.absolutePath("testdata_guiproject1.pro");
 
-    ProjectOpenerAndCloser projects(/*waitForFinishedGcOnDestruction=*/ true);
+    ProjectOpenerAndCloser projects;
     ProjectInfo projectInfo = projects.open(projectFile, /*configureAsExampleProject=*/ true);
     QVERIFY(projectInfo.isValid());
 
