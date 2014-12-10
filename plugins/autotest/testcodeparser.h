@@ -30,6 +30,10 @@ namespace ProjectExplorer {
 class Project;
 }
 
+namespace Core {
+class Id;
+}
+
 namespace Autotest {
 namespace Internal {
 
@@ -46,6 +50,7 @@ public:
 signals:
 
 public slots:
+    void emitUpdateTestTree();
     void updateTestTree();
     void checkDocumentForTestCode(CPlusPlus::Document::Ptr doc);
     void handleQtQuickTest(CPlusPlus::Document::Ptr doc);
@@ -60,11 +65,15 @@ private:
     void clearMaps();
     void removeTestsIfNecessary(const QString &fileName);
     void removeTestsIfNecessaryByProFile(const QString &proFile);
+    void onTaskStarted(Core::Id type);
+    void onAllTasksFinished(Core::Id type);
 
     TestTreeModel *m_model;
     QMap<QString, TestInfo> m_cppDocMap;
     QMap<QString, TestInfo> m_quickDocMap;
     ProjectExplorer::Project *m_currentProject;
+    bool m_parserEnabled;
+    bool m_pendingUpdate;
 };
 
 } // namespace Internal

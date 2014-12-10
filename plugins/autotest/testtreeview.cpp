@@ -65,7 +65,7 @@ TestTreeViewWidget::TestTreeViewWidget(QWidget *parent) :
     TestCodeParser *parser = m_model->parser();
     ProjectExplorer::SessionManager *sm = ProjectExplorer::SessionManager::instance();
     connect(sm, &ProjectExplorer::SessionManager::startupProjectChanged,
-            parser, &TestCodeParser::updateTestTree);
+            parser, &TestCodeParser::emitUpdateTestTree);
 
     CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
     connect(cppMM, &CppTools::CppModelManager::documentUpdated,

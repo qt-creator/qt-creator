@@ -23,15 +23,20 @@
 #include "testtreemodel.h"
 #include "testvisitor.h"
 
+#include <coreplugin/progressmanager/progressmanager.h>
+
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/TypeOfExpression.h>
 
+#include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppworkingcopy.h>
 
 #include <projectexplorer/session.h>
 
 #include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
+
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsdialect.h>
 #include <qmljstools/qmljsmodelmanager.h>
@@ -44,8 +49,15 @@ namespace Internal {
 TestCodeParser::TestCodeParser(TestTreeModel *parent)
     : QObject(parent),
       m_model(parent),
-      m_currentProject(0)
+      m_currentProject(0),
+      m_parserEnabled(true),
+      m_pendingUpdate(false)
 {
+    // connect to ProgressManager to post-pone test parsing when CppModelManager is parsing
+    Core::ProgressManager *pm = qobject_cast<Core::ProgressManager *>(
+                Core::ProgressManager::instance());
+    connect(pm, &Core::ProgressManager::taskStarted, this, &TestCodeParser::onTaskStarted);
+    connect(pm, &Core::ProgressManager::allTasksFinished, this, &TestCodeParser::onAllTasksFinished);
 }
 
 TestCodeParser::~TestCodeParser()
@@ -53,8 +65,19 @@ TestCodeParser::~TestCodeParser()
     clearMaps();
 }
 
+void TestCodeParser::emitUpdateTestTree()
+{
+    QTimer::singleShot(1000, this, SLOT(updateTestTree()));
+}
+
 void TestCodeParser::updateTestTree()
 {
+    if (!m_parserEnabled) {
+        m_pendingUpdate = true;
+        qDebug() << "Skipped update due to running parser or pro file evaluate";
+        return;
+    }
+
     qDebug("updating TestTreeModel");
 
     clearMaps();
@@ -84,6 +107,7 @@ void TestCodeParser::updateTestTree()
         }
     }
     scanForTests();
+    m_pendingUpdate = false;
 }
 
 /****** scan for QTest related stuff helpers ******/
@@ -719,6 +743,24 @@ void TestCodeParser::removeTestsIfNecessaryByProFile(const QString &proFile)
         m_quickDocMap.remove(tr(Constants::UNNAMED_QUICKTESTS));
     else
         m_quickDocMap.insert(tr(Constants::UNNAMED_QUICKTESTS), unnamedInfo);
+}
+
+void TestCodeParser::onTaskStarted(Core::Id type)
+{
+    if (type != CppTools::Constants::TASK_INDEX
+            && type != QmakeProjectManager::Constants::PROFILE_EVALUATE)
+        return;
+    m_parserEnabled = false;
+}
+
+void TestCodeParser::onAllTasksFinished(Core::Id type)
+{
+    if (type != CppTools::Constants::TASK_INDEX
+            && type != QmakeProjectManager::Constants::PROFILE_EVALUATE)
+        return;
+    m_parserEnabled = true;
+    if (m_pendingUpdate)
+        updateTestTree();
 }
 
 void TestCodeParser::onProFileEvaluated()
