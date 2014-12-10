@@ -286,7 +286,6 @@ class Dumper(DumperBase):
         self.isShuttingDown_ = False
         self.isInterrupting_ = False
         self.dummyValue = None
-        self.types_ = {}
         self.breakpointsToCheck = set([])
 
     def enterSubItem(self, item):
@@ -612,26 +611,39 @@ class Dumper(DumperBase):
 
     def lookupType(self, name):
         #self.warn("LOOKUP TYPE NAME: %s" % name)
-        if name.endswith('*'):
-            typeobj = self.lookupType(name[:-1].strip())
-            return typeobj.GetPointerType() if type.IsValid() else None
         typeobj = self.target.FindFirstType(name)
-        #self.warn("LOOKUP RESULT: %s" % typeobj.name)
-        #self.warn("LOOKUP VALID: %s" % typeobj.IsValid())
         if typeobj.IsValid():
             return typeobj
-        try:
-            if len(self.types_) == 0:
-                for i in xrange(self.target.GetNumModules()):
-                    module = self.target.GetModuleAtIndex(i)
-                    # SBModule.GetType is new somewhere after early 300.x
-                    # So this may fail.
-                    for t in module.GetTypes():
-                        n = self.canonicalTypeName(t.GetName())
-                        self.types_[n] = t
-            return self.types_.get(self.canonicalTypeName(name))
-        except:
-            pass
+        typeobj = self.target.FindFirstType(name + '*')
+        if typeobj.IsValid():
+            return typeob.GetPointeeType()
+        typeobj = self.target.FindFirstType(name + '&')
+        if typeobj.IsValid():
+            return typeob.GetReferencedType()
+        if name.endswith('*'):
+            typeobj = self.target.FindFirstType(name[:-1].strip())
+            if typeobj.IsValid():
+                return typeobj.GetPointerType()
+        #self.warn("LOOKUP RESULT: %s" % typeobj.name)
+        #self.warn("LOOKUP VALID: %s" % typeobj.IsValid())
+        needle = self.canonicalTypeName(name)
+        #self.warn("NEEDLE: %s " % needle)
+        for i in xrange(self.target.GetNumModules()):
+            module = self.target.GetModuleAtIndex(i)
+            # SBModule.GetType is new somewhere after early 300.x
+            # So this may fail.
+            for t in module.GetTypes():
+                n = self.canonicalTypeName(t.GetName())
+                if n == needle:
+                    #self.warn("FOUND TYPE DIRECT 2: %s " % t)
+                    return t
+                if n == needle + '*':
+                    #self.warn("FOUND TYPE BY POINTER 2: %s " % t.GetPointeeType())
+                    return t.GetPointeeType()
+                if n == needle + '&':
+                    #self.warn("FOUND TYPE BY REFERENCE 2: %s " % t)
+                    return t.GetDereferencedType()
+        #self.warn("NOT FOUND: %s " % needle)
         return None
 
     def setupInferior(self, args):

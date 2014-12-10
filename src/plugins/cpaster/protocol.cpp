@@ -191,7 +191,6 @@ QNetworkReply *NetworkProtocol::httpPost(const QString &link, const QByteArray &
 {
     QUrl url(link);
     QNetworkRequest r(url);
-    // Required for Qt 4.8
     r.setHeader(QNetworkRequest::ContentTypeHeader,
                 QVariant(QByteArray("application/x-www-form-urlencoded")));
     return Utils::NetworkAccessManager::instance()->post(r, data);
@@ -201,13 +200,14 @@ NetworkProtocol::~NetworkProtocol()
 {
 }
 
-bool NetworkProtocol::httpStatus(QString url, QString *errorMessage)
+bool NetworkProtocol::httpStatus(QString url, QString *errorMessage, bool useHttps)
 {
     // Connect to host and display a message box, using its event loop.
     errorMessage->clear();
     const QString httpPrefix = QLatin1String("http://");
-    if (!url.startsWith(httpPrefix)) {
-        url.prepend(httpPrefix);
+    const QString httpsPrefix = QLatin1String("https://");
+    if (!url.startsWith(httpPrefix) && !url.startsWith(httpsPrefix)) {
+        url.prepend(useHttps ? httpsPrefix : httpPrefix);
         url.append(QLatin1Char('/'));
     }
     QScopedPointer<QNetworkReply> reply(httpGet(url));

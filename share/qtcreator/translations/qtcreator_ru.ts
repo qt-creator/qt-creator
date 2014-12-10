@@ -11178,6 +11178,10 @@ Try: %2</source>
         <translation>Процессу не удалось запуститься</translation>
     </message>
     <message>
+        <source>Cannot jump. Stopped</source>
+        <translation>Не удалось перейти. Остановлено</translation>
+    </message>
+    <message>
         <source>Jumped. Stopped</source>
         <translation>Переход сделан. Остановлено</translation>
     </message>

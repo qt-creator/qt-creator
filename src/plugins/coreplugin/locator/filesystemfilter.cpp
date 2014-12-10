@@ -160,8 +160,9 @@ void FileSystemFilter::accept(LocatorFilterEntry selection) const
         file.open(QFile::WriteOnly);
         file.close();
     }
-    EditorManager::openEditor(selection.internalData.toString(), Id(),
-                              EditorManager::CanContainLineNumber);
+    const QFileInfo fileInfo(selection.internalData.toString());
+    const QString cleanedFilePath = QDir::cleanPath(fileInfo.absoluteFilePath());
+    EditorManager::openEditor(cleanedFilePath, Id(), EditorManager::CanContainLineNumber);
 }
 
 bool FileSystemFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)

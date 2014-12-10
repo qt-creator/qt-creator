@@ -1077,7 +1077,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(dd->m_runWithoutDeployAction, SIGNAL(triggered()), this, SLOT(runProjectWithoutDeploy()));
     connect(dd->m_cancelBuildAction, SIGNAL(triggered()), this, SLOT(cancelBuild()));
     connect(dd->m_unloadAction, SIGNAL(triggered()), this, SLOT(unloadProject()));
-    connect(dd->m_unloadActionContextMenu, SIGNAL(triggered()), this, SLOT(unloadProject()));
+    connect(dd->m_unloadActionContextMenu, SIGNAL(triggered()), this, SLOT(unloadProjectContextMenu()));
     connect(dd->m_closeAllProjects, SIGNAL(triggered()), this, SLOT(closeAllProjects()));
     connect(dd->m_addNewFileAction, SIGNAL(triggered()), this, SLOT(addNewFile()));
     connect(dd->m_addExistingFilesAction, SIGNAL(triggered()), this, SLOT(addExistingFiles()));
@@ -1260,12 +1260,24 @@ void ProjectExplorerPlugin::loadAction()
     updateActions();
 }
 
+void ProjectExplorerPlugin::unloadProjectContextMenu()
+{
+    if (debug)
+        qDebug() << "ProjectExplorerPlugin::unloadProjectContextMenu";
+
+    if (Project *p = ProjectTree::currentProject())
+        unloadProject(p);
+}
+
 void ProjectExplorerPlugin::unloadProject()
 {
     if (debug)
         qDebug() << "ProjectExplorerPlugin::unloadProject";
 
-    unloadProject(ProjectTree::currentProject());
+    QList<Project *> projects = SessionManager::projects();
+    QTC_ASSERT(!projects.isEmpty(), return);
+
+    unloadProject(projects.first());
 }
 
 void ProjectExplorerPlugin::unloadProject(Project *project)
@@ -1983,7 +1995,7 @@ void ProjectExplorerPluginPrivate::updateActions()
     Project *currentProject = ProjectTree::currentProject(); // for context menu actions
 
     QPair<bool, QString> buildActionState = buildSettingsEnabled(project);
-    QPair<bool, QString> buildActionContextState = buildSettingsEnabled(ProjectTree::currentProject());
+    QPair<bool, QString> buildActionContextState = buildSettingsEnabled(currentProject);
     QPair<bool, QString> buildSessionState = buildSettingsEnabledForSession();
 
     QString projectName = project ? project->displayName() : QString();

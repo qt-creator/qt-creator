@@ -403,10 +403,7 @@ bool QmlProject::fromMap(const QVariantMap &map)
     connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(onActiveTargetChanged(ProjectExplorer::Target*)));
 
-    // make sure we get updates on kit changes
-    m_activeTarget = activeTarget();
-    if (m_activeTarget)
-        connect(m_activeTarget, SIGNAL(kitChanged()), this, SLOT(onKitChanged()));
+    onActiveTargetChanged(activeTarget());
 
     return true;
 }

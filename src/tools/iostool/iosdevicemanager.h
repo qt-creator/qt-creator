@@ -75,6 +75,7 @@ public:
                       const QString &deviceId, int timeout = 1000);
     void requestDeviceInfo(const QString &deviceId, int timeout = 1000);
     int processGdbServer(int fd);
+    void stopGdbServer(int fd, int phase);
     QStringList errors();
 signals:
     void deviceAdded(const QString &deviceId);

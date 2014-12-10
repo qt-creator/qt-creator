@@ -40,11 +40,22 @@ namespace CppTools {
 */
 
 EditorDocumentHandle::EditorDocumentHandle()
+    : m_needsRefresh(false)
 {
 }
 
 EditorDocumentHandle::~EditorDocumentHandle()
 {
+}
+
+bool EditorDocumentHandle::needsRefresh() const
+{
+    return m_needsRefresh;
+}
+
+void EditorDocumentHandle::setNeedsRefresh(bool needsRefresh)
+{
+    m_needsRefresh = needsRefresh;
 }
 
 } // namespace CppTools

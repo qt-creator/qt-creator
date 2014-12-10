@@ -344,18 +344,18 @@ QPalette Theme::palette() const
 
     // FIXME: introduce some more color roles for this
 
-    pal.setColor(QPalette::All, QPalette::Window,        color(Theme::BackgroundColorNormal));
-    pal.setBrush(QPalette::All, QPalette::WindowText,    color(Theme::TextColorNormal));
-    pal.setColor(QPalette::All, QPalette::Base,          color(Theme::BackgroundColorNormal));
-    pal.setColor(QPalette::All, QPalette::AlternateBase, color(Theme::BackgroundColorAlternate));
-    pal.setColor(QPalette::All, QPalette::Button,        color(Theme::BackgroundColorDark));
-    pal.setColor(QPalette::All, QPalette::BrightText,    Qt::red);
-    pal.setBrush(QPalette::All, QPalette::Text,          color(Theme::TextColorNormal));
-    pal.setBrush(QPalette::All, QPalette::ButtonText,    color(Theme::TextColorNormal));
-    pal.setBrush(QPalette::All, QPalette::ToolTipBase,   color(Theme::BackgroundColorSelected));
-    pal.setColor(QPalette::Highlight,                    color(Theme::BackgroundColorSelected));
-    pal.setColor(QPalette::HighlightedText,              Qt::white);
-    pal.setColor(QPalette::ToolTipText,                  color(Theme::TextColorNormal));
+    pal.setColor(QPalette::Window,          color(Theme::BackgroundColorNormal));
+    pal.setBrush(QPalette::WindowText,      color(Theme::TextColorNormal));
+    pal.setColor(QPalette::Base,            color(Theme::BackgroundColorNormal));
+    pal.setColor(QPalette::AlternateBase,   color(Theme::BackgroundColorAlternate));
+    pal.setColor(QPalette::Button,          color(Theme::BackgroundColorDark));
+    pal.setColor(QPalette::BrightText,      Qt::red);
+    pal.setBrush(QPalette::Text,            color(Theme::TextColorNormal));
+    pal.setBrush(QPalette::ButtonText,      color(Theme::TextColorNormal));
+    pal.setBrush(QPalette::ToolTipBase,     color(Theme::BackgroundColorSelected));
+    pal.setColor(QPalette::Highlight,       color(Theme::BackgroundColorSelected));
+    pal.setColor(QPalette::HighlightedText, Qt::white);
+    pal.setColor(QPalette::ToolTipText,     color(Theme::TextColorNormal));
     return pal;
 }
 

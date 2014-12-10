@@ -286,7 +286,8 @@ void IosToolHandlerPrivate::stop(int errorCode)
         return;
     }
     if (process.state() != QProcess::NotRunning) {
-        process.terminate();
+        process.write("k\n\r");
+        process.closeWriteChannel();
         killTimer.start(1500);
     }
 }

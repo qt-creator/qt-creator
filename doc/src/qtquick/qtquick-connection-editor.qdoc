@@ -1,0 +1,123 @@
+/****************************************************************************
+**
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage qmldesigner-pathview-editor.html
+    \page qmldesigner-connections.html
+    \nextpage quick-export-to-qml.html
+
+    \title Adding Connections
+
+    You can use the \gui {Connections} view (commercial only) to:
+
+    \list
+
+        \li Connect objects to signals.
+
+        \li Specify dynamic properties for objects.
+
+        \li Create bindings between the properties of two objects.
+
+    \endlist
+
+    \section1 Connecting Objects to Signals
+
+    To connect objects to signals in QML, create \l{Connection} objects.
+
+    \image qmldesigner-connections.png
+
+    To create the connections:
+
+    \list 1
+
+        \li Select the \gui {Connections} tab.
+
+        \li Select \gui Target to add the object to connect to a signal.
+
+        \li Select \gui {Signal Handler} to select the signal that the connection
+            will listen to from a list of all signals available for the object.
+
+        \li Select \gui Actions to specify the action to perform when
+            the signal is emitted. You use JavaScript to specify the actions.
+
+    \endlist
+
+    \section1 Specifying Dynamic Properties
+
+    You can bind \l{Properties} to dynamic expressions to define global properties for an
+    object that can be read by other objects. For example, you can specify
+    global properties for the root object that you can use in the child objects.
+
+    \image qmldesigner-dynamicprops.png
+
+    To specify dynamic properties for an object:
+
+    \list 1
+
+        \li Select the \gui {Dynamic Properties} tab.
+
+        \li Select \gui Item to select the object to specify the property for.
+
+        \li Select \gui Property to give a name to the property.
+
+        \li Select \gui {Property Type} to specify the type of the property.
+
+        \li Select \gui {Property Value} to specify the value of the property.
+
+    \endlist
+
+    \section1 Adding Bindings Between Properties
+
+    To dynamically change the behavior of an object, you can create a
+    \l{Property Binding} between the properties of two objects.
+
+    \image qmldesigner-bindings.png
+
+    To bind a property of an object to the property of another object:
+
+    \list 1
+
+        \li Select the \gui {Bindings} tab.
+
+        \li Select \gui Item to select the target object whose property you want
+            to change dynamically.
+
+        \li Select \gui Property to specify the property to bind to a source
+            property.
+
+        \li Select \gui {Source Item} to specify the object whose property you
+            want to use to determine the behavior of the target object.
+
+        \li Select \gui {Source Property} to specify the property to bind the
+            target property to.
+
+    \endlist
+
+*/

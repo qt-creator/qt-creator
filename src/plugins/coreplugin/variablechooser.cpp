@@ -127,23 +127,17 @@ class VariableGroupItem : public TreeItem
 {
 public:
     VariableGroupItem()
-        : m_chooser(0), m_expander(0)
+        : m_chooser(0)
     {
         setLazy(true);
-    }
-
-    bool ensureExpander() const
-    {
-        if (!m_expander)
-            m_expander = m_provider();
-        return m_expander != 0;
     }
 
     QVariant data(int column, int role) const
     {
         if (role == Qt::DisplayRole || role == Qt::EditRole) {
-            if (column == 0 && ensureExpander())
-                return m_expander->displayName();
+            if (column == 0)
+                if (MacroExpander *expander = m_provider())
+                    return expander->displayName();
         }
 
         return QVariant();
@@ -151,8 +145,8 @@ public:
 
     void populate()
     {
-        if (ensureExpander())
-            populateGroup(m_expander);
+        if (MacroExpander *expander = m_provider())
+            populateGroup(expander);
     }
 
     void populateGroup(MacroExpander *expander);
@@ -160,7 +154,6 @@ public:
 public:
     VariableChooserPrivate *m_chooser; // Not owned.
     MacroExpanderProvider m_provider;
-    mutable MacroExpander *m_expander; // Not owned.
 };
 
 class VariableItem : public TreeItem
@@ -260,6 +253,9 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
 
 void VariableGroupItem::populateGroup(MacroExpander *expander)
 {
+    if (!expander)
+        return;
+
     foreach (const QByteArray &variable, expander->visibleVariables()) {
         auto item = new VariableItem;
         item->m_variable = QString::fromUtf8(variable);
@@ -269,13 +265,15 @@ void VariableGroupItem::populateGroup(MacroExpander *expander)
         appendChild(item);
     }
 
-    foreach (MacroExpander *subExpander, expander->subExpanders()) {
+    foreach (const MacroExpanderProvider &subProvider, expander->subProviders()) {
+        if (!subProvider)
+            continue;
         if (expander->isAccumulating()) {
-            populateGroup(subExpander);
+            populateGroup(subProvider());
         } else {
             auto item = new VariableGroupItem;
             item->m_chooser = m_chooser;
-            item->m_expander = subExpander;
+            item->m_provider = subProvider;
             appendChild(item);
         }
     }

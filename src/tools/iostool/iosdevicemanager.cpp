@@ -311,8 +311,10 @@ public:
                            const QString &info);
     void deviceWithId(QString deviceId, int timeout, DeviceAvailableCallback callback, void *userData);
     int processGdbServer(int fd);
+    void stopGdbServer(int fd, int phase);
 private:
     IosDeviceManager *q;
+    QMutex m_sendMutex;
     QHash<QString, AMDeviceRef> m_devices;
     QMultiHash<QString, PendingDeviceLookup *> m_pendingLookups;
     AMDeviceNotificationRef m_notification;
@@ -631,7 +633,10 @@ enum GdbServerStatus {
 int IosDeviceManagerPrivate::processGdbServer(int fd)
 {
     CommandSession session((QString()));
-    session.sendGdbCommand(fd, "vCont;c"); // resume all threads
+    {
+        QMutexLocker l(&m_sendMutex);
+        session.sendGdbCommand(fd, "vCont;c"); // resume all threads
+    }
     GdbServerStatus state = NORMAL_PROCESS;
     int maxRetry = 10;
     int maxSignal = 5;
@@ -711,10 +716,17 @@ int IosDeviceManagerPrivate::processGdbServer(int fd)
                     addError(QLatin1String("hit maximum number of consecutive signals, stopping"));
                     break;
                 }
-                if (session.sendGdbCommand(fd, "vCont;c"))
-                    state = NORMAL_PROCESS;
-                else
-                    break;
+                {
+                    if (signal == 17) {
+                        state = NORMAL_PROCESS; // Ctrl-C to kill the process
+                    } else {
+                        QMutexLocker l(&m_sendMutex);
+                        if (session.sendGdbCommand(fd, "vCont;c"))
+                            state = NORMAL_PROCESS;
+                        else
+                            break;
+                    }
+                }
             } else {
                 maxSignal = 5;
             }
@@ -725,6 +737,16 @@ int IosDeviceManagerPrivate::processGdbServer(int fd)
         }
     }
     return state != INFERIOR_EXITED;
+}
+
+void IosDeviceManagerPrivate::stopGdbServer(int fd, int phase)
+{
+    CommandSession session((QString()));
+    QMutexLocker l(&m_sendMutex);
+    if (phase == 0)
+        session.writeAll(fd,"\x03",1);
+    else
+        session.sendGdbCommand(fd, "k", 1);
 }
 
 // ------- ConnectSession implementation --------
@@ -1684,6 +1706,11 @@ void IosDeviceManager::requestDeviceInfo(const QString &deviceId, int timeout)
 int IosDeviceManager::processGdbServer(int fd)
 {
     return d->processGdbServer(fd);
+}
+
+void IosDeviceManager::stopGdbServer(int fd, int phase)
+{
+    return d->stopGdbServer(fd, phase);
 }
 
 QStringList IosDeviceManager::errors() {

@@ -285,6 +285,7 @@ ProgressManagerPrivate::ProgressManagerPrivate()
 
 ProgressManagerPrivate::~ProgressManagerPrivate()
 {
+    stopFadeOfSummaryProgress();
     qDeleteAll(m_taskList);
     m_taskList.clear();
     ExtensionSystem::PluginManager::removeObject(m_statusBarWidgetContainer);

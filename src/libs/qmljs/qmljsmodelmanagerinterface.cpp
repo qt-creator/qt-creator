@@ -563,9 +563,9 @@ void ModelManagerInterface::updateProjectInfo(const ProjectInfo &pinfo, ProjectE
         if (!snapshot.document(file))
             newFiles += file;
     }
-    updateSourceFiles(newFiles, false);
-    foreach (const QString &newFile, deletedFiles)
+    foreach (const QString &newFile, newFiles)
         m_fileToProject.insert(newFile, p);
+    updateSourceFiles(newFiles, false);
 
     // update qrc cache
     foreach (const QString &newQrc, pinfo.allResourceFiles)
@@ -608,6 +608,10 @@ ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfoForPath(QSt
     {
         QMutexLocker locker(&m_mutex);
         projects = m_fileToProject.values(path);
+        if (projects.isEmpty()) {
+            QFileInfo fInfo(path);
+            projects = m_fileToProject.values(fInfo.canonicalFilePath());
+        }
     }
     QList<ProjectInfo> infos;
     foreach (ProjectExplorer::Project *project, projects) {
@@ -616,6 +620,7 @@ ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfoForPath(QSt
             infos.append(info);
     }
     std::sort(infos.begin(), infos.end(), &pInfoLessThanImports);
+    infos.append(m_defaultProjectInfo);
 
     ProjectInfo res;
     foreach (const ProjectInfo &pInfo, infos) {
@@ -842,7 +847,7 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
             if (!import.version().isValid())
                 continue;
             foreach (const PathAndLanguage &importPath, importPaths) {
-                const QString targetPath = importPath.path().toFileInfo().dir().filePath(import.path());
+                const QString targetPath = importPath.path().appendPath(import.path()).toString();
                 findNewQmlLibrary(targetPath, import.version(), snapshot, modelManager,
                                   importedFiles, scannedPaths, newLibraries);
             }
@@ -1320,7 +1325,7 @@ ModelManagerInterface::CppDataHash ModelManagerInterface::cppData() const
 
 LibraryInfo ModelManagerInterface::builtins(const Document::Ptr &doc) const
 {
-    ProjectInfo info = projectInfoForPath(doc->path());
+    ProjectInfo info = projectInfoForPath(doc->fileName());
     if (!info.isValid())
         return LibraryInfo();
     if (!info.qtQmlPath.isEmpty())
@@ -1342,7 +1347,7 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
         res.language = doc->language();
     ProjectInfo info;
     if (!doc.isNull())
-        info = projectInfoForPath(doc->path());
+        info = projectInfoForPath(doc->fileName());
     ViewerContext defaultVCtx = defaultVContext(res.language, Document::Ptr(0), false);
     ProjectInfo defaultInfo = defaultProjectInfo();
     if (info.qtImportsPath.isEmpty())

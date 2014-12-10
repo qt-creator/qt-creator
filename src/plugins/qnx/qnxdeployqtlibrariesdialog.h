@@ -91,7 +91,8 @@ private slots:
 private:
     QList<ProjectExplorer::DeployableFile> gatherFiles();
     QList<ProjectExplorer::DeployableFile> gatherFiles(const QString &dirPath,
-                                                       const QString &baseDir = QString());
+            const QString &baseDir = QString(),
+            const QStringList &nameFilters = QStringList());
 
     QString fullRemoteDirectory() const;
     void checkRemoteDirectoryExistance();

@@ -1927,7 +1927,9 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
                     const FullySpecifiedType localTy = rewriteType(f->type(), &env, control);
 
                     // gets: "parameter list) cv-spec",
-                    QString completion = overview.prettyType(localTy).mid(1);
+                    const QString completion = overview.prettyType(localTy).mid(1);
+                    if (completion == QLatin1String(")"))
+                        continue;
 
                     addCompletionItem(completion, QIcon(), 0,
                                       QVariant::fromValue(CompleteFunctionDeclaration(f)));

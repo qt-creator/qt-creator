@@ -1279,6 +1279,8 @@ void FakeVimPluginPrivate::createRelativeNumberWidget(IEditor *editor)
         RelativeNumbersColumn *relativeNumbers = new RelativeNumbersColumn(textEditor);
         connect(theFakeVimSetting(ConfigRelativeNumber), SIGNAL(valueChanged(QVariant)),
                 relativeNumbers, SLOT(deleteLater()));
+        connect(theFakeVimSetting(ConfigUseFakeVim), SIGNAL(valueChanged(QVariant)),
+                relativeNumbers, SLOT(deleteLater()));
         relativeNumbers->show();
     }
 }
@@ -1815,10 +1817,10 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
     if (theFakeVimSetting(ConfigUseFakeVim)->value().toBool()) {
        resetCommandBuffer();
        handler->setupWidget();
-    }
 
-    if (theFakeVimSetting(ConfigRelativeNumber)->value().toBool())
-        createRelativeNumberWidget(editor);
+       if (theFakeVimSetting(ConfigRelativeNumber)->value().toBool())
+           createRelativeNumberWidget(editor);
+    }
 }
 
 void FakeVimPluginPrivate::editorAboutToClose(IEditor *editor)
@@ -1854,6 +1856,7 @@ void FakeVimPluginPrivate::setUseFakeVim(const QVariant &value)
     if (Core::FindPlugin::instance())
         Core::FindPlugin::instance()->setUseFakeVim(on);
     setUseFakeVimInternal(on);
+    setShowRelativeLineNumbers(theFakeVimSetting(ConfigRelativeNumber)->value());
 }
 
 void FakeVimPluginPrivate::setUseFakeVimInternal(bool on)
@@ -1931,7 +1934,7 @@ void FakeVimPluginPrivate::hasBlockSelection(bool *on)
 
 void FakeVimPluginPrivate::setShowRelativeLineNumbers(const QVariant &value)
 {
-    if (value.toBool()) {
+    if (value.toBool() && theFakeVimSetting(ConfigUseFakeVim)->value().toBool()) {
         foreach (IEditor *editor, m_editorToHandler.keys())
             createRelativeNumberWidget(editor);
     }

@@ -93,12 +93,12 @@
             file.
 
             \note Components are listed in the \gui {QML Components} section of
-            the \gui Library pane only if the filename begins with a capital
+            the \gui Library only if the filename begins with a capital
             letter.
 
         \li Click \gui Design to open the .qml file in \QMLD.
 
-        \li Drag and drop a QML type from the \gui Library pane to the editor.
+        \li Drag and drop a QML type from the \gui Library to the editor.
 
         \li Edit its properties in the \gui Properties pane.
 

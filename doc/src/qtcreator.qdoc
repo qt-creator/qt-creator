@@ -171,6 +171,11 @@
                 \li \l {Creating Buttons}
                 \li \l {Creating Scalable Buttons and Borders}
                 \li \l {Creating Screens}
+                \li \l {Using Qt Quick Designer Extensions}
+                    \list
+                        \li \l{Editing PathView Properties}
+                        \li \l{Adding Connections}
+                    \endlist
                 \li \l {Exporting Designs from Graphics Software}
                 \li \l {Using QML Modules with Plugins}
             \endlist

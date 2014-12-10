@@ -135,8 +135,8 @@ inline void TimelineRenderer::getItemXExtent(int i, int &currentX, int &itemWidt
     if (rawWidth < MinimumItemWidth) {
         currentX -= static_cast<int>((MinimumItemWidth - rawWidth) / 2);
         itemWidth = MinimumItemWidth;
-    } else if (rawWidth > m_spacedDuration) {
-        itemWidth = static_cast<int>(m_spacedDuration);
+    } else if (rawWidth > m_spacedDuration - static_cast<qreal>(currentX - OutOfScreenMargin)) {
+        itemWidth = static_cast<int>(m_spacedDuration) - currentX  + OutOfScreenMargin;
     } else {
         itemWidth = static_cast<int>(rawWidth);
     }

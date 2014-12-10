@@ -1587,15 +1587,17 @@ def qdump__QRegion(d, value):
                     d.putSubItem("extents", d.createValue(pp + 8 + v, rectType))
                     d.putSubItem("innerRect", d.createValue(pp + 8 + v + rectType.sizeof, rectType))
                     d.putIntItem("innerArea", d.extractInt(pp + 4))
+                    rectsOffset = 8
                 else:
                     d.putSubItem("extents", d.createValue(pp + 2 * v, rectType))
                     d.putSubItem("innerRect", d.createValue(pp + 2 * v + rectType.sizeof, rectType))
                     d.putIntItem("innerArea", d.extractInt(pp + 2 * v + 2 * rectType.sizeof))
+                    rectsOffset = v
                 # FIXME
                 try:
                     # Can fail if QVector<QRect> debuginfo is missing.
                     vectType = d.lookupType("%sQVector<%sQRect>" % (ns, ns))
-                    d.putSubItem("rects", d.createValue(pp + 8, vectType))
+                    d.putSubItem("rects", d.createValue(pp + rectsOffset, vectType))
                 except:
                     with SubItem(d, "rects"):
                         d.putItemCount(n)

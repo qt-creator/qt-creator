@@ -725,10 +725,31 @@
         \li  M324
         \li  Warning
         \li  Using Qt Quick 1 code model instead of Qt Quick 2
-        \li
+        \li  The code model might be corrupt or the QML emulation layer might
+             have been built with a different Qt version than the one selected
+             in the build and run kit. For more information, see
+             \l {Resetting the Code Model} and
+             \l {Running QML Modules in Qt Quick Designer}.
 
     \endtable
 
+    \section1 Resetting the Code Model
+
+    If you change the build and run kit when you have QML files open in the code
+    editor, the code model might become corrupt. The following error message
+    indicates that this might have happened: \e{Using Qt Quick 1 code model
+    instead of Qt Quick 2}.
+
+    You can see the error message when you move the mouse pointer over code that
+    \QC underlines in the code editor or when you open a QML file in the
+    \gui Design mode.
+
+    To reset the code model, select \gui Tools > \gui {QML/JS} >
+    \gui {Reset Code Model}.
+
+    If this does not help, try changing the QML emulation layer to the one that
+    was built with the same Qt version as the one selected in the build and run
+    kit. For more information, see \l{Running QML Modules in Qt Quick Designer}.
 */
 
 
@@ -1259,7 +1280,7 @@
     To always use spaces for alignment, select \gui {With Spaces}. To follow the
     \gui {Tab policy}, select \gui {With Regular Indent}.
 
-    \section2 Speficying Typing Options
+    \section2 Specifying Typing Options
 
     When you type text or code, it is indented automatically according to the selected
     text editor or code style options. Specify typing options in the

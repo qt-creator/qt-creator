@@ -122,7 +122,7 @@ protected:
     QNetworkReply *httpPost(const QString &link, const QByteArray &data);
 
     // Check connectivity of host, displaying a message box.
-    bool httpStatus(QString url, QString *errorMessage);
+    bool httpStatus(QString url, QString *errorMessage, bool useHttps = false);
 };
 
 } //namespace CodePaster

@@ -46,6 +46,7 @@ namespace Internal { class MacroExpanderPrivate; }
 class MacroExpander;
 typedef std::function<MacroExpander *()> MacroExpanderProvider;
 typedef QVector<MacroExpander *> MacroExpanders;
+typedef QVector<MacroExpanderProvider> MacroExpanderProviders;
 
 class QTCREATOR_UTILS_EXPORT MacroExpander
 {
@@ -89,7 +90,7 @@ public:
     QList<QByteArray> visibleVariables() const;
     QString variableDescription(const QByteArray &variable) const;
 
-    MacroExpanders subExpanders() const;
+    MacroExpanderProviders subProviders() const;
 
     QString displayName() const;
     void setDisplayName(const QString &displayName);

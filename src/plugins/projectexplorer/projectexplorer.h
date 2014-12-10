@@ -159,6 +159,7 @@ private slots:
     void cancelBuild();
     void loadAction();
     void unloadProject();
+    void unloadProjectContextMenu();
     void closeAllProjects();
     void newProject();
     void showSessionManager();

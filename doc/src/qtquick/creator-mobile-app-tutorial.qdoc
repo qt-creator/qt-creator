@@ -100,7 +100,7 @@
     as the QML file) from the examples directory in the Qt installation
     directory. For example:
     \c {C:\Qt\Qt5.2.0\5.2.0\msvc2010\examples\sensors\accelbubble\content}.
-    The image appears in the \gui Resources pane. You can also use any other
+    The image appears in \gui Resources. You can also use any other
     image or a QML type, instead.
 
     \list 1
@@ -120,10 +120,10 @@
 
         \li Click \gui Design to open the file in \QMLD.
 
-        \li In the \gui Navigator pane, select \gui Label and press \key Delete
+        \li In the \gui Navigator, select \gui Label and press \key Delete
             to delete it.
 
-        \li In the \gui Library view, \gui Resources tab, select Bluebubble.svg
+        \li In \gui Library > \gui Resources, select Bluebubble.svg
             and drag and drop it to the canvas.
 
         \li In the \gui Properties pane, \gui Id field, enter \e bubble to be
