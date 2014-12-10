@@ -172,7 +172,8 @@ Rectangle {
         anchors.left: buttonsBar.right
         anchors.right: parent.right
         anchors.bottom: overview.top
-        zoomer: zoomControl
+        windowStart: zoomControl.windowStart
+        rangeDuration: Math.max(1, Math.round(zoomControl.rangeDuration))
         contentX: content.contentX
         clip: true
     }

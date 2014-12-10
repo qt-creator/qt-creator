@@ -33,24 +33,28 @@ import QtQuick 2.1
 Item {
     id: timeDisplay
 
-    property QtObject zoomer
+    property double windowStart
+    property double rangeDuration
 
-    readonly property int labelsHeight: 24
-
-    readonly property int initialBlockLength: 120
-
+    property int topBorderHeight: 2
+    property int bottomBorderHeight: 1
+    property int textMargin: 5
+    property int labelsHeight: 24
+    property int fontSize: 8
+    property color color1: "#E6E6E6"
+    property color color2: "white"
+    property int initialBlockLength: 120
     property double spacing: width / rangeDuration
 
     property double timePerBlock: Math.pow(2, Math.floor(Math.log(initialBlockLength / spacing) /
                                                        Math.LN2))
 
-    property double rangeDuration: Math.max(1, Math.round(zoomer.rangeDuration))
-    property double alignedWindowStart: Math.round(zoomer.windowStart - (zoomer.windowStart % timePerBlock))
+    property double alignedWindowStart: Math.round(windowStart - (windowStart % timePerBlock))
     property double pixelsPerBlock: timeDisplay.timePerBlock * timeDisplay.spacing
     property double pixelsPerSection: pixelsPerBlock / 5
 
     property int contentX
-    property int offsetX: contentX + Math.round((zoomer.windowStart % timePerBlock) * spacing)
+    property int offsetX: contentX + Math.round((windowStart % timePerBlock) * spacing)
 
     readonly property var timeUnits: ["μs", "ms", "s"]
     function prettyPrintTime(t, rangeDuration) {
@@ -115,17 +119,16 @@ Item {
                     height: timeDisplay.labelsHeight
 
                     color: (Math.round(column.block + timeDisplay.alignedWindowStart /
-                                       timeDisplay.timePerBlock) % 2) ?
-                               "#E6E6E6" : "white";
+                                       timeDisplay.timePerBlock) % 2) ? color1 : color2;
 
                     Text {
                         id: labelText
                         renderType: Text.NativeRendering
-                        font.pixelSize: 8
+                        font.pixelSize: timeDisplay.fontSize
                         font.family: "sans-serif"
                         anchors.fill: parent
-                        anchors.leftMargin: 5
-                        anchors.bottomMargin: 5
+                        anchors.leftMargin: timeDisplay.textMargin
+                        anchors.bottomMargin: timeDisplay.textMargin
                         verticalAlignment: Text.AlignBottom
                         text: prettyPrintTime(column.blockStartTime, timeDisplay.rangeDuration)
                     }
@@ -167,15 +170,15 @@ Item {
     }
 
     Rectangle {
-        height: 2
+        height: topBorderHeight
         anchors.left: parent.left
         anchors.right: parent.right
-        y: labelsHeight - 2
+        y: labelsHeight - topBorderHeight
         color: "#B0B0B0"
     }
 
     Rectangle {
-        height: 1
+        height: bottomBorderHeight
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: row.bottom
