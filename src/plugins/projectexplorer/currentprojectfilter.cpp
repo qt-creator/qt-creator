@@ -56,6 +56,7 @@ void CurrentProjectFilter::markFilesAsOutOfDate()
 {
     QMutexLocker lock(&m_filesUpToDateMutex); Q_UNUSED(lock)
     m_filesUpToDate = false;
+    invalidateCachedResults();
 }
 
 void CurrentProjectFilter::prepareSearch(const QString &entry)
@@ -64,13 +65,13 @@ void CurrentProjectFilter::prepareSearch(const QString &entry)
     QMutexLocker lock(&m_filesUpToDateMutex); Q_UNUSED(lock)
     if (m_filesUpToDate)
         return;
-    files().clear();
     m_filesUpToDate = true;
-    if (!m_project)
-        return;
-    files() = m_project->files(Project::AllFiles);
-    Utils::sort(files());
-    generateFileNames();
+    QStringList paths;
+    if (m_project) {
+        paths = m_project->files(Project::AllFiles);
+        Utils::sort(paths);
+    }
+    setFileIterator(new BaseFileFilter::ListIterator(paths));
 }
 
 void CurrentProjectFilter::currentProjectChanged(ProjectExplorer::Project *project)

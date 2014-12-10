@@ -67,6 +67,7 @@ private:
     QDialog *m_dialog;
     Ui::DirectoryFilterOptions m_ui;
     mutable QMutex m_lock;
+    QStringList m_files;
 };
 
 } // namespace Internal

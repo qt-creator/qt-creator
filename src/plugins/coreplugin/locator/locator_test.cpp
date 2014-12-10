@@ -52,9 +52,7 @@ class MyBaseFileFilter : public Core::BaseFileFilter
 public:
     MyBaseFileFilter(const QStringList &theFiles)
     {
-        files().clear();
-        files().append(theFiles);
-        BaseFileFilter::generateFileNames();
+        setFileIterator(new BaseFileFilter::ListIterator(theFiles));
     }
 
     void refresh(QFutureInterface<void> &) {}

@@ -33,6 +33,7 @@
 
 #include "ilocatorfilter.h"
 
+#include <QSharedPointer>
 #include <QStringList>
 
 namespace Core {
@@ -42,21 +43,47 @@ class CORE_EXPORT BaseFileFilter : public ILocatorFilter
     Q_OBJECT
 
 public:
+    class Iterator {
+    public:
+        virtual ~Iterator() { }
+        virtual void toFront() = 0;
+        virtual bool hasNext() const = 0;
+        virtual QString next() = 0;
+        virtual QString filePath() const = 0;
+        virtual QString fileName() const = 0;
+    };
+
+    class ListIterator : public Iterator {
+    public:
+        ListIterator(const QStringList &filePaths);
+        ListIterator(const QStringList &filePaths, const QStringList &fileNames);
+
+        void toFront();
+        bool hasNext() const;
+        QString next();
+        QString filePath() const;
+        QString fileName() const;
+
+    private:
+        QStringList m_filePaths;
+        QStringList m_fileNames;
+        QStringList::const_iterator m_pathPosition;
+        QStringList::const_iterator m_namePosition;
+    };
+
     BaseFileFilter();
+    ~BaseFileFilter();
     QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry);
     void accept(LocatorFilterEntry selection) const;
 
 protected:
-    /* Generates the file names from the list of file paths in m_files. */
-    void generateFileNames();
+    void invalidateCachedResults();
 
-    /* Subclasses should update the file list latest in their prepareSearch method. */
-    inline QStringList &files() { return m_files; }
-    inline const QStringList &files() const { return m_files; }
+    void setFileIterator(Iterator *iterator);
+    QSharedPointer<Iterator> fileIterator();
 
 private:
-    QStringList m_files;
-    QStringList m_fileNames;
+    QSharedPointer<Iterator> m_iterator;
     QStringList m_previousResultPaths;
     QStringList m_previousResultNames;
     bool m_forceNewSearchList;

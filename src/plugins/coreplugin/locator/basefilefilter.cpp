@@ -32,6 +32,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 #include <QDir>
 #include <QStringMatcher>
@@ -42,6 +43,11 @@ using namespace Utils;
 
 BaseFileFilter::BaseFileFilter()
   : m_forceNewSearchList(false)
+{
+    setFileIterator(new ListIterator(QStringList()));
+}
+
+BaseFileFilter::~BaseFileFilter()
 {
 }
 
@@ -59,32 +65,32 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
     const QChar pathSeparator(QLatin1Char('/'));
     const bool hasPathSeparator = needle.contains(pathSeparator);
     const bool hasWildcard = needle.contains(asterisk) || needle.contains(QLatin1Char('?'));
-    QStringList searchListPaths;
-    QStringList searchListNames;
     const bool containsPreviousEntry = !m_previousEntry.isEmpty()
             && needle.contains(m_previousEntry);
     const bool pathSeparatorAdded = !m_previousEntry.contains(pathSeparator)
             && needle.contains(pathSeparator);
-    if (!m_forceNewSearchList && containsPreviousEntry && !pathSeparatorAdded) {
-        searchListPaths = m_previousResultPaths;
-        searchListNames = m_previousResultNames;
-    } else {
-        searchListPaths = m_files;
-        searchListNames = m_fileNames;
-    }
+    const bool searchInPreviousResults = !m_forceNewSearchList && containsPreviousEntry
+            && !pathSeparatorAdded;
+    QSharedPointer<Iterator> iterator;
+    if (searchInPreviousResults)
+        iterator.reset(new ListIterator(m_previousResultPaths, m_previousResultNames));
+    else
+        iterator = fileIterator();
+
+    QTC_ASSERT(iterator.data(), return QList<LocatorFilterEntry>());
     m_previousResultPaths.clear();
     m_previousResultNames.clear();
     m_forceNewSearchList = false;
     m_previousEntry = needle;
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(needle);
-    QStringListIterator paths(searchListPaths);
-    QStringListIterator names(searchListNames);
-    while (paths.hasNext() && names.hasNext()) {
+    iterator->toFront();
+    while (iterator->hasNext()) {
         if (future.isCanceled())
             break;
 
-        QString path = paths.next();
-        QString name = names.next();
+        iterator->next();
+        QString path = iterator->filePath();
+        QString name = iterator->fileName();
         QString matchText = hasPathSeparator ? path : name;
         if ((hasWildcard && regexp.exactMatch(matchText))
                 || (!hasWildcard && matcher.indexIn(matchText) != -1)) {
@@ -111,12 +117,79 @@ void BaseFileFilter::accept(LocatorFilterEntry selection) const
                               EditorManager::CanContainLineNumber);
 }
 
-void BaseFileFilter::generateFileNames()
+void BaseFileFilter::invalidateCachedResults()
 {
-    m_fileNames.clear();
-    foreach (const QString &fileName, m_files) {
-        QFileInfo fi(fileName);
+    m_forceNewSearchList = true;
+    m_previousEntry.clear();
+    m_previousResultPaths.clear();
+    m_previousResultNames.clear();
+}
+
+/*!
+   Takes ownership of the \a iterator. The previously set iterator might not be deleted until
+   a currently running search is finished.
+*/
+
+void BaseFileFilter::setFileIterator(BaseFileFilter::Iterator *iterator)
+{
+    invalidateCachedResults();
+    m_iterator.reset(iterator);
+}
+
+QSharedPointer<BaseFileFilter::Iterator> BaseFileFilter::fileIterator()
+{
+    return m_iterator;
+}
+
+BaseFileFilter::ListIterator::ListIterator(const QStringList &filePaths)
+{
+    m_filePaths = filePaths;
+    foreach (const QString &path, m_filePaths) {
+        QFileInfo fi(path);
         m_fileNames.append(fi.fileName());
     }
-    m_forceNewSearchList = true;
+    toFront();
+}
+
+BaseFileFilter::ListIterator::ListIterator(const QStringList &filePaths,
+                                           const QStringList &fileNames)
+{
+    m_filePaths = filePaths;
+    m_fileNames = fileNames;
+    toFront();
+}
+
+void BaseFileFilter::ListIterator::toFront()
+{
+    m_pathPosition = m_filePaths.constBegin() - 1;
+    m_namePosition = m_fileNames.constBegin() - 1;
+}
+
+bool BaseFileFilter::ListIterator::hasNext() const
+{
+    QTC_ASSERT(m_pathPosition != m_filePaths.constEnd(), return false);
+    return m_pathPosition + 1 != m_filePaths.constEnd();
+}
+
+QString BaseFileFilter::ListIterator::next()
+{
+    QTC_ASSERT(m_pathPosition != m_filePaths.constEnd(), return QString());
+    QTC_ASSERT(m_namePosition != m_fileNames.constEnd(), return QString());
+    ++m_pathPosition;
+    ++m_namePosition;
+    QTC_ASSERT(m_pathPosition != m_filePaths.constEnd(), return QString());
+    QTC_ASSERT(m_namePosition != m_fileNames.constEnd(), return QString());
+    return *m_pathPosition;
+}
+
+QString BaseFileFilter::ListIterator::filePath() const
+{
+    QTC_ASSERT(m_pathPosition != m_filePaths.constEnd(), return QString());
+    return *m_pathPosition;
+}
+
+QString BaseFileFilter::ListIterator::fileName() const
+{
+    QTC_ASSERT(m_namePosition != m_fileNames.constEnd(), return QString());
+    return *m_namePosition;
 }

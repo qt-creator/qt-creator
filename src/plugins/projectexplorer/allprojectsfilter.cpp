@@ -56,6 +56,7 @@ void AllProjectsFilter::markFilesAsOutOfDate()
 {
     QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
     m_filesUpToDate = false;
+    invalidateCachedResults();
 }
 
 void AllProjectsFilter::prepareSearch(const QString &entry)
@@ -64,11 +65,11 @@ void AllProjectsFilter::prepareSearch(const QString &entry)
     QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
     if (m_filesUpToDate)
         return;
-    files().clear();
+    QStringList paths;
     foreach (Project *project, SessionManager::projects())
-        files().append(project->files(Project::AllFiles));
-    Utils::sort(files());
-    generateFileNames();
+        paths.append(project->files(Project::AllFiles));
+    Utils::sort(paths);
+    setFileIterator(new BaseFileFilter::ListIterator(paths));
     m_filesUpToDate = true;
 }
 

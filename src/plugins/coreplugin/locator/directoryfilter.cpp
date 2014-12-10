@@ -59,7 +59,7 @@ QByteArray DirectoryFilter::saveState() const
     out << m_filters;
     out << shortcutString();
     out << isIncludedByDefault();
-    out << files();
+    out << m_files;
     return value;
 }
 
@@ -77,13 +77,13 @@ bool DirectoryFilter::restoreState(const QByteArray &state)
     in >> m_filters;
     in >> shortcut;
     in >> defaultFilter;
-    in >> files();
+    in >> m_files;
 
     setDisplayName(name);
     setShortcutString(shortcut);
     setIncludedByDefault(defaultFilter);
 
-    generateFileNames();
+    setFileIterator(new BaseFileFilter::ListIterator(m_files));
     return true;
 }
 
@@ -175,8 +175,8 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
     {
         QMutexLocker locker(&m_lock);
         if (m_directories.count() < 1) {
-            files().clear();
-            generateFileNames();
+            m_files.clear();
+            setFileIterator(new BaseFileFilter::ListIterator(m_files));
             future.setProgressRange(0, 1);
             future.setProgressValueAndText(1, tr("%1 filter update: 0 files").arg(displayName()));
             return;
@@ -197,8 +197,8 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
 
     if (!future.isCanceled()) {
         QMutexLocker locker(&m_lock);
-        files() = filesFound;
-        generateFileNames();
+        m_files = filesFound;
+        setFileIterator(new BaseFileFilter::ListIterator(m_files));
         future.setProgressValue(it.maxProgress());
     } else {
         future.setProgressValueAndText(it.currentProgress(), tr("%1 filter update: canceled").arg(displayName()));
