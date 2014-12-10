@@ -29,9 +29,9 @@
 ****************************************************************************/
 
 #include "completionsettingspage.h"
+#include "ui_completionsettingspage.h"
 
-#include <ui_completionsettingspage.h>
-#include "cpptoolsconstants.h"
+#include "cpptoolssettings.h"
 
 #include <coreplugin/icore.h>
 #include <texteditor/texteditorsettings.h>
@@ -40,14 +40,11 @@
 
 using namespace CppTools;
 using namespace CppTools::Internal;
-using namespace CppTools::Constants;
 
 CompletionSettingsPage::CompletionSettingsPage(QObject *parent)
     : TextEditor::TextEditorOptionsPage(parent)
     , m_page(0)
 {
-    m_commentsSettings.fromSettings(QLatin1String(CPPTOOLS_SETTINGSGROUP), Core::ICore::settings());
-
     setId("P.Completion");
     setDisplayName(tr("Completion"));
 }
@@ -68,11 +65,11 @@ QWidget *CompletionSettingsPage::widget()
                 static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
                 this, &CompletionSettingsPage::onCompletionTriggerChanged);
 
-        const TextEditor::CompletionSettings &settings =
+        const TextEditor::CompletionSettings &completionSettings =
                 TextEditor::TextEditorSettings::completionSettings();
 
         int caseSensitivityIndex = 0;
-        switch (settings.m_caseSensitivity) {
+        switch (completionSettings.m_caseSensitivity) {
         case TextEditor::CaseSensitive:
             caseSensitivityIndex = 0;
             break;
@@ -85,7 +82,7 @@ QWidget *CompletionSettingsPage::widget()
         }
 
         int completionTriggerIndex = 0;
-        switch (settings.m_completionTrigger) {
+        switch (completionSettings.m_completionTrigger) {
         case TextEditor::ManualCompletion:
             completionTriggerIndex = 0;
             break;
@@ -99,15 +96,19 @@ QWidget *CompletionSettingsPage::widget()
 
         m_page->caseSensitivity->setCurrentIndex(caseSensitivityIndex);
         m_page->completionTrigger->setCurrentIndex(completionTriggerIndex);
-        m_page->automaticProposalTimeoutSpinBox->setValue(settings.m_automaticProposalTimeoutInMs);
-        m_page->autoInsertBrackets->setChecked(settings.m_autoInsertBrackets);
-        m_page->surroundSelectedText->setChecked(settings.m_surroundingAutoBrackets);
-        m_page->partiallyComplete->setChecked(settings.m_partiallyComplete);
-        m_page->spaceAfterFunctionName->setChecked(settings.m_spaceAfterFunctionName);
-        m_page->autoSplitStrings->setChecked(settings.m_autoSplitStrings);
-        m_page->enableDoxygenCheckBox->setChecked(m_commentsSettings.m_enableDoxygen);
-        m_page->generateBriefCheckBox->setChecked(m_commentsSettings.m_generateBrief);
-        m_page->leadingAsterisksCheckBox->setChecked(m_commentsSettings.m_leadingAsterisks);
+        m_page->automaticProposalTimeoutSpinBox
+                    ->setValue(completionSettings.m_automaticProposalTimeoutInMs);
+        m_page->autoInsertBrackets->setChecked(completionSettings.m_autoInsertBrackets);
+        m_page->surroundSelectedText->setChecked(completionSettings.m_surroundingAutoBrackets);
+        m_page->partiallyComplete->setChecked(completionSettings.m_partiallyComplete);
+        m_page->spaceAfterFunctionName->setChecked(completionSettings.m_spaceAfterFunctionName);
+        m_page->autoSplitStrings->setChecked(completionSettings.m_autoSplitStrings);
+
+        const CommentsSettings &commentsSettings = CppToolsSettings::instance()->commentsSettings();
+        m_page->enableDoxygenCheckBox->setChecked(commentsSettings.m_enableDoxygen);
+        m_page->generateBriefCheckBox->setChecked(commentsSettings.m_generateBrief);
+        m_page->leadingAsterisksCheckBox->setChecked(commentsSettings.m_leadingAsterisks);
+
         m_page->generateBriefCheckBox->setEnabled(m_page->enableDoxygenCheckBox->isChecked());
     }
     return m_widget;
@@ -117,27 +118,27 @@ void CompletionSettingsPage::apply()
 {
     if (!m_page) // page was never shown
         return;
-    TextEditor::CompletionSettings settings;
-    settings.m_caseSensitivity = caseSensitivity();
-    settings.m_completionTrigger = completionTrigger();
-    settings.m_automaticProposalTimeoutInMs = m_page->automaticProposalTimeoutSpinBox->value();
-    settings.m_autoInsertBrackets = m_page->autoInsertBrackets->isChecked();
-    settings.m_surroundingAutoBrackets = m_page->surroundSelectedText->isChecked();
-    settings.m_partiallyComplete = m_page->partiallyComplete->isChecked();
-    settings.m_spaceAfterFunctionName = m_page->spaceAfterFunctionName->isChecked();
-    settings.m_autoSplitStrings = m_page->autoSplitStrings->isChecked();
 
-    TextEditor::TextEditorSettings::setCompletionSettings(settings);
+    TextEditor::CompletionSettings completionSettings;
+    completionSettings.m_caseSensitivity = caseSensitivity();
+    completionSettings.m_completionTrigger = completionTrigger();
+    completionSettings.m_automaticProposalTimeoutInMs
+            = m_page->automaticProposalTimeoutSpinBox->value();
+    completionSettings.m_autoInsertBrackets = m_page->autoInsertBrackets->isChecked();
+    completionSettings.m_surroundingAutoBrackets = m_page->surroundSelectedText->isChecked();
+    completionSettings.m_partiallyComplete = m_page->partiallyComplete->isChecked();
+    completionSettings.m_spaceAfterFunctionName = m_page->spaceAfterFunctionName->isChecked();
+    completionSettings.m_autoSplitStrings = m_page->autoSplitStrings->isChecked();
+    TextEditor::TextEditorSettings::setCompletionSettings(completionSettings);
 
     if (!requireCommentsSettingsUpdate())
         return;
 
-    m_commentsSettings.m_enableDoxygen = m_page->enableDoxygenCheckBox->isChecked();
-    m_commentsSettings.m_generateBrief = m_page->generateBriefCheckBox->isChecked();
-    m_commentsSettings.m_leadingAsterisks = m_page->leadingAsterisksCheckBox->isChecked();
-    m_commentsSettings.toSettings(QLatin1String(CPPTOOLS_SETTINGSGROUP), Core::ICore::settings());
-
-    emit commentsSettingsChanged(m_commentsSettings);
+    CommentsSettings commentsSettings;
+    commentsSettings.m_enableDoxygen = m_page->enableDoxygenCheckBox->isChecked();
+    commentsSettings.m_generateBrief = m_page->generateBriefCheckBox->isChecked();
+    commentsSettings.m_leadingAsterisks = m_page->leadingAsterisksCheckBox->isChecked();
+    CppToolsSettings::instance()->setCommentsSettings(commentsSettings);
 }
 
 TextEditor::CaseSensitivity CompletionSettingsPage::caseSensitivity() const
@@ -180,14 +181,10 @@ void CompletionSettingsPage::finish()
     m_page = 0;
 }
 
-const CommentsSettings &CompletionSettingsPage::commentsSettings() const
-{
-    return m_commentsSettings;
-}
-
 bool CompletionSettingsPage::requireCommentsSettingsUpdate() const
 {
-    return m_commentsSettings.m_enableDoxygen != m_page->enableDoxygenCheckBox->isChecked()
-        || m_commentsSettings.m_generateBrief != m_page->generateBriefCheckBox->isChecked()
-        || m_commentsSettings.m_leadingAsterisks != m_page->leadingAsterisksCheckBox->isChecked();
+    const CommentsSettings &commentsSettings = CppToolsSettings::instance()->commentsSettings();
+    return commentsSettings.m_enableDoxygen != m_page->enableDoxygenCheckBox->isChecked()
+        || commentsSettings.m_generateBrief != m_page->generateBriefCheckBox->isChecked()
+        || commentsSettings.m_leadingAsterisks != m_page->leadingAsterisksCheckBox->isChecked();
 }

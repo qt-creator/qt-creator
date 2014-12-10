@@ -64,6 +64,7 @@ public:
         , m_completionSettingsPage(0)
     {}
 
+    CommentsSettings m_commentsSettings;
     CppCodeStylePreferences *m_globalCodeStyle;
     CompletionSettingsPage *m_completionSettingsPage;
 };
@@ -82,13 +83,10 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
 
     qRegisterMetaType<CppTools::CppCodeStyleSettings>("CppTools::CppCodeStyleSettings");
 
+    QSettings *s = Core::ICore::settings();
+    d->m_commentsSettings.fromSettings(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP), s);
     d->m_completionSettingsPage = new CompletionSettingsPage(this);
     ExtensionSystem::PluginManager::addObject(d->m_completionSettingsPage);
-
-    connect(d->m_completionSettingsPage,
-            SIGNAL(commentsSettingsChanged(CppTools::CommentsSettings)),
-            this,
-            SIGNAL(commentsSettingsChanged(CppTools::CommentsSettings)));
 
     // code style factory
     ICodeStylePreferencesFactory *factory = new CppTools::CppCodeStylePreferencesFactory();
@@ -170,7 +168,6 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
     pool->loadCustomCodeStyles();
 
     // load global settings (after built-in settings are added to the pool)
-    QSettings *s = Core::ICore::settings();
     d->m_globalCodeStyle->fromSettings(QLatin1String(CppTools::Constants::CPP_SETTINGS_ID), s);
 
     // legacy handling start (Qt Creator Version < 2.4)
@@ -253,5 +250,15 @@ CppCodeStylePreferences *CppToolsSettings::cppCodeStyle() const
 
 const CommentsSettings &CppToolsSettings::commentsSettings() const
 {
-    return d->m_completionSettingsPage->commentsSettings();
+    return d->m_commentsSettings;
+}
+
+void CppToolsSettings::setCommentsSettings(const CommentsSettings &commentsSettings)
+{
+    if (d->m_commentsSettings == commentsSettings)
+        return;
+
+    d->m_commentsSettings = commentsSettings;
+    d->m_commentsSettings.toSettings(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP),
+                                     Core::ICore::settings());
 }

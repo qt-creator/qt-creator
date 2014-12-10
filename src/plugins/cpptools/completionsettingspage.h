@@ -57,11 +57,6 @@ public:
     void apply();
     void finish();
 
-    const CommentsSettings &commentsSettings() const;
-
-signals:
-    void commentsSettingsChanged(const CppTools::CommentsSettings &settings);
-
 private:
     TextEditor::CaseSensitivity caseSensitivity() const;
     TextEditor::CompletionTrigger completionTrigger() const;

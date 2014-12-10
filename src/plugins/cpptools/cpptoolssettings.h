@@ -59,10 +59,9 @@ public:
     static CppToolsSettings *instance();
 
     CppCodeStylePreferences *cppCodeStyle() const;
-    const CommentsSettings &commentsSettings() const;
 
-signals:
-    void commentsSettingsChanged(const CppTools::CommentsSettings &settings);
+    const CommentsSettings &commentsSettings() const;
+    void setCommentsSettings(const CommentsSettings &commentsSettings);
 
 private:
     Internal::CppToolsSettingsPrivate *d;
