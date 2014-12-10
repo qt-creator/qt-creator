@@ -69,7 +69,7 @@ class DoxygenTestCase : public Internal::Tests::TestCase
 public:
     /// The '|' in the input denotes the cursor position.
     DoxygenTestCase(const QByteArray &original, const QByteArray &expected,
-                    CppTools::CommentsSettings *injectedSettings = 0)
+                    CppTools::CommentsSettings *settings = 0)
     {
         QVERIFY(succeededSoFar());
 
@@ -86,10 +86,10 @@ public:
                               &testDocument.m_editorWidget));
         closeEditorAtEndOfTestCase(testDocument.m_editor);
 
-        if (injectedSettings) {
+        if (settings) {
             auto *cts = CppTools::CppToolsSettings::instance();
             oldSettings.reset(new CppTools::CommentsSettings(cts->commentsSettings()));
-            injectSettings(injectedSettings);
+            cts->setCommentsSettings(*settings);
         }
 
         // We want to test documents that start with a comment. By default, the
@@ -118,14 +118,7 @@ public:
     ~DoxygenTestCase()
     {
         if (oldSettings)
-            injectSettings(oldSettings.data());
-    }
-
-    static void injectSettings(CppTools::CommentsSettings *injection)
-    {
-        auto *cts = CppTools::CppToolsSettings::instance();
-        QVERIFY(QMetaObject::invokeMethod(cts, "commentsSettingsChanged", Qt::DirectConnection,
-                                          Q_ARG(CppTools::CommentsSettings, *injection)));
+            CppTools::CppToolsSettings::instance()->setCommentsSettings(*oldSettings);
     }
 };
 
