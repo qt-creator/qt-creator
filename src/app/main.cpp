@@ -56,6 +56,7 @@
 #include <QApplication>
 #include <QMessageBox>
 #include <QStandardPaths>
+#include <QTemporaryDir>
 
 #ifdef ENABLE_QT_BREAKPAD
 #include <qtsystemexceptionhandler.h>
@@ -338,10 +339,14 @@ int main(int argc, char **argv)
             testOptionProvided = true;
         }
     }
+    QScopedPointer<QTemporaryDir> temporaryCleanSettingsDir;
     if (settingsPath.isEmpty() && testOptionProvided) {
-        settingsPath = QDir::tempPath() + QString::fromLatin1("/qtc-%1-test-settings")
-                .arg(QLatin1String(Core::Constants::IDE_VERSION_LONG));
-        settingsPath = QDir::cleanPath(settingsPath);
+        const QString settingsPathTemplate = QDir::cleanPath(QDir::tempPath()
+            + QString::fromLatin1("/qtc-test-settings-XXXXXX"));
+        temporaryCleanSettingsDir.reset(new QTemporaryDir(settingsPathTemplate));
+        if (!temporaryCleanSettingsDir->isValid())
+            return 1;
+        settingsPath = temporaryCleanSettingsDir->path();
     }
     if (!settingsPath.isEmpty())
         QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsPath);
