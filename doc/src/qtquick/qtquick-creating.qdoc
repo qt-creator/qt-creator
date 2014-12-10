@@ -62,7 +62,13 @@
 
     \section1 Creating Qt Quick UI Projects
 
+    The \gui {Qt Quick UI} wizard is disabled by default.
+
     \list 1
+
+        \li Select \gui Help > \gui Tools > \gui {About Plugins} >
+            \gui {Qt Quick} > \gui {QmlProjectManager} and restart \QC to show
+            the wizard.
 
         \li Select \gui File > \gui {New File or Project} > \gui Application >
             \gui {Qt Quick UI} > \gui Choose.
