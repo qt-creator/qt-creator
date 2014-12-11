@@ -63,7 +63,7 @@ public:
 
     typedef QHash<QString, QStringList> Filters;
 
-    static QObject *instance();
+    static HelpManager *instance();
     static QString collectionFilePath();
 
     static void registerDocumentation(const QStringList &fileNames);
@@ -74,9 +74,6 @@ public:
 
     static QMap<QString, QUrl> linksForKeyword(const QString &key);
     static QMap<QString, QUrl> linksForIdentifier(const QString &id);
-    static QStringList findKeywords(const QString &key,
-                             Qt::CaseSensitivity caseSensitivity = Qt::CaseInsensitive,
-                             int maxHits = INT_MAX);
 
     static QUrl findFile(const QUrl &url);
     static QByteArray fileData(const QUrl &url);

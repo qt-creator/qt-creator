@@ -1,4 +1,4 @@
-QT += help network printsupport
+QT += help network printsupport sql
 !isEmpty(QT.webkitwidgets.name): QT += webkitwidgets webkit
 else: DEFINES += QT_NO_WEBKIT
 

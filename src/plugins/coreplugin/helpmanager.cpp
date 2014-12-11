@@ -111,7 +111,7 @@ HelpManager::~HelpManager()
     delete d;
 }
 
-QObject *HelpManager::instance()
+HelpManager *HelpManager::instance()
 {
     Q_ASSERT(m_instance);
     return m_instance;
@@ -246,51 +246,6 @@ QMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &id)
     QMap<QString, QUrl> empty;
     QTC_ASSERT(!d->m_needsSetup, return empty);
     return d->m_helpEngine->linksForIdentifier(id);
-}
-
-// This should go into Qt 4.8 once we start using it for Qt Creator
-QStringList HelpManager::findKeywords(const QString &key, Qt::CaseSensitivity caseSensitivity,
-                                      int maxHits)
-{
-    QTC_ASSERT(!d->m_needsSetup, return QStringList());
-
-    const QLatin1String sqlite("QSQLITE");
-    const QLatin1String name("HelpManager::findKeywords");
-
-    QSet<QString> keywords;
-    QSet<QString> keywordsToSort;
-
-    DbCleaner cleaner(name);
-    QSqlDatabase db = QSqlDatabase::addDatabase(sqlite, name);
-    if (db.driver() && db.driver()->lastError().type() == QSqlError::NoError) {
-        QHelpEngineCore core(collectionFilePath());
-        core.setAutoSaveFilter(false);
-        core.setCurrentFilter(tr("Unfiltered"));
-        core.setupData();
-        const QStringList &registeredDocs = core.registeredDocumentations();
-        foreach (const QString &nameSpace, registeredDocs) {
-            db.setDatabaseName(core.documentationFileName(nameSpace));
-            if (db.open()) {
-                QSqlQuery query = QSqlQuery(db);
-                query.setForwardOnly(true);
-                query.exec(QString::fromLatin1("SELECT DISTINCT Name FROM IndexTable WHERE Name LIKE "
-                    "'%%1%' LIMIT %2").arg(key, QString::number(maxHits)));
-                while (query.next()) {
-                    const QString &keyValue = query.value(0).toString();
-                    if (!keyValue.isEmpty()) {
-                        if (keyValue.startsWith(key, caseSensitivity))
-                            keywordsToSort.insert(keyValue);
-                        else
-                            keywords.insert(keyValue);
-                    }
-                }
-            }
-        }
-    }
-
-    QStringList keywordsSorted = keywordsToSort.toList();
-    Utils::sort(keywordsSorted);
-    return keywordsSorted + keywords.toList();
 }
 
 QUrl HelpManager::findFile(const QUrl &url)

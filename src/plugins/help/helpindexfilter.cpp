@@ -37,8 +37,14 @@
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
+#include <utils/algorithm.h>
 
 #include <QIcon>
+#include <QSqlDatabase>
+#include <QSqlDriver>
+#include <QSqlError>
+#include <QSqlQuery>
+
 
 using namespace Core;
 using namespace Help;
@@ -47,6 +53,7 @@ using namespace Help::Internal;
 Q_DECLARE_METATYPE(ILocatorFilter*)
 
 HelpIndexFilter::HelpIndexFilter()
+    : m_needsUpdate(true)
 {
     setId("HelpIndexFilter");
     setDisplayName(tr("Help Index"));
@@ -54,6 +61,12 @@ HelpIndexFilter::HelpIndexFilter()
     setShortcutString(QString(QLatin1Char('?')));
 
     m_icon = QIcon(QLatin1String(":/help/images/bookmark.png"));
+    connect(HelpManager::instance(), &HelpManager::setupFinished,
+            this, &HelpIndexFilter::invalidateCache);
+    connect(HelpManager::instance(), &HelpManager::documentationChanged,
+            this, &HelpIndexFilter::invalidateCache);
+    connect(HelpManager::instance(), &HelpManager::collectionFileChanged,
+            this, &HelpIndexFilter::invalidateCache);
 }
 
 HelpIndexFilter::~HelpIndexFilter()
@@ -62,21 +75,62 @@ HelpIndexFilter::~HelpIndexFilter()
 
 void HelpIndexFilter::prepareSearch(const QString &entry)
 {
-    if (entry.length() < 2)
-        m_keywords = Core::HelpManager::findKeywords(entry, caseSensitivity(entry), 200);
-    else
-        m_keywords = Core::HelpManager::findKeywords(entry, caseSensitivity(entry));
+    Q_UNUSED(entry)
+    QStringList namespaces = HelpManager::registeredNamespaces();
+    m_helpDatabases = Utils::transform(namespaces, [](const QString &ns) {
+        return HelpManager::fileFromNamespace(ns);
+    });
 }
 
 QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
 {
-    Q_UNUSED(entry) // search is already done in the GUI thread in prepareSearch
+    m_mutex.lock(); // guard m_needsUpdate
+    bool forceUpdate = m_needsUpdate;
+    m_mutex.unlock();
+
+    if (forceUpdate || m_searchTermCache.size() < 2 || m_searchTermCache.isEmpty()
+            || !entry.contains(m_searchTermCache)) {
+        int limit = entry.size() < 2 ? 200 : INT_MAX;
+        QSet<QString> results;
+        foreach (const QString &filePath, m_helpDatabases) {
+            QSet<QString> result;
+            QMetaObject::invokeMethod(this, "searchMatches", Qt::BlockingQueuedConnection,
+                                      Q_RETURN_ARG(QSet<QString>, result),
+                                      Q_ARG(QString, filePath),
+                                      Q_ARG(QString, entry),
+                                      Q_ARG(int, limit));
+            results.unite(result);
+        }
+        m_mutex.lock(); // guard m_needsUpdate
+        m_needsUpdate = false;
+        m_mutex.unlock();
+        m_keywordCache = results;
+        m_searchTermCache = entry;
+    }
+
+    Qt::CaseSensitivity cs = caseSensitivity(entry);
     QList<LocatorFilterEntry> entries;
-    foreach (const QString &keyword, m_keywords) {
+    QStringList keywords;
+    QStringList unsortedKeywords;
+    keywords.reserve(m_keywordCache.size());
+    unsortedKeywords.reserve(m_keywordCache.size());
+    QSet<QString> allresults;
+    foreach (const QString &keyword, m_keywordCache) {
         if (future.isCanceled())
             break;
-        entries.append(LocatorFilterEntry(this, keyword, QVariant(), m_icon));
+        if (keyword.startsWith(entry, cs)) {
+            keywords.append(keyword);
+            allresults.insert(keyword);
+        } else if (keyword.contains(entry, cs)) {
+            unsortedKeywords.append(keyword);
+            allresults.insert(keyword);
+        }
     }
+    Utils::sort(keywords);
+    keywords << unsortedKeywords;
+    m_keywordCache = allresults;
+    foreach (const QString &keyword, keywords)
+        entries.append(LocatorFilterEntry(this, keyword, QVariant(), m_icon));
 
     return entries;
 }
@@ -95,5 +149,42 @@ void HelpIndexFilter::accept(LocatorFilterEntry selection) const
 void HelpIndexFilter::refresh(QFutureInterface<void> &future)
 {
     Q_UNUSED(future)
-    // Nothing to refresh
+    invalidateCache();
+}
+
+QSet<QString> HelpIndexFilter::searchMatches(const QString &databaseFilePath,
+                                           const QString &term, int limit)
+{
+    static const QLatin1String sqlite("QSQLITE");
+    static const QLatin1String name("HelpManager::findKeywords");
+
+    QSet<QString> keywords;
+
+    { // make sure db is destroyed before removeDatabase call
+        QSqlDatabase db = QSqlDatabase::addDatabase(sqlite, name);
+        if (db.driver() && db.driver()->lastError().type() == QSqlError::NoError) {
+            db.setDatabaseName(databaseFilePath);
+            if (db.open()) {
+                QSqlQuery query = QSqlQuery(db);
+                query.setForwardOnly(true);
+                query.exec(QString::fromLatin1("SELECT DISTINCT Name FROM IndexTable WHERE Name LIKE "
+                    "'%%1%' LIMIT %2").arg(term, QString::number(limit)));
+                while (query.next()) {
+                    const QString &keyValue = query.value(0).toString();
+                    if (!keyValue.isEmpty())
+                        keywords.insert(keyValue);
+                }
+                db.close();
+            }
+        }
+    }
+    QSqlDatabase::removeDatabase(name);
+    return keywords;
+}
+
+void HelpIndexFilter::invalidateCache()
+{
+    m_mutex.lock();
+    m_needsUpdate = true;
+    m_mutex.unlock();
 }
