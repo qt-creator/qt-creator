@@ -138,9 +138,11 @@
     you can test applications on
     \l{http://developer.apple.com/library/ios/documentation/IDEs/Conceptual/iOS_Simulator_Guide/Introduction/Introduction.html}
     {iOS Simulator}, which is installed as part of Xcode. Each Xcode version
-    simulates a predefined set of hardware devices and software versions. You
-    can change the simulated hardware and software version from within iOS
-    Simulator.
+    simulates a predefined set of hardware devices and software versions.
+
+    You can change the simulated hardware and software version in the run
+    settings for the project. Select \gui Projects > \gui Run, and then select
+    the device to simulate in the \gui {Device type} field.
 
     \QC uses the Xcode version set as current on the Mac computer.
     To check the version, enter the following command:
