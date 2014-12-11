@@ -365,7 +365,7 @@ void FindToolBar::adaptToCandidate()
     updateGlobalActions();
     if (findToolBarPlaceHolder() == FindToolBarPlaceHolder::getCurrent()) {
         m_currentDocumentFind->acceptCandidate();
-        if (isVisible())
+        if (isVisible() && m_currentDocumentFind->isEnabled())
             m_currentDocumentFind->highlightAll(getFindText(), effectiveFindFlags());
     }
 }

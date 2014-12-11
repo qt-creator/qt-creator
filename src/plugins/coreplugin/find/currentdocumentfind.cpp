@@ -159,6 +159,8 @@ void CurrentDocumentFind::updateCandidateFindFilter(QWidget *old, QWidget *now)
         if (!impl)
             candidate = candidate->parentWidget();
     }
+    if (candidate == m_candidateWidget && impl == m_candidateFind)
+        return;
     if (m_candidateWidget)
         disconnect(Aggregation::Aggregate::parentAggregate(m_candidateWidget), SIGNAL(changed()),
                    this, SLOT(candidateAggregationChanged()));
