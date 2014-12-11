@@ -13,31 +13,31 @@
   <property name="windowTitle">
    <string>Subversion Submit</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3">
+  <layout class="QVBoxLayout" name="vboxLayout">
    <item>
-    <widget class="QSplitter" name="splitter">
+    <widget class="Core::MiniSplitter" name="splitter">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="QWidget" name="verticalLayoutWidget">
-      <layout class="QVBoxLayout" name="vboxLayout">
+     <widget class="QGroupBox" name="descriptionBox">
+      <property name="title">
+       <string>Descriptio&amp;n</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+      <layout class="QVBoxLayout" name="descriptionLayout">
        <item>
-        <widget class="QGroupBox" name="descriptionBox">
-         <property name="title">
-          <string>Descriptio&amp;n</string>
+        <widget class="Utils::CompletingTextEdit" name="description">
+         <property name="acceptRichText">
+          <bool>false</bool>
          </property>
-         <property name="flat">
-          <bool>true</bool>
-         </property>
-         <layout class="QVBoxLayout" name="descriptionLayout">
-          <item>
-           <widget class="Utils::CompletingTextEdit" name="description">
-            <property name="acceptRichText">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </widget>
        </item>
       </layout>
@@ -94,6 +94,12 @@
    <class>Utils::CompletingTextEdit</class>
    <extends>QTextEdit</extends>
    <header location="global">utils/completingtextedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Core::MiniSplitter</class>
+   <extends>QSplitter</extends>
+   <header location="global">coreplugin/minisplitter.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
