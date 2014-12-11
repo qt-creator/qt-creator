@@ -35,12 +35,18 @@ srcPath = os.path.realpath(srcPath)
 projectName = "gitProject"
 
 # TODO: Make selecting changes possible
-def commit(commitMessage, expectedLogMessage):
+def commit(commitMessage, expectedLogMessage, uncheckUntracked=False):
     openVcsLog()
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
     invokeMenuItem("Tools", "Git", "Local Repository", "Commit...")
     replaceEditorContent(waitForObject(":Description.description_Utils::CompletingTextEdit"), commitMessage)
     ensureChecked(waitForObject(":Files.Check all_QCheckBox"))
+    if uncheckUntracked:
+        treeView = waitForObject("{container=':splitter.Files_QGroupBox' name='fileView' type='QTreeView' visible='1'}")
+        model = treeView.model()
+        for indexStr in dumpItems(model):
+            if 'untracked' in indexStr:
+                clickItem(treeView, indexStr, 5, 5, 0, Qt.LeftButton)
     checkOrFixCommitterInformation('invalidAuthorLabel', 'authorLineEdit', 'Nobody')
     checkOrFixCommitterInformation('invalidEmailLabel', 'emailLineEdit', 'nobody@nowhere.com')
     clickButton(waitForObject(":splitter.Commit File(s)_VcsBase::QActionPushButton"))
@@ -157,7 +163,7 @@ def main():
                          "Some important advice in the README")
     invokeMenuItem("File", "Save All")
     commitsInProject = list(commitMessages) # deep copy
-    commitOutsideProject = commit("Added README file", "Committed 2 file(s).") # QTCREATORBUG-11074
+    commitOutsideProject = commit("Added README file", "Committed 2 file(s).", True) # QTCREATORBUG-11074
     commitMessages.insert(0, commitOutsideProject)
 
     invokeMenuItem('Tools', 'Git', 'Current File', 'Log of "%s"' % readmeName)
