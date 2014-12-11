@@ -113,9 +113,9 @@
     the build step and add a custom build step that specifies another shell
     command.
 
-    \QC Enterprise is integrated to \l{http://doc.qt.digia.com/QtQuickCompiler/}
-    {Qt Quick Compiler}. It is a commercial add-on for Qt Quick applications
-    that enables you to compile QML source code into the final binary. This
+    \QC is integrated to \l{http://doc.qt.digia.com/QtQuickCompiler/}
+    {Qt Quick Compiler} (commercial only) that enables you to compile QML source
+    code into the final binary. This
     improves the startup time of the application and eliminates the need to
     deploy QML files together with the application. \QC new project wizards
     create projects that the Qt Quick Compiler can compile, because they are

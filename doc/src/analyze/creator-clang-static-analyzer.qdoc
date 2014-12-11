@@ -31,9 +31,10 @@
 
     \title Using Clang Static Analyzer
 
-    \QC Enterprise integrates the \l{http://clang-analyzer.llvm.org}
+    \QC integrates the \l{http://clang-analyzer.llvm.org}
     {Clang Static Analyzer} for finding problems in C, C++, and Objective-C
-    programs. You must have Clang installed to use the plugin. At the time of
+    programs (commercial only). You must have Clang installed to use the plugin.
+    At the time of
     this writing, the plugin is experimental and only available on Linux and
     OS X.
 

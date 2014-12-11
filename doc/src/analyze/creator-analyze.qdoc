@@ -61,9 +61,10 @@
 
         \li \l{Using Clang Static Analyzer}{Clang Static Analyzer}
 
-            In \QC Enterprise, you can detect problems in C, C++, and
+            You can detect problems in C, C++, and
             Objective-C programs by using the experimental plugin that
-            integrates the Clang Static Analyzer source code analysis tool.
+            integrates the Clang Static Analyzer source code analysis tool
+            (commercial only).
 
     \endlist
 
