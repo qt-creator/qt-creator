@@ -128,17 +128,17 @@
 
     \list 1
 
-        \li Select \gui Tools > \gui Options > \gui Android to add paths to the
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Android to add paths to the
             Android NDK and SDK.
 
             You can use the
             \inlineimage qtcreator-options-android-download-button.png
-            (\gui Download) buttons to go to the sites where you can download
+            (\uicontrol Download) buttons to go to the sites where you can download
             the Android NDK and SDK.
 
             \image qtcreator-options-android1.png "Android options"
 
-        \li Select the \gui {Automatically create kits for Android tool chains}
+        \li Select the \uicontrol {Automatically create kits for Android tool chains}
             check box to allow \QC to create the kits for you. \QC displays a
             warning if it cannot find a suitable Qt version.
 
@@ -146,54 +146,54 @@
 
             \list
 
-                \li To use Gradle, select the \gui {Use Gradle instead of Ant}
+                \li To use Gradle, select the \uicontrol {Use Gradle instead of Ant}
                     check box.
 
                 \li To use Ant, add the path to the Ant executable in the
-                    \gui {Ant executable} field.
+                    \uicontrol {Ant executable} field.
 
             \endlist
 
-        \li Select \gui File > \gui {New File or Project} > \gui Application >
-            \gui {Qt Quick Application} > \gui Choose, and
+        \li Select \uicontrol File > \uicontrol {New File or Project} > \uicontrol Application >
+            \uicontrol {Qt Quick Application} > \uicontrol Choose, and
             follow the instructions of the wizard. For more information, see
             \l{Creating Qt Quick Projects}.
 
         \li To specify settings for deploying applications to Android, select
-            \gui Projects > \gui Run for the \gui Android kit, and then select
-            \gui Details to view the \gui {Deploy configurations}. For more
+            \uicontrol Projects > \uicontrol Run for the \uicontrol Android kit, and then select
+            \uicontrol Details to view the \uicontrol {Deploy configurations}. For more
             information about the options you have, see
             \l{Deploying Applications to Android Devices}.
 
         \li Enable debugging on your Android device.
 
             Debugging is enabled in different ways on different Android devices.
-            Look for \gui {USB Debugging} under \gui {Developer Options}. On
-            some devices \gui {Developer Options} is hidden and becomes visible
-            when you tap the \gui {Build number} field in \gui Settings >
-            \gui About several times.
+            Look for \uicontrol {USB Debugging} under \uicontrol {Developer Options}. On
+            some devices \uicontrol {Developer Options} is hidden and becomes visible
+            when you tap the \uicontrol {Build number} field in \uicontrol Settings >
+            \uicontrol About several times.
 
         \li Connect the Android device to the development PC with a USB cable.
             You might be asked to select a device in the
-            \gui {Select Android Devices} dialog.
+            \uicontrol {Select Android Devices} dialog.
     \endlist
 
     \section1 Selecting Android Devices
 
     When you deploy an application to an Android device with Android
-    version 4.2 or later, the \gui {Select Android Devices} dialog opens. It
+    version 4.2 or later, the \uicontrol {Select Android Devices} dialog opens. It
     lists the devices that are connected to the development PC. and their
-    status. You can select devices from the \gui {Compatible Devices} list for
+    status. You can select devices from the \uicontrol {Compatible Devices} list for
     deployment.
 
     If \QC determines that a device is not ready for deployment, it places the
-    device in the \gui {Incompatible Devices} list, with information about the
+    device in the \uicontrol {Incompatible Devices} list, with information about the
     issue. For example, you might need to authorize the connection on the
     device. After you authorize the connection on the device, select
-    \gui {Refresh Device List}. The device is moved to the
-    \gui {Compatible Devices} list and you can select it for deployment.
+    \uicontrol {Refresh Device List}. The device is moved to the
+    \uicontrol {Compatible Devices} list and you can select it for deployment.
 
-    Other reasons for placing a device on the \gui {Incompatible Devices} are
+    Other reasons for placing a device on the \uicontrol {Incompatible Devices} are
     that the Android version on the device is too old or that the tool chain
     used for building does not match the Android architecture on the device
     (for example, you cannot deploy an ARM build on an x86 device).
@@ -201,21 +201,21 @@
     \image qtcreator-android-select-devices.png "Select Android Devices dialog"
 
     Android Virtual Devices (AVD) are also listed. To create new AVDs, select
-    \gui {Create Android Virtual Device}.
+    \uicontrol {Create Android Virtual Device}.
 
     To set a device as the default device for a particular Android architecture,
-    select the \gui {Always use this device for architecture} check box. The
-    \gui {Select Android Devices} dialog will not appear until you switch to
+    select the \uicontrol {Always use this device for architecture} check box. The
+    \uicontrol {Select Android Devices} dialog will not appear until you switch to
     another project or restart \QC.
 
     \section1 Using the Android Emulator
 
     To run your application on the Android Emulator, you must create Android
-    virtual devices (AVD). Select \gui Tools > \gui Options > \gui Android >
-    \gui Add. If you run an application without a device connected to the
+    virtual devices (AVD). Select \uicontrol Tools > \uicontrol Options > \uicontrol Android >
+    \uicontrol Add. If you run an application without a device connected to the
     development PC and without an AVD specified, \QC asks you to add an AVD.
 
-    To manage AVDs, select \gui {Start AVD Manager}.
+    To manage AVDs, select \uicontrol {Start AVD Manager}.
 
     \note The Android Emulator has a bug that prevents it from starting on some
     systems. If the Android Emulator does not start, you can try starting it
@@ -228,7 +228,7 @@
     information, see the Android documentation.
 
     In addition, debugging is supported at android-10 API level, or higher. In
-    the run settings for the project, in the \gui {Android build SDK} field,
+    the run settings for the project, in the \uicontrol {Android build SDK} field,
     select android-10, or higher. For more information about Android API levels,
     see \l{http://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels}
     {What is API Level?}.

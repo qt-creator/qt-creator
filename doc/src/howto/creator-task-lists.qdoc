@@ -32,7 +32,7 @@
 
     You can use code scanning and analysis tools to examine source code. These
     tools report issues for you to fix. \QC enables you to load lists of
-    issues into the \gui Issues pane for easier navigation.
+    issues into the \uicontrol Issues pane for easier navigation.
 
     \QC expects tasks to be defined in a simple line-based file format that is
     easy to generate using scripts. The scripts can either convert reports from
@@ -43,14 +43,14 @@
 
     \section1 Managing Task List Entries
 
-    To open task list files in the \gui Issues pane, choose \gui File  >
-    \gui Open. Right-click a task list entry to open a context menu that
+    To open task list files in the \uicontrol Issues pane, choose \uicontrol File  >
+    \uicontrol Open. Right-click a task list entry to open a context menu that
     contains commands for managing the entry. You can copy or remove task list
     entries or navigate to the corresponding source code.
 
-    \QC monitors the loaded files and displays the changes in the \gui Issues
+    \QC monitors the loaded files and displays the changes in the \uicontrol Issues
     pane. To keep the current entries in a task list, but stop checking for
-    changes, select \gui {Stop Monitoring}.
+    changes, select \uicontrol {Stop Monitoring}.
 
     \section1 Task List File Format
 

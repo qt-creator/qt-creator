@@ -40,18 +40,18 @@
 
     \list 1
 
-        \li Select \gui Help > \gui {About Plugins} > \gui {Device Support} >
-            \gui {Bare Metal} to enable the Bare Metal Device plugin.
+        \li Select \uicontrol Help > \uicontrol {About Plugins} > \uicontrol {Device Support} >
+            \uicontrol {Bare Metal} to enable the Bare Metal Device plugin.
 
         \li Restart \QC to be able to use the plugin.
 
-        \li Select \gui Tools > \gui Options > \gui Devices > \gui Add >
-            \gui {Bare Metal Device} > \gui {Start Wizard}.
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Devices > \uicontrol Add >
+            \uicontrol {Bare Metal Device} > \uicontrol {Start Wizard}.
 
-        \li In the \gui {GDB host} and \gui {GDB port} fields, specify the host
+        \li In the \uicontrol {GDB host} and \uicontrol {GDB port} fields, specify the host
             name and port number to access the GDB server or hardware debugger.
 
-        \li In the \gui {GDB commands} fields, specify custom commands for the
+        \li In the \uicontrol {GDB commands} fields, specify custom commands for the
             GDB server or hardware debugger.
 
         \li To specify build settings:
@@ -61,7 +61,7 @@
             \li Open a project for an application you want to develop for the
                 device.
 
-            \li Select \gui Projects > \gui {Build & Run} > \gui {Add Kit} to
+            \li Select \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol {Add Kit} to
                 add a kit for building and running applications on bare metal
                 devices.
 
@@ -69,7 +69,7 @@
 
         \endlist
 
-        \li Select \gui Run to specify run settings.
+        \li Select \uicontrol Run to specify run settings.
 
             Usually, you can use the default settings.
 

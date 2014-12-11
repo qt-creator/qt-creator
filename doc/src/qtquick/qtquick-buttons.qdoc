@@ -34,52 +34,52 @@
 
     \list 1
 
-        \li Select \gui {File > New File or Project > Qt > QML File > Choose}
+        \li Select \uicontrol {File > New File or Project > Qt > QML File > Choose}
             to create a QML file called Button.qml (for example).
 
-            \note Components are listed in the \gui Library only if the
+            \note Components are listed in the \uicontrol Library only if the
             filename begins with a capital letter.
 
-        \li Click \gui {Design} to edit the file in the visual editor.
+        \li Click \uicontrol {Design} to edit the file in the visual editor.
 
-        \li In the \gui Navigator, click \gui Rectangle to set properties
+        \li In the \uicontrol Navigator, click \uicontrol Rectangle to set properties
             for it.
 
-        \li In the \gui Properties pane, modify the appearance of the button.
+        \li In the \uicontrol Properties pane, modify the appearance of the button.
 
         \list a
 
-            \li In the \gui Size field, set the width (\gui W) and height
-                (\gui H) of the button.
+            \li In the \uicontrol Size field, set the width (\uicontrol W) and height
+                (\uicontrol H) of the button.
 
-            \li In the \gui Color field, select the button color.
+            \li In the \uicontrol Color field, select the button color.
 
-            \li In the \gui Radius field, use the slider to set the radius of
+            \li In the \uicontrol Radius field, use the slider to set the radius of
                 the rectangle and produce rounded corners for the button.
 
         \endlist
 
-        \li Drag and drop a \gui {Text} item on top of the \gui Rectangle. This
-            creates a nested item where \gui Rectangle is the parent item
-            of \gui Text. Items are positioned relative to their parents.
+        \li Drag and drop a \uicontrol {Text} item on top of the \uicontrol Rectangle. This
+            creates a nested item where \uicontrol Rectangle is the parent item
+            of \uicontrol Text. Items are positioned relative to their parents.
 
-        \li In the \gui Properties pane, edit the properties of the \gui Text
+        \li In the \uicontrol Properties pane, edit the properties of the \uicontrol Text
             item.
 
         \list a
 
-            \li In the \gui Text field, type \b Button.
+            \li In the \uicontrol Text field, type \b Button.
 
-                You can select the text color in the \gui {Text color} field and the
+                You can select the text color in the \uicontrol {Text color} field and the
                 font, size, and style in the
-                \gui Font section.
+                \uicontrol Font section.
 
-            \li In the \gui Alignment field, select the center buttons to align
+            \li In the \uicontrol Alignment field, select the center buttons to align
                 the text to the center of the button.
 
-            \li Click \gui {Layout}, and then click the
+            \li Click \uicontrol {Layout}, and then click the
                 \inlineimage qmldesigner-anchor-fill-screen.png
-                (\gui {Fill to Parent}) button to anchor the text to the whole
+                (\uicontrol {Fill to Parent}) button to anchor the text to the whole
                 button area.
 
         \endlist
@@ -130,12 +130,12 @@
 
     \list 1
 
-        \li Select \gui {File > New File or Project > Qt > QML File > Choose}
+        \li Select \uicontrol {File > New File or Project > Qt > QML File > Choose}
             to create a QML file called Button.qml (for example).
 
         \li Double-click the file to open it in the code editor.
 
-        \li Replace the \gui Rectangle with an \gui Item, as illustrated by the
+        \li Replace the \uicontrol Rectangle with an \uicontrol Item, as illustrated by the
             following code snippet:
 
             \qml
@@ -144,7 +144,7 @@
             }
             \endqml
 
-        \li Specify properties and set expressions for the \gui Item, as
+        \li Specify properties and set expressions for the \uicontrol Item, as
             illustrated by the following code snippet:
 
             \qml
@@ -161,83 +161,83 @@
 
             You will point to the properties and expression later.
 
-        \li Click \gui {Design} to edit the file in the visual editor.
+        \li Click \uicontrol {Design} to edit the file in the visual editor.
 
-        \li Drag and drop two \gui {Border Image} items from the \gui Library
+        \li Drag and drop two \uicontrol {Border Image} items from the \uicontrol Library
             to the canvas.
 
-        \li Drag and drop a \gui Text item to the canvas.
+        \li Drag and drop a \uicontrol Text item to the canvas.
 
-        \li Drag and drop a \gui {Mouse Area} to the canvas.
+        \li Drag and drop a \uicontrol {Mouse Area} to the canvas.
 
-        \li In the \gui Navigator, select \gui border_image1 to specify
-            settings for it in the \gui Properties pane:
+        \li In the \uicontrol Navigator, select \uicontrol border_image1 to specify
+            settings for it in the \uicontrol Properties pane:
 
         \list a
 
-            \li Select \gui {Set Binding} in the menu next to the
-                \gui Visibility check box.
+            \li Select \uicontrol {Set Binding} in the menu next to the
+                \uicontrol Visibility check box.
 
             \li Enter the following expression to specify that the image is
                 visible when the mouse is not pressed down:
                 \c {!mouse_area1.pressed}.
 
-            \li In the \gui Source field, select the image file for the button,
+            \li In the \uicontrol Source field, select the image file for the button,
                 for example button_up.png.
 
-            \li  Click \gui {Layout}, and then click the
+            \li  Click \uicontrol {Layout}, and then click the
                 \inlineimage qmldesigner-anchor-fill-screen.png
-                (\gui {Fill to Parent}) button to anchor the border image to the
-                \gui Item.
+                (\uicontrol {Fill to Parent}) button to anchor the border image to the
+                \uicontrol Item.
 
         \endlist
 
-        \li Select \gui border_image2 to specify similar settings for it:
+        \li Select \uicontrol border_image2 to specify similar settings for it:
 
         \list a
 
-            \li Set the following epression for \gui Visibility, to specify that
+            \li Set the following epression for \uicontrol Visibility, to specify that
                 the image is visible when the mouse is pressed down:
                 \c {mouse_area1.pressed}.
 
-            \li In the \gui Source field, select the image file for the button
+            \li In the \uicontrol Source field, select the image file for the button
                 when it is clicked, for example button_down.png.
 
-            \li Click \gui {Layout}, and then click the
-                \gui {Fill to Parent}
-                button to anchor the border image to the \gui Item.
+            \li Click \uicontrol {Layout}, and then click the
+                \uicontrol {Fill to Parent}
+                button to anchor the border image to the \uicontrol Item.
 
         \endlist
 
-        \li Select \gui text1 to specify font size and color, and text
+        \li Select \uicontrol text1 to specify font size and color, and text
             scaling and rendering:
 
         \list a
 
-            \li In the \gui Color field, use the color picker to select
+            \li In the \uicontrol Color field, use the color picker to select
                 the font color, or enter a value in the field.
 
-            \li In the \gui Text field, select \gui {Set Binding} and
+            \li In the \uicontrol Text field, select \uicontrol {Set Binding} and
                 enter a pointer to the \c {text} property that you specified
                 earlier: \c {parent.txt}.
 
-            \li In the \gui Size field, select \gui {Pixels} to specify the font
+            \li In the \uicontrol Size field, select \uicontrol {Pixels} to specify the font
                 size in pixels. By default, the size is specified in points.
 
-            \li In the \gui Size field, select \gui {Set Expression} and enter a
+            \li In the \uicontrol Size field, select \uicontrol {Set Expression} and enter a
                 pointer to the \c {fontSize} property that you specified
                 earlier.
 
-            \li Click \gui {Layout}, and then click the
+            \li Click \uicontrol {Layout}, and then click the
                 \inlineimage qmldesigner-center-in.png "Anchor buttons"
-                (\gui {Set Vertical Anchor} and \gui {Set Horizontal Anchor})
+                (\uicontrol {Set Vertical Anchor} and \uicontrol {Set Horizontal Anchor})
                 buttons to inherit the vertical and horizontal centering from
                 the parent.
 
-            \li Click \gui Advanced to specify scaling for the text in the
-                \gui Scale field.
+            \li Click \uicontrol Advanced to specify scaling for the text in the
+                \uicontrol Scale field.
 
-            \li Select \gui {Set Binding} and enter the following expression:
+            \li Select \uicontrol {Set Binding} and enter the following expression:
                 \c {if (!mousearea1.pressed) { 1 } else { 0.95 }}.
 
                 \note You can enter long and complicated expressions also in the

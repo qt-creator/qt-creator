@@ -31,7 +31,7 @@
     \title Specifying Text Editor Settings
 
     Set the font preferences and apply color schemes for syntax highlighting in
-    \gui {Tools > Options > Text Editor > Font & Colors}.
+    \uicontrol {Tools > Options > Text Editor > Font & Colors}.
 
     \image qtcreator-font-colors.png "Text editor options"
 
@@ -41,11 +41,11 @@
     percentage for viewing the text. You can also zoom in or out by pressing
     \key {Ctrl++} or \key {Ctrl +-}, or by pressing \key Ctrl and rolling
     the mouse button up or down. To disable the mouse wheel function, select
-    \gui {Tools > Options > Text Editor > Behavior} and deselect the
-    \gui {Enable scroll wheel zooming} check box.
+    \uicontrol {Tools > Options > Text Editor > Behavior} and deselect the
+    \uicontrol {Enable scroll wheel zooming} check box.
 
     Antialiasing is used by default to make text look smoother and more
-    readable on the screen. Deselect the \gui Antialias check box to
+    readable on the screen. Deselect the \uicontrol Antialias check box to
     turn off antialiasing.
 
     \section2 Defining Color Schemes
@@ -58,17 +58,17 @@
 
     \list 1
 
-        \li Select \gui {Tools > Options > Text Editor > Fonts & Color > Copy}.
+        \li Select \uicontrol {Tools > Options > Text Editor > Fonts & Color > Copy}.
 
-        \li Enter a name for the color scheme and click \gui OK.
+        \li Enter a name for the color scheme and click \uicontrol OK.
 
-        \li In the \gui Foreground field, specify the color of the selected
+        \li In the \uicontrol Foreground field, specify the color of the selected
             code element.
 
-        \li In the \gui Background field, select the background
+        \li In the \uicontrol Background field, select the background
             color for the code element.
 
-        The backgound of the \gui Text element determines the background of the
+        The backgound of the \uicontrol Text element determines the background of the
         code editor.
 
     \endlist
@@ -79,18 +79,18 @@
 
     \section2 File Encoding
 
-    To define the default file encoding, select \gui Tools > \gui Options >
-    \gui {Text Editor} > \gui Behavior, and then select a suitable option in
-    \gui {Default encoding}.
+    To define the default file encoding, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Text Editor} > \uicontrol Behavior, and then select a suitable option in
+    \uicontrol {Default encoding}.
 
     Qt 5 requires UTF-8 encoded source files, and therefore the default
-    encoding was changed from \gui System to \gui UTF-8 in \QC version 2.6.
-    However, the \gui {Default encoding} field still displays the value
-    \gui System if the default system encoding is set to UTF-8.
+    encoding was changed from \uicontrol System to \uicontrol UTF-8 in \QC version 2.6.
+    However, the \uicontrol {Default encoding} field still displays the value
+    \uicontrol System if the default system encoding is set to UTF-8.
 
     Detecting the correct encoding is tricky, so \QC will not try to do so.
     Instead, it displays the following error message when you try to edit a file
-    that is not UTF-8 encoded: \gui {Error: Could not decode "filename" with
+    that is not UTF-8 encoded: \uicontrol {Error: Could not decode "filename" with
     "UTF-8"-encoding. Editing not possible.}
 
     To resolve the issue, use a file conversion tool such as
@@ -100,6 +100,6 @@
 
     If you develop only Qt 4 applications or other than Qt applications, you
     can set other encoding options as the default encoding. Select the
-    \gui System option to use the file encoding used by your system.
+    \uicontrol System option to use the file encoding used by your system.
 
 */

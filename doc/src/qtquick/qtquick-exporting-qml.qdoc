@@ -87,7 +87,7 @@
             item, use top-level layer groups.
 
         \li To determine that some layers are not exported, hide them, and
-            deselect the \gui {Export hidden} check box during exporting.
+            deselect the \uicontrol {Export hidden} check box during exporting.
 
         \li To make it easier to find the layers and layer groups after
             exporting them, use descriptive names for them.
@@ -122,34 +122,34 @@
             information about the script.
 
         \li Double-click the export script to add the export command to the
-            \gui Scripts menu. You can also copy the script file to the Adobe
+            \uicontrol Scripts menu. You can also copy the script file to the Adobe
             Photoshop scripts directory (typically, \c{\Presets\Scripts} in the
             Photoshop installation directory).
 
-        \li In Adobe Photoshop, choose \gui {File > Scripts > Export to QML} to
+        \li In Adobe Photoshop, choose \uicontrol {File > Scripts > Export to QML} to
             export the scene to a QML file.
 
-        \li In the \gui {Export Document to QML} dialog, enter a name and
+        \li In the \uicontrol {Export Document to QML} dialog, enter a name and
             location for the QML file.
 
-        \li Select the \gui {Rasterize text} check box to export text layers as
+        \li Select the \uicontrol {Rasterize text} check box to export text layers as
             images, not as Text items.
 
-        \li Select the \gui {Group layers} check box to export each top-level
+        \li Select the \uicontrol {Group layers} check box to export each top-level
             group as a merged QML Image item.
 
-        \li Select the \gui {Export hidden} check box to export hidden layers
+        \li Select the \uicontrol {Export hidden} check box to export hidden layers
             and to set their visibility property to hidden.
 
-        \li Deselect the \gui {Export QML} check box if you have modified the
+        \li Deselect the \uicontrol {Export QML} check box if you have modified the
             QML document in \QC, but still want to re-export graphical assets.
 
-        \li Click \gui Export.
+        \li Click \uicontrol Export.
 
     \endlist
 
     The QML file is saved to the location that you specified. In \QC, choose
-    \gui {File > Open File or Project} to open the QML file.
+    \uicontrol {File > Open File or Project} to open the QML file.
 
     \note Existing files are replaced without warning.
 
@@ -186,18 +186,18 @@
 
             On Linux, run the following command: \c {chmod u+rx}
 
-        \li Restart GIMP to have the export command added to the \gui File menu.
+        \li Restart GIMP to have the export command added to the \uicontrol File menu.
 
-        \li Choose \gui {File > Export to QML} to export the design to a QML
+        \li Choose \uicontrol {File > Export to QML} to export the design to a QML
             file.
 
-        \li In the \gui {Export Layers to a QML Document} dialog, enter a name
-            and location for the QML file, and click \gui Export.
+        \li In the \uicontrol {Export Layers to a QML Document} dialog, enter a name
+            and location for the QML file, and click \uicontrol Export.
 
     \endlist
 
     The QML file is saved to the location that you specified. In \QC, choose
-    \gui {File > Open File or Project} to open the QML file.
+    \uicontrol {File > Open File or Project} to open the QML file.
 
     \note Existing files are replaced without warning.
 

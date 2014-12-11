@@ -41,8 +41,8 @@
 
     \section1 Setting the Path for CMake
 
-    You can set the path for the \c CMake executable in \gui{Tools} >
-    \gui{Options > Build & Run > CMake}.
+    You can set the path for the \c CMake executable in \uicontrol{Tools} >
+    \uicontrol{Options > Build & Run > CMake}.
 
     \image qtcreator-cmakeexecutable.png
 
@@ -66,7 +66,7 @@
 
     \list 1
 
-        \li Select \gui{File} > \gui{Open File or Project}.
+        \li Select \uicontrol{File} > \uicontrol{Open File or Project}.
 
         \li Select the \c{CMakeLists.txt} file from your \c CMake project.
 
@@ -92,10 +92,10 @@
 
     \QC builds \c CMake projects by running \c make, \c mingw32-make, or
     \c nmake depending on your platform. The build errors and warnings are
-    parsed and displayed in the \gui{Issues} output pane.
+    parsed and displayed in the \uicontrol{Issues} output pane.
 
     By default, \QC builds the \b{all} target. You can specify which
-    targets to build in \gui{Project} mode, under \gui{Build Settings}.
+    targets to build in \uicontrol{Project} mode, under \uicontrol{Build Settings}.
 
     \image qtcreator-cmake-build-settings.png
 
@@ -104,7 +104,7 @@
 
     \section1 Running CMake Projects
 
-    \QC automatically adds \gui{Run Configurations} for all targets specified
+    \QC automatically adds \uicontrol{Run Configurations} for all targets specified
     in the \c CMake project file.
 
     For more information about known issues for the current version, see

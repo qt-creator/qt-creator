@@ -35,19 +35,19 @@
     automatically in \QC.
 
     To view and modify the settings for currently open projects, switch to the
-    \gui Projects mode by pressing \key Ctrl+5.
+    \uicontrol Projects mode by pressing \key Ctrl+5.
 
     You can select build and run \l{glossary-buildandrun-kit}{kits} for the
-    open projects and use the \gui Build menu commands to build, deploy, and
+    open projects and use the \uicontrol Build menu commands to build, deploy, and
     run projects.
 
     \section1 Selecting Kits
 
     \image qtcreator-project-kits.png
 
-    To add kits for the project, select \gui {Add Kit}. The list displays kits
-    that are configured in \gui Tools > \gui Options > \gui {Build & Run} >
-    \gui Kits. To add kits to the list, select \gui {Manage Kits}.
+    To add kits for the project, select \uicontrol {Add Kit}. The list displays kits
+    that are configured in \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
+    \uicontrol Kits. To add kits to the list, select \uicontrol {Manage Kits}.
     For more information about adding kits, see \l{Adding Kits}.
 
     Each kit consists of a set of values that define one environment, such as a
@@ -55,12 +55,12 @@
     \l{Adding Qt Versions}, \l{Adding Compilers}, and \l{Adding Debuggers}.
 
     To copy the build and run settings for a kit to another kit, select
-    \gui {Copy to Kit} in the kit menu.
+    \uicontrol {Copy to Kit} in the kit menu.
 
     To change the kit, while preserving the build and run settings, select
-    \gui {Change Kit}.
+    \uicontrol {Change Kit}.
 
-    To remove a kit, select \gui {Remove Kit}.
+    To remove a kit, select \uicontrol {Remove Kit}.
 
     \section1 Specifying Settings
 
@@ -79,7 +79,7 @@
             \endlist
 
                 \note If you have not configured the project for building, the
-                    \gui {Build & Run} tab is replaced by the \l{Opening Projects}
+                    \uicontrol {Build & Run} tab is replaced by the \l{Opening Projects}
                     {Configure Projects} tab.
 
         \li \l{Specifying Editor Settings}{Editor Settings}
@@ -90,7 +90,7 @@
 
     \endlist
 
-    Use the \gui Build and \gui Run buttons to switch between the build and
+    Use the \uicontrol Build and \uicontrol Run buttons to switch between the build and
     run settings for the active project.
 
     If you have multiple projects open in \QC, use the tabs at the top of the

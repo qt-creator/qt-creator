@@ -35,8 +35,8 @@
     and classes.
 
     You can copy the wizard templates in the template folders to create your own
-    project and class wizards. They are displayed in the \gui New dialog that
-    opens when you choose \gui {File > New File or Project}.
+    project and class wizards. They are displayed in the \uicontrol New dialog that
+    opens when you choose \uicontrol {File > New File or Project}.
 
     In a project wizard, you can specify the files needed in a project.
     You can add wizard pages to allow developers to specify settings for the
@@ -48,8 +48,8 @@
     To see how this works, rename wizard_sample.xml as wizard.xml in the
     \c {\share\qtcreator\templates\wizards\helloworld} and
     \c {\share\qtcreator\templates\wizards\listmodel} folders. After
-    you restart \QC, the \gui {Custom Classes}
-    and \gui {Custom Projects} categories (1) appear in the \gui New dialog. For
+    you restart \QC, the \uicontrol {Custom Classes}
+    and \uicontrol {Custom Projects} categories (1) appear in the \uicontrol New dialog. For
     each category, an icon (2), a display name (3), and a description (4) are
     displayed.
 
@@ -108,7 +108,7 @@
         \li Modify the wizard_example.xml file.
 
         \li The following code determines the type of the wizard and its place
-            in the \gui New dialog:
+            in the \uicontrol New dialog:
 
             \code
 
@@ -137,16 +137,16 @@
             \li \c id is the unique identifier for your wizard. The letter
                 specifies the position of the wizard within the \c category. The
                 HelloWorld wizard appears as the first wizard in the second
-                category in the \gui New dialog.
+                category in the \uicontrol New dialog.
 
             \li \c category is the category in which to place the wizard in the
                 list. The letter specifies the position of the category in the
-                list in the \gui New dialog.
+                list in the \uicontrol New dialog.
 
         \endlist
 
         \li The following code specifies the icon and text that appear in the
-            \gui New dialog:
+            \uicontrol New dialog:
 
             \code
 
@@ -162,8 +162,8 @@
 
         \list
 
-            \li \c displayCategory appears in the \gui New dialog, under
-                \gui Projects.
+            \li \c displayCategory appears in the \uicontrol New dialog, under
+                \uicontrol Projects.
 
             \li \c icon appears next to the \c displayName in the middle panel
                 when \c displayCategory is selected.
@@ -204,7 +204,7 @@
 
                 \li \c target specifies the new filename for the file. The
                     \c {%ProjectName%} variable is replaced with the string that
-                    users specify in the \gui Name field on the first page of
+                    users specify in the \uicontrol Name field on the first page of
                     the wizard.
 
                 \li \c openproject indicates that the file is a project file
@@ -577,12 +577,12 @@
             to \c %Path%. For project wizards, it is \c %Path%/%ProjectName%.
 
         \li \c {%CppSourceSuffix%} is replaced by the default source suffix,
-            which is defined in \QC in \gui {Tools > Options > C++ >
+            which is defined in \QC in \uicontrol {Tools > Options > C++ >
             File Naming}. For example, if users enter \b MyClass, the
             filename becomes myclass.cpp when the project is created.
 
         \li \c {%CppHeaderSuffix%} is replaced by the default header suffix,
-            which is also defined in \gui {File Naming}.
+            which is also defined in \uicontrol {File Naming}.
 
         \li \c {%CurrentDate%} is replaced by the current date in the format
             \c {YYYY-MM-DD} as specified by ISO 8601.

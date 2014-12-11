@@ -3,7 +3,7 @@
     To run and debug an application on a Linux-based device,
     you must create connections from the development
     host to the device and add the device configurations to
-    \l{glossary-buildandrun-kit}{kits}. Click \gui {Manage Kits} to add devices
+    \l{glossary-buildandrun-kit}{kits}. Click \uicontrol {Manage Kits} to add devices
     to kits. For more information, see
     \l {Connecting Embedded Linux Devices}.
 
@@ -12,10 +12,10 @@
     The run settings display the path to the
     executable file on the development host and on the device. To specify that
     another application launches your application, for example, enter the
-    command in the \gui {Alternate executable on device} field and select the
-    \gui {Use this command instead} check box.
+    command in the \uicontrol {Alternate executable on device} field and select the
+    \uicontrol {Use this command instead} check box.
 
     \image qtcreator-run-settings-linux.png "Run settings for Linux-based devices"
 
     You can specify command line arguments to pass to your application in the
-    \gui Arguments field.
+    \uicontrol Arguments field.

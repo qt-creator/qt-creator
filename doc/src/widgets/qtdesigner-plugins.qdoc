@@ -55,13 +55,13 @@
     OS X, see \l{Configuring Qt Designer Plugins on OS X}.
 
     To check which plugins
-    were loaded successfully and which failed, choose \gui{Tools > Form Editor >
+    were loaded successfully and which failed, choose \uicontrol{Tools > Form Editor >
     About Qt Designer Plugins}.
 
     The standalone \QD is part of the Qt library used for building projects,
     located under \c {%SDK%\qt}. Therefore, it fetches plugins from the
     following folder: \c {%SDK%\qt\plugins\designer}. To check which plugins
-    were loaded successfully and which failed, choose \gui{Help >
+    were loaded successfully and which failed, choose \uicontrol{Help >
     About Plugins}.
 
     \section2 Configuring Qt Designer Plugins on OS X
@@ -133,7 +133,7 @@
     building applications is configured and built to use the MinGW/g++ compiler.
     Plugins built by using this version of Qt cannot be loaded by \QC because
     the build-keys do not match. The plugins can only be used in the standalone
-    version of \QD. Choose \gui{Help > About \QC} to check the Qt version \QC
+    version of \QD. Choose \uicontrol{Help > About \QC} to check the Qt version \QC
     was built with.
 
     To use \QD plugins that were built for the shipped Qt version, make sure

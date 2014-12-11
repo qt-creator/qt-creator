@@ -48,17 +48,17 @@
     control points to construct the curve.
 
     In addition, PathLine and PathQuad path objects are supported indirectly.
-    To make a curve segment linear, select \gui {Make Curve Segment Straight} in
+    To make a curve segment linear, select \uicontrol {Make Curve Segment Straight} in
     the context menu.
 
     By default, the Path is closed, which means that its start and end points
     are identical. To create separate start and end points for it, right-click
-    an edit point to open a context menu, and deselect \gui {Closed Path}.
+    an edit point to open a context menu, and deselect \uicontrol {Closed Path}.
 
-    To add intermediary points to a curve segment, select \gui {Split Segment}
+    To add intermediary points to a curve segment, select \uicontrol {Split Segment}
     in the context menu.
 
-    In the \gui Properties pane, you can specify other properties for
+    In the \uicontrol Properties pane, you can specify other properties for
     the PathView. For example, what is the maximum distance from the path that
     initiates mouse dragging and what is the rate at which a flick will
     decelerate.

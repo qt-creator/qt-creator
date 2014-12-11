@@ -39,26 +39,27 @@
 
     \title Setting Up an Autotools Project
     The AutotoolsProjectManager is a plugin for autotools support. It is disabled by default.
-    To enable the plugin, select \gui{Help > About Plugins > Build Systems > AutotoolsProjectManager}.
+    To enable the plugin, select \uicontrol{Help > About Plugins > Build Systems
+    > AutotoolsProjectManager}.
     To use the plugin, restart \QC.
 
     To work with your Autotools project in \QC:
 
         \list 1
 
-            \li  Select \gui{File > Open File or Project}.
+            \li  Select \uicontrol{File > Open File or Project}.
             \li  Select the Makefile.am file from your project. This is the only
                way you can use the autotools plugin.
             \li  Select the build directory. Only in-source building is currently
                supported.
-            \li  Select \gui Finish.
+            \li  Select \uicontrol Finish.
                \QC displays the project tree structure. The root node displays
                the project name. All project files are listed below it and you
                can open them from the list.
 
                \image qtcreator-autotools-buildrun.png
 
-            \li  Select \gui Run to build and run the application. The predefined
+            \li  Select \uicontrol Run to build and run the application. The predefined
                build steps (autogen.sh or autoreconf, configure, and make) are
                executed.
 
@@ -66,7 +67,7 @@
                executable.
 
             \li  To check and edit autotools build steps, select
-               \gui{Projects > Build Settings}.
+               \uicontrol{Projects > Build Settings}.
 
                You can add parameters to the predefined autotools build steps.
 

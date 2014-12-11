@@ -56,8 +56,8 @@
     (PRE_TARGETDEPS) in the project file.
 
     Depending on the development platform, some options might be detected
-    automatically. For example, on OS X, the library type (\gui Library or
-    \gui Framework) is detected automatically and the option is hidden. However,
+    automatically. For example, on OS X, the library type (\uicontrol Library or
+    \uicontrol Framework) is detected automatically and the option is hidden. However,
     if you develop on another platform than OS X and want to build your
     project for OS X, you must specify the library type.
 
@@ -71,7 +71,7 @@
     debug version. For example, if the release version is called example.lib,
     the debug version is called exampled.lib. You can specify that the letter
     is added for the debug version and removed for the release version.
-    If the library name ends in \e d, deselect the \gui {Remove "d" suffix
+    If the library name ends in \e d, deselect the \uicontrol {Remove "d" suffix
     for release version} option.
 
     \QC supports code completion and syntax highlighting for the added
@@ -81,9 +81,9 @@
 
     \list 1
 
-        \li In the \gui Projects pane, right-click the project name to open the
+        \li In the \uicontrol Projects pane, right-click the project name to open the
             context menu and select
-            \gui {Add Library}.
+            \uicontrol {Add Library}.
 
         \li Follow the instructions of the wizard.
 
@@ -99,29 +99,29 @@
 
     \list 1
 
-        \li Choose \gui {File > New File or Project > Libraries >
+        \li Choose \uicontrol {File > New File or Project > Libraries >
             C++ Library} to create the library.
 
-            The \gui {Introduction and Product Location} dialog opens.
+            The \uicontrol {Introduction and Product Location} dialog opens.
 
             \image qtcreator-add-library-wizard-ex-1.png "Introduction and Product Location dialog"
 
-        \li In the \gui Type field, select \gui {Statically Linked Library}.
+        \li In the \uicontrol Type field, select \uicontrol {Statically Linked Library}.
 
-        \li In the \gui Name field, give a name for the library. For example,
+        \li In the \uicontrol Name field, give a name for the library. For example,
             \b mylib.
 
         \li Follow the instructions of the wizard until you get to the
-            \gui {Project Management} dialog. In the \gui {Add to project}
+            \uicontrol {Project Management} dialog. In the \uicontrol {Add to project}
             list, select a project. For example, \b myapp.
 
-        \li In the \gui Projects pane, right-click the project name to open the
+        \li In the \uicontrol Projects pane, right-click the project name to open the
             context menu and select
-            \gui {Add Library > Internal Library > Next}.
+            \uicontrol {Add Library > Internal Library > Next}.
 
-        \li In the \gui Library field, select \b mylib and click \gui Next.
+        \li In the \uicontrol Library field, select \b mylib and click \uicontrol Next.
 
-        \li Click \gui Finish to add the following library declaration to the
+        \li Click \uicontrol Finish to add the following library declaration to the
             project file:
 
             \code

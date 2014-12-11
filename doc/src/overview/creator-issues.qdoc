@@ -104,7 +104,7 @@
 
         \li  Creating new CMake projects with \QC is not supported.
 
-        \li  If error messages displayed in the \gui {Compile Output} pane contain
+        \li  If error messages displayed in the \uicontrol {Compile Output} pane contain
             paths where slashes are missing (for example, C:QtSDK),
             check your PATH variable. For more information, see
             \l{Troubleshooting MinGW Compilation Errors}.
@@ -117,7 +117,7 @@
 
         \li  When debugging executables created by the GNU Compiler version 4.5.0
             (all platforms), some data types will not be displayed in the
-            \gui{Locals and Expressions} view due to missing debug information.
+            \uicontrol{Locals and Expressions} view due to missing debug information.
 
         \li  GDB on Windows may not work if the 'Embassy \reg Security Center'
             software by 'Wave \reg Systems' is installed and active (causing

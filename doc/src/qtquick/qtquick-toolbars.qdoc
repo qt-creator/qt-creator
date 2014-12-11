@@ -36,13 +36,13 @@
     . Select the icon to open the toolbar.
 
     To open toolbars immediately when you select a QML type, select
-    \gui{Tools > Options > Qt Quick > Qt Quick Toolbar > Always show Qt Quick
+    \uicontrol{Tools > Options > Qt Quick > Qt Quick Toolbar > Always show Qt Quick
     Toolbar}.
 
     Drag the toolbar to pin it to another location. Select
     \inlineimage qml-toolbar-pin.png
     to unpin the toolbar and move it to its default location. To pin toolbars
-    by default, select \gui{Tools > Options > Qt Quick > Qt Quick Toolbar
+    by default, select \uicontrol{Tools > Options > Qt Quick > Qt Quick Toolbar
     > Pin Quick Toolbar}.
 
     \section1 Previewing Images
@@ -73,7 +73,7 @@
     \image qml-toolbar-text.png "Qt Quick Toolbar for text"
 
     By default, font size is specified as pixels. To use points, instead,
-    change \gui px to \gui pt in the size field.
+    change \uicontrol px to \uicontrol pt in the size field.
 
     \section1 Previewing Animation
 

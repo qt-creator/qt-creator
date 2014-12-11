@@ -49,9 +49,9 @@
 
     \list 1
 
-        \li Select \gui File > \gui {New File or Project} > \gui {Plain C
-            Project (Qbs Build)} or \gui {Plain C++ Project (Qbs Build)} >
-            \gui Choose, and follow the instructions of the wizard to create a
+        \li Select \uicontrol File > \uicontrol {New File or Project} > \uicontrol {Plain C
+            Project (Qbs Build)} or \uicontrol {Plain C++ Project (Qbs Build)} >
+            \uicontrol Choose, and follow the instructions of the wizard to create a
             Qbs project.
 
             \image creator-qbs-project.png
@@ -60,24 +60,24 @@
             \c Depends item for a Qt application. For examples, see the
             \c {examples} directory in the qbs repository.
 
-        \li Select \gui Projects to specify \gui {Build Settings} for the
+        \li Select \uicontrol Projects to specify \uicontrol {Build Settings} for the
             project.
 
-        \li Select \gui {Build Steps} > \gui Details to specify build steps:
+        \li Select \uicontrol {Build Steps} > \uicontrol Details to specify build steps:
 
             \image creator-qbs-build-app.png
 
             \list 1
 
-                \li In the \gui {Build variant} field, select \gui Debug to
+                \li In the \uicontrol {Build variant} field, select \uicontrol Debug to
                     include debug symbols in the build for debugging the
-                    application and \gui Release to create the final
+                    application and \uicontrol Release to create the final
                     installation file.
 
-                \li In the \gui {Parallel jobs} field, specify the number of
+                \li In the \uicontrol {Parallel jobs} field, specify the number of
                     parallel jobs to use for building.
 
-                \li Select the \gui {Enable QML debugging} check box to debug
+                \li Select the \uicontrol {Enable QML debugging} check box to debug
                     Qt Quick application projects.
 
                     \note Debugging requires opening a socket at a well-known
@@ -86,56 +86,56 @@
                     execute any JavaScript functions. Therefore, you must make
                     sure that the port is properly protected by a firewall.
 
-                \li In the \gui Properties field, specify the properties to pass
+                \li In the \uicontrol Properties field, specify the properties to pass
                     to the project. Use colons (:) to separate keys from values.
                     For more information, see
                     \l{http://qt-project.org/doc/qbs/language-introduction.html}
                     {Modules} in the Qbs Manual.
 
-                \li In the \gui Flags field:
+                \li In the \uicontrol Flags field:
 
                     \list
 
-                        \li Select \gui {Dry run} to test building without
+                        \li Select \uicontrol {Dry run} to test building without
                             executing commands or making permanent
                             changes to the build graph.
 
-                        \li Select \gui {Keep going} to continue building when
+                        \li Select \uicontrol {Keep going} to continue building when
                             errors occur, if possible.
 
                     \endlist
 
             \endlist
 
-            The \gui {Equivalent command line} field displays the build command
+            The \uicontrol {Equivalent command line} field displays the build command
             that is constructed based on the selected options.
 
-        \li Select \gui {Clean Steps} > \gui Details to specify flags for the
+        \li Select \uicontrol {Clean Steps} > \uicontrol Details to specify flags for the
             cleaning step.
 
             \image creator-qbs-build-clean.png
 
             \list
 
-                \li Select \gui {Clean all artifacts} to remove all build
+                \li Select \uicontrol {Clean all artifacts} to remove all build
                     artifacts.
 
-                \li Select \gui {Dry run} to test cleaning without executing
+                \li Select \uicontrol {Dry run} to test cleaning without executing
                     commands or making permanent changes to the build graph.
 
-                \li Select \gui {Keep going} to continue cleaning when errors
+                \li Select \uicontrol {Keep going} to continue cleaning when errors
                     occur, if possible.
 
             \endlist
 
-            The \gui {Equivalent command line} field displays the clean command
+            The \uicontrol {Equivalent command line} field displays the clean command
             that is constructed based on the selected options.
 
-        \li Select \gui Build > \gui {Build Project} to build the application.
+        \li Select \uicontrol Build > \uicontrol {Build Project} to build the application.
 
         \li Click the
             \inlineimage qtcreator-run.png
-            (\gui Run) button to deploy and run the application.
+            (\uicontrol Run) button to deploy and run the application.
         \endlist
 
 */

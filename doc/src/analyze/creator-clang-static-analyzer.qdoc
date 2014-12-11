@@ -48,14 +48,15 @@
 
     \list 1
 
-        \li Select \gui Help > \gui {About Plugins} > \gui {Code Analyzer} >
-            \gui {Clang Static Analyzer} to enable the experimental plugin.
+        \li Select \uicontrol Help > \uicontrol {About Plugins} >
+            \uicontrol {Code Analyzer} > \uicontrol {Clang Static Analyzer} to
+            enable the experimental plugin.
 
         \li Restart \QC to be able to use the plugin.
 
-        \li Select \gui Tools > \gui Options > \gui Analyzer >
-            \gui {Clang Static Analyzer} to check that the path to the Clang
-            executable is set correctly in the \gui {Clang executable} field.
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Analyzer >
+            \uicontrol {Clang Static Analyzer} to check that the path to the Clang
+            executable is set correctly in the \uicontrol {Clang executable} field.
 
             \image qtcreator-clang-static-analyzer-options.png
 
@@ -65,11 +66,11 @@
 
     \list 1
 
-        \li Select \gui Analyze > \gui {Clang Static Analyzer}.
+        \li Select \uicontrol Analyze > \uicontrol {Clang Static Analyzer}.
 
         \li Select the
             \inlineimage qtcreator-analyze-start-button.png
-            (\gui Start) button to run the Clang Static Analyzer on the
+            (\uicontrol Start) button to run the Clang Static Analyzer on the
             application.
 
     \endlist

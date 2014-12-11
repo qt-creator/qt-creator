@@ -45,15 +45,15 @@
 
     To synchronize translation source (TS) files from a translator with the
     application code,
-    select \gui {Tools > External > Text > Linguist > Update Translations
+    select \uicontrol {Tools > External > Text > Linguist > Update Translations
     (lupdate)}.
 
     To generate from the TS files Qt message (QM) files that can be used by an
-    application, select \gui {Tools > External > Text > Linguist > Release
+    application, select \uicontrol {Tools > External > Text > Linguist > Release
     Translations (lrelease)}.
 
     By default, the project .pro file is passed to the tools as an argument. To
-    specify other command line arguments for the tools, select \gui {Tools >
+    specify other command line arguments for the tools, select \uicontrol {Tools >
     External > Configure}.
 
     For more information about Qt Linguist, see \l{Qt Linguist Manual}.
@@ -64,77 +64,78 @@
     QML Scene (Qt Quick 2). The preview tools enable you to load QML documents
     for viewing and testing while you are developing an application.
 
-    To preview the currently active QML file, select \gui Tools > \gui External
-    > \gui {Qt Quick} > \gui {Qt Quick 1 Preview (qmlviewer)} or
-    \gui {Qt Quick 2 Preview (qmlscene)}.
+    To preview the currently active QML file, select \uicontrol Tools >
+    \uicontrol External > \uicontrol {Qt Quick} > \uicontrol {Qt Quick 1 Preview
+    (qmlviewer)} or \uicontrol {Qt Quick 2 Preview (qmlscene)}.
 
     \section1 Using External Text Editors
 
     You can open files for editing in the default text editor for your system:
     Notepad on Windows and vi on Linux and OS X.
     To open the file you are currently viewing in an external editor, select
-    \gui Tools > \gui External > \gui Text > \gui {Edit with Notepad} or
-    \gui {Edit with vi}, depending on your system.
+    \uicontrol Tools > \uicontrol External > \uicontrol Text >
+    \uicontrol {Edit with Notepad} or \uicontrol {Edit with vi}, depending on
+    your system.
 
     \QC looks for the editor path in the PATH environment variable
     of your operating system.
 
     \section1 Sorting Text Alphabetically
 
-    To sort selected text alphabetically, select \gui {Tools > External > Text
+    To sort selected text alphabetically, select \uicontrol {Tools > External > Text
     > Sort Selection}. The \c sort tool takes the selected text as input and
     returns it in alphabetic order. By default, the output replaces the
     original selection in the code editor.
 
-    To change the default configuration, select \gui {Tools > External >
+    To change the default configuration, select \uicontrol {Tools > External >
     Configure}.
 
     \section1 Configuring External Tools
 
     You can change the configuration of preconfigured tools and configure
-    additional tools in \QC \gui Options.
+    additional tools in \QC \uicontrol Options.
 
     To configure external tools:
 
     \list 1
 
-        \li Select \gui {Tools > External > Configure}.
+        \li Select \uicontrol {Tools > External > Configure}.
 
-        \li Select \gui {Add > Add Tool}
-            to add a new tool. You can also select \gui {Add Category} to add a
+        \li Select \uicontrol {Add > Add Tool}
+            to add a new tool. You can also select \uicontrol {Add Category} to add a
             new category.
 
-        \li In the \gui Executable field, specify the executable to run. If the
+        \li In the \uicontrol Executable field, specify the executable to run. If the
             executable is found in your system PATH variable, do not specify
             the path to it.
 
-        \li In the \gui Arguments field, specify optional arguments for running
+        \li In the \uicontrol Arguments field, specify optional arguments for running
             the executable.
 
-        \li In the \gui {Working directory} field, specify the path to the
+        \li In the \uicontrol {Working directory} field, specify the path to the
             working directory.
 
-        \li In the \gui {Output pane}, select how to handle output from the
-            tool. You can ignore the output, view it in the \gui {General
+        \li In the \uicontrol {Output pane}, select how to handle output from the
+            tool. You can ignore the output, view it in the \uicontrol {General
             Messages} output pane, or replace the selected text with the
             output in the code editor.
 
-        \li In the \gui {Error output pane}, select how to handle error messages
+        \li In the \uicontrol {Error output pane}, select how to handle error messages
             from the tool.
 
-        \li Select the \gui {Modifies current document} check box to make sure
+        \li Select the \uicontrol {Modifies current document} check box to make sure
             that if the current document is modified by the tool, it is saved
             before the tool is run and reloaded after the tool finishes.
 
-        \li In the \gui Input field, specify text that is passed as standard
+        \li In the \uicontrol Input field, specify text that is passed as standard
             input to the tool.
 
     \endlist
 
-    The category and tool are added to the \gui {Tools > External} menu.
+    The category and tool are added to the \uicontrol {Tools > External} menu.
 
     If you change the configuration of preconfigured tools, you can later
-    revert the changes by selecting the \gui Revert button.
+    revert the changes by selecting the \uicontrol Revert button.
 
     The tool configurations that you add and modify are stored in XML format in
     the user configuration folder. For example,

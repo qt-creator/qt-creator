@@ -38,7 +38,7 @@
 
             \QC comes fully integrated with Qt documentation and examples using
             the Qt Help plugin. You can add external documentation to the
-            \gui Help mode and filter the documents displayed to find relevant
+            \uicontrol Help mode and filter the documents displayed to find relevant
             information faster. In addition, you can add bookmarks to help
             pages.
 

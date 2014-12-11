@@ -30,7 +30,7 @@
 
     \title User Interface
 
-    When you start \QC, it opens to the \gui Welcome mode, where you can:
+    When you start \QC, it opens to the \uicontrol Welcome mode, where you can:
 
     \list
 
@@ -65,10 +65,10 @@
     {corresponding keyboard shortcut}.
 
     To hide the mode selector and to save space on the display, select
-    \gui Window > \gui {Show Mode Selector}.
+    \uicontrol Window > \uicontrol {Show Mode Selector}.
 
-    The following image displays an example application in \gui Edit mode (1)
-    and \gui Design mode (2).
+    The following image displays an example application in \uicontrol Edit mode (1)
+    and \uicontrol Design mode (2).
 
     \image qtcreator-qt-quick-editors.png "Edit mode and Design mode"
 
@@ -76,37 +76,37 @@
 
     \list
 
-        \li \gui Welcome mode for opening projects.
+        \li \uicontrol Welcome mode for opening projects.
 
-        \li \gui{\l{Coding}{Edit}} mode for editing project and source
+        \li \uicontrol{\l{Coding}{Edit}} mode for editing project and source
             files.
 
-        \li \gui{\l{Designing User Interfaces}{Design}} mode for designing and
+        \li \uicontrol{\l{Designing User Interfaces}{Design}} mode for designing and
             developing application user interfaces. This mode is available for
             UI files.
 
-        \li \gui{\l{Debugging}{Debug}} mode for inspecting the state of your
+        \li \uicontrol{\l{Debugging}{Debug}} mode for inspecting the state of your
             application while debugging.
 
-        \li \gui{\l{Specifying Build Settings}{Projects}} mode for configuring
+        \li \uicontrol{\l{Specifying Build Settings}{Projects}} mode for configuring
             project building and execution. This mode is available when a
             project is open.
 
-        \li \gui{\l{Analyzing Code}{Analyze}} mode for using code analysis tools
+        \li \uicontrol{\l{Analyzing Code}{Analyze}} mode for using code analysis tools
             to detect memory leaks and profile C++ or QML code.
 
-        \li \gui{\l{Getting Help}{Help}} mode for viewing Qt documentation.
+        \li \uicontrol{\l{Getting Help}{Help}} mode for viewing Qt documentation.
 
     \endlist
 
-    Certain actions in \QC trigger a mode change. Clicking on \gui {Debug} >
-    \gui {Start Debugging} > \gui {Start Debugging} automatically switches to
-    \gui {Debug} mode.
+    Certain actions in \QC trigger a mode change. Clicking on \uicontrol {Debug} >
+    \uicontrol {Start Debugging} > \uicontrol {Start Debugging} automatically switches to
+    \uicontrol {Debug} mode.
 
     \section1 Browsing Project Contents
 
-    The sidebar is available in the \gui Edit and \gui Debug modes, and with a
-    different set of views in the \gui Design mode. Use the
+    The sidebar is available in the \uicontrol Edit and \uicontrol Debug modes, and with a
+    different set of views in the \uicontrol Design mode. Use the
     sidebar to browse projects, files, and bookmarks, and to view the class
     hierarchy.
 
@@ -116,25 +116,25 @@
 
     \list
 
-        \li \gui Projects shows a list of projects open in the current
+        \li \uicontrol Projects shows a list of projects open in the current
             session.
 
-        \li \gui{Open Documents} shows currently open files.
+        \li \uicontrol{Open Documents} shows currently open files.
 
-        \li \gui Bookmarks shows all bookmarks for the current session.
+        \li \uicontrol Bookmarks shows all bookmarks for the current session.
 
-        \li \gui{File System} shows all files in the currently selected
+        \li \uicontrol{File System} shows all files in the currently selected
              directory.
 
-        \li \gui {Class View} shows the class hierarchy of the currently
+        \li \uicontrol {Class View} shows the class hierarchy of the currently
             open projects.
 
-        \li \gui Outline shows the symbol hierarchy of a C++ file and the type
+        \li \uicontrol Outline shows the symbol hierarchy of a C++ file and the type
             hierarchy of a QML file.
 
-        \li \gui {Type Hierarchy} shows the base classes of a class.
+        \li \uicontrol {Type Hierarchy} shows the base classes of a class.
 
-        \li \gui {Include Hierarchy} shows which files are included in the current file
+        \li \uicontrol {Include Hierarchy} shows which files are included in the current file
             and which files include the current file.
 
     \endlist
@@ -147,15 +147,15 @@
     \list
 
         \li To toggle the sidebar, click \inlineimage qtcreator-togglebutton.png
-            (\gui {Hide Sidebar/Show Sidebar}) or press \key Alt+0
+            (\uicontrol {Hide Sidebar/Show Sidebar}) or press \key Alt+0
             (\key Cmd+0 on OS X).
 
         \li To split the sidebar, click \inlineimage qtcreator-splitbar.png
-            (\gui {Split}). Select new content to view in the split view.
+            (\uicontrol {Split}). Select new content to view in the split view.
 
         \li To close a sidebar view, click
             \inlineimage qtcreator-closesidebar.png
-            (\gui {Close}).
+            (\uicontrol {Close}).
 
     \endlist
 
@@ -188,15 +188,15 @@
 
         \li To hide the categories and sort project files alphabetically, click
             \inlineimage qtcreator-filter.png
-            (\gui {Filter Tree}) and select \gui{Simplify Tree}.
+            (\uicontrol {Filter Tree}) and select \uicontrol{Simplify Tree}.
 
         \li To hide source files which are automatically generated by the build
-            system, select \gui {Filter Tree > Hide Generated Files}.
+            system, select \uicontrol {Filter Tree > Hide Generated Files}.
 
         \li To keep the position in the project tree synchronized with the file
             currently opened in the editor, click
             \inlineimage qtcreator-synchronizefocus.png
-            (\gui {Synchronize with Editor}).
+            (\uicontrol {Synchronize with Editor}).
 
         \li To see the absolute path of a file, move the mouse pointer over the
             file name.
@@ -206,51 +206,51 @@
     Files that are not sources or data can be still included into a project's
     distribution tarball by adding their paths to the \c DISTFILES variable in
     the .pro file. This way they also become known to \QC, so that they are
-    visible in the \gui Projects view and are known to the locator and search.
+    visible in the \uicontrol Projects view and are known to the locator and search.
 
     \section2 Viewing the File System
 
-    If you cannot see a file in the \gui Projects view, switch to the
-    \gui {File System} view, which shows all the files in the file system.
+    If you cannot see a file in the \uicontrol Projects view, switch to the
+    \uicontrol {File System} view, which shows all the files in the file system.
 
-    To also show hidden files, select \gui {Filter Files} > \gui {Show Hidden Files}.
+    To also show hidden files, select \uicontrol {Filter Files} > \uicontrol {Show Hidden Files}.
 
     To keep the position in the tree synchronized with the file
-    opened in the editor, select \gui {Synchronize with Editor}.
+    opened in the editor, select \uicontrol {Synchronize with Editor}.
 
     \section2 Viewing the Class Hierarchy
 
-    The \gui {Class View} shows the class hierarchy of the currently
+    The \uicontrol {Class View} shows the class hierarchy of the currently
     open projects. To organize the view by subprojects, click
     \inlineimage qtcreator-show-subprojects.png
-    (\gui {Show Subprojects}).
+    (\uicontrol {Show Subprojects}).
 
     To visit all parts of a namespace, double-click on the namespace item
     multiple times.
 
     \section2 Viewing QML Types
 
-    The \gui Outline view shows the type hierarchy in a QML file.
+    The \uicontrol Outline view shows the type hierarchy in a QML file.
 
     \list
 
-        \li To see a complete list of all bindings, select \gui {Filter Tree >
+        \li To see a complete list of all bindings, select \uicontrol {Filter Tree >
             Show All Bindings}.
 
         \li To keep the position in the view synchronized with the QML type
-            selected in the editor, select \gui {Synchronize with Editor}.
+            selected in the editor, select \uicontrol {Synchronize with Editor}.
 
     \endlist
 
     \section2 Viewing Type Hierarchy
 
     To view the base classes of a class, right-click the class and select
-    \gui {Open Type Hierarchy}  or press \key {Ctrl+Shift+T}.
+    \uicontrol {Open Type Hierarchy}  or press \key {Ctrl+Shift+T}.
 
     \section2 Viewing Include Hierarchy
 
     To view which files are included in the current file and which files include
-    the current file, right-click in the editor and select \gui {Open Include Hierarchy}
+    the current file, right-click in the editor and select \uicontrol {Open Include Hierarchy}
     or press \key {Ctrl+Shift+I}.
 
     \section1 Viewing Output
@@ -259,73 +259,73 @@
 
     \list
 
-       \li \gui{Issues}
+       \li \uicontrol{Issues}
 
-       \li \gui{Search Results}
+       \li \uicontrol{Search Results}
 
-       \li \gui{Application Output}
+       \li \uicontrol{Application Output}
 
-       \li \gui{Compile Output}
+       \li \uicontrol{Compile Output}
 
-       \li \gui {QML/JS Console}
+       \li \uicontrol {QML/JS Console}
 
-       \li \gui {To-Do Entries}
+       \li \uicontrol {To-Do Entries}
 
-       \li \gui{Version Control}
+       \li \uicontrol{Version Control}
 
-       \li \gui{General Messages}
+       \li \uicontrol{General Messages}
 
     \endlist
 
     Output panes are available in all \l{Modes}{modes}. Click the name of an
     output pane to open the pane. To maximize an open output pane, click the
-    \gui {Maximize Output Pane} button or press \key {Alt+9}.
+    \uicontrol {Maximize Output Pane} button or press \key {Alt+9}.
 
-    To search within the \gui{Application Output} and \gui{Compile Output}
+    To search within the \uicontrol{Application Output} and \uicontrol{Compile Output}
     panes, press \key {Ctrl+F} when the pane is active. Enter search criteria in
-    the \gui Find field and click the left and right arrows to search down and
+    the \uicontrol Find field and click the left and right arrows to search down and
     up in the pane.
 
-    To open the \gui{General Messages} and \l{Using Version Control Systems}
+    To open the \uicontrol{General Messages} and \l{Using Version Control Systems}
     {Version Control} panes, select
-    \gui {Window > Output Panes}. To display the \gui {To-Do Entries} pane,
+    \uicontrol {Window > Output Panes}. To display the \uicontrol {To-Do Entries} pane,
     enable the Todo plugin.
 
     \section2 Issues
 
-    The \gui{Issues} pane provides lists of following types of issues:
+    The \uicontrol{Issues} pane provides lists of following types of issues:
 
     \list
 
-        \li \gui Analyzer - Errors encountered while running the
+        \li \uicontrol Analyzer - Errors encountered while running the
             \l{Analyzing Code}{Valgrind code analysis tools}.
 
-        \li \gui {Bar Descriptor} - Errors and warnings encountered when using
+        \li \uicontrol {Bar Descriptor} - Errors and warnings encountered when using
             the BlackBerry 10 BAR descriptor editor to customize the appearance
             and behavior of an application.
 
-        \li \gui {Build System} - Errors and warnings encountered during a
+        \li \uicontrol {Build System} - Errors and warnings encountered during a
             build.
 
-        \li \gui Compile - Selected output from the compiler. Open the
-            \gui {Compile Output} pane for more detailed information.
+        \li \uicontrol Compile - Selected output from the compiler. Open the
+            \uicontrol {Compile Output} pane for more detailed information.
 
-       \li \gui{Debug Information} - Lists debug information packages that might
+       \li \uicontrol{Debug Information} - Lists debug information packages that might
             be missing.
 
-       \li \gui{Debugger Runtime} - Errors encountered when starting \QC. For
+       \li \uicontrol{Debugger Runtime} - Errors encountered when starting \QC. For
             example, information about missing DLLs.
 
-       \li \gui Deployment - Errors encountered between building an application
+       \li \uicontrol Deployment - Errors encountered between building an application
             successfully and starting it on a device.
 
-        \li \gui {My Tasks} - Entries from a task list file (.tasks) generated
+        \li \uicontrol {My Tasks} - Entries from a task list file (.tasks) generated
             by \l{Showing Task List Files in Issues Pane}
             {code scanning and analysis tools}.
 
-        \li \gui QML - Errors in QML syntax.
+        \li \uicontrol QML - Errors in QML syntax.
 
-        \li \gui {QML Analysis} - Results of the JavaScript
+        \li \uicontrol {QML Analysis} - Results of the JavaScript
             \l{Checking JavaScript and QML Syntax}
             {code syntax and validation checks}
 
@@ -333,7 +333,7 @@
 
     The pane filters out irrelevant output from the build tools and presents the
     issues in an organized way. To further filter the output by type, select
-    \gui {Filter Tree}
+    \uicontrol {Filter Tree}
     and then select a filter.
 
     \image qtcreator-build-issues.png
@@ -345,18 +345,18 @@
     annotation view of the line that causes the error message.
 
     To navigate to the corresponding source code, click an issue or
-    select \gui {Show in Editor} in the context menu. The entry must contain the
+    select \uicontrol {Show in Editor} in the context menu. The entry must contain the
     name of the file where the issue was found.
 
-    To view more information about an issue in the \gui {Compile Output} pane,
-    select \gui {Show Output} in the context menu.
+    To view more information about an issue in the \uicontrol {Compile Output} pane,
+    select \uicontrol {Show Output} in the context menu.
 
     To jump from one issue to the next or previous one, press \key F6 and
     \key Shift+F6.
 
     \section2 Search Results
 
-    In the \gui{Search Results} pane, you can search through projects, files on
+    In the \uicontrol{Search Results} pane, you can search through projects, files on
     a file system or the currently open file:
 
     \image qtcreator-search-results.png "Search Results output pane"
@@ -371,7 +371,7 @@
 
     \section2 Application Output
 
-    The \gui{Application Output} pane displays the status of a program when
+    The \uicontrol{Application Output} pane displays the status of a program when
     it is executed, and the debug output.
 
     \image qtcreator-application-output.png
@@ -381,20 +381,20 @@
 
     \section2 Compile Output
 
-    The \gui{Compile Output} pane provides all output from the compiler.
-    The \gui{Compile Output} is a more detailed version of information
-    displayed in the \gui{Issues} pane.
+    The \uicontrol{Compile Output} pane provides all output from the compiler.
+    The \uicontrol{Compile Output} is a more detailed version of information
+    displayed in the \uicontrol{Issues} pane.
 
     \image qtcreator-compile-pane.png
 
     Double-click on a file name in an error message to open the file in the
     code editor.
 
-    Select the \gui {Cancel Build} button to cancel the build.
+    Select the \uicontrol {Cancel Build} button to cancel the build.
 
     \section2 QML/JS Console
 
-    In the \gui {QML/JS Console}, you can type JavaScript expressions and use them to get
+    In the \uicontrol {QML/JS Console}, you can type JavaScript expressions and use them to get
     information about the state of your application during debugging. You can change property
     values temporarily, without editing the source, and view the results in the running
     application.
@@ -405,33 +405,35 @@
 
     \section2 To-Do List
 
-    The \gui {To-Do List Entries} pane lists the BUG, FIXME, NOTE, TODO, and
+    The \uicontrol {To-Do List Entries} pane lists the BUG, FIXME, NOTE, TODO, and
     WARNING keywords from the current file or from all project files. The
     keywords are organized into information, warning, and error categories.
 
     \image qtcreator-todo-pane.png
 
-    To add keywords, select \gui Tools > \gui Options > \gui {To-Do} > \gui Add.
+    To add keywords, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {To-Do} > \uicontrol Add.
     Set an icon and a line background color for the keyword. To change the icons
-    and colors set for an existing keyword, select \gui Edit.
+    and colors set for an existing keyword, select \uicontrol Edit.
 
     To determine whether the keywords in the whole project or in the current
-    file are displayed by default, select \gui {Scanning scope}.
+    file are displayed by default, select \uicontrol {Scanning scope}.
 
     The Todo plugin is disabled by default. To enable the plugin, select
-    \gui Help > \gui {About Plugins} > \gui Utilities > \gui Todo and restart
+    \uicontrol Help > \uicontrol {About Plugins} > \uicontrol Utilities >
+    \uicontrol Todo and restart
     \QC.
 
     In addition, you can open task list files generated by code scanning and
-    analysis tools in the \gui Issues pane. For more information, see
+    analysis tools in the \uicontrol Issues pane. For more information, see
     \l{Showing Task List Files in Issues Pane}.
 
     \section1 Changing Languages
 
     \QC has been localized into several languages. If the system language is one
     of the supported languages, it is automatically selected. To change the
-    language, select \gui {Tools > Options > Environment} and select a language
-    in the \gui Language field. The change takes effect after you restart \QC.
+    language, select \uicontrol {Tools > Options > Environment} and select a language
+    in the \uicontrol Language field. The change takes effect after you restart \QC.
 
     \section1 Viewing Images
 
@@ -482,15 +484,15 @@
             \li For
             \li Look In
         \row
-            \li \gui Tools > \gui Options
-            \li \gui {Qt Creator} > \gui Preferences
+            \li \uicontrol Tools > \uicontrol Options
+            \li \uicontrol {Qt Creator} > \uicontrol Preferences
         \row
-            \li \gui Help > \gui {About Plugins}
-            \li \gui {Qt Creator} > \gui {About Plugins}
+            \li \uicontrol Help > \uicontrol {About Plugins}
+            \li \uicontrol {Qt Creator} > \uicontrol {About Plugins}
         \row
             \li Keyboard shortcuts
-            \li \gui {Qt Creator} > \gui Preferences > \gui Environment >
-                \gui Keyboard
+            \li \uicontrol {Qt Creator} > \uicontrol Preferences > \uicontrol Environment >
+                \uicontrol Keyboard
     \endtable
 
 */

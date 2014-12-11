@@ -61,30 +61,30 @@
 
     \list 1
 
-        \li Select \gui File > \gui {New File or Project} > \gui Application >
-            \gui {Qt Quick Application} > \gui Choose.
+        \li Select \uicontrol File > \uicontrol {New File or Project} > \uicontrol Application >
+            \uicontrol {Qt Quick Application} > \uicontrol Choose.
 
-        \li In the \gui{Name} field, type \b{accelbubble}.
+        \li In the \uicontrol{Name} field, type \b{accelbubble}.
 
-        \li In the \gui {Create in} field, enter the path for the project files.
-            For example, \c {C:\Qt\examples}, and then click \gui{Next} (or
-            \gui Continue on OS X).
+        \li In the \uicontrol {Create in} field, enter the path for the project files.
+            For example, \c {C:\Qt\examples}, and then click \uicontrol{Next} (or
+            \uicontrol Continue on OS X).
 
-        \li In the \gui {Qt Quick component set} field, select
-            \gui {Qt Quick Controls 1.1}.
+        \li In the \uicontrol {Qt Quick component set} field, select
+            \uicontrol {Qt Quick Controls 1.1}.
 
         \li Select \l{glossary-buildandrun-kit}{kits} for Android ARM and iPhone
-            OS, and click \gui{Next}.
+            OS, and click \uicontrol{Next}.
 
-            \note Kits are listed if they have been specified in \gui Tools >
-            \gui Options > \gui {Build & Run} > \gui Kits (on Windows and Linux)
-            or in \gui {Qt Creator} > \gui Preferences \gui {Build & Run} >
-            \gui Kits (on OS X).
+            \note Kits are listed if they have been specified in \uicontrol Tools >
+            \uicontrol Options > \uicontrol {Build & Run} > \uicontrol Kits (on Windows and Linux)
+            or in \uicontrol {Qt Creator} > \uicontrol Preferences \uicontrol {Build & Run} >
+            \uicontrol Kits (on OS X).
 
-        \li Select \gui Next in the following dialogs to use the default
+        \li Select \uicontrol Next in the following dialogs to use the default
             settings.
 
-        \li Review the project settings, and click \gui{Finish} (or \gui Done on
+        \li Review the project settings, and click \uicontrol{Finish} (or \uicontrol Done on
             OS X).
 
     \endlist
@@ -102,12 +102,12 @@
     as the QML file) from the examples directory in the Qt installation
     directory. For example:
     \c {C:\Qt\Qt5.2.0\5.2.0\msvc2010\examples\sensors\accelbubble\content}.
-    The image appears in \gui Resources. You can also use any other
+    The image appears in \uicontrol Resources. You can also use any other
     image or a QML type, instead.
 
     \list 1
 
-        \li In the \gui Projects view, double-click the main.qml file
+        \li In the \uicontrol Projects view, double-click the main.qml file
             to open it in the code editor.
 
         \li Modify the properties of the ApplicationWindow type to specify the
@@ -120,15 +120,15 @@
             \skipto /^\}/
             \printuntil }
 
-        \li Click \gui Design to open the file in \QMLD.
+        \li Click \uicontrol Design to open the file in \QMLD.
 
-        \li In the \gui Navigator, select \gui Label and press \key Delete
+        \li In the \uicontrol Navigator, select \uicontrol Label and press \key Delete
             to delete it.
 
-        \li In \gui Library > \gui Resources, select Bluebubble.svg
+        \li In \uicontrol Library > \uicontrol Resources, select Bluebubble.svg
             and drag and drop it to the canvas.
 
-        \li In the \gui Properties pane, \gui Id field, enter \e bubble to be
+        \li In the \uicontrol Properties pane, \uicontrol Id field, enter \e bubble to be
             able to reference the image from other places.
 
         \li In the code editor, add the following new properties to the image to
@@ -245,7 +245,7 @@
     }
     \endcode
 
-    After adding the dependencies, select \gui Build > \gui {Run qmake} to apply
+    After adding the dependencies, select \uicontrol Build > \uicontrol {Run qmake} to apply
     the changes to the Makefile of the project.
 
     \section1 Adding Resources
@@ -255,10 +255,10 @@
 
     \list 1
 
-        \li In the \gui Projects view, double-click the qml.qrc file to open it
+        \li In the \uicontrol Projects view, double-click the qml.qrc file to open it
             in the resource editor.
 
-        \li Select \gui Add to add Bluebubble.svg.
+        \li Select \uicontrol Add to add Bluebubble.svg.
 
     \endlist
 
@@ -276,7 +276,7 @@
     If you are using a device running Android v4.2.2, it should prompt you to
     verify the connection to allow USB debugging from the PC it is connected
     to. To avoid such prompts every time you connect the device, check
-    "Always allow from the computer" and select \gui OK.
+    "Always allow from the computer" and select \uicontrol OK.
 
         \li To run the application on the device, press \key {Ctrl+R}.
 

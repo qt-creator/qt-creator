@@ -38,7 +38,7 @@
 
             Writing, editing, and navigating in source code are core tasks in
             application development. Therefore, the code editor is one of the
-            key components of \QC. You can use the code editor in the \gui Edit
+            key components of \QC. You can use the code editor in the \uicontrol Edit
             mode.
 
         \li \l{Finding}
@@ -65,7 +65,7 @@
 
             You can change the fonts, colors, highlighting, and indentation.
             If you are used to the Vim editor, you can even run the main
-            editor in a manner similar to it in the \gui{FakeVim} mode.
+            editor in a manner similar to it in the \uicontrol{FakeVim} mode.
 
     \endlist
 
@@ -82,7 +82,7 @@
         \li \l{Comparing Files}
 
             You can use a diff editor to compare two versions of a file and
-            view the differences side-by-side in the \gui Edit mode.
+            view the differences side-by-side in the \uicontrol Edit mode.
 
         \li \l{Parsing C++ Files}
 

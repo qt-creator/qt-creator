@@ -44,9 +44,9 @@
 
     \list 1
 
-        \li In the \gui Projects mode, select a debug build configuration.
+        \li In the \uicontrol Projects mode, select a debug build configuration.
 
-        \li Select \gui Analyze > \gui {Valgrind Memory Analyzer}.
+        \li Select \uicontrol Analyze > \uicontrol {Valgrind Memory Analyzer}.
 
         \li Select the
             \inlineimage qtcreator-analyze-start-button.png "Start button"
@@ -57,14 +57,14 @@
         \li Select the
             \inlineimage qtcreator-debug-button-stop.png "Stop button"
             button to view the results of the analysis in the
-            \gui {Analysis} view.
+            \uicontrol {Analysis} view.
 
     \endlist
 
     While the application is running, Memcheck checks all reads and writes of
     memory and intercepts calls that allocate or free memory or create or
     delete memory blocks. When you stop Memcheck, it displays the results in
-    the \gui Analysis view. Click a line to view where a memory leak
+    the \uicontrol Analysis view. Click a line to view where a memory leak
     occurred and a stack trace that shows what caused it.
 
     \image analyzer-issues.png "Analysis view"
@@ -83,22 +83,22 @@
 
     Stack traces can get quite large and confusing, and therefore, reading them
     from the bottom up can help. If the stack trace is not big enough or it is
-    too big, select \gui {Tools > Options > Analyzer}.
-    Define the length of the stack trace in the \gui {Backtrace frame count}
+    too big, select \uicontrol {Tools > Options > Analyzer}.
+    Define the length of the stack trace in the \uicontrol {Backtrace frame count}
     field.
 
     \image qtcreator-valgrind-memcheck-options.png "Memory Analysis options"
 
     Memcheck also reports uses of uninitialised values, most commonly with the
-    message \gui {Conditional jump or move depends on uninitialised value(s).}
-    To determine the root cause of these errors, the \gui {Track origins of
+    message \uicontrol {Conditional jump or move depends on uninitialised value(s).}
+    To determine the root cause of these errors, the \uicontrol {Track origins of
     uninitialized memory} check box is selected by default. You can deselect it
     to make Memcheck run faster.
 
     Memcheck searches for memory leaks when the client application finishes. To
-    view the amount of leaks that occurred, select \gui {Summary Only} in the
-    \gui {Check for leaks on finish} field. To also view details of each leak,
-    select \gui Full.
+    view the amount of leaks that occurred, select \uicontrol {Summary Only} in the
+    \uicontrol {Check for leaks on finish} field. To also view details of each leak,
+    select \uicontrol Full.
 
     \section2 Showing Reachable and Indirectly Lost Blocks
 
@@ -109,7 +109,7 @@
     root node are indirectly lost.
 
     By default, Memcheck does not report reachable and indirectly lost blocks.
-    To have them reported, select the \gui {Show reachable and indirectly lost
+    To have them reported, select the \uicontrol {Show reachable and indirectly lost
     blocks}.
 
     \section2 Suppressing Errors
@@ -122,7 +122,7 @@
 
     You can write your own suppression files if parts of your project contain
     errors you cannot fix and you do not want to be reminded of them. Click
-    \gui Add in the \gui {Memory Analysis} dialog to add the suppression files.
+    \uicontrol Add in the \uicontrol {Memory Analysis} dialog to add the suppression files.
     For more information about writing suppression files, see
     \l{http://valgrind.org/docs/manual/manual-core.html#manual-core.suppress}
     {Suppressing Errors} in the Valgrind documentation.
@@ -152,9 +152,9 @@
 
     \list 1
 
-        \li In the \gui Projects mode, select a release build configuration.
+        \li In the \uicontrol Projects mode, select a release build configuration.
 
-        \li Select \gui Analyze > \gui {Valgrind Function Profiler}.
+        \li Select \uicontrol Analyze > \uicontrol {Valgrind Function Profiler}.
 
         \li Select the
             \inlineimage qtcreator-analyze-start-button.png "Start button"
@@ -164,7 +164,7 @@
 
         \li Select the
             \inlineimage qtcreator-debug-button-stop.png "Stop button"
-            button to view the results of the analysis in the \gui Profile
+            button to view the results of the analysis in the \uicontrol Profile
             view.
 
     \endlist
@@ -177,7 +177,7 @@
     the runtime behavior of an application.
 
     Double-click a function to view information about the calling functions in
-    the \gui Callers view and about the called functions in the \gui Callees
+    the \uicontrol Callers view and about the called functions in the \uicontrol Callees
     view.
 
     Since the run-time characteristics of debug and release
@@ -204,12 +204,12 @@
     separately for each project in the \l{Specifying Run Settings}{run settings}
     of the project.
 
-    To specify settings for Valgrind, select \gui {Tools > Options >
-    Analyzer}. The \gui {Profiling Options} group contains Callgrind options.
+    To specify settings for Valgrind, select \uicontrol {Tools > Options >
+    Analyzer}. The \uicontrol {Profiling Options} group contains Callgrind options.
 
     \image qtcreator-valgrind-callgrind-options.png "Valgrind options"
 
-    In the \gui {Result view: Minimum event cost}
+    In the \uicontrol {Result view: Minimum event cost}
     field, limit the amount of results the profiler gives you to increase
     profiler performance.
 
@@ -219,7 +219,7 @@
     \section2 Enabling Full Cache Simulation
 
     By default, only instruction read accesses (Ir) are counted. To fully
-    simulate the cache, select the \gui {Enable cache simulation} check box.
+    simulate the cache, select the \uicontrol {Enable cache simulation} check box.
     This enables the following additional event counters:
 
     \list
@@ -235,7 +235,7 @@
     \section2 Enabling Branch Prediction Simulation
 
     To enable the following additional event counters, select the
-    \gui {Enable branch prediction simulation} check box:
+    \uicontrol {Enable branch prediction simulation} check box:
 
     \list
 
@@ -266,9 +266,9 @@
 
     \list 1
 
-        \li Select \gui Analyze > \gui {Valgrind Memory Analyzer (External
+        \li Select \uicontrol Analyze > \uicontrol {Valgrind Memory Analyzer (External
             Remote Application)} or
-            \gui {Valgrind Function Profiler (External Remote Application)}.
+            \uicontrol {Valgrind Function Profiler (External Remote Application)}.
 
             \image qtcreator-valgrind-remote-settings.png "Start Analyzer dialog"
 

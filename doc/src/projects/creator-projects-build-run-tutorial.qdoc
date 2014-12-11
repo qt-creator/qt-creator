@@ -39,23 +39,23 @@
 
     \list 1
 
-        \li In the \gui Welcome mode, select \gui Examples (1).
+        \li In the \uicontrol Welcome mode, select \uicontrol Examples (1).
 
             \image qtcreator-gs-build-example-open.png "Selecting an example"
 
         \li Select an example in the list of examples.
 
-            You can also search for examples (2). Enter the \gui android or
-            \gui iOS keyword in the search field to list all the examples tested
+            You can also search for examples (2). Enter the \uicontrol android or
+            \uicontrol iOS keyword in the search field to list all the examples tested
             for Android or iOS.
 
-            \note The project opens in the \gui Edit mode, and the documentation
+            \note The project opens in the \uicontrol Edit mode, and the documentation
             for the example hides these instructions. To return to these
-            instructions, select \gui {Previous Page} on the toolbar or
+            instructions, select \uicontrol {Previous Page} on the toolbar or
             press \key {Alt+Left}.
 
         \li To check that the application code can be compiled and linked for a
-            device, click the \gui {Kit Selector} and select a
+            device, click the \uicontrol {Kit Selector} and select a
             \l{glossary-buildandrun-kit}{kit} for the
             device.
 
@@ -67,10 +67,10 @@
 
         \li Click
             \inlineimage qtcreator-run.png
-            (\gui Run) to build and run the application.
+            (\uicontrol Run) to build and run the application.
 
         \li To see the compilation progress, press \key{Alt+4} to open the
-            \gui {Compile Output} pane.
+            \uicontrol {Compile Output} pane.
 
             If build errors occur, check that a \l{Adding Qt Versions}
             {Qt version} and \l{Adding Compilers}{compiler} are installed and
@@ -79,7 +79,7 @@
             \l{Connecting iOS Devices}{iOS device}, check that the development
             environment has been set up correctly.
 
-            The \gui Build progress bar on the toolbar turns green when the
+            The \uicontrol Build progress bar on the toolbar turns green when the
             project is successfully built. The application opens on the device.
 
     \endlist

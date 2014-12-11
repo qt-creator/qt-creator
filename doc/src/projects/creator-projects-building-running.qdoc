@@ -49,7 +49,7 @@
 
             \e {Run configurations} start the application in the location
             where it was copied by the \e{deploy configuration}. By default,
-            when you select the \gui Run function, \QC builds the project,
+            when you select the \uicontrol Run function, \QC builds the project,
             deploys it to the device defined in the kit, and runs it there. However,
             if you have not made any changes to the project since you last
             built and deployed it, \QC simply runs it again.

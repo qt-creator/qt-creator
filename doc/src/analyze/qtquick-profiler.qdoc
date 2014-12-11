@@ -38,63 +38,63 @@
             for the project. For more information, see
             \l{Setting Up QML Debugging}.
 
-        \li In the \gui Projects mode, select a \l{glossary-buildandrun-kit}
+        \li In the \uicontrol Projects mode, select a \l{glossary-buildandrun-kit}
             {kit} with Qt version 4.7.4 or later.
 
             \note To profile applications on devices, you must install Qt 4.7.4
             or later libraries on them.
 
-        \li Select \gui {Analyze > QML Profiler} to profile the current
+        \li Select \uicontrol {Analyze > QML Profiler} to profile the current
             application.
 
         \li Select the
             \inlineimage qtcreator-analyze-start-button.png
-            (\gui Start) button to start the application from the
+            (\uicontrol Start) button to start the application from the
             QML Profiler.
 
             \note If data collection does not start automatically, select the
             \inlineimage qtcreator-analyzer-button.png
-            (\gui {Enable Profiling}) button.
+            (\uicontrol {Enable Profiling}) button.
 
     \endlist
 
     When you start analyzing an application, the application is launched, and
     the QML Profiler immediately begins to collect data. This is indicated by
-    the time running in the \gui Elapsed field.
+    the time running in the \uicontrol Elapsed field.
 
-    Data is collected until you select the \gui {Enable Profiling} button. Data
+    Data is collected until you select the \uicontrol {Enable Profiling} button. Data
     collection
     takes time, and therefore, there might be a delay
     before the data is displayed.
 
     Do not use application commands to exit the application, because data is
-    sent to the QML Profiler when you select the \gui {Enable Profiling} button.
+    sent to the QML Profiler when you select the \uicontrol {Enable Profiling} button.
     The application continues to run for some seconds, after which it is stopped
     automatically. If you exit the application, the data is not sent.
 
-    Select the \gui {Disable Profiling} button to disable the automatic
+    Select the \uicontrol {Disable Profiling} button to disable the automatic
     start of the data collection when an
     application is launched. Data collection starts when you select the button
     again.
 
     To save all the collected data, right-click any QML Profiler view to open
-    the context menu, and then select \gui {Save QML Trace}. To view the saved
-    data, select \gui {Load QML Trace}. You can also deliver the saved data to
+    the context menu, and then select \uicontrol {Save QML Trace}. To view the saved
+    data, select \uicontrol {Load QML Trace}. You can also deliver the saved data to
     other developers for examination or load data saved by them.
 
     \section1 Attaching to Running Qt Quick Applications
 
     To profile Qt Quick applications that are not launched by \QC, select
-    \gui {Analyze > QML Profiler (External)}. You must enable QML debugging for
+    \uicontrol {Analyze > QML Profiler (External)}. You must enable QML debugging for
     the application in the project build settings. For more information, see
     \l{Setting Up QML Debugging}.
 
-    In the \gui {QML Profiler} dialog, \gui Port field, specify the port to
+    In the \uicontrol {QML Profiler} dialog, \uicontrol Port field, specify the port to
     listen to.
 
     \section1 Analyzing Collected Data
 
-    The \gui Timeline view displays graphical representations of QML and
+    The \uicontrol Timeline view displays graphical representations of QML and
     JavaScript execution and a condensed view of all recorded events.
 
     \image qtcreator-qml-performance-monitor.png "QML Profiler"
@@ -102,36 +102,36 @@
     Each row in the timeline (6) describes a type of QML events that were
     recorded. Move the cursor on an event on a row to see how long it takes and
     where in the source it is being called. To display the information only when
-    an event is selected, disable the \gui {View Event Information on Mouseover}
+    an event is selected, disable the \uicontrol {View Event Information on Mouseover}
     button (5).
 
     The outline (10) summarizes the period for which data was collected. Drag
     the zoom range (8) or click the outline to move on the outline. You can
-    also move between events by selecting the \gui {Jump to Previous Event} (1)
-    and \gui {Jump to Next Event} (2) buttons.
+    also move between events by selecting the \uicontrol {Jump to Previous Event} (1)
+    and \uicontrol {Jump to Next Event} (2) buttons.
 
-    Select the \gui {Show Zoom Slider} button (3) to open a slider that you can
+    Select the \uicontrol {Show Zoom Slider} button (3) to open a slider that you can
     use to set the zoom level. You can also drag the zoom handles (9). To reset
     the default zoom level, right-click the timeline to open the context menu,
-    and select \gui {Reset Zoom}.
+    and select \uicontrol {Reset Zoom}.
 
     \section2 Selecting Event Ranges
 
     You can select an event range (7) to view the frame rate of events and to
     compare it with the frame rate of similar events. Select the
-    \gui {Select Range} button (4) to activate the selection tool. Then click in
+    \uicontrol {Select Range} button (4) to activate the selection tool. Then click in
     the timeline to specify the beginning of the event range. Drag the selection
     handle to define the end of the range. The length of the range indicates the
     frame rate of the event.
 
     You can use event ranges also to measure delays between two subsequent
     events. Place a range between the end of the first event and the beginning
-    of the second event. The \gui Duration field displays the delay between the
+    of the second event. The \uicontrol Duration field displays the delay between the
     events in milliseconds.
 
     To zoom into an event range, double-click it.
 
-    To remove an event range, close the \gui Selection dialog.
+    To remove an event range, close the \uicontrol Selection dialog.
 
     \section2 Understanding the Data
 
@@ -158,7 +158,7 @@
         \li Commercial Only
 
     \row
-        \li \gui {Pixmap Cache}
+        \li \uicontrol {Pixmap Cache}
         \li Displays the general amount of pixmap data cached, in pixels. In
             addition, displays a separate event for each picture being loaded,
             with specifics about its file name and size.
@@ -167,7 +167,7 @@
         \li \image ok
 
     \row
-        \li \gui {Scene Graph}
+        \li \uicontrol {Scene Graph}
         \li Displays the time when scene graph frames are rendered and some
             additional timing information for the various stages executed to do
             so.
@@ -175,7 +175,7 @@
         \li Qt Quick 2
         \li \image ok
     \row
-        \li \gui {Memory Usage}
+        \li \uicontrol {Memory Usage}
         \li Displays block allocations of the JavaScript memory manager.
             Generally, the memory manager will reserve larger blocks of memory
             in one piece and later hand them out to the application in smaller
@@ -191,21 +191,21 @@
         \li \image ok
 
     \row
-        \li \gui {Input Events}
+        \li \uicontrol {Input Events}
         \li Displays mouse and keyboard events.
         \li Qt 4.7.4
         \li Qt Quick 1 or Qt Quick 2
         \li \image ok
 
     \row
-        \li \gui Painting
+        \li \uicontrol Painting
         \li Displays the time spent painting the scene for each frame.
         \li Qt 4.7.4
         \li Qt Quick 1
         \li
 
     \row
-        \li \gui Animations
+        \li \uicontrol Animations
         \li Displays the amount of animations that are active and the frame
             rate that they are running at.
             Information about render thread animations is displayed for
@@ -216,14 +216,14 @@
         \li
 
     \row
-        \li \gui Compiling
+        \li \uicontrol Compiling
         \li Displays the time spent compiling the QML files.
         \li Qt 4.7.4
         \li Qt Quick 1 or Qt Quick 2
         \li
 
     \row
-        \li \gui Creating
+        \li \uicontrol Creating
         \li Displays the time spent creating the elements in the scene. In Qt
             Quick 2, creation of elements takes place in two stages. The first
             stage is for the creation of the data structures, including child
@@ -238,7 +238,7 @@
         \li
 
     \row
-        \li \gui Binding
+        \li \uicontrol Binding
         \li Displays the time when a binding is evaluated and how long the
             evaluation takes.
         \li Qt 4.7.4
@@ -246,7 +246,7 @@
         \li
 
     \row
-        \li \gui {Handling Signal}
+        \li \uicontrol {Handling Signal}
         \li Displays the time when a signal is handled and how long the
             handling takes.
         \li Qt 4.7.4
@@ -254,7 +254,7 @@
         \li
 
     \row
-        \li \gui JavaScript
+        \li \uicontrol JavaScript
         \li Displays the time spent executing the actual JavaScript behind
             bindings and signal handlers. It lists all the JavaScript functions
             you may be using to evaluate bindings or handle signals.
@@ -270,7 +270,7 @@
     understand how the Qt Quick scene graph works. See
     \l {Qt Quick Scene Graph} and \l {Qt Quick Scene Graph Renderer} for a
     detailed description. The following events are reported in the
-    \gui {Scene Graph} category. Not all events are generated by all render
+    \uicontrol {Scene Graph} category. Not all events are generated by all render
     loops. In the Windows and Basic render loops everything runs in the same
     thread and the distinction between GUI thread and render thread is
     meaningless.
@@ -288,7 +288,7 @@
         \li Description
         \li Caveats
     \row
-        \li \gui {Polish}
+        \li \uicontrol {Polish}
         \li GUI
         \li Threaded, Basic, Windows
         \li polish
@@ -297,18 +297,18 @@
         \li Versions of Qt prior to Qt 5.4 record no polish times for the basic
             render loop and incorrect ones for the windows render loop.
     \row
-        \li \gui {GUI Thread Wait}
+        \li \uicontrol {GUI Thread Wait}
         \li GUI
         \li Threaded
         \li lock
         \li Executing slots connected to the QQuickWindow::afterAnimating()
             signal and then locking the render thread's mutex before waiting on
-            the same mutex at \gui {GUI Thread Sync}. If this starts long
-            before \gui {Render Thread Sync}, there is \e free  time in the GUI
+            the same mutex at \uicontrol {GUI Thread Sync}. If this starts long
+            before \uicontrol {Render Thread Sync}, there is \e free  time in the GUI
             thread you could be using for running additional QML or JavaScript.
         \li None
     \row
-        \li \gui {GUI Thread Sync}
+        \li \uicontrol {GUI Thread Sync}
         \li GUI
         \li Threaded
         \li blockedForSync
@@ -316,18 +316,18 @@
             to synchronize the QML state into the scene graph.
         \li None
     \row
-        \li \gui {Animations}
+        \li \uicontrol {Animations}
         \li GUI
         \li Threaded, Windows
         \li animations
         \li Advancing animations in the GUI thread. The basic render loop does
             not drive animations in sync with the rendering. This is why no
             animation events will be shown when using the basic render loop.
-            Watch the \gui {Animations} category to see animation timing in
+            Watch the \uicontrol {Animations} category to see animation timing in
             this case.
         \li None
     \row
-        \li \gui {Render Thread Sync}
+        \li \uicontrol {Render Thread Sync}
         \li Render
         \li Threaded, Basic, Windows
         \li Frame rendered ... sync
@@ -335,21 +335,21 @@
             QQuickItem::updatePaintNode().
         \li None
     \row
-        \li \gui {Render}
+        \li \uicontrol {Render}
         \li Render
         \li Threaded, Basic, Windows
         \li Frame rendered ... render
         \li Total time spent rendering the frame, including preparing and
             uploading all the necessary data to the GPU. This is the \e gross
-            render time. Do not confuse it with the \e net \gui{Render Render}
+            render time. Do not confuse it with the \e net \uicontrol{Render Render}
             time below.
         \li With versions of Qt prior to Qt 5.5, the gross render time and the
             below breakup of render times may be misaligned by some
             microseconds due to different, unsynchronized timers being used to
-            measure them. For example \gui {Render Preprocess} might seem to
-            start before \gui {Render Thread Sync} is finished.
+            measure them. For example \uicontrol {Render Preprocess} might seem to
+            start before \uicontrol {Render Thread Sync} is finished.
     \row
-        \li \gui {Swap}
+        \li \uicontrol {Swap}
         \li Render
         \li Threaded, Basic, Windows
         \li Frame rendered ... swap
@@ -358,54 +358,54 @@
             incorrect for the basic render loop and versions of Qt prior to
             Qt 5.4. The QML profiler shows the correct swap times.
     \row
-        \li \gui {Render Preprocess}
+        \li \uicontrol {Render Preprocess}
         \li Render
         \li Threaded, Basic, Windows
         \li time in renderer ... preprocess
         \li Calling QSGNode::preprocess() on all nodes that need to be
-            preprocessed. This is part of the gross \gui {Render} step.
-        \li May not be properly aligned with \gui {Render} with versions of Qt
+            preprocessed. This is part of the gross \uicontrol {Render} step.
+        \li May not be properly aligned with \uicontrol {Render} with versions of Qt
             prior to Qt 5.5.
     \row
-        \li \gui {Render Update}
+        \li \uicontrol {Render Update}
         \li Render
         \li Threaded, Basic, Windows
         \li time in renderer ... updates
         \li Iterating and processing all the nodes in the scene graph to update
             their geometry, transformations, opacity, and other state. In the
-            \gui {Render Thread Sync} stage, each node is updated separately
-            with state from the GUI thread. In \gui {Render Update}, all the
+            \uicontrol {Render Thread Sync} stage, each node is updated separately
+            with state from the GUI thread. In \uicontrol {Render Update}, all the
             nodes are combined to create the final scene. This is part of the
-            gross \gui {Render} step.
-        \li May not be properly aligned with \gui {Render} with versions of Qt
+            gross \uicontrol {Render} step.
+        \li May not be properly aligned with \uicontrol {Render} with versions of Qt
             prior to Qt 5.5.
     \row
-        \li \gui {Render Bind}
+        \li \uicontrol {Render Bind}
         \li Render
         \li Threaded, Basic, Windows
         \li time in renderer ... binding
         \li Binding the correct framebuffer for OpenGL rendering. This is part
-            of the gross \gui {Render} step.
-        \li May not be properly aligned with \gui {Render} with versions of Qt
+            of the gross \uicontrol {Render} step.
+        \li May not be properly aligned with \uicontrol {Render} with versions of Qt
             prior to Qt 5.5.
     \row
-        \li \gui {Render Render}
+        \li \uicontrol {Render Render}
         \li Render
         \li Threaded, Basic, Windows
         \li time in renderer ... rendering
         \li The actual process of sending all the data to the GPU via OpenGL.
-            This is part of the gross \gui {Render} step.
-        \li May not be properly aligned with \gui {Render} with versions of Qt
+            This is part of the gross \uicontrol {Render} step.
+        \li May not be properly aligned with \uicontrol {Render} with versions of Qt
             prior to Qt 5.5.
     \row
-        \li \gui {Material Compile}
+        \li \uicontrol {Material Compile}
         \li Render
         \li Threaded, Basic, Windows
         \li shader compiled
         \li Compiling GLSL shader programs.
         \li None
     \row
-        \li \gui {Glyph Render}
+        \li \uicontrol {Glyph Render}
         \li Render
         \li Threaded, Basic, Windows
         \li glyphs ... rendering
@@ -413,7 +413,7 @@
         \li Versions of Qt prior to Qt 5.4 report incorrect times for these
             events.
     \row
-        \li \gui {Glyph Upload}
+        \li \uicontrol {Glyph Upload}
         \li Render
         \li Threaded, Basic, Windows
         \li glyphs ... upload
@@ -421,14 +421,14 @@
         \li Versions of Qt prior to Qt 5.4 report incorrect times for these
             events.
     \row
-        \li \gui {Texture Bind}
+        \li \uicontrol {Texture Bind}
         \li Render
         \li Threaded, Basic, Windows
         \li plain texture ... bind
         \li Binding a texture in the OpenGL context using glBindTextures.
         \li None
     \row
-        \li \gui {Texture Convert}
+        \li \uicontrol {Texture Convert}
         \li Render
         \li Threaded, Basic, Windows
         \li plain texture ... convert
@@ -436,28 +436,28 @@
             for usage as a texture.
         \li None
     \row
-        \li \gui {Texture Swizzle}
+        \li \uicontrol {Texture Swizzle}
         \li Render
         \li Threaded, Basic, Windows
         \li plain texture ... swizzle
         \li Swizzling the texture data on the CPU if necessary.
         \li None
     \row
-        \li \gui {Texture Upload}
+        \li \uicontrol {Texture Upload}
         \li Render
         \li Threaded, Basic, Windows
         \li plain texture ... upload / atlastexture uploaded
         \li Uploading the texture data to the GPU.
         \li None
     \row
-        \li \gui {Texture Mipmap}
+        \li \uicontrol {Texture Mipmap}
         \li Render
         \li Threaded, Basic, Windows
         \li plain texture ... mipmap
         \li Mipmapping a texture on the GPU.
         \li None
     \row
-        \li \gui {Texture Delete}
+        \li \uicontrol {Texture Delete}
         \li Render
         \li Threaded, Basic, Windows
         \li plain texture deleted
@@ -467,51 +467,51 @@
 
     \section1 Viewing Events
 
-    The \gui Events view displays the number of times each binding, create,
+    The \uicontrol Events view displays the number of times each binding, create,
     compile, JavaScript, or signal event is triggered and the average time it
     takes. This allows you to examine which events you need to optimize. A high
     number of occurrences might indicate that an event is triggered
     unnecessarily. To view the median, longest, and shortest time for the
-    occurrences, select \gui {Extended Event Statistics} in the context menu.
+    occurrences, select \uicontrol {Extended Event Statistics} in the context menu.
 
     Click on an event to move to it in the source code
     in the code editor.
 
     JavaScript events often duplicate bindings or signals, so you can show and
-    hide them by selecting \gui {Show JavaScript Events} in the context menu.
-    To show and hide QML events (\gui Create, \gui Compile, and \gui Signal),
-    select \gui {Show QML Events}.
+    hide them by selecting \uicontrol {Show JavaScript Events} in the context
+    menu. To show and hide QML events (\uicontrol Create, \uicontrol Compile,
+    and \uicontrol Signal), select \uicontrol {Show QML Events}.
 
     \image qtcreator-analyzer-bindings.png "Events view"
 
-    The \gui Callers and \gui Callees panes show dependencies between events.
+    The \uicontrol Callers and \uicontrol Callees panes show dependencies between events.
     They allow you to examine the internal functions of the application.
-    The \gui Callers pane summarizes the QML events that trigger a binding.
+    The \uicontrol Callers pane summarizes the QML events that trigger a binding.
     This tells you what caused a change in a binding.
-    The \gui Callees pane summarizes the QML events that a binding triggers.
+    The \uicontrol Callees pane summarizes the QML events that a binding triggers.
     This tells you which QML events are affected if you change a binding.
 
     Click on an event to move to it in the source code in the code editor.
 
-    When you select an event in the \gui Timeline view, information about it is
-    displayed in the \gui Events view. To view an event range in the \gui Events
-    view, select \gui {Limit Events Pane to Current Range} in the context menu
-    in the \gui Timeline view.
+    When you select an event in the \uicontrol Timeline view, information about it is
+    displayed in the \uicontrol Events view. To view an event range in the \uicontrol Events
+    view, select \uicontrol {Limit Events Pane to Current Range} in the context menu
+    in the \uicontrol Timeline view.
 
     To copy the contents of one view or row to the clipboard, select
-    \gui {Copy Table} or \gui {Copy Row} in the context menu.
+    \uicontrol {Copy Table} or \uicontrol {Copy Row} in the context menu.
 
-    JavaScript events are shown in the \gui Events view only for applications
+    JavaScript events are shown in the \uicontrol Events view only for applications
     that use Qt Quick 2 and are compiled with Qt 5.3 or later. For applications
     that use Qt Quick 2 and are built with Qt 5.0 or 5.1, you can view
-    information about JavaScript events in the separate \gui V8 view.
+    information about JavaScript events in the separate \uicontrol V8 view.
 
     \section2 Viewing More Data
 
     The QML JavaScript engine optimizes trivial bindings. The QML Profiler
     may not receive all information about optimized bindings, and therefore,
-    it may display the text \gui {<bytecode>} and the message
-    \gui {Source code not available} in the \gui Callers and \gui {Callees}
+    it may display the text \uicontrol {<bytecode>} and the message
+    \uicontrol {Source code not available} in the \uicontrol Callers and \uicontrol {Callees}
     panes.
 
     To inspect the optimized bindings, turn off the QML optimizer by setting
@@ -520,9 +520,9 @@
 
     \list 1
 
-        \li Select \gui {Projects > Run}.
+        \li Select \uicontrol {Projects > Run}.
 
-        \li In \gui {Run Environment}, click \gui Add.
+        \li In \uicontrol {Run Environment}, click \uicontrol Add.
 
         \li Add the QML_DISABLE_OPTIMIZER variable and set its value to 1.
 

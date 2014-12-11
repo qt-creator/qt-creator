@@ -31,11 +31,11 @@
     \title Configuring the Editor
 
     \QC allows you to configure the text editor to suit your specific
-    needs. To configure the editor, select \gui Tools > \gui{Options} >
-    \gui{Text Editor}.
+    needs. To configure the editor, select \uicontrol Tools > \uicontrol{Options} >
+    \uicontrol{Text Editor}.
 
     These settings apply to all projects. To specify editor behavior for an
-    open project, select \gui Projects > \gui Editor. For more
+    open project, select \uicontrol Projects > \uicontrol Editor. For more
     information, see \l{Specifying Editor Settings}.
 
     You can also specify indentation settings separately for C++ and QML files
@@ -47,28 +47,28 @@
     \list
 
         \li Set the \l{Specifying Text Editor Settings}{font preferences and
-            apply color schemes} for syntax highlighting in \gui{Font & Colors}.
+            apply color schemes} for syntax highlighting in \uicontrol{Font & Colors}.
 
         \li Specify \l{Generic Highlighting}
             {definition files for syntax highlighting} for other types of files
-             than C++ or QML in \gui{Generic Highlighter}.
+             than C++ or QML in \uicontrol{Generic Highlighter}.
 
         \li Set \l{Indenting Text or Code}{tabs, indentation, the handling of
-            whitespace, and mouse operations} in \gui Behavior.
+            whitespace, and mouse operations} in \uicontrol Behavior.
 
         \li Set various display properties, for example,
             \l{Highlighting and folding blocks}
             {highlighting and folding blocks}, text wrapping or
             \l{Moving to symbol definition or declaration}
-            {moving to symbol definition or declaration} in \gui Display.
+            {moving to symbol definition or declaration} in \uicontrol Display.
 
         \li Add, modify, and remove \l{Editing Code Snippets}{code snippets} in
-            \gui Snippets.
+            \uicontrol Snippets.
 
         \li View and remove \l{Using Text Editing Macros}{text editing macros}
-            in \gui Macros.
+            in \uicontrol Macros.
 
-        \li Configure \l{Completing Code}{code completion} in \gui Completion.
+        \li Configure \l{Completing Code}{code completion} in \uicontrol Completion.
 
     \endlist
 

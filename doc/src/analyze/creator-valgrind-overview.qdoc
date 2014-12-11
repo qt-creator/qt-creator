@@ -52,12 +52,12 @@
     For more information about analyzing applications for which you do not have
     a project, see \l{Running Valgrind Tools on External Applications}.
 
-    To stop the currently running analyzer, select \gui {Analyze
+    To stop the currently running analyzer, select \uicontrol {Analyze
     > Stop}.
 
-    To select options for the Valgrind tools, select \gui {Tools > Options >
+    To select options for the Valgrind tools, select \uicontrol {Tools > Options >
     Analyzer}. You can override the general settings for each project in the
-    \gui {Run Settings} for the project.
+    \uicontrol {Run Settings} for the project.
 
     The following sections describe how to use the Valgrind tools:
 

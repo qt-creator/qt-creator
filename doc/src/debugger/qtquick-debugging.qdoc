@@ -41,20 +41,20 @@
     \l{Creating Qt Quick Projects}{type of the project}: Qt Quick UI or Qt Quick
     Application, and the Qt version used.
 
-    To debug Qt Quick UI projects, select the \gui {Enable QML} check box in the
-    \gui {Debugger Settings} in \gui Projects mode \gui {Run Settings}.
+    To debug Qt Quick UI projects, select the \uicontrol {Enable QML} check box in the
+    \uicontrol {Debugger Settings} in \uicontrol Projects mode \uicontrol {Run Settings}.
 
     To debug Qt Quick Applications:
 
         \list 1
 
         \li Debugging is enabled by default for Qt 4.8, or later. For Qt 4.7,
-            select \gui Projects, and then select the
-            \gui {Enable QML debugging} check box in the \gui qmake section
-            in \gui {Build Steps}.
+            select \uicontrol Projects, and then select the
+            \uicontrol {Enable QML debugging} check box in the \uicontrol qmake section
+            in \uicontrol {Build Steps}.
 
             You might have to compile the library first, by selecting the
-            \gui Compile link.
+            \uicontrol Compile link.
 
             \image qml-link-debugging-library.png "Build Steps"
 
@@ -64,11 +64,11 @@
             functions. Therefore, you must make sure that the port is properly
             protected by a firewall.
 
-        \li In the \gui {Run Settings}, \gui {Debugger Settings} section, select
-            the \gui {Enable QML} check box to enable
+        \li In the \uicontrol {Run Settings}, \uicontrol {Debugger Settings} section, select
+            the \uicontrol {Enable QML} check box to enable
             QML debugging.
 
-        \li Select \gui {Build > Rebuild Project} to clean and rebuild the
+        \li Select \uicontrol {Build > Rebuild Project} to clean and rebuild the
             project.
 
         \li To debug applications on devices, check that Qt 4.7.4, or later,
@@ -81,15 +81,15 @@
     \section1 Mixed C++/QML Debugging
 
     To debug both the C++ and QML parts of your application at the same time,
-    select the \gui {Enable C++} and \gui {Enable QML} checkboxes for both
-    languages in the \gui {Debugger Settings} section in the project
-    \gui{Run Settings}.
+    select the \uicontrol {Enable C++} and \uicontrol {Enable QML} checkboxes for both
+    languages in the \uicontrol {Debugger Settings} section in the project
+    \uicontrol{Run Settings}.
 
     \image qtquick-debugging-settings.png
 
     \section1 Starting QML Debugging
 
-    To start the application, choose \gui {Debug > Start Debugging >
+    To start the application, choose \uicontrol {Debug > Start Debugging >
     Start Debugging} or press \key F5. Once the application starts running, it
     behaves and performs as usual. You can then perform the following tasks:
 
@@ -132,7 +132,7 @@
             the application from running until the debug client connects to the
             server. This enables debugging from the start.
 
-        \li Select \gui {Debug > Start Debugging > Attach to QML Port}.
+        \li Select \uicontrol {Debug > Start Debugging > Attach to QML Port}.
 
             Choose the kit configured for the device where the application to
             be debugged is running. The port number to use is displayed in the
@@ -142,7 +142,7 @@
 
     \section1 Debugging JavaScript Functions
 
-    You can use the \QC \gui Debug mode to inspect the state of your
+    You can use the \QC \uicontrol Debug mode to inspect the state of your
     application while debugging. You can interact with the debugger by:
 
     \list
@@ -158,8 +158,9 @@
     \section1 Executing JavaScript Expressions
 
     When the application is interrupted by a breakpoint, you can use the
-    \gui {QML/JS Console} to execute JavaScript expressions in the current
-    context. To open it, choose \gui Window > \gui {Output Panes} > \gui {QML/JS Console}.
+    \uicontrol {QML/JS Console} to execute JavaScript expressions in the current
+    context. To open it, choose \uicontrol Window > \uicontrol {Output Panes}
+    > \uicontrol {QML/JS Console}.
 
     \image qml-script-console.png "QML/JS Console"
 
@@ -174,26 +175,26 @@
     debugger can update the properties in the running application when you save
     the file. This is enabled by default. To disable it, click the
     \inlineimage qml-observer-bar-reload.png "Apply Changes on Save button"
-    (\gui {Apply Changes on Save}) button on the toolbar.
+    (\uicontrol {Apply Changes on Save}) button on the toolbar.
 
     \endomit
 
-    When you change property values in the \gui {QML/JS Console} or in the
-    \gui {Locals and Expressions} view, they are immediately updated in the running
+    When you change property values in the \uicontrol {QML/JS Console} or in the
+    \uicontrol {Locals and Expressions} view, they are immediately updated in the running
     application, but not in the source code.
 
     \section1 Inspecting Items
 
     While the application is running, you can use the
-    \gui {Locals and Expressions} view to explore the QML item structure.
+    \uicontrol {Locals and Expressions} view to explore the QML item structure.
 
     \image qml-observer-view.png "QML item tree"
 
     To keep the application visible while you interact with the debugger, click
     \inlineimage qml-inspector-app-on-top.png
-    (\gui {Show Application on Top}).
+    (\uicontrol {Show Application on Top}).
 
-    You can view a QML item in \gui {Locals and Expressions} in the following
+    You can view a QML item in \uicontrol {Locals and Expressions} in the following
     ways:
 
     \list
@@ -204,7 +205,7 @@
 
         \li Click
             \inlineimage qml-inspector-select-button.png
-            (\gui Select) to activate selection mode and then click an item
+            (\uicontrol Select) to activate selection mode and then click an item
             in the running application.
 
     \endlist
@@ -218,9 +219,9 @@
     When you debug complex applications, you can jump to the position in code
     where an item is defined or you can zoom into the user interface.
 
-    When the \gui Select tool is enabled, you can click items in the running
+    When the \uicontrol Select tool is enabled, you can click items in the running
     application to jump to their definitions in the code. The properties of the
-    selected item are displayed in the \gui {Locals and Expressions} view.
+    selected item are displayed in the \uicontrol {Locals and Expressions} view.
 
     You can also view the item hierarchy in the running application:
 
@@ -237,14 +238,14 @@
 
     \endlist
 
-    To switch to the zoom mode, click the \gui Zoom button. Click in the
+    To switch to the zoom mode, click the \uicontrol Zoom button. Click in the
     running application to zoom in. Right-click to open a context menu that
     contains zoom controls.
 
-    To switch out of the selection or zoom mode, deselect the \gui Select or
-    \gui Zoom button.
+    To switch out of the selection or zoom mode, deselect the \uicontrol Select or
+    \uicontrol Zoom button.
 
     To move the application running in \QQV to the front, select the
-    \gui {Show Application on Top} button.
+    \uicontrol {Show Application on Top} button.
 
 */
