@@ -34,35 +34,38 @@
 
         \row
             \li Android
-            \li Yes
-            \li Yes
-            \li Yes
+            \li \image ok
+            \li \image ok
+            \li \image ok
          \row
             \li BlackBerry 10
-            \li Yes
-            \li Yes
-            \li Yes
+            \li \image ok
+            \li \image ok
+            \li \image ok
         \row
             \li Generic Remote Linux
-            \li Yes
-            \li Yes
-            \li Yes
+            \li \image ok
+            \li \image ok
+            \li \image ok
         \row
             \li iOS
-            \li No
-            \li Yes
-            \li No
+            \li
+            \li \image ok
+            \li
         \row
             \li QNX
-            \li Yes
-            \li Yes
-            \li Yes (see \l{Running on QNX Devices} for limitations)
+            \li \image ok
+            \li \image ok
+            \li \inlineimage ok
+                *
         \row
             \li Windows Runtime
-            \li No
-            \li No
-            \li Yes
+            \li
+            \li
+            \li \image ok
     \endtable
+
+    * See \l{Running on QNX Devices} for limitations.
 
     \note Madde support has been removed from \QC 3.0. To develop for Maemo or Harmattan,
     use \QC 2.8.

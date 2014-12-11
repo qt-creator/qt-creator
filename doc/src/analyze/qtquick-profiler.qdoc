@@ -164,7 +164,7 @@
             with specifics about its file name and size.
         \li Qt 5.1
         \li Qt Quick 2
-        \li Yes
+        \li \image ok
 
     \row
         \li \gui {Scene Graph}
@@ -173,7 +173,7 @@
             so.
         \li Qt 5.1
         \li Qt Quick 2
-        \li Yes
+        \li \image ok
     \row
         \li \gui {Memory Usage}
         \li Displays block allocations of the JavaScript memory manager.
@@ -188,21 +188,21 @@
             requested.
         \li Qt 5.4
         \li Qt Quick 2
-        \li Yes
+        \li \image ok
 
     \row
         \li \gui {Input Events}
         \li Displays mouse and keyboard events.
         \li Qt 4.7.4
         \li Qt Quick 1 or Qt Quick 2
-        \li Yes
+        \li \image ok
 
     \row
         \li \gui Painting
         \li Displays the time spent painting the scene for each frame.
         \li Qt 4.7.4
         \li Qt Quick 1
-        \li No
+        \li
 
     \row
         \li \gui Animations
@@ -213,14 +213,14 @@
             animations are shown in a separate row then.
         \li Qt 5.0 (Qt 5.3)
         \li Qt Quick 2
-        \li No
+        \li
 
     \row
         \li \gui Compiling
         \li Displays the time spent compiling the QML files.
         \li Qt 4.7.4
         \li Qt Quick 1 or Qt Quick 2
-        \li No
+        \li
 
     \row
         \li \gui Creating
@@ -235,7 +235,7 @@
             events.
         \li Qt 4.7.4 (Qt 5.2.1)
         \li Qt Quick 1 or Qt Quick 2
-        \li No
+        \li
 
     \row
         \li \gui Binding
@@ -243,7 +243,7 @@
             evaluation takes.
         \li Qt 4.7.4
         \li Qt Quick 1 or Qt Quick 2
-        \li No
+        \li
 
     \row
         \li \gui {Handling Signal}
@@ -251,7 +251,7 @@
             handling takes.
         \li Qt 4.7.4
         \li Qt Quick 1 or Qt Quick 2
-        \li No
+        \li
 
     \row
         \li \gui JavaScript
@@ -260,7 +260,7 @@
             you may be using to evaluate bindings or handle signals.
         \li Qt 5.3
         \li Qt Quick 2
-        \li No
+        \li
 
     \endtable
 
