@@ -414,6 +414,9 @@ class DumperBase:
         # assume no Qt 3 support by default
         return False
 
+    def lookupQtType(self, typeName):
+        return self.lookupType(self.qtNamespace() + typeName)
+
     # Clamps size to limit.
     def computeLimit(self, size, limit):
         if limit == 0:
@@ -508,6 +511,12 @@ class DumperBase:
     def encodeString(self, value, limit = 0):
         elided, data = self.encodeStringHelper(self.extractPointer(value), limit)
         return data
+
+    def encodedUtf16ToUtf8(self, s):
+        return ''.join([chr(int(s[i:i+2], 16)) for i in range(0, len(s), 4)])
+
+    def encodeStringUtf8(self, value, limit = 0):
+        return self.encodedUtf16ToUtf8(self.encodeString(value, limit))
 
     def stringData(self, value):
         return self.byteArrayDataHelper(self.extractPointer(value))
