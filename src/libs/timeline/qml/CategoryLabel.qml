@@ -196,23 +196,21 @@ Item {
         Connections {
             target: notesModel
             onChanged: {
-                if (arguments[1] === -1 || arguments[1] === model.modelId)
-                    notesButton.updateNotes();
-            }
-        }
+                // This will only be called if notesModel != null.
+                if (arguments[1] === -1 || arguments[1] === model.modelId) {
+                    var notes = notesModel.byTimelineModel(model.modelId);
+                    var newTexts = [];
+                    var newEventIds = [];
+                    for (var i in notes) {
+                        newTexts.push(notesModel.text(notes[i]))
+                        newEventIds.push(notesModel.timelineIndex(notes[i]));
+                    }
 
-        function updateNotes() {
-            var notes = notesModel.byTimelineModel(model.modelId);
-            var newTexts = [];
-            var newEventIds = [];
-            for (var i in notes) {
-                newTexts.push(notesModel.text(notes[i]))
-                newEventIds.push(notesModel.timelineIndex(notes[i]));
+                    // Bindings are only triggered when assigning the whole array.
+                    notesButton.eventIds = newEventIds;
+                    notesButton.texts = newTexts;
+                }
             }
-
-            // Bindings are only triggered when assigning the whole array.
-            eventIds = newEventIds;
-            texts = newTexts;
         }
 
         visible: eventIds.length > 0

@@ -125,7 +125,7 @@ Rectangle {
         property color noteColor: "orange"
         readonly property double spacing: parent.width / zoomer.traceDuration
 
-        model: modelProxy.notes.count
+        model: modelProxy.notes ? modelProxy.notes.count : 0
         Item {
             property int timelineIndex: modelProxy.notes.timelineIndex(index)
             property int timelineModel: modelProxy.notes.timelineModel(index)

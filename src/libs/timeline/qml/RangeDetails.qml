@@ -112,7 +112,7 @@ Item {
         }
 
         noteEdit.focus = false;
-        var noteId = notes.get(timelineModel.modelId, selectedItem);
+        var noteId = notes ? notes.get(timelineModel.modelId, selectedItem) : -1;
         noteEdit.text = (noteId !== -1) ? notes.text(noteId) : "";
     }
 
@@ -218,7 +218,7 @@ Item {
             anchors.bottomMargin: 5
             anchors.top: col.bottom
 
-            visible: text.length > 0 || focus
+            visible: notes && (text.length > 0 || focus)
             width: col.width
             wrapMode: Text.Wrap
             color: "orange"
@@ -229,14 +229,15 @@ Item {
             onFocusChanged: {
                 if (!focus && selectedModel != -1 && selectedItem != -1) {
                     saveTimer.stop();
-                    notes.setText(models[selectedModel].modelId, selectedItem, text);
+                    if (notes)
+                        notes.setText(models[selectedModel].modelId, selectedItem, text);
                 }
             }
 
             Timer {
                 id: saveTimer
                 onTriggered: {
-                    if (selectedModel != -1 && selectedItem != -1)
+                    if (notes && selectedModel != -1 && selectedItem != -1)
                         notes.setText(models[selectedModel].modelId, selectedItem, noteEdit.text);
                 }
                 interval: 1000
@@ -260,6 +261,7 @@ Item {
         anchors.top: closeIcon.top
         anchors.right: lockIcon.left
         anchors.rightMargin: 4
+        visible: notes
         width: 8
         height: 12
         MouseArea {
