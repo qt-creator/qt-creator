@@ -3862,12 +3862,14 @@ public:
     enum Mode { FromPointer, FromVariable, FromReference };
 
     ConvertFromAndToPointerOp(const CppQuickFixInterface &interface, int priority, Mode mode,
+                              bool isAutoDeclaration,
                               const SimpleDeclarationAST *simpleDeclaration,
                               const DeclaratorAST *declaratorAST,
                               const SimpleNameAST *identifierAST,
                               Symbol *symbol)
         : CppQuickFixOperation(interface, priority)
         , m_mode(mode)
+        , m_isAutoDeclaration(isAutoDeclaration)
         , m_simpleDeclaration(simpleDeclaration)
         , m_declaratorAST(declaratorAST)
         , m_identifierAST(identifierAST)
@@ -3906,6 +3908,8 @@ public:
 private:
     void removePointerOperator(ChangeSet &changes) const
     {
+        if (!m_declaratorAST->ptr_operator_list)
+            return;
         PointerAST *ptrAST = m_declaratorAST->ptr_operator_list->value->asPointer();
         QTC_ASSERT(ptrAST, return);
         const int pos = m_file->startOf(ptrAST->star_token);
@@ -3942,12 +3946,26 @@ private:
         }
     }
 
+    void removeNewKeyword(ChangeSet &changes, NewExpressionAST *newExprAST) const
+    {
+        // remove 'new' keyword before initializer
+        changes.remove(m_file->startOf(newExprAST->new_token),
+                       m_file->startOf(newExprAST->new_type_id));
+    }
+
     void convertToStackVariable(ChangeSet &changes) const
     {
         // Handle the initializer.
         if (m_declaratorAST->initializer) {
-            if (NewExpressionAST *newExpression = m_declaratorAST->initializer->asNewExpression())
-                removeNewExpression(changes, newExpression);
+            if (NewExpressionAST *newExpression = m_declaratorAST->initializer->asNewExpression()) {
+                if (m_isAutoDeclaration) {
+                    if (!newExpression->new_initializer)
+                        changes.insert(m_file->endOf(newExpression), QStringLiteral("()"));
+                    removeNewKeyword(changes, newExpression);
+                } else {
+                    removeNewExpression(changes, newExpression);
+                }
+            }
         }
 
         // Fix all occurrences of the identifier in this function.
@@ -3955,10 +3973,15 @@ private:
         foreach (const SemanticInfo::Use &use, semanticInfo().localUses.value(m_symbol)) {
             const QList<AST *> path = astPath(use.line, use.column);
             AST *idAST = path.last();
+            bool declarationFound = false;
             bool starFound = false;
             int ampersandPos = 0;
             bool memberAccess = false;
             for (int i = path.count() - 2; i >= 0; --i) {
+                if (path.at(i) == m_declaratorAST) {
+                    declarationFound = true;
+                    break;
+                }
                 if (MemberAccessAST *memberAccessAST = path.at(i)->asMemberAccess()) {
                     if (m_file->tokenAt(memberAccessAST->access_token).kind() != T_ARROW)
                         continue;
@@ -3987,7 +4010,7 @@ private:
                     break;
                 }
             }
-            if (!starFound && !memberAccess) {
+            if (!declarationFound && !starFound && !memberAccess) {
                 if (ampersandPos) {
                     changes.insert(ampersandPos, QLatin1String("&("));
                     changes.insert(m_file->endOf(idAST->firstToken()), QLatin1String(")"));
@@ -4017,11 +4040,13 @@ private:
     void insertNewExpression(ChangeSet &changes, CallAST *callAST) const
     {
         const QString typeName = typeNameOfDeclaration();
-        if (typeName.isEmpty())
-            return;
-        changes.insert(m_file->startOf(callAST),
-                       QLatin1String("new ") + typeName + QLatin1Char('('));
-        changes.insert(m_file->startOf(callAST->lastToken()), QLatin1String(")"));
+        if (typeName.isEmpty()) {
+            changes.insert(m_file->startOf(callAST), QLatin1String("new "));
+        } else {
+            changes.insert(m_file->startOf(callAST),
+                           QLatin1String("new ") + typeName + QLatin1Char('('));
+            changes.insert(m_file->startOf(callAST->lastToken()), QLatin1String(")"));
+        }
     }
 
     void insertNewExpression(ChangeSet &changes, ExpressionListParenAST *exprListAST) const
@@ -4054,6 +4079,10 @@ private:
             AST *idAST = path.last();
             bool insertStar = true;
             for (int i = path.count() - 2; i >= 0; --i) {
+                if (m_isAutoDeclaration && path.at(i) == m_declaratorAST) {
+                    insertStar = false;
+                    break;
+                }
                 if (MemberAccessAST *memberAccessAST = path.at(i)->asMemberAccess()) {
                     const int pos = m_file->startOf(memberAccessAST->access_token);
                     changes.replace(pos, pos + 1, QLatin1String("->"));
@@ -4076,6 +4105,7 @@ private:
     }
 
     const Mode m_mode;
+    const bool m_isAutoDeclaration;
     const SimpleDeclarationAST * const m_simpleDeclaration;
     const DeclaratorAST * const m_declaratorAST;
     const SimpleNameAST * const m_identifierAST;
@@ -4129,7 +4159,23 @@ void ConvertFromAndToPointer::match(const CppQuickFixInterface &interface,
     if (!symbol)
         return;
 
-    if (declarator->ptr_operator_list) {
+    bool isAutoDeclaration = false;
+    if (symbol->storage() == Symbol::Auto) {
+        // For auto variables we must deduce the type from the initializer.
+        if (!declarator->initializer)
+            return;
+
+        isAutoDeclaration = true;
+        TypeOfExpression typeOfExpression;
+        typeOfExpression.init(interface.semanticInfo().doc, interface.snapshot());
+        typeOfExpression.setExpandTemplates(true);
+        CppRefactoringFilePtr file = interface.currentFile();
+        Scope *scope = file->scopeAt(declarator->firstToken());
+        QList<LookupItem> result = typeOfExpression(file->textOf(declarator->initializer).toUtf8(),
+                                                    scope, TypeOfExpression::Preprocess);
+        if (!result.isEmpty() && result.first().type()->isPointerType())
+            mode = ConvertFromAndToPointerOp::FromPointer;
+    } else if (declarator->ptr_operator_list) {
         for (PtrOperatorListAST *ops = declarator->ptr_operator_list; ops; ops = ops->next) {
             if (ops != declarator->ptr_operator_list) {
                 // Bail out on more complex pointer types (e.g. pointer of pointer,
@@ -4144,8 +4190,8 @@ void ConvertFromAndToPointer::match(const CppQuickFixInterface &interface,
     }
 
     const int priority = path.size() - 1;
-    result.append(new ConvertFromAndToPointerOp(interface, priority, mode, simpleDeclaration,
-                                                declarator, identifier, symbol));
+    result.append(new ConvertFromAndToPointerOp(interface, priority, mode, isAutoDeclaration,
+                                                simpleDeclaration, declarator, identifier, symbol));
 }
 
 namespace {
