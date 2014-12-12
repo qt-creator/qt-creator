@@ -108,6 +108,13 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration, Debug
 {
     setIcon(QLatin1String(ProjectExplorer::Constants::ICON_DEBUG_SMALL));
     connect(this, &RunControl::finished, this, &DebuggerRunControl::handleFinished);
+
+    connect(engine, &DebuggerEngine::requestRemoteSetup,
+            this, &DebuggerRunControl::requestRemoteSetup);
+    connect(engine, &DebuggerEngine::stateChanged,
+            this, &DebuggerRunControl::stateChanged);
+    connect(engine, &DebuggerEngine::aboutToNotifyInferiorSetupOk,
+            this, &DebuggerRunControl::aboutToNotifyInferiorSetupOk);
 }
 
 DebuggerRunControl::~DebuggerRunControl()
@@ -186,6 +193,16 @@ void DebuggerRunControl::startFailed()
     m_engine->handleStartFailed();
 }
 
+void DebuggerRunControl::notifyEngineRemoteServerRunning(const QByteArray &msg, int pid)
+{
+    m_engine->notifyEngineRemoteServerRunning(msg, pid);
+}
+
+void DebuggerRunControl::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
+{
+    m_engine->notifyEngineRemoteSetupFinished(result);
+}
+
 void DebuggerRunControl::handleFinished()
 {
     appendMessage(tr("Debugging has finished") + QLatin1Char('\n'), NormalMessageFormat);
@@ -222,15 +239,39 @@ void DebuggerRunControl::debuggingFinished()
     emit finished();
 }
 
+void DebuggerRunControl::showMessage(const QString &msg, int channel)
+{
+    m_engine->showMessage(msg, channel);
+}
+
 bool DebuggerRunControl::isRunning() const
 {
     return m_running;
 }
 
-DebuggerEngine *DebuggerRunControl::engine()
+DebuggerStartParameters &DebuggerRunControl::startParameters()
 {
-    QTC_CHECK(m_engine);
-    return m_engine;
+    return m_engine->startParameters();
+}
+
+void DebuggerRunControl::notifyInferiorIll()
+{
+    m_engine->notifyInferiorIll();
+}
+
+void DebuggerRunControl::notifyInferiorExited()
+{
+    m_engine->notifyInferiorExited();
+}
+
+void DebuggerRunControl::quitDebugger()
+{
+    m_engine->quitDebugger();
+}
+
+void DebuggerRunControl::abortDebugger()
+{
+    m_engine->abortDebugger();
 }
 
 ////////////////////////////////////////////////////////////////////////

@@ -33,10 +33,7 @@
 
 #include "androidrunconfiguration.h"
 
-namespace Debugger {
-class DebuggerEngine;
-class DebuggerRunControl;
-}
+namespace Debugger { class DebuggerRunControl; }
 
 namespace ProjectExplorer { class RunControl; }
 
@@ -60,7 +57,6 @@ public:
 private:
     void handleRemoteProcessStarted(int gdbServerPort, int qmlPort);
 
-    Debugger::DebuggerEngine *m_engine;
     Debugger::DebuggerRunControl *m_runControl;
     AndroidRunner * const m_runner;
 };

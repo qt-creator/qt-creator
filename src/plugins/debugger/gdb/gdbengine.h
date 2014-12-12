@@ -60,7 +60,7 @@ class WatchData;
 class DisassemblerAgentCookie;
 class DisassemblerLines;
 
-class GdbEngine : public Debugger::DebuggerEngine
+class GdbEngine : public DebuggerEngine
 {
     Q_OBJECT
 

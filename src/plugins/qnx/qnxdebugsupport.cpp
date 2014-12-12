@@ -36,7 +36,6 @@
 #include "qnxrunconfiguration.h"
 #include "slog2inforunner.h"
 
-#include <debugger/debuggerengine.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
@@ -55,9 +54,9 @@ using namespace RemoteLinux;
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-QnxDebugSupport::QnxDebugSupport(QnxRunConfiguration *runConfig, Debugger::DebuggerEngine *engine)
-    : QnxAbstractRunSupport(runConfig, engine)
-    , m_engine(engine)
+QnxDebugSupport::QnxDebugSupport(QnxRunConfiguration *runConfig, Debugger::DebuggerRunControl *runControl)
+    : QnxAbstractRunSupport(runConfig, runControl)
+    , m_runControl(runControl)
     , m_pdebugPort(-1)
     , m_qmlPort(-1)
     , m_useCppDebugger(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useCppDebugger())
@@ -71,7 +70,8 @@ QnxDebugSupport::QnxDebugSupport(QnxRunConfiguration *runConfig, Debugger::Debug
     connect(runner, SIGNAL(remoteStdout(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
     connect(runner, SIGNAL(remoteStderr(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
 
-    connect(m_engine, SIGNAL(requestRemoteSetup()), this, SLOT(handleAdapterSetupRequested()));
+    connect(m_runControl, &Debugger::DebuggerRunControl::requestRemoteSetup,
+            this, &QnxDebugSupport::handleAdapterSetupRequested);
 
     const QString applicationId = QFileInfo(runConfig->remoteExecutableFilePath()).fileName();
     ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(runConfig->target()->kit());
@@ -88,8 +88,8 @@ void QnxDebugSupport::handleAdapterSetupRequested()
 {
     QTC_ASSERT(state() == Inactive, return);
 
-    if (m_engine)
-        m_engine->showMessage(tr("Preparing remote side...") + QLatin1Char('\n'), Debugger::AppStuff);
+    if (m_runControl)
+        m_runControl->showMessage(tr("Preparing remote side...") + QLatin1Char('\n'), Debugger::AppStuff);
     QnxAbstractRunSupport::handleAdapterSetupRequested();
 }
 
@@ -106,13 +106,13 @@ void QnxDebugSupport::startExecution()
     setState(StartingRemoteProcess);
 
     if (m_useQmlDebugger)
-        m_engine->startParameters().processArgs += QString::fromLatin1(" -qmljsdebugger=port:%1,block").arg(m_qmlPort);
+        m_runControl->startParameters().processArgs += QString::fromLatin1(" -qmljsdebugger=port:%1,block").arg(m_qmlPort);
 
     QStringList arguments;
     if (m_useCppDebugger)
         arguments << QString::number(m_pdebugPort);
     else if (m_useQmlDebugger && !m_useCppDebugger)
-        arguments = Utils::QtcProcess::splitArgs(m_engine->startParameters().processArgs);
+        arguments = Utils::QtcProcess::splitArgs(m_runControl->startParameters().processArgs);
     appRunner()->setEnvironment(environment());
     appRunner()->setWorkingDirectory(workingDirectory());
     appRunner()->start(device(), executable(), arguments);
@@ -121,29 +121,29 @@ void QnxDebugSupport::startExecution()
 void QnxDebugSupport::handleRemoteProcessStarted()
 {
     QnxAbstractRunSupport::handleRemoteProcessStarted();
-    if (m_engine) {
+    if (m_runControl) {
         Debugger::RemoteSetupResult result;
         result.success = true;
         result.gdbServerPort = m_pdebugPort;
         result.qmlServerPort = m_qmlPort;
-        m_engine->notifyEngineRemoteSetupFinished(result);
+        m_runControl->notifyEngineRemoteSetupFinished(result);
     }
 }
 
 void QnxDebugSupport::handleRemoteProcessFinished(bool success)
 {
-    if (m_engine || state() == Inactive)
+    if (m_runControl || state() == Inactive)
         return;
 
     if (state() == Running) {
         if (!success)
-            m_engine->notifyInferiorIll();
+            m_runControl->notifyInferiorIll();
 
     } else {
         Debugger::RemoteSetupResult result;
         result.success = false;
         result.reason = tr("The %1 process closed unexpectedly.").arg(executable());
-        m_engine->notifyEngineRemoteSetupFinished(result);
+        m_runControl->notifyEngineRemoteSetupFinished(result);
     }
 }
 
@@ -169,45 +169,45 @@ void QnxDebugSupport::killInferiorProcess()
 
 void QnxDebugSupport::handleProgressReport(const QString &progressOutput)
 {
-    if (m_engine)
-        m_engine->showMessage(progressOutput + QLatin1Char('\n'), Debugger::AppStuff);
+    if (m_runControl)
+        m_runControl->showMessage(progressOutput + QLatin1Char('\n'), Debugger::AppStuff);
 }
 
 void QnxDebugSupport::handleRemoteOutput(const QByteArray &output)
 {
     QTC_ASSERT(state() == Inactive || state() == Running, return);
 
-    if (m_engine)
-        m_engine->showMessage(QString::fromUtf8(output), Debugger::AppOutput);
+    if (m_runControl)
+        m_runControl->showMessage(QString::fromUtf8(output), Debugger::AppOutput);
 }
 
 void QnxDebugSupport::handleError(const QString &error)
 {
     if (state() == Running) {
-        if (m_engine) {
-            m_engine->showMessage(error, Debugger::AppError);
-            m_engine->notifyInferiorIll();
+        if (m_runControl) {
+            m_runControl->showMessage(error, Debugger::AppError);
+            m_runControl->notifyInferiorIll();
         }
     } else if (state() != Inactive) {
         setFinished();
-        if (m_engine) {
+        if (m_runControl) {
             Debugger::RemoteSetupResult result;
             result.success = false;
             result.reason = tr("Initial setup failed: %1").arg(error);
-            m_engine->notifyEngineRemoteSetupFinished(result);
+            m_runControl->notifyEngineRemoteSetupFinished(result);
         }
     }
 }
 
 void QnxDebugSupport::printMissingWarning()
 {
-    if (m_engine)
-        m_engine->showMessage(tr("Warning: \"slog2info\" is not found on the device, debug output not available."), Debugger::AppError);
+    if (m_runControl)
+        m_runControl->showMessage(tr("Warning: \"slog2info\" is not found on the device, debug output not available."), Debugger::AppError);
 }
 
 void QnxDebugSupport::handleApplicationOutput(const QString &msg, Utils::OutputFormat outputFormat)
 {
     Q_UNUSED(outputFormat);
-    if (m_engine)
-        m_engine->showMessage(msg, Debugger::AppOutput);
+    if (m_runControl)
+        m_runControl->showMessage(msg, Debugger::AppOutput);
 }

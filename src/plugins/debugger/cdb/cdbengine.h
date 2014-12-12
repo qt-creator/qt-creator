@@ -52,7 +52,7 @@ struct MemoryViewCookie;
 class ByteArrayInputStream;
 class GdbMi;
 
-class CdbEngine : public Debugger::DebuggerEngine
+class CdbEngine : public DebuggerEngine
 {
     Q_OBJECT
 

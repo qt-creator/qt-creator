@@ -351,12 +351,6 @@ QmlEngine::~QmlEngine()
     Core::EditorManager::closeDocuments(documentsToClose.toList());
 }
 
-void QmlEngine::notifyInferiorSetupOk()
-{
-    emit aboutToNotifyInferiorSetupOk();
-    DebuggerEngine::notifyInferiorSetupOk();
-}
-
 void QmlEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());

@@ -34,16 +34,15 @@
 #include <QString>
 
 namespace Debugger {
-
-class DebuggerEngine;
-
 namespace Internal {
 
+class DebuggerEngine;
 class SourceAgentPrivate;
+
 class SourceAgent
 {
 public:
-    explicit SourceAgent(Debugger::DebuggerEngine *engine);
+    explicit SourceAgent(DebuggerEngine *engine);
     ~SourceAgent();
     void setSourceProducerName(const QString &name);
     void resetLocation();

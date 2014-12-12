@@ -60,7 +60,6 @@ public:
                        DebuggerEngine *masterEngine = 0);
     ~QmlEngine();
 
-    void notifyInferiorSetupOk();
     void notifyEngineRemoteServerRunning(const QByteArray &, int pid);
     void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
 
@@ -90,7 +89,6 @@ public:
 signals:
     void tooltipRequested(const QPoint &mousePos,
         TextEditor::TextEditorWidget *editorWidget, int cursorPos);
-    void aboutToNotifyInferiorSetupOk();
 
 private slots:
     void disconnected();

@@ -40,7 +40,6 @@
 #include "qnxutils.h"
 #include "qnxdeviceconfiguration.h"
 
-#include <debugger/debuggerengine.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <debugger/debuggerstartparameters.h>
@@ -184,7 +183,7 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, RunMode mo
         if (!runControl)
             return 0;
 
-        QnxDebugSupport *debugSupport = new QnxDebugSupport(rc, runControl->engine());
+        QnxDebugSupport *debugSupport = new QnxDebugSupport(rc, runControl);
         connect(runControl, SIGNAL(finished()), debugSupport, SLOT(handleDebuggingFinished()));
 
         return runControl;

@@ -37,11 +37,9 @@
 #include <qmldebug/baseenginedebugclient.h>
 
 namespace Debugger {
-
-class DebuggerEngine;
-
 namespace Internal {
 
+class DebuggerEngine;
 class WatchData;
 
 //map <filename, editorRevision> -> <lineNumber, columnNumber> -> debugId

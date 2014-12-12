@@ -44,11 +44,11 @@ namespace Core { class IEditor; }
 namespace ProjectExplorer { class Abi; }
 
 namespace Debugger {
+namespace Internal {
 
 class DebuggerEngine;
-
-namespace Internal {
 class MemoryView;
+
 class MemoryMarkup
 {
 public:

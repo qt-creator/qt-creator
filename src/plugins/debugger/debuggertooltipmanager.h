@@ -42,11 +42,9 @@ class QAbstractItemModel;
 QT_END_NAMESPACE
 
 namespace Debugger {
-
-class DebuggerEngine;
-
 namespace Internal {
 
+class DebuggerEngine;
 class StackFrame;
 
 class DebuggerToolTipContext

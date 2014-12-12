@@ -34,7 +34,6 @@
 #include "blackberryapplicationrunner.h"
 
 #include <debugger/debuggerruncontrol.h>
-#include <debugger/debuggerengine.h>
 #include <debugger/debuggerstartparameters.h>
 
 using namespace Qnx;
@@ -42,18 +41,19 @@ using namespace Qnx::Internal;
 
 BlackBerryDebugSupport::BlackBerryDebugSupport(BlackBerryRunConfiguration *runConfig,
                                  Debugger::DebuggerRunControl *runControl)
-    : QObject(runControl->engine())
-    , m_engine(runControl->engine())
+    : QObject(runControl)
+    , m_runControl(runControl)
 {
     BlackBerryApplicationRunner::LaunchFlags launchFlags;
-    if (m_engine->startParameters().languages & Debugger::CppLanguage)
+    if (m_runControl->startParameters().languages & Debugger::CppLanguage)
         launchFlags |= BlackBerryApplicationRunner::CppDebugLaunch;
-    if (m_engine->startParameters().languages & Debugger::QmlLanguage)
+    if (m_runControl->startParameters().languages & Debugger::QmlLanguage)
         launchFlags |= BlackBerryApplicationRunner::QmlDebugLaunch;
     m_runner = new BlackBerryApplicationRunner(launchFlags, runConfig, this);
 
-    connect(m_engine, SIGNAL(requestRemoteSetup()), this, SLOT(launchRemoteApplication()));
-    connect(m_engine, SIGNAL(stateChanged(Debugger::DebuggerState)),
+    connect(m_runControl, &Debugger::DebuggerRunControl::requestRemoteSetup,
+            this, &BlackBerryDebugSupport::launchRemoteApplication);
+    connect(m_runControl, SIGNAL(stateChanged(Debugger::DebuggerState)),
             this, SLOT(handleDebuggerStateChanged(Debugger::DebuggerState)));
 
     connect(m_runner, SIGNAL(started()), this, SLOT(handleStarted()));
@@ -72,13 +72,13 @@ void BlackBerryDebugSupport::launchRemoteApplication()
 
 void BlackBerryDebugSupport::handleStarted()
 {
-    m_engine->startParameters().attachPID = m_runner->pid(); // FIXME: Is that needed?
+    m_runControl->startParameters().attachPID = m_runner->pid(); // FIXME: Is that needed?
     Debugger::RemoteSetupResult result;
     result.success = true;
     result.inferiorPid = m_runner->pid();
     result.gdbServerPort = 8000;
     result.qmlServerPort = Debugger::InvalidPort;
-    m_engine->notifyEngineRemoteSetupFinished(result);
+    m_runControl->notifyEngineRemoteSetupFinished(result);
 }
 
 void BlackBerryDebugSupport::handleStartFailed(const QString &message)
@@ -86,7 +86,7 @@ void BlackBerryDebugSupport::handleStartFailed(const QString &message)
     Debugger::RemoteSetupResult result;
     result.success = false;
     result.reason = message;
-    m_engine->notifyEngineRemoteSetupFinished(result);
+    m_runControl->notifyEngineRemoteSetupFinished(result);
 }
 
 void BlackBerryDebugSupport::handleDebuggerStateChanged(Debugger::DebuggerState state)
@@ -100,5 +100,5 @@ void BlackBerryDebugSupport::handleDebuggerStateChanged(Debugger::DebuggerState 
 void BlackBerryDebugSupport::handleApplicationOutput(const QString &msg, Utils::OutputFormat format)
 {
     Q_UNUSED(format)
-    m_engine->showMessage(msg, Debugger::AppOutput);
+    m_runControl->showMessage(msg, Debugger::AppOutput);
 }

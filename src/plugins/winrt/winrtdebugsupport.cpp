@@ -32,7 +32,6 @@
 #include "winrtrunconfiguration.h"
 #include "winrtrunnerhelper.h"
 
-#include <debugger/debuggerengine.h>
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>

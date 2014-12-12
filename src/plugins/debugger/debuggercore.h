@@ -50,12 +50,10 @@ namespace CPlusPlus { class Snapshot; }
 namespace Utils { class SavedAction; }
 
 namespace Debugger {
-
-class DebuggerEngine;
-
 namespace Internal {
 
 class BreakHandler;
+class DebuggerEngine;
 class Symbol;
 class Section;
 class GlobalDebuggerOptions;

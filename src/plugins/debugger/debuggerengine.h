@@ -50,7 +50,6 @@ namespace Core { class IOptionsPage; }
 
 namespace Debugger {
 
-class DebuggerEnginePrivate;
 class DebuggerRunControl;
 class DebuggerStartParameters;
 
@@ -59,6 +58,7 @@ DEBUGGER_EXPORT QDebug operator<<(QDebug str, DebuggerState state);
 
 namespace Internal {
 
+class DebuggerEnginePrivate;
 class DebuggerPluginPrivate;
 class DisassemblerAgent;
 class MemoryAgent;
@@ -129,11 +129,7 @@ public:
     quint64 address;
 };
 
-} // namespace Internal
-
-
-// FIXME: DEBUGGER_EXPORT?
-class DEBUGGER_EXPORT DebuggerEngine : public QObject
+class DebuggerEngine : public QObject
 {
     Q_OBJECT
 
@@ -282,6 +278,7 @@ signals:
      * a server start script should be used, but none is given.
      */
     void requestRemoteSetup();
+    void aboutToNotifyInferiorSetupOk();
 
 protected:
     // The base notify*() function implementation should be sufficient
@@ -315,7 +312,9 @@ protected:
     virtual void notifyInferiorStopOk();
     virtual void notifyInferiorSpontaneousStop();
     virtual void notifyInferiorStopFailed();
-    Q_SLOT virtual void notifyInferiorExited();
+
+    public:
+    virtual void notifyInferiorExited();
 
 protected:
     virtual void notifyInferiorShutdownOk();
@@ -392,9 +391,9 @@ protected:
 
 private:
     // Wrapper engine needs access to state of its subengines.
-    friend class Internal::QmlCppEngine;
-    friend class Internal::DebuggerPluginPrivate;
-    friend class Internal::QmlAdapter;
+    friend class QmlCppEngine;
+    friend class DebuggerPluginPrivate;
+    friend class QmlAdapter;
 
     virtual void setState(DebuggerState state, bool forced = false);
 
@@ -402,6 +401,7 @@ private:
     DebuggerEnginePrivate *d;
 };
 
+} // namespace Internal
 } // namespace Debugger
 
 Q_DECLARE_METATYPE(Debugger::Internal::ContextData)

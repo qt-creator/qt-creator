@@ -43,11 +43,10 @@ class QDebugMessageClient;
 }
 
 namespace Debugger {
-
-class DebuggerEngine;
-
 namespace Internal {
+
 class BaseQmlDebuggerClient;
+class DebuggerEngine;
 class QmlAdapterPrivate;
 
 class QmlAdapter : public QObject

@@ -37,7 +37,7 @@
 
 #include <utils/outputformat.h>
 
-namespace Debugger { class DebuggerEngine; }
+namespace Debugger { class DebuggerRunControl; }
 
 namespace Qnx {
 namespace Internal {
@@ -48,9 +48,10 @@ class Slog2InfoRunner;
 class QnxDebugSupport : public QnxAbstractRunSupport
 {
     Q_OBJECT
+
 public:
-    explicit QnxDebugSupport(QnxRunConfiguration *runConfig,
-                             Debugger::DebuggerEngine *engine);
+    QnxDebugSupport(QnxRunConfiguration *runConfig,
+                    Debugger::DebuggerRunControl *runControl);
 
 public slots:
     void handleDebuggingFinished();
@@ -76,7 +77,7 @@ private:
 
     Slog2InfoRunner *m_slog2Info;
 
-    Debugger::DebuggerEngine *m_engine;
+    Debugger::DebuggerRunControl *m_runControl;
     int m_pdebugPort;
     int m_qmlPort;
 

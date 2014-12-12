@@ -130,9 +130,6 @@ protected:
     void notifyInferiorSetupOk();
     void notifyEngineRemoteServerRunning(const QByteArray &, int pid);
 
-signals:
-    void aboutToNotifyInferiorSetupOk();
-
 private:
     void engineStateChanged(DebuggerState newState);
     void setState(DebuggerState newState, bool forced = false);

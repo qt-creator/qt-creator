@@ -40,10 +40,7 @@
 #include <QObject>
 #include <QProcess>
 
-namespace Debugger {
-class DebuggerEngine;
-class DebuggerRunControl;
-}
+namespace Debugger { class DebuggerRunControl; }
 
 namespace Qnx {
 namespace Internal {
@@ -73,8 +70,7 @@ private slots:
     void handleApplicationOutput(const QString &msg, Utils::OutputFormat format);
 
 private:
-    Debugger::DebuggerEngine *m_engine;
-
+    Debugger::DebuggerRunControl *m_runControl;
     BlackBerryApplicationRunner *m_runner;
 };
 

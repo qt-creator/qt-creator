@@ -36,16 +36,11 @@
 
 #include <utils/fancymainwindow.h>
 
-namespace Core {
-class Context;
-class IMode;
-}
+namespace Core { class IMode; }
 
 namespace Debugger {
-
-class DebuggerEngine;
-
 namespace Internal {
+
 class DebuggerMainWindowPrivate;
 
 // DebuggerMainWindow dock widget names

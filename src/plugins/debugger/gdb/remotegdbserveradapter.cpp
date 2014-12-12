@@ -333,12 +333,6 @@ void GdbRemoteServerEngine::handleTargetExtendedAttach(const GdbResponse &respon
     }
 }
 
-void GdbRemoteServerEngine::notifyInferiorSetupOk()
-{
-    emit aboutToNotifyInferiorSetupOk();
-    GdbEngine::notifyInferiorSetupOk();
-}
-
 void GdbRemoteServerEngine::handleTargetQnx(const GdbResponse &response)
 {
     QTC_ASSERT(m_isQnxGdb, qDebug() << m_isQnxGdb);

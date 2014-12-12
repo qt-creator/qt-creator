@@ -34,7 +34,6 @@
 #include "iosmanager.h"
 #include "iosdevice.h"
 
-#include <debugger/debuggerengine.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerruncontrol.h>
@@ -182,7 +181,7 @@ IosDebugSupport::IosDebugSupport(IosRunConfiguration *runConfig,
     : QObject(runControl), m_runControl(runControl),
       m_runner(new IosRunner(this, runConfig, cppDebug, qmlDebug))
 {
-    connect(m_runControl->engine(), SIGNAL(requestRemoteSetup()),
+    connect(m_runControl, SIGNAL(requestRemoteSetup()),
             m_runner, SLOT(start()));
     connect(m_runControl, SIGNAL(finished()),
             m_runner, SLOT(stop()));
@@ -212,7 +211,7 @@ void IosDebugSupport::handleServerPorts(int gdbServerPort, int qmlPort)
     result.success = gdbServerPort > 0 || (m_runner && !m_runner->cppDebug() && qmlPort > 0);
     if (!result.success)
         result.reason =  tr("Could not get debug server file descriptor.");
-    m_runControl->engine()->notifyEngineRemoteSetupFinished(result);
+    m_runControl->notifyEngineRemoteSetupFinished(result);
 }
 
 void IosDebugSupport::handleGotInferiorPid(Q_PID pid, int qmlPort)
@@ -223,7 +222,7 @@ void IosDebugSupport::handleGotInferiorPid(Q_PID pid, int qmlPort)
     result.success = pid > 0;
     if (!result.success)
         result.reason =  tr("Got an invalid process id.");
-    m_runControl->engine()->notifyEngineRemoteSetupFinished(result);
+    m_runControl->notifyEngineRemoteSetupFinished(result);
 }
 
 void IosDebugSupport::handleRemoteProcessFinished(bool cleanEnd)
@@ -233,28 +232,20 @@ void IosDebugSupport::handleRemoteProcessFinished(bool cleanEnd)
             m_runControl->appendMessage(tr("Run ended with error."), Utils::DebugFormat);
         else
             m_runControl->appendMessage(tr("Run ended."), Utils::DebugFormat);
-        m_runControl->engine()->abortDebugger();
+        m_runControl->abortDebugger();
     }
 }
 
 void IosDebugSupport::handleRemoteOutput(const QString &output)
 {
-    if (m_runControl) {
-        if (m_runControl->engine())
-            m_runControl->engine()->showMessage(output, AppOutput);
-        else
-            m_runControl->appendMessage(output, Utils::StdOutFormatSameLine);
-    }
+    if (m_runControl)
+        m_runControl->showMessage(output, AppOutput);
 }
 
 void IosDebugSupport::handleRemoteErrorOutput(const QString &output)
 {
-    if (m_runControl) {
-        if (m_runControl->engine())
-            m_runControl->engine()->showMessage(output, AppError);
-        else
-            m_runControl->appendMessage(output, Utils::StdErrFormatSameLine);
-    }
+    if (m_runControl)
+        m_runControl->showMessage(output, AppError);
 }
 
 } // namespace Internal

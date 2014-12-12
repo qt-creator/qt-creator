@@ -37,9 +37,7 @@
 
 #include <QObject>
 
-namespace Debugger {
-class DebuggerEngine;
-}
+namespace Debugger { class DebuggerRunControl; }
 
 namespace ProjectExplorer {
 class DeviceApplicationRunner;
@@ -77,7 +75,7 @@ private:
 
     ProjectExplorer::DeviceApplicationRunner *m_runner;
     ProjectExplorer::DeviceUsedPortsGatherer *m_portsGatherer;
-    Debugger::DebuggerEngine *m_engine;
+    Debugger::DebuggerRunControl *m_runControl;
 
     int m_pdebugPort;
     QString m_projectSourceDirectory;

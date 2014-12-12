@@ -66,7 +66,6 @@ signals:
      * a server start script should be used, but none is given.
      */
     void requestSetup();
-    void aboutToNotifyInferiorSetupOk();
 
 private:
     Q_SLOT void readUploadStandardOutput();
@@ -77,7 +76,6 @@ private:
 
     void notifyEngineRemoteServerRunning(const QByteArray &serverChannel, int inferiorPid);
     void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
-    void notifyInferiorSetupOk();
 
     void handleSetTargetAsync(const GdbResponse &response);
     void handleFileExecAndSymbols(const GdbResponse &response);

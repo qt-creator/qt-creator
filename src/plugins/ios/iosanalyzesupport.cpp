@@ -34,7 +34,6 @@
 #include "iosmanager.h"
 #include "iosdevice.h"
 
-#include <debugger/debuggerengine.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerruncontrol.h>

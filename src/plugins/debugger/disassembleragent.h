@@ -34,13 +34,12 @@
 #include <QObject>
 
 namespace Debugger {
+namespace Internal {
 
 class DebuggerEngine;
-
-namespace Internal {
+class DisassemblerAgentPrivate;
 class DisassemblerLines;
 class Location;
-class DisassemblerAgentPrivate;
 
 class DisassemblerAgent : public QObject
 {

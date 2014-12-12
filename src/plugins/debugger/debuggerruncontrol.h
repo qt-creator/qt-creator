@@ -40,7 +40,10 @@ namespace ProjectExplorer { class Kit;  }
 
 namespace Debugger {
 
-class DebuggerEngine;
+class RemoteSetupResult;
+
+namespace Internal { class DebuggerEngine; }
+
 class DebuggerStartParameters;
 
 class DEBUGGER_EXPORT DebuggerRunControl
@@ -59,20 +62,32 @@ public:
     QString displayName() const;
 
     void startFailed();
+    void notifyEngineRemoteServerRunning(const QByteArray &msg, int pid);
+    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
+    void notifyInferiorIll();
+    Q_SLOT void notifyInferiorExited();
+    void quitDebugger();
+    void abortDebugger();
     void debuggingFinished();
-    DebuggerEngine *engine();
+
+    void showMessage(const QString &msg, int channel = LogDebug);
+
+    DebuggerStartParameters &startParameters();
 
 signals:
-    void engineRequestSetup();
+    void requestRemoteSetup();
+    void aboutToNotifyInferiorSetupOk();
+    void stateChanged(Debugger::DebuggerState state);
 
 private slots:
     void handleFinished();
 
 private:
     friend class DebuggerRunControlFactory;
-    DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfiguration, DebuggerEngine *engine);
+    DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
+                       Internal::DebuggerEngine *engine);
 
-    DebuggerEngine *m_engine;
+    Internal::DebuggerEngine *m_engine;
     bool m_running;
 };
 
@@ -91,7 +106,7 @@ public:
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
         ProjectExplorer::RunMode mode) const;
 
-    static DebuggerEngine *createEngine(DebuggerEngineType et,
+    static Internal::DebuggerEngine *createEngine(DebuggerEngineType et,
         const DebuggerStartParameters &sp,
         QString *errorMessage);
 

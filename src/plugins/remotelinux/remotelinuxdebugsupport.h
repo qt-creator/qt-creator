@@ -34,7 +34,7 @@
 #include "abstractremotelinuxrunsupport.h"
 
 namespace Debugger {
-class DebuggerEngine;
+class DebuggerRunControl;
 class DebuggerStartParameters;
 }
 
@@ -50,7 +50,7 @@ public:
     static Debugger::DebuggerStartParameters startParameters(const AbstractRemoteLinuxRunConfiguration *runConfig);
 
     LinuxDeviceDebugSupport(AbstractRemoteLinuxRunConfiguration *runConfig,
-            Debugger::DebuggerEngine *engine);
+            Debugger::DebuggerRunControl *runControl);
     ~LinuxDeviceDebugSupport();
 
 protected:

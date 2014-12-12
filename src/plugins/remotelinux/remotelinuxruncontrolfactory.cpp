@@ -111,7 +111,7 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Ru
         if (!runControl)
             return 0;
         LinuxDeviceDebugSupport * const debugSupport =
-                new LinuxDeviceDebugSupport(rc, runControl->engine());
+                new LinuxDeviceDebugSupport(rc, runControl);
         connect(runControl, SIGNAL(finished()), debugSupport, SLOT(handleDebuggingFinished()));
         return runControl;
     }

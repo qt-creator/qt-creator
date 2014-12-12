@@ -108,10 +108,9 @@ public:
 Q_DECLARE_METATYPE(Debugger::Internal::TypeFormatList)
 
 namespace Debugger {
+namespace Internal {
 
 class DebuggerEngine;
-
-namespace Internal {
 
 class UpdateParameters
 {

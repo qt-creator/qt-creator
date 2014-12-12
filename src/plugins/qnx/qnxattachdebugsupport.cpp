@@ -35,7 +35,6 @@
 #include "qnxqtversion.h"
 #include "qnxutils.h"
 
-#include <debugger/debuggerengine.h>
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
@@ -58,7 +57,7 @@ using namespace Qnx::Internal;
 QnxAttachDebugSupport::QnxAttachDebugSupport(QObject *parent)
     : QObject(parent)
     , m_kit(0)
-    , m_engine(0)
+    , m_runControl(0)
     , m_pdebugPort(-1)
 {
     m_runner = new ProjectExplorer::DeviceApplicationRunner(this);
@@ -139,8 +138,8 @@ void QnxAttachDebugSupport::attachToProcess()
         stopPDebug();
         return;
     }
-    m_engine = runControl->engine();
-    connect(m_engine, SIGNAL(stateChanged(Debugger::DebuggerState)), this, SLOT(handleDebuggerStateChanged(Debugger::DebuggerState)));
+    connect(runControl, &Debugger::DebuggerRunControl::stateChanged,
+            this, &QnxAttachDebugSupport::handleDebuggerStateChanged);
     ProjectExplorer::ProjectExplorerPlugin::startRunControl(runControl, ProjectExplorer::DebugRunMode);
 }
 
@@ -152,20 +151,20 @@ void QnxAttachDebugSupport::handleDebuggerStateChanged(Debugger::DebuggerState s
 
 void QnxAttachDebugSupport::handleError(const QString &message)
 {
-    if (m_engine)
-        m_engine->showMessage(message, Debugger::AppError);
+    if (m_runControl)
+        m_runControl->showMessage(message, Debugger::AppError);
 }
 
 void QnxAttachDebugSupport::handleProgressReport(const QString &message)
 {
-    if (m_engine)
-        m_engine->showMessage(message + QLatin1Char('\n'), Debugger::AppStuff);
+    if (m_runControl)
+        m_runControl->showMessage(message + QLatin1Char('\n'), Debugger::AppStuff);
 }
 
 void QnxAttachDebugSupport::handleRemoteOutput(const QByteArray &output)
 {
-    if (m_engine)
-        m_engine->showMessage(QString::fromUtf8(output), Debugger::AppOutput);
+    if (m_runControl)
+        m_runControl->showMessage(QString::fromUtf8(output), Debugger::AppOutput);
 }
 
 void QnxAttachDebugSupport::stopPDebug()

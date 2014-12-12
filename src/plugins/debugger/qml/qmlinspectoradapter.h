@@ -47,11 +47,9 @@ class FileReference;
 }
 
 namespace Debugger {
-
-class DebuggerEngine;
-
 namespace Internal {
 
+class DebuggerEngine;
 class WatchTreeView;
 class QmlAdapter;
 class QmlInspectorAgent;

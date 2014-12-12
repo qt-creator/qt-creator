@@ -99,18 +99,6 @@ const char PrefixDebugExecutable[]  = "DebuggedExecutable";
 
 namespace Debugger {
 
-Internal::Location::Location(const StackFrame &frame, bool marker)
-{
-    init();
-    m_fileName = frame.file;
-    m_lineNumber = frame.line;
-    m_needsMarker = marker;
-    m_functionName = frame.function;
-    m_hasDebugInfo = frame.isUsable();
-    m_address = frame.address;
-    m_from = frame.from;
-}
-
 QDebug operator<<(QDebug d, DebuggerState state)
 {
     //return d << DebuggerEngine::stateName(state) << '(' << int(state) << ')';
@@ -131,6 +119,20 @@ QDebug operator<<(QDebug str, const DebuggerStartParameters &sp)
             << " serverStartScript=" << sp.serverStartScript
             << " abi=" << sp.toolChainAbi.toString() << '\n';
     return str;
+}
+
+namespace Internal {
+
+Location::Location(const StackFrame &frame, bool marker)
+{
+    init();
+    m_fileName = frame.file;
+    m_lineNumber = frame.line;
+    m_needsMarker = marker;
+    m_functionName = frame.function;
+    m_hasDebugInfo = frame.isUsable();
+    m_address = frame.address;
+    m_from = frame.from;
 }
 
 
@@ -781,6 +783,7 @@ void DebuggerEngine::notifyInferiorSetupOk()
 #ifdef WITH_BENCHMARK
     CALLGRIND_START_INSTRUMENTATION;
 #endif
+    aboutToNotifyInferiorSetupOk();
     showMessage(_("NOTE: INFERIOR SETUP OK"));
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << this << state());
     setState(InferiorSetupOk);
@@ -1903,6 +1906,7 @@ void DebuggerEngine::validateExecutable(DebuggerStartParameters *sp)
     }
 }
 
+} // namespace Internal
 } // namespace Debugger
 
 #include "debuggerengine.moc"

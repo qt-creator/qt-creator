@@ -42,12 +42,10 @@
 //////////////////////////////////////////////////////////////////
 
 namespace Debugger {
-
-class DebuggerEngine;
-
 namespace Internal {
 
 class BreakpointMarker;
+class DebuggerEngine;
 
 class BreakHandler : public QAbstractItemModel
 {

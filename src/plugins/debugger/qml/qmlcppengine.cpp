@@ -408,7 +408,6 @@ void QmlCppEngine::notifyInferiorShutdownOk()
 void QmlCppEngine::notifyInferiorSetupOk()
 {
     EDEBUG("\nMASTER INFERIOR SETUP OK");
-    emit aboutToNotifyInferiorSetupOk();
     DebuggerEngine::notifyInferiorSetupOk();
 }
 
