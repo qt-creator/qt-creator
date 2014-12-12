@@ -138,7 +138,6 @@ private:
     void setState(DebuggerState newState, bool forced = false);
     void slaveEngineStateChanged(DebuggerEngine *slaveEngine, DebuggerState state);
 
-    void readyToExecuteQmlStep();
     void setActiveEngine(DebuggerEngine *engine);
 
 private:

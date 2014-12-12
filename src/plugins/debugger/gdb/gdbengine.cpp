@@ -222,7 +222,6 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
     m_pendingBreakpointRequests = 0;
     m_commandsDoneCallback = 0;
     m_stackNeeded = false;
-    m_preparedForQmlBreak = false;
     m_terminalTrap = startParameters.useTerminal;
     m_fullStartDone = false;
     m_systemDumpersLoaded = false;
@@ -642,15 +641,6 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 const Task::TaskType type = isFatalWinException(exCode) ? Task::Error : Task::Warning;
                 TaskHub::addTask(type, m_lastWinException, Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
             }
-
-            if (data.startsWith("QMLBP:")) {
-                int pos1 = 6;
-                int pos2 = data.indexOf(' ', pos1);
-                m_qmlBreakpointResponseId2 = BreakpointResponseId(data.mid(pos1, pos2 - pos1));
-                //qDebug() << "FOUND QMLBP: " << m_qmlBreakpointNumbers[2];
-                //qDebug() << "CURRENT: " << m_qmlBreakpointNumbers;
-            }
-
             break;
         }
 
@@ -1404,9 +1394,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         showMessage(_("INVALID STOPPED REASON"), LogWarning);
     }
 
-    if (rid.isValid() && frame.isValid()
-            && !isQmlStepBreakpoint(rid)
-            && !isQFatalBreakpoint(rid)) {
+    if (rid.isValid() && frame.isValid() && !isQFatalBreakpoint(rid)) {
         // Use opportunity to update the breakpoint marker position.
         BreakHandler *handler = breakHandler();
         //qDebug() << " PROBLEM: " << m_qmlBreakpointNumbers << rid
@@ -1427,7 +1415,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     // Quickly set the location marker.
     if (lineNumber && !boolSetting(OperateByInstruction)
             && QFileInfo::exists(fullName)
-            && !isQmlStepBreakpoint(rid)
             && !isQFatalBreakpoint(rid))
         gotoLocation(Location(fullName, lineNumber));
 
@@ -1470,8 +1457,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
 
-    if (isQmlStepBreakpoint1(rid))
-        return;
 
     if (gotoHandleStop1)
         handleStop1(data);
@@ -4591,54 +4576,6 @@ void GdbEngine::resetCommandQueue()
     }
 }
 
-bool GdbEngine::setupQmlStep(bool on)
-{
-    QTC_ASSERT(isSlaveEngine(), return false);
-    m_qmlBreakpointResponseId1 = BreakpointResponseId();
-    m_qmlBreakpointResponseId2 = BreakpointResponseId();
-    //qDebug() << "CLEAR: " << m_qmlBreakpointNumbers;
-    postCommand("tbreak '" + qtNamespace() + "QScript::FunctionWrapper::proxyCall'\n"
-        "commands\n"
-        "set $d=(void*)((FunctionWrapper*)callee)->data->function\n"
-        "tbreak *$d\nprintf \"QMLBP:%d \\n\",$bpnum\ncontinue\nend",
-        NeedsStop, CB(handleSetQmlStepBreakpoint));
-    m_preparedForQmlBreak = on;
-    return true;
-}
-
-void GdbEngine::handleSetQmlStepBreakpoint(const GdbResponse &response)
-{
-    //QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    if (response.resultClass == GdbResultDone) {
-        // logStreamOutput: "tbreak 'myns::QScript::FunctionWrapper::proxyCall'\n"
-        // consoleStreamOutput: "Temporary breakpoint 1 at 0xf166e7:
-        // file bridge/qscriptfunction.cpp, line 75.\n"}
-        QByteArray ba = parsePlainConsoleStream(response);
-        const int pos2 = ba.indexOf(" at 0x");
-        const int pos1 = ba.lastIndexOf(" ", pos2 - 1) + 1;
-        QByteArray mid = ba.mid(pos1, pos2 - pos1);
-        m_qmlBreakpointResponseId1 = BreakpointResponseId(mid);
-        //qDebug() << "SET: " << m_qmlBreakpointResponseId1;
-    }
-    QTC_ASSERT(masterEngine(), return);
-    masterEngine()->readyToExecuteQmlStep();
-}
-
-bool GdbEngine::isQmlStepBreakpoint(const BreakpointResponseId &id) const
-{
-    return isQmlStepBreakpoint1(id) || isQmlStepBreakpoint2(id);
-}
-
-bool GdbEngine::isQmlStepBreakpoint1(const BreakpointResponseId &id) const
-{
-    return id.isValid() && m_qmlBreakpointResponseId1 == id;
-}
-
-bool GdbEngine::isQmlStepBreakpoint2(const BreakpointResponseId &id) const
-{
-    return id.isValid() && m_qmlBreakpointResponseId2 == id;
-}
-
 bool GdbEngine::isQFatalBreakpoint(const BreakpointResponseId &id) const
 {
     return id.isValid() && m_qFatalBreakpointResponseId == id;
@@ -4646,7 +4583,7 @@ bool GdbEngine::isQFatalBreakpoint(const BreakpointResponseId &id) const
 
 bool GdbEngine::isHiddenBreakpoint(const BreakpointResponseId &id) const
 {
-    return isQFatalBreakpoint(id) || isQmlStepBreakpoint(id);
+    return isQFatalBreakpoint(id);
 }
 
 bool GdbEngine::usesExecInterrupt() const

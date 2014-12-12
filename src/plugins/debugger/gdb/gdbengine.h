@@ -472,17 +472,6 @@ protected:
     // For short-circuiting stack and thread list evaluation.
     bool m_stackNeeded;
 
-    //
-    // Qml
-    //
-    BreakpointResponseId m_qmlBreakpointResponseId1;
-    BreakpointResponseId m_qmlBreakpointResponseId2;
-    bool m_preparedForQmlBreak;
-    bool setupQmlStep(bool on);
-    void handleSetQmlStepBreakpoint(const GdbResponse &response);
-    bool isQmlStepBreakpoint(const BreakpointResponseId &id) const;
-    bool isQmlStepBreakpoint1(const BreakpointResponseId &id) const;
-    bool isQmlStepBreakpoint2(const BreakpointResponseId &id) const;
     bool isQFatalBreakpoint(const BreakpointResponseId &id) const;
     bool isHiddenBreakpoint(const BreakpointResponseId &id) const;
 

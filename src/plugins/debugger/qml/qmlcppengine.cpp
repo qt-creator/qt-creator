@@ -285,24 +285,8 @@ void QmlCppEngine::detachDebugger()
 
 void QmlCppEngine::executeStep()
 {
-//    TODO: stepping from qml -> cpp requires more thought
-//    if (m_activeEngine == m_qmlEngine) {
-//        QTC_CHECK(m_cppEngine->state() == InferiorRunOk);
-//        if (m_cppEngine->setupQmlStep(true))
-//            return; // Wait for callback to readyToExecuteQmlStep()
-//    } else {
-//        notifyInferiorRunRequested();
-//        m_cppEngine->executeStep();
-//    }
-
     notifyInferiorRunRequested();
     m_activeEngine->executeStep();
-}
-
-void QmlCppEngine::readyToExecuteQmlStep()
-{
-    notifyInferiorRunRequested();
-    m_qmlEngine->executeStep();
 }
 
 void QmlCppEngine::executeStepOut()

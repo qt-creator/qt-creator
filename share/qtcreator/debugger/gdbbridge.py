@@ -1924,20 +1924,4 @@ registerCommand("stackListFrames", stackListFrames)
 #
 #######################################################################
 
-def qmlb(args):
-    # executeCommand(command, to_string=True).split("\n")
-    warn("RUNNING: break -f QScript::FunctionWrapper::proxyCall")
-    output =  gdb.execute("rbreak -f QScript::FunctionWrapper::proxyCall", to_string=True).split("\n")
-    warn("OUTPUT: %s " % output)
-    bp = output[0]
-    warn("BP: %s " % bp)
-    # BP: ['Breakpoint 3 at 0xf166e7: file .../qscriptfunction.cpp, line 75.\\n'] \n"
-    pos = bp.find(' ') + 1
-    warn("POS: %s " % pos)
-    nr = bp[bp.find(' ') + 1 : bp.find(' at ')]
-    warn("NR: %s " % nr)
-    return bp
-
-registerCommand("qmlb", qmlb)
-
 bbsetup()

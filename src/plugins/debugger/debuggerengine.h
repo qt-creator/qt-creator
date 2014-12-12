@@ -263,9 +263,6 @@ public:
     bool isMasterEngine() const;
     DebuggerEngine *masterEngine() const;
 
-    virtual bool setupQmlStep(bool /*on*/) { return false; }
-    virtual void readyToExecuteQmlStep() {}
-
     virtual bool canDisplayTooltip() const { return state() == InferiorStopOk; }
 
     virtual void notifyInferiorIll();
