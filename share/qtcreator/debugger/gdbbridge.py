@@ -1697,8 +1697,8 @@ class Dumper(DumperBase):
         return typeobj
 
 
-    def stackListFrames(self, n):
-        self.prepare("options:pe")
+    def stackListFrames(self, n, options):
+        self.prepare("options:" + options + ",pe")
         self.output = []
 
         frame = gdb.newest_frame()
@@ -1912,9 +1912,16 @@ registerCommand("reload", reloadDumper)
 #######################################################################
 
 def stackListFrames(arg):
-    args = arg.split(' ')
-    limit = int(args[1]) if len(args) >= 2 else 1000
-    return theDumper.stackListFrames(limit)
+    try:
+        args = arg.split(' ')
+        limit = int(args[0]) if len(args) > 0 else 10000
+        if limit <= 0:
+            limit = 10000
+        options = args[1] if len(args) > 1 else ""
+        return theDumper.stackListFrames(limit, options)
+    except:
+        import traceback
+        traceback.print_exc()
 
 registerCommand("stackListFrames", stackListFrames)
 

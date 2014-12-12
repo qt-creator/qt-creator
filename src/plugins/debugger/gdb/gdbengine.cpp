@@ -1241,7 +1241,8 @@ void GdbEngine::updateAll()
     //PENDING_DEBUG("UPDATING ALL\n");
     QTC_CHECK(state() == InferiorUnrunnable || state() == InferiorStopOk);
     reloadModulesInternal();
-    postCommand("stackListFrames", CB(handleStackListFrames),
+    int depth = action(MaximalStackDepth)->value().toInt();
+    postCommand(stackCommand(depth), CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, true)));
     stackHandler()->setCurrentIndex(0);
     postCommand("-thread-info", CB(handleThreadInfo), 0);
@@ -3239,7 +3240,7 @@ void GdbEngine::reloadFullStack()
 {
     PENDING_DEBUG("RELOAD FULL STACK");
     resetLocation();
-    postCommand("stackListFrames", Discardable, CB(handleStackListFrames),
+    postCommand(stackCommand(-1), Discardable, CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(true, true)));
 }
 
@@ -3327,14 +3328,29 @@ void GdbEngine::handleQmlStackTrace(const GdbResponse &response)
     stackHandler()->prependFrames(qmlFrames);
 }
 
+QByteArray GdbEngine::stackCommand(int depth)
+{
+    QByteArray cmd;
+    if (isNativeMixedEnabled()) {
+        cmd = "stackListFrames " + QByteArray::number(depth) + ' ';
+        if (isNativeMixedActive())
+            cmd += "mixed";
+        else
+            cmd += "noopt";
+    } else {
+        if (depth == -1)
+            cmd = "-stack-list-frames";
+        else
+            cmd = "-stack-list-frames 0 " + QByteArray::number(depth);
+    }
+    return cmd;
+}
+
 void GdbEngine::reloadStack(bool forceGotoLocation)
 {
     PENDING_DEBUG("RELOAD STACK");
-    QByteArray cmd = "stackListFrames";
-    int stackDepth = action(MaximalStackDepth)->value().toInt();
-    if (stackDepth)
-        cmd += " 0 " + QByteArray::number(stackDepth);
-    postCommand(cmd, Discardable, CB(handleStackListFrames),
+    int depth = action(MaximalStackDepth)->value().toInt();
+    postCommand(stackCommand(depth), Discardable, CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, forceGotoLocation)));
 }
 
@@ -3374,10 +3390,9 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
     StackCookie cookie = response.cookie.value<StackCookie>();
     QList<StackFrame> stackFrames;
 
-    //GdbMi stack = response.data["stack"];
-    QByteArray out = response.consoleStreamOutput;
-    GdbMi stack;
-    stack.fromStringMultiple(out);
+    GdbMi stack = response.data["stack"]; // C++
+    if (!stack.isValid() || stack.childCount() == 0) // Mixed.
+        stack.fromStringMultiple(response.consoleStreamOutput);
 
     if (!stack.isValid()) {
         qDebug() << "FIXME: stack:" << stack.toString();
@@ -3435,29 +3450,23 @@ void GdbEngine::activateFrame(int frameIndex)
     }
 
     QTC_ASSERT(frameIndex < handler->stackSize(), return);
-
-    if (handler->frameAt(frameIndex).language == QmlLanguage) {
-        gotoLocation(handler->frameAt(frameIndex));
-        return;
-    }
-    // Assuming the command always succeeds this saves a roundtrip.
-    // Otherwise the lines below would need to get triggered
-    // after a response to this -stack-select-frame here.
     handler->setCurrentIndex(frameIndex);
-    QByteArray cmd = "-stack-select-frame";
-    //if (!m_currentThread.isEmpty())
-    //    cmd += " --thread " + m_currentThread;
-    cmd += ' ';
-    cmd += QByteArray::number(frameIndex);
-    postCommand(cmd, Discardable, CB(handleStackSelectFrame));
     gotoLocation(stackHandler()->currentFrame());
+
+    if (handler->frameAt(frameIndex).language != QmlLanguage) {
+        // Assuming the command always succeeds this saves a roundtrip.
+        // Otherwise the lines below would need to get triggered
+        // after a response to this -stack-select-frame here.
+        QByteArray cmd = "-stack-select-frame";
+        //if (!m_currentThread.isEmpty())
+        //    cmd += " --thread " + m_currentThread;
+        cmd += ' ';
+        cmd += QByteArray::number(frameIndex);
+        postCommand(cmd, Discardable);
+    }
+
     updateLocals();
     reloadRegisters();
-}
-
-void GdbEngine::handleStackSelectFrame(const GdbResponse &response)
-{
-    Q_UNUSED(response);
 }
 
 void GdbEngine::handleThreadInfo(const GdbResponse &response)

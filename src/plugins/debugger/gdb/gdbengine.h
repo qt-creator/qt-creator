@@ -391,10 +391,10 @@ protected:
     void updateAll();
     void handleStackListFrames(const GdbResponse &response);
     void handleStackSelectThread(const GdbResponse &response);
-    void handleStackSelectFrame(const GdbResponse &response);
     void handleThreadListIds(const GdbResponse &response);
     void handleThreadInfo(const GdbResponse &response);
     void handleThreadNames(const GdbResponse &response);
+    QByteArray stackCommand(int depth);
     Q_SLOT void reloadStack(bool forceGotoLocation);
     Q_SLOT virtual void reloadFullStack();
     virtual void loadAdditionalQmlStack();
