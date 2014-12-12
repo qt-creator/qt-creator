@@ -64,8 +64,12 @@ StackHandler::StackHandler()
     m_contentsValid = false;
     m_currentIndex = -1;
     m_canExpand = false;
-    connect(action(OperateByInstruction), SIGNAL(triggered()),
-        this, SLOT(resetModel()));
+    connect(action(OperateByInstruction), &QAction::triggered,
+        this, &StackHandler::resetModel);
+
+    if (isNativeMixedEnabled())
+        connect(action(OperateNativeMixed), &QAction::triggered,
+            this, &StackHandler::resetModel);
 }
 
 StackHandler::~StackHandler()

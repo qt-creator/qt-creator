@@ -496,6 +496,7 @@ bool DummyEngine::hasCapability(unsigned cap) const
         return cap & (WatchpointByAddressCapability
                | BreakConditionCapability
                | TracePointCapability
+               | OperateNativeMixed
                | OperateByInstructionCapability);
 
     // This is a Qml or unknown engine.
@@ -2071,7 +2072,6 @@ void DebuggerPluginPrivate::setInitialState()
 
     action(AutoDerefPointers)->setEnabled(true);
     action(ExpandStack)->setEnabled(false);
-
 }
 
 void DebuggerPluginPrivate::updateWatchersWindow(bool showWatch, bool showReturn)
@@ -2528,6 +2528,17 @@ QMessageBox *showMessageBox(int icon, const QString &title,
     return mb;
 }
 
+bool isNativeMixedEnabled()
+{
+    static bool enabled = qEnvironmentVariableIsSet("QTC_DEBUGGER_NATIVE_MIXED");
+    return enabled;
+}
+
+bool isNativeMixedActive()
+{
+    return isNativeMixedEnabled() && boolSetting(OperateNativeMixed);
+}
+
 void DebuggerPluginPrivate::extensionsInitialized()
 {
     const QKeySequence debugKey = QKeySequence(UseMacShortcuts ? tr("Ctrl+Y") : tr("F5"));
@@ -2966,6 +2977,17 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
 
+    if (isNativeMixedEnabled()) {
+        SavedAction *act = action(OperateNativeMixed);
+        act->setValue(true);
+        cmd = ActionManager::registerAction(act,
+            Constants::OPERATE_NATIVE_MIXED, globalcontext);
+        cmd->setAttribute(Command::CA_Hide);
+        debugMenu->addAction(cmd);
+        connect(cmd->action(), &QAction::triggered,
+            [this] { currentEngine()->updateAll(); });
+    }
+
     cmd = ActionManager::registerAction(m_breakAction,
         "Debugger.ToggleBreak", globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("F8") : tr("F9")));
@@ -3114,6 +3136,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
     hbox->addWidget(toolButton(Constants::STEPOUT));
     hbox->addWidget(toolButton(Constants::RESET));
     hbox->addWidget(toolButton(Constants::OPERATE_BY_INSTRUCTION));
+    if (isNativeMixedEnabled())
+        hbox->addWidget(toolButton(Constants::OPERATE_NATIVE_MIXED));
 
     //hbox->addWidget(new StyledSeparator);
     m_reverseToolButton = toolButton(Constants::REVERSE);

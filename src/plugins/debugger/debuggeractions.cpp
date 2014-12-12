@@ -34,6 +34,7 @@
 #include "registerpostmortemaction.h"
 #endif
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <utils/savedaction.h>
 #include <utils/qtcassert.h>
@@ -182,6 +183,18 @@ DebuggerSettings::DebuggerSettings()
         "disassembled instructions."));
     item->setIconVisibleInMenu(false);
     insertItem(OperateByInstruction, item);
+
+    item = new SavedAction(this);
+    item->setText(tr("Native Mixed Mode"));
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    item->setIcon(QIcon(QLatin1String(Core::Constants::ICON_LINK)));
+    item->setToolTip(tr("This switches the debugger to native-mixed "
+        "operation mode. In this mode, stepping and data display will "
+        "be handled by the native debugger backend (GDB, LLDB or CDB) "
+        "for C++, QML and JS sources."));
+    item->setIconVisibleInMenu(false);
+    insertItem(OperateNativeMixed, item);
 
     item = new SavedAction(this);
     item->setText(tr("Dereference Pointers Automatically"));

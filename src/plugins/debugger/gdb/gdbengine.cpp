@@ -2040,6 +2040,7 @@ bool GdbEngine::hasCapability(unsigned cap) const
         | WatchComplexExpressionsCapability
         | MemoryAddressCapability
         | AdditionalQmlStackCapability
+        | NativeMixedCapability
         | ResetInferiorCapability))
         return true;
 
@@ -2759,8 +2760,12 @@ bool GdbEngine::stateAcceptsBreakpointChanges() const
 
 bool GdbEngine::acceptsBreakpoint(BreakpointModelId id) const
 {
-    return breakHandler()->breakpointData(id).isCppBreakpoint()
-        && startParameters().startMode != AttachCore;
+    if (startParameters().startMode == AttachCore)
+        return false;
+    // We handle QML breakpoint unless specifically
+    if (isNativeMixedEnabled() && !(startParameters().languages & QmlLanguage))
+        return true;
+    return breakHandler()->breakpointData(id).isCppBreakpoint();
 }
 
 void GdbEngine::insertBreakpoint(BreakpointModelId id)
@@ -2770,6 +2775,15 @@ void GdbEngine::insertBreakpoint(BreakpointModelId id)
     BreakHandler *handler = breakHandler();
     QTC_CHECK(handler->state(id) == BreakpointInsertRequested);
     handler->notifyBreakpointInsertProceeding(id);
+
+    if (!handler->breakpointData(id).isCppBreakpoint()) {
+        const BreakpointParameters &data = handler->breakpointData(id);
+        postCommand("insertQmlBreakpoint " + data.fileName.toUtf8() + ' '
+                + QByteArray::number(data.lineNumber));
+        handler->notifyBreakpointInsertOk(id);
+        return;
+    }
+
     BreakpointType type = handler->type(id);
     QVariant vid = QVariant::fromValue(id);
     if (type == WatchpointAtAddress) {
