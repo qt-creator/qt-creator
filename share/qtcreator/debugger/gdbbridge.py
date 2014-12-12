@@ -1016,10 +1016,10 @@ class Dumper(DumperBase):
 
         # FIXME: Gui shows references stripped?
         #warn(" ")
-        #warn("REAL INAME: %s " % self.currentIName)
-        #warn("REAL TYPE: %s " % value.type)
-        #warn("REAL CODE: %s " % value.type.code)
-        #warn("REAL VALUE: %s " % value)
+        #warn("REAL INAME: %s" % self.currentIName)
+        #warn("REAL TYPE: %s" % value.type)
+        #warn("REAL CODE: %s" % value.type.code)
+        #warn("REAL VALUE: %s" % value)
 
         if type.code == ReferenceCode:
             try:
@@ -1757,7 +1757,8 @@ class CliDumper(Dumper):
 
     def exitSubItem(self, item, exType, exValue, exTraceBack):
         self.indent -= 1
-        #warn("CURRENT VALUE: %s: %s %s" % (self.currentIName, self.currentValue, self.currentType))
+        #warn("CURRENT VALUE: %s: %s %s" %
+        #  (self.currentIName, self.currentValue, self.currentType))
         if not exType is None:
             if self.passExceptions:
                 showException("SUBITEM", exType, exValue, exTraceBack)
