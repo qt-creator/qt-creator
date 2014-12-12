@@ -234,13 +234,13 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(
 void DebuggerRunConfigurationAspect::setUseQmlDebugger(bool value)
 {
     m_useQmlDebugger = value ? EnabledLanguage : DisabledLanguage;
-    emit requestRunActionsUpdate();
+    runConfiguration()->requestRunActionsUpdate();
 }
 
 void DebuggerRunConfigurationAspect::setUseCppDebugger(bool value)
 {
     m_useCppDebugger = value ? EnabledLanguage : DisabledLanguage;
-    emit requestRunActionsUpdate();
+    runConfiguration()->requestRunActionsUpdate();
 }
 
 bool DebuggerRunConfigurationAspect::useCppDebugger() const

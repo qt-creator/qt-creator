@@ -115,13 +115,12 @@ ISettingsAspect *ISettingsAspect::clone() const
 //
 ///////////////////////////////////////////////////////////////////////
 
-IRunConfigurationAspect::IRunConfigurationAspect(RunConfiguration *parent)
+IRunConfigurationAspect::IRunConfigurationAspect(RunConfiguration *runConfig)
 {
-    m_runConfiguration = parent;
+    m_runConfiguration = runConfig;
     m_projectSettings = 0;
     m_globalSettings = 0;
     m_useGlobalSettings = false;
-    connect(this, SIGNAL(requestRunActionsUpdate()), parent, SIGNAL(requestRunActionsUpdate()));
 }
 
 IRunConfigurationAspect::~IRunConfigurationAspect()
@@ -171,9 +170,9 @@ void IRunConfigurationAspect::toMap(QVariantMap &map) const
     map.insert(m_id.toString() + QLatin1String(".UseGlobalSettings"), m_useGlobalSettings);
 }
 
-IRunConfigurationAspect *IRunConfigurationAspect::clone(RunConfiguration *parent) const
+IRunConfigurationAspect *IRunConfigurationAspect::clone(RunConfiguration *runConfig) const
 {
-    IRunConfigurationAspect *other = create(parent);
+    IRunConfigurationAspect *other = create(runConfig);
     if (m_projectSettings)
         other->m_projectSettings = m_projectSettings->clone();
     other->m_globalSettings = m_globalSettings;

@@ -113,11 +113,11 @@ class PROJECTEXPLORER_EXPORT IRunConfigurationAspect : public QObject
     Q_OBJECT
 
 public:
-    explicit IRunConfigurationAspect(RunConfiguration *parent);
+    explicit IRunConfigurationAspect(RunConfiguration *runConfig);
     ~IRunConfigurationAspect();
 
-    virtual IRunConfigurationAspect *create(RunConfiguration *parent) const = 0;
-    virtual IRunConfigurationAspect *clone(RunConfiguration *parent) const;
+    virtual IRunConfigurationAspect *create(RunConfiguration *runConfig) const = 0;
+    virtual IRunConfigurationAspect *clone(RunConfiguration *runConfig) const;
     virtual RunConfigWidget *createConfigurationWidget();
 
     void setId(Core::Id id) { m_id = id; }
@@ -135,9 +135,6 @@ public:
     ISettingsAspect *globalSettings() const { return m_globalSettings; }
     ISettingsAspect *currentSettings() const;
     RunConfiguration *runConfiguration() const { return m_runConfiguration; }
-
-signals:
-    void requestRunActionsUpdate();
 
 protected:
     friend class RunConfiguration;
