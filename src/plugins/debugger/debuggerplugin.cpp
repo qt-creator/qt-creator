@@ -419,24 +419,11 @@ struct TestCallBack
 Q_DECLARE_METATYPE(Debugger::Internal::BreakpointMenuContextData)
 Q_DECLARE_METATYPE(Debugger::Internal::TestCallBack)
 
-
 namespace Debugger {
 namespace Internal {
 
-// FIXME: Outdated?
-// The createCdbEngine function takes a list of options pages it can add to.
-// This allows for having a "enabled" toggle on the page independently
-// of the engine. That's good for not enabling the related ActiveX control
-// unnecessarily.
-
 void addCdbOptionPages(QList<IOptionsPage*> *opts);
 void addGdbOptionPages(QList<IOptionsPage*> *opts);
-void addScriptOptionPages(QList<IOptionsPage*> *opts);
-void addTcfOptionPages(QList<IOptionsPage*> *opts);
-
-#ifdef WITH_LLDB
-void addLldbOptionPages(QList<IOptionsPage*> *opts);
-#endif
 
 static QToolButton *toolButton(QAction *action)
 {
@@ -642,7 +629,6 @@ public:
     }
     DebuggerRunControl *attachToRunningProcess(Kit *kit, DeviceProcessItem process);
 
-public slots:
     void writeSettings()
     {
         m_debuggerSettings->writeSettings();
@@ -779,7 +765,7 @@ public slots:
     void attachToFoundProcess();
     void continueOnAttach(Debugger::DebuggerState state);
     void attachToQmlPort();
-    void runScheduled();
+    Q_SLOT void runScheduled();
     void attachCore();
 
     void enableReverseDebuggingTriggered(const QVariant &value);
@@ -3059,9 +3045,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
 #ifdef WITH_LLDB
     addLldbOptionPages(&engineOptionPages);
 #endif
-
-    // addScriptOptionPages(&engineOptionPages);
-    // addTcfOptionPages(&engineOptionPages);
 
     foreach (IOptionsPage *op, engineOptionPages)
         m_plugin->addAutoReleasedObject(op);
