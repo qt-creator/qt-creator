@@ -66,87 +66,6 @@ def registerCommand(name, func):
     Command()
 
 
-def listOfLocals():
-    frame = gdb.selected_frame()
-
-    try:
-        block = frame.block()
-        #warn("BLOCK: %s " % block)
-    except RuntimeError as error:
-        #warn("BLOCK IN FRAME NOT ACCESSIBLE: %s" % error)
-        return []
-    except:
-        warn("BLOCK NOT ACCESSIBLE FOR UNKNOWN REASONS")
-        return []
-
-    items = []
-    shadowed = {}
-    while True:
-        if block is None:
-            warn("UNEXPECTED 'None' BLOCK")
-            break
-        for symbol in block:
-            name = symbol.print_name
-
-            if name == "__in_chrg" or name == "__PRETTY_FUNCTION__":
-                continue
-
-            # "NotImplementedError: Symbol type not yet supported in
-            # Python scripts."
-            #warn("SYMBOL %s  (%s): " % (symbol, name))
-            if name in shadowed:
-                level = shadowed[name]
-                name1 = "%s@%s" % (name, level)
-                shadowed[name] = level + 1
-            else:
-                name1 = name
-                shadowed[name] = 1
-            #warn("SYMBOL %s  (%s, %s)): " % (symbol, name, symbol.name))
-            item = LocalItem()
-            item.iname = "local." + name1
-            item.name = name1
-            try:
-                item.value = frame.read_var(name, block)
-                #warn("READ 1: %s" % item.value)
-                items.append(item)
-                continue
-            except:
-                pass
-
-            try:
-                #warn("READ 2: %s" % item.value)
-                item.value = frame.read_var(name)
-                items.append(item)
-                continue
-            except:
-                # RuntimeError: happens for
-                #     void foo() { std::string s; std::wstring w; }
-                # ValueError: happens for (as of 2010/11/4)
-                #     a local struct as found e.g. in
-                #     gcc sources in gcc.c, int execute()
-                pass
-
-            try:
-                #warn("READ 3: %s %s" % (name, item.value))
-                item.value = gdb.parse_and_eval(name)
-                #warn("ITEM 3: %s" % item.value)
-                items.append(item)
-            except:
-                # Can happen in inlined code (see last line of
-                # RowPainter::paintChars(): "RuntimeError:
-                # No symbol \"__val\" in current context.\n"
-                pass
-
-        # The outermost block in a function has the function member
-        # FIXME: check whether this is guaranteed.
-        if not block.function is None:
-            break
-
-        block = block.superblock
-
-    return items
-
-
 
 #######################################################################
 #
@@ -441,6 +360,88 @@ class Dumper(DumperBase):
                     (exp, iname) = watcher.split("#")
                     self.handleWatch(exp, exp, iname)
 
+    def listOfLocals(self):
+        frame = gdb.selected_frame()
+
+
+        try:
+            block = frame.block()
+            #warn("BLOCK: %s " % block)
+        except RuntimeError as error:
+            #warn("BLOCK IN FRAME NOT ACCESSIBLE: %s" % error)
+            return []
+        except:
+            warn("BLOCK NOT ACCESSIBLE FOR UNKNOWN REASONS")
+            return []
+
+        items = []
+        shadowed = {}
+        while True:
+            if block is None:
+                warn("UNEXPECTED 'None' BLOCK")
+                break
+            for symbol in block:
+                name = symbol.print_name
+
+                if name == "__in_chrg" or name == "__PRETTY_FUNCTION__":
+                    continue
+
+                # "NotImplementedError: Symbol type not yet supported in
+                # Python scripts."
+                #warn("SYMBOL %s  (%s): " % (symbol, name))
+                if name in shadowed:
+                    level = shadowed[name]
+                    name1 = "%s@%s" % (name, level)
+                    shadowed[name] = level + 1
+                else:
+                    name1 = name
+                    shadowed[name] = 1
+                #warn("SYMBOL %s  (%s, %s)): " % (symbol, name, symbol.name))
+                item = LocalItem()
+                item.iname = "local." + name1
+                item.name = name1
+                try:
+                    item.value = frame.read_var(name, block)
+                    #warn("READ 1: %s" % item.value)
+                    items.append(item)
+                    continue
+                except:
+                    pass
+
+                try:
+                    #warn("READ 2: %s" % item.value)
+                    item.value = frame.read_var(name)
+                    items.append(item)
+                    continue
+                except:
+                    # RuntimeError: happens for
+                    #     void foo() { std::string s; std::wstring w; }
+                    # ValueError: happens for (as of 2010/11/4)
+                    #     a local struct as found e.g. in
+                    #     gcc sources in gcc.c, int execute()
+                    pass
+
+                try:
+                    #warn("READ 3: %s %s" % (name, item.value))
+                    item.value = gdb.parse_and_eval(name)
+                    #warn("ITEM 3: %s" % item.value)
+                    items.append(item)
+                except:
+                    # Can happen in inlined code (see last line of
+                    # RowPainter::paintChars(): "RuntimeError:
+                    # No symbol \"__val\" in current context.\n"
+                    pass
+
+            # The outermost block in a function has the function member
+            # FIXME: check whether this is guaranteed.
+            if not block.function is None:
+                break
+
+            block = block.superblock
+
+        return items
+
+
     def run(self, args):
         self.prepare(args)
 
@@ -471,7 +472,7 @@ class Dumper(DumperBase):
             locals = [item]
             #warn("PARTIAL LOCALS: %s" % locals)
         else:
-            locals = listOfLocals()
+            locals = self.listOfLocals()
 
         # Take care of the return value of the last function call.
         if len(self.resultVarName) > 0:
