@@ -890,7 +890,8 @@ class DumperBase:
         innerTypeName = str(innerType)
 
         try:
-            value.dereference()
+            target = value.dereference()
+            target.is_optimized_out # Access test.
         except:
             # Failure to dereference a pointer should at least
             # show the value of a pointer.
