@@ -33,7 +33,7 @@
 
     You can use \QC wizards to create UI forms that have the filename extension
     \e .ui.qml. The UI forms contain a purely declarative subset of the QML
-    language. It is recommended that you edit the forms in the \gui Design mode.
+    language. It is recommended that you edit the forms in the \uicontrol Design mode.
     \QC enforces the use of the supported QML features by displaying error
     messages.
 
@@ -64,7 +64,7 @@
 
     \section1 Using Qt Quick UI Forms
 
-    You can edit the forms in the \gui Design mode. Items that are supposed to
+    You can edit the forms in the \uicontrol Design mode. Items that are supposed to
     be used in QML code have to be exported as properties:
 
     \code
@@ -85,7 +85,7 @@
     The property alias exports the button to the QML code that uses the form.
     You can use the
     \inlineimage qmldesigner-export-item-button.png
-    (\gui Export) button in the \gui Navigator to export an item as a property
+    (\uicontrol Export) button in the \uicontrol Navigator to export an item as a property
     (commercial only):
 
     \image qmldesigner-export-item.png

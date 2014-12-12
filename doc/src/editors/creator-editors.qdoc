@@ -48,7 +48,7 @@
     \endlist
 
     To specify the color scheme to use for semantic highlighting, select
-    \gui {Tools > Options > Text Editor > Fonts & Color}.
+    \uicontrol {Tools > Options > Text Editor > Fonts & Color}.
 
     \QC supports syntax highlighting also for other types of files than
     C++, QML, or JavaScript.
@@ -78,35 +78,35 @@
 
     \list 1
 
-        \li Select \gui {Tools > Options > Text Editor > Generic
+        \li Select \uicontrol {Tools > Options > Text Editor > Generic
             Highlighter}.
 
             \image qtcreator-generic-highlighter.png "Generic Highlighter options"
 
-        \li In the \gui Location field, specify the path to the primary
+        \li In the \uicontrol Location field, specify the path to the primary
             location for highlight definition files.
 
-        \li Click \gui {Download Definitions} to open a list of highlight
+        \li Click \uicontrol {Download Definitions} to open a list of highlight
             definition files available for download.
 
             \image qtcreator-manage-definitions.png "Download Definitions dialog"
 
         \li Select highlight definition files in the list and click
-            \gui {Download Selected Definitions}.
+            \uicontrol {Download Selected Definitions}.
 
-        \li Select the \gui {Use fallback location} check box to specify the
+        \li Select the \uicontrol {Use fallback location} check box to specify the
             secondary location where the editor will look for highlight
             definition files.
 
-        \li Click \gui Autodetect to allow \QC to look for highlight
-            definition files on your system, or click \gui Browse to locate
+        \li Click \uicontrol Autodetect to allow \QC to look for highlight
+            definition files on your system, or click \uicontrol Browse to locate
             them in the file system yourself.
 
-        \li In the \gui {Ignored file patterns} field, specify file patterns to
+        \li In the \uicontrol {Ignored file patterns} field, specify file patterns to
             suppress alerts if the highlight definitions for the
             specified files are not found.
 
-        \li Click \gui OK to save your changes.
+        \li Click \uicontrol OK to save your changes.
 
     \endlist
 
@@ -118,22 +118,22 @@
 
     \image qtcreator-blockhighlighting.png
 
-    To enable block highlighting, select \gui Tools > \gui{Options} >
-    \gui{Text Editor} > \gui Display > \gui{Highlight blocks}.
+    To enable block highlighting, select \uicontrol Tools > \uicontrol{Options} >
+    \uicontrol{Text Editor} > \uicontrol Display > \uicontrol{Highlight blocks}.
 
     Use the folding markers to collapse and expand blocks of code within
     braces. Click the folding marker to collapse or expand a block. In the
     figure above, the folding markers are located between the line number and
     the text pane.
 
-    To show the folding markers, select \gui Tools > \gui{Options} >
-    \gui{Text Editor} > \gui Display > \gui{Display folding markers}. This
+    To show the folding markers, select \uicontrol Tools > \uicontrol{Options} >
+    \uicontrol{Text Editor} > \uicontrol Display > \uicontrol{Display folding markers}. This
     option is enabled by default.
 
     When the cursor is on a brace, the matching brace is animated
     by default. To turn off the animation and just highlight the block and
-    the braces, select \gui {Tools > Options > Text Editor > Display} and
-    deselect \gui {Animate matching parentheses}.
+    the braces, select \uicontrol {Tools > Options > Text Editor > Display} and
+    deselect \uicontrol {Animate matching parentheses}.
 
 */
 
@@ -194,9 +194,9 @@
 
     \section1 Checking JavaScript and QML Syntax
 
-    To run the checks, select \gui {Tools > QML/JS > Run Checks} or press
-    \key Ctrl+Shift+C. The results are shown in the \gui {QML Analysis}
-    filter of the \gui {Issues} output pane.
+    To run the checks, select \uicontrol {Tools > QML/JS > Run Checks} or press
+    \key Ctrl+Shift+C. The results are shown in the \uicontrol {QML Analysis}
+    filter of the \uicontrol {Issues} output pane.
 
 
     \section1 List of JavaScript and QML Checks
@@ -742,10 +742,10 @@
 
     You can see the error message when you move the mouse pointer over code that
     \QC underlines in the code editor or when you open a QML file in the
-    \gui Design mode.
+    \uicontrol Design mode.
 
-    To reset the code model, select \gui Tools > \gui {QML/JS} >
-    \gui {Reset Code Model}.
+    To reset the code model, select \uicontrol Tools > \uicontrol {QML/JS} >
+    \uicontrol {Reset Code Model}.
 
     If this does not help, try changing the QML emulation layer to the one that
     was built with the same Qt version as the one selected in the build and run
@@ -774,12 +774,13 @@
     When completion is invoked manually, \QC completes the common prefix
     of the list of suggestions. This is especially useful for classes with
     several similarly named members. To disable this functionality, uncheck
-    \gui{Autocomplete common prefix} in the code completion preferences.
-    Select \gui Tools > \gui{Options} > \gui{Text Editor} > \gui Completion.
+    \uicontrol{Autocomplete common prefix} in the code completion preferences.
+    Select \uicontrol Tools > \uicontrol{Options} > \uicontrol{Text Editor}
+    > \uicontrol Completion.
 
     By default, code completion considers only the first letter case-sensitive.
     To apply full or no case-sensitivity, select the option in the
-    \gui {Case-sensitivity} field.
+    \uicontrol {Case-sensitivity} field.
 
     \section2 Summary of Available Types
 
@@ -864,7 +865,7 @@
 
     Code snippets specify C++ or QML code constructs. You can add, modify,
     and remove snippets in the snippet editor. To open the editor, select
-    \gui {Tools > Options > Text Editor > Snippets}.
+    \uicontrol {Tools > Options > Text Editor > Snippets}.
 
     \image qtcreator-edit-code-snippets.png "Snippet options"
 
@@ -884,7 +885,7 @@
     \section3 Adding and Editing Snippets
 
     Select a snippet in the list to edit it in the snippet editor. To add a new
-    snippet, select \gui Add. Specify a trigger and, if the trigger is already
+    snippet, select \uicontrol Add. Specify a trigger and, if the trigger is already
     in use, an optional variant, which appear in the list of suggestions when
     you write code. Also specify a text string or C++ or QML code construct in
     the snippet editor, depending on the snippet category.
@@ -937,7 +938,7 @@
     or add. However, when you use the snippets, the code editor marks any
     errors by underlining them in red.
 
-    To discard the changes you made to a built-in snippet, select \gui {Revert
+    To discard the changes you made to a built-in snippet, select \uicontrol {Revert
     Built-in}.
 
     \section3 Removing Snippets
@@ -948,15 +949,15 @@
     can restore them.
 
     To remove snippets, select a snippet in the list, and then select
-    \gui Remove. To restore the removed snippets, select \gui {Restore Removed
+    \uicontrol Remove. To restore the removed snippets, select \uicontrol {Restore Removed
     Built-ins}.
 
     \section3 Resetting Snippets
 
     To remove all added snippets and to restore all removed snippets, select
-    \gui {Reset All}.
+    \uicontrol {Reset All}.
 
-    \note If you now select \gui OK or \gui Apply, you permanently lose all
+    \note If you now select \uicontrol OK or \uicontrol Apply, you permanently lose all
     your own snippets.
 
 */
@@ -976,13 +977,13 @@
 
     \list
 
-        \li \gui{Pastebin.Com}
+        \li \uicontrol{Pastebin.Com}
 
-        \li \gui{Pastebin.Ca}
+        \li \uicontrol{Pastebin.Ca}
 
-        \li \gui{Paste.KDE.Org}
+        \li \uicontrol{Paste.KDE.Org}
 
-        \li \gui{Shared network drives}
+        \li \uicontrol{Shared network drives}
 
     \endlist
 
@@ -992,57 +993,57 @@
 
     \list 1
 
-        \li Select \gui Tools > \gui Options  > \gui{Code Pasting}.
+        \li Select \uicontrol Tools > \uicontrol Options  > \uicontrol{Code Pasting}.
 
             \image qtcreator-code-pasting-options.png "Code Pasting options"
 
-        \li In the \gui {Default protocol} field, select a code pasting service
+        \li In the \uicontrol {Default protocol} field, select a code pasting service
             to use by default.
 
-        \li In the \gui Username field, enter your username.
+        \li In the \uicontrol Username field, enter your username.
 
-        \li In the \gui {Expires after} field, specify the time to keep the
+        \li In the \uicontrol {Expires after} field, specify the time to keep the
             pasted snippet on the server.
 
-        \li Select the \gui {Copy-paste URL to clipboard} check box to copy the
+        \li Select the \uicontrol {Copy-paste URL to clipboard} check box to copy the
             URL of the post on the code pasting service to the clipboard when
             you paste a post.
 
-        \li Select the \gui {Display Output pane after sending a post} to
-            display the URL in the \gui {General Messages} output pane when you
+        \li Select the \uicontrol {Display Output pane after sending a post} to
+            display the URL in the \uicontrol {General Messages} output pane when you
             paste a post.
 
     \endlist
 
-    Select \gui Fileshare to specify the path to a shared
+    Select \uicontrol Fileshare to specify the path to a shared
     network drive. The code snippets are copied to the drive as simple files.
     You have to delete obsolete files from the drive manually.
 
     \section1 Using Code Pasting Services
 
-    To paste a snippet of code onto the server, select \gui{Tools} >
-    \gui{Code Pasting} > \gui{Paste Snippet} or press \key{Alt+C,Alt+P}.
+    To paste a snippet of code onto the server, select \uicontrol{Tools} >
+    \uicontrol{Code Pasting} > \uicontrol{Paste Snippet} or press \key{Alt+C,Alt+P}.
     By default, \QC copies the URL of the snippet to the clipboard and displays
-    the URL in the \gui {General Messages} output pane.
+    the URL in the \uicontrol {General Messages} output pane.
 
-    To paste any content that you copied to the clipboard, select \gui Tools >
-    \gui {Code Pasting} > \gui {Paste Snippet}.
+    To paste any content that you copied to the clipboard, select \uicontrol Tools >
+    \uicontrol {Code Pasting} > \uicontrol {Paste Snippet}.
 
-    To fetch a snippet of code from the server, select \gui{Tools} >
-    \gui{Code Pasting} > \gui{Fetch Snippet} or press \key{Alt+C,Alt+F}. Select
+    To fetch a snippet of code from the server, select \uicontrol{Tools} >
+    \uicontrol{Code Pasting} > \uicontrol{Fetch Snippet} or press \key{Alt+C,Alt+F}. Select
     the snippet to fetch from the list.
 
-    To fetch the content stored at an URL, select \gui Tools >
-    \gui {Code Pasting} > \gui {Fetch from URL}.
+    To fetch the content stored at an URL, select \uicontrol Tools >
+    \uicontrol {Code Pasting} > \uicontrol {Fetch from URL}.
 
     For example, you might ask colleagues to review a change that you plan to
     submit to a version control system. If you use the Git version control
-    system, you can create a \e{diff} view by selecting \gui{Tools > Git >
+    system, you can create a \e{diff} view by selecting \uicontrol{Tools > Git >
     Diff Repository}. You can then upload its contents to the server by choosing
-    \gui{Tools} > \gui{Code Pasting} > \gui{Paste Snippet}. The reviewers can
-    retrieve the code snippet by selecting \gui{Tools > Code Pasting >
+    \uicontrol{Tools} > \uicontrol{Code Pasting} > \uicontrol{Paste Snippet}. The reviewers can
+    retrieve the code snippet by selecting \uicontrol{Tools > Code Pasting >
     Fetch Snippet}. If they have the project currently opened in \QC, they can
-    apply and test the change by choosing \gui{Tools > Git > Apply Patch}.
+    apply and test the change by choosing \uicontrol{Tools > Git > Apply Patch}.
 
 */
 
@@ -1055,25 +1056,25 @@
 
     \title Using Text Editing Macros
 
-    To record a text editing macro, select \gui {Tools > Macros > Record Macro}
-    or press \key {Alt+(}. To stop recording, select \gui {Tools > Macros >
+    To record a text editing macro, select \uicontrol {Tools > Macros > Record Macro}
+    or press \key {Alt+(}. To stop recording, select \uicontrol {Tools > Macros >
     Stop Recording Macro} or press \key {Alt+)}.
 
     \note The macro recorder does not support code completion.
 
-    To play the last macro, select \gui {Tools > Macros > Play Last Macro} or
+    To play the last macro, select \uicontrol {Tools > Macros > Play Last Macro} or
     press \key {Alt+R}.
 
-    To save the last macro, select \gui {Tools > Macros > Save Last Macro}.
+    To save the last macro, select \uicontrol {Tools > Macros > Save Last Macro}.
 
-    To assign a keyboard shortcut to a text editing macro, select \gui {Tools >
+    To assign a keyboard shortcut to a text editing macro, select \uicontrol {Tools >
     Options > Environment > Keyboard}. For more information, see
     \l{Configuring Keyboard Shortcuts}.
 
     You can also use the \c rm locator filter to run a macro. For more
     information, see \l{Searching with the Locator}.
 
-    To view and remove saved macros, select \gui {Tools > Options > Text
+    To view and remove saved macros, select \uicontrol {Tools > Options > Text
     Editor > Macros}.
 
 */
@@ -1087,43 +1088,43 @@
 
     \title Using FakeVim Mode
 
-    In the \gui{FakeVim} mode, you can run the main editor in a manner similar
-    to the Vim editor. To run the editor in the \gui{FakeVim} mode, select
-    \gui{Edit} > \gui{Advanced} > \gui{Use Vim-style Editing} or press
+    In the \uicontrol{FakeVim} mode, you can run the main editor in a manner similar
+    to the Vim editor. To run the editor in the \uicontrol{FakeVim} mode, select
+    \uicontrol{Edit} > \uicontrol{Advanced} > \uicontrol{Use Vim-style Editing} or press
     \key{Alt+V,Alt+V}.
 
-    In the \gui{FakeVim} mode, most keystrokes in the main editor will be
+    In the \uicontrol{FakeVim} mode, most keystrokes in the main editor will be
     intercepted and interpreted in a way that resembles Vim. Documentation for
     Vim is not included in \QC. For more information on using Vim,
     see \l{http://www.vim.org/docs.php}{Documentation} on the Vim web site.
 
-    To map commands entered on the \gui{FakeVim} command line to actions of the
-    \QC core, select \gui{Tools} > \gui{Options} > \gui{FakeVim} >
-    \gui{Ex Command Mapping}.
+    To map commands entered on the \uicontrol{FakeVim} command line to actions of the
+    \QC core, select \uicontrol{Tools} > \uicontrol{Options} > \uicontrol{FakeVim} >
+    \uicontrol{Ex Command Mapping}.
 
-    To map \e {user commands} to keyboard shortcuts, select \gui{Tools > Options
+    To map \e {user commands} to keyboard shortcuts, select \uicontrol{Tools > Options
     > FakeVim > User Command Mapping}. The user command mapped to the shortcut
     is executed by FakeVim as if you were typing it (as when replaying a macro).
 
-    To make changes to the Vim-style settings, select \gui{Tools} >
-    \gui{Options} > \gui FakeVim > \gui{General}.
+    To make changes to the Vim-style settings, select \uicontrol{Tools} >
+    \uicontrol{Options} > \uicontrol FakeVim > \uicontrol{General}.
 
     \image qtcreator-fakevim-options.png "FakeVim options"
 
     To preselect the indentation settings specified for the text editor, select
-    \gui {Copy Text Editor Settings}. To preselect the Qt coding style, select
-    \gui {Set Qt Style}. To preselect a simple indentation style, select
-    \gui {Set Plain Style}. You can then change any of the preselected settings.
+    \uicontrol {Copy Text Editor Settings}. To preselect the Qt coding style, select
+    \uicontrol {Set Qt Style}. To preselect a simple indentation style, select
+    \uicontrol {Set Plain Style}. You can then change any of the preselected settings.
 
-    To use a Vim-style color scheme, select \gui {Tools > Options >
-    Text Editor > Fonts & Color}. In the \gui {Color Scheme} list, select
-    \gui {Vim (dark)}.
+    To use a Vim-style color scheme, select \uicontrol {Tools > Options >
+    Text Editor > Fonts & Color}. In the \uicontrol {Color Scheme} list, select
+    \uicontrol {Vim (dark)}.
 
-    To quit the FakeVim mode, unselect \gui{Tools} > \gui{Options} >
-    \gui{FakeVim} > \gui {Use FakeVim} or press \key{Alt+V,Alt+V}.
+    To quit the FakeVim mode, unselect \uicontrol{Tools} > \uicontrol{Options} >
+    \uicontrol{FakeVim} > \uicontrol {Use FakeVim} or press \key{Alt+V,Alt+V}.
 
     You can temporarily escape FakeVim mode to access the normal \QC
-    keyboard shortcuts like \key{Ctrl-R} for \gui{Run} by pressing
+    keyboard shortcuts like \key{Ctrl-R} for \uicontrol{Run} by pressing
     \key{,} first.
 
     */
@@ -1163,16 +1164,16 @@
 
     \list 1
 
-        \li Select \gui {Tools > Options > C++}.
+        \li Select \uicontrol {Tools > Options > C++}.
 
-        \li In the \gui {Current settings} field, select the settings to modify
-            and click \gui Copy.
+        \li In the \uicontrol {Current settings} field, select the settings to modify
+            and click \uicontrol Copy.
 
             \image qtcreator-options-code-style-cpp.png "C++ Code Style options"
 
-        \li Give a name to the settings and click \gui OK.
+        \li Give a name to the settings and click \uicontrol OK.
 
-        \li Click \gui Edit to specify code style settings for the project.
+        \li Click \uicontrol Edit to specify code style settings for the project.
 
             \image qtcreator-code-style-settings-edit-cpp.png "Edit Code Style Settings dialog"
 
@@ -1201,7 +1202,7 @@
 
     You can use the live preview to see how the options change the indentation.
 
-    To specify different settings for a particular project, select \gui {Projects >
+    To specify different settings for a particular project, select \uicontrol {Projects >
     Code Style Settings}.
 
     \section1 Indenting QML Files
@@ -1210,16 +1211,16 @@
 
     \list 1
 
-        \li Select \gui {Tools > Options >Qt Quick}.
+        \li Select \uicontrol {Tools > Options >Qt Quick}.
 
-        \li In the \gui {Current settings} field, select the settings to modify
-            and click \gui Copy.
+        \li In the \uicontrol {Current settings} field, select the settings to modify
+            and click \uicontrol Copy.
 
             \image qtcreator-options-code-style-qml.png "QML Code Style options"
 
-        \li Give a name to the settings and click \gui OK.
+        \li Give a name to the settings and click \uicontrol OK.
 
-        \li Click \gui Edit to specify code style settings for the project.
+        \li Click \uicontrol Edit to specify code style settings for the project.
 
             \image qtcreator-code-style-settings-edit-qtquick.png "Edit Code Style Settings dialog"
 
@@ -1228,18 +1229,18 @@
     You can specify how to interpret the \key Tab key presses and how to align
     continuation lines.
 
-    To specify different settings for a particular project, select \gui {Projects >
+    To specify different settings for a particular project, select \uicontrol {Projects >
     Code Style Settings}.
 
     \section1 Indenting Other Text Files
 
     To specify indentation settings for text files that do not contain C++ or QML code (such
-    as Python code files), select \gui {Tools > Options > Text Editor > Behavior}.
+    as Python code files), select \uicontrol {Tools > Options > Text Editor > Behavior}.
 
     \image qtcreator-indentation.png "Text Editor Behavior options"
 
-    To specify different settings for a particular project, select \gui Projects
-    > \gui Editor.
+    To specify different settings for a particular project, select \uicontrol Projects
+    > \uicontrol Editor.
 
     You can specify how to interpret the \key Tab and \key Backspace key
     presses and how to align continuation lines.
@@ -1266,8 +1267,8 @@
 
     \section2 Specifying Tabs and Indentation
 
-    You can specify tab policy and tab size in the \gui Typing group. In the
-    \gui {Tab policy} field, select whether to use only spaces or only tabs for
+    You can specify tab policy and tab size in the \uicontrol Typing group. In the
+    \uicontrol {Tab policy} field, select whether to use only spaces or only tabs for
     indentation, or to use a mixture of them.
 
     By default, the tab length in code editor is 8 spaces and the indent size is
@@ -1275,29 +1276,29 @@
     project and for different types of files.
 
     You can have continuation lines aligned with the previous line. In the
-    \gui {Align continuation lines} field, select \gui {Not at all} to disable
+    \uicontrol {Align continuation lines} field, select \uicontrol {Not at all} to disable
     automatic alignment and indent continuation lines to the logical depth.
-    To always use spaces for alignment, select \gui {With Spaces}. To follow the
-    \gui {Tab policy}, select \gui {With Regular Indent}.
+    To always use spaces for alignment, select \uicontrol {With Spaces}. To follow the
+    \uicontrol {Tab policy}, select \uicontrol {With Regular Indent}.
 
     \section2 Specifying Typing Options
 
     When you type text or code, it is indented automatically according to the selected
     text editor or code style options. Specify typing options in the
-    \gui Typing group. To disable automatic indentation, deselect the
-    \gui {Enable automatic indentation} check box.
+    \uicontrol Typing group. To disable automatic indentation, deselect the
+    \uicontrol {Enable automatic indentation} check box.
 
     You can specify how the indentation is decreased when you press
-    \gui Backspace in the \gui {Backspace indentation} field. To go back one
-    space at a time, select \gui None. To decrease indentation in leading white
-    space by one level, select \gui {Follows Previous Indents}. To move back one
+    \uicontrol Backspace in the \uicontrol {Backspace indentation} field. To go back one
+    space at a time, select \uicontrol None. To decrease indentation in leading white
+    space by one level, select \uicontrol {Follows Previous Indents}. To move back one
     tab length if the character to the left of the cursor is a space, select
-    \gui Unindents.
+    \uicontrol Unindents.
 
     You can specify whether the \key Tab key automatically indents text when you
-    press it. To automatically indent text, select \gui Always in the
-    \gui {Tab key performs auto-indent} field. To only indent text when the
-    cursor is located within leading white space, select \gui {In Leading White
+    press it. To automatically indent text, select \uicontrol Always in the
+    \uicontrol {Tab key performs auto-indent} field. To only indent text when the
+    cursor is located within leading white space, select \uicontrol {In Leading White
     Space}.
 
     \section1 Specifying Settings for Content
@@ -1327,8 +1328,8 @@
     \section1 Specifying Alignment
 
     To align continuation lines to tokens after assignments, such as = or
-    +=, select the \gui {Align after assignments} check box. You can specify
-    additional settings for aligning continuation lines in the \gui General
+    +=, select the \uicontrol {Align after assignments} check box. You can specify
+    additional settings for aligning continuation lines in the \uicontrol General
     tab.
 
     You can also add spaces to conditional statements, so that they are not
@@ -1341,7 +1342,7 @@
 
     To bind pointers (*) and references (&) in types and declarations to
     identifiers, type names, or left or right \c const or \c volatile keywords,
-    select the check boxes in the \gui {Pointers and References} tab.
+    select the check boxes in the \uicontrol {Pointers and References} tab.
 
     The * and & characters are automatically bound to identifiers of pointers to
     functions and pointers to arrays.
@@ -1363,63 +1364,63 @@
 
     \list 1
 
-        \li Press \key Ctrl+F or select \gui Edit > \gui Find/Replace >
-            \gui{Find/Replace}.
+        \li Press \key Ctrl+F or select \uicontrol Edit > \uicontrol Find/Replace >
+            \uicontrol{Find/Replace}.
 
         \li Enter the text you are looking for.
 
             If the text is found, all occurrences are highlighted as you type.
 
         \li To go to the next occurrence, click \inlineimage qtcreator-next.png
-            (\gui {Find Next}), or press \key F3. To go to the previous
+            (\uicontrol {Find Next}), or press \key F3. To go to the previous
             occurrence click
             \inlineimage qtcreator-previous.png
-            (\gui {Find Previous}), or press \key Shift+F3.
+            (\uicontrol {Find Previous}), or press \key Shift+F3.
 
     \endlist
 
-    You can restrict the search in the \gui Find field by selecting one
+    You can restrict the search in the \uicontrol Find field by selecting one
     or several search criteria:
 
     \list
 
         \li To make your search case sensitive, select
-            \gui {Case Sensitive}.
+            \uicontrol {Case Sensitive}.
 
         \li To search only whole words, select
-            \gui {Whole Words Only}.
+            \uicontrol {Whole Words Only}.
 
         \li To search using regular expressions, select
-            \gui {Regular Expressions}.
+            \uicontrol {Regular Expressions}.
             Regular expressions used in \QC are modeled on Perl regular
             expressions. For more information on using regular expressions, see
             the documentation for the QRegExp Class.
 
     \endlist
 
-    \note If you have selected text before selecting \gui {Find/Replace}, the
+    \note If you have selected text before selecting \uicontrol {Find/Replace}, the
     search is conducted within the selection.
 
     To replace occurrences of the existing text, enter the new text in the
-    \gui{Replace with} field.
+    \uicontrol{Replace with} field.
 
     \list
 
         \li To replace the selected occurrence and move to the next one,
-            click \gui {Find Next}
+            click \uicontrol {Find Next}
             or press \key Ctrl+=.
 
         \li To replace the selected occurrence and move to the previous one,
-            click \gui {Find Previous}
+            click \uicontrol {Find Previous}
             .
 
-        \li To replace all occurrences in the file, click \gui{Replace All}.
+        \li To replace all occurrences in the file, click \uicontrol{Replace All}.
 
     \endlist
 
-    The \gui{Preserve Case when Replacing} option can be selected to preserve
+    The \uicontrol{Preserve Case when Replacing} option can be selected to preserve
     the case of the original text when replacing. This option is not compatible
-    with the \gui {Regular Expressions} search option, and will thus be
+    with the \uicontrol {Regular Expressions} search option, and will thus be
     disabled when regular expressions are used. When the option is used, the
     case of the occurrence will be conserved, according to the following rules:
 
@@ -1445,40 +1446,40 @@
 
     \list 1
 
-        \li Press \key Ctrl+Shift+F or select \gui Edit > \gui Find/Replace >
-            \gui{Advanced Find} > \gui{Open Advanced Find}.
+        \li Press \key Ctrl+Shift+F or select \uicontrol Edit > \uicontrol Find/Replace >
+            \uicontrol{Advanced Find} > \uicontrol{Open Advanced Find}.
 
         \li Select the scope of your search:
 
             \list
 
-                \li \gui{All Projects} searches files matching the defined file
+                \li \uicontrol{All Projects} searches files matching the defined file
                     pattern in all currently open projects.
 
                     For example, to search for \tt previewer only in \tt .cpp
-                    and \tt .h files, enter in \gui{File pattern}
+                    and \tt .h files, enter in \uicontrol{File pattern}
                     \tt *.cpp,*.h.
 
                     \image qtcreator-search-allprojects.png
 
-                \li \gui{Current Project} searches files matching the defined
+                \li \uicontrol{Current Project} searches files matching the defined
                     file pattern only in the project you are currently editing.
 
-                \li \gui{Files on File System} recursively searches files
+                \li \uicontrol{Files on File System} recursively searches files
                     matching the defined file pattern in the selected directory.
 
-                \li \gui{Current File} searches only the current file.
+                \li \uicontrol{Current File} searches only the current file.
 
-                \li \gui {Open Documents} searches all open files.
+                \li \uicontrol {Open Documents} searches all open files.
 
             \endlist
 
-        \li Enter the text you are looking for and click \gui Search.
+        \li Enter the text you are looking for and click \uicontrol Search.
 
             \image qtcreator-searchresults.png
 
              A list of files containing the searched text is displayed in the
-            \gui{Search Results} pane.
+            \uicontrol{Search Results} pane.
 
             \list
 
@@ -1488,7 +1489,7 @@
                 \li To go to an occurrence, double-click it.
 
                 \li To repeat the search after you have made changes to the
-                    listed files, for example, select \gui {Search Again}.
+                    listed files, for example, select \uicontrol {Search Again}.
 
             \endlist
 
@@ -1497,7 +1498,7 @@
     The search results are stored in the search history from which you can
     select earlier searches.
 
-    \note You can use \gui{Advanced Find} also to search for symbols. For more
+    \note You can use \uicontrol{Advanced Find} also to search for symbols. For more
     information, see \l{Finding Symbols}.
 
 */
@@ -1537,9 +1538,9 @@
 
         \list
 
-            \li \gui {Tools > C++ > Find Usages}
+            \li \uicontrol {Tools > C++ > Find Usages}
 
-            \li \gui {Tools > QML/JS > Find Usages}
+            \li \uicontrol {Tools > QML/JS > Find Usages}
 
             \li \key Ctrl+Shift+U
 
@@ -1558,14 +1559,14 @@
 
         \endlist
 
-        \note You can also select \gui{Edit > Find/Replace > Advanced Find >
+        \note You can also select \uicontrol{Edit > Find/Replace > Advanced Find >
         C++ Symbols} to search for classes, functions, enums, and declarations
         either from files listed as part of the project or from all files that
         are used by the code, such as include files.
 
         \image qtcreator-search-cpp-symbols.png
 
-        \li The \gui{Search Results} pane opens and shows the location and
+        \li The \uicontrol{Search Results} pane opens and shows the location and
             number of instances of the symbol in the current project.
 
             \image qtcreator-refactoring-find.png
@@ -1577,13 +1578,13 @@
     \list
 
         \li To go directly to an instance, double-click the instance in the
-            \gui{Search Results} pane.
+            \uicontrol{Search Results} pane.
 
         \li To move between instances, click
             \inlineimage qtcreator-forward.png
             and
             \inlineimage qtcreator-back.png
-            in the \gui{Search Results} pane.
+            in the \uicontrol{Search Results} pane.
 
         \li To expand and collapse the list of all instances, click
             \inlineimage qtcreator-expand.png
@@ -1601,28 +1602,28 @@
     \list 1
 
         \li In the editor, place the cursor on the symbol you would like to
-            change and select \gui Tools > \gui C++ >
-            \gui{Rename Symbol Under Cursor} or \gui Tools > \gui QML/JS >
-            \gui{Rename Symbol Under Cursor}. Alternatively, press
+            change and select \uicontrol Tools > \uicontrol C++ >
+            \uicontrol{Rename Symbol Under Cursor} or \uicontrol Tools > \uicontrol QML/JS >
+            \uicontrol{Rename Symbol Under Cursor}. Alternatively, press
             \key Ctrl+Shift+R.
 
-            The \gui{Search Results} pane opens and shows the location and
+            The \uicontrol{Search Results} pane opens and shows the location and
             number of instances of the symbol in the current project.
 
             \image qtcreator-refactoring-replace.png
 
         \li To replace all selected instances, enter the name of the new symbol
-            in the \gui{Replace with} text box and click \gui Replace.
+            in the \uicontrol{Replace with} text box and click \uicontrol Replace.
 
             To omit an instance, uncheck the check-box next to the instance.
 
             \note This action replaces all selected instances of the symbol in
-            all files listed in the \gui{Search Results} pane. You cannot
+            all files listed in the \uicontrol{Search Results} pane. You cannot
             undo this action.
 
     \endlist
 
-    \note Renaming local symbols does not open the \gui{Search Results} pane.
+    \note Renaming local symbols does not open the \uicontrol{Search Results} pane.
     The instances of the symbol are highlighted in code and you can edit the
     symbol. All instances of the local symbol are changed as you type.
 
@@ -1643,10 +1644,10 @@
     conditional statement, string, or name to open a context menu. In QML code,
     click an item ID or name.
 
-    In the context menu, select \gui {Refactoring} and then select a refactoring
+    In the context menu, select \uicontrol {Refactoring} and then select a refactoring
     action.
 
-    You can also press \gui {Alt+Enter} to open a context menu that contains
+    You can also press \uicontrol {Alt+Enter} to open a context menu that contains
     refactoring actions available in the current cursor position.
 
    \section2 Refactoring C++ Code
@@ -1971,7 +1972,7 @@
             \li  Extract Function
             \li  Moves the selected code to a new function and replaces the block of
             code with a call to the new function. Enter a name for the function in
-            the \gui {Extract Function Refactoring} dialog.
+            the \uicontrol {Extract Function Refactoring} dialog.
             \li  Block of code selected
         \row
             \li  Extract Constant as Function Parameter
@@ -2268,9 +2269,9 @@
 
         \li Press \key Ctrl+K (\key Cmd+K on OS X).
 
-        \li Select \gui Tools > \gui Locate.
+        \li Select \uicontrol Tools > \uicontrol Locate.
 
-        \li Select \gui Edit > \gui {Go to Line}.
+        \li Select \uicontrol Edit > \uicontrol {Go to Line}.
 
         \li Click the line and column indicator on the
             \l{Using the Editor Toolbar}{editor toolbar}.
@@ -2409,15 +2410,15 @@
     \list 1
 
         \li In the locator, click \inlineimage qtcreator-locator-magnify.png
-            (\gui {Options}) and select \gui Configure to open the \gui Locator
+            (\uicontrol {Options}) and select \uicontrol Configure to open the \uicontrol Locator
             options.
 
-        \li Select a filter, and then select \gui Edit.
+        \li Select a filter, and then select \uicontrol Edit.
 
         \li Specify the prefix string.
 
         \li To show only results matching this filter, select
-            \gui{Limit to prefix}.
+            \uicontrol{Limit to prefix}.
 
         \li Specify other available options. For more information, see
             \l{Adding Web Search Engines}.
@@ -2426,7 +2427,7 @@
 
     \section2 Adding Web Search Engines
 
-    You can use the \gui {Web Search (\c r)} locator filter to perform
+    You can use the \uicontrol {Web Search (\c r)} locator filter to perform
     web searches. URLs and search commands for Bing, Google, Yahoo! Search,
     cplusplus.com, and Wikipedia are configured by default.
 
@@ -2439,18 +2440,18 @@
 
     \list 1
 
-        \li Select \gui {Tools > Options > Environment > Locator >
+        \li Select \uicontrol {Tools > Options > Environment > Locator >
             Web Search (prefix: r) >
             Edit}.
 
-        \li Select \gui Add to add a new entry to the list.
+        \li Select \uicontrol Add to add a new entry to the list.
 
             \image qtcreator-add-online-doc.png "Filter Configuration dialog"
 
         \li Double-click the new entry to specify a URL and a search command.
             For example, http://www.google.com/search?q=%1.
 
-        \li Click \gui OK.
+        \li Click \uicontrol OK.
 
     \endlist
 
@@ -2464,14 +2465,14 @@
 
     \list 1
 
-        \li In the locator, select \gui {Options > Configure} to open the
-            \gui Locator options.
+        \li In the locator, select \uicontrol {Options > Configure} to open the
+            \uicontrol Locator options.
 
             \image qtcreator-locator-customize.png
 
-        \li Click \gui Add.
+        \li Click \uicontrol Add.
 
-        \li In the \gui{Filter Configuration} dialog:
+        \li In the \uicontrol{Filter Configuration} dialog:
 
         \list
 
@@ -2486,7 +2487,7 @@
             \li Specify the prefix string.
 
                 To show only results matching this filter, select
-                \gui{Limit to prefix}.
+                \uicontrol{Limit to prefix}.
 
                 \image qtcreator-navigate-customfilter.png
 
@@ -2503,16 +2504,16 @@
     all default filters is updated as you write your code. By default,
     \QC updates the filters created by you once an hour.
 
-    To update the cached information manually, select \gui {Options > Refresh}
+    To update the cached information manually, select \uicontrol {Options > Refresh}
     in the locator.
 
     To set a new cache update time:
 
     \list 1
 
-        \li Select \gui {Tools > Options > Environment > Locator}.
+        \li Select \uicontrol {Tools > Options > Environment > Locator}.
 
-        \li In \gui{Refresh interval}, define new time in minutes.
+        \li In \uicontrol{Refresh interval}, define new time in minutes.
 
     \endlist
 

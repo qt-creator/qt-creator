@@ -57,7 +57,7 @@
     of information are needed to create each configuration. For more
     information about qmake, see the \l{qmake Manual}.
     You can modify the build and run settings for qmake projects in the
-    \gui Projects mode.
+    \uicontrol Projects mode.
 
     You can use wizards also to create plain C or C++ projects that use Qbs or
     CMake, but do not use the Qt library.
@@ -222,10 +222,10 @@
 
     \endlist
 
-    To create a new project, select \gui File > \gui{New File or Project} and
+    To create a new project, select \uicontrol File > \uicontrol{New File or Project} and
     select the type of your project. The contents of the wizard dialogs depend
     on the project type and the \l{glossary-buildandrun-kit}{kits} that you select in the
-    \gui {Kit Selection} dialog. Follow the instructions of the wizard.
+    \uicontrol {Kit Selection} dialog. Follow the instructions of the wizard.
 
     For examples of creating different types of projects, see
     \l{Tutorials}.
@@ -234,11 +234,11 @@
     \l {Creating Qt Quick Projects}.
 
     To change the location of the project directory, and to specify settings
-    for building and running projects, select \gui{Tools} > \gui{Options} >
-    \gui{Build & Run} > \gui{General}.
+    for building and running projects, select \uicontrol{Tools} > \uicontrol{Options} >
+    \uicontrol{Build & Run} > \uicontrol{General}.
 
     To specify build and run settings for different target platforms,
-    select \gui Projects.
+    select \uicontrol Projects.
 
     \section1 Adding Files to Projects
 
@@ -264,10 +264,10 @@
             application executable
 
         \li QML files, which specify items in Qt Quick projects.
-            \gui {Qt Quick 1} creates a QML file that imports Qt Quick 1.1 and
-            \gui {Qt Quick 2} creates a QML file that imports Qt Quick 2.0.
-            Select \gui {Qt Quick 1} to add files to a Qt Quick 1 application
-            and \gui {Qt Quick 2} to add files to a Qt Quick 2 application.
+            \uicontrol {Qt Quick 1} creates a QML file that imports Qt Quick 1.1 and
+            \uicontrol {Qt Quick 2} creates a QML file that imports Qt Quick 2.0.
+            Select \uicontrol {Qt Quick 1} to add files to a Qt Quick 1 application
+            and \uicontrol {Qt Quick 2} to add files to a Qt Quick 2 application.
 
         \li JavaScript files that you can use to write the application logic in
             Qt Quick projects
@@ -300,19 +300,19 @@
 
     \section2 Creating C++ Classes
 
-    The \gui {C++ Class Wizard} allows you to create a C++ header and source
+    The \uicontrol {C++ Class Wizard} allows you to create a C++ header and source
     file for a new class that you can add to a C++ project. Specify the class
     name, base class, and header and source files for the class.
 
     The  wizard supports namespaces. To use a namespace, enter a qualified
-    class name in the \gui {Class name} field. For example:
+    class name in the \uicontrol {Class name} field. For example:
     MyNamespace::MySubNamespace::MyClass.
 
     \image qtcreator-cpp-class-wizard.png "Enter Class Name dialog"
 
     The names of the header and source file are based on the class name. To
-    change the default suffix of a file, select \gui Tools > \gui Options >
-    \gui {C++} > \gui {File Naming}.
+    change the default suffix of a file, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {C++} > \uicontrol {File Naming}.
 
     You can create your own project and class wizards. For more information,
     see \l{Adding New Custom Wizards}.
@@ -339,13 +339,13 @@
     \section2 Displaying Additional File Types in Projects Pane
 
     \QC determines whether to display files from the project folder
-    in the \gui Projects pane depending on the file type (.pro, .pri, .cpp,
+    in the \uicontrol Projects pane depending on the file type (.pro, .pri, .cpp,
     .h, .qrc, and so on). To display other types of files, edit the
     project file. Add filenames as values of the \c {DISTFILES} variable.
     You can also use wildcards.
 
     For example, the following code specifies that text files are displayed
-    in the \gui Projects pane:
+    in the \uicontrol Projects pane:
 
     \code
 
@@ -353,7 +353,7 @@
 
     \endcode
 
-    This also makes the files available in the \gui Locator.
+    This also makes the files available in the \uicontrol Locator.
 
     \section1 Adding Subprojects to Projects
 
@@ -366,26 +366,26 @@
     system that you use.
 
     When you create a new project, you can add it to another project as a
-    subproject in the \gui{Project Management} dialog. However, the root project
+    subproject in the \uicontrol{Project Management} dialog. However, the root project
     must specify that qmake uses the \c subdirs template to build the project.
 
-    To create a root project, select \gui {File > New File or Project >
+    To create a root project, select \uicontrol {File > New File or Project >
     Other Project > Subdirs Project > Choose}.
 
-    On the \gui Summary page, select \gui {Finish & Add Subproject} to create
+    On the \uicontrol Summary page, select \uicontrol {Finish & Add Subproject} to create
     the root project and to add another project, such as a C++ library.
 
     The wizard creates a project file (.pro) that defines a \c subdirs template
     and the subproject that you add as a value of the \l{Variables#subdirs}
     {SUBDIRS variable}. It also adds all the necessary files for the subproject.
 
-    To add more subprojects, right-click the project name in the \gui Projects
-    pane, and select \gui {New Subproject} in the context menu.
+    To add more subprojects, right-click the project name in the \uicontrol Projects
+    pane, and select \uicontrol {New Subproject} in the context menu.
 
-    To remove subprojects, right-click the project name in the \gui Projects
-    pane, and select \gui {Remove Subproject} in the context menu.
+    To remove subprojects, right-click the project name in the \uicontrol Projects
+    pane, and select \uicontrol {Remove Subproject} in the context menu.
 
-    To specify dependencies, use the \gui{Add Library} wizard. For more
+    To specify dependencies, use the \uicontrol{Add Library} wizard. For more
     information, see \l{Adding Libraries to Projects}.
 
     \section1 Related Topics

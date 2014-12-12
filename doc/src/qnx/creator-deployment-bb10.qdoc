@@ -35,36 +35,54 @@
     To deploy Qt applications to BlackBerry 10 devices:
 
     \list 1
-        \li Select \gui File > \gui {New File or Project} > \gui {Application}
-            to create a \gui {Qt Quick Application}, \gui {Qt Widgets
-            Application}, or \gui {BlackBerry Cascades Application}.
+        \li Select \uicontrol File > \uicontrol {New File or Project}
+            > \uicontrol {Application} to create a
+            \uicontrol {Qt Quick Application}, \uicontrol {Qt Widgets
+            Application}, or \uicontrol {BlackBerry Cascades Application}.
         \li Select a BlackBerry 10 \l{glossary-buildandrun-kit}{kit} for either device or simulator. For more information about adding kits, see \l{Connecting BlackBerry 10 Devices}.
-        \li When \QC prompts you to generate a BAR descriptor file, answer \gui Yes to generate the file and enable the packaging process.
+        \li When \QC prompts you to generate a BAR descriptor file, answer
+            \uicontrol Yes to generate the file and enable the packaging
+            process.
         \li You can use the BAR descriptor editor to customize the appearance and behavior of the application.
-        \li You can specify which Qt libraries your application should link to in the \gui {Create Packages} deployment step, \gui {Package in development mode} option, if you create a package in development mode:
+        \li You can specify which Qt libraries your application should link to
+            in the \uicontrol {Create Packages} deployment step,
+            \uicontrol {Package in development mode} option, if you create a
+            package in development mode:
         \list
-            \li Select \gui {Use Pre-installed Qt} to use Qt libraries shipped with the device.
-            \li Select \gui{Bundle Qt in Package} to package and use the Qt version from the active BlackBerry kit.
+            \li Select \uicontrol {Use Pre-installed Qt} to use Qt libraries
+                shipped with the device.
+            \li Select \uicontrol{Bundle Qt in Package} to package and use the
+                Qt version from the active BlackBerry kit.
             This will significantly increase the size of your package.
-            \li To use a deployed Qt version in the device, select \gui{Use Deployed Qt} and set the path under /accounts/devuser/ where Qt is deployed. To deploy a Qt version select \gui {Deploy Now}.
+            \li To use a deployed Qt version in the device, select
+                \uicontrol{Use Deployed Qt} and set the path under
+                /accounts/devuser/ where Qt is deployed. To deploy a Qt version
+                select \uicontrol {Deploy Now}.
             \image qtcreator-blackberry-deployQt.png "Use deployed Qt."
         \endlist
     \endlist
 
     The BAR application descriptor file in your project will serve as a template to generate the actual BAR application descriptor file in the build directory
-    that is used for packaging. The final BAR application descriptor file depends on the options you specify in the \gui {Create Packages} deployment step.
+    that is used for packaging. The final BAR application descriptor file
+    depends on the options you specify in the \uicontrol {Create Packages}
+    deployment step.
 
     If you have an existing Cascades project created by QNX Momentics IDE, you can import it to \QC:
 
     \list 1
-        \li Select \gui File > \gui {New File or Project} > \gui {Import Project} > \gui {Momentics Cascades Project} > \gui Choose.
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol {Import Project} > \uicontrol {Momentics Cascades
+            Project} > \uicontrol Choose.
         \li Specify an existing Cascades project created by QNX Momentics IDE.
         \li Specify a location for the newly created \QC project.
     \endlist
 
     A project import report is generated into import.log file located in your project.
 
-    \note \gui {BlackBerry Cascades Application} and \gui {Momentics Cascades Project} projects are available in the \gui {All Templates} filter, so you need to set this filter in the top-right corner of the \gui {New} dialog to enable those templates.
+    \note \uicontrol {BlackBerry Cascades Application} and \uicontrol {Momentics
+    Cascades Project} projects are available in the \uicontrol {All Templates}
+    filter, so you need to set this filter in the top-right corner of the
+    \uicontrol {New} dialog to enable those templates.
 
     \note Currently, the BlackBerry 10 devices and Simulator have Qt 4.8 libraries preinstalled. To use Qt 5 features, you must compile the Qt libraries for BlackBerry 10 yourself. For more information, see \l {http://qt-project.org/wiki/Building-Qt5-for-Blackberry}{http://qt-p roject.org/wiki/Building-Qt5-for-Blackberry}.
 

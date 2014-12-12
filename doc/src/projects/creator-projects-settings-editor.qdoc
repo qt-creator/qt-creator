@@ -32,20 +32,20 @@
 
     \QC uses the \l{Editing MIME Types}{MIME type} of the file to
     determine which mode and editor to use for opening the file. For example,
-    \QC opens .txt files in \gui Edit mode in the text editor.
+    \QC opens .txt files in \uicontrol Edit mode in the text editor.
 
     You can configure the text editor according to your needs. You can specify
     editor behavior either globally for all projects or separately for each
-    project. To specify global editor behavior, select \gui {Tools > Options
+    project. To specify global editor behavior, select \uicontrol {Tools > Options
     > Text Editor > Behavior}.
 
     To configure the text editor behavior for the current project:
 
     \list 1
 
-        \li Select \gui Projects > \gui Editor.
+        \li Select \uicontrol Projects > \uicontrol Editor.
 
-        \li In the \gui {Editor Settings} field, select \gui {Custom}.
+        \li In the \uicontrol {Editor Settings} field, select \uicontrol {Custom}.
 
         \li Specify text editor settings for the project.
 
@@ -53,7 +53,7 @@
 
     \image qtcreator-editor-settings.png "Editor view"
 
-    Click \gui {Restore Global} to revert to the global settings.
+    Click \uicontrol {Restore Global} to revert to the global settings.
 
     For more information about the settings, see:
 

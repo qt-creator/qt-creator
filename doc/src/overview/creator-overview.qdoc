@@ -96,7 +96,7 @@
 
                 \QC is integrated to several external native debuggers: GNU
                 Symbolic Debugger (GDB), Microsoft Console Debugger (CDB), and
-                internal JavaScript debugger. In the \gui Debug mode, you
+                internal JavaScript debugger. In the \uicontrol Debug mode, you
                 can inspect the state of your application while debugging.
 
                 The memory and CPU power available on devices are limited and

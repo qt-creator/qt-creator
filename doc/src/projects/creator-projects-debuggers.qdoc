@@ -37,19 +37,19 @@
 
     The debugger plugin automatically selects a suitable native debugger for
     each \l{glossary-buildandrun-kit}{kit} from the ones found on your system.
-    To override this choice, select \gui Tools > \gui Options >
-    \gui {Build & Run} > \gui Kits.
+    To override this choice, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Build & Run} > \uicontrol Kits.
 
     To add debuggers:
 
     \list 1
 
-        \li Select \gui Tools > \gui Options > \gui {Build & Run} >
-            \gui Debuggers > \gui Add.
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
+            \uicontrol Debuggers > \uicontrol Add.
 
-        \li In the \gui Name field, give a descriptive name for the debugger.
+        \li In the \uicontrol Name field, give a descriptive name for the debugger.
 
-        \li In the \gui Path field, specify the path to the debugger binary:
+        \li In the \uicontrol Path field, specify the path to the debugger binary:
 
             \list
 
@@ -78,7 +78,7 @@
 
             \endlist
 
-        \li In the \gui ABIs field, specify the ABI versions to use on embedded
+        \li In the \uicontrol ABIs field, specify the ABI versions to use on embedded
             devices.
 
     \endlist

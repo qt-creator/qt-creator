@@ -55,9 +55,9 @@
 
             \list 1
 
-                \li Select \gui Window > \gui Organizer.
+                \li Select \uicontrol Window > \uicontrol Organizer.
 
-                \li Select the \gui + button to add the connected device.
+                \li Select the \uicontrol + button to add the connected device.
 
                 \li Select the device you want to add in the list of devices.
 
@@ -81,13 +81,13 @@
 
         The next time you connect the device to the Mac computer, \QC
         detects it automatically. To disable automatic connections to a
-        device that you do not use for development, select \gui Preferences >
-        \gui iOS, and deselect the
-        \gui {Ask about devices not in developer mode} check box.
+        device that you do not use for development, select \uicontrol Preferences >
+        \uicontrol iOS, and deselect the
+        \uicontrol {Ask about devices not in developer mode} check box.
 
         \note If \QC does not detect the devices, the iOS plugin might not be
-        enabled. Select \gui {Qt Creator} > \gui {About Plugins} >
-        \gui {Device Support} > \gui iOS and restart \QC.
+        enabled. Select \uicontrol {Qt Creator} > \uicontrol {About Plugins} >
+        \uicontrol {Device Support} > \uicontrol iOS and restart \QC.
 
         \li To specify build settings:
 
@@ -96,14 +96,14 @@
             \li Open a project for an application you want to develop for the
                 device.
 
-            \li Select \gui Projects > \gui {Build & Run} > \gui {Add Kit} to
+            \li Select \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol {Add Kit} to
                 add a kit for building and running applications on iOS.
 
                 \image qtcreator-ios-add-kit.png "Build & Run Settings"
 
         \endlist
 
-        \li Select \gui Run to specify run settings.
+        \li Select \uicontrol Run to specify run settings.
 
             Usually, you can use the default settings.
 
@@ -117,19 +117,19 @@
 
     \note If you cannot deploy applications, because a provisioning profile is
     missing, try refreshing the list of provisioning profiles in Xcode. Select
-    \gui Xcode > \gui Preferences > \gui Accounts > \gui {View Details}, and
-    then select the \gui Refresh button.
+    \uicontrol Xcode > \uicontrol Preferences > \uicontrol Accounts > \uicontrol {View Details}, and
+    then select the \uicontrol Refresh button.
 
     \section1 Viewing Device Connection Status
 
     When you connect an iOS device to a Mac computer with USB, \QC
     automatically detects the device if you have configured it by using Xcode.
-    To view information about the connected device, select \gui Preferences >
-    \gui Devices.
+    To view information about the connected device, select \uicontrol Preferences >
+    \uicontrol Devices.
 
     \image qtcreator-ios-device-configurations.png "Devices dialog"
 
-    If the current device state is \gui Connected, (the traffic light icon is
+    If the current device state is \uicontrol Connected, (the traffic light icon is
     orange), you need to configure the device using Xcode.
 
     \section1 Testing on iOS Simulator
@@ -138,9 +138,11 @@
     you can test applications on
     \l{http://developer.apple.com/library/ios/documentation/IDEs/Conceptual/iOS_Simulator_Guide/Introduction/Introduction.html}
     {iOS Simulator}, which is installed as part of Xcode. Each Xcode version
-    simulates a predefined set of hardware devices and software versions. You
-    can change the simulated hardware and software version from within iOS
-    Simulator.
+    simulates a predefined set of hardware devices and software versions.
+
+    You can change the simulated hardware and software version in the run
+    settings for the project. Select \uicontrol Projects > \uicontrol Run, and then select
+    the device to simulate in the \uicontrol {Device type} field.
 
     \QC uses the Xcode version set as current on the Mac computer.
     To check the version, enter the following command:

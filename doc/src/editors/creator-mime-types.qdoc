@@ -56,35 +56,35 @@
 
     \list 1
 
-        \li Select \gui {Tools > Options > Environment > MIME Types}.
+        \li Select \uicontrol {Tools > Options > Environment > MIME Types}.
 
             \image qtcreator-mime-types.png "MIME Types"
 
-        \li In \gui {MIME Type}, select a MIME type.
+        \li In \uicontrol {MIME Type}, select a MIME type.
 
-        \li In \gui Patterns, add the filename extension for the type of files
+        \li In \uicontrol Patterns, add the filename extension for the type of files
             that you want to identify as having this MIME type.
 
-        \li Click \gui Add to add \gui {Magic Headers}.
+        \li Click \uicontrol Add to add \uicontrol {Magic Headers}.
 
             \image qtcreator-mime-types-magic-header.png "Magic Header"
 
-        \li In the \gui Value field, specify a text string or bytes that
+        \li In the \uicontrol Value field, specify a text string or bytes that
             appear in the files.
 
-        \li In the \gui Type field, select the type of the value.
+        \li In the \uicontrol Type field, select the type of the value.
 
             \note You are recommended not to change the range and priority,
             because it might cause problems when opening files in \QC.
 
-        \li Click \gui OK.
+        \li Click \uicontrol OK.
 
     \endlist
 
     To revert all the changes you have made to the MIME type definitions,
-    select \gui {Reset All}.
+    select \uicontrol {Reset All}.
 
-    \note If you now select \gui OK or \gui Apply, you permanently lose all
+    \note If you now select \uicontrol OK or \uicontrol Apply, you permanently lose all
     your own patterns and magic headers. The changes are reverted the next
     time you start \QC.
 

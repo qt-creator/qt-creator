@@ -30,7 +30,7 @@
 
     \title Working in Edit Mode
 
-    This section describes how to use the \gui Edit mode. For more information
+    This section describes how to use the \uicontrol Edit mode. For more information
     about using the sidebar, see \l{Browsing Project Contents}.
 
     \section1 Using the Editor Toolbar
@@ -44,17 +44,17 @@
     Use the toolbar to navigate between open files and symbols in use.
     To browse backward or forward through your location history, click
     \inlineimage qtcreator-back.png
-    (\gui {Go Back}) and \inlineimage qtcreator-forward.png
-    (\gui {Go Forward}).
+    (\uicontrol {Go Back}) and \inlineimage qtcreator-forward.png
+    (\uicontrol {Go Forward}).
 
-    To go to any open file, select it from the \gui{Open files} drop-down menu (1).
-    Right-click the menu title and select \gui {Copy Full Path} to
+    To go to any open file, select it from the \uicontrol{Open files} drop-down menu (1).
+    Right-click the menu title and select \uicontrol {Copy Full Path} to
     copy the path and name of the current file to the clipboard.
 
     To jump to any symbol used in the current file, select it from the
-    \gui Symbols drop-down menu (2). By default, the symbols are displayed in the
+    \uicontrol Symbols drop-down menu (2). By default, the symbols are displayed in the
     order in which they appear in the file. Right-click the menu title and
-    select \gui {Sort Alphabetically} to arrange the symbols in alphabetic
+    select \uicontrol {Sort Alphabetically} to arrange the symbols in alphabetic
     order.
 
     To jump to a line and column in the current file, select the line and column
@@ -63,8 +63,8 @@
     separated by a colon (:).
 
     To show the file encoding of the current file on the editor toolbar (4),
-    select \gui Tools > \gui Options > \gui {Text Editor} > \gui Display >
-    \gui {Display file encoding}.
+    select \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} > \uicontrol Display >
+    \uicontrol {Display file encoding}.
 
     \note Other convenient ways of navigating in \QC are provided by the
     \l{Searching with the Locator}{locator}, \l{Keyboard Shortcuts}
@@ -82,21 +82,21 @@
     \list
 
         \li To split the editor view into a top and bottom view, select
-            \gui Window > \gui Split, press \key{Ctrl+E, 2}, or select the
+            \uicontrol Window > \uicontrol Split, press \key{Ctrl+E, 2}, or select the
             \inlineimage qtcreator-split-button.png
-            (\gui Split) button and then select \gui Split.
+            (\uicontrol Split) button and then select \uicontrol Split.
 
             Split command creates views below the currently active editor view.
 
         \li To split the editor view into adjacent views, select
-            \gui Window > \gui{Split Side by Side}, press \key{Ctrl+E, 3}, or
-            select \gui {Split > Split Side by Side}.
+            \uicontrol Window > \uicontrol{Split Side by Side}, press \key{Ctrl+E, 3}, or
+            select \uicontrol {Split > Split Side by Side}.
 
            Side by side split command creates views to the right of the
            currently active editor view.
 
         \li To open the editor in a detached window, press \key{Ctrl+E, 4}, or
-            select \gui Window > \gui {Open in New Window}.
+            select \uicontrol Window > \uicontrol {Open in New Window}.
 
             The new window behaves basically in the same way as the editor area
             in the main window. For example, you can split this window, as well.
@@ -104,16 +104,16 @@
 
     \endlist
 
-    To move between split views and detached editor windows, select \gui Window
-    > \gui{Go to Next Split or Window} or press \key{Ctrl+E, O}.
+    To move between split views and detached editor windows, select \uicontrol Window
+    > \uicontrol{Go to Next Split or Window} or press \key{Ctrl+E, O}.
 
     To remove a split view, place the cursor within the view you want to
-    remove and select \gui Window > \gui{Remove Current Split}, press
+    remove and select \uicontrol Window > \uicontrol{Remove Current Split}, press
     \key{Ctrl+E, 0}, or select the
     \inlineimage qtcreator-remove-split-button.png
-    (\gui {Remove Split}) button. To remove all but the currently selected split
+    (\uicontrol {Remove Split}) button. To remove all but the currently selected split
     view,
-    select \gui Window > \gui{Remove All Splits} or press \key{Ctrl+E, 1}.
+    select \uicontrol Window > \uicontrol{Remove All Splits} or press \key{Ctrl+E, 1}.
 
     \section1 Using Bookmarks
 
@@ -121,7 +121,7 @@
 
     \list
 
-        \li Right-click the line number and select \gui{Toggle Bookmark}.
+        \li Right-click the line number and select \uicontrol{Toggle Bookmark}.
 
         \li Press \key Shift and click the left margin at a line.
 
@@ -132,7 +132,7 @@
     \image qtcreator-togglebookmark.png
 
     To add a note to a bookmark, right-click the bookmark and select
-    \gui{Edit Bookmark}. To view the note, move the mouse pointer over the
+    \uicontrol{Edit Bookmark}. To view the note, move the mouse pointer over the
     bookmark.
 
     To go to previous bookmark in the current session, press \key{Ctrl+,}.
@@ -146,16 +146,16 @@
     opened, you can open the link in the next split by holding \key Ctrl and
     \key Alt while clicking the symbol.
 
-    To enable this moving function, select \gui Tools > \gui{Options} >
-    \gui{Text Editor} > \gui Behavior > \gui{Enable mouse navigation}.
+    To enable this moving function, select \uicontrol Tools > \uicontrol{Options} >
+    \uicontrol{Text Editor} > \uicontrol Behavior > \uicontrol{Enable mouse navigation}.
 
     You can also select the symbol and press \key F2, or right-click the symbol
-    and select \gui {Follow Symbol Under Cursor} to move to its definition or
+    and select \uicontrol {Follow Symbol Under Cursor} to move to its definition or
     declaration. This feature is supported for namespaces, classes, functions,
     variables, include statements, and macros.
 
     To switch between the definition and declaration of a function, place the
-    cursor on either and press \key {Shift+F2} or right-click and select \gui
+    cursor on either and press \key {Shift+F2} or right-click and select \uicontrol
     {Switch Between Function Declaration/Definition}. For example, this allows
     you to navigate from anywhere within a function body directly to the function
     declaration.
@@ -163,9 +163,9 @@
     Links are opened in the same split by default. To open links in the next
     split, prepend \key {Ctrl+E} to the shortcut. For example, press \key {Ctrl+E,F2}
     to follow the symbol in the next split. If necessary, the view is
-    automatically split. To change the default behavior, select \gui Tools >
-    \gui{Options} > \gui{Text Editor} > \gui Display, and then select
-    \gui{Always Open Links in Next Split}. Additional symbols are displayed and
+    automatically split. To change the default behavior, select \uicontrol Tools >
+    \uicontrol{Options} > \uicontrol{Text Editor} > \uicontrol Display, and then select
+    \uicontrol{Always Open Links in Next Split}. Additional symbols are displayed and
     switching between definition and declaration is done in another split.
     If you change the default behavior, the shortcuts for opening link targets
     in the next split are used to open them in the current split.
@@ -173,8 +173,8 @@
     \section1 Reparsing Externally Changed Files
 
     If source files are modified from outside \QC, the opened files will be
-    reparsed automatically. For all other files, you can use \gui{Tools} >
-    \gui{C++} > \gui{Reparse Externally Changed Files} to update the code
+    reparsed automatically. For all other files, you can use \uicontrol{Tools} >
+    \uicontrol{C++} > \uicontrol{Reparse Externally Changed Files} to update the code
     model.
 
     \section1 Inspecting the Code Model
@@ -185,14 +185,14 @@
     inspection.
 
     To view information about the C++ code model in the
-    \gui {C++ Code Model Inspector} dialog and write it to a log file, select
-    \gui Tools > \gui C++ > \gui {Inspect C++ Code Model} or press
+    \uicontrol {C++ Code Model Inspector} dialog and write it to a log file, select
+    \uicontrol Tools > \uicontrol C++ > \uicontrol {Inspect C++ Code Model} or press
     \key {Ctrl+Shift+F12}.
 
     \QC generates the code model inspection log file in a temporary folder.
 
     \QC underlines semantic errors in olive in the C++ code editor. To
     check the correct paths for includes that are not resolved or that are
-    resolved to the wrong file, select \gui {Project Parts} >
-    \gui {Include Paths}.
+    resolved to the wrong file, select \uicontrol {Project Parts} >
+    \uicontrol {Include Paths}.
 */

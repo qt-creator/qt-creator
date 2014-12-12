@@ -38,17 +38,17 @@
     configuration for testing and the release configuration for creating
     the final installation file.
 
-    You specify build settings in the \gui Projects mode.
-    To add a new build configuration, click \gui Add and select the type of
+    You specify build settings in the \uicontrol Projects mode.
+    To add a new build configuration, click \uicontrol Add and select the type of
     configuration you would like to add. You can add as many build
     configurations as you need.
 
-    To delete the build configuration currently selected, click \gui Remove.
+    To delete the build configuration currently selected, click \uicontrol Remove.
 
     \section1 Editing Build Configurations
 
     Select the build configuration to edit in the
-    \gui {Edit build configuration} field.
+    \uicontrol {Edit build configuration} field.
 
     \image qtcreator-projectpane.png
 
@@ -56,12 +56,13 @@
     directory, as \l{glossary-shadow-build} {shadow builds}. This keeps the
     files generated for each \l{glossary-buildandrun-kit}{build and run kit} separate.
     If you only build and run with a single \l{glossary-buildandrun-kit}{kit},
-    you can deselect the \gui {Shadow build}
+    you can deselect the \uicontrol {Shadow build}
     checkbox.
 
     To make in-source builds the default option for all projects, select
-    \gui Tools > \gui Options > \gui {Build & Run} > \gui General, and enter a
-    period (.) in the \gui {Default build directory} field.
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
+    \uicontrol General, and enter a period (.) in the
+    \uicontrol {Default build directory} field.
 
     \section1 Starting External Processes
 
@@ -70,26 +71,26 @@
     commands that are native to the system. It constructs the commands from
     an executable name and optional command line arguments.
 
-    The executable name is specified in the executable fields: \gui qmake,
-    \gui Make, \gui Command, or \gui Executable. It is either derived from the
+    The executable name is specified in the executable fields: \uicontrol qmake,
+    \uicontrol Make, \uicontrol Command, or \uicontrol Executable. It is either derived from the
     project or specified manually. When you specify executables manually, you
     can reference environment variables and \QC variables. However, no
     quoting rules
     apply.
 
     You can specify command-line arguments in the arguments fields:
-    \gui {Additional arguments}, \gui {Command arguments},
-    \gui {Make arguments}, or \gui Arguments. You can create shell command lines
+    \uicontrol {Additional arguments}, \uicontrol {Command arguments},
+    \uicontrol {Make arguments}, or \uicontrol Arguments. You can create shell command lines
     that can contain redirection and other advanced constructs. However, some
     more complex use cases, such as piping test data into the application being
     tested or grouping commands, are not supported because the value of the
-    \gui Executable field is always placed first when constructing the command.
+    \uicontrol Executable field is always placed first when constructing the command.
 
     \section2 Using Environment Variables
 
     You can use any environment variables as values in the fields. For a list
-    of variable names, click \gui {Build Environment > Details} in the
-    \gui {Build Settings}. Environment variables are referenced using the native
+    of variable names, click \uicontrol {Build Environment > Details} in the
+    \uicontrol {Build Settings}. Environment variables are referenced using the native
     syntax: $VARNAME or ${VARNAME} on Unix and %VARNAME% on Windows.
 
     \section2 Using Qt Creator Variables
@@ -98,12 +99,12 @@
     directories. The variables take care of quoting their expansions, so you do
     not need to put them in quotes. Select the
     \inlineimage qtcreator-variables-button.png
-    (\gui {Variables}) button in a field to select from a list of variables that
+    (\uicontrol {Variables}) button in a field to select from a list of variables that
     are available in a particular context.
 
     \section1 Build Steps
 
-    The build system of \QC is built on qmake and make. In \gui{Build Steps} you
+    The build system of \QC is built on qmake and make. In \uicontrol{Build Steps} you
     can change the settings for qmake and make. \QC runs the make command using
     the Qt version defined for the current build configuration.
 
@@ -113,26 +114,26 @@
     the build step and add a custom build step that specifies another shell
     command.
 
-    \QC Enterprise is integrated to \l{http://doc.qt.digia.com/QtQuickCompiler/}
-    {Qt Quick Compiler}. It is a commercial add-on for Qt Quick applications
-    that enables you to compile QML source code into the final binary. This
+    \QC is integrated to \l{http://doc.qt.digia.com/QtQuickCompiler/}
+    {Qt Quick Compiler} (commercial only) that enables you to compile QML source
+    code into the final binary. This
     improves the startup time of the application and eliminates the need to
     deploy QML files together with the application. \QC new project wizards
     create projects that the Qt Quick Compiler can compile, because they are
     set up to use the Qt Resource System. To compile Qt Quick projects, select
-    the \gui {Enable Qt Quick Compiler} check box.
+    the \uicontrol {Enable Qt Quick Compiler} check box.
 
     \note For more information about the build steps when using Qbs, see
     \l{Building Applications with Qbs}.
 
     \section2 Adding Custom Build Steps
 
-    To add custom steps to the build settings, select \gui {Add Build Step >
+    To add custom steps to the build settings, select \uicontrol {Add Build Step >
     Custom Process Step}.
 
     By default, custom steps are enabled. To disable a custom step, select
     the \inlineimage qtcreator-disable-steps.png
-    (\gui Disable) button.
+    (\uicontrol Disable) button.
 
     \image qtcreator-build-steps-custom.png "Custom Process Step"
 
@@ -144,21 +145,21 @@
 
     \image qtcreator-clean-steps.png "Clean steps"
 
-    You can define the cleaning steps for your builds in the \gui{Clean Steps}:
+    You can define the cleaning steps for your builds in the \uicontrol{Clean Steps}:
 
     \list
 
         \li To add a clean step using make or a custom process, click
-            \gui{Add Clean Step} and select the type of step you want to add.
+            \uicontrol{Add Clean Step} and select the type of step you want to add.
 
             By default, custom steps are enabled. To disable a custom step,
-            select the \gui Disable button.
+            select the \uicontrol Disable button.
 
-        \li To remove a clean step, click \gui{Remove Item}.
+        \li To remove a clean step, click \uicontrol{Remove Item}.
 
         \li To change the order of steps, click
             \inlineimage qtcreator-movestep.png
-            (\gui {Move Up} and \gui {Move Down}).
+            (\uicontrol {Move Up} and \uicontrol {Move Down}).
     \endlist
 
     \note For more information about the cleaning steps when using Qbs, see
@@ -167,7 +168,7 @@
     \section1 Build Environment
 
     You can specify the environment you want to use for building in the
-    \gui {Build Environment} section. By default, the environment in which \QC
+    \uicontrol {Build Environment} section. By default, the environment in which \QC
     was started is used and modified to include the Qt version.
     Depending on the selected Qt version, \QC automatically sets the
     necessary environment variables. You can edit existing environment
@@ -184,8 +185,8 @@
     \section2 Batch Editing
 
     To modify environment variable values for build or run environments,
-    select \gui {Batch Edit} in the build or run settings and enter environment
-    variables in the \gui {Edit Environment} dialog.
+    select \uicontrol {Batch Edit} in the build or run settings and enter environment
+    variables in the \uicontrol {Edit Environment} dialog.
 
     To remove a variable value from the environment, enter the variable name.
     For example, \c TEST sets the value of the \c TEST variable empty when
@@ -204,7 +205,7 @@
 
     \section2 Clearing the System Environment
 
-    To build with a clean system environment, select the \gui {Clear system
+    To build with a clean system environment, select the \uicontrol {Clear system
     environment} check box. \QC discards the current environment, and
     populates a clean system environment with the environment variables that the
     compilers and tools need. Therefore, the environment is never totally empty,

@@ -30,7 +30,7 @@
 
     \title Developing Widget Based Applications
 
-    \QC automatically opens all .ui files in the integrated \QD, in \gui Design
+    \QC automatically opens all .ui files in the integrated \QD, in \uicontrol Design
     mode.
 
     \image qtcreator-formedit.png
@@ -42,22 +42,22 @@
 
     \section1 Code Editor Integration
 
-    To switch between forms (\gui Design mode) and code (\gui Edit mode),
+    To switch between forms (\uicontrol Design mode) and code (\uicontrol Edit mode),
     press \key Shift+F4.
 
     You can use \QC to create stub implementations of slot functions. In the
-    \gui Design mode, right-click a widget to open a context menu, and then
-    select \gui {Go to Slot}. Select a signal in the list to go to an existing
+    \uicontrol Design mode, right-click a widget to open a context menu, and then
+    select \uicontrol {Go to Slot}. Select a signal in the list to go to an existing
     slot function or to create a new slot function.
 
     \section1 Managing Image Resources
 
     In standalone \QD, image resources are created using the built-in
-    \gui {Resource Editor}. In \QC, .ui files are usually part of a project,
+    \uicontrol {Resource Editor}. In \QC, .ui files are usually part of a project,
     which may contain several resource files (.qrc). They are created and
-    maintained by using the \QC Resource Editor. The \QD \gui {Resource Editor}
+    maintained by using the \QC Resource Editor. The \QD \uicontrol {Resource Editor}
     is de-activated and the image resources are displayed in the \QD
-    \gui {Resource Browser}.
+    \uicontrol {Resource Browser}.
 
     \section1 Specifying Settings for Qt Designer
 
@@ -67,23 +67,23 @@
 
     \list
 
-        \li Select \gui Tools > \gui Options > \gui Designer.
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Designer.
 
-        \li Specify settins for generating classes and code in \gui {Class
+        \li Specify settins for generating classes and code in \uicontrol {Class
             Generation}.
 
         \li Specify embedded device profiles, that determine style, font, and
-            screen resolution, for example, in \gui{Embedded Design}.
+            screen resolution, for example, in \uicontrol{Embedded Design}.
 
-        \li Specify settings for the grid and previewing forms in \gui Forms.
+        \li Specify settings for the grid and previewing forms in \uicontrol Forms.
 
-        \li Specify an additional folder for saving templates in \gui{Template
+        \li Specify an additional folder for saving templates in \uicontrol{Template
             Paths}.
 
     \endlist
 
-    To preview the settings, select \gui Tools > \gui{Form Editor} >
-    \gui Preview, or press \key Alt+Shift+R.
+    To preview the settings, select \uicontrol Tools > \uicontrol{Form Editor} >
+    \uicontrol Preview, or press \key Alt+Shift+R.
 
     \section1 Previewing Forms Using Device Skins
 
@@ -95,15 +95,15 @@
 
     \list 1
 
-        \li Select \gui Tools > \gui Options > \gui Designer.
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Designer.
 
-        \li Select the \gui{Print/Preview Configuration} check box.
+        \li Select the \uicontrol{Print/Preview Configuration} check box.
 
-        \li In the \gui {Device skin} field, select a device skin.
+        \li In the \uicontrol {Device skin} field, select a device skin.
 
-        \li When the form is open in \gui Design mode, press \key Alt+Shift+R.
+        \li When the form is open in \uicontrol Design mode, press \key Alt+Shift+R.
 
-        \li To end the preview, right-click the skin and select \gui Close in
+        \li To end the preview, right-click the skin and select \uicontrol Close in
             the context menu.
 
     \endlist

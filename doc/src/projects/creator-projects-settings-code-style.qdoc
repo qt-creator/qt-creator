@@ -32,7 +32,7 @@
 
     \QC uses the \l{Editing MIME Types}{MIME type} of the file to
     determine which mode and editor to use for opening the file.
-    \QC opens C++ files in \gui Edit mode in the C++ code editor and
+    \QC opens C++ files in \uicontrol Edit mode in the C++ code editor and
     QML files in the Qt Quick editor.
 
     You can configure the code style according to your needs. You can specify
@@ -42,29 +42,29 @@
     settings.
 
     To specify global code style settings sets for C++ files, select
-    \gui {Tools > Options > C++}.
+    \uicontrol {Tools > Options > C++}.
 
-    To specify global code style settings sets for QML files, select \gui {Tools
+    To specify global code style settings sets for QML files, select \uicontrol {Tools
     > Options > Qt Quick}.
 
     To configure the editor behavior for the current project:
 
     \list 1
 
-        \li Select \gui Projects > \gui {Code Style}.
+        \li Select \uicontrol Projects > \uicontrol {Code Style}.
 
-        \li In the \gui Language field, select \gui C++ or \gui {Qt Quick}.
+        \li In the \uicontrol Language field, select \uicontrol C++ or \uicontrol {Qt Quick}.
 
-        \li In the \gui {Current settings} field, select the settings to modify
-            and click \gui Copy.
+        \li In the \uicontrol {Current settings} field, select the settings to modify
+            and click \uicontrol Copy.
 
-        \li Give a name to the settings and click \gui OK.
+        \li Give a name to the settings and click \uicontrol OK.
 
-        \li Click \gui Edit to specify code style settings for the project.
+        \li Click \uicontrol Edit to specify code style settings for the project.
 
             \image qtcreator-code-style-settings-edit-cpp.png "Edit Code Style Settings dialog"
 
-            \note Only \gui General settings are available for QML files.
+            \note Only \uicontrol General settings are available for QML files.
 
             \image qtcreator-code-style-settings-edit-qtquick.png "Edit Code Style Settings view"
 

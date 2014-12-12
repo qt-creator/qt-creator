@@ -112,7 +112,7 @@
             \li
         \row
             \li {3,1} \note To report bugs and suggestions to the Qt Bug
-                Tracker, select \gui {Help > Report Bug}.
+                Tracker, select \uicontrol {Help > Report Bug}.
 
                 You can also join the \QC mailing list at:
                 \l{http://lists.qt-project.org/mailman/listinfo/}

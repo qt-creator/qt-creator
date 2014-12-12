@@ -95,7 +95,7 @@
       \li Launch \QC from command line, with
           \c {-noload Welcome -noload QmlProfiler -noload QuickDesigner} arguments.
 
-      \li Disable the plugins permanently by selecting \gui Help > \gui{About Plugins}.
+      \li Disable the plugins permanently by selecting \uicontrol Help > \uicontrol{About Plugins}.
 
     \endlist
 
@@ -143,7 +143,7 @@
     compiler. What should I do?}
 
     Make sure that the application is in your system PATH when starting \QC.
-    Also select \gui {Tools > Options} to check the settings specified
+    Also select \uicontrol {Tools > Options} to check the settings specified
     for the application. Many plugins specify either the path to the tool they
     need or the environment they run in.
 
@@ -154,8 +154,8 @@
 
     \QC has been localized into several languages. If the system
     language is one of the supported languages, it is automatically selected.
-    To change the language, select \gui {Tools > Options > Environment} and
-    select a language in the \gui Language field. The change takes effect after
+    To change the language, select \uicontrol {Tools > Options > Environment} and
+    select a language in the \uicontrol Language field. The change takes effect after
     you restart \QC.
 
     \b {Has a reported issue been addressed?}
@@ -174,10 +174,10 @@
     the Qt Help plugin. The integrated Qt Reference Documentation is available
     for Qt 4.4 and later. \QC and other Qt deliverables contain
     documentation as .qch files. All the documentation is accessible in the
-    \gui Help mode.
+    \uicontrol Help mode.
 
     To view the documentation that is available and to add documentation,
-    select \gui {Tools > Options > Help > Documentation}. For more
+    select \uicontrol {Tools > Options > Help > Documentation}. For more
     information, see \l{Adding External Documentation}.
 
     \section1 Debugger Questions
@@ -200,28 +200,28 @@
     \b {How do I generate a core file in \QC?}
 
     To trigger the GDB command that generates a core file while debugging,
-    select \gui {Window > Views > Debugger Log}. In the \gui Command field,
+    select \uicontrol {Window > Views > Debugger Log}. In the \uicontrol Command field,
     type \c gcore and press \key Enter. The core file is created in the
     current working directory. You can specify another location for the file,
     including a relative or absolute path, as an argument of the command.
 
-    To generate a temporary core file, select \gui {Create Snapshot} in the
-    context menu in the \gui Snapshot view. The core file is deleted when you
+    To generate a temporary core file, select \uicontrol {Create Snapshot} in the
+    context menu in the \uicontrol Snapshot view. The core file is deleted when you
     stop debugging.
 
     \section1 Compiler Questions
 
     \b {How can I make use of my multi-core CPU with \QC?}
 
-    On Linux and OS X, go to \gui Project mode, select your configuration
-    in the \gui {Build Settings}, locate the \gui {Build Steps}, and add the
+    On Linux and OS X, go to \uicontrol Project mode, select your configuration
+    in the \uicontrol {Build Settings}, locate the \uicontrol {Build Steps}, and add the
     following value, where \c{<num>} is the amount of cores in your CPU:
     \c{-j <num>}
 
     On Windows, nmake does not support the \c{-j} parameter. Instead, we
     provide a drop-in replacement called jom. You can download a precompiled
     version of jom from \l{http://releases.qt-project.org/jom/}{Qt Project Release server}.
-    Put jom.exe in a location in the %PATH%. Go to the \gui {Build Settings}
+    Put jom.exe in a location in the %PATH%. Go to the \uicontrol {Build Settings}
     and set jom.exe as the make command.
 
     \note Unlike GNU make, jom automatically detects your cores and spawns as
@@ -256,9 +256,9 @@
 
     \b {On Unix (Linux and OS X):} \c qDebug() and related functions use
     the standard output and error output. When you run or debug the
-    application, you can view the output in the \gui{Application Output} pane.
+    application, you can view the output in the \uicontrol{Application Output} pane.
 
-    For console applications that require input, select \gui {Projects > Run
+    For console applications that require input, select \uicontrol {Projects > Run
     Settings > Run in terminal}.
 
     \b {On Windows:} Output is displayed differently for \e{console
@@ -273,12 +273,12 @@
     type of application, \c qDebug() and related functions use standard output
     and error output.
 
-    We recommend that you select \gui {Projects > Run Settings > Run in
+    We recommend that you select \uicontrol {Projects > Run Settings > Run in
     terminal} for console applications.
 
     For GUI applications, \c qDebug() and related functions use the Windows API
     function \c OutputDebugString(). The output is displayed in the
-    \gui{Application Output} pane. However, only one output pane tab may be
+    \uicontrol{Application Output} pane. However, only one output pane tab may be
     open at a time or the output is not displayed correctly. You can use an
     external debug output viewer, such as the
     \l{http://technet.microsoft.com/en-us/sysinternals/bb896647}{DebugView for Windows}

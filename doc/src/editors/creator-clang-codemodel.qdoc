@@ -77,7 +77,7 @@
     can take a while.
 
     To make parsing faster, pre-compiled headers are ignored by default. You can
-    specify that Clang processes them in \gui {Code Model} options.
+    specify that Clang processes them in \uicontrol {Code Model} options.
 
     The following services are currently implemented in the experimental Clang
     code model plugin:
@@ -169,16 +169,17 @@
 
     \list 1
 
-        \li Select \gui Help > \gui {About Plugins} > \gui {C++} >
-            \gui ClangCodeModel to enable the plugin.
+        \li Select \uicontrol Help > \uicontrol {About Plugins} > \uicontrol {C++} >
+            \uicontrol ClangCodeModel to enable the plugin.
 
         \li Restart \QC to be able to use the plugin.
 
-        \li Select \gui Tools > \gui Options > \gui {C++} > \gui {Code Model},
+        \li Select \uicontrol Tools > \uicontrol Options >
+            \uicontrol {C++} > \uicontrol {Code Model},
             and select the parser to use for files of each type.
 
         \li To process pre-compiled headers before processing any project files,
-            deselect the \gui {Ignore pre-compiled headers} check box.
+            deselect the \uicontrol {Ignore pre-compiled headers} check box.
 
     \endlist
 

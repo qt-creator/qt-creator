@@ -311,8 +311,9 @@ void BaseFileFind::openEditor(const Core::SearchResultItem &item)
     IEditor *openedEditor = 0;
     if (item.path.size() > 0) {
         openedEditor = EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
-                                                         item.lineNumber,
-                                                         item.textMarkPos);
+                                                   item.lineNumber,
+                                                   item.textMarkPos, Id(),
+                                                   EditorManager::DoNotSwitchToDesignMode);
     } else {
         openedEditor = EditorManager::openEditor(QDir::fromNativeSeparators(item.text));
     }

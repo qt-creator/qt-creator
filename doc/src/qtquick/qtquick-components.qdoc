@@ -87,20 +87,20 @@
 
     \list 1
 
-        \li Select \gui File > \gui {New File or Project} >
-            \gui {Files and Classes} > \gui Qt > \gui {QML File (Qt Quick 1)} or
-            \gui {QML File (Qt Quick 2)} > \gui Choose to create a new .qml
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol {Files and Classes} > \uicontrol Qt > \uicontrol {QML File (Qt Quick 1)} or
+            \uicontrol {QML File (Qt Quick 2)} > \uicontrol Choose to create a new .qml
             file.
 
-            \note Components are listed in the \gui {QML Components} section of
-            the \gui Library only if the filename begins with a capital
+            \note Components are listed in the \uicontrol {QML Components} section of
+            the \uicontrol Library only if the filename begins with a capital
             letter.
 
-        \li Click \gui Design to open the .qml file in \QMLD.
+        \li Click \uicontrol Design to open the .qml file in \QMLD.
 
-        \li Drag and drop a QML type from the \gui Library to the editor.
+        \li Drag and drop a QML type from the \uicontrol Library to the editor.
 
-        \li Edit its properties in the \gui Properties pane.
+        \li Edit its properties in the \uicontrol Properties pane.
 
             The available properties depend on the QML type.
 
@@ -121,7 +121,7 @@
 
     Components can consist of several other components. To view the component
     hierarchy as a bread crumb path when you edit a component on the canvas,
-    select \gui {Go into Component} or press \key F2. Click the component
+    select \uicontrol {Go into Component} or press \key F2. Click the component
     names in the path to navigate to them. You can easily navigate back to the
     top level when you are done editing the component.
 

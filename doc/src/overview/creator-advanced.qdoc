@@ -86,7 +86,7 @@
         \li \l{Showing Task List Files in Issues Pane}
 
             You can load report files created by code scanning and analysis
-            tools to the \gui Issues output pane. You can navigate to the
+            tools to the \uicontrol Issues output pane. You can navigate to the
             corresponding source code by clicking the error message.
 
     \endlist

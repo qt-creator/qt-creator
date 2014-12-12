@@ -2,7 +2,7 @@
 
     To run and debug an application on a QNX or BlackBerry device, you must
     create connections from the development PC to the device. Click
-    \gui {Manage device configurations} to create a connection. For more
+    \uicontrol {Manage device configurations} to create a connection. For more
     information, see \l{Connecting QNX Devices}.
 
     \image qtcreator-qnx-run-settings.png "Run settings for QNX devices"

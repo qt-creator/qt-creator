@@ -34,9 +34,9 @@
     process.
 
     To view all keyboard shortcuts defined in \QC, and to change them, select
-    \gui {Tools > Options > Environment > Keyboard}. The shortcuts are listed by
+    \uicontrol {Tools > Options > Environment > Keyboard}. The shortcuts are listed by
     category. To find a keyboard
-    shortcut in the list, enter a function name or shortcut in the \gui Filter
+    shortcut in the list, enter a function name or shortcut in the \uicontrol Filter
     field.
 
     \image qtcreator-keyboard-shortcuts.png
@@ -59,14 +59,15 @@
 
     \list 1
 
-        \li Select \gui Tools > \gui Options > \gui Environment > \gui Keyboard.
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Environment
+            > \uicontrol Keyboard.
 
         \li Select a command from the list.
 
-        \li In \gui{Key Sequence} enter the shortcut key you want to associate
+        \li In \uicontrol{Key Sequence} enter the shortcut key you want to associate
             with the selected command.
 
-        \li To revert to the default shortcut, select \gui Reset.
+        \li To revert to the default shortcut, select \uicontrol Reset.
 
     \endlist
 
@@ -74,12 +75,12 @@
 
     \list
 
-        \li To import a keyboard shortcut mapping scheme, click \gui Import
+        \li To import a keyboard shortcut mapping scheme, click \uicontrol Import
             and select the .kms file containing the keyboard shortcut mapping scheme
             you want to import.
 
         \li To export the current keyboard shortcut mapping scheme, click
-            \gui Export and select the location where you want to save the
+            \uicontrol Export and select the location where you want to save the
             exported .kms file.
 
     \endlist
@@ -159,40 +160,40 @@
             \li  Previous open document in history
             \li  Ctrl+Tab
         \row
-            \li  Activate \gui Locator
+            \li  Activate \uicontrol Locator
             \li  Ctrl+K
         \row
-            \li  Switch to \gui Welcome mode
+            \li  Switch to \uicontrol Welcome mode
             \li  Ctrl+1
         \row
-            \li  Switch to \gui Edit mode
+            \li  Switch to \uicontrol Edit mode
             \li  Ctrl+2
         \row
-            \li  Switch to \gui Design mode
+            \li  Switch to \uicontrol Design mode
             \li  Ctrl+3
         \row
-            \li  Switch to \gui Debug mode
+            \li  Switch to \uicontrol Debug mode
             \li  Ctrl+4
         \row
-            \li  Switch to \gui Projects mode
+            \li  Switch to \uicontrol Projects mode
             \li  Ctrl+5
         \row
-            \li  Switch to \gui Analyze mode
+            \li  Switch to \uicontrol Analyze mode
             \li  Ctrl+6
         \row
-            \li  Switch to \gui Help mode
+            \li  Switch to \uicontrol Help mode
             \li  Ctrl+7
         \row
-            \li  Toggle \gui{Issues} pane
+            \li  Toggle \uicontrol{Issues} pane
             \li  Alt+1 (Cmd+1 on OS X)
         \row
-            \li  Toggle \gui{Search Results} pane
+            \li  Toggle \uicontrol{Search Results} pane
             \li  Alt+2 (Cmd+2 on OS X)
         \row
-            \li  Toggle \gui{Application Output} pane
+            \li  Toggle \uicontrol{Application Output} pane
             \li  Alt+3 (Cmd+3 on OS X)
         \row
-            \li  Toggle \gui{Compile Output} pane
+            \li  Toggle \uicontrol{Compile Output} pane
             \li  Alt+4 (Cmd+4 on OS X)
         \row
             \li  Toggle other output panes
@@ -200,13 +201,13 @@
 
             Where the number is the number of the output pane.
         \row
-            \li  Activate \gui Bookmarks pane
+            \li  Activate \uicontrol Bookmarks pane
             \li  Alt+M
         \row
-            \li  Activate \gui{File System} pane
+            \li  Activate \uicontrol{File System} pane
             \li  Alt+Y
         \row
-            \li  Activate \gui{Open Documents} pane
+            \li  Activate \uicontrol{Open Documents} pane
             \li  Alt+O
         \row
             \li  Maximize output panes
@@ -218,7 +219,7 @@
             \li  Move to previous item in output panes
             \li  Shift+F6
         \row
-            \li  Activate \gui Projects pane
+            \li  Activate \uicontrol Projects pane
             \li  Alt+X
         \row
             \li  Full screen
@@ -230,9 +231,9 @@
             \li  Undo
             \li  Ctrl+Z
         \row
-            \li  Move to \gui Edit mode
+            \li  Move to \uicontrol Edit mode
 
-               In \gui Edit mode:
+               In \uicontrol Edit mode:
                \list
                 \li  The first press moves focus to the editor
                 \li  The second press closes secondary windows
@@ -570,19 +571,19 @@
             \li  View context-sensitive help
             \li  F1
         \row
-            \li  Activate contents in \gui Help mode
+            \li  Activate contents in \uicontrol Help mode
             \li  Ctrl+T
         \row
-            \li  Add bookmark in \gui Help mode
+            \li  Add bookmark in \uicontrol Help mode
             \li  Ctrl+M
         \row
-            \li  Activate index in \gui Help mode
+            \li  Activate index in \uicontrol Help mode
             \li  Ctrl+I
         \row
             \li  Reset font size
             \li  Ctrl+0
         \row
-            \li  Activate search in \gui Help mode
+            \li  Activate search in \uicontrol Help mode
             \li  Ctrl+S
     \endtable
 

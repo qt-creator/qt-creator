@@ -84,7 +84,7 @@
                 cross-platform development easier. Each kit consists of a set
                 of values that define one environment, such as a device,
                 tool chain, Qt version, and debugger command to use. Configure kits at
-                \gui {Tools > Options > Build & Run > Kits}.
+                \uicontrol {Tools > Options > Build & Run > Kits}.
 
         \row
             \li Mode

@@ -37,10 +37,10 @@
 
     \image qtcreator-qnx-deployment.png "Deploy to device"
 
-    The files to be installed are listed in the \gui {Deployment} step,
-    the \gui {Files to install for subproject} field. The \gui {Local File Path}
+    The files to be installed are listed in the \uicontrol {Deployment} step,
+    the \uicontrol {Files to install for subproject} field. The \uicontrol {Local File Path}
     field displays the location of the file on the development PC. The
-    \gui {Remote Directory} field displays the folder where the file is
+    \uicontrol {Remote Directory} field displays the folder where the file is
     installed on the device. Text in red color indicates that the information is
     missing. Edit the qmake \l{Variables#installs}
     {INSTALLS variable} in the project .pro file to add the missing files.

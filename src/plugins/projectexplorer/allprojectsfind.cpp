@@ -101,10 +101,14 @@ Utils::FileIterator *AllProjectsFind::filesForProjects(const QStringList &nameFi
         } else {
             filteredFiles = projectFiles;
         }
+        const EditorConfiguration *config = project->editorConfiguration();
+        QTextCodec *projectCodec = config->useGlobalSettings()
+            ? Core::EditorManager::defaultTextCodec()
+            : config->textCodec();
         foreach (const QString &fileName, filteredFiles) {
             QTextCodec *codec = openEditorEncodings.value(fileName);
             if (!codec)
-                codec = project->editorConfiguration()->textCodec();
+                codec = projectCodec;
             encodings.insert(fileName, codec);
         }
     }

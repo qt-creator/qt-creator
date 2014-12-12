@@ -33,8 +33,8 @@
 
     The main debugger settings are associated with the
     \l{glossary-buildandrun-kit}{kit} you build and run your project with. To specify the
-    debugger and compiler to use for each kit, select \gui Tools >
-    \gui Options > \gui {Build and Run} > \gui Kits.
+    debugger and compiler to use for each kit, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Build and Run} > \uicontrol Kits.
 
     You need to set up the debugger only if the automatic setup
     fails, because the native debugger is missing (as is usually the
@@ -45,11 +45,12 @@
 
     \note If you need to change the debugger to use for an automatically
     detected \l{glossary-buildandrun-kit}{kit},
-    you can \gui{Clone} the kit and change the parameters in
+    you can \uicontrol{Clone} the kit and change the parameters in
     the clone. Make sure to select the cloned kit for your project.
 
     If the debugger you want to use is not automatically detected, select
-    \gui Tools > \gui Options > \gui {Build & Run} > \gui Debuggers > \gui Add
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
+    \uicontrol Debuggers > \uicontrol Add
     to add it.
 
     \note To use the debugging tools for Windows, you must install them
@@ -218,8 +219,8 @@
 
                 If you use a qmake based project in \QC,  you can set a
                 flag in your \l{glossary-run-config}{run configuration}, in
-                \gui Projects mode. In the run configuration, select
-                \gui{Use debug version of frameworks}.
+                \uicontrol Projects mode. In the run configuration, select
+                \uicontrol{Use debug version of frameworks}.
 
                 For more detailed information about debugging on OS X,
                 see: \l{http://developer.apple.com/library/mac/#technotes/tn2124/_index.html#//apple_ref/doc/uid/DTS10003391}
@@ -238,13 +239,13 @@
 
     \list 1
 
-        \li Select \gui Tools > \gui Options > \gui Debugger > \gui General >
-            \gui Add.
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Debugger
+            > \uicontrol General > \uicontrol Add.
 
-        \li In the \gui {Source path} field, specify the source path in the
+        \li In the \uicontrol {Source path} field, specify the source path in the
             debug information of the executable as reported by the debugger.
 
-        \li In the \gui {Target path} field, specify the actual location of the
+        \li In the \uicontrol {Target path} field, specify the actual location of the
             source tree on the local machine.
 
     \endlist
@@ -257,13 +258,14 @@
 
     \list 1
 
-        \li Select \gui Tools > \gui Options > \gui Debugger > \gui CDB.
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
+            \uicontrol CDB.
 
-        \li In the \gui {Symbol paths} field, open the \gui Insert menu
-            and select \gui{Symbol Server}.
+        \li In the \uicontrol {Symbol paths} field, open the \uicontrol Insert
+            menu and select \uicontrol{Symbol Server}.
 
         \li Select a directory where you want to store the cached information
-            and click \gui OK.
+            and click \uicontrol OK.
 
             Use a subfolder in a temporary directory, such as
             \c {C:\temp\symbolcache}.
@@ -283,32 +285,32 @@
 
     \list 1
 
-        \li To create a key for signing FSF GDB, select \gui {Keychain Access >
+        \li To create a key for signing FSF GDB, select \uicontrol {Keychain Access >
             Certificate Assistant > Create a Certificate}:
 
         \list 1
 
-            \li In the \gui {Name} field, input \gui {fsfgdb} to replace
+            \li In the \uicontrol {Name} field, input \uicontrol {fsfgdb} to replace
                 the existing content.
 
-            \li In the \gui {Certificate Type} field, select
-                \gui {Code Signing}.
+            \li In the \uicontrol {Certificate Type} field, select
+                \uicontrol {Code Signing}.
 
-            \li Select the \gui {Let me override defaults} check box.
+            \li Select the \uicontrol {Let me override defaults} check box.
 
-            \li Select \gui Continue, and follow the instructions of the
-                wizard (use the default settings), until the \gui {Specify a
+            \li Select \uicontrol Continue, and follow the instructions of the
+                wizard (use the default settings), until the \uicontrol {Specify a
                 Location For The Certificate} dialog opens.
 
-            \li In the \gui Keychain field, select \gui System.
+            \li In the \uicontrol Keychain field, select \uicontrol System.
 
-            \li Select \gui {Keychain Access > System}, and locate the
+            \li Select \uicontrol {Keychain Access > System}, and locate the
                 certificate.
 
             \li Double click the certificate to view certificate information.
 
-            \li In the \gui Trust section, select \gui {Always Trust} in the
-                \gui {When using this certificate} field, and then close
+            \li In the \uicontrol Trust section, select \uicontrol {Always Trust} in the
+                \uicontrol {When using this certificate} field, and then close
                 the dialog.
 
         \endlist
@@ -319,14 +321,14 @@
             codesign -f -s "fsfgdb" $INSTALL_LOCATION/fsfgdb
             \endcode
 
-        \li In \QC, select \gui {Qt Creator > Preferences > Build & Run >
-            Kits} > \gui Add to create a kit that uses FSF GDB.
+        \li In \QC, select \uicontrol {Qt Creator > Preferences > Build & Run >
+            Kits} > \uicontrol Add to create a kit that uses FSF GDB.
 
-            \li In the \gui Debugger field, specify the path to FSF GDB
+            \li In the \uicontrol Debugger field, specify the path to FSF GDB
                 (\c $HOME/gdb72/bin/fsfgdb, but with an explicit value for
                 \c $HOME).
 
-        \li To use the debugger, add the kit in the \gui {Build Settings}
+        \li To use the debugger, add the kit in the \uicontrol {Build Settings}
             of the project.
 
     \endlist
@@ -338,17 +340,18 @@
 
     \list 1
 
-        \li Select \gui Tools > \gui Options > \gui {Build & Run} > \gui Kits.
+        \li Select \uicontrol Tools > \uicontrol Options >
+            \uicontrol {Build & Run} > \uicontrol Kits.
 
         \li Select an automatically created kit in the list, and then select
-            \gui Clone to create a copy of the kit.
+            \uicontrol Clone to create a copy of the kit.
 
-        \li In the \gui Debugger field, select an LLDB Engine. If an LLDB Engine
-            is not listed, select \gui Manage to add it in \gui Tools >
-            \gui Options > \gui {Build & Run} > \gui Debuggers. For more
+        \li In the \uicontrol Debugger field, select an LLDB Engine. If an LLDB Engine
+            is not listed, select \uicontrol Manage to add it in \uicontrol Tools >
+            \uicontrol Options > \uicontrol {Build & Run} > \uicontrol Debuggers. For more
             information, see \l {Adding Debuggers}.
 
-        \li To use the debugger, add the kit in the \gui {Build Settings}
+        \li To use the debugger, add the kit in the \uicontrol {Build Settings}
             of the project.
 
     \endlist

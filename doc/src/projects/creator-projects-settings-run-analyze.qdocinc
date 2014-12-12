@@ -11,7 +11,7 @@
 
     \list 1
 
-        \li In the \gui {Valgrind Settings} section, select \gui Custom.
+        \li In the \uicontrol {Valgrind Settings} section, select \uicontrol Custom.
 
         \li Specify Valgrind settings for the project.
 
@@ -29,8 +29,8 @@
 
     \endlist
 
-    Click \gui {Restore Global} to revert to the global settings.
+    Click \uicontrol {Restore Global} to revert to the global settings.
 
-    To specify global Valgrind settings, select \gui {Tools > Options >
+    To specify global Valgrind settings, select \uicontrol {Tools > Options >
     Analyzer}.
 
