@@ -31,13 +31,13 @@
 #ifndef TIPS_H
 #define TIPS_H
 
-#include "tipcontents.h"
+#include "../utils_global.h"
 
-#include <QSharedPointer>
 #include <QLabel>
 #include <QPixmap>
-
-QT_FORWARD_DECLARE_CLASS(QVBoxLayout)
+#include <QSharedPointer>
+#include <QVariant>
+#include <QVBoxLayout>
 
 #ifndef Q_MOC_RUN
 namespace Utils {
@@ -48,68 +48,68 @@ namespace Internal {
 class QTipLabel : public QLabel
 {
     Q_OBJECT
-protected:
+public:
     QTipLabel(QWidget *parent);
 
-public:
-    virtual ~QTipLabel();
-
-    void setContent(const TipContent &content);
-    const TipContent &content() const { return m_tipContent; }
-
+    virtual void setContent(const QVariant &content) = 0;
+    virtual bool isInteractive() const { return false; }
+    virtual int showTime() const = 0;
     virtual void configure(const QPoint &pos, QWidget *w) = 0;
-    virtual bool canHandleContentReplacement(const TipContent &content) const = 0;
-
-    bool isInteractive() const;
-
-private:
-    TipContent m_tipContent;
+    virtual bool canHandleContentReplacement(int typeId) const = 0;
+    virtual bool equals(int typeId, const QVariant &other) const = 0;
 };
 
 class TextTip : public QTipLabel
 {
-    Q_OBJECT
 public:
     TextTip(QWidget *parent);
-    virtual ~TextTip();
 
+    virtual void setContent(const QVariant &content);
     virtual void configure(const QPoint &pos, QWidget *w);
-    virtual bool canHandleContentReplacement(const TipContent &content) const;
-
-private:
+    virtual bool canHandleContentReplacement(int typeId) const;
+    virtual int showTime() const;
+    virtual bool equals(int typeId, const QVariant &other) const;
     virtual void paintEvent(QPaintEvent *event);
     virtual void resizeEvent(QResizeEvent *event);
+
+private:
+    QString m_text;
 };
 
 class ColorTip : public QTipLabel
 {
-    Q_OBJECT
 public:
     ColorTip(QWidget *parent);
-    virtual ~ColorTip();
 
+    virtual void setContent(const QVariant &content);
     virtual void configure(const QPoint &pos, QWidget *w);
-    virtual bool canHandleContentReplacement(const TipContent &content) const;
-
-private:
+    virtual bool canHandleContentReplacement(int typeId) const;
+    virtual int showTime() const { return 4000; }
+    virtual bool equals(int typeId, const QVariant &other) const;
     virtual void paintEvent(QPaintEvent *event);
 
-    QPixmap m_tilePixMap;
+private:
+    QColor m_color;
+    QPixmap m_tilePixmap;
 };
 
 class WidgetTip : public QTipLabel
 {
     Q_OBJECT
+
 public:
     explicit WidgetTip(QWidget *parent = 0);
-
-    virtual void configure(const QPoint &pos, QWidget *w);
-    virtual bool canHandleContentReplacement(const TipContent &content) const;
-
-public slots:
     void pinToolTipWidget(QWidget *parent);
 
+    virtual void setContent(const QVariant &content);
+    virtual void configure(const QPoint &pos, QWidget *w);
+    virtual bool canHandleContentReplacement(int typeId) const;
+    virtual int showTime() const { return 30000; }
+    virtual bool equals(int typeId, const QVariant &other) const;
+    virtual bool isInteractive() const { return true; }
+
 private:
+    QWidget *m_widget;
     QVBoxLayout *m_layout;
 };
 

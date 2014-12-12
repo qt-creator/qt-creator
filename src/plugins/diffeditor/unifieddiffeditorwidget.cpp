@@ -60,7 +60,6 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <utils/tooltip/tipcontents.h>
 #include <utils/tooltip/tooltip.h>
 
 //static const int FILE_LEVEL = 1;

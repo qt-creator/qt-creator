@@ -82,7 +82,6 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/hostosinfo.cpp \
     $$PWD/tooltip/tooltip.cpp \
     $$PWD/tooltip/tips.cpp \
-    $$PWD/tooltip/tipcontents.cpp \
     $$PWD/unixutils.cpp \
     $$PWD/ansiescapecodehandler.cpp \
     $$PWD/execmenu.cpp \
@@ -175,7 +174,6 @@ HEADERS += \
     $$PWD/elidinglabel.h \
     $$PWD/tooltip/tooltip.h \
     $$PWD/tooltip/tips.h \
-    $$PWD/tooltip/tipcontents.h \
     $$PWD/tooltip/reuse.h \
     $$PWD/tooltip/effects.h \
     $$PWD/unixutils.h \

@@ -50,13 +50,12 @@
 
 QT_BEGIN_NAMESPACE
 class QPoint;
+class QVariant;
 class QWidget;
 QT_END_NAMESPACE
 
 namespace Utils {
 namespace Internal { class QTipLabel; }
-
-class TipContent;
 
 class QTCREATOR_UTILS_EXPORT ToolTip : public QObject
 {
@@ -66,6 +65,12 @@ protected:
 
 public:
     ~ToolTip();
+
+    enum {
+        ColorContent = 0,
+        TextContent = 1,
+        WidgetContent = 42
+    };
 
     bool eventFilter(QObject *o, QEvent *event);
 
@@ -78,13 +83,16 @@ public:
     static void hide();
     static bool isVisible();
 
+    // Helper to 'pin' (show as real window) a tooltip shown
+    // using WidgetContent
+    static bool pinToolTip(QWidget *w, QWidget *parent);
+
 private:
-    void showInternal(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect);
+    void showInternal(const QPoint &pos, const QVariant &content, int typeId, QWidget *w, const QRect &rect);
     void hideTipImmediately();
-    bool acceptShow(const TipContent &content, const QPoint &pos, QWidget *w, const QRect &rect);
-    bool validateContent(const TipContent &content);
-    void setUp(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect);
-    bool tipChanged(const QPoint &pos, const TipContent &content, QWidget *w) const;
+    bool acceptShow(const QVariant &content, int typeId, const QPoint &pos, QWidget *w, const QRect &rect);
+    void setUp(const QPoint &pos, QWidget *w, const QRect &rect);
+    bool tipChanged(const QPoint &pos, const QVariant &content, int typeId, QWidget *w) const;
     void setTipRect(QWidget *w, const QRect &rect);
     void placeTip(const QPoint &pos, QWidget *w);
     void showTip();

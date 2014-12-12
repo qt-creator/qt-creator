@@ -219,8 +219,6 @@ QtcLibrary {
         files: [
             "effects.h",
             "reuse.h",
-            "tipcontents.cpp",
-            "tipcontents.h",
             "tips.cpp",
             "tips.h",
             "tooltip.cpp",
