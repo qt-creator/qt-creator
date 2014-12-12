@@ -608,8 +608,8 @@ static void ChildSignal(int /*arg*/) {
     NSArray* devices = [deviceSet availableDevices];
 	NSArray* deviceTypeAndVersion = [devTypeId componentsSeparatedByString:@","];
 	if(deviceTypeAndVersion.count == 2) {
-		NSString* typeIdentifier = [deviceTypeAndVersion.firstObject stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-		NSString* versionString = [deviceTypeAndVersion.lastObject stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];;
+		NSString* typeIdentifier = [[deviceTypeAndVersion objectAtIndex:0] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+		NSString* versionString = [[deviceTypeAndVersion objectAtIndex:1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];;
 		for (SimDevice* device in devices) {
 			if ([device.deviceType.identifier isEqualToString:typeIdentifier] && [device.runtime.versionString isEqualToString:versionString]) {
 				return device;
