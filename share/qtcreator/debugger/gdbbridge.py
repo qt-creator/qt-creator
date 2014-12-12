@@ -207,8 +207,8 @@ class OutputSafer:
 
 
 #def couldBePointer(p, align):
-#    type = lookupType("unsigned int")
-#    ptr = gdb.Value(p).cast(type)
+#    typeobj = lookupType("unsigned int")
+#    ptr = gdb.Value(p).cast(typeobj)
 #    d = int(str(ptr))
 #    warn("CHECKING : %s %d " % (p, ((d & 3) == 0 and (d > 1000 or d == 0))))
 #    return (d & (align - 1)) and (d > 1000 or d == 0)
@@ -608,10 +608,10 @@ class Dumper(DumperBase):
         except:
             return None
 
-    def makeValue(self, type, init):
-        type = "::" + self.stripClassTag(str(type));
+    def makeValue(self, typeobj, init):
+        typename = "::" + self.stripClassTag(str(typeobj));
         # Avoid malloc symbol clash with QVector.
-        gdb.execute("set $d = (%s*)calloc(sizeof(%s), 1)" % (type, type))
+        gdb.execute("set $d = (%s*)calloc(sizeof(%s), 1)" % (typename, typename))
         gdb.execute("set *$d = {%s}" % init)
         value = gdb.parse_and_eval("$d").dereference()
         #warn("  TYPE: %s" % value.type)
@@ -620,10 +620,10 @@ class Dumper(DumperBase):
         return value
 
     def makeExpression(self, value):
-        type = "::" + self.stripClassTag(str(value.type))
-        #warn("  TYPE: %s" % type)
-        #exp = "(*(%s*)(&%s))" % (type, value.address)
-        exp = "(*(%s*)(%s))" % (type, value.address)
+        typename = "::" + self.stripClassTag(str(value.type))
+        #warn("  TYPE: %s" % typename)
+        #exp = "(*(%s*)(&%s))" % (typename, value.address)
+        exp = "(*(%s*)(%s))" % (typename, value.address)
         #warn("  EXP: %s" % exp)
         return exp
 
@@ -660,8 +660,8 @@ class Dumper(DumperBase):
         # them transparently.
         return value
 
-    def fieldAt(self, type, index):
-        return type.fields()[index]
+    def fieldAt(self, typeobj, index):
+        return typeobj.fields()[index]
 
     def simpleValue(self, value):
         return str(value)
@@ -787,13 +787,13 @@ class Dumper(DumperBase):
             # Try _some_ fallback (good enough for the std::complex dumper)
             return gdb.parse_and_eval("{%s}%s" % (referencedType, address))
 
-    def setValue(self, address, type, value):
-        cmd = "set {%s}%s=%s" % (type, address, value)
+    def setValue(self, address, typename, value):
+        cmd = "set {%s}%s=%s" % (typename, address, value)
         gdb.execute(cmd)
 
-    def setValues(self, address, type, values):
+    def setValues(self, address, typename, values):
         cmd = "set {%s[%s]}%s={%s}" \
-            % (type, len(values), address, ','.join(map(str, values)))
+            % (typename, len(values), address, ','.join(map(str, values)))
         gdb.execute(cmd)
 
     def selectedInferior(self):
@@ -823,8 +823,8 @@ class Dumper(DumperBase):
     def extractByte(self, addr):
         return struct.unpack("b", self.readRawMemory(addr, 1))[0]
 
-    def findStaticMetaObject(self, typeName):
-        return self.findSymbol(typeName + "::staticMetaObject")
+    def findStaticMetaObject(self, typename):
+        return self.findSymbol(typename + "::staticMetaObject")
 
     def findSymbol(self, symbolName):
         try:
@@ -835,8 +835,8 @@ class Dumper(DumperBase):
         # Older GDB ~7.4
         try:
             address = gdb.parse_and_eval("&'%s'" % symbolName)
-            type = gdb.lookup_type(self.qtNamespace() + "QMetaObject")
-            return self.createPointerValue(address, type)
+            typeobj = gdb.lookup_type(self.qtNamespace() + "QMetaObject")
+            return self.createPointerValue(address, typeobj)
         except:
             return 0
 
@@ -922,24 +922,24 @@ class Dumper(DumperBase):
                 self.lookupType("unsigned long")), None, -1)
 
     def stripNamespaceFromType(self, typeName):
-        type = self.stripClassTag(typeName)
+        typename = self.stripClassTag(typeName)
         ns = self.qtNamespace()
-        if len(ns) > 0 and type.startswith(ns):
-            type = type[len(ns):]
-        pos = type.find("<")
+        if len(ns) > 0 and typename.startswith(ns):
+            typename = typename[len(ns):]
+        pos = typename.find("<")
         # FIXME: make it recognize  foo<A>::bar<B>::iterator?
         while pos != -1:
-            pos1 = type.rfind(">", pos)
-            type = type[0:pos] + type[pos1+1:]
-            pos = type.find("<")
-        return type
+            pos1 = typename.rfind(">", pos)
+            typename = typename[0:pos] + typename[pos1+1:]
+            pos = typename.find("<")
+        return typename
 
-    def isMovableType(self, type):
-        if type.code == PointerCode:
+    def isMovableType(self, typeobj):
+        if typeobj.code == PointerCode:
             return True
-        if self.isSimpleType(type):
+        if self.isSimpleType(typeobj):
             return True
-        return self.isKnownMovableType(self.stripNamespaceFromType(str(type)))
+        return self.isKnownMovableType(self.stripNamespaceFromType(str(typeobj)))
 
     def putSubItem(self, component, value, tryDynamic=True):
         with SubItem(self, component):
@@ -989,8 +989,8 @@ class Dumper(DumperBase):
     def isStructType(self, typeobj):
         return typeobj.code == gdb.TYPE_CODE_STRUCT
 
-    def isFunctionType(self, type):
-        return type.code == MethodCode or type.code == FunctionCode
+    def isFunctionType(self, typeobj):
+        return typeobj.code == MethodCode or typeobj.code == FunctionCode
 
     def putItem(self, value, tryDynamic=True):
         if value is None:
@@ -1001,8 +1001,8 @@ class Dumper(DumperBase):
             self.putNumChild(0)
             return
 
-        type = value.type.unqualified()
-        typeName = str(type)
+        typeobj = value.type.unqualified()
+        typeName = str(typeobj)
 
         if value.is_optimized_out:
             self.putValue("<optimized out>")
@@ -1011,7 +1011,7 @@ class Dumper(DumperBase):
             return
 
         tryDynamic &= self.useDynamicType
-        self.addToCache(type) # Fill type cache
+        self.addToCache(typeobj) # Fill type cache
         if tryDynamic:
             self.putAddress(value.address)
 
@@ -1022,7 +1022,7 @@ class Dumper(DumperBase):
         #warn("REAL CODE: %s" % value.type.code)
         #warn("REAL VALUE: %s" % value)
 
-        if type.code == ReferenceCode:
+        if typeobj.code == ReferenceCode:
             try:
                 # Try to recognize null references explicitly.
                 if toInteger(value.address) == 0:
@@ -1050,7 +1050,7 @@ class Dumper(DumperBase):
                 # FIXME: This throws "RuntimeError: Attempt to dereference a
                 # generic pointer." with MinGW's gcc 4.5 when it "identifies"
                 # a "QWidget &" as "void &" and with optimized out code.
-                self.putItem(value.cast(type.target().unqualified()))
+                self.putItem(value.cast(typeobj.target().unqualified()))
                 self.putBetterType("%s &" % self.currentType.value)
                 return
             except RuntimeError:
@@ -1059,9 +1059,9 @@ class Dumper(DumperBase):
                 self.putNumChild(0)
                 return
 
-        if type.code == IntCode or type.code == CharCode:
+        if typeobj.code == IntCode or typeobj.code == CharCode:
             self.putType(typeName)
-            if type.sizeof == 1:
+            if typeobj.sizeof == 1:
                 # Force unadorned value transport for char and Co.
                 self.putValue(int(value) & 0xff)
             else:
@@ -1069,39 +1069,39 @@ class Dumper(DumperBase):
             self.putNumChild(0)
             return
 
-        if type.code == FloatCode or type.code == BoolCode:
+        if typeobj.code == FloatCode or typeobj.code == BoolCode:
             self.putType(typeName)
             self.putValue(value)
             self.putNumChild(0)
             return
 
-        if type.code == EnumCode:
+        if typeobj.code == EnumCode:
             self.putType(typeName)
             self.putValue("%s (%d)" % (value, value))
             self.putNumChild(0)
             return
 
-        if type.code == ComplexCode:
+        if typeobj.code == ComplexCode:
             self.putType(typeName)
             self.putValue("%s" % value)
             self.putNumChild(0)
             return
 
-        if type.code == TypedefCode:
+        if typeobj.code == TypedefCode:
             if typeName in self.qqDumpers:
                 self.putType(typeName)
                 self.qqDumpers[typeName](self, value)
                 return
 
-            type = stripTypedefs(type)
+            typeobj = stripTypedefs(typeobj)
             # The cast can destroy the address?
             #self.putAddress(value.address)
             # Workaround for http://sourceware.org/bugzilla/show_bug.cgi?id=13380
-            if type.code == ArrayCode:
-                value = self.parseAndEvaluate("{%s}%s" % (type, value.address))
+            if typeobj.code == ArrayCode:
+                value = self.parseAndEvaluate("{%s}%s" % (typeobj, value.address))
             else:
                 try:
-                    value = value.cast(type)
+                    value = value.cast(typeobj)
                 except:
                     self.putValue("<optimized out typedef>")
                     self.putType(typeName)
@@ -1112,20 +1112,20 @@ class Dumper(DumperBase):
             self.putBetterType(typeName)
             return
 
-        if type.code == ArrayCode:
+        if typeobj.code == ArrayCode:
             self.putCStyleArray(value)
             return
 
-        if type.code == PointerCode:
+        if typeobj.code == PointerCode:
             # This could still be stored in a register and
             # potentially dereferencable.
             self.putFormattedPointer(value)
             return
 
-        if type.code == MethodPointerCode \
-                or type.code == MethodCode \
-                or type.code == FunctionCode \
-                or type.code == MemberPointerCode:
+        if typeobj.code == MethodPointerCode \
+                or typeobj.code == MethodCode \
+                or typeobj.code == FunctionCode \
+                or typeobj.code == MemberPointerCode:
             self.putType(typeName)
             self.putValue(value)
             self.putNumChild(0)
@@ -1134,22 +1134,22 @@ class Dumper(DumperBase):
         if typeName.startswith("<anon"):
             # Anonymous union. We need a dummy name to distinguish
             # multiple anonymous unions in the struct.
-            self.putType(type)
+            self.putType(typeobj)
             self.putValue("{...}")
             self.anonNumber += 1
             with Children(self, 1):
-                self.listAnonymous(value, "#%d" % self.anonNumber, type)
+                self.listAnonymous(value, "#%d" % self.anonNumber, typeobj)
             return
 
-        if type.code == StringCode:
+        if typeobj.code == StringCode:
             # FORTRAN strings
-            size = type.sizeof
+            size = typeobj.sizeof
             data = self.readMemory(value.address, size)
             self.putValue(data, Hex2EncodedLatin1, 1)
-            self.putType(type)
+            self.putType(typeobj)
 
-        if type.code != StructCode and type.code != UnionCode:
-            warn("WRONG ASSUMPTION HERE: %s " % type.code)
+        if typeobj.code != StructCode and typeobj.code != UnionCode:
+            warn("WRONG ASSUMPTION HERE: %s " % typeobj.code)
             check(False)
 
 
@@ -1197,7 +1197,7 @@ class Dumper(DumperBase):
                 self.putArrayData(base.type.target(), base, n)
             return
 
-        #warn("GENERIC STRUCT: %s" % type)
+        #warn("GENERIC STRUCT: %s" % typeobj)
         #warn("INAME: %s " % self.currentIName)
         #warn("INAMES: %s " % self.expandedINames)
         #warn("EXPANDED: %s " % (self.currentIName in self.expandedINames))
@@ -1206,7 +1206,7 @@ class Dumper(DumperBase):
             self.putQObjectNameValue(value)
         self.putType(typeName)
         self.putEmptyValue()
-        self.putNumChild(len(type.fields()))
+        self.putNumChild(len(typeobj.fields()))
 
         if self.currentIName in self.expandedINames:
             innerType = None
@@ -1261,10 +1261,10 @@ class Dumper(DumperBase):
                 if field.name is None:
                     if value.type.code == ArrayCode:
                         # An array.
-                        type = stripTypedefs(value.type)
-                        innerType = type.target()
+                        typeobj = stripTypedefs(value.type)
+                        innerType = typeobj.target()
                         p = value.cast(innerType.pointer())
-                        for i in xrange(int(type.sizeof / innerType.sizeof)):
+                        for i in xrange(int(typeobj.sizeof / innerType.sizeof)):
                             with SubItem(self, i):
                                 self.putItem(p.dereference())
                             p = p + 1
@@ -1325,8 +1325,8 @@ class Dumper(DumperBase):
         self.put('iname="%s",' % self.currentIName)
         self.put('name="[%s]",' % name)
 
-    def listAnonymous(self, value, name, type):
-        for field in type.fields():
+    def listAnonymous(self, value, name, typeobj):
+        for field in typeobj.fields():
             #warn("FIELD NAME: %s" % field.name)
             if field.name:
                 with SubItem(self, field.name):
@@ -1355,21 +1355,21 @@ class Dumper(DumperBase):
             #warn("FUNCTION: %s " % funcname)
             #funcname = function.func_name
             if funcname.startswith("qdump__"):
-                type = funcname[7:]
-                self.qqDumpers[type] = function
-                self.qqFormats[type] = self.qqFormats.get(type, "")
+                typename = funcname[7:]
+                self.qqDumpers[typename] = function
+                self.qqFormats[typename] = self.qqFormats.get(typename, "")
             elif funcname.startswith("qform__"):
-                type = funcname[7:]
+                typename = funcname[7:]
                 formats = ""
                 try:
                     formats = function()
                 except:
                     pass
-                self.qqFormats[type] = formats
+                self.qqFormats[typename] = formats
             elif funcname.startswith("qedit__"):
-                type = funcname[7:]
+                typename = funcname[7:]
                 try:
-                    self.qqEditable[type] = function
+                    self.qqEditable[typename] = function
                 except:
                     pass
         except:
@@ -1540,8 +1540,8 @@ class Dumper(DumperBase):
             cmd = "set variable (%s)=%s" % (expr, data)
             gdb.execute(cmd)
 
-    def hasVTable(self, type):
-        fields = type.fields()
+    def hasVTable(self, typeobj):
+        fields = typeobj.fields()
         if len(fields) == 0:
             return False
         if fields[0].is_base_class:
@@ -1587,34 +1587,34 @@ class Dumper(DumperBase):
             pass
         return value
 
-    def addToCache(self, type):
-        typename = str(type)
+    def addToCache(self, typeobj):
+        typename = str(typeobj)
         if typename in self.typesReported:
             return
         self.typesReported[typename] = True
-        self.typesToReport[typename] = type
+        self.typesToReport[typename] = typeobj
 
     def enumExpression(self, enumType, enumValue):
         return self.qtNamespace() + "Qt::" + enumValue
 
     def lookupType(self, typestring):
-        type = self.typeCache.get(typestring)
-        #warn("LOOKUP 1: %s -> %s" % (typestring, type))
-        if not type is None:
-            return type
+        typeobj = self.typeCache.get(typestring)
+        #warn("LOOKUP 1: %s -> %s" % (typestring, typeobj))
+        if not typeobj is None:
+            return typeobj
 
         if typestring == "void":
-            type = gdb.lookup_type(typestring)
-            self.typeCache[typestring] = type
-            self.typesToReport[typestring] = type
-            return type
+            typeobj = gdb.lookup_type(typestring)
+            self.typeCache[typestring] = typeobj
+            self.typesToReport[typestring] = typeobj
+            return typeobj
 
         #try:
-        #    type = gdb.parse_and_eval("{%s}&main" % typestring).type
-        #    if not type is None:
-        #        self.typeCache[typestring] = type
-        #        self.typesToReport[typestring] = type
-        #        return type
+        #    typeobj = gdb.parse_and_eval("{%s}&main" % typestring).typeobj
+        #    if not typeobj is None:
+        #        self.typeCache[typestring] = typeobj
+        #        self.typesToReport[typestring] = typeobj
+        #        return typeobj
         #except:
         #    pass
 
@@ -1625,13 +1625,13 @@ class Dumper(DumperBase):
         if typestring.find("{anonymous}") != -1:
             ts = typestring
             ts = ts.replace("{anonymous}", "(anonymous namespace)")
-            type = self.lookupType(ts)
-            if not type is None:
-                self.typeCache[typestring] = type
-                self.typesToReport[typestring] = type
-                return type
+            typeobj = self.lookupType(ts)
+            if not typeobj is None:
+                self.typeCache[typestring] = typeobj
+                self.typesToReport[typestring] = typeobj
+                return typeobj
 
-        #warn(" RESULT FOR 7.2: '%s': %s" % (typestring, type))
+        #warn(" RESULT FOR 7.2: '%s': %s" % (typestring, typeobj))
 
         # This part should only trigger for
         # gdb 7.1 for types with namespace separators.
@@ -1662,22 +1662,22 @@ class Dumper(DumperBase):
                 break
 
         if ts.endswith('*'):
-            type = self.lookupType(ts[0:-1])
-            if not type is None:
-                type = type.pointer()
-                self.typeCache[typestring] = type
-                self.typesToReport[typestring] = type
-                return type
+            typeobj = self.lookupType(ts[0:-1])
+            if not typeobj is None:
+                typeobj = typeobj.pointer()
+                self.typeCache[typestring] = typeobj
+                self.typesToReport[typestring] = typeobj
+                return typeobj
 
         try:
             #warn("LOOKING UP '%s'" % ts)
-            type = gdb.lookup_type(ts)
+            typeobj = gdb.lookup_type(ts)
         except RuntimeError as error:
             #warn("LOOKING UP '%s': %s" % (ts, error))
             # See http://sourceware.org/bugzilla/show_bug.cgi?id=11912
             exp = "(class '%s'*)0" % ts
             try:
-                type = self.parseAndEvaluate(exp).type.target()
+                typeobj = self.parseAndEvaluate(exp).type.target()
             except:
                 # Can throw "RuntimeError: No type named class Foo."
                 pass
@@ -1685,16 +1685,16 @@ class Dumper(DumperBase):
             #warn("LOOKING UP '%s' FAILED" % ts)
             pass
 
-        if not type is None:
-            self.typeCache[typestring] = type
-            self.typesToReport[typestring] = type
-            return type
+        if not typeobj is None:
+            self.typeCache[typestring] = typeobj
+            self.typesToReport[typestring] = typeobj
+            return typeobj
 
         # This could still be None as gdb.lookup_type("char[3]") generates
         # "RuntimeError: No type named char[3]"
-        self.typeCache[typestring] = type
-        self.typesToReport[typestring] = type
-        return type
+        self.typeCache[typestring] = typeobj
+        self.typesToReport[typestring] = typeobj
+        return typeobj
 
 
     def stackListFrames(self, n):
