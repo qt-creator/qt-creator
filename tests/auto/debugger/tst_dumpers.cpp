@@ -1420,7 +1420,7 @@ void tst_Dumpers::dumper()
         qDebug() << "FULL OUTPUT  : " << fullOutput;
         qDebug() << "Qt VERSION   : " << qPrintable(QString::number(context.qtVersion, 16));
         if (m_debuggerEngine != CdbEngine)
-            qDebug() << "GCC VERSION   : " << qPrintable(QString::number(context.gccVersion, 16));
+            qDebug() << "GCC VERSION   : " << context.gccVersion;
         qDebug() << "BUILD DIR    : " << qPrintable(t->buildPath);
     }
     QVERIFY(ok);

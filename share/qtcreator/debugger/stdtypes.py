@@ -576,15 +576,21 @@ def qdump__std__unordered_map(d, value):
     pairType = d.templateArgument(allocatorType, 0)
     ptrSize = d.ptrSize()
     try:
-    # gcc >= 4.7
+        # gcc ~= 4.7
         size = value["_M_element_count"]
         start = value["_M_before_begin"]["_M_nxt"]
         offset = 0
     except:
+        try:
+            # libc++ (Mac)
+            size = value["_M_h"]["_M_element_count"]
+            start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
+            offset = 0
+        except:
             try:
-                # libc++ (Mac)
+                # gcc 4.9.1
                 size = value["_M_h"]["_M_element_count"]
-                start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
+                start = value["_M_h"]["_M_before_begin"]["_M_nxt"]
                 offset = 0
             except:
                 # gcc 4.6.2
@@ -619,21 +625,28 @@ def qdump__std____debug__unordered_map(d, value):
 
 def qdump__std__unordered_set(d, value):
     try:
-        # gcc >= 4.7
+        # gcc ~= 4.7
         size = value["_M_element_count"]
         start = value["_M_before_begin"]["_M_nxt"]
         offset = 0
     except:
+        try:
+            # libc++ (Mac)
+            size = value["_M_h"]["_M_element_count"]
+            start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
+            offset = 0
+        except:
             try:
-                # libc++ (Mac)
-                size = value["_M_h"]["_M_element_count"]
-                start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
-                offset = 0
-            except:
                 # gcc 4.6.2
                 size = value["_M_element_count"]
                 start = value["_M_buckets"].dereference()
                 offset = d.ptrSize()
+            except:
+                # gcc 4.9.1
+                size = value["_M_h"]["_M_element_count"]
+                start = value["_M_h"]["_M_before_begin"]["_M_nxt"]
+                offset = 0
+
     d.putItemCount(size)
     if d.isExpanded():
         p = d.pointerValue(start)
