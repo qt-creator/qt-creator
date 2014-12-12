@@ -143,6 +143,9 @@
                 \li \l{Opening Projects}
                 \li \l{Adding Libraries to Projects}
                 \li \l{Adding New Custom Wizards}
+                \list
+                    \li \l{Adding XML-Based Wizards}
+                \endlist
             \endlist
             \li \l{Using Version Control Systems}
             \li \l{Configuring Projects}
