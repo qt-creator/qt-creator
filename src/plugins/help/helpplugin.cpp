@@ -322,7 +322,7 @@ HelpWidget *HelpPlugin::createHelpWidget(const Context &context, HelpWidget::Wid
 
     // force setup, as we might have never switched to full help mode
     // thus the help engine might still run without collection file setup
-    m_helpManager->setupGuiHelpEngine();
+    LocalHelpManager::setupGuiHelpEngine();
 
     return widget;
 }
@@ -459,10 +459,10 @@ void HelpPlugin::fontChanged()
 
 void HelpPlugin::setupHelpEngineIfNeeded()
 {
-    m_helpManager->setEngineNeedsUpdate();
+    LocalHelpManager::setEngineNeedsUpdate();
     if (ModeManager::currentMode() == m_mode
-        || contextHelpOption() == Core::HelpManager::ExternalHelpAlways)
-        m_helpManager->setupGuiHelpEngine();
+            || contextHelpOption() == Core::HelpManager::ExternalHelpAlways)
+        LocalHelpManager::setupGuiHelpEngine();
 }
 
 bool HelpPlugin::canShowHelpSideBySide() const
@@ -647,7 +647,7 @@ void HelpPlugin::slotReportBug()
 
 void HelpPlugin::doSetupIfNeeded()
 {
-    m_helpManager->setupGuiHelpEngine();
+    LocalHelpManager::setupGuiHelpEngine();
     if (m_setupNeeded) {
         qApp->processEvents();
         resetFilter();

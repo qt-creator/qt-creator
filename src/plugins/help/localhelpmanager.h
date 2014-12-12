@@ -64,8 +64,8 @@ public:
     static QString homePage();
     static void setHomePage(const QString &page);
 
-    void setupGuiHelpEngine();
-    void setEngineNeedsUpdate();
+    static void setupGuiHelpEngine();
+    static void setEngineNeedsUpdate();
 
     static QHelpEngine& helpEngine();
     static BookmarkManager& bookmarkManager();
@@ -86,8 +86,8 @@ signals:
     void filterIndexChanged(int index);
 
 private:
-    bool m_guiNeedsSetup;
-    bool m_needsCollectionFile;
+    static bool m_guiNeedsSetup;
+    static bool m_needsCollectionFile;
 
     static QStandardItemModel *m_filterModel;
     static QString m_currentFilter;

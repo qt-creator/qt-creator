@@ -47,6 +47,9 @@ using namespace Help::Internal;
 
 static LocalHelpManager *m_instance = 0;
 
+bool LocalHelpManager::m_guiNeedsSetup = true;
+bool LocalHelpManager::m_needsCollectionFile = true;
+
 QMutex LocalHelpManager::m_guiMutex;
 QHelpEngine* LocalHelpManager::m_guiEngine = 0;
 
@@ -61,8 +64,6 @@ static char kHelpHomePageKey[] = "Help/HomePage";
 
 LocalHelpManager::LocalHelpManager(QObject *parent)
     : QObject(parent)
-    , m_guiNeedsSetup(true)
-    , m_needsCollectionFile(true)
 {
     m_instance = this;
     qRegisterMetaType<Help::Internal::LocalHelpManager::HelpData>("Help::Internal::LocalHelpManager::HelpData");
