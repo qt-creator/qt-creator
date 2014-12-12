@@ -95,6 +95,15 @@ TimelineNotesModel *TimelineModelAggregator::notes() const
     return d->notesModel;
 }
 
+void TimelineModelAggregator::clear()
+{
+    qDeleteAll(d->modelList);
+    d->modelList.clear();
+    if (d->notesModel)
+        d->notesModel->clear();
+    emit modelsChanged();
+}
+
 int TimelineModelAggregator::modelOffset(int modelIndex) const
 {
     int ret = 0;
