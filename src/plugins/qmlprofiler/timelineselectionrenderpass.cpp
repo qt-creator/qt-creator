@@ -30,6 +30,7 @@
 
 
 #include "timelineselectionrenderpass.h"
+#include <QtMath>
 #include <QSGSimpleRectNode>
 
 namespace QmlProfiler {
@@ -90,8 +91,8 @@ TimelineRenderPass::State *TimelineSelectionRenderPass::update(const TimelineRen
         // left and width the error on the left border is inherited by the right border. Like this
         // they're independent.
 
-        QRectF outer(QPointF(floor(left * parentState->scale()), top),
-                     QPointF(ceil(right * parentState->scale()), top + height));
+        QRectF outer(QPointF(qFloor(left * parentState->scale()), top),
+                     QPointF(qCeil(right * parentState->scale()), top + height));
 
         float scaleConversion = parentState->scale() / spacing;
         float missing = 3.0 - outer.width() / scaleConversion;
