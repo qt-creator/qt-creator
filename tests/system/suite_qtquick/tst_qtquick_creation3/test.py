@@ -31,7 +31,7 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    startApplication("qtcreator" + SettingsPath)
+    startApplication("qtcreator -load QmlProjectManager" + SettingsPath)
     if not startedWithoutPluginError():
         return
     for quickVersion in ["1.1", "2.1", "2.2", "2.3", "Controls 1.0", "Controls 1.1", "Controls 1.2"]:
