@@ -4,7 +4,7 @@ QtcAutotest {
     Depends { name: "Timeline" }
     Depends { name: "Qt.gui" }
 
-    name: "Timeline Model autotest"
+    name: "TimelineModel autotest"
     Group {
         name: "Test sources"
         files: [
