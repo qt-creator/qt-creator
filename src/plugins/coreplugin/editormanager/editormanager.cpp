@@ -1070,13 +1070,16 @@ void EditorManagerPrivate::closeEditorOrDocument(IEditor *editor)
 void EditorManagerPrivate::activateView(EditorView *view)
 {
     QTC_ASSERT(view, return);
+    QWidget *focusWidget;
     if (IEditor *editor = view->currentEditor()) {
         setCurrentEditor(editor, true);
-        editor->widget()->setFocus();
-        ICore::raiseWindow(editor->widget());
+        focusWidget = editor->widget();
     } else {
         setCurrentView(view);
+        focusWidget = view;
     }
+    focusWidget->setFocus();
+    ICore::raiseWindow(focusWidget);
 }
 
 void EditorManagerPrivate::restoreEditorState(IEditor *editor)
@@ -1134,11 +1137,6 @@ void EditorManagerPrivate::setCurrentView(EditorView *view)
         old->update();
     if (view)
         view->update();
-
-    if (view && !view->currentEditor()) {
-        view->setFocus();
-        ICore::raiseWindow(view);
-    }
 }
 
 EditorArea *EditorManagerPrivate::findEditorArea(const EditorView *view, int *areaIndex)
@@ -1176,12 +1174,8 @@ void EditorManagerPrivate::closeView(EditorView *view)
     splitter->unsplit();
 
     EditorView *newCurrent = splitter->findFirstView();
-    if (newCurrent) {
-        if (IEditor *e = newCurrent->currentEditor())
-            EditorManagerPrivate::activateEditor(newCurrent, e);
-        else
-            EditorManagerPrivate::setCurrentView(newCurrent);
-    }
+    if (newCurrent)
+        EditorManagerPrivate::activateView(newCurrent);
 }
 
 void EditorManagerPrivate::emptyView(EditorView *view)
@@ -1552,10 +1546,7 @@ void EditorManagerPrivate::editorAreaDestroyed(QObject *area)
     EditorView *focusView = focusSplitterOrView->findFirstView(); // can be just focusSplitterOrView
     QTC_ASSERT(focusView, focusView = newActiveArea->findFirstView());
     QTC_ASSERT(focusView, return);
-    if (focusView->currentEditor())
-        setCurrentEditor(focusView->currentEditor());
-    else
-        setCurrentView(focusView);
+    EditorManagerPrivate::activateView(focusView);
 }
 
 void EditorManagerPrivate::autoSave()
@@ -2168,12 +2159,8 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
     foreach (IEditor *editor, acceptedEditors)
         delete editor;
 
-    if (currentView && !currentViewHandled) {
-        if (IEditor *editor = currentView->currentEditor())
-            EditorManagerPrivate::activateEditor(currentView, editor);
-        else
-            EditorManagerPrivate::setCurrentView(currentView);
-    }
+    if (currentView && !currentViewHandled)
+        EditorManagerPrivate::activateView(currentView);
 
     if (!currentEditor()) {
         emit m_instance->currentEditorChanged(0);

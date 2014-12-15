@@ -97,6 +97,7 @@ public:
 
     static EditorView *viewForEditor(IEditor *editor);
     static void setCurrentView(EditorView *view);
+    static void activateView(EditorView *view);
 
     static MakeWritableResult makeFileWritable(IDocument *document);
     static void doEscapeKeyFocusMoveMagic();
@@ -177,7 +178,6 @@ private:
     static void addEditor(IEditor *editor);
     static void removeEditor(IEditor *editor);
     static IEditor *placeEditor(EditorView *view, IEditor *editor);
-    static void activateView(EditorView *view);
     static void restoreEditorState(IEditor *editor);
     static int visibleDocumentsCount();
     static EditorArea *findEditorArea(const EditorView *view, int *areaIndex = 0);

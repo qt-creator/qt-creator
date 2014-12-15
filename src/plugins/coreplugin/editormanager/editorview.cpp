@@ -681,10 +681,7 @@ void SplitterOrView::split(Qt::Orientation orientation)
         otherView->view()->setCloseSplitIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_BOTTOM)));
     }
 
-    if (e)
-        EditorManagerPrivate::activateEditor(otherView->view(), e);
-    else
-        EditorManagerPrivate::setCurrentView(otherView->view());
+    EditorManagerPrivate::activateView(otherView->view());
     emit splitStateChanged();
 }
 
@@ -785,7 +782,10 @@ void SplitterOrView::unsplit()
         m_layout->setCurrentWidget(m_view);
     }
     delete oldSplitter;
-    EditorManagerPrivate::setCurrentView(findFirstView());
+    if (EditorView *newCurrent = findFirstView())
+        EditorManagerPrivate::activateView(newCurrent);
+    else
+        EditorManagerPrivate::setCurrentView(0);
     emit splitStateChanged();
 }
 
