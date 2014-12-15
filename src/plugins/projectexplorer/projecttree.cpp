@@ -43,6 +43,7 @@
 #include <coreplugin/vcsmanager.h>
 
 #include <QApplication>
+#include <QTimer>
 
 namespace {
 const char EXTERNAL_FILE_WARNING[] = "ExternalFile";
@@ -73,26 +74,48 @@ ProjectTree::ProjectTree(QObject *parent)
             this, &ProjectTree::projectRemoved);
 
 
-    NodesWatcher *watcher = new NodesWatcher(this);
-    SessionManager::sessionNode()->registerWatcher(watcher);
+    m_watcher = new NodesWatcher(this);
+    SessionManager::sessionNode()->registerWatcher(m_watcher);
 
-    connect(watcher, &NodesWatcher::foldersAboutToBeRemoved,
+    connect(m_watcher, &NodesWatcher::foldersAboutToBeRemoved,
             this, &ProjectTree::foldersAboutToBeRemoved);
-    connect(watcher, &NodesWatcher::foldersRemoved,
+    connect(m_watcher, &NodesWatcher::foldersRemoved,
             this, &ProjectTree::foldersRemoved);
 
-    connect(watcher, &NodesWatcher::filesAboutToBeRemoved,
+    connect(m_watcher, &NodesWatcher::filesAboutToBeRemoved,
             this, &ProjectTree::filesAboutToBeRemoved);
-    connect(watcher, &NodesWatcher::filesRemoved,
+    connect(m_watcher, &NodesWatcher::filesRemoved,
             this, &ProjectTree::filesRemoved);
 
-    connect(watcher, &NodesWatcher::foldersAdded,
+    connect(m_watcher, &NodesWatcher::foldersAdded,
             this, &ProjectTree::nodesAdded);
-    connect(watcher, &NodesWatcher::filesAdded,
+    connect(m_watcher, &NodesWatcher::filesAdded,
             this, &ProjectTree::nodesAdded);
 
     connect(qApp, &QApplication::focusChanged,
             this, &ProjectTree::focusChanged);
+}
+
+void ProjectTree::aboutToShutDown()
+{
+    disconnect(s_instance->m_watcher, &NodesWatcher::foldersAboutToBeRemoved,
+               s_instance, &ProjectTree::foldersAboutToBeRemoved);
+    disconnect(s_instance->m_watcher, &NodesWatcher::foldersRemoved,
+               s_instance, &ProjectTree::foldersRemoved);
+
+    disconnect(s_instance->m_watcher, &NodesWatcher::filesAboutToBeRemoved,
+               s_instance, &ProjectTree::filesAboutToBeRemoved);
+    disconnect(s_instance->m_watcher, &NodesWatcher::filesRemoved,
+               s_instance, &ProjectTree::filesRemoved);
+
+    disconnect(s_instance->m_watcher, &NodesWatcher::foldersAdded,
+               s_instance, &ProjectTree::nodesAdded);
+    disconnect(s_instance->m_watcher, &NodesWatcher::filesAdded,
+               s_instance, &ProjectTree::nodesAdded);
+
+    disconnect(qApp, &QApplication::focusChanged,
+               s_instance, &ProjectTree::focusChanged);
+    s_instance->update(0, 0);
 }
 
 ProjectTree *ProjectTree::instance()
@@ -266,10 +289,12 @@ void ProjectTree::foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode*>
 
 void ProjectTree::foldersRemoved()
 {
-    if (m_resetCurrentNodeFolder) {
-        updateFromFocus(true);
-        m_resetCurrentNodeFolder = false;
-    }
+    QTimer::singleShot(0, [this]() {
+        if (m_resetCurrentNodeFolder) {
+            updateFromFocus(true);
+            m_resetCurrentNodeFolder = false;
+        }
+    });
 }
 
 void ProjectTree::filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &list)
@@ -281,10 +306,12 @@ void ProjectTree::filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &li
 
 void ProjectTree::filesRemoved()
 {
-    if (m_resetCurrentNodeFile) {
-        updateFromFocus(true);
-        m_resetCurrentNodeFile = false;
-    }
+    QTimer::singleShot(0, [this]() {
+        if (m_resetCurrentNodeFile) {
+            updateFromFocus(true);
+            m_resetCurrentNodeFile = false;
+        }
+    });
 }
 
 void ProjectTree::aboutToRemoveProject(Project *project)
@@ -295,16 +322,20 @@ void ProjectTree::aboutToRemoveProject(Project *project)
 
 void ProjectTree::projectRemoved()
 {
-    updateFromFocus(true);
-    m_resetCurrentNodeProject = false;
+    QTimer::singleShot(0, [this]() {
+        updateFromFocus(true);
+        m_resetCurrentNodeProject = false;
+    });
 }
 
 void ProjectTree::nodesAdded()
 {
-    if (Utils::anyOf(m_projectTreeWidgets, &ProjectTreeWidget::hasFocus))
-        return;
+    QTimer::singleShot(0, [this]() {
+        if (Utils::anyOf(m_projectTreeWidgets, &ProjectTreeWidget::hasFocus))
+            return;
 
-    updateFromDocumentManager();
+        updateFromDocumentManager();
+    });
 }
 
 void ProjectTree::updateExternalFileWarning()

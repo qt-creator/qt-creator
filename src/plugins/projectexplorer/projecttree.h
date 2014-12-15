@@ -39,6 +39,7 @@ namespace ProjectExplorer {
 class FileNode;
 class FolderNode;
 class Node;
+class NodesWatcher;
 class Project;
 
 namespace Internal { class ProjectTreeWidget; }
@@ -58,14 +59,15 @@ public:
     static void registerWidget(Internal::ProjectTreeWidget *widget);
     static void unregisterWidget(Internal::ProjectTreeWidget *widget);
     static void nodeChanged(Internal::ProjectTreeWidget *widget);
-    static void focusChanged();
     static Project *projectForNode(Node *node);
 
+    static void aboutToShutDown();
 signals:
     void currentProjectChanged(ProjectExplorer::Project *project);
     void currentNodeChanged(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
 
 private:
+    void focusChanged();
     void updateFromProjectTreeWidget(Internal::ProjectTreeWidget *widget);
     void documentManagerCurrentFileChanged();
     void updateFromDocumentManager(bool invalidCurrentNode = false);
@@ -95,6 +97,7 @@ private:
     bool m_resetCurrentNodeFile;
     bool m_resetCurrentNodeProject;
     Core::Context m_lastProjectContext;
+    NodesWatcher *m_watcher;
 };
 }
 

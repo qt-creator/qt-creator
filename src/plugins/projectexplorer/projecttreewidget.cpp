@@ -243,15 +243,15 @@ Node *ProjectTreeWidget::nodeForFile(const QString &fileName)
     foreach (Node *node, SessionManager::nodesForFile(fileName)) {
         if (!bestNode) {
             bestNode = node;
-            bestNodeExpandCount = ProjectTreeWidget::expandedCount(node->parentFolderNode());
+            bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
         } else if (node->nodeType() < bestNode->nodeType()) {
             bestNode = node;
-            bestNodeExpandCount = ProjectTreeWidget::expandedCount(node->parentFolderNode());
+            bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
         } else if (node->nodeType() == bestNode->nodeType()) {
-            int nodeExpandCount = ProjectTreeWidget::expandedCount(node->parentFolderNode());
+            int nodeExpandCount = ProjectTreeWidget::expandedCount(node);
             if (nodeExpandCount < bestNodeExpandCount) {
                 bestNode = node;
-                bestNodeExpandCount = ProjectTreeWidget::expandedCount(node->parentFolderNode());
+                bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
             }
         }
     }
