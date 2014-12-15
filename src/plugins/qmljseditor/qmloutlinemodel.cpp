@@ -274,7 +274,19 @@ private:
                 visitProperties(properties);
 
             m_model->leaveTestCase();
+            return true;
         }
+
+        // Collect method assignments for prototypes and objects and show as functions
+        auto lhsField = AST::cast<AST::FieldMemberExpression *>(binExp->left);
+        auto rhsFuncExpr = AST::cast<AST::FunctionExpression *>(binExp->right);
+
+        if (lhsField && rhsFuncExpr && rhsFuncExpr->body && (binExp->op == QSOperator::Assign)) {
+            QModelIndex index = m_model->enterFieldMemberExpression(lhsField, rhsFuncExpr);
+            m_nodeToIndex.insert(lhsField, index);
+            m_model->leaveFieldMemberExpression();
+        }
+
         return true;
     }
 
@@ -568,12 +580,29 @@ void QmlOutlineModel::leavePublicMember()
     leaveNode();
 }
 
+static QString functionDisplayName(QStringRef name, AST::FormalParameterList *formals)
+{
+    QString display;
+
+    if (!name.isEmpty())
+        display += name.toString() + QLatin1Char('(');
+    for (AST::FormalParameterList *param = formals; param; param = param->next) {
+        display += param->name.toString();
+        if (param->next)
+            display += QLatin1String(", ");
+    }
+    if (!name.isEmpty())
+        display += QLatin1Char(')');
+
+    return display;
+}
+
 QModelIndex QmlOutlineModel::enterFunctionDeclaration(AST::FunctionDeclaration *functionDeclaration)
 {
     QMap<int, QVariant> objectData;
 
-    if (!functionDeclaration->name.isEmpty())
-        objectData.insert(Qt::DisplayRole, functionDeclaration->name.toString());
+    objectData.insert(Qt::DisplayRole, functionDisplayName(functionDeclaration->name,
+                                                           functionDeclaration->formals));
     objectData.insert(ItemTypeRole, ElementBindingType);
 
     QmlOutlineItem *item = enterNode(objectData, functionDeclaration, 0, Icons::functionDeclarationIcon());
@@ -582,6 +611,36 @@ QModelIndex QmlOutlineModel::enterFunctionDeclaration(AST::FunctionDeclaration *
 }
 
 void QmlOutlineModel::leaveFunctionDeclaration()
+{
+    leaveNode();
+}
+
+QModelIndex QmlOutlineModel::enterFieldMemberExpression(AST::FieldMemberExpression *expression,
+                                                        AST::FunctionExpression *functionExpression)
+{
+    QMap<int, QVariant> objectData;
+
+    QString display = functionDisplayName(expression->name, functionExpression->formals);
+    while (expression) {
+        if (auto field = AST::cast<AST::FieldMemberExpression *>(expression->base)) {
+            display.prepend(field->name.toString() + QLatin1Char('.'));
+            expression = field;
+        } else {
+            if (auto ident = AST::cast<AST::IdentifierExpression *>(expression->base))
+                display.prepend(ident->name.toString() + QLatin1Char('.'));
+            break;
+        }
+    }
+
+    objectData.insert(Qt::DisplayRole, display);
+    objectData.insert(ItemTypeRole, ElementBindingType);
+
+    QmlOutlineItem *item = enterNode(objectData, expression, 0, m_icons->functionDeclarationIcon());
+
+    return item->index();
+}
+
+void QmlOutlineModel::leaveFieldMemberExpression()
 {
     leaveNode();
 }

@@ -171,6 +171,46 @@ protected:
         accept(ast->initializer, contextString(context));
         return false;
     }
+
+    bool visit(AST::BinaryExpression *ast)
+    {
+        auto fieldExpr = AST::cast<AST::FieldMemberExpression *>(ast->left);
+        auto funcExpr = AST::cast<AST::FunctionExpression *>(ast->right);
+
+        if (fieldExpr && funcExpr && funcExpr->body && (ast->op == QSOperator::Assign)) {
+            LocatorData::Entry entry = basicEntry(ast->operatorToken);
+
+            entry.type = LocatorData::Function;
+            entry.displayName = fieldExpr->name.toString();
+            while (fieldExpr) {
+                if (auto field = AST::cast<AST::FieldMemberExpression *>(fieldExpr->base)) {
+                    entry.displayName.prepend(field->name.toString() + QLatin1Char('.'));
+                    fieldExpr = field;
+                } else {
+                    if (auto ident = AST::cast<AST::IdentifierExpression *>(fieldExpr->base))
+                        entry.displayName.prepend(ident->name.toString() + QLatin1Char('.'));
+                    break;
+                }
+            }
+
+            entry.displayName += QLatin1Char('(');
+            for (FormalParameterList *it = funcExpr->formals; it; it = it->next) {
+                if (it != funcExpr->formals)
+                    entry.displayName += QLatin1String(", ");
+                if (!it->name.isEmpty())
+                    entry.displayName += it->name.toString();
+            }
+            entry.displayName += QLatin1Char(')');
+            entry.symbolName = entry.displayName;
+
+            m_entries += entry;
+
+            accept(funcExpr->body, contextString(QString::fromLatin1("function %1").arg(entry.displayName)));
+            return false;
+        }
+
+        return true;
+    }
 };
 } // anonymous namespace
 

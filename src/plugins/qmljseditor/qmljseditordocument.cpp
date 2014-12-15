@@ -327,6 +327,34 @@ protected:
 
         return false;
     }
+
+    bool visit(AST::BinaryExpression *ast)
+    {
+        AST::FieldMemberExpression *field = AST::cast<AST::FieldMemberExpression *>(ast->left);
+        AST::FunctionExpression *funcExpr = AST::cast<AST::FunctionExpression *>(ast->right);
+
+        if (field && funcExpr && funcExpr->body && (ast->op == QSOperator::Assign)) {
+            Declaration decl;
+            init(&decl, ast);
+
+            decl.text.fill(QLatin1Char(' '), _depth);
+            decl.text += field->name;
+
+            decl.text += QLatin1Char('(');
+            for (FormalParameterList *it = funcExpr->formals; it; it = it->next) {
+                if (!it->name.isEmpty())
+                    decl.text += it->name;
+
+                if (it->next)
+                    decl.text += QLatin1String(", ");
+            }
+            decl.text += QLatin1Char(')');
+
+            _declarations.append(decl);
+        }
+
+        return true;
+    }
 };
 
 class CreateRanges: protected AST::Visitor
@@ -370,6 +398,16 @@ protected:
     virtual bool visit(AST::FunctionDeclaration *ast)
     {
         _ranges.append(createRange(ast));
+        return true;
+    }
+
+    bool visit(AST::BinaryExpression *ast)
+    {
+        auto field = AST::cast<AST::FieldMemberExpression *>(ast->left);
+        auto funcExpr = AST::cast<AST::FunctionExpression *>(ast->right);
+
+        if (field && funcExpr && funcExpr->body && (ast->op == QSOperator::Assign))
+            _ranges.append(createRange(ast, ast->firstSourceLocation(), ast->lastSourceLocation()));
         return true;
     }
 

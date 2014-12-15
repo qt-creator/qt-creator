@@ -115,6 +115,10 @@ private:
     QModelIndex enterFunctionDeclaration(QmlJS::AST::FunctionDeclaration *functionDeclaration);
     void leaveFunctionDeclaration();
 
+    QModelIndex enterFieldMemberExpression(QmlJS::AST::FieldMemberExpression *expression,
+                                           QmlJS::AST::FunctionExpression *functionExpression);
+    void leaveFieldMemberExpression();
+
     QModelIndex enterTestCase(QmlJS::AST::ObjectLiteral *objectLiteral);
     void leaveTestCase();
 
