@@ -65,8 +65,9 @@ def main():
             test.fatal("Build configuration %s is selected instead of %s" % (buildConfig, config))
             continue
         test.log("Testing build configuration: " + config)
-        invokeMenuItem("Build", "Run qmake")
-        waitForCompile()
+        if not JIRA.isBugStillOpen(13700):
+            invokeMenuItem("Build", "Run qmake")
+            waitForCompile()
         invokeMenuItem("Build", "Rebuild All")
         waitForCompile(300000)
         checkCompile()
