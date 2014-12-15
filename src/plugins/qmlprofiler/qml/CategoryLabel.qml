@@ -100,13 +100,13 @@ Item {
 
         onPositionChanged: {
             var sourceIndex = drag.source.visualIndex;
-            if (drag.source.y + drag.source.height > dragOffset + labelContainer.height &&
-                    sourceIndex !== visualIndex && sourceIndex !== visualIndex + 1) {
-                var moveTo = sourceIndex > visualIndex ? visualIndex + 1 : visualIndex;
-                labelContainer.dropped(sourceIndex, moveTo);
-            } else if (drag.source.y === 0) {
-                // special case for first position.
-                labelContainer.dropped(sourceIndex, 0);
+            if (drag.source.y === 0) {
+                // special case for first position: Always swap, no matter if upper border touched.
+                if (sourceIndex > visualIndex)
+                    labelContainer.dropped(sourceIndex, visualIndex);
+            } else if (sourceIndex !== visualIndex && sourceIndex !== visualIndex + 1) {
+                labelContainer.dropped(sourceIndex, sourceIndex > visualIndex ? visualIndex + 1 :
+                                                                                visualIndex);
             }
         }
 
