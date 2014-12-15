@@ -31,7 +31,7 @@
 #include <QtTest>
 #include <qmlprofiler/timelinemodel.h>
 
-using namespace QmlProfiler;
+using namespace Timeline;
 
 static const int DefaultRowHeight = 30;
 static const int NumItems = 10;
