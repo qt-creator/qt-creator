@@ -102,7 +102,7 @@
 
         \li Click \uicontrol Design to open the file in \QMLD.
 
-            \image qmldesigner-tutorial-desing-mode.png "Transitions project in Design Mode"
+            \image qmldesigner-tutorial-design-mode.png "Transitions project in Design Mode"
 
         \li In the \uicontrol Navigator, select \uicontrol Text and press \key Delete to
             delete it.

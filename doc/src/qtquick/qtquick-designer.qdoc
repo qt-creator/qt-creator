@@ -32,7 +32,7 @@
 
     You can edit \l{Qt Quick UI Forms} (ui.qml files) in \QMLD. \QC opens the
     UI forms in the \uicontrol Design mode. It is recommended that you use UI forms
-    for components that you want to desing in \QMLD.
+    for components that you want to design in \QMLD.
 
     \image qmldesigner-visual-editor.png "Visual editor"
 
