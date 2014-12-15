@@ -34,6 +34,7 @@
 #include "timelineselectionrenderpass.h"
 #include "timelinenotesrenderpass.h"
 
+#include <utils/qtcassert.h>
 #include <QLinkedList>
 
 namespace Timeline {
@@ -75,24 +76,18 @@ void TimelineModel::computeNesting()
             TimelineModelPrivate::Range &parent = d->ranges[*parentIt];
             qint64 parentEnd = parent.start + parent.duration;
             if (parentEnd < current.start) {
-                if (parent.start == current.start) {
-                    if (parent.parent == -1) {
-                        parent.parent = range;
-                    } else {
-                        TimelineModelPrivate::Range &ancestor = d->ranges[parent.parent];
-                        if (ancestor.start == current.start &&
-                                ancestor.duration < current.duration)
-                            parent.parent = range;
-                    }
-                    // Just switch the old parent range for the new, larger one
-                    *parentIt = range;
-                    break;
-                } else {
-                    parentIt = parents.erase(parentIt);
-                }
+                // We've completely passed the parent. Remove it.
+                parentIt = parents.erase(parentIt);
             } else if (parentEnd >= current.start + current.duration) {
-                // no need to insert
+                // Current range is completely inside the parent range: no need to insert
                 current.parent = *parentIt;
+                break;
+            } else if (parent.start == current.start) {
+                // The parent range starts at the same time but ends before the current range.
+                // We need to switch them.
+                QTC_CHECK(parent.parent == -1);
+                parent.parent = range;
+                *parentIt = range;
                 break;
             } else {
                 ++parentIt;
