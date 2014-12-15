@@ -794,7 +794,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
     m_filterProjectCosts = action;
 
     // filter
-    ///FIXME: find workaround for https://bugreports.qt-project.org/browse/QTCREATORBUG-3247
+    ///FIXME: find workaround for https://bugreports.qt.io/browse/QTCREATORBUG-3247
     QLineEdit *filter = new QLineEdit;
     filter->setPlaceholderText(tr("Filter..."));
     connect(filter, SIGNAL(textChanged(QString)), m_updateTimer, SLOT(start()));
