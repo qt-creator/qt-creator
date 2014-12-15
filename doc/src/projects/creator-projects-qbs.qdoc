@@ -103,7 +103,7 @@
                         \li Select \uicontrol {Keep going} to continue building when
                             errors occur, if possible.
 
-                        \li Select \gui {Show command lines} to print actual command lines
+                        \li Select \uicontrol {Show command lines} to print actual command lines
                             to the compile output pane instead of high-level descriptions.
 
                     \endlist

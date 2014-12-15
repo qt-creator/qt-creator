@@ -62,7 +62,7 @@
 
     \section1 Creating Qt Quick UI Projects
 
-    The \gui {Qt Quick UI} wizard is disabled by default.
+    The \uicontrol {Qt Quick UI} wizard is disabled by default.
 
     \list 1
 
