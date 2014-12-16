@@ -50,9 +50,6 @@ class DummyModel : public Timeline::TimelineModel
 public:
     DummyModel(int modelId);
     DummyModel(QString displayName = tr("dummy"), QObject *parent = 0);
-    QColor color(int) const { return QColor(); }
-    QVariantList labels() const { return QVariantList(); }
-    QVariantMap details(int) const { return QVariantMap(); }
     int expandedRow(int) const { return 2; }
     int collapsedRow(int) const { return 1; }
 
@@ -330,8 +327,7 @@ void tst_TimelineModel::displayName()
 
 void tst_TimelineModel::defaultValues()
 {
-    DummyModel dummy;
-    dummy.loadData();
+    Timeline::TimelineModel dummy(12, QLatin1String("dings"));
     QCOMPARE(dummy.location(0), QVariantMap());
     QCOMPARE(dummy.handlesTypeId(0), false);
     QCOMPARE(dummy.selectionIdForLocation(QString(), 0, 0), -1);
@@ -339,6 +335,11 @@ void tst_TimelineModel::defaultValues()
     QCOMPARE(dummy.rowMinValue(0), 0);
     QCOMPARE(dummy.rowMaxValue(0), 0);
     QCOMPARE(dummy.typeId(0), -1);
+    QCOMPARE(dummy.color(0), QColor());
+    QCOMPARE(dummy.labels(), QVariantList());
+    QCOMPARE(dummy.details(0), QVariantMap());
+    QCOMPARE(dummy.collapsedRow(0), 0);
+    QCOMPARE(dummy.expandedRow(0), 0);
 }
 
 void tst_TimelineModel::row()

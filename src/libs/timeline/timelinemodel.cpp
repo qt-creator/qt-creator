@@ -512,6 +512,35 @@ int TimelineModel::rowCount() const
     return d->expanded ? d->expandedRowCount : d->collapsedRowCount;
 }
 
+QColor TimelineModel::color(int index) const
+{
+    Q_UNUSED(index);
+    return QColor();
+}
+
+QVariantList TimelineModel::labels() const
+{
+    return QVariantList();
+}
+
+QVariantMap TimelineModel::details(int index) const
+{
+    Q_UNUSED(index);
+    return QVariantMap();
+}
+
+int TimelineModel::expandedRow(int index) const
+{
+    Q_UNUSED(index);
+    return 0;
+}
+
+int TimelineModel::collapsedRow(int index) const
+{
+    Q_UNUSED(index);
+    return 0;
+}
+
 /*!
     Returns the ID of the selection group the event with event ID \a index belongs to. Selection
     groups are local to the model and the model can arbitrarily assign events to selection groups

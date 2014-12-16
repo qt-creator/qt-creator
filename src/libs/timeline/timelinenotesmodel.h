@@ -40,7 +40,7 @@ class TIMELINE_EXPORT TimelineNotesModel : public QObject
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY changed)
 public:
-    TimelineNotesModel(QObject *parent);
+    TimelineNotesModel(QObject *parent = 0);
     ~TimelineNotesModel();
 
     int count() const;

@@ -57,7 +57,7 @@ class TIMELINE_EXPORT TimelineModel : public QObject
 public:
     class TimelineModelPrivate;
 
-    TimelineModel(int modelId, const QString &displayName, QObject *parent);
+    TimelineModel(int modelId, const QString &displayName, QObject *parent = 0);
     ~TimelineModel();
 
     // Methods implemented by the abstract model itself
@@ -92,15 +92,14 @@ public:
     int collapsedRowCount() const;
     int rowCount() const;
 
-    // Methods that have to be implemented by child models
-    Q_INVOKABLE virtual QColor color(int index) const = 0;
-    virtual QVariantList labels() const = 0;
-    Q_INVOKABLE virtual QVariantMap details(int index) const = 0;
-    Q_INVOKABLE virtual int expandedRow(int index) const = 0;
-    Q_INVOKABLE virtual int collapsedRow(int index) const = 0;
+    // Methods which can optionally be implemented by child models.
+    Q_INVOKABLE virtual QColor color(int index) const;
+    virtual QVariantList labels() const;
+    Q_INVOKABLE virtual QVariantMap details(int index) const;
+    Q_INVOKABLE virtual int expandedRow(int index) const;
+    Q_INVOKABLE virtual int collapsedRow(int index) const;
     Q_INVOKABLE int row(int index) const;
 
-    // Methods which can optionally be implemented by child models.
     // returned map should contain "file", "line", "column" properties, or be empty
     Q_INVOKABLE virtual QVariantMap location(int index) const;
     Q_INVOKABLE virtual int typeId(int index) const;
