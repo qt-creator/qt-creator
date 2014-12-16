@@ -62,6 +62,7 @@ public:
         MacOS,
         UnixOS,
         WindowsOS,
+        VxWorks,
         UnknownOS
     };
 
@@ -90,6 +91,8 @@ public:
         WindowsMsvc2013Flavor,
         WindowsMSysFlavor,
         WindowsCEFlavor,
+
+        VxWorksFlavor,
 
         UnknownFlavor
     };

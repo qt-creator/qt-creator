@@ -333,6 +333,9 @@ Abi::Abi(const Architecture &a, const OS &o,
         if (m_osFlavor < WindowsMsvc2005Flavor || m_osFlavor > WindowsCEFlavor)
             m_osFlavor = UnknownFlavor;
         break;
+    case Abi::VxWorks:
+        if (m_osFlavor != VxWorksFlavor)
+            m_osFlavor = VxWorksFlavor;
     }
 }
 
@@ -373,8 +376,9 @@ Abi::Abi(const QString &abiString) :
             m_os = UnixOS;
         else if (abiParts.at(1) == QLatin1String("windows"))
             m_os = WindowsOS;
+        else if (abiParts.at(1) == QLatin1String("vxworks"))
+            m_os = VxWorks;
         else
-
             return;
     }
 
@@ -411,6 +415,8 @@ Abi::Abi(const QString &abiString) :
             m_osFlavor = WindowsMSysFlavor;
         else if (abiParts.at(2) == QLatin1String("ce") && m_os == WindowsOS)
             m_osFlavor = WindowsCEFlavor;
+        else if (abiParts.at(2) == QLatin1String("vxworks") && m_os == VxWorks)
+            m_osFlavor = VxWorksFlavor;
         else
             return;
     }
@@ -512,6 +518,12 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
         } else if (p == QLatin1String("darwin9")) {
             width = 32;
         } else if (p == QLatin1String("gnueabi")) {
+            format = Abi::ElfFormat;
+        } else if (p == QLatin1String("wrs")) {
+            continue;
+        } else if (p == QLatin1String("vxworks")) {
+            os = Abi::VxWorks;
+            flavor = Abi::VxWorksFlavor;
             format = Abi::ElfFormat;
         } else {
             ++unknownCount;
@@ -622,6 +634,8 @@ QString Abi::toString(const OS &o)
         return QLatin1String("unix");
     case WindowsOS:
         return QLatin1String("windows");
+    case VxWorks:
+        return QLatin1String("vxworks");
     case UnknownOS: // fall through!
     default:
         return QLatin1String("unknown");
@@ -661,6 +675,8 @@ QString Abi::toString(const OSFlavor &of)
         return QLatin1String("msys");
     case Abi::WindowsCEFlavor:
         return QLatin1String("ce");
+    case Abi::VxWorksFlavor:
+        return QLatin1String("vxworks");
     case Abi::UnknownFlavor: // fall through!
     default:
         return QLatin1String("unknown");
@@ -707,6 +723,8 @@ QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
         return result << WindowsMsvc2005Flavor << WindowsMsvc2008Flavor << WindowsMsvc2010Flavor
                       << WindowsMsvc2012Flavor << WindowsMsvc2013Flavor << WindowsMSysFlavor
                       << WindowsCEFlavor << UnknownFlavor;
+    case VxWorks:
+        return result << VxWorksFlavor;
     case UnknownOS:
         return result << UnknownFlavor;
     default:
@@ -1082,6 +1100,10 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet_data()
     QTest::newRow("mips64el-linux-gnuabi") << int(Abi::MipsArchitecture)
                                     << int(Abi::LinuxOS) << int(Abi::GenericLinuxFlavor)
                                     << int(Abi::ElfFormat) << 64;
+
+    QTest::newRow("arm-wrs-vxworks") << int(Abi::ArmArchitecture)
+                                     << int(Abi::VxWorks) << int(Abi::VxWorksFlavor)
+                                     << int(Abi::ElfFormat) << 32;
 }
 
 void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet()
