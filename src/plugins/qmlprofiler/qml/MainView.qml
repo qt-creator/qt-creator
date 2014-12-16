@@ -115,10 +115,17 @@ Rectangle {
 
         var itemIndex = -1;
         var modelIndex = -1;
-        var notes = timelineModelAggregator.notesByTypeId(typeId);
+
+        var notesModel = timelineModelAggregator.notes;
+        var notes = notesModel ? notesModel.byTypeId(typeId) : [];
         if (notes.length !== 0) {
-            modelIndex = timelineModelAggregator.noteTimelineModel(notes[0]);
-            itemIndex = timelineModelAggregator.noteTimelineIndex(notes[0]);
+            itemIndex = notesModel.timelineIndex(notes[0]);
+            var modelId = notesModel.timelineModel(notes[0]);
+            for (modelIndex = 0; modelIndex < timelineModelAggregator.models.length;
+                 ++modelIndex) {
+                if (timelineModelAggregator.models[modelIndex].modelId === modelId)
+                    break;
+            }
         } else {
             for (modelIndex = 0; modelIndex < timelineModelAggregator.models.length; ++modelIndex) {
                 if (modelIndex === selectedModel && selectedItem !== -1 &&
@@ -135,7 +142,8 @@ Rectangle {
             }
         }
 
-        if (itemIndex !== -1) {
+        if (modelIndex !== -1 && modelIndex < timelineModelAggregator.models.length &&
+                itemIndex !== -1) {
             // select an item, lock to it, and recenter if necessary
             content.select(modelIndex, itemIndex);
             content.selectionLocked = true;
