@@ -351,7 +351,7 @@ Rectangle {
         x: 200
         y: 25
 
-        property alias locked: content.selectionLocked
+        locked: content.selectionLocked
         models: timelineModelAggregator.models
         notes: timelineModelAggregator.notes
         onRecenterOnItem: {
