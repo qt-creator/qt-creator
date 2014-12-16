@@ -236,9 +236,9 @@ QUrl ProjectWelcomePage::pageLocation() const
     return QUrl::fromLocalFile(resourcePath + QLatin1String("/welcomescreen/develop.qml"));
 }
 
-ProjectWelcomePage::Id ProjectWelcomePage::id() const
+Core::Id ProjectWelcomePage::id() const
 {
-    return Develop;
+    return "Develop";
 }
 
 void ProjectWelcomePage::reloadWelcomeScreenData()

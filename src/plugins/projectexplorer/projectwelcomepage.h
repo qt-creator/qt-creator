@@ -89,7 +89,7 @@ public:
     QWidget *page() { return 0; }
     QString title() const { return tr("Projects"); }
     int priority() const { return 20; }
-    Id id() const;
+    Core::Id id() const;
 
     void reloadWelcomeScreenData();
 

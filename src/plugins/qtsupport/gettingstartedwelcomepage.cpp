@@ -275,9 +275,9 @@ void ExamplesWelcomePage::facilitateQml(QQmlEngine *engine)
     rootContenxt->setContextProperty(QLatin1String("gettingStarted"), this);
 }
 
-ExamplesWelcomePage::Id ExamplesWelcomePage::id() const
+Core::Id ExamplesWelcomePage::id() const
 {
-    return m_showExamples ? Examples : Tutorials;
+    return m_showExamples ? "Examples" : "Tutorials";
 }
 
 void ExamplesWelcomePage::openHelpInExtraWindow(const QUrl &help)

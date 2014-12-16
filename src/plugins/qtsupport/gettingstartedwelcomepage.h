@@ -58,7 +58,7 @@ public:
     int priority() const;
     bool hasSearchBar() const;
     void facilitateQml(QQmlEngine *);
-    Id id() const;
+    Core::Id id() const;
     Q_INVOKABLE void openUrl(const QUrl &url);
 
 public slots:

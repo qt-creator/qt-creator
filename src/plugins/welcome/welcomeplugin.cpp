@@ -216,7 +216,7 @@ void WelcomeMode::initPlugins()
     });
 
     QList<Utils::IWelcomePage*> plugins;
-    QHash<Utils::IWelcomePage::Id, Utils::IWelcomePage*> pluginHash;
+    QHash<Core::Id, Utils::IWelcomePage*> pluginHash;
 
     //avoid duplicate ids - choose by priority
     foreach (Utils::IWelcomePage* plugin, duplicatePlugins) {
@@ -270,7 +270,7 @@ void WelcomeMode::initPlugins()
 
 void WelcomeMode::welcomePluginAdded(QObject *obj)
 {
-    QHash<Utils::IWelcomePage::Id, Utils::IWelcomePage*> pluginHash;
+    QHash<Core::Id, Utils::IWelcomePage*> pluginHash;
 
     foreach (QObject *obj, m_pluginList) {
         Utils::IWelcomePage *plugin = qobject_cast<Utils::IWelcomePage*>(obj);
