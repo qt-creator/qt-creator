@@ -45,7 +45,7 @@ class QTCREATOR_UTILS_EXPORT PersistentSettingsReader
 {
 public:
     PersistentSettingsReader();
-    QVariant restoreValue(const QString &variable) const;
+    QVariant restoreValue(const QString &variable, const QVariant &defaultValue = QVariant()) const;
     QVariantMap restoreValues() const;
     bool load(const FileName &fileName);
 

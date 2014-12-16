@@ -224,15 +224,13 @@ void AndroidConfig::load(const QSettings &settings)
     if (reader.load(FileName::fromString(sdkSettingsFileName()))
             && settings.value(changeTimeStamp).toInt() != QFileInfo(sdkSettingsFileName()).lastModified().toMSecsSinceEpoch() / 1000) {
         // persisten settings
-        m_sdkLocation = FileName::fromString(reader.restoreValue(SDKLocationKey).toString());
-        m_ndkLocation = FileName::fromString(reader.restoreValue(NDKLocationKey).toString());
-        m_antLocation = FileName::fromString(reader.restoreValue(AntLocationKey).toString());
-        m_openJDKLocation = FileName::fromString(reader.restoreValue(OpenJDKLocationKey).toString());
-        m_keystoreLocation = FileName::fromString(reader.restoreValue(KeystoreLocationKey).toString());
-        m_toolchainHost = reader.restoreValue(ToolchainHostKey).toString();
-        QVariant v = reader.restoreValue(AutomaticKitCreationKey);
-        if (v.isValid())
-            m_automaticKitCreation = v.toBool();
+        m_sdkLocation = FileName::fromString(reader.restoreValue(SDKLocationKey, m_sdkLocation.toString()).toString());
+        m_ndkLocation = FileName::fromString(reader.restoreValue(NDKLocationKey, m_ndkLocation.toString()).toString());
+        m_antLocation = FileName::fromString(reader.restoreValue(AntLocationKey, m_antLocation.toString()).toString());
+        m_openJDKLocation = FileName::fromString(reader.restoreValue(OpenJDKLocationKey, m_openJDKLocation.toString()).toString());
+        m_keystoreLocation = FileName::fromString(reader.restoreValue(KeystoreLocationKey, m_keystoreLocation.toString()).toString());
+        m_toolchainHost = reader.restoreValue(ToolchainHostKey, m_toolchainHost).toString();
+        m_automaticKitCreation = reader.restoreValue(AutomaticKitCreationKey, m_automaticKitCreation).toBool();
         QString extraDirectory = reader.restoreValue(MakeExtraSearchDirectory).toString();
         m_makeExtraSearchDirectories.clear();
         if (!extraDirectory.isEmpty())

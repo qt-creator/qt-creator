@@ -339,11 +339,11 @@ PersistentSettingsReader::PersistentSettingsReader()
 {
 }
 
-QVariant PersistentSettingsReader::restoreValue(const QString &variable) const
+QVariant PersistentSettingsReader::restoreValue(const QString &variable, const QVariant &defaultValue) const
 {
     if (m_valueMap.contains(variable))
         return m_valueMap.value(variable);
-    return QVariant();
+    return defaultValue;
 }
 
 QVariantMap PersistentSettingsReader::restoreValues() const
