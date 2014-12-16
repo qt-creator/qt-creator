@@ -80,11 +80,14 @@ struct TimelineItemsGeometry {
 
     static const QSGGeometry::AttributeSet &opaqueColoredPoint2DWithSize();
 
-    TimelineItemsGeometry() : allocatedVertices(0), usedVertices(0), currentY(0), node(0) {}
+    TimelineItemsGeometry() : allocatedVertices(0), usedVertices(0), node(0) {
+        prevNode.set(0, TimelineModel::defaultRowHeight(), 0, 0, 0, 0, 0, 0);
+    }
 
     uint allocatedVertices;
     uint usedVertices;
-    float currentY;
+
+    OpaqueColoredPoint2DWithSize prevNode;
 
     QSGGeometryNode *node;
     OpaqueColoredPoint2DWithSize *vertexData();
@@ -102,7 +105,7 @@ void TimelineItemsGeometry::addEvent(float itemLeft, float itemTop, float itemWi
     float rowHeight = TimelineModel::defaultRowHeight();
     float itemHeight = rowHeight - itemTop;
     OpaqueColoredPoint2DWithSize *v = vertexData();
-    if (currentY == rowHeight) {
+    if (prevNode.y == rowHeight) {
         // "Z" form, bottom to top
         v[usedVertices++].set(itemLeft, rowHeight, -itemWidth, -itemHeight, selectionId, red, green,
                               blue);
@@ -112,14 +115,11 @@ void TimelineItemsGeometry::addEvent(float itemLeft, float itemTop, float itemWi
                               blue);
         v[usedVertices++].set(itemLeft + itemWidth, itemTop, itemWidth, itemHeight, selectionId,
                               red, green, blue);
-        currentY = itemTop;
+        prevNode = v[usedVertices - 1];
     } else {
-        if (currentY != itemTop) {
-            // 3 extra vertices to degenerate the surplus triangles
-            v[usedVertices++].set(itemLeft, currentY, -itemWidth, rowHeight - currentY, selectionId,
-                                  red, green, blue);
-            v[usedVertices++].set(itemLeft, currentY, -itemWidth, rowHeight - currentY, selectionId,
-                                  red, green, blue);
+        if (prevNode.y != itemTop) {
+            // 2 extra vertices to degenerate the surplus triangles
+            v[usedVertices++] = prevNode;
             v[usedVertices++].set(itemLeft, itemTop, -itemWidth, itemHeight, selectionId, red,
                                   green, blue);
         }
@@ -132,7 +132,7 @@ void TimelineItemsGeometry::addEvent(float itemLeft, float itemTop, float itemWi
                               green, blue);
         v[usedVertices++].set(itemLeft + itemWidth, rowHeight, itemWidth, -itemHeight, selectionId,
                               red, green, blue);
-        currentY = rowHeight;
+        prevNode = v[usedVertices - 1];
     }
 
 
@@ -170,17 +170,17 @@ void TimelineItemsGeometry::allocate(QSGMaterial *material)
     node->setMaterial(material);
     allocatedVertices = usedVertices;
     usedVertices = 0;
-    currentY = 0;
+    prevNode.set(0, TimelineModel::defaultRowHeight(), 0, 0, 0, 0, 0, 0);
 }
 
 void TimelineItemsGeometry::addVertices(float itemTop)
 {
-    if (currentY == TimelineModel::defaultRowHeight()) {
+    if (prevNode.y == TimelineModel::defaultRowHeight()) {
         usedVertices += 4;
-        currentY = itemTop;
+        prevNode.y = itemTop;
     } else {
-        usedVertices += (currentY != itemTop ? 7 : 4);
-        currentY = TimelineModel::defaultRowHeight();
+        usedVertices += (prevNode.y != itemTop ? 6 : 4);
+        prevNode.y = TimelineModel::defaultRowHeight();
     }
 }
 
@@ -201,7 +201,7 @@ static void updateNodes(int from, int to, const TimelineModel *model,
     for (int i = from; i < to; ++i) {
         qint64 start = qMax(parentState->start(), model->startTime(i));
         qint64 end = qMin(parentState->end(), model->startTime(i) + model->duration(i));
-        if (start > end)
+        if (start >= end)
             continue;
 
         float itemTop = (1.0 - model->relativeHeight(i)) * defaultRowHeight;
@@ -229,7 +229,7 @@ static void updateNodes(int from, int to, const TimelineModel *model,
     for (int i = from; i < to; ++i) {
         qint64 start = qMax(parentState->start(), model->startTime(i));
         qint64 end = qMin(parentState->end(), model->startTime(i) + model->duration(i));
-        if (start > end)
+        if (start >= end)
             continue;
 
         QColor color = model->color(i);
@@ -281,7 +281,7 @@ TimelineRenderPass::State *TimelineItemsRenderPass::update(const TimelineAbstrac
 {
     Q_UNUSED(stateChanged);
     const TimelineModel *model = renderer->model();
-    if (!model || indexFrom < 0 || indexTo > model->count())
+    if (!model || indexFrom < 0 || indexTo > model->count() || indexFrom >= indexTo)
         return oldState;
 
     QColor selectionColor = (renderer->selectionLocked() ? QColor(96,0,255) :
