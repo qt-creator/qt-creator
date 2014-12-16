@@ -144,6 +144,7 @@
                 \li \l{Adding Libraries to Projects}
                 \li \l{Adding New Custom Wizards}
                 \list
+                    \li \l{Adding JSON-Based Wizards}
                     \li \l{Adding XML-Based Wizards}
                 \endlist
             \endlist

@@ -26,17 +26,23 @@
     \contentspage {Qt Creator Manual}
     \previouspage creator-project-qmake-libraries.html
     \page creator-project-wizards.html
-    \nextpage creator-project-wizards-xml.html
+    \nextpage creator-project-wizards-json.html
 
     \title Adding New Custom Wizards
 
     If you have a team working on a large application or several applications,
-    you might want to standardize the way the team members create projects
-    and classes.
+    you might want to standardize the way the team members create projects,
+    classes, and files.
 
     You can copy the wizard templates in the template folders to create your own
-    project and class wizards. They are displayed in the \uicontrol New dialog that
-    opens when you choose \uicontrol {File > New File or Project}.
+    project, class, and file wizards. They are displayed in the \uicontrol New
+    dialog that opens when you choose \uicontrol {File > New File or Project}.
+
+    A custom wizard defines the user interface of a wizard page. The values the
+    user enters in the wizard are assigned field names. Field name and value
+    pairs are then passed to the file creation process.
+
+    \section1 Wizard Types
 
     In a project wizard, you can specify the files needed in a project.
     You can add wizard pages to allow developers to specify settings for the
@@ -45,10 +51,51 @@
     In a class wizard, you can allow developers to specify the class name, base
     class, and header and source files for the class.
 
+    In a file wizard, you can allow developers to specify the type and location
+    of the file.
+
     You can create either JSON-based or XML-based wizards. We recommend creating
-    JSON-based wizards for new projects.
+    JSON-based wizards for new projects. For more information, see:
 
     \list
+        \li \l{Adding JSON-Based Wizards}
         \li \l{Adding XML-Based Wizards}
     \endlist
+
+    The following table summarizes the wizards you can create:
+
+    \table
+        \header
+            \li Wizard Type
+            \li JSON-Based
+            \li XML-Based
+        \row
+            \li Class
+            \li \image ok
+            \li \image ok
+        \row
+            \li File
+            \li \image ok
+            \li \image ok
+        \row
+            \li Project
+            \li \image ok
+            \li \image ok
+    \endtable
+
+    \section1 Locating Wizards
+
+    Wizards are located in subdirectories of the following directories:
+
+    \list
+
+        \li \c{share/qtcreator/templates/wizards}
+
+        \li the local user's configuration folder,
+            \c{$HOME/.config/QtProject/qtcreator/templates/wizards}
+
+        \li \c{%APPDATA%\QtProject\qtcreator\templates\wizards}
+
+    \endlist
+
 */
