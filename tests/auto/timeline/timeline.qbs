@@ -8,5 +8,6 @@ Project {
     references: [
         "timelinemodel/timelinemodel.qbs",
         "timelineabstractrenderer/timelineabstractrenderer.qbs",
+        "timelineitemsrenderpass/timelineitemsrenderpass.qbs",
     ]
 }
