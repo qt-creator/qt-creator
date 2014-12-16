@@ -36,7 +36,6 @@
 #include "timelinenotesmodel.h"
 #include "timelinerenderpass.h"
 
-#include <QQuickItem>
 #include <QSGTransformNode>
 #include <QQuickItem>
 
@@ -55,6 +54,8 @@ class TIMELINE_EXPORT TimelineAbstractRenderer : public QQuickItem
     Q_PROPERTY(int selectedItem READ selectedItem WRITE setSelectedItem NOTIFY selectedItemChanged)
 
 public:
+    TimelineAbstractRenderer(QQuickItem *parent = 0);
+
     bool selectionLocked() const;
     int selectedItem() const;
 
@@ -72,7 +73,7 @@ public:
     bool rowHeightsDirty() const;
 
 signals:
-    void modelChanged(const TimelineModel *model);
+    void modelChanged(TimelineModel *model);
     void notesChanged(TimelineNotesModel *notes);
     void zoomerChanged(TimelineZoomControl *zoomer);
     void selectionLockedChanged(bool locked);

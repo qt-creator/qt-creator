@@ -35,7 +35,7 @@
 
 namespace Timeline {
 
-class TimelineAbstractRenderer::TimelineAbstractRendererPrivate {
+class TIMELINE_EXPORT TimelineAbstractRenderer::TimelineAbstractRendererPrivate {
 public:
     TimelineAbstractRendererPrivate();
 
@@ -50,8 +50,6 @@ public:
     bool notesDirty;
 
     QList<const TimelineRenderPass *> renderPasses;
-
-
 };
 
 }

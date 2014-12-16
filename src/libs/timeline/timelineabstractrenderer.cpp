@@ -60,6 +60,11 @@ void TimelineAbstractRenderer::setSelectedItem(int itemIndex)
     }
 }
 
+TimelineAbstractRenderer::TimelineAbstractRenderer(QQuickItem *parent) : QQuickItem(parent),
+    d_ptr(new TimelineAbstractRendererPrivate)
+{
+}
+
 bool TimelineAbstractRenderer::selectionLocked() const
 {
     Q_D(const TimelineAbstractRenderer);
