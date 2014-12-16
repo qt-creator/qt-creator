@@ -58,6 +58,7 @@ TimelineRenderState::~TimelineRenderState()
     delete d->collapsedRowRoot;
     delete d->expandedOverlayRoot;
     delete d->collapsedOverlayRoot;
+    qDeleteAll(d->passes);
     delete d;
 }
 

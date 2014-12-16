@@ -48,6 +48,7 @@ public:
         virtual const QVector<QSGNode *> &collapsedRows() const;
         virtual QSGNode *expandedOverlay() const;
         virtual QSGNode *collapsedOverlay() const;
+        virtual ~State();
     };
 
     virtual ~TimelineRenderPass();

@@ -54,6 +54,10 @@ QSGNode *TimelineRenderPass::State::collapsedOverlay() const
     return 0;
 }
 
+TimelineRenderPass::State::~State()
+{
+}
+
 TimelineRenderPass::~TimelineRenderPass() {}
 
 } // namespace Timeline
