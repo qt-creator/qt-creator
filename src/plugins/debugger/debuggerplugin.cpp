@@ -3042,9 +3042,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     QList<IOptionsPage *> engineOptionPages;
     addGdbOptionPages(&engineOptionPages);
     addCdbOptionPages(&engineOptionPages);
-#ifdef WITH_LLDB
-    addLldbOptionPages(&engineOptionPages);
-#endif
 
     foreach (IOptionsPage *op, engineOptionPages)
         m_plugin->addAutoReleasedObject(op);
