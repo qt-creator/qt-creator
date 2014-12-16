@@ -6,6 +6,7 @@ Project {
     property path timelineDir: project.ide_source_tree
             + "/src/libs/timeline"
     references: [
-        "timelinemodel/timelinemodel.qbs"
+        "timelinemodel/timelinemodel.qbs",
+        "timelineabstractrenderer/timelineabstractrenderer.qbs",
     ]
 }
