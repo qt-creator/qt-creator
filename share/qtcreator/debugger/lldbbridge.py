@@ -1193,6 +1193,7 @@ class Dumper(DumperBase):
                     for reg in group:
                         result += '{name="%s"' % reg.GetName()
                         result += ',value="%s"' % reg.GetValue()
+                        result += ',size="%s"' % reg.GetByteSize()
                         result += ',type="%s"},' % reg.GetType()
                 result += ']'
                 self.report(result)

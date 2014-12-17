@@ -1085,16 +1085,15 @@ void LldbEngine::setStackPosition(int index)
 void LldbEngine::refreshRegisters(const GdbMi &registers)
 {
     RegisterHandler *handler = registerHandler();
-    Registers regs;
     foreach (const GdbMi &item, registers.children()) {
         Register reg;
         reg.name = item["name"].data();
         reg.value = item["value"].data();
-        //reg.type = item["type"].data();
-        regs.append(reg);
+        reg.size = item["size"].data().toInt();
+        reg.reportedType = item["type"].data();
+        handler->updateRegister(reg);
     }
-    //handler->setRegisters(registers);
-    handler->setAndMarkRegisters(regs);
+    handler->commitUpdates();
 }
 
 void LldbEngine::refreshThreads(const GdbMi &threads)
@@ -1250,10 +1249,9 @@ void LldbEngine::changeMemory(MemoryAgent *agent, QObject *editorToken,
     runCommand(cmd);
 }
 
-void LldbEngine::setRegisterValue(int regnr, const QString &value)
+void LldbEngine::setRegisterValue(const QByteArray &name, const QString &value)
 {
-    Register reg = registerHandler()->registers().at(regnr);
-    runCommand(Command("setRegister").arg("name", reg.name).arg("value", value));
+    runCommand(Command("setRegister").arg("name", name).arg("value", value));
 }
 
 

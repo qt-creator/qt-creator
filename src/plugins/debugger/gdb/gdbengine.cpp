@@ -78,11 +78,11 @@
 #include <utils/qtcprocess.h>
 #include <utils/savedaction.h>
 
+#include <QBuffer>
 #include <QDirIterator>
-#include <QTemporaryFile>
-
 #include <QMessageBox>
 #include <QPushButton>
+#include <QTemporaryFile>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -3585,19 +3585,79 @@ void GdbEngine::reloadRegisters()
 
     if (state() != InferiorStopOk && state() != InferiorUnrunnable)
         return;
-    if (!m_registerNamesListed) {
-        postCommand("-data-list-register-names", CB(handleRegisterListNames));
-        m_registerNamesListed = true;
-    }
 
-    postCommand("-data-list-register-values r",
-                Discardable, CB(handleRegisterListValues));
+    if (true) {
+        if (!m_registerNamesListed) {
+            postCommand("-data-list-register-names", CB(handleRegisterListNames));
+            m_registerNamesListed = true;
+        }
+        // Can cause i386-linux-nat.c:571: internal-error: Got request
+        // for bad register number 41.\nA problem internal to GDB has been detected.
+        postCommand("-data-list-register-values r",
+                    Discardable, CB(handleRegisterListValues));
+    } else {
+        postCommand("maintenance print cooked-registers", CB(handleMaintPrintRegisters));
+    }
 }
 
-void GdbEngine::setRegisterValue(int nr, const QString &value)
+static QByteArray readWord(const QByteArray &ba, int *pos)
 {
-    Register reg = registerHandler()->registers().at(nr);
-    postCommand("set $" + reg.name  + "=" + value.toLatin1());
+    const int n = ba.size();
+    while (*pos < n && ba.at(*pos) == ' ')
+        ++*pos;
+    const int start = *pos;
+    while (*pos < n && ba.at(*pos) != ' ' && ba.at(*pos) != '\n')
+        ++*pos;
+    return ba.mid(start, *pos - start);
+}
+
+void GdbEngine::handleMaintPrintRegisters(const GdbResponse &response)
+{
+    if (response.resultClass != GdbResultDone)
+        return;
+
+    const QByteArray &ba = response.consoleStreamOutput;
+    RegisterHandler *handler = registerHandler();
+    //0         1         2         3         4         5         6
+    //0123456789012345678901234567890123456789012345678901234567890
+    // Name         Nr  Rel Offset    Size  Type            Raw value
+    // rax           0    0      0       8 int64_t         0x0000000000000000
+    // rip          16   16    128       8 *1              0x0000000000400dc9
+    // eflags       17   17    136       4 i386_eflags     0x00000246
+    // cs           18   18    140       4 int32_t         0x00000033
+    // xmm15        55   55    516      16 vec128          0x00000000000000000000000000000000
+    // mxcsr        56   56    532       4 i386_mxcsr      0x00001fa0
+    // ''
+    // st6          30   30    224      10 _i387_ext       0x00000000000000000000
+    // st7          31   31    234      10 _i387_ext       0x00000000000000000000
+    // fctrl        32   32    244       4 int             0x0000037f
+
+    const int n = ba.size();
+    int pos = 0;
+    while (true) {
+        // Skip first line, and until '\n' after each line finished.
+        while (pos < n && ba.at(pos) != '\n')
+            ++pos;
+        if (pos >= n)
+            break;
+        ++pos; // skip \n
+        Register reg;
+        reg.name = readWord(ba, &pos);
+        if (reg.name == "''" || reg.name == "*1:" || reg.name.isEmpty())
+            continue;
+        readWord(ba, &pos); // Nr
+        readWord(ba, &pos); // Rel
+        readWord(ba, &pos); // Offset
+        reg.size = readWord(ba, &pos).toInt();
+        reg.reportedType = readWord(ba, &pos);
+        reg.value = readWord(ba, &pos);
+        handler->updateRegister(reg);
+    }
+    handler->commitUpdates();
+}
+void GdbEngine::setRegisterValue(const QByteArray &name, const QString &value)
+{
+    postCommand("set $" + name  + "=" + value.toLatin1());
     reloadRegisters();
 }
 
@@ -3608,26 +3668,14 @@ void GdbEngine::handleRegisterListNames(const GdbResponse &response)
         return;
     }
 
-    Registers registers;
-    int gdbRegisterNumber = 0, internalIndex = 0;
-
-    // This both handles explicitly having space for all the registers and
-    // initializes all indices to 0, giving missing registers a sane default
-    // in the event of something wacky.
     GdbMi names = response.data["register-names"];
-    m_registerNumbers.resize(names.childCount());
+    m_registerNames.clear();
+    int gdbRegisterNumber = 0;
     foreach (const GdbMi &item, names.children()) {
-        // Since we throw away missing registers to eliminate empty rows
-        // we need to maintain a mapping of GDB register numbers to their
-        // respective indices in the register list.
-        if (!item.data().isEmpty()) {
-            m_registerNumbers[gdbRegisterNumber] = internalIndex++;
-            registers.append(Register(item.data()));
-        }
-        gdbRegisterNumber++;
+        if (!item.data().isEmpty())
+            m_registerNames[gdbRegisterNumber] = item.data();
+        ++gdbRegisterNumber;
     }
-
-    registerHandler()->setRegisters(registers);
 }
 
 void GdbEngine::handleRegisterListValues(const GdbResponse &response)
@@ -3635,19 +3683,46 @@ void GdbEngine::handleRegisterListValues(const GdbResponse &response)
     if (response.resultClass != GdbResultDone)
         return;
 
-    Registers registers = registerHandler()->registers();
-    const int registerCount = registers.size();
-    const int gdbRegisterCount = m_registerNumbers.size();
-
+    RegisterHandler *handler = registerHandler();
     // 24^done,register-values=[{number="0",value="0xf423f"},...]
     const GdbMi values = response.data["register-values"];
-    QTC_ASSERT(registerCount == values.children().size(), return);
     foreach (const GdbMi &item, values.children()) {
+        Register reg;
         const int number = item["number"].toInt();
-        if (number >= 0 && number < gdbRegisterCount)
-            registers[m_registerNumbers[number]].value = item["value"].data();
+        reg.name = m_registerNames[number];
+        QByteArray data = item["value"].data();
+        if (data.startsWith("0x")) {
+            reg.value = data;
+        } else {
+            // This is what GDB considers machine readable output:
+            // value="{v4_float = {0x00000000, 0x00000000, 0x00000000, 0x00000000},
+            // v2_double = {0x0000000000000000, 0x0000000000000000},
+            // v16_int8 = {0x00 <repeats 16 times>},
+            // v8_int16 = {0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000},
+            // v4_int32 = {0x00000000, 0x00000000, 0x00000000, 0x00000000},
+            // v2_int64 = {0x0000000000000000, 0x0000000000000000},
+            // uint128 = <error reading variable>}"}
+            // Try to make sense of it using the int32 chunks:
+            QByteArray result = "0x";
+            const int pos1 = data.indexOf("_int32");
+            const int pos2 = data.indexOf('{', pos1) + 1;
+            const int pos3 = data.indexOf('}', pos2);
+            QByteArray inner = data.mid(pos2, pos3 - pos2);
+            QList<QByteArray> list = inner.split(',');
+            for (int i = list.size(); --i >= 0; ) {
+                QByteArray chunk = list.at(i);
+                if (chunk.startsWith(' '))
+                    chunk.remove(0, 1);
+                if (chunk.startsWith("0x"))
+                    chunk.remove(0, 2);
+                QTC_ASSERT(chunk.size() == 8, continue);
+                result.append(chunk);
+            }
+            reg.value = result;
+        }
+        handler->updateRegister(reg);
     }
-    registerHandler()->setAndMarkRegisters(registers);
+    handler->commitUpdates();
 }
 
 

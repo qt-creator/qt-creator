@@ -34,10 +34,9 @@
 #include "debuggerconstants.h"
 
 #include <QObject>
+#include <QPoint>
 #include <QPointer>
 #include <QColor>
-
-QT_FORWARD_DECLARE_CLASS(QPoint)
 
 namespace Core { class IEditor; }
 
@@ -62,6 +61,20 @@ public:
     QString toolTip;
 };
 
+class MemoryViewSetupData
+{
+public:
+    MemoryViewSetupData() : parent(0), startAddress(0), flags(0) {}
+
+    QWidget *parent;
+    quint64 startAddress;
+    QByteArray registerName;
+    unsigned flags;
+    QList<Internal::MemoryMarkup> markup;
+    QPoint pos;
+    QString title;
+};
+
 class MemoryAgent : public QObject
 {
     Q_OBJECT
@@ -80,9 +93,7 @@ public:
 
 public slots:
     // Called by engine to create a new view.
-    void createBinEditor(quint64 startAddr, unsigned flags,
-                         const QList<MemoryMarkup> &ml, const QPoint &pos,
-                         const QString &title, QWidget *parent);
+    void createBinEditor(const MemoryViewSetupData &data);
     void createBinEditor(quint64 startAddr);
     // Called by engine to create a tooltip.
     void addLazyData(QObject *editorToken, quint64 addr, const QByteArray &data);
@@ -101,9 +112,7 @@ private slots:
 
 private:
     void connectBinEditorWidget(QWidget *w);
-    bool doCreateBinEditor(quint64 startAddr, unsigned flags,
-                           const QList<MemoryMarkup> &ml, const QPoint &pos,
-                           QString title, QWidget *parent);
+    bool doCreateBinEditor(const MemoryViewSetupData &data);
 
     QList<QPointer<Core::IEditor> > m_editors;
     QList<QPointer<MemoryView> > m_views;

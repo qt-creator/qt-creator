@@ -90,7 +90,7 @@ public:
                                  const WatchUpdateFlags & flags = WatchUpdateFlags());
     virtual bool hasCapability(unsigned cap) const;
     virtual void watchPoint(const QPoint &);
-    virtual void setRegisterValue(int regnr, const QString &value);
+    virtual void setRegisterValue(const QByteArray &name, const QString &value);
 
     virtual void executeStep();
     virtual void executeStepOut();

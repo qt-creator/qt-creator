@@ -135,15 +135,12 @@ void MemoryAgent::connectBinEditorWidget(QWidget *w)
     connect(w, SIGNAL(addWatchpointRequested(quint64,uint)), SLOT(handleWatchpointRequest(quint64,uint)));
 }
 
-bool MemoryAgent::doCreateBinEditor(quint64 addr, unsigned flags,
-                       const QList<MemoryMarkup> &ml, const QPoint &pos,
-                       QString title, QWidget *parent)
+bool MemoryAgent::doCreateBinEditor(const MemoryViewSetupData &data)
 {
-    const bool readOnly = (flags & DebuggerEngine::MemoryReadOnly) != 0;
-    if (title.isEmpty())
-        title = tr("Memory at 0x%1").arg(addr, 0, 16);
+    const bool readOnly = (data.flags & DebuggerEngine::MemoryReadOnly) != 0;
+    QString title = data.title.isEmpty() ? tr("Memory at 0x%1").arg(data.startAddress, 0, 16) : data.title;
     // Separate view?
-    if (flags & DebuggerEngine::MemoryView) {
+    if (data.flags & DebuggerEngine::MemoryView) {
         // Ask BIN editor plugin for factory service and have it create a bin editor widget.
         QWidget *binEditor = 0;
         if (QObject *factory = ExtensionSystem::PluginManager::getObjectByClassName(QLatin1String("BinEditor::BinEditorWidgetFactory")))
@@ -155,24 +152,22 @@ bool MemoryAgent::doCreateBinEditor(quint64 addr, unsigned flags,
         MemoryView::setBinEditorNewWindowRequestAllowed(binEditor, true);
         MemoryView *topLevel = 0;
         // Memory view tracking register value, providing its own updating mechanism.
-        if (flags & DebuggerEngine::MemoryTrackRegister) {
-            RegisterMemoryView *rmv = new RegisterMemoryView(binEditor, parent);
-            rmv->init(m_engine->registerHandler(), int(addr));
-            topLevel = rmv;
+        if (data.flags & DebuggerEngine::MemoryTrackRegister) {
+            topLevel = new RegisterMemoryView(binEditor, data.startAddress, data.registerName, m_engine->registerHandler(), data.parent);
         } else {
             // Ordinary memory view
-            MemoryView::setBinEditorMarkup(binEditor, ml);
-            MemoryView::setBinEditorRange(binEditor, addr, MemoryAgent::DataRange, MemoryAgent::BinBlockSize);
-            topLevel = new MemoryView(binEditor, parent);
+            MemoryView::setBinEditorMarkup(binEditor, data.markup);
+            MemoryView::setBinEditorRange(binEditor, data.startAddress, MemoryAgent::DataRange, MemoryAgent::BinBlockSize);
+            topLevel = new MemoryView(binEditor, data.parent);
             topLevel->setWindowTitle(title);
         }
         m_views << topLevel;
-        topLevel->move(pos);
+        topLevel->move(data.pos);
         topLevel->show();
         return true;
     }
     // Editor: Register tracking not supported.
-    QTC_ASSERT(!(flags & DebuggerEngine::MemoryTrackRegister), return false);
+    QTC_ASSERT(!(data.flags & DebuggerEngine::MemoryTrackRegister), return false);
     if (!title.endsWith(QLatin1Char('$')))
         title.append(QLatin1String(" $"));
     IEditor *editor = EditorManager::openEditorWithContents(
@@ -185,17 +180,15 @@ bool MemoryAgent::doCreateBinEditor(quint64 addr, unsigned flags,
     connectBinEditorWidget(editorBinEditor);
     MemoryView::setBinEditorReadOnly(editorBinEditor, readOnly);
     MemoryView::setBinEditorNewWindowRequestAllowed(editorBinEditor, true);
-    MemoryView::setBinEditorRange(editorBinEditor, addr, MemoryAgent::DataRange, MemoryAgent::BinBlockSize);
-    MemoryView::setBinEditorMarkup(editorBinEditor, ml);
+    MemoryView::setBinEditorRange(editorBinEditor, data.startAddress, MemoryAgent::DataRange, MemoryAgent::BinBlockSize);
+    MemoryView::setBinEditorMarkup(editorBinEditor, data.markup);
     m_editors << editor;
     return true;
 }
 
-void MemoryAgent::createBinEditor(quint64 addr, unsigned flags,
-                                  const QList<MemoryMarkup> &ml, const QPoint &pos,
-                                  const QString &title, QWidget *parent)
+void MemoryAgent::createBinEditor(const MemoryViewSetupData &data)
 {
-    if (!doCreateBinEditor(addr, flags, ml, pos, title, parent))
+    if (!doCreateBinEditor(data))
         Core::AsynchronousMessageBox::warning(
             tr("No Memory Viewer Available"),
             tr("The memory contents cannot be shown as no viewer plugin "
@@ -204,7 +197,9 @@ void MemoryAgent::createBinEditor(quint64 addr, unsigned flags,
 
 void MemoryAgent::createBinEditor(quint64 addr)
 {
-    createBinEditor(addr, 0, QList<MemoryMarkup>(), QPoint(), QString(), 0);
+    MemoryViewSetupData data;
+    data.startAddress = addr;
+    createBinEditor(data);
 }
 
 void MemoryAgent::fetchLazyData(quint64 block)

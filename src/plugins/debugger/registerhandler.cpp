@@ -46,266 +46,477 @@ namespace Internal {
 //
 //////////////////////////////////////////////////////////////////
 
-enum RegisterType
-{
-    RegisterUnknown,
-    //RegisterDummy,  // like AH if EAX is present.
-    RegisterI8,
-    RegisterI16,
-    RegisterI32,
-    RegisterI64,
-    RegisterI128,
-    RegisterF32,
-    RegisterF64,
-    RegisterF80,
-    RegisterXMM,
-    RegisterMMX,
-    RegisterNeon,
-    RegisterFlags32
-};
-
 static struct RegisterNameAndType
 {
     const char *name;
-    RegisterType type;
+    RegisterKind kind;
+    int size;
 } theNameAndType[] = {
     // ARM
-    { "r0", RegisterI32 },
-    { "r1", RegisterI32 },
-    { "r2", RegisterI32 },
-    { "r3", RegisterI32 },
-    { "r4", RegisterI32 },
-    { "r5", RegisterI32 },
-    { "r6", RegisterI32 },
-    { "r7", RegisterI32 },
-    { "r8", RegisterI32 },
-    { "r9", RegisterI32 },
-    { "r10", RegisterI32 },
-    { "r11", RegisterI32 },
-    { "r12", RegisterI32 },
-    { "sp", RegisterI32 },
-    { "lr", RegisterI32 },
-    { "pc", RegisterI32 },
-    { "cpsr", RegisterFlags32 },
-    { "d0", RegisterI64 },
-    { "d1", RegisterI64 },
-    { "d2", RegisterI64 },
-    { "d3", RegisterI64 },
-    { "d4", RegisterI64 },
-    { "d5", RegisterI64 },
-    { "d6", RegisterI64 },
-    { "d7", RegisterI64 },
-    { "d8", RegisterI64 },
-    { "d9", RegisterI64 },
-    { "d10", RegisterI64 },
-    { "d11", RegisterI64 },
-    { "d12", RegisterI64 },
-    { "d13", RegisterI64 },
-    { "d14", RegisterI64 },
-    { "d15", RegisterI64 },
-    { "d16", RegisterI64 },
-    { "d17", RegisterI64 },
-    { "d18", RegisterI64 },
-    { "d19", RegisterI64 },
-    { "d20", RegisterI64 },
-    { "d21", RegisterI64 },
-    { "d22", RegisterI64 },
-    { "d23", RegisterI64 },
-    { "d24", RegisterI64 },
-    { "d25", RegisterI64 },
-    { "d26", RegisterI64 },
-    { "d27", RegisterI64 },
-    { "d28", RegisterI64 },
-    { "d29", RegisterI64 },
-    { "d30", RegisterI64 },
-    { "d31", RegisterI64 },
-    { "fpscr", RegisterFlags32 },
-    { "s0", RegisterI32 },
-    { "s1", RegisterI32 },
-    { "s2", RegisterI32 },
-    { "s3", RegisterI32 },
-    { "s4", RegisterI32 },
-    { "s5", RegisterI32 },
-    { "s6", RegisterI32 },
-    { "s7", RegisterI32 },
-    { "s8", RegisterI32 },
-    { "s9", RegisterI32 },
-    { "s10", RegisterI32 },
-    { "s11", RegisterI32 },
-    { "s12", RegisterI32 },
-    { "s13", RegisterI32 },
-    { "s14", RegisterI32 },
-    { "s15", RegisterI32 },
-    { "s16", RegisterI32 },
-    { "s17", RegisterI32 },
-    { "s18", RegisterI32 },
-    { "s19", RegisterI32 },
-    { "s20", RegisterI32 },
-    { "s21", RegisterI32 },
-    { "s22", RegisterI32 },
-    { "s23", RegisterI32 },
-    { "s24", RegisterI32 },
-    { "s25", RegisterI32 },
-    { "s26", RegisterI32 },
-    { "s27", RegisterI32 },
-    { "s28", RegisterI32 },
-    { "s29", RegisterI32 },
-    { "s30", RegisterI32 },
-    { "s31", RegisterI32 },
-    { "q0", RegisterI128 },
-    { "q1", RegisterI128 },
-    { "q2", RegisterI128 },
-    { "q3", RegisterI128 },
-    { "q4", RegisterI128 },
-    { "q5", RegisterI128 },
-    { "q6", RegisterI128 },
-    { "q7", RegisterI128 },
-    { "q8", RegisterI128 },
-    { "q9", RegisterI128 },
-    { "q10", RegisterI128 },
-    { "q11", RegisterI128 },
-    { "q12", RegisterI128 },
-    { "q13", RegisterI128 },
-    { "q14", RegisterI128 },
-    { "q15", RegisterI128 },
+    { "r0", IntegerRegister, 4 },
+    { "r1", IntegerRegister, 4 },
+    { "r2", IntegerRegister, 4 },
+    { "r3", IntegerRegister, 4 },
+    { "r4", IntegerRegister, 4 },
+    { "r5", IntegerRegister, 4 },
+    { "r6", IntegerRegister, 4 },
+    { "r7", IntegerRegister, 4 },
+    { "r8", IntegerRegister, 4 },
+    { "r9", IntegerRegister, 4 },
+    { "r10", IntegerRegister, 4 },
+    { "r11", IntegerRegister, 4 },
+    { "r12", IntegerRegister, 4 },
+    { "sp", IntegerRegister, 4 },
+    { "lr", IntegerRegister, 4 },
+    { "pc", IntegerRegister, 4 },
+    { "cpsr", FlagRegister, 4 },
+    { "d0", IntegerRegister, 8 },
+    { "d1", IntegerRegister, 8 },
+    { "d2", IntegerRegister, 8 },
+    { "d3", IntegerRegister, 8 },
+    { "d4", IntegerRegister, 8 },
+    { "d5", IntegerRegister, 8 },
+    { "d6", IntegerRegister, 8 },
+    { "d7", IntegerRegister, 8 },
+    { "d8", IntegerRegister, 8 },
+    { "d9", IntegerRegister, 8 },
+    { "d10", IntegerRegister, 8 },
+    { "d11", IntegerRegister, 8 },
+    { "d12", IntegerRegister, 8 },
+    { "d13", IntegerRegister, 8 },
+    { "d14", IntegerRegister, 8 },
+    { "d15", IntegerRegister, 8 },
+    { "d16", IntegerRegister, 8 },
+    { "d17", IntegerRegister, 8 },
+    { "d18", IntegerRegister, 8 },
+    { "d19", IntegerRegister, 8 },
+    { "d20", IntegerRegister, 8 },
+    { "d21", IntegerRegister, 8 },
+    { "d22", IntegerRegister, 8 },
+    { "d23", IntegerRegister, 8 },
+    { "d24", IntegerRegister, 8 },
+    { "d25", IntegerRegister, 8 },
+    { "d26", IntegerRegister, 8 },
+    { "d27", IntegerRegister, 8 },
+    { "d28", IntegerRegister, 8 },
+    { "d29", IntegerRegister, 8 },
+    { "d30", IntegerRegister, 8 },
+    { "d31", IntegerRegister, 8 },
+    { "fpscr", FlagRegister, 4 },
+    { "s0", IntegerRegister, 4 },
+    { "s1", IntegerRegister, 4 },
+    { "s2", IntegerRegister, 4 },
+    { "s3", IntegerRegister, 4 },
+    { "s4", IntegerRegister, 4 },
+    { "s5", IntegerRegister, 4 },
+    { "s6", IntegerRegister, 4 },
+    { "s7", IntegerRegister, 4 },
+    { "s8", IntegerRegister, 4 },
+    { "s9", IntegerRegister, 4 },
+    { "s10", IntegerRegister, 4 },
+    { "s11", IntegerRegister, 4 },
+    { "s12", IntegerRegister, 4 },
+    { "s13", IntegerRegister, 4 },
+    { "s14", IntegerRegister, 4 },
+    { "s15", IntegerRegister, 4 },
+    { "s16", IntegerRegister, 4 },
+    { "s17", IntegerRegister, 4 },
+    { "s18", IntegerRegister, 4 },
+    { "s19", IntegerRegister, 4 },
+    { "s20", IntegerRegister, 4 },
+    { "s21", IntegerRegister, 4 },
+    { "s22", IntegerRegister, 4 },
+    { "s23", IntegerRegister, 4 },
+    { "s24", IntegerRegister, 4 },
+    { "s25", IntegerRegister, 4 },
+    { "s26", IntegerRegister, 4 },
+    { "s27", IntegerRegister, 4 },
+    { "s28", IntegerRegister, 4 },
+    { "s29", IntegerRegister, 4 },
+    { "s30", IntegerRegister, 4 },
+    { "s31", IntegerRegister, 4 },
+    { "q0", IntegerRegister, 16 },
+    { "q1", IntegerRegister, 16 },
+    { "q2", IntegerRegister, 16 },
+    { "q3", IntegerRegister, 16 },
+    { "q4", IntegerRegister, 16 },
+    { "q5", IntegerRegister, 16 },
+    { "q6", IntegerRegister, 16 },
+    { "q7", IntegerRegister, 16 },
+    { "q8", IntegerRegister, 16 },
+    { "q9", IntegerRegister, 16 },
+    { "q10", IntegerRegister, 16 },
+    { "q11", IntegerRegister, 16 },
+    { "q12", IntegerRegister, 16 },
+    { "q13", IntegerRegister, 16 },
+    { "q14", IntegerRegister, 16 },
+    { "q15", IntegerRegister, 16 },
 
     // Intel
-    { "eax", RegisterI32 },
-    { "ecx", RegisterI32 },
-    { "edx", RegisterI32 },
-    { "ebx", RegisterI32 },
-    { "esp", RegisterI32 },
-    { "ebp", RegisterI32 },
-    { "esi", RegisterI32 },
-    { "edi", RegisterI32 },
-    { "eip", RegisterI32 },
-    { "eflags", RegisterFlags32 },
-    { "cs", RegisterI32 },
-    { "ss", RegisterI32 },
-    { "ds", RegisterI32 },
-    { "es", RegisterI32 },
-    { "fs", RegisterI32 },
-    { "gs", RegisterI32 },
-    { "st0", RegisterF80 },
-    { "st1", RegisterF80 },
-    { "st2", RegisterF80 },
-    { "st3", RegisterF80 },
-    { "st4", RegisterF80 },
-    { "st5", RegisterF80 },
-    { "st6", RegisterF80 },
-    { "st7", RegisterF80 },
-    { "fctrl", RegisterFlags32 },
-    { "fstat", RegisterFlags32 },
-    { "ftag", RegisterFlags32 },
-    { "fiseg", RegisterFlags32 },
-    { "fioff", RegisterFlags32 },
-    { "foseg", RegisterFlags32 },
-    { "fooff", RegisterFlags32 },
-    { "fop", RegisterFlags32 },
-    { "xmm0", RegisterXMM },
-    { "xmm1", RegisterXMM },
-    { "xmm2", RegisterXMM },
-    { "xmm3", RegisterXMM },
-    { "xmm4", RegisterXMM },
-    { "xmm5", RegisterXMM },
-    { "xmm6", RegisterXMM },
-    { "xmm7", RegisterXMM },
-    { "mxcsr", RegisterFlags32 },
-    { "orig_eax", RegisterI32 },
-    { "al", RegisterI8 },
-    { "cl", RegisterI8 },
-    { "dl", RegisterI8 },
-    { "bl", RegisterI8 },
-    { "ah", RegisterI8 },
-    { "ch", RegisterI8 },
-    { "dh", RegisterI8 },
-    { "bh", RegisterI8 },
-    { "ax", RegisterI16 },
-    { "cx", RegisterI16 },
-    { "dx", RegisterI16 },
-    { "bx", RegisterI16 },
-    { "bp", RegisterI16 },
-    { "si", RegisterI16 },
-    { "di", RegisterI16 },
-    { "mm0", RegisterMMX },
-    { "mm1", RegisterMMX },
-    { "mm2", RegisterMMX },
-    { "mm3", RegisterMMX },
-    { "mm4", RegisterMMX },
-    { "mm5", RegisterMMX },
-    { "mm6", RegisterMMX },
-    { "mm7", RegisterMMX }
+    { "eax", IntegerRegister, 4 },
+    { "ecx", IntegerRegister, 4 },
+    { "edx", IntegerRegister, 4 },
+    { "ebx", IntegerRegister, 4 },
+    { "esp", IntegerRegister, 4 },
+    { "ebp", IntegerRegister, 4 },
+    { "esi", IntegerRegister, 4 },
+    { "edi", IntegerRegister, 4 },
+    { "eip", IntegerRegister, 4 },
+    { "rax", IntegerRegister, 8 },
+    { "rcx", IntegerRegister, 8 },
+    { "rdx", IntegerRegister, 8 },
+    { "rbx", IntegerRegister, 8 },
+    { "rsp", IntegerRegister, 8 },
+    { "rbp", IntegerRegister, 8 },
+    { "rsi", IntegerRegister, 8 },
+    { "rdi", IntegerRegister, 8 },
+    { "rip", IntegerRegister, 8 },
+    { "eflags", FlagRegister, 4 },
+    { "cs", IntegerRegister, 2 },
+    { "ss", IntegerRegister, 2 },
+    { "ds", IntegerRegister, 2 },
+    { "es", IntegerRegister, 2 },
+    { "fs", IntegerRegister, 2 },
+    { "gs", IntegerRegister, 2 },
+    { "st0", FloatRegister, 10 },
+    { "st1", FloatRegister, 10 },
+    { "st2", FloatRegister, 10 },
+    { "st3", FloatRegister, 10 },
+    { "st4", FloatRegister, 10 },
+    { "st5", FloatRegister, 10 },
+    { "st6", FloatRegister, 10 },
+    { "st7", FloatRegister, 10 },
+    { "fctrl", FlagRegister, 4 },
+    { "fstat", FlagRegister, 4 },
+    { "ftag", FlagRegister, 4 },
+    { "fiseg", FlagRegister, 4 },
+    { "fioff", FlagRegister, 4 },
+    { "foseg", FlagRegister, 4 },
+    { "fooff", FlagRegister, 4 },
+    { "fop", FlagRegister, 4 },
+    { "mxcsr", FlagRegister, 4 },
+    { "orig_eax", IntegerRegister, 4 },
+    { "al", IntegerRegister, 1 },
+    { "cl", IntegerRegister, 1 },
+    { "dl", IntegerRegister, 1 },
+    { "bl", IntegerRegister, 1 },
+    { "ah", IntegerRegister, 1 },
+    { "ch", IntegerRegister, 1 },
+    { "dh", IntegerRegister, 1 },
+    { "bh", IntegerRegister, 1 },
+    { "ax", IntegerRegister, 2 },
+    { "cx", IntegerRegister, 2 },
+    { "dx", IntegerRegister, 2 },
+    { "bx", IntegerRegister, 2 },
+    { "bp", IntegerRegister, 2 },
+    { "si", IntegerRegister, 2 },
+    { "di", IntegerRegister, 2 }
  };
 
-static RegisterType guessType(const QByteArray &name)
+//////////////////////////////////////////////////////////////////
+//
+// RegisterValue
+//
+//////////////////////////////////////////////////////////////////
+
+// FIXME: This should not really be needed. Instead the guessing, if any,
+// should done by the engines.
+static void fixup(Register *reg, RegisterKind kind, int size)
 {
-    static QHash<QByteArray, RegisterType> theTypes;
-    if (theTypes.isEmpty()) {
-        for (int i = 0; i != sizeof(theNameAndType) / sizeof(theNameAndType[0]); ++i)
-            theTypes[theNameAndType[i].name] = theNameAndType[i].type;
-    }
-    return theTypes.value(name, RegisterUnknown);
+    reg->kind = kind;
+    if (!reg->size)
+        reg->size = size;
 }
 
-static int childCountFromType(int type)
+void Register::guessMissingData()
 {
-    switch (type) {
-        case RegisterUnknown: return 0;
-        case RegisterI8: return 0;
-        case RegisterI16: return 1;
-        case RegisterI32: return 2;
-        case RegisterI64: return 3;
-        case RegisterI128: return 4;
-        case RegisterF32: return 0;
-        case RegisterF64: return 0;
-        case RegisterF80: return 0;
-        case RegisterXMM: return 3;
-        case RegisterMMX: return 3;
-        case RegisterNeon: return 3;
-        case RegisterFlags32: return 0;
+    if (name.startsWith("xmm")) {
+        fixup(this, VectorRegister, 16);
+        return;
     }
+
+    for (int i = 0; i != sizeof(theNameAndType) / sizeof(theNameAndType[0]); ++i) {
+        if (theNameAndType[i].name == name) {
+            fixup(this, theNameAndType[i].kind, theNameAndType[i].size);
+            return;
+        }
+    }
+
+    if (reportedType == "int")
+        fixup(this, IntegerRegister, 4);
+    else if (reportedType == "float")
+        fixup(this, IntegerRegister, 8);
+    else if (reportedType == "_i387_ext")
+        fixup(this, IntegerRegister, 10);
+    else if (reportedType == "*1" || reportedType == "long")
+        fixup(this, IntegerRegister, 0);
+    else if (reportedType.contains("vec"))
+        fixup(this, VectorRegister, 0);
+    else if (reportedType.startsWith("int"))
+        fixup(this, IntegerRegister, 0);
+}
+
+static QString subTypeName(RegisterKind kind, int size)
+{
+    if (kind == IntegerRegister)
+        return QString::fromLatin1("[i%1]").arg(size * 8);
+    if (kind == FloatRegister)
+        return QString::fromLatin1("[f%1]").arg(size * 8);
     QTC_ASSERT(false, /**/);
-    return 0;
+    return QString();
 }
 
-static int bitWidthFromType(int type, int subType)
+static uint decodeHexChar(unsigned char c)
 {
-    const uint integer[] = { 8, 16, 32, 64, 128 };
-    const uint xmm[] = { 8, 16, 32, 64, 128 };
-    const uint mmx[] = { 8, 16, 32, 64, 128 };
-    const uint neon[] = { 8, 16, 32, 64, 128 };
+    c -= '0';
+    if (c < 10)
+        return c;
+    c -= 'A' - '0';
+    if (c < 6)
+        return 10 + c;
+    c -= 'a' - 'A';
+    if (c < 6)
+        return 10 + c;
+    return uint(-1);
+}
 
-    switch (type) {
-        case RegisterUnknown: return 0;
-        case RegisterI8: return 8;
-        case RegisterI16: return integer[subType];
-        case RegisterI32: return integer[subType];
-        case RegisterI64: return integer[subType];
-        case RegisterI128: return integer[subType];
-        case RegisterF32: return 0;
-        case RegisterF64: return 0;
-        case RegisterF80: return 0;
-        case RegisterXMM: return xmm[subType];
-        case RegisterMMX: return mmx[subType];
-        case RegisterNeon: return neon[subType];
-        case RegisterFlags32: return 0;
+void RegisterValue::operator=(const QByteArray &ba)
+{
+    uint shift = 0;
+    int j = 0;
+    v.u64[1] = v.u64[0] = 0;
+    for (int i = ba.size(); --i >= 0 && j < 16; ++j) {
+        quint64 d = decodeHexChar(ba.at(i));
+        if (d == uint(-1))
+            return;
+        v.u64[0] |= (d << shift);
+        shift += 4;
     }
-    QTC_ASSERT(false, /**/);
-    return 0;
+    j = 0;
+    shift = 0;
+    for (int i = ba.size() - 16; --i >= 0 && j < 16; ++j) {
+        quint64 d = decodeHexChar(ba.at(i));
+        if (d == uint(-1))
+            return;
+        v.u64[1] |= (d << shift);
+        shift += 4;
+    }
 }
 
-static const uint TopLevelId = UINT_MAX;
-static bool isTopLevelItem(const QModelIndex &index)
+bool RegisterValue::operator==(const RegisterValue &other)
 {
-    return quintptr(index.internalId()) == quintptr(TopLevelId);
+    return v.u64[0] == other.v.u64[0] && v.u64[1] == other.v.u64[1];
 }
 
-Register::Register(const QByteArray &name_)
-    : name(name_), changed(true)
+static QByteArray format(quint64 v, int base, int size)
 {
-    type = guessType(name);
+    QByteArray result = QByteArray::number(v, base);
+    if (base == 16)
+        result.prepend(QByteArray(2*size - result.size(), '0'));
+    return result;
 }
 
+QByteArray RegisterValue::toByteArray(int base, RegisterKind kind, int size) const
+{
+    if (kind == FloatRegister) {
+        if (size == 4)
+            return QByteArray::number(v.f[0]);
+        if (size == 8)
+            return QByteArray::number(v.d[0]);
+    }
+
+    QByteArray result;
+    if (size > 8) {
+        result += format(v.u64[1], base, size - 8);
+        size = 8;
+        if (base != 16)
+            result += ',';
+    }
+    result += format(v.u64[0], base, size);
+    if (base == 16)
+        result.prepend("0x");
+    return result;
+}
+
+RegisterValue RegisterValue::subValue(int size, int index) const
+{
+    RegisterValue value;
+    switch (size) {
+        case 1:
+            value.v.u8[0] = v.u8[index];
+            break;
+        case 2:
+            value.v.u16[0] = v.u16[index];
+            break;
+        case 4:
+            value.v.u32[0] = v.u32[index];
+            break;
+        case 8:
+            value.v.u64[0] = v.u64[index];
+            break;
+    }
+    return value;
+}
+
+//////////////////////////////////////////////////////////////////
+//
+// RegisterSubItem and RegisterItem
+//
+//////////////////////////////////////////////////////////////////
+
+class RegisterSubItem : public Utils::TreeItem
+{
+public:
+    RegisterSubItem(RegisterKind subKind, int subSize, int count)
+        : m_subKind(subKind), m_subSize(subSize), m_count(count), m_changed(false)
+    {}
+
+    int columnCount() const { return 2; }
+    QVariant data(int column, int role) const;
+
+    Qt::ItemFlags flags(int column) const
+    {
+        //return column == 1 ? Qt::ItemIsSelectable|Qt::ItemIsEnabled|Qt::ItemIsEditable
+        //                   : Qt::ItemIsSelectable|Qt::ItemIsEnabled;
+        Q_UNUSED(column);
+        return Qt::ItemIsSelectable|Qt::ItemIsEnabled;
+    }
+
+    RegisterKind m_subKind;
+    int m_subSize;
+    int m_count;
+    bool m_changed;
+};
+
+class RegisterItem : public Utils::TreeItem
+{
+public:
+    explicit RegisterItem(const Register &reg);
+
+    int columnCount() const { return 2; }
+    QVariant data(int column, int role) const;
+    Qt::ItemFlags flags(int column) const;
+
+    quint64 addressValue() const;
+
+    Register m_reg;
+    int m_base;
+    bool m_changed;
+};
+
+RegisterItem::RegisterItem(const Register &reg) :
+    m_reg(reg), m_base(16), m_changed(true)
+{
+    if (m_reg.kind == UnknownRegister)
+        m_reg.guessMissingData();
+
+    if (m_reg.kind == IntegerRegister || m_reg.kind == VectorRegister) {
+        for (int s = m_reg.size / 2; s; s = s / 2)
+            appendChild(new RegisterSubItem(IntegerRegister, s, m_reg.size / s));
+    }
+    if (m_reg.kind == IntegerRegister || m_reg.kind == VectorRegister) {
+        for (int s = m_reg.size; s >= 4; s = s / 2)
+            appendChild(new RegisterSubItem(FloatRegister, s, m_reg.size / s));
+    }
+}
+
+Qt::ItemFlags RegisterItem::flags(int column) const
+{
+    const Qt::ItemFlags notEditable = Qt::ItemIsSelectable|Qt::ItemIsEnabled;
+    // Can edit registers if they are hex numbers and not arrays.
+    if (column == 1) //  && IntegerWatchLineEdit::isUnsignedHexNumber(QLatin1String(m_reg.display)))
+        return notEditable | Qt::ItemIsEditable;
+    return notEditable;
+}
+
+quint64 RegisterItem::addressValue() const
+{
+    return m_reg.value.v.u64[0];
+}
+
+QVariant RegisterItem::data(int column, int role) const
+{
+    switch (role) {
+        case RegisterNameRole:
+            return m_reg.name;
+
+        case RegisterIsBigRole:
+            return m_reg.value.v.u64[1] > 0;
+
+        case RegisterChangedRole:
+            return m_changed;
+
+        case RegisterNumberBaseRole:
+            return m_base;
+
+        case RegisterAsAddressRole:
+            return addressValue();
+
+        case Qt::DisplayRole:
+            switch (column) {
+                case 0: {
+                    QByteArray res = m_reg.name;
+                    if (!m_reg.description.isEmpty())
+                        res += " (" + m_reg.description + ')';
+                    return res;
+                }
+                case 1: {
+                    return m_reg.value.toByteArray(m_base, m_reg.kind, m_reg.size);
+                }
+            }
+
+        case Qt::ToolTipRole:
+            return QString::fromLatin1("Current Value: %1\nPreviousValue: %2")
+                    .arg(QString::fromLatin1(m_reg.value.toByteArray(m_base, m_reg.kind, m_reg.size)))
+                    .arg(QString::fromLatin1(m_reg.previousValue.toByteArray(m_base, m_reg.kind, m_reg.size)));
+
+        case Qt::EditRole: // Edit: Unpadded for editing
+            return m_reg.value.toByteArray(m_base, m_reg.kind, m_reg.size);
+
+        case Qt::TextAlignmentRole:
+            return column == 1 ? QVariant(Qt::AlignRight) : QVariant();
+
+        default:
+            break;
+    }
+    return QVariant();
+}
+
+QVariant RegisterSubItem::data(int column, int role) const
+{
+    switch (role) {
+        case RegisterChangedRole:
+            return m_changed;
+
+        case RegisterNumberBaseRole:
+            return 16;
+
+        case RegisterAsAddressRole:
+            return 0;
+
+        case Qt::DisplayRole:
+            switch (column) {
+                case 0:
+                    return subTypeName(m_subKind, m_subSize);
+                case 1: {
+                    QTC_ASSERT(parent(), return QVariant());
+                    RegisterItem *registerItem = static_cast<RegisterItem *>(parent());
+                    RegisterValue value = registerItem->m_reg.value;
+                    QByteArray ba;
+                    for (int i = 0; i != m_count; ++i) {
+                        ba += value.subValue(m_subSize, i).toByteArray(16, m_subKind, m_subSize);
+                        int tab = 5 * (i + 1) * m_subSize;
+                        ba += QByteArray(tab - ba.size(), ' ');
+                    }
+                    return ba;
+                }
+            }
+        default:
+            break;
+    }
+
+    return QVariant();
+}
 
 //////////////////////////////////////////////////////////////////
 //
@@ -313,251 +524,76 @@ Register::Register(const QByteArray &name_)
 //
 //////////////////////////////////////////////////////////////////
 
+class RegisterRootItem : public Utils::TreeItem
+{
+public:
+    int columnCount() const { return 2; }
+    QVariant data(int section, int role) const
+    {
+        if (role == Qt::DisplayRole) {
+            switch (section) {
+            case 0: return RegisterHandler::tr("Name");
+            case 1: return RegisterHandler::tr("Value");
+            };
+        }
+        return QVariant();
+    }
+};
+
 RegisterHandler::RegisterHandler()
 {
     setObjectName(QLatin1String("RegisterModel"));
-    m_base = 16;
-    calculateWidth();
+    setRootItem(new RegisterRootItem); // Needed to get two columns.
 #if USE_REGISTER_MODEL_TEST
     new ModelTest(this, 0);
 #endif
 }
 
-int RegisterHandler::rowCount(const QModelIndex &idx) const
+void RegisterHandler::updateRegister(const Register &r)
 {
-    if (idx.column() > 0)
-        return 0;
-    if (!idx.isValid())
-        return m_registers.size(); // Top level.
-    if (!isTopLevelItem(idx))
-        return 0; // Sub-Items don't have children.
-    if (idx.row() >= m_registers.size())
-        return 0;
-    return childCountFromType(m_registers[idx.row()].type);
-}
-
-int RegisterHandler::columnCount(const QModelIndex &idx) const
-{
-    if (idx.column() > 0)
-        return 0;
-    if (!idx.isValid())
-        return 2;
-    if (!isTopLevelItem(idx))
-        return 0; // Sub-Items don't have children.
-    return 2;
-}
-
-QModelIndex RegisterHandler::index(int row, int col, const QModelIndex &parent) const
-{
-    if (row < 0 || col < 0 || col >= 2)
-        return QModelIndex();
-    if (!parent.isValid()) // Top level.
-        return createIndex(row, col, TopLevelId);
-    if (!isTopLevelItem(parent)) // Sub-Item has no children.
-        return QModelIndex();
-    if (parent.column() > 0)
-        return QModelIndex();
-    return createIndex(row, col, parent.row());
-}
-
-QModelIndex RegisterHandler::parent(const QModelIndex &idx) const
-{
-    if (!idx.isValid())
-        return QModelIndex();
-    if (!isTopLevelItem(idx))
-        return createIndex(idx.internalId(), 0, TopLevelId);
-    return QModelIndex();
-}
-
-// Editor value: Preferably number, else string.
-QVariant Register::editValue() const
-{
-    bool ok = true;
-    // Try to convert to number?
-    const qulonglong v = value.toULongLong(&ok, 0); // Autodetect format
-    if (ok)
-        return QVariant(v);
-    return QVariant(value);
-}
-
-// Editor value: Preferably padded number, else padded string.
-QString Register::displayValue(int base, int strlen) const
-{
-    const QVariant editV = editValue();
-    if (editV.type() == QVariant::ULongLong)
-        return QString::fromLatin1("%1").arg(editV.toULongLong(), strlen, base);
-    const QString stringValue = editV.toString();
-    if (stringValue.size() < strlen)
-        return QString(strlen - stringValue.size(), QLatin1Char(' ')) + QLatin1String(value);
-    return stringValue;
-}
-
-QVariant RegisterHandler::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid())
-        return QVariant();
-
-    QModelIndex topLevel = index.parent();
-    const int mainRow = topLevel.isValid() ? topLevel.row() : index.row();
-
-    if (mainRow >= m_registers.size())
-        return QVariant();
-
-
-    const Register &reg = m_registers.at(mainRow);
-
-    if (topLevel.isValid()) {
-        //
-        // Nested
-        //
-        int subType = index.row();
-        int bitWidth = bitWidthFromType(reg.type, subType);
-
-        switch (role) {
-        case Qt::DisplayRole:
-            switch (index.column()) {
-            case 0: {
-                switch (bitWidth) {
-                    case 8:  return QLatin1String("[Bytes]");
-                    case 16: return QLatin1String("[Words]");
-                    case 32: return QLatin1String("[DWords]");
-                    case 64: return QLatin1String("[QWords]");
-                    case 128: return QLatin1String("[TWords]");
-                    case -32: return QLatin1String("[Single]");
-                    case -64: return QLatin1String("[Double]");
-                    return QVariant(bitWidth);
-                }
-            }
-        }
-        default:
-            break;
-        }
-
-    } else {
-        //
-        // Toplevel
-        //
-
-        switch (role) {
-        case Qt::DisplayRole:
-            switch (index.column()) {
-            case 0: {
-                const QString padding = QLatin1String("  ");
-                return QVariant(padding + QLatin1String(reg.name) + padding);
-                //return QVariant(reg.name);
-            }
-            case 1: // Display: Pad value for alignment
-                return reg.displayValue(m_base, m_strlen);
-            } // switch column
-        case Qt::EditRole: // Edit: Unpadded for editing
-            return reg.editValue();
-        case Qt::TextAlignmentRole:
-            return index.column() == 1 ? QVariant(Qt::AlignRight) : QVariant();
-        default:
-            break;
-        }
-    }
-    return QVariant();
-}
-
-QVariant RegisterHandler::headerData(int section, Qt::Orientation orientation,
-    int role) const
-{
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-        switch (section) {
-        case 0: return tr("Name");
-        case 1: return tr("Value (Base %1)").arg(m_base);
-        };
-    }
-    return QVariant();
-}
-
-Qt::ItemFlags RegisterHandler::flags(const QModelIndex &idx) const
-{
-    if (!idx.isValid())
-        return Qt::ItemFlags();
-
-    const Qt::ItemFlags notEditable = Qt::ItemIsSelectable|Qt::ItemIsEnabled;
-    // Can edit registers if they are hex numbers and not arrays.
-    if (idx.column() == 1
-            && IntegerWatchLineEdit::isUnsignedHexNumber(QLatin1String(m_registers.at(idx.row()).value)))
-        return notEditable | Qt::ItemIsEditable;
-    return notEditable;
-}
-
-void RegisterHandler::removeAll()
-{
-    beginResetModel();
-    m_registers.clear();
-    endResetModel();
-}
-
-bool RegisterHandler::isEmpty() const
-{
-    return m_registers.isEmpty();
-}
-
-// Compare register sets by name
-static inline bool compareRegisterSet(const Registers &r1, const Registers &r2)
-{
-    if (r1.size() != r2.size())
-        return false;
-    const int size = r1.size();
-    for (int r = 0; r < size; r++)
-        if (r1.at(r).name != r2.at(r).name)
-            return false;
-    return true;
-}
-
-void RegisterHandler::setRegisters(const Registers &registers)
-{
-    beginResetModel();
-    m_registers = registers;
-    const int size = m_registers.size();
-    for (int r = 0; r < size; r++)
-        m_registers[r].changed = false;
-    calculateWidth();
-    endResetModel();
-}
-
-void RegisterHandler::setAndMarkRegisters(const Registers &registers)
-{
-    if (!compareRegisterSet(m_registers, registers)) {
-        setRegisters(registers);
+    RegisterItem *reg = m_registerByName.value(r.name, 0);
+    if (!reg) {
+        reg = new RegisterItem(r);
+        m_registerByName[r.name] = reg;
+        rootItem()->appendChild(reg);
         return;
     }
-    const int size = m_registers.size();
-    for (int r = 0; r != size; ++r) {
-        const QModelIndex regIndex = index(r, 1, QModelIndex());
-        if (m_registers.at(r).value != registers.at(r).value) {
-            // Indicate red if values change, keep changed.
-            m_registers[r].changed = m_registers.at(r).changed
-                || !m_registers.at(r).value.isEmpty();
-            m_registers[r].value = registers.at(r).value;
-            emit dataChanged(regIndex, regIndex);
-        }
-        emit registerSet(regIndex); // Notify attached memory views.
+
+    if (r.size > 0)
+        reg->m_reg.size = r.size;
+    if (!r.description.isEmpty())
+        reg->m_reg.description = r.description;
+    if (reg->m_reg.value != r.value) {
+        // Indicate red if values change, keep changed.
+        reg->m_changed = true;
+        reg->m_reg.previousValue = reg->m_reg.value;
+        reg->m_reg.value = r.value;
+        emit registerChanged(reg->m_reg.name, reg->addressValue()); // Notify attached memory views.
+    } else {
+        reg->m_changed = false;
     }
 }
 
-Registers RegisterHandler::registers() const
+void RegisterHandler::setNumberBase(const QByteArray &name, int base)
 {
-    return m_registers;
+    RegisterItem *reg = m_registerByName.value(name, 0);
+    QTC_ASSERT(reg, return);
+    reg->m_base = base;
+    QModelIndex index = indexFromItem(reg);
+    emit dataChanged(index, index);
 }
 
-void RegisterHandler::calculateWidth()
+RegisterMap RegisterHandler::registerMap() const
 {
-    m_strlen = (m_base == 2 ? 64 : m_base == 8 ? 32 : m_base == 10 ? 26 : 16);
-}
-
-void RegisterHandler::setNumberBase(int base)
-{
-    if (m_base != base) {
-        beginResetModel();
-        m_base = base;
-        calculateWidth();
-        endResetModel();
+    RegisterMap result;
+    Utils::TreeItem *root = rootItem();
+    for (int i = 0, n = root->rowCount(); i != n; ++i) {
+        RegisterItem *reg = static_cast<RegisterItem *>(root->child(i));
+        quint64 value = reg->addressValue();
+        if (value)
+            result.insert(value, reg->m_reg.name);
     }
+    return result;
 }
 
 } // namespace Internal

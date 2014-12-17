@@ -68,7 +68,7 @@ public:
     void reloadSourceFiles();
     void reloadFullStack();
 
-    void setRegisterValue(int regnr, const QString &value);
+    void setRegisterValue(const QByteArray &name, const QString &value);
     bool hasCapability(unsigned cap) const;
 
     bool isSynchronous() const;

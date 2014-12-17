@@ -1235,14 +1235,12 @@ void CdbEngine::executeRunToFunction(const QString &functionName)
     continueInferior();
 }
 
-void CdbEngine::setRegisterValue(int regnr, const QString &value)
+void CdbEngine::setRegisterValue(const QByteArray &name, const QString &value)
 {
-    const Registers registers = registerHandler()->registers();
-    QTC_ASSERT(regnr < registers.size(), return);
     // Value is decimal or 0x-hex-prefixed
     QByteArray cmd;
     ByteArrayInputStream str(cmd);
-    str << "r " << registers.at(regnr).name << '=' << value;
+    str << "r " << name << '=' << value;
     postCommand(cmd, 0);
     reloadRegisters();
 }
@@ -1854,21 +1852,6 @@ void CdbEngine::handlePid(const CdbExtensionCommandPtr &reply)
     }
 }
 
-// Parse CDB gdbmi register syntax.
-static Register parseRegister(const GdbMi &gdbmiReg)
-{
-    Register reg;
-    reg.name = gdbmiReg["name"].data();
-    const GdbMi description = gdbmiReg["description"];
-    if (description.type() != GdbMi::Invalid) {
-        reg.name += " (";
-        reg.name += description.data();
-        reg.name += ')';
-    }
-    reg.value = gdbmiReg["value"].data();
-    return reg;
-}
-
 void CdbEngine::handleModules(const CdbExtensionCommandPtr &reply)
 {
     if (reply->success) {
@@ -1906,11 +1889,17 @@ void CdbEngine::handleRegisters(const CdbExtensionCommandPtr &reply)
         GdbMi value;
         value.fromString(reply->reply);
         if (value.type() == GdbMi::List) {
-            Registers registers;
-            registers.reserve(value.childCount());
-            foreach (const GdbMi &gdbmiReg, value.children())
-                registers.push_back(parseRegister(gdbmiReg));
-            registerHandler()->setAndMarkRegisters(registers);
+            RegisterHandler *handler = registerHandler();
+            foreach (const GdbMi &item, value.children()) {
+                Register reg;
+                reg.name = item["name"].data();
+                reg.description = item["description"].data();
+                reg.reportedType = item["type"].data();
+                reg.value = item["value"].data();
+                reg.size = item["size"].data().toInt();
+                handler->updateRegister(reg);
+            }
+            handler->commitUpdates();
         } else {
             showMessage(QString::fromLatin1("Parse error in registers response."), LogError);
             qWarning("Parse error in registers response:\n%s", reply->reply.constData());

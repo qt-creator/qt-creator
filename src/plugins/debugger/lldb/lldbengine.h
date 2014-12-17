@@ -143,7 +143,7 @@ private:
     bool supportsThreads() const { return true; }
     bool isSynchronous() const { return true; }
     void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
-    void setRegisterValue(int regnr, const QString &value);
+    void setRegisterValue(const QByteArray &name, const QString &value);
 
     void fetchMemory(Internal::MemoryAgent *, QObject *, quint64 addr, quint64 length);
     void changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr, const QByteArray &data);

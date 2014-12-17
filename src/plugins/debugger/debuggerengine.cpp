@@ -477,9 +477,9 @@ void DebuggerEngine::changeMemory(MemoryAgent *, QObject *,
     Q_UNUSED(data);
 }
 
-void DebuggerEngine::setRegisterValue(int regnr, const QString &value)
+void DebuggerEngine::setRegisterValue(const QByteArray &name, const QString &value)
 {
-    Q_UNUSED(regnr);
+    Q_UNUSED(name);
     Q_UNUSED(value);
 }
 
@@ -1746,11 +1746,9 @@ void DebuggerEngine::showStoppedByExceptionMessageBox(const QString &description
     Core::AsynchronousMessageBox::information(tr("Exception Triggered"), msg);
 }
 
-void DebuggerEngine::openMemoryView(quint64 startAddr, unsigned flags,
-                                    const QList<MemoryMarkup> &ml, const QPoint &pos,
-                                    const QString &title, QWidget *parent)
+void DebuggerEngine::openMemoryView(const MemoryViewSetupData &data)
 {
-    d->m_memoryAgent.createBinEditor(startAddr, flags, ml, pos, title, parent);
+    d->m_memoryAgent.createBinEditor(data);
 }
 
 void DebuggerEngine::updateMemoryViews()

@@ -138,24 +138,27 @@ void MemoryView::setMarkup(const QList<MemoryMarkup> &m)
     \sa Debugger::Internal::MemoryAgent, Debugger::DebuggerEngine
 */
 
-RegisterMemoryView::RegisterMemoryView(QWidget *binEditor, QWidget *parent) :
+RegisterMemoryView::RegisterMemoryView(QWidget *binEditor, quint64 addr,
+                                       const QByteArray &regName,
+                                       RegisterHandler *handler, QWidget *parent) :
     MemoryView(binEditor, parent),
-    m_registerIndex(0), m_registerAddress(0)
+    m_registerName(regName), m_registerAddress(addr)
 {
+    connect(handler, &QAbstractItemModel::modelReset, this, &QWidget::close);
+    connect(handler, &RegisterHandler::registerChanged, this, &RegisterMemoryView::onRegisterChanged);
+    updateContents();
 }
 
-void RegisterMemoryView::slotRegisterSet(const QModelIndex &index)
+void RegisterMemoryView::onRegisterChanged(const QByteArray &name, quint64 value)
 {
-    if (m_registerIndex != index.row())
-        return;
-    const QVariant newAddressV = index.data(Qt::EditRole);
-    if (newAddressV.type() == QVariant::ULongLong)
-        setRegisterAddress(newAddressV.toULongLong());
+    if (name == m_registerName)
+        setRegisterAddress(value);
 }
 
-QString RegisterMemoryView::title(const QString &registerName, quint64 a)
+QString RegisterMemoryView::title(const QByteArray &registerName, quint64 a)
 {
-    return tr("Memory at Register \"%1\" (0x%2)").arg(registerName).arg(a, 0, 16);
+    return tr("Memory at Register \"%1\" (0x%2)")
+            .arg(QString::fromUtf8(registerName)).arg(a, 0, 16);
 }
 
 void RegisterMemoryView::setRegisterAddress(quint64 v)
@@ -171,24 +174,12 @@ void RegisterMemoryView::setRegisterAddress(quint64 v)
         setMarkup(registerMarkup(v, m_registerName));
 }
 
-QList<MemoryMarkup> RegisterMemoryView::registerMarkup(quint64 a, const QString &name)
+QList<MemoryMarkup> RegisterMemoryView::registerMarkup(quint64 a, const QByteArray &regName)
 {
     QList<MemoryMarkup> result;
     result.push_back(MemoryMarkup(a, 1, QColor(Qt::blue).lighter(),
-                                  tr("Register \"%1\"").arg(name)));
+        tr("Register \"%1\"").arg(QString::fromUtf8(regName))));
     return result;
-}
-
-void RegisterMemoryView::init(RegisterHandler *h, int registerIndex)
-{
-    m_registerIndex = registerIndex;
-    m_registerName = QString::fromLatin1(h->registerAt(registerIndex).name);
-    // Known issue: CDB might reset the model by changing the special
-    // registers it reports.
-    connect(h, SIGNAL(modelReset()), this, SLOT(close()));
-    connect(h, SIGNAL(registerSet(QModelIndex)),
-            this, SLOT(slotRegisterSet(QModelIndex)));
-    setRegisterAddress(h->registerAt(m_registerIndex).editValue().toULongLong());
 }
 
 } // namespace Internal

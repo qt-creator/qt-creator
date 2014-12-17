@@ -31,35 +31,73 @@
 #ifndef DEBUGGER_REGISTERHANDLER_H
 #define DEBUGGER_REGISTERHANDLER_H
 
+#include <utils/treemodel.h>
+
 #include <QAbstractTableModel>
+#include <QHash>
 #include <QVector>
 
 namespace Debugger {
 namespace Internal {
 
+enum RegisterDataRole
+{
+    RegisterNameRole = Qt::UserRole,
+    RegisterIsBigRole,
+    RegisterChangedRole,
+    RegisterNumberBaseRole,
+    RegisterAsAddressRole
+};
+
+enum RegisterKind
+{
+    UnknownRegister,
+    IntegerRegister,
+    FloatRegister,
+    VectorRegister,
+    FlagRegister,
+    OtherRegister
+};
+
+class RegisterValue
+{
+public:
+    RegisterValue() { v.u64[1] = v.u64[0] = 0; }
+    void operator=(const QByteArray &ba);
+    bool operator==(const RegisterValue &other);
+    bool operator!=(const RegisterValue &other) { return !operator==(other); }
+    QByteArray toByteArray(int base, RegisterKind kind, int size) const;
+    RegisterValue subValue(int size, int index) const;
+
+    union {
+        quint8  u8[16];
+        quint16 u16[8];
+        quint32 u32[4];
+        quint64 u64[2];
+        float     f[4];
+        double    d[2];
+    } v;
+};
+
 class Register
 {
 public:
-    Register() : type(0), changed(true) {}
-    Register(const QByteArray &name_);
+    Register() { size = 0; kind = UnknownRegister; }
+    void guessMissingData();
 
-    QVariant editValue() const;
-    QString displayValue(int base, int strlen) const;
-
-public:
     QByteArray name;
-    /* Value should be an integer for which autodetection by passing
-     * base=0 to QString::toULongLong() should work (C-language conventions).
-     * Values that cannot be converted (such as 128bit MMX-registers) are
-     * passed through. */
-    QByteArray value;
-    int type;
-    bool changed;
+    QByteArray reportedType;
+    RegisterValue value;
+    RegisterValue previousValue;
+    QByteArray description;
+    int size;
+    RegisterKind kind;
 };
 
-typedef QVector<Register> Registers;
+class RegisterItem;
+typedef QMap<quint64, QByteArray> RegisterMap;
 
-class RegisterHandler : public QAbstractTableModel
+class RegisterHandler : public Utils::TreeModel
 {
     Q_OBJECT
 
@@ -68,34 +106,17 @@ public:
 
     QAbstractItemModel *model() { return this; }
 
-    bool isEmpty() const; // nothing known so far?
-    // Set up register names (gdb)
-    void setRegisters(const Registers &registers);
-    // Set register values
-    void setAndMarkRegisters(const Registers &registers);
-    Registers registers() const;
-    Register registerAt(int i) const { return m_registers.at(i); }
-    void removeAll();
-    Q_SLOT void setNumberBase(int base);
-    int numberBase() const { return m_base; }
+    void updateRegister(const Register &reg);
+
+    void setNumberBase(const QByteArray &name, int base);
+    void commitUpdates() { emit layoutChanged(); }
+    RegisterMap registerMap() const;
 
 signals:
-    void registerSet(const QModelIndex &r); // Register was set, for memory views
+    void registerChanged(const QByteArray &name, quint64 value); // For memory views
 
 private:
-    void calculateWidth();
-    int rowCount(const QModelIndex &idx = QModelIndex()) const;
-    int columnCount(const QModelIndex &idx = QModelIndex()) const;
-    QModelIndex index(int row, int col, const QModelIndex &parent) const;
-    QModelIndex parent(const QModelIndex &idx) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    QVariant headerData(int section, Qt::Orientation orientation,
-        int role = Qt::DisplayRole) const;
-    Qt::ItemFlags flags(const QModelIndex &idx) const;
-
-    Registers m_registers;
-    int m_base;
-    int m_strlen; // approximate width of a value in chars.
+    QHash<QByteArray, RegisterItem *> m_registerByName;
 };
 
 } // namespace Internal

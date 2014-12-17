@@ -178,21 +178,6 @@ static inline uint sizeOf(const QModelIndex &m)
     return m.data(LocalsSizeRole).toUInt();
 }
 
-// Create a map of value->name for register markup.
-typedef QMap<quint64, QString> RegisterMap;
-typedef RegisterMap::const_iterator RegisterMapConstIt;
-
-RegisterMap registerMap(const DebuggerEngine *engine)
-{
-    RegisterMap result;
-    foreach (const Register &reg, engine->registerHandler()->registers()) {
-        const QVariant v = reg.editValue();
-        if (v.type() == QVariant::ULongLong)
-            result.insert(v.toULongLong(), QString::fromLatin1(reg.name));
-    }
-    return result;
-}
-
 // Helper functionality to indicate the area of a member variable in
 // a vector representing the memory area by a unique color
 // number and tooltip. Parts of it will be overwritten when recursing
@@ -314,13 +299,12 @@ static MemoryMarkupList
     if (sizeIsEstimate && !childCount)
         return result; // Fixme: Exact size not known, no point in filling if no children.
     // Punch in registers as 1-byte markers on top.
-    const RegisterMapConstIt regcEnd = registerMap.constEnd();
-    for (RegisterMapConstIt it = registerMap.constBegin(); it != regcEnd; ++it) {
+    for (auto it = registerMap.constBegin(), end = registerMap.constEnd(); it != end; ++it) {
         if (it.key() >= address) {
             const quint64 offset = it.key() - address;
             if (offset < size) {
                 ranges[offset] = ColorNumberToolTip(registerColorNumber,
-                           WatchTreeView::tr("Register <i>%1</i>").arg(it.value()));
+                           WatchTreeView::tr("Register <i>%1</i>").arg(QString::fromUtf8(it.value())));
             } else {
                 break; // Sorted.
             }
@@ -381,27 +365,27 @@ static void addVariableMemoryView(DebuggerEngine *engine, bool separateView,
     const QPoint &p, QWidget *parent)
 {
     const QColor background = parent->palette().color(QPalette::Normal, QPalette::Base);
-    const quint64 address = atPointerAddress ? pointerAddressOf(m) : addressOf(m);
+    MemoryViewSetupData data;
+    data.startAddress = atPointerAddress ? pointerAddressOf(m) : addressOf(m);
+    if (!data.startAddress)
+         return;
     // Fixme: Get the size of pointee (see variableMemoryMarkup())?
     const QString rootToolTip = variableToolTip(nameOf(m), typeOf(m), 0);
     const quint64 typeSize = sizeOf(m);
     const bool sizeIsEstimate = atPointerAddress || !typeSize;
     const quint64 size    = sizeIsEstimate ? 1024 : typeSize;
-    if (!address)
-         return;
-    const QList<MemoryMarkup> markup =
-        variableMemoryMarkup(m.model(), m, nameOf(m), rootToolTip,
-                             address, size,
-                             registerMap(engine),
+    data.markup = variableMemoryMarkup(m.model(), m, nameOf(m), rootToolTip,
+                             data.startAddress, size,
+                             engine->registerHandler()->registerMap(),
                              sizeIsEstimate, background);
-    const unsigned flags = separateView
-        ? DebuggerEngine::MemoryView|DebuggerEngine::MemoryReadOnly : 0;
-    const QString title = atPointerAddress
+    data.flags = separateView ? DebuggerEngine::MemoryView|DebuggerEngine::MemoryReadOnly : 0;
+    QString pat = atPointerAddress
         ?  WatchTreeView::tr("Memory at Pointer's Address \"%1\" (0x%2)")
-                .arg(nameOf(m)).arg(address, 0, 16)
-        : WatchTreeView::tr("Memory at Object's Address \"%1\" (0x%2)")
-                .arg(nameOf(m)).arg(address, 0, 16);
-    engine->openMemoryView(address, flags, markup, p, title, parent);
+        : WatchTreeView::tr("Memory at Object's Address \"%1\" (0x%2)");
+    data.title = pat.arg(nameOf(m)).arg(data.startAddress, 0, 16);
+    data.pos = p;
+    data.parent = parent;
+    engine->openMemoryView(data);
 }
 
 // Add a memory view of the stack layout showing local variables
@@ -444,9 +428,8 @@ static void addStackLayoutMemoryView(DebuggerEngine *engine, bool separateView,
     }
     // Take a look at the register values. Extend the range a bit if suitable
     // to show stack/stack frame pointers.
-    const RegisterMap regMap = registerMap(engine);
-    const RegisterMapConstIt regcEnd = regMap.constEnd();
-    for (RegisterMapConstIt it = regMap.constBegin(); it != regcEnd; ++it) {
+    const RegisterMap regMap = engine->registerHandler()->registerMap();
+    for (auto it = regMap.constBegin(), cend = regMap.constEnd(); it != cend; ++it) {
         const quint64 value = it.key();
         if (value < start && start - value < 512)
             start = value;
@@ -454,16 +437,18 @@ static void addStackLayoutMemoryView(DebuggerEngine *engine, bool separateView,
             end = value + 1;
     }
     // Indicate all variables.
+    MemoryViewSetupData data;
     const QColor background = parent->palette().color(QPalette::Normal, QPalette::Base);
-    const MemoryMarkupList markup =
-        variableMemoryMarkup(m, localsIndex, QString(),
+    data.startAddress = start;
+    data.markup = variableMemoryMarkup(m, localsIndex, QString(),
                              QString(), start, end - start,
                              regMap, true, background);
-    const unsigned flags = separateView
+    data.flags = separateView
         ? (DebuggerEngine::MemoryView|DebuggerEngine::MemoryReadOnly) : 0;
-    const QString title =
-        WatchTreeView::tr("Memory Layout of Local Variables at 0x%1").arg(start, 0, 16);
-    engine->openMemoryView(start, flags, markup, p, title, parent);
+    data.title = WatchTreeView::tr("Memory Layout of Local Variables at 0x%1").arg(start, 0, 16);
+    data.pos = p;
+    data.parent = parent;
+    engine->openMemoryView(data);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -936,8 +921,11 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
         AddressDialog dialog;
         if (address)
             dialog.setAddress(address);
-        if (dialog.exec() == QDialog::Accepted)
-            currentEngine()->openMemoryView(dialog.address(), false, MemoryMarkupList(), QPoint());
+        if (dialog.exec() == QDialog::Accepted) {
+            MemoryViewSetupData data;
+            data.startAddress = dialog.address();
+            currentEngine()->openMemoryView(data);
+        }
     } else if (act == &actOpenMemoryViewAtObjectAddress) {
         addVariableMemoryView(currentEngine(), true, mi0, false, ev->globalPos(), this);
     } else if (act == &actOpenMemoryViewAtPointerAddress) {

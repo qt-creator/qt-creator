@@ -364,6 +364,34 @@ const wchar_t *valueType(ULONG type)
     return L"";
 }
 
+// Description of a DEBUG_VALUE type field
+const int valueSize(ULONG type)
+{
+    switch (type) {
+    case DEBUG_VALUE_INT8:
+        return 1;
+    case DEBUG_VALUE_INT16:
+        return 2;
+    case DEBUG_VALUE_INT32:
+        return 4;
+    case DEBUG_VALUE_INT64:
+        return 8;
+    case DEBUG_VALUE_FLOAT32:
+        return 4;
+    case DEBUG_VALUE_FLOAT64:
+        return 8;
+    case DEBUG_VALUE_FLOAT80:
+        return 10;
+    case DEBUG_VALUE_FLOAT128:
+        return 16;
+    case DEBUG_VALUE_VECTOR64:
+        return 8;
+    case DEBUG_VALUE_VECTOR128:
+        return 16;
+    }
+    return 0;
+}
+
 // Format a 128bit vector register by adding digits in reverse order
 void formatVectorRegister(std::ostream &str, const unsigned char *array, int size)
 {
@@ -421,6 +449,7 @@ void formatDebugValue(std::ostream &str, const DEBUG_VALUE &dv, CIDebugControl *
 
 Register::Register() : subRegister(false), pseudoRegister(false)
 {
+    size = 0;
     value.Type = DEBUG_VALUE_INT32;
     value.I32 = 0;
 }
@@ -497,6 +526,7 @@ Registers getRegisters(CIDebugRegisters *regs,
         reg.pseudoRegister = true;
         reg.name = buf;
         reg.description = valueType(type);
+        reg.size = valueSize(type);
         reg.value = value;
         rc.push_back(reg);
     }

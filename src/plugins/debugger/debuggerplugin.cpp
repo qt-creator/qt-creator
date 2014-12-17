@@ -3356,8 +3356,11 @@ bool isDockVisible(const QString &objectName)
 void openMemoryEditor()
 {
     AddressDialog dialog;
-    if (dialog.exec() == QDialog::Accepted)
-        currentEngine()->openMemoryView(dialog.address(), 0, QList<MemoryMarkup>(), QPoint());
+    if (dialog.exec() == QDialog::Accepted) {
+        MemoryViewSetupData data;
+        data.startAddress = dialog.address();
+        currentEngine()->openMemoryView(data);
+    }
 }
 
 void setThreads(const QStringList &list, int index)

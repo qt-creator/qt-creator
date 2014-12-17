@@ -214,12 +214,13 @@ void StackTreeView::contextMenuEvent(QContextMenuEvent *ev)
     if (act == actCopyContents) {
         copyContentsToClipboard();
     } else if (act == actShowMemory) {
-        const QString title = tr("Memory at Frame #%1 (%2) 0x%3").
-        arg(row).arg(frame.function).arg(address, 0, 16);
-        QList<MemoryMarkup> ml;
-        ml.push_back(MemoryMarkup(address, 1, QColor(Qt::blue).lighter(),
+        MemoryViewSetupData data;
+        data.startAddress = address;
+        data.title = tr("Memory at Frame #%1 (%2) 0x%3").
+            arg(row).arg(frame.function).arg(address, 0, 16);
+        data.markup.push_back(MemoryMarkup(address, 1, QColor(Qt::blue).lighter(),
                                   tr("Frame #%1 (%2)").arg(row).arg(frame.function)));
-        engine->openMemoryView(address, 0, ml, QPoint(), title);
+        engine->openMemoryView(data);
     } else if (act == actShowDisassemblerAtAddress) {
         AddressDialog dialog;
         if (address)

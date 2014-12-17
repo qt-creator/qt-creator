@@ -184,9 +184,9 @@ void QmlCppEngine::reloadFullStack()
     m_cppEngine->reloadFullStack();
 }
 
-void QmlCppEngine::setRegisterValue(int regnr, const QString &value)
+void QmlCppEngine::setRegisterValue(const QByteArray &name, const QString &value)
 {
-    m_cppEngine->setRegisterValue(regnr, value);
+    m_cppEngine->setRegisterValue(name, value);
 }
 
 

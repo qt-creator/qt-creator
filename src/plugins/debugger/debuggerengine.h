@@ -75,7 +75,7 @@ class BreakpointParameters;
 class QmlAdapter;
 class QmlCppEngine;
 class DebuggerToolTipContext;
-class MemoryMarkup;
+class MemoryViewSetupData;
 
 struct WatchUpdateFlags
 {
@@ -158,10 +158,7 @@ public:
         MemoryView = 0x4           //!< Open a separate view (using the pos-parameter).
     };
 
-    virtual void openMemoryView(quint64 startAddr, unsigned flags,
-                                const QList<Internal::MemoryMarkup> &ml,
-                                const QPoint &pos,
-                                const QString &title = QString(), QWidget *parent = 0);
+    virtual void openMemoryView(const MemoryViewSetupData &data);
     virtual void fetchMemory(Internal::MemoryAgent *, QObject *,
                              quint64 addr, quint64 length);
     virtual void changeMemory(Internal::MemoryAgent *, QObject *,
@@ -185,7 +182,7 @@ public:
     virtual void loadAdditionalQmlStack();
     virtual void reloadDebuggingHelpers();
 
-    virtual void setRegisterValue(int regnr, const QString &value);
+    virtual void setRegisterValue(const QByteArray &name, const QString &value);
     virtual void addOptionPages(QList<Core::IOptionsPage*> *) const;
     virtual bool hasCapability(unsigned cap) const = 0;
     virtual void debugLastCommand() {}
