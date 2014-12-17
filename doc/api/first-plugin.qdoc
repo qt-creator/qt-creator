@@ -42,7 +42,7 @@
     version that it was created with.
 
     \list 1
-        \li Select \gui{File > New File or Project > Libraries > Qt Creator Plugin > Choose}.
+        \li Select \gui{File > New File or Project > Library > Qt Creator Plugin > Choose}.
 
             \image firstplugin-wizard.png "Choose the \QC Plugin Wizard"
 
