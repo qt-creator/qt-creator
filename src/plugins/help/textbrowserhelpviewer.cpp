@@ -43,6 +43,7 @@
 #include <QHelpEngine>
 #include <QKeyEvent>
 #include <QMenu>
+#include <QToolTip>
 #include <QVBoxLayout>
 
 using namespace Help;
@@ -405,6 +406,10 @@ bool TextBrowserHelpWidget::eventFilter(QObject *obj, QEvent *event)
                 Core::FindPlugin::instance()->openFindToolBar(Core::FindPlugin::FindForwardDirection);
                 return true;
             }
+        } else if (event->type() == QEvent::ToolTip) {
+            QHelpEvent *e = static_cast<QHelpEvent *>(event);
+            QToolTip::showText(e->globalPos(), linkAt(e->pos()));
+            return true;
         }
     }
     return QTextBrowser::eventFilter(obj, event);

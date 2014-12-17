@@ -68,12 +68,15 @@ public:
     void setOpenInNewPageActionVisible(bool visible);
 
     WebView *webView() const;
+    void startToolTipTimer(const QPoint &pos, const QString &text);
+    void hideToolTip();
 
 protected:
     void hideEvent(QHideEvent *);
     void showEvent(QShowEvent *);
 
 private:
+    void showToolTip();
     MacWebKitHelpWidgetPrivate *d;
 };
 

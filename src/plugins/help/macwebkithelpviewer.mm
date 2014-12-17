@@ -39,7 +39,10 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QHelpEngine>
+#include <QStyle>
+#include <QTimer>
 #include <QtMac>
+#include <QToolTip>
 #include <QUrl>
 #include <QVBoxLayout>
 
@@ -84,6 +87,22 @@ AutoreleasePool::AutoreleasePool()
 AutoreleasePool::~AutoreleasePool()
 {
     [pool release];
+}
+
+// #pragma mark -- mac helpers
+
+// copy from qcocoahelpers.mm
+static int mainScreenHeight()
+{
+    // The first screen in the screens array is documented
+    // to have the (0,0) origin.
+    NSRect screenFrame = [[[NSScreen screens] firstObject] frame];
+    return screenFrame.size.height;
+}
+
+static QPoint flipPoint(const NSPoint &p)
+{
+    return QPoint(p.x, mainScreenHeight() - p.y);
 }
 
 // #pragma mark -- DOMNodeIterator (PrivateExtensions)
@@ -264,22 +283,23 @@ static void ensureProtocolHandler()
 
 @interface UIDelegate : NSObject
 {
-    QWidget *widget;
+    Help::Internal::MacWebKitHelpWidget *widget;
 }
 
 @property (assign) BOOL openInNewPageActionVisible;
 
-- (id)initWithWidget:(QWidget *)theWidget;
+- (id)initWithWidget:(Help::Internal::MacWebKitHelpWidget *)theWidget;
 - (void)webView:(WebView *)sender makeFirstResponder:(NSResponder *)responder;
 - (NSArray *)webView:(WebView *)sender contextMenuItemsForElement:(NSDictionary *)element
     defaultMenuItems:(NSArray *)defaultMenuItems;
 - (WebView *)webView:(WebView *)sender createWebViewWithRequest:(NSURLRequest *)request;
-
+- (void)webView:(WebView *)sender mouseDidMoveOverElement:(NSDictionary *)elementInformation
+    modifierFlags:(NSUInteger)modifierFlags;
 @end
 
 @implementation UIDelegate
 
-- (id)initWithWidget:(QWidget *)theWidget
+- (id)initWithWidget:(Help::Internal::MacWebKitHelpWidget *)theWidget
 {
     self = [super init];
     if (self) {
@@ -341,6 +361,23 @@ static void ensureProtocolHandler()
             = static_cast<Help::Internal::MacWebKitHelpViewer *>(
                 Help::Internal::OpenPagesManager::instance().createPage(QUrl()));
     return viewer->widget()->webView();
+}
+
+- (void)webView:(WebView *)sender mouseDidMoveOverElement:(NSDictionary *)elementInformation
+    modifierFlags:(NSUInteger)modifierFlags
+{
+    Q_UNUSED(sender)
+    if (!elementInformation || (modifierFlags & NSDeviceIndependentModifierFlagsMask) != 0) {
+        widget->hideToolTip();
+        return;
+    }
+    NSURL *url = [elementInformation objectForKey:WebElementLinkURLKey];
+    if (!url) {
+        widget->hideToolTip();
+        return;
+    }
+    widget->startToolTipTimer(flipPoint(NSEvent.mouseLocation),
+                       QString::fromNSString(url.absoluteString));
 }
 
 @end
@@ -405,6 +442,9 @@ public:
     FrameLoadDelegate *m_frameLoadDelegate;
     UIDelegate *m_uiDelegate;
     NSResponder *m_savedResponder;
+    QTimer m_toolTipTimer;
+    QPoint m_toolTipPos;
+    QString m_toolTipText;
 };
 
 // #pragma mark -- MacWebKitHelpWidget
@@ -413,6 +453,8 @@ MacWebKitHelpWidget::MacWebKitHelpWidget(MacWebKitHelpViewer *parent)
     : QMacCocoaViewContainer(0, parent),
       d(new MacWebKitHelpWidgetPrivate)
 {
+    d->m_toolTipTimer.setSingleShot(true);
+    connect(&d->m_toolTipTimer, &QTimer::timeout, this, &MacWebKitHelpWidget::showToolTip);
     AutoreleasePool pool; Q_UNUSED(pool)
     d->m_webView = [[MyWebView alloc] init];
     // Turn layered rendering on.
@@ -442,6 +484,20 @@ WebView *MacWebKitHelpWidget::webView() const
     return d->m_webView;
 }
 
+void MacWebKitHelpWidget::startToolTipTimer(const QPoint &pos, const QString &text)
+{
+    int delay = style()->styleHint(QStyle::SH_ToolTip_WakeUpDelay, 0, this, 0);
+    d->m_toolTipPos = pos;
+    d->m_toolTipText = text;
+    d->m_toolTipTimer.start(delay);
+}
+
+void MacWebKitHelpWidget::hideToolTip()
+{
+    d->m_toolTipTimer.stop();
+    QToolTip::showText(QPoint(), QString());
+}
+
 void MacWebKitHelpWidget::hideEvent(QHideEvent *)
 {
     [d->m_webView setHidden:YES];
@@ -450,6 +506,11 @@ void MacWebKitHelpWidget::hideEvent(QHideEvent *)
 void MacWebKitHelpWidget::showEvent(QShowEvent *)
 {
     [d->m_webView setHidden:NO];
+}
+
+void MacWebKitHelpWidget::showToolTip()
+{
+    QToolTip::showText(d->m_toolTipPos, d->m_toolTipText, this);
 }
 
 // #pragma mark -- MacWebKitHelpViewer

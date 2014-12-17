@@ -38,6 +38,7 @@
 
 #include <coreplugin/find/findplugin.h>
 #include <utils/hostosinfo.h>
+#include <utils/networkaccessmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QAction>
@@ -59,7 +60,6 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 
-#include <utils/networkaccessmanager.h>
 
 #include <cstring>
 
@@ -411,6 +411,7 @@ QtWebKitHelpViewer::QtWebKitHelpViewer(QWidget *parent)
     connect(m_webView->page(), SIGNAL(printRequested(QWebFrame*)), this, SIGNAL(printRequested()));
     connect(m_webView, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
     connect(m_webView, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
+    connect(page(), &HelpPage::linkHovered, this, &QtWebKitHelpViewer::setToolTip);
 }
 
 QFont QtWebKitHelpViewer::viewerFont() const
