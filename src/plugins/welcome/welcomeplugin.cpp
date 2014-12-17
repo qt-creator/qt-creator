@@ -132,7 +132,7 @@ WelcomeMode::WelcomeMode()
     layout->setSpacing(0);
 
     m_welcomePage = new QuickContainer();
-    onThemeChanged(); //initialize background color
+    onThemeChanged(); // initialize background color and theme properties
     m_welcomePage->setResizeMode(QuickContainer::SizeRootObjectToView);
 
     m_welcomePage->setObjectName(QLatin1String("WelcomePage"));
@@ -161,7 +161,6 @@ WelcomeMode::WelcomeMode()
 
 void WelcomeMode::onThemeChanged()
 {
-    m_welcomePage->setColor(creatorTheme()->color(Theme::BackgroundColorNormal));
     const QVariantHash creatorTheme = Utils::creatorTheme()->values();
     QVariantHash::const_iterator it;
     for (it = creatorTheme.constBegin(); it != creatorTheme.constEnd(); ++it)

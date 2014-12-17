@@ -30,7 +30,7 @@
 
 import QtQuick 2.1
 
-Item {
+Rectangle {
     id: pageLoader
 
     property alias model: repeater.model
