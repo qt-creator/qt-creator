@@ -58,7 +58,11 @@ plugin_sources -= src/plugins/plugins.pro \
     src/plugins/qtestlib \
     src/plugins/snippets \
     src/plugins/regexp
-sources = src/app src/libs $$plugin_sources src/shared share/qtcreator/qmldesigner \
+shared_sources = $$files($$IDE_SOURCE_TREE/src/shared/*)
+shared_sources ~= s,^$$re_escape($$IDE_SOURCE_TREE/),,g$$i_flag
+shared_sources -= \
+    src/shared/qbs
+sources = src/app src/libs $$plugin_sources $$shared_sources share/qtcreator/qmldesigner \
           share/qtcreator/welcomescreen share/qtcreator/welcomescreen/widgets
 
 files = $$files($$PWD/*_??.ts) $$PWD/qtcreator_untranslated.ts
