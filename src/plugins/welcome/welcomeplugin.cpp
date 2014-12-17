@@ -155,7 +155,6 @@ WelcomeMode::WelcomeMode()
 #endif // USE_QUICK_WIDGET
 
     connect(PluginManager::instance(), SIGNAL(objectAdded(QObject*)), SLOT(welcomePluginAdded(QObject*)));
-
     setWidget(m_modeWidget);
 }
 
@@ -259,6 +258,13 @@ void WelcomeMode::initPlugins()
     onThemeChanged();
     connect(Core::ICore::instance(), &Core::ICore::themeChanged, this, &WelcomeMode::onThemeChanged);
     ctx->setContextProperty(QLatin1String("creatorTheme"), &m_themeProperties);
+
+#if defined(USE_QUICK_WIDGET)
+    bool useNativeText = !Utils::HostOsInfo::isMacHost();
+#else
+    bool useNativeText = true;
+#endif
+    ctx->setContextProperty(QLatin1String("useNativeText"), useNativeText);
 
     QString path = resourcePath() + QLatin1String("/welcomescreen/welcomescreen.qml");
 

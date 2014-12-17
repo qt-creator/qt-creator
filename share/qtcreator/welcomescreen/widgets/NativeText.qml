@@ -31,7 +31,7 @@
 import QtQuick 2.1
 
 Text {
-    renderType: Text.NativeRendering
+    renderType: useNativeText ? Text.NativeRendering : Text.QtRendering
     Accessible.name: text
     Accessible.role: Accessible.StaticText
 }

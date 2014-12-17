@@ -415,6 +415,9 @@ MacWebKitHelpWidget::MacWebKitHelpWidget(MacWebKitHelpViewer *parent)
 {
     AutoreleasePool pool; Q_UNUSED(pool)
     d->m_webView = [[MyWebView alloc] init];
+    // Turn layered rendering on.
+    // Otherwise the WebView will render empty after any QQuickWidget was shown.
+    d->m_webView.wantsLayer = YES;
     d->m_frameLoadDelegate = [[FrameLoadDelegate alloc] initWithMainFrame:d->m_webView.mainFrame
                                                                    viewer:parent];
     [d->m_webView setFrameLoadDelegate:d->m_frameLoadDelegate];
