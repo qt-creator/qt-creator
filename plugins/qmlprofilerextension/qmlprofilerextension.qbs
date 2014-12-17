@@ -6,6 +6,7 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "LicenseChecker" }
     Depends { name: "QmlProfiler" }
+    Depends { name: "Timeline" }
 
     Depends { name: "Qt.widgets" }
 
