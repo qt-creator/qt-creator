@@ -99,8 +99,6 @@ using namespace Help::Internal;
 
 static const char kExternalWindowStateKey[] = "Help/ExternalWindowState";
 
-#define IMAGEPATH ":/help/images/"
-
 using namespace Core;
 using namespace Utils;
 
@@ -364,17 +362,14 @@ HelpViewer *HelpPlugin::createHelpViewer(qreal zoom)
         viewer = new MacWebKitHelpViewer(zoom);
 #else
         qWarning() << "native help viewer is requested, but was not enabled during compilation";
-        viewer = new TextBrowserHelpViewer(zoom);
 #endif
-    } else if (backend.compare(QLatin1String("textbrowser"), Qt::CaseInsensitive) == 0) {
-        viewer = new TextBrowserHelpViewer(zoom);
-    } else {
+    } else if (backend.compare(QLatin1String("textbrowser"), Qt::CaseInsensitive) != 0) {
 #ifndef QT_NO_WEBKIT
         viewer = new QtWebKitHelpViewer(zoom);
-#else
-        viewer = new TextBrowserHelpViewer(zoom);
 #endif
     }
+    if (!viewer)
+        viewer = new TextBrowserHelpViewer(zoom);
 
     // initialize font
     QVariant fontSetting = LocalHelpManager::engineFontSettings();
