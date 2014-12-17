@@ -42,11 +42,11 @@
     version that it was created with.
 
     \list 1
-        \li Select \gui{File > New File or Project > Library > Qt Creator Plugin > Choose}.
+        \li Select \uicontrol{File > New File or Project > Library > Qt Creator Plugin > Choose}.
 
             \image firstplugin-wizard.png "Choose the \QC Plugin Wizard"
 
-            The \gui{Introduction and Project Location} dialog opens.
+            The \uicontrol{Introduction and Project Location} dialog opens.
 
             \image firstplugin-nameandpath.png "Choose Name and Place of the Project"
 
@@ -55,62 +55,62 @@
             from the project name. You will choose that name later in the wizard.
             Continue to the next page.
 
-            The \gui{Kit Selection} dialog opens.
+            The \uicontrol{Kit Selection} dialog opens.
 
             \image firstplugin-kitselection.png "Choose the kit to build and run your project with"
 
         \li Select the \l{glossary-buildandrun-kit}{kit} to build and run your project with.
-            For a \QC plugin this needs to be a kit with \gui{Desktop} device type,
+            For a \QC plugin this needs to be a kit with \uicontrol{Desktop} device type,
             and a Qt version that is compatible with the Qt version that your
             \QC was built with (in the best case the exact same build).
             If you use an incompatible Qt version to build your plugin, you
             will get errors while \QC tries to load your plugin.
             Continue to the next page.
 
-            The \gui{Plugin Information} dialog opens.
+            The \uicontrol{Plugin Information} dialog opens.
 
             \image firstplugin-pluginsetup.png "Specify Your Plugin Details"
 
-        \li In the \gui{Plugin name} field, type \gui{Example}. The name of the plugin
+        \li In the \uicontrol{Plugin name} field, type \uicontrol{Example}. The name of the plugin
             is used as its identifier, and also is the base for the file names and
             classes in the code.
 
         \li The values of the following fields are mainly informational, and
             are shown in the detailed view in \QC's plugin overview
-            (\gui{Help > About Plugins}, or \gui{Qt Creator > About Plugins}
+            (\uicontrol{Help > About Plugins}, or \uicontrol{Qt Creator > About Plugins}
             on Mac).
 
             \list
-               \li \gui{Vendor name} is a short one-word name of the company
+               \li \uicontrol{Vendor name} is a short one-word name of the company
                    or organization that created the plugin. This is also used for
                    the path name where the plugin will be deployed to.
-               \li \gui{Copyright} is a one-line, short copyright string.
-               \li \gui{License} is a multi-line license text (but shouldn't be pages over pages long,
+               \li \uicontrol{Copyright} is a one-line, short copyright string.
+               \li \uicontrol{License} is a multi-line license text (but shouldn't be pages over pages long,
                    since the interface doesn't allow nice reading of long texts).
-               \li \gui{Description} is a relatively short, but
+               \li \uicontrol{Description} is a relatively short, but
                    possibly multi-line description of what the plugin does.
-               \li \gui{URL} is a website where the user can find more
+               \li \uicontrol{URL} is a website where the user can find more
                    information about the plugin and/or organization providing it.
            \endlist
 
-        \li Set the \gui{Qt Creator sources} and \gui{Qt Creator build} fields to
+        \li Set the \uicontrol{Qt Creator sources} and \uicontrol{Qt Creator build} fields to
             the source and build directory of the \QC
             instance you want to use to test your plugin with, respectively.
             If you don't do that correctly you will get compile errors for your
             plugin, and your plugin might not show up in \QC at all.
 
-        \li In the \gui{Deploy into} list, select \gui{Qt Creator build}. This sets
+        \li In the \uicontrol{Deploy into} list, select \uicontrol{Qt Creator build}. This sets
             your .pro file up to deploy your plugin directly into your \QC build's
             plugin directory (requires you to have write permissions there).
-            The other option, \gui{Local user settings}, sets your .pro file up to
+            The other option, \uicontrol{Local user settings}, sets your .pro file up to
             deploy your plugin into \QC's user plugin path
             (for example \c{~/.config/QtProject/qtcreator/plugins} on Unix systems).
-            We choose \gui{Qt Creator build} because we use a self-compiled
+            We choose \uicontrol{Qt Creator build} because we use a self-compiled
             \QC, and want the plugin to be only loaded by that \QC
             instance.
             Continue to the next page.
 
-            The \gui{Project Management} dialog opens.
+            The \uicontrol{Project Management} dialog opens.
 
             \image firstplugin-summary.png "Summary of Created Files"
 
@@ -129,10 +129,10 @@
     \image firstplugin-runsettings.png "Specify the Executable to Run"
 
     Select the path to the \QC executable from the build that you specified
-    in the \gui{Qt Creator build} setting in the project wizard and click \gui OK.
+    in the \uicontrol{Qt Creator build} setting in the project wizard and click \uicontrol OK.
     \QC starts up, and you can verify that your plugin successfully loaded
-    by looking for a menu entry \gui{Tools > Example} and by looking for
-    the plugin in the \gui{About Plugins} dialog.
+    by looking for a menu entry \uicontrol{Tools > Example} and by looking for
+    the plugin in the \uicontrol{About Plugins} dialog.
 
     \image firstplugin-menuitem.png "Menu Registered by the Plugin"
 
@@ -323,12 +323,12 @@
     \snippet exampleplugin/exampleplugin.cpp add menu
 
     Here a new menu item is created, the created command added to it, and the menu
-    added to the \gui{Tools} menu in the menu bar. Again, this is covered in more
+    added to the \uicontrol{Tools} menu in the menu bar. Again, this is covered in more
     detail in \l{Menus and Menu Items}.
 
     \snippet exampleplugin/exampleplugin.cpp slot implementation
 
     This part defines the code that is called when the menu item is triggered.
     It uses the Qt API to open a message box that displays informative text and
-    an \gui OK button.
+    an \uicontrol OK button.
 */

@@ -78,7 +78,7 @@
             \li Required
             \li Boolean
             \li Optional. Defaults to \c false.
-                Is used as a hint for the \gui{About Plugins...} dialog, that the user may not
+                Is used as a hint for the \uicontrol{About Plugins...} dialog, that the user may not
                 manually disable this plugin. Only used for the Core plugin.
         \row
             \li Platform
@@ -100,7 +100,7 @@
             \li Category
             \li String
             \li Defaults to \c Utilities. Is used to put related plugins
-                under the same tree node in the plugin overview \gui{About Plugins...}.
+                under the same tree node in the plugin overview \uicontrol{About Plugins...}.
         \row
             \li Vendor
             \li String

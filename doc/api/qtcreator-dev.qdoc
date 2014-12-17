@@ -60,7 +60,7 @@
 
     \section2 File, Class and Project Templates
 
-    You can extend the wizards in \gui {File > New File or Project} with your
+    You can extend the wizards in \uicontrol {File > New File or Project} with your
     own
     file and project templates by writing XML definition files for them.
     \list
@@ -187,7 +187,7 @@
     tool. If starting the tool and handling its output require more complex
     logic, you can add a menu item to Qt Creator with a plugin.
     If you need a way to configure the tool in Qt Creator, you can add an
-    \gui Options page for it.
+    \uicontrol Options page for it.
     \list
     \li \l{http://doc.qt.digia.com/qtcreator/creator-editor-external.html}
          {Using External Tools}
@@ -211,7 +211,7 @@
     file, which is then opened within Qt Creator. You provide
     an editor (probably read-only) for handling this file.
     For lists of issues, consider creating task list files which are shown in
-    the \gui {Issues} output
+    the \uicontrol {Issues} output
     pane.
     \list
     \li \l{http://doc.qt.digia.com/qtcreator/creator-task-lists.html}

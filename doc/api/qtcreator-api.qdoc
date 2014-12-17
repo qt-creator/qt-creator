@@ -202,12 +202,12 @@
     \li \l{Core::INavigationWidgetFactory}
 
     \row
-    \li Add an options page to the \gui Options dialog.
+    \li Add an options page to the \uicontrol Options dialog.
     \li Add a new page to existing or new category in Tools > Options.
     \li \l{Core::IOptionsPage}
 
     \row
-    \li Add a find filter to the \gui Find dialog.
+    \li Add a find filter to the \uicontrol Find dialog.
     \li Implement any kind of search term based search.
     \li \l{Find::IFindFilter}, \l{Core::SearchResultWindow}
 
