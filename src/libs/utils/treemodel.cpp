@@ -198,6 +198,14 @@ QVariant TreeModel::data(const QModelIndex &idx, int role) const
     return item ? item->data(idx.column(), role) : QVariant();
 }
 
+QVariant TreeModel::headerData(int section, Qt::Orientation orientation,
+                               int role) const
+{
+    if (orientation == Qt::Horizontal)
+        return m_root->data(section, role);
+    return QVariant();
+}
+
 Qt::ItemFlags TreeModel::flags(const QModelIndex &idx) const
 {
     TreeItem *item = itemFromIndex(idx);
@@ -208,6 +216,12 @@ Qt::ItemFlags TreeModel::flags(const QModelIndex &idx) const
 TreeItem *TreeModel::rootItem() const
 {
     return m_root;
+}
+
+void TreeModel::setRootItem(TreeItem *item)
+{
+    delete m_root;
+    m_root = item;
 }
 
 QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent) const

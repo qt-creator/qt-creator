@@ -87,8 +87,10 @@ public:
     QModelIndex index(int, int, const QModelIndex &idx) const;
     QModelIndex parent(const QModelIndex &idx) const;
     Qt::ItemFlags flags(const QModelIndex &idx) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
     TreeItem *rootItem() const;
+    void setRootItem(TreeItem *item);
     TreeItem *itemFromIndex(const QModelIndex &) const;
     QModelIndex indexFromItem(const TreeItem *needle) const;
 
