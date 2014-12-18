@@ -36,12 +36,13 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/iwelcomepage.h>
-#include <coreplugin/modemanager.h>
 #include <coreplugin/iwizardfactory.h>
+#include <coreplugin/modemanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 
 #include <utils/theme/theme.h>
@@ -71,6 +72,18 @@ static const char currentPageSettingsKeyC[] = "WelcomeTab";
 
 namespace Welcome {
 namespace Internal {
+
+static QString applicationDirPath()
+{
+    // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
+    return Utils::FileUtils::normalizePathName(QCoreApplication::applicationDirPath());
+}
+
+static QString resourcePath()
+{
+    // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
+    return Utils::FileUtils::normalizePathName(Core::ICore::resourcePath());
+}
 
 class WelcomeMode : public Core::IMode
 {
@@ -106,10 +119,12 @@ private slots:
 
 private:
     void facilitateQml(QQmlEngine *engine);
+    void addPages(const QList<Core::IWelcomePage *> &pages);
 
     QWidget *m_modeWidget;
     QuickContainer *m_welcomePage;
-    QList<QObject*> m_pluginList;
+    QMap<Core::Id, Core::IWelcomePage *> m_idPageMap;
+    QList<Core::IWelcomePage *> m_pluginList;
     int m_activePlugin;
     QQmlPropertyMap m_themeProperties;
 };
@@ -154,7 +169,8 @@ WelcomeMode::WelcomeMode()
     layout->addWidget(container);
 #endif // USE_QUICK_WIDGET
 
-    connect(PluginManager::instance(), SIGNAL(objectAdded(QObject*)), SLOT(welcomePluginAdded(QObject*)));
+    connect(Core::ICore::instance(), &Core::ICore::themeChanged, this, &WelcomeMode::onThemeChanged);
+
     setWidget(m_modeWidget);
 }
 
@@ -184,79 +200,24 @@ void WelcomeMode::sceneGraphError(QQuickWindow::SceneGraphError, const QString &
     messageBox->show();
 }
 
-void WelcomeMode::facilitateQml(QQmlEngine * /*engine*/)
+void WelcomeMode::facilitateQml(QQmlEngine *engine)
 {
-}
-
-static QString applicationDirPath()
-{
-    // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
-    return Utils::FileUtils::normalizePathName(QCoreApplication::applicationDirPath());
-}
-
-static QString resourcePath()
-{
-    // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
-    return Utils::FileUtils::normalizePathName(Core::ICore::resourcePath());
-}
-
-void WelcomeMode::initPlugins()
-{
-    QSettings *settings = Core::ICore::settings();
-    setActivePlugin(settings->value(QLatin1String(currentPageSettingsKeyC)).toInt());
-
-    QQmlContext *ctx = m_welcomePage->rootContext();
-    ctx->setContextProperty(QLatin1String("welcomeMode"), this);
-
-    QList<Core::IWelcomePage*> duplicatePlugins = PluginManager::getObjects<Core::IWelcomePage>();
-    Utils::sort(duplicatePlugins, [](const Core::IWelcomePage *l, const Core::IWelcomePage *r) {
-        return l->priority() < r->priority();
-    });
-
-    QList<Core::IWelcomePage*> plugins;
-    QHash<Core::Id, Core::IWelcomePage*> pluginHash;
-
-    //avoid duplicate ids - choose by priority
-    foreach (Core::IWelcomePage* plugin, duplicatePlugins) {
-        if (pluginHash.contains(plugin->id())) {
-            Core::IWelcomePage* pluginOther = pluginHash.value(plugin->id());
-
-            if (pluginOther->priority() > plugin->priority()) {
-                plugins.removeAll(pluginOther);
-                pluginHash.remove(pluginOther->id());
-                plugins << plugin;
-                pluginHash.insert(plugin->id(), plugin);
-            }
-
-        } else {
-            plugins << plugin;
-            pluginHash.insert(plugin->id(), plugin);
-        }
-    }
-
-
-    QQmlEngine *engine = m_welcomePage->engine();
     QStringList importPathList = engine->importPathList();
     importPathList << resourcePath() + QLatin1String("/welcomescreen");
     engine->setImportPathList(importPathList);
     if (!debug)
         engine->setOutputWarningsToStandardError(false);
+
     QString pluginPath = applicationDirPath();
     if (HostOsInfo::isMacHost())
         pluginPath += QLatin1String("/../PlugIns");
     else
         pluginPath += QLatin1String("/../" IDE_LIBRARY_BASENAME "/qtcreator");
     engine->addImportPath(QDir::cleanPath(pluginPath));
-    facilitateQml(engine);
-    foreach (Core::IWelcomePage *plugin, plugins) {
-        plugin->facilitateQml(engine);
-        m_pluginList.append(plugin);
-    }
 
-    ctx->setContextProperty(QLatin1String("pagesModel"), QVariant::fromValue(m_pluginList));
+    QQmlContext *ctx = engine->rootContext();
+    ctx->setContextProperty(QLatin1String("welcomeMode"), this);
 
-    onThemeChanged();
-    connect(Core::ICore::instance(), &Core::ICore::themeChanged, this, &WelcomeMode::onThemeChanged);
     ctx->setContextProperty(QLatin1String("creatorTheme"), &m_themeProperties);
 
 #if defined(USE_QUICK_WIDGET)
@@ -265,45 +226,64 @@ void WelcomeMode::initPlugins()
     bool useNativeText = true;
 #endif
     ctx->setContextProperty(QLatin1String("useNativeText"), useNativeText);
+}
+
+void WelcomeMode::initPlugins()
+{
+    QSettings *settings = Core::ICore::settings();
+    setActivePlugin(settings->value(QLatin1String(currentPageSettingsKeyC)).toInt());
+
+    facilitateQml(m_welcomePage->engine());
+
+    QList<Core::IWelcomePage*> availablePages = PluginManager::getObjects<Core::IWelcomePage>();
+    addPages(availablePages);
+    // make sure later added pages are made available too:
+    connect(PluginManager::instance(), &PluginManager::objectAdded,
+            this, &WelcomeMode::welcomePluginAdded);
 
     QString path = resourcePath() + QLatin1String("/welcomescreen/welcomescreen.qml");
 
     // finally, load the root page
-    m_welcomePage->setSource(
-            QUrl::fromLocalFile(path));
+    m_welcomePage->setSource(QUrl::fromLocalFile(path));
 }
 
 void WelcomeMode::welcomePluginAdded(QObject *obj)
 {
-    QHash<Core::Id, Core::IWelcomePage*> pluginHash;
+    Core::IWelcomePage *page = qobject_cast<Core::IWelcomePage*>(obj);
+    if (!page)
+        return;
+    addPages(QList<Core::IWelcomePage *>() << page);
+}
 
-    foreach (QObject *obj, m_pluginList) {
-        Core::IWelcomePage *plugin = qobject_cast<Core::IWelcomePage*>(obj);
-        pluginHash.insert(plugin->id(), plugin);
+void WelcomeMode::addPages(const QList<Core::IWelcomePage *> &pages)
+{
+    QList<Core::IWelcomePage *> addedPages = pages;
+    Utils::sort(addedPages, [](const Core::IWelcomePage *l, const Core::IWelcomePage *r) {
+        return l->priority() < r->priority();
+    });
+    // insert into m_pluginList, keeping m_pluginList sorted by priority
+    QQmlEngine *engine = m_welcomePage->engine();
+    auto addIt = addedPages.begin();
+    auto currentIt = m_pluginList.begin();
+    while (addIt != addedPages.end()) {
+        Core::IWelcomePage *page = *addIt;
+        QTC_ASSERT(!m_idPageMap.contains(page->id()), ++addIt; continue);
+        while (currentIt != m_pluginList.end() && (*currentIt)->priority() <= page->priority())
+            ++currentIt;
+        // currentIt is now either end() or a page with higher value
+        currentIt = m_pluginList.insert(currentIt, page);
+        m_idPageMap.insert(page->id(), page);
+        page->facilitateQml(engine);
+        ++currentIt;
+        ++addIt;
     }
-    if (Core::IWelcomePage *plugin = qobject_cast<Core::IWelcomePage*>(obj)) {
-        //check for duplicated id
-        if (pluginHash.contains(plugin->id())) {
-            Core::IWelcomePage* pluginOther = pluginHash.value(plugin->id());
-
-            if (pluginOther->priority() > plugin->priority())
-                m_pluginList.removeAll(pluginOther);
-            else
-                return;
-        }
-
-        int insertPos = 0;
-        foreach (Core::IWelcomePage* p, PluginManager::getObjects<Core::IWelcomePage>()) {
-            if (plugin->priority() < p->priority())
-                insertPos++;
-            else
-                break;
-        }
-        m_pluginList.insert(insertPos, plugin);
-        // update model through reset
-        QQmlContext *ctx = m_welcomePage->rootContext();
-        ctx->setContextProperty(QLatin1String("pagesModel"), QVariant::fromValue(m_pluginList));
-    }
+    // update model through reset
+    QQmlContext *ctx = engine->rootContext();
+    ctx->setContextProperty(QLatin1String("pagesModel"), QVariant::fromValue(
+                                Utils::transform(m_pluginList, // transform into QList<QObject *>
+                                                 [](Core::IWelcomePage *page) -> QObject * {
+                                    return page;
+                                })));
 }
 
 WelcomePlugin::WelcomePlugin()
