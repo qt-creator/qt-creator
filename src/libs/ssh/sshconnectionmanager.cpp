@@ -90,10 +90,10 @@ public:
                 continue;
 
             if (connection->thread() != QThread::currentThread())
-                break;
+                continue;
 
             if (m_deprecatedConnections.contains(connection)) // we were asked to no longer use this one...
-                break;
+                continue;
 
             m_acquiredConnections.append(connection);
             return connection;
