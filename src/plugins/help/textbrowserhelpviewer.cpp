@@ -50,9 +50,9 @@ using namespace Help::Internal;
 
 // -- HelpViewer
 
-TextBrowserHelpViewer::TextBrowserHelpViewer(qreal zoom, QWidget *parent)
+TextBrowserHelpViewer::TextBrowserHelpViewer(QWidget *parent)
     : HelpViewer(parent)
-    , m_textBrowser(new TextBrowserHelpWidget(zoom, this))
+    , m_textBrowser(new TextBrowserHelpWidget(this))
 {
     QVBoxLayout *layout = new QVBoxLayout;
     setLayout(layout);
@@ -110,6 +110,22 @@ void TextBrowserHelpViewer::resetScale()
 qreal TextBrowserHelpViewer::scale() const
 {
     return m_textBrowser->zoomCount;
+}
+
+void TextBrowserHelpViewer::setScale(qreal scale)
+{
+    m_textBrowser->forceFont = true;
+    if (scale > 10)
+        scale = 10;
+    else if (scale < -5)
+        scale = -5;
+    int diff = (int)scale - m_textBrowser->zoomCount;
+    if (diff > 0)
+        m_textBrowser->zoomIn(diff);
+    else if (diff < 0)
+        m_textBrowser->zoomOut(-diff);
+    m_textBrowser->zoomCount = (int)scale;
+    m_textBrowser->forceFont = false;
 }
 
 QString TextBrowserHelpViewer::title() const
@@ -284,9 +300,9 @@ void TextBrowserHelpViewer::goToHistoryItem()
 
 // -- private
 
-TextBrowserHelpWidget::TextBrowserHelpWidget(int zoom, TextBrowserHelpViewer *parent)
+TextBrowserHelpWidget::TextBrowserHelpWidget(TextBrowserHelpViewer *parent)
     : QTextBrowser(parent)
-    , zoomCount(zoom)
+    , zoomCount(0)
     , forceFont(false)
     , m_openInNewPageActionVisible(true)
     , m_parent(parent)

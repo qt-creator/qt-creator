@@ -359,22 +359,25 @@ HelpViewer *HelpPlugin::createHelpViewer(qreal zoom)
     const QString backend = QLatin1String(qgetenv("QTC_HELPVIEWER_BACKEND"));
     if (backend.compare(QLatin1String("native"), Qt::CaseInsensitive) == 0) {
 #ifdef QTC_MAC_NATIVE_HELPVIEWER
-        viewer = new MacWebKitHelpViewer(zoom);
+        viewer = new MacWebKitHelpViewer();
 #else
         qWarning() << "native help viewer is requested, but was not enabled during compilation";
 #endif
     } else if (backend.compare(QLatin1String("textbrowser"), Qt::CaseInsensitive) != 0) {
 #ifndef QT_NO_WEBKIT
-        viewer = new QtWebKitHelpViewer(zoom);
+        viewer = new QtWebKitHelpViewer();
 #endif
     }
     if (!viewer)
-        viewer = new TextBrowserHelpViewer(zoom);
+        viewer = new TextBrowserHelpViewer();
 
     // initialize font
     QVariant fontSetting = LocalHelpManager::engineFontSettings();
     if (fontSetting.isValid())
         viewer->setViewerFont(fontSetting.value<QFont>());
+
+    // initialize zoom
+    viewer->setScale(zoom);
 
     // add find support
     Aggregation::Aggregate *agg = new Aggregation::Aggregate();

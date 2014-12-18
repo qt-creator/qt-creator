@@ -82,13 +82,14 @@ class MacWebKitHelpViewer : public HelpViewer
     Q_OBJECT
 
 public:
-    explicit MacWebKitHelpViewer(qreal zoom, QWidget *parent = 0);
+    explicit MacWebKitHelpViewer(QWidget *parent = 0);
     ~MacWebKitHelpViewer();
 
     QFont viewerFont() const;
     void setViewerFont(const QFont &font);
 
     qreal scale() const;
+    void setScale(qreal scale);
 
     QString title() const;
 

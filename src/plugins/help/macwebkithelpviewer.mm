@@ -454,7 +454,7 @@ void MacWebKitHelpWidget::showEvent(QShowEvent *)
 
 // #pragma mark -- MacWebKitHelpViewer
 
-MacWebKitHelpViewer::MacWebKitHelpViewer(qreal zoom, QWidget *parent)
+MacWebKitHelpViewer::MacWebKitHelpViewer(QWidget *parent)
     : HelpViewer(parent),
       m_widget(new MacWebKitHelpWidget(this))
 {
@@ -469,7 +469,6 @@ MacWebKitHelpViewer::MacWebKitHelpViewer(qreal zoom, QWidget *parent)
     setLayout(layout);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_widget, 10);
-    m_widget->webView().textSizeMultiplier = (zoom == 0.0 ? 1.0 : zoom);
 }
 
 MacWebKitHelpViewer::~MacWebKitHelpViewer()
@@ -515,7 +514,12 @@ void MacWebKitHelpViewer::resetScale()
 qreal MacWebKitHelpViewer::scale() const
 {
     AutoreleasePool pool; Q_UNUSED(pool)
-    return m_widget->webView().textSizeMultiplier;
+            return m_widget->webView().textSizeMultiplier;
+}
+
+void MacWebKitHelpViewer::setScale(qreal scale)
+{
+    m_widget->webView().textSizeMultiplier = (scale <= 0.0 ? 1.0 : scale);
 }
 
 QString MacWebKitHelpViewer::title() const

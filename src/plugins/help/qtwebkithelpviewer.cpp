@@ -250,7 +250,7 @@ void HelpPage::onHandleUnsupportedContent(QNetworkReply *reply)
 
 // -- HelpViewer
 
-QtWebKitHelpWidget::QtWebKitHelpWidget(qreal zoom, QtWebKitHelpViewer *parent)
+QtWebKitHelpWidget::QtWebKitHelpWidget(QtWebKitHelpViewer *parent)
     : QWebView(parent),
       m_parent(parent)
 {
@@ -278,8 +278,6 @@ QtWebKitHelpWidget::QtWebKitHelpWidget(qreal zoom, QtWebKitHelpViewer *parent)
         SLOT(actionChanged()));
     connect(pageAction(QWebPage::Forward), SIGNAL(changed()), this,
         SLOT(actionChanged()));
-
-    setZoomFactor(zoom == 0.0 ? 1.0 : zoom);
 }
 
 QtWebKitHelpWidget::~QtWebKitHelpWidget()
@@ -393,9 +391,9 @@ bool QtWebKitHelpWidget::eventFilter(QObject *obj, QEvent *event)
     return QWebView::eventFilter(obj, event);
 }
 
-QtWebKitHelpViewer::QtWebKitHelpViewer(qreal zoom, QWidget *parent)
+QtWebKitHelpViewer::QtWebKitHelpViewer(QWidget *parent)
     : HelpViewer(parent),
-      m_webView(new QtWebKitHelpWidget(zoom, this))
+      m_webView(new QtWebKitHelpWidget(this))
 {
     QVBoxLayout *layout = new QVBoxLayout;
     setLayout(layout);
@@ -447,6 +445,11 @@ void QtWebKitHelpViewer::resetScale()
 qreal QtWebKitHelpViewer::scale() const
 {
     return m_webView->zoomFactor();
+}
+
+void QtWebKitHelpViewer::setScale(qreal scale)
+{
+    m_webView->setZoomFactor(scale <= 0.0 ? 1.0 : scale);
 }
 
 QString QtWebKitHelpViewer::title() const

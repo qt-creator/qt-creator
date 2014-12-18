@@ -55,6 +55,7 @@ public:
     virtual void setViewerFont(const QFont &font) = 0;
 
     virtual qreal scale() const = 0;
+    virtual void setScale(qreal scale) = 0;
 
     virtual QString title() const = 0;
 

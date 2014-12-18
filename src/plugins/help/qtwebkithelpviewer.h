@@ -48,13 +48,14 @@ class QtWebKitHelpViewer : public HelpViewer
 {
     Q_OBJECT
 public:
-    explicit QtWebKitHelpViewer(qreal zoom, QWidget *parent = 0);
+    explicit QtWebKitHelpViewer(QWidget *parent = 0);
     ~QtWebKitHelpViewer() { }
 
     QFont viewerFont() const;
     void setViewerFont(const QFont &font);
 
     qreal scale() const;
+    void setScale(qreal scale);
 
     QString title() const;
 
@@ -103,7 +104,7 @@ class QtWebKitHelpWidget : public QWebView
     Q_OBJECT
 
 public:
-    explicit QtWebKitHelpWidget(qreal zoom, QtWebKitHelpViewer *parent = 0);
+    explicit QtWebKitHelpWidget(QtWebKitHelpViewer *parent = 0);
     ~QtWebKitHelpWidget();
 
     void scaleUp();

@@ -47,13 +47,14 @@ class TextBrowserHelpViewer : public HelpViewer
     Q_OBJECT
 
 public:
-    explicit TextBrowserHelpViewer(qreal zoom, QWidget *parent = 0);
+    explicit TextBrowserHelpViewer(QWidget *parent = 0);
     ~TextBrowserHelpViewer();
 
     QFont viewerFont() const;
     void setViewerFont(const QFont &font);
 
     qreal scale() const;
+    void setScale(qreal scale);
 
     QString title() const;
 
@@ -97,7 +98,7 @@ class TextBrowserHelpWidget : public QTextBrowser
     Q_OBJECT
 
 public:
-    TextBrowserHelpWidget(int zoom, TextBrowserHelpViewer *parent);
+    TextBrowserHelpWidget(TextBrowserHelpViewer *parent);
 
     QVariant loadResource(int type, const QUrl &name);
 
