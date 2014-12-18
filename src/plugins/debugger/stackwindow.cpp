@@ -71,7 +71,7 @@ StackTreeView::StackTreeView()
 
 void StackTreeView::showAddressColumn(bool on)
 {
-    setColumnHidden(4, !on);
+    setColumnHidden(StackAddressColumn, !on);
 }
 
 void StackTreeView::rowActivated(const QModelIndex &index)
@@ -82,8 +82,8 @@ void StackTreeView::rowActivated(const QModelIndex &index)
 void StackTreeView::setModel(QAbstractItemModel *model)
 {
     BaseTreeView::setModel(model);
-    resizeColumnToContents(0);
-    resizeColumnToContents(3);
+    resizeColumnToContents(StackLevelColumn);
+    resizeColumnToContents(StackLineNumberColumn);
     showAddressColumn(action(UseAddressInStackView)->isChecked());
 }
 

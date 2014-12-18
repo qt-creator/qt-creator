@@ -38,6 +38,16 @@
 namespace Debugger {
 namespace Internal {
 
+enum StackColumns
+{
+    StackLevelColumn,
+    StackFunctionNameColumn,
+    StackFileNameColumn,
+    StackLineNumberColumn,
+    StackAddressColumn,
+    StackColumnCount = StackAddressColumn,
+};
+
 ////////////////////////////////////////////////////////////////////////
 //
 // StackCookie

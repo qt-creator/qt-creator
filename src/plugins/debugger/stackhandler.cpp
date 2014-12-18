@@ -84,7 +84,7 @@ int StackHandler::rowCount(const QModelIndex &parent) const
 
 int StackHandler::columnCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : 5;
+    return parent.isValid() ? 0 : StackColumnCount;
 }
 
 QVariant StackHandler::data(const QModelIndex &index, int role) const
@@ -93,11 +93,11 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
         return QVariant();
 
     if (index.row() == m_stackFrames.size()) {
-        if (role == Qt::DisplayRole && index.column() == 0)
+        if (role == Qt::DisplayRole && index.column() == StackLevelColumn)
             return tr("...");
-        if (role == Qt::DisplayRole && index.column() == 1)
+        if (role == Qt::DisplayRole && index.column() == StackFunctionNameColumn)
             return tr("<More>");
-        if (role == Qt::DecorationRole && index.column() == 0)
+        if (role == Qt::DecorationRole && index.column() == StackLevelColumn)
             return m_emptyIcon;
         return QVariant();
     }
@@ -106,15 +106,15 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
-        case 0: // Stack frame level
+        case StackLevelColumn:
             return QString::number(frame.level);
-        case 1: // Function name
+        case StackFunctionNameColumn:
             return simplifyType(frame.function);
-        case 2: // File name
+        case StackFileNameColumn:
             return frame.file.isEmpty() ? frame.from : QFileInfo(frame.file).fileName();
-        case 3: // Line number
+        case StackLineNumberColumn:
             return frame.line > 0 ? QVariant(frame.line) : QVariant();
-        case 4: // Address
+        case StackAddressColumn:
             if (frame.address)
                 return QString::fromLatin1("0x%1").arg(frame.address, 0, 16);
             return QString();
@@ -122,7 +122,7 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    if (role == Qt::DecorationRole && index.column() == 0) {
+    if (role == Qt::DecorationRole && index.column() == StackLevelColumn) {
         // Return icon that indicates whether this is the active stack frame
         return (m_contentsValid && index.row() == m_currentIndex)
             ? m_positionIcon : m_emptyIcon;
