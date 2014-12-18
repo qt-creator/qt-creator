@@ -33,8 +33,9 @@
 
 #include <coreplugin/locator/basefilefilter.h>
 
-#include <QMutex>
 #include <QFutureInterface>
+#include <QMutex>
+#include <QPointer>
 
 namespace ProjectExplorer {
 
@@ -56,7 +57,7 @@ private slots:
     void markFilesAsOutOfDate();
 
 private:
-    Project *m_project;
+    QPointer<Project> m_project;
     bool m_filesUpToDate;
     QMutex m_filesUpToDateMutex;
 };

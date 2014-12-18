@@ -35,6 +35,8 @@
 
 #include <coreplugin/icontext.h>
 
+#include <QPointer>
+
 namespace ProjectExplorer {
 class FileNode;
 class FolderNode;
@@ -92,7 +94,7 @@ private:
     static ProjectTree *s_instance;
     QList<Internal::ProjectTreeWidget *> m_projectTreeWidgets;
     Node *m_currentNode;
-    Project *m_currentProject;
+    QPointer<Project> m_currentProject;
     bool m_resetCurrentNodeFolder;
     bool m_resetCurrentNodeFile;
     bool m_resetCurrentNodeProject;
