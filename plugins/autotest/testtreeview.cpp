@@ -243,16 +243,16 @@ TestTreeView::TestTreeView(QWidget *parent)
 
 void TestTreeView::selectAll()
 {
-    selectOrDeselectAll(Qt::Checked);
+    changeCheckStateAll(Qt::Checked);
 }
 
 void TestTreeView::deselectAll()
 {
-    selectOrDeselectAll(Qt::Unchecked);
+    changeCheckStateAll(Qt::Unchecked);
 }
 
 // this avoids the re-evaluation of parent nodes when modifying the child nodes (setData())
-void TestTreeView::selectOrDeselectAll(const Qt::CheckState checkState)
+void TestTreeView::changeCheckStateAll(const Qt::CheckState checkState)
 {
     const TestTreeModel *model = TestTreeModel::instance();
 
