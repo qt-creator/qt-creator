@@ -120,9 +120,7 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
     initializeMenuEntries();
 
     m_settings->fromSettings(Core::ICore::settings());
-    TestSettingsPage *settingsPage = new TestSettingsPage(m_settings);
-    addAutoReleasedObject(settingsPage);
-
+    addAutoReleasedObject(new TestSettingsPage(m_settings));
     addAutoReleasedObject(new TestNavigationWidgetFactory);
     addAutoReleasedObject(TestResultsPane::instance());
 
