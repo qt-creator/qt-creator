@@ -95,6 +95,8 @@
 
 #include <QHelpEngine>
 
+#include <functional>
+
 using namespace Help::Internal;
 
 static const char kExternalWindowStateKey[] = "Help/ExternalWindowState";
@@ -355,21 +357,37 @@ HelpViewer *HelpPlugin::externalHelpViewer()
 
 HelpViewer *HelpPlugin::createHelpViewer(qreal zoom)
 {
-    HelpViewer *viewer = 0;
-    const QString backend = QLatin1String(qgetenv("QTC_HELPVIEWER_BACKEND"));
-    if (backend.compare(QLatin1String("native"), Qt::CaseInsensitive) == 0) {
+    // check for backends
+    typedef std::function<HelpViewer *()> ViewerFactory;
+    QHash<QString, ViewerFactory> factories; // id -> factory
 #ifdef QTC_MAC_NATIVE_HELPVIEWER
-        viewer = new MacWebKitHelpViewer();
-#else
-        qWarning() << "native help viewer is requested, but was not enabled during compilation";
+    factories.insert(QLatin1String("native"), []() { return new MacWebKitHelpViewer(); });
 #endif
-    } else if (backend.compare(QLatin1String("textbrowser"), Qt::CaseInsensitive) != 0) {
 #ifndef QT_NO_WEBKIT
-        viewer = new QtWebKitHelpViewer();
+    factories.insert(QLatin1String("qtwebkit"), []() { return new QtWebKitHelpViewer(); });
 #endif
+    factories.insert(QLatin1String("textbrowser"), []() { return new TextBrowserHelpViewer(); });
+
+    ViewerFactory factory;
+    // check requested backend
+    const QString backend = QLatin1String(qgetenv("QTC_HELPVIEWER_BACKEND"));
+    if (!backend.isEmpty()) {
+        factory = factories.value(backend);
+        if (!factory)
+            qWarning("Help viewer backend \"%s\" not found, using default.", qPrintable(backend));
     }
-    if (!viewer)
-        viewer = new TextBrowserHelpViewer();
+    // default setting
+#ifdef QTC_MAC_NATIVE_HELPVIEWER_DEFAULT
+    if (!factory)
+        factory = factories.value(QLatin1String("native"));
+#endif
+    if (!factory)
+        factory = factories.value(QLatin1String("qtwebkit"));
+    if (!factory)
+        factory = factories.value(QLatin1String("textbrowser"));
+
+    QTC_ASSERT(factory, return 0);
+    HelpViewer *viewer = factory();
 
     // initialize font
     QVariant fontSetting = LocalHelpManager::engineFontSettings();

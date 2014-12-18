@@ -67,9 +67,13 @@ osx {
     QT += macextras
     HEADERS += macwebkithelpviewer.h
     OBJECTIVE_SOURCES += macwebkithelpviewer.mm
-
     LIBS += -framework WebKit -framework AppKit
+
+    !isEmpty(USE_QUICK_WIDGET) {
+        DEFINES += QTC_MAC_NATIVE_HELPVIEWER_DEFAULT
+    }
 }
+
 
 RESOURCES += help.qrc
 include(../../shared/help/help.pri)
