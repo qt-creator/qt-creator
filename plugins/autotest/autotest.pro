@@ -24,7 +24,8 @@ SOURCES += \
     testresultdelegate.cpp \
     testtreeitemdelegate.cpp \
     testsettings.cpp \
-    testsettingspage.cpp
+    testsettingspage.cpp \
+    testnavigationwidget.cpp
 
 HEADERS += \
     testtreeview.h \
@@ -44,7 +45,8 @@ HEADERS += \
     testresultdelegate.h \
     testtreeitemdelegate.h \
     testsettings.h \
-    testsettingspage.h
+    testsettingspage.h \
+    testnavigationwidget.h
 
 RESOURCES += \
     autotest.qrc

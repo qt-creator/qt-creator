@@ -24,6 +24,7 @@
 #include "testtreeview.h"
 #include "testtreemodel.h"
 #include "testresultspane.h"
+#include "testnavigationwidget.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -105,7 +106,7 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
     TestSettingsPage *settingsPage = new TestSettingsPage(m_settings);
     addAutoReleasedObject(settingsPage);
 
-    addAutoReleasedObject(new TestViewFactory);
+    addAutoReleasedObject(new TestNavigationWidgetFactory);
     addAutoReleasedObject(TestResultsPane::instance());
 
     return true;
