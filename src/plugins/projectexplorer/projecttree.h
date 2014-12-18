@@ -90,7 +90,13 @@ private:
     void updateExternalFileWarning();
     static bool hasFocus(Internal::ProjectTreeWidget *widget);
 
+private slots: // use lambdas for the following when minimum Qt is 5.4
+    void updateFromFocusResetFileSingleShot();
+    void updateFromFocusResetFolderSingleShot();
+    void updateFromFocusResetProjectSingleShot();
+    void updateFromDocumentManagerSingleShot();
 
+private:
     static ProjectTree *s_instance;
     QList<Internal::ProjectTreeWidget *> m_projectTreeWidgets;
     Node *m_currentNode;

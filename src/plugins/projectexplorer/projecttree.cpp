@@ -289,12 +289,7 @@ void ProjectTree::foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode*>
 
 void ProjectTree::foldersRemoved()
 {
-    QTimer::singleShot(0, [this]() {
-        if (m_resetCurrentNodeFolder) {
-            updateFromFocus(true);
-            m_resetCurrentNodeFolder = false;
-        }
-    });
+    QTimer::singleShot(0, this, SLOT(updateFromFocusResetFolderSingleShot()));
 }
 
 void ProjectTree::filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &list)
@@ -306,12 +301,7 @@ void ProjectTree::filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &li
 
 void ProjectTree::filesRemoved()
 {
-    QTimer::singleShot(0, [this]() {
-        if (m_resetCurrentNodeFile) {
-            updateFromFocus(true);
-            m_resetCurrentNodeFile = false;
-        }
-    });
+    QTimer::singleShot(0, this, SLOT(updateFromFocusResetFileSingleShot()));
 }
 
 void ProjectTree::aboutToRemoveProject(Project *project)
@@ -322,20 +312,12 @@ void ProjectTree::aboutToRemoveProject(Project *project)
 
 void ProjectTree::projectRemoved()
 {
-    QTimer::singleShot(0, [this]() {
-        updateFromFocus(true);
-        m_resetCurrentNodeProject = false;
-    });
+    QTimer::singleShot(0, this, SLOT(updateFromFocusResetProjectSingleShot()));
 }
 
 void ProjectTree::nodesAdded()
 {
-    QTimer::singleShot(0, [this]() {
-        if (Utils::anyOf(m_projectTreeWidgets, &ProjectTreeWidget::hasFocus))
-            return;
-
-        updateFromDocumentManager();
-    });
+    QTimer::singleShot(0, this, SLOT(updateFromDocumentManagerSingleShot()));
 }
 
 void ProjectTree::updateExternalFileWarning()
@@ -373,4 +355,33 @@ void ProjectTree::updateExternalFileWarning()
 bool ProjectTree::hasFocus(ProjectTreeWidget *widget)
 {
     return widget && widget->focusWidget() && widget->focusWidget()->hasFocus();
+}
+
+void ProjectTree::updateFromFocusResetFileSingleShot()
+{
+    if (m_resetCurrentNodeFile) {
+        updateFromFocus(true);
+        m_resetCurrentNodeFile = false;
+    }
+}
+
+void ProjectTree::updateFromFocusResetFolderSingleShot()
+{
+    if (m_resetCurrentNodeFolder) {
+        updateFromFocus(true);
+        m_resetCurrentNodeFolder = false;
+    }
+}
+
+void ProjectTree::updateFromFocusResetProjectSingleShot()
+{
+    updateFromFocus(true);
+    m_resetCurrentNodeProject = false;
+}
+
+void ProjectTree::updateFromDocumentManagerSingleShot()
+{
+    if (Utils::anyOf(m_projectTreeWidgets, &ProjectTreeWidget::hasFocus))
+        return;
+    updateFromDocumentManager();
 }
