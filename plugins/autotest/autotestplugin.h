@@ -49,6 +49,7 @@ private slots:
     void triggerAction();
 
 private:
+    bool checkLicense();
     const QSharedPointer<TestSettings> m_settings;
 };
 

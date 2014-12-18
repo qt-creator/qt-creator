@@ -70,6 +70,19 @@ AutotestPlugin *AutotestPlugin::instance()
     return m_instance;
 }
 
+bool AutotestPlugin::checkLicense()
+{
+    LicenseChecker::LicenseCheckerPlugin *licenseChecker
+            = ExtensionSystem::PluginManager::getObject<LicenseChecker::LicenseCheckerPlugin>();
+
+    if (!licenseChecker || !licenseChecker->hasValidLicense()) {
+        qWarning() << "Invalid license, disabling Qt Creator Enterprise Auto Test Add-on.";
+        return false;
+    } else if (!licenseChecker->enterpriseFeatures())
+        return false;
+    return true;
+}
+
 bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     // Register objects in the plugin manager's object pool
@@ -82,13 +95,7 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    LicenseChecker::LicenseCheckerPlugin *licenseChecker
-            = ExtensionSystem::PluginManager::getObject<LicenseChecker::LicenseCheckerPlugin>();
-
-    if (!licenseChecker || !licenseChecker->hasValidLicense()) {
-        qWarning() << "Invalid license, disabling Qt Creator Enterprise Auto Test Add-on.";
-        return true;
-    } else if (!licenseChecker->enterpriseFeatures())
+    if (!checkLicense())
         return true;
 
     QAction *action = new QAction(tr("Autotest action"), this);
