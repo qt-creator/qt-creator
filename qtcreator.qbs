@@ -1,7 +1,7 @@
 import qbs 1.0
 
 Project {
-    minimumQbsVersion: "1.3"
+    minimumQbsVersion: "1.4"
     property bool withAutotests: qbs.buildVariant === "debug"
     property string ide_version_major: '3'
     property string ide_version_minor: '3'
@@ -61,4 +61,6 @@ Project {
         "share/qtcreator/translations/translations.qbs",
         "tests/tests.qbs"
     ]
+
+    AutotestRunner {}
 }

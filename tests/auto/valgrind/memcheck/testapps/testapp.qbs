@@ -1,6 +1,7 @@
 import qbs
 
 QtcAutotest {
+    type: ["application"] // Not to be executed directly by autotest-runner
     name: "Memcheck " + testName + " autotest"
     property string testName
     targetName: testName // Test runner hardcodes the names of the executables
