@@ -45,7 +45,6 @@ macx: DATA_DIRS += scripts
 
 for(data_dir, DATA_DIRS) {
     files = $$files($$PWD/$$data_dir/*, true)
-    win32:files ~= s|\\\\|/|g
     # Info.plist.in are handled below
     for(file, files):!contains(file, ".*/Info\\.plist\\.in$"):!exists($$file/*):FILES += $$file
 }
