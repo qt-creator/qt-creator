@@ -50,6 +50,7 @@ private slots:
 
 private:
     bool checkLicense();
+    void initializeMenuEntries();
     const QSharedPointer<TestSettings> m_settings;
 };
 

@@ -83,6 +83,20 @@ bool AutotestPlugin::checkLicense()
     return true;
 }
 
+void AutotestPlugin::initializeMenuEntries()
+{
+    QAction *action = new QAction(tr("Autotest action"), this);
+    Core::Command *command = Core::ActionManager::registerAction(action, Constants::ACTION_ID,
+                                                             Core::Context(Core::Constants::C_GLOBAL));
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Meta+A")));
+    connect(action, SIGNAL(triggered()), this, SLOT(triggerAction()));
+
+    Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::MENU_ID);
+    menu->menu()->setTitle(tr("Tests"));
+    menu->addAction(command);
+    Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
+}
+
 bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     // Register objects in the plugin manager's object pool
@@ -98,16 +112,7 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
     if (!checkLicense())
         return true;
 
-    QAction *action = new QAction(tr("Autotest action"), this);
-    Core::Command *cmd = Core::ActionManager::registerAction(action, Constants::ACTION_ID,
-                                                             Core::Context(Core::Constants::C_GLOBAL));
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Meta+A")));
-    connect(action, SIGNAL(triggered()), this, SLOT(triggerAction()));
-
-    Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::MENU_ID);
-    menu->menu()->setTitle(tr("Tests"));
-    menu->addAction(cmd);
-    Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
+    initializeMenuEntries();
 
     m_settings->fromSettings(Core::ICore::settings());
     TestSettingsPage *settingsPage = new TestSettingsPage(m_settings);
