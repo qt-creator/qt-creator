@@ -97,8 +97,6 @@ QtcLibrary {
         "htmldocextractor.h",
         "itemviews.cpp",
         "itemviews.h",
-        "iwelcomepage.cpp",
-        "iwelcomepage.h",
         "json.cpp",
         "json.h",
         "linecolumnlabel.cpp",

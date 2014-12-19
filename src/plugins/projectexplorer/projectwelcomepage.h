@@ -33,7 +33,7 @@
 
 #include <QAbstractListModel>
 
-#include <utils/iwelcomepage.h>
+#include <coreplugin/iwelcomepage.h>
 
 QT_BEGIN_NAMESPACE
 class QQmlEngine;
@@ -78,7 +78,7 @@ public slots:
     void resetProjects();
 };
 
-class ProjectWelcomePage : public Utils::IWelcomePage
+class ProjectWelcomePage : public Core::IWelcomePage
 {
     Q_OBJECT
 public:

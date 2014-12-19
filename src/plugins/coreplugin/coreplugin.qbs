@@ -67,6 +67,7 @@ QtcPlugin {
             "infobar.cpp", "infobar.h",
             "ioutputpane.cpp", "ioutputpane.h",
             "iversioncontrol.cpp", "iversioncontrol.h",
+            "iwelcomepage.cpp", "iwelcomepage.h",
             "iwizardfactory.cpp", "iwizardfactory.h",
             "jsexpander.cpp", "jsexpander.h",
             "mainwindow.cpp", "mainwindow.h",

@@ -35,6 +35,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
+#include <coreplugin/iwelcomepage.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/iwizardfactory.h>
 
@@ -42,7 +43,6 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/styledbar.h>
-#include <utils/iwelcomepage.h>
 
 #include <utils/theme/theme.h>
 
@@ -208,18 +208,18 @@ void WelcomeMode::initPlugins()
     QQmlContext *ctx = m_welcomePage->rootContext();
     ctx->setContextProperty(QLatin1String("welcomeMode"), this);
 
-    QList<Utils::IWelcomePage*> duplicatePlugins = PluginManager::getObjects<Utils::IWelcomePage>();
-    Utils::sort(duplicatePlugins, [](const Utils::IWelcomePage *l, const Utils::IWelcomePage *r) {
+    QList<Core::IWelcomePage*> duplicatePlugins = PluginManager::getObjects<Core::IWelcomePage>();
+    Utils::sort(duplicatePlugins, [](const Core::IWelcomePage *l, const Core::IWelcomePage *r) {
         return l->priority() < r->priority();
     });
 
-    QList<Utils::IWelcomePage*> plugins;
-    QHash<Core::Id, Utils::IWelcomePage*> pluginHash;
+    QList<Core::IWelcomePage*> plugins;
+    QHash<Core::Id, Core::IWelcomePage*> pluginHash;
 
     //avoid duplicate ids - choose by priority
-    foreach (Utils::IWelcomePage* plugin, duplicatePlugins) {
+    foreach (Core::IWelcomePage* plugin, duplicatePlugins) {
         if (pluginHash.contains(plugin->id())) {
-            Utils::IWelcomePage* pluginOther = pluginHash.value(plugin->id());
+            Core::IWelcomePage* pluginOther = pluginHash.value(plugin->id());
 
             if (pluginOther->priority() > plugin->priority()) {
                 plugins.removeAll(pluginOther);
@@ -248,7 +248,7 @@ void WelcomeMode::initPlugins()
         pluginPath += QLatin1String("/../" IDE_LIBRARY_BASENAME "/qtcreator");
     engine->addImportPath(QDir::cleanPath(pluginPath));
     facilitateQml(engine);
-    foreach (Utils::IWelcomePage *plugin, plugins) {
+    foreach (Core::IWelcomePage *plugin, plugins) {
         plugin->facilitateQml(engine);
         m_pluginList.append(plugin);
     }
@@ -275,16 +275,16 @@ void WelcomeMode::initPlugins()
 
 void WelcomeMode::welcomePluginAdded(QObject *obj)
 {
-    QHash<Core::Id, Utils::IWelcomePage*> pluginHash;
+    QHash<Core::Id, Core::IWelcomePage*> pluginHash;
 
     foreach (QObject *obj, m_pluginList) {
-        Utils::IWelcomePage *plugin = qobject_cast<Utils::IWelcomePage*>(obj);
+        Core::IWelcomePage *plugin = qobject_cast<Core::IWelcomePage*>(obj);
         pluginHash.insert(plugin->id(), plugin);
     }
-    if (Utils::IWelcomePage *plugin = qobject_cast<Utils::IWelcomePage*>(obj)) {
+    if (Core::IWelcomePage *plugin = qobject_cast<Core::IWelcomePage*>(obj)) {
         //check for duplicated id
         if (pluginHash.contains(plugin->id())) {
-            Utils::IWelcomePage* pluginOther = pluginHash.value(plugin->id());
+            Core::IWelcomePage* pluginOther = pluginHash.value(plugin->id());
 
             if (pluginOther->priority() > plugin->priority())
                 m_pluginList.removeAll(pluginOther);
@@ -293,7 +293,7 @@ void WelcomeMode::welcomePluginAdded(QObject *obj)
         }
 
         int insertPos = 0;
-        foreach (Utils::IWelcomePage* p, PluginManager::getObjects<Utils::IWelcomePage>()) {
+        foreach (Core::IWelcomePage* p, PluginManager::getObjects<Core::IWelcomePage>()) {
             if (plugin->priority() < p->priority())
                 insertPos++;
             else

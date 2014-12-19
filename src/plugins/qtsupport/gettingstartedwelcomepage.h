@@ -31,7 +31,7 @@
 #ifndef GETTINGSTARTEDWELCOMEPAGE_H
 #define GETTINGSTARTEDWELCOMEPAGE_H
 
-#include <utils/iwelcomepage.h>
+#include <coreplugin/iwelcomepage.h>
 
 #include <QStringList>
 
@@ -45,7 +45,7 @@ namespace Internal {
 
 class ExamplesListModel;
 
-class ExamplesWelcomePage : public Utils::IWelcomePage
+class ExamplesWelcomePage : public Core::IWelcomePage
 {
     Q_OBJECT
 

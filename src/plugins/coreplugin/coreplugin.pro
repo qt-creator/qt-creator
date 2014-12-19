@@ -111,7 +111,8 @@ SOURCES += corejsextensions.cpp \
     themeeditor/themesettingstablemodel.cpp \
     themeeditor/sectionedtablemodel.cpp \
     themeeditor/themesettingsitemdelegate.cpp \
-    messagebox.cpp
+    messagebox.cpp \
+    iwelcomepage.cpp
 
 HEADERS += corejsextensions.h \
     mainwindow.h \
@@ -227,7 +228,8 @@ HEADERS += corejsextensions.h \
     themeeditor/themesettingstablemodel.h \
     themeeditor/sectionedtablemodel.h \
     themeeditor/themesettingsitemdelegate.h \
-    messagebox.h
+    messagebox.h \
+    iwelcomepage.h
 
 FORMS += dialogs/newdialog.ui \
     dialogs/saveitemsdialog.ui \
