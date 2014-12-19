@@ -41,7 +41,6 @@ QtcPlugin {
             "debuggerinternalconstants.h",
             "debuggeritem.cpp", "debuggeritem.h",
             "debuggeritemmanager.cpp", "debuggeritemmanager.h",
-            "debuggeritemmodel.cpp", "debuggeritemmodel.h",
             "debuggerkitconfigwidget.cpp", "debuggerkitconfigwidget.h",
             "debuggerkitinformation.cpp", "debuggerkitinformation.h",
             "debuggermainwindow.cpp", "debuggermainwindow.h",

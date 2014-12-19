@@ -31,7 +31,6 @@
 #include "debuggerkitconfigwidget.h"
 
 #include "debuggeritemmanager.h"
-#include "debuggeritemmodel.h"
 #include "debuggerkitinformation.h"
 
 #include <coreplugin/icore.h>
@@ -64,8 +63,6 @@ using namespace ProjectExplorer;
 namespace Debugger {
 namespace Internal {
 
-class DebuggerItemConfigWidget;
-
 // -----------------------------------------------------------------------
 // DebuggerKitConfigWidget
 // -----------------------------------------------------------------------
@@ -88,14 +85,6 @@ DebuggerKitConfigWidget::DebuggerKitConfigWidget(Kit *workingCopy, const KitInfo
     m_manageButton->setContentsMargins(0, 0, 0, 0);
     connect(m_manageButton, &QAbstractButton::clicked,
             this, &DebuggerKitConfigWidget::manageDebuggers);
-
-    DebuggerItemManager *manager = DebuggerItemManager::instance();
-    connect(manager, &DebuggerItemManager::debuggerAdded,
-            this, &DebuggerKitConfigWidget::onDebuggerAdded);
-    connect(manager, &DebuggerItemManager::debuggerUpdated,
-            this, &DebuggerKitConfigWidget::onDebuggerUpdated);
-    connect(manager, &DebuggerItemManager::debuggerRemoved,
-            this, &DebuggerKitConfigWidget::onDebuggerRemoved);
 }
 
 DebuggerKitConfigWidget::~DebuggerKitConfigWidget()
@@ -148,31 +137,6 @@ void DebuggerKitConfigWidget::currentDebuggerChanged(int)
     int currentIndex = m_comboBox->currentIndex();
     QVariant id = m_comboBox->itemData(currentIndex);
     m_kit->setValue(DebuggerKitInformation::id(), id);
-}
-
-void DebuggerKitConfigWidget::onDebuggerAdded(const QVariant &id)
-{
-    const DebuggerItem *item = DebuggerItemManager::findById(id);
-    QTC_ASSERT(item, return);
-    m_comboBox->addItem(item->displayName(), id);
-}
-
-void DebuggerKitConfigWidget::onDebuggerUpdated(const QVariant &id)
-{
-    const DebuggerItem *item = DebuggerItemManager::findById(id);
-    QTC_ASSERT(item, return);
-    const int pos = indexOf(id);
-    if (pos < 0)
-        return;
-    m_comboBox->setItemText(pos, item->displayName());
-}
-
-void DebuggerKitConfigWidget::onDebuggerRemoved(const QVariant &id)
-{
-    if (const int pos = indexOf(id)) {
-        m_comboBox->removeItem(pos);
-        refresh();
-    }
 }
 
 int DebuggerKitConfigWidget::indexOf(const QVariant &id)

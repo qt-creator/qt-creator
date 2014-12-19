@@ -31,8 +31,6 @@
 #ifndef DEBUGGER_DEBUGGERKITCONFIGWIDGET_H
 #define DEBUGGER_DEBUGGERKITCONFIGWIDGET_H
 
-#include "debuggeritemmodel.h"
-
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <projectexplorer/kitconfigwidget.h>
 #include <projectexplorer/abi.h>
@@ -72,14 +70,10 @@ public:
     QWidget *buttonWidget() const;
     QWidget *mainWidget() const;
 
-private slots:
+private:
     void manageDebuggers();
     void currentDebuggerChanged(int idx);
-    void onDebuggerAdded(const QVariant &id);
-    void onDebuggerUpdated(const QVariant &id);
-    void onDebuggerRemoved(const QVariant &id);
 
-private:
     int indexOf(const QVariant &id);
     QVariant currentId() const;
     void updateComboBox(const QVariant &id);

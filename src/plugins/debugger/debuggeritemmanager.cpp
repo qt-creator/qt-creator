@@ -29,8 +29,6 @@
 ****************************************************************************/
 
 #include "debuggeritemmanager.h"
-
-#include "debuggeritemmodel.h"
 #include "debuggerkitinformation.h"
 
 #include <coreplugin/icore.h>
@@ -46,26 +44,36 @@
 #include <QFileInfo>
 #include <QProcess>
 
+using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Debugger {
 
-static const char DEBUGGER_COUNT_KEY[] = "DebuggerItem.Count";
-static const char DEBUGGER_DATA_KEY[] = "DebuggerItem.";
-static const char DEBUGGER_LEGACY_FILENAME[] = "/qtcreator/profiles.xml";
-static const char DEBUGGER_FILE_VERSION_KEY[] = "Version";
-static const char DEBUGGER_FILENAME[] = "/qtcreator/debuggers.xml";
+const char DEBUGGER_COUNT_KEY[] = "DebuggerItem.Count";
+const char DEBUGGER_DATA_KEY[] = "DebuggerItem.";
+const char DEBUGGER_LEGACY_FILENAME[] = "/qtcreator/profiles.xml";
+const char DEBUGGER_FILE_VERSION_KEY[] = "Version";
+const char DEBUGGER_FILENAME[] = "/qtcreator/debuggers.xml";
+
+namespace {
+QList<DebuggerItem> m_debuggers;
+PersistentSettingsWriter *m_writer = 0;
+}
 
 // --------------------------------------------------------------------------
 // DebuggerItemManager
 // --------------------------------------------------------------------------
 
-static DebuggerItemManager *m_instance = 0;
+static void addDebugger(const DebuggerItem &item)
+{
+    QTC_ASSERT(item.id().isValid(), return);
+    m_debuggers.append(item);
+}
 
 static FileName userSettingsFileName()
 {
-    QFileInfo settingsLocation(Core::ICore::settings()->fileName());
+    QFileInfo settingsLocation(ICore::settings()->fileName());
     return FileName::fromString(settingsLocation.absolutePath() + QLatin1String(DEBUGGER_FILENAME));
 }
 
@@ -111,27 +119,15 @@ static void readDebuggers(const FileName &fileName, bool isSystem)
     }
 }
 
-QList<DebuggerItem> DebuggerItemManager::m_debuggers;
-PersistentSettingsWriter * DebuggerItemManager::m_writer = 0;
-
-DebuggerItemManager::DebuggerItemManager(QObject *parent)
-    : QObject(parent)
+DebuggerItemManager::DebuggerItemManager()
 {
-    m_instance = this;
     m_writer = new PersistentSettingsWriter(userSettingsFileName(), QLatin1String("QtCreatorDebuggers"));
-    connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()),
-            this, SLOT(saveDebuggers()));
-}
-
-DebuggerItemManager *DebuggerItemManager::instance()
-{
-    return m_instance;
+    connect(ICore::instance(), &ICore::saveSettingsRequested,
+            this, &DebuggerItemManager::saveDebuggers);
 }
 
 DebuggerItemManager::~DebuggerItemManager()
 {
-    disconnect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()),
-            this, SLOT(saveDebuggers()));
     delete m_writer;
 }
 
@@ -270,14 +266,6 @@ void DebuggerItemManager::autoDetectGdbOrLldbDebuggers()
     }
 }
 
-void DebuggerItemManager::readLegacyDebuggers()
-{
-    QFileInfo systemLocation(Core::ICore::settings(QSettings::SystemScope)->fileName());
-    readLegacyDebuggers(FileName::fromString(systemLocation.absolutePath() + QLatin1String(DEBUGGER_LEGACY_FILENAME)));
-    QFileInfo userLocation(Core::ICore::settings()->fileName());
-    readLegacyDebuggers(FileName::fromString(userLocation.absolutePath() + QLatin1String(DEBUGGER_LEGACY_FILENAME)));
-}
-
 void DebuggerItemManager::readLegacyDebuggers(const FileName &file)
 {
     PersistentSettingsReader reader;
@@ -344,7 +332,7 @@ const DebuggerItem *DebuggerItemManager::findByEngineType(DebuggerEngineType eng
 void DebuggerItemManager::restoreDebuggers()
 {
     // Read debuggers from SDK
-    QFileInfo systemSettingsFile(Core::ICore::settings(QSettings::SystemScope)->fileName());
+    QFileInfo systemSettingsFile(ICore::settings(QSettings::SystemScope)->fileName());
     readDebuggers(FileName::fromString(systemSettingsFile.absolutePath() + QLatin1String(DEBUGGER_FILENAME)), true);
 
     // Read all debuggers from user file.
@@ -355,7 +343,10 @@ void DebuggerItemManager::restoreDebuggers()
     autoDetectGdbOrLldbDebuggers();
 
     // Add debuggers from pre-3.x profiles.xml
-    readLegacyDebuggers();
+    QFileInfo systemLocation(ICore::settings(QSettings::SystemScope)->fileName());
+    readLegacyDebuggers(FileName::fromString(systemLocation.absolutePath() + QLatin1String(DEBUGGER_LEGACY_FILENAME)));
+    QFileInfo userLocation(ICore::settings()->fileName());
+    readLegacyDebuggers(FileName::fromString(userLocation.absolutePath() + QLatin1String(DEBUGGER_LEGACY_FILENAME)));
 }
 
 void DebuggerItemManager::saveDebuggers()
@@ -375,7 +366,7 @@ void DebuggerItemManager::saveDebuggers()
         }
     }
     data.insert(QLatin1String(DEBUGGER_COUNT_KEY), count);
-    m_writer->save(data, Core::ICore::mainWindow());
+    m_writer->save(data, ICore::mainWindow());
 
     // Do not save default debuggers as they are set by the SDK.
 }
@@ -393,44 +384,23 @@ QVariant DebuggerItemManager::registerDebugger(const DebuggerItem &item)
         }
     }
 
-    // If item already has an id, add it. Otherwise, create a new id.
-    if (item.id().isValid())
-        return addDebugger(item);
-
+    // If item already has an id, use it. Otherwise, create a new id.
     DebuggerItem di = item;
-    di.createId();
-    return addDebugger(di);
+    if (!di.id().isValid())
+        di.createId();
+
+    addDebugger(di);
+    return di.id();
 }
 
 void DebuggerItemManager::deregisterDebugger(const QVariant &id)
 {
-    if (findById(id))
-        removeDebugger(id);
-}
-
-QVariant DebuggerItemManager::addDebugger(const DebuggerItem &item)
-{
-    QTC_ASSERT(item.id().isValid(), return QVariant());
-    m_debuggers.append(item);
-    QVariant id = item.id();
-    emit m_instance->debuggerAdded(id);
-    return id;
-}
-
-void DebuggerItemManager::removeDebugger(const QVariant &id)
-{
-    bool ok = false;
     for (int i = 0, n = m_debuggers.size(); i != n; ++i) {
         if (m_debuggers.at(i).id() == id) {
-            emit m_instance->aboutToRemoveDebugger(id);
             m_debuggers.removeAt(i);
-            emit m_instance->debuggerRemoved(id);
-            ok = true;
             break;
         }
     }
-
-    QTC_ASSERT(ok, return);
 }
 
 QString DebuggerItemManager::uniqueDisplayName(const QString &base)
@@ -442,26 +412,18 @@ QString DebuggerItemManager::uniqueDisplayName(const QString &base)
     return base;
 }
 
-void DebuggerItemManager::setItemData(const QVariant &id, const QString &displayName, const FileName &fileName)
+void DebuggerItemManager::updateOrAddDebugger(const DebuggerItem &treeItem)
 {
     for (int i = 0, n = m_debuggers.size(); i != n; ++i) {
         DebuggerItem &item = m_debuggers[i];
-        if (item.id() == id) {
-            bool changed = false;
-            if (item.displayName() != displayName) {
-                item.setDisplayName(displayName);
-                changed = true;
-            }
-            if (item.command() != fileName) {
-                item.setCommand(fileName);
-                item.reinitializeFromFile();
-                changed = true;
-            }
-            if (changed)
-                emit m_instance->debuggerUpdated(id);
-            break;
+        if (item.id() == treeItem.id()) {
+            item = treeItem;
+            return;
         }
     }
+
+    // This is a new item.
+    addDebugger(treeItem);
 }
 
 } // namespace Debugger;

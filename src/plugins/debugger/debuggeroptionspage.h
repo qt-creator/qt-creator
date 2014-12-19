@@ -31,73 +31,19 @@
 #ifndef DEBUGGER_DEBUGGEROPTIONSPAGE_H
 #define DEBUGGER_DEBUGGEROPTIONSPAGE_H
 
-#include "debuggeritem.h"
-
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QCoreApplication>
 #include <QPointer>
-#include <QWidget>
-
-QT_BEGIN_NAMESPACE
-class QLabel;
-class QLineEdit;
-class QPushButton;
-class QTreeView;
-QT_END_NAMESPACE
-
-namespace Utils {
-class DetailsWidget;
-class PathChooser;
-} // namespace Utils
 
 namespace Debugger {
 namespace Internal {
 
-class DebuggerItemModel;
-class DebuggerItemConfigWidget;
-class DebuggerKitConfigWidget;
-
-// -----------------------------------------------------------------------
-// DebuggerItemConfigWidget
-// -----------------------------------------------------------------------
-
-class DebuggerItemConfigWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    explicit DebuggerItemConfigWidget(DebuggerItemModel *model);
-    void setItem(const DebuggerItem &item);
-    void apply();
-
-private slots:
-    void binaryPathHasChanged();
-
-private:
-    DebuggerItem item() const;
-    void store() const;
-    void setAbis(const QStringList &abiNames);
-
-    void handleCommandChange();
-
-    QLineEdit *m_displayNameLineEdit;
-    QLabel *m_cdbLabel;
-    QLineEdit *m_versionLabel;
-    Utils::PathChooser *m_binaryChooser;
-    QLineEdit *m_abis;
-    DebuggerItemModel *m_model;
-    bool m_autodetected;
-    DebuggerEngineType m_engineType;
-    QVariant m_id;
-};
-
-// --------------------------------------------------------------------------
-// DebuggerOptionsPage
-// --------------------------------------------------------------------------
+class DebuggerConfigWidget;
 
 class DebuggerOptionsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(Debugger::DebuggerOptionsPage)
 
 public:
     DebuggerOptionsPage();
@@ -106,24 +52,8 @@ public:
     void apply();
     void finish();
 
-private slots:
-    void debuggerSelectionChanged();
-    void debuggerModelChanged();
-    void updateState();
-    void cloneDebugger();
-    void addDebugger();
-    void removeDebugger();
-
 private:
-    QPointer<QWidget> m_configWidget;
-
-    DebuggerItemModel *m_model;
-    DebuggerItemConfigWidget *m_itemConfigWidget;
-    QTreeView *m_debuggerView;
-    Utils::DetailsWidget *m_container;
-    QPushButton *m_addButton;
-    QPushButton *m_cloneButton;
-    QPushButton *m_delButton;
+    QPointer<DebuggerConfigWidget> m_configWidget;
 };
 
 } // namespace Internal

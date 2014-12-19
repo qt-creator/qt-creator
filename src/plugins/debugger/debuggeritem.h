@@ -97,6 +97,7 @@ public:
     QStringList abiNames() const;
 
     bool operator==(const DebuggerItem &other) const;
+    bool operator!=(const DebuggerItem &other) const { return !operator==(other); }
 
 private:
     DebuggerItem(const QVariant &id);

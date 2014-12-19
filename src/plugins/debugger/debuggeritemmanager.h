@@ -33,17 +33,12 @@
 
 #include "debugger_global.h"
 #include "debuggeritem.h"
-#include "debuggeritemmodel.h"
 
 #include <QList>
 #include <QObject>
 #include <QString>
 
-namespace Utils { class PersistentSettingsWriter; }
-
 namespace Debugger {
-
-namespace Internal { class DebuggerPlugin; }
 
 // -----------------------------------------------------------------------
 // DebuggerItemManager
@@ -51,17 +46,14 @@ namespace Internal { class DebuggerPlugin; }
 
 class DEBUGGER_EXPORT DebuggerItemManager : public QObject
 {
-    Q_OBJECT
-
 public:
-    static DebuggerItemManager *instance();
+    DebuggerItemManager();
     ~DebuggerItemManager();
 
     static QList<DebuggerItem> debuggers();
 
     static QVariant registerDebugger(const DebuggerItem &item);
     static void deregisterDebugger(const QVariant &id);
-    static void setItemData(const QVariant &id, const QString& displayName, const Utils::FileName &fileName);
 
     static const DebuggerItem *findByCommand(const Utils::FileName &command);
     static const DebuggerItem *findById(const QVariant &id);
@@ -70,30 +62,13 @@ public:
     static void restoreDebuggers();
     static QString uniqueDisplayName(const QString &base);
 
-    static void removeDebugger(const QVariant &id);
-    static QVariant addDebugger(const DebuggerItem &item);
-
-signals:
-    void debuggerAdded(const QVariant &id);
-    void aboutToRemoveDebugger(const QVariant &id);
-    void debuggerRemoved(const QVariant &id);
-    void debuggerUpdated(const QVariant &id);
-
-public slots:
-    void saveDebuggers();
+    static void updateOrAddDebugger(const DebuggerItem &item);
+    static void saveDebuggers();
 
 private:
-    explicit DebuggerItemManager(QObject *parent = 0);
     static void autoDetectGdbOrLldbDebuggers();
     static void autoDetectCdbDebuggers();
-    static void readLegacyDebuggers();
     static void readLegacyDebuggers(const Utils::FileName &file);
-
-    static Utils::PersistentSettingsWriter *m_writer;
-    static QList<DebuggerItem> m_debuggers;
-
-    friend class Internal::DebuggerItemModel;
-    friend class Internal::DebuggerPlugin; // Enable constrcutor for DebuggerPlugin
 };
 
 } // namespace Debugger
