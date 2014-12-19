@@ -41,6 +41,7 @@ class QTCREATOR_UTILS_EXPORT TreeItem
 {
 public:
     TreeItem();
+    explicit TreeItem(const QStringList &displays);
     virtual ~TreeItem();
 
     virtual TreeItem *parent() const { return m_parent; }
@@ -55,6 +56,8 @@ public:
 
     void prependChild(TreeItem *item);
     void appendChild(TreeItem *item);
+    TreeItem *lastChild() const;
+    int level() const;
 
     void setLazy(bool on);
     void setPopulated(bool on);
@@ -69,9 +72,12 @@ private:
 
     TreeItem *m_parent; // Not owned.
     QVector<TreeItem *> m_children; // Owned.
+    QStringList *m_displays;
     bool m_lazy;
     mutable bool m_populated;
     Qt::ItemFlags m_flags;
+
+    friend class TreeModel;
 };
 
 class QTCREATOR_UTILS_EXPORT TreeModel : public QAbstractItemModel
@@ -93,6 +99,10 @@ public:
     void setRootItem(TreeItem *item);
     TreeItem *itemFromIndex(const QModelIndex &) const;
     QModelIndex indexFromItem(const TreeItem *needle) const;
+
+    void appendItem(TreeItem *parent, TreeItem *item);
+    void removeItem(TreeItem *item); // item is not destroyed.
+    void updateItem(TreeItem *item); // call to trigger dataChanged
 
 private:
     QModelIndex indexFromItemHelper(const TreeItem *needle,
