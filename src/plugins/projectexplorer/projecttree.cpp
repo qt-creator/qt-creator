@@ -220,9 +220,9 @@ void ProjectTree::update(Node *node, Project *project)
 {
     if (project != m_currentProject) {
         if (m_currentProject) {
-            disconnect(m_currentProject, &Project::projectContextUpdated,
+            disconnect(m_currentProject.data(), &Project::projectContextUpdated,
                        this, &ProjectTree::updateContext);
-            disconnect(m_currentProject, &Project::projectLanguagesUpdated,
+            disconnect(m_currentProject.data(), &Project::projectLanguagesUpdated,
                        this, &ProjectTree::updateContext);
         }
 
@@ -230,9 +230,9 @@ void ProjectTree::update(Node *node, Project *project)
         emit currentProjectChanged(m_currentProject);
 
         if (m_currentProject) {
-            connect(m_currentProject, &Project::projectContextUpdated,
+            connect(m_currentProject.data(), &Project::projectContextUpdated,
                     this, &ProjectTree::updateContext);
-            connect(m_currentProject, &Project::projectLanguagesUpdated,
+            connect(m_currentProject.data(), &Project::projectLanguagesUpdated,
                     this, &ProjectTree::updateContext);
         }
     }
