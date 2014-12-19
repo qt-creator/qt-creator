@@ -410,7 +410,7 @@ DumpCommandParameters::ParseOptionResult DumpCommandParameters::parseOption(Stri
 // Display local variables of symbol group in GDBMI or debug output form.
 // Takes an optional iname which is expanded before displaying (for updateWatchData)
 
-static std::string commmandLocals(ExtensionCommandContext &commandExtCtx,PCSTR args, int *token, std::string *errorMessage)
+static std::string commandLocals(ExtensionCommandContext &commandExtCtx,PCSTR args, int *token, std::string *errorMessage)
 {
     typedef WatchesSymbolGroup::InameExpressionMap InameExpressionMap;
     typedef InameExpressionMap::value_type InameExpressionMapEntry;
@@ -565,7 +565,7 @@ extern "C" HRESULT CALLBACK locals(CIDebugClient *client, PCSTR args)
     ExtensionCommandContext exc(client);
     std::string errorMessage;
     int token;
-    const std::string output = commmandLocals(exc, args, &token, &errorMessage);
+    const std::string output = commandLocals(exc, args, &token, &errorMessage);
     SymbolGroupValue::verbose = 0;
     if (output.empty())
         ExtensionContext::instance().report('N', token, 0, "locals", errorMessage.c_str());

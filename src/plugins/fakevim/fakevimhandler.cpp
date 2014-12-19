@@ -1652,7 +1652,7 @@ public:
 
     EventResult handleEvent(QKeyEvent *ev);
     bool wantsOverride(QKeyEvent *ev);
-    bool parseExCommmand(QString *line, ExCommand *cmd);
+    bool parseExCommand(QString *line, ExCommand *cmd);
     bool parseLineRange(QString *line, ExCommand *cmd);
     int parseLineAddress(QString *cmd);
     void parseRangeCount(const QString &line, Range *range) const;
@@ -5280,7 +5280,7 @@ void FakeVimHandler::Private::setCurrentRange(const Range &range)
     g.rangemode = range.rangemode;
 }
 
-bool FakeVimHandler::Private::parseExCommmand(QString *line, ExCommand *cmd)
+bool FakeVimHandler::Private::parseExCommand(QString *line, ExCommand *cmd)
 {
     *cmd = ExCommand();
     if (line->isEmpty())
@@ -6052,7 +6052,7 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
             //qDebug() << "EXECUTING: " << line;
             ExCommand cmd;
             QString commandLine = QString::fromLocal8Bit(line);
-            while (parseExCommmand(&commandLine, &cmd)) {
+            while (parseExCommand(&commandLine, &cmd)) {
                 if (!handleExCommandHelper(cmd))
                     break;
             }
@@ -6092,7 +6092,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &line0)
     beginLargeEditBlock();
     ExCommand cmd;
     QString lastCommand = line;
-    while (parseExCommmand(&line, &cmd)) {
+    while (parseExCommand(&line, &cmd)) {
         if (!handleExCommandHelper(cmd)) {
             showMessage(MessageError, Tr::tr("Not an editor command: %1").arg(lastCommand));
             break;
