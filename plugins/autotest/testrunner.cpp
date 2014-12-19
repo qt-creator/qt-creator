@@ -289,13 +289,11 @@ void processOutput()
                 description.append(line);
             }
         } else if (xmlStartsWith(line, QLatin1String("<QtVersion>"), qtVersion)) {
-            TestResultsPane::instance()->addTestResult(
-                        TestResult(QString(), QString(), QString(), ResultType::MESSAGE_INTERNAL,
-                                   QObject::tr("Qt Version: %1").arg(qtVersion)));
+            TestResultsPane::instance()->addTestResult(FaultyTestResult(ResultType::MESSAGE_INTERNAL,
+                QObject::tr("Qt Version: %1").arg(qtVersion)));
         } else if (xmlStartsWith(line, QLatin1String("<QTestVersion>"), qtestVersion)) {
-            TestResultsPane::instance()->addTestResult(
-                        TestResult(QString(), QString(), QString(), ResultType::MESSAGE_INTERNAL,
-                                   QObject::tr("QTest Version: %1").arg(qtestVersion)));
+            TestResultsPane::instance()->addTestResult(FaultyTestResult(ResultType::MESSAGE_INTERNAL,
+                QObject::tr("QTest Version: %1").arg(qtestVersion)));
         } else {
 //            qDebug() << "Unhandled line:" << line; // TODO remove
         }
@@ -346,9 +344,8 @@ bool performExec(const QString &cmd, const QStringList &args, const QString &wor
     }
 
     if (runCmd.isEmpty()) {
-        TestResultsPane::instance()->addTestResult(
-                    TestResult(QString(), QString(), QString(), ResultType::MESSAGE_FATAL,
-                               QObject::tr("*** Could not find command '%1' ***").arg(cmd)));
+        TestResultsPane::instance()->addTestResult(FaultyTestResult(ResultType::MESSAGE_FATAL,
+            QObject::tr("*** Could not find command '%1' ***").arg(cmd)));
         return false;
     }
 
@@ -369,9 +366,8 @@ bool performExec(const QString &cmd, const QStringList &args, const QString &wor
             if (m_currentFuture->isCanceled()) {
                 m_runner->kill();
                 m_runner->waitForFinished();
-                TestResultsPane::instance()->addTestResult(
-                            TestResult(QString(), QString(), QString(), ResultType::MESSAGE_FATAL,
-                                       QObject::tr("*** Test Run canceled by user ***")));
+                TestResultsPane::instance()->addTestResult(FaultyTestResult(ResultType::MESSAGE_FATAL,
+                    QObject::tr("*** Test Run canceled by user ***")));
             }
             qApp->processEvents();
         }
@@ -382,10 +378,8 @@ bool performExec(const QString &cmd, const QStringList &args, const QString &wor
         if (m_runner->state() != QProcess::NotRunning) {
             m_runner->kill();
             m_runner->waitForFinished();
-            TestResultsPane::instance()->addTestResult(
-                        TestResult(QString(), QString(), QString(), ResultType::MESSAGE_FATAL,
-                                   QObject::tr("*** Test Case canceled due to timeout ***\n"
-                                               "Maybe raise the timeout?")));
+            TestResultsPane::instance()->addTestResult(FaultyTestResult(ResultType::MESSAGE_FATAL,
+                QObject::tr("*** Test Case canceled due to timeout ***\nMaybe raise the timeout?")));
         }
         return false;
     }
@@ -444,11 +438,10 @@ void TestRunner::runTests()
     foreach (TestConfiguration *config, m_selectedTests)
         if (!config->project()) {
             toBeRemoved.append(config);
-            TestResultsPane::instance()->addTestResult(
-                        TestResult(QString(), QString(), QString(), ResultType::MESSAGE_WARN,
-                                   tr("*** Project is null for '%1' - removing from Test Run ***\n"
-                                      "This might be the case for a faulty environment or similar."
-                                      ).arg(config->displayName())));
+            TestResultsPane::instance()->addTestResult(FaultyTestResult(ResultType::MESSAGE_WARN,
+                tr("*** Project is null for '%1' - removing from Test Run ***\n"
+                "This might be the case for a faulty environment or similar."
+                ).arg(config->displayName())));
         }
     foreach (TestConfiguration *config, toBeRemoved) {
         m_selectedTests.removeOne(config);
@@ -456,19 +449,17 @@ void TestRunner::runTests()
     }
 
     if (m_selectedTests.empty()) {
-        TestResultsPane::instance()->addTestResult(
-                    TestResult(QString(), QString(), QString(), ResultType::MESSAGE_WARN,
-                               tr("*** No tests selected - canceling Test Run ***")));
+        TestResultsPane::instance()->addTestResult(FaultyTestResult(ResultType::MESSAGE_WARN,
+            tr("*** No tests selected - canceling Test Run ***")));
         return;
     }
 
     ProjectExplorer::Project *project = m_selectedTests.at(0)->project();
     if (!project) {
-        TestResultsPane::instance()->addTestResult(
-                    TestResult(QString(), QString(), QString(), ResultType::MESSAGE_WARN,
-                               tr("*** Project is null - canceling Test Run ***\n"
-                                  "Actually only Desktop kits are supported - make sure the "
-                                  "current active kit is a Desktop kit.")));
+        TestResultsPane::instance()->addTestResult(FaultyTestResult(ResultType::MESSAGE_WARN,
+            tr("*** Project is null - canceling Test Run ***\n"
+            "Actually only Desktop kits are supported - make sure the "
+            "current active kit is a Desktop kit.")));
         return;
     }
 
@@ -476,9 +467,8 @@ void TestRunner::runTests()
     ProjectExplorer::Internal::ProjectExplorerSettings pes = pep->projectExplorerSettings();
     if (pes.buildBeforeDeploy) {
         if (!project->hasActiveBuildSettings()) {
-            TestResultsPane::instance()->addTestResult(
-                        TestResult(QString(), QString(), QString(), ResultType::MESSAGE_FATAL,
-                                   tr("*** Project is not configured - canceling Test Run ***")));
+            TestResultsPane::instance()->addTestResult(FaultyTestResult(ResultType::MESSAGE_FATAL,
+                tr("*** Project is not configured - canceling Test Run ***")));
             return;
         }
         buildProject(project);
@@ -487,9 +477,8 @@ void TestRunner::runTests()
         }
 
         if (!m_buildSucceeded) {
-            TestResultsPane::instance()->addTestResult(
-                        TestResult(QString(), QString(), QString(), ResultType::MESSAGE_FATAL,
-                                   tr("*** Build failed - canceling Test Run ***")));
+            TestResultsPane::instance()->addTestResult(FaultyTestResult(ResultType::MESSAGE_FATAL,
+                tr("*** Build failed - canceling Test Run ***")));
             return;
         }
     }

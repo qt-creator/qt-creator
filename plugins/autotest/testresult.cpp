@@ -21,6 +21,11 @@
 namespace Autotest {
 namespace Internal {
 
+FaultyTestResult::FaultyTestResult(ResultType result, const QString &description)
+    : TestResult(QString(), QString(), QString(), result, description)
+{
+}
+
 TestResult::TestResult(const QString &className, const QString &testCase, const QString &dataTag,
                        ResultType result, const QString &description)
     : m_class(className),

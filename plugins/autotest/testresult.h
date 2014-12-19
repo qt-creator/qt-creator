@@ -76,6 +76,12 @@ private:
     // environment?
 };
 
+class FaultyTestResult : public TestResult
+{
+public:
+    FaultyTestResult(ResultType result, const QString &description);
+};
+
 bool operator==(const TestResult &t1, const TestResult &t2);
 
 } // namespace Internal
