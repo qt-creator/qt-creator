@@ -1,6 +1,5 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Tim Sander <tim@krieglstein.org>
 ** Copyright (C) 2014 Denis Shienkov <denis.shienkov@gmail.com>
 ** Contact: http://www.qt-project.org/legal
 **
@@ -29,31 +28,79 @@
 **
 ****************************************************************************/
 
-#ifndef BAREMETALRUNCONTROLFACTORY_H
-#define BAREMETALRUNCONTROLFACTORY_H
+#ifndef DEFAULTGDBSERVERPROVIDER_H
+#define DEFAULTGDBSERVERPROVIDER_H
 
-#include "baremetalrunconfiguration.h"
-
-#include <projectexplorer/runconfiguration.h>
-#include <debugger/debuggerstartparameters.h>
+#include "gdbserverprovider.h"
 
 namespace BareMetal {
 namespace Internal {
 
-class BareMetalRunControlFactory : public ProjectExplorer::IRunControlFactory
+class DefaultGdbServerProviderConfigWidget;
+class DefaultGdbServerProviderFactory;
+
+class DefaultGdbServerProvider : public GdbServerProvider
+{
+public:
+    QString typeDisplayName() const;
+
+    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &data);
+
+    bool operator==(const GdbServerProvider &) const;
+
+    GdbServerProviderConfigWidget *configurationWidget();
+    GdbServerProvider *clone() const;
+
+    QString channel() const;
+
+    bool isValid() const;
+
+private:
+    explicit DefaultGdbServerProvider();
+    explicit DefaultGdbServerProvider(const DefaultGdbServerProvider &);
+
+    QString m_host;
+    quint16 m_port;
+
+    friend class DefaultGdbServerProviderConfigWidget;
+    friend class DefaultGdbServerProviderFactory;
+};
+
+class DefaultGdbServerProviderFactory : public GdbServerProviderFactory
 {
     Q_OBJECT
 
 public:
-    explicit BareMetalRunControlFactory(QObject *parent = 0);
-    ~BareMetalRunControlFactory();
-    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const;
-    ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
-                                        ProjectExplorer::RunMode mode,
-                                        QString *errorMessage);
+    explicit DefaultGdbServerProviderFactory();
+
+    GdbServerProvider *create();
+
+    bool canRestore(const QVariantMap &data);
+    GdbServerProvider *restore(const QVariantMap &data);
+
+    GdbServerProviderConfigWidget *configurationWidget(GdbServerProvider *);
+};
+
+class DefaultGdbServerProviderConfigWidget : public GdbServerProviderConfigWidget
+{
+    Q_OBJECT
+
+public:
+    explicit DefaultGdbServerProviderConfigWidget(DefaultGdbServerProvider *);
+
+private:
+    void applyImpl();
+    void discardImpl();
+
+    void setFromProvider();
+
+    QPointer<HostWidget> m_hostWidget;
+    QPointer<QPlainTextEdit> m_initCommandsTextEdit;
+    QPointer<QPlainTextEdit> m_resetCommandsTextEdit;
 };
 
 } // namespace Internal
 } // namespace BareMetal
 
-#endif // BAREMETALRUNCONTROLFACTORY_H
+#endif // DEFAULTGDBSERVERPROVIDER_H

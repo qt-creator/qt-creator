@@ -1,6 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2014 Tim Sander <tim@krieglstein.org>
+** Copyright (C) 2014 Denis Shienkov <denis.shienkov@gmail.com>
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -31,16 +32,18 @@
 #ifndef BAREMETALDEVICECONFIGURATIONWIZARDPAGES_H
 #define BAREMETALDEVICECONFIGURATIONWIZARDPAGES_H
 
+#include <QPointer>
+
 #include <QWizardPage>
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;
-class QSpinBox;
-class QPlainTextEdit;
 QT_END_NAMESPACE
 
 namespace BareMetal {
 namespace Internal {
+
+class GdbServerProviderChooser;
 
 class BareMetalDeviceConfigurationWizardSetupPage : public QWizardPage
 {
@@ -52,19 +55,13 @@ public:
     void initializePage();
     bool isComplete() const;
     QString configurationName() const;
-    QString gdbHostname() const;
-    quint16 gdbPort() const;
-    QString gdbResetCommands() const;
-    QString gdbInitCommands() const;
+    QString gdbServerProviderId() const;
 
     virtual QString defaultConfigurationName() const;
 
 private:
-    QLineEdit *m_nameLineEdit;
-    QLineEdit *m_hostNameLineEdit;
-    QSpinBox *m_portSpinBox;
-    QPlainTextEdit *m_gdbResetCommandsTextEdit;
-    QPlainTextEdit *m_gdbInitCommandsPlainTextEdit;
+    QPointer<QLineEdit> m_nameLineEdit;
+    QPointer<GdbServerProviderChooser> m_gdbServerProviderChooser;
 };
 
 } // namespace Internal

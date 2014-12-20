@@ -13,6 +13,7 @@ QtcPlugin {
     Depends { name: "QtSupport" }
 
     files: [
+        "baremetal.qrc",
         "baremetalconstants.h",
         "baremetaldevice.cpp", "baremetaldevice.h",
         "baremetaldeviceconfigurationfactory.cpp", "baremetaldeviceconfigurationfactory.h",
@@ -25,5 +26,14 @@ QtcPlugin {
         "baremetalrunconfigurationfactory.cpp", "baremetalrunconfigurationfactory.h",
         "baremetalrunconfigurationwidget.cpp", "baremetalrunconfigurationwidget.h",
         "baremetalruncontrolfactory.cpp", "baremetalruncontrolfactory.h",
+        "baremetaldebugsupport.cpp", "baremetaldebugsupport.h",
+        "gdbserverproviderprocess.cpp", "gdbserverproviderprocess.h",
+        "gdbserverproviderssettingspage.cpp", "gdbserverproviderssettingspage.h",
+        "gdbserverprovider.cpp", "gdbserverprovider.h",
+        "gdbserverproviderchooser.cpp", "gdbserverproviderchooser.h",
+        "gdbserverprovidermanager.cpp", "gdbserverprovidermanager.h",
+        "openocdgdbserverprovider.cpp", "openocdgdbserverprovider.h",
+        "defaultgdbserverprovider.cpp", "defaultgdbserverprovider.h",
+        "stlinkutilgdbserverprovider.cpp", "stlinkutilgdbserverprovider.h",
     ]
 }

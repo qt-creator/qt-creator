@@ -1,6 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2014 Tim Sander <tim@krieglstein.org>
+** Copyright (C) 2014 Denis Shienkov <denis.shienkov@gmail.com>
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -32,9 +33,6 @@
 #include "baremetaldeviceconfigurationwizardpages.h"
 #include "baremetaldevice.h"
 #include "baremetalconstants.h"
-#include "ssh/sshconnection.h"
-
-using namespace ProjectExplorer;
 
 namespace BareMetal {
 namespace Internal {
@@ -50,19 +48,14 @@ BareMetalDeviceConfigurationWizard::BareMetalDeviceConfigurationWizard(QWidget *
     m_setupPage->setCommitPage(true);
 }
 
-IDevice::Ptr BareMetalDeviceConfigurationWizard::device() const
+ProjectExplorer::IDevice::Ptr BareMetalDeviceConfigurationWizard::device() const
 {
-    //sshParams is not really used as ssh parameters but as debugger parameters
-    QSsh::SshConnectionParameters sshParams;
-    sshParams.host = m_setupPage->gdbHostname();
-    sshParams.port = m_setupPage->gdbPort();
-    BareMetalDevice::Ptr device = BareMetalDevice::create(m_setupPage->configurationName(),
-                                                          Constants::BareMetalOsType,
-                                                          IDevice::Hardware);
-    device->setSshParameters(sshParams);
-    device->setGdbResetCommands(m_setupPage->gdbResetCommands());
-    device->setGdbInitCommands(m_setupPage->gdbInitCommands());
-    return device;
+    auto dev = BareMetalDevice::create(m_setupPage->configurationName(),
+                                       Constants::BareMetalOsType,
+                                       ProjectExplorer::IDevice::Hardware);
+
+    dev->setGdbServerProviderId(m_setupPage->gdbServerProviderId());
+    return dev;
 }
 
 } // namespace Internal

@@ -1,6 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2014 Tim Sander <tim@krieglstein.org>
+** Copyright (C) 2014 Denis Shienkov <denis.shienkov@gmail.com>
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -33,14 +34,12 @@
 
 #include <projectexplorer/devicesupport/idevicewidget.h>
 
-QT_BEGIN_NAMESPACE
-class QLineEdit;
-class QSpinBox;
-class QPlainTextEdit;
-QT_END_NAMESPACE
+#include <QPointer>
 
 namespace BareMetal {
 namespace Internal {
+
+class GdbServerProviderChooser;
 
 class BareMetalDeviceConfigurationWidget
       : public ProjectExplorer::IDeviceWidget
@@ -52,19 +51,12 @@ public:
         const ProjectExplorer::IDevice::Ptr &deviceConfig, QWidget *parent = 0);
 
 private slots:
-    void hostnameChanged();
-    void portChanged();
-    void gdbResetCommandsChanged();
-    void gdbInitCommandsChanged();
+    void gdbServerProviderChanged();
 
 private:
     void updateDeviceFromUi();
-    void initGui();
 
-    QLineEdit *m_gdbHostLineEdit;
-    QSpinBox *m_gdbPortSpinBox;
-    QPlainTextEdit *m_gdbResetCommandsTextEdit;
-    QPlainTextEdit *m_gdbInitCommandsTextEdit;
+    QPointer<GdbServerProviderChooser> m_gdbServerProviderChooser;
 };
 
 } // namespace Internal

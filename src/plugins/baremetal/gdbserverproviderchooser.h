@@ -1,6 +1,5 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Tim Sander <tim@krieglstein.org>
 ** Copyright (C) 2014 Denis Shienkov <denis.shienkov@gmail.com>
 ** Contact: http://www.qt-project.org/legal
 **
@@ -29,28 +28,56 @@
 **
 ****************************************************************************/
 
-#ifndef BAREMETAL_H
-#define BAREMETAL_H
+#ifndef GDBSERVERPROVIDERCHOOSER_H
+#define GDBSERVERPROVIDERCHOOSER_H
 
-#include <extensionsystem/iplugin.h>
+#include <QPointer>
+
+#include <QWidget>
+
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QPushButton;
+QT_END_NAMESPACE
+
+namespace Core { class Id; }
 
 namespace BareMetal {
 namespace Internal {
 
-class BareMetalPlugin : public ExtensionSystem::IPlugin
+class GdbServerProvider;
+
+class GdbServerProviderChooser : public QWidget
 {
-   Q_OBJECT
-   Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "BareMetal.json")
+    Q_OBJECT
 
 public:
-   BareMetalPlugin();
-   ~BareMetalPlugin();
+    explicit GdbServerProviderChooser(
+            bool useManageButton = true, QWidget *parent = 0);
 
-   bool initialize(const QStringList &arguments, QString *errorString);
-   void extensionsInitialized();
+    QString currentProviderId() const;
+    void setCurrentProviderId(const QString &id);
+
+signals:
+    void providerChanged();
+
+public slots:
+    void populate();
+
+private slots:
+    void currentIndexChanged(int index);
+    void manageButtonClicked();
+
+protected:
+    bool providerMatches(const GdbServerProvider *) const;
+    QString providerText(const GdbServerProvider *) const;
+
+private:
+    QPointer<QComboBox> m_chooser;
+    QPointer<QPushButton> m_manageButton;
 };
 
 } // namespace Internal
 } // namespace BareMetal
 
-#endif // BAREMETAL_H
+#endif // GDBSERVERPROVIDERCHOOSER_H

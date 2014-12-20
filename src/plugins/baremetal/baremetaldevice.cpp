@@ -1,6 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2014 Tim Sander <tim@krieglstein.org>
+** Copyright (C) 2014 Denis Shienkov <denis.shienkov@gmail.com>
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -30,6 +31,9 @@
 
 #include "baremetaldevice.h"
 #include "baremetaldeviceconfigurationwidget.h"
+
+#include "gdbserverproviderprocess.h"
+
 #include <coreplugin/id.h>
 #include <utils/qtcassert.h>
 #include <QCoreApplication>
@@ -39,8 +43,7 @@ using namespace ProjectExplorer;
 namespace BareMetal {
 namespace Internal {
 
-const char GdbResetKey[] = "GdbResetCommand";
-const char GdbCommandsKey[] = "GdbCommands";
+const char gdbServerProviderIdKeyC[] = "GdbServerProviderId";
 
 BareMetalDevice::Ptr BareMetalDevice::create()
 {
@@ -57,18 +60,26 @@ BareMetalDevice::Ptr BareMetalDevice::create(const BareMetalDevice &other)
     return Ptr(new BareMetalDevice(other));
 }
 
+QString BareMetalDevice::gdbServerProviderId() const
+{
+    return m_gdbServerProviderId;
+}
+
+void BareMetalDevice::setGdbServerProviderId(const QString &id)
+{
+    m_gdbServerProviderId = id;
+}
+
 void BareMetalDevice::fromMap(const QVariantMap &map)
 {
     IDevice::fromMap(map);
-    setGdbResetCommands(map.value(QLatin1String(GdbResetKey)).toString());
-    setGdbInitCommands(map.value(QLatin1String(GdbCommandsKey)).toString());
+    setGdbServerProviderId(map.value(QLatin1String(gdbServerProviderIdKeyC)).toString());
 }
 
 QVariantMap BareMetalDevice::toMap() const
 {
     QVariantMap map = IDevice::toMap();
-    map.insert(QLatin1String(GdbResetKey), gdbResetCommands());
-    map.insert(QLatin1String(GdbCommandsKey), gdbInitCommands());
+    map.insert(QLatin1String(gdbServerProviderIdKeyC), gdbServerProviderId());
     return map;
 }
 
@@ -109,6 +120,11 @@ void BareMetalDevice::executeAction(Core::Id actionId, QWidget *parent)
     Q_UNUSED(parent);
 }
 
+ProjectExplorer::DeviceProcess *BareMetalDevice::createProcess(QObject *parent) const
+{
+    return new GdbServerProviderProcess(sharedFromThis(), parent);
+}
+
 BareMetalDevice::BareMetalDevice(const QString &name, Core::Id type, MachineType machineType, Origin origin, Core::Id id)
     : IDevice(type, origin, machineType, id)
 {
@@ -118,50 +134,7 @@ BareMetalDevice::BareMetalDevice(const QString &name, Core::Id type, MachineType
 BareMetalDevice::BareMetalDevice(const BareMetalDevice &other)
     : IDevice(other)
 {
-    setGdbResetCommands(other.gdbResetCommands());
-    setGdbInitCommands(other.gdbInitCommands());
-}
-
-QString BareMetalDevice::exampleString()
-{
-    return QLatin1String("<p><i>")
-            + QCoreApplication::translate("BareMetal", "Example:")
-            + QLatin1String("</i><p>");
-}
-
-QString BareMetalDevice::hostLineToolTip()
-{
-    return QLatin1String("<html>")
-            + QCoreApplication::translate("BareMetal",
-              "Enter your hostname like \"localhost\" or \"192.0.2.1\" or "
-              "a command which must support GDB pipelining "
-              "starting with a pipe symbol.")
-            + exampleString() + QLatin1String(
-              "&nbsp;&nbsp;|openocd -c \"gdb_port pipe; "
-              "log_output openocd.log\" -f boards/myboard.cfg");
-}
-
-QString BareMetalDevice::resetCommandToolTip()
-{
-    return QLatin1String("<html>")
-            + QCoreApplication::translate("BareMetal",
-              "Enter the hardware reset command here.<br>"
-              "The CPU should be halted after this command.")
-            + exampleString() + QLatin1String(
-              "&nbsp;&nbsp;monitor reset halt");
-}
-
-QString BareMetalDevice::initCommandToolTip()
-{
-    return QLatin1String("<html>")
-            + QCoreApplication::translate("BareMetal",
-              "Enter commands to reset the board, and write the nonvolatile memory.")
-            + exampleString() + QLatin1String(
-              "&nbsp;&nbsp;set remote hardware-breakpoint-limit 6<br/>"
-              "&nbsp;&nbsp;set remote hardware-watchpoint-limit 4<br/>"
-              "&nbsp;&nbsp;monitor reset halt<br/>"
-              "&nbsp;&nbsp;load<br/>"
-              "&nbsp;&nbsp;monitor reset halt");
+    setGdbServerProviderId(other.gdbServerProviderId());
 }
 
 } //namespace Internal

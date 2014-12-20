@@ -1,6 +1,5 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Tim Sander <tim@krieglstein.org>
 ** Copyright (C) 2014 Denis Shienkov <denis.shienkov@gmail.com>
 ** Contact: http://www.qt-project.org/legal
 **
@@ -29,28 +28,65 @@
 **
 ****************************************************************************/
 
-#ifndef BAREMETAL_H
-#define BAREMETAL_H
+#ifndef GDBSERVERPROVIDERMANAGER_H
+#define GDBSERVERPROVIDERMANAGER_H
 
-#include <extensionsystem/iplugin.h>
+#include <QObject>
+#include <QList>
+
+#include <utils/fileutils.h>
+
+namespace Utils { class PersistentSettingsWriter; }
 
 namespace BareMetal {
 namespace Internal {
 
-class BareMetalPlugin : public ExtensionSystem::IPlugin
+class BareMetalPlugin;
+class GdbServerProvider;
+class GdbServerProviderFactory;
+
+class GdbServerProviderManager : public QObject
 {
-   Q_OBJECT
-   Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "BareMetal.json")
+    Q_OBJECT
 
 public:
-   BareMetalPlugin();
-   ~BareMetalPlugin();
+    static GdbServerProviderManager *instance();
+    ~GdbServerProviderManager();
 
-   bool initialize(const QStringList &arguments, QString *errorString);
-   void extensionsInitialized();
+    QList<GdbServerProvider *> providers() const;
+    QList<GdbServerProviderFactory *> factories() const;
+    GdbServerProvider *findProvider(const QString &id) const;
+    bool registerProvider(GdbServerProvider *);
+    void deregisterProvider(GdbServerProvider *);
+
+public slots:
+    void saveProviders();
+
+signals:
+    void providerAdded(GdbServerProvider *);
+    void providerRemoved(GdbServerProvider *);
+    void providerUpdated(GdbServerProvider *);
+    void providersChanged();
+    void providersLoaded();
+
+private:
+    explicit GdbServerProviderManager(QObject *parent = 0);
+
+    void restoreProviders();
+    void notifyAboutUpdate(GdbServerProvider *);
+
+    Utils::PersistentSettingsWriter *m_writer;
+    QList<GdbServerProvider *> m_providers;
+    const Utils::FileName m_configFile;
+    const QList<GdbServerProviderFactory *> m_factories;
+
+    static GdbServerProviderManager *m_instance;
+
+    friend class BareMetalPlugin; // for constructor
+    friend class GdbServerProvider;
 };
 
 } // namespace Internal
 } // namespace BareMetal
 
-#endif // BAREMETAL_H
+#endif // GDBSERVERPROVIDERMANAGER_H

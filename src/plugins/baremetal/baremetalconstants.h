@@ -1,6 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2014 Tim Sander <tim@krieglstein.org>
+** Copyright (C) 2014 Denis Shienkov <denis.shienkov@gmail.com>
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -39,8 +40,18 @@ const char BareMetalOsType[] = "BareMetalOsType";
 const char ACTION_ID[] = "BareMetal.Action";
 const char MENU_ID[] = "BareMetal.Menu";
 
+const char BAREMETAL_SETTINGS_CATEGORY[] = "ZZ.BareMetal";
+const char BAREMETAL_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("BareMetal", "BareMetal");
+const char BAREMETAL_SETTINGS_CATEGORY_ICON[] = ":/baremetal/images/QtBareMetal.png";
+
+const char GDB_PROVIDERS_SETTINGS_ID[] = "AA.BareMetal.GdbServerProvidersOptions";
+
+// Debugger Server Provider Ids
+const char OPENOCD_PROVIDER_ID[] = "BareMetal.GdbServerProvider.OpenOcd";
+const char DEFAULT_PROVIDER_ID[] = "BareMetal.GdbServerProvider.Default";
+const char STLINK_UTIL_PROVIDER_ID[] = "BareMetal.GdbServerProvider.STLinkUtil";
+
 } // namespace BareMetal
 } // namespace Constants
 
 #endif // BAREMETALCONSTANTS_H
-

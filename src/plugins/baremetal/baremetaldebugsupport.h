@@ -1,6 +1,5 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Tim Sander <tim@krieglstein.org>
 ** Copyright (C) 2014 Denis Shienkov <denis.shienkov@gmail.com>
 ** Contact: http://www.qt-project.org/legal
 **
@@ -29,28 +28,64 @@
 **
 ****************************************************************************/
 
-#ifndef BAREMETAL_H
-#define BAREMETAL_H
+#ifndef BAREMETALDEBUGSUPPORT_H
+#define BAREMETALDEBUGSUPPORT_H
 
-#include <extensionsystem/iplugin.h>
+#include <QObject>
+#include <QPointer>
+
+#include <projectexplorer/devicesupport/idevice.h>
+
+namespace Debugger { class DebuggerRunControl; }
+
+namespace ProjectExplorer {
+class DeviceApplicationRunner;
+class IDevice;
+}
 
 namespace BareMetal {
 namespace Internal {
 
-class BareMetalPlugin : public ExtensionSystem::IPlugin
+class GdbServerProvider;
+class BareMetalRunConfiguration;
+
+class BareMetalDebugSupport : public QObject
 {
-   Q_OBJECT
-   Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "BareMetal.json")
+    Q_OBJECT
 
 public:
-   BareMetalPlugin();
-   ~BareMetalPlugin();
+    explicit BareMetalDebugSupport(const ProjectExplorer::IDevice::ConstPtr device,
+                                   Debugger::DebuggerRunControl *runControl);
+    ~BareMetalDebugSupport();
 
-   bool initialize(const QStringList &arguments, QString *errorString);
-   void extensionsInitialized();
+private slots:
+    void remoteSetupRequested();
+    void debuggingFinished();
+    void remoteOutputMessage(const QByteArray &output);
+    void remoteErrorOutputMessage(const QByteArray &output);
+    void remoteProcessStarted();
+    void appRunnerFinished(bool success);
+    void progressReport(const QString &progressOutput);
+    void appRunnerError(const QString &error);
+
+private:
+    enum State { Inactive, StartingRunner, Running };
+
+    void adapterSetupDone();
+    void adapterSetupFailed(const QString &error);
+
+    void startExecution();
+    void setFinished();
+    void reset();
+    void showMessage(const QString &msg, int channel);
+
+    QPointer<ProjectExplorer::DeviceApplicationRunner> m_appRunner;
+    const QPointer<Debugger::DebuggerRunControl> m_runControl;
+    const ProjectExplorer::IDevice::ConstPtr m_device;
+    BareMetalDebugSupport::State m_state;
 };
 
 } // namespace Internal
 } // namespace BareMetal
 
-#endif // BAREMETAL_H
+#endif // BAREMETALDEBUGSUPPORT_H

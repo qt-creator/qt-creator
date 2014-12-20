@@ -1,6 +1,5 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Tim Sander <tim@krieglstein.org>
 ** Copyright (C) 2014 Denis Shienkov <denis.shienkov@gmail.com>
 ** Contact: http://www.qt-project.org/legal
 **
@@ -29,28 +28,46 @@
 **
 ****************************************************************************/
 
-#ifndef BAREMETAL_H
-#define BAREMETAL_H
+#ifndef GDBSERVERPROVIDERPROCESS_H
+#define GDBSERVERPROVIDERPROCESS_H
 
-#include <extensionsystem/iplugin.h>
+#include <projectexplorer/devicesupport/deviceprocess.h>
 
 namespace BareMetal {
 namespace Internal {
 
-class BareMetalPlugin : public ExtensionSystem::IPlugin
+class GdbServerProviderProcess : public ProjectExplorer::DeviceProcess
 {
-   Q_OBJECT
-   Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "BareMetal.json")
-
+    Q_OBJECT
 public:
-   BareMetalPlugin();
-   ~BareMetalPlugin();
+    explicit GdbServerProviderProcess(
+            const QSharedPointer<const ProjectExplorer::IDevice> &device,
+            QObject *parent = 0);
 
-   bool initialize(const QStringList &arguments, QString *errorString);
-   void extensionsInitialized();
+    void start(const QString &executable, const QStringList &arguments);
+    void interrupt();
+    void terminate();
+    void kill();
+
+    QProcess::ProcessState state() const;
+    QProcess::ExitStatus exitStatus() const;
+    int exitCode() const;
+    QString errorString() const;
+
+    Utils::Environment environment() const;
+    void setEnvironment(const Utils::Environment &);
+    void setWorkingDirectory(const QString &);
+
+    QByteArray readAllStandardOutput();
+    QByteArray readAllStandardError();
+
+    qint64 write(const QByteArray &data);
+
+private:
+    QProcess * const m_process;
 };
 
 } // namespace Internal
 } // namespace BareMetal
 
-#endif // BAREMETAL_H
+#endif // GDBSERVERPROVIDERPROCESS_H

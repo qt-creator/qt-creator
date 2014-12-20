@@ -1,6 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2014 Tim Sander <tim@krieglstein.org>
+** Copyright (C) 2014 Denis Shienkov <denis.shienkov@gmail.com>
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -56,19 +57,14 @@ public:
 
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const;
 
-    QString gdbResetCommands() const { return m_gdbResetCommands; }
-    void setGdbResetCommands(const QString &gdbResetCommands) { m_gdbResetCommands = gdbResetCommands; }
+    bool canCreateProcess() const { return true; }
+    ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const;
 
-    QString gdbInitCommands() const { return m_gdbInitCommands; }
-    void setGdbInitCommands(const QString &gdbCommands) { m_gdbInitCommands=gdbCommands; }
+    QString gdbServerProviderId() const;
+    void setGdbServerProviderId(const QString &id);
 
     virtual void fromMap(const QVariantMap &map);
     virtual QVariantMap toMap() const;
-
-    static QString exampleString();
-    static QString hostLineToolTip();
-    static QString initCommandToolTip();
-    static QString resetCommandToolTip();
 
 protected:
     BareMetalDevice() {}
@@ -78,8 +74,7 @@ protected:
 
 private:
     BareMetalDevice &operator=(const BareMetalDevice &);
-    QString m_gdbResetCommands;
-    QString m_gdbInitCommands;
+    QString m_gdbServerProviderId;
 };
 
 } //namespace Internal

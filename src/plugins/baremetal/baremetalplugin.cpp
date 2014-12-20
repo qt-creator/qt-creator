@@ -1,6 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2014 Tim Sander <tim@krieglstein.org>
+** Copyright (C) 2014 Denis Shienkov <denis.shienkov@gmail.com>
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -33,6 +34,9 @@
 #include "baremetaldeviceconfigurationfactory.h"
 #include "baremetalruncontrolfactory.h"
 #include "baremetalrunconfigurationfactory.h"
+
+#include "gdbserverproviderssettingspage.h"
+#include "gdbserverprovidermanager.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -67,10 +71,15 @@ bool BareMetalPlugin::initialize(const QStringList &arguments, QString *errorStr
    addAutoReleasedObject(new BareMetalDeviceConfigurationFactory);
    addAutoReleasedObject(new BareMetalRunControlFactory);
    addAutoReleasedObject(new BareMetalRunConfigurationFactory);
+   addAutoReleasedObject(new GdbServerProvidersSettingsPage);
 
    return true;
 }
 
+void BareMetalPlugin::extensionsInitialized()
+{
+    GdbServerProviderManager::instance()->restoreProviders();
+}
+
 } // namespace Internal
 } // namespace BareMetal
-
