@@ -233,7 +233,7 @@ void OpenEditorsWindow::addHistoryItems(const QList<EditLocation> &history, Edit
         item->setIcon(0, !hi.document->filePath().isEmpty() && hi.document->isFileReadOnly()
                       ? DocumentModel::lockedIcon() : m_emptyIcon);
         item->setText(0, title);
-        item->setToolTip(0, hi.document->filePath());
+        item->setToolTip(0, hi.document->filePath().toString());
         item->setData(0, Qt::UserRole, QVariant::fromValue(hi.document.data()));
         item->setData(0, Qt::UserRole+1, QVariant::fromValue(view));
         item->setTextAlignment(0, Qt::AlignLeft);

@@ -244,7 +244,7 @@ QmakePriFile::QmakePriFile(QmakeProjectManager::QmakePriFileNode *qmakePriFile)
 {
     setId("Qmake.PriFile");
     setMimeType(QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE));
-    setFilePath(m_priFile->path());
+    setFilePath(Utils::FileName::fromString(m_priFile->path()));
 }
 
 bool QmakePriFile::save(QString *errorString, const QString &fileName, bool autoSave)

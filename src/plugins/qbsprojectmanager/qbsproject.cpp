@@ -157,7 +157,7 @@ QString QbsProject::displayName() const
 IDocument *QbsProject::document() const
 {
     foreach (IDocument *doc, m_qbsDocuments) {
-        if (doc->filePath() == m_fileName)
+        if (doc->filePath().toString() == m_fileName)
             return doc;
     }
     QTC_ASSERT(false, return 0);
@@ -211,7 +211,7 @@ public:
         : m_document(0)
     {
         foreach (Core::IDocument * const doc, documents) {
-            if (doc->filePath() == filePath) {
+            if (doc->filePath().toString() == filePath) {
                 m_document = doc;
                 break;
             }
@@ -226,7 +226,7 @@ public:
     {
         QTC_ASSERT(m_document, return);
         Core::DocumentManager::addDocument(m_document);
-        Core::DocumentManager::unexpectFileChange(m_document->filePath());
+        Core::DocumentManager::unexpectFileChange(m_document->filePath().toString());
     }
 
 private:
@@ -658,7 +658,7 @@ void QbsProject::updateDocuments(const QSet<QString> &files)
     QTC_ASSERT(!newFiles.isEmpty(), newFiles << m_fileName);
     QSet<QString> oldFiles;
     foreach (IDocument *doc, m_qbsDocuments)
-        oldFiles.insert(doc->filePath());
+        oldFiles.insert(doc->filePath().toString());
 
     QSet<QString> filesToAdd = newFiles;
     filesToAdd.subtract(oldFiles);
@@ -667,7 +667,7 @@ void QbsProject::updateDocuments(const QSet<QString> &files)
 
     QSet<IDocument *> currentDocuments = m_qbsDocuments;
     foreach (IDocument *doc, currentDocuments) {
-        if (filesToRemove.contains(doc->filePath())) {
+        if (filesToRemove.contains(doc->filePath().toString())) {
             m_qbsDocuments.remove(doc);
             delete doc;
         }

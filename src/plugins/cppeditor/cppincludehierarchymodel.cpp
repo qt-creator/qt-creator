@@ -174,7 +174,7 @@ void CppIncludeHierarchyModel::fetchMore(const QModelIndex &parent)
         return;
 
     if (parentItem->needChildrenPopulate()) {
-        const QString editorFilePath = m_editor->document()->filePath();
+        const QString editorFilePath = m_editor->document()->filePath().toString();
         QSet<QString> cyclic;
         cyclic << editorFilePath;
         CppIncludeHierarchyItem *item = parentItem->parent();
@@ -285,7 +285,7 @@ void CppIncludeHierarchyModel::buildHierarchyIncludes(const QString &currentFile
     if (!m_editor)
         return;
 
-    const QString editorFilePath = m_editor->document()->filePath();
+    const QString editorFilePath = m_editor->document()->filePath().toString();
     auto *documentProcessor = BaseEditorDocumentProcessor::get(editorFilePath);
     QTC_ASSERT(documentProcessor, return);
     const Snapshot editorDocumentSnapshot = documentProcessor->snapshot();

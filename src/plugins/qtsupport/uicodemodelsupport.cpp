@@ -411,7 +411,7 @@ void UiCodeModelManager::editorIsAboutToClose(Core::IEditor *editor)
         if (isFormWindowDocument(m_lastEditor->document())) {
             disconnect(m_lastEditor->document(), SIGNAL(changed()), this, SLOT(uiDocumentContentsHasChanged()));
             if (m_dirty) {
-                updateContents(m_lastEditor->document()->filePath(),
+                updateContents(m_lastEditor->document()->filePath().toString(),
                                formWindowEditorContents(m_lastEditor));
                 m_dirty = false;
             }
@@ -427,7 +427,7 @@ void UiCodeModelManager::editorWasChanged(Core::IEditor *editor)
         disconnect(m_lastEditor->document(), SIGNAL(changed()), this, SLOT(uiDocumentContentsHasChanged()));
 
         if (m_dirty) {
-            updateContents(m_lastEditor->document()->filePath(),
+            updateContents(m_lastEditor->document()->filePath().toString(),
                            formWindowEditorContents(m_lastEditor));
             m_dirty = false;
         }

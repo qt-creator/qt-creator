@@ -447,7 +447,7 @@ GenericProjectFile::GenericProjectFile(GenericProject *parent, QString fileName,
 {
     setId("Generic.ProjectFile");
     setMimeType(QLatin1String(Constants::GENERICMIMETYPE));
-    setFilePath(fileName);
+    setFilePath(Utils::FileName::fromString(fileName));
 }
 
 bool GenericProjectFile::save(QString *, const QString &, bool)

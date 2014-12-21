@@ -134,7 +134,7 @@ void CppToolsPlugin::test_cppsourceprocessor_includes_cyclic()
     testCase.closeEditorAtEndOfTestCase(editor);
 
     // Check editor snapshot
-    const QString filePath = editor->document()->filePath();
+    const QString filePath = editor->document()->filePath().toString();
     auto *processor = BaseEditorDocumentProcessor::get(filePath);
     QVERIFY(processor);
     Snapshot snapshot = processor->snapshot();

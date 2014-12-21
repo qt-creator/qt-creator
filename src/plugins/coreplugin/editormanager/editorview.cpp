@@ -219,7 +219,7 @@ void EditorView::updateEditorHistory(IEditor *editor, QList<EditLocation> &histo
 
     EditLocation location;
     location.document = document;
-    location.fileName = document->filePath();
+    location.fileName = document->filePath().toString();
     location.id = document->id();
     location.state = QVariant(state);
 
@@ -440,7 +440,7 @@ void EditorView::addCurrentPositionToNavigationHistory(const QByteArray &saveSta
 
     EditLocation location;
     location.document = document;
-    location.fileName = document->filePath();
+    location.fileName = document->filePath().toString();
     location.id = document->id();
     location.state = QVariant(state);
     m_currentNavigationHistoryPosition = qMin(m_currentNavigationHistoryPosition, m_navigationHistory.size()); // paranoia
@@ -495,7 +495,7 @@ void EditorView::updateCurrentPositionInNavigationHistory()
         location = &m_navigationHistory[m_navigationHistory.size()-1];
     }
     location->document = document;
-    location->fileName = document->filePath();
+    location->fileName = document->filePath().toString();
     location->id = document->id();
     location->state = QVariant(editor->saveState());
 }
@@ -810,10 +810,14 @@ QByteArray SplitterOrView::saveState() const
             stream << QByteArray("empty");
         } else if (e == EditorManager::currentEditor()) {
             stream << QByteArray("currenteditor")
-                    << e->document()->filePath() << e->document()->id().toString() << e->saveState();
+                   << e->document()->filePath().toString()
+                   << e->document()->id().toString()
+                   << e->saveState();
         } else {
             stream << QByteArray("editor")
-                    << e->document()->filePath() << e->document()->id().toString() << e->saveState();
+                   << e->document()->filePath().toString()
+                   << e->document()->id().toString()
+                   << e->saveState();
         }
     }
     return bytes;

@@ -95,7 +95,7 @@ bool FormWindowEditor::open(QString *errorString, const QString &fileName, const
     form->setDirty(fileName != realFileName);
 
     document->syncXmlFromFormWindow();
-    document->setFilePath(absfileName);
+    document->setFilePath(Utils::FileName::fromString(absfileName));
     document->setShouldAutoSave(false);
     document->resourceHandler()->updateResources(true);
 

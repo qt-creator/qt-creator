@@ -1221,7 +1221,7 @@ static QTextCodec *findProjectCodec(const QString &dir)
         const ProjectList::const_iterator pcend = projects.constEnd();
         for (ProjectList::const_iterator it = projects.constBegin(); it != pcend; ++it)
             if (const Core::IDocument *document = (*it)->document())
-                if (document->filePath().startsWith(dir)) {
+                if (document->filePath().toString().startsWith(dir)) {
                     QTextCodec *codec = (*it)->editorConfiguration()->textCodec();
                     return codec;
                 }
@@ -1267,7 +1267,7 @@ int VcsBaseEditor::lineNumberOfCurrentEditor(const QString &currentFile)
         return -1;
     if (!currentFile.isEmpty()) {
         const Core::IDocument *idocument  = ed->document();
-        if (!idocument || idocument->filePath() != currentFile)
+        if (!idocument || idocument->filePath().toString() != currentFile)
             return -1;
     }
     const BaseTextEditor *eda = qobject_cast<const BaseTextEditor *>(ed);

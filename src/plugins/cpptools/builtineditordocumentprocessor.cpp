@@ -128,7 +128,7 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
         TextEditor::TextDocument *document,
         bool enableSemanticHighlighter)
     : BaseEditorDocumentProcessor(document)
-    , m_parser(document->filePath())
+    , m_parser(document->filePath().toString())
     , m_codeWarningsUpdated(false)
     , m_semanticHighlighter(enableSemanticHighlighter
                             ? new CppTools::SemanticHighlighter(document)

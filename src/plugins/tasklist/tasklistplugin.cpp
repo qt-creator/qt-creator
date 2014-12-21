@@ -169,7 +169,7 @@ static bool parseTaskFile(QString *errorString, const QString &base, const QStri
 Core::IDocument *TaskListPlugin::openTasks(const QString &base, const QString &fileName)
 {
     foreach (TaskFile *doc, m_openFiles) {
-        if (doc->filePath() == fileName)
+        if (doc->filePath().toString() == fileName)
             return doc;
     }
 

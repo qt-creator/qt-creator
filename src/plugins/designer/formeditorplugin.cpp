@@ -147,7 +147,7 @@ void FormEditorPlugin::initializeTemplates()
 static QString currentFile()
 {
     if (const IDocument *document = EditorManager::currentDocument()) {
-        const QString fileName = document->filePath();
+        const QString fileName = document->filePath().toString();
         if (!fileName.isEmpty() && QFileInfo(fileName).isFile())
             return fileName;
     }

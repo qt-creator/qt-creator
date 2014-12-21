@@ -509,7 +509,7 @@ void DesignModeWidget::resizeEvent(QResizeEvent *event)
 void DesignModeWidget::setupNavigatorHistory(Core::IEditor *editor)
 {
     if (!m_keepNavigatorHistory)
-        addNavigatorHistoryEntry(editor->document()->filePath());
+        addNavigatorHistoryEntry(editor->document()->filePath().toString());
 
     const bool canGoBack = m_navigatorHistoryCounter > 0;
     const bool canGoForward = m_navigatorHistoryCounter < (m_navigatorHistory.size() - 1);

@@ -236,7 +236,7 @@ void CppToolsPlugin::switchHeaderSource()
 void CppToolsPlugin::switchHeaderSourceInNextSplit()
 {
     QString otherFile = correspondingHeaderOrSource(
-                EditorManager::currentDocument()->filePath());
+                EditorManager::currentDocument()->filePath().toString());
     if (!otherFile.isEmpty())
         EditorManager::openEditor(otherFile, Id(), EditorManager::OpenInOtherSplit);
 }

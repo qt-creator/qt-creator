@@ -224,7 +224,7 @@ void QmlJSEditorWidget::updateCodeWarnings(QmlJS::Document::Ptr doc)
 void QmlJSEditorWidget::modificationChanged(bool changed)
 {
     if (!changed && m_modelManager)
-        m_modelManager->fileChangedOnDisk(textDocument()->filePath());
+        m_modelManager->fileChangedOnDisk(textDocument()->filePath().toString());
 }
 
 void QmlJSEditorWidget::jumpToOutlineElement(int /*index*/)
@@ -641,12 +641,12 @@ TextEditorWidget::Link QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
 
 void QmlJSEditorWidget::findUsages()
 {
-    m_findReferences->findUsages(textDocument()->filePath(), textCursor().position());
+    m_findReferences->findUsages(textDocument()->filePath().toString(), textCursor().position());
 }
 
 void QmlJSEditorWidget::renameUsages()
 {
-    m_findReferences->renameUsages(textDocument()->filePath(), textCursor().position());
+    m_findReferences->renameUsages(textDocument()->filePath().toString(), textCursor().position());
 }
 
 void QmlJSEditorWidget::showContextPane()
@@ -846,7 +846,7 @@ AssistInterface *QmlJSEditorWidget::createAssistInterface(
     if (assistKind == TextEditor::Completion) {
         return new QmlJSCompletionAssistInterface(document(),
                                                   position(),
-                                                  textDocument()->filePath(),
+                                                  textDocument()->filePath().toString(),
                                                   reason,
                                                   m_qmlJsEditorDocument->semanticInfo());
     } else if (assistKind == TextEditor::QuickFix) {

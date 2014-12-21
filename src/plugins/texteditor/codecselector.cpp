@@ -78,7 +78,9 @@ CodecSelector::CodecSelector(QWidget *parent, TextDocument *doc)
     QString decodingErrorHint;
     if (m_hasDecodingError)
         decodingErrorHint = QLatin1Char('\n') + tr("The following encodings are likely to fit:");
-    m_label->setText(tr("Select encoding for \"%1\".%2").arg(QFileInfo(doc->filePath()).fileName()).arg(decodingErrorHint));
+    m_label->setText(tr("Select encoding for \"%1\".%2")
+                     .arg(doc->filePath().toFileInfo().fileName())
+                     .arg(decodingErrorHint));
 
     m_listWidget = new CodecListWidget(this);
     m_listWidget->setActivationMode(Utils::DoubleClickActivation);

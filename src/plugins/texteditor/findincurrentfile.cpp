@@ -73,18 +73,18 @@ Utils::FileIterator *FindInCurrentFile::files(const QStringList &nameFilters,
 
 QVariant FindInCurrentFile::additionalParameters() const
 {
-    return qVariantFromValue(m_currentDocument->filePath());
+    return qVariantFromValue(m_currentDocument->filePath().toString());
 }
 
 QString FindInCurrentFile::label() const
 {
-    return tr("File \"%1\":").arg(QFileInfo(m_currentDocument->filePath()).fileName());
+    return tr("File \"%1\":").arg(m_currentDocument->filePath().toFileInfo().fileName());
 }
 
 QString FindInCurrentFile::toolTip() const
 {
     // %2 is filled by BaseFileFind::runNewSearch
-    return tr("File path: %1\n%2").arg(QDir::toNativeSeparators(m_currentDocument->filePath()));
+    return tr("File path: %1\n%2").arg(m_currentDocument->filePath().toUserOutput());
 }
 
 bool FindInCurrentFile::isEnabled() const

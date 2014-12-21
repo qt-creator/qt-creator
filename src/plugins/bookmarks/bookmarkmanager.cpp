@@ -437,7 +437,7 @@ void BookmarkManager::toggleBookmark(bool)
     if (!editor)
         return;
 
-    toggleBookmark(editor->document()->filePath(), editor->currentLine());
+    toggleBookmark(editor->document()->filePath().toString(), editor->currentLine());
 }
 
 void BookmarkManager::toggleBookmark(const QString &fileName, int lineNumber)
@@ -555,7 +555,7 @@ void BookmarkManager::documentPrevNext(bool next)
     if (editorLine <= 0)
         return;
 
-    QFileInfo fi(editor->document()->filePath());
+    const QFileInfo fi = editor->document()->filePath().toFileInfo();
     if (!m_bookmarksMap.contains(fi.path()))
         return;
 
@@ -646,7 +646,7 @@ BookmarkManager::State BookmarkManager::state() const
     if (!editor)
         return HasBookMarks;
 
-    const QFileInfo fi(editor->document()->filePath());
+    const QFileInfo fi = editor->document()->filePath().toFileInfo();
 
     const DirectoryFileBookmarksMap::const_iterator dit = m_bookmarksMap.constFind(fi.path());
     if (dit == m_bookmarksMap.constEnd())
@@ -849,7 +849,7 @@ void BookmarkManager::loadBookmarks()
 
 void BookmarkManager::handleBookmarkTooltipRequest(IEditor *editor, const QPoint &pos, int line)
 {
-    Bookmark *mark = findBookmark(editor->document()->filePath(), line);
+    Bookmark *mark = findBookmark(editor->document()->filePath().toString(), line);
     operateTooltip(editor->widget(), pos, mark);
 }
 

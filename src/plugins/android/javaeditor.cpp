@@ -71,14 +71,12 @@ JavaDocument::JavaDocument()
 
 QString JavaDocument::defaultPath() const
 {
-    QFileInfo fi(filePath());
-    return fi.absolutePath();
+    return filePath().toFileInfo().absolutePath();
 }
 
 QString JavaDocument::suggestedFileName() const
 {
-    QFileInfo fi(filePath());
-    return fi.fileName();
+    return filePath().toFileInfo().fileName();
 }
 
 

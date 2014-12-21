@@ -34,6 +34,8 @@
 #include "core_global.h"
 #include "id.h"
 
+#include <utils/fileutils.h>
+
 #include <QObject>
 
 namespace Core {
@@ -88,8 +90,8 @@ public:
     virtual bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false) = 0;
     virtual bool setContents(const QByteArray &contents);
 
-    QString filePath() const;
-    virtual void setFilePath(const QString &filePath);
+    Utils::FileName filePath() const;
+    virtual void setFilePath(const Utils::FileName &filePath);
     QString displayName() const;
     void setDisplayName(const QString &name);
 
@@ -128,7 +130,7 @@ signals:
     void aboutToReload();
     void reloadFinished(bool success);
 
-    void filePathChanged(const QString &oldName, const QString &newName);
+    void filePathChanged(const Utils::FileName &oldName, const Utils::FileName &newName);
 
 private:
     Internal::IDocumentPrivate *d;

@@ -82,7 +82,7 @@ public:
 
     Id id;
     QString mimeType;
-    QString filePath;
+    Utils::FileName filePath;
     QString displayName;
     QString autoSaveName;
     InfoBar *infoBar;
@@ -127,7 +127,7 @@ bool IDocument::setContents(const QByteArray &contents)
     return false;
 }
 
-QString IDocument::filePath() const
+Utils::FileName IDocument::filePath() const
 {
     return d->filePath;
 }
@@ -154,7 +154,7 @@ bool IDocument::isFileReadOnly() const
 {
     if (filePath().isEmpty())
         return false;
-    return !QFileInfo(filePath()).isWritable();
+    return !filePath().toFileInfo().isWritable();
 }
 
 /*!
@@ -244,11 +244,11 @@ InfoBar *IDocument::infoBar()
     signals. Can be reimplemented by subclasses to do more.
     \sa filePath()
 */
-void IDocument::setFilePath(const QString &filePath)
+void IDocument::setFilePath(const Utils::FileName &filePath)
 {
     if (d->filePath == filePath)
         return;
-    QString oldName = d->filePath;
+    Utils::FileName oldName = d->filePath;
     d->filePath = filePath;
     emit filePathChanged(oldName, d->filePath);
     emit changed();
@@ -263,7 +263,7 @@ QString IDocument::displayName() const
 {
     if (!d->displayName.isEmpty())
         return d->displayName;
-    return QFileInfo(d->filePath).fileName();
+    return d->filePath.toFileInfo().fileName();
 }
 
 /*!

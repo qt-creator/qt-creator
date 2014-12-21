@@ -607,7 +607,7 @@ void SessionManager::configureEditor(Core::IEditor *editor, const QString &fileN
 void SessionManager::configureEditors(Project *project)
 {
     foreach (IDocument *document, DocumentModel::openedDocuments()) {
-        if (d->projectContainsFile(project, document->filePath())) {
+        if (d->projectContainsFile(project, document->filePath().toString())) {
             foreach (IEditor *editor, DocumentModel::editorsForDocument(document)) {
                 if (TextEditor::BaseTextEditor *textEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor)) {
                         project->editorConfiguration()->configureEditor(textEditor);

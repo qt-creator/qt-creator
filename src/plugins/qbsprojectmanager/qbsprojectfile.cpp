@@ -41,7 +41,7 @@ QbsProjectFile::QbsProjectFile(QbsProject *parent, QString fileName) : Core::IDo
 {
     setId("Qbs.ProjectFile");
     setMimeType(QLatin1String(Constants::MIME_TYPE));
-    setFilePath(fileName);
+    setFilePath(Utils::FileName::fromString(fileName));
 }
 
 QbsProjectFile::~QbsProjectFile()

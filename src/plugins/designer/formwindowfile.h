@@ -77,7 +77,7 @@ signals:
     void reloadRequested(QString *errorString, const QString &);
 
 public slots:
-    void setFilePath(const QString &);
+    void setFilePath(const Utils::FileName &);
     void setShouldAutoSave(bool sad = true) { m_shouldAutoSave = sad; }
     void updateIsModified();
 

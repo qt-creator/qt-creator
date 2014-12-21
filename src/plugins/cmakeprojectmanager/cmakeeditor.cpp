@@ -85,7 +85,7 @@ void CMakeEditor::finalizeInitialization()
         info.setCustomButtonInfo(tr("Build now"), [document]() {
             foreach (Project *p, SessionManager::projects()) {
                 if (CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(p)) {
-                    if (cmakeProject->isProjectFile(document->filePath())) {
+                    if (cmakeProject->isProjectFile(document->filePath().toString())) {
                         ProjectExplorerPlugin::buildProject(cmakeProject);
                         break;
                     }
@@ -212,7 +212,7 @@ CMakeEditorWidget::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     // TODO: Resolve variables
 
-    QDir dir(QFileInfo(textDocument()->filePath()).absolutePath());
+    QDir dir(textDocument()->filePath().toFileInfo().absolutePath());
     QString fileName = dir.filePath(buffer);
     QFileInfo fi(fileName);
     if (fi.exists()) {
@@ -252,14 +252,12 @@ CMakeDocument::CMakeDocument()
 
 QString CMakeDocument::defaultPath() const
 {
-    QFileInfo fi(filePath());
-    return fi.absolutePath();
+    return filePath().toFileInfo().absolutePath();
 }
 
 QString CMakeDocument::suggestedFileName() const
 {
-    QFileInfo fi(filePath());
-    return fi.fileName();
+    return filePath().toFileInfo().fileName();
 }
 
 //

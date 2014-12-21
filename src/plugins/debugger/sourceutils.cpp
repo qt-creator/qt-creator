@@ -264,7 +264,7 @@ bool getUninitializedVariables(const Snapshot &snapshot,
 bool isCppEditor(TextEditorWidget *editorWidget)
 {
     const TextDocument *document = editorWidget->textDocument();
-    return ProjectFile::classify(document->filePath()) != ProjectFile::Unclassified;
+    return ProjectFile::classify(document->filePath().toString()) != ProjectFile::Unclassified;
 }
 
 QString cppFunctionAt(const QString &fileName, int line, int column)
@@ -305,7 +305,7 @@ QString cppExpressionAt(TextEditorWidget *editorWidget, int pos,
     }
 
     if (!expr.isEmpty()) {
-        QString fileName = editorWidget->textDocument()->filePath();
+        QString fileName = editorWidget->textDocument()->filePath().toString();
         const Snapshot snapshot = CppModelManager::instance()->snapshot();
         if (const Document::Ptr document = snapshot.document(fileName)) {
             QString func = document->functionAt(*line, *column, scopeFromLine, scopeToLine);

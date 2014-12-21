@@ -283,7 +283,7 @@ QmakeProjectFile::QmakeProjectFile(const QString &filePath, QObject *parent)
 {
     setId("Qmake.ProFile");
     setMimeType(QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE));
-    setFilePath(filePath);
+    setFilePath(Utils::FileName::fromString(filePath));
 }
 
 bool QmakeProjectFile::save(QString *, const QString &, bool)
@@ -414,7 +414,7 @@ bool QmakeProject::fromMap(const QVariantMap &map)
 
     m_manager->registerProject(this);
 
-    m_rootProjectNode = new QmakeProFileNode(this, m_fileInfo->filePath(), this);
+    m_rootProjectNode = new QmakeProFileNode(this, m_fileInfo->filePath().toString(), this);
     m_rootProjectNode->registerWatcher(m_nodesWatcher);
 
     // We have the profile nodes now, so we know the runconfigs!
@@ -1048,7 +1048,7 @@ void QmakeProject::destroyProFileReader(QtSupport::ProFileReader *reader)
 {
     delete reader;
     if (!--m_qmakeGlobalsRefCnt) {
-        QString dir = QFileInfo(m_fileInfo->filePath()).absolutePath();
+        QString dir = m_fileInfo->filePath().toFileInfo().absolutePath();
         if (!dir.endsWith(QLatin1Char('/')))
             dir += QLatin1Char('/');
         QtSupport::ProFileCacheManager::instance()->discardFiles(dir);

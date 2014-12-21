@@ -214,10 +214,10 @@ void TextMarkRegistry::editorOpened(Core::IEditor *editor)
     auto document = qobject_cast<TextDocument *>(editor ? editor->document() : 0);
     if (!document)
         return;
-    if (!m_marks.contains(FileName::fromString(document->filePath())))
+    if (!m_marks.contains(document->filePath()))
         return;
 
-    foreach (TextMark *mark, m_marks.value(FileName::fromString(document->filePath())))
+    foreach (TextMark *mark, m_marks.value(document->filePath()))
         document->addMark(mark);
 }
 

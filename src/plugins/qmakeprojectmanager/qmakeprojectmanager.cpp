@@ -135,7 +135,7 @@ void QmakeManager::setContextFile(ProjectExplorer::FileNode *file)
 void QmakeManager::addLibrary()
 {
     if (auto editor = qobject_cast<BaseTextEditor *>(Core::EditorManager::currentEditor()))
-        addLibrary(editor->document()->filePath(), editor);
+        addLibrary(editor->document()->filePath().toString(), editor);
 }
 
 void QmakeManager::addLibraryContextMenu()
@@ -231,7 +231,7 @@ void QmakeManager::buildFileContextMenu()
 void QmakeManager::buildFile()
 {
     if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
-        const QString file = currentDocument->filePath();
+        const QString file = currentDocument->filePath().toString();
         FileNode *node  = qobject_cast<FileNode *>(SessionManager::nodeForFile(file));
         Project *project = SessionManager::projectForFile(file);
 

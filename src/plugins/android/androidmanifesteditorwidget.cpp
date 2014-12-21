@@ -476,7 +476,7 @@ bool AndroidManifestEditorWidget::eventFilter(QObject *obj, QEvent *event)
 
 void AndroidManifestEditorWidget::updateTargetComboBox()
 {
-    const QString docPath(m_textEditorWidget->textDocument()->filePath());
+    const QString docPath(m_textEditorWidget->textDocument()->filePath().toString());
     ProjectExplorer::Project *project = androidProject(docPath);
     QStringList items;
     if (project) {
@@ -577,7 +577,7 @@ void AndroidManifestEditorWidget::preSave()
         syncToEditor();
 
     if (m_setAppName && m_appNameInStringsXml) {
-        QString baseDir = QFileInfo(m_textEditorWidget->textDocument()->filePath()).absolutePath();
+        QString baseDir = m_textEditorWidget->textDocument()->filePath().toFileInfo().absolutePath();
         QString fileName = baseDir + QLatin1String("/res/values/strings.xml");
         QFile f(fileName);
         if (f.open(QIODevice::ReadOnly)) {
@@ -601,7 +601,7 @@ void AndroidManifestEditorWidget::preSave()
         m_setAppName = false;
     }
 
-    QString baseDir = QFileInfo(m_textEditorWidget->textDocument()->filePath()).absolutePath();
+    QString baseDir = m_textEditorWidget->textDocument()->filePath().toFileInfo().absolutePath();
     if (!m_lIconPath.isEmpty()) {
         copyIcon(LowDPI, baseDir, m_lIconPath);
         m_lIconPath.clear();
@@ -695,7 +695,7 @@ void AndroidManifestEditorWidget::updateInfoBar()
 
 void AndroidManifestEditorWidget::updateSdkVersions()
 {
-    const QString docPath(m_textEditorWidget->textDocument()->filePath());
+    const QString docPath(m_textEditorWidget->textDocument()->filePath().toString());
     QPair<int, int> apiLevels = AndroidManager::apiLevelRange();
     for (int i = apiLevels.first; i < apiLevels.second + 1; ++i)
         m_androidMinSdkVersion->addItem(tr("API %1: %2")
@@ -766,7 +766,7 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
     setApiLevel(m_androidMinSdkVersion, usesSdkElement, QLatin1String("android:minSdkVersion"));
     setApiLevel(m_androidTargetSdkVersion, usesSdkElement, QLatin1String("android:targetSdkVersion"));
 
-    QString baseDir = QFileInfo(m_textEditorWidget->textDocument()->filePath()).absolutePath();
+    QString baseDir = m_textEditorWidget->textDocument()->filePath().toFileInfo().absolutePath();
     QString fileName = baseDir + QLatin1String("/res/values/strings.xml");
 
     QDomElement applicationElement = manifest.firstChildElement(QLatin1String("application"));

@@ -94,7 +94,7 @@ namespace ClangCodeModel {
 
 ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(TextEditor::TextDocument *document)
     : BaseEditorDocumentProcessor(document)
-    , m_parser(document->filePath())
+    , m_parser(document->filePath().toString())
     , m_parserRevision(0)
     , m_semanticHighlighter(document)
     , m_builtinProcessor(document, /*enableSemanticHighlighter=*/ false)
@@ -112,7 +112,7 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(TextEditor::TextDocum
             const int lastLine = baseTextDocument()->document()->blockCount();
 
             CreateMarkers *createMarkers = CreateMarkers::create(m_parser.semanticMarker(),
-                                                                 baseTextDocument()->filePath(),
+                                                                 baseTextDocument()->filePath().toString(),
                                                                  firstLine, lastLine);
             return createMarkers->start();
         });

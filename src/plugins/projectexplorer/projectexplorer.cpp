@@ -1120,11 +1120,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     expander->registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX,
         tr("Current project's main file"),
         [this]() -> QString {
-            QString projectFilePath;
+            Utils::FileName projectFilePath;
             if (Project *project = ProjectTree::currentProject())
                 if (IDocument *doc = project->document())
                     projectFilePath = doc->filePath();
-            return projectFilePath;
+            return projectFilePath.toString();
         });
 
     expander->registerVariable(Constants::VAR_CURRENTPROJECT_BUILDPATH,
@@ -1242,7 +1242,7 @@ void ProjectExplorerPlugin::loadAction()
     // for your special convenience, we preselect a pro file if it is
     // the current file
     if (const IDocument *document = EditorManager::currentDocument()) {
-        const QString fn = document->filePath();
+        const QString fn = document->filePath().toString();
         const bool isProject = dd->m_profileMimeTypes.contains(document->mimeType());
         dir = isProject ? fn : QFileInfo(fn).absolutePath();
     }
@@ -1304,7 +1304,7 @@ void ProjectExplorerPlugin::unloadProject(Project *project)
     if (!DocumentManager::saveModifiedDocumentSilently(document))
         return;
 
-    dd->addToRecentProjects(document->filePath(), project->displayName());
+    dd->addToRecentProjects(document->filePath().toString(), project->displayName());
 
     SessionManager::removeProject(project);
     m_instance->updateActions();

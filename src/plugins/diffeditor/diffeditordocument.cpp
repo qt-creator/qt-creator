@@ -90,7 +90,7 @@ bool DiffEditorDocument::save(QString *errorString, const QString &fileName, boo
     DiffEditorManager::removeDocument(this);
     const QFileInfo fi(fileName);
     setTemporary(false);
-    setFilePath(QDir::cleanPath(fi.absoluteFilePath()));
+    setFilePath(Utils::FileName::fromString(fi.absoluteFilePath()));
     setDisplayName(QString());
     return true;
 }
@@ -100,7 +100,7 @@ bool DiffEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeTyp
     Q_UNUSED(type)
     if (flag == FlagIgnore)
         return true;
-    return open(errorString, filePath());
+    return open(errorString, filePath().toString());
 }
 
 bool DiffEditorDocument::open(QString *errorString, const QString &fileName)
@@ -120,7 +120,7 @@ bool DiffEditorDocument::open(QString *errorString, const QString &fileName)
 
     const QFileInfo fi(fileName);
     setTemporary(false);
-    setFilePath(QDir::cleanPath(fi.absoluteFilePath()));
+    setFilePath(Utils::FileName::fromString(fi.absoluteFilePath()));
     m_controller->setDiffFiles(fileDataList, fi.absolutePath());
     return true;
 }

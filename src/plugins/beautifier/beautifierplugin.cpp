@@ -233,7 +233,7 @@ void BeautifierPlugin::formatCurrentFile(const Command &command)
             watcher, &QFutureWatcher<FormatTask>::cancel);
     connect(watcher, SIGNAL(finished()), m_asyncFormatMapper, SLOT(map()));
     m_asyncFormatMapper->setMapping(watcher, watcher);
-    const QString filePath = widget->textDocument()->filePath();
+    const QString filePath = widget->textDocument()->filePath().toString();
     watcher->setFuture(QtConcurrent::run(&BeautifierPlugin::formatAsync, this,
                                          FormatTask(widget, filePath, sourceData, command)));
 }

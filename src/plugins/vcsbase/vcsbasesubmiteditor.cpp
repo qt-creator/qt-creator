@@ -372,7 +372,7 @@ bool VcsBaseSubmitEditor::open(QString *errorString, const QString &fileName, co
     if (!setFileContents(text.toUtf8()))
         return false;
 
-    d->m_file->setFilePath(QFileInfo(fileName).absoluteFilePath());
+    d->m_file->setFilePath(Utils::FileName::fromString(fileName));
     d->m_file->setModified(fileName != realFileName);
     return true;
 }

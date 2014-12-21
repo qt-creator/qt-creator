@@ -233,7 +233,7 @@ bool CMakeProject::parseCMakeLists()
 
     CMakeBuildConfiguration *activeBC = static_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
     foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments())
-        if (isProjectFile(document->filePath()))
+        if (isProjectFile(document->filePath().toString()))
             document->infoBar()->removeInfo("CMakeEditor.RunCMake");
 
     // Find cbp file
@@ -741,7 +741,7 @@ CMakeFile::CMakeFile(CMakeProject *parent, QString fileName)
 {
     setId("Cmake.ProjectFile");
     setMimeType(QLatin1String(Constants::CMAKEPROJECTMIMETYPE));
-    setFilePath(fileName);
+    setFilePath(Utils::FileName::fromString(fileName));
 }
 
 bool CMakeFile::save(QString *errorString, const QString &fileName, bool autoSave)

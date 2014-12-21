@@ -344,7 +344,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
     BaseTextEditor *currentTextEditor = dynamic_cast<BaseTextEditor*>(currentEditor);
     QVERIFY(currentTextEditor);
 
-    QCOMPARE(currentTextEditor->document()->filePath(), targetTestFile->filePath());
+    QCOMPARE(currentTextEditor->document()->filePath().toString(), targetTestFile->filePath());
     int expectedLine, expectedColumn;
     currentTextEditor->convertPosition(targetTestFile->m_targetCursorPosition,
                                        &expectedLine, &expectedColumn);

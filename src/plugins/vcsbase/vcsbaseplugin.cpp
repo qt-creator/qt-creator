@@ -261,7 +261,7 @@ void StateListener::slotStateChanged()
     if (!currentDocument) {
         state.currentFile.clear();
     } else {
-        state.currentFile = currentDocument->filePath();
+        state.currentFile = currentDocument->filePath().toString();
         if (state.currentFile.isEmpty() || currentDocument->isTemporary())
             state.currentFile = VcsBasePlugin::source(currentDocument);
     }
@@ -676,7 +676,7 @@ void VcsBasePlugin::createRepository()
     // Find current starting directory
     QString directory;
     if (const Project *currentProject = ProjectTree::currentProject())
-        directory = QFileInfo(currentProject->document()->filePath()).absolutePath();
+        directory = currentProject->document()->filePath().toFileInfo().absolutePath();
     // Prompt for a directory that is not under version control yet
     QWidget *mw = ICore::mainWindow();
     do {

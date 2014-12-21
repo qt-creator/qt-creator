@@ -64,7 +64,7 @@ public:
 
     TextEditor::TextEditorWidget *sourceWidget() const;
 
-    void setFilePath(const QString &filePath);
+    void setFilePath(const Utils::FileName &filePath);
 
 signals:
     void changed(BarDescriptorDocument::Tag tag, const QVariant &value);

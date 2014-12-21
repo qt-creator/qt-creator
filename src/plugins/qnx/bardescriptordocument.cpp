@@ -68,7 +68,7 @@ bool BarDescriptorDocument::open(QString *errorString, const QString &fileName) 
     if (read(fileName, &contents, errorString) != Utils::TextFileFormat::ReadSuccess)
         return false;
 
-    setFilePath(fileName);
+    setFilePath(Utils::FileName::fromString(fileName));
 
     const bool result = loadContent(contents, false);
 
@@ -83,7 +83,7 @@ bool BarDescriptorDocument::save(QString *errorString, const QString &fn, bool a
     QTC_ASSERT(!autoSave, return false);
     QTC_ASSERT(fn.isEmpty(), return false);
 
-    const bool result = write(filePath(), xmlSource(), errorString);
+    const bool result = write(filePath().toString(), xmlSource(), errorString);
     if (!result)
         return false;
 
@@ -94,14 +94,12 @@ bool BarDescriptorDocument::save(QString *errorString, const QString &fn, bool a
 
 QString BarDescriptorDocument::defaultPath() const
 {
-    QFileInfo fi(filePath());
-    return fi.absolutePath();
+    return filePath().toFileInfo().absolutePath();
 }
 
 QString BarDescriptorDocument::suggestedFileName() const
 {
-    QFileInfo fi(filePath());
-    return fi.fileName();
+    return filePath().toFileInfo().fileName();
 }
 
 bool BarDescriptorDocument::shouldAutoSave() const
@@ -135,7 +133,7 @@ bool BarDescriptorDocument::reload(QString *errorString, Core::IDocument::Reload
     if (flag == Core::IDocument::FlagIgnore)
         return true;
 
-    return open(errorString, filePath());
+    return open(errorString, filePath().toString());
 }
 
 QString BarDescriptorDocument::xmlSource() const

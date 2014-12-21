@@ -76,7 +76,7 @@ UnsavedFiles createUnsavedFiles(WorkingCopy workingCopy)
 
     QSet< ::Utils::FileName> modifiedFiles;
     foreach (IDocument *doc, Core::DocumentManager::modifiedDocuments())
-        modifiedFiles.insert(::Utils::FileName::fromString(doc->filePath()));
+        modifiedFiles.insert(doc->filePath());
 
     UnsavedFiles result;
     QHashIterator< ::Utils::FileName, QPair<QByteArray, unsigned> > wcIter = workingCopy.iterator();

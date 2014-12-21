@@ -61,6 +61,7 @@
 #include <utils/reloadpromptutils.h>
 #include <utils/qtcassert.h>
 
+using namespace Utils;
 using namespace Core;
 
 namespace BinEditor {
@@ -256,9 +257,8 @@ public:
     bool save(QString *errorString, const QString &fn, bool autoSave)
     {
         QTC_ASSERT(!autoSave, return true); // bineditor does not support autosave - it would be a bit expensive
-        const QString fileNameToUse
-                = fn.isEmpty() ? filePath() : fn;
-        if (m_widget->save(errorString, filePath(), fileNameToUse)) {
+        const FileName fileNameToUse = fn.isEmpty() ? filePath() : FileName::fromString(fn);
+        if (m_widget->save(errorString, filePath().toString(), fileNameToUse.toString())) {
             setFilePath(fileNameToUse);
             return true;
         } else {
@@ -281,7 +281,7 @@ public:
             return false;
         if (file.open(QIODevice::ReadOnly)) {
             file.close();
-            setFilePath(fileName);
+            setFilePath(Utils::FileName::fromString(fileName));
             m_widget->setSizes(offset, file.size());
             return true;
         }
@@ -297,10 +297,10 @@ public:
 private slots:
     void provideData(quint64 block)
     {
-        const QString fn = filePath();
+        const FileName fn = filePath();
         if (fn.isEmpty())
             return;
-        QFile file(fn);
+        QFile file(fn.toString());
         if (file.open(QIODevice::ReadOnly)) {
             int blockSize = m_widget->dataBlockSize();
             file.seek(block * blockSize);
@@ -313,13 +313,13 @@ private slots:
         } else {
             QMessageBox::critical(Core::ICore::mainWindow(), tr("File Error"),
                                   tr("Cannot open %1: %2").arg(
-                                        QDir::toNativeSeparators(fn), file.errorString()));
+                                        fn.toUserOutput(), file.errorString()));
         }
     }
 
     void provideNewRange(quint64 offset)
     {
-        open(0, filePath(), offset);
+        open(0, filePath().toString(), offset);
     }
 
 public:
@@ -332,11 +332,10 @@ public:
                                                                        : m_widget->isModified(); }
 
     bool isFileReadOnly() const {
-        const QString fn = filePath();
+        const FileName fn = filePath();
         if (fn.isEmpty())
             return false;
-        const QFileInfo fi(fn);
-        return !fi.isWritable();
+        return !fn.toFileInfo().isWritable();
     }
 
     bool isSaveAsAllowed() const { return true; }
@@ -350,7 +349,7 @@ public:
             emit aboutToReload();
             int cPos = m_widget->cursorPosition();
             m_widget->clear();
-            const bool success = open(errorString, filePath());
+            const bool success = open(errorString, filePath().toString());
             m_widget->setCursorPosition(cPos);
             emit reloadFinished(success);
             return success;

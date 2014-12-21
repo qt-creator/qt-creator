@@ -44,6 +44,8 @@
 #include <QDebug>
 #include <QTextCodec>
 
+using namespace Utils;
+
 namespace Designer {
 namespace Internal {
 
@@ -64,13 +66,13 @@ FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *pare
     connect(m_formWindow, SIGNAL(changed()), SLOT(updateIsModified()));
 
     m_resourceHandler = new ResourceHandler(form);
-    connect(this, SIGNAL(filePathChanged(QString,QString)),
+    connect(this, SIGNAL(filePathChanged(Utils::FileName,Utils::FileName)),
             m_resourceHandler, SLOT(updateResources()));
 }
 
 bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSave)
 {
-    const QString actualName = name.isEmpty() ? filePath() : name;
+    const FileName actualName = name.isEmpty() ? filePath() : FileName::fromString(name);
 
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << name << "->" << actualName;
@@ -80,11 +82,10 @@ bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSa
     if (actualName.isEmpty())
         return false;
 
-    const QFileInfo fi(actualName);
     const QString oldFormName = m_formWindow->fileName();
     if (!autoSave)
-        m_formWindow->setFileName(fi.absoluteFilePath());
-    const bool writeOK = writeFile(actualName, errorString);
+        m_formWindow->setFileName(actualName.toString());
+    const bool writeOK = writeFile(actualName.toString(), errorString);
     m_shouldAutoSave = false;
     if (autoSave)
         return writeOK;
@@ -95,7 +96,7 @@ bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSa
     }
 
     m_formWindow->setDirty(false);
-    setFilePath(fi.absoluteFilePath());
+    setFilePath(actualName);
     updateIsModified();
 
     return true;
@@ -135,9 +136,9 @@ bool FormWindowFile::setContents(const QByteArray &contents)
     return true;
 }
 
-void FormWindowFile::setFilePath(const QString &newName)
+void FormWindowFile::setFilePath(const FileName &newName)
 {
-    m_formWindow->setFileName(newName);
+    m_formWindow->setFileName(newName.toString());
     IDocument::setFilePath(newName);
 }
 
@@ -173,7 +174,7 @@ bool FormWindowFile::reload(QString *errorString, ReloadFlag flag, ChangeType ty
         emit changed();
     } else {
         emit aboutToReload();
-        emit reloadRequested(errorString, filePath());
+        emit reloadRequested(errorString, filePath().toString());
         const bool success = errorString->isEmpty();
         emit reloadFinished(success);
         return success;

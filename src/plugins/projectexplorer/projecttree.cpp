@@ -333,7 +333,7 @@ void ProjectTree::updateExternalFileWarning()
     }
     if (!infoBar->canInfoBeAdded(externalFileId))
         return;
-    Utils::FileName fileName = Utils::FileName::fromString(document->filePath());
+    const Utils::FileName fileName = document->filePath();
     const QList<Project *> projects = SessionManager::projects();
     if (projects.isEmpty())
         return;

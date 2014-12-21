@@ -1189,7 +1189,7 @@ void DebuggerToolTipManager::slotUpdateVisibleToolTips()
         return;
     }
 
-    const QString fileName = toolTipEditor->textDocument()->filePath();
+    const QString fileName = toolTipEditor->textDocument()->filePath().toString();
     if (fileName.isEmpty()) {
         hideAllToolTips();
         return;
@@ -1339,7 +1339,7 @@ static void slotTooltipOverrideRequested
 
     DebuggerToolTipContext context;
     context.engineType = engine->objectName();
-    context.fileName = editorWidget->textDocument()->filePath();
+    context.fileName = editorWidget->textDocument()->filePath().toString();
     context.position = pos;
     editorWidget->convertPosition(pos, &context.line, &context.column);
     QString raw = cppExpressionAt(editorWidget, context.position, &context.line, &context.column,

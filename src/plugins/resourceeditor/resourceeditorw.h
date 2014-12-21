@@ -65,7 +65,7 @@ public:
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
     QString defaultPath() const;
     QString suggestedFileName() const;
-    void setFilePath(const QString &newName);
+    void setFilePath(const Utils::FileName &newName);
     void setBlockDirtyChanged(bool value);
 
 public slots:

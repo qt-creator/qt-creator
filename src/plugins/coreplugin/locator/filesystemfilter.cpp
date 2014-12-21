@@ -69,7 +69,7 @@ void FileSystemFilter::prepareSearch(const QString &entry)
     Q_UNUSED(entry)
     IDocument *document= EditorManager::currentDocument();
     if (document && !document->filePath().isEmpty()) {
-        QFileInfo info(document->filePath());
+        const QFileInfo info = document->filePath().toFileInfo();
         m_currentDocumentDirectory = info.absolutePath() + QLatin1Char('/');
     } else {
         m_currentDocumentDirectory.clear();

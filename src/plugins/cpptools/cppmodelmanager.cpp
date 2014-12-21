@@ -699,7 +699,7 @@ void CppModelManager::updateCppEditorDocuments() const
     QSet<Core::IDocument *> visibleCppEditorDocuments;
     foreach (Core::IEditor *editor, Core::EditorManager::visibleEditors()) {
         if (Core::IDocument *document = editor->document()) {
-            if (EditorDocumentHandle *cppEditorDocument = editorDocument(document->filePath())) {
+            if (EditorDocumentHandle *cppEditorDocument = editorDocument(document->filePath().toString())) {
                 visibleCppEditorDocuments.insert(document);
                 cppEditorDocument->processor()->run();
             }
@@ -711,7 +711,7 @@ void CppModelManager::updateCppEditorDocuments() const
         = Core::DocumentModel::openedDocuments().toSet();
     invisibleCppEditorDocuments.subtract(visibleCppEditorDocuments);
     foreach (Core::IDocument *document, invisibleCppEditorDocuments) {
-        if (EditorDocumentHandle *cppEditorDocument = editorDocument(document->filePath()))
+        if (EditorDocumentHandle *cppEditorDocument = editorDocument(document->filePath().toString()))
             cppEditorDocument->setNeedsRefresh(true);
     }
 }
@@ -887,7 +887,8 @@ void CppModelManager::onCurrentEditorChanged(Core::IEditor *editor)
     if (!editor || !editor->document())
         return;
 
-    if (EditorDocumentHandle *cppEditorDocument = editorDocument(editor->document()->filePath())) {
+    if (EditorDocumentHandle *cppEditorDocument =
+            editorDocument(editor->document()->filePath().toString())) {
         if (cppEditorDocument->needsRefresh()) {
             cppEditorDocument->setNeedsRefresh(false);
             cppEditorDocument->processor()->run();

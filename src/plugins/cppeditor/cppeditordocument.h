@@ -84,7 +84,7 @@ protected:
 
 private slots:
     void invalidateFormatterCache();
-    void onFilePathChanged(const QString &oldPath, const QString &newPath);
+    void onFilePathChanged(const Utils::FileName &oldPath, const Utils::FileName &newPath);
     void onMimeTypeChanged();
 
     void onAboutToReload();

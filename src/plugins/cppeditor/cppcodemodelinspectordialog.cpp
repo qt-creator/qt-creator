@@ -71,7 +71,7 @@ TextEditor::BaseTextEditor *currentEditor()
 QString fileInCurrentEditor()
 {
     if (TextEditor::BaseTextEditor *editor = currentEditor())
-        return editor->document()->filePath();
+        return editor->document()->filePath().toString();
     return QString();
 }
 
@@ -1364,7 +1364,7 @@ void CppCodeModelInspectorDialog::refresh()
     TextEditor::BaseTextEditor *editor = currentEditor();
     EditorDocumentHandle *editorDocument = 0;
     if (editor) {
-        const QString editorFilePath = editor->document()->filePath();
+        const QString editorFilePath = editor->document()->filePath().toString();
         editorDocument = cmmi->editorDocument(editorFilePath);
         if (auto *documentProcessor = BaseEditorDocumentProcessor::get(editorFilePath)) {
             const CPlusPlus::Snapshot editorSnapshot = documentProcessor->snapshot();

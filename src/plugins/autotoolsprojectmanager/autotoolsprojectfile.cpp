@@ -43,7 +43,7 @@ AutotoolsProjectFile::AutotoolsProjectFile(AutotoolsProject *project, const QStr
 {
     setId("Autotools.ProjectFile");
     setMimeType(QLatin1String(Constants::MAKEFILE_MIMETYPE));
-    setFilePath(fileName);
+    setFilePath(Utils::FileName::fromString(fileName));
 }
 
 bool AutotoolsProjectFile::save(QString *errorString, const QString &fileName, bool autoSave)

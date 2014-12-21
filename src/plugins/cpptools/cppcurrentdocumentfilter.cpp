@@ -133,7 +133,7 @@ void CppCurrentDocumentFilter::onCurrentEditorChanged(Core::IEditor *currentEdit
 {
     QMutexLocker locker(&m_mutex);
     if (currentEditor)
-        m_currentFileName = currentEditor->document()->filePath();
+        m_currentFileName = currentEditor->document()->filePath().toString();
     else
         m_currentFileName.clear();
     m_itemsOfCurrentDoc.clear();
@@ -145,7 +145,7 @@ void CppCurrentDocumentFilter::onEditorAboutToClose(Core::IEditor *editorAboutTo
         return;
 
     QMutexLocker locker(&m_mutex);
-    if (m_currentFileName == editorAboutToClose->document()->filePath()) {
+    if (m_currentFileName == editorAboutToClose->document()->filePath().toString()) {
         m_currentFileName.clear();
         m_itemsOfCurrentDoc.clear();
     }

@@ -112,7 +112,7 @@ bool BarDescriptorEditor::open(QString *errorString, const QString &fileName, co
     if (result) {
         BarDescriptorEditorWidget *editorWidget = qobject_cast<BarDescriptorEditorWidget *>(widget());
         QTC_ASSERT(editorWidget, return false);
-        editorWidget->setFilePath(fileName);
+        editorWidget->setFilePath(Utils::FileName::fromString(fileName));
     }
 
     return result;

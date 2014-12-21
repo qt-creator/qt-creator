@@ -192,7 +192,7 @@ TextEditor::TextEditorWidget *BarDescriptorEditorWidget::sourceWidget() const
     return m_xmlSourceWidget;
 }
 
-void BarDescriptorEditorWidget::setFilePath(const QString &filePath)
+void BarDescriptorEditorWidget::setFilePath(const Utils::FileName &filePath)
 {
     Core::IDocument *doc = m_xmlSourceWidget->textDocument();
     if (doc)
@@ -211,7 +211,7 @@ void BarDescriptorEditorWidget::updateDocumentContent()
 
     if (!result) {
         ProjectExplorer::TaskHub::addTask(ProjectExplorer::Task::Error, errorMsg, Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR,
-                                          Utils::FileName::fromString(barDescriptorDocument()->filePath()), errorLine);
+                                          Utils::FileName::fromString(barDescriptorDocument()->filePath().toString()), errorLine);
         ProjectExplorer::TaskHub::requestPopup();
     }
 }

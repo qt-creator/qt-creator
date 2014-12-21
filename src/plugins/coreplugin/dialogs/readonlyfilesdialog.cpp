@@ -162,7 +162,7 @@ ReadOnlyFilesDialog::ReadOnlyFilesDialog(IDocument *document, QWidget *parent,
     : QDialog(parent)
     , d(new ReadOnlyFilesDialogPrivate(this, document, displaySaveAs))
 {
-    d->initDialog(QStringList(document->filePath()));
+    d->initDialog(QStringList(document->filePath().toString()));
 }
 
 ReadOnlyFilesDialog::ReadOnlyFilesDialog(const QList<IDocument *> &documents, QWidget *parent)
@@ -171,7 +171,7 @@ ReadOnlyFilesDialog::ReadOnlyFilesDialog(const QList<IDocument *> &documents, QW
 {
     QStringList files;
     foreach (IDocument *document, documents)
-        files << document->filePath();
+        files << document->filePath().toString();
     d->initDialog(files);
 }
 

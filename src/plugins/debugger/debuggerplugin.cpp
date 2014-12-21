@@ -568,7 +568,7 @@ static bool currentTextEditorPosition(ContextData *data)
         return false;
     const TextDocument *document = textEditor->textDocument();
     QTC_ASSERT(document, return false);
-    data->fileName = document->filePath();
+    data->fileName = document->filePath().toString();
     if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
         int lineNumber = textEditor->currentLine();
         QString line = textEditor->textDocument()->plainText()
@@ -1722,7 +1722,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
 
     BreakpointModelId id = BreakpointModelId();
     TextDocument *document = widget->textDocument();
-    args.fileName = document->filePath();
+    args.fileName = document->filePath().toString();
     if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
         QString line = document->plainText()
             .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
@@ -1842,7 +1842,7 @@ void DebuggerPluginPrivate::toggleBreakpoint()
         quint64 address = DisassemblerLine::addressFromDisassemblyLine(line);
         toggleBreakpointByAddress(address);
     } else if (lineNumber >= 0) {
-        toggleBreakpointByFileAndLine(textEditor->document()->filePath(), lineNumber);
+        toggleBreakpointByFileAndLine(textEditor->document()->filePath().toString(), lineNumber);
     }
 }
 
@@ -1899,7 +1899,7 @@ void DebuggerPluginPrivate::requestMark(TextEditorWidget *widget, int lineNumber
         quint64 address = DisassemblerLine::addressFromDisassemblyLine(line);
         toggleBreakpointByAddress(address);
     } else {
-        toggleBreakpointByFileAndLine(document->filePath(), lineNumber);
+        toggleBreakpointByFileAndLine(document->filePath().toString(), lineNumber);
     }
 }
 
@@ -1981,7 +1981,7 @@ void DebuggerPluginPrivate::cleanupViews()
             bool keepIt = true;
             if (document->isModified())
                 keepIt = true;
-            else if (document->filePath().contains(_("qeventdispatcher")))
+            else if (document->filePath().toString().contains(_("qeventdispatcher")))
                 keepIt = false;
             else if (isMemory)
                 keepIt = !closeMemory;

@@ -633,7 +633,7 @@ bool ClearCasePlugin::submitEditorAboutToClose()
 
     // Submit editor closing. Make it write out the check in message
     // and retrieve files
-    const QFileInfo editorFile(editorDocument->filePath());
+    const QFileInfo editorFile = editorDocument->filePath().toFileInfo();
     const QFileInfo changeFile(m_checkInMessageFileName);
     if (editorFile.absoluteFilePath() != changeFile.absoluteFilePath())
         return true; // Oops?!

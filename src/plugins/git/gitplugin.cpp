@@ -1035,7 +1035,7 @@ bool GitPlugin::submitEditorAboutToClose()
     QTC_ASSERT(editorDocument, return true);
     // Submit editor closing. Make it write out the commit message
     // and retrieve files
-    const QFileInfo editorFile(editorDocument->filePath());
+    const QFileInfo editorFile = editorDocument->filePath().toFileInfo();
     const QFileInfo changeFile(m_commitMessageFileName);
     // Paranoia!
     if (editorFile.absoluteFilePath() != changeFile.absoluteFilePath())

@@ -178,12 +178,12 @@ public:
         integration->emitNavigateToSlot(QLatin1String("pushButton"), QLatin1String("clicked()"),
                                         QStringList());
 
-        QCOMPARE(EditorManager::currentDocument()->filePath(), cppFile);
+        QCOMPARE(EditorManager::currentDocument()->filePath().toString(), cppFile);
         QVERIFY(EditorManager::currentDocument()->isModified());
 
         // Wait for updated documents
         foreach (TextEditor::BaseTextEditor *editor, editors) {
-            const QString filePath = editor->document()->filePath();
+            const QString filePath = editor->document()->filePath().toString();
             if (auto parser = BuiltinEditorDocumentParser::get(filePath)) {
                 forever {
                     if (Document::Ptr document = parser->document()) {

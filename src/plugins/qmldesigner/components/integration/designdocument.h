@@ -126,7 +126,7 @@ public slots:
     void changeToMaster();
 
 private slots:
-    void updateFileName(const QString &oldFileName, const QString &newFileName);
+    void updateFileName(const Utils::FileName &oldFileName, const Utils::FileName &newFileName);
 
 private: // functions
     void changeToInFileComponentModel(ComponentTextModifier *textModifer);

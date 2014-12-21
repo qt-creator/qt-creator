@@ -451,7 +451,7 @@ QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *pare
     m_updateOutlineModelTimer.setSingleShot(true);
     connect(&m_updateOutlineModelTimer, SIGNAL(timeout()), this, SLOT(updateOutlineModel()));
 
-    modelManager->updateSourceFiles(QStringList(parent->filePath()), false);
+    modelManager->updateSourceFiles(QStringList(parent->filePath().toString()), false);
 }
 
 QmlJSEditorDocumentPrivate::~QmlJSEditorDocumentPrivate()
@@ -468,13 +468,13 @@ void QmlJSEditorDocumentPrivate::invalidateFormatterCache()
 
 void QmlJSEditorDocumentPrivate::reparseDocument()
 {
-    ModelManagerInterface::instance()->updateSourceFiles(QStringList() << q->filePath(),
-                                                                false);
+    ModelManagerInterface::instance()->updateSourceFiles(QStringList(q->filePath().toString()),
+                                                         false);
 }
 
 void QmlJSEditorDocumentPrivate::onDocumentUpdated(Document::Ptr doc)
 {
-    if (q->filePath() != doc->fileName())
+    if (q->filePath().toString() != doc->fileName())
         return;
 
     // text document has changed, simply wait for the next onDocumentUpdated

@@ -299,7 +299,7 @@ void QmlInspectorAdapter::createPreviewForEditor(Core::IEditor *newEditor)
             != QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
         return;
 
-    QString filename = newEditor->document()->filePath();
+    QString filename = newEditor->document()->filePath().toString();
     QmlJS::ModelManagerInterface *modelManager =
             QmlJS::ModelManagerInterface::instance();
     if (modelManager) {
@@ -330,7 +330,7 @@ void QmlInspectorAdapter::createPreviewForEditor(Core::IEditor *newEditor)
             connect(preview, SIGNAL(reloadRequest()),
                     this, SLOT(onReload()));
 
-            m_textPreviews.insert(newEditor->document()->filePath(), preview);
+            m_textPreviews.insert(newEditor->document()->filePath().toString(), preview);
             preview->associateEditor(newEditor);
             preview->updateDebugIds();
         }
@@ -340,7 +340,7 @@ void QmlInspectorAdapter::createPreviewForEditor(Core::IEditor *newEditor)
 void QmlInspectorAdapter::removePreviewForEditor(Core::IEditor *editor)
 {
     if (QmlLiveTextPreview *preview
-            = m_textPreviews.value(editor->document()->filePath())) {
+            = m_textPreviews.value(editor->document()->filePath().toString())) {
         preview->unassociateEditor(editor);
     }
 }
@@ -364,7 +364,7 @@ void QmlInspectorAdapter::updatePendingPreviewDocuments(QmlJS::Document::Ptr doc
     Core::IEditor *editor = editors.takeFirst();
     createPreviewForEditor(editor);
     QmlLiveTextPreview *preview
-            = m_textPreviews.value(editor->document()->filePath());
+            = m_textPreviews.value(editor->document()->filePath().toString());
     foreach (Core::IEditor *editor, editors)
         preview->associateEditor(editor);
 }
@@ -460,7 +460,7 @@ void QmlInspectorAdapter::initializePreviews()
             QList<Core::IEditor *> editors = Core::DocumentModel::editorsForDocument(document);
             createPreviewForEditor(editors.takeFirst());
             QmlLiveTextPreview *preview
-                    = m_textPreviews.value(document->filePath());
+                    = m_textPreviews.value(document->filePath().toString());
             foreach (Core::IEditor *editor, editors)
                 preview->associateEditor(editor);
         }

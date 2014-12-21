@@ -63,7 +63,7 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
     foreach (IDocument *document, items) {
         QString visibleName;
         QString directory;
-        QString fileName = document->filePath();
+        QString fileName = document->filePath().toString();
         if (fileName.isEmpty()) {
             visibleName = document->suggestedFileName();
         } else {

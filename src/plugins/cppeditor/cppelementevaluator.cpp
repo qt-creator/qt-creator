@@ -88,7 +88,7 @@ void CppElementEvaluator::execute()
         return;
 
     const Snapshot &snapshot = m_modelManager->snapshot();
-    Document::Ptr doc = snapshot.document(m_editor->textDocument()->filePath());
+    Document::Ptr doc = snapshot.document(m_editor->textDocument()->filePath().toString());
     if (!doc)
         return;
 

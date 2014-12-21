@@ -126,7 +126,7 @@ bool ImageViewer::open(QString *errorString, const QString &fileName, const QStr
         *errorString = tr("Cannot open image file %1.").arg(QDir::toNativeSeparators(realFileName));
         return false;
     }
-    d->file->setFilePath(fileName);
+    d->file->setFilePath(Utils::FileName::fromString(fileName));
     d->ui_toolbar.toolButtonPlayPause->setVisible(d->imageView->isAnimated());
     setPaused(!d->imageView->isAnimated());
     // d_ptr->file->setMimeType

@@ -424,12 +424,11 @@ void EditorToolBar::updateDocumentStatus(IDocument *document)
     if (document->filePath().isEmpty())
         d->m_dragHandle->setIcon(QIcon());
     else
-        d->m_dragHandle->setIcon(FileIconProvider::icon(QFileInfo(document->filePath())));
+        d->m_dragHandle->setIcon(FileIconProvider::icon(document->filePath().toFileInfo()));
 
-    d->m_editorList->setToolTip(
-            document->filePath().isEmpty()
-            ? document->displayName()
-            : QDir::toNativeSeparators(document->filePath()));
+    d->m_editorList->setToolTip(document->filePath().isEmpty()
+                                ? document->displayName()
+                                : document->filePath().toUserOutput());
 }
 
 bool EditorToolBar::eventFilter(QObject *obj, QEvent *event)

@@ -56,14 +56,12 @@ bool AndroidManifestDocument::save(QString *errorString, const QString &fileName
 
 QString AndroidManifestDocument::defaultPath() const
 {
-    QFileInfo fi(filePath());
-    return fi.absolutePath();
+    return filePath().toFileInfo().absolutePath();
 }
 
 QString AndroidManifestDocument::suggestedFileName() const
 {
-    QFileInfo fi(filePath());
-    return fi.fileName();
+    return filePath().toFileInfo().fileName();
 }
 
 bool AndroidManifestDocument::isModified() const

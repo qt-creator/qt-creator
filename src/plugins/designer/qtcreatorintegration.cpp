@@ -510,7 +510,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
 {
     typedef QMap<int, Document::Ptr> DocumentMap;
 
-    const QString currentUiFile = FormEditorW::activeEditor()->document()->filePath();
+    const QString currentUiFile = FormEditorW::activeEditor()->document()->filePath().toString();
 #if 0
     return Designer::Internal::navigateToSlot(currentUiFile, objectName, signalSignature, parameterNames, errorMessage);
 #endif

@@ -637,7 +637,7 @@ AssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistR
         if (CppCompletionAssistProvider *cap =
                 qobject_cast<CppCompletionAssistProvider *>(cppEditorDocument()->completionAssistProvider())) {
             return cap->createAssistInterface(
-                            textDocument()->filePath(),
+                            textDocument()->filePath().toString(),
                             document(),
                             cppEditorDocument()->isObjCEnabled(),
                             position(),
@@ -766,7 +766,7 @@ void CppEditorWidget::abortDeclDefLink()
 
 void CppEditorWidget::showPreProcessorWidget()
 {
-    const Utils::FileName fileName = Utils::FileName::fromString(textDocument()->filePath());
+    const Utils::FileName fileName = textDocument()->filePath();
 
     // Check if this editor belongs to a project
     QList<ProjectPart::Ptr> projectParts = d->m_modelManager->projectPart(fileName);
@@ -775,7 +775,7 @@ void CppEditorWidget::showPreProcessorWidget()
     if (projectParts.isEmpty())
         projectParts << d->m_modelManager->fallbackProjectPart();
 
-    CppPreProcessorDialog preProcessorDialog(this, textDocument()->filePath(), projectParts);
+    CppPreProcessorDialog preProcessorDialog(this, textDocument()->filePath().toString(), projectParts);
     if (preProcessorDialog.exec() == QDialog::Accepted) {
         cppEditorDocument()->setPreprocessorSettings(
                     preProcessorDialog.projectPart(),

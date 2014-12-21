@@ -195,7 +195,7 @@ void CppEditorOutline::updateNow()
         return;
 
     const CPlusPlus::Snapshot snapshot = cmmi->snapshot();
-    const QString filePath = m_editorWidget->textDocument()->filePath();
+    const QString filePath = m_editorWidget->textDocument()->filePath().toString();
     CPlusPlus::Document::Ptr document = snapshot.document(filePath);
     if (!document)
         return;

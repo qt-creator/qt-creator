@@ -392,7 +392,7 @@ void QmakeProjectManagerPlugin::updateBuildFileAction()
     bool enabled = false;
 
     if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
-        QString file = currentDocument->filePath();
+        QString file = currentDocument->filePath().toString();
         Node *node  = SessionManager::nodeForFile(file);
         Project *project = SessionManager::projectForFile(file);
         m_buildFileAction->setParameter(QFileInfo(file).fileName());

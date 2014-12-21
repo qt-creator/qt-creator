@@ -134,7 +134,7 @@ Core::Id Project::id() const
 
 Utils::FileName Project::projectFilePath() const
 {
-    return Utils::FileName::fromString(document()->filePath());
+    return document()->filePath();
 }
 
 bool Project::hasActiveBuildSettings() const

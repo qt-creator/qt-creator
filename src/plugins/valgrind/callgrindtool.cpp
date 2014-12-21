@@ -872,7 +872,7 @@ void CallgrindToolPrivate::requestContextMenu(TextEditorWidget *widget, int line
     // find callgrind text mark that corresponds to this editor's file and line number
     const Function *func = 0;
     foreach (CallgrindTextMark *textMark, m_textMarks) {
-        if (textMark->fileName() == widget->textDocument()->filePath() && textMark->lineNumber() == line) {
+        if (textMark->fileName() == widget->textDocument()->filePath().toString() && textMark->lineNumber() == line) {
             func = textMark->function();
             break;
         }

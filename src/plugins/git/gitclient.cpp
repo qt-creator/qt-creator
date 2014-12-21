@@ -698,7 +698,7 @@ static inline QString msgCannotLaunch(const QString &binary)
 static inline QString currentDocumentPath()
 {
     if (IDocument *document= EditorManager::currentDocument())
-        return QFileInfo(document->filePath()).path();
+        return document->filePath().toFileInfo().path();
     return QString();
 }
 

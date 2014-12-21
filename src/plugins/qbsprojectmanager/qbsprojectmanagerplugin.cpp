@@ -71,13 +71,13 @@ namespace Internal {
 static Node *currentEditorNode()
 {
     Core::IDocument *doc = Core::EditorManager::currentDocument();
-    return doc ? SessionManager::nodeForFile(doc->filePath()) : 0;
+    return doc ? SessionManager::nodeForFile(doc->filePath().toString()) : 0;
 }
 
 static QbsProject *currentEditorProject()
 {
     Core::IDocument *doc = Core::EditorManager::currentDocument();
-    return doc ? qobject_cast<QbsProject *>(SessionManager::projectForFile(doc->filePath())) : 0;
+    return doc ? qobject_cast<QbsProject *>(SessionManager::projectForFile(doc->filePath().toString())) : 0;
 }
 
 QbsProjectManagerPlugin::QbsProjectManagerPlugin() :

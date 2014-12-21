@@ -68,14 +68,14 @@ class CppEditorDocumentHandle : public CppTools::EditorDocumentHandle
 public:
     CppEditorDocumentHandle(CppEditor::Internal::CppEditorDocument *cppEditorDocument)
         : m_cppEditorDocument(cppEditorDocument)
-        , m_registrationFilePath(cppEditorDocument->filePath())
+        , m_registrationFilePath(cppEditorDocument->filePath().toString())
     {
         mm()->registerEditorDocument(this);
     }
 
     ~CppEditorDocumentHandle() { mm()->unregisterEditorDocument(m_registrationFilePath); }
 
-    QString filePath() const { return m_cppEditorDocument->filePath(); }
+    QString filePath() const { return m_cppEditorDocument->filePath().toString(); }
     QByteArray contents() const { return m_cppEditorDocument->contentsText(); }
     unsigned revision() const { return m_cppEditorDocument->contentsRevision(); }
 
@@ -105,8 +105,8 @@ CppEditorDocument::CppEditorDocument()
 
     connect(this, SIGNAL(aboutToReload()), this, SLOT(onAboutToReload()));
     connect(this, SIGNAL(reloadFinished(bool)), this, SLOT(onReloadFinished()));
-    connect(this, SIGNAL(filePathChanged(QString,QString)),
-            this, SLOT(onFilePathChanged(QString,QString)));
+    connect(this, &IDocument::filePathChanged,
+            this, &CppEditorDocument::onFilePathChanged);
 
     m_processorTimer.setSingleShot(true);
     m_processorTimer.setInterval(processDocumentIntervalInMs);
@@ -196,12 +196,13 @@ void CppEditorDocument::onReloadFinished()
     m_fileIsBeingReloaded = false;
 }
 
-void CppEditorDocument::onFilePathChanged(const QString &oldPath, const QString &newPath)
+void CppEditorDocument::onFilePathChanged(const Utils::FileName &oldPath,
+                                          const Utils::FileName &newPath)
 {
     Q_UNUSED(oldPath);
 
     if (!newPath.isEmpty()) {
-        setMimeType(Core::MimeDatabase::findByFile(QFileInfo(newPath)).type());
+        setMimeType(Core::MimeDatabase::findByFile(newPath.toFileInfo()).type());
 
         disconnect(this, SIGNAL(contentsChanged()), this, SLOT(scheduleProcessDocument()));
         connect(this, SIGNAL(contentsChanged()), this, SLOT(scheduleProcessDocument()));
@@ -250,8 +251,8 @@ void CppEditorDocument::updatePreprocessorSettings()
 
     const QString prefix = QLatin1String(Constants::CPP_PREPROCESSOR_PROJECT_PREFIX);
     const QString &projectFile = ProjectExplorer::SessionManager::value(
-                prefix + filePath()).toString();
-    const QString directivesKey = projectFile + QLatin1Char(',') + filePath();
+                prefix + filePath().toString()).toString();
+    const QString directivesKey = projectFile + QLatin1Char(',') + filePath().toString();
     const QByteArray additionalDirectives = ProjectExplorer::SessionManager::value(
                 directivesKey).toString().toUtf8();
 

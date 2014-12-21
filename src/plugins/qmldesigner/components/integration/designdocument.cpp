@@ -194,22 +194,22 @@ QString DesignDocument::simplfiedDisplayName() const
     return list.last();
 }
 
-void DesignDocument::updateFileName(const QString & /*oldFileName*/, const QString &newFileName)
+void DesignDocument::updateFileName(const Utils::FileName & /*oldFileName*/, const Utils::FileName &newFileName)
 {
     if (m_documentModel)
-        m_documentModel->setFileUrl(QUrl::fromLocalFile(newFileName));
+        m_documentModel->setFileUrl(QUrl::fromLocalFile(newFileName.toString()));
 
     if (m_inFileComponentModel)
-        m_inFileComponentModel->setFileUrl(QUrl::fromLocalFile(newFileName));
+        m_inFileComponentModel->setFileUrl(QUrl::fromLocalFile(newFileName.toString()));
 
-    viewManager().setItemLibraryViewResourcePath(QFileInfo(newFileName).absolutePath());
+    viewManager().setItemLibraryViewResourcePath(newFileName.toFileInfo().absolutePath());
 
     emit displayNameChanged(displayName());
 }
 
 QString DesignDocument::fileName() const
 {
-    return editor()->document()->filePath();
+    return editor()->document()->filePath().toString();
 }
 
 ProjectExplorer::Kit *DesignDocument::currentKit() const
@@ -243,7 +243,7 @@ void DesignDocument::loadDocument(QPlainTextEdit *edit)
 
     m_inFileComponentTextModifier.reset();
 
-    updateFileName(QString(), fileName());
+    updateFileName(Utils::FileName(), Utils::FileName::fromString(fileName()));
 
     m_documentLoaded = true;
 }
@@ -581,9 +581,8 @@ RewriterView *DesignDocument::rewriterView() const
 void DesignDocument::setEditor(Core::IEditor *editor)
 {
     m_textEditor = editor;
-    connect(editor->document(),
-            SIGNAL(filePathChanged(QString,QString)),
-            SLOT(updateFileName(QString,QString)));
+    connect(editor->document(), &Core::IDocument::filePathChanged,
+            this, &DesignDocument::updateFileName);
 
     updateActiveQtVersion();
 }

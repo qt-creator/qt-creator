@@ -65,7 +65,7 @@ bool ImageViewerFile::reload(QString *errorString,
         emit changed();
         return true;
     }
-    return m_editor->open(errorString, filePath(), filePath());
+    return m_editor->open(errorString, filePath().toString(), filePath().toString());
 }
 
 bool ImageViewerFile::save(QString *errorString, const QString &fileName, bool autoSave)

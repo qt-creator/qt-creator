@@ -111,7 +111,7 @@ public:
     bool isSaveAsAllowed() const;
     void checkPermissions();
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
-    void setFilePath(const QString &newName);
+    void setFilePath(const Utils::FileName &newName);
 
     QString defaultPath() const;
     QString suggestedFileName() const;

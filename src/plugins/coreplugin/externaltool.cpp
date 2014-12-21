@@ -591,7 +591,7 @@ void ExternalToolRunner::run()
     }
     if (m_tool->modifiesCurrentDocument()) {
         if (IDocument *document = EditorManager::currentDocument()) {
-            m_expectedFileName = document->filePath();
+            m_expectedFileName = document->filePath().toString();
             if (!DocumentManager::saveModifiedDocument(document)) {
                 deleteLater();
                 return;

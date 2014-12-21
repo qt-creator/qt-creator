@@ -36,7 +36,7 @@
 namespace QmlProjectManager {
 namespace Internal {
 
-QmlProjectFile::QmlProjectFile(QmlProject *parent, QString fileName)
+QmlProjectFile::QmlProjectFile(QmlProject *parent, const QString &fileName)
     : Core::IDocument(parent),
       m_project(parent)
 {
@@ -44,7 +44,7 @@ QmlProjectFile::QmlProjectFile(QmlProject *parent, QString fileName)
     QTC_CHECK(!fileName.isEmpty());
     setId("Qml.ProjectFile");
     setMimeType(QLatin1String(Constants::QMLPROJECT_MIMETYPE));
-    setFilePath(fileName);
+    setFilePath(Utils::FileName::fromString(fileName));
 }
 
 QmlProjectFile::~QmlProjectFile()

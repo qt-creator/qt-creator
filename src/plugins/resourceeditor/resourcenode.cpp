@@ -445,7 +445,7 @@ ResourceFileWatcher::ResourceFileWatcher(ResourceTopLevelNode *node)
 {
     setId("ResourceNodeWatcher");
     setMimeType(QLatin1String(ResourceEditor::Constants::C_RESOURCE_MIMETYPE));
-    setFilePath(node->path());
+    setFilePath(Utils::FileName::fromString(node->path()));
 }
 
 bool ResourceFileWatcher::save(QString *errorString, const QString &fileName, bool autoSave)

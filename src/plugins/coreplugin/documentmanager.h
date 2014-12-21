@@ -43,6 +43,8 @@ class QMainWindow;
 class QMenu;
 QT_END_NAMESPACE
 
+namespace Utils { class FileName; }
+
 namespace Core {
 
 class IContext;
@@ -160,7 +162,6 @@ protected:
 
 private slots:
     void documentDestroyed(QObject *obj);
-    void filePathChanged(const QString &oldName, const QString &newName);
     void checkForNewFileName();
     void checkForReload();
     void changedFile(const QString &file);
@@ -168,6 +169,8 @@ private slots:
 private:
     explicit DocumentManager(QObject *parent);
     ~DocumentManager();
+
+    void filePathChanged(const Utils::FileName &oldName, const Utils::FileName &newName);
 
     friend class Core::Internal::MainWindow;
 };

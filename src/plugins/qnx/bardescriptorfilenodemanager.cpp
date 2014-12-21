@@ -170,7 +170,7 @@ void BarDescriptorFileNodeManager::updateBarDescriptorNodes(ProjectExplorer::Pro
                         Core::MessageManager::write(tr("Cannot save bar descriptor file: %1").arg(errorMessage));
                         continue;
                     } else {
-                        oldDocument->setFilePath(package.appDescriptorPath());
+                        oldDocument->setFilePath(Utils::FileName::fromString(package.appDescriptorPath()));
 
                         if (!oldDocument->reload(&errorMessage, Core::IDocument::FlagReload, Core::IDocument::TypeContents))
                             Core::MessageManager::write(tr("Cannot reload bar descriptor file: %1").arg(errorMessage));

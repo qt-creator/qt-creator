@@ -54,6 +54,8 @@
 #include <QInputDialog>
 #include <QClipboard>
 
+using namespace Utils;
+
 namespace ResourceEditor {
 namespace Internal {
 
@@ -68,7 +70,7 @@ ResourceEditorDocument::ResourceEditorDocument(ResourceEditorW *parent) :
 {
     setId(ResourceEditor::Constants::RESOURCEEDITOR_ID);
     setMimeType(QLatin1String(ResourceEditor::Constants::C_RESOURCE_MIMETYPE));
-    setFilePath(parent->m_resourceEditor->fileName());
+    setFilePath(FileName::fromString(parent->m_resourceEditor->fileName()));
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorFile::ResourceEditorFile()";
 }
@@ -145,7 +147,7 @@ bool ResourceEditorW::open(QString *errorString, const QString &fileName, const 
         return false;
     }
 
-    m_resourceDocument->setFilePath(fileName);
+    m_resourceDocument->setFilePath(FileName::fromString(fileName));
     m_resourceDocument->setBlockDirtyChanged(false);
     m_resourceEditor->setDirty(fileName != realFileName);
     m_shouldAutoSave = false;
@@ -158,23 +160,23 @@ bool ResourceEditorDocument::save(QString *errorString, const QString &name, boo
     if (debugResourceEditorW)
         qDebug(">ResourceEditorW::save: %s", qPrintable(name));
 
-    const QString oldFileName = filePath();
-    const QString actualName = name.isEmpty() ? oldFileName : name;
+    const FileName oldFileName = filePath();
+    const FileName actualName = name.isEmpty() ? oldFileName : FileName::fromString(name);
     if (actualName.isEmpty())
         return false;
 
     m_blockDirtyChanged = true;
-    m_parent->m_resourceEditor->setFileName(actualName);
+    m_parent->m_resourceEditor->setFileName(actualName.toString());
     if (!m_parent->m_resourceEditor->save()) {
         *errorString = m_parent->m_resourceEditor->errorMessage();
-        m_parent->m_resourceEditor->setFileName(oldFileName);
+        m_parent->m_resourceEditor->setFileName(oldFileName.toString());
         m_blockDirtyChanged = false;
         return false;
     }
 
     m_parent->m_shouldAutoSave = false;
     if (autoSave) {
-        m_parent->m_resourceEditor->setFileName(oldFileName);
+        m_parent->m_resourceEditor->setFileName(oldFileName.toString());
         m_parent->m_resourceEditor->setDirty(true);
         m_blockDirtyChanged = false;
         return true;
@@ -194,7 +196,7 @@ QString ResourceEditorDocument::plainText() const
 
 bool ResourceEditorDocument::setContents(const QByteArray &contents)
 {
-    Utils::TempFileSaver saver;
+    TempFileSaver saver;
     saver.write(contents);
     if (!saver.finalize(Core::ICore::mainWindow()))
         return false;
@@ -206,10 +208,10 @@ bool ResourceEditorDocument::setContents(const QByteArray &contents)
     return rc;
 }
 
-void ResourceEditorDocument::setFilePath(const QString &newName)
+void ResourceEditorDocument::setFilePath(const FileName &newName)
 {
-    if (newName != m_parent->m_resourceEditor->fileName())
-        m_parent->m_resourceEditor->setFileName(newName);
+    if (newName.toString() != m_parent->m_resourceEditor->fileName())
+        m_parent->m_resourceEditor->setFileName(newName.toString());
     IDocument::setFilePath(newName);
 }
 
@@ -246,7 +248,7 @@ bool ResourceEditorDocument::reload(QString *errorString, ReloadFlag flag, Chang
         emit changed();
     } else {
         emit aboutToReload();
-        QString fn = filePath();
+        QString fn = filePath().toString();
         const bool success = m_parent->open(errorString, fn, fn);
         emit reloadFinished(success);
         return success;

@@ -989,7 +989,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
         QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
         QVERIFY(mm->isCppEditor(editor));
 
-        const QString filePath = editor->document()->filePath();
+        const QString filePath = editor->document()->filePath().toString();
         BaseEditorDocumentParser *parser = BaseEditorDocumentParser::get(filePath);
         parser->setEditorDefines(editorDefines.toUtf8());
         parser->update(mm->workingCopy());

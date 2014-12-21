@@ -2733,7 +2733,7 @@ void TextEditorWidgetPrivate::updateCodeFoldingVisible()
 
 void TextEditorWidgetPrivate::reconfigure()
 {
-    q->configureMimeType(MimeDatabase::findByFile(m_document->filePath()));
+    q->configureMimeType(MimeDatabase::findByFile(m_document->filePath().toString()));
 }
 
 bool TextEditorWidget::codeFoldingVisible() const
@@ -5360,7 +5360,7 @@ bool TextEditorWidget::openLink(const Link &link, bool inNextSplit)
     if (!link.hasValidTarget())
         return false;
 
-    if (!inNextSplit && textDocument()->filePath() == link.targetFileName) {
+    if (!inNextSplit && textDocument()->filePath().toString() == link.targetFileName) {
         EditorManager::addCurrentPositionToNavigationHistory();
         gotoLine(link.targetLine, link.targetColumn);
         setFocus();
@@ -7094,7 +7094,7 @@ AssistInterface *TextEditorWidget::createAssistInterface(AssistKind kind,
                                                              AssistReason reason) const
 {
     Q_UNUSED(kind);
-    return new AssistInterface(document(), position(), d->m_document->filePath(), reason);
+    return new AssistInterface(document(), position(), d->m_document->filePath().toString(), reason);
 }
 
 QString TextEditorWidget::foldReplacementText(const QTextBlock &) const
@@ -7198,7 +7198,7 @@ void TextEditorWidget::configureMimeType(const MimeType &mimeType)
                 setCodeFoldingSupported(true);
             }
         } else {
-            const QString &fileName = textDocument()->filePath();
+            const QString &fileName = textDocument()->filePath().toString();
             if (TextEditorSettings::highlighterSettings().isIgnoredFilePattern(fileName))
                 d->m_isMissingSyntaxDefinition = false;
         }

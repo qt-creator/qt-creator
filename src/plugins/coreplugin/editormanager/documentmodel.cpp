@@ -130,7 +130,7 @@ QAbstractItemModel *DocumentModel::model()
 
 QString DocumentModel::Entry::fileName() const
 {
-    return document ? document->filePath() : m_fileName;
+    return document ? document->filePath().toString() : m_fileName;
 }
 
 QString DocumentModel::Entry::displayName() const
@@ -400,13 +400,10 @@ QVariant DocumentModelPrivate::data(const QModelIndex &index, int role) const
     case Qt::DecorationRole:
     {
         bool showLock = false;
-        if (e->document) {
-            showLock = e->document->filePath().isEmpty()
-                    ? false
-                    : e->document->isFileReadOnly();
-        } else {
+        if (e->document)
+            showLock = e->document->filePath().isEmpty() ? false : e->document->isFileReadOnly();
+        else
             showLock = !QFileInfo(e->m_fileName).isWritable();
-        }
         return showLock ? m_lockedIcon : QIcon();
     }
     case Qt::ToolTipRole:

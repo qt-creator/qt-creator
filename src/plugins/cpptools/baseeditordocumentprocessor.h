@@ -87,7 +87,7 @@ protected:
                           CppTools::WorkingCopy workingCopy);
 
     // Convenience
-    QString filePath() const { return m_baseTextDocument->filePath(); }
+    QString filePath() const { return m_baseTextDocument->filePath().toString(); }
     unsigned revision() const { return static_cast<unsigned>(textDocument()->revision()); }
     QTextDocument *textDocument() const { return m_baseTextDocument->document(); }
 

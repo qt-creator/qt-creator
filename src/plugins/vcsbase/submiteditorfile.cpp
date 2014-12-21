@@ -38,6 +38,7 @@
 
 using namespace VcsBase;
 using namespace VcsBase::Internal;
+using namespace Utils;
 
 /*!
     \class VcsBase::Internal::SubmitEditorFile
@@ -71,15 +72,15 @@ void SubmitEditorFile::setModified(bool modified)
 
 bool SubmitEditorFile::save(QString *errorString, const QString &fileName, bool autoSave)
 {
-    const QString fName = fileName.isEmpty() ? filePath() : fileName;
-    Utils::FileSaver saver(fName, QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
+    const FileName fName = fileName.isEmpty() ? filePath() : FileName::fromString(fileName);
+    FileSaver saver(fName.toString(),
+                    QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
     saver.write(m_editor->fileContents());
     if (!saver.finalize(errorString))
         return false;
     if (autoSave)
         return true;
-    const QFileInfo fi(fName);
-    setFilePath(fi.absoluteFilePath());
+    setFilePath(FileName::fromUserInput(fName.toFileInfo().absoluteFilePath()));
     setModified(false);
     if (!errorString->isEmpty())
         return false;

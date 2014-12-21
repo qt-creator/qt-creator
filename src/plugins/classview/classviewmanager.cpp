@@ -455,7 +455,7 @@ void Manager::gotoLocations(const QList<QVariant> &list)
         auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(EditorManager::currentEditor());
         if (textEditor) {
             // check if current cursor position is a known location of the symbol
-            const QString fileName = textEditor->document()->filePath();
+            const QString fileName = textEditor->document()->filePath().toString();
             int line;
             int column;
             textEditor->convertPosition(textEditor->position(), &line, &column);

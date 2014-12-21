@@ -257,7 +257,7 @@ void QmlProjectRunConfiguration::changeCurrentFile(IEditor *editor)
         editor = EditorManager::currentEditor();
 
     if (editor)
-        m_currentFileFilename = editor->document()->filePath();
+        m_currentFileFilename = editor->document()->filePath().toString();
     updateEnabled();
 }
 
@@ -267,7 +267,7 @@ void QmlProjectRunConfiguration::updateEnabled()
     if (mainScriptSource() == FileInEditor) {
         IDocument *document = EditorManager::currentDocument();
         if (document) {
-            m_currentFileFilename = document->filePath();
+            m_currentFileFilename = document->filePath().toString();
             if (MimeDatabase::findByFile(mainScript()).type() == QLatin1String("application/x-qml"))
                 qmlFileFound = true;
         }

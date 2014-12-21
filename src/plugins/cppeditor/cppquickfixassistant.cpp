@@ -77,7 +77,7 @@ QList<TextEditor::QuickFixFactory *> CppQuickFixAssistProvider::quickFixFactorie
 CppQuickFixInterface::CppQuickFixInterface(CppEditorWidget *editor,
                                                        TextEditor::AssistReason reason)
     : AssistInterface(editor->document(), editor->position(),
-                      editor->textDocument()->filePath(), reason)
+                      editor->textDocument()->filePath().toString(), reason)
     , m_editor(editor)
     , m_semanticInfo(editor->semanticInfo())
     , m_snapshot(CppTools::CppModelManager::instance()->snapshot())
