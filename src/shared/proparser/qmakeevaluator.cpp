@@ -985,6 +985,49 @@ void QMakeEvaluator::setTemplate()
     }
 }
 
+#if defined(Q_CC_MSVC)
+static ProString msvcBinDirToQMakeArch(QString subdir)
+{
+    int idx = subdir.indexOf(QLatin1Char('\\'));
+    if (idx == -1)
+        return ProString("x86");
+    subdir.remove(0, idx + 1);
+    idx = subdir.indexOf(QLatin1Char('_'));
+    if (idx >= 0)
+        subdir.remove(0, idx + 1);
+    subdir = subdir.toLower();
+    if (subdir == QStringLiteral("amd64"))
+        return ProString("x86_64");
+    return ProString(subdir);
+}
+
+static ProString defaultMsvcArchitecture()
+{
+#if defined(Q_OS_WIN64)
+    return ProString("x86_64");
+#else
+    return ProString("x86");
+#endif
+}
+
+static ProString msvcArchitecture(const QString &vcInstallDir, const QString &pathVar)
+{
+    if (vcInstallDir.isEmpty())
+        return defaultMsvcArchitecture();
+    QString vcBinDir = vcInstallDir;
+    if (vcBinDir.endsWith(QLatin1Char('\\')))
+        vcBinDir.chop(1);
+    foreach (const QString &dir, pathVar.split(QLatin1Char(';'))) {
+        if (!dir.startsWith(vcBinDir, Qt::CaseInsensitive))
+            continue;
+        const ProString arch = msvcBinDirToQMakeArch(dir.mid(vcBinDir.length() + 1));
+        if (!arch.isEmpty())
+            return arch;
+    }
+    return defaultMsvcArchitecture();
+}
+#endif // defined(Q_CC_MSVC)
+
 void QMakeEvaluator::loadDefaults()
 {
     ProValueMap &vars = m_valuemapStack.top();
@@ -1046,21 +1089,9 @@ void QMakeEvaluator::loadDefaults()
     vars[ProKey("QMAKE_HOST.arch")] << archStr;
 
 # if defined(Q_CC_MSVC) // ### bogus condition, but nobody x-builds for msvc with a different qmake
-    QLatin1Char backslash('\\');
-    QString paths = m_option->getEnv(QLatin1String("PATH"));
-    QString vcBin64 = m_option->getEnv(QLatin1String("VCINSTALLDIR"));
-    if (!vcBin64.endsWith(backslash))
-        vcBin64.append(backslash);
-    vcBin64.append(QLatin1String("bin\\amd64"));
-    QString vcBinX86_64 = m_option->getEnv(QLatin1String("VCINSTALLDIR"));
-    if (!vcBinX86_64.endsWith(backslash))
-        vcBinX86_64.append(backslash);
-    vcBinX86_64.append(QLatin1String("bin\\x86_amd64"));
-    if (paths.contains(vcBin64, Qt::CaseInsensitive)
-            || paths.contains(vcBinX86_64, Qt::CaseInsensitive))
-        vars[ProKey("QMAKE_TARGET.arch")] << ProString("x86_64");
-    else
-        vars[ProKey("QMAKE_TARGET.arch")] << ProString("x86");
+    vars[ProKey("QMAKE_TARGET.arch")] = msvcArchitecture(
+                m_option->getEnv(QLatin1String("VCINSTALLDIR")),
+                m_option->getEnv(QLatin1String("PATH")));
 # endif
 #elif defined(Q_OS_UNIX)
     struct utsname name;
