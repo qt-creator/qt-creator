@@ -155,6 +155,16 @@ void Highlighter::setTabSettings(const TabSettings &ts)
     m_tabSettings = &ts;
 }
 
+static bool isOpeningParenthesis(QChar c)
+{
+    return c == QLatin1Char('{') || c == QLatin1Char('[') || c == QLatin1Char('(');
+}
+
+static bool isClosingParenthesis(QChar c)
+{
+    return c == QLatin1Char('}') || c == QLatin1Char(']') || c == QLatin1Char(')');
+}
+
 void Highlighter::highlightBlock(const QString &text)
 {
     if (!m_defaultContext.isNull() && !m_isBroken) {
@@ -184,6 +194,17 @@ void Highlighter::highlightBlock(const QString &text)
                 // In the case region depth has changed since the last time the state was set.
                 setCurrentBlockState(computeState(extractObservableState(currentBlockState())));
             }
+
+            TextEditor::Parentheses parentheses;
+            for (int pos = 0; pos < length; ++pos) {
+                const QChar c = text.at(pos);
+                if (isOpeningParenthesis(c))
+                    parentheses.push_back(Parenthesis(Parenthesis::Opened, c, pos));
+                else if (isClosingParenthesis(c))
+                    parentheses.push_back(Parenthesis(Parenthesis::Closed, c, pos));
+            }
+            TextDocumentLayout::setParentheses(currentBlock(), parentheses);
+
         } catch (const HighlighterException &) {
             m_isBroken = true;
         }

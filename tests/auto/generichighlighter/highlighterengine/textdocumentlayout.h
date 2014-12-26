@@ -34,6 +34,21 @@
 #include <QTextBlockUserData>
 
 // Replaces the "real" textdocumentlayout.h file.
+namespace TextEditor {
+struct Parenthesis;
+typedef QVector<Parenthesis> Parentheses;
+
+struct Parenthesis
+{
+    enum Type { Opened, Closed };
+
+    inline Parenthesis() : type(Opened), pos(-1) {}
+    inline Parenthesis(Type t, QChar c, int position)
+        : type(t), chr(c), pos(position) {}
+    Type type;
+    QChar chr;
+    int pos;
+};
 
 struct CodeFormatterData {};
 
@@ -50,6 +65,11 @@ struct TextBlockUserData : QTextBlockUserData
     CodeFormatterData *m_data;
 };
 
-namespace TextDocumentLayout { TextBlockUserData *userData(const QTextBlock &block); }
+namespace TextDocumentLayout {
+TextBlockUserData *userData(const QTextBlock &block);
+void setParentheses(const QTextBlock &, const Parentheses &);
+}
+
+} // namespace TextEditor
 
 #endif // TEXTDOCUMENTLAYOUT_H

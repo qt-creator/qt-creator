@@ -6155,6 +6155,7 @@ void TextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
     setHighlightCurrentLine(ds.m_highlightCurrentLine);
     setRevisionsVisible(ds.m_markTextChanges);
     setCenterOnScroll(ds.m_centerCursorOnScroll);
+    setParenthesesMatchingEnabled(ds.m_highlightMatchingParentheses);
     d->m_fileEncodingLabelAction->setVisible(ds.m_displayFileEncoding);
 
     if (d->m_displaySettings.m_visualizeWhitespace != ds.m_visualizeWhitespace) {

@@ -30,6 +30,8 @@
 
 #include "textdocumentlayout.h"
 
+namespace TextEditor {
+
 TextBlockUserData *TextDocumentLayout::userData(const QTextBlock &block)
 {
     TextBlockUserData *data = static_cast<TextBlockUserData*>(block.userData());
@@ -37,3 +39,7 @@ TextBlockUserData *TextDocumentLayout::userData(const QTextBlock &block)
         const_cast<QTextBlock &>(block).setUserData((data = new TextBlockUserData));
     return data;
 }
+
+void TextDocumentLayout::setParentheses(const QTextBlock &, const Parentheses &) {}
+
+} // namespace TextEditor
