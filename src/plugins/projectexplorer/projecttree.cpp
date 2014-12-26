@@ -334,7 +334,10 @@ void ProjectTree::updateExternalFileWarning()
     if (!infoBar->canInfoBeAdded(externalFileId))
         return;
     Utils::FileName fileName = Utils::FileName::fromString(document->filePath());
-    foreach (Project *project, SessionManager::projects()) {
+    const QList<Project *> projects = SessionManager::projects();
+    if (projects.isEmpty())
+        return;
+    foreach (Project *project, projects) {
         Utils::FileName projectDir = project->projectDirectory();
         if (projectDir.isEmpty())
             continue;
