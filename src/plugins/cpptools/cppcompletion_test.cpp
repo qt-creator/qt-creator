@@ -310,8 +310,41 @@ void CppToolsPlugin::test_completion()
     actualCompletions.sort();
     expectedCompletions.sort();
 
-    QEXPECT_FAIL("enum_in_function_in_struct_in_function", "doesn't work", Abort);
+    QEXPECT_FAIL("enum_in_function_in_struct_in_function", "QTCREATORBUG-13757", Abort);
+    QEXPECT_FAIL("enum_in_function_in_struct_in_function_cxx11", "QTCREATORBUG-13757", Abort);
+    QEXPECT_FAIL("enum_in_function_in_struct_in_function_anon", "QTCREATORBUG-13757", Abort);
+    QEXPECT_FAIL("enum_inside_member_function", "QTCREATORBUG-13757", Abort);
+    QEXPECT_FAIL("enum_inside_member_function_cxx11", "QTCREATORBUG-13757", Abort);
+    QEXPECT_FAIL("enum_inside_member_function_anon", "QTCREATORBUG-13757", Abort);
+    QEXPECT_FAIL("enum_in_class_accessed_in_member_func_cxx11", "QTCREATORBUG-13757", Abort);
+    QEXPECT_FAIL("enum_in_class_accessed_in_member_func_inline_cxx11", "QTCREATORBUG-13757", Abort);
     QCOMPARE(actualCompletions, expectedCompletions);
+}
+
+static void enumTestCase(const QByteArray &tag, const QByteArray &source,
+                         const QByteArray &prefix = QByteArray())
+{
+    QByteArray fullSource = source;
+    fullSource.replace('$', "enum E { val1, val2, val3 };");
+    QTest::newRow(tag) << fullSource << (prefix + "val")
+            << (QStringList()
+                << QLatin1String("val1")
+                << QLatin1String("val2")
+                << QLatin1String("val3"));
+
+    QTest::newRow(tag + "_cxx11") << fullSource << (prefix + "E::")
+            << (QStringList()
+                << QLatin1String("E")
+                << QLatin1String("val1")
+                << QLatin1String("val2")
+                << QLatin1String("val3"));
+
+    fullSource.replace("enum E ", "enum ");
+    QTest::newRow(tag + "_anon") << fullSource << (prefix + "val")
+            << (QStringList()
+                << QLatin1String("val1")
+                << QLatin1String("val2")
+                << QLatin1String("val3"));
 }
 
 void CppToolsPlugin::test_completion_data()
@@ -1762,103 +1795,94 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("staticFun2")
             << QLatin1String("m2"));
 
-    QTest::newRow("enum_inside_block_inside_function_cxx11_QTCREATORBUG5456") << _(
-            "void foo()\n"
-            "{\n"
-            "   {\n"
-            "       enum E { e1, e2, e3 };\n"
-            "       @\n"
-            "   }\n"
-            "}\n"
-        ) << _("E::") << (QStringList()
-            << QLatin1String("E")
-            << QLatin1String("e1")
-            << QLatin1String("e2")
-            << QLatin1String("e3"));
+    enumTestCase(
+            "enum_inside_block_inside_function",
+             "void foo()\n"
+             "{\n"
+             "   {\n"
+             "       $\n"
+             "       @\n"
+             "   }\n"
+             "}\n"
+    );
 
-    QTest::newRow("enum_inside_function") << _(
+    enumTestCase(
+            "enum_inside_function",
             "void foo()\n"
             "{\n"
-            "   enum E { val1, val2, val3 };\n"
+            "   $\n"
             "   @\n"
             "}\n"
-        ) << _("val") << (QStringList()
-            << QLatin1String("val1")
-            << QLatin1String("val2")
-            << QLatin1String("val3"));
+    );
 
-    QTest::newRow("anon_enum_inside_function") << _(
-            "void foo()\n"
-            "{\n"
-            "   enum { val1, val2, val3 };\n"
-            "   @\n"
-            "}\n"
-        ) << _("val") << (QStringList()
-            << QLatin1String("val1")
-            << QLatin1String("val2")
-            << QLatin1String("val3"));
-
-    QTest::newRow("enum_in_function_in_struct_in_function") << _(
+    enumTestCase(
+            "enum_in_function_in_struct_in_function",
             "void foo()\n"
             "{\n"
             "    struct S {\n"
             "        void fun()\n"
             "        {\n"
-            "            enum E { val1, val2, val3 };\n"
+            "            $\n"
             "            @\n"
             "        }\n"
             "    };\n"
             "}\n"
-        ) << _("val") << (QStringList()
-            << QLatin1String("val1")
-            << QLatin1String("val2")
-            << QLatin1String("val3"));
+    );
 
-    QTest::newRow("enum_inside_function_cxx11_QTCREATORBUG5456") << _(
-            "void foo()\n"
+    enumTestCase(
+            "enum_inside_class",
+            "struct Foo\n"
             "{\n"
-            "   enum E { e1, e2, e3 };\n"
+            "   $\n"
+            "   @\n"
+            "};\n",
+            "Foo::"
+    );
+
+    enumTestCase(
+            "enum_inside_namespace",
+            "namespace Ns\n"
+            "{\n"
+            "   $\n"
+            "   @\n"
+            "}\n",
+            "Ns::"
+    );
+
+    enumTestCase(
+            "enum_inside_member_function",
+            "class Foo { void func(); };\n"
+            "void Foo::func()\n"
+            "{\n"
+            "   $\n"
             "   @\n"
             "}\n"
-        ) << _("E::") << (QStringList()
-            << QLatin1String("E")
-            << QLatin1String("e1")
-            << QLatin1String("e2")
-            << QLatin1String("e3"));
+    );
 
-    QTest::newRow("enum_inside_class") << _(
-            "struct Foo\n"
+    enumTestCase(
+            "enum_in_class_accessed_in_member_func_inline",
+            "class Foo\n"
             "{\n"
-            "   enum E { val1, val2, val3 };\n"
-            "   @\n"
+            "   $\n"
+            "   void func()\n"
+            "   {\n"
+            "      @\n"
+            "   }\n"
             "};\n"
-        ) << _("Foo::v") << (QStringList()
-            << QLatin1String("val1")
-            << QLatin1String("val2")
-            << QLatin1String("val3"));
+    );
 
-    QTest::newRow("enum_inside_class_cxx11") << _(
-            "struct Foo\n"
+    enumTestCase(
+            "enum_in_class_accessed_in_member_func",
+            "class Foo\n"
             "{\n"
-            "   enum E { val1, val2, val3 };\n"
-            "   @\n"
+            "   $\n"
+            "   void func();\n"
             "};\n"
-        ) << _("Foo::E::") << (QStringList()
-            << QLatin1String("E")
-            << QLatin1String("val1")
-            << QLatin1String("val2")
-            << QLatin1String("val3"));
-
-    QTest::newRow("anon_enum_inside_class") << _(
-            "struct Foo\n"
+            "void Foo::func()\n"
             "{\n"
-            "   enum { val1, val2, val3 };\n"
             "   @\n"
-            "};\n"
-        ) << _("Foo::v") << (QStringList()
-            << QLatin1String("val1")
-            << QLatin1String("val2")
-            << QLatin1String("val3"));
+            "}\n"
+    );
 
     QTest::newRow("nested_anonymous_with___attribute__") << _(
             "struct Enclosing\n"
@@ -1873,40 +1897,6 @@ void CppToolsPlugin::test_completion_data()
         ) << _("e.") << (QStringList()
             << QLatin1String("Enclosing")
             << QLatin1String("i"));
-
-    QTest::newRow("enum_inside_namespace") << _(
-            "namespace Ns\n"
-            "{\n"
-            "   enum E { val1, val2, val3 };\n"
-            "   @\n"
-            "}\n"
-        ) << _("Ns::v") << (QStringList()
-            << QLatin1String("val1")
-            << QLatin1String("val2")
-            << QLatin1String("val3"));
-
-    QTest::newRow("enum_inside_namespace_cxx11") << _(
-            "namespace Ns\n"
-            "{\n"
-            "   enum E { val1, val2, val3 };\n"
-            "   @\n"
-            "}\n"
-        ) << _("Ns::E::") << (QStringList()
-            << QLatin1String("E")
-            << QLatin1String("val1")
-            << QLatin1String("val2")
-            << QLatin1String("val3"));
-
-    QTest::newRow("anon_enum_inside_namespace") << _(
-            "namespace Ns\n"
-            "{\n"
-            "   enum { val1, val2, val3 };\n"
-            "   @\n"
-            "}\n"
-        ) << _("Ns::v") << (QStringList()
-            << QLatin1String("val1")
-            << QLatin1String("val2")
-            << QLatin1String("val3"));
 
     QTest::newRow("lambdaCalls_1") << _(
             "struct S { int bar; };\n"
