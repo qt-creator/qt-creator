@@ -109,71 +109,30 @@ void QtOutputFormatter::appendMessagePart(QTextCursor &cursor, const QString &tx
 {
     QString deferredText;
 
-    int start = 0;
-    int pos = txt.indexOf(QLatin1Char('\n'));
-    while (pos != -1) {
-        // Line identified
-        if (!m_lastLine.isEmpty()) {
-            // Line continuation
-            const QString newPart = txt.mid(start, pos - start + 1);
-            const QString line = m_lastLine + newPart;
-            LinkResult lr = matchLine(line);
-            if (!lr.href.isEmpty()) {
-                // Found something && line continuation
-                cursor.insertText(deferredText, format);
-                deferredText.clear();
-                clearLastLine();
-                appendLine(cursor, lr, line, format);
-            } else {
-                // Found nothing, just emit the new part
-                deferredText += newPart;
-            }
-            // Handled line continuation
-            m_lastLine.clear();
-        } else {
-            const QString line = txt.mid(start, pos - start + 1);
-            LinkResult lr = matchLine(line);
-            if (!lr.href.isEmpty()) {
-                cursor.insertText(deferredText, format);
-                deferredText.clear();
-                appendLine(cursor, lr, line, format);
-            } else {
-                deferredText += line;
-            }
-        }
-        start = pos + 1;
+    const int length = txt.length();
+    for (int start = 0, pos = -1; start < length; start = pos + 1) {
         pos = txt.indexOf(QLatin1Char('\n'), start);
-    }
+        const QString newPart = txt.mid(start, (pos == -1) ? -1 : pos - start + 1);
+        const QString line = m_lastLine + newPart;
 
-    // Handle left over stuff
-    if (start < txt.length()) {
-        if (!m_lastLine.isEmpty()) {
-            // Line continuation
-            const QString newPart = txt.mid(start);
-            const QString line = m_lastLine + newPart;
-            LinkResult lr = matchLine(line);
-            if (!lr.href.isEmpty()) {
-                // Found something && line continuation
-                cursor.insertText(deferredText, format);
-                deferredText.clear();
+        LinkResult lr = matchLine(line);
+        if (!lr.href.isEmpty()) {
+            // Found something && line continuation
+            cursor.insertText(deferredText, format);
+            deferredText.clear();
+            if (!m_lastLine.isEmpty())
                 clearLastLine();
-                appendLine(cursor, lr, line, format);
-            } else {
-                // Found nothing, just emit the new part
-                deferredText += newPart;
-            }
-            m_lastLine = line;
+            appendLine(cursor, lr, line, format);
         } else {
-            m_lastLine = txt.mid(start);
-            LinkResult lr = matchLine(m_lastLine);
-            if (!lr.href.isEmpty()) {
-                cursor.insertText(deferredText, format);
-                deferredText.clear();
-                appendLine(cursor, lr, m_lastLine, format);
-            } else {
-                deferredText += m_lastLine;
-            }
+            // Found nothing, just emit the new part
+            deferredText += newPart;
         }
+
+        if (pos == -1) {
+            m_lastLine = line;
+            break;
+        }
+        m_lastLine.clear(); // Handled line continuation
     }
     cursor.insertText(deferredText, format);
 }
