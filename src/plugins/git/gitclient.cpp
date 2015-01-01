@@ -270,6 +270,7 @@ void GitDiffHandler::addJob(VcsCommand *command,
         args << QLatin1String("--ignore-space-change");
     args << QLatin1String("--unified=") + QString::number(
                 m_controller->contextLinesNumber());
+    args << QLatin1String("--src-prefix=a/") << QLatin1String("--dst-prefix=b/");
     args << arguments;
     command->addJob(args, timeout());
 }
