@@ -47,6 +47,7 @@ QT_END_NAMESPACE
 namespace Utils {
 
 class AnsiEscapeCodeHandler;
+class FormattedText;
 
 class QTCREATOR_UTILS_EXPORT OutputFormatter : public QObject
 {
@@ -71,6 +72,7 @@ protected:
     void initFormats();
     virtual void clearLastLine();
     QTextCharFormat charFormat(OutputFormat format) const;
+    QList<Utils::FormattedText> parseAnsi(const QString &text, const QTextCharFormat &format);
     void append(QTextCursor &cursor, const QString &text, const QTextCharFormat &format);
 
 private:

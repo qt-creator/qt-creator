@@ -54,6 +54,9 @@ private slots:
     void testQtOutputParser();
     void testQtOutputFormatter_data();
     void testQtOutputFormatter();
+    void testQtOutputFormatter_appendMessage_data();
+    void testQtOutputFormatter_appendMessage();
+    void testQtOutputFormatter_appendMixedAssertAndAnsi();
 #endif
 };
 

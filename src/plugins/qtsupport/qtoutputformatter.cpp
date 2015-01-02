@@ -32,6 +32,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/project.h>
+#include <utils/ansiescapecodehandler.h>
 #include <utils/theme/theme.h>
 
 #include <QPlainTextEdit>
@@ -100,10 +101,12 @@ LinkResult QtOutputFormatter::matchLine(const QString &line) const
 
 void QtOutputFormatter::appendMessage(const QString &txt, Utils::OutputFormat format)
 {
-    QTextCursor cursor(plainTextEdit()->document());
-    cursor.movePosition(QTextCursor::End);
-    cursor.beginEditBlock();
+    appendMessage(txt, charFormat(format));
+}
 
+void QtOutputFormatter::appendMessagePart(QTextCursor &cursor, const QString &txt,
+                                          const QTextCharFormat &format)
+{
     QString deferredText;
 
     int start = 0;
@@ -117,7 +120,7 @@ void QtOutputFormatter::appendMessage(const QString &txt, Utils::OutputFormat fo
             LinkResult lr = matchLine(line);
             if (!lr.href.isEmpty()) {
                 // Found something && line continuation
-                cursor.insertText(deferredText, charFormat(format));
+                cursor.insertText(deferredText, format);
                 deferredText.clear();
                 clearLastLine();
                 appendLine(cursor, lr, line, format);
@@ -131,7 +134,7 @@ void QtOutputFormatter::appendMessage(const QString &txt, Utils::OutputFormat fo
             const QString line = txt.mid(start, pos - start + 1);
             LinkResult lr = matchLine(line);
             if (!lr.href.isEmpty()) {
-                cursor.insertText(deferredText, charFormat(format));
+                cursor.insertText(deferredText, format);
                 deferredText.clear();
                 appendLine(cursor, lr, line, format);
             } else {
@@ -151,7 +154,7 @@ void QtOutputFormatter::appendMessage(const QString &txt, Utils::OutputFormat fo
             LinkResult lr = matchLine(line);
             if (!lr.href.isEmpty()) {
                 // Found something && line continuation
-                cursor.insertText(deferredText, charFormat(format));
+                cursor.insertText(deferredText, format);
                 deferredText.clear();
                 clearLastLine();
                 appendLine(cursor, lr, line, format);
@@ -164,7 +167,7 @@ void QtOutputFormatter::appendMessage(const QString &txt, Utils::OutputFormat fo
             m_lastLine = txt.mid(start);
             LinkResult lr = matchLine(m_lastLine);
             if (!lr.href.isEmpty()) {
-                cursor.insertText(deferredText, charFormat(format));
+                cursor.insertText(deferredText, format);
                 deferredText.clear();
                 appendLine(cursor, lr, m_lastLine, format);
             } else {
@@ -172,23 +175,44 @@ void QtOutputFormatter::appendMessage(const QString &txt, Utils::OutputFormat fo
             }
         }
     }
-    cursor.insertText(deferredText, charFormat(format));
+    cursor.insertText(deferredText, format);
+}
+
+void QtOutputFormatter::appendMessage(const QString &txt, const QTextCharFormat &format)
+{
+    QTextCursor cursor(plainTextEdit()->document());
+    cursor.movePosition(QTextCursor::End);
+    cursor.beginEditBlock();
+
+    foreach (const FormattedText &output, parseAnsi(txt, format))
+        appendMessagePart(cursor, output.text, output.format);
+
     cursor.endEditBlock();
 }
 
 void QtOutputFormatter::appendLine(QTextCursor &cursor, const LinkResult &lr,
     const QString &line, Utils::OutputFormat format)
 {
-    const QTextCharFormat normalFormat = charFormat(format);
-    cursor.insertText(line.left(lr.start), normalFormat);
+    appendLine(cursor, lr, line, charFormat(format));
+}
 
-    QTextCharFormat linkFormat = normalFormat;
-    linkFormat.setForeground(creatorTheme()->color(Theme::QtOutputFormatter_LinkTextColor));
-    linkFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-    linkFormat.setAnchor(true);
-    linkFormat.setAnchorHref(lr.href);
-    cursor.insertText(line.mid(lr.start, lr.end - lr.start), linkFormat);
-    cursor.insertText(line.mid(lr.end), normalFormat);
+static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QString &href)
+{
+    QTextCharFormat result = inputFormat;
+    result.setForeground(creatorTheme()->color(Theme::QtOutputFormatter_LinkTextColor));
+    result.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+    result.setAnchor(true);
+    result.setAnchorHref(href);
+
+    return result;
+}
+
+void QtOutputFormatter::appendLine(QTextCursor &cursor, const LinkResult &lr,
+                                   const QString &line, const QTextCharFormat &format)
+{
+    cursor.insertText(line.left(lr.start), format);
+    cursor.insertText(line.mid(lr.start, lr.end - lr.start), linkFormat(format, lr.href));
+    cursor.insertText(line.mid(lr.end), format);
 }
 
 void QtOutputFormatter::handleLink(const QString &href)
@@ -274,6 +298,8 @@ void QtOutputFormatter::updateProjectFileList()
 
 using namespace QtSupport::Internal;
 
+Q_DECLARE_METATYPE(QTextCharFormat);
+
 class TestQtOutputFormatter : public QtOutputFormatter
 {
 public:
@@ -357,6 +383,89 @@ void QtSupportPlugin::testQtOutputFormatter()
     QCOMPARE(formatter.fileName, file);
     QCOMPARE(formatter.line, line);
     QCOMPARE(formatter.column, column);
+}
+
+static QTextCharFormat blueFormat()
+{
+    QTextCharFormat result;
+    result.setForeground(QColor(0, 0, 127));
+    return result;
+}
+
+void QtSupportPlugin::testQtOutputFormatter_appendMessage_data()
+{
+    QTest::addColumn<QString>("inputText");
+    QTest::addColumn<QString>("outputText");
+    QTest::addColumn<QTextCharFormat>("inputFormat");
+    QTest::addColumn<QTextCharFormat>("outputFormat");
+
+    QTest::newRow("pass through")
+            << QString::fromLatin1("test\n123")
+            << QString::fromLatin1("test\n123")
+            << QTextCharFormat()
+            << QTextCharFormat();
+    QTest::newRow("Qt error")
+            << QString::fromLatin1("Object::Test in test.cpp:123")
+            << QString::fromLatin1("Object::Test in test.cpp:123")
+            << QTextCharFormat()
+            << linkFormat(QTextCharFormat(), QLatin1String("test.cpp:123"));
+    QTest::newRow("colored")
+            << QString::fromLatin1("blue da ba dee")
+            << QString::fromLatin1("blue da ba dee")
+            << blueFormat()
+            << blueFormat();
+    QTest::newRow("ANSI color change")
+            << QString::fromLatin1("\x1b[38;2;0;0;127mHello")
+            << QString::fromLatin1("Hello")
+            << QTextCharFormat()
+            << blueFormat();
+}
+
+void QtSupportPlugin::testQtOutputFormatter_appendMessage()
+{
+    QPlainTextEdit edit;
+    TestQtOutputFormatter formatter;
+    formatter.setPlainTextEdit(&edit);
+
+    QFETCH(QString, inputText);
+    QFETCH(QString, outputText);
+    QFETCH(QTextCharFormat, inputFormat);
+    QFETCH(QTextCharFormat, outputFormat);
+
+    formatter.appendMessage(inputText, inputFormat);
+
+    QCOMPARE(edit.toPlainText(), outputText);
+    QCOMPARE(edit.currentCharFormat(), outputFormat);
+}
+
+void QtSupportPlugin::testQtOutputFormatter_appendMixedAssertAndAnsi()
+{
+    QPlainTextEdit edit;
+    TestQtOutputFormatter formatter;
+    formatter.setPlainTextEdit(&edit);
+
+    const QString inputText = QString::fromLatin1(
+                "\x1b[38;2;0;0;127mHello\n"
+                "Object::Test in test.cpp:123\n"
+                "\x1b[38;2;0;0;127mHello\n");
+    const QString outputText = QString::fromLatin1(
+                "Hello\n"
+                "Object::Test in test.cpp:123\n"
+                "Hello\n");
+
+    formatter.appendMessage(inputText, QTextCharFormat());
+
+    QCOMPARE(edit.toPlainText(), outputText);
+
+    edit.moveCursor(QTextCursor::Start);
+    QCOMPARE(edit.currentCharFormat(), blueFormat());
+
+    edit.moveCursor(QTextCursor::Down);
+    edit.moveCursor(QTextCursor::EndOfLine);
+    QCOMPARE(edit.currentCharFormat(), linkFormat(QTextCharFormat(), QLatin1String("test.cpp:123")));
+
+    edit.moveCursor(QTextCursor::End);
+    QCOMPARE(edit.currentCharFormat(), blueFormat());
 }
 
 #endif // WITH_TESTS

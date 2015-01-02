@@ -73,8 +73,7 @@ void OutputFormatter::appendMessage(const QString &text, const QTextCharFormat &
     QTextCursor cursor(m_plainTextEdit->document());
     cursor.movePosition(QTextCursor::End);
 
-    foreach (const FormattedText &output,
-             m_escapeCodeHandler->parseText(FormattedText(text, format))) {
+    foreach (const FormattedText &output, parseAnsi(text, format)) {
         int startPos = 0;
         int crPos = -1;
         while ((crPos = output.text.indexOf(QLatin1Char('\r'), startPos)) >= 0)  {
@@ -90,6 +89,11 @@ void OutputFormatter::appendMessage(const QString &text, const QTextCharFormat &
 QTextCharFormat OutputFormatter::charFormat(OutputFormat format) const
 {
     return m_formats[format];
+}
+
+QList<FormattedText> OutputFormatter::parseAnsi(const QString &text, const QTextCharFormat &format)
+{
+    return m_escapeCodeHandler->parseText(FormattedText(text, format));
 }
 
 void OutputFormatter::append(QTextCursor &cursor, const QString &text,
