@@ -41,7 +41,7 @@
 namespace ClearCase {
 namespace Internal {
 
-CheckOutDialog::CheckOutDialog(const QString &fileName, bool isUcm, QWidget *parent) :
+CheckOutDialog::CheckOutDialog(const QString &fileName, bool isUcm, bool showComment, QWidget *parent) :
     QDialog(parent), ui(new Ui::CheckOutDialog), m_actSelector(0)
 {
     ui->setupUi(this);
@@ -59,12 +59,23 @@ CheckOutDialog::CheckOutDialog(const QString &fileName, bool isUcm, QWidget *par
         ui->verticalLayout->insertWidget(1, line);
     }
 
+    if (!showComment)
+        hideComment();
+
     ui->buttonBox->button(QDialogButtonBox::Ok)->setFocus();
 }
 
 CheckOutDialog::~CheckOutDialog()
 {
     delete ui;
+}
+
+void CheckOutDialog::hideComment()
+{
+    ui->lblComment->hide();
+    ui->txtComment->hide();
+    ui->verticalLayout->invalidate();
+    adjustSize();
 }
 
 QString CheckOutDialog::activity() const

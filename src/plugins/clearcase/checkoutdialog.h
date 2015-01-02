@@ -46,7 +46,7 @@ class CheckOutDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit CheckOutDialog(const QString &fileName, bool isUcm, QWidget *parent = 0);
+    explicit CheckOutDialog(const QString &fileName, bool isUcm, bool showComment, QWidget *parent = 0);
     ~CheckOutDialog();
     QString activity() const;
     QString comment() const;
@@ -56,6 +56,7 @@ public:
     bool isUseHijacked() const;
     void hideHijack();
 
+    void hideComment();
 private slots:
     void toggleUnreserved(bool checked);
 

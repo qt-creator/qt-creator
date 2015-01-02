@@ -63,6 +63,7 @@ ClearCaseSettings SettingsPageWidget::settings() const
     rc.ccBinaryPath = m_ui.commandPathChooser->path();
     rc.timeOutS = m_ui.timeOutSpinBox->value();
     rc.autoCheckOut = m_ui.autoCheckOutCheckBox->isChecked();
+    rc.noComment = m_ui.noCommentCheckBox->isChecked();
     if (m_ui.graphicalDiffRadioButton->isChecked())
         rc.diffType = GraphicalDiff;
     else if (m_ui.externalDiffRadioButton->isChecked())
@@ -82,6 +83,7 @@ void SettingsPageWidget::setSettings(const ClearCaseSettings &s)
     m_ui.commandPathChooser->setPath(s.ccCommand);
     m_ui.timeOutSpinBox->setValue(s.timeOutS);
     m_ui.autoCheckOutCheckBox->setChecked(s.autoCheckOut);
+    m_ui.noCommentCheckBox->setChecked(s.noComment);
     bool extDiffAvailable = !Environment::systemEnvironment().searchInPath(QLatin1String("diff")).isEmpty();
     if (extDiffAvailable) {
         m_ui.diffWarningLabel->setVisible(false);

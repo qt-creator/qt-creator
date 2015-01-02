@@ -42,6 +42,7 @@ static const char commandKeyC[] = "Command";
 static const char historyCountKeyC[] = "HistoryCount";
 static const char timeOutKeyC[] = "TimeOut";
 static const char autoCheckOutKeyC[] = "AutoCheckOut";
+static const char noCommentKeyC[] = "NoComment";
 static const char diffTypeKeyC[] = "DiffType";
 static const char diffArgsKeyC[] = "DiffArgs";
 static const char autoAssignActivityKeyC[] = "AutoAssignActivityName";
@@ -67,6 +68,7 @@ ClearCaseSettings::ClearCaseSettings() :
     diffArgs(QLatin1String(defaultDiffArgs)),
     autoAssignActivityName(true),
     autoCheckOut(true),
+    noComment(false),
     promptToCheckIn(false),
     disableIndexer(false),
     extDiffAvailable(false),
@@ -81,6 +83,7 @@ void ClearCaseSettings::fromSettings(QSettings *settings)
     ccBinaryPath = Utils::Environment::systemEnvironment().searchInPath(ccCommand).toString();
     timeOutS = settings->value(QLatin1String(timeOutKeyC), defaultTimeOutS).toInt();
     autoCheckOut = settings->value(QLatin1String(autoCheckOutKeyC), false).toBool();
+    noComment = settings->value(QLatin1String(noCommentKeyC), false).toBool();
     QString sDiffType = settings->value(QLatin1String(diffTypeKeyC), QLatin1String("Graphical")).toString();
     switch (sDiffType[0].toUpper().toLatin1()) {
         case 'G': diffType = GraphicalDiff; break;
@@ -108,6 +111,7 @@ void ClearCaseSettings::toSettings(QSettings *settings) const
     settings->beginGroup(QLatin1String(groupC));
     settings->setValue(QLatin1String(commandKeyC), ccCommand);
     settings->setValue(QLatin1String(autoCheckOutKeyC), autoCheckOut);
+    settings->setValue(QLatin1String(noCommentKeyC), noComment);
     settings->setValue(QLatin1String(timeOutKeyC), timeOutS);
     QString sDiffType;
     switch (diffType) {
@@ -136,6 +140,7 @@ bool ClearCaseSettings::equals(const ClearCaseSettings &s) const
         && historyCount    == s.historyCount
         && timeOutS        == s.timeOutS
         && autoCheckOut    == s.autoCheckOut
+        && noComment       == s.noComment
         && diffType        == s.diffType
         && diffArgs     == s.diffArgs
         && autoAssignActivityName == s.autoAssignActivityName

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>363</width>
-    <height>403</height>
+    <width>512</width>
+    <height>589</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -65,7 +65,16 @@
          <bool>false</bool>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout">
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>
@@ -190,16 +199,6 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
-       <widget class="QCheckBox" name="autoAssignActivityCheckBox">
-        <property name="toolTip">
-         <string>Check this if you have a trigger that renames the activity automatically. You will not be prompted for activity name.</string>
-        </property>
-        <property name="text">
-         <string>Aut&amp;o assign activity names</string>
-        </property>
-       </widget>
-      </item>
       <item row="7" column="0">
        <widget class="QCheckBox" name="promptCheckBox">
         <property name="text">
@@ -228,6 +227,26 @@
        <widget class="QLineEdit" name="indexOnlyVOBsEdit">
         <property name="toolTip">
          <string>VOBs list, separated by comma. Indexer will only traverse the specified VOBs. If left blank, all active VOBs will be indexed.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QCheckBox" name="autoAssignActivityCheckBox">
+        <property name="toolTip">
+         <string>Check this if you have a trigger that renames the activity automatically. You will not be prompted for activity name.</string>
+        </property>
+        <property name="text">
+         <string>Aut&amp;o assign activity names</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QCheckBox" name="noCommentCheckBox">
+        <property name="toolTip">
+         <string>Check out or check in files with no comment (-nc/omment).</string>
+        </property>
+        <property name="text">
+         <string>Do &amp;not prompt for comment during check out or check in</string>
         </property>
        </widget>
       </item>

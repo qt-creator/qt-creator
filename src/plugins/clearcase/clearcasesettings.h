@@ -68,6 +68,7 @@ public:
     QHash<QString, int> totalFiles;
     bool autoAssignActivityName;
     bool autoCheckOut;
+    bool noComment;
     bool promptToCheckIn;
     bool disableIndexer;
     bool extDiffAvailable;

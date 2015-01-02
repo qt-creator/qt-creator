@@ -1586,7 +1586,7 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
     const QString relFile = QDir(topLevel).relativeFilePath(absPath);
     const QString file = QDir::toNativeSeparators(relFile);
     const QString title = QString::fromLatin1("Checkout %1").arg(file);
-    CheckOutDialog coDialog(title, m_viewData.isUcm);
+    CheckOutDialog coDialog(title, m_viewData.isUcm, !m_settings.noComment);
 
     // Only snapshot views can have hijacked files
     bool isHijacked = (!m_viewData.isDynamic && (vcsStatus(absPath).status & FileStatus::Hijacked));
@@ -1598,11 +1598,13 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
 
         FileChangeBlocker fcb(absPath);
         QStringList args(QLatin1String("checkout"));
-        QString comment = coDialog.comment();
-        if (comment.isEmpty())
+
+        const QString comment = coDialog.comment();
+        if (m_settings.noComment || comment.isEmpty())
             args << QLatin1String("-nc");
         else
             args << QLatin1String("-c") << comment;
+
         args << QLatin1String("-query");
         const bool reserved = coDialog.isReserved();
         const bool unreserved = !reserved || coDialog.isUnreserved();
