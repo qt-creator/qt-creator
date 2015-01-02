@@ -905,7 +905,7 @@ void Preprocessor::skipPreprocesorDirective(PPToken *tk)
 
 bool Preprocessor::handleIdentifier(PPToken *tk)
 {
-    ScopedBoolSwap s(m_state.m_inPreprocessorDirective, true);
+    ScopedBoolSwap s(m_state.m_inPreprocessorDirective, !tk->f.expanded);
 
     static const QByteArray ppLine("__LINE__");
     static const QByteArray ppFile("__FILE__");

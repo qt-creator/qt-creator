@@ -1877,21 +1877,27 @@ void tst_Preprocessor::concat()
             "#define concat(x,y) x ## y\n"
             "#define xconcat(x, y) concat(x, y)\n"
             "#define FOO 42\n"
-            "int var = xconcat(0x, FOO);\n";
+            "int var1 = concat(0x, FOO);\n"
+            "int var2 = xconcat(0x, FOO);\n";
     QByteArray prep = preprocess.run(QLatin1String("<stdin>"), input);
     const QByteArray output = _(
         "# 1 \"<stdin>\"\n"
         "\n"
         "\n"
         "\n"
-        "int var =\n"
-        "# expansion begin 87,7 ~1\n"
-        "0x42\n"
+        "int var1 =\n"
+        "# expansion begin 88,6 ~1\n"
+        "0xFOO\n"
         "# expansion end\n"
         "# 4 \"<stdin>\"\n"
         "                          ;\n"
+        "int var2 =\n"
+        "# expansion begin 116,7 ~1\n"
+        "0x42\n"
+        "# expansion end\n"
+        "# 5 \"<stdin>\"\n"
+        "                           ;\n"
     );
-    QEXPECT_FAIL(0, "QTCREATORBUG-13219", Abort);
     QCOMPARE(prep.constData(), output.constData());
 }
 
