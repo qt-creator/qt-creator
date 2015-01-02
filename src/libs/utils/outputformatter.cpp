@@ -163,6 +163,5 @@ void OutputFormatter::setFont(const QFont &font)
 
 void OutputFormatter::flush()
 {
-    if (m_escapeCodeHandler)
-        m_escapeCodeHandler->endFormatScope();
+    m_escapeCodeHandler->endFormatScope();
 }
