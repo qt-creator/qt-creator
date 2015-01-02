@@ -128,8 +128,8 @@ def qdump__CPlusPlus__Token(d, value):
 
 def qdump__CPlusPlus__Internal__PPToken(d, value):
     data, size, alloc = d.byteArrayData(value["m_src"])
-    length = int(value["f"]["length"])
-    offset = int(value["offset"])
+    length = int(value["f"]["utf16chars"])
+    offset = int(value["utf16charOffset"])
     #warn("size: %s, alloc: %s, offset: %s, length: %s, data: %s"
     #    % (size, alloc, offset, length, data))
     d.putValue(d.readMemory(data + offset, min(100, length)),
