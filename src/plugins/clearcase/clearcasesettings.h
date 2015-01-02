@@ -69,6 +69,7 @@ public:
     bool autoAssignActivityName;
     bool autoCheckOut;
     bool noComment;
+    bool keepFileUndoCheckout;
     bool promptToCheckIn;
     bool disableIndexer;
     bool extDiffAvailable;

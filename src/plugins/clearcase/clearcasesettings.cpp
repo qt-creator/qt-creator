@@ -43,6 +43,7 @@ static const char historyCountKeyC[] = "HistoryCount";
 static const char timeOutKeyC[] = "TimeOut";
 static const char autoCheckOutKeyC[] = "AutoCheckOut";
 static const char noCommentKeyC[] = "NoComment";
+static const char keepFileUndoCheckoutKeyC[] = "KeepFileUnDoCheckout";
 static const char diffTypeKeyC[] = "DiffType";
 static const char diffArgsKeyC[] = "DiffArgs";
 static const char autoAssignActivityKeyC[] = "AutoAssignActivityName";
@@ -69,6 +70,7 @@ ClearCaseSettings::ClearCaseSettings() :
     autoAssignActivityName(true),
     autoCheckOut(true),
     noComment(false),
+    keepFileUndoCheckout(true),
     promptToCheckIn(false),
     disableIndexer(false),
     extDiffAvailable(false),
@@ -84,6 +86,7 @@ void ClearCaseSettings::fromSettings(QSettings *settings)
     timeOutS = settings->value(QLatin1String(timeOutKeyC), defaultTimeOutS).toInt();
     autoCheckOut = settings->value(QLatin1String(autoCheckOutKeyC), false).toBool();
     noComment = settings->value(QLatin1String(noCommentKeyC), false).toBool();
+    keepFileUndoCheckout = settings->value(QLatin1String(keepFileUndoCheckoutKeyC), true).toBool();
     QString sDiffType = settings->value(QLatin1String(diffTypeKeyC), QLatin1String("Graphical")).toString();
     switch (sDiffType[0].toUpper().toLatin1()) {
         case 'G': diffType = GraphicalDiff; break;
@@ -112,6 +115,7 @@ void ClearCaseSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(commandKeyC), ccCommand);
     settings->setValue(QLatin1String(autoCheckOutKeyC), autoCheckOut);
     settings->setValue(QLatin1String(noCommentKeyC), noComment);
+    settings->setValue(QLatin1String(keepFileUndoCheckoutKeyC), keepFileUndoCheckout);
     settings->setValue(QLatin1String(timeOutKeyC), timeOutS);
     QString sDiffType;
     switch (diffType) {
@@ -136,16 +140,17 @@ void ClearCaseSettings::toSettings(QSettings *settings) const
 
 bool ClearCaseSettings::equals(const ClearCaseSettings &s) const
 {
-    return ccCommand       == s.ccCommand
-        && historyCount    == s.historyCount
-        && timeOutS        == s.timeOutS
-        && autoCheckOut    == s.autoCheckOut
-        && noComment       == s.noComment
-        && diffType        == s.diffType
-        && diffArgs     == s.diffArgs
+    return ccCommand              == s.ccCommand
+        && historyCount           == s.historyCount
+        && timeOutS               == s.timeOutS
+        && autoCheckOut           == s.autoCheckOut
+        && noComment              == s.noComment
+        && keepFileUndoCheckout   == s.keepFileUndoCheckout
+        && diffType               == s.diffType
+        && diffArgs               == s.diffArgs
         && autoAssignActivityName == s.autoAssignActivityName
-        && promptToCheckIn == s.promptToCheckIn
-        && disableIndexer  == s.disableIndexer
-        && indexOnlyVOBs   == s.indexOnlyVOBs
-        && totalFiles      == s.totalFiles;
+        && promptToCheckIn        == s.promptToCheckIn
+        && disableIndexer         == s.disableIndexer
+        && indexOnlyVOBs          == s.indexOnlyVOBs
+        && totalFiles             == s.totalFiles;
 }

@@ -920,9 +920,14 @@ void ClearCasePlugin::undoCheckOutCurrent()
         QDialog uncoDlg;
         uncoUi.setupUi(&uncoDlg);
         uncoUi.lblMessage->setText(tr("Do you want to undo the check out of \"%1\"?").arg(fileName));
+        uncoUi.chkKeep->setChecked(m_settings.keepFileUndoCheckout);
         if (uncoDlg.exec() != QDialog::Accepted)
             return;
         keep = uncoUi.chkKeep->isChecked();
+        if (keep != m_settings.keepFileUndoCheckout) {
+            m_settings.keepFileUndoCheckout = keep;
+            m_settings.toSettings(ICore::settings());
+        }
     }
     vcsUndoCheckOut(state.topLevel(), file, keep);
 }
