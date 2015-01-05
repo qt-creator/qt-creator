@@ -145,7 +145,6 @@ public:
     static QString serializedArguments();
 
     static bool testRunRequested();
-    static QString testDataDirectory();
 
     static void profilingReport(const char *what, const PluginSpec *spec = 0);
 
@@ -162,8 +161,6 @@ public slots:
     void remoteArguments(const QString &serializedArguments, QObject *socket);
     void shutdown();
 
-private slots:
-    void startTests();
     friend class Internal::PluginManagerPrivate;
 };
 

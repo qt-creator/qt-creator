@@ -148,6 +148,8 @@ private:
             QList<PluginSpec *> &circularityCheckQueue);
     void stopAll();
     void deleteAll();
+
+    void startTests();
 };
 
 } // namespace Internal
