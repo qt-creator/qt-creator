@@ -224,10 +224,10 @@ int DocumentModelPrivate::indexOfFilePath(const QString &filePath) const
 {
     if (filePath.isEmpty())
         return -1;
-    const QString fixedPath = DocumentManager::fixFileName(filePath, DocumentManager::KeepLinks);
+    const QString fixedPath = DocumentManager::fixFileName(filePath, DocumentManager::ResolveLinks);
     return Utils::indexOf(m_entries, [&fixedPath](DocumentModel::Entry *entry) {
         return DocumentManager::fixFileName(entry->fileName(),
-                                            DocumentManager::KeepLinks) == fixedPath;
+                                            DocumentManager::ResolveLinks) == fixedPath;
     });
 }
 
