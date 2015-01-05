@@ -37,6 +37,7 @@
 #include "../projectexplorerconstants.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
@@ -366,6 +367,7 @@ void JsonWizardFactory::runWizard(const QString &path, QWidget *parent, const QS
 {
     JsonWizard wizard(parent);
     wizard.setWindowIcon(icon());
+    wizard.setWindowTitle(displayName());
 
     wizard.setValue(QStringLiteral("WizardDir"), m_wizardDir);
     Core::FeatureSet tmp = requiredFeatures();
@@ -434,10 +436,12 @@ void JsonWizardFactory::runWizard(const QString &path, QWidget *parent, const QS
         wizard.addGenerator(gen);
     }
 
-    if (!m_pages.isEmpty())
+    if (!m_pages.isEmpty()) {
+        Core::ICore::registerWindow(&wizard, Core::Context("Core.NewJSONWizard"));
         wizard.exec();
-    else
+    } else {
         wizard.accept();
+    }
 }
 
 QList<QVariant> JsonWizardFactory::objectOrList(const QVariant &data, QString *errorMessage)

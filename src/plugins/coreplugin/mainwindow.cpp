@@ -743,7 +743,7 @@ void MainWindow::registerDefaultActions()
 
 void MainWindow::newFile()
 {
-    showNewItemDialog(tr("New", "Title of dialog"), IWizardFactory::allWizardFactories(), QString());
+    showNewItemDialog(tr("New File or Project", "Title of dialog"), IWizardFactory::allWizardFactories(), QString());
 }
 
 void MainWindow::openFile()

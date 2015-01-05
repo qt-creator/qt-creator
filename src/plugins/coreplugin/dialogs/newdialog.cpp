@@ -33,6 +33,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
@@ -198,6 +199,7 @@ NewDialog::NewDialog(QWidget *parent) :
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowFlags(windowFlags());
     setAttribute(Qt::WA_DeleteOnClose);
+    ICore::registerWindow(this, Context("Core.NewDialog"));
     m_ui->setupUi(this);
     QPalette p = m_ui->frame->palette();
     p.setColor(QPalette::Window, p.color(QPalette::Base));

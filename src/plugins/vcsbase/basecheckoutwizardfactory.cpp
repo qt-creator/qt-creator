@@ -31,6 +31,8 @@
 #include "basecheckoutwizardfactory.h"
 #include "basecheckoutwizard.h"
 
+#include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/featureprovider.h>
 
 #include <projectexplorer/projectexplorer.h>
@@ -86,6 +88,7 @@ void BaseCheckoutWizardFactory::runWizard(const QString &path, QWidget *parent, 
     {
         QScopedPointer<BaseCheckoutWizard> wizard(m_wizardCreator(Utils::FileName::fromString(path), parent));
         wizard->setWindowTitle(displayName());
+        Core::ICore::registerWindow(wizard.data(), Core::Context("New.CheckoutWizard"));
         checkoutPath = wizard->run();
     }
 

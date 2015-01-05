@@ -31,6 +31,7 @@
 #include "basefilewizardfactory.h"
 
 #include "basefilewizard.h"
+#include "icontext.h"
 #include "icore.h"
 #include "ifilewizardextension.h"
 #include "mimedatabase.h"
@@ -220,6 +221,7 @@ void BaseFileWizardFactory::runWizard(const QString &path, QWidget *parent, cons
                                                                                dialogParameterFlags,
                                                                                extraValues)));
     QTC_ASSERT(!wizard.isNull(), return);
+    ICore::registerWindow(wizard.data(), Context("Core.NewWizard"));
 
     GeneratedFiles files;
     // Run the wizard: Call generate files on switching to the first extension

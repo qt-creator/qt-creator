@@ -50,6 +50,7 @@ public:
     static void addWindow(QWidget *window);
     static void removeWindow(QWidget *window);
     static void setActiveWindow(QWidget *window);
+    static void setWindowVisible(QWidget *window, bool visible);
 
 private:
     static void activateWindow(QAction *action);
