@@ -68,6 +68,11 @@ phony.c
 *.vcxproj
 *vcxproj.*
 
+# gcov files
+*.gcov
+*.gcda
+*.gcno
+
 # MinGW generated files
 *.Debug
 *.Release
