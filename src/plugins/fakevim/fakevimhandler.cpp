@@ -1950,7 +1950,7 @@ public:
     void endEditBlock();
     void breakEditBlock() { m_buffer->breakEditBlock = true; }
 
-    bool canModifyBufferData() const { return m_buffer->currentHandler == this; }
+    bool canModifyBufferData() const { return m_buffer->currentHandler.data() == this; }
 
     Q_SLOT void onContentsChanged(int position, int charsRemoved, int charsAdded);
     Q_SLOT void onCursorPositionChanged();
