@@ -106,7 +106,7 @@ public:
             [kit] { return kit->displayName(); },
             false);
         m_macroExpander.registerVariable(Constants::VAR_CURRENTKIT_FILESYSTEMNAME,
-            tr("The name of the currently active kit in a filesystem friendly version."),
+            tr("The name of the currently active kit in a filesystem-friendly version."),
             [kit] { return kit->fileSystemFriendlyName(); },
             false);
         m_macroExpander.registerVariable(Constants::VAR_CURRENTKIT_ID,

@@ -1209,7 +1209,7 @@ IEditor *PerforcePlugin::showOutputInEditor(const QString &title,
     const int maxSize = EditorManager::maxTextFileSize() / 2  - 1000; // ~25 MB, 600000 lines
     if (content.size() >= maxSize) {
         content = content.left(maxSize);
-        content += QLatin1Char('\n') + tr("[Only %1 MB of output shown]").arg(maxSize / 1024 / 1024);
+        content += QLatin1Char('\n') + tr("[Only %n MB of output shown]", 0, maxSize / 1024 / 1024);
     }
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, content.toUtf8());
     QTC_ASSERT(editor, return 0);

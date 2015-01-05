@@ -1149,7 +1149,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         });
 
     expander->registerVariable(Constants::VAR_CURRENTKIT_FILESYSTEMNAME,
-        tr("The name of the currently active kit in a filesystem friendly version."),
+        tr("The name of the currently active kit in a filesystem-friendly version."),
         []() -> QString {
             Kit *kit = currentKit();
             return kit ? kit->fileSystemFriendlyName() : QString();

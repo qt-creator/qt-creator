@@ -231,7 +231,7 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(ErrFunctionsNotSupportedInQmlUi, Error,
             tr("Functions are not supported in a Qt Quick UI form."));
     newMsg(ErrBlocksNotSupportedInQmlUi, Error,
-            tr("Java Script blocks are not supported in a Qt Quick UI form."));
+            tr("JavaScript blocks are not supported in a Qt Quick UI form."));
     newMsg(ErrBehavioursNotSupportedInQmlUi, Error,
             tr("Behavior type is not supported in a Qt Quick UI form."));
     newMsg(ErrStatesOnlyInRootItemInQmlUi, Error,

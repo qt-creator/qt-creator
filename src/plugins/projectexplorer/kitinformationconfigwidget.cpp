@@ -415,7 +415,7 @@ KitEnvironmentConfigWidget::KitEnvironmentConfigWidget(Kit *workingCopy, const K
     m_editor(0)
 {
     refresh();
-    m_manageButton->setText(tr("Change ..."));
+    m_manageButton->setText(tr("Change..."));
     connect(m_manageButton, SIGNAL(clicked()), this, SLOT(editEnvironmentChanges()));
 }
 

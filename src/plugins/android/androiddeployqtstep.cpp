@@ -361,7 +361,7 @@ void AndroidDeployQtStep::runCommand(const QString &program, const QStringList &
     if (!buildProc.waitForFinished(2 * 60 * 1000)
             || buildProc.error() != QProcess::UnknownError
             || buildProc.exitCode() != 0) {
-        QString mainMessage = tr("Packaging Error: Command \"%1 %2\" failed.")
+        QString mainMessage = tr("Packaging error: Command \"%1 %2\" failed.")
                 .arg(program).arg(arguments.join(QLatin1Char(' ')));
         if (buildProc.error() != QProcess::UnknownError)
             mainMessage += QLatin1Char(' ') + tr("Reason: %1").arg(buildProc.errorString());

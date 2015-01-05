@@ -153,7 +153,7 @@ static JsonWizardFactory::Page parsePage(const QVariant &value, QString *errorMe
     JsonWizardFactory::Page p;
 
     if (value.type() != QVariant::Map) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizardFactory", "Page is not a object.");
+        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizardFactory", "Page is not an object.");
         return p;
     }
 
@@ -612,7 +612,7 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
             m_options.insert(key, value);
         }
     } else if (optionValue.isValid()) {
-        *errorMessage = tr("Value for \"options\" is not a list");
+        *errorMessage = tr("Value for \"options\" is not a list.");
         return false;
     }
 

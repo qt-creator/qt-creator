@@ -154,7 +154,7 @@
           </property>
           <property name="text">
            <string>Signing an APK that uses &quot;Deploy local Qt libraries&quot; is not allowed.
-Deploying local Qt libraries is incompatible with Android 5</string>
+Deploying local Qt libraries is incompatible with Android 5.</string>
           </property>
          </widget>
         </item>

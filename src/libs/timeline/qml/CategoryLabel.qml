@@ -231,7 +231,7 @@ Item {
         implicitHeight: txt.height - 1
         enabled: expanded || (model && !model.empty)
         iconSource: expanded ? "arrow_down.png" : "arrow_right.png"
-        tooltip: expanded ? qsTr("Collapse category") : qsTr("Expand category.")
+        tooltip: expanded ? qsTr("Collapse category") : qsTr("Expand category")
         onClicked: model.expanded = !expanded
     }
 
