@@ -792,6 +792,7 @@ void PluginManagerPrivate::nextDelayedInitialize()
     \internal
 */
 PluginManagerPrivate::PluginManagerPrivate(PluginManager *pluginManager) :
+    m_failedTests(0),
     delayedInitializeTimer(0),
     shutdownEventLoop(0),
     m_profileElapsedMS(0),
@@ -953,11 +954,11 @@ void PluginManagerPrivate::startTests()
                 << QLatin1String("arg0") // fake application name
                 << QLatin1String("-maxwarnings") << QLatin1String("0"); // unlimit output
             qExecArguments << testFunctionsToExecute;
-            QTest::qExec(pluginSpec->plugin(), qExecArguments);
+            m_failedTests += QTest::qExec(pluginSpec->plugin(), qExecArguments);
         }
     }
     if (!testSpecs.isEmpty())
-        QTimer::singleShot(1, QCoreApplication::instance(), SLOT(quit()));
+        QTimer::singleShot(1, this, SLOT(exitWithNumberOfFailedTests()));
 #endif
 }
 
@@ -1070,6 +1071,14 @@ void PluginManagerPrivate::asyncShutdownFinished()
     asynchronousPlugins.removeAll(plugin->pluginSpec());
     if (asynchronousPlugins.isEmpty())
         shutdownEventLoop->exit();
+}
+
+/*!
+    \internal
+*/
+void PluginManagerPrivate::exitWithNumberOfFailedTests()
+{
+    QCoreApplication::exit(m_failedTests);
 }
 
 /*!
