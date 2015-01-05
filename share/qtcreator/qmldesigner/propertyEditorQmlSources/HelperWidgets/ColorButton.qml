@@ -74,9 +74,17 @@ Item {
         block = true
 
         colorButton.color = Qt.hsla(hue, saturation, lightness, alpha);
-        hueSlider.value = hue
-        hueSlider2.value = hue
-        saturationSlider.value = saturation
+
+        if (saturation > 0.0 && lightness > 0.0) {
+            hueSlider.value = hue
+            hueSlider2.value = hue
+        }
+
+        if (lightness > 0.0)
+            saturationSlider.value = saturation
+        else
+            saturation = saturationSlider.value
+
         lightnessSlider.value = lightness
         alphaSlider.value = alpha
 
