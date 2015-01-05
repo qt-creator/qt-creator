@@ -42,16 +42,10 @@ class QLabel;
 class QSortFilterProxyModel;
 class QModelIndex;
 class QFileSystemModel;
-class QDir;
 class QAction;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-
-class ProjectExplorerPlugin;
-class Project;
-class Node;
-
 namespace Internal {
 
 class FolderNavigationWidget : public QWidget
