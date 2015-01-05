@@ -200,3 +200,9 @@ FORMS += $$PWD/filewizardpage.ui \
     $$PWD/proxycredentialsdialog.ui
 
 RESOURCES += $$PWD/utils.qrc
+
+osx {
+    OBJECTIVE_SOURCES += \
+        $$PWD/fileutils_mac.mm
+    LIBS += -framework Foundation
+}

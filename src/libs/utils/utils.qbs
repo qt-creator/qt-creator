@@ -18,6 +18,10 @@ QtcLibrary {
         condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("osx")
         cpp.dynamicLibraries: ["X11"]
     }
+    Properties {
+        condition: qbs.targetOS.contains("osx")
+        cpp.frameworks: ["Foundation"]
+    }
 
     Depends { name: "Qt"; submodules: ["widgets", "network", "script", "concurrent"] }
     Depends { name: "app_version_header" }
@@ -241,6 +245,14 @@ QtcLibrary {
         condition: qbs.targetOS.contains("unix")
         files: [
             "consoleprocess_unix.cpp",
+        ]
+    }
+
+    Group {
+        name: "FileUtils_osx"
+        condition: qbs.targetOS.contains("osx")
+        files: [
+            "fileutils_mac.mm",
         ]
     }
 
