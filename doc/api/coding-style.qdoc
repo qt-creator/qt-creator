@@ -892,9 +892,10 @@
     \section2 Using QObject
 
     \list
-        \li Every QObject subclass must have a Q_OBJECT macro, even if it
-            does not have signals or slots, if it is intended to be used
-            with qobject_cast<>. See also \l{Casting}.
+        \li Remember to add the Q_OBJECT macro to QObject subclasses that rely
+            on the meta object system. Meta object system related features are
+            the definition of signals and slots, the use of \c{qobject_cast<>},
+            and others. See also \l{Casting}.
         \li Prefer Qt5-style \c{connect()} calls over Qt4-style.
         \li When using Qt4-style \c{connect()} calls, normalize the arguments
             for signals and slots inside connect statements to safely make
