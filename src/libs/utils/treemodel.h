@@ -62,6 +62,7 @@ public:
     void setLazy(bool on);
     void setPopulated(bool on);
     void setFlags(Qt::ItemFlags flags);
+    QVector<TreeItem *> children() const { return m_children; }
 
 private:
     TreeItem(const TreeItem &) Q_DECL_EQ_DELETE;
