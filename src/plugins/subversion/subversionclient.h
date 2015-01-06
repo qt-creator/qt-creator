@@ -61,7 +61,8 @@ public:
                 const QString &commitMessageFile,
                 const QStringList &extraOptions = QStringList());
 
-    void diff(const QString &workingDirectory, const QStringList &files);
+    void diff(const QString &workingDirectory, const QStringList &files,
+              const QStringList &extraOptions);
     void describe(const QString &workingDirectory, int changeNumber, const QString &title);
     QString findTopLevelForFile(const QFileInfo &file) const;
     QStringList revisionSpec(const QString &revision) const;

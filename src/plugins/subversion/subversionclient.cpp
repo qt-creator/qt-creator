@@ -325,8 +325,10 @@ SubversionDiffEditorReloader *SubversionClient::findOrCreateDiffEditor(const QSt
     return reloader;
 }
 
-void SubversionClient::diff(const QString &workingDirectory, const QStringList &files)
+void SubversionClient::diff(const QString &workingDirectory, const QStringList &files, const QStringList &extraOptions)
 {
+    Q_UNUSED(extraOptions);
+
     const QString vcsCmdString = vcsCommandString(DiffCommand);
     const QString documentId = VcsBaseEditor::getTitleId(workingDirectory, files);
     const QString title = vcsEditorTitle(vcsCmdString, documentId);

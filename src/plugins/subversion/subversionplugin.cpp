@@ -512,7 +512,7 @@ bool SubversionPlugin::submitEditorAboutToClose()
 
 void SubversionPlugin::diffCommitFiles(const QStringList &files)
 {
-    m_client->diff(m_commitRepository, files);
+    m_client->diff(m_commitRepository, files, QStringList());
 }
 
 SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QString &fileName)
@@ -638,14 +638,16 @@ void SubversionPlugin::diffProject()
     QTC_ASSERT(state.hasProject(), return);
     const QString relativeProject = state.relativeCurrentProject();
     m_client->diff(state.currentProjectTopLevel(),
-                      relativeProject.isEmpty() ? QStringList() : QStringList(relativeProject));
+                   relativeProject.isEmpty() ? QStringList() : QStringList(relativeProject),
+                   QStringList());
 }
 
 void SubversionPlugin::diffCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client->diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
+    m_client->diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()),
+                   QStringList());
 }
 
 void SubversionPlugin::startCommitCurrentFile()
@@ -740,7 +742,7 @@ void SubversionPlugin::diffRepository()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    m_client->diff(state.topLevel(), QStringList());
+    m_client->diff(state.topLevel(), QStringList(), QStringList());
 }
 
 void SubversionPlugin::statusRepository()
