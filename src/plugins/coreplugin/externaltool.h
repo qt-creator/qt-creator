@@ -32,6 +32,7 @@
 #define EXTERNALTOOL_H
 
 #include <utils/fileutils.h>
+#include <utils/environment.h>
 
 #include <QObject>
 #include <QStringList>
@@ -72,6 +73,7 @@ public:
     QString arguments() const;
     QString input() const;
     QString workingDirectory() const;
+    QList<Utils::EnvironmentItem> environment() const;
 
     void setFileName(const QString &fileName);
     void setPreset(QSharedPointer<ExternalTool> preset);
@@ -100,6 +102,7 @@ public:
     void setArguments(const QString &arguments);
     void setInput(const QString &input);
     void setWorkingDirectory(const QString &workingDirectory);
+    void setEnvironment(const QList<Utils::EnvironmentItem> &items);
 
 private:
     QString m_id;
@@ -111,6 +114,7 @@ private:
     QString m_arguments;
     QString m_input;
     QString m_workingDirectory;
+    QList<Utils::EnvironmentItem> m_environment;
     OutputHandling m_outputHandling;
     OutputHandling m_errorHandling;
     bool m_modifiesCurrentDocument;
@@ -146,6 +150,7 @@ private:
     QString m_resolvedArguments;
     QString m_resolvedInput;
     QString m_resolvedWorkingDirectory;
+    Utils::Environment m_resolvedEnvironment;
     Utils::QtcProcess *m_process;
     QTextCodec *m_outputCodec;
     QTextCodec::ConverterState m_outputCodecState;

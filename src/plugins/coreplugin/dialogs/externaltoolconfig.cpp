@@ -41,9 +41,11 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/variablechooser.h>
 
+#include <QDialogButtonBox>
 #include <QTextStream>
 #include <QMimeData>
 #include <QMenu>
+#include <QPlainTextEdit>
 
 using namespace Core;
 using namespace Core::Internal;
@@ -396,6 +398,44 @@ void ExternalToolModel::removeTool(const QModelIndex &modelIndex)
     delete tool;
 }
 
+EnvironmentChangesDialog::EnvironmentChangesDialog(QWidget *parent) :
+    QDialog(parent),
+    m_editor(0)
+{
+    setWindowTitle(tr("Edit Environment Changes"));
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setModal(true);
+
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    QLabel *label = new QLabel(this);
+    label->setText(tr("Change system environment by assigning one environment variable per line:"));
+    layout->addWidget(label);
+
+    m_editor = new QPlainTextEdit(this);
+    if (Utils::HostOsInfo::isWindowsHost())
+        m_editor->setPlaceholderText(tr("PATH=C:\\dev\\bin;${PATH}"));
+    else
+        m_editor->setPlaceholderText(tr("PATH=/opt/bin:${PATH}"));
+
+    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
+
+    layout->addWidget(m_editor);
+    layout->addWidget(buttons);
+
+    connect(buttons, &QDialogButtonBox::accepted, this, &EnvironmentChangesDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, this, &EnvironmentChangesDialog::reject);
+}
+
+QStringList EnvironmentChangesDialog::changes() const
+{
+    return m_editor->toPlainText().split(QLatin1Char('\n'));
+}
+
+void EnvironmentChangesDialog::setChanges(const QStringList &changes)
+{
+    m_editor->setPlainText(changes.join(QLatin1Char('\n')));
+}
+
 // #pragma mark -- ExternalToolConfig
 
 ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
@@ -423,6 +463,7 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     connect(ui->arguments, SIGNAL(editingFinished()), this, SLOT(updateEffectiveArguments()));
     connect(ui->workingDirectory, SIGNAL(editingFinished()), this, SLOT(updateCurrentItem()));
     connect(ui->workingDirectory, SIGNAL(browsingFinished()), this, SLOT(updateCurrentItem()));
+    connect(ui->environmentButton, SIGNAL(clicked()), this, SLOT(editEnvironmentChanges()));
     connect(ui->outputBehavior, SIGNAL(activated(int)), this, SLOT(updateCurrentItem()));
     connect(ui->errorOutputBehavior, SIGNAL(activated(int)), this, SLOT(updateCurrentItem()));
     connect(ui->modifiesDocumentCheckbox, SIGNAL(clicked()), this, SLOT(updateCurrentItem()));
@@ -510,6 +551,7 @@ void ExternalToolConfig::updateItem(const QModelIndex &index)
     tool->setExecutables(executables);
     tool->setArguments(ui->arguments->text());
     tool->setWorkingDirectory(ui->workingDirectory->rawPath());
+    tool->setEnvironment(Utils::EnvironmentItem::fromStringList(m_environment));
     tool->setOutputHandling((ExternalTool::OutputHandling)ui->outputBehavior->currentIndex());
     tool->setErrorHandling((ExternalTool::OutputHandling)ui->errorOutputBehavior->currentIndex());
     tool->setModifiesCurrentDocument(ui->modifiesDocumentCheckbox->checkState());
@@ -527,6 +569,7 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
         ui->workingDirectory->setPath(QString());
         ui->inputText->clear();
         ui->infoWidget->setEnabled(false);
+        m_environment.clear();
         return;
     }
     ui->infoWidget->setEnabled(true);
@@ -537,6 +580,7 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
     ui->outputBehavior->setCurrentIndex((int)tool->outputHandling());
     ui->errorOutputBehavior->setCurrentIndex((int)tool->errorHandling());
     ui->modifiesDocumentCheckbox->setChecked(tool->modifiesCurrentDocument());
+    m_environment = Utils::EnvironmentItem::toStringList(tool->environment());
 
     bool blocked = ui->inputText->blockSignals(true);
     ui->inputText->setPlainText(tool->input());
@@ -544,6 +588,7 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
 
     ui->description->setCursorPosition(0);
     ui->arguments->setCursorPosition(0);
+    updateEnvironmentLabel();
     updateEffectiveArguments();
 }
 
@@ -595,4 +640,22 @@ void ExternalToolConfig::addCategory()
 void ExternalToolConfig::updateEffectiveArguments()
 {
     ui->arguments->setToolTip(Utils::globalMacroExpander()->expandProcessArgs(ui->arguments->text()));
+}
+
+void ExternalToolConfig::editEnvironmentChanges()
+{
+    EnvironmentChangesDialog dialog(ui->environmentLabel);
+    dialog.setChanges(m_environment);
+    if (dialog.exec() == QDialog::Accepted) {
+        m_environment = dialog.changes();
+        updateEnvironmentLabel();
+    }
+}
+
+void ExternalToolConfig::updateEnvironmentLabel()
+{
+    QString shortSummary = m_environment.join(QLatin1String("; "));
+    QFontMetrics fm(ui->environmentLabel->font());
+    shortSummary = fm.elidedText(shortSummary, Qt::ElideRight, ui->environmentLabel->width());
+    ui->environmentLabel->setText(shortSummary.isEmpty() ? tr("No Changes to apply") : shortSummary);
 }

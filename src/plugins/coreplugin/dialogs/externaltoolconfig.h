@@ -35,6 +35,9 @@
 
 #include <QWidget>
 #include <QAbstractItemModel>
+#include <QDialog>
+
+QT_FORWARD_DECLARE_CLASS(QPlainTextEdit)
 
 namespace Core {
 namespace Internal {
@@ -82,6 +85,17 @@ private:
     QMap<QString, QList<ExternalTool *> > m_tools;
 };
 
+class EnvironmentChangesDialog : public QDialog
+{
+    Q_OBJECT
+public:
+    explicit EnvironmentChangesDialog(QWidget *parent = 0);
+
+    QStringList changes() const;
+    void setChanges(const QStringList &changes);
+private:
+    QPlainTextEdit *m_editor;
+};
 
 class ExternalToolConfig : public QWidget
 {
@@ -106,9 +120,12 @@ private slots:
     void removeTool();
     void addCategory();
     void updateEffectiveArguments();
+    void editEnvironmentChanges();
+    void updateEnvironmentLabel();
 
 private:
     Ui::ExternalToolConfig *ui;
+    QStringList m_environment;
     ExternalToolModel *m_model;
 };
 

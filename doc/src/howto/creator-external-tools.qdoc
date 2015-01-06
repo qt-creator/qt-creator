@@ -115,6 +115,11 @@
         \li In the \uicontrol {Working directory} field, specify the path to the
             working directory.
 
+        \li In the \uicontrol Environment field, select \uicontrol Change to modify
+            environment variable values for build and run environments in
+            the \uicontrol {Edit Environment Changes} dialog. For more information
+            about how to add and remove variable values, see \l{Batch Editing}.
+
         \li In the \uicontrol {Output pane}, select how to handle output from the
             tool. You can ignore the output, view it in the \uicontrol {General
             Messages} output pane, or replace the selected text with the

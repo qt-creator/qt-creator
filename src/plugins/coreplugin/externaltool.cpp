@@ -66,6 +66,7 @@ const char kPath[] = "path";
 const char kArguments[] = "arguments";
 const char kInput[] = "input";
 const char kWorkingDirectory[] = "workingdirectory";
+const char kEnvironment[] = "environment";
 
 const char kXmlLang[] = "xml:lang";
 const char kOutput[] = "output";
@@ -100,6 +101,7 @@ ExternalTool::ExternalTool(const ExternalTool *other)
       m_arguments(other->m_arguments),
       m_input(other->m_input),
       m_workingDirectory(other->m_workingDirectory),
+      m_environment(other->m_environment),
       m_outputHandling(other->m_outputHandling),
       m_errorHandling(other->m_errorHandling),
       m_modifiesCurrentDocument(other->m_modifiesCurrentDocument),
@@ -119,6 +121,7 @@ ExternalTool &ExternalTool::operator=(const ExternalTool &other)
     m_arguments = other.m_arguments;
     m_input = other.m_input;
     m_workingDirectory = other.m_workingDirectory;
+    m_environment = other.m_environment;
     m_outputHandling = other.m_outputHandling;
     m_errorHandling = other.m_errorHandling;
     m_modifiesCurrentDocument = other.m_modifiesCurrentDocument;
@@ -175,6 +178,11 @@ QString ExternalTool::input() const
 QString ExternalTool::workingDirectory() const
 {
     return m_workingDirectory;
+}
+
+QList<Utils::EnvironmentItem> ExternalTool::environment() const
+{
+    return m_environment;
 }
 
 ExternalTool::OutputHandling ExternalTool::outputHandling() const
@@ -272,6 +280,11 @@ void ExternalTool::setInput(const QString &input)
 void ExternalTool::setWorkingDirectory(const QString &workingDirectory)
 {
     m_workingDirectory = workingDirectory;
+}
+
+void ExternalTool::setEnvironment(const QList<Utils::EnvironmentItem> &items)
+{
+    m_environment = items;
 }
 
 static QStringList splitLocale(const QString &locale)
@@ -408,6 +421,15 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
                         break;
                     }
                     tool->m_workingDirectory = reader.readElementText();
+                } else if (reader.name() == QLatin1String(kEnvironment)) {
+                    if (!tool->m_environment.isEmpty()) {
+                        reader.raiseError(QLatin1String("only one <environment> element allowed"));
+                        break;
+                    }
+                    QStringList lines = reader.readElementText().split(QLatin1Char(';'));
+                    for (auto iter = lines.begin(); iter != lines.end(); ++iter)
+                        *iter = QString::fromUtf8(QByteArray::fromPercentEncoding(iter->toUtf8()));
+                    tool->m_environment = Utils::EnvironmentItem::fromStringList(lines);
                 } else {
                     reader.raiseError(QString::fromLatin1("Unknown element <%1> as subelement of <%2>").arg(
                                           reader.qualifiedName().toString(), QLatin1String(kExecutable)));
@@ -484,6 +506,12 @@ bool ExternalTool::save(QString *errorMessage) const
             out.writeTextElement(QLatin1String(kInput), m_input);
         if (!m_workingDirectory.isEmpty())
             out.writeTextElement(QLatin1String(kWorkingDirectory), m_workingDirectory);
+        if (!m_environment.isEmpty()) {
+            QStringList envLines = Utils::EnvironmentItem::toStringList(m_environment);
+            for (auto iter = envLines.begin(); iter != envLines.end(); ++iter)
+                *iter = QString::fromUtf8(iter->toUtf8().toPercentEncoding());
+            out.writeTextElement(QLatin1String(kEnvironment), envLines.join(QLatin1Char(';')));
+        }
         out.writeEndElement();
 
         out.writeEndDocument();
@@ -504,6 +532,7 @@ bool ExternalTool::operator==(const ExternalTool &other) const
             && m_arguments == other.m_arguments
             && m_input == other.m_input
             && m_workingDirectory == other.m_workingDirectory
+            && m_environment == other.m_environment
             && m_outputHandling == other.m_outputHandling
             && m_modifiesCurrentDocument == other.m_modifiesCurrentDocument
             && m_errorHandling == other.m_errorHandling
@@ -544,14 +573,19 @@ bool ExternalToolRunner::resolve()
     m_resolvedExecutable.clear();
     m_resolvedArguments.clear();
     m_resolvedWorkingDirectory.clear();
+    m_resolvedEnvironment = Utils::Environment::systemEnvironment();
+
 
     MacroExpander *expander = globalMacroExpander();
-    { // executable
+    m_resolvedEnvironment.modify(m_tool->environment());
+
+    {
+        // executable
         QStringList expandedExecutables; /* for error message */
         foreach (const QString &executable, m_tool->executables()) {
             QString expanded = expander->expand(executable);
             expandedExecutables.append(expanded);
-            m_resolvedExecutable = Environment::systemEnvironment().searchInPath(expanded);
+            m_resolvedExecutable = m_resolvedEnvironment.searchInPath(expanded);
             if (!m_resolvedExecutable.isEmpty())
                 break;
         }
@@ -601,6 +635,7 @@ void ExternalToolRunner::run()
     if (!m_resolvedWorkingDirectory.isEmpty())
         m_process->setWorkingDirectory(m_resolvedWorkingDirectory);
     m_process->setCommand(m_resolvedExecutable.toString(), m_resolvedArguments);
+    m_process->setEnvironment(m_resolvedEnvironment);
     MessageManager::write(tr("Starting external tool \"%1\" %2")
                           .arg(m_resolvedExecutable.toUserOutput(), m_resolvedArguments),
                           MessageManager::Silent);
