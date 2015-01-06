@@ -52,7 +52,7 @@ BareMetalDeviceConfigurationWidget::BareMetalDeviceConfigurationWidget(
     auto formLayout = new QFormLayout(this);
     formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
-    m_gdbServerProviderChooser = new GdbServerProviderChooser(this);
+    m_gdbServerProviderChooser = new GdbServerProviderChooser(true, this);
     m_gdbServerProviderChooser->populate();
     m_gdbServerProviderChooser->setCurrentProviderId(dev->gdbServerProviderId());
     formLayout->addRow(tr("GDB server provider:"), m_gdbServerProviderChooser);
