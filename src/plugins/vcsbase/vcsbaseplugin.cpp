@@ -60,7 +60,9 @@
 #include <QMessageBox>
 #include <QFileDialog>
 
+using namespace Core;
 using namespace Utils;
+using namespace ProjectExplorer;
 
 enum { debug = 0, debugRepositorySearch = 0 };
 
@@ -201,27 +203,25 @@ public:
     static QString windowTitleVcsTopic(const QString &filePath);
 
 signals:
-    void stateChanged(const VcsBase::Internal::State &s, Core::IVersionControl *vc);
+    void stateChanged(const VcsBase::Internal::State &s, IVersionControl *vc);
 
 public slots:
     void slotStateChanged();
 };
 
-StateListener::StateListener(QObject *parent) :
-        QObject(parent)
+StateListener::StateListener(QObject *parent) : QObject(parent)
 {
-    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(slotStateChanged()));
-    connect(Core::EditorManager::instance(), SIGNAL(currentDocumentStateChanged()),
-            this, SLOT(slotStateChanged()));
-    connect(Core::VcsManager::instance(), SIGNAL(repositoryChanged(QString)),
-            this, SLOT(slotStateChanged()));
-
-    connect(ProjectExplorer::ProjectTree::instance(),
-            &ProjectExplorer::ProjectTree::currentProjectChanged,
+    connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+            this, &StateListener::slotStateChanged);
+    connect(EditorManager::instance(), &EditorManager::currentDocumentStateChanged,
+            this, &StateListener::slotStateChanged);
+    connect(VcsManager::instance(), &VcsManager::repositoryChanged,
             this, &StateListener::slotStateChanged);
 
-    Core::EditorManager::setWindowTitleVcsTopicHandler(&StateListener::windowTitleVcsTopic);
+    connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
+            this, &StateListener::slotStateChanged);
+
+    EditorManager::setWindowTitleVcsTopicHandler(&StateListener::windowTitleVcsTopic);
 }
 
 QString StateListener::windowTitleVcsTopic(const QString &filePath)
@@ -231,21 +231,21 @@ QString StateListener::windowTitleVcsTopic(const QString &filePath)
         searchPath = QFileInfo(filePath).absolutePath();
     } else {
         // use single project's information if there is only one loaded.
-        const QList<ProjectExplorer::Project *> projects = ProjectExplorer::SessionManager::projects();
+        const QList<Project *> projects = SessionManager::projects();
         if (projects.size() == 1)
             searchPath = projects.first()->projectDirectory().toString();
     }
     if (searchPath.isEmpty())
         return QString();
     QString topLevelPath;
-    Core::IVersionControl *vc = Core::VcsManager::findVersionControlForDirectory(
+    IVersionControl *vc = VcsManager::findVersionControlForDirectory(
                 searchPath, &topLevelPath);
     return (vc && !topLevelPath.isEmpty()) ? vc->vcsTopic(topLevelPath) : QString();
 }
 
 static inline QString displayNameOfEditor(const QString &fileName)
 {
-    Core::IDocument *document = Core::DocumentModel::documentForFilePath(fileName);
+    IDocument *document = DocumentModel::documentForFilePath(fileName);
     if (document)
         return document->displayName();
     return QString();
@@ -257,7 +257,7 @@ void StateListener::slotStateChanged()
     // temporary path prefix or does the file contains a hash, indicating a project
     // folder?
     State state;
-    Core::IDocument *currentDocument = Core::EditorManager::currentDocument();
+    IDocument *currentDocument = EditorManager::currentDocument();
     if (!currentDocument) {
         state.currentFile.clear();
     } else {
@@ -289,7 +289,7 @@ void StateListener::slotStateChanged()
     }
 
     // Get the file and its control. Do not use the file unless we find one
-    Core::IVersionControl *fileControl = 0;
+    IVersionControl *fileControl = 0;
     if (!state.currentFile.isEmpty()) {
         if (currentFileInfo.isNull())
             currentFileInfo.reset(new QFileInfo(state.currentFile));
@@ -300,18 +300,18 @@ void StateListener::slotStateChanged()
             state.currentFileDirectory = currentFileInfo->absolutePath();
             state.currentFileName = currentFileInfo->fileName();
         }
-        fileControl = Core::VcsManager::findVersionControlForDirectory(
+        fileControl = VcsManager::findVersionControlForDirectory(
                     state.currentFileDirectory,
                     &state.currentFileTopLevel);
         if (!fileControl)
             state.clearFile();
     }
     // Check for project, find the control
-    Core::IVersionControl *projectControl = 0;
-    if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectTree::currentProject()) {
+    IVersionControl *projectControl = 0;
+    if (const Project *currentProject = ProjectTree::currentProject()) {
         state.currentProjectPath = currentProject->projectDirectory().toString();
         state.currentProjectName = currentProject->displayName();
-        projectControl = Core::VcsManager::findVersionControlForDirectory(state.currentProjectPath,
+        projectControl = VcsManager::findVersionControlForDirectory(state.currentProjectPath,
                                                                     &state.currentProjectTopLevel);
         if (projectControl) {
             // If we have both, let the file's one take preference
@@ -322,14 +322,14 @@ void StateListener::slotStateChanged()
         }
     }
     // Assemble state and emit signal.
-    Core::IVersionControl *vc = fileControl;
+    IVersionControl *vc = fileControl;
     if (!vc)
         vc = projectControl;
     if (!vc)
         state.clearPatchFile(); // Need a repository to patch
     if (debug)
         qDebug() << state << (vc ? vc->displayName() : QLatin1String("No version control"));
-    Core::EditorManager::updateWindowTitles();
+    EditorManager::updateWindowTitles();
     emit stateChanged(state, vc);
 }
 
@@ -528,8 +528,8 @@ public:
     inline bool supportsRepositoryCreation() const;
 
     QPointer<VcsBaseSubmitEditor> m_submitEditor;
-    Core::IVersionControl *m_versionControl;
-    Core::Context m_context;
+    IVersionControl *m_versionControl;
+    Context m_context;
     VcsBasePluginState m_state;
     int m_actionState;
 
@@ -544,7 +544,7 @@ VcsBasePluginPrivate::VcsBasePluginPrivate() :
 
 bool VcsBasePluginPrivate::supportsRepositoryCreation() const
 {
-    return m_versionControl && m_versionControl->supportsOperation(Core::IVersionControl::CreateRepositoryOperation);
+    return m_versionControl && m_versionControl->supportsOperation(IVersionControl::CreateRepositoryOperation);
 }
 
 Internal::StateListener *VcsBasePluginPrivate::m_listener = 0;
@@ -559,27 +559,25 @@ VcsBasePlugin::~VcsBasePlugin()
     delete d;
 }
 
-void VcsBasePlugin::initializeVcs(Core::IVersionControl *vc, const Core::Context &context)
+void VcsBasePlugin::initializeVcs(IVersionControl *vc, const Context &context)
 {
     d->m_versionControl = vc;
     d->m_context = context;
     addAutoReleasedObject(vc);
 
     Internal::VcsPlugin *plugin = Internal::VcsPlugin::instance();
-    connect(plugin->coreListener(), SIGNAL(submitEditorAboutToClose(VcsBaseSubmitEditor*,bool*)),
-            this, SLOT(slotSubmitEditorAboutToClose(VcsBaseSubmitEditor*,bool*)));
+    connect(plugin->coreListener(), &Internal::CoreListener::submitEditorAboutToClose,
+            this, &VcsBasePlugin::slotSubmitEditorAboutToClose);
     // First time: create new listener
     if (!VcsBasePluginPrivate::m_listener)
         VcsBasePluginPrivate::m_listener = new Internal::StateListener(plugin);
-    connect(VcsBasePluginPrivate::m_listener,
-            SIGNAL(stateChanged(VcsBase::Internal::State,Core::IVersionControl*)),
-            this,
-            SLOT(slotStateChanged(VcsBase::Internal::State,Core::IVersionControl*)));
+    connect(VcsBasePluginPrivate::m_listener, &Internal::StateListener::stateChanged,
+            this, &VcsBasePlugin::slotStateChanged);
     // VCSes might have become (un-)available, so clear the VCS directory cache
-    connect(vc, SIGNAL(configurationChanged()),
-            Core::VcsManager::instance(), SLOT(clearVersionControlCache()));
-    connect(vc, SIGNAL(configurationChanged()),
-            VcsBasePluginPrivate::m_listener, SLOT(slotStateChanged()));
+    connect(vc, &IVersionControl::configurationChanged,
+            VcsManager::instance(), &VcsManager::clearVersionControlCache);
+    connect(vc, &IVersionControl::configurationChanged,
+            VcsBasePluginPrivate::m_listener, &Internal::StateListener::slotStateChanged);
 }
 
 void VcsBasePlugin::extensionsInitialized()
@@ -599,19 +597,19 @@ void VcsBasePlugin::slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *submitEdit
         *result = submitEditorAboutToClose();
 }
 
-Core::IVersionControl *VcsBasePlugin::versionControl() const
+IVersionControl *VcsBasePlugin::versionControl() const
 {
     return d->m_versionControl;
 }
 
-void VcsBasePlugin::slotStateChanged(const VcsBase::Internal::State &newInternalState, Core::IVersionControl *vc)
+void VcsBasePlugin::slotStateChanged(const VcsBase::Internal::State &newInternalState, IVersionControl *vc)
 {
     if (vc == d->m_versionControl) {
         // We are directly affected: Change state
         if (!d->m_state.equals(newInternalState)) {
             d->m_state.setState(newInternalState);
             updateActions(VcsEnabled);
-            Core::ICore::addAdditionalContext(d->m_context);
+            ICore::addAdditionalContext(d->m_context);
         }
     } else {
         // Some other VCS plugin or state changed: Reset us to empty state.
@@ -622,7 +620,7 @@ void VcsBasePlugin::slotStateChanged(const VcsBase::Internal::State &newInternal
             d->m_state = emptyState;
             updateActions(newActionState);
         }
-        Core::ICore::removeAdditionalContext(d->m_context);
+        ICore::removeAdditionalContext(d->m_context);
     }
 }
 
@@ -657,9 +655,9 @@ void VcsBasePlugin::promptToDeleteCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    const bool rc = Core::VcsManager::promptToDelete(versionControl(), state.currentFile());
+    const bool rc = VcsManager::promptToDelete(versionControl(), state.currentFile());
     if (!rc)
-        QMessageBox::warning(Core::ICore::dialogParent(), tr("Version Control"),
+        QMessageBox::warning(ICore::dialogParent(), tr("Version Control"),
                              tr("The file \"%1\" could not be deleted.").
                              arg(QDir::toNativeSeparators(state.currentFile())),
                              QMessageBox::Ok);
@@ -674,18 +672,18 @@ static inline bool ask(QWidget *parent, const QString &title, const QString &que
 
 void VcsBasePlugin::createRepository()
 {
-    QTC_ASSERT(d->m_versionControl->supportsOperation(Core::IVersionControl::CreateRepositoryOperation), return);
+    QTC_ASSERT(d->m_versionControl->supportsOperation(IVersionControl::CreateRepositoryOperation), return);
     // Find current starting directory
     QString directory;
-    if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectTree::currentProject())
+    if (const Project *currentProject = ProjectTree::currentProject())
         directory = QFileInfo(currentProject->document()->filePath()).absolutePath();
     // Prompt for a directory that is not under version control yet
-    QWidget *mw = Core::ICore::mainWindow();
+    QWidget *mw = ICore::mainWindow();
     do {
         directory = QFileDialog::getExistingDirectory(mw, tr("Choose Repository Directory"), directory);
         if (directory.isEmpty())
             return;
-        const Core::IVersionControl *managingControl = Core::VcsManager::findVersionControlForDirectory(directory);
+        const IVersionControl *managingControl = VcsManager::findVersionControlForDirectory(directory);
         if (managingControl == 0)
             break;
         const QString question = tr("The directory \"%1\" is already managed by a version control system (%2)."
@@ -722,7 +720,7 @@ bool VcsBasePlugin::raiseSubmitEditor() const
 {
     if (!d->m_submitEditor)
         return false;
-    Core::EditorManager::activateEditor(d->m_submitEditor, Core::EditorManager::IgnoreNavigationHistory);
+    EditorManager::activateEditor(d->m_submitEditor, EditorManager::IgnoreNavigationHistory);
     return true;
 }
 
@@ -773,13 +771,13 @@ bool VcsBasePlugin::isSshPromptConfigured()
 
 static const char SOURCE_PROPERTY[] = "qtcreator_source";
 
-void VcsBasePlugin::setSource(Core::IDocument *document, const QString &source)
+void VcsBasePlugin::setSource(IDocument *document, const QString &source)
 {
     document->setProperty(SOURCE_PROPERTY, source);
     VcsBasePluginPrivate::m_listener->slotStateChanged();
 }
 
-QString VcsBasePlugin::source(Core::IDocument *document)
+QString VcsBasePlugin::source(IDocument *document)
 {
     return document->property(SOURCE_PROPERTY).toString();
 }
