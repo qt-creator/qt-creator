@@ -66,8 +66,8 @@ SftpOutgoingPacket &SftpMakeDir::initialPacket(SftpOutgoingPacket &packet)
 }
 
 
-SftpRmDir::SftpRmDir(SftpJobId, const QString &path)
-    : AbstractSftpOperation(jobId), remoteDir(path)
+SftpRmDir::SftpRmDir(SftpJobId id, const QString &path)
+    : AbstractSftpOperation(id), remoteDir(path)
 {
 }
 

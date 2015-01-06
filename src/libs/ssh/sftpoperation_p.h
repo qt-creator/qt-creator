@@ -96,7 +96,7 @@ struct SftpRmDir : public AbstractSftpOperation
 {
     typedef QSharedPointer<SftpRmDir> Ptr;
 
-    SftpRmDir(SftpJobId jobId, const QString &path);
+    SftpRmDir(SftpJobId id, const QString &path);
     virtual Type type() const { return RmDir; }
     virtual SftpOutgoingPacket &initialPacket(SftpOutgoingPacket &packet);
 
