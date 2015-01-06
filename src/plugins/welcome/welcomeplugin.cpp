@@ -65,6 +65,7 @@
 
 enum { debug = 0 };
 
+using namespace Core;
 using namespace ExtensionSystem;
 using namespace Utils;
 
@@ -76,16 +77,16 @@ namespace Internal {
 static QString applicationDirPath()
 {
     // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
-    return Utils::FileUtils::normalizePathName(QCoreApplication::applicationDirPath());
+    return FileUtils::normalizePathName(QCoreApplication::applicationDirPath());
 }
 
 static QString resourcePath()
 {
     // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
-    return Utils::FileUtils::normalizePathName(Core::ICore::resourcePath());
+    return FileUtils::normalizePathName(ICore::resourcePath());
 }
 
-class WelcomeMode : public Core::IMode
+class WelcomeMode : public IMode
 {
     Q_OBJECT
     Q_PROPERTY(int activePlugin READ activePlugin WRITE setActivePlugin NOTIFY activePluginChanged)
@@ -96,8 +97,6 @@ public:
     void activated();
     void initPlugins();
     int activePlugin() const { return m_activePlugin; }
-
-//    bool eventFilter(QObject *, QEvent *);
 
 public slots:
     void onThemeChanged();
@@ -113,32 +112,29 @@ public slots:
 signals:
     void activePluginChanged(int pos);
 
-private slots:
+private:
     void welcomePluginAdded(QObject*);
     void sceneGraphError(QQuickWindow::SceneGraphError, const QString &message);
-
-private:
     void facilitateQml(QQmlEngine *engine);
-    void addPages(const QList<Core::IWelcomePage *> &pages);
+    void addPages(const QList<IWelcomePage *> &pages);
 
     QWidget *m_modeWidget;
     QuickContainer *m_welcomePage;
-    QMap<Core::Id, Core::IWelcomePage *> m_idPageMap;
-    QList<Core::IWelcomePage *> m_pluginList;
+    QMap<Id, IWelcomePage *> m_idPageMap;
+    QList<IWelcomePage *> m_pluginList;
     int m_activePlugin;
     QQmlPropertyMap m_themeProperties;
 };
 
-// ---  WelcomeMode
 WelcomeMode::WelcomeMode()
     : m_activePlugin(0)
 {
     setDisplayName(tr("Welcome"));
     setIcon(QIcon(QLatin1String(":/welcome/images/mode_welcome.png")));
-    setPriority(Core::Constants::P_MODE_WELCOME);
-    setId(Core::Constants::MODE_WELCOME);
+    setPriority(Constants::P_MODE_WELCOME);
+    setId(Constants::MODE_WELCOME);
     setContextHelpId(QLatin1String("Qt Creator Manual"));
-    setContext(Core::Context(Core::Constants::C_WELCOME_MODE));
+    setContext(Context(Constants::C_WELCOME_MODE));
 
     m_modeWidget = new QWidget;
     m_modeWidget->setObjectName(QLatin1String("WelcomePageModeWidget"));
@@ -152,10 +148,10 @@ WelcomeMode::WelcomeMode()
 
     m_welcomePage->setObjectName(QLatin1String("WelcomePage"));
 
-    connect(m_welcomePage, SIGNAL(sceneGraphError(QQuickWindow::SceneGraphError,QString)),
-            this, SLOT(sceneGraphError(QQuickWindow::SceneGraphError,QString)));
+    connect(m_welcomePage, &QQuickWindow::sceneGraphError,
+            this, &WelcomeMode::sceneGraphError);
 
-    Utils::StyledBar* styledBar = new Utils::StyledBar(m_modeWidget);
+    StyledBar *styledBar = new StyledBar(m_modeWidget);
     styledBar->setObjectName(QLatin1String("WelcomePageStyledBar"));
     layout->addWidget(styledBar);
 
@@ -169,7 +165,7 @@ WelcomeMode::WelcomeMode()
     layout->addWidget(container);
 #endif // USE_QUICK_WIDGET
 
-    connect(Core::ICore::instance(), &Core::ICore::themeChanged, this, &WelcomeMode::onThemeChanged);
+    connect(ICore::instance(), &ICore::themeChanged, this, &WelcomeMode::onThemeChanged);
 
     setWidget(m_modeWidget);
 }
@@ -177,14 +173,13 @@ WelcomeMode::WelcomeMode()
 void WelcomeMode::onThemeChanged()
 {
     const QVariantHash creatorTheme = Utils::creatorTheme()->values();
-    QVariantHash::const_iterator it;
-    for (it = creatorTheme.constBegin(); it != creatorTheme.constEnd(); ++it)
+    for (auto it = creatorTheme.constBegin(); it != creatorTheme.constEnd(); ++it)
         m_themeProperties.insert(it.key(), it.value());
 }
 
 WelcomeMode::~WelcomeMode()
 {
-    QSettings *settings = Core::ICore::settings();
+    QSettings *settings = ICore::settings();
     settings->setValue(QLatin1String(currentPageSettingsKeyC), activePlugin());
     delete m_modeWidget;
 }
@@ -221,7 +216,7 @@ void WelcomeMode::facilitateQml(QQmlEngine *engine)
     ctx->setContextProperty(QLatin1String("creatorTheme"), &m_themeProperties);
 
 #if defined(USE_QUICK_WIDGET)
-    bool useNativeText = !Utils::HostOsInfo::isMacHost();
+    bool useNativeText = !HostOsInfo::isMacHost();
 #else
     bool useNativeText = true;
 #endif
@@ -230,12 +225,12 @@ void WelcomeMode::facilitateQml(QQmlEngine *engine)
 
 void WelcomeMode::initPlugins()
 {
-    QSettings *settings = Core::ICore::settings();
+    QSettings *settings = ICore::settings();
     setActivePlugin(settings->value(QLatin1String(currentPageSettingsKeyC)).toInt());
 
     facilitateQml(m_welcomePage->engine());
 
-    QList<Core::IWelcomePage*> availablePages = PluginManager::getObjects<Core::IWelcomePage>();
+    QList<IWelcomePage *> availablePages = PluginManager::getObjects<IWelcomePage>();
     addPages(availablePages);
     // make sure later added pages are made available too:
     connect(PluginManager::instance(), &PluginManager::objectAdded,
@@ -249,16 +244,16 @@ void WelcomeMode::initPlugins()
 
 void WelcomeMode::welcomePluginAdded(QObject *obj)
 {
-    Core::IWelcomePage *page = qobject_cast<Core::IWelcomePage*>(obj);
+    IWelcomePage *page = qobject_cast<IWelcomePage*>(obj);
     if (!page)
         return;
-    addPages(QList<Core::IWelcomePage *>() << page);
+    addPages(QList<IWelcomePage *>() << page);
 }
 
-void WelcomeMode::addPages(const QList<Core::IWelcomePage *> &pages)
+void WelcomeMode::addPages(const QList<IWelcomePage *> &pages)
 {
-    QList<Core::IWelcomePage *> addedPages = pages;
-    Utils::sort(addedPages, [](const Core::IWelcomePage *l, const Core::IWelcomePage *r) {
+    QList<IWelcomePage *> addedPages = pages;
+    Utils::sort(addedPages, [](const IWelcomePage *l, const IWelcomePage *r) {
         return l->priority() < r->priority();
     });
     // insert into m_pluginList, keeping m_pluginList sorted by priority
@@ -266,7 +261,7 @@ void WelcomeMode::addPages(const QList<Core::IWelcomePage *> &pages)
     auto addIt = addedPages.begin();
     auto currentIt = m_pluginList.begin();
     while (addIt != addedPages.end()) {
-        Core::IWelcomePage *page = *addIt;
+        IWelcomePage *page = *addIt;
         QTC_ASSERT(!m_idPageMap.contains(page->id()), ++addIt; continue);
         while (currentIt != m_pluginList.end() && (*currentIt)->priority() <= page->priority())
             ++currentIt;
@@ -281,7 +276,7 @@ void WelcomeMode::addPages(const QList<Core::IWelcomePage *> &pages)
     QQmlContext *ctx = engine->rootContext();
     ctx->setContextProperty(QLatin1String("pagesModel"), QVariant::fromValue(
                                 Utils::transform(m_pluginList, // transform into QList<QObject *>
-                                                 [](Core::IWelcomePage *page) -> QObject * {
+                                                 [](IWelcomePage *page) -> QObject * {
                                     return page;
                                 })));
 }
@@ -291,12 +286,6 @@ WelcomePlugin::WelcomePlugin()
 {
 }
 
-/*! Initializes the plugin. Returns true on success.
-    Plugins want to register objects with the plugin manager here.
-
-    \a errorMessage can be used to pass an error message to the plugin system,
-       if there was any.
-*/
 bool WelcomePlugin::initialize(const QStringList & /* arguments */, QString * /* errorMessage */)
 {
     m_welcomeMode = new WelcomeMode;
@@ -305,21 +294,10 @@ bool WelcomePlugin::initialize(const QStringList & /* arguments */, QString * /*
     return true;
 }
 
-/*! Notification that all extensions that this plugin depends on have been
-    initialized. The dependencies are defined in the plugins .qwp file.
-
-    Normally this function is used for things that rely on other plugins to have
-    added objects to the plugin manager, that implement interfaces that we're
-    interested in. These objects can now be requested through the
-    PluginManagerInterface.
-
-    The WelcomePlugin doesn't need things from other plugins, so it does
-    nothing here.
-*/
 void WelcomePlugin::extensionsInitialized()
 {
     m_welcomeMode->initPlugins();
-    Core::ModeManager::activateMode(m_welcomeMode->id());
+    ModeManager::activateMode(m_welcomeMode->id());
 }
 
 } // namespace Internal
