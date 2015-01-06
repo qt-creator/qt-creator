@@ -2092,6 +2092,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
         return false;
 
     QList<EditorView*> closedViews;
+    EditorView *focusView = 0;
 
     // remove the editors
     foreach (IEditor *editor, acceptedEditors) {
@@ -2105,6 +2106,8 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
 
         EditorManagerPrivate::removeEditor(editor);
         if (EditorView *view = EditorManagerPrivate::viewForEditor(editor)) {
+            if (qApp->focusWidget() && qApp->focusWidget() == editor->widget()->focusWidget())
+                focusView = view;
             if (editor == view->currentEditor())
                 closedViews += view;
             if (d->m_currentEditor == editor) {
@@ -2126,29 +2129,23 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
         else
             forceViewToShowEditor = closedViews.first();
     }
-    bool currentViewHandled = false;
     foreach (EditorView *view, closedViews) {
-        OpenEditorFlags flags;
-        if (view == currentView)
-            currentViewHandled = true;
-        else
-            flags = OpenEditorFlags(DoNotChangeCurrentEditor);
         IEditor *newCurrent = view->currentEditor();
         if (!newCurrent && forceViewToShowEditor == view)
             newCurrent = EditorManagerPrivate::pickUnusedEditor();
         if (newCurrent) {
-            EditorManagerPrivate::activateEditor(view, newCurrent, flags);
+            EditorManagerPrivate::activateEditor(view, newCurrent, DoNotChangeCurrentEditor);
         } else if (forceViewToShowEditor == view) {
             DocumentModel::Entry *entry = DocumentModel::firstRestoredEntry();
             if (entry) {
-                EditorManagerPrivate::activateEditorForEntry(view, entry, flags);
-            } else {
-                // no "restored" ones, so any entry left should have a document
+                EditorManagerPrivate::activateEditorForEntry(view, entry, DoNotChangeCurrentEditor);
+            } else { // no "restored" ones, so any entry left should have a document
                 const QList<DocumentModel::Entry *> documents = DocumentModel::entries();
                 if (!documents.isEmpty()) {
-                    IDocument *document = documents.last()->document;
-                    if (document)
-                        EditorManagerPrivate::activateEditorForDocument(view, document, flags);
+                    if (IDocument *document = documents.last()->document) {
+                        EditorManagerPrivate::activateEditorForDocument(
+                                    view, document, DoNotChangeCurrentEditor);
+                    }
                 }
             }
         }
@@ -2159,8 +2156,10 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
     foreach (IEditor *editor, acceptedEditors)
         delete editor;
 
-    if (currentView && !currentViewHandled)
-        EditorManagerPrivate::activateView(currentView);
+    if (focusView)
+        EditorManagerPrivate::activateView(focusView);
+    else
+        EditorManagerPrivate::setCurrentEditor(currentView->currentEditor());
 
     if (!currentEditor()) {
         emit m_instance->currentEditorChanged(0);
