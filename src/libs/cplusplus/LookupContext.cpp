@@ -824,15 +824,13 @@ ClassOrNamespace *ClassOrNamespace::findBlock(Block *block)
 {
     flush();
 
-    for (ClassOrNamespace *binding = this; binding; binding = binding->_parent) {
-        QHash<Block *, ClassOrNamespace *>::const_iterator citBlock = binding->_blocks.find(block);
-        if (citBlock != binding->_blocks.end())
-            return citBlock.value();
+    QHash<Block *, ClassOrNamespace *>::const_iterator citBlock = _blocks.find(block);
+    if (citBlock != _blocks.end())
+        return citBlock.value();
 
-        for (citBlock = binding->_blocks.begin(); citBlock != binding->_blocks.end(); ++citBlock) {
-            if (ClassOrNamespace *foundNestedBlock = citBlock.value()->findBlock(block))
-                return foundNestedBlock;
-        }
+    for (citBlock = _blocks.begin(); citBlock != _blocks.end(); ++citBlock) {
+        if (ClassOrNamespace *foundNestedBlock = citBlock.value()->findBlock(block))
+            return foundNestedBlock;
     }
 
     return 0;
