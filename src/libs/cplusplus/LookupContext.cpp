@@ -820,20 +820,36 @@ ClassOrNamespace *ClassOrNamespace::findType(const Name *name)
     return lookupType_helper(name, &processed, /*searchInEnclosingScope =*/ false, this);
 }
 
+ClassOrNamespace *ClassOrNamespace::findBlock_helper(Block *block,
+                                                     QSet<ClassOrNamespace *> *processed,
+                                                     bool searchInEnclosingScope)
+{
+    for (ClassOrNamespace *binding = this; binding; binding = binding->_parent) {
+        if (processed->contains(binding))
+            break;
+        processed->insert(binding);
+        binding->flush();
+        auto end = binding->_blocks.end();
+        auto citBlock = binding->_blocks.find(block);
+        if (citBlock != end)
+            return citBlock.value();
+
+        for (citBlock = binding->_blocks.begin(); citBlock != end; ++citBlock) {
+            if (ClassOrNamespace *foundNestedBlock =
+                    citBlock.value()->findBlock_helper(block, processed, false)) {
+                return foundNestedBlock;
+            }
+        }
+        if (!searchInEnclosingScope)
+            break;
+    }
+    return 0;
+}
+
 ClassOrNamespace *ClassOrNamespace::findBlock(Block *block)
 {
-    flush();
-
-    QHash<Block *, ClassOrNamespace *>::const_iterator citBlock = _blocks.find(block);
-    if (citBlock != _blocks.end())
-        return citBlock.value();
-
-    for (citBlock = _blocks.begin(); citBlock != _blocks.end(); ++citBlock) {
-        if (ClassOrNamespace *foundNestedBlock = citBlock.value()->findBlock(block))
-            return foundNestedBlock;
-    }
-
-    return 0;
+    QSet<ClassOrNamespace *> processed;
+    return findBlock_helper(block, &processed, true);
 }
 
 Symbol *ClassOrNamespace::lookupInScope(const QList<const Name *> &fullName)

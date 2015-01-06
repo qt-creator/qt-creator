@@ -124,6 +124,9 @@ private:
     ClassOrNamespace *lookupType_helper(const Name *name, QSet<ClassOrNamespace *> *processed,
                                         bool searchInEnclosingScope, ClassOrNamespace *origin);
 
+    ClassOrNamespace *findBlock_helper(Block *block, QSet<ClassOrNamespace *> *processed,
+                                       bool searchInEnclosingScope);
+
     ClassOrNamespace *nestedType(const Name *name, ClassOrNamespace *origin);
 
     void instantiateNestedClasses(ClassOrNamespace *enclosingTemplateClass,
