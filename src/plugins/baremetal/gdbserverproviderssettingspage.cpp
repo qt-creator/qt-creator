@@ -483,7 +483,7 @@ QWidget *GdbServerProvidersSettingsPage::widget()
         Q_ASSERT(!m_model);
         m_model = new GdbServerProviderModel(m_configWidget);
 
-        connect(m_model, &GdbServerProviderModel::providerStateChanged,
+        connect(m_model.data(), &GdbServerProviderModel::providerStateChanged,
                 this, &GdbServerProvidersSettingsPage::updateState);
 
         m_providerView->setModel(m_model);
@@ -519,7 +519,7 @@ QWidget *GdbServerProvidersSettingsPage::widget()
 
         m_addButton->setMenu(addMenu);
 
-        connect(m_delButton, &QPushButton::clicked,
+        connect(m_delButton.data(), &QPushButton::clicked,
                 this, &GdbServerProvidersSettingsPage::removeProvider);
 
         updateState();

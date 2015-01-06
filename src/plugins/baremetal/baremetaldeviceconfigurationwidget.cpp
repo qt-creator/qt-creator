@@ -57,7 +57,7 @@ BareMetalDeviceConfigurationWidget::BareMetalDeviceConfigurationWidget(
     m_gdbServerProviderChooser->setCurrentProviderId(dev->gdbServerProviderId());
     formLayout->addRow(tr("GDB server provider:"), m_gdbServerProviderChooser);
 
-    connect(m_gdbServerProviderChooser, &GdbServerProviderChooser::providerChanged,
+    connect(m_gdbServerProviderChooser.data(), &GdbServerProviderChooser::providerChanged,
             this, &BareMetalDeviceConfigurationWidget::gdbServerProviderChanged);
 }
 
