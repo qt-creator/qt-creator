@@ -49,7 +49,6 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class ActionManager;
 class StatusBarWidget;
 class EditorManager;
 class ExternalToolManager;
@@ -69,7 +68,6 @@ class VcsManager;
 
 namespace Internal {
 
-class ActionManagerPrivate;
 class FancyTabWidget;
 class GeneralSettings;
 class ProgressManagerPrivate;
@@ -168,7 +166,6 @@ private:
     SettingsDatabase *m_settingsDatabase;
     mutable QPrinter *m_printer;
     WindowSupport *m_windowSupport;
-    ActionManager *m_actionManager;
     EditorManager *m_editorManager;
     ExternalToolManager *m_externalToolManager;
     MessageManager *m_messageManager;

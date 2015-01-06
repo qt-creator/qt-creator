@@ -48,7 +48,10 @@ namespace Core {
 
 class ActionContainer;
 
-namespace Internal { class MainWindow; }
+namespace Internal {
+class CorePlugin;
+class MainWindow;
+} // Internal
 
 class CORE_EXPORT ActionManager : public QObject
 {
@@ -78,11 +81,12 @@ signals:
 private:
     ActionManager(QObject *parent = 0);
     ~ActionManager();
-    static void initialize();
-    void saveSettings(QSettings *settings);
-    void setContext(const Context &context);
+    static void initialize(QObject *parent);
+    static void saveSettings(QSettings *settings);
+    static void setContext(const Context &context);
 
-    friend class Core::Internal::MainWindow;
+    friend class Core::Internal::CorePlugin; // initialization
+    friend class Core::Internal::MainWindow; // saving settings and setting context
 };
 
 } // namespace Core

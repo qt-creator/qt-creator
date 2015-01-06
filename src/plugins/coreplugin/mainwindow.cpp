@@ -117,7 +117,6 @@ MainWindow::MainWindow() :
                                             this)),
     m_printer(0),
     m_windowSupport(0),
-    m_actionManager(new ActionManager(this)),
     m_editorManager(0),
     m_externalToolManager(0),
     m_progressManager(new ProgressManagerPrivate),
@@ -146,8 +145,6 @@ MainWindow::MainWindow() :
     m_toggleSideBarAction(0),
     m_toggleSideBarButton(new QToolButton)
 {
-    ActionManager::initialize(); // must be done before registering any actions
-
     (void) new DocumentManager(this);
     OutputPaneManager::create();
 
@@ -1000,7 +997,7 @@ void MainWindow::writeSettings()
     settings->endGroup();
 
     DocumentManager::saveSettings();
-    m_actionManager->saveSettings(settings);
+    ActionManager::saveSettings(settings);
     EditorManagerPrivate::saveSettings();
     m_navigationWidget->saveSettings(settings);
 }
@@ -1043,7 +1040,7 @@ void MainWindow::updateContext()
             uniquecontexts.add(id);
     }
 
-    m_actionManager->setContext(uniquecontexts);
+    ActionManager::setContext(uniquecontexts);
     emit m_coreImpl->contextChanged(m_activeContext, m_additionalContexts);
 }
 

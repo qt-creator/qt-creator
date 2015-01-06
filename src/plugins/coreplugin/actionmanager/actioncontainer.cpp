@@ -381,14 +381,16 @@ void ActionContainerPrivate::update()
 */
 
 MenuActionContainer::MenuActionContainer(Id id)
-    : ActionContainerPrivate(id), m_menu(0)
+    : ActionContainerPrivate(id),
+      m_menu(new QMenu)
 {
+    m_menu->setObjectName(id.toString());
     setOnAllDisabledBehavior(Disable);
 }
 
-void MenuActionContainer::setMenu(QMenu *menu)
+MenuActionContainer::~MenuActionContainer()
 {
-    m_menu = menu;
+    delete m_menu;
 }
 
 QMenu *MenuActionContainer::menu() const

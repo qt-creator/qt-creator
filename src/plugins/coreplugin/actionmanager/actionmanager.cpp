@@ -32,17 +32,19 @@
 #include "actionmanager_p.h"
 #include "actioncontainer_p.h"
 #include "command_p.h"
-#include <coreplugin/id.h>
-#include <coreplugin/mainwindow.h>
 
+#include <coreplugin/icore.h>
+#include <coreplugin/id.h>
 #include <utils/qtcassert.h>
 
+#include <QAction>
+#include <QApplication>
 #include <QDebug>
-#include <QSettings>
+#include <QDesktopWidget>
 #include <QLabel>
 #include <QMenu>
-#include <QAction>
 #include <QMenuBar>
+#include <QSettings>
 
 namespace {
     enum { warnAboutFindFailures = 0 };
@@ -200,11 +202,7 @@ ActionContainer *ActionManager::createMenu(Id id)
     if (it !=  d->m_idContainerMap.constEnd())
         return it.value();
 
-    QMenu *m = new QMenu(ICore::mainWindow());
-    m->setObjectName(QLatin1String(id.name()));
-
     MenuActionContainer *mc = new MenuActionContainer(id);
-    mc->setMenu(m);
 
     d->m_idContainerMap.insert(id, mc);
     connect(mc, SIGNAL(destroyed()), d, SLOT(containerDestroyed()));
@@ -327,8 +325,8 @@ void ActionManager::unregisterAction(QAction *action, Id id)
     a->removeOverrideAction(action);
     if (a->isEmpty()) {
         // clean up
-        // ActionContainers listen to the commands' destroyed signals
         ICore::mainWindow()->removeAction(a->action());
+        // ActionContainers listen to the commands' destroyed signals
         delete a->action();
         d->m_idCmdMap.remove(id);
         delete a;
@@ -378,8 +376,9 @@ bool ActionManager::isPresentationModeEnabled()
     return d->m_presentationLabel;
 }
 
-void ActionManager::initialize()
+void ActionManager::initialize(QObject *parent)
 {
+    new ActionManager(parent);
     d->initialize();
 }
 
@@ -463,7 +462,17 @@ void ActionManagerPrivate::showShortcutPopup(const QString &shortcut)
     m_presentationLabel->setText(shortcut);
     m_presentationLabel->adjustSize();
 
-    QPoint p = ICore::mainWindow()->mapToGlobal(ICore::mainWindow()->rect().center() - m_presentationLabel->rect().center());
+    QWidget *window = QApplication::activeWindow();
+    if (!window && !QApplication::topLevelWidgets().isEmpty())
+        window = QApplication::topLevelWidgets().first();
+    QPoint center;
+    if (window) {
+        center = window->mapToGlobal(window->rect().center());
+    } else {
+        QTC_ASSERT(QApplication::desktop(), return);
+        center = QApplication::desktop()->screenGeometry().center();
+    }
+    QPoint p = center - m_presentationLabel->rect().center();
     m_presentationLabel->move(p);
 
     m_presentationLabel->show();

@@ -105,8 +105,8 @@ class MenuActionContainer : public ActionContainerPrivate
 {
 public:
     explicit MenuActionContainer(Id id);
+    ~MenuActionContainer();
 
-    void setMenu(QMenu *menu);
     QMenu *menu() const;
 
     void insertAction(QAction *before, QAction *action);
@@ -120,7 +120,7 @@ protected:
     bool updateInternal();
 
 private:
-    QMenu *m_menu;
+    QPointer<QMenu> m_menu;
 };
 
 class MenuBarActionContainer : public ActionContainerPrivate
