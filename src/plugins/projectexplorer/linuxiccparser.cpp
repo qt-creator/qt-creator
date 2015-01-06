@@ -61,11 +61,22 @@ LinuxIccParser::LinuxIccParser()
     m_caretLine.setMinimal(true);
     QTC_CHECK(m_caretLine.isValid());
 
+    // ".pch/Qt5Core.pchi.cpp": creating precompiled header file ".pch/Qt5Core.pchi"
+    // "animation/qabstractanimation.cpp": using precompiled header file ".pch/Qt5Core.pchi"
+    m_pchInfoLine.setPattern(QLatin1String("^\".*\": (creating|using) precompiled header file \".*\"\n$"));
+    m_pchInfoLine.setMinimal(true);
+    QTC_CHECK(m_pchInfoLine.isValid());
+
     appendOutputParser(new LdParser);
 }
 
 void LinuxIccParser::stdError(const QString &line)
 {
+    if (m_pchInfoLine.indexIn(line) != -1) {
+        // totally ignore this line
+        return;
+    }
+
     if (m_expectFirstLine  && m_firstLine.indexIn(line) != -1) {
         // Clear out old task
         Task::TaskType type = Task::Unknown;
@@ -143,6 +154,13 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
             << QList<Task>()
             << QString();
 
+    QTest::newRow("pch creation")
+            << QString::fromLatin1("\".pch/Qt5Core.pchi.cpp\": creating precompiled header file \".pch/Qt5Core.pchi\"")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << QList<Task>()
+            << QString();
+
     QTest::newRow("undeclared function")
             << QString::fromLatin1("main.cpp(13): error: identifier \"f\" is undefined\n"
                                    "      f(0);\n"
@@ -156,6 +174,23 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
                         Utils::FileName::fromUserInput(QLatin1String("main.cpp")), 13,
                         Constants::TASK_CATEGORY_COMPILE))
             << QString();
+
+    // same, with PCH remark
+    QTest::newRow("pch use+undeclared function")
+            << QString::fromLatin1("\"main.cpp\": using precompiled header file \".pch/Qt5Core.pchi\"\n"
+                                   "main.cpp(13): error: identifier \"f\" is undefined\n"
+                                   "      f(0);\n"
+                                   "      ^\n"
+                                   "\n")
+            << OutputParserTester::STDERR
+            << QString() << QString::fromLatin1("\n")
+            << (QList<Task>()
+                << Task(Task::Error,
+                        QLatin1String("identifier \"f\" is undefined\nf(0);"),
+                        Utils::FileName::fromUserInput(QLatin1String("main.cpp")), 13,
+                        Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+
 
     QTest::newRow("private function")
             << QString::fromLatin1("main.cpp(53): error #308: function \"AClass::privatefunc\" (declared at line 4 of \"main.h\") is inaccessible\n"

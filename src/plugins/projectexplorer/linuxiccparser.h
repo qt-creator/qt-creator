@@ -53,6 +53,7 @@ private:
     QRegExp m_firstLine;
     QRegExp m_continuationLines;
     QRegExp m_caretLine;
+    QRegExp m_pchInfoLine;
 
     bool m_expectFirstLine;
     int m_indent;
