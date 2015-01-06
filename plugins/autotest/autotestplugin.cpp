@@ -70,6 +70,11 @@ AutotestPlugin *AutotestPlugin::instance()
     return m_instance;
 }
 
+QSharedPointer<TestSettings> AutotestPlugin::settings() const
+{
+    return m_settings;
+}
+
 bool AutotestPlugin::checkLicense()
 {
     LicenseChecker::LicenseCheckerPlugin *licenseChecker

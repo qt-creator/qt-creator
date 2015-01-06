@@ -39,11 +39,12 @@ public:
 
     static AutotestPlugin *instance();
 
+    QSharedPointer<TestSettings> settings() const;
+
     bool initialize(const QStringList &arguments, QString *errorString);
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
 
-    QSharedPointer<TestSettings> settings() const { return m_settings; }
 
 private slots:
     void triggerAction();
