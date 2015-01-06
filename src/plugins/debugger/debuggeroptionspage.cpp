@@ -229,6 +229,7 @@ private:
 
     DebuggerItemModel *m_model;
     QLineEdit *m_displayNameLineEdit;
+    QLineEdit *m_typeLineEdit;
     QLabel *m_cdbLabel;
     QLineEdit *m_versionLabel;
     PathChooser *m_binaryChooser;
@@ -242,6 +243,9 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget(DebuggerItemModel *model)
     : m_model(model)
 {
     m_displayNameLineEdit = new QLineEdit(this);
+
+    m_typeLineEdit = new QLineEdit(this);
+    m_typeLineEdit->setEnabled(false);
 
     m_binaryChooser = new PathChooser(this);
     m_binaryChooser->setExpectedKind(PathChooser::ExistingCommand);
@@ -262,9 +266,9 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget(DebuggerItemModel *model)
     QFormLayout *formLayout = new QFormLayout(this);
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     formLayout->addRow(new QLabel(tr("Name:")), m_displayNameLineEdit);
-//    formLayout->addRow(new QLabel(tr("Type:")), m_engineTypeComboBox);
     formLayout->addRow(m_cdbLabel);
     formLayout->addRow(new QLabel(tr("Path:")), m_binaryChooser);
+    formLayout->addRow(new QLabel(tr("Type:")), m_typeLineEdit);
     formLayout->addRow(new QLabel(tr("ABIs:")), m_abis);
     formLayout->addRow(new QLabel(tr("Version:")), m_versionLabel);
 
@@ -315,6 +319,8 @@ void DebuggerItemConfigWidget::load(const DebuggerItem *item)
     m_displayNameLineEdit->setEnabled(!item->isAutoDetected());
     m_displayNameLineEdit->setText(item->displayName());
 
+    m_typeLineEdit->setText(item->engineTypeName());
+
     m_binaryChooser->setReadOnly(item->isAutoDetected());
     m_binaryChooser->setFileName(item->command());
 
@@ -348,27 +354,18 @@ void DebuggerItemConfigWidget::binaryPathHasChanged()
     if (!m_id.isValid())
         return;
 
-    // Use DebuggerItemManager as a cache:
-    const DebuggerItem *existing
-            = DebuggerItemManager::findByCommand(m_binaryChooser->fileName());
-    if (existing) {
-        setAbis(existing->abiNames());
-        m_versionLabel->setText(existing->version());
-        m_engineType = existing->engineType();
-    } else {
-        QFileInfo fi = QFileInfo(m_binaryChooser->path());
-        if (fi.isExecutable()) {
-            DebuggerItem tmp = item();
-            tmp.reinitializeFromFile();
-            setAbis(tmp.abiNames());
-            m_versionLabel->setText(tmp.version());
-            m_engineType = tmp.engineType();
-        } else {
-            setAbis(QStringList());
-            m_versionLabel->setText(QString());
-            m_engineType = NoEngineType;
-        }
+    DebuggerItem tmp;
+    QFileInfo fi = QFileInfo(m_binaryChooser->path());
+    if (fi.isExecutable()) {
+        tmp = item();
+        tmp.reinitializeFromFile();
     }
+
+    setAbis(tmp.abiNames());
+    m_versionLabel->setText(tmp.version());
+    m_engineType = tmp.engineType();
+    m_typeLineEdit->setText(tmp.engineTypeName());
+
     store();
 }
 
