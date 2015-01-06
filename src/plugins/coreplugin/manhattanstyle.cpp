@@ -619,7 +619,10 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
 
     switch (element) {
     case CE_Splitter:
-        painter->fillRect(option->rect, Utils::StyleHelper::borderColor());
+        if (creatorTheme()->widgetStyle() == Theme::StyleFlat)
+            painter->fillRect(option->rect, creatorTheme()->color(Theme::BackgroundColorSelected));
+        else
+            painter->fillRect(option->rect, Utils::StyleHelper::borderColor());
         break;
 
     case CE_TabBarTabShape:
