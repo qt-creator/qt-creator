@@ -189,6 +189,7 @@ void DesignMode::unregisterDesignWidget(QWidget *widget)
     foreach (DesignEditorInfo *info, d->m_editors) {
         if (info->widget == widget) {
             d->m_editors.removeAll(info);
+            delete info;
             break;
         }
     }

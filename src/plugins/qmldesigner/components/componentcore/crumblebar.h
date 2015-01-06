@@ -42,6 +42,7 @@ class CrumbleBar : public QObject
     Q_OBJECT
 public:
     explicit CrumbleBar(QObject *parent = 0);
+    ~CrumbleBar();
 
     void pushFile(const QString &fileName);
     void pushInFileComponent(const ModelNode &modelNode);
