@@ -35,6 +35,7 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
+class QMenu;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -75,7 +76,6 @@ private slots:
     void removeFileContextMenu();
 
     void openEditorContextMenu();
-    void openTextEditorContextMenu();
 
     void copyPathContextMenu();
     void copyUrlContextMenu();
@@ -102,7 +102,7 @@ private:
     QAction *m_removeResourceFile;
 
     QAction *m_openInEditor;
-    QAction *m_openInTextEditor;
+    QMenu *m_openWithMenu;
 
     // file context menu
     Utils::ParameterAction *m_copyPath;

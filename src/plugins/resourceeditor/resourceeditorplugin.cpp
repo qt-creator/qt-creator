@@ -38,6 +38,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/id.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -180,10 +181,12 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
     connect(m_openInEditor, SIGNAL(triggered()), this, SLOT(openEditorContextMenu()));
 
-    m_openInTextEditor = new QAction(tr("Open in Text Editor"), this);
-    command = Core::ActionManager::registerAction(m_openInTextEditor, Constants::C_OPEN_TEXT_EDITOR, projectTreeContext);
-    folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
-    connect(m_openInTextEditor, SIGNAL(triggered()), this, SLOT(openTextEditorContextMenu()));
+    m_openWithMenu = new QMenu(tr("Open With"), folderContextMenu->menu());
+    folderContextMenu->menu()->insertMenu(
+                folderContextMenu->insertLocation(ProjectExplorer::Constants::G_FOLDER_FILES),
+                m_openWithMenu);
+    connect(m_openWithMenu, &QMenu::triggered,
+            Core::DocumentManager::instance(), &Core::DocumentManager::executeOpenWithMenuAction);
 
     m_copyPath = new Utils::ParameterAction(QString(), tr("Copy path \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = Core::ActionManager::registerAction(m_copyPath, Constants::C_COPY_PATH, projectTreeContext);
@@ -270,16 +273,7 @@ void ResourceEditorPlugin::removeFileContextMenu()
 
 void ResourceEditorPlugin::openEditorContextMenu()
 {
-    ResourceTopLevelNode *topLevel = static_cast<ResourceTopLevelNode *>(ProjectTree::currentNode());
-    QString path = topLevel->path();
-    Core::EditorManager::openEditor(path);
-}
-
-void ResourceEditorPlugin::openTextEditorContextMenu()
-{
-    ResourceTopLevelNode *topLevel = static_cast<ResourceTopLevelNode *>(ProjectTree::currentNode());
-    QString path = topLevel->path();
-    Core::EditorManager::openEditor(path, Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
+    Core::EditorManager::openEditor(ProjectTree::currentNode()->path());
 }
 
 void ResourceEditorPlugin::copyPathContextMenu()
@@ -331,15 +325,18 @@ void ResourceEditorPlugin::updateContextActions(ProjectExplorer::Node *node, Pro
     m_openInEditor->setEnabled(isResourceNode);
     m_openInEditor->setVisible(isResourceNode);
 
-    m_openInTextEditor->setEnabled(isResourceNode);
-    m_openInTextEditor->setVisible(isResourceNode);
-
     bool isResourceFolder = qobject_cast<ResourceFolderNode *>(node);
     m_removePrefix->setEnabled(isResourceFolder);
     m_removePrefix->setVisible(isResourceFolder);
 
     m_renamePrefix->setEnabled(isResourceFolder);
     m_renamePrefix->setVisible(isResourceFolder);
+
+    if (isResourceNode)
+        Core::DocumentManager::populateOpenWithMenu(m_openWithMenu, node->path());
+    else
+        m_openWithMenu->clear();
+    m_openWithMenu->menuAction()->setVisible(!m_openWithMenu->actions().isEmpty());
 
     bool isResourceFile = qobject_cast<ResourceFileNode *>(node);
     m_copyPath->setEnabled(isResourceFile);

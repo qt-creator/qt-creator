@@ -50,7 +50,6 @@ const char C_REMOVE_FILE[] = "ResourceEditor.RemoveFile";
 const char C_RENAME_FILE[] = "ResourceEditor.RenameFile";
 
 const char C_OPEN_EDITOR[] = "ResourceEditor.OpenEditor";
-const char C_OPEN_TEXT_EDITOR[] = "ResourceEditor.OpenTextEditor";
 
 const char C_COPY_PATH[] = "ResourceEditor.CopyPath";
 const char C_COPY_URL[] = "ResourceEditor.CopyUrl";
