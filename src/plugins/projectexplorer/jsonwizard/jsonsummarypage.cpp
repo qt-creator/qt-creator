@@ -31,7 +31,6 @@
 #include "jsonsummarypage.h"
 
 #include "jsonwizard.h"
-#include "../addnewmodel.h"
 #include "../project.h"
 #include "../projectexplorerconstants.h"
 #include "../projectnodes.h"

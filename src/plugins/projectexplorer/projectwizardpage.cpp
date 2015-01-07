@@ -31,7 +31,6 @@
 #include "projectwizardpage.h"
 #include "ui_projectwizardpage.h"
 
-#include "addnewmodel.h"
 #include "projectexplorer.h"
 #include "session.h"
 
@@ -44,6 +43,7 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/treemodel.h>
 #include <utils/wizard.h>
 #include <vcsbase/vcsbaseconstants.h>
 
@@ -61,9 +61,83 @@
 */
 
 using namespace Core;
+using namespace Utils;
 
 namespace ProjectExplorer {
 namespace Internal {
+
+class AddNewTree : public Utils::TreeItem
+{
+public:
+    AddNewTree(const QString &displayName);
+    AddNewTree(FolderNode *node, QList<AddNewTree *> children, const QString &displayName);
+    AddNewTree(FolderNode *node, QList<AddNewTree *> children, const FolderNode::AddNewInformation &info);
+
+    QVariant data(int column, int role) const;
+    Qt::ItemFlags flags(int column) const;
+
+    QString displayName() const { return m_displayName; }
+    FolderNode *node() const { return m_node; }
+    int priority() const { return m_priority; }
+
+private:
+    QString m_displayName;
+    QString m_toolTip;
+    FolderNode *m_node;
+    bool m_canAdd;
+    int m_priority;
+};
+
+AddNewTree::AddNewTree(const QString &displayName)
+    : m_displayName(displayName),
+      m_node(0),
+      m_canAdd(true),
+      m_priority(-1)
+{
+}
+
+// FIXME: potentially merge the following two functions.
+// Note the different handling of 'node' and m_canAdd.
+AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children, const QString &displayName)
+    : m_displayName(displayName),
+      m_node(0),
+      m_canAdd(false),
+      m_priority(-1)
+{
+    if (node)
+        m_toolTip = ProjectExplorerPlugin::directoryFor(node);
+    foreach (AddNewTree *child, children)
+        appendChild(child);
+}
+
+AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children, const FolderNode::AddNewInformation &info)
+    : m_displayName(info.displayName),
+      m_node(node),
+      m_canAdd(true),
+      m_priority(info.priority)
+{
+    if (node)
+        m_toolTip = ProjectExplorerPlugin::directoryFor(node);
+    foreach (AddNewTree *child, children)
+        appendChild(child);
+}
+
+
+QVariant AddNewTree::data(int, int role) const
+{
+    if (role == Qt::DisplayRole)
+        return m_displayName;
+    if (role == Qt::ToolTipRole)
+        return m_toolTip;
+    return QVariant();
+}
+
+Qt::ItemFlags AddNewTree::flags(int) const
+{
+    if (m_canAdd)
+        return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+    return Qt::NoItemFlags;
+}
 
 // --------------------------------------------------------------------
 // BestNodeSelector:
@@ -268,7 +342,7 @@ ProjectWizardPage::~ProjectWizardPage()
     delete m_model;
 }
 
-void ProjectWizardPage::setModel(AddNewModel *model)
+void ProjectWizardPage::setModel(TreeModel *model)
 {
     delete m_model;
     m_model = model;
@@ -310,7 +384,7 @@ bool ProjectWizardPage::expandTree(const QModelIndex &root)
 
 void ProjectWizardPage::setBestNode(AddNewTree *tree)
 {
-    QModelIndex index = m_model->indexForTree(tree);
+    QModelIndex index = m_model->indexFromItem(tree);
     m_ui->projectComboBox->setCurrentIndex(index);
 
     while (index.isValid()) {
@@ -322,7 +396,8 @@ void ProjectWizardPage::setBestNode(AddNewTree *tree)
 FolderNode *ProjectWizardPage::currentNode() const
 {
     QModelIndex index = m_ui->projectComboBox->view()->currentIndex();
-    return m_model->nodeForIndex(index);
+    TreeItem *item = m_model->itemFromIndex(index);
+    return item ? static_cast<AddNewTree *>(item)->node() : 0;
 }
 
 void ProjectWizardPage::setAddingSubProject(bool addingSubProject)
@@ -416,7 +491,8 @@ void ProjectWizardPage::initializeProjectTree(Node *context, const QStringList &
 
     setAdditionalInfo(selector.deployingProjects());
 
-    AddNewModel *model = new AddNewModel(tree);
+    TreeModel *model = new TreeModel;
+    model->setRootItem(tree);
     setModel(model);
     setBestNode(selector.bestChoice());
     setAddingSubProject(action == AddSubProject);
