@@ -322,7 +322,7 @@
     Qt provides support for integration with OpenGL implementations on all
     platforms, which allows you to display hardware accelerated 3D graphics
     alongside a more conventional user interface. For more information, see
-    \l{Qt Gui#opengl-and-opengl-es-integration}{OpenGL and OpenGL ES integration}.
+    \l{Qt GUI}.
 
     You can use the QOpenGLShader class to compile OpenGL shaders written in the
     OpenGL Shading Language (GLSL) and in the OpenGL/ES Shading Language

@@ -125,8 +125,8 @@
 
     \section2 Setting the Stacking Order
 
-    The \l{Item#z-prop}{z property} of an
-    item determines its position in relation to its sibling items in the
+    The \c z property of an \l Item determines its position in relation to its
+    sibling items in the
     type hierarchy. By default, items with a higher stacking value are
     drawn on top of siblings with a lower stacking value. Items with the same
     stacking value are drawn in the order they are listed, from the last item

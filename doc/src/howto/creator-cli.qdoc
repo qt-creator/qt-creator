@@ -198,7 +198,7 @@
     {Qt application}, and therefore, it accepts the command line options
     that all Qt applications accept. For example, you can use the \c {-style} and
     \c {-stylesheet} options to apply custom styles and
-    \l{QApplication#stylesheet}{stylesheets}.
+    \l{Qt Style Sheets}{stylesheets}.
     The styling is only applied during the current session.
 
     Exercise caution when applying styles, as overriding the existing styling
