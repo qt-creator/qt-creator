@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 BogDan Vatra <bog_dan_ro@yahoo.com>
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Copyright (c) 2015 BogDan Vatra <bog_dan_ro@yahoo.com>
+** Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -395,7 +395,7 @@ bool AndroidDeployQtStep::processSucceeded(int exitCode, QProcess::ExitStatus st
     if (!m_installOk && !m_uninstallPreviousPackageRun &&
             QMessageBox::critical(0, tr("Install failed"),
                                   tr("Another application with the same package id but signed with "
-                                     "different ceritificate already exists.\n"
+                                     "different certificate already exists.\n"
                                      "Do you want to uninstall the existing package next time?"),
                                   QMessageBox::Yes, QMessageBox::No)
             == QMessageBox::Yes)  {

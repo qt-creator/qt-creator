@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -690,13 +690,13 @@ bool JsonFieldPage::ComboBoxField::parseData(const QVariant &data, QString *erro
     m_index = tmp.value(QLatin1String("index"), 0).toInt(&ok);
     if (!ok) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "ComboBox 'index' is not a integer value.");
+                                                    "ComboBox 'index' is not an integer value.");
         return false;
     }
     m_disabledIndex = tmp.value(QLatin1String("disabledIndex"), -1).toInt(&ok);
     if (!ok) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "ComboBox 'disabledIndex' is not a integer value.");
+                                                    "ComboBox 'disabledIndex' is not an integer value.");
         return false;
     }
 
