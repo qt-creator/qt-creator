@@ -30,6 +30,9 @@
 
 from dumper import *
 
+def dumpLiteral(d, value):
+    d.putSimpleCharArray(value["_chars"], value["_size"])
+
 def qdump__Core__Id(d, value):
     try:
         name = d.parseAndEvaluate("Core::nameForId(%d)" % value["m_id"])
@@ -74,7 +77,7 @@ def qdump__CPlusPlus__Identifier(d, value):
 
 def qdump__CPlusPlus__Symbol(d, value):
     name = d.downcast(value["_name"])
-    d.putItem(name)
+    dumpLiteral(d, name)
     d.putBetterType(value.type)
     d.putPlainChildren(value)
 
@@ -84,17 +87,17 @@ def qdump__CPlusPlus__IntegerType(d, value):
 
 def qdump__CPlusPlus__NamedType(d, value):
     literal = d.downcast(value["_name"])
-    d.putItem(literal)
+    dumpLiteral(d, literal)
     d.putBetterType(value.type)
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__TemplateNameId(d, value):
-    d.putItem(value["_identifier"].dereference())
+    dumpLiteral(d, value["_identifier"].dereference())
     d.putBetterType(value.type)
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__Literal(d, value):
-    d.putSimpleCharArray(value["_chars"], value["_size"])
+    dumpLiteral(d, value)
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__StringLiteral(d, value):
