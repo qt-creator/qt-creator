@@ -121,7 +121,7 @@ ToolChainManager::~ToolChainManager()
     m_instance = 0;
 }
 
-QObject *ToolChainManager::instance()
+ToolChainManager *ToolChainManager::instance()
 {
     return m_instance;
 }

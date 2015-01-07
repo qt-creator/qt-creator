@@ -54,7 +54,7 @@ class PROJECTEXPLORER_EXPORT ToolChainManager : public QObject
     Q_OBJECT
 
 public:
-    static QObject *instance();
+    static ToolChainManager *instance();
     ~ToolChainManager();
 
     static QList<ToolChain *> toolChains();
