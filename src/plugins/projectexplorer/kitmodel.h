@@ -33,7 +33,7 @@
 
 #include "projectexplorer_export.h"
 
-#include <QAbstractItemModel>
+#include <utils/treemodel.h>
 
 QT_BEGIN_NAMESPACE
 class QBoxLayout;
@@ -54,22 +54,12 @@ class KitNode;
 // KitModel:
 // --------------------------------------------------------------------------
 
-class KitModel : public QAbstractItemModel
+class KitModel : public Utils::TreeModel
 {
     Q_OBJECT
 
 public:
     explicit KitModel(QBoxLayout *parentLayout, QObject *parent = 0);
-    ~KitModel();
-
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &index) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
     Kit *kit(const QModelIndex &);
     QModelIndex indexOf(Kit *k) const;
@@ -95,19 +85,16 @@ private slots:
     void updateKit(ProjectExplorer::Kit *k);
     void removeKit(ProjectExplorer::Kit *k);
     void changeDefaultKit();
-    void setDirty();
     void validateKitNames();
 
 private:
     QModelIndex index(KitNode *, int column = 0) const;
     KitNode *findWorkingCopy(Kit *k) const;
-    KitNode *createNode(KitNode *parent, Kit *k);
+    KitNode *createNode(Kit *k);
     void setDefaultNode(KitNode *node);
-    QList<Kit *> kitList(KitNode *node) const;
 
-    KitNode *m_root;
-    KitNode *m_autoRoot;
-    KitNode *m_manualRoot;
+    Utils::TreeItem *m_autoRoot;
+    Utils::TreeItem *m_manualRoot;
 
     QList<KitNode *> m_toRemoveList;
 
