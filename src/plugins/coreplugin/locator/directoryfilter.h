@@ -58,6 +58,7 @@ private slots:
     void editDirectory();
     void removeDirectory();
     void updateOptionButtons();
+    void updateFileIterator();
 
 private:
     QStringList m_directories;

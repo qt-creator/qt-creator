@@ -58,8 +58,6 @@ private slots:
 
 private:
     QPointer<Project> m_project;
-    bool m_filesUpToDate;
-    QMutex m_filesUpToDateMutex;
 };
 
 } // namespace Internal

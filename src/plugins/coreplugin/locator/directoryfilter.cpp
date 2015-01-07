@@ -30,8 +30,10 @@
 
 #include "directoryfilter.h"
 
-#include <QFileDialog>
 #include <utils/filesearch.h>
+
+#include <QFileDialog>
+#include <QTimer>
 
 using namespace Core;
 using namespace Core::Internal;
@@ -83,7 +85,7 @@ bool DirectoryFilter::restoreState(const QByteArray &state)
     setShortcutString(shortcut);
     setIncludedByDefault(defaultFilter);
 
-    setFileIterator(new BaseFileFilter::ListIterator(m_files));
+    updateFileIterator();
     return true;
 }
 
@@ -169,6 +171,11 @@ void DirectoryFilter::updateOptionButtons()
     m_ui.removeButton->setEnabled(haveSelectedItem);
 }
 
+void DirectoryFilter::updateFileIterator()
+{
+    setFileIterator(new BaseFileFilter::ListIterator(m_files));
+}
+
 void DirectoryFilter::refresh(QFutureInterface<void> &future)
 {
     QStringList directories;
@@ -176,7 +183,7 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
         QMutexLocker locker(&m_lock);
         if (m_directories.count() < 1) {
             m_files.clear();
-            setFileIterator(new BaseFileFilter::ListIterator(m_files));
+            QTimer::singleShot(0, this, SLOT(updateFileIterator()));
             future.setProgressRange(0, 1);
             future.setProgressValueAndText(1, tr("%1 filter update: 0 files").arg(displayName()));
             return;
@@ -198,7 +205,7 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
     if (!future.isCanceled()) {
         QMutexLocker locker(&m_lock);
         m_files = filesFound;
-        setFileIterator(new BaseFileFilter::ListIterator(m_files));
+        QTimer::singleShot(0, this, SLOT(updateFileIterator()));
         future.setProgressValue(it.maxProgress());
     } else {
         future.setProgressValueAndText(it.currentProgress(), tr("%1 filter update: canceled").arg(displayName()));

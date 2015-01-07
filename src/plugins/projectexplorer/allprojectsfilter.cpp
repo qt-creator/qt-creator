@@ -36,12 +36,13 @@
 #include <utils/algorithm.h>
 
 #include <QMutexLocker>
+#include <QTimer>
 
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-AllProjectsFilter::AllProjectsFilter() : m_filesUpToDate(false)
+AllProjectsFilter::AllProjectsFilter()
 {
     setId("Files in any project");
     setDisplayName(tr("Files in Any Project"));
@@ -54,27 +55,24 @@ AllProjectsFilter::AllProjectsFilter() : m_filesUpToDate(false)
 
 void AllProjectsFilter::markFilesAsOutOfDate()
 {
-    QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
-    m_filesUpToDate = false;
-    invalidateCachedResults();
+    setFileIterator(0);
 }
 
 void AllProjectsFilter::prepareSearch(const QString &entry)
 {
     Q_UNUSED(entry)
-    QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
-    if (m_filesUpToDate)
-        return;
-    QStringList paths;
-    foreach (Project *project, SessionManager::projects())
-        paths.append(project->files(Project::AllFiles));
-    Utils::sort(paths);
-    setFileIterator(new BaseFileFilter::ListIterator(paths));
-    m_filesUpToDate = true;
+    if (!fileIterator()) {
+        QStringList paths;
+        foreach (Project *project, SessionManager::projects())
+            paths.append(project->files(Project::AllFiles));
+        Utils::sort(paths);
+        setFileIterator(new BaseFileFilter::ListIterator(paths));
+    }
+    BaseFileFilter::prepareSearch(entry);
 }
 
 void AllProjectsFilter::refresh(QFutureInterface<void> &future)
 {
     Q_UNUSED(future)
-    markFilesAsOutOfDate();
+    QTimer::singleShot(0, this, SLOT(markFilesAsOutOfDate()));
 }

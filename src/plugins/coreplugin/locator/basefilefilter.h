@@ -38,6 +38,8 @@
 
 namespace Core {
 
+namespace Internal { class BaseFileFilterPrivate; }
+
 class CORE_EXPORT BaseFileFilter : public ILocatorFilter
 {
     Q_OBJECT
@@ -73,21 +75,19 @@ public:
 
     BaseFileFilter();
     ~BaseFileFilter();
+    void prepareSearch(const QString &entry);
     QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry);
     void accept(LocatorFilterEntry selection) const;
 
 protected:
-    void invalidateCachedResults();
-
     void setFileIterator(Iterator *iterator);
     QSharedPointer<Iterator> fileIterator();
 
+private slots:
+    void updatePreviousResultData();
+
 private:
-    QSharedPointer<Iterator> m_iterator;
-    QStringList m_previousResultPaths;
-    QStringList m_previousResultNames;
-    bool m_forceNewSearchList;
-    QString m_previousEntry;
+    Internal::BaseFileFilterPrivate *d;
 };
 
 } // namespace Core

@@ -35,13 +35,14 @@
 #include <utils/algorithm.h>
 
 #include <QMutexLocker>
+#include <QTimer>
 
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
 CurrentProjectFilter::CurrentProjectFilter()
-  : BaseFileFilter(), m_project(0), m_filesUpToDate(false)
+  : BaseFileFilter(), m_project(0)
 {
     setId("Files in current project");
     setDisplayName(tr("Files in Current Project"));
@@ -54,24 +55,21 @@ CurrentProjectFilter::CurrentProjectFilter()
 
 void CurrentProjectFilter::markFilesAsOutOfDate()
 {
-    QMutexLocker lock(&m_filesUpToDateMutex); Q_UNUSED(lock)
-    m_filesUpToDate = false;
-    invalidateCachedResults();
+    setFileIterator(0);
 }
 
 void CurrentProjectFilter::prepareSearch(const QString &entry)
 {
     Q_UNUSED(entry)
-    QMutexLocker lock(&m_filesUpToDateMutex); Q_UNUSED(lock)
-    if (m_filesUpToDate)
-        return;
-    m_filesUpToDate = true;
-    QStringList paths;
-    if (m_project) {
-        paths = m_project->files(Project::AllFiles);
-        Utils::sort(paths);
+    if (!fileIterator()) {
+        QStringList paths;
+        if (m_project) {
+            paths = m_project->files(Project::AllFiles);
+            Utils::sort(paths);
+        }
+        setFileIterator(new BaseFileFilter::ListIterator(paths));
     }
-    setFileIterator(new BaseFileFilter::ListIterator(paths));
+    BaseFileFilter::prepareSearch(entry);
 }
 
 void CurrentProjectFilter::currentProjectChanged(ProjectExplorer::Project *project)
@@ -91,5 +89,5 @@ void CurrentProjectFilter::currentProjectChanged(ProjectExplorer::Project *proje
 void CurrentProjectFilter::refresh(QFutureInterface<void> &future)
 {
     Q_UNUSED(future)
-    markFilesAsOutOfDate();
+    QTimer::singleShot(0, this, SLOT(markFilesAsOutOfDate()));
 }
