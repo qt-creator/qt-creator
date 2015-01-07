@@ -53,7 +53,7 @@ public:
         virtual QString fileName() const = 0;
     };
 
-    class ListIterator : public Iterator {
+    class CORE_EXPORT ListIterator : public Iterator {
     public:
         ListIterator(const QStringList &filePaths);
         ListIterator(const QStringList &filePaths, const QStringList &fileNames);
