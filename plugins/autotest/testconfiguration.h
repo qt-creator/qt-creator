@@ -49,6 +49,7 @@ public:
     void setDisplayName(const QString &displayName);
     void setEnvironment(const Utils::Environment &env);
     void setProject(ProjectExplorer::Project *project);
+    void setUnnamedOnly(bool unnamedOnly);
 
     QString testClass() const { return m_testClass; }
     QStringList testCases() const { return m_testCases; }
@@ -60,6 +61,7 @@ public:
     QString displayName() const { return m_displayName; }
     Utils::Environment environment() const { return m_environment; }
     ProjectExplorer::Project *project() const { return m_project; }
+    bool unnamedOnly() const { return m_unnamedOnly; }
 
 
 signals:
@@ -70,6 +72,7 @@ private:
     QString m_testClass;
     QStringList m_testCases;
     int m_testCaseCount;
+    bool m_unnamedOnly;
     QString m_proFile;
     QString m_targetFile;
     QString m_targetName;

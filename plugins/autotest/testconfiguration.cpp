@@ -29,6 +29,7 @@ TestConfiguration::TestConfiguration(const QString &testClass, const QStringList
       m_testClass(testClass),
       m_testCases(testCases),
       m_testCaseCount(testCaseCount),
+      m_unnamedOnly(false),
       m_project(0)
 {
     if (testCases.size() != 0) {
@@ -94,6 +95,11 @@ void TestConfiguration::setEnvironment(const Utils::Environment &env)
 void TestConfiguration::setProject(ProjectExplorer::Project *project)
 {
     m_project = project;
+}
+
+void TestConfiguration::setUnnamedOnly(bool unnamedOnly)
+{
+    m_unnamedOnly = unnamedOnly;
 }
 
 } // namespace Internal

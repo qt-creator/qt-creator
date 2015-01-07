@@ -465,6 +465,7 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
             } else {
                 TestConfiguration *tc = new TestConfiguration(QString(), QStringList());
                 tc->setTestCaseCount(1);
+                tc->setUnnamedOnly(true);
                 addProjectInformation(tc, mainFile);
                 foundMains.insert(mainFile, tc);
             }
@@ -499,6 +500,7 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
                 // unnamed test case
                 if (oldFunctions.size() == 0) {
                     tc->setTestCaseCount(tc->testCaseCount() + testFunctions.size());
+                    tc->setUnnamedOnly(false);
                 } else {
                     oldFunctions << testFunctions;
                     tc->setTestCases(oldFunctions);
@@ -513,7 +515,8 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
     }
 
     foreach (TestConfiguration *config, foundMains.values())
-        result << config;
+        if (!config->unnamedOnly())
+            result << config;
 
     return result;
 }
