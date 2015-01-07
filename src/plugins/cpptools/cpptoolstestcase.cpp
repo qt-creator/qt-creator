@@ -268,7 +268,8 @@ void ProjectOpenerAndCloser::onGcFinished()
 }
 
 TemporaryDir::TemporaryDir()
-    : m_temporaryDir(QDir::tempPath() + QLatin1String("/qtcreator-tests-XXXXXX"))
+    : m_temporaryDir(QFileInfo(QDir::tempPath()).canonicalFilePath()
+                        + QLatin1String("/qtcreator-tests-XXXXXX"))
     , m_isValid(m_temporaryDir.isValid())
 {
 }
