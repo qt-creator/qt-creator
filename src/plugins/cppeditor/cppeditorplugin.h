@@ -210,6 +210,7 @@ private slots:
     void test_quickfix_MoveFuncDefToDecl_CtorWithInitialization();
     void test_quickfix_MoveFuncDefToDecl_structWithAssignedVariable();
     void test_quickfix_MoveFuncDefToDecl_macroUses();
+    void test_quickfix_MoveFuncDefToDecl_override();
 
     void test_quickfix_AssignToLocalVariable_templates();
 

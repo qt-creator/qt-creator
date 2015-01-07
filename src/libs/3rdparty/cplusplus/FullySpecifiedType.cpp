@@ -235,8 +235,5 @@ void FullySpecifiedType::copySpecifiers(const FullySpecifiedType &type)
 
 bool FullySpecifiedType::match(const FullySpecifiedType &otherTy, Matcher *matcher) const
 {
-    if (_flags != otherTy._flags)
-        return false;
-
     return type()->match(otherTy.type(), matcher);
 }

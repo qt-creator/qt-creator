@@ -4145,6 +4145,36 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_macroUses()
                      ProjectPart::HeaderPaths(), 0, "QTCREATORBUG-12314");
 }
 
+void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_override()
+{
+    QByteArray original =
+        "struct Base {\n"
+        "    virtual int foo() = 0;\n"
+        "};\n"
+        "struct Derived : Base {\n"
+        "    int foo() override;\n"
+        "};\n"
+        "\n"
+        "int Derived::fo@o()\n"
+        "{\n"
+        "    return 5;\n"
+        "}\n";
+
+    QByteArray expected =
+        "struct Base {\n"
+        "    virtual int foo() = 0;\n"
+        "};\n"
+        "struct Derived : Base {\n"
+        "    int foo() override\n"
+        "    {\n"
+        "        return 5;\n"
+        "    }\n"
+        "};\n\n\n";
+
+    MoveFuncDefToDecl factory;
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
+}
+
 void CppEditorPlugin::test_quickfix_AssignToLocalVariable_templates()
 {
 

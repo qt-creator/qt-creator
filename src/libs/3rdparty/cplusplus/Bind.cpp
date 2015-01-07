@@ -1918,7 +1918,7 @@ bool Bind::visit(SimpleDeclarationAST *ast)
 
     for (DeclaratorListAST *it = ast->declarator_list; it; it = it->next) {
         DeclaratorIdAST *declaratorId = 0;
-        FullySpecifiedType declTy = this->declarator(it->value, type.qualifiedType(), &declaratorId);
+        FullySpecifiedType declTy = this->declarator(it->value, type, &declaratorId);
 
         const Name *declName = 0;
         unsigned sourceLocation = location(it->value, ast->firstToken());
