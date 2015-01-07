@@ -148,7 +148,7 @@ WelcomeMode::WelcomeMode()
 
     m_welcomePage->setObjectName(QLatin1String("WelcomePage"));
 
-    connect(m_welcomePage, &QQuickWindow::sceneGraphError,
+    connect(m_welcomePage, &QuickContainer::sceneGraphError,
             this, &WelcomeMode::sceneGraphError);
 
     StyledBar *styledBar = new StyledBar(m_modeWidget);
