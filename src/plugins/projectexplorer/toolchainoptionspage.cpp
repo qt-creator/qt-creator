@@ -56,38 +56,46 @@
 #include <QTreeView>
 #include <QVBoxLayout>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 namespace Internal {
 
-class ToolChainNode
+class ToolChainNode : public Utils::TreeItem
 {
 public:
-    explicit ToolChainNode(ToolChainNode *p, ToolChain *tc = 0, bool c = false) :
-        parent(p), toolChain(tc), changed(c)
+    ToolChainNode(ToolChain *tc, bool c) :
+        toolChain(tc), changed(c)
     {
-        if (p)
-            p->childNodes.append(this);
-        widget = tc ? tc->configurationWidget() : 0;
+        widget = tc->configurationWidget();
         if (widget && tc->isAutoDetected())
             widget->makeReadOnly();
     }
 
-    ~ToolChainNode()
+    int columnCount() const { return 2; }
+
+    QVariant data(int column, int role) const
     {
-        // Do not delete tool chain, we do not own it.
+        switch (role) {
+            case Qt::DisplayRole:
+                if (column == 0)
+                    return toolChain->displayName();
+                return toolChain->typeDisplayName();
 
-        for (int i = childNodes.size(); --i >= 0; ) {
-            ToolChainNode *child = childNodes.at(i);
-            child->parent = 0;
-            delete child;
+            case Qt::FontRole: {
+                QFont font;
+                font.setBold(changed);
+                return font;
+             }
+
+            case Qt::ToolTipRole:
+                return ToolChainModel::tr("<nobr><b>ABI:</b> %1").arg(
+                    changed ? ToolChainModel::tr("not up-to-date")
+                            : toolChain->targetAbi().toString());
         }
-
-        if (parent)
-            parent->childNodes.removeOne(this);
+        return QVariant();
     }
 
-    ToolChainNode *parent;
-    QList<ToolChainNode *> childNodes;
     ToolChain *toolChain;
     ToolChainConfigWidget *widget;
     bool changed;
@@ -98,176 +106,69 @@ public:
 // --------------------------------------------------------------------------
 
 ToolChainModel::ToolChainModel(QObject *parent) :
-    QAbstractItemModel(parent)
+    TreeModel(parent)
 {
     connect(ToolChainManager::instance(), SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
             this, SLOT(addToolChain(ProjectExplorer::ToolChain*)));
     connect(ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
             this, SLOT(removeToolChain(ProjectExplorer::ToolChain*)));
 
-    m_root = new ToolChainNode(0);
-    m_autoRoot = new ToolChainNode(m_root);
-    m_manualRoot = new ToolChainNode(m_root);
+    auto root = new TreeItem(QStringList() << tr("Name") << tr("Type"));
+    m_autoRoot = new TreeItem(QStringList() << tr("Auto-detected") << QString());
+    m_manualRoot = new TreeItem(QStringList() << tr("Manual") << QString());
+    root->appendChild(m_autoRoot);
+    root->appendChild(m_manualRoot);
+    setRootItem(root);
 
     foreach (ToolChain *tc, ToolChainManager::toolChains())
         addToolChain(tc);
 }
 
-ToolChainModel::~ToolChainModel()
+QModelIndex ToolChainModel::index(ToolChain *tc) const
 {
-    delete m_root;
-}
-
-QModelIndex ToolChainModel::index(int row, int column, const QModelIndex &parent) const
-{
-    if (!parent.isValid()) {
-        if (row >= 0 && row < m_root->childNodes.count())
-            return createIndex(row, column, m_root->childNodes.at(row));
-    }
-    ToolChainNode *node = static_cast<ToolChainNode *>(parent.internalPointer());
-    if (row < node->childNodes.count() && column < 2)
-        return createIndex(row, column, static_cast<void *>(node->childNodes.at(row)));
-    else
-        return QModelIndex();
-}
-
-QModelIndex ToolChainModel::index(const QModelIndex &topIdx, ToolChain *tc) const
-{
-    ToolChainNode *current = m_root;
-    if (topIdx.isValid())
-        current = static_cast<ToolChainNode *>(topIdx.internalPointer());
-    QTC_ASSERT(current, return QModelIndex());
-
-    if (current->toolChain == tc)
-        return topIdx;
-
-    for (int i = 0; i < current->childNodes.count(); ++i) {
-        QModelIndex result = index(index(current->childNodes.at(i)), tc);
-        if (result.isValid())
-            return result;
+    foreach (TreeItem *group, rootItem()->children()) {
+        foreach (TreeItem *item, group->children())
+            if (static_cast<ToolChainNode *>(item)->toolChain == tc)
+                return indexFromItem(item);
     }
     return QModelIndex();
 }
 
-QModelIndex ToolChainModel::parent(const QModelIndex &idx) const
-{
-    ToolChainNode *node = static_cast<ToolChainNode *>(idx.internalPointer());
-    if (node->parent == m_root)
-        return QModelIndex();
-    return index(node->parent);
-}
-
-int ToolChainModel::rowCount(const QModelIndex &parent) const
-{
-    if (!parent.isValid())
-        return m_root->childNodes.count();
-    ToolChainNode *node = static_cast<ToolChainNode *>(parent.internalPointer());
-    return node->childNodes.count();
-}
-
-int ToolChainModel::columnCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent);
-    return 2;
-}
-
-QVariant ToolChainModel::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid())
-        return QVariant();
-
-    ToolChainNode *node = static_cast<ToolChainNode *>(index.internalPointer());
-    QTC_ASSERT(node, return QVariant());
-    if (node == m_autoRoot && index.column() == 0 && role == Qt::DisplayRole)
-        return tr("Auto-detected");
-    if (node == m_manualRoot && index.column() == 0 && role == Qt::DisplayRole)
-        return tr("Manual");
-    if (node->toolChain) {
-        if (role == Qt::FontRole) {
-            QFont f = QApplication::font();
-            if (node->changed)
-                f.setBold(true);
-            return f;
-        }
-        if (role == Qt::DisplayRole) {
-            if (index.column() == 0)
-                return node->toolChain->displayName();
-            return node->toolChain->typeDisplayName();
-        }
-        if (role == Qt::ToolTipRole) {
-            return tr("<nobr><b>ABI:</b> %1")
-                    .arg(node->changed ? tr("not up-to-date") : node->toolChain->targetAbi().toString());
-        }
-    }
-    return QVariant();
-}
-
-Qt::ItemFlags ToolChainModel::flags(const QModelIndex &index) const
-{
-    if (!index.isValid())
-        return 0;
-
-    ToolChainNode *node = static_cast<ToolChainNode *>(index.internalPointer());
-    Q_ASSERT(node);
-    if (!node->toolChain)
-        return Qt::ItemIsEnabled;
-
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-}
-
-QVariant ToolChainModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-        return section == 0 ? tr("Name") : tr("Type");
-    return QVariant();
-}
-
 ToolChain *ToolChainModel::toolChain(const QModelIndex &index)
 {
-    if (!index.isValid())
-        return 0;
-    ToolChainNode *node = static_cast<ToolChainNode *>(index.internalPointer());
-    Q_ASSERT(node);
-    return node->toolChain;
-}
-
-int ToolChainModel::manualToolChains() const
-{
-    return m_manualRoot->childNodes.count();
+    TreeItem *item = itemFromIndex(index);
+    return item && item->level() == 2 ? static_cast<ToolChainNode *>(item)->toolChain : 0;
 }
 
 ToolChainConfigWidget *ToolChainModel::widget(const QModelIndex &index)
 {
-    if (!index.isValid())
-        return 0;
-    ToolChainNode *node = static_cast<ToolChainNode *>(index.internalPointer());
-    Q_ASSERT(node);
-    return node->widget;
+    TreeItem *item = itemFromIndex(index);
+    return item && item->level() == 2 ? static_cast<ToolChainNode *>(item)->widget : 0;
 }
 
 bool ToolChainModel::isDirty() const
 {
-    return Utils::anyOf(m_manualRoot->childNodes,
-                        [](ToolChainNode *n) {
-                            return n->changed;
-                        });
+    return Utils::anyOf(m_manualRoot->children(), [](TreeItem *n) {
+        return static_cast<ToolChainNode *>(n)->changed;
+    });
 }
 
 bool ToolChainModel::isDirty(ToolChain *tc) const
 {
-    return Utils::anyOf(m_manualRoot->childNodes,
-                        [tc](ToolChainNode *n) {
-                            return n->toolChain == tc && n->changed;
-                        });
+    return Utils::anyOf(m_manualRoot->children(), [tc](TreeItem *item) -> bool {
+        ToolChainNode *n = static_cast<ToolChainNode *>(item);
+        return n->toolChain == tc && n->changed;
+    });
 }
 
 void ToolChainModel::setDirty()
 {
     ToolChainConfigWidget *w = qobject_cast<ToolChainConfigWidget *>(sender());
-    foreach (ToolChainNode *n, m_manualRoot->childNodes) {
+    foreach (TreeItem *item, m_manualRoot->children()) {
+        ToolChainNode *n = static_cast<ToolChainNode *>(item);
         if (n->widget == w) {
             n->changed = true;
-            emit dataChanged(index(n, 0), index(n, columnCount(QModelIndex())));
+            updateItem(item);
         }
     }
 }
@@ -276,22 +177,20 @@ void ToolChainModel::apply()
 {
     // Remove unused tool chains:
     QList<ToolChainNode *> nodes = m_toRemoveList;
-    foreach (ToolChainNode *n, nodes) {
-        Q_ASSERT(!n->parent);
+    foreach (ToolChainNode *n, nodes)
         ToolChainManager::deregisterToolChain(n->toolChain);
-    }
+
     Q_ASSERT(m_toRemoveList.isEmpty());
 
     // Update tool chains:
-    foreach (ToolChainNode *n, m_manualRoot->childNodes) {
-        Q_ASSERT(n);
+    foreach (TreeItem *item, m_manualRoot->children()) {
+        ToolChainNode *n = static_cast<ToolChainNode *>(item);
         if (n->changed) {
             Q_ASSERT(n->toolChain);
             if (n->widget)
                 n->widget->apply();
             n->changed = false;
-
-            emit dataChanged(index(n, 0), index(n, columnCount(QModelIndex())));
+            updateItem(item);
         }
     }
 
@@ -328,107 +227,72 @@ void ToolChainModel::apply()
 
 void ToolChainModel::markForRemoval(ToolChain *tc)
 {
-    ToolChainNode *node = findToolChain(m_manualRoot->childNodes, tc);
-    if (node) {
-        emit beginRemoveRows(index(m_manualRoot), m_manualRoot->childNodes.indexOf(node), m_manualRoot->childNodes.indexOf(node));
-        m_manualRoot->childNodes.removeOne(node);
-        node->parent = 0;
-        if (m_toAddList.contains(node)) {
-            delete node->toolChain;
-            node->toolChain = 0;
-            m_toAddList.removeOne(node);
-            delete node;
-        } else {
-            m_toRemoveList.append(node);
+    foreach (TreeItem *item, m_manualRoot->children()) {
+        ToolChainNode *node = static_cast<ToolChainNode *>(item);
+        if (node->toolChain == tc) {
+            removeItem(node);
+            if (m_toAddList.contains(node)) {
+                delete node->toolChain;
+                node->toolChain = 0;
+                m_toAddList.removeOne(node);
+                delete node;
+            } else {
+                m_toRemoveList.append(node);
+            }
         }
-        emit endRemoveRows();
     }
 }
 
 void ToolChainModel::markForAddition(ToolChain *tc)
 {
-    int pos = m_manualRoot->childNodes.size();
-    emit beginInsertRows(index(m_manualRoot), pos, pos);
-
-    ToolChainNode *node = createNode(m_manualRoot, tc, true);
+    ToolChainNode *node = createNode(tc, true);
+    appendItem(m_manualRoot, node);
     m_toAddList.append(node);
-
-    emit endInsertRows();
 }
 
-QModelIndex ToolChainModel::index(ToolChainNode *node, int column) const
+ToolChainNode *ToolChainModel::createNode(ToolChain *tc, bool changed)
 {
-    if (node == m_root)
-        return QModelIndex();
-    if (node->parent == m_root)
-        return index(m_root->childNodes.indexOf(node), column, QModelIndex());
-    else
-        return index(node->parent->childNodes.indexOf(node), column, index(node->parent));
-}
-
-ToolChainNode *ToolChainModel::createNode(ToolChainNode *parent, ToolChain *tc, bool changed)
-{
-    ToolChainNode *node = new ToolChainNode(parent, tc, changed);
+    ToolChainNode *node = new ToolChainNode(tc, changed);
     if (node->widget)
-        connect(node->widget, SIGNAL(dirty()), this, SLOT(setDirty()));
+        connect(node->widget, &ToolChainConfigWidget::dirty, this, &ToolChainModel::setDirty);
     return node;
-}
-
-ToolChainNode *ToolChainModel::findToolChain(const QList<ToolChainNode *> &container, ToolChain *tc)
-{
-    return Utils::findOrDefault(container, [tc](ToolChainNode *n) {
-        return n->toolChain == tc;
-    });
 }
 
 void ToolChainModel::addToolChain(ToolChain *tc)
 {
-    ToolChainNode *n = findToolChain(m_toAddList, tc);
-    if (n) {
-        m_toAddList.removeOne(n);
-        // do not delete n: Still used elsewhere!
-        return;
+    foreach (ToolChainNode *n, m_toAddList) {
+        if (n->toolChain == tc) {
+            // do not delete n: Still used elsewhere!
+            m_toAddList.removeOne(n);
+            return;
+        }
     }
 
-
-    ToolChainNode *parent = m_manualRoot;
-    if (tc->isAutoDetected())
-        parent = m_autoRoot;
-    int row = parent->childNodes.count();
-
-    beginInsertRows(index(parent), row, row);
-    createNode(parent, tc, false);
-    endInsertRows();
+    TreeItem *parent = rootItem()->child(tc->isAutoDetected() ? 0 : 1);
+    appendItem(parent, createNode(tc, false));
 
     emit toolChainStateChanged();
 }
 
 void ToolChainModel::removeToolChain(ToolChain *tc)
 {
-    ToolChainNode *n = findToolChain(m_toRemoveList, tc);
-    if (n) {
-        m_toRemoveList.removeOne(n);
-        delete n;
-        return;
+    foreach (ToolChainNode *n, m_toRemoveList) {
+        if (n->toolChain == tc) {
+            m_toRemoveList.removeOne(n);
+            delete n;
+            return;
+        }
     }
 
-    ToolChainNode *parent = m_manualRoot;
-    if (tc->isAutoDetected())
-        parent = m_autoRoot;
-    int row = 0;
-    ToolChainNode *node = 0;
-    foreach (ToolChainNode *current, parent->childNodes) {
-        if (current->toolChain == tc) {
-            node = current;
+    TreeItem *parent = rootItem()->child(tc->isAutoDetected() ? 0 : 1);
+    foreach (TreeItem *item, parent->children()) {
+        ToolChainNode *node = static_cast<ToolChainNode *>(item);
+        if (node->toolChain == tc) {
+            removeItem(node);
+            delete node;
             break;
         }
-        ++row;
     }
-
-    beginRemoveRows(index(parent), row, row);
-    parent->childNodes.removeAt(row);
-    delete node;
-    endRemoveRows();
 
     emit toolChainStateChanged();
 }
@@ -577,11 +441,14 @@ void ToolChainOptionsPage::createToolChain(QObject *factoryObject)
     } else {
         QTC_CHECK(factory->canCreate());
         tc = factory->create();
-    } if (!tc)
+    }
+
+    if (!tc)
         return;
+
     m_model->markForAddition(tc);
 
-    QModelIndex newIdx = m_model->index(QModelIndex(), tc);
+    QModelIndex newIdx = m_model->index(tc);
     m_selectionModel->select(newIdx,
                              QItemSelectionModel::Clear
                              | QItemSelectionModel::SelectCurrent

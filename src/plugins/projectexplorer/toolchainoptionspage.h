@@ -32,6 +32,7 @@
 #define TOOLCHAINOPTIONSPAGE_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/treemodel.h>
 
 #include <QAbstractItemModel>
 #include <QPointer>
@@ -57,27 +58,16 @@ class ToolChainNode;
 // ToolChainModel
 // --------------------------------------------------------------------------
 
-class ToolChainModel : public QAbstractItemModel
+class ToolChainModel : public Utils::TreeModel
 {
     Q_OBJECT
 
 public:
     explicit ToolChainModel(QObject *parent = 0);
-    ~ToolChainModel();
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex index(const QModelIndex &topIdx, ToolChain *) const;
-    QModelIndex parent(const QModelIndex &index) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    QModelIndex index(ToolChain *) const;
 
     ToolChain *toolChain(const QModelIndex &);
-    int manualToolChains() const;
-
     ToolChainConfigWidget *widget(const QModelIndex &);
 
     bool isDirty() const;
@@ -97,14 +87,10 @@ private slots:
     void setDirty();
 
 private:
-    QModelIndex index(ToolChainNode *, int column = 0) const;
-    ToolChainNode *createNode(ToolChainNode *parent, ToolChain *tc, bool changed);
-    static ToolChainNode *findToolChain(const QList<ToolChainNode *> &container, ToolChain *tc);
+    ToolChainNode *createNode(ToolChain *tc, bool changed);
 
-
-    ToolChainNode *m_root;
-    ToolChainNode *m_autoRoot;
-    ToolChainNode *m_manualRoot;
+    Utils::TreeItem *m_autoRoot;
+    Utils::TreeItem *m_manualRoot;
 
     QList<ToolChainNode *> m_toAddList;
     QList<ToolChainNode *> m_toRemoveList;
