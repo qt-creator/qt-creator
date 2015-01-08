@@ -329,6 +329,7 @@ bool ResourceFile::replacePrefixAndLang(int prefix_idx, const QString &prefix, c
 
     Q_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count());
     m_prefix_list[prefix_idx]->name = fixed_prefix;
+    m_prefix_list[prefix_idx]->lang = lang;
     return true;
 }
 
