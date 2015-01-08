@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#ifndef BASETEXTDOCUMENTLAYOUT_H
-#define BASETEXTDOCUMENTLAYOUT_H
+#ifndef TEXTDOCUMENTLAYOUT_H
+#define TEXTDOCUMENTLAYOUT_H
 
 #include "texteditor_global.h"
 
@@ -229,4 +229,4 @@ signals:
 
 } // namespace TextEditor
 
-#endif // BASETEXTDOCUMENTLAYOUT_H
+#endif // TEXTDOCUMENTLAYOUT_H

@@ -84,6 +84,11 @@ CrumbleBar::CrumbleBar(QObject *parent) :
     updateVisibility();
 }
 
+CrumbleBar::~CrumbleBar()
+{
+    delete m_crumblePath;
+}
+
 void CrumbleBar::pushFile(const QString &fileName)
 {
     if (m_isInternalCalled == false) {

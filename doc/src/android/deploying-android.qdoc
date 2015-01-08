@@ -147,7 +147,7 @@
     The anddroiddeployqt tool uses the information in the project .pro file to
     create APKs. For more information about the qmake variables
     that you can set in the .pro file to tailor the APK, see
-     \l{Deploying an Application on Android#qmake-variables}{qmake Variables}.
+    \l{Deploying an Application on Android}.
 
     You can view information about what the anddroiddeployqt tool is doing in
     the \uicontrol {Compile Output} pane. To view additional information, select the

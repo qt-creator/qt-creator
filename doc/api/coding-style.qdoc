@@ -676,7 +676,7 @@
 
     For example, the Find plugin provides the FindFilter interface for
     other plugins to implement. With the FindFilter interface, additional search
-    scopes can be added, that appear in the \gui {Advanced Search} dialog. The
+    scopes can be added, that appear in the \uicontrol {Advanced Search} dialog. The
     Find plugin retrieves all FindFilter implementations from the global
     object pool and presents them in the dialog. The plugin forwards the
     actual search request to the correct FindFilter implementation, which

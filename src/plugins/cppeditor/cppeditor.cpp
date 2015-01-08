@@ -493,7 +493,8 @@ void CppEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
     QSignalMapper mapper;
     connect(&mapper, SIGNAL(mapped(int)), this, SLOT(performQuickFix(int)));
-    if (isSemanticInfoValid()) {
+    if (isSemanticInfoValidExceptLocalUses()) {
+        d->m_useSelectionsUpdater.update(CppUseSelectionsUpdater::Synchronous);
         AssistInterface *interface = createAssistInterface(QuickFix, ExplicitlyInvoked);
         if (interface) {
             QScopedPointer<IAssistProcessor> processor(

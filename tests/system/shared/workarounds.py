@@ -60,7 +60,7 @@ def macHackActivateContextMenuItem(item, widget=None):
 
 ################ workarounds for issues tracked inside jira #################
 
-JIRA_URL='https://bugreports.qt-project.org/browse'
+JIRA_URL='https://bugreports.qt.io/browse'
 
 class JIRA:
     __instance__ = None

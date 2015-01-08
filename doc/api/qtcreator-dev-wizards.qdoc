@@ -42,7 +42,7 @@
        \endlist
 
     \li Providing a set of parameters that determine how the wizard shows up
-        in the list of wizards in the  \gui{New File or Project} dialog.
+        in the list of wizards in the  \uicontrol{New File or Project} dialog.
 
         When deriving from Core::IWizard, virtual functions returning the
         values have to be implemented.
@@ -117,7 +117,7 @@
     \section2 Parameters
 
     The parameters listed below determine how the wizard shows up
-    in the list of wizards in the  \gui{New File or Project} dialog.
+    in the list of wizards in the  \uicontrol{New File or Project} dialog.
 
     Wizards in Qt Creator are grouped by categories.
 
@@ -190,7 +190,7 @@
 
     On top of that, we implement validation logic to ensure content is entered.
     We implement QWizardPage::isComplete() to return true when both input widgets
-    have contents, enabling the \gui{Next} button. For this to happen
+    have contents, enabling the \uicontrol{Next} button. For this to happen
     as the user enters text, we need to connect to the changed() signal of the
     controls and emit QWizardPage::completeChanged() once the complete status changes.
 
@@ -227,7 +227,7 @@
 
     \section2 Plugin Registration
 
-    In order for the wizard to be found by the \gui{New} dialog, we need to
+    In order for the wizard to be found by the \uicontrol{New} dialog, we need to
     register it with ExtensionSystem::PluginManager, which also takes care
     of deleting it:
 

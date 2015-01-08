@@ -746,6 +746,16 @@ Abi Abi::hostAbi()
     os = MacOS;
     subos = GenericMacFlavor;
     format = MachOFormat;
+#elif defined (Q_OS_BSD4)
+    os = BsdOS;
+# if defined (Q_OS_FREEBSD)
+    subos = FreeBsdFlavor;
+# elif defined (Q_OS_NETBSD)
+    subos = NetBsdFlavor;
+# elif defined (Q_OS_OPENBSD)
+    subos = OpenBsdFlavor;
+# endif
+    format = ElfFormat;
 #endif
 
     const Abi result(arch, os, subos, format, QSysInfo::WordSize);

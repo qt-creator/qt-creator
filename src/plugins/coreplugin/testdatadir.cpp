@@ -38,17 +38,9 @@
 
 using namespace Core::Tests;
 
-static void maybeAppendSlash(QString *string)
-{
-    const QChar slash = QLatin1Char('/');
-    if (!string->endsWith(slash))
-        string->append(slash);
-}
-
 TestDataDir::TestDataDir(const QString &directory)
     : m_directory(directory)
 {
-    maybeAppendSlash(&m_directory);
     QFileInfo fi(m_directory);
     QVERIFY(fi.exists());
     QVERIFY(fi.isDir());
@@ -56,7 +48,7 @@ TestDataDir::TestDataDir(const QString &directory)
 
 QString TestDataDir::file(const QString &fileName) const
 {
-    return directory() + fileName;
+    return directory() + QLatin1Char('/') + fileName;
 }
 
 QString TestDataDir::path() const
@@ -71,6 +63,5 @@ QString TestDataDir::directory(const QString &subdir, bool clean) const
         path += QLatin1Char('/') + subdir;
     if (clean)
         path = QDir::cleanPath(path);
-    maybeAppendSlash(&path);
     return path;
 }

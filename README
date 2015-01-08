@@ -83,7 +83,7 @@ http://qt-project.org/wiki/Building_Qt_5_from_Git .
 
          When using Visual C++ 2010, you must apply a hotfix that is available
          from http://support.microsoft.com/kb/2280741
-         (See https://bugreports.qt-project.org/browse/QTBUG-11445).
+         (See https://bugreports.qt.io/browse/QTBUG-11445).
 
          For the Visual C++ compilers, it is recommended to use the tool 'jom'.
          It is a replacement for nmake that utilizes all CPU cores and thus

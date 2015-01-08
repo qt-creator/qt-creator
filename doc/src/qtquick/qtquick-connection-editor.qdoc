@@ -49,7 +49,7 @@
 
     \section1 Connecting Objects to Signals
 
-    To connect objects to signals in QML, create \l{Connection} objects.
+    To connect objects to signals in QML, create \l{Connections} objects.
 
     \image qmldesigner-connections.png
 

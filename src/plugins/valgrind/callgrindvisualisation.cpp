@@ -54,7 +54,7 @@
 // Margin from hardcoded value in:
 // QGraphicsView::fitInView(const QRectF &rect,
 //                          Qt::AspectRatioMode aspectRatioMode)
-// Bug report here: https://bugreports.qt-project.org/browse/QTBUG-11945
+// Bug report here: https://bugreports.qt.io/browse/QTBUG-11945
 static const int FIT_IN_VIEW_MARGIN = 2;
 
 using namespace Valgrind::Callgrind;

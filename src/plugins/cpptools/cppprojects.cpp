@@ -37,6 +37,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
+#include <utils/qtcassert.h>
+
 #include <QSet>
 #include <QTextStream>
 
@@ -448,12 +450,16 @@ void ProjectPartBuilder::createProjectPart(const QStringList &theSources,
     CppTools::ProjectPart::Ptr part(m_templatePart->copy());
     part->displayName = partName;
 
-    Kit *k = part->project->activeTarget()->kit();
-    if (ToolChain *tc = ToolChainKitInformation::toolChain(k))
-        part->evaluateToolchain(tc,
-                                languageVersion >= ProjectPart::CXX98 ? m_cxxFlags
-                                                                      : m_cFlags,
-                                SysRootKitInformation::sysRoot(k));
+    QTC_ASSERT(part->project, return);
+    if (ProjectExplorer::Target *activeTarget = part->project->activeTarget()) {
+        if (Kit *kit = activeTarget->kit()) {
+            if (ToolChain *toolChain = ToolChainKitInformation::toolChain(kit)) {
+                const QStringList flags = languageVersion >= ProjectPart::CXX98 ? m_cxxFlags
+                                                                                : m_cFlags;
+                part->evaluateToolchain(toolChain, flags, SysRootKitInformation::sysRoot(kit));
+            }
+        }
+    }
 
     part->languageExtensions |= languageExtensions;
 

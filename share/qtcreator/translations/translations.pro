@@ -51,7 +51,6 @@ extract.commands += \
 QMAKE_EXTRA_TARGETS += extract
 
 plugin_sources = $$files($$IDE_SOURCE_TREE/src/plugins/*)
-win32:plugin_sources ~= s,\\\\,/,g
 plugin_sources ~= s,^$$re_escape($$IDE_SOURCE_TREE/),,g$$i_flag
 plugin_sources -= src/plugins/plugins.pro \
     src/plugins/helloworld \ # just an example

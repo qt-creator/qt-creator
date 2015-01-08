@@ -37,7 +37,7 @@ QT_BEGIN_NAMESPACE
 class QPalette;
 QT_END_NAMESPACE
 
-///FIXME: remove this once https://bugreports.qt-project.org/browse/QTCREATORBUG-3247 gets fixed
+///FIXME: remove this once https://bugreports.qt.io/browse/QTCREATORBUG-3247 gets fixed
 QPalette panelPalette(const QPalette &oldPalette, bool lightColored = false);
 
 #endif // WORKAROUNDS_H

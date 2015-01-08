@@ -23,7 +23,7 @@
     \title External Tool Specification Files
 
     An external tool specification file describes a tool that can be run from
-    the \gui { Tools > External } menu.
+    the \uicontrol { Tools > External } menu.
     It specifies the name of the tool, the executable to run, optional
     arguments, and how to handle the output from the tool.
 

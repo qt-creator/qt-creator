@@ -261,6 +261,24 @@ void CppEditorPlugin::test_doxygen_comments_data()
             "void d(); ///\n"
             "\n"
     );
+
+    QTest::newRow("noContinuationForExpressionAndComment1") << _(
+          "bool preventFolding;\n"
+          "*foo //|\n"
+        ) << _(
+          "bool preventFolding;\n"
+          "*foo //\n"
+          "\n"
+    );
+
+    QTest::newRow("noContinuationForExpressionAndComment2") << _(
+          "bool preventFolding;\n"
+          "*foo /*|\n"
+        ) << _(
+          "bool preventFolding;\n"
+          "*foo /*\n"
+          "       \n"
+    );
 }
 
 void CppEditorPlugin::test_doxygen_comments()

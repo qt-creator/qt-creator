@@ -161,7 +161,7 @@
     \b {Has a reported issue been addressed?}
 
     You can look up any issue in the
-    \l{http://bugreports.qt-project.org/}{Qt bug tracker}.
+    \l{https://bugreports.qt.io/}{Qt bug tracker}.
 
     \include widgets/creator-faq-qtdesigner.qdocinc
 

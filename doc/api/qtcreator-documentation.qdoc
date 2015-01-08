@@ -242,7 +242,7 @@
 
     Compare the initial and optimized images to check that image quality is
     preserved. If the image quality deteriorates, do not use color reduction
-    (select the \gui {True Color} option, instead).
+    (select the \uicontrol {True Color} option, instead).
 
     You can also see the sizes of the initial and optimized image.
 
@@ -294,7 +294,7 @@
     \c {share/doc/qtcreator} directory in the \QC build directory on Windows and
     Linux, and in the \c {bin/Qt Creator.app/Contents/Resources/app} directory
     on OS X. You can view the HTML files in a browser and the help files in
-    the \QC \gui Help mode. For more information about adding the help files to
+    the \QC \uicontrol Help mode. For more information about adding the help files to
     \QC, see
     \l{http://qt-project.org/doc/qtcreator/creator-help.html#adding-external-documentation}
     {Adding External Documentation}.

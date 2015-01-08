@@ -13,7 +13,7 @@ include(../../rpath.pri)
 win32|equals(TEST, 1):DEFINES += HAS_MSVC_PARSER
 
 DESTDIR = $$IDE_BIN_PATH
-target.path = /bin
+target.path = $$QTC_PREFIX/bin
 INSTALLS += target
 
 SOURCES = \

@@ -119,8 +119,8 @@ bool isCppStyleContinuation(const QTextCursor& cursor)
     return isPreviousLineCppStyleComment(cursor) || isNextLineCppStyleComment(cursor);
 }
 
-/// Check if line is a CppStyle Doxygen comment and the cursor is after the comment
-bool isCursorAfterCppComment(const QTextCursor &cursor, const QTextDocument *doc)
+bool lineStartsWithCppDoxygenCommentAndCursorIsAfter(const QTextCursor &cursor,
+                                                     const QTextDocument *doc)
 {
     QTextCursor cursorFirstNonBlank(cursor);
     cursorFirstNonBlank.movePosition(QTextCursor::StartOfLine);
@@ -134,6 +134,27 @@ bool isCursorAfterCppComment(const QTextCursor &cursor, const QTextDocument *doc
         return (cursor.position() >= cursorFirstNonBlank.position() + 3);
 
     return false;
+}
+
+bool isCursorAfterNonNestedCppStyleComment(const QTextCursor &cursor,
+                                           TextEditor::TextEditorWidget *editorWidget)
+{
+    QTextDocument *document = editorWidget->document();
+    QTextCursor cursorBeforeCppComment(cursor);
+    while (document->characterAt(cursorBeforeCppComment.position()) != QLatin1Char('/')
+           && cursorBeforeCppComment.movePosition(QTextCursor::PreviousCharacter)) {
+    }
+
+    if (!cursorBeforeCppComment.movePosition(QTextCursor::PreviousCharacter))
+        return false;
+
+    if (document->characterAt(cursorBeforeCppComment.position()) != QLatin1Char('/'))
+        return false;
+
+    if (!cursorBeforeCppComment.movePosition(QTextCursor::PreviousCharacter))
+        return false;
+
+    return !editorWidget->autoCompleter()->isInComment(cursorBeforeCppComment);
 }
 
 bool handleDoxygenCppStyleContinuation(QTextCursor &cursor)
@@ -166,16 +187,23 @@ bool handleDoxygenCppStyleContinuation(QTextCursor &cursor)
 }
 
 bool handleDoxygenContinuation(QTextCursor &cursor,
-                               const QTextDocument *doc,
+                               TextEditor::TextEditorWidget *editorWidget,
                                const bool enableDoxygen,
                                const bool leadingAsterisks)
 {
+    const QTextDocument *doc = editorWidget->document();
+
     // It might be a continuation if:
     // a) current line starts with /// or //! and cursor is positioned after the comment
     // b) current line is in the middle of a multi-line Qt or Java style comment
 
-    if (enableDoxygen && !cursor.atEnd() && isCursorAfterCppComment(cursor, doc))
-        return handleDoxygenCppStyleContinuation(cursor);
+    if (!cursor.atEnd()) {
+        if (enableDoxygen && lineStartsWithCppDoxygenCommentAndCursorIsAfter(cursor, doc))
+            return handleDoxygenCppStyleContinuation(cursor);
+
+        if (isCursorAfterNonNestedCppStyleComment(cursor, editorWidget))
+            return false;
+    }
 
     // We continue the comment if the cursor is after a comment's line asterisk and if
     // there's no asterisk immediately after the cursor (that would already be considered
@@ -219,6 +247,14 @@ bool handleDoxygenContinuation(QTextCursor &cursor,
                 else
                     newLine.append(QLatin1String("   "));
             } else {
+                // If '*' is not within a comment, skip.
+                QTextCursor cursorOnFirstNonWhiteSpace(cursor);
+                const int positionOnFirstNonWhiteSpace = cursor.position() - blockPos + offset;
+                cursorOnFirstNonWhiteSpace.setPosition(positionOnFirstNonWhiteSpace);
+                if (!editorWidget->autoCompleter()->isInComment(cursorOnFirstNonWhiteSpace))
+                    return false;
+
+                // ...otherwise do the continuation
                 int start = offset;
                 while (offset < blockPos && currentLine.at(offset) == QLatin1Char('*'))
                     ++offset;
@@ -292,12 +328,11 @@ bool trySplitComment(TextEditor::TextEditorWidget *editorWidget)
                     return true;
                 }
             }
-
         }
     } // right after first doxygen comment
 
     return handleDoxygenContinuation(cursor,
-                                     editorWidget->document(),
+                                     editorWidget,
                                      settings.m_enableDoxygen,
                                      settings.m_leadingAsterisks);
 }

@@ -86,7 +86,7 @@
              from the user or carries special weight.
 
         \li  Use quotation marks ("") around variable values. For example,
-             \gui {Close Project "qtcreator"}.
+             \uicontrol {Close Project "qtcreator"}.
              For consistency, use double quotes to emphasize or set apart file
              names, directory names, URLs, and so on, in user visible strings.
 
@@ -121,14 +121,14 @@
     short, canonical HTML in the source tab of the rich text editor:
     \c {<html><head/><body><b>Note:</b> text.}
 
-    In Qt 4.7, use only the \gui Source tab of the Qt Designer rich text
+    In Qt 4.7, use only the \uicontrol Source tab of the Qt Designer rich text
     editor. The automatic conversion performed by the rich text editor tab
     generates a lot of redundant stylesheet information and uses hard-coded
     fonts that look bad on other platforms and make translation in Qt Linguist
     difficult.
 
     Qt Designer 4.8 has a feature that simplifies the rich text (on by
-    default), but still, you should verify by looking at the \gui Source tab.
+    default), but still, you should verify by looking at the \uicontrol Source tab.
 
     \section2 Writing Messages
 
@@ -197,7 +197,7 @@
 
         \li  Enter the UI text in the field.
 
-        \li  Click \gui Convert.
+        \li  Click \uicontrol Convert.
 
     \endlist
 
@@ -357,9 +357,9 @@
                  \image qtcreator-dialog.png "Dialog"
             \li  Use the menu item or button name as the dialog name. You can
                  also combine the menu item or button name and the name of the
-                 object that is managed in the dialog. For example, the \gui Add
-                 button in the \gui Documentation options opens the
-                 \gui {Add Documentation} dialog.
+                 object that is managed in the dialog. For example, the \uicontrol Add
+                 button in the \uicontrol Documentation options opens the
+                 \uicontrol {Add Documentation} dialog.
         \row
             \li  Locator
             \li  Allows you to browse not only files, but any items defined by
@@ -398,7 +398,7 @@
                  \image qtcreator-mode-selector.png "Mode selector"
             \li  You can add a mode for a new type of editor, for example.
                  Use descriptive, but short mode names. They have to fit in the
-                 \gui {Mode selector}.
+                 \uicontrol {Mode selector}.
         \row
             \li  Output pane
             \li  A pane displayed in the task pane that displays output from Qt Creator.
@@ -406,7 +406,7 @@
             \li  Use descriptive names for output panes.
         \row
             \li  Sidebar
-            \li  A view available in the \gui Edit and \gui Debug modes that
+            \li  A view available in the \uicontrol Edit and \uicontrol Debug modes that
                  you can use to browse projects, files, and bookmarks, and to
                  view the class hierarchy.
                  \image qtcreator-sidebar-menu.png "Sidebar"
@@ -416,7 +416,7 @@
             \li  View
             \li  An area of the screen that displays information for users and
                  provides them with functions for managing the information.
-                 Available in \gui Debug mode, for interaction with the program
+                 Available in \uicontrol Debug mode, for interaction with the program
                  that is running under the control of the debugger.
                  \image qtcreator-debugger-views.png "Views"
             \li  Use descriptive names for views.

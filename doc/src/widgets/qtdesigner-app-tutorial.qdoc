@@ -32,7 +32,7 @@
 
     This tutorial describes how to use \QC to create a small Qt application,
     Text Finder. It is a simplified version of the Qt UI Tools \l{Text Finder
-    example}. The application user interface is constructed from Qt widgets by
+    Example}. The application user interface is constructed from Qt widgets by
     using \QD. The application logic is written in C++ by using the code editor.
 
     \image qtcreator-textfinder-screenshot.png

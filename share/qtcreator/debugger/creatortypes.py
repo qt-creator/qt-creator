@@ -30,6 +30,9 @@
 
 from dumper import *
 
+def dumpLiteral(d, value):
+    d.putSimpleCharArray(value["_chars"], value["_size"])
+
 def qdump__Core__Id(d, value):
     try:
         name = d.parseAndEvaluate("Core::nameForId(%d)" % value["m_id"])
@@ -74,7 +77,7 @@ def qdump__CPlusPlus__Identifier(d, value):
 
 def qdump__CPlusPlus__Symbol(d, value):
     name = d.downcast(value["_name"])
-    d.putItem(name)
+    dumpLiteral(d, name)
     d.putBetterType(value.type)
     d.putPlainChildren(value)
 
@@ -84,17 +87,17 @@ def qdump__CPlusPlus__IntegerType(d, value):
 
 def qdump__CPlusPlus__NamedType(d, value):
     literal = d.downcast(value["_name"])
-    d.putItem(literal)
+    dumpLiteral(d, literal)
     d.putBetterType(value.type)
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__TemplateNameId(d, value):
-    d.putItem(value["_identifier"].dereference())
+    dumpLiteral(d, value["_identifier"].dereference())
     d.putBetterType(value.type)
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__Literal(d, value):
-    d.putSimpleCharArray(value["_chars"], value["_size"])
+    dumpLiteral(d, value)
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__StringLiteral(d, value):
@@ -128,8 +131,8 @@ def qdump__CPlusPlus__Token(d, value):
 
 def qdump__CPlusPlus__Internal__PPToken(d, value):
     data, size, alloc = d.byteArrayData(value["m_src"])
-    length = int(value["f"]["length"])
-    offset = int(value["offset"])
+    length = int(value["f"]["utf16chars"])
+    offset = int(value["utf16charOffset"])
     #warn("size: %s, alloc: %s, offset: %s, length: %s, data: %s"
     #    % (size, alloc, offset, length, data))
     d.putValue(d.readMemory(data + offset, min(100, length)),

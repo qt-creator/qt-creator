@@ -7373,6 +7373,20 @@ void TextEditorFactory::setGenericSyntaxHighlighter(const QString &mimeType)
     };
 }
 
+void TextEditorFactory::setGenericSyntaxHighlighterByName(const QString &name)
+{
+    d->m_syntaxHighlighterCreator = [this, name]() -> SyntaxHighlighter * {
+        TextEditor::Highlighter *highlighter = new TextEditor::Highlighter();
+        QString definitionId = Manager::instance()->definitionIdByName(name);
+        if (!definitionId.isEmpty()) {
+            const QSharedPointer<HighlightDefinition> &definition = Manager::instance()->definition(definitionId);
+            if (!definition.isNull() && definition->isValid())
+                highlighter->setDefaultContext(definition->initialContext());
+        }
+        return highlighter;
+    };
+}
+
 void TextEditorFactory::setAutoCompleterCreator(const AutoCompleterCreator &creator)
 {
     d->m_autoCompleterCreator = creator;

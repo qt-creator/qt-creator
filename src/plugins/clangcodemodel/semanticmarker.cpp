@@ -154,6 +154,12 @@ QList<Diagnostic> SemanticMarker::diagnostics() const
         const unsigned size = qMin(ATTACHED_NOTES_LIMIT, numChildren);
         for (unsigned di = 0; di < size; ++di) {
             ScopedCXDiagnostic child(clang_getDiagnosticInSet(cxChildren, di));
+
+            const Diagnostic::Severity severity
+                = static_cast<Diagnostic::Severity>(clang_getDiagnosticSeverity(child));
+            if (severity == Diagnostic::Ignored || severity == Diagnostic::Note)
+                continue;
+
             spelling.append(QLatin1String("\n  "));
             spelling.append(Internal::getQString(clang_getDiagnosticSpelling(child)));
         }

@@ -75,7 +75,7 @@ public:
     { return directory(_("frameworks"), cleaned); }
 
     QString fileFromSourcesDir(const QString &fileName) const
-    { return directory(_("sources")) + fileName; }
+    { return directory(_("sources")) + QLatin1Char('/') + fileName; }
 };
 
 QStringList toAbsolutePaths(const QStringList &relativePathList,

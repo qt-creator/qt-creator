@@ -47,6 +47,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
@@ -1648,6 +1649,14 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
                 && !m_settings.disableIndexer) {
             setStatus(absPath, FileStatus::CheckedOut);
         }
+
+        foreach (DocumentModel::Entry *e, DocumentModel::entries()) {
+            if (e->fileName() == absPath) {
+                e->document->checkPermissions();
+                break;
+            }
+        }
+
         return !response.error;
     }
     return true;

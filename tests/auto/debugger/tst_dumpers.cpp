@@ -5299,7 +5299,7 @@ void tst_Dumpers::dumper_data()
             + Check("vector.1", "[1]", "2", "double");
 #endif
 
-    // https://bugreports.qt-project.org/browse/QTCREATORBUG-3611
+    // https://bugreports.qt.io/browse/QTCREATORBUG-3611
     QTest::newRow("Bug3611")
         << Data("typedef unsigned char byte;\n"
                 "byte f = '2';\n"
@@ -5308,7 +5308,7 @@ void tst_Dumpers::dumper_data()
          + Check("f", "50", "byte") % GdbEngine;
 
 
-    // https://bugreports.qt-project.org/browse/QTCREATORBUG-4904
+    // https://bugreports.qt.io/browse/QTCREATORBUG-4904
     QTest::newRow("Bug4904")
         << Data("#include <QMap>\n"
                 "struct CustomStruct {\n"
@@ -5334,7 +5334,7 @@ void tst_Dumpers::dumper_data()
 
 
 #if 0
-      // https://bugreports.qt-project.org/browse/QTCREATORBUG-5106
+      // https://bugreports.qt.io/browse/QTCREATORBUG-5106
       QTest::newRow("Bug5106")
           << Data("struct A5106 {\n"
                   "        A5106(int a, int b) : m_a(a), m_b(b) {}\n"
@@ -5356,7 +5356,7 @@ void tst_Dumpers::dumper_data()
 #endif
 
 
-    // https://bugreports.qt-project.org/browse/QTCREATORBUG-5184
+    // https://bugreports.qt.io/browse/QTCREATORBUG-5184
 
     // Note: The report there shows type field "QUrl &" instead of QUrl");
     // It's unclear how this can happen. It should never have been like
@@ -5382,7 +5382,7 @@ void tst_Dumpers::dumper_data()
            + Check5("url", "\"http://127.0.0.1/\"", "@QUrl &");
 
 
-    // https://bugreports.qt-project.org/browse/QTCREATORBUG-5799
+    // https://bugreports.qt.io/browse/QTCREATORBUG-5799
     QTest::newRow("Bug5799")
         << Data("typedef struct { int m1; int m2; } S1;\n"
                 "struct S2 : S1 { };\n"
@@ -5408,7 +5408,7 @@ void tst_Dumpers::dumper_data()
              + CheckType("s4.@1.m2", "int");
 
 
-    // https://bugreports.qt-project.org/browse/QTCREATORBUG-6465
+    // https://bugreports.qt.io/browse/QTCREATORBUG-6465
     QTest::newRow("Bug6465")
         << Data("typedef char Foo[20];\n"
                 "Foo foo = \"foo\";\n"
@@ -5417,7 +5417,7 @@ void tst_Dumpers::dumper_data()
 
 
 #ifndef Q_OS_WIN
-    // https://bugreports.qt-project.org/browse/QTCREATORBUG-6857
+    // https://bugreports.qt.io/browse/QTCREATORBUG-6857
     QTest::newRow("Bug6857")
         << Data("#include <QFile>\n"
                 "#include <QString>\n"

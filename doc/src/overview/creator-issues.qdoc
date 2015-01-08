@@ -35,7 +35,7 @@
     bugs.
 
     For a list of fixed issues and added features, see the changelog file in
-    the \c{qtcreator\dist} folder or the \l{http://bugreports.qt-project.org}
+    the \c{qtcreator\dist} folder or the \l{https://bugreports.qt.io}
     {Qt Bug Tracker}.
 
     \section1 General Issues
@@ -56,7 +56,7 @@
 
         \li  Qt 4.7.4 is known to contain a bug exposed by g++ 4.6 which triggers
             a crash in \QC. For more information, see
-            \l{http://bugreports.qt-project.org/browse/QTBUG-21265}{QTBUG-21265}
+            \l{https://bugreports.qt.io/browse/QTBUG-21265}{QTBUG-21265}
 
         \li  The Okteta KDE custom widget plugin might be installed as part of
             some Linux distributions. It can cause Qt Designer to crash. For
@@ -67,7 +67,7 @@
                 \li  \l{http://bugs.launchpad.net/ubuntu/+source/kdeutils/+bug/662005}
                     {Ubuntu bug 662005}
 
-                \li  \l{http://bugreports.qt-project.org/browse/QTBUG-12025}
+                \li  \l{https://bugreports.qt.io/browse/QTBUG-12025}
                     {QTBUG-12025}
 
            \endlist

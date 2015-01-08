@@ -1497,6 +1497,57 @@ void CppEditorPlugin::test_quickfix_data()
              "    f1(*str);\n"
              "}\n");
 
+    QTest::newRow("ConvertAutoFromPointer")
+        << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
+        << _("void foo() {\n"
+             "    auto @str = new QString(QLatin1String(\"foo\"));\n"
+             "    if (!str->isEmpty())\n"
+             "        str->clear();\n"
+             "    f1(*str);\n"
+             "    f2(str);\n"
+             "}\n")
+        << _("void foo() {\n"
+             "    auto str = QString(QLatin1String(\"foo\"));\n"
+             "    if (!str.isEmpty())\n"
+             "        str.clear();\n"
+             "    f1(str);\n"
+             "    f2(&str);\n"
+             "}\n");
+
+    QTest::newRow("ConvertAutoFromPointer2")
+        << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
+        << _("void foo() {\n"
+             "    auto *@str = new QString;\n"
+             "    if (!str->isEmpty())\n"
+             "        str->clear();\n"
+             "    f1(*str);\n"
+             "    f2(str);\n"
+             "}\n")
+        << _("void foo() {\n"
+             "    auto str = QString();\n"
+             "    if (!str.isEmpty())\n"
+             "        str.clear();\n"
+             "    f1(str);\n"
+             "    f2(&str);\n"
+             "}\n");
+
+    QTest::newRow("ConvertAutoToPointer")
+        << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
+        << _("void foo() {\n"
+             "    auto @str = QString(QLatin1String(\"foo\"));\n"
+             "    if (!str.isEmpty())\n"
+             "        str.clear();\n"
+             "    f1(str);\n"
+             "    f2(&str);\n"
+             "}\n")
+        << _("void foo() {\n"
+             "    auto @str = new QString(QLatin1String(\"foo\"));\n"
+             "    if (!str->isEmpty())\n"
+             "        str->clear();\n"
+             "    f1(*str);\n"
+             "    f2(str);\n"
+             "}\n");
+
     QTest::newRow("InsertQtPropertyMembers_noTriggerInvalidCode")
         << CppQuickFixFactoryPtr(new InsertQtPropertyMembers)
         << _("class C { @Q_PROPERTY(typeid foo READ foo) };\n")

@@ -534,9 +534,10 @@ bool TranslationUnit::maybeSplitGreaterGreaterToken(unsigned tokenIndex)
     newGreater.byteOffset = tok.byteOffset + 1;
     newGreater.utf16charOffset = tok.utf16charOffset + 1;
 
+    TokenLineColumn::const_iterator it = _expandedLineColumn.find(tok.bytesBegin());
+
     _tokens->insert(_tokens->begin() + tokenIndex + 1, newGreater);
 
-    TokenLineColumn::const_iterator it = _expandedLineColumn.find(tok.bytesBegin());
     if (it != _expandedLineColumn.end()) {
         const std::pair<unsigned, unsigned> newPosition(it->second.first, it->second.second + 1);
         _expandedLineColumn.insert(std::make_pair(newGreater.bytesBegin(), newPosition));

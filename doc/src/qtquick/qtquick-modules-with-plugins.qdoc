@@ -36,7 +36,8 @@
     information for code completion and the semantic checks to work correctly.
 
     When you write a QML module or use QML from a C++ application you typically
-    register new types with \l{QQmlEngine#qmlRegisterType-3}{qmlRegisterType()} or expose some
+    register new types with the \l{QQmlEngine} class \c qmlRegisterType()
+    function or expose some
     class instances with \l{QQmlContext::setContextProperty()}. The \QC C++
     code model now scans for these calls and
     tells the QML code model about them. This means that properties are

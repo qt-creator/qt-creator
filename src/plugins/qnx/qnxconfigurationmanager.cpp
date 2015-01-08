@@ -71,6 +71,7 @@ QnxConfigurationManager::~QnxConfigurationManager()
 {
     m_instance = 0;
     qDeleteAll(m_configurations);
+    delete m_writer;
 }
 
 QList<QnxConfiguration *> QnxConfigurationManager::configurations() const

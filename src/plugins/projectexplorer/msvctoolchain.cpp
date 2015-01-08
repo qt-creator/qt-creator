@@ -391,16 +391,14 @@ QList<Utils::FileName> MsvcToolChain::suggestedMkspecList() const
     case Abi::WindowsMsvc2010Flavor:
         return QList<Utils::FileName>() << Utils::FileName::fromLatin1("win32-msvc2010");
     case Abi::WindowsMsvc2012Flavor:
-        QList<Utils::FileName>()
+        return QList<Utils::FileName>()
             << Utils::FileName::fromLatin1("win32-msvc2012")
             << Utils::FileName::fromLatin1("win32-msvc2010");
-        break;
     case Abi::WindowsMsvc2013Flavor:
-        QList<Utils::FileName>()
+        return QList<Utils::FileName>()
             << Utils::FileName::fromLatin1("win32-msvc2013")
             << Utils::FileName::fromLatin1("win32-msvc2012")
             << Utils::FileName::fromLatin1("win32-msvc2010");
-        break;
     default:
         break;
     }

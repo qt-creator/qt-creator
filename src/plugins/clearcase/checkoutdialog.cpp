@@ -36,6 +36,7 @@
 #include <QList>
 #include <QPair>
 #include <QPalette>
+#include <QPushButton>
 
 namespace ClearCase {
 namespace Internal {
@@ -57,6 +58,8 @@ CheckOutDialog::CheckOutDialog(const QString &fileName, bool isUcm, QWidget *par
 
         ui->verticalLayout->insertWidget(1, line);
     }
+
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setFocus();
 }
 
 CheckOutDialog::~CheckOutDialog()

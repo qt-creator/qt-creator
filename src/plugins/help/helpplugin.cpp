@@ -658,7 +658,7 @@ void HelpPlugin::slotOpenSupportPage()
 
 void HelpPlugin::slotReportBug()
 {
-    QDesktopServices::openUrl(QUrl(QLatin1String("https://bugreports.qt-project.org")));
+    QDesktopServices::openUrl(QUrl(QLatin1String("https://bugreports.qt.io")));
 }
 
 void HelpPlugin::doSetupIfNeeded()

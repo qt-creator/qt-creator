@@ -394,8 +394,7 @@ ProjectPart::HeaderPaths CppModelManager::internalHeaderPaths() const
         const ProjectInfo pinfo = it.value();
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
             foreach (const ProjectPart::HeaderPath &path, part->headerPaths) {
-                const ProjectPart::HeaderPath hp(CppSourceProcessor::cleanPath(path.path),
-                                                 path.type);
+                const ProjectPart::HeaderPath hp(QDir::cleanPath(path.path), path.type);
                 if (!headerPaths.contains(hp))
                     headerPaths += hp;
             }
