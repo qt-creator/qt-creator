@@ -38,6 +38,19 @@
     to use in a QTreeView.
 */
 
+#if 0
+#define CHECK_INDEX(index) \
+    do { \
+        if (index.isValid()) { \
+            QTC_CHECK(index.model() == this); \
+        } else { \
+            QTC_CHECK(index.model() == 0); \
+        } \
+    } while (false)
+#else
+#define CHECK_INDEX(index)
+#endif
+
 namespace Utils {
 
 //
@@ -171,7 +184,7 @@ TreeModel::~TreeModel()
 
 QModelIndex TreeModel::parent(const QModelIndex &idx) const
 {
-    checkIndex(idx);
+    CHECK_INDEX(idx);
     if (!idx.isValid())
         return QModelIndex();
 
@@ -193,7 +206,7 @@ QModelIndex TreeModel::parent(const QModelIndex &idx) const
 
 int TreeModel::rowCount(const QModelIndex &idx) const
 {
-    checkIndex(idx);
+    CHECK_INDEX(idx);
     if (!idx.isValid())
         return m_root->rowCount();
     if (idx.column() > 0)
@@ -203,7 +216,7 @@ int TreeModel::rowCount(const QModelIndex &idx) const
 
 int TreeModel::columnCount(const QModelIndex &idx) const
 {
-    checkIndex(idx);
+    CHECK_INDEX(idx);
     if (!idx.isValid())
         return m_root->columnCount();
     if (idx.column() > 0)
@@ -245,7 +258,7 @@ void TreeModel::setRootItem(TreeItem *item)
 
 QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent) const
 {
-    checkIndex(parent);
+    CHECK_INDEX(parent);
     if (!hasIndex(row, column, parent))
         return QModelIndex();
 
@@ -258,10 +271,8 @@ QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent) con
 
 TreeItem *TreeModel::itemFromIndex(const QModelIndex &idx) const
 {
-    checkIndex(idx);
-    TreeItem *item = idx.isValid() ? static_cast<TreeItem*>(idx.internalPointer()) : m_root;
-//    CHECK(checkItem(item));
-    return item;
+    CHECK_INDEX(idx);
+    return idx.isValid() ? static_cast<TreeItem*>(idx.internalPointer()) : m_root;
 }
 
 QModelIndex TreeModel::indexFromItem(const TreeItem *item) const
@@ -318,27 +329,18 @@ void TreeModel::removeItem(TreeItem *item)
 QModelIndex TreeModel::indexFromItemHelper(const TreeItem *needle,
     TreeItem *parentItem, const QModelIndex &parentIndex) const
 {
-    checkIndex(parentIndex);
+    CHECK_INDEX(parentIndex);
     if (needle == parentItem)
         return parentIndex;
     for (int i = parentItem->rowCount(); --i >= 0; ) {
         TreeItem *childItem = parentItem->child(i);
         QModelIndex childIndex = index(i, 0, parentIndex);
         QModelIndex idx = indexFromItemHelper(needle, childItem, childIndex);
-        checkIndex(idx);
+        CHECK_INDEX(idx);
         if (idx.isValid())
             return idx;
     }
     return QModelIndex();
-}
-
-void TreeModel::checkIndex(const QModelIndex &index) const
-{
-    if (index.isValid()) {
-        QTC_CHECK(index.model() == this);
-    } else {
-        QTC_CHECK(index.model() == 0);
-    }
 }
 
 //

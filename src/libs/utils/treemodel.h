@@ -204,8 +204,6 @@ private:
     QModelIndex indexFromItemHelper(const TreeItem *needle,
         TreeItem *parentItem, const QModelIndex &parentIndex) const;
 
-    void checkIndex(const QModelIndex &index) const;
-
     TreeItem *m_root; // Owned.
 };
 
