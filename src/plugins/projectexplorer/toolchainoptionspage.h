@@ -32,69 +32,13 @@
 #define TOOLCHAINOPTIONSPAGE_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <utils/treemodel.h>
 
-#include <QAbstractItemModel>
 #include <QPointer>
 
-QT_BEGIN_NAMESPACE
-class QItemSelectionModel;
-class QPushButton;
-class QTreeView;
-QT_END_NAMESPACE
-
-namespace Utils { class DetailsWidget; }
-
 namespace ProjectExplorer {
-
-class ToolChain;
-class ToolChainConfigWidget;
-class ToolChainFactory;
-
 namespace Internal {
 
-class ToolChainNode;
-// --------------------------------------------------------------------------
-// ToolChainModel
-// --------------------------------------------------------------------------
-
-class ToolChainModel : public Utils::TreeModel
-{
-    Q_OBJECT
-
-public:
-    explicit ToolChainModel(QObject *parent = 0);
-
-    QModelIndex index(ToolChain *) const;
-
-    ToolChain *toolChain(const QModelIndex &);
-    ToolChainConfigWidget *widget(const QModelIndex &);
-
-    bool isDirty() const;
-    bool isDirty(ToolChain *) const;
-
-    void apply();
-
-    void markForRemoval(ToolChain *);
-    void markForAddition(ToolChain *);
-
-signals:
-    void toolChainStateChanged();
-
-private slots:
-    void addToolChain(ProjectExplorer::ToolChain *);
-    void removeToolChain(ProjectExplorer::ToolChain *);
-    void setDirty();
-
-private:
-    ToolChainNode *createNode(ToolChain *tc, bool changed);
-
-    Utils::TreeItem *m_autoRoot;
-    Utils::TreeItem *m_manualRoot;
-
-    QList<ToolChainNode *> m_toAddList;
-    QList<ToolChainNode *> m_toRemoveList;
-};
+class ToolChainOptionsWidget;
 
 // --------------------------------------------------------------------------
 // ToolChainOptionsPage
@@ -111,25 +55,8 @@ public:
     void apply();
     void finish();
 
-private slots:
-    void toolChainSelectionChanged();
-    void createToolChain(QObject *);
-    void removeToolChain();
-    void updateState();
-
 private:
-    QModelIndex currentIndex() const;
-
-    QPointer<QWidget> m_configWidget;
-
-    ToolChainModel *m_model;
-    QList<ToolChainFactory *> m_factories;
-    QItemSelectionModel * m_selectionModel;
-    QTreeView *m_toolChainView;
-    Utils::DetailsWidget *m_container;
-    QPushButton *m_addButton;
-    QPushButton *m_cloneButton;
-    QPushButton *m_delButton;
+    QPointer<ToolChainOptionsWidget> m_widget;
 };
 
 } // namespace Internal
