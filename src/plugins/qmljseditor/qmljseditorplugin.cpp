@@ -158,6 +158,15 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     connect(m_reformatFileAction, SIGNAL(triggered()), this, SLOT(reformatFile()));
     qmlToolsMenu->addAction(cmd);
 
+    QAction *inspectElementAction = new QAction(tr("Inspect API for Element Under Cursor"), this);
+    cmd = ActionManager::registerAction(inspectElementAction,
+                                              Id(Constants::INSPECT_ELEMENT_UNDER_CURSOR), context);
+    connect(inspectElementAction, &QAction::triggered, [] {
+        if (auto widget = qobject_cast<QmlJSEditorWidget *>(EditorManager::currentEditor()->widget()))
+            widget->inspectElementUnderCursor();
+    });
+    qmlToolsMenu->addAction(cmd);
+
     QAction *showQuickToolbar = new QAction(tr("Show Qt Quick Toolbar"), this);
     cmd = ActionManager::registerAction(showQuickToolbar, Constants::SHOW_QT_QUICK_HELPER, context);
     cmd->setDefaultKeySequence(UseMacShortcuts ? QKeySequence(Qt::META + Qt::ALT + Qt::Key_Space)

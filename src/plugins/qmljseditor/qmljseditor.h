@@ -75,6 +75,9 @@ public:
 
     TextEditor::AssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
                                                         TextEditor::AssistReason reason) const;
+
+    void inspectElementUnderCursor() const;
+
 public slots:
     void findUsages();
     void renameUsages();

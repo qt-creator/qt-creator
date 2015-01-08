@@ -51,6 +51,7 @@ const char RENAME_USAGES[] = "QmlJSEditor.RenameUsages";
 const char RUN_SEMANTIC_SCAN[] = "QmlJSEditor.RunSemanticScan";
 const char REFORMAT_FILE[] = "QmlJSEditor.ReformatFile";
 const char SHOW_QT_QUICK_HELPER[] = "QmlJSEditor.ShowQtQuickHelper";
+const char INSPECT_ELEMENT_UNDER_CURSOR[] = "QmlJSEditor.InspectElementUnderCursor";
 
 const char TASK_CATEGORY_QML[] = "Task.Category.Qml";
 const char TASK_CATEGORY_QML_ANALYSIS[] = "Task.Category.QmlAnalysis";

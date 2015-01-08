@@ -36,6 +36,7 @@
 #include "qmljseditordocument.h"
 #include "qmljseditorplugin.h"
 #include "qmljsfindreferences.h"
+#include "qmljshighlighter.h"
 #include "qmljshoverhandler.h"
 #include "qmljsquickfixassist.h"
 #include "qmloutlinemodel.h"
@@ -72,10 +73,10 @@
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/texteditoractionhandler.h>
 
-#include <utils/changeset.h>
-#include <utils/uncommentselection.h>
-#include <utils/qtcassert.h>
 #include <utils/annotateditemdelegate.h>
+#include <utils/changeset.h>
+#include <utils/qtcassert.h>
+#include <utils/uncommentselection.h>
 
 #include <QComboBox>
 #include <QCoreApplication>
@@ -554,6 +555,166 @@ void QmlJSEditorWidget::createToolBar()
             &m_updateOutlineIndexTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
 
     insertExtraToolBarWidget(TextEditorWidget::Left, m_outlineCombo);
+}
+
+class CodeModelInspector : public MemberProcessor
+{
+public:
+    explicit CodeModelInspector(const CppComponentValue *processingValue, QTextStream *stream) :
+        m_processingValue(processingValue),
+        m_stream(stream),
+        m_indent(QLatin1String("    "))
+    {
+    }
+
+    bool processProperty(const QString &name, const Value *value,
+                                 const PropertyInfo &propertyInfo) override
+    {
+        QString type;
+        if (const CppComponentValue *cpp = value->asCppComponentValue())
+            type = cpp->metaObject()->className();
+        else
+            type = m_processingValue->propertyType(name);
+
+        if (propertyInfo.isList())
+            type = QStringLiteral("list<%1>").arg(type);
+
+        *m_stream << m_indent;
+        if (!propertyInfo.isWriteable())
+            *m_stream << "readonly ";
+        *m_stream << "property " << type << " " << name << endl;
+
+        return true;
+    }
+    bool processSignal(const QString &name, const Value *value) override
+    {
+        *m_stream << m_indent << "signal " << name << stringifyFunctionParameters(value) << endl;
+        return true;
+    }
+    bool processSlot(const QString &name, const Value *value) override
+    {
+        *m_stream << m_indent << "function " << name << stringifyFunctionParameters(value) << endl;
+        return true;
+    }
+    bool processGeneratedSlot(const QString &name, const Value *value) override
+    {
+        *m_stream << m_indent << "/*generated*/ function " << name
+                  << stringifyFunctionParameters(value) << endl;
+        return true;
+    }
+
+private:
+    QString stringifyFunctionParameters(const Value *value) const
+    {
+        QStringList params;
+        const QmlJS::MetaFunction *metaFunction = value->asMetaFunction();
+        if (metaFunction) {
+            QStringList paramNames = metaFunction->fakeMetaMethod().parameterNames();
+            QStringList paramTypes = metaFunction->fakeMetaMethod().parameterTypes();
+            for (int i = 0; i < paramTypes.size(); ++i) {
+                QString typeAndNamePair = paramTypes.at(i);
+                if (paramNames.size() > i) {
+                    QString paramName = paramNames.at(i);
+                    if (!paramName.isEmpty())
+                        typeAndNamePair += QLatin1Char(' ') + paramName;
+                }
+                params.append(typeAndNamePair);
+            }
+        }
+        return QLatin1Char('(') + params.join(QLatin1String(", ")) + QLatin1Char(')');
+    }
+
+private:
+    const CppComponentValue *m_processingValue;
+    QTextStream *m_stream;
+    const QString m_indent;
+};
+
+static const CppComponentValue *findCppComponentToInspect(const SemanticInfo &semanticInfo,
+                                                          const unsigned cursorPosition)
+{
+    AST::Node *node = semanticInfo.astNodeAt(cursorPosition);
+    if (!node)
+        return 0;
+
+    const ScopeChain scopeChain = semanticInfo.scopeChain(semanticInfo.rangePath(cursorPosition));
+    Evaluate evaluator(&scopeChain);
+    const Value *value = evaluator.reference(node);
+    if (!value)
+        return 0;
+
+    return value->asCppComponentValue();
+}
+
+static QString inspectCppComponent(const CppComponentValue *cppValue)
+{
+    QString result;
+    QTextStream bufWriter(&result);
+
+    // for QtObject
+    QString superClassName = cppValue->metaObject()->superclassName();
+    if (superClassName.isEmpty())
+        superClassName = cppValue->metaObject()->className();
+
+    bufWriter << "import QtQuick " << cppValue->importVersion().toString() << endl
+              << "// " << cppValue->metaObject()->className()
+              << " imported as " << cppValue->moduleName()  << " "
+              << cppValue->importVersion().toString() << endl
+              << endl
+              << superClassName << " {" << endl;
+
+    CodeModelInspector insp(cppValue, &bufWriter);
+    cppValue->processMembers(&insp);
+
+    bufWriter << endl;
+    const int enumeratorCount = cppValue->metaObject()->enumeratorCount();
+    for (int index = cppValue->metaObject()->enumeratorOffset(); index < enumeratorCount; ++index) {
+        LanguageUtils::FakeMetaEnum enumerator = cppValue->metaObject()->enumerator(index);
+        bufWriter << "    // Enum " << enumerator.name() << " { " <<
+                     enumerator.keys().join(QLatin1Char(',')) << " }" << endl;
+    }
+
+    bufWriter << "}" << endl;
+    return result;
+}
+
+void QmlJSEditorWidget::inspectElementUnderCursor() const
+{
+    const QTextCursor cursor = textCursor();
+
+    const unsigned cursorPosition = cursor.position();
+    const SemanticInfo semanticInfo = m_qmlJsEditorDocument->semanticInfo();
+    if (!semanticInfo.isValid())
+        return;
+
+    const CppComponentValue *cppValue = findCppComponentToInspect(semanticInfo, cursorPosition);
+    if (!cppValue) {
+        QString title = tr("Code Model Not Available");
+        const QString nothingToShow = QStringLiteral("nothingToShow");
+        EditorManager::openEditorWithContents(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title,
+                                              tr("Code model not available.").toUtf8(), nothingToShow,
+                                              EditorManager::IgnoreNavigationHistory);
+        return;
+    }
+
+    QString title = tr("Code Model of %1").arg(cppValue->metaObject()->className());
+    IEditor *outputEditor = EditorManager::openEditorWithContents(
+                Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, QByteArray(),
+                cppValue->metaObject()->className(), EditorManager::IgnoreNavigationHistory);
+
+    if (!outputEditor)
+        return;
+
+    auto widget = qobject_cast<TextEditor::TextEditorWidget *>(outputEditor->widget());
+    if (!widget)
+        return;
+
+    widget->setReadOnly(true);
+    widget->textDocument()->setTemporary(true);
+    widget->textDocument()->setSyntaxHighlighter(new QmlJSHighlighter(widget->document()));
+
+    const QString buf = inspectCppComponent(cppValue);
+    widget->textDocument()->setPlainText(buf);
 }
 
 TextEditorWidget::Link QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,

@@ -137,40 +137,37 @@ public:
 } // end of anonymous namespace
 
 namespace QmlJS {
-namespace Internal {
-class MetaFunction: public FunctionValue
+
+MetaFunction::MetaFunction(const FakeMetaMethod &method, ValueOwner *valueOwner)
+    : FunctionValue(valueOwner), m_method(method)
 {
-    FakeMetaMethod m_method;
+}
 
-public:
-    MetaFunction(const FakeMetaMethod &method, ValueOwner *valueOwner)
-        : FunctionValue(valueOwner), m_method(method)
-    {
-    }
+int MetaFunction::namedArgumentCount() const
+{
+    return m_method.parameterNames().size();
+}
 
-    virtual int namedArgumentCount() const
-    {
-        return m_method.parameterNames().size();
-    }
+QString MetaFunction::argumentName(int index) const
+{
+    if (index < m_method.parameterNames().size())
+        return m_method.parameterNames().at(index);
 
-    virtual QString argumentName(int index) const
-    {
-        if (index < m_method.parameterNames().size())
-            return m_method.parameterNames().at(index);
+    return FunctionValue::argumentName(index);
+}
 
-        return FunctionValue::argumentName(index);
-    }
-
-    virtual bool isVariadic() const
-    {
-        return false;
-    }
-    const MetaFunction *asMetaFunction() const
-    {
-        return this;
-    }
-};
-} // namespace Internal
+bool MetaFunction::isVariadic() const
+{
+    return false;
+}
+const MetaFunction *MetaFunction::asMetaFunction() const
+{
+    return this;
+}
+const FakeMetaMethod &MetaFunction::fakeMetaMethod() const
+{
+    return m_method;
+}
 
 FakeMetaObjectWithOrigin::FakeMetaObjectWithOrigin(FakeMetaObject::ConstPtr fakeMetaObject, const QString &originId)
     : fakeMetaObject(fakeMetaObject)
@@ -293,7 +290,7 @@ void CppComponentValue::processMembers(MemberProcessor *processor) const
         signatures = new QList<const Value *>;
         signatures->reserve(m_metaObject->methodCount());
         for (int index = 0; index < m_metaObject->methodCount(); ++index)
-            signatures->append(new Internal::MetaFunction(m_metaObject->method(index), valueOwner()));
+            signatures->append(new MetaFunction(m_metaObject->method(index), valueOwner()));
         if (!m_metaSignatures.testAndSetOrdered(0, signatures)) {
             delete signatures;
             signatures = m_metaSignatures.load();
@@ -830,7 +827,7 @@ const Function *Value::asFunction() const
     return 0;
 }
 
-const Internal::MetaFunction *Value::asMetaFunction() const
+const MetaFunction *Value::asMetaFunction() const
 {
     return 0;
 }

@@ -83,10 +83,10 @@ class UnknownValue;
 class UrlValue;
 class Value;
 class ValueOwner;
+class MetaFunction;
 typedef QSharedPointer<const Context> ContextPtr;
 
 namespace Internal {
-class MetaFunction;
 class QtObjectPrototypeReference;
 } // namespace Internal
 
@@ -150,7 +150,7 @@ public:
     virtual const ASTSignal *asAstSignal() const;
     virtual const ASTFunctionValue *asAstFunctionValue() const;
     virtual const Function *asFunction() const;
-    virtual const Internal::MetaFunction *asMetaFunction() const;
+    virtual const MetaFunction *asMetaFunction() const;
     virtual const JSImportScope *asJSImportScope() const;
     virtual const TypeScope *asTypeScope() const;
 
@@ -304,7 +304,7 @@ template <> Q_INLINE_TEMPLATE const Function *value_cast(const Value *v)
     else   return 0;
 }
 
-template <> Q_INLINE_TEMPLATE const Internal::MetaFunction*value_cast(const Value *v)
+template <> Q_INLINE_TEMPLATE const MetaFunction *value_cast(const Value *v)
 {
     if (v) return v->asMetaFunction();
     else   return 0;
@@ -1108,6 +1108,20 @@ private:
     TypeScope *m_typeScope;
     JSImportScope *m_jsImportScope;
     bool m_importFailed;
+};
+
+class QMLJS_EXPORT MetaFunction: public FunctionValue
+{
+    LanguageUtils::FakeMetaMethod m_method;
+
+public:
+    MetaFunction(const LanguageUtils::FakeMetaMethod &method, ValueOwner *valueOwner);
+
+    int namedArgumentCount() const override;
+    QString argumentName(int index) const override;
+    bool isVariadic() const override;
+    const MetaFunction *asMetaFunction() const override;
+    const LanguageUtils::FakeMetaMethod &fakeMetaMethod() const;
 };
 
 } // namespace QmlJS
