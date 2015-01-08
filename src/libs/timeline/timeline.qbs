@@ -34,4 +34,6 @@ QtcLibrary {
         prefix: "qml/"
         files: ["timeline.qrc"]
     }
+
+    cpp.defines: base.concat("TIMELINE_LIBRARY")
 }

@@ -1878,7 +1878,7 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
 
             EvalResult::EvalResultState evalResultBuildPass = EvalResult::EvalOk;
             if (ProFile *pro = readerBuildPass->parsedProFile(input.projectFilePath)) {
-                if (!readerBuildPass->accept(pro, QMakeEvaluator::LoadPreFiles))
+                if (!readerBuildPass->accept(pro, QMakeEvaluator::LoadAll))
                     evalResultBuildPass = EvalResult::EvalPartial;
                 pro->deref();
             } else {
