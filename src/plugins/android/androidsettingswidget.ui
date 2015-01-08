@@ -476,74 +476,10 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="android.qrc"/>
   <include location="../coreplugin/core.qrc"/>
+  <include location="android.qrc"/>
  </resources>
  <connections>
-  <connection>
-   <sender>NDKLocationPathChooser</sender>
-   <signal>changed(QString)</signal>
-   <receiver>AndroidSettingsWidget</receiver>
-   <slot>ndkLocationEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>605</x>
-     <y>143</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>352</x>
-     <y>210</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>SDKLocationPathChooser</sender>
-   <signal>changed(QString)</signal>
-   <receiver>AndroidSettingsWidget</receiver>
-   <slot>sdkLocationEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>605</x>
-     <y>82</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>352</x>
-     <y>210</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>AntLocationPathChooser</sender>
-   <signal>changed(QString)</signal>
-   <receiver>AndroidSettingsWidget</receiver>
-   <slot>antLocationEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>605</x>
-     <y>315</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>352</x>
-     <y>210</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>OpenJDKLocationPathChooser</sender>
-   <signal>changed(QString)</signal>
-   <receiver>AndroidSettingsWidget</receiver>
-   <slot>openJDKLocationEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>605</x>
-     <y>31</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>352</x>
-     <y>210</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>AVDAddPushButton</sender>
    <signal>clicked()</signal>

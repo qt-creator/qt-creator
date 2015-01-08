@@ -146,7 +146,10 @@ public:
     bool removeAVD(const QString &name) const;
 
     QVector<AndroidDeviceInfo> connectedDevices(QString *error = 0) const;
+
+    QFuture<QVector<AndroidDeviceInfo> > androidVirtualDevicesFuture();
     QVector<AndroidDeviceInfo> androidVirtualDevices() const;
+
     QString startAVD(const QString &name, int apiLevel, QString cpuAbi) const;
     bool startAVDAsync(const QString &avdName) const;
     QString findAvd(int apiLevel, const QString &cpuAbi) const;
@@ -165,6 +168,7 @@ public:
     SdkPlatform highestAndroidSdk() const;
 private:
     static CreateAvdInfo createAVDImpl(CreateAvdInfo info, Utils::FileName androidToolPath, Utils::Environment env);
+    static QVector<AndroidDeviceInfo> androidVirtualDevicesImpl(const Utils::FileName &androidTool, const Utils::Environment &environment);
 
     Utils::FileName toolPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
     Utils::FileName openJDKBinPath() const;

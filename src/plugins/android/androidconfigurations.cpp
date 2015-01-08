@@ -600,12 +600,22 @@ bool AndroidConfig::removeAVD(const QString &name) const
     return !proc.exitCode();
 }
 
+QFuture<QVector<AndroidDeviceInfo>> AndroidConfig::androidVirtualDevicesFuture()
+{
+    return QtConcurrent::run(&AndroidConfig::androidVirtualDevicesImpl, androidToolPath(), androidToolEnvironment());
+}
+
 QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevices() const
+{
+    return androidVirtualDevicesImpl(androidToolPath(), androidToolEnvironment());
+}
+
+QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevicesImpl(const Utils::FileName &androidTool, const Utils::Environment &environment)
 {
     QVector<AndroidDeviceInfo> devices;
     QProcess proc;
-    proc.setProcessEnvironment(androidToolEnvironment().toProcessEnvironment());
-    proc.start(androidToolPath().toString(),
+    proc.setProcessEnvironment(environment.toProcessEnvironment());
+    proc.start(androidTool.toString(),
                QStringList() << QLatin1String("list") << QLatin1String("avd")); // list available AVDs
     if (!proc.waitForFinished(5000)) {
         proc.terminate();

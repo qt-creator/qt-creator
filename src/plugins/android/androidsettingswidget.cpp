@@ -170,7 +170,6 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
     m_ui->DataPartitionSizeSpinBox->setValue(m_androidConfig.partitionSize());
     m_ui->CreateKitCheckBox->setChecked(m_androidConfig.automaticKitCreation());
     m_ui->AVDTableView->setModel(&m_AVDModel);
-    m_AVDModel.setAvdList(m_androidConfig.androidVirtualDevices());
     m_ui->AVDTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     m_ui->AVDTableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 
@@ -180,11 +179,20 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
     connect(m_ui->gdbWarningLabel, SIGNAL(linkActivated(QString)),
             this, SLOT(showGdbWarningDialog()));
 
+    connect(&m_virtualDevicesWatcher, SIGNAL(finished()),
+            this, SLOT(updateAvds()));
+
     check(All);
     applyToUi(All);
 
     connect(&m_futureWatcher, SIGNAL(finished()),
             this, SLOT(avdAdded()));
+
+    connect(m_ui->NDKLocationPathChooser, SIGNAL(changed(QString)), this, SLOT(ndkLocationEditingFinished()));
+    connect(m_ui->SDKLocationPathChooser, SIGNAL(changed(QString)), this, SLOT(sdkLocationEditingFinished()));
+    connect(m_ui->AntLocationPathChooser, SIGNAL(changed(QString)), this, SLOT(antLocationEditingFinished()));
+    connect(m_ui->OpenJDKLocationPathChooser, SIGNAL(changed(QString)), this, SLOT(openJDKLocationEditingFinished()));
+
 }
 
 AndroidSettingsWidget::~AndroidSettingsWidget()
@@ -397,8 +405,39 @@ void AndroidSettingsWidget::applyToUi(AndroidSettingsWidget::Mode mode)
             m_ui->AVDManagerFrame->setEnabled(false);
         }
 
-        m_AVDModel.setAvdList(m_androidConfig.androidVirtualDevices());
+        startUpdateAvd();
     }
+}
+
+void AndroidSettingsWidget::disableAvdControls()
+{
+    m_ui->AVDAddPushButton->setEnabled(false);
+    m_ui->AVDTableView->setEnabled(false);
+    m_ui->AVDRemovePushButton->setEnabled(false);
+    m_ui->AVDStartPushButton->setEnabled(false);
+}
+
+void AndroidSettingsWidget::enableAvdControls()
+{
+    m_ui->AVDTableView->setEnabled(true);
+    m_ui->AVDAddPushButton->setEnabled(true);
+    avdActivated(m_ui->AVDTableView->currentIndex());
+}
+
+void AndroidSettingsWidget::startUpdateAvd()
+{
+    disableAvdControls();
+    m_virtualDevicesWatcher.setFuture(m_androidConfig.androidVirtualDevicesFuture());
+}
+
+void AndroidSettingsWidget::updateAvds()
+{
+    m_AVDModel.setAvdList(m_virtualDevicesWatcher.result());
+    if (!m_lastAddedAvd.isEmpty()) {
+        m_ui->AVDTableView->setCurrentIndex(m_AVDModel.indexForAvdName(m_lastAddedAvd));
+        m_lastAddedAvd.clear();
+    }
+    enableAvdControls();
 }
 
 bool AndroidSettingsWidget::sdkLocationIsValid() const
@@ -519,11 +558,11 @@ void AndroidSettingsWidget::openOpenJDKDownloadUrl()
 
 void AndroidSettingsWidget::addAVD()
 {
-    m_ui->AVDAddPushButton->setEnabled(false);
+    disableAvdControls();
     AndroidConfig::CreateAvdInfo info = m_androidConfig.gatherCreateAVDInfo(this);
 
     if (info.target.isEmpty()) {
-        m_ui->AVDAddPushButton->setEnabled(true);
+        enableAvdControls();
         return;
     }
 
@@ -532,29 +571,31 @@ void AndroidSettingsWidget::addAVD()
 
 void AndroidSettingsWidget::avdAdded()
 {
-    m_ui->AVDAddPushButton->setEnabled(true);
     AndroidConfig::CreateAvdInfo info = m_futureWatcher.result();
     if (!info.error.isEmpty()) {
+        enableAvdControls();
         QMessageBox::critical(this, QApplication::translate("AndroidConfig", "Error Creating AVD"), info.error);
         return;
     }
 
-    m_AVDModel.setAvdList(m_androidConfig.androidVirtualDevices());
-    m_ui->AVDTableView->setCurrentIndex(m_AVDModel.indexForAvdName(info.name));
+    startUpdateAvd();
+    m_lastAddedAvd = info.name;
 }
 
 void AndroidSettingsWidget::removeAVD()
 {
+    disableAvdControls();
     QString avdName = m_AVDModel.avdName(m_ui->AVDTableView->currentIndex());
     if (QMessageBox::question(this, tr("Remove Android Virtual Device"),
                               tr("Remove device \"%1\"? This cannot be undone.").arg(avdName),
                               QMessageBox::Yes | QMessageBox::No)
-            == QMessageBox::No)
+            == QMessageBox::No) {
+        enableAvdControls();
         return;
+    }
 
     m_androidConfig.removeAVD(avdName);
-    m_AVDModel.setAvdList(m_androidConfig.androidVirtualDevices());
-    avdActivated(m_ui->AVDTableView->currentIndex());
+    startUpdateAvd();
 }
 
 void AndroidSettingsWidget::startAVD()

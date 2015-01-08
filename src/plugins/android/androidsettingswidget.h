@@ -96,6 +96,7 @@ private slots:
 
     void checkGdbFinished();
     void showGdbWarningDialog();
+    void updateAvds();
 
 private:
     enum Mode { Sdk = 1, Ndk = 2, Java = 4, All = Sdk | Ndk | Java };
@@ -104,6 +105,9 @@ private:
     void applyToUi(Mode mode);
     bool sdkLocationIsValid() const;
     bool sdkPlatformToolsInstalled() const;
+    void startUpdateAvd();
+    void enableAvdControls();
+    void disableAvdControls();
 
     State m_sdkState;
     State m_ndkState;
@@ -118,6 +122,9 @@ private:
     QFutureWatcher<AndroidConfig::CreateAvdInfo> m_futureWatcher;
     QFutureWatcher<QPair<QStringList, bool>> m_checkGdbWatcher;
     QStringList m_gdbCheckPaths;
+
+    QFutureWatcher<QVector<AndroidDeviceInfo>> m_virtualDevicesWatcher;
+    QString m_lastAddedAvd;
 };
 
 } // namespace Internal
