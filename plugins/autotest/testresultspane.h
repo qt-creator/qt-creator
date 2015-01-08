@@ -52,8 +52,6 @@ public:
     virtual ~TestResultsPane();
     static TestResultsPane *instance();
 
-    void addTestResult(const TestResult &result);
-
     // IOutputPane interface
     QWidget *outputWidget(QWidget *parent);
     QList<QWidget *> toolBarWidgets() const;
@@ -73,6 +71,7 @@ public:
 signals:
 
 public slots:
+    void addTestResult(const TestResult &result);
 
 private slots:
     void onItemActivated(const QModelIndex &index);

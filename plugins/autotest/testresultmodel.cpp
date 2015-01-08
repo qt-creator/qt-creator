@@ -36,7 +36,6 @@ TestResultModel::TestResultModel(QObject *parent) :
 
 TestResultModel::~TestResultModel()
 {
-    QWriteLocker lock(&m_rwLock);
     m_testResults.clear();
 }
 
@@ -54,7 +53,6 @@ QModelIndex TestResultModel::parent(const QModelIndex &) const
 
 int TestResultModel::rowCount(const QModelIndex &parent) const
 {
-    QReadLocker lock(&m_rwLock);
     return parent.isValid() ? 0 : m_testResults.size();
 }
 
@@ -85,7 +83,6 @@ static QIcon testResultIcon(ResultType result) {
 
 QVariant TestResultModel::data(const QModelIndex &index, int role) const
 {
-    QReadLocker lock(&m_rwLock);
     if (!index.isValid() || index.row() >= m_testResults.count() || index.column() != 0)
         return QVariant();
     if (role == Qt::DisplayRole) {
@@ -118,23 +115,17 @@ void TestResultModel::addTestResult(const TestResult &testResult)
     const bool isCurrentTestMssg = testResult.result() == ResultType::MESSAGE_CURRENT_TEST;
     const bool hasCurrentTestMssg = m_availableResultTypes.contains(ResultType::MESSAGE_CURRENT_TEST);
 
-    QReadLocker rLock(&m_rwLock);
     int position = m_testResults.size();
-    rLock.unlock();
 
     if (hasCurrentTestMssg && isCurrentTestMssg) {
-        beginRemoveRows(QModelIndex(), position, position);
-        QWriteLocker wLock(&m_rwLock);
-        m_testResults.replace(position - 1, testResult);
-        wLock.unlock();
-        endRemoveRows();
+        m_testResults.last().setDescription(testResult.description());
+        const QModelIndex changed = index(m_testResults.size() - 1, 0, QModelIndex());
+        emit dataChanged(changed, changed);
     } else {
         if (!isCurrentTestMssg && position) // decrement only if at least one other item
             --position;
         beginInsertRows(QModelIndex(), position, position);
-        QWriteLocker wLock(&m_rwLock);
         m_testResults.insert(position, testResult);
-        wLock.unlock();
         endInsertRows();
     }
 
@@ -148,13 +139,9 @@ void TestResultModel::addTestResult(const TestResult &testResult)
 
 void TestResultModel::removeCurrentTestMessage()
 {
-    QReadLocker rLock(&m_rwLock);
     if (m_availableResultTypes.contains(ResultType::MESSAGE_CURRENT_TEST)) {
         beginRemoveRows(QModelIndex(), m_testResults.size() - 1, m_testResults.size() - 1);
-        rLock.unlock();
-        QWriteLocker wLock(&m_rwLock);
         m_testResults.removeLast();
-        wLock.unlock();
         endRemoveRows();
         m_availableResultTypes.remove(ResultType::MESSAGE_CURRENT_TEST);
     }
@@ -162,14 +149,10 @@ void TestResultModel::removeCurrentTestMessage()
 
 void TestResultModel::clearTestResults()
 {
-    QReadLocker rLock(&m_rwLock);
     if (m_testResults.size() == 0)
         return;
     beginRemoveRows(QModelIndex(), 0, m_testResults.size() - 1);
-    rLock.unlock();
-    QWriteLocker wLock(&m_rwLock);
     m_testResults.clear();
-    wLock.unlock();
     m_testResultCount.clear();
     m_lastMaxWidthIndex = 0;
     m_maxWidthOfFileName = 0;
@@ -182,15 +165,12 @@ TestResult TestResultModel::testResult(const QModelIndex &index) const
 {
     if (!index.isValid())
         return TestResult(QString(), QString());
-    QReadLocker lock(&m_rwLock);
     return m_testResults.at(index.row());
 }
 
 int TestResultModel::maxWidthOfFileName(const QFont &font)
 {
-    QReadLocker lock(&m_rwLock);
     int count = m_testResults.size();
-    lock.unlock();
     if (count == 0)
         return 0;
     if (m_maxWidthOfFileName > 0 && font == m_measurementFont && m_lastMaxWidthIndex == count - 1)
@@ -200,9 +180,7 @@ int TestResultModel::maxWidthOfFileName(const QFont &font)
     m_measurementFont = font;
 
     for (int i = m_lastMaxWidthIndex; i < count; ++i) {
-        lock.relock();
         QString filename = m_testResults.at(i).fileName();
-        lock.unlock();
         const int pos = filename.lastIndexOf(QLatin1Char('/'));
         if (pos != -1)
             filename = filename.mid(pos +1);

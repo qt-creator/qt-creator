@@ -51,6 +51,8 @@ static AutotestPlugin *m_instance = 0;
 AutotestPlugin::AutotestPlugin()
     : m_settings(new TestSettings)
 {
+    // needed to be used in QueuedConnection connects
+    qRegisterMetaType<TestResult>();
     // Create your members
     m_instance = this;
 }

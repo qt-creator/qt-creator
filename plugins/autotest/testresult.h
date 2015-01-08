@@ -46,7 +46,8 @@ class TestResult
 {
 public:
 
-    TestResult(const QString &className, const QString &testCase, const QString &dataTag = QString(),
+    TestResult(const QString &className = QString(), const QString &testCase = QString(),
+               const QString &dataTag = QString(),
                ResultType result = UNKNOWN, const QString &description = QString());
 
     QString className() const { return m_class; }
@@ -57,6 +58,7 @@ public:
     QString fileName() const { return m_file; }
     int line() const { return m_line; }
 
+    void setDescription(const QString &description) { m_description = description; }
     void setFileName(const QString &fileName) { m_file = fileName; }
     void setLine(int line) { m_line = line; }
 
@@ -87,6 +89,7 @@ bool operator==(const TestResult &t1, const TestResult &t2);
 } // namespace Internal
 } // namespace Autotest
 
+Q_DECLARE_METATYPE(Autotest::Internal::TestResult)
 Q_DECLARE_METATYPE(Autotest::Internal::ResultType)
 
 #endif // TESTRESULT_H

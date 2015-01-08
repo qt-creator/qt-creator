@@ -192,6 +192,11 @@ static bool xmlExtractBenchmarkInformation(const QString &code, const QString &t
     return false;
 }
 
+void emitTestResultCreated(const TestResult &testResult)
+{
+    emit m_instance->testResultCreated(testResult);
+}
+
 /****************** XML line parser helper end ******************/
 
 void processOutput()
@@ -228,8 +233,8 @@ void processOutput()
             result = ResultType::UNKNOWN;
             lineNumber = 0;
             readingDescription = false;
-            TestResultsPane::instance()->addTestResult(
-                        TestResult(className, testCase, QString(), ResultType::MESSAGE_CURRENT_TEST,
+            emitTestResultCreated(
+                        TestResult(QString(), QString(), QString(), ResultType::MESSAGE_CURRENT_TEST,
                                    QObject::tr("Entering Test Function %1::%2")
                                    .arg(className).arg(testCase)));
             continue;
@@ -253,13 +258,13 @@ void processOutput()
                     file = QFileInfo(m_runner->workingDirectory(), file).canonicalFilePath();
                 testResult.setFileName(file);
                 testResult.setLine(lineNumber);
-                TestResultsPane::instance()->addTestResult(testResult);
+                emitTestResultCreated(testResult);
             }
             continue;
         }
         if (xmlExtractBenchmarkInformation(line, QLatin1String("<BenchmarkResult"), bmDescription)) {
             TestResult testResult(className, testCase, dataTag, ResultType::BENCHMARK, bmDescription);
-            TestResultsPane::instance()->addTestResult(testResult);
+            emitTestResultCreated(testResult);
             continue;
         }
         if (line == QLatin1String("</Message>") || line == QLatin1String("</Incident>")) {
@@ -268,17 +273,17 @@ void processOutput()
                 file = QFileInfo(m_runner->workingDirectory(), file).canonicalFilePath();
             testResult.setFileName(file);
             testResult.setLine(lineNumber);
-            TestResultsPane::instance()->addTestResult(testResult);
+            emitTestResultCreated(testResult);
             description = QString();
         } else if (line == QLatin1String("</TestFunction>") && !duration.isEmpty()) {
             TestResult testResult(className, testCase, QString(), ResultType::MESSAGE_INTERNAL,
                                   QObject::tr("execution took %1ms").arg(duration));
-            TestResultsPane::instance()->addTestResult(testResult);
+            emitTestResultCreated(testResult);
             m_currentFuture->setProgressValue(m_currentFuture->progressValue() + 1);
         } else if (line == QLatin1String("</TestCase>") && !duration.isEmpty()) {
             TestResult testResult(className, QString(), QString(), ResultType::MESSAGE_INTERNAL,
                                   QObject::tr("Test execution took %1ms").arg(duration));
-            TestResultsPane::instance()->addTestResult(testResult);
+            emitTestResultCreated(testResult);
         } else if (readingDescription) {
             if (line.endsWith(QLatin1String("]]></Description>"))) {
                 description.append(QLatin1Char('\n'));
@@ -289,10 +294,10 @@ void processOutput()
                 description.append(line);
             }
         } else if (xmlStartsWith(line, QLatin1String("<QtVersion>"), qtVersion)) {
-            TestResultsPane::instance()->addTestResult(FaultyTestResult(ResultType::MESSAGE_INTERNAL,
+            emitTestResultCreated(FaultyTestResult(ResultType::MESSAGE_INTERNAL,
                 QObject::tr("Qt Version: %1").arg(qtVersion)));
         } else if (xmlStartsWith(line, QLatin1String("<QTestVersion>"), qtestVersion)) {
-            TestResultsPane::instance()->addTestResult(FaultyTestResult(ResultType::MESSAGE_INTERNAL,
+            emitTestResultCreated(FaultyTestResult(ResultType::MESSAGE_INTERNAL,
                 QObject::tr("QTest Version: %1").arg(qtestVersion)));
         } else {
 //            qDebug() << "Unhandled line:" << line; // TODO remove
@@ -344,7 +349,7 @@ bool performExec(const QString &cmd, const QStringList &args, const QString &wor
     }
 
     if (runCmd.isEmpty()) {
-        TestResultsPane::instance()->addTestResult(FaultyTestResult(ResultType::MESSAGE_FATAL,
+        emitTestResultCreated(FaultyTestResult(ResultType::MESSAGE_FATAL,
             QObject::tr("*** Could not find command '%1' ***").arg(cmd)));
         return false;
     }
@@ -366,7 +371,7 @@ bool performExec(const QString &cmd, const QStringList &args, const QString &wor
             if (m_currentFuture->isCanceled()) {
                 m_runner->kill();
                 m_runner->waitForFinished();
-                TestResultsPane::instance()->addTestResult(FaultyTestResult(ResultType::MESSAGE_FATAL,
+                emitTestResultCreated(FaultyTestResult(ResultType::MESSAGE_FATAL,
                     QObject::tr("*** Test Run canceled by user ***")));
             }
             qApp->processEvents();
@@ -378,7 +383,7 @@ bool performExec(const QString &cmd, const QStringList &args, const QString &wor
         if (m_runner->state() != QProcess::NotRunning) {
             m_runner->kill();
             m_runner->waitForFinished();
-            TestResultsPane::instance()->addTestResult(FaultyTestResult(ResultType::MESSAGE_FATAL,
+            emitTestResultCreated(FaultyTestResult(ResultType::MESSAGE_FATAL,
                 QObject::tr("*** Test Case canceled due to timeout ***\nMaybe raise the timeout?")));
         }
         return false;
@@ -484,6 +489,10 @@ void TestRunner::runTests()
     }
 
     m_executingTests = true;
+    connect(this, &TestRunner::testResultCreated,
+            TestResultsPane::instance(), &TestResultsPane::addTestResult,
+            Qt::QueuedConnection);
+
     emit testRunStarted();
     QFuture<void> future = QtConcurrent::run(&performTestRun , m_selectedTests);
     Core::FutureProgress *progress = Core::ProgressManager::addTask(future, tr("Running Tests"),
@@ -516,6 +525,9 @@ void TestRunner::buildFinished(bool success)
 
 void TestRunner::onFinished()
 {
+    disconnect(this, &TestRunner::testResultCreated,
+               TestResultsPane::instance(), &TestResultsPane::addTestResult);
+
     m_executingTests = false;
     emit testRunFinished();
 }
