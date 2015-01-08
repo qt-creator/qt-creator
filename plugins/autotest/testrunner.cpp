@@ -468,8 +468,8 @@ void TestRunner::runTests()
         return;
     }
 
-    ProjectExplorer::ProjectExplorerPlugin *pep = ProjectExplorer::ProjectExplorerPlugin::instance();
-    ProjectExplorer::Internal::ProjectExplorerSettings pes = pep->projectExplorerSettings();
+    ProjectExplorer::Internal::ProjectExplorerSettings pes =
+        ProjectExplorer::ProjectExplorerPlugin::projectExplorerSettings();
     if (pes.buildBeforeDeploy) {
         if (!project->hasActiveBuildSettings()) {
             TestResultsPane::instance()->addTestResult(FaultyTestResult(ResultType::MESSAGE_FATAL,
@@ -507,10 +507,9 @@ void TestRunner::buildProject(ProjectExplorer::Project *project)
     m_buildSucceeded = false;
     ProjectExplorer::BuildManager *mgr = static_cast<ProjectExplorer::BuildManager *>(
                 ProjectExplorer::BuildManager::instance());
-    ProjectExplorer::ProjectExplorerPlugin *pep = ProjectExplorer::ProjectExplorerPlugin::instance();
     connect(mgr, &ProjectExplorer::BuildManager::buildQueueFinished,
             this, &TestRunner::buildFinished);
-    pep->buildProject(project);
+    ProjectExplorer::ProjectExplorerPlugin::buildProject(project);
 }
 
 void TestRunner::buildFinished(bool success)
