@@ -66,7 +66,6 @@ public:
     void finish();
 
     void showKit(Kit *k);
-
 private slots:
     void kitSelectionChanged();
     void addNewKit();
@@ -77,6 +76,7 @@ private slots:
 
 private:
     QModelIndex currentIndex() const;
+    Kit *currentKit() const;
 
     QTreeView *m_kitsView;
     QPushButton *m_addButton;

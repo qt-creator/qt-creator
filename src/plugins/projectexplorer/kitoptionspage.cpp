@@ -93,7 +93,7 @@ QWidget *KitOptionsPage::widget()
         verticalLayout->addLayout(horizontalLayout);
 
         m_model = new Internal::KitModel(verticalLayout);
-        connect(m_model, SIGNAL(kitStateChanged()), this, SLOT(updateState()));
+        connect(m_model, &Internal::KitModel::kitStateChanged, this, &KitOptionsPage::updateState);
         verticalLayout->setStretch(0, 1);
         verticalLayout->setStretch(1, 0);
 
@@ -102,20 +102,20 @@ QWidget *KitOptionsPage::widget()
         m_kitsView->expandAll();
 
         m_selectionModel = m_kitsView->selectionModel();
-        connect(m_selectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-                this, SLOT(kitSelectionChanged()));
-        connect(KitManager::instance(), SIGNAL(kitAdded(ProjectExplorer::Kit*)),
-                this, SLOT(kitSelectionChanged()));
-        connect(KitManager::instance(), SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
-                this, SLOT(kitSelectionChanged()));
-        connect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
-                this, SLOT(kitSelectionChanged()));
+        connect(m_selectionModel, &QItemSelectionModel::selectionChanged,
+                this, &KitOptionsPage::kitSelectionChanged);
+        connect(KitManager::instance(), &KitManager::kitAdded,
+                this, &KitOptionsPage::kitSelectionChanged);
+        connect(KitManager::instance(), &KitManager::kitRemoved,
+                this, &KitOptionsPage::kitSelectionChanged);
+        connect(KitManager::instance(), &KitManager::kitUpdated,
+                this, &KitOptionsPage::kitSelectionChanged);
 
         // Set up add menu:
-        connect(m_addButton, SIGNAL(clicked()), this, SLOT(addNewKit()));
-        connect(m_cloneButton, SIGNAL(clicked()), this, SLOT(cloneKit()));
-        connect(m_delButton, SIGNAL(clicked()), this, SLOT(removeKit()));
-        connect(m_makeDefaultButton, SIGNAL(clicked()), this, SLOT(makeDefaultKit()));
+        connect(m_addButton, &QAbstractButton::clicked, this, &KitOptionsPage::addNewKit);
+        connect(m_cloneButton, &QAbstractButton::clicked, this, &KitOptionsPage::cloneKit);
+        connect(m_delButton, &QAbstractButton::clicked, this, &KitOptionsPage::removeKit);
+        connect(m_makeDefaultButton, &QAbstractButton::clicked, this, &KitOptionsPage::makeDefaultKit);
 
         updateState();
 
@@ -148,7 +148,7 @@ void KitOptionsPage::finish()
     delete m_configWidget;
     m_selectionModel = 0; // child of m_configWidget
     m_kitsView = 0; // child of m_configWidget
-    m_currentWidget = 0; // deleted by the model
+    m_currentWidget = 0; // not owned
     m_toShow = 0;
 }
 
@@ -160,7 +160,7 @@ void KitOptionsPage::showKit(Kit *k)
 void KitOptionsPage::kitSelectionChanged()
 {
     QModelIndex current = currentIndex();
-    QWidget *newWidget = current.isValid() ? m_model->widget(current) : 0;
+    QWidget *newWidget = m_model->widget(current);
     if (newWidget == m_currentWidget)
         return;
 
@@ -187,9 +187,14 @@ void KitOptionsPage::addNewKit()
                              | QItemSelectionModel::Rows);
 }
 
+Kit *KitOptionsPage::currentKit() const
+{
+    return m_model->kit(currentIndex());
+}
+
 void KitOptionsPage::cloneKit()
 {
-    Kit *current = m_model->kit(currentIndex());
+    Kit *current = currentKit();
     if (!current)
         return;
 
@@ -204,10 +209,8 @@ void KitOptionsPage::cloneKit()
 
 void KitOptionsPage::removeKit()
 {
-    Kit *k = m_model->kit(currentIndex());
-    if (!k)
-        return;
-    m_model->markForRemoval(k);
+    if (Kit *k = currentKit())
+        m_model->markForRemoval(k);
 }
 
 void KitOptionsPage::makeDefaultKit()
@@ -224,12 +227,11 @@ void KitOptionsPage::updateState()
     bool canCopy = false;
     bool canDelete = false;
     bool canMakeDefault = false;
-    QModelIndex index = currentIndex();
-    Kit *k = m_model->kit(index);
-    if (k) {
+
+    if (Kit *k = currentKit()) {
         canCopy = true;
         canDelete = !k->isAutoDetected();
-        canMakeDefault = !m_model->isDefaultKit(index);
+        canMakeDefault = !m_model->isDefaultKit(k);
     }
 
     m_cloneButton->setEnabled(canCopy);

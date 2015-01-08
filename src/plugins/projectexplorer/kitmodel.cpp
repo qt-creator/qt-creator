@@ -124,22 +124,28 @@ KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent) :
 
     changeDefaultKit();
 
-    connect(KitManager::instance(), SIGNAL(kitAdded(ProjectExplorer::Kit*)),
-            this, SLOT(addKit(ProjectExplorer::Kit*)));
-    connect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
-            this, SLOT(updateKit(ProjectExplorer::Kit*)));
-    connect(KitManager::instance(), SIGNAL(unmanagedKitUpdated(ProjectExplorer::Kit*)),
-            this, SLOT(updateKit(ProjectExplorer::Kit*)));
-    connect(KitManager::instance(), SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
-            this, SLOT(removeKit(ProjectExplorer::Kit*)));
-    connect(KitManager::instance(), SIGNAL(defaultkitChanged()),
-            this, SLOT(changeDefaultKit()));
+    connect(KitManager::instance(), &KitManager::kitAdded,
+            this, &KitModel::addKit);
+    connect(KitManager::instance(), &KitManager::kitUpdated,
+            this, &KitModel::updateKit);
+    connect(KitManager::instance(), &KitManager::unmanagedKitUpdated,
+            this, &KitModel::updateKit);
+    connect(KitManager::instance(), &KitManager::kitRemoved,
+            this, &KitModel::removeKit);
+    connect(KitManager::instance(), &KitManager::defaultkitChanged,
+            this, &KitModel::changeDefaultKit);
 }
 
 Kit *KitModel::kit(const QModelIndex &index)
 {
+    KitNode *n = kitNode(index);
+    return n ? n->widget->workingCopy() : 0;
+}
+
+KitNode *KitModel::kitNode(const QModelIndex &index)
+{
     TreeItem *n = itemFromIndex(index);
-    return n && n->level() == 2 ? static_cast<KitNode *>(n)->widget->workingCopy() : 0;
+    return n && n->level() == 2 ? static_cast<KitNode *>(n) : 0;
 }
 
 QModelIndex KitModel::indexOf(Kit *k) const
@@ -150,83 +156,53 @@ QModelIndex KitModel::indexOf(Kit *k) const
 
 void KitModel::setDefaultKit(const QModelIndex &index)
 {
-    TreeItem *n = itemFromIndex(index);
-    if (n && n->level() == 2)
-        setDefaultNode(static_cast<KitNode *>(n));
+    if (KitNode *n = kitNode(index))
+        setDefaultNode(n);
 }
 
-bool KitModel::isDefaultKit(const QModelIndex &index)
+bool KitModel::isDefaultKit(Kit *k) const
 {
-    TreeItem *n = itemFromIndex(index);
-    return n && n->level() == 2 && n == m_defaultNode;
+    return m_defaultNode && m_defaultNode->widget->workingCopy() == k;
 }
 
 KitManagerConfigWidget *KitModel::widget(const QModelIndex &index)
 {
-    if (!index.isValid())
-        return 0;
-    KitNode *node = static_cast<KitNode *>(index.internalPointer());
-    if (node == m_autoRoot || node == m_manualRoot)
-        return 0;
-    return node->widget;
-}
-
-bool KitModel::isDirty() const
-{
-    return Utils::anyOf(m_manualRoot->children(), [](TreeItem *n) {
-        return static_cast<KitNode *>(n)->widget->isDirty();
-    });
-}
-
-bool KitModel::isDirty(Kit *k) const
-{
-    KitNode *n = findWorkingCopy(k);
-    return n ? n->widget->isDirty() : false;
+    KitNode *n = kitNode(index);
+    return n ? n->widget : 0;
 }
 
 void KitModel::validateKitNames()
 {
     QHash<QString, int> nameHash;
-    foreach (TreeItem *group, rootItem()->children()) {
-        foreach (TreeItem *item, group->children()) {
-            KitNode *n = static_cast<KitNode *>(item);
-            const QString displayName = n->widget->displayName();
-            if (nameHash.contains(displayName))
-                ++nameHash[displayName];
-            else
-                nameHash.insert(displayName, 1);
-        }
+    foreach (KitNode *n, treeLevelItems<KitNode *>(2)) {
+        const QString displayName = n->widget->displayName();
+        if (nameHash.contains(displayName))
+            ++nameHash[displayName];
+        else
+            nameHash.insert(displayName, 1);
     }
 
-    foreach (TreeItem *group, rootItem()->children()) {
-        foreach (TreeItem *item, group->children()) {
-            KitNode *n = static_cast<KitNode *>(item);
-            const QString displayName = n->widget->displayName();
-            n->widget->setHasUniqueName(nameHash.value(displayName) == 1);
-        }
+    foreach (KitNode *n, treeLevelItems<KitNode *>(2)) {
+        const QString displayName = n->widget->displayName();
+        n->widget->setHasUniqueName(nameHash.value(displayName) == 1);
     }
 }
 
 void KitModel::apply()
 {
     // Remove unused kits:
-    QList<KitNode *> nodes = m_toRemoveList;
-    foreach (KitNode *n, nodes)
+    foreach (KitNode *n, m_toRemoveList)
         n->widget->removeKit();
 
     // Update kits:
-    foreach (TreeItem *group, rootItem()->children()) {
-        //QList<TreeItems *> nodes = rootItem()->children(); // These can be dirty due to being made default!
-        //nodes.append(m_manualRoot->children());
-        foreach (TreeItem *item, group->children()) {
-            KitNode *n = static_cast<KitNode *>(item);
-            Q_ASSERT(n->widget);
-            if (n->widget->isDirty()) {
-                n->widget->apply();
-                updateItem(item);
-            }
+    foreach (KitNode *n, treeLevelItems<KitNode *>(2)) {
+        if (n->widget->isDirty()) {
+            n->widget->apply();
+            updateItem(n);
         }
     }
+
+    layoutChanged(); // Force update.
 }
 
 void KitModel::markForRemoval(Kit *k)
@@ -274,12 +250,9 @@ Kit *KitModel::markForAddition(Kit *baseKit)
 
 KitNode *KitModel::findWorkingCopy(Kit *k) const
 {
-    foreach (TreeItem *group, rootItem()->children()) {
-        foreach (TreeItem *item, group->children()) {
-            KitNode *n = static_cast<KitNode *>(item);
-            if (n->widget->workingCopy() == k)
-                return n;
-        }
+    foreach (KitNode *n, treeLevelItems<KitNode *>(2)) {
+        if (n->widget->workingCopy() == k)
+            return n;
     }
     return 0;
 }
@@ -340,13 +313,10 @@ void KitModel::removeKit(Kit *k)
     }
 
     KitNode *node = 0;
-    foreach (TreeItem *group, rootItem()->children()) {
-        foreach (TreeItem *item, group->children()) {
-            KitNode *n = static_cast<KitNode *>(item);
-            if (n->widget->configures(k)) {
-                node = n;
-                break;
-            }
+    foreach (KitNode *n, treeLevelItems<KitNode *>(2)) {
+        if (n->widget->configures(k)) {
+            node = n;
+            break;
         }
     }
 
@@ -362,13 +332,10 @@ void KitModel::removeKit(Kit *k)
 void KitModel::changeDefaultKit()
 {
     Kit *defaultKit = KitManager::defaultKit();
-    foreach (TreeItem *group, rootItem()->children()) {
-        foreach (TreeItem *item, group->children()) {
-            KitNode *n = static_cast<KitNode *>(item);
-            if (n->widget->configures(defaultKit)) {
-                setDefaultNode(n);
-                return;
-            }
+    foreach (KitNode *n, treeLevelItems<KitNode *>(2)) {
+        if (n->widget->configures(defaultKit)) {
+            setDefaultNode(n);
+            return;
         }
     }
 }

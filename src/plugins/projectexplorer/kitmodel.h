@@ -46,8 +46,8 @@ class KitFactory;
 class KitManager;
 
 namespace Internal {
-class KitManagerConfigWidget;
 
+class KitManagerConfigWidget;
 class KitNode;
 
 // --------------------------------------------------------------------------
@@ -62,15 +62,13 @@ public:
     explicit KitModel(QBoxLayout *parentLayout, QObject *parent = 0);
 
     Kit *kit(const QModelIndex &);
+    KitNode *kitNode(const QModelIndex &);
     QModelIndex indexOf(Kit *k) const;
 
     void setDefaultKit(const QModelIndex &index);
-    bool isDefaultKit(const QModelIndex &index);
+    bool isDefaultKit(Kit *k) const;
 
     ProjectExplorer::Internal::KitManagerConfigWidget *widget(const QModelIndex &);
-
-    bool isDirty() const;
-    bool isDirty(Kit *k) const;
 
     void apply();
 
@@ -80,15 +78,13 @@ public:
 signals:
     void kitStateChanged();
 
-private slots:
+private:
     void addKit(ProjectExplorer::Kit *k);
     void updateKit(ProjectExplorer::Kit *k);
     void removeKit(ProjectExplorer::Kit *k);
     void changeDefaultKit();
     void validateKitNames();
 
-private:
-    QModelIndex index(KitNode *, int column = 0) const;
     KitNode *findWorkingCopy(Kit *k) const;
     KitNode *createNode(Kit *k);
     void setDefaultNode(KitNode *node);
