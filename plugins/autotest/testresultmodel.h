@@ -51,8 +51,8 @@ public:
     int maxWidthOfFileName(const QFont &font);
     int maxWidthOfLineNumber(const QFont &font);
 
-    bool hasResultType(ResultType type) { return m_availableResultTypes.contains(type); }
-    int resultTypeCount(ResultType type);
+    bool hasResultType(Result::Type type) { return m_availableResultTypes.contains(type); }
+    int resultTypeCount(Result::Type type);
 
 signals:
 
@@ -60,12 +60,12 @@ public slots:
 
 private:
     QList<TestResult> m_testResults;
-    QMap<ResultType, int> m_testResultCount;
+    QMap<Result::Type, int> m_testResultCount;
     int m_widthOfLineNumber;
     int m_maxWidthOfFileName;
     int m_lastMaxWidthIndex;
     QFont m_measurementFont;
-    QSet<ResultType> m_availableResultTypes;
+    QSet<Result::Type> m_availableResultTypes;
 };
 
 class TestResultFilterModel : public QSortFilterProxyModel
@@ -75,7 +75,7 @@ public:
     TestResultFilterModel(TestResultModel *sourceModel, QObject *parent = 0);
 
     void enableAllResultTypes();
-    void toggleTestResultType(ResultType type);
+    void toggleTestResultType(Result::Type type);
     void clearTestResults();
     bool hasResults();
     TestResult testResult(const QModelIndex &index) const;
@@ -85,7 +85,7 @@ protected:
 
 private:
     TestResultModel *m_sourceModel;
-    QSet<ResultType> m_enabled;
+    QSet<Result::Type> m_enabled;
 };
 
 } // namespace Internal

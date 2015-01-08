@@ -21,13 +21,13 @@
 namespace Autotest {
 namespace Internal {
 
-FaultyTestResult::FaultyTestResult(ResultType result, const QString &description)
+FaultyTestResult::FaultyTestResult(Result::Type result, const QString &description)
     : TestResult(QString(), QString(), QString(), result, description)
 {
 }
 
 TestResult::TestResult(const QString &className, const QString &testCase, const QString &dataTag,
-                       ResultType result, const QString &description)
+                       Result::Type result, const QString &description)
     : m_class(className),
       m_case(testCase),
       m_dataTag(dataTag),
@@ -37,125 +37,125 @@ TestResult::TestResult(const QString &className, const QString &testCase, const 
 {
 }
 
-ResultType TestResult::resultFromString(const QString &resultString)
+Result::Type TestResult::resultFromString(const QString &resultString)
 {
     if (resultString == QLatin1String("pass"))
-        return PASS;
+        return Result::PASS;
     if (resultString == QLatin1String("fail"))
-        return FAIL;
+        return Result::FAIL;
     if (resultString == QLatin1String("xfail"))
-        return EXPECTED_FAIL;
+        return Result::EXPECTED_FAIL;
     if (resultString == QLatin1String("xpass"))
-        return UNEXPECTED_PASS;
+        return Result::UNEXPECTED_PASS;
     if (resultString == QLatin1String("skip"))
-        return SKIP;
+        return Result::SKIP;
     if (resultString == QLatin1String("qdebug"))
-        return MESSAGE_DEBUG;
+        return Result::MESSAGE_DEBUG;
     if (resultString == QLatin1String("warn") || resultString == QLatin1String("qwarn"))
-        return MESSAGE_WARN;
+        return Result::MESSAGE_WARN;
     if (resultString == QLatin1String("qfatal"))
-        return MESSAGE_FATAL;
+        return Result::MESSAGE_FATAL;
     if (resultString == QLatin1String("bpass"))
-        return BLACKLISTED_PASS;
+        return Result::BLACKLISTED_PASS;
     if (resultString == QLatin1String("bfail"))
-        return BLACKLISTED_FAIL;
+        return Result::BLACKLISTED_FAIL;
     qDebug(" unexpected testresult...");
     qDebug(resultString.toLatin1());
-    return UNKNOWN;
+    return Result::UNKNOWN;
 }
 
-ResultType TestResult::toResultType(int rt)
+Result::Type TestResult::toResultType(int rt)
 {
     switch(rt) {
-    case PASS:
-        return PASS;
-    case FAIL:
-        return FAIL;
-    case EXPECTED_FAIL:
-        return EXPECTED_FAIL;
-    case UNEXPECTED_PASS:
-        return UNEXPECTED_PASS;
-    case SKIP:
-        return SKIP;
-    case BLACKLISTED_PASS:
-        return BLACKLISTED_PASS;
-    case BLACKLISTED_FAIL:
-        return BLACKLISTED_FAIL;
-    case BENCHMARK:
-        return BENCHMARK;
-    case MESSAGE_DEBUG:
-        return MESSAGE_DEBUG;
-    case MESSAGE_WARN:
-        return MESSAGE_WARN;
-    case MESSAGE_FATAL:
-        return MESSAGE_FATAL;
-    case MESSAGE_INTERNAL:
-        return MESSAGE_INTERNAL;
-    case MESSAGE_CURRENT_TEST:
-        return MESSAGE_CURRENT_TEST;
+    case Result::PASS:
+        return Result::PASS;
+    case Result::FAIL:
+        return Result::FAIL;
+    case Result::EXPECTED_FAIL:
+        return Result::EXPECTED_FAIL;
+    case Result::UNEXPECTED_PASS:
+        return Result::UNEXPECTED_PASS;
+    case Result::SKIP:
+        return Result::SKIP;
+    case Result::BLACKLISTED_PASS:
+        return Result::BLACKLISTED_PASS;
+    case Result::BLACKLISTED_FAIL:
+        return Result::BLACKLISTED_FAIL;
+    case Result::BENCHMARK:
+        return Result::BENCHMARK;
+    case Result::MESSAGE_DEBUG:
+        return Result::MESSAGE_DEBUG;
+    case Result::MESSAGE_WARN:
+        return Result::MESSAGE_WARN;
+    case Result::MESSAGE_FATAL:
+        return Result::MESSAGE_FATAL;
+    case Result::MESSAGE_INTERNAL:
+        return Result::MESSAGE_INTERNAL;
+    case Result::MESSAGE_CURRENT_TEST:
+        return Result::MESSAGE_CURRENT_TEST;
     default:
-        return UNKNOWN;
+        return Result::UNKNOWN;
     }
 }
 
-QString TestResult::resultToString(const ResultType type)
+QString TestResult::resultToString(const Result::Type type)
 {
     switch(type) {
-    case PASS:
+    case Result::PASS:
         return QLatin1String("PASS");
-    case FAIL:
+    case Result::FAIL:
         return QLatin1String("FAIL");
-    case EXPECTED_FAIL:
+    case Result::EXPECTED_FAIL:
         return QLatin1String("XFAIL");
-    case UNEXPECTED_PASS:
+    case Result::UNEXPECTED_PASS:
         return QLatin1String("XPASS");
-    case SKIP:
+    case Result::SKIP:
         return QLatin1String("SKIP");
-    case BENCHMARK:
+    case Result::BENCHMARK:
         return QLatin1String("BENCH");
-    case MESSAGE_DEBUG:
+    case Result::MESSAGE_DEBUG:
         return QLatin1String("DEBUG");
-    case MESSAGE_WARN:
+    case Result::MESSAGE_WARN:
         return QLatin1String("WARN");
-    case MESSAGE_FATAL:
+    case Result::MESSAGE_FATAL:
         return QLatin1String("FATAL");
-    case MESSAGE_INTERNAL:
-    case MESSAGE_CURRENT_TEST:
+    case Result::MESSAGE_INTERNAL:
+    case Result::MESSAGE_CURRENT_TEST:
         return QString();
-    case BLACKLISTED_PASS:
+    case Result::BLACKLISTED_PASS:
         return QLatin1String("BPASS");
-    case BLACKLISTED_FAIL:
+    case Result::BLACKLISTED_FAIL:
         return QLatin1String("BFAIL");
     default:
         return QLatin1String("UNKNOWN");
     }
 }
 
-QColor TestResult::colorForType(const ResultType type)
+QColor TestResult::colorForType(const Result::Type type)
 {
     switch(type) {
-    case PASS:
+    case Result::PASS:
         return QColor("#009900");
-    case FAIL:
+    case Result::FAIL:
         return QColor("#a00000");
-    case EXPECTED_FAIL:
+    case Result::EXPECTED_FAIL:
         return QColor("#00ff00");
-    case UNEXPECTED_PASS:
+    case Result::UNEXPECTED_PASS:
         return QColor("#ff0000");
-    case SKIP:
+    case Result::SKIP:
         return QColor("#787878");
-    case BLACKLISTED_PASS:
+    case Result::BLACKLISTED_PASS:
         return QColor(0, 0, 0);
-    case BLACKLISTED_FAIL:
+    case Result::BLACKLISTED_FAIL:
         return QColor(0, 0, 0);
-    case MESSAGE_DEBUG:
+    case Result::MESSAGE_DEBUG:
         return QColor("#329696");
-    case MESSAGE_WARN:
+    case Result::MESSAGE_WARN:
         return QColor("#d0bb00");
-    case MESSAGE_FATAL:
+    case Result::MESSAGE_FATAL:
         return QColor("#640000");
-    case MESSAGE_INTERNAL:
-    case MESSAGE_CURRENT_TEST:
+    case Result::MESSAGE_INTERNAL:
+    case Result::MESSAGE_CURRENT_TEST:
         return QColor("transparent");
     default:
         return QColor("#000000");

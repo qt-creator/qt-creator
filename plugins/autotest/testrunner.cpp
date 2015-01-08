@@ -99,7 +99,7 @@ static bool xmlCData(const QString &code, const QString &start, QString &result)
 }
 
 static bool xmlExtractTypeFileLine(const QString &code, const QString &tagStart,
-                                   ResultType &result, QString &file, int &line)
+                                   Result::Type &result, QString &file, int &line)
 {
     if (code.startsWith(tagStart)) {
         int start = code.indexOf(QLatin1String(" type=\"")) + 7;
@@ -206,7 +206,7 @@ void processOutput()
     static QString className;
     static QString testCase;
     static QString dataTag;
-    static ResultType result = ResultType::UNKNOWN;
+    static Result::Type result = Result::UNKNOWN;
     static QString description;
     static QString file;
     static int lineNumber = 0;
@@ -230,11 +230,11 @@ void processOutput()
             description = QString();
             duration = QString();
             file = QString();
-            result = ResultType::UNKNOWN;
+            result = Result::UNKNOWN;
             lineNumber = 0;
             readingDescription = false;
             emitTestResultCreated(
-                        TestResult(QString(), QString(), QString(), ResultType::MESSAGE_CURRENT_TEST,
+                        TestResult(QString(), QString(), QString(), Result::MESSAGE_CURRENT_TEST,
                                    QObject::tr("Entering Test Function %1::%2")
                                    .arg(className).arg(testCase)));
             continue;
@@ -263,7 +263,7 @@ void processOutput()
             continue;
         }
         if (xmlExtractBenchmarkInformation(line, QLatin1String("<BenchmarkResult"), bmDescription)) {
-            TestResult testResult(className, testCase, dataTag, ResultType::BENCHMARK, bmDescription);
+            TestResult testResult(className, testCase, dataTag, Result::BENCHMARK, bmDescription);
             emitTestResultCreated(testResult);
             continue;
         }
@@ -276,12 +276,12 @@ void processOutput()
             emitTestResultCreated(testResult);
             description = QString();
         } else if (line == QLatin1String("</TestFunction>") && !duration.isEmpty()) {
-            TestResult testResult(className, testCase, QString(), ResultType::MESSAGE_INTERNAL,
+            TestResult testResult(className, testCase, QString(), Result::MESSAGE_INTERNAL,
                                   QObject::tr("execution took %1ms").arg(duration));
             emitTestResultCreated(testResult);
             m_currentFuture->setProgressValue(m_currentFuture->progressValue() + 1);
         } else if (line == QLatin1String("</TestCase>") && !duration.isEmpty()) {
-            TestResult testResult(className, QString(), QString(), ResultType::MESSAGE_INTERNAL,
+            TestResult testResult(className, QString(), QString(), Result::MESSAGE_INTERNAL,
                                   QObject::tr("Test execution took %1ms").arg(duration));
             emitTestResultCreated(testResult);
         } else if (readingDescription) {
@@ -294,10 +294,10 @@ void processOutput()
                 description.append(line);
             }
         } else if (xmlStartsWith(line, QLatin1String("<QtVersion>"), qtVersion)) {
-            emitTestResultCreated(FaultyTestResult(ResultType::MESSAGE_INTERNAL,
+            emitTestResultCreated(FaultyTestResult(Result::MESSAGE_INTERNAL,
                 QObject::tr("Qt Version: %1").arg(qtVersion)));
         } else if (xmlStartsWith(line, QLatin1String("<QTestVersion>"), qtestVersion)) {
-            emitTestResultCreated(FaultyTestResult(ResultType::MESSAGE_INTERNAL,
+            emitTestResultCreated(FaultyTestResult(Result::MESSAGE_INTERNAL,
                 QObject::tr("QTest Version: %1").arg(qtestVersion)));
         } else {
 //            qDebug() << "Unhandled line:" << line; // TODO remove
@@ -349,7 +349,7 @@ bool performExec(const QString &cmd, const QStringList &args, const QString &wor
     }
 
     if (runCmd.isEmpty()) {
-        emitTestResultCreated(FaultyTestResult(ResultType::MESSAGE_FATAL,
+        emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL,
             QObject::tr("*** Could not find command '%1' ***").arg(cmd)));
         return false;
     }
@@ -371,7 +371,7 @@ bool performExec(const QString &cmd, const QStringList &args, const QString &wor
             if (m_currentFuture->isCanceled()) {
                 m_runner->kill();
                 m_runner->waitForFinished();
-                emitTestResultCreated(FaultyTestResult(ResultType::MESSAGE_FATAL,
+                emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL,
                     QObject::tr("*** Test Run canceled by user ***")));
             }
             qApp->processEvents();
@@ -383,7 +383,7 @@ bool performExec(const QString &cmd, const QStringList &args, const QString &wor
         if (m_runner->state() != QProcess::NotRunning) {
             m_runner->kill();
             m_runner->waitForFinished();
-            emitTestResultCreated(FaultyTestResult(ResultType::MESSAGE_FATAL,
+            emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL,
                 QObject::tr("*** Test Case canceled due to timeout ***\nMaybe raise the timeout?")));
         }
         return false;
@@ -443,7 +443,7 @@ void TestRunner::runTests()
     foreach (TestConfiguration *config, m_selectedTests)
         if (!config->project()) {
             toBeRemoved.append(config);
-            TestResultsPane::instance()->addTestResult(FaultyTestResult(ResultType::MESSAGE_WARN,
+            TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_WARN,
                 tr("*** Project is null for '%1' - removing from Test Run ***\n"
                 "This might be the case for a faulty environment or similar."
                 ).arg(config->displayName())));
@@ -454,14 +454,14 @@ void TestRunner::runTests()
     }
 
     if (m_selectedTests.empty()) {
-        TestResultsPane::instance()->addTestResult(FaultyTestResult(ResultType::MESSAGE_WARN,
+        TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_WARN,
             tr("*** No tests selected - canceling Test Run ***")));
         return;
     }
 
     ProjectExplorer::Project *project = m_selectedTests.at(0)->project();
     if (!project) {
-        TestResultsPane::instance()->addTestResult(FaultyTestResult(ResultType::MESSAGE_WARN,
+        TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_WARN,
             tr("*** Project is null - canceling Test Run ***\n"
             "Actually only Desktop kits are supported - make sure the "
             "current active kit is a Desktop kit.")));
@@ -472,7 +472,7 @@ void TestRunner::runTests()
         ProjectExplorer::ProjectExplorerPlugin::projectExplorerSettings();
     if (pes.buildBeforeDeploy) {
         if (!project->hasActiveBuildSettings()) {
-            TestResultsPane::instance()->addTestResult(FaultyTestResult(ResultType::MESSAGE_FATAL,
+            TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_FATAL,
                 tr("*** Project is not configured - canceling Test Run ***")));
             return;
         }
@@ -482,7 +482,7 @@ void TestRunner::runTests()
         }
 
         if (!m_buildSucceeded) {
-            TestResultsPane::instance()->addTestResult(FaultyTestResult(ResultType::MESSAGE_FATAL,
+            TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_FATAL,
                 tr("*** Build failed - canceling Test Run ***")));
             return;
         }

@@ -25,7 +25,8 @@
 namespace Autotest {
 namespace Internal {
 
-enum ResultType {
+namespace Result{
+enum Type {
     PASS,
     FAIL,
     EXPECTED_FAIL,
@@ -41,6 +42,7 @@ enum ResultType {
     MESSAGE_CURRENT_TEST,
     UNKNOWN             // ???
 };
+}
 
 class TestResult
 {
@@ -48,12 +50,12 @@ public:
 
     TestResult(const QString &className = QString(), const QString &testCase = QString(),
                const QString &dataTag = QString(),
-               ResultType result = UNKNOWN, const QString &description = QString());
+               Result::Type result = Result::UNKNOWN, const QString &description = QString());
 
     QString className() const { return m_class; }
     QString testCase() const { return m_case; }
     QString dataTag() const { return m_dataTag; }
-    ResultType result() const { return m_result; }
+    Result::Type result() const { return m_result; }
     QString description() const { return m_description; }
     QString fileName() const { return m_file; }
     int line() const { return m_line; }
@@ -62,16 +64,16 @@ public:
     void setFileName(const QString &fileName) { m_file = fileName; }
     void setLine(int line) { m_line = line; }
 
-    static ResultType resultFromString(const QString &resultString);
-    static ResultType toResultType(int rt);
-    static QString resultToString(const ResultType type);
-    static QColor colorForType(const ResultType type);
+    static Result::Type resultFromString(const QString &resultString);
+    static Result::Type toResultType(int rt);
+    static QString resultToString(const Result::Type type);
+    static QColor colorForType(const Result::Type type);
 
 private:
     QString m_class;
     QString m_case;
     QString m_dataTag;
-    ResultType m_result;
+    Result::Type m_result;
     QString m_description;
     QString m_file;
     int m_line;
@@ -81,7 +83,7 @@ private:
 class FaultyTestResult : public TestResult
 {
 public:
-    FaultyTestResult(ResultType result, const QString &description);
+    FaultyTestResult(Result::Type result, const QString &description);
 };
 
 bool operator==(const TestResult &t1, const TestResult &t2);
@@ -90,6 +92,6 @@ bool operator==(const TestResult &t1, const TestResult &t2);
 } // namespace Autotest
 
 Q_DECLARE_METATYPE(Autotest::Internal::TestResult)
-Q_DECLARE_METATYPE(Autotest::Internal::ResultType)
+Q_DECLARE_METATYPE(Autotest::Internal::Result::Type)
 
 #endif // TESTRESULT_H

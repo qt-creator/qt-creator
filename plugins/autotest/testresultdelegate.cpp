@@ -68,7 +68,7 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     TestResultModel *resultModel = static_cast<TestResultModel *>(resultFilterModel->sourceModel());
     LayoutPositions positions(opt, resultModel);
     TestResult testResult = resultModel->testResult(resultFilterModel->mapToSource(index));
-    ResultType type = testResult.result();
+    Result::Type type = testResult.result();
 
     QIcon icon = index.data(Qt::DecorationRole).value<QIcon>();
     if (!icon.isNull())
@@ -88,12 +88,12 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     const QString desc = testResult.description();
     QString output;
     switch (type) {
-    case ResultType::PASS:
-    case ResultType::FAIL:
-    case ResultType::EXPECTED_FAIL:
-    case ResultType::UNEXPECTED_PASS:
-    case ResultType::BLACKLISTED_FAIL:
-    case ResultType::BLACKLISTED_PASS:
+    case Result::PASS:
+    case Result::FAIL:
+    case Result::EXPECTED_FAIL:
+    case Result::UNEXPECTED_PASS:
+    case Result::BLACKLISTED_FAIL:
+    case Result::BLACKLISTED_PASS:
         output = testResult.className() + QLatin1String("::") + testResult.testCase();
         if (!testResult.dataTag().isEmpty())
             output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));
@@ -101,7 +101,7 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
             output.append(QLatin1Char('\n')).append(desc);
         }
         break;
-    case ResultType::BENCHMARK:
+    case Result::BENCHMARK:
         output = testResult.className() + QLatin1String("::") + testResult.testCase();
         if (!testResult.dataTag().isEmpty())
             output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));
@@ -202,12 +202,12 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
         QString desc = testResult.description();
         QString output;
         switch (testResult.result()) {
-        case ResultType::PASS:
-        case ResultType::FAIL:
-        case ResultType::EXPECTED_FAIL:
-        case ResultType::UNEXPECTED_PASS:
-        case ResultType::BLACKLISTED_FAIL:
-        case ResultType::BLACKLISTED_PASS:
+        case Result::PASS:
+        case Result::FAIL:
+        case Result::EXPECTED_FAIL:
+        case Result::UNEXPECTED_PASS:
+        case Result::BLACKLISTED_FAIL:
+        case Result::BLACKLISTED_PASS:
             output = testResult.className() + QLatin1String("::") + testResult.testCase();
             if (!testResult.dataTag().isEmpty())
                 output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));
@@ -215,7 +215,7 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
                 output.append(QLatin1Char('\n')).append(desc);
             }
             break;
-        case ResultType::BENCHMARK:
+        case Result::BENCHMARK:
             output = testResult.className() + QLatin1String("::") + testResult.testCase();
             if (!testResult.dataTag().isEmpty())
                 output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));

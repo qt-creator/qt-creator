@@ -61,7 +61,7 @@ int TestResultModel::columnCount(const QModelIndex &parent) const
     return parent.isValid() ? 0 : 1;
 }
 
-static QIcon testResultIcon(ResultType result) {
+static QIcon testResultIcon(Result::Type result) {
     static QIcon icons[11] = {
         QIcon(QLatin1String(":/images/pass.png")),
         QIcon(QLatin1String(":/images/fail.png")),
@@ -76,7 +76,7 @@ static QIcon testResultIcon(ResultType result) {
         QIcon(QLatin1String(":/images/fatal.png")),
     }; // provide an icon for unknown??
 
-    if (result < 0 || result >= MESSAGE_INTERNAL)
+    if (result < 0 || result >= Result::MESSAGE_INTERNAL)
         return QIcon();
     return icons[result];
 }
@@ -88,14 +88,14 @@ QVariant TestResultModel::data(const QModelIndex &index, int role) const
     if (role == Qt::DisplayRole) {
         const TestResult &tr = m_testResults.at(index.row());
         switch (tr.result()) {
-        case ResultType::PASS:
-        case ResultType::FAIL:
-        case ResultType::EXPECTED_FAIL:
-        case ResultType::UNEXPECTED_PASS:
-        case ResultType::SKIP:
-        case ResultType::BLACKLISTED_PASS:
-        case ResultType::BLACKLISTED_FAIL:
-        case ResultType::BENCHMARK:
+        case Result::PASS:
+        case Result::FAIL:
+        case Result::EXPECTED_FAIL:
+        case Result::UNEXPECTED_PASS:
+        case Result::SKIP:
+        case Result::BLACKLISTED_PASS:
+        case Result::BLACKLISTED_FAIL:
+        case Result::BENCHMARK:
             return QString::fromLatin1("%1::%2 (%3) - %4").arg(tr.className(), tr.testCase(),
                                                                tr.dataTag(), tr.fileName());
         default:
@@ -112,8 +112,8 @@ QVariant TestResultModel::data(const QModelIndex &index, int role) const
 
 void TestResultModel::addTestResult(const TestResult &testResult)
 {
-    const bool isCurrentTestMssg = testResult.result() == ResultType::MESSAGE_CURRENT_TEST;
-    const bool hasCurrentTestMssg = m_availableResultTypes.contains(ResultType::MESSAGE_CURRENT_TEST);
+    const bool isCurrentTestMssg = testResult.result() == Result::MESSAGE_CURRENT_TEST;
+    const bool hasCurrentTestMssg = m_availableResultTypes.contains(Result::MESSAGE_CURRENT_TEST);
 
     int position = m_testResults.size();
 
@@ -139,11 +139,11 @@ void TestResultModel::addTestResult(const TestResult &testResult)
 
 void TestResultModel::removeCurrentTestMessage()
 {
-    if (m_availableResultTypes.contains(ResultType::MESSAGE_CURRENT_TEST)) {
+    if (m_availableResultTypes.contains(Result::MESSAGE_CURRENT_TEST)) {
         beginRemoveRows(QModelIndex(), m_testResults.size() - 1, m_testResults.size() - 1);
         m_testResults.removeLast();
         endRemoveRows();
-        m_availableResultTypes.remove(ResultType::MESSAGE_CURRENT_TEST);
+        m_availableResultTypes.remove(Result::MESSAGE_CURRENT_TEST);
     }
 }
 
@@ -201,7 +201,7 @@ int TestResultModel::maxWidthOfLineNumber(const QFont &font)
     return m_widthOfLineNumber;
 }
 
-int TestResultModel::resultTypeCount(ResultType type)
+int TestResultModel::resultTypeCount(Result::Type type)
 {
     return m_testResultCount.value(type, 0);
 }
@@ -218,16 +218,16 @@ TestResultFilterModel::TestResultFilterModel(TestResultModel *sourceModel, QObje
 
 void TestResultFilterModel::enableAllResultTypes()
 {
-    m_enabled << ResultType::PASS << ResultType::FAIL << ResultType::EXPECTED_FAIL
-              << ResultType::UNEXPECTED_PASS << ResultType::SKIP << ResultType::MESSAGE_DEBUG
-              << ResultType::MESSAGE_WARN << ResultType::MESSAGE_INTERNAL
-              << ResultType::MESSAGE_FATAL << ResultType::UNKNOWN << ResultType::BLACKLISTED_PASS
-              << ResultType::BLACKLISTED_FAIL << ResultType::BENCHMARK
-              << ResultType::MESSAGE_CURRENT_TEST;
+    m_enabled << Result::PASS << Result::FAIL << Result::EXPECTED_FAIL
+              << Result::UNEXPECTED_PASS << Result::SKIP << Result::MESSAGE_DEBUG
+              << Result::MESSAGE_WARN << Result::MESSAGE_INTERNAL
+              << Result::MESSAGE_FATAL << Result::UNKNOWN << Result::BLACKLISTED_PASS
+              << Result::BLACKLISTED_FAIL << Result::BENCHMARK
+              << Result::MESSAGE_CURRENT_TEST;
     invalidateFilter();
 }
 
-void TestResultFilterModel::toggleTestResultType(ResultType type)
+void TestResultFilterModel::toggleTestResultType(Result::Type type)
 {
     if (m_enabled.contains(type)) {
         m_enabled.remove(type);
