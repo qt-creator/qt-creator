@@ -3,7 +3,7 @@ import qbs 1.0
 QtcPlugin {
     name: "Help"
 
-    Depends { name: "Qt"; submodules: ["help", "network"]; }
+    Depends { name: "Qt"; submodules: ["help", "network", "sql"]; }
     Depends { name: "Qt.printsupport" }
     Depends {
         name: "Qt.webkit"
