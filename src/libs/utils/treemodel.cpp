@@ -936,63 +936,6 @@ UntypedTreeLevelItems::const_iterator::const_iterator(TreeItem *base, int level)
     }
 }
 
-
-// Result is either an item of the target level, or 'end'.
-void UntypedTreeLevelItems::const_iterator::goDown()
-{
-    QTC_ASSERT(m_depth != -1, return);
-    QTC_ASSERT(m_depth < m_level, return);
-    do {
-        TreeItem *curr = m_item[m_depth];
-        int size = curr->rowCount();
-        if (size == 0) {
-            // This is a dead end not reaching to the desired level.
-            goUpNextDown();
-            return;
-        }
-        ++m_depth;
-        m_size[m_depth] = size;
-        m_pos[m_depth] = 0;
-        m_item[m_depth] = curr->child(0);
-    } while (m_depth < m_level);
-    // Did not reach the required level? Set to end().
-    if (m_depth != m_level)
-        m_depth = -1;
-}
-
-void UntypedTreeLevelItems::const_iterator::goUpNextDown()
-{
-    // Go up until we can move sidewards.
-    do {
-        --m_depth;
-        if (m_depth < 0)
-            return; // Solid end.
-    } while (++m_pos[m_depth] >= m_size[m_depth]);
-    m_item[m_depth] = m_item[m_depth - 1]->child(m_pos[m_depth]);
-    goDown();
-}
-
-bool UntypedTreeLevelItems::const_iterator::operator==(UntypedTreeLevelItems::const_iterator other) const
-{
-    if (m_depth != other.m_depth)
-        return false;
-    for (int i = 0; i <= m_depth; ++i)
-        if (m_item[i] != other.m_item[i])
-            return false;
-    return true;
-}
-
-void UntypedTreeLevelItems::const_iterator::operator++()
-{
-    QTC_ASSERT(m_depth == m_level, return);
-
-    int pos = ++m_pos[m_depth];
-    if (pos < m_size[m_depth])
-        m_item[m_depth] = m_item[m_depth - 1]->child(pos);
-    else
-        goUpNextDown();
-}
-
 UntypedTreeLevelItems::const_iterator UntypedTreeLevelItems::begin() const
 {
     return const_iterator(m_item, m_level);

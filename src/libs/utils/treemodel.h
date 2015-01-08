@@ -32,7 +32,9 @@
 #define UTILS_TREEMODEL_H
 
 #include "utils_global.h"
+
 #include "algorithm.h"
+#include "qtcassert.h"
 
 #include <QAbstractItemModel>
 
@@ -88,6 +90,7 @@ private:
 class QTCREATOR_UTILS_EXPORT UntypedTreeLevelItems
 {
 public:
+    enum { MaxSearchDepth = 12 }; // FIXME.
     explicit UntypedTreeLevelItems(TreeItem *item, int level = 1);
 
     typedef TreeItem *value_type;
@@ -104,20 +107,73 @@ public:
         const_iterator(TreeItem *base, int level);
 
         TreeItem *operator*() { return m_item[m_depth]; }
-        void operator++();
 
-        bool operator==(const_iterator other) const;
-        bool operator!=(const_iterator other) const { return !operator==(other); }
+        void operator++()
+        {
+            QTC_ASSERT(m_depth == m_level, return);
+
+            int pos = ++m_pos[m_depth];
+            if (pos < m_size[m_depth])
+                m_item[m_depth] = m_item[m_depth - 1]->child(pos);
+            else
+                goUpNextDown();
+        }
+
+        bool operator==(const const_iterator &other) const
+        {
+            if (m_depth != other.m_depth)
+                return false;
+            for (int i = 0; i <= m_depth; ++i)
+                if (m_item[i] != other.m_item[i])
+                    return false;
+            return true;
+        }
+
+        bool operator!=(const const_iterator &other) const
+        {
+            return !operator==(other);
+        }
 
     private:
-        void goDown();
-        void goUpNextDown();
+        // Result is either an item of the target level, or 'end'.
+        void goDown()
+        {
+            QTC_ASSERT(m_depth != -1, return);
+            QTC_ASSERT(m_depth < m_level, return);
+            do {
+                TreeItem *curr = m_item[m_depth];
+                int size = curr->rowCount();
+                if (size == 0) {
+                    // This is a dead end not reaching to the desired level.
+                    goUpNextDown();
+                    return;
+                }
+                ++m_depth;
+                m_size[m_depth] = size;
+                m_pos[m_depth] = 0;
+                m_item[m_depth] = curr->child(0);
+            } while (m_depth < m_level);
+            // Did not reach the required level? Set to end().
+            if (m_depth != m_level)
+                m_depth = -1;
+        }
+        void goUpNextDown()
+        {
+            // Go up until we can move sidewards.
+            do {
+                --m_depth;
+                if (m_depth < 0)
+                    return; // Solid end.
+            } while (++m_pos[m_depth] >= m_size[m_depth]);
+            m_item[m_depth] = m_item[m_depth - 1]->child(m_pos[m_depth]);
+            goDown();
+        }
 
         int m_level;
         int m_depth;
-        TreeItem *m_item[8];
-        int m_pos[8];
-        int m_size[8];
+        TreeItem *m_item[MaxSearchDepth];
+        int m_pos[MaxSearchDepth];
+        int m_size[MaxSearchDepth];
     };
 
     const_iterator begin() const;
@@ -129,7 +185,7 @@ private:
 };
 
 template <class T>
-class QTCREATOR_UTILS_EXPORT TreeLevelItems
+class TreeLevelItems
 {
 public:
     typedef T value_type;

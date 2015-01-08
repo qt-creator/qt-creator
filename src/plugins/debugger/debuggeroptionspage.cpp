@@ -110,8 +110,6 @@ public:
     void apply();
 
 private:
-    DebuggerTreeItem *findTreeItemById(const QVariant &id) const;
-
     DebuggerTreeItem *m_currentTreeItem;
     QStringList removed;
 
@@ -138,8 +136,10 @@ void DebuggerItemModel::addDebugger(const DebuggerItem &item, bool changed)
 
 void DebuggerItemModel::updateDebugger(const DebuggerItem &item)
 {
-    DebuggerTreeItem *treeItem = findTreeItemById(item.id());
+    auto matcher = [item](DebuggerTreeItem *n) { return n->m_item.m_id == item.id(); };
+    DebuggerTreeItem *treeItem = findItemAtLevel<DebuggerTreeItem *>(2, matcher);
     QTC_ASSERT(treeItem, return);
+
     TreeItem *parent = treeItem->parent();
     QTC_ASSERT(parent, return);
 
@@ -148,20 +148,6 @@ void DebuggerItemModel::updateDebugger(const DebuggerItem &item)
     treeItem->m_item = item;
 
     updateItem(treeItem); // Notify views.
-}
-
-DebuggerTreeItem *DebuggerItemModel::findTreeItemById(const QVariant &id) const
-{
-    TreeItem *root = rootItem();
-    for (int k = 0; k < rootItem()->rowCount(); ++k) {
-        TreeItem *group = root->child(k);
-        for (int i = 0, n = group->rowCount(); i != n; ++i) {
-            DebuggerTreeItem *treeItem = static_cast<DebuggerTreeItem *>(group->child(i));
-            if (treeItem->m_item.m_id == id)
-                return treeItem;
-        }
-    }
-    return 0;
 }
 
 QModelIndex DebuggerItemModel::lastIndex() const
@@ -192,14 +178,9 @@ void DebuggerItemModel::apply()
     foreach (const QVariant &id, m_removedItems)
         DebuggerItemManager::deregisterDebugger(id);
 
-    TreeItem *root = rootItem();
-    for (int k = 0; k < rootItem()->rowCount(); ++k) {
-        TreeItem *group = root->child(k);
-        for (int i = 0, n = group->rowCount(); i != n; ++i) {
-            DebuggerTreeItem *treeItem = static_cast<DebuggerTreeItem *>(group->child(i));
-            treeItem->m_changed = false;
-            DebuggerItemManager::updateOrAddDebugger(treeItem->m_item);
-        }
+    foreach (auto item, treeLevelItems<DebuggerTreeItem *>(2)) {
+        item->m_changed = false;
+        DebuggerItemManager::updateOrAddDebugger(item->m_item);
     }
 }
 
