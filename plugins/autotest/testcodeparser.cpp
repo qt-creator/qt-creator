@@ -249,8 +249,10 @@ static QList<QmlJS::Document::Ptr> scanDirectoryForQuickTestQmlFiles(const QStri
     QFutureInterface<void> future;
     QmlJS::PathsAndLanguages paths;
     paths.maybeInsert(Utils::FileName::fromString(srcDir), QmlJS::Dialect::Qml);
-    QmlJS::ModelManagerInterface::importScan(future, qmlJsMM->workingCopy(),
-                                             paths, qmlJsMM, false, false);
+    const bool dontEmitDocumentChanges = false;
+    const bool notOnlyTheLib = false;
+    QmlJS::ModelManagerInterface::importScan(future, qmlJsMM->workingCopy(), paths, qmlJsMM,
+        dontEmitDocumentChanges, notOnlyTheLib);
 
     const QmlJS::Snapshot snapshot = QmlJSTools::Internal::ModelManager::instance()->snapshot();
     QDirIterator it(srcDir, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
