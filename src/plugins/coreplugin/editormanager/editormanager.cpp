@@ -1992,6 +1992,19 @@ void EditorManager::addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentM
         DocumentManager::populateOpenWithMenu(openWith, entry->fileName());
 }
 
+void EditorManager::setPlaceholderText(const QString &text)
+{
+    if (d->m_placeholderText == text)
+        return;
+    d->m_placeholderText = text;
+    emit m_instance->placeholderTextChanged(d->m_placeholderText);
+}
+
+QString EditorManager::placeholderText()
+{
+    return d->m_placeholderText;
+}
+
 void EditorManager::saveDocument()
 {
     EditorManagerPrivate::saveDocument(currentDocument());

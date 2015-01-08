@@ -173,6 +173,9 @@ public:
                                              IEditor *editor = 0);
     static void addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentModel::Entry *entry);
 
+    static void setPlaceholderText(const QString &text);
+    static QString placeholderText();
+
 signals:
     void currentEditorChanged(Core::IEditor *editor);
     void currentDocumentStateChanged();
@@ -181,6 +184,7 @@ signals:
     void editorAboutToClose(Core::IEditor *editor);
     void editorsClosed(QList<Core::IEditor *> editors);
     void findOnFileSystemRequest(const QString &path);
+    void placeholderTextChanged(const QString &text);
 
 public slots:
     static void saveDocument();

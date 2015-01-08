@@ -34,10 +34,12 @@
 #include "editormanager_p.h"
 #include "documentmodel.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editortoolbar.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
+#include <coreplugin/locator/locatorconstants.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/findplaceholder.h>
@@ -119,7 +121,15 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
     }
 
     // for the case of no document selected
-    QWidget *empty = new QWidget;
+    auto empty = new QWidget;
+    empty->hide();
+    auto emptyLayout = new QGridLayout(empty);
+    empty->setLayout(emptyLayout);
+    m_emptyViewLabel = new QLabel;
+    connect(EditorManager::instance(), &EditorManager::placeholderTextChanged,
+            m_emptyViewLabel, &QLabel::setText);
+    m_emptyViewLabel->setText(EditorManager::placeholderText());
+    emptyLayout->addWidget(m_emptyViewLabel);
     m_container->addWidget(empty);
     m_widgetEditorMap.insert(empty, 0);
 

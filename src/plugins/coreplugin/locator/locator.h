@@ -80,6 +80,7 @@ private slots:
 
 private:
     void loadSettings();
+    void updateEditorManagerPlaceholderText();
 
     template <typename S>
     void loadSettingsHelper(S *settings);

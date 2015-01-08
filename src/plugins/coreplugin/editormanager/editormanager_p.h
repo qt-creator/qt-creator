@@ -242,6 +242,8 @@ private:
 
     bool m_autoSaveEnabled;
     int m_autoSaveInterval;
+
+    QString m_placeholderText;
 };
 
 } // Internal

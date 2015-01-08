@@ -145,6 +145,7 @@ private:
     QToolButton *m_statusWidgetButton;
     QList<IEditor *> m_editors;
     QMap<QWidget *, IEditor *> m_widgetEditorMap;
+    QLabel *m_emptyViewLabel;
 
     QList<EditLocation> m_navigationHistory;
     QList<EditLocation> m_editorHistory;

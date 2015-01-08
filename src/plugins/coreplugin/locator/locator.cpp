@@ -44,6 +44,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <extensionsystem/pluginmanager.h>
@@ -96,7 +97,7 @@ void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
     m_corePlugin->addAutoReleasedObject(view);
 
     QAction *action = new QAction(m_locatorWidget->windowIcon(), m_locatorWidget->windowTitle(), this);
-    Command *cmd = ActionManager::registerAction(action, "QtCreator.Locate",
+    Command *cmd = ActionManager::registerAction(action, Constants::LOCATE,
                                                              Context(Constants::C_GLOBAL));
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+K")));
     connect(action, SIGNAL(triggered()), this, SLOT(openLocator()));
@@ -148,6 +149,14 @@ void Locator::extensionsInitialized()
         return first->id().alphabeticallyBefore(second->id());
     });
     setFilters(m_filters);
+
+    Command *openCommand = ActionManager::command(Constants::OPEN);
+    Command *locateCommand = ActionManager::command(Constants::LOCATE);
+    connect(openCommand, &Command::keySequenceChanged,
+            this, &Locator::updateEditorManagerPlaceholderText);
+    connect(locateCommand, &Command::keySequenceChanged,
+            this, &Locator::updateEditorManagerPlaceholderText);
+    updateEditorManagerPlaceholderText();
 }
 
 bool Locator::delayedInitialize()
@@ -175,6 +184,50 @@ void Locator::loadSettings()
     if (m_refreshTimer.interval() > 0)
         m_refreshTimer.start();
     m_settingsInitialized = true;
+}
+
+void Locator::updateEditorManagerPlaceholderText()
+{
+    Command *openCommand = ActionManager::command(Constants::OPEN);
+    Command *locateCommand = ActionManager::command(Constants::LOCATE);
+    const QString placeholderText = tr("<html><body style=\"color:#909090; font-size:14pt\">"
+          "<div align='center'>"
+          "<div style=\"font-size:20pt\">Open a document</div>"
+          "<table><tr><td>"
+          "<hr/>"
+          "<div style=\"margin-top: 5px\">&bull; File > Open File or Project (%1)</div>"
+          "<div style=\"margin-top: 5px\">&bull; File > Recent Files</div>"
+          "<div style=\"margin-top: 5px\">&bull; Tools > Locator (%2) and</div>"
+          "<div style=\"margin-left: 1em\">- type to open file from any open project</div>"
+          "%4"
+          "%5"
+          "<div style=\"margin-left: 1em\">- type <code>%3&lt;space&gt;&lt;filename&gt;</code> to open file from file system</div>"
+          "<div style=\"margin-left: 1em\">- select one of the other filters for jumping to a location</div>"
+          "<div style=\"margin-top: 5px\">&bull; Drag and drop files here</div>"
+          "</td></tr></table>"
+          "</div>"
+          "</body></html>")
+         .arg(openCommand->keySequence().toString(QKeySequence::NativeText))
+         .arg(locateCommand->keySequence().toString(QKeySequence::NativeText))
+         .arg(m_fileSystemFilter->shortcutString());
+
+    QString classes;
+    ILocatorFilter *classesFilter = Utils::findOrDefault(m_filters, [](const ILocatorFilter *filter) {
+        return filter->id() == Id("Classes"); // not nice, but anyhow
+    });
+    if (classesFilter)
+        classes = tr("<div style=\"margin-left: 1em\">- type <code>%1&lt;space&gt;&lt;pattern&gt;</code>"
+                     " to jump to a class definition</div>").arg(classesFilter->shortcutString());
+
+    QString methods;
+    ILocatorFilter *methodsFilter = Utils::findOrDefault(m_filters, [](const ILocatorFilter *filter) {
+        return filter->id() == Id("Methods"); // not nice, but anyhow
+    });
+    if (methodsFilter)
+        methods = tr("<div style=\"margin-left: 1em\">- type <code>%1&lt;space&gt;&lt;pattern&gt;</code>"
+                     " to jump to a function definition</div>").arg(methodsFilter->shortcutString());
+
+    EditorManager::setPlaceholderText(placeholderText.arg(classes, methods));
 }
 
 void Locator::saveSettings()
@@ -222,6 +275,7 @@ QList<ILocatorFilter *> Locator::customFilters()
 void Locator::setFilters(QList<ILocatorFilter *> f)
 {
     m_filters = f;
+    updateEditorManagerPlaceholderText(); // possibly some shortcut changed
     m_locatorWidget->updateFilterList();
 }
 
