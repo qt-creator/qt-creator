@@ -336,30 +336,29 @@ static QString which(const QString &path, const QString &cmd)
     }
     return QString();
 }
-
-bool performExec(const QString &cmd, const QStringList &args, const QString &workingDir,
-                 const Utils::Environment &env, int timeout)
+bool performExec(const QString &command, const QStringList &argumentList, const QString &workingDirectory,
+                 const Utils::Environment &environment, int timeout)
 {
     QString runCmd;
-    if (!QDir::toNativeSeparators(cmd).contains(QDir::separator())) {
-        if (env.hasKey(QLatin1String("PATH")))
-            runCmd = which(env.value(QLatin1String("PATH")), cmd);
-    } else if (QFileInfo(cmd).exists()) {
-        runCmd = cmd;
+    if (!QDir::toNativeSeparators(command).contains(QDir::separator())) {
+        if (environment.hasKey(QLatin1String("PATH")))
+            runCmd = which(environment.value(QLatin1String("PATH")), command);
+    } else if (QFileInfo(command).exists()) {
+        runCmd = command;
     }
 
     if (runCmd.isEmpty()) {
         emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL,
-            QObject::tr("*** Could not find command '%1' ***").arg(cmd)));
+            QObject::tr("*** Could not find command '%1' ***").arg(command)));
         return false;
     }
 
-    m_runner->setWorkingDirectory(workingDir);
-    m_runner->setProcessEnvironment(env.toProcessEnvironment());
+    m_runner->setWorkingDirectory(workingDirectory);
+    m_runner->setProcessEnvironment(environment.toProcessEnvironment());
     QTime executionTimer;
 
-    if (args.count()) {
-        m_runner->start(runCmd, args);
+    if (argumentList.count()) {
+        m_runner->start(runCmd, argumentList);
     } else {
         m_runner->start(runCmd);
     }
@@ -413,18 +412,18 @@ void performTestRun(QFutureInterface<void> &future, const QList<TestConfiguratio
     foreach (const TestConfiguration *tc, selectedTests) {
         if (future.isCanceled())
             break;
-        QString cmd = tc->targetFile();
-        QString workDir = tc->workingDirectory();
-        QStringList args;
-        Utils::Environment env = tc->environment();
+        QString command = tc->targetFile();
+        QString workingDirectory = tc->workingDirectory();
+        QStringList argumentList;
+        Utils::Environment environment = tc->environment();
 
-        args << QLatin1String("-xml");
+        argumentList << QLatin1String("-xml");
         if (!metricsOption.isEmpty())
-            args << metricsOption;
+            argumentList << metricsOption;
         if (tc->testCases().count())
-            args << tc->testCases();
+            argumentList << tc->testCases();
 
-        performExec(cmd, args, workDir, env, timeout);
+        performExec(command, argumentList, workingDirectory, environment, timeout);
     }
     future.setProgressValue(testCaseCount);
 
