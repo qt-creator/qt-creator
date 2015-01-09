@@ -1,6 +1,6 @@
 #############################################################################
 ##
-## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+## Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ## Contact: http://www.qt-project.org/legal
 ##
 ## This file is part of Qt Creator.
@@ -72,23 +72,26 @@ def checkOrFixCommitterInformation(labelName, lineEditName, expected):
         test.log("Commit information invalid or missing - entering dummy value (%s)" % expected)
         replaceEditorContent(lineEd, expected)
 
-def verifyClickCommit():
+# Opens a commit's diff from a diff log
+# param count is the number of the commit (1-based) in chronologic order
+def __clickCommit__(count):
     gitEditor = waitForObject(":Qt Creator_Git::Internal::GitEditor")
     fileName = waitForObject(":Qt Creator_FilenameQComboBox")
     test.verify(waitFor('str(fileName.currentText).startswith("Git Log")', 1000),
                 "Verifying Qt Creator still displays git log inside editor.")
+    waitFor("'Initial Commit' in str(gitEditor.plainText)", 3000)
     content = str(gitEditor.plainText)
-    noOfCommits = content.count("commit")
     commit = None
-    # find second commit
+    # find commit
     try:
-        line = filter(lambda line: line.startswith("commit"), content.splitlines())[-2]
+        # Commits are listed in reverse chronologic order, so we have to invert count
+        line = filter(lambda line: line.startswith("commit"), content.splitlines())[-count]
         commit = line.split(" ", 1)[1]
     except:
-        test.fail("Could not find the second commit - leaving test")
-        return
+        test.fail("Could not find the %d. commit - leaving test" % count)
+        return False
     placeCursorToLine(gitEditor, line)
-    for i in range(5):
+    for i in range(30):
         type(gitEditor, "<Left>")
     # get the current cursor rectangle which should be positioned on the commit ID
     rect = gitEditor.cursorRect()
@@ -97,9 +100,9 @@ def verifyClickCommit():
     expected = 'Git Show "%s"' % commit
     test.verify(waitFor('str(fileName.currentText) == expected', 5000),
                 "Verifying editor switches to Git Show.")
-    diffShow = waitForObject(":Qt Creator_DiffEditor::Internal::DescriptionEditorWidget")
-    waitFor('len(str(diffShow.plainText)) != 0', 5000)
-    show = str(diffShow.plainText)
+    description = waitForObject(":Qt Creator_DiffEditor::Internal::DescriptionEditorWidget")
+    waitFor('len(str(description.plainText)) != 0', 5000)
+    show = str(description.plainText)
     expected = [{"commit %s" % commit:False},
                 {"Author: Nobody <nobody@nowhere.com>": False},
                 {"Date:\s+\w{3} \w{3} \d{1,2} \d{2}:\d{2}:\d{2} \d{4}.*":True}]
@@ -110,26 +113,43 @@ def verifyClickCommit():
             test.verify(re.match(expLine, line), "Verifying commit header line '%s'" % line)
         else:
             test.compare(line, expLine, "Verifying commit header line.")
-    changed = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidget")
-    original = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidget2")
-    waitFor('str(changed.plainText) != "Waiting for data..." '
-            'and str(original.plainText) != "Waiting for data..."', 5000)
-    # content of diff editors is merge of modified files
-    diffOriginal = str(original.plainText)
-    diffChanged = str(changed.plainText)
-    # diffChanged must completely contain the pointless_header.h
-    pointlessHeader = readFile(os.path.join(srcPath, projectName, "pointless_header.h"))
-    test.verify(pointlessHeader in diffChanged,
-                "Verifying whether diff editor contains pointless_header.h file.")
-    test.verify(pointlessHeader not in diffOriginal,
-                "Verifying whether original does not contain pointless_header.h file.")
-    test.verify("HEADERS  += mainwindow.h \\\n    pointless_header.h\n" in diffChanged,
-                "Verifying whether diff editor has pointless_header.h listed in pro file.")
-    test.verify("HEADERS  += mainwindow.h\n\n" in diffOriginal
-                and "pointless_header.h" not in diffOriginal,
-                "Verifying whether original has no additional header in pro file.")
-    test.verify(original.readOnly and changed.readOnly and diffShow.readOnly,
-                "Verifying all diff editor widgets are readonly.")
+    test.verify(description.readOnly,
+                "Verifying description editor widget is readonly.")
+    return True
+
+def verifyClickCommit():
+    for i in range(1, 3):
+        if not __clickCommit__(i):
+            continue
+        changed = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidget")
+        original = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidget2")
+        waitFor('str(changed.plainText) != "Waiting for data..." '
+                'and str(original.plainText) != "Waiting for data..."', 5000)
+        # content of diff editors is merge of modified files
+        diffOriginal = str(original.plainText)
+        diffChanged = str(changed.plainText)
+        if i == 1:
+            # diffChanged must completely contain main.cpp
+            mainCPP = readFile(os.path.join(srcPath, projectName, "main.cpp"))
+            test.verify(mainCPP in diffChanged,
+                        "Verifying whether diff editor contains main.cpp file.")
+            test.verify(mainCPP not in diffOriginal,
+                        "Verifying whether original does not contain main.cpp file.")
+        elif i == 2:
+            # diffChanged must completely contain the pointless_header.h
+            pointlessHeader = readFile(os.path.join(srcPath, projectName, "pointless_header.h"))
+            test.verify(pointlessHeader in diffChanged,
+                        "Verifying whether diff editor contains pointless_header.h file.")
+            test.verify(pointlessHeader not in diffOriginal,
+                        "Verifying whether original does not contain pointless_header.h file.")
+            test.verify("HEADERS  += mainwindow.h \\\n    pointless_header.h\n" in diffChanged,
+                        "Verifying whether diff editor has pointless_header.h listed in pro file.")
+            test.verify("HEADERS  += mainwindow.h\n\n" in diffOriginal
+                        and "pointless_header.h" not in diffOriginal,
+                        "Verifying whether original has no additional header in pro file.")
+        test.verify(original.readOnly and changed.readOnly,
+                    "Verifying that the actual diff editor widgets are readonly.")
+        invokeMenuItem("Tools", "Git", "Local Repository", "Log")
 
 def main():
     startApplication("qtcreator" + SettingsPath)
