@@ -268,18 +268,36 @@ BaseTreeView::~BaseTreeView()
 
 void BaseTreeView::setModel(QAbstractItemModel *m)
 {
+    struct ExtraConnection {
+        const char *signature;
+        const char *qsignal;
+        QObject *receiver;
+        const char *qslot;
+    };
+#define DESC(sign, receiver, slot) { #sign, SIGNAL(sig), receiver, SLOT(slot) }
+    const ExtraConnection c[] = {
+        DESC(columnAdjustmentRequested(), d, resizeColumns()),
+        DESC(requestExpansion(QModelIndex), this, expand(QModelIndex))
+    };
+#undef DESC
+
     QAbstractItemModel *oldModel = model();
-    const char *sig = "columnAdjustmentRequested()";
     if (oldModel) {
-        int index = model()->metaObject()->indexOfSignal(sig);
-        if (index != -1)
-            disconnect(model(), SIGNAL(columnAdjustmentRequested()), d, SLOT(resizeColumns()));
+        for (unsigned i = 0; i < sizeof(c) / sizeof(c[0]); ++i) {
+            int index = model()->metaObject()->indexOfSignal(c[i].signature);
+            if (index != -1)
+                disconnect(model(), c[i].qsignal, c[i].receiver, c[i].qslot);
+        }
     }
+
     TreeView::setModel(m);
+
     if (m) {
-        int index = m->metaObject()->indexOfSignal(sig);
-        if (index != -1)
-            connect(m, SIGNAL(columnAdjustmentRequested()), d, SLOT(resizeColumns()));
+        for (unsigned i = 0; i < sizeof(c) / sizeof(c[0]); ++i) {
+            int index = m->metaObject()->indexOfSignal(c[i].signature);
+            if (index != -1)
+                connect(model(), c[i].qsignal, c[i].receiver, c[i].qslot);
+        }
         d->restoreState();
     }
 }
