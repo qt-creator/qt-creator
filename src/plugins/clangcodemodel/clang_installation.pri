@@ -42,8 +42,9 @@ defineReplace(findClangOnWindows) {
     for (suffix, $$list(lib bin)) {
         for (libname, $$list(clang libclang)) {
             for (ext, FILE_EXTS) {
-                exists("$${LLVM_INSTALL_DIR}/$${suffix}/$${libname}.$${ext}")
+                exists("$${LLVM_INSTALL_DIR}/$${suffix}/$${libname}.$${ext}") {
                     return($${LLVM_INSTALL_DIR}/$${suffix}/)
+                }
             }
         }
     }
