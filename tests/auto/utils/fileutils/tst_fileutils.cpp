@@ -55,34 +55,30 @@ void tst_fileutils::parentDir_data()
     QTest::addColumn<QString>("parentPath");
     QTest::addColumn<QString>("expectFailMessage");
 
-    QTest::newRow("empty path") << QString() << QString() << QString();
-    QTest::newRow("root only") << QString::fromLatin1("/") << QString() << QString();
-    QTest::newRow("//") << QString::fromLatin1("//") << QString() << QString();
-    QTest::newRow("/tmp/dir") << QString::fromLatin1("/tmp/dir") << QString::fromLatin1("/tmp") << QString();
-    QTest::newRow("relative/path") << QString::fromLatin1("relative/path") << QString::fromLatin1("relative") << QString();
-    QTest::newRow("relativepath") << QString::fromLatin1("relativepath") << QString::fromLatin1(".")
+    QTest::newRow("empty path") << "" << "" << "";
+    QTest::newRow("root only") << "/" << "" << "";
+    QTest::newRow("//") << "//" << "" << "";
+    QTest::newRow("/tmp/dir") << "/tmp/dir" << "/tmp" << "";
+    QTest::newRow("relative/path") << "relative/path" << "relative" << "";
+    QTest::newRow("relativepath") << "relativepath" << "."
 #if QT_VERSION < QT_VERSION_CHECK(5, 4, 0)
-                                  << QString::fromLatin1("see QTBUG-23892");
+                                  << "see QTBUG-23892";
 #else
-                                  << QString();
+                                  << "";
 #endif
 
     // Windows stuff:
 #ifdef Q_OS_WIN
-    QTest::newRow("C:/data") << QString::fromLatin1("C:/data") << QString::fromLatin1("C:/") << QString();
-    QTest::newRow("C:/") << QString::fromLatin1("C:/") << QString() << QString();
-    QTest::newRow("//./com1") << QString::fromLatin1("//./com1") << QString::fromLatin1("/") << QString();
-    QTest::newRow("//?/path") << QString::fromLatin1("//?/path") << QString::fromLatin1("/")
-                              << QString::fromLatin1("Qt 4 can not handle this path.");
-    QTest::newRow("/Global??/UNC/host") << QString::fromLatin1("/Global??/UNC/host")
-                                        << QString::fromLatin1("/Global??/UNC/host")
-                                        << QString::fromLatin1("Qt 4 can not handle this path.");
+    QTest::newRow("C:/data") << "C:/data" << "C:/" << "";
+    QTest::newRow("C:/") << "C:/" << "" << "";
+    QTest::newRow("//./com1") << "//./com1" << "/" << "";
+    QTest::newRow("//?/path") << "//?/path" << "/" << "Qt 4 can not handle this path.";
+    QTest::newRow("/Global??/UNC/host") << "/Global??/UNC/host" << "/Global??/UNC/host"
+                                        << "Qt 4 can not handle this path.";
     QTest::newRow("//server/directory/file")
-            << QString::fromLatin1("//server/directory/file") << QString::fromLatin1("//server/directory") << QString();
-    QTest::newRow("//server/directory")
-            << QString::fromLatin1("//server/directory") << QString::fromLatin1("//server") << QString();
-    QTest::newRow("//server")
-            << QString::fromLatin1("//server") << QString() << QString();
+            << "//server/directory/file" << "//server/directory" << "";
+    QTest::newRow("//server/directory") << "//server/directory" << "//server" << "";
+    QTest::newRow("//server") << "//server" << "" << "";
 #endif
 }
 
@@ -104,25 +100,25 @@ void tst_fileutils::isChildOf_data()
     QTest::addColumn<QString>("childPath");
     QTest::addColumn<bool>("result");
 
-    QTest::newRow("empty path") << QString() << QString::fromLatin1("/tmp") << false;
-    QTest::newRow("root only") << QString::fromLatin1("/") << QString::fromLatin1("/tmp") << true;
-    QTest::newRow("/tmp/dir") << QString::fromLatin1("/tmp") << QString::fromLatin1("/tmp/dir") << true;
-    QTest::newRow("relative/path") << QString::fromLatin1("relative") << QString::fromLatin1("relative/path") << true;
-    QTest::newRow("/tmpdir") << QString::fromLatin1("/tmp") << QString::fromLatin1("/tmpdir") << false;
-    QTest::newRow("same") << QString::fromLatin1("/tmp/dir") << QString::fromLatin1("/tmp/dir") << false;
+    QTest::newRow("empty path") << "" << "/tmp" << false;
+    QTest::newRow("root only") << "/" << "/tmp" << true;
+    QTest::newRow("/tmp/dir") << "/tmp" << "/tmp/dir" << true;
+    QTest::newRow("relative/path") << "relative" << "relative/path" << true;
+    QTest::newRow("/tmpdir") << "/tmp" << "/tmpdir" << false;
+    QTest::newRow("same") << "/tmp/dir" << "/tmp/dir" << false;
 
     // Windows stuff:
 #ifdef Q_OS_WIN
-    QTest::newRow("C:/data") << QString::fromLatin1("C:/") << QString::fromLatin1("C:/data") << true;
-    QTest::newRow("C:/") << QString() << QString::fromLatin1("C:/") << false;
-    QTest::newRow("//./com1") << QString::fromLatin1("/") << QString::fromLatin1("//./com1") << true;
-    QTest::newRow("//?/path") << QString::fromLatin1("/") << QString::fromLatin1("//?/path") << true;
-    QTest::newRow("/Global??/UNC/host") << QString::fromLatin1("/Global??/UNC/host")
-                                        << QString::fromLatin1("/Global??/UNC/host/file") << true;
+    QTest::newRow("C:/data") << "C:/" << "C:/data" << true;
+    QTest::newRow("C:/") << "" << "C:/" << false;
+    QTest::newRow("//./com1") << "/" << "//./com1" << true;
+    QTest::newRow("//?/path") << "/" << "//?/path" << true;
+    QTest::newRow("/Global??/UNC/host") << "/Global??/UNC/host"
+                                        << "/Global??/UNC/host/file" << true;
     QTest::newRow("//server/directory/file")
-            << QString::fromLatin1("//server/directory") << QString::fromLatin1("//server/directory/file") << true;
+            << "//server/directory" << "//server/directory/file" << true;
     QTest::newRow("//server/directory")
-            << QString::fromLatin1("//server") << QString::fromLatin1("//server/directory") << true;
+            << "//server" << "//server/directory" << true;
 #endif
 }
 
