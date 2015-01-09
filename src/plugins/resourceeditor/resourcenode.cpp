@@ -40,6 +40,7 @@
 
 #include <qmljstools/qmljstoolsconstants.h>
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QDebug>
 
@@ -126,6 +127,7 @@ ResourceTopLevelNode::ResourceTopLevelNode(const QString &filePath, FolderNode *
 ResourceTopLevelNode::~ResourceTopLevelNode()
 {
     Core::DocumentManager::removeDocument(m_document);
+    delete m_document;
 }
 
 void ResourceTopLevelNode::update()
@@ -253,7 +255,7 @@ bool ResourceTopLevelNode::removePrefix(const QString &prefix, const QString &la
 
 ProjectExplorer::FolderNode::AddNewInformation ResourceTopLevelNode::addNewInformation(const QStringList &files, Node *context) const
 {
-    QString name = tr("%1 Prefix: %2")
+    QString name = QCoreApplication::translate("ResourceTopLevelNode", "%1 Prefix: %2")
             .arg(QFileInfo(path()).fileName())
             .arg(QLatin1Char('/'));
 
@@ -267,7 +269,7 @@ ProjectExplorer::FolderNode::AddNewInformation ResourceTopLevelNode::addNewInfor
         // The ResourceFolderNode '/' defers to us, as otherwise
         // two nodes would be responsible for '/'
         // Thus also return a high priority for it
-        if (ResourceFolderNode *rfn = qobject_cast<ResourceFolderNode *>(context))
+        if (ResourceFolderNode *rfn = dynamic_cast<ResourceFolderNode *>(context))
             if (rfn->prefix() == QLatin1String("/") && rfn->parentFolderNode() == this)
                 p = 120;
     }
@@ -387,7 +389,7 @@ bool ResourceFolderNode::renamePrefix(const QString &prefix, const QString &lang
 
 ProjectExplorer::FolderNode::AddNewInformation ResourceFolderNode::addNewInformation(const QStringList &files, Node *context) const
 {
-    QString name = tr("%1 Prefix: %2")
+    QString name = QCoreApplication::translate("ResourceTopLevelNode", "%1 Prefix: %2")
             .arg(QFileInfo(m_topLevelNode->path()).fileName())
             .arg(displayName());
 
@@ -441,7 +443,7 @@ void ResourceFolderNode::updateFiles(QList<ProjectExplorer::FileNode *> newList)
 }
 
 ResourceFileWatcher::ResourceFileWatcher(ResourceTopLevelNode *node)
-    : IDocument(node), m_node(node)
+    : IDocument(0), m_node(node)
 {
     setId("ResourceNodeWatcher");
     setMimeType(QLatin1String(ResourceEditor::Constants::C_RESOURCE_MIMETYPE));

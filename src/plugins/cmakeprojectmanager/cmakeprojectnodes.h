@@ -38,7 +38,6 @@ namespace Internal {
 
 class CMakeProjectNode : public ProjectExplorer::ProjectNode
 {
-    Q_OBJECT
     friend class CMakeProject;
 public:
     CMakeProjectNode(const QString &fileName);

@@ -141,7 +141,7 @@ void QmakeManager::addLibrary()
 void QmakeManager::addLibraryContextMenu()
 {
     Node *node = ProjectTree::currentNode();
-    if (qobject_cast<QmakeProFileNode *>(node))
+    if (dynamic_cast<QmakeProFileNode *>(node))
         addLibrary(node->path());
 }
 
@@ -201,7 +201,7 @@ void QmakeManager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *
     qs->setForced(true);
 
     if (node != 0 && node != qmakeProject->rootProjectNode())
-        if (QmakeProFileNode *profile = qobject_cast<QmakeProFileNode *>(node))
+        if (QmakeProFileNode *profile = dynamic_cast<QmakeProFileNode *>(node))
             bc->setSubNodeBuild(profile);
 
     BuildManager::appendStep(qs, tr("QMake"));
@@ -232,7 +232,7 @@ void QmakeManager::buildFile()
 {
     if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
         const QString file = currentDocument->filePath().toString();
-        FileNode *node  = qobject_cast<FileNode *>(SessionManager::nodeForFile(file));
+        FileNode *node  = dynamic_cast<FileNode *>(SessionManager::nodeForFile(file));
         Project *project = SessionManager::projectForFile(file);
 
         if (project && node)
@@ -264,7 +264,7 @@ void QmakeManager::handleSubDirContextMenu(QmakeManager::Action action, bool isF
         return;
 
     if (contextNode) {
-        if (QmakePriFileNode *prifile = qobject_cast<QmakePriFileNode *>(contextNode)) {
+        if (QmakePriFileNode *prifile = dynamic_cast<QmakePriFileNode *>(contextNode)) {
             if (QmakeProFileNode *profile = prifile->proFileNode()) {
                 if (profile != qmakeProject->rootProjectNode() || isFileBuild)
                     bc->setSubNodeBuild(profile);

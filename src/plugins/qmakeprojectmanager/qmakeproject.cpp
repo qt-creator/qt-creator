@@ -263,7 +263,7 @@ void ProjectFilesVisitor::visitProjectNode(ProjectNode *projectNode)
 
 void ProjectFilesVisitor::visitFolderNode(FolderNode *folderNode)
 {
-    if (qobject_cast<ResourceEditor::ResourceTopLevelNode *>(folderNode))
+    if (dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(folderNode))
         m_files->files[ResourceType].push_back(folderNode->path());
 
     foreach (FileNode *fileNode, folderNode->fileNodes()) {
@@ -338,7 +338,6 @@ bool QmakeProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType 
 QmakeProject::QmakeProject(QmakeManager *manager, const QString &fileName) :
     m_manager(manager),
     m_rootProjectNode(0),
-    m_nodesWatcher(new Internal::QmakeNodesWatcher(this)),
     m_fileInfo(new QmakeProjectFile(fileName, this)),
     m_projectFiles(new QmakeProjectFiles),
     m_qmakeVfs(new QMakeVfs),
@@ -414,12 +413,7 @@ bool QmakeProject::fromMap(const QVariantMap &map)
 
     m_manager->registerProject(this);
 
-    m_rootProjectNode = new QmakeProFileNode(this, m_fileInfo->filePath().toString(), this);
-    m_rootProjectNode->registerWatcher(m_nodesWatcher);
-
-    // We have the profile nodes now, so we know the runconfigs!
-    connect(m_nodesWatcher, SIGNAL(proFileUpdated(QmakeProjectManager::QmakeProFileNode*,bool,bool)),
-            this, SIGNAL(proFileUpdated(QmakeProjectManager::QmakeProFileNode*,bool,bool)));
+    m_rootProjectNode = new QmakeProFileNode(this, m_fileInfo->filePath().toString());
 
     // On active buildconfiguration changes, reevaluate the .pro files
     m_activeTarget = activeTarget();
@@ -949,7 +943,7 @@ static FolderNode *folderOf(FolderNode *in, FileType fileType, const QString &fi
 static QmakeProFileNode *proFileNodeOf(QmakeProFileNode *in, FileType fileType, const QString &fileName)
 {
     for (FolderNode *folder =  folderOf(in, fileType, fileName); folder; folder = folder->parentFolderNode())
-        if (QmakeProFileNode *proFile = qobject_cast<QmakeProFileNode *>(folder))
+        if (QmakeProFileNode *proFile = dynamic_cast<QmakeProFileNode *>(folder))
             return proFile;
     return 0;
 }
@@ -1092,7 +1086,7 @@ void QmakeProject::collectAllProFiles(QList<QmakeProFileNode *> &list, QmakeProF
         if (projectTypes.isEmpty() || projectTypes.contains(node->projectType()))
             list.append(node);
     foreach (ProjectNode *n, node->subProjectNodes()) {
-        QmakeProFileNode *qmakeProFileNode = qobject_cast<QmakeProFileNode *>(n);
+        QmakeProFileNode *qmakeProFileNode = dynamic_cast<QmakeProFileNode *>(n);
         if (qmakeProFileNode)
             collectAllProFiles(list, qmakeProFileNode, parse, projectTypes);
     }
@@ -1165,9 +1159,9 @@ bool QmakeProject::hasSubNode(QmakePriFileNode *root, const QString &path)
     if (root->path() == path)
         return true;
     foreach (FolderNode *fn, root->subFolderNodes()) {
-        if (qobject_cast<QmakeProFileNode *>(fn)) {
+        if (dynamic_cast<QmakeProFileNode *>(fn)) {
             // we aren't interested in pro file nodes
-        } else if (QmakePriFileNode *qt4prifilenode = qobject_cast<QmakePriFileNode *>(fn)) {
+        } else if (QmakePriFileNode *qt4prifilenode = dynamic_cast<QmakePriFileNode *>(fn)) {
             if (hasSubNode(qt4prifilenode, path))
                 return true;
         }
@@ -1181,7 +1175,7 @@ void QmakeProject::findProFile(const QString& fileName, QmakeProFileNode *root, 
         list.append(root);
 
     foreach (FolderNode *fn, root->subFolderNodes())
-        if (QmakeProFileNode *qt4proFileNode =  qobject_cast<QmakeProFileNode *>(fn))
+        if (QmakeProFileNode *qt4proFileNode = dynamic_cast<QmakeProFileNode *>(fn))
             findProFile(fileName, qt4proFileNode, list);
 }
 
@@ -1499,7 +1493,7 @@ void QmakeProject::collectData(const QmakeProFileNode *node, DeploymentData &dep
     case SubDirsTemplate:
         foreach (const ProjectNode * const subProject, node->subProjectNodesExact()) {
             const QmakeProFileNode * const qt4SubProject
-                    = qobject_cast<const QmakeProFileNode *>(subProject);
+                    = dynamic_cast<const QmakeProFileNode *>(subProject);
             if (!qt4SubProject)
                 continue;
             collectData(qt4SubProject, deploymentData);

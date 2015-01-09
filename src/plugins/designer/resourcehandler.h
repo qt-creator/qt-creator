@@ -38,10 +38,7 @@ QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer {
-class SessionNode;
-class NodesWatcher;
-}
+namespace ProjectExplorer { class SessionNode; }
 
 namespace Designer {
 namespace Internal {
@@ -70,8 +67,7 @@ private:
     void ensureInitialized();
     QDesignerFormWindowInterface * const m_form;
     QStringList m_originalUiQrcPaths;
-    ProjectExplorer::SessionNode *m_sessionNode;
-    ProjectExplorer::NodesWatcher *m_sessionWatcher;
+    bool m_initialized;
     bool m_handlingResources;
 };
 

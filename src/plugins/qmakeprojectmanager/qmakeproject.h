@@ -61,7 +61,6 @@ class CentralizedFolderWatcher;
 class QmakeProjectFiles;
 class QmakeProjectConfigWidget;
 class QmakeProjectFile;
-class QmakeNodesWatcher;
 }
 
 class  QMAKEPROJECTMANAGER_EXPORT QmakeProject : public ProjectExplorer::Project
@@ -186,7 +185,6 @@ private:
 
     QmakeManager *m_manager;
     QmakeProFileNode *m_rootProjectNode;
-    Internal::QmakeNodesWatcher *m_nodesWatcher;
 
     Internal::QmakeProjectFile *m_fileInfo;
 

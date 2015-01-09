@@ -35,7 +35,6 @@
 
 #include <QFutureInterface>
 #include <QMutex>
-#include <QPointer>
 
 namespace ProjectExplorer {
 
@@ -57,7 +56,7 @@ private slots:
     void markFilesAsOutOfDate();
 
 private:
-    QPointer<Project> m_project;
+    Project *m_project;
 };
 
 } // namespace Internal

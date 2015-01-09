@@ -67,52 +67,12 @@ ProjectTree::ProjectTree(QObject *parent)
     connect(Core::DocumentManager::instance(), &Core::DocumentManager::currentFileChanged,
             this, &ProjectTree::documentManagerCurrentFileChanged);
 
-    SessionManager *session = SessionManager::instance();
-    connect(session, &SessionManager::aboutToRemoveProject,
-            this, &ProjectTree::aboutToRemoveProject);
-    connect(session, &SessionManager::projectRemoved,
-            this, &ProjectTree::projectRemoved);
-
-
-    m_watcher = new NodesWatcher(this);
-    SessionManager::sessionNode()->registerWatcher(m_watcher);
-
-    connect(m_watcher, &NodesWatcher::foldersAboutToBeRemoved,
-            this, &ProjectTree::foldersAboutToBeRemoved);
-    connect(m_watcher, &NodesWatcher::foldersRemoved,
-            this, &ProjectTree::foldersRemoved);
-
-    connect(m_watcher, &NodesWatcher::filesAboutToBeRemoved,
-            this, &ProjectTree::filesAboutToBeRemoved);
-    connect(m_watcher, &NodesWatcher::filesRemoved,
-            this, &ProjectTree::filesRemoved);
-
-    connect(m_watcher, &NodesWatcher::foldersAdded,
-            this, &ProjectTree::nodesAdded);
-    connect(m_watcher, &NodesWatcher::filesAdded,
-            this, &ProjectTree::nodesAdded);
-
     connect(qApp, &QApplication::focusChanged,
             this, &ProjectTree::focusChanged);
 }
 
 void ProjectTree::aboutToShutDown()
 {
-    disconnect(s_instance->m_watcher, &NodesWatcher::foldersAboutToBeRemoved,
-               s_instance, &ProjectTree::foldersAboutToBeRemoved);
-    disconnect(s_instance->m_watcher, &NodesWatcher::foldersRemoved,
-               s_instance, &ProjectTree::foldersRemoved);
-
-    disconnect(s_instance->m_watcher, &NodesWatcher::filesAboutToBeRemoved,
-               s_instance, &ProjectTree::filesAboutToBeRemoved);
-    disconnect(s_instance->m_watcher, &NodesWatcher::filesRemoved,
-               s_instance, &ProjectTree::filesRemoved);
-
-    disconnect(s_instance->m_watcher, &NodesWatcher::foldersAdded,
-               s_instance, &ProjectTree::nodesAdded);
-    disconnect(s_instance->m_watcher, &NodesWatcher::filesAdded,
-               s_instance, &ProjectTree::nodesAdded);
-
     disconnect(qApp, &QApplication::focusChanged,
                s_instance, &ProjectTree::focusChanged);
     s_instance->update(0, 0);
@@ -187,7 +147,7 @@ Project *ProjectTree::projectForNode(Node *node)
     if (!node)
         return 0;
 
-    FolderNode *rootProjectNode = qobject_cast<FolderNode*>(node);
+    FolderNode *rootProjectNode = dynamic_cast<FolderNode*>(node);
     if (!rootProjectNode)
         rootProjectNode = node->parentFolderNode();
 
@@ -220,19 +180,18 @@ void ProjectTree::update(Node *node, Project *project)
 {
     if (project != m_currentProject) {
         if (m_currentProject) {
-            disconnect(m_currentProject.data(), &Project::projectContextUpdated,
+            disconnect(m_currentProject, &Project::projectContextUpdated,
                        this, &ProjectTree::updateContext);
-            disconnect(m_currentProject.data(), &Project::projectLanguagesUpdated,
+            disconnect(m_currentProject, &Project::projectLanguagesUpdated,
                        this, &ProjectTree::updateContext);
         }
 
         m_currentProject = project;
-        emit currentProjectChanged(m_currentProject);
 
         if (m_currentProject) {
-            connect(m_currentProject.data(), &Project::projectContextUpdated,
+            connect(m_currentProject, &Project::projectContextUpdated,
                     this, &ProjectTree::updateContext);
-            connect(m_currentProject.data(), &Project::projectLanguagesUpdated,
+            connect(m_currentProject, &Project::projectLanguagesUpdated,
                     this, &ProjectTree::updateContext);
         }
     }
@@ -247,6 +206,8 @@ void ProjectTree::update(Node *node, Project *project)
         m_currentNode = node;
         emit currentNodeChanged(m_currentNode, project);
     }
+
+    emit currentProjectChanged(m_currentProject);
 
     updateContext();
 }
@@ -269,55 +230,107 @@ void ProjectTree::updateContext()
     Core::ICore::updateAdditionalContexts(oldContext, newContext);
 }
 
-void ProjectTree::foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode*> &list)
+void ProjectTree::emitNodeUpdated(Node *node)
+{
+    emit nodeUpdated(node);
+}
+
+void ProjectTree::emitAboutToChangeShowInSimpleTree(FolderNode *node)
+{
+    emit aboutToChangeShowInSimpleTree(node);
+}
+
+void ProjectTree::emitShowInSimpleTreeChanged(FolderNode *node)
+{
+    emit showInSimpleTreeChanged(node);
+}
+
+void ProjectTree::emitFoldersAboutToBeAdded(FolderNode *parentFolder, const QList<FolderNode *> &newFolders)
+{
+    emit foldersAboutToBeAdded(parentFolder, newFolders);
+}
+
+void ProjectTree::emitFoldersAdded()
+{
+    emit foldersAdded();
+
+    if (Utils::anyOf(m_projectTreeWidgets, &ProjectTreeWidget::hasFocus))
+        return;
+
+    updateFromDocumentManager();
+}
+
+void ProjectTree::emitFoldersAboutToBeRemoved(FolderNode *parentFolder, const QList<FolderNode *> &staleFolders)
 {
     Node *n = ProjectTree::currentNode();
     while (n) {
-        if (FolderNode *fn = qobject_cast<FolderNode *>(n)) {
-            if (list.contains(fn)) {
+        if (FolderNode *fn = dynamic_cast<FolderNode *>(n)) {
+            if (staleFolders.contains(fn)) {
                 ProjectNode *pn = n->projectNode();
                 // Make sure the node we are switching too isn't going to be removed also
-                while (list.contains(pn))
+                while (staleFolders.contains(pn))
                     pn = pn->parentFolderNode()->projectNode();
                 m_resetCurrentNodeFolder = true;
-                return;
+                break;
             }
         }
         n = n->parentFolderNode();
     }
+    emit foldersAboutToBeRemoved(parentFolder, staleFolders);
 }
 
-void ProjectTree::foldersRemoved()
+void ProjectTree::emitFoldersRemoved()
 {
-    QTimer::singleShot(0, this, SLOT(updateFromFocusResetFolderSingleShot()));
+    emit foldersRemoved();
+
+    if (m_resetCurrentNodeFolder) {
+        updateFromFocus(true);
+        m_resetCurrentNodeFolder = false;
+    }
 }
 
-void ProjectTree::filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &list)
+void ProjectTree::emitFilesAboutToBeAdded(FolderNode *folder, const QList<FileNode *> &newFiles)
 {
-    if (FileNode *fileNode = qobject_cast<FileNode *>(m_currentNode))
-        if (list.contains(fileNode))
+    emit filesAboutToBeAdded(folder, newFiles);
+}
+
+void ProjectTree::emitFilesAdded()
+{
+    emit filesAdded();
+
+    if (Utils::anyOf(m_projectTreeWidgets, &ProjectTreeWidget::hasFocus))
+        return;
+
+    updateFromDocumentManager();
+}
+
+void ProjectTree::emitFilesAboutToBeRemoved(FolderNode *folder, const QList<FileNode *> &staleFiles)
+{
+    if (FileNode *fileNode = dynamic_cast<FileNode *>(m_currentNode))
+        if (staleFiles.contains(fileNode))
             m_resetCurrentNodeFile = false;
+
+    emit filesAboutToBeRemoved(folder, staleFiles);
 }
 
-void ProjectTree::filesRemoved()
+void ProjectTree::emitFilesRemoved()
 {
-    QTimer::singleShot(0, this, SLOT(updateFromFocusResetFileSingleShot()));
+    emit filesRemoved();
+
+    if (m_resetCurrentNodeFile) {
+        updateFromFocus(true);
+        m_resetCurrentNodeFile = false;
+    }
 }
 
-void ProjectTree::aboutToRemoveProject(Project *project)
+void ProjectTree::emitNodeSortKeyAboutToChange(Node *node)
 {
-    if (m_currentProject == project)
-        m_resetCurrentNodeProject = true;
+    emit nodeSortKeyAboutToChange(node);
 }
 
-void ProjectTree::projectRemoved()
+void ProjectTree::emitNodeSortKeyChanged()
 {
-    QTimer::singleShot(0, this, SLOT(updateFromFocusResetProjectSingleShot()));
-}
-
-void ProjectTree::nodesAdded()
-{
-    QTimer::singleShot(0, this, SLOT(updateFromDocumentManagerSingleShot()));
+    emit nodeSortKeyChanged();
 }
 
 void ProjectTree::updateExternalFileWarning()
@@ -358,33 +371,4 @@ void ProjectTree::updateExternalFileWarning()
 bool ProjectTree::hasFocus(ProjectTreeWidget *widget)
 {
     return widget && widget->focusWidget() && widget->focusWidget()->hasFocus();
-}
-
-void ProjectTree::updateFromFocusResetFileSingleShot()
-{
-    if (m_resetCurrentNodeFile) {
-        updateFromFocus(true);
-        m_resetCurrentNodeFile = false;
-    }
-}
-
-void ProjectTree::updateFromFocusResetFolderSingleShot()
-{
-    if (m_resetCurrentNodeFolder) {
-        updateFromFocus(true);
-        m_resetCurrentNodeFolder = false;
-    }
-}
-
-void ProjectTree::updateFromFocusResetProjectSingleShot()
-{
-    updateFromFocus(true);
-    m_resetCurrentNodeProject = false;
-}
-
-void ProjectTree::updateFromDocumentManagerSingleShot()
-{
-    if (Utils::anyOf(m_projectTreeWidgets, &ProjectTreeWidget::hasFocus))
-        return;
-    updateFromDocumentManager();
 }

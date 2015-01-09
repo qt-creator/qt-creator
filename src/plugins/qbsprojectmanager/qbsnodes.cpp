@@ -90,7 +90,7 @@ QIcon QbsProductNode::m_productIcon;
 static QbsProjectNode *parentQbsProjectNode(ProjectExplorer::Node *node)
 {
     for (ProjectExplorer::FolderNode *pn = node->projectNode(); pn; pn = pn->parentFolderNode()) {
-        QbsProjectNode *prjNode = qobject_cast<QbsProjectNode *>(pn);
+        QbsProjectNode *prjNode = dynamic_cast<QbsProjectNode *>(pn);
         if (prjNode)
             return prjNode;
     }
@@ -100,7 +100,7 @@ static QbsProjectNode *parentQbsProjectNode(ProjectExplorer::Node *node)
 static QbsProductNode *parentQbsProductNode(ProjectExplorer::Node *node)
 {
     for (; node; node = node->parentFolderNode()) {
-        QbsProductNode *prdNode = qobject_cast<QbsProductNode *>(node);
+        QbsProductNode *prdNode = dynamic_cast<QbsProductNode *>(node);
         if (prdNode)
             return prdNode;
     }
@@ -452,7 +452,7 @@ void QbsGroupNode::updateQbsGroupData(const qbs::GroupData &grp, const QString &
 
     QbsFileNode *idx = 0;
     foreach (ProjectExplorer::FileNode *fn, fileNodes()) {
-        idx = qobject_cast<QbsFileNode *>(fn);
+        idx = dynamic_cast<QbsFileNode *>(fn);
         if (idx)
             break;
     }
@@ -498,7 +498,7 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
 
     QList<ProjectExplorer::FileNode *> filesToRemove;
     foreach (ProjectExplorer::FileNode *fn, root->fileNodes()) {
-        if (!qobject_cast<QbsFileNode *>(fn))
+        if (!dynamic_cast<QbsFileNode *>(fn))
             filesToRemove << fn;
     }
     QList<ProjectExplorer::FileNode *> filesToAdd;
@@ -664,7 +664,7 @@ void QbsProductNode::setQbsProductData(const qbs::Project &project, const qbs::P
     // Find the QbsFileNode we added earlier:
     QbsFileNode *idx = 0;
     foreach (ProjectExplorer::FileNode *fn, fileNodes()) {
-        idx = qobject_cast<QbsFileNode *>(fn);
+        idx = dynamic_cast<QbsFileNode *>(fn);
         if (idx)
             break;
     }
@@ -701,7 +701,7 @@ void QbsProductNode::setQbsProductData(const qbs::Project &project, const qbs::P
 QList<ProjectExplorer::RunConfiguration *> QbsProductNode::runConfigurations() const
 {
     QList<ProjectExplorer::RunConfiguration *> result;
-    QbsProjectNode *pn = qobject_cast<QbsProjectNode *>(projectNode());
+    QbsProjectNode *pn = dynamic_cast<QbsProjectNode *>(projectNode());
     if (!isEnabled() || !pn || !pn->qbsProject().isValid()
             || pn->qbsProject().targetExecutable(m_qbsProductData, qbs::InstallOptions()).isEmpty()) {
         return result;
@@ -808,7 +808,7 @@ void QbsProjectNode::ctor()
 QbsProductNode *QbsProjectNode::findProductNode(const QString &uniqueName)
 {
     foreach (ProjectExplorer::ProjectNode *n, subProjectNodes()) {
-        QbsProductNode *qn = qobject_cast<QbsProductNode *>(n);
+        QbsProductNode *qn = dynamic_cast<QbsProductNode *>(n);
         if (qn && QbsProject::uniqueProductName(qn->qbsProductData()) == uniqueName)
             return qn;
     }
@@ -818,7 +818,7 @@ QbsProductNode *QbsProjectNode::findProductNode(const QString &uniqueName)
 QbsProjectNode *QbsProjectNode::findProjectNode(const QString &name)
 {
     foreach (ProjectExplorer::ProjectNode *n, subProjectNodes()) {
-        QbsProjectNode *qn = qobject_cast<QbsProjectNode *>(n);
+        QbsProjectNode *qn = dynamic_cast<QbsProjectNode *>(n);
         if (qn && qn->qbsProjectData().name() == name)
             return qn;
     }
@@ -833,7 +833,8 @@ QbsRootProjectNode::QbsRootProjectNode(QbsProject *project) :
     QbsProjectNode(project->projectFilePath().toString()),
     m_project(project),
     m_buildSystemFiles(new ProjectExplorer::FolderNode(project->projectDirectory().toString(),
-                                                       ProjectExplorer::FolderNodeType, tr("Qbs files")))
+                                                       ProjectExplorer::FolderNodeType,
+                                                       QCoreApplication::translate("QbsRootProjectNode", "Qbs files")))
 {
     addFolderNodes(QList<FolderNode *>() << m_buildSystemFiles);
 }

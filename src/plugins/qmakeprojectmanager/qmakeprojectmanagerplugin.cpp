@@ -318,16 +318,16 @@ void QmakeProjectManagerPlugin::updateRunQMakeAction()
 
 void QmakeProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project)
 {
-    m_addLibraryActionContextMenu->setEnabled(qobject_cast<QmakeProFileNode *>(node));
+    m_addLibraryActionContextMenu->setEnabled(dynamic_cast<QmakeProFileNode *>(node));
 
-    QmakeProFileNode *proFileNode = qobject_cast<QmakeProFileNode *>(node);
+    QmakeProFileNode *proFileNode = dynamic_cast<QmakeProFileNode *>(node);
     QmakeProject *qmakeProject = qobject_cast<QmakeProject *>(project);
     QmakeProFileNode *subProjectNode = 0;
     if (node) {
-        if (QmakePriFileNode *subPriFileNode = qobject_cast<QmakePriFileNode *>(node->projectNode()))
+        if (QmakePriFileNode *subPriFileNode = dynamic_cast<QmakePriFileNode *>(node->projectNode()))
             subProjectNode = subPriFileNode->proFileNode();
     }
-    ProjectExplorer::FileNode *fileNode = qobject_cast<ProjectExplorer::FileNode *>(node);
+    ProjectExplorer::FileNode *fileNode = dynamic_cast<ProjectExplorer::FileNode *>(node);
     bool buildFilePossible = subProjectNode && fileNode
             && (fileNode->fileType() == ProjectExplorer::SourceType);
 
@@ -398,7 +398,7 @@ void QmakeProjectManagerPlugin::updateBuildFileAction()
         m_buildFileAction->setParameter(QFileInfo(file).fileName());
         visible = qobject_cast<QmakeProject *>(project)
                 && node
-                && qobject_cast<QmakePriFileNode *>(node->projectNode());
+                && dynamic_cast<QmakePriFileNode *>(node->projectNode());
 
         enabled = !BuildManager::isBuilding(project);
     }

@@ -35,14 +35,13 @@
 
 #include <coreplugin/icontext.h>
 
-#include <QPointer>
-
 namespace ProjectExplorer {
 class FileNode;
 class FolderNode;
 class Node;
-class NodesWatcher;
 class Project;
+class ProjectNode;
+class SessionNode;
 
 namespace Internal { class ProjectTreeWidget; }
 
@@ -68,6 +67,60 @@ signals:
     void currentProjectChanged(ProjectExplorer::Project *project);
     void currentNodeChanged(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
 
+    // Emitted whenever the model needs to send a update signal.
+    void nodeUpdated(ProjectExplorer::Node *node);
+
+    // projects
+    void aboutToChangeShowInSimpleTree(ProjectExplorer::FolderNode*);
+    void showInSimpleTreeChanged(ProjectExplorer::FolderNode *node);
+
+    // folders & projects
+    void foldersAboutToBeAdded(FolderNode *parentFolder,
+                               const QList<FolderNode*> &newFolders);
+    void foldersAdded();
+
+    void foldersAboutToBeRemoved(FolderNode *parentFolder,
+                               const QList<FolderNode*> &staleFolders);
+    void foldersRemoved();
+
+    // files
+    void filesAboutToBeAdded(FolderNode *folder,
+                               const QList<FileNode*> &newFiles);
+    void filesAdded();
+
+    void filesAboutToBeRemoved(FolderNode *folder,
+                               const QList<FileNode*> &staleFiles);
+    void filesRemoved();
+    void nodeSortKeyAboutToChange(Node *node);
+    void nodeSortKeyChanged();
+
+public: // for nodes to emit signals, do not call unless you are a node
+    void emitNodeUpdated(ProjectExplorer::Node *node);
+
+    // projects
+    void emitAboutToChangeShowInSimpleTree(ProjectExplorer::FolderNode *node);
+    void emitShowInSimpleTreeChanged(ProjectExplorer::FolderNode *node);
+
+    // folders & projects
+    void emitFoldersAboutToBeAdded(FolderNode *parentFolder,
+                               const QList<FolderNode*> &newFolders);
+    void emitFoldersAdded();
+
+    void emitFoldersAboutToBeRemoved(FolderNode *parentFolder,
+                               const QList<FolderNode*> &staleFolders);
+    void emitFoldersRemoved();
+
+    // files
+    void emitFilesAboutToBeAdded(FolderNode *folder,
+                               const QList<FileNode*> &newFiles);
+    void emitFilesAdded();
+
+    void emitFilesAboutToBeRemoved(FolderNode *folder,
+                               const QList<FileNode*> &staleFiles);
+    void emitFilesRemoved();
+    void emitNodeSortKeyAboutToChange(Node *node);
+    void emitNodeSortKeyChanged();
+
 private:
     void focusChanged();
     void updateFromProjectTreeWidget(Internal::ProjectTreeWidget *widget);
@@ -76,36 +129,20 @@ private:
     void update(Node *node, Project *project);
     void updateContext();
 
-    // slots to kepp the current node/current project from deletion
-    void foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode *> &list);
-    void foldersRemoved();
-    void filesAboutToBeRemoved(FolderNode *, const QList<FileNode *> &list);
-    void filesRemoved();
-    void aboutToRemoveProject(Project *project);
-    void projectRemoved();
-
-    void nodesAdded();
     void updateFromFocus(bool invalidCurrentNode = false);
 
     void updateExternalFileWarning();
     static bool hasFocus(Internal::ProjectTreeWidget *widget);
 
-private slots: // use lambdas for the following when minimum Qt is 5.4
-    void updateFromFocusResetFileSingleShot();
-    void updateFromFocusResetFolderSingleShot();
-    void updateFromFocusResetProjectSingleShot();
-    void updateFromDocumentManagerSingleShot();
-
 private:
     static ProjectTree *s_instance;
     QList<Internal::ProjectTreeWidget *> m_projectTreeWidgets;
     Node *m_currentNode;
-    QPointer<Project> m_currentProject;
+    Project *m_currentProject;
     bool m_resetCurrentNodeFolder;
     bool m_resetCurrentNodeFile;
     bool m_resetCurrentNodeProject;
     Core::Context m_lastProjectContext;
-    NodesWatcher *m_watcher;
 };
 }
 

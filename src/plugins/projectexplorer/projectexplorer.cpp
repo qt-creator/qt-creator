@@ -1935,7 +1935,7 @@ static QString pathOrDirectoryFor(Node *node, bool dir)
 {
     QString path = node->path();
     QString location;
-    FolderNode *folder = qobject_cast<FolderNode *>(node);
+    FolderNode *folder = dynamic_cast<FolderNode *>(node);
     if (node->nodeType() == VirtualFolderNodeType && folder) {
         // Virtual Folder case
         // If there are files directly below or no subfolders, take the folder path
@@ -2291,7 +2291,7 @@ void ProjectExplorerPlugin::runProjectWithoutDeploy()
 
 void ProjectExplorerPlugin::runProjectContextMenu()
 {
-    ProjectNode *projectNode = qobject_cast<ProjectNode*>(ProjectTree::currentNode());
+    ProjectNode *projectNode = dynamic_cast<ProjectNode*>(ProjectTree::currentNode());
     if (projectNode == ProjectTree::currentProject()->rootProjectNode() || !projectNode) {
         runProject(ProjectTree::currentProject(), NormalRunMode);
     } else {
@@ -2810,7 +2810,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
     if (currentNode && currentNode->projectNode()) {
         QList<ProjectAction> actions = currentNode->supportedActions(currentNode);
 
-        if (ProjectNode *pn = qobject_cast<ProjectNode *>(currentNode)) {
+        if (ProjectNode *pn = dynamic_cast<ProjectNode *>(currentNode)) {
             if (ProjectTree::currentProject() && pn == ProjectTree::currentProject()->rootProjectNode()) {
                 dd->m_runActionContextMenu->setVisible(true);
             } else {
@@ -2831,7 +2831,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
                 }
             }
         }
-        if (qobject_cast<FolderNode*>(currentNode)) {
+        if (dynamic_cast<FolderNode*>(currentNode)) {
             // Also handles ProjectNode
             dd->m_addNewFileAction->setEnabled(actions.contains(AddNewFile)
                                               && !ICore::isNewItemDialogRunning());
@@ -2843,7 +2843,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
             dd->m_addExistingFilesAction->setEnabled(actions.contains(AddExistingFile));
             dd->m_addExistingDirectoryAction->setEnabled(actions.contains(AddExistingDirectory));
             dd->m_renameFileAction->setEnabled(actions.contains(Rename));
-        } else if (qobject_cast<FileNode*>(currentNode)) {
+        } else if (dynamic_cast<FileNode*>(currentNode)) {
             // Enable and show remove / delete in magic ways:
             // If both are disabled show Remove
             // If both are enabled show both (can't happen atm)
@@ -2942,7 +2942,7 @@ void ProjectExplorerPlugin::addExistingDirectory()
 
 void ProjectExplorerPlugin::addExistingFiles(const QStringList &filePaths)
 {
-    FolderNode *folderNode = qobject_cast<FolderNode *>(ProjectTree::currentNode());
+    FolderNode *folderNode = dynamic_cast<FolderNode *>(ProjectTree::currentNode());
     addExistingFiles(folderNode, filePaths);
 }
 
@@ -2971,8 +2971,8 @@ void ProjectExplorerPlugin::addExistingFiles(FolderNode *folderNode, const QStri
 
 void ProjectExplorerPlugin::removeProject()
 {
-    ProjectNode *subProjectNode = qobject_cast<ProjectNode*>(ProjectTree::currentNode()->projectNode());
-    ProjectNode *projectNode = qobject_cast<ProjectNode *>(subProjectNode->parentFolderNode());
+    ProjectNode *subProjectNode = dynamic_cast<ProjectNode*>(ProjectTree::currentNode()->projectNode());
+    ProjectNode *projectNode = dynamic_cast<ProjectNode *>(subProjectNode->parentFolderNode());
     if (projectNode) {
         RemoveFileDialog removeFileDialog(subProjectNode->path(), ICore::mainWindow());
         removeFileDialog.setDeleteFileVisible(false);
@@ -3010,7 +3010,7 @@ void ProjectExplorerPlugin::removeFile()
     Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode && currentNode->nodeType() == FileNodeType, return);
 
-    FileNode *fileNode = qobject_cast<FileNode*>(currentNode);
+    FileNode *fileNode = dynamic_cast<FileNode*>(currentNode);
 
     QString filePath = currentNode->path();
     RemoveFileDialog removeFileDialog(filePath, ICore::mainWindow());
@@ -3039,7 +3039,7 @@ void ProjectExplorerPlugin::deleteFile()
     Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode && currentNode->nodeType() == FileNodeType, return);
 
-    FileNode *fileNode = qobject_cast<FileNode*>(currentNode);
+    FileNode *fileNode = dynamic_cast<FileNode*>(currentNode);
 
     QString filePath = currentNode->path();
     QMessageBox::StandardButton button =

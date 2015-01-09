@@ -888,7 +888,7 @@ bool PackageLibraryDetailsController::isLinkPackageGenerated() const
     if (!project)
         return false;
 
-    const QmakeProFileNode *rootProject = qobject_cast<const QmakeProFileNode *>(project->rootProjectNode());
+    const QmakeProFileNode *rootProject = dynamic_cast<const QmakeProFileNode *>(project->rootProjectNode());
     if (!rootProject)
         return false;
 

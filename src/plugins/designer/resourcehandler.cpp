@@ -35,6 +35,7 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/nodesvisitor.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
 #include <resourceeditor/resourcenode.h>
 
@@ -75,7 +76,7 @@ void QrcFilesVisitor::visitFolderNode(FolderNode *folderNode)
         if (fileNode->fileType() == ProjectExplorer::ResourceType)
             m_qrcFiles.append(fileNode->path());
     }
-    if (qobject_cast<ResourceEditor::ResourceTopLevelNode *>(folderNode))
+    if (dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(folderNode))
         m_qrcFiles.append(folderNode->path());
 }
 
@@ -83,25 +84,23 @@ void QrcFilesVisitor::visitFolderNode(FolderNode *folderNode)
 ResourceHandler::ResourceHandler(QDesignerFormWindowInterface *fw) :
     QObject(fw),
     m_form(fw),
-    m_sessionNode(0),
-    m_sessionWatcher(0),
+    m_initialized(false),
     m_handlingResources(false)
 {
 }
 
 void ResourceHandler::ensureInitialized()
 {
-    if (m_sessionNode)
+    if (m_initialized)
         return;
 
-    m_sessionNode = ProjectExplorer::SessionManager::sessionNode();
-    m_sessionWatcher = new ProjectExplorer::NodesWatcher();
+    m_initialized = true;
+    ProjectTree *tree = ProjectTree::instance();
 
-    connect(m_sessionWatcher, SIGNAL(filesAdded()), this, SLOT(updateResources()));
-    connect(m_sessionWatcher, SIGNAL(filesRemoved()), this, SLOT(updateResources()));
-    connect(m_sessionWatcher, SIGNAL(foldersAdded()), this, SLOT(updateResources()));
-    connect(m_sessionWatcher, SIGNAL(foldersRemoved()), this, SLOT(updateResources()));
-    m_sessionNode->registerWatcher(m_sessionWatcher);
+    connect(tree, SIGNAL(filesAdded()), this, SLOT(updateResources()));
+    connect(tree, SIGNAL(filesRemoved()), this, SLOT(updateResources()));
+    connect(tree, SIGNAL(foldersAdded()), this, SLOT(updateResources()));
+    connect(tree, SIGNAL(foldersRemoved()), this, SLOT(updateResources()));
     m_originalUiQrcPaths = m_form->activeResourceFilePaths();
     if (Designer::Constants::Internal::debug)
         qDebug() << "ResourceHandler::ensureInitialized() origPaths=" << m_originalUiQrcPaths;
@@ -109,11 +108,7 @@ void ResourceHandler::ensureInitialized()
 
 ResourceHandler::~ResourceHandler()
 {
-    // Close: Delete the Designer form window via embedding widget
-    if (m_sessionNode && m_sessionWatcher) {
-        m_sessionNode->unregisterWatcher(m_sessionWatcher);
-        delete m_sessionWatcher;
-    }
+
 }
 
 void ResourceHandler::updateResources(bool updateProjectResources)

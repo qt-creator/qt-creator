@@ -130,7 +130,7 @@ SessionManager::SessionManager(QObject *parent)
     m_instance = this;
     d = new SessionManagerPrivate;
 
-    d->m_sessionNode = new SessionNode(this);
+    d->m_sessionNode = new SessionNode;
 
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             this, SLOT(saveActiveMode(Core::IMode*)));
@@ -155,6 +155,7 @@ SessionManager::~SessionManager()
 {
     emit m_instance->aboutToUnloadSession(d->m_sessionName);
     delete d->m_writer;
+    delete d->m_sessionNode;
     delete d;
 }
 
@@ -561,7 +562,7 @@ Project *SessionManager::projectForNode(Node *node)
     if (!node)
         return 0;
 
-    FolderNode *rootProjectNode = qobject_cast<FolderNode*>(node);
+    FolderNode *rootProjectNode = dynamic_cast<FolderNode*>(node);
     if (!rootProjectNode)
         rootProjectNode = node->parentFolderNode();
 

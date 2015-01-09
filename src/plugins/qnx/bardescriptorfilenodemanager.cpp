@@ -196,7 +196,7 @@ bool BarDescriptorFileNodeManager::createBarDescriptor(ProjectExplorer::Project 
     const QString projectName = QFileInfo(projectNode->path()).completeBaseName();
 
     QmakeProjectManager::QmakeProFileNode *proFileNode =
-            qobject_cast<QmakeProjectManager::QmakeProFileNode*>(projectNode);
+            dynamic_cast<QmakeProjectManager::QmakeProFileNode*>(projectNode);
     QTC_ASSERT(proFileNode, return false);
     const QString targetName = proFileNode->targetInformation().target;
 
@@ -327,7 +327,7 @@ BarDescriptorFileNode *BarDescriptorFileNodeManager::findBarDescriptorFileNode(P
 
     QList<ProjectExplorer::FileNode*> fileNodes = parent->fileNodes();
     foreach (ProjectExplorer::FileNode *fileNode, fileNodes) {
-        BarDescriptorFileNode *barDescriptorNode = qobject_cast<BarDescriptorFileNode*>(fileNode);
+        BarDescriptorFileNode *barDescriptorNode = dynamic_cast<BarDescriptorFileNode*>(fileNode);
         if (barDescriptorNode)
             return barDescriptorNode;
     }

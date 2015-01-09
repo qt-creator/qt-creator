@@ -33,6 +33,7 @@
 #include "project.h"
 #include "projectnodes.h"
 #include "projectexplorer.h"
+#include "projecttree.h"
 
 #include <coreplugin/fileiconprovider.h>
 #include <utils/algorithm.h>
@@ -58,8 +59,8 @@ bool sortNodes(Node *n1, Node *n2)
     const NodeType n2Type = n2->nodeType();
 
     // project files
-    FileNode *file1 = qobject_cast<FileNode*>(n1);
-    FileNode *file2 = qobject_cast<FileNode*>(n2);
+    FileNode *file1 = dynamic_cast<FileNode*>(n1);
+    FileNode *file2 = dynamic_cast<FileNode*>(n2);
     if (file1 && file1->fileType() == ProjectFileType) {
         if (file2 && file2->fileType() == ProjectFileType) {
             const QString fileName1 = QFileInfo(file1->path()).fileName();
@@ -177,42 +178,41 @@ FlatModel::FlatModel(SessionNode *rootNode, QObject *parent)
           m_startupProject(0),
           m_parentFolderForChange(0)
 {
-    NodesWatcher *watcher = new NodesWatcher(this);
-    m_rootNode->registerWatcher(watcher);
+    ProjectTree *tree = ProjectTree::instance();
 
-    connect(watcher, SIGNAL(aboutToChangeShowInSimpleTree(ProjectExplorer::FolderNode*)),
-            this, SLOT(aboutToShowInSimpleTreeChanged(ProjectExplorer::FolderNode*)));
+    connect(tree, &ProjectTree::aboutToChangeShowInSimpleTree,
+            this, &FlatModel::aboutToShowInSimpleTreeChanged);
 
-    connect(watcher, SIGNAL(showInSimpleTreeChanged(ProjectExplorer::FolderNode*)),
-            this, SLOT(showInSimpleTreeChanged(ProjectExplorer::FolderNode*)));
+    connect(tree, &ProjectTree::showInSimpleTreeChanged,
+            this, &FlatModel::showInSimpleTreeChanged);
 
-    connect(watcher, SIGNAL(foldersAboutToBeAdded(FolderNode*,QList<FolderNode*>)),
-            this, SLOT(foldersAboutToBeAdded(FolderNode*,QList<FolderNode*>)));
-    connect(watcher, SIGNAL(foldersAdded()),
-            this, SLOT(foldersAdded()));
+    connect(tree, &ProjectTree::foldersAboutToBeAdded,
+            this, &FlatModel::foldersAboutToBeAdded);
+    connect(tree, &ProjectTree::foldersAdded,
+            this, &FlatModel::foldersAdded);
 
-    connect(watcher, SIGNAL(foldersAboutToBeRemoved(FolderNode*,QList<FolderNode*>)),
-            this, SLOT(foldersAboutToBeRemoved(FolderNode*,QList<FolderNode*>)));
-    connect(watcher, SIGNAL(foldersRemoved()),
-            this, SLOT(foldersRemoved()));
+    connect(tree, &ProjectTree::foldersAboutToBeRemoved,
+            this, &FlatModel::foldersAboutToBeRemoved);
+    connect(tree, &ProjectTree::foldersRemoved,
+            this, &FlatModel::foldersRemoved);
 
-    connect(watcher, SIGNAL(filesAboutToBeAdded(FolderNode*,QList<FileNode*>)),
-            this, SLOT(filesAboutToBeAdded(FolderNode*,QList<FileNode*>)));
-    connect(watcher, SIGNAL(filesAdded()),
-            this, SLOT(filesAdded()));
+    connect(tree, &ProjectTree::filesAboutToBeAdded,
+            this, &FlatModel::filesAboutToBeAdded);
+    connect(tree, &ProjectTree::filesAdded,
+            this, &FlatModel::filesAdded);
 
-    connect(watcher, SIGNAL(filesAboutToBeRemoved(FolderNode*,QList<FileNode*>)),
-            this, SLOT(filesAboutToBeRemoved(FolderNode*,QList<FileNode*>)));
-    connect(watcher, SIGNAL(filesRemoved()),
-            this, SLOT(filesRemoved()));
+    connect(tree, &ProjectTree::filesAboutToBeRemoved,
+            this, &FlatModel::filesAboutToBeRemoved);
+    connect(tree, &ProjectTree::filesRemoved,
+            this, &FlatModel::filesRemoved);
 
-    connect(watcher, SIGNAL(nodeSortKeyAboutToChange(Node*)),
-            this, SLOT(nodeSortKeyAboutToChange(Node*)));
-    connect(watcher, SIGNAL(nodeSortKeyChanged()),
-            this, SLOT(nodeSortKeyChanged()));
+    connect(tree, &ProjectTree::nodeSortKeyAboutToChange,
+            this, &FlatModel::nodeSortKeyAboutToChange);
+    connect(tree, &ProjectTree::nodeSortKeyChanged,
+            this, &FlatModel::nodeSortKeyChanged);
 
-    connect(watcher, SIGNAL(nodeUpdated(ProjectExplorer::Node*)),
-            this, SLOT(nodeUpdated(ProjectExplorer::Node*)));
+    connect(tree, &ProjectTree::nodeUpdated,
+            this, &FlatModel::nodeUpdated);
 }
 
 QModelIndex FlatModel::index(int row, int column, const QModelIndex &parent) const
@@ -221,7 +221,7 @@ QModelIndex FlatModel::index(int row, int column, const QModelIndex &parent) con
     if (!parent.isValid() && row == 0 && column == 0) { // session
         result = createIndex(0, 0, m_rootNode);
     } else if (parent.isValid() && column == 0) {
-        FolderNode *parentNode = qobject_cast<FolderNode*>(nodeForIndex(parent));
+        FolderNode *parentNode = dynamic_cast<FolderNode*>(nodeForIndex(parent));
         Q_ASSERT(parentNode);
         QHash<FolderNode*, QList<Node*> >::const_iterator it = m_childNodes.constFind(parentNode);
         if (it == m_childNodes.constEnd()) {
@@ -270,7 +270,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
     QVariant result;
 
     if (Node *node = nodeForIndex(index)) {
-        FolderNode *folderNode = qobject_cast<FolderNode*>(node);
+        FolderNode *folderNode = dynamic_cast<FolderNode*>(node);
         switch (role) {
         case Qt::DisplayRole: {
             QString name = node->displayName();
@@ -334,11 +334,11 @@ Qt::ItemFlags FlatModel::flags(const QModelIndex &index) const
     if (Node *node = nodeForIndex(index)) {
         if (node == m_rootNode)
             return 0; // no flags for session node...
-        if (!qobject_cast<ProjectNode *>(node)) {
+        if (!dynamic_cast<ProjectNode *>(node)) {
             // either folder or file node
             if (node->supportedActions(node).contains(Rename))
                 f = f | Qt::ItemIsEditable;
-            if (qobject_cast<FileNode *>(node))
+            if (dynamic_cast<FileNode *>(node))
                 f = f | Qt::ItemIsDragEnabled;
         }
     }
@@ -369,7 +369,7 @@ int FlatModel::rowCount(const QModelIndex &parent) const
     if (!parent.isValid()) {
         rows = 1;
     } else {
-        FolderNode *folderNode = qobject_cast<FolderNode*>(nodeForIndex(parent));
+        FolderNode *folderNode = dynamic_cast<FolderNode*>(nodeForIndex(parent));
         if (folderNode && m_childNodes.contains(folderNode))
             rows = m_childNodes.value(folderNode).size();
     }
@@ -386,7 +386,7 @@ bool FlatModel::hasChildren(const QModelIndex &parent) const
     if (!parent.isValid())
         return true;
 
-    FolderNode *folderNode = qobject_cast<FolderNode*>(nodeForIndex(parent));
+    FolderNode *folderNode = dynamic_cast<FolderNode*>(nodeForIndex(parent));
     if (!folderNode)
         return false;
 
@@ -403,7 +403,7 @@ bool FlatModel::canFetchMore(const QModelIndex & parent) const
     if (!parent.isValid()) {
         return false;
     } else {
-        if (FolderNode *folderNode = qobject_cast<FolderNode*>(nodeForIndex(parent)))
+        if (FolderNode *folderNode = dynamic_cast<FolderNode*>(nodeForIndex(parent)))
             return !m_childNodes.contains(folderNode);
         else
             return false;
@@ -473,7 +473,7 @@ void FlatModel::fetchMore(FolderNode *folderNode) const
 
 void FlatModel::fetchMore(const QModelIndex &parent)
 {
-    FolderNode *folderNode = qobject_cast<FolderNode*>(nodeForIndex(parent));
+    FolderNode *folderNode = dynamic_cast<FolderNode*>(nodeForIndex(parent));
     Q_ASSERT(folderNode);
 
     fetchMore(folderNode);
@@ -514,7 +514,7 @@ QMimeData *FlatModel::mimeData(const QModelIndexList &indexes) const
     auto data = new Utils::FileDropMimeData;
     foreach (const QModelIndex &index, indexes) {
         Node *node = nodeForIndex(index);
-        if (qobject_cast<FileNode *>(node))
+        if (dynamic_cast<FileNode *>(node))
             data->addFile(node->path());
     }
     return data;
@@ -601,10 +601,10 @@ FolderNode *FlatModel::visibleFolderNode(FolderNode *node) const
 bool FlatModel::filter(Node *node) const
 {
     bool isHidden = false;
-    if (FolderNode *folderNode = qobject_cast<FolderNode*>(node)) {
+    if (FolderNode *folderNode = dynamic_cast<FolderNode*>(node)) {
         if (m_filterProjects)
             isHidden = !folderNode->showInSimpleTree();
-    } else if (FileNode *fileNode = qobject_cast<FileNode*>(node)) {
+    } else if (FileNode *fileNode = dynamic_cast<FileNode*>(node)) {
         if (m_filterGeneratedFiles)
             isHidden = fileNode->isGenerated();
     }
@@ -803,7 +803,7 @@ void FlatModel::aboutToShowInSimpleTreeChanged(FolderNode* node)
     QList<Node *> staleFolders;
     recursiveAddFolderNodesImpl(node, &staleFolders);
     foreach (Node *n, staleFolders)
-        if (FolderNode *fn = qobject_cast<FolderNode *>(n))
+        if (FolderNode *fn = dynamic_cast<FolderNode *>(n))
             m_childNodes.remove(fn);
 }
 

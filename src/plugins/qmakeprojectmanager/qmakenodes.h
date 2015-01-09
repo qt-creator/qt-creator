@@ -116,7 +116,6 @@ using ProjectExplorer::Node;
 using ProjectExplorer::FileNode;
 using ProjectExplorer::FolderNode;
 using ProjectExplorer::ProjectNode;
-using ProjectExplorer::NodesWatcher;
 
 // Import enums into namespace
 using ProjectExplorer::NodeType;
@@ -150,8 +149,6 @@ public:
 // Implements ProjectNode for qmake .pri files
 class QMAKEPROJECTMANAGER_EXPORT QmakePriFileNode : public ProjectExplorer::ProjectNode
 {
-    Q_OBJECT
-
 public:
     QmakePriFileNode(QmakeProject *project, QmakeProFileNode *qmakeProFileNode, const QString &filePath);
     ~QmakePriFileNode();
@@ -210,10 +207,9 @@ protected:
                      QStringList *notChanged,
                      ChangeType change);
 
-private slots:
+private:
     void scheduleUpdate();
 
-private:
     static bool ensureWriteableProFile(const QString &file);
     static QPair<ProFile *, QStringList> readProFile(const QString &file);
     static QPair<ProFile *, QStringList> readProFileFromContents(const QString &contents);
@@ -267,30 +263,6 @@ public:
 
 private:
     QmakePriFileNode *m_priFile;
-};
-
-class QmakeNodesWatcher : public ProjectExplorer::NodesWatcher
-{
-    Q_OBJECT
-
-public:
-    QmakeNodesWatcher(QObject *parent = 0);
-
-signals:
-    void projectTypeChanged(QmakeProjectManager::QmakeProFileNode *projectNode,
-                            const QmakeProjectManager::QmakeProjectType oldType,
-                            const QmakeProjectManager::QmakeProjectType newType);
-
-    void variablesChanged(QmakeProFileNode *projectNode,
-                          const QHash<QmakeVariable, QStringList> &oldValues,
-                          const QHash<QmakeVariable, QStringList> &newValues);
-
-    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *projectNode, bool success, bool parseInProgress);
-
-private:
-    // let them emit signals
-    friend class QmakeProjectManager::QmakeProFileNode;
-    friend class QmakePriFileNode;
 };
 
 class ProVirtualFolderNode : public ProjectExplorer::VirtualFolderNode
@@ -375,12 +347,9 @@ struct QMAKEPROJECTMANAGER_EXPORT ProjectVersion {
 // Implements ProjectNode for qmake .pro files
 class QMAKEPROJECTMANAGER_EXPORT QmakeProFileNode : public QmakePriFileNode
 {
-    Q_OBJECT
-
 public:
     QmakeProFileNode(QmakeProject *project,
-                   const QString &filePath,
-                   QObject *parent = 0);
+                   const QString &filePath);
     ~QmakeProFileNode();
 
     bool isParent(QmakeProFileNode *node);
@@ -431,13 +400,12 @@ public:
     void setValidParse(bool b);
     void setValidParseRecursive(bool b);
     void emitProFileUpdatedRecursive();
-public slots:
+
     void asyncUpdate();
 
-private slots:
+private:
     void applyAsyncEvaluate();
 
-private:
     void setupReader();
     Internal::EvalInput evalInput() const;
 

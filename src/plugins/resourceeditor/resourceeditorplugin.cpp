@@ -304,7 +304,7 @@ void ResourceEditorPlugin::renamePrefixContextMenu()
 
 void ResourceEditorPlugin::updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *)
 {
-    bool isResourceNode = qobject_cast<ResourceTopLevelNode *>(node);
+    bool isResourceNode = dynamic_cast<ResourceTopLevelNode *>(node);
     m_addPrefix->setEnabled(isResourceNode);
     m_addPrefix->setVisible(isResourceNode);
 
@@ -325,7 +325,7 @@ void ResourceEditorPlugin::updateContextActions(ProjectExplorer::Node *node, Pro
     m_openInEditor->setEnabled(isResourceNode);
     m_openInEditor->setVisible(isResourceNode);
 
-    bool isResourceFolder = qobject_cast<ResourceFolderNode *>(node);
+    bool isResourceFolder = dynamic_cast<ResourceFolderNode *>(node);
     m_removePrefix->setEnabled(isResourceFolder);
     m_removePrefix->setVisible(isResourceFolder);
 
@@ -338,7 +338,7 @@ void ResourceEditorPlugin::updateContextActions(ProjectExplorer::Node *node, Pro
         m_openWithMenu->clear();
     m_openWithMenu->menuAction()->setVisible(!m_openWithMenu->actions().isEmpty());
 
-    bool isResourceFile = qobject_cast<ResourceFileNode *>(node);
+    bool isResourceFile = dynamic_cast<ResourceFileNode *>(node);
     m_copyPath->setEnabled(isResourceFile);
     m_copyPath->setVisible(isResourceFile);
     m_copyUrl->setEnabled(isResourceFile);

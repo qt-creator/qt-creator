@@ -40,7 +40,6 @@ namespace Internal {
 
 class BarDescriptorFileNode : public ProjectExplorer::FileNode
 {
-    Q_OBJECT
 public:
     explicit BarDescriptorFileNode(const QString &filePath);
 

@@ -53,8 +53,6 @@ class AutotoolsProject;
  */
 class AutotoolsProjectNode : public ProjectExplorer::ProjectNode
 {
-    Q_OBJECT
-
 public:
     AutotoolsProjectNode(AutotoolsProject *project, Core::IDocument *projectFile);
 

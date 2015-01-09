@@ -43,6 +43,6 @@ QList<QmakeProFileNode *> FindQmakeProFiles::operator()(ProjectExplorer::Project
 
 void FindQmakeProFiles::visitProjectNode(ProjectExplorer::ProjectNode *projectNode)
 {
-    if (QmakeProFileNode *pro = qobject_cast<QmakeProFileNode *>(projectNode))
+    if (QmakeProFileNode *pro = dynamic_cast<QmakeProFileNode *>(projectNode))
         m_proFiles.append(pro);
 }

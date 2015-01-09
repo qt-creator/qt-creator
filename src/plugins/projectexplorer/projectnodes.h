@@ -100,14 +100,14 @@ class FileNode;
 class FileContainerNode;
 class FolderNode;
 class ProjectNode;
-class NodesWatcher;
 class NodesVisitor;
 class SessionManager;
 
 // Documentation inside.
-class PROJECTEXPLORER_EXPORT Node : public QObject {
-    Q_OBJECT
+class PROJECTEXPLORER_EXPORT Node
+{
 public:
+    virtual ~Node();
     NodeType nodeType() const;
     ProjectNode *projectNode() const;     // managing project
     FolderNode *parentFolderNode() const; // parent folder or project
@@ -136,14 +136,14 @@ protected:
 
 private:
     NodeType m_nodeType;
+    int m_line;
     ProjectNode *m_projectNode;
     FolderNode *m_folderNode;
     QString m_path;
-    int m_line;
 };
 
-class PROJECTEXPLORER_EXPORT FileNode : public Node {
-    Q_OBJECT
+class PROJECTEXPLORER_EXPORT FileNode : public Node
+{
 public:
     FileNode(const QString &filePath, const FileType fileType, bool generated, int line = -1);
 
@@ -160,8 +160,8 @@ private:
 };
 
 // Documentation inside.
-class PROJECTEXPLORER_EXPORT FolderNode : public Node {
-    Q_OBJECT
+class PROJECTEXPLORER_EXPORT FolderNode : public Node
+{
 public:
     explicit FolderNode(const QString &folderPath, NodeType nodeType = FolderNodeType,
                         const QString &displayName = QString());
@@ -197,8 +197,6 @@ public:
 
 
     // determines if node will be shown in the flat view, by default folder and projects aren't shown
-    void aboutToChangeShowInSimpleTree();
-    void showInSimpleTreeChanged();
     virtual bool showInSimpleTree() const;
 
     void addFileNodes(const QList<FileNode*> &files);
@@ -221,7 +219,6 @@ private:
 
 class PROJECTEXPLORER_EXPORT VirtualFolderNode : public FolderNode
 {
-    Q_OBJECT
 public:
     explicit VirtualFolderNode(const QString &folderPath, int priority);
     virtual ~VirtualFolderNode();
@@ -234,8 +231,6 @@ private:
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT ProjectNode : public FolderNode
 {
-    Q_OBJECT
-
 public:
     QString vcsTopic() const;
 
@@ -253,11 +248,6 @@ public:
 
     virtual QList<RunConfiguration *> runConfigurations() const;
 
-
-    QList<NodesWatcher*> watchers() const;
-    void registerWatcher(NodesWatcher *watcher);
-    void unregisterWatcher(NodesWatcher *watcher);
-
     void accept(NodesVisitor *visitor);
 
     bool isEnabled() const { return true; }
@@ -272,31 +262,23 @@ protected:
     // will add the persistent stuff
     explicit ProjectNode(const QString &projectFilePath);
 
-private slots:
-    void watcherDestroyed(QObject *watcher);
-
 private:
     QList<ProjectNode*> m_subProjectNodes;
-    QList<NodesWatcher*> m_watchers;
 
     // let SessionNode call setParentFolderNode
     friend class SessionNode;
 };
 
 // Documentation inside.
-class PROJECTEXPLORER_EXPORT SessionNode : public FolderNode {
-    Q_OBJECT
+class PROJECTEXPLORER_EXPORT SessionNode : public FolderNode
+{
     friend class SessionManager;
 public:
-    SessionNode(QObject *parentObject);
+    SessionNode();
 
     QList<ProjectAction> supportedActions(Node *node) const;
 
     QList<ProjectNode*> projectNodes() const;
-
-    QList<NodesWatcher*> watchers() const;
-    void registerWatcher(NodesWatcher *watcher);
-    void unregisterWatcher(NodesWatcher *watcher);
 
     void accept(NodesVisitor *visitor);
 
@@ -308,49 +290,8 @@ protected:
     void addProjectNodes(const QList<ProjectNode*> &projectNodes);
     void removeProjectNodes(const QList<ProjectNode*> &projectNodes);
 
-private slots:
-    void watcherDestroyed(QObject *watcher);
-
 private:
     QList<ProjectNode*> m_projectNodes;
-    QList<NodesWatcher*> m_watchers;
-};
-
-// Documentation inside.
-class PROJECTEXPLORER_EXPORT NodesWatcher : public QObject {
-    Q_OBJECT
-public:
-    explicit NodesWatcher(QObject *parent = 0);
-
-signals:
-    // everything
-
-    // Emitted whenever the model needs to send a update signal.
-    void nodeUpdated(ProjectExplorer::Node *node);
-
-    // projects
-    void aboutToChangeShowInSimpleTree(ProjectExplorer::FolderNode*);
-    void showInSimpleTreeChanged(ProjectExplorer::FolderNode *node);
-
-    // folders & projects
-    void foldersAboutToBeAdded(FolderNode *parentFolder,
-                               const QList<FolderNode*> &newFolders);
-    void foldersAdded();
-
-    void foldersAboutToBeRemoved(FolderNode *parentFolder,
-                               const QList<FolderNode*> &staleFolders);
-    void foldersRemoved();
-
-    // files
-    void filesAboutToBeAdded(FolderNode *folder,
-                               const QList<FileNode*> &newFiles);
-    void filesAdded();
-
-    void filesAboutToBeRemoved(FolderNode *folder,
-                               const QList<FileNode*> &staleFiles);
-    void filesRemoved();
-    void nodeSortKeyAboutToChange(Node *node);
-    void nodeSortKeyChanged();
 };
 
 template<class T1, class T3>
@@ -452,5 +393,6 @@ T1 subtractSortedList(T1 list1, T1 list2, T3 sorter)
 } // namespace ProjectExplorer
 
 Q_DECLARE_METATYPE(ProjectExplorer::Node *)
+Q_DECLARE_METATYPE(ProjectExplorer::FolderNode *)
 
 #endif // PROJECTNODES_H

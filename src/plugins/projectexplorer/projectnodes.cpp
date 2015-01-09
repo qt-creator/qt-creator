@@ -32,6 +32,7 @@
 
 #include "nodesvisitor.h"
 #include "projectexplorerconstants.h"
+#include "projecttree.h"
 
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/fileiconprovider.h>
@@ -65,30 +66,30 @@ using namespace ProjectExplorer;
 
 Node::Node(NodeType nodeType,
            const QString &filePath, int line)
-        : QObject(),
-          m_nodeType(nodeType),
+        : m_nodeType(nodeType),
+          m_line(line),
           m_projectNode(0),
           m_folderNode(0),
-          m_path(filePath),
-          m_line(line)
+          m_path(filePath)
+{
+
+}
+
+Node::~Node()
 {
 
 }
 
 void Node::emitNodeSortKeyAboutToChange()
 {
-    if (ProjectNode *project = projectNode()) {
-        foreach (NodesWatcher *watcher, project->watchers())
-            emit watcher->nodeSortKeyAboutToChange(this);
-    }
+    if (parentFolderNode())
+        ProjectTree::instance()->emitNodeSortKeyAboutToChange(this);
 }
 
 void Node::emitNodeSortKeyChanged()
 {
-    if (ProjectNode *project = projectNode()) {
-        foreach (NodesWatcher *watcher, project->watchers())
-            emit watcher->nodeSortKeyChanged();
-    }
+    if (parentFolderNode())
+        ProjectTree::instance()->emitNodeSortKeyChanged();
 }
 
 /*!
@@ -199,9 +200,8 @@ void Node::setProjectNode(ProjectNode *project)
 
 void Node::emitNodeUpdated()
 {
-    if (ProjectNode *node = projectNode())
-        foreach (NodesWatcher *watcher, node->watchers())
-            emit watcher->nodeUpdated(this);
+    if (parentFolderNode())
+        ProjectTree::instance()->emitNodeUpdated(this);
 }
 
 void Node::setParentFolderNode(FolderNode *parentFolder)
@@ -362,19 +362,17 @@ FolderNode::AddNewInformation FolderNode::addNewInformation(const QStringList &f
 void FolderNode::addFileNodes(const QList<FileNode *> &files)
 {
     Q_ASSERT(projectNode());
-    ProjectNode *pn = projectNode();
     if (files.isEmpty())
         return;
 
-    foreach (NodesWatcher *watcher, pn->watchers())
-        emit watcher->filesAboutToBeAdded(this, files);
+    emit ProjectTree::instance()->emitFilesAboutToBeAdded(this, files);
 
     foreach (FileNode *file, files) {
         QTC_ASSERT(!file->parentFolderNode(),
                    qDebug("File node has already a parent folder"));
 
         file->setParentFolderNode(this);
-        file->setProjectNode(pn);
+        file->setProjectNode(projectNode());
         // Now find the correct place to insert file
         if (m_fileNodes.count() == 0
                 || m_fileNodes.last() < file) {
@@ -389,8 +387,7 @@ void FolderNode::addFileNodes(const QList<FileNode *> &files)
         }
     }
 
-    foreach (NodesWatcher *watcher, pn->watchers())
-        emit watcher->filesAdded();
+    ProjectTree::instance()->emitFilesAdded();
 }
 
 /*!
@@ -404,7 +401,6 @@ void FolderNode::addFileNodes(const QList<FileNode *> &files)
 void FolderNode::removeFileNodes(const QList<FileNode *> &files)
 {
     Q_ASSERT(projectNode());
-    ProjectNode *pn = projectNode();
 
     if (files.isEmpty())
         return;
@@ -412,8 +408,7 @@ void FolderNode::removeFileNodes(const QList<FileNode *> &files)
     QList<FileNode*> toRemove = files;
     Utils::sort(toRemove);
 
-    foreach (NodesWatcher *watcher, pn->watchers())
-        emit watcher->filesAboutToBeRemoved(this, toRemove);
+    ProjectTree::instance()->emitFilesAboutToBeRemoved(this, toRemove);
 
     QList<FileNode*>::const_iterator toRemoveIter = toRemove.constBegin();
     QList<FileNode*>::iterator filesIter = m_fileNodes.begin();
@@ -427,8 +422,7 @@ void FolderNode::removeFileNodes(const QList<FileNode *> &files)
         filesIter = m_fileNodes.erase(filesIter);
     }
 
-    foreach (NodesWatcher *watcher, pn->watchers())
-        emit watcher->filesRemoved();
+    ProjectTree::instance()->emitFilesRemoved();
 }
 
 /*!
@@ -438,19 +432,16 @@ void FolderNode::removeFileNodes(const QList<FileNode *> &files)
 void FolderNode::addFolderNodes(const QList<FolderNode*> &subFolders)
 {
     Q_ASSERT(projectNode());
-    ProjectNode *pn = projectNode();
 
     if (subFolders.isEmpty())
         return;
 
-    foreach (NodesWatcher *watcher, pn->watchers())
-        watcher->foldersAboutToBeAdded(this, subFolders);
-
+    ProjectTree::instance()->emitFoldersAboutToBeAdded(this, subFolders);
     foreach (FolderNode *folder, subFolders) {
         QTC_ASSERT(!folder->parentFolderNode(),
                    qDebug("Project node has already a parent folder"));
         folder->setParentFolderNode(this);
-        folder->setProjectNode(pn);
+        folder->setProjectNode(projectNode());
 
         // Find the correct place to insert
         if (m_subFolderNodes.count() == 0
@@ -471,8 +462,7 @@ void FolderNode::addFolderNodes(const QList<FolderNode*> &subFolders)
                    qDebug("project nodes have to be added via addProjectNodes"));
     }
 
-    foreach (NodesWatcher *watcher, pn->watchers())
-        emit watcher->foldersAdded();
+    ProjectTree::instance()->emitFoldersAdded();
 }
 
 /*!
@@ -484,7 +474,6 @@ void FolderNode::addFolderNodes(const QList<FolderNode*> &subFolders)
 void FolderNode::removeFolderNodes(const QList<FolderNode*> &subFolders)
 {
     Q_ASSERT(projectNode());
-    ProjectNode *pn = projectNode();
 
     if (subFolders.isEmpty())
         return;
@@ -492,8 +481,7 @@ void FolderNode::removeFolderNodes(const QList<FolderNode*> &subFolders)
     QList<FolderNode*> toRemove = subFolders;
     Utils::sort(toRemove);
 
-    foreach (NodesWatcher *watcher, pn->watchers())
-        emit watcher->foldersAboutToBeRemoved(this, toRemove);
+    ProjectTree::instance()->emitFoldersAboutToBeRemoved(this, toRemove);
 
     QList<FolderNode*>::const_iterator toRemoveIter = toRemove.constBegin();
     QList<FolderNode*>::iterator folderIter = m_subFolderNodes.begin();
@@ -509,20 +497,7 @@ void FolderNode::removeFolderNodes(const QList<FolderNode*> &subFolders)
         folderIter = m_subFolderNodes.erase(folderIter);
     }
 
-    foreach (NodesWatcher *watcher, pn->watchers())
-        emit watcher->foldersRemoved();
-}
-
-void FolderNode::aboutToChangeShowInSimpleTree()
-{
-    foreach (NodesWatcher *watcher, projectNode()->watchers())
-        emit watcher->aboutToChangeShowInSimpleTree(this);
-}
-
-void FolderNode::showInSimpleTreeChanged()
-{
-    foreach (NodesWatcher *watcher, projectNode()->watchers())
-        emit watcher->showInSimpleTreeChanged(this);
+    ProjectTree::instance()->emitFoldersRemoved();
 }
 
 bool FolderNode::showInSimpleTree() const
@@ -629,40 +604,6 @@ QList<RunConfiguration *> ProjectNode::runConfigurations() const
     return QList<RunConfiguration *>();
 }
 
-QList<NodesWatcher*> ProjectNode::watchers() const
-{
-    return m_watchers;
-}
-
-/*!
-   Registers \a watcher for the current project and all subprojects.
-
-   It does not take ownership of the watcher.
-*/
-
-void ProjectNode::registerWatcher(NodesWatcher *watcher)
-{
-    if (!watcher)
-        return;
-    connect(watcher, SIGNAL(destroyed(QObject*)),
-            this, SLOT(watcherDestroyed(QObject*)));
-    m_watchers.append(watcher);
-    foreach (ProjectNode *subProject, m_subProjectNodes)
-        subProject->registerWatcher(watcher);
-}
-
-/*!
-    Removes \a watcher from the current project and all subprojects.
-*/
-void ProjectNode::unregisterWatcher(NodesWatcher *watcher)
-{
-    if (!watcher)
-        return;
-    m_watchers.removeOne(watcher);
-    foreach (ProjectNode *subProject, m_subProjectNodes)
-        subProject->unregisterWatcher(watcher);
-}
-
 void ProjectNode::accept(NodesVisitor *visitor)
 {
     visitor->visitProjectNode(this);
@@ -682,23 +623,19 @@ void ProjectNode::addProjectNodes(const QList<ProjectNode*> &subProjects)
         foreach (ProjectNode *projectNode, subProjects)
             folderNodes << projectNode;
 
-        foreach (NodesWatcher *watcher, m_watchers)
-            emit watcher->foldersAboutToBeAdded(this, folderNodes);
+        ProjectTree::instance()->emitFoldersAboutToBeAdded(this, folderNodes);
 
         foreach (ProjectNode *project, subProjects) {
             QTC_ASSERT(!project->parentFolderNode() || project->parentFolderNode() == this,
                        qDebug("Project node has already a parent"));
             project->setParentFolderNode(this);
-            foreach (NodesWatcher *watcher, m_watchers)
-                project->registerWatcher(watcher);
             m_subFolderNodes.append(project);
             m_subProjectNodes.append(project);
         }
         Utils::sort(m_subFolderNodes);
         Utils::sort(m_subProjectNodes);
 
-        foreach (NodesWatcher *watcher, m_watchers)
-            emit watcher->foldersAdded();
+        ProjectTree::instance()->emitFoldersAdded();
     }
 }
 
@@ -717,8 +654,7 @@ void ProjectNode::removeProjectNodes(const QList<ProjectNode*> &subProjects)
             toRemove << projectNode;
         Utils::sort(toRemove);
 
-        foreach (NodesWatcher *watcher, m_watchers)
-            emit watcher->foldersAboutToBeRemoved(this, toRemove);
+        ProjectTree::instance()->foldersAboutToBeRemoved(this, toRemove);
 
         QList<FolderNode*>::const_iterator toRemoveIter = toRemove.constBegin();
         QList<FolderNode*>::iterator folderIter = m_subFolderNodes.begin();
@@ -739,15 +675,8 @@ void ProjectNode::removeProjectNodes(const QList<ProjectNode*> &subProjects)
             folderIter = m_subFolderNodes.erase(folderIter);
         }
 
-        foreach (NodesWatcher *watcher, m_watchers)
-            emit watcher->foldersRemoved();
+        ProjectTree::instance()->emitFoldersRemoved();
     }
-}
-
-void ProjectNode::watcherDestroyed(QObject *watcher)
-{
-    // cannot use qobject_cast here
-    unregisterWatcher(static_cast<NodesWatcher*>(watcher));
 }
 
 
@@ -755,10 +684,9 @@ void ProjectNode::watcherDestroyed(QObject *watcher)
   \class ProjectExplorer::SessionNode
 */
 
-SessionNode::SessionNode(QObject *parentObject)
+SessionNode::SessionNode()
     : FolderNode(QLatin1String("session"))
 {
-    setParent(parentObject);
     setNodeType(SessionNodeType);
 }
 
@@ -768,39 +696,6 @@ QList<ProjectAction> SessionNode::supportedActions(Node *node) const
     return QList<ProjectAction>();
 }
 
-QList<NodesWatcher*> SessionNode::watchers() const
-{
-    return m_watchers;
-}
-
-/*!
-   Registers \a watcher for the complete session tree.
-   It does not take ownership of the watcher.
-*/
-
-void SessionNode::registerWatcher(NodesWatcher *watcher)
-{
-    if (!watcher)
-        return;
-    connect(watcher, SIGNAL(destroyed(QObject*)),
-            this, SLOT(watcherDestroyed(QObject*)));
-    m_watchers.append(watcher);
-    foreach (ProjectNode *project, m_projectNodes)
-        project->registerWatcher(watcher);
-}
-
-/*!
-    Removes \a watcher from the complete session tree.
-*/
-
-void SessionNode::unregisterWatcher(NodesWatcher *watcher)
-{
-    if (!watcher)
-        return;
-    m_watchers.removeOne(watcher);
-    foreach (ProjectNode *project, m_projectNodes)
-        project->unregisterWatcher(watcher);
-}
 
 void SessionNode::accept(NodesVisitor *visitor)
 {
@@ -816,10 +711,8 @@ bool SessionNode::showInSimpleTree() const
 
 void SessionNode::projectDisplayNameChanged(Node *node)
 {
-    foreach (NodesWatcher *watcher, m_watchers)
-        emit watcher->nodeSortKeyAboutToChange(node);
-    foreach (NodesWatcher *watcher, m_watchers)
-        emit watcher->nodeSortKeyChanged();
+    ProjectTree::instance()->emitNodeSortKeyAboutToChange(node);
+    ProjectTree::instance()->emitNodeSortKeyChanged();
 }
 
 QList<ProjectNode*> SessionNode::projectNodes() const
@@ -834,15 +727,12 @@ void SessionNode::addProjectNodes(const QList<ProjectNode*> &projectNodes)
         foreach (ProjectNode *projectNode, projectNodes)
             folderNodes << projectNode;
 
-        foreach (NodesWatcher *watcher, m_watchers)
-            emit watcher->foldersAboutToBeAdded(this, folderNodes);
+        ProjectTree::instance()->emitFoldersAboutToBeAdded(this, folderNodes);
 
         foreach (ProjectNode *project, projectNodes) {
             QTC_ASSERT(!project->parentFolderNode(),
                 qDebug("Project node has already a parent folder"));
             project->setParentFolderNode(this);
-            foreach (NodesWatcher *watcher, m_watchers)
-                project->registerWatcher(watcher);
             m_subFolderNodes.append(project);
             m_projectNodes.append(project);
         }
@@ -850,8 +740,7 @@ void SessionNode::addProjectNodes(const QList<ProjectNode*> &projectNodes)
         Utils::sort(m_subFolderNodes);
         Utils::sort(m_projectNodes);
 
-        foreach (NodesWatcher *watcher, m_watchers)
-            emit watcher->foldersAdded();
+        ProjectTree::instance()->emitFoldersAdded();
    }
 }
 
@@ -864,8 +753,7 @@ void SessionNode::removeProjectNodes(const QList<ProjectNode*> &projectNodes)
 
         Utils::sort(toRemove);
 
-        foreach (NodesWatcher *watcher, m_watchers)
-            emit watcher->foldersAboutToBeRemoved(this, toRemove);
+        ProjectTree::instance()->emitFoldersAboutToBeRemoved(this, toRemove);
 
         QList<FolderNode*>::const_iterator toRemoveIter = toRemove.constBegin();
         QList<FolderNode*>::iterator folderIter = m_subFolderNodes.begin();
@@ -885,38 +773,6 @@ void SessionNode::removeProjectNodes(const QList<ProjectNode*> &projectNodes)
             folderIter = m_subFolderNodes.erase(folderIter);
         }
 
-        foreach (NodesWatcher *watcher, m_watchers)
-            emit watcher->foldersRemoved();
+        ProjectTree::instance()->emitFoldersRemoved();
     }
-}
-
-void SessionNode::watcherDestroyed(QObject *watcher)
-{
-    // cannot use qobject_cast here
-    unregisterWatcher(static_cast<NodesWatcher*>(watcher));
-}
-
-/*!
-  \class ProjectExplorer::NodesWatcher
-
-  \brief The NodesWatcher class enables you to keep track of changes in the
-  tree.
-
-  Add a watcher by calling ProjectNode::registerWatcher() or
-  SessionNode::registerWatcher(). Whenever the tree underneath the
-  project node or session node changes (for example, nodes are added or removed),
-  the corresponding signals of the watcher are emitted.
-  Watchers can be removed from the complete tree or a subtree
-  by calling ProjectNode::unregisterWatcher and
-  SessionNode::unregisterWatcher().
-
-  The NodesWatcher class is similar to the Observer class in the
-  well-known Observer pattern (Booch et al).
-
-  \sa ProjectExplorer::Node
-*/
-
-NodesWatcher::NodesWatcher(QObject *parent)
-        : QObject(parent)
-{
 }

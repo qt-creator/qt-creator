@@ -50,7 +50,6 @@ class QbsProjectFile;
 
 class QbsFileNode : public ProjectExplorer::FileNode
 {
-    Q_OBJECT
 public:
     QbsFileNode(const QString &filePath, const ProjectExplorer::FileType fileType, bool generated,
                 int line);
@@ -66,8 +65,6 @@ class QbsGroupNode;
 
 class QbsBaseProjectNode : public ProjectExplorer::ProjectNode
 {
-    Q_OBJECT
-
 public:
     explicit QbsBaseProjectNode(const QString &path);
 
@@ -96,8 +93,6 @@ private:
 
 class QbsGroupNode : public QbsBaseProjectNode
 {
-    Q_OBJECT
-
 public:
     QbsGroupNode(const qbs::GroupData &grp, const QString &productPath);
 
@@ -131,8 +126,6 @@ private:
 
 class QbsProductNode : public QbsBaseProjectNode
 {
-    Q_OBJECT
-
 public:
     explicit QbsProductNode(const qbs::Project &project, const qbs::ProductData &prd);
 
@@ -161,8 +154,6 @@ private:
 
 class QbsProjectNode : public QbsBaseProjectNode
 {
-    Q_OBJECT
-
 public:
     explicit QbsProjectNode(const QString &path);
     ~QbsProjectNode();
@@ -192,8 +183,6 @@ private:
 
 class QbsRootProjectNode : public QbsProjectNode
 {
-    Q_OBJECT
-
 public:
     explicit QbsRootProjectNode(QbsProject *project);
 
