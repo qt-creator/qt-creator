@@ -33,7 +33,7 @@
 
 #include "breakpoint.h"
 
-#include <QAbstractTableModel>
+#include <utils/treemodel.h>
 
 //////////////////////////////////////////////////////////////////
 //
@@ -47,13 +47,12 @@ namespace Internal {
 class BreakpointMarker;
 class DebuggerEngine;
 
-class BreakHandler : public QAbstractItemModel
+class BreakHandler : public Utils::TreeModel
 {
     Q_OBJECT
 
 public:
     BreakHandler();
-    ~BreakHandler();
 
     void loadSessionData();
     void saveSessionData();
@@ -69,7 +68,6 @@ public:
     BreakpointModelIds allBreakpointIds() const;
     BreakpointModelIds engineBreakpointIds(DebuggerEngine *engine) const;
     BreakpointModelIds unclaimedBreakpointIds() const;
-    int size() const { return m_storage.size(); }
     QStringList engineBreakpointPaths(DebuggerEngine *engine) const;
 
     // Find a breakpoint matching approximately the data in needle.
@@ -166,20 +164,10 @@ public:
     void setWatchpointAtAddress(quint64 address, unsigned size);
     void setWatchpointAtExpression(const QString &exp);
 
-private:
-    // QAbstractItemModel implementation.
-    int columnCount(const QModelIndex &parent) const;
-    int rowCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-    QModelIndex index(int row, int col, const QModelIndex &parent) const;
-    QModelIndex parent(const QModelIndex &parent) const;
-    QModelIndex createIndex(int row, int column, quint32 id) const;
-    QModelIndex createIndex(int row, int column, void *ptr) const;
+signals:
+    void requestExpansion(QModelIndex);
 
-    int indexOf(BreakpointModelId id) const;
-    BreakpointModelId at(int index) const;
+private:
     bool isEngineRunning(BreakpointModelId id) const;
     void setState(BreakpointModelId id, BreakpointState state);
     void loadBreakpoints();
@@ -188,32 +176,42 @@ private:
     void appendBreakpointInternal(const BreakpointParameters &data);
     Q_SLOT void changeLineNumberFromMarkerHelper(Debugger::Internal::BreakpointModelId id, int lineNumber);
 
-    struct BreakpointItem
+    struct BreakpointItem : public Utils::TreeItem
     {
         BreakpointItem();
+        ~BreakpointItem();
+
+        int columnCount() const { return 8; }
+        QVariant data(int column, int role) const;
 
         void destroyMarker();
         bool needsChange() const;
         bool isLocatedAt(const QString &fileName, int lineNumber,
             bool useMarkerPosition) const;
-        void updateMarker(BreakpointModelId id);
+        void updateMarker();
         void updateMarkerIcon();
         QString toToolTip() const;
         QString markerFileName() const;
         int markerLineNumber() const;
         QIcon icon() const;
 
-        BreakpointParameters data;
+        BreakpointModelId id;
+        BreakpointParameters params;
         BreakpointState state;   // Current state of breakpoint.
         DebuggerEngine *engine;  // Engine currently handling the breakpoint.
         BreakpointResponse response;
         BreakpointMarker *marker;
-        QList<BreakpointResponse> subItems;
     };
-    typedef QHash<BreakpointModelId, BreakpointItem> BreakpointStorage;
-    typedef BreakpointStorage::ConstIterator ConstIterator;
-    typedef BreakpointStorage::Iterator Iterator;
-    BreakpointStorage m_storage;
+
+    struct LocationItem : public Utils::TreeItem
+    {
+        int columnCount() const { return 8; }
+        QVariant data(int column, int role) const;
+
+        BreakpointResponse params;
+    };
+
+    BreakpointItem *breakpointById(BreakpointModelId id) const;
 
     void scheduleSynchronization();
     void timerEvent(QTimerEvent *event);

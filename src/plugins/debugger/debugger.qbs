@@ -28,7 +28,6 @@ QtcPlugin {
         files: [
             "breakhandler.cpp", "breakhandler.h",
             "breakpoint.cpp", "breakpoint.h",
-            "breakpointmarker.cpp", "breakpointmarker.h",
             "breakwindow.cpp", "breakwindow.h",
             "commonoptionspage.cpp", "commonoptionspage.h",
             "debugger.qrc",

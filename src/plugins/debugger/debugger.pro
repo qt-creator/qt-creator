@@ -15,7 +15,6 @@ CONFIG += exceptions
 HEADERS += \
     breakhandler.h \
     breakpoint.h \
-    breakpointmarker.h \
     breakwindow.h \
     commonoptionspage.h \
     debugger_global.h \
@@ -75,7 +74,6 @@ HEADERS += \
 SOURCES += \
     breakhandler.cpp \
     breakpoint.cpp \
-    breakpointmarker.cpp \
     breakwindow.cpp \
     commonoptionspage.cpp \
     debuggeractions.cpp \

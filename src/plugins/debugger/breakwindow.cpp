@@ -692,17 +692,17 @@ void BreakTreeView::keyPressEvent(QKeyEvent *ev)
     if (ev->key() == Qt::Key_Delete) {
         QItemSelectionModel *sm = selectionModel();
         QTC_ASSERT(sm, return);
-        QModelIndexList si = sm->selectedIndexes();
+        QModelIndexList si = sm->selectedRows();
         if (si.isEmpty())
             si.append(currentIndex());
         const BreakpointModelIds ids = breakHandler()->findBreakpointsByIndex(si);
         int row = qMin(model()->rowCount() - ids.size() - 1, currentIndex().row());
         deleteBreakpoints(ids);
-        setCurrentIndex(si.at(0).sibling(row, 0));
+        setCurrentIndex(model()->index(row, 0));
     } else if (ev->key() == Qt::Key_Space) {
         QItemSelectionModel *sm = selectionModel();
         QTC_ASSERT(sm, return);
-        const QModelIndexList selectedIds = sm->selectedIndexes();
+        const QModelIndexList selectedIds = sm->selectedRows();
         if (!selectedIds.isEmpty()) {
             BreakHandler *handler = breakHandler();
             const BreakpointModelIds validIds = handler->findBreakpointsByIndex(selectedIds);
@@ -734,7 +734,7 @@ void BreakTreeView::contextMenuEvent(QContextMenuEvent *ev)
     QMenu menu;
     QItemSelectionModel *sm = selectionModel();
     QTC_ASSERT(sm, return);
-    QModelIndexList selectedIndices = sm->selectedIndexes();
+    QModelIndexList selectedIndices = sm->selectedRows();
     QModelIndex indexUnderMouse = indexAt(ev->pos());
     if (selectedIndices.isEmpty() && indexUnderMouse.isValid())
         selectedIndices.append(indexUnderMouse);
