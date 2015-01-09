@@ -177,6 +177,7 @@ public:
 
     void appendItem(TreeItem *parent, TreeItem *item);
     void removeItem(TreeItem *item); // item is not destroyed.
+    void removeAllSubItems(TreeItem *item); // item is not destroyed.
     void updateItem(TreeItem *item); // call to trigger dataChanged
 
     UntypedTreeLevelItems untypedLevelItems(int level = 0, TreeItem *start = 0) const;

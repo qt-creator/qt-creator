@@ -326,6 +326,17 @@ void TreeModel::removeItem(TreeItem *item)
     endRemoveRows();
 }
 
+void TreeModel::removeAllSubItems(TreeItem *item)
+{
+    QTC_ASSERT(item, return);
+    if (item->rowCount() == 0)
+        return;
+    QModelIndex idx = indexFromItem(item);
+    beginRemoveRows(idx, 0, item->rowCount() - 1);
+    item->clear();
+    endRemoveRows();
+}
+
 QModelIndex TreeModel::indexFromItemHelper(const TreeItem *needle,
     TreeItem *parentItem, const QModelIndex &parentIndex) const
 {
