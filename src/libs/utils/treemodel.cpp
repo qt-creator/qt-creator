@@ -840,8 +840,13 @@ TreeItem *TreeModel::itemFromIndex(const QModelIndex &idx) const
 
 QModelIndex TreeModel::indexFromItem(const TreeItem *item) const
 {
-//    CHECK(checkItem(item));
-    return item ? indexFromItemHelper(item, m_root, QModelIndex()) : QModelIndex();
+    QTC_ASSERT(item, return QModelIndex());
+    if (item == m_root)
+        return QModelIndex();
+
+    TreeItem *mitem = const_cast<TreeItem *>(item);
+    int row = item->parent()->m_children.indexOf(mitem);
+    return createIndex(row, 0, mitem);
 }
 
 void TreeModel::appendItem(TreeItem *parent, TreeItem *item)
@@ -902,23 +907,6 @@ void TreeModel::removeAllSubItems(TreeItem *item)
     beginRemoveRows(idx, 0, item->rowCount() - 1);
     item->clear();
     endRemoveRows();
-}
-
-QModelIndex TreeModel::indexFromItemHelper(const TreeItem *needle,
-    TreeItem *parentItem, const QModelIndex &parentIndex) const
-{
-    CHECK_INDEX(parentIndex);
-    if (needle == parentItem)
-        return parentIndex;
-    for (int i = parentItem->rowCount(); --i >= 0; ) {
-        TreeItem *childItem = parentItem->child(i);
-        QModelIndex childIndex = index(i, 0, parentIndex);
-        QModelIndex idx = indexFromItemHelper(needle, childItem, childIndex);
-        CHECK_INDEX(idx);
-        if (idx.isValid())
-            return idx;
-    }
-    return QModelIndex();
 }
 
 //
