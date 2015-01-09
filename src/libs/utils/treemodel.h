@@ -32,8 +32,12 @@
 #define UTILS_TREEMODEL_H
 
 #include "utils_global.h"
+#include "algorithm.h"
 
 #include <QAbstractItemModel>
+
+#include <functional>
+#include <iterator>
 
 namespace Utils {
 
@@ -81,6 +85,76 @@ private:
     friend class TreeModel;
 };
 
+class QTCREATOR_UTILS_EXPORT UntypedTreeLevelItems
+{
+public:
+    explicit UntypedTreeLevelItems(TreeItem *item, int level = 1);
+
+    typedef TreeItem *value_type;
+
+    class const_iterator
+    {
+    public:
+        typedef std::forward_iterator_tag iterator_category;
+        typedef TreeItem *value_type;
+        typedef std::ptrdiff_t difference_type;
+        typedef const value_type *pointer;
+        typedef const value_type &reference;
+
+        const_iterator(TreeItem *base, int level);
+
+        TreeItem *operator*() { return m_item[m_depth]; }
+        void operator++();
+
+        bool operator==(const_iterator other) const;
+        bool operator!=(const_iterator other) const { return !operator==(other); }
+
+    private:
+        void goDown();
+        void goUpNextDown();
+
+        int m_level;
+        int m_depth;
+        TreeItem *m_item[8];
+        int m_pos[8];
+        int m_size[8];
+    };
+
+    const_iterator begin() const;
+    const_iterator end() const;
+
+private:
+    TreeItem *m_item;
+    int m_level;
+};
+
+template <class T>
+class QTCREATOR_UTILS_EXPORT TreeLevelItems
+{
+public:
+    typedef T value_type;
+
+    explicit TreeLevelItems(const UntypedTreeLevelItems &items) : m_items(items) {}
+
+    struct const_iterator : public UntypedTreeLevelItems::const_iterator
+    {
+        typedef std::forward_iterator_tag iterator_category;
+        typedef T value_type;
+        typedef std::ptrdiff_t difference_type;
+        typedef const value_type *pointer;
+        typedef const value_type &reference;
+
+        const_iterator(UntypedTreeLevelItems::const_iterator it) : UntypedTreeLevelItems::const_iterator(it) {}
+        T operator*() { return static_cast<T>(UntypedTreeLevelItems::const_iterator::operator*()); }
+    };
+
+    const_iterator begin() const { return const_iterator(m_items.begin()); }
+    const_iterator end() const { return const_iterator(m_items.end()); }
+
+private:
+    UntypedTreeLevelItems m_items;
+};
+
 class QTCREATOR_UTILS_EXPORT TreeModel : public QAbstractItemModel
 {
 public:
@@ -104,6 +178,27 @@ public:
     void appendItem(TreeItem *parent, TreeItem *item);
     void removeItem(TreeItem *item); // item is not destroyed.
     void updateItem(TreeItem *item); // call to trigger dataChanged
+
+    UntypedTreeLevelItems untypedLevelItems(int level = 0, TreeItem *start = 0) const;
+    UntypedTreeLevelItems untypedLevelItems(TreeItem *start) const;
+
+    template <class T>
+    TreeLevelItems<T> treeLevelItems(int level, TreeItem *start = 0) const
+    {
+        return TreeLevelItems<T>(untypedLevelItems(level, start));
+    }
+
+    template <class T>
+    TreeLevelItems<T> treeLevelItems(TreeItem *start) const
+    {
+        return TreeLevelItems<T>(untypedLevelItems(start));
+    }
+
+    template <class T>
+    T findItemAtLevel(int level, std::function<bool(T)> f, TreeItem *start = 0) const
+    {
+        return Utils::findOrDefault(treeLevelItems<T>(level, start), f);
+    }
 
 private:
     QModelIndex indexFromItemHelper(const TreeItem *needle,
