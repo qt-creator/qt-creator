@@ -106,6 +106,12 @@
                         \li Select \uicontrol {Show command lines} to print actual command lines
                             to the compile output pane instead of high-level descriptions.
 
+                        \li Select \uicontrol {Install} to copy artifacts to their install location
+                            after building them. This option is enabled by default.
+
+                        \li Select \uicontrol {Clean install root} to remove the contents of
+                            the install root directory before the build starts.
+
                     \endlist
 
             \endlist

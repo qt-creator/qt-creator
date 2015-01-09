@@ -119,7 +119,6 @@ ProjectExplorer::DeployConfiguration
 
     QbsDeployConfiguration *dc = new QbsDeployConfiguration(parent, id);
     dc->setDisplayName(genericQbsDisplayName());
-    dc->stepList()->insertStep(0, new QbsInstallStep(dc->stepList()));
     return dc;
 }
 

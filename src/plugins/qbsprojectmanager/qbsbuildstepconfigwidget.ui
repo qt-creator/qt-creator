@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>557</width>
-    <height>233</height>
+    <width>723</width>
+    <height>247</height>
    </rect>
   </property>
   <layout class="QFormLayout" name="formLayout">
@@ -184,6 +184,20 @@
       <widget class="QCheckBox" name="showCommandLinesCheckBox">
        <property name="text">
         <string>Show command lines</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="installCheckBox">
+       <property name="text">
+        <string>Install</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="cleanInstallRootCheckBox">
+       <property name="text">
+        <string>Clean install root</string>
        </property>
       </widget>
      </item>

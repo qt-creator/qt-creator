@@ -68,6 +68,8 @@ public:
     bool dryRun() const;
     bool keepGoing() const;
     bool showCommandLines() const;
+    bool install() const;
+    bool cleanInstallRoot() const;
     int maxJobs() const;
     QString buildVariant() const;
 
@@ -99,6 +101,8 @@ private:
     void setKeepGoing(bool kg);
     void setMaxJobs(int jobcount);
     void setShowCommandLines(bool show);
+    void setInstall(bool install);
+    void setCleanInstallRoot(bool clean);
 
     void parseProject();
     void build();
@@ -145,6 +149,8 @@ private slots:
     void changeShowCommandLines(bool show);
     void changeKeepGoing(bool kg);
     void changeJobCount(int count);
+    void changeInstall(bool install);
+    void changeCleanInstallRoot(bool clean);
     void changeProperties();
 
     // QML debugging:

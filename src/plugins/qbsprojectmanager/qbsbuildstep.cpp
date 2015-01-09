@@ -54,6 +54,8 @@ static const char QBS_DRY_RUN[] = "Qbs.DryRun";
 static const char QBS_KEEP_GOING[] = "Qbs.DryKeepGoing";
 static const char QBS_MAXJOBCOUNT[] = "Qbs.MaxJobs";
 static const char QBS_SHOWCOMMANDLINES[] = "Qbs.ShowCommandLines";
+static const char QBS_INSTALL[] = "Qbs.Install";
+static const char QBS_CLEAN_INSTALL_ROOT[] = "Qbs.CleanInstallRoot";
 
 // --------------------------------------------------------------------
 // Constants:
@@ -187,6 +189,16 @@ bool QbsBuildStep::showCommandLines() const
     return m_qbsBuildOptions.showCommandLines();
 }
 
+bool QbsBuildStep::install() const
+{
+    return m_qbsBuildOptions.install();
+}
+
+bool QbsBuildStep::cleanInstallRoot() const
+{
+    return m_qbsBuildOptions.removeExistingInstallation();
+}
+
 int QbsBuildStep::maxJobs() const
 {
     if (m_qbsBuildOptions.maxJobCount() > 0)
@@ -204,6 +216,9 @@ bool QbsBuildStep::fromMap(const QVariantMap &map)
     m_qbsBuildOptions.setKeepGoing(map.value(QLatin1String(QBS_KEEP_GOING)).toBool());
     m_qbsBuildOptions.setMaxJobCount(map.value(QLatin1String(QBS_MAXJOBCOUNT)).toInt());
     m_qbsBuildOptions.setShowCommandLines(map.value(QLatin1String(QBS_SHOWCOMMANDLINES)).toBool());
+    m_qbsBuildOptions.setInstall(map.value(QLatin1String(QBS_INSTALL), true).toBool());
+    m_qbsBuildOptions.setRemoveExistingInstallation(map.value(QLatin1String(QBS_CLEAN_INSTALL_ROOT))
+                                                    .toBool());
     return true;
 }
 
@@ -215,6 +230,9 @@ QVariantMap QbsBuildStep::toMap() const
     map.insert(QLatin1String(QBS_KEEP_GOING), m_qbsBuildOptions.keepGoing());
     map.insert(QLatin1String(QBS_MAXJOBCOUNT), m_qbsBuildOptions.maxJobCount());
     map.insert(QLatin1String(QBS_SHOWCOMMANDLINES), m_qbsBuildOptions.showCommandLines());
+    map.insert(QLatin1String(QBS_INSTALL), m_qbsBuildOptions.install());
+    map.insert(QLatin1String(QBS_CLEAN_INSTALL_ROOT),
+               m_qbsBuildOptions.removeExistingInstallation());
     return map;
 }
 
@@ -367,6 +385,22 @@ void QbsBuildStep::setShowCommandLines(bool show)
     emit qbsBuildOptionsChanged();
 }
 
+void QbsBuildStep::setInstall(bool install)
+{
+    if (m_qbsBuildOptions.install() == install)
+        return;
+    m_qbsBuildOptions.setInstall(install);
+    emit qbsBuildOptionsChanged();
+}
+
+void QbsBuildStep::setCleanInstallRoot(bool clean)
+{
+    if (m_qbsBuildOptions.removeExistingInstallation() == clean)
+        return;
+    m_qbsBuildOptions.setRemoveExistingInstallation(clean);
+    emit qbsBuildOptionsChanged();
+}
+
 void QbsBuildStep::parseProject()
 {
     m_parsingProject = true;
@@ -446,6 +480,10 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     connect(m_ui->jobSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changeJobCount(int)));
     connect(m_ui->showCommandLinesCheckBox, &QCheckBox::toggled, this,
             &QbsBuildStepConfigWidget::changeShowCommandLines);
+    connect(m_ui->installCheckBox, &QCheckBox::toggled, this,
+            &QbsBuildStepConfigWidget::changeInstall);
+    connect(m_ui->cleanInstallRootCheckBox, &QCheckBox::toggled, this,
+            &QbsBuildStepConfigWidget::changeCleanInstallRoot);
     connect(m_ui->propertyEdit, SIGNAL(propertiesChanged()), this, SLOT(changeProperties()));
     connect(m_ui->qmlDebuggingLibraryCheckBox, SIGNAL(toggled(bool)),
             this, SLOT(linkQmlDebuggingLibraryChecked(bool)));
@@ -476,6 +514,8 @@ void QbsBuildStepConfigWidget::updateState()
         m_ui->keepGoingCheckBox->setChecked(m_step->keepGoing());
         m_ui->jobSpinBox->setValue(m_step->maxJobs());
         m_ui->showCommandLinesCheckBox->setChecked(m_step->showCommandLines());
+        m_ui->installCheckBox->setChecked(m_step->install());
+        m_ui->cleanInstallRootCheckBox->setChecked(m_step->cleanInstallRoot());
         updatePropertyEdit(m_step->qbsConfiguration());
         m_ui->qmlDebuggingLibraryCheckBox->setChecked(m_step->isQmlDebuggingEnabled());
     }
@@ -495,6 +535,10 @@ void QbsBuildStepConfigWidget::updateState()
         command += QLatin1String("--keep-going ");
     if (m_step->showCommandLines())
         command += QLatin1String("--show-command-lines ");
+    if (!m_step->install())
+        command += QLatin1String("--no-install ");
+    if (m_step->cleanInstallRoot())
+        command += QLatin1String("--clean-install-root ");
     command += QString::fromLatin1("--jobs %1 ").arg(m_step->maxJobs());
     command += QString::fromLatin1("%1 profile:%2").arg(buildVariant, m_step->profile());
 
@@ -584,6 +628,20 @@ void QbsBuildStepConfigWidget::changeJobCount(int count)
 {
     m_ignoreChange = true;
     m_step->setMaxJobs(count);
+    m_ignoreChange = false;
+}
+
+void QbsBuildStepConfigWidget::changeInstall(bool install)
+{
+    m_ignoreChange = true;
+    m_step->setInstall(install);
+    m_ignoreChange = false;
+}
+
+void QbsBuildStepConfigWidget::changeCleanInstallRoot(bool clean)
+{
+    m_ignoreChange = true;
+    m_step->setCleanInstallRoot(clean);
     m_ignoreChange = false;
 }
 
