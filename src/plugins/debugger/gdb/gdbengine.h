@@ -33,6 +33,7 @@
 
 #include <debugger/debuggerengine.h>
 
+#include <debugger/breakhandler.h>
 #include <debugger/watchhandler.h>
 #include <debugger/watchutils.h>
 #include <debugger/debuggertooltipmanager.h>
@@ -55,6 +56,8 @@ class DebugInfoTaskHandler;
 class GdbResponse;
 class GdbMi;
 class MemoryAgentCookie;
+class BreakpointParameters;
+class BreakpointResponse;
 
 class WatchData;
 class DisassemblerAgentCookie;
@@ -259,10 +262,10 @@ private: ////////// Inferior Management //////////
 
     // This should be always the last call in a function.
     bool stateAcceptsBreakpointChanges() const;
-    bool acceptsBreakpoint(BreakpointModelId id) const;
-    void insertBreakpoint(BreakpointModelId id);
-    void removeBreakpoint(BreakpointModelId id);
-    void changeBreakpoint(BreakpointModelId id);
+    bool acceptsBreakpoint(Breakpoint bp) const;
+    void insertBreakpoint(Breakpoint bp);
+    void removeBreakpoint(Breakpoint bp);
+    void changeBreakpoint(Breakpoint bp);
 
     void executeStep();
     void executeStepOut();
@@ -314,10 +317,10 @@ private: ////////// View & Data Stuff //////////
     void handleBreakLineNumber(const GdbResponse &response);
     void handleWatchInsert(const GdbResponse &response);
     void handleCatchInsert(const GdbResponse &response);
-    void handleBkpt(const GdbMi &bkpt, const BreakpointModelId &id);
+    void handleBkpt(const GdbMi &bkpt, Breakpoint bp);
     void updateResponse(BreakpointResponse &response, const GdbMi &bkpt);
-    QByteArray breakpointLocation(BreakpointModelId id); // For gdb/MI.
-    QByteArray breakpointLocation2(BreakpointModelId id); // For gdb/CLI fallback.
+    QByteArray breakpointLocation(const BreakpointParameters &data); // For gdb/MI.
+    QByteArray breakpointLocation2(const BreakpointParameters &data); // For gdb/CLI fallback.
     QString breakLocation(const QString &file) const;
 
     //

@@ -2073,9 +2073,10 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
         // Step out creates temporary breakpoints with id 10000.
         int number = 0;
         BreakpointModelId id = cdbIdToBreakpointModelId(stopReason["breakpointId"]);
-        if (id.isValid()) {
-            if (breakHandler()->engineBreakpointIds(this).contains(id)) {
-                const BreakpointResponse parameters =  breakHandler()->response(id);
+        Breakpoint bp = breakHandler()->breakpointById(id);
+        if (bp) {
+            if (bp.engine() == this) {
+                const BreakpointResponse parameters =  bp.response();
                 if (!parameters.message.isEmpty()) {
                     showMessage(parameters.message + QLatin1Char('\n'), AppOutput);
                     showMessage(parameters.message, LogMisc);
@@ -2096,16 +2097,16 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
                     return StopReportLog;
                 }
             } else {
-                id = BreakpointModelId();
+                bp = Breakpoint();
             }
         }
         QString tid = QString::number(threadId);
-        if (id && breakHandler()->type(id) == WatchpointAtAddress)
-            *message = msgWatchpointByAddressTriggered(id, number, breakHandler()->address(id), tid);
-        else if (id && breakHandler()->type(id) == WatchpointAtExpression)
-            *message = msgWatchpointByExpressionTriggered(id, number, breakHandler()->expression(id), tid);
+        if (bp.type() == WatchpointAtAddress)
+            *message = bp.msgWatchpointByAddressTriggered(number, bp.address(), tid);
+        else if (bp.type() == WatchpointAtExpression)
+            *message = bp.msgWatchpointByExpressionTriggered(number, bp.expression(), tid);
         else
-            *message = msgBreakpointTriggered(id, number, tid);
+            *message = bp.msgBreakpointTriggered(number, tid);
         rc |= StopReportStatusMessage|StopNotifyStop;
         return rc;
     }
@@ -2317,6 +2318,7 @@ void CdbEngine::handleBreakInsert(const CdbBuiltinCommandPtr &cmd)
     if (!ok)
         return;
     const BreakpointModelId &originalId = cdbIdToBreakpointModelId(cdbBreakPointId);
+    Breakpoint bp = breakHandler()->breakpointById(originalId);
     // add break point for every match
     const QList<QByteArray>::const_iterator &end = reply.constEnd();
     int subBreakPointID = 0;
@@ -2336,7 +2338,7 @@ void CdbEngine::handleBreakInsert(const CdbBuiltinCommandPtr &cmd)
             continue;
 
         BreakpointModelId id(originalId.majorPart(), ++subBreakPointID);
-        BreakpointResponse res = breakHandler()->response(originalId);
+        BreakpointResponse res = bp.response();
         res.type = BreakpointByAddress;
         res.address = address;
         m_insertSubBreakpointMap.insert(id, res);
@@ -2748,12 +2750,11 @@ bool CdbEngine::stateAcceptsBreakpointChanges() const
     return false;
 }
 
-bool CdbEngine::acceptsBreakpoint(BreakpointModelId id) const
+bool CdbEngine::acceptsBreakpoint(Breakpoint bp) const
 {
-    const BreakpointParameters &data = breakHandler()->breakpointData(id);
-    if (!data.isCppBreakpoint())
+    if (!bp.parameters().isCppBreakpoint())
         return false;
-    switch (data.type) {
+    switch (bp.type()) {
     case UnknownBreakpointType:
     case LastBreakpointType:
     case BreakpointAtFork:
@@ -2827,23 +2828,21 @@ unsigned BreakpointCorrectionContext::fixLineNumber(const QString &fileName,
 
 void CdbEngine::attemptBreakpointSynchronization()
 {
-
-
     if (debug)
         qDebug("attemptBreakpointSynchronization in %s", stateName(state()));
     // Check if there is anything to be done at all.
     BreakHandler *handler = breakHandler();
     // Take ownership of the breakpoint. Requests insertion. TODO: Cpp only?
-    foreach (BreakpointModelId id, handler->unclaimedBreakpointIds())
-        if (acceptsBreakpoint(id))
-            handler->setEngine(id, this);
+    foreach (Breakpoint bp, handler->unclaimedBreakpoints())
+        if (acceptsBreakpoint(bp))
+            bp.setEngine(this);
 
     // Quick check: is there a need to change something? - Populate module cache
     bool changed = !m_insertSubBreakpointMap.isEmpty();
-    const BreakpointModelIds ids = handler->engineBreakpointIds(this);
+    const Breakpoints bps = handler->engineBreakpoints(this);
     if (!changed) {
-        foreach (BreakpointModelId id, ids) {
-            switch (handler->state(id)) {
+        foreach (Breakpoint bp, bps) {
+            switch (bp.state()) {
             case BreakpointInsertRequested:
             case BreakpointRemoveRequested:
             case BreakpointChangeRequested:
@@ -2852,7 +2851,7 @@ void CdbEngine::attemptBreakpointSynchronization()
             case BreakpointInserted: {
                 // Collect the new modules matching the files.
                 // In the future, that information should be obtained from the build system.
-                const BreakpointParameters &data = handler->breakpointData(id);
+                const BreakpointParameters &data = bp.parameters();
                 if (data.type == BreakpointByFileAndLine && !data.module.isEmpty())
                     m_fileNameModuleHash.insert(data.fileName, data.module);
             }
@@ -2865,7 +2864,7 @@ void CdbEngine::attemptBreakpointSynchronization()
 
     if (debugBreakpoints)
         qDebug("attemptBreakpointSynchronizationI %dms accessible=%d, %s %d breakpoints, changed=%d",
-               elapsedLogTime(), m_accessible, stateName(state()), ids.size(), changed);
+               elapsedLogTime(), m_accessible, stateName(state()), bps.size(), changed);
     if (!changed)
         return;
 
@@ -2880,8 +2879,9 @@ void CdbEngine::attemptBreakpointSynchronization()
     // handleBreakPoints will the complete that information and set it on the break handler.
     bool addedChanged = false;
     QScopedPointer<BreakpointCorrectionContext> lineCorrection;
-    foreach (BreakpointModelId id, ids) {
-        BreakpointParameters parameters = handler->breakpointData(id);
+    foreach (Breakpoint bp, bps) {
+        BreakpointParameters parameters = bp.parameters();
+        BreakpointModelId id = bp.id();
         BreakpointResponse response;
         response.fromParameters(parameters);
         response.id = BreakpointResponseId(id.majorPart(), id.minorPart());
@@ -2891,7 +2891,7 @@ void CdbEngine::attemptBreakpointSynchronization()
             if (it != m_fileNameModuleHash.constEnd())
                 parameters.module = it.value();
         }
-        switch (handler->state(id)) {
+        switch (bp.state()) {
         case BreakpointInsertRequested:
             if (!m_autoBreakPointCorrection
                     && parameters.type == BreakpointByFileAndLine
@@ -2910,29 +2910,29 @@ void CdbEngine::attemptBreakpointSynchronization()
             }
             if (!parameters.enabled)
                 postCommand("bd " + QByteArray::number(breakPointIdToCdbId(id)), 0);
-            handler->notifyBreakpointInsertProceeding(id);
-            handler->notifyBreakpointInsertOk(id);
+            bp.notifyBreakpointInsertProceeding();
+            bp.notifyBreakpointInsertOk();
             m_pendingBreakpointMap.insert(id, response);
             addedChanged = true;
             // Ensure enabled/disabled is correct in handler and line number is there.
-            handler->setResponse(id, response);
+            bp.setResponse(response);
             if (debugBreakpoints)
                 qDebug("Adding %d %s\n", id.toInternalId(),
                     qPrintable(response.toString()));
             break;
         case BreakpointChangeRequested:
-            handler->notifyBreakpointChangeProceeding(id);
+            bp.notifyBreakpointChangeProceeding();
             if (debugBreakpoints)
                 qDebug("Changing %d:\n    %s\nTo %s\n", id.toInternalId(),
-                    qPrintable(handler->response(id).toString()),
+                    qPrintable(bp.response().toString()),
                     qPrintable(parameters.toString()));
-            if (parameters.enabled != handler->response(id).enabled) {
+            if (parameters.enabled != bp.response().enabled) {
                 // Change enabled/disabled breakpoints without triggering update.
                 postCommand((parameters.enabled ? "be " : "bd ")
                     + QByteArray::number(breakPointIdToCdbId(id)), 0);
                 response.pending = false;
                 response.enabled = parameters.enabled;
-                handler->setResponse(id, response);
+                bp.setResponse(response);
             } else {
                 // Delete and re-add, triggering update
                 addedChanged = true;
@@ -2942,12 +2942,12 @@ void CdbEngine::attemptBreakpointSynchronization()
                             &CdbEngine::handleBreakInsert);
                 m_pendingBreakpointMap.insert(id, response);
             }
-            handler->notifyBreakpointChangeOk(id);
+            bp.notifyBreakpointChangeOk();
             break;
         case BreakpointRemoveRequested:
             postCommand(cdbClearBreakpointCommand(id), 0);
-            handler->notifyBreakpointRemoveProceeding(id);
-            handler->notifyBreakpointRemoveOk(id);
+            bp.notifyBreakpointRemoveProceeding();
+            bp.notifyBreakpointRemoveOk();
             m_pendingBreakpointMap.remove(id);
             break;
         default:
@@ -3290,12 +3290,12 @@ void CdbEngine::handleBreakPoints(const GdbMi &value)
                 reportedResponse.pending,
                 qPrintable(reportedResponse.toString()));
         if (reportedResponse.id.isValid() && !reportedResponse.pending) {
-            const BreakpointModelId mid = handler->findBreakpointByResponseId(reportedResponse.id);
-            if (!mid.isValid() && reportedResponse.type == BreakpointByFunction)
+            Breakpoint bp = handler->findBreakpointByResponseId(reportedResponse.id);
+            if (!bp && reportedResponse.type == BreakpointByFunction)
                 continue; // Breakpoints from options, CrtDbgReport() and others.
-            QTC_ASSERT(mid.isValid(), continue);
-            const PendingBreakPointMap::iterator it = m_pendingBreakpointMap.find(mid);
-            const PendingBreakPointMap::iterator subIt = m_pendingSubBreakpointMap.find(
+            QTC_ASSERT(bp, continue);
+            const auto it = m_pendingBreakpointMap.find(bp.id());
+            const auto subIt = m_pendingSubBreakpointMap.find(
                         BreakpointModelId(reportedResponse.id.majorPart(),
                                           reportedResponse.id.minorPart()));
             if (it != m_pendingBreakpointMap.end() || subIt != m_pendingSubBreakpointMap.end()) {
@@ -3310,16 +3310,16 @@ void CdbEngine::handleBreakPoints(const GdbMi &value)
                 currentResponse.enabled = reportedResponse.enabled;
                 currentResponse.fileName = reportedResponse.fileName;
                 currentResponse.lineNumber = reportedResponse.lineNumber;
-                formatCdbBreakPointResponse(mid, currentResponse, str);
+                formatCdbBreakPointResponse(bp.id(), currentResponse, str);
                 if (debugBreakpoints)
                     qDebug("  Setting for %d: %s\n", currentResponse.id.majorPart(),
                            qPrintable(currentResponse.toString()));
                 if (it != m_pendingBreakpointMap.end()) {
-                    handler->setResponse(mid, currentResponse);
+                    bp.setResponse(currentResponse);
                     m_pendingBreakpointMap.erase(it);
                 }
                 if (subIt != m_pendingSubBreakpointMap.end()) {
-                    handler->insertSubBreakpoint(mid, currentResponse);
+                    bp.insertSubBreakpoint(currentResponse);
                     m_pendingSubBreakpointMap.erase(subIt);
                 }
             }

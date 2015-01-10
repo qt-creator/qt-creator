@@ -327,34 +327,31 @@ void PdbEngine::selectThread(ThreadId threadId)
     Q_UNUSED(threadId)
 }
 
-bool PdbEngine::acceptsBreakpoint(BreakpointModelId id) const
+bool PdbEngine::acceptsBreakpoint(Breakpoint bp) const
 {
-    const QString fileName = breakHandler()->fileName(id);
+    const QString fileName = bp.fileName();
     return fileName.endsWith(QLatin1String(".py"));
 }
 
-void PdbEngine::insertBreakpoint(BreakpointModelId id)
+void PdbEngine::insertBreakpoint(Breakpoint bp)
 {
-    BreakHandler *handler = breakHandler();
-    QTC_CHECK(handler->state(id) == BreakpointInsertRequested);
-    handler->notifyBreakpointInsertProceeding(id);
+    QTC_CHECK(bp.state() == BreakpointInsertRequested);
+    bp.notifyBreakpointInsertProceeding();
 
     QByteArray loc;
-    if (handler->type(id) == BreakpointByFunction)
-        loc = handler->functionName(id).toLatin1();
+    if (bp.type() == BreakpointByFunction)
+        loc = bp.functionName().toLatin1();
     else
-        loc = handler->fileName(id).toLocal8Bit() + ':'
-         + QByteArray::number(handler->lineNumber(id));
+        loc = bp.fileName().toLocal8Bit() + ':'
+         + QByteArray::number(bp.lineNumber());
 
-    postCommand("break " + loc, CB(handleBreakInsert), QVariant(id));
+    postCommand("break " + loc, CB(handleBreakInsert), QVariant::fromValue(bp));
 }
 
 void PdbEngine::handleBreakInsert(const PdbResponse &response)
 {
     //qDebug() << "BP RESPONSE: " << response.data;
     // "Breakpoint 1 at /pdb/math.py:10"
-    BreakpointModelId id(response.cookie.toInt());
-    BreakHandler *handler = breakHandler();
     QTC_ASSERT(response.data.startsWith("Breakpoint "), return);
     int pos1 = response.data.indexOf(" at ");
     QTC_ASSERT(pos1 != -1, return);
@@ -366,22 +363,21 @@ void PdbEngine::handleBreakInsert(const PdbResponse &response)
     br.id = BreakpointResponseId(bpnr);
     br.fileName = _(file);
     br.lineNumber = line.toInt();
-    handler->setResponse(id, br);
-    QTC_CHECK(!handler->needsChange(id));
-    handler->notifyBreakpointInsertOk(id);
+    Breakpoint bp = response.cookie.value<Breakpoint>();
+    bp.setResponse(br);
+    QTC_CHECK(!bp.needsChange());
+    bp.notifyBreakpointInsertOk();
 }
 
-void PdbEngine::removeBreakpoint(BreakpointModelId id)
+void PdbEngine::removeBreakpoint(Breakpoint bp)
 {
-    BreakHandler *handler = breakHandler();
-    QTC_CHECK(handler->state(id) == BreakpointRemoveRequested);
-    handler->notifyBreakpointRemoveProceeding(id);
-    BreakpointResponse br = handler->response(id);
-    showMessage(_("DELETING BP %1 IN %2").arg(br.id.toString())
-        .arg(handler->fileName(id)));
+    QTC_CHECK(bp.state() == BreakpointRemoveRequested);
+    bp.notifyBreakpointRemoveProceeding();
+    BreakpointResponse br = bp.response();
+    showMessage(_("DELETING BP %1 IN %2").arg(br.id.toString()).arg(bp.fileName()));
     postCommand("clear " + br.id.toByteArray());
     // Pretend it succeeds without waiting for response.
-    handler->notifyBreakpointRemoveOk(id);
+    bp.notifyBreakpointRemoveOk();
 }
 
 void PdbEngine::loadSymbols(const QString &moduleName)

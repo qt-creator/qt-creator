@@ -199,7 +199,6 @@ inline void operator|=(BreakpointParts &p, BreakpointParts r)
     p = BreakpointParts(int(p) | int(r));
 }
 
-
 class BreakpointParameters
 {
 public:
@@ -256,8 +255,6 @@ public:
     bool multiple;           //!< Happens in constructors/gdb.
     int correctedLineNumber; //!< Line number as seen by gdb.
 };
-
-typedef QList<BreakpointModelId> BreakpointModelIds;
 
 inline uint qHash(const Debugger::Internal::BreakpointModelId &id)
 {

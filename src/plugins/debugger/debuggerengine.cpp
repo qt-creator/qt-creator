@@ -1206,9 +1206,8 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
 
     if (state == DebuggerFinished) {
         // Give up ownership on claimed breakpoints.
-        BreakHandler *handler = breakHandler();
-        foreach (BreakpointModelId id, handler->engineBreakpointIds(this))
-            handler->notifyBreakpointReleased(id);
+        foreach (Breakpoint bp, breakHandler()->engineBreakpoints(this))
+            bp.notifyBreakpointReleased();
         DebuggerToolTipManager::deregisterEngine(this);
     }
 
@@ -1499,36 +1498,36 @@ void DebuggerEngine::attemptBreakpointSynchronization()
 
     BreakHandler *handler = breakHandler();
 
-    foreach (BreakpointModelId id, handler->unclaimedBreakpointIds()) {
+    foreach (Breakpoint bp, handler->unclaimedBreakpoints()) {
         // Take ownership of the breakpoint. Requests insertion.
-        if (acceptsBreakpoint(id)) {
+        if (acceptsBreakpoint(bp)) {
             showMessage(_("TAKING OWNERSHIP OF BREAKPOINT %1 IN STATE %2")
-                .arg(id.toString()).arg(handler->state(id)));
-            handler->setEngine(id, this);
+                .arg(bp.id().toString()).arg(bp.state()));
+            bp.setEngine(this);
         } else {
             showMessage(_("BREAKPOINT %1 IN STATE %2 IS NOT ACCEPTABLE")
-                .arg(id.toString()).arg(handler->state(id)));
+                .arg(bp.id().toString()).arg(bp.state()));
         }
     }
 
     bool done = true;
-    foreach (BreakpointModelId id, handler->engineBreakpointIds(this)) {
-        switch (handler->state(id)) {
+    foreach (Breakpoint bp, handler->engineBreakpoints(this)) {
+        switch (bp.state()) {
         case BreakpointNew:
             // Should not happen once claimed.
             QTC_CHECK(false);
             continue;
         case BreakpointInsertRequested:
             done = false;
-            insertBreakpoint(id);
+            insertBreakpoint(bp);
             continue;
         case BreakpointChangeRequested:
             done = false;
-            changeBreakpoint(id);
+            changeBreakpoint(bp);
             continue;
         case BreakpointRemoveRequested:
             done = false;
-            removeBreakpoint(id);
+            removeBreakpoint(bp);
             continue;
         case BreakpointChangeProceeding:
         case BreakpointInsertProceeding:
@@ -1545,7 +1544,7 @@ void DebuggerEngine::attemptBreakpointSynchronization()
             QTC_CHECK(false);
             continue;
         }
-        QTC_ASSERT(false, qDebug() << "UNKNOWN STATE"  << id << state());
+        QTC_ASSERT(false, qDebug() << "UNKNOWN STATE"  << bp.id() << state());
     }
 
     if (done) {
@@ -1556,24 +1555,33 @@ void DebuggerEngine::attemptBreakpointSynchronization()
     }
 }
 
-void DebuggerEngine::insertBreakpoint(BreakpointModelId id)
+bool DebuggerEngine::acceptsBreakpoint(Breakpoint bp) const
 {
-    BreakpointState state = breakHandler()->state(id);
-    QTC_ASSERT(state == BreakpointInsertRequested, qDebug() << id << this << state);
+    Q_UNUSED(bp);
+    return false;
+}
+
+void DebuggerEngine::insertBreakpoint(Breakpoint bp)
+{
+    BreakpointState state = bp.state();
+    QTC_ASSERT(state == BreakpointInsertRequested,
+               qDebug() << bp.id() << this << state);
     QTC_CHECK(false);
 }
 
-void DebuggerEngine::removeBreakpoint(BreakpointModelId id)
+void DebuggerEngine::removeBreakpoint(Breakpoint bp)
 {
-    BreakpointState state = breakHandler()->state(id);
-    QTC_ASSERT(state == BreakpointRemoveRequested, qDebug() << id << this << state);
+    BreakpointState state = bp.state();
+    QTC_ASSERT(state == BreakpointRemoveRequested,
+               qDebug() << bp.id() << this << state);
     QTC_CHECK(false);
 }
 
-void DebuggerEngine::changeBreakpoint(BreakpointModelId id)
+void DebuggerEngine::changeBreakpoint(Breakpoint bp)
 {
-    BreakpointState state = breakHandler()->state(id);
-    QTC_ASSERT(state == BreakpointChangeRequested, qDebug() << id << this << state);
+    BreakpointState state = bp.state();
+    QTC_ASSERT(state == BreakpointChangeRequested,
+               qDebug() << bp.id() << this << state);
     QTC_CHECK(false);
 }
 
@@ -1650,56 +1658,6 @@ BreakHandler *DebuggerEngine::breakHandler() const
 bool DebuggerEngine::isDying() const
 {
     return targetState() == DebuggerFinished;
-}
-
-QString DebuggerEngine::msgWatchpointByExpressionTriggered(BreakpointModelId id,
-    const int number, const QString &expr)
-{
-    return id
-        ? tr("Data breakpoint %1 (%2) at %3 triggered.")
-            .arg(id.toString()).arg(number).arg(expr)
-        : tr("Internal data breakpoint %1 at %2 triggered.")
-            .arg(number).arg(expr);
-}
-
-QString DebuggerEngine::msgWatchpointByExpressionTriggered(BreakpointModelId id,
-    const int number, const QString &expr, const QString &threadId)
-{
-    return id
-        ? tr("Data breakpoint %1 (%2) at %3 in thread %4 triggered.")
-            .arg(id.toString()).arg(number).arg(expr).arg(threadId)
-        : tr("Internal data breakpoint %1 at %2 in thread %3 triggered.")
-            .arg(number).arg(expr).arg(threadId);
-}
-
-QString DebuggerEngine::msgWatchpointByAddressTriggered(BreakpointModelId id,
-    const int number, quint64 address)
-{
-    return id
-        ? tr("Data breakpoint %1 (%2) at 0x%3 triggered.")
-            .arg(id.toString()).arg(number).arg(address, 0, 16)
-        : tr("Internal data breakpoint %1 at 0x%2 triggered.")
-            .arg(number).arg(address, 0, 16);
-}
-
-QString DebuggerEngine::msgWatchpointByAddressTriggered(BreakpointModelId id,
-    const int number, quint64 address, const QString &threadId)
-{
-    return id
-        ? tr("Data breakpoint %1 (%2) at 0x%3 in thread %4 triggered.")
-            .arg(id.toString()).arg(number).arg(address, 0, 16).arg(threadId)
-        : tr("Internal data breakpoint %1 at 0x%2 in thread %3 triggered.")
-            .arg(id.toString()).arg(number).arg(address, 0, 16).arg(threadId);
-}
-
-QString DebuggerEngine::msgBreakpointTriggered(BreakpointModelId id,
-        const int number, const QString &threadId)
-{
-    return id
-        ? tr("Stopped at breakpoint %1 (%2) in thread %3.")
-            .arg(id.toString()).arg(number).arg(threadId)
-        : tr("Stopped at internal breakpoint %1 in thread %2.")
-            .arg(number).arg(threadId);
 }
 
 QString DebuggerEngine::msgStopped(const QString &reason)

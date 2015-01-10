@@ -220,9 +220,9 @@ void QScriptDebuggerClient::startSession()
     BreakHandler *handler = d->engine->breakHandler();
     DebuggerEngine * engine = d->engine->isSlaveEngine() ?
                 d->engine->masterEngine() : d->engine;
-    foreach (BreakpointModelId id, handler->engineBreakpointIds(engine)) {
-        QTC_CHECK(handler->state(id) == BreakpointInsertProceeding);
-        handler->notifyBreakpointInsertOk(id);
+    foreach (Breakpoint bp, handler->engineBreakpoints(engine)) {
+        QTC_CHECK(bp.state() == BreakpointInsertProceeding);
+        bp.notifyBreakpointInsertOk();
     }
     d->sessionStarted = true;
 }
@@ -247,46 +247,42 @@ void QScriptDebuggerClient::activateFrame(int index)
     sendMessage(reply);
 }
 
-void QScriptDebuggerClient::insertBreakpoint(const BreakpointModelId &id,
+void QScriptDebuggerClient::insertBreakpoint(Breakpoint bp,
                                              int adjustedLine,
                                              int /*adjustedColumn*/)
 {
-    BreakHandler *handler = d->engine->breakHandler();
-    JSAgentBreakpointData bp;
-    bp.fileUrl = QUrl::fromLocalFile(handler->fileName(id)).toString().toUtf8();
-    bp.lineNumber = adjustedLine;
-    bp.functionName = handler->functionName(id).toUtf8();
-    d->breakpoints.insert(bp);
+    JSAgentBreakpointData jsbp;
+    jsbp.fileUrl = QUrl::fromLocalFile(bp.fileName()).toString().toUtf8();
+    jsbp.lineNumber = adjustedLine;
+    jsbp.functionName = bp.functionName().toUtf8();
+    d->breakpoints.insert(jsbp);
 
-    BreakpointResponse br = handler->response(id);
+    BreakpointResponse br = bp.response();
     br.lineNumber = adjustedLine;
-    handler->setResponse(id, br);
-    if (d->sessionStarted && handler->state(id) == BreakpointInsertProceeding)
-        handler->notifyBreakpointInsertOk(id);
+    bp.setResponse(br);
+    if (d->sessionStarted && bp.state() == BreakpointInsertProceeding)
+        bp.notifyBreakpointInsertOk();
 }
 
-void QScriptDebuggerClient::removeBreakpoint(const BreakpointModelId &id)
+void QScriptDebuggerClient::removeBreakpoint(Breakpoint bp)
 {
-    BreakHandler *handler = d->engine->breakHandler();
-    JSAgentBreakpointData bp;
-    bp.fileUrl = QUrl::fromLocalFile(handler->fileName(id)).toString().toUtf8();
-    bp.lineNumber = handler->lineNumber(id);
-    bp.functionName = handler->functionName(id).toUtf8();
-    d->breakpoints.remove(bp);
+    JSAgentBreakpointData jsbp;
+    jsbp.fileUrl = QUrl::fromLocalFile(bp.fileName()).toString().toUtf8();
+    jsbp.lineNumber = bp.lineNumber();
+    jsbp.functionName = bp.functionName().toUtf8();
+    d->breakpoints.remove(jsbp);
 }
 
-void QScriptDebuggerClient::changeBreakpoint(const BreakpointModelId &id)
+void QScriptDebuggerClient::changeBreakpoint(Breakpoint bp)
 {
-    BreakHandler *handler = d->engine->breakHandler();
-    if (handler->isEnabled(id)) {
-        BreakpointResponse br = handler->response(id);
-        insertBreakpoint(id, br.lineNumber);
-    } else {
-        removeBreakpoint(id);
-    }
-    BreakpointResponse br = handler->response(id);
-    br.enabled = handler->isEnabled(id);
-    handler->setResponse(id, br);
+    if (bp.isEnabled())
+        insertBreakpoint(bp, bp.response().lineNumber);
+    else
+        removeBreakpoint(bp);
+
+    BreakpointResponse br = bp.response();
+    br.enabled = bp.isEnabled();
+    bp.setResponse(br);
 }
 
 void QScriptDebuggerClient::synchronizeBreakpoints()

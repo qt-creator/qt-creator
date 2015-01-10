@@ -77,11 +77,11 @@ public:
 
     void activateFrame(int index);
 
-    bool acceptsBreakpoint(const BreakpointModelId &id);
-    void insertBreakpoint(const BreakpointModelId &id, int adjustedLine,
+    bool acceptsBreakpoint(Breakpoint bp);
+    void insertBreakpoint(Breakpoint bp, int adjustedLine,
                           int adjustedColumn = -1);
-    void removeBreakpoint(const BreakpointModelId &id);
-    void changeBreakpoint(const BreakpointModelId &id);
+    void removeBreakpoint(Breakpoint bp);
+    void changeBreakpoint(Breakpoint bp);
     void synchronizeBreakpoints();
 
     void assignValueInDebugger(const WatchData *data,

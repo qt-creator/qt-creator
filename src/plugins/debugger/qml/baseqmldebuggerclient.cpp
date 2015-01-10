@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "baseqmldebuggerclient.h"
+#include <debugger/breakhandler.h>
 
 #include <utils/qtcassert.h>
 
@@ -52,7 +53,7 @@ BaseQmlDebuggerClient::~BaseQmlDebuggerClient()
     delete d;
 }
 
-bool BaseQmlDebuggerClient::acceptsBreakpoint(const BreakpointModelId &/*id*/)
+bool BaseQmlDebuggerClient::acceptsBreakpoint(Breakpoint /*bp*/)
 {
     return false;
 }

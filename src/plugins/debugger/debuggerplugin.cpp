@@ -389,19 +389,6 @@ namespace PE = ProjectExplorer::Constants;
 namespace Debugger {
 namespace Internal {
 
-// To be passed through margin menu action's data
-struct BreakpointMenuContextData : public ContextData
-{
-    enum Mode
-    {
-        Breakpoint,
-        MessageTracePoint
-    };
-
-    BreakpointMenuContextData() : mode(Breakpoint) {}
-    Mode mode;
-};
-
 struct TestCallBack
 {
     TestCallBack() : receiver(0), slot(0) {}
@@ -416,7 +403,6 @@ struct TestCallBack
 } // namespace Internal
 } // namespace Debugger
 
-Q_DECLARE_METATYPE(Debugger::Internal::BreakpointMenuContextData)
 Q_DECLARE_METATYPE(Debugger::Internal::TestCallBack)
 
 namespace Debugger {
@@ -450,8 +436,6 @@ static QToolButton *toolButton(Core::Id id)
 
 class DummyEngine : public DebuggerEngine
 {
-    Q_OBJECT
-
 public:
     DummyEngine() : DebuggerEngine(DebuggerStartParameters()) {}
     ~DummyEngine() {}
@@ -462,7 +446,7 @@ public:
     void shutdownEngine() {}
     void shutdownInferior() {}
     bool hasCapability(unsigned cap) const;
-    bool acceptsBreakpoint(BreakpointModelId) const { return false; }
+    bool acceptsBreakpoint(Breakpoint) const { return false; }
     bool acceptsDebuggerCommands() const { return false; }
     void selectThread(ThreadId) {}
 };
@@ -641,14 +625,10 @@ public:
         m_currentEngine->selectThread(id);
     }
 
-    void breakpointSetMarginActionTriggered()
+    void breakpointSetMarginActionTriggered(bool isMessageOnly, const ContextData &data)
     {
-        const QAction *action = qobject_cast<const QAction *>(sender());
-        QTC_ASSERT(action, return);
-        const BreakpointMenuContextData data =
-            action->data().value<BreakpointMenuContextData>();
         QString message;
-        if (data.mode == BreakpointMenuContextData::MessageTracePoint) {
+        if (isMessageOnly) {
             if (data.address) {
                 //: Message tracepoint: Address hit.
                 message = tr("0x%1 hit").arg(data.address, 0, 16);
@@ -673,30 +653,6 @@ public:
             toggleBreakpointByAddress(data.address, message);
         else
             toggleBreakpointByFileAndLine(data.fileName, data.lineNumber, message);
-    }
-
-    void breakpointRemoveMarginActionTriggered()
-    {
-        const QAction *act = qobject_cast<QAction *>(sender());
-        QTC_ASSERT(act, return);
-        BreakpointModelId id = act->data().value<BreakpointModelId>();
-        m_breakHandler->removeBreakpoint(id);
-     }
-
-    void breakpointEnableMarginActionTriggered()
-    {
-        const QAction *act = qobject_cast<QAction *>(sender());
-        QTC_ASSERT(act, return);
-        BreakpointModelId id = act->data().value<BreakpointModelId>();
-        breakHandler()->setEnabled(id, true);
-    }
-
-    void breakpointDisableMarginActionTriggered()
-    {
-        const QAction *act = qobject_cast<QAction *>(sender());
-        QTC_ASSERT(act, return);
-        BreakpointModelId id = act->data().value<BreakpointModelId>();
-        breakHandler()->setEnabled(id, false);
     }
 
     void updateWatchersHeader(int section, int, int newSize)
@@ -944,31 +900,6 @@ public slots:
             currentEngine()->resetLocation();
             currentEngine()->executeRunToFunction(functionName);
         }
-    }
-
-    void slotEditBreakpoint()
-    {
-        const QAction *act = qobject_cast<QAction *>(sender());
-        QTC_ASSERT(act, return);
-        const BreakpointModelId id = act->data().value<BreakpointModelId>();
-        QTC_ASSERT(id > 0, return);
-        BreakTreeView::editBreakpoint(id, ICore::dialogParent());
-    }
-
-    void slotRunToLine()
-    {
-        const QAction *action = qobject_cast<const QAction *>(sender());
-        QTC_ASSERT(action, return);
-        const BreakpointMenuContextData data = action->data().value<BreakpointMenuContextData>();
-        currentEngine()->executeRunToLine(data);
-    }
-
-    void slotJumpToLine()
-    {
-        const QAction *action = qobject_cast<const QAction *>(sender());
-        QTC_ASSERT(action, return);
-        const BreakpointMenuContextData data = action->data().value<BreakpointMenuContextData>();
-        currentEngine()->executeJumpToLine(data);
     }
 
     void slotDisassembleFunction()
@@ -1716,11 +1647,11 @@ void DebuggerPluginPrivate::updateBreakMenuItem(IEditor *editor)
 void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
     int lineNumber, QMenu *menu)
 {
-    BreakpointMenuContextData args;
+    ContextData args;
     args.lineNumber = lineNumber;
     bool contextUsable = true;
 
-    BreakpointModelId id = BreakpointModelId();
+    Breakpoint bp;
     TextDocument *document = widget->textDocument();
     args.fileName = document->filePath().toString();
     if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
@@ -1731,87 +1662,77 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
         needle.address = DisassemblerLine::addressFromDisassemblyLine(line);
         args.address = needle.address;
         needle.lineNumber = -1;
-        id = breakHandler()->findSimilarBreakpoint(needle);
+        bp = breakHandler()->findSimilarBreakpoint(needle);
         contextUsable = args.address != 0;
     } else {
-        id = breakHandler()
+        bp = breakHandler()
             ->findBreakpointByFileAndLine(args.fileName, lineNumber);
-        if (!id)
-            id = breakHandler()->findBreakpointByFileAndLine(args.fileName, lineNumber, false);
+        if (!bp)
+            bp = breakHandler()->findBreakpointByFileAndLine(args.fileName, lineNumber, false);
     }
 
-    if (id) {
+    if (bp) {
+        QString id = bp.id().toString();
+
         // Remove existing breakpoint.
-        QAction *act = new QAction(menu);
-        act->setData(QVariant::fromValue(id));
-        act->setText(tr("Remove Breakpoint %1").arg(id.toString()));
-        connect(act, &QAction::triggered,
-            this, &DebuggerPluginPrivate::breakpointRemoveMarginActionTriggered);
-        menu->addAction(act);
+        auto act = menu->addAction(tr("Remove Breakpoint %1").arg(id));
+        connect(act, &QAction::triggered, [bp] { bp.removeBreakpoint(); });
 
         // Enable/disable existing breakpoint.
-        act = new QAction(menu);
-        act->setData(QVariant::fromValue(id));
-        if (breakHandler()->isEnabled(id)) {
-            act->setText(tr("Disable Breakpoint %1").arg(id.toString()));
-            connect(act, &QAction::triggered,
-                this, &DebuggerPluginPrivate::breakpointDisableMarginActionTriggered);
+        if (bp.isEnabled()) {
+            act = menu->addAction(tr("Disable Breakpoint %1").arg(id));
+            connect(act, &QAction::triggered, [bp] { bp.setEnabled(false); });
         } else {
-            act->setText(tr("Enable Breakpoint %1").arg(id.toString()));
-            connect(act, &QAction::triggered,
-                this, &DebuggerPluginPrivate::breakpointEnableMarginActionTriggered);
+            act = menu->addAction(tr("Enable Breakpoint %1").arg(id));
+            connect(act, &QAction::triggered, [bp] { bp.setEnabled(true); });
         }
-        menu->addAction(act);
 
         // Edit existing breakpoint.
-        act = new QAction(menu);
-        act->setText(tr("Edit Breakpoint %1...").arg(id.toString()));
-        connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::slotEditBreakpoint);
-        act->setData(QVariant::fromValue(id));
-        menu->addAction(act);
+        act = menu->addAction(tr("Edit Breakpoint %1...").arg(id));
+        connect(act, &QAction::triggered, [bp] {
+            BreakTreeView::editBreakpoint(bp, ICore::dialogParent());
+        });
+
     } else {
         // Handle non-existing breakpoint.
         const QString text = args.address
             ? tr("Set Breakpoint at 0x%1").arg(args.address, 0, 16)
             : tr("Set Breakpoint at Line %1").arg(lineNumber);
-        QAction *act = new QAction(text, menu);
-        act->setData(QVariant::fromValue(args));
+        auto act = menu->addAction(text);
         act->setEnabled(contextUsable);
-        connect(act, &QAction::triggered,
-            this, &DebuggerPluginPrivate::breakpointSetMarginActionTriggered);
-        menu->addAction(act);
+        connect(act, &QAction::triggered, [this, args] {
+            breakpointSetMarginActionTriggered(false, args);
+        });
+
         // Message trace point
-        args.mode = BreakpointMenuContextData::MessageTracePoint;
         const QString tracePointText = args.address
             ? tr("Set Message Tracepoint at 0x%1...").arg(args.address, 0, 16)
             : tr("Set Message Tracepoint at Line %1...").arg(lineNumber);
-        act = new QAction(tracePointText, menu);
-        act->setData(QVariant::fromValue(args));
+        act = menu->addAction(tracePointText);
         act->setEnabled(contextUsable);
-        connect(act, &QAction::triggered,
-            this, &DebuggerPluginPrivate::breakpointSetMarginActionTriggered);
-        menu->addAction(act);
+        connect(act, &QAction::triggered, [this, args] {
+            breakpointSetMarginActionTriggered(true, args);
+        });
     }
+
     // Run to, jump to line below in stopped state.
     if (currentEngine()->state() == InferiorStopOk && contextUsable) {
         menu->addSeparator();
         if (currentEngine()->hasCapability(RunToLineCapability)) {
-            const QString runText = args.address
+            auto act = menu->addAction(args.address
                 ? DebuggerEngine::tr("Run to Address 0x%1").arg(args.address, 0, 16)
-                : DebuggerEngine::tr("Run to Line %1").arg(args.lineNumber);
-            QAction *runToLineAction  = new QAction(runText, menu);
-            runToLineAction->setData(QVariant::fromValue(args));
-            connect(runToLineAction, &QAction::triggered, this, &DebuggerPluginPrivate::slotRunToLine);
-            menu->addAction(runToLineAction);
+                : DebuggerEngine::tr("Run to Line %1").arg(args.lineNumber));
+            connect(act, &QAction::triggered, [this, args] {
+                currentEngine()->executeRunToLine(args);
+            });
         }
         if (currentEngine()->hasCapability(JumpToLineCapability)) {
-            const QString jumpText = args.address
+            auto act = menu->addAction(args.address
                 ? DebuggerEngine::tr("Jump to Address 0x%1").arg(args.address, 0, 16)
-                : DebuggerEngine::tr("Jump to Line %1").arg(args.lineNumber);
-            QAction *jumpToLineAction  = new QAction(jumpText, menu);
-            jumpToLineAction->setData(QVariant::fromValue(args));
-            connect(jumpToLineAction, &QAction::triggered, this, &DebuggerPluginPrivate::slotJumpToLine);
-            menu->addAction(jumpToLineAction);
+                : DebuggerEngine::tr("Jump to Line %1").arg(args.lineNumber));
+            connect(act, &QAction::triggered, [this, args] {
+                currentEngine()->executeJumpToLine(args);
+            });
         }
         // Disassemble current function in stopped state.
         if (currentEngine()->state() == InferiorStopOk
@@ -1850,13 +1771,12 @@ void DebuggerPluginPrivate::toggleBreakpointByFileAndLine(const QString &fileNam
     int lineNumber, const QString &tracePointMessage)
 {
     BreakHandler *handler = m_breakHandler;
-    BreakpointModelId id =
-        handler->findBreakpointByFileAndLine(fileName, lineNumber, true);
-    if (!id)
-        id = handler->findBreakpointByFileAndLine(fileName, lineNumber, false);
+    Breakpoint bp = handler->findBreakpointByFileAndLine(fileName, lineNumber, true);
+    if (!bp)
+        bp = handler->findBreakpointByFileAndLine(fileName, lineNumber, false);
 
-    if (id) {
-        handler->removeBreakpoint(id);
+    if (bp) {
+        bp.removeBreakpoint();
     } else {
         BreakpointParameters data(BreakpointByFileAndLine);
         if (boolSetting(BreakpointsFullPathByDefault))
@@ -1873,10 +1793,8 @@ void DebuggerPluginPrivate::toggleBreakpointByAddress(quint64 address,
                                                       const QString &tracePointMessage)
 {
     BreakHandler *handler = m_breakHandler;
-    BreakpointModelId id = handler->findBreakpointByAddress(address);
-
-    if (id) {
-        handler->removeBreakpoint(id);
+    if (Breakpoint bp = handler->findBreakpointByAddress(address)) {
+        bp.removeBreakpoint();
     } else {
         BreakpointParameters data(BreakpointByAddress);
         data.tracepoint = !tracePointMessage.isEmpty();

@@ -31,7 +31,7 @@
 #ifndef DEBUGGER_BREAKWINDOW_H
 #define DEBUGGER_BREAKWINDOW_H
 
-#include "breakpoint.h"
+#include "breakhandler.h"
 #include <utils/basetreeview.h>
 
 namespace Debugger {
@@ -44,7 +44,7 @@ class BreakTreeView : public Utils::BaseTreeView
 public:
     BreakTreeView();
 
-    static void editBreakpoint(BreakpointModelId id, QWidget *parent);
+    static void editBreakpoint(Breakpoint bp, QWidget *parent);
 
 private slots:
     void showAddressColumn(bool on);
@@ -55,12 +55,12 @@ private:
     void keyPressEvent(QKeyEvent *ev);
     void mouseDoubleClickEvent(QMouseEvent *ev);
 
-    void deleteBreakpoints(const BreakpointModelIds &ids);
+    void deleteBreakpoints(const Breakpoints &bps);
     void deleteAllBreakpoints();
     void addBreakpoint();
-    void editBreakpoints(const BreakpointModelIds &ids);
-    void associateBreakpoint(const BreakpointModelIds &ids, int thread);
-    void setBreakpointsEnabled(const BreakpointModelIds &ids, bool enabled);
+    void editBreakpoints(const Breakpoints &bps);
+    void associateBreakpoint(const Breakpoints &bps, int thread);
+    void setBreakpointsEnabled(const Breakpoints &bps, bool enabled);
 };
 
 } // namespace Internal

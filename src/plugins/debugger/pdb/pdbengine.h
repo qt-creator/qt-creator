@@ -89,9 +89,9 @@ private:
     void activateFrame(int index);
     void selectThread(ThreadId threadId);
 
-    bool acceptsBreakpoint(BreakpointModelId id) const;
-    void insertBreakpoint(BreakpointModelId id);
-    void removeBreakpoint(BreakpointModelId id);
+    bool acceptsBreakpoint(Breakpoint bp) const;
+    void insertBreakpoint(Breakpoint bp);
+    void removeBreakpoint(Breakpoint bp);
 
     void assignValueInDebugger(const WatchData *data,
         const QString &expr, const QVariant &value);

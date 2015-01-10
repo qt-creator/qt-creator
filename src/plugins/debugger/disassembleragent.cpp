@@ -332,9 +332,8 @@ void DisassemblerAgent::updateBreakpointMarkers()
     if (!d->document)
         return;
 
-    BreakHandler *handler = breakHandler();
-    BreakpointModelIds ids = handler->engineBreakpointIds(d->engine);
-    if (ids.isEmpty())
+    Breakpoints bps = breakHandler()->engineBreakpoints(d->engine);
+    if (bps.isEmpty())
         return;
 
     const DisassemblerLines contents = d->contentsAtCurrentLocation();
@@ -342,15 +341,15 @@ void DisassemblerAgent::updateBreakpointMarkers()
         d->document->removeMark(marker);
     qDeleteAll(d->breakpointMarks);
     d->breakpointMarks.clear();
-    foreach (BreakpointModelId id, ids) {
-        const quint64 address = handler->response(id).address;
+    foreach (Breakpoint bp, bps) {
+        const quint64 address = bp.response().address;
         if (!address)
             continue;
         const int lineNumber = contents.lineForAddress(address);
         if (!lineNumber)
             continue;
         TextMark *marker = new TextMark(QString(), lineNumber);
-        marker->setIcon(handler->icon(id));
+        marker->setIcon(bp.icon());
         marker->setPriority(TextMark::NormalPriority);
         d->breakpointMarks.append(marker);
         d->document->addMark(marker);

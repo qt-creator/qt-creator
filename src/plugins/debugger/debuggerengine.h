@@ -34,7 +34,6 @@
 #include "debugger_global.h"
 #include "debuggerconstants.h"
 #include "debuggerstartparameters.h"
-#include "breakpoint.h" // For BreakpointModelId.
 #include "threaddata.h" // For ThreadId.
 
 #include <QObject>
@@ -71,7 +70,7 @@ class StackFrame;
 class SourceFilesHandler;
 class ThreadsHandler;
 class WatchHandler;
-class BreakpointParameters;
+class Breakpoint;
 class QmlAdapter;
 class QmlCppEngine;
 class DebuggerToolTipContext;
@@ -193,13 +192,12 @@ public:
     virtual void createSnapshot();
     virtual void updateAll();
 
-    typedef Internal::BreakpointModelId BreakpointModelId;
     virtual bool stateAcceptsBreakpointChanges() const { return true; }
     virtual void attemptBreakpointSynchronization();
-    virtual bool acceptsBreakpoint(BreakpointModelId id) const = 0;
-    virtual void insertBreakpoint(BreakpointModelId id);  // FIXME: make pure
-    virtual void removeBreakpoint(BreakpointModelId id);  // FIXME: make pure
-    virtual void changeBreakpoint(BreakpointModelId id);  // FIXME: make pure
+    virtual bool acceptsBreakpoint(Breakpoint bp) const = 0;
+    virtual void insertBreakpoint(Breakpoint bp);  // FIXME: make pure
+    virtual void removeBreakpoint(Breakpoint bp);  // FIXME: make pure
+    virtual void changeBreakpoint(Breakpoint bp);  // FIXME: make pure
 
     virtual bool acceptsDebuggerCommands() const { return true; }
     virtual void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
@@ -355,16 +353,6 @@ protected:
 
     DebuggerRunControl *runControl() const;
 
-    static QString msgWatchpointByAddressTriggered(BreakpointModelId id,
-        int number, quint64 address);
-    static QString msgWatchpointByAddressTriggered(BreakpointModelId id,
-        int number, quint64 address, const QString &threadId);
-    static QString msgWatchpointByExpressionTriggered(BreakpointModelId id,
-        int number, const QString &expr);
-    static QString msgWatchpointByExpressionTriggered(BreakpointModelId id,
-        int number, const QString &expr, const QString &threadId);
-    static QString msgBreakpointTriggered(BreakpointModelId id,
-        int number, const QString &threadId);
     static QString msgStopped(const QString &reason = QString());
     static QString msgStoppedBySignal(const QString &meaning, const QString &name);
     static QString msgStoppedByException(const QString &description,

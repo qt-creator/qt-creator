@@ -30,8 +30,10 @@
 
 #include "qmlcppengine.h"
 #include "qmlengine.h"
+
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
+#include <debugger/breakhandler.h>
 #include <debugger/stackhandler.h>
 #include <debugger/watchhandler.h>
 
@@ -244,10 +246,10 @@ void QmlCppEngine::attemptBreakpointSynchronization()
     }
 }
 
-bool QmlCppEngine::acceptsBreakpoint(BreakpointModelId id) const
+bool QmlCppEngine::acceptsBreakpoint(Breakpoint bp) const
 {
-    return m_cppEngine->acceptsBreakpoint(id)
-        || m_qmlEngine->acceptsBreakpoint(id);
+    return m_cppEngine->acceptsBreakpoint(bp)
+        || m_qmlEngine->acceptsBreakpoint(bp);
 }
 
 void QmlCppEngine::selectThread(ThreadId threadId)

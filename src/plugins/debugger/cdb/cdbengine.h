@@ -32,6 +32,7 @@
 #define DEBUGGER_CDBENGINE_H
 
 #include <debugger/debuggerengine.h>
+#include <debugger/breakhandler.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
 
@@ -111,7 +112,7 @@ public:
     virtual void selectThread(ThreadId threadId);
 
     virtual bool stateAcceptsBreakpointChanges() const;
-    virtual bool acceptsBreakpoint(BreakpointModelId id) const;
+    virtual bool acceptsBreakpoint(Breakpoint bp) const;
     virtual void attemptBreakpointSynchronization();
 
     virtual void fetchDisassembler(DisassemblerAgent *agent);

@@ -84,7 +84,7 @@ public:
     void updateScriptSource(const QString &fileName, int lineOffset,
                             int columnOffset, const QString &source);
 
-    void insertBreakpoint(BreakpointModelId id);
+    void insertBreakpoint(Breakpoint bp);
 
 signals:
     void tooltipRequested(const QPoint &mousePos,
@@ -140,9 +140,9 @@ private:
     void selectThread(ThreadId threadId);
 
     void attemptBreakpointSynchronization();
-    void removeBreakpoint(BreakpointModelId id);
-    void changeBreakpoint(BreakpointModelId id);
-    bool acceptsBreakpoint(BreakpointModelId id) const;
+    void removeBreakpoint(Breakpoint bp);
+    void changeBreakpoint(Breakpoint bp);
+    bool acceptsBreakpoint(Breakpoint bp) const;
 
     void assignValueInDebugger(const WatchData *data,
         const QString &expr, const QVariant &value);
@@ -190,7 +190,7 @@ private:
     QHash<QString, QTextDocument*> m_sourceDocuments;
     QHash<QString, QWeakPointer<TextEditor::BaseTextEditor> > m_sourceEditors;
     InteractiveInterpreter m_interpreter;
-    QHash<QString,BreakpointModelId> pendingBreakpoints;
+    QHash<QString,Breakpoint> pendingBreakpoints;
     QList<quint32> queryIds;
     bool m_retryOnConnectFail;
     bool m_automaticConnect;

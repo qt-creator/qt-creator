@@ -148,10 +148,9 @@ void DebuggerRunControl::start()
 
     if (m_engine->startParameters().startMode == StartInternal) {
         QStringList unhandledIds;
-        foreach (const BreakpointModelId &id, breakHandler()->allBreakpointIds()) {
-            if (m_engine->breakHandler()->breakpointData(id).enabled
-                    && !m_engine->acceptsBreakpoint(id))
-                unhandledIds.append(id.toString());
+        foreach (Breakpoint bp, breakHandler()->allBreakpoints()) {
+            if (bp.isEnabled() && !m_engine->acceptsBreakpoint(bp))
+                unhandledIds.append(bp.id().toString());
         }
         if (!unhandledIds.isEmpty()) {
             QString warningMessage =

@@ -122,7 +122,7 @@ private:
     void activateFrame(int index);
     void selectThread(ThreadId threadId);
 
-    bool acceptsBreakpoint(BreakpointModelId id) const;
+    bool acceptsBreakpoint(Breakpoint bp) const;
     void attemptBreakpointSynchronization();
     bool attemptBreakpointSynchronizationHelper(Command *command);
 

@@ -80,7 +80,7 @@ class BreakpointDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit BreakpointDialog(BreakpointModelId id, QWidget *parent = 0);
+    explicit BreakpointDialog(Breakpoint b, QWidget *parent = 0);
     bool showDialog(BreakpointParameters *data, BreakpointParts *parts);
 
     void setParameters(const BreakpointParameters &data);
@@ -138,7 +138,7 @@ private:
     QDialogButtonBox *m_buttonBox;
 };
 
-BreakpointDialog::BreakpointDialog(BreakpointModelId id, QWidget *parent)
+BreakpointDialog::BreakpointDialog(Breakpoint b, QWidget *parent)
     : QDialog(parent), m_enabledParts(~0), m_previousType(UnknownBreakpointType),
       m_firstTypeChange(true)
 {
@@ -268,8 +268,8 @@ BreakpointDialog::BreakpointDialog(BreakpointModelId id, QWidget *parent)
     m_buttonBox = new QDialogButtonBox(this);
     m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
-    if (id.isValid()) {
-        if (DebuggerEngine *engine = breakHandler()->engine(id)) {
+    if (b) {
+        if (DebuggerEngine *engine = b.engine()) {
             if (!engine->hasCapability(BreakConditionCapability))
                 m_enabledParts &= ~ConditionPart;
             if (!engine->hasCapability(BreakModuleCapability))
@@ -695,7 +695,7 @@ void BreakTreeView::keyPressEvent(QKeyEvent *ev)
         QModelIndexList si = sm->selectedRows();
         if (si.isEmpty())
             si.append(currentIndex());
-        const BreakpointModelIds ids = breakHandler()->findBreakpointsByIndex(si);
+        const Breakpoints ids = breakHandler()->findBreakpointsByIndex(si);
         int row = qMin(model()->rowCount() - ids.size() - 1, currentIndex().row());
         deleteBreakpoints(ids);
         setCurrentIndex(model()->index(row, 0));
@@ -704,10 +704,9 @@ void BreakTreeView::keyPressEvent(QKeyEvent *ev)
         QTC_ASSERT(sm, return);
         const QModelIndexList selectedIds = sm->selectedRows();
         if (!selectedIds.isEmpty()) {
-            BreakHandler *handler = breakHandler();
-            const BreakpointModelIds validIds = handler->findBreakpointsByIndex(selectedIds);
-            const bool isEnabled = validIds.isEmpty() || handler->isEnabled(validIds.at(0));
-            setBreakpointsEnabled(validIds, !isEnabled);
+            const Breakpoints items = breakHandler()->findBreakpointsByIndex(selectedIds);
+            const bool isEnabled = items.isEmpty() || items.at(0).isEnabled();
+            setBreakpointsEnabled(items, !isEnabled);
             foreach (const QModelIndex &id, selectedIds)
                 update(id);
         }
@@ -720,8 +719,9 @@ void BreakTreeView::mouseDoubleClickEvent(QMouseEvent *ev)
     QModelIndex indexUnderMouse = indexAt(ev->pos());
     if (indexUnderMouse.isValid()) {
         if (indexUnderMouse.column() >= 4) {
-            BreakpointModelId id = breakHandler()->findBreakpointByIndex(indexUnderMouse);
-            editBreakpoints(BreakpointModelIds() << id);
+            Breakpoint b = breakHandler()->findBreakpointByIndex(indexUnderMouse);
+            QTC_ASSERT(b, return);
+            editBreakpoints(Breakpoints() << b);
         }
     } else {
         addBreakpoint();
@@ -740,21 +740,18 @@ void BreakTreeView::contextMenuEvent(QContextMenuEvent *ev)
         selectedIndices.append(indexUnderMouse);
 
     BreakHandler *handler = breakHandler();
-    BreakpointModelIds selectedIds;
-    foreach (BreakpointModelId id, handler->findBreakpointsByIndex(selectedIndices))
-        if (id.isMajor())
-            selectedIds.append(id);
+    Breakpoints selectedItems = handler->findBreakpointsByIndex(selectedIndices);
 
     const int rowCount = model()->rowCount();
-    QAction *deleteAction = new QAction(tr("Delete Breakpoint"), &menu);
-    deleteAction->setEnabled(!selectedIds.empty());
+    auto deleteAction = new QAction(tr("Delete Breakpoint"), &menu);
+    deleteAction->setEnabled(!selectedItems.empty());
 
-    QAction *deleteAllAction = new QAction(tr("Delete All Breakpoints"), &menu);
+    auto deleteAllAction = new QAction(tr("Delete All Breakpoints"), &menu);
     deleteAllAction->setEnabled(model()->rowCount() > 0);
 
     // Delete by file: Find indices of breakpoints of the same file.
     QAction *deleteByFileAction = 0;
-    BreakpointModelIds breakpointsInFile;
+    Breakpoints breakpointsInFile;
     if (indexUnderMouse.isValid()) {
         const QModelIndex index = indexUnderMouse.sibling(indexUnderMouse.row(), 2);
         const QString file = index.data().toString();
@@ -774,36 +771,33 @@ void BreakTreeView::contextMenuEvent(QContextMenuEvent *ev)
         deleteByFileAction->setEnabled(false);
     }
 
-    QAction *editBreakpointAction =
-        new QAction(tr("Edit Breakpoint..."), &menu);
-    editBreakpointAction->setEnabled(!selectedIds.isEmpty());
+    auto editBreakpointAction = new QAction(tr("Edit Breakpoint..."), &menu);
+    editBreakpointAction->setEnabled(!selectedItems.isEmpty());
 
     int threadId = 0;
     // FIXME BP: m_engine->threadsHandler()->currentThreadId();
     QString associateTitle = threadId == -1
         ?  tr("Associate Breakpoint With All Threads")
         :  tr("Associate Breakpoint With Thread %1").arg(threadId);
-    QAction *associateBreakpointAction = new QAction(associateTitle, &menu);
-    associateBreakpointAction->setEnabled(!selectedIds.isEmpty());
+    auto associateBreakpointAction = new QAction(associateTitle, &menu);
+    associateBreakpointAction->setEnabled(!selectedItems.isEmpty());
 
-    QAction *synchronizeAction =
-        new QAction(tr("Synchronize Breakpoints"), &menu);
+    auto synchronizeAction = new QAction(tr("Synchronize Breakpoints"), &menu);
     synchronizeAction->setEnabled(Internal::hasSnapshots());
 
-    bool enabled = selectedIds.isEmpty() || handler->isEnabled(selectedIds.at(0));
+    bool enabled = selectedItems.isEmpty() || selectedItems.at(0).isEnabled();
 
-    const QString str5 = selectedIds.size() > 1
+    const QString str5 = selectedItems.size() > 1
         ? enabled
             ? tr("Disable Selected Breakpoints")
             : tr("Enable Selected Breakpoints")
         : enabled
             ? tr("Disable Breakpoint")
             : tr("Enable Breakpoint");
-    QAction *toggleEnabledAction = new QAction(str5, &menu);
-    toggleEnabledAction->setEnabled(!selectedIds.isEmpty());
+    auto toggleEnabledAction = new QAction(str5, &menu);
+    toggleEnabledAction->setEnabled(!selectedItems.isEmpty());
 
-    QAction *addBreakpointAction =
-        new QAction(tr("Add Breakpoint..."), this);
+    auto addBreakpointAction = new QAction(tr("Add Breakpoint..."), this);
 
     menu.addAction(addBreakpointAction);
     menu.addAction(deleteAction);
@@ -825,28 +819,27 @@ void BreakTreeView::contextMenuEvent(QContextMenuEvent *ev)
     QAction *act = menu.exec(ev->globalPos());
 
     if (act == deleteAction)
-        deleteBreakpoints(selectedIds);
+        deleteBreakpoints(selectedItems);
     else if (act == deleteAllAction)
         deleteAllBreakpoints();
     else if (act == deleteByFileAction)
         deleteBreakpoints(breakpointsInFile);
     else if (act == editBreakpointAction)
-        editBreakpoints(selectedIds);
+        editBreakpoints(selectedItems);
     else if (act == associateBreakpointAction)
-        associateBreakpoint(selectedIds, threadId);
+        associateBreakpoint(selectedItems, threadId);
     else if (act == synchronizeAction)
         ; //synchronizeBreakpoints();
     else if (act == toggleEnabledAction)
-        setBreakpointsEnabled(selectedIds, !enabled);
+        setBreakpointsEnabled(selectedItems, !enabled);
     else if (act == addBreakpointAction)
         addBreakpoint();
 }
 
-void BreakTreeView::setBreakpointsEnabled(const BreakpointModelIds &ids, bool enabled)
+void BreakTreeView::setBreakpointsEnabled(const Breakpoints &bps, bool enabled)
 {
-    BreakHandler *handler = breakHandler();
-    foreach (const BreakpointModelId id, ids)
-        handler->setEnabled(id, enabled);
+    foreach (Breakpoint b, bps)
+        b.setEnabled(enabled);
 }
 
 void BreakTreeView::deleteAllBreakpoints()
@@ -857,55 +850,56 @@ void BreakTreeView::deleteAllBreakpoints()
               "from all files in the current session?"),
            Core::ICore::settings(),
            QLatin1String("RemoveAllBreakpoints")) == QDialogButtonBox::Yes)
-        deleteBreakpoints(breakHandler()->allBreakpointIds());
+        deleteBreakpoints(breakHandler()->allBreakpoints());
 }
 
-void BreakTreeView::deleteBreakpoints(const BreakpointModelIds &ids)
+void BreakTreeView::deleteBreakpoints(const Breakpoints &bps)
 {
-    BreakHandler *handler = breakHandler();
-    foreach (const BreakpointModelId id, ids)
-       handler->removeBreakpoint(id);
+    foreach (Breakpoint bp, bps)
+        bp.removeBreakpoint();
 }
 
-void BreakTreeView::editBreakpoint(BreakpointModelId id, QWidget *parent)
+void BreakTreeView::editBreakpoint(Breakpoint bp, QWidget *parent)
 {
-    BreakpointParameters data = breakHandler()->breakpointData(id);
+    BreakpointParameters data = bp.parameters();
     BreakpointParts parts = NoParts;
-    BreakpointDialog dialog(id, parent);
-    if (dialog.showDialog(&data, &parts))
-        breakHandler()->changeBreakpointData(id, data, parts);
+
+    BreakpointDialog dialog(bp, parent);
+    if (!dialog.showDialog(&data, &parts))
+        return;
+
+    bp.changeBreakpointData(data);
 }
 
 void BreakTreeView::addBreakpoint()
 {
     BreakpointParameters data(BreakpointByFileAndLine);
     BreakpointParts parts = NoParts;
-    BreakpointDialog dialog(BreakpointModelId(), this);
+    BreakpointDialog dialog(Breakpoint(), this);
     dialog.setWindowTitle(tr("Add Breakpoint"));
     if (dialog.showDialog(&data, &parts))
         breakHandler()->appendBreakpoint(data);
 }
 
-void BreakTreeView::editBreakpoints(const BreakpointModelIds &ids)
+void BreakTreeView::editBreakpoints(const Breakpoints &bps)
 {
-    QTC_ASSERT(!ids.isEmpty(), return);
+    QTC_ASSERT(!bps.isEmpty(), return);
 
-    const BreakpointModelId id = ids.at(0);
+    const Breakpoint bp = bps.at(0);
 
-    if (ids.size() == 1) {
-        editBreakpoint(id, this);
+    if (bps.size() == 1) {
+        editBreakpoint(bp, this);
         return;
     }
 
     // This allows to change properties of multiple breakpoints at a time.
-    BreakHandler *handler = breakHandler();
+    if (!bp)
+        return;
+
     MultiBreakPointsDialog dialog;
-    const QString oldCondition = QString::fromLatin1(handler->condition(id));
-    dialog.setCondition(oldCondition);
-    const int oldIgnoreCount = handler->ignoreCount(id);
-    dialog.setIgnoreCount(oldIgnoreCount);
-    const int oldThreadSpec = handler->threadSpec(id);
-    dialog.setThreadSpec(oldThreadSpec);
+    dialog.setCondition(QString::fromLatin1(bp.condition()));
+    dialog.setIgnoreCount(bp.ignoreCount());
+    dialog.setThreadSpec(bp.threadSpec());
 
     if (dialog.exec() == QDialog::Rejected)
         return;
@@ -914,27 +908,27 @@ void BreakTreeView::editBreakpoints(const BreakpointModelIds &ids)
     const int newIgnoreCount = dialog.ignoreCount();
     const int newThreadSpec = dialog.threadSpec();
 
-    if (newCondition == oldCondition && newIgnoreCount == oldIgnoreCount
-            && newThreadSpec == oldThreadSpec)
-        return;
-
-    foreach (const BreakpointModelId id, ids) {
-        handler->setCondition(id, newCondition.toLatin1());
-        handler->setIgnoreCount(id, newIgnoreCount);
-        handler->setThreadSpec(id, newThreadSpec);
+    foreach (Breakpoint bp, bps) {
+        if (bp) {
+            bp.setCondition(newCondition.toLatin1());
+            bp.setIgnoreCount(newIgnoreCount);
+            bp.setThreadSpec(newThreadSpec);
+        }
     }
 }
 
-void BreakTreeView::associateBreakpoint(const BreakpointModelIds &ids, int threadId)
+void BreakTreeView::associateBreakpoint(const Breakpoints &bps, int threadId)
 {
-    BreakHandler *handler = breakHandler();
-    foreach (const BreakpointModelId id, ids)
-        handler->setThreadSpec(id, threadId);
+    foreach (Breakpoint bp, bps) {
+        if (bp)
+            bp.setThreadSpec(threadId);
+    }
 }
 
 void BreakTreeView::rowActivated(const QModelIndex &index)
 {
-    breakHandler()->gotoLocation(breakHandler()->findBreakpointByIndex(index));
+    if (Breakpoint bp = breakHandler()->findBreakpointByIndex(index))
+        bp.gotoLocation();
 }
 
 } // namespace Internal

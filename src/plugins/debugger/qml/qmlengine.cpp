@@ -797,21 +797,20 @@ void QmlEngine::selectThread(ThreadId threadId)
     Q_UNUSED(threadId)
 }
 
-void QmlEngine::insertBreakpoint(BreakpointModelId id)
+void QmlEngine::insertBreakpoint(Breakpoint bp)
 {
-    BreakHandler *handler = breakHandler();
-    BreakpointState state = handler->state(id);
-    QTC_ASSERT(state == BreakpointInsertRequested, qDebug() << id << this << state);
-    handler->notifyBreakpointInsertProceeding(id);
+    BreakpointState state = bp.state();
+    QTC_ASSERT(state == BreakpointInsertRequested, qDebug() << bp << this << state);
+    bp.notifyBreakpointInsertProceeding();
 
-    const BreakpointParameters &params = handler->breakpointData(id);
+    const BreakpointParameters &params = bp.parameters();
     quint32 line = params.lineNumber;
     quint32 column = 0;
     if (params.type == BreakpointByFileAndLine) {
         bool valid = false;
         if (!adjustBreakpointLineAndColumn(params.fileName, &line, &column,
                                            &valid)) {
-            pendingBreakpoints.insertMulti(params.fileName, id);
+            pendingBreakpoints.insertMulti(params.fileName, bp);
             return;
         }
         if (!valid)
@@ -819,65 +818,61 @@ void QmlEngine::insertBreakpoint(BreakpointModelId id)
     }
 
     if (m_adapter.activeDebuggerClient()) {
-        m_adapter.activeDebuggerClient()->insertBreakpoint(id, line, column);
+        m_adapter.activeDebuggerClient()->insertBreakpoint(bp, line, column);
     } else {
         foreach (BaseQmlDebuggerClient *client, m_adapter.debuggerClients()) {
-            client->insertBreakpoint(id, line, column);
+            client->insertBreakpoint(bp, line, column);
         }
     }
 }
 
-void QmlEngine::removeBreakpoint(BreakpointModelId id)
+void QmlEngine::removeBreakpoint(Breakpoint bp)
 {
-    BreakHandler *handler = breakHandler();
-
-    const BreakpointParameters &params = handler->breakpointData(id);
+    const BreakpointParameters &params = bp.parameters();
     if (params.type == BreakpointByFileAndLine &&
             pendingBreakpoints.contains(params.fileName)) {
-        QHash<QString, BreakpointModelId>::iterator i =
-                pendingBreakpoints.find(params.fileName);
-        while (i != pendingBreakpoints.end() && i.key() == params.fileName) {
-            if (i.value() == id) {
-                pendingBreakpoints.erase(i);
+        auto it = pendingBreakpoints.find(params.fileName);
+        while (it != pendingBreakpoints.end() && it.key() == params.fileName) {
+            if (it.value() == bp.id()) {
+                pendingBreakpoints.erase(it);
                 return;
             }
-            ++i;
+            ++it;
         }
     }
 
-    BreakpointState state = handler->state(id);
-    QTC_ASSERT(state == BreakpointRemoveRequested, qDebug() << id << this << state);
-    handler->notifyBreakpointRemoveProceeding(id);
+    BreakpointState state = bp.state();
+    QTC_ASSERT(state == BreakpointRemoveRequested, qDebug() << bp << this << state);
+    bp.notifyBreakpointRemoveProceeding();
 
     if (m_adapter.activeDebuggerClient()) {
-        m_adapter.activeDebuggerClient()->removeBreakpoint(id);
+        m_adapter.activeDebuggerClient()->removeBreakpoint(bp);
     } else {
         foreach (BaseQmlDebuggerClient *client, m_adapter.debuggerClients()) {
-            client->removeBreakpoint(id);
+            client->removeBreakpoint(bp);
         }
     }
 
-    if (handler->state(id) == BreakpointRemoveProceeding)
-        handler->notifyBreakpointRemoveOk(id);
+    if (bp.state() == BreakpointRemoveProceeding)
+        bp.notifyBreakpointRemoveOk();
 }
 
-void QmlEngine::changeBreakpoint(BreakpointModelId id)
+void QmlEngine::changeBreakpoint(Breakpoint bp)
 {
-    BreakHandler *handler = breakHandler();
-    BreakpointState state = handler->state(id);
-    QTC_ASSERT(state == BreakpointChangeRequested, qDebug() << id << this << state);
-    handler->notifyBreakpointChangeProceeding(id);
+    BreakpointState state = bp.state();
+    QTC_ASSERT(state == BreakpointChangeRequested, qDebug() << bp << this << state);
+    bp.notifyBreakpointChangeProceeding();
 
     if (m_adapter.activeDebuggerClient()) {
-        m_adapter.activeDebuggerClient()->changeBreakpoint(id);
+        m_adapter.activeDebuggerClient()->changeBreakpoint(bp);
     } else {
         foreach (BaseQmlDebuggerClient *client, m_adapter.debuggerClients()) {
-            client->changeBreakpoint(id);
+            client->changeBreakpoint(bp);
         }
     }
 
-    if (handler->state(id) == BreakpointChangeProceeding)
-        handler->notifyBreakpointChangeOk(id);
+    if (bp.state() == BreakpointChangeProceeding)
+        bp.notifyBreakpointChangeOk();
 }
 
 void QmlEngine::attemptBreakpointSynchronization()
@@ -890,26 +885,26 @@ void QmlEngine::attemptBreakpointSynchronization()
     BreakHandler *handler = breakHandler();
 
     DebuggerEngine *bpOwner = isSlaveEngine() ? masterEngine() : this;
-    foreach (BreakpointModelId id, handler->unclaimedBreakpointIds()) {
+    foreach (Breakpoint bp, handler->unclaimedBreakpoints()) {
         // Take ownership of the breakpoint. Requests insertion.
-        if (acceptsBreakpoint(id))
-            handler->setEngine(id, bpOwner);
+        if (acceptsBreakpoint(bp))
+            bp.setEngine(bpOwner);
     }
 
-    foreach (BreakpointModelId id, handler->engineBreakpointIds(bpOwner)) {
-        switch (handler->state(id)) {
+    foreach (Breakpoint bp, handler->engineBreakpoints(bpOwner)) {
+        switch (bp.state()) {
         case BreakpointNew:
             // Should not happen once claimed.
             QTC_CHECK(false);
             continue;
         case BreakpointInsertRequested:
-            insertBreakpoint(id);
+            insertBreakpoint(bp);
             continue;
         case BreakpointChangeRequested:
-            changeBreakpoint(id);
+            changeBreakpoint(bp);
             continue;
         case BreakpointRemoveRequested:
-            removeBreakpoint(id);
+            removeBreakpoint(bp);
             continue;
         case BreakpointChangeProceeding:
         case BreakpointInsertProceeding:
@@ -918,7 +913,7 @@ void QmlEngine::attemptBreakpointSynchronization()
         case BreakpointDead:
             continue;
         }
-        QTC_ASSERT(false, qDebug() << "UNKNOWN STATE"  << id << state());
+        QTC_ASSERT(false, qDebug() << "UNKNOWN STATE"  << bp << state());
     }
 
     DebuggerEngine::attemptBreakpointSynchronization();
@@ -932,9 +927,9 @@ void QmlEngine::attemptBreakpointSynchronization()
     }
 }
 
-bool QmlEngine::acceptsBreakpoint(BreakpointModelId id) const
+bool QmlEngine::acceptsBreakpoint(Breakpoint bp) const
 {
-    if (!breakHandler()->breakpointData(id).isCppBreakpoint())
+    if (!bp.parameters().isCppBreakpoint())
             return true;
 
     //If it is a Cpp Breakpoint query if the type can be also handled by the debugger client
@@ -943,7 +938,7 @@ bool QmlEngine::acceptsBreakpoint(BreakpointModelId id) const
     //This is because the older client does not support BreakpointOnQmlSignalHandler
     bool acceptBreakpoint = false;
     if (m_adapter.activeDebuggerClient())
-        acceptBreakpoint = m_adapter.activeDebuggerClient()->acceptsBreakpoint(id);
+        acceptBreakpoint = m_adapter.activeDebuggerClient()->acceptsBreakpoint(bp);
     return acceptBreakpoint;
 }
 
@@ -1144,10 +1139,10 @@ void QmlEngine::documentUpdated(QmlJS::Document::Ptr doc)
 {
     QString fileName = doc->fileName();
     if (pendingBreakpoints.contains(fileName)) {
-        QList<BreakpointModelId> ids = pendingBreakpoints.values(fileName);
+        QList<Breakpoint> bps = pendingBreakpoints.values(fileName);
         pendingBreakpoints.remove(fileName);
-        foreach (const BreakpointModelId &id, ids)
-            insertBreakpoint(id);
+        foreach (const Breakpoint bp, bps)
+            insertBreakpoint(bp);
     }
 }
 

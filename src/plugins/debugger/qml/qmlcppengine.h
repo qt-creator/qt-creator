@@ -78,7 +78,7 @@ public:
     void updateAll();
 
     void attemptBreakpointSynchronization();
-    bool acceptsBreakpoint(BreakpointModelId id) const;
+    bool acceptsBreakpoint(Breakpoint bp) const;
     void selectThread(ThreadId threadId);
 
     void assignValueInDebugger(const WatchData *data,

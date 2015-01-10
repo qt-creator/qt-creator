@@ -842,23 +842,22 @@ void QmlV8DebuggerClient::activateFrame(int index)
     d->engine->stackHandler()->setCurrentIndex(index);
 }
 
-bool QmlV8DebuggerClient::acceptsBreakpoint(const BreakpointModelId &id)
+bool QmlV8DebuggerClient::acceptsBreakpoint(Breakpoint bp)
 {
-    BreakpointType type = d->engine->breakHandler()->breakpointData(id).type;
+    BreakpointType type = bp.type();
     return (type == BreakpointOnQmlSignalEmit
             || type == BreakpointByFileAndLine
             || type == BreakpointAtJavaScriptThrow);
 }
 
-void QmlV8DebuggerClient::insertBreakpoint(const BreakpointModelId &id,
+void QmlV8DebuggerClient::insertBreakpoint(Breakpoint bp,
                                            int adjustedLine,
                                            int adjustedColumn)
 {
-    BreakHandler *handler = d->engine->breakHandler();
-    const BreakpointParameters &params = handler->breakpointData(id);
+    const BreakpointParameters &params = bp.parameters();
 
     if (params.type == BreakpointAtJavaScriptThrow) {
-        handler->notifyBreakpointInsertOk(id);
+        bp.notifyBreakpointInsertOk();
         d->setExceptionBreak(AllExceptions, params.enabled);
 
     } else if (params.type == BreakpointByFileAndLine) {
@@ -868,19 +867,18 @@ void QmlV8DebuggerClient::insertBreakpoint(const BreakpointModelId &id,
 
     } else if (params.type == BreakpointOnQmlSignalEmit) {
         d->setBreakpoint(QString(_(EVENT)), params.functionName, params.enabled);
-        d->engine->breakHandler()->notifyBreakpointInsertOk(id);
+        bp.notifyBreakpointInsertOk();
     }
 
-    d->breakpointsSync.insert(d->sequence, id);
+    d->breakpointsSync.insert(d->sequence, bp.id());
 }
 
-void QmlV8DebuggerClient::removeBreakpoint(const BreakpointModelId &id)
+void QmlV8DebuggerClient::removeBreakpoint(Breakpoint bp)
 {
-    BreakHandler *handler = d->engine->breakHandler();
-    const BreakpointParameters &params = handler->breakpointData(id);
+    const BreakpointParameters &params = bp.parameters();
 
-    int breakpoint = d->breakpoints.value(id);
-    d->breakpoints.remove(id);
+    int breakpoint = d->breakpoints.value(bp.id());
+    d->breakpoints.remove(bp.id());
 
     if (params.type == BreakpointAtJavaScriptThrow)
         d->setExceptionBreak(AllExceptions);
@@ -890,25 +888,25 @@ void QmlV8DebuggerClient::removeBreakpoint(const BreakpointModelId &id)
         d->clearBreakpoint(breakpoint);
 }
 
-void QmlV8DebuggerClient::changeBreakpoint(const BreakpointModelId &id)
+void QmlV8DebuggerClient::changeBreakpoint(Breakpoint bp)
 {
-    BreakHandler *handler = d->engine->breakHandler();
-    const BreakpointParameters &params = handler->breakpointData(id);
+    const BreakpointParameters &params = bp.parameters();
 
-    BreakpointResponse br = handler->response(id);
+    BreakpointResponse br = bp.response();
     if (params.type == BreakpointAtJavaScriptThrow) {
         d->setExceptionBreak(AllExceptions, params.enabled);
         br.enabled = params.enabled;
-        handler->setResponse(id, br);
+        bp.setResponse(br);
     } else if (params.type == BreakpointOnQmlSignalEmit) {
         d->setBreakpoint(QString(_(EVENT)), params.functionName, params.enabled);
         br.enabled = params.enabled;
-        handler->setResponse(id, br);
+        bp.setResponse(br);
     } else {
         //V8 supports only minimalistic changes in breakpoint
         //Remove the breakpoint and add again
-        handler->notifyBreakpointChangeOk(id);
-        handler->removeBreakpoint(id);
+        bp.notifyBreakpointChangeOk();
+        bp.removeBreakpoint();
+        BreakHandler *handler = d->engine->breakHandler();
         handler->appendBreakpoint(params);
     }
 }
@@ -1086,12 +1084,12 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                             //The breakpoint requested line should be same as
                             //actual line
                             BreakHandler *handler = d->engine->breakHandler();
-                            if (handler->state(id) != BreakpointInserted) {
-                                BreakpointResponse br = handler->response(id);
-                                br.lineNumber = breakpointData.value(_("line")
-                                                                     ).toInt() + 1;
-                                handler->setResponse(id, br);
-                                handler->notifyBreakpointInsertOk(id);
+                            Breakpoint bp = handler->breakpointById(id);
+                            if (bp.state() != BreakpointInserted) {
+                                BreakpointResponse br = bp.response();
+                                br.lineNumber = breakpointData.value(_("line")).toInt() + 1;
+                                bp.setResponse(br);
+                                bp.notifyBreakpointInsertOk();
                             }
                         }
 
@@ -1211,10 +1209,10 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                         BreakHandler *handler = d->engine->breakHandler();
 
                         foreach (int v8Id, v8BreakpointIds) {
-                            const BreakpointModelId internalId = d->breakpoints.key(v8Id);
-
-                            if (internalId.isValid()) {
-                                const BreakpointParameters &params = handler->breakpointData(internalId);
+                            const BreakpointModelId id = d->breakpoints.key(v8Id);
+                            Breakpoint bp = handler->breakpointById(id);
+                            if (bp.isValid()) {
+                                const BreakpointParameters &params = bp.parameters();
 
                                 d->clearBreakpoint(v8Id);
                                 d->setBreakpoint(QString(_(SCRIPTREGEXP)),
@@ -1224,7 +1222,7 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                                                  newColumn,
                                                  QString(QString::fromLatin1(params.condition)),
                                                  params.ignoreCount);
-                                d->breakpointsSync.insert(d->sequence, internalId);
+                                d->breakpointsSync.insert(d->sequence, id);
                             }
                         }
                         d->continueDebugging(Continue);
@@ -1242,17 +1240,18 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                         BreakHandler *handler = d->engine->breakHandler();
                         foreach (int v8Id, v8BreakpointIds) {
                             const BreakpointModelId id = d->breakpoints.key(v8Id);
-                            if (id.isValid()) {
-                                BreakpointResponse br = handler->response(id);
+                            Breakpoint bp = handler->breakpointById(id);
+                            if (bp) {
+                                BreakpointResponse br = bp.response();
                                 if (br.functionName.isEmpty()) {
                                     br.functionName = invocationText;
-                                    handler->setResponse(id, br);
+                                    bp.setResponse(br);
                                 }
-                                if (handler->state(id) != BreakpointInserted) {
+                                if (bp.state() != BreakpointInserted) {
                                     br.lineNumber = breakData.value(
                                                 _("sourceLine")).toInt() + 1;
-                                    handler->setResponse(id, br);
-                                    handler->notifyBreakpointInsertOk(id);
+                                    bp.setResponse(br);
+                                    bp.notifyBreakpointInsertOk();
                                 }
                             }
                         }
