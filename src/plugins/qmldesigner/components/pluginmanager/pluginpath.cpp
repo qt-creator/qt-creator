@@ -41,7 +41,7 @@
 #include <QObject>
 #include <QDebug>
 
-enum { debug = 1 };
+enum { debug = 0 };
 
 namespace QmlDesigner {
 
