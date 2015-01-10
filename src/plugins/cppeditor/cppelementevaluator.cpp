@@ -38,7 +38,6 @@
 #include <cplusplus/TypeOfExpression.h>
 
 #include <QDir>
-#include <QFileInfo>
 #include <QSet>
 #include <QQueue>
 
@@ -258,7 +257,7 @@ Unknown::Unknown(const QString &type) : type(type)
 
 CppInclude::CppInclude(const Document::Include &includeFile) :
     path(QDir::toNativeSeparators(includeFile.resolvedFileName())),
-    fileName(QFileInfo(includeFile.resolvedFileName()).fileName())
+    fileName(Utils::FileName::fromString(includeFile.resolvedFileName()).fileName())
 {
     helpCategory = TextEditor::HelpItem::Brief;
     helpIdCandidates = QStringList(fileName);

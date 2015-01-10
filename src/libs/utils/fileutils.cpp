@@ -156,7 +156,7 @@ bool FileUtils::copyRecursively(const FileName &srcFilePath, const FileName &tgt
         if (!tgtFilePath.exists()) {
             QDir targetDir(tgtFilePath.toString());
             targetDir.cdUp();
-            if (!targetDir.mkdir(tgtFilePath.toFileInfo().fileName())) {
+            if (!targetDir.mkdir(tgtFilePath.fileName())) {
                 if (error) {
                     *error = QCoreApplication::translate("Utils::FileUtils", "Failed to create directory \"%1\".")
                             .arg(tgtFilePath.toUserOutput());

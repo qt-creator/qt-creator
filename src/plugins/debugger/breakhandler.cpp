@@ -620,7 +620,7 @@ QVariant BreakpointItem::data(int column, int role) const
                 if (str.isEmpty() && !m_params.fileName.isEmpty())
                     str = m_params.fileName;
                 if (str.isEmpty()) {
-                    QString s = QFileInfo(str).fileName();
+                    QString s = Utils::FileName::fromString(str).fileName();
                     if (!s.isEmpty())
                         str = s;
                 }

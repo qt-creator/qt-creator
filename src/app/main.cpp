@@ -36,6 +36,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 #include <qtsingleapplication.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 
 #include <QDebug>
@@ -172,7 +173,7 @@ static bool copyRecursively(const QString &srcFilePath,
     if (srcFileInfo.isDir()) {
         QDir targetDir(tgtFilePath);
         targetDir.cdUp();
-        if (!targetDir.mkdir(QFileInfo(tgtFilePath).fileName()))
+        if (!targetDir.mkdir(Utils::FileName::fromString(tgtFilePath).fileName()))
             return false;
         QDir sourceDir(srcFilePath);
         QStringList fileNames = sourceDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);

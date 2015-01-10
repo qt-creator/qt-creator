@@ -32,10 +32,10 @@
 #include "textdocument.h"
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/itemviews.h>
 
 #include <QDebug>
-#include <QFileInfo>
 #include <QTextCodec>
 #include <QPushButton>
 #include <QScrollBar>
@@ -79,7 +79,7 @@ CodecSelector::CodecSelector(QWidget *parent, TextDocument *doc)
     if (m_hasDecodingError)
         decodingErrorHint = QLatin1Char('\n') + tr("The following encodings are likely to fit:");
     m_label->setText(tr("Select encoding for \"%1\".%2")
-                     .arg(doc->filePath().toFileInfo().fileName())
+                     .arg(doc->filePath().fileName())
                      .arg(decodingErrorHint));
 
     m_listWidget = new CodecListWidget(this);

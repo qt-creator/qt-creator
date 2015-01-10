@@ -415,7 +415,7 @@ void AbstractProcessStep::taskAdded(const Task &task)
         // 3. give up.
 
         QList<QFileInfo> possibleFiles;
-        QString fileName = QFileInfo(filePath).fileName();
+        QString fileName = Utils::FileName::fromString(filePath).fileName();
         foreach (const QString &file, project()->files(Project::AllFiles)) {
             QFileInfo candidate(file);
             if (candidate.fileName() == fileName)

@@ -28,6 +28,7 @@
 **
 ****************************************************************************/
 
+#include "fileutils.h"
 #include "reloadpromptutils.h"
 
 #include <QCoreApplication>
@@ -53,7 +54,7 @@ QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &fileName,
         msg = QCoreApplication::translate("Utils::reloadPrompt",
                 "The file <i>%1</i> has changed outside Qt Creator. Do you want to reload it?");
     }
-    msg = msg.arg(QFileInfo(fileName).fileName());
+    msg = msg.arg(FileName::fromString(fileName).fileName());
     return reloadPrompt(title, msg, QDir::toNativeSeparators(fileName), parent);
 }
 

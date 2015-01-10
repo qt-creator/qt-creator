@@ -39,8 +39,6 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
-#include <QFileInfo>
-
 using namespace Qnx;
 using namespace Qnx::Internal;
 using namespace RemoteLinux;
@@ -55,7 +53,7 @@ QnxRunControl::QnxRunControl(ProjectExplorer::RunConfiguration *runConfig)
     QnxRunConfiguration *qnxRunConfig = qobject_cast<QnxRunConfiguration *>(runConfig);
     QTC_CHECK(qnxRunConfig);
 
-    const QString applicationId = QFileInfo(qnxRunConfig->remoteExecutableFilePath()).fileName();
+    const QString applicationId = Utils::FileName::fromString(qnxRunConfig->remoteExecutableFilePath()).fileName();
     m_slog2Info = new Slog2InfoRunner(applicationId, qnxDevice, this);
     connect(m_slog2Info, SIGNAL(output(QString,Utils::OutputFormat)), this, SLOT(appendMessage(QString,Utils::OutputFormat)));
     connect(this, SIGNAL(started()), m_slog2Info, SLOT(start()));

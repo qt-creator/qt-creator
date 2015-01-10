@@ -1917,7 +1917,7 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
                                                             header.toString(),
                                                             headerPaths);
                 if (include.size() > 2) {
-                    const QString headerFileName = QFileInfo(info->fileName()).fileName();
+                    const QString headerFileName = Utils::FileName::fromString(info->fileName()).fileName();
                     QTC_ASSERT(!headerFileName.isEmpty(), break);
 
                     int priority = 0;

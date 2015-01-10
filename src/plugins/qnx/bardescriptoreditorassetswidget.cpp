@@ -101,7 +101,7 @@ void BarDescriptorEditorAssetsWidget::addAsset(const QString &fullPath)
 
     BarDescriptorAsset asset;
     asset.source = fullPath;
-    asset.destination = QFileInfo(fullPath).fileName();
+    asset.destination = Utils::FileName::fromString(fullPath).fileName();
     asset.entry = false;
     addAsset(asset);
 }

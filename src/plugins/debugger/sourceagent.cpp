@@ -40,10 +40,10 @@
 
 #include <cppeditor/cppeditorconstants.h>
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QFileInfo>
 #include <QTextBlock>
 
 #include <limits.h>
@@ -107,7 +107,7 @@ void SourceAgent::setContent(const QString &filePath, const QString &content)
 
     if (!d->editor) {
         QString titlePattern = d->producer + QLatin1String(": ")
-            + QFileInfo(filePath).fileName();
+            + Utils::FileName::fromString(filePath).fileName();
         d->editor = qobject_cast<BaseTextEditor *>(
             EditorManager::openEditorWithContents(
                 CppEditor::Constants::CPPEDITOR_ID,

@@ -30,12 +30,13 @@
 
 #include "screenshotcropper.h"
 
+#include <utils/fileutils.h>
+
 #include <coreplugin/icore.h>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QDebug>
 #include <QFile>
-#include <QFileInfo>
 
 namespace QtSupport {
 namespace Internal {
@@ -57,7 +58,7 @@ Q_GLOBAL_STATIC(AreasOfInterest, welcomeScreenAreas)
 
 static inline QString fileNameForPath(const QString &path)
 {
-    return QFileInfo(path).fileName();
+    return Utils::FileName::fromString(path).fileName();
 }
 
 static QRect cropRectForAreaOfInterest(const QSize &imageSize, const QSize &cropSize, const QRect &areaOfInterest)

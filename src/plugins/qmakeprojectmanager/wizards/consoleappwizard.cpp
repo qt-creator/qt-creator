@@ -36,8 +36,9 @@
 #include <cpptools/abstracteditorsupport.h>
 #include <qtsupport/qtsupportconstants.h>
 
+#include <utils/fileutils.h>
+
 #include <QCoreApplication>
-#include <QFileInfo>
 #include <QTextStream>
 
 static const char mainCppC[] =
@@ -98,7 +99,7 @@ Core::GeneratedFiles
         QTextStream proStr(&contents);
         QtProjectParameters::writeProFileHeader(proStr);
         params.writeProFile(proStr);
-        proStr << "\n\nSOURCES += " << QFileInfo(sourceFileName).fileName() << '\n';
+        proStr << "\n\nSOURCES += " << Utils::FileName::fromString(sourceFileName).fileName() << '\n';
     }
     profile.setContents(contents);
     return Core::GeneratedFiles() <<  source << profile;

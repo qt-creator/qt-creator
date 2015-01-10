@@ -63,8 +63,8 @@ bool sortNodes(Node *n1, Node *n2)
     FileNode *file2 = dynamic_cast<FileNode*>(n2);
     if (file1 && file1->fileType() == ProjectFileType) {
         if (file2 && file2->fileType() == ProjectFileType) {
-            const QString fileName1 = QFileInfo(file1->path()).fileName();
-            const QString fileName2 = QFileInfo(file2->path()).fileName();
+            const QString fileName1 = Utils::FileName::fromString(file1->path()).fileName();
+            const QString fileName2 = Utils::FileName::fromString(file2->path()).fileName();
 
             int result = caseFriendlyCompare(fileName1, fileName2);
             if (result != 0)
@@ -149,8 +149,8 @@ bool sortNodes(Node *n1, Node *n2)
         const QString filePath1 = n1->path();
         const QString filePath2 = n2->path();
 
-        const QString fileName1 = QFileInfo(filePath1).fileName();
-        const QString fileName2 = QFileInfo(filePath2).fileName();
+        const QString fileName1 = Utils::FileName::fromString(filePath1).fileName();
+        const QString fileName2 = Utils::FileName::fromString(filePath2).fileName();
 
         result = caseFriendlyCompare(fileName1, fileName2);
         if (result != 0) {
@@ -288,7 +288,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
             break;
         }
         case Qt::EditRole: {
-            result = QFileInfo(node->path()).fileName();
+            result = Utils::FileName::fromString(node->path()).fileName();
             break;
         }
         case Qt::ToolTipRole: {

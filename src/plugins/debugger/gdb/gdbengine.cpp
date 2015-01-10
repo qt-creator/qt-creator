@@ -1860,7 +1860,7 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
     }
 
     cleanFilePath.clear();
-    const QString base = QFileInfo(fileName).fileName();
+    const QString base = FileName::fromString(fileName).fileName();
 
     QMap<QString, QString>::const_iterator jt = m_baseNameToFullName.find(base);
     while (jt != m_baseNameToFullName.end() && jt.key() == base) {
@@ -2438,7 +2438,7 @@ QString GdbEngine::breakLocation(const QString &file) const
 {
     QString where = m_fullToShortName.value(file);
     if (where.isEmpty())
-        return QFileInfo(file).fileName();
+        return FileName::fromString(file).fileName();
     return where;
 }
 

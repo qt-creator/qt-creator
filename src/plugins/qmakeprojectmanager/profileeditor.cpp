@@ -190,7 +190,7 @@ QString ProFileDocument::defaultPath() const
 
 QString ProFileDocument::suggestedFileName() const
 {
-    return filePath().toFileInfo().fileName();
+    return filePath().fileName();
 }
 
 //

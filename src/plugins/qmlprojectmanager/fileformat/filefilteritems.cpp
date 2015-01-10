@@ -31,6 +31,7 @@
 #include "filefilteritems.h"
 
 #include <utils/filesystemwatcher.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -179,7 +180,7 @@ bool FileFilterBaseItem::matchesFile(const QString &filePath) const
             return true;
     }
 
-    const QString &fileName = QFileInfo(filePath).fileName();
+    const QString &fileName = Utils::FileName::fromString(filePath).fileName();
 
     if (!fileMatches(fileName))
         return false;

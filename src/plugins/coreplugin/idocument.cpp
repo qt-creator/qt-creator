@@ -32,6 +32,7 @@
 
 #include "infobar.h"
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QFile>
@@ -263,7 +264,7 @@ QString IDocument::displayName() const
 {
     if (!d->displayName.isEmpty())
         return d->displayName;
-    return d->filePath.toFileInfo().fileName();
+    return d->filePath.fileName();
 }
 
 /*!

@@ -1213,7 +1213,7 @@ void CMakeCbpParser::parseUnit()
                     m_cmakeFileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::ProjectFileType, false));
                 } else {
                     bool generated = false;
-                    QString onlyFileName = QFileInfo(fileName).fileName();
+                    QString onlyFileName = Utils::FileName::fromString(fileName).fileName();
                     if (   (onlyFileName.startsWith(QLatin1String("moc_")) && onlyFileName.endsWith(QLatin1String(".cxx")))
                         || (onlyFileName.startsWith(QLatin1String("ui_")) && onlyFileName.endsWith(QLatin1String(".h")))
                         || (onlyFileName.startsWith(QLatin1String("qrc_")) && onlyFileName.endsWith(QLatin1String(".cxx"))))

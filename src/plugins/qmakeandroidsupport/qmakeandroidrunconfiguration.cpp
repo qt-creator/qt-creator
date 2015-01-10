@@ -37,7 +37,10 @@
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakenodes.h>
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+
+#include <QFileInfo>
 
 namespace {
     QLatin1String PRO_FILE_KEY("QMakeProjectManager.QmakeAndroidRunConfiguration.ProFile");
@@ -120,7 +123,7 @@ QString QmakeAndroidRunConfiguration::disabledReason() const
 {
     if (m_parseInProgress)
         return tr("The .pro file \"%1\" is currently being parsed.")
-                .arg(QFileInfo(m_proFilePath).fileName());
+                .arg(Utils::FileName::fromString(m_proFilePath).fileName());
 
     if (!m_parseSuccess)
         return static_cast<QmakeProject *>(target()->project())->disabledReasonForRunConfiguration(m_proFilePath);

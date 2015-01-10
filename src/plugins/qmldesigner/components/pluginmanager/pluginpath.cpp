@@ -31,6 +31,8 @@
 #include "pluginpath.h"
 #include "pluginmanager.h"
 
+#include <utils/fileutils.h>
+
 #include <iplugin.h>
 #include <QLibrary>
 #include <QPluginLoader>
@@ -173,7 +175,7 @@ QStandardItem *PluginPath::createModelItem()
     QStandardItem *failedCategory = 0;
     const auto end = m_plugins.end();
     for (auto it = m_plugins.begin(); it != end; ++it) {
-        QStandardItem *pluginItem = new QStandardItem(QFileInfo(it->path).fileName());
+        QStandardItem *pluginItem = new QStandardItem(Utils::FileName::fromString(it->path).fileName());
         if (instance(*it)) {
             pluginItem->appendRow(new QStandardItem(QString::fromUtf8(it->instanceGuard->metaObject()->className())));
             pathItem->appendRow(pluginItem);

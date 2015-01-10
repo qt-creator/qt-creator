@@ -388,7 +388,7 @@ QVariant BookmarkManager::data(const QModelIndex &index, int role) const
 
     Bookmark *bookMark = m_bookmarksList.at(index.row());
     if (role == BookmarkManager::Filename)
-        return QFileInfo(bookMark->fileName()).fileName();
+        return FileName::fromString(bookMark->fileName()).fileName();
     if (role == BookmarkManager::LineNumber)
         return bookMark->lineNumber();
     if (role == BookmarkManager::Directory)

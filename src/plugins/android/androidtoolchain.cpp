@@ -301,7 +301,7 @@ QList<AndroidToolChainFactory::AndroidToolChainInformation> AndroidToolChainFact
     QDirIterator it(path.appendPath(QLatin1String("toolchains")).toString(),
                     QStringList() << QLatin1String("*"), QDir::Dirs);
     while (it.hasNext()) {
-        const QString &fileName = QFileInfo(it.next()).fileName();
+        const QString &fileName = FileName::fromString(it.next()).fileName();
         int idx = versionRegExp.indexIn(fileName);
         if (idx == -1)
             continue;
@@ -376,7 +376,7 @@ QList<ToolChain *> AndroidToolChainFactory::createToolChainsForNdk(const Utils::
     QMap<Abi::Architecture, AndroidToolChain *> newestToolChainForArch;
 
     while (it.hasNext()) {
-        const QString &fileName = QFileInfo(it.next()).fileName();
+        const QString &fileName = FileName::fromString(it.next()).fileName();
         int idx = versionRegExp.indexIn(fileName);
         if (idx == -1)
             continue;
@@ -417,7 +417,7 @@ QList<int> AndroidToolChainFactory::newestToolChainVersionForArch(Abi::Architect
         QDirIterator it(path.appendPath(QLatin1String("toolchains")).toString(),
                         QStringList() << QLatin1String("*"), QDir::Dirs);
         while (it.hasNext()) {
-            const QString &fileName = QFileInfo(it.next()).fileName();
+            const QString &fileName = FileName::fromString(it.next()).fileName();
             int idx = versionRegExp.indexIn(fileName);
             if (idx == -1)
                 continue;

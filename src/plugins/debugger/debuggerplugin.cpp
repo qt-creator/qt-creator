@@ -634,7 +634,7 @@ public:
                 message = tr("0x%1 hit").arg(data.address, 0, 16);
             } else {
                 //: Message tracepoint: %1 file, %2 line %3 function hit.
-                message = tr("%1:%2 %3() hit").arg(QFileInfo(data.fileName).fileName()).
+                message = tr("%1:%2 %3() hit").arg(FileName::fromString(data.fileName).fileName()).
                         arg(data.lineNumber).
                         arg(cppFunctionAt(data.fileName, data.lineNumber));
             }

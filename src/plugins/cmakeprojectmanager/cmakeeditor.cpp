@@ -257,7 +257,7 @@ QString CMakeDocument::defaultPath() const
 
 QString CMakeDocument::suggestedFileName() const
 {
-    return filePath().toFileInfo().fileName();
+    return filePath().fileName();
 }
 
 //

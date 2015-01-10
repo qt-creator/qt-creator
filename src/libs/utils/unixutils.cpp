@@ -28,8 +28,9 @@
 **
 ****************************************************************************/
 
-
 #include "unixutils.h"
+#include "fileutils.h"
+
 #include <QSettings>
 #include <QFileInfo>
 #include <QCoreApplication>
@@ -81,7 +82,7 @@ QString UnixUtils::substituteFileBrowserParameters(const QString &pre, const QSt
             } else if (c == QLatin1Char('f')) {
                 s = QLatin1Char('"') + file + QLatin1Char('"');
             } else if (c == QLatin1Char('n')) {
-                s = QLatin1Char('"') + QFileInfo(file).fileName() + QLatin1Char('"');
+                s = QLatin1Char('"') + FileName::fromString(file).fileName() + QLatin1Char('"');
             } else if (c == QLatin1Char('%')) {
                 s = c;
             } else {

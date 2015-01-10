@@ -181,7 +181,7 @@ QString StartApplicationParameters::displayName() const
 {
     const int maxLength = 60;
 
-    QString name = QFileInfo(localExecutable).fileName() + QLatin1Char(' ') + processArgs;
+    QString name = FileName::fromString(localExecutable).fileName() + QLatin1Char(' ') + processArgs;
     if (name.size() > 60) {
         int index = name.lastIndexOf(QLatin1Char(' '), maxLength);
         if (index == -1)

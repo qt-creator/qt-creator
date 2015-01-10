@@ -30,6 +30,9 @@
 
 #include "widgetpluginpath.h"
 #include <iwidgetplugin.h>
+
+#include <utils/fileutils.h>
+
 #include <QLibrary>
 #include <QPluginLoader>
 #include <QFileInfo>
@@ -192,7 +195,7 @@ QStandardItem *WidgetPluginPath::createModelItem()
     QStandardItem *failedCategory = 0;
     const auto end = m_plugins.end();
     for (auto it = m_plugins.begin(); it != end; ++it) {
-        QStandardItem *pluginItem = new QStandardItem(QFileInfo(it->path).fileName());
+        QStandardItem *pluginItem = new QStandardItem(Utils::FileName::fromString(it->path).fileName());
         if (instance(*it)) {
             pluginItem->appendRow(new QStandardItem(QString::fromUtf8(it->instanceGuard->metaObject()->className())));
             pathItem->appendRow(pluginItem);

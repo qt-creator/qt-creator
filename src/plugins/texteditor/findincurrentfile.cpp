@@ -32,6 +32,7 @@
 #include "texteditor.h"
 
 #include <utils/filesearch.h>
+#include <utils/fileutils.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -78,7 +79,7 @@ QVariant FindInCurrentFile::additionalParameters() const
 
 QString FindInCurrentFile::label() const
 {
-    return tr("File \"%1\":").arg(m_currentDocument->filePath().toFileInfo().fileName());
+    return tr("File \"%1\":").arg(m_currentDocument->filePath().fileName());
 }
 
 QString FindInCurrentFile::toolTip() const

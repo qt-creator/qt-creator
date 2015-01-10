@@ -45,7 +45,6 @@
 #include <utils/hostosinfo.h>
 
 #include <QDebug>
-#include <QFileInfo>
 #include <QtTest>
 
 using namespace CppTools;
@@ -653,7 +652,7 @@ void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
     QHashIterator<Utils::FileName, QPair<QByteArray, unsigned> > it = workingCopy.iterator();
     while (it.hasNext()) {
         it.next();
-        fileNamesInWorkinCopy << QFileInfo(it.key().toString()).fileName();
+        fileNamesInWorkinCopy << Utils::FileName::fromString(it.key().toString()).fileName();
     }
     fileNamesInWorkinCopy.sort();
     const QString expectedUiHeaderFileName = _("ui_mainwindow.h");
@@ -671,8 +670,8 @@ void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
     QVERIFY(document);
     const QStringList includedFiles = document->includedFiles();
     QCOMPARE(includedFiles.size(), 2);
-    QCOMPARE(QFileInfo(includedFiles.at(0)).fileName(), _("mainwindow.h"));
-    QCOMPARE(QFileInfo(includedFiles.at(1)).fileName(), _("ui_mainwindow.h"));
+    QCOMPARE(Utils::FileName::fromString(includedFiles.at(0)).fileName(), _("mainwindow.h"));
+    QCOMPARE(Utils::FileName::fromString(includedFiles.at(1)).fileName(), _("ui_mainwindow.h"));
 }
 
 /// QTCREATORBUG-9828: Locator shows symbols of closed files

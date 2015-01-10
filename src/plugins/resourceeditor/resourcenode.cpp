@@ -256,7 +256,7 @@ bool ResourceTopLevelNode::removePrefix(const QString &prefix, const QString &la
 ProjectExplorer::FolderNode::AddNewInformation ResourceTopLevelNode::addNewInformation(const QStringList &files, Node *context) const
 {
     QString name = QCoreApplication::translate("ResourceTopLevelNode", "%1 Prefix: %2")
-            .arg(QFileInfo(path()).fileName())
+            .arg(Utils::FileName::fromString(path()).fileName())
             .arg(QLatin1Char('/'));
 
     int p = -1;
@@ -390,7 +390,7 @@ bool ResourceFolderNode::renamePrefix(const QString &prefix, const QString &lang
 ProjectExplorer::FolderNode::AddNewInformation ResourceFolderNode::addNewInformation(const QStringList &files, Node *context) const
 {
     QString name = QCoreApplication::translate("ResourceTopLevelNode", "%1 Prefix: %2")
-            .arg(QFileInfo(m_topLevelNode->path()).fileName())
+            .arg(Utils::FileName::fromString(m_topLevelNode->path()).fileName())
             .arg(displayName());
 
     int p = -1; // never the default

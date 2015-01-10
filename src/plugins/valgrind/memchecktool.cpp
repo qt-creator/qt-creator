@@ -462,12 +462,12 @@ void MemcheckTool::engineStarting(const AnalyzerRunControl *engine)
 
     const MemcheckRunControl *mEngine = dynamic_cast<const MemcheckRunControl *>(engine);
     QTC_ASSERT(mEngine, return);
-    const QString name = QFileInfo(mEngine->executable()).fileName();
+    const QString name = Utils::FileName::fromString(mEngine->executable()).fileName();
 
     m_errorView->setDefaultSuppressionFile(dir + name + QLatin1String(".supp"));
 
     foreach (const QString &file, mEngine->suppressionFiles()) {
-        QAction *action = m_filterMenu->addAction(QFileInfo(file).fileName());
+        QAction *action = m_filterMenu->addAction(Utils::FileName::fromString(file).fileName());
         action->setToolTip(file);
         action->setData(file);
         connect(action, SIGNAL(triggered(bool)),

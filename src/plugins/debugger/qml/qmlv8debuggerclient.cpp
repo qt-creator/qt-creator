@@ -471,7 +471,7 @@ void QmlV8DebuggerClientPrivate::setBreakpoint(const QString type, const QString
         args.setProperty(_(TYPE), QScriptValue(type));
         if (type == _(SCRIPTREGEXP))
             args.setProperty(_(TARGET),
-                             QScriptValue(QFileInfo(target).fileName()));
+                             QScriptValue(Utils::FileName::fromString(target).fileName()));
         else
             args.setProperty(_(TARGET), QScriptValue(target));
 

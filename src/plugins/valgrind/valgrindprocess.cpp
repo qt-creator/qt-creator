@@ -31,12 +31,12 @@
 
 #include "valgrindprocess.h"
 
-#include <QDebug>
-#include <QEventLoop>
-#include <QFileInfo>
-
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+
+#include <QDebug>
+#include <QEventLoop>
 
 namespace Valgrind {
 
@@ -282,7 +282,7 @@ void ValgrindProcess::remoteProcessStarted()
                                             " | tail -n 1" // limit to single process
                                             // we pick the last one, first would be "bash -c ..."
                                             " | awk '{print $1;}'" // get pid
-                                            ).arg(proc, QFileInfo(m_remote.m_debuggee).fileName());
+                                            ).arg(proc, Utils::FileName::fromString(m_remote.m_debuggee).fileName());
 
     m_remote.m_findPID = m_remote.m_connection->createRemoteProcess(cmd.toUtf8());
     connect(m_remote.m_findPID.data(), SIGNAL(readyReadStandardError()),

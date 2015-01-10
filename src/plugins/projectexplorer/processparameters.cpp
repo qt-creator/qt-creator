@@ -30,10 +30,10 @@
 
 #include "processparameters.h"
 
+#include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcprocess.h>
 
-#include <QFileInfo>
 #include <QDir>
 
 /*!
@@ -163,7 +163,7 @@ QString ProcessParameters::prettyCommand() const
     QString cmd = m_command;
     if (m_macroExpander)
         cmd = m_macroExpander->expand(cmd);
-    return QFileInfo(cmd).fileName();
+    return Utils::FileName::fromString(cmd).fileName();
 }
 
 QString ProcessParameters::prettyArguments() const

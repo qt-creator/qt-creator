@@ -44,6 +44,8 @@
 #include <texteditor/displaysettings.h>
 #include <texteditor/marginsettings.h>
 
+#include <utils/fileutils.h>
+
 #include <QStackedWidget>
 #include <QToolButton>
 #include <QSpinBox>
@@ -52,7 +54,6 @@
 #include <QHBoxLayout>
 #include <QToolBar>
 #include <QComboBox>
-#include <QFileInfo>
 #include <QDir>
 #include <QTextCodec>
 #include <QTextBlock>
@@ -421,8 +422,8 @@ void DiffEditor::slotDiffFilesChanged(const QList<FileData> &diffFileList,
     for (int i = 0; i < count; i++) {
         const DiffFileInfo leftEntry = diffFileList.at(i).leftFileInfo;
         const DiffFileInfo rightEntry = diffFileList.at(i).rightFileInfo;
-        const QString leftShortFileName = QFileInfo(leftEntry.fileName).fileName();
-        const QString rightShortFileName = QFileInfo(rightEntry.fileName).fileName();
+        const QString leftShortFileName = Utils::FileName::fromString(leftEntry.fileName).fileName();
+        const QString rightShortFileName = Utils::FileName::fromString(rightEntry.fileName).fileName();
         QString itemText;
         QString itemToolTip;
         if (leftEntry.fileName == rightEntry.fileName) {

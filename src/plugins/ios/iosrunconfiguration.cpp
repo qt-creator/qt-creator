@@ -46,6 +46,8 @@
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/fileutils.h>
+
 #include <QList>
 #include <QStandardItemModel>
 
@@ -301,7 +303,7 @@ QString IosRunConfiguration::disabledReason() const
 {
     if (m_parseInProgress)
         return tr("The .pro file \"%1\" is currently being parsed.")
-                .arg(QFileInfo(m_profilePath).fileName());
+                .arg(FileName::fromString(m_profilePath).fileName());
     if (!m_parseSuccess)
         return static_cast<QmakeProject *>(target()->project())
                 ->disabledReasonForRunConfiguration(m_profilePath);

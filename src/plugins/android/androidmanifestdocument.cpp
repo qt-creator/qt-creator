@@ -61,7 +61,7 @@ QString AndroidManifestDocument::defaultPath() const
 
 QString AndroidManifestDocument::suggestedFileName() const
 {
-    return filePath().toFileInfo().fileName();
+    return filePath().fileName();
 }
 
 bool AndroidManifestDocument::isModified() const

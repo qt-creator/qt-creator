@@ -35,7 +35,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/qtsupportconstants.h>
 
-#include <QFileInfo>
+#include <utils/fileutils.h>
+
 #include <QTextStream>
 #include <QCoreApplication>
 
@@ -96,12 +97,12 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
     source.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
 
     const QString headerFileFullName = buildFileName(projectPath, params.headerFileName, headerSuffix());
-    const QString headerFileName = QFileInfo(headerFileFullName).fileName();
+    const QString headerFileName = Utils::FileName::fromString(headerFileFullName).fileName();
     QString pluginJsonFileFullName;
     QString pluginJsonFileName;
     if (projectParams.type == QtProjectParameters::Qt4Plugin) {
         pluginJsonFileFullName = buildFileName(projectPath, projectParams.fileName, QLatin1String("json"));
-        pluginJsonFileName = QFileInfo(pluginJsonFileFullName).fileName();
+        pluginJsonFileName = Utils::FileName::fromString(pluginJsonFileFullName).fileName();
     }
 
     Core::GeneratedFile header(headerFileFullName);
@@ -111,7 +112,7 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
     if (projectParams.type == QtProjectParameters::SharedLibrary) {
         const QString globalHeaderName = buildFileName(projectPath, projectParams.fileName.toLower() + QLatin1String(sharedHeaderPostfixC), headerSuffix());
         Core::GeneratedFile globalHeader(globalHeaderName);
-        globalHeaderFileName = QFileInfo(globalHeader.path()).fileName();
+        globalHeaderFileName = Utils::FileName::fromString(globalHeader.path()).fileName();
         globalHeader.setContents(CppTools::AbstractEditorSupport::licenseTemplate(globalHeaderFileName)
                                  + LibraryParameters::generateSharedHeader(globalHeaderFileName, projectParams.fileName, sharedLibExportMacro));
         rc.push_back(globalHeader);
@@ -138,7 +139,7 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
         QTextStream proStr(&profileContents);
         QtProjectParameters::writeProFileHeader(proStr);
         projectParams.writeProFile(proStr);
-        proStr << "\nSOURCES += " << QFileInfo(source.path()).fileName()
+        proStr << "\nSOURCES += " << Utils::FileName::fromString(source.path()).fileName()
                << "\n\nHEADERS += " << headerFileName;
         if (!globalHeaderFileName.isEmpty())
             proStr << "\\\n        " << globalHeaderFileName << '\n';

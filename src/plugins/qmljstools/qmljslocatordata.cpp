@@ -35,7 +35,6 @@
 //#include <qmljs/qmljsinterpreter.h>
 #include <qmljs/parser/qmljsast_p.h>
 
-#include <QFileInfo>
 #include <QMutexLocker>
 
 using namespace QmlJSTools::Internal;
@@ -75,7 +74,7 @@ public:
         if (!doc->componentName().isEmpty())
             m_documentContext = doc->componentName();
         else
-            m_documentContext = QFileInfo(doc->fileName()).fileName();
+            m_documentContext = Utils::FileName::fromString(doc->fileName()).fileName();
         accept(doc->ast(), m_documentContext);
         return m_entries;
     }

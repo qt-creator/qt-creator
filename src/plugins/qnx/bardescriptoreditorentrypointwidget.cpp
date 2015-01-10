@@ -111,11 +111,11 @@ void BarDescriptorEditorEntryPointWidget::updateWidgetValue(BarDescriptorDocumen
 void BarDescriptorEditorEntryPointWidget::emitChanged(BarDescriptorDocument::Tag tag)
 {
     if (tag == BarDescriptorDocument::icon) {
-        emit changed(tag, QFileInfo(m_ui->iconFilePath->path()).fileName());
+        emit changed(tag, Utils::FileName::fromString(m_ui->iconFilePath->path()).fileName());
     } else if (tag == BarDescriptorDocument::splashScreens) {
         QStringList list;
         foreach (const QString &splashScreen, m_splashScreenModel->stringList())
-            list << QFileInfo(splashScreen).fileName();
+            list << Utils::FileName::fromString(splashScreen).fileName();
 
         emit changed(tag, list);
     } else {

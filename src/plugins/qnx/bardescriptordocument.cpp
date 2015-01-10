@@ -99,7 +99,7 @@ QString BarDescriptorDocument::defaultPath() const
 
 QString BarDescriptorDocument::suggestedFileName() const
 {
-    return filePath().toFileInfo().fileName();
+    return filePath().fileName();
 }
 
 bool BarDescriptorDocument::shouldAutoSave() const

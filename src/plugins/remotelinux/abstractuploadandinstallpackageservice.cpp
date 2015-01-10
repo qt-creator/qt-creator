@@ -36,7 +36,6 @@
 #include <projectexplorer/deployablefile.h>
 #include <utils/qtcassert.h>
 
-#include <QFileInfo>
 #include <QString>
 
 using namespace ProjectExplorer;
@@ -115,7 +114,7 @@ void AbstractUploadAndInstallPackageService::doDeploy()
     QTC_ASSERT(d->state == Inactive, return);
 
     d->state = Uploading;
-    const QString fileName = QFileInfo(packageFilePath()).fileName();
+    const QString fileName = Utils::FileName::fromString(packageFilePath()).fileName();
     const QString remoteFilePath = uploadDir() + QLatin1Char('/') + fileName;
     connect(d->uploader, SIGNAL(progress(QString)), SIGNAL(progressMessage(QString)));
     connect(d->uploader, SIGNAL(uploadFinished(QString)), SLOT(handleUploadFinished(QString)));
@@ -151,7 +150,7 @@ void AbstractUploadAndInstallPackageService::handleUploadFinished(const QString 
 
     emit progressMessage(tr("Successfully uploaded package file."));
     const QString remoteFilePath = uploadDir() + QLatin1Char('/')
-        + QFileInfo(packageFilePath()).fileName();
+        + Utils::FileName::fromString(packageFilePath()).fileName();
     d->state = Installing;
     emit progressMessage(tr("Installing package to device..."));
     connect(packageInstaller(), SIGNAL(stdoutData(QString)), SIGNAL(stdOutData(QString)));

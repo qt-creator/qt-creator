@@ -507,7 +507,7 @@ QString VcsBaseClient::vcsEditorTitle(const QString &vcsCmd, const QString &sour
     const Utils::FileName binary = settings()->binaryPath();
     return binary.toFileInfo().baseName() +
             QLatin1Char(' ') + vcsCmd + QLatin1Char(' ') +
-            QFileInfo(sourceId).fileName();
+            Utils::FileName::fromString(sourceId).fileName();
 }
 
 VcsBaseEditorWidget *VcsBaseClient::createVcsEditor(Core::Id kind, QString title,

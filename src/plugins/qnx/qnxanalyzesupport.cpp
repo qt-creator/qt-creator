@@ -43,8 +43,6 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <QFileInfo>
-
 using namespace ProjectExplorer;
 
 using namespace Qnx;
@@ -72,7 +70,7 @@ QnxAnalyzeSupport::QnxAnalyzeSupport(QnxRunConfiguration *runConfig,
     ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(runConfig->target()->kit());
     QnxDeviceConfiguration::ConstPtr qnxDevice = dev.dynamicCast<const QnxDeviceConfiguration>();
 
-    const QString applicationId = QFileInfo(runConfig->remoteExecutableFilePath()).fileName();
+    const QString applicationId = Utils::FileName::fromString(runConfig->remoteExecutableFilePath()).fileName();
     m_slog2Info = new Slog2InfoRunner(applicationId, qnxDevice, this);
     connect(m_slog2Info, SIGNAL(output(QString,Utils::OutputFormat)), this, SLOT(showMessage(QString,Utils::OutputFormat)));
     connect(runner, SIGNAL(remoteProcessStarted()), m_slog2Info, SLOT(start()));

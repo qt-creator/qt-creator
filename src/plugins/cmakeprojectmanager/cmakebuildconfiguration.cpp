@@ -63,7 +63,7 @@ static QString shadowBuildDirectory(const QString &projectFilePath, const Kit *k
         return QString();
     QFileInfo info(projectFilePath);
 
-    const QString projectName = QFileInfo(info.absolutePath()).fileName();
+    const QString projectName = FileName::fromString(info.absolutePath()).fileName();
     ProjectMacroExpander expander(projectName, k, bcName);
     QDir projectDir = QDir(Project::projectDirectory(FileName::fromString(projectFilePath)).toString());
     QString buildPath = expander.expand(Core::DocumentManager::buildDirectory());

@@ -32,12 +32,16 @@
 #include "icodestylepreferencesfactory.h"
 #include "icodestylepreferences.h"
 #include "tabsettings.h"
-#include <utils/persistentsettings.h>
+
 #include <coreplugin/icore.h>
+
+#include <utils/fileutils.h>
+#include <utils/persistentsettings.h>
 
 #include <QMap>
 #include <QDir>
 #include <QDebug>
+#include <QFileInfo>
 
 using namespace TextEditor;
 
@@ -202,7 +206,7 @@ void CodeStylePool::removeCodeStyle(ICodeStylePreferences *codeStyle)
     d->m_idToCodeStyle.remove(codeStyle->id());
 
     QDir dir(settingsDir());
-    dir.remove(settingsPath(codeStyle->id()).toFileInfo().fileName());
+    dir.remove(settingsPath(codeStyle->id()).fileName());
 
     delete codeStyle;
 }

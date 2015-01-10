@@ -129,7 +129,7 @@ QString QMakeStep::allArguments(bool shorted)
     if (bc->subNodeBuild())
         arguments << QDir::toNativeSeparators(bc->subNodeBuild()->path());
     else if (shorted)
-        arguments << project()->projectFilePath().toFileInfo().fileName();
+        arguments << project()->projectFilePath().fileName();
     else
         arguments << project()->projectFilePath().toUserOutput();
 
@@ -645,7 +645,7 @@ void QMakeStepConfigWidget::updateSummaryLabel()
     // We don't want the full path to the .pro file
     QString args = m_step->allArguments(true);
     // And we only use the .pro filename not the full path
-    QString program = qtVersion->qmakeCommand().toFileInfo().fileName();
+    QString program = qtVersion->qmakeCommand().fileName();
     setSummaryText(tr("<b>qmake:</b> %1 %2").arg(program, args));
 }
 
@@ -682,7 +682,7 @@ void QMakeStepConfigWidget::updateEffectiveQMakeCall()
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(m_step->target()->kit());
     QString program = tr("<No Qt version>");
     if (qtVersion)
-        program = qtVersion->qmakeCommand().toFileInfo().fileName();
+        program = qtVersion->qmakeCommand().fileName();
     m_ui->qmakeArgumentsEdit->setPlainText(program + QLatin1Char(' ') + m_step->allArguments());
 }
 

@@ -41,7 +41,9 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtsupportconstants.h>
+
 #include <utils/detailswidget.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/persistentsettings.h>
@@ -121,7 +123,7 @@ QString DesktopQmakeRunConfiguration::disabledReason() const
 {
     if (m_parseInProgress)
         return tr("The .pro file \"%1\" is currently being parsed.")
-                .arg(QFileInfo(m_proFilePath).fileName());
+                .arg(FileName::fromString(m_proFilePath).fileName());
 
     if (!m_parseSuccess)
         return static_cast<QmakeProject *>(target()->project())->disabledReasonForRunConfiguration(m_proFilePath);

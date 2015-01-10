@@ -37,6 +37,7 @@
 #include <debugger/shared/hostutils.h>
 #include <debugger/threaddata.h>
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -87,7 +88,7 @@ static inline QString cdbBreakPointFileName(const BreakpointParameters &bp,
     if (bp.fileName.isEmpty())
         return bp.fileName;
     if (bp.pathUsage == BreakpointUseShortPath)
-        return QFileInfo(bp.fileName).fileName();
+        return Utils::FileName::fromString(bp.fileName).fileName();
     return cdbSourcePathMapping(QDir::toNativeSeparators(bp.fileName), sourcePathMapping, SourceToDebugger);
 }
 

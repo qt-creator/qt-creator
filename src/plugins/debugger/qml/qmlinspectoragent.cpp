@@ -37,11 +37,11 @@
 #include <debugger/watchhandler.h>
 
 #include <qmldebug/qmldebugconstants.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
 #include <QElapsedTimer>
-#include <QFileInfo>
 #include <QLoggingCategory>
 
 using namespace QmlDebug;
@@ -583,7 +583,7 @@ void QmlInspectorAgent::fetchContextObjectsForLocation(const QString &file,
 
     log(LogSend, QString::fromLatin1("FETCH_OBJECTS_FOR_LOCATION %1:%2:%3").arg(file)
         .arg(QString::number(lineNumber)).arg(QString::number(columnNumber)));
-    quint32 queryId = m_engineClient->queryObjectsForLocation(QFileInfo(file).fileName(),
+    quint32 queryId = m_engineClient->queryObjectsForLocation(Utils::FileName::fromString(file).fileName(),
                                                              lineNumber, columnNumber);
     qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << file << ':' << lineNumber
                              << ':' << columnNumber << ')' << " - query id" << queryId;

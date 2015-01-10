@@ -35,6 +35,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/qtsupportconstants.h>
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
@@ -175,7 +176,7 @@ Core::GeneratedFiles TestWizard::generateFiles(const QWizard *w, QString *errorM
         QTextStream proStr(&contents);
         QtProjectParameters::writeProFileHeader(proStr);
         projectParams.writeProFile(proStr);
-        proStr << "\n\nSOURCES += " << QFileInfo(sourceFilePath).fileName() << '\n'
+        proStr << "\n\nSOURCES += " << Utils::FileName::fromString(sourceFilePath).fileName() << '\n'
                << "DEFINES += SRCDIR=\\\\\\\"$$PWD/\\\\\\\"\n";
     }
     profile.setContents(contents);

@@ -34,6 +34,7 @@
 #include "ui_fontsettingspage.h"
 
 #include <coreplugin/icore.h>
+#include <utils/fileutils.h>
 #include <utils/stringutils.h>
 #include <utils/qtcassert.h>
 
@@ -562,7 +563,7 @@ void FontSettingsPage::refreshColorSchemeList()
     int selected = 0;
 
     QStringList schemeList = styleDir.entryList();
-    QString defaultScheme = QFileInfo(FontSettings::defaultSchemeFileName()).fileName();
+    QString defaultScheme = Utils::FileName::fromString(FontSettings::defaultSchemeFileName()).fileName();
     if (schemeList.removeAll(defaultScheme))
         schemeList.prepend(defaultScheme);
     foreach (const QString &file, schemeList) {

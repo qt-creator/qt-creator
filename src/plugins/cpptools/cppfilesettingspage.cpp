@@ -40,11 +40,11 @@
 #include <cppeditor/cppeditorconstants.h>
 
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 
 #include <QSettings>
 #include <QDebug>
 #include <QFile>
-#include <QFileInfo>
 #include <QCoreApplication>
 #include <QDate>
 #include <QLocale>
@@ -157,7 +157,7 @@ static bool keyWordReplacement(const QString &keyWord,
         return true;
     }
     if (keyWord == QLatin1String("%FILENAME%")) {
-        *value = QFileInfo(file).fileName();
+        *value = Utils::FileName::fromString(file).fileName();
         return true;
     }
     if (keyWord == QLatin1String("%DATE%")) {

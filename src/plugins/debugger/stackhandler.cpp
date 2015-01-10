@@ -34,11 +34,11 @@
 #include "debuggercore.h"
 #include "simplifytype.h"
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
 #include <QDebug>
-#include <QFileInfo>
 
 namespace Debugger {
 namespace Internal {
@@ -111,7 +111,7 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
         case StackFunctionNameColumn:
             return simplifyType(frame.function);
         case StackFileNameColumn:
-            return frame.file.isEmpty() ? frame.from : QFileInfo(frame.file).fileName();
+            return frame.file.isEmpty() ? frame.from : Utils::FileName::fromString(frame.file).fileName();
         case StackLineNumberColumn:
             return frame.line > 0 ? QVariant(frame.line) : QVariant();
         case StackAddressColumn:

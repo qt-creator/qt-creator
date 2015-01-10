@@ -1612,7 +1612,7 @@ void EditorManagerPrivate::copyFileNameFromContextMenu()
 {
     if (!d->m_contextMenuEntry)
         return;
-    QApplication::clipboard()->setText(QFileInfo(d->m_contextMenuEntry->fileName()).fileName());
+    QApplication::clipboard()->setText(FileName::fromString(d->m_contextMenuEntry->fileName()).fileName());
 }
 
 void EditorManagerPrivate::saveDocumentFromContextMenu()

@@ -536,7 +536,7 @@ QString GerritPlugin::findLocalRepository(QString project, const QString &branch
             branchRegexp.reset(); // Oops.
     }
     foreach (const QString &repository, gitRepositories) {
-        const QString fileName = QFileInfo(repository).fileName();
+        const QString fileName = Utils::FileName::fromString(repository).fileName();
         if ((!branchRegexp.isNull() && branchRegexp->exactMatch(fileName))
             || fileName == project) {
             // Perform a check on the branch.

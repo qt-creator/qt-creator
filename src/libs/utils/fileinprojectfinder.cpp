@@ -29,7 +29,8 @@
 ****************************************************************************/
 
 #include "fileinprojectfinder.h"
-#include <utils/qtcassert.h>
+#include "fileutils.h"
+#include "qtcassert.h"
 
 #include <QDebug>
 #include <QFileInfo>
@@ -215,9 +216,9 @@ QString FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
     if (debug)
         qDebug() << "FileInProjectFinder: checking project files ...";
 
-    const QString fileName = QFileInfo(originalPath).fileName();
+    const QString fileName = FileName::fromString(originalPath).fileName();
     foreach (const QString &f, m_projectFiles) {
-        if (QFileInfo(f).fileName() == fileName) {
+        if (FileName::fromString(f).fileName() == fileName) {
             m_cache.insert(originalPath, f);
             if (success)
                 *success = true;

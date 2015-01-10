@@ -44,7 +44,6 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QTextStream>
-#include <QFileInfo>
 #include <QSharedPointer>
 
 static const char mainSourceFileC[] = "main";
@@ -195,11 +194,11 @@ Core::GeneratedFiles GuiAppWizard::generateFiles(const QWizard *w,
         QTextStream proStr(&contents);
         QtProjectParameters::writeProFileHeader(proStr);
         projectParams.writeProFile(proStr);
-        proStr << "\n\nSOURCES += " << QFileInfo(mainSourceFileName).fileName()
-               << "\\\n        " << QFileInfo(formSource.path()).fileName()
-               << "\n\nHEADERS  += " << QFileInfo(formHeader.path()).fileName();
+        proStr << "\n\nSOURCES += " << Utils::FileName::fromString(mainSourceFileName).fileName()
+               << "\\\n        " << Utils::FileName::fromString(formSource.path()).fileName()
+               << "\n\nHEADERS  += " << Utils::FileName::fromString(formHeader.path()).fileName();
         if (params.designerForm)
-            proStr << "\n\nFORMS    += " << QFileInfo(form->path()).fileName();
+            proStr << "\n\nFORMS    += " << Utils::FileName::fromString(form->path()).fileName();
         if (params.isMobileApplication) {
             proStr << "\n\nCONFIG += mobility"
                    << "\nMOBILITY = "

@@ -30,7 +30,8 @@
 
 #include "argumentscollector.h"
 
-#include <QFileInfo>
+#include <utils/fileutils.h>
+
 #include <QCoreApplication>
 
 static QString pasteRequestString() { return QLatin1String("paste"); }
@@ -72,7 +73,7 @@ bool ArgumentsCollector::collect(const QStringList &args)
 QString ArgumentsCollector::usageString() const
 {
     QString usage = QString::fromLatin1("Usage:\n\t%1 <request> [ <request options>]\n\t")
-            .arg(QFileInfo(QCoreApplication::applicationFilePath()).fileName());
+            .arg(Utils::FileName::fromString(QCoreApplication::applicationFilePath()).fileName());
     usage += QString::fromLatin1("Possible requests: \"%1\", \"%2\", \"%3\"\n\t")
             .arg(pasteRequestString(), listProtocolsRequestString(), helpRequestString());
     usage += QString::fromLatin1("Possible options for request \"%1\": \"%2 <file>\" (default: stdin), "

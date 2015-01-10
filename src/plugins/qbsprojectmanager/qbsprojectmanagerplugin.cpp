@@ -58,6 +58,8 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtsupportconstants.h>
+
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QAction>
@@ -286,7 +288,7 @@ void QbsProjectManagerPlugin::updateBuildActions()
                 && !BuildManager::isBuilding(m_editorProject)
                 && !m_editorProject->isParsing();
 
-        fileName = QFileInfo(m_editorNode->path()).fileName();
+        fileName = Utils::FileName::fromString(m_editorNode->path()).fileName();
         fileVisible = m_editorProject && m_editorNode && dynamic_cast<QbsBaseProjectNode *>(m_editorNode->projectNode());
 
         QbsProductNode *productNode

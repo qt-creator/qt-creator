@@ -40,6 +40,7 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -168,7 +169,7 @@ int Node::line() const
 
 QString Node::displayName() const
 {
-    return QFileInfo(path()).fileName();
+    return Utils::FileName::fromString(path()).fileName();
 }
 
 QString Node::tooltip() const
@@ -348,7 +349,7 @@ bool FolderNode::renameFile(const QString &filePath, const QString &newFilePath)
 FolderNode::AddNewInformation FolderNode::addNewInformation(const QStringList &files, Node *context) const
 {
     Q_UNUSED(files);
-    return AddNewInformation(QFileInfo(path()).fileName(), context == this ? 120 : 100);
+    return AddNewInformation(Utils::FileName::fromString(path()).fileName(), context == this ? 120 : 100);
 }
 
 /*!
@@ -549,7 +550,7 @@ ProjectNode::ProjectNode(const QString &projectFilePath)
     setNodeType(ProjectNodeType);
     // project node "manages" itself
     setProjectNode(this);
-    setDisplayName(QFileInfo(projectFilePath).fileName());
+    setDisplayName(Utils::FileName::fromString(projectFilePath).fileName());
 }
 
 QString ProjectNode::vcsTopic() const

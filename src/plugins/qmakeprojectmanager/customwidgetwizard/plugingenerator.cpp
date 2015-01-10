@@ -132,7 +132,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
         QString iconResource;
         if (!wo.iconFile.isEmpty()) {
             iconResource = QLatin1String("QLatin1String(\":/");
-            iconResource += QFileInfo(wo.iconFile).fileName();
+            iconResource += Utils::FileName::fromString(wo.iconFile).fileName();
             iconResource += QLatin1String("\")");
         }
         sm.insert(QLatin1String("WIDGET_ICON"),iconResource);

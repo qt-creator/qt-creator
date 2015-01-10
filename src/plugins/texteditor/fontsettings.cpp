@@ -31,13 +31,13 @@
 #include "fontsettings.h"
 #include "fontsettingspage.h"
 
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <coreplugin/icore.h>
 
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFile>
-#include <QFileInfo>
 #include <QFont>
 #include <QSettings>
 #include <QTextCharFormat>
@@ -117,7 +117,7 @@ bool FontSettings::fromSettings(const QString &category,
         // Load the selected color scheme
         QString scheme = s->value(group + QLatin1String(schemeFileNameKey)).toString();
         if (scheme.isEmpty() || !QFile::exists(scheme))
-            scheme = defaultSchemeFileName(QFileInfo(scheme).fileName());
+            scheme = defaultSchemeFileName(Utils::FileName::fromString(scheme).fileName());
         loadColorScheme(scheme, descriptions);
     } else {
         // Load color scheme from ini file

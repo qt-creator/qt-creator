@@ -30,7 +30,8 @@
 
 #include "deployablefile.h"
 
-#include <QFileInfo>
+#include <utils/fileutils.h>
+
 #include <QHash>
 
 using namespace Utils;
@@ -55,7 +56,7 @@ DeployableFile::DeployableFile(const FileName &localFilePath, const QString &rem
 QString DeployableFile::remoteFilePath() const
 {
     return m_remoteDir.isEmpty()
-            ? QString() : m_remoteDir + QLatin1Char('/') + m_localFilePath.toFileInfo().fileName();
+            ? QString() : m_remoteDir + QLatin1Char('/') + m_localFilePath.fileName();
 }
 
 bool DeployableFile::isValid() const

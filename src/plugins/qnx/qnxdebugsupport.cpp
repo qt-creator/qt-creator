@@ -46,8 +46,6 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <QFileInfo>
-
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
 
@@ -73,7 +71,7 @@ QnxDebugSupport::QnxDebugSupport(QnxRunConfiguration *runConfig, Debugger::Debug
     connect(m_runControl, &Debugger::DebuggerRunControl::requestRemoteSetup,
             this, &QnxDebugSupport::handleAdapterSetupRequested);
 
-    const QString applicationId = QFileInfo(runConfig->remoteExecutableFilePath()).fileName();
+    const QString applicationId = Utils::FileName::fromString(runConfig->remoteExecutableFilePath()).fileName();
     ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(runConfig->target()->kit());
     QnxDeviceConfiguration::ConstPtr qnxDevice = dev.dynamicCast<const QnxDeviceConfiguration>();
 

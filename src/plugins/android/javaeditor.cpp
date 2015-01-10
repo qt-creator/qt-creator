@@ -76,7 +76,7 @@ QString JavaDocument::defaultPath() const
 
 QString JavaDocument::suggestedFileName() const
 {
-    return filePath().toFileInfo().fileName();
+    return filePath().fileName();
 }
 
 
