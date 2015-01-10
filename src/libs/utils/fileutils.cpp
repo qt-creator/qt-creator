@@ -560,6 +560,30 @@ QString FileName::toUserOutput() const
     return QDir::toNativeSeparators(toString());
 }
 
+QString FileName::fileName(int pathComponents) const
+{
+    if (pathComponents < 0)
+        return *this;
+    const QChar slash = QLatin1Char('/');
+    QTC_CHECK(!endsWith(slash));
+    int i = lastIndexOf(slash);
+    if (pathComponents == 0 || i == -1)
+        return mid(i + 1);
+    int component = i + 1;
+    // skip adjacent slashes
+    while (i > 0 && at(--i) == slash);
+    while (i >= 0 && --pathComponents >= 0) {
+        i = lastIndexOf(slash, i);
+        component = i + 1;
+        while (i > 0 && at(--i) == slash);
+    }
+
+    // If there are no more slashes before the found one, return the entire string
+    if (i > 0 && lastIndexOf(slash, i) != -1)
+        return mid(component);
+    return *this;
+}
+
 /// \returns a bool indicating whether a file with this
 /// FileName exists.
 bool FileName::exists() const

@@ -47,6 +47,8 @@ private slots:
     void parentDir();
     void isChildOf_data();
     void isChildOf();
+    void fileName_data();
+    void fileName();
 };
 
 void tst_fileutils::parentDir_data()
@@ -130,6 +132,46 @@ void tst_fileutils::isChildOf()
 
     bool res = FileName::fromString(childPath).isChildOf(FileName::fromString(path));
     QCOMPARE(res, result);
+}
+
+void tst_fileutils::fileName_data()
+{
+    QTest::addColumn<QString>("path");
+    QTest::addColumn<int>("components");
+    QTest::addColumn<QString>("result");
+
+    QTest::newRow("empty 1") << "" << 0 << "";
+    QTest::newRow("empty 2") << "" << 1 << "";
+    QTest::newRow("basic") << "/foo/bar/baz" << 0 << "baz";
+    QTest::newRow("2 parts") << "/foo/bar/baz" << 1 << "bar/baz";
+    QTest::newRow("root no depth") << "/foo" << 0 << "foo";
+    QTest::newRow("root full") << "/foo" << 1 << "/foo";
+    QTest::newRow("root included") << "/foo/bar/baz" << 2 << "/foo/bar/baz";
+    QTest::newRow("too many parts") << "/foo/bar/baz" << 5 << "/foo/bar/baz";
+    QTest::newRow("windows root") << "C:/foo/bar/baz" << 2 << "C:/foo/bar/baz";
+    QTest::newRow("smb share") << "//server/share/file" << 2 << "//server/share/file";
+    QTest::newRow("no slashes") << "foobar" << 0 << "foobar";
+    QTest::newRow("no slashes with depth") << "foobar" << 1 << "foobar";
+    QTest::newRow("multiple slashes 1") << "/foo/bar////baz" << 0 << "baz";
+    QTest::newRow("multiple slashes 2") << "/foo/bar////baz" << 1 << "bar////baz";
+    QTest::newRow("multiple slashes 3") << "/foo////bar/baz" << 2 << "/foo////bar/baz";
+    QTest::newRow("single char 1") << "/a/b/c" << 0 << "c";
+    QTest::newRow("single char 2") << "/a/b/c" << 1 << "b/c";
+    QTest::newRow("single char 3") << "/a/b/c" << 2 << "/a/b/c";
+    QTest::newRow("slash at end 1") << "/a/b/" << 0 << "";
+    QTest::newRow("slash at end 2") << "/a/b/" << 1 << "b/";
+    QTest::newRow("slashes at end 1") << "/a/b//" << 0 << "";
+    QTest::newRow("slashes at end 2") << "/a/b//" << 1 << "b//";
+    QTest::newRow("root only 1") << "/" << 0 << "";
+    QTest::newRow("root only 2") << "/" << 1 << "/";
+}
+
+void tst_fileutils::fileName()
+{
+    QFETCH(QString, path);
+    QFETCH(int, components);
+    QFETCH(QString, result);
+    QCOMPARE(FileName::fromString(path).fileName(components), result);
 }
 
 QTEST_APPLESS_MAIN(tst_fileutils)

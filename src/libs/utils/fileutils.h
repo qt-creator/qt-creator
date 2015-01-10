@@ -73,6 +73,7 @@ public:
     static FileName fromUtf8(const char *filename, int filenameSize = -1);
     QString toString() const;
     QString toUserOutput() const;
+    QString fileName(int pathComponents = 0) const;
     bool exists() const;
 
     FileName parentDir() const;
