@@ -31,8 +31,20 @@
 #ifndef HIGHLIGHTEREXCEPTION_H
 #define HIGHLIGHTEREXCEPTION_H
 
+#include <QString>
+
 namespace TextEditor {
-namespace Internal { class HighlighterException {}; }
+namespace Internal {
+class HighlighterException
+{
+public:
+    HighlighterException(const QString &msg) : m_message(msg) {}
+    QString message() const { return m_message; }
+
+private:
+    QString m_message;
+};
+}
 } // namespace TextEditor
 
 #endif // HIGHLIGHTEREXCEPTION_H

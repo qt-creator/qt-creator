@@ -39,14 +39,14 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/algorithm.h>
 #include <utils/QtConcurrentTools>
 #include <utils/networkaccessmanager.h>
 
+#include <QCoreApplication>
 #include <QString>
-#include <QLatin1Char>
-#include <QLatin1String>
 #include <QStringList>
 #include <QFile>
 #include <QFileInfo>
@@ -175,7 +175,11 @@ QSharedPointer<HighlightDefinition> Manager::definition(const QString &id)
         m_isBuildingDefinition.insert(id);
         try {
             reader.parse(source);
-        } catch (const HighlighterException &) {
+        } catch (const HighlighterException &e) {
+            Core::MessageManager::write(
+                        QCoreApplication::translate("GenericHighlighter",
+                                                    "Generic highlighter error: ") + e.message(),
+                        Core::MessageManager::WithFocus);
             definition.clear();
         }
         m_isBuildingDefinition.remove(id);

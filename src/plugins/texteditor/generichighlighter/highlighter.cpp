@@ -38,8 +38,9 @@
 #include "reuse.h"
 #include "tabsettings.h"
 
-#include <QLatin1String>
-#include <QLatin1Char>
+#include <coreplugin/messagemanager.h>
+
+#include <QCoreApplication>
 
 using namespace TextEditor;
 using namespace Internal;
@@ -205,7 +206,11 @@ void Highlighter::highlightBlock(const QString &text)
             }
             TextDocumentLayout::setParentheses(currentBlock(), parentheses);
 
-        } catch (const HighlighterException &) {
+        } catch (const HighlighterException &e) {
+            Core::MessageManager::write(
+                        QCoreApplication::translate("GenericHighlighter",
+                                                    "Generic highlighter error: ") + e.message(),
+                        Core::MessageManager::WithFocus);
             m_isBroken = true;
         }
     }
@@ -388,8 +393,10 @@ void Highlighter::changeContext(const QString &contextName,
     if (contextName.startsWith(kPop)) {
         QStringList list = contextName.split(kHash, QString::SkipEmptyParts);
         for (int i = 0; i < list.size(); ++i) {
-            if (m_contexts.isEmpty())
-                throw HighlighterException();
+            if (m_contexts.isEmpty()) {
+                throw HighlighterException(
+                        QCoreApplication::translate("GenericHighlighter", "Reached empty context"));
+            }
             m_contexts.pop_back();
         }
 
