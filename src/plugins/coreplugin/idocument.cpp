@@ -62,29 +62,57 @@
 
 namespace Core {
 
+namespace Internal {
+
+class IDocumentPrivate
+{
+public:
+    IDocumentPrivate() :
+        infoBar(0),
+        temporary(false),
+        hasWriteWarning(false),
+        restored(false)
+    {
+    }
+
+    ~IDocumentPrivate()
+    {
+        delete infoBar;
+    }
+
+    Id id;
+    QString mimeType;
+    QString filePath;
+    QString displayName;
+    QString autoSaveName;
+    InfoBar *infoBar;
+    bool temporary;
+    bool hasWriteWarning;
+    bool restored;
+};
+
+} // namespace Internal
+
 IDocument::IDocument(QObject *parent) : QObject(parent),
-    m_temporary(false),
-    m_infoBar(0),
-    m_hasWriteWarning(false),
-    m_restored(false)
+    d(new Internal::IDocumentPrivate)
 {
 }
 
 IDocument::~IDocument()
 {
     removeAutoSaveFile();
-    delete m_infoBar;
+    delete d;
 }
 
 void IDocument::setId(Id id)
 {
-    m_id = id;
+    d->id = id;
 }
 
 Id IDocument::id() const
 {
-    QTC_CHECK(m_id.isValid());
-    return m_id;
+    QTC_CHECK(d->id.isValid());
+    return d->id;
 }
 
 /*!
@@ -97,6 +125,11 @@ bool IDocument::setContents(const QByteArray &contents)
 {
     Q_UNUSED(contents)
     return false;
+}
+
+QString IDocument::filePath() const
+{
+    return d->filePath;
 }
 
 IDocument::ReloadBehavior IDocument::reloadBehavior(ChangeTrigger state, ChangeType type) const
@@ -131,7 +164,7 @@ bool IDocument::isFileReadOnly() const
 */
 bool IDocument::isTemporary() const
 {
-    return m_temporary;
+    return d->temporary;
 }
 
 /*!
@@ -140,13 +173,18 @@ bool IDocument::isTemporary() const
 */
 void IDocument::setTemporary(bool temporary)
 {
-    m_temporary = temporary;
+    d->temporary = temporary;
+}
+
+QString IDocument::mimeType() const
+{
+    return d->mimeType;
 }
 
 void IDocument::setMimeType(const QString &mimeType)
 {
-    if (m_mimeType != mimeType) {
-        m_mimeType = mimeType;
+    if (d->mimeType != mimeType) {
+        d->mimeType = mimeType;
         emit mimeTypeChanged();
     }
 }
@@ -155,7 +193,7 @@ bool IDocument::autoSave(QString *errorString, const QString &fileName)
 {
     if (!save(errorString, fileName, true))
         return false;
-    m_autoSaveName = fileName;
+    d->autoSaveName = fileName;
     return true;
 }
 
@@ -163,8 +201,8 @@ static const char kRestoredAutoSave[] = "RestoredAutoSave";
 
 void IDocument::setRestoredFrom(const QString &name)
 {
-    m_autoSaveName = name;
-    m_restored = true;
+    d->autoSaveName = name;
+    d->restored = true;
     InfoBarEntry info(Id(kRestoredAutoSave),
           tr("File was restored from auto-saved copy. "
              "Select Save to confirm or Revert to Saved to discard changes."));
@@ -173,21 +211,31 @@ void IDocument::setRestoredFrom(const QString &name)
 
 void IDocument::removeAutoSaveFile()
 {
-    if (!m_autoSaveName.isEmpty()) {
-        QFile::remove(m_autoSaveName);
-        m_autoSaveName.clear();
-        if (m_restored) {
-            m_restored = false;
+    if (!d->autoSaveName.isEmpty()) {
+        QFile::remove(d->autoSaveName);
+        d->autoSaveName.clear();
+        if (d->restored) {
+            d->restored = false;
             infoBar()->removeInfo(Id(kRestoredAutoSave));
         }
     }
 }
 
+bool IDocument::hasWriteWarning() const
+{
+    return d->hasWriteWarning;
+}
+
+void IDocument::setWriteWarning(bool has)
+{
+    d->hasWriteWarning = has;
+}
+
 InfoBar *IDocument::infoBar()
 {
-    if (!m_infoBar)
-        m_infoBar = new InfoBar;
-    return m_infoBar;
+    if (!d->infoBar)
+        d->infoBar = new InfoBar;
+    return d->infoBar;
 }
 
 /*!
@@ -198,11 +246,11 @@ InfoBar *IDocument::infoBar()
 */
 void IDocument::setFilePath(const QString &filePath)
 {
-    if (m_filePath == filePath)
+    if (d->filePath == filePath)
         return;
-    QString oldName = m_filePath;
-    m_filePath = filePath;
-    emit filePathChanged(oldName, m_filePath);
+    QString oldName = d->filePath;
+    d->filePath = filePath;
+    emit filePathChanged(oldName, d->filePath);
     emit changed();
 }
 
@@ -213,9 +261,9 @@ void IDocument::setFilePath(const QString &filePath)
 */
 QString IDocument::displayName() const
 {
-    if (!m_displayName.isEmpty())
-        return m_displayName;
-    return QFileInfo(m_filePath).fileName();
+    if (!d->displayName.isEmpty())
+        return d->displayName;
+    return QFileInfo(d->filePath).fileName();
 }
 
 /*!
@@ -227,9 +275,9 @@ QString IDocument::displayName() const
  */
 void IDocument::setDisplayName(const QString &name)
 {
-    if (name == m_displayName)
+    if (name == d->displayName)
         return;
-    m_displayName = name;
+    d->displayName = name;
     emit changed();
 }
 

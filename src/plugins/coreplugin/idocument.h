@@ -41,6 +41,10 @@ namespace Core {
 class MimeType;
 class InfoBar;
 
+namespace Internal {
+class IDocumentPrivate;
+}
+
 class CORE_EXPORT IDocument : public QObject
 {
     Q_OBJECT
@@ -84,7 +88,7 @@ public:
     virtual bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false) = 0;
     virtual bool setContents(const QByteArray &contents);
 
-    QString filePath() const { return m_filePath; }
+    QString filePath() const;
     virtual void setFilePath(const QString &filePath);
     QString displayName() const;
     void setDisplayName(const QString &name);
@@ -96,7 +100,7 @@ public:
     virtual QString defaultPath() const = 0;
     virtual QString suggestedFileName() const = 0;
 
-    QString mimeType() const { return m_mimeType; }
+    QString mimeType() const;
     void setMimeType(const QString &mimeType);
 
     virtual bool shouldAutoSave() const;
@@ -112,8 +116,8 @@ public:
     void setRestoredFrom(const QString &name);
     void removeAutoSaveFile();
 
-    bool hasWriteWarning() const { return m_hasWriteWarning; }
-    void setWriteWarning(bool has) { m_hasWriteWarning = has; }
+    bool hasWriteWarning() const;
+    void setWriteWarning(bool has);
 
     InfoBar *infoBar();
 
@@ -127,15 +131,7 @@ signals:
     void filePathChanged(const QString &oldName, const QString &newName);
 
 private:
-    Id m_id;
-    QString m_mimeType;
-    QString m_filePath;
-    QString m_displayName;
-    bool m_temporary;
-    QString m_autoSaveName;
-    InfoBar *m_infoBar;
-    bool m_hasWriteWarning;
-    bool m_restored;
+    Internal::IDocumentPrivate *d;
 };
 
 } // namespace Core
