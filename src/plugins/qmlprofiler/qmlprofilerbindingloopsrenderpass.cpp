@@ -222,6 +222,7 @@ Point2DWithOffset *BindlingLoopsGeometry::vertexData()
     Q_ASSERT(attributes[1].position == 1);
     Q_ASSERT(attributes[1].tupleSize == 2);
     Q_ASSERT(attributes[1].type == GL_FLOAT);
+    Q_UNUSED(attributes);
     return static_cast<Point2DWithOffset *>(geometry->vertexData());
 }
 

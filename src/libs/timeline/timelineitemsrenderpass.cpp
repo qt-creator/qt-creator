@@ -156,6 +156,7 @@ OpaqueColoredPoint2DWithSize *TimelineItemsGeometry::vertexData()
     Q_ASSERT(attributes[3].position == 3);
     Q_ASSERT(attributes[3].tupleSize == 4);
     Q_ASSERT(attributes[3].type == GL_UNSIGNED_BYTE);
+    Q_UNUSED(attributes);
     return static_cast<OpaqueColoredPoint2DWithSize *>(node->geometry()->vertexData());
 }
 
