@@ -47,6 +47,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <qmakeprojectmanager/qmakenodes.h>
@@ -66,6 +67,8 @@ BarDescriptorFileNodeManager::BarDescriptorFileNodeManager(QObject *parent)
     : QObject(parent)
 {
     connect(ProjectExplorer::ProjectTree::instance(), &ProjectExplorer::ProjectTree::currentProjectChanged,
+            this, &BarDescriptorFileNodeManager::setCurrentProject);
+    connect(ProjectExplorer::SessionManager::instance(), &ProjectExplorer::SessionManager::startupProjectChanged,
             this, &BarDescriptorFileNodeManager::setCurrentProject);
 }
 
