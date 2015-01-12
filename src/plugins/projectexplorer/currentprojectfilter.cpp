@@ -51,6 +51,8 @@ CurrentProjectFilter::CurrentProjectFilter()
 
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &CurrentProjectFilter::currentProjectChanged);
+    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+            this, &CurrentProjectFilter::currentProjectChanged);
 }
 
 void CurrentProjectFilter::markFilesAsOutOfDate()

@@ -223,9 +223,9 @@ void ModelManager::delayedInitialization()
                 this, SLOT(maybeQueueCppQmlTypeUpdate(CPlusPlus::Document::Ptr)), Qt::DirectConnection);
     }
 
-    connect(ProjectExplorer::SessionManager::instance(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
-            this, SLOT(removeProjectInfo(ProjectExplorer::Project*)));
-    connect(ProjectExplorer::ProjectTree::instance(), &ProjectExplorer::ProjectTree::currentProjectChanged,
+    connect(ProjectExplorer::SessionManager::instance(), &ProjectExplorer::SessionManager::projectRemoved,
+            this, &ModelManager::removeProjectInfo);
+    connect(ProjectExplorer::SessionManager::instance(), &ProjectExplorer::SessionManager::startupProjectChanged,
             this, &ModelManager::updateDefaultProjectInfo);
 
     QmlJS::ViewerContext qbsVContext;
@@ -265,7 +265,7 @@ ModelManagerInterface::WorkingCopy ModelManager::workingCopyInternal() const
 void ModelManager::updateDefaultProjectInfo()
 {
     // needs to be performed in the ui thread
-    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectTree::currentProject();
+    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::startupProject();
     ProjectInfo newDefaultProjectInfo = projectInfo(currentProject,
                                                     defaultProjectInfoForProject(currentProject));
     setDefaultProject(projectInfo(currentProject,newDefaultProjectInfo), currentProject);

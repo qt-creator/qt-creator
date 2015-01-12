@@ -48,6 +48,8 @@ CurrentProjectFind::CurrentProjectFind()
 {
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &CurrentProjectFind::handleProjectChanged);
+    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+            this, &CurrentProjectFind::handleProjectChanged);
     connect(SessionManager::instance(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             this, SLOT(handleProjectChanged()));
     connect(SessionManager::instance(), SIGNAL(projectAdded(ProjectExplorer::Project*)),
