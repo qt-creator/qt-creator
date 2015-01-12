@@ -274,7 +274,7 @@ void BaseTreeView::setModel(QAbstractItemModel *m)
         QObject *receiver;
         const char *qslot;
     };
-#define DESC(sign, receiver, slot) { #sign, SIGNAL(sig), receiver, SLOT(slot) }
+#define DESC(sign, receiver, slot) { #sign, SIGNAL(sign), receiver, SLOT(slot) }
     const ExtraConnection c[] = {
         DESC(columnAdjustmentRequested(), d, resizeColumns()),
         DESC(requestExpansion(QModelIndex), this, expand(QModelIndex))
