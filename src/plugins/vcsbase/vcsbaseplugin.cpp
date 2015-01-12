@@ -220,6 +220,9 @@ StateListener::StateListener(QObject *parent) : QObject(parent)
 
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &StateListener::slotStateChanged);
+    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+            this, &StateListener::slotStateChanged);
+
 
     EditorManager::setWindowTitleVcsTopicHandler(&StateListener::windowTitleVcsTopic);
 }
@@ -308,7 +311,10 @@ void StateListener::slotStateChanged()
     }
     // Check for project, find the control
     IVersionControl *projectControl = 0;
-    if (const Project *currentProject = ProjectTree::currentProject()) {
+    Project *currentProject = ProjectTree::currentProject();
+    if (!currentProject)
+        currentProject = SessionManager::startupProject();
+    if (currentProject) {
         state.currentProjectPath = currentProject->projectDirectory().toString();
         state.currentProjectName = currentProject->displayName();
         projectControl = VcsManager::findVersionControlForDirectory(state.currentProjectPath,
