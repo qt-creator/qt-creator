@@ -45,7 +45,7 @@ QtcPlugin {
             "editmode.cpp", "editmode.h",
             "editortoolbar.cpp", "editortoolbar.h",
             "externaltool.cpp", "externaltool.h",
-            "externaltoolmanager.h",
+            "externaltoolmanager.cpp", "externaltoolmanager.h",
             "fancyactionbar.cpp", "fancyactionbar.h", "fancyactionbar.qrc",
             "fancytabwidget.cpp", "fancytabwidget.h",
             "featureprovider.cpp", "featureprovider.h",

@@ -112,7 +112,8 @@ SOURCES += corejsextensions.cpp \
     themeeditor/sectionedtablemodel.cpp \
     themeeditor/themesettingsitemdelegate.cpp \
     messagebox.cpp \
-    iwelcomepage.cpp
+    iwelcomepage.cpp \
+    externaltoolmanager.cpp
 
 HEADERS += corejsextensions.h \
     mainwindow.h \
