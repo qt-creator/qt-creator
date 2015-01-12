@@ -1,3 +1,4 @@
+QTC_PLUGIN_DEPENDS += coreplugin
 include(../../qttest.pri)
 QT += gui
 PLUGINSDIR = $$IDE_SOURCE_TREE/src/plugins
