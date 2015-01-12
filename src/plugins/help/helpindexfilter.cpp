@@ -129,6 +129,7 @@ QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFi
     Utils::sort(keywords);
     keywords << unsortedKeywords;
     m_keywordCache = allresults;
+    m_searchTermCache = entry;
     foreach (const QString &keyword, keywords)
         entries.append(LocatorFilterEntry(this, keyword, QVariant(), m_icon));
 
