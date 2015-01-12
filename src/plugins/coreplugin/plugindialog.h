@@ -53,22 +53,19 @@ class PluginDialog : public QDialog
 public:
     explicit PluginDialog(QWidget *parent);
 
-private slots:
+private:
     void updateRestartRequired();
     void updateButtons();
-    void openDetails();
     void openDetails(ExtensionSystem::PluginSpec *spec);
     void openErrorDetails();
     void closeDialog();
 
-private:
     ExtensionSystem::PluginView *m_view;
 
     QPushButton *m_detailsButton;
     QPushButton *m_errorDetailsButton;
     QPushButton *m_closeButton;
     QLabel *m_restartRequired;
-    static bool m_isRestartRequired;
 };
 
 } // namespace Internal

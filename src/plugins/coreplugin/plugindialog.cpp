@@ -44,9 +44,10 @@
 #include <QLabel>
 #include <QDebug>
 
-using namespace Core::Internal;
+namespace Core {
+namespace Internal {
 
-bool PluginDialog::m_isRestartRequired = false;
+static bool s_isRestartRequired = false;
 
 PluginDialog::PluginDialog(QWidget *parent)
     : QDialog(parent),
@@ -64,7 +65,7 @@ PluginDialog::PluginDialog(QWidget *parent)
     m_closeButton->setDefault(true);
 
     m_restartRequired = new QLabel(tr("Restart required."), this);
-    if (!m_isRestartRequired)
+    if (!s_isRestartRequired)
         m_restartRequired->setVisible(false);
 
     QHBoxLayout *hl = new QHBoxLayout;
@@ -77,19 +78,21 @@ PluginDialog::PluginDialog(QWidget *parent)
 
     vl->addLayout(hl);
 
-
     resize(650, 400);
     setWindowTitle(tr("Installed Plugins"));
 
-    connect(m_view, SIGNAL(currentPluginChanged(ExtensionSystem::PluginSpec*)),
-            this, SLOT(updateButtons()));
-    connect(m_view, SIGNAL(pluginActivated(ExtensionSystem::PluginSpec*)),
-            this, SLOT(openDetails(ExtensionSystem::PluginSpec*)));
-    connect(m_view, SIGNAL(pluginSettingsChanged(ExtensionSystem::PluginSpec*)),
-            this, SLOT(updateRestartRequired()));
-    connect(m_detailsButton, SIGNAL(clicked()), this, SLOT(openDetails()));
-    connect(m_errorDetailsButton, SIGNAL(clicked()), this, SLOT(openErrorDetails()));
-    connect(m_closeButton, SIGNAL(clicked()), this, SLOT(closeDialog()));
+    connect(m_view, &ExtensionSystem::PluginView::currentPluginChanged,
+            this, &PluginDialog::updateButtons);
+    connect(m_view, &ExtensionSystem::PluginView::pluginActivated,
+            this, &PluginDialog::openDetails);
+    connect(m_view, &ExtensionSystem::PluginView::pluginSettingsChanged,
+            this, &PluginDialog::updateRestartRequired);
+    connect(m_detailsButton, &QAbstractButton::clicked,
+            [this]  { openDetails(m_view->currentPlugin()); });
+    connect(m_errorDetailsButton, &QAbstractButton::clicked,
+            this, &PluginDialog::openErrorDetails);
+    connect(m_closeButton, &QAbstractButton::clicked,
+            this, &PluginDialog::closeDialog);
     updateButtons();
 }
 
@@ -102,7 +105,7 @@ void PluginDialog::closeDialog()
 void PluginDialog::updateRestartRequired()
 {
     // just display the notice all the time after once changing something
-    m_isRestartRequired = true;
+    s_isRestartRequired = true;
     m_restartRequired->setVisible(true);
 }
 
@@ -118,12 +121,6 @@ void PluginDialog::updateButtons()
     }
 }
 
-
-void PluginDialog::openDetails()
-{
-    openDetails(m_view->currentPlugin());
-}
-
 void PluginDialog::openDetails(ExtensionSystem::PluginSpec *spec)
 {
     if (!spec)
@@ -137,8 +134,8 @@ void PluginDialog::openDetails(ExtensionSystem::PluginSpec *spec)
     details->update(spec);
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Close, Qt::Horizontal, &dialog);
     layout->addWidget(buttons);
-    connect(buttons, SIGNAL(accepted()), &dialog, SLOT(accept()));
-    connect(buttons, SIGNAL(rejected()), &dialog, SLOT(reject()));
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
     dialog.resize(400, 500);
     dialog.exec();
 }
@@ -157,9 +154,11 @@ void PluginDialog::openErrorDetails()
     errors->update(spec);
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Close, Qt::Horizontal, &dialog);
     layout->addWidget(buttons);
-    connect(buttons, SIGNAL(accepted()), &dialog, SLOT(accept()));
-    connect(buttons, SIGNAL(rejected()), &dialog, SLOT(reject()));
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
     dialog.resize(500, 300);
     dialog.exec();
 }
 
+} // namespace Internal
+} // namespace Core
