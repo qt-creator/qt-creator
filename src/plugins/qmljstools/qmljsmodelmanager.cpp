@@ -264,7 +264,7 @@ ModelManagerInterface::WorkingCopy ModelManager::workingCopyInternal() const
 
 void ModelManager::updateDefaultProjectInfo()
 {
-    // needs to be performed in the ui therad
+    // needs to be performed in the ui thread
     ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectTree::currentProject();
     ProjectInfo newDefaultProjectInfo = projectInfo(currentProject,
                                                     defaultProjectInfoForProject(currentProject));
