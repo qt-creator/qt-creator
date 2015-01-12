@@ -3245,12 +3245,12 @@ namespace stdmap {
     {
         typedef std::pair<uint, float> V;
         std::multimap<uint, float> map;
-        map.insert(V(11, 11.0));
-        map.insert(V(22, 22.0));
-        map.insert(V(22, 33.0));
-        map.insert(V(22, 34.0));
-        map.insert(V(22, 35.0));
-        map.insert(V(22, 36.0));
+        map.insert(V(11, 11.0f));
+        map.insert(V(22, 22.0f));
+        map.insert(V(22, 33.0f));
+        map.insert(V(22, 34.0f));
+        map.insert(V(22, 35.0f));
+        map.insert(V(22, 36.0f));
         BREAK_HERE;
         // Expand map.
         // Check map <6 items> std:multimap<unsigned int, float>.
@@ -7089,9 +7089,9 @@ namespace sanity {
 } // namespace sanity
 
 
-template <class X> int ffff(X x)
+template <class X> int ffff(X)
 {
-    return sizeof(x);
+    return sizeof(X);
 }
 
 int main(int argc, char *argv[])

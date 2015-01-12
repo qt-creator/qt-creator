@@ -227,6 +227,7 @@ static QByteArray stripEncodingPrefixAndQuotationMarks(const QByteArray &literal
     Q_ASSERT(firstQuotationMarkPosition != -1);
     Q_ASSERT(lastQuotationMarkPosition == literal.size() - 1);
     Q_ASSERT(firstQuotationMarkPosition < lastQuotationMarkPosition - 1);
+    Q_UNUSED(lastQuotationMarkPosition);
 
     QByteArray result = literal.mid(firstQuotationMarkPosition + 1);
     result.chop(1);
