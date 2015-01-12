@@ -7,6 +7,10 @@
         <file>images/crumblepath-segment-hover.png</file>
         <file>images/crumblepath-segment-selected-end.png</file>
         <file>images/crumblepath-segment-selected.png</file>
+        <file>images/progressindicator_big.png</file>
+        <file>images/progressindicator_big@2x.png</file>
+        <file>images/progressindicator_small.png</file>
+        <file>images/progressindicator_small@2x.png</file>
         <file>images/triangle_vert.png</file>
     </qresource>
 </RCC>

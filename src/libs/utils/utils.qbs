@@ -130,6 +130,8 @@ QtcLibrary {
         "persistentsettings.h",
         "portlist.cpp",
         "portlist.h",
+        "progressindicator.cpp",
+        "progressindicator.h",
         "projectintropage.cpp",
         "projectintropage.h",
         "projectintropage.ui",
@@ -202,6 +204,10 @@ QtcLibrary {
         "images/crumblepath-segment-selected-end.png",
         "images/crumblepath-segment-selected.png",
         "images/crumblepath-segment.png",
+        "images/progressindicator_big.png",
+        "images/progressindicator_big@2x.png",
+        "images/progressindicator_small.png",
+        "images/progressindicator_small@2x.png",
         "images/triangle_vert.png",
     ]
 

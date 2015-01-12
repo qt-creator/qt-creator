@@ -581,6 +581,28 @@
        y1="587"
        x2="181"
        y2="599" />
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath4556">
+      <rect
+         id="rect4558"
+         width="16"
+         height="16"
+         x="281"
+         y="584"
+         style="fill:none" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3536">
+      <rect
+         style="opacity:0.41699997;fill:none;stroke:none"
+         id="rect3538"
+         width="64"
+         height="64"
+         x="329"
+         y="536" />
+    </clipPath>
     <linearGradient
        id="linearGradient4137-8">
       <stop
@@ -1027,6 +1049,214 @@
        transform="matrix(1,0,0,-1,16,1184)"
        width="100%"
        height="100%" />
+    <g
+       id="src/libs/utils/images/progressindicator_small"
+       clip-path="url(#clipPath4556)"
+       transform="matrix(-1,0,0,1,578,0)">
+      <g
+         id="g4504">
+        <rect
+           id="rect3693"
+           width="16"
+           height="16"
+           x="281"
+           y="584"
+           style="fill:none" />
+        <rect
+           style="fill:#9d9d9d;fill-opacity:1;stroke:none"
+           id="rect3698"
+           width="2"
+           height="5"
+           x="288"
+           y="584" />
+      </g>
+      <use
+         style="opacity:0.83"
+         height="600"
+         width="800"
+         transform="matrix(0.70710678,0.70710678,-0.70710678,0.70710678,503.25335,-30.961074)"
+         id="use4511"
+         xlink:href="#g4504"
+         y="0"
+         x="0" />
+      <use
+         style="opacity:0.66"
+         height="600"
+         width="800"
+         transform="matrix(0,1,-1,0,881,303)"
+         id="use4525"
+         xlink:href="#g4504"
+         y="0"
+         x="0" />
+      <use
+         style="opacity:0.49"
+         height="600"
+         width="800"
+         transform="matrix(-0.70710678,0.70710678,-0.70710678,-0.70710678,911.96107,806.25335)"
+         id="use4528"
+         xlink:href="#g4504"
+         y="0"
+         x="0" />
+      <use
+         style="opacity:0.32"
+         height="600"
+         width="800"
+         transform="matrix(-1,0,0,-1,578,1184)"
+         id="use4530"
+         xlink:href="#g4504"
+         y="0"
+         x="0" />
+      <use
+         style="opacity:0.32"
+         height="600"
+         width="800"
+         transform="matrix(-0.70710678,-0.70710678,0.70710678,-0.70710678,74.746645,1214.9611)"
+         id="use4532"
+         xlink:href="#g4504"
+         y="0"
+         x="0" />
+      <use
+         style="opacity:0.32"
+         height="600"
+         width="800"
+         transform="matrix(0,-1,1,0,-303,881)"
+         id="use4534"
+         xlink:href="#g4504"
+         y="0"
+         x="0" />
+      <use
+         style="opacity:0.32"
+         height="600"
+         width="800"
+         transform="matrix(0.70710678,-0.70710678,0.70710678,0.70710678,-333.96107,377.74665)"
+         id="use4536"
+         xlink:href="#g4504"
+         y="0"
+         x="0" />
+    </g>
+    <g
+       id="src/libs/utils/images/progressindicator_big"
+       clip-path="url(#clipPath3536)"
+       transform="matrix(-1,0,0,1,722,0)">
+      <g
+         id="g3369">
+        <rect
+           y="536"
+           x="329"
+           height="64"
+           width="64"
+           id="rect3365"
+           style="opacity:0.41699997;fill:none;stroke:none" />
+        <rect
+           rx="2"
+           style="fill:#6d6d6d;fill-opacity:1;stroke:none"
+           id="rect3367"
+           width="4"
+           height="17"
+           x="359"
+           y="536"
+           ry="2" />
+      </g>
+      <use
+         style="opacity:0.887"
+         height="600"
+         width="800"
+         transform="matrix(0.8660254,0.5,-0.5,0.8660254,332.36483,-104.40243)"
+         id="use3463"
+         xlink:href="#g3369"
+         y="0"
+         x="0" />
+      <use
+         style="opacity:0.773"
+         height="600"
+         width="800"
+         transform="matrix(0.5,0.8660254,-0.8660254,0.5,672.40243,-28.635171)"
+         id="use3467"
+         xlink:href="#g3369"
+         y="0"
+         x="0" />
+      <use
+         style="opacity:0.66"
+         height="600"
+         width="800"
+         transform="matrix(0,1,-1,0,929,207)"
+         id="use3469"
+         xlink:href="#g3369"
+         y="0"
+         x="0" />
+      <use
+         style="opacity:0.547"
+         height="600"
+         width="800"
+         transform="matrix(-0.5,0.8660254,-0.8660254,-0.5,1033.4024,539.36483)"
+         id="use3471"
+         xlink:href="#g3369"
+         y="0"
+         x="0" />
+      <use
+         style="opacity:0.433"
+         height="600"
+         width="800"
+         transform="matrix(-0.8660254,0.5,-0.5,-0.8660254,957.63514,879.40243)"
+         id="use3473"
+         xlink:href="#g3369"
+         y="0"
+         x="0" />
+      <use
+         style="opacity:0.32"
+         height="600"
+         width="800"
+         transform="matrix(-1,0,0,-1,721.99997,1136)"
+         id="use3475"
+         xlink:href="#g3369"
+         y="0"
+         x="0" />
+      <use
+         style="opacity:0.32"
+         height="600"
+         width="800"
+         transform="matrix(-0.8660254,-0.5,0.5,-0.8660254,389.63514,1240.4024)"
+         id="use3477"
+         xlink:href="#g3369"
+         y="0"
+         x="0" />
+      <use
+         style="opacity:0.32"
+         height="600"
+         width="800"
+         transform="matrix(-0.5,-0.8660254,0.8660254,-0.5,49.597541,1164.6351)"
+         id="use3479"
+         xlink:href="#g3369"
+         y="0"
+         x="0" />
+      <use
+         style="opacity:0.32"
+         height="600"
+         width="800"
+         transform="matrix(0,-1,1,0,-207.00003,928.99993)"
+         id="use3481"
+         xlink:href="#g3369"
+         y="0"
+         x="0" />
+      <use
+         style="opacity:0.32"
+         height="600"
+         width="800"
+         transform="matrix(0.5,-0.8660254,0.8660254,0.5,-311.40246,596.6351)"
+         id="use3483"
+         xlink:href="#g3369"
+         y="0"
+         x="0" />
+      <use
+         style="opacity:0.32"
+         height="600"
+         width="800"
+         transform="matrix(0.8660254,-0.5,0.5,0.8660254,-235.6352,256.5975)"
+         id="use3485"
+         xlink:href="#g3369"
+         y="0"
+         x="0" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"
