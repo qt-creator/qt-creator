@@ -213,13 +213,13 @@ void GlslEditorWidget::updateDocumentNow()
     const QByteArray preprocessedCode = contents.toLatin1(); // ### use the QtCreator C++ preprocessor.
 
     Document::Ptr doc(new Document());
-    Engine *engine = new GLSL::Engine();
+    Engine engine;
     doc->_engine = new GLSL::Engine();
     Parser parser(doc->_engine, preprocessedCode.constData(), preprocessedCode.size(), variant);
     TranslationUnitAST *ast = parser.parse();
     if (ast != 0 || extraSelections(CodeWarningsSelection).isEmpty()) {
         Semantic sem;
-        Scope *globalScope = engine->newNamespace();
+        Scope *globalScope = engine.newNamespace();
         doc->_globalScope = globalScope;
         const GlslEditorPlugin::InitFile *file = GlslEditorPlugin::shaderInit(variant);
         sem.translationUnit(file->ast, globalScope, file->engine);
@@ -231,7 +231,7 @@ void GlslEditorWidget::updateDocumentNow()
             file = GlslEditorPlugin::fragmentShaderInit(variant);
             sem.translationUnit(file->ast, globalScope, file->engine);
         }
-        sem.translationUnit(ast, globalScope, engine);
+        sem.translationUnit(ast, globalScope, &engine);
 
         CreateRanges createRanges(document(), doc);
         createRanges(ast);
@@ -247,7 +247,7 @@ void GlslEditorWidget::updateDocumentNow()
         QList<QTextEdit::ExtraSelection> sels;
         QSet<int> errors;
 
-        foreach (const DiagnosticMessage &m, engine->diagnosticMessages()) {
+        foreach (const DiagnosticMessage &m, engine.diagnosticMessages()) {
             if (! m.line())
                 continue;
             else if (errors.contains(m.line()))
