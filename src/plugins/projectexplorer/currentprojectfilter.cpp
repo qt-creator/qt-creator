@@ -31,6 +31,7 @@
 #include "currentprojectfilter.h"
 #include "projecttree.h"
 #include "project.h"
+#include "session.h"
 
 #include <utils/algorithm.h>
 
