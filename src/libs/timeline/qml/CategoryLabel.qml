@@ -101,6 +101,7 @@ Item {
         width: 140
         verticalAlignment: Text.AlignVCenter
         renderType: Text.NativeRendering
+        elide: Text.ElideRight
     }
 
     Column {
