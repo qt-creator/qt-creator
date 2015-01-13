@@ -78,10 +78,9 @@ Flickable {
             delegate: Rectangle {
                 color: categories.color
 
-                anchors.left: parent.left
-                anchors.right: parent.right
                 property int visualIndex: DelegateModel.itemsIndex
                 height: label.visible ? label.height : 0
+                width: categories.width
 
                 CategoryLabel {
                     id: label
