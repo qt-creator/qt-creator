@@ -404,6 +404,7 @@ QtWebKitHelpViewer::QtWebKitHelpViewer(qreal zoom, QWidget *parent)
 
     QPalette p = palette();
     p.setColor(QPalette::Base, Qt::white);
+    p.setColor(QPalette::Text, Qt::black);
     setPalette(p);
 
     connect(m_webView, SIGNAL(urlChanged(QUrl)), this, SIGNAL(sourceChanged(QUrl)));
