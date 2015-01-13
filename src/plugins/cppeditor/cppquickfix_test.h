@@ -67,6 +67,8 @@ public:
     QString m_expectedSource;
 };
 
+typedef QList<QuickFixTestDocument::Ptr> QuickFixTestDocuments;
+
 class BaseQuickFixTestCase : public TestCase
 {
 public:
@@ -125,3 +127,5 @@ QList<QuickFixTestDocument::Ptr> singleDocument(const QByteArray &original,
 } // namespace Tests
 } // namespace Internal
 } // namespace CppEditor
+
+Q_DECLARE_METATYPE(CppEditor::Internal::Tests::QuickFixTestDocuments)

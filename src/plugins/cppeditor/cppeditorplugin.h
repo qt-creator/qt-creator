@@ -154,34 +154,8 @@ private slots:
 
     void test_quickfix_InsertDeclFromDef();
 
-    void test_quickfix_AddIncludeForUndefinedIdentifier_onSimpleName();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_onNameOfQualifiedName();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_onBaseOfQualifiedName();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_onTemplateName();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_onTemplateNameInsideArguments();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_withForwardDeclaration();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_withForwardDeclaration2();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_withForwardHeader();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_ignoremoc();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_sortingTop();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_sortingMiddle();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_sortingBottom();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_appendToUnsorted();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_firstLocalIncludeAtFront();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_firstGlobalIncludeAtBack();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_preferGroupWithLongerMatchingPrefix();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_newGroupIfOnlyDifferentIncludeDirs();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_mixedDirsSorted();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_mixedDirsUnsorted();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_mixedIncludeTypes1();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_mixedIncludeTypes2();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_mixedIncludeTypes3();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_mixedIncludeTypes4();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_noinclude();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_onlyIncludeGuard();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_veryFirstIncludeCppStyleCommentOnTop();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_veryFirstIncludeCStyleCommentOnTop();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_checkQSomethingInQtIncludePaths();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_data();
+    void test_quickfix_AddIncludeForUndefinedIdentifier();
     void test_quickfix_AddIncludeForUndefinedIdentifier_noDoubleQtHeaderInclude();
 
     void test_quickfix_MoveFuncDefOutside_MemberFuncToCpp();

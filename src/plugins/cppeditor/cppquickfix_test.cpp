@@ -2300,21 +2300,26 @@ void CppEditorPlugin::test_quickfix_InsertDeclFromDef()
     insertToSectionDeclFromDef("private slots", 5);
 }
 
-/// Check: Add include if there is already an include
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_onSimpleName()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_data()
 {
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
+    QTest::addColumn<QString>("headerPath");
+    QTest::addColumn<QuickFixTestDocuments>("testDocuments");
+    QTest::addColumn<int>("refactoringOperationIndex");
+    QTest::addColumn<QString>("includeForTestFactory");
+
+    const int firstRefactoringOperation = 0;
+    const int secondRefactoringOperation = 1;
 
     QList<QuickFixTestDocument::Ptr> testFiles;
     QByteArray original;
     QByteArray expected;
 
+    // -------------------------------------------------------------------------------------------
+
     // Header File
     original = "class Foo {};\n";
     expected = original;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/afile.h",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("afile.h", original, expected);
 
     // Source File
     original =
@@ -2334,28 +2339,18 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_onSimpleNam
         "    Foo foo;\n"
         "}\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/afile.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("afile.cpp", original, expected);
+    QTest::newRow("onSimpleName")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "";
+    testFiles.clear();
 
-    AddIncludeForUndefinedIdentifier factory;
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-/// Check: Cursor is on a qualified name (1)
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_onNameOfQualifiedName()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     // Header File
     original = "namespace N { class Foo {}; }\n";
     expected = original;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/afile.h",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("afile.h", original, expected);
 
     // Source File
     original =
@@ -2375,28 +2370,18 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_onNameOfQua
         "    N::Foo foo;\n"
         "}\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/afile.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("afile.cpp", original, expected);
+    QTest::newRow("onNameOfQualifiedName")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "";
+    testFiles.clear();
 
-    // Do not use the test factory, at least once we want to go through the "full stack".
-    AddIncludeForUndefinedIdentifier factory;
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_onBaseOfQualifiedName()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     // Header File
     original = "namespace N { class Foo {}; }\n";
     expected = original;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8()  + "/afile.h",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("afile.h", original, expected);
 
     // Source File
     original =
@@ -2416,28 +2401,18 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_onBaseOfQua
         "    N::Foo foo;\n"
         "}\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/afile.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("afile.cpp", original, expected);
+    QTest::newRow("onBaseOfQualifiedName")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "";
+    testFiles.clear();
 
-    // Do not use the test factory, at least once we want to go through the "full stack".
-    AddIncludeForUndefinedIdentifier factory;
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_onTemplateName()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     // Header File
     original = "namespace N { template <typename T> class Foo {}; }\n";
     expected = original;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/afile.h",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("afile.h", original, expected);
 
     // Source File
     original =
@@ -2457,28 +2432,18 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_onTemplateN
         "    N::Foo<Bar> foo;\n"
         "}\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/afile.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("afile.cpp", original, expected);
+    QTest::newRow("onTemplateName")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "";
+    testFiles.clear();
 
-    // Do not use the test factory, at least once we want to go through the "full stack".
-    AddIncludeForUndefinedIdentifier factory;
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_onTemplateNameInsideArguments()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     // Header File
     original = "namespace N { template <typename T> class Foo {}; }\n";
     expected = original;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/afile.h",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("afile.h", original, expected);
 
     // Source File
     original =
@@ -2498,28 +2463,18 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_onTemplateN
         "    N::Bar<Foo> foo;\n"
         "}\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/afile.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("afile.cpp", original, expected);
+    QTest::newRow("onTemplateNameInsideArguments")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "";
+    testFiles.clear();
 
-    // Do not use the test factory, at least once we want to go through the "full stack".
-    AddIncludeForUndefinedIdentifier factory;
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_withForwardDeclaration()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     // Header File
     original = "class Foo {};\n";
     expected = original;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/afile.h",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("afile.h", original, expected);
 
     // Source File
     original =
@@ -2543,28 +2498,18 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_withForward
         "    Foo foo;\n"
         "}\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/afile.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("afile.cpp", original, expected);
+    QTest::newRow("withForwardDeclaration")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "";
+    testFiles.clear();
 
-    // Do not use the test factory, at least once we want to go through the "full stack".
-    AddIncludeForUndefinedIdentifier factory;
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_withForwardDeclaration2()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     // Header File
     original = "template<class T> class Foo {};\n";
     expected = original;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/afile.h",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("afile.h", original, expected);
 
     // Source File
     original =
@@ -2588,34 +2533,23 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_withForward
         "    Foo foo;\n"
         "}\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/afile.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("afile.cpp", original, expected);
+    QTest::newRow("withForwardDeclaration2")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "";
+    testFiles.clear();
 
-    // Do not use the test factory, at least once we want to go through the "full stack".
-    AddIncludeForUndefinedIdentifier factory;
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_withForwardHeader()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     // Header File
     original = "template<class T> class QMyClass {};\n";
     expected = original;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/qmyclass.h",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("qmyclass.h", original, expected);
 
     // Forward Header File
     original = "#include \"qmyclass.h\"\n";
     expected = original;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/QMyClass",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("QMyClass", original, expected);
 
     // Source File
     original =
@@ -2635,23 +2569,13 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_withForward
         "    QMyClass c;\n"
         "}\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/afile.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("afile.cpp", original, expected);
+    QTest::newRow("withForwardHeader")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << secondRefactoringOperation << "";
+    testFiles.clear();
 
-    // Do not use the test factory, at least once we want to go through the "full stack".
-    AddIncludeForUndefinedIdentifier factory;
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath(), 1);
-}
-
-/// Check: Ignore *.moc includes
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_ignoremoc()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     original =
         "void @f();\n"
@@ -2663,22 +2587,13 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_i
         "void f();\n"
         "#include \"file.moc\";\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/file.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("insertingIgnoreMoc")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "\"file.h\"";
+    testFiles.clear();
 
-    AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-/// Check: Insert include at top for a sorted group
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_sortingTop()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     original =
         "#include \"y.h\"\n"
@@ -2691,22 +2606,13 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_s
         "#include \"z.h\"\n"
         "\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/file.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("insertingSortingTop")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "\"file.h\"";
+    testFiles.clear();
 
-    AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-/// Check: Insert include in the middle for a sorted group
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_sortingMiddle()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     original =
         "#include \"a.h\"\n"
@@ -2719,22 +2625,13 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_s
         "#include \"z.h\"\n"
         "\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/file.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("insertingSortingMiddle")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "\"file.h\"";
+    testFiles.clear();
 
-    AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-/// Check: Insert include at bottom for a sorted group
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_sortingBottom()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     original =
         "#include \"a.h\"\n"
@@ -2747,22 +2644,13 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_s
         "#include \"file.h\"\n"
         "\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/file.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("insertingSortingBottom")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "\"file.h\"";
+    testFiles.clear();
 
-    AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-/// Check: For an unsorted group the new include is appended
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_appendToUnsorted()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     original =
         "#include \"b.h\"\n"
@@ -2775,22 +2663,13 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_a
         "#include \"file.h\"\n"
         "\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/file.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("inserting_appendToUnsorted")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "\"file.h\"";
+    testFiles.clear();
 
-    AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-/// Check: Insert a local include at front if there are only global includes
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_firstLocalIncludeAtFront()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     original =
         "#include <a.h>\n"
@@ -2804,22 +2683,13 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_f
         "#include <b.h>\n"
         "\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/file.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("inserting_firstLocalIncludeAtFront")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "\"file.h\"";
+    testFiles.clear();
 
-    AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-/// Check: Insert a global include at back if there are only local includes
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_firstGlobalIncludeAtBack()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     original =
         "#include \"a.h\"\n"
@@ -2835,22 +2705,13 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_f
         "\n"
         "void f();\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/file.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("firstGlobalIncludeAtBack")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "<file.h>";
+    testFiles.clear();
 
-    AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("<file.h>"));
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-/// Check: Prefer group with longest matching prefix
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_preferGroupWithLongerMatchingPrefix()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     original =
         "#include \"prefixa.h\"\n"
@@ -2867,22 +2728,13 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_p
         "#include \"foo.h\"\n"
         "\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/file.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("inserting_preferGroupWithLongerMatchingPrefix")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "\"prefixc.h\"";
+    testFiles.clear();
 
-    AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"prefixc.h\""));
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-/// Check: Create a new include group if there are only include groups with a different include dir
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_newGroupIfOnlyDifferentIncludeDirs()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     original =
         "#include \"lib/file.h\"\n"
@@ -2896,22 +2748,13 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_n
         "#include \"file.h\"\n"
         "\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/file.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("inserting_newGroupIfOnlyDifferentIncludeDirs")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "\"file.h\"";
+    testFiles.clear();
 
-    AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-/// Check: Include group with mixed include dirs, sorted --> insert properly
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_mixedDirsSorted()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     original =
         "#include <lib/file.h>\n"
@@ -2926,22 +2769,13 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_m
         "#include <utils/file.h>\n"
         "\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/file.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("inserting_mixedDirsSorted")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "<firstlib/file.h>";
+    testFiles.clear();
 
-    AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("<firstlib/file.h>"));
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-/// Check: Include group with mixed include dirs, unsorted --> append
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_mixedDirsUnsorted()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     original =
         "#include <otherlib/file.h>\n"
@@ -2956,22 +2790,13 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_m
         "#include <lastlib/file.h>\n"
         "\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/file.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("inserting_mixedDirsUnsorted")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "<lastlib/file.h>";
+    testFiles.clear();
 
-    AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("<lastlib/file.h>"));
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-/// Check: Include group with mixed include types
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_mixedIncludeTypes1()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     original =
         "#include \"a.h\"\n"
@@ -2984,22 +2809,13 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_m
         "#include <global.h>\n"
         "\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/file.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("inserting_mixedIncludeTypes1")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "\"z.h\"";
+    testFiles.clear();
 
-    AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"z.h\""));
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-/// Check: Include group with mixed include types
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_mixedIncludeTypes2()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     original =
         "#include \"z.h\"\n"
@@ -3012,22 +2828,13 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_m
         "#include <global.h>\n"
         "\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/file.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("inserting_mixedIncludeTypes2")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "\"a.h\"";
+    testFiles.clear();
 
-    AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"a.h\""));
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-/// Check: Include group with mixed include types
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_mixedIncludeTypes3()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     original =
         "#include \"z.h\"\n"
@@ -3040,26 +2847,13 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_m
         "#include <global.h>\n"
         "\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/file.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("inserting_mixedIncludeTypes3")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "\"lib/file.h\"";
+    testFiles.clear();
 
-    AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"lib/file.h\""));
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-/// Check: Include group with mixed include types
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_mixedIncludeTypes4()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
-
-    // Create existing header; TODO: Why does it must exist?
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/z.h",
-                                              original, expected);
+    // -------------------------------------------------------------------------------------------
 
     original =
         "#include \"z.h\"\n"
@@ -3072,22 +2866,13 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_m
         "#include <lib/file.h>\n"
         "\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/file.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("inserting_mixedIncludeTypes4")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "<lib/file.h>";
+    testFiles.clear();
 
-    AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("<lib/file.h>"));
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-/// Check: Insert very first include
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_noinclude()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     original =
         "void @f();\n"
@@ -3097,22 +2882,13 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_n
         "\n"
         "void f();\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/file.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("inserting_noinclude")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "\"file.h\"";
+    testFiles.clear();
 
-    AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-/// Check: Insert very first include after include guard
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_onlyIncludeGuard()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     original =
         "#ifndef FOO_H\n"
@@ -3129,22 +2905,13 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_o
         "void f();\n"
         "#endif\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/file.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("inserting_onlyIncludeGuard")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "\"file.h\"";
+    testFiles.clear();
 
-    AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-/// Check: Insert very first include if there is a c++ style comment on top
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_veryFirstIncludeCppStyleCommentOnTop()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     original =
         "\n"
@@ -3160,22 +2927,13 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_v
         "\n"
         "void @f();\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/file.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("inserting_veryFirstIncludeCppStyleCommentOnTop")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "\"file.h\"";
+    testFiles.clear();
 
-    AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-/// Check: Insert very first include if there is a c style comment on top
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_veryFirstIncludeCStyleCommentOnTop()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     original =
         "\n"
@@ -3195,23 +2953,13 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_v
         "\n"
         "void @f();\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/file.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("inserting_veryFirstIncludeCStyleCommentOnTop")
+            << TestIncludePaths::globalIncludePath()
+            << testFiles << firstRefactoringOperation << "\"file.h\"";
+    testFiles.clear();
 
-    AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
-}
-
-/// Check: If a "Qt Class" was not found by the locator, check the header files in the Qt
-/// include paths
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_checkQSomethingInQtIncludePaths()
-{
-    CppTools::Tests::TemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-
-    QList<QuickFixTestDocument::Ptr> testFiles;
-    QByteArray original;
-    QByteArray expected;
+    // -------------------------------------------------------------------------------------------
 
     original =
         "@QDir dir;\n"
@@ -3221,11 +2969,33 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_c
         "\n"
         "QDir dir;\n"
         ;
-    testFiles << QuickFixTestDocument::create(temporaryDir.path().toUtf8() + "/file.cpp",
-                                              original, expected);
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("inserting_checkQSomethingInQtIncludePaths")
+            << TestIncludePaths::globalQtCoreIncludePath()
+            << testFiles << firstRefactoringOperation << "";
+    testFiles.clear();
+}
 
-    AddIncludeForUndefinedIdentifier factory;
-    QuickFixOperationTest::run(testFiles, &factory, TestIncludePaths::globalQtCoreIncludePath());
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier()
+{
+    QFETCH(QString, headerPath);
+    QFETCH(QuickFixTestDocuments, testDocuments);
+    QFETCH(int, refactoringOperationIndex);
+    QFETCH(QString, includeForTestFactory);
+
+    CppTools::Tests::TemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    foreach (QuickFixTestDocument::Ptr testDocument, testDocuments)
+        testDocument->setBaseDirectory(temporaryDir.path());
+
+    QScopedPointer<CppQuickFixFactory> factory;
+    if (includeForTestFactory.isEmpty())
+        factory.reset(new AddIncludeForUndefinedIdentifier);
+    else
+        factory.reset(new AddIncludeForUndefinedIdentifierTestFactory(includeForTestFactory));
+
+    QuickFixOperationTest::run(testDocuments, factory.data(), headerPath,
+                               refactoringOperationIndex);
 }
 
 void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noDoubleQtHeaderInclude()
