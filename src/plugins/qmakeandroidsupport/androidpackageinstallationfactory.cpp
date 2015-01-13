@@ -99,7 +99,15 @@ BuildStep *AndroidPackageInstallationFactory::restore(BuildStepList *parent, con
 
 bool AndroidPackageInstallationFactory::canClone(BuildStepList *parent, BuildStep *product) const
 {
-    return canCreate(parent, product->id());
+    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
+        return false;
+    if (!Android::AndroidManager::supportsAndroid(parent->target()))
+        return false;
+    if (product->id() != AndroidPackageInstallationStep::Id)
+        return false;
+    if (parent->contains(AndroidPackageInstallationStep::Id))
+        return false;
+    return true;
 }
 
 BuildStep *AndroidPackageInstallationFactory::clone(BuildStepList *parent, BuildStep *product)
