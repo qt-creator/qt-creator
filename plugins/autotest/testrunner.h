@@ -47,10 +47,10 @@ signals:
     void testRunStarted();
     void testRunFinished();
     void testResultCreated(const TestResult &testResult);
+    void requestStopTestRun();
 
 public slots:
     void runTests();
-    void stopTestRun();
 
 private slots:
     void buildProject(ProjectExplorer::Project *project);

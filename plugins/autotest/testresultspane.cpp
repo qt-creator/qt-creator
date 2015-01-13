@@ -107,7 +107,7 @@ void TestResultsPane::createToolButtons()
     m_stopTestRun->setIcon(QIcon(QLatin1String(":/images/stop.png")));
     m_stopTestRun->setToolTip(tr("Stop Test Run"));
     m_stopTestRun->setEnabled(false);
-    connect(m_stopTestRun, &QToolButton::clicked, TestRunner::instance(), &TestRunner::stopTestRun);
+    connect(m_stopTestRun, &QToolButton::clicked, TestRunner::instance(), &TestRunner::requestStopTestRun);
 
     m_filterButton = new QToolButton(m_listView);
     m_filterButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));

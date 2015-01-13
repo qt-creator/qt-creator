@@ -42,7 +42,6 @@ namespace Autotest {
 namespace Internal {
 
 static TestRunner *m_instance = 0;
-static QProcess *m_runner = 0;
 static QFutureInterface<void> *m_currentFuture = 0;
 
 TestRunner *TestRunner::instance()
@@ -64,8 +63,6 @@ TestRunner::~TestRunner()
     qDeleteAll(m_selectedTests);
     m_selectedTests.clear();
     m_instance = 0;
-    if (m_runner)
-        delete m_runner;
 }
 
 void TestRunner::setSelectedTests(const QList<TestConfiguration *> &selected)
@@ -199,9 +196,9 @@ void emitTestResultCreated(const TestResult &testResult)
 
 /****************** XML line parser helper end ******************/
 
-void processOutput()
+void processOutput(QProcess *testRunner)
 {
-    if (!m_runner)
+    if (!testRunner)
         return;
     static QString className;
     static QString testCase;
@@ -216,9 +213,9 @@ void processOutput()
     static QString qtestVersion;
     static QString bmDescription;
 
-    while (m_runner->canReadLine()) {
+    while (testRunner->canReadLine()) {
         // TODO Qt5 uses UTF-8 - while Qt4 uses ISO-8859-1 - could this be a problem?
-        const QString line = QString::fromUtf8(m_runner->readLine()).trimmed();
+        const QString line = QString::fromUtf8(testRunner->readLine()).trimmed();
         if (line.isEmpty() || line.startsWith(QLatin1String("<?xml version"))) {
             className = QString();
             continue;
@@ -255,7 +252,7 @@ void processOutput()
             if (line.endsWith(QLatin1String("/>"))) {
                 TestResult testResult(className, testCase, dataTag, result, description);
                 if (!file.isEmpty())
-                    file = QFileInfo(m_runner->workingDirectory(), file).canonicalFilePath();
+                    file = QFileInfo(testRunner->workingDirectory(), file).canonicalFilePath();
                 testResult.setFileName(file);
                 testResult.setLine(lineNumber);
                 emitTestResultCreated(testResult);
@@ -270,7 +267,7 @@ void processOutput()
         if (line == QLatin1String("</Message>") || line == QLatin1String("</Incident>")) {
             TestResult testResult(className, testCase, dataTag, result, description);
             if (!file.isEmpty())
-                file = QFileInfo(m_runner->workingDirectory(), file).canonicalFilePath();
+                file = QFileInfo(testRunner->workingDirectory(), file).canonicalFilePath();
             testResult.setFileName(file);
             testResult.setLine(lineNumber);
             emitTestResultCreated(testResult);
@@ -337,24 +334,30 @@ static QString which(const QString &path, const QString &cmd)
     return QString();
 }
 
-void performTestRun(QFutureInterface<void> &future, const QList<TestConfiguration *> selectedTests, const int timeout, const QString metricsOption)
+void performTestRun(QFutureInterface<void> &future, const QList<TestConfiguration *> selectedTests, const int timeout, const QString metricsOption, TestRunner* testRunner)
 {
     int testCaseCount = 0;
     foreach (const TestConfiguration *config, selectedTests)
         testCaseCount += config->testCaseCount();
 
     m_currentFuture = &future;
-    m_runner = new QProcess;
-    m_runner->setReadChannelMode(QProcess::MergedChannels);
-    m_runner->setReadChannel(QProcess::StandardOutput);
+    QProcess testProcess;
+    testProcess.setReadChannelMode(QProcess::MergedChannels);
+    testProcess.setReadChannel(QProcess::StandardOutput);
+    QObject::connect(testRunner, &TestRunner::requestStopTestRun, [&] () {
+        if (testProcess.state() != QProcess::NotRunning && m_currentFuture)
+            m_currentFuture->cancel();
+    });
 
-    QObject::connect(m_runner, &QProcess::readyReadStandardOutput, &processOutput);
+    QObject::connect(&testProcess, &QProcess::readyReadStandardOutput, [&] () {
+        processOutput(&testProcess);
+    });
 
-    future.setProgressRange(0, testCaseCount);
-    future.setProgressValue(0);
+    m_currentFuture->setProgressRange(0, testCaseCount);
+    m_currentFuture->setProgressValue(0);
 
     foreach (const TestConfiguration *tc, selectedTests) {
-        if (future.isCanceled())
+        if (m_currentFuture->isCanceled())
             break;
         QString command = tc->targetFile();
         QString workingDirectory = tc->workingDirectory();
@@ -380,23 +383,23 @@ void performTestRun(QFutureInterface<void> &future, const QList<TestConfiguratio
             continue;
         }
 
-        m_runner->setWorkingDirectory(workingDirectory);
-        m_runner->setProcessEnvironment(environment.toProcessEnvironment());
+        testProcess.setWorkingDirectory(workingDirectory);
+        testProcess.setProcessEnvironment(environment.toProcessEnvironment());
         QTime executionTimer;
 
         if (argumentList.count()) {
-            m_runner->start(runCmd, argumentList);
+            testProcess.start(runCmd, argumentList);
         } else {
-            m_runner->start(runCmd);
+            testProcess.start(runCmd);
         }
 
-        bool ok = m_runner->waitForStarted();
+        bool ok = testProcess.waitForStarted();
         executionTimer.start();
         if (ok) {
-            while (m_runner->state() == QProcess::Running && executionTimer.elapsed() < timeout) {
+            while (testProcess.state() == QProcess::Running && executionTimer.elapsed() < timeout) {
                 if (m_currentFuture->isCanceled()) {
-                    m_runner->kill();
-                    m_runner->waitForFinished();
+                    testProcess.kill();
+                    testProcess.waitForFinished();
                     emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL,
                                                            QObject::tr("*** Test Run canceled by user ***")));
                 }
@@ -405,18 +408,16 @@ void performTestRun(QFutureInterface<void> &future, const QList<TestConfiguratio
         }
 
         if (executionTimer.elapsed() >= timeout) {
-            if (m_runner->state() != QProcess::NotRunning) {
-                m_runner->kill();
-                m_runner->waitForFinished();
+            if (testProcess.state() != QProcess::NotRunning) {
+                testProcess.kill();
+                testProcess.waitForFinished();
                 emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL, QObject::tr(
                     "*** Test Case canceled due to timeout ***\nMaybe raise the timeout?")));
             }
         }
     }
-    future.setProgressValue(testCaseCount);
+    m_currentFuture->setProgressValue(testCaseCount);
 
-    delete m_runner;
-    m_runner = 0;
     m_currentFuture = 0;
 }
 
@@ -486,7 +487,7 @@ void TestRunner::runTests()
 
     emit testRunStarted();
 
-    QFuture<void> future = QtConcurrent::run(&performTestRun, m_selectedTests, timeout, metricsOption);
+    QFuture<void> future = QtConcurrent::run(&performTestRun, m_selectedTests, timeout, metricsOption, this);
     Core::FutureProgress *progress = Core::ProgressManager::addTask(future, tr("Running Tests"),
                                                                     Autotest::Constants::TASK_INDEX);
     connect(progress, &Core::FutureProgress::finished,
@@ -521,12 +522,6 @@ void TestRunner::onFinished()
 
     m_executingTests = false;
     emit testRunFinished();
-}
-
-void TestRunner::stopTestRun()
-{
-    if (m_runner && m_runner->state() != QProcess::NotRunning && m_currentFuture)
-        m_currentFuture->cancel();
 }
 
 } // namespace Internal
