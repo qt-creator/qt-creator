@@ -82,16 +82,31 @@ public:
         }
     }
 
-    template<typename RangeDelimiter>
-    static inline int insertSorted(QVector<RangeDelimiter> &container, const RangeDelimiter &item)
+    inline int insertStart(const Range &start)
     {
-        for (int i = container.count();;) {
+        for (int i = ranges.count();;) {
             if (i == 0) {
-                container.prepend(item);
+                ranges.prepend(start);
                 return 0;
             }
-            if (container[--i].timestamp() <= item.timestamp()) {
-                container.insert(++i, item);
+            const Range &range = ranges[--i];
+            if (range.start < start.start || (range.start == start.start &&
+                                              range.duration >= start.duration)) {
+                ranges.insert(++i, start);
+                return i;
+            }
+        }
+    }
+
+    inline int insertEnd(const RangeEnd &end)
+    {
+        for (int i = endTimes.count();;) {
+            if (i == 0) {
+                endTimes.prepend(end);
+                return 0;
+            }
+            if (endTimes[--i].end <= end.end) {
+                endTimes.insert(++i, end);
                 return i;
             }
         }

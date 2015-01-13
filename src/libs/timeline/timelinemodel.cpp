@@ -80,14 +80,27 @@ void TimelineModel::computeNesting()
                 parentIt = parents.erase(parentIt);
             } else if (parentEnd >= current.start + current.duration) {
                 // Current range is completely inside the parent range: no need to insert
-                current.parent = *parentIt;
+                current.parent = (parent.parent == -1 ? *parentIt : parent.parent);
                 break;
             } else if (parent.start == current.start) {
                 // The parent range starts at the same time but ends before the current range.
-                // We need to switch them.
-                QTC_CHECK(parent.parent == -1);
-                parent.parent = range;
-                *parentIt = range;
+                // We could switch them but that would violate the order requirements. When
+                // searching for ranges between two timestamps we'd skip the ranges between the
+                // current range and the parent range if the start timestamp points into the parent
+                // range. firstIndex() would then return the current range, which has an id greater
+                // than the parent. The parent could not be found then. To deal with this corner
+                // case, we assign the parent the "wrong" way around, so that on firstIndex() we
+                // always end up with the smallest id of any ranges starting at the same time.
+
+                // The other way to deal with this would be fixing up the ordering on insert. In
+                // fact we do that on insertStart().
+                // However, in order to rely on this we would also have to move the start index if
+                // on insertEnd() it turns out that the range just being ended is shorter than a
+                // previous one starting at the same time. We don't want to do that as client code
+                // could not find out about the changes in the IDs for range starts then.
+
+                current.parent = *parentIt;
+                parents.append(range);
                 break;
             } else {
                 ++parentIt;
@@ -315,8 +328,9 @@ int TimelineModel::firstIndex(qint64 startTime) const
 }
 
 /*!
-    Looks up the first range with an end time later than the specified \a startTime and
-    returns its index. If no such range is found, it returns -1.
+    Of all indexes of ranges starting at the same time as the first range with an end time later
+    than the specified \a startTime returns the lowest one. If no such range is found, it returns
+    -1.
 */
 int TimelineModel::TimelineModelPrivate::firstIndexNoParents(qint64 startTime) const
 {
@@ -434,11 +448,10 @@ int TimelineModel::insert(qint64 startTime, qint64 duration, int selectionId)
     Q_D(TimelineModel);
     /* Doing insert-sort here is preferable as most of the time the times will actually be
      * presorted in the right way. So usually this will just result in appending. */
-    int index = d->insertSorted(d->ranges,
-                                TimelineModelPrivate::Range(startTime, duration, selectionId));
+    int index = d->insertStart(TimelineModelPrivate::Range(startTime, duration, selectionId));
     if (index < d->ranges.size() - 1)
         d->incrementStartIndices(index);
-    d->insertSorted(d->endTimes, TimelineModelPrivate::RangeEnd(index, startTime + duration));
+    d->insertEnd(TimelineModelPrivate::RangeEnd(index, startTime + duration));
     return index;
 }
 
@@ -451,7 +464,7 @@ int TimelineModel::insert(qint64 startTime, qint64 duration, int selectionId)
 int TimelineModel::insertStart(qint64 startTime, int selectionId)
 {
     Q_D(TimelineModel);
-    int index = d->insertSorted(d->ranges, TimelineModelPrivate::Range(startTime, 0, selectionId));
+    int index = d->insertStart(TimelineModelPrivate::Range(startTime, 0, selectionId));
     if (index < d->ranges.size() - 1)
         d->incrementStartIndices(index);
     return index;
@@ -464,8 +477,7 @@ void TimelineModel::insertEnd(int index, qint64 duration)
 {
     Q_D(TimelineModel);
     d->ranges[index].duration = duration;
-    d->insertSorted(d->endTimes, TimelineModelPrivate::RangeEnd(index,
-            d->ranges[index].start + duration));
+    d->insertEnd(TimelineModelPrivate::RangeEnd(index, d->ranges[index].start + duration));
 }
 
 bool TimelineModel::expanded() const

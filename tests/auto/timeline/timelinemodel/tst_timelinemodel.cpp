@@ -102,6 +102,10 @@ DummyModel::DummyModel(QString displayName, QObject *parent) :
 
 void DummyModel::loadData()
 {
+    // TimelineModel is clever enough to sort the longer events before the short ones with the same
+    // start time to avoid unnecessary complications when assigning parents. So, if you do e.g.
+    // firstIndex(0) you get the first event insered in the third iteration of the loop.
+
     for (int i = 0; i < NumItems / 4; ++i) {
         insert((i / 3) * ItemSpacing, ItemDuration * (i + 1) + 2, 4);
         insert((i / 3) * ItemSpacing + 1, ItemDuration * (i + 1), 5);
@@ -248,8 +252,8 @@ void tst_TimelineModel::times()
     DummyModel dummy;
     dummy.loadData();
     QCOMPARE(dummy.startTime(0), 0);
-    QCOMPARE(dummy.duration(0), ItemDuration + 2);
-    QCOMPARE(dummy.endTime(0), ItemDuration + 2);
+    QCOMPARE(dummy.duration(0), ItemDuration * 3 + 2);
+    QCOMPARE(dummy.endTime(0), ItemDuration * 3 + 2);
 
 }
 
@@ -272,8 +276,8 @@ void tst_TimelineModel::firstLast()
     QCOMPARE(dummy.lastIndex(5), 0);
     dummy.clear();
     dummy.loadData();
-    QCOMPARE(dummy.firstIndex(0), 2);
-    QCOMPARE(dummy.firstIndex(ItemSpacing + 1), 2);
+    QCOMPARE(dummy.firstIndex(0), 0);
+    QCOMPARE(dummy.firstIndex(ItemSpacing + 1), 0);
     QCOMPARE(dummy.lastIndex(0), -1);
     QCOMPARE(dummy.lastIndex(ItemSpacing + 1), 14);
     QCOMPARE(dummy.firstIndex(ItemDuration * 5000), -1);
@@ -362,7 +366,7 @@ void tst_TimelineModel::colorBySelectionId()
 {
     DummyModel dummy;
     dummy.loadData();
-    QCOMPARE(dummy.colorBySelectionId(5), QColor::fromHsl(5 * 25, 150, 166));
+    QCOMPARE(dummy.colorBySelectionId(5), QColor::fromHsl(6 * 25, 150, 166));
 }
 
 void tst_TimelineModel::colorByFraction()
@@ -388,6 +392,14 @@ void tst_TimelineModel::insertStartEnd()
     dummy.insertEnd(id2, 10);
     QCOMPARE(dummy.startTime(id2), 5);
     QCOMPARE(dummy.endTime(id2), 15);
+
+    int id3 = dummy.insertStart(10, 1);
+    QVERIFY(id3 > id);
+    dummy.insertEnd(id3, 20);
+
+    // Make sure that even though the new range is larger than the one pointed to by id, we still
+    // get to search from id when looking up a timestamp which is in both ranges.
+    QCOMPARE(dummy.firstIndex(11), id);
 }
 
 void tst_TimelineModel::rowCount()
@@ -426,7 +438,7 @@ void tst_TimelineModel::prevNext()
     QCOMPARE(dummy.nextItemBySelectionId(5, 10, -1), 15);
     QCOMPARE(dummy.prevItemBySelectionId(5, 10, -1), 6);
     QCOMPARE(dummy.nextItemBySelectionId(5, 10, 5), 6);
-    QCOMPARE(dummy.prevItemBySelectionId(5, 10, 5), 3);
+    QCOMPARE(dummy.prevItemBySelectionId(5, 10, 5), 4);
     QCOMPARE(dummy.nextItemByTypeId(-1, 10, 5), 6);
     QCOMPARE(dummy.prevItemByTypeId(-1, 10, 5), 4);
 }
