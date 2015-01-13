@@ -40,9 +40,8 @@ Item {
     property bool mockup
     property string text: model ? model.displayName : ""
     property bool expanded: model && model.expanded
-    property var descriptions: []
-    property var extdescriptions: []
-    property var selectionIds: []
+    property var labels: model ? model.labels : []
+
     property bool dragging
     property int visualIndex
     property int dragOffset
@@ -64,27 +63,6 @@ Item {
 
     height: model ? Math.max(txt.height, model.height) : 0
     width: 150
-
-    function updateDescriptions() {
-        var desc=[];
-        var ids=[];
-        var extdesc=[];
-        var labelList = model.labels;
-        for (var i = 0; i < labelList.length; i++ ) {
-            extdesc[i] = desc[i] = (labelList[i].description || qsTr("<bytecode>"));
-            ids[i] = labelList[i].id;
-            if (labelList[i].displayName !== undefined)
-                extdesc[i] += " (" + labelList[i].displayName + ")";
-        }
-        descriptions = desc;
-        selectionIds = ids;
-        extdescriptions = extdesc;
-    }
-
-    Connections {
-        target: model
-        onLabelsChanged: updateDescriptions()
-    }
 
     MouseArea {
         id: dragArea
@@ -131,19 +109,23 @@ Item {
         anchors.top: txt.bottom
         visible: expanded
         Repeater {
-            model: descriptions.length
+            model: labels.length
             Button {
+                id: button
+                property string labelText: labels[index].description ? labels[index].description :
+                                                                       qsTr("[unknown]")
                 width: labelContainer.width
                 height: column.parentModel ? column.parentModel.rowHeight(index + 1) : 0
                 action: Action {
                     onTriggered: {
                         if (reverseSelect)
-                            labelContainer.selectPrevBySelectionId(selectionIds[index]);
+                            labelContainer.selectPrevBySelectionId(labels[index].id);
                         else
-                            labelContainer.selectNextBySelectionId(selectionIds[index]);
+                            labelContainer.selectNextBySelectionId(labels[index].id);
                     }
 
-                    tooltip: extdescriptions[index]
+                    tooltip: button.labelText + (labels[index].displayName ?
+                                                     (" (" + labels[index].displayName + ")") : "")
                 }
 
                 style: ButtonStyle {
@@ -153,7 +135,7 @@ Item {
                         color: "#eaeaea"
                     }
                     label: Text {
-                        text: descriptions[index]
+                        text: button.labelText
                         textFormat: Text.PlainText
                         verticalAlignment: Text.AlignVCenter
                         horizontalAlignment: Text.AlignLeft
