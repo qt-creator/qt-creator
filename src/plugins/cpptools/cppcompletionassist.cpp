@@ -1513,7 +1513,7 @@ void CppCompletionAssistProcessor::completeNamespace(CPlusPlus::ClassOrNamespace
 
             scopesVisited.insert(scope);
 
-            for (Scope::iterator it = scope->firstMember(); it != scope->lastMember(); ++it) {
+            for (Scope::iterator it = scope->memberBegin(); it != scope->memberEnd(); ++it) {
                 Symbol *member = *it;
                 addCompletionItem(member);
             }
@@ -1570,7 +1570,7 @@ void CppCompletionAssistProcessor::addClassMembersToCompletion(Scope *scope, boo
 
     std::set<Class *> nestedAnonymouses;
 
-    for (Scope::iterator it = scope->firstMember(); it != scope->lastMember(); ++it) {
+    for (Scope::iterator it = scope->memberBegin(); it != scope->memberEnd(); ++it) {
         Symbol *member = *it;
         if (member->isFriend()
                 || member->isQtPropertyDeclaration()

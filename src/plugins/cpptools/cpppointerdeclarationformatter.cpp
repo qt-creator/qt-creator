@@ -353,7 +353,7 @@ void PointerDeclarationFormatter::processIfWhileForStatement(ExpressionAST *expr
     //
     // The declaration for 's' will be handled in visit(SimpleDeclarationAST *ast),
     // so handle declaration for 't' here.
-    Scope::iterator it = block->lastMember() - 1;
+    Scope::iterator it = block->memberEnd() - 1;
     Symbol *symbol = *it;
     if (symbol && symbol->asScope()) { // True if there is a  "{ ... }" following.
         --it;

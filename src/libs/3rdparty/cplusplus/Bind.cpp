@@ -530,7 +530,7 @@ void Bind::enumerator(EnumeratorAST *ast, Enum *symbol)
         if (ExpressionAST *expr = ast->expression)
             e->setConstantValue(asStringLiteral(expr->firstToken(), expr->lastToken()));
         else if (!symbol->isEmpty())
-            calculateConstantValue(*(symbol->lastMember()-1), e, control());
+            calculateConstantValue(*(symbol->memberEnd()-1), e, control());
         else
             e->setConstantValue(control()->stringLiteral("0", 1));
 

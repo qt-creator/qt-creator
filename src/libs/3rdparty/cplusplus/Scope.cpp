@@ -238,7 +238,7 @@ Scope::Scope(Clone *clone, Subst *subst, Scope *original)
     , _startOffset(original->_startOffset)
     , _endOffset(original->_endOffset)
 {
-    for (iterator it = original->firstMember(), end = original->lastMember(); it != end; ++it)
+    for (iterator it = original->memberBegin(), end = original->memberEnd(); it != end; ++it)
         addMember(clone->symbol(*it, subst));
 }
 
@@ -267,11 +267,11 @@ Symbol *Scope::memberAt(unsigned index) const
 { return _members ? _members->symbolAt(index) : 0; }
 
 /// Returns the first Symbol in the scope.
-Scope::iterator Scope::firstMember() const
+Scope::iterator Scope::memberBegin() const
 { return _members ? _members->firstSymbol() : 0; }
 
 /// Returns the last Symbol in the scope.
-Scope::iterator Scope::lastMember() const
+Scope::iterator Scope::memberEnd() const
 { return _members ? _members->lastSymbol() : 0; }
 
 Symbol *Scope::find(const Identifier *id) const

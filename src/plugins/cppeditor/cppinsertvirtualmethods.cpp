@@ -509,7 +509,7 @@ public:
         QHash<const Function *, FunctionItem *> virtualFunctions;
         foreach (const Class *clazz, baseClasses) {
             ClassItem *itemBase = new ClassItem(printer.prettyName(clazz->name()), clazz);
-            for (Scope::iterator it = clazz->firstMember(); it != clazz->lastMember(); ++it) {
+            for (Scope::iterator it = clazz->memberBegin(); it != clazz->memberEnd(); ++it) {
                 if (const Function *func = (*it)->type()->asFunctionType()) {
                     // Filter virtual destructors
                     if (func->name()->asDestructorNameId())

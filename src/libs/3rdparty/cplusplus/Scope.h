@@ -48,11 +48,11 @@ public:
 
     typedef Symbol **iterator;
 
-    /// Returns the first Symbol in the scope.
-    iterator firstMember() const;
+    /// Returns member iterator to the beginning.
+    iterator memberBegin() const;
 
-    /// Returns the last Symbol in the scope.
-    iterator lastMember() const;
+    /// Returns member iterator to the end.
+    iterator memberEnd() const;
 
     Symbol *find(const Identifier *id) const;
     Symbol *find(OperatorNameId::Kind operatorId) const;

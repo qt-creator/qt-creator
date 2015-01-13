@@ -384,8 +384,8 @@ void Parser::addSymbol(const ParserTreeItem::Ptr &item, const CPlusPlus::Symbol 
     // prevent showing a content of the functions
     if (!symbol->isFunction()) {
         if (const CPlusPlus::Scope *scope = symbol->asScope()) {
-            CPlusPlus::Scope::iterator cur = scope->firstMember();
-            CPlusPlus::Scope::iterator last = scope->lastMember();
+            CPlusPlus::Scope::iterator cur = scope->memberBegin();
+            CPlusPlus::Scope::iterator last = scope->memberEnd();
             while (cur != last) {
                 const CPlusPlus::Symbol *curSymbol = *cur;
                 ++cur;

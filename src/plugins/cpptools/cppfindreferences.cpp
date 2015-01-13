@@ -141,8 +141,8 @@ static QByteArray idForSymbol(Symbol *symbol)
         // add the index of this symbol within its enclosing scope
         // (counting symbols without identifier of the same type)
         int count = 0;
-        Scope::iterator it = scope->firstMember();
-        while (it != scope->lastMember() && *it != symbol) {
+        Scope::iterator it = scope->memberBegin();
+        while (it != scope->memberEnd() && *it != symbol) {
             Symbol *val = *it;
             ++it;
             if (val->identifier() || typeId(val) != uid)
