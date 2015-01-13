@@ -662,6 +662,14 @@ QVariant TreeItem::data(int column, int role) const
     return QVariant();
 }
 
+bool TreeItem::setData(int column, const QVariant &data, int role)
+{
+    Q_UNUSED(column);
+    Q_UNUSED(data);
+    Q_UNUSED(role);
+    return false;
+}
+
 Qt::ItemFlags TreeItem::flags(int column) const
 {
     Q_UNUSED(column);
@@ -783,6 +791,15 @@ int TreeModel::columnCount(const QModelIndex &idx) const
     if (idx.column() > 0)
         return 0;
     return itemFromIndex(idx)->columnCount();
+}
+
+bool TreeModel::setData(const QModelIndex &idx, const QVariant &data, int role)
+{
+    TreeItem *item = itemFromIndex(idx);
+    bool res = item ? item->setData(idx.column(), data, role) : false;
+    if (res)
+        emit dataChanged(idx, idx);
+    return res;
 }
 
 QVariant TreeModel::data(const QModelIndex &idx, int role) const

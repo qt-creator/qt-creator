@@ -58,6 +58,7 @@ public:
     virtual void populate();
 
     virtual QVariant data(int column, int role) const;
+    virtual bool setData(int column, const QVariant &data, int role);
     virtual Qt::ItemFlags flags(int column) const;
 
     void prependChild(TreeItem *item);
@@ -220,6 +221,7 @@ public:
     int rowCount(const QModelIndex &idx = QModelIndex()) const;
     int columnCount(const QModelIndex &idx) const;
 
+    bool setData(const QModelIndex &idx, const QVariant &data, int role);
     QVariant data(const QModelIndex &idx, int role) const;
     QModelIndex index(int, int, const QModelIndex &idx) const;
     QModelIndex parent(const QModelIndex &idx) const;
