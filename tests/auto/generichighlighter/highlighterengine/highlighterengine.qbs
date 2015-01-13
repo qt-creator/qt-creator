@@ -2,6 +2,7 @@ import qbs
 
 QtcAutotest {
     name: "Highlighter engine autotest"
+    Depends { name: "Core" }
     Depends { name: "Utils" }
     Depends { name: "Qt.widgets" }
     Group {
