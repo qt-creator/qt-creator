@@ -34,7 +34,7 @@ namespace Timeline {
 
 TimelineAbstractRenderer::TimelineAbstractRendererPrivate::TimelineAbstractRendererPrivate() :
     selectedItem(-1), selectionLocked(true), model(0), notes(0), zoomer(0), modelDirty(false),
-    rowHeightsDirty(false)
+    rowHeightsDirty(false), notesDirty(false)
 {
 }
 
@@ -138,8 +138,8 @@ void TimelineAbstractRenderer::setNotes(TimelineNotesModel *notes)
         connect(d->notes, &TimelineNotesModel::changed,
                 this, &TimelineAbstractRenderer::setNotesDirty);
 
+    setNotesDirty();
     emit notesChanged(d->notes);
-    update();
 }
 
 TimelineZoomControl *TimelineAbstractRenderer::zoomer() const
