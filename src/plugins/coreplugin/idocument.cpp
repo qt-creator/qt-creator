@@ -80,12 +80,12 @@ public:
         delete infoBar;
     }
 
-    Id id;
     QString mimeType;
     Utils::FileName filePath;
     QString displayName;
     QString autoSaveName;
     InfoBar *infoBar;
+    Id id;
     bool temporary;
     bool hasWriteWarning;
     bool restored;
