@@ -40,11 +40,14 @@ using namespace CPlusPlus;
 FastPreprocessor::FastPreprocessor(const Snapshot &snapshot)
     : _snapshot(snapshot)
     , _preproc(this, &_env)
+    , _addIncludesToCurrentDoc(false)
 { }
 
 QByteArray FastPreprocessor::run(Document::Ptr newDoc, const QByteArray &source)
 {
     std::swap(newDoc, _currentDoc);
+    _addIncludesToCurrentDoc = _currentDoc->resolvedIncludes().isEmpty()
+            && _currentDoc->unresolvedIncludes().isEmpty();
     const QString fileName = _currentDoc->fileName();
     _preproc.setExpandFunctionlikeMacros(false);
     _preproc.setKeepComments(true);
@@ -72,9 +75,11 @@ void FastPreprocessor::sourceNeeded(unsigned line, const QString &fileName, Incl
 {
     Q_UNUSED(initialIncludes)
     Q_ASSERT(_currentDoc);
-    // CHECKME: Is that cleanName needed?
-    QString cleanName = QDir::cleanPath(fileName);
-    _currentDoc->addIncludeFile(Document::Include(fileName, cleanName, line, mode));
+    if (_addIncludesToCurrentDoc) {
+        // CHECKME: Is that cleanName needed?
+        const QString cleanName = QDir::cleanPath(fileName);
+        _currentDoc->addIncludeFile(Document::Include(fileName, cleanName, line, mode));
+    }
     mergeEnvironment(fileName);
 }
 

@@ -143,13 +143,6 @@ LineForNewIncludeDirective::LineForNewIncludeDirective(const QTextDocument *text
         m_includes = includes;
     }
 
-    // TODO: Remove this filter loop once FastPreprocessor::sourceNeeded does not add
-    // extra includes anymore.
-    for (int i = m_includes.count() - 1; i >= 0; --i) {
-        if (!QFileInfo(m_includes.at(i).resolvedFileName()).isAbsolute())
-            m_includes.removeAt(i);
-    }
-
     // Detect include style
     if (m_includeStyle == AutoDetect) {
         unsigned timesIncludeStyleChanged = 0;

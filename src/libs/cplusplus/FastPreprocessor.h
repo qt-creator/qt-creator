@@ -49,6 +49,7 @@ class CPLUSPLUS_EXPORT FastPreprocessor: public Client
     Preprocessor _preproc;
     QSet<QString> _merged;
     Document::Ptr _currentDoc;
+    bool _addIncludesToCurrentDoc;
 
     void mergeEnvironment(const QString &fileName);
 
