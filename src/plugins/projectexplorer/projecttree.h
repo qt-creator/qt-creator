@@ -63,6 +63,9 @@ public:
     static Project *projectForNode(Node *node);
 
     static void aboutToShutDown();
+
+    static void showContextMenu(Internal::ProjectTreeWidget *focus, const QPoint &globalPos, Node *node);
+
 signals:
     void currentProjectChanged(ProjectExplorer::Project *project);
     void currentNodeChanged(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
@@ -94,6 +97,9 @@ signals:
     void nodeSortKeyAboutToChange(Node *node);
     void nodeSortKeyChanged();
 
+    void aboutToShowContextMenu(ProjectExplorer::Project *project,
+                                ProjectExplorer::Node *node);
+
 public: // for nodes to emit signals, do not call unless you are a node
     void emitNodeUpdated(ProjectExplorer::Node *node);
 
@@ -121,6 +127,8 @@ public: // for nodes to emit signals, do not call unless you are a node
     void emitNodeSortKeyAboutToChange(Node *node);
     void emitNodeSortKeyChanged(Node *node);
 
+    void collapseAll();
+
 private:
     void focusChanged();
     void updateFromProjectTreeWidget(Internal::ProjectTreeWidget *widget);
@@ -144,6 +152,7 @@ private:
     bool m_resetCurrentNodeFolder;
     bool m_resetCurrentNodeFile;
     bool m_resetCurrentNodeProject;
+    Internal::ProjectTreeWidget *m_focusForContextMenu;
     Core::Context m_lastProjectContext;
 };
 }

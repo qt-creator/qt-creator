@@ -208,12 +208,7 @@ public:
     void updateDeployActions();
     void updateRunWithoutDeployMenu();
 
-    QMenu *m_sessionContextMenu;
     QMenu *m_sessionMenu;
-    QMenu *m_projectMenu;
-    QMenu *m_subProjectMenu;
-    QMenu *m_folderMenu;
-    QMenu *m_fileMenu;
     QMenu *m_openWithMenu;
 
     QMultiMap<int, QObject*> m_actionMap;
@@ -549,12 +544,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         ActionManager::createMenu(Constants::M_FOLDERCONTEXT);
     ActionContainer *mfileContextMenu =
         ActionManager::createMenu(Constants::M_FILECONTEXT);
-
-    dd->m_sessionContextMenu = msessionContextMenu->menu();
-    dd->m_projectMenu = mprojectContextMenu->menu();
-    dd->m_subProjectMenu = msubProjectContextMenu->menu();
-    dd->m_folderMenu = mfolderContextMenu->menu();
-    dd->m_fileMenu = mfileContextMenu->menu();
 
     ActionContainer *mfile =
         ActionManager::actionContainer(Core::Constants::M_FILE);
@@ -1092,6 +1081,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(dd->m_deleteFileAction, SIGNAL(triggered()), this, SLOT(deleteFile()));
     connect(dd->m_renameFileAction, SIGNAL(triggered()), this, SLOT(renameFile()));
     connect(dd->m_setStartupProjectAction, SIGNAL(triggered()), this, SLOT(setStartupProject()));
+    connect(dd->m_projectTreeCollapseAllAction, &QAction::triggered,
+            ProjectTree::instance(), &ProjectTree::collapseAll);
 
     connect(this, SIGNAL(updateRunActions()), this, SLOT(slotUpdateRunActions()));
     connect(this, &ProjectExplorerPlugin::settingsChanged,
@@ -1669,6 +1660,11 @@ QStringList ProjectExplorerPlugin::projectFileGlobs()
     return result;
 }
 
+void ProjectExplorerPlugin::updateContextMenuActions()
+{
+    dd->updateContextMenuActions();
+}
+
 /*!
     This function is connected to the ICore::coreOpened signal.  If
     there was no session explicitly loaded, it creates an empty new
@@ -1756,49 +1752,6 @@ void ProjectExplorerPlugin::loadSession(const QString &session)
     if (debug)
         qDebug() << "ProjectExplorerPlugin::loadSession" << session;
     SessionManager::loadSession(session);
-}
-
-
-void ProjectExplorerPlugin::showContextMenu(QWidget *view, const QPoint &globalPos, Node *node)
-{
-    QMenu *contextMenu = 0;
-
-    if (!node)
-        node = SessionManager::sessionNode();
-
-    if (node->nodeType() != SessionNodeType) {
-        Project *project = SessionManager::projectForNode(node);
-
-        emit m_instance->aboutToShowContextMenu(project, node);
-        switch (node->nodeType()) {
-        case ProjectNodeType:
-            if (node->parentFolderNode() == SessionManager::sessionNode())
-                contextMenu = dd->m_projectMenu;
-            else
-                contextMenu = dd->m_subProjectMenu;
-            break;
-        case VirtualFolderNodeType:
-        case FolderNodeType:
-            contextMenu = dd->m_folderMenu;
-            break;
-        case FileNodeType:
-            m_instance->populateOpenWithMenu();
-            contextMenu = dd->m_fileMenu;
-            break;
-        default:
-            qWarning("ProjectExplorerPlugin::showContextMenu - Missing handler for node type");
-        }
-    } else { // session item
-        emit m_instance->aboutToShowContextMenu(0, node);
-
-        contextMenu = dd->m_sessionContextMenu;
-    }
-
-    dd->updateContextMenuActions();
-    dd->m_projectTreeCollapseAllAction->disconnect(SIGNAL(triggered()));
-    connect(dd->m_projectTreeCollapseAllAction, SIGNAL(triggered()), view, SLOT(collapseAll()));
-    if (contextMenu && contextMenu->actions().count() > 0)
-        contextMenu->popup(globalPos);
 }
 
 void ProjectExplorerPlugin::buildStateChanged(Project * pro)
@@ -2857,6 +2810,8 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
 
             dd->m_removeFileAction->setVisible(!enableDelete || enableRemove);
             dd->m_renameFileAction->setEnabled(actions.contains(Rename));
+
+            DocumentManager::populateOpenWithMenu(dd->m_openWithMenu, ProjectTree::currentNode()->path());
         }
 
         if (actions.contains(HidePathActions)) {
@@ -3109,11 +3064,6 @@ void ProjectExplorerPlugin::setStartupProject()
 void ProjectExplorerPlugin::showRenameFileError()
 {
     QMessageBox::warning(ICore::mainWindow(), tr("Project Editing Failed"), dd->m_renameFileError);
-}
-
-void ProjectExplorerPlugin::populateOpenWithMenu()
-{
-    DocumentManager::populateOpenWithMenu(dd->m_openWithMenu, ProjectTree::currentNode()->path());
 }
 
 void ProjectExplorerPlugin::updateSessionMenu()

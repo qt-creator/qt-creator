@@ -33,6 +33,7 @@
 #include "session.h"
 #include "project.h"
 #include "projectnodes.h"
+#include "projectexplorerconstants.h"
 
 #include <utils/algorithm.h>
 #include <coreplugin/documentmanager.h>
@@ -41,6 +42,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/vcsmanager.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 
 #include <QApplication>
 #include <QTimer>
@@ -60,7 +63,8 @@ ProjectTree::ProjectTree(QObject *parent)
       m_currentProject(0),
       m_resetCurrentNodeFolder(false),
       m_resetCurrentNodeFile(false),
-      m_resetCurrentNodeProject(false)
+      m_resetCurrentNodeProject(false),
+      m_focusForContextMenu(0)
 {
     s_instance = this;
 
@@ -120,8 +124,10 @@ void ProjectTree::focusChanged()
 
 void ProjectTree::updateFromFocus(bool invalidCurrentNode)
 {
-    ProjectTreeWidget *focus = Utils::findOrDefault(m_projectTreeWidgets,
-                                                    &ProjectTree::hasFocus);
+    ProjectTreeWidget *focus = m_focusForContextMenu;
+    if (!focus)
+        focus = Utils::findOrDefault(m_projectTreeWidgets,
+                                     &ProjectTree::hasFocus);
 
     if (focus)
         updateFromProjectTreeWidget(focus);
@@ -365,6 +371,12 @@ void ProjectTree::emitNodeSortKeyChanged(Node *node)
     emit nodeSortKeyChanged();
 }
 
+void ProjectTree::collapseAll()
+{
+    if (m_focusForContextMenu)
+        m_focusForContextMenu->collapseAll();
+}
+
 void ProjectTree::updateExternalFileWarning()
 {
     Core::IDocument *document = qobject_cast<Core::IDocument *>(sender());
@@ -402,7 +414,56 @@ void ProjectTree::updateExternalFileWarning()
 
 bool ProjectTree::hasFocus(ProjectTreeWidget *widget)
 {
-    return widget && widget->focusWidget() && widget->focusWidget()->hasFocus();
+    return widget
+            && ((widget->focusWidget() && widget->focusWidget()->hasFocus())
+                || s_instance->m_focusForContextMenu == widget);
+}
+
+void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &globalPos, Node *node)
+{
+    QMenu *contextMenu = 0;
+
+    if (!node)
+        node = SessionManager::sessionNode();
+    if (node->nodeType() != SessionNodeType) {
+        Project *project = SessionManager::projectForNode(node);
+
+        emit s_instance->aboutToShowContextMenu(project, node);
+        switch (node->nodeType()) {
+        case ProjectNodeType:
+            if (node->parentFolderNode() == SessionManager::sessionNode())
+                contextMenu = Core::ActionManager::actionContainer(Constants::M_PROJECTCONTEXT)->menu();
+            else
+                contextMenu = Core::ActionManager::actionContainer(Constants::M_SUBPROJECTCONTEXT)->menu();
+            break;
+        case VirtualFolderNodeType:
+        case FolderNodeType:
+            contextMenu = Core::ActionManager::actionContainer(Constants::M_FOLDERCONTEXT)->menu();
+            break;
+        case FileNodeType:
+            contextMenu = Core::ActionManager::actionContainer(Constants::M_FILECONTEXT)->menu();
+            break;
+        default:
+            qWarning("ProjectExplorerPlugin::showContextMenu - Missing handler for node type");
+        }
+    } else { // session item
+        emit s_instance->aboutToShowContextMenu(0, node);
+
+        contextMenu = Core::ActionManager::actionContainer(Constants::M_SESSIONCONTEXT)->menu();
+    }
+
+    if (contextMenu && contextMenu->actions().count() > 0) {
+        contextMenu->popup(globalPos);
+        s_instance->m_focusForContextMenu = focus;
+        connect(contextMenu, &QMenu::aboutToHide,
+                s_instance, &ProjectTree::hideContextMenu,
+                Qt::UniqueConnection);
+    }
+}
+
+void ProjectTree::hideContextMenu()
+{
+    m_focusForContextMenu = 0;
 }
 
 bool ProjectTree::isInNodeHierarchy(Node *n)

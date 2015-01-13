@@ -44,7 +44,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/selectablefilesmodel.h>
 
 #include <QtPlugin>
@@ -85,7 +85,7 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
     connect(editFilesAction, &QAction::triggered,
             this, &GenericProjectPlugin::editFiles);
 
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::aboutToShowContextMenu,
+    connect(ProjectTree::instance(), &ProjectTree::aboutToShowContextMenu,
             [this] (Project *project, Node *) { m_contextMenuProject = project; });
 
     return true;

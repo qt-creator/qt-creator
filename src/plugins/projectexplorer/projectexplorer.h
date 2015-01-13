@@ -117,11 +117,11 @@ public:
     static QString directoryFor(Node *node);
     static QStringList projectFileGlobs();
 
+    static void updateContextMenuActions();
+
 signals:
     void runControlStarted(ProjectExplorer::RunControl *rc);
     void runControlFinished(ProjectExplorer::RunControl *rc);
-    void aboutToShowContextMenu(ProjectExplorer::Project *project,
-                                ProjectExplorer::Node *node);
 
     // Is emitted when a project has been added/removed,
     // or the file list of a specific project has changed.
@@ -163,7 +163,6 @@ private slots:
     void closeAllProjects();
     void newProject();
     void showSessionManager();
-    void populateOpenWithMenu();
     void updateSessionMenu();
     void setSession(QAction *action);
 

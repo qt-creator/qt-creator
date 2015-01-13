@@ -403,7 +403,7 @@ void ProjectTreeWidget::showContextMenu(const QPoint &pos)
 {
     QModelIndex index = m_view->indexAt(pos);
     Node *node = m_model->nodeForIndex(index);
-    ProjectExplorerPlugin::showContextMenu(this, m_view->mapToGlobal(pos), node);
+    ProjectTree::showContextMenu(this, m_view->mapToGlobal(pos), node);
 }
 
 void ProjectTreeWidget::handleProjectAdded(Project *project)
