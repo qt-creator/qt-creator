@@ -35,18 +35,11 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QModelIndex>
 #include <QPointer>
-
-QT_BEGIN_NAMESPACE
-class QItemSelectionModel;
-class QTreeView;
-class QPushButton;
-QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 
-namespace Internal { class KitModel; }
+namespace Internal { class KitOptionsPageWidget; }
 
 class Kit;
 
@@ -66,31 +59,9 @@ public:
     void finish();
 
     void showKit(Kit *k);
-private slots:
-    void kitSelectionChanged();
-    void addNewKit();
-    void cloneKit();
-    void removeKit();
-    void makeDefaultKit();
-    void updateState();
 
 private:
-    QModelIndex currentIndex() const;
-    Kit *currentKit() const;
-
-    QTreeView *m_kitsView;
-    QPushButton *m_addButton;
-    QPushButton *m_cloneButton;
-    QPushButton *m_delButton;
-    QPushButton *m_makeDefaultButton;
-
-    QPointer<QWidget> m_configWidget;
-
-    Internal::KitModel *m_model;
-    QItemSelectionModel *m_selectionModel;
-    QWidget *m_currentWidget;
-
-    Kit *m_toShow;
+    QPointer<Internal::KitOptionsPageWidget> m_widget;
 };
 
 } // namespace ProjectExplorer
