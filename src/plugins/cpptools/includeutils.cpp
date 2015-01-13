@@ -131,7 +131,11 @@ LineForNewIncludeDirective::LineForNewIncludeDirective(const QTextDocument *text
     , m_cppDocument(cppDocument)
     , m_includeStyle(includeStyle)
 {
-    const QList<Document::Include> includes = cppDocument->resolvedIncludes();
+    QList<Document::Include> includes
+        = cppDocument->resolvedIncludes() + cppDocument->unresolvedIncludes();
+    Utils::sort(includes, [](const Include &left, const Include &right) {
+        return left.line() < right.line();
+    });
 
     // Ignore *.moc includes if requested
     if (mocIncludeMode == IgnoreMocIncludes) {
@@ -321,11 +325,6 @@ QList<IncludeGroup> LineForNewIncludeDirective::getGroupsByIncludeType(
 /// includes will be modified!
 QList<IncludeGroup> IncludeGroup::detectIncludeGroupsByNewLines(QList<Document::Include> &includes)
 {
-    // Sort by line
-    Utils::sort(includes, [](const Include &left, const Include &right) {
-        return left.line() < right.line();
-    });
-
     // Create groups
     QList<IncludeGroup> result;
     unsigned lastLine = 0;
