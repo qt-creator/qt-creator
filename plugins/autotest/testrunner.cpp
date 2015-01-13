@@ -336,60 +336,8 @@ static QString which(const QString &path, const QString &cmd)
     }
     return QString();
 }
-bool performExec(const QString &command, const QStringList &argumentList, const QString &workingDirectory,
-                 const Utils::Environment &environment, int timeout)
-{
-    QString runCmd;
-    if (!QDir::toNativeSeparators(command).contains(QDir::separator())) {
-        if (environment.hasKey(QLatin1String("PATH")))
-            runCmd = which(environment.value(QLatin1String("PATH")), command);
-    } else if (QFileInfo(command).exists()) {
-        runCmd = command;
-    }
 
-    if (runCmd.isEmpty()) {
-        emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL,
-            QObject::tr("*** Could not find command '%1' ***").arg(command)));
-        return false;
-    }
-
-    m_runner->setWorkingDirectory(workingDirectory);
-    m_runner->setProcessEnvironment(environment.toProcessEnvironment());
-    QTime executionTimer;
-
-    if (argumentList.count()) {
-        m_runner->start(runCmd, argumentList);
-    } else {
-        m_runner->start(runCmd);
-    }
-
-    bool ok = m_runner->waitForStarted();
-    executionTimer.start();
-    if (ok) {
-        while (m_runner->state() == QProcess::Running && executionTimer.elapsed() < timeout) {
-            if (m_currentFuture->isCanceled()) {
-                m_runner->kill();
-                m_runner->waitForFinished();
-                emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL,
-                    QObject::tr("*** Test Run canceled by user ***")));
-            }
-            qApp->processEvents();
-        }
-    }
-    if (ok && executionTimer.elapsed() < timeout) {
-        return m_runner->exitCode() == 0;
-    } else {
-        if (m_runner->state() != QProcess::NotRunning) {
-            m_runner->kill();
-            m_runner->waitForFinished();
-            emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL,
-                QObject::tr("*** Test Case canceled due to timeout ***\nMaybe raise the timeout?")));
-        }
-        return false;
-    }
-}
-
-void performTestRun(QFutureInterface<void> &future, const QList<TestConfiguration *> selectedTests)
+void performTestRun(QFutureInterface<void> &future, const QList<TestConfiguration *> selectedTests, const int timeout, const QString metricsOption)
 {
     int testCaseCount = 0;
     foreach (const TestConfiguration *config, selectedTests)
@@ -405,10 +353,6 @@ void performTestRun(QFutureInterface<void> &future, const QList<TestConfiguratio
     future.setProgressRange(0, testCaseCount);
     future.setProgressValue(0);
 
-    const QSharedPointer<TestSettings> settings = AutotestPlugin::instance()->settings();
-    const int timeout = settings->timeout;
-    const QString metricsOption = TestSettings::metricsTypeToOption(settings->metrics);
-
     foreach (const TestConfiguration *tc, selectedTests) {
         if (future.isCanceled())
             break;
@@ -422,8 +366,52 @@ void performTestRun(QFutureInterface<void> &future, const QList<TestConfiguratio
             argumentList << metricsOption;
         if (tc->testCases().count())
             argumentList << tc->testCases();
+        QString runCmd;
+        if (!QDir::toNativeSeparators(command).contains(QDir::separator())) {
+            if (environment.hasKey(QLatin1String("PATH")))
+                runCmd = which(environment.value(QLatin1String("PATH")), command);
+        } else if (QFileInfo(command).exists()) {
+            runCmd = command;
+        }
 
-        performExec(command, argumentList, workingDirectory, environment, timeout);
+        if (runCmd.isEmpty()) {
+            emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL,
+                QObject::tr("*** Could not find command '%1' ***").arg(command)));
+            continue;
+        }
+
+        m_runner->setWorkingDirectory(workingDirectory);
+        m_runner->setProcessEnvironment(environment.toProcessEnvironment());
+        QTime executionTimer;
+
+        if (argumentList.count()) {
+            m_runner->start(runCmd, argumentList);
+        } else {
+            m_runner->start(runCmd);
+        }
+
+        bool ok = m_runner->waitForStarted();
+        executionTimer.start();
+        if (ok) {
+            while (m_runner->state() == QProcess::Running && executionTimer.elapsed() < timeout) {
+                if (m_currentFuture->isCanceled()) {
+                    m_runner->kill();
+                    m_runner->waitForFinished();
+                    emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL,
+                                                           QObject::tr("*** Test Run canceled by user ***")));
+                }
+                qApp->processEvents();
+            }
+        }
+
+        if (executionTimer.elapsed() >= timeout) {
+            if (m_runner->state() != QProcess::NotRunning) {
+                m_runner->kill();
+                m_runner->waitForFinished();
+                emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL, QObject::tr(
+                    "*** Test Case canceled due to timeout ***\nMaybe raise the timeout?")));
+            }
+        }
     }
     future.setProgressValue(testCaseCount);
 
@@ -492,8 +480,13 @@ void TestRunner::runTests()
             TestResultsPane::instance(), &TestResultsPane::addTestResult,
             Qt::QueuedConnection);
 
+    const QSharedPointer<TestSettings> settings = AutotestPlugin::instance()->settings();
+    const int timeout = settings->timeout;
+    const QString metricsOption = TestSettings::metricsTypeToOption(settings->metrics);
+
     emit testRunStarted();
-    QFuture<void> future = QtConcurrent::run(&performTestRun , m_selectedTests);
+
+    QFuture<void> future = QtConcurrent::run(&performTestRun, m_selectedTests, timeout, metricsOption);
     Core::FutureProgress *progress = Core::ProgressManager::addTask(future, tr("Running Tests"),
                                                                     Autotest::Constants::TASK_INDEX);
     connect(progress, &Core::FutureProgress::finished,
