@@ -332,7 +332,7 @@ bool PluginSpec::isForceDisabled() const
 /*!
     The plugin dependencies. This is valid after the PluginSpec::Read state is reached.
 */
-QList<PluginDependency> PluginSpec::dependencies() const
+QVector<PluginDependency> PluginSpec::dependencies() const
 {
     return d->dependencies;
 }

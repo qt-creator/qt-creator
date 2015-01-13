@@ -34,8 +34,8 @@
 #include "extensionsystem_global.h"
 
 #include <QString>
-#include <QList>
 #include <QHash>
+#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QStringList;
@@ -102,9 +102,9 @@ public:
     bool isDisabledIndirectly() const;
     bool isForceEnabled() const;
     bool isForceDisabled() const;
-    QList<PluginDependency> dependencies() const;
+    QVector<PluginDependency> dependencies() const;
 
-    typedef QList<PluginArgumentDescription> PluginArgumentDescriptions;
+    typedef QVector<PluginArgumentDescription> PluginArgumentDescriptions;
     PluginArgumentDescriptions argumentDescriptions() const;
 
     // other information, valid after 'Read' state is reached

@@ -39,6 +39,7 @@
 #include <QPluginLoader>
 #include <QRegExp>
 #include <QStringList>
+#include <QVector>
 #include <QXmlStreamReader>
 
 namespace ExtensionSystem {
@@ -80,7 +81,7 @@ public:
     QString url;
     QString category;
     QRegExp platformSpecification;
-    QList<PluginDependency> dependencies;
+    QVector<PluginDependency> dependencies;
     bool enabledInSettings;
     bool disabledIndirectly;
     bool forceEnabled;

@@ -61,8 +61,6 @@ const char C_IGNORED_PLUGINS[] = "Plugins/Ignored";
 const char C_FORCEENABLED_PLUGINS[] = "Plugins/ForceEnabled";
 const int DELAYED_INITIALIZE_INTERVAL = 20; // ms
 
-typedef QList<ExtensionSystem::PluginSpec *> PluginSpecSet;
-
 enum { debugLeaks = 0 };
 
 /*!
@@ -669,16 +667,13 @@ void PluginManager::formatOptions(QTextStream &str, int optionIndentation, int d
 
 void PluginManager::formatPluginOptions(QTextStream &str, int optionIndentation, int descriptionIndentation)
 {
-    typedef PluginSpec::PluginArgumentDescriptions PluginArgumentDescriptions;
     // Check plugins for options
-    const PluginSpecSet::const_iterator pcend = d->pluginSpecs.constEnd();
-    for (PluginSpecSet::const_iterator pit = d->pluginSpecs.constBegin(); pit != pcend; ++pit) {
-        const PluginArgumentDescriptions pargs = (*pit)->argumentDescriptions();
+    foreach (PluginSpec *ps, d->pluginSpecs) {
+        const PluginSpec::PluginArgumentDescriptions pargs = ps->argumentDescriptions();
         if (!pargs.empty()) {
-            str << "\nPlugin: " <<  (*pit)->name() << '\n';
-            const PluginArgumentDescriptions::const_iterator acend = pargs.constEnd();
-            for (PluginArgumentDescriptions::const_iterator ait =pargs.constBegin(); ait != acend; ++ait)
-                formatOption(str, ait->name, ait->parameter, ait->description, optionIndentation, descriptionIndentation);
+            str << "\nPlugin: " <<  ps->name() << '\n';
+            foreach (PluginArgumentDescription pad, pargs)
+                formatOption(str, pad.name, pad.parameter, pad.description, optionIndentation, descriptionIndentation);
         }
     }
 }
@@ -688,11 +683,8 @@ void PluginManager::formatPluginOptions(QTextStream &str, int optionIndentation,
 */
 void PluginManager::formatPluginVersions(QTextStream &str)
 {
-    const PluginSpecSet::const_iterator cend = d->pluginSpecs.constEnd();
-    for (PluginSpecSet::const_iterator it = d->pluginSpecs.constBegin(); it != cend; ++it) {
-        const PluginSpec *ps = *it;
+    foreach (PluginSpec *ps, d->pluginSpecs)
         str << "  " << ps->name() << ' ' << ps->version() << ' ' << ps->description() <<  '\n';
-    }
 }
 
 /*!
@@ -1300,18 +1292,13 @@ void PluginManagerPrivate::resolveDependencies()
 PluginSpec *PluginManagerPrivate::pluginForOption(const QString &option, bool *requiresArgument) const
 {
     // Look in the plugins for an option
-    typedef PluginSpec::PluginArgumentDescriptions PluginArgumentDescriptions;
-
     *requiresArgument = false;
-    const PluginSpecSet::const_iterator pcend = pluginSpecs.constEnd();
-    for (PluginSpecSet::const_iterator pit = pluginSpecs.constBegin(); pit != pcend; ++pit) {
-        PluginSpec *ps = *pit;
-        const PluginArgumentDescriptions pargs = ps->argumentDescriptions();
+    foreach (PluginSpec *ps, pluginSpecs) {
+        const PluginSpec::PluginArgumentDescriptions pargs = ps->argumentDescriptions();
         if (!pargs.empty()) {
-            const PluginArgumentDescriptions::const_iterator acend = pargs.constEnd();
-            for (PluginArgumentDescriptions::const_iterator ait = pargs.constBegin(); ait != acend; ++ait) {
-                if (ait->name == option) {
-                    *requiresArgument = !ait->parameter.isEmpty();
+            foreach (PluginArgumentDescription pad, pargs) {
+                if (pad.name == option) {
+                    *requiresArgument = !pad.parameter.isEmpty();
                     return ps;
                 }
             }
