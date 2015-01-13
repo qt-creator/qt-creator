@@ -402,7 +402,8 @@ void PdbEngine::handleListModules(const PdbResponse &response)
 {
     GdbMi out;
     out.fromString(response.data.trimmed());
-    Modules modules;
+    ModulesHandler *handler = modulesHandler();
+    handler->beginUpdateAll();
     foreach (const GdbMi &item, out.children()) {
         Module module;
         module.moduleName = _(item["name"].data());
@@ -417,9 +418,9 @@ void PdbEngine::handleListModules(const PdbResponse &response)
             path = _("(builtin)");
         }
         module.modulePath = path;
-        modules.append(module);
+        handler->updateModule(module);
     }
-    modulesHandler()->setModules(modules);
+    handler->endUpdateAll();
 }
 
 void PdbEngine::requestModuleSymbols(const QString &moduleName)

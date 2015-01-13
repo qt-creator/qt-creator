@@ -1858,8 +1858,8 @@ void CdbEngine::handleModules(const CdbExtensionCommandPtr &reply)
         GdbMi value;
         value.fromString(reply->reply);
         if (value.type() == GdbMi::List) {
-            Modules modules;
-            modules.reserve(value.childCount());
+            ModulesHandler *handler = modulesHandler();
+            handler->beginUpdateAll();
             foreach (const GdbMi &gdbmiModule, value.children()) {
                 Module module;
                 module.moduleName = QString::fromLatin1(gdbmiModule["name"].data());
@@ -1868,9 +1868,9 @@ void CdbEngine::handleModules(const CdbExtensionCommandPtr &reply)
                 module.endAddress = gdbmiModule["end"].data().toULongLong(0, 0);
                 if (gdbmiModule["deferred"].type() == GdbMi::Invalid)
                     module.symbolsRead = Module::ReadOk;
-                modules.push_back(module);
+                handler->updateModule(module);
             }
-            modulesHandler()->setModules(modules);
+            handler->endUpdateAll();
         } else {
             showMessage(QString::fromLatin1("Parse error in modules response."), LogError);
             qWarning("Parse error in modules response:\n%s", reply->reply.constData());

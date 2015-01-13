@@ -32,6 +32,7 @@
 #define DEBUGGER_MODULESHANDLER_H
 
 #include <utils/elfreader.h>
+#include <utils/treemodel.h>
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
@@ -42,7 +43,6 @@ namespace Debugger {
 namespace Internal {
 
 class DebuggerEngine;
-class ModulesModel;
 
 //////////////////////////////////////////////////////////////////
 //
@@ -109,7 +109,6 @@ public:
 
 typedef QVector<Module> Modules;
 
-
 //////////////////////////////////////////////////////////////////
 //
 // ModulesHandler
@@ -125,16 +124,18 @@ public:
 
     QAbstractItemModel *model() const;
 
-    void setModules(const Modules &modules);
     void removeModule(const QString &modulePath);
     void updateModule(const Module &module);
 
-    Modules modules() const;
+    void beginUpdateAll();
+    void endUpdateAll();
+
     void removeAll();
+    Modules modules() const;
 
 private:
     DebuggerEngine *m_engine;
-    ModulesModel *m_model;
+    Utils::TreeModel *m_model;
     QSortFilterProxyModel *m_proxyModel;
 };
 

@@ -771,7 +771,8 @@ void LldbEngine::reloadModules()
 
 void LldbEngine::refreshModules(const GdbMi &modules)
 {
-    Modules mods;
+    ModulesHandler *handler = modulesHandler();
+    handler->beginUpdateAll();
     foreach (const GdbMi &item, modules.children()) {
         Module module;
         module.modulePath = item["file"].toUtf8();
@@ -779,9 +780,9 @@ void LldbEngine::refreshModules(const GdbMi &modules)
         module.symbolsRead = Module::UnknownReadState;
         module.startAddress = item["loaded_addr"].toAddress();
         module.endAddress = 0; // FIXME: End address not easily available.
-        mods.append(module);
+        handler->updateModule(module);
     }
-    modulesHandler()->setModules(mods);
+    handler->endUpdateAll();
 }
 
 void LldbEngine::requestModuleSymbols(const QString &moduleName)
