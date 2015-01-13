@@ -166,6 +166,8 @@ KitManagerConfigWidget *KitModel::widget(const QModelIndex &index)
     if (!index.isValid())
         return 0;
     KitNode *node = static_cast<KitNode *>(index.internalPointer());
+    if (node == m_autoRoot || node == m_manualRoot)
+        return 0;
     return node->widget;
 }
 
