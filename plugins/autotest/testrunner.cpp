@@ -168,20 +168,20 @@ static bool xmlExtractBenchmarkInformation(const QString &code, const QString &t
         const double value = code.mid(start, code.indexOf(QLatin1Char('"'), start) - start).toDouble();
         start = code.indexOf(QLatin1String(" iterations=\"")) + 13;
         const int iterations = code.mid(start, code.indexOf(QLatin1Char('"'), start) - start).toInt();
-        QString metricsTxt;
+        QString metricsText;
         if (metric == QLatin1String("WalltimeMilliseconds"))         // default
-            metricsTxt = QLatin1String("msecs");
+            metricsText = QLatin1String("msecs");
         else if (metric == QLatin1String("CPUTicks"))                // -tickcounter
-            metricsTxt = QLatin1String("CPU ticks");
+            metricsText = QLatin1String("CPU ticks");
         else if (metric == QLatin1String("Events"))                  // -eventcounter
-            metricsTxt = QLatin1String("events");
+            metricsText = QLatin1String("events");
         else if (metric == QLatin1String("InstructionReads"))        // -callgrind
-            metricsTxt = QLatin1String("instruction reads");
+            metricsText = QLatin1String("instruction reads");
         else if (metric == QLatin1String("CPUCycles"))               // -perf
-            metricsTxt = QLatin1String("CPU cycles");
+            metricsText = QLatin1String("CPU cycles");
         description = QObject::tr("%1 %2 per iteration (total: %3, iterations: %4)")
                 .arg(formatResult(value))
-                .arg(metricsTxt)
+                .arg(metricsText)
                 .arg(formatResult(value * (double)iterations))
                 .arg(iterations);
         return true;
@@ -211,7 +211,7 @@ void processOutput(QProcess *testRunner)
     static bool readingDescription = false;
     static QString qtVersion;
     static QString qtestVersion;
-    static QString bmDescription;
+    static QString benchmarkDescription;
 
     while (testRunner->canReadLine()) {
         // TODO Qt5 uses UTF-8 - while Qt4 uses ISO-8859-1 - could this be a problem?
@@ -259,8 +259,8 @@ void processOutput(QProcess *testRunner)
             }
             continue;
         }
-        if (xmlExtractBenchmarkInformation(line, QLatin1String("<BenchmarkResult"), bmDescription)) {
-            TestResult testResult(className, testCase, dataTag, Result::BENCHMARK, bmDescription);
+        if (xmlExtractBenchmarkInformation(line, QLatin1String("<BenchmarkResult"), benchmarkDescription)) {
+            TestResult testResult(className, testCase, dataTag, Result::BENCHMARK, benchmarkDescription);
             emitTestResultCreated(testResult);
             continue;
         }
@@ -302,33 +302,33 @@ void processOutput(QProcess *testRunner)
     }
 }
 
-static QString which(const QString &path, const QString &cmd)
+static QString which(const QString &pathValue, const QString &command)
 {
-    if (path.isEmpty() || cmd.isEmpty())
+    if (pathValue.isEmpty() || command.isEmpty())
         return QString();
 
-    QStringList paths;
+    QStringList pathList;
 #ifdef Q_OS_WIN
-    paths = path.split(QLatin1Char(';'));
+    pathList = pathValue.split(QLatin1Char(';'));
 #else
-    paths = path.split(QLatin1Char(':'));
+    pathList = pathValue.split(QLatin1Char(':'));
 #endif
 
-    foreach (const QString &p, paths) {
-        const QString fName = p + QDir::separator() + cmd;
-        QFileInfo fi(fName);
-        if (fi.exists() && fi.isExecutable())
-            return fName;
+    foreach (const QString &path, pathList) {
+        const QString filePath = path + QDir::separator() + command;
+        QFileInfo commandFileInfo(filePath);
+        if (commandFileInfo.exists() && commandFileInfo.isExecutable())
+            return filePath;
 #ifdef Q_OS_WIN
-        fi = QFileInfo(fName + QLatin1String(".exe"));
-        if (fi.exists())
-            return fi.absoluteFilePath();
-        fi = QFileInfo(fName + QLatin1String(".bat"));
-        if (fi.exists())
-            return fi.absoluteFilePath();
-        fi = QFileInfo(fName + QLatin1String(".cmd"));
-        if (fi.exists())
-            return fi.absoluteFilePath();
+        commandFileInfo = QFileInfo(filePath + QLatin1String(".exe"));
+        if (commandFileInfo.exists())
+            return commandFileInfo.absoluteFilePath();
+        commandFileInfo = QFileInfo(filePath + QLatin1String(".bat"));
+        if (commandFileInfo.exists())
+            return commandFileInfo.absoluteFilePath();
+        commandFileInfo = QFileInfo(filePath + QLatin1String(".cmd"));
+        if (commandFileInfo.exists())
+            return commandFileInfo.absoluteFilePath();
 #endif
     }
     return QString();
@@ -356,28 +356,28 @@ void performTestRun(QFutureInterface<void> &future, const QList<TestConfiguratio
     m_currentFuture->setProgressRange(0, testCaseCount);
     m_currentFuture->setProgressValue(0);
 
-    foreach (const TestConfiguration *tc, selectedTests) {
+    foreach (const TestConfiguration *testConfiguration, selectedTests) {
         if (m_currentFuture->isCanceled())
             break;
-        QString command = tc->targetFile();
-        QString workingDirectory = tc->workingDirectory();
+        QString command = testConfiguration->targetFile();
+        QString workingDirectory = testConfiguration->workingDirectory();
         QStringList argumentList;
-        Utils::Environment environment = tc->environment();
+        Utils::Environment environment = testConfiguration->environment();
 
         argumentList << QLatin1String("-xml");
         if (!metricsOption.isEmpty())
             argumentList << metricsOption;
-        if (tc->testCases().count())
-            argumentList << tc->testCases();
-        QString runCmd;
+        if (testConfiguration->testCases().count())
+            argumentList << testConfiguration->testCases();
+        QString runCommand;
         if (!QDir::toNativeSeparators(command).contains(QDir::separator())) {
             if (environment.hasKey(QLatin1String("PATH")))
-                runCmd = which(environment.value(QLatin1String("PATH")), command);
+                runCommand = which(environment.value(QLatin1String("PATH")), command);
         } else if (QFileInfo(command).exists()) {
-            runCmd = command;
+            runCommand = command;
         }
 
-        if (runCmd.isEmpty()) {
+        if (runCommand.isEmpty()) {
             emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL,
                 QObject::tr("*** Could not find command '%1' ***").arg(command)));
             continue;
@@ -388,9 +388,9 @@ void performTestRun(QFutureInterface<void> &future, const QList<TestConfiguratio
         QTime executionTimer;
 
         if (argumentList.count()) {
-            testProcess.start(runCmd, argumentList);
+            testProcess.start(runCommand, argumentList);
         } else {
-            testProcess.start(runCmd);
+            testProcess.start(runCommand);
         }
 
         bool ok = testProcess.waitForStarted();
@@ -456,9 +456,9 @@ void TestRunner::runTests()
         return;
     }
 
-    ProjectExplorer::Internal::ProjectExplorerSettings pes =
+    ProjectExplorer::Internal::ProjectExplorerSettings projectExplorerSettings =
         ProjectExplorer::ProjectExplorerPlugin::projectExplorerSettings();
-    if (pes.buildBeforeDeploy) {
+    if (projectExplorerSettings.buildBeforeDeploy) {
         if (!project->hasActiveBuildSettings()) {
             TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_FATAL,
                 tr("*** Project is not configured - canceling Test Run ***")));
@@ -498,18 +498,18 @@ void TestRunner::buildProject(ProjectExplorer::Project *project)
 {
     m_building = true;
     m_buildSucceeded = false;
-    ProjectExplorer::BuildManager *mgr = static_cast<ProjectExplorer::BuildManager *>(
+    ProjectExplorer::BuildManager *buildManager = static_cast<ProjectExplorer::BuildManager *>(
                 ProjectExplorer::BuildManager::instance());
-    connect(mgr, &ProjectExplorer::BuildManager::buildQueueFinished,
+    connect(buildManager, &ProjectExplorer::BuildManager::buildQueueFinished,
             this, &TestRunner::buildFinished);
     ProjectExplorer::ProjectExplorerPlugin::buildProject(project);
 }
 
 void TestRunner::buildFinished(bool success)
 {
-    ProjectExplorer::BuildManager *mgr = static_cast<ProjectExplorer::BuildManager *>(
+    ProjectExplorer::BuildManager *buildManager = static_cast<ProjectExplorer::BuildManager *>(
                 ProjectExplorer::BuildManager::instance());
-    disconnect(mgr, &ProjectExplorer::BuildManager::buildQueueFinished,
+    disconnect(buildManager, &ProjectExplorer::BuildManager::buildQueueFinished,
                this, &TestRunner::buildFinished);
     m_building = false;
     m_buildSucceeded = success;
