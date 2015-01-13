@@ -542,11 +542,6 @@ void PluginSpec::setDisabledByDefault(bool value)
     d->disabledByDefault = value;
 }
 
-void PluginSpec::setDisabledIndirectly(bool value)
-{
-    d->disabledIndirectly = value;
-}
-
 void PluginSpec::setForceEnabled(bool value)
 {
     d->forceEnabled = value;

@@ -1301,10 +1301,6 @@ void PluginManagerPrivate::resolveDependencies()
         spec->d->resolveDependencies(pluginSpecs);
     }
 
-    // Reset disabledIndirectly flag
-    foreach (PluginSpec *spec, loadQueue())
-        spec->d->disabledIndirectly = false;
-
     foreach (PluginSpec *spec, loadQueue()) {
         spec->d->disableIndirectlyIfDependencyDisabled();
     }
@@ -1327,11 +1323,6 @@ PluginSpec *PluginManagerPrivate::pluginForOption(const QString &option, bool *r
         }
     }
     return 0;
-}
-
-void PluginManagerPrivate::disablePluginIndirectly(PluginSpec *spec)
-{
-    spec->d->disabledIndirectly = true;
 }
 
 PluginSpec *PluginManagerPrivate::pluginByName(const QString &name) const

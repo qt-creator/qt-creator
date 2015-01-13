@@ -80,7 +80,6 @@ public:
     void setGlobalSettings(QSettings *settings);
     void readSettings();
     void writeSettings();
-    void disablePluginIndirectly(PluginSpec *spec);
 
     class TestSpec {
     public:

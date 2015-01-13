@@ -113,7 +113,6 @@ public:
 
     void setEnabled(bool value);
     void setDisabledByDefault(bool value);
-    void setDisabledIndirectly(bool value);
     void setForceEnabled(bool value);
     void setForceDisabled(bool value);
 

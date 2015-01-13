@@ -33,21 +33,22 @@
 
 #include "extensionsystem_global.h"
 
-#include <QHash>
 #include <QWidget>
-#include <QIcon>
+#include <QSet>
+#include <QHash>
 
-QT_BEGIN_NAMESPACE
-class QTreeWidgetItem;
-QT_END_NAMESPACE
-
-namespace Utils { class TreeWidget; }
+namespace Utils {
+class TreeItem;
+class TreeModel;
+class TreeView;
+} // namespace Utils
 
 namespace ExtensionSystem {
 
 class PluginManager;
 class PluginSpec;
-class PluginCollection;
+class PluginItem;
+class CollectionItem;
 
 class EXTENSIONSYSTEM_EXPORT PluginView : public QWidget
 {
@@ -64,28 +65,16 @@ signals:
     void pluginActivated(ExtensionSystem::PluginSpec *spec);
     void pluginSettingsChanged(ExtensionSystem::PluginSpec *spec);
 
-private slots:
-    void updatePluginSettings(QTreeWidgetItem *item, int column);
-    void updateList();
-    void selectPlugin(QTreeWidgetItem *current);
-    void activatePlugin(QTreeWidgetItem *item);
-
 private:
-    enum ParsedState { ParsedNone = 1, ParsedPartial = 2, ParsedAll = 4, ParsedWithErrors = 8};
-    QIcon iconForState(int state);
-    void updatePluginDependencies();
-    int parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &groupState, QList<PluginSpec*> plugins);
+    PluginSpec *pluginForIndex(const QModelIndex &index) const;
+    void updatePlugins();
 
-    Utils::TreeWidget *m_categoryWidget;
-    QList<QTreeWidgetItem*> m_items;
-    QHash<PluginSpec*, QTreeWidgetItem*> m_specToItem;
+    Utils::TreeView *m_categoryView;
+    Utils::TreeModel *m_model;
 
-    QIcon m_okIcon;
-    QIcon m_errorIcon;
-    QIcon m_notLoadedIcon;
-    bool m_allowCheckStateUpdate;
-
-    const int C_LOAD;
+    friend class CollectionItem;
+    friend class PluginItem;
+    QHash<PluginSpec *, QSet<PluginSpec *>> m_pluginDependencies;
 };
 
 } // namespae ExtensionSystem
