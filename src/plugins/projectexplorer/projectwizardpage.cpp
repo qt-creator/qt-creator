@@ -384,7 +384,7 @@ bool ProjectWizardPage::expandTree(const QModelIndex &root)
 
 void ProjectWizardPage::setBestNode(AddNewTree *tree)
 {
-    QModelIndex index = m_model->indexFromItem(tree);
+    QModelIndex index = tree ? m_model->indexFromItem(tree) : QModelIndex();
     m_ui->projectComboBox->setCurrentIndex(index);
 
     while (index.isValid()) {
