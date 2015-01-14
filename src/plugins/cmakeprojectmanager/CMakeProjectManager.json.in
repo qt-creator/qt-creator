@@ -2,11 +2,11 @@
     \"Name\" : \"CMakeProjectManager\",
     \"Version\" : \"$$QTCREATOR_VERSION\",
     \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
-    \"Vendor\" : \"Digia Plc\",
-    \"Copyright\" : \"(C) 2014 Digia Plc\",
+    \"Vendor\" : \"The Qt Company Ltd\",
+    \"Copyright\" : \"(C) 2015 The Qt Company Ltd\",
     \"License\" : [ \"Commercial Usage\",
                   \"\",
-                  \"Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and Digia.\",
+                  \"Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.\",
                   \"\",
                   \"GNU Lesser General Public License Usage\",
                   \"\",
@@ -14,6 +14,6 @@
     ],
     \"Category\" : \"Build Systems\",
     \"Description\" : \"CMake support.\",
-    \"Url\" : \"http://www.qt-project.org\",
+    \"Url\" : \"http://www.qt.io\",
     $$dependencyList
 }

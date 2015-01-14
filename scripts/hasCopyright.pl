@@ -53,7 +53,7 @@ while (1) {
     my $hasCommercial = 0;
     my $hasLGPL = 0;
     my $hasGPL = 0;
-    my $hasDigia = 0;
+    my $hasCompany = 0;
     my $linecount = 0;
 
     if ($file !~ /\.png$/) {
@@ -64,11 +64,11 @@ while (1) {
             last if ($linecount > 50);
 
             $hasCopyright = 1 if $_ =~ /Copyright/i;
-            $hasCurrent = 1 if $_ =~ /\(c\).*\s2014/i;
+            $hasCurrent = 1 if $_ =~ /\(c\).*\s2015/i;
 
             $hasContact = 1 if $_ =~ /Contact: http:\/\/www.qt-project.org\/legal/;
             $hasCommercial = 1 if $_ =~ /Commercial (License )?Usage/;
-            $hasDigia = 1 if $_ =~ /Digia Plc/;
+            $hasCompany = 1 if $_ =~ /The Qt Company Ltd/;
             $hasLGPL = 1 if $_ =~ /GNU Lesser General Public License Usage/;
             $hasGPL = 1 if $_ =~ /GNU General Public License Usage/;
         }
@@ -91,8 +91,8 @@ while (1) {
         next;
     }
 
-    unless ($hasDigia) {
-        print "$file\tERROR\tNo digia\n";
+    unless ($hasCompany) {
+        print "$file\tERROR\tNo The Qt Company\n";
         next;
     }
 
