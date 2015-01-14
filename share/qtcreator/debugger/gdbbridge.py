@@ -171,9 +171,12 @@ class PlainDumper:
         lister = getattr(printer, "children", None)
         children = [] if lister is None else list(lister())
         d.putType(self.printer.name)
-        val = printer.to_string().encode("hex")
-        d.putValue(val, Hex2EncodedLatin1)
-        d.putValue(printer.to_string())
+        val = printer.to_string()
+        if isinstance(val, str):
+            d.putValue(val)
+        else: # Assuming LazyString
+            d.putStdStringHelper(val.address, val.length, val.type.sizeof)
+
         d.putNumChild(len(children))
         if d.isExpanded():
             with Children(d):

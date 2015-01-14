@@ -418,7 +418,7 @@ def qdump__std__stringHelper1(d, value, charSize):
     refcount = int(sizePtr[-1]) & 0xffffffff
     d.check(refcount >= -1) # Can be -1 accoring to docs.
     d.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    qdump_stringHelper(d, sizePtr, size * charSize, charSize)
+    d.putStdStringHelper(sizePtr, size, charSize)
 
 def qdump__std__stringHelper1__QNX(d, value, charSize):
     size = value['_Mysize']
@@ -432,31 +432,7 @@ def qdump__std__stringHelper1__QNX(d, value, charSize):
     refcount = int(sizePtr[-1])
     d.check(refcount >= -1) # Can be -1 accoring to docs.
     d.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    qdump_stringHelper(d, sizePtr, size * charSize, charSize)
-
-def qdump_stringHelper(d, data, size, charSize):
-    elided, shown = d.computeLimit(size, d.displayStringLimit)
-    mem = d.readMemory(data, shown)
-    if charSize == 1:
-        encodingType = Hex2EncodedLatin1
-        displayType = DisplayLatin1String
-    elif charSize == 2:
-        encodingType = Hex4EncodedLittleEndian
-        displayType = DisplayUtf16String
-    else:
-        encodingType = Hex8EncodedLittleEndian
-        displayType = DisplayUtf16String
-
-    d.putNumChild(0)
-    d.putValue(mem, encodingType, elided=elided)
-
-    format = d.currentItemFormat()
-    if format == 1:
-        d.putDisplay(StopDisplay)
-    elif format == 2:
-        d.putField("editformat", displayType)
-        elided, shown = d.computeLimit(size, 100000)
-        d.putField("editvalue", d.readMemory(data, shown))
+    d.putStdStringHelper(sizePtr, size, charSize)
 
 
 def qdump__std____1__string(d, value):
@@ -470,7 +446,7 @@ def qdump__std____1__string(d, value):
         # Short/internal.
         size = firstByte / 2
         data = base + 1
-    qdump_stringHelper(d, data, size, 1)
+    d.putStdStringHelper(data, size, 1)
     d.putType("std::string")
 
 
@@ -485,7 +461,7 @@ def qdump__std____1__wstring(d, value):
         # Short/internal.
         size = firstByte / 2
         data = base + 4
-    qdump_stringHelper(d, data, size * 4, 4)
+    d.putStdStringHelper(data, size, 4)
     d.putType("std::xxwstring")
 
 

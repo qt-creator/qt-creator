@@ -489,6 +489,31 @@ class DumperBase:
         elided, shown = self.computeLimit(size, limit)
         return elided, self.readMemory(data, shown)
 
+    def putStdStringHelper(self, data, size, charSize):
+        bytelen = size * charSize
+        elided, shown = self.computeLimit(bytelen, self.displayStringLimit)
+        mem = self.readMemory(data, shown)
+        if charSize == 1:
+            encodingType = Hex2EncodedLatin1
+            displayType = DisplayLatin1String
+        elif charSize == 2:
+            encodingType = Hex4EncodedLittleEndian
+            displayType = DisplayUtf16String
+        else:
+            encodingType = Hex8EncodedLittleEndian
+            displayType = DisplayUtf16String
+
+        self.putNumChild(0)
+        self.putValue(mem, encodingType, elided=elided)
+
+        format = self.currentItemFormat()
+        if format == 1:
+            self.putDisplay(StopDisplay)
+        elif format == 2:
+            self.putField("editformat", displayType)
+            elided, shown = self.computeLimit(bytelen, 100000)
+            self.putField("editvalue", self.readMemory(data, shown))
+
     def readMemory(self, addr, size):
         data = self.extractBlob(addr, size).toBytes()
         return self.hexencode(data)
