@@ -75,6 +75,7 @@ class QmlAdapter;
 class QmlCppEngine;
 class DebuggerToolTipContext;
 class MemoryViewSetupData;
+class Terminal;
 
 struct WatchUpdateFlags
 {
@@ -352,6 +353,7 @@ protected:
     void setMasterEngine(DebuggerEngine *masterEngine);
 
     DebuggerRunControl *runControl() const;
+    Terminal *terminal() const;
 
     static QString msgStopped(const QString &reason = QString());
     static QString msgStoppedBySignal(const QString &meaning, const QString &name);

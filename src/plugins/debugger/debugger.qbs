@@ -75,6 +75,7 @@ QtcPlugin {
             "stackframe.cpp", "stackframe.h",
             "stackhandler.cpp", "stackhandler.h",
             "stackwindow.cpp", "stackwindow.h",
+            "terminal.cpp", "terminal.h",
             "threaddata.h",
             "threadshandler.cpp", "threadshandler.h",
             "threadswindow.cpp", "threadswindow.h",

@@ -56,6 +56,7 @@ HEADERS += \
     stackframe.h \
     stackhandler.h \
     stackwindow.h \
+    terminal.h \
     threadswindow.h \
     watchhandler.h \
     watchutils.h \
@@ -110,6 +111,7 @@ SOURCES += \
     stackwindow.cpp \
     threadshandler.cpp \
     threadswindow.cpp \
+    terminal.cpp \
     watchdata.cpp \
     watchhandler.cpp \
     watchutils.cpp \

@@ -34,6 +34,7 @@
 #include "coregdbadapter.h"
 #include "gdbplainengine.h"
 #include "termgdbadapter.h"
+#include "terminal.h"
 #include "remotegdbserveradapter.h"
 #include "gdboptionspage.h"
 
@@ -789,6 +790,9 @@ void GdbEngine::interruptInferior()
 {
     QTC_ASSERT(state() == InferiorStopRequested,
         qDebug() << "INTERRUPT INFERIOR: " << state(); return);
+
+    if (terminal()->sendInterrupt())
+        return;
 
     if (usesExecInterrupt()) {
         postCommand("-exec-interrupt", Immediate);
@@ -4353,6 +4357,9 @@ void GdbEngine::startGdb(const QStringList &args)
     // Don't use ConsoleCommand, otherwise Mac won't markup the output.
     const QByteArray dumperSourcePath =
         ICore::resourcePath().toLocal8Bit() + "/debugger/";
+
+    if (terminal()->isUsable())
+        postCommand("set inferior-tty " + terminal()->slaveDevice());
 
     const QFileInfo gdbBinaryFile(m_gdb);
     const QByteArray uninstalledData = gdbBinaryFile.absolutePath().toLocal8Bit()

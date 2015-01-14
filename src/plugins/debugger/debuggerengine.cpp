@@ -45,6 +45,7 @@
 #include "registerhandler.h"
 #include "sourcefileshandler.h"
 #include "stackhandler.h"
+#include "terminal.h"
 #include "threadshandler.h"
 #include "watchhandler.h"
 #include <debugger/shared/peutils.h>
@@ -299,6 +300,7 @@ public:
     // State of RemoteSetup signal/slots.
     RemoteSetupState m_remoteSetupState;
 
+    Terminal m_terminal;
     qint64 m_inferiorPid;
 
     ModulesHandler m_modulesHandler;
@@ -542,6 +544,20 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
     d->m_lastGoodState = DebuggerNotReady;
     d->m_targetState = DebuggerNotReady;
     d->m_progress.setProgressValue(200);
+
+    d->m_terminal.setup();
+    if (d->m_terminal.isUsable()) {
+        connect(&d->m_terminal, &Terminal::stdOutReady, [this, runControl](const QString &msg) {
+            runControl->appendMessage(msg, Utils::StdOutFormatSameLine);
+        });
+        connect(&d->m_terminal, &Terminal::stdErrReady, [this, runControl](const QString &msg) {
+            runControl->appendMessage(msg, Utils::StdErrFormatSameLine);
+        });
+        connect(&d->m_terminal, &Terminal::error, [this, runControl](const QString &msg) {
+            runControl->appendMessage(msg, Utils::ErrorMessageFormat);
+        });
+    }
+
     d->queueSetupEngine();
 }
 
@@ -1381,6 +1397,11 @@ void DebuggerEngine::progressPing()
 DebuggerRunControl *DebuggerEngine::runControl() const
 {
     return d->runControl();
+}
+
+Terminal *DebuggerEngine::terminal() const
+{
+    return &d->m_terminal;
 }
 
 bool DebuggerEngine::setToolTipExpression(TextEditor::TextEditorWidget *,
