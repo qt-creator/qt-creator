@@ -57,7 +57,6 @@ public:
         CreateRepositoryOperation,
         SnapshotOperations,
         AnnotateOperation,
-        CheckoutOperation,
         GetRepositoryRootOperation
         };
 
@@ -170,11 +169,6 @@ public:
     virtual bool vcsCreateRepository(const QString &directory) = 0;
 
     /*!
-     * Called to clone/checkout the version control system in a directory.
-     */
-    virtual bool vcsCheckout(const QString &directory, const QByteArray &url) = 0;
-
-    /*!
      * Called to get the version control repository root.
      */
     virtual QString vcsGetRepositoryURL(const QString &directory) = 0;
@@ -251,7 +245,6 @@ public:
     bool vcsDelete(const QString &) { return false; }
     bool vcsMove(const QString &, const QString &) { return false; }
     bool vcsCreateRepository(const QString &) { return false; }
-    bool vcsCheckout(const QString &, const QByteArray &) { return false; }
     QString vcsGetRepositoryURL(const QString &) { return QString(); }
     bool vcsAnnotate(const QString &, int) { return false; }
 

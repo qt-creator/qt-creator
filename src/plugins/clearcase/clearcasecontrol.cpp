@@ -79,7 +79,6 @@ bool ClearCaseControl::supportsOperation(Operation operation) const
     case AnnotateOperation:
     case GetRepositoryRootOperation:
         break;
-    case CheckoutOperation:
     case CreateRepositoryOperation:
     case SnapshotOperations:
         rc = false;
@@ -192,11 +191,6 @@ void ClearCaseControl::emitFilesChanged(const QStringList &l)
 void ClearCaseControl::emitConfigurationChanged()
 {
     emit configurationChanged();
-}
-
-bool ClearCaseControl::vcsCheckout(const QString & /*directory*/, const QByteArray & /*url*/)
-{
-    return false;
 }
 
 bool ClearCaseControl::vcsCreateRepository(const QString &)

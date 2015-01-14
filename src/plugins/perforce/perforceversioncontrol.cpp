@@ -76,7 +76,6 @@ bool PerforceVersionControl::supportsOperation(Operation operation) const
         return supported;
     case CreateRepositoryOperation:
     case SnapshotOperations:
-    case CheckoutOperation:
     case GetRepositoryRootOperation:
         break;
     }
@@ -132,11 +131,6 @@ bool PerforceVersionControl::vcsAnnotate(const QString &file, int line)
     const QFileInfo fi(file);
     m_plugin->vcsAnnotate(fi.absolutePath(), fi.fileName(), QString(), line);
     return true;
-}
-
-bool PerforceVersionControl::vcsCheckout(const QString &,const QByteArray &)
-{
-    return false;
 }
 
 QString PerforceVersionControl::vcsGetRepositoryURL(const QString &)

@@ -74,7 +74,6 @@ bool CvsControl::supportsOperation(Operation operation) const
     case MoveOperation:
     case CreateRepositoryOperation:
     case SnapshotOperations:
-    case CheckoutOperation:
     case GetRepositoryRootOperation:
         rc = false;
         break;
@@ -121,11 +120,6 @@ bool CvsControl::vcsCreateRepository(const QString &)
 QString CvsControl::vcsGetRepositoryURL(const QString &)
 {
     return QString();
-}
-
-bool CvsControl::vcsCheckout(const QString &, const QByteArray &)
-{
-    return false;
 }
 
 bool CvsControl::vcsAnnotate(const QString &file, int line)

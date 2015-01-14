@@ -367,23 +367,6 @@ bool VcsManager::promptToDelete(const QString &fileName)
     return true;
 }
 
-IVersionControl *VcsManager::checkout(const QString &versionControlType,
-                                      const QString &directory,
-                                      const QByteArray &url)
-{
-    foreach (IVersionControl *versionControl, allVersionControls()) {
-        if (versionControl->displayName() == versionControlType
-            && versionControl->supportsOperation(IVersionControl::CheckoutOperation)) {
-            if (versionControl->vcsCheckout(directory, url)) {
-                d->cache(versionControl, directory, directory);
-                return versionControl;
-            }
-            return 0;
-        }
-    }
-    return 0;
-}
-
 bool VcsManager::promptToDelete(IVersionControl *vc, const QString &fileName)
 {
     QTC_ASSERT(vc, return true);

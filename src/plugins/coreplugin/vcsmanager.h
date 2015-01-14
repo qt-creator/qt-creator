@@ -70,10 +70,6 @@ public:
 
     static QStringList repositories(const IVersionControl *);
 
-    static IVersionControl *checkout(const QString &versionControlType,
-                              const QString &directory,
-                              const QByteArray &url);
-
     // Shows a confirmation dialog, whether the file should also be deleted
     // from revision control. Calls vcsDelete on the file. Returns false
     // if a failure occurs

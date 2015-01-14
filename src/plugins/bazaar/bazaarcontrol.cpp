@@ -88,7 +88,6 @@ bool BazaarControl::supportsOperation(Operation operation) const
     case Core::IVersionControl::AnnotateOperation:
     case Core::IVersionControl::GetRepositoryRootOperation:
         break;
-    case Core::IVersionControl::CheckoutOperation:
     case Core::IVersionControl::SnapshotOperations:
         supported = false;
         break;
@@ -133,13 +132,6 @@ bool BazaarControl::vcsAnnotate(const QString &file, int line)
     const QFileInfo fi(file);
     m_bazaarClient->annotate(fi.absolutePath(), fi.fileName(), QString(), line);
     return true;
-}
-
-bool BazaarControl::vcsCheckout(const QString &directory, const QByteArray &url)
-{
-    Q_UNUSED(directory);
-    Q_UNUSED(url);
-    return false;
 }
 
 QString BazaarControl::vcsGetRepositoryURL(const QString &directory)
