@@ -397,6 +397,11 @@ QList<Utils::FileName> MsvcToolChain::suggestedMkspecList() const
     case Abi::WindowsMsvc2013Flavor:
         return QList<Utils::FileName>()
             << Utils::FileName::fromLatin1("win32-msvc2013")
+            << Utils::FileName::fromLatin1("winphone-arm-msvc2013")
+            << Utils::FileName::fromLatin1("winphone-x86-msvc2013")
+            << Utils::FileName::fromLatin1("winrt-arm-msvc2013")
+            << Utils::FileName::fromLatin1("winrt-x86-msvc2013")
+            << Utils::FileName::fromLatin1("winrt-x64-msvc2013")
             << Utils::FileName::fromLatin1("win32-msvc2012")
             << Utils::FileName::fromLatin1("win32-msvc2010");
     default:
