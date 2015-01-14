@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -34,6 +34,7 @@
 #include <coreplugin/find/findplugin.h>
 #include <utils/filesearch.h>
 #include <utils/fileutils.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -129,7 +130,7 @@ QWidget *FindInFiles::createConfigWidget()
         syncComboWithSettings(m_directory, m_directorySetting.toUserOutput());
         dirLabel->setBuddy(m_directory);
         gridLayout->addWidget(m_directory, 0, 1);
-        QPushButton *browseButton = new QPushButton(tr("&Browse..."));
+        QPushButton *browseButton = new QPushButton(Utils::PathChooser::browseButtonLabel());
         gridLayout->addWidget(browseButton, 0, 2);
         connect(browseButton, SIGNAL(clicked()), this, SLOT(openFileBrowser()));
 

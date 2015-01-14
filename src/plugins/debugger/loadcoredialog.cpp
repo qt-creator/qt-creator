@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -271,7 +271,7 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     d->forceLocalLabel->setBuddy(d->forceLocalCheckBox);
 
     d->remoteCoreFileName = new QLineEdit(this);
-    d->selectRemoteCoreButton = new QPushButton(tr("Browse..."), this);
+    d->selectRemoteCoreButton = new QPushButton(PathChooser::browseButtonLabel(), this);
 
     d->localCoreFileName = new PathChooser(this);
     d->localCoreFileName->setHistoryCompleter(QLatin1String("Debugger.CoreFile.History"));
