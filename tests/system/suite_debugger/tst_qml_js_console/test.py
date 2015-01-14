@@ -1,6 +1,6 @@
 #############################################################################
 ##
-## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+## Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ## Contact: http://www.qt-project.org/legal
 ##
 ## This file is part of Qt Creator.
@@ -123,7 +123,7 @@ def main():
         return
     qmlProjFile = os.path.join(qmlProjDir, projName)
     # start Creator by passing a .qmlproject file
-    startApplication('qtcreator' + SettingsPath + ' "%s"' % qmlProjFile)
+    startApplication('qtcreator -load QmlProjectManager' + SettingsPath + ' "%s"' % qmlProjFile)
     if not startedWithoutPluginError():
         return
 
