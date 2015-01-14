@@ -869,6 +869,77 @@ void PluginManagerPrivate::deleteAll()
     }
 }
 
+static QStringList testFunctions(const QMetaObject *metaObject)
+{
+    QStringList testFunctions;
+
+    for (int i = metaObject->methodOffset(); i < metaObject->methodCount(); ++i) {
+        const QByteArray signature = metaObject->method(i).methodSignature();
+        if (signature.startsWith("test") && !signature.endsWith("_data()")) {
+            const QString method = QString::fromLatin1(signature);
+            const QString methodName = method.left(method.size() - 2);
+            testFunctions.append(methodName);
+        }
+    }
+
+    return testFunctions;
+}
+
+static QStringList testFunctionsWantedByUser(const PluginSpec *pluginSpec,
+                                             const QStringList &availableTestFunctions,
+                                             const QStringList &testFunctionsSpecs)
+{
+    QStringList testFunctions;
+
+    foreach (const QString &userTestFunction, testFunctionsSpecs) {
+        // There might be a test data suffix like in "testfunction:testdata1".
+        QString testFunctionName = userTestFunction;
+        QString testDataSuffix;
+        const int index = testFunctionName.indexOf(QLatin1Char(':'));
+        if (index != -1) {
+            testDataSuffix = testFunctionName.mid(index);
+            testFunctionName = testFunctionName.left(index);
+        }
+
+        const QRegExp regExp(testFunctionName, Qt::CaseSensitive, QRegExp::Wildcard);
+        QStringList matchingFunctions;
+        foreach (const QString &testFunction, availableTestFunctions) {
+            if (regExp.exactMatch(testFunction))
+                matchingFunctions.append(testFunction);
+        }
+        if (!matchingFunctions.isEmpty()) {
+            // If the specified test data is invalid, the QTest framework will
+            // print a reasonable error message for us.
+            foreach (const QString &matchingFunction, matchingFunctions)
+                testFunctions.append(matchingFunction + testDataSuffix);
+        } else {
+            QTextStream out(stdout);
+            out << "No test function matches \"" << testFunctionName
+                << "\" for plugin \"" << pluginSpec->name() << "\"." << endl
+                << "  Available test functions for plugin \"" << pluginSpec->name()
+                << "\" are:" << endl;
+            foreach (const QString &testFunction, availableTestFunctions)
+                out << "    " << testFunction << endl;
+        }
+    }
+
+    return testFunctions;
+}
+
+static int executeTestFunctions(QObject *testObject, const QStringList &functions)
+{
+    // Don't run QTest::qExec without any test functions, that'd run *all* slots as tests.
+    if (functions.isEmpty())
+        return 0;
+
+    // QTest::qExec() expects basically QCoreApplication::arguments(),
+    QStringList qExecArguments = QStringList()
+            << QLatin1String("arg0") // fake application name
+            << QLatin1String("-maxwarnings") << QLatin1String("0"); // unlimit output
+    qExecArguments << functions;
+    return QTest::qExec(testObject, qExecArguments);
+}
+
 void PluginManagerPrivate::startTests()
 {
     if (PluginManager::hasError()) {
@@ -885,69 +956,20 @@ void PluginManagerPrivate::startTests()
             continue;
 
         // Collect all test functions of the plugin.
-        QStringList allTestFunctions;
-        const QMetaObject *metaObject = pluginSpec->plugin()->metaObject();
-
-        for (int i = metaObject->methodOffset(); i < metaObject->methodCount(); ++i) {
-            const QByteArray signature = metaObject->method(i).methodSignature();
-            if (signature.startsWith("test") && !signature.endsWith("_data()")) {
-                const QString method = QString::fromLatin1(signature);
-                const QString methodName = method.left(method.size() - 2);
-                allTestFunctions.append(methodName);
-            }
-        }
+        const QStringList allTestFunctions = testFunctions(pluginSpec->plugin()->metaObject());
 
         QStringList testFunctionsToExecute;
-
         // User did not specify any test functions, so add every test function.
         if (testSpec.testFunctions.isEmpty()) {
             testFunctionsToExecute = allTestFunctions;
 
         // User specified test functions. Add them if they are valid.
         } else {
-            foreach (const QString &userTestFunction, testSpec.testFunctions) {
-                // There might be a test data suffix like in "testfunction:testdata1".
-                QString testFunctionName = userTestFunction;
-                QString testDataSuffix;
-                const int index = testFunctionName.indexOf(QLatin1Char(':'));
-                if (index != -1) {
-                    testDataSuffix = testFunctionName.mid(index);
-                    testFunctionName = testFunctionName.left(index);
-                }
-
-                const QRegExp regExp(testFunctionName, Qt::CaseSensitive, QRegExp::Wildcard);
-                QStringList matchingFunctions;
-                foreach (const QString &testFunction, allTestFunctions) {
-                    if (regExp.exactMatch(testFunction))
-                        matchingFunctions.append(testFunction);
-                }
-                if (!matchingFunctions.isEmpty()) {
-                    // If the specified test data is invalid, the QTest framework will
-                    // print a reasonable error message for us.
-                    foreach (const QString &matchingFunction, matchingFunctions)
-                        testFunctionsToExecute.append(matchingFunction + testDataSuffix);
-                } else {
-                    QTextStream out(stdout);
-                    out << "No test function matches \"" << testFunctionName
-                        << "\" for plugin \"" << pluginSpec->name() << "\"." << endl
-                        << "  Available test functions for plugin \"" << pluginSpec->name()
-                        << "\" are:" << endl;
-                    foreach (const QString &testFunction, allTestFunctions)
-                        out << "    " << testFunction << endl;
-                }
-            }
+            testFunctionsToExecute = testFunctionsWantedByUser(pluginSpec, allTestFunctions,
+                                                               testSpec.testFunctions);
         }
 
-        // Don't run QTest::qExec without any test functions, that'd run
-        // *all* slots as tests.
-        if (!testFunctionsToExecute.isEmpty()) {
-            // QTest::qExec() expects basically QCoreApplication::arguments(),
-            QStringList qExecArguments = QStringList()
-                << QLatin1String("arg0") // fake application name
-                << QLatin1String("-maxwarnings") << QLatin1String("0"); // unlimit output
-            qExecArguments << testFunctionsToExecute;
-            m_failedTests += QTest::qExec(pluginSpec->plugin(), qExecArguments);
-        }
+        m_failedTests += executeTestFunctions(pluginSpec->plugin(), testFunctionsToExecute);
     }
     if (!testSpecs.isEmpty())
         QTimer::singleShot(1, this, SLOT(exitWithNumberOfFailedTests()));
