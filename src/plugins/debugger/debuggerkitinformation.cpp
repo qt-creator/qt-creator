@@ -306,13 +306,28 @@ void DebuggerKitInformation::addToMacroExpander(Kit *kit, MacroExpander *expande
     expander->registerVariable("Debugger:Type", tr("Type of Debugger Backend"),
                                [this, kit]() -> QString {
                                    const DebuggerItem *item = debugger(kit);
-                                   return item ? item->engineTypeName() : tr("unknown");
+                                   return item ? item->engineTypeName() : tr("Unknown debugger type");
                                });
-    // FIXME: Use better strings.
+
     expander->registerVariable("Debugger:Name", tr("Debugger"),
                                [this, kit]() -> QString {
                                    const DebuggerItem *item = debugger(kit);
-                                   return item ? item->displayName() : tr("unknown");
+                                   return item ? item->displayName() : tr("Unknown debugger");
+                               });
+
+    expander->registerVariable("Debugger:Version", tr("Debugger"),
+                               [this, kit]() -> QString {
+                                   const DebuggerItem *item = debugger(kit);
+                                   return item && !item->version().isEmpty()
+                                        ? item->version() : tr("Unknown debugger version");
+                               });
+
+    expander->registerVariable("Debugger:Abi", tr("Debugger"),
+                               [this, kit]() -> QString {
+                                   const DebuggerItem *item = debugger(kit);
+                                   return item && !item->abis().isEmpty()
+                                           ? item->abiNames().join(QLatin1Char(' '))
+                                           : tr("Unknown debugger ABI");
                                });
 }
 
