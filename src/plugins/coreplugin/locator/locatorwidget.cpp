@@ -43,6 +43,7 @@
 #include <utils/appmainwindow.h>
 #include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
+#include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <utils/stylehelper.h>
@@ -291,6 +292,14 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     m_showPopupTimer->setInterval(100);
     m_showPopupTimer->setSingleShot(true);
     connect(m_showPopupTimer, SIGNAL(timeout()), SLOT(showPopupNow()));
+
+    m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicator::Small,
+                                                       m_fileLineEdit);
+    m_progressIndicator->raise();
+    m_progressIndicator->hide();
+    m_showProgressTimer.setSingleShot(true);
+    m_showProgressTimer.setInterval(50); // don't show progress for < 50ms tasks
+    connect(&m_showProgressTimer, &QTimer::timeout, [this]() { setProgressIndicatorVisible(true);});
 }
 
 void LocatorWidget::setPlaceholderText(const QString &text)
@@ -482,6 +491,21 @@ QList<ILocatorFilter *> LocatorWidget::filtersFor(const QString &text, QString &
     return activeFilters;
 }
 
+void LocatorWidget::setProgressIndicatorVisible(bool visible)
+{
+    if (!visible) {
+        m_progressIndicator->hide();
+        return;
+    }
+    const QSize iconSize = m_progressIndicator->sizeHint();
+    m_progressIndicator->setGeometry(m_fileLineEdit->button(Utils::FancyLineEdit::Right)->geometry().x()
+                                     - iconSize.width(),
+                                     (m_fileLineEdit->height() - iconSize.height()) / 2 /*center*/,
+                                     iconSize.width(),
+                                     iconSize.height());
+    m_progressIndicator->show();
+}
+
 void LocatorWidget::updateCompletionList(const QString &text)
 {
     m_updateRequested = true;
@@ -495,6 +519,7 @@ void LocatorWidget::updateCompletionList(const QString &text)
         return;
     }
 
+    m_showProgressTimer.start();
     m_needsClearResult = true;
     QString searchText;
     const QList<ILocatorFilter *> filters = filtersFor(text, searchText);
@@ -507,6 +532,8 @@ void LocatorWidget::updateCompletionList(const QString &text)
 
 void LocatorWidget::handleSearchFinished()
 {
+    m_showProgressTimer.stop();
+    setProgressIndicatorVisible(false);
     m_updateRequested = false;
     if (m_acceptRequested) {
         acceptCurrentEntry();

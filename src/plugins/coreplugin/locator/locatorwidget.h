@@ -84,6 +84,7 @@ private:
     void showCompletionList();
     void updateCompletionList(const QString &text);
     QList<ILocatorFilter*> filtersFor(const QString &text, QString &searchText);
+    void setProgressIndicatorVisible(bool visible);
 
     Locator *m_locatorPlugin;
     LocatorModel *m_locatorModel;
@@ -101,6 +102,8 @@ private:
     bool m_updateRequested;
     bool m_acceptRequested;
     bool m_possibleToolTipRequest;
+    QWidget *m_progressIndicator;
+    QTimer m_showProgressTimer;
 };
 
 } // namespace Internal
