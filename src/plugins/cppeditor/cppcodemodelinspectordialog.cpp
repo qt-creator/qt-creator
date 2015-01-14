@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -52,6 +52,7 @@
 #include <QPushButton>
 #include <QSortFilterProxyModel>
 
+using namespace CPlusPlus;
 using namespace CppTools;
 namespace CMI = CppCodeModelInspector;
 
@@ -75,18 +76,18 @@ QString fileInCurrentEditor()
     return QString();
 }
 
-class DepthFinder : public CPlusPlus::SymbolVisitor {
+class DepthFinder : public SymbolVisitor {
 public:
     DepthFinder() : m_symbol(0), m_depth(-1), m_foundDepth(-1), m_stop(false) {}
 
-    int operator()(const CPlusPlus::Document::Ptr &document, CPlusPlus::Symbol *symbol)
+    int operator()(const Document::Ptr &document, Symbol *symbol)
     {
         m_symbol = symbol;
         accept(document->globalNamespace());
         return m_foundDepth;
     }
 
-    bool preVisit(CPlusPlus::Symbol *symbol)
+    bool preVisit(Symbol *symbol)
     {
         if (m_stop)
             return false;
@@ -103,14 +104,14 @@ public:
         return false;
     }
 
-    void postVisit(CPlusPlus::Symbol *symbol)
+    void postVisit(Symbol *symbol)
     {
         if (symbol->asScope())
             --m_depth;
     }
 
 private:
-    CPlusPlus::Symbol *m_symbol;
+    Symbol *m_symbol;
     int m_depth;
     int m_foundDepth;
     bool m_stop;
@@ -291,8 +292,8 @@ class SnapshotModel : public QAbstractListModel
     Q_OBJECT
 public:
     SnapshotModel(QObject *parent);
-    void configure(const CPlusPlus::Snapshot &snapshot);
-    void setGlobalSnapshot(const CPlusPlus::Snapshot &snapshot);
+    void configure(const Snapshot &snapshot);
+    void setGlobalSnapshot(const Snapshot &snapshot);
 
     QModelIndex indexForDocument(const QString &filePath);
 
@@ -304,22 +305,22 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
 private:
-    QList<CPlusPlus::Document::Ptr> m_documents;
-    CPlusPlus::Snapshot m_globalSnapshot;
+    QList<Document::Ptr> m_documents;
+    Snapshot m_globalSnapshot;
 };
 
 SnapshotModel::SnapshotModel(QObject *parent) : QAbstractListModel(parent)
 {
 }
 
-void SnapshotModel::configure(const CPlusPlus::Snapshot &snapshot)
+void SnapshotModel::configure(const Snapshot &snapshot)
 {
     emit layoutAboutToBeChanged();
     m_documents = CMI::Utils::snapshotToList(snapshot);
     emit layoutChanged();
 }
 
-void SnapshotModel::setGlobalSnapshot(const CPlusPlus::Snapshot &snapshot)
+void SnapshotModel::setGlobalSnapshot(const Snapshot &snapshot)
 {
     m_globalSnapshot = snapshot;
 }
@@ -327,7 +328,7 @@ void SnapshotModel::setGlobalSnapshot(const CPlusPlus::Snapshot &snapshot)
 QModelIndex SnapshotModel::indexForDocument(const QString &filePath)
 {
     for (int i = 0, total = m_documents.size(); i < total; ++i) {
-        const CPlusPlus::Document::Ptr document = m_documents.at(i);
+        const Document::Ptr document = m_documents.at(i);
         if (document->fileName() == filePath)
             return index(i, FilePathColumn);
     }
@@ -348,11 +349,11 @@ QVariant SnapshotModel::data(const QModelIndex &index, int role) const
 {
     if (role == Qt::DisplayRole) {
         const int column = index.column();
-        CPlusPlus::Document::Ptr document = m_documents.at(index.row());
+        Document::Ptr document = m_documents.at(index.row());
         if (column == SymbolCountColumn) {
             return document->control()->symbolCount();
         } else if (column == SharedColumn) {
-            CPlusPlus::Document::Ptr globalDocument = m_globalSnapshot.document(document->fileName());
+            Document::Ptr globalDocument = m_globalSnapshot.document(document->fileName());
             const bool isShared
                 = globalDocument && globalDocument->fingerprint() == document->fingerprint();
             return CMI::Utils::toString(isShared);
@@ -382,8 +383,8 @@ QVariant SnapshotModel::headerData(int section, Qt::Orientation orientation, int
 
 // --- IncludesModel ------------------------------------------------------------------------------
 
-static bool includesSorter(const CPlusPlus::Document::Include &i1,
-                           const CPlusPlus::Document::Include &i2)
+static bool includesSorter(const Document::Include &i1,
+                           const Document::Include &i2)
 {
     return i1.line() < i2.line();
 }
@@ -393,7 +394,7 @@ class IncludesModel : public QAbstractListModel
     Q_OBJECT
 public:
     IncludesModel(QObject *parent);
-    void configure(const QList<CPlusPlus::Document::Include> &includes);
+    void configure(const QList<Document::Include> &includes);
     void clear();
 
     enum Columns { ResolvedOrNotColumn, LineNumberColumn, FilePathsColumn, ColumnCount };
@@ -404,14 +405,14 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
 private:
-    QList<CPlusPlus::Document::Include> m_includes;
+    QList<Document::Include> m_includes;
 };
 
 IncludesModel::IncludesModel(QObject *parent) : QAbstractListModel(parent)
 {
 }
 
-void IncludesModel::configure(const QList<CPlusPlus::Document::Include> &includes)
+void IncludesModel::configure(const QList<Document::Include> &includes)
 {
     emit layoutAboutToBeChanged();
     m_includes = includes;
@@ -444,7 +445,7 @@ QVariant IncludesModel::data(const QModelIndex &index, int role) const
     static const QBrush greenBrush(QColor(0, 139, 69));
     static const QBrush redBrush(QColor(205, 38, 38));
 
-    const CPlusPlus::Document::Include include = m_includes.at(index.row());
+    const Document::Include include = m_includes.at(index.row());
     const QString resolvedFileName = QDir::toNativeSeparators(include.resolvedFileName());
     const bool isResolved = !resolvedFileName.isEmpty();
 
@@ -484,8 +485,8 @@ QVariant IncludesModel::headerData(int section, Qt::Orientation orientation, int
 
 // --- DiagnosticMessagesModel --------------------------------------------------------------------
 
-static bool diagnosticMessagesModelSorter(const CPlusPlus::Document::DiagnosticMessage &m1,
-                                          const CPlusPlus::Document::DiagnosticMessage &m2)
+static bool diagnosticMessagesModelSorter(const Document::DiagnosticMessage &m1,
+                                          const Document::DiagnosticMessage &m2)
 {
     return m1.line() < m2.line();
 }
@@ -495,7 +496,7 @@ class DiagnosticMessagesModel : public QAbstractListModel
     Q_OBJECT
 public:
     DiagnosticMessagesModel(QObject *parent);
-    void configure(const QList<CPlusPlus::Document::DiagnosticMessage> &messages);
+    void configure(const QList<Document::DiagnosticMessage> &messages);
     void clear();
 
     enum Columns { LevelColumn, LineColumnNumberColumn, MessageColumn, ColumnCount };
@@ -506,7 +507,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
 private:
-    QList<CPlusPlus::Document::DiagnosticMessage> m_messages;
+    QList<Document::DiagnosticMessage> m_messages;
 };
 
 DiagnosticMessagesModel::DiagnosticMessagesModel(QObject *parent) : QAbstractListModel(parent)
@@ -514,7 +515,7 @@ DiagnosticMessagesModel::DiagnosticMessagesModel(QObject *parent) : QAbstractLis
 }
 
 void DiagnosticMessagesModel::configure(
-        const QList<CPlusPlus::Document::DiagnosticMessage> &messages)
+        const QList<Document::DiagnosticMessage> &messages)
 {
     emit layoutAboutToBeChanged();
     m_messages = messages;
@@ -548,9 +549,9 @@ QVariant DiagnosticMessagesModel::data(const QModelIndex &index, int role) const
     static const QBrush redBrush(QColor(205, 38, 38));
     static const QBrush darkRedBrushQColor(QColor(139, 0, 0));
 
-    const CPlusPlus::Document::DiagnosticMessage message = m_messages.at(index.row());
-    const CPlusPlus::Document::DiagnosticMessage::Level level
-        = static_cast<CPlusPlus::Document::DiagnosticMessage::Level>(message.level());
+    const Document::DiagnosticMessage message = m_messages.at(index.row());
+    const Document::DiagnosticMessage::Level level
+        = static_cast<Document::DiagnosticMessage::Level>(message.level());
 
     if (role == Qt::DisplayRole) {
         const int column = index.column();
@@ -564,11 +565,11 @@ QVariant DiagnosticMessagesModel::data(const QModelIndex &index, int role) const
         }
     } else if (role == Qt::ForegroundRole) {
         switch (level) {
-        case CPlusPlus::Document::DiagnosticMessage::Warning:
+        case Document::DiagnosticMessage::Warning:
             return yellowOrangeBrush;
-        case CPlusPlus::Document::DiagnosticMessage::Error:
+        case Document::DiagnosticMessage::Error:
             return redBrush;
-        case CPlusPlus::Document::DiagnosticMessage::Fatal:
+        case Document::DiagnosticMessage::Fatal:
             return darkRedBrushQColor;
         default:
             return QVariant();
@@ -603,7 +604,7 @@ class MacrosModel : public QAbstractListModel
     Q_OBJECT
 public:
     MacrosModel(QObject *parent);
-    void configure(const QList<CPlusPlus::Macro> &macros);
+    void configure(const QList<Macro> &macros);
     void clear();
 
     enum Columns { LineNumberColumn, MacroColumn, ColumnCount };
@@ -614,14 +615,14 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
 private:
-    QList<CPlusPlus::Macro> m_macros;
+    QList<Macro> m_macros;
 };
 
 MacrosModel::MacrosModel(QObject *parent) : QAbstractListModel(parent)
 {
 }
 
-void MacrosModel::configure(const QList<CPlusPlus::Macro> &macros)
+void MacrosModel::configure(const QList<Macro> &macros)
 {
     emit layoutAboutToBeChanged();
     m_macros = macros;
@@ -649,7 +650,7 @@ QVariant MacrosModel::data(const QModelIndex &index, int role) const
 {
     const int column = index.column();
     if (role == Qt::DisplayRole || (role == Qt::ToolTipRole && column == MacroColumn)) {
-        const CPlusPlus::Macro macro = m_macros.at(index.row());
+        const Macro macro = m_macros.at(index.row());
         if (column == LineNumberColumn)
             return macro.line();
         else if (column == MacroColumn)
@@ -682,7 +683,7 @@ class SymbolsModel : public QAbstractItemModel
     Q_OBJECT
 public:
     SymbolsModel(QObject *parent);
-    void configure(const CPlusPlus::Document::Ptr &document);
+    void configure(const Document::Ptr &document);
     void clear();
 
     enum Columns { SymbolColumn, LineNumberColumn, ColumnCount };
@@ -695,14 +696,14 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
 private:
-    CPlusPlus::Document::Ptr m_document;
+    Document::Ptr m_document;
 };
 
 SymbolsModel::SymbolsModel(QObject *parent) : QAbstractItemModel(parent)
 {
 }
 
-void SymbolsModel::configure(const CPlusPlus::Document::Ptr &document)
+void SymbolsModel::configure(const Document::Ptr &document)
 {
     QTC_CHECK(document);
     emit layoutAboutToBeChanged();
@@ -717,23 +718,23 @@ void SymbolsModel::clear()
     emit layoutChanged();
 }
 
-static CPlusPlus::Symbol *indexToSymbol(const QModelIndex &index)
+static Symbol *indexToSymbol(const QModelIndex &index)
 {
-    if (CPlusPlus::Symbol *symbol = static_cast<CPlusPlus::Symbol*>(index.internalPointer()))
+    if (Symbol *symbol = static_cast<Symbol*>(index.internalPointer()))
         return symbol;
     return 0;
 }
 
-static CPlusPlus::Scope *indexToScope(const QModelIndex &index)
+static Scope *indexToScope(const QModelIndex &index)
 {
-    if (CPlusPlus::Symbol *symbol = indexToSymbol(index))
+    if (Symbol *symbol = indexToSymbol(index))
         return symbol->asScope();
     return 0;
 }
 
 QModelIndex SymbolsModel::index(int row, int column, const QModelIndex &parent) const
 {
-    CPlusPlus::Scope *scope = 0;
+    Scope *scope = 0;
     if (parent.isValid())
         scope = indexToScope(parent);
     else if (m_document)
@@ -752,8 +753,8 @@ QModelIndex SymbolsModel::parent(const QModelIndex &child) const
     if (!child.isValid())
         return QModelIndex();
 
-    if (CPlusPlus::Symbol *symbol = indexToSymbol(child)) {
-        if (CPlusPlus::Scope *scope = symbol->enclosingScope()) {
+    if (Symbol *symbol = indexToSymbol(child)) {
+        if (Scope *scope = symbol->enclosingScope()) {
             const int row = DepthFinder()(m_document, scope);
             return createIndex(row, 0, scope);
         }
@@ -765,7 +766,7 @@ QModelIndex SymbolsModel::parent(const QModelIndex &child) const
 int SymbolsModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid()) {
-        if (CPlusPlus::Scope *scope = indexToScope(parent))
+        if (Scope *scope = indexToScope(parent))
             return scope->memberCount();
     } else {
         if (m_document)
@@ -783,13 +784,13 @@ QVariant SymbolsModel::data(const QModelIndex &index, int role) const
 {
     const int column = index.column();
     if (role == Qt::DisplayRole) {
-        CPlusPlus::Symbol *symbol = indexToSymbol(index);
+        Symbol *symbol = indexToSymbol(index);
         if (!symbol)
             return QVariant();
         if (column == LineNumberColumn) {
             return symbol->line();
         } else if (column == SymbolColumn) {
-            QString name = CPlusPlus::Overview().prettyName(symbol->name());
+            QString name = Overview().prettyName(symbol->name());
             if (name.isEmpty())
                 name = QLatin1String(symbol->isBlock() ? "<block>" : "<no name>");
             return name;
@@ -820,7 +821,7 @@ class TokensModel : public QAbstractListModel
     Q_OBJECT
 public:
     TokensModel(QObject *parent);
-    void configure(CPlusPlus::TranslationUnit *translationUnit);
+    void configure(TranslationUnit *translationUnit);
     void clear();
 
     enum Columns { SpelledColumn, KindColumn, IndexColumn, OffsetColumn, LineColumnNumberColumn,
@@ -834,7 +835,7 @@ public:
 
 private:
     struct TokenInfo {
-        CPlusPlus::Token token;
+        Token token;
         unsigned line;
         unsigned column;
     };
@@ -845,7 +846,7 @@ TokensModel::TokensModel(QObject *parent) : QAbstractListModel(parent)
 {
 }
 
-void TokensModel::configure(CPlusPlus::TranslationUnit *translationUnit)
+void TokensModel::configure(TranslationUnit *translationUnit)
 {
     if (!translationUnit)
         return;
@@ -883,11 +884,11 @@ QVariant TokensModel::data(const QModelIndex &index, int role) const
     const int column = index.column();
     if (role == Qt::DisplayRole) {
         const TokenInfo info = m_tokenInfos.at(index.row());
-        const CPlusPlus::Token token = info.token;
+        const Token token = info.token;
         if (column == SpelledColumn)
             return QString::fromUtf8(token.spell());
         else if (column == KindColumn)
-            return CMI::Utils::toString(static_cast<CPlusPlus::Kind>(token.kind()));
+            return CMI::Utils::toString(static_cast<Kind>(token.kind()));
         else if (column == IndexColumn)
             return index.row();
         else if (column == OffsetColumn)
@@ -1152,10 +1153,10 @@ class SnapshotInfo
 {
 public:
     enum Type { GlobalSnapshot, EditorSnapshot };
-    SnapshotInfo(const CPlusPlus::Snapshot &snapshot, Type type)
+    SnapshotInfo(const Snapshot &snapshot, Type type)
         : snapshot(snapshot), type(type) {}
 
-    CPlusPlus::Snapshot snapshot;
+    Snapshot snapshot;
     Type type;
 };
 
@@ -1351,7 +1352,7 @@ void CppCodeModelInspectorDialog::refresh()
     m_snapshotInfos->clear();
     m_ui->snapshotSelector->clear();
 
-    const CPlusPlus::Snapshot globalSnapshot = cmmi->snapshot();
+    const Snapshot globalSnapshot = cmmi->snapshot();
     CppCodeModelInspector::Dumper dumper(globalSnapshot);
     m_snapshotModel->setGlobalSnapshot(globalSnapshot);
 
@@ -1367,7 +1368,7 @@ void CppCodeModelInspectorDialog::refresh()
         const QString editorFilePath = editor->document()->filePath().toString();
         cppEditorDocument = cmmi->cppEditorDocument(editorFilePath);
         if (auto *documentProcessor = BaseEditorDocumentProcessor::get(editorFilePath)) {
-            const CPlusPlus::Snapshot editorSnapshot = documentProcessor->snapshot();
+            const Snapshot editorSnapshot = documentProcessor->snapshot();
             m_snapshotInfos->append(SnapshotInfo(editorSnapshot, SnapshotInfo::EditorSnapshot));
             const QString editorSnapshotTitle
                 = QString::fromLatin1("Current Editor's Snapshot (%1 Documents)")
@@ -1378,7 +1379,7 @@ void CppCodeModelInspectorDialog::refresh()
         CppEditorWidget *cppEditorWidget = qobject_cast<CppEditorWidget *>(editor->editorWidget());
         if (cppEditorWidget) {
             SemanticInfo semanticInfo = cppEditorWidget->semanticInfo();
-            CPlusPlus::Snapshot snapshot;
+            Snapshot snapshot;
 
             // Add semantic info snapshot
             snapshot = semanticInfo.snapshot;
@@ -1389,7 +1390,7 @@ void CppCodeModelInspectorDialog::refresh()
 
             // Add a pseudo snapshot containing only the semantic info document since this document
             // is not part of the semantic snapshot.
-            snapshot = CPlusPlus::Snapshot();
+            snapshot = Snapshot();
             snapshot.insert(cppEditorWidget->semanticInfo().doc);
             m_snapshotInfos->append(SnapshotInfo(snapshot, SnapshotInfo::EditorSnapshot));
             const QString snapshotTitle
@@ -1502,7 +1503,7 @@ void CppCodeModelInspectorDialog::clearDocumentData()
     m_docTokensModel->clear();
 }
 
-void CppCodeModelInspectorDialog::updateDocumentData(const CPlusPlus::Document::Ptr &document)
+void CppCodeModelInspectorDialog::updateDocumentData(const Document::Ptr &document)
 {
     QTC_ASSERT(document, return);
 
