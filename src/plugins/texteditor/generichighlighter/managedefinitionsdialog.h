@@ -34,8 +34,6 @@
 #include "ui_managedefinitionsdialog.h"
 #include "highlightdefinitionmetadata.h"
 
-#include <QList>
-
 namespace TextEditor {
 namespace Internal {
 
@@ -48,16 +46,13 @@ public:
                                      const QString &path,
                                      QWidget *parent = 0);
 
-private slots:
+private:
     void downloadDefinitions();
     void selectAll();
     void clearSelection();
     void invertSelection();
+    void populateDefinitionsWidget(const QList<DefinitionMetaDataPtr> &definitionsMetaData);
 
-private:
-    void populateDefinitionsWidget();
-
-    QList<DefinitionMetaDataPtr> m_definitionsMetaData;
     QString m_path;
     Ui::ManageDefinitionsDialog ui;
 };

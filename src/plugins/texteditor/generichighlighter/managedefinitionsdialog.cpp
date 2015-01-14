@@ -37,8 +37,6 @@
 #include <QFileInfo>
 #include <QMessageBox>
 
-#include <QDebug>
-
 using namespace TextEditor;
 using namespace Internal;
 
@@ -47,30 +45,30 @@ ManageDefinitionsDialog::ManageDefinitionsDialog(
         const QString &path,
         QWidget *parent) :
     QDialog(parent),
-    m_definitionsMetaData(metaDataList),
     m_path(path)
 {
     ui.setupUi(this);
     ui.definitionsTable->setHorizontalHeaderLabels(
         QStringList() << tr("Name") << tr("Installed") << tr("Available"));
     ui.definitionsTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    ui.definitionsTable->sortItems(0);
 
     setWindowTitle(tr("Download Definitions"));
 
-    populateDefinitionsWidget();
+    populateDefinitionsWidget(metaDataList);
 
-    connect(ui.downloadButton, SIGNAL(clicked()), this, SLOT(downloadDefinitions()));
-    connect(ui.allButton, SIGNAL(clicked()), this, SLOT(selectAll()));
-    connect(ui.clearButton, SIGNAL(clicked()), this, SLOT(clearSelection()));
-    connect(ui.invertButton, SIGNAL(clicked()), this, SLOT(invertSelection()));
+    connect(ui.downloadButton, &QPushButton::clicked, this, &ManageDefinitionsDialog::downloadDefinitions);
+    connect(ui.allButton, &QPushButton::clicked, this, &ManageDefinitionsDialog::selectAll);
+    connect(ui.clearButton, &QPushButton::clicked, this, &ManageDefinitionsDialog::clearSelection);
+    connect(ui.invertButton, &QPushButton::clicked, this, &ManageDefinitionsDialog::invertSelection);
 }
 
-void ManageDefinitionsDialog::populateDefinitionsWidget()
+void ManageDefinitionsDialog::populateDefinitionsWidget(const QList<DefinitionMetaDataPtr> &definitionsMetaData)
 {
-    const int size = m_definitionsMetaData.size();
+    const int size = definitionsMetaData.size();
     ui.definitionsTable->setRowCount(size);
     for (int i = 0; i < size; ++i) {
-        const HighlightDefinitionMetaData &downloadData = *m_definitionsMetaData.at(i);
+        const HighlightDefinitionMetaData &downloadData = *definitionsMetaData.at(i);
 
         // Look for this definition in the current path specified by the user, not the one
         // stored in the settings. So the manager should not be queried for this information.
@@ -87,6 +85,7 @@ void ManageDefinitionsDialog::populateDefinitionsWidget()
             QTableWidgetItem *item = new QTableWidgetItem;
             if (j == 0) {
                 item->setText(downloadData.name);
+                item->setData(Qt::UserRole, downloadData.url);
             } else if (j == 1) {
                 item->setText(dirVersion);
                 item->setTextAlignment(Qt::AlignCenter);
@@ -110,8 +109,10 @@ void ManageDefinitionsDialog::downloadDefinitions()
     }
 
     QList<QUrl> urls;
-    foreach (const QModelIndex &index, ui.definitionsTable->selectionModel()->selectedRows())
-        urls.append(m_definitionsMetaData.at(index.row())->url);
+    foreach (const QModelIndex &index, ui.definitionsTable->selectionModel()->selectedRows()) {
+        const QVariant url = ui.definitionsTable->item(index.row(), 0)->data(Qt::UserRole);
+        urls.append(url.toUrl());
+    }
     Manager::instance()->downloadDefinitions(urls, m_path);
     accept();
 }
