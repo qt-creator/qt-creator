@@ -106,7 +106,6 @@ public:
     QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
 
 private:
-    ResourceTopLevelNode *m_topLevel;
     QString m_displayName;
     QString m_qrcPath;
 };
