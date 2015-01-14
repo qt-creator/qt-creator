@@ -483,7 +483,7 @@ bool stringLiteralToInt(const StringLiteral *stringLiteral, int *output)
     }
 
     std::stringstream ss(std::string(stringLiteral->chars(), stringLiteral->size()));
-    const bool ok = ss >> *output;
+    const bool ok = !(ss >> *output).fail();
     if (!ok)
         *output = 0;
 
