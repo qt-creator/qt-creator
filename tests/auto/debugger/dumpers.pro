@@ -42,3 +42,6 @@ HEADERS += \
 
 INCLUDEPATH += $$DEBUGGERDIR
 DEFINES += QT_NO_CAST_FROM_ASCII
+
+# clang 3.5 does not like to optimize long functions.
+clang: QMAKE_CXXFLAGS_RELEASE =
