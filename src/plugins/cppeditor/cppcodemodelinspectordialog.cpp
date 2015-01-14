@@ -1362,7 +1362,7 @@ void CppCodeModelInspectorDialog::refresh()
     dumper.dumpSnapshot(globalSnapshot, globalSnapshotTitle, /*isGlobalSnapshot=*/ true);
 
     TextEditor::BaseTextEditor *editor = currentEditor();
-    CppEditorDocumentHandle *cppEditorDocument = 0;
+    CppTools::CppEditorDocumentHandle *cppEditorDocument = 0;
     if (editor) {
         const QString editorFilePath = editor->document()->filePath().toString();
         cppEditorDocument = cmmi->cppEditorDocument(editorFilePath);
