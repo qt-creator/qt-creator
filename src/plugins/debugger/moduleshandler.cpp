@@ -198,7 +198,7 @@ QAbstractItemModel *ModulesHandler::model() const
 
 void ModulesHandler::removeAll()
 {
-    m_model->removeAllSubItems(m_model->rootItem());
+    m_model->removeItems();
 }
 
 Modules ModulesHandler::modules() const
@@ -228,13 +228,13 @@ void ModulesHandler::updateModule(const Module &module)
     } else {
         item = new ModuleItem;
         item->module = module;
-        m_model->appendItem(m_model->rootItem(), item);
+        m_model->rootItem()->appendChild(item);
     }
 
     try { // MinGW occasionallly throws std::bad_alloc.
         ElfReader reader(path);
         item->module.elfData = reader.readHeaders();
-        m_model->updateItem(item);
+        item->update();
     } catch(...) {
         qWarning("%s: An exception occurred while reading module '%s'",
                  Q_FUNC_INFO, qPrintable(module.modulePath));

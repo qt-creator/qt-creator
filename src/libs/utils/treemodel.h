@@ -43,6 +43,8 @@
 
 namespace Utils {
 
+class TreeModel;
+
 class QTCREATOR_UTILS_EXPORT TreeItem
 {
 public:
@@ -63,6 +65,10 @@ public:
 
     void prependChild(TreeItem *item);
     void appendChild(TreeItem *item);
+    void removeChildren();
+    void update();
+    void expand();
+    TreeItem *firstChild() const;
     TreeItem *lastChild() const;
     int level() const;
 
@@ -70,6 +76,10 @@ public:
     void setPopulated(bool on);
     void setFlags(Qt::ItemFlags flags);
     QVector<TreeItem *> children() const { return m_children; }
+    QModelIndex index() const;
+
+    TreeModel *model() const { return m_model; }
+    void setModel(TreeModel *model);
 
 private:
     TreeItem(const TreeItem &) Q_DECL_EQ_DELETE;
@@ -79,6 +89,7 @@ private:
     void ensurePopulated() const;
 
     TreeItem *m_parent; // Not owned.
+    TreeModel *m_model; // Not owned.
     QVector<TreeItem *> m_children; // Owned.
     QStringList *m_displays;
     bool m_lazy;
@@ -214,6 +225,8 @@ private:
 
 class QTCREATOR_UTILS_EXPORT TreeModel : public QAbstractItemModel
 {
+    Q_OBJECT
+
 public:
     explicit TreeModel(QObject *parent = 0);
     virtual ~TreeModel();
@@ -232,11 +245,7 @@ public:
     void setRootItem(TreeItem *item);
     TreeItem *itemFromIndex(const QModelIndex &) const;
     QModelIndex indexFromItem(const TreeItem *needle) const;
-
-    void appendItem(TreeItem *parent, TreeItem *item);
-    void removeItem(TreeItem *item); // item is not destroyed.
-    void removeAllSubItems(TreeItem *item); // item is not destroyed.
-    void updateItem(TreeItem *item); // call to trigger dataChanged
+    void removeItems();
 
     UntypedTreeLevelItems untypedLevelItems(int level = 0, TreeItem *start = 0) const;
     UntypedTreeLevelItems untypedLevelItems(TreeItem *start) const;
@@ -259,7 +268,14 @@ public:
         return Utils::findOrDefault(treeLevelItems<T>(level, start), f);
     }
 
+    void removeItem(TreeItem *item); // item is not destroyed.
+
+signals:
+    void requestExpansion(QModelIndex);
+
 private:
+    friend class TreeItem;
+
     TreeItem *m_root; // Owned.
 };
 

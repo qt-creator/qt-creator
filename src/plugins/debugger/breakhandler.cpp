@@ -98,7 +98,6 @@ public:
     bool isLocatedAt(const QString &fileName, int lineNumber, bool useMarkerPosition) const;
 
     bool needsChildren() const;
-    void update();
 
     void setMarkerFileAndLine(const QString &fileName, int lineNumber);
 
@@ -912,11 +911,6 @@ void BreakpointItem::deleteThis()
     QTC_CHECK(invoker.wasSuccessful());
 }
 
-void BreakpointItem::update()
-{
-    m_handler->updateItem(this);
-}
-
 void Breakpoint::gotoState(BreakpointState target, BreakpointState assumedCurrent)
 {
     QTC_ASSERT(b, return);
@@ -981,7 +975,7 @@ void Breakpoint::notifyBreakpointChangeFailed()
 void Breakpoint::notifyBreakpointReleased()
 {
     QTC_ASSERT(b, return);
-    b->m_handler->removeAllSubItems(b);
+    b->removeChildren();
     //QTC_ASSERT(b->m_state == BreakpointChangeProceeding, qDebug() << b->m_state);
     b->m_state = BreakpointNew;
     b->m_engine = 0;
@@ -1052,7 +1046,7 @@ void BreakHandler::appendBreakpointInternal(const BreakpointParameters &params)
     BreakpointItem *b = new BreakpointItem(this);
     b->m_params = params;
     b->updateMarker();
-    appendItem(rootItem(), b);
+    rootItem()->appendChild(b);
 }
 
 void BreakHandler::handleAlienBreakpoint(const BreakpointResponse &response, DebuggerEngine *engine)
@@ -1070,7 +1064,7 @@ void BreakHandler::handleAlienBreakpoint(const BreakpointResponse &response, Deb
         b->m_state = BreakpointInserted;
         b->m_engine = engine;
         b->updateMarker();
-        appendItem(rootItem(), b);
+        rootItem()->appendChild(b);
     }
 }
 
@@ -1092,7 +1086,7 @@ void BreakpointItem::insertSubBreakpoint(const BreakpointResponse &params)
         if (l->params.id.minorPart() == minorPart) {
             // This modifies an existing sub-breakpoint.
             l->params = params;
-            m_handler->updateItem(l);
+            l->update();
             return;
         }
     }
@@ -1100,9 +1094,8 @@ void BreakpointItem::insertSubBreakpoint(const BreakpointResponse &params)
     // This is a new sub-breakpoint.
     LocationItem *l = new LocationItem;
     l->params = params;
-
-    m_handler->appendItem(this, l);
-    m_handler->requestExpansion(m_handler->indexFromItem(this));
+    appendChild(l);
+    expand();
 }
 
 void BreakHandler::saveSessionData()
@@ -1112,7 +1105,7 @@ void BreakHandler::saveSessionData()
 
 void BreakHandler::loadSessionData()
 {
-    removeAllSubItems(rootItem());
+    removeItems();
     loadBreakpoints();
 }
 

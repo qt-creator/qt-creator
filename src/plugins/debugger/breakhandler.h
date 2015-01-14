@@ -214,9 +214,6 @@ public:
 
     Breakpoint breakpointById(BreakpointModelId id) const;
 
-signals:
-    void requestExpansion(QModelIndex);
-
 private:
     friend class BreakpointItem;
     friend class Breakpoint;

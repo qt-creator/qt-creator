@@ -64,16 +64,16 @@ namespace Internal {
 class ToolChainTreeItem : public TreeItem
 {
 public:
-    ToolChainTreeItem(TreeModel *model, ToolChain *tc, bool c) :
+    ToolChainTreeItem(ToolChain *tc, bool c) :
         toolChain(tc), changed(c)
     {
         widget = tc->configurationWidget();
         if (widget) {
             if (tc->isAutoDetected())
                 widget->makeReadOnly();
-            QObject::connect(widget, &ToolChainConfigWidget::dirty, [this, model] {
+            QObject::connect(widget, &ToolChainConfigWidget::dirty, [this] {
                 changed = true;
-                model->updateItem(this);
+                update();
             });
         }
     }
@@ -126,7 +126,7 @@ public:
         root->appendChild(m_manualRoot);
         foreach (ToolChain *tc, ToolChainManager::toolChains()) {
             TreeItem *parent = tc->isAutoDetected() ? m_autoRoot : m_manualRoot;
-            parent->appendChild(new ToolChainTreeItem(&m_model, tc, false));
+            parent->appendChild(new ToolChainTreeItem(tc, false));
         }
         m_model.setRootItem(root);
 
@@ -244,7 +244,7 @@ void ToolChainOptionsWidget::addToolChain(ToolChain *tc)
     }
 
     TreeItem *parent = m_model.rootItem()->child(tc->isAutoDetected() ? 0 : 1);
-    m_model.appendItem(parent, new ToolChainTreeItem(&m_model, tc, false));
+    parent->appendChild(new ToolChainTreeItem(tc, false));
 
     updateState();
 }
@@ -301,7 +301,7 @@ void ToolChainOptionsWidget::apply()
             if (item->widget)
                 item->widget->apply();
             item->changed = false;
-            m_model.updateItem(item);
+            item->update();
         }
     }
 
@@ -355,10 +355,10 @@ void ToolChainOptionsWidget::createToolChain(ToolChainFactory *factory)
     if (!tc)
         return;
 
-    ToolChainTreeItem *item = new ToolChainTreeItem(&m_model, tc, true);
+    ToolChainTreeItem *item = new ToolChainTreeItem(tc, true);
     m_toAddList.append(item);
 
-    m_model.appendItem(m_manualRoot, item);
+    m_manualRoot->appendChild(item);
 
     m_toolChainView->setCurrentIndex(m_model.indexFromItem(item));
 }

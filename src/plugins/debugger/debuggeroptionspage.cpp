@@ -131,7 +131,7 @@ DebuggerItemModel::DebuggerItemModel()
 void DebuggerItemModel::addDebugger(const DebuggerItem &item, bool changed)
 {
     int group = item.isAutoDetected() ? 0 : 1;
-    appendItem(rootItem()->child(group), new DebuggerTreeItem(item, changed));
+    rootItem()->child(group)->appendChild(new DebuggerTreeItem(item, changed));
 }
 
 void DebuggerItemModel::updateDebugger(const DebuggerItem &item)
@@ -146,8 +146,7 @@ void DebuggerItemModel::updateDebugger(const DebuggerItem &item)
     const DebuggerItem *orig = DebuggerItemManager::findById(item.id());
     treeItem->m_changed = !orig || *orig != item;
     treeItem->m_item = item;
-
-    updateItem(treeItem); // Notify views.
+    treeItem->update(); // Notify views.
 }
 
 QModelIndex DebuggerItemModel::lastIndex() const

@@ -198,7 +198,7 @@ void KitModel::apply()
     foreach (KitNode *n, treeLevelItems<KitNode *>(2)) {
         if (n->widget->isDirty()) {
             n->widget->apply();
-            updateItem(n);
+            n->update();
         }
     }
 
@@ -212,11 +212,9 @@ void KitModel::markForRemoval(Kit *k)
         return;
 
     if (node == m_defaultNode) {
-        TreeItem *newDefault = 0;
-        if (!m_autoRoot->children().isEmpty())
-            newDefault = m_autoRoot->children().at(0);
-        else if (!m_manualRoot->children().isEmpty())
-            newDefault = m_manualRoot->children().at(0);
+        TreeItem *newDefault = m_autoRoot->firstChild();
+        if (!newDefault)
+            newDefault = m_manualRoot->firstChild();
         setDefaultNode(static_cast<KitNode *>(newDefault));
     }
 
@@ -230,7 +228,7 @@ void KitModel::markForRemoval(Kit *k)
 Kit *KitModel::markForAddition(Kit *baseKit)
 {
     KitNode *node = createNode(0);
-    appendItem(m_manualRoot, node);
+    m_manualRoot->appendChild(node);
     Kit *k = node->widget->workingCopy();
     KitGuard g(k);
     if (baseKit) {
@@ -261,7 +259,9 @@ KitNode *KitModel::createNode(Kit *k)
 {
     KitNode *node = new KitNode(k);
     m_parentLayout->addWidget(node->widget);
-    connect(node->widget, &KitManagerConfigWidget::dirty, [this, node] { updateItem(node); });
+    connect(node->widget, &KitManagerConfigWidget::dirty, [node] {
+        node->update();
+    });
     return node;
 }
 
@@ -269,12 +269,12 @@ void KitModel::setDefaultNode(KitNode *node)
 {
     if (m_defaultNode) {
         m_defaultNode->widget->setIsDefaultKit(false);
-        updateItem(m_defaultNode);
+        m_defaultNode->update();
     }
     m_defaultNode = node;
     if (m_defaultNode) {
         m_defaultNode->widget->setIsDefaultKit(true);
-        updateItem(m_defaultNode);
+        m_defaultNode->update();
     }
 }
 
@@ -287,7 +287,7 @@ void KitModel::addKit(Kit *k)
     }
 
     TreeItem *parent = k->isAutoDetected() ? m_autoRoot : m_manualRoot;
-    appendItem(parent, createNode(k));
+    parent->appendChild(createNode(k));
 
     validateKitNames();
     emit kitStateChanged();
