@@ -499,7 +499,8 @@ void calculateConstantValue(const Symbol *symbol, EnumeratorDeclaration *e, Cont
                     int constantValueAsInt = 0;
                     if (stringLiteralToInt(constantValue, &constantValueAsInt)) {
                         ++constantValueAsInt;
-                        const std::string buffer = std::to_string(constantValueAsInt);
+                        const std::string buffer
+                                = std::to_string(static_cast<long long>(constantValueAsInt));
                         e->setConstantValue(control->stringLiteral(buffer.c_str(),
                                                                    unsigned(buffer.size())));
                     }
