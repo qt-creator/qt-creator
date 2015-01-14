@@ -197,7 +197,7 @@ void Locator::updateEditorManagerPlaceholderText()
           "<hr/>"
           "<div style=\"margin-top: 5px\">&bull; File > Open File or Project (%1)</div>"
           "<div style=\"margin-top: 5px\">&bull; File > Recent Files</div>"
-          "<div style=\"margin-top: 5px\">&bull; Tools > Locator (%2) and</div>"
+          "<div style=\"margin-top: 5px\">&bull; Tools > Locate (%2) and</div>"
           "<div style=\"margin-left: 1em\">- type to open file from any open project</div>"
           "%4"
           "%5"
