@@ -1,6 +1,6 @@
 #############################################################################
 ##
-## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+## Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ## Contact: http://www.qt-project.org/legal
 ##
 ## This file is part of Qt Creator.
@@ -35,9 +35,11 @@ def addFileToProject(projectPath, category, fileTemplate, fileName):
     nameLineEdit = waitForObject("{name='nameLineEdit' type='Utils::FileNameValidatingLineEdit' "
                                  "visible='1'}")
     replaceEditorContent(nameLineEdit, fileName)
-    test.compare(waitForObject("{type='Utils::FancyLineEdit' unnamed='1' visible='1' "
-                               "toolTip?='Full path: *'}").text,
-                 projectPath, "Verifying whether path is correct.")
+    pathLineEdit = waitForObject("{type='Utils::FancyLineEdit' unnamed='1' visible='1' "
+                                 "toolTip?='Full path: *'}")
+    if not test.xcompare(pathLineEdit.text,  # QTCREATORBUG-13831
+                         projectPath, "Verifying whether path is correct."):
+        replaceEditorContent(pathLineEdit, projectPath)
     clickButton(waitForObject(":Next_QPushButton"))
     projCombo = waitForObject("{buddy={name='projectLabel' text='Add to project:' type='QLabel' "
                               "visible='1'} name='projectComboBox' type='QComboBox' visible='1'}")
