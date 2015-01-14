@@ -1,6 +1,6 @@
 #############################################################################
 ##
-## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+## Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ## Contact: http://www.qt-project.org/legal
 ##
 ## This file is part of Qt Creator.
@@ -41,7 +41,7 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    protocolsToTest = ["Paste.KDE.Org"]#, "Pastebin.Ca"]
+    protocolsToTest = ["Paste.KDE.Org", "Pastebin.Ca"]
     # Be careful with Pastebin.Com, there are only 10 pastes per 24h
     # for all machines using the same IP-address like you.
     # protocolsToTest += ["Pastebin.Com"]
@@ -104,6 +104,14 @@ def main():
         selectFromCombo(":CodePaster__Internal__PasteSelectDialog.protocolBox_QComboBox", protocol)
         pasteModel = waitForObject(":CodePaster__Internal__PasteSelectDialog.listWidget_QListWidget").model()
         waitFor("pasteModel.rowCount() > 1", 20000)
+        if (pasteId not in dumpItems(pasteModel)):
+            test.warning("Fetching too fast for server of %s - waiting 3s and trying to refresh."
+                         % protocol)
+            snooze(3)
+            clickButton("{text='Refresh' type='QPushButton' unnamed='1' visible='1' "
+                        "window=':CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog'}")
+            waitFor("pasteModel.rowCount() == 1", 1000)
+            waitFor("pasteModel.rowCount() > 1", 20000)
         if protocol == 'Pastebin.Ca':
             description = description[:32]
         if pasteId == -1:

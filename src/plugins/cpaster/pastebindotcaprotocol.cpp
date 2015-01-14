@@ -38,6 +38,7 @@
 #include <QStringList>
 
 static const char urlC[] = "http://pastebin.ca/";
+static const char internalUrlC[] = "http://pbin.ca/";
 static const char protocolNameC[] = "Pastebin.Ca";
 
 static inline QByteArray expiryValue(int expiryDays)
@@ -135,7 +136,7 @@ void PasteBinDotCaProtocol::paste(const QString &text,
     data += "&name="; // Title or name.
     data += QUrl::toPercentEncoding(description);
     // fire request
-    const QString link = QLatin1String(urlC) + QLatin1String("quiet-paste.php");
+    const QString link = QLatin1String(internalUrlC) + QLatin1String("quiet-paste.php");
     m_pasteReply = httpPost(link, data);
     connect(m_pasteReply, SIGNAL(finished()), this, SLOT(pasteFinished()));
 }

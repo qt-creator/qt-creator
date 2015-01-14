@@ -26,20 +26,25 @@ QMLWIZARD_TR_H = $$OUT_PWD/qmlwizard_tr.h
 QTQUICKWIZARD_TR_H = $$OUT_PWD/qtquickwizard_tr.h
 EXTERNALTOOLS_TR_H = $$OUT_PWD/externaltools_tr.h
 
+win32: \
+    PREFIX = "file:///"
+else: \
+    PREFIX = "file://"
+
 for(dir, $$list($$files($$IDE_SOURCE_TREE/src/plugins/*))):MIMETYPES_FILES += $$files($$dir/*.mimetypes.xml)
-MIMETYPES_FILES = \"$$join(MIMETYPES_FILES, |)\"
+MIMETYPES_FILES = \"$$join(MIMETYPES_FILES, "|$$PREFIX", "$$PREFIX")\"
 
 for(dir, $$list($$files($$IDE_SOURCE_TREE/share/qtcreator/templates/wizards/*, true))):CUSTOMWIZARD_FILES += $$files($$dir/wizard.xml)
-CUSTOMWIZARD_FILES = \"$$join(CUSTOMWIZARD_FILES, |)\"
+CUSTOMWIZARD_FILES = \"$$join(CUSTOMWIZARD_FILES, "|$$PREFIX", "$$PREFIX")\"
 
 for(dir, $$list($$files($$IDE_SOURCE_TREE/share/qtcreator/templates/qml/*))):QMLWIZARD_FILES += $$files($$dir/template.xml)
-QMLWIZARD_FILES = \"$$join(QMLWIZARD_FILES, |)\"
+QMLWIZARD_FILES = \"$$join(QMLWIZARD_FILES, "|$$PREFIX", "$$PREFIX")\"
 
 for(dir, $$list($$files($$IDE_SOURCE_TREE/share/qtcreator/templates/qtquick/*))):QTQUICKWIZARD_FILES += $$files($$dir/template.xml)
-QTQUICKWIZARD_FILES = \"$$join(QTQUICKWIZARD_FILES, |)\"
+QTQUICKWIZARD_FILES = \"$$join(QTQUICKWIZARD_FILES, "|$$PREFIX", "$$PREFIX")\"
 
 for(file, $$list($$files($$IDE_SOURCE_TREE/src/share/qtcreator/externaltools/*))):EXTERNALTOOLS_FILES += $$files($$file)
-EXTERNALTOOLS_FILES = \"$$join(EXTERNALTOOLS_FILES, |)\"
+EXTERNALTOOLS_FILES = \"$$join(EXTERNALTOOLS_FILES, "|$$PREFIX", "$$PREFIX")\"
 
 extract.commands += \
     $$XMLPATTERNS -output $$MIME_TR_H -param files=$$MIMETYPES_FILES $$PWD/extract-mimetypes.xq $$escape_expand(\\n\\t) \
@@ -58,7 +63,11 @@ plugin_sources -= src/plugins/plugins.pro \
     src/plugins/qtestlib \
     src/plugins/snippets \
     src/plugins/regexp
-sources = src/app src/libs $$plugin_sources src/shared share/qtcreator/qmldesigner \
+shared_sources = $$files($$IDE_SOURCE_TREE/src/shared/*)
+shared_sources ~= s,^$$re_escape($$IDE_SOURCE_TREE/),,g$$i_flag
+shared_sources -= \
+    src/shared/qbs
+sources = src/app src/libs $$plugin_sources $$shared_sources share/qtcreator/qmldesigner \
           share/qtcreator/welcomescreen share/qtcreator/welcomescreen/widgets
 
 files = $$files($$PWD/*_??.ts) $$PWD/qtcreator_untranslated.ts

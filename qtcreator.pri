@@ -134,6 +134,7 @@ unix {
 win32-msvc* {
     #Don't warn about sprintf, fopen etc being 'unsafe'
     DEFINES += _CRT_SECURE_NO_WARNINGS
+    QMAKE_CXXFLAGS_WARN_ON *= -w44996
     # Speed up startup time when debugging with cdb
     QMAKE_LFLAGS_DEBUG += /INCREMENTAL:NO
 }
