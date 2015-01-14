@@ -104,22 +104,22 @@ public: // for nodes to emit signals, do not call unless you are a node
     // folders & projects
     void emitFoldersAboutToBeAdded(FolderNode *parentFolder,
                                const QList<FolderNode*> &newFolders);
-    void emitFoldersAdded();
+    void emitFoldersAdded(FolderNode *folder);
 
     void emitFoldersAboutToBeRemoved(FolderNode *parentFolder,
                                const QList<FolderNode*> &staleFolders);
-    void emitFoldersRemoved();
+    void emitFoldersRemoved(FolderNode *folder);
 
     // files
     void emitFilesAboutToBeAdded(FolderNode *folder,
                                const QList<FileNode*> &newFiles);
-    void emitFilesAdded();
+    void emitFilesAdded(FolderNode *folder);
 
     void emitFilesAboutToBeRemoved(FolderNode *folder,
                                const QList<FileNode*> &staleFiles);
-    void emitFilesRemoved();
+    void emitFilesRemoved(FolderNode *folder);
     void emitNodeSortKeyAboutToChange(Node *node);
-    void emitNodeSortKeyChanged();
+    void emitNodeSortKeyChanged(Node *node);
 
 private:
     void focusChanged();
@@ -133,6 +133,8 @@ private:
 
     void updateExternalFileWarning();
     static bool hasFocus(Internal::ProjectTreeWidget *widget);
+    void hideContextMenu();
+    bool isInNodeHierarchy(Node *n);
 
 private:
     static ProjectTree *s_instance;

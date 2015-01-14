@@ -232,26 +232,38 @@ void ProjectTree::updateContext()
 
 void ProjectTree::emitNodeUpdated(Node *node)
 {
+    if (!isInNodeHierarchy(node))
+        return;
     emit nodeUpdated(node);
 }
 
 void ProjectTree::emitAboutToChangeShowInSimpleTree(FolderNode *node)
 {
+    if (!isInNodeHierarchy(node))
+        return;
     emit aboutToChangeShowInSimpleTree(node);
 }
 
 void ProjectTree::emitShowInSimpleTreeChanged(FolderNode *node)
 {
+    if (!isInNodeHierarchy(node))
+        return;
     emit showInSimpleTreeChanged(node);
 }
 
 void ProjectTree::emitFoldersAboutToBeAdded(FolderNode *parentFolder, const QList<FolderNode *> &newFolders)
 {
+    if (!isInNodeHierarchy(parentFolder))
+        return;
+
     emit foldersAboutToBeAdded(parentFolder, newFolders);
 }
 
-void ProjectTree::emitFoldersAdded()
+void ProjectTree::emitFoldersAdded(FolderNode *folder)
 {
+    if (!isInNodeHierarchy(folder))
+        return;
+
     emit foldersAdded();
 
     if (Utils::anyOf(m_projectTreeWidgets, &ProjectTreeWidget::hasFocus))
@@ -262,6 +274,9 @@ void ProjectTree::emitFoldersAdded()
 
 void ProjectTree::emitFoldersAboutToBeRemoved(FolderNode *parentFolder, const QList<FolderNode *> &staleFolders)
 {
+    if (!isInNodeHierarchy(parentFolder))
+        return;
+
     Node *n = ProjectTree::currentNode();
     while (n) {
         if (FolderNode *fn = dynamic_cast<FolderNode *>(n)) {
@@ -279,8 +294,11 @@ void ProjectTree::emitFoldersAboutToBeRemoved(FolderNode *parentFolder, const QL
     emit foldersAboutToBeRemoved(parentFolder, staleFolders);
 }
 
-void ProjectTree::emitFoldersRemoved()
+void ProjectTree::emitFoldersRemoved(FolderNode *folder)
 {
+    if (!isInNodeHierarchy(folder))
+        return;
+
     emit foldersRemoved();
 
     if (m_resetCurrentNodeFolder) {
@@ -291,11 +309,16 @@ void ProjectTree::emitFoldersRemoved()
 
 void ProjectTree::emitFilesAboutToBeAdded(FolderNode *folder, const QList<FileNode *> &newFiles)
 {
+    if (!isInNodeHierarchy(folder))
+        return;
     emit filesAboutToBeAdded(folder, newFiles);
 }
 
-void ProjectTree::emitFilesAdded()
+void ProjectTree::emitFilesAdded(FolderNode *folder)
 {
+    if (!isInNodeHierarchy(folder))
+        return;
+
     emit filesAdded();
 
     if (Utils::anyOf(m_projectTreeWidgets, &ProjectTreeWidget::hasFocus))
@@ -306,6 +329,9 @@ void ProjectTree::emitFilesAdded()
 
 void ProjectTree::emitFilesAboutToBeRemoved(FolderNode *folder, const QList<FileNode *> &staleFiles)
 {
+    if (!isInNodeHierarchy(folder))
+        return;
+
     if (FileNode *fileNode = dynamic_cast<FileNode *>(m_currentNode))
         if (staleFiles.contains(fileNode))
             m_resetCurrentNodeFile = false;
@@ -313,8 +339,10 @@ void ProjectTree::emitFilesAboutToBeRemoved(FolderNode *folder, const QList<File
     emit filesAboutToBeRemoved(folder, staleFiles);
 }
 
-void ProjectTree::emitFilesRemoved()
+void ProjectTree::emitFilesRemoved(FolderNode *folder)
 {
+    if (!isInNodeHierarchy(folder))
+        return;
     emit filesRemoved();
 
     if (m_resetCurrentNodeFile) {
@@ -325,11 +353,15 @@ void ProjectTree::emitFilesRemoved()
 
 void ProjectTree::emitNodeSortKeyAboutToChange(Node *node)
 {
+    if (!isInNodeHierarchy(node))
+        return;
     emit nodeSortKeyAboutToChange(node);
 }
 
-void ProjectTree::emitNodeSortKeyChanged()
+void ProjectTree::emitNodeSortKeyChanged(Node *node)
 {
+    if (!isInNodeHierarchy(node))
+        return;
     emit nodeSortKeyChanged();
 }
 
@@ -371,4 +403,15 @@ void ProjectTree::updateExternalFileWarning()
 bool ProjectTree::hasFocus(ProjectTreeWidget *widget)
 {
     return widget && widget->focusWidget() && widget->focusWidget()->hasFocus();
+}
+
+bool ProjectTree::isInNodeHierarchy(Node *n)
+{
+    Node *sessionNode = SessionManager::sessionNode();
+    do {
+        if (n == sessionNode)
+            return true;
+        n = n->parentFolderNode();
+    } while (n);
+    return false;
 }

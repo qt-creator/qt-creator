@@ -89,7 +89,7 @@ void Node::emitNodeSortKeyAboutToChange()
 void Node::emitNodeSortKeyChanged()
 {
     if (parentFolderNode())
-        ProjectTree::instance()->emitNodeSortKeyChanged();
+        ProjectTree::instance()->emitNodeSortKeyChanged(this);
 }
 
 /*!
@@ -387,7 +387,7 @@ void FolderNode::addFileNodes(const QList<FileNode *> &files)
         }
     }
 
-    ProjectTree::instance()->emitFilesAdded();
+    ProjectTree::instance()->emitFilesAdded(this);
 }
 
 /*!
@@ -422,7 +422,7 @@ void FolderNode::removeFileNodes(const QList<FileNode *> &files)
         filesIter = m_fileNodes.erase(filesIter);
     }
 
-    ProjectTree::instance()->emitFilesRemoved();
+    ProjectTree::instance()->emitFilesRemoved(this);
 }
 
 /*!
@@ -462,7 +462,7 @@ void FolderNode::addFolderNodes(const QList<FolderNode*> &subFolders)
                    qDebug("project nodes have to be added via addProjectNodes"));
     }
 
-    ProjectTree::instance()->emitFoldersAdded();
+    ProjectTree::instance()->emitFoldersAdded(this);
 }
 
 /*!
@@ -497,7 +497,7 @@ void FolderNode::removeFolderNodes(const QList<FolderNode*> &subFolders)
         folderIter = m_subFolderNodes.erase(folderIter);
     }
 
-    ProjectTree::instance()->emitFoldersRemoved();
+    ProjectTree::instance()->emitFoldersRemoved(this);
 }
 
 bool FolderNode::showInSimpleTree() const
@@ -635,7 +635,7 @@ void ProjectNode::addProjectNodes(const QList<ProjectNode*> &subProjects)
         Utils::sort(m_subFolderNodes);
         Utils::sort(m_subProjectNodes);
 
-        ProjectTree::instance()->emitFoldersAdded();
+        ProjectTree::instance()->emitFoldersAdded(this);
     }
 }
 
@@ -675,7 +675,7 @@ void ProjectNode::removeProjectNodes(const QList<ProjectNode*> &subProjects)
             folderIter = m_subFolderNodes.erase(folderIter);
         }
 
-        ProjectTree::instance()->emitFoldersRemoved();
+        ProjectTree::instance()->emitFoldersRemoved(this);
     }
 }
 
@@ -712,7 +712,7 @@ bool SessionNode::showInSimpleTree() const
 void SessionNode::projectDisplayNameChanged(Node *node)
 {
     ProjectTree::instance()->emitNodeSortKeyAboutToChange(node);
-    ProjectTree::instance()->emitNodeSortKeyChanged();
+    ProjectTree::instance()->emitNodeSortKeyChanged(node);
 }
 
 QList<ProjectNode*> SessionNode::projectNodes() const
@@ -740,7 +740,7 @@ void SessionNode::addProjectNodes(const QList<ProjectNode*> &projectNodes)
         Utils::sort(m_subFolderNodes);
         Utils::sort(m_projectNodes);
 
-        ProjectTree::instance()->emitFoldersAdded();
+        ProjectTree::instance()->emitFoldersAdded(this);
    }
 }
 
@@ -773,6 +773,6 @@ void SessionNode::removeProjectNodes(const QList<ProjectNode*> &projectNodes)
             folderIter = m_subFolderNodes.erase(folderIter);
         }
 
-        ProjectTree::instance()->emitFoldersRemoved();
+        ProjectTree::instance()->emitFoldersRemoved(this);
     }
 }
