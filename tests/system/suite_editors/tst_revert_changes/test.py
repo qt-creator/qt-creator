@@ -116,8 +116,7 @@ def revertChanges(files):
         simpleName = simpleFileName(f)
         test.log("Trying to revert changes for '%s'" % simpleName)
         if openDocument(f):
-            fileMenu = findObject("{name='QtCreator.Menu.File' title='File' type='QMenu' "
-                                  "window=':Qt Creator_Core::Internal::MainWindow'}")
+            fileMenu = findObject("{name='QtCreator.Menu.File' title='File' type='QMenu'}")
             for menuItem in object.children(fileMenu):
                 if str(menuItem.text) == 'Revert "%s" to Saved' % simpleName:
                     if (test.compare(canRevert, menuItem.enabled, "Verifying whether MenuItem "

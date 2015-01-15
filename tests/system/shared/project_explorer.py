@@ -304,6 +304,5 @@ def invokeContextMenuOnProject(projectName, menuItem):
     if platform.system() == 'Darwin':
         waitFor("macHackActivateContextMenuItem(menuItem)", 6000)
     else:
-        activateItem(waitForObjectItem("{name='Project.Menu.Project' type='QMenu' visible='1' "
-                                       "window=':Qt Creator_Core::Internal::MainWindow'}", menuItem))
+        activateItem(waitForObjectItem("{name='Project.Menu.Project' type='QMenu' visible='1'}", menuItem))
     return projItem
