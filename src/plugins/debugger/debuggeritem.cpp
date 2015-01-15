@@ -142,9 +142,18 @@ void DebuggerItem::reinitializeFromFile()
                 .arg(version / 10000).arg((version / 100) % 100).arg(version % 100);
         return;
     }
-    if (ba.contains("lldb") || ba.startsWith("LLDB")) {
+    if (ba.startsWith("lldb") || ba.startsWith("LLDB")) {
         m_engineType = LldbEngineType;
         m_abis = Abi::abisOfBinary(m_command);
+
+        // Version
+        if (ba.startsWith(("lldb version "))) { // Linux typically.
+            int pos1 = strlen("lldb version ");
+            int pos2 = ba.indexOf(' ', pos1);
+            m_version = QString::fromLatin1(ba.mid(pos1, pos2 - pos1));
+        } else if (ba.startsWith("lldb-") || ba.startsWith("LLDB-")) { // Mac typically.
+            m_version = QString::fromLatin1(ba.mid(5));
+        }
         return;
     }
     if (ba.startsWith("Python")) {
