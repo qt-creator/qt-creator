@@ -64,6 +64,7 @@ public:
     virtual bool delayedInitialize() { return false; }
     virtual ShutdownFlag aboutToShutdown() { return SynchronousShutdown; }
     virtual QObject *remoteCommand(const QStringList & /* options */, const QStringList & /* arguments */) { return 0; }
+    virtual QList<QObject *> createTestObjects() const;
 
     PluginSpec *pluginSpec() const;
 

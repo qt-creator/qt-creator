@@ -83,10 +83,10 @@ public:
 
     class TestSpec {
     public:
-        TestSpec(PluginSpec *pluginSpec, const QStringList &testFunctions = QStringList())
-            : pluginSpec(pluginSpec), testFunctions(testFunctions) {}
+        TestSpec(PluginSpec *pluginSpec, const QStringList &testFunctionsOrObjects = QStringList())
+            : pluginSpec(pluginSpec), testFunctionsOrObjects(testFunctionsOrObjects) {}
         PluginSpec *pluginSpec;
-        QStringList testFunctions;
+        QStringList testFunctionsOrObjects;
     };
 
     bool containsTestSpec(PluginSpec *pluginSpec) const

@@ -205,6 +205,20 @@ IPlugin::~IPlugin()
 }
 
 /*!
+    \fn QList<QObject *> IPlugin::createTestObjects() const
+
+    Returns objects that are meant to be passed on to QTest::qExec().
+
+    This function will be called if the user starts \QC with '-test PluginName' or '-test all'.
+
+    The ownership of returned objects is transferred to caller.
+*/
+QList<QObject *> IPlugin::createTestObjects() const
+{
+    return QList<QObject *>();
+}
+
+/*!
     \fn PluginSpec *IPlugin::pluginSpec() const
     Returns the PluginSpec corresponding to this plugin.
     This is not available in the constructor.

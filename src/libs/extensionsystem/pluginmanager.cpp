@@ -51,9 +51,14 @@
 #include <QTimer>
 #include <QSysInfo>
 
+#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
+
 #ifdef WITH_TESTS
 #include <QTest>
 #endif
+
+#include <functional>
 
 Q_LOGGING_CATEGORY(pluginLog, "qtc.extensionsystem")
 
@@ -870,76 +875,200 @@ void PluginManagerPrivate::deleteAll()
 }
 
 #ifdef WITH_TESTS
+
+typedef QMap<QObject *, QStringList> TestPlan; // Object -> selected test functions
+typedef QMapIterator<QObject *, QStringList> TestPlanIterator;
+
+static bool isTestFunction(const QMetaMethod &metaMethod)
+{
+    static const QByteArrayList blackList = QByteArrayList()
+        << "initTestCase()" << "cleanupTestCase()" << "init()" << "cleanup()";
+
+    if (metaMethod.methodType() != QMetaMethod::Slot)
+        return false;
+
+    if (metaMethod.access() != QMetaMethod::Private)
+        return false;
+
+    const QByteArray signature = metaMethod.methodSignature();
+    if (blackList.contains(signature))
+        return false;
+
+    if (!signature.startsWith("test"))
+        return false;
+
+    if (signature.endsWith("_data()"))
+        return false;
+
+    return true;
+}
+
 static QStringList testFunctions(const QMetaObject *metaObject)
 {
-    QStringList testFunctions;
+
+    QStringList functions;
 
     for (int i = metaObject->methodOffset(); i < metaObject->methodCount(); ++i) {
-        const QByteArray signature = metaObject->method(i).methodSignature();
-        if (signature.startsWith("test") && !signature.endsWith("_data()")) {
+        const QMetaMethod metaMethod = metaObject->method(i);
+        if (isTestFunction(metaMethod)) {
+            const QByteArray signature = metaMethod.methodSignature();
             const QString method = QString::fromLatin1(signature);
             const QString methodName = method.left(method.size() - 2);
-            testFunctions.append(methodName);
+            functions.append(methodName);
         }
     }
 
-    return testFunctions;
+    return functions;
 }
 
-static QStringList testFunctionsWantedByUser(const PluginSpec *pluginSpec,
-                                             const QStringList &availableTestFunctions,
-                                             const QStringList &testFunctionsSpecs)
+static QStringList matchingTestFunctions(const QStringList &testFunctions,
+                                         const QString &matchText)
 {
-    QStringList testFunctions;
+    // There might be a test data suffix like in "testfunction:testdata1".
+    QString testFunctionName = matchText;
+    QString testDataSuffix;
+    const int index = testFunctionName.indexOf(QLatin1Char(':'));
+    if (index != -1) {
+        testDataSuffix = testFunctionName.mid(index);
+        testFunctionName = testFunctionName.left(index);
+    }
 
-    foreach (const QString &userTestFunction, testFunctionsSpecs) {
-        // There might be a test data suffix like in "testfunction:testdata1".
-        QString testFunctionName = userTestFunction;
-        QString testDataSuffix;
-        const int index = testFunctionName.indexOf(QLatin1Char(':'));
-        if (index != -1) {
-            testDataSuffix = testFunctionName.mid(index);
-            testFunctionName = testFunctionName.left(index);
-        }
-
-        const QRegExp regExp(testFunctionName, Qt::CaseSensitive, QRegExp::Wildcard);
-        QStringList matchingFunctions;
-        foreach (const QString &testFunction, availableTestFunctions) {
-            if (regExp.exactMatch(testFunction))
-                matchingFunctions.append(testFunction);
-        }
-        if (!matchingFunctions.isEmpty()) {
+    const QRegExp regExp(testFunctionName, Qt::CaseSensitive, QRegExp::Wildcard);
+    QStringList matchingFunctions;
+    foreach (const QString &testFunction, testFunctions) {
+        if (regExp.exactMatch(testFunction)) {
             // If the specified test data is invalid, the QTest framework will
             // print a reasonable error message for us.
-            foreach (const QString &matchingFunction, matchingFunctions)
-                testFunctions.append(matchingFunction + testDataSuffix);
-        } else {
-            QTextStream out(stdout);
-            out << "No test function matches \"" << testFunctionName
-                << "\" for plugin \"" << pluginSpec->name() << "\"." << endl
-                << "  Available test functions for plugin \"" << pluginSpec->name()
-                << "\" are:" << endl;
-            foreach (const QString &testFunction, availableTestFunctions)
-                out << "    " << testFunction << endl;
+            matchingFunctions.append(testFunction + testDataSuffix);
         }
     }
 
-    return testFunctions;
+    return matchingFunctions;
 }
 
-static int executeTestFunctions(QObject *testObject, const QStringList &functions)
+static QObject *objectWithClassName(const QList<QObject *> &objects, const QString &className)
 {
-    // Don't run QTest::qExec without any test functions, that'd run *all* slots as tests.
-    if (functions.isEmpty())
-        return 0;
-
-    // QTest::qExec() expects basically QCoreApplication::arguments(),
-    QStringList qExecArguments = QStringList()
-            << QLatin1String("arg0") // fake application name
-            << QLatin1String("-maxwarnings") << QLatin1String("0"); // unlimit output
-    qExecArguments << functions;
-    return QTest::qExec(testObject, qExecArguments);
+    return Utils::findOr(objects, 0, [className] (QObject *object) {
+        QString candidate = QString::fromUtf8(object->metaObject()->className());
+        const int colonIndex = candidate.lastIndexOf(QLatin1Char(':'));
+        if (colonIndex != -1 && colonIndex < candidate.size() - 1)
+            candidate = candidate.mid(colonIndex + 1);
+        return candidate == className;
+    });
 }
+
+static int executeTestPlan(const TestPlan &testPlan)
+{
+    int failedTests = 0;
+
+    TestPlanIterator it(testPlan);
+    while (it.hasNext()) {
+        it.next();
+        QObject *testObject = it.key();
+        QStringList functions = it.value();
+
+        // Don't run QTest::qExec without any test functions, that'd run *all* slots as tests.
+        if (functions.isEmpty())
+            continue;
+
+        functions.removeDuplicates();
+
+        // QTest::qExec() expects basically QCoreApplication::arguments(),
+        QStringList qExecArguments = QStringList()
+                << QLatin1String("arg0") // fake application name
+                << QLatin1String("-maxwarnings") << QLatin1String("0"); // unlimit output
+        qExecArguments << functions;
+        failedTests += QTest::qExec(testObject, qExecArguments);
+    }
+
+    return failedTests;
+}
+
+/// Resulting plan consists of all test functions of the plugin object and
+/// all test functions of all test objects of the plugin.
+static TestPlan generateCompleteTestPlan(IPlugin *plugin, const QList<QObject *> &testObjects)
+{
+    TestPlan testPlan;
+
+    testPlan.insert(plugin, testFunctions(plugin->metaObject()));
+    foreach (QObject *testObject, testObjects) {
+        const QStringList allFunctions = testFunctions(testObject->metaObject());
+        testPlan.insert(testObject, allFunctions);
+    }
+
+    return testPlan;
+}
+
+/// Resulting plan consists of all matching test functions of the plugin object
+/// and all matching functions of all test objects of the plugin. However, if a
+/// match text denotes a test class, all test functions of that will be
+/// included and the class will not be considered further.
+///
+/// Since multiple match texts can match the same function, a test function might
+/// be included multiple times for a test object.
+static TestPlan generateCustomTestPlan(IPlugin *plugin, const QList<QObject *> &testObjects,
+                                       const QStringList &matchTexts)
+{
+    TestPlan testPlan;
+
+    const QStringList testFunctionsOfPluginObject = testFunctions(plugin->metaObject());
+    QStringList matchedTestFunctionsOfPluginObject;
+    QStringList remainingMatchTexts = matchTexts;
+    QList<QObject *> remainingTestObjectsOfPlugin = testObjects;
+
+    while (!remainingMatchTexts.isEmpty()) {
+        const QString matchText = remainingMatchTexts.takeFirst();
+        bool matched = false;
+
+        if (QObject *testObject = objectWithClassName(remainingTestObjectsOfPlugin, matchText)) {
+            // Add all functions of the matching test object
+            matched = true;
+            testPlan.insert(testObject, testFunctions(testObject->metaObject()));
+            remainingTestObjectsOfPlugin.removeAll(testObject);
+
+        } else {
+            // Add all matching test functions of all remaining test objects
+            foreach (QObject *testObject, remainingTestObjectsOfPlugin) {
+                const QStringList allFunctions = testFunctions(testObject->metaObject());
+                const QStringList matchingFunctions = matchingTestFunctions(allFunctions,
+                                                                            matchText);
+                if (!matchingFunctions.isEmpty()) {
+                    matched = true;
+                    testPlan[testObject] += matchingFunctions;
+                }
+            }
+        }
+
+        const QStringList currentMatchedTestFunctionsOfPluginObject
+            = matchingTestFunctions(testFunctionsOfPluginObject, matchText);
+        if (!currentMatchedTestFunctionsOfPluginObject.isEmpty()) {
+            matched = true;
+            matchedTestFunctionsOfPluginObject += currentMatchedTestFunctionsOfPluginObject;
+        }
+
+        if (!matched) {
+            QTextStream out(stdout);
+            out << "No test function or class matches \"" << matchText
+                << "\" in plugin \"" << plugin->metaObject()->className() << "\"." << endl;
+        }
+    }
+
+    // Add all matching test functions of plugin
+    if (!matchedTestFunctionsOfPluginObject.isEmpty())
+        testPlan.insert(plugin, matchedTestFunctionsOfPluginObject);
+
+    return testPlan;
+}
+
+class ExecuteOnDestruction
+{
+public:
+    ExecuteOnDestruction(std::function<void()> code) : destructionCode(code) {}
+    ~ExecuteOnDestruction() { if (destructionCode) destructionCode(); }
+
+private:
+    const std::function<void()> destructionCode;
+};
 
 void PluginManagerPrivate::startTests()
 {
@@ -951,25 +1080,21 @@ void PluginManagerPrivate::startTests()
     }
 
     foreach (const PluginManagerPrivate::TestSpec &testSpec, testSpecs) {
-        const PluginSpec * const pluginSpec = testSpec.pluginSpec;
-        if (!pluginSpec->plugin())
-            continue;
+        IPlugin *plugin = testSpec.pluginSpec->plugin();
+        QTC_ASSERT(plugin, continue);
 
-        // Collect all test functions of the plugin.
-        const QStringList allTestFunctions = testFunctions(pluginSpec->plugin()->metaObject());
+        const QList<QObject *> testObjects = plugin->createTestObjects();
+        ExecuteOnDestruction deleteTestObjects([&]() { qDeleteAll(testObjects); });
 
-        QStringList testFunctionsToExecute;
-        // User did not specify any test functions, so add every test function.
-        if (testSpec.testFunctions.isEmpty()) {
-            testFunctionsToExecute = allTestFunctions;
+        const bool hasDuplicateTestObjects = testObjects.size() != testObjects.toSet().size();
+        QTC_ASSERT(!hasDuplicateTestObjects, continue);
+        QTC_ASSERT(!testObjects.contains(plugin), continue);
 
-        // User specified test functions. Add them if they are valid.
-        } else {
-            testFunctionsToExecute = testFunctionsWantedByUser(pluginSpec, allTestFunctions,
-                                                               testSpec.testFunctions);
-        }
+        const TestPlan testPlan = testSpec.testFunctionsOrObjects.isEmpty()
+                ? generateCompleteTestPlan(plugin, testObjects)
+                : generateCustomTestPlan(plugin, testObjects, testSpec.testFunctionsOrObjects);
 
-        m_failedTests += executeTestFunctions(pluginSpec->plugin(), testFunctionsToExecute);
+        m_failedTests += executeTestPlan(testPlan);
     }
     if (!testSpecs.isEmpty())
         QTimer::singleShot(1, this, SLOT(exitWithNumberOfFailedTests()));
