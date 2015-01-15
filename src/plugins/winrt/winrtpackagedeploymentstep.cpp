@@ -151,6 +151,8 @@ bool WinRtPackageDeploymentStep::processSucceeded(int exitCode, QProcess::ExitSt
         QList<QPair<QString, QString> > installableFilesList;
         foreach (DeployableFile file, target()->deploymentData().allFiles()) {
             QString remoteFilePath = file.remoteFilePath();
+            while (remoteFilePath.startsWith(QLatin1Char('/')))
+                remoteFilePath.remove(0, 1);
             QString localFilePath = file.localFilePath().toString();
             if (localFilePath == m_targetFilePath) {
                 if (!m_targetFilePath.endsWith(QLatin1String(".exe"))) {
