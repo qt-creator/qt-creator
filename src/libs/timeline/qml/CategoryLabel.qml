@@ -37,7 +37,6 @@ Item {
 
     property QtObject model
     property QtObject notesModel
-    property bool mockup
     property string text: model ? model.displayName : ""
     property bool expanded: model && model.expanded
     property var labels: model ? model.labels : []
@@ -56,11 +55,6 @@ Item {
     signal selectPrevBySelectionId(int selectionId)
 
     property bool reverseSelect: false
-
-    visible: model && (mockup || (!model.hidden && !model.empty))
-
-    height: model ? Math.max(txt.height, model.height) : 0
-    width: 150
 
     MouseArea {
         id: dragArea
@@ -109,22 +103,14 @@ Item {
         visible: expanded
         Repeater {
             model: labels.length
-            Loader {
+            SynchronousReloader {
                 id: loader
                 asynchronous: dragOffset - draggerParent.contentY + y + txt.height >
                               draggerParent.height
+
                 active: expanded
                 width: labelContainer.width
                 height: column.parentModel ? column.parentModel.rowHeight(index + 1) : 0
-
-                onAsynchronousChanged: {
-                    if (!asynchronous && active && status !== Loader.Ready) {
-                        // Trigger a synchronous reload to avoid glitches
-                        var component = sourceComponent;
-                        sourceComponent = undefined;
-                        sourceComponent = component;
-                    }
-                }
 
                 sourceComponent: RowLabel {
                     label: labels[index];

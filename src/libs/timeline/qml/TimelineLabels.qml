@@ -75,76 +75,86 @@ Flickable {
             }
 
             model: modelProxy.models
-            delegate: Rectangle {
-                color: categories.color
-
-                property int visualIndex: DelegateModel.itemsIndex
-                height: label.visible ? label.height : 0
+            delegate: SynchronousReloader {
+                id: loader
+                asynchronous: y < categories.contentY + categories.height &&
+                              y + height > categories.contentY
+                active: modelData !== null &&
+                        (modelProxy.height === 0 || (!modelData.hidden && !modelData.empty))
+                height: active ? Math.max(modelData.height, modelData.defaultRowHeight) : 0
                 width: categories.width
+                property int visualIndex: DelegateModel.itemsIndex
 
-                CategoryLabel {
-                    id: label
-                    model: modelData
-                    mockup: modelProxy.height === 0
-                    notesModel: modelProxy.notes
-                    visualIndex: parent.visualIndex
-                    dragging: categories.dragging
-                    reverseSelect: categories.reverseSelect
-                    onDragStarted: categories.dragging = true
-                    onDragStopped: categories.dragging = false
-                    draggerParent: categories
-                    width: 150
-                    dragOffset: parent.y
+                sourceComponent: Rectangle {
+                    color: categories.color
+                    height: loader.height
+                    width: loader.width
 
-                    onDropped: {
-                        categories.moveCategories(sourceIndex, targetIndex);
-                        labelsModel.items.move(sourceIndex, targetIndex);
+                    CategoryLabel {
+                        id: label
+                        model: modelData
+                        notesModel: modelProxy.notes
+                        visualIndex: loader.visualIndex
+                        dragging: categories.dragging
+                        reverseSelect: categories.reverseSelect
+                        onDragStarted: categories.dragging = true
+                        onDragStopped: categories.dragging = false
+                        draggerParent: categories
+                        width: 150
+                        height: parent.height
+                        dragOffset: parent.y
+
+                        onDropped: {
+                            categories.moveCategories(sourceIndex, targetIndex);
+                            labelsModel.items.move(sourceIndex, targetIndex);
+                        }
+
+                        onSelectById: {
+                            categories.selectItem(index, eventId)
+                        }
+
+                        onSelectNextBySelectionId: {
+                            categories.selectItem(index, modelData.nextItemBySelectionId(
+                                    selectionId, zoomer.rangeStart,
+                                    categories.selectedModel === index ? categories.selectedItem :
+                                                                         -1));
+                        }
+
+                        onSelectPrevBySelectionId: {
+                            categories.selectItem(index,  modelData.prevItemBySelectionId(
+                                    selectionId, zoomer.rangeStart,
+                                    categories.selectedModel === index ? categories.selectedItem :
+                                                                         -1));
+                        }
                     }
 
-                    onSelectById: {
-                        categories.selectItem(index, eventId)
+                    TimeMarks {
+                        id: timeMarks
+                        model: modelData
+                        mockup: modelProxy.height === 0
+                        anchors.right: parent.right
+                        anchors.left: label.right
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        property int visualIndex: loader.visualIndex
+
+                        // Quite a mouthful, but works fine: Add up all the row counts up to the one
+                        // for this visual index and check if the result is even or odd.
+                        startOdd: (labelsModel.rowCounts.slice(0, visualIndex).reduce(
+                                       function(prev, rows) {return prev + rows}, 0) % 2) === 0
+
+                        onRowCountChanged: labelsModel.updateRowCount(visualIndex, rowCount)
+                        onVisualIndexChanged: labelsModel.updateRowCount(visualIndex, rowCount)
                     }
 
-                    onSelectNextBySelectionId: {
-                        categories.selectItem(index, modelData.nextItemBySelectionId(selectionId,
-                                zoomer.rangeStart,
-                                categories.selectedModel === index ? categories.selectedItem : -1));
+                    Rectangle {
+                        opacity: loader.y === 0 ? 0 : 1
+                        color: "#B0B0B0"
+                        height: 1
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.top: parent.top
                     }
-
-                    onSelectPrevBySelectionId: {
-                        categories.selectItem(index, modelData.prevItemBySelectionId(selectionId,
-                                zoomer.rangeStart,
-                                categories.selectedModel === index ? categories.selectedItem : -1));
-                    }
-                }
-
-                TimeMarks {
-                    id: timeMarks
-                    model: modelData
-                    mockup: modelProxy.height === 0
-                    anchors.right: parent.right
-                    anchors.left: label.right
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    property int visualIndex: parent.visualIndex
-
-                    // Quite a mouthful, but works fine: Add up all the row counts up to the one
-                    // for this visual index and check if the result is even or odd.
-                    startOdd: (labelsModel.rowCounts.slice(0, visualIndex).reduce(
-                                   function(prev, rows) {return prev + rows}, 0) % 2) === 0
-
-                    onRowCountChanged: labelsModel.updateRowCount(visualIndex, rowCount)
-                    onVisualIndexChanged: labelsModel.updateRowCount(visualIndex, rowCount)
-                }
-
-                Rectangle {
-                    visible: label.visible
-                    opacity: parent.y == 0 ? 0 : 1
-                    color: "#B0B0B0"
-                    height: 1
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    anchors.top: parent.top
                 }
             }
         }
