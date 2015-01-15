@@ -32,5 +32,6 @@
         <file>notes.frag</file>
         <file>TimelineLabels.qml</file>
         <file>TimelineContent.qml</file>
+        <file>RowLabel.qml</file>
     </qresource>
 </RCC>

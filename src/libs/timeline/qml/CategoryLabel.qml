@@ -55,8 +55,6 @@ Item {
     signal selectNextBySelectionId(int selectionId)
     signal selectPrevBySelectionId(int selectionId)
 
-    readonly property int dragHeight: 5
-
     property bool reverseSelect: false
 
     visible: model && (mockup || (!model.hidden && !model.empty))
@@ -111,56 +109,35 @@ Item {
         visible: expanded
         Repeater {
             model: labels.length
-            Button {
-                id: button
-                property string labelText: labels[index].description ? labels[index].description :
-                                                                       qsTr("[unknown]")
+            Loader {
+                id: loader
+                asynchronous: dragOffset - draggerParent.contentY + y + txt.height >
+                              draggerParent.height
+                active: expanded
                 width: labelContainer.width
                 height: column.parentModel ? column.parentModel.rowHeight(index + 1) : 0
-                action: Action {
-                    onTriggered: {
-                        if (reverseSelect)
-                            labelContainer.selectPrevBySelectionId(labels[index].id);
-                        else
-                            labelContainer.selectNextBySelectionId(labels[index].id);
-                    }
 
-                    tooltip: button.labelText + (labels[index].displayName ?
-                                                     (" (" + labels[index].displayName + ")") : "")
-                }
-
-                style: ButtonStyle {
-                    background: Rectangle {
-                        border.width: 1
-                        border.color: "#c8c8c8"
-                        color: "#eaeaea"
-                    }
-                    label: Text {
-                        text: button.labelText
-                        textFormat: Text.PlainText
-                        verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignLeft
-                        elide: Text.ElideRight
-                        renderType: Text.NativeRendering
+                onAsynchronousChanged: {
+                    if (!asynchronous && active && status !== Loader.Ready) {
+                        // Trigger a synchronous reload to avoid glitches
+                        var component = sourceComponent;
+                        sourceComponent = undefined;
+                        sourceComponent = component;
                     }
                 }
-                MouseArea {
-                    hoverEnabled: true
-                    property bool resizing: false
-                    onPressed: resizing = true
-                    onReleased: resizing = false
 
-                    height: dragHeight
-                    anchors.bottom: parent.bottom
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    cursorShape: Qt.SizeVerCursor
-
-                    onMouseYChanged: {
-                        if (resizing) {
-                            column.parentModel.setExpandedRowHeight(index + 1, y + mouseY);
-                            parent.height = column.parentModel.rowHeight(index + 1);
+                sourceComponent: RowLabel {
+                    label: labels[index];
+                    onSelectBySelectionId: {
+                        if (labelContainer.reverseSelect) {
+                            labelContainer.selectPrevBySelectionId(label.id);
+                        } else {
+                            labelContainer.selectNextBySelectionId(label.id);
                         }
+                    }
+                    onSetRowHeight: {
+                        column.parentModel.setExpandedRowHeight(index + 1, newHeight);
+                        loader.height = column.parentModel.rowHeight(index + 1);
                     }
                 }
             }
