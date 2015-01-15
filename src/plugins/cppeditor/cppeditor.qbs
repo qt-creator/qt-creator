@@ -56,7 +56,7 @@ QtcPlugin {
         name: "Tests"
         condition: project.testsEnabled
         files: [
-            "cppdoxygen_test.cpp",
+            "cppdoxygen_test.cpp", "cppdoxygen_test.h",
             "cppeditortestcase.cpp", "cppeditortestcase.h",
             "cppincludehierarchy_test.cpp",
             "cppquickfix_test.cpp",

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -28,107 +28,43 @@
 **
 ****************************************************************************/
 
-#include "cppeditorplugin.h"
+#include "cppdoxygen_test.h"
+
 #include "cppeditortestcase.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <cpptools/commentssettings.h>
-#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolssettings.h>
-
-#include <cplusplus/CppDocument.h>
-#include <utils/fileutils.h>
 
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
 #include <QKeyEvent>
-#include <QString>
 #include <QtTest>
 
-/*!
-    Tests for inserting doxygen comments.
- */
-using namespace Core;
-using namespace CPlusPlus;
-
 namespace { typedef QByteArray _; }
-
-/**
- * Encapsulates the whole process of setting up an editor,
- * pressing ENTER and checking the result.
- */
 
 namespace CppEditor {
 namespace Internal {
 namespace Tests {
 
-class DoxygenTestCase : public Internal::Tests::TestCase
+void DoxygenTest::initTestCase()
 {
-    QScopedPointer<CppTools::CommentsSettings> oldSettings;
-public:
-    /// The '|' in the input denotes the cursor position.
-    DoxygenTestCase(const QByteArray &original, const QByteArray &expected,
-                    CppTools::CommentsSettings *settings = 0)
-    {
-        QVERIFY(succeededSoFar());
+    verifyCleanState();
+}
 
-        // Write files to disk
-        CppTools::Tests::TemporaryDir temporaryDir;
-        QVERIFY(temporaryDir.isValid());
-        TestDocument testDocument("file.cpp", original, '|');
-        QVERIFY(testDocument.hasCursorMarker());
-        testDocument.m_source.remove(testDocument.m_cursorPosition, 1);
-        testDocument.setBaseDirectory(temporaryDir.path());
-        QVERIFY(testDocument.writeToDisk());
+void DoxygenTest::cleanTestCase()
+{
+    verifyCleanState();
+}
 
-        // Update Code Model
-        QVERIFY(parseFiles(testDocument.filePath()));
+void DoxygenTest::cleanup()
+{
+    if (oldSettings)
+        CppTools::CppToolsSettings::instance()->setCommentsSettings(*oldSettings);
+    QVERIFY(Core::EditorManager::closeAllEditors(false));
+    QVERIFY(TestCase::garbageCollectGlobalSnapshot());
+}
 
-        // Open Editor
-        QVERIFY(openCppEditor(testDocument.filePath(), &testDocument.m_editor,
-                              &testDocument.m_editorWidget));
-        closeEditorAtEndOfTestCase(testDocument.m_editor);
-
-        if (settings) {
-            auto *cts = CppTools::CppToolsSettings::instance();
-            oldSettings.reset(new CppTools::CommentsSettings(cts->commentsSettings()));
-            cts->setCommentsSettings(*settings);
-        }
-
-        // We want to test documents that start with a comment. By default, the
-        // editor will fold the very first comment it encounters, assuming
-        // it is a license header. Currently unfoldAll() does not work as
-        // expected (some blocks are still hidden in some test cases, so the
-        // cursor movements are not as expected). For the time being, we just
-        // prepend a declaration before the initial test comment.
-        //    testDocument.m_editorWidget->unfoldAll();
-        testDocument.m_editor->setCursorPosition(testDocument.m_cursorPosition);
-
-        waitForRehighlightedSemanticDocument(testDocument.m_editorWidget);
-
-        // Send 'ENTER' key press
-        QKeyEvent event(QEvent::KeyPress, Qt::Key_Enter, Qt::NoModifier);
-        QCoreApplication::sendEvent(testDocument.m_editorWidget, &event);
-        const QByteArray result = testDocument.m_editorWidget->document()->toPlainText().toUtf8();
-
-        QCOMPARE(QLatin1String(result), QLatin1String(expected));
-
-        testDocument.m_editorWidget->undo();
-        const QString contentsAfterUndo = testDocument.m_editorWidget->document()->toPlainText();
-        QCOMPARE(contentsAfterUndo, testDocument.m_source);
-    }
-
-    ~DoxygenTestCase()
-    {
-        if (oldSettings)
-            CppTools::CppToolsSettings::instance()->setCommentsSettings(*oldSettings);
-    }
-};
-
-} // namespace Tests
-
-void CppEditorPlugin::test_doxygen_comments_data()
+void DoxygenTest::testBasic_data()
 {
     QTest::addColumn<QByteArray>("given");
     QTest::addColumn<QByteArray>("expected");
@@ -285,14 +221,14 @@ void CppEditorPlugin::test_doxygen_comments_data()
     );
 }
 
-void CppEditorPlugin::test_doxygen_comments()
+void DoxygenTest::testBasic()
 {
     QFETCH(QByteArray, given);
     QFETCH(QByteArray, expected);
-    Tests::DoxygenTestCase(given, expected);
+    runTest(given, expected);
 }
 
-void CppEditorPlugin::test_doxygen_comments_no_leading_asterisks_data()
+void DoxygenTest::testNoLeadingAsterisks_data()
 {
     QTest::addColumn<QByteArray>("given");
     QTest::addColumn<QByteArray>("expected");
@@ -305,7 +241,7 @@ void CppEditorPlugin::test_doxygen_comments_no_leading_asterisks_data()
     );
 }
 
-void CppEditorPlugin::test_doxygen_comments_no_leading_asterisks()
+void DoxygenTest::testNoLeadingAsterisks()
 {
     QFETCH(QByteArray, given);
     QFETCH(QByteArray, expected);
@@ -314,8 +250,65 @@ void CppEditorPlugin::test_doxygen_comments_no_leading_asterisks()
     injection.m_enableDoxygen = true;
     injection.m_leadingAsterisks = false;
 
-    Tests::DoxygenTestCase(given, expected, &injection);
+    runTest(given, expected, &injection);
 }
 
+void DoxygenTest::verifyCleanState() const
+{
+    QVERIFY(CppTools::Tests::VerifyCleanCppModelManager::isClean());
+    QVERIFY(Core::DocumentModel::openedDocuments().isEmpty());
+    QVERIFY(Core::EditorManager::visibleEditors().isEmpty());
+}
+
+/// The '|' in the input denotes the cursor position.
+void DoxygenTest::runTest(const QByteArray &original, const QByteArray &expected,
+                              CppTools::CommentsSettings *settings)
+{
+    // Write files to disk
+    CppTools::Tests::TemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    TestDocument testDocument("file.cpp", original, '|');
+    QVERIFY(testDocument.hasCursorMarker());
+    testDocument.m_source.remove(testDocument.m_cursorPosition, 1);
+    testDocument.setBaseDirectory(temporaryDir.path());
+    QVERIFY(testDocument.writeToDisk());
+
+    // Update Code Model
+    QVERIFY(TestCase::parseFiles(testDocument.filePath()));
+
+    // Open Editor
+    QVERIFY(TestCase::openCppEditor(testDocument.filePath(), &testDocument.m_editor,
+                                    &testDocument.m_editorWidget));
+
+    if (settings) {
+        auto *cts = CppTools::CppToolsSettings::instance();
+        oldSettings.reset(new CppTools::CommentsSettings(cts->commentsSettings()));
+        cts->setCommentsSettings(*settings);
+    }
+
+    // We want to test documents that start with a comment. By default, the
+    // editor will fold the very first comment it encounters, assuming
+    // it is a license header. Currently unfoldAll() does not work as
+    // expected (some blocks are still hidden in some test cases, so the
+    // cursor movements are not as expected). For the time being, we just
+    // prepend a declaration before the initial test comment.
+    //    testDocument.m_editorWidget->unfoldAll();
+    testDocument.m_editor->setCursorPosition(testDocument.m_cursorPosition);
+
+    TestCase::waitForRehighlightedSemanticDocument(testDocument.m_editorWidget);
+
+    // Send 'ENTER' key press
+    QKeyEvent event(QEvent::KeyPress, Qt::Key_Enter, Qt::NoModifier);
+    QCoreApplication::sendEvent(testDocument.m_editorWidget, &event);
+    const QByteArray result = testDocument.m_editorWidget->document()->toPlainText().toUtf8();
+
+    QCOMPARE(QLatin1String(result), QLatin1String(expected));
+
+    testDocument.m_editorWidget->undo();
+    const QString contentsAfterUndo = testDocument.m_editorWidget->document()->toPlainText();
+    QCOMPARE(contentsAfterUndo, testDocument.m_source);
+}
+
+} // namespace Tests
 } // namespace Internal
 } // namespace CppEditor

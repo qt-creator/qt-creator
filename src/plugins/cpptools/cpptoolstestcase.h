@@ -158,9 +158,9 @@ private:
 class CPPTOOLS_EXPORT VerifyCleanCppModelManager
 {
 public:
-    VerifyCleanCppModelManager() { verify(); }
-    ~VerifyCleanCppModelManager() { verify(); }
-    static void verify();
+    VerifyCleanCppModelManager();
+    ~VerifyCleanCppModelManager();
+    static bool isClean();
 };
 
 class FileWriterAndRemover

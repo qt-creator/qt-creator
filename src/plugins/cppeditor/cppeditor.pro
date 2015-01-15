@@ -74,6 +74,7 @@ RESOURCES += \
 equals(TEST, 1) {
     HEADERS += \
         cppeditortestcase.h \
+        cppdoxygen_test.h \
         cppquickfix_test.h
     SOURCES += \
         cppdoxygen_test.cpp \

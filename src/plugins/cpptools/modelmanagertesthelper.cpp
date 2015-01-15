@@ -70,13 +70,13 @@ ModelManagerTestHelper::ModelManagerTestHelper(QObject *parent) :
             this, &ModelManagerTestHelper::gcFinished);
 
     cleanup();
-    Tests::VerifyCleanCppModelManager::verify();
+    QVERIFY(Tests::VerifyCleanCppModelManager::isClean());
 }
 
 ModelManagerTestHelper::~ModelManagerTestHelper()
 {
     cleanup();
-    Tests::VerifyCleanCppModelManager::verify();
+    QVERIFY(Tests::VerifyCleanCppModelManager::isClean());
 }
 
 void ModelManagerTestHelper::cleanup()

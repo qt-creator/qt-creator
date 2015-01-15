@@ -344,18 +344,32 @@ IAssistProposalScopedPointer::~IAssistProposalScopedPointer()
         delete d->model();
 }
 
-void VerifyCleanCppModelManager::verify()
+VerifyCleanCppModelManager::VerifyCleanCppModelManager()
+{
+    QVERIFY(isClean());
+}
+
+VerifyCleanCppModelManager::~VerifyCleanCppModelManager() {
+    QVERIFY(isClean());
+}
+
+#define RETURN_FALSE_IF_NOT(check) if (!(check)) return false;
+
+bool VerifyCleanCppModelManager::isClean()
 {
     CppModelManager *mm = CppModelManager::instance();
-    QVERIFY(mm);
-    QVERIFY(mm->projectInfos().isEmpty());
-    QVERIFY(mm->headerPaths().isEmpty());
-    QVERIFY(mm->definedMacros().isEmpty());
-    QVERIFY(mm->projectFiles().isEmpty());
-    QVERIFY(mm->snapshot().isEmpty());
-    QCOMPARE(mm->workingCopy().size(), 1);
-    QVERIFY(mm->workingCopy().contains(mm->configurationFileName()));
+    RETURN_FALSE_IF_NOT(mm);
+    RETURN_FALSE_IF_NOT(mm->projectInfos().isEmpty());
+    RETURN_FALSE_IF_NOT(mm->headerPaths().isEmpty());
+    RETURN_FALSE_IF_NOT(mm->definedMacros().isEmpty());
+    RETURN_FALSE_IF_NOT(mm->projectFiles().isEmpty());
+    RETURN_FALSE_IF_NOT(mm->snapshot().isEmpty());
+    RETURN_FALSE_IF_NOT(mm->workingCopy().size() == 1);
+    RETURN_FALSE_IF_NOT(mm->workingCopy().contains(mm->configurationFileName()));
+    return true;
 }
+
+#undef RETURN_FALSE_IF_NOT
 
 } // namespace Tests
 } // namespace CppTools

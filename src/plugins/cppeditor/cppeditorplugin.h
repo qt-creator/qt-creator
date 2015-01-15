@@ -85,6 +85,9 @@ private slots:
     void inspectCppCodeModel();
 
 #ifdef WITH_TESTS
+private:
+    QList<QObject *> createTestObjects() const override;
+
 private slots:
     // The following tests expect that no projects are loaded on start-up.
     void test_SwitchMethodDeclarationDefinition_data();
@@ -114,11 +117,6 @@ private slots:
     void test_FollowSymbolUnderCursor_virtualFunctionCall_data();
     void test_FollowSymbolUnderCursor_virtualFunctionCall();
     void test_FollowSymbolUnderCursor_virtualFunctionCall_multipleDocuments();
-
-    void test_doxygen_comments_data();
-    void test_doxygen_comments();
-    void test_doxygen_comments_no_leading_asterisks_data();
-    void test_doxygen_comments_no_leading_asterisks();
 
     void test_quickfix_data();
     void test_quickfix();

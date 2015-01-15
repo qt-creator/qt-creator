@@ -44,6 +44,10 @@
 #include "cppsnippetprovider.h"
 #include "cpptypehierarchy.h"
 
+#ifdef WITH_TESTS
+#  include "cppdoxygen_test.h"
+#endif
+
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
@@ -349,6 +353,15 @@ void CppEditorPlugin::inspectCppCodeModel()
         m_cppCodeModelInspectorDialog->show();
     }
 }
+
+#ifdef WITH_TESTS
+QList<QObject *> CppEditorPlugin::createTestObjects() const
+{
+    return QList<QObject *>()
+        << new Tests::DoxygenTest
+        ;
+}
+#endif
 
 void CppEditorPlugin::openTypeHierarchy()
 {
