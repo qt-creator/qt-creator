@@ -25,7 +25,8 @@ SOURCES += \
     testtreeitemdelegate.cpp \
     testsettings.cpp \
     testsettingspage.cpp \
-    testnavigationwidget.cpp
+    testnavigationwidget.cpp \
+    testxmloutputreader.cpp
 
 HEADERS += \
     testtreeview.h \
@@ -46,7 +47,8 @@ HEADERS += \
     testtreeitemdelegate.h \
     testsettings.h \
     testsettingspage.h \
-    testnavigationwidget.h
+    testnavigationwidget.h \
+    testxmloutputreader.h
 
 RESOURCES += \
     autotest.qrc

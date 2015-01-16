@@ -15,12 +15,13 @@
 ** contact form at http://qt.digia.com
 **
 ****************************************************************************/
+#include "testrunner.h"
 
 #include "autotestconstants.h"
 #include "autotestplugin.h"
 #include "testresultspane.h"
-#include "testrunner.h"
 #include "testsettings.h"
+#include "testxmloutputreader.h"
 
 #include <QDebug> // REMOVE
 
@@ -42,264 +43,10 @@ namespace Autotest {
 namespace Internal {
 
 static TestRunner *m_instance = 0;
-static QFutureInterface<void> *m_currentFuture = 0;
-
-TestRunner *TestRunner::instance()
-{
-    if (!m_instance)
-        m_instance = new TestRunner;
-    return m_instance;
-}
-
-TestRunner::TestRunner(QObject *parent) :
-    QObject(parent),
-    m_building(false),
-    m_executingTests(false)
-{
-}
-
-TestRunner::~TestRunner()
-{
-    qDeleteAll(m_selectedTests);
-    m_selectedTests.clear();
-    m_instance = 0;
-}
-
-void TestRunner::setSelectedTests(const QList<TestConfiguration *> &selected)
-{
-     qDeleteAll(m_selectedTests);
-     m_selectedTests.clear();
-     m_selectedTests = selected;
-}
-
-/******************** XML line parser helper ********************/
-
-static bool xmlStartsWith(const QString &code, const QString &start, QString &result)
-{
-    if (code.startsWith(start)) {
-        result = code.mid(start.length());
-        result = result.left(result.indexOf(QLatin1Char('"')));
-        result = result.left(result.indexOf(QLatin1String("</")));
-        return !result.isEmpty();
-    }
-    return false;
-}
-
-static bool xmlCData(const QString &code, const QString &start, QString &result)
-{
-    if (code.startsWith(start)) {
-        int index = code.indexOf(QLatin1String("<![CDATA[")) + 9;
-        result = code.mid(index, code.indexOf(QLatin1String("]]>"), index) - index);
-        return !result.isEmpty();
-    }
-    return false;
-}
-
-static bool xmlExtractTypeFileLine(const QString &code, const QString &tagStart,
-                                   Result::Type &result, QString &file, int &line)
-{
-    if (code.startsWith(tagStart)) {
-        int start = code.indexOf(QLatin1String(" type=\"")) + 7;
-        result = TestResult::resultFromString(
-                    code.mid(start, code.indexOf(QLatin1Char('"'), start) - start));
-        start = code.indexOf(QLatin1String(" file=\"")) + 7;
-        file = code.mid(start, code.indexOf(QLatin1Char('"'), start) - start);
-        start = code.indexOf(QLatin1String(" line=\"")) + 7;
-        line = code.mid(start, code.indexOf(QLatin1Char('"'), start) - start).toInt();
-        return true;
-    }
-    return false;
-}
-
-// adapted from qplaintestlogger.cpp
-static QString formatResult(double value)
-{
-    if (value < 0 || value == NAN)
-        return QLatin1String("NAN");
-    if (value == 0)
-        return QLatin1String("0");
-
-    int significantDigits = 0;
-    qreal divisor = 1;
-
-    while (value / divisor >= 1) {
-        divisor *= 10;
-        ++significantDigits;
-    }
-
-    QString beforeDecimalPoint = QString::number(value, 'f', 0);
-    QString afterDecimalPoint = QString::number(value, 'f', 20);
-    afterDecimalPoint.remove(0, beforeDecimalPoint.count() + 1);
-
-    const int beforeUse = qMin(beforeDecimalPoint.count(), significantDigits);
-    const int beforeRemove = beforeDecimalPoint.count() - beforeUse;
-
-    beforeDecimalPoint.chop(beforeRemove);
-    for (int i = 0; i < beforeRemove; ++i)
-        beforeDecimalPoint.append(QLatin1Char('0'));
-
-    int afterUse = significantDigits - beforeUse;
-    if (beforeDecimalPoint == QLatin1String("0") && !afterDecimalPoint.isEmpty()) {
-        ++afterUse;
-        int i = 0;
-        while (i < afterDecimalPoint.count() && afterDecimalPoint.at(i) == QLatin1Char('0'))
-            ++i;
-        afterUse += i;
-    }
-
-    const int afterRemove = afterDecimalPoint.count() - afterUse;
-    afterDecimalPoint.chop(afterRemove);
-
-    QString result = beforeDecimalPoint;
-    if (afterUse > 0)
-        result.append(QLatin1Char('.'));
-    result += afterDecimalPoint;
-
-    return result;
-}
-
-static bool xmlExtractBenchmarkInformation(const QString &code, const QString &tagStart,
-                                           QString &description)
-{
-    if (code.startsWith(tagStart)) {
-        int start = code.indexOf(QLatin1String(" metric=\"")) + 9;
-        const QString metric = code.mid(start, code.indexOf(QLatin1Char('"'), start) - start);
-        start = code.indexOf(QLatin1String(" value=\"")) + 8;
-        const double value = code.mid(start, code.indexOf(QLatin1Char('"'), start) - start).toDouble();
-        start = code.indexOf(QLatin1String(" iterations=\"")) + 13;
-        const int iterations = code.mid(start, code.indexOf(QLatin1Char('"'), start) - start).toInt();
-        QString metricsText;
-        if (metric == QLatin1String("WalltimeMilliseconds"))         // default
-            metricsText = QLatin1String("msecs");
-        else if (metric == QLatin1String("CPUTicks"))                // -tickcounter
-            metricsText = QLatin1String("CPU ticks");
-        else if (metric == QLatin1String("Events"))                  // -eventcounter
-            metricsText = QLatin1String("events");
-        else if (metric == QLatin1String("InstructionReads"))        // -callgrind
-            metricsText = QLatin1String("instruction reads");
-        else if (metric == QLatin1String("CPUCycles"))               // -perf
-            metricsText = QLatin1String("CPU cycles");
-        description = QObject::tr("%1 %2 per iteration (total: %3, iterations: %4)")
-                .arg(formatResult(value))
-                .arg(metricsText)
-                .arg(formatResult(value * (double)iterations))
-                .arg(iterations);
-        return true;
-    }
-    return false;
-}
 
 void emitTestResultCreated(const TestResult &testResult)
 {
     emit m_instance->testResultCreated(testResult);
-}
-
-/****************** XML line parser helper end ******************/
-
-void processOutput(QProcess *testRunner)
-{
-    if (!testRunner)
-        return;
-    static QString className;
-    static QString testCase;
-    static QString dataTag;
-    static Result::Type result = Result::UNKNOWN;
-    static QString description;
-    static QString file;
-    static int lineNumber = 0;
-    static QString duration;
-    static bool readingDescription = false;
-    static QString qtVersion;
-    static QString qtestVersion;
-    static QString benchmarkDescription;
-
-    while (testRunner->canReadLine()) {
-        // TODO Qt5 uses UTF-8 - while Qt4 uses ISO-8859-1 - could this be a problem?
-        const QString line = QString::fromUtf8(testRunner->readLine()).trimmed();
-        if (line.isEmpty() || line.startsWith(QLatin1String("<?xml version"))) {
-            className = QString();
-            continue;
-        }
-        if (xmlStartsWith(line, QLatin1String("<TestCase name=\""), className))
-            continue;
-        if (xmlStartsWith(line, QLatin1String("<TestFunction name=\""), testCase)) {
-            dataTag = QString();
-            description = QString();
-            duration = QString();
-            file = QString();
-            result = Result::UNKNOWN;
-            lineNumber = 0;
-            readingDescription = false;
-            emitTestResultCreated(
-                        TestResult(QString(), QString(), QString(), Result::MESSAGE_CURRENT_TEST,
-                                   QObject::tr("Entering Test Function %1::%2")
-                                   .arg(className).arg(testCase)));
-            continue;
-        }
-        if (xmlStartsWith(line, QLatin1String("<Duration msecs=\""), duration)) {
-            continue;
-        }
-        if (xmlExtractTypeFileLine(line, QLatin1String("<Message"), result, file, lineNumber))
-            continue;
-        if (xmlCData(line, QLatin1String("<DataTag>"), dataTag))
-            continue;
-        if (xmlCData(line, QLatin1String("<Description>"), description)) {
-            if (!line.endsWith(QLatin1String("</Description>")))
-                readingDescription = true;
-            continue;
-        }
-        if (xmlExtractTypeFileLine(line, QLatin1String("<Incident"), result, file, lineNumber)) {
-            if (line.endsWith(QLatin1String("/>"))) {
-                TestResult testResult(className, testCase, dataTag, result, description);
-                if (!file.isEmpty())
-                    file = QFileInfo(testRunner->workingDirectory(), file).canonicalFilePath();
-                testResult.setFileName(file);
-                testResult.setLine(lineNumber);
-                emitTestResultCreated(testResult);
-            }
-            continue;
-        }
-        if (xmlExtractBenchmarkInformation(line, QLatin1String("<BenchmarkResult"), benchmarkDescription)) {
-            TestResult testResult(className, testCase, dataTag, Result::BENCHMARK, benchmarkDescription);
-            emitTestResultCreated(testResult);
-            continue;
-        }
-        if (line == QLatin1String("</Message>") || line == QLatin1String("</Incident>")) {
-            TestResult testResult(className, testCase, dataTag, result, description);
-            if (!file.isEmpty())
-                file = QFileInfo(testRunner->workingDirectory(), file).canonicalFilePath();
-            testResult.setFileName(file);
-            testResult.setLine(lineNumber);
-            emitTestResultCreated(testResult);
-            description = QString();
-        } else if (line == QLatin1String("</TestFunction>") && !duration.isEmpty()) {
-            TestResult testResult(className, testCase, QString(), Result::MESSAGE_INTERNAL,
-                                  QObject::tr("execution took %1ms").arg(duration));
-            emitTestResultCreated(testResult);
-            m_currentFuture->setProgressValue(m_currentFuture->progressValue() + 1);
-        } else if (line == QLatin1String("</TestCase>") && !duration.isEmpty()) {
-            TestResult testResult(className, QString(), QString(), Result::MESSAGE_INTERNAL,
-                                  QObject::tr("Test execution took %1ms").arg(duration));
-            emitTestResultCreated(testResult);
-        } else if (readingDescription) {
-            if (line.endsWith(QLatin1String("]]></Description>"))) {
-                description.append(QLatin1Char('\n'));
-                description.append(line.left(line.indexOf(QLatin1String("]]></Description>"))));
-                readingDescription = false;
-            } else {
-                description.append(QLatin1Char('\n'));
-                description.append(line);
-            }
-        } else if (xmlStartsWith(line, QLatin1String("<QtVersion>"), qtVersion)) {
-            emitTestResultCreated(FaultyTestResult(Result::MESSAGE_INTERNAL,
-                QObject::tr("Qt Version: %1").arg(qtVersion)));
-        } else if (xmlStartsWith(line, QLatin1String("<QTestVersion>"), qtestVersion)) {
-            emitTestResultCreated(FaultyTestResult(Result::MESSAGE_INTERNAL,
-                QObject::tr("QTest Version: %1").arg(qtestVersion)));
-        } else {
-//            qDebug() << "Unhandled line:" << line; // TODO remove
-        }
-    }
 }
 
 static QString executableFilePath(const QString &command, const QProcessEnvironment &environment)
@@ -331,29 +78,60 @@ static QString executableFilePath(const QString &command, const QProcessEnvironm
     return QString();
 }
 
-void performTestRun(QFutureInterface<void> &future, const QList<TestConfiguration *> selectedTests, const int timeout, const QString metricsOption, TestRunner* testRunner)
+TestRunner *TestRunner::instance()
+{
+    if (!m_instance)
+        m_instance = new TestRunner;
+    return m_instance;
+}
+
+TestRunner::TestRunner(QObject *parent) :
+    QObject(parent),
+    m_building(false),
+    m_executingTests(false)
+{
+}
+
+TestRunner::~TestRunner()
+{
+    qDeleteAll(m_selectedTests);
+    m_selectedTests.clear();
+    m_instance = 0;
+}
+
+void TestRunner::setSelectedTests(const QList<TestConfiguration *> &selected)
+{
+     qDeleteAll(m_selectedTests);
+     m_selectedTests.clear();
+     m_selectedTests = selected;
+}
+
+void performTestRun(QFutureInterface<void> &futureInterface, const QList<TestConfiguration *> selectedTests, const int timeout, const QString metricsOption, TestRunner* testRunner)
 {
     int testCaseCount = 0;
     foreach (const TestConfiguration *config, selectedTests)
         testCaseCount += config->testCaseCount();
 
-    m_currentFuture = &future;
     QProcess testProcess;
     testProcess.setReadChannelMode(QProcess::MergedChannels);
     testProcess.setReadChannel(QProcess::StandardOutput);
     QObject::connect(testRunner, &TestRunner::requestStopTestRun, &testProcess, [&] () {
-            future.cancel(); // this kills the process if that is still in the running loop
+            futureInterface.cancel(); // this kills the process if that is still in the running loop
     });
 
-    QObject::connect(&testProcess, &QProcess::readyReadStandardOutput, [&] () {
-        processOutput(&testProcess);
+    TestXmlOutputReader xmlReader(&testProcess);
+    QObject::connect(&xmlReader, &TestXmlOutputReader::increaseProgress, [&] () {
+        futureInterface.setProgressValue(futureInterface.progressValue() + 1);
     });
+    QObject::connect(&xmlReader, &TestXmlOutputReader::testResultCreated, &emitTestResultCreated);
 
-    m_currentFuture->setProgressRange(0, testCaseCount);
-    m_currentFuture->setProgressValue(0);
+    QObject::connect(&testProcess, &QProcess::readyRead, &xmlReader, &TestXmlOutputReader::processOutput);
+
+    futureInterface.setProgressRange(0, testCaseCount);
+    futureInterface.setProgressValue(0);
 
     foreach (const TestConfiguration *testConfiguration, selectedTests) {
-        if (m_currentFuture->isCanceled())
+        if (futureInterface.isCanceled())
             break;
 
         QProcessEnvironment environment = testConfiguration->environment().toProcessEnvironment();
@@ -381,7 +159,7 @@ void performTestRun(QFutureInterface<void> &future, const QList<TestConfiguratio
         executionTimer.start();
         if (ok) {
             while (testProcess.state() == QProcess::Running && executionTimer.elapsed() < timeout) {
-                if (m_currentFuture->isCanceled()) {
+                if (futureInterface.isCanceled()) {
                     testProcess.kill();
                     testProcess.waitForFinished();
                     emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL,
@@ -400,9 +178,7 @@ void performTestRun(QFutureInterface<void> &future, const QList<TestConfiguratio
             }
         }
     }
-    m_currentFuture->setProgressValue(testCaseCount);
-
-    m_currentFuture = 0;
+    futureInterface.setProgressValue(testCaseCount);
 }
 
 void TestRunner::runTests()
