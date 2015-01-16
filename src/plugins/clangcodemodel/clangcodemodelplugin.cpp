@@ -29,23 +29,16 @@
 ****************************************************************************/
 
 #include "clangcodemodelplugin.h"
+
 #include "clangprojectsettingspropertiespage.h"
 #include "pchmanager.h"
 #include "utils.h"
-
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/imode.h>
-#include <coreplugin/modemanager.h>
-#include <coreplugin/id.h>
 
 #include <cpptools/cppmodelmanager.h>
 
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
-
-#include <QtPlugin>
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -55,32 +48,34 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
+    // Register widget for project panel
     auto panelFactory = new ProjectExplorer::ProjectPanelFactory();
     panelFactory->setPriority(60);
     panelFactory->setDisplayName(ClangProjectSettingsWidget::tr("Clang Settings"));
     panelFactory->setSimpleCreateWidgetFunction<ClangProjectSettingsWidget>(QIcon());
-
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
 
+    // Initialize Clang
     ClangCodeModel::Internal::initializeClang();
 
-    PchManager *pchManager = new PchManager(this);
-
+    // Set up Indexer
+    auto cppModelManager = CppTools::CppModelManager::instance();
 #ifdef CLANG_INDEXING
     m_indexer.reset(new ClangIndexer);
-    CppTools::CppModelManager::instance()->setIndexingSupport(m_indexer->indexingSupport());
+    cppModelManager->setIndexingSupport(m_indexer->indexingSupport());
 #endif // CLANG_INDEXING
 
-    // wire up the pch manager
-    QObject *session = ProjectExplorer::SessionManager::instance();
-    connect(session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
-            pchManager, SLOT(onAboutToRemoveProject(ProjectExplorer::Project*)));
-    connect(CppTools::CppModelManager::instance(), SIGNAL(projectPartsUpdated(ProjectExplorer::Project*)),
-            pchManager, SLOT(onProjectPartsUpdated(ProjectExplorer::Project*)));
+    // Set up PchManager
+    PchManager *pchManager = new PchManager(this);
+    ProjectExplorer::SessionManager *sessionManager = ProjectExplorer::SessionManager::instance();
+    connect(sessionManager, &ProjectExplorer::SessionManager::aboutToRemoveProject,
+            pchManager, &PchManager::onAboutToRemoveProject);
+    connect(cppModelManager, &CppTools::CppModelManager::projectPartsUpdated,
+            pchManager, &PchManager::onProjectPartsUpdated);
 
+    // Register ModelManagerSupport
     m_modelManagerSupport.reset(new ModelManagerSupport);
-    CppTools::CppModelManager::instance()->addModelManagerSupport(
-                m_modelManagerSupport.data());
+    cppModelManager->addModelManagerSupport(m_modelManagerSupport.data());
 
     return true;
 }

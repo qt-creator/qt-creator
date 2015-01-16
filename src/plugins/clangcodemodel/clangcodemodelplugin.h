@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGPLUGIN_H
-#define CLANGPLUGIN_H
+#ifndef CLANGCODEMODELPLUGIN_H
+#define CLANGCODEMODELPLUGIN_H
 
 #include "clangmodelmanagersupport.h"
 
@@ -38,6 +38,8 @@
 #endif // CLANG_INDEXING
 
 #include <extensionsystem/iplugin.h>
+
+#include <QScopedPointer>
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -49,7 +51,6 @@ class ClangCodeModelPlugin: public ExtensionSystem::IPlugin
 
 public:
     bool initialize(const QStringList &arguments, QString *errorMessage);
-
     void extensionsInitialized();
 
 private:
@@ -72,4 +73,4 @@ private slots:
 } // namespace Internal
 } // namespace Clang
 
-#endif // CLANGPLUGIN_H
+#endif // CLANGCODEMODELPLUGIN_H
