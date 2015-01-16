@@ -109,7 +109,7 @@ public:
                                                m_editorWidget->document(), m_position,
                                                ExplicitlyInvoked, m_snapshot,
                                                ProjectPart::HeaderPaths());
-        CppCompletionAssistProcessor processor;
+        InternalCppCompletionAssistProcessor processor;
 
         const Tests::IAssistProposalScopedPointer proposal(processor.perform(ai));
         if (!proposal.d)

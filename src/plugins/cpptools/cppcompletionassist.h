@@ -96,11 +96,11 @@ public:
             TextEditor::AssistReason reason) const Q_DECL_OVERRIDE;
 };
 
-class CppCompletionAssistProcessor : public TextEditor::IAssistProcessor
+class InternalCppCompletionAssistProcessor : public TextEditor::IAssistProcessor
 {
 public:
-    CppCompletionAssistProcessor();
-    ~CppCompletionAssistProcessor();
+    InternalCppCompletionAssistProcessor();
+    ~InternalCppCompletionAssistProcessor();
 
     TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) Q_DECL_OVERRIDE;
 
