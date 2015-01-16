@@ -20,3 +20,6 @@ SOURCES += \
     $$PWD/../../libs/utils/savefile.cpp
 
 win32:LIBS += -luser32 -lshell32
+
+osx:OBJECTIVE_SOURCES += $$PWD/../../libs/utils/fileutils_mac.mm
+osx:LIBS += -framework Foundation
