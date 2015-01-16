@@ -602,24 +602,7 @@ bool isQPrivateSignal(const Symbol *symbol)
 // InternalCppCompletionAssistProcessor
 // ------------------------------------
 InternalCppCompletionAssistProcessor::InternalCppCompletionAssistProcessor()
-    : m_startPosition(-1)
-    , m_snippetCollector(QLatin1String(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID),
-                         QIcon(QLatin1String(":/texteditor/images/snippet.png")))
-    , preprocessorCompletions(QStringList()
-          << QLatin1String("define")
-          << QLatin1String("error")
-          << QLatin1String("include")
-          << QLatin1String("line")
-          << QLatin1String("pragma")
-          << QLatin1String("undef")
-          << QLatin1String("if")
-          << QLatin1String("ifdef")
-          << QLatin1String("ifndef")
-          << QLatin1String("elif")
-          << QLatin1String("else")
-          << QLatin1String("endif"))
-    , m_model(new CppAssistProposalModel)
-    , m_hintProposal(0)
+    : m_model(new CppAssistProposalModel)
 {
     // FIXME: C++11?
     m_languageFeatures.objCEnabled = true;
@@ -1176,7 +1159,7 @@ void InternalCppCompletionAssistProcessor::completeInclude(const QString &realPa
 
 void InternalCppCompletionAssistProcessor::completePreprocessor()
 {
-    foreach (const QString &preprocessorCompletion, preprocessorCompletions)
+    foreach (const QString &preprocessorCompletion, m_preprocessorCompletions)
         addCompletionItem(preprocessorCompletion);
 
     if (objcKeywordsWanted())
@@ -1704,11 +1687,6 @@ bool InternalCppCompletionAssistProcessor::completeQtMethod(
     }
 
     return !m_completions.isEmpty();
-}
-
-void InternalCppCompletionAssistProcessor::addSnippets()
-{
-    m_completions.append(m_snippetCollector.collect());
 }
 
 void InternalCppCompletionAssistProcessor::addKeywords()

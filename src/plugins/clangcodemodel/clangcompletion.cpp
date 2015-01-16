@@ -560,37 +560,7 @@ ClangCompletionAssistInterface::ClangCompletionAssistInterface(ClangCompleter::P
 }
 
 ClangCompletionAssistProcessor::ClangCompletionAssistProcessor()
-    : m_preprocessorCompletions(QStringList()
-          << QLatin1String("define")
-          << QLatin1String("error")
-          << QLatin1String("include")
-          << QLatin1String("line")
-          << QLatin1String("pragma")
-          << QLatin1String("pragma once")
-          << QLatin1String("pragma omp atomic")
-          << QLatin1String("pragma omp parallel")
-          << QLatin1String("pragma omp for")
-          << QLatin1String("pragma omp ordered")
-          << QLatin1String("pragma omp parallel for")
-          << QLatin1String("pragma omp section")
-          << QLatin1String("pragma omp sections")
-          << QLatin1String("pragma omp parallel sections")
-          << QLatin1String("pragma omp single")
-          << QLatin1String("pragma omp master")
-          << QLatin1String("pragma omp critical")
-          << QLatin1String("pragma omp barrier")
-          << QLatin1String("pragma omp flush")
-          << QLatin1String("pragma omp threadprivate")
-          << QLatin1String("undef")
-          << QLatin1String("if")
-          << QLatin1String("ifdef")
-          << QLatin1String("ifndef")
-          << QLatin1String("elif")
-          << QLatin1String("else")
-          << QLatin1String("endif"))
-    , m_model(new ClangAssistProposalModel)
-    , m_hintProposal(0)
-
+    : m_model(new ClangAssistProposalModel)
 {
 }
 

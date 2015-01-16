@@ -40,6 +40,7 @@ QtcPlugin {
         "cppcodestylesettings.cpp", "cppcodestylesettings.h",
         "cppcodestylesettingspage.cpp", "cppcodestylesettingspage.h", "cppcodestylesettingspage.ui",
         "cppcompletionassist.cpp", "cppcompletionassist.h",
+        "cppcompletionassistprocessor.cpp", "cppcompletionassistprocessor.h",
         "cppcompletionassistprovider.cpp", "cppcompletionassistprovider.h",
         "cppcurrentdocumentfilter.cpp", "cppcurrentdocumentfilter.h",
         "cppdoxygen.cpp", "cppdoxygen.h",

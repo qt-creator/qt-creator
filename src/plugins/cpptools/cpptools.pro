@@ -22,6 +22,7 @@ HEADERS += \
     cppcodestylesettings.h \
     cppcodestylesettingspage.h \
     cppcompletionassist.h \
+    cppcompletionassistprocessor.h \
     cppcompletionassistprovider.h \
     cppcurrentdocumentfilter.h \
     cppdoxygen.h \
@@ -84,6 +85,7 @@ SOURCES += \
     cppcodestylesettings.cpp \
     cppcodestylesettingspage.cpp \
     cppcompletionassist.cpp \
+    cppcompletionassistprocessor.cpp \
     cppcompletionassistprovider.cpp \
     cppcurrentdocumentfilter.cpp \
     cppdoxygen.cpp \

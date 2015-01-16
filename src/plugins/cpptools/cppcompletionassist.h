@@ -31,6 +31,7 @@
 #ifndef CPPCOMPLETIONASSIST_H
 #define CPPCOMPLETIONASSIST_H
 
+#include "cppcompletionassistprocessor.h"
 #include "cppcompletionassistprovider.h"
 #include "cppmodelmanager.h"
 #include "cppworkingcopy.h"
@@ -96,7 +97,7 @@ public:
             TextEditor::AssistReason reason) const Q_DECL_OVERRIDE;
 };
 
-class InternalCppCompletionAssistProcessor : public TextEditor::IAssistProcessor
+class InternalCppCompletionAssistProcessor : public CppCompletionAssistProcessor
 {
 public:
     InternalCppCompletionAssistProcessor();
@@ -144,7 +145,6 @@ private:
                            const QVariant &data = QVariant());
     void addCompletionItem(CPlusPlus::Symbol *symbol,
                            int order = 0);
-    void addSnippets();
     void addKeywords();
     void addMacros(const QString &fileName, const CPlusPlus::Snapshot &snapshot);
     void addMacros_helper(const CPlusPlus::Snapshot &snapshot,
@@ -152,15 +152,9 @@ private:
                           QSet<QString> *processed,
                           QSet<QString> *definedMacros);
 
-    int m_startPosition;
     CPlusPlus::LanguageFeatures m_languageFeatures;
     QScopedPointer<const CppCompletionAssistInterface> m_interface;
-    QList<TextEditor::AssistProposalItem *> m_completions;
-    TextEditor::SnippetAssistCollector m_snippetCollector;
-    CPlusPlus::Icons m_icons;
-    QStringList preprocessorCompletions;
     QScopedPointer<CppAssistProposalModel> m_model;
-    TextEditor::IAssistProposal *m_hintProposal;
 };
 
 class CppCompletionAssistInterface : public TextEditor::AssistInterface

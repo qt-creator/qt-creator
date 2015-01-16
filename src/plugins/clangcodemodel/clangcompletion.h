@@ -35,13 +35,13 @@
 
 #include <cplusplus/Icons.h>
 
+#include <cpptools/cppcompletionassistprocessor.h>
 #include <cpptools/cppcompletionassistprovider.h>
 #include <cpptools/cppmodelmanager.h>
 
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/assistinterface.h>
-#include <texteditor/codeassist/iassistprocessor.h>
 
 #include <QStringList>
 #include <QTextCursor>
@@ -102,7 +102,7 @@ private:
     Internal::PchInfo::Ptr m_savedPchPointer;
 };
 
-class CLANG_EXPORT ClangCompletionAssistProcessor : public TextEditor::IAssistProcessor
+class CLANG_EXPORT ClangCompletionAssistProcessor : public CppTools::CppCompletionAssistProcessor
 {
     Q_DECLARE_TR_FUNCTIONS(ClangCodeModel::Internal::ClangCompletionAssistProcessor)
 
@@ -132,13 +132,8 @@ private:
                            const QVariant &data = QVariant());
 
 private:
-    int m_startPosition;
     QScopedPointer<const ClangCompletionAssistInterface> m_interface;
-    QList<TextEditor::AssistProposalItem *> m_completions;
-    CPlusPlus::Icons m_icons;
-    QStringList m_preprocessorCompletions;
     QScopedPointer<Internal::ClangAssistProposalModel> m_model;
-    TextEditor::IAssistProposal *m_hintProposal;
 };
 
 } // namespace Clang
