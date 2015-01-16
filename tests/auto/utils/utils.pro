@@ -3,4 +3,5 @@ CONFIG += ordered
 
 SUBDIRS = \
     fileutils \
-    ansiescapecodehandler
+    ansiescapecodehandler \
+    stringutils

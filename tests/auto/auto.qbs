@@ -21,7 +21,6 @@ Project {
         "timeline/timeline.qbs",
         "treeviewfind/treeviewfind.qbs",
         "utils/utils.qbs",
-        "utils_stringutils/utils_stringutils.qbs",
         "valgrind/valgrind.qbs"
     ]
 }

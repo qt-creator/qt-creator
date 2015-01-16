@@ -15,7 +15,6 @@ SUBDIRS += \
     ioutils \
     qtcprocess \
     utils \
-    utils_stringutils \
     filesearch \
     valgrind
 
