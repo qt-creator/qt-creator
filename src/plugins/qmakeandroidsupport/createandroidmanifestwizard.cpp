@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "createandroidmanifestwizard.h"
+#include "qmakeandroidrunconfiguration.h"
 
 #include <android/androidconfigurations.h>
 #include <android/androidmanager.h>
@@ -77,7 +78,7 @@ NoApplicationProFilePage::NoApplicationProFilePage(CreateAndroidManifestWizard *
 //
 // ChooseProFilePage
 //
-ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard, const QList<QmakeProFileNode *> &nodes)
+ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard, const QList<QmakeProFileNode *> &nodes, const QmakeProFileNode *select)
     : m_wizard(wizard)
 {
     QFormLayout *fl = new QFormLayout(this);
@@ -87,10 +88,13 @@ ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard, const 
     fl->addRow(label);
 
     m_comboBox = new QComboBox(this);
-    foreach (QmakeProFileNode *node, nodes)
+    foreach (QmakeProFileNode *node, nodes) {
         m_comboBox->addItem(node->displayName(), QVariant::fromValue(static_cast<void *>(node))); // TODO something more?
+        if (node == select)
+            m_comboBox->setCurrentIndex(m_comboBox->count() - 1);
+    }
 
-    nodeSelected(0);
+    nodeSelected(m_comboBox->currentIndex());
     connect(m_comboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(nodeSelected(int)));
 
@@ -111,12 +115,14 @@ void ChooseProFilePage::nodeSelected(int index)
 ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
     : m_wizard(wizard), m_androidPackageSourceDir(0), m_complete(true)
 {
-    QString androidPackageDir = m_wizard->node()->singleVariableValue(QmakeProjectManager::AndroidPackageSourceDir);
+    m_layout = new QFormLayout(this);
+    m_label = new QLabel(this);
+    m_label->setWordWrap(true);
+    m_layout->addRow(m_label);
 
-    QFormLayout *fl = new QFormLayout(this);
-    QLabel *label = new QLabel(this);
-    label->setWordWrap(true);
-    fl->addRow(label);
+    m_androidPackageSourceDir = new PathChooser(this);
+    m_androidPackageSourceDir->setExpectedKind(PathChooser::Directory);
+    m_layout->addRow(tr("Android package source directory:"), m_androidPackageSourceDir);
 
     m_sourceDirectoryWarning = new QLabel(this);
     m_sourceDirectoryWarning->setVisible(false);
@@ -133,28 +139,7 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
     hbox->addWidget(m_sourceDirectoryWarning);
     hbox->setAlignment(m_warningIcon, Qt::AlignTop);
 
-    fl->addRow(hbox);
-
-    m_androidPackageSourceDir = new PathChooser(this);
-    m_androidPackageSourceDir->setExpectedKind(PathChooser::Directory);
-    fl->addRow(tr("Android package source directory:"), m_androidPackageSourceDir);
-
-    if (androidPackageDir.isEmpty()) {
-        label->setText(tr("Select the Android package source directory.\n\n"
-                          "The files in the Android package source directory are copied to the build directory's "
-                          "Android directory and the default files are overwritten."));
-
-        m_androidPackageSourceDir->setPath(QFileInfo(m_wizard->node()->path()).absolutePath().append(QLatin1String("/android")));
-        connect(m_androidPackageSourceDir, SIGNAL(changed(QString)),
-                this, SLOT(checkPackageSourceDir()));
-    } else {
-        label->setText(tr("The Android template files will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file."));
-        m_androidPackageSourceDir->setPath(androidPackageDir);
-        m_androidPackageSourceDir->setReadOnly(true);
-    }
-
-
-    m_wizard->setDirectory(m_androidPackageSourceDir->path());
+    m_layout->addRow(hbox);
 
     connect(m_androidPackageSourceDir, SIGNAL(pathChanged(QString)),
             m_wizard, SLOT(setDirectory(QString)));
@@ -165,7 +150,7 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
         connect(checkBox, &QCheckBox::toggled, wizard, &CreateAndroidManifestWizard::setCopyGradle);
         checkBox->setText(tr("Copy the Gradle files to Android directory"));
         checkBox->setToolTip(tr("It is highly recommended if you are planning to extend the Java part of your Qt application."));
-        fl->addRow(checkBox);
+        m_layout->addRow(checkBox);
     }
 }
 
@@ -189,6 +174,27 @@ bool ChooseDirectoryPage::isComplete() const
     return m_complete;
 }
 
+void ChooseDirectoryPage::initializePage()
+{
+    QString androidPackageDir = m_wizard->node()->singleVariableValue(QmakeProjectManager::AndroidPackageSourceDir);
+    if (androidPackageDir.isEmpty()) {
+        m_label->setText(tr("Select the Android package source directory.\n\n"
+                          "The files in the Android package source directory are copied to the build directory's "
+                          "Android directory and the default files are overwritten."));
+
+        m_androidPackageSourceDir->setPath(QFileInfo(m_wizard->node()->path()).absolutePath().append(QLatin1String("/android")));
+        connect(m_androidPackageSourceDir, SIGNAL(changed(QString)),
+                this, SLOT(checkPackageSourceDir()));
+    } else {
+        m_label->setText(tr("The Android template files will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file."));
+        m_androidPackageSourceDir->setPath(androidPackageDir);
+        m_androidPackageSourceDir->setReadOnly(true);
+    }
+
+
+    m_wizard->setDirectory(m_androidPackageSourceDir->path());
+}
+
 //
 // CreateAndroidManifestWizard
 //
@@ -202,6 +208,11 @@ CreateAndroidManifestWizard::CreateAndroidManifestWizard(ProjectExplorer::Target
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
     m_copyGradle = version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
 
+    const QmakeProFileNode *currentRunNode = 0;
+    ProjectExplorer::RunConfiguration *rc = target->activeRunConfiguration();
+    if (auto qrc = qobject_cast<QmakeAndroidRunConfiguration *>(rc))
+        currentRunNode = project->rootQmakeProjectNode()->findProFileFor(qrc->proFilePath());
+
     if (nodes.isEmpty()) {
         // oh uhm can't create anything
         addPage(new NoApplicationProFilePage(this));
@@ -209,7 +220,7 @@ CreateAndroidManifestWizard::CreateAndroidManifestWizard(ProjectExplorer::Target
         setNode(nodes.first());
         addPage(new ChooseDirectoryPage(this));
     } else {
-        addPage(new ChooseProFilePage(this, nodes));
+        addPage(new ChooseProFilePage(this, nodes, currentRunNode));
         addPage(new ChooseDirectoryPage(this));
     }
 }
@@ -332,7 +343,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
     if (m_node->singleVariableValue(QmakeProjectManager::AndroidPackageSourceDir).isEmpty()) {
         // and now time for some magic
         QString value = QLatin1String("$$PWD/")
-                + QDir(m_target->project()->projectDirectory().toString()).relativeFilePath(m_directory);
+                + QDir(QFileInfo(m_node->path()).absolutePath()).relativeFilePath(m_directory);
         bool result =
                 m_node->setProVariable(QLatin1String("ANDROID_PACKAGE_SOURCE_DIR"), QStringList(value));
 

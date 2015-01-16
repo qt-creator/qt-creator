@@ -37,6 +37,7 @@
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QLabel;
+class QFormLayout;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Target; }
@@ -60,7 +61,7 @@ class ChooseProFilePage : public QWizardPage
 {
     Q_OBJECT
 public:
-    ChooseProFilePage(CreateAndroidManifestWizard *wizard, const QList<QmakeProjectManager::QmakeProFileNode *> &nodes);
+    ChooseProFilePage(CreateAndroidManifestWizard *wizard, const QList<QmakeProjectManager::QmakeProFileNode *> &nodes, const QmakeProjectManager::QmakeProFileNode *select);
 private slots:
     void nodeSelected(int index);
 private:
@@ -73,6 +74,7 @@ class ChooseDirectoryPage : public QWizardPage
     Q_OBJECT
 public:
     ChooseDirectoryPage(CreateAndroidManifestWizard *wizard);
+    void initializePage();
 protected:
     bool isComplete() const;
 private slots:
@@ -82,6 +84,8 @@ private:
     Utils::PathChooser *m_androidPackageSourceDir;
     QLabel *m_sourceDirectoryWarning;
     QLabel *m_warningIcon;
+    QLabel *m_label;
+    QFormLayout *m_layout;
     bool m_complete;
 };
 
