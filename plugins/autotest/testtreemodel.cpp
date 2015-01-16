@@ -342,17 +342,16 @@ static void addProjectInformation(TestConfiguration *config, const QString &file
 
             QList<ProjectExplorer::RunConfiguration *> rcs = target->runConfigurations();
             foreach (ProjectExplorer::RunConfiguration *rc, rcs) {
-                if (ProjectExplorer::LocalApplicationRunConfiguration *localRunConfiguration
-                        = qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(rc)) {
-                    if (localRunConfiguration->executable() == targetFile) {
-                        hasDesktopTarget = true;
-                        workDir = Utils::FileUtils::normalizePathName(
-                                    localRunConfiguration->workingDirectory());
-                        ProjectExplorer::EnvironmentAspect *envAsp
-                                = localRunConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
-                        env = envAsp->environment();
-                        break;
-                    }
+                ProjectExplorer::LocalApplicationRunConfiguration *localRunConfiguration
+                    = qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(rc);
+                if (localRunConfiguration && localRunConfiguration->executable() == targetFile) {
+                    hasDesktopTarget = true;
+                    workDir = Utils::FileUtils::normalizePathName(
+                                localRunConfiguration->workingDirectory());
+                    ProjectExplorer::EnvironmentAspect *envAsp
+                            = localRunConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
+                    env = envAsp->environment();
+                    break;
                 }
             }
         }
