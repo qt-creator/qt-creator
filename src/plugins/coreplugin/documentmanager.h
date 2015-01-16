@@ -83,10 +83,6 @@ public:
 
     static void saveSettings();
 
-    // current file
-    static void setCurrentFile(const QString &filePath);
-    static QString currentFile();
-
     // helper functions
     static QString fixFileName(const QString &fileName, FixMode fixmode);
 
@@ -148,7 +144,6 @@ public slots:
     static void executeOpenWithMenuAction(QAction *action);
 
 signals:
-    void currentFileChanged(const QString &filePath);
     /* Used to notify e.g. the code model to update the given files. Does *not*
        lead to any editors to reload or any other editor manager actions. */
     void filesChangedInternally(const QStringList &files);

@@ -36,7 +36,6 @@
 #include "projectexplorerconstants.h"
 
 #include <utils/algorithm.h>
-#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -68,7 +67,7 @@ ProjectTree::ProjectTree(QObject *parent)
 {
     s_instance = this;
 
-    connect(Core::DocumentManager::instance(), &Core::DocumentManager::currentFileChanged,
+    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
             this, &ProjectTree::documentManagerCurrentFileChanged);
 
     connect(qApp, &QApplication::focusChanged,
@@ -167,7 +166,8 @@ Project *ProjectTree::projectForNode(Node *node)
 
 void ProjectTree::updateFromDocumentManager(bool invalidCurrentNode)
 {
-    const QString &fileName = Core::DocumentManager::currentFile();
+    Core::IDocument *document = Core::EditorManager::currentDocument();
+    const QString &fileName = document ? document->filePath().toString() : QString();
 
     Node *currentNode = 0;
     if (!invalidCurrentNode && m_currentNode && m_currentNode->path() == fileName)

@@ -38,6 +38,7 @@
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/find/findplugin.h>
@@ -199,17 +200,18 @@ void FolderNavigationWidget::setAutoSynchronization(bool sync)
     m_autoSync = sync;
 
     if (m_autoSync) {
-        connect(Core::DocumentManager::instance(), SIGNAL(currentFileChanged(QString)),
-                this, SLOT(setCurrentFile(QString)));
-        setCurrentFile(Core::DocumentManager::currentFile());
+        connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
+                this, &FolderNavigationWidget::setCurrentFile);
+        setCurrentFile(Core::EditorManager::currentEditor());
     } else {
-        disconnect(Core::DocumentManager::instance(), SIGNAL(currentFileChanged(QString)),
-                this, SLOT(setCurrentFile(QString)));
+        disconnect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
+                this, &FolderNavigationWidget::setCurrentFile);
     }
 }
 
-void FolderNavigationWidget::setCurrentFile(const QString &filePath)
+void FolderNavigationWidget::setCurrentFile(Core::IEditor *editor)
 {
+    const QString filePath = editor->document()->filePath().toString();
     // Try to find directory of current file
     bool pathOpened = false;
     if (!filePath.isEmpty())  {

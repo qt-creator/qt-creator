@@ -152,8 +152,6 @@ struct DocumentManagerPrivate
     QList<DocumentManager::RecentFile> m_recentFiles;
     static const int m_maxRecentFiles = 7;
 
-    QString m_currentFile;
-
     QFileSystemWatcher *m_fileWatcher; // Delayed creation.
     QFileSystemWatcher *m_linkWatcher; // Delayed creation (only UNIX/if a link is seen).
     bool m_blockActivated;
@@ -878,8 +876,8 @@ QStringList DocumentManager::getOpenFileNames(const QString &filters,
 {
     QString path = pathIn;
     if (path.isEmpty()) {
-        if (!d->m_currentFile.isEmpty())
-            path = QFileInfo(d->m_currentFile).absoluteFilePath();
+        if (EditorManager::currentDocument() && !EditorManager::currentDocument()->isTemporary())
+            path = EditorManager::currentDocument()->filePath().toString();
         if (path.isEmpty() && useProjectsDirectory())
             path = projectsDirectory();
     }
@@ -1244,34 +1242,6 @@ void readSettings()
 
 /*!
 
-  The current file is the file currently opened when an editor is active,
-  or the selected file in case a Project Explorer is active.
-
-  \sa currentFile
-  */
-void DocumentManager::setCurrentFile(const QString &filePath)
-{
-    if (d->m_currentFile == filePath)
-        return;
-    d->m_currentFile = filePath;
-    emit m_instance->currentFileChanged(d->m_currentFile);
-}
-
-/*!
-  Returns the absolute path of the current file.
-
-  The current file is the file currently opened when an editor is active,
-  or the selected file in case a Project Explorer is active.
-
-  \sa setCurrentFile
-  */
-QString DocumentManager::currentFile()
-{
-    return d->m_currentFile;
-}
-
-/*!
-
   Returns the initial directory for a new file dialog. If there is
   a current file, uses that, otherwise uses the last visited directory.
 
@@ -1280,8 +1250,8 @@ QString DocumentManager::currentFile()
 
 QString DocumentManager::fileDialogInitialDirectory()
 {
-    if (!d->m_currentFile.isEmpty())
-        return QFileInfo(d->m_currentFile).absolutePath();
+    if (EditorManager::currentDocument() && !EditorManager::currentDocument()->isTemporary())
+        return QFileInfo(EditorManager::currentDocument()->filePath().toString()).absolutePath();
     return d->m_lastVisitedDirectory;
 }
 

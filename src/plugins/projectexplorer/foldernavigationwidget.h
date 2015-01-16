@@ -36,6 +36,7 @@
 #include <QWidget>
 
 namespace Utils { class ListView; }
+namespace Core { class IEditor; }
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -63,7 +64,7 @@ public slots:
     void toggleAutoSynchronization();
 
 private slots:
-    void setCurrentFile(const QString &filePath);
+    void setCurrentFile(Core::IEditor *editor);
     void slotOpenItem(const QModelIndex &viewIndex);
     void setHiddenFilesFilter(bool filter);
     void ensureCurrentIndex();

@@ -335,7 +335,9 @@ void ProjectTreeWidget::setAutoSynchronization(bool sync)
 
     if (m_autoSync) {
         // sync from document manager
-        const QString &fileName = Core::DocumentManager::currentFile();
+        QString fileName;
+        if (IDocument *doc = EditorManager::currentDocument())
+            fileName = doc->filePath().toString();
         if (!currentNode() || currentNode()->path() != fileName)
             setCurrentItem(ProjectTreeWidget::nodeForFile(fileName));
     }
