@@ -3472,20 +3472,6 @@ bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
     }
 }
 
-QString GitClient::vcsGetRepositoryURL(const QString &directory)
-{
-    QStringList arguments(QLatin1String("config"));
-    QByteArray outputText;
-
-    arguments << QLatin1String("remote.origin.url");
-
-    if (fullySynchronousGit(directory, arguments, &outputText, 0,
-                            VcsBasePlugin::SuppressCommandLogging)) {
-        return commandOutputFromLocal8Bit(outputText);
-    }
-    return QString();
-}
-
 GitSettings *GitClient::settings() const
 {
     return m_settings;

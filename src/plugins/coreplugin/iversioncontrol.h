@@ -56,9 +56,8 @@ public:
         AddOperation, DeleteOperation, MoveOperation,
         CreateRepositoryOperation,
         SnapshotOperations,
-        AnnotateOperation,
-        GetRepositoryRootOperation
-        };
+        AnnotateOperation
+    };
 
     enum OpenSupportMode {
         NoOpen,        /*!< Files can be edited without noticing the VCS */
@@ -169,11 +168,6 @@ public:
     virtual bool vcsCreateRepository(const QString &directory) = 0;
 
     /*!
-     * Called to get the version control repository root.
-     */
-    virtual QString vcsGetRepositoryURL(const QString &directory) = 0;
-
-    /*!
      * Topic (e.g. name of the current branch)
      */
     virtual QString vcsTopic(const QString &topLevel);
@@ -245,7 +239,6 @@ public:
     bool vcsDelete(const QString &) { return false; }
     bool vcsMove(const QString &, const QString &) { return false; }
     bool vcsCreateRepository(const QString &) { return false; }
-    QString vcsGetRepositoryURL(const QString &) { return QString(); }
     bool vcsAnnotate(const QString &, int) { return false; }
 
 private:

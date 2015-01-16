@@ -253,7 +253,6 @@ public:
     bool isFastForwardMerge(const QString &workingDirectory, const QString &branch);
 
     bool cloneRepository(const QString &directory, const QByteArray &url);
-    QString vcsGetRepositoryURL(const QString &directory);
     void fetch(const QString &workingDirectory, const QString &remote);
     bool synchronousPull(const QString &workingDirectory, bool rebase);
     void push(const QString &workingDirectory, const QStringList &pushArgs = QStringList());

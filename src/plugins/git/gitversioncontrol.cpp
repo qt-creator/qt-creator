@@ -98,7 +98,6 @@ bool GitVersionControl::supportsOperation(Operation operation) const
     case CreateRepositoryOperation:
     case SnapshotOperations:
     case AnnotateOperation:
-    case GetRepositoryRootOperation:
         return true;
     }
     return false;
@@ -131,11 +130,6 @@ bool GitVersionControl::vcsMove(const QString &from, const QString &to)
 bool GitVersionControl::vcsCreateRepository(const QString &directory)
 {
     return m_client->synchronousInit(directory);
-}
-
-QString GitVersionControl::vcsGetRepositoryURL(const QString &directory)
-{
-    return m_client->vcsGetRepositoryURL(directory);
 }
 
 QString GitVersionControl::vcsTopic(const QString &directory)

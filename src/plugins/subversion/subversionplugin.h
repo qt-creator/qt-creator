@@ -87,7 +87,6 @@ public:
     bool managesDirectory(const QString &directory, QString *topLevel = 0) const;
     bool managesFile(const QString &workingDirectory, const QString &fileName) const;
     bool vcsCheckout(const QString &directory, const QByteArray &url);
-    QString vcsGetRepositoryURL(const QString &directory);
 
     static SubversionPlugin *instance();
 

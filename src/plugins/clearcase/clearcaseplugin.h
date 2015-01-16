@@ -144,7 +144,6 @@ public:
     bool vcsSetActivity(const QString &workingDir, const QString &title, const QString &activity);
     bool managesDirectory(const QString &directory, QString *topLevel = 0) const;
     bool vcsCheckout(const QString &directory, const QByteArray &url);
-    QString vcsGetRepositoryURL(const QString &directory);
 
     static ClearCasePlugin *instance();
 

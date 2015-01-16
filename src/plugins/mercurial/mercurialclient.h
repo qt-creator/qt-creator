@@ -63,7 +63,6 @@ public:
     QString shortDescriptionSync(const QString &workingDirectory, const QString &revision);
     void incoming(const QString &repositoryRoot, const QString &repository = QString());
     void outgoing(const QString &repositoryRoot);
-    QString vcsGetRepositoryURL(const QString &directory);
     bool managesFile(const QString &workingDirectory, const QString &fileName) const;
 
     void annotate(const QString &workingDir, const QString &file,

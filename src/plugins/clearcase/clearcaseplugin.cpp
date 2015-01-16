@@ -1851,11 +1851,6 @@ bool ClearCasePlugin::vcsCheckout(const QString & /*directory*/, const QByteArra
     return false;
 }
 
-QString ClearCasePlugin::vcsGetRepositoryURL(const QString & /*directory*/)
-{
-    return currentState().topLevel();
-}
-
 ///
 /// Check if the directory is managed under ClearCase control.
 ///

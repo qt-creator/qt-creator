@@ -251,18 +251,6 @@ QString MercurialClient::shortDescriptionSync(const QString &workingDirectory,
     return shortDescriptionSync(workingDirectory, revision, QLatin1String(defaultFormatC));
 }
 
-QString MercurialClient::vcsGetRepositoryURL(const QString &directory)
-{
-    QByteArray output;
-
-    QStringList arguments(QLatin1String("showconfig"));
-    arguments << QLatin1String("paths.default");
-
-    if (vcsFullySynchronousExec(directory, arguments, &output))
-        return QString::fromLocal8Bit(output);
-    return QString();
-}
-
 bool MercurialClient::managesFile(const QString &workingDirectory, const QString &fileName) const
 {
     QStringList args;

@@ -93,7 +93,6 @@ bool SubversionControl::supportsOperation(Operation operation) const
     case DeleteOperation:
     case MoveOperation:
     case AnnotateOperation:
-    case GetRepositoryRootOperation:
         break;
     case CreateRepositoryOperation:
     case SnapshotOperations:
@@ -126,11 +125,6 @@ bool SubversionControl::vcsMove(const QString &from, const QString &to)
     const QFileInfo fromInfo(from);
     const QFileInfo toInfo(to);
     return m_plugin->vcsMove(fromInfo.absolutePath(), fromInfo.absoluteFilePath(), toInfo.absoluteFilePath());
-}
-
-QString SubversionControl::vcsGetRepositoryURL(const QString &directory)
-{
-    return m_plugin->vcsGetRepositoryURL(directory);
 }
 
 bool SubversionControl::vcsCreateRepository(const QString &)

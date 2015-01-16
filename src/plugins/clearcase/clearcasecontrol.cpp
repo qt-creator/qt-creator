@@ -77,7 +77,6 @@ bool ClearCaseControl::supportsOperation(Operation operation) const
     case DeleteOperation:
     case MoveOperation:
     case AnnotateOperation:
-    case GetRepositoryRootOperation:
         break;
     case CreateRepositoryOperation:
     case SnapshotOperations:
@@ -137,11 +136,6 @@ bool ClearCaseControl::vcsMove(const QString &from, const QString &to)
     const QFileInfo ifrom(from);
     const QFileInfo ito(to);
     return m_plugin->vcsMove(ifrom.absolutePath(), ifrom.fileName(), ito.fileName());
-}
-
-QString ClearCaseControl::vcsGetRepositoryURL(const QString &directory)
-{
-    return m_plugin->vcsGetRepositoryURL(directory);
 }
 
 bool ClearCaseControl::managesDirectory(const QString &directory, QString *topLevel) const

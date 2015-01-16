@@ -62,7 +62,6 @@ public:
     bool vcsDelete(const QString &filename);
     bool vcsMove(const QString &from, const QString &to);
     bool vcsCreateRepository(const QString &directory);
-    QString vcsGetRepositoryURL(const QString &directory);
     bool vcsAnnotate(const QString &file, int line);
 
 public slots:

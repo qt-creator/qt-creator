@@ -112,7 +112,6 @@ bool MercurialControl::supportsOperation(Operation operation) const
     case Core::IVersionControl::MoveOperation:
     case Core::IVersionControl::CreateRepositoryOperation:
     case Core::IVersionControl::AnnotateOperation:
-    case Core::IVersionControl::GetRepositoryRootOperation:
         break;
     case Core::IVersionControl::SnapshotOperations:
         supported = false;
@@ -169,11 +168,6 @@ bool MercurialControl::sccManaged(const QString &filename)
         return false;
     const QDir topLevelDir(topLevel);
     return mercurialClient->manifestSync(topLevel, topLevelDir.relativeFilePath(filename));
-}
-
-QString MercurialControl::vcsGetRepositoryURL(const QString &directory)
-{
-    return mercurialClient->vcsGetRepositoryURL(directory);
 }
 
 void MercurialControl::changed(const QVariant &v)

@@ -86,7 +86,6 @@ bool BazaarControl::supportsOperation(Operation operation) const
     case Core::IVersionControl::MoveOperation:
     case Core::IVersionControl::CreateRepositoryOperation:
     case Core::IVersionControl::AnnotateOperation:
-    case Core::IVersionControl::GetRepositoryRootOperation:
         break;
     case Core::IVersionControl::SnapshotOperations:
         supported = false;
@@ -132,13 +131,6 @@ bool BazaarControl::vcsAnnotate(const QString &file, int line)
     const QFileInfo fi(file);
     m_bazaarClient->annotate(fi.absolutePath(), fi.fileName(), QString(), line);
     return true;
-}
-
-QString BazaarControl::vcsGetRepositoryURL(const QString &directory)
-{
-    const QString repositoryRoot = m_bazaarClient->findTopLevelForFile(directory);
-    const BranchInfo branchInfo = m_bazaarClient->synchronousBranchQuery(repositoryRoot);
-    return branchInfo.isBoundToBranch ? branchInfo.branchLocation : QString();
 }
 
 void BazaarControl::changed(const QVariant &v)

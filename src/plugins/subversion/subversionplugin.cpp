@@ -1104,45 +1104,6 @@ bool SubversionPlugin::vcsCheckout(const QString &directory, const QByteArray &u
 
 }
 
-QString SubversionPlugin::vcsGetRepositoryURL(const QString &directory)
-{
-    QXmlStreamReader xml;
-    QStringList args = QStringList(QLatin1String("info"));
-    args << SubversionClient::addAuthenticationOptions(settings()) << QLatin1String("--xml");
-
-    const SubversionResponse response = runSvn(directory, args, 10 * m_settings.timeOutMs(), SuppressCommandLogging);
-    xml.addData(response.stdOut);
-
-    bool repo = false;
-    bool root = false;
-
-    while (!xml.atEnd() && !xml.hasError()) {
-        switch (xml.readNext()) {
-        case QXmlStreamReader::StartDocument:
-            break;
-        case QXmlStreamReader::StartElement:
-            if (xml.name() == QLatin1String("repository"))
-                repo = true;
-            else if (repo && xml.name() == QLatin1String("root"))
-                root = true;
-            break;
-        case QXmlStreamReader::EndElement:
-            if (xml.name() == QLatin1String("repository"))
-                repo = false;
-            else if (repo && xml.name() == QLatin1String("root"))
-                root = false;
-            break;
-        case QXmlStreamReader::Characters:
-            if (repo && root)
-                return xml.text().toString();
-            break;
-        default:
-            break;
-        }
-    }
-    return QString();
-}
-
 bool SubversionPlugin::managesDirectory(const QString &directory, QString *topLevel /* = 0 */) const
 {
     const QDir dir(directory);
