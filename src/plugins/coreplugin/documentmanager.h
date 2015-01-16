@@ -125,6 +125,9 @@ public:
 
     static QString fileDialogInitialDirectory();
 
+    static QString defaultLocationForNewFiles();
+    static void setDefaultLocationForNewFiles(const QString &location);
+
     static bool useProjectsDirectory();
     static void setUseProjectsDirectory(bool);
 

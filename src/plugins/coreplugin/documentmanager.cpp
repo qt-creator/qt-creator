@@ -156,6 +156,7 @@ struct DocumentManagerPrivate
     QFileSystemWatcher *m_linkWatcher; // Delayed creation (only UNIX/if a link is seen).
     bool m_blockActivated;
     QString m_lastVisitedDirectory;
+    QString m_defaultLocationForNewFiles;
     QString m_projectsDirectory;
     bool m_useProjectsDirectory;
     QString m_buildDirectory;
@@ -1243,16 +1244,39 @@ void readSettings()
 /*!
 
   Returns the initial directory for a new file dialog. If there is
-  a current file, uses that, otherwise uses the last visited directory.
+  a current file, uses that, otherwise if there is a default location for
+  new files, uses that, otherwise uses the last visited directory.
 
   \sa setFileDialogLastVisitedDirectory
+  \sa setDefaultLocationForNewFiles
 */
 
 QString DocumentManager::fileDialogInitialDirectory()
 {
     if (EditorManager::currentDocument() && !EditorManager::currentDocument()->isTemporary())
         return QFileInfo(EditorManager::currentDocument()->filePath().toString()).absolutePath();
+    if (!d->m_defaultLocationForNewFiles.isEmpty())
+        return d->m_defaultLocationForNewFiles;
     return d->m_lastVisitedDirectory;
+}
+
+/*!
+
+  Sets the default location for new files
+
+  \sa fileDialogInitialDirectory
+*/
+QString DocumentManager::defaultLocationForNewFiles()
+{
+    return d->m_defaultLocationForNewFiles;
+}
+
+/*!
+ Returns the default location for new files
+ */
+void DocumentManager::setDefaultLocationForNewFiles(const QString &location)
+{
+    d->m_defaultLocationForNewFiles = location;
 }
 
 /*!

@@ -43,6 +43,7 @@
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/documentmanager.h>
 
 #include <QApplication>
 #include <QTimer>
@@ -72,6 +73,13 @@ ProjectTree::ProjectTree(QObject *parent)
 
     connect(qApp, &QApplication::focusChanged,
             this, &ProjectTree::focusChanged);
+
+    connect(SessionManager::instance(), &SessionManager::projectAdded,
+            this, &ProjectTree::updateDefaultLocationForNewFiles);
+    connect(SessionManager::instance(), &SessionManager::projectRemoved,
+            this, &ProjectTree::updateDefaultLocationForNewFiles);
+    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+            this, &ProjectTree::updateDefaultLocationForNewFiles);
 }
 
 void ProjectTree::aboutToShutDown()
@@ -215,7 +223,18 @@ void ProjectTree::update(Node *node, Project *project)
 
     emit currentProjectChanged(m_currentProject);
 
+    updateDefaultLocationForNewFiles();
     updateContext();
+}
+
+void ProjectTree::updateDefaultLocationForNewFiles()
+{
+    if (m_currentProject)
+        Core::DocumentManager::setDefaultLocationForNewFiles(m_currentProject->projectDirectory().toString());
+    else if (SessionManager::startupProject())
+        Core::DocumentManager::setDefaultLocationForNewFiles(SessionManager::startupProject()->projectDirectory().toString());
+    else
+        Core::DocumentManager::setDefaultLocationForNewFiles(QString());
 }
 
 void ProjectTree::updateContext()
