@@ -104,7 +104,7 @@ QList<Core::Id> QmakeAndroidRunConfigurationFactory::availableCreationIds(Target
 RunConfiguration *QmakeAndroidRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
     if (parent->project()->rootProjectNode())
-        return new QmakeAndroidRunConfiguration(parent, id, parent->project()->rootProjectNode()->path());
+        return new QmakeAndroidRunConfiguration(parent, id, pathFromId(id));
     return new QmakeAndroidRunConfiguration(parent, id);
 }
 
@@ -113,7 +113,7 @@ RunConfiguration *QmakeAndroidRunConfigurationFactory::doRestore(Target *parent,
 {
     Core::Id id = ProjectExplorer::idFromMap(map);
     if (parent->project()->rootProjectNode())
-        return new QmakeAndroidRunConfiguration(parent, id, parent->project()->rootProjectNode()->path());
+        return new QmakeAndroidRunConfiguration(parent, id);
     return new QmakeAndroidRunConfiguration(parent, id);
 }
 

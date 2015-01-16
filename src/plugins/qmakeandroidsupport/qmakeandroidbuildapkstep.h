@@ -86,18 +86,10 @@ protected:
     bool fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
 
-signals:
-    // also on purpose emitted if the possible values of this changed
-    void inputFileChanged();
-
-private slots:
-    void updateInputFile();
-
 private:
     void setupProcessParameters(ProjectExplorer::ProcessParameters *pp,
                                 ProjectExplorer::BuildConfiguration *bc,
                                 const QStringList &arguments, const QString &command);
-    QString m_proFilePathForInputFile;
     QString m_command;
     QString m_argumentsPasswordConcealed;
     bool m_skipBuilding;

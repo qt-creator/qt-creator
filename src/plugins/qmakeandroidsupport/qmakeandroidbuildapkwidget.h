@@ -61,8 +61,6 @@ public:
     ~QmakeAndroidBuildApkWidget();
 
 private slots:
-    void updateInputFileUi();
-    void inputFileComboBoxIndexChanged();
     void createAndroidTemplatesButton();
     void addAndroidExtraLib();
     void removeAndroidExtraLib();

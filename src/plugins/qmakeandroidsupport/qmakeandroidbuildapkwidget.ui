@@ -50,20 +50,6 @@
         </item>
        </layout>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QLabel" name="inputFileLabel">
-          <property name="text">
-           <string>Input file for androiddeployqt:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="inputFileComboBox"/>
-        </item>
-       </layout>
-      </item>
      </layout>
     </widget>
    </item>

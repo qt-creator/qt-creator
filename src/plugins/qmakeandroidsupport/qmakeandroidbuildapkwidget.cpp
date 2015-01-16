@@ -39,6 +39,7 @@
 #include <qmakeprojectmanager/qmakeproject.h>
 
 #include <QFileDialog>
+#include <QLabel>
 
 using QmakeProjectManager::QmakeProject;
 using QmakeProjectManager::QmakeProFileNode;
@@ -86,13 +87,6 @@ QmakeAndroidBuildApkWidget::QmakeAndroidBuildApkWidget(QmakeAndroidBuildApkStep 
     m_extraLibraryListModel = new AndroidExtraLibraryListModel(static_cast<QmakeProject *>(m_step->project()), this);
     m_ui->androidExtraLibsListView->setModel(m_extraLibraryListModel);
 
-    updateInputFileUi();
-    connect(m_step, SIGNAL(inputFileChanged()),
-            SLOT(updateInputFileUi()));
-
-    connect(m_ui->inputFileComboBox, SIGNAL(currentIndexChanged(int)),
-            SLOT(inputFileComboBoxIndexChanged()));
-
     connect(m_ui->createAndroidTemplatesButton, SIGNAL(clicked()),
             SLOT(createAndroidTemplatesButton()));
 
@@ -114,40 +108,6 @@ QmakeAndroidBuildApkWidget::QmakeAndroidBuildApkWidget(QmakeAndroidBuildApkStep 
 QmakeAndroidBuildApkWidget::~QmakeAndroidBuildApkWidget()
 {
     delete m_ui;
-}
-
-void QmakeAndroidBuildApkWidget::updateInputFileUi()
-{
-    QmakeProject *project
-            = static_cast<QmakeProject *>(m_step->project());
-    QList<QmakeProFileNode *> nodes = project->applicationProFiles();
-    int size = nodes.size();
-    if (size == 0 || size == 1) {
-        // there's nothing to select, e.g. before parsing
-        m_ui->inputFileLabel->setVisible(false);
-        m_ui->inputFileComboBox->setVisible(false);
-    } else {
-        m_ignoreChange = true;
-        m_ui->inputFileLabel->setVisible(true);
-        m_ui->inputFileComboBox->setVisible(true);
-
-        m_ui->inputFileComboBox->clear();
-        foreach (QmakeProFileNode *node, nodes)
-            m_ui->inputFileComboBox->addItem(node->displayName(), node->path());
-
-        int index = m_ui->inputFileComboBox->findData(m_step->proFilePathForInputFile());
-        m_ui->inputFileComboBox->setCurrentIndex(index);
-        m_ignoreChange = false;
-    }
-}
-
-void QmakeAndroidBuildApkWidget::inputFileComboBoxIndexChanged()
-{
-    if (m_ignoreChange)
-        return;
-
-    QString proFilePath = m_ui->inputFileComboBox->itemData(m_ui->inputFileComboBox->currentIndex()).toString();
-    m_step->setProFilePathForInputFile(proFilePath);
 }
 
 void QmakeAndroidBuildApkWidget::createAndroidTemplatesButton()

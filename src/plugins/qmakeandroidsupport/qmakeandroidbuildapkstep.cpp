@@ -31,6 +31,7 @@
 
 #include "qmakeandroidbuildapkstep.h"
 #include "qmakeandroidbuildapkwidget.h"
+#include "qmakeandroidrunconfiguration.h"
 
 #include <android/androidconfigurations.h>
 #include <android/androidconstants.h>
@@ -143,17 +144,14 @@ QmakeAndroidBuildApkStep::QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepLis
 
 QString QmakeAndroidBuildApkStep::proFilePathForInputFile() const
 {
-    return m_proFilePathForInputFile;
-}
-
-void QmakeAndroidBuildApkStep::setProFilePathForInputFile(const QString &path)
-{
-    m_proFilePathForInputFile = path;
+    ProjectExplorer::RunConfiguration *rc = target()->activeRunConfiguration();
+    if (auto *arc = qobject_cast<QmakeAndroidRunConfiguration *>(rc))
+        return arc->proFilePath();
+    return QString();
 }
 
 QmakeAndroidBuildApkStep::QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepList *bc, QmakeAndroidBuildApkStep *other)
-    : Android::AndroidBuildApkStep(bc, other),
-      m_proFilePathForInputFile(other->m_proFilePathForInputFile)
+    : Android::AndroidBuildApkStep(bc, other)
 {
     ctor();
 }
@@ -162,7 +160,7 @@ Utils::FileName QmakeAndroidBuildApkStep::androidPackageSourceDir() const
 {
     QmakeProjectManager::QmakeProject *pro = static_cast<QmakeProjectManager::QmakeProject *>(project());
     const QmakeProjectManager::QmakeProFileNode *node
-            = pro->rootQmakeProjectNode()->findProFileFor(m_proFilePathForInputFile);
+            = pro->rootQmakeProjectNode()->findProFileFor(proFilePathForInputFile());
     if (!node)
         return Utils::FileName();
     return Utils::FileName::fromString(node->singleVariableValue(QmakeProjectManager::AndroidPackageSourceDir));
@@ -170,8 +168,6 @@ Utils::FileName QmakeAndroidBuildApkStep::androidPackageSourceDir() const
 
 void QmakeAndroidBuildApkStep::ctor()
 {
-    connect(project(), SIGNAL(proFilesEvaluated()),
-           this, SLOT(updateInputFile()));
 }
 
 bool QmakeAndroidBuildApkStep::init()
@@ -309,31 +305,13 @@ ProjectExplorer::BuildStepConfigWidget *QmakeAndroidBuildApkStep::createConfigWi
 
 bool QmakeAndroidBuildApkStep::fromMap(const QVariantMap &map)
 {
-    m_proFilePathForInputFile = map.value(ProFilePathForInputFile).toString();
     return Android::AndroidBuildApkStep::fromMap(map);
 }
 
 QVariantMap QmakeAndroidBuildApkStep::toMap() const
 {
     QVariantMap map = Android::AndroidBuildApkStep::toMap();
-    map.insert(ProFilePathForInputFile, m_proFilePathForInputFile);
     return map;
-}
-
-void QmakeAndroidBuildApkStep::updateInputFile()
-{
-    QmakeProject *pro = static_cast<QmakeProject *>(project());
-    QList<QmakeProFileNode *> nodes = pro->applicationProFiles();
-
-    const QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(m_proFilePathForInputFile);
-    if (!nodes.contains(const_cast<QmakeProFileNode *>(node))) {
-        if (!nodes.isEmpty())
-            m_proFilePathForInputFile = nodes.first()->path();
-        else
-            m_proFilePathForInputFile.clear();
-    }
-
-    emit inputFileChanged();
 }
 
 } // namespace Internal
