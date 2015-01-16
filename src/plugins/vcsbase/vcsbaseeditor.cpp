@@ -46,6 +46,7 @@
 #include <projectexplorer/session.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
+#include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -573,6 +574,7 @@ public:
     QPointer<VcsCommand> m_command;
     QObject *m_describeReceiver;
     const char *m_describeSlot;
+    Utils::ProgressIndicator *m_progressIndicator;
 
 private:
     QComboBox *m_entriesComboBox;
@@ -589,6 +591,7 @@ VcsBaseEditorWidgetPrivate::VcsBaseEditorWidgetPrivate(VcsBaseEditorWidget *edit
     m_mouseDragging(false),
     m_describeReceiver(0),
     m_describeSlot(0),
+    m_progressIndicator(0),
     m_entriesComboBox(0)
 {
     m_textCursorHandlers.append(new ChangeTextCursorHandler(editorWidget));
@@ -1352,9 +1355,18 @@ VcsBaseEditorParameterWidget *VcsBaseEditorWidget::configurationWidget() const
 
 void VcsBaseEditorWidget::setCommand(VcsCommand *command)
 {
-    if (d->m_command)
+    if (d->m_command) {
         d->m_command->abort();
+        hideProgressIndicator();
+    }
     d->m_command = command;
+    if (d->m_command) {
+        d->m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicator::Large);
+        d->m_progressIndicator->attachToWidget(this);
+        connect(d->m_command, &VcsCommand::finished,
+                this, &VcsBaseEditorWidget::hideProgressIndicator);
+        QTimer::singleShot(100, this, SLOT(showProgressIndicator()));
+    }
 }
 
 // Find the complete file from a diff relative specification.
@@ -1437,6 +1449,19 @@ void VcsBaseEditorWidget::slotPaste()
         QMessageBox::information(this, tr("Unable to Paste"),
                                  tr("Code pasting services are not available."));
     }
+}
+
+void VcsBaseEditorWidget::showProgressIndicator()
+{
+    if (!d->m_progressIndicator) // already stopped and deleted
+        return;
+    d->m_progressIndicator->show();
+}
+
+void VcsBaseEditorWidget::hideProgressIndicator()
+{
+    delete d->m_progressIndicator;
+    d->m_progressIndicator = 0;
 }
 
 bool VcsBaseEditorWidget::canApplyDiffChunk(const DiffChunk &dc) const

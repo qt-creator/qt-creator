@@ -242,6 +242,8 @@ private slots:
     void slotAnnotateRevision();
     void slotApplyDiffChunk();
     void slotPaste();
+    void showProgressIndicator();
+    void hideProgressIndicator();
 
 protected:
     /* A helper that can be used to locate a file in a diff in case it

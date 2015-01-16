@@ -435,7 +435,6 @@ private:
     mutable Utils::FileName m_gitVersionForBinary;
     mutable unsigned m_cachedGitVersion;
 
-    const QString m_msgWait;
     GitSettings *m_settings;
     QString m_gitQtcEditor;
     QMap<QString, StashInfo> m_stashInfo;

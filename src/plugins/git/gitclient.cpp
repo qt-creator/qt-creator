@@ -727,7 +727,6 @@ const char *GitClient::stashNamePrefix = "stash@{";
 
 GitClient::GitClient(GitSettings *settings) :
     m_cachedGitVersion(0),
-    m_msgWait(tr("Waiting for data...")),
     m_settings(settings),
     m_disableEditor(false)
 {
@@ -797,7 +796,7 @@ VcsBaseEditorWidget *GitClient::findExistingVCSEditor(const char *registerDynami
 
     // Exists already
     EditorManager::activateEditor(outputEditor);
-    outputEditor->document()->setContents(m_msgWait.toUtf8());
+    outputEditor->document()->setContents(QByteArray()); // clear
     rc = VcsBaseEditor::getVcsBaseEditor(outputEditor);
 
     return rc;
@@ -926,8 +925,7 @@ VcsBaseEditorWidget *GitClient::createVcsEditor(
     QTC_CHECK(!findExistingVCSEditor(registerDynamicProperty, dynamicPropertyValue));
 
     // Create new, set wait message, set up with source and codec
-    IEditor *outputEditor = EditorManager::openEditorWithContents(id, &title,
-                                                                              m_msgWait.toUtf8());
+    IEditor *outputEditor = EditorManager::openEditorWithContents(id, &title);
     outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
     rc = VcsBaseEditor::getVcsBaseEditor(outputEditor);
     connect(rc, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
