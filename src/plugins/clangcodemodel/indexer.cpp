@@ -705,7 +705,7 @@ void IndexerPrivate::runCore(const QHash<QString, FileData> & /*headers*/,
     QList<Core::IDocument *> docs = Core::DocumentModel::openedDocuments();
     QSet<QString> openDocs;
     foreach (Core::IDocument *doc, docs)
-        openDocs.insert(doc->filePath());
+        openDocs.insert(doc->filePath().toString());
 
     for (FileContIt tit = impls.begin(), eit = impls.end(); tit != eit; ++tit) {
         if (!tit->m_upToDate && openDocs.contains(tit.key())) {
