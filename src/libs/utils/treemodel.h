@@ -154,13 +154,13 @@ public:
             QTC_ASSERT(m_depth < m_level, return);
             do {
                 TreeItem *curr = m_item[m_depth];
+                ++m_depth;
                 int size = curr->rowCount();
                 if (size == 0) {
                     // This is a dead end not reaching to the desired level.
                     goUpNextDown();
                     return;
                 }
-                ++m_depth;
                 m_size[m_depth] = size;
                 m_pos[m_depth] = 0;
                 m_item[m_depth] = curr->child(0);
