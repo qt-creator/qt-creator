@@ -869,6 +869,7 @@ void PluginManagerPrivate::deleteAll()
     }
 }
 
+#ifdef WITH_TESTS
 static QStringList testFunctions(const QMetaObject *metaObject)
 {
     QStringList testFunctions;
@@ -949,7 +950,6 @@ void PluginManagerPrivate::startTests()
         return;
     }
 
-#ifdef WITH_TESTS
     foreach (const PluginManagerPrivate::TestSpec &testSpec, testSpecs) {
         const PluginSpec * const pluginSpec = testSpec.pluginSpec;
         if (!pluginSpec->plugin())
@@ -973,8 +973,8 @@ void PluginManagerPrivate::startTests()
     }
     if (!testSpecs.isEmpty())
         QTimer::singleShot(1, this, SLOT(exitWithNumberOfFailedTests()));
-#endif
 }
+#endif
 
 /*!
     \internal
