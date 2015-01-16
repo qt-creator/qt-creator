@@ -34,6 +34,7 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
 
 #include <QIcon>
 
@@ -334,7 +335,7 @@ static void addProjectInformation(TestConfiguration *config, const QString &file
             ProjectExplorer::BuildTargetInfoList appTargets = target->applicationTargets();
             foreach (const ProjectExplorer::BuildTargetInfo &bti, appTargets.list) {
                 if (bti.isValid() && bti.projectFilePath.toString() == proFile) {
-                    targetFile = bti.targetFilePath.toString();
+                    targetFile = Utils::HostOsInfo::withExecutableSuffix(bti.targetFilePath.toString());
                     targetName = bti.targetName;
                     break;
                 }
