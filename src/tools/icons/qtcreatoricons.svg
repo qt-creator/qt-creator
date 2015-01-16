@@ -1135,6 +1135,127 @@
          x="0" />
     </g>
     <g
+       transform="matrix(-0.5,0,0,0.5,589.5,300)"
+       clip-path="url(#clipPath3536)"
+       id="src/libs/utils/images/progressindicator_medium">
+      <g
+         id="g3383">
+        <rect
+           style="opacity:0.41699997;fill:none;stroke:none"
+           id="rect3385"
+           width="64"
+           height="64"
+           x="329"
+           y="536" />
+        <rect
+           y="536"
+           x="359"
+           height="18"
+           width="4"
+           id="rect3387"
+           style="fill:#6d6d6d;fill-opacity:1;stroke:none" />
+      </g>
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g3383"
+         id="use3389"
+         transform="matrix(0.8660254,0.5,-0.5,0.8660254,332.36483,-104.40243)"
+         width="800"
+         height="600"
+         style="opacity:0.88700005" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g3383"
+         id="use3391"
+         transform="matrix(0.5,0.8660254,-0.8660254,0.5,672.40243,-28.635171)"
+         width="800"
+         height="600"
+         style="opacity:0.77300002" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g3383"
+         id="use3393"
+         transform="matrix(0,1,-1,0,929,207)"
+         width="800"
+         height="600"
+         style="opacity:0.66000001" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g3383"
+         id="use3395"
+         transform="matrix(-0.5,0.8660254,-0.8660254,-0.5,1033.4024,539.36483)"
+         width="800"
+         height="600"
+         style="opacity:0.547" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g3383"
+         id="use3397"
+         transform="matrix(-0.8660254,0.5,-0.5,-0.8660254,957.63514,879.40243)"
+         width="800"
+         height="600"
+         style="opacity:0.43299997" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g3383"
+         id="use3399"
+         transform="matrix(-1,0,0,-1,721.99997,1136)"
+         width="800"
+         height="600"
+         style="opacity:0.31999996" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g3383"
+         id="use3401"
+         transform="matrix(-0.8660254,-0.5,0.5,-0.8660254,389.63514,1240.4024)"
+         width="800"
+         height="600"
+         style="opacity:0.31999996" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g3383"
+         id="use3403"
+         transform="matrix(-0.5,-0.8660254,0.8660254,-0.5,49.597541,1164.6351)"
+         width="800"
+         height="600"
+         style="opacity:0.31999996" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g3383"
+         id="use3405"
+         transform="matrix(0,-1,1,0,-207.00003,928.99993)"
+         width="800"
+         height="600"
+         style="opacity:0.31999996" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g3383"
+         id="use3407"
+         transform="matrix(0.5,-0.8660254,0.8660254,0.5,-311.40246,596.6351)"
+         width="800"
+         height="600"
+         style="opacity:0.31999996" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g3383"
+         id="use3409"
+         transform="matrix(0.8660254,-0.5,0.5,0.8660254,-235.6352,256.5975)"
+         width="800"
+         height="600"
+         style="opacity:0.31999996" />
+    </g>
+    <g
        id="src/libs/utils/images/progressindicator_big"
        clip-path="url(#clipPath3536)"
        transform="matrix(-1,0,0,1,722,0)">

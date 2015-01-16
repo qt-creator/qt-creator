@@ -47,6 +47,7 @@ class QTCREATOR_UTILS_EXPORT ProgressIndicator : public QWidget
 public:
     enum IndicatorSize {
         Small,
+        Medium,
         Large
     };
 

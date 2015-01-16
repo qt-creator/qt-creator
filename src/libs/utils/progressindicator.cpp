@@ -49,14 +49,26 @@ ProgressIndicator::ProgressIndicator(IndicatorSize size, QWidget *parent)
     setIndicatorSize(size);
 }
 
+static QString imageFileNameForIndicatorSize(ProgressIndicator::IndicatorSize size)
+{
+    switch (size) {
+        case ProgressIndicator::Large:
+            return QLatin1String(":/utils/images/progressindicator_big.png");
+        case ProgressIndicator::Medium:
+            return QLatin1String(":/utils/images/progressindicator_medium.png");
+        case ProgressIndicator::Small:
+        default:
+            return QLatin1String(":/utils/images/progressindicator_small.png");
+    }
+}
+
 void ProgressIndicator::setIndicatorSize(ProgressIndicator::IndicatorSize size)
 {
     m_size = size;
     m_rotationStep = size == Small ? 45 : 30;
     m_timer.setInterval(size == Small ? 100 : 80);
     m_pixmap.load(StyleHelper::dpiSpecificImageFile(
-                      size == Small ? QLatin1String(":/utils/images/progressindicator_small.png")
-                                    : QLatin1String(":/utils/images/progressindicator_big.png")));
+                      imageFileNameForIndicatorSize(size)));
     updateGeometry();
 }
 
