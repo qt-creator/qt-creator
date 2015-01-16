@@ -65,8 +65,6 @@ class DebuggerTreeItem : public TreeItem
 public:
     DebuggerTreeItem(const DebuggerItem &item, bool changed) : m_item(item), m_changed(changed) {}
 
-    int columnCount() const { return 3; }
-
     QVariant data(int column, int role) const
     {
         switch (role) {
@@ -119,10 +117,9 @@ private:
 DebuggerItemModel::DebuggerItemModel()
     : m_currentTreeItem(0)
 {
-    auto root = new TreeItem(QStringList() << tr("Name") << tr("Location") << tr("Type"));
-    root->appendChild(new TreeItem(QStringList() << tr("Auto-detected") << QString() << QString()));
-    root->appendChild(new TreeItem(QStringList() << tr("Manual") << QString() << QString()));
-    setRootItem(root);
+    setHeader(QStringList() << tr("Name") << tr("Location") << tr("Type"));
+    rootItem()->appendChild(new TreeItem(QStringList() << tr("Auto-detected") << QString() << QString()));
+    rootItem()->appendChild(new TreeItem(QStringList() << tr("Manual") << QString() << QString()));
 
     foreach (const DebuggerItem &item, DebuggerItemManager::debuggers())
         addDebugger(item, false);

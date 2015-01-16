@@ -177,14 +177,13 @@ ModulesHandler::ModulesHandler(DebuggerEngine *engine)
     QString pad = QLatin1String("        ");
     m_model = new TreeModel(this);
     m_model->setObjectName(QLatin1String("ModulesModel"));
-    auto root = new TreeItem(QStringList()
+    m_model->setHeader(QStringList()
         << ModulesHandler::tr("Module Name") + pad
         << ModulesHandler::tr("Module Path") + pad
         << ModulesHandler::tr("Symbols Read") + pad
         << ModulesHandler::tr("Symbols Type") + pad
         << ModulesHandler::tr("Start Address") + pad
         << ModulesHandler::tr("End Address") + pad);
-    m_model->setRootItem(root);
 
     m_proxyModel = new QSortFilterProxyModel(this);
     m_proxyModel->setObjectName(QLatin1String("ModulesProxyModel"));

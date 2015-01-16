@@ -640,11 +640,6 @@ bool TreeItem::isLazy() const
     return m_lazy;
 }
 
-int TreeItem::columnCount() const
-{
-    return m_displays ? m_displays->size() : 1;
-}
-
 int TreeItem::rowCount() const
 {
     ensurePopulated();
@@ -680,8 +675,9 @@ void TreeItem::prependChild(TreeItem *item)
 {
     QTC_CHECK(!item->parent());
 
-    if (m_model) {
+    if (m_model && !m_lazy) {
         QModelIndex idx = index();
+        item->propagateModel(m_model);
         m_model->beginInsertRows(idx, 0, 0);
         item->m_parent = this;
         item->m_model = m_model;
@@ -696,9 +692,10 @@ void TreeItem::appendChild(TreeItem *item)
 {
     QTC_CHECK(!item->parent());
 
-    if (m_model) {
+    if (m_model && !m_lazy) {
         const int n = rowCount();
         QModelIndex idx = index();
+        item->propagateModel(m_model);
         m_model->beginInsertRows(idx, n, n);
         item->m_parent = this;
         item->m_model = m_model;
@@ -728,7 +725,7 @@ void TreeItem::update()
 {
     if (m_model) {
         QModelIndex idx = index();
-        m_model->dataChanged(idx.sibling(idx.row(), 0), idx.sibling(idx.row(), columnCount() - 1));
+        m_model->dataChanged(idx.sibling(idx.row(), 0), idx.sibling(idx.row(), m_model->m_columnCount - 1));
     }
 }
 
@@ -799,6 +796,17 @@ void TreeItem::ensurePopulated() const
     }
 }
 
+void TreeItem::propagateModel(TreeModel *m)
+{
+    QTC_ASSERT(m, return);
+    QTC_ASSERT(m_model == 0 || m_model == m, return);
+    if (m && !m_model) {
+        m_model = m;
+        foreach (TreeItem *item, m_children)
+            item->propagateModel(m);
+    }
+}
+
 /*!
     \class Utils::TreeModel
 
@@ -807,11 +815,22 @@ void TreeItem::ensurePopulated() const
 */
 
 TreeModel::TreeModel(QObject *parent)
-    : QAbstractItemModel(parent), m_root(new TreeItem)
+    : QAbstractItemModel(parent),
+      m_root(new TreeItem)
 {
+    m_columnCount = 1;
+    m_root->m_model = this;
 #if USE_MODEL_TEST
     new ModelTest(this, this);
 #endif
+}
+
+TreeModel::TreeModel(TreeItem *root, QObject *parent)
+    : QAbstractItemModel(parent),
+      m_root(root)
+{
+    m_columnCount = 1;
+    m_root->m_model = this;
 }
 
 TreeModel::~TreeModel()
@@ -854,11 +873,9 @@ int TreeModel::rowCount(const QModelIndex &idx) const
 int TreeModel::columnCount(const QModelIndex &idx) const
 {
     CHECK_INDEX(idx);
-    if (!idx.isValid())
-        return m_root->columnCount();
     if (idx.column() > 0)
         return 0;
-    return itemFromIndex(idx)->columnCount();
+    return m_columnCount;
 }
 
 bool TreeModel::setData(const QModelIndex &idx, const QVariant &data, int role)
@@ -879,8 +896,8 @@ QVariant TreeModel::data(const QModelIndex &idx, int role) const
 QVariant TreeModel::headerData(int section, Qt::Orientation orientation,
                                int role) const
 {
-    if (orientation == Qt::Horizontal)
-        return m_root->data(section, role);
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole && section < m_header.size())
+        return m_header.at(section);
     return QVariant();
 }
 
@@ -898,11 +915,15 @@ TreeItem *TreeModel::rootItem() const
     return m_root;
 }
 
-void TreeModel::setRootItem(TreeItem *item)
+void TreeModel::setHeader(const QStringList &displays)
 {
-    delete m_root;
-    m_root = item;
-    m_root->setModel(this);
+    m_header = displays;
+    m_columnCount = displays.size();
+}
+
+void TreeModel::setColumnCount(int columnCount)
+{
+    m_columnCount = columnCount;
 }
 
 QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent) const

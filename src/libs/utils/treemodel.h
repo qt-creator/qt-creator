@@ -55,7 +55,6 @@ public:
     virtual TreeItem *parent() const { return m_parent; }
     virtual TreeItem *child(int pos) const;
     virtual bool isLazy() const;
-    virtual int columnCount() const;
     virtual int rowCount() const;
     virtual void populate();
 
@@ -87,6 +86,7 @@ private:
 
     void clear();
     void ensurePopulated() const;
+    void propagateModel(TreeModel *m);
 
     TreeItem *m_parent; // Not owned.
     TreeModel *m_model; // Not owned.
@@ -229,6 +229,7 @@ class QTCREATOR_UTILS_EXPORT TreeModel : public QAbstractItemModel
 
 public:
     explicit TreeModel(QObject *parent = 0);
+    explicit TreeModel(TreeItem *root, QObject *parent = 0);
     virtual ~TreeModel();
 
     int rowCount(const QModelIndex &idx = QModelIndex()) const;
@@ -242,10 +243,12 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
     TreeItem *rootItem() const;
-    void setRootItem(TreeItem *item);
     TreeItem *itemFromIndex(const QModelIndex &) const;
     QModelIndex indexFromItem(const TreeItem *needle) const;
     void removeItems();
+
+    void setHeader(const QStringList &displays);
+    void setColumnCount(int columnCount);
 
     UntypedTreeLevelItems untypedLevelItems(int level = 0, TreeItem *start = 0) const;
     UntypedTreeLevelItems untypedLevelItems(TreeItem *start) const;
@@ -277,6 +280,8 @@ private:
     friend class TreeItem;
 
     TreeItem *m_root; // Owned.
+    QStringList m_header;
+    int m_columnCount;
 };
 
 } // namespace Utils

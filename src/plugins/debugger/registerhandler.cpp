@@ -371,7 +371,6 @@ public:
         : m_subKind(subKind), m_subSize(subSize), m_count(count), m_changed(false)
     {}
 
-    int columnCount() const { return 2; }
     QVariant data(int column, int role) const;
 
     Qt::ItemFlags flags(int column) const
@@ -393,7 +392,6 @@ class RegisterItem : public Utils::TreeItem
 public:
     explicit RegisterItem(const Register &reg);
 
-    int columnCount() const { return 2; }
     QVariant data(int column, int role) const;
     Qt::ItemFlags flags(int column) const;
 
@@ -524,26 +522,11 @@ QVariant RegisterSubItem::data(int column, int role) const
 //
 //////////////////////////////////////////////////////////////////
 
-class RegisterRootItem : public Utils::TreeItem
-{
-public:
-    int columnCount() const { return 2; }
-    QVariant data(int section, int role) const
-    {
-        if (role == Qt::DisplayRole) {
-            switch (section) {
-            case 0: return RegisterHandler::tr("Name");
-            case 1: return RegisterHandler::tr("Value");
-            };
-        }
-        return QVariant();
-    }
-};
-
 RegisterHandler::RegisterHandler()
 {
     setObjectName(QLatin1String("RegisterModel"));
-    setRootItem(new RegisterRootItem); // Needed to get two columns.
+    setHeader(QStringList() << tr("Name") << tr("Value"));
+
 #if USE_REGISTER_MODEL_TEST
     new ModelTest(this, 0);
 #endif

@@ -56,8 +56,6 @@ namespace Internal {
 
 struct LocationItem : public TreeItem
 {
-    int columnCount() const { return 8; }
-
     QVariant data(int column, int role) const
     {
         if (role == Qt::DisplayRole) {
@@ -86,7 +84,6 @@ class BreakpointItem : public QObject, public TreeItem
 public:
     ~BreakpointItem();
 
-    int columnCount() const { return 8; }
     QVariant data(int column, int role) const;
 
     QIcon icon() const;
@@ -251,10 +248,9 @@ BreakHandler::BreakHandler()
 #if USE_BREAK_MODEL_TEST
     new ModelTest(this, 0);
 #endif
-    auto root = new TreeItem(QStringList()
+    setHeader(QStringList()
         << tr("Number") <<  tr("Function") << tr("File") << tr("Line")
         << tr("Address") << tr("Condition") << tr("Ignore") << tr("Threads"));
-    setRootItem(root);
 }
 
 QIcon BreakHandler::breakpointIcon()

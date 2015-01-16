@@ -112,12 +112,11 @@ KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent) :
     m_defaultNode(0),
     m_keepUnique(true)
 {
-    auto root = new TreeItem(QStringList(tr("Name")));
+    setHeader(QStringList(tr("Name")));
     m_autoRoot = new TreeItem(QStringList(tr("Auto-detected")));
     m_manualRoot = new TreeItem(QStringList(tr("Manual")));
-    root->appendChild(m_autoRoot);
-    root->appendChild(m_manualRoot);
-    setRootItem(root);
+    rootItem()->appendChild(m_autoRoot);
+    rootItem()->appendChild(m_manualRoot);
 
     foreach (Kit *k, KitManager::sortedKits())
         addKit(k);

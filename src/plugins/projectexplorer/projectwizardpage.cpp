@@ -491,8 +491,7 @@ void ProjectWizardPage::initializeProjectTree(Node *context, const QStringList &
 
     setAdditionalInfo(selector.deployingProjects());
 
-    TreeModel *model = new TreeModel;
-    model->setRootItem(tree);
+    TreeModel *model = new TreeModel(tree);
     setModel(model);
     setBestNode(selector.bestChoice());
     setAddingSubProject(action == AddSubProject);

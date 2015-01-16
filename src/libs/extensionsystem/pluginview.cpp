@@ -285,8 +285,7 @@ PluginView::PluginView(QWidget *parent)
     m_categoryView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     m_model = new TreeModel(this);
-    m_model->setRootItem(new TreeItem(QStringList()
-        << tr("Name") << tr("Load") << tr("Version") << tr("Vendor")));
+    m_model->setHeader(QStringList() << tr("Name") << tr("Load") << tr("Version") << tr("Vendor"));
     m_categoryView->setModel(m_model);
 
     QGridLayout *gridLayout = new QGridLayout(this);

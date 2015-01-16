@@ -78,8 +78,6 @@ public:
         }
     }
 
-    int columnCount() const { return 2; }
-
     QVariant data(int column, int role) const
     {
         switch (role) {
@@ -119,23 +117,22 @@ public:
         m_factories = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>(
                     [](ToolChainFactory *factory) { return factory->canCreate();});
 
-        auto root = new TreeItem(QStringList() << tr("Name") << tr("Type"));
+        m_model.setHeader(QStringList() << tr("Name") << tr("Type"));
         m_autoRoot = new TreeItem(QStringList() << tr("Auto-detected") << QString());
         m_manualRoot = new TreeItem(QStringList() << tr("Manual") << QString());
-        root->appendChild(m_autoRoot);
-        root->appendChild(m_manualRoot);
+        m_model.rootItem()->appendChild(m_autoRoot);
+        m_model.rootItem()->appendChild(m_manualRoot);
         foreach (ToolChain *tc, ToolChainManager::toolChains()) {
             TreeItem *parent = tc->isAutoDetected() ? m_autoRoot : m_manualRoot;
             parent->appendChild(new ToolChainTreeItem(tc, false));
         }
-        m_model.setRootItem(root);
 
         m_toolChainView = new QTreeView(this);
         m_toolChainView->setUniformRowHeights(true);
-        m_toolChainView->header()->setStretchLastSection(false);
         m_toolChainView->setSelectionMode(QAbstractItemView::SingleSelection);
         m_toolChainView->setSelectionBehavior(QAbstractItemView::SelectRows);
         m_toolChainView->setModel(&m_model);
+        m_toolChainView->header()->setStretchLastSection(false);
         m_toolChainView->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
         m_toolChainView->header()->setSectionResizeMode(1, QHeaderView::Stretch);
         m_toolChainView->expandAll();
