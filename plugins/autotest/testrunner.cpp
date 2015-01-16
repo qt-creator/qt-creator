@@ -302,34 +302,31 @@ void processOutput(QProcess *testRunner)
     }
 }
 
-static QString which(const QString &pathValue, const QString &command)
+static QString executableFilePath(const QString &command, const QProcessEnvironment &environment)
 {
-    if (pathValue.isEmpty() || command.isEmpty())
+    if (command.isEmpty())
         return QString();
 
-    QStringList pathList;
-#ifdef Q_OS_WIN
-    pathList = pathValue.split(QLatin1Char(';'));
-#else
-    pathList = pathValue.split(QLatin1Char(':'));
-#endif
+    QFileInfo commandFileInfo(command);
+    if (commandFileInfo.isExecutable() && commandFileInfo.path() != QLatin1String(".")) {
+        return commandFileInfo.absoluteFilePath();
+    } else if (commandFileInfo.path() == QLatin1String(".")){
+        QString fullCommandFileName = command;
+    #ifdef Q_OS_WIN
+        if (!command.endsWith(QLatin1String(".exe")))
+            fullCommandFileName = command + QLatin1String(".exe");
 
-    foreach (const QString &path, pathList) {
-        const QString filePath = path + QDir::separator() + command;
-        QFileInfo commandFileInfo(filePath);
-        if (commandFileInfo.exists() && commandFileInfo.isExecutable())
-            return filePath;
-#ifdef Q_OS_WIN
-        commandFileInfo = QFileInfo(filePath + QLatin1String(".exe"));
-        if (commandFileInfo.exists())
-            return commandFileInfo.absoluteFilePath();
-        commandFileInfo = QFileInfo(filePath + QLatin1String(".bat"));
-        if (commandFileInfo.exists())
-            return commandFileInfo.absoluteFilePath();
-        commandFileInfo = QFileInfo(filePath + QLatin1String(".cmd"));
-        if (commandFileInfo.exists())
-            return commandFileInfo.absoluteFilePath();
-#endif
+        static const QString pathSeparator(QLatin1Char(';'));
+    #else
+        static const QString pathSeparator(QLatin1Char(':'));
+    #endif
+        QStringList pathList = environment.value(QLatin1String("PATH")).split(pathSeparator);
+
+        foreach (const QString &path, pathList) {
+            QString filePath(path + QDir::separator() + fullCommandFileName);
+            if (QFileInfo(filePath).isExecutable())
+                return commandFileInfo.absoluteFilePath();
+        }
     }
     return QString();
 }
@@ -344,9 +341,8 @@ void performTestRun(QFutureInterface<void> &future, const QList<TestConfiguratio
     QProcess testProcess;
     testProcess.setReadChannelMode(QProcess::MergedChannels);
     testProcess.setReadChannel(QProcess::StandardOutput);
-    QObject::connect(testRunner, &TestRunner::requestStopTestRun, [&] () {
-        if (testProcess.state() != QProcess::NotRunning && m_currentFuture)
-            m_currentFuture->cancel();
+    QObject::connect(testRunner, &TestRunner::requestStopTestRun, &testProcess, [&] () {
+            future.cancel(); // this kills the process if that is still in the running loop
     });
 
     QObject::connect(&testProcess, &QProcess::readyReadStandardOutput, [&] () {
@@ -359,41 +355,29 @@ void performTestRun(QFutureInterface<void> &future, const QList<TestConfiguratio
     foreach (const TestConfiguration *testConfiguration, selectedTests) {
         if (m_currentFuture->isCanceled())
             break;
-        QString command = testConfiguration->targetFile();
-        QString workingDirectory = testConfiguration->workingDirectory();
-        QStringList argumentList;
-        Utils::Environment environment = testConfiguration->environment();
 
-        argumentList << QLatin1String("-xml");
+        QProcessEnvironment environment = testConfiguration->environment().toProcessEnvironment();
+        QString commandFilePath = executableFilePath(testConfiguration->targetFile(), environment);
+        if (commandFilePath.isEmpty()) {
+            emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL,
+                QObject::tr("*** Could not find command '%1' ***").arg(testConfiguration->targetFile())));
+            continue;
+        }
+
+        QStringList argumentList(QLatin1String("-xml"));
         if (!metricsOption.isEmpty())
             argumentList << metricsOption;
         if (testConfiguration->testCases().count())
             argumentList << testConfiguration->testCases();
-        QString runCommand;
-        if (!QDir::toNativeSeparators(command).contains(QDir::separator())) {
-            if (environment.hasKey(QLatin1String("PATH")))
-                runCommand = which(environment.value(QLatin1String("PATH")), command);
-        } else if (QFileInfo(command).exists()) {
-            runCommand = command;
-        }
+        testProcess.setArguments(argumentList);
 
-        if (runCommand.isEmpty()) {
-            emitTestResultCreated(FaultyTestResult(Result::MESSAGE_FATAL,
-                QObject::tr("*** Could not find command '%1' ***").arg(command)));
-            continue;
-        }
-
-        testProcess.setWorkingDirectory(workingDirectory);
-        testProcess.setProcessEnvironment(environment.toProcessEnvironment());
-        QTime executionTimer;
-
-        if (argumentList.count()) {
-            testProcess.start(runCommand, argumentList);
-        } else {
-            testProcess.start(runCommand);
-        }
+        testProcess.setWorkingDirectory(testConfiguration->workingDirectory());
+        testProcess.setProcessEnvironment(environment);
+        testProcess.setProgram(commandFilePath);
+        testProcess.start();
 
         bool ok = testProcess.waitForStarted();
+        QTime executionTimer;
         executionTimer.start();
         if (ok) {
             while (testProcess.state() == QProcess::Running && executionTimer.elapsed() < timeout) {
