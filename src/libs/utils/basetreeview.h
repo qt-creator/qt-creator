@@ -59,6 +59,9 @@ public:
     virtual void rowClicked(const QModelIndex &) {}
     void mousePressEvent(QMouseEvent *ev);
 
+    void showProgressIndicator();
+    void hideProgressIndicator();
+
 public slots:
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
 

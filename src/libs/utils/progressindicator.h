@@ -45,24 +45,31 @@ class QTCREATOR_UTILS_EXPORT ProgressIndicator : public QWidget
 {
     Q_OBJECT
 public:
-    enum Size {
+    enum IndicatorSize {
         Small,
         Large
     };
 
-    explicit ProgressIndicator(Size size, QWidget *parent = 0);
+    explicit ProgressIndicator(IndicatorSize size, QWidget *parent = 0);
+
+    void setIndicatorSize(IndicatorSize size);
+    IndicatorSize indicatorSize() const;
 
     QSize sizeHint() const;
+
+    void attachToWidget(QWidget *parent);
 
 protected:
     void paintEvent(QPaintEvent *);
     void showEvent(QShowEvent *);
     void hideEvent(QHideEvent *);
+    bool eventFilter(QObject *obj, QEvent *ev);
 
 private:
     void step();
+    void resizeToParent();
 
-    ProgressIndicator::Size m_size;
+    ProgressIndicator::IndicatorSize m_size;
     int m_rotationStep;
     int m_rotation;
     QTimer m_timer;

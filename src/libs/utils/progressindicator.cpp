@@ -29,31 +29,55 @@
 ****************************************************************************/
 
 #include "progressindicator.h"
+
+#include "qtcassert.h"
 #include "stylehelper.h"
 
+#include <QEvent>
 #include <QPainter>
 #include <QPixmap>
 
 using namespace Utils;
 
-ProgressIndicator::ProgressIndicator(Size size, QWidget *parent)
+ProgressIndicator::ProgressIndicator(IndicatorSize size, QWidget *parent)
     : QWidget(parent),
       m_rotation(0)
 {
     setAttribute(Qt::WA_TransparentForMouseEvents);
+    m_timer.setSingleShot(false);
+    connect(&m_timer, &QTimer::timeout, this, &ProgressIndicator::step);
+    setIndicatorSize(size);
+}
+
+void ProgressIndicator::setIndicatorSize(ProgressIndicator::IndicatorSize size)
+{
     m_size = size;
     m_rotationStep = size == Small ? 45 : 30;
+    m_timer.setInterval(size == Small ? 100 : 80);
     m_pixmap.load(StyleHelper::dpiSpecificImageFile(
                       size == Small ? QLatin1String(":/utils/images/progressindicator_small.png")
                                     : QLatin1String(":/utils/images/progressindicator_big.png")));
-    m_timer.setInterval(size == Small ? 100 : 80);
-    m_timer.setSingleShot(false);
-    connect(&m_timer, &QTimer::timeout, this, &ProgressIndicator::step);
+    updateGeometry();
+}
+
+ProgressIndicator::IndicatorSize ProgressIndicator::indicatorSize() const
+{
+    return m_size;
 }
 
 QSize ProgressIndicator::sizeHint() const
 {
     return m_pixmap.size() / m_pixmap.devicePixelRatio();
+}
+
+void ProgressIndicator::attachToWidget(QWidget *parent)
+{
+    if (parentWidget())
+        parentWidget()->removeEventFilter(this);
+    setParent(parent);
+    parent->installEventFilter(this);
+    resizeToParent();
+    raise();
 }
 
 void ProgressIndicator::paintEvent(QPaintEvent *)
@@ -82,9 +106,23 @@ void ProgressIndicator::hideEvent(QHideEvent *)
     m_timer.stop();
 }
 
+bool ProgressIndicator::eventFilter(QObject *obj, QEvent *ev)
+{
+    if (obj == parent() && ev->type() == QEvent::Resize) {
+        resizeToParent();
+    }
+    return QWidget::eventFilter(obj, ev);
+}
+
 void ProgressIndicator::step()
 {
     m_rotation = (m_rotation + m_rotationStep + 360) % 360;
     update();
+}
+
+void ProgressIndicator::resizeToParent()
+{
+    QTC_ASSERT(parentWidget(), return);
+    setGeometry(QRect(QPoint(0, 0), parentWidget()->size()));
 }
 

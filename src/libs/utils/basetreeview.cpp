@@ -30,6 +30,8 @@
 
 #include "basetreeview.h"
 
+#include "progressindicator.h"
+
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -54,7 +56,7 @@ class BaseTreeViewPrivate : public QObject
 
 public:
     explicit BaseTreeViewPrivate(BaseTreeView *parent)
-        : q(parent), m_settings(0), m_expectUserChanges(false)
+        : q(parent), m_settings(0), m_expectUserChanges(false), m_progressIndicator(0)
     {}
 
     bool eventFilter(QObject *, QEvent *event)
@@ -211,6 +213,7 @@ public:
     QSettings *m_settings;
     QString m_settingsKey;
     bool m_expectUserChanges;
+    ProgressIndicator *m_progressIndicator;
 };
 
 class BaseTreeViewDelegate : public QItemDelegate
@@ -308,6 +311,32 @@ void BaseTreeView::mousePressEvent(QMouseEvent *ev)
     const QModelIndex mi = indexAt(ev->pos());
     if (!mi.isValid())
         d->toggleColumnWidth(columnAt(ev->x()));
+}
+
+/*!
+    Shows a round spinning progress indicator on top of the tree view.
+    Creates a progress indicator widget if necessary.
+    \sa hideProgressIndicator()
+ */
+void BaseTreeView::showProgressIndicator()
+{
+    if (!d->m_progressIndicator) {
+        d->m_progressIndicator = new ProgressIndicator(ProgressIndicator::Large);
+        d->m_progressIndicator->attachToWidget(this);
+    }
+    d->m_progressIndicator->show();
+}
+
+/*!
+    Hides the round spinning progress indicator that was shown with
+    BaseTreeView::showProgressIndicator(). Note that the progress indicator widget is not
+    destroyed.
+    \sa showProgressIndicator()
+ */
+void BaseTreeView::hideProgressIndicator()
+{
+    QTC_ASSERT(d->m_progressIndicator, return);
+    d->m_progressIndicator->hide();
 }
 
 void BaseTreeView::setSettings(QSettings *settings, const QByteArray &key)
