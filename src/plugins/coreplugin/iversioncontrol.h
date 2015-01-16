@@ -76,8 +76,9 @@ public:
         virtual QString refreshTopic(const QString &repository) = 0;
 
     private:
-        struct TopicData
+        class TopicData
         {
+        public:
             QDateTime timeStamp;
             QString topic;
         };
