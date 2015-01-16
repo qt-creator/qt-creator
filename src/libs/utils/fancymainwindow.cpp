@@ -199,13 +199,6 @@ public:
         QWidget::enterEvent(event);
     }
 
-    void leaveEvent(QEvent *event)
-    {
-        if (!q->isFloating())
-            setActive(false);
-        QWidget::leaveEvent(event);
-    }
-
     void setActive(bool on)
     {
         m_active = on;
@@ -311,6 +304,10 @@ void DockWidget::enterEvent(QEvent *event)
 
 void DockWidget::leaveEvent(QEvent *event)
 {
+    if (!isFloating()) {
+        m_timer.stop();
+        m_titleBar->setActive(false);
+    }
     QApplication::instance()->removeEventFilter(this);
     QDockWidget::leaveEvent(event);
 }
