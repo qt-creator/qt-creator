@@ -32,6 +32,7 @@
 #define VCSMANAGER_H
 
 #include "core_global.h"
+#include "id.h"
 
 #include <QString>
 #include <QObject>
@@ -62,6 +63,9 @@ public:
     static VcsManager *instance();
 
     static void extensionsInitialized();
+
+    static QList<IVersionControl *> versionControls();
+    static IVersionControl *versionControl(Id id);
 
     static void resetVersionControlForDirectory(const QString &inputDirectory);
     static IVersionControl *findVersionControlForDirectory(const QString &directory,

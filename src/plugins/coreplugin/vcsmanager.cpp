@@ -223,6 +223,18 @@ void VcsManager::extensionsInitialized()
     }
 }
 
+QList<IVersionControl *> VcsManager::versionControls()
+{
+    return ExtensionSystem::PluginManager::getObjects<IVersionControl>();
+}
+
+IVersionControl *VcsManager::versionControl(Id id)
+{
+    return Utils::findOrDefault(versionControls(), [id](const Core::IVersionControl *vc) {
+        return vc->id() == id;
+    });
+}
+
 void VcsManager::resetVersionControlForDirectory(const QString &inputDirectory)
 {
     if (inputDirectory.isEmpty())

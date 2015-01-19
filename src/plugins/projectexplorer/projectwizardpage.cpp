@@ -38,7 +38,6 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/iwizardfactory.h>
 #include <coreplugin/vcsmanager.h>
-#include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -433,7 +432,7 @@ void ProjectWizardPage::initializeVersionControls()
             }
         } else {
             // Create
-            foreach (IVersionControl *vc, ExtensionSystem::PluginManager::getObjects<IVersionControl>()) {
+            foreach (IVersionControl *vc, VcsManager::versionControls()) {
                 if (vc->supportsOperation(IVersionControl::CreateRepositoryOperation)) {
                     versionControlChoices.append(vc->displayName());
                     m_activeVersionControls.append(vc);
