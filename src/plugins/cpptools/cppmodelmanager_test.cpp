@@ -48,6 +48,10 @@
 #include <QDebug>
 #include <QtTest>
 
+#define VERIFY_DOCUMENT_REVISION(document, expectedRevision) \
+    QVERIFY(document); \
+    QCOMPARE(document->revision(), expectedRevision);
+
 using namespace CppTools;
 using namespace CppTools::Internal;
 using namespace CppTools::Tests;
@@ -170,6 +174,15 @@ static QSet<QString> updateProjectInfo(CppModelManager *modelManager, ModelManag
     modelManager->updateProjectInfo(projectInfo).waitForFinished();
     QCoreApplication::processEvents();
     return helper->waitForRefreshedSourceFiles();
+}
+
+void waitForProcessedEditorDocument(const QString &filePath)
+{
+    CppEditorDocumentHandle *editorDocument
+            = CppModelManager::instance()->cppEditorDocument(filePath);
+    QVERIFY(editorDocument);
+    while (editorDocument->processor()->isParserRunning())
+        QCoreApplication::processEvents();
 }
 
 } // anonymous namespace
@@ -1106,4 +1119,46 @@ void CppToolsPlugin::test_modelmanager_renameIncludes()
     snapshot = modelManager->snapshot();
     foreach (const QString &sourceFile, sourceFiles)
         QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>() << newHeader);
+}
+
+void CppToolsPlugin::test_modelmanager_documentsAndRevisions()
+{
+    TestCase helper;
+
+    // Index two files
+    const MyTestDataDir testDir(_("testdata_project1"));
+    const QString filePath1 = testDir.file(QLatin1String("foo.h"));
+    const QString filePath2 = testDir.file(QLatin1String("foo.cpp"));
+    const QSet<QString> filesToIndex = QSet<QString>() << filePath1 << filePath2;
+    QVERIFY(TestCase::parseFiles(filesToIndex));
+
+    CppModelManager *modelManager = CppModelManager::instance();
+    VERIFY_DOCUMENT_REVISION(modelManager->document(filePath1), 1U);
+    VERIFY_DOCUMENT_REVISION(modelManager->document(filePath2), 1U);
+
+    // Open editor for file 1
+    TextEditor::BaseTextEditor *editor1;
+    QVERIFY(helper.openBaseTextEditor(filePath1, &editor1));
+    helper.closeEditorAtEndOfTestCase(editor1);
+    waitForProcessedEditorDocument(filePath1);
+    VERIFY_DOCUMENT_REVISION(modelManager->document(filePath1), 2U);
+    VERIFY_DOCUMENT_REVISION(modelManager->document(filePath2), 1U);
+
+    // Index again
+    QVERIFY(TestCase::parseFiles(filesToIndex));
+    VERIFY_DOCUMENT_REVISION(modelManager->document(filePath1), 3U);
+    VERIFY_DOCUMENT_REVISION(modelManager->document(filePath2), 2U);
+
+    // Open editor for file 2
+    TextEditor::BaseTextEditor *editor2;
+    QVERIFY(helper.openBaseTextEditor(filePath2, &editor2));
+    helper.closeEditorAtEndOfTestCase(editor2);
+    waitForProcessedEditorDocument(filePath2);
+    VERIFY_DOCUMENT_REVISION(modelManager->document(filePath1), 3U);
+    VERIFY_DOCUMENT_REVISION(modelManager->document(filePath2), 3U);
+
+    // Index again
+    QVERIFY(TestCase::parseFiles(filesToIndex));
+    VERIFY_DOCUMENT_REVISION(modelManager->document(filePath1), 4U);
+    VERIFY_DOCUMENT_REVISION(modelManager->document(filePath2), 4U);
 }
