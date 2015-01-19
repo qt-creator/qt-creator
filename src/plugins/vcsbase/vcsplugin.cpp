@@ -36,11 +36,13 @@
 #include "nicknamedialog.h"
 #include "vcsoutputwindow.h"
 #include "corelistener.h"
+#include "wizard/vcsconfigurationpage.h"
 
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/vcsmanager.h>
 
+#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 
@@ -88,6 +90,8 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_settingsPage, SIGNAL(settingsChanged(VcsBase::Internal::CommonVcsSettings)),
             this, SLOT(slotSettingsChanged()));
     slotSettingsChanged();
+
+    JsonWizardFactory::registerPageFactory(new Internal::VcsConfigurationPageFactory);
 
     Utils::MacroExpander *expander = Utils::globalMacroExpander();
     expander->registerVariable(Constants::VAR_VCS_NAME,

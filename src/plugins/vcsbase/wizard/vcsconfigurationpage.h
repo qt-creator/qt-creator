@@ -33,7 +33,9 @@
 
 #include "../vcsbase_global.h"
 
-#include <QWizardPage>
+#include <projectexplorer/jsonwizard/jsonwizardpagefactory.h>
+
+#include <utils/wizardpage.h>
 
 namespace Core { class IVersionControl; }
 
@@ -41,11 +43,25 @@ namespace VcsBase {
 
 namespace Internal { class VcsConfigurationPagePrivate; }
 
-class VCSBASE_EXPORT VcsConfigurationPage : public QWizardPage
+namespace Internal {
+
+class VcsConfigurationPageFactory : public ProjectExplorer::JsonWizardPageFactory
+{
+public:
+    VcsConfigurationPageFactory();
+
+    Utils::WizardPage *create(ProjectExplorer::JsonWizard *wizard, Core::Id typeId, const QVariant &data);
+    bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage);
+};
+
+} // namespace Internal
+
+class VCSBASE_EXPORT VcsConfigurationPage : public Utils::WizardPage
 {
     Q_OBJECT
 
 public:
+    // TODO: Make this set the VCS only in initializePage.
     explicit VcsConfigurationPage(const Core::IVersionControl *, QWidget *parent = 0);
     ~VcsConfigurationPage();
 

@@ -34,7 +34,11 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
+#include <coreplugin/vcsmanager.h>
+#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
+#include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QPushButton>
@@ -42,9 +46,64 @@
 #include <QWizardPage>
 
 using namespace Core;
+using namespace ProjectExplorer;
 
 namespace VcsBase {
 namespace Internal {
+
+VcsConfigurationPageFactory::VcsConfigurationPageFactory()
+{
+    setTypeIdsSuffix(QLatin1String("VcsConfiguration"));
+}
+
+Utils::WizardPage *VcsConfigurationPageFactory::create(JsonWizard *wizard, Id typeId,
+                                                       const QVariant &data)
+{
+    Q_UNUSED(wizard);
+
+    QTC_ASSERT(canCreate(typeId), return 0);
+
+    QVariantMap tmp = data.toMap();
+    const QString vcsId = tmp.value(QLatin1String("vcsId")).toString();
+    QTC_ASSERT(!vcsId.isEmpty(), return 0);
+
+    IVersionControl *vc = VcsManager::versionControl(Id::fromString(vcsId));
+    QTC_ASSERT(vc, return 0);
+
+    return new VcsConfigurationPage(vc);
+}
+
+bool VcsConfigurationPageFactory::validateData(Id typeId, const QVariant &data,
+                                               QString *errorMessage)
+{
+    QTC_ASSERT(canCreate(typeId), return false);
+
+    if (data.isNull() || data.type() != QVariant::Map) {
+        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
+                                                    "\"data\" must be a JSON object for \"VcsConfiguration\" pages.");
+        return false;
+    }
+
+    QVariantMap tmp = data.toMap();
+    const QString vcsId = tmp.value(QLatin1String("vcsId")).toString();
+    if (vcsId.isEmpty()) {
+        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
+                                                    "\"VcsConfiguration\" page requires a \"vcsId\" set.");
+        return false;
+    }
+
+    if (!VcsManager::versionControl(Id::fromString(vcsId))) {
+        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
+                                                    "\"vcsId\" (\"%1\") is invalid for \"VcsConfiguration\" page. "
+                                                    "Possible values are: %2.")
+                .arg(vcsId)
+                .arg(QStringList(Utils::transform(VcsManager::versionControls(), [](const IVersionControl *vc) {
+                         return vc->id().toString();
+                     })).join(QLatin1String(", ")));
+        return false;
+    }
+    return true;
+}
 
 class VcsConfigurationPagePrivate
 {
@@ -56,7 +115,7 @@ public:
 } // namespace Internal
 
 VcsConfigurationPage::VcsConfigurationPage(const IVersionControl *vc, QWidget *parent) :
-    QWizardPage(parent),
+    Utils::WizardPage(parent),
     d(new Internal::VcsConfigurationPagePrivate)
 {
     QTC_ASSERT(vc, return);
