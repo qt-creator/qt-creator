@@ -514,10 +514,12 @@ void VcsBaseClient::commit(const QString &repositoryRoot,
     //   So descendants of VcsBaseClient *must* redefine commit() and extend
     //   extraOptions with the usage for commitMessageFile (see BazaarClient::commit()
     //   for example)
-    Q_UNUSED(commitMessageFile);
     QStringList args(vcsCommandString(CommitCommand));
     args << extraOptions << files;
-    enqueueJob(createCommand(repositoryRoot, 0, VcsWindowOutputBind), args);
+    VcsCommand *cmd = createCommand(repositoryRoot, 0, VcsWindowOutputBind);
+    if (!commitMessageFile.isEmpty())
+        connect(cmd, &VcsCommand::finished, [commitMessageFile]() { QFile(commitMessageFile).remove(); });
+    enqueueJob(cmd, args);
 }
 
 VcsBaseClientSettings *VcsBaseClient::settings() const
