@@ -517,7 +517,7 @@ void VcsBaseClient::commit(const QString &repositoryRoot,
     Q_UNUSED(commitMessageFile);
     QStringList args(vcsCommandString(CommitCommand));
     args << extraOptions << files;
-    enqueueJob(createCommand(repositoryRoot), args);
+    enqueueJob(createCommand(repositoryRoot, 0, VcsWindowOutputBind), args);
 }
 
 VcsBaseClientSettings *VcsBaseClient::settings() const
