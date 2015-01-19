@@ -471,8 +471,8 @@ void VcsOutputWindow::appendCommand(const QString &text)
 }
 
 void VcsOutputWindow::appendCommand(const QString &workingDirectory,
-                                        const Utils::FileName &binary,
-                                        const QStringList &args)
+                                    const Utils::FileName &binary,
+                                    const QStringList &args)
 {
     appendCommand(msgExecutionLogEntry(workingDirectory, binary, args));
 }
