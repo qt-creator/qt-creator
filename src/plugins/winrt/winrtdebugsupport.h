@@ -49,6 +49,7 @@ public:
     static ProjectExplorer::RunControl *createDebugRunControl(WinRtRunConfiguration *runConfig,
                                                               ProjectExplorer::RunMode mode,
                                                               QString *errorMessage);
+    ~WinRtDebugSupport();
 
 private:
     WinRtDebugSupport(ProjectExplorer::RunControl *runControl, WinRtRunnerHelper *runner);
