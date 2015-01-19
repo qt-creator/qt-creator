@@ -278,7 +278,7 @@ void BuildManager::clearBuildQueue()
 
 void BuildManager::toggleOutputWindow()
 {
-    d->m_outputWindow->toggle(IOutputPane::ModeSwitch);
+    d->m_outputWindow->toggle(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
 }
 
 void BuildManager::showTaskWindow()
@@ -288,7 +288,7 @@ void BuildManager::showTaskWindow()
 
 void BuildManager::toggleTaskWindow()
 {
-    d->m_taskWindow->toggle(IOutputPane::ModeSwitch);
+    d->m_taskWindow->toggle(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
 }
 
 bool BuildManager::tasksAvailable()
