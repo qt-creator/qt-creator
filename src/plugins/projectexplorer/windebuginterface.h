@@ -46,6 +46,8 @@ public:
 
     static WinDebugInterface *instance();
 
+    bool stop();
+
 signals:
     void debugOutput(qint64 pid, const QString &message);
     void cannotRetrieveDebugOutput();

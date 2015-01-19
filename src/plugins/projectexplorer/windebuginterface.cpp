@@ -56,20 +56,25 @@ WinDebugInterface *WinDebugInterface::instance()
     return m_instance;
 }
 
+bool WinDebugInterface::stop()
+{
+    if (!m_waitHandles[TerminateEventHandle])
+        return false;
+    SetEvent(m_waitHandles[TerminateEventHandle]);
+    return true;
+}
+
 WinDebugInterface::WinDebugInterface(QObject *parent) :
     QThread(parent)
 {
     m_instance = this;
     setObjectName(QLatin1String("WinDebugInterfaceThread"));
-    start();
 }
 
 WinDebugInterface::~WinDebugInterface()
 {
-    if (m_waitHandles[TerminateEventHandle]) {
-        SetEvent(m_waitHandles[TerminateEventHandle]);
+    if (stop())
         wait(500);
-    }
     m_instance = 0;
 }
 

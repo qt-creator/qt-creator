@@ -33,6 +33,7 @@
 #include "projectexplorersettings.h"
 #include "runconfiguration.h"
 #include "session.h"
+#include "windebuginterface.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
@@ -203,6 +204,11 @@ AppOutputPane::AppOutputPane() :
             this, SLOT(aboutToUnloadSession()));
     connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateFromSettings()));
+
+#ifdef Q_OS_WIN
+    connect(this, &AppOutputPane::allRunControlsFinished,
+            WinDebugInterface::instance(), &WinDebugInterface::stop);
+#endif
 }
 
 AppOutputPane::~AppOutputPane()
