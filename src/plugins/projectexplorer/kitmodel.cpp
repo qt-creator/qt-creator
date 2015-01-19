@@ -259,8 +259,10 @@ KitNode *KitModel::createNode(Kit *k)
 {
     KitNode *node = new KitNode(k);
     m_parentLayout->addWidget(node->widget);
-    connect(node->widget, &KitManagerConfigWidget::dirty, [node] {
-        node->update();
+    connect(node->widget, &KitManagerConfigWidget::dirty, [this, node] {
+        if (m_autoRoot->children().contains(node)
+                || m_manualRoot->children().contains(node))
+            node->update();
     });
     return node;
 }
