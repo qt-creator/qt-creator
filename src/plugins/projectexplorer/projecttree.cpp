@@ -359,7 +359,7 @@ void ProjectTree::emitFilesAboutToBeRemoved(FolderNode *folder, const QList<File
 
     if (FileNode *fileNode = dynamic_cast<FileNode *>(m_currentNode))
         if (staleFiles.contains(fileNode))
-            m_resetCurrentNodeFile = false;
+            m_resetCurrentNodeFile = true;
 
     emit filesAboutToBeRemoved(folder, staleFiles);
 }
