@@ -109,7 +109,9 @@ public slots:
 
     // Append a command, prepended by a log time stamp. "Executing: vcs -diff"
     // will result in "10:00 Executing: vcs -diff" in bold
-    static void appendCommand(const QString &text);
+    // Filter passwords from URLs while doing this.
+    static void appendShellCommandLine(const QString &text);
+
     // Append a standard-formatted entry for command execution
     // (see msgExecutionLogEntry).
     static void appendCommand(const QString &workingDirectory,

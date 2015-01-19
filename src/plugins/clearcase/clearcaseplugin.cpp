@@ -1327,8 +1327,9 @@ void ClearCasePlugin::viewStatus()
     if (m_viewData.name.isEmpty())
         m_viewData = ccGetView(m_topLevel);
     QTC_ASSERT(!m_viewData.name.isEmpty() && !m_settings.disableIndexer, return);
-    VcsOutputWindow::appendCommand(QLatin1String("Indexed files status (C=Checked Out, "
-                                              "H=Hijacked, ?=Missing)"));
+    VcsOutputWindow::append(QLatin1String("Indexed files status (C=Checked Out, "
+                                          "H=Hijacked, ?=Missing)"),
+                            VcsOutputWindow::Command, true);
     bool anymod = false;
     for (StatusMap::ConstIterator it = m_statusMap->constBegin();
          it != m_statusMap->constEnd();

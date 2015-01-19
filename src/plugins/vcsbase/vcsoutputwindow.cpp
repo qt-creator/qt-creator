@@ -469,7 +469,7 @@ QString VcsOutputWindow::msgExecutionLogEntry(const QString &workingDir,
             arg(QDir::toNativeSeparators(workingDir), nativeExecutable, args) + QLatin1Char('\n');
 }
 
-void VcsOutputWindow::appendCommand(const QString &text)
+void VcsOutputWindow::appendShellCommandLine(const QString &text)
 {
     append(filterPasswordFromUrls(text), Command, true);
 }
@@ -478,7 +478,7 @@ void VcsOutputWindow::appendCommand(const QString &workingDirectory,
                                     const Utils::FileName &binary,
                                     const QStringList &args)
 {
-    appendCommand(msgExecutionLogEntry(workingDirectory, binary, args));
+    appendShellCommandLine(msgExecutionLogEntry(workingDirectory, binary, args));
 }
 
 void VcsOutputWindow::appendMessage(const QString &text)

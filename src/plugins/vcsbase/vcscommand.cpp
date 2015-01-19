@@ -155,8 +155,8 @@ VcsCommand::VcsCommand(const Utils::FileName &binary,
                        const QProcessEnvironment &environment) :
     d(new Internal::VcsCommandPrivate(binary, workingDirectory, environment))
 {
-    connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()),
-            this, SLOT(coreAboutToClose()));
+    connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose,
+            this, &VcsCommand::coreAboutToClose);
 }
 
 VcsCommand::~VcsCommand()
@@ -220,7 +220,7 @@ void VcsCommand::execute()
     // For some reason QtConcurrent::run() only works on this
     QFuture<void> task = QtConcurrent::run(&VcsCommand::run, this);
     d->m_watcher.setFuture(task);
-    connect(&d->m_watcher, SIGNAL(canceled()), this, SLOT(cancel()));
+    connect(&d->m_watcher, &QFutureWatcher<void>::canceled, this, &VcsCommand::cancel);
     QString binary = d->m_binaryPath.toFileInfo().baseName();
     if (!binary.isEmpty())
         binary = binary.replace(0, 1, binary[0].toUpper()); // Upper the first letter
@@ -315,12 +315,12 @@ public:
         // Users of this class can either be in the GUI thread or in other threads.
         // Use Qt::AutoConnection to always append in the GUI thread (directly or queued)
         VcsOutputWindow *outputWindow = VcsOutputWindow::instance();
-        connect(this, SIGNAL(append(QString)), outputWindow, SLOT(append(QString)));
-        connect(this, SIGNAL(appendSilently(QString)), outputWindow, SLOT(appendSilently(QString)));
-        connect(this, SIGNAL(appendError(QString)), outputWindow, SLOT(appendError(QString)));
-        connect(this, SIGNAL(appendCommand(QString,Utils::FileName,QStringList)),
-                outputWindow, SLOT(appendCommand(QString,Utils::FileName,QStringList)));
-        connect(this, SIGNAL(appendMessage(QString)), outputWindow, SLOT(appendMessage(QString)));
+        connect(this, &OutputProxy::append,
+                outputWindow, [](const QString &txt) { VcsOutputWindow::append(txt); });
+        connect(this, &OutputProxy::appendSilently, outputWindow, &VcsOutputWindow::appendSilently);
+        connect(this, &OutputProxy::appendError, outputWindow, &VcsOutputWindow::appendError);
+        connect(this, &OutputProxy::appendCommand, outputWindow, &VcsOutputWindow::appendCommand);
+        connect(this, &OutputProxy::appendMessage, outputWindow, &VcsOutputWindow::appendMessage);
     }
 
 signals:
@@ -382,7 +382,7 @@ Utils::SynchronousProcessResponse VcsCommand::runVcs(const QStringList &argument
     } else {
         Utils::SynchronousProcess process;
         process.setExitCodeInterpreter(interpreter);
-        connect(this, SIGNAL(terminate()), &process, SLOT(terminate()));
+        connect(this, &VcsCommand::terminate, &process, &Utils::SynchronousProcess::terminate);
         if (!d->m_workingDirectory.isEmpty())
             process.setWorkingDirectory(d->m_workingDirectory);
 
@@ -405,15 +405,16 @@ Utils::SynchronousProcessResponse VcsCommand::runVcs(const QStringList &argument
         } else if (d->m_progressiveOutput
                    || !(d->m_flags & VcsBasePlugin::SuppressStdErrInLogWindow)) {
             process.setStdErrBufferedSignalsEnabled(true);
-            connect(&process, SIGNAL(stdErrBuffered(QString,bool)),
-                    this, SLOT(bufferedError(QString)));
+            connect(&process, &Utils::SynchronousProcess::stdErrBuffered,
+                    this, &VcsCommand::bufferedError);
         }
 
         // connect stdout to the output window if desired
         if (d->m_progressParser || d->m_progressiveOutput
                 || (d->m_flags & VcsBasePlugin::ShowStdOutInLogWindow)) {
             process.setStdOutBufferedSignalsEnabled(true);
-            connect(&process, SIGNAL(stdOutBuffered(QString,bool)), this, SLOT(bufferedOutput(QString)));
+            connect(&process, &Utils::SynchronousProcess::stdOutBuffered,
+                    this, &VcsCommand::bufferedOutput);
         }
 
         process.setTimeOutMessageBoxEnabled(true);

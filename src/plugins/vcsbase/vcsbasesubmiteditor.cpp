@@ -682,7 +682,8 @@ bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
     if (!saver.finalize(errorMessage))
         return false;
     // Run check process
-    VcsOutputWindow::appendCommand(msgCheckScript(d->m_checkScriptWorkingDirectory, checkScript));
+    VcsOutputWindow::appendShellCommandLine(msgCheckScript(d->m_checkScriptWorkingDirectory,
+                                                           checkScript));
     QProcess checkProcess;
     if (!d->m_checkScriptWorkingDirectory.isEmpty())
         checkProcess.setWorkingDirectory(d->m_checkScriptWorkingDirectory);
