@@ -97,14 +97,15 @@ RunControl *WinRtDebugSupport::createDebugRunControl(WinRtRunConfiguration *runC
     if (!errorMessage->isEmpty())
         return 0;
 
+    QLocalServer server;
+    server.listen(QLatin1String("QtCreatorWinRtDebugPIDPipe"));
+
     runner->debug(debuggerHelper.absoluteFilePath());
     if (!runner->waitForStarted()) {
         *errorMessage = tr("Cannot start the WinRT Runner Tool.");
         return 0;
     }
 
-    QLocalServer server;
-    server.listen(QLatin1String("QtCreatorWinRtDebugPIDPipe"));
     if (!server.waitForNewConnection(10000)) {
         *errorMessage = tr("Cannot establish connection to the WinRT debugging helper.");
         return 0;
