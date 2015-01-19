@@ -1363,7 +1363,7 @@ void VcsBaseEditorWidget::setCommand(VcsCommand *command)
     if (d->m_command) {
         d->m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicator::Large);
         d->m_progressIndicator->attachToWidget(this);
-        connect(d->m_command, &VcsCommand::finished,
+        connect(d->m_command.data(), &VcsCommand::finished,
                 this, &VcsBaseEditorWidget::hideProgressIndicator);
         QTimer::singleShot(100, this, SLOT(showProgressIndicator()));
     }
