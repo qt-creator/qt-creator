@@ -3,6 +3,7 @@ include(../../qtcreatorplugin.pri)
 HEADERS += vcsbase_global.h \
     vcsbaseconstants.h \
     wizard/vcsconfigurationpage.h \
+    wizard/vcsjsextension.h \
     vcsplugin.h \
     corelistener.h \
     vcsbaseplugin.h \
@@ -34,6 +35,7 @@ HEADERS += vcsbase_global.h \
 SOURCES += vcsplugin.cpp \
     vcsbaseplugin.cpp \
     wizard/vcsconfigurationpage.cpp \
+    wizard/vcsjsextension.cpp \
     corelistener.cpp \
     baseannotationhighlighter.cpp \
     diffhighlighter.cpp \
