@@ -211,6 +211,9 @@ void FolderNavigationWidget::setAutoSynchronization(bool sync)
 
 void FolderNavigationWidget::setCurrentFile(Core::IEditor *editor)
 {
+    if (!editor)
+        return;
+
     const QString filePath = editor->document()->filePath().toString();
     // Try to find directory of current file
     bool pathOpened = false;
