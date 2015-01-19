@@ -1722,8 +1722,8 @@ void GitClient::branchesForCommit(const QString &revision)
             SLOT(branchesForCommitReceived(QString)));
 
     command->addJob(arguments, -1);
-    command->execute();
     command->setCookie(workingDirectory);
+    command->execute();
 }
 
 bool GitClient::isRemoteCommit(const QString &workingDirectory, const QString &commit)
