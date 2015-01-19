@@ -64,6 +64,8 @@ public:
 
     Command *command(const QString &title) const;
 
+    void setCloseIcon(const QIcon &icon);
+
 signals:
     void splitMe();
     void closeMe();
@@ -77,6 +79,7 @@ private:
     SideBarItem *m_currentItem;
     QToolBar *m_toolbar;
     QAction *m_splitAction;
+    QAction *m_closeAction;
     QList<QAction *> m_addedToolBarActions;
     SideBar *m_sideBar;
 };

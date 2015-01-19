@@ -82,12 +82,12 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
     splitAction->setMenu(m_splitMenu);
     connect(m_splitMenu, &QMenu::aboutToShow, this, &NavigationSubWidget::populateSplitMenu);
 
-    QToolButton *close = new QToolButton();
-    close->setIcon(QIcon(QLatin1String(Constants::ICON_BUTTON_CLOSE)));
-    close->setToolTip(tr("Close"));
+    m_closeButton = new QToolButton();
+    m_closeButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_BOTTOM)));
+    m_closeButton->setToolTip(tr("Close"));
 
     toolBarLayout->addWidget(splitAction);
-    toolBarLayout->addWidget(close);
+    toolBarLayout->addWidget(m_closeButton);
 
     QVBoxLayout *lay = new QVBoxLayout();
     lay->setMargin(0);
@@ -95,7 +95,7 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
     setLayout(lay);
     lay->addWidget(m_toolBar);
 
-    connect(close, SIGNAL(clicked()), this, SIGNAL(closeMe()));
+    connect(m_closeButton, SIGNAL(clicked()), this, SIGNAL(closeMe()));
 
     setFactoryIndex(factoryIndex);
 
@@ -187,6 +187,11 @@ Core::Command *NavigationSubWidget::command(const QString &title) const
     if (r != commandMap.end())
         return r.value();
     return 0;
+}
+
+void NavigationSubWidget::setCloseIcon(const QIcon &icon)
+{
+    m_closeButton->setIcon(icon);
 }
 
 int NavigationSubWidget::factoryIndex() const

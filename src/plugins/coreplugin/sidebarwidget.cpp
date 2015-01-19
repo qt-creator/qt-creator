@@ -80,11 +80,11 @@ SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &id)
     connect(m_splitAction, SIGNAL(triggered()), this, SIGNAL(splitMe()));
     m_toolbar->addAction(m_splitAction);
 
-    QAction *closeAction = new QAction(tr("Close"), m_toolbar);
-    closeAction->setToolTip(tr("Close"));
-    closeAction->setIcon(QIcon(QLatin1String(Constants::ICON_BUTTON_CLOSE)));
-    connect(closeAction, SIGNAL(triggered()), this, SIGNAL(closeMe()));
-    m_toolbar->addAction(closeAction);
+    m_closeAction = new QAction(tr("Close"), m_toolbar);
+    m_closeAction->setToolTip(tr("Close"));
+    m_closeAction->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_BOTTOM)));
+    connect(m_closeAction, SIGNAL(triggered()), this, SIGNAL(closeMe()));
+    m_toolbar->addAction(m_closeAction);
 
     QVBoxLayout *lay = new QVBoxLayout();
     lay->setMargin(0);
@@ -210,6 +210,11 @@ Command *SideBarWidget::command(const QString &title) const
     if (r != shortcutMap.end())
         return r.value();
     return 0;
+}
+
+void SideBarWidget::setCloseIcon(const QIcon &icon)
+{
+    m_closeAction->setIcon(icon);
 }
 
 } // namespace Internal

@@ -30,6 +30,7 @@
 
 #include "sidebar.h"
 #include "sidebarwidget.h"
+#include "coreconstants.h"
 
 #include "actionmanager/command.h"
 #include <utils/algorithm.h>
@@ -202,12 +203,18 @@ SideBarItem *SideBar::item(const QString &id)
 
 Internal::SideBarWidget *SideBar::insertSideBarWidget(int position, const QString &id)
 {
+    d->m_widgets.at(0)->setCloseIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_BOTTOM)));
+
     Internal::SideBarWidget *item = new Internal::SideBarWidget(this, id);
     connect(item, SIGNAL(splitMe()), this, SLOT(splitSubWidget()));
     connect(item, SIGNAL(closeMe()), this, SLOT(closeSubWidget()));
     connect(item, SIGNAL(currentWidgetChanged()), this, SLOT(updateWidgets()));
     insertWidget(position, item);
     d->m_widgets.insert(position, item);
+    if (d->m_widgets.size() == 1)
+        d->m_widgets.at(0)->setCloseIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_LEFT)));
+    else
+        d->m_widgets.at(0)->setCloseIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_TOP)));
     updateWidgets();
     return item;
 }
@@ -235,6 +242,11 @@ void SideBar::closeSubWidget()
         if (!widget)
             return;
         removeSideBarWidget(widget);
+        // update close button of top item
+        if (d->m_widgets.size() == 1)
+            d->m_widgets.at(0)->setCloseIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_LEFT)));
+        else
+            d->m_widgets.at(0)->setCloseIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_TOP)));
         updateWidgets();
     } else {
         if (d->m_closeWhenEmpty) {

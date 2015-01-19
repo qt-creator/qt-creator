@@ -246,13 +246,19 @@ Internal::NavigationSubWidget *NavigationWidget::insertSubItem(int position,int 
         d->m_subWidgets.at(pos)->setPosition(pos + 1);
     }
 
+    if (!d->m_subWidgets.isEmpty()) // Make all icons the bottom icon
+        d->m_subWidgets.at(0)->setCloseIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_BOTTOM)));
+
     Internal::NavigationSubWidget *nsw = new Internal::NavigationSubWidget(this, position, index);
     connect(nsw, &Internal::NavigationSubWidget::splitMe,
             this, &NavigationWidget::splitSubWidget);
     connect(nsw, SIGNAL(closeMe()), this, SLOT(closeSubWidget()));
     insertWidget(position, nsw);
     d->m_subWidgets.insert(position, nsw);
-
+    if (d->m_subWidgets.size() == 1)
+        d->m_subWidgets.at(0)->setCloseIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_LEFT)));
+    else
+        d->m_subWidgets.at(0)->setCloseIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_TOP)));
     return nsw;
 }
 
@@ -297,6 +303,11 @@ void NavigationWidget::closeSubWidget()
         d->m_subWidgets.removeOne(subWidget);
         subWidget->hide();
         subWidget->deleteLater();
+        // update close button of top item
+        if (d->m_subWidgets.size() == 1)
+            d->m_subWidgets.at(0)->setCloseIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_LEFT)));
+        else
+            d->m_subWidgets.at(0)->setCloseIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_TOP)));
     } else {
         setShown(false);
     }

@@ -70,6 +70,7 @@ public:
     void restoreSettings();
 
     Command *command(const QString &title) const;
+    void setCloseIcon(const QIcon &icon);
 
 signals:
     void splitMe(int factoryIndex);
@@ -84,6 +85,7 @@ private:
     NavigationWidget *m_parentWidget;
     QComboBox *m_navigationComboBox;
     QMenu *m_splitMenu;
+    QToolButton *m_closeButton;
     QWidget *m_navigationWidget;
     INavigationWidgetFactory *m_navigationWidgetFactory;
     Utils::StyledBar *m_toolBar;
