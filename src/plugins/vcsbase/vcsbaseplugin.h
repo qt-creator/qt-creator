@@ -133,10 +133,10 @@ protected:
     explicit VcsBasePlugin();
 
     void initializeVcs(Core::IVersionControl *vc, const Core::Context &context);
-    virtual void extensionsInitialized();
+    void extensionsInitialized();
 
 public:
-    virtual ~VcsBasePlugin();
+    ~VcsBasePlugin();
 
     const VcsBasePluginState &currentState() const;
     Core::IVersionControl *versionControl() const;
