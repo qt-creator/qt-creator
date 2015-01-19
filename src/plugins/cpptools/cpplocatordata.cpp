@@ -54,8 +54,7 @@ void CppLocatorData::onDocumentUpdated(const CPlusPlus::Document::Ptr &document)
     int i = 0, ei = m_pendingDocuments.size();
     for (; i < ei; ++i) {
         const CPlusPlus::Document::Ptr &doc = m_pendingDocuments.at(i);
-        if (doc->fileName() == document->fileName()
-                && doc->revision() < document->revision()) {
+        if (doc->fileName() == document->fileName() && doc->revision() <= document->revision()) {
             m_pendingDocuments[i] = document;
             break;
         }
