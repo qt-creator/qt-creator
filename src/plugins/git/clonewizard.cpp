@@ -35,7 +35,7 @@
 #include "gitversioncontrol.h"
 
 #include <vcsbase/vcsbaseconstants.h>
-#include <vcsbase/vcsconfigurationpage.h>
+#include <vcsbase/wizard/vcsconfigurationpage.h>
 #include <utils/qtcassert.h>
 
 using namespace VcsBase;

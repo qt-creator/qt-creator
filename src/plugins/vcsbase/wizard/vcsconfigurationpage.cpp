@@ -28,36 +28,64 @@
 **
 ****************************************************************************/
 
-#ifndef VCSCONFIGURATIONPAGE_H
-#define VCSCONFIGURATIONPAGE_H
+#include "vcsconfigurationpage.h"
 
-#include "vcsbase_global.h"
+#include "../vcsbaseconstants.h"
 
+#include <coreplugin/icore.h>
+#include <coreplugin/iversioncontrol.h>
+
+#include <utils/qtcassert.h>
+
+#include <QPushButton>
+#include <QVBoxLayout>
 #include <QWizardPage>
 
-namespace Core { class IVersionControl; }
-
 namespace VcsBase {
+namespace Internal {
 
-namespace Internal { class VcsConfigurationPagePrivate; }
-
-class VCSBASE_EXPORT VcsConfigurationPage : public QWizardPage
+class VcsConfigurationPagePrivate
 {
-    Q_OBJECT
-
 public:
-    explicit VcsConfigurationPage(const Core::IVersionControl *, QWidget *parent = 0);
-    ~VcsConfigurationPage();
-
-    bool isComplete() const;
-
-private slots:
-    void openConfiguration();
-
-private:
-    Internal::VcsConfigurationPagePrivate *const d;
+    const Core::IVersionControl *m_versionControl;
+    QPushButton *m_configureButton;
 };
 
-} // namespace VcsBase
+} // namespace Internal
 
-#endif // VCSCONFIGURATIONPAGE_H
+VcsConfigurationPage::VcsConfigurationPage(const Core::IVersionControl *vc, QWidget *parent) :
+    QWizardPage(parent),
+    d(new Internal::VcsConfigurationPagePrivate)
+{
+    QTC_ASSERT(vc, return);
+    setTitle(tr("Configuration"));
+    setSubTitle(tr("Please configure <b>%1</b> now.").arg(vc->displayName()));
+
+    d->m_versionControl = vc;
+    d->m_configureButton = new QPushButton(Core::ICore::msgShowOptionsDialog(), this);
+
+    QVBoxLayout *verticalLayout = new QVBoxLayout(this);
+    verticalLayout->addWidget(d->m_configureButton);
+
+    connect(d->m_versionControl, SIGNAL(configurationChanged()), SIGNAL(completeChanged()));
+    connect(d->m_configureButton, SIGNAL(clicked()), SLOT(openConfiguration()));
+}
+
+VcsConfigurationPage::~VcsConfigurationPage()
+{
+    delete d;
+}
+
+bool VcsConfigurationPage::isComplete() const
+{
+    return d->m_versionControl->isConfigured();
+}
+
+void VcsConfigurationPage::openConfiguration()
+{
+    Core::ICore::showOptionsDialog(Constants::VCS_SETTINGS_CATEGORY,
+                                   d->m_versionControl->id(),
+                                   this);
+}
+
+} // namespace VcsBase

@@ -72,8 +72,6 @@ QtcPlugin {
         "vcsbasesubmiteditor.h",
         "vcscommand.cpp",
         "vcscommand.h",
-        "vcsconfigurationpage.cpp",
-        "vcsconfigurationpage.h",
         "vcsoutputwindow.cpp",
         "vcsoutputwindow.h",
         "vcsplugin.cpp",
@@ -81,5 +79,7 @@ QtcPlugin {
         "images/diff.png",
         "images/removesubmitfield.png",
         "images/submit.png",
+        "wizard/vcsconfigurationpage.cpp",
+        "wizard/vcsconfigurationpage.h",
     ]
 }

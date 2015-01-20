@@ -36,7 +36,7 @@
 #include <coreplugin/iversioncontrol.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsbaseconstants.h>
-#include <vcsbase/vcsconfigurationpage.h>
+#include <vcsbase/wizard/vcsconfigurationpage.h>
 
 using namespace VcsBase;
 

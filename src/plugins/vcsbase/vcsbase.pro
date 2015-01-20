@@ -2,7 +2,7 @@ DEFINES += VCSBASE_LIBRARY
 include(../../qtcreatorplugin.pri)
 HEADERS += vcsbase_global.h \
     vcsbaseconstants.h \
-    vcsconfigurationpage.h \
+    wizard/vcsconfigurationpage.h \
     vcsplugin.h \
     corelistener.h \
     vcsbaseplugin.h \
@@ -33,7 +33,7 @@ HEADERS += vcsbase_global.h \
 
 SOURCES += vcsplugin.cpp \
     vcsbaseplugin.cpp \
-    vcsconfigurationpage.cpp \
+    wizard/vcsconfigurationpage.cpp \
     corelistener.cpp \
     baseannotationhighlighter.cpp \
     diffhighlighter.cpp \
