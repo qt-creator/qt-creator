@@ -2042,7 +2042,7 @@ int WatchHandler::format(const QByteArray &iname) const
 {
     int result = AutomaticFormat;
     if (const WatchData *item = m_model->findItem(iname)) {
-        int result = theIndividualFormats.value(item->iname, AutomaticFormat);
+        result = theIndividualFormats.value(item->iname, AutomaticFormat);
         if (result == AutomaticFormat)
             result = theTypeFormats.value(stripForFormat(item->type), AutomaticFormat);
     }
