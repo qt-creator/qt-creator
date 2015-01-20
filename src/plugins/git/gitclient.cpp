@@ -449,32 +449,24 @@ class BaseGitDiffArgumentsWidget : public VcsBaseEditorParameterWidget
     Q_OBJECT
 
 public:
-    BaseGitDiffArgumentsWidget(GitClient *client, const QString &directory,
-                               const QStringList &args) :
-        m_workingDirectory(directory),
-        m_client(client)
+    BaseGitDiffArgumentsWidget(GitSettings *settings, QWidget *parent = 0) :
+        VcsBaseEditorParameterWidget(parent)
     {
-        QTC_ASSERT(!directory.isEmpty(), return);
-        QTC_ASSERT(m_client, return);
+        QTC_ASSERT(settings, return);
 
         m_patienceButton = addToggleButton(
                     QLatin1String("--patience"),
                     tr("Patience"),
                     tr("Use the patience algorithm for calculating the differences."));
-        mapSetting(m_patienceButton, client->settings()->boolPointer(
-                       GitSettings::diffPatienceKey));
+        mapSetting(m_patienceButton, settings->boolPointer(GitSettings::diffPatienceKey));
         m_ignoreWSButton = addToggleButton(
                     QLatin1String("--ignore-space-change"), tr("Ignore Whitespace"),
                     tr("Ignore whitespace only changes."));
         mapSetting(m_ignoreWSButton,
-                   m_client->settings()->boolPointer(GitSettings::ignoreSpaceChangesInDiffKey));
-
-        setBaseArguments(args);
+                   settings->boolPointer(GitSettings::ignoreSpaceChangesInDiffKey));
     }
 
 protected:
-    QString m_workingDirectory;
-    GitClient *m_client;
     QToolButton *m_patienceButton;
     QToolButton *m_ignoreWSButton;
 };
@@ -484,44 +476,16 @@ class GitBlameArgumentsWidget : public VcsBaseEditorParameterWidget
     Q_OBJECT
 
 public:
-    GitBlameArgumentsWidget(Git::Internal::GitClient *client,
-                            const QString &directory,
-                            const QStringList &args,
-                            const QString &revision, const QString &fileName) :
-        m_editor(0),
-        m_client(client),
-        m_workingDirectory(directory),
-        m_revision(revision),
-        m_fileName(fileName)
+    GitBlameArgumentsWidget(GitSettings *settings, QWidget *parent = 0) :
+        VcsBaseEditorParameterWidget(parent)
     {
         mapSetting(addToggleButton(QString(), tr("Omit Date"),
                                    tr("Hide the date of a change from the output.")),
-                   m_client->settings()->boolPointer(GitSettings::omitAnnotationDateKey));
+                   settings->boolPointer(GitSettings::omitAnnotationDateKey));
         mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore Whitespace"),
                                    tr("Ignore whitespace only changes.")),
-                   m_client->settings()->boolPointer(GitSettings::ignoreSpaceChangesInBlameKey));
-
-        setBaseArguments(args);
+                   settings->boolPointer(GitSettings::ignoreSpaceChangesInBlameKey));
     }
-
-    void setEditor(VcsBaseEditorWidget *editor)
-    {
-        QTC_ASSERT(editor, return);
-        m_editor = editor;
-    }
-
-    void executeCommand()
-    {
-        int line = VcsBaseEditor::lineNumberOfCurrentEditor();
-        m_client->blame(m_workingDirectory, baseArguments(), m_fileName, m_revision, line);
-    }
-
-private:
-    VcsBaseEditorWidget *m_editor;
-    GitClient *m_client;
-    QString m_workingDirectory;
-    QString m_revision;
-    QString m_fileName;
 };
 
 class GitLogArgumentsWidget : public BaseGitDiffArgumentsWidget
@@ -529,20 +493,12 @@ class GitLogArgumentsWidget : public BaseGitDiffArgumentsWidget
     Q_OBJECT
 
 public:
-    GitLogArgumentsWidget(Git::Internal::GitClient *client,
-                          const QString &directory,
-                          bool enableAnnotationContextMenu,
-                          const QStringList &args,
-                          const QString &fileName) :
-        BaseGitDiffArgumentsWidget(client, directory, args),
-        m_client(client),
-        m_workingDirectory(directory),
-        m_enableAnnotationContextMenu(enableAnnotationContextMenu)
+    GitLogArgumentsWidget(GitSettings *settings, QWidget *parent = 0) :
+        BaseGitDiffArgumentsWidget(settings, parent)
     {
-        QTC_ASSERT(!directory.isEmpty(), return);
         QToolButton *diffButton = addToggleButton(QLatin1String("--patch"), tr("Show Diff"),
                                               tr("Show difference."));
-        mapSetting(diffButton, m_client->settings()->boolPointer(GitSettings::logDiffKey));
+        mapSetting(diffButton, settings->boolPointer(GitSettings::logDiffKey));
         connect(diffButton, SIGNAL(toggled(bool)), m_patienceButton, SLOT(setVisible(bool)));
         connect(diffButton, SIGNAL(toggled(bool)), m_ignoreWSButton, SLOT(setVisible(bool)));
         m_patienceButton->setVisible(diffButton->isChecked());
@@ -552,25 +508,8 @@ public:
         graphArguments << (QLatin1String("--pretty=format:") + QLatin1String(graphLogFormatC));
         QToolButton *graphButton = addToggleButton(graphArguments, tr("Graph"),
                                               tr("Show textual graph log."));
-        mapSetting(graphButton, m_client->settings()->boolPointer(GitSettings::graphLogKey));
-        setFileName(fileName);
+        mapSetting(graphButton, settings->boolPointer(GitSettings::graphLogKey));
     }
-
-    void setFileName(const QString &fileNames)
-    {
-        m_fileName = fileNames;
-    }
-
-    void executeCommand()
-    {
-        m_client->log(m_workingDirectory, m_fileName, m_enableAnnotationContextMenu, baseArguments());
-    }
-
-private:
-    GitClient *m_client;
-    QString m_workingDirectory;
-    bool m_enableAnnotationContextMenu;
-    QString m_fileName;
 };
 
 class ConflictHandler : public QObject
@@ -1033,11 +972,13 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
     const Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
     const QString sourceFile = VcsBaseEditor::getSource(workingDirectory, fileName);
     VcsBaseEditorWidget *editor = findExistingVCSEditor("logFileName", sourceFile);
-    if (!editor)
+    if (!editor) {
+        auto *argWidget = new GitLogArgumentsWidget(settings());
+        QObject::connect(argWidget, &VcsBaseEditorParameterWidget::commandExecutionRequested,
+                         [=] { log(workingDirectory, fileName, enableAnnotationContextMenu, args); });
         editor = createVcsEditor(editorId, title, sourceFile, CodecLogOutput, "logFileName", sourceFile,
-                                 new GitLogArgumentsWidget(this, workingDirectory,
-                                                           enableAnnotationContextMenu,
-                                                           args, fileName));
+                                 argWidget);
+    }
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
     editor->setWorkingDirectory(workingDirectory);
 
@@ -1049,9 +990,8 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
     if (logCount > 0)
          arguments << QLatin1String("-n") << QString::number(logCount);
 
-    GitLogArgumentsWidget *argWidget = qobject_cast<GitLogArgumentsWidget *>(editor->configurationWidget());
+    auto *argWidget = editor->configurationWidget();
     argWidget->setBaseArguments(args);
-    argWidget->setFileName(fileName);
     QStringList userArgs = argWidget->arguments();
 
     arguments.append(userArgs);
@@ -1158,11 +1098,14 @@ void GitClient::blame(const QString &workingDirectory,
 
     VcsBaseEditorWidget *editor = findExistingVCSEditor("blameFileName", id);
     if (!editor) {
-        GitBlameArgumentsWidget *argWidget =
-                new GitBlameArgumentsWidget(this, workingDirectory, args,
-                                            revision, fileName);
+        auto *argWidget = new GitBlameArgumentsWidget(settings());
+        argWidget->setBaseArguments(args);
+        QObject::connect(argWidget, &VcsBaseEditorParameterWidget::commandExecutionRequested,
+                         [=] {
+            const int line = VcsBaseEditor::lineNumberOfCurrentEditor();
+            blame(workingDirectory, args, fileName, revision, line);
+        } );
         editor = createVcsEditor(editorId, title, sourceFile, CodecSource, "blameFileName", id, argWidget);
-        argWidget->setEditor(editor);
     }
 
     editor->setWorkingDirectory(workingDirectory);

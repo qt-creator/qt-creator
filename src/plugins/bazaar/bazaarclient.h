@@ -68,12 +68,6 @@ protected:
     QString vcsCommandString(VcsCommandTag cmd) const;
     Utils::ExitCodeInterpreter *exitCodeInterpreter(VcsCommandTag cmd, QObject *parent) const;
     QStringList revisionSpec(const QString &revision) const;
-    VcsBase::VcsBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
-                                                            const QStringList &files,
-                                                            const QStringList &extraOptions);
-    VcsBase::VcsBaseEditorParameterWidget *createLogEditor(const QString &workingDir,
-                                                           const QStringList &files,
-                                                           const QStringList &extraOptions);
     StatusItem parseStatusLine(const QString &line) const;
 
 private:

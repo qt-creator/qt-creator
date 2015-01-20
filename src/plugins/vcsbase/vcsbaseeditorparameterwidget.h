@@ -80,10 +80,12 @@ public:
     virtual QStringList arguments() const;
 
 public slots:
-    virtual void executeCommand();
-    virtual void handleArgumentsChanged();
+    void handleArgumentsChanged();
+    void executeCommand();
 
 signals:
+    void commandExecutionRequested();
+
     // Trigger a re-run to show changed output according to new argument list.
     void argumentsChanged();
 

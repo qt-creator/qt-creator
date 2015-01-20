@@ -53,9 +53,25 @@ using namespace VcsBase;
 namespace Mercurial {
 namespace Internal  {
 
+// Parameter widget controlling whitespace diff mode, associated with a parameter
+class MercurialDiffParameterWidget : public VcsBaseEditorParameterWidget
+{
+    Q_OBJECT
+public:
+    MercurialDiffParameterWidget(MercurialSettings *settings, QWidget *parent = 0) :
+        VcsBaseEditorParameterWidget(parent)
+    {
+        mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore Whitespace")),
+                   settings->boolPointer(MercurialSettings::diffIgnoreWhiteSpaceKey));
+        mapSetting(addToggleButton(QLatin1String("-B"), tr("Ignore Blank Lines")),
+                   settings->boolPointer(MercurialSettings::diffIgnoreBlankLinesKey));
+    }
+};
+
 MercurialClient::MercurialClient(MercurialSettings *settings) :
     VcsBaseClient(settings)
 {
+    setDiffParameterWidgetCreator([=] { return new MercurialDiffParameterWidget(settings); });
 }
 
 MercurialSettings *MercurialClient::settings() const
@@ -412,50 +428,6 @@ void MercurialClient::parsePullOutput(const QString &output)
 
     if (output.endsWith(QLatin1String("'hg merge' to merge)")))
         emit needMerge();
-}
-
-// Collect all parameters required for a diff to be able to associate them
-// with a diff editor and re-run the diff with parameters.
-struct MercurialDiffParameters
-{
-    QString workingDir;
-    QStringList files;
-    QStringList extraOptions;
-};
-
-// Parameter widget controlling whitespace diff mode, associated with a parameter
-class MercurialDiffParameterWidget : public VcsBaseEditorParameterWidget
-{
-    Q_OBJECT
-public:
-    MercurialDiffParameterWidget(MercurialClient *client,
-                                 const MercurialDiffParameters &p, QWidget *parent = 0) :
-        VcsBaseEditorParameterWidget(parent), m_client(client), m_params(p)
-    {
-        mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore Whitespace")),
-                   client->settings()->boolPointer(MercurialSettings::diffIgnoreWhiteSpaceKey));
-        mapSetting(addToggleButton(QLatin1String("-B"), tr("Ignore Blank Lines")),
-                   client->settings()->boolPointer(MercurialSettings::diffIgnoreBlankLinesKey));
-    }
-
-    void executeCommand()
-    {
-        m_client->diff(m_params.workingDir, m_params.files, m_params.extraOptions);
-    }
-
-private:
-    MercurialClient *m_client;
-    const MercurialDiffParameters m_params;
-};
-
-VcsBaseEditorParameterWidget *MercurialClient::createDiffEditor(
-    const QString &workingDir, const QStringList &files, const QStringList &extraOptions)
-{
-    MercurialDiffParameters parameters;
-    parameters.workingDir = workingDir;
-    parameters.files = files;
-    parameters.extraOptions = extraOptions;
-    return new MercurialDiffParameterWidget(this, parameters);
 }
 
 } // namespace Internal

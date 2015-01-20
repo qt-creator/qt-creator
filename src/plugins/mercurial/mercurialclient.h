@@ -86,9 +86,6 @@ public:
 protected:
     Core::Id vcsEditorKind(VcsCommandTag cmd) const;
     QStringList revisionSpec(const QString &revision) const;
-    VcsBase::VcsBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
-                                                            const QStringList &files,
-                                                            const QStringList &extraOptions);
     StatusItem parseStatusLine(const QString &line) const;
 
 signals:

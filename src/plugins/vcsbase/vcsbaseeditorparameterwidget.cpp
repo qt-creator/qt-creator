@@ -218,14 +218,15 @@ void VcsBaseEditorParameterWidget::mapSetting(QComboBox *comboBox, int *setting)
     comboBox->blockSignals(false);
 }
 
-void VcsBaseEditorParameterWidget::executeCommand()
-{
-}
-
 void VcsBaseEditorParameterWidget::handleArgumentsChanged()
 {
     updateMappedSettings();
     executeCommand();
+}
+
+void VcsBaseEditorParameterWidget::executeCommand()
+{
+    emit commandExecutionRequested();
 }
 
 VcsBaseEditorParameterWidget::OptionMapping::OptionMapping() :

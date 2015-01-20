@@ -89,8 +89,14 @@ public:
     void bindCommandToEditor(VcsCommand *cmd, VcsBaseEditorWidget *editor);
     void commandFinishedGotoLine(QWidget *editorObject);
 
+    VcsBaseEditorParameterWidget *createDiffEditor();
+    VcsBaseEditorParameterWidget *createLogEditor();
+
     VcsBaseClientSettings *m_clientSettings;
     QSignalMapper *m_cmdFinishedMapper;
+
+    VcsBaseClient::ParameterWidgetCreator m_diffParamWidgetCreator;
+    VcsBaseClient::ParameterWidgetCreator m_logParamWidgetCreator;
 
 private:
     VcsBaseClient *m_client;
@@ -155,6 +161,16 @@ void VcsBaseClientPrivate::commandFinishedGotoLine(QWidget *editorObject)
         }
         m_cmdFinishedMapper->removeMappings(cmd);
     }
+}
+
+VcsBaseEditorParameterWidget *VcsBaseClientPrivate::createDiffEditor()
+{
+    return m_diffParamWidgetCreator ? m_diffParamWidgetCreator() : 0;
+}
+
+VcsBaseEditorParameterWidget *VcsBaseClientPrivate::createLogEditor()
+{
+    return m_logParamWidgetCreator ? m_logParamWidgetCreator() : 0;
 }
 
 VcsBaseClient::StatusItem::StatusItem(const QString &s, const QString &f) :
@@ -350,10 +366,12 @@ void VcsBaseClient::diff(const QString &workingDir, const QStringList &files,
     editor->setWorkingDirectory(workingDir);
 
     VcsBaseEditorParameterWidget *paramWidget = editor->configurationWidget();
-    if (!paramWidget && (paramWidget = createDiffEditor(workingDir, files, extraOptions))) {
+    if (!paramWidget && (paramWidget = d->createDiffEditor())) {
         // editor has been just created, createVcsEditor() didn't set a configuration widget yet
         connect(editor, &VcsBaseEditorWidget::diffChunkReverted,
                 paramWidget, &VcsBaseEditorParameterWidget::executeCommand);
+        connect(paramWidget, &VcsBaseEditorParameterWidget::commandExecutionRequested,
+                [=] { diff(workingDir, files, extraOptions); } );
         editor->setConfigurationWidget(paramWidget);
     }
 
@@ -380,8 +398,10 @@ void VcsBaseClient::log(const QString &workingDir, const QStringList &files,
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
 
     VcsBaseEditorParameterWidget *paramWidget = editor->configurationWidget();
-    if (!paramWidget && (paramWidget = createLogEditor(workingDir, files, extraOptions))) {
+    if (!paramWidget && (paramWidget = d->createLogEditor())) {
         // editor has been just created, createVcsEditor() didn't set a configuration widget yet
+        connect(paramWidget, &VcsBaseEditorParameterWidget::commandExecutionRequested,
+                [=] { log(workingDir, files, extraOptions, enableAnnotationContextMenu); } );
         editor->setConfigurationWidget(paramWidget);
     }
 
@@ -467,6 +487,16 @@ Utils::ExitCodeInterpreter *VcsBaseClient::exitCodeInterpreter(VcsCommandTag cmd
     return 0;
 }
 
+void VcsBaseClient::setDiffParameterWidgetCreator(ParameterWidgetCreator creator)
+{
+    d->m_diffParamWidgetCreator = std::move(creator);
+}
+
+void VcsBaseClient::setLogParameterWidgetCreator(ParameterWidgetCreator creator)
+{
+    d->m_logParamWidgetCreator = std::move(creator);
+}
+
 void VcsBaseClient::import(const QString &repositoryRoot, const QStringList &files,
                            const QStringList &extraOptions)
 {
@@ -525,26 +555,6 @@ void VcsBaseClient::commit(const QString &repositoryRoot,
 VcsBaseClientSettings *VcsBaseClient::settings() const
 {
     return d->m_clientSettings;
-}
-
-VcsBaseEditorParameterWidget *VcsBaseClient::createDiffEditor(const QString &workingDir,
-                                                              const QStringList &files,
-                                                              const QStringList &extraOptions)
-{
-    Q_UNUSED(workingDir);
-    Q_UNUSED(files);
-    Q_UNUSED(extraOptions);
-    return 0;
-}
-
-VcsBaseEditorParameterWidget *VcsBaseClient::createLogEditor(const QString &workingDir,
-                                                             const QStringList &files,
-                                                             const QStringList &extraOptions)
-{
-    Q_UNUSED(workingDir);
-    Q_UNUSED(files);
-    Q_UNUSED(extraOptions);
-    return 0;
 }
 
 QString VcsBaseClient::vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const

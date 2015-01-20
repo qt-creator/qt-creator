@@ -37,6 +37,8 @@
 #include <QObject>
 #include <QStringList>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QFileInfo;
 class QVariant;
@@ -155,12 +157,11 @@ protected:
     virtual Utils::ExitCodeInterpreter *exitCodeInterpreter(VcsCommandTag cmd, QObject *parent) const;
 
     virtual QStringList revisionSpec(const QString &revision) const = 0;
-    virtual VcsBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
-                                                           const QStringList &files,
-                                                           const QStringList &extraOptions);
-    virtual VcsBaseEditorParameterWidget *createLogEditor(const QString &workingDir,
-                                                          const QStringList &files,
-                                                          const QStringList &extraOptions);
+
+    typedef std::function<VcsBaseEditorParameterWidget *()> ParameterWidgetCreator;
+    void setDiffParameterWidgetCreator(ParameterWidgetCreator creator);
+    void setLogParameterWidgetCreator(ParameterWidgetCreator creator);
+
     virtual StatusItem parseStatusLine(const QString &line) const = 0;
 
     QString vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const;

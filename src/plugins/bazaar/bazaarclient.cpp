@@ -61,9 +61,66 @@ SynchronousProcessResponse::Result BazaarDiffExitCodeInterpreter::interpretExitC
     return SynchronousProcessResponse::Finished;
 }
 
+// Parameter widget controlling whitespace diff mode, associated with a parameter
+class BazaarDiffParameterWidget : public VcsBaseEditorParameterWidget
+{
+    Q_OBJECT
+public:
+    BazaarDiffParameterWidget(BazaarSettings *settings, QWidget *parent = 0) :
+        VcsBaseEditorParameterWidget(parent)
+    {
+        mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore Whitespace")),
+                   settings->boolPointer(BazaarSettings::diffIgnoreWhiteSpaceKey));
+        mapSetting(addToggleButton(QLatin1String("-B"), tr("Ignore Blank Lines")),
+                   settings->boolPointer(BazaarSettings::diffIgnoreBlankLinesKey));
+    }
+
+    QStringList arguments() const
+    {
+        QStringList args;
+        // Bazaar wants "--diff-options=-w -B.."
+        const QStringList formatArguments = VcsBaseEditorParameterWidget::arguments();
+        if (!formatArguments.isEmpty()) {
+            const QString a = QLatin1String("--diff-options=")
+                    + formatArguments.join(QString(QLatin1Char(' ')));
+            args.append(a);
+        }
+        return args;
+    }
+};
+
+class BazaarLogParameterWidget : public VcsBaseEditorParameterWidget
+{
+    Q_OBJECT
+public:
+    BazaarLogParameterWidget(BazaarSettings *settings, QWidget *parent = 0) :
+        VcsBaseEditorParameterWidget(parent)
+    {
+        mapSetting(addToggleButton(QLatin1String("--verbose"), tr("Verbose"),
+                                   tr("Show files changed in each revision")),
+                   settings->boolPointer(BazaarSettings::logVerboseKey));
+        mapSetting(addToggleButton(QLatin1String("--forward"), tr("Forward"),
+                                   tr("Show from oldest to newest")),
+                   settings->boolPointer(BazaarSettings::logForwardKey));
+        mapSetting(addToggleButton(QLatin1String("--include-merges"), tr("Include merges"),
+                                   tr("Show merged revisions")),
+                   settings->boolPointer(BazaarSettings::logIncludeMergesKey));
+
+        QList<ComboBoxItem> logChoices;
+        logChoices << ComboBoxItem(tr("Detailed"), QLatin1String("long"))
+                   << ComboBoxItem(tr("Moderately short"), QLatin1String("short"))
+                   << ComboBoxItem(tr("One line"), QLatin1String("line"))
+                   << ComboBoxItem(tr("GNU ChangeLog"), QLatin1String("gnu-changelog"));
+        mapSetting(addComboBox(QStringList(QLatin1String("--log-format=%1")), logChoices),
+                   settings->stringPointer(BazaarSettings::logFormatKey));
+    }
+};
+
 BazaarClient::BazaarClient(BazaarSettings *settings) :
     VcsBaseClient(settings)
 {
+    setDiffParameterWidgetCreator([=] { return new BazaarDiffParameterWidget(settings); });
+    setLogParameterWidgetCreator([=] { return new BazaarLogParameterWidget(settings); });
 }
 
 BazaarSettings *BazaarClient::settings() const
@@ -251,112 +308,6 @@ BazaarClient::StatusItem BazaarClient::parseStatusLine(const QString &line) cons
         item.file = line.mid(4);
     }
     return item;
-}
-
-// Collect all parameters required for a diff or log to be able to associate
-// them with an editor and re-run the command with parameters.
-struct BazaarCommandParameters
-{
-    BazaarCommandParameters(const QString &workDir,
-                            const QStringList &inFiles,
-                            const QStringList &options) :
-        workingDir(workDir), files(inFiles), extraOptions(options)
-    {
-    }
-
-    QString workingDir;
-    QStringList files;
-    QStringList extraOptions;
-};
-
-// Parameter widget controlling whitespace diff mode, associated with a parameter
-class BazaarDiffParameterWidget : public VcsBaseEditorParameterWidget
-{
-    Q_OBJECT
-public:
-    BazaarDiffParameterWidget(BazaarClient *client,
-                              const BazaarCommandParameters &p, QWidget *parent = 0) :
-        VcsBaseEditorParameterWidget(parent), m_client(client), m_params(p)
-    {
-        mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore Whitespace")),
-                   client->settings()->boolPointer(BazaarSettings::diffIgnoreWhiteSpaceKey));
-        mapSetting(addToggleButton(QLatin1String("-B"), tr("Ignore Blank Lines")),
-                   client->settings()->boolPointer(BazaarSettings::diffIgnoreBlankLinesKey));
-    }
-
-    QStringList arguments() const
-    {
-        QStringList args;
-        // Bazaar wants "--diff-options=-w -B.."
-        const QStringList formatArguments = VcsBaseEditorParameterWidget::arguments();
-        if (!formatArguments.isEmpty()) {
-            const QString a = QLatin1String("--diff-options=")
-                    + formatArguments.join(QString(QLatin1Char(' ')));
-            args.append(a);
-        }
-        return args;
-    }
-
-    void executeCommand()
-    {
-        m_client->diff(m_params.workingDir, m_params.files, m_params.extraOptions);
-    }
-
-private:
-    BazaarClient *m_client;
-    const BazaarCommandParameters m_params;
-};
-
-VcsBaseEditorParameterWidget *BazaarClient::createDiffEditor(
-        const QString &workingDir, const QStringList &files, const QStringList &extraOptions)
-{
-    const BazaarCommandParameters parameters(workingDir, files, extraOptions);
-    return new BazaarDiffParameterWidget(this, parameters);
-}
-
-class BazaarLogParameterWidget : public VcsBaseEditorParameterWidget
-{
-    Q_OBJECT
-public:
-    BazaarLogParameterWidget(BazaarClient *client,
-                             const BazaarCommandParameters &p, QWidget *parent = 0) :
-        VcsBaseEditorParameterWidget(parent), m_client(client), m_params(p)
-    {
-        BazaarSettings *settings = m_client->settings();
-        mapSetting(addToggleButton(QLatin1String("--verbose"), tr("Verbose"),
-                                   tr("Show files changed in each revision")),
-                   settings->boolPointer(BazaarSettings::logVerboseKey));
-        mapSetting(addToggleButton(QLatin1String("--forward"), tr("Forward"),
-                                   tr("Show from oldest to newest")),
-                   settings->boolPointer(BazaarSettings::logForwardKey));
-        mapSetting(addToggleButton(QLatin1String("--include-merges"), tr("Include merges"),
-                                   tr("Show merged revisions")),
-                   settings->boolPointer(BazaarSettings::logIncludeMergesKey));
-
-        QList<ComboBoxItem> logChoices;
-        logChoices << ComboBoxItem(tr("Detailed"), QLatin1String("long"))
-                   << ComboBoxItem(tr("Moderately short"), QLatin1String("short"))
-                   << ComboBoxItem(tr("One line"), QLatin1String("line"))
-                   << ComboBoxItem(tr("GNU ChangeLog"), QLatin1String("gnu-changelog"));
-        mapSetting(addComboBox(QStringList(QLatin1String("--log-format=%1")), logChoices),
-                   settings->stringPointer(BazaarSettings::logFormatKey));
-    }
-
-    void executeCommand()
-    {
-        m_client->log(m_params.workingDir, m_params.files, m_params.extraOptions);
-    }
-
-private:
-    BazaarClient *m_client;
-    const BazaarCommandParameters m_params;
-};
-
-VcsBaseEditorParameterWidget *BazaarClient::createLogEditor(
-        const QString &workingDir, const QStringList &files, const QStringList &extraOptions)
-{
-    const BazaarCommandParameters parameters(workingDir, files, extraOptions);
-    return new BazaarLogParameterWidget(this, parameters);
 }
 
 } // namespace Internal

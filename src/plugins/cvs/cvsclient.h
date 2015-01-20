@@ -53,14 +53,9 @@ public:
     QStringList revisionSpec(const QString &revision) const;
     StatusItem parseStatusLine(const QString &line) const;
 
-
 protected:
     Utils::ExitCodeInterpreter *exitCodeInterpreter(VcsCommandTag cmd, QObject *parent) const;
     Core::Id vcsEditorKind(VcsCommandTag cmd) const;
-    VcsBase::VcsBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
-                                                            const QStringList &files,
-                                                            const QStringList &extraOptions);
-private:
 };
 
 } // namespace Internal

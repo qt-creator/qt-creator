@@ -65,59 +65,40 @@ SynchronousProcessResponse::Result CvsDiffExitCodeInterpreter::interpretExitCode
     return SynchronousProcessResponse::Finished;
 }
 
-// Collect all parameters required for a diff to be able to associate them
-// with a diff editor and re-run the diff with parameters.
-struct CvsDiffParameters
-{
-    QString workingDir;
-    QStringList extraOptions;
-    QStringList files;
-};
-
 // Parameter widget controlling whitespace diff mode, associated with a parameter
 class CvsDiffParameterWidget : public VcsBaseEditorParameterWidget
 {
     Q_OBJECT
 public:
-    explicit CvsDiffParameterWidget(CvsClient *client,
-                                    const CvsDiffParameters &p,
-                                    QWidget *parent = 0);
+    explicit CvsDiffParameterWidget(CvsSettings *settings, QWidget *parent = 0);
     QStringList arguments() const;
-    void executeCommand();
 
 private:
-
-    CvsClient *m_client;
-    const CvsDiffParameters m_params;
+    const CvsSettings *m_settings;
 };
 
-CvsDiffParameterWidget::CvsDiffParameterWidget(CvsClient *client,
-                                               const CvsDiffParameters &p,
-                                               QWidget *parent)
-    : VcsBaseEditorParameterWidget(parent), m_client(client), m_params(p)
+CvsDiffParameterWidget::CvsDiffParameterWidget(CvsSettings *settings, QWidget *parent)
+    : VcsBaseEditorParameterWidget(parent),
+      m_settings(settings)
 {
     mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore Whitespace")),
-               client->settings()->boolPointer(CvsSettings::diffIgnoreWhiteSpaceKey));
+               settings->boolPointer(CvsSettings::diffIgnoreWhiteSpaceKey));
     mapSetting(addToggleButton(QLatin1String("-B"), tr("Ignore Blank Lines")),
-               client->settings()->boolPointer(CvsSettings::diffIgnoreBlankLinesKey));
+               settings->boolPointer(CvsSettings::diffIgnoreBlankLinesKey));
 }
 
 QStringList CvsDiffParameterWidget::arguments() const
 {
     QStringList args;
-    args = m_client->settings()->stringValue(CvsSettings::diffOptionsKey).split(QLatin1Char(' '), QString::SkipEmptyParts);
+    args = m_settings->stringValue(CvsSettings::diffOptionsKey).split(QLatin1Char(' '), QString::SkipEmptyParts);
     args += VcsBaseEditorParameterWidget::arguments();
     return args;
-}
-
-void CvsDiffParameterWidget::executeCommand()
-{
-    m_client->diff(m_params.workingDir, m_params.files, m_params.extraOptions);
 }
 
 CvsClient::CvsClient(CvsSettings *settings) :
     VcsBaseClient(settings)
 {
+    setDiffParameterWidgetCreator([=] { return new CvsDiffParameterWidget(settings); });
 }
 
 CvsSettings *CvsClient::settings() const
@@ -167,17 +148,6 @@ VcsBaseClient::StatusItem CvsClient::parseStatusLine(const QString &line) const
 {
     Q_UNUSED(line)
     return VcsBaseClient::StatusItem();
-}
-
-VcsBaseEditorParameterWidget *CvsClient::createDiffEditor(
-        const QString &workingDir, const QStringList &files, const QStringList &extraOptions)
-{
-    Q_UNUSED(extraOptions)
-    CvsDiffParameters p;
-    p.workingDir = workingDir;
-    p.files = files;
-    p.extraOptions = extraOptions;
-    return new CvsDiffParameterWidget(this, p);
 }
 
 } // namespace Internal
