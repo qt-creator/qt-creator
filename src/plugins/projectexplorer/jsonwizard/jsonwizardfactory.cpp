@@ -312,7 +312,7 @@ QList<JsonWizardFactory *> JsonWizardFactory::createWizardFactories()
 }
 
 JsonWizardFactory *JsonWizardFactory::createWizardFactory(const QVariantMap &data, const QDir &baseDir,
-                                                                        QString *errorMessage)
+                                                          QString *errorMessage)
 {
     JsonWizardFactory *factory = new JsonWizardFactory;
     if (!factory->initialize(data, baseDir, errorMessage)) {
