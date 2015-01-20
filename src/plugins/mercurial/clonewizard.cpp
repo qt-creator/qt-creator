@@ -53,8 +53,11 @@ CloneWizard::CloneWizard(const Utils::FileName &path, QWidget *parent) :
     setStartedStatus(tr("Cloning started..."));
 
     const Core::IVersionControl *vc = MercurialPlugin::instance()->versionControl();
-    if (!vc->isConfigured())
-        addPage(new VcsConfigurationPage(vc));
+    if (!vc->isConfigured()) {
+        VcsConfigurationPage *configPage = new VcsConfigurationPage;
+        configPage->setVersionControl(vc);
+        addPage(configPage);
+    }
     CloneWizardPage *page = new CloneWizardPage;
     page->setPath(path.toString());
     addPage(page);

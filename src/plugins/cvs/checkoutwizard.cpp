@@ -51,8 +51,11 @@ CheckoutWizard::CheckoutWizard(const Utils::FileName &path, QWidget *parent) :
     BaseCheckoutWizard(path, parent)
 {
     const Core::IVersionControl *vc = CvsPlugin::instance()->versionControl();
-    if (!vc->isConfigured())
-        addPage(new VcsConfigurationPage(vc));
+    if (!vc->isConfigured()) {
+        VcsConfigurationPage *configPage = new VcsConfigurationPage;
+        configPage->setVersionControl(vc);
+        addPage(configPage);
+    }
     CheckoutWizardPage *cwp = new CheckoutWizardPage;
     cwp->setPath(path.toString());
     addPage(cwp);

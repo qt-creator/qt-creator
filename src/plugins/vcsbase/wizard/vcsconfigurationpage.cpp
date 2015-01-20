@@ -35,6 +35,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
+#include <projectexplorer/jsonwizard/jsonwizard.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -67,10 +68,10 @@ Utils::WizardPage *VcsConfigurationPageFactory::create(JsonWizard *wizard, Id ty
     const QString vcsId = tmp.value(QLatin1String("vcsId")).toString();
     QTC_ASSERT(!vcsId.isEmpty(), return 0);
 
-    IVersionControl *vc = VcsManager::versionControl(Id::fromString(vcsId));
-    QTC_ASSERT(vc, return 0);
+    VcsConfigurationPage *page = new VcsConfigurationPage;
+    page->setVersionControlId(vcsId);
 
-    return new VcsConfigurationPage(vc);
+    return page;
 }
 
 bool VcsConfigurationPageFactory::validateData(Id typeId, const QVariant &data,
@@ -91,17 +92,6 @@ bool VcsConfigurationPageFactory::validateData(Id typeId, const QVariant &data,
                                                     "\"VcsConfiguration\" page requires a \"vcsId\" set.");
         return false;
     }
-
-    if (!VcsManager::versionControl(Id::fromString(vcsId))) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                    "\"vcsId\" (\"%1\") is invalid for \"VcsConfiguration\" page. "
-                                                    "Possible values are: %2.")
-                .arg(vcsId)
-                .arg(QStringList(Utils::transform(VcsManager::versionControls(), [](const IVersionControl *vc) {
-                         return vc->id().toString();
-                     })).join(QLatin1String(", ")));
-        return false;
-    }
     return true;
 }
 
@@ -109,21 +99,19 @@ class VcsConfigurationPagePrivate
 {
 public:
     const IVersionControl *m_versionControl;
+    QString m_versionControlId;
     QPushButton *m_configureButton;
 };
 
 } // namespace Internal
 
-VcsConfigurationPage::VcsConfigurationPage(const IVersionControl *vc, QWidget *parent) :
-    Utils::WizardPage(parent),
-    d(new Internal::VcsConfigurationPagePrivate)
+VcsConfigurationPage::VcsConfigurationPage() : d(new Internal::VcsConfigurationPagePrivate)
 {
-    QTC_ASSERT(vc, return);
     setTitle(tr("Configuration"));
-    setSubTitle(tr("Please configure <b>%1</b> now.").arg(vc->displayName()));
 
-    d->m_versionControl = vc;
+    d->m_versionControl = 0;
     d->m_configureButton = new QPushButton(ICore::msgShowOptionsDialog(), this);
+    d->m_configureButton->setEnabled(false);
 
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
     verticalLayout->addWidget(d->m_configureButton);
@@ -137,9 +125,51 @@ VcsConfigurationPage::~VcsConfigurationPage()
     delete d;
 }
 
+void VcsConfigurationPage::setVersionControl(const IVersionControl *vc)
+{
+    if (vc)
+        d->m_versionControlId = vc->id().toString();
+    else
+        d->m_versionControlId.clear();
+    d->m_versionControl = 0;
+}
+
+void VcsConfigurationPage::setVersionControlId(const QString &id)
+{
+    d->m_versionControlId = id;
+}
+
+void VcsConfigurationPage::initializePage()
+{
+    if (!d->m_versionControlId.isEmpty()) {
+        auto jw = qobject_cast<JsonWizard *>(wizard());
+        if (!jw)
+            emit reportError(tr("No version control set on \"VcsConfiguration\" page."));
+
+        const QString vcsId = jw ? jw->expander()->expand(d->m_versionControlId) : d->m_versionControlId;
+
+        d->m_versionControl = VcsManager::versionControl(Id::fromString(vcsId));
+        if (!d->m_versionControl) {
+            emit reportError(
+                        tr("\"vcsId\" (\"%1\") is invalid for \"VcsConfiguration\" page. "
+                           "Possible values are: %2.")
+                        .arg(vcsId)
+                        .arg(QStringList(Utils::transform(VcsManager::versionControls(), [](const IVersionControl *vc) {
+                return vc->id().toString();
+            })).join(QLatin1String(", "))));
+        }
+    }
+
+    d->m_configureButton->setEnabled(d->m_versionControl);
+    if (d->m_versionControl)
+        setSubTitle(tr("Please configure <b>%1</b> now.").arg(d->m_versionControl->displayName()));
+    else
+        setSubTitle(tr("No known version control selected."));
+}
+
 bool VcsConfigurationPage::isComplete() const
 {
-    return d->m_versionControl->isConfigured();
+    return d->m_versionControl ? d->m_versionControl->isConfigured() : false;
 }
 
 void VcsConfigurationPage::openConfiguration()

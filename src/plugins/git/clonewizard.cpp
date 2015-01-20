@@ -54,8 +54,11 @@ CloneWizard::CloneWizard(const Utils::FileName &path, QWidget *parent) :
     setStartedStatus(tr("Cloning started..."));
 
     const Internal::GitVersionControl *vc = Internal::GitPlugin::instance()->gitVersionControl();
-    if (!vc->isConfigured())
-        addPage(new VcsConfigurationPage(vc));
+    if (!vc->isConfigured()) {
+        VcsConfigurationPage *configPage = new VcsConfigurationPage;
+        configPage->setVersionControl(vc);
+        addPage(configPage);
+    }
     CloneWizardPage *cwp = new CloneWizardPage;
     cwp->setPath(path.toString());
     addPage(cwp);

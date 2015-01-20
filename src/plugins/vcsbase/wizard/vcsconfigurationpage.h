@@ -61,10 +61,13 @@ class VCSBASE_EXPORT VcsConfigurationPage : public Utils::WizardPage
     Q_OBJECT
 
 public:
-    // TODO: Make this set the VCS only in initializePage.
-    explicit VcsConfigurationPage(const Core::IVersionControl *, QWidget *parent = 0);
+    VcsConfigurationPage();
     ~VcsConfigurationPage();
 
+    void setVersionControl(const Core::IVersionControl *vc);
+    void setVersionControlId(const QString &id);
+
+    void initializePage();
     bool isComplete() const;
 
 private slots:
