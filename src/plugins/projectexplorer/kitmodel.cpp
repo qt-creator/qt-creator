@@ -279,6 +279,31 @@ void KitModel::setDirty()
     }
 }
 
+void KitModel::isAutoDetectedChanged()
+{
+    KitManagerConfigWidget *w = qobject_cast<KitManagerConfigWidget *>(sender());
+    int idx = -1;
+    idx = Utils::indexOf(m_manualRoot->childNodes, [w](KitNode *node) { return node->widget == w; });
+    KitNode *oldParent = 0;
+    KitNode *newParent = w->workingCopy()->isAutoDetected() ? m_autoRoot : m_manualRoot;
+    if (idx != -1) {
+        oldParent = m_manualRoot;
+    } else {
+        idx = Utils::indexOf(m_autoRoot->childNodes, [w](KitNode *node) { return node->widget == w; });
+        if (idx != -1) {
+            oldParent = m_autoRoot;
+        }
+    }
+
+    if (oldParent && oldParent != newParent) {
+        beginMoveRows(index(oldParent), idx, idx, index(newParent), newParent->childNodes.size());
+        KitNode *n = oldParent->childNodes.takeAt(idx);
+        n->parent = newParent;
+        newParent->childNodes.append(n);
+        endMoveRows();
+    }
+}
+
 void KitModel::validateKitNames()
 {
     QList<KitNode *> nodes = m_manualRoot->childNodes;
@@ -395,6 +420,9 @@ KitNode *KitModel::createNode(KitNode *parent, Kit *k)
     KitNode *node = new KitNode(parent, k);
     m_parentLayout->addWidget(node->widget);
     connect(node->widget, SIGNAL(dirty()), this, SLOT(setDirty()));
+    connect(node->widget, SIGNAL(isAutoDetectedChanged()),
+            this, SLOT(isAutoDetectedChanged()));
+
     return node;
 }
 

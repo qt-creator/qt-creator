@@ -354,8 +354,11 @@ void KitManagerConfigWidget::workingCopyWasUpdated(Kit *k)
 
 void KitManagerConfigWidget::kitWasUpdated(Kit *k)
 {
-    if (m_kit == k)
+    if (m_kit == k) {
+        bool emitSignal = m_kit->isAutoDetected() != m_modifiedKit->isAutoDetected();
         discard();
+        emit isAutoDetectedChanged();
+    }
     updateVisibility();
 }
 

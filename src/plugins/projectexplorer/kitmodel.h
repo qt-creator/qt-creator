@@ -97,6 +97,7 @@ private slots:
     void changeDefaultKit();
     void setDirty();
     void validateKitNames();
+    void isAutoDetectedChanged();
 
 private:
     QModelIndex index(KitNode *, int column = 0) const;

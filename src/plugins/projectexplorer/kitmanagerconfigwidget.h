@@ -77,6 +77,7 @@ public:
 
 signals:
     void dirty();
+    void isAutoDetectedChanged();
 
 private slots:
     void setIcon();
