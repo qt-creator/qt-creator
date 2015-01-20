@@ -41,19 +41,21 @@
 #include <QVBoxLayout>
 #include <QWizardPage>
 
+using namespace Core;
+
 namespace VcsBase {
 namespace Internal {
 
 class VcsConfigurationPagePrivate
 {
 public:
-    const Core::IVersionControl *m_versionControl;
+    const IVersionControl *m_versionControl;
     QPushButton *m_configureButton;
 };
 
 } // namespace Internal
 
-VcsConfigurationPage::VcsConfigurationPage(const Core::IVersionControl *vc, QWidget *parent) :
+VcsConfigurationPage::VcsConfigurationPage(const IVersionControl *vc, QWidget *parent) :
     QWizardPage(parent),
     d(new Internal::VcsConfigurationPagePrivate)
 {
@@ -62,7 +64,7 @@ VcsConfigurationPage::VcsConfigurationPage(const Core::IVersionControl *vc, QWid
     setSubTitle(tr("Please configure <b>%1</b> now.").arg(vc->displayName()));
 
     d->m_versionControl = vc;
-    d->m_configureButton = new QPushButton(Core::ICore::msgShowOptionsDialog(), this);
+    d->m_configureButton = new QPushButton(ICore::msgShowOptionsDialog(), this);
 
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
     verticalLayout->addWidget(d->m_configureButton);
@@ -83,9 +85,7 @@ bool VcsConfigurationPage::isComplete() const
 
 void VcsConfigurationPage::openConfiguration()
 {
-    Core::ICore::showOptionsDialog(Constants::VCS_SETTINGS_CATEGORY,
-                                   d->m_versionControl->id(),
-                                   this);
+    ICore::showOptionsDialog(Constants::VCS_SETTINGS_CATEGORY, d->m_versionControl->id(), this);
 }
 
 } // namespace VcsBase
