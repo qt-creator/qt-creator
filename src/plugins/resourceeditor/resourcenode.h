@@ -53,9 +53,6 @@ public:
     bool addFiles(const QStringList &filePaths, QStringList *notAdded);
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved);
 
-    bool addFiles(const QString &prefix, const QString &lang, const QStringList &filePaths, QStringList *notAdded);
-    bool removeFiles(const QString &prefix, const QString &lang,const QStringList &filePaths, QStringList *notRemoved);
-
     bool addPrefix(const QString &prefix, const QString &lang);
     bool removePrefix(const QString &prefix, const QString &lang);
 
