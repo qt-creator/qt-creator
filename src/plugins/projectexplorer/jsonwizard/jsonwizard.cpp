@@ -32,8 +32,11 @@
 
 #include "jsonwizardgeneratorfactory.h"
 
+#include <coreplugin/messagemanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/wizardpage.h>
 
 #include <QFileInfo>
 #include <QMessageBox>
@@ -211,6 +214,20 @@ void JsonWizard::accept()
     }
 
     emit allDone(m_files);
+}
+
+void JsonWizard::handleNewPages(int pageId)
+{
+    Utils::WizardPage *wp = qobject_cast<Utils::WizardPage *>(page(pageId));
+    if (!wp)
+        return;
+
+    connect(wp, &Utils::WizardPage::reportError, this, &JsonWizard::handleError);
+}
+
+void JsonWizard::handleError(const QString &message)
+{
+    Core::MessageManager::write(message, Core::MessageManager::ModeSwitch);
 }
 
 } // namespace ProjectExplorer

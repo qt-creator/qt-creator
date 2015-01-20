@@ -95,6 +95,10 @@ signals:
 public slots:
     void accept();
 
+private slots:
+    void handleNewPages(int pageId);
+    void handleError(const QString &message);
+
 private:
     QList<JsonWizardGenerator *> m_generators;
 
