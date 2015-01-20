@@ -124,7 +124,7 @@ public:
         }
     }
 
-    Q_SLOT void handleSectionResized(int logicalIndex, int /*oldSize*/, int newSize)
+    void handleSectionResized(int logicalIndex, int /*oldSize*/, int newSize)
     {
         if (m_expectUserChanges) {
             m_userHandled[logicalIndex] = newSize;
@@ -159,7 +159,7 @@ public:
         return minimum;
     }
 
-    Q_SLOT void resizeColumns()
+    Q_SLOT void resizeColumns() // Needs moc, see BaseTreeView::setModel
     {
         QHeaderView *h = q->header();
         QTC_ASSERT(h, return);
@@ -178,17 +178,7 @@ public:
         }
     }
 
-    Q_SLOT void rowActivatedHelper(const QModelIndex &index)
-    {
-        q->rowActivated(index);
-    }
-
-    Q_SLOT void rowClickedHelper(const QModelIndex &index)
-    {
-        q->rowClicked(index);
-    }
-
-    Q_SLOT void toggleColumnWidth(int logicalIndex)
+    void toggleColumnWidth(int logicalIndex)
     {
         QHeaderView *h = q->header();
         const int currentSize = h->sectionSize(logicalIndex);
@@ -254,14 +244,15 @@ BaseTreeView::BaseTreeView(QWidget *parent)
     h->setSectionsClickable(true);
     h->viewport()->installEventFilter(d);
 
-    connect(this, SIGNAL(activated(QModelIndex)),
-        d, SLOT(rowActivatedHelper(QModelIndex)));
-    connect(this, SIGNAL(clicked(QModelIndex)),
-        d, SLOT(rowClickedHelper(QModelIndex)));
-    connect(h, SIGNAL(sectionClicked(int)),
-        d, SLOT(toggleColumnWidth(int)));
-    connect(h, SIGNAL(sectionResized(int,int,int)),
-        d, SLOT(handleSectionResized(int,int,int)));
+    connect(this, &QAbstractItemView::activated,
+            this, &BaseTreeView::rowActivated);
+    connect(this, &QAbstractItemView::clicked,
+            this, &BaseTreeView::rowClicked);
+
+    connect(h, &QHeaderView::sectionClicked,
+            d, &BaseTreeViewPrivate::toggleColumnWidth);
+    connect(h, &QHeaderView::sectionResized,
+            d, &BaseTreeViewPrivate::handleSectionResized);
 }
 
 BaseTreeView::~BaseTreeView()
