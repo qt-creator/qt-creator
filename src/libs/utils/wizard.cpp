@@ -322,9 +322,9 @@ Wizard::Wizard(QWidget *parent, Qt::WindowFlags flags) :
 {
     d_ptr->q_ptr = this;
     d_ptr->m_wizardProgress = new WizardProgress(this);
-    connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(_q_currentPageChanged(int)));
-    connect(this, SIGNAL(pageAdded(int)), this, SLOT(_q_pageAdded(int)));
-    connect(this, SIGNAL(pageRemoved(int)), this, SLOT(_q_pageRemoved(int)));
+    connect(this, &QWizard::currentIdChanged, this, &Wizard::_q_currentPageChanged);
+    connect(this, &QWizard::pageAdded, this, &Wizard::_q_pageAdded);
+    connect(this, &QWizard::pageRemoved, this, &Wizard::_q_pageRemoved);
     setSideWidget(new LinearProgressWidget(d_ptr->m_wizardProgress, this));
     setOption(QWizard::NoCancelButton, false);
     setOption(QWizard::NoDefaultButton, false);
