@@ -654,7 +654,7 @@ void ProjectNode::removeProjectNodes(const QList<ProjectNode*> &subProjects)
             toRemove << projectNode;
         Utils::sort(toRemove);
 
-        ProjectTree::instance()->foldersAboutToBeRemoved(this, toRemove);
+        ProjectTree::instance()->emitFoldersAboutToBeRemoved(this, toRemove);
 
         QList<FolderNode*>::const_iterator toRemoveIter = toRemove.constBegin();
         QList<FolderNode*>::iterator folderIter = m_subFolderNodes.begin();
