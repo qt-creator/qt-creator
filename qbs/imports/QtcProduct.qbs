@@ -6,9 +6,9 @@ Product {
 
     Depends { name: "cpp" }
     cpp.defines: project.generalDefines
-    cpp.cxxFlags: QtcFunctions.commonCxxFlags(qbs)
+    cpp.cxxLanguageVersion: "c++11"
     cpp.linkerFlags: {
-        var flags = QtcFunctions.commonLinkerFlags(qbs);
+        var flags = [];
         if (qbs.buildVariant == "release" && (qbs.toolchain.contains("gcc") || qbs.toolchain.contains("mingw")))
             flags.push("-Wl,-s");
         return flags;
