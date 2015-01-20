@@ -365,7 +365,7 @@ void FolderNode::addFileNodes(const QList<FileNode *> &files)
     if (files.isEmpty())
         return;
 
-    emit ProjectTree::instance()->emitFilesAboutToBeAdded(this, files);
+    ProjectTree::instance()->emitFilesAboutToBeAdded(this, files);
 
     foreach (FileNode *file, files) {
         QTC_ASSERT(!file->parentFolderNode(),
