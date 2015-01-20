@@ -52,6 +52,10 @@ public:
     void registerFieldWithName(const QString &name, QWidget *widget,
                                const char *property = 0, const char *changedSignal = 0);
 
+signals:
+    // Emitted when there is something that the developer using this page should be aware of.
+    void reportError(const QString &errorMessage);
+
 private:
     QSet<QString> m_toRegister;
 };
