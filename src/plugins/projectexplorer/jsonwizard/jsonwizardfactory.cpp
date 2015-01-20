@@ -557,7 +557,7 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
 
     // Generator:
     QVariantList list = objectOrList(data.value(QLatin1String(GENERATOR_KEY)), errorMessage);
-    if (list.isEmpty()) {
+    if (!errorMessage->isEmpty()) {
         *errorMessage = tr("When parsing \"generators\": %1").arg(*errorMessage);
         return false;
     }
