@@ -1727,25 +1727,6 @@ void GdbEngine::handlePythonSetup(const GdbResponse &response)
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        bool needSetup = false;
-
-        const QString path = stringSetting(ExtraDumperFile);
-        if (!path.isEmpty()) {
-            QFileInfo fi(path);
-            postCommand("python sys.path.insert(1, '" + fi.absolutePath().toUtf8() + "')");
-            postCommand("python from " + fi.baseName().toUtf8() + " import *");
-            needSetup = true;
-        }
-
-        const QString commands = stringSetting(ExtraDumperCommands);
-        if (!commands.isEmpty()) {
-            postCommand(commands.toLocal8Bit());
-            needSetup = true;
-        }
-
-        if (needSetup)
-            postCommand("bbsetup");
-
         GdbMi data;
         data.fromStringMultiple(response.consoleStreamOutput);
         const GdbMi dumpers = data["dumpers"];
@@ -4350,13 +4331,22 @@ void GdbEngine::startGdb(const QStringList &args)
     const GdbCommandFlags flags = ConsoleCommand | Immediate;
     postCommand("python sys.path.insert(1, '" + dumperSourcePath + "')", flags);
     postCommand("python sys.path.append('" + uninstalledData + "')", flags);
-    postCommand("python from gdbbridge import *", flags, CB(handlePythonSetup));
+    postCommand("python from gdbbridge import *", flags);
+
+    const QString path = stringSetting(ExtraDumperFile);
+    if (!path.isEmpty())
+        postCommand("python addExtraDumper('" + path.toUtf8() + "')", flags);
+
+    const QString commands = stringSetting(ExtraDumperCommands);
+    if (!commands.isEmpty())
+        postCommand(commands.toLocal8Bit(), flags);
+
+    postCommand("bbsetup", flags, CB(handlePythonSetup));
 }
 
 void GdbEngine::handleGdbStartFailed()
 {
 }
-
 
 void GdbEngine::loadInitScript()
 {

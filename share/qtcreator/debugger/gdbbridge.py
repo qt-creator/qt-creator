@@ -1930,8 +1930,14 @@ registerCommand("stackListFrames", stackListFrames)
 
 #######################################################################
 #
-# Mixed C++/Qml debugging
+# AddExtraDumpers Command
 #
 #######################################################################
 
-bbsetup()
+def addExtraDumper(args):
+    (head, tail) = os.path.split(args)
+    sys.path.insert(1, head)
+    dumpermodules.append(os.path.splitext(tail)[0])
+    return str((head, tail))
+
+registerCommand("addExtraDumper", addExtraDumper)
