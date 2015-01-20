@@ -441,9 +441,13 @@ static inline QString formatArguments(const QStringList &args)
     const int size = args.size();
     // Skip authentication options
     for (int i = 0; i < size; i++) {
-        const QString &arg = args.at(i);
+        const QString arg = filterPasswordFromUrls(args.at(i));
         if (i)
             str << ' ';
+        if (arg.startsWith(QString::fromLatin1(passwordOptionC) + QLatin1Char('='))) {
+            str << "--password=********";
+            continue;
+        }
         str << arg;
         if (arg == QLatin1String(passwordOptionC)) {
             str << " ********";
