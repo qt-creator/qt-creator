@@ -631,10 +631,15 @@ QList<LookupItem> ClassOrNamespace::lookup_helper(const Name *name, bool searchI
                 // a qualified name. For instance, a nested class which is forward declared
                 // in the class but defined outside it - we should capture both.
                 Symbol *match = 0;
+                QSet<ClassOrNamespace *> processed;
                 for (ClassOrNamespace *parentBinding = binding->parent();
                         parentBinding && !match;
-                        parentBinding = parentBinding->parent())
+                        parentBinding = parentBinding->parent()) {
+                    if (processed.contains(parentBinding))
+                        break;
+                    processed.insert(parentBinding);
                     match = parentBinding->lookupInScope(fullName);
+                }
 
                 if (match) {
                     LookupItem item;
@@ -648,8 +653,12 @@ QList<LookupItem> ClassOrNamespace::lookup_helper(const Name *name, bool searchI
         }
 
         QSet<ClassOrNamespace *> processed;
+        QSet<ClassOrNamespace *> processedOwnParents;
         ClassOrNamespace *binding = this;
         do {
+            if (processedOwnParents.contains(binding))
+                break;
+            processedOwnParents.insert(binding);
             lookup_helper(name, binding, &result, &processed, /*templateId = */ 0);
             binding = binding->_parent;
         } while (searchInEnclosingScope && binding);
