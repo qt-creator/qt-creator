@@ -671,39 +671,36 @@ Qt::ItemFlags TreeItem::flags(int column) const
     return m_flags;
 }
 
+bool TreeItem::canFetchMore() const
+{
+    return false;
+}
+
 void TreeItem::prependChild(TreeItem *item)
 {
-    QTC_CHECK(!item->parent());
-
-    if (m_model && !m_lazy) {
-        QModelIndex idx = index();
-        item->propagateModel(m_model);
-        m_model->beginInsertRows(idx, 0, 0);
-        item->m_parent = this;
-        item->m_model = m_model;
-        m_children.prepend(item);
-        m_model->endInsertRows();
-    } else {
-        m_children.prepend(item);
-    }
+    insertChild(0, item);
 }
 
 void TreeItem::appendChild(TreeItem *item)
 {
+    insertChild(m_children.size(), item);
+}
+
+void TreeItem::insertChild(int pos, TreeItem *item)
+{
     QTC_CHECK(!item->parent());
+    QTC_ASSERT(0 <= pos && pos <= m_children.size(), return); // '<= size' is intentional.
 
     if (m_model && !m_lazy) {
-        const int n = rowCount();
         QModelIndex idx = index();
-        item->propagateModel(m_model);
-        m_model->beginInsertRows(idx, n, n);
+        m_model->beginInsertRows(idx, pos, pos);
         item->m_parent = this;
         item->m_model = m_model;
-        m_children.append(item);
+        m_children.insert(m_children.begin() + pos, item);
         m_model->endInsertRows();
     } else {
         item->m_parent = this;
-        m_children.append(item);
+        m_children.insert(m_children.begin() + pos, item);
     }
 }
 
@@ -908,6 +905,23 @@ Qt::ItemFlags TreeModel::flags(const QModelIndex &idx) const
     TreeItem *item = itemFromIndex(idx);
     return item ? item->flags(idx.column())
                 : (Qt::ItemIsEnabled|Qt::ItemIsSelectable);
+}
+
+bool TreeModel::canFetchMore(const QModelIndex &idx) const
+{
+    if (!idx.isValid())
+        return false;
+    TreeItem *item = itemFromIndex(idx);
+    return item ? item->canFetchMore() : false;
+}
+
+void TreeModel::fetchMore(const QModelIndex &idx)
+{
+    if (!idx.isValid())
+        return;
+    TreeItem *item = itemFromIndex(idx);
+    if (item)
+        item->fetchMore();
 }
 
 TreeItem *TreeModel::rootItem() const

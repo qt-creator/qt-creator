@@ -62,8 +62,12 @@ public:
     virtual bool setData(int column, const QVariant &data, int role);
     virtual Qt::ItemFlags flags(int column) const;
 
+    virtual bool canFetchMore() const;
+    virtual void fetchMore() {}
+
     void prependChild(TreeItem *item);
     void appendChild(TreeItem *item);
+    void insertChild(int pos, TreeItem *item);
     void removeChildren();
     void update();
     void expand();
@@ -241,6 +245,9 @@ public:
     QModelIndex parent(const QModelIndex &idx) const;
     Qt::ItemFlags flags(const QModelIndex &idx) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+
+    bool canFetchMore(const QModelIndex &idx) const;
+    void fetchMore(const QModelIndex &idx);
 
     TreeItem *rootItem() const;
     TreeItem *itemFromIndex(const QModelIndex &) const;
