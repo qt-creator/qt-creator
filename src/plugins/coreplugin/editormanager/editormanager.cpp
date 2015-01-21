@@ -510,6 +510,11 @@ void EditorManagerPrivate::init()
         });
 }
 
+EditorManagerPrivate *EditorManagerPrivate::instance()
+{
+    return d;
+}
+
 EditorArea *EditorManagerPrivate::mainEditorArea()
 {
     return d->m_editorAreas.at(0);
@@ -1467,6 +1472,19 @@ void EditorManagerPrivate::makeCurrentEditorWritable()
         makeFileWritable(doc);
 }
 
+void EditorManagerPrivate::setPlaceholderText(const QString &text)
+{
+    if (d->m_placeholderText == text)
+        return;
+    d->m_placeholderText = text;
+    emit d->placeholderTextChanged(d->m_placeholderText);
+}
+
+QString EditorManagerPrivate::placeholderText()
+{
+    return d->m_placeholderText;
+}
+
 void EditorManagerPrivate::vcsOpenCurrentEditor()
 {
     IDocument *document = EditorManager::currentDocument();
@@ -1985,19 +2003,6 @@ void EditorManager::addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentM
     openWith->setEnabled(enabled);
     if (enabled)
         DocumentManager::populateOpenWithMenu(openWith, entry->fileName());
-}
-
-void EditorManager::setPlaceholderText(const QString &text)
-{
-    if (d->m_placeholderText == text)
-        return;
-    d->m_placeholderText = text;
-    emit m_instance->placeholderTextChanged(d->m_placeholderText);
-}
-
-QString EditorManager::placeholderText()
-{
-    return d->m_placeholderText;
 }
 
 void EditorManager::saveDocument()

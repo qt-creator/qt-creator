@@ -126,9 +126,9 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
     auto emptyLayout = new QGridLayout(empty);
     empty->setLayout(emptyLayout);
     m_emptyViewLabel = new QLabel;
-    connect(EditorManager::instance(), &EditorManager::placeholderTextChanged,
+    connect(EditorManagerPrivate::instance(), &EditorManagerPrivate::placeholderTextChanged,
             m_emptyViewLabel, &QLabel::setText);
-    m_emptyViewLabel->setText(EditorManager::placeholderText());
+    m_emptyViewLabel->setText(EditorManagerPrivate::placeholderText());
     emptyLayout->addWidget(m_emptyViewLabel);
     m_container->addWidget(empty);
     m_widgetEditorMap.insert(empty, 0);

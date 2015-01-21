@@ -68,6 +68,8 @@ class EditorManagerPrivate : public QObject
     friend class Core::EditorManager;
 
 public:
+    static EditorManagerPrivate *instance();
+
     static EditorArea *mainEditorArea();
     static EditorView *currentEditorView();
     static void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
@@ -121,6 +123,9 @@ public:
     static void vcsOpenCurrentEditor();
     static void makeCurrentEditorWritable();
 
+    static void setPlaceholderText(const QString &text);
+    static QString placeholderText();
+
 public slots:
     static bool saveDocument(Core::IDocument *document);
     static bool saveDocumentAs(Core::IDocument *document);
@@ -131,6 +136,9 @@ public slots:
 
     void handleDocumentStateChange();
     static void editorAreaDestroyed(QObject *area);
+
+signals:
+    void placeholderTextChanged(const QString &text);
 
 private slots:
     static void gotoNextDocHistory();

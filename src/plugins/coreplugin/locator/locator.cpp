@@ -45,6 +45,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/editormanager_p.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <extensionsystem/pluginmanager.h>
@@ -227,7 +228,7 @@ void Locator::updateEditorManagerPlaceholderText()
         methods = tr("<div style=\"margin-left: 1em\">- type <code>%1&lt;space&gt;&lt;pattern&gt;</code>"
                      " to jump to a function definition</div>").arg(methodsFilter->shortcutString());
 
-    EditorManager::setPlaceholderText(placeholderText.arg(classes, methods));
+    EditorManagerPrivate::setPlaceholderText(placeholderText.arg(classes, methods));
 }
 
 void Locator::saveSettings()
