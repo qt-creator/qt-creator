@@ -1922,7 +1922,7 @@ void GdbEngine::notifyAdapterShutdownOk()
     case QProcess::Running:
         if (startParameters().closeMode == KillAndExitMonitorAtClose)
             postCommand("monitor exit");
-        postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
+        postCommand("exitGdb", GdbEngine::ExitRequest, CB(handleGdbExit));
         break;
     case QProcess::NotRunning:
         // Cannot find executable.

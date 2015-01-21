@@ -2090,6 +2090,14 @@ def addExtraDumper(args):
 
 registerCommand("addExtraDumper", addExtraDumper)
 
+def exitGdb(arg):
+    if hasPlot:
+        matplotQuit()
+    gdb.execute("quit")
+    return ""
+
+registerCommand("exitGdb", exitGdb)
+
 #######################################################################
 #
 # Native Mixed

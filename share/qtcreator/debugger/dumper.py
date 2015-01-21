@@ -33,6 +33,8 @@ import struct
 import sys
 import base64
 import re
+import subprocess
+import time
 
 if sys.version_info[0] >= 3:
     xrange = range
@@ -72,19 +74,71 @@ SeparateLatin1StringFormat, \
 SeparateUtf8StringFormat \
     = range(100, 112)
 
-def hasPlot():
-    fileName = "/usr/bin/gnuplot"
-    return os.path.isfile(fileName) and os.access(fileName, os.X_OK)
-
+#
+# matplot based display for array-like structures.
+#
 try:
-    import subprocess
-    def arrayForms():
-        if hasPlot():
-            return "Normal,Plot"
-        return "Normal"
+    # FIXME: That might not be the one we want.
+    pythonExecutable = sys.executable
+    subprocess.check_call([pythonExecutable, '-c', 'import matplotlib'])
+    hasPlot = True
 except:
-    def arrayForms():
-        return "Normal"
+    hasPlot = False
+
+
+matplotFigure = {}
+matplotCount = 0
+
+matplotProc = subprocess.Popen(args=[pythonExecutable, "-i"],
+            bufsize=0, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+
+matplotProc.stdin.write(b"import sys\n")
+matplotProc.stdin.write(b"sys.ps1=''\n")
+matplotProc.stdin.write(b"from matplotlib import pyplot\n")
+matplotProc.stdin.write(b"import time\n")
+matplotProc.stdin.write(b"pyplot.ion()\n")
+matplotProc.stdin.flush()
+
+def matplotSend(iname, show, data):
+    global matplotFigure
+    global matplotCount
+
+    def s(line):
+        matplotProc.stdin.write(line.encode("latin1"))
+        matplotProc.stdin.write(b"\n")
+        sys.stdout.flush()
+        matplotProc.stdin.flush()
+
+    if show:
+        s("pyplot.ion()")
+        if not iname in matplotFigure:
+            matplotCount += 1
+            matplotFigure[iname] = matplotCount
+        s("pyplot.figure(%s)" % matplotFigure[iname])
+        s("pyplot.suptitle('%s')" % iname)
+        s("data = %s" % data)
+        s("pyplot.plot([i for i in range(len(data))], data, 'b.')")
+        time.sleep(0.2)
+        s("pyplot.draw()")
+        matplotProc.stdin.flush()
+    else:
+        if iname in matplotFigure:
+            s("pyplot.figure(%s)" % matplotFigure[iname])
+            s("pyplot.close()")
+            del matplotFigure[iname]
+
+    matplotProc.stdin.flush()
+
+def matplotQuit():
+    matplotProc.stdin.write(b"exit")
+    matplotProc.kill()
+
+def arrayForms():
+    global hasPlot
+    return "Normal,Plot" if hasPlot else "Normal"
+
+def mapForms():
+    return "Normal,Compact"
 
 
 class ReportItem:
@@ -167,12 +221,6 @@ class Blob(object):
 
     def extractFloat(self, offset = 0):
         return struct.unpack_from("f", self.data, offset)[0]
-
-#
-# Gnuplot based display for array-like structures.
-#
-gnuplotPipe = {}
-gnuplotPid = {}
 
 def warn(message):
     print("XXX: %s\n" % message.encode("latin1"))
@@ -1409,42 +1457,19 @@ class DumperBase:
     def putPlotData(self, base, n, typeobj, plotFormat = 2):
         if self.isExpanded():
             self.putArrayData(base, n, typeobj)
-        if not hasPlot():
-            return
-        if not self.isSimpleType(typeobj):
-            #self.putValue(self.currentValue.value + " (not plottable)")
-            self.putValue(self.currentValue.value)
-            self.putField("plottable", "0")
-            return
-        global gnuplotPipe
-        global gnuplotPid
-        format = self.currentItemFormat()
-        iname = self.currentIName
-        if format != plotFormat:
-            if iname in gnuplotPipe:
-                os.kill(gnuplotPid[iname], 9)
-                del gnuplotPid[iname]
-                gnuplotPipe[iname].terminate()
-                del gnuplotPipe[iname]
-            return
-        base = self.createPointerValue(base, typeobj)
-        if not iname in gnuplotPipe:
-            gnuplotPipe[iname] = subprocess.Popen(["gnuplot"],
-                    stdin=subprocess.PIPE)
-            gnuplotPid[iname] = gnuplotPipe[iname].pid
-        f = gnuplotPipe[iname].stdin;
-        # On Ubuntu install gnuplot-x11
-        f.write("set term wxt noraise\n")
-        f.write("set title 'Data fields'\n")
-        f.write("set xlabel 'Index'\n")
-        f.write("set ylabel 'Value'\n")
-        f.write("set grid\n")
-        f.write("set style data lines;\n")
-        f.write("plot  '-' title '%s'\n" % iname)
-        for i in range(0, n):
-            f.write(" %s\n" % base.dereference())
-            base += 1
-        f.write("e\n")
+        if hasPlot:
+            if self.isSimpleType(typeobj):
+                show = self.currentItemFormat() == plotFormat
+                iname = self.currentIName
+                data = []
+                if show:
+                    base = self.createPointerValue(base, typeobj)
+                    data = [str(base[i]) for i in range(0, toInteger(n))]
+                matplotSend(iname, show, data)
+            else:
+                #self.putValue(self.currentValue.value + " (not plottable)")
+                self.putValue(self.currentValue.value)
+                self.putField("plottable", "0")
 
     def putSpecialArgv(self, value):
         """
@@ -1637,12 +1662,4 @@ DisplayLatin1String, \
 DisplayUtf8String \
     = range(6)
 
-
-def mapForms():
-    return "Normal,Compact"
-
-def arrayForms():
-    if hasPlot():
-        return "Normal,Plot"
-    return "Normal"
 
