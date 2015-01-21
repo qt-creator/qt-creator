@@ -69,8 +69,8 @@ static bool xmlExtractTypeFileLine(const QString &code, const QString &tagStart,
 static QString formatResult(double value)
 {
     //NAN is not supported with visual studio 2010
-//    if (value < 0 || value == NAN)
-//        return QLatin1String("NAN");
+    if (value < 0)// || value == NAN)
+        return QLatin1String("NAN");
     if (value == 0)
         return QLatin1String("0");
 
