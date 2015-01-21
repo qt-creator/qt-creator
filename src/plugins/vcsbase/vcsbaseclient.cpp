@@ -81,13 +81,7 @@ class VcsBaseClientPrivate
 public:
     VcsBaseClientPrivate(VcsBaseClient *client, VcsBaseClientSettings *settings);
 
-    void statusParser(const QString &text);
-    void annotateRevision(const QString &workingDirectory, const QString &file,
-                          QString change, int lineNumber);
-    void saveSettings();
-
     void bindCommandToEditor(VcsCommand *cmd, VcsBaseEditorWidget *editor);
-    void commandFinishedGotoLine(QWidget *editorObject);
 
     VcsBaseEditorParameterWidget *createDiffEditor();
     VcsBaseEditorParameterWidget *createLogEditor();
@@ -109,58 +103,12 @@ VcsBaseClientPrivate::VcsBaseClientPrivate(VcsBaseClient *client, VcsBaseClientS
 {
 }
 
-void VcsBaseClientPrivate::statusParser(const QString &text)
-{
-    QList<VcsBaseClient::StatusItem> lineInfoList;
-
-    QStringList rawStatusList = text.split(QLatin1Char('\n'));
-
-    foreach (const QString &string, rawStatusList) {
-        const VcsBaseClient::StatusItem lineInfo = m_client->parseStatusLine(string);
-        if (!lineInfo.flags.isEmpty() && !lineInfo.file.isEmpty())
-            lineInfoList.append(lineInfo);
-    }
-
-    emit m_client->parsedStatus(lineInfoList);
-}
-
-void VcsBaseClientPrivate::annotateRevision(const QString &workingDirectory,  const QString &file,
-                                            QString change, int lineNumber)
-{
-    // This might be invoked with a verbose revision description
-    // "SHA1 author subject" from the annotation context menu. Strip the rest.
-    const int blankPos = change.indexOf(QLatin1Char(' '));
-    if (blankPos != -1)
-        change.truncate(blankPos);
-    m_client->annotate(workingDirectory, file, change, lineNumber);
-}
-
-void VcsBaseClientPrivate::saveSettings()
-{
-    m_clientSettings->writeSettings(Core::ICore::settings());
-}
-
 void VcsBaseClientPrivate::bindCommandToEditor(VcsCommand *cmd, VcsBaseEditorWidget *editor)
 {
     editor->setCommand(cmd);
-    QObject::connect(cmd, SIGNAL(finished(bool,int,QVariant)), m_cmdFinishedMapper, SLOT(map()));
+    QObject::connect(cmd, &VcsCommand::finished,
+                     m_cmdFinishedMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
     m_cmdFinishedMapper->setMapping(cmd, editor);
-}
-
-void VcsBaseClientPrivate::commandFinishedGotoLine(QWidget *editorObject)
-{
-    VcsBaseEditorWidget *editor = qobject_cast<VcsBaseEditorWidget *>(editorObject);
-    VcsCommand *cmd = qobject_cast<VcsCommand *>(m_cmdFinishedMapper->mapping(editor));
-    if (editor && cmd) {
-        if (!cmd->lastExecutionSuccess()) {
-            editor->reportCommandFinished(false, cmd->lastExecutionExitCode(), cmd->cookie());
-        } else if (cmd->cookie().type() == QVariant::Int) {
-            const int line = cmd->cookie().toInt();
-            if (line >= 0)
-                editor->gotoLine(line);
-        }
-        m_cmdFinishedMapper->removeMappings(cmd);
-    }
 }
 
 VcsBaseEditorParameterWidget *VcsBaseClientPrivate::createDiffEditor()
@@ -182,8 +130,10 @@ VcsBaseClient::VcsBaseClient(VcsBaseClientSettings *settings) :
     d(new VcsBaseClientPrivate(this, settings))
 {
     qRegisterMetaType<QVariant>();
-    connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
-    connect(d->m_cmdFinishedMapper, SIGNAL(mapped(QWidget*)), this, SLOT(commandFinishedGotoLine(QWidget*)));
+    connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
+            this, &VcsBaseClient::saveSettings);
+    connect(d->m_cmdFinishedMapper, static_cast<void (QSignalMapper::*)(QWidget*)>(&QSignalMapper::mapped),
+            this, &VcsBaseClient::commandFinishedGotoLine);
 }
 
 VcsBaseClient::~VcsBaseClient()
@@ -421,7 +371,7 @@ void VcsBaseClient::revertFile(const QString &workingDir,
     // Indicate repository change or file list
     VcsCommand *cmd = createCommand(workingDir);
     cmd->setCookie(QStringList(workingDir + QLatin1Char('/') + file));
-    connect(cmd, SIGNAL(success(QVariant)), this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
+    connect(cmd, &VcsCommand::success, this, &VcsBaseClient::changed, Qt::QueuedConnection);
     enqueueJob(cmd, args);
 }
 
@@ -433,7 +383,7 @@ void VcsBaseClient::revertAll(const QString &workingDir, const QString &revision
     // Indicate repository change or file list
     VcsCommand *cmd = createCommand(workingDir);
     cmd->setCookie(QStringList(workingDir));
-    connect(cmd, SIGNAL(success(QVariant)), this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
+    connect(cmd, &VcsCommand::success, this, &VcsBaseClient::changed, Qt::QueuedConnection);
     enqueueJob(createCommand(workingDir), args);
 }
 
@@ -444,7 +394,8 @@ void VcsBaseClient::status(const QString &workingDir, const QString &file,
     args << extraOptions << file;
     VcsOutputWindow::setRepository(workingDir);
     VcsCommand *cmd = createCommand(workingDir, 0, VcsWindowOutputBind);
-    connect(cmd, SIGNAL(finished(bool,int,QVariant)), VcsOutputWindow::instance(), SLOT(clearRepository()),
+    connect(cmd, &VcsCommand::finished,
+            VcsOutputWindow::instance(), &VcsOutputWindow::clearRepository,
             Qt::QueuedConnection);
     enqueueJob(cmd, args);
 }
@@ -454,7 +405,7 @@ void VcsBaseClient::emitParsedStatus(const QString &repository, const QStringLis
     QStringList args(vcsCommandString(StatusCommand));
     args << extraOptions;
     VcsCommand *cmd = createCommand(repository);
-    connect(cmd, SIGNAL(output(QString)), this, SLOT(statusParser(QString)));
+    connect(cmd, &VcsCommand::output, this, &VcsBaseClient::statusParser);
     enqueueJob(cmd, args);
 }
 
@@ -527,7 +478,7 @@ void VcsBaseClient::update(const QString &repositoryRoot, const QString &revisio
     args << revisionSpec(revision) << extraOptions;
     VcsCommand *cmd = createCommand(repositoryRoot);
     cmd->setCookie(repositoryRoot);
-    connect(cmd, SIGNAL(success(QVariant)), this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
+    connect(cmd, &VcsCommand::success, this, &VcsBaseClient::changed, Qt::QueuedConnection);
     enqueueJob(cmd, args);
 }
 
@@ -583,8 +534,8 @@ VcsBaseEditorWidget *VcsBaseClient::createVcsEditor(Core::Id kind, QString title
         outputEditor = Core::EditorManager::openEditorWithContents(kind, &title, progressMsg.toUtf8());
         outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
         baseEditor = VcsBaseEditor::getVcsBaseEditor(outputEditor);
-        connect(baseEditor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
-                this, SLOT(annotateRevision(QString,QString,QString,int)));
+        connect(baseEditor, &VcsBaseEditorWidget::annotateRevisionRequested,
+                this, &VcsBaseClient::annotateRevision);
         QTC_ASSERT(baseEditor, return 0);
         baseEditor->setSource(source);
         if (setSourceCodec)
@@ -616,7 +567,7 @@ VcsCommand *VcsBaseClient::createCommand(const QString &workingDirectory,
         if (editor) // assume that the commands output is the important thing
             cmd->addFlags(VcsBasePlugin::SilentOutput);
     } else if (editor) {
-        connect(cmd, SIGNAL(output(QString)), editor, SLOT(setPlainText(QString)));
+        connect(cmd, &VcsCommand::output, editor, &VcsBaseEditorWidget::setPlainText);
     }
 
     return cmd;
@@ -631,6 +582,54 @@ void VcsBaseClient::enqueueJob(VcsCommand *cmd, const QStringList &args, Utils::
 void VcsBaseClient::resetCachedVcsInfo(const QString &workingDir)
 {
     Core::VcsManager::resetVersionControlForDirectory(workingDir);
+}
+
+void VcsBaseClient::statusParser(const QString &text)
+{
+    QList<VcsBaseClient::StatusItem> lineInfoList;
+
+    QStringList rawStatusList = text.split(QLatin1Char('\n'));
+
+    foreach (const QString &string, rawStatusList) {
+        const VcsBaseClient::StatusItem lineInfo = parseStatusLine(string);
+        if (!lineInfo.flags.isEmpty() && !lineInfo.file.isEmpty())
+            lineInfoList.append(lineInfo);
+    }
+
+    emit parsedStatus(lineInfoList);
+}
+
+void VcsBaseClient::annotateRevision(const QString &workingDirectory,  const QString &file,
+                                     const QString& change, int lineNumber)
+{
+    QString changeCopy = change;
+    // This might be invoked with a verbose revision description
+    // "SHA1 author subject" from the annotation context menu. Strip the rest.
+    const int blankPos = changeCopy.indexOf(QLatin1Char(' '));
+    if (blankPos != -1)
+        changeCopy.truncate(blankPos);
+    annotate(workingDirectory, file, changeCopy, lineNumber);
+}
+
+void VcsBaseClient::saveSettings()
+{
+    settings()->writeSettings(Core::ICore::settings());
+}
+
+void VcsBaseClient::commandFinishedGotoLine(QWidget *editorObject)
+{
+    VcsBaseEditorWidget *editor = qobject_cast<VcsBaseEditorWidget *>(editorObject);
+    VcsCommand *cmd = qobject_cast<VcsCommand *>(d->m_cmdFinishedMapper->mapping(editor));
+    if (editor && cmd) {
+        if (!cmd->lastExecutionSuccess()) {
+            editor->reportCommandFinished(false, cmd->lastExecutionExitCode(), cmd->cookie());
+        } else if (cmd->cookie().type() == QVariant::Int) {
+            const int line = cmd->cookie().toInt();
+            if (line >= 0)
+                editor->gotoLine(line);
+        }
+        d->m_cmdFinishedMapper->removeMappings(cmd);
+    }
 }
 
 } // namespace VcsBase

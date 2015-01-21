@@ -193,13 +193,13 @@ protected:
     void resetCachedVcsInfo(const QString &workingDir);
 
 private:
+    void statusParser(const QString&);
+    void annotateRevision(const QString&, const QString&, const QString&, int);
+    void saveSettings();
+    void commandFinishedGotoLine(QWidget*);
+
     friend class VcsBaseClientPrivate;
     VcsBaseClientPrivate *d;
-
-    Q_PRIVATE_SLOT(d, void statusParser(QString))
-    Q_PRIVATE_SLOT(d, void annotateRevision(QString,QString,QString,int))
-    Q_PRIVATE_SLOT(d, void saveSettings())
-    Q_PRIVATE_SLOT(d, void commandFinishedGotoLine(QWidget*))
 };
 
 } //namespace VcsBase

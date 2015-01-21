@@ -119,7 +119,8 @@ VcsBaseEditorParameterWidget::VcsBaseEditorParameterWidget(QWidget *parent) :
     d->m_layout = new QHBoxLayout(this);
     d->m_layout->setContentsMargins(3, 0, 3, 0);
     d->m_layout->setSpacing(2);
-    connect(this, SIGNAL(argumentsChanged()), this, SLOT(handleArgumentsChanged()));
+    connect(this, &VcsBaseEditorParameterWidget::argumentsChanged,
+            this, &VcsBaseEditorParameterWidget::handleArgumentsChanged);
 }
 
 VcsBaseEditorParameterWidget::~VcsBaseEditorParameterWidget()
@@ -159,7 +160,7 @@ QToolButton *VcsBaseEditorParameterWidget::addToggleButton(const QStringList &op
     tb->setText(label);
     tb->setToolTip(tooltip);
     tb->setCheckable(true);
-    connect(tb, SIGNAL(toggled(bool)), this, SIGNAL(argumentsChanged()));
+    connect(tb, &QToolButton::toggled, this, &VcsBaseEditorParameterWidget::argumentsChanged);
     d->m_layout->addWidget(tb);
     d->m_optionMappings.append(OptionMapping(options, tb));
     return tb;
@@ -171,7 +172,8 @@ QComboBox *VcsBaseEditorParameterWidget::addComboBox(const QStringList &options,
     auto cb = new QComboBox;
     foreach (const ComboBoxItem &item, items)
         cb->addItem(item.displayText, item.value);
-    connect(cb, SIGNAL(currentIndexChanged(int)), this, SIGNAL(argumentsChanged()));
+    connect(cb, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &VcsBaseEditorParameterWidget::argumentsChanged);
     d->m_layout->addWidget(cb);
     d->m_optionMappings.append(OptionMapping(options, cb));
     return cb;
