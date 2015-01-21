@@ -224,7 +224,7 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
                 fmo->setIsComposite(readBoolBinding(script));
             } else {
                 addWarning(script->firstSourceLocation(),
-                           tr("Expected only name, prototype, defaultProperty, attachedType, exports "
+                           tr("Expected only name, prototype, defaultProperty, attachedType, exports, "
                               "isSingleton, isCreatable, isComposite and exportMetaObjectRevisions "
                               "script bindings, not \"%1\".").arg(name));
             }
