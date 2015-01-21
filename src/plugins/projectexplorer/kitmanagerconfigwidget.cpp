@@ -357,7 +357,8 @@ void KitManagerConfigWidget::kitWasUpdated(Kit *k)
     if (m_kit == k) {
         bool emitSignal = m_kit->isAutoDetected() != m_modifiedKit->isAutoDetected();
         discard();
-        emit isAutoDetectedChanged();
+        if (emitSignal)
+            emit isAutoDetectedChanged();
     }
     updateVisibility();
 }
