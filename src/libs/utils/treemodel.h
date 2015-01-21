@@ -49,7 +49,7 @@ class QTCREATOR_UTILS_EXPORT TreeItem
 {
 public:
     TreeItem();
-    explicit TreeItem(const QStringList &displays);
+    explicit TreeItem(const QStringList &displays, int flags = Qt::ItemIsEnabled);
     virtual ~TreeItem();
 
     virtual TreeItem *parent() const { return m_parent; }

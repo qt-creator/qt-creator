@@ -616,9 +616,9 @@ TreeItem::TreeItem()
 {
 }
 
-TreeItem::TreeItem(const QStringList &displays)
+TreeItem::TreeItem(const QStringList &displays, int flags)
     : m_parent(0), m_model(0), m_displays(new QStringList(displays)), m_lazy(false), m_populated(false),
-      m_flags(Qt::ItemIsEnabled|Qt::ItemIsSelectable)
+      m_flags(flags)
 {
 }
 
