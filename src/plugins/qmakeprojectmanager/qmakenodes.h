@@ -108,7 +108,8 @@ enum QmakeVariable {
     AndroidArchVar,
     AndroidDeploySettingsFile,
     AndroidPackageSourceDir,
-    AndroidExtraLibs
+    AndroidExtraLibs,
+    IsoIconsVar
 };
 
 // Import base classes into namespace
