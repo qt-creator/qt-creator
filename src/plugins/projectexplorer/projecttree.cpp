@@ -192,7 +192,9 @@ void ProjectTree::updateFromDocumentManager(bool invalidCurrentNode)
 
 void ProjectTree::update(Node *node, Project *project)
 {
-    if (project != m_currentProject) {
+    bool changedProject = project != m_currentProject;
+    bool changedNode = node != m_currentNode;
+    if (changedProject) {
         if (m_currentProject) {
             disconnect(m_currentProject, &Project::projectContextUpdated,
                        this, &ProjectTree::updateContext);
@@ -216,15 +218,17 @@ void ProjectTree::update(Node *node, Project *project)
                 Qt::UniqueConnection);
     }
 
-    if (node != m_currentNode) {
+    if (changedNode) {
         m_currentNode = node;
         emit currentNodeChanged(m_currentNode, project);
     }
 
-    emit currentProjectChanged(m_currentProject);
 
-    updateDefaultLocationForNewFiles();
-    updateContext();
+    if (changedProject) {
+        emit currentProjectChanged(m_currentProject);
+        updateDefaultLocationForNewFiles();
+        updateContext();
+    }
 }
 
 void ProjectTree::updateDefaultLocationForNewFiles()
