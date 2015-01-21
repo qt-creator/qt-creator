@@ -203,7 +203,8 @@ SideBarItem *SideBar::item(const QString &id)
 
 Internal::SideBarWidget *SideBar::insertSideBarWidget(int position, const QString &id)
 {
-    d->m_widgets.at(0)->setCloseIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_BOTTOM)));
+    if (!d->m_widgets.isEmpty())
+        d->m_widgets.at(0)->setCloseIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_BOTTOM)));
 
     Internal::SideBarWidget *item = new Internal::SideBarWidget(this, id);
     connect(item, SIGNAL(splitMe()), this, SLOT(splitSubWidget()));
