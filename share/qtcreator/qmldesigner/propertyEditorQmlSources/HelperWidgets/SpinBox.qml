@@ -63,25 +63,6 @@ Controls.SpinBox {
             backendValue.value = value;
     }
 
-    Controls.Slider {
-        id: slider
-
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.bottom
-        height: 10
-        visible: false
-
-        maximumValue: spinBox.maximumValue
-        minimumValue: spinBox.minimumValue
-
-        value: spinBox.value
-
-        onValueChanged: {
-            spinBox.value = value
-        }
-    }
-
     style: CustomSpinBoxStyle {
     }
 }
