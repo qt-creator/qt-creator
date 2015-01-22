@@ -285,6 +285,7 @@ class Dumper(DumperBase):
         self.typesReported = {}
         self.typesToReport = {}
         self.qtNamespaceToReport = None
+        self.qmlEngines = []
 
     def prepare(self, args):
         self.output = []
@@ -301,6 +302,7 @@ class Dumper(DumperBase):
         self.formats = {}
         self.useDynamicType = True
         self.expandedINames = {}
+        self.qmlcontext = ""
 
         # The guess does not need to be updated during a run()
         # as the result is fixed during that time (ignoring "active"
@@ -340,12 +342,14 @@ class Dumper(DumperBase):
                         self.formats[f[0:pos]] = int(f[pos+1:])
             elif arg.startswith("watchers:"):
                 self.watchers = self.hexdecode(arg[pos:])
+            elif arg.startswith("qmlcontext:"):
+                self.qmlcontext = int(arg[pos:], 0)
 
         self.useDynamicType = "dyntype" in self.options
         self.useFancy = "fancy" in self.options
         self.forceQtNamespace = "forcens" in self.options
         self.passExceptions = "pe" in self.options
-        #self.passExceptions = True
+        self.nativeMixed = "nativemixed" in self.options
         self.autoDerefPointers = "autoderef" in self.options
         self.partialUpdate = "partial" in self.options
         self.tooltipOnly = "tooltiponly" in self.options
@@ -366,6 +370,68 @@ class Dumper(DumperBase):
     def listOfLocals(self):
         frame = gdb.selected_frame()
 
+        if self.qmlcontext:
+            items = []
+
+            contextType = self.lookupQtType("QV4::Heap::CallContext")
+            context = self.createPointerValue(self.qmlcontext, contextType)
+
+            contextItem = LocalItem()
+            contextItem.iname = "local.@context"
+            contextItem.name = "[context]"
+            contextItem.value = context.dereference()
+            items.append(contextItem)
+
+            argsItem = LocalItem()
+            argsItem.iname = "local.@args"
+            argsItem.name = "[args]"
+            argsItem.value = context["callData"]
+            items.append(argsItem)
+
+            functionObject = context["function"].dereference()
+            functionPtr = functionObject["function"]
+            if not self.isNull(functionPtr):
+                compilationUnit = context["compilationUnit"]
+                compiledFunction = functionPtr["compiledFunction"]
+                base = int(compiledFunction)
+
+                formalsOffset = int(compiledFunction["formalsOffset"])
+                formalsCount = int(compiledFunction["nFormals"])
+                for index in range(formalsCount):
+                    stringIndex = self.extractInt(base + formalsOffset + 4 * index)
+                    name = self.extractQmlRuntimeString(compilationUnit, stringIndex)
+                    item = LocalItem()
+                    item.iname = "local." + name
+                    item.name = name
+                    item.value = argsItem.value["args"][index]
+                    items.append(item)
+
+                localsOffset = int(compiledFunction["localsOffset"])
+                localsCount = int(compiledFunction["nLocals"])
+                for index in range(localsCount):
+                    stringIndex = self.extractInt(base + localsOffset + 4 * index)
+                    name = self.extractQmlRuntimeString(compilationUnit, stringIndex)
+                    item = LocalItem()
+                    item.iname = "local." + name
+                    item.name = name
+                    item.value = contextData["locals"][index]
+                    items.append(item)
+
+            for engine in self.qmlEngines:
+                engineItem = LocalItem()
+                engineItem.iname = "local.@qmlengine"
+                engineItem.name = "[engine]"
+                engineItem.value = engine
+                items.append(engineItem)
+
+                rootContext = LocalItem()
+                rootContext.iname = "local.@rootContext"
+                rootContext.name = "[rootContext]"
+                rootContext.value = engine["d_ptr"]
+                items.append(rootContext)
+                break
+
+            return items
 
         try:
             block = frame.block()
@@ -452,7 +518,8 @@ class Dumper(DumperBase):
         # Locals
         #
         self.output.append('data=[')
-        if self.partialUpdate and len(self.varList) == 1:
+        if self.partialUpdate and len(self.varList) == 1 \
+                and not self.qmlcontext:
             #warn("PARTIAL: %s" % self.varList)
             parts = self.varList[0].split('.')
             #warn("PARTIAL PARTS: %s" % parts)
@@ -1699,6 +1766,59 @@ class Dumper(DumperBase):
         self.typesToReport[typestring] = typeobj
         return typeobj
 
+    def extractQmlData(self, value):
+        if value.type.code == PointerCode:
+            value = value.dereference()
+        data = value["data"]
+        return data.cast(self.lookupType(str(value.type).replace("QV4::", "QV4::Heap::")))
+
+    def extractQmlRuntimeString(self, compilationUnitPtr, index):
+        # This mimics compilationUnit->runtimeStrings[index]
+        runtimeStrings = compilationUnitPtr.dereference()["runtimeStrings"] # QV4.StringValue *
+        entry = (runtimeStrings + index)                                    # QV4.StringValue *
+        text = entry["text"]
+        (elided, fn) = self.encodeStringHelper(toInteger(text), 100)
+        return self.encodedUtf16ToUtf8(fn)                                  # string
+
+    def putQmlLocation(self, level, frame, sal):
+        engine = frame.read_var("engine")                             # QV4.ExecutionEngine *
+        if self.currentCallContext is None:
+            context = engine["current"]                               # QV4.ExecutionContext * or derived
+            self.currentCallContext = context
+        else:
+            context = self.currentCallContext["parent"]
+        ctxCode = int(context["type"])
+        compilationUnit = context["compilationUnit"]         # QV4.CompiledData.CompilationUnit *
+        functionName = "### JS ###";
+        ns = self.qtNamespace()
+
+        # QV4.ExecutionContext.Type_SimpleCallContext - 4
+        # QV4.ExecutionContext.Type_CallContext - 5
+        if ctxCode == 4 or ctxCode == 5:
+            callContextDataType = self.lookupQtType("QV4::Heap::CallContext")
+            callContext = context.cast(callContextDataType.pointer())
+            functionObject = callContext["function"]
+            function = functionObject["function"]
+            compiledFunction = function["compiledFunction"].dereference()  # QV4.CompiledData.Function
+            index = int(compiledFunction["nameIndex"])
+            functionName = "### JS ###   " + self.extractQmlRuntimeString(compilationUnit, index)
+
+        string = gdb.parse_and_eval("((%s)0x%x)->fileName()"
+            % (compilationUnit.type, compilationUnit))
+        fileName = self.encodeStringUtf8(string)
+
+        lineNumber = int(context["lineNumber"])
+        self.put(('frame={level="%s",func="%s",file="%s",'
+                 'fullname="%s",line="%s",language="js",addr="0x%x"}')
+            % (level, functionName, fileName, fileName, lineNumber, context))
+
+    def isInternalQmlFrame(self, functionName):
+        if functionName.startswith("qt_v4"):
+            return True
+        return functionName.startswith(self.qtNamespace() + "QV4::")
+
+    def isReportableQmlFrame(self, functionName):
+        return functionName.find("QV4::Moth::VME::exec") >= 0
 
     def stackListFrames(self, n, options):
         self.prepare("options:" + options + ",pe")
@@ -1706,8 +1826,7 @@ class Dumper(DumperBase):
 
         frame = gdb.newest_frame()
         i = 0
-        t1 = 'frame={level="%s",addr="0x%x",func="%s",'
-        t1 += 'file="%s",fullname="%s",line="%s",from="%s"}'
+        self.currentCallContext = None
         while i < n and frame:
             with OutputSafer(self):
                 name = frame.name()
@@ -1725,7 +1844,28 @@ class Dumper(DumperBase):
                         objfile = symtab.objfile.filename
                         fileName = symtab.filename
                         fullName = symtab.fullname()
-                self.put(t1 % (i, pc, functionName, fileName, fullName, line, objfile))
+
+                if self.nativeMixed:
+                    if self.isReportableQmlFrame(functionName):
+                        self.putQmlLocation(i, frame, sal)
+                        i += 1
+                        frame = frame.older()
+                        continue
+
+                    if self.isInternalQmlFrame(functionName):
+                        frame = frame.older()
+                        self.put(('frame={level="%s",addr="0x%x",func="%s",'
+                                'file="%s",fullname="%s",line="%s",'
+                                'from="%s",language="c",usable="0"}') %
+                            (i, pc, functionName, fileName, fullName, line, objfile))
+                        i += 1
+                        frame = frame.older()
+                        continue
+
+                self.put(('frame={level="%s",addr="0x%x",func="%s",'
+                        'file="%s",fullname="%s",line="%s",'
+                        'from="%s",language="c"}') %
+                    (i, pc, functionName, fileName, fullName, line, objfile))
 
             frame = frame.older()
             i += 1
@@ -1941,3 +2081,104 @@ def addExtraDumper(args):
     return str((head, tail))
 
 registerCommand("addExtraDumper", addExtraDumper)
+
+#######################################################################
+#
+# Native Mixed
+#
+#######################################################################
+
+class QmlEngineCreationTracker(gdb.Breakpoint):
+    def __init__(self):
+        spec = "QQmlEnginePrivate::init"
+        super(QmlEngineCreationTracker, self).\
+            __init__(spec, gdb.BP_BREAKPOINT, internal=True)
+
+    def stop(self):
+        engine = gdb.parse_and_eval("q_ptr")
+        print("QML engine created: %s" % engine)
+        theDumper.qmlEngines.append(engine)
+        return False
+
+#QmlEngineCreationTracker()
+
+class TriggeredBreakpointHookBreakpoint(gdb.Breakpoint):
+    def __init__(self):
+        spec = "qt_v4TriggeredBreakpointHook"
+        super(TriggeredBreakpointHookBreakpoint, self).\
+            __init__(spec, gdb.BP_BREAKPOINT, internal=True)
+
+    def stop(self):
+        print("QML engine stopped.")
+        return True
+
+TriggeredBreakpointHookBreakpoint()
+
+
+class ResolvePendingBreakpointsHookBreakpoint(gdb.Breakpoint):
+    def __init__(self, fullName, lineNumber):
+        self.fullName = fullName
+        self.lineNumber = lineNumber
+        spec = "qt_v4ResolvePendingBreakpointsHook"
+        print("Preparing hook to resolve pending QML breakpoint at %s:%s"
+            % (self.fullName, self.lineNumber))
+        super(ResolvePendingBreakpointsHookBreakpoint, self).\
+            __init__(spec, gdb.BP_BREAKPOINT, internal=True, temporary=False)
+
+    def stop(self):
+        bp = doInsertQmlBreakPoint(self.fullName, self.lineNumber)
+        print("Resolving QML breakpoint %s:%s -> %s"
+            % (self.fullName, self.lineNumber, bp))
+        self.enabled = False
+        return False
+
+def doInsertQmlBreakPoint(fullName, lineNumber):
+    pos = fullName.rfind('/')
+    engineName = "qrc:/" + fullName[pos+1:]
+    cmd = 'qt_v4InsertBreakpoint("%s",%s,"%s","")' \
+        % (fullName, lineNumber, engineName)
+    try:
+        bp = gdb.parse_and_eval(cmd)
+        print("Resolving QML breakpoint: %s" % bp)
+        return int(bp)
+    except RuntimeError as error:
+        print("Direct QML breakpoint insertion failed: %s" % error)
+        print("Make pending.")
+        ResolvePendingBreakpointsHookBreakpoint(fullName, lineNumber)
+        return 0
+
+def insertQmlBreakpoint(arg):
+    (fullName, lineNumber) = arg.split(' ')
+    print("Insert QML breakpoint %s:%s" % (fullName, lineNumber))
+    bp = doInsertQmlBreakPoint(fullName, lineNumber)
+    try:
+        gdb.execute("set variable qt_v4IsStepping=0")
+    except RuntimeError as error:
+        print("Resetting stepping failed: %s" % error)
+    return str(bp)
+
+registerCommand("insertQmlBreakpoint", insertQmlBreakpoint)
+
+def removeQmlBreakpoint(arg):
+    (fullName, lineNumber) = arg.split(' ')
+    pos = fullName.rfind('/')
+    engineName = "qrc:/" + fullName[pos+1:]
+    fsName = fullName
+    cmd = 'qt_v4RemoveBreakpoint("%s",%s)' % (fullName, lineNumber)
+    print("Remove QML breakpoint %s:%s" % (fullName, lineNumber))
+    try:
+        res = gdb.parse_and_eval(cmd)
+        print("Removing QML breakpoint: %s" % (cmd, res))
+        return int(res)
+    except RuntimeError as error:
+        print("Direct QML breakpoint removal failed: %s." % error)
+        return 0
+    return str(bp)
+
+registerCommand("removeQmlBreakpoint", removeQmlBreakpoint)
+
+def prepareQmlStep(arg):
+    gdb.execute("set variable qt_v4IsStepping=1")
+    return ""
+
+registerCommand("prepareQmlStep", prepareQmlStep)

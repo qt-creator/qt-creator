@@ -31,6 +31,7 @@
 #include "gdbprocess.h"
 
 #include <debugger/debuggerconstants.h>
+#include <debugger/debuggercore.h>
 #include <debugger/procinterrupt.h>
 
 namespace Debugger {
@@ -115,8 +116,11 @@ void GdbProcess::setProcessEnvironment(const QProcessEnvironment &env)
     m_gdbProc.setProcessEnvironment(env);
 }
 
-void GdbProcess::setEnvironment(const QStringList &env)
+void GdbProcess::setEnvironment(const QStringList &env_)
 {
+    QStringList env = env_;
+    if (isNativeMixedActive())
+        env.append(QLatin1String("QV4_FORCE_INTERPRETER=1")); // FIXME: REMOVE!
     m_gdbProc.setEnvironment(Utils::Environment(env));
 }
 

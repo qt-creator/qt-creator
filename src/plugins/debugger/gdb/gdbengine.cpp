@@ -1379,8 +1379,10 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 
     int lineNumber = 0;
     QString fullName;
+    QByteArray function;
     if (frame.isValid()) {
         const GdbMi lineNumberG = frame["line"];
+        function = frame["func"].data();
         if (lineNumberG.isValid()) {
             lineNumber = lineNumberG.toInt();
             fullName = cleanupFullName(QString::fromLocal8Bit(frame["fullname"].data()));
@@ -1411,7 +1413,8 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     // Quickly set the location marker.
     if (lineNumber && !boolSetting(OperateByInstruction)
             && QFileInfo::exists(fullName)
-            && !isQFatalBreakpoint(rid))
+            && !isQFatalBreakpoint(rid)
+            && function != "qt_v4TriggeredBreakpointHook")
         gotoLocation(Location(fullName, lineNumber));
 
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
@@ -1452,7 +1455,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     }
 
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
-
 
     if (gotoHandleStop1)
         handleStop1(data);
@@ -2060,6 +2062,11 @@ void GdbEngine::executeStep()
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step requested..."), 5000);
+    if (isNativeMixedActive()) {
+        postCommand("prepareQmlStep 0");
+        postCommand("-exec-continue", RunRequest, CB(handleExecuteContinue));
+        return;
+    }
     if (isReverseDebugging())
         postCommand("reverse-step", RunRequest, CB(handleExecuteStep));
     else
@@ -2132,6 +2139,11 @@ void GdbEngine::executeNext()
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step next requested..."), 5000);
+    if (isNativeMixedActive()) {
+        postCommand("prepareQmlStep 1");
+        postCommand("-exec-continue", RunRequest, CB(handleExecuteContinue));
+        return;
+    }
     if (isReverseDebugging()) {
         postCommand("reverse-next", RunRequest, CB(handleExecuteNext));
     } else {
@@ -2887,6 +2899,15 @@ void GdbEngine::removeBreakpoint(Breakpoint bp)
 {
     QTC_CHECK(bp.state() == BreakpointRemoveRequested);
     BreakpointResponse br = bp.response();
+
+    const BreakpointParameters &data = bp.parameters();
+    if (!data.isCppBreakpoint()) {
+        postCommand("removeQmlBreakpoint " + data.fileName.toUtf8() + ' '
+                + QByteArray::number(data.lineNumber));
+        bp.notifyBreakpointRemoveOk();
+        return;
+    }
+
     if (br.id.isValid()) {
         // We already have a fully inserted breakpoint.
         bp.notifyBreakpointRemoveProceeding();
@@ -3291,7 +3312,7 @@ QByteArray GdbEngine::stackCommand(int depth)
     if (isNativeMixedEnabled()) {
         cmd = "stackListFrames " + QByteArray::number(depth) + ' ';
         if (isNativeMixedActive())
-            cmd += "mixed";
+            cmd += "nativemixed";
         else
             cmd += "noopt";
     } else {
@@ -3325,8 +3346,15 @@ StackFrame GdbEngine::parseStackFrame(const GdbMi &frameMi, int level)
     frame.from = _(frameMi["from"].data());
     frame.line = frameMi["line"].toInt();
     frame.address = frameMi["addr"].toAddress();
-    frame.usable = QFileInfo(frame.file).isReadable();
-    if (frameMi["language"].data() == "js") {
+    GdbMi usable = frameMi["usable"];
+    if (usable.isValid())
+        frame.usable = usable.data().toInt();
+    else
+        frame.usable = QFileInfo(frame.file).isReadable();
+    if (frameMi["language"].data() == "js"
+            || frame.file.endsWith(QLatin1String(".js"))
+            || frame.file.endsWith(QLatin1String(".qml"))) {
+        frame.file = QFile::decodeName(frameMi["file"].data());
         frame.language = QmlLanguage;
         frame.fixQmlFrame(startParameters());
     }
@@ -4847,6 +4875,8 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
         options += "autoderef,";
     if (boolSetting(UseDynamicType))
         options += "dyntype,";
+    if (isNativeMixedActive())
+        options += "nativemixed,";
     if (options.isEmpty())
         options += "defaults,";
     if (params.tryPartial)
@@ -4855,16 +4885,23 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
         options += "tooltiponly,";
     options.chop(1);
 
+    QByteArray context;
+    if (isNativeMixedActive()) {
+        StackFrame frame = stackHandler()->currentFrame();
+        if (frame.language == QmlLanguage)
+            context += " qmlcontext:0x" + QByteArray::number(frame.address, 16);
+    }
+
     QByteArray resultVar;
     if (!m_resultVarName.isEmpty())
         resultVar = "resultvarname:" + m_resultVarName + ' ';
 
     m_lastDebuggableCommand =
            "bb options:pe," + options + " vars:" + params.varList + ' '
-               + expanded + " watchers:" + watchers.toHex() + cutOff;
+               + expanded + " watchers:" + watchers.toHex() + cutOff + context;
 
     postCommand("bb options:" + options + " vars:" + params.varList + ' '
-            + resultVar + expanded + " watchers:" + watchers.toHex() + cutOff,
+            + resultVar + expanded + " watchers:" + watchers.toHex() + cutOff + context,
         Discardable, CB(handleStackFramePython), QVariant(params.tryPartial));
 }
 

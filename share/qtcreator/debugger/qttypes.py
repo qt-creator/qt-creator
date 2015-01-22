@@ -2255,19 +2255,49 @@ def qdump__QXmlStreamAttribute(d, value):
 #
 #######################################################################
 
+def qdump__QV4__Object(d, value):
+    d.putBetterType(d.currentType)
+    d.putItem(d.extractQmlData(value))
+
+def qdump__QV4__FunctionObject(d, value):
+    d.putBetterType(d.currentType)
+    d.putItem(d.extractQmlData(value))
+
+def qdump__QV4__CompilationUnit(d, value):
+    d.putBetterType(d.currentType)
+    d.putItem(d.extractQmlData(value))
+
+def qdump__QV4__CallContext(d, value):
+    d.putBetterType(d.currentType)
+    d.putItem(d.extractQmlData(value))
+
+def qdump__QV4__ScriptFunction(d, value):
+    d.putBetterType(d.currentType)
+    d.putItem(d.extractQmlData(value))
+
+def qdump__QV4__SimpleScriptFunction(d, value):
+    d.putBetterType(d.currentType)
+    d.putItem(d.extractQmlData(value))
+
+def qdump__QV4__ExecutionContext(d, value):
+    d.putBetterType(d.currentType)
+    d.putItem(d.extractQmlData(value))
+
 def qdump__QV4__TypedValue(d, value):
+    d.putBetterType(d.currentType)
     qdump__QV4__Value(d, d.directBaseObject(value))
-    d.putBetterType(value.type)
 
 def qdump__QV4__CallData(d, value):
     argc = toInteger(value["argc"])
-    d.putValue("<%s args>" % argc)
-    d.putNumChild(1)
+    d.putItemCount(argc)
     if d.isExpanded():
         with Children(d):
-            for i in range(0, argc + 1):
+            d.putSubItem("[this]", value["thisObject"])
+            for i in range(0, argc):
                 d.putSubItem(i, value["args"][i])
-            d.putFields(value)
+
+def qdump__QV4__String(d, value):
+    d.putStringValue(d.addressOf(value) + 2 * d.ptrSize())
 
 def qdump__QV4__Value(d, value):
     v = toInteger(str(value["val"]))
@@ -2295,7 +2325,7 @@ def qdump__QV4__Value(d, value):
         d.putBetterType("%sQV4::Value (null/bool)" % ns)
         d.putValue("(null/bool)")
     else:
-        vtable = value["m"]["data"]["internalClass"]["vtable"]
+        vtable = value["m"]["vtable"]
         if toInteger(vtable["isString"]):
             d.putBetterType("%sQV4::Value (string)" % ns)
             d.putStringValue(d.extractPointer(value) + 2 * d.ptrSize())
