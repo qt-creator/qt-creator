@@ -462,7 +462,7 @@ bool LinkPrivate::importLibrary(Document::Ptr doc,
     if (const UiImport *ast = importInfo.ast())
         errorLoc = locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation());
 
-    if (!libraryInfo.plugins().isEmpty()) {
+    if (!libraryInfo.plugins().isEmpty() || !libraryInfo.typeInfos().isEmpty()) {
         if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::NoTypeInfo) {
             ModelManagerInterface *modelManager = ModelManagerInterface::instance();
             if (modelManager) {
