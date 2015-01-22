@@ -41,6 +41,7 @@ class Kit;
 
 namespace QmlDesigner {
 
+class Model;
 class PuppetBuildProgressDialog;
 
 class PuppetCreator
@@ -56,13 +57,12 @@ public:
         Qml2Puppet
     };
 
-    PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreatorVersion);
+    PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreatorVersion, const Model *model, QmlPuppetVersion puppetVersion);
     ~PuppetCreator();
 
-    void createPuppetExecutableIfMissing(QmlPuppetVersion puppetVersion);
+    void createPuppetExecutableIfMissing();
 
-    QProcess *createPuppetProcess(QmlPuppetVersion puppetVersion,
-                                  const QString &puppetMode,
+    QProcess *createPuppetProcess(const QString &puppetMode,
                                   const QString &socketToken,
                                   QObject *handlerObject,
                                   const char *outputSlot,
@@ -120,6 +120,8 @@ private:
     PuppetType m_availablePuppetType;
     static QHash<Core::Id, PuppetType> m_qml1PuppetForKitPuppetHash;
     static QHash<Core::Id, PuppetType> m_qml2PuppetForKitPuppetHash;
+    const Model *m_model;
+    QmlPuppetVersion m_puppetVersion;
 };
 
 } // namespace QmlDesigner
