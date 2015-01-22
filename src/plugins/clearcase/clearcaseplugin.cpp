@@ -1198,11 +1198,11 @@ void ClearCasePlugin::startCheckInActivity()
     QTC_ASSERT(state.hasProject(), return);
 
     QDialog dlg;
-    QVBoxLayout *layout = new QVBoxLayout(&dlg);
-    ActivitySelector *actSelector = new ActivitySelector(&dlg);
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, &dlg);
-    connect(buttonBox, SIGNAL(accepted()), &dlg, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), &dlg, SLOT(reject()));
+    auto layout = new QVBoxLayout(&dlg);
+    auto actSelector = new ActivitySelector(&dlg);
+    auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, &dlg);
+    connect(buttonBox, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
     layout->addWidget(actSelector);
     layout->addWidget(buttonBox);
     dlg.setWindowTitle(tr("Check In Activity"));
@@ -1735,27 +1735,23 @@ bool ClearCasePlugin::ccFileOp(const QString &workingDir, const QString &title, 
 {
     const QString file = QDir::toNativeSeparators(fileName);
     bool noCheckout = false;
-    QVBoxLayout *verticalLayout;
     ActivitySelector *actSelector = 0;
-    QLabel *commentLabel;
-    QTextEdit *commentEdit;
-    QDialogButtonBox *buttonBox;
     QDialog fileOpDlg;
     fileOpDlg.setWindowTitle(title);
 
-    verticalLayout = new QVBoxLayout(&fileOpDlg);
+    auto verticalLayout = new QVBoxLayout(&fileOpDlg);
     if (m_viewData.isUcm) {
         actSelector = new ActivitySelector;
         verticalLayout->addWidget(actSelector);
     }
 
-    commentLabel = new QLabel(tr("Enter &comment:"));
+    auto commentLabel = new QLabel(tr("Enter &comment:"));
     verticalLayout->addWidget(commentLabel);
 
-    commentEdit = new QTextEdit;
+    auto commentEdit = new QTextEdit;
     verticalLayout->addWidget(commentEdit);
 
-    buttonBox = new QDialogButtonBox;
+    auto buttonBox = new QDialogButtonBox;
     buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
     verticalLayout->addWidget(buttonBox);
 

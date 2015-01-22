@@ -57,7 +57,7 @@ void ClearCaseSubmitEditor::setIsUcm(bool isUcm)
 void ClearCaseSubmitEditor::setStatusList(const QStringList &statusOutput)
 {
     typedef QStringList::const_iterator ConstIterator;
-    VcsBase::SubmitFileModel *model = new VcsBase::SubmitFileModel(this);
+    auto model = new VcsBase::SubmitFileModel(this);
 
     const ConstIterator cend = statusOutput.constEnd();
     for (ConstIterator it = statusOutput.constBegin(); it != cend; ++it)

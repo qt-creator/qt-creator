@@ -52,7 +52,7 @@ CheckOutDialog::CheckOutDialog(const QString &fileName, bool isUcm, QWidget *par
 
         ui->verticalLayout->insertWidget(0, m_actSelector);
 
-        QFrame *line = new QFrame(this);
+        auto line = new QFrame(this);
         line->setFrameShape(QFrame::HLine);
         line->setFrameShadow(QFrame::Sunken);
 

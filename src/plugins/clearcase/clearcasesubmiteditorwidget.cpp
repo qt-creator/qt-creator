@@ -44,7 +44,7 @@ ClearCaseSubmitEditorWidget::ClearCaseSubmitEditorWidget()
     : m_actSelector(0)
 {
     setDescriptionMandatory(false);
-    QWidget *checkInWidget = new QWidget(this);
+    auto checkInWidget = new QWidget(this);
 
     m_verticalLayout = new QVBoxLayout(checkInWidget);
 
@@ -98,7 +98,7 @@ void ClearCaseSubmitEditorWidget::addActivitySelector(bool isUcm)
     m_actSelector = new ActivitySelector;
     m_verticalLayout->insertWidget(0, m_actSelector);
 
-    QFrame* line = new QFrame;
+    auto line = new QFrame;
     line->setFrameShape(QFrame::HLine);
     line->setFrameShadow(QFrame::Sunken);
     m_verticalLayout->insertWidget(1, line);

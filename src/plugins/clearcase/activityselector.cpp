@@ -50,10 +50,10 @@ ActivitySelector::ActivitySelector(QWidget *parent) :
 {
     QTC_ASSERT(m_plugin->isUcm(), return);
 
-    QHBoxLayout *hboxLayout = new QHBoxLayout(this);
+    auto hboxLayout = new QHBoxLayout(this);
     hboxLayout->setContentsMargins(0, 0, 0, 0);
 
-    QLabel *lblActivity = new QLabel(tr("Select &activity:"));
+    auto lblActivity = new QLabel(tr("Select &activity:"));
     lblActivity->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     hboxLayout->addWidget(lblActivity);
 
@@ -64,7 +64,7 @@ ActivitySelector::ActivitySelector(QWidget *parent) :
     QString addText = tr("Add");
     if (!m_plugin->settings().autoAssignActivityName)
         addText.append(QLatin1String("..."));
-    QToolButton *btnAdd = new QToolButton;
+    auto btnAdd = new QToolButton;
     btnAdd->setText(addText);
     hboxLayout->addWidget(btnAdd);
 
