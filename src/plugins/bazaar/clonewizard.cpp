@@ -59,11 +59,11 @@ CloneWizard::CloneWizard(const Utils::FileName &path, QWidget *parent) :
 
     const Core::IVersionControl *vc = BazaarPlugin::instance()->versionControl();
     if (!vc->isConfigured()) {
-        VcsConfigurationPage *configPage = new VcsConfigurationPage;
+        auto configPage = new VcsConfigurationPage;
         configPage->setVersionControl(vc);
         addPage(configPage);
     }
-    CloneWizardPage *page = new CloneWizardPage;
+    auto page = new CloneWizardPage;
     page->setPath(path.toString());
     addPage(page);
 }
@@ -105,8 +105,8 @@ VcsCommand *CloneWizard::createCommand(Utils::FileName *checkoutDir)
     args << client->vcsCommandString(BazaarClient::CloneCommand)
          << extraOptions << cwp->repository() << cwp->directory();
 
-    VcsCommand *command = new VcsCommand(settings.binaryPath(), cwp->path(),
-                                         client->processEnvironment());
+    auto command = new VcsCommand(settings.binaryPath(), cwp->path(),
+                                  client->processEnvironment());
     command->addJob(args, -1);
     return command;
 }

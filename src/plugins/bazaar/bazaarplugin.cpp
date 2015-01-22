@@ -250,10 +250,8 @@ void BazaarPlugin::createMenu(const Context &context)
 
 void BazaarPlugin::createFileActions(const Context &context)
 {
-    Core::Command *command;
-
     m_annotateFile = new ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_annotateFile, ANNOTATE, context);
+    Core::Command *command = ActionManager::registerAction(m_annotateFile, ANNOTATE, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_annotateFile, SIGNAL(triggered()), this, SLOT(annotateCurrentFile()));
     m_bazaarContainer->addAction(command);
@@ -360,12 +358,9 @@ void BazaarPlugin::statusCurrentFile()
 
 void BazaarPlugin::createDirectoryActions(const Context &context)
 {
-    QAction *action;
-    Core::Command *command;
-
-    action = new QAction(tr("Diff"), this);
+    auto action = new QAction(tr("Diff"), this);
     m_repositoryActionList.append(action);
-    command = ActionManager::registerAction(action, DIFFMULTI, context);
+    Core::Command *command = ActionManager::registerAction(action, DIFFMULTI, context);
     connect(action, SIGNAL(triggered()), this, SLOT(diffRepository()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -431,12 +426,9 @@ void BazaarPlugin::statusMulti()
 
 void BazaarPlugin::createRepositoryActions(const Context &context)
 {
-    QAction *action = 0;
-    Core::Command *command = 0;
-
-    action = new QAction(tr("Pull..."), this);
+    auto action = new QAction(tr("Pull..."), this);
     m_repositoryActionList.append(action);
-    command = ActionManager::registerAction(action, PULL, context);
+    Core::Command *command = ActionManager::registerAction(action, PULL, context);
     connect(action, SIGNAL(triggered()), this, SLOT(pull()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -470,7 +462,7 @@ void BazaarPlugin::createRepositoryActions(const Context &context)
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    QAction *createRepositoryAction = new QAction(tr("Create Repository..."), this);
+    auto createRepositoryAction = new QAction(tr("Create Repository..."), this);
     command = ActionManager::registerAction(createRepositoryAction, CREATE_REPOSITORY, context);
     connect(createRepositoryAction, SIGNAL(triggered()), this, SLOT(createRepository()));
     m_bazaarContainer->addAction(command);
