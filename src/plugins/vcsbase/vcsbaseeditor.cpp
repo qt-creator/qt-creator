@@ -344,7 +344,7 @@ void ChangeTextCursorHandler::slotCopyRevision()
 
 QAction *ChangeTextCursorHandler::createDescribeAction(const QString &change) const
 {
-    QAction *a = new QAction(VcsBaseEditorWidget::tr("Describe Change %1").arg(change), 0);
+    auto a = new QAction(VcsBaseEditorWidget::tr("Describe Change %1").arg(change), 0);
     connect(a, SIGNAL(triggered()), this, SLOT(slotDescribe()));
     return a;
 }
@@ -356,7 +356,7 @@ QAction *ChangeTextCursorHandler::createAnnotateAction(const QString &change, bo
             previous && !editorWidget()->annotatePreviousRevisionTextFormat().isEmpty() ?
                 editorWidget()->annotatePreviousRevisionTextFormat() :
                 editorWidget()->annotateRevisionTextFormat();
-    QAction *a = new QAction(format.arg(change), 0);
+    auto a = new QAction(format.arg(change), 0);
     a->setData(change);
     connect(a, SIGNAL(triggered()), editorWidget(), SLOT(slotAnnotateRevision()));
     return a;
@@ -364,7 +364,7 @@ QAction *ChangeTextCursorHandler::createAnnotateAction(const QString &change, bo
 
 QAction *ChangeTextCursorHandler::createCopyRevisionAction(const QString &change) const
 {
-    QAction *a = new QAction(editorWidget()->copyRevisionTextFormat().arg(change), 0);
+    auto a = new QAction(editorWidget()->copyRevisionTextFormat().arg(change), 0);
     a->setData(change);
     connect(a, SIGNAL(triggered()), this, SLOT(slotCopyRevision()));
     return a;
@@ -496,7 +496,7 @@ void UrlTextCursorHandler::slotOpenUrl()
 
 QAction *UrlTextCursorHandler::createOpenUrlAction(const QString &text) const
 {
-    QAction *a = new QAction(text, 0);
+    auto a = new QAction(text, 0);
     a->setData(m_urlData.url);
     connect(a, SIGNAL(triggered()), this, SLOT(slotOpenUrl()));
     return a;
@@ -504,7 +504,7 @@ QAction *UrlTextCursorHandler::createOpenUrlAction(const QString &text) const
 
 QAction *UrlTextCursorHandler::createCopyUrlAction(const QString &text) const
 {
-    QAction *a = new QAction(text, 0);
+    auto a = new QAction(text, 0);
     a->setData(m_urlData.url);
     connect(a, SIGNAL(triggered()), this, SLOT(slotCopyUrl()));
     return a;
@@ -729,7 +729,7 @@ void VcsBaseEditorWidget::init()
         break;
     }
     if (hasDiff()) {
-        DiffHighlighter *dh = new DiffHighlighter(d->m_diffFilePattern);
+        auto dh = new DiffHighlighter(d->m_diffFilePattern);
         setCodeFoldingSupported(true);
         textDocument()->setSyntaxHighlighter(dh);
     }

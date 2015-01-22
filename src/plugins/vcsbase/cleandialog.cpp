@@ -214,7 +214,7 @@ void CleanDialog::addFile(const QString &workingDirectory, QString fileName, boo
     bool isDir = fi.isDir();
     if (isDir)
         checked = false;
-    QStandardItem *nameItem = new QStandardItem(QDir::toNativeSeparators(fileName));
+    auto nameItem = new QStandardItem(QDir::toNativeSeparators(fileName));
     nameItem->setFlags(Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
     nameItem->setIcon(isDir ? folderIcon : fileIcon);
     nameItem->setCheckable(true);
@@ -261,7 +261,7 @@ bool CleanDialog::promptToDelete()
         return false;
 
     // Remove in background
-    Internal::CleanFilesTask *cleanTask = new Internal::CleanFilesTask(d->m_workingDirectory, selectedFiles);
+    auto cleanTask = new Internal::CleanFilesTask(d->m_workingDirectory, selectedFiles);
     connect(cleanTask, SIGNAL(error(QString)),
             VcsOutputWindow::instance(), SLOT(appendSilently(QString)),
             Qt::QueuedConnection);

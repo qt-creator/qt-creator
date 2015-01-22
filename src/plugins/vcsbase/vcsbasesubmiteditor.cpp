@@ -171,7 +171,7 @@ VcsBaseSubmitEditorPrivate::VcsBaseSubmitEditorPrivate(const VcsBaseSubmitEditor
     m_file(new SubmitEditorFile(parameters, q)),
     m_nickNameDialog(0)
 {
-    QCompleter *completer = new QCompleter(q);
+    auto completer = new QCompleter(q);
     completer->setCaseSensitivity(Qt::CaseSensitive);
     completer->setModelSorting(QCompleter::CaseSensitivelySortedModel);
     m_widget->descriptionEdit()->setCompleter(completer);
@@ -209,18 +209,18 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
     const CommonVcsSettings settings = VcsPlugin::instance()->settings();
     // Add additional context menu settings
     if (!settings.submitMessageCheckScript.isEmpty() || !settings.nickNameMailMap.isEmpty()) {
-        QAction *sep = new QAction(this);
+        auto sep = new QAction(this);
         sep->setSeparator(true);
         d->m_widget->addDescriptionEditContextMenuAction(sep);
         // Run check action
         if (!settings.submitMessageCheckScript.isEmpty()) {
-            QAction *checkAction = new QAction(tr("Check Message"), this);
+            auto checkAction = new QAction(tr("Check Message"), this);
             connect(checkAction, SIGNAL(triggered()), this, SLOT(slotCheckSubmitMessage()));
             d->m_widget->addDescriptionEditContextMenuAction(checkAction);
         }
         // Insert nick
         if (!settings.nickNameMailMap.isEmpty()) {
-            QAction *insertAction = new QAction(tr("Insert Name..."), this);
+            auto insertAction = new QAction(tr("Insert Name..."), this);
             connect(insertAction, SIGNAL(triggered()), this, SLOT(slotInsertNickName()));
             d->m_widget->addDescriptionEditContextMenuAction(insertAction);
         }
@@ -240,7 +240,7 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
     connect(Core::ICore::mainWindow(), SIGNAL(windowActivated()),
             this, SLOT(slotRefreshCommitData()), Qt::QueuedConnection);
 
-    Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
+    auto aggregate = new Aggregation::Aggregate;
     aggregate->add(new Core::BaseTextFind(descriptionEdit));
     aggregate->add(this);
 }
@@ -288,9 +288,9 @@ void VcsBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
         return;
     // Create a completer on user names
     const QStandardItemModel *nickNameModel = VcsPlugin::instance()->nickNameModel();
-    QCompleter *completer = new QCompleter(NickNameDialog::nickNameList(nickNameModel), this);
+    auto completer = new QCompleter(NickNameDialog::nickNameList(nickNameModel), this);
 
-    SubmitFieldWidget *fieldWidget = new SubmitFieldWidget;
+    auto fieldWidget = new SubmitFieldWidget;
     connect(fieldWidget, SIGNAL(browseButtonClicked(int,QString)),
             this, SLOT(slotSetFieldNickName(int)));
     fieldWidget->setCompleter(completer);
@@ -395,7 +395,7 @@ void VcsBaseSubmitEditor::setCheckScriptWorkingDirectory(const QString &s)
 static QToolBar *createToolBar(const QWidget *someWidget, QAction *submitAction, QAction *diffAction)
 {
     // Create
-    QToolBar *toolBar = new QToolBar;
+    auto toolBar = new QToolBar;
     toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     const int size = someWidget->style()->pixelMetric(QStyle::PM_SmallIconSize);
     toolBar->setIconSize(QSize(size, size));

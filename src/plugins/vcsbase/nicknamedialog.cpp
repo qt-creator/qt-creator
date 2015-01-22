@@ -137,16 +137,16 @@ QList<QStandardItem *> NickNameEntry::toModelRow() const
 {
     const QVariant nickNameData = nickName();
     const Qt::ItemFlags flags = Qt::ItemIsSelectable|Qt::ItemIsEnabled;
-    QStandardItem *i1 = new QStandardItem(name);
+    auto i1 = new QStandardItem(name);
     i1->setFlags(flags);
     i1->setData(nickNameData, NickNameRole);
-    QStandardItem *i2 = new QStandardItem(email);
+    auto i2 = new QStandardItem(email);
     i1->setFlags(flags);
     i2->setData(nickNameData, NickNameRole);
-    QStandardItem *i3 = new QStandardItem(aliasName);
+    auto i3 = new QStandardItem(aliasName);
     i3->setFlags(flags);
     i3->setData(nickNameData, NickNameRole);
-    QStandardItem *i4 = new QStandardItem(aliasEmail);
+    auto i4 = new QStandardItem(aliasEmail);
     i4->setFlags(flags);
     i4->setData(nickNameData, NickNameRole);
     QList<QStandardItem *> row;
@@ -231,7 +231,7 @@ QString NickNameDialog::nickName() const
 
 QStandardItemModel *NickNameDialog::createModel(QObject *parent)
 {
-    QStandardItemModel *model = new QStandardItemModel(parent);
+    auto model = new QStandardItemModel(parent);
     QStringList headers;
     headers << tr("Name") << tr("Email")
             << tr("Alias") << tr("Alias email");

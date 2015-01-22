@@ -68,7 +68,7 @@ Utils::WizardPage *VcsConfigurationPageFactory::create(JsonWizard *wizard, Id ty
     const QString vcsId = tmp.value(QLatin1String("vcsId")).toString();
     QTC_ASSERT(!vcsId.isEmpty(), return 0);
 
-    VcsConfigurationPage *page = new VcsConfigurationPage;
+    auto page = new VcsConfigurationPage;
     page->setVersionControlId(vcsId);
 
     return page;
@@ -113,7 +113,7 @@ VcsConfigurationPage::VcsConfigurationPage() : d(new Internal::VcsConfigurationP
     d->m_configureButton = new QPushButton(ICore::msgShowOptionsDialog(), this);
     d->m_configureButton->setEnabled(false);
 
-    QVBoxLayout *verticalLayout = new QVBoxLayout(this);
+    auto verticalLayout = new QVBoxLayout(this);
     verticalLayout->addWidget(d->m_configureButton);
 
     connect(d->m_versionControl, SIGNAL(configurationChanged()), SIGNAL(completeChanged()));

@@ -48,7 +48,7 @@ enum { fileColumn = 1 };
 static QList<QStandardItem *> createFileRow(const QString &fileName, const QString &status,
                                             CheckMode checked, const QVariant &v)
 {
-    QStandardItem *statusItem = new QStandardItem(status);
+    auto statusItem = new QStandardItem(status);
     Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     if (checked != Uncheckable) {
         flags |= Qt::ItemIsUserCheckable;
@@ -56,7 +56,7 @@ static QList<QStandardItem *> createFileRow(const QString &fileName, const QStri
     }
     statusItem->setFlags(flags);
     statusItem->setData(v);
-    QStandardItem *fileItem = new QStandardItem(fileName);
+    auto fileItem = new QStandardItem(fileName);
     fileItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
     fileItem->setIcon(Core::FileIconProvider::icon(fileName));
     QList<QStandardItem *> row;

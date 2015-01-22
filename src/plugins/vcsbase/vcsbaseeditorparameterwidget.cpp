@@ -155,7 +155,7 @@ QToolButton *VcsBaseEditorParameterWidget::addToggleButton(const QString &option
 
 QToolButton *VcsBaseEditorParameterWidget::addToggleButton(const QStringList &options, const QString &label, const QString &tooltip)
 {
-    QToolButton *tb = new QToolButton;
+    auto tb = new QToolButton;
     tb->setText(label);
     tb->setToolTip(tooltip);
     tb->setCheckable(true);
@@ -168,7 +168,7 @@ QToolButton *VcsBaseEditorParameterWidget::addToggleButton(const QStringList &op
 QComboBox *VcsBaseEditorParameterWidget::addComboBox(const QStringList &options,
                                                      const QList<ComboBoxItem> &items)
 {
-    QComboBox *cb = new QComboBox;
+    auto cb = new QComboBox;
     foreach (const ComboBoxItem &item, items)
         cb->addItem(item.displayText, item.value);
     connect(cb, SIGNAL(currentIndexChanged(int)), this, SIGNAL(argumentsChanged()));

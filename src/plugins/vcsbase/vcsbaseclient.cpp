@@ -596,8 +596,8 @@ VcsCommand *VcsBaseClient::createCommand(const QString &workingDirectory,
                                          VcsBaseEditorWidget *editor,
                                          JobOutputBindMode mode) const
 {
-    VcsCommand *cmd = new VcsCommand(d->m_clientSettings->binaryPath(), workingDirectory,
-                                     processEnvironment());
+    auto cmd = new VcsCommand(d->m_clientSettings->binaryPath(), workingDirectory,
+                              processEnvironment());
     cmd->setDefaultTimeout(d->m_clientSettings->intValue(VcsBaseClientSettings::timeoutKey));
     if (editor)
         d->bindCommandToEditor(cmd, editor);

@@ -61,7 +61,7 @@ CheckoutProgressWizardPage::CheckoutProgressWizardPage(QWidget *parent) :
     m_state(Idle)
 {
     resize(264, 200);
-    QVBoxLayout *verticalLayout = new QVBoxLayout(this);
+    auto verticalLayout = new QVBoxLayout(this);
     m_logPlainTextEdit = new QPlainTextEdit;
     m_formatter = new Utils::OutputFormatter;
     m_logPlainTextEdit->setReadOnly(true);

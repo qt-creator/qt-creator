@@ -600,7 +600,7 @@ void SubmitEditorWidget::addSubmitFieldWidget(SubmitFieldWidget *f)
     if (!d->m_fieldLayout) {
         // VBox with horizontal, expanding spacer
         d->m_fieldLayout = new QVBoxLayout;
-        QHBoxLayout *outerLayout = new QHBoxLayout;
+        auto outerLayout = new QHBoxLayout;
         outerLayout->addLayout(d->m_fieldLayout);
         outerLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
         d->m_ui.descriptionLayout->addLayout(outerLayout);
