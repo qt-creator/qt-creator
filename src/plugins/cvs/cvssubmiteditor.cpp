@@ -61,7 +61,7 @@ QString CvsSubmitEditor::stateName(State st) const
 void CvsSubmitEditor::setStateList(const StateFilePairs &statusOutput)
 {
     typedef StateFilePairs::const_iterator ConstIterator;
-    SubmitFileModel *model = new SubmitFileModel(this);
+    auto model = new SubmitFileModel(this);
 
     const ConstIterator cend = statusOutput.constEnd();
     for (ConstIterator it = statusOutput.constBegin(); it != cend; ++it)

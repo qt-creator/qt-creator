@@ -52,11 +52,11 @@ CheckoutWizard::CheckoutWizard(const Utils::FileName &path, QWidget *parent) :
 {
     const Core::IVersionControl *vc = CvsPlugin::instance()->versionControl();
     if (!vc->isConfigured()) {
-        VcsConfigurationPage *configPage = new VcsConfigurationPage;
+        auto configPage = new VcsConfigurationPage;
         configPage->setVersionControl(vc);
         addPage(configPage);
     }
-    CheckoutWizardPage *cwp = new CheckoutWizardPage;
+    auto cwp = new CheckoutWizardPage;
     cwp->setPath(path.toString());
     addPage(cwp);
 }
@@ -81,8 +81,8 @@ VcsCommand *CheckoutWizard::createCommand(Utils::FileName *checkoutDir)
     const QString workingDirectory = cwp->path();
     *checkoutDir = Utils::FileName::fromString(workingDirectory + QLatin1Char('/') + repository);
 
-    VcsCommand *command = new VcsCommand(binary, workingDirectory,
-                                         QProcessEnvironment::systemEnvironment());
+    auto command = new VcsCommand(binary, workingDirectory,
+                                  QProcessEnvironment::systemEnvironment());
     command->addJob(settings.addOptions(args), -1);
     return command;
 }
