@@ -222,7 +222,7 @@ void GitDiffHandler::postCollectShowDescription(const QString &id)
 
     m_controller->requestSaveState();
     m_controller->clear(m_waitMessage);
-    VcsCommand *command = new VcsCommand(gitPath(), m_workingDirectory, processEnvironment());
+    auto command = new VcsCommand(gitPath(), m_workingDirectory, processEnvironment());
     command->setCodec(m_gitClient->encoding(m_workingDirectory,
                                             "i18n.commitEncoding"));
     connect(command, SIGNAL(output(QString)),
@@ -311,7 +311,7 @@ void GitDiffHandler::postCollectTextualDiffOutput(const QString &gitCommand, con
 
     m_controller->requestSaveState();
     m_controller->clear(m_waitMessage);
-    VcsCommand *command = new VcsCommand(gitPath(), m_workingDirectory, processEnvironment());
+    auto command = new VcsCommand(gitPath(), m_workingDirectory, processEnvironment());
     command->setCodec(EditorManager::defaultTextCodec());
     connect(command, SIGNAL(output(QString)),
             this, SLOT(slotTextualDiffOutputReceived(QString)));
@@ -415,8 +415,7 @@ GitDiffEditorReloader::GitDiffEditorReloader()
 
 void GitDiffEditorReloader::reload()
 {
-    GitDiffHandler *handler = new GitDiffHandler(controller(),
-                                                 m_workingDirectory);
+    auto handler = new GitDiffHandler(controller(), m_workingDirectory);
     connect(handler, SIGNAL(destroyed()), this, SLOT(reloadFinished()));
 
     switch (m_diffType) {
@@ -1011,7 +1010,7 @@ void GitClient::diffBranch(const QString &workingDirectory,
 void GitClient::merge(const QString &workingDirectory,
                       const QStringList &unmergedFileNames)
 {
-    MergeTool *mergeTool = new MergeTool(this);
+    auto mergeTool = new MergeTool(this);
     if (!mergeTool->start(workingDirectory, unmergedFileNames))
         delete mergeTool;
 }
@@ -1715,7 +1714,7 @@ void GitClient::branchesForCommit(const QString &revision)
     DiffEditor::DiffEditorController *controller
             = qobject_cast<DiffEditor::DiffEditorController *>(sender());
     QString workingDirectory = controller->workingDirectory();
-    VcsCommand *command = new VcsCommand(gitExecutable(), workingDirectory, processEnvironment());
+    auto command = new VcsCommand(gitExecutable(), workingDirectory, processEnvironment());
     command->setCodec(getSourceCodec(currentDocumentPath()));
 
     connect(command, SIGNAL(output(QString)), controller,
@@ -2117,7 +2116,7 @@ VcsCommand *GitClient::createCommand(const QString &workingDirectory,
                                      bool useOutputToWindow,
                                      int editorLineNumber)
 {
-    VcsCommand *command = new VcsCommand(gitExecutable(), workingDirectory, processEnvironment());
+    auto command = new VcsCommand(gitExecutable(), workingDirectory, processEnvironment());
     command->setCodec(getSourceCodec(currentDocumentPath()));
     command->setCookie(QVariant(editorLineNumber));
     if (editor) {
@@ -2576,7 +2575,7 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
     // the child), but that does not have an environment parameter.
     bool success = false;
     if (!settings()->stringValue(GitSettings::pathKey).isEmpty()) {
-        QProcess *process = new QProcess(this);
+        auto process = new QProcess(this);
         process->setWorkingDirectory(workingDirectory);
         process->setProcessEnvironment(env);
         process->start(binary, arguments);

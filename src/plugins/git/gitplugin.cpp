@@ -226,7 +226,7 @@ QAction *GitPlugin::createRepositoryAction(ActionContainer *ac,
                                            const Context &context, bool addToLocator,
                                            const QKeySequence &keys)
 {
-    QAction *action = new QAction(text, this);
+    auto action = new QAction(text, this);
     Core::Command *command = ActionManager::registerAction(action, id, context);
     if (!keys.isEmpty())
         command->setDefaultKeySequence(keys);

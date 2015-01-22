@@ -614,7 +614,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
         local = child;
     }
     int pos = positionForName(local, leafName);
-    BranchNode *newNode = new BranchNode(leafName, startSha, track ? trackedBranch : QString());
+    auto newNode = new BranchNode(leafName, startSha, track ? trackedBranch : QString());
     if (!added)
         beginInsertRows(nodeToIndex(local), pos, pos);
     newNode->parent = local;
@@ -677,7 +677,7 @@ void BranchModel::parseOutputLine(const QString &line)
     const QString name = nameParts.last();
     nameParts.removeLast();
 
-    BranchNode *newNode = new BranchNode(name, sha, lineParts.at(2));
+    auto newNode = new BranchNode(name, sha, lineParts.at(2));
     root->insert(nameParts, newNode);
     if (current)
         m_currentBranch = newNode;

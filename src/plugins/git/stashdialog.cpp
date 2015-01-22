@@ -59,11 +59,11 @@ static inline GitClient *gitClient()
 static inline QList<QStandardItem*> stashModelRowItems(const Stash &s)
 {
     Qt::ItemFlags itemFlags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
-    QStandardItem *nameItem = new QStandardItem(s.name);
+    auto nameItem = new QStandardItem(s.name);
     nameItem->setFlags(itemFlags);
-    QStandardItem *branchItem = new QStandardItem(s.branch);
+    auto branchItem = new QStandardItem(s.branch);
     branchItem->setFlags(itemFlags);
-    QStandardItem *messageItem = new QStandardItem(s.message);
+    auto messageItem = new QStandardItem(s.message);
     messageItem->setFlags(itemFlags);
     QList<QStandardItem*> rc;
     rc << nameItem << branchItem << messageItem;

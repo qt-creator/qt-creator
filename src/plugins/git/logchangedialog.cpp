@@ -171,7 +171,7 @@ bool LogChangeWidget::populateLog(const QString &repository, const QString &comm
         if (colonPos != -1) {
             QList<QStandardItem *> row;
             for (int c = 0; c < ColumnCount; ++c) {
-                QStandardItem *item = new QStandardItem;
+                auto item = new QStandardItem;
                 item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
                 if (line.endsWith(QLatin1Char(')'))) {
                     QFont font = item->font();
@@ -206,10 +206,10 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
     , m_dialogButtonBox(new QDialogButtonBox(this))
     , m_resetTypeComboBox(0)
 {
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto layout = new QVBoxLayout(this);
     layout->addWidget(new QLabel(isReset ? tr("Reset to:") : tr("Select change:"), this));
     layout->addWidget(m_widget);
-    QHBoxLayout *popUpLayout = new QHBoxLayout;
+    auto popUpLayout = new QHBoxLayout;
     if (isReset) {
         popUpLayout->addWidget(new QLabel(tr("Reset type:"), this));
         m_resetTypeComboBox = new QComboBox(this);

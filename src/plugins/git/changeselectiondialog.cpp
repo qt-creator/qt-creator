@@ -85,7 +85,7 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Co
     else
         m_ui->showButton->setDefault(true);
     m_changeModel = new QStringListModel(this);
-    QCompleter *changeCompleter = new QCompleter(m_changeModel, this);
+    auto changeCompleter = new QCompleter(m_changeModel, this);
     m_ui->changeNumberEdit->setCompleter(changeCompleter);
     changeCompleter->setCaseSensitivity(Qt::CaseInsensitive);
 

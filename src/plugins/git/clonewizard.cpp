@@ -55,11 +55,11 @@ CloneWizard::CloneWizard(const Utils::FileName &path, QWidget *parent) :
 
     const Internal::GitVersionControl *vc = Internal::GitPlugin::instance()->gitVersionControl();
     if (!vc->isConfigured()) {
-        VcsConfigurationPage *configPage = new VcsConfigurationPage;
+        auto configPage = new VcsConfigurationPage;
         configPage->setVersionControl(vc);
         addPage(configPage);
     }
-    CloneWizardPage *cwp = new CloneWizardPage;
+    auto cwp = new CloneWizardPage;
     cwp->setPath(path.toString());
     addPage(cwp);
 }

@@ -94,8 +94,8 @@ void GitSubmitEditorWidget::initialize(CommitType commitType,
         return;
     m_isInitialized = true;
     if (commitType == FixupCommit) {
-        QGroupBox *logChangeGroupBox = new QGroupBox(tr("Select Change"));
-        QVBoxLayout *logChangeLayout = new QVBoxLayout;
+        auto logChangeGroupBox = new QGroupBox(tr("Select Change"));
+        auto logChangeLayout = new QVBoxLayout;
         logChangeGroupBox->setLayout(logChangeLayout);
         m_logChangeWidget = new LogChangeWidget;
         m_logChangeWidget->init(repository);
@@ -110,7 +110,7 @@ void GitSubmitEditorWidget::initialize(CommitType commitType,
     setPanelInfo(info);
 
     if (enablePush) {
-        QMenu *menu = new QMenu(this);
+        auto menu = new QMenu(this);
         menu->addAction(tr("&Commit only"), this, SLOT(commitOnlySlot()));
         menu->addAction(tr("Commit and &Push"), this, SLOT(commitAndPushSlot()));
         menu->addAction(tr("Commit and Push to &Gerrit"), this, SLOT(commitAndPushToGerritSlot()));
