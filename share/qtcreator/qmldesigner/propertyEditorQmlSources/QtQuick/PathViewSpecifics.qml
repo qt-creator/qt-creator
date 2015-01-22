@@ -51,7 +51,7 @@ Column {
             SecondColumnLayout {
                 SpinBox {
                     backendValue: backendValues.dragMargin
-                    minimumValue: 100;
+                    minimumValue: 0;
                     maximumValue: 100;
                     decimals: 0
                 }
