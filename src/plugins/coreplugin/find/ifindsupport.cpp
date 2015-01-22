@@ -30,64 +30,7 @@
 
 #include "ifindsupport.h"
 
-#include <QTimer>
-#include <QPropertyAnimation>
-#include <QWidget>
-#include <QPaintEvent>
-#include <QPainter>
-
-namespace Core {
-namespace Internal {
-
-class WrapIndicator : public QWidget
-{
-    Q_OBJECT
-    Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity USER true)
-
-public:
-    WrapIndicator(QWidget *parent = 0)
-        : QWidget(parent),
-          m_opacity(1.0)
-    {
-        if (parent)
-            setGeometry(QRect(parent->rect().center() - QPoint(25, 25),
-                              parent->rect().center() + QPoint(25, 25)));
-    }
-
-    qreal opacity() const { return m_opacity; }
-    void setOpacity(qreal value) { m_opacity = value; update(); }
-
-    void run()
-    {
-        show();
-        QTimer::singleShot(300, this, SLOT(runInternal()));
-    }
-
-protected:
-    void paintEvent(QPaintEvent *)
-    {
-        static QPixmap foreground(QLatin1String(":/find/images/wrapindicator.png"));
-        QPainter p(this);
-        p.setOpacity(m_opacity);
-        p.drawPixmap(rect(), foreground);
-    }
-
-private slots:
-    void runInternal()
-    {
-        QPropertyAnimation *anim = new QPropertyAnimation(this, "opacity", this);
-        anim->setDuration(200);
-        anim->setEndValue(0.);
-        connect(anim, SIGNAL(finished()), this, SLOT(deleteLater()));
-        anim->start(QAbstractAnimation::DeleteWhenStopped);
-    }
-
-private:
-    qreal m_opacity;
-};
-
-} // Internal
-} // Find
+#include <utils/fadingindicator.h>
 
 using namespace Core;
 
@@ -116,7 +59,5 @@ int IFindSupport::replaceAll(const QString &before, const QString &after, FindFl
 
 void IFindSupport::showWrapIndicator(QWidget *parent)
 {
-    (new Internal::WrapIndicator(parent))->run();
+    Utils::FadingIndicator::showPixmap(parent, QLatin1String(":/find/images/wrapindicator.png"));
 }
-
-#include "ifindsupport.moc"

@@ -35,13 +35,13 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>
+#include <utils/fadingindicator.h>
 #include <utils/qtcassert.h>
 
 #include <QAction>
 #include <QApplication>
 #include <QDebug>
 #include <QDesktopWidget>
-#include <QLabel>
 #include <QMenu>
 #include <QMenuBar>
 #include <QSettings>
@@ -354,26 +354,12 @@ void ActionManager::setPresentationModeEnabled(bool enabled)
         }
     }
 
-    // The label for the shortcuts:
-    if (!d->m_presentationLabel) {
-        d->m_presentationLabel = new QLabel(0, Qt::ToolTip | Qt::WindowStaysOnTopHint);
-        QFont font = d->m_presentationLabel->font();
-        font.setPixelSize(45);
-        d->m_presentationLabel->setFont(font);
-        d->m_presentationLabel->setAlignment(Qt::AlignCenter);
-        d->m_presentationLabel->setMargin(5);
-
-        connect(&d->m_presentationLabelTimer, SIGNAL(timeout()), d->m_presentationLabel, SLOT(hide()));
-    } else {
-        d->m_presentationLabelTimer.stop();
-        delete d->m_presentationLabel;
-        d->m_presentationLabel = 0;
-    }
+    d->m_presentationModeEnabled = enabled;
 }
 
 bool ActionManager::isPresentationModeEnabled()
 {
-    return d->m_presentationLabel;
+    return d->m_presentationModeEnabled;
 }
 
 void ActionManager::initialize(QObject *parent)
@@ -399,9 +385,8 @@ void ActionManager::setContext(const Context &context)
 */
 
 ActionManagerPrivate::ActionManagerPrivate()
-  : m_presentationLabel(0)
+  : m_presentationModeEnabled(false)
 {
-    m_presentationLabelTimer.setInterval(1000);
 }
 
 ActionManagerPrivate::~ActionManagerPrivate()
@@ -459,25 +444,18 @@ void ActionManagerPrivate::showShortcutPopup(const QString &shortcut)
     if (shortcut.isEmpty() || !ActionManager::isPresentationModeEnabled())
         return;
 
-    m_presentationLabel->setText(shortcut);
-    m_presentationLabel->adjustSize();
-
     QWidget *window = QApplication::activeWindow();
-    if (!window && !QApplication::topLevelWidgets().isEmpty())
-        window = QApplication::topLevelWidgets().first();
-    QPoint center;
-    if (window) {
-        center = window->mapToGlobal(window->rect().center());
-    } else {
-        QTC_ASSERT(QApplication::desktop(), return);
-        center = QApplication::desktop()->screenGeometry().center();
+    if (!window) {
+        if (!QApplication::topLevelWidgets().isEmpty()) {
+            window = QApplication::topLevelWidgets().first();
+        } else {
+            QTC_ASSERT(QApplication::desktop(), return);
+            window = QApplication::desktop()->screen();
+            QTC_ASSERT(window, return);
+        }
     }
-    QPoint p = center - m_presentationLabel->rect().center();
-    m_presentationLabel->move(p);
 
-    m_presentationLabel->show();
-    m_presentationLabel->raise();
-    m_presentationLabelTimer.start();
+    Utils::FadingIndicator::showText(window, shortcut);
 }
 
 Action *ActionManagerPrivate::overridableAction(Id id)

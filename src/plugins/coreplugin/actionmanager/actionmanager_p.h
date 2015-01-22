@@ -89,6 +89,7 @@ public:
 
     Context m_context;
 
+    bool m_presentationModeEnabled;
     QLabel *m_presentationLabel;
     QTimer m_presentationLabelTimer;
 };

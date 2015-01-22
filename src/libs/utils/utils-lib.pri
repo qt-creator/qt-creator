@@ -92,7 +92,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/proxycredentialsdialog.cpp \
     $$PWD/macroexpander.cpp \
     $$PWD/theme/theme.cpp \
-    $$PWD/progressindicator.cpp
+    $$PWD/progressindicator.cpp \
+    $$PWD/fadingindicator.cpp
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
@@ -190,7 +191,8 @@ HEADERS += \
     $$PWD/macroexpander.h \
     $$PWD/theme/theme.h \
     $$PWD/theme/theme_p.h \
-    $$PWD/progressindicator.h
+    $$PWD/progressindicator.h \
+    $$PWD/fadingindicator.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
