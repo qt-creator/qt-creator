@@ -974,8 +974,8 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
     VcsBaseEditorWidget *editor = findExistingVCSEditor("logFileName", sourceFile);
     if (!editor) {
         auto *argWidget = new GitLogArgumentsWidget(settings());
-        QObject::connect(argWidget, &VcsBaseEditorParameterWidget::commandExecutionRequested,
-                         [=] { log(workingDirectory, fileName, enableAnnotationContextMenu, args); });
+        connect(argWidget, &VcsBaseEditorParameterWidget::commandExecutionRequested,
+                [=]() { this->log(workingDirectory, fileName, enableAnnotationContextMenu, args); });
         editor = createVcsEditor(editorId, title, sourceFile, CodecLogOutput, "logFileName", sourceFile,
                                  argWidget);
     }
@@ -1100,11 +1100,11 @@ void GitClient::blame(const QString &workingDirectory,
     if (!editor) {
         auto *argWidget = new GitBlameArgumentsWidget(settings());
         argWidget->setBaseArguments(args);
-        QObject::connect(argWidget, &VcsBaseEditorParameterWidget::commandExecutionRequested,
-                         [=] {
-            const int line = VcsBaseEditor::lineNumberOfCurrentEditor();
-            blame(workingDirectory, args, fileName, revision, line);
-        } );
+        connect(argWidget, &VcsBaseEditorParameterWidget::commandExecutionRequested,
+                [=] {
+                    const int line = VcsBaseEditor::lineNumberOfCurrentEditor();
+                    blame(workingDirectory, args, fileName, revision, line);
+                } );
         editor = createVcsEditor(editorId, title, sourceFile, CodecSource, "blameFileName", id, argWidget);
     }
 

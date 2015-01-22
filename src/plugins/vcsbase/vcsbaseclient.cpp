@@ -101,8 +101,8 @@ VcsBaseClientPrivate::VcsBaseClientPrivate(VcsBaseClient *client, VcsBaseClientS
 void VcsBaseClientPrivate::bindCommandToEditor(VcsCommand *cmd, VcsBaseEditorWidget *editor)
 {
     editor->setCommand(cmd);
-    QObject::connect(cmd, &VcsCommand::finished,
-                     m_cmdFinishedMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
+    connect(cmd, &VcsCommand::finished,
+            m_cmdFinishedMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
     m_cmdFinishedMapper->setMapping(cmd, editor);
 }
 
@@ -345,7 +345,7 @@ void VcsBaseClient::log(const QString &workingDir, const QStringList &files,
     if (!paramWidget && (paramWidget = d->createLogEditor())) {
         // editor has been just created, createVcsEditor() didn't set a configuration widget yet
         connect(paramWidget, &VcsBaseEditorParameterWidget::commandExecutionRequested,
-                [=] { log(workingDir, files, extraOptions, enableAnnotationContextMenu); } );
+                [=]() { this->log(workingDir, files, extraOptions, enableAnnotationContextMenu); } );
         editor->setConfigurationWidget(paramWidget);
     }
 
