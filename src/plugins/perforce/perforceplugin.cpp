@@ -1316,7 +1316,7 @@ void PerforcePlugin::p4Diff(const PerforceDiffParameters &p)
     VcsBaseEditorWidget *diffEditorWidget = qobject_cast<VcsBaseEditorWidget *>(editor->widget());
     // Wire up the parameter widget to trigger a re-run on
     // parameter change and 'revert' from inside the diff editor.
-    PerforceDiffParameterWidget *pw = new PerforceDiffParameterWidget(p);
+    auto pw = new PerforceDiffParameterWidget(p);
     connect(pw, SIGNAL(reRunDiff(Perforce::Internal::PerforceDiffParameters)),
             this, SLOT(p4Diff(Perforce::Internal::PerforceDiffParameters)));
     connect(diffEditorWidget, SIGNAL(diffChunkReverted(VcsBase::DiffChunk)),
@@ -1547,11 +1547,11 @@ void PerforcePlugin::getTopLevel()
     // Run a new checker
     if (m_instance->m_settings.p4BinaryPath().isEmpty())
         return;
-    PerforceChecker *checker = new PerforceChecker(m_instance);
-    connect(checker, SIGNAL(failed(QString)), m_instance, SLOT(slotTopLevelFailed(QString)));
-    connect(checker, SIGNAL(failed(QString)), checker, SLOT(deleteLater()));
-    connect(checker, SIGNAL(succeeded(QString)), m_instance, SLOT(slotTopLevelFound(QString)));
-    connect(checker, SIGNAL(succeeded(QString)),checker, SLOT(deleteLater()));
+    auto checker = new PerforceChecker(m_instance);
+    connect(checker, &PerforceChecker::failed, m_instance, &PerforcePlugin::slotTopLevelFailed);
+    connect(checker, &PerforceChecker::failed, checker, &QObject::deleteLater);
+    connect(checker, &PerforceChecker::succeeded, m_instance, &PerforcePlugin::slotTopLevelFound);
+    connect(checker, &PerforceChecker::succeeded,checker, &QObject::deleteLater);
     checker->start(settings().p4BinaryPath(), settings().commonP4Arguments(QString()), 30000);
 }
 
