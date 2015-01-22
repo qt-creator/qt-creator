@@ -1946,6 +1946,9 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
 
         if (readerBuildPass && readerBuildPass != input.readerExact)
             delete readerBuildPass;
+    }
+
+    if (result->state == EvalResult::EvalOk || result->state == EvalResult::EvalPartial) {
 
         QList<QList<VariableAndVPathInformation>> variableAndVPathInformation;
         { // Collect information on VPATHS and qmake variables
