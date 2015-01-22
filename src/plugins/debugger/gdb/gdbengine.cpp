@@ -4400,6 +4400,7 @@ void GdbEngine::loadInitScript()
 void GdbEngine::reloadDebuggingHelpers()
 {
     postCommand("reload");
+    reloadLocals();
 }
 
 void GdbEngine::handleGdbError(QProcess::ProcessError error)
