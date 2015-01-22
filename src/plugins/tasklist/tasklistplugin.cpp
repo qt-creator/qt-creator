@@ -173,7 +173,7 @@ Core::IDocument *TaskListPlugin::openTasks(const QString &base, const QString &f
             return doc;
     }
 
-    TaskFile *file = new TaskFile(this);
+    auto file = new TaskFile(this);
     file->setBaseDir(base);
 
     QString errorString;

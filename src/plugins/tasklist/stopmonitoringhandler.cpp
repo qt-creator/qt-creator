@@ -66,7 +66,7 @@ QAction *StopMonitoringHandler::createAction(QObject *parent) const
     const QString toolTip =
             QCoreApplication::translate("TaskList::Internal::StopMonitoringHandler",
                                         "Stop monitoring task files.");
-    QAction *stopMonitoringAction = new QAction(text, parent);
+    auto stopMonitoringAction = new QAction(text, parent);
     stopMonitoringAction->setToolTip(toolTip);
     return stopMonitoringAction;
 }
