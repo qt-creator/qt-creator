@@ -249,7 +249,7 @@ void SubversionDiffEditorReloader::postCollectTextualDiffOutput()
 
     controller()->requestSaveState();
     controller()->clear(m_waitMessage);
-    VcsCommand *command = new VcsCommand(subversionPath(), m_workingDirectory, processEnvironment());
+    auto command = new VcsCommand(subversionPath(), m_workingDirectory, processEnvironment());
     command->setCodec(EditorManager::defaultTextCodec());
     connect(command, SIGNAL(output(QString)),
             this, SLOT(slotTextualDiffOutputReceived(QString)));

@@ -47,7 +47,7 @@ SubversionSubmitEditor::SubversionSubmitEditor(const VcsBase::VcsBaseSubmitEdito
 void SubversionSubmitEditor::setStatusList(const QList<StatusFilePair> &statusOutput)
 {
     typedef QList<StatusFilePair>::const_iterator ConstIterator;
-    VcsBase::SubmitFileModel *model = new VcsBase::SubmitFileModel(this);
+    auto model = new VcsBase::SubmitFileModel(this);
 
     const ConstIterator cend = statusOutput.constEnd();
     for (ConstIterator it = statusOutput.constBegin(); it != cend; ++it)
