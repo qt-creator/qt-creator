@@ -2765,12 +2765,12 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
 
         if (ProjectNode *pn = dynamic_cast<ProjectNode *>(currentNode)) {
             if (ProjectTree::currentProject() && pn == ProjectTree::currentProject()->rootProjectNode()) {
-                dd->m_runActionContextMenu->setVisible(true);
+                m_runActionContextMenu->setVisible(true);
             } else {
                 QList<RunConfiguration *> runConfigs = pn->runConfigurations();
                 if (runConfigs.count() == 1) {
-                    dd->m_runActionContextMenu->setVisible(true);
-                    dd->m_runActionContextMenu->setData(QVariant::fromValue(runConfigs.first()));
+                    m_runActionContextMenu->setVisible(true);
+                    m_runActionContextMenu->setData(QVariant::fromValue(runConfigs.first()));
                 } else if (runConfigs.count() > 1) {
                     runMenu->menu()->menuAction()->setVisible(true);
                     foreach (RunConfiguration *rc, runConfigs) {
@@ -2786,16 +2786,16 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
         }
         if (dynamic_cast<FolderNode*>(currentNode)) {
             // Also handles ProjectNode
-            dd->m_addNewFileAction->setEnabled(actions.contains(AddNewFile)
+            m_addNewFileAction->setEnabled(actions.contains(AddNewFile)
                                               && !ICore::isNewItemDialogRunning());
-            dd->m_addNewSubprojectAction->setEnabled(currentNode->nodeType() == ProjectNodeType
+            m_addNewSubprojectAction->setEnabled(currentNode->nodeType() == ProjectNodeType
                                                     && actions.contains(AddSubProject)
                                                     && !ICore::isNewItemDialogRunning());
-            dd->m_removeProjectAction->setEnabled(currentNode->nodeType() == ProjectNodeType
+            m_removeProjectAction->setEnabled(currentNode->nodeType() == ProjectNodeType
                                                     && actions.contains(RemoveSubProject));
-            dd->m_addExistingFilesAction->setEnabled(actions.contains(AddExistingFile));
-            dd->m_addExistingDirectoryAction->setEnabled(actions.contains(AddExistingDirectory));
-            dd->m_renameFileAction->setEnabled(actions.contains(Rename));
+            m_addExistingFilesAction->setEnabled(actions.contains(AddExistingFile));
+            m_addExistingDirectoryAction->setEnabled(actions.contains(AddExistingDirectory));
+            m_renameFileAction->setEnabled(actions.contains(Rename));
         } else if (dynamic_cast<FileNode*>(currentNode)) {
             // Enable and show remove / delete in magic ways:
             // If both are disabled show Remove
@@ -2803,34 +2803,34 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
             // If only removeFile is enabled only show it
             // If only deleteFile is enable only show it
             bool enableRemove = actions.contains(RemoveFile);
-            dd->m_removeFileAction->setEnabled(enableRemove);
+            m_removeFileAction->setEnabled(enableRemove);
             bool enableDelete = actions.contains(EraseFile);
-            dd->m_deleteFileAction->setEnabled(enableDelete);
-            dd->m_deleteFileAction->setVisible(enableDelete);
+            m_deleteFileAction->setEnabled(enableDelete);
+            m_deleteFileAction->setVisible(enableDelete);
 
-            dd->m_removeFileAction->setVisible(!enableDelete || enableRemove);
-            dd->m_renameFileAction->setEnabled(actions.contains(Rename));
+            m_removeFileAction->setVisible(!enableDelete || enableRemove);
+            m_renameFileAction->setEnabled(actions.contains(Rename));
 
-            DocumentManager::populateOpenWithMenu(dd->m_openWithMenu, ProjectTree::currentNode()->path());
+            DocumentManager::populateOpenWithMenu(m_openWithMenu, ProjectTree::currentNode()->path());
         }
 
         if (actions.contains(HidePathActions)) {
-            dd->m_openTerminalHere->setVisible(false);
-            dd->m_showInGraphicalShell->setVisible(false);
-            dd->m_searchOnFileSystem->setVisible(false);
+            m_openTerminalHere->setVisible(false);
+            m_showInGraphicalShell->setVisible(false);
+            m_searchOnFileSystem->setVisible(false);
         }
 
         if (actions.contains(HideFileActions)) {
-            dd->m_deleteFileAction->setVisible(false);
-            dd->m_removeFileAction->setVisible(false);
+            m_deleteFileAction->setVisible(false);
+            m_removeFileAction->setVisible(false);
         }
 
         if (actions.contains(HideFolderActions)) {
-            dd->m_addNewFileAction->setVisible(false);
-            dd->m_addNewSubprojectAction->setVisible(false);
-            dd->m_removeProjectAction->setVisible(false);
-            dd->m_addExistingFilesAction->setVisible(false);
-            dd->m_addExistingDirectoryAction->setVisible(false);
+            m_addNewFileAction->setVisible(false);
+            m_addNewSubprojectAction->setVisible(false);
+            m_removeProjectAction->setVisible(false);
+            m_addExistingFilesAction->setVisible(false);
+            m_addExistingDirectoryAction->setVisible(false);
         }
     }
 }
