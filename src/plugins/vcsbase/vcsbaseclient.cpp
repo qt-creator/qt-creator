@@ -91,17 +91,12 @@ public:
 
     VcsBaseClient::ParameterWidgetCreator m_diffParamWidgetCreator;
     VcsBaseClient::ParameterWidgetCreator m_logParamWidgetCreator;
-
-private:
-    VcsBaseClient *m_client;
 };
 
 VcsBaseClientPrivate::VcsBaseClientPrivate(VcsBaseClient *client, VcsBaseClientSettings *settings) :
     m_clientSettings(settings),
-    m_cmdFinishedMapper(new QSignalMapper(client)),
-    m_client(client)
-{
-}
+    m_cmdFinishedMapper(new QSignalMapper(client))
+{ }
 
 void VcsBaseClientPrivate::bindCommandToEditor(VcsCommand *cmd, VcsBaseEditorWidget *editor)
 {
@@ -123,8 +118,7 @@ VcsBaseEditorParameterWidget *VcsBaseClientPrivate::createLogEditor()
 
 VcsBaseClient::StatusItem::StatusItem(const QString &s, const QString &f) :
     flags(s), file(f)
-{
-}
+{ }
 
 VcsBaseClient::VcsBaseClient(VcsBaseClientSettings *settings) :
     d(new VcsBaseClientPrivate(this, settings))
