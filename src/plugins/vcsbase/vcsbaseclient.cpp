@@ -101,8 +101,8 @@ VcsBaseClientPrivate::VcsBaseClientPrivate(VcsBaseClient *client, VcsBaseClientS
 void VcsBaseClientPrivate::bindCommandToEditor(VcsCommand *cmd, VcsBaseEditorWidget *editor)
 {
     editor->setCommand(cmd);
-    connect(cmd, &VcsCommand::finished,
-            m_cmdFinishedMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
+    QObject::connect(cmd, &VcsCommand::finished,
+                     m_cmdFinishedMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
     m_cmdFinishedMapper->setMapping(cmd, editor);
 }
 
