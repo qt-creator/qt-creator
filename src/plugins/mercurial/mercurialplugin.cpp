@@ -320,12 +320,9 @@ void MercurialPlugin::statusCurrentFile()
 
 void MercurialPlugin::createDirectoryActions(const Core::Context &context)
 {
-    QAction *action;
-    Core::Command *command;
-
-    action = new QAction(tr("Diff"), this);
+    auto action = new QAction(tr("Diff"), this);
     m_repositoryActionList.append(action);
-    command = Core::ActionManager::registerAction(action, Core::Id(Constants::DIFFMULTI), context);
+    Core::Command *command = Core::ActionManager::registerAction(action, Core::Id(Constants::DIFFMULTI), context);
     connect(action, SIGNAL(triggered()), this, SLOT(diffRepository()));
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -387,7 +384,7 @@ void MercurialPlugin::statusMulti()
 
 void MercurialPlugin::createRepositoryActions(const Core::Context &context)
 {
-    QAction *action = new QAction(tr("Pull..."), this);
+    auto action = new QAction(tr("Pull..."), this);
     m_repositoryActionList.append(action);
     Core::Command *command = Core::ActionManager::registerAction(action, Core::Id(Constants::PULL), context);
     connect(action, SIGNAL(triggered()), this, SLOT(pull()));
@@ -517,10 +514,9 @@ void MercurialPlugin::outgoing()
 void MercurialPlugin::createSubmitEditorActions()
 {
     Core::Context context(Constants::COMMIT_ID);
-    Core::Command *command;
 
     editorCommit = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
-    command = Core::ActionManager::registerAction(editorCommit, Core::Id(Constants::COMMIT), context);
+    Core::Command *command = Core::ActionManager::registerAction(editorCommit, Core::Id(Constants::COMMIT), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(editorCommit, SIGNAL(triggered()), this, SLOT(commitFromEditor()));
 
@@ -649,7 +645,7 @@ void MercurialPlugin::createRepositoryManagementActions(const Core::Context &con
     //TODO create menu for these options
     Q_UNUSED(context);
     return;
-    //    QAction *action = new QAction(tr("Branch"), this);
+    //    auto action = new QAction(tr("Branch"), this);
     //    actionList.append(action);
     //    Core::Command *command = Core::ActionManager::registerAction(action, Constants::BRANCH, context);
     //    //    connect(action, SIGNAL(triggered()), this, SLOT(branch()));

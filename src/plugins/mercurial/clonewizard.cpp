@@ -54,11 +54,11 @@ CloneWizard::CloneWizard(const Utils::FileName &path, QWidget *parent) :
 
     const Core::IVersionControl *vc = MercurialPlugin::instance()->versionControl();
     if (!vc->isConfigured()) {
-        VcsConfigurationPage *configPage = new VcsConfigurationPage;
+        auto configPage = new VcsConfigurationPage;
         configPage->setVersionControl(vc);
         addPage(configPage);
     }
-    CloneWizardPage *page = new CloneWizardPage;
+    auto page = new CloneWizardPage;
     page->setPath(path.toString());
     addPage(page);
 }
@@ -82,8 +82,8 @@ VcsCommand *CloneWizard::createCommand(Utils::FileName *checkoutDir)
     QStringList args;
     args << QLatin1String("clone") << cwp->repository() << directory;
     *checkoutDir = Utils::FileName::fromString(path + QLatin1Char('/') + directory);
-    VcsCommand *command = new VcsCommand(settings.binaryPath(), path,
-                                         QProcessEnvironment::systemEnvironment());
+    auto command = new VcsCommand(settings.binaryPath(), path,
+                                  QProcessEnvironment::systemEnvironment());
     command->addJob(args, -1);
     return command;
 }
