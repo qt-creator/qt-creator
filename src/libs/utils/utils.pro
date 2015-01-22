@@ -17,9 +17,3 @@ linux-* {
 win32: LIBS += -luser32 -lshell32
 # PortsGatherer
 win32: LIBS += -liphlpapi -lws2_32
-
-HEADERS += \
-    progressindicator.h
-
-SOURCES += \
-    progressindicator.cpp
