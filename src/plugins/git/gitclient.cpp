@@ -33,6 +33,7 @@
 
 #include "commitdata.h"
 #include "gitconstants.h"
+#include "giteditor.h"
 #include "gitplugin.h"
 #include "gitsubmiteditor.h"
 #include "gitversioncontrol.h"
@@ -225,8 +226,7 @@ void GitDiffHandler::postCollectShowDescription(const QString &id)
     auto command = new VcsCommand(gitPath(), m_workingDirectory, processEnvironment());
     command->setCodec(m_gitClient->encoding(m_workingDirectory,
                                             "i18n.commitEncoding"));
-    connect(command, SIGNAL(output(QString)),
-            this, SLOT(slotShowDescriptionReceived(QString)));
+    connect(command, &VcsCommand::output, this, &GitDiffHandler::slotShowDescriptionReceived);
     QStringList arguments;
     arguments << QLatin1String("show")
               << QLatin1String("-s")
@@ -313,8 +313,7 @@ void GitDiffHandler::postCollectTextualDiffOutput(const QString &gitCommand, con
     m_controller->clear(m_waitMessage);
     auto command = new VcsCommand(gitPath(), m_workingDirectory, processEnvironment());
     command->setCodec(EditorManager::defaultTextCodec());
-    connect(command, SIGNAL(output(QString)),
-            this, SLOT(slotTextualDiffOutputReceived(QString)));
+    connect(command, &VcsCommand::output, this, &GitDiffHandler::slotTextualDiffOutputReceived);
     command->addFlags(diffExecutionFlags());
 
     for (int i = 0; i < argumentsList.count(); i++)
@@ -416,7 +415,7 @@ GitDiffEditorReloader::GitDiffEditorReloader()
 void GitDiffEditorReloader::reload()
 {
     auto handler = new GitDiffHandler(controller(), m_workingDirectory);
-    connect(handler, SIGNAL(destroyed()), this, SLOT(reloadFinished()));
+    connect(handler, &GitDiffHandler::destroyed, this, &GitDiffEditorReloader::reloadFinished);
 
     switch (m_diffType) {
     case DiffRepository:
@@ -499,8 +498,8 @@ public:
         QToolButton *diffButton = addToggleButton(QLatin1String("--patch"), tr("Show Diff"),
                                               tr("Show difference."));
         mapSetting(diffButton, settings->boolPointer(GitSettings::logDiffKey));
-        connect(diffButton, SIGNAL(toggled(bool)), m_patienceButton, SLOT(setVisible(bool)));
-        connect(diffButton, SIGNAL(toggled(bool)), m_ignoreWSButton, SLOT(setVisible(bool)));
+        connect(diffButton, &QToolButton::toggled, m_patienceButton, &QToolButton::setVisible);
+        connect(diffButton, &QToolButton::toggled, m_ignoreWSButton, &QToolButton::setVisible);
         m_patienceButton->setVisible(diffButton->isChecked());
         m_ignoreWSButton->setVisible(diffButton->isChecked());
         QStringList graphArguments(QLatin1String("--graph"));
@@ -525,8 +524,8 @@ public:
     {
         if (parentCommand) {
             parentCommand->addFlags(VcsBasePlugin::ExpectRepoChanges);
-            connect(parentCommand, SIGNAL(output(QString)), this, SLOT(readStdOut(QString)));
-            connect(parentCommand, SIGNAL(errorText(QString)), this, SLOT(readStdErr(QString)));
+            connect(parentCommand, &VcsCommand::output, this, &ConflictHandler::readStdOut);
+            connect(parentCommand, &VcsCommand::errorText, this, &ConflictHandler::readStdErr);
         }
     }
 
@@ -669,7 +668,7 @@ GitClient::GitClient(GitSettings *settings) :
     m_disableEditor(false)
 {
     QTC_CHECK(settings);
-    connect(ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
+    connect(ICore::instance(), &ICore::saveSettingsRequested, this, &GitClient::saveSettings);
     m_gitQtcEditor = QString::fromLatin1("\"%1\" -client -block -pid %2")
             .arg(QCoreApplication::applicationFilePath())
             .arg(QCoreApplication::applicationPid());
@@ -756,10 +755,10 @@ GitDiffEditorReloader *GitClient::findOrCreateDiffEditor(const QString &document
         QTC_ASSERT(diffEditorDocument, return 0);
         controller = diffEditorDocument->controller();
 
-        connect(controller, SIGNAL(chunkActionsRequested(QMenu*,bool)),
-                this, SLOT(slotChunkActionsRequested(QMenu*,bool)), Qt::DirectConnection);
-        connect(controller, SIGNAL(expandBranchesRequested(QString)),
-                this, SLOT(branchesForCommit(QString)));
+        connect(controller, &DiffEditor::DiffEditorController::chunkActionsRequested,
+                this, &GitClient::slotChunkActionsRequested, Qt::DirectConnection);
+        connect(controller, static_cast<void (DiffEditor::DiffEditorController::*)(const QString &)>(&DiffEditor::DiffEditorController::expandBranchesRequested),
+                this, &GitClient::branchesForCommit);
 
         reloader = new GitDiffEditorReloader();
         controller->setReloader(reloader);
@@ -777,9 +776,9 @@ void GitClient::slotChunkActionsRequested(QMenu *menu, bool isValid)
 {
     menu->addSeparator();
     QAction *stageChunkAction = menu->addAction(tr("Stage Chunk"));
-    connect(stageChunkAction, SIGNAL(triggered()), this, SLOT(slotStageChunk()));
+    connect(stageChunkAction, &QAction::triggered, this, &GitClient::slotStageChunk);
     QAction *unstageChunkAction = menu->addAction(tr("Unstage Chunk"));
-    connect(unstageChunkAction, SIGNAL(triggered()), this, SLOT(slotUnstageChunk()));
+    connect(unstageChunkAction, &QAction::triggered, this, &GitClient::slotUnstageChunk);
 
     m_contextController = qobject_cast<DiffEditor::DiffEditorController *>(sender());
 
@@ -866,8 +865,8 @@ VcsBaseEditorWidget *GitClient::createVcsEditor(
     IEditor *outputEditor = EditorManager::openEditorWithContents(id, &title);
     outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
     rc = VcsBaseEditor::getVcsBaseEditor(outputEditor);
-    connect(rc, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
-            this, SLOT(slotBlameRevisionRequested(QString,QString,QString,int)));
+    connect(rc, &VcsBaseEditorWidget::annotateRevisionRequested,
+            this, &GitClient::slotBlameRevisionRequested);
     QTC_ASSERT(rc, return 0);
     rc->setSource(source);
     if (codecType == CodecSource)
@@ -960,7 +959,7 @@ void GitClient::status(const QString &workingDirectory)
     statusArgs << QLatin1String("status") << QLatin1String("-u");
     VcsOutputWindow::setRepository(workingDirectory);
     VcsCommand *command = executeGit(workingDirectory, statusArgs, 0, true);
-    connect(command, SIGNAL(finished(bool,int,QVariant)), VcsOutputWindow::instance(), SLOT(clearRepository()),
+    connect(command, &VcsCommand::finished, VcsOutputWindow::instance(), &VcsOutputWindow::clearRepository,
             Qt::QueuedConnection);
 }
 
@@ -1660,8 +1659,8 @@ void GitClient::branchesForCommit(const QString &revision)
     auto command = new VcsCommand(gitExecutable(), workingDirectory, processEnvironment());
     command->setCodec(getSourceCodec(currentDocumentPath()));
 
-    connect(command, SIGNAL(output(QString)), controller,
-            SLOT(branchesForCommitReceived(QString)));
+    connect(command, &VcsCommand::output, controller,
+            &DiffEditor::DiffEditorController::branchesForCommitReceived);
 
     command->addJob(arguments, -1);
     command->setCookie(workingDirectory);
@@ -2059,21 +2058,22 @@ VcsCommand *GitClient::createCommand(const QString &workingDirectory,
                                      bool useOutputToWindow,
                                      int editorLineNumber)
 {
+    GitEditorWidget *gitEditor = qobject_cast<GitEditorWidget *>(editor);
     auto command = new VcsCommand(gitExecutable(), workingDirectory, processEnvironment());
     command->setCodec(getSourceCodec(currentDocumentPath()));
     command->setCookie(QVariant(editorLineNumber));
-    if (editor) {
-        editor->setCommand(command);
-        connect(command, SIGNAL(finished(bool,int,QVariant)),
-                editor, SLOT(commandFinishedGotoLine(bool,int,QVariant)));
+    if (gitEditor) {
+        gitEditor->setCommand(command);
+        connect(command, &VcsCommand::finished,
+                gitEditor, &GitEditorWidget::commandFinishedGotoLine);
     }
     if (useOutputToWindow) {
         command->addFlags(VcsBasePlugin::ShowStdOutInLogWindow);
         command->addFlags(VcsBasePlugin::ShowSuccessMessage);
         if (editor) // assume that the commands output is the important thing
             command->addFlags(VcsBasePlugin::SilentOutput);
-    } else if (editor) {
-        connect(command, SIGNAL(output(QString)), editor, SLOT(setPlainTextFiltered(QString)));
+    } else if (gitEditor) {
+        connect(command, &VcsCommand::output, gitEditor, &GitEditorWidget::setPlainTextFiltered);
     }
 
     return command;
@@ -2225,7 +2225,7 @@ void GitClient::updateSubmodulesIfNeeded(const QString &workingDirectory, bool p
 
     VcsCommand *cmd = executeGit(workingDirectory, arguments, 0, true,
                                  VcsBasePlugin::ExpectRepoChanges);
-    connect(cmd, SIGNAL(finished(bool,int,QVariant)), this, SLOT(finishSubmoduleUpdate()));
+    connect(cmd, &VcsCommand::finished, this, &GitClient::finishSubmoduleUpdate);
 }
 
 void GitClient::finishSubmoduleUpdate()
@@ -2524,7 +2524,8 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
         process->start(binary, arguments);
         success = process->waitForStarted();
         if (success)
-            connect(process, SIGNAL(finished(int)), process, SLOT(deleteLater()));
+            connect(process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+                    process, &QProcess::deleteLater);
         else
             delete process;
     } else {
@@ -2974,7 +2975,7 @@ void GitClient::fetch(const QString &workingDirectory, const QString &remote)
     arguments << (remote.isEmpty() ? QLatin1String("--all") : remote);
     VcsCommand *command = executeGit(workingDirectory, arguments, 0, true);
     command->setCookie(workingDirectory);
-    connect(command, SIGNAL(success(QVariant)), this, SLOT(fetchFinished(QVariant)));
+    connect(command, &VcsCommand::success, this, &GitClient::fetchFinished);
 }
 
 bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
