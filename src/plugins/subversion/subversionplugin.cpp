@@ -92,7 +92,6 @@ using namespace VcsBase;
 namespace Subversion {
 namespace Internal {
 
-const char SUBVERSION_CONTEXT[]        = "Subversion Context";
 const char CMD_ID_SUBVERSION_MENU[]    = "Subversion.Menu";
 const char CMD_ID_ADD[]                = "Subversion.Add";
 const char CMD_ID_DELETE_FILE[]        = "Subversion.Delete";
@@ -114,22 +113,16 @@ const char CMD_ID_UPDATE[]             = "Subversion.Update";
 const char CMD_ID_COMMIT_PROJECT[]     = "Subversion.CommitProject";
 const char CMD_ID_DESCRIBE[]           = "Subversion.Describe";
 
-const char SUBVERSION_SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.svn.submit";
-const char SUBVERSIONCOMMITEDITOR_ID[]  = "Subversion Commit Editor";
-const char SUBVERSIONCOMMITEDITOR_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("VCS", "Subversion Commit Editor");
-const char SUBMIT_CURRENT[]             = "Subversion.SubmitCurrentLog";
-const char DIFF_SELECTED[]              = "Subversion.DiffSelectedFilesInLog";
-
 const VcsBaseEditorParameters editorParameters[] = {
 {
     LogOutput,
-    "Subversion File Log Editor",   // id
-    QT_TRANSLATE_NOOP("VCS", "Subversion File Log Editor"),   // display_name
-    "text/vnd.qtcreator.svn.log"},
+    Constants::SUBVERSION_LOG_EDITOR_ID,
+    Constants::SUBVERSION_LOG_EDITOR_DISPLAY_NAME,
+    Constants::SUBVERSION_LOG_MIMETYPE},
 {    AnnotateOutput,
-    "Subversion Annotation Editor",  // id
-    QT_TRANSLATE_NOOP("VCS", "Subversion Annotation Editor"),   // display_name
-    "text/vnd.qtcreator.svn.annotation"}
+     Constants::SUBVERSION_BLAME_EDITOR_ID,
+     Constants::SUBVERSION_BLAME_EDITOR_DISPLAY_NAME,
+     Constants::SUBVERSION_BLAME_MIMETYPE}
 };
 
 // Utility to find a parameter set by type
@@ -232,9 +225,9 @@ bool SubversionPlugin::isCommitEditorOpen() const
 }
 
 const VcsBaseSubmitEditorParameters submitParameters = {
-    SUBVERSION_SUBMIT_MIMETYPE,
-    SUBVERSIONCOMMITEDITOR_ID,
-    SUBVERSIONCOMMITEDITOR_DISPLAY_NAME,
+    Constants::SUBVERSION_SUBMIT_MIMETYPE,
+    Constants::SUBVERSION_COMMIT_EDITOR_ID,
+    Constants::SUBVERSION_COMMIT_EDITOR_DISPLAY_NAME,
     VcsBaseSubmitEditorParameters::DiffFiles
 };
 
@@ -437,7 +430,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     m_commandLocator->appendCommand(command);
 
     // Actions of the submit editor
-    Context svncommitcontext(SUBVERSIONCOMMITEDITOR_ID);
+    Context svncommitcontext(Constants::SUBVERSION_COMMIT_EDITOR_ID);
 
     m_submitCurrentLogAction = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
     command = ActionManager::registerAction(m_submitCurrentLogAction, SUBMIT_CURRENT, svncommitcontext);
@@ -517,7 +510,7 @@ void SubversionPlugin::diffCommitFiles(const QStringList &files)
 
 SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QString &fileName)
 {
-    IEditor *editor = EditorManager::openEditor(fileName, SUBVERSIONCOMMITEDITOR_ID);
+    IEditor *editor = EditorManager::openEditor(fileName, Constants::SUBVERSION_COMMIT_EDITOR_ID);
     SubversionSubmitEditor *submitEditor = qobject_cast<SubversionSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, return 0);
     setSubmitEditor(submitEditor);
