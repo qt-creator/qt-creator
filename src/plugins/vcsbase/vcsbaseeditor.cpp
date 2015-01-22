@@ -1318,16 +1318,22 @@ QString VcsBaseEditor::getTitleId(const QString &workingDirectory,
                                   const QStringList &fileNames,
                                   const QString &revision)
 {
+    QStringList nonEmptyFileNames;
+    foreach (const QString& fileName, fileNames) {
+        if (!fileName.trimmed().isEmpty())
+            nonEmptyFileNames.append(fileName);
+    }
+
     QString rc;
-    switch (fileNames.size()) {
+    switch (nonEmptyFileNames.size()) {
     case 0:
         rc = workingDirectory;
         break;
     case 1:
-        rc = fileNames.front();
+        rc = nonEmptyFileNames.front();
         break;
     default:
-        rc = fileNames.join(QLatin1String(", "));
+        rc = nonEmptyFileNames.join(QLatin1String(", "));
         break;
     }
     if (!revision.isEmpty()) {
