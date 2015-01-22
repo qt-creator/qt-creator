@@ -28,10 +28,10 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGSPAGE_H
-#define SETTINGSPAGE_H
+#ifndef LOCATORSETTINGSPAGE_H
+#define LOCATORSETTINGSPAGE_H
 
-#include "ui_settingspage.h"
+#include "ui_locatorsettingspage.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -50,12 +50,12 @@ namespace Internal {
 
 class Locator;
 
-class SettingsPage : public IOptionsPage
+class LocatorSettingsPage : public IOptionsPage
 {
     Q_OBJECT
 
 public:
-    explicit SettingsPage(Locator *plugin);
+    explicit LocatorSettingsPage(Locator *plugin);
 
     QWidget *widget();
     void apply();
@@ -87,4 +87,4 @@ private:
 } // namespace Internal
 } // namespace Core
 
-#endif // SETTINGSPAGE_H
+#endif // LOCATORSETTINGSPAGE_H

@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "settingspage.h"
+#include "locatorsettingspage.h"
 #include "locatorconstants.h"
 
 #include "locator.h"
@@ -45,7 +45,7 @@ Q_DECLARE_METATYPE(Core::ILocatorFilter*)
 using namespace Core;
 using namespace Core::Internal;
 
-SettingsPage::SettingsPage(Locator *plugin)
+LocatorSettingsPage::LocatorSettingsPage(Locator *plugin)
     : m_plugin(plugin), m_widget(0)
 {
     setId(Constants::FILTER_OPTIONS_PAGE);
@@ -55,7 +55,7 @@ SettingsPage::SettingsPage(Locator *plugin)
     setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
-QWidget *SettingsPage::widget()
+QWidget *LocatorSettingsPage::widget()
 {
     if (!m_widget) {
         m_widget = new QWidget;
@@ -81,7 +81,7 @@ QWidget *SettingsPage::widget()
     return m_widget;
 }
 
-void SettingsPage::apply()
+void LocatorSettingsPage::apply()
 {
     // Delete removed filters and clear added filters
     qDeleteAll(m_removedFilters);
@@ -97,7 +97,7 @@ void SettingsPage::apply()
     saveFilterStates();
 }
 
-void SettingsPage::finish()
+void LocatorSettingsPage::finish()
 {
     // If settings were applied, this shouldn't change anything. Otherwise it
     // makes sure the filter states aren't changed permanently.
@@ -115,26 +115,26 @@ void SettingsPage::finish()
     delete m_widget;
 }
 
-void SettingsPage::requestRefresh()
+void LocatorSettingsPage::requestRefresh()
 {
     if (!m_refreshFilters.isEmpty())
         m_plugin->refresh(m_refreshFilters);
 }
 
-void SettingsPage::saveFilterStates()
+void LocatorSettingsPage::saveFilterStates()
 {
     m_filterStates.clear();
     foreach (ILocatorFilter *filter, m_filters)
         m_filterStates.insert(filter, filter->saveState());
 }
 
-void SettingsPage::restoreFilterStates()
+void LocatorSettingsPage::restoreFilterStates()
 {
     foreach (ILocatorFilter *filter, m_filterStates.keys())
         filter->restoreState(m_filterStates.value(filter));
 }
 
-void SettingsPage::updateFilterList()
+void LocatorSettingsPage::updateFilterList()
 {
     m_ui.filterList->clear();
     foreach (ILocatorFilter *filter, m_filters) {
@@ -154,7 +154,7 @@ void SettingsPage::updateFilterList()
         m_ui.filterList->setCurrentRow(0);
 }
 
-void SettingsPage::updateButtonStates()
+void LocatorSettingsPage::updateButtonStates()
 {
     QListWidgetItem *item = m_ui.filterList->currentItem();
     ILocatorFilter *filter = (item ? item->data(Qt::UserRole).value<ILocatorFilter *>() : 0);
@@ -162,7 +162,7 @@ void SettingsPage::updateButtonStates()
     m_ui.removeButton->setEnabled(filter && m_customFilters.contains(filter));
 }
 
-void SettingsPage::configureFilter(QListWidgetItem *item)
+void LocatorSettingsPage::configureFilter(QListWidgetItem *item)
 {
     if (!item)
         item = m_ui.filterList->currentItem();
@@ -179,7 +179,7 @@ void SettingsPage::configureFilter(QListWidgetItem *item)
     updateFilterList();
 }
 
-void SettingsPage::addCustomFilter()
+void LocatorSettingsPage::addCustomFilter()
 {
     ILocatorFilter *filter = new DirectoryFilter(
                 Id(Constants::CUSTOM_FILTER_BASEID).withSuffix(m_customFilters.size() + 1));
@@ -193,7 +193,7 @@ void SettingsPage::addCustomFilter()
     }
 }
 
-void SettingsPage::removeCustomFilter()
+void LocatorSettingsPage::removeCustomFilter()
 {
     QListWidgetItem *item = m_ui.filterList->currentItem();
     QTC_ASSERT(item, return);

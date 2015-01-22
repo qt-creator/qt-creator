@@ -49,7 +49,7 @@ class CorePlugin;
 class LocatorWidget;
 class OpenDocumentsFilter;
 class FileSystemFilter;
-class SettingsPage;
+class LocatorSettingsPage;
 
 class Locator : public QObject
 {
@@ -86,7 +86,7 @@ private:
     void loadSettingsHelper(S *settings);
 
     LocatorWidget *m_locatorWidget;
-    SettingsPage *m_settingsPage;
+    LocatorSettingsPage *m_settingsPage;
 
     bool m_settingsInitialized;
     QList<ILocatorFilter *> m_filters;

@@ -280,9 +280,9 @@ QtcPlugin {
             "locatorwidget.h",
             "opendocumentsfilter.cpp",
             "opendocumentsfilter.h",
-            "settingspage.cpp",
-            "settingspage.h",
-            "settingspage.ui",
+            "locatorsettingspage.cpp",
+            "locatorsettingspage.h",
+            "locatorsettingspage.ui",
             "images/locator.png",
             "images/reload.png",
         ]

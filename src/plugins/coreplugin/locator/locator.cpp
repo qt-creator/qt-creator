@@ -35,7 +35,7 @@
 #include "locatorwidget.h"
 #include "opendocumentsfilter.h"
 #include "filesystemfilter.h"
-#include "settingspage.h"
+#include "locatorsettingspage.h"
 
 #include <coreplugin/coreplugin.h>
 #include <coreplugin/statusbarwidget.h>
@@ -86,7 +86,7 @@ void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
 {
     m_corePlugin = corePlugin;
 
-    m_settingsPage = new SettingsPage(this);
+    m_settingsPage = new LocatorSettingsPage(this);
     m_corePlugin->addObject(m_settingsPage);
 
     m_locatorWidget = new LocatorWidget(this);
