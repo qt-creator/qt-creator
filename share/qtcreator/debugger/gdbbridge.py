@@ -2043,7 +2043,12 @@ registerCommand("threadnames", threadnames)
 
 def reloadDumper(arg):
     for mod in dumpermodules:
-        importlib.reload(sys.modules[mod])
+        m = sys.modules[mod]
+        if sys.version_info[0] >= 3:
+            importlib.reload(m)
+        else:
+            reload(m)
+
     bbsetup()
 
 registerCommand("reload", reloadDumper)
