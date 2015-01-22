@@ -67,7 +67,7 @@ SpinBoxStyle {
     }
 
     background: Rectangle {
-        implicitWidth: Math.max(60, styleData.contentWidth)
+        implicitWidth: Math.max(64, styleData.contentWidth)
         implicitHeight: 23
         border.color: borderColor
         radius: 3
