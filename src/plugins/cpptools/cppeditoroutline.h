@@ -31,6 +31,8 @@
 #ifndef CPPEDITOROUTLINE_H
 #define CPPEDITOROUTLINE_H
 
+#include "cpptools_global.h"
+
 #include <QModelIndex>
 #include <QObject>
 
@@ -44,10 +46,9 @@ namespace CPlusPlus { class OverviewModel; }
 namespace TextEditor { class TextEditorWidget; }
 namespace Utils { class TreeViewComboBox; }
 
-namespace CppEditor {
-namespace Internal {
+namespace CppTools {
 
-class CppEditorOutline : public QObject
+class CPPTOOLS_EXPORT CppEditorOutline : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(CppEditorOutline)
@@ -94,7 +95,6 @@ private:
     QTimer *m_updateIndexTimer;
 };
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppTools
 
 #endif // CPPEDITOROUTLINE_H

@@ -37,13 +37,16 @@
 
 #include <QScopedPointer>
 
-namespace CppTools { class SemanticInfo; }
+namespace CppTools {
+class CppEditorOutline;
+class SemanticInfo;
+}
 
 namespace CppEditor {
 namespace Internal {
 
 class CppEditorDocument;
-class CppEditorOutline;
+
 class CppEditorWidgetPrivate;
 class FollowSymbolUnderCursor;
 class FunctionDeclDefLink;
@@ -65,7 +68,7 @@ public:
     ~CppEditorWidget();
 
     CppEditorDocument *cppEditorDocument() const;
-    CppEditorOutline *outline() const;
+    CppTools::CppEditorOutline *outline() const;
 
     CppTools::SemanticInfo semanticInfo() const;
     bool isSemanticInfoValidExceptLocalUses() const;

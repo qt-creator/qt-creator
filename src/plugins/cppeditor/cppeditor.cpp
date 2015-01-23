@@ -35,7 +35,6 @@
 #include "cppdocumentationcommenthelper.h"
 #include "cppeditorconstants.h"
 #include "cppeditordocument.h"
-#include "cppeditoroutline.h"
 #include "cppeditorplugin.h"
 #include "cppfollowsymbolundercursor.h"
 #include "cpphighlighter.h"
@@ -51,6 +50,7 @@
 #include <cpptools/cppchecksymbols.h>
 #include <cpptools/cppcodeformatter.h>
 #include <cpptools/cppcompletionassistprovider.h>
+#include <cpptools/cppeditoroutline.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppsemanticinfo.h>
 #include <cpptools/cpptoolsconstants.h>
@@ -242,7 +242,7 @@ CppEditorDocument *CppEditorWidget::cppEditorDocument() const
     return d->m_cppEditorDocument;
 }
 
-CppEditorOutline *CppEditorWidget::outline() const
+CppTools::CppEditorOutline *CppEditorWidget::outline() const
 {
     return d->m_cppEditorOutline;
 }

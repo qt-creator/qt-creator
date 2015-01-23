@@ -30,7 +30,7 @@
 
 #include "cppoutline.h"
 
-#include "cppeditoroutline.h"
+#include <cpptools/cppeditoroutline.h>
 
 #include <cplusplus/OverviewModel.h>
 

@@ -44,6 +44,7 @@ QtcPlugin {
         "cppcompletionassistprovider.cpp", "cppcompletionassistprovider.h",
         "cppcurrentdocumentfilter.cpp", "cppcurrentdocumentfilter.h",
         "cppdoxygen.cpp", "cppdoxygen.h",
+        "cppeditoroutline.cpp", "cppeditoroutline.h",
         "cppfilesettingspage.cpp", "cppfilesettingspage.h", "cppfilesettingspage.ui",
         "cppfindreferences.cpp", "cppfindreferences.h",
         "cppfunctionsfilter.cpp", "cppfunctionsfilter.h",

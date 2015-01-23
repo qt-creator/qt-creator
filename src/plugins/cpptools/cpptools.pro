@@ -25,6 +25,7 @@ HEADERS += \
     cppcompletionassistprocessor.h \
     cppcompletionassistprovider.h \
     cppcurrentdocumentfilter.h \
+    cppeditoroutline.h \
     cppdoxygen.h \
     cppfilesettingspage.h \
     cppfindreferences.h \
@@ -88,6 +89,7 @@ SOURCES += \
     cppcompletionassistprocessor.cpp \
     cppcompletionassistprovider.cpp \
     cppcurrentdocumentfilter.cpp \
+    cppeditoroutline.cpp \
     cppdoxygen.cpp \
     cppfilesettingspage.cpp \
     cppfindreferences.cpp \

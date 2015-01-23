@@ -30,8 +30,6 @@
 
 #include "cppeditoroutline.h"
 
-#include "cppeditorplugin.h"
-
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/cpptoolssettings.h>
@@ -44,11 +42,9 @@
 #include <QTimer>
 
 /*!
-    \class CppEditor::Internal::CppEditorOutline
+    \class CppTools::CppEditorOutline
     \brief A helper class that provides the outline model and widget,
            e.g. for the editor's tool bar.
-
-    \internal
 
     The caller is responsible for deleting the widget returned by widget().
  */
@@ -94,8 +90,7 @@ QTimer *newSingleShotTimer(QObject *parent, int msInternal, const QString &objec
 
 } // anonymous namespace
 
-namespace CppEditor {
-namespace Internal {
+namespace CppTools {
 
 CppEditorOutline::CppEditorOutline(TextEditor::TextEditorWidget *editorWidget)
     : QObject(editorWidget)
@@ -286,7 +281,6 @@ QModelIndex CppEditorOutline::indexForPosition(int line, int column,
     return lastIndex;
 }
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppTools
 
 #include <cppeditoroutline.moc>

@@ -35,7 +35,6 @@
 #include "cppeditorconstants.h"
 #include "cppeditor.h"
 #include "cppeditordocument.h"
-#include "cppeditoroutline.h"
 #include "cpphighlighter.h"
 #include "cpphoverhandler.h"
 #include "cppincludehierarchy.h"
