@@ -205,15 +205,10 @@ bool QmakeAndroidBuildApkStep::init()
     QString outputDir = bc->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY)).toString();
 
     const auto *pro = static_cast<QmakeProjectManager::QmakeProject *>(project());
-    m_skipBuilding = m_proFilePathForInputFile.isEmpty();
+    const QmakeProjectManager::QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(proFilePathForInputFile());
+    m_skipBuilding = !node;
     if (m_skipBuilding)
         return true;
-
-    const QmakeProjectManager::QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(m_proFilePathForInputFile);
-    if (!node) { // should never happen
-        emit addOutput(tr("Internal Error: Could not find .pro file."), BuildStep::ErrorMessageOutput);
-        return false;
-    }
 
     QString inputFile = node->singleVariableValue(QmakeProjectManager::AndroidDeploySettingsFile);
     if (inputFile.isEmpty()) { // should never happen
