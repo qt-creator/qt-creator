@@ -44,9 +44,9 @@ class LocalApplicationRunControlFactory : public IRunControlFactory
     Q_OBJECT
 public:
     LocalApplicationRunControlFactory ();
-    virtual ~LocalApplicationRunControlFactory();
-    virtual bool canRun(RunConfiguration *runConfiguration, RunMode mode) const;
-    virtual RunControl* create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage);
+    ~LocalApplicationRunControlFactory();
+    bool canRun(RunConfiguration *runConfiguration, RunMode mode) const;
+    RunControl* create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage);
 };
 
 class LocalApplicationRunControl : public RunControl
@@ -54,10 +54,10 @@ class LocalApplicationRunControl : public RunControl
     Q_OBJECT
 public:
     LocalApplicationRunControl(LocalApplicationRunConfiguration *runConfiguration, RunMode mode);
-    virtual ~LocalApplicationRunControl();
-    virtual void start();
-    virtual StopResult stop();
-    virtual bool isRunning() const;
+    ~LocalApplicationRunControl();
+    void start();
+    StopResult stop();
+    bool isRunning() const;
 private slots:
     void processStarted();
     void processExited(int exitCode, QProcess::ExitStatus status);
@@ -67,7 +67,6 @@ private:
     QString m_executable;
     QString m_commandLineArguments;
     ApplicationLauncher::Mode m_runMode;
-    ProcessHandle m_applicationProcessHandle;
     bool m_running;
 };
 
