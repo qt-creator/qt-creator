@@ -34,6 +34,7 @@
 #include "cppeditorplugin.h"
 
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpptoolsreuse.h>
 
 #include <cplusplus/OverviewModel.h>
 #include <utils/treeviewcombobox.h>
@@ -253,7 +254,7 @@ void CppEditorOutline::gotoSymbolInEditor()
     if (!symbol)
         return;
 
-    const TextEditor::TextEditorWidget::Link &link = CppEditorWidget::linkToSymbol(symbol);
+    const TextEditor::TextEditorWidget::Link &link = CppTools::linkToSymbol(symbol);
     if (!link.hasValidTarget())
         return;
 

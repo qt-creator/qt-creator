@@ -366,7 +366,7 @@ CppEditorWidget::Link attemptFuncDeclDef(const QTextCursor &cursor,
     }
 
     if (target) {
-        result = CppEditorWidget::linkToSymbol(target);
+        result = CppTools::linkToSymbol(target);
 
         unsigned startLine, startColumn, endLine, endColumn;
         document->translationUnit()->getTokenStartPosition(name->firstToken(), &startLine,
@@ -714,7 +714,7 @@ TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &curs
 
             }
 
-            link = m_widget->linkToSymbol(def ? def : symbol);
+            link = CppTools::linkToSymbol(def ? def : symbol);
             link.linkTextStart = beginOfToken;
             link.linkTextEnd = endOfToken;
             return link;

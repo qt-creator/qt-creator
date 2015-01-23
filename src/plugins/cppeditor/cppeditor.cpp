@@ -592,26 +592,6 @@ void CppEditorWidget::slotCodeStyleSettingsChanged(const QVariant &)
     formatter.invalidateCache(document());
 }
 
-CppEditorWidget::Link CppEditorWidget::linkToSymbol(CPlusPlus::Symbol *symbol)
-{
-    if (!symbol)
-        return Link();
-
-    const QString filename = QString::fromUtf8(symbol->fileName(),
-                                               symbol->fileNameLength());
-
-    unsigned line = symbol->line();
-    unsigned column = symbol->column();
-
-    if (column)
-        --column;
-
-    if (symbol->isGenerated())
-        column = 0;
-
-    return Link(filename, line, column);
-}
-
 void CppEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo,
                                          bool updateUseSelectionSynchronously)
 {

@@ -37,7 +37,6 @@
 #include <cplusplus/Symbols.h>
 #include <cplusplus/TypeOfExpression.h>
 
-
 #include <QSharedPointer>
 #include <QTextCursor>
 

@@ -30,8 +30,6 @@
 
 #include "cppelementevaluator.h"
 
-#include "cppeditor.h"
-
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/typehierarchybuilder.h>
 
@@ -302,7 +300,7 @@ CppDeclarableElement::CppDeclarableElement(Symbol *declaration)
     }
 
     tooltip = overview.prettyType(declaration->type(), qualifiedName);
-    link = CppEditorWidget::linkToSymbol(declaration);
+    link = CppTools::linkToSymbol(declaration);
     helpMark = name;
 }
 

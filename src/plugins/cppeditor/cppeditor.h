@@ -35,10 +35,8 @@
 
 #include <texteditor/texteditor.h>
 
-
 #include <QScopedPointer>
 
-namespace CPlusPlus { class Symbol; }
 namespace CppTools { class SemanticInfo; }
 
 namespace CppEditor {
@@ -61,9 +59,6 @@ public:
 class CppEditorWidget : public TextEditor::TextEditorWidget
 {
     Q_OBJECT
-
-public:
-    static Link linkToSymbol(CPlusPlus::Symbol *symbol);
 
 public:
     CppEditorWidget();
