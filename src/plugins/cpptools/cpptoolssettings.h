@@ -63,6 +63,12 @@ public:
     const CommentsSettings &commentsSettings() const;
     void setCommentsSettings(const CommentsSettings &commentsSettings);
 
+    bool sortedEditorDocumentOutline() const;
+    void setSortedEditorDocumentOutline(bool sorted);
+
+signals:
+    void editorDocumentOutlineSortingChanged(bool isSorted);
+
 private:
     Internal::CppToolsSettingsPrivate *d;
 

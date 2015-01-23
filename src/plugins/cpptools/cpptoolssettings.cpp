@@ -49,6 +49,7 @@
 
 static const char idKey[] = "CppGlobal";
 
+using namespace Core;
 using namespace CppTools;
 using namespace CppTools::Internal;
 using namespace TextEditor;
@@ -261,4 +262,22 @@ void CppToolsSettings::setCommentsSettings(const CommentsSettings &commentsSetti
     d->m_commentsSettings = commentsSettings;
     d->m_commentsSettings.toSettings(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP),
                                      Core::ICore::settings());
+}
+
+static QString sortEditorDocumentOutlineKey()
+{
+    return QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP)
+         + QLatin1Char('/')
+         + QLatin1String(CppTools::Constants::CPPTOOLS_SORT_EDITOR_DOCUMENT_OUTLINE);
+}
+
+bool CppToolsSettings::sortedEditorDocumentOutline() const
+{
+    return ICore::settings()->value(sortEditorDocumentOutlineKey(), true).toBool();
+}
+
+void CppToolsSettings::setSortedEditorDocumentOutline(bool sorted)
+{
+    ICore::settings()->setValue(sortEditorDocumentOutlineKey(), sorted);
+    emit editorDocumentOutlineSortingChanged(sorted);
 }

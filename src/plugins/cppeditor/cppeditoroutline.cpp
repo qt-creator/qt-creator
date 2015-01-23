@@ -34,6 +34,7 @@
 
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsreuse.h>
+#include <cpptools/cpptoolssettings.h>
 #include <texteditor/texteditor.h>
 
 #include <cplusplus/OverviewModel.h>
@@ -104,7 +105,7 @@ CppEditorOutline::CppEditorOutline(TextEditor::TextEditorWidget *editorWidget)
     , m_proxyModel(new OverviewProxyModel(m_model, this))
 {
     // Set up proxy model
-    if (CppEditorPlugin::instance()->sortedOutline())
+    if (CppTools::CppToolsSettings::instance()->sortedEditorDocumentOutline())
         m_proxyModel->sort(0, Qt::AscendingOrder);
     else
         m_proxyModel->sort(-1, Qt::AscendingOrder); // don't sort yet, but set column for sortedOutline()
@@ -124,8 +125,9 @@ CppEditorOutline::CppEditorOutline(TextEditor::TextEditorWidget *editorWidget)
     m_sortAction = new QAction(tr("Sort Alphabetically"), m_combo);
     m_sortAction->setCheckable(true);
     m_sortAction->setChecked(isSorted());
-    connect(m_sortAction, SIGNAL(toggled(bool)),
-            CppEditorPlugin::instance(), SLOT(setSortedOutline(bool)));
+    connect(m_sortAction, &QAction::toggled,
+            CppTools::CppToolsSettings::instance(),
+            &CppTools::CppToolsSettings::setSortedEditorDocumentOutline);
     m_combo->addAction(m_sortAction);
 
     connect(m_combo, SIGNAL(activated(int)), this, SLOT(gotoSymbolInEditor()));

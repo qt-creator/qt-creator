@@ -63,8 +63,6 @@ public:
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
 
-    bool sortedOutline() const;
-
     CppQuickFixAssistProvider *quickFixProvider() const;
 
 signals:
@@ -80,8 +78,6 @@ public slots:
     void showPreProcessorDialog();
     void renameSymbolUnderCursor();
     void switchDeclarationDefinition();
-
-    void setSortedOutline(bool sorted);
 
 private slots:
     void onTaskStarted(Core::Id type);
@@ -227,12 +223,9 @@ private slots:
 
 private:
     Core::IEditor *createEditor(QWidget *parent);
-    void writeSettings();
-    void readSettings();
 
     static CppEditorPlugin *m_instance;
 
-    bool m_sortedOutline;
     QAction *m_renameSymbolUnderCursorAction;
     QAction *m_findUsagesAction;
     QAction *m_reparseExternallyChangedFiles;

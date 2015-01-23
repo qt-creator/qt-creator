@@ -123,7 +123,6 @@ public:
 CppEditorPlugin *CppEditorPlugin::m_instance = 0;
 
 CppEditorPlugin::CppEditorPlugin() :
-    m_sortedOutline(true),
     m_renameSymbolUnderCursorAction(0),
     m_findUsagesAction(0),
     m_reparseExternallyChangedFiles(0),
@@ -142,17 +141,6 @@ CppEditorPlugin::~CppEditorPlugin()
 CppEditorPlugin *CppEditorPlugin::instance()
 {
     return m_instance;
-}
-
-void CppEditorPlugin::setSortedOutline(bool sorted)
-{
-    m_sortedOutline = sorted;
-    emit outlineSortingChanged(sorted);
-}
-
-bool CppEditorPlugin::sortedOutline() const
-{
-    return m_sortedOutline;
 }
 
 CppQuickFixAssistProvider *CppEditorPlugin::quickFixProvider() const
@@ -284,18 +272,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     connect(ProgressManager::instance(), SIGNAL(allTasksFinished(Core::Id)),
             this, SLOT(onAllTasksFinished(Core::Id)));
 
-    readSettings();
     return true;
-}
-
-void CppEditorPlugin::readSettings()
-{
-    m_sortedOutline = ICore::settings()->value(QLatin1String("CppTools/SortedMethodOverview"), true).toBool();
-}
-
-void CppEditorPlugin::writeSettings()
-{
-    ICore::settings()->setValue(QLatin1String("CppTools/SortedMethodOverview"), m_sortedOutline);
 }
 
 void CppEditorPlugin::extensionsInitialized()
@@ -304,7 +281,6 @@ void CppEditorPlugin::extensionsInitialized()
 
 ExtensionSystem::IPlugin::ShutdownFlag CppEditorPlugin::aboutToShutdown()
 {
-    writeSettings();
     return SynchronousShutdown;
 }
 
