@@ -208,15 +208,19 @@ class CPPTOOLS_EXPORT CompilerOptionsBuilder
 public:
     typedef std::function<bool (const QString &)> IsBlackListed;
     static QStringList createHeaderPathOptions(const ProjectPart::HeaderPaths &headerPaths,
-                                               IsBlackListed isBlackListed = IsBlackListed());
+                                               IsBlackListed isBlackListed = IsBlackListed(),
+                                               const QString &toolchainType = QLatin1String("clang"));
 
     static QStringList createDefineOptions(const QByteArray &defines,
-                                           bool toolchainDefines = false);
+                                           bool toolchainDefines = false,
+                                           const QString &toolchainType = QLatin1String("clang"));
 
-    static QStringList createLanguageOption(ProjectFile::Kind fileKind, bool objcExt);
+    static QStringList createLanguageOption(ProjectFile::Kind fileKind, bool objcExt,
+                                            const QString &toolchainType = QLatin1String("clang"));
     static QStringList createOptionsForLanguage(ProjectPart::LanguageVersion languageVersion,
                                                 ProjectPart::LanguageExtensions languageExtensions,
-                                                bool checkForBorlandExtensions = true);
+                                                bool checkForBorlandExtensions = true,
+                                                const QString &toolchainType = QLatin1String("clang"));
 };
 
 } // namespace CppTools

@@ -473,9 +473,11 @@ void ProjectPartBuilder::createProjectPart(const QStringList &theSources,
 
 QStringList CompilerOptionsBuilder::createHeaderPathOptions(
         const ProjectPart::HeaderPaths &headerPaths,
-        IsBlackListed isBlackListed)
+        IsBlackListed isBlackListed, const QString &toolchainType)
 {
     typedef ProjectPart::HeaderPath HeaderPath;
+    const QString defaultPrefix
+            = QLatin1String(toolchainType == QLatin1String("msvc") ? "/I" : "-I");
 
     QStringList result;
 
@@ -494,7 +496,7 @@ QStringList CompilerOptionsBuilder::createHeaderPathOptions(
         default: // This shouldn't happen, but let's be nice..:
             // intentional fall-through:
         case HeaderPath::IncludePath:
-            prefix = QLatin1String("-I");
+            prefix = defaultPrefix;
             break;
         }
 
@@ -505,9 +507,11 @@ QStringList CompilerOptionsBuilder::createHeaderPathOptions(
 }
 
 QStringList CompilerOptionsBuilder::createDefineOptions(const QByteArray &defines,
-                                                        bool toolchainDefines)
+                                                        bool toolchainDefines,
+                                                        const QString &toolchainType)
 {
     QStringList result;
+    const QString option = QLatin1String(toolchainType == QLatin1String("msvc") ? "/D" : "-D");
 
     foreach (QByteArray def, defines.split('\n')) {
         if (def.isEmpty())
@@ -533,9 +537,9 @@ QStringList CompilerOptionsBuilder::createDefineOptions(const QByteArray &define
         int spaceIdx = str.indexOf(' ');
         QString arg;
         if (spaceIdx != -1) {
-            arg = QLatin1String("-D" + str.left(spaceIdx) + "=" + str.mid(spaceIdx + 1));
+            arg = option + QLatin1String(str.left(spaceIdx) + "=" + str.mid(spaceIdx + 1));
         } else {
-            arg = QLatin1String("-D" + str);
+            arg = option + QLatin1String(str);
         }
         arg = arg.replace(QLatin1String("\\\""), QLatin1String("\""));
         arg = arg.replace(QLatin1String("\""), QLatin1String(""));
@@ -546,7 +550,7 @@ QStringList CompilerOptionsBuilder::createDefineOptions(const QByteArray &define
     return result;
 }
 
-QStringList CompilerOptionsBuilder::createLanguageOption(ProjectFile::Kind fileKind, bool objcExt)
+static QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objcExt)
 {
     QStringList opts;
     opts += QLatin1String("-x");
@@ -599,12 +603,40 @@ QStringList CompilerOptionsBuilder::createLanguageOption(ProjectFile::Kind fileK
     return opts;
 }
 
+static QStringList createLanguageOptionMsvc(ProjectFile::Kind fileKind)
+{
+    QStringList opts;
+    switch (fileKind) {
+    case ProjectFile::CHeader:
+    case ProjectFile::CSource:
+        opts << QLatin1String("/TC");
+        break;
+    case ProjectFile::CXXHeader:
+    case ProjectFile::CXXSource:
+        opts << QLatin1String("/TP");
+        break;
+    default:
+        break;
+    }
+    return opts;
+}
+
+QStringList CompilerOptionsBuilder::createLanguageOption(ProjectFile::Kind fileKind, bool objcExt,
+                                                         const QString &toolchainType)
+{
+    return toolchainType == QLatin1String("msvc") ? createLanguageOptionMsvc(fileKind)
+                                                  : createLanguageOptionGcc(fileKind, objcExt);
+}
+
 QStringList CompilerOptionsBuilder::createOptionsForLanguage(
     ProjectPart::LanguageVersion languageVersion,
     ProjectPart::LanguageExtensions languageExtensions,
-    bool checkForBorlandExtensions)
+    bool checkForBorlandExtensions,
+    const QString &toolchainType)
 {
     QStringList opts;
+    if (toolchainType == QLatin1String("msvc"))
+        return opts;
     bool gnuExtensions = languageExtensions & ProjectPart::GnuExtensions;
     switch (languageVersion) {
     case ProjectPart::C89:
