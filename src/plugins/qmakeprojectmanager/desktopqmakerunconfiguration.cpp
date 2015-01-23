@@ -213,9 +213,9 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
     toplayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     toplayout->setMargin(0);
 
-    m_executableLineEdit = new QLineEdit(m_qmakeRunConfiguration->executable(), this);
-    m_executableLineEdit->setEnabled(false);
-    toplayout->addRow(tr("Executable:"), m_executableLineEdit);
+    m_executableLineLabel = new QLabel(m_qmakeRunConfiguration->executable(), this);
+    m_executableLineLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    toplayout->addRow(tr("Executable:"), m_executableLineLabel);
 
     QLabel *argumentsLabel = new QLabel(tr("Arguments:"), this);
     m_argumentsLineEdit = new QLineEdit(qmakeRunConfiguration->rawCommandLineArguments(), this);
@@ -393,7 +393,7 @@ void DesktopQmakeRunConfigurationWidget::usingDyldImageSuffixChanged(bool state)
 void DesktopQmakeRunConfigurationWidget::effectiveTargetInformationChanged()
 {
     if (m_isShown) {
-        m_executableLineEdit->setText(QDir::toNativeSeparators(m_qmakeRunConfiguration->executable()));
+        m_executableLineLabel->setText(QDir::toNativeSeparators(m_qmakeRunConfiguration->executable()));
         m_ignoreChange = true;
         m_workingDirectoryEdit->setPath(QDir::toNativeSeparators(m_qmakeRunConfiguration->baseWorkingDirectory()));
         m_ignoreChange = false;

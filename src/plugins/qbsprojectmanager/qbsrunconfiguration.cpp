@@ -411,10 +411,10 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QW
     toplayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     toplayout->setMargin(0);
 
-    m_executableLineEdit = new QLineEdit(this);
-    m_executableLineEdit->setEnabled(false);
-    m_executableLineEdit->setPlaceholderText(tr("<unknown>"));
-    toplayout->addRow(tr("Executable:"), m_executableLineEdit);
+    m_executableLineLabel = new QLabel(this);
+    m_executableLineLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    setExecutableLineText();
+    toplayout->addRow(tr("Executable:"), m_executableLineLabel);
 
     QLabel *argumentsLabel = new QLabel(tr("Arguments:"), this);
     m_argumentsLineEdit = new QLineEdit(m_rc->rawCommandLineArguments(), this);
@@ -526,11 +526,17 @@ void QbsRunConfigurationWidget::termToggled(bool on)
 void QbsRunConfigurationWidget::targetInformationHasChanged()
 {
     m_ignoreChange = true;
-    m_executableLineEdit->setText(m_rc->executable());
+    setExecutableLineText(m_rc->executable());
 
     m_workingDirectoryEdit->setPath(m_rc->baseWorkingDirectory());
     m_workingDirectoryEdit->setBaseFileName(m_rc->target()->project()->projectDirectory());
     m_ignoreChange = false;
+}
+
+void QbsRunConfigurationWidget::setExecutableLineText(const QString &text)
+{
+    const QString newText = text.isEmpty() ? tr("<unknown>") : text;
+    m_executableLineLabel->setText(newText);
 }
 
 void QbsRunConfigurationWidget::workingDirectoryChanged(const QString &workingDirectory)

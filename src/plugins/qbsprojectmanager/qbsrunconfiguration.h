@@ -157,11 +157,13 @@ private slots:
     void targetInformationHasChanged();
 
 private:
+    void setExecutableLineText(const QString &text = QString());
+
     QbsRunConfiguration *m_rc;
     bool m_ignoreChange;
     QLabel *m_disabledIcon;
     QLabel *m_disabledReason;
-    QLineEdit *m_executableLineEdit;
+    QLabel *m_executableLineLabel;
     Utils::PathChooser *m_workingDirectoryEdit;
     QLineEdit *m_argumentsLineEdit;
     QCheckBox *m_useTerminalCheck;
