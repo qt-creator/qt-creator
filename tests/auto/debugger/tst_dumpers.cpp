@@ -1104,9 +1104,18 @@ void tst_Dumpers::dumper()
                 "\n#define BREAK int *nullPtr = 0; *nullPtr = 0;"
                 "\n\nvoid unused(const void *first,...) { (void) first; }"
             "\n#else"
-                "\n#include <stdint.h>\n"
-                "\n#define BREAK do { asm(\"int $3\"); } while (0)"
-                "\n"
+                "\n#include <stdint.h>\n";
+
+    if (m_debuggerEngine == LldbEngine)
+//#ifdef Q_OS_MAC
+//        fullCode += "\n#define BREAK do { asm(\"int $3\"); } while (0)";
+//#else
+        fullCode += "\n#define BREAK int *nullPtr = 0; *nullPtr = 0;";
+//#endif
+    else
+        fullCode += "\n#define BREAK do { asm(\"int $3\"); } while (0)";
+
+    fullCode += "\n"
                 "\nstatic volatile int64_t unused_dummy;\n"
                 "\nvoid __attribute__((optimize(\"O0\"))) unused(const void *first,...)\n"
                 "\n{\n"
@@ -1254,7 +1263,7 @@ void tst_Dumpers::dumper()
              << QString::fromUtf8(m_debuggerBinary)
              << t->buildPath + QLatin1String("/doit")
              << QString::fromUtf8(expanded);
-        //qDebug() << exe.constData() << ' ' << qPrintable(args.join(QLatin1String(" ")));
+        qDebug() << exe.constData() << ' ' << qPrintable(args.join(QLatin1String(" ")));
     }
 
     t->input = cmds;
@@ -2980,7 +2989,7 @@ void tst_Dumpers::dumper_data()
                     "QString str2(\"Hello\\nQt\");\n"
                     "QString str3(\"Hello\\rQt\");\n"
                     "QString str4(\"Hello\\tQt\");\n"
-                    "unused(&str1, &str2, &str3, &str3);\n")
+                    "unused(&str1, &str2, &str3, &str4);\n")
 
                + CoreProfile()
 

@@ -1239,12 +1239,12 @@ class Dumper(DumperBase):
         out = lldb.SBStream()
         event.GetDescription(out)
         #warn("EVENT: %s" % event)
-        type = event.GetType()
+        eventType = event.GetType()
         msg = lldb.SBEvent.GetCStringFromEvent(event)
         flavor = event.GetDataFlavor()
         state = lldb.SBProcess.GetStateFromEvent(event)
         self.report('event={type="%s",data="%s",msg="%s",flavor="%s",state="%s"}'
-            % (type, out.GetData(), msg, flavor, state))
+            % (eventType, out.GetData(), msg, flavor, state))
         if state != self.eventState:
             self.eventState = state
             if state == lldb.eStateExited:
@@ -1265,7 +1265,7 @@ class Dumper(DumperBase):
                     self.reportState("stopped")
             else:
                 self.reportState(stateNames[state])
-        if type == lldb.SBProcess.eBroadcastBitStateChanged:
+        if eventType == lldb.SBProcess.eBroadcastBitStateChanged: # 1
             state = self.process.GetState()
             if state == lldb.eStateStopped:
                 stoppedThread = self.firstStoppedThread()
@@ -1275,18 +1275,18 @@ class Dumper(DumperBase):
                 self.reportThreads()
                 self.reportLocation()
                 self.reportChangedBreakpoints()
-        elif type == lldb.SBProcess.eBroadcastBitInterrupt:
+        elif eventType == lldb.SBProcess.eBroadcastBitInterrupt: # 2
             pass
-        elif type == lldb.SBProcess.eBroadcastBitSTDOUT:
+        elif eventType == lldb.SBProcess.eBroadcastBitSTDOUT:
             # FIXME: Size?
             msg = self.process.GetSTDOUT(1024)
             self.report('output={channel="stdout",data="%s"}'
                 % self.hexencode(msg))
-        elif type == lldb.SBProcess.eBroadcastBitSTDERR:
+        elif eventType == lldb.SBProcess.eBroadcastBitSTDERR:
             msg = self.process.GetSTDERR(1024)
             self.report('output={channel="stderr",data="%s"}'
                 % self.hexencode(msg))
-        elif type == lldb.SBProcess.eBroadcastBitProfileData:
+        elif eventType == lldb.SBProcess.eBroadcastBitProfileData:
             pass
 
     def reportState(self, state):
@@ -1739,43 +1739,88 @@ def doit():
 
 # Used in dumper auto test.
 # Usage: python lldbbridge.py /path/to/testbinary comma-separated-inames
-def testit():
+class Tester(Dumper):
+    def __init__(self):
+        Dumper.__init__(self)
+        lldb.theDumper = self
 
-    db = Dumper()
+        self.expandedINames = set(sys.argv[3].split(','))
+        self.passExceptions = True
 
-    # Disable intermediate reporting.
-    savedReport = db.report
-    db.report = lambda stuff: 0
+        self.importDumpers()
+        error = lldb.SBError()
+        self.target = self.debugger.CreateTarget(sys.argv[2],
+                None, None, True, error)
 
-    db.debugger.SetAsync(False)
-    db.expandedINames = set(sys.argv[3].split(','))
-    db.passExceptions = True
+        if error.GetType():
+            warn("ERROR: %s" % error)
+            return
 
-    db.setupInferior({'cmd':'setupInferior','executable':sys.argv[2],'token':1})
+        s = threading.Thread(target=self.testLoop, args=[])
+        s.start()
 
-    launchInfo = lldb.SBLaunchInfo([])
-    launchInfo.SetWorkingDirectory(os.getcwd())
-    environmentList = [key + "=" + value for key,value in os.environ.items()]
-    launchInfo.SetEnvironmentEntries(environmentList, False)
+    def testLoop(self):
+        # Disable intermediate reporting.
+        savedReport = self.report
+        self.report = lambda stuff: 0
 
-    error = lldb.SBError()
-    db.process = db.target.Launch(launchInfo, error)
+        ignoreStops = 1
+        if sys.platform == "darwin":
+            ignoreStops = 0
 
-    stoppedThread = db.firstStoppedThread()
-    if stoppedThread:
-        db.process.SetSelectedThread(stoppedThread)
+        error = lldb.SBError()
+        launchInfo = lldb.SBLaunchInfo([])
+        launchInfo.SetWorkingDirectory(os.getcwd())
+        environmentList = [key + "=" + value for key,value in os.environ.items()]
+        launchInfo.SetEnvironmentEntries(environmentList, False)
 
-    db.report = savedReport
-    ns = db.qtNamespace()
-    db.reportVariables()
-    db.report("@NS@%s@" % ns)
-    #db.report("ENV=%s" % os.environ.items())
-    #db.report("DUMPER=%s" % db.qqDumpers)
-    lldb.SBDebugger.Destroy(db.debugger)
+        self.process = self.target.Launch(launchInfo, error)
+        if error.GetType():
+            warn("ERROR: %s" % error)
+
+        event = lldb.SBEvent()
+        listener = self.debugger.GetListener()
+        while True:
+            state = self.process.GetState()
+            if listener.WaitForEvent(100, event):
+                #warn("EVENT: %s" % event)
+                out = lldb.SBStream()
+                event.GetDescription(out)
+                msg = lldb.SBEvent.GetCStringFromEvent(event)
+                flavor = event.GetDataFlavor()
+                state = lldb.SBProcess.GetStateFromEvent(event)
+                #warn('event={type="%s",data="%s",msg="%s",flavor="%s",state="%s"}'
+                #    % (event.GetType(), out.GetData(), msg, flavor, state))
+                state = lldb.SBProcess.GetStateFromEvent(event)
+                if state == lldb.eStateExited:
+                    break
+                if state == lldb.eStateStopped:
+                    if ignoreStops == 0:
+                        break
+                    ignoreStops -= 1
+            else:
+                warn('TIMEOUT')
+
+
+        stoppedThread = self.firstStoppedThread()
+        if not stoppedThread:
+            warn("Cannot determined stopped thread")
+            return
+
+        # This seems highly fragile and depending on the "No-ops" in the
+        # event handling above.
+        self.process.SetSelectedThread(stoppedThread)
+        self.report = savedReport
+        self.reportVariables()
+        self.report("@NS@%s@" % self.qtNamespace())
+        #self.report("ENV=%s" % os.environ.items())
+        #self.report("DUMPER=%s" % self.qqDumpers)
+        lldb.SBDebugger.Destroy(self.debugger)
+
 
 if __name__ == "__main__":
     if len(sys.argv) > 2:
-        testit()
+        Tester()
     else:
         doit()
 
