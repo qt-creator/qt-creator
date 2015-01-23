@@ -217,6 +217,7 @@ public:
 
     int format(const QByteArray &iname) const;
 
+    void addDumpers(const GdbMi &dumpers);
     void addTypeFormats(const QByteArray &type, const QStringList &formats);
     void setTypeFormats(const DumperTypeFormats &typeFormats);
     DumperTypeFormats typeFormats() const;

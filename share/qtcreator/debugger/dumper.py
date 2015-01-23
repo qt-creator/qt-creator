@@ -34,6 +34,8 @@ import sys
 import base64
 import re
 import time
+import importlib
+
 try:
     import subprocess
     hasSubprocess = True
@@ -1635,6 +1637,65 @@ class DumperBase:
                 self.currentNumChild = 0
                 self.putNumChild(0)
 
+    def registerDumper(self, funcname, function):
+        try:
+            #warn("FUNCTION: %s " % funcname)
+            #funcname = function.func_name
+            if funcname.startswith("qdump__"):
+                typename = funcname[7:]
+                self.qqDumpers[typename] = function
+                self.qqFormats[typename] = self.qqFormats.get(typename, "")
+            elif funcname.startswith("qform__"):
+                typename = funcname[7:]
+                formats = ""
+                try:
+                    formats = function()
+                except:
+                    pass
+                self.qqFormats[typename] = formats
+            elif funcname.startswith("qedit__"):
+                typename = funcname[7:]
+                try:
+                    self.qqEditable[typename] = function
+                except:
+                    pass
+        except:
+            pass
+
+    def findDumperFunctions(self):
+        self.qqDumpers = {}
+        self.qqFormats = {}
+        self.qqEditable = {}
+        self.typeCache = {}
+
+        for mod in dumpermodules:
+            m = importlib.import_module(mod)
+            dic = m.__dict__
+            for name in dic.keys():
+                item = dic[name]
+                self.registerDumper(name, item)
+
+        return self.reportDumpers()
+
+    def reportDumpers(self):
+        result = "dumpers=["
+        for key, value in self.qqFormats.items():
+            if key in self.qqEditable:
+                result += '{type="%s",formats="%s",editable="true"},' % (key, value)
+            else:
+                result += '{type="%s",formats="%s"},' % (key, value)
+        result += ']'
+        return result
+
+    def reloadDumper(self):
+        for mod in dumpermodules:
+            m = sys.modules[mod]
+            if sys.version_info[0] >= 3:
+                importlib.reload(m)
+            else:
+                reload(m)
+
+        findDumperFunctions()
 
 # Some "Enums"
 
@@ -1680,4 +1741,13 @@ DisplayLatin1String, \
 DisplayUtf8String \
     = range(6)
 
+
+dumpermodules = [
+    "qttypes",
+    "stdtypes",
+    "misctypes",
+    "boosttypes",
+    "creatortypes",
+    "personaltypes",
+]
 

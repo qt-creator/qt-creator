@@ -14,24 +14,10 @@ import sys
 import struct
 import types
 
-import importlib
-
 def warn(message):
     print("XXX: %s\n" % message.encode("latin1"))
 
 from dumper import *
-
-dumpermodules = [
-    "qttypes",
-    "stdtypes",
-    "misctypes",
-    "boosttypes",
-    "creatortypes",
-    "personaltypes",
-]
-
-for mod in dumpermodules:
-    importlib.import_module(mod)
 
 
 #######################################################################
@@ -150,8 +136,7 @@ ScanStackCommand()
 
 
 def bbsetup(args = ''):
-    theDumper.bbsetup()
-    print(theDumper.reportDumpers())
+    print(theDumper.findDumperFunctions())
 
 registerCommand("bbsetup", bbsetup)
 
@@ -1423,55 +1408,6 @@ class Dumper(DumperBase):
                     with Children(self, 1):
                         self.listAnonymous(value, name, field.type)
 
-    def registerDumper(self, funcname, function):
-        try:
-            #warn("FUNCTION: %s " % funcname)
-            #funcname = function.func_name
-            if funcname.startswith("qdump__"):
-                typename = funcname[7:]
-                self.qqDumpers[typename] = function
-                self.qqFormats[typename] = self.qqFormats.get(typename, "")
-            elif funcname.startswith("qform__"):
-                typename = funcname[7:]
-                formats = ""
-                try:
-                    formats = function()
-                except:
-                    pass
-                self.qqFormats[typename] = formats
-            elif funcname.startswith("qedit__"):
-                typename = funcname[7:]
-                try:
-                    self.qqEditable[typename] = function
-                except:
-                    pass
-        except:
-            pass
-
-    def bbsetup(self):
-        self.qqDumpers = {}
-        self.qqFormats = {}
-        self.qqEditable = {}
-        self.typeCache = {}
-
-        for mod in dumpermodules:
-            m = importlib.import_module(mod)
-            dic = m.__dict__
-            for name in dic.keys():
-                item = dic[name]
-                self.registerDumper(name, item)
-
-
-    def reportDumpers(self):
-        result = "dumpers=["
-        for key, value in self.qqFormats.items():
-            if key in self.qqEditable:
-                result += '{type="%s",formats="%s",editable="true"},' % (key, value)
-            else:
-                result += '{type="%s",formats="%s"},' % (key, value)
-        result += ']'
-        return result
-
     #def threadname(self, maximalStackDepth, objectPrivateType):
     #    e = gdb.selected_frame()
     #    out = ""
@@ -2044,15 +1980,8 @@ registerCommand("threadnames", threadnames)
 #
 #######################################################################
 
-def reloadDumper(arg):
-    for mod in dumpermodules:
-        m = sys.modules[mod]
-        if sys.version_info[0] >= 3:
-            importlib.reload(m)
-        else:
-            reload(m)
-
-    bbsetup()
+def reloadDumper(_):
+    theDumper.reloadDumper();
 
 registerCommand("reload", reloadDumper)
 

@@ -1737,22 +1737,7 @@ void GdbEngine::handlePythonSetup(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         GdbMi data;
         data.fromStringMultiple(response.consoleStreamOutput);
-        const GdbMi dumpers = data["dumpers"];
-        foreach (const GdbMi &dumper, dumpers.children()) {
-            QByteArray type = dumper["type"].data();
-            QStringList formats(tr("Raw structure"));
-            foreach (const QByteArray &format,
-                     dumper["formats"].data().split(',')) {
-                if (format == "Normal")
-                    formats.append(tr("Normal"));
-                else if (format == "Displayed")
-                    formats.append(tr("Displayed"));
-                else if (!format.isEmpty())
-                    formats.append(_(format));
-            }
-            watchHandler()->addTypeFormats(type, formats);
-        }
-
+        watchHandler()->addDumpers(data["dumpers"]);
         loadInitScript();
         QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
         showMessage(_("ENGINE SUCCESSFULLY STARTED"));

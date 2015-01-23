@@ -281,9 +281,12 @@ void LldbEngine::setupInferior()
     const QString commands = stringSetting(ExtraDumperCommands);
     if (!commands.isEmpty()) {
         Command cmd("executeDebuggerCommand");
-        cmd.arg(commands.toUtf8());
+        cmd.arg("commands", commands.toUtf8());
         runCommand(cmd);
     }
+
+    Command cmd1("loadDumperFiles");
+    runCommand(cmd1);
 
     QString executable;
     QtcProcess::Arguments args;
@@ -409,6 +412,8 @@ void LldbEngine::handleResponse(const QByteArray &response)
         const QByteArray name = item.name();
         if (name == "data")
             refreshLocals(item);
+        else if (name == "dumpers")
+            watchHandler()->addDumpers(item);
         else if (name == "stack")
             refreshStack(item);
         else if (name == "stack-position")

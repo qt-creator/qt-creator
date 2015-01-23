@@ -1783,6 +1783,22 @@ QByteArray WatchHandler::individualFormatRequests() const
     return ba;
 }
 
+void WatchHandler::addDumpers(const GdbMi &dumpers)
+{
+    foreach (const GdbMi &dumper, dumpers.children()) {
+        QStringList formats(tr("Raw structure"));
+        foreach (const QByteArray &format, dumper["formats"].data().split(',')) {
+            if (format == "Normal")
+                formats.append(tr("Normal"));
+            else if (format == "Displayed")
+                formats.append(tr("Displayed"));
+            else if (!format.isEmpty())
+                formats.append(QString::fromLatin1(format));
+        }
+        addTypeFormats(dumper["type"].data(), formats);
+    }
+}
+
 void WatchHandler::addTypeFormats(const QByteArray &type, const QStringList &formats)
 {
     m_model->m_reportedTypeFormats.insert(QLatin1String(stripForFormat(type)), formats);

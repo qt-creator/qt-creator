@@ -672,7 +672,6 @@ class Dumper(DumperBase):
             self.target = self.debugger.CreateTarget(self.executable_, None, None, True, error)
         else:
             self.target = self.debugger.CreateTarget(None, None, None, True, error)
-        self.importDumpers()
 
         state = "inferiorsetupok" if self.target.IsValid() else "inferiorsetupfailed"
         self.report('state="%s",msg="%s",exe="%s"' % (state, error, self.executable_))
@@ -1583,7 +1582,7 @@ class Dumper(DumperBase):
         path = args['path']
         (head, tail) = os.path.split(path)
         sys.path.insert(1, head)
-        #dumpermodules.append(os.path.splitext(tail)[0])
+        dumpermodules.append(os.path.splitext(tail)[0])
         self.report('ok')
 
     def updateData(self, args):
@@ -1642,6 +1641,10 @@ class Dumper(DumperBase):
             result += ',offset="%s"},' % (addr - base)
         self.report(result + ']')
 
+    def loadDumperFiles(self, _ = None):
+        result = self.findDumperFunctions()
+        self.report(result)
+
     def fetchMemory(self, args):
         address = args['address']
         length = args['length']
@@ -1667,35 +1670,6 @@ class Dumper(DumperBase):
         lhs.SetValueFromCString(value, error)
         self.reportError(error)
         self.reportVariables()
-
-    def registerDumper(self, function):
-        if hasattr(function, 'func_name'):
-            funcname = function.func_name
-            if funcname.startswith("qdump__"):
-                type = funcname[7:]
-                self.qqDumpers[type] = function
-                self.qqFormats[type] = self.qqFormats.get(type, "")
-            elif funcname.startswith("qform__"):
-                type = funcname[7:]
-                formats = ""
-                try:
-                    formats = function()
-                except:
-                    pass
-                self.qqFormats[type] = formats
-            elif funcname.startswith("qedit__"):
-                type = funcname[7:]
-                try:
-                    self.qqEditable[type] = function
-                except:
-                    pass
-
-    def importDumpers(self, _ = None):
-        result = lldb.SBCommandReturnObject()
-        interpreter = self.debugger.GetCommandInterpreter()
-        items = globals()
-        for key in items:
-            self.registerDumper(items[key])
 
     def execute(self, args):
         getattr(self, args['cmd'])(args)
@@ -1754,7 +1728,7 @@ class Tester(Dumper):
         self.expandedINames = set(sys.argv[3].split(','))
         self.passExceptions = True
 
-        self.importDumpers()
+        self.loadDumperFiles()
         error = lldb.SBError()
         self.target = self.debugger.CreateTarget(sys.argv[2],
                 None, None, True, error)
