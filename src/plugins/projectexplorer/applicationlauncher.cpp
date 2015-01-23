@@ -32,6 +32,9 @@
 #ifdef Q_OS_WIN
 #include "windebuginterface.h"
 #endif
+#ifdef WITH_JOURNALD
+#include "journaldwatcher.h"
+#endif
 
 #include <coreplugin/icore.h>
 
@@ -124,6 +127,10 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
             this, SLOT(cannotRetrieveDebugOutput()));
     connect(WinDebugInterface::instance(), SIGNAL(debugOutput(qint64,QString)),
             this, SLOT(checkDebugOutput(qint64,QString)));
+#endif
+#ifdef WITH_JOURNALD
+    connect(JournaldWatcher::instance(), &JournaldWatcher::journaldOutput,
+            this, &ApplicationLauncher::checkDebugOutput);
 #endif
 }
 
@@ -277,13 +284,13 @@ void ApplicationLauncher::cannotRetrieveDebugOutput()
     disconnect(WinDebugInterface::instance(), 0, this, 0);
     emit appendMessage(msgWinCannotRetrieveDebuggingOutput(), Utils::ErrorMessageFormat);
 }
+#endif
 
 void ApplicationLauncher::checkDebugOutput(qint64 pid, const QString &message)
 {
     if (applicationPID() == pid)
         emit appendMessage(message, Utils::DebugFormat);
 }
-#endif
 
 void ApplicationLauncher::processDone(int exitCode, QProcess::ExitStatus status)
 {

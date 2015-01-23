@@ -333,6 +333,13 @@ equals(TEST, 1) {
         outputparser_test.h
 }
 
+journald {
+    SOURCES += journaldwatcher.cpp
+    HEADERS += journaldwatcher.h
+    DEFINES += WITH_JOURNALD
+    LIBS += -lsystemd
+}
+
 macx:LIBS += -framework Carbon
 
 RESOURCES += projectexplorer.qrc

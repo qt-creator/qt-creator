@@ -36,6 +36,9 @@
 #include "deployablefile.h"
 #include "deployconfiguration.h"
 #include "gcctoolchainfactories.h"
+#ifdef WITH_JOURNALD
+#include "journaldwatcher.h"
+#endif
 #include "jsonwizard/jsonwizardfactory.h"
 #include "jsonwizard/jsonwizardgeneratorfactory.h"
 #include "jsonwizard/jsonwizardpagefactory_p.h"
@@ -284,6 +287,9 @@ public:
     QStringList m_arguments;
     QList<ProjectPanelFactory *> m_panelFactories;
     QString m_renameFileError;
+#ifdef WITH_JOURNALD
+    JournaldWatcher *m_journalWatcher;
+#endif
 };
 
 ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
@@ -293,6 +299,9 @@ ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
     m_kitManager(0),
     m_toolChainManager(0),
     m_shuttingDown(false)
+#ifdef WITH_JOURNALD
+    , m_journalWatcher(0)
+#endif
 {
 }
 
@@ -331,6 +340,9 @@ ProjectExplorerPlugin::~ProjectExplorerPlugin()
     // Force sequence of deletion:
     delete dd->m_kitManager; // remove all the profile information
     delete dd->m_toolChainManager;
+#ifdef WITH_JOURNALD
+    delete dd->m_journalWatcher;
+#endif
     ProjectPanelFactory::destroyFactories();
     delete dd;
 }
@@ -353,6 +365,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addObject(this);
 
     addAutoReleasedObject(new DeviceManager);
+
+#ifdef WITH_JOURNALD
+    dd->m_journalWatcher = new JournaldWatcher;
+#endif
 
     // Add ToolChainFactories:
 #ifdef Q_OS_WIN
