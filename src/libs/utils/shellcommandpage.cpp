@@ -28,12 +28,11 @@
 **
 ****************************************************************************/
 
-#include "checkoutprogresswizardpage.h"
-#include "vcscommand.h"
-#include "vcsbaseplugin.h"
-
-#include <utils/outputformatter.h>
-#include <utils/qtcassert.h>
+#include "shellcommandpage.h"
+#include "shellcommand.h"
+#include "outputformatter.h"
+#include "qtcassert.h"
+#include "theme/theme.h"
 
 #include <QApplication>
 #include <QLabel>
@@ -41,22 +40,19 @@
 #include <QVBoxLayout>
 
 /*!
-    \class VcsBase::Internal::CheckoutProgressWizardPage
+    \class Utils::ShellCommandPage
 
-    \brief The CheckoutProgressWizardPage implements a page showing the
-    progress of an initial project checkout.
+    \brief The ShellCommandPage implements a page showing the
+    progress of a \c ShellCommand.
 
-    Turns complete when the job succeeds.
-
-    \sa VcsBase::BaseCheckoutWizard
+    Turns complete when the command succeeds.
 */
 
-namespace VcsBase {
-namespace Internal {
+namespace Utils {
 
-CheckoutProgressWizardPage::CheckoutProgressWizardPage(QWidget *parent) :
-    QWizardPage(parent),
-    m_startedStatus(tr("Checkout started...")),
+ShellCommandPage::ShellCommandPage(QWidget *parent) :
+    WizardPage(parent),
+    m_startedStatus(tr("Command started...")),
     m_overwriteOutput(false),
     m_state(Idle)
 {
@@ -71,21 +67,21 @@ CheckoutProgressWizardPage::CheckoutProgressWizardPage(QWidget *parent) :
 
     m_statusLabel = new QLabel;
     verticalLayout->addWidget(m_statusLabel);
-    setTitle(tr("Checkout"));
+    setTitle(tr("Run Command"));
 }
 
-CheckoutProgressWizardPage::~CheckoutProgressWizardPage()
+ShellCommandPage::~ShellCommandPage()
 {
     QTC_ASSERT(m_state != Running, QApplication::restoreOverrideCursor());
     delete m_formatter;
 }
 
-void CheckoutProgressWizardPage::setStartedStatus(const QString &startedStatus)
+void ShellCommandPage::setStartedStatus(const QString &startedStatus)
 {
     m_startedStatus = startedStatus;
 }
 
-void CheckoutProgressWizardPage::start(VcsCommand *command)
+void ShellCommandPage::start(ShellCommand *command)
 {
     if (!command) {
         m_logPlainTextEdit->setPlainText(tr("No job running, please abort."));
@@ -95,9 +91,9 @@ void CheckoutProgressWizardPage::start(VcsCommand *command)
     QTC_ASSERT(m_state != Running, return);
     m_command = command;
     command->setProgressiveOutput(true);
-    connect(command, &VcsCommand::stdOutText, this, &CheckoutProgressWizardPage::reportStdOut);
-    connect(command, &VcsCommand::stdErrText, this, &CheckoutProgressWizardPage::reportStdErr);
-    connect(command, &VcsCommand::finished, this, &CheckoutProgressWizardPage::slotFinished);
+    connect(command, &ShellCommand::stdOutText, this, &ShellCommandPage::reportStdOut);
+    connect(command, &ShellCommand::stdErrText, this, &ShellCommandPage::reportStdErr);
+    connect(command, &ShellCommand::finished, this, &ShellCommandPage::slotFinished);
     QApplication::setOverrideCursor(Qt::WaitCursor);
     m_logPlainTextEdit->clear();
     m_overwriteOutput = false;
@@ -107,7 +103,7 @@ void CheckoutProgressWizardPage::start(VcsCommand *command)
     command->execute();
 }
 
-void CheckoutProgressWizardPage::slotFinished(bool ok, int exitCode, const QVariant &)
+void ShellCommandPage::slotFinished(bool ok, int exitCode, const QVariant &)
 {
     QTC_ASSERT(m_state == Running, return);
 
@@ -118,11 +114,11 @@ void CheckoutProgressWizardPage::slotFinished(bool ok, int exitCode, const QVari
     if (success) {
         m_state = Succeeded;
         message = tr("Succeeded.");
-        palette.setColor(QPalette::Active, QPalette::Text, Qt::green);
+        palette.setColor(QPalette::WindowText, creatorTheme()->color(Theme::TextColorNormal).name());
     } else {
         m_state = Failed;
         message = tr("Failed.");
-        palette.setColor(QPalette::Active, QPalette::Text, Qt::red);
+        palette.setColor(QPalette::WindowText, creatorTheme()->color(Theme::TextColorError).name());
     }
 
     m_statusLabel->setText(message);
@@ -132,29 +128,28 @@ void CheckoutProgressWizardPage::slotFinished(bool ok, int exitCode, const QVari
 
     if (success)
         emit completeChanged();
-    emit terminated(success);
+    emit finished(success);
 }
 
-void CheckoutProgressWizardPage::reportStdOut(const QString &text)
+void ShellCommandPage::reportStdOut(const QString &text)
 {
     m_formatter->appendMessage(text, Utils::StdOutFormat);
 }
 
-void CheckoutProgressWizardPage::reportStdErr(const QString &text)
+void ShellCommandPage::reportStdErr(const QString &text)
 {
     m_formatter->appendMessage(text, Utils::StdErrFormat);
 }
 
-void CheckoutProgressWizardPage::terminate()
+void ShellCommandPage::terminate()
 {
     if (m_command)
         m_command->cancel();
 }
 
-bool CheckoutProgressWizardPage::isComplete() const
+bool ShellCommandPage::isComplete() const
 {
     return m_state == Succeeded;
 }
 
-} // namespace Internal
-} // namespace VcsBase
+} // namespace Utils

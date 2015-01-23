@@ -27,8 +27,6 @@ QtcPlugin {
         "basevcseditorfactory.h",
         "basevcssubmiteditorfactory.cpp",
         "basevcssubmiteditorfactory.h",
-        "checkoutprogresswizardpage.cpp",
-        "checkoutprogresswizardpage.h",
         "cleandialog.cpp",
         "cleandialog.h",
         "cleandialog.ui",

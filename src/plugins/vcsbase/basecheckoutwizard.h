@@ -36,10 +36,10 @@
 #include <utils/fileutils.h>
 #include <utils/wizard.h>
 
+namespace Utils { class ShellCommandPage; }
+
 namespace VcsBase {
 class VcsCommand;
-
-namespace Internal { class CheckoutProgressWizardPage; }
 
 class VCSBASE_EXPORT BaseCheckoutWizard : public Utils::Wizard
 {
@@ -62,7 +62,7 @@ private slots:
     virtual void reject();
 
 private:
-    Internal::CheckoutProgressWizardPage *m_progressPage;
+    Utils::ShellCommandPage *m_progressPage;
     int m_progressPageId;
     Utils::FileName m_checkoutDir;
 };

@@ -28,36 +28,34 @@
 **
 ****************************************************************************/
 
-#ifndef CHECKOUTPROGRESSWIZARDPAGE_H
-#define CHECKOUTPROGRESSWIZARDPAGE_H
+#ifndef SHELLCOMMANDPAGE_H
+#define SHELLCOMMANDPAGE_H
 
-#include <QSharedPointer>
-#include <QWizardPage>
+#include "utils_global.h"
+
+#include "wizardpage.h"
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
 class QLabel;
 QT_END_NAMESPACE
 
-namespace Utils { class OutputFormatter; }
+namespace Utils {
+class OutputFormatter;
+class ShellCommand;
 
-namespace VcsBase {
-class VcsCommand;
-
-namespace Internal {
-
-class CheckoutProgressWizardPage : public QWizardPage
+class QTCREATOR_UTILS_EXPORT ShellCommandPage : public WizardPage
 {
     Q_OBJECT
 
 public:
     enum State { Idle, Running, Failed, Succeeded };
 
-    explicit CheckoutProgressWizardPage(QWidget *parent = 0);
-    ~CheckoutProgressWizardPage();
+    explicit ShellCommandPage(QWidget *parent = 0);
+    ~ShellCommandPage();
 
     void setStartedStatus(const QString &startedStatus);
-    void start(VcsCommand *command);
+    void start(ShellCommand *command);
 
     virtual bool isComplete() const;
     bool isRunning() const{ return m_state == Running; }
@@ -65,26 +63,24 @@ public:
     void terminate();
 
 signals:
-    void terminated(bool success);
+    void finished(bool success);
 
-private slots:
+private:
     void slotFinished(bool ok, int exitCode, const QVariant &cookie);
     void reportStdOut(const QString &text);
     void reportStdErr(const QString &text);
 
-private:
     QPlainTextEdit *m_logPlainTextEdit;
-    Utils::OutputFormatter *m_formatter;
+    OutputFormatter *m_formatter;
     QLabel *m_statusLabel;
 
-    VcsCommand *m_command;
+    ShellCommand *m_command;
     QString m_startedStatus;
     bool m_overwriteOutput;
 
     State m_state;
 };
 
-} // namespace Internal
-} // namespace VcsBase
+} // namespace Utils
 
-#endif // CHECKOUTPROGRESSWIZARDPAGE_H
+#endif // SHELLCOMMANDPAGE_H

@@ -30,9 +30,10 @@
 
 #include "basecheckoutwizard.h"
 #include "basecheckoutwizardfactory.h"
-#include "checkoutprogresswizardpage.h"
+#include "vcscommand.h"
 
 #include <utils/qtcassert.h>
+#include <utils/shellcommandpage.h>
 
 #include <QPushButton>
 
@@ -47,12 +48,12 @@ namespace VcsBase {
 
 BaseCheckoutWizard::BaseCheckoutWizard(const Utils::FileName &path, QWidget *parent) :
     Utils::Wizard(parent),
-    m_progressPage(new Internal::CheckoutProgressWizardPage),
+    m_progressPage(new Utils::ShellCommandPage),
     m_progressPageId(-1)
 {
     Q_UNUSED(path);
     connect(this, &QWizard::currentIdChanged, this, &BaseCheckoutWizard::slotPageChanged);
-    connect(m_progressPage, &Internal::CheckoutProgressWizardPage::terminated,
+    connect(m_progressPage, &Utils::ShellCommandPage::finished,
             this, &BaseCheckoutWizard::slotTerminated);
     setOption(QWizard::NoBackButtonOnLastPage);
 }

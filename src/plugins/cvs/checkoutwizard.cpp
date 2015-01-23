@@ -73,6 +73,10 @@ VcsCommand *CheckoutWizard::createCommand(Utils::FileName *checkoutDir)
     const Utils::FileName binary = settings.binaryPath();
     QStringList args;
 
+    // cwp->repository() contains the CVS module to check out only.
+    // The CVSROOT (== actual repository) for that module is part of the CVS settings.
+    // The checkout will always go into a new subfolder named after the CVS module.
+
     const QString repository = cwp->repository();
     args << QLatin1String("checkout") << repository;
     const QString workingDirectory = cwp->path();
