@@ -41,12 +41,11 @@ class QTimer;
 QT_END_NAMESPACE
 
 namespace CPlusPlus { class OverviewModel; }
+namespace TextEditor { class TextEditorWidget; }
 namespace Utils { class TreeViewComboBox; }
 
 namespace CppEditor {
 namespace Internal {
-
-class CppEditorWidget;
 
 class CppEditorOutline : public QObject
 {
@@ -54,7 +53,7 @@ class CppEditorOutline : public QObject
     Q_DISABLE_COPY(CppEditorOutline)
 
 public:
-    explicit CppEditorOutline(CppEditorWidget *editorWidget);
+    explicit CppEditorOutline(TextEditor::TextEditorWidget *editorWidget);
 
     void update();
 
@@ -84,7 +83,7 @@ private:
                                  const QModelIndex &rootIndex = QModelIndex()) const;
 
 private:
-    CppEditorWidget *m_editorWidget;
+    TextEditor::TextEditorWidget *m_editorWidget;
 
     Utils::TreeViewComboBox *m_combo; // Not owned
     CPlusPlus::OverviewModel *m_model;

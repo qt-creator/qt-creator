@@ -30,11 +30,11 @@
 
 #include "cppeditoroutline.h"
 
-#include "cppeditor.h"
 #include "cppeditorplugin.h"
 
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsreuse.h>
+#include <texteditor/texteditor.h>
 
 #include <cplusplus/OverviewModel.h>
 #include <utils/treeviewcombobox.h>
@@ -44,14 +44,12 @@
 
 /*!
     \class CppEditor::Internal::CppEditorOutline
-    \brief A helper class of CppEditorWidget that provides the outline model
-           and widget, e.g. for the editor's tool bar.
+    \brief A helper class that provides the outline model and widget,
+           e.g. for the editor's tool bar.
 
     \internal
 
     The caller is responsible for deleting the widget returned by widget().
-
-    \sa CppEditor::Internal::CppEditorWidget
  */
 
 enum { UpdateOutlineIntervalInMs = 500 };
@@ -98,7 +96,7 @@ QTimer *newSingleShotTimer(QObject *parent, int msInternal, const QString &objec
 namespace CppEditor {
 namespace Internal {
 
-CppEditorOutline::CppEditorOutline(CppEditorWidget *editorWidget)
+CppEditorOutline::CppEditorOutline(TextEditor::TextEditorWidget *editorWidget)
     : QObject(editorWidget)
     , m_editorWidget(editorWidget)
     , m_combo(new Utils::TreeViewComboBox)
