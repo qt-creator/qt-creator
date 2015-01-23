@@ -191,9 +191,9 @@ void Locator::updateEditorManagerPlaceholderText()
 {
     Command *openCommand = ActionManager::command(Constants::OPEN);
     Command *locateCommand = ActionManager::command(Constants::LOCATE);
-    const QString placeholderText = tr("<html><body style=\"color:#909090; font-size:14pt\">"
+    const QString placeholderText = tr("<html><body style=\"color:#909090; font-size:14px\">"
           "<div align='center'>"
-          "<div style=\"font-size:20pt\">Open a document</div>"
+          "<div style=\"font-size:20px\">Open a document</div>"
           "<table><tr><td>"
           "<hr/>"
           "<div style=\"margin-top: 5px\">&bull; File > Open File or Project (%1)</div>"
