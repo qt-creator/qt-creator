@@ -340,26 +340,21 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     const bool hasCurrentItem = current.isValid();
     QAction *actionOpen = menu.addAction(actionOpenText(m_fileSystemModel, current));
     actionOpen->setEnabled(hasCurrentItem);
+
+    // we need dummy DocumentModel::Entry with absolute file path in it
+    // to get EditorManager::addNativeDirAndOpenWithActions() working
+    Core::DocumentModel::Entry fakeEntry;
+    Core::IDocument document;
+    document.setFilePath(Utils::FileName::fromString(m_fileSystemModel->filePath(current)));
+    fakeEntry.document = &document;
+    Core::EditorManager::addNativeDirAndOpenWithActions(&menu, &fakeEntry);
+
     const bool isDirectory = hasCurrentItem && m_fileSystemModel->isDir(current);
     QAction *actionOpenDirectoryAsProject = 0;
     if (isDirectory && m_fileSystemModel->fileName(current) != QLatin1String("..")) {
         actionOpenDirectoryAsProject =
             menu.addAction(tr("Open Project in \"%1\"")
                            .arg(m_fileSystemModel->fileName(current)));
-    }
-    // Explorer & teminal
-    QAction *actionExplorer = menu.addAction(Core::FileUtils::msgGraphicalShellAction());
-    actionExplorer->setEnabled(hasCurrentItem);
-    QAction *actionTerminal = menu.addAction(Core::FileUtils::msgTerminalAction());
-    actionTerminal->setEnabled(hasCurrentItem);
-
-    QAction *actionFind = menu.addAction(Core::FileUtils::msgFindInDirectory());
-    actionFind->setEnabled(hasCurrentItem);
-    // open with...
-    if (hasCurrentItem && !isDirectory) {
-        QMenu *openWith = menu.addMenu(tr("Open With"));
-        Core::EditorManager::populateOpenWithMenu(openWith,
-                                                  m_fileSystemModel->filePath(current));
     }
 
     // Open file dialog to choose a path starting from current
@@ -372,29 +367,12 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     ev->accept();
     if (action == actionOpen) { // Handle open file.
         openItem(current);
-        return;
-    }
-    if (action == actionOpenDirectoryAsProject) {
+    } else if (action == actionOpenDirectoryAsProject) {
         openItem(current, true);
-        return;
-    }
-    if (action == actionChooseFolder) { // Open file dialog
+    } else if (action == actionChooseFolder) { // Open file dialog
         const QString newPath = QFileDialog::getExistingDirectory(this, tr("Choose Folder"), currentDirectory());
         if (!newPath.isEmpty())
             setCurrentDirectory(newPath);
-        return;
-    }
-    if (action == actionTerminal) {
-        Core::FileUtils::openTerminal(m_fileSystemModel->filePath(current));
-        return;
-    }
-    if (action == actionExplorer) {
-        Core::FileUtils::showInGraphicalShell(this, m_fileSystemModel->filePath(current));
-        return;
-    }
-    if (action == actionFind) {
-        TextEditor::FindInFiles::findOnFileSystem(m_fileSystemModel->filePath(current));
-        return;
     }
 }
 
