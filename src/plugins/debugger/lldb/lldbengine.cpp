@@ -50,25 +50,26 @@
 #include <debugger/watchhandler.h>
 #include <debugger/watchutils.h>
 
-#include <utils/qtcassert.h>
-#include <utils/savedaction.h>
-#include <utils/qtcprocess.h>
-
-#include <texteditor/texteditor.h>
 #include <coreplugin/messagebox.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
 
+#include <texteditor/texteditor.h>
+
+#include <utils/qtcassert.h>
+#include <utils/savedaction.h>
+#include <utils/qtcprocess.h>
+
+#include <QApplication>
 #include <QDateTime>
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
 #include <QTimer>
+#include <QToolTip>
 #include <QVariant>
 
-#include <QApplication>
-#include <QToolTip>
-
+using namespace Core;
 using namespace Utils;
 
 namespace Debugger {
@@ -91,25 +92,25 @@ LldbEngine::LldbEngine(const DebuggerStartParameters &startParameters)
         #ifdef Q_OS_WIN
             // Windows up to xp needs a workaround for attaching to freshly started processes. see proc_stub_win
             if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA)
-                m_stubProc.setMode(Utils::ConsoleProcess::Suspend);
+                m_stubProc.setMode(ConsoleProcess::Suspend);
             else
-                m_stubProc.setMode(Utils::ConsoleProcess::Debug);
+                m_stubProc.setMode(ConsoleProcess::Debug);
         #else
-            m_stubProc.setMode(Utils::ConsoleProcess::Debug);
-            m_stubProc.setSettings(Core::ICore::settings());
+            m_stubProc.setMode(ConsoleProcess::Debug);
+            m_stubProc.setSettings(ICore::settings());
         #endif
     }
 
-    connect(action(AutoDerefPointers), SIGNAL(valueChanged(QVariant)),
-            SLOT(updateLocals()));
-    connect(action(CreateFullBacktrace), SIGNAL(triggered()),
-            SLOT(createFullBacktrace()));
-    connect(action(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
-            SLOT(updateLocals()));
-    connect(action(UseDynamicType), SIGNAL(valueChanged(QVariant)),
-            SLOT(updateLocals()));
-    connect(action(IntelFlavor), SIGNAL(valueChanged(QVariant)),
-            SLOT(updateAll()));
+    connect(action(AutoDerefPointers), &SavedAction::valueChanged,
+            this, &LldbEngine::updateLocals);
+    connect(action(CreateFullBacktrace), &QAction::triggered,
+            this, &LldbEngine::createFullBacktrace);
+    connect(action(UseDebuggingHelpers), &SavedAction::valueChanged,
+            this, &LldbEngine::updateLocals);
+    connect(action(UseDynamicType), &SavedAction::valueChanged,
+            this, &LldbEngine::updateLocals);
+    connect(action(IntelFlavor), &SavedAction::valueChanged,
+            this, &LldbEngine::updateAll);
 }
 
 LldbEngine::~LldbEngine()
@@ -174,9 +175,9 @@ bool LldbEngine::prepareCommand()
         DebuggerStartParameters &sp = startParameters();
         QtcProcess::SplitError perr;
         sp.processArgs = QtcProcess::prepareArgs(sp.processArgs, &perr,
-                                                 Utils::HostOsInfo::hostOs(),
+                                                 HostOsInfo::hostOs(),
                     &sp.environment, &sp.workingDirectory).toWindowsArgs();
-        if (perr != Utils::QtcProcess::SplitOk) {
+        if (perr != QtcProcess::SplitOk) {
             // perr == BadQuoting is never returned on Windows
             // FIXME? QTCREATORBUG-2809
             notifyEngineSetupFailed();
@@ -207,9 +208,9 @@ void LldbEngine::setupEngine()
         // Set environment + dumper preload.
         m_stubProc.setEnvironment(startParameters().environment);
 
-        connect(&m_stubProc, SIGNAL(processError(QString)), SLOT(stubError(QString)));
-        connect(&m_stubProc, SIGNAL(processStarted()), SLOT(stubStarted()));
-        connect(&m_stubProc, SIGNAL(stubStopped()), SLOT(stubExited()));
+        connect(&m_stubProc, &ConsoleProcess::processError, this, &LldbEngine::stubError);
+        connect(&m_stubProc, &ConsoleProcess::processStarted, this, &LldbEngine::stubStarted);
+        connect(&m_stubProc, &ConsoleProcess::stubStopped, this, &LldbEngine::stubExited);
         // FIXME: Starting the stub implies starting the inferior. This is
         // fairly unclean as far as the state machine and error reporting go.
 
@@ -233,21 +234,21 @@ void LldbEngine::setupEngine()
 void LldbEngine::startLldb()
 {
     m_lldbCmd = startParameters().debuggerCommand;
-    connect(&m_lldbProc, SIGNAL(error(QProcess::ProcessError)),
-        SLOT(handleLldbError(QProcess::ProcessError)));
-    connect(&m_lldbProc, SIGNAL(finished(int,QProcess::ExitStatus)),
-        SLOT(handleLldbFinished(int,QProcess::ExitStatus)));
-    connect(&m_lldbProc, SIGNAL(readyReadStandardOutput()),
-        SLOT(readLldbStandardOutput()));
-    connect(&m_lldbProc, SIGNAL(readyReadStandardError()),
-        SLOT(readLldbStandardError()));
+    connect(&m_lldbProc, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+            this, &LldbEngine::handleLldbError);
+    connect(&m_lldbProc, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+            this, &LldbEngine::handleLldbFinished);
+    connect(&m_lldbProc, &QProcess::readyReadStandardOutput,
+            this, &LldbEngine::readLldbStandardOutput);
+    connect(&m_lldbProc, &QProcess::readyReadStandardError,
+            this, &LldbEngine::readLldbStandardError);
 
-    connect(this, SIGNAL(outputReady(QByteArray)),
-        SLOT(handleResponse(QByteArray)), Qt::QueuedConnection);
+    connect(this, &LldbEngine::outputReady,
+            this, &LldbEngine::handleResponse, Qt::QueuedConnection);
 
     QStringList args;
     args.append(_("-i"));
-    args.append(Core::ICore::resourcePath() + _("/debugger/lldbbridge.py"));
+    args.append(ICore::resourcePath() + _("/debugger/lldbbridge.py"));
     args.append(m_lldbCmd);
     showMessage(_("STARTING LLDB: python ") + args.join(QLatin1Char(' ')));
     m_lldbProc.setEnvironment(startParameters().environment.toStringList());
@@ -262,7 +263,7 @@ void LldbEngine::startLldb()
         notifyEngineSetupFailed();
         showMessage(_("ADAPTER START FAILED"));
         if (!msg.isEmpty())
-            Core::ICore::showWarningWithOptions(tr("Adapter start failed."), msg);
+            ICore::showWarningWithOptions(tr("Adapter start failed."), msg);
     }
 }
 
@@ -291,9 +292,9 @@ void LldbEngine::setupInferior()
     }
 
     QString executable;
-    Utils::QtcProcess::Arguments args;
-    Utils::QtcProcess::prepareCommand(QFileInfo(sp.executable).absoluteFilePath(),
-                                      sp.processArgs, &executable, &args);
+    QtcProcess::Arguments args;
+    QtcProcess::prepareCommand(QFileInfo(sp.executable).absoluteFilePath(),
+                               sp.processArgs, &executable, &args);
 
     Command cmd("setupInferior");
     cmd.arg("executable", executable);
@@ -952,8 +953,7 @@ void LldbEngine::handleLldbError(QProcess::ProcessError error)
     default:
         //setState(EngineShutdownRequested, true);
         m_lldbProc.kill();
-        Core::AsynchronousMessageBox::critical(tr("LLDB I/O Error"),
-                       errorMessage(error));
+        AsynchronousMessageBox::critical(tr("LLDB I/O Error"), errorMessage(error));
         break;
     }
 }
@@ -1309,7 +1309,7 @@ void LldbEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result
         showMessage(_("ADAPTER START FAILED"));
         if (!result.reason.isEmpty()) {
             const QString title = tr("Adapter start failed");
-            Core::ICore::showWarningWithOptions(title, result.reason);
+            ICore::showWarningWithOptions(title, result.reason);
         }
         notifyEngineSetupFailed();
         return;
@@ -1442,7 +1442,7 @@ void LldbEngine::stubStarted()
 
 void LldbEngine::stubError(const QString &msg)
 {
-    Core::AsynchronousMessageBox::critical(tr("Debugger Error"), msg);
+    AsynchronousMessageBox::critical(tr("Debugger Error"), msg);
 }
 
 void LldbEngine::stubExited()
