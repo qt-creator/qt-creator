@@ -22,5 +22,5 @@ Project {
         "treeviewfind/treeviewfind.qbs",
         "utils/utils.qbs",
         "valgrind/valgrind.qbs"
-    ]
+    ].concat(project.additionalAutotests)
 }
