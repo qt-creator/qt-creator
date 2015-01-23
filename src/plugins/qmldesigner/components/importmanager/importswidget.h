@@ -52,7 +52,7 @@ public:
     void setImports(const QList<Import> &imports);
     void removeImports();
 
-    void setPossibleImports(const QList<Import> &possibleImports);
+    void setPossibleImports(QList<Import> possibleImports);
     void removePossibleImports();
 
     void setUsedImports(const QList<Import> &possibleImports);

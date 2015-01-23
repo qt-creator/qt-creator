@@ -64,33 +64,6 @@ static bool isImportAlreadyUsed(const Import &import, QList<ImportLabel*> import
     return false;
 }
 
-void ImportsWidget::setPossibleImports(const QList<Import> &possibleImports)
-{
-    m_addImportComboBox->clear();
-    foreach (const Import &possibleImport, possibleImports) {
-        if (!isImportAlreadyUsed(possibleImport, m_importLabels))
-            m_addImportComboBox->addItem(possibleImport.toString(true), QVariant::fromValue(possibleImport));
-    }
-}
-
-void ImportsWidget::removePossibleImports()
-{
-    m_addImportComboBox->clear();
-}
-
-void ImportsWidget::setUsedImports(const QList<Import> &usedImports)
-{
-    foreach (ImportLabel *importLabel, m_importLabels)
-        importLabel->setReadOnly(usedImports.contains(importLabel->import()));
-
-}
-
-void ImportsWidget::removeUsedImports()
-{
-    foreach (ImportLabel *importLabel, m_importLabels)
-        importLabel->setEnabled(true);
-}
-
 static bool importLess(const Import &firstImport, const Import &secondImport)
 {
     if (firstImport.url() == secondImport.url())
@@ -115,6 +88,34 @@ static bool importLess(const Import &firstImport, const Import &secondImport)
         return QString::localeAwareCompare(firstImport.url(), secondImport.url()) < 0;
 
     return false;
+}
+
+void ImportsWidget::setPossibleImports(QList<Import> possibleImports)
+{
+    Utils::sort(possibleImports, importLess);
+    m_addImportComboBox->clear();
+    foreach (const Import &possibleImport, possibleImports) {
+        if (!isImportAlreadyUsed(possibleImport, m_importLabels))
+            m_addImportComboBox->addItem(possibleImport.toString(true), QVariant::fromValue(possibleImport));
+    }
+}
+
+void ImportsWidget::removePossibleImports()
+{
+    m_addImportComboBox->clear();
+}
+
+void ImportsWidget::setUsedImports(const QList<Import> &usedImports)
+{
+    foreach (ImportLabel *importLabel, m_importLabels)
+        importLabel->setReadOnly(usedImports.contains(importLabel->import()));
+
+}
+
+void ImportsWidget::removeUsedImports()
+{
+    foreach (ImportLabel *importLabel, m_importLabels)
+        importLabel->setEnabled(true);
 }
 
 void ImportsWidget::setImports(const QList<Import> &imports)
