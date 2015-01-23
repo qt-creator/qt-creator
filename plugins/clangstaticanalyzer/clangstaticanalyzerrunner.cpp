@@ -50,7 +50,7 @@ static QStringList constructCommandLineArguments(const QString &filePath,
         << logFile
         ;
     arguments += options;
-    arguments << filePath;
+    arguments << QDir::toNativeSeparators(filePath);
     return arguments;
 }
 
@@ -73,6 +73,7 @@ ClangStaticAnalyzerRunner::ClangStaticAnalyzerRunner(const QString &clangExecuta
     QTC_CHECK(!m_clangLogFileDir.isEmpty());
 
     m_process.setProcessChannelMode(QProcess::MergedChannels);
+    m_process.setWorkingDirectory(m_clangLogFileDir); // Current clang-cl puts log file into working dir.
     connect(&m_process, &QProcess::started,
             this, &ClangStaticAnalyzerRunner::onProcessStarted);
     connect(&m_process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
@@ -122,7 +123,7 @@ void ClangStaticAnalyzerRunner::onProcessFinished(int exitCode, QProcess::ExitSt
 {
     if (exitStatus == QProcess::NormalExit) {
         if (exitCode == 0)
-            emit finishedWithSuccess(m_logFile);
+            emit finishedWithSuccess(actualLogFile());
         else
             emit finishedWithFailure(finishedWithBadExitCode(exitCode), processCommandlineAndOutput());
     } else { // == QProcess::CrashExit
@@ -167,6 +168,16 @@ QString ClangStaticAnalyzerRunner::processCommandlineAndOutput() const
                             .arg(m_commandLine,
                                  QString::number(m_process.error()),
                                  QString::fromLocal8Bit(m_processOutput));
+}
+
+QString ClangStaticAnalyzerRunner::actualLogFile() const
+{
+    if (QFileInfo(m_logFile).size() == 0) {
+        // Current clang-cl ignores -o, always putting the log file into the working directory.
+        return m_clangLogFileDir + QLatin1Char('/') + QFileInfo(m_filePath).completeBaseName()
+                + QLatin1String(".plist");
+    }
+    return m_logFile;
 }
 
 } // namespace Internal

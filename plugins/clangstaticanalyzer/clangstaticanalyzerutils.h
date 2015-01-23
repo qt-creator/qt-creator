@@ -33,7 +33,7 @@ namespace Internal {
 class Location;
 
 QString clangExecutable(const QString &fileNameOrPath, bool *isValid);
-QString clangExecutableFromSettings(bool *isValid);
+QString clangExecutableFromSettings(const QString &toolchainType, bool *isValid);
 
 QString createFullLocationString(const ClangStaticAnalyzer::Internal::Location &location);
 

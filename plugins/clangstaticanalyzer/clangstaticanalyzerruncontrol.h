@@ -56,6 +56,7 @@ signals:
     void newDiagnosticsAvailable(const QList<Diagnostic> &diagnostics);
 
 private:
+    QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyze();
     void analyzeNextFile();
     ClangStaticAnalyzerRunner *createRunner();
 
@@ -68,6 +69,7 @@ private:
 
 private:
     const CppTools::ProjectInfo m_projectInfo;
+    const QString m_toolchainType;
 
     QString m_clangExecutable;
     QString m_clangLogFileDir;

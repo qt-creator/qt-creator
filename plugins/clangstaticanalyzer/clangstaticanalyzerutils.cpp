@@ -37,9 +37,12 @@ static bool isFileExecutable(const QString &executablePath)
 namespace ClangStaticAnalyzer {
 namespace Internal {
 
-QString clangExecutableFromSettings(bool *isValid)
+QString clangExecutableFromSettings(const QString &toolchainType, bool *isValid)
 {
-    return clangExecutable(ClangStaticAnalyzerSettings::instance()->clangExecutable(), isValid);
+    QString exeFromSettings = ClangStaticAnalyzerSettings::instance()->clangExecutable();
+    if (toolchainType == QLatin1String("msvc"))
+        exeFromSettings.replace(QLatin1String("clang.exe"), QLatin1String("clang-cl.exe"));
+    return clangExecutable(exeFromSettings, isValid);
 }
 
 QString clangExecutable(const QString &fileNameOrPath, bool *isValid)

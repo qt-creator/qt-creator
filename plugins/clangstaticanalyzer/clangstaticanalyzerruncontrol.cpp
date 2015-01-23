@@ -34,6 +34,7 @@
 #include <cpptools/cppprojects.h>
 #include <cpptools/cppprojectfile.h>
 
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
@@ -56,6 +57,8 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
             const ProjectInfo &projectInfo)
     : AnalyzerRunControl(startParams, runConfiguration)
     , m_projectInfo(projectInfo)
+    , m_toolchainType(ProjectExplorer::ToolChainKitInformation
+                      ::toolChain(runConfiguration->target()->kit())->type())
     , m_initialFilesToProcessSize(0)
     , m_filesAnalyzed(0)
     , m_filesNotAnalyzed(0)
@@ -75,7 +78,7 @@ static QStringList tweakedArguments(const QString &filePath, const QStringList &
         } else if (argument == QLatin1String("-o")) {
             skip = true;
             continue;
-        } else if (argument == filePath) {
+        } else if (QDir::fromNativeSeparators(argument) == filePath) {
             continue; // TODO: Let it in?
         }
 
@@ -87,19 +90,30 @@ static QStringList tweakedArguments(const QString &filePath, const QStringList &
 }
 
 static QStringList argumentsFromProjectPart(const CppTools::ProjectPart::Ptr &projectPart,
-                                            CppTools::ProjectFile::Kind fileKind)
+                                            CppTools::ProjectFile::Kind fileKind,
+                                            const QString &toolchainType)
 {
     QStringList result;
 
     const bool objcExt = projectPart->languageExtensions & ProjectPart::ObjectiveCExtensions;
-    result += CppTools::CompilerOptionsBuilder::createLanguageOption(fileKind, objcExt);
+    result += CppTools::CompilerOptionsBuilder::createLanguageOption(fileKind, objcExt,
+                                                                     toolchainType);
     result += CppTools::CompilerOptionsBuilder::createOptionsForLanguage(
                                                     projectPart->languageVersion,
-                                                    projectPart->languageExtensions);
-    result += CppTools::CompilerOptionsBuilder::createDefineOptions(projectPart->toolchainDefines);
-    result += CppTools::CompilerOptionsBuilder::createDefineOptions(projectPart->projectDefines);
-    result += CppTools::CompilerOptionsBuilder::createHeaderPathOptions(projectPart->headerPaths);
-    result += QLatin1String("-fPIC"); // TODO: Remove?
+                                                    projectPart->languageExtensions, false,
+                                                    toolchainType);
+    result += CppTools::CompilerOptionsBuilder::createDefineOptions(projectPart->toolchainDefines,
+                                                                    false, toolchainType);
+    result += CppTools::CompilerOptionsBuilder::createDefineOptions(projectPart->projectDefines,
+                                                                    false, toolchainType);
+    result += CppTools::CompilerOptionsBuilder::createHeaderPathOptions(
+                projectPart->headerPaths,
+                CompilerOptionsBuilder::IsBlackListed(),
+                toolchainType);
+    if (toolchainType == QLatin1String("msvc"))
+        result += QLatin1String("/EHsc"); // clang-cl does not understand exceptions
+    else
+        result += QLatin1String("-fPIC"); // TODO: Remove?
 
     return result;
 }
@@ -127,7 +141,7 @@ static QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyzeFromCompi
 }
 
 static QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyzeFromProjectParts(
-            const QList<ProjectPart::Ptr> projectParts)
+            const QList<ProjectPart::Ptr> projectParts, const QString &toolchainType)
 {
     typedef ClangStaticAnalyzerRunControl::AnalyzeUnit AnalyzeUnit;
     qCDebug(LOG) << "Taking arguments for analyzing from ProjectParts.";
@@ -143,7 +157,8 @@ static QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyzeFromProje
                 continue;
             QTC_CHECK(file.kind != ProjectFile::Unclassified);
             if (ProjectFile::isSource(file.kind)) {
-                const QStringList arguments = argumentsFromProjectPart(projectPart, file.kind);
+                const QStringList arguments
+                        = argumentsFromProjectPart(projectPart, file.kind, toolchainType);
                 unitsToAnalyze << AnalyzeUnit(file.path, arguments);
             }
         }
@@ -152,15 +167,14 @@ static QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyzeFromProje
     return unitsToAnalyze;
 }
 
-static QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> unitsToAnalyze(
-            const CppTools::ProjectInfo &projectInfo)
+QList<ClangStaticAnalyzerRunControl::AnalyzeUnit> ClangStaticAnalyzerRunControl::unitsToAnalyze()
 {
-    QTC_ASSERT(projectInfo.isValid(), return QList<ClangStaticAnalyzerRunControl::AnalyzeUnit>());
+    QTC_ASSERT(m_projectInfo.isValid(), return QList<ClangStaticAnalyzerRunControl::AnalyzeUnit>());
 
-    const ProjectInfo::CompilerCallData compilerCallData = projectInfo.compilerCallData();
+    const ProjectInfo::CompilerCallData compilerCallData = m_projectInfo.compilerCallData();
     if (!compilerCallData.isEmpty())
         return unitsToAnalyzeFromCompilerCallData(compilerCallData);
-    return unitsToAnalyzeFromProjectParts(projectInfo.projectParts());
+    return unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts(), m_toolchainType);
 }
 
 bool ClangStaticAnalyzerRunControl::startEngine()
@@ -174,7 +188,8 @@ bool ClangStaticAnalyzerRunControl::startEngine()
 
     // Check clang executable
     bool isValidClangExecutable;
-    const QString executable = clangExecutableFromSettings(&isValidClangExecutable);
+    const QString executable
+            = clangExecutableFromSettings(m_toolchainType, &isValidClangExecutable);
     if (!isValidClangExecutable) {
         emit appendMessage(tr("Clang Static Analyzer: Invalid executable \"%1\", stop.")
                             .arg(executable) + QLatin1Char('\n'),
@@ -196,7 +211,7 @@ bool ClangStaticAnalyzerRunControl::startEngine()
     m_clangLogFileDir = temporaryDir.path();
 
     // Collect files
-    QList<AnalyzeUnit> unitsToProcess = unitsToAnalyze(m_projectInfo);
+    QList<AnalyzeUnit> unitsToProcess = unitsToAnalyze();
     Utils::sort(unitsToProcess, [](const AnalyzeUnit &a1, const AnalyzeUnit &a2) -> bool {
         return a1.file < a2.file;
     });

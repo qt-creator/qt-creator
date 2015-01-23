@@ -61,7 +61,8 @@ bool ClangStaticAnalyzerRunControlFactory::canRun(RunConfiguration *runConfigura
     QTC_ASSERT(kit, return false);
     ToolChain *toolChain = ToolChainKitInformation::toolChain(kit);
     return toolChain && (toolChain->type() == QLatin1String("clang")
-            || toolChain->type() == QLatin1String("gcc"));
+            || toolChain->type() == QLatin1String("gcc")
+            || toolChain->type() == QLatin1String("msvc"));
 }
 
 RunControl *ClangStaticAnalyzerRunControlFactory::create(RunConfiguration *runConfiguration,

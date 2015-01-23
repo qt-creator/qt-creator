@@ -60,6 +60,7 @@ private:
 
     QString createLogFile(const QString &filePath) const;
     QString processCommandlineAndOutput() const;
+    QString actualLogFile() const;
 
 private:
     QString m_clangExecutable;
