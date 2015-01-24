@@ -13,5 +13,6 @@ QtcPlugin {
     files: [
         "welcomeplugin.cpp",
         "welcomeplugin.h",
+        "welcome.qrc",
     ]
 }
