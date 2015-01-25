@@ -184,7 +184,10 @@ class PlainDumper:
                     d.putSubItem(child[0], child[1])
 
 def importPlainDumpers(args):
-    theDumper.importPlainDumpers()
+    if args == "off":
+        gdb.execute("disable pretty-printer .* .*")
+    else:
+        theDumper.importPlainDumpers()
 
 registerCommand("importPlainDumpers", importPlainDumpers)
 
