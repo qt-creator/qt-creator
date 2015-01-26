@@ -34,7 +34,6 @@
 #include "coregdbadapter.h"
 #include "gdbplainengine.h"
 #include "termgdbadapter.h"
-#include "terminal.h"
 #include "remotegdbserveradapter.h"
 #include "gdboptionspage.h"
 
@@ -53,6 +52,7 @@
 #include <debugger/disassembleragent.h>
 #include <debugger/memoryagent.h>
 #include <debugger/sourceutils.h>
+#include <debugger/terminal.h>
 
 #include <debugger/breakhandler.h>
 #include <debugger/moduleshandler.h>
