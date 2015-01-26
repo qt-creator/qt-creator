@@ -1483,11 +1483,11 @@ QString ClearCasePlugin::runCleartoolSync(const QString &workingDir,
 }
 
 ClearCaseResponse
-        ClearCasePlugin::runCleartool(const QString &workingDir,
-                                 const QStringList &arguments,
-                                 int timeOut,
-                                 unsigned flags,
-                                 QTextCodec *outputCodec) const
+ClearCasePlugin::runCleartool(const QString &workingDir,
+                              const QStringList &arguments,
+                              int timeOut,
+                              unsigned flags,
+                              QTextCodec *outputCodec) const
 {
     const QString executable = m_settings.ccBinaryPath;
     ClearCaseResponse response;
