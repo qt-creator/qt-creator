@@ -89,8 +89,9 @@ except:
 matplotFigure = {}
 matplotCount = 0
 
+devNull = open(os.devnull)
 matplotProc = subprocess.Popen(args=[pythonExecutable, "-i"],
-            bufsize=0, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            bufsize=0, stdin=subprocess.PIPE, stdout=devNull, stderr=devNull)
 
 matplotProc.stdin.write(b"import sys\n")
 matplotProc.stdin.write(b"sys.ps1=''\n")
@@ -132,6 +133,7 @@ def matplotSend(iname, show, data):
 def matplotQuit():
     matplotProc.stdin.write(b"exit")
     matplotProc.kill()
+    devNull.close()
 
 def arrayForms():
     global hasPlot
