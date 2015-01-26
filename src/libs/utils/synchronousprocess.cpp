@@ -385,7 +385,7 @@ static bool isGuiThread()
 }
 
 SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
-                                                 const QStringList &args)
+                                                   const QStringList &args)
 {
     if (debug)
         qDebug() << '>' << Q_FUNC_INFO << binary << args;
