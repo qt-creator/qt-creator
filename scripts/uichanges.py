@@ -86,11 +86,11 @@ class Generator(handler.ContentHandler):
     def endElement(self, name):
         if name == 'name':
             if self._context == '':
-                self._context = self._chars
+                self._context = self._chars.strip()
                 self._chars = ''
         elif name == 'source':
             if self._chars:
-                self._msg = self._chars
+                self._msg = self._chars.strip()
                 self._chars = ''
         elif name == 'message':
             if self._msg:
@@ -106,7 +106,7 @@ class Generator(handler.ContentHandler):
             self._context = ''
 
     def characters(self, content):
-        self._chars = content
+        self._chars += content
 
     def tree(self):
         return self._tree
@@ -185,15 +185,19 @@ def diffContext(ctx, old, new):
 
 # --- The main program
 
-generator = Generator()
-parser = make_parser()
-parser.setContentHandler(generator)
-parser.parse(sys.argv[1])
+oldGenerator = Generator()
+oldParser = make_parser()
+oldParser.setContentHandler(oldGenerator)
+oldParser.parse(sys.argv[1])
 
-oldTree = generator.tree()
+oldTree = oldGenerator.tree()
 
-parser.parse(sys.argv[2])
-newTree = generator.tree()
+newGenerator = Generator()
+newParser = make_parser()
+newParser.setContentHandler(newGenerator)
+newParser.parse(sys.argv[2])
+
+newTree = newGenerator.tree()
 
 oldContextSet = set(oldTree.keys())
 newContextSet = set(newTree.keys())
