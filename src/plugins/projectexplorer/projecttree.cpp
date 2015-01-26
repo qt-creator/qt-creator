@@ -482,7 +482,7 @@ void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &global
         s_instance->m_focusForContextMenu = focus;
         connect(contextMenu, &QMenu::aboutToHide,
                 s_instance, &ProjectTree::hideContextMenu,
-                Qt::UniqueConnection);
+                Qt::ConnectionType(Qt::UniqueConnection | Qt::QueuedConnection));
     }
 }
 
