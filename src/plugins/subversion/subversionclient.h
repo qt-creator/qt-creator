@@ -63,6 +63,12 @@ public:
 
     void diff(const QString &workingDirectory, const QStringList &files,
               const QStringList &extraOptions);
+
+    void log(const QString &workingDir,
+             const QStringList &files = QStringList(),
+             const QStringList &extraOptions = QStringList(),
+             bool enableAnnotationContextMenu = false) Q_DECL_OVERRIDE;
+
     void describe(const QString &workingDirectory, int changeNumber, const QString &title);
     QString findTopLevelForFile(const QFileInfo &file) const;
     QStringList revisionSpec(const QString &revision) const;

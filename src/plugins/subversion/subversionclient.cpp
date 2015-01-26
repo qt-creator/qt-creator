@@ -59,9 +59,23 @@ using namespace Core;
 namespace Subversion {
 namespace Internal {
 
+class SubversionLogParameterWidget : public VcsBaseEditorParameterWidget
+{
+    Q_OBJECT
+public:
+    SubversionLogParameterWidget(SubversionSettings *settings, QWidget *parent = 0) :
+        VcsBaseEditorParameterWidget(parent)
+    {
+        mapSetting(addToggleButton(QLatin1String("--verbose"), tr("Verbose"),
+                                   tr("Show files changed in each revision")),
+                   settings->boolPointer(SubversionSettings::logVerboseKey));
+    }
+};
+
 SubversionClient::SubversionClient(SubversionSettings *settings) :
     VcsBaseClient(settings)
 {
+    setLogParameterWidgetCreator([=] { return new SubversionLogParameterWidget(settings); });
 }
 
 SubversionSettings *SubversionClient::settings() const
@@ -102,8 +116,10 @@ void SubversionClient::commit(const QString &repositoryRoot,
 
 Core::Id SubversionClient::vcsEditorKind(VcsCommandTag cmd) const
 {
-    // TODO: add some code here
-    Q_UNUSED(cmd)
+    switch (cmd) {
+    case VcsBaseClient::LogCommand: return Constants::SUBVERSION_LOG_EDITOR_ID;
+    case VcsBaseClient::AnnotateCommand: return Constants::SUBVERSION_BLAME_EDITOR_ID;
+    }
     return Core::Id();
 }
 
@@ -337,6 +353,27 @@ void SubversionClient::diff(const QString &workingDirectory, const QStringList &
     QTC_ASSERT(reloader, return);
     reloader->setFilesList(files);
     reloader->requestReload();
+}
+
+void SubversionClient::log(const QString &workingDir,
+                           const QStringList &files,
+                           const QStringList &extraOptions,
+                           bool enableAnnotationContextMenu)
+{
+    const auto logCount = settings()->intValue(SubversionSettings::logCountKey);
+    QStringList svnExtraOptions =
+            QStringList(extraOptions)
+            << SubversionClient::addAuthenticationOptions(*settings());
+    if (logCount > 0)
+        svnExtraOptions << QLatin1String("-l") << QString::number(logCount);
+
+    QStringList nativeFiles;
+    foreach (const QString& file, files)
+        nativeFiles.append(QDir::toNativeSeparators(file));
+
+    // subversion stores log in UTF-8 and returns it back in user system locale.
+    // So we do not need to encode it.
+    VcsBaseClient::log(workingDir, files, svnExtraOptions, enableAnnotationContextMenu);
 }
 
 void SubversionClient::describe(const QString &workingDirectory, int changeNumber, const QString &title)

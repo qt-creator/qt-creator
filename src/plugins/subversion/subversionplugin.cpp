@@ -770,41 +770,7 @@ void SubversionPlugin::filelog(const QString &workingDir,
                                const QString &file,
                                bool enableAnnotationContextMenu)
 {
-    // no need for temp file
-    QStringList args(QLatin1String("log"));
-    args << SubversionClient::addAuthenticationOptions(settings());
-    if (m_settings.intValue(SubversionSettings::logCountKey) > 0) {
-        args << QLatin1String("-l")
-             << QString::number(m_settings.intValue(SubversionSettings::logCountKey));
-    }
-    if (!file.isEmpty())
-        args.append(QDir::toNativeSeparators(file));
-
-    // subversion stores log in UTF-8 and returns it back in user system locale.
-    // So we do not need to encode it.
-    const SubversionResponse response =
-            runSvn(workingDir, args, m_settings.timeOutMs(),
-                   SshPasswordPrompt, 0/*codec*/);
-    if (response.error)
-        return;
-
-    // Re-use an existing view if possible to support
-    // the common usage pattern of continuously changing and diffing a file
-
-    const QString id = VcsBaseEditor::getTitleId(workingDir, QStringList(file));
-    const QString tag = VcsBaseEditor::editorTag(LogOutput, workingDir,
-                                                                QStringList(file));
-    if (IEditor *editor = VcsBaseEditor::locateEditorByTag(tag)) {
-        editor->document()->setContents(response.stdOut.toUtf8());
-        EditorManager::activateEditor(editor);
-    } else {
-        const QString title = QString::fromLatin1("svn log %1").arg(id);
-        const QString source = VcsBaseEditor::getSource(workingDir, file);
-        IEditor *newEditor = showOutputInEditor(title, response.stdOut, LogOutput, source, /*codec*/0);
-        VcsBaseEditor::tagEditor(newEditor, tag);
-        if (enableAnnotationContextMenu)
-            VcsBaseEditor::getVcsBaseEditor(newEditor)->setFileLogAnnotateEnabled(true);
-    }
+    m_client->log(workingDir, QStringList(file), QStringList(), enableAnnotationContextMenu);
 }
 
 void SubversionPlugin::updateProject()

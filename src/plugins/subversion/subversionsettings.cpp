@@ -43,6 +43,7 @@ const QLatin1String SubversionSettings::userKey("User");
 const QLatin1String SubversionSettings::passwordKey("Password");
 const QLatin1String SubversionSettings::spaceIgnorantAnnotationKey("SpaceIgnorantAnnotation");
 const QLatin1String SubversionSettings::diffIgnoreWhiteSpaceKey("DiffIgnoreWhiteSpace");
+const QLatin1String SubversionSettings::logVerboseKey("LogVerbose");
 
 SubversionSettings::SubversionSettings()
 {
@@ -54,6 +55,7 @@ SubversionSettings::SubversionSettings()
     declareKey(passwordKey, QLatin1String(""));
     declareKey(spaceIgnorantAnnotationKey, true);
     declareKey(diffIgnoreWhiteSpaceKey, false);
+    declareKey(logVerboseKey, false);
 }
 
 bool SubversionSettings::hasAuthentication() const
