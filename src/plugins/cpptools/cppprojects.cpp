@@ -511,7 +511,6 @@ QStringList CompilerOptionsBuilder::createDefineOptions(const QByteArray &define
                                                         const QString &toolchainType)
 {
     QStringList result;
-    const QString option = QLatin1String(toolchainType == QLatin1String("msvc") ? "/D" : "-D");
 
     foreach (QByteArray def, defines.split('\n')) {
         if (def.isEmpty())
@@ -535,12 +534,11 @@ QStringList CompilerOptionsBuilder::createDefineOptions(const QByteArray &define
 
         QByteArray str = def.mid(8);
         int spaceIdx = str.indexOf(' ');
-        QString arg;
-        if (spaceIdx != -1) {
-            arg = option + QLatin1String(str.left(spaceIdx) + "=" + str.mid(spaceIdx + 1));
-        } else {
-            arg = option + QLatin1String(str);
-        }
+        const QString option = QLatin1String(toolchainType == QLatin1String("msvc") ? "/D" : "-D");
+        const bool hasValue = spaceIdx != -1;
+        QString arg = option + QLatin1String(str.left(hasValue ? spaceIdx : str.size()) + '=');
+        if (hasValue)
+            arg += QLatin1String(str.mid(spaceIdx + 1));
         arg = arg.replace(QLatin1String("\\\""), QLatin1String("\""));
         arg = arg.replace(QLatin1String("\""), QLatin1String(""));
         if (!result.contains(arg))
