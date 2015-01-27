@@ -1764,10 +1764,6 @@ class Tester(Dumper):
         savedReport = self.report
         self.report = lambda stuff: 0
 
-        ignoreStops = 1
-        if sys.platform == "darwin":
-            ignoreStops = 0
-
         error = lldb.SBError()
         launchInfo = lldb.SBLaunchInfo([])
         launchInfo.SetWorkingDirectory(os.getcwd())
@@ -1792,12 +1788,23 @@ class Tester(Dumper):
                 #warn('event={type="%s",data="%s",msg="%s",flavor="%s",state="%s"}'
                 #    % (event.GetType(), out.GetData(), msg, flavor, state))
                 state = lldb.SBProcess.GetStateFromEvent(event)
-                if state == lldb.eStateExited:
+                if state == lldb.eStateExited: # 10
                     break
-                if state == lldb.eStateStopped:
-                    if ignoreStops == 0:
+                if state == lldb.eStateStopped: # 5
+                    stoppedThread = self.firstStoppedThread()
+                    if stoppedThread is None:
+                        warn("NO STOPPED THREAD FOUND")
+                        for i in xrange(0, self.process.GetNumThreads()):
+                            thread = self.process.GetThreadAtIndex(i)
+                            reason = thread.GetStopReason()
+                            warn("THREAD: %s REASON: %s" % (thread, reason))
+                        continue
+
+                    try:
+                        frame = stoppedThread.GetFrameAtIndex(0)
                         break
-                    ignoreStops -= 1
+                    except:
+                        warn("NO FRAME FOUND FOR THREAD %s" % stoppedThread)
             else:
                 warn('TIMEOUT')
 
@@ -1810,6 +1817,12 @@ class Tester(Dumper):
         # This seems highly fragile and depending on the "No-ops" in the
         # event handling above.
         self.process.SetSelectedThread(stoppedThread)
+
+        frame = stoppedThread.GetFrameAtIndex(0)
+        #file = fileName(frame.line_entry.file)
+        #line = frame.line_entry.line
+        #warn('LOCATION={file="%s",line="%s",addr="%s"}'
+        #    % (file, line, frame.pc))
         self.report = savedReport
         self.reportVariables()
         self.report("@NS@%s@" % self.qtNamespace())

@@ -1263,7 +1263,11 @@ void tst_Dumpers::dumper()
              << QString::fromUtf8(m_debuggerBinary)
              << t->buildPath + QLatin1String("/doit")
              << QString::fromUtf8(expanded);
-        qDebug() << exe.constData() << ' ' << qPrintable(args.join(QLatin1String(" ")));
+        QFile fullLldb(t->buildPath + QLatin1String("/lldbcommand.txt"));
+        fullLldb.setPermissions(QFile::ReadOwner|QFile::WriteOwner|QFile::ExeOwner|QFile::ReadGroup|QFile::ReadOther);
+        fullLldb.open(QIODevice::WriteOnly);
+        fullLldb.write(exe + ' ' + args.join(QLatin1String(" ")).toUtf8());
+        fullLldb.close();
     }
 
     t->input = cmds;
