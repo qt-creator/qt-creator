@@ -150,6 +150,8 @@ void performTestRun(QFutureInterface<void> &futureInterface, const QList<TestCon
         testProcess.setArguments(argumentList);
 
         testProcess.setWorkingDirectory(testConfiguration->workingDirectory());
+        if (Utils::HostOsInfo::isWindowsHost())
+            environment.insert(QLatin1String("QT_LOGGING_TO_CONSOLE"), QLatin1String("1"));
         testProcess.setProcessEnvironment(environment);
         testProcess.setProgram(commandFilePath);
         testProcess.start();
