@@ -58,7 +58,7 @@
 #            with SubItem(d, "data")
 #                d.putItem("data", value["data"])
 
-# Check http://qt-project.org/doc/qtcreator-3.2/creator-debugging-helpers.html
+# Check http://doc.qt.io/qtcreator/creator-debugging-helpers.html
 # for more details or look at qttypes.py, stdtypes.py, boosttypes.py
 # for more complex examples.
 
