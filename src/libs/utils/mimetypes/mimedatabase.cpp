@@ -75,13 +75,13 @@ MimeDatabasePrivate::~MimeDatabasePrivate()
 MimeProviderBase *MimeDatabasePrivate::provider()
 {
     if (!m_provider) {
-        MimeProviderBase *binaryProvider = new MimeBinaryProvider(this);
-        if (binaryProvider->isValid()) {
-            m_provider = binaryProvider;
-        } else {
-            delete binaryProvider;
-            m_provider = new MimeXMLProvider(this);
-        }
+//        MimeProviderBase *binaryProvider = new MimeBinaryProvider(this);
+//        if (binaryProvider->isValid()) {
+//            m_provider = binaryProvider;
+//        } else {
+//            delete binaryProvider;
+        m_provider = new MimeXMLProvider(this);
+//        }
     }
     return m_provider;
 }

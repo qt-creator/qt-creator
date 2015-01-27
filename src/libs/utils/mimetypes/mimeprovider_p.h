@@ -79,48 +79,48 @@ protected:
     QDateTime m_lastCheck;
 };
 
-/*
-   Parses the files 'mime.cache' and 'types' on demand
- */
-class MimeBinaryProvider : public MimeProviderBase
-{
-public:
-    MimeBinaryProvider(MimeDatabasePrivate *db);
-    virtual ~MimeBinaryProvider();
+///*
+//   Parses the files 'mime.cache' and 'types' on demand
+// */
+//class MimeBinaryProvider : public MimeProviderBase
+//{
+//public:
+//    MimeBinaryProvider(MimeDatabasePrivate *db);
+//    virtual ~MimeBinaryProvider();
 
-    virtual bool isValid();
-    virtual MimeType mimeTypeForName(const QString &name);
-    virtual QStringList findByFileName(const QString &fileName, QString *foundSuffix);
-    virtual QStringList parents(const QString &mime);
-    virtual QString resolveAlias(const QString &name);
-    virtual QStringList listAliases(const QString &name);
-    virtual MimeType findByMagic(const QByteArray &data, int *accuracyPtr);
-    virtual QList<MimeType> allMimeTypes();
-    virtual void loadMimeTypePrivate(MimeTypePrivate &);
-    virtual void loadIcon(MimeTypePrivate &);
-    virtual void loadGenericIcon(MimeTypePrivate &);
+//    virtual bool isValid();
+//    virtual MimeType mimeTypeForName(const QString &name);
+//    virtual QStringList findByFileName(const QString &fileName, QString *foundSuffix);
+//    virtual QStringList parents(const QString &mime);
+//    virtual QString resolveAlias(const QString &name);
+//    virtual QStringList listAliases(const QString &name);
+//    virtual MimeType findByMagic(const QByteArray &data, int *accuracyPtr);
+//    virtual QList<MimeType> allMimeTypes();
+//    virtual void loadMimeTypePrivate(MimeTypePrivate &);
+//    virtual void loadIcon(MimeTypePrivate &);
+//    virtual void loadGenericIcon(MimeTypePrivate &);
 
-private:
-    struct CacheFile;
+//private:
+//    struct CacheFile;
 
-    void matchGlobList(MimeGlobMatchResult &result, CacheFile *cacheFile, int offset, const QString &fileName);
-    bool matchSuffixTree(MimeGlobMatchResult &result, CacheFile *cacheFile, int numEntries, int firstOffset, const QString &fileName, int charPos, bool caseSensitiveCheck);
-    bool matchMagicRule(CacheFile *cacheFile, int numMatchlets, int firstOffset, const QByteArray &data);
-    QString iconForMime(CacheFile *cacheFile, int posListOffset, const QByteArray &inputMime);
-    void loadMimeTypeList();
-    void checkCache();
+//    void matchGlobList(MimeGlobMatchResult &result, CacheFile *cacheFile, int offset, const QString &fileName);
+//    bool matchSuffixTree(MimeGlobMatchResult &result, CacheFile *cacheFile, int numEntries, int firstOffset, const QString &fileName, int charPos, bool caseSensitiveCheck);
+//    bool matchMagicRule(CacheFile *cacheFile, int numMatchlets, int firstOffset, const QByteArray &data);
+//    QString iconForMime(CacheFile *cacheFile, int posListOffset, const QByteArray &inputMime);
+//    void loadMimeTypeList();
+//    void checkCache();
 
-    class CacheFileList : public QList<CacheFile *>
-    {
-    public:
-        CacheFile *findCacheFile(const QString &fileName) const;
-        bool checkCacheChanged();
-    };
-    CacheFileList m_cacheFiles;
-    QStringList m_cacheFileNames;
-    QSet<QString> m_mimetypeNames;
-    bool m_mimetypeListLoaded;
-};
+//    class CacheFileList : public QList<CacheFile *>
+//    {
+//    public:
+//        CacheFile *findCacheFile(const QString &fileName) const;
+//        bool checkCacheChanged();
+//    };
+//    CacheFileList m_cacheFiles;
+//    QStringList m_cacheFileNames;
+//    QSet<QString> m_mimetypeNames;
+//    bool m_mimetypeListLoaded;
+//};
 
 /*
    Parses the raw XML files (slower)
