@@ -33,8 +33,13 @@ import struct
 import sys
 import base64
 import re
-import subprocess
 import time
+try:
+    import subprocess
+    hasSubprocess = True
+except:
+    hasSubprocess = False
+    hasPlot = False
 
 if sys.version_info[0] >= 3:
     xrange = range
@@ -78,62 +83,62 @@ SeparateUtf8StringFormat \
 # matplot based display for array-like structures.
 #
 try:
-    # FIXME: That might not be the one we want.
-    pythonExecutable = sys.executable
-    subprocess.check_call([pythonExecutable, '-c', 'import matplotlib'])
+    import matplotlib
     hasPlot = True
 except:
     hasPlot = False
 
+if hasSubprocess and hasPlot:
+    matplotFigure = {}
+    matplotCount = 0
 
-matplotFigure = {}
-matplotCount = 0
+    devNull = open(os.devnull)
+    # FIXME: That might not be the one we want.
+    pythonExecutable = sys.executable
+    matplotProc = subprocess.Popen(args=[pythonExecutable, "-i"],
+                bufsize=0, stdin=subprocess.PIPE, stdout=devNull, stderr=devNull)
 
-devNull = open(os.devnull)
-matplotProc = subprocess.Popen(args=[pythonExecutable, "-i"],
-            bufsize=0, stdin=subprocess.PIPE, stdout=devNull, stderr=devNull)
-
-matplotProc.stdin.write(b"import sys\n")
-matplotProc.stdin.write(b"sys.ps1=''\n")
-matplotProc.stdin.write(b"from matplotlib import pyplot\n")
-matplotProc.stdin.write(b"import time\n")
-matplotProc.stdin.write(b"pyplot.ion()\n")
-matplotProc.stdin.flush()
-
-def matplotSend(iname, show, data):
-    global matplotFigure
-    global matplotCount
-
-    def s(line):
-        matplotProc.stdin.write(line.encode("latin1"))
-        matplotProc.stdin.write(b"\n")
-        sys.stdout.flush()
-        matplotProc.stdin.flush()
-
-    if show:
-        s("pyplot.ion()")
-        if not iname in matplotFigure:
-            matplotCount += 1
-            matplotFigure[iname] = matplotCount
-        s("pyplot.figure(%s)" % matplotFigure[iname])
-        s("pyplot.suptitle('%s')" % iname)
-        s("data = %s" % data)
-        s("pyplot.plot([i for i in range(len(data))], data, 'b.')")
-        time.sleep(0.2)
-        s("pyplot.draw()")
-        matplotProc.stdin.flush()
-    else:
-        if iname in matplotFigure:
-            s("pyplot.figure(%s)" % matplotFigure[iname])
-            s("pyplot.close()")
-            del matplotFigure[iname]
-
+    matplotProc.stdin.write(b"import sys\n")
+    matplotProc.stdin.write(b"sys.ps1=''\n")
+    matplotProc.stdin.write(b"from matplotlib import pyplot\n")
+    matplotProc.stdin.write(b"import time\n")
+    matplotProc.stdin.write(b"pyplot.ion()\n")
     matplotProc.stdin.flush()
 
-def matplotQuit():
-    matplotProc.stdin.write(b"exit")
-    matplotProc.kill()
-    devNull.close()
+    def matplotSend(iname, show, data):
+        global matplotFigure
+        global matplotCount
+
+        def s(line):
+            matplotProc.stdin.write(line.encode("latin1"))
+            matplotProc.stdin.write(b"\n")
+            sys.stdout.flush()
+            matplotProc.stdin.flush()
+
+        if show:
+            s("pyplot.ion()")
+            if not iname in matplotFigure:
+                matplotCount += 1
+                matplotFigure[iname] = matplotCount
+            s("pyplot.figure(%s)" % matplotFigure[iname])
+            s("pyplot.suptitle('%s')" % iname)
+            s("data = %s" % data)
+            s("pyplot.plot([i for i in range(len(data))], data, 'b.')")
+            time.sleep(0.2)
+            s("pyplot.draw()")
+            matplotProc.stdin.flush()
+        else:
+            if iname in matplotFigure:
+                s("pyplot.figure(%s)" % matplotFigure[iname])
+                s("pyplot.close()")
+                del matplotFigure[iname]
+
+        matplotProc.stdin.flush()
+
+    def matplotQuit():
+        matplotProc.stdin.write(b"exit")
+        matplotProc.kill()
+        devNull.close()
 
 def arrayForms():
     global hasPlot
