@@ -119,8 +119,9 @@ Core::Id SubversionClient::vcsEditorKind(VcsCommandTag cmd) const
     switch (cmd) {
     case VcsBaseClient::LogCommand: return Constants::SUBVERSION_LOG_EDITOR_ID;
     case VcsBaseClient::AnnotateCommand: return Constants::SUBVERSION_BLAME_EDITOR_ID;
+    default:
+        return Core::Id();
     }
-    return Core::Id();
 }
 
 // Add authorization options to the command line arguments.
