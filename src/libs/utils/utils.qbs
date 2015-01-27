@@ -260,6 +260,29 @@ QtcLibrary {
         ]
     }
 
+    Group {
+        name: "MimeTypes"
+        prefix: "mimetypes/"
+        files: [
+            "mimedatabase.cpp",
+            "mimedatabase.h",
+            "mimedatabase_p.h",
+            "mimeglobpattern.cpp",
+            "mimeglobpattern_p.h",
+            "mimemagicrule.cpp",
+            "mimemagicrule_p.h",
+            "mimemagicrulematcher.cpp",
+            "mimemagicrulematcher_p.h",
+            "mimeprovider.cpp",
+            "mimeprovider_p.h",
+            "mimetype.cpp",
+            "mimetype.h",
+            "mimetype_p.h",
+            "mimetypeparser.cpp",
+            "mimetypeparser_p.h",
+        ]
+    }
+
     Export {
         Depends { name: "Qt"; submodules: ["concurrent", "widgets" ] }
     }

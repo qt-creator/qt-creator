@@ -201,3 +201,5 @@ osx {
         $$PWD/fileutils_mac.mm
     LIBS += -framework Foundation
 }
+
+include(mimetypes/mimetypes.pri)
