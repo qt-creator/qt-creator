@@ -172,6 +172,14 @@ Qt::CheckState TestTreeItem::checked() const
     return Qt::Unchecked;
 }
 
+QList<QString> TestTreeItem::getChildNames() const
+{
+    QList<QString> names;
+    foreach (TestTreeItem *item, m_children)
+        names << item->name();
+    return names;
+}
+
 void TestTreeItem::revalidateCheckState()
 {
     if (m_children.size() == 0)

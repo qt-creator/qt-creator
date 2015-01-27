@@ -53,10 +53,11 @@ TestCodeParser::TestCodeParser(TestTreeModel *parent)
       m_pendingUpdate(false)
 {
     // connect to ProgressManager to post-pone test parsing when CppModelManager is parsing
-    Core::ProgressManager *pm = qobject_cast<Core::ProgressManager *>(
-                Core::ProgressManager::instance());
-    connect(pm, &Core::ProgressManager::taskStarted, this, &TestCodeParser::onTaskStarted);
-    connect(pm, &Core::ProgressManager::allTasksFinished, this, &TestCodeParser::onAllTasksFinished);
+    auto progressManager = qobject_cast<Core::ProgressManager *>(Core::ProgressManager::instance());
+    connect(progressManager, &Core::ProgressManager::taskStarted,
+            this, &TestCodeParser::onTaskStarted);
+    connect(progressManager, &Core::ProgressManager::allTasksFinished,
+            this, &TestCodeParser::onAllTasksFinished);
 }
 
 TestCodeParser::~TestCodeParser()
@@ -91,8 +92,8 @@ void TestCodeParser::updateTestTree()
     m_model->removeAllAutoTests();
     m_model->removeAllQuickTests();
 
-    if (ProjectExplorer::Project *proj = currentProject()) {
-        if (auto qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(proj)) {
+    if (ProjectExplorer::Project *project = currentProject()) {
+        if (auto qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(project)) {
             connect(qmakeProject, &QmakeProjectManager::QmakeProject::proFilesEvaluated,
                     this, &TestCodeParser::onProFileEvaluated, Qt::UniqueConnection);
         }
@@ -200,10 +201,11 @@ static QString quickTestSrcDir(const CppTools::CppModelManager *cppMM,
     return QString();
 }
 
-static QString testClass(const CPlusPlus::Document::Ptr &doc)
+static QString testClass(const CppTools::CppModelManager *modelManager,
+                         CPlusPlus::Document::Ptr &document)
 {
     static const QByteArray qtTestMacros[] = {"QTEST_MAIN", "QTEST_APPLESS_MAIN", "QTEST_GUILESS_MAIN"};
-    const QList<CPlusPlus::Document::MacroUse> macros = doc->macroUses();
+    const QList<CPlusPlus::Document::MacroUse> macros = document->macroUses();
 
     foreach (const CPlusPlus::Document::MacroUse &macro, macros) {
         if (!macro.isFunctionLike())
@@ -211,10 +213,19 @@ static QString testClass(const CPlusPlus::Document::Ptr &doc)
         const QByteArray name = macro.macro().name();
         if (name == qtTestMacros[0] || name == qtTestMacros[1] || name == qtTestMacros[2]) {
             const CPlusPlus::Document::Block arg = macro.arguments().at(0);
-            return QLatin1String(getFileContent(doc->fileName()).mid(arg.bytesBegin(), arg.bytesEnd() - arg.bytesBegin()));
+            return QLatin1String(getFileContent(document->fileName())
+                                 .mid(arg.bytesBegin(), arg.bytesEnd() - arg.bytesBegin()));
         }
     }
-    return QString();
+    // check if one has used a self-defined macro or QTest::qExec() directly
+    const CPlusPlus::Snapshot snapshot = modelManager->snapshot();
+    const QByteArray fileContent = getFileContent(document->fileName());
+    document = snapshot.preprocessedDocument(fileContent, document->fileName());
+    document->check();
+    CPlusPlus::AST *ast = document->translationUnit()->ast();
+    TestAstVisitor astVisitor(document);
+    astVisitor.accept(ast);
+    return astVisitor.className();
 }
 
 static QString quickTestName(const CPlusPlus::Document::Ptr &doc)
@@ -228,7 +239,8 @@ static QString quickTestName(const CPlusPlus::Document::Ptr &doc)
         const QByteArray name = macro.macro().name();
         if (name == qtTestMacros[0] || name == qtTestMacros[1] || name == qtTestMacros[2]) {
             CPlusPlus::Document::Block arg = macro.arguments().at(0);
-            return QLatin1String(getFileContent(doc->fileName()).mid(arg.bytesBegin(), arg.bytesEnd() - arg.bytesBegin()));
+            return QLatin1String(getFileContent(doc->fileName())
+                                 .mid(arg.bytesBegin(), arg.bytesEnd() - arg.bytesBegin()));
         }
     }
     return QString();
@@ -268,323 +280,186 @@ static QList<QmlJS::Document::Ptr> scanDirectoryForQuickTestQmlFiles(const QStri
     return foundDocs;
 }
 
+static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
+                                                  const QString &testCaseName,
+                                                  unsigned *line, unsigned *column)
+{
+    CPlusPlus::Document::Ptr declaringDoc = doc;
+    const CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
+    CPlusPlus::TypeOfExpression typeOfExpr;
+    typeOfExpr.init(doc, cppMM->snapshot());
+
+    auto  lookupItems = typeOfExpr(testCaseName.toUtf8(), doc->globalNamespace());
+    if (lookupItems.size()) {
+        CPlusPlus::Class *toeClass = lookupItems.first().declaration()->asClass();
+        if (toeClass) {
+            const QString declFileName = QLatin1String(toeClass->fileId()->chars(),
+                                                       toeClass->fileId()->size());
+            declaringDoc = cppMM->snapshot().document(declFileName);
+            *line = toeClass->line();
+            *column = toeClass->column() - 1;
+        }
+    }
+    return declaringDoc;
+}
+
+static TestTreeItem *constructTestTreeItem(const QString &fileName,
+                                           const QString &mainFile,  // used for Quick Tests only
+                                           const QString &testCaseName,
+                                           int line, int column,
+                                           const QMap<QString, TestCodeLocationAndType> functions,
+                                           TestTreeItem *rootItem)
+{
+    TestTreeItem *treeItem = new TestTreeItem(testCaseName, fileName, TestTreeItem::TEST_CLASS, rootItem);
+    treeItem->setMainFile(mainFile); // used for Quick Tests only
+    treeItem->setLine(line);
+    treeItem->setColumn(column);
+
+    foreach (const QString &functionName, functions.keys()) {
+        const TestCodeLocationAndType locationAndType = functions.value(functionName);
+        TestTreeItem *treeItemChild = new TestTreeItem(functionName, locationAndType.m_fileName,
+                                                       locationAndType.m_type, treeItem);
+        treeItemChild->setLine(locationAndType.m_line);
+        treeItemChild->setColumn(locationAndType.m_column);
+        treeItem->appendChild(treeItemChild);
+    }
+    return treeItem;
+}
+
 /****** end of helpers ******/
 
-void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr doc)
+void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr document)
 {
-    const QString file = doc->fileName();
-    const CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
+    const QString fileName = document->fileName();
+    const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
 
-    QList<CppTools::ProjectPart::Ptr> projParts = cppMM->projectPart(file);
+    QList<CppTools::ProjectPart::Ptr> projParts = modelManager->projectPart(fileName);
     if (projParts.size())
         if (!projParts.at(0)->selectedForBuilding) {
-            removeTestsIfNecessary(file);
+            removeTestsIfNecessary(fileName);
             return;
         }
 
-    if (includesQtQuickTest(doc, cppMM)) {
-        handleQtQuickTest(doc);
+    if (includesQtQuickTest(document, modelManager)) {
+        handleQtQuickTest(document);
         return;
     }
 
-    if (includesQtTest(doc, cppMM) && qtTestLibDefined(cppMM, file)) {
-        QString tc(testClass(doc));
-        if (tc.isEmpty()) {
-            // one might have used an approach without macros or defined own macros
-            const CPlusPlus::Snapshot snapshot = cppMM->snapshot();
-            const QByteArray fileContent = getFileContent(file);
-            doc = snapshot.preprocessedDocument(fileContent, file);
-            doc->check();
-            CPlusPlus::AST *ast = doc->translationUnit()->ast();
-            TestAstVisitor astVisitor(doc);
-            astVisitor.accept(ast);
-            tc = astVisitor.className();
-        }
-        if (!tc.isEmpty()) {
-            // construct the new/modified TestTreeItem
+    if (includesQtTest(document, modelManager) && qtTestLibDefined(modelManager, fileName)) {
+        QString testCaseName(testClass(modelManager, document));
+        if (!testCaseName.isEmpty()) {
+            unsigned line = 0;
+            unsigned column = 0;
+            CPlusPlus::Document::Ptr declaringDoc = declaringDocument(document, testCaseName,
+                                                                      &line, &column);
+            if (declaringDoc.isNull())
+                return;
+
+            TestVisitor visitor(testCaseName);
+            visitor.accept(declaringDoc->globalNamespace());
+            const QMap<QString, TestCodeLocationAndType> testFunctions = visitor.privateSlots();
+
             const QModelIndex autoTestRootIndex = m_model->index(0, 0);
             TestTreeItem *autoTestRootItem = static_cast<TestTreeItem *>(autoTestRootIndex.internalPointer());
-            TestTreeItem *ttItem = new TestTreeItem(tc, file, TestTreeItem::TEST_CLASS,
-                                                    autoTestRootItem);
-            QString declFileName;
-            CPlusPlus::TypeOfExpression toe;
-            toe.init(doc, cppMM->snapshot());
-            CPlusPlus::Document::Ptr declaringDoc = doc;
-            const QList<CPlusPlus::LookupItem>  toeItems = toe(tc.toUtf8(), doc->globalNamespace());
-            if (toeItems.size()) {
-                CPlusPlus::Class *toeClass = toeItems.first().declaration()->asClass();
-                if (toeClass) {
-                    declFileName = QLatin1String(toeClass->fileId()->chars(),
-                                                 toeClass->fileId()->size());
-                    declaringDoc = cppMM->snapshot().document(declFileName);
-                    ttItem->setFilePath(declFileName);
-                    ttItem->setLine(toeClass->line());
-                    ttItem->setColumn(toeClass->column() - 1);
-                }
-            }
-            if (declaringDoc.isNull()) {
-                delete ttItem;
-                return;
-            }
-            TestVisitor myVisitor(tc);
-            myVisitor.accept(declaringDoc->globalNamespace());
-            const QMap<QString, TestCodeLocationAndType> privSlots = myVisitor.privateSlots();
-            foreach (const QString &privS, privSlots.keys()) {
-                const TestCodeLocationAndType locationAndType = privSlots.value(privS);
-                TestTreeItem *ttSub = new TestTreeItem(privS, locationAndType.m_fileName,
-                                                       locationAndType.m_type, ttItem);
-                ttSub->setLine(locationAndType.m_line);
-                ttSub->setColumn(locationAndType.m_column);
-                ttItem->appendChild(ttSub);
-            }
 
-            // TODO refactoring?
-            // update model and internal map
-            QString proFile;
-            QList<CppTools::ProjectPart::Ptr> ppList = cppMM->projectPart(file);
-            if (ppList.size())
-                proFile = ppList.at(0)->projectFile;
-
-            TestInfo info;
-            int count;
-            if (m_cppDocMap.contains(file)) {
-                info = m_cppDocMap.value(file);
-                count = autoTestRootItem->childCount();
-                for (int i = 0; i < count; ++i) {
-                    TestTreeItem *currentItem = autoTestRootItem->child(i);
-                    if (currentItem->filePath() == file) {
-                        m_model->modifyAutoTestSubtree(i, ttItem);
-                        TestInfo ti(tc, privSlots.keys(), doc->revision(), doc->editorRevision());
-                        ti.setProfile(proFile);
-                        m_cppDocMap.insert(file, ti);
-                        break;
-                    }
+            TestTreeItem *ttItem = constructTestTreeItem(declaringDoc->fileName(), QString(),
+                                                         testCaseName, line, column, testFunctions,
+                                                         autoTestRootItem);
+            updateModelAndCppDocMap(document, declaringDoc->fileName(), ttItem, autoTestRootItem);
+        } else {
+            // could not find the class to test, but QTest is included and QT_TESTLIB_LIB defined
+            // maybe file is only a referenced file
+            if (m_cppDocMap.contains(fileName)) {
+                const TestInfo info = m_cppDocMap[fileName];
+                CPlusPlus::Snapshot snapshot = modelManager->snapshot();
+                if (snapshot.contains(info.referencingFile())) {
+                    checkDocumentForTestCode(snapshot.find(info.referencingFile()).value());
+                } else { // no referencing file too, so this test case is no more a test case
+                    m_model->removeAutoTestSubtreeByFilePath(fileName);
+                    m_cppDocMap.remove(fileName);
                 }
-                if (declFileName != file) {
-                    info = m_cppDocMap.value(declFileName);
-                    count = autoTestRootItem->childCount();
-                    for (int i = 0; i < count; ++i) {
-                        TestTreeItem *currentItem = autoTestRootItem->child(i);
-                        if (currentItem->filePath() == declFileName) {
-                            m_model->modifyAutoTestSubtree(i, ttItem);
-                            TestInfo ti(tc, privSlots.keys(), doc->revision(),
-                                        doc->editorRevision());
-                            ti.setReferencingFile(file);
-                            ti.setProfile(proFile);
-                            m_cppDocMap.insert(declFileName, ti);
-                            break;
-                        }
-                    }
-                }
-                delete ttItem;
-            } else {
-                m_model->addAutoTest(ttItem);
-                TestInfo ti(tc, privSlots.keys(), doc->revision(), doc->editorRevision());
-                ti.setProfile(proFile);
-                m_cppDocMap.insert(file, ti);
-                if (declFileName != file) {
-                    TestInfo ti(tc, privSlots.keys(), doc->revision(), doc->editorRevision());
-                    ti.setReferencingFile(file);
-                    ti.setProfile(proFile);
-                    m_cppDocMap.insert(declFileName, ti);
-                }
-            }
-        }
-    } else {
-        // could not find the class to test, but QTest is included and QT_TESTLIB_LIB defined
-        // maybe file is only a referenced file
-        if (m_cppDocMap.contains(file)) {
-            const TestInfo info = m_cppDocMap[file];
-            CPlusPlus::Snapshot snapshot = cppMM->snapshot();
-            if (snapshot.contains(info.referencingFile())) {
-                checkDocumentForTestCode(snapshot.find(info.referencingFile()).value());
             }
         }
     }
 }
 
-void TestCodeParser::handleQtQuickTest(CPlusPlus::Document::Ptr doc)
+void TestCodeParser::handleQtQuickTest(CPlusPlus::Document::Ptr document)
 {
-    const CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
+    const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
 
-    if (quickTestName(doc).isEmpty())
+    if (quickTestName(document).isEmpty())
         return;
 
-    const QString srcDir = quickTestSrcDir(cppMM, doc->fileName());
+    const QString fileName = document->fileName();
+    const QString srcDir = quickTestSrcDir(modelManager, fileName);
     if (srcDir.isEmpty())
         return;
 
+    const QModelIndex quickTestRootIndex = m_model->index(1, 0);
+    TestTreeItem *quickTestRootItem = static_cast<TestTreeItem *>(quickTestRootIndex.internalPointer());
+
     const QList<QmlJS::Document::Ptr> qmlDocs = scanDirectoryForQuickTestQmlFiles(srcDir);
-    foreach (const QmlJS::Document::Ptr &d, qmlDocs) {
-        QmlJS::AST::Node *ast = d->ast();
+    foreach (const QmlJS::Document::Ptr &qmlJSDoc, qmlDocs) {
+        QmlJS::AST::Node *ast = qmlJSDoc->ast();
         if (!ast) {
-            qDebug() << "ast is zero pointer" << d->fileName(); // should not happen
+            qDebug() << "ast is zero pointer" << qmlJSDoc->fileName(); // should not happen
             continue;
         }
-        TestQmlVisitor qmlVisitor(d);
+        TestQmlVisitor qmlVisitor(qmlJSDoc);
         QmlJS::AST::Node::accept(ast, &qmlVisitor);
 
-        const QString tcName = qmlVisitor.testCaseName();
+        const QString testCaseName = qmlVisitor.testCaseName();
         const TestCodeLocationAndType tcLocationAndType = qmlVisitor.testCaseLocation();
         const QMap<QString, TestCodeLocationAndType> testFunctions = qmlVisitor.testFunctions();
 
-        const QModelIndex quickTestRootIndex = m_model->index(1, 0);
-        TestTreeItem *quickTestRootItem = static_cast<TestTreeItem *>(quickTestRootIndex.internalPointer());
-
-        if (tcName.isEmpty()) {
-            // if this test case was named before remove it
-            if (m_quickDocMap.contains(d->fileName())) {
-                m_model->removeQuickTestSubtreeByFilePath(d->fileName());
-                m_quickDocMap.remove(d->fileName());
-            }
-            TestTreeItem *unnamedQTItem = m_model->unnamedQuickTests();
-            if (unnamedQTItem) {
-                // remove unnamed quick tests that are already found for this qml file
-                if (m_model->removeUnnamedQuickTests(d->fileName())) {
-                    // make sure m_quickDocMap does not have a inconsistent state now
-                    TestInfo ti = m_quickDocMap[tr(Constants::UNNAMED_QUICKTESTS)];
-                    QStringList tiFunctions = ti.testFunctions();
-                    foreach (const QString &func, testFunctions.keys())
-                        tiFunctions.removeOne(func);
-                    ti.setTestFunctions(tiFunctions);
-                    if (tiFunctions.size() == 0)
-                        m_quickDocMap.remove(tr(Constants::UNNAMED_QUICKTESTS));
-                    else
-                        m_quickDocMap.insert(tr(Constants::UNNAMED_QUICKTESTS), ti);
-                }
-                // as removeUnnamedQuickTests() could delete this item itself try to get it again
-                unnamedQTItem = m_model->unnamedQuickTests();
-            }
-            // construct new/modified TestTreeItem
-            TestTreeItem *ttItem = new TestTreeItem(QString(), QString(),
-                                                    TestTreeItem::TEST_CLASS,
-                                                    quickTestRootItem);
-            if (unnamedQTItem) {
-                for (int i = 0, count = unnamedQTItem->childCount(); i < count; ++i) {
-                    TestTreeItem *child = new TestTreeItem(*unnamedQTItem->child(i));
-                    child->setParent(ttItem);
-                    ttItem->appendChild(child);
-                }
-            }
-
-            foreach (const QString &func, testFunctions.keys()) {
-                const TestCodeLocationAndType locationAndType = testFunctions.value(func);
-                TestTreeItem *ttSub = new TestTreeItem(func, locationAndType.m_fileName,
-                                                       locationAndType.m_type, ttItem);
-                ttSub->setLine(locationAndType.m_line);
-                ttSub->setColumn(locationAndType.m_column);
-                ttSub->setMainFile(doc->fileName());
-                ttItem->appendChild(ttSub);
-            }
-            TestInfo info = m_quickDocMap.contains(tr(Constants::UNNAMED_QUICKTESTS))
-                    ? m_quickDocMap[tr(Constants::UNNAMED_QUICKTESTS)]
-                    : TestInfo(QString(), QStringList(), 666);
-            QStringList originalFunctions(info.testFunctions());
-            foreach (const QString &func, testFunctions.keys())
-                originalFunctions.append(func);
-            info.setTestFunctions(originalFunctions);
-
-            if (unnamedQTItem) {
-                m_model->modifyQuickTestSubtree(unnamedQTItem->row(), ttItem);
-                delete ttItem;
-            } else {
-                m_model->addQuickTest(ttItem);
-            }
-            m_quickDocMap.insert(tr(Constants::UNNAMED_QUICKTESTS), info);
-
+        if (testCaseName.isEmpty()) {
+            // remove found test functions before re-adding them
+            removeUnnamedQuickTests(qmlJSDoc->fileName(), testFunctions.keys());
+            // re-create TestTreeItem for unnamed Quick Tests
+            recreateUnnamedQuickTest(testFunctions, fileName, quickTestRootItem);
             continue;
         } // end of handling test cases without name property
 
         // construct new/modified TestTreeItem
-        TestTreeItem *ttItem = new TestTreeItem(tcName, tcLocationAndType.m_fileName,
-                                                tcLocationAndType.m_type, quickTestRootItem);
-        ttItem->setLine(tcLocationAndType.m_line);
-        ttItem->setColumn(tcLocationAndType.m_column);
-        ttItem->setMainFile(doc->fileName());
-
-        foreach (const QString &func, testFunctions.keys()) {
-            const TestCodeLocationAndType locationAndType = testFunctions.value(func);
-            TestTreeItem *ttSub = new TestTreeItem(func, locationAndType.m_fileName,
-                                                   locationAndType.m_type, ttItem);
-            ttSub->setLine(locationAndType.m_line);
-            ttSub->setColumn(locationAndType.m_column);
-            ttItem->appendChild(ttSub);
-        }
+        TestTreeItem *testTreeItem
+                = constructTestTreeItem(tcLocationAndType.m_fileName, fileName, testCaseName,
+                                        tcLocationAndType.m_line, tcLocationAndType.m_column,
+                                        testFunctions, quickTestRootItem);
 
         // update model and internal map
-        const QString fileName(tcLocationAndType.m_fileName);
         const QmlJS::Document::Ptr qmlDoc =
-                QmlJSTools::Internal::ModelManager::instance()->snapshot().document(fileName);
-        QString proFile;
-        QList<CppTools::ProjectPart::Ptr> ppList = cppMM->projectPart(doc->fileName());
-        if (ppList.size())
-            proFile = ppList.at(0)->projectFile;
-
-        if (m_quickDocMap.contains(fileName)) {
-            for (int i = 0; i < quickTestRootItem->childCount(); ++i) {
-                if (quickTestRootItem->child(i)->filePath() == fileName) {
-                    m_model->modifyQuickTestSubtree(i, ttItem);
-                    TestInfo ti(tcName, testFunctions.keys(), 0, qmlDoc->editorRevision());
-                    ti.setReferencingFile(doc->fileName());
-                    ti.setProfile(proFile);
-                    m_quickDocMap.insert(fileName, ti);
-                    break;
-                }
-            }
-            delete ttItem;
-        } else {
-            // if it was formerly unnamed remove the respective items
-            if (m_quickDocMap.contains(tr(Constants::UNNAMED_QUICKTESTS))) {
-                if (m_model->removeUnnamedQuickTests(d->fileName())) {
-                    // make sure m_quickDocMap does not have a inconsistent state now
-                    TestInfo unnamedInfo = m_quickDocMap[tr(Constants::UNNAMED_QUICKTESTS)];
-                    QStringList functions = unnamedInfo.testFunctions();
-                    foreach (const QString &func, testFunctions.keys())
-                        if (functions.contains(func))
-                            functions.removeOne(func);
-                    unnamedInfo.setTestFunctions(functions);
-                    if (functions.size() == 0)
-                        m_quickDocMap.remove(tr(Constants::UNNAMED_QUICKTESTS));
-                    else
-                        m_quickDocMap.insert(tr(Constants::UNNAMED_QUICKTESTS), unnamedInfo);
-                }
-            }
-
-            m_model->addQuickTest(ttItem);
-            TestInfo ti(tcName, testFunctions.keys(), 0, qmlDoc->editorRevision());
-            ti.setReferencingFile(doc->fileName());
-            ti.setProfile(proFile);
-            m_quickDocMap.insert(tcLocationAndType.m_fileName, ti);
-        }
+                QmlJSTools::Internal::ModelManager::instance()->snapshot().document(tcLocationAndType.m_fileName);
+        updateModelAndQuickDocMap(qmlDoc, qmlJSDoc->fileName(), fileName, testTreeItem,
+                                  quickTestRootItem);
     }
 }
 
-void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &doc)
+void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &document)
 {
     ProjectExplorer::Project *project = currentProject();
     if (!project)
         return;
-    const QString fileName = doc->fileName();
+    const QString fileName = document->fileName();
     if (m_cppDocMap.contains(fileName)) {
-        if (m_cppDocMap[fileName].revision() == doc->revision()
-                && m_cppDocMap[fileName].editorRevision() == doc->editorRevision()) {
+        if (m_cppDocMap[fileName].revision() == document->revision()
+                && m_cppDocMap[fileName].editorRevision() == document->editorRevision()) {
             qDebug("Skipped due revision equality"); // added to verify if this ever happens..
             return;
         }
     } else if (!project->files(ProjectExplorer::Project::AllFiles).contains(fileName)) {
         return;
     }
-    checkDocumentForTestCode(doc);
+    checkDocumentForTestCode(document);
 }
 
-void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &doc)
+void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
 {
     ProjectExplorer::Project *project = currentProject();
     if (!project)
         return;
-    const QString fileName = doc->fileName();
+    const QString fileName = document->fileName();
     if (m_quickDocMap.contains(fileName)) {
-        if ((int)m_quickDocMap[fileName].editorRevision() == doc->editorRevision()) {
+        if ((int)m_quickDocMap[fileName].editorRevision() == document->editorRevision()) {
             qDebug("Skipped due revision equality (QML)"); // added to verify this ever happens....
             return;
         }
@@ -692,29 +567,28 @@ void TestCodeParser::removeTestsIfNecessary(const QString &fileName)
     }
 }
 
-
 void TestCodeParser::removeTestsIfNecessaryByProFile(const QString &proFile)
 {
-    QList<QString> fl;
-    foreach (const QString &fn, m_cppDocMap.keys()) {
-        if (m_cppDocMap[fn].proFile() == proFile)
-            fl.append(fn);
+    QList<QString> fList;
+    foreach (const QString &fileName, m_cppDocMap.keys()) {
+        if (m_cppDocMap[fileName].proFile() == proFile)
+            fList.append(fileName);
     }
-    foreach (const QString &fn, fl) {
-        m_cppDocMap.remove(fn);
-        m_model->removeAutoTestSubtreeByFilePath(fn);
+    foreach (const QString &fileName, fList) {
+        m_cppDocMap.remove(fileName);
+        m_model->removeAutoTestSubtreeByFilePath(fileName);
     }
-    fl.clear();
-    foreach (const QString &fn, m_quickDocMap.keys()) {
-       if (m_quickDocMap[fn].proFile() == proFile)
-           fl.append(fn);
+    fList.clear();
+    foreach (const QString &fileName, m_quickDocMap.keys()) {
+       if (m_quickDocMap[fileName].proFile() == proFile)
+           fList.append(fileName);
     }
-    foreach (const QString &fn, fl) {
-        m_quickDocMap.remove(fn);
-        m_model->removeQuickTestSubtreeByFilePath(fn);
+    foreach (const QString &fileName, fList) {
+        m_quickDocMap.remove(fileName);
+        m_model->removeQuickTestSubtreeByFilePath(fileName);
     }
     // handle unnamed Quick Tests
-    fl.clear(); // will now be re-used as function names storage
+    fList.clear(); // will now be re-used as function names storage
     QSet<QString> filePaths;
     CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
     if (TestTreeItem *unnamedQT = m_model->unnamedQuickTests()) {
@@ -723,23 +597,91 @@ void TestCodeParser::removeTestsIfNecessaryByProFile(const QString &proFile)
             QList<CppTools::ProjectPart::Ptr> ppList = cppMM->projectPart(child->mainFile());
             if (ppList.size() && ppList.at(0)->projectFile == proFile) {
                 filePaths.insert(child->filePath());
-                fl.append(child->name());
+                fList.append(child->name());
             }
         }
     }
-    foreach (const QString &fp, filePaths) {
-        m_model->removeUnnamedQuickTests(fp);
+    foreach (const QString &filePath, filePaths) {
+        m_model->removeUnnamedQuickTests(filePath);
     }
     // update info map
     TestInfo unnamedInfo = m_quickDocMap[tr(Constants::UNNAMED_QUICKTESTS)];
     QStringList functions = unnamedInfo.testFunctions();
-    foreach (const QString &func, fl)
-        functions.removeOne(func);
+    foreach (const QString &function, fList)
+        functions.removeOne(function);
     unnamedInfo.setTestFunctions(functions);
     if (functions.size() == 0)
         m_quickDocMap.remove(tr(Constants::UNNAMED_QUICKTESTS));
     else
         m_quickDocMap.insert(tr(Constants::UNNAMED_QUICKTESTS), unnamedInfo);
+}
+
+void TestCodeParser::removeUnnamedQuickTests(const QString &fileName,
+                                             const QStringList &testFunctions)
+{
+    // if this test case was named before remove it
+    if (m_quickDocMap.contains(fileName)) {
+        m_model->removeQuickTestSubtreeByFilePath(fileName);
+        m_quickDocMap.remove(fileName);
+    }
+
+    if (m_model->unnamedQuickTests()) {
+        // remove unnamed quick tests that are already found for this qml file
+        if (m_model->removeUnnamedQuickTests(fileName)) {
+            // make sure m_quickDocMap does not have a inconsistent state now
+            TestInfo testInfo = m_quickDocMap[tr(Constants::UNNAMED_QUICKTESTS)];
+            QStringList testFunctionNames = testInfo.testFunctions();
+            foreach (const QString &func, testFunctions)
+                testFunctionNames.removeOne(func);
+            testInfo.setTestFunctions(testFunctionNames);
+            if (testFunctionNames.size() == 0)
+                m_quickDocMap.remove(tr(Constants::UNNAMED_QUICKTESTS));
+            else
+                m_quickDocMap.insert(tr(Constants::UNNAMED_QUICKTESTS), testInfo);
+        }
+    }
+}
+
+void TestCodeParser::recreateUnnamedQuickTest(const QMap<QString, TestCodeLocationAndType> &testFunctions,
+                                              const QString &mainFile, TestTreeItem *rootItem)
+{
+    TestTreeItem *testTreeItem = new TestTreeItem(QString(), QString(), TestTreeItem::TEST_CLASS,
+                                                  rootItem);
+    TestTreeItem *unnamedQTItem = m_model->unnamedQuickTests();
+    // if there are still other unnamed Quick Tests re-parent them to the new
+    if (unnamedQTItem) {
+        for (int i = 0, count = unnamedQTItem->childCount(); i < count; ++i) {
+            TestTreeItem *child = new TestTreeItem(*unnamedQTItem->child(i));
+            child->setParent(testTreeItem);
+            testTreeItem->appendChild(child);
+        }
+    }
+    // add test functions of the current
+    foreach (const QString &function, testFunctions.keys()) {
+        const TestCodeLocationAndType locationAndType = testFunctions.value(function);
+        TestTreeItem *testTreeFunction = new TestTreeItem(function, locationAndType.m_fileName,
+                                                          locationAndType.m_type, testTreeItem);
+        testTreeFunction->setLine(locationAndType.m_line);
+        testTreeFunction->setColumn(locationAndType.m_column);
+        testTreeFunction->setMainFile(mainFile);
+        testTreeItem->appendChild(testTreeFunction);
+    }
+
+    TestInfo info = m_quickDocMap.contains(tr(Constants::UNNAMED_QUICKTESTS))
+            ? m_quickDocMap[tr(Constants::UNNAMED_QUICKTESTS)]
+            : TestInfo(QString(), QStringList(), 666);
+    QStringList originalFunctions(info.testFunctions());
+    foreach (const QString &function, testFunctions.keys())
+        originalFunctions.append(function);
+    info.setTestFunctions(originalFunctions);
+
+    if (unnamedQTItem) {
+        m_model->modifyQuickTestSubtree(unnamedQTItem->row(), testTreeItem);
+        delete testTreeItem;
+    } else {
+        m_model->addQuickTest(testTreeItem);
+    }
+    m_quickDocMap.insert(tr(Constants::UNNAMED_QUICKTESTS), info);
 }
 
 void TestCodeParser::onTaskStarted(Core::Id type)
@@ -760,14 +702,96 @@ void TestCodeParser::onAllTasksFinished(Core::Id type)
         updateTestTree();
 }
 
+void TestCodeParser::updateModelAndCppDocMap(CPlusPlus::Document::Ptr document,
+                                             const QString &declFileName,
+                                             TestTreeItem *testItem, TestTreeItem *rootItem)
+{
+    const CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
+    const QString fileName = document->fileName();
+    const QString testCaseName = testItem->name();
+    QString proFile;
+    const QList<CppTools::ProjectPart::Ptr> ppList = cppMM->projectPart(fileName);
+    if (ppList.size())
+        proFile = ppList.at(0)->projectFile;
+
+    if (m_cppDocMap.contains(fileName)) {
+        QStringList files = QStringList() << fileName;
+        if (fileName != declFileName)
+            files << declFileName;
+        foreach (const QString &file, files) {
+            const bool setReferencingFile = (files.size() == 2 && file == declFileName);
+            const int count = rootItem->childCount();
+            for (int i = 0; i < count; ++i) {
+                TestTreeItem *currentItem = rootItem->child(i);
+                if (currentItem->filePath() == file) {
+                    m_model->modifyAutoTestSubtree(i, testItem);
+                    TestInfo testInfo(testCaseName, testItem->getChildNames(),
+                                      document->revision(), document->editorRevision());
+                    testInfo.setProfile(proFile);
+                    if (setReferencingFile)
+                        testInfo.setReferencingFile(fileName);
+                    m_cppDocMap.insert(file, testInfo);
+                    break;
+                }
+            }
+        }
+        delete testItem; // this item is no more needed as model updates the original with its content
+    } else {
+        m_model->addAutoTest(testItem);
+        TestInfo ti(testCaseName, testItem->getChildNames(),
+                    document->revision(), document->editorRevision());
+        ti.setProfile(proFile);
+        m_cppDocMap.insert(fileName, ti);
+        if (declFileName != fileName) {
+            ti.setReferencingFile(fileName);
+            m_cppDocMap.insert(declFileName, ti);
+        }
+    }
+}
+
+void TestCodeParser::updateModelAndQuickDocMap(QmlJS::Document::Ptr qmlDoc, const QString &currentQmlJSFile,
+                                               const QString &referencingFileName,
+                                               TestTreeItem *testItem, TestTreeItem *rootItem)
+{
+    const CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
+    const QString fileName = qmlDoc->fileName();
+    QString proFile;
+    QList<CppTools::ProjectPart::Ptr> ppList = cppMM->projectPart(referencingFileName);
+    if (ppList.size())
+        proFile = ppList.at(0)->projectFile;
+
+    if (m_quickDocMap.contains(fileName)) {
+        for (int i = 0; i < rootItem->childCount(); ++i) {
+            if (rootItem->child(i)->filePath() == fileName) {
+                m_model->modifyQuickTestSubtree(i, testItem);
+                TestInfo testInfo(testItem->name(), testItem->getChildNames(), 0, qmlDoc->editorRevision());
+                testInfo.setReferencingFile(referencingFileName);
+                testInfo.setProfile(proFile);
+                m_quickDocMap.insert(fileName, testInfo);
+                break;
+            }
+        }
+        delete testItem; // this item is no more needed as model updates the original with its content
+    } else {
+        // if it was formerly unnamed remove the respective items
+        removeUnnamedQuickTests(currentQmlJSFile, testItem->getChildNames());
+
+        m_model->addQuickTest(testItem);
+        TestInfo testInfo(testItem->name(), testItem->getChildNames(), 0, qmlDoc->editorRevision());
+        testInfo.setReferencingFile(referencingFileName);
+        testInfo.setProfile(proFile);
+        m_quickDocMap.insert(testItem->filePath(), testInfo);
+    }
+}
+
 void TestCodeParser::onProFileEvaluated()
 {
     ProjectExplorer::Project *project = currentProject();
     if (!project)
         return;
 
-    CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
-    const QList<CppTools::ProjectPart::Ptr> pp = cppMM->projectInfo(project).projectParts();
+    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
+    const QList<CppTools::ProjectPart::Ptr> pp = modelManager->projectInfo(project).projectParts();
     foreach (const CppTools::ProjectPart::Ptr &p, pp) {
         if (!p->selectedForBuilding)
             removeTestsIfNecessaryByProFile(p->projectFile);

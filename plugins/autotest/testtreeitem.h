@@ -64,6 +64,7 @@ public:
     Qt::CheckState checked() const;
     Type type() const { return m_type; }
     void setParent(TestTreeItem *parent) { m_parent = parent; }
+    QList<QString> getChildNames() const;
 
 private:
     void revalidateCheckState();
