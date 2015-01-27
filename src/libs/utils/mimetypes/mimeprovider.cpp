@@ -739,7 +739,7 @@ MimeType MimeXMLProvider::findByMagic(const QByteArray &data, int *accuracyPtr)
 
 void MimeXMLProvider::ensureLoaded()
 {
-    if (!m_loaded || shouldCheck()) {
+    if (!m_loaded /*|| shouldCheck()*/) {
         bool fdoXmlFound = false;
         QStringList allFiles;
 
