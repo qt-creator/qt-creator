@@ -47,7 +47,8 @@ public:
     Utils::FileName androiddeployqtPath(ProjectExplorer::Target *target) const;
     Utils::FileName androiddeployJsonPath(ProjectExplorer::Target *target) const;
 
-    void resetBuild(const ProjectExplorer::Target *target);
+    void manifestSaved(const ProjectExplorer::Target *target);
+    Utils::FileName manifestSourcePath(const ProjectExplorer::Target *target);
 };
 
 } // namespace Internal

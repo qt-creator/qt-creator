@@ -33,8 +33,11 @@
 #include "androidpackageinstallationstep.h"
 
 #include <android/androidmanager.h>
+#include <android/androidconfigurations.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
+
+#include <qmakeprojectmanager/qmakebuildinfo.h>
 
 using namespace QmakeAndroidSupport::Internal;
 
@@ -54,17 +57,59 @@ int AndroidQmakeBuildConfigurationFactory::priority(const ProjectExplorer::Targe
     return -1;
 }
 
-ProjectExplorer::BuildConfiguration *AndroidQmakeBuildConfigurationFactory::create(ProjectExplorer::Target *parent, const ProjectExplorer::BuildInfo *info) const
+ProjectExplorer::BuildConfiguration *AndroidQmakeBuildConfigurationFactory::create(ProjectExplorer::Target *parent,
+                                                                                   const ProjectExplorer::BuildInfo *info) const
 {
-    ProjectExplorer::BuildConfiguration *bc = QmakeBuildConfigurationFactory::create(parent, info);
+    auto qmakeInfo = static_cast<const QmakeProjectManager::QmakeBuildInfo *>(info);
+    AndroidQmakeBuildConfiguration *bc = new AndroidQmakeBuildConfiguration(parent);
+    configureBuildConfiguration(parent, bc, qmakeInfo);
+
     ProjectExplorer::BuildStepList *buildSteps = bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
     buildSteps->insertStep(2, new AndroidPackageInstallationStep(buildSteps));
     buildSteps->insertStep(3, new QmakeAndroidBuildApkStep(buildSteps));
-
     return bc;
 }
 
-// should the buildconfiguration have its own id?
-// and implement restore/clone then?
+ProjectExplorer::BuildConfiguration *AndroidQmakeBuildConfigurationFactory::clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source)
+{
+    if (!canClone(parent, source))
+        return 0;
+    AndroidQmakeBuildConfiguration *oldbc(static_cast<AndroidQmakeBuildConfiguration *>(source));
+    return new AndroidQmakeBuildConfiguration(parent, oldbc);
+}
+
+ProjectExplorer::BuildConfiguration *AndroidQmakeBuildConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)
+{
+    if (!canRestore(parent, map))
+        return 0;
+    AndroidQmakeBuildConfiguration *bc = new AndroidQmakeBuildConfiguration(parent);
+    if (bc->fromMap(map))
+        return bc;
+    delete bc;
+    return 0;
+}
 
 
+AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(ProjectExplorer::Target *target)
+    : QmakeProjectManager::QmakeBuildConfiguration(target)
+{
+
+}
+
+AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(ProjectExplorer::Target *target, AndroidQmakeBuildConfiguration *source)
+    : QmakeProjectManager::QmakeBuildConfiguration(target, source)
+{
+
+}
+
+AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(ProjectExplorer::Target *target, Core::Id id)
+    : QmakeProjectManager::QmakeBuildConfiguration(target, id)
+{
+
+}
+
+void AndroidQmakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
+{
+    env.set(QLatin1String("ANDROID_NDK_PLATFORM"),
+            Android::AndroidConfigurations::currentConfig().bestNdkPlatformMatch(Android::AndroidManager::minimumSDK(target())));
+}

@@ -149,7 +149,7 @@ QString AndroidManager::activityName(ProjectExplorer::Target *target)
 int AndroidManager::minimumSDK(ProjectExplorer::Target *target)
 {
     QDomDocument doc;
-    if (!openManifest(target, doc))
+    if (!openXmlFile(doc, AndroidManager::manifestSourcePath(target)))
         return 0;
     QDomElement manifestElem = doc.documentElement();
     QDomElement usesSdk = manifestElem.firstChildElement(QLatin1String("uses-sdk"));
@@ -192,7 +192,18 @@ QString AndroidManager::targetArch(ProjectExplorer::Target *target)
 
 Utils::FileName AndroidManager::dirPath(ProjectExplorer::Target *target)
 {
-    return target->activeBuildConfiguration()->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY));
+    if (target->activeBuildConfiguration())
+        return target->activeBuildConfiguration()->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY));
+    return Utils::FileName();
+}
+
+Utils::FileName AndroidManager::manifestSourcePath(ProjectExplorer::Target *target)
+{
+    AndroidQtSupport *androidQtSupport = AndroidManager::androidQtSupport(target);
+    Utils::FileName source = androidQtSupport->manifestSourcePath(target);
+    if (!source.isEmpty())
+        return source;
+    return manifestPath(target);
 }
 
 Utils::FileName AndroidManager::manifestPath(ProjectExplorer::Target *target)

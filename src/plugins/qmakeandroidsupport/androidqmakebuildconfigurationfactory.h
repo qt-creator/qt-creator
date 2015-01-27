@@ -48,8 +48,21 @@ public:
 
     ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent,
                                                 const ProjectExplorer::BuildInfo *info) const;
-    // The clone and restore from QmakeBuildConfigurationFactory
-    // work for us too.
+    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source);
+    ProjectExplorer::BuildConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
+};
+
+class AndroidQmakeBuildConfiguration : public QmakeProjectManager::QmakeBuildConfiguration
+{
+    friend class AndroidQmakeBuildConfigurationFactory;
+    Q_OBJECT
+public:
+    explicit AndroidQmakeBuildConfiguration(ProjectExplorer::Target *target);
+    AndroidQmakeBuildConfiguration(ProjectExplorer::Target *target, AndroidQmakeBuildConfiguration *source);
+    AndroidQmakeBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
+    void addToEnvironment(Utils::Environment &env) const;
+
+    using BuildConfiguration::emitEnvironmentChanged;
 };
 
 } // namespace Internal

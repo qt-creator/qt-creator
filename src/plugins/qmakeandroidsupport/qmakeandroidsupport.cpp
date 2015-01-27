@@ -31,6 +31,8 @@
 #include "androidpackageinstallationstep.h"
 #include "qmakeandroidbuildapkstep.h"
 #include "qmakeandroidsupport.h"
+#include "androidqmakebuildconfigurationfactory.h"
+#include "qmakeandroidrunconfiguration.h"
 
 #include <android/androidconstants.h>
 #include <android/androidglobal.h>
@@ -131,27 +133,42 @@ Utils::FileName QmakeAndroidSupport::androiddeployJsonPath(ProjectExplorer::Targ
     return Utils::FileName::fromString(inputFile);
 }
 
-void QmakeAndroidSupport::resetBuild(const ProjectExplorer::Target *target)
+void QmakeAndroidSupport::manifestSaved(const ProjectExplorer::Target *target)
 {
-    QmakeBuildConfiguration *bc = qobject_cast<QmakeBuildConfiguration*>(target->activeBuildConfiguration());
-    if (!bc)
-        return;
+    ProjectExplorer::BuildConfiguration *bc = target->activeBuildConfiguration();
+    if (auto qbc = qobject_cast<AndroidQmakeBuildConfiguration *>(bc)) {
+        qbc->emitEnvironmentChanged();
 
-    QMakeStep *qs = bc->qmakeStep();
-    if (!qs)
-        return;
+        QMakeStep *qs = qbc->qmakeStep();
+        if (!qs)
+            return;
 
-    qs->setForced(true);
+        qs->setForced(true);
 
-    ProjectExplorer::BuildManager::buildList(bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN),
-                  ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
-    ProjectExplorer::BuildManager::appendStep(qs, ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
-    bc->setSubNodeBuild(0);
-    // Make the buildconfiguration emit a evironmentChanged() signal
-    // TODO find a better way
-    bool use = bc->useSystemEnvironment();
-    bc->setUseSystemEnvironment(!use);
-    bc->setUseSystemEnvironment(use);
+        ProjectExplorer::BuildManager::buildList(bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN),
+                      ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
+        ProjectExplorer::BuildManager::appendStep(qs, ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
+        qbc->setSubNodeBuild(0);
+    }
+}
+
+Utils::FileName QmakeAndroidSupport::manifestSourcePath(const ProjectExplorer::Target *target)
+{
+    ProjectExplorer::RunConfiguration *rc = target->activeRunConfiguration();
+    if (auto qrc = qobject_cast<QmakeAndroidRunConfiguration *>(rc)) {
+        QString proFilePath = qrc->proFilePath();
+        const auto project = static_cast<QmakeProjectManager::QmakeProject *>(target->project());
+        const QmakeProFileNode *node = project->rootQmakeProjectNode()->findProFileFor(proFilePath);
+        if (node) {
+            QString packageSource = node->singleVariableValue(AndroidPackageSourceDir);
+            if (!packageSource.isEmpty()) {
+                Utils::FileName manifest = Utils::FileName::fromUserInput(packageSource + QLatin1String("/AndroidManifest.xml"));
+                if (manifest.exists())
+                    return manifest;
+            }
+        }
+    }
+    return Utils::FileName();
 }
 
 } // namespace Internal

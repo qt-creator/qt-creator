@@ -105,6 +105,7 @@ public:
     bool setActivePage(EditorPage page);
 
     void preSave();
+    void postSave();
 
     Core::IEditor *editor() const;
     TextEditor::TextEditorWidget *textEditorWidget() const;

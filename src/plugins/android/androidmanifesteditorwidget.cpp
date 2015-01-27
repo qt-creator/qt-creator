@@ -617,6 +617,16 @@ void AndroidManifestEditorWidget::preSave()
     updateInfoBar();
 }
 
+void AndroidManifestEditorWidget::postSave()
+{
+    const QString docPath(m_textEditorWidget->textDocument()->filePath().toString());
+    ProjectExplorer::Project *project = androidProject(docPath);
+    if (Target *target = project->activeTarget()) {
+        AndroidQtSupport *androidQtSupport = AndroidManager::androidQtSupport(target);
+        androidQtSupport->manifestSaved(target);
+    }
+}
+
 Core::IEditor *AndroidManifestEditorWidget::editor() const
 {
     return m_editor;

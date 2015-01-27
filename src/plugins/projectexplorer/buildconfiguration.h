@@ -70,6 +70,8 @@ public:
     bool useSystemEnvironment() const;
     void setUseSystemEnvironment(bool b);
 
+    virtual void addToEnvironment(Utils::Environment &env) const;
+
     QList<Core::Id> knownStepLists() const;
     BuildStepList *stepList(Core::Id id) const;
 
@@ -100,13 +102,13 @@ protected:
 
     virtual void setBuildDirectory(const Utils::FileName &dir);
     void cloneSteps(BuildConfiguration *source);
+    void emitEnvironmentChanged();
 
 private slots:
     void handleKitUpdate();
     void emitBuildDirectoryChanged();
 
 private:
-    void emitEnvironmentChanged();
     void ctor();
 
     bool m_clearSystemEnvironment;

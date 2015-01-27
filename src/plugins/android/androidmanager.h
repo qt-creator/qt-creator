@@ -77,6 +77,7 @@ public:
 
     static Utils::FileName dirPath(ProjectExplorer::Target *target);
     static Utils::FileName manifestPath(ProjectExplorer::Target *target);
+    static Utils::FileName manifestSourcePath(ProjectExplorer::Target *target);
     static Utils::FileName libsPath(ProjectExplorer::Target *target);
     static Utils::FileName defaultPropertiesPath(ProjectExplorer::Target *target);
 

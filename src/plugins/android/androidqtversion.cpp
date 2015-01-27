@@ -103,24 +103,10 @@ QList<Abi> AndroidQtVersion::detectQtAbis() const
 
 void AndroidQtVersion::addToEnvironment(const Kit *k, Utils::Environment &env) const
 {
+    Q_UNUSED(k);
     // this env vars are used by qmake mkspecs to generate makefiles (check QTDIR/mkspecs/android-g++/qmake.conf for more info)
     env.set(QLatin1String("ANDROID_NDK_HOST"), AndroidConfigurations::currentConfig().toolchainHost());
     env.set(QLatin1String("ANDROID_NDK_ROOT"), AndroidConfigurations::currentConfig().ndkLocation().toUserOutput());
-
-    Project *project = ProjectTree::currentProject();
-    if (!project || !project->activeTarget()
-            || QtSupport::QtKitInformation::qtVersion(k)->type() != QLatin1String(Constants::ANDROIDQT))
-        return;
-
-    Target *target = project->activeTarget();
-    if (DeviceTypeKitInformation::deviceTypeId(target->kit()) != Constants::ANDROID_DEVICE_TYPE)
-        return;
-    if (AndroidConfigurations::currentConfig().ndkLocation().isEmpty()
-            || AndroidConfigurations::currentConfig().sdkLocation().isEmpty())
-        return;
-
-    env.set(QLatin1String("ANDROID_NDK_PLATFORM"),
-            AndroidConfigurations::currentConfig().bestNdkPlatformMatch(AndroidManager::minimumSDK(target)));
 }
 
 Utils::Environment AndroidQtVersion::qmakeRunEnvironment() const

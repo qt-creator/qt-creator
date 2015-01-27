@@ -235,6 +235,7 @@ Utils::Environment BuildConfiguration::baseEnvironment() const
     if (useSystemEnvironment())
         result = Utils::Environment::systemEnvironment();
     target()->kit()->addToEnvironment(result);
+    addToEnvironment(result);
     return result;
 }
 
@@ -257,6 +258,11 @@ void BuildConfiguration::setUseSystemEnvironment(bool b)
         return;
     m_clearSystemEnvironment = !b;
     emitEnvironmentChanged();
+}
+
+void BuildConfiguration::addToEnvironment(Utils::Environment &env) const
+{
+    Q_UNUSED(env);
 }
 
 bool BuildConfiguration::useSystemEnvironment() const
@@ -314,10 +320,22 @@ IBuildConfigurationFactory::~IBuildConfigurationFactory()
 // restore
 IBuildConfigurationFactory *IBuildConfigurationFactory::find(Target *parent, const QVariantMap &map)
 {
-    return ExtensionSystem::PluginManager::getObject<IBuildConfigurationFactory>(
-        [&parent, map](IBuildConfigurationFactory *factory) {
-            return factory->canRestore(parent, map);
-        });
+    QList<IBuildConfigurationFactory *> factories
+            = ExtensionSystem::PluginManager::getObjects<IBuildConfigurationFactory>(
+                [&parent, map](IBuildConfigurationFactory *factory) {
+                    return factory->canRestore(parent, map);
+                });
+
+    IBuildConfigurationFactory *factory = 0;
+    int priority = -1;
+    foreach (IBuildConfigurationFactory *i, factories) {
+        int iPriority = i->priority(parent);
+        if (iPriority > priority) {
+            factory = i;
+            priority = iPriority;
+        }
+    }
+    return factory;
 }
 
 // setup
@@ -357,9 +375,21 @@ IBuildConfigurationFactory * IBuildConfigurationFactory::find(Target *parent)
 // clone
 IBuildConfigurationFactory *IBuildConfigurationFactory::find(Target *parent, BuildConfiguration *bc)
 {
-    return ExtensionSystem::PluginManager::getObject<IBuildConfigurationFactory>(
-        [&parent, &bc](IBuildConfigurationFactory *factory) {
-            return factory->canClone(parent, bc);
-        });
+    QList<IBuildConfigurationFactory *> factories
+            = ExtensionSystem::PluginManager::getObjects<IBuildConfigurationFactory>(
+                [&parent, &bc](IBuildConfigurationFactory *factory) {
+                    return factory->canClone(parent, bc);
+                });
+
+    IBuildConfigurationFactory *factory = 0;
+    int priority = -1;
+    foreach (IBuildConfigurationFactory *i, factories) {
+        int iPriority = i->priority(parent);
+        if (iPriority > priority) {
+            factory = i;
+            priority = iPriority;
+        }
+    }
+    return factory;
 }
 } // namespace ProjectExplorer

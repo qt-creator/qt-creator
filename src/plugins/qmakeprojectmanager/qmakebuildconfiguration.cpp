@@ -699,16 +699,11 @@ QList<BuildInfo *> QmakeBuildConfigurationFactory::availableSetups(const Kit *k,
     return result;
 }
 
-BuildConfiguration *QmakeBuildConfigurationFactory::create(Target *parent, const BuildInfo *info) const
+void QmakeBuildConfigurationFactory::configureBuildConfiguration(Target *parent,
+                                                                 QmakeBuildConfiguration *bc,
+                                                                 const QmakeBuildInfo *qmakeInfo) const
 {
-    QTC_ASSERT(info->factory() == this, return 0);
-    QTC_ASSERT(info->kitId == parent->kit()->id(), return 0);
-    QTC_ASSERT(!info->displayName.isEmpty(), return 0);
-
-    const QmakeBuildInfo *qmakeInfo = static_cast<const QmakeBuildInfo *>(info);
-
     BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(parent->kit());
-    QTC_ASSERT(version, return 0);
 
     BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
     if (qmakeInfo->type == BuildConfiguration::Release)
@@ -716,9 +711,8 @@ BuildConfiguration *QmakeBuildConfigurationFactory::create(Target *parent, const
     else
         config |= QtSupport::BaseQtVersion::DebugBuild;
 
-    QmakeBuildConfiguration *bc = new QmakeBuildConfiguration(parent);
-    bc->setDefaultDisplayName(info->displayName);
-    bc->setDisplayName(info->displayName);
+    bc->setDefaultDisplayName(qmakeInfo->displayName);
+    bc->setDisplayName(qmakeInfo->displayName);
 
     BuildStepList *buildSteps = bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
     BuildStepList *cleanSteps = bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
@@ -751,10 +745,21 @@ BuildConfiguration *QmakeBuildConfigurationFactory::create(Target *parent, const
     if (directory.isEmpty()) {
         directory = defaultBuildDirectory(qmakeInfo->supportsShadowBuild,
                                           parent->project()->projectFilePath().toString(),
-                                          parent->kit(), info->displayName);
+                                          parent->kit(), qmakeInfo->displayName);
     }
 
     bc->setBuildDirectory(directory);
+}
+
+BuildConfiguration *QmakeBuildConfigurationFactory::create(Target *parent, const BuildInfo *info) const
+{
+    QTC_ASSERT(info->factory() == this, return 0);
+    QTC_ASSERT(info->kitId == parent->kit()->id(), return 0);
+    QTC_ASSERT(!info->displayName.isEmpty(), return 0);
+
+    const QmakeBuildInfo *qmakeInfo = static_cast<const QmakeBuildInfo *>(info);
+    QmakeBuildConfiguration *bc = new QmakeBuildConfiguration(parent);
+    configureBuildConfiguration(parent, bc, qmakeInfo);
     return bc;
 }
 
