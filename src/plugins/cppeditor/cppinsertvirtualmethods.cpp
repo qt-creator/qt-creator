@@ -1406,16 +1406,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "public:\n"
         "    virtual int virtualFuncA() = 0;\n"
         "};\n"
-        ) << _(
-        "class BaseA {\n"
-        "public:\n"
-        "    virtual int virtualFuncA();\n"
-        "};\n\n"
-        "class Derived : public Bas@eA {\n"
-        "public:\n"
-        "    virtual int virtualFuncA() = 0;\n"
-        "};\n"
-    );
+        ) << _();
 
     // Check: One pure, one not
     QTest::newRow("Some_Pure")

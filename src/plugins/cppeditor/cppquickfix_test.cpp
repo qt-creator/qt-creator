@@ -215,7 +215,7 @@ QuickFixOperationTest::QuickFixOperationTest(const QList<QuickFixTestDocument::P
     TextEditor::QuickFixOperations operations;
     factory->match(quickFixInterface, operations);
     if (operations.isEmpty()) {
-        qDebug() << "Quickfix was not triggered";
+        QVERIFY(testDocuments.first()->m_expectedSource.isEmpty());
         return;
     }
 
@@ -1296,7 +1296,7 @@ void CppEditorPlugin::test_quickfix_data()
     QTest::newRow("OptimizeForLoop_wrongInitializer")
         << CppQuickFixFactoryPtr(new OptimizeForLoop)
         << _("int i; void foo() {f@or (double a = 0; i < 3 + 5; ++i) {}}\n")
-        << _("int i; void foo() {f@or (double a = 0; i < 3 + 5; ++i) {}}\n");
+        << _();
 
     // Check: No trigger when numeric
     QTest::newRow("OptimizeForLoop_noTriggerNumeric1")
@@ -1601,8 +1601,6 @@ void CppEditorPlugin::test_quickfix()
     QFETCH(QByteArray, original);
     QFETCH(QByteArray, expected);
 
-    if (expected.isEmpty())
-        expected = original;
     QuickFixOperationTest(singleDocument(original, expected), factory.data());
 }
 
@@ -1900,11 +1898,9 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_notTriggeringWhenDefinitio
             "    void b@ar();\n"
             "};\n"
             "void Foo::bar() {}\n";
-    const QByteArray expected = original;
 
     InsertDefFromDecl factory;
-    QuickFixOperationTest(singleDocument(original, expected), &factory, ProjectPart::HeaderPaths(),
-                          1);
+    QuickFixOperationTest(singleDocument(original, ""), &factory, ProjectPart::HeaderPaths(), 1);
 }
 
 /// Find right implementation file.
