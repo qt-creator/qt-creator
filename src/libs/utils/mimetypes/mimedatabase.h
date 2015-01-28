@@ -82,6 +82,9 @@ public:
 
     QList<MimeType> allMimeTypes() const;
 
+    // Qt Creator additions
+    static void addMimeTypes(const QString &fileName);
+
 private:
     Internal::MimeDatabasePrivate *d;
 };

@@ -303,6 +303,14 @@ MimeDatabase::~MimeDatabase()
     d = 0;
 }
 
+void MimeDatabase::addMimeTypes(const QString &fileName)
+{
+    auto d = MimeDatabasePrivate::instance();
+    QMutexLocker locker(&d->mutex);
+    auto xmlProvider = static_cast<MimeXMLProvider *>(d->provider());
+    xmlProvider->addFile(fileName);
+}
+
 /*!
     \fn MimeType MimeDatabase::mimeTypeForName(const QString &nameOrAlias) const;
     Returns a MIME type for \a nameOrAlias or an invalid one if none found.

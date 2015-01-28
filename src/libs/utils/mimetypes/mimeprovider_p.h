@@ -148,6 +148,9 @@ public:
     void addAlias(const QString &alias, const QString &name);
     void addMagicMatcher(const MimeMagicRuleMatcher &matcher);
 
+    // Qt Creator additions
+    void addFile(const QString &filePath);
+
 private:
     void ensureLoaded();
     void load(const QString &fileName);
@@ -166,6 +169,9 @@ private:
 
     QList<MimeMagicRuleMatcher> m_magicMatchers;
     QStringList m_allFiles;
+
+    // Qt Creator additions
+    QStringList m_additionalFiles;
 };
 
 } // Internal

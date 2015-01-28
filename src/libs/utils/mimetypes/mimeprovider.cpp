@@ -762,6 +762,8 @@ void MimeXMLProvider::ensureLoaded()
             allFiles.prepend(QLatin1String(":/qt-project.org/qmime/freedesktop.org.xml"));
         }
 
+        allFiles.append(m_additionalFiles);
+
         if (m_allFiles == allFiles)
             return;
         m_allFiles = allFiles;
@@ -858,4 +860,13 @@ QList<MimeType> MimeXMLProvider::allMimeTypes()
 void MimeXMLProvider::addMagicMatcher(const MimeMagicRuleMatcher &matcher)
 {
     m_magicMatchers.append(matcher);
+}
+
+void MimeXMLProvider::addFile(const QString &filePath)
+{
+    m_additionalFiles.append(filePath);
+    if (m_loaded) {
+        m_allFiles.append(filePath);
+        load(filePath);
+    } // else: will be loaded in ensureLoaded()
 }
