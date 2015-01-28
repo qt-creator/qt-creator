@@ -568,7 +568,7 @@ void SideDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     emit contextMenuRequested(menu, fileIndexForBlockNumber(blockNumber),
                               chunkIndexForBlockNumber(blockNumber));
 
-    connect(this, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
+    connect(this, &SideDiffEditorWidget::destroyed, menu, &QMenu::deleteLater);
     menu->exec(e->globalPos());
     delete menu;
 }
@@ -762,10 +762,10 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
             m_leftEditor, &SideDiffEditorWidget::setDisplaySettings);
     m_leftEditor->setDisplaySettings(TextEditorSettings::displaySettings());
     m_leftEditor->setCodeStyle(TextEditorSettings::codeStyle());
-    connect(m_leftEditor, SIGNAL(jumpToOriginalFileRequested(int,int,int)),
-            this, SLOT(slotLeftJumpToOriginalFileRequested(int,int,int)));
-    connect(m_leftEditor, SIGNAL(contextMenuRequested(QMenu*,int,int)),
-            this, SLOT(slotLeftContextMenuRequested(QMenu*,int,int)),
+    connect(m_leftEditor, &SideDiffEditorWidget::jumpToOriginalFileRequested,
+            this, &SideBySideDiffEditorWidget::slotLeftJumpToOriginalFileRequested);
+    connect(m_leftEditor, &SideDiffEditorWidget::contextMenuRequested,
+            this, &SideBySideDiffEditorWidget::slotLeftContextMenuRequested,
             Qt::DirectConnection);
 
     m_rightEditor = new SideDiffEditorWidget(this);
@@ -774,44 +774,44 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
             m_rightEditor, &SideDiffEditorWidget::setDisplaySettings);
     m_rightEditor->setDisplaySettings(TextEditorSettings::displaySettings());
     m_rightEditor->setCodeStyle(TextEditorSettings::codeStyle());
-    connect(m_rightEditor, SIGNAL(jumpToOriginalFileRequested(int,int,int)),
-            this, SLOT(slotRightJumpToOriginalFileRequested(int,int,int)));
-    connect(m_rightEditor, SIGNAL(contextMenuRequested(QMenu*,int,int)),
-            this, SLOT(slotRightContextMenuRequested(QMenu*,int,int)),
+    connect(m_rightEditor, &SideDiffEditorWidget::jumpToOriginalFileRequested,
+            this, &SideBySideDiffEditorWidget::slotRightJumpToOriginalFileRequested);
+    connect(m_rightEditor, &SideDiffEditorWidget::contextMenuRequested,
+            this, &SideBySideDiffEditorWidget::slotRightContextMenuRequested,
             Qt::DirectConnection);
 
     connect(TextEditorSettings::instance(),
-            SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-            this, SLOT(setFontSettings(TextEditor::FontSettings)));
+            &TextEditorSettings::fontSettingsChanged,
+            this, &SideBySideDiffEditorWidget::setFontSettings);
     setFontSettings(TextEditorSettings::fontSettings());
 
-    connect(m_leftEditor->verticalScrollBar(), SIGNAL(valueChanged(int)),
-            this, SLOT(leftVSliderChanged()));
-    connect(m_leftEditor->verticalScrollBar(), SIGNAL(actionTriggered(int)),
-            this, SLOT(leftVSliderChanged()));
+    connect(m_leftEditor->verticalScrollBar(), &QAbstractSlider::valueChanged,
+            this, &SideBySideDiffEditorWidget::leftVSliderChanged);
+    connect(m_leftEditor->verticalScrollBar(), &QAbstractSlider::actionTriggered,
+            this, &SideBySideDiffEditorWidget::leftVSliderChanged);
 
-    connect(m_leftEditor->horizontalScrollBar(), SIGNAL(valueChanged(int)),
-            this, SLOT(leftHSliderChanged()));
-    connect(m_leftEditor->horizontalScrollBar(), SIGNAL(actionTriggered(int)),
-            this, SLOT(leftHSliderChanged()));
+    connect(m_leftEditor->horizontalScrollBar(), &QAbstractSlider::valueChanged,
+            this, &SideBySideDiffEditorWidget::leftHSliderChanged);
+    connect(m_leftEditor->horizontalScrollBar(), &QAbstractSlider::actionTriggered,
+            this, &SideBySideDiffEditorWidget::leftHSliderChanged);
 
-    connect(m_leftEditor, SIGNAL(cursorPositionChanged()),
-            this, SLOT(leftCursorPositionChanged()));
+    connect(m_leftEditor, &QPlainTextEdit::cursorPositionChanged,
+            this, &SideBySideDiffEditorWidget::leftCursorPositionChanged);
 //    connect(m_leftEditor->document()->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)),
 //            this, SLOT(leftDocumentSizeChanged()));
 
-    connect(m_rightEditor->verticalScrollBar(), SIGNAL(valueChanged(int)),
-            this, SLOT(rightVSliderChanged()));
-    connect(m_rightEditor->verticalScrollBar(), SIGNAL(actionTriggered(int)),
-            this, SLOT(rightVSliderChanged()));
+    connect(m_rightEditor->verticalScrollBar(), &QAbstractSlider::valueChanged,
+            this, &SideBySideDiffEditorWidget::rightVSliderChanged);
+    connect(m_rightEditor->verticalScrollBar(), &QAbstractSlider::actionTriggered,
+            this, &SideBySideDiffEditorWidget::rightVSliderChanged);
 
-    connect(m_rightEditor->horizontalScrollBar(), SIGNAL(valueChanged(int)),
-            this, SLOT(rightHSliderChanged()));
-    connect(m_rightEditor->horizontalScrollBar(), SIGNAL(actionTriggered(int)),
-            this, SLOT(rightHSliderChanged()));
+    connect(m_rightEditor->horizontalScrollBar(), &QAbstractSlider::valueChanged,
+            this, &SideBySideDiffEditorWidget::rightHSliderChanged);
+    connect(m_rightEditor->horizontalScrollBar(), &QAbstractSlider::actionTriggered,
+            this, &SideBySideDiffEditorWidget::rightHSliderChanged);
 
-    connect(m_rightEditor, SIGNAL(cursorPositionChanged()),
-            this, SLOT(rightCursorPositionChanged()));
+    connect(m_rightEditor, &QPlainTextEdit::cursorPositionChanged,
+            this, &SideBySideDiffEditorWidget::rightCursorPositionChanged);
 //    connect(m_rightEditor->document()->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)),
 //            this, SLOT(rightDocumentSizeChanged()));
 
@@ -838,21 +838,21 @@ void SideBySideDiffEditorWidget::setDiffEditorGuiController(
         return;
 
     if (m_guiController) {
-        disconnect(m_controller, SIGNAL(cleared(QString)),
-                   this, SLOT(clearAll(QString)));
-        disconnect(m_controller, SIGNAL(diffFilesChanged(QList<FileData>,QString)),
-                   this, SLOT(setDiff(QList<FileData>,QString)));
-        disconnect(m_controller, SIGNAL(saveStateRequested()),
-                m_leftEditor, SLOT(saveStateRequested()));
-        disconnect(m_controller, SIGNAL(saveStateRequested()),
-                m_rightEditor, SLOT(saveStateRequested()));
-        disconnect(m_controller, SIGNAL(restoreStateRequested()),
-                m_leftEditor, SLOT(restoreStateRequested()));
-        disconnect(m_controller, SIGNAL(restoreStateRequested()),
-                m_rightEditor, SLOT(restoreStateRequested()));
+        disconnect(m_controller, &DiffEditorController::cleared,
+                   this, &SideBySideDiffEditorWidget::clearAll);
+        disconnect(m_controller, &DiffEditorController::diffFilesChanged,
+                   this, &SideBySideDiffEditorWidget::setDiff);
+        disconnect(m_controller, &DiffEditorController::saveStateRequested,
+                   m_leftEditor, &SideDiffEditorWidget::saveStateRequested);
+        disconnect(m_controller, &DiffEditorController::saveStateRequested,
+                   m_rightEditor, &SideDiffEditorWidget::saveStateRequested);
+        disconnect(m_controller, &DiffEditorController::restoreStateRequested,
+                   m_leftEditor, &SideDiffEditorWidget::restoreStateRequested);
+        disconnect(m_controller, &DiffEditorController::restoreStateRequested,
+                   m_rightEditor, &SideDiffEditorWidget::restoreStateRequested);
 
-        disconnect(m_guiController, SIGNAL(currentDiffFileIndexChanged(int)),
-                   this, SLOT(setCurrentDiffFileIndex(int)));
+        disconnect(m_guiController, &DiffEditorGuiController::currentDiffFileIndexChanged,
+                   this, &SideBySideDiffEditorWidget::setCurrentDiffFileIndex);
 
         clearAll(tr("No controller"));
     }
@@ -861,21 +861,21 @@ void SideBySideDiffEditorWidget::setDiffEditorGuiController(
     if (m_guiController) {
         m_controller = m_guiController->controller();
 
-        connect(m_controller, SIGNAL(cleared(QString)),
-                this, SLOT(clearAll(QString)));
-        connect(m_controller, SIGNAL(diffFilesChanged(QList<FileData>,QString)),
-                this, SLOT(setDiff(QList<FileData>,QString)));
-        connect(m_controller, SIGNAL(saveStateRequested()),
-                m_leftEditor, SLOT(saveStateRequested()));
-        connect(m_controller, SIGNAL(saveStateRequested()),
-                m_rightEditor, SLOT(saveStateRequested()));
-        connect(m_controller, SIGNAL(restoreStateRequested()),
-                m_leftEditor, SLOT(restoreStateRequested()));
-        connect(m_controller, SIGNAL(restoreStateRequested()),
-                m_rightEditor, SLOT(restoreStateRequested()));
+        connect(m_controller, &DiffEditorController::cleared,
+                this, &SideBySideDiffEditorWidget::clearAll);
+        connect(m_controller, &DiffEditorController::diffFilesChanged,
+                this, &SideBySideDiffEditorWidget::setDiff);
+        connect(m_controller, &DiffEditorController::saveStateRequested,
+                m_leftEditor, &SideDiffEditorWidget::saveStateRequested);
+        connect(m_controller, &DiffEditorController::saveStateRequested,
+                m_rightEditor, &SideDiffEditorWidget::saveStateRequested);
+        connect(m_controller, &DiffEditorController::restoreStateRequested,
+                m_leftEditor, &SideDiffEditorWidget::restoreStateRequested);
+        connect(m_controller, &DiffEditorController::restoreStateRequested,
+                m_rightEditor, &SideDiffEditorWidget::restoreStateRequested);
 
-        connect(m_guiController, SIGNAL(currentDiffFileIndexChanged(int)),
-                this, SLOT(setCurrentDiffFileIndex(int)));
+        connect(m_guiController, &DiffEditorGuiController::currentDiffFileIndexChanged,
+                this, &SideBySideDiffEditorWidget::setCurrentDiffFileIndex);
 
         setDiff(m_controller->diffFiles(), m_controller->workingDirectory());
         setCurrentDiffFileIndex(m_guiController->currentDiffFileIndex());
@@ -1237,11 +1237,11 @@ void SideBySideDiffEditorWidget::slotLeftContextMenuRequested(QMenu *menu,
     menu->addSeparator();
     QAction *sendChunkToCodePasterAction =
             menu->addAction(tr("Send Chunk to CodePaster..."));
-    connect(sendChunkToCodePasterAction, SIGNAL(triggered()),
-            this, SLOT(slotSendChunkToCodePaster()));
+    connect(sendChunkToCodePasterAction, &QAction::triggered,
+            this, &SideBySideDiffEditorWidget::slotSendChunkToCodePaster);
     menu->addSeparator();
     QAction *applyAction = menu->addAction(tr("Apply Chunk..."));
-    connect(applyAction, SIGNAL(triggered()), this, SLOT(slotApplyChunk()));
+    connect(applyAction, &QAction::triggered, this, &SideBySideDiffEditorWidget::slotApplyChunk);
     applyAction->setEnabled(false);
 
     m_contextMenuFileIndex = diffFileIndex;
@@ -1272,11 +1272,11 @@ void SideBySideDiffEditorWidget::slotRightContextMenuRequested(QMenu *menu,
     menu->addSeparator();
     QAction *sendChunkToCodePasterAction =
             menu->addAction(tr("Send Chunk to CodePaster..."));
-    connect(sendChunkToCodePasterAction, SIGNAL(triggered()),
-            this, SLOT(slotSendChunkToCodePaster()));
+    connect(sendChunkToCodePasterAction, &QAction::triggered,
+            this, &SideBySideDiffEditorWidget::slotSendChunkToCodePaster);
     menu->addSeparator();
     QAction *revertAction = menu->addAction(tr("Revert Chunk..."));
-    connect(revertAction, SIGNAL(triggered()), this, SLOT(slotRevertChunk()));
+    connect(revertAction, &QAction::triggered, this, &SideBySideDiffEditorWidget::slotRevertChunk);
     revertAction->setEnabled(false);
 
     m_contextMenuFileIndex = diffFileIndex;
