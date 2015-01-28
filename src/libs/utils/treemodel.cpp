@@ -695,7 +695,7 @@ void TreeItem::insertChild(int pos, TreeItem *item)
         QModelIndex idx = index();
         m_model->beginInsertRows(idx, pos, pos);
         item->m_parent = this;
-        item->m_model = m_model;
+        item->propagateModel(m_model);
         m_children.insert(m_children.begin() + pos, item);
         m_model->endInsertRows();
     } else {
