@@ -75,6 +75,7 @@ public:
     void formatRequests(QByteArray *out) const;
     void showInEditorHelper(QString *contents, int depth) const;
     WatchItem *findItem(const QByteArray &iname);
+    void parseWatchData(const QSet<QByteArray> &expandedINames, const GdbMi &input);
 
 public:
     WatchData d;
@@ -196,6 +197,7 @@ public:
     const WatchData *watchData(const QModelIndex &) const;
     void fetchMore(const QByteArray &iname) const;
     const WatchData *findData(const QByteArray &iname) const;
+    WatchItem *findItem(const QByteArray &iname) const;
     const WatchData *findCppLocalVariable(const QString &name) const;
     bool hasItem(const QByteArray &iname) const;
 
@@ -234,10 +236,12 @@ public:
     void insertData(const WatchData &data); // Convenience.
     void insertData(const QList<WatchData> &list);
     void insertIncompleteData(const WatchData &data);
+    void insertItem(WatchItem *item);
     void removeData(const QByteArray &iname);
     void removeChildren(const QByteArray &iname);
     void removeAllData(bool includeInspectData = false);
     void resetValueCache();
+    void purgeOutdatedItems(const QSet<QByteArray> &inames);
 
 private:
     friend class WatchModel;

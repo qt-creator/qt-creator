@@ -261,6 +261,8 @@ public:
     void checkTree(WatchItem *item, QSet<QByteArray> *inames);
     #endif
     void checkIndex(const QModelIndex &index) const;
+    void insertItem(WatchItem *item);
+    void reexpandItems();
 };
 
 WatchModel::WatchModel(WatchHandler *handler)
@@ -642,6 +644,8 @@ bool WatchItem::canFetchMore() const
 {
     if (!d.hasChildren)
         return false;
+    if (!watchModel())
+        return false;
     if (!watchModel()->contentIsValid() && !d.isInspect())
         return false;
     return !fetchTriggered;
@@ -834,6 +838,7 @@ QVariant WatchItem::data(int column, int role) const
             static const QVariant red(QColor(200, 0, 0));
             static const QVariant gray(QColor(140, 140, 140));
             if (column == 1) {
+                QTC_ASSERT(model(), break);
                 if (!d.valueEnabled)
                     return gray;
                 if (!watchModel()->contentIsValid() && !d.isInspect())
@@ -961,6 +966,7 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
 
 Qt::ItemFlags WatchItem::flags(int column) const
 {
+    QTC_ASSERT(model(), return Qt::ItemFlags());
     if (!watchModel()->contentIsValid() && !d.isInspect())
         return Qt::ItemFlags();
 
@@ -1313,6 +1319,31 @@ void WatchHandler::insertIncompleteData(const WatchData &data)
     }
 }
 
+void WatchHandler::insertItem(WatchItem *item)
+{
+    m_model->insertItem(item);
+}
+
+void WatchModel::insertItem(WatchItem *item)
+{
+    WatchItem *existing = findItem(item->d.iname);
+    if (existing)
+        removeItem(existing);
+
+    WatchItem *parent = findItem(parentName(item->d.iname));
+    QTC_ASSERT(parent, return);
+    const int row = findInsertPosition(parent->children(), item);
+    parent->insertChild(row, item);
+}
+
+void WatchModel::reexpandItems()
+{
+    foreach (const QByteArray &iname, m_expandedINames) {
+        WatchItem *item = findItem(iname);
+        emit itemIsExpanded(indexFromItem(item));
+    }
+}
+
 void WatchHandler::insertData(const WatchData &data)
 {
     QList<WatchData> list;
@@ -1342,6 +1373,18 @@ void WatchHandler::resetValueCache()
         auto watchItem = static_cast<WatchItem *>(item);
         m_model->m_valueCache[watchItem->d.iname] = watchItem->d.value;
     });
+}
+
+void WatchHandler::purgeOutdatedItems(const QSet<QByteArray> &inames)
+{
+    foreach (const QByteArray &iname, inames) {
+        WatchItem *item = findItem(iname);
+        m_model->removeItem(item);
+    }
+
+    m_model->layoutChanged();
+    m_model->reexpandItems();
+    m_contentsValid = true;
 }
 
 void WatchHandler::removeData(const QByteArray &iname)
@@ -1638,6 +1681,11 @@ const WatchData *WatchHandler::findData(const QByteArray &iname) const
     return item ? &item->d : 0;
 }
 
+WatchItem *WatchHandler::findItem(const QByteArray &iname) const
+{
+    return m_model->findItem(iname);
+}
+
 const WatchData *WatchHandler::findCppLocalVariable(const QString &name) const
 {
     // Can this be found as a local variable?
@@ -1878,6 +1926,30 @@ const WatchModel *WatchItem::watchModel() const
 WatchModel *WatchItem::watchModel()
 {
     return static_cast<WatchModel *>(model());
+}
+
+void WatchItem::parseWatchData(const QSet<QByteArray> &expandedINames, const GdbMi &input)
+{
+    auto itemHandler = [this](const WatchData &data) {
+        d = data;
+    };
+    auto childHandler = [this](const QSet<QByteArray> &expandedINames,
+            const WatchData &innerData, const GdbMi &innerInput) {
+        WatchItem *item = new WatchItem(innerData);
+        item->parseWatchData(expandedINames, innerInput);
+        appendChild(item);
+    };
+
+    auto itemAdder = [this](const WatchData &data) {
+        appendChild(new WatchItem(data));
+    };
+
+    auto arrayDecoder = [itemAdder](const WatchData &childTemplate,
+            const QByteArray &encodedData, int encoding) {
+        decodeArrayData(itemAdder, childTemplate, encodedData, encoding);
+    };
+
+    parseChildrenData(expandedINames, d, input, itemHandler, childHandler, arrayDecoder);
 }
 
 } // namespace Internal

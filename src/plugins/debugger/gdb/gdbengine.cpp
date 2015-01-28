@@ -4939,27 +4939,7 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
         }
 
         WatchHandler *handler = watchHandler();
-        QList<WatchData> list;
 
-        if (!partial) {
-            list.append(*handler->findData("local"));
-            list.append(*handler->findData("watch"));
-            list.append(*handler->findData("return"));
-        }
-
-        foreach (const GdbMi &child, data.children()) {
-            WatchData dummy;
-            dummy.iname = child["iname"].data();
-            GdbMi wname = child["wname"];
-            if (wname.isValid()) {
-                // Happens (only) for watched expressions.
-                dummy.name = QString::fromUtf8(QByteArray::fromHex(wname.data()));
-                dummy.exp = dummy.name.toUtf8();
-            } else {
-                dummy.name = _(child["name"].data());
-            }
-            parseWatchData(handler->expandedINames(), dummy, child, &list);
-        }
         const GdbMi typeInfo = all["typeinfo"];
         if (typeInfo.type() == GdbMi::List) {
             foreach (const GdbMi &s, typeInfo.children()) {
@@ -4970,13 +4950,38 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
                                            TypeInfo(size.data().toUInt()));
             }
         }
-        for (int i = 0; i != list.size(); ++i) {
-            const TypeInfo ti = m_typeInfoCache.value(list.at(i).type);
-            if (ti.size)
-                list[i].size = ti.size;
+
+        QSet<QByteArray> toDelete;
+        if (!partial) {
+            foreach (WatchItem *item, handler->model()->treeLevelItems<WatchItem *>(2))
+                toDelete.insert(item->d.iname);
         }
 
-        handler->insertData(list);
+        foreach (const GdbMi &child, data.children()) {
+            QByteArray iname = child["iname"].data();
+            QString name;
+
+            GdbMi wname = child["wname"];
+            if (wname.isValid()) // Happens (only) for watched expressions.
+                name = QString::fromUtf8(QByteArray::fromHex(wname.data()));
+            else
+                name = _(child["name"].data());
+
+            WatchItem *item = new WatchItem(iname, name);
+            item->parseWatchData(handler->expandedINames(), child);
+
+            const TypeInfo ti = m_typeInfoCache.value(item->d.type);
+            if (ti.size)
+                item->d.size = ti.size;
+
+            if (wname.isValid())
+                item->d.exp = name.toUtf8();
+
+            handler->insertItem(item);
+            toDelete.remove(item->d.iname);
+        }
+
+        handler->purgeOutdatedItems(toDelete);
 
         //PENDING_DEBUG("AFTER handleStackFrame()");
         // FIXME: This should only be used when updateLocals() was

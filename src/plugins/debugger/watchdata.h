@@ -154,6 +154,11 @@ public:
     qint32 source;  // Originated from dumper or symbol evaluation? (CDB only)
 };
 
+void decodeArrayData(std::function<void(const WatchData &)> itemHandler,
+                     const WatchData &tmplate,
+                     const QByteArray &rawData,
+                     int encoding);
+
 void parseChildrenData(const QSet<QByteArray> &expandedINames,
                     const WatchData &parent, const GdbMi &child,
                     std::function<void(const WatchData &)> itemHandler,

@@ -535,7 +535,7 @@ QString decodeItemHelper(const double &t)
 }
 
 template <class T>
-void decodeArrayHelper(QList<WatchData> *list, const WatchData &tmplate,
+void decodeArrayHelper(std::function<void(const WatchData &)> itemHandler, const WatchData &tmplate,
     const QByteArray &rawData)
 {
     const QByteArray ba = QByteArray::fromHex(rawData);
@@ -551,43 +551,43 @@ void decodeArrayHelper(QList<WatchData> *list, const WatchData &tmplate,
         data.address += i * sizeof(T);
         data.exp = exp + QByteArray::number(data.address, 16);
         data.setAllUnneeded();
-        list->append(data);
+        itemHandler(data);
     }
 }
 
-static void decodeArray(QList<WatchData> *list, const WatchData &tmplate,
+void decodeArrayData(std::function<void(const WatchData &)> itemHandler, const WatchData &tmplate,
     const QByteArray &rawData, int encoding)
 {
     switch (encoding) {
         case Hex2EncodedInt1:
-            decodeArrayHelper<signed char>(list, tmplate, rawData);
+            decodeArrayHelper<signed char>(itemHandler, tmplate, rawData);
             break;
         case Hex2EncodedInt2:
-            decodeArrayHelper<short>(list, tmplate, rawData);
+            decodeArrayHelper<short>(itemHandler, tmplate, rawData);
             break;
         case Hex2EncodedInt4:
-            decodeArrayHelper<int>(list, tmplate, rawData);
+            decodeArrayHelper<int>(itemHandler, tmplate, rawData);
             break;
         case Hex2EncodedInt8:
-            decodeArrayHelper<qint64>(list, tmplate, rawData);
+            decodeArrayHelper<qint64>(itemHandler, tmplate, rawData);
             break;
         case Hex2EncodedUInt1:
-            decodeArrayHelper<uchar>(list, tmplate, rawData);
+            decodeArrayHelper<uchar>(itemHandler, tmplate, rawData);
             break;
         case Hex2EncodedUInt2:
-            decodeArrayHelper<ushort>(list, tmplate, rawData);
+            decodeArrayHelper<ushort>(itemHandler, tmplate, rawData);
             break;
         case Hex2EncodedUInt4:
-            decodeArrayHelper<uint>(list, tmplate, rawData);
+            decodeArrayHelper<uint>(itemHandler, tmplate, rawData);
             break;
         case Hex2EncodedUInt8:
-            decodeArrayHelper<quint64>(list, tmplate, rawData);
+            decodeArrayHelper<quint64>(itemHandler, tmplate, rawData);
             break;
         case Hex2EncodedFloat4:
-            decodeArrayHelper<float>(list, tmplate, rawData);
+            decodeArrayHelper<float>(itemHandler, tmplate, rawData);
             break;
         case Hex2EncodedFloat8:
-            decodeArrayHelper<double>(list, tmplate, rawData);
+            decodeArrayHelper<double>(itemHandler, tmplate, rawData);
             break;
         default:
             qDebug() << "ENCODING ERROR: " << encoding;
@@ -714,9 +714,9 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
             const WatchData &innerData, const GdbMi &innerInput) {
         parseWatchData(expandedINames, innerData, innerInput, list);
     };
-    auto arrayDecoder = [list](const WatchData &childTemplate,
+    auto arrayDecoder = [itemHandler](const WatchData &childTemplate,
             const QByteArray &encodedData, int encoding) {
-        decodeArray(list, childTemplate, encodedData, encoding);
+        decodeArrayData(itemHandler, childTemplate, encodedData, encoding);
     };
 
     parseChildrenData(expandedINames, data0, input, itemHandler, childHandler, arrayDecoder);
