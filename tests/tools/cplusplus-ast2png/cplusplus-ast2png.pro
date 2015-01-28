@@ -9,5 +9,4 @@ include(../../../qtcreator.pri)
 include(../../../src/libs/cplusplus/cplusplus-lib.pri)
 include(../../../src/tools/cplusplus-tools-utils/cplusplus-tools-utils.pri)
 
-DEFINES *= QT_NO_CAST_FROM_ASCII
 SOURCES += cplusplus-ast2png.cpp
