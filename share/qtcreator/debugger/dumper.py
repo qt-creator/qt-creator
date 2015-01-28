@@ -91,23 +91,32 @@ except:
 if hasSubprocess and hasPlot:
     matplotFigure = {}
     matplotCount = 0
+    matplotProc = None
+    devNull = None
 
-    devNull = open(os.devnull)
-    # FIXME: That might not be the one we want.
-    pythonExecutable = sys.executable
-    matplotProc = subprocess.Popen(args=[pythonExecutable, "-i"],
-                bufsize=0, stdin=subprocess.PIPE, stdout=devNull, stderr=devNull)
+    def matplotInit():
+        global matplotProc
+        global devNull
 
-    matplotProc.stdin.write(b"import sys\n")
-    matplotProc.stdin.write(b"sys.ps1=''\n")
-    matplotProc.stdin.write(b"from matplotlib import pyplot\n")
-    matplotProc.stdin.write(b"import time\n")
-    matplotProc.stdin.write(b"pyplot.ion()\n")
-    matplotProc.stdin.flush()
+        if matplotProc is None:
+            devNull = open(os.devnull)
+            # FIXME: That might not be the one we want.
+            pythonExecutable = sys.executable
+            matplotProc = subprocess.Popen(args=[pythonExecutable, "-i"],
+                        bufsize=0, stdin=subprocess.PIPE, stdout=devNull, stderr=devNull)
+
+            matplotProc.stdin.write(b"import sys\n")
+            matplotProc.stdin.write(b"sys.ps1=''\n")
+            matplotProc.stdin.write(b"from matplotlib import pyplot\n")
+            matplotProc.stdin.write(b"import time\n")
+            matplotProc.stdin.write(b"pyplot.ion()\n")
+            matplotProc.stdin.flush()
 
     def matplotSend(iname, show, data):
         global matplotFigure
         global matplotCount
+
+        matplotInit()
 
         def s(line):
             matplotProc.stdin.write(line.encode("latin1"))
@@ -136,9 +145,11 @@ if hasSubprocess and hasPlot:
         matplotProc.stdin.flush()
 
     def matplotQuit():
-        matplotProc.stdin.write(b"exit")
-        matplotProc.kill()
-        devNull.close()
+        global matplotProc
+        if not matplotProc is None:
+            matplotProc.stdin.write(b"exit")
+            matplotProc.kill()
+            devNull.close()
 
 def arrayForms():
     global hasPlot
