@@ -114,54 +114,6 @@ static QByteArray stripForFormat(const QByteArray &ba)
     return res;
 }
 
-////////////////////////////////////////////////////////////////////
-//
-// WatchItem
-//
-////////////////////////////////////////////////////////////////////
-
-class WatchItem : public TreeItem
-{
-public:
-    WatchItem() : fetchTriggered(false) {}
-
-    WatchItem(const QByteArray &i, const QString &n)
-    {
-        fetchTriggered = false;
-        d.iname = i;
-        d.name = n;
-    }
-
-    WatchItem *parentItem() const { return dynamic_cast<WatchItem *>(parent()); }
-    const WatchModel *watchModel() const;
-    WatchModel *watchModel();
-
-    QVariant data(int column, int role) const;
-    Qt::ItemFlags flags(int column) const;
-
-    bool canFetchMore() const;
-    void fetchMore();
-
-    QString displayName() const;
-    QString displayType() const;
-    QString displayValue() const;
-    QString formattedValue() const;
-    QString expression() const;
-
-    int itemFormat() const;
-
-    QVariant editValue() const;
-    int editType() const;
-
-    void formatRequests(QByteArray *out) const;
-    void showInEditorHelper(QString *contents, int depth) const;
-    WatchItem *findItem(const QByteArray &iname);
-
-public:
-    WatchData d;
-    bool fetchTriggered;
-};
-
 ///////////////////////////////////////////////////////////////////////
 //
 // SeparatedView
@@ -1889,6 +1841,33 @@ TypeFormatItem TypeFormatList::find(int format) const
         if (at(i).format == format)
             return at(i);
     return TypeFormatItem();
+}
+
+////////////////////////////////////////////////////////////////////
+//
+// WatchItem
+//
+////////////////////////////////////////////////////////////////////
+
+WatchItem::WatchItem()
+    : fetchTriggered(false)
+{}
+
+WatchItem::WatchItem(const QByteArray &i, const QString &n)
+{
+    fetchTriggered = false;
+    d.iname = i;
+    d.name = n;
+}
+
+WatchItem::WatchItem(const WatchData &data)
+    : d(data), fetchTriggered(false)
+{
+}
+
+WatchItem *WatchItem::parentItem() const
+{
+    return dynamic_cast<WatchItem *>(parent());
 }
 
 const WatchModel *WatchItem::watchModel() const

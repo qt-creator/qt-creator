@@ -44,6 +44,43 @@ namespace Internal {
 class SeparatedView;
 class WatchModel;
 
+class WatchItem : public Utils::TreeItem
+{
+public:
+    WatchItem();
+    WatchItem(const QByteArray &i, const QString &n);
+    explicit WatchItem(const WatchData &data);
+
+    WatchItem *parentItem() const;
+    const WatchModel *watchModel() const;
+    WatchModel *watchModel();
+
+    QVariant data(int column, int role) const;
+    Qt::ItemFlags flags(int column) const;
+
+    bool canFetchMore() const;
+    void fetchMore();
+
+    QString displayName() const;
+    QString displayType() const;
+    QString displayValue() const;
+    QString formattedValue() const;
+    QString expression() const;
+
+    int itemFormat() const;
+
+    QVariant editValue() const;
+    int editType() const;
+
+    void formatRequests(QByteArray *out) const;
+    void showInEditorHelper(QString *contents, int depth) const;
+    WatchItem *findItem(const QByteArray &iname);
+
+public:
+    WatchData d;
+    bool fetchTriggered;
+};
+
 // Special formats. Keep in sync with dumper.py.
 enum DisplayFormat
 {
