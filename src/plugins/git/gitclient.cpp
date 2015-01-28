@@ -89,6 +89,7 @@ static const char noColorOption[] = "--no-color";
 static const char decorateOption[] = "--decorate";
 
 using namespace Core;
+using namespace DiffEditor;
 using namespace Utils;
 using namespace VcsBase;
 
@@ -106,8 +107,7 @@ class GitDiffHandler : public QObject
     Q_OBJECT
 
 public:
-    GitDiffHandler(DiffEditor::DiffEditorController *controller,
-                   const QString &workingDirectory);
+    GitDiffHandler(DiffEditorController *controller, const QString &workingDirectory);
 
     // index -> working tree
     void diffFile(const QString &fileName);
@@ -143,7 +143,7 @@ private:
     QProcessEnvironment processEnvironment() const;
     FileName gitPath() const;
 
-    QPointer<DiffEditor::DiffEditorController> m_controller;
+    QPointer<DiffEditorController> m_controller;
     const QString m_workingDirectory;
     GitClient *m_gitClient;
     const QString m_waitMessage;
@@ -151,7 +151,7 @@ private:
     QString m_id;
 };
 
-GitDiffHandler::GitDiffHandler(DiffEditor::DiffEditorController *controller,
+GitDiffHandler::GitDiffHandler(DiffEditorController *controller,
                const QString &workingDirectory)
     : m_controller(controller),
       m_workingDirectory(workingDirectory),
@@ -330,8 +330,7 @@ void GitDiffHandler::slotTextualDiffOutputReceived(const QString &contents)
     }
 
     bool ok;
-    QList<DiffEditor::FileData> fileDataList
-            = DiffEditor::DiffUtils::readPatch(contents, &ok);
+    QList<FileData> fileDataList = DiffUtils::readPatch(contents, &ok);
     m_controller->setDiffFiles(fileDataList, m_workingDirectory);
     m_controller->requestRestoreState();
     deleteLater();
@@ -354,7 +353,7 @@ FileName GitDiffHandler::gitPath() const
 
 /////////////////////////////////////
 
-class GitDiffEditorReloader : public DiffEditor::DiffEditorReloader
+class GitDiffEditorReloader : public DiffEditorReloader
 {
     Q_OBJECT
 public:
@@ -744,20 +743,20 @@ GitDiffEditorReloader *GitClient::findOrCreateDiffEditor(const QString &document
                                                          const QString &title,
                                                          const QString &workingDirectory) const
 {
-    DiffEditor::DiffEditorController *controller = 0;
+    DiffEditorController *controller = 0;
     GitDiffEditorReloader *reloader = 0;
-    DiffEditor::DiffEditorDocument *diffEditorDocument = DiffEditor::DiffEditorManager::find(documentId);
+    DiffEditorDocument *diffEditorDocument = DiffEditorManager::find(documentId);
     if (diffEditorDocument) {
         controller = diffEditorDocument->controller();
         reloader = static_cast<GitDiffEditorReloader *>(controller->reloader());
     } else {
-        diffEditorDocument = DiffEditor::DiffEditorManager::findOrCreate(documentId, title);
+        diffEditorDocument = DiffEditorManager::findOrCreate(documentId, title);
         QTC_ASSERT(diffEditorDocument, return 0);
         controller = diffEditorDocument->controller();
 
-        connect(controller, &DiffEditor::DiffEditorController::chunkActionsRequested,
+        connect(controller, &DiffEditorController::chunkActionsRequested,
                 this, &GitClient::slotChunkActionsRequested, Qt::DirectConnection);
-        connect(controller, &DiffEditor::DiffEditorController::requestBranchList,
+        connect(controller, &DiffEditorController::requestBranchList,
                 this, &GitClient::branchesForCommit);
 
         reloader = new GitDiffEditorReloader();
@@ -780,7 +779,7 @@ void GitClient::slotChunkActionsRequested(QMenu *menu, bool isValid)
     QAction *unstageChunkAction = menu->addAction(tr("Unstage Chunk"));
     connect(unstageChunkAction, &QAction::triggered, this, &GitClient::slotUnstageChunk);
 
-    m_contextController = qobject_cast<DiffEditor::DiffEditorController *>(sender());
+    m_contextController = qobject_cast<DiffEditorController *>(sender());
 
     if (!isValid || !m_contextController) {
         stageChunkAction->setEnabled(false);
@@ -1653,14 +1652,13 @@ void GitClient::branchesForCommit(const QString &revision)
     arguments << QLatin1String("branch") << QLatin1String(noColorOption)
               << QLatin1String("-a") << QLatin1String("--contains") << revision;
 
-    DiffEditor::DiffEditorController *controller
-            = qobject_cast<DiffEditor::DiffEditorController *>(sender());
+    auto controller = qobject_cast<DiffEditorController *>(sender());
     QString workingDirectory = controller->workingDirectory();
     auto command = new VcsCommand(gitExecutable(), workingDirectory, processEnvironment());
     command->setCodec(getSourceCodec(currentDocumentPath()));
 
     connect(command, &VcsCommand::output, controller,
-            &DiffEditor::DiffEditorController::branchesForCommitReceived);
+            &DiffEditorController::branchesForCommitReceived);
 
     command->addJob(arguments, -1);
     command->setCookie(workingDirectory);
