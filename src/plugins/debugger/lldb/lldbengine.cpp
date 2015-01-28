@@ -273,15 +273,9 @@ void LldbEngine::setupInferior()
 
     const QString path = stringSetting(ExtraDumperFile);
     if (!path.isEmpty()) {
-        QFileInfo fi(path);
-
-        Command cmd1("executeDebuggerCommand");
-        cmd1.arg("command", "python sys.path.insert(1, '" + fi.absolutePath().toUtf8() + "')");
-        runCommand(cmd1);
-
-        Command cmd2("executeDebuggerCommand");
-        cmd2.arg("python from " + fi.baseName().toUtf8() + " import *");
-        runCommand(cmd2);
+        Command cmd("addExtraDumper");
+        cmd.arg("path", path.toUtf8());
+        runCommand(cmd);
     }
 
     const QString commands = stringSetting(ExtraDumperCommands);
