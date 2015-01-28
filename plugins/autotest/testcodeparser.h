@@ -26,10 +26,6 @@
 #include <QObject>
 #include <QMap>
 
-namespace ProjectExplorer {
-class Project;
-}
-
 namespace Core {
 class Id;
 }
@@ -71,7 +67,6 @@ private:
     TestTreeModel *m_model;
     QMap<QString, TestInfo> m_cppDocMap;
     QMap<QString, TestInfo> m_quickDocMap;
-    ProjectExplorer::Project *m_currentProject;
     bool m_parserEnabled;
     bool m_pendingUpdate;
 };

@@ -49,7 +49,6 @@ namespace Internal {
 TestCodeParser::TestCodeParser(TestTreeModel *parent)
     : QObject(parent),
       m_model(parent),
-      m_currentProject(0),
       m_parserEnabled(true),
       m_pendingUpdate(false)
 {
@@ -70,6 +69,14 @@ void TestCodeParser::emitUpdateTestTree()
     QTimer::singleShot(1000, this, SLOT(updateTestTree()));
 }
 
+ProjectExplorer::Project *currentProject()
+{
+    const ProjectExplorer::SessionManager *session = ProjectExplorer::SessionManager::instance();
+    if (!session || !session->hasProjects())
+        return 0;
+    return session->startupProject();
+}
+
 void TestCodeParser::updateTestTree()
 {
     if (!m_parserEnabled) {
@@ -83,29 +90,15 @@ void TestCodeParser::updateTestTree()
     clearMaps();
     m_model->removeAllAutoTests();
     m_model->removeAllQuickTests();
-    const ProjectExplorer::SessionManager *session = ProjectExplorer::SessionManager::instance();
-    if (!session || !session->hasProjects()) {
-        if (m_currentProject) {
-            if (QmakeProjectManager::QmakeProject *qmproj
-                    = qobject_cast<QmakeProjectManager::QmakeProject *>(m_currentProject)) {
-                disconnect(qmproj, &QmakeProjectManager::QmakeProject::proFilesEvaluated,
-                           this, &TestCodeParser::onProFileEvaluated);
-            }
-        }
-        m_currentProject = 0;
-        return;
-    }
 
-    m_currentProject = session->startupProject();
-    if (!m_currentProject)
-        return;
-    else {
-        if (QmakeProjectManager::QmakeProject *qmproj
-                = qobject_cast<QmakeProjectManager::QmakeProject *>(m_currentProject)) {
-            connect(qmproj, &QmakeProjectManager::QmakeProject::proFilesEvaluated,
-                    this, &TestCodeParser::onProFileEvaluated);
+    if (ProjectExplorer::Project *proj = currentProject()) {
+        if (auto qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(proj)) {
+            connect(qmakeProject, &QmakeProjectManager::QmakeProject::proFilesEvaluated,
+                    this, &TestCodeParser::onProFileEvaluated, Qt::UniqueConnection);
         }
-    }
+    } else
+        return;
+
     scanForTests();
     m_pendingUpdate = false;
 }
@@ -568,7 +561,8 @@ void TestCodeParser::handleQtQuickTest(CPlusPlus::Document::Ptr doc)
 
 void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &doc)
 {
-    if (!m_currentProject)
+    ProjectExplorer::Project *project = currentProject();
+    if (!project)
         return;
     const QString fileName = doc->fileName();
     if (m_cppDocMap.contains(fileName)) {
@@ -577,7 +571,7 @@ void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &doc)
             qDebug("Skipped due revision equality"); // added to verify if this ever happens..
             return;
         }
-    } else if (!m_currentProject->files(ProjectExplorer::Project::AllFiles).contains(fileName)) {
+    } else if (!project->files(ProjectExplorer::Project::AllFiles).contains(fileName)) {
         return;
     }
     checkDocumentForTestCode(doc);
@@ -585,7 +579,8 @@ void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &doc)
 
 void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &doc)
 {
-    if (!m_currentProject)
+    ProjectExplorer::Project *project = currentProject();
+    if (!project)
         return;
     const QString fileName = doc->fileName();
     if (m_quickDocMap.contains(fileName)) {
@@ -593,7 +588,7 @@ void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &doc)
             qDebug("Skipped due revision equality (QML)"); // added to verify this ever happens....
             return;
         }
-    } else if (!m_currentProject->files(ProjectExplorer::Project::AllFiles).contains(fileName)) {
+    } else if (!project->files(ProjectExplorer::Project::AllFiles).contains(fileName)) {
         // what if the file is not listed inside the pro file, but will be used anyway?
         return;
     }
@@ -627,7 +622,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
 {
     QStringList list;
     if (fileList.isEmpty()) {
-        list = m_currentProject->files(ProjectExplorer::Project::AllFiles);
+        list = currentProject()->files(ProjectExplorer::Project::AllFiles);
     } else {
         list << fileList;
     }
@@ -767,11 +762,12 @@ void TestCodeParser::onAllTasksFinished(Core::Id type)
 
 void TestCodeParser::onProFileEvaluated()
 {
-    if (!m_currentProject)
+    ProjectExplorer::Project *project = currentProject();
+    if (!project)
         return;
 
     CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
-    const QList<CppTools::ProjectPart::Ptr> pp = cppMM->projectInfo(m_currentProject).projectParts();
+    const QList<CppTools::ProjectPart::Ptr> pp = cppMM->projectInfo(project).projectParts();
     foreach (const CppTools::ProjectPart::Ptr &p, pp) {
         if (!p->selectedForBuilding)
             removeTestsIfNecessaryByProFile(p->projectFile);
