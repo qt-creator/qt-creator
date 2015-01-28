@@ -1013,29 +1013,32 @@ void LldbEngine::refreshLocals(const GdbMi &vars)
     //const bool partial = response.cookie.toBool();
     WatchHandler *handler = watchHandler();
     handler->resetValueCache();
-    QList<WatchData> list;
 
-    //if (!partial) {
-        list.append(*handler->findData("local"));
-        list.append(*handler->findData("watch"));
-        list.append(*handler->findData("tooltip"));
-        list.append(*handler->findData("return"));
-    //}
+    QSet<QByteArray> toDelete;
+    foreach (WatchItem *item, handler->model()->treeLevelItems<WatchItem *>(2))
+        toDelete.insert(item->d.iname);
 
     foreach (const GdbMi &child, vars.children()) {
-        WatchData dummy;
-        dummy.iname = child["iname"].data();
+        QByteArray iname = child["iname"].data();
+        QString name;
+
         GdbMi wname = child["wname"];
-        if (wname.isValid()) {
-            // Happens (only) for watched expressions.
-            dummy.exp = QByteArray::fromHex(wname.data());
-            dummy.name = QString::fromUtf8(dummy.exp);
-        } else {
-            dummy.name = child["name"].toUtf8();
-        }
-        parseWatchData(handler->expandedINames(), dummy, child, &list);
+        if (wname.isValid()) // Happens (only) for watched expressions.
+            name = QString::fromUtf8(QByteArray::fromHex(wname.data()));
+        else
+            name = QString::fromLatin1(child["name"].data());
+
+        WatchItem *item = new WatchItem(iname, name);
+        item->parseWatchData(handler->expandedINames(), child);
+
+        if (wname.isValid())
+            item->d.exp = name.toUtf8();
+
+        handler->insertItem(item);
+        toDelete.remove(item->d.iname);
     }
-    handler->insertData(list);
+
+    handler->purgeOutdatedItems(toDelete);
 
     DebuggerToolTipManager::updateEngine(this);
  }
