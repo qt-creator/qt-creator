@@ -90,6 +90,8 @@ static const char generatedHeader[] =
 "\n"
 ;
 
+static QIODevice::OpenMode openFlags = QIODevice::WriteOnly | QIODevice::Text;
+
 static void closeAndPrintFilePath(QFile &file)
 {
     if (file.isOpen()) {
@@ -214,7 +216,7 @@ public:
         QFileInfo fileInfo(_cplusplusDir, QLatin1String("ASTVisit.cpp"));
 
         QFile file(fileInfo.absoluteFilePath());
-        if (! file.open(QFile::WriteOnly))
+        if (! file.open(openFlags))
             return;
 
         QTextStream output(&file);
@@ -351,7 +353,7 @@ public:
         QFileInfo fileInfo(_cplusplusDir, QLatin1String("ASTMatch0.cpp"));
 
         QFile file(fileInfo.absoluteFilePath());
-        if (! file.open(QFile::WriteOnly))
+        if (! file.open(openFlags))
             return;
 
         QTextStream output(&file);
@@ -462,7 +464,7 @@ public:
         QFileInfo fileInfo(_cplusplusDir, QLatin1String("ASTMatcher.cpp"));
 
         QFile file(fileInfo.absoluteFilePath());
-        if (! file.open(QFile::WriteOnly))
+        if (! file.open(openFlags))
             return;
 
         QTextStream output(&file);
@@ -615,7 +617,7 @@ public:
         QFileInfo fileInfo(_cplusplusDir, QLatin1String("ASTClone.cpp"));
 
         QFile file(fileInfo.absoluteFilePath());
-        if (! file.open(QFile::WriteOnly))
+        if (! file.open(openFlags))
             return;
 
         QTextStream output(&file);
@@ -751,7 +753,7 @@ public:
     static void go(const QString &fileName, TranslationUnit *unit)
     {
         QFile file(fileName);
-        if (! file.open(QFile::WriteOnly)) {
+        if (! file.open(openFlags)) {
             std::cerr << "Cannot open dumpers file." << std::endl;
             return;
         }
@@ -1226,7 +1228,7 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
     tc.setPosition(documentEnd);
     tc.insertText(newMethods);
 
-    if (file.open(QFile::WriteOnly)) {
+    if (file.open(openFlags)) {
         QTextStream out(&file);
         out << cpp_document.toPlainText();
         closeAndPrintFilePath(file);
@@ -1242,7 +1244,7 @@ void generateASTVisitor_H(const Snapshot &, const QDir &cplusplusDir,
   const QString fileName = fileASTVisitor_h.absoluteFilePath();
 
   QFile file(fileName);
-  if (! file.open(QFile::WriteOnly))
+  if (! file.open(openFlags))
     return;
 
   QTextStream out(&file);
@@ -1335,7 +1337,7 @@ void generateASTMatcher_H(const Snapshot &, const QDir &cplusplusDir,
   const QString fileName = fileASTMatcher_h.absoluteFilePath();
 
   QFile file(fileName);
-  if (! file.open(QFile::WriteOnly))
+  if (! file.open(openFlags))
     return;
 
   QTextStream out(&file);
@@ -1453,7 +1455,7 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir, co
                 replacementCastMethods.value(classAST));
     }
 
-    if (file.open(QFile::WriteOnly)) {
+    if (file.open(openFlags)) {
         QTextStream out(&file);
         out << document.toPlainText();
         closeAndPrintFilePath(file);
@@ -1554,7 +1556,7 @@ void generateASTFwd_h(const Snapshot &snapshot, const QDir &cplusplusDir, const 
 
     cursors.first().insertText(replacement);
 
-    if (file.open(QFile::WriteOnly)) {
+    if (file.open(openFlags)) {
         QTextStream out(&file);
         out << document.toPlainText();
         closeAndPrintFilePath(file);
@@ -1567,7 +1569,7 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
 
     QFileInfo fileInfo(cplusplusDir, QLatin1String("ASTPatternBuilder.h"));
     QFile file(fileInfo.absoluteFilePath());
-    if (! file.open(QFile::WriteOnly))
+    if (! file.open(openFlags))
         return;
 
     Overview oo;
