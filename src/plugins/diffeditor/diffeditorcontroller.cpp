@@ -44,13 +44,13 @@ namespace DiffEditor {
 
 DiffEditorController::DiffEditorController(QObject *parent)
     : QObject(parent),
+      m_reloader(0),
+      m_contextLinesNumber(3),
       m_diffFileIndex(-1),
       m_chunkIndex(-1),
       m_descriptionEnabled(false),
-      m_contextLinesNumber(3),
       m_contextLinesNumberEnabled(true),
-      m_ignoreWhitespace(true),
-      m_reloader(0)
+      m_ignoreWhitespace(true)
 {
     QSettings *s = Core::ICore::settings();
     s->beginGroup(QLatin1String(settingsGroupC));

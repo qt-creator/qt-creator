@@ -102,15 +102,15 @@ private:
     QString m_clearMessage;
 
     QList<FileData> m_diffFiles;
-    int m_diffFileIndex;
-    int m_chunkIndex;
     QString m_workingDirectory;
     QString m_description;
-    bool m_descriptionEnabled;
+    DiffEditorReloader *m_reloader;
     int m_contextLinesNumber;
+    int m_diffFileIndex;
+    int m_chunkIndex;
+    bool m_descriptionEnabled;
     bool m_contextLinesNumberEnabled;
     bool m_ignoreWhitespace;
-    DiffEditorReloader *m_reloader;
 };
 
 } // namespace DiffEditor
