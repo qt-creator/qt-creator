@@ -174,6 +174,7 @@ private slots:
     void test_quickfix_MoveAllFuncDefOutside_MemberFuncOutside();
     void test_quickfix_MoveAllFuncDefOutside_DoNotTriggerOnBaseClass();
     void test_quickfix_MoveAllFuncDefOutside_classWithBaseClass();
+    void test_quickfix_MoveAllFuncDefOutside_ignoreMacroCode();
 
     void test_quickfix_MoveFuncDefToDecl_MemberFunc();
     void test_quickfix_MoveFuncDefToDecl_MemberFuncOutside();

@@ -4102,6 +4102,34 @@ void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_classWithBaseClass()
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
+/// Check: Do not take macro expanded code into account (QTCREATORBUG-13900)
+void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_ignoreMacroCode()
+{
+    QByteArray original =
+        "#define FAKE_Q_OBJECT int bar() {return 5;}\n"
+        "class Fo@o {\n"
+        "    FAKE_Q_OBJECT\n"
+        "    int f1()\n"
+        "    {\n"
+        "        return 1;\n"
+        "    }\n"
+        "};\n";
+    QByteArray expected =
+        "#define FAKE_Q_OBJECT int bar() {return 5;}\n"
+        "class Foo {\n"
+        "    FAKE_Q_OBJECT\n"
+        "    int f1();\n"
+        "};\n"
+        "\n\n"
+        "int Foo::f1()\n"
+        "{\n"
+        "    return 1;\n"
+        "}\n";
+
+    MoveAllFuncDefOutside factory;
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
+}
+
 void CppEditorPlugin::test_quickfix_AssignToLocalVariable_templates()
 {
 

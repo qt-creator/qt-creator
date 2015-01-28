@@ -4650,8 +4650,10 @@ public:
     {
         MoveFuncDefRefactoringHelper helper(this, m_type, m_headerFileName, m_cppFileName);
         for (DeclarationListAST *it = m_classDef->member_specifier_list; it; it = it->next) {
-            if (FunctionDefinitionAST *funcAST = it->value->asFunctionDefinition())
-                helper.performMove(funcAST);
+            if (FunctionDefinitionAST *funcAST = it->value->asFunctionDefinition()) {
+                if (funcAST->symbol && !funcAST->symbol->isGenerated())
+                    helper.performMove(funcAST);
+            }
         }
         helper.applyChanges();
     }
@@ -4685,9 +4687,11 @@ void MoveAllFuncDefOutside::match(const CppQuickFixInterface &interface, QuickFi
     // Determine if the class has at least one function definition
     bool classContainsFunctions = false;
     for (DeclarationListAST *it = classAST->member_specifier_list; it; it = it->next) {
-        if (it->value->asFunctionDefinition()) {
-            classContainsFunctions = true;
-            break;
+        if (FunctionDefinitionAST *funcAST = it->value->asFunctionDefinition()) {
+            if (funcAST->symbol && !funcAST->symbol->isGenerated()) {
+                classContainsFunctions = true;
+                break;
+            }
         }
     }
     if (!classContainsFunctions)
