@@ -532,6 +532,15 @@ QStringList CompilerOptionsBuilder::createDefineOptions(const QByteArray &define
                 continue;
         }
 
+        // gcc 4.9 has:
+        //    #define __has_include(STR) __has_include__(STR)
+        //    #define __has_include_next(STR) __has_include_next__(STR)
+        // The right-hand sides are gcc built-ins that clang does not understand, and they'd
+        // override clang's own (non-macro, it seems) definitions of the symbols on the left-hand
+        // side.
+        if (toolchainType == QLatin1String("gcc") && def.contains("has_include"))
+            continue;
+
         QByteArray str = def.mid(8);
         int spaceIdx = str.indexOf(' ');
         const QString option = QLatin1String(toolchainType == QLatin1String("msvc") ? "/D" : "-D");
