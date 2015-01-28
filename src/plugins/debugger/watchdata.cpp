@@ -585,9 +585,11 @@ static void decodeArray(QList<WatchData> *list, const WatchData &tmplate,
     }
 }
 
-void parseWatchData(const QSet<QByteArray> &expandedINames,
-    const WatchData &data0, const GdbMi &item,
-    QList<WatchData> *list)
+void parseChildrenData(const QSet<QByteArray> &expandedINames,
+                       const WatchData &data0, const GdbMi &item,
+                       std::function<void(const WatchData &)> itemHandler,
+                       std::function<void(const QSet<QByteArray> &, const WatchData &, const GdbMi &)> childHandler,
+                       std::function<void(const WatchData &childTemplate, const QByteArray &encodedData, int encoding)> arrayDecoder)
 {
     //qDebug() << "HANDLE CHILDREN: " << data0.toString() << item.toString();
     WatchData data = data0;
@@ -640,7 +642,7 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
     setWatchDataValueEditable(data, item["valueeditable"]);
     data.updateChildCount(item["numchild"]);
     //qDebug() << "\nAPPEND TO LIST: " << data.toString() << "\n";
-    list->append(data);
+    itemHandler(data);
 
     bool ok = false;
     qulonglong addressBase = item["addrbase"].data().toULongLong(&ok, 0);
@@ -657,7 +659,7 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
         int encoding = item["arrayencoding"].toInt();
         childtemplate.iname = data.iname + '.';
         childtemplate.address = addressBase;
-        decodeArray(list, childtemplate, mi.data(), encoding);
+        arrayDecoder(childtemplate, mi.data(), encoding);
     } else {
         for (int i = 0, n = children.children().size(); i != n; ++i) {
             const GdbMi &child = children.children().at(i);
@@ -687,9 +689,28 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
                 int encoding = child["keyencoded"].toInt();
                 data1.name = decodeData(key, encoding);
             }
-            parseWatchData(expandedINames, data1, child, list);
+            childHandler(expandedINames, data1, child);
         }
     }
+}
+
+void parseWatchData(const QSet<QByteArray> &expandedINames,
+    const WatchData &data0, const GdbMi &input,
+    QList<WatchData> *list)
+{
+    auto itemHandler = [list](const WatchData &data) {
+        list->append(data);
+    };
+    auto childHandler = [list](const QSet<QByteArray> &expandedINames,
+            const WatchData &innerData, const GdbMi &innerInput) {
+        parseWatchData(expandedINames, innerData, innerInput, list);
+    };
+    auto arrayDecoder = [list](const WatchData &childTemplate,
+            const QByteArray &encodedData, int encoding) {
+        decodeArray(list, childTemplate, encodedData, encoding);
+    };
+
+    parseChildrenData(expandedINames, data0, input, itemHandler, childHandler, arrayDecoder);
 }
 
 } // namespace Internal

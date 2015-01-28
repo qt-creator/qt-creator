@@ -34,6 +34,8 @@
 #include <QCoreApplication>
 #include <QMetaType>
 
+#include <functional>
+
 namespace Debugger {
 namespace Internal {
 
@@ -150,6 +152,16 @@ public:
     QByteArray variable;  // Name of internal Gdb variable if created
     qint32 source;  // Originated from dumper or symbol evaluation? (CDB only)
 };
+
+void parseChildrenData(const QSet<QByteArray> &expandedINames,
+                    const WatchData &parent, const GdbMi &child,
+                    std::function<void(const WatchData &)> itemHandler,
+                    std::function<void(const QSet<QByteArray> &,
+                                       const WatchData &,
+                                       const GdbMi &)> childHandler,
+                    std::function<void(const WatchData &childTemplate,
+                                       const QByteArray &encodedData,
+                                       int encoding)> arrayDecoder);
 
 void parseWatchData(const QSet<QByteArray> &expandedINames,
     const WatchData &parent, const GdbMi &child,
