@@ -211,6 +211,7 @@ bool ClangStaticAnalyzerRunControl::startEngine()
 
     // Set up progress information
     using namespace Core;
+    m_progress = QFutureInterface<void>();
     FutureProgress *futureProgress
         = ProgressManager::addTask(m_progress.future(), tr("Analyzing"), "ClangStaticAnalyzer");
     futureProgress->setKeepOnFinish(FutureProgress::HideOnFinish);
