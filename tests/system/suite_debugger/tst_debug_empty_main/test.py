@@ -37,8 +37,8 @@ def addFileToProject(projectPath, category, fileTemplate, fileName):
     replaceEditorContent(nameLineEdit, fileName)
     pathLineEdit = waitForObject("{type='Utils::FancyLineEdit' unnamed='1' visible='1' "
                                  "toolTip?='Full path: *'}")
-    if not test.xcompare(pathLineEdit.text,  # QTCREATORBUG-13831
-                         projectPath, "Verifying whether path is correct."):
+    if not test.compare(pathLineEdit.text,
+                        projectPath, "Verifying whether path is correct."):
         replaceEditorContent(pathLineEdit, projectPath)
     clickButton(waitForObject(":Next_QPushButton"))
     projCombo = waitForObject("{buddy={name='projectLabel' text='Add to project:' type='QLabel' "
