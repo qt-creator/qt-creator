@@ -757,7 +757,7 @@ GitDiffEditorReloader *GitClient::findOrCreateDiffEditor(const QString &document
 
         connect(controller, &DiffEditor::DiffEditorController::chunkActionsRequested,
                 this, &GitClient::slotChunkActionsRequested, Qt::DirectConnection);
-        connect(controller, static_cast<void (DiffEditor::DiffEditorController::*)(const QString &)>(&DiffEditor::DiffEditorController::expandBranchesRequested),
+        connect(controller, &DiffEditor::DiffEditorController::requestBranchList,
                 this, &GitClient::branchesForCommit);
 
         reloader = new GitDiffEditorReloader();

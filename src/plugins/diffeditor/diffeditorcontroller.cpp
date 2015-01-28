@@ -246,7 +246,7 @@ void DiffEditorController::branchesForCommitReceived(const QString &output)
 
 void DiffEditorController::expandBranchesRequested()
 {
-    emit expandBranchesRequested(m_description.mid(7, 8));
+    emit requestBranchList(m_description.mid(7, 8));
 }
 
 QString DiffEditorController::prepareBranchesForCommit(const QString &output)

@@ -79,7 +79,7 @@ public:
     virtual QSize sizeHint() const;
 
 signals:
-    void expandBranchesRequested();
+    void requestBranchList();
 
 protected:
     void mouseMoveEvent(QMouseEvent *e);
@@ -194,7 +194,7 @@ void DescriptionEditorWidget::handleCurrentContents()
     m_currentCursor.select(QTextCursor::LineUnderCursor);
     m_currentCursor.removeSelectedText();
     m_currentCursor.insertText(QLatin1String("Branches: Expanding..."));
-    emit expandBranchesRequested();
+    emit requestBranchList();
 }
 
 } // namespace Internal
@@ -233,24 +233,23 @@ DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
 
     setWidget(splitter);
 
-    connect(m_descriptionWidget, SIGNAL(expandBranchesRequested()),
-            m_document->controller(), SLOT(expandBranchesRequested()));
 
     m_controller = m_document->controller();
     m_guiController = new DiffEditorGuiController(m_controller, this);
 
-    connect(m_controller, SIGNAL(cleared(QString)),
-            this, SLOT(slotCleared(QString)));
-    connect(m_controller, SIGNAL(diffFilesChanged(QList<FileData>,QString)),
-            this, SLOT(slotDiffFilesChanged(QList<FileData>,QString)));
-    connect(m_controller, SIGNAL(descriptionChanged(QString)),
-            this, SLOT(slotDescriptionChanged(QString)));
-    connect(m_controller, SIGNAL(descriptionEnablementChanged(bool)),
-            this, SLOT(slotDescriptionVisibilityChanged()));
-    connect(m_guiController, SIGNAL(descriptionVisibilityChanged(bool)),
-            this, SLOT(slotDescriptionVisibilityChanged()));
-    connect(m_guiController, SIGNAL(currentDiffFileIndexChanged(int)),
-            this, SLOT(activateEntry(int)));
+    connect(m_descriptionWidget, &Internal::DescriptionEditorWidget::requestBranchList,
+            m_controller, &DiffEditorController::expandBranchesRequested);
+    connect(m_controller, &DiffEditorController::cleared, this, &DiffEditor::slotCleared);
+    connect(m_controller, &DiffEditorController::diffFilesChanged,
+            this, &DiffEditor::slotDiffFilesChanged);
+    connect(m_controller, &DiffEditorController::descriptionChanged,
+            this, &DiffEditor::slotDescriptionChanged);
+    connect(m_controller, &DiffEditorController::descriptionEnablementChanged,
+            this, &DiffEditor::slotDescriptionVisibilityChanged);
+    connect(m_guiController, &DiffEditorGuiController::descriptionVisibilityChanged,
+            this, &DiffEditor::slotDescriptionVisibilityChanged);
+    connect(m_guiController, &DiffEditorGuiController::currentDiffFileIndexChanged,
+            this, &DiffEditor::activateEntry);
 
     slotDescriptionChanged(m_controller->description());
     slotDescriptionVisibilityChanged();
@@ -314,8 +313,8 @@ QWidget *DiffEditor::toolBar()
     QSizePolicy policy = m_entriesComboBox->sizePolicy();
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_entriesComboBox->setSizePolicy(policy);
-    connect(m_entriesComboBox, SIGNAL(activated(int)),
-            this, SLOT(entryActivated(int)));
+    connect(m_entriesComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+            this, &DiffEditor::entryActivated);
     m_toolBar->addWidget(m_entriesComboBox);
 
     QToolButton *whitespaceButton = new QToolButton(m_toolBar);
@@ -362,26 +361,26 @@ QWidget *DiffEditor::toolBar()
     m_toolBar->addWidget(m_diffEditorSwitcher);
     updateDiffEditorSwitcher();
 
-    connect(whitespaceButton, SIGNAL(clicked(bool)),
-            m_controller, SLOT(setIgnoreWhitespace(bool)));
-    connect(m_controller, SIGNAL(ignoreWhitespaceChanged(bool)),
-            whitespaceButton, SLOT(setChecked(bool)));
-    connect(contextSpinBox, SIGNAL(valueChanged(int)),
-            m_controller, SLOT(setContextLinesNumber(int)));
-    connect(m_controller, SIGNAL(contextLinesNumberChanged(int)),
-            contextSpinBox, SLOT(setValue(int)));
-    connect(toggleSync, SIGNAL(clicked(bool)),
-            m_guiController, SLOT(setHorizontalScrollBarSynchronization(bool)));
-    connect(toggleDescription, SIGNAL(clicked(bool)),
-            m_guiController, SLOT(setDescriptionVisible(bool)));
-    connect(m_diffEditorSwitcher, SIGNAL(clicked()),
-            this, SLOT(slotDiffEditorSwitched()));
-    connect(reloadButton, SIGNAL(clicked()),
-            m_controller, SLOT(requestReload()));
-    connect(m_controller, SIGNAL(reloaderChanged()),
-            this, SLOT(slotReloaderChanged()));
-    connect(m_controller, SIGNAL(contextLinesNumberEnablementChanged(bool)),
-            this, SLOT(slotReloaderChanged()));
+    connect(whitespaceButton, &QToolButton::clicked,
+            m_controller, &DiffEditorController::setIgnoreWhitespace);
+    connect(m_controller, &DiffEditorController::ignoreWhitespaceChanged,
+            whitespaceButton, &QToolButton::setChecked);
+    connect(contextSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            m_controller, &DiffEditorController::setContextLinesNumber);
+    connect(m_controller, &DiffEditorController::contextLinesNumberChanged,
+            contextSpinBox, &QSpinBox::setValue);
+    connect(toggleSync, &QAbstractButton::clicked,
+            m_guiController, &DiffEditorGuiController::setHorizontalScrollBarSynchronization);
+    connect(toggleDescription, &QAbstractButton::clicked,
+            m_guiController, &DiffEditorGuiController::setDescriptionVisible);
+    connect(m_diffEditorSwitcher, &QAbstractButton::clicked,
+            this, &DiffEditor::slotDiffEditorSwitched);
+    connect(reloadButton, &QAbstractButton::clicked,
+            m_controller, &DiffEditorController::requestReload);
+    connect(m_controller, &DiffEditorController::reloaderChanged,
+            this, &DiffEditor::slotReloaderChanged);
+    connect(m_controller, &DiffEditorController::contextLinesNumberEnablementChanged,
+            this, &DiffEditor::slotReloaderChanged);
 
     return m_toolBar;
 }

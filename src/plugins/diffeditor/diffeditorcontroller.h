@@ -94,7 +94,7 @@ signals:
     void chunkActionsRequested(QMenu *menu, bool isValid);
     void saveStateRequested();
     void restoreStateRequested();
-    void expandBranchesRequested(const QString &revision);
+    void requestBranchList(const QString &revision);
     void reloaderChanged();
 
 private:
