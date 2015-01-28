@@ -82,6 +82,7 @@ RunControl *AndroidRunControlFactory::create(RunConfiguration *runConfig,
     case MemcheckRunMode:
     case MemcheckWithGdbRunMode:
     case ClangStaticAnalyzerMode:
+    case PerfProfilerRunMode:
         QTC_CHECK(false); // The other run modes are not supported
     }
     return 0;

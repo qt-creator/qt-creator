@@ -196,6 +196,7 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, RunMode mo
         connect(runControl, SIGNAL(finished()), analyzeSupport, SLOT(handleProfilingFinished()));
         return runControl;
     }
+    case PerfProfilerRunMode:
     case NoRunMode:
     case CallgrindRunMode:
     case MemcheckRunMode:

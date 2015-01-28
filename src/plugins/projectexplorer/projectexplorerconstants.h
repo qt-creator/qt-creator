@@ -275,7 +275,8 @@ enum RunMode {
     CallgrindRunMode,
     MemcheckRunMode,
     MemcheckWithGdbRunMode,
-    ClangStaticAnalyzerMode
+    ClangStaticAnalyzerMode,
+    PerfProfilerRunMode
 };
 
 } // namespace ProjectExplorer
