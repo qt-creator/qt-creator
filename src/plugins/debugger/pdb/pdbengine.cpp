@@ -800,16 +800,20 @@ void PdbEngine::handleListLocals(const PdbResponse &response)
     //qDebug() << "ALL: " << all.toString();
 
     //GdbMi data = all.findChild("data");
-    QList<WatchData> list;
     WatchHandler *handler = watchHandler();
+
+    QSet<QByteArray> toDelete;
+    foreach (WatchItem *item, handler->model()->treeLevelItems<WatchItem *>(2))
+        toDelete.insert(item->d.iname);
+
     foreach (const GdbMi &child, all.children()) {
-        WatchData dummy;
-        dummy.iname = child["iname"].data();
-        dummy.name = _(child["name"].data());
-        //qDebug() << "CHILD: " << child.toString();
-        parseWatchData(handler->expandedINames(), dummy, child, &list);
+        WatchItem *item = new WatchItem(child["iname"].data(), _(child["name"].data()));
+        item->parseWatchData(handler->expandedINames(), child);
+        handler->insertItem(item);
+        toDelete.remove(item->d.iname);
     }
-    handler->insertData(list);
+
+    handler->purgeOutdatedItems(toDelete);
 }
 
 bool PdbEngine::hasCapability(unsigned cap) const
@@ -821,7 +825,6 @@ DebuggerEngine *createPdbEngine(const DebuggerStartParameters &startParameters)
 {
     return new PdbEngine(startParameters);
 }
-
 
 } // namespace Internal
 } // namespace Debugger
