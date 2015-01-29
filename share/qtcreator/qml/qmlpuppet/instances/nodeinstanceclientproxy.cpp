@@ -281,7 +281,7 @@ QVariant NodeInstanceClientProxy::readCommandFromIOStream(QIODevice *ioDevice, q
     *blockSize = 0;
 
     if (in.status() != QDataStream::Ok) {
-        qWarning() << "Stream is no ok!!!";
+        qWarning() << "Stream is not OK";
         exit(1);
     }
 
