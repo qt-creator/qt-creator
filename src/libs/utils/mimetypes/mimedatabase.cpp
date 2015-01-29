@@ -40,6 +40,7 @@
 #include "mimeprovider_p.h"
 #include "mimetype_p.h"
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QSet>
@@ -50,6 +51,8 @@
 
 #include <algorithm>
 #include <functional>
+
+static const char ALL_FILES_FILTER[]      = QT_TRANSLATE_NOOP("Core", "All Files (*)");
 
 using namespace Utils;
 using namespace Utils::Internal;
@@ -309,6 +312,36 @@ void MimeDatabase::addMimeTypes(const QString &fileName)
     QMutexLocker locker(&d->mutex);
     auto xmlProvider = static_cast<MimeXMLProvider *>(d->provider());
     xmlProvider->addFile(fileName);
+}
+
+QString MimeDatabase::allFiltersString(QString *allFilesFilter)
+{
+    MimeDatabase mdb;
+    QSet<QString> uniqueFilters;
+    foreach (const MimeType &mt, mdb.allMimeTypes())
+        uniqueFilters.insert(mt.filterString());
+    QStringList filters;
+    foreach (const QString &filter, uniqueFilters)
+        filters.append(filter);
+    filters.sort();
+    static const QString allFiles =
+        QCoreApplication::translate("Core", ALL_FILES_FILTER);
+    if (allFilesFilter)
+        *allFilesFilter = allFiles;
+
+    // Prepend all files filter
+    filters.prepend(allFiles);
+
+    return filters.join(QLatin1String(";;"));
+}
+
+QStringList MimeDatabase::allGlobPatterns()
+{
+    MimeDatabase mdb;
+    QStringList patterns;
+    foreach (const MimeType &mt, mdb.allMimeTypes())
+        patterns.append(mt.globPatterns());
+    return patterns;
 }
 
 /*!
