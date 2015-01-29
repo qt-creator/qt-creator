@@ -43,7 +43,18 @@
 
 namespace Utils {
 
+class TreeItem;
 class TreeModel;
+
+class QTCREATOR_UTILS_EXPORT TreeItemVisitor
+{
+public:
+    TreeItemVisitor() {}
+    virtual ~TreeItemVisitor() {}
+
+    bool preVisit(TreeItem *) { return true; }
+    void visit(TreeItem *) {}
+};
 
 class QTCREATOR_UTILS_EXPORT TreeItem
 {
@@ -62,6 +73,7 @@ public:
     virtual bool setData(int column, const QVariant &data, int role);
     virtual Qt::ItemFlags flags(int column) const;
 
+    virtual bool hasChildren() const;
     virtual bool canFetchMore() const;
     virtual void fetchMore() {}
 
@@ -83,6 +95,9 @@ public:
 
     TreeModel *model() const { return m_model; }
     void setModel(TreeModel *model);
+
+    void walkTree(TreeItemVisitor *visitor);
+    void walkTree(std::function<void(TreeItem *)> f);
 
 private:
     TreeItem(const TreeItem &) Q_DECL_EQ_DELETE;
@@ -245,11 +260,13 @@ public:
     QModelIndex parent(const QModelIndex &idx) const;
     Qt::ItemFlags flags(const QModelIndex &idx) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    bool hasChildren(const QModelIndex &idx) const;
 
     bool canFetchMore(const QModelIndex &idx) const;
     void fetchMore(const QModelIndex &idx);
 
     TreeItem *rootItem() const;
+    void setRootItem(TreeItem *item);
     TreeItem *itemFromIndex(const QModelIndex &) const;
     QModelIndex indexFromItem(const TreeItem *needle) const;
     void removeItems();

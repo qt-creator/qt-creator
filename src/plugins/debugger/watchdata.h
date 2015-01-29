@@ -98,6 +98,7 @@ public:
     bool isVTablePointer() const;
 
     bool isEqual(const WatchData &other) const;
+    bool isAncestorOf(const QByteArray &childIName) const;
 
     void setError(const QString &);
     void setValue(const QString &);

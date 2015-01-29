@@ -156,6 +156,15 @@ bool WatchData::isEqual(const WatchData &other) const
       && error == other.error;
 }
 
+bool WatchData::isAncestorOf(const QByteArray &childIName) const
+{
+    if (iname.size() >= childIName.size())
+        return false;
+    if (!childIName.startsWith(iname))
+        return false;
+    return childIName.at(iname.size()) == '.';
+}
+
 bool WatchData::isVTablePointer() const
 {
     // First case: Cdb only. No user type can be named like this, this is safe.

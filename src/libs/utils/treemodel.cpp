@@ -671,6 +671,11 @@ Qt::ItemFlags TreeItem::flags(int column) const
     return m_flags;
 }
 
+bool TreeItem::hasChildren() const
+{
+    return canFetchMore() || rowCount() > 0;
+}
+
 bool TreeItem::canFetchMore() const
 {
     return false;
@@ -767,6 +772,22 @@ void TreeItem::setModel(TreeModel *model)
     m_model = model;
     foreach (TreeItem *item, m_children)
         item->setModel(model);
+}
+
+void TreeItem::walkTree(TreeItemVisitor *visitor)
+{
+    if (visitor->preVisit(this)) {
+        visitor->visit(this);
+        foreach (TreeItem *item, m_children)
+            item->walkTree(visitor);
+    }
+}
+
+void TreeItem::walkTree(std::function<void (TreeItem *)> f)
+{
+    f(this);
+    foreach (TreeItem *item, m_children)
+        item->walkTree(f);
 }
 
 void TreeItem::clear()
@@ -898,6 +919,12 @@ QVariant TreeModel::headerData(int section, Qt::Orientation orientation,
     return QVariant();
 }
 
+bool TreeModel::hasChildren(const QModelIndex &idx) const
+{
+    TreeItem *item = itemFromIndex(idx);
+    return !item || item->hasChildren();
+}
+
 Qt::ItemFlags TreeModel::flags(const QModelIndex &idx) const
 {
     if (!idx.isValid())
@@ -927,6 +954,13 @@ void TreeModel::fetchMore(const QModelIndex &idx)
 TreeItem *TreeModel::rootItem() const
 {
     return m_root;
+}
+
+void TreeModel::setRootItem(TreeItem *item)
+{
+    delete m_root;
+    m_root = item;
+    item->setModel(this);
 }
 
 void TreeModel::setHeader(const QStringList &displays)

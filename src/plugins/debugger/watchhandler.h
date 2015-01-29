@@ -33,7 +33,8 @@
 
 #include "watchdata.h"
 
-#include <QAbstractItemModel>
+#include <utils/treemodel.h>
+
 #include <QPointer>
 #include <QVector>
 
@@ -125,7 +126,7 @@ public:
 
 typedef QHash<QString, QStringList> DumperTypeFormats; // Type name -> Dumper Formats
 
-class WatchModelBase : public QAbstractItemModel
+class WatchModelBase : public Utils::TreeModel
 {
     Q_OBJECT
 
@@ -189,7 +190,6 @@ public:
 
     void scheduleResetLocation();
     void resetLocation();
-    bool isValidToolTip(const QByteArray &iname) const;
 
     void setCurrentItem(const QByteArray &iname);
     void updateWatchersWindow();

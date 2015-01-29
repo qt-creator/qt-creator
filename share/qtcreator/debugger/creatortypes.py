@@ -56,7 +56,7 @@ def qdump__Debugger__Internal__WatchData(d, value):
     d.putPlainChildren(value)
 
 def qdump__Debugger__Internal__WatchItem(d, value):
-    d.putByteArrayValue(value["iname"])
+    d.putByteArrayValue(value["d"]["iname"])
     d.putPlainChildren(value)
 
 def qdump__Debugger__Internal__BreakpointModelId(d, value):
