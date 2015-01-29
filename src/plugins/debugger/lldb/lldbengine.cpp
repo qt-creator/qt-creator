@@ -1019,21 +1019,7 @@ void LldbEngine::refreshLocals(const GdbMi &vars)
         toDelete.insert(item->d.iname);
 
     foreach (const GdbMi &child, vars.children()) {
-        QByteArray iname = child["iname"].data();
-        QString name;
-
-        GdbMi wname = child["wname"];
-        if (wname.isValid()) // Happens (only) for watched expressions.
-            name = QString::fromUtf8(QByteArray::fromHex(wname.data()));
-        else
-            name = QString::fromLatin1(child["name"].data());
-
-        WatchItem *item = new WatchItem(iname, name);
-        item->parseWatchData(child);
-
-        if (wname.isValid())
-            item->d.exp = name.toUtf8();
-
+        WatchItem *item = new WatchItem(child);
         handler->insertItem(item);
         toDelete.remove(item->d.iname);
     }

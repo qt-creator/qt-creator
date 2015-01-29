@@ -4958,24 +4958,10 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
         }
 
         foreach (const GdbMi &child, data.children()) {
-            QByteArray iname = child["iname"].data();
-            QString name;
-
-            GdbMi wname = child["wname"];
-            if (wname.isValid()) // Happens (only) for watched expressions.
-                name = QString::fromUtf8(QByteArray::fromHex(wname.data()));
-            else
-                name = _(child["name"].data());
-
-            WatchItem *item = new WatchItem(iname, name);
-            item->parseWatchData(child);
-
+            WatchItem *item = new WatchItem(child);
             const TypeInfo ti = m_typeInfoCache.value(item->d.type);
             if (ti.size)
                 item->d.size = ti.size;
-
-            if (wname.isValid())
-                item->d.exp = name.toUtf8();
 
             handler->insertItem(item);
             toDelete.remove(item->d.iname);

@@ -1913,6 +1913,23 @@ WatchItem::WatchItem(const WatchData &data)
 {
 }
 
+WatchItem::WatchItem(const GdbMi &data)
+    : fetchTriggered(false)
+{
+    d.iname = data["iname"].data();
+
+    GdbMi wname = data["wname"];
+    if (wname.isValid()) // Happens (only) for watched expressions.
+        d.name = QString::fromUtf8(QByteArray::fromHex(wname.data()));
+    else
+        d.name = QString::fromLatin1(data["name"].data());
+
+    parseWatchData(data);
+
+    if (wname.isValid())
+        d.exp = d.name.toUtf8();
+}
+
 WatchItem *WatchItem::parentItem() const
 {
     return dynamic_cast<WatchItem *>(parent());

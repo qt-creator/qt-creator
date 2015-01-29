@@ -50,6 +50,7 @@ public:
     WatchItem();
     WatchItem(const QByteArray &i, const QString &n);
     explicit WatchItem(const WatchData &data);
+    explicit WatchItem(const GdbMi &data);
 
     WatchItem *parentItem() const;
     const WatchModel *watchModel() const;
