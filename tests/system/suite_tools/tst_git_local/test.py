@@ -57,7 +57,7 @@ def commit(commitMessage, expectedLogMessage, uncheckUntracked=False):
 
 def verifyItemsInGit(commitMessages):
     gitEditor = waitForObject(":Qt Creator_Git::Internal::GitEditor")
-    waitFor("str(gitEditor.plainText) != 'Waiting for data...'", 20000)
+    waitFor("len(str(gitEditor.plainText)) > 0 and str(gitEditor.plainText) != 'Waiting for data...'", 20000)
     plainText = str(gitEditor.plainText)
     verifyItemOrder(commitMessages, plainText)
     return plainText
