@@ -201,7 +201,6 @@ public:
 
     bool setData(const QModelIndex &idx, const QVariant &value, int role);
 
-    void invalidateAll(const QModelIndex &parentIndex = QModelIndex());
     void insertDataItem(const WatchData &data, bool destructive);
     void reinsertAllData();
     void reinsertAllDataHelper(WatchItem *item, QList<WatchData> *data);
@@ -631,14 +630,6 @@ void WatchItem::fetchMore()
         flags.tryIncremental = true;
         watchModel()->engine()->updateWatchData(d, flags);
     }
-}
-
-void WatchModel::invalidateAll(const QModelIndex &parentIndex)
-{
-    QModelIndex idx1 = index(0, 0, parentIndex);
-    QModelIndex idx2 = index(rowCount(parentIndex) - 1, columnCount(parentIndex) - 1, parentIndex);
-    if (idx1.isValid() && idx2.isValid())
-        emit dataChanged(idx1, idx2);
 }
 
 // Truncate value for item view, maintaining quotes.
@@ -1759,10 +1750,7 @@ void WatchHandler::scheduleResetLocation()
 
 void WatchHandler::resetLocation()
 {
-    if (m_resetLocationScheduled) {
-        m_resetLocationScheduled = false;
-        //m_model->invalidateAll();  FIXME
-    }
+    m_resetLocationScheduled = false;
 }
 
 void WatchHandler::setCurrentItem(const QByteArray &iname)
