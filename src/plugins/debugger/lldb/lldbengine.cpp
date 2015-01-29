@@ -1029,7 +1029,7 @@ void LldbEngine::refreshLocals(const GdbMi &vars)
             name = QString::fromLatin1(child["name"].data());
 
         WatchItem *item = new WatchItem(iname, name);
-        item->parseWatchData(handler->expandedINames(), child);
+        item->parseWatchData(child);
 
         if (wname.isValid())
             item->d.exp = name.toUtf8();

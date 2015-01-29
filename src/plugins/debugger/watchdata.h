@@ -159,19 +159,15 @@ void decodeArrayData(std::function<void(const WatchData &)> itemHandler,
                      const QByteArray &rawData,
                      int encoding);
 
-void parseChildrenData(const QSet<QByteArray> &expandedINames,
-                    const WatchData &parent, const GdbMi &child,
-                    std::function<void(const WatchData &)> itemHandler,
-                    std::function<void(const QSet<QByteArray> &,
-                                       const WatchData &,
-                                       const GdbMi &)> childHandler,
-                    std::function<void(const WatchData &childTemplate,
-                                       const QByteArray &encodedData,
-                                       int encoding)> arrayDecoder);
+void parseChildrenData(const WatchData &parent, const GdbMi &child,
+                       std::function<void(const WatchData &)> itemHandler,
+                       std::function<void(const WatchData &, const GdbMi &)> childHandler,
+                       std::function<void(const WatchData &childTemplate,
+                                          const QByteArray &encodedData,
+                                          int encoding)> arrayDecoder);
 
-void parseWatchData(const QSet<QByteArray> &expandedINames,
-    const WatchData &parent, const GdbMi &child,
-    QList<WatchData> *insertions);
+void parseWatchData(const WatchData &parent, const GdbMi &child,
+                    QList<WatchData> *insertions);
 
 } // namespace Internal
 } // namespace Debugger

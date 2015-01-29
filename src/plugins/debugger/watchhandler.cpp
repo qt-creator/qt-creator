@@ -1928,15 +1928,14 @@ WatchModel *WatchItem::watchModel()
     return static_cast<WatchModel *>(model());
 }
 
-void WatchItem::parseWatchData(const QSet<QByteArray> &expandedINames, const GdbMi &input)
+void WatchItem::parseWatchData(const GdbMi &input)
 {
     auto itemHandler = [this](const WatchData &data) {
         d = data;
     };
-    auto childHandler = [this](const QSet<QByteArray> &expandedINames,
-            const WatchData &innerData, const GdbMi &innerInput) {
+    auto childHandler = [this](const WatchData &innerData, const GdbMi &innerInput) {
         WatchItem *item = new WatchItem(innerData);
-        item->parseWatchData(expandedINames, innerInput);
+        item->parseWatchData(innerInput);
         appendChild(item);
     };
 
@@ -1949,7 +1948,7 @@ void WatchItem::parseWatchData(const QSet<QByteArray> &expandedINames, const Gdb
         decodeArrayData(itemAdder, childTemplate, encodedData, encoding);
     };
 
-    parseChildrenData(expandedINames, d, input, itemHandler, childHandler, arrayDecoder);
+    parseChildrenData(d, input, itemHandler, childHandler, arrayDecoder);
 }
 
 } // namespace Internal

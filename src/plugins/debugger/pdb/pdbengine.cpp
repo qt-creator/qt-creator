@@ -808,7 +808,7 @@ void PdbEngine::handleListLocals(const PdbResponse &response)
 
     foreach (const GdbMi &child, all.children()) {
         WatchItem *item = new WatchItem(child["iname"].data(), _(child["name"].data()));
-        item->parseWatchData(handler->expandedINames(), child);
+        item->parseWatchData(child);
         handler->insertItem(item);
         toDelete.remove(item->d.iname);
     }

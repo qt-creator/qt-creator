@@ -4968,7 +4968,7 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
                 name = _(child["name"].data());
 
             WatchItem *item = new WatchItem(iname, name);
-            item->parseWatchData(handler->expandedINames(), child);
+            item->parseWatchData(child);
 
             const TypeInfo ti = m_typeInfoCache.value(item->d.type);
             if (ti.size)

@@ -1933,7 +1933,7 @@ void CdbEngine::handleLocals(const CdbExtensionCommandPtr &reply)
             WatchData dummy;
             dummy.iname = child["iname"].data();
             dummy.name = QLatin1String(child["name"].data());
-            parseWatchData(handler->expandedINames(), dummy, child, &watchData);
+            parseWatchData(dummy, child, &watchData);
         }
         // Fix the names of watch data.
         for (int i =0; i < watchData.size(); ++i) {

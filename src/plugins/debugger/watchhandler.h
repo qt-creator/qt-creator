@@ -75,7 +75,7 @@ public:
     void formatRequests(QByteArray *out) const;
     void showInEditorHelper(QString *contents, int depth) const;
     WatchItem *findItem(const QByteArray &iname);
-    void parseWatchData(const QSet<QByteArray> &expandedINames, const GdbMi &input);
+    void parseWatchData(const GdbMi &input);
 
 public:
     WatchData d;

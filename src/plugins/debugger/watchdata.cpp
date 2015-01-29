@@ -594,21 +594,16 @@ void decodeArrayData(std::function<void(const WatchData &)> itemHandler, const W
     }
 }
 
-void parseChildrenData(const QSet<QByteArray> &expandedINames,
-                       const WatchData &data0, const GdbMi &item,
+void parseChildrenData(const WatchData &data0, const GdbMi &item,
                        std::function<void(const WatchData &)> itemHandler,
-                       std::function<void(const QSet<QByteArray> &, const WatchData &, const GdbMi &)> childHandler,
+                       std::function<void(const WatchData &, const GdbMi &)> childHandler,
                        std::function<void(const WatchData &childTemplate, const QByteArray &encodedData, int encoding)> arrayDecoder)
 {
     //qDebug() << "HANDLE CHILDREN: " << data0.toString() << item.toString();
     WatchData data = data0;
-    bool isExpanded = expandedINames.contains(data.iname);
-    if (!isExpanded)
-        data.setChildrenUnneeded();
+    data.setChildrenUnneeded();
 
     GdbMi children = item["children"];
-    if (children.isValid() || !isExpanded)
-        data.setChildrenUnneeded();
 
     data.updateType(item["type"]);
     GdbMi mi = item["editvalue"];
@@ -698,28 +693,26 @@ void parseChildrenData(const QSet<QByteArray> &expandedINames,
                 int encoding = child["keyencoded"].toInt();
                 data1.name = decodeData(key, encoding);
             }
-            childHandler(expandedINames, data1, child);
+            childHandler(data1, child);
         }
     }
 }
 
-void parseWatchData(const QSet<QByteArray> &expandedINames,
-    const WatchData &data0, const GdbMi &input,
+void parseWatchData(const WatchData &data0, const GdbMi &input,
     QList<WatchData> *list)
 {
     auto itemHandler = [list](const WatchData &data) {
         list->append(data);
     };
-    auto childHandler = [list](const QSet<QByteArray> &expandedINames,
-            const WatchData &innerData, const GdbMi &innerInput) {
-        parseWatchData(expandedINames, innerData, innerInput, list);
+    auto childHandler = [list](const WatchData &innerData, const GdbMi &innerInput) {
+        parseWatchData(innerData, innerInput, list);
     };
     auto arrayDecoder = [itemHandler](const WatchData &childTemplate,
             const QByteArray &encodedData, int encoding) {
         decodeArrayData(itemHandler, childTemplate, encodedData, encoding);
     };
 
-    parseChildrenData(expandedINames, data0, input, itemHandler, childHandler, arrayDecoder);
+    parseChildrenData(data0, input, itemHandler, childHandler, arrayDecoder);
 }
 
 } // namespace Internal
