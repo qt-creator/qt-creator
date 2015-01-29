@@ -40,8 +40,8 @@ QmlJsTodoItemsScanner::QmlJsTodoItemsScanner(const KeywordList &keywordList, QOb
     TodoItemsScanner(keywordList, parent)
 {
     QmlJS::ModelManagerInterface *model = QmlJS::ModelManagerInterface::instance();
-    connect(model, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
-        this, SLOT(documentUpdated(QmlJS::Document::Ptr)), Qt::DirectConnection);
+    connect(model, &QmlJS::ModelManagerInterface::documentUpdated,
+            this, &QmlJsTodoItemsScanner::documentUpdated, Qt::DirectConnection);
 }
 
 bool QmlJsTodoItemsScanner::shouldProcessFile(const QString &fileName)

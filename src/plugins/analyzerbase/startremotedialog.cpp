@@ -94,12 +94,12 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
     d->arguments->setText(settings->value(QLatin1String("arguments")).toString());
     settings->endGroup();
 
-    connect(d->kitChooser, SIGNAL(activated(int)), SLOT(validate()));
-    connect(d->executable, SIGNAL(textChanged(QString)), SLOT(validate()));
-    connect(d->workingDirectory, SIGNAL(textChanged(QString)), SLOT(validate()));
-    connect(d->arguments, SIGNAL(textChanged(QString)), SLOT(validate()));
-    connect(d->buttonBox, SIGNAL(accepted()), SLOT(accept()));
-    connect(d->buttonBox, SIGNAL(rejected()), SLOT(reject()));
+    connect(d->kitChooser, &KitChooser::activated, this, &StartRemoteDialog::validate);
+    connect(d->executable, &QLineEdit::textChanged, this, &StartRemoteDialog::validate);
+    connect(d->workingDirectory, &QLineEdit::textChanged, this, &StartRemoteDialog::validate);
+    connect(d->arguments, &QLineEdit::textChanged, this, &StartRemoteDialog::validate);
+    connect(d->buttonBox, &QDialogButtonBox::accepted, this, &StartRemoteDialog::accept);
+    connect(d->buttonBox, &QDialogButtonBox::rejected, this, &StartRemoteDialog::reject);
 
     validate();
 }

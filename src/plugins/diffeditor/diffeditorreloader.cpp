@@ -64,10 +64,10 @@ void DiffEditorReloader::setController(DiffEditorController *controller)
     m_controller = controller;
 
     if (m_controller) {
-        connect(m_controller, SIGNAL(ignoreWhitespaceChanged(bool)),
-                this, SLOT(requestReload()));
-        connect(m_controller, SIGNAL(contextLinesNumberChanged(int)),
-                this, SLOT(requestReload()));
+        connect(m_controller, &DiffEditorController::ignoreWhitespaceChanged,
+                this, &DiffEditorReloader::requestReload);
+        connect(m_controller, &DiffEditorController::contextLinesNumberChanged,
+                this, &DiffEditorReloader::requestReload);
     }
 }
 

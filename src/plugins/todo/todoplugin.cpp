@@ -114,15 +114,18 @@ void TodoPlugin::createTodoOutputPane()
     m_todoOutputPane = new TodoOutputPane(m_todoItemsProvider->todoItemsModel());
     addAutoReleasedObject(m_todoOutputPane);
     m_todoOutputPane->setScanningScope(m_settings.scanningScope);
-    connect(m_todoOutputPane, SIGNAL(scanningScopeChanged(ScanningScope)), SLOT(scanningScopeChanged(ScanningScope)));
-    connect(m_todoOutputPane, SIGNAL(todoItemClicked(TodoItem)), SLOT(todoItemClicked(TodoItem)));
+    connect(m_todoOutputPane, &TodoOutputPane::scanningScopeChanged,
+            this, &TodoPlugin::scanningScopeChanged);
+    connect(m_todoOutputPane, &TodoOutputPane::todoItemClicked,
+            this, &TodoPlugin::todoItemClicked);
 }
 
 void TodoPlugin::createOptionsPage()
 {
     m_optionsPage = new OptionsPage(m_settings);
     addAutoReleasedObject(m_optionsPage);
-    connect(m_optionsPage, SIGNAL(settingsChanged(Settings)), SLOT(settingsChanged(Settings)));
+    connect(m_optionsPage, &OptionsPage::settingsChanged,
+            this, &TodoPlugin::settingsChanged);
 }
 
 } // namespace Internal

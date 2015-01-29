@@ -56,7 +56,8 @@ AnalyzerRunControl::AnalyzerRunControl(const AnalyzerStartParameters &sp,
     m_runConfig = runConfiguration;
     m_sp = sp;
 
-    connect(this, SIGNAL(finished()), SLOT(runControlFinished()));
+    connect(this, &AnalyzerRunControl::finished,
+            this, &AnalyzerRunControl::runControlFinished);
     connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), SLOT(stopIt()));
 }
 

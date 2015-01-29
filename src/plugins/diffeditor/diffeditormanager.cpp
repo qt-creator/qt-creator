@@ -48,8 +48,8 @@ DiffEditorManager::DiffEditorManager(QObject *parent)
     m_instance = this;
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
-    connect(editorManager, SIGNAL(editorsClosed(QList<Core::IEditor*>)),
-            this, SLOT(slotEditorsClosed(QList<Core::IEditor*>)));
+    connect(editorManager, &Core::EditorManager::editorsClosed,
+            this, &DiffEditorManager::slotEditorsClosed);
 }
 
 DiffEditorManager::~DiffEditorManager()

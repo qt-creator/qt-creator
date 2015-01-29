@@ -57,10 +57,10 @@ DiffEditorGuiController::DiffEditorGuiController(
                                 m_syncScrollBars).toBool();
     s->endGroup();
 
-    connect(m_controller, SIGNAL(cleared(QString)),
-            this, SLOT(slotUpdateDiffFileIndex()));
-    connect(m_controller, SIGNAL(diffFilesChanged(QList<FileData>,QString)),
-            this, SLOT(slotUpdateDiffFileIndex()));
+    connect(m_controller, &DiffEditorController::cleared, this,
+            &DiffEditorGuiController::slotUpdateDiffFileIndex);
+    connect(m_controller, &DiffEditorController::diffFilesChanged, this,
+            &DiffEditorGuiController::slotUpdateDiffFileIndex);
     slotUpdateDiffFileIndex();
 }
 

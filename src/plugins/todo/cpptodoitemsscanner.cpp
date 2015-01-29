@@ -44,8 +44,8 @@ CppTodoItemsScanner::CppTodoItemsScanner(const KeywordList &keywordList, QObject
 {
     CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
 
-    connect(modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)), this,
-        SLOT(documentUpdated(CPlusPlus::Document::Ptr)), Qt::DirectConnection);
+    connect(modelManager, &CppTools::CppModelManager::documentUpdated,
+            this, &CppTodoItemsScanner::documentUpdated, Qt::DirectConnection);
 }
 
 void CppTodoItemsScanner::keywordListChanged()

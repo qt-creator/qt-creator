@@ -49,8 +49,10 @@ TodoOutputPane::TodoOutputPane(TodoItemsModel *todoItemsModel, QObject *parent) 
     createTreeView();
     createScopeButtons();
     setScanningScope(ScanningScopeCurrentFile); // default
-    connect(m_todoItemsModel, SIGNAL(layoutChanged()), SIGNAL(navigateStateUpdate()));
-    connect(m_todoItemsModel, SIGNAL(layoutChanged()), SLOT(updateTodoCount()));
+    connect(m_todoItemsModel, &TodoItemsModel::layoutChanged,
+            this, &TodoOutputPane::navigateStateUpdate);
+    connect(m_todoItemsModel, &TodoItemsModel::layoutChanged,
+            this, &TodoOutputPane::updateTodoCount);
 }
 
 TodoOutputPane::~TodoOutputPane()
@@ -183,7 +185,7 @@ void TodoOutputPane::createTreeView()
     m_todoTreeView = new TodoOutputTreeView();
     m_todoTreeView->setModel(m_todoItemsModel);
 
-    connect(m_todoTreeView, SIGNAL(activated(QModelIndex)), SLOT(todoTreeViewClicked(QModelIndex)));
+    connect(m_todoTreeView, &TodoOutputTreeView::activated, this, &TodoOutputPane::todoTreeViewClicked);
 }
 
 void TodoOutputPane::freeTreeView()
@@ -206,7 +208,8 @@ void TodoOutputPane::createScopeButtons()
     m_scopeButtons = new QButtonGroup();
     m_scopeButtons->addButton(m_wholeProjectButton);
     m_scopeButtons->addButton(m_currentFileButton);
-    connect(m_scopeButtons, SIGNAL(buttonClicked(QAbstractButton*)), SLOT(scopeButtonClicked(QAbstractButton*)));
+    connect(m_scopeButtons, static_cast<void (QButtonGroup::*)(QAbstractButton *)>(&QButtonGroup::buttonClicked),
+            this, &TodoOutputPane::scopeButtonClicked);
 
     m_spacer = new QWidget;
     m_spacer->setMinimumWidth(Constants::OUTPUT_TOOLBAR_SPACER_WIDTH);

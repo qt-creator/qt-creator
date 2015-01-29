@@ -170,7 +170,7 @@ void TodoItemsProvider::setupUpdateListTimer()
 {
     m_shouldUpdateList = false;
     QTimer *timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), SLOT(updateListTimeoutElapsed()));
+    connect(timer, &QTimer::timeout, this, &TodoItemsProvider::updateListTimeoutElapsed);
     timer->start(Constants::OUTPUT_PANE_UPDATE_INTERVAL);
 }
 
