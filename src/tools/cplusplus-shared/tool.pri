@@ -9,5 +9,4 @@ QT = core gui
 TEMPLATE = app
 
 osx:CONFIG -= app_bundle
-win32:CONFIG += console
-win32:LIBS += -luser32 -lshell32
+CONFIG += console
