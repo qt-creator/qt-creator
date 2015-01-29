@@ -58,13 +58,6 @@
 #include <cstring>
 #include <ctype.h>
 
-//#define USE_WATCH_MODEL_TEST 0
-//#define USE_EXPENSIVE_CHECKS 0
-
-#if USE_WATCH_MODEL_TEST
-#include <modeltest.h>
-#endif
-
 using namespace Utils;
 
 namespace Debugger {
@@ -74,13 +67,6 @@ namespace Internal {
 enum { debugModel = 0 };
 
 #define MODEL_DEBUG(s) do { if (debugModel) qDebug() << s; } while (0)
-
-#if USE_EXPENSIVE_CHECKS
-#define CHECK(s) s
-#else
-#define CHECK(s)
-#endif
-
 
 static QHash<QByteArray, int> theWatcherNames;
 static QHash<QByteArray, int> theTypeFormats;
@@ -242,7 +228,6 @@ public:
     WatchItem *m_tooltipRoot; // Not owned.
 
     QSet<QByteArray> m_expandedINames;
-//    QSet<QByteArray> m_fetchTriggered;
 
     TypeFormatList builtinTypeFormatList(const WatchData &data) const;
     QStringList dumperTypeFormatList(const WatchData &data) const;
@@ -254,13 +239,6 @@ public:
     typedef QHash<QByteArray, QString> ValueCache;
     ValueCache m_valueCache;
 
-    #if USE_EXPENSIVE_CHECKS
-    QHash<const WatchItem *, QByteArray> m_cache2;
-    void checkTree();
-    void checkItem(const WatchItem *item) const;
-    void checkTree(WatchItem *item, QSet<QByteArray> *inames);
-    #endif
-    void checkIndex(const QModelIndex &index) const;
     void insertItem(WatchItem *item);
     void reexpandItems();
 };
@@ -319,15 +297,6 @@ WatchItem *WatchItem::findItem(const QByteArray &iname)
             return witem->findItem(iname);
     }
     return 0;
-}
-
-void WatchModel::checkIndex(const QModelIndex &index) const
-{
-    if (index.isValid()) {
-        QTC_CHECK(index.model() == this);
-    } else {
-        QTC_CHECK(index.model() == 0);
-    }
 }
 
 void WatchModel::reinsertAllData()
@@ -666,11 +635,8 @@ void WatchItem::fetchMore()
 
 void WatchModel::invalidateAll(const QModelIndex &parentIndex)
 {
-    checkIndex(parentIndex);
     QModelIndex idx1 = index(0, 0, parentIndex);
     QModelIndex idx2 = index(rowCount(parentIndex) - 1, columnCount(parentIndex) - 1, parentIndex);
-    checkIndex(idx1);
-    checkIndex(idx2);
     if (idx1.isValid() && idx2.isValid())
         emit dataChanged(idx1, idx2);
 }
@@ -703,32 +669,6 @@ bool WatchModel::contentIsValid() const
     //    return true;
     return m_handler->m_contentsValid;
 }
-
-#if USE_EXPENSIVE_CHECKS
-void WatchModel::checkTree()
-{
-    QSet<QByteArray> inames;
-    checkTree(m_root, &inames);
-    QSet<QByteArray> current = m_cache.keys().toSet();
-    Q_ASSERT(inames == current);
-}
-
-void WatchModel::checkTree(WatchItem *item, QSet<QByteArray> *inames)
-{
-    checkItem(item);
-    inames->insert(item->iname);
-    for (int i = 0, n = item->children.size(); i != n; ++i)
-        checkTree(item->children.at(i), inames);
-}
-
-void WatchModel::checkItem(const WatchItem *item) const
-{
-    Q_ASSERT(item->children.size() < 1000 * 1000);
-    Q_ASSERT(m_cache2.contains(item));
-    Q_ASSERT(m_cache2.value(item) == item->iname);
-    Q_ASSERT(m_cache.value(item->iname) == item);
-}
-#endif
 
 QString WatchItem::expression() const
 {
@@ -791,8 +731,6 @@ QString WatchItem::displayType() const
 
 QVariant WatchItem::data(int column, int role) const
 {
-//    checkIndex(idx);
-
     switch (role) {
         case LocalsEditTypeRole:
             return QVariant(editType());
@@ -912,8 +850,6 @@ QVariant WatchItem::data(int column, int role) const
 
 bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role)
 {
-    checkIndex(idx);
-
     if (!idx.isValid())
         return false; // Triggered by ModelTester.
 
@@ -1163,11 +1099,6 @@ static int findInsertPosition(const QVector<TreeItem *> &list, const WatchItem *
 
 void WatchModel::insertDataItem(const WatchData &data, bool destructive)
 {
-#if USE_WATCH_MODEL_TEST
-    (void) new ModelTest(this, this);
-#endif
-    CHECK(checkTree());
-
     QTC_ASSERT(!data.iname.isEmpty(), qDebug() << data.toString(); return);
 
     if (WatchItem *item = findItem(data.iname)) {
@@ -1199,24 +1130,8 @@ void WatchModel::insertBulkData(const QList<WatchData> &list)
         insertDataItem(data, true);
         m_handler->showEditValue(data);
     }
-    CHECK(checkTree());
     emit columnAdjustmentRequested();
 }
-
-//static void debugRecursion(QDebug &d, const WatchItem *item, int depth)
-//{
-//    d << QString(2 * depth, QLatin1Char(' ')) << item->toString() << '\n';
-//    foreach (const WatchItem *child, item->children)
-//        debugRecursion(d, child, depth + 1);
-//}
-
-//QDebug operator<<(QDebug d, const WatchModel &m)
-//{
-//    QDebug nospace = d.nospace();
-//    if (m.m_root)
-//        debugRecursion(nospace, m.m_root, 0);
-//    return d;
-//}
 
 void WatchItem::formatRequests(QByteArray *out) const
 {
@@ -1248,7 +1163,6 @@ void WatchModel::setCurrentItem(const QByteArray &iname)
 {
     if (WatchItem *item = findItem(iname)) {
         QModelIndex idx = indexFromItem(item);
-        checkIndex(idx);
         emit currentIndexRequested(idx);
     }
 }
@@ -1285,7 +1199,6 @@ void WatchHandler::cleanup()
     m_model->m_expandedINames.clear();
     theWatcherNames.remove(QByteArray());
     m_model->reinitialize();
-//    m_model->m_fetchTriggered.clear();
     m_separatedView->hide();
 }
 
