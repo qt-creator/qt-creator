@@ -805,13 +805,26 @@ void CppEditorPlugin::test_quickfix_data()
         << CppQuickFixFactoryPtr(new GenerateGetterSetter)
         << _("class Something { void @a[10]; };\n") << _();
 
-    // Check: Do not offer the quick fix if there is already a member with the
-    // getter or setter name we would generate.
-    QTest::newRow("GenerateGetterSetter_notTriggeringWhenGetterOrSetterExist")
+    // Check: Do not offer the quick fix if there is a getter and the variable is const
+    QTest::newRow("GenerateGetterSetter_notTriggeringWhenGetterAndConstVariable")
         << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
-        "class Something {\n"
-        "     int @it;\n"
-        "     void setIt();\n"
+        "class Foo\n"
+        "{\n"
+        "public:\n"
+        "    const int bar@;\n"
+        "    int getBar() const;\n"
+        "};\n"
+        ) << _();
+
+    // Check: Do not offer the quick fix if there is a getter and a setter
+    QTest::newRow("GenerateGetterSetter_notTriggeringWhenGetterAndConstVariable")
+        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
+        "class Foo\n"
+        "{\n"
+        "public:\n"
+        "    const int bar@;\n"
+        "    int getBar() const;\n"
+        "    void setBar(int value);\n"
         "};\n"
         ) << _();
 
@@ -1650,6 +1663,158 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAn
         "{\n"
         "    it = value;\n"
         "}\n\n"
+        "}\n";
+    testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
+
+    GenerateGetterSetter factory;
+    QuickFixOperationTest(testDocuments, &factory);
+}
+
+/// Checks: Only generate getter
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_onlyGetter()
+{
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "class Foo\n"
+        "{\n"
+        "public:\n"
+        "    int bar@;\n"
+        "};\n";
+    expected =
+        "class Foo\n"
+        "{\n"
+        "public:\n"
+        "    int bar@;\n"
+        "    int getBar() const;\n"
+        "};\n";
+    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
+
+    // Source File
+    original.resize(0);
+    expected =
+        "\n"
+        "int Foo::getBar() const\n"
+        "{\n"
+        "    return bar;\n"
+        "}\n";
+    testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
+
+    GenerateGetterSetter factory;
+    QuickFixOperationTest(testDocuments, &factory, ProjectPart::HeaderPaths(), 1);
+}
+
+/// Checks: Only generate setter
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_onlySetter()
+{
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "class Foo\n"
+        "{\n"
+        "public:\n"
+        "    int bar@;\n"
+        "};\n";
+    expected =
+        "class Foo\n"
+        "{\n"
+        "public:\n"
+        "    int bar@;\n"
+        "    void setBar(int value);\n"
+        "};\n";
+    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
+
+    // Source File
+    original.resize(0);
+    expected =
+        "\n"
+        "void Foo::setBar(int value)\n"
+        "{\n"
+        "    bar = value;\n"
+        "}\n";
+    testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
+
+    GenerateGetterSetter factory;
+    QuickFixOperationTest(testDocuments, &factory, ProjectPart::HeaderPaths(), 2);
+}
+
+/// Checks: Offer a "generate getter" quick fix if there is a setter
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_offerGetterWhenSetterPresent()
+{
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "class Foo\n"
+        "{\n"
+        "public:\n"
+        "    int bar@;\n"
+        "    void setBar(int value);\n"
+        "};\n";
+    expected =
+        "class Foo\n"
+        "{\n"
+        "public:\n"
+        "    int bar;\n"
+        "    void setBar(int value);\n"
+        "    int getBar() const;\n"
+        "};\n";
+    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
+
+    // Source File
+    original.resize(0);
+    expected =
+        "\n"
+        "int Foo::getBar() const\n"
+        "{\n"
+        "    return bar;\n"
+        "}\n";
+    testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
+
+    GenerateGetterSetter factory;
+    QuickFixOperationTest(testDocuments, &factory);
+}
+
+/// Checks: Offer a "generate setter" quick fix if there is a getter
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_offerSetterWhenGetterPresent()
+{
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "class Foo\n"
+        "{\n"
+        "public:\n"
+        "    int bar@;\n"
+        "    int getBar() const;\n"
+        "};\n";
+    expected =
+        "class Foo\n"
+        "{\n"
+        "public:\n"
+        "    int bar;\n"
+        "    int getBar() const;\n"
+        "    void setBar(int value);\n"
+        "};\n";
+    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
+
+    // Source File
+    original.resize(0);
+    expected =
+        "\n"
+        "void Foo::setBar(int value)\n"
+        "{\n"
+        "    bar = value;\n"
         "}\n";
     testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
 

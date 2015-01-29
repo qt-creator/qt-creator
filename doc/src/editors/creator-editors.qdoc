@@ -2059,7 +2059,8 @@
             containing such declarations
         \row
             \li  Create Getter and Setter Member Functions
-            \li  Creates getter and setter member functions for member variables.
+            \li  Creates either both getter and setter member functions for member variables or
+                 only a getter or setter.
             \li  Member variable in class definition
         \row
             \li Move Function Definition

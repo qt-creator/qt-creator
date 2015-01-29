@@ -2736,18 +2736,25 @@ namespace {
 class GenerateGetterSetterOperation : public CppQuickFixOperation
 {
 public:
+    enum OperationType {
+        InvalidType,
+        GetterSetterType,
+        GetterType,
+        SetterType
+    };
+
     GenerateGetterSetterOperation(const CppQuickFixInterface &interface)
         : CppQuickFixOperation(interface)
+        , m_type(InvalidType)
         , m_variableName(0)
         , m_declaratorId(0)
         , m_declarator(0)
         , m_variableDecl(0)
         , m_classSpecifier(0)
         , m_classDecl(0)
+        , m_symbol(0)
         , m_offerQuickFix(true)
     {
-        setDescription(QuickFixFactory::tr("Create Getter and Setter Member Functions"));
-
         const QList<AST *> &path = interface.path();
         // We expect something like
         // [0] TranslationUnitAST
@@ -2811,24 +2818,117 @@ public:
         m_setterName = QString::fromLatin1("set%1%2")
             .arg(m_baseName.left(1).toUpper()).arg(m_baseName.mid(1));
 
-        // Check if the class has already a getter or setter.
+        // Check if the class has already both a getter and setter.
         // This is only a simple check which should suffice not triggering the
         // same quick fix again. Limitations:
         //   1) It only checks in the current class, but not in base classes.
         //   2) It compares only names instead of types/signatures.
+        bool hasGetter = false;
+        bool hasSetter = false;
         if (Class *klass = m_classSpecifier->symbol) {
             for (unsigned i = 0; i < klass->memberCount(); ++i) {
                 Symbol *symbol = klass->memberAt(i);
                 if (const Name *symbolName = symbol->name()) {
                     if (const Identifier *id = symbolName->identifier()) {
                         const QString memberName = QString::fromUtf8(id->chars(), id->size());
-                        if (memberName == m_getterName || memberName == m_setterName) {
-                            m_offerQuickFix = false;
-                            return;
-                        }
+                        if (memberName == m_getterName)
+                            hasGetter = true;
+                        if (memberName == m_setterName)
+                            hasSetter = true;
+                        if (hasGetter && hasSetter)
+                            break;
                     }
                 }
             } // for
+        }
+        if (hasGetter && hasSetter) {
+            m_offerQuickFix = false;
+            return;
+        }
+
+        // Find the right symbol in the simple declaration
+        const List<Symbol *> *symbols = m_variableDecl->symbols;
+        QTC_ASSERT(symbols, return);
+        for (; symbols; symbols = symbols->next) {
+            Symbol *s = symbols->value;
+            if (const Name *name = s->name()) {
+                if (const Identifier *id = name->identifier()) {
+                    const QString symbolName = QString::fromUtf8(id->chars(), id->size());
+                    if (symbolName == m_variableString) {
+                        m_symbol = s;
+                        break;
+                    }
+                }
+            }
+        }
+
+        QTC_ASSERT(m_symbol, return);
+        if (hasSetter) { // hasGetter is false in this case
+            m_type = GetterType;
+        } else { // no setter
+            if (hasGetter) {
+                if (m_symbol->type().isConst()) {
+                    m_offerQuickFix = false;
+                    return;
+                } else {
+                    m_type = SetterType;
+                }
+            } else {
+                m_type = (m_symbol->type().isConst()) ? GetterType : GetterSetterType;
+            }
+        }
+        updateDescriptionAndPriority();
+    }
+
+    // Clones "other" in order to prevent all the initial detection made in the ctor.
+    GenerateGetterSetterOperation(const CppQuickFixInterface &interface,
+                                  GenerateGetterSetterOperation *other, OperationType type)
+        : CppQuickFixOperation(interface)
+        , m_type(type)
+        , m_variableName(other->m_variableName)
+        , m_declaratorId(other->m_declaratorId)
+        , m_declarator(other->m_declarator)
+        , m_variableDecl(other->m_variableDecl)
+        , m_classSpecifier(other->m_classSpecifier)
+        , m_classDecl(other->m_classDecl)
+        , m_symbol(other->m_symbol)
+        , m_baseName(other->m_baseName)
+        , m_getterName(other->m_getterName)
+        , m_setterName(other->m_setterName)
+        , m_variableString(other->m_variableString)
+        , m_offerQuickFix(other->m_offerQuickFix)
+    {
+        QTC_ASSERT(isValid(), return);
+        updateDescriptionAndPriority();
+    }
+
+    bool generateGetter() const
+    {
+        return (m_type == GetterSetterType || m_type == GetterType);
+    }
+
+    bool generateSetter() const
+    {
+        return (m_type == GetterSetterType || m_type == SetterType);
+    }
+
+    void updateDescriptionAndPriority()
+    {
+        switch (m_type) {
+        case GetterSetterType:
+            setPriority(5);
+            setDescription(QuickFixFactory::tr("Create Getter and Setter Member Functions"));
+            break;
+        case GetterType:
+            setPriority(4);
+            setDescription(QuickFixFactory::tr("Create Getter Member Function"));
+            break;
+        case SetterType:
+            setPriority(3);
+            setDescription(QuickFixFactory::tr("Create Setter Member Function"));
+            break;
+        default:
+            break;
         }
     }
 
@@ -2848,26 +2948,8 @@ public:
         CppRefactoringChanges refactoring(snapshot());
         CppRefactoringFilePtr currentFile = refactoring.file(fileName());
 
-        const List<Symbol *> *symbols = m_variableDecl->symbols;
-        QTC_ASSERT(symbols, return);
-
-        // Find the right symbol in the simple declaration
-        Symbol *symbol = 0;
-        for (; symbols; symbols = symbols->next) {
-            Symbol *s = symbols->value;
-            if (const Name *name = s->name()) {
-                if (const Identifier *id = name->identifier()) {
-                    const QString symbolName = QString::fromUtf8(id->chars(), id->size());
-                    if (symbolName == m_variableString) {
-                        symbol = s;
-                        break;
-                    }
-                }
-            }
-        }
-
-        QTC_ASSERT(symbol, return);
-        FullySpecifiedType fullySpecifiedType = symbol->type();
+        QTC_ASSERT(m_symbol, return);
+        FullySpecifiedType fullySpecifiedType = m_symbol->type();
         Type *type = fullySpecifiedType.type();
         QTC_ASSERT(type, return);
         Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
@@ -2910,7 +2992,7 @@ public:
             paramString = oo.prettyType(referenceToConstParamType, paramName);
         }
 
-        const bool isStatic = symbol->storage() == Symbol::Static;
+        const bool isStatic = m_symbol->storage() == Symbol::Static;
 
         // Construct declaration strings
         QString declaration = declLocation.prefix();
@@ -2931,8 +3013,9 @@ public:
             .arg(m_setterName)
             .arg(paramString);
 
-        declaration += declarationGetter;
-        if (!fullySpecifiedType.isConst())
+        if (generateGetter())
+            declaration += declarationGetter;
+        if (generateSetter())
             declaration += declarationSetter;
         declaration += declLocation.suffix();
 
@@ -2955,8 +3038,10 @@ public:
                 .arg(classString).arg(m_setterName)
                 .arg(paramString).arg(m_variableString)
                 .arg(paramName);
-        QString implementation = implementationGetter;
-        if (!fullySpecifiedType.isConst())
+        QString implementation;
+        if (generateGetter())
+            implementation += implementationGetter;
+        if (generateSetter())
             implementation += implementationSetter;
 
         // Create and apply changes
@@ -2966,14 +3051,14 @@ public:
         currChanges.insert(declInsertPos, declaration);
 
         if (sameFile) {
-            InsertionLocation loc = insertLocationForMethodDefinition(symbol, false, refactoring,
+            InsertionLocation loc = insertLocationForMethodDefinition(m_symbol, false, refactoring,
                                                                       currentFile->fileName());
             currChanges.insert(currentFile->position(loc.line(), loc.column()), implementation);
         } else {
             CppRefactoringChanges implRef(snapshot());
             CppRefactoringFilePtr implFile = implRef.file(implFileName);
             ChangeSet implChanges;
-            InsertionLocation loc = insertLocationForMethodDefinition(symbol, false,
+            InsertionLocation loc = insertLocationForMethodDefinition(m_symbol, false,
                                                                       implRef, implFileName);
             const int implInsertPos = implFile->position(loc.line(), loc.column());
             implChanges.insert(implInsertPos, implementation);
@@ -2988,12 +3073,14 @@ public:
         currentFile->apply();
     }
 
+    OperationType m_type;
     SimpleNameAST *m_variableName;
     DeclaratorIdAST *m_declaratorId;
     DeclaratorAST *m_declarator;
     SimpleDeclarationAST *m_variableDecl;
     ClassSpecifierAST *m_classSpecifier;
     SimpleDeclarationAST *m_classDecl;
+    Symbol *m_symbol;
 
     QString m_baseName;
     QString m_getterName;
@@ -3008,10 +3095,17 @@ void GenerateGetterSetter::match(const CppQuickFixInterface &interface,
                                  QuickFixOperations &result)
 {
     GenerateGetterSetterOperation *op = new GenerateGetterSetterOperation(interface);
-    if (op->isValid())
+    if (op->m_type != GenerateGetterSetterOperation::InvalidType) {
         result.append(op);
-    else
+        if (op->m_type == GenerateGetterSetterOperation::GetterSetterType) {
+            result.append(new GenerateGetterSetterOperation(
+                              interface, op, GenerateGetterSetterOperation::GetterType));
+            result.append(new GenerateGetterSetterOperation(
+                              interface, op, GenerateGetterSetterOperation::SetterType));
+        }
+    } else {
         delete op;
+    }
 }
 
 namespace {
