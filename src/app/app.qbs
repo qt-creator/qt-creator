@@ -1,23 +1,18 @@
 import qbs
 
-Application {
+QtcProduct {
+    type: ["application"]
     name: project.ide_app_target
     consoleApplication: qbs.debugInformation
 
     cpp.rpaths: qbs.targetOS.contains("osx") ? ["@executable_path/.."]
                                              : ["$ORIGIN/../" + project.libDirName + "/qtcreator"]
-    cpp.defines: project.generalDefines
-    cpp.linkerFlags: {
-        if (qbs.buildVariant == "release" && (qbs.toolchain.contains("gcc") || qbs.toolchain.contains("mingw")))
-            return ["-Wl,-s"]
-    }
     cpp.includePaths: [
         "../shared/qtsingleapplication",
         "../shared/qtlockedfile",
     ]
 
     Depends { name: "app_version_header" }
-    Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
     Depends { name: "Utils" }
     Depends { name: "ExtensionSystem" }
