@@ -568,7 +568,7 @@ void SideDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     emit contextMenuRequested(menu, fileIndexForBlockNumber(blockNumber),
                               chunkIndexForBlockNumber(blockNumber));
 
-    connect(this, &SideDiffEditorWidget::destroyed, menu, &QMenu::deleteLater);
+    connect(this, &SideDiffEditorWidget::destroyed, menu.data(), &QMenu::deleteLater);
     menu->exec(e->globalPos());
     delete menu;
 }
