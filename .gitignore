@@ -118,6 +118,10 @@ tmp/
 *.exe
 /bin/buildoutputparser
 /bin/cpaster
+/bin/cplusplus-ast2png
+/bin/cplusplus-frontend
+/bin/cplusplus-mkvisitor
+/bin/cplusplus-update-frontend
 /bin/qbs*
 /bin/qmlpuppet
 /bin/qml2puppet
@@ -129,20 +133,16 @@ tmp/
 /bin/sdktool
 /share/doc/qtcreator/*.qch
 /share/qtcreator/qbs/
-/src/tools/cplusplus-mkvisitor/cplusplus-mkvisitor
-/src/tools/cplusplus-update-frontend/cplusplus-update-frontend
 /src/tools/qml/qmldump/qmldump
 /src/tools/examplesscanner/examplesscanner
 /src/tools/valgrindfake/valgrind-fake
 
 # Tests
 #------
-/tests/manual/cplusplus-frontend/cplusplus-frontend
 /tests/manual/qml-ast2dot/qml-ast2dot
 /tests/manual/debugger/simple/libsimple_test_plugin.*dylib
 /tests/manual/debugger/simple/simple_test_app
 /tests/manual/preprocessor/pp
-/tests/tools/cplusplus-ast2png/cplusplus-ast2png
 /tests/auto/aggregation/tst_aggregation
 /tests/auto/changeset/tst_changeset
 /tests/auto/cplusplus/checksymbols/tst_checksymbols

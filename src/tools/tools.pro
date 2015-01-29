@@ -19,6 +19,14 @@ mac {
     SUBDIRS += iostool
 }
 
+BUILD_CPLUSPLUS_TOOLS = $$(BUILD_CPLUSPLUS_TOOLS)
+!isEmpty(BUILD_CPLUSPLUS_TOOLS) {
+    SUBDIRS += cplusplus-ast2png \
+        cplusplus-frontend \
+        cplusplus-mkvisitor \
+        cplusplus-update-frontend
+}
+
 QT_BREAKPAD_ROOT_PATH = $$(QT_BREAKPAD_ROOT_PATH)
 !isEmpty(QT_BREAKPAD_ROOT_PATH) {
     SUBDIRS += qtcrashhandler

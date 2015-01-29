@@ -45,7 +45,7 @@
 #include <cplusplus/Overview.h>
 #include <cplusplus/LookupContext.h>
 
-#include "cplusplus-tools-utils.h"
+#include "utils.h"
 
 #include <QFile>
 #include <QList>

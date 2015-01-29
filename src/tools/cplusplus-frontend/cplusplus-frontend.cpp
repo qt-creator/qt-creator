@@ -41,7 +41,7 @@
 #include <cplusplus/Symbols.h>
 #include <cplusplus/TranslationUnit.h>
 
-#include "cplusplus-tools-utils.h"
+#include "utils.h"
 
 #include <QFile>
 #include <QList>
