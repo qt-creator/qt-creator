@@ -300,6 +300,11 @@ bool QmlAnchorBindingProxy::hasParent()
     return m_qmlItemNode.isValid() && m_qmlItemNode.hasNodeParent();
 }
 
+bool QmlAnchorBindingProxy::isInLayout() const
+{
+    return false;
+}
+
 bool QmlAnchorBindingProxy::isFilled()
 {
     return m_qmlItemNode.isValid()

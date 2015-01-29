@@ -52,6 +52,7 @@ class QmlAnchorBindingProxy : public QObject
     Q_PROPERTY(bool leftAnchored READ leftAnchored WRITE setLeftAnchor NOTIFY leftAnchorChanged)
     Q_PROPERTY(bool rightAnchored READ rightAnchored WRITE setRightAnchor NOTIFY rightAnchorChanged)
     Q_PROPERTY(bool hasParent READ hasParent NOTIFY parentChanged)
+    Q_PROPERTY(bool isInLayout READ isInLayout NOTIFY parentChanged)
 
     Q_PROPERTY(QString topTarget READ topTarget WRITE setTopTarget NOTIFY topTargetChanged)
     Q_PROPERTY(QString bottomTarget READ bottomTarget WRITE setBottomTarget NOTIFY bottomTargetChanged)
@@ -102,6 +103,8 @@ public:
 
     bool hasParent();
     bool isFilled();
+
+    bool isInLayout() const;
 
     void removeTopAnchor();
     void removeBottomAnchor();
