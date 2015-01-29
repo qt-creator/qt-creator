@@ -1365,7 +1365,7 @@ void tst_Dumpers::dumper()
         else if (dummy.iname == "local.clangversion")
             context.clangVersion = child["value"].toInt();
         else
-            parseWatchData(expandedINames, dummy, child, &list);
+            parseWatchData(dummy, child, &list);
     }
 
     //qDebug() << "QT VERSION " << QByteArray::number(context.qtVersion, 16);
