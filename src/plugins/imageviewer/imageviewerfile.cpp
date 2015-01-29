@@ -43,7 +43,7 @@ ImageViewerFile::ImageViewerFile(ImageViewer *parent)
 {
     setId(Constants::IMAGEVIEWER_ID);
     m_editor = parent;
-    connect(this, SIGNAL(mimeTypeChanged()), this, SIGNAL(changed()));
+    connect(this, &ImageViewerFile::mimeTypeChanged, this, &ImageViewerFile::changed);
 }
 
 Core::IDocument::ReloadBehavior ImageViewerFile::reloadBehavior(ChangeTrigger state, ChangeType type) const

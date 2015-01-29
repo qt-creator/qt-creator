@@ -86,26 +86,26 @@ bool MacrosPlugin::initialize(const QStringList &arguments, QString *errorMessag
     Core::Command *command = Core::ActionManager::registerAction(startMacro, Constants::START_MACRO, textContext);
     command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Ctrl+(") : tr("Alt+(")));
     mmacrotools->addAction(command);
-    connect(startMacro, SIGNAL(triggered()), m_macroManager, SLOT(startMacro()));
+    connect(startMacro, &QAction::triggered, m_macroManager, &MacroManager::startMacro);
 
     QAction *endMacro = new QAction(tr("Stop Recording Macro"),  this);
     endMacro->setEnabled(false);
     command = Core::ActionManager::registerAction(endMacro, Constants::END_MACRO, globalcontext);
     command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Ctrl+)") : tr("Alt+)")));
     mmacrotools->addAction(command);
-    connect(endMacro, SIGNAL(triggered()), m_macroManager, SLOT(endMacro()));
+    connect(endMacro, &QAction::triggered, m_macroManager, &MacroManager::endMacro);
 
     QAction *executeLastMacro = new QAction(tr("Play Last Macro"),  this);
     command = Core::ActionManager::registerAction(executeLastMacro, Constants::EXECUTE_LAST_MACRO, textContext);
     command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+R") : tr("Alt+R")));
     mmacrotools->addAction(command);
-    connect(executeLastMacro, SIGNAL(triggered()), m_macroManager, SLOT(executeLastMacro()));
+    connect(executeLastMacro, &QAction::triggered, m_macroManager, &MacroManager::executeLastMacro);
 
     QAction *saveLastMacro = new QAction(tr("Save Last Macro"),  this);
     saveLastMacro->setEnabled(false);
     command = Core::ActionManager::registerAction(saveLastMacro, Constants::SAVE_LAST_MACRO, textContext);
     mmacrotools->addAction(command);
-    connect(saveLastMacro, SIGNAL(triggered()), m_macroManager, SLOT(saveLastMacro()));
+    connect(saveLastMacro, &QAction::triggered, m_macroManager, &MacroManager::saveLastMacro);
 
     return true;
 }

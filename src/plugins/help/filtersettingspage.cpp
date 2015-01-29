@@ -60,14 +60,14 @@ QWidget *FilterSettingsPage::widget()
 
         updateFilterPage();
 
-        connect(m_ui.attributeWidget, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
-                this, SLOT(updateFilterMap()));
-        connect(m_ui.filterWidget,
-                SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this,
-                SLOT(updateAttributes(QListWidgetItem*)));
-        connect(m_ui.filterAddButton, SIGNAL(clicked()), this, SLOT(addFilter()));
-        connect(m_ui.filterRemoveButton, SIGNAL(clicked()), this,
-                SLOT(removeFilter()));
+        connect(m_ui.attributeWidget, &QTreeWidget::itemChanged,
+                this, &FilterSettingsPage::updateFilterMap);
+        connect(m_ui.filterWidget, &QListWidget::currentItemChanged,
+                this, &FilterSettingsPage::updateAttributes);
+        connect(m_ui.filterAddButton, &QPushButton::clicked,
+                this, &FilterSettingsPage::addFilter);
+        connect(m_ui.filterRemoveButton, &QPushButton::clicked,
+                this, &FilterSettingsPage::removeFilter);
         connect(HelpManager::instance(), SIGNAL(documentationChanged()),
                 this, SLOT(updateFilterPage()));
     }

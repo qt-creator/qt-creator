@@ -61,12 +61,12 @@ MacroOptionsWidget::MacroOptionsWidget(QWidget *parent) :
 {
     m_ui->setupUi(this);
 
-    connect(m_ui->treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
-            this, SLOT(changeCurrentItem(QTreeWidgetItem*)));
-    connect(m_ui->removeButton, SIGNAL(clicked()),
-            this, SLOT(remove()));
-    connect(m_ui->description, SIGNAL(textChanged(QString)),
-            this, SLOT(changeDescription(QString)));
+    connect(m_ui->treeWidget, &QTreeWidget::currentItemChanged,
+            this, &MacroOptionsWidget::changeCurrentItem);
+    connect(m_ui->removeButton, &QPushButton::clicked,
+            this, &MacroOptionsWidget::remove);
+    connect(m_ui->description, &QLineEdit::textChanged,
+            this, &MacroOptionsWidget::changeDescription);
 
     m_ui->treeWidget->header()->setSortIndicator(0, Qt::AscendingOrder);
 

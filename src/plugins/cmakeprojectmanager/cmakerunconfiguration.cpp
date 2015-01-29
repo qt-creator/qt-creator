@@ -245,8 +245,7 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     QLineEdit *argumentsLineEdit = new QLineEdit();
     argumentsLineEdit->setText(cmakeRunConfiguration->commandLineArguments());
-    connect(argumentsLineEdit, SIGNAL(textChanged(QString)),
-            this, SLOT(setArguments(QString)));
+    connect(argumentsLineEdit, &QLineEdit::textChanged, this, &CMakeRunConfigurationWidget::setArguments);
     fl->addRow(tr("Arguments:"), argumentsLineEdit);
 
     m_workingDirectoryEdit = new Utils::PathChooser();
@@ -257,7 +256,8 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     EnvironmentAspect *aspect
             = m_cmakeRunConfiguration->extraAspect<EnvironmentAspect>();
     if (aspect) {
-        connect(aspect, SIGNAL(environmentChanged()), this, SLOT(environmentWasChanged()));
+        connect(aspect, &EnvironmentAspect::environmentChanged,
+                this, &CMakeRunConfigurationWidget::environmentWasChanged);
         environmentWasChanged();
     }
     m_workingDirectoryEdit->setPromptDialogTitle(tr("Select Working Directory"));
@@ -286,17 +286,17 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     vbx->setMargin(0);
     vbx->addWidget(m_detailsContainer);
 
-    connect(m_workingDirectoryEdit, SIGNAL(changed(QString)),
-            this, SLOT(setWorkingDirectory()));
+    connect(m_workingDirectoryEdit, &Utils::PathChooser::changed,
+            this, &CMakeRunConfigurationWidget::setWorkingDirectory);
 
-    connect(resetButton, SIGNAL(clicked()),
-            this, SLOT(resetWorkingDirectory()));
+    connect(resetButton, &QToolButton::clicked,
+            this, &CMakeRunConfigurationWidget::resetWorkingDirectory);
 
-    connect(runInTerminal, SIGNAL(toggled(bool)),
-            this, SLOT(runInTerminalToggled(bool)));
+    connect(runInTerminal, &QCheckBox::toggled,
+            this, &CMakeRunConfigurationWidget::runInTerminalToggled);
 
-    connect(m_cmakeRunConfiguration, SIGNAL(baseWorkingDirectoryChanged(QString)),
-            this, SLOT(workingDirectoryChanged(QString)));
+    connect(m_cmakeRunConfiguration, &CMakeRunConfiguration::baseWorkingDirectoryChanged,
+            this, &CMakeRunConfigurationWidget::workingDirectoryChanged);
 
     setEnabled(m_cmakeRunConfiguration->isEnabled());
 }

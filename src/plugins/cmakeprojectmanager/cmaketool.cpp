@@ -64,8 +64,7 @@ void CMakeTool::setCMakeExecutable(const QString &executable)
 {
     cancel();
     m_process = new QProcess();
-    connect(m_process, SIGNAL(finished(int)),
-            this, SLOT(finished(int)));
+    connect(m_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished), this, &CMakeTool::finished);
 
     m_executable = executable;
     QFileInfo fi(m_executable);

@@ -102,17 +102,22 @@ QWidget *GeneralSettingsPage::widget()
                                                    Core::HelpManager::SideBySideIfPossible).toInt();
         m_ui->contextHelpComboBox->setCurrentIndex(m_contextOption);
 
-        connect(m_ui->currentPageButton, SIGNAL(clicked()), this, SLOT(setCurrentPage()));
-        connect(m_ui->blankPageButton, SIGNAL(clicked()), this, SLOT(setBlankPage()));
-        connect(m_ui->defaultPageButton, SIGNAL(clicked()), this, SLOT(setDefaultPage()));
+        connect(m_ui->currentPageButton, &QPushButton::clicked,
+                this, &GeneralSettingsPage::setCurrentPage);
+        connect(m_ui->blankPageButton, &QPushButton::clicked,
+                this, &GeneralSettingsPage::setBlankPage);
+        connect(m_ui->defaultPageButton, &QPushButton::clicked,
+                this, &GeneralSettingsPage::setDefaultPage);
 
         HelpViewer *viewer = CentralWidget::instance()->currentViewer();
         if (!viewer)
             m_ui->currentPageButton->setEnabled(false);
 
         m_ui->errorLabel->setVisible(false);
-        connect(m_ui->importButton, SIGNAL(clicked()), this, SLOT(importBookmarks()));
-        connect(m_ui->exportButton, SIGNAL(clicked()), this, SLOT(exportBookmarks()));
+        connect(m_ui->importButton, &QPushButton::clicked,
+                this, &GeneralSettingsPage::importBookmarks);
+        connect(m_ui->exportButton, &QPushButton::clicked,
+                this, &GeneralSettingsPage::exportBookmarks);
 
         m_returnOnClose = HelpManager::customValue(QLatin1String("ReturnOnClose"),
                                                    false).toBool();

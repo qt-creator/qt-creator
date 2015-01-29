@@ -67,10 +67,10 @@ OpenPagesSwitcher::OpenPagesSwitcher(OpenPagesModel *model)
     layout->setMargin(0);
     layout->addWidget(m_openPagesWidget);
 
-    connect(m_openPagesWidget, SIGNAL(closePage(QModelIndex)), this,
-        SIGNAL(closePage(QModelIndex)));
-    connect(m_openPagesWidget, SIGNAL(setCurrentPage(QModelIndex)), this,
-        SIGNAL(setCurrentPage(QModelIndex)));
+    connect(m_openPagesWidget, &OpenPagesWidget::closePage,
+            this, &OpenPagesSwitcher::closePage);
+    connect(m_openPagesWidget, &OpenPagesWidget::setCurrentPage,
+            this, &OpenPagesSwitcher::setCurrentPage);
 }
 
 OpenPagesSwitcher::~OpenPagesSwitcher()

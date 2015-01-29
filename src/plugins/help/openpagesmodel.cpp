@@ -75,7 +75,8 @@ void OpenPagesModel::addPage(const QUrl &url, qreal zoom)
 {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     HelpViewer *page = HelpPlugin::createHelpViewer(zoom);
-    connect(page, SIGNAL(titleChanged()), this, SLOT(handleTitleChanged()));
+    connect(page, &HelpViewer::titleChanged,
+            this, &OpenPagesModel::handleTitleChanged);
     m_pages << page;
     endInsertRows();
     if (url.isValid())

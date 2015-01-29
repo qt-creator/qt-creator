@@ -55,7 +55,7 @@ ConfigurationDialog::ConfigurationDialog(QWidget *parent) :
     ui->name->setValidator(fileNameValidator);
 
     updateDocumentation();
-    connect(ui->name, SIGNAL(textChanged(QString)), this, SLOT(updateOkButton()));
+    connect(ui->name, &QLineEdit::textChanged, this, &ConfigurationDialog::updateOkButton);
     updateOkButton(); // force initial test.
     connect(ui->editor, SIGNAL(documentationChanged(QString,QString)),
             this, SLOT(updateDocumentation(QString,QString)));

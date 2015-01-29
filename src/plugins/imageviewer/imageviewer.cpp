@@ -105,8 +105,8 @@ ImageViewer::ImageViewer(QWidget *parent)
             d->imageView, SLOT(setViewBackground(bool)));
     connect(d->ui_toolbar.toolButtonOutline, SIGNAL(toggled(bool)),
             d->imageView, SLOT(setViewOutline(bool)));
-    connect(d->ui_toolbar.toolButtonPlayPause, SIGNAL(clicked()),
-            this, SLOT(playToggled()));
+    connect(d->ui_toolbar.toolButtonPlayPause, &Core::CommandButton::clicked,
+            this, &ImageViewer::playToggled);
     connect(d->imageView, SIGNAL(imageSizeChanged(QSize)),
             this, SLOT(imageSizeUpdated(QSize)));
     connect(d->imageView, SIGNAL(scaleFactorChanged(qreal)),

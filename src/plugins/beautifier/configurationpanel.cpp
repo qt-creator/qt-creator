@@ -45,10 +45,11 @@ ConfigurationPanel::ConfigurationPanel(QWidget *parent) :
     m_settings(0)
 {
     ui->setupUi(this);
-    connect(ui->add, SIGNAL(clicked()), this, SLOT(add()));
-    connect(ui->edit, SIGNAL(clicked()), this, SLOT(edit()));
-    connect(ui->remove, SIGNAL(clicked()), this, SLOT(remove()));
-    connect(ui->configurations, SIGNAL(currentIndexChanged(int)), this, SLOT(updateButtons()));
+    connect(ui->add, &QPushButton::clicked, this, &ConfigurationPanel::add);
+    connect(ui->edit, &QPushButton::clicked, this, &ConfigurationPanel::edit);
+    connect(ui->remove, &QPushButton::clicked, this, &ConfigurationPanel::remove);
+    connect(ui->configurations, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &ConfigurationPanel::updateButtons);
 }
 
 ConfigurationPanel::~ConfigurationPanel()

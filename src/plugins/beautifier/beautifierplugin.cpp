@@ -74,7 +74,7 @@ BeautifierPlugin::BeautifierPlugin() :
 {
     connect(m_asyncFormatMapper, SIGNAL(mapped(QObject*)),
             this, SLOT(formatCurrentFileContinue(QObject*)));
-    connect(this, SIGNAL(pipeError(QString)), this, SLOT(showError(QString)));
+    connect(this, &BeautifierPlugin::pipeError, this, &BeautifierPlugin::showError);
 }
 
 BeautifierPlugin::~BeautifierPlugin()

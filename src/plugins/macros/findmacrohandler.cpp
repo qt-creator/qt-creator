@@ -205,18 +205,18 @@ void FindMacroHandler::changeEditor(Core::IEditor *editor)
             aggregate->add(macroFind);
 
             // Connect all signals
-            connect(macroFind, SIGNAL(allReplaced(QString,QString,Core::FindFlags)),
-                    this, SLOT(replaceAll(QString,QString,Core::FindFlags)));
-            connect(macroFind, SIGNAL(incrementalFound(QString,Core::FindFlags)),
-                    this, SLOT(findIncremental(QString,Core::FindFlags)));
-            connect(macroFind, SIGNAL(incrementalSearchReseted()),
-                    this, SLOT(resetIncrementalSearch()));
-            connect(macroFind, SIGNAL(replaced(QString,QString,Core::FindFlags)),
-                    this, SLOT(replace(QString,QString,Core::FindFlags)));
-            connect(macroFind, SIGNAL(stepFound(QString,Core::FindFlags)),
-                    this, SLOT(findStep(QString,Core::FindFlags)));
-            connect(macroFind, SIGNAL(stepReplaced(QString,QString,Core::FindFlags)),
-                    this, SLOT(replaceStep(QString,QString,Core::FindFlags)));
+            connect(macroFind, &MacroTextFind::allReplaced,
+                    this, &FindMacroHandler::replaceAll);
+            connect(macroFind, &MacroTextFind::incrementalFound,
+                    this, &FindMacroHandler::findIncremental);
+            connect(macroFind, &MacroTextFind::incrementalSearchReseted,
+                    this, &FindMacroHandler::resetIncrementalSearch);
+            connect(macroFind, &MacroTextFind::replaced,
+                    this, &FindMacroHandler::replace);
+            connect(macroFind, &MacroTextFind::stepFound,
+                    this, &FindMacroHandler::findStep);
+            connect(macroFind, &MacroTextFind::stepReplaced,
+                    this, &FindMacroHandler::replaceStep);
         }
     }
 }

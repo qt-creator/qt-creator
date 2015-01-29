@@ -84,7 +84,7 @@ bool ArtisticStyle::initialize()
                                                   Constants::ArtisticStyle::ACTION_FORMATFILE,
                                                   Core::Context(Core::Constants::C_GLOBAL));
     menu->addAction(cmd);
-    connect(m_formatFile, SIGNAL(triggered()), this, SLOT(formatFile()));
+    connect(m_formatFile, &QAction::triggered, this, &ArtisticStyle::formatFile);
 
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 

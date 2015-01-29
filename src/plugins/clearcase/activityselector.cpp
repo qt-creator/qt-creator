@@ -70,10 +70,11 @@ ActivitySelector::ActivitySelector(QWidget *parent) :
 
     lblActivity->setBuddy(m_cmbActivity);
 
-    connect(btnAdd, SIGNAL(clicked()), this, SLOT(newActivity()));
+    connect(btnAdd, &QToolButton::clicked, this, &ActivitySelector::newActivity);
 
     refresh();
-    connect(m_cmbActivity, SIGNAL(currentIndexChanged(int)), this, SLOT(userChanged()));
+    connect(m_cmbActivity, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &ActivitySelector::userChanged);
 }
 
 void ActivitySelector::userChanged()
@@ -109,9 +110,11 @@ void ActivitySelector::setActivity(const QString &act)
 {
     int index = m_cmbActivity->findData(act);
     if (index != -1) {
-        disconnect(m_cmbActivity, SIGNAL(currentIndexChanged(int)), this, SLOT(userChanged()));
+        disconnect(m_cmbActivity, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                   this, &ActivitySelector::userChanged);
         m_cmbActivity->setCurrentIndex(index);
-        connect(m_cmbActivity, SIGNAL(currentIndexChanged(int)), this, SLOT(userChanged()));
+        connect(m_cmbActivity, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                this, &ActivitySelector::userChanged);
     }
 }
 

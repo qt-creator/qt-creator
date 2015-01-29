@@ -49,8 +49,10 @@ RemoteFilterOptions::RemoteFilterOptions(RemoteHelpFilter *filter, QWidget *pare
         item->setFlags(item->flags() | Qt::ItemIsEditable);
     }
 
-    connect(m_ui.add, SIGNAL(clicked()), this, SLOT(addNewItem()));
-    connect(m_ui.remove, SIGNAL(clicked()), this, SLOT(removeItem()));
+    connect(m_ui.add, &QPushButton::clicked,
+            this, &RemoteFilterOptions::addNewItem);
+    connect(m_ui.remove, &QPushButton::clicked,
+            this, &RemoteFilterOptions::removeItem);
     connect(m_ui.listWidget, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), SLOT(updateRemoveButton()));
     updateRemoveButton();
 }
