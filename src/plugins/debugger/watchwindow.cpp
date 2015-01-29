@@ -69,14 +69,6 @@
 #include <QButtonGroup>
 #include <QDialogButtonBox>
 
-//#define USE_WATCH_MODEL_TEST 1
-
-#if USE_WATCH_MODEL_TEST
-#include <modeltest.h>
-#endif
-
-Q_DECLARE_METATYPE(QModelIndex)
-
 /////////////////////////////////////////////////////////////////////
 //
 // WatchDelegate
@@ -85,8 +77,6 @@ Q_DECLARE_METATYPE(QModelIndex)
 
 namespace Debugger {
 namespace Internal {
-
-const char CurrentIndex[] = "CurrentIndex";
 
 class WatchDelegate : public QItemDelegate
 {
@@ -470,10 +460,8 @@ WatchTreeView::WatchTreeView(WatchType type)
     setAcceptDrops(true);
     setDropIndicatorShown(true);
 
-    connect(this, SIGNAL(expanded(QModelIndex)),
-        SLOT(expandNode(QModelIndex)));
-    connect(this, SIGNAL(collapsed(QModelIndex)),
-        SLOT(collapseNode(QModelIndex)));
+    connect(this, &QTreeView::expanded, this, &WatchTreeView::expandNode);
+    connect(this, &QTreeView::collapsed, this, &WatchTreeView::collapseNode);
 }
 
 void WatchTreeView::expandNode(const QModelIndex &idx)
@@ -601,28 +589,23 @@ void WatchTreeView::fillFormatMenu(QMenu *formatMenu, const QModelIndex &mi)
         formatMenu->addAction(tr("Treat All Characters as Printable"));
     showUnprintableUnicode->setCheckable(true);
     showUnprintableUnicode->setChecked(unprintableBase == 0);
-    showUnprintableUnicode->setData(0);
     showUnprintableEscape =
         formatMenu->addAction(tr("Show Unprintable Characters as Escape Sequences"));
     showUnprintableEscape->setCheckable(true);
     showUnprintableEscape->setChecked(unprintableBase == -1);
-    showUnprintableEscape->setData(-1);
     showUnprintableOctal =
         formatMenu->addAction(tr("Show Unprintable Characters as Octal"));
     showUnprintableOctal->setCheckable(true);
     showUnprintableOctal->setChecked(unprintableBase == 8);
-    showUnprintableOctal->setData(8);
     showUnprintableHexadecimal =
         formatMenu->addAction(tr("Show Unprintable Characters as Hexadecimal"));
     showUnprintableHexadecimal->setCheckable(true);
     showUnprintableHexadecimal->setChecked(unprintableBase == 16);
-    showUnprintableHexadecimal->setData(16);
 
-    connect(showUnprintableUnicode, SIGNAL(triggered()), SLOT(onShowUnprintable()));
-    connect(showUnprintableEscape, SIGNAL(triggered()), SLOT(onShowUnprintable()));
-    connect(showUnprintableOctal, SIGNAL(triggered()), SLOT(onShowUnprintable()));
-    connect(showUnprintableHexadecimal, SIGNAL(triggered()), SLOT(onShowUnprintable()));
-
+    connect(showUnprintableUnicode, &QAction::triggered, [this] { showUnprintable(0); });
+    connect(showUnprintableEscape, &QAction::triggered, [this] { showUnprintable(-1); });
+    connect(showUnprintableOctal, &QAction::triggered, [this] { showUnprintable(8); });
+    connect(showUnprintableHexadecimal, &QAction::triggered, [this] { showUnprintable(16); });
 
     const QString spacer = QLatin1String("     ");
     formatMenu->addSeparator();
@@ -637,19 +620,22 @@ void WatchTreeView::fillFormatMenu(QMenu *formatMenu, const QModelIndex &mi)
     QAction *clearIndividualFormatAction = formatMenu->addAction(spacer + msg);
     clearIndividualFormatAction->setCheckable(true);
     clearIndividualFormatAction->setChecked(individualFormat == AutomaticFormat);
-    connect(clearIndividualFormatAction, SIGNAL(triggered()),
-        SLOT(onClearIndividualFormat()));
+    connect(clearIndividualFormatAction, &QAction::triggered, [this] {
+        const QModelIndexList active = activeRows();
+        foreach (const QModelIndex &idx, active)
+            setModelData(LocalsIndividualFormatRole, AutomaticFormat, idx);
+    });
 
     for (int i = 0; i != alternativeFormats.size(); ++i) {
         const QString display = spacer + alternativeFormats.at(i).display;
         const int format = alternativeFormats.at(i).format;
         QAction *act = new QAction(display, formatMenu);
-        act->setData(format);
         act->setCheckable(true);
         act->setChecked(format == individualFormat);
-        act->setProperty(CurrentIndex, QVariant::fromValue(mi));
         formatMenu->addAction(act);
-        connect(act, SIGNAL(triggered()), SLOT(onIndividualFormatChange()));
+        connect(act, &QAction::triggered, [this, act, format, mi] {
+            setModelData(LocalsIndividualFormatRole, format, mi);
+        });
     }
 
     formatMenu->addSeparator();
@@ -659,58 +645,30 @@ void WatchTreeView::fillFormatMenu(QMenu *formatMenu, const QModelIndex &mi)
     QAction *clearTypeFormatAction = formatMenu->addAction(spacer + tr("Automatic"));
     clearTypeFormatAction->setCheckable(true);
     clearTypeFormatAction->setChecked(typeFormat == AutomaticFormat);
-    connect(clearTypeFormatAction, SIGNAL(triggered()), SLOT(onClearTypeFormat()));
+    connect(clearTypeFormatAction, &QAction::triggered, [this] {
+        const QModelIndexList active = activeRows();
+        foreach (const QModelIndex &idx, active)
+            setModelData(LocalsTypeFormatRole, AutomaticFormat, idx);
+    });
 
     for (int i = 0; i != alternativeFormats.size(); ++i) {
         const QString display = spacer + alternativeFormats.at(i).display;
         QAction *act = new QAction(display, formatMenu);
         const int format = alternativeFormats.at(i).format;
-        act->setData(format);
         act->setCheckable(true);
         act->setChecked(format == typeFormat);
-        act->setProperty(CurrentIndex, QVariant::fromValue(mi));
         formatMenu->addAction(act);
-        connect(act, SIGNAL(triggered()), SLOT(onTypeFormatChange()));
+        connect(act, &QAction::triggered, [this, act, format, mi] {
+            setModelData(LocalsTypeFormatRole, format, mi);
+        });
     }
 }
 
-void WatchTreeView::onClearTypeFormat()
+void WatchTreeView::showUnprintable(int base)
 {
-    const QModelIndexList active = activeRows();
-    foreach (const QModelIndex &idx, active)
-        setModelData(LocalsTypeFormatRole, AutomaticFormat, idx);
-}
-
-void WatchTreeView::onClearIndividualFormat()
-{
-    const QModelIndexList active = activeRows();
-    foreach (const QModelIndex &idx, active)
-        setModelData(LocalsIndividualFormatRole, AutomaticFormat, idx);
-}
-
-void WatchTreeView::onShowUnprintable()
-{
-    QAction *act = qobject_cast<QAction *>(sender());
-    QTC_ASSERT(act, return);
     DebuggerEngine *engine = currentEngine();
     WatchHandler *handler = engine->watchHandler();
-    handler->setUnprintableBase(act->data().toInt());
-}
-
-void WatchTreeView::onTypeFormatChange()
-{
-    QAction *act = qobject_cast<QAction *>(sender());
-    QTC_ASSERT(act, return);
-    QModelIndex idx = act->property(CurrentIndex).value<QModelIndex>();
-    setModelData(LocalsTypeFormatRole, act->data(), idx);
-}
-
-void WatchTreeView::onIndividualFormatChange()
-{
-    QAction *act = qobject_cast<QAction *>(sender());
-    QTC_ASSERT(act, return);
-    QModelIndex idx = act->property(CurrentIndex).value<QModelIndex>();
-    setModelData(LocalsIndividualFormatRole, act->data(), idx);
+    handler->setUnprintableBase(base);
 }
 
 void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
@@ -992,14 +950,14 @@ void WatchTreeView::setModel(QAbstractItemModel *model)
             header()->hide();
     }
 
-    connect(model, SIGNAL(layoutChanged()), SLOT(resetHelper()));
-    connect(model, SIGNAL(currentIndexRequested(QModelIndex)),
-            SLOT(setCurrentIndex(QModelIndex)));
-    connect(model, SIGNAL(itemIsExpanded(QModelIndex)),
-            SLOT(handleItemIsExpanded(QModelIndex)));
-#if USE_WATCH_MODEL_TEST
-    (void) new ModelTest(&m_filter, this);
-#endif
+    auto watchModel = qobject_cast<WatchModelBase *>(model);
+    QTC_ASSERT(watchModel, return);
+    connect(model, &QAbstractItemModel::layoutChanged,
+            this, &WatchTreeView::resetHelper);
+    connect(watchModel, &WatchModelBase::currentIndexRequested,
+            this, &QAbstractItemView::setCurrentIndex);
+    connect(watchModel, &WatchModelBase::itemIsExpanded,
+            this, &WatchTreeView::handleItemIsExpanded);
 }
 
 void WatchTreeView::rowActivated(const QModelIndex &index)
@@ -1103,8 +1061,8 @@ public:
         setLayout(layout);
 
         connect(m_buttons, SIGNAL(accepted()), m_lineEdit, SLOT(onEditingFinished()));
-        connect(m_buttons, SIGNAL(accepted()), SLOT(accept()));
-        connect(m_buttons, SIGNAL(rejected()), SLOT(reject()));
+        connect(m_buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+        connect(m_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
         connect(m_hint, SIGNAL(linkActivated(QString)),
             Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
     }

@@ -67,20 +67,13 @@ public slots:
 signals:
     void currentIndexChanged(const QModelIndex &currentIndex);
 
-private slots:
+private:
     void resetHelper();
     void expandNode(const QModelIndex &idx);
     void collapseNode(const QModelIndex &idx);
     void adjustSlider();
 
-    void onClearIndividualFormat();
-    void onClearTypeFormat();
-    void onShowUnprintable();
-
-    void onTypeFormatChange();
-    void onIndividualFormatChange();
-
-private:
+    void showUnprintable(int base);
     void doItemsLayout();
     void keyPressEvent(QKeyEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
