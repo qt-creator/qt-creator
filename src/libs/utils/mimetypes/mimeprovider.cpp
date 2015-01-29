@@ -719,6 +719,38 @@ QStringList MimeXMLProvider::findByFileName(const QString &fileName, QString *fo
     return matchingMimeTypes;
 }
 
+QStringList MimeXMLProvider::bestMatchByFileName(const QString &fileName, const QList<MimeType> &types)
+{
+    ensureLoaded();
+
+    // this is slow :(
+    // this would be much better if MimeType had references to their globs & magics
+    MimeAllGlobPatterns globs;
+    // fast patterns are fast (hash lookup), no need to reduce that set
+    globs.m_fastPatterns = m_mimeTypeGlobs.m_fastPatterns;
+    // fill highWeight and lowWeight glob lists
+    QSet<QString> names;
+    foreach (const MimeType &mt, types)
+        names.insert(mt.name());
+    foreach (const MimeGlobPattern &pattern, m_mimeTypeGlobs.m_highWeightGlobs) {
+        if (names.contains(pattern.mimeType()))
+            globs.m_highWeightGlobs.append(pattern);
+    }
+    foreach (const MimeGlobPattern &pattern, m_mimeTypeGlobs.m_lowWeightGlobs) {
+        if (names.contains(pattern.mimeType()))
+            globs.m_lowWeightGlobs.append(pattern);
+    }
+    QString foundSuffix;
+    const QStringList matchingMimeTypes = globs.matchingGlobs(fileName, &foundSuffix);
+    // result can still contain types that are not in our list, because of the fast patterns
+    QStringList result;
+    foreach (const QString &match, matchingMimeTypes) {
+        if (names.contains(match))
+            result.append(match);
+    }
+    return result;
+}
+
 MimeType MimeXMLProvider::findByMagic(const QByteArray &data, int *accuracyPtr)
 {
     ensureLoaded();
@@ -726,6 +758,30 @@ MimeType MimeXMLProvider::findByMagic(const QByteArray &data, int *accuracyPtr)
     QString candidate;
 
     foreach (const MimeMagicRuleMatcher &matcher, m_magicMatchers) {
+        if (matcher.matches(data)) {
+            const int priority = matcher.priority();
+            if (priority > *accuracyPtr) {
+                *accuracyPtr = priority;
+                candidate = matcher.mimetype();
+            }
+        }
+    }
+    return mimeTypeForName(candidate);
+}
+
+MimeType MimeXMLProvider::bestMatchByMagic(const QByteArray &data, const QList<MimeType> &types, int *accuracyPtr)
+{
+    ensureLoaded();
+
+    QSet<QString> names;
+    foreach (const MimeType &mt, types)
+        names.insert(mt.name());
+
+    QString candidate;
+
+    foreach (const MimeMagicRuleMatcher &matcher, m_magicMatchers) {
+        if (!names.contains(matcher.mimetype()))
+            continue;
         if (matcher.matches(data)) {
             const int priority = matcher.priority();
             if (priority > *accuracyPtr) {

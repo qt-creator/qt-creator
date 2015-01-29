@@ -73,6 +73,10 @@ public:
     virtual void loadIcon(MimeTypePrivate &) {}
     virtual void loadGenericIcon(MimeTypePrivate &) {}
 
+    // Qt Creator additions
+    virtual QStringList bestMatchByFileName(const QString &fileName, const QList<MimeType> &types) = 0;
+    virtual MimeType bestMatchByMagic(const QByteArray &data, const QList<MimeType> &types, int *accuracyPtr) = 0;
+
     MimeDatabasePrivate *m_db;
 protected:
     bool shouldCheck();
@@ -150,6 +154,8 @@ public:
 
     // Qt Creator additions
     void addFile(const QString &filePath);
+    QStringList bestMatchByFileName(const QString &fileName, const QList<MimeType> &types);
+    MimeType bestMatchByMagic(const QByteArray &data, const QList<MimeType> &types, int *accuracyPtr);
 
 private:
     void ensureLoaded();
