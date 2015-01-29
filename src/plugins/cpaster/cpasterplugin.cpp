@@ -147,8 +147,7 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
     }
 
     m_urlOpen = new UrlOpenProtocol;
-    connect(m_urlOpen, SIGNAL(fetchDone(QString,QString,bool)),
-            this, SLOT(finishFetch(QString,QString,bool)));
+    connect(m_urlOpen, &Protocol::fetchDone, this, &CodepasterPlugin::finishFetch);
 
     //register actions
 
@@ -171,12 +170,12 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
     m_fetchAction = new QAction(tr("Fetch Snippet..."), this);
     command = Core::ActionManager::registerAction(m_fetchAction, "CodePaster.Fetch", globalcontext);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+F") : tr("Alt+C,Alt+F")));
-    connect(m_fetchAction, SIGNAL(triggered()), this, SLOT(fetch()));
+    connect(m_fetchAction, &QAction::triggered, this, &CodepasterPlugin::fetch);
     cpContainer->addAction(command);
 
     m_fetchUrlAction = new QAction(tr("Fetch from URL..."), this);
     command = Core::ActionManager::registerAction(m_fetchUrlAction, "CodePaster.FetchUrl", globalcontext);
-    connect(m_fetchUrlAction, SIGNAL(triggered()), this, SLOT(fetchUrl()));
+    connect(m_fetchUrlAction, &QAction::triggered, this, &CodepasterPlugin::fetchUrl);
     cpContainer->addAction(command);
 
     addAutoReleasedObject(new CodePasterService);

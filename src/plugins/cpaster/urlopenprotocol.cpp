@@ -55,7 +55,8 @@ void UrlOpenProtocol::fetch(const QString &url)
 {
     QTC_ASSERT(!m_fetchReply, return);
     m_fetchReply = httpGet(url);
-    connect(m_fetchReply, SIGNAL(finished()), this, SLOT(fetchFinished()));
+    connect(m_fetchReply, &QNetworkReply::finished,
+            this, &UrlOpenProtocol::fetchFinished);
 }
 
 void UrlOpenProtocol::fetchFinished()

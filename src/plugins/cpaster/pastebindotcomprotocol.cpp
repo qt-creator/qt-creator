@@ -136,7 +136,7 @@ void PasteBinDotComProtocol::paste(const QString &text,
     pasteData += QUrl::toPercentEncoding(fixNewLines(text));
     // fire request
     m_pasteReply = httpPost(QLatin1String(PASTEBIN_BASE) + QLatin1String(PASTEBIN_API), pasteData);
-    connect(m_pasteReply, SIGNAL(finished()), this, SLOT(pasteFinished()));
+    connect(m_pasteReply, &QNetworkReply::finished, this, &PasteBinDotComProtocol::pasteFinished);
     if (debug)
         qDebug() << "paste: sending " << m_pasteReply << pasteData;
 }
@@ -167,7 +167,7 @@ void PasteBinDotComProtocol::fetch(const QString &id)
         qDebug() << "fetch: sending " << link;
 
     m_fetchReply = httpGet(link);
-    connect(m_fetchReply, SIGNAL(finished()), this, SLOT(fetchFinished()));
+    connect(m_fetchReply, &QNetworkReply::finished, this, &PasteBinDotComProtocol::fetchFinished);
     m_fetchId = id;
 }
 
@@ -212,7 +212,7 @@ void PasteBinDotComProtocol::list()
 
     const QString url = QLatin1String(PASTEBIN_BASE) + QLatin1String(PASTEBIN_ARCHIVE);
     m_listReply = httpGet(url);
-    connect(m_listReply, SIGNAL(finished()), this, SLOT(listFinished()));
+    connect(m_listReply, &QNetworkReply::finished, this, &PasteBinDotComProtocol::listFinished);
     if (debug)
         qDebug() << "list: sending " << url << m_listReply;
 }

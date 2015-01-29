@@ -133,7 +133,7 @@ void StickyNotesPasteProtocol::paste(const QString &text,
     }
 
     m_pasteReply = httpPost(m_hostUrl + QLatin1String("api/json/create"), pasteData);
-    connect(m_pasteReply, SIGNAL(finished()), this, SLOT(pasteFinished()));
+    connect(m_pasteReply, &QNetworkReply::finished, this, &StickyNotesPasteProtocol::pasteFinished);
     if (debug)
         qDebug() << "paste: sending " << m_pasteReply << pasteData;
 }
@@ -196,7 +196,8 @@ void StickyNotesPasteProtocol::fetch(const QString &id)
         qDebug() << "fetch: sending " << url;
 
     m_fetchReply = httpGet(url);
-    connect(m_fetchReply, SIGNAL(finished()), this, SLOT(fetchFinished()));
+    connect(m_fetchReply, &QNetworkReply::finished,
+            this, &StickyNotesPasteProtocol::fetchFinished);
 }
 
 // Parse: '<result><id>143228</id><author>foo</author><timestamp>1320661026</timestamp><language>text</language>
@@ -227,7 +228,8 @@ void StickyNotesPasteProtocol::list()
     // Trailing slash is important to prevent redirection.
     QString url = m_hostUrl + QLatin1String("api/json/list");
     m_listReply = httpGet(url);
-    connect(m_listReply, SIGNAL(finished()), this, SLOT(listFinished()));
+    connect(m_listReply, &QNetworkReply::finished,
+            this, &StickyNotesPasteProtocol::listFinished);
     if (debug)
         qDebug() << "list: sending " << url << m_listReply;
 }

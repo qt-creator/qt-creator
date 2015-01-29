@@ -68,7 +68,8 @@ QmlInspectorAgent::QmlInspectorAgent(DebuggerEngine *engine, QObject *parent)
             SIGNAL(valueChanged(QVariant)), SLOT(updateState()));
     m_delayQueryTimer.setSingleShot(true);
     m_delayQueryTimer.setInterval(100);
-    connect(&m_delayQueryTimer, SIGNAL(timeout()), SLOT(queryEngineContext()));
+    connect(&m_delayQueryTimer, &QTimer::timeout,
+            this, &QmlInspectorAgent::queryEngineContext);
 }
 
 quint32 QmlInspectorAgent::queryExpressionResult(int debugId,
@@ -395,14 +396,14 @@ void QmlInspectorAgent::setEngineClient(BaseEngineDebugClient *client)
     m_engineClient = client;
 
     if (m_engineClient) {
-        connect(m_engineClient, SIGNAL(newState(QmlDebug::QmlDebugClient::State)),
-                this, SLOT(updateState()));
-        connect(m_engineClient, SIGNAL(result(quint32,QVariant,QByteArray)),
-                this, SLOT(onResult(quint32,QVariant,QByteArray)));
-        connect(m_engineClient, SIGNAL(newObject(int,int,int)),
-                this, SLOT(newObject(int,int,int)));
-        connect(m_engineClient, SIGNAL(valueChanged(int,QByteArray,QVariant)),
-                this, SLOT(onValueChanged(int,QByteArray,QVariant)));
+        connect(m_engineClient, &QmlDebug::BaseEngineDebugClient::newState,
+                this, &QmlInspectorAgent::updateState);
+        connect(m_engineClient, &QmlDebug::BaseEngineDebugClient::result,
+                this, &QmlInspectorAgent::onResult);
+        connect(m_engineClient, &QmlDebug::BaseEngineDebugClient::newObject,
+                this, &QmlInspectorAgent::newObject);
+        connect(m_engineClient, &QmlDebug::BaseEngineDebugClient::valueChanged,
+                this, &QmlInspectorAgent::onValueChanged);
     }
 
     updateState();

@@ -61,16 +61,16 @@ QWidget *LocatorSettingsPage::widget()
         m_widget = new QWidget;
         m_ui.setupUi(m_widget);
         m_ui.refreshInterval->setToolTip(m_ui.refreshIntervalLabel->toolTip());
-        connect(m_ui.filterList, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
-                this, SLOT(updateButtonStates()));
+        connect(m_ui.filterList, &QListWidget::currentItemChanged,
+                this, &LocatorSettingsPage::updateButtonStates);
         connect(m_ui.filterList, SIGNAL(itemActivated(QListWidgetItem*)),
                 this, SLOT(configureFilter(QListWidgetItem*)));
         connect(m_ui.editButton, SIGNAL(clicked()),
                 this, SLOT(configureFilter()));
-        connect(m_ui.addButton, SIGNAL(clicked()),
-                this, SLOT(addCustomFilter()));
-        connect(m_ui.removeButton, SIGNAL(clicked()),
-                this, SLOT(removeCustomFilter()));
+        connect(m_ui.addButton, &QPushButton::clicked,
+                this, &LocatorSettingsPage::addCustomFilter);
+        connect(m_ui.removeButton, &QPushButton::clicked,
+                this, &LocatorSettingsPage::removeCustomFilter);
 
         m_ui.refreshInterval->setValue(m_plugin->refreshInterval());
         m_filters = m_plugin->filters();

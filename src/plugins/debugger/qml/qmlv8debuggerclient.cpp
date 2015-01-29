@@ -982,7 +982,8 @@ void QmlV8DebuggerClient::expandObject(const QByteArray &iname, quint64 objectId
 void QmlV8DebuggerClient::setEngine(QmlEngine *engine)
 {
     d->engine = engine;
-    connect(this, SIGNAL(stackFrameCompleted()), engine, SIGNAL(stackFrameCompleted()));
+    connect(this, &QmlV8DebuggerClient::stackFrameCompleted,
+            engine, &QmlEngine::stackFrameCompleted);
 }
 
 void QmlV8DebuggerClient::getSourceFiles()

@@ -98,7 +98,8 @@ void PasteBinDotCaProtocol::fetch(const QString &id)
         link.insert(0, url);
     }
     m_fetchReply = httpGet(link);
-    connect(m_fetchReply, SIGNAL(finished()), this, SLOT(fetchFinished()));
+    connect(m_fetchReply, &QNetworkReply::finished,
+            this, &PasteBinDotCaProtocol::fetchFinished);
     m_fetchId = id;
 }
 
@@ -138,7 +139,8 @@ void PasteBinDotCaProtocol::paste(const QString &text,
     // fire request
     const QString link = QLatin1String(internalUrlC) + QLatin1String("quiet-paste.php");
     m_pasteReply = httpPost(link, data);
-    connect(m_pasteReply, SIGNAL(finished()), this, SLOT(pasteFinished()));
+    connect(m_pasteReply, &QNetworkReply::finished,
+            this, &PasteBinDotCaProtocol::pasteFinished);
 }
 
 void PasteBinDotCaProtocol::pasteFinished()
@@ -177,7 +179,7 @@ void PasteBinDotCaProtocol::list()
 {
     QTC_ASSERT(!m_listReply, return);
     m_listReply = httpGet(QLatin1String(urlC));
-    connect(m_listReply, SIGNAL(finished()), this, SLOT(listFinished()));
+    connect(m_listReply, &QNetworkReply::finished, this, &PasteBinDotCaProtocol::listFinished);
 }
 
 bool PasteBinDotCaProtocol::checkConfiguration(QString *errorMessage)

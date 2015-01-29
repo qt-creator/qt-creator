@@ -96,14 +96,14 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     m_dialog = &dialog;
     m_ui.setupUi(&dialog);
     dialog.setWindowTitle(tr("Filter Configuration"));
-    connect(m_ui.addButton, SIGNAL(clicked()),
-            this, SLOT(addDirectory()), Qt::DirectConnection);
-    connect(m_ui.editButton, SIGNAL(clicked()),
-            this, SLOT(editDirectory()), Qt::DirectConnection);
-    connect(m_ui.removeButton, SIGNAL(clicked()),
-            this, SLOT(removeDirectory()), Qt::DirectConnection);
-    connect(m_ui.directoryList, SIGNAL(itemSelectionChanged()),
-            this, SLOT(updateOptionButtons()), Qt::DirectConnection);
+    connect(m_ui.addButton, &QPushButton::clicked,
+            this, &DirectoryFilter::addDirectory, Qt::DirectConnection);
+    connect(m_ui.editButton, &QPushButton::clicked,
+            this, &DirectoryFilter::editDirectory, Qt::DirectConnection);
+    connect(m_ui.removeButton, &QPushButton::clicked,
+            this, &DirectoryFilter::removeDirectory, Qt::DirectConnection);
+    connect(m_ui.directoryList, &QListWidget::itemSelectionChanged,
+            this, &DirectoryFilter::updateOptionButtons, Qt::DirectConnection);
     m_ui.nameEdit->setText(displayName());
     m_ui.nameEdit->selectAll();
     m_ui.directoryList->clear();

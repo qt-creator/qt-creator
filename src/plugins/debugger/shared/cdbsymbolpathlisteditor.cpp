@@ -68,8 +68,8 @@ CacheDirectoryDialog::CacheDirectoryDialog(QWidget *parent) :
 
     setLayout(mainLayout);
 
-    connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(m_buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(m_buttonBox, &QDialogButtonBox::accepted, this, &CacheDirectoryDialog::accept);
+    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &CacheDirectoryDialog::reject);
 }
 
 void CacheDirectoryDialog::setPath(const QString &p)

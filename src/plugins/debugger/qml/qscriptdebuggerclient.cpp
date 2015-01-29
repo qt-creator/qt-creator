@@ -582,7 +582,8 @@ void QScriptDebuggerClient::insertLocalsAndWatches(QList<WatchData> &locals,
 void QScriptDebuggerClient::setEngine(QmlEngine *engine)
 {
     d->engine = engine;
-    connect(this, SIGNAL(stackFrameCompleted()), engine, SIGNAL(stackFrameCompleted()));
+    connect(this, &QScriptDebuggerClient::stackFrameCompleted,
+            engine, &DebuggerEngine::stackFrameCompleted);
 }
 
 void QScriptDebuggerClientPrivate::logSendMessage(const QString &msg) const

@@ -106,8 +106,8 @@ bool ILocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok |
                                                        QDialogButtonBox::Cancel);
-    connect(buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
+    connect(buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
 
     vlayout->addLayout(hlayout);
     vlayout->addStretch();

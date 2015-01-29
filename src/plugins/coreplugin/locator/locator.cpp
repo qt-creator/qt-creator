@@ -101,7 +101,7 @@ void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
     Command *cmd = ActionManager::registerAction(action, Constants::LOCATE,
                                                              Context(Constants::C_GLOBAL));
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+K")));
-    connect(action, SIGNAL(triggered()), this, SLOT(openLocator()));
+    connect(action, &QAction::triggered, this, &Locator::openLocator);
     connect(cmd, SIGNAL(keySequenceChanged()), this, SLOT(updatePlaceholderText()));
     updatePlaceholderText(cmd);
 
@@ -308,7 +308,7 @@ void Locator::refresh(QList<ILocatorFilter *> filters)
     QFuture<void> task = QtConcurrent::run(&ILocatorFilter::refresh, filters);
     FutureProgress *progress =
         ProgressManager::addTask(task, tr("Updating Locator Caches"), Constants::TASK_INDEX);
-    connect(progress, SIGNAL(finished()), this, SLOT(saveSettings()));
+    connect(progress, &FutureProgress::finished, this, &Locator::saveSettings);
 }
 
 } // namespace Internal

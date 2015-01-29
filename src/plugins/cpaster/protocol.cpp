@@ -223,7 +223,7 @@ bool NetworkProtocol::httpStatus(QString url, QString *errorMessage, bool useHtt
     // User canceled, discard and be happy.
     if (!reply->isFinished()) {
         QNetworkReply *replyPtr = reply.take();
-        connect(replyPtr, SIGNAL(finished()), replyPtr, SLOT(deleteLater()));
+        connect(replyPtr, &QNetworkReply::finished, replyPtr, &QNetworkReply::deleteLater);
         return false;
     }
     // Passed

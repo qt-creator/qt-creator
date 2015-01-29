@@ -304,7 +304,8 @@ void GdbCoreEngine::unpackCoreIfNeeded()
         m_coreUnpackProcess = new QProcess(this);
         m_coreUnpackProcess->setWorkingDirectory(QDir::tempPath());
         m_coreUnpackProcess->start(QLatin1String("lzop"), arguments);
-        connect(m_coreUnpackProcess, SIGNAL(finished(int)), SLOT(continueSetupEngine()));
+        connect(m_coreUnpackProcess, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+                this, &GdbCoreEngine::continueSetupEngine);
     } else if (m_coreName.endsWith(QLatin1String(".gz"))) {
         m_tempCoreName = tempCoreFilename();
         showMessage(msg.arg(m_tempCoreName));
@@ -314,8 +315,9 @@ void GdbCoreEngine::unpackCoreIfNeeded()
         m_coreUnpackProcess = new QProcess(this);
         m_coreUnpackProcess->setWorkingDirectory(QDir::tempPath());
         m_coreUnpackProcess->start(QLatin1String("gzip"), arguments);
-        connect(m_coreUnpackProcess, SIGNAL(readyRead()), SLOT(writeCoreChunk()));
-        connect(m_coreUnpackProcess, SIGNAL(finished(int)), SLOT(continueSetupEngine()));
+        connect(m_coreUnpackProcess, &QProcess::readyRead, this, &GdbCoreEngine::writeCoreChunk);
+        connect(m_coreUnpackProcess, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+                this, &GdbCoreEngine::continueSetupEngine);
     } else {
         continueSetupEngine();
     }

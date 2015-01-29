@@ -232,7 +232,7 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
     //ExtensionSystem::PluginManager::addObject(m_debugInfoTaskHandler);
 
     m_commandTimer.setSingleShot(true);
-    connect(&m_commandTimer, SIGNAL(timeout()), SLOT(commandTimeout()));
+    connect(&m_commandTimer, &QTimer::timeout, this, &GdbEngine::commandTimeout);
 
     connect(action(AutoDerefPointers), SIGNAL(valueChanged(QVariant)),
             SLOT(reloadLocals()));
@@ -4195,14 +4195,10 @@ void GdbEngine::startGdb(const QStringList &args)
         gdbArgs << _("-n");
     gdbArgs += args;
 
-    connect(m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
-        SLOT(handleGdbError(QProcess::ProcessError)));
-    connect(m_gdbProc, SIGNAL(finished(int,QProcess::ExitStatus)),
-        SLOT(handleGdbFinished(int,QProcess::ExitStatus)));
-    connect(m_gdbProc, SIGNAL(readyReadStandardOutput()),
-        SLOT(readGdbStandardOutput()));
-    connect(m_gdbProc, SIGNAL(readyReadStandardError()),
-        SLOT(readGdbStandardError()));
+    connect(m_gdbProc, &GdbProcess::error, this, &GdbEngine::handleGdbError);
+    connect(m_gdbProc, &GdbProcess::finished, this, &GdbEngine::handleGdbFinished);
+    connect(m_gdbProc, &GdbProcess::readyReadStandardOutput, this, &GdbEngine::readGdbStandardOutput);
+    connect(m_gdbProc, &GdbProcess::readyReadStandardError, this, &GdbEngine::readGdbStandardError);
 
     showMessage(_("STARTING ") + m_gdb + _(" ") + gdbArgs.join(QLatin1Char(' ')));
     m_gdbProc->start(m_gdb, gdbArgs);

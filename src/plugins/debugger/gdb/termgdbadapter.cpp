@@ -94,9 +94,12 @@ void GdbTermEngine::setupEngine()
     // Set environment + dumper preload.
     m_stubProc.setEnvironment(startParameters().environment);
 
-    connect(&m_stubProc, SIGNAL(processError(QString)), SLOT(stubError(QString)));
-    connect(&m_stubProc, SIGNAL(processStarted()), SLOT(stubStarted()));
-    connect(&m_stubProc, SIGNAL(stubStopped()), SLOT(stubExited()));
+    connect(&m_stubProc, &Utils::ConsoleProcess::processError,
+            this, &GdbTermEngine::stubError);
+    connect(&m_stubProc, &Utils::ConsoleProcess::processStarted,
+            this, &GdbTermEngine::stubStarted);
+    connect(&m_stubProc, &Utils::ConsoleProcess::stubStopped,
+            this, &GdbTermEngine::stubExited);
     // FIXME: Starting the stub implies starting the inferior. This is
     // fairly unclean as far as the state machine and error reporting go.
 

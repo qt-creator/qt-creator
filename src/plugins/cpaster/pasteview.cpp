@@ -55,12 +55,12 @@ PasteView::PasteView(const QList<Protocol *> &protocols,
     m_ui.setupUi(this);
 
     m_ui.buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Paste"));
-    connect(m_ui.uiPatchList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(contentChanged()));
+    connect(m_ui.uiPatchList, &QListWidget::itemChanged, this, &PasteView::contentChanged);
 
     foreach (const Protocol *p, protocols)
         m_ui.protocolBox->addItem(p->name());
-    connect(m_ui.protocolBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(protocolChanged(int)));
+    connect(m_ui.protocolBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &PasteView::protocolChanged);
 }
 
 PasteView::~PasteView()

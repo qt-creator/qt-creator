@@ -103,8 +103,10 @@ void GdbServerStarter::portGathererError(const QString &text)
 void GdbServerStarter::run()
 {
     QTC_ASSERT(d->device, return);
-    connect(&d->gatherer, SIGNAL(error(QString)), SLOT(portGathererError(QString)));
-    connect(&d->gatherer, SIGNAL(portListReady()), SLOT(portListReady()));
+    connect(&d->gatherer, &DeviceUsedPortsGatherer::error,
+            this, &GdbServerStarter::portGathererError);
+    connect(&d->gatherer, &DeviceUsedPortsGatherer::portListReady,
+            this, &GdbServerStarter::portListReady);
     d->gatherer.start(d->device);
 }
 
@@ -118,11 +120,16 @@ void GdbServerStarter::portListReady()
         return;
     }
 
-    connect(&d->runner, SIGNAL(connectionError()), SLOT(handleConnectionError()));
-    connect(&d->runner, SIGNAL(processStarted()), SLOT(handleProcessStarted()));
-    connect(&d->runner, SIGNAL(readyReadStandardOutput()), SLOT(handleProcessOutputAvailable()));
-    connect(&d->runner, SIGNAL(readyReadStandardError()), SLOT(handleProcessErrorOutput()));
-    connect(&d->runner, SIGNAL(processClosed(int)), SLOT(handleProcessClosed(int)));
+    connect(&d->runner, &SshRemoteProcessRunner::connectionError,
+            this, &GdbServerStarter::handleConnectionError);
+    connect(&d->runner, &SshRemoteProcessRunner::processStarted,
+            this, &GdbServerStarter::handleProcessStarted);
+    connect(&d->runner, &SshRemoteProcessRunner::readyReadStandardOutput,
+            this, &GdbServerStarter::handleProcessOutputAvailable);
+    connect(&d->runner, &SshRemoteProcessRunner::readyReadStandardError,
+            this, &GdbServerStarter::handleProcessErrorOutput);
+    connect(&d->runner, &SshRemoteProcessRunner::processClosed,
+            this, &GdbServerStarter::handleProcessClosed);
 
     QByteArray gdbServerPath = d->device->debugServerPath().toUtf8();
     if (gdbServerPath.isEmpty())
