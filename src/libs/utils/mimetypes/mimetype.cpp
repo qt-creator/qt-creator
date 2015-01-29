@@ -47,6 +47,17 @@
 using namespace Utils;
 using namespace Utils::Internal;
 
+static QString suffixFromPattern(const QString &pattern)
+{
+    // Not a simple suffix if it looks like: README or *. or *.* or *.JP*G or *.JP?
+    if (pattern.startsWith(QLatin1String("*.")) &&
+            pattern.length() > 2 &&
+            pattern.indexOf(QLatin1Char('*'), 2) < 0 && pattern.indexOf(QLatin1Char('?'), 2) < 0) {
+        return pattern.mid(2);
+    }
+    return QString();
+}
+
 MimeTypePrivate::MimeTypePrivate()
     : loaded(false)
 {}
@@ -378,13 +389,9 @@ QStringList MimeType::suffixes() const
 
     QStringList result;
     foreach (const QString &pattern, d->globPatterns) {
-        // Not a simple suffix if it looks like: README or *. or *.* or *.JP*G or *.JP?
-        if (pattern.startsWith(QLatin1String("*.")) &&
-            pattern.length() > 2 &&
-            pattern.indexOf(QLatin1Char('*'), 2) < 0 && pattern.indexOf(QLatin1Char('?'), 2) < 0) {
-            const QString suffix = pattern.mid(2);
+        const QString suffix = suffixFromPattern(pattern);
+        if (!suffix.isEmpty())
             result.append(suffix);
-        }
     }
 
     return result;
@@ -421,6 +428,24 @@ QString MimeType::filterString() const
     }
 
     return filter;
+}
+
+bool MimeType::matchesName(const QString &nameOrAlias) const
+{
+    return d->name == nameOrAlias || aliases().contains(nameOrAlias);
+}
+
+void MimeType::setPreferredSuffix(const QString &suffix)
+{
+    MimeDatabasePrivate::instance()->provider()->loadMimeTypePrivate(*d);
+
+    auto it = std::find_if(d->globPatterns.begin(), d->globPatterns.end(),
+                           [suffix](const QString &pattern) {
+                               return suffixFromPattern(pattern) == suffix;
+                           });
+    if (it != d->globPatterns.end())
+        d->globPatterns.erase(it);
+    d->globPatterns.prepend(QLatin1String("*.") + suffix);
 }
 
 /*!
