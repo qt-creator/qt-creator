@@ -34,6 +34,7 @@
 #include "qbsbuildinfo.h"
 #include "qbsbuildstep.h"
 #include "qbscleanstep.h"
+#include "qbsinstallstep.h"
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 
@@ -48,7 +49,9 @@
 #include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
+#include <utils/qtcprocess.h>
 
+#include <QCoreApplication>
 #include <QInputDialog>
 
 using namespace ProjectExplorer;
@@ -203,6 +206,127 @@ QStringList QbsBuildConfiguration::products() const
 void QbsBuildConfiguration::emitBuildTypeChanged()
 {
     emit buildTypeChanged();
+}
+
+class StepProxy
+{
+public:
+    StepProxy(const BuildStep *buildStep)
+        : m_qbsBuildStep(qobject_cast<const QbsBuildStep *>(buildStep))
+        , m_qbsCleanStep(qobject_cast<const QbsCleanStep *>(buildStep))
+        , m_qbsInstallStep(qobject_cast<const QbsInstallStep *>(buildStep))
+    {
+    }
+
+    QString command() const {
+        if (m_qbsBuildStep)
+            return QLatin1String("build");
+        if (m_qbsCleanStep)
+            return QLatin1String("clean");
+        return QLatin1String("install");
+    }
+
+    bool dryRun() const {
+        if (m_qbsBuildStep)
+            return m_qbsBuildStep->dryRun();
+        if (m_qbsCleanStep)
+            return m_qbsCleanStep->dryRun();
+        return m_qbsInstallStep->dryRun();
+    }
+
+    bool keepGoing() const {
+        if (m_qbsBuildStep)
+            return m_qbsBuildStep->keepGoing();
+        if (m_qbsCleanStep)
+            return m_qbsCleanStep->keepGoing();
+        return m_qbsInstallStep->keepGoing();
+    }
+
+    bool showCommandLines() const {
+        return m_qbsBuildStep ? m_qbsBuildStep->showCommandLines() : false;
+    }
+
+    bool noInstall() const {
+        return m_qbsBuildStep ? !m_qbsBuildStep->install() : false;
+    }
+
+    bool cleanInstallRoot() const {
+        if (m_qbsBuildStep)
+            return m_qbsBuildStep->cleanInstallRoot();
+        if (m_qbsInstallStep)
+            return m_qbsInstallStep->removeFirst();
+        return false;
+    }
+
+    int jobCount() const {
+        return m_qbsBuildStep ? m_qbsBuildStep->maxJobs() : 0;
+    }
+
+    bool allArtifacts() const {
+        return m_qbsCleanStep ? m_qbsCleanStep->cleanAll() : false;
+    }
+
+    QString installRoot() const {
+        return m_qbsInstallStep ? m_qbsInstallStep->absoluteInstallRoot() : QString();
+    }
+
+private:
+    const QbsBuildStep * const m_qbsBuildStep;
+    const QbsCleanStep * const m_qbsCleanStep;
+    const QbsInstallStep * const m_qbsInstallStep;
+};
+
+QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
+{
+    QString commandLine;
+    const QString qbsInstallDir = QString::fromLocal8Bit(qgetenv("QBS_INSTALL_DIR"));
+    const QString qbsFilePath = Utils::HostOsInfo::withExecutableSuffix(!qbsInstallDir.isEmpty()
+            ? qbsInstallDir + QLatin1String("/bin/qbs")
+            : QCoreApplication::applicationDirPath() + QLatin1String("/qbs"));
+    Utils::QtcProcess::addArg(&commandLine, qbsFilePath);
+    const StepProxy stepProxy(buildStep);
+    Utils::QtcProcess::addArg(&commandLine, stepProxy.command());
+    const QbsBuildConfiguration * const buildConfig = qobject_cast<QbsBuildConfiguration *>(
+                buildStep->project()->activeTarget()->activeBuildConfiguration());
+    if (buildConfig) {
+        const QString buildDir = buildConfig->buildDirectory().toUserOutput();
+        Utils::QtcProcess::addArgs(&commandLine, QStringList() << QLatin1String("-d") << buildDir);
+    }
+    Utils::QtcProcess::addArgs(&commandLine, QStringList() << QLatin1String("-f")
+                               << buildStep->project()->projectFilePath().toUserOutput());
+    Utils::QtcProcess::addArgs(&commandLine, QStringList() << QLatin1String("--settings-dir")
+                               << QDir::toNativeSeparators(Core::ICore::userResourcePath()));
+    if (stepProxy.dryRun())
+        Utils::QtcProcess::addArg(&commandLine, QLatin1String("--dry-run"));
+    if (stepProxy.keepGoing())
+        Utils::QtcProcess::addArg(&commandLine, QLatin1String("--keep-going"));
+    if (stepProxy.showCommandLines())
+        Utils::QtcProcess::addArg(&commandLine, QLatin1String("--show-command-lines"));
+    if (stepProxy.noInstall())
+        Utils::QtcProcess::addArg(&commandLine, QLatin1String("--no-install"));
+    if (stepProxy.cleanInstallRoot())
+        Utils::QtcProcess::addArg(&commandLine, QLatin1String("--clean-install-root"));
+    const int jobCount = stepProxy.jobCount();
+    if (jobCount > 0) {
+        Utils::QtcProcess::addArgs(&commandLine, QStringList() << QLatin1String("--jobs")
+                                   << QString::number(jobCount));
+    }
+    if (stepProxy.allArtifacts())
+        Utils::QtcProcess::addArg(&commandLine, QLatin1String("--all-artifacts"));
+    const QString installRoot = stepProxy.installRoot();
+    if (!installRoot.isEmpty()) {
+        Utils::QtcProcess::addArgs(&commandLine, QStringList() << QLatin1String("--install-root")
+                                   << installRoot);
+    }
+
+    if (buildConfig) {
+        Utils::QtcProcess::addArg(&commandLine, buildConfig->qbsConfiguration()
+                .value(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)).toString());
+    }
+    Utils::QtcProcess::addArg(&commandLine, QLatin1String("profile:")
+                              + QbsManager::instance()->profileForKit(buildStep->target()->kit()));
+
+    return commandLine;
 }
 
 QbsBuildConfiguration *QbsBuildConfiguration::setup(Target *t,

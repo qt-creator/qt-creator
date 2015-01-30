@@ -36,7 +36,10 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
 
-namespace ProjectExplorer { class FileNode; }
+namespace ProjectExplorer {
+class BuildStep;
+class FileNode;
+}
 
 namespace QbsProjectManager {
 
@@ -78,6 +81,8 @@ public:
     QStringList products() const;
 
     void emitBuildTypeChanged();
+
+    static QString equivalentCommandLine(const ProjectExplorer::BuildStep *buildStep);
 
 signals:
     void qbsConfigurationChanged();

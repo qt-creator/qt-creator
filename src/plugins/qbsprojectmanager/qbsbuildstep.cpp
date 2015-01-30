@@ -525,22 +525,7 @@ void QbsBuildStepConfigWidget::updateState()
     const QString buildVariant = m_step->buildVariant();
     const int idx = (buildVariant == QLatin1String(Constants::QBS_VARIANT_DEBUG)) ? 0 : 1;
     m_ui->buildVariantComboBox->setCurrentIndex(idx);
-
-    QString command = QLatin1String("qbs build ");
-    command += QString::fromLatin1("--settings-dir ")
-            + QDir::toNativeSeparators(Core::ICore::userResourcePath()) + QLatin1Char(' ');
-    if (m_step->dryRun())
-        command += QLatin1String("--dry-run ");
-    if (m_step->keepGoing())
-        command += QLatin1String("--keep-going ");
-    if (m_step->showCommandLines())
-        command += QLatin1String("--show-command-lines ");
-    if (!m_step->install())
-        command += QLatin1String("--no-install ");
-    if (m_step->cleanInstallRoot())
-        command += QLatin1String("--clean-install-root ");
-    command += QString::fromLatin1("--jobs %1 ").arg(m_step->maxJobs());
-    command += QString::fromLatin1("%1 profile:%2").arg(buildVariant, m_step->profile());
+    QString command = QbsBuildConfiguration::equivalentCommandLine(m_step);
 
     QList<QPair<QString, QString> > propertyList = m_ui->propertyEdit->properties();
     for (int i = 0; i < propertyList.count(); ++i) {

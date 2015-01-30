@@ -293,13 +293,7 @@ void QbsCleanStepConfigWidget::updateState()
     m_ui->dryRunCheckBox->setChecked(m_step->dryRun());
     m_ui->keepGoingCheckBox->setChecked(m_step->keepGoing());
 
-    QString command = QLatin1String("qbs clean ");
-    if (m_step->dryRun())
-        command += QLatin1String("--dry-run ");
-    if (m_step->keepGoing())
-        command += QLatin1String("--keep-going ");
-    if (m_step->cleanAll())
-        command += QLatin1String(" --all-artifacts");
+    QString command = QbsBuildConfiguration::equivalentCommandLine(m_step);
     m_ui->commandLineTextEdit->setPlainText(command);
 
     QString summary = tr("<b>Qbs:</b> %1").arg(command);

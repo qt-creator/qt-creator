@@ -317,16 +317,7 @@ void QbsInstallStepConfigWidget::updateState()
 
     m_ui->installRootChooser->setBaseFileName(m_step->target()->activeBuildConfiguration()->buildDirectory());
 
-    QString command = QLatin1String("qbs install ");
-    command += QString::fromLatin1("--settings-dir ")
-            + QDir::toNativeSeparators(Core::ICore::userResourcePath()) + QLatin1Char(' ');
-    if (m_step->dryRun())
-        command += QLatin1String("--dry-run ");
-    if (m_step->keepGoing())
-        command += QLatin1String("--keep-going ");
-    if (m_step->removeFirst())
-        command += QLatin1String("--remove-first ");
-    command += QString::fromLatin1("--install-root \"%1\"").arg(m_step->absoluteInstallRoot());
+    QString command = QbsBuildConfiguration::equivalentCommandLine(m_step);
     m_ui->commandLineTextEdit->setPlainText(command);
 
     QString summary = tr("<b>Qbs:</b> %1").arg(command);
