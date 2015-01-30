@@ -1,7 +1,6 @@
 TEMPLATE=subdirs
 
 SUBDIRS= \
-cplusplus-frontend \
 fakevim \
 debugger \
 subdir_proparser \
