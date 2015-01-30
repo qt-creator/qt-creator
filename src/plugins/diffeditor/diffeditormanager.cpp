@@ -57,11 +57,6 @@ DiffEditorManager::~DiffEditorManager()
     m_instance = 0;
 }
 
-DiffEditorManager *DiffEditorManager::instance()
-{
-    return m_instance;
-}
-
 void DiffEditorManager::slotEditorsClosed(const QList<Core::IEditor *> &editors)
 {
     QMap<Core::IDocument *, int> editorsForDocument;
@@ -89,7 +84,7 @@ void DiffEditorManager::slotEditorsClosed(const QList<Core::IEditor *> &editors)
 
 DiffEditorDocument *DiffEditorManager::find(const QString &documentId)
 {
-    return instance()->idToDocument.value(documentId);
+    return m_instance->idToDocument.value(documentId);
 }
 
 DiffEditorDocument *DiffEditorManager::findOrCreate(const QString &documentId, const QString &displayName)
@@ -109,19 +104,19 @@ DiffEditorDocument *DiffEditorManager::findOrCreate(const QString &documentId, c
 
     document->setDisplayName(displayName);
 
-    instance()->idToDocument.insert(documentId, document);
-    instance()->documentToId.insert(document, documentId);
+    m_instance->idToDocument.insert(documentId, document);
+    m_instance->documentToId.insert(document, documentId);
 
     return document;
 }
 
 void DiffEditorManager::removeDocument(DiffEditorDocument *document)
 {
-    if (!instance()->documentToId.contains(document))
+    if (!m_instance->documentToId.contains(document))
         return;
-    const QString documentId = instance()->documentToId.value(document);
-    instance()->documentToId.remove(document);
-    instance()->idToDocument.remove(documentId);
+    const QString documentId = m_instance->documentToId.value(document);
+    m_instance->documentToId.remove(document);
+    m_instance->idToDocument.remove(documentId);
 }
 
 

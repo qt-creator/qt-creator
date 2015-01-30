@@ -49,8 +49,6 @@ public:
     explicit DiffEditorManager(QObject *parent);
     virtual ~DiffEditorManager();
 
-    static DiffEditorManager *instance();
-
     static DiffEditorDocument *find(const QString &documentId);
     static DiffEditorDocument *findOrCreate(const QString &documentId, const QString &displayName);
     static void removeDocument(DiffEditorDocument *document);
