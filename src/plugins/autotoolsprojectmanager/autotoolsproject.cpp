@@ -143,8 +143,8 @@ bool AutotoolsProject::fromMap(const QVariantMap &map)
     if (!Project::fromMap(map))
         return false;
 
-    connect(m_fileWatcher, SIGNAL(fileChanged(QString)),
-            this, SLOT(onFileChanged(QString)));
+    connect(m_fileWatcher, &Utils::FileSystemWatcher::fileChanged,
+            this, &AutotoolsProject::onFileChanged);
 
     // Load the project tree structure.
     loadProjectTree();
@@ -172,11 +172,11 @@ void AutotoolsProject::loadProjectTree()
     // Parse the makefile asynchronously in a thread
     m_makefileParserThread = new MakefileParserThread(m_fileName);
 
-    connect(m_makefileParserThread, SIGNAL(started()),
-            this, SLOT(makefileParsingStarted()));
+    connect(m_makefileParserThread, &MakefileParserThread::started,
+            this, &AutotoolsProject::makefileParsingStarted);
 
-    connect(m_makefileParserThread, SIGNAL(finished()),
-            this, SLOT(makefileParsingFinished()));
+    connect(m_makefileParserThread, &MakefileParserThread::finished,
+            this, &AutotoolsProject::makefileParsingFinished);
     m_makefileParserThread->start();
 }
 

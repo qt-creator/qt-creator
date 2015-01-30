@@ -215,7 +215,8 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericBuildConfiguration
     m_pathChooser->setHistoryCompleter(QLatin1String("Generic.BuildDir.History"));
     m_pathChooser->setEnabled(true);
     fl->addRow(tr("Build directory:"), m_pathChooser);
-    connect(m_pathChooser, SIGNAL(changed(QString)), this, SLOT(buildDirectoryChanged()));
+    connect(m_pathChooser, &Utils::PathChooser::changed,
+            this, &GenericBuildSettingsWidget::buildDirectoryChanged);
 
     m_buildConfiguration = bc;
     m_pathChooser->setBaseFileName(bc->target()->project()->projectDirectory());
@@ -223,7 +224,8 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericBuildConfiguration
     m_pathChooser->setPath(m_buildConfiguration->rawBuildDirectory().toString());
     setDisplayName(tr("Generic Manager"));
 
-    connect(bc, SIGNAL(environmentChanged()), this, SLOT(environmentHasChanged()));
+    connect(bc, &GenericBuildConfiguration::environmentChanged,
+            this, &GenericBuildSettingsWidget::environmentHasChanged);
 }
 
 void GenericBuildSettingsWidget::buildDirectoryChanged()

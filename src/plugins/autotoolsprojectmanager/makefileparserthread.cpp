@@ -46,7 +46,8 @@ MakefileParserThread::MakefileParserThread(const QString &makefile) :
     m_makefiles(),
     m_includePaths()
 {
-    connect(&m_parser, SIGNAL(status(QString)), this, SIGNAL(status(QString)));
+    connect(&m_parser, &MakefileParser::status,
+            this, &MakefileParserThread::status);
 }
 
 QStringList MakefileParserThread::sources() const

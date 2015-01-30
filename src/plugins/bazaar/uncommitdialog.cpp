@@ -48,7 +48,7 @@ UnCommitDialog::UnCommitDialog(QWidget *parent)
     auto dryRunBtn = new QPushButton(tr("Dry Run"));
     dryRunBtn->setToolTip(tr("Test the outcome of removing the last committed revision, without actually removing anything."));
     m_ui->buttonBox->addButton(dryRunBtn, QDialogButtonBox::ApplyRole);
-    connect(dryRunBtn, SIGNAL(clicked()), this, SLOT(dryRun()));
+    connect(dryRunBtn, &QPushButton::clicked, this, &UnCommitDialog::dryRun);
 }
 
 UnCommitDialog::~UnCommitDialog()

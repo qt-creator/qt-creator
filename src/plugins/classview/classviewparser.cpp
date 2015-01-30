@@ -172,7 +172,7 @@ Parser::Parser(QObject *parent)
 
     // connect signal/slots
     // internal data reset
-    connect(this, SIGNAL(resetDataDone()), SLOT(onResetDataDone()), Qt::QueuedConnection);
+    connect(this, &Parser::resetDataDone, this, &Parser::onResetDataDone, Qt::QueuedConnection);
 
     // timer for emitting changes
     connect(d->timer, SIGNAL(timeout()), SLOT(requestCurrentState()), Qt::QueuedConnection);

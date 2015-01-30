@@ -85,10 +85,10 @@ QtCreatorIntegration::QtCreatorIntegration(QDesignerFormEditorInterface *core, Q
     f |= SlotNavigationFeature;
     f &= ~ResourceEditorFeature;
     setFeatures(f);
-    connect(this, SIGNAL(navigateToSlot(QString,QString,QStringList)),
-            this, SLOT(slotNavigateToSlot(QString,QString,QStringList)));
-    connect(this, SIGNAL(helpRequested(QString,QString)),
-            this, SLOT(slotDesignerHelpRequested(QString,QString)));
+    connect(this, &QtCreatorIntegration::navigateToSlot,
+            this, &QtCreatorIntegration::slotNavigateToSlot);
+    connect(this, &QtCreatorIntegration::helpRequested,
+            this, &QtCreatorIntegration::slotDesignerHelpRequested);
     slotSyncSettingsToDesigner();
     connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()),
             this, SLOT(slotSyncSettingsToDesigner()));

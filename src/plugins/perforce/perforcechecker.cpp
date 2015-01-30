@@ -51,10 +51,10 @@ PerforceChecker::PerforceChecker(QObject *parent) :
     m_useOverideCursor(false),
     m_isOverrideCursor(false)
 {
-    connect(&m_process, SIGNAL(error(QProcess::ProcessError)),
-            this, SLOT(slotError(QProcess::ProcessError)));
-    connect(&m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
-                this, SLOT(slotFinished(int,QProcess::ExitStatus)));
+    connect(&m_process, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+            this, &PerforceChecker::slotError);
+    connect(&m_process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+            this, &PerforceChecker::slotFinished);
 }
 
 PerforceChecker::~PerforceChecker()

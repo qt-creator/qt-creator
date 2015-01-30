@@ -245,12 +245,12 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
     updateMakeOverrrideLabel();
     updateDetails();
 
-    connect(m_ui->targetsList, SIGNAL(itemChanged(QListWidgetItem*)),
-            this, SLOT(itemChanged(QListWidgetItem*)));
-    connect(m_ui->makeLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(makeLineEditTextEdited()));
-    connect(m_ui->makeArgumentsLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(makeArgumentsLineEditTextEdited()));
+    connect(m_ui->targetsList, &QListWidget::itemChanged,
+            this, &GenericMakeStepConfigWidget::itemChanged);
+    connect(m_ui->makeLineEdit, &QLineEdit::textEdited,
+            this, &GenericMakeStepConfigWidget::makeLineEditTextEdited);
+    connect(m_ui->makeArgumentsLineEdit, &QLineEdit::textEdited,
+            this, &GenericMakeStepConfigWidget::makeArgumentsLineEditTextEdited);
 
     connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateMakeOverrrideLabel()));
@@ -260,10 +260,10 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
     connect(m_makeStep->target(), SIGNAL(kitChanged()),
             this, SLOT(updateMakeOverrrideLabel()));
 
-    connect(pro, SIGNAL(environmentChanged()),
-            this, SLOT(updateMakeOverrrideLabel()));
-    connect(pro, SIGNAL(environmentChanged()),
-            this, SLOT(updateDetails()));
+    connect(pro, &GenericProject::environmentChanged,
+            this, &GenericMakeStepConfigWidget::updateMakeOverrrideLabel);
+    connect(pro, &GenericProject::environmentChanged,
+            this, &GenericMakeStepConfigWidget::updateDetails);
 }
 
 GenericMakeStepConfigWidget::~GenericMakeStepConfigWidget()

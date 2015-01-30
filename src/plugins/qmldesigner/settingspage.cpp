@@ -45,7 +45,8 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     QWidget(parent)
 {
     m_ui.setupUi(this);
-    connect(m_ui.designerEnableDebuggerCheckBox, SIGNAL(toggled(bool)), this, SLOT(debugViewEnabledToggled(bool)));
+    connect(m_ui.designerEnableDebuggerCheckBox, &QCheckBox::toggled,
+            this, &SettingsPageWidget::debugViewEnabledToggled);
 }
 
 DesignerSettings SettingsPageWidget::settings() const

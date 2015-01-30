@@ -91,10 +91,10 @@ FormTemplateWizardPage::FormTemplateWizardPage(QWidget * parent) :
     setTitle(tr("Choose a Form Template"));
     QVBoxLayout *layout = new QVBoxLayout;
 
-    connect(m_newFormWidget, SIGNAL(currentTemplateChanged(bool)),
-            this, SLOT(slotCurrentTemplateChanged(bool)));
-    connect(m_newFormWidget, SIGNAL(templateActivated()),
-            this, SIGNAL(templateActivated()));
+    connect(m_newFormWidget, &QDesignerNewFormWidgetInterface::currentTemplateChanged,
+            this, &FormTemplateWizardPage::slotCurrentTemplateChanged);
+    connect(m_newFormWidget, &QDesignerNewFormWidgetInterface::templateActivated,
+            this, &FormTemplateWizardPage::templateActivated);
     layout->addWidget(m_newFormWidget);
 
     setLayout(layout);

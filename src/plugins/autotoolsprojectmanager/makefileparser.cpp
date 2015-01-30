@@ -292,7 +292,7 @@ void MakefileParser::parseSubDirs()
             continue;
 
         MakefileParser parser(subDirMakefile);
-        connect(&parser, SIGNAL(status(QString)), this, SIGNAL(status(QString)));
+        connect(&parser, &MakefileParser::status, this, &MakefileParser::status);
         const bool success = parser.parse();
 
         // Don't return, try to parse as many sub directories

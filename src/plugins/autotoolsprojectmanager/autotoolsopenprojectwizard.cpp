@@ -101,7 +101,7 @@ BuildPathPage::BuildPathPage(AutotoolsOpenProjectWizard *wizard)
     m_pc->setHistoryCompleter(QLatin1String("AutoTools.BuildDir.History"));
     m_pc->setBaseDirectory(m_wizard->sourceDirectory());
     m_pc->setPath(m_wizard->buildDirectory());
-    connect(m_pc, SIGNAL(changed(QString)), this, SLOT(buildDirectoryChanged()));
+    connect(m_pc, &Utils::PathChooser::changed, this, &BuildPathPage::buildDirectoryChanged);
     fl->addRow(tr("Build directory:"), m_pc);
     setTitle(tr("Build Location"));
 }

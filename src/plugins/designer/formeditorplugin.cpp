@@ -114,7 +114,7 @@ void FormEditorPlugin::extensionsInitialized()
     mformtools->menu()->setTitle(tr("For&m Editor"));
     mtools->addMenu(mformtools);
 
-    connect(m_actionSwitchSource, SIGNAL(triggered()), this, SLOT(switchSourceForm()));
+    connect(m_actionSwitchSource, &QAction::triggered, this, &FormEditorPlugin::switchSourceForm);
     Core::Context context(Designer::Constants::C_FORMEDITOR, Core::Constants::C_EDITORMANAGER);
     Core::Command *cmd = Core::ActionManager::registerAction(m_actionSwitchSource,
                                                              "FormEditor.FormSwitchSource", context);

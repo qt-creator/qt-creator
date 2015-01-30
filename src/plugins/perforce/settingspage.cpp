@@ -51,7 +51,7 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     m_ui.pathChooser->setPromptDialogTitle(tr("Perforce Command"));
     m_ui.pathChooser->setHistoryCompleter(QLatin1String("Perforce.Command.History"));
     m_ui.pathChooser->setExpectedKind(PathChooser::Command);
-    connect(m_ui.testPushButton, SIGNAL(clicked()), this, SLOT(slotTest()));
+    connect(m_ui.testPushButton, &QPushButton::clicked, this, &SettingsPageWidget::slotTest);
 }
 
 void SettingsPageWidget::slotTest()

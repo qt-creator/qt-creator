@@ -82,8 +82,7 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
     command->setAttribute(Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_FILES);
 
-    connect(editFilesAction, &QAction::triggered,
-            this, &GenericProjectPlugin::editFiles);
+    connect(editFilesAction, &QAction::triggered, this, &GenericProjectPlugin::editFiles);
 
     connect(ProjectTree::instance(), &ProjectTree::aboutToShowContextMenu,
             [this] (Project *project, Node *) { m_contextMenuProject = project; });

@@ -115,7 +115,7 @@ void FilesSelectionWizardPage::createApplyButton(QVBoxLayout *layout)
     hbox->addWidget(m_applyFilterButton);
     layout->addLayout(hbox);
 
-    connect(m_applyFilterButton, SIGNAL(clicked()), this, SLOT(applyFilter()));
+    connect(m_applyFilterButton, &QPushButton::clicked, this, &FilesSelectionWizardPage::applyFilter);
 }
 
 void FilesSelectionWizardPage::initializePage()
@@ -123,10 +123,10 @@ void FilesSelectionWizardPage::initializePage()
     m_view->setModel(0);
     delete m_model;
     m_model = new ProjectExplorer::SelectableFilesModel(this);
-    connect(m_model, SIGNAL(parsingProgress(QString)),
-            this, SLOT(parsingProgress(QString)));
-    connect(m_model, SIGNAL(parsingFinished()),
-            this, SLOT(parsingFinished()));
+    connect(m_model, &ProjectExplorer::SelectableFilesModel::parsingProgress,
+            this, &FilesSelectionWizardPage::parsingProgress);
+    connect(m_model, &ProjectExplorer::SelectableFilesModel::parsingFinished,
+            this, &FilesSelectionWizardPage::parsingFinished);
     m_model->startParsing(m_genericProjectWizardDialog->path());
 
     m_hideFilesFilterLabel->setVisible(false);

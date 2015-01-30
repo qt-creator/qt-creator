@@ -87,7 +87,7 @@ DocumentWarningWidget::DocumentWarningWidget(DesignModeWidget *parent) :
     m_errorMessage->setForegroundRole(QPalette::ToolTipText);
     m_goToError->setText(tr("<a href=\"goToError\">Go to error</a>"));
     m_goToError->setForegroundRole(QPalette::Link);
-    connect(m_goToError, SIGNAL(linkActivated(QString)), this, SLOT(goToError()));
+    connect(m_goToError, &QLabel::linkActivated, this, &DocumentWarningWidget::goToError);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(20);
@@ -405,8 +405,8 @@ void DesignModeWidget::setup()
     m_toolBar->setToolbarCreationFlags(Core::EditorToolBar::FlagsStandalone);
     m_toolBar->setNavigationVisible(true);
 
-    connect(m_toolBar, SIGNAL(goForwardClicked()), this, SLOT(toolBarOnGoForwardClicked()));
-    connect(m_toolBar, SIGNAL(goBackClicked()), this, SLOT(toolBarOnGoBackClicked()));
+    connect(m_toolBar, &Core::EditorToolBar::goForwardClicked, this, &DesignModeWidget::toolBarOnGoForwardClicked);
+    connect(m_toolBar, &Core::EditorToolBar::goBackClicked, this, &DesignModeWidget::toolBarOnGoBackClicked);
 
     if (currentDesignDocument())
         setupNavigatorHistory(currentDesignDocument()->textEditor());
