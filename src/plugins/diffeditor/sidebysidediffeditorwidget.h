@@ -31,7 +31,6 @@
 #ifndef SIDEBYSIDEDIFFEDITORWIDGET_H
 #define SIDEBYSIDEDIFFEDITORWIDGET_H
 
-#include "diffeditor_global.h"
 #include "differ.h"
 #include "diffeditorcontroller.h"
 #include <QWidget>
@@ -47,12 +46,15 @@ QT_END_NAMESPACE
 
 namespace DiffEditor {
 
-namespace Internal { class DiffEditorGuiController; }
-class SideDiffEditorWidget;
 class ChunkData;
 class FileData;
 
-class DIFFEDITOR_EXPORT SideBySideDiffEditorWidget : public QWidget
+namespace Internal {
+
+class SideDiffEditorWidget;
+class DiffEditorGuiController;
+
+class SideBySideDiffEditorWidget : public QWidget
 {
     Q_OBJECT
 public:
@@ -96,7 +98,7 @@ private:
                             int lineNumber, int columnNumber);
     void patch(bool revert);
 
-    Internal::DiffEditorGuiController *m_guiController;
+    DiffEditorGuiController *m_guiController;
     DiffEditorController *m_controller;
     SideDiffEditorWidget *m_leftEditor;
     SideDiffEditorWidget *m_rightEditor;
@@ -118,6 +120,7 @@ private:
     QTextCharFormat m_rightCharFormat;
 };
 
+} // namespace Internal
 } // namespace DiffEditor
 
 #endif // SIDEBYSIDEDIFFEDITORWIDGET_H

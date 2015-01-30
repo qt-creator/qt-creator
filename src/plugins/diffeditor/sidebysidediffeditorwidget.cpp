@@ -71,8 +71,7 @@ using namespace TextEditor;
 using namespace Utils;
 
 namespace DiffEditor {
-
-using namespace Internal;
+namespace Internal {
 
 ////////////////////////
 /*
@@ -1582,6 +1581,7 @@ void SideBySideDiffEditorWidget::synchronizeFoldings(SideDiffEditorWidget *sourc
 }
 #endif
 
+} // namespace Internal
 } // namespace DiffEditor
 
 #include "sidebysidediffeditorwidget.moc"
