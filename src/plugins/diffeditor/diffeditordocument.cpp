@@ -43,6 +43,7 @@
 #include <QTextCodec>
 
 namespace DiffEditor {
+namespace Internal {
 
 DiffEditorDocument::DiffEditorDocument() :
     Core::BaseTextDocument(),
@@ -156,4 +157,5 @@ QString DiffEditorDocument::plainText() const
     return m_controller->contents();
 }
 
+} // namespace Internal
 } // namespace DiffEditor

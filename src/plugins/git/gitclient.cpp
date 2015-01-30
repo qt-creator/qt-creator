@@ -63,7 +63,6 @@
 
 #include <diffeditor/diffeditorconstants.h>
 #include <diffeditor/diffeditorcontroller.h>
-#include <diffeditor/diffeditordocument.h>
 #include <diffeditor/diffeditormanager.h>
 #include <diffeditor/diffeditorreloader.h>
 #include <diffeditor/diffutils.h>
@@ -745,14 +744,14 @@ GitDiffEditorReloader *GitClient::findOrCreateDiffEditor(const QString &document
 {
     DiffEditorController *controller = 0;
     GitDiffEditorReloader *reloader = 0;
-    DiffEditorDocument *diffEditorDocument = DiffEditorManager::find(documentId);
-    if (diffEditorDocument) {
-        controller = diffEditorDocument->controller();
+    Core::IDocument *document = DiffEditorManager::find(documentId);
+    if (document) {
+        controller = DiffEditorManager::controller(document);
         reloader = static_cast<GitDiffEditorReloader *>(controller->reloader());
     } else {
-        diffEditorDocument = DiffEditorManager::findOrCreate(documentId, title);
-        QTC_ASSERT(diffEditorDocument, return 0);
-        controller = diffEditorDocument->controller();
+        document = DiffEditorManager::findOrCreate(documentId, title);
+        QTC_ASSERT(document, return 0);
+        controller = DiffEditorManager::controller(document);
 
         connect(controller, &DiffEditorController::chunkActionsRequested,
                 this, &GitClient::slotChunkActionsRequested, Qt::DirectConnection);
@@ -766,8 +765,8 @@ GitDiffEditorReloader *GitClient::findOrCreateDiffEditor(const QString &document
     }
     QTC_ASSERT(reloader, return 0);
 
-    VcsBasePlugin::setSource(diffEditorDocument, source);
-    EditorManager::activateEditorForDocument(diffEditorDocument);
+    VcsBasePlugin::setSource(document, source);
+    EditorManager::activateEditorForDocument(document);
     return reloader;
 }
 

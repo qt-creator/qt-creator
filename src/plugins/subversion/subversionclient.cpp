@@ -41,7 +41,6 @@
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 #include <diffeditor/diffeditorcontroller.h>
-#include <diffeditor/diffeditordocument.h>
 #include <diffeditor/diffeditormanager.h>
 #include <diffeditor/diffeditorreloader.h>
 #include <diffeditor/diffutils.h>
@@ -321,14 +320,15 @@ SubversionDiffEditorReloader *SubversionClient::findOrCreateDiffEditor(const QSt
 {
     DiffEditor::DiffEditorController *controller = 0;
     SubversionDiffEditorReloader *reloader = 0;
-    DiffEditor::DiffEditorDocument *diffEditorDocument = DiffEditor::DiffEditorManager::find(documentId);
-    if (diffEditorDocument) {
-        controller = diffEditorDocument->controller();
+    Core::IDocument *document = DiffEditor::DiffEditorManager::find(documentId);
+    if (document) {
+        controller = DiffEditor::DiffEditorManager::controller(document);
         reloader = static_cast<SubversionDiffEditorReloader *>(controller->reloader());
     } else {
-        diffEditorDocument = DiffEditor::DiffEditorManager::findOrCreate(documentId, title);
-        QTC_ASSERT(diffEditorDocument, return 0);
-        controller = diffEditorDocument->controller();
+        document = DiffEditor::DiffEditorManager::findOrCreate(documentId, title);
+        QTC_ASSERT(document, return 0);
+        controller = DiffEditor::DiffEditorManager::controller(document);
+        QTC_ASSERT(controller, return 0);
 
         reloader = new SubversionDiffEditorReloader(this);
         controller->setReloader(reloader);
@@ -337,7 +337,7 @@ SubversionDiffEditorReloader *SubversionClient::findOrCreateDiffEditor(const QSt
     QTC_ASSERT(reloader, return 0);
 
     reloader->setWorkingDirectory(workingDirectory);
-    VcsBasePlugin::setSource(diffEditorDocument, source);
+    VcsBasePlugin::setSource(document, source);
 
     return reloader;
 }

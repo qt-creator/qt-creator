@@ -201,6 +201,8 @@ void DescriptionEditorWidget::handleCurrentContents()
 
 } // namespace Internal
 
+using namespace Internal;
+
 ///////////////////////////////// DiffEditor //////////////////////////////////
 
 DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
@@ -221,7 +223,7 @@ DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
 
     QSplitter *splitter = new Core::MiniSplitter(Qt::Vertical);
 
-    m_descriptionWidget = new Internal::DescriptionEditorWidget(splitter);
+    m_descriptionWidget = new DescriptionEditorWidget(splitter);
     m_descriptionWidget->setReadOnly(true);
     splitter->addWidget(m_descriptionWidget);
 
@@ -240,7 +242,7 @@ DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
     DiffEditorController *control = controller();
     m_guiController = new DiffEditorGuiController(control, this);
 
-    connect(m_descriptionWidget, &Internal::DescriptionEditorWidget::requestBranchList,
+    connect(m_descriptionWidget, &DescriptionEditorWidget::requestBranchList,
             control, &DiffEditorController::expandBranchesRequested);
     connect(control, &DiffEditorController::cleared, this, &DiffEditor::slotCleared);
     connect(control, &DiffEditorController::diffFilesChanged,

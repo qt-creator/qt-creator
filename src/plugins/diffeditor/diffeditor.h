@@ -48,9 +48,11 @@ namespace TextEditor { class TextEditorWidget; }
 
 namespace DiffEditor {
 
-namespace Internal { class DescriptionEditorWidget; }
-
+namespace Internal {
+class DescriptionEditorWidget;
 class DiffEditorDocument;
+} // namespace Internal
+
 class DiffEditorGuiController;
 class SideBySideDiffEditorWidget;
 class UnifiedDiffEditorWidget;
@@ -60,7 +62,7 @@ class DIFFEDITOR_EXPORT DiffEditor : public Core::IEditor
     Q_OBJECT
 
 public:
-    DiffEditor(const QSharedPointer<DiffEditorDocument> &doc);
+    DiffEditor(const QSharedPointer<Internal::DiffEditorDocument> &doc);
     ~DiffEditor();
 
 public:
@@ -96,7 +98,7 @@ private:
     QWidget *readCurrentDiffEditorSetting();
     void writeCurrentDiffEditorSetting(QWidget *currentEditor);
 
-    QSharedPointer<DiffEditorDocument> m_document;
+    QSharedPointer<Internal::DiffEditorDocument> m_document;
     Internal::DescriptionEditorWidget *m_descriptionWidget;
     QStackedWidget *m_stackedWidget;
     SideBySideDiffEditorWidget *m_sideBySideEditor;

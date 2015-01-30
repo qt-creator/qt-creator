@@ -47,6 +47,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
+#include <utils/qtcassert.h>
+
 namespace DiffEditor {
 namespace Internal {
 
@@ -195,11 +197,12 @@ void DiffEditorPlugin::diff()
     const QString documentId = QLatin1String("Diff ") + fileName1
             + QLatin1String(", ") + fileName2;
     QString title = tr("Diff \"%1\", \"%2\"").arg(fileName1).arg(fileName2);
-    DiffEditorDocument * const document = DiffEditorManager::findOrCreate(documentId, title);
+    Core::IDocument *const document = DiffEditorManager::findOrCreate(documentId, title);
     if (!document)
         return;
 
-    DiffEditorController *controller = document->controller();
+    DiffEditorController *controller = DiffEditorManager::controller(document);
+    QTC_ASSERT(controller, return);
     if (!controller->reloader()) {
         SimpleDiffEditorReloader *reloader =
                 new SimpleDiffEditorReloader(fileName1, fileName2);
@@ -208,7 +211,7 @@ void DiffEditorPlugin::diff()
 
     Core::EditorManager::activateEditorForDocument(document);
 
-    document->controller()->requestReload();
+    controller->requestReload();
 }
 
 } // namespace Internal

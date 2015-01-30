@@ -31,15 +31,15 @@
 #ifndef DIFFEDITORDOCUMENT_H
 #define DIFFEDITORDOCUMENT_H
 
-#include "diffeditor_global.h"
-
 #include <coreplugin/textdocument.h>
 
 namespace DiffEditor {
 
 class DiffEditorController;
 
-class DIFFEDITOR_EXPORT DiffEditorDocument : public Core::BaseTextDocument
+namespace Internal {
+
+class DiffEditorDocument : public Core::BaseTextDocument
 {
     Q_OBJECT
     Q_PROPERTY(QString plainText READ plainText STORED false) // For access by code pasters
@@ -64,6 +64,7 @@ private:
     DiffEditorController *const m_controller;
 };
 
+} // namespace Internal
 } // namespace DiffEditor
 
 #endif // DIFFEDITORDOCUMENT_H

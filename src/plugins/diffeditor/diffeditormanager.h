@@ -38,9 +38,13 @@
 
 #include <QMap>
 
+namespace Core { class IDocument; }
+
 namespace DiffEditor {
 
-class DiffEditorDocument;
+class DiffEditorController;
+
+namespace Internal { class DiffEditorDocument; }
 
 class DIFFEDITOR_EXPORT DiffEditorManager : public QObject
 {
@@ -49,16 +53,17 @@ public:
     explicit DiffEditorManager(QObject *parent);
     virtual ~DiffEditorManager();
 
-    static DiffEditorDocument *find(const QString &documentId);
-    static DiffEditorDocument *findOrCreate(const QString &documentId, const QString &displayName);
-    static void removeDocument(DiffEditorDocument *document);
+    static Core::IDocument *find(const QString &vcsId);
+    static Core::IDocument *findOrCreate(const QString &vcsId, const QString &displayName);
+    static DiffEditorController *controller(Core::IDocument *document);
+
+    static void removeDocument(Core::IDocument *document);
 
 private slots:
     void slotEditorsClosed(const QList<Core::IEditor *> &editors);
 
 private:
-    QMap<QString, DiffEditorDocument *> idToDocument;
-    QMap<DiffEditorDocument *, QString> documentToId;
+    QMap<QString, Internal::DiffEditorDocument *> m_idToDocument;
 };
 
 } // namespace DiffEditor
