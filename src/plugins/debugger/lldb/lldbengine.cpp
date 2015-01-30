@@ -129,10 +129,9 @@ void LldbEngine::runCommand(const Command &command)
     QTC_ASSERT(m_lldbProc.state() == QProcess::Running, notifyEngineIll());
     ++m_lastToken;
     QByteArray token = QByteArray::number(m_lastToken);
-    QByteArray cmd = "{\"cmd\":\"" + command.function + "\","
-        + command.args + "\"token\":" + token + "}\n";
-    showMessage(_(token + cmd), LogInput);
-    m_lldbProc.write(cmd);
+    QByteArray cmd  = command.function + "({" + command.args + "})";
+    showMessage(_(token + cmd + '\n'), LogInput);
+    m_lldbProc.write("sc db." + cmd + "\n");
 }
 
 void LldbEngine::debugLastCommand()
@@ -246,16 +245,12 @@ void LldbEngine::startLldb()
     connect(this, &LldbEngine::outputReady,
             this, &LldbEngine::handleResponse, Qt::QueuedConnection);
 
-    QStringList args;
-    args.append(_("-i"));
-    args.append(ICore::resourcePath() + _("/debugger/lldbbridge.py"));
-    args.append(m_lldbCmd);
-    showMessage(_("STARTING LLDB: python ") + args.join(QLatin1Char(' ')));
+    showMessage(_("STARTING LLDB: ") + m_lldbCmd);
     m_lldbProc.setEnvironment(startParameters().environment.toStringList());
     if (!startParameters().workingDirectory.isEmpty())
         m_lldbProc.setWorkingDirectory(startParameters().workingDirectory);
 
-    m_lldbProc.start(_("python"), args);
+    m_lldbProc.start(m_lldbCmd);
 
     if (!m_lldbProc.waitForStarted()) {
         const QString msg = tr("Unable to start LLDB \"%1\": %2")
@@ -265,6 +260,21 @@ void LldbEngine::startLldb()
         if (!msg.isEmpty())
             ICore::showWarningWithOptions(tr("Adapter start failed."), msg);
     }
+
+    showMessage(_("ADAPTER STARTED"));
+    showStatusMessage(tr("Setting up inferior..."));
+
+    const QByteArray dumperSourcePath =
+        ICore::resourcePath().toLocal8Bit() + "/debugger/";
+
+    m_lldbProc.write("sc sys.path.insert(1, '" + dumperSourcePath + "')\n");
+    m_lldbProc.write("sc from lldbbridge import *\n");
+    m_lldbProc.write("sc print(dir())\n");
+    m_lldbProc.write("sc db = Dumper()\n");
+    m_lldbProc.write("sc db.report('lldbversion=\"%s\"' % lldb.SBDebugger.GetVersionString())\n");
+
+    showMessage(_("ENGINE SUCCESSFULLY STARTED"));
+    notifyEngineSetupOk();
 }
 
 void LldbEngine::setupInferior()
@@ -298,6 +308,8 @@ void LldbEngine::setupInferior()
     cmd.arg("breakOnMain", sp.breakOnMain);
     cmd.arg("useTerminal", sp.useTerminal);
     cmd.arg("startMode", sp.startMode);
+
+    attemptBreakpointSynchronizationHelper(&cmd);
 
     cmd.beginList("processArgs");
     foreach (const QString &arg, args.toUnixArgs())
@@ -338,19 +350,7 @@ void LldbEngine::setupInferior()
 
 void LldbEngine::runEngine()
 {
-    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-
-    Command cmd("handleBreakpoints");
-    if (attemptBreakpointSynchronizationHelper(&cmd)) {
-        runEngine2();
-    } else {
-        cmd.arg("continuation", "runEngine2");
-        runCommand(cmd);
-    }
-}
-
-void LldbEngine::runEngine2()
-{
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state(); return);
     showStatusMessage(tr("Running requested..."), 5000);
     runCommand("runEngine");
 }
@@ -446,8 +446,6 @@ void LldbEngine::handleResponse(const QByteArray &response)
             refreshDisassembly(item);
         else if (name == "memory")
             refreshMemory(item);
-        else if (name == "continuation")
-            runContinuation(item);
         else if (name == "full-backtrace")
             showFullBacktrace(item);
         else if (name == "statusmessage") {
@@ -463,12 +461,6 @@ void LldbEngine::showFullBacktrace(const GdbMi &data)
 {
     Internal::openTextEditor(_("Backtrace $"),
         QString::fromUtf8(QByteArray::fromHex(data.data())));
-}
-
-void LldbEngine::runContinuation(const GdbMi &data)
-{
-    const QByteArray target = data.data();
-    QMetaObject::invokeMethod(this, target, Qt::QueuedConnection);
 }
 
 void LldbEngine::executeRunToLine(const ContextData &data)

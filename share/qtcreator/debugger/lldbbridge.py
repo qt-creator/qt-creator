@@ -30,43 +30,18 @@
 
 import atexit
 import inspect
-import json
 import os
 import platform
 import re
-import select
 import sys
 import subprocess
 import threading
+import lldb
 
 currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 sys.path.insert(1, currentDir)
 
 from dumper import *
-
-lldbCmd = 'lldb'
-if len(sys.argv) > 1:
-    lldbCmd = sys.argv[1]
-
-proc = subprocess.Popen(args=[lldbCmd, '-P'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-(path, error) = proc.communicate()
-
-if error.startswith('lldb: invalid option -- P'):
-    sys.stdout.write('msg=\'Could not run "%s -P". Trying to find lldb.so from Xcode.\'@\n' % lldbCmd)
-    proc = subprocess.Popen(args=['xcode-select', '--print-path'],
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (path, error) = proc.communicate()
-    if len(error):
-        path = '/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/Resources/Python/'
-        sys.stdout.write('msg=\'Could not run "xcode-select --print-path"@\n')
-        sys.stdout.write('msg=\'Using hardcoded fallback at %s\'@\n' % path)
-    else:
-        path = path.strip() + '/../SharedFrameworks/LLDB.framework/Versions/A/Resources/Python/'
-        sys.stdout.write('msg=\'Using fallback at %s\'@\n' % path)
-
-sys.path.insert(1, path.strip())
-
-import lldb
 
 #######################################################################
 #
@@ -667,6 +642,9 @@ class Dumper(DumperBase):
         else:
             self.target = self.debugger.CreateTarget(None, None, None, True, error)
 
+        if self.target.IsValid():
+            self.handleBreakpoints(args)
+
         state = "inferiorsetupok" if self.target.IsValid() else "inferiorsetupfailed"
         self.report('state="%s",msg="%s",exe="%s"' % (state, error, self.executable_))
 
@@ -1193,7 +1171,7 @@ class Dumper(DumperBase):
 
     def report(self, stuff):
         with self.outputLock:
-            sys.stdout.write(stuff + "@\n")
+            sys.stdout.write("@\n" + stuff + "@\n")
 
     def reportStatus(self, msg):
         self.report('statusmessage="%s"' % msg)
@@ -1573,7 +1551,7 @@ class Dumper(DumperBase):
         self.report('success="%d",output="%s",error="%s"' % (success, output, error))
 
     def addExtraDumper(self, args):
-        addDumperModule(args['path'])
+        self.addDumperModule(args['path'])
         self.report('ok')
 
     def updateData(self, args):
@@ -1662,14 +1640,6 @@ class Dumper(DumperBase):
         self.reportError(error)
         self.reportVariables()
 
-    def execute(self, args):
-        getattr(self, args['cmd'])(args)
-        self.report('token="%s"' % args['token'])
-        if 'continuation' in args:
-            cont = args['continuation']
-            self.report('continuation="%s"' % cont)
-
-
 def convertHash(args):
     if sys.version_info[0] == 3:
         return args
@@ -1693,36 +1663,19 @@ def convertHash(args):
     return cargs
 
 
-def doit():
-
-    db = Dumper()
-    db.report('lldbversion="%s"' % lldb.SBDebugger.GetVersionString())
-    db.reportState("enginesetupok")
-
-    line = sys.stdin.readline()
-    while line:
-        try:
-            db.execute(convertHash(json.loads(line)))
-        except:
-            (exType, exValue, exTraceback) = sys.exc_info()
-            showException("MAIN LOOP", exType, exValue, exTraceback)
-        line = sys.stdin.readline()
-
-
 # Used in dumper auto test.
 # Usage: python lldbbridge.py /path/to/testbinary comma-separated-inames
 class Tester(Dumper):
-    def __init__(self):
+    def __init__(self, binary, expandedINames):
         Dumper.__init__(self)
         lldb.theDumper = self
 
-        self.expandedINames = set(sys.argv[3].split(','))
+        self.expandedINames = set(expandedINames)
         self.passExceptions = True
 
         self.loadDumperFiles()
         error = lldb.SBError()
-        self.target = self.debugger.CreateTarget(sys.argv[2],
-                None, None, True, error)
+        self.target = self.debugger.CreateTarget(binary, None, None, True, error)
 
         if error.GetType():
             warn("ERROR: %s" % error)
@@ -1730,6 +1683,7 @@ class Tester(Dumper):
 
         s = threading.Thread(target=self.testLoop, args=[])
         s.start()
+        s.join(30)
 
     def testLoop(self):
         # Disable intermediate reporting.
@@ -1801,11 +1755,3 @@ class Tester(Dumper):
         #self.report("ENV=%s" % os.environ.items())
         #self.report("DUMPER=%s" % self.qqDumpers)
         lldb.SBDebugger.Destroy(self.debugger)
-
-
-if __name__ == "__main__":
-    if len(sys.argv) > 2:
-        Tester()
-    else:
-        doit()
-

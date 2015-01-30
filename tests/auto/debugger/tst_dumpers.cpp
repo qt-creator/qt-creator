@@ -1210,13 +1210,11 @@ void tst_Dumpers::dumper()
         expanded += iname;
     }
 
-    QByteArray exe;
+    QByteArray exe = m_debuggerBinary;
     QStringList args;
     QByteArray cmds;
 
     if (m_debuggerEngine == GdbEngine) {
-        exe = m_debuggerBinary;
-
         const QFileInfo gdbBinaryFile(QString::fromLatin1(exe));
         const QByteArray uninstalledData = gdbBinaryFile.absolutePath().toLocal8Bit() + "/data-directory/python";
 
@@ -1245,7 +1243,6 @@ void tst_Dumpers::dumper()
         cmds += "quit\n";
 
     } else if (m_debuggerEngine == CdbEngine) {
-        exe = m_debuggerBinary;
         args << QLatin1String("-aqtcreatorcdbext.dll")
              << QLatin1String("-G")
              << QLatin1String("-xi")
@@ -1258,15 +1255,19 @@ void tst_Dumpers::dumper()
         cmds += "!qtcreatorcdbext.locals -t -D -e " + expanded + " -v -c 0\n"
                 "q\n";
     } else if (m_debuggerEngine == LldbEngine) {
-        exe = "python";
-        args << QLatin1String(dumperDir + "/lldbbridge.py")
-             << QString::fromUtf8(m_debuggerBinary)
-             << t->buildPath + QLatin1String("/doit")
-             << QString::fromUtf8(expanded);
         QFile fullLldb(t->buildPath + QLatin1String("/lldbcommand.txt"));
         fullLldb.setPermissions(QFile::ReadOwner|QFile::WriteOwner|QFile::ExeOwner|QFile::ReadGroup|QFile::ReadOther);
         fullLldb.open(QIODevice::WriteOnly);
-        fullLldb.write(exe + ' ' + args.join(QLatin1String(" ")).toUtf8());
+        fullLldb.write(exe + ' ' + args.join(QLatin1String(" ")).toUtf8() + '\n');
+
+        cmds = "sc import sys\n"
+               "sc sys.path.insert(1, '" + dumperDir + "')\n"
+               "sc from lldbbridge import *\n"
+               "sc print(dir())\n"
+               "sc Tester('" + t->buildPath.toLatin1() + "/doit', '" + expanded + "')\n"
+               "quit\n";
+
+        fullLldb.write(cmds);
         fullLldb.close();
     }
 
