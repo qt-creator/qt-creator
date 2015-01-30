@@ -40,5 +40,6 @@
         <path>qmlscene</path>
         <arguments>%{CurrentDocument:FilePath}</arguments>
         <workingdirectory>%{CurrentDocument:Path}</workingdirectory>
+        <environment>QT_LOGGING_TO_CONSOLE%3D1</environment>
     </executable>
 </externaltool>
