@@ -43,12 +43,6 @@ currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 sys.path.insert(1, currentDir)
 
 from dumper import *
-from qttypes import *
-from stdtypes import *
-from misctypes import *
-from boosttypes import *
-from creatortypes import *
-from personaltypes import *
 
 lldbCmd = 'lldb'
 if len(sys.argv) > 1:
@@ -1579,10 +1573,7 @@ class Dumper(DumperBase):
         self.report('success="%d",output="%s",error="%s"' % (success, output, error))
 
     def addExtraDumper(self, args):
-        path = args['path']
-        (head, tail) = os.path.split(path)
-        sys.path.insert(1, head)
-        dumpermodules.append(os.path.splitext(tail)[0])
+        addDumperModule(args['path'])
         self.report('ok')
 
     def updateData(self, args):

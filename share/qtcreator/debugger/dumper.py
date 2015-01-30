@@ -421,6 +421,16 @@ class DumperBase:
         self.childrenPrefix = 'children=['
         self.childrenSuffix = '],'
 
+        self.dumpermodules = [
+            "qttypes",
+            "stdtypes",
+            "misctypes",
+            "boosttypes",
+            "creatortypes",
+            "personaltypes",
+        ]
+
+
     def putNewline(self):
         pass
 
@@ -1668,7 +1678,7 @@ class DumperBase:
         self.qqEditable = {}
         self.typeCache = {}
 
-        for mod in dumpermodules:
+        for mod in self.dumpermodules:
             m = importlib.import_module(mod)
             dic = m.__dict__
             for name in dic.keys():
@@ -1688,7 +1698,7 @@ class DumperBase:
         return result
 
     def reloadDumper(self):
-        for mod in dumpermodules:
+        for mod in self.dumpermodules:
             m = sys.modules[mod]
             if sys.version_info[0] >= 3:
                 importlib.reload(m)
@@ -1696,6 +1706,11 @@ class DumperBase:
                 reload(m)
 
         findDumperFunctions()
+
+    def addDumperModule(self, path):
+        (head, tail) = os.path.split(path)
+        sys.path.insert(1, head)
+        self.dumpermodules.append(os.path.splitext(tail)[0])
 
 # Some "Enums"
 
@@ -1741,13 +1756,4 @@ DisplayLatin1String, \
 DisplayUtf8String \
     = range(6)
 
-
-dumpermodules = [
-    "qttypes",
-    "stdtypes",
-    "misctypes",
-    "boosttypes",
-    "creatortypes",
-    "personaltypes",
-]
 

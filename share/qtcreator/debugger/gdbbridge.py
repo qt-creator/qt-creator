@@ -2012,10 +2012,7 @@ registerCommand("stackListFrames", stackListFrames)
 #######################################################################
 
 def addExtraDumper(args):
-    (head, tail) = os.path.split(args)
-    sys.path.insert(1, head)
-    dumpermodules.append(os.path.splitext(tail)[0])
-    return str((head, tail))
+    theDumper.addDumperModule(args)
 
 registerCommand("addExtraDumper", addExtraDumper)
 
