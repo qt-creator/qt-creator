@@ -510,9 +510,17 @@ QStringList CompilerOptionsBuilder::createDefineOptions(const QByteArray &define
                                                         bool toolchainDefines,
                                                         const QString &toolchainType)
 {
+    QByteArray extendedDefines = defines;
     QStringList result;
 
-    foreach (QByteArray def, defines.split('\n')) {
+    // In gcc headers, lots of built-ins are referenced that clang does not understand.
+    // Therefore, prevent the inclusion of the header that references them. Of course, this
+    // will break if code actually requires stuff from there, but that should be the less common
+    // case.
+    if (toolchainType == QLatin1String("mingw") || toolchainType == QLatin1String("gcc"))
+        extendedDefines += "#define _X86INTRIN_H_INCLUDED\n";
+
+    foreach (QByteArray def, extendedDefines.split('\n')) {
         if (def.isEmpty())
             continue;
 
