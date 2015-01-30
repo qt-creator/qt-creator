@@ -31,15 +31,15 @@
 #ifndef DIFFEDITORGUICONTROLLER_H
 #define DIFFEDITORGUICONTROLLER_H
 
-#include "diffeditor_global.h"
-
 #include <QObject>
 
 namespace DiffEditor {
 
 class DiffEditorController;
 
-class DIFFEDITOR_EXPORT DiffEditorGuiController : public QObject
+namespace Internal {
+
+class DiffEditorGuiController : public QObject
 {
     Q_OBJECT
 public:
@@ -72,6 +72,7 @@ private:
     int m_currentDiffFileIndex;
 };
 
+} // namespace Internal
 } // namespace DiffEditor
 
 #endif // DIFFEDITORGUICONTROLLER_H

@@ -70,6 +70,8 @@ using namespace TextEditor;
 
 namespace DiffEditor {
 
+using namespace Internal;
+
 UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
     : SelectableTextEditorWidget("DiffEditor.UnifiedDiffEditor", parent)
     , m_guiController(0)

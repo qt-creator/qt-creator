@@ -48,7 +48,8 @@ QT_END_NAMESPACE
 
 namespace DiffEditor {
 
-class DiffEditorGuiController;
+namespace Internal { class DiffEditorGuiController; }
+
 class ChunkData;
 class FileData;
 
@@ -59,7 +60,7 @@ class DIFFEDITOR_EXPORT UnifiedDiffEditorWidget
 public:
     UnifiedDiffEditorWidget(QWidget *parent = 0);
 
-    void setDiffEditorGuiController(DiffEditorGuiController *controller);
+    void setDiffEditorGuiController(Internal::DiffEditorGuiController *controller);
 
 public slots:
     void setDisplaySettings(const TextEditor::DisplaySettings &ds);
@@ -113,7 +114,7 @@ private:
                                int chunkIndex);
     void patch(bool revert);
 
-    DiffEditorGuiController *m_guiController;
+    Internal::DiffEditorGuiController *m_guiController;
     DiffEditorController *m_controller;
 
     // block number, visual line number.

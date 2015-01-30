@@ -46,7 +46,8 @@ QT_END_NAMESPACE
 
 
 namespace DiffEditor {
-class DiffEditorGuiController;
+
+namespace Internal { class DiffEditorGuiController; }
 class SideDiffEditorWidget;
 class ChunkData;
 class FileData;
@@ -57,7 +58,7 @@ class DIFFEDITOR_EXPORT SideBySideDiffEditorWidget : public QWidget
 public:
     explicit SideBySideDiffEditorWidget(QWidget *parent = 0);
 
-    void setDiffEditorGuiController(DiffEditorGuiController *controller);
+    void setDiffEditorGuiController(Internal::DiffEditorGuiController *controller);
 
 private slots:
     void clear(const QString &message = QString());
@@ -95,7 +96,7 @@ private:
                             int lineNumber, int columnNumber);
     void patch(bool revert);
 
-    DiffEditorGuiController *m_guiController;
+    Internal::DiffEditorGuiController *m_guiController;
     DiffEditorController *m_controller;
     SideDiffEditorWidget *m_leftEditor;
     SideDiffEditorWidget *m_rightEditor;

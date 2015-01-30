@@ -72,6 +72,8 @@ using namespace Utils;
 
 namespace DiffEditor {
 
+using namespace Internal;
+
 ////////////////////////
 /*
 class MultiHighlighter : public SyntaxHighlighter

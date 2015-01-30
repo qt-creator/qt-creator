@@ -41,6 +41,7 @@ static const char horizontalScrollBarSynchronizationKeyC[] =
         "HorizontalScrollBarSynchronization";
 
 namespace DiffEditor {
+namespace Internal {
 
 DiffEditorGuiController::DiffEditorGuiController(
         DiffEditorController *controller,
@@ -138,4 +139,5 @@ void DiffEditorGuiController::setCurrentDiffFileIndex(int diffFileIndex)
     emit currentDiffFileIndexChanged(newIndex);
 }
 
+} // namespace Internal
 } // namespace DiffEditor

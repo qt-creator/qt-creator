@@ -51,9 +51,9 @@ namespace DiffEditor {
 namespace Internal {
 class DescriptionEditorWidget;
 class DiffEditorDocument;
+class DiffEditorGuiController;
 } // namespace Internal
 
-class DiffEditorGuiController;
 class SideBySideDiffEditorWidget;
 class UnifiedDiffEditorWidget;
 
@@ -104,7 +104,7 @@ private:
     SideBySideDiffEditorWidget *m_sideBySideEditor;
     UnifiedDiffEditorWidget *m_unifiedEditor;
     QWidget *m_currentEditor;
-    DiffEditorGuiController *m_guiController;
+    Internal::DiffEditorGuiController *m_guiController;
     QToolBar *m_toolBar;
     QComboBox *m_entriesComboBox;
     QAction *m_whitespaceButtonAction;
