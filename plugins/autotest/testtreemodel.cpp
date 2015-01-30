@@ -420,7 +420,7 @@ QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
 QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
 {
     QList<TestConfiguration *> result;
-    TestConfiguration *tc;
+    TestConfiguration *testConfiguration = 0;
 
     for (int row = 0, count = m_autoTestRootItem->childCount(); row < count; ++row) {
         TestTreeItem *child = m_autoTestRootItem->child(row);
@@ -429,9 +429,9 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
         case Qt::Unchecked:
             continue;
         case Qt::Checked:
-            tc = new TestConfiguration(child->name(), QStringList(), child->childCount());
-            addProjectInformation(tc, child->filePath());
-            result << tc;
+            testConfiguration = new TestConfiguration(child->name(), QStringList(), child->childCount());
+            addProjectInformation(testConfiguration, child->filePath());
+            result << testConfiguration;
             continue;
         case Qt::PartiallyChecked:
         default:
@@ -444,9 +444,9 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
                     testCases << grandChild->name();
             }
 
-            tc = new TestConfiguration(childName, testCases);
-            addProjectInformation(tc, child->filePath());
-            result << tc;
+            testConfiguration = new TestConfiguration(childName, testCases);
+            addProjectInformation(testConfiguration, child->filePath());
+            result << testConfiguration;
         }
     }
     // Quick Tests must be handled differently - need the calling cpp file to use this in
@@ -461,7 +461,10 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
             const TestTreeItem *grandChild = unnamed->child(childRow);
             const QString mainFile = grandChild->mainFile();
             if (foundMains.contains(mainFile)) {
-                foundMains[mainFile]->setTestCaseCount(tc->testCaseCount() + 1);
+                QTC_ASSERT(testConfiguration,
+                           qWarning() << "Illegal state (unnamed Quick Test listed as named)";
+                           return QList<TestConfiguration *>());
+                foundMains[mainFile]->setTestCaseCount(testConfiguration->testCaseCount());
             } else {
                 TestConfiguration *tc = new TestConfiguration(QString(), QStringList());
                 tc->setTestCaseCount(1);
