@@ -51,8 +51,7 @@ namespace Internal {
 class DescriptionEditorWidget;
 class DiffEditorDocument;
 class DiffEditorGuiController;
-class UnifiedDiffEditorWidget;
-class SideBySideDiffEditorWidget;
+class IDiffView;
 
 class DiffEditor : public Core::IEditor
 {
@@ -85,22 +84,24 @@ private slots:
     void slotDescriptionChanged(const QString &description);
     void slotDescriptionVisibilityChanged();
     void slotReloaderChanged();
-    void slotDiffEditorSwitched();
 
 private:
     void updateEntryToolTip();
-    void showDiffEditor(QWidget *newEditor);
+    void showDiffView(IDiffView *newEditor);
     void updateDiffEditorSwitcher();
-    QWidget *readLegacyCurrentDiffEditorSetting();
-    QWidget *readCurrentDiffEditorSetting();
-    void writeCurrentDiffEditorSetting(QWidget *currentEditor);
+    void addView(IDiffView *view);
+    IDiffView *currentView() const;
+    void setCurrentView(IDiffView *view);
+    IDiffView *nextView();
+    IDiffView *readLegacyCurrentDiffEditorSetting();
+    IDiffView *readCurrentDiffEditorSetting();
+    void writeCurrentDiffEditorSetting(IDiffView *currentEditor);
 
     QSharedPointer<DiffEditorDocument> m_document;
     DescriptionEditorWidget *m_descriptionWidget;
     QStackedWidget *m_stackedWidget;
-    SideBySideDiffEditorWidget *m_sideBySideEditor;
-    UnifiedDiffEditorWidget *m_unifiedEditor;
-    QWidget *m_currentEditor;
+    QVector<IDiffView *> m_views;
+    int m_currentViewIndex;
     DiffEditorGuiController *m_guiController;
     QToolBar *m_toolBar;
     QComboBox *m_entriesComboBox;
