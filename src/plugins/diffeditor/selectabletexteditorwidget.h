@@ -31,12 +31,12 @@
 #ifndef SELECTABLETEXTEDITORWIDGET_H
 #define SELECTABLETEXTEDITORWIDGET_H
 
-#include "diffeditor_global.h"
 #include <texteditor/texteditor.h>
 
 namespace DiffEditor {
+namespace Internal {
 
-class DIFFEDITOR_EXPORT DiffSelection
+class DiffSelection
 {
 public:
     DiffSelection() : start(-1), end(-1), format(0) {}
@@ -48,8 +48,7 @@ public:
     QTextCharFormat *format;
 };
 
-class DIFFEDITOR_EXPORT SelectableTextEditorWidget
-        : public TextEditor::TextEditorWidget
+class SelectableTextEditorWidget : public TextEditor::TextEditorWidget
 {
     Q_OBJECT
 public:
@@ -70,6 +69,7 @@ private:
     QMap<int, QList<DiffSelection> > m_diffSelections;
 };
 
+} // namespace Internal
 } // namespace DiffEditor
 
 #endif // SELECTABLETEXTEDITORWIDGET_H
