@@ -70,7 +70,6 @@ static const char useDiffEditorKeyC[] = "UseDiffEditor";
 using namespace TextEditor;
 
 namespace DiffEditor {
-
 namespace Internal {
 
 class DescriptionEditorWidget : public TextEditorWidget
@@ -198,10 +197,6 @@ void DescriptionEditorWidget::handleCurrentContents()
     m_currentCursor.insertText(QLatin1String("Branches: Expanding..."));
     emit requestBranchList();
 }
-
-} // namespace Internal
-
-using namespace Internal;
 
 ///////////////////////////////// DiffEditor //////////////////////////////////
 
@@ -619,6 +614,7 @@ void DiffEditor::writeCurrentDiffEditorSetting(QWidget *currentEditor)
     s->endGroup();
 }
 
+} // namespace Internal
 } // namespace DiffEditor
 
 #include "diffeditor.moc"

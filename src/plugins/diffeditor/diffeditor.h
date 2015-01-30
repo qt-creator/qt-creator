@@ -31,7 +31,6 @@
 #ifndef DIFFEDITOR_H
 #define DIFFEDITOR_H
 
-#include "diffeditor_global.h"
 #include "diffeditorcontroller.h"
 
 #include <coreplugin/editormanager/ieditor.h>
@@ -54,14 +53,13 @@ class DiffEditorDocument;
 class DiffEditorGuiController;
 class UnifiedDiffEditorWidget;
 class SideBySideDiffEditorWidget;
-} // namespace Internal
 
-class DIFFEDITOR_EXPORT DiffEditor : public Core::IEditor
+class DiffEditor : public Core::IEditor
 {
     Q_OBJECT
 
 public:
-    DiffEditor(const QSharedPointer<Internal::DiffEditorDocument> &doc);
+    DiffEditor(const QSharedPointer<DiffEditorDocument> &doc);
     ~DiffEditor();
 
 public:
@@ -97,13 +95,13 @@ private:
     QWidget *readCurrentDiffEditorSetting();
     void writeCurrentDiffEditorSetting(QWidget *currentEditor);
 
-    QSharedPointer<Internal::DiffEditorDocument> m_document;
-    Internal::DescriptionEditorWidget *m_descriptionWidget;
+    QSharedPointer<DiffEditorDocument> m_document;
+    DescriptionEditorWidget *m_descriptionWidget;
     QStackedWidget *m_stackedWidget;
-    Internal::SideBySideDiffEditorWidget *m_sideBySideEditor;
-    Internal::UnifiedDiffEditorWidget *m_unifiedEditor;
+    SideBySideDiffEditorWidget *m_sideBySideEditor;
+    UnifiedDiffEditorWidget *m_unifiedEditor;
     QWidget *m_currentEditor;
-    Internal::DiffEditorGuiController *m_guiController;
+    DiffEditorGuiController *m_guiController;
     QToolBar *m_toolBar;
     QComboBox *m_entriesComboBox;
     QAction *m_whitespaceButtonAction;
@@ -114,6 +112,7 @@ private:
     QToolButton *m_diffEditorSwitcher;
 };
 
+} // namespace Internal
 } // namespace DiffEditor
 
 #endif // DIFFEDITOR_H

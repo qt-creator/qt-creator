@@ -37,7 +37,6 @@
 #include <QCoreApplication>
 
 namespace DiffEditor {
-
 namespace Internal {
 
 DiffEditorFactory::DiffEditorFactory(QObject *parent)
