@@ -31,7 +31,6 @@
 #ifndef UNIFIEDDIFFEDITORWIDGET_H
 #define UNIFIEDDIFFEDITORWIDGET_H
 
-#include "diffeditor_global.h"
 #include "differ.h"
 #include "diffeditorcontroller.h"
 #include "selectabletexteditorwidget.h"
@@ -53,8 +52,9 @@ namespace Internal { class DiffEditorGuiController; }
 class ChunkData;
 class FileData;
 
-class DIFFEDITOR_EXPORT UnifiedDiffEditorWidget
-        : public SelectableTextEditorWidget
+namespace Internal {
+
+class UnifiedDiffEditorWidget : public SelectableTextEditorWidget
 {
     Q_OBJECT
 public:
@@ -143,6 +143,7 @@ private:
     QByteArray m_state;
 };
 
+} // namespace Internal
 } // namespace DiffEditor
 
 #endif // UNIFIEDDIFFEDITORWIDGET_H

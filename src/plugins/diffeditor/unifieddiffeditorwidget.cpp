@@ -69,8 +69,7 @@ using namespace Core;
 using namespace TextEditor;
 
 namespace DiffEditor {
-
-using namespace Internal;
+namespace Internal {
 
 UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
     : SelectableTextEditorWidget("DiffEditor.UnifiedDiffEditor", parent)
@@ -809,4 +808,5 @@ void UnifiedDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
     m_ignoreCurrentIndexChange = oldIgnore;
 }
 
+} // namespace Internal
 } // namespace DiffEditor

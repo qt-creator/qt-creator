@@ -52,10 +52,10 @@ namespace Internal {
 class DescriptionEditorWidget;
 class DiffEditorDocument;
 class DiffEditorGuiController;
+class UnifiedDiffEditorWidget;
 } // namespace Internal
 
 class SideBySideDiffEditorWidget;
-class UnifiedDiffEditorWidget;
 
 class DIFFEDITOR_EXPORT DiffEditor : public Core::IEditor
 {
@@ -102,7 +102,7 @@ private:
     Internal::DescriptionEditorWidget *m_descriptionWidget;
     QStackedWidget *m_stackedWidget;
     SideBySideDiffEditorWidget *m_sideBySideEditor;
-    UnifiedDiffEditorWidget *m_unifiedEditor;
+    Internal::UnifiedDiffEditorWidget *m_unifiedEditor;
     QWidget *m_currentEditor;
     Internal::DiffEditorGuiController *m_guiController;
     QToolBar *m_toolBar;
