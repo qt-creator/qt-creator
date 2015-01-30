@@ -55,8 +55,7 @@ class DIFFEDITOR_EXPORT SideBySideDiffEditorWidget : public QWidget
 {
     Q_OBJECT
 public:
-    SideBySideDiffEditorWidget(QWidget *parent = 0);
-    ~SideBySideDiffEditorWidget();
+    explicit SideBySideDiffEditorWidget(QWidget *parent = 0);
 
     void setDiffEditorGuiController(DiffEditorGuiController *controller);
     DiffEditorGuiController *diffEditorGuiController() const;

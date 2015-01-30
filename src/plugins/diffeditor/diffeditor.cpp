@@ -263,8 +263,7 @@ DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
 DiffEditor::~DiffEditor()
 {
     delete m_toolBar;
-    if (m_widget)
-        delete m_widget;
+    delete m_widget;
 }
 
 Core::IEditor *DiffEditor::duplicate()

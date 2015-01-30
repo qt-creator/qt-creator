@@ -53,10 +53,6 @@ DiffEditorDocument::DiffEditorDocument() :
     setTemporary(true);
 }
 
-DiffEditorDocument::~DiffEditorDocument()
-{
-}
-
 DiffEditorController *DiffEditorDocument::controller() const
 {
     return m_controller;

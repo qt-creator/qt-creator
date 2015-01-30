@@ -66,7 +66,7 @@ private slots:
     void slotUpdateDiffFileIndex();
 
 private:
-    DiffEditorController *m_controller;
+    DiffEditorController *const m_controller;
     bool m_descriptionVisible;
     bool m_syncScrollBars;
     int m_currentDiffFileIndex;

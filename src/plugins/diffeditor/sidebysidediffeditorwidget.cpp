@@ -826,11 +826,6 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
     clear(tr("No controller"));
 }
 
-SideBySideDiffEditorWidget::~SideBySideDiffEditorWidget()
-{
-
-}
-
 void SideBySideDiffEditorWidget::setDiffEditorGuiController(
         DiffEditorGuiController *controller)
 {
@@ -881,7 +876,6 @@ void SideBySideDiffEditorWidget::setDiffEditorGuiController(
         setCurrentDiffFileIndex(m_guiController->currentDiffFileIndex());
     }
 }
-
 
 DiffEditorGuiController *SideBySideDiffEditorWidget::diffEditorGuiController() const
 {

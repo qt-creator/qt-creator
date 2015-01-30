@@ -33,6 +33,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/qtcassert.h>
+
 static const char settingsGroupC[] = "DiffEditor";
 static const char descriptionVisibleKeyC[] = "DescriptionVisible";
 static const char horizontalScrollBarSynchronizationKeyC[] =
@@ -49,6 +51,7 @@ DiffEditorGuiController::DiffEditorGuiController(
       m_syncScrollBars(true),
       m_currentDiffFileIndex(-1)
 {
+    QTC_ASSERT(m_controller, return);
     QSettings *s = Core::ICore::settings();
     s->beginGroup(QLatin1String(settingsGroupC));
     m_descriptionVisible = s->value(QLatin1String(descriptionVisibleKeyC),

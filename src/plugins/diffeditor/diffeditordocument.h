@@ -44,8 +44,7 @@ class DIFFEDITOR_EXPORT DiffEditorDocument : public Core::BaseTextDocument
     Q_OBJECT
     Q_PROPERTY(QString plainText READ plainText STORED false) // For access by code pasters
 public:
-    explicit DiffEditorDocument();
-    virtual ~DiffEditorDocument();
+    DiffEditorDocument();
 
     DiffEditorController *controller() const;
 
@@ -62,7 +61,7 @@ public:
     QString plainText() const;
 
 private:
-    DiffEditorController *m_controller;
+    DiffEditorController *const m_controller;
 };
 
 } // namespace DiffEditor
