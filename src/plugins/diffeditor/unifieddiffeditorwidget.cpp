@@ -95,15 +95,14 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
     setDisplaySettings(TextEditorSettings::displaySettings());
     setCodeStyle(TextEditorSettings::codeStyle());
 
-    connect(TextEditorSettings::instance(),
-            SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-            this, SLOT(setFontSettings(TextEditor::FontSettings)));
+    connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
+            this, &UnifiedDiffEditorWidget::setFontSettings);
     setFontSettings(TextEditorSettings::fontSettings());
 
     clear(tr("No controller"));
 
-    connect(this, SIGNAL(cursorPositionChanged()),
-            this, SLOT(slotCursorPositionChangedInEditor()));
+    connect(this, &QPlainTextEdit::cursorPositionChanged,
+            this, &UnifiedDiffEditorWidget::slotCursorPositionChangedInEditor);
 }
 
 UnifiedDiffEditorWidget::~UnifiedDiffEditorWidget()
@@ -118,17 +117,17 @@ void UnifiedDiffEditorWidget::setDiffEditorGuiController(
         return;
 
     if (m_guiController) {
-        disconnect(m_controller, SIGNAL(cleared(QString)),
-                   this, SLOT(clearAll(QString)));
-        disconnect(m_controller, SIGNAL(diffFilesChanged(QList<FileData>,QString)),
-                this, SLOT(setDiff(QList<FileData>,QString)));
-        disconnect(m_controller, SIGNAL(saveStateRequested()),
-                this, SLOT(saveStateRequested()));
-        disconnect(m_controller, SIGNAL(restoreStateRequested()),
-                this, SLOT(restoreStateRequested()));
+        disconnect(m_controller, &DiffEditorController::cleared,
+                   this, &UnifiedDiffEditorWidget::clearAll);
+        disconnect(m_controller, &DiffEditorController::diffFilesChanged,
+                   this, &UnifiedDiffEditorWidget::setDiff);
+        disconnect(m_controller, &DiffEditorController::saveStateRequested,
+                   this, &UnifiedDiffEditorWidget::saveStateRequested);
+        disconnect(m_controller, &DiffEditorController::restoreStateRequested,
+                   this, &UnifiedDiffEditorWidget::restoreStateRequested);
 
-        disconnect(m_guiController, SIGNAL(currentDiffFileIndexChanged(int)),
-                this, SLOT(setCurrentDiffFileIndex(int)));
+        disconnect(m_guiController, &DiffEditorGuiController::currentDiffFileIndexChanged,
+                   this, &UnifiedDiffEditorWidget::setCurrentDiffFileIndex);
 
         clear(tr("No controller"));
     }
@@ -137,17 +136,17 @@ void UnifiedDiffEditorWidget::setDiffEditorGuiController(
     if (m_guiController) {
         m_controller = m_guiController->controller();
 
-        connect(m_controller, SIGNAL(cleared(QString)),
-                this, SLOT(clearAll(QString)));
-        connect(m_controller, SIGNAL(diffFilesChanged(QList<FileData>,QString)),
-                this, SLOT(setDiff(QList<FileData>,QString)));
-        connect(m_controller, SIGNAL(saveStateRequested()),
-                this, SLOT(saveStateRequested()));
-        connect(m_controller, SIGNAL(restoreStateRequested()),
-                this, SLOT(restoreStateRequested()));
+        connect(m_controller, &DiffEditorController::cleared,
+                this, &UnifiedDiffEditorWidget::clearAll);
+        connect(m_controller, &DiffEditorController::diffFilesChanged,
+                this, &UnifiedDiffEditorWidget::setDiff);
+        connect(m_controller, &DiffEditorController::saveStateRequested,
+                this, &UnifiedDiffEditorWidget::saveStateRequested);
+        connect(m_controller, &DiffEditorController::restoreStateRequested,
+                this, &UnifiedDiffEditorWidget::restoreStateRequested);
 
-        connect(m_guiController, SIGNAL(currentDiffFileIndexChanged(int)),
-                this, SLOT(setCurrentDiffFileIndex(int)));
+        connect(m_guiController, &DiffEditorGuiController::currentDiffFileIndexChanged,
+                this, &UnifiedDiffEditorWidget::setCurrentDiffFileIndex);
 
         setDiff(m_controller->diffFiles(), m_controller->workingDirectory());
         setCurrentDiffFileIndex(m_guiController->currentDiffFileIndex());
@@ -229,7 +228,7 @@ void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     addContextMenuActions(menu, fileIndexForBlockNumber(blockNumber),
                           chunkIndexForBlockNumber(blockNumber));
 
-    connect(this, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
+    connect(this, &UnifiedDiffEditorWidget::destroyed, menu, &QMenu::deleteLater);
     menu->exec(e->globalPos());
     delete menu;
 }
@@ -245,12 +244,12 @@ void UnifiedDiffEditorWidget::addContextMenuActions(QMenu *menu,
     menu->addSeparator();
     QAction *sendChunkToCodePasterAction =
             menu->addAction(tr("Send Chunk to CodePaster..."));
-    connect(sendChunkToCodePasterAction, SIGNAL(triggered()),
-            this, SLOT(slotSendChunkToCodePaster()));
+    connect(sendChunkToCodePasterAction, &QAction::triggered,
+            this, &UnifiedDiffEditorWidget::slotSendChunkToCodePaster);
     QAction *applyAction = menu->addAction(tr("Apply Chunk..."));
-    connect(applyAction, SIGNAL(triggered()), this, SLOT(slotApplyChunk()));
+    connect(applyAction, &QAction::triggered, this, &UnifiedDiffEditorWidget::slotApplyChunk);
     QAction *revertAction = menu->addAction(tr("Revert Chunk..."));
-    connect(revertAction, SIGNAL(triggered()), this, SLOT(slotRevertChunk()));
+    connect(revertAction, &QAction::triggered, this, &UnifiedDiffEditorWidget::slotRevertChunk);
 
     m_contextMenuFileIndex = diffFileIndex;
     m_contextMenuChunkIndex = chunkIndex;
