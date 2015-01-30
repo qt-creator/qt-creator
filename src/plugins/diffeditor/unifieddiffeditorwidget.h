@@ -60,7 +60,6 @@ public:
     UnifiedDiffEditorWidget(QWidget *parent = 0);
 
     void setDiffEditorGuiController(DiffEditorGuiController *controller);
-    DiffEditorGuiController *diffEditorGuiController() const;
 
 public slots:
     void setDisplaySettings(const TextEditor::DisplaySettings &ds);

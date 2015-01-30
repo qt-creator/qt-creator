@@ -165,11 +165,6 @@ void UnifiedDiffEditorWidget::restoreStateRequested()
     m_state.clear();
 }
 
-DiffEditorGuiController *UnifiedDiffEditorWidget::diffEditorGuiController() const
-{
-    return m_guiController;
-}
-
 void UnifiedDiffEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 {
     DisplaySettings settings = displaySettings();

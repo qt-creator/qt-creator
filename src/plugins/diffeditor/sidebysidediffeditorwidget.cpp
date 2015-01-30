@@ -877,11 +877,6 @@ void SideBySideDiffEditorWidget::setDiffEditorGuiController(
     }
 }
 
-DiffEditorGuiController *SideBySideDiffEditorWidget::diffEditorGuiController() const
-{
-    return m_guiController;
-}
-
 void SideBySideDiffEditorWidget::clear(const QString &message)
 {
     const bool oldIgnore = m_ignoreCurrentIndexChange;

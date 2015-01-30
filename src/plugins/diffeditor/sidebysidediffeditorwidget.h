@@ -58,7 +58,6 @@ public:
     explicit SideBySideDiffEditorWidget(QWidget *parent = 0);
 
     void setDiffEditorGuiController(DiffEditorGuiController *controller);
-    DiffEditorGuiController *diffEditorGuiController() const;
 
 private slots:
     void clear(const QString &message = QString());
