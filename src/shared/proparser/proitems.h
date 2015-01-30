@@ -236,9 +236,13 @@ public:
     QString join(const QString &sep) const;
     QString join(QChar sep) const;
 
+    void insertUnique(const ProStringList &value);
+
     void removeAll(const ProString &str);
     void removeAll(const char *str);
+    void removeEach(const ProStringList &value);
     void removeAt(int idx) { remove(idx); }
+    void removeEmpty();
     void removeDuplicates();
 
     bool contains(const ProString &str, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;

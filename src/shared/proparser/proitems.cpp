@@ -379,6 +379,20 @@ void ProStringList::removeAll(const char *str)
             remove(i);
 }
 
+void ProStringList::removeEach(const ProStringList &value)
+{
+    foreach (const ProString &str, value)
+        if (!str.isEmpty())
+            removeAll(str);
+}
+
+void ProStringList::removeEmpty()
+{
+    for (int i = size(); --i >= 0;)
+        if (at(i).isEmpty())
+            remove(i);
+}
+
 void ProStringList::removeDuplicates()
 {
     int n = size();
@@ -396,6 +410,13 @@ void ProStringList::removeDuplicates()
     }
     if (n != j)
         erase(begin() + j, end());
+}
+
+void ProStringList::insertUnique(const ProStringList &value)
+{
+    foreach (const ProString &str, value)
+        if (!str.isEmpty() && !contains(str))
+            append(str);
 }
 
 ProStringList::ProStringList(const QStringList &list)

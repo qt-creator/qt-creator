@@ -240,8 +240,6 @@ public:
 #endif
     QByteArray getCommandOutput(const QString &args) const;
 
-    static void removeEach(ProStringList *varlist, const ProStringList &value);
-
     QMakeEvaluator *m_caller;
 #ifdef PROEVALUATOR_CUMULATIVE
     bool m_cumulative;

@@ -347,34 +347,6 @@ ProStringList QMakeEvaluator::split_value_list(const QString &vals, const ProFil
     return ret;
 }
 
-static void zipEmpty(ProStringList *value)
-{
-    for (int i = value->size(); --i >= 0;)
-        if (value->at(i).isEmpty())
-            value->remove(i);
-}
-
-static void insertUnique(ProStringList *varlist, const ProStringList &value)
-{
-    foreach (const ProString &str, value)
-        if (!str.isEmpty() && !varlist->contains(str))
-            varlist->append(str);
-}
-
-static void removeAll(ProStringList *varlist, const ProString &value)
-{
-    for (int i = varlist->size(); --i >= 0; )
-        if (varlist->at(i) == value)
-            varlist->remove(i);
-}
-
-void QMakeEvaluator::removeEach(ProStringList *varlist, const ProStringList &value)
-{
-    foreach (const ProString &str, value)
-        if (!str.isEmpty())
-            removeAll(varlist, str);
-}
-
 static void replaceInList(ProStringList *varlist,
         const QRegExp &regexp, const QString &replace, bool global, QString &tmp)
 {
@@ -918,24 +890,24 @@ void QMakeEvaluator::visitProVariable(
         switch (tok) {
         default: // whatever - cannot happen
         case TokAssign:          // =
-            zipEmpty(&varVal);
+            varVal.removeEmpty();
             // FIXME: add check+warning about accidental value removal.
             // This may be a bit too noisy, though.
             m_valuemapStack.top()[varName] = varVal;
             debugMsg(2, "assigning");
             break;
         case TokAppendUnique:    // *=
-            insertUnique(&valuesRef(varName), varVal);
+            valuesRef(varName).insertUnique(varVal);
             debugMsg(2, "appending unique");
             break;
         case TokAppend:          // +=
-            zipEmpty(&varVal);
+            varVal.removeEmpty();
             valuesRef(varName) += varVal;
             debugMsg(2, "appending");
             break;
         case TokRemove:       // -=
             if (!m_cumulative) {
-                removeEach(&valuesRef(varName), varVal);
+                valuesRef(varName).removeEach(varVal);
             } else {
                 // We are stingy with our values.
             }
