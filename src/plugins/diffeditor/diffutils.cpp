@@ -263,11 +263,10 @@ ChunkData DiffUtils::calculateOriginalData(const QList<Diff> &leftDiffList,
     return chunkData;
 }
 
-FileData DiffUtils::calculateContextData(const ChunkData &originalData,
-                                         int contextLinesNumber,
+FileData DiffUtils::calculateContextData(const ChunkData &originalData, int contextLineCount,
                                          int joinChunkThreshold)
 {
-    if (contextLinesNumber < 0)
+    if (contextLineCount < 0)
         return FileData(originalData);
 
     FileData fileData;
@@ -292,9 +291,9 @@ FileData DiffUtils::calculateContextData(const ChunkData &originalData,
             const bool last = i == originalData.rows.count(); // includes last line?
 
             const int firstLine = first
-                    ? 0 : equalRowStart + contextLinesNumber;
+                    ? 0 : equalRowStart + contextLineCount;
             const int lastLine = last
-                    ? originalData.rows.count() : i - contextLinesNumber;
+                    ? originalData.rows.count() : i - contextLineCount;
 
             if (firstLine < lastLine - joinChunkThreshold) {
                 for (int j = firstLine; j < lastLine; j++) {

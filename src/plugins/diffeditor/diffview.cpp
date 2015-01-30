@@ -40,6 +40,9 @@
 namespace DiffEditor {
 namespace Internal {
 
+IDiffView::IDiffView(QObject *parent) : QObject(parent), m_supportsSync(false)
+{ }
+
 QIcon IDiffView::icon() const
 {
     return m_icon;
@@ -48,6 +51,16 @@ QIcon IDiffView::icon() const
 QString IDiffView::toolTip() const
 {
     return m_toolTip;
+}
+
+bool IDiffView::supportsSync() const
+{
+    return m_supportsSync;
+}
+
+QString IDiffView::syncToolTip() const
+{
+    return m_syncToolTip;
 }
 
 Core::Id IDiffView::id() const
@@ -70,6 +83,16 @@ void IDiffView::setId(const Core::Id &id)
     m_id = id;
 }
 
+void IDiffView::setSupportsSync(bool sync)
+{
+    m_supportsSync = sync;
+}
+
+void IDiffView::setSyncToolTip(const QString &text)
+{
+    m_syncToolTip = text;
+}
+
 UnifiedView::UnifiedView() : m_widget(0)
 {
     setId(UNIFIED_VIEW_ID);
@@ -79,15 +102,49 @@ UnifiedView::UnifiedView() : m_widget(0)
 
 QWidget *UnifiedView::widget()
 {
-    if (!m_widget)
+    if (!m_widget) {
         m_widget = new UnifiedDiffEditorWidget;
+        connect(m_widget, &UnifiedDiffEditorWidget::currentDiffFileIndexChanged,
+                this, &UnifiedView::currentDiffFileIndexChanged);
+    }
     return m_widget;
 }
 
-void UnifiedView::setDiffEditorGuiController(DiffEditorGuiController *controller)
+void UnifiedView::setDocument(DiffEditorDocument *document)
 {
     QTC_ASSERT(m_widget, return);
-    m_widget->setDiffEditorGuiController(controller);
+    m_widget->setDocument(document);
+}
+
+void UnifiedView::beginOperation()
+{
+    QTC_ASSERT(m_widget, return);
+    m_widget->saveState();
+    m_widget->clear(tr("Waiting for data..."));
+}
+
+void UnifiedView::setDiff(const QList<FileData> &diffFileList, const QString &workingDirectory)
+{
+    QTC_ASSERT(m_widget, return);
+    m_widget->setDiff(diffFileList, workingDirectory);
+}
+
+void UnifiedView::endOperation(bool success)
+{
+    Q_UNUSED(success);
+    QTC_ASSERT(m_widget, return);
+    m_widget->restoreState();
+}
+
+void UnifiedView::setCurrentDiffFileIndex(int index)
+{
+    QTC_ASSERT(m_widget, return);
+    m_widget->setCurrentDiffFileIndex(index);
+}
+
+void UnifiedView::setSync(bool sync)
+{
+    Q_UNUSED(sync);
 }
 
 SideBySideView::SideBySideView() : m_widget(0)
@@ -96,19 +153,56 @@ SideBySideView::SideBySideView() : m_widget(0)
     setIcon(QIcon(QLatin1String(":/diffeditor/images/sidebysidediff.png")));
     setToolTip(QCoreApplication::translate("DiffEditor::SideBySideView",
                                            "Switch to Side By Side Diff Editor"));
+    setSupportsSync(true);
+    setSyncToolTip(tr("Synchronize Horizontal Scroll Bars"));
 }
 
 QWidget *SideBySideView::widget()
 {
-    if (!m_widget)
+    if (!m_widget) {
         m_widget = new SideBySideDiffEditorWidget;
+        connect(m_widget, &SideBySideDiffEditorWidget::currentDiffFileIndexChanged,
+                this, &SideBySideView::currentDiffFileIndexChanged);
+    }
     return m_widget;
 }
 
-void SideBySideView::setDiffEditorGuiController(DiffEditorGuiController *controller)
+void SideBySideView::setDocument(DiffEditorDocument *document)
 {
     QTC_ASSERT(m_widget, return);
-    m_widget->setDiffEditorGuiController(controller);
+    m_widget->setDocument(document);
+}
+
+void SideBySideView::beginOperation()
+{
+    QTC_ASSERT(m_widget, return);
+    m_widget->saveState();
+    m_widget->clear(tr("Waiting for data..."));
+}
+
+void SideBySideView::setCurrentDiffFileIndex(int index)
+{
+    QTC_ASSERT(m_widget, return);
+    m_widget->setCurrentDiffFileIndex(index);
+}
+
+void SideBySideView::setDiff(const QList<FileData> &diffFileList, const QString &workingDirectory)
+{
+    QTC_ASSERT(m_widget, return);
+    m_widget->setDiff(diffFileList, workingDirectory);
+}
+
+void SideBySideView::endOperation(bool success)
+{
+    Q_UNUSED(success);
+    QTC_ASSERT(m_widget, return);
+    m_widget->restoreState();
+}
+
+void SideBySideView::setSync(bool sync)
+{
+    QTC_ASSERT(m_widget, return);
+    m_widget->setHorizontalSync(sync);
 }
 
 } // namespace Internal

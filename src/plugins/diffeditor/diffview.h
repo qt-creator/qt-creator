@@ -35,59 +35,101 @@
 
 #include <QIcon>
 #include <QString>
+#include <QObject>
 #include <QWidget>
 
 namespace DiffEditor {
+
+class DiffEditorController;
+class FileData;
+
 namespace Internal {
 
-class DiffEditorGuiController;
+class DiffEditorDocument;
 class SideBySideDiffEditorWidget;
 class UnifiedDiffEditorWidget;
 
 const char SIDE_BY_SIDE_VIEW_ID[] = "SideBySide";
 const char UNIFIED_VIEW_ID[] = "Unified";
 
-class IDiffView
+class IDiffView : public QObject
 {
+    Q_OBJECT
+
 public:
-    IDiffView() { }
-    virtual ~IDiffView() { }
+    explicit IDiffView(QObject *parent = 0);
 
     QIcon icon() const;
     QString toolTip() const;
+    bool supportsSync() const;
+    QString syncToolTip() const;
 
     Core::Id id() const;
     virtual QWidget *widget() = 0;
-    virtual void setDiffEditorGuiController(DiffEditorGuiController *controller) = 0;
+    virtual void setDocument(DiffEditorDocument *document) = 0;
+
+    virtual void beginOperation() = 0;
+    virtual void setCurrentDiffFileIndex(int index) = 0;
+    virtual void setDiff(const QList<FileData> &diffFileList, const QString &workingDirectory) = 0;
+    virtual void endOperation(bool success) = 0;
+
+    virtual void setSync(bool) = 0;
+
+signals:
+    void currentDiffFileIndexChanged(int index);
 
 protected:
     void setIcon(const QIcon &icon);
     void setToolTip(const QString &toolTip);
     void setId(const Core::Id &id);
+    void setSupportsSync(bool sync);
+    void setSyncToolTip(const QString &text);
 
 private:
     QIcon m_icon;
     QString m_toolTip;
     Core::Id m_id;
+    bool m_supportsSync;
+    QString m_syncToolTip;
 };
 
-class UnifiedView : public IDiffView {
+class UnifiedView : public IDiffView
+{
+    Q_OBJECT
+
 public:
     UnifiedView();
 
     QWidget *widget();
-    void setDiffEditorGuiController(DiffEditorGuiController *controller);
+    void setDocument(DiffEditorDocument *document);
+
+    void beginOperation();
+    void setCurrentDiffFileIndex(int index);
+    void setDiff(const QList<FileData> &diffFileList, const QString &workingDirectory);
+    void endOperation(bool success);
+
+    void setSync(bool sync);
 
 private:
     UnifiedDiffEditorWidget *m_widget;
 };
 
-class SideBySideView : public IDiffView {
+class SideBySideView : public IDiffView
+{
+    Q_OBJECT
+
 public:
     SideBySideView();
 
     QWidget *widget();
-    void setDiffEditorGuiController(DiffEditorGuiController *controller);
+    void setDocument(DiffEditorDocument *document);
+
+    void beginOperation();
+    void setCurrentDiffFileIndex(int index);
+    void setDiff(const QList<FileData> &diffFileList, const QString &workingDirectory);
+    void endOperation(bool success);
+
+    void setSync(bool sync);
 
 private:
     SideBySideDiffEditorWidget *m_widget;

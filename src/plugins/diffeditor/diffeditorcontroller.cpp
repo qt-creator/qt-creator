@@ -30,227 +30,90 @@
 
 #include "diffeditorconstants.h"
 #include "diffeditorcontroller.h"
-#include "diffeditorreloader.h"
+#include "diffeditordocument.h"
 
 #include <coreplugin/icore.h>
 
-#include <QStringList>
+#include <utils/qtcassert.h>
 
-static const char settingsGroupC[] = "DiffEditor";
-static const char contextLineNumbersKeyC[] = "ContextLineNumbers";
-static const char ignoreWhitespaceKeyC[] = "IgnoreWhitespace";
+#include <QStringList>
 
 namespace DiffEditor {
 
-DiffEditorController::DiffEditorController(QObject *parent)
-    : QObject(parent),
-      m_reloader(0),
-      m_contextLinesNumber(3),
-      m_diffFileIndex(-1),
-      m_chunkIndex(-1),
-      m_descriptionEnabled(false),
-      m_contextLinesNumberEnabled(true),
-      m_ignoreWhitespace(true)
+DiffEditorController::DiffEditorController(Core::IDocument *document) :
+    QObject(document),
+    m_document(qobject_cast<Internal::DiffEditorDocument *>(document)),
+    m_isReloading(false),
+    m_diffFileIndex(-1),
+    m_chunkIndex(-1)
 {
-    QSettings *s = Core::ICore::settings();
-    s->beginGroup(QLatin1String(settingsGroupC));
-    m_contextLinesNumber = s->value(QLatin1String(contextLineNumbersKeyC),
-                                    m_contextLinesNumber).toInt();
-    m_ignoreWhitespace = s->value(QLatin1String(ignoreWhitespaceKeyC),
-                                  m_ignoreWhitespace).toBool();
-    s->endGroup();
-
-    clear();
+    QTC_ASSERT(m_document, return);
+    QTC_CHECK(!m_document->controller());
+    m_document->setController(this);
 }
 
-DiffEditorController::~DiffEditorController()
+bool DiffEditorController::isReloading() const
 {
-    delete m_reloader;
+    return m_isReloading;
 }
 
-QString DiffEditorController::clearMessage() const
+QString DiffEditorController::baseDirectory() const
 {
-    return m_clearMessage;
+    return m_document->baseDirectory();
 }
 
-QList<FileData> DiffEditorController::diffFiles() const
+int DiffEditorController::contextLineCount() const
 {
-    return m_diffFiles;
+    return m_document->contextLineCount();
 }
 
-QString DiffEditorController::workingDirectory() const
+bool DiffEditorController::ignoreWhitespace() const
 {
-    return m_workingDirectory;
+    return m_document->ignoreWhitespace();
 }
 
-QString DiffEditorController::description() const
+QString DiffEditorController::revisionFromDescription() const
 {
-    return m_description;
-}
-
-bool DiffEditorController::isDescriptionEnabled() const
-{
-    return m_descriptionEnabled;
-}
-
-int DiffEditorController::contextLinesNumber() const
-{
-    return m_contextLinesNumber;
-}
-
-bool DiffEditorController::isContextLinesNumberEnabled() const
-{
-    return m_contextLinesNumberEnabled;
-}
-
-bool DiffEditorController::isIgnoreWhitespace() const
-{
-    return m_ignoreWhitespace;
-}
-
-// ### fixme: git-specific handling should be done in the git plugin:
-// Remove unexpanded branches and follows-tag, clear indentation
-// and create E-mail
-static void formatGitDescription(QString *description)
-{
-    QString result;
-    result.reserve(description->size());
-    foreach (QString line, description->split(QLatin1Char('\n'))) {
-        if (line.startsWith(QLatin1String("commit "))
-            || line.startsWith(QLatin1String("Branches: <Expand>"))) {
-            continue;
-        }
-        if (line.startsWith(QLatin1String("Author: ")))
-            line.replace(0, 8, QStringLiteral("From: "));
-        else if (line.startsWith(QLatin1String("    ")))
-            line.remove(0, 4);
-        result.append(line);
-        result.append(QLatin1Char('\n'));
-    }
-    *description = result;
-}
-
-QString DiffEditorController::contents() const
-{
-    QString result = m_description;
-    const int formattingOptions = DiffUtils::GitFormat;
-    if (formattingOptions & DiffUtils::GitFormat)
-        formatGitDescription(&result);
-
-    const QString diff = DiffUtils::makePatch(diffFiles(), formattingOptions);
-    if (!diff.isEmpty()) {
-        if (!result.isEmpty())
-            result += QLatin1Char('\n');
-        result += diff;
-    }
-    return result;
+    // TODO: This is specific for git and does not belong here at all!
+    return m_document->description().mid(7, 12);
 }
 
 QString DiffEditorController::makePatch(bool revert, bool addPrefix) const
 {
-    if (m_diffFileIndex < 0 || m_chunkIndex < 0)
-        return QString();
-
-    if (m_diffFileIndex >= m_diffFiles.count())
-        return QString();
-
-    const FileData fileData = m_diffFiles.at(m_diffFileIndex);
-    if (m_chunkIndex >= fileData.chunks.count())
-        return QString();
-
-    const ChunkData chunkData = fileData.chunks.at(m_chunkIndex);
-    const bool lastChunk = (m_chunkIndex == fileData.chunks.count() - 1);
-
-    const QString fileName = revert
-            ? fileData.rightFileInfo.fileName
-            : fileData.leftFileInfo.fileName;
-
-    QString leftPrefix, rightPrefix;
-    if (addPrefix) {
-        leftPrefix = QLatin1String("a/");
-        rightPrefix = QLatin1String("b/");
-    }
-    return DiffUtils::makePatch(chunkData,
-                                leftPrefix + fileName,
-                                rightPrefix + fileName,
-                                lastChunk && fileData.lastChunkAtTheEndOfFile);
-}
-
-DiffEditorReloader *DiffEditorController::reloader() const
-{
-    return m_reloader;
-}
-
-// The ownership of reloader is passed to the controller
-void DiffEditorController::setReloader(DiffEditorReloader *reloader)
-{
-    if (m_reloader == reloader)
-        return; // nothing changes
-
-    delete m_reloader;
-
-    m_reloader = reloader;
-
-    if (m_reloader)
-        m_reloader->setController(this);
-
-    emit reloaderChanged();
-}
-
-void DiffEditorController::clear()
-{
-    clear(tr("No difference"));
-}
-
-void DiffEditorController::clear(const QString &message)
-{
-    setDescription(QString());
-    setDiffFiles(QList<FileData>());
-    m_clearMessage = message;
-    emit cleared(message);
+    return m_document->makePatch(m_diffFileIndex, m_chunkIndex, revert, addPrefix);
 }
 
 void DiffEditorController::setDiffFiles(const QList<FileData> &diffFileList,
                   const QString &workingDirectory)
 {
-    m_diffFiles = diffFileList;
-    m_workingDirectory = workingDirectory;
-    emit diffFilesChanged(diffFileList, workingDirectory);
+    m_document->setDiffFiles(diffFileList, workingDirectory);
 }
 
 void DiffEditorController::setDescription(const QString &description)
 {
-    if (m_description == description)
-        return;
-
-    m_description = description;
-    emit descriptionChanged(m_description);
+    m_document->setDescription(description);
 }
 
-void DiffEditorController::setDescriptionEnabled(bool on)
+void DiffEditorController::informationForCommitReceived(const QString &output)
 {
-    if (m_descriptionEnabled == on)
-        return;
-
-    m_descriptionEnabled = on;
-    emit descriptionEnablementChanged(on);
-}
-
-void DiffEditorController::branchesForCommitReceived(const QString &output)
-{
+    // TODO: Git specific code...
     const QString branches = prepareBranchesForCommit(output);
 
-    m_description.replace(QLatin1String(Constants::EXPAND_BRANCHES), branches);
-    emit descriptionChanged(m_description);
+    QString tmp = m_document->description();
+    tmp.replace(QLatin1String(Constants::EXPAND_BRANCHES), branches);
+    m_document->setDescription(tmp);
 }
 
-void DiffEditorController::expandBranchesRequested()
+void DiffEditorController::requestMoreInformation()
 {
-    emit requestBranchList(m_description.mid(7, 8));
+    const QString rev = revisionFromDescription();
+    if (!rev.isEmpty())
+        emit requestInformationForCommit(rev);
 }
 
 QString DiffEditorController::prepareBranchesForCommit(const QString &output)
 {
+    // TODO: More git-specific code...
     QString moreBranches;
     QString branches;
     QStringList res;
@@ -274,69 +137,40 @@ QString DiffEditorController::prepareBranchesForCommit(const QString &output)
     return branches;
 }
 
-void DiffEditorController::setContextLinesNumber(int lines)
+/**
+ * @brief Force the lines of context to the given number.
+ *
+ * The user will not be able to change the context lines anymore. This needs to be set before
+ * starting any operation or the flag will be ignored by the UI.
+ *
+ * @param lines Lines of context to display.
+ */
+void DiffEditorController::forceContextLineCount(int lines)
 {
-    const int l = qMax(lines, 1);
-    if (m_contextLinesNumber == l)
-        return;
-
-    m_contextLinesNumber = l;
-
-    QSettings *s = Core::ICore::settings();
-    s->beginGroup(QLatin1String(settingsGroupC));
-    s->setValue(QLatin1String(contextLineNumbersKeyC), m_contextLinesNumber);
-    s->endGroup();
-
-    emit contextLinesNumberChanged(l);
+    m_document->forceContextLineCount(lines);
 }
 
-void DiffEditorController::setContextLinesNumberEnabled(bool on)
-{
-    if (m_contextLinesNumberEnabled == on)
-        return;
-
-    m_contextLinesNumberEnabled = on;
-    emit contextLinesNumberEnablementChanged(on);
-}
-
-void DiffEditorController::setIgnoreWhitespace(bool ignore)
-{
-    if (m_ignoreWhitespace == ignore)
-        return;
-
-    m_ignoreWhitespace = ignore;
-
-    QSettings *s = Core::ICore::settings();
-    s->beginGroup(QLatin1String(settingsGroupC));
-    s->setValue(QLatin1String(ignoreWhitespaceKeyC), m_ignoreWhitespace);
-    s->endGroup();
-
-    emit ignoreWhitespaceChanged(ignore);
-}
-
+/**
+ * @brief Request the diff data to be re-read.
+ */
 void DiffEditorController::requestReload()
 {
-    if (m_reloader)
-        m_reloader->requestReload();
+    m_isReloading = true;
+    m_document->beginReload();
+    reload();
 }
 
-void DiffEditorController::requestChunkActions(QMenu *menu,
-                         int diffFileIndex,
-                         int chunkIndex)
+void DiffEditorController::reloadFinished(bool success)
+{
+    m_document->endReload(success);
+    m_isReloading = false;
+}
+
+void DiffEditorController::requestChunkActions(QMenu *menu, int diffFileIndex, int chunkIndex)
 {
     m_diffFileIndex = diffFileIndex;
     m_chunkIndex = chunkIndex;
     emit chunkActionsRequested(menu, diffFileIndex >= 0 && chunkIndex >= 0);
-}
-
-void DiffEditorController::requestSaveState()
-{
-    emit saveStateRequested();
-}
-
-void DiffEditorController::requestRestoreState()
-{
-    emit restoreStateRequested();
 }
 
 } // namespace DiffEditor

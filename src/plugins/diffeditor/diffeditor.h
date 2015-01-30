@@ -38,6 +38,7 @@
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
+class QSpinBox;
 class QToolBar;
 class QToolButton;
 class QStackedWidget;
@@ -50,7 +51,6 @@ namespace DiffEditor {
 namespace Internal {
 class DescriptionEditorWidget;
 class DiffEditorDocument;
-class DiffEditorGuiController;
 class IDiffView;
 
 class DiffEditor : public Core::IEditor
@@ -62,8 +62,6 @@ public:
     ~DiffEditor();
 
 public:
-    DiffEditorController *controller() const;
-
     Core::IEditor *duplicate();
 
     bool open(QString *errorString,
@@ -73,44 +71,52 @@ public:
 
     QWidget *toolBar();
 
-public slots:
-    void activateEntry(int index);
-
 private slots:
-    void slotCleared(const QString &message);
-    void slotDiffFilesChanged(const QList<FileData> &diffFileList,
-                              const QString &workingDirectory);
-    void entryActivated(int index);
-    void slotDescriptionChanged(const QString &description);
-    void slotDescriptionVisibilityChanged();
-    void slotReloaderChanged();
+    void documentHasChanged();
+    void toggleDescription();
+    void updateDescription();
+    void contextLineCountHasChanged(int lines);
+    void ignoreWhitespaceHasChanged(bool ignore);
+    void prepareForReload();
+    void reloadHasFinished(bool success);
+    void setCurrentDiffFileIndex(int index);
+    void documentStateChanged();
+
+    void toggleSync();
 
 private:
+    void loadSettings();
+    void saveSetting(const QString &key, const QVariant &value) const;
     void updateEntryToolTip();
-    void showDiffView(IDiffView *newEditor);
+    void showDiffView(IDiffView *view);
     void updateDiffEditorSwitcher();
     void addView(IDiffView *view);
     IDiffView *currentView() const;
     void setCurrentView(IDiffView *view);
     IDiffView *nextView();
-    IDiffView *readLegacyCurrentDiffEditorSetting();
-    IDiffView *readCurrentDiffEditorSetting();
-    void writeCurrentDiffEditorSetting(IDiffView *currentEditor);
+    void setupView(IDiffView *view);
 
     QSharedPointer<DiffEditorDocument> m_document;
     DescriptionEditorWidget *m_descriptionWidget;
     QStackedWidget *m_stackedWidget;
     QVector<IDiffView *> m_views;
-    int m_currentViewIndex;
-    DiffEditorGuiController *m_guiController;
     QToolBar *m_toolBar;
     QComboBox *m_entriesComboBox;
+    QToolButton *m_whitespaceButton;
+    QSpinBox *m_contextSpinBox;
+    QAction *m_toggleSyncAction;
     QAction *m_whitespaceButtonAction;
     QAction *m_contextLabelAction;
     QAction *m_contextSpinBoxAction;
     QAction *m_toggleDescriptionAction;
     QAction *m_reloadAction;
     QToolButton *m_diffEditorSwitcher;
+    QPair<QString, QString> m_currentFileChunk;
+    int m_currentViewIndex;
+    int m_currentDiffFileIndex;
+    bool m_sync;
+    bool m_showDescription;
+    bool m_ignoreChanges;
 };
 
 } // namespace Internal

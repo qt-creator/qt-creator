@@ -53,17 +53,16 @@ public:
     explicit DiffEditorManager(QObject *parent);
     virtual ~DiffEditorManager();
 
-    static Core::IDocument *find(const QString &vcsId);
     static Core::IDocument *findOrCreate(const QString &vcsId, const QString &displayName);
     static DiffEditorController *controller(Core::IDocument *document);
 
+private:
+    static Core::IDocument *find(const QString &vcsId);
     static void removeDocument(Core::IDocument *document);
 
-private slots:
-    void slotEditorsClosed(const QList<Core::IEditor *> &editors);
-
-private:
     QMap<QString, Internal::DiffEditorDocument *> m_idToDocument;
+
+    friend class Internal::DiffEditorDocument;
 };
 
 } // namespace DiffEditor

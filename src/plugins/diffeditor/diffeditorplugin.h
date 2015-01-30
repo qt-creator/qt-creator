@@ -44,9 +44,6 @@ class DiffEditorPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "DiffEditor.json")
 
 public:
-    DiffEditorPlugin();
-    ~DiffEditorPlugin();
-
     bool initialize(const QStringList &arguments, QString *errorMessage = 0);
     void extensionsInitialized();
 

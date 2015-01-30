@@ -32,7 +32,7 @@
 #define SIDEBYSIDEDIFFEDITORWIDGET_H
 
 #include "differ.h"
-#include "diffeditorcontroller.h"
+#include "diffeditordocument.h"
 #include <QWidget>
 #include <QTextCharFormat>
 
@@ -60,16 +60,23 @@ class SideBySideDiffEditorWidget : public QWidget
 public:
     explicit SideBySideDiffEditorWidget(QWidget *parent = 0);
 
-    void setDiffEditorGuiController(Internal::DiffEditorGuiController *controller);
+    void setDocument(DiffEditorDocument *document);
 
-private slots:
-    void clear(const QString &message = QString());
-    void clearAll(const QString &message = QString());
     void setDiff(const QList<FileData> &diffFileList,
                  const QString &workingDirectory);
-
     void setCurrentDiffFileIndex(int diffFileIndex);
 
+    void setHorizontalSync(bool sync);
+
+    void saveState();
+    void restoreState();
+
+    void clear(const QString &message = QString());
+
+signals:
+    void currentDiffFileIndexChanged(int index);
+
+private slots:
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
     void slotLeftJumpToOriginalFileRequested(int diffFileIndex,
                                              int lineNumber, int columnNumber);
@@ -98,16 +105,16 @@ private:
                             int lineNumber, int columnNumber);
     void patch(bool revert);
 
-    DiffEditorGuiController *m_guiController;
-    DiffEditorController *m_controller;
+    DiffEditorDocument *m_document;
     SideDiffEditorWidget *m_leftEditor;
     SideDiffEditorWidget *m_rightEditor;
     QSplitter *m_splitter;
 
-    QList<FileData> m_contextFileData; // ultimate data to be shown, contextLinesNumber taken into account
+    QList<FileData> m_contextFileData; // ultimate data to be shown, contextLineCount taken into account
 
     bool m_ignoreCurrentIndexChange;
     bool m_foldingBlocker;
+    bool m_horizontalSync;
     int m_contextMenuFileIndex;
     int m_contextMenuChunkIndex;
 
