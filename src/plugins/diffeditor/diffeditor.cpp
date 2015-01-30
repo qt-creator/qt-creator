@@ -45,6 +45,7 @@
 #include <texteditor/marginsettings.h>
 
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 #include <QStackedWidget>
 #include <QToolButton>
@@ -217,6 +218,8 @@ DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
     , m_reloadAction(0)
     , m_diffEditorSwitcher(0)
 {
+    QTC_ASSERT(m_document, return);
+
     QSplitter *splitter = new Core::MiniSplitter(Qt::Vertical);
 
     m_descriptionWidget = new Internal::DescriptionEditorWidget(splitter);
@@ -276,10 +279,6 @@ bool DiffEditor::open(QString *errorString,
                       const QString &realFileName)
 {
     Q_UNUSED(realFileName)
-
-    if (!m_document)
-        return false;
-
     return m_document->open(errorString, fileName);
 }
 
