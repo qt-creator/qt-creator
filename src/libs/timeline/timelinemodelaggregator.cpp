@@ -118,6 +118,15 @@ int TimelineModelAggregator::modelCount() const
     return d->modelList.count();
 }
 
+int TimelineModelAggregator::modelIndexById(int modelId) const
+{
+    for (int i = 0; i < d->modelList.count(); ++i) {
+        if (d->modelList.at(i)->modelId() == modelId)
+            return i;
+    }
+    return -1;
+}
+
 QVariantMap TimelineModelAggregator::nextItem(int selectedModel, int selectedItem,
                                               qint64 time) const
 {

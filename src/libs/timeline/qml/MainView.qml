@@ -150,6 +150,11 @@ Rectangle {
         }
     }
 
+    function selectByIndices(modelIndex, eventIndex)
+    {
+        content.select(modelIndex, eventIndex);
+    }
+
     focus: true
     property bool shiftPressed: false;
     Keys.onPressed: shiftPressed = (event.key === Qt.Key_Shift);

@@ -55,6 +55,7 @@ public:
     TimelineNotesModel *notes() const;
     void clear();
     int modelCount() const;
+    int modelIndexById(int modelId) const;
 
     Q_INVOKABLE int modelOffset(int modelIndex) const;
 

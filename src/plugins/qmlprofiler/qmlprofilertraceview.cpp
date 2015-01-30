@@ -123,6 +123,8 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
     d->m_modelProxy = new Timeline::TimelineModelAggregator(modelManager->notesModel(), this);
     d->m_modelManager = modelManager;
 
+    connect(qobject_cast<QmlProfilerTool *>(profilerTool), &QmlProfilerTool::selectTimelineElement,
+            this, &QmlProfilerTraceView::selectByEventIndex);
     connect(modelManager,SIGNAL(dataAvailable()), d->m_modelProxy,SIGNAL(dataAvailable()));
 
     // external models pushed on top
@@ -216,6 +218,19 @@ void QmlProfilerTraceView::selectBySourceLocation(const QString &filename, int l
             return;
         }
     }
+}
+
+void QmlProfilerTraceView::selectByEventIndex(int modelId, int eventIndex)
+{
+    QQuickItem *rootObject = d->m_mainView->rootObject();
+    if (!rootObject)
+        return;
+
+    const int modelIndex = d->m_modelProxy->modelIndexById(modelId);
+    QTC_ASSERT(modelIndex != -1, return);
+    QMetaObject::invokeMethod(rootObject, "selectByIndices",
+                              Q_ARG(QVariant, QVariant(modelIndex)),
+                              Q_ARG(QVariant, QVariant(eventIndex)));
 }
 
 /////////////////////////////////////////////////////////

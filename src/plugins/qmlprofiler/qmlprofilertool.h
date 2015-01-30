@@ -65,6 +65,9 @@ public:
     static void logError(const QString &msg);
     static void showNonmodalWarning(const QString &warningMsg);
 
+signals:
+    void selectTimelineElement(int modelId, int eventIndex);
+
 public slots:
     void profilerStateChanged();
     void clientRecordingChanged();
@@ -82,6 +85,7 @@ private slots:
     void showErrorDialog(const QString &error);
     void profilerDataModelStateChanged();
     void updateTimeDisplay();
+    void findEvent();
 
     void showSaveOption();
     void showLoadOption();
