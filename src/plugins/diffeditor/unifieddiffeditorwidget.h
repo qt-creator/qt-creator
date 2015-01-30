@@ -58,7 +58,6 @@ class DIFFEDITOR_EXPORT UnifiedDiffEditorWidget
     Q_OBJECT
 public:
     UnifiedDiffEditorWidget(QWidget *parent = 0);
-    ~UnifiedDiffEditorWidget();
 
     void setDiffEditorGuiController(DiffEditorGuiController *controller);
     DiffEditorGuiController *diffEditorGuiController() const;

@@ -45,7 +45,6 @@ class DIFFEDITOR_EXPORT DiffEditorGuiController : public QObject
 public:
     DiffEditorGuiController(DiffEditorController *controller,
                             QObject *parent = 0);
-    ~DiffEditorGuiController();
 
     DiffEditorController *controller() const;
 

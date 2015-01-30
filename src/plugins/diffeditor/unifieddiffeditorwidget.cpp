@@ -105,11 +105,6 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
             this, &UnifiedDiffEditorWidget::slotCursorPositionChangedInEditor);
 }
 
-UnifiedDiffEditorWidget::~UnifiedDiffEditorWidget()
-{
-
-}
-
 void UnifiedDiffEditorWidget::setDiffEditorGuiController(
         DiffEditorGuiController *controller)
 {

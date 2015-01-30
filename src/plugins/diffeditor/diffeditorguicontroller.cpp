@@ -64,11 +64,6 @@ DiffEditorGuiController::DiffEditorGuiController(
     slotUpdateDiffFileIndex();
 }
 
-DiffEditorGuiController::~DiffEditorGuiController()
-{
-
-}
-
 DiffEditorController *DiffEditorGuiController::controller() const
 {
     return m_controller;
