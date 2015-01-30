@@ -127,7 +127,6 @@ public:
 
     QScriptValue parser;
     QScriptValue stringifier;
-    QStringList scriptSourceRequests;
 
     QHash<int, QString> evaluatingExpression;
     QHash<int, QByteArray> localsAndWatchers;
