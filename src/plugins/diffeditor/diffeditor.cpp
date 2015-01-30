@@ -210,7 +210,6 @@ DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
     , m_sideBySideEditor(0)
     , m_unifiedEditor(0)
     , m_currentEditor(0)
-    , m_controller(0)
     , m_guiController(0)
     , m_toolBar(0)
     , m_entriesComboBox(0)
@@ -238,24 +237,24 @@ DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
     setWidget(splitter);
 
 
-    m_controller = m_document->controller();
-    m_guiController = new DiffEditorGuiController(m_controller, this);
+    DiffEditorController *control = controller();
+    m_guiController = new DiffEditorGuiController(control, this);
 
     connect(m_descriptionWidget, &Internal::DescriptionEditorWidget::requestBranchList,
-            m_controller, &DiffEditorController::expandBranchesRequested);
-    connect(m_controller, &DiffEditorController::cleared, this, &DiffEditor::slotCleared);
-    connect(m_controller, &DiffEditorController::diffFilesChanged,
+            control, &DiffEditorController::expandBranchesRequested);
+    connect(control, &DiffEditorController::cleared, this, &DiffEditor::slotCleared);
+    connect(control, &DiffEditorController::diffFilesChanged,
             this, &DiffEditor::slotDiffFilesChanged);
-    connect(m_controller, &DiffEditorController::descriptionChanged,
+    connect(control, &DiffEditorController::descriptionChanged,
             this, &DiffEditor::slotDescriptionChanged);
-    connect(m_controller, &DiffEditorController::descriptionEnablementChanged,
+    connect(control, &DiffEditorController::descriptionEnablementChanged,
             this, &DiffEditor::slotDescriptionVisibilityChanged);
     connect(m_guiController, &DiffEditorGuiController::descriptionVisibilityChanged,
             this, &DiffEditor::slotDescriptionVisibilityChanged);
     connect(m_guiController, &DiffEditorGuiController::currentDiffFileIndexChanged,
             this, &DiffEditor::activateEntry);
 
-    slotDescriptionChanged(m_controller->description());
+    slotDescriptionChanged(control->description());
     slotDescriptionVisibilityChanged();
 
     showDiffEditor(readCurrentDiffEditorSetting());
@@ -303,6 +302,8 @@ QWidget *DiffEditor::toolBar()
     if (m_toolBar)
         return m_toolBar;
 
+    DiffEditorController *control = controller();
+
     // Create
     m_toolBar = createToolBar(m_sideBySideEditor);
 
@@ -319,7 +320,7 @@ QWidget *DiffEditor::toolBar()
     QToolButton *whitespaceButton = new QToolButton(m_toolBar);
     whitespaceButton->setText(tr("Ignore Whitespace"));
     whitespaceButton->setCheckable(true);
-    whitespaceButton->setChecked(m_controller->isIgnoreWhitespace());
+    whitespaceButton->setChecked(control->isIgnoreWhitespace());
     m_whitespaceButtonAction = m_toolBar->addWidget(whitespaceButton);
 
     QLabel *contextLabel = new QLabel(m_toolBar);
@@ -329,7 +330,7 @@ QWidget *DiffEditor::toolBar()
 
     QSpinBox *contextSpinBox = new QSpinBox(m_toolBar);
     contextSpinBox->setRange(1, 100);
-    contextSpinBox->setValue(m_controller->contextLinesNumber());
+    contextSpinBox->setValue(control->contextLinesNumber());
     contextSpinBox->setFrame(false);
     contextSpinBox->setSizePolicy(QSizePolicy::Minimum,
                                   QSizePolicy::Expanding); // Mac Qt5
@@ -361,12 +362,12 @@ QWidget *DiffEditor::toolBar()
     updateDiffEditorSwitcher();
 
     connect(whitespaceButton, &QToolButton::clicked,
-            m_controller, &DiffEditorController::setIgnoreWhitespace);
-    connect(m_controller, &DiffEditorController::ignoreWhitespaceChanged,
+            control, &DiffEditorController::setIgnoreWhitespace);
+    connect(control, &DiffEditorController::ignoreWhitespaceChanged,
             whitespaceButton, &QToolButton::setChecked);
     connect(contextSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
-            m_controller, &DiffEditorController::setContextLinesNumber);
-    connect(m_controller, &DiffEditorController::contextLinesNumberChanged,
+            control, &DiffEditorController::setContextLinesNumber);
+    connect(control, &DiffEditorController::contextLinesNumberChanged,
             contextSpinBox, &QSpinBox::setValue);
     connect(toggleSync, &QAbstractButton::clicked,
             m_guiController, &DiffEditorGuiController::setHorizontalScrollBarSynchronization);
@@ -375,10 +376,10 @@ QWidget *DiffEditor::toolBar()
     connect(m_diffEditorSwitcher, &QAbstractButton::clicked,
             this, &DiffEditor::slotDiffEditorSwitched);
     connect(reloadButton, &QAbstractButton::clicked,
-            m_controller, &DiffEditorController::requestReload);
-    connect(m_controller, &DiffEditorController::reloaderChanged,
+            control, &DiffEditorController::requestReload);
+    connect(control, &DiffEditorController::reloaderChanged,
             this, &DiffEditor::slotReloaderChanged);
-    connect(m_controller, &DiffEditorController::contextLinesNumberEnablementChanged,
+    connect(control, &DiffEditorController::contextLinesNumberEnablementChanged,
             this, &DiffEditor::slotReloaderChanged);
 
     return m_toolBar;
@@ -386,7 +387,7 @@ QWidget *DiffEditor::toolBar()
 
 DiffEditorController *DiffEditor::controller() const
 {
-    return m_controller;
+    return m_document->controller();
 }
 
 void DiffEditor::updateEntryToolTip()
@@ -478,7 +479,7 @@ void DiffEditor::slotDescriptionChanged(const QString &description)
 
 void DiffEditor::slotDescriptionVisibilityChanged()
 {
-    const bool enabled = m_controller->isDescriptionEnabled();
+    const bool enabled = controller()->isDescriptionEnabled();
     const bool visible = m_guiController->isDescriptionVisible();
 
     m_descriptionWidget->setVisible(visible && enabled);
@@ -497,8 +498,9 @@ void DiffEditor::slotDescriptionVisibilityChanged()
 
 void DiffEditor::slotReloaderChanged()
 {
-    const DiffEditorReloader *reloader = m_controller->reloader();
-    const bool contextVisible = m_controller->isContextLinesNumberEnabled();
+    DiffEditorController *control = controller();
+    const DiffEditorReloader *reloader = control->reloader();
+    const bool contextVisible = control->isContextLinesNumberEnabled();
 
     m_whitespaceButtonAction->setVisible(reloader);
     m_contextLabelAction->setVisible(reloader && contextVisible);
