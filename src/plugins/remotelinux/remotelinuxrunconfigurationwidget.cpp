@@ -88,8 +88,8 @@ RemoteLinuxRunConfigurationWidget::RemoteLinuxRunConfigurationWidget(RemoteLinux
     mainLayout->setMargin(0);
     addGenericWidgets(mainLayout);
 
-    connect(d->runConfiguration, SIGNAL(enabledChanged()),
-        SLOT(runConfigurationEnabledChange()));
+    connect(d->runConfiguration, &RemoteLinuxRunConfiguration::enabledChanged,
+            this, &RemoteLinuxRunConfigurationWidget::runConfigurationEnabledChange);
     runConfigurationEnabledChange();
 }
 
@@ -157,16 +157,18 @@ void RemoteLinuxRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayou
     d->workingDirLineEdit.setText(d->runConfiguration->workingDirectory());
     d->genericWidgetsLayout.addRow(tr("Working directory:"), &d->workingDirLineEdit);
 
-    connect(&d->argsLineEdit, SIGNAL(textEdited(QString)), SLOT(argumentsEdited(QString)));
-    connect(d->runConfiguration, SIGNAL(targetInformationChanged()), this,
-        SLOT(updateTargetInformation()));
-    connect(d->runConfiguration, SIGNAL(deploySpecsChanged()), SLOT(handleDeploySpecsChanged()));
-    connect(&d->useAlternateCommandBox, SIGNAL(toggled(bool)),
-        SLOT(handleUseAlternateCommandChanged()));
-    connect(&d->alternateCommand, SIGNAL(textEdited(QString)),
-        SLOT(handleAlternateCommandChanged()));
-    connect(&d->workingDirLineEdit, SIGNAL(textEdited(QString)),
-        SLOT(handleWorkingDirectoryChanged()));
+    connect(&d->argsLineEdit, &QLineEdit::textEdited,
+            this, &RemoteLinuxRunConfigurationWidget::argumentsEdited);
+    connect(d->runConfiguration, &RemoteLinuxRunConfiguration::targetInformationChanged,
+            this, &RemoteLinuxRunConfigurationWidget::updateTargetInformation);
+    connect(d->runConfiguration, &RemoteLinuxRunConfiguration::deploySpecsChanged,
+            this, &RemoteLinuxRunConfigurationWidget::handleDeploySpecsChanged);
+    connect(&d->useAlternateCommandBox, &QCheckBox::toggled,
+            this, &RemoteLinuxRunConfigurationWidget::handleUseAlternateCommandChanged);
+    connect(&d->alternateCommand, &QLineEdit::textEdited,
+            this, &RemoteLinuxRunConfigurationWidget::handleAlternateCommandChanged);
+    connect(&d->workingDirLineEdit, &QLineEdit::textEdited,
+            this, &RemoteLinuxRunConfigurationWidget::handleWorkingDirectoryChanged);
     handleDeploySpecsChanged();
     handleUseAlternateCommandChanged();
 }

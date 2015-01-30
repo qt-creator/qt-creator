@@ -80,12 +80,16 @@ void RemoteLinuxRunControl::start()
     d->running = true;
     emit started();
     d->runner.disconnect(this);
-    connect(&d->runner, SIGNAL(reportError(QString)), SLOT(handleErrorMessage(QString)));
-    connect(&d->runner, SIGNAL(remoteStderr(QByteArray)),
-        SLOT(handleRemoteErrorOutput(QByteArray)));
-    connect(&d->runner, SIGNAL(remoteStdout(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
-    connect(&d->runner, SIGNAL(finished(bool)), SLOT(handleRunnerFinished()));
-    connect(&d->runner, SIGNAL(reportProgress(QString)), SLOT(handleProgressReport(QString)));
+    connect(&d->runner, &ProjectExplorer::DeviceApplicationRunner::reportError,
+            this, &RemoteLinuxRunControl::handleErrorMessage);
+    connect(&d->runner, &ProjectExplorer::DeviceApplicationRunner::remoteStderr,
+            this, &RemoteLinuxRunControl::handleRemoteErrorOutput);
+    connect(&d->runner, &ProjectExplorer::DeviceApplicationRunner::remoteStdout,
+            this, &RemoteLinuxRunControl::handleRemoteOutput);
+    connect(&d->runner, &ProjectExplorer::DeviceApplicationRunner::finished,
+            this, &RemoteLinuxRunControl::handleRunnerFinished);
+    connect(&d->runner, &ProjectExplorer::DeviceApplicationRunner::reportProgress,
+            this, &RemoteLinuxRunControl::handleProgressReport);
     d->runner.setEnvironment(d->environment);
     d->runner.setWorkingDirectory(d->workingDir);
     d->runner.start(d->device, d->remoteExecutable, d->arguments);

@@ -63,14 +63,14 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings,
     m_ui->valgrindExeChooser->setPromptDialogTitle(tr("Valgrind Command"));
 
     updateUi();
-    connect(m_settings, SIGNAL(changed()), this, SLOT(updateUi()));
+    connect(m_settings, &ValgrindBaseSettings::changed, this, &ValgrindConfigWidget::updateUi);
 
-    connect(m_ui->valgrindExeChooser, SIGNAL(changed(QString)),
-            m_settings, SLOT(setValgrindExecutable(QString)));
+    connect(m_ui->valgrindExeChooser, &Utils::PathChooser::changed,
+            m_settings, &ValgrindBaseSettings::setValgrindExecutable);
     connect(m_settings, SIGNAL(valgrindExecutableChanged(QString)),
             m_ui->valgrindExeChooser, SLOT(setPath(QString)));
-    connect(m_ui->smcDetectionComboBox, SIGNAL(currentIndexChanged(int)),
-            m_settings, SLOT(setSelfModifyingCodeDetection(int)));
+    connect(m_ui->smcDetectionComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            m_settings, &ValgrindBaseSettings::setSelfModifyingCodeDetection);
 
     if (Utils::HostOsInfo::isWindowsHost()) {
         // FIXME: On Window we know that we don't have a local valgrind
@@ -82,38 +82,38 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings,
     //
     // Callgrind
     //
-    connect(m_ui->enableCacheSim, SIGNAL(toggled(bool)),
-            m_settings, SLOT(setEnableCacheSim(bool)));
+    connect(m_ui->enableCacheSim, &QCheckBox::toggled,
+            m_settings, &ValgrindBaseSettings::setEnableCacheSim);
     connect(m_settings, SIGNAL(enableCacheSimChanged(bool)),
             m_ui->enableCacheSim, SLOT(setChecked(bool)));
 
-    connect(m_ui->enableBranchSim, SIGNAL(toggled(bool)),
-            m_settings, SLOT(setEnableBranchSim(bool)));
+    connect(m_ui->enableBranchSim, &QCheckBox::toggled,
+            m_settings, &ValgrindBaseSettings::setEnableBranchSim);
     connect(m_settings, SIGNAL(enableBranchSimChanged(bool)),
             m_ui->enableBranchSim, SLOT(setChecked(bool)));
 
-    connect(m_ui->collectSystime, SIGNAL(toggled(bool)),
-            m_settings, SLOT(setCollectSystime(bool)));
+    connect(m_ui->collectSystime, &QCheckBox::toggled,
+            m_settings, &ValgrindBaseSettings::setCollectSystime);
     connect(m_settings, SIGNAL(collectSystimeChanged(bool)),
             m_ui->collectSystime, SLOT(setChecked(bool)));
 
-    connect(m_ui->collectBusEvents, SIGNAL(toggled(bool)),
-            m_settings, SLOT(setCollectBusEvents(bool)));
+    connect(m_ui->collectBusEvents, &QCheckBox::toggled,
+            m_settings, &ValgrindBaseSettings::setCollectBusEvents);
     connect(m_settings, SIGNAL(collectBusEventsChanged(bool)),
             m_ui->collectBusEvents, SLOT(setChecked(bool)));
 
-    connect(m_ui->enableEventToolTips, SIGNAL(toggled(bool)),
-            m_settings, SLOT(setEnableEventToolTips(bool)));
+    connect(m_ui->enableEventToolTips, &QGroupBox::toggled,
+            m_settings, &ValgrindBaseSettings::setEnableEventToolTips);
     connect(m_settings, SIGNAL(enableEventToolTipsChanged(bool)),
             m_ui->enableEventToolTips, SLOT(setChecked(bool)));
 
-    connect(m_ui->minimumInclusiveCostRatio, SIGNAL(valueChanged(double)),
-            m_settings, SLOT(setMinimumInclusiveCostRatio(double)));
+    connect(m_ui->minimumInclusiveCostRatio, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+            m_settings, &ValgrindBaseSettings::setMinimumInclusiveCostRatio);
     connect(m_settings, SIGNAL(minimumInclusiveCostRatioChanged(double)),
             m_ui->minimumInclusiveCostRatio, SLOT(setValue(double)));
 
-    connect(m_ui->visualisationMinimumInclusiveCostRatio, SIGNAL(valueChanged(double)),
-            m_settings, SLOT(setVisualisationMinimumInclusiveCostRatio(double)));
+    connect(m_ui->visualisationMinimumInclusiveCostRatio, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+            m_settings, &ValgrindBaseSettings::setVisualisationMinimumInclusiveCostRatio);
     connect(m_settings, SIGNAL(visualisationMinimumInclusiveCostRatioChanged(double)),
             m_ui->visualisationMinimumInclusiveCostRatio, SLOT(setValue(double)));
 
@@ -123,36 +123,32 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings,
     m_ui->suppressionList->setModel(m_model);
     m_ui->suppressionList->setSelectionMode(QAbstractItemView::MultiSelection);
 
-    connect(m_ui->addSuppression, SIGNAL(clicked()),
-            this, SLOT(slotAddSuppression()));
-    connect(m_ui->removeSuppression, SIGNAL(clicked()),
-            this, SLOT(slotRemoveSuppression()));
+    connect(m_ui->addSuppression, &QPushButton::clicked, this, &ValgrindConfigWidget::slotAddSuppression);
+    connect(m_ui->removeSuppression, &QPushButton::clicked, this, &ValgrindConfigWidget::slotRemoveSuppression);
 
-    connect(m_ui->numCallers, SIGNAL(valueChanged(int)), m_settings, SLOT(setNumCallers(int)));
+    connect(m_ui->numCallers, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            m_settings, &ValgrindBaseSettings::setNumCallers);
     connect(m_settings, SIGNAL(numCallersChanged(int)), m_ui->numCallers, SLOT(setValue(int)));
 
-    connect(m_ui->leakCheckOnFinish, SIGNAL(currentIndexChanged(int)),
-            m_settings, SLOT(setLeakCheckOnFinish(int)));
+    connect(m_ui->leakCheckOnFinish, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            m_settings, &ValgrindBaseSettings::setLeakCheckOnFinish);
     connect(m_settings, SIGNAL(leakCheckOnFinishChanged(int)),
             m_ui->leakCheckOnFinish, SLOT(setCurrentIndex(int)));
 
-    connect(m_ui->showReachable, SIGNAL(toggled(bool)),
-            m_settings, SLOT(setShowReachable(bool)));
+    connect(m_ui->showReachable, &QCheckBox::toggled, m_settings, &ValgrindBaseSettings::setShowReachable);
     connect(m_settings, SIGNAL(showReachableChanged(bool)),
             m_ui->showReachable, SLOT(setChecked(bool)));
 
-    connect(m_ui->trackOrigins, SIGNAL(toggled(bool)),
-            m_settings, SLOT(setTrackOrigins(bool)));
+    connect(m_ui->trackOrigins, &QCheckBox::toggled, m_settings, &ValgrindBaseSettings::setTrackOrigins);
     connect(m_settings, SIGNAL(trackOriginsChanged(bool)),
             m_ui->trackOrigins, SLOT(setChecked(bool)));
 
-    connect(m_settings, SIGNAL(suppressionFilesRemoved(QStringList)),
-            this, SLOT(slotSuppressionsRemoved(QStringList)));
-    connect(m_settings, SIGNAL(suppressionFilesAdded(QStringList)),
-            this, SLOT(slotSuppressionsAdded(QStringList)));
+    connect(m_settings, &ValgrindBaseSettings::suppressionFilesRemoved,
+            this, &ValgrindConfigWidget::slotSuppressionsRemoved);
+    connect(m_settings, &ValgrindBaseSettings::suppressionFilesAdded,
+            this, &ValgrindConfigWidget::slotSuppressionsAdded);
 
-    connect(m_ui->suppressionList->selectionModel(),
-            SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+    connect(m_ui->suppressionList->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(slotSuppressionSelectionChanged()));
     slotSuppressionSelectionChanged();
 

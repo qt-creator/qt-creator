@@ -42,7 +42,7 @@
 using namespace Core;
 using namespace CppTools;
 using namespace CppTools::Internal;
-
+using namespace ProjectExplorer;
 namespace CppTools {
 namespace Internal {
 
@@ -140,8 +140,7 @@ CppIncludesFilter::CppIncludesFilter()
     setIncludedByDefault(true);
     setPriority(ILocatorFilter::Low);
 
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
-            &ProjectExplorer::ProjectExplorerPlugin::fileListChanged,
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,
             this, &CppIncludesFilter::markOutdated);
     connect(CppModelManager::instance(), &CppModelManager::documentUpdated,
             this, &CppIncludesFilter::markOutdated);

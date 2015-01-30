@@ -274,12 +274,13 @@ void AbstractRemoteLinuxDeployService::handleDeviceSetupDone(bool success)
 
     d->state = Connecting;
     d->connection = QSsh::acquireConnection(deviceConfiguration()->sshParameters());
-    connect(d->connection, SIGNAL(error(QSsh::SshError)),
-        SLOT(handleConnectionFailure()));
+    connect(d->connection, &SshConnection::error,
+            this, &AbstractRemoteLinuxDeployService::handleConnectionFailure);
     if (d->connection->state() == SshConnection::Connected) {
         handleConnected();
     } else {
-        connect(d->connection, SIGNAL(connected()), SLOT(handleConnected()));
+        connect(d->connection, &SshConnection::connected,
+                this, &AbstractRemoteLinuxDeployService::handleConnected);
         emit progressMessage(tr("Connecting to device..."));
         if (d->connection->state() == SshConnection::Unconnected)
             d->connection->connectToHost();

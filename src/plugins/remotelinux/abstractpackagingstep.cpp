@@ -78,7 +78,8 @@ void AbstractPackagingStep::ctor()
     connect(target(), SIGNAL(deploymentDataChanged()), SLOT(setDeploymentDataModified()));
     setDeploymentDataModified();
 
-    connect(this, SIGNAL(unmodifyDeploymentData()), this, SLOT(setDeploymentDataUnmodified()));
+    connect(this, &AbstractPackagingStep::unmodifyDeploymentData,
+            this, &AbstractPackagingStep::setDeploymentDataUnmodified);
 }
 
 AbstractPackagingStep::~AbstractPackagingStep()
@@ -92,8 +93,8 @@ void AbstractPackagingStep::handleBuildConfigurationChanged()
         disconnect(d->currentBuildConfiguration, 0, this, 0);
     d->currentBuildConfiguration = target()->activeBuildConfiguration();
     if (d->currentBuildConfiguration) {
-        connect(d->currentBuildConfiguration, SIGNAL(buildDirectoryChanged()), this,
-            SIGNAL(packageFilePathChanged()));
+        connect(d->currentBuildConfiguration, &BuildConfiguration::buildDirectoryChanged,
+                this, &AbstractPackagingStep::packageFilePathChanged);
     }
     emit packageFilePathChanged();
 }

@@ -60,13 +60,14 @@ ModelManagerTestHelper::ModelManagerTestHelper(QObject *parent) :
     CppModelManager *mm = CppModelManager::instance();
     assert(mm);
 
-    connect(this, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
-            mm, SLOT(onAboutToRemoveProject(ProjectExplorer::Project*)));
-    connect(this, SIGNAL(projectAdded(ProjectExplorer::Project*)),
-            mm, SLOT(onProjectAdded(ProjectExplorer::Project*)));
-    connect(mm, SIGNAL(sourceFilesRefreshed(QSet<QString>)),
-            this, SLOT(sourceFilesRefreshed(QSet<QString>)));
-    connect(mm, SIGNAL(gcFinished()), this, SLOT(gcFinished()));
+    connect(this, &ModelManagerTestHelper::aboutToRemoveProject,
+            mm, &CppModelManager::onAboutToRemoveProject);
+    connect(this, &ModelManagerTestHelper::projectAdded,
+            mm, &CppModelManager::onProjectAdded);
+    connect(mm, &CppModelManager::sourceFilesRefreshed,
+            this, &ModelManagerTestHelper::sourceFilesRefreshed);
+    connect(mm, &CppModelManager::gcFinished,
+            this, &ModelManagerTestHelper::gcFinished);
 
     cleanup();
     Tests::VerifyCleanCppModelManager::verify();

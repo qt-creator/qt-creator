@@ -88,8 +88,8 @@ void QmlJSCodeStylePreferencesWidget::setPreferences(TextEditor::ICodeStylePrefe
     m_preferences = preferences;
     m_ui->tabPreferencesWidget->setPreferences(preferences);
     if (m_preferences)
-        connect(m_preferences, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)),
-                this, SLOT(slotSettingsChanged()));
+        connect(m_preferences, &TextEditor::ICodeStylePreferences::currentTabSettingsChanged,
+                this, &QmlJSCodeStylePreferencesWidget::slotSettingsChanged);
     updatePreview();
 }
 

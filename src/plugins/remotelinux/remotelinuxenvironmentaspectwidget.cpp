@@ -50,9 +50,11 @@ RemoteLinuxEnvironmentAspectWidget::RemoteLinuxEnvironmentAspectWidget(RemoteLin
 {
     QPushButton *button = fetchButton();
     button->setText(FetchEnvButtonText);
-    connect(button, SIGNAL(clicked()), this, SLOT(fetchEnvironment()));
-    connect(deviceEnvReader, SIGNAL(finished()), this, SLOT(fetchEnvironmentFinished()));
-    connect(deviceEnvReader, SIGNAL(error(QString)), this, SLOT(fetchEnvironmentError(QString)));
+    connect(button, &QPushButton::clicked, this, &RemoteLinuxEnvironmentAspectWidget::fetchEnvironment);
+    connect(deviceEnvReader, &Internal::RemoteLinuxEnvironmentReader::finished,
+            this, &RemoteLinuxEnvironmentAspectWidget::fetchEnvironmentFinished);
+    connect(deviceEnvReader, &Internal::RemoteLinuxEnvironmentReader::error,
+            this, &RemoteLinuxEnvironmentAspectWidget::fetchEnvironmentError);
 }
 
 RemoteLinuxEnvironmentAspect *RemoteLinuxEnvironmentAspectWidget::aspect() const
@@ -68,8 +70,10 @@ QPushButton *RemoteLinuxEnvironmentAspectWidget::fetchButton() const
 void RemoteLinuxEnvironmentAspectWidget::fetchEnvironment()
 {
     QPushButton *button = fetchButton();
-    disconnect(button, SIGNAL(clicked()), this, SLOT(fetchEnvironment()));
-    connect(button, SIGNAL(clicked()), this, SLOT(stopFetchEnvironment()));
+    disconnect(button, &QPushButton::clicked,
+               this, &RemoteLinuxEnvironmentAspectWidget::fetchEnvironment);
+    connect(button, &QPushButton::clicked,
+            this, &RemoteLinuxEnvironmentAspectWidget::stopFetchEnvironment);
     button->setText(tr("Cancel Fetch Operation"));
     deviceEnvReader->start();
 }
@@ -77,8 +81,10 @@ void RemoteLinuxEnvironmentAspectWidget::fetchEnvironment()
 void RemoteLinuxEnvironmentAspectWidget::fetchEnvironmentFinished()
 {
     QPushButton *button = fetchButton();
-    disconnect(button, SIGNAL(clicked()), this, SLOT(stopFetchEnvironment()));
-    connect(button, SIGNAL(clicked()), this, SLOT(fetchEnvironment()));
+    disconnect(button, &QPushButton::clicked,
+               this, &RemoteLinuxEnvironmentAspectWidget::stopFetchEnvironment);
+    connect(button, &QPushButton::clicked,
+            this, &RemoteLinuxEnvironmentAspectWidget::fetchEnvironment);
     button->setText(FetchEnvButtonText);
     aspect()->setRemoteEnvironment(deviceEnvReader->remoteEnvironment());
 }

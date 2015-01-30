@@ -187,8 +187,7 @@ QWidget *MemcheckErrorDelegate::createDetailsWidget(const QFont & font,
                                  errorLocation(errorIndex, error, /*link=*/ true,
                                                /*absolutePath=*/ false, linkStyle),
                                  linkStyle));
-    connect(errorLabel, &QLabel::linkActivated,
-            this, &MemcheckErrorDelegate::openLinkInEditor);
+    connect(errorLabel, &QLabel::linkActivated, this, &MemcheckErrorDelegate::openLinkInEditor);
     layout->addWidget(errorLabel);
 
     const QVector<Stack> stacks = error.stacks();
@@ -223,8 +222,7 @@ QWidget *MemcheckErrorDelegate::createDetailsWidget(const QFont & font,
             QFont fixedPitchFont = font;
             fixedPitchFont.setFixedPitch(true);
             frameLabel->setFont(fixedPitchFont);
-            connect(frameLabel, &QLabel::linkActivated,
-                    this, &MemcheckErrorDelegate::openLinkInEditor);
+            connect(frameLabel, &QLabel::linkActivated, this, &MemcheckErrorDelegate::openLinkInEditor);
             // pad frameNr to 2 chars since only 50 frames max are supported by valgrind
             const QString displayText = displayTextTemplate
                                             .arg(frameNr++, 2).arg(frameName);

@@ -152,11 +152,11 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     JsExpander::registerQObjectForJs(QLatin1String("Cpp"), new CppToolsJsExtension);
 
     CppLocatorData *locatorData = new CppLocatorData;
-    connect(modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
-            locatorData, SLOT(onDocumentUpdated(CPlusPlus::Document::Ptr)));
+    connect(modelManager, &CppModelManager::documentUpdated,
+            locatorData, &CppLocatorData::onDocumentUpdated);
 
-    connect(modelManager, SIGNAL(aboutToRemoveFiles(QStringList)),
-            locatorData, SLOT(onAboutToRemoveFiles(QStringList)));
+    connect(modelManager, &CppModelManager::aboutToRemoveFiles,
+            locatorData, &CppLocatorData::onAboutToRemoveFiles);
 
     addAutoReleasedObject(locatorData);
     addAutoReleasedObject(new CppLocatorFilter(locatorData));
@@ -184,7 +184,8 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     Command *command = ActionManager::registerAction(switchAction, Constants::SWITCH_HEADER_SOURCE, context, true);
     command->setDefaultKeySequence(QKeySequence(Qt::Key_F4));
     mcpptools->addAction(command);
-    connect(switchAction, SIGNAL(triggered()), this, SLOT(switchHeaderSource()));
+    connect(switchAction, &QAction::triggered,
+            this, &CppToolsPlugin::switchHeaderSource);
 
     QAction *openInNextSplitAction = new QAction(tr("Open Corresponding Header/Source in Next Split"), this);
     command = ActionManager::registerAction(openInNextSplitAction, Constants::OPEN_HEADER_SOURCE_IN_NEXT_SPLIT, context, true);
@@ -192,7 +193,8 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
                                                 ? tr("Meta+E, F4")
                                                 : tr("Ctrl+E, F4")));
     mcpptools->addAction(command);
-    connect(openInNextSplitAction, SIGNAL(triggered()), this, SLOT(switchHeaderSourceInNextSplit()));
+    connect(openInNextSplitAction, &QAction::triggered,
+            this, &CppToolsPlugin::switchHeaderSourceInNextSplit);
 
     Utils::MacroExpander *expander = Utils::globalMacroExpander();
     expander->registerVariable("Cpp:LicenseTemplate",

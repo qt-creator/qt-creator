@@ -250,12 +250,12 @@ void MemcheckTool::updateFromSettings()
     m_filterProjectAction->setChecked(!m_settings->filterExternalIssues());
     m_errorView->settingsChanged(m_settings);
 
-    connect(m_settings, SIGNAL(visibleErrorKindsChanged(QList<int>)),
-            m_errorProxyModel, SLOT(setAcceptedKinds(QList<int>)));
+    connect(m_settings, &ValgrindBaseSettings::visibleErrorKindsChanged,
+            m_errorProxyModel, &MemcheckErrorFilterProxyModel::setAcceptedKinds);
     m_errorProxyModel->setAcceptedKinds(m_settings->visibleErrorKinds());
 
-    connect(m_settings, SIGNAL(filterExternalIssuesChanged(bool)),
-            m_errorProxyModel, SLOT(setFilterExternalIssues(bool)));
+    connect(m_settings, &ValgrindBaseSettings::filterExternalIssuesChanged,
+            m_errorProxyModel, &MemcheckErrorFilterProxyModel::setFilterExternalIssues);
     m_errorProxyModel->setFilterExternalIssues(m_settings->filterExternalIssues());
 }
 
@@ -283,7 +283,7 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
     // now make the new settings current, update and connect input widgets
     m_settings = settings;
     QTC_ASSERT(m_settings, return);
-    connect(m_settings, SIGNAL(destroyed(QObject*)), SLOT(settingsDestroyed(QObject*)));
+    connect(m_settings, &ValgrindBaseSettings::destroyed, this, &MemcheckTool::settingsDestroyed);
 
     updateFromSettings();
 }
@@ -381,7 +381,7 @@ QWidget *MemcheckTool::createWidgets()
     action = new QAction(this);
     action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_OPENFILE)));
     action->setToolTip(tr("Load External XML Log File"));
-    connect(action, SIGNAL(triggered(bool)), this, SLOT(loadExternalXmlLogFile()));
+    connect(action, &QAction::triggered, this, &MemcheckTool::loadExternalXmlLogFile);
     button = new QToolButton;
     button->setDefaultAction(action);
     layout->addWidget(button);
@@ -421,7 +421,7 @@ QWidget *MemcheckTool::createWidgets()
     m_filterMenu->addSeparator();
     m_filterMenu->addAction(m_filterProjectAction);
     m_filterMenu->addAction(m_suppressionSeparator);
-    connect(m_filterMenu, SIGNAL(triggered(QAction*)), SLOT(updateErrorFilter()));
+    connect(m_filterMenu, &QMenu::triggered, this, &MemcheckTool::updateErrorFilter);
     filterButton->setMenu(m_filterMenu);
     layout->addWidget(filterButton);
 
@@ -440,13 +440,10 @@ AnalyzerRunControl *MemcheckTool::createRunControl(const AnalyzerStartParameters
 
     MemcheckRunControl *engine = new MemcheckRunControl(sp, runConfiguration);
 
-    connect(engine, SIGNAL(starting(const Analyzer::AnalyzerRunControl*)),
-            this, SLOT(engineStarting(const Analyzer::AnalyzerRunControl*)));
-    connect(engine, SIGNAL(parserError(Valgrind::XmlProtocol::Error)),
-            this, SLOT(parserError(Valgrind::XmlProtocol::Error)));
-    connect(engine, SIGNAL(internalParserError(QString)),
-            this, SLOT(internalParserError(QString)));
-    connect(engine, SIGNAL(finished()), this, SLOT(engineFinished()));
+    connect(engine, &MemcheckRunControl::starting, this, &MemcheckTool::engineStarting);
+    connect(engine, &MemcheckRunControl::parserError, this, &MemcheckTool::parserError);
+    connect(engine, &MemcheckRunControl::internalParserError, this, &MemcheckTool::internalParserError);
+    connect(engine, &MemcheckRunControl::finished, this, &MemcheckTool::engineFinished);
     return engine;
 }
 
@@ -470,8 +467,7 @@ void MemcheckTool::engineStarting(const AnalyzerRunControl *engine)
         QAction *action = m_filterMenu->addAction(Utils::FileName::fromString(file).fileName());
         action->setToolTip(file);
         action->setData(file);
-        connect(action, SIGNAL(triggered(bool)),
-                this, SLOT(suppressionActionTriggered()));
+        connect(action, &QAction::triggered, this, &MemcheckTool::suppressionActionTriggered);
         m_suppressionActions.append(action);
     }
 }
@@ -515,12 +511,10 @@ void MemcheckTool::loadExternalXmlLogFile()
     }
 
     ThreadedParser *parser = new ThreadedParser;
-    connect(parser, SIGNAL(error(Valgrind::XmlProtocol::Error)),
-            this, SLOT(parserError(Valgrind::XmlProtocol::Error)));
-    connect(parser, SIGNAL(internalError(QString)),
-            this, SLOT(internalParserError(QString)));
-    connect(parser, SIGNAL(finished()), this, SLOT(loadingExternalXmlLogFileFinished()));
-    connect(parser, SIGNAL(finished()), parser, SLOT(deleteLater()));
+    connect(parser, &ThreadedParser::error, this, &MemcheckTool::parserError);
+    connect(parser, &ThreadedParser::internalError, this, &MemcheckTool::internalParserError);
+    connect(parser, &ThreadedParser::finished, this, &MemcheckTool::loadingExternalXmlLogFileFinished);
+    connect(parser, &ThreadedParser::finished, parser, &ThreadedParser::deleteLater);
 
     parser->parse(logFile); // ThreadedParser owns the file
 }

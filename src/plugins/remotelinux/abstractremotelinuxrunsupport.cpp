@@ -97,8 +97,10 @@ void AbstractRemoteLinuxRunSupport::handleRemoteSetupRequested()
 {
     QTC_ASSERT(d->state == Inactive, return);
     d->state = GatheringPorts;
-    connect(&d->portsGatherer, SIGNAL(error(QString)), SLOT(handlePortsGathererError(QString)));
-    connect(&d->portsGatherer, SIGNAL(portListReady()), SLOT(handlePortListReady()));
+    connect(&d->portsGatherer, &DeviceUsedPortsGatherer::error,
+            this, &AbstractRemoteLinuxRunSupport::handlePortsGathererError);
+    connect(&d->portsGatherer, &DeviceUsedPortsGatherer::portListReady,
+            this, &AbstractRemoteLinuxRunSupport::handlePortListReady);
     d->portsGatherer.start(d->device);
 }
 

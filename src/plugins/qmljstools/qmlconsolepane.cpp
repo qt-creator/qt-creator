@@ -73,22 +73,23 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_proxyModel = new QmlConsoleProxyModel(this);
     m_proxyModel->setSourceModel(QmlConsoleModel::qmlConsoleItemModel());
     connect(QmlConsoleModel::qmlConsoleItemModel(),
-            SIGNAL(selectEditableRow(QModelIndex,QItemSelectionModel::SelectionFlags)),
+            &QmlConsoleItemModel::selectEditableRow,
             m_proxyModel,
-            SLOT(selectEditableRow(QModelIndex,QItemSelectionModel::SelectionFlags)));
+            &QmlConsoleProxyModel::selectEditableRow);
 
     //Scroll to bottom when rows matching current filter settings are inserted
     //Not connecting rowsRemoved as the only way to remove rows is to clear the
     //model which will automatically reset the view.
-    connect(QmlConsoleModel::qmlConsoleItemModel(), SIGNAL(rowsInserted(QModelIndex,int,int)),
-            m_proxyModel, SLOT(onRowsInserted(QModelIndex,int,int)));
+    connect(QmlConsoleModel::qmlConsoleItemModel(), &QAbstractItemModel::rowsInserted,
+            m_proxyModel, &QmlConsoleProxyModel::onRowsInserted);
     m_consoleView->setModel(m_proxyModel);
 
     connect(m_proxyModel,
             SIGNAL(setCurrentIndex(QModelIndex,QItemSelectionModel::SelectionFlags)),
             m_consoleView->selectionModel(),
             SLOT(setCurrentIndex(QModelIndex,QItemSelectionModel::SelectionFlags)));
-    connect(m_proxyModel, SIGNAL(scrollToBottom()), m_consoleView, SLOT(onScrollToBottom()));
+    connect(m_proxyModel, &QmlConsoleProxyModel::scrollToBottom,
+            m_consoleView, &QmlConsoleView::onScrollToBottom);
 
     m_itemDelegate = new QmlConsoleItemDelegate(this);
     connect(m_consoleView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
@@ -111,7 +112,8 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_showDebugButtonAction->setToolTip(tr("Show debug, log, and info messages."));
     m_showDebugButtonAction->setCheckable(true);
     m_showDebugButtonAction->setIcon(QIcon(QLatin1String(Core::Constants::ICON_INFO)));
-    connect(m_showDebugButtonAction, SIGNAL(toggled(bool)), m_proxyModel, SLOT(setShowLogs(bool)));
+    connect(m_showDebugButtonAction, &Utils::SavedAction::toggled,
+            m_proxyModel, &QmlConsoleProxyModel::setShowLogs);
     m_showDebugButton->setDefaultAction(m_showDebugButtonAction);
 
     m_showWarningButton = new QToolButton(m_consoleWidget);
@@ -123,8 +125,8 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_showWarningButtonAction->setToolTip(tr("Show warning messages."));
     m_showWarningButtonAction->setCheckable(true);
     m_showWarningButtonAction->setIcon(QIcon(QLatin1String(Core::Constants::ICON_WARNING)));
-    connect(m_showWarningButtonAction, SIGNAL(toggled(bool)), m_proxyModel,
-            SLOT(setShowWarnings(bool)));
+    connect(m_showWarningButtonAction, &Utils::SavedAction::toggled,
+            m_proxyModel, &QmlConsoleProxyModel::setShowWarnings);
     m_showWarningButton->setDefaultAction(m_showWarningButtonAction);
 
     m_showErrorButton = new QToolButton(m_consoleWidget);
@@ -136,8 +138,7 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_showErrorButtonAction->setToolTip(tr("Show error messages."));
     m_showErrorButtonAction->setCheckable(true);
     m_showErrorButtonAction->setIcon(QIcon(QLatin1String(Core::Constants::ICON_ERROR)));
-    connect(m_showErrorButtonAction, SIGNAL(toggled(bool)), m_proxyModel,
-            SLOT(setShowErrors(bool)));
+    connect(m_showErrorButtonAction, &Utils::SavedAction::toggled, m_proxyModel, &QmlConsoleProxyModel::setShowErrors);
     m_showErrorButton->setDefaultAction(m_showErrorButtonAction);
 
     m_spacer = new QWidget(m_consoleWidget);

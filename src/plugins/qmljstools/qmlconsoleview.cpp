@@ -129,7 +129,7 @@ QmlConsoleView::QmlConsoleView(QWidget *parent) :
     horizontalScrollBar()->setSingleStep(20);
     verticalScrollBar()->setSingleStep(20);
 
-    connect(this, SIGNAL(activated(QModelIndex)), SLOT(onRowActivated(QModelIndex)));
+    connect(this, &QmlConsoleView::activated, this, &QmlConsoleView::onRowActivated);
 }
 
 void QmlConsoleView::onScrollToBottom()

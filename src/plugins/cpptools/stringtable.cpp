@@ -53,8 +53,7 @@ StringTable::StringTable()
     m_gcCountDown.setObjectName(QLatin1String("StringTable::m_gcCountDown"));
     m_gcCountDown.setSingleShot(true);
     m_gcCountDown.setInterval(GCTimeOut);
-    connect(&m_gcCountDown, SIGNAL(timeout()),
-            this, SLOT(startGC()));
+    connect(&m_gcCountDown, &QTimer::timeout, this, &StringTable::startGC);
 }
 
 QString StringTable::insert(const QString &string)

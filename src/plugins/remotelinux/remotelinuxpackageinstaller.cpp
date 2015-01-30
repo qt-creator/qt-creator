@@ -70,10 +70,14 @@ void AbstractRemoteLinuxPackageInstaller::installPackage(const IDevice::ConstPtr
     prepareInstallation();
     if (!d->installer)
         d->installer = new SshRemoteProcessRunner(this);
-    connect(d->installer, SIGNAL(connectionError()), SLOT(handleConnectionError()));
-    connect(d->installer, SIGNAL(readyReadStandardOutput()), SLOT(handleInstallerOutput()));
-    connect(d->installer, SIGNAL(readyReadStandardError()), SLOT(handleInstallerErrorOutput()));
-    connect(d->installer, SIGNAL(processClosed(int)), SLOT(handleInstallationFinished(int)));
+    connect(d->installer, &QSsh::SshRemoteProcessRunner::connectionError,
+            this, &AbstractRemoteLinuxPackageInstaller::handleConnectionError);
+    connect(d->installer, &QSsh::SshRemoteProcessRunner::readyReadStandardOutput,
+            this, &AbstractRemoteLinuxPackageInstaller::handleInstallerOutput);
+    connect(d->installer, &QSsh::SshRemoteProcessRunner::readyReadStandardError,
+            this, &AbstractRemoteLinuxPackageInstaller::handleInstallerErrorOutput);
+    connect(d->installer, &QSsh::SshRemoteProcessRunner::processClosed,
+            this, &AbstractRemoteLinuxPackageInstaller::handleInstallationFinished);
 
     QString cmdLine = installCommandLine(packageFilePath);
     if (removePackageFile)

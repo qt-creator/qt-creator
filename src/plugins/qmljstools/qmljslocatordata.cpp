@@ -46,10 +46,10 @@ LocatorData::LocatorData(QObject *parent)
 {
     QmlJS::ModelManagerInterface *manager = QmlJS::ModelManagerInterface::instance();
 
-    connect(manager, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
-            this, SLOT(onDocumentUpdated(QmlJS::Document::Ptr)));
-    connect(manager, SIGNAL(aboutToRemoveFiles(QStringList)),
-            this, SLOT(onAboutToRemoveFiles(QStringList)));
+    connect(manager, &QmlJS::ModelManagerInterface::documentUpdated,
+            this, &LocatorData::onDocumentUpdated);
+    connect(manager, &QmlJS::ModelManagerInterface::aboutToRemoveFiles,
+            this, &LocatorData::onAboutToRemoveFiles);
 }
 
 LocatorData::~LocatorData()

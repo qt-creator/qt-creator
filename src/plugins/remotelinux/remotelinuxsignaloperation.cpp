@@ -47,8 +47,10 @@ RemoteLinuxSignalOperation::RemoteLinuxSignalOperation(
 RemoteLinuxSignalOperation::~RemoteLinuxSignalOperation()
 {
     if (m_runner) {
-        connect(m_runner, SIGNAL(processClosed(int)), m_runner, SLOT(deleteLater()));
-        connect(m_runner, SIGNAL(connectionError()), m_runner, SLOT(deleteLater()));
+        connect(m_runner, &QSsh::SshRemoteProcessRunner::processClosed,
+                m_runner, &QSsh::SshRemoteProcessRunner::deleteLater);
+        connect(m_runner, &QSsh::SshRemoteProcessRunner::connectionError,
+                m_runner, &QSsh::SshRemoteProcessRunner::deleteLater);
     }
 }
 

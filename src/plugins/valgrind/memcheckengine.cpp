@@ -52,12 +52,12 @@ MemcheckRunControl::MemcheckRunControl(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration)
     : ValgrindRunControl(sp, runConfiguration)
 {
-    connect(&m_parser, SIGNAL(error(Valgrind::XmlProtocol::Error)),
-            SIGNAL(parserError(Valgrind::XmlProtocol::Error)));
-    connect(&m_parser, SIGNAL(suppressionCount(QString,qint64)),
-            SIGNAL(suppressionCount(QString,qint64)));
-    connect(&m_parser, SIGNAL(internalError(QString)),
-            SIGNAL(internalParserError(QString)));
+    connect(&m_parser, &XmlProtocol::ThreadedParser::error,
+            this, &MemcheckRunControl::parserError);
+    connect(&m_parser, &XmlProtocol::ThreadedParser::suppressionCount,
+            this, &MemcheckRunControl::suppressionCount);
+    connect(&m_parser, &XmlProtocol::ThreadedParser::internalError,
+            this, &MemcheckRunControl::internalParserError);
 }
 
 QString MemcheckRunControl::progressTitle() const

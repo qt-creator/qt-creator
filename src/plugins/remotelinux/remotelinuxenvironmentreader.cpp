@@ -58,8 +58,10 @@ void RemoteLinuxEnvironmentReader::start()
         return;
     m_stop = false;
     m_deviceProcess = device->createProcess(this);
-    connect(m_deviceProcess, SIGNAL(error(QProcess::ProcessError)), SLOT(handleError()));
-    connect(m_deviceProcess, SIGNAL(finished()), SLOT(remoteProcessFinished()));
+    connect(m_deviceProcess, &ProjectExplorer::DeviceProcess::error,
+            this, &RemoteLinuxEnvironmentReader::handleError);
+    connect(m_deviceProcess, &ProjectExplorer::DeviceProcess::finished,
+            this, &RemoteLinuxEnvironmentReader::remoteProcessFinished);
     m_deviceProcess->start(QLatin1String("env"));
 }
 

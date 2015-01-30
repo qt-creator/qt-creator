@@ -116,8 +116,10 @@ void AbstractUploadAndInstallPackageService::doDeploy()
     d->state = Uploading;
     const QString fileName = Utils::FileName::fromString(packageFilePath()).fileName();
     const QString remoteFilePath = uploadDir() + QLatin1Char('/') + fileName;
-    connect(d->uploader, SIGNAL(progress(QString)), SIGNAL(progressMessage(QString)));
-    connect(d->uploader, SIGNAL(uploadFinished(QString)), SLOT(handleUploadFinished(QString)));
+    connect(d->uploader, &PackageUploader::progress,
+            this, &AbstractUploadAndInstallPackageService::progressMessage);
+    connect(d->uploader, &PackageUploader::uploadFinished,
+            this, &AbstractUploadAndInstallPackageService::handleUploadFinished);
     d->uploader->uploadPackage(connection(), packageFilePath(), remoteFilePath);
 }
 

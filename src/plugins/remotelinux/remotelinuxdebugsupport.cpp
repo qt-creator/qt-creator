@@ -168,10 +168,13 @@ void LinuxDeviceDebugSupport::startExecution()
     d->gdbserverOutput.clear();
 
     DeviceApplicationRunner *runner = appRunner();
-    connect(runner, SIGNAL(remoteStderr(QByteArray)), SLOT(handleRemoteErrorOutput(QByteArray)));
-    connect(runner, SIGNAL(remoteStdout(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
+    connect(runner, &DeviceApplicationRunner::remoteStderr,
+            this, &LinuxDeviceDebugSupport::handleRemoteErrorOutput);
+    connect(runner, &DeviceApplicationRunner::remoteStdout,
+            this, &LinuxDeviceDebugSupport::handleRemoteOutput);
     if (d->qmlDebugging && !d->cppDebugging)
-        connect(runner, SIGNAL(remoteProcessStarted()), SLOT(handleRemoteProcessStarted()));
+        connect(runner, &DeviceApplicationRunner::remoteProcessStarted,
+                this, &LinuxDeviceDebugSupport::handleRemoteProcessStarted);
 
     QStringList args = arguments();
     QString command;
@@ -190,9 +193,12 @@ void LinuxDeviceDebugSupport::startExecution()
         args.append(QString::fromLatin1(":%1").arg(d->gdbServerPort));
     }
 
-    connect(runner, SIGNAL(finished(bool)), SLOT(handleAppRunnerFinished(bool)));
-    connect(runner, SIGNAL(reportProgress(QString)), SLOT(handleProgressReport(QString)));
-    connect(runner, SIGNAL(reportError(QString)), SLOT(handleAppRunnerError(QString)));
+    connect(runner, &DeviceApplicationRunner::finished,
+            this, &LinuxDeviceDebugSupport::handleAppRunnerFinished);
+    connect(runner, &DeviceApplicationRunner::reportProgress,
+            this, &LinuxDeviceDebugSupport::handleProgressReport);
+    connect(runner, &DeviceApplicationRunner::reportError,
+            this, &LinuxDeviceDebugSupport::handleAppRunnerError);
     runner->setEnvironment(environment());
     runner->setWorkingDirectory(workingDirectory());
     runner->start(device(), command, args);

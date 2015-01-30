@@ -48,9 +48,11 @@ CallgrindRunControl::CallgrindRunControl(const AnalyzerStartParameters &sp,
     : ValgrindRunControl(sp, runConfiguration)
     , m_markAsPaused(false)
 {
-    connect(&m_runner, SIGNAL(finished()), this, SLOT(slotFinished()));
+    connect(&m_runner, &Valgrind::Callgrind::CallgrindRunner::finished,
+            this, &CallgrindRunControl::slotFinished);
     connect(m_runner.parser(), SIGNAL(parserDataReady()), this, SLOT(slotFinished()));
-    connect(&m_runner, SIGNAL(statusMessage(QString)), SLOT(showStatusMessage(QString)));
+    connect(&m_runner, &Valgrind::Callgrind::CallgrindRunner::statusMessage,
+            this, &CallgrindRunControl::showStatusMessage);
 }
 
 void CallgrindRunControl::showStatusMessage(const QString &msg)

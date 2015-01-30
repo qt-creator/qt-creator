@@ -96,8 +96,8 @@ RemoteLinuxAnalyzeSupport::RemoteLinuxAnalyzeSupport(AbstractRemoteLinuxRunConfi
 {
     connect(d->runControl, SIGNAL(starting(const Analyzer::AnalyzerRunControl*)),
             SLOT(handleRemoteSetupRequested()));
-    connect(&d->outputParser, SIGNAL(waitingForConnectionOnPort(quint16)),
-            SLOT(remoteIsRunning()));
+    connect(&d->outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
+            this, &RemoteLinuxAnalyzeSupport::remoteIsRunning);
 }
 
 RemoteLinuxAnalyzeSupport::~RemoteLinuxAnalyzeSupport()
@@ -133,12 +133,18 @@ void RemoteLinuxAnalyzeSupport::startExecution()
     setState(StartingRunner);
 
     DeviceApplicationRunner *runner = appRunner();
-    connect(runner, SIGNAL(remoteStderr(QByteArray)), SLOT(handleRemoteErrorOutput(QByteArray)));
-    connect(runner, SIGNAL(remoteStdout(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
-    connect(runner, SIGNAL(remoteProcessStarted()), SLOT(handleRemoteProcessStarted()));
-    connect(runner, SIGNAL(finished(bool)), SLOT(handleAppRunnerFinished(bool)));
-    connect(runner, SIGNAL(reportProgress(QString)), SLOT(handleProgressReport(QString)));
-    connect(runner, SIGNAL(reportError(QString)), SLOT(handleAppRunnerError(QString)));
+    connect(runner, &DeviceApplicationRunner::remoteStderr,
+            this, &RemoteLinuxAnalyzeSupport::handleRemoteErrorOutput);
+    connect(runner, &DeviceApplicationRunner::remoteStdout,
+            this, &RemoteLinuxAnalyzeSupport::handleRemoteOutput);
+    connect(runner, &DeviceApplicationRunner::remoteProcessStarted,
+            this, &RemoteLinuxAnalyzeSupport::handleRemoteProcessStarted);
+    connect(runner, &DeviceApplicationRunner::finished,
+            this, &RemoteLinuxAnalyzeSupport::handleAppRunnerFinished);
+    connect(runner, &DeviceApplicationRunner::reportProgress,
+            this, &RemoteLinuxAnalyzeSupport::handleProgressReport);
+    connect(runner, &DeviceApplicationRunner::reportError,
+            this, &RemoteLinuxAnalyzeSupport::handleAppRunnerError);
 
     const QStringList args = arguments()
             << QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(d->qmlPort);

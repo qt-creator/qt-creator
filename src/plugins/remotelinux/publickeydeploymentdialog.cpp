@@ -75,9 +75,12 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const IDevice::ConstPtr &de
     d->done = false;
     setLabelText(tr("Deploying..."));
     setValue(0);
-    connect(this, SIGNAL(canceled()), SLOT(handleCanceled()));
-    connect(&d->keyDeployer, SIGNAL(error(QString)), SLOT(handleDeploymentError(QString)));
-    connect(&d->keyDeployer, SIGNAL(finishedSuccessfully()), SLOT(handleDeploymentSuccess()));
+    connect(this, &PublicKeyDeploymentDialog::canceled,
+            this, &PublicKeyDeploymentDialog::handleCanceled);
+    connect(&d->keyDeployer, &SshKeyDeployer::error,
+            this, &PublicKeyDeploymentDialog::handleDeploymentError);
+    connect(&d->keyDeployer, &SshKeyDeployer::finishedSuccessfully,
+            this, &PublicKeyDeploymentDialog::handleDeploymentSuccess);
     d->keyDeployer.deployPublicKey(deviceConfig->sshParameters(), publicKeyFileName);
 }
 

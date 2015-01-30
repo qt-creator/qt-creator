@@ -313,7 +313,8 @@ QWidget *QmlConsoleItemDelegate::createEditor(QWidget *parent,
 
 {
     QmlConsoleEdit *editor = new QmlConsoleEdit(index, parent);
-    connect(editor, SIGNAL(editingFinished()), this, SLOT(commitAndCloseEditor()));
+    connect(editor, &QmlConsoleEdit::editingFinished,
+            this, &QmlConsoleItemDelegate::commitAndCloseEditor);
     return editor;
 }
 

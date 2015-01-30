@@ -37,8 +37,8 @@ static const char settingsSuffixKey[] = "CodeStyleSettings";
 CppCodeStylePreferences::CppCodeStylePreferences(QObject *parent) :
     ICodeStylePreferences(parent)
 {
-    connect(this, SIGNAL(currentValueChanged(QVariant)),
-            this, SLOT(slotCurrentValueChanged(QVariant)));
+    connect(this, &CppCodeStylePreferences::currentValueChanged,
+            this, &CppCodeStylePreferences::slotCurrentValueChanged);
 }
 
 QVariant CppCodeStylePreferences::value() const

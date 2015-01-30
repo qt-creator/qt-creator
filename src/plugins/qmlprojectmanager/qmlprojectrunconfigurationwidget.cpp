@@ -71,13 +71,15 @@ QmlProjectRunConfigurationWidget::QmlProjectRunConfigurationWidget(QmlProjectRun
     m_fileListCombo = new QComboBox;
     m_fileListCombo->setModel(m_fileListModel);
 
-    connect(m_fileListCombo, SIGNAL(activated(int)), this, SLOT(setMainScript(int)));
+    connect(m_fileListCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+            this, &QmlProjectRunConfigurationWidget::setMainScript);
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(fileListChanged()),
             SLOT(updateFileComboBox()));
 
     QLineEdit *qmlViewerArgs = new QLineEdit;
     qmlViewerArgs->setText(rc->m_qmlViewerArgs);
-    connect(qmlViewerArgs, SIGNAL(textChanged(QString)), this, SLOT(onViewerArgsChanged()));
+    connect(qmlViewerArgs, &QLineEdit::textChanged,
+            this, &QmlProjectRunConfigurationWidget::onViewerArgsChanged);
 
     form->addRow(tr("Arguments:"), qmlViewerArgs);
     form->addRow(tr("Main QML file:"), m_fileListCombo);

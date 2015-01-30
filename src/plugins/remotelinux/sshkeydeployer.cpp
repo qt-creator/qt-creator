@@ -67,8 +67,10 @@ void SshKeyDeployer::deployPublicKey(const SshConnectionParameters &sshParams,
         return;
     }
 
-    connect(&d->deployProcess, SIGNAL(connectionError()), SLOT(handleConnectionFailure()));
-    connect(&d->deployProcess, SIGNAL(processClosed(int)), SLOT(handleKeyUploadFinished(int)));
+    connect(&d->deployProcess, &SshRemoteProcessRunner::connectionError,
+            this, &SshKeyDeployer::handleConnectionFailure);
+    connect(&d->deployProcess, &SshRemoteProcessRunner::processClosed,
+            this, &SshKeyDeployer::handleKeyUploadFinished);
     const QByteArray command = "test -d .ssh "
         "|| mkdir .ssh && chmod 0700 .ssh && echo '"
         + reader.data() + "' >> .ssh/authorized_keys && chmod 0600 .ssh/authorized_keys";

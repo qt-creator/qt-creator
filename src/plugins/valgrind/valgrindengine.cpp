@@ -79,8 +79,10 @@ bool ValgrindRunControl::startEngine()
 
     FutureProgress *fp = ProgressManager::addTimedTask(m_progress, progressTitle(), "valgrind", 100);
     fp->setKeepOnFinish(FutureProgress::HideOnFinish);
-    connect(fp, SIGNAL(canceled()), this, SLOT(handleProgressCanceled()));
-    connect(fp, SIGNAL(finished()), this, SLOT(handleProgressFinished()));
+    connect(fp, &FutureProgress::canceled,
+            this, &ValgrindRunControl::handleProgressCanceled);
+    connect(fp, &FutureProgress::finished,
+            this, &ValgrindRunControl::handleProgressFinished);
     m_progress.reportStarted();
 
     const AnalyzerStartParameters &sp = startParameters();
@@ -101,11 +103,12 @@ bool ValgrindRunControl::startEngine()
     run->setStartMode(sp.startMode);
     run->setLocalRunMode(sp.localRunMode);
 
-    connect(run, SIGNAL(processOutputReceived(QString,Utils::OutputFormat)),
-            SLOT(receiveProcessOutput(QString,Utils::OutputFormat)));
-    connect(run, SIGNAL(processErrorReceived(QString,QProcess::ProcessError)),
-            SLOT(receiveProcessError(QString,QProcess::ProcessError)));
-    connect(run, SIGNAL(finished()), SLOT(runnerFinished()));
+    connect(run, &ValgrindRunner::processOutputReceived,
+            this, &ValgrindRunControl::receiveProcessOutput);
+    connect(run, &ValgrindRunner::processErrorReceived,
+            this, &ValgrindRunControl::receiveProcessError);
+    connect(run, &ValgrindRunner::finished,
+            this, &ValgrindRunControl::runnerFinished);
 
     if (!run->start()) {
         m_progress.cancel();

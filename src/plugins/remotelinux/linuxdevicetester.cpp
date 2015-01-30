@@ -78,9 +78,10 @@ void GenericLinuxDeviceTester::testDevice(const IDevice::ConstPtr &deviceConfigu
 
     d->deviceConfiguration = deviceConfiguration;
     d->connection = new SshConnection(deviceConfiguration->sshParameters(), this);
-    connect(d->connection, SIGNAL(connected()), SLOT(handleConnected()));
-    connect(d->connection, SIGNAL(error(QSsh::SshError)),
-        SLOT(handleConnectionFailure()));
+    connect(d->connection, &SshConnection::connected,
+            this, &GenericLinuxDeviceTester::handleConnected);
+    connect(d->connection, &SshConnection::error,
+            this, &GenericLinuxDeviceTester::handleConnectionFailure);
 
     emit progressMessage(tr("Connecting to host..."));
     d->state = Connecting;
@@ -147,8 +148,10 @@ void GenericLinuxDeviceTester::handleProcessFinished(int exitStatus)
         emit progressMessage(QString::fromUtf8(d->process->readAllStandardOutput()));
     }
 
-    connect(&d->portsGatherer, SIGNAL(error(QString)), SLOT(handlePortsGatheringError(QString)));
-    connect(&d->portsGatherer, SIGNAL(portListReady()), SLOT(handlePortListReady()));
+    connect(&d->portsGatherer, &DeviceUsedPortsGatherer::error,
+            this, &GenericLinuxDeviceTester::handlePortsGatheringError);
+    connect(&d->portsGatherer, &DeviceUsedPortsGatherer::portListReady,
+            this, &GenericLinuxDeviceTester::handlePortListReady);
 
     emit progressMessage(tr("Checking if specified ports are available..."));
     d->state = TestingPorts;

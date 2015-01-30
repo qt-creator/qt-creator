@@ -188,7 +188,8 @@ void ValgrindPlugin::extensionsInitialized()
 
         QAction *action = new QAction(tr("Profile Costs of This Function and Its Callees"), this);
         action->setIcon(QIcon(QLatin1String(Analyzer::Constants::ANALYZER_CONTROL_START_ICON)));
-        connect(action, SIGNAL(triggered()), m_callgrindTool, SLOT(handleShowCostsOfFunction()));
+        connect(action, &QAction::triggered, m_callgrindTool,
+                &CallgrindTool::handleShowCostsOfFunction);
         Command *cmd = ActionManager::registerAction(action, "Analyzer.Callgrind.ShowCostsOfFunction",
             analyzerContext);
         editorContextMenu->addAction(cmd);

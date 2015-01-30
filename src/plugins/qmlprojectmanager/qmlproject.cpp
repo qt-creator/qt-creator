@@ -100,7 +100,7 @@ void QmlProject::addedTarget(ProjectExplorer::Target *target)
 void QmlProject::onActiveTargetChanged(ProjectExplorer::Target *target)
 {
     if (m_activeTarget)
-        disconnect(m_activeTarget, SIGNAL(kitChanged()), this, SLOT(onKitChanged()));
+        disconnect(m_activeTarget, &ProjectExplorer::Target::kitChanged, this, &QmlProject::onKitChanged);
     m_activeTarget = target;
     if (m_activeTarget)
         connect(target, SIGNAL(kitChanged()), this, SLOT(onKitChanged()));
@@ -397,11 +397,9 @@ bool QmlProject::fromMap(const QVariantMap &map)
     foreach (Target *t, targets())
         addedTarget(t);
 
-    connect(this, SIGNAL(addedTarget(ProjectExplorer::Target*)),
-            this, SLOT(addedTarget(ProjectExplorer::Target*)));
+    connect(this, &QmlProject::addedTarget, this, &QmlProject::addedTarget);
 
-    connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-            this, SLOT(onActiveTargetChanged(ProjectExplorer::Target*)));
+    connect(this, &QmlProject::activeTargetChanged, this, &QmlProject::onActiveTargetChanged);
 
     onActiveTargetChanged(activeTarget());
 

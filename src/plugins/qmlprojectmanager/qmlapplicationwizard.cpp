@@ -89,8 +89,8 @@ Core::BaseFileWizard *QmlApplicationWizard::create(QWidget *parent, const Wizard
 {
     QmlApplicationWizardDialog *wizardDialog = new QmlApplicationWizardDialog(parent, parameters);
 
-    connect(wizardDialog, SIGNAL(projectParametersChanged(QString,QString)), m_qmlApp,
-        SLOT(setProjectNameAndBaseDirectory(QString,QString)));
+    connect(wizardDialog, &QmlApplicationWizardDialog::projectParametersChanged,
+            m_qmlApp, &QmlApp::setProjectNameAndBaseDirectory);
 
     wizardDialog->setPath(parameters.defaultPath());
 

@@ -282,48 +282,48 @@ CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
 
     setVisualizeWhitespace(true);
 
-    connect(m_ui->tabSettingsWidget, SIGNAL(settingsChanged(TextEditor::TabSettings)),
-       this, SLOT(slotTabSettingsChanged(TextEditor::TabSettings)));
-    connect(m_ui->indentBlockBraces, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentBlockBody, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentClassBraces, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentNamespaceBraces, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentEnumBraces, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentNamespaceBody, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentSwitchLabels, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentCaseStatements, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentCaseBlocks, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentCaseBreak, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentAccessSpecifiers, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentDeclarationsRelativeToAccessSpecifiers, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentFunctionBody, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentFunctionBraces, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->extraPaddingConditions, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->alignAssignments, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->bindStarToIdentifier, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->bindStarToTypeName, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->bindStarToLeftSpecifier, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->bindStarToRightSpecifier, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
+    connect(m_ui->tabSettingsWidget, &TextEditor::TabSettingsWidget::settingsChanged,
+            this, &CppCodeStylePreferencesWidget::slotTabSettingsChanged);
+    connect(m_ui->indentBlockBraces, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentBlockBody, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentClassBraces, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentNamespaceBraces, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentEnumBraces, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentNamespaceBody, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentSwitchLabels, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentCaseStatements, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentCaseBlocks, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentCaseBreak, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentAccessSpecifiers, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentDeclarationsRelativeToAccessSpecifiers, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentFunctionBody, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentFunctionBraces, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->extraPaddingConditions, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->alignAssignments, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->bindStarToIdentifier, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->bindStarToTypeName, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->bindStarToLeftSpecifier, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->bindStarToRightSpecifier, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
 
     m_ui->categoryTab->setCurrentIndex(0);
 
@@ -340,8 +340,8 @@ void CppCodeStylePreferencesWidget::setCodeStyle(CppTools::CppCodeStylePreferenc
     // code preferences
     m_preferences = codeStylePreferences;
 
-    connect(m_preferences, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)),
-            this, SLOT(setTabSettings(TextEditor::TabSettings)));
+    connect(m_preferences, &CppCodeStylePreferences::currentTabSettingsChanged,
+            this, &CppCodeStylePreferencesWidget::setTabSettings);
     connect(m_preferences, SIGNAL(currentCodeStyleSettingsChanged(CppTools::CppCodeStyleSettings)),
             this, SLOT(setCodeStyleSettings(CppTools::CppCodeStyleSettings)));
     connect(m_preferences, SIGNAL(currentPreferencesChanged(TextEditor::ICodeStylePreferences*)),
