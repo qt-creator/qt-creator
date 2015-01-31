@@ -746,7 +746,7 @@ QString DocumentManager::getSaveAsFileName(const IDocument *document, const QStr
     }
 
     absoluteFilePath = getSaveFileName(tr("Save File As"),
-        path + QDir::separator() + fileName,
+        path + QLatin1Char('/') + fileName,
         filterString,
         selectedFilter);
     return absoluteFilePath;

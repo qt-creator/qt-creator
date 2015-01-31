@@ -106,7 +106,7 @@ public:
         if (componentName.isEmpty() || path.isEmpty())
             return;
 
-        const QString newFileName = path + QDir::separator() + componentName
+        const QString newFileName = path + QLatin1Char('/') + componentName
                 + QLatin1String(".qml");
 
         QString imports;

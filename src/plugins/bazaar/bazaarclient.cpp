@@ -140,7 +140,7 @@ bool BazaarClient::synchronousSetUserId()
 
 BranchInfo BazaarClient::synchronousBranchQuery(const QString &repositoryRoot) const
 {
-    QFile branchConfFile(repositoryRoot + QDir::separator() +
+    QFile branchConfFile(repositoryRoot + QLatin1Char('/') +
                          QLatin1String(Constants::BAZAARREPO) +
                          QLatin1String("/branch/branch.conf"));
     if (!branchConfFile.open(QIODevice::ReadOnly))

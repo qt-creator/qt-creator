@@ -674,8 +674,9 @@ bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
 {
     // Write out message
     QString tempFilePattern = QDir::tempPath();
-    if (!tempFilePattern.endsWith(QDir::separator()))
-        tempFilePattern += QDir::separator();
+    const QChar slash = QLatin1Char('/');
+    if (!tempFilePattern.endsWith(slash))
+        tempFilePattern += slash;
     tempFilePattern += QLatin1String("msgXXXXXX.txt");
     TempFileSaver saver(tempFilePattern);
     saver.write(fileContents());

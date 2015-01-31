@@ -284,10 +284,8 @@ void MercurialClient::incoming(const QString &repositoryRoot, const QString &rep
         args.append(repository);
 
     QString id = repositoryRoot;
-    if (!repository.isEmpty()) {
-        id += QDir::separator();
-        id += repository;
-    }
+    if (!repository.isEmpty())
+        id += QLatin1Char('/') + repository;
 
     const QString title = tr("Hg incoming %1").arg(id);
 

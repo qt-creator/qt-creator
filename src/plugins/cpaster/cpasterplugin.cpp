@@ -347,8 +347,9 @@ static inline QString tempFilePattern(const QString &prefix, const QString &exte
 {
     // Get directory
     QString pattern = QDir::tempPath();
-    if (!pattern.endsWith(QDir::separator()))
-        pattern.append(QDir::separator());
+    const QChar slash = QLatin1Char('/');
+    if (!pattern.endsWith(slash))
+        pattern.append(slash);
     // Prefix, placeholder, extension
     pattern += prefix;
     pattern += QLatin1String("_XXXXXX.");

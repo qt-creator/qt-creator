@@ -179,10 +179,8 @@ bool ProjectIntroPage::validate()
     }
 
     // Check existence of the directory
-    QString projectDir = path();
-    projectDir += QDir::separator();
-    projectDir += d->m_ui.nameLineEdit->text();
-    const QFileInfo projectDirFile(projectDir);
+    const QFileInfo projectDirFile(path() + QLatin1Char('/')
+                                   + QDir::fromNativeSeparators(d->m_ui.nameLineEdit->text()));
     if (!projectDirFile.exists()) { // All happy
         hideStatusLabel();
         return nameValid;

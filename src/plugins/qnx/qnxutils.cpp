@@ -100,7 +100,7 @@ QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironmentFromEnvFile(const QString 
 
     // locking creating bbndk-env file wrapper script
     QTemporaryFile tmpFile(
-            QDir::tempPath() + QDir::separator()
+            QDir::tempPath() + QLatin1Char('/')
             + QLatin1String("bbndk-env-eval-XXXXXX") + QLatin1String(isWindows ? ".bat" : ".sh"));
     if (!tmpFile.open())
         return items;

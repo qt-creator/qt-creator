@@ -962,8 +962,9 @@ PerforcePlugin::createTemporaryArgumentFile(const QStringList &extraArgs,
     QString pattern = m_instance->m_tempFilePattern;
     if (pattern.isEmpty()) {
         pattern = QDir::tempPath();
-        if (!pattern.endsWith(QDir::separator()))
-            pattern += QDir::separator();
+        const QChar slash = QLatin1Char('/');
+        if (!pattern.endsWith(slash))
+            pattern += slash;
         pattern += QLatin1String("qtc_p4_XXXXXX.args");
         m_instance->m_tempFilePattern = pattern;
     }

@@ -914,13 +914,10 @@ bool QmlJSCompletionAssistProcessor::completeFileName(const QString &relativeBas
 {
     const QFileInfo fileInfo(fileName);
     QString directoryPrefix;
-    if (fileInfo.isRelative()) {
-        directoryPrefix = relativeBasePath;
-        directoryPrefix += QDir::separator();
-        directoryPrefix += fileInfo.path();
-    } else {
+    if (fileInfo.isRelative())
+        directoryPrefix = relativeBasePath + QLatin1Char('/') + fileInfo.path();
+    else
         directoryPrefix = fileInfo.path();
-    }
     if (!QFileInfo::exists(directoryPrefix))
         return false;
 

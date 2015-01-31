@@ -204,7 +204,7 @@ QString ResourceFile::contents() const
             const File &file = *f;
             QDomElement felt = doc.createElement(QLatin1String("file"));
             relt.appendChild(felt);
-            const QString conv_file = relativePath(file.name).replace(QDir::separator(), QLatin1Char('/'));
+            const QString conv_file = QDir::fromNativeSeparators(relativePath(file.name));
             const QDomText text = doc.createTextNode(conv_file);
             felt.appendChild(text);
             if (!file.alias.isEmpty())
@@ -428,7 +428,7 @@ QString ResourceFile::absolutePath(const QString &rel_path) const
         return rel_path;
 
     QString rc = QFileInfo(m_file_name).path();
-    rc +=  QDir::separator();
+    rc +=  QLatin1Char('/');
     rc += rel_path;
     return QDir::cleanPath(rc);
 }
