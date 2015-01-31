@@ -39,6 +39,7 @@ class QWidget;
 QT_END_NAMESPACE
 
 namespace Utils {
+class FileName;
 
 enum ReloadPromptAnswer {
     ReloadCurrent,
@@ -48,7 +49,7 @@ enum ReloadPromptAnswer {
     CloseCurrent
 };
 
-QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &fileName,
+QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const FileName &fileName,
                                                        bool modified,
                                                        QWidget *parent);
 QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &title,

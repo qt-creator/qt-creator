@@ -38,7 +38,7 @@
 
 namespace Utils {
 
-QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &fileName,
+QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const FileName &fileName,
                                                        bool modified,
                                                        QWidget *parent)
 {
@@ -54,8 +54,8 @@ QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &fileName,
         msg = QCoreApplication::translate("Utils::reloadPrompt",
                 "The file <i>%1</i> has changed outside Qt Creator. Do you want to reload it?");
     }
-    msg = msg.arg(FileName::fromString(fileName).fileName());
-    return reloadPrompt(title, msg, QDir::toNativeSeparators(fileName), parent);
+    msg = msg.arg(fileName.fileName());
+    return reloadPrompt(title, msg, fileName.toUserOutput(), parent);
 }
 
 QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &title,
