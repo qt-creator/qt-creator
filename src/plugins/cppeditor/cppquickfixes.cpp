@@ -60,8 +60,11 @@
 #include <utils/qtcassert.h>
 
 #include <QApplication>
+#include <QComboBox>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QFileInfo>
+#include <QFormLayout>
 #include <QInputDialog>
 #include <QSharedPointer>
 #include <QStack>
@@ -3139,6 +3142,21 @@ void GenerateGetterSetter::match(const CppQuickFixInterface &interface,
 
 namespace {
 
+class ExtractFunctionOptions
+{
+public:
+    ExtractFunctionOptions() : access(InsertionPointLocator::Public)
+    {}
+
+    bool hasValidFunctionName() const
+    {
+        return !funcName.isEmpty() && isValidIdentifier(funcName);
+    }
+
+    QString funcName;
+    InsertionPointLocator::AccessSpec access;
+};
+
 class ExtractFunctionOperation : public CppQuickFixOperation
 {
 public:
@@ -3167,9 +3185,15 @@ public:
         CppRefactoringChanges refactoring(snapshot());
         CppRefactoringFilePtr currentFile = refactoring.file(fileName());
 
-        const QString &funcName = m_functionNameGetter ? m_functionNameGetter() : getFunctionName();
-        if (funcName.isEmpty())
+        ExtractFunctionOptions options;
+        if (m_functionNameGetter)
+            options.funcName = m_functionNameGetter();
+        else
+            options = getOptions();
+
+        if (!options.hasValidFunctionName())
             return;
+        const QString &funcName = options.funcName;
 
         Function *refFunc = m_refFuncDef->symbol;
 
@@ -3290,43 +3314,71 @@ public:
             InsertionPointLocator locator(refactoring);
             const QString fileName = QLatin1String(matchingClass->fileName());
             const InsertionLocation &location =
-                    locator.methodDeclarationInClass(fileName, matchingClass,
-                                                     InsertionPointLocator::Public);
+                    locator.methodDeclarationInClass(fileName, matchingClass, options.access);
             CppRefactoringFilePtr declFile = refactoring.file(fileName);
             change.clear();
             position = declFile->position(location.line(), location.column());
-            change.insert(position, funcDecl);
+            change.insert(position, location.prefix() + funcDecl + location.suffix());
             declFile->setChangeSet(change);
             declFile->appendIndentRange(ChangeSet::Range(position, position + 1));
             declFile->apply();
         }
     }
 
-    QString getFunctionName() const
+    ExtractFunctionOptions getOptions() const
     {
-        bool ok;
-        QString name =
-                QInputDialog::getText(0,
-                                      QCoreApplication::translate("QuickFix::ExtractFunction",
-                                                                  "Extract Function Refactoring"),
-                                      QCoreApplication::translate("QuickFix::ExtractFunction",
-                                                                  "Enter function name"),
-                                      QLineEdit::Normal,
-                                      QString(),
-                                      &ok);
-        name = name.trimmed();
-        if (!ok || name.isEmpty())
-            return QString();
+        QDialog dlg;
+        dlg.setWindowTitle(QCoreApplication::translate("QuickFix::ExtractFunction",
+                                                       "Extract Function Refactoring"));
+        auto layout = new QFormLayout(&dlg);
 
-        if (!isValidIdentifier(name)) {
-            Core::AsynchronousMessageBox::critical(QCoreApplication::translate("QuickFix::ExtractFunction",
-                                                                               "Extract Function Refactoring"),
-                                                   QCoreApplication::translate("QuickFix::ExtractFunction",
-                                                              "Invalid function name"));
-            return QString();
+        auto funcNameEdit = new QLineEdit;
+        layout->addRow(QCoreApplication::translate("QuickFix::ExtractFunction",
+                                                   "Function name"), funcNameEdit);
+
+        auto accessCombo = new QComboBox;
+        accessCombo->addItem(
+                    InsertionPointLocator::accessSpecToString(InsertionPointLocator::Public),
+                    InsertionPointLocator::Public);
+        accessCombo->addItem(
+                    InsertionPointLocator::accessSpecToString(InsertionPointLocator::PublicSlot),
+                    InsertionPointLocator::PublicSlot);
+        accessCombo->addItem(
+                    InsertionPointLocator::accessSpecToString(InsertionPointLocator::Protected),
+                    InsertionPointLocator::Protected);
+        accessCombo->addItem(
+                    InsertionPointLocator::accessSpecToString(InsertionPointLocator::ProtectedSlot),
+                    InsertionPointLocator::ProtectedSlot);
+        accessCombo->addItem(
+                    InsertionPointLocator::accessSpecToString(InsertionPointLocator::Private),
+                    InsertionPointLocator::Private);
+        accessCombo->addItem(
+                    InsertionPointLocator::accessSpecToString(InsertionPointLocator::PrivateSlot),
+                    InsertionPointLocator::PrivateSlot);
+        layout->addRow(QCoreApplication::translate("QuickFix::ExtractFunction",
+                                                   "Access"), accessCombo);
+
+        auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        QObject::connect(buttonBox, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
+        QObject::connect(buttonBox, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
+        layout->addWidget(buttonBox);
+
+        if (dlg.exec() == QDialog::Accepted) {
+            ExtractFunctionOptions options;
+            options.funcName = funcNameEdit->text().trimmed();
+            options.access = static_cast<InsertionPointLocator::AccessSpec>(accessCombo->
+                                                                           currentData().toInt());
+            if (!options.hasValidFunctionName()) {
+                Core::AsynchronousMessageBox::critical(
+                            QCoreApplication::translate("QuickFix::ExtractFunction",
+                                                        "Extract Function Refactoring"),
+                            QCoreApplication::translate("QuickFix::ExtractFunction",
+                                                        "Invalid function name"));
+                return ExtractFunctionOptions();
+            }
+            return options;
         }
-
-        return name;
+        return ExtractFunctionOptions();
     }
 
     int m_extractionStart;

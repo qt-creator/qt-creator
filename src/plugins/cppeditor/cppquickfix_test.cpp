@@ -4454,6 +4454,32 @@ void CppEditorPlugin::test_quickfix_ExtractFunction_data()
              "{\n"
              "    extracted();\n"
              "}\n");
+
+    QTest::newRow("class function")
+        << _("class Foo\n"
+             "{\n"
+             "private:\n"
+             "    void bar();\n"
+             "};\n\n"
+             "void Foo::bar()\n"
+             "{\n"
+             "    @{start}g();@{end}\n"
+             "}\n")
+        << _("class Foo\n"
+             "{\n"
+             "public:\n"
+             "    void extracted();\n\n"
+             "private:\n"
+             "    void bar();\n"
+             "};\n\n"
+             "void Foo::extracted()\n"
+             "{\n"
+             "    g();\n"
+             "}\n\n"
+             "void Foo::bar()\n"
+             "{\n"
+             "    extracted();\n"
+             "}\n");
 }
 
 void CppEditorPlugin::test_quickfix_ExtractFunction()
