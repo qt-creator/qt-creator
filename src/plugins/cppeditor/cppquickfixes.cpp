@@ -297,6 +297,23 @@ bool nameIncludesOperatorName(const Name *name)
         || (name->isQualifiedNameId() && name->asQualifiedNameId()->name()->isOperatorNameId());
 }
 
+QString memberBaseName(const QString &name)
+{
+    QString baseName = name;
+    if (baseName.startsWith(QLatin1Char('_'))) {
+        baseName.remove(0, 1);
+    } else if (baseName.endsWith(QLatin1Char('_'))) {
+        baseName.chop(1);
+    } else if (baseName.startsWith(QLatin1String("m_"))) {
+        baseName.remove(0, 2);
+    } else if (baseName.startsWith(QLatin1Char('m')) && baseName.length() > 1
+               && baseName.at(1).isUpper()) {
+        baseName.remove(0, 1);
+        baseName[0] = baseName.at(0).toLower();
+    }
+    return baseName;
+}
+
 } // anonymous namespace
 
 namespace {
@@ -2786,19 +2803,7 @@ public:
         }
         m_variableString = QString::fromUtf8(variableId->chars(), variableId->size());
 
-        m_baseName = m_variableString;
-        if (m_baseName.startsWith(QLatin1Char('_'))) {
-            m_baseName.remove(0, 1);
-        } else if (m_baseName.endsWith(QLatin1Char('_'))) {
-            m_baseName.chop(1);
-        } else if (m_baseName.startsWith(QLatin1String("m_"))) {
-            m_baseName.remove(0, 2);
-        } else if (m_baseName.startsWith(QLatin1Char('m')) && m_baseName.length() > 1
-                   && m_baseName.at(1).isUpper()) {
-            m_baseName.remove(0, 1);
-            m_baseName[0] = m_baseName.at(0).toLower();
-        }
-
+        m_baseName = memberBaseName(m_variableString);
         m_getterName = m_baseName != m_variableString
             ? m_baseName
             : QString::fromLatin1("get%1%2")
@@ -4233,6 +4238,9 @@ public:
 
         const QString typeName = file->textOf(m_declaration->type_id);
         const QString propertyName = file->textOf(m_declaration->property_name);
+        QString baseName = memberBaseName(m_storageName);
+        if (baseName.isEmpty() || baseName == m_storageName)
+            baseName = QStringLiteral("arg");
 
         // getter declaration
         if (m_generateFlags & GenerateGetter) {
@@ -4247,12 +4255,13 @@ public:
         if (m_generateFlags & GenerateSetter) {
             QString setterDeclaration;
             QTextStream setter(&setterDeclaration);
-            setter << "void " << m_setterName << '(' << typeName << " arg)\n{\n";
+            setter << "void " << m_setterName << '(' << typeName << ' ' << baseName << ")\n{\n";
             if (m_signalName.isEmpty()) {
-                setter << m_storageName <<  " = arg;\n}\n";
+                setter << m_storageName <<  " = " << baseName << ";\n}\n";
             } else {
-                setter << "if (" << m_storageName << " == arg)\nreturn;\n\n"
-                       << m_storageName << " = arg;\nemit " << m_signalName << "(arg);\n}\n";
+                setter << "if (" << m_storageName << " == " << baseName << ")\nreturn;\n\n"
+                       << m_storageName << " = " << baseName << ";\nemit " << m_signalName
+                       << '(' << baseName << ");\n}\n";
             }
             InsertionLocation setterLoc = locator.methodDeclarationInClass(file->fileName(), m_class, InsertionPointLocator::PublicSlot);
             QTC_ASSERT(setterLoc.isValid(), return);
@@ -4262,7 +4271,8 @@ public:
         // signal declaration
         if (m_generateFlags & GenerateSignal) {
             const QString declaration = QLatin1String("void ") + m_signalName + QLatin1Char('(')
-                                        + typeName + QLatin1String(" arg);\n");
+                                        + typeName + QLatin1Char(' ') + baseName
+                                        + QLatin1String(");\n");
             InsertionLocation loc = locator.methodDeclarationInClass(file->fileName(), m_class, InsertionPointLocator::Signals);
             QTC_ASSERT(loc.isValid(), return);
             insertAndIndent(file, &declarations, loc, declaration);
