@@ -113,7 +113,7 @@ QString ErrorListModel::Private::formatAbsoluteFilePath(const Error &error) cons
 {
     const Frame f = findRelevantFrame(error);
     if (!f.directory().isEmpty() && !f.file().isEmpty())
-        return QString(f.directory() + QDir::separator() + f.file());
+        return f.directory() + QLatin1Char('/') + f.file();
     return QString();
 }
 

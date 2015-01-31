@@ -200,7 +200,7 @@ void CallgrindController::getLocalDataFile()
             arg(m_valgrindProc->pid());
     const QString workingDir = m_valgrindProc->workingDirectory();
     // first, set the to-be-parsed file to callgrind.out.PID
-    QString fileName = workingDir.isEmpty() ? baseFileName : (workingDir + QDir::separator() + baseFileName);
+    QString fileName = workingDir.isEmpty() ? baseFileName : (workingDir + QLatin1Char('/') + baseFileName);
 
     if (!m_valgrindProc->isLocal()) {
         ///TODO: error handling
@@ -217,7 +217,7 @@ void CallgrindController::getLocalDataFile()
         QStringList outputFiles = dir.entryList();
         // if there are files like callgrind.out.PID.NUM, set it to the most recent one of those
         if (!outputFiles.isEmpty())
-            fileName = workingDir + QDir::separator() + dir.entryList().first();
+            fileName = workingDir + QLatin1Char('/') + dir.entryList().first();
 
         emit localParseDataAvailable(fileName);
     }
@@ -237,7 +237,7 @@ void CallgrindController::foundRemoteFile()
 void CallgrindController::sftpInitialized()
 {
     cleanupTempFile();
-    QTemporaryFile dataFile(QDir::tempPath() + QDir::separator() + QLatin1String("callgrind.out."));
+    QTemporaryFile dataFile(QDir::tempPath() + QLatin1Char('/') + QLatin1String("callgrind.out."));
     QTC_ASSERT(dataFile.open(), return);
     m_tempDataFile = dataFile.fileName();
     dataFile.setAutoRemove(false);

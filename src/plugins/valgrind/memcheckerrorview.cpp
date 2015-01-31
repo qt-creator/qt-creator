@@ -92,7 +92,7 @@ static QString makeFrameName(const Frame &frame, const QString &relativeTo,
     const QString d = frame.directory();
     const QString f = frame.file();
     const QString fn = frame.functionName();
-    const QString fullPath = d + QDir::separator() + f;
+    const QString fullPath = d + QLatin1Char('/') + f;
 
     QString path;
     if (!d.isEmpty() && !f.isEmpty())
@@ -109,12 +109,12 @@ static QString makeFrameName(const Frame &frame, const QString &relativeTo,
     if (frame.line() != -1)
         path += QLatin1Char(':') + QString::number(frame.line());
 
-    path = path.toHtmlEscaped();
+    path = QDir::toNativeSeparators(path.toHtmlEscaped());
 
     if (link && !f.isEmpty() && QFile::exists(fullPath)) {
         // make a hyperlink label
         path = QString::fromLatin1("<a href=\"file://%1:%2\" %4>%3</a>")
-                    .arg(fullPath, QString::number(frame.line()), path, linkAttr);
+                .arg(fullPath).arg(frame.line()).arg(path).arg(linkAttr);
     }
 
     if (!fn.isEmpty())
@@ -130,8 +130,9 @@ static QString relativeToPath()
     const ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
 
     QString relativeTo(project ? project->projectDirectory().toString() : QDir::homePath());
-    if (!relativeTo.endsWith(QDir::separator()))
-        relativeTo.append(QDir::separator());
+    const QChar slash = QLatin1Char('/');
+    if (!relativeTo.endsWith(slash))
+        relativeTo.append(slash);
 
     return relativeTo;
 }

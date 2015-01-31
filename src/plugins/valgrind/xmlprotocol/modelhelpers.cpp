@@ -44,7 +44,7 @@ QString toolTipForFrame(const Frame &frame)
 {
     QString location;
     if (!frame.file().isEmpty()) {
-        location = frame.directory() + QDir::separator() + frame.file();
+        location = frame.directory() + QLatin1Char('/') + frame.file();
         if (frame.line() > 0)
             location += QLatin1Char(':') + QString::number(frame.line());
     }

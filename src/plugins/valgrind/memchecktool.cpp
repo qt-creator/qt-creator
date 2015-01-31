@@ -455,7 +455,7 @@ void MemcheckTool::engineStarting(const AnalyzerRunControl *engine)
 
     QString dir;
     if (RunConfiguration *rc = engine->runConfiguration())
-        dir = rc->target()->project()->projectDirectory().toString() + QDir::separator();
+        dir = rc->target()->project()->projectDirectory().toString() + QLatin1Char('/');
 
     const MemcheckRunControl *mEngine = dynamic_cast<const MemcheckRunControl *>(engine);
     QTC_ASSERT(mEngine, return);

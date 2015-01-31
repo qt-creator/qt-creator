@@ -58,7 +58,7 @@ bool on64bit()
 
 QString srcDirForApp(const QString &app)
 {
-    return appSrcDir + QDir::separator() + app;
+    return appSrcDir + QLatin1Char('/') + app;
 }
 
 QTEST_MAIN(Valgrind::TestRunner)
@@ -79,7 +79,7 @@ TestRunner::TestRunner(QObject *parent)
 
 QString TestRunner::runTestBinary(const QString &binary, const QStringList &vArgs)
 {
-    const QString binPath = appBinDir + QDir::separator() + binary;
+    const QString binPath = appBinDir + QLatin1Char('/') + binary;
     if (!QFileInfo(binPath).isExecutable())
         qFatal("No such test app: %s", qPrintable(binPath));
     m_runner->setValgrindArguments(QStringList() << "--num-callers=50" << "--track-origins=yes" << vArgs);
@@ -263,7 +263,7 @@ void TestRunner::testLeak3()
 void TestRunner::testLeak4()
 {
     const QString app("leak4");
-    const QString binary = runTestBinary(app + QDir::separator() + app,
+    const QString binary = runTestBinary(app + QLatin1Char('/') + app,
                                          QStringList() << "--show-reachable=yes");
     const QString srcDir = srcDirForApp("leak4");
 
@@ -341,7 +341,7 @@ void TestRunner::testLeak4()
 void TestRunner::uninit1()
 {
     const QString app("uninit1");
-    const QString binary = runTestBinary(app + QDir::separator() + app);
+    const QString binary = runTestBinary(app + QLatin1Char('/') + app);
     const QString srcDir = srcDirForApp(app);
 
     QVERIFY(m_logMessages.isEmpty());
@@ -384,7 +384,7 @@ void TestRunner::uninit2()
 {
     const QString app("uninit2");
     m_expectCrash = true;
-    const QString binary = runTestBinary(app + QDir::separator() + app);
+    const QString binary = runTestBinary(app + QLatin1Char('/') + app);
     const QString srcDir = srcDirForApp(app);
 
     QVERIFY(m_logMessages.isEmpty());
@@ -448,7 +448,7 @@ void TestRunner::uninit3()
 {
     const QString app("uninit3");
     m_expectCrash = true;
-    const QString binary = runTestBinary(app + QDir::separator() + app);
+    const QString binary = runTestBinary(app + QLatin1Char('/') + app);
     const QString srcDir = srcDirForApp(app);
 
     QVERIFY(m_logMessages.isEmpty());
@@ -511,7 +511,7 @@ void TestRunner::uninit3()
 void TestRunner::syscall()
 {
     const QString app("syscall");
-    const QString binary = runTestBinary(app + QDir::separator() + app);
+    const QString binary = runTestBinary(app + QLatin1Char('/') + app);
     const QString srcDir = srcDirForApp(app);
 
     QVERIFY(m_logMessages.isEmpty());
@@ -570,7 +570,7 @@ void TestRunner::syscall()
 void TestRunner::free1()
 {
     const QString app("free1");
-    const QString binary = runTestBinary(app + QDir::separator() + app);
+    const QString binary = runTestBinary(app + QLatin1Char('/') + app);
     const QString srcDir = srcDirForApp(app);
 
     QVERIFY(m_logMessages.isEmpty());
@@ -624,7 +624,7 @@ void TestRunner::free1()
 void TestRunner::free2()
 {
     const QString app("free2");
-    const QString binary = runTestBinary(app + QDir::separator() + app);
+    const QString binary = runTestBinary(app + QLatin1Char('/') + app);
     const QString srcDir = srcDirForApp(app);
 
     QVERIFY(m_logMessages.isEmpty());
@@ -683,7 +683,7 @@ void TestRunner::invalidjump()
 {
     const QString app("invalidjump");
     m_expectCrash = true;
-    const QString binary = runTestBinary(app + QDir::separator() + app);
+    const QString binary = runTestBinary(app + QLatin1Char('/') + app);
     const QString srcDir = srcDirForApp(app);
 
     QVERIFY(m_logMessages.isEmpty());
@@ -711,7 +711,7 @@ void TestRunner::overlap()
 {
     const QString app("overlap");
     m_expectCrash = true;
-    const QString binary = runTestBinary(app + QDir::separator() + app);
+    const QString binary = runTestBinary(app + QLatin1Char('/') + app);
     const QString srcDir = srcDirForApp(app);
 
     QVERIFY(m_logMessages.isEmpty());

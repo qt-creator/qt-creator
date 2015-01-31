@@ -65,8 +65,8 @@ static QString makeName(const Frame &frame)
     if (!fn.isEmpty())
         return fn;
     if (!d.isEmpty() && !f.isEmpty())
-        return frame.line() > 0 ? QString::fromLatin1("%1%2%3:%4").arg(d, QDir::separator(), f, QString::number(frame.line()))
-                                : QString::fromLatin1("%1%2%3").arg(d, QDir::separator(), f);
+        return frame.line() > 0 ? QString::fromLatin1("%1/%2:%3").arg(d, f).arg(frame.line())
+                                : QString::fromLatin1("%1/%2").arg(d, f);
     return frame.object();
 }
 
