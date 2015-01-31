@@ -220,9 +220,7 @@ bool GuiAppWizard::parametrizeTemplate(const QString &templatePath, const QStrin
                                        const GuiAppParameters &params,
                                        QString *target, QString *errorMessage)
 {
-    QString fileName = templatePath;
-    fileName += QDir::separator();
-    fileName += templateName;
+    const QString fileName = templatePath + QLatin1Char('/') + templateName;
     Utils::FileReader reader;
     if (!reader.fetch(fileName, QIODevice::Text, errorMessage))
         return false;

@@ -50,7 +50,7 @@ QString QtProjectParameters::projectPath() const
 {
     QString rc = path;
     if (!rc.isEmpty())
-        rc += QDir::separator();
+        rc += QLatin1Char('/');
     rc += fileName;
     return rc;
 }

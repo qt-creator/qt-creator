@@ -454,8 +454,9 @@ QString BaseFileWizardFactory::buildFileName(const QString &path,
                                       const QString &extension)
 {
     QString rc = path;
-    if (!rc.isEmpty() && !rc.endsWith(QDir::separator()))
-        rc += QDir::separator();
+    const QChar slash = QLatin1Char('/');
+    if (!rc.isEmpty() && !rc.endsWith(slash))
+        rc += slash;
     rc += baseName;
     // Add extension unless user specified something else
     const QChar dot = QLatin1Char('.');
