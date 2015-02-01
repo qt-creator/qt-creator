@@ -33,6 +33,8 @@
 
 #include <coreplugin/inavigationwidgetfactory.h>
 
+#include <utils/fileutils.h>
+
 #include <QWidget>
 #include <QModelIndex>
 #include <QSet>
@@ -65,7 +67,7 @@ public:
     Node *currentNode();
     void sync(ProjectExplorer::Node *node);
 
-    static Node *nodeForFile(const QString &fileName);
+    static Node *nodeForFile(const Utils::FileName &fileName);
 
 public slots:
     void toggleAutoSynchronization();
@@ -93,7 +95,7 @@ private:
     void recursiveSaveExpandData(const QModelIndex &index, QStringList *data);
     static int expandedCount(Node *node);
     void rowsInserted(const QModelIndex &parent, int start, int end);
-    void renamed(const QString &oldPath, const QString &newPath);
+    void renamed(const Utils::FileName &oldPath, const Utils::FileName &newPath);
 
     QSet<QString> m_toExpand;
     QTreeView *m_view;
@@ -106,7 +108,7 @@ private:
     QString m_modelId;
     bool m_autoSync;
     bool m_autoExpand;
-    QString m_delayedRename;
+    Utils::FileName m_delayedRename;
 
     static QList<ProjectTreeWidget *> m_projectTreeWidgets;
     friend class ProjectTreeWidgetFactory;

@@ -56,10 +56,10 @@ class QMLPROJECTMANAGER_EXPORT QmlProject : public ProjectExplorer::Project
     Q_OBJECT
 
 public:
-    QmlProject(Internal::Manager *manager, const QString &filename);
+    QmlProject(Internal::Manager *manager, const Utils::FileName &filename);
     virtual ~QmlProject();
 
-    QString filesFileName() const;
+    Utils::FileName filesFileName() const;
 
     QString displayName() const;
     Core::IDocument *document() const;
@@ -111,7 +111,7 @@ private:
     QmlJS::ModelManagerInterface *modelManager() const;
 
     Internal::Manager *m_manager;
-    QString m_fileName;
+    Utils::FileName m_fileName;
     Internal::QmlProjectFile *m_file;
     QString m_projectName;
     QmlImport m_defaultImport;

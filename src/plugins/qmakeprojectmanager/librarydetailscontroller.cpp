@@ -85,7 +85,7 @@ LibraryDetailsController::LibraryDetailsController(
 
     if (!Utils::HostOsInfo::isLinuxHost()) {
         // project for which we are going to insert the snippet
-        const Project *project = SessionManager::projectForFile(proFile);
+        const Project *project = SessionManager::projectForFile(Utils::FileName::fromString(proFile));
         if (project && project->activeTarget()) {
             // if its tool chain is maemo behave the same as we would be on linux
             ProjectExplorer::ToolChain *tc = ToolChainKitInformation::toolChain(project->activeTarget()->kit());
@@ -884,7 +884,7 @@ QString PackageLibraryDetailsController::snippet() const
 
 bool PackageLibraryDetailsController::isLinkPackageGenerated() const
 {
-    const Project *project = SessionManager::projectForFile(proFile());
+    const Project *project = SessionManager::projectForFile(Utils::FileName::fromString(proFile()));
     if (!project)
         return false;
 
@@ -892,7 +892,8 @@ bool PackageLibraryDetailsController::isLinkPackageGenerated() const
     if (!rootProject)
         return false;
 
-    const QmakeProFileNode *currentProject = rootProject->findProFileFor(proFile());
+    const QmakeProFileNode *currentProject =
+            rootProject->findProFileFor(Utils::FileName::fromString(proFile()));
     if (!currentProject)
         return false;
 
@@ -1013,13 +1014,11 @@ AddLibraryWizard::MacLibraryType InternalLibraryDetailsController::suggestedMacL
 QString InternalLibraryDetailsController::suggestedIncludePath() const
 {
     const int currentIndex = libraryDetailsWidget()->libraryComboBox->currentIndex();
-    QString includePath;
     if (currentIndex >= 0) {
         QmakeProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
-        QFileInfo fi(proFileNode->path());
-        includePath = fi.absolutePath();
+        return proFileNode->path().toFileInfo().absolutePath();
     }
-    return includePath;
+    return QString();
 }
 
 void InternalLibraryDetailsController::updateWindowsOptionsEnablement()
@@ -1036,20 +1035,19 @@ void InternalLibraryDetailsController::updateProFile()
     m_proFileNodes.clear();
     libraryDetailsWidget()->libraryComboBox->clear();
 
-    const Project *project = SessionManager::projectForFile(proFile());
+    const Project *project = SessionManager::projectForFile(Utils::FileName::fromString(proFile()));
     if (!project)
         return;
 
     setIgnoreGuiSignals(true);
 
     ProjectExplorer::ProjectNode *rootProject = project->rootProjectNode();
-    QFileInfo fi(rootProject->path());
-    m_rootProjectPath = fi.absolutePath();
+    m_rootProjectPath = rootProject->path().toFileInfo().absolutePath();
     QDir rootDir(m_rootProjectPath);
     FindQmakeProFiles findQt4ProFiles;
     QList<QmakeProFileNode *> proFiles = findQt4ProFiles(rootProject);
     foreach (QmakeProFileNode *proFileNode, proFiles) {
-        const QString proFilePath = proFileNode->path();
+        const QString proFilePath = proFileNode->path().toString();
         if (proFileNode->projectType() == LibraryTemplate) {
             const QStringList configVar = proFileNode->variableValue(ConfigVar);
             if (!configVar.contains(QLatin1String("plugin"))) {
@@ -1119,7 +1117,7 @@ QString InternalLibraryDetailsController::snippet() const
     const QString proRelavitePath = rootDir.relativeFilePath(proFile());
 
     // project for which we insert the snippet
-    const Project *project = SessionManager::projectForFile(proFile());
+    const Project *project = SessionManager::projectForFile(Utils::FileName::fromString(proFile()));
 
     // the build directory of the active build configuration
     QDir rootBuildDir = rootDir; // If the project is unconfigured use the project dir

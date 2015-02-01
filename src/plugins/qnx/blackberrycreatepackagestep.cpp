@@ -254,7 +254,7 @@ bool BlackBerryCreatePackageStep::init()
             return false;
         }
 
-        const QString buildDir = QFileInfo(info.packagePath()).absolutePath();
+        const QString buildDir = info.packagePath().toFileInfo().absolutePath();
         QDir dir(buildDir);
         if (!dir.exists()) {
             if (!dir.mkpath(buildDir)) {
@@ -263,7 +263,7 @@ bool BlackBerryCreatePackageStep::init()
             }
         }
 
-        const QString appDescriptorPath =  info.appDescriptorPath();
+        const Utils::FileName appDescriptorPath =  info.appDescriptorPath();
         if (!doUpdateAppDescriptorFile(appDescriptorPath, PlaceHolders))
             // If there is an error, prepareAppDescriptorFile() will raise it
             return false;
@@ -295,8 +295,8 @@ bool BlackBerryCreatePackageStep::init()
             args << QLatin1String("-storepass");
             args << m_keystorePassword;
         }
-        args << QLatin1String("-package") << QnxUtils::addQuotes(QDir::toNativeSeparators(info.packagePath()));
-        args << QnxUtils::addQuotes(QDir::toNativeSeparators(appDescriptorPath));
+        args << QLatin1String("-package") << QnxUtils::addQuotes(info.packagePath().toUserOutput());
+        args << QnxUtils::addQuotes(appDescriptorPath.toUserOutput());
 
         addCommand(packageCmd.toString(), args);
     }
@@ -428,16 +428,16 @@ void BlackBerryCreatePackageStep::updateAppDescriptorFile()
         doUpdateAppDescriptorFile(info.appDescriptorPath(), QtEnvironment);
 }
 
-bool BlackBerryCreatePackageStep::doUpdateAppDescriptorFile(const QString &appDescriptorPath,
+bool BlackBerryCreatePackageStep::doUpdateAppDescriptorFile(const Utils::FileName &appDescriptorPath,
                                                             QFlags<EditMode> types,
                                                             bool skipConfirmation)
 {
-    Core::FileChangeBlocker fb(appDescriptorPath);
+    Core::FileChangeBlocker fb(appDescriptorPath.toString());
     BarDescriptorDocument doc;
     QString errorString;
-    if (!doc.open(&errorString, appDescriptorPath)) {
+    if (!doc.open(&errorString, appDescriptorPath.toString())) {
         raiseError(tr("Error opening BAR application descriptor file \"%1\" - %2")
-            .arg(QDir::toNativeSeparators(appDescriptorPath))
+            .arg(appDescriptorPath.toUserOutput())
             .arg(errorString));
         return false;
     }
@@ -548,7 +548,7 @@ bool BlackBerryCreatePackageStep::doUpdateAppDescriptorFile(const QString &appDe
 
     if (!doc.save(&errorString)) {
         raiseError(tr("Error saving BAR application descriptor file \"%1\" - %2")
-                   .arg(QDir::toNativeSeparators(appDescriptorPath))
+                   .arg(appDescriptorPath.toUserOutput())
                    .arg(errorString));
         return false;
     }

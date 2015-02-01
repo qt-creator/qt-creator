@@ -57,5 +57,5 @@ BlackBerryRunConfigurationWidget::~BlackBerryRunConfigurationWidget()
 void BlackBerryRunConfigurationWidget::updateUi()
 {
     m_ui->deviceLabel->setText(m_runConfiguration->deviceName());
-    m_ui->packageLabel->setText(m_runConfiguration->barPackage());
+    m_ui->packageLabel->setText(m_runConfiguration->barPackage().toString());
 }

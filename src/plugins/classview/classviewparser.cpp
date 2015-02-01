@@ -731,7 +731,7 @@ QStringList Parser::projectNodeFileList(const FolderNode *node) const
         if (file->isGenerated())
             continue;
 
-        list << file->path();
+        list << file->path().toString();
     }
 
     foreach (const FolderNode *folder, subFolderNodes) {
@@ -756,7 +756,7 @@ QStringList Parser::addProjectNode(const ParserTreeItem::Ptr &item, const Projec
     if (!node)
         return projectList;
 
-    const QString &nodePath = node->path();
+    const QString nodePath = node->path().toString();
 
     // our own files
     QStringList fileList;
@@ -770,8 +770,8 @@ QStringList Parser::addProjectNode(const ParserTreeItem::Ptr &item, const Projec
         d->cachedPrjFileLists[nodePath] = fileList;
     }
     if (fileList.count() > 0) {
-        addProject(item, fileList, node->path());
-        projectList << node->path();
+        addProject(item, fileList, node->path().toString());
+        projectList << node->path().toString();
     }
 
     // subnodes
@@ -779,7 +779,7 @@ QStringList Parser::addProjectNode(const ParserTreeItem::Ptr &item, const Projec
 
     foreach (const ProjectNode *project, projectNodes) {
         ParserTreeItem::Ptr itemPrj(new ParserTreeItem());
-        SymbolInformation information(project->displayName(), project->path());
+        SymbolInformation information(project->displayName(), project->path().toString());
 
         projectList += addProjectNode(itemPrj, project);
 
@@ -800,7 +800,7 @@ QStringList Parser::getAllFiles(const ProjectNode *node)
     if (!node)
         return fileList;
 
-    const QString &nodePath = node->path();
+    const QString nodePath = node->path().toString();
 
     CitCachedPrjFileLists cit = d->cachedPrjFileLists.find(nodePath);
     // try to improve parsing speed by internal cache
@@ -827,7 +827,7 @@ void Parser::addFlatTree(const ParserTreeItem::Ptr &item, const ProjectNode *nod
     fileList.removeDuplicates();
 
     if (fileList.count() > 0) {
-        addProject(item, fileList, node->path());
+        addProject(item, fileList, node->path().toString());
     }
 }
 

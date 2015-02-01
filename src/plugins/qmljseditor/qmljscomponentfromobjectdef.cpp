@@ -45,6 +45,8 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/project.h>
 
+#include <utils/fileutils.h>
+
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
@@ -128,7 +130,8 @@ public:
 
         if (path == QFileInfo(fileName()).path()) {
             // hack for the common case, next version should use the wizard
-            ProjectExplorer::Node * oldFileNode = ProjectExplorer::SessionManager::nodeForFile(fileName());
+            ProjectExplorer::Node * oldFileNode =
+                    ProjectExplorer::SessionManager::nodeForFile(Utils::FileName::fromString(fileName()));
             if (oldFileNode) {
                 ProjectExplorer::FolderNode *containingFolder = oldFileNode->parentFolderNode();
                 if (containingFolder)

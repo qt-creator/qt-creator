@@ -85,7 +85,7 @@ private:
     QStandardItemModel m_deviceTypeModel;
 };
 
-IosRunConfiguration::IosRunConfiguration(Target *parent, Core::Id id, const QString &path)
+IosRunConfiguration::IosRunConfiguration(Target *parent, Core::Id id, const FileName &path)
     : RunConfiguration(parent, id)
     , m_profilePath(path)
 {
@@ -190,7 +190,7 @@ IosDeployStep *IosRunConfiguration::deployStep() const
     return step;
 }
 
-QString IosRunConfiguration::profilePath() const
+FileName IosRunConfiguration::profilePath() const
 {
     return m_profilePath;
 }
@@ -302,8 +302,7 @@ bool IosRunConfiguration::isEnabled() const
 QString IosRunConfiguration::disabledReason() const
 {
     if (m_parseInProgress)
-        return tr("The .pro file \"%1\" is currently being parsed.")
-                .arg(FileName::fromString(m_profilePath).fileName());
+        return tr("The .pro file \"%1\" is currently being parsed.").arg(m_profilePath.fileName());
     if (!m_parseSuccess)
         return static_cast<QmakeProject *>(target()->project())
                 ->disabledReasonForRunConfiguration(m_profilePath);

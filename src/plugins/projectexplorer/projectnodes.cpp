@@ -65,8 +65,7 @@ using namespace ProjectExplorer;
   \sa ProjectExplorer::NodesWatcher, ProjectExplorer::NodesVisitor
 */
 
-Node::Node(NodeType nodeType,
-           const QString &filePath, int line)
+Node::Node(NodeType nodeType, const Utils::FileName &filePath, int line)
         : m_nodeType(nodeType),
           m_line(line),
           m_projectNode(0),
@@ -99,7 +98,7 @@ void Node::emitNodeSortKeyChanged()
  * This function does not emit any signals. That has to be done by the calling
  * class.
  */
-void Node::setPath(const QString &path)
+void Node::setPath(const Utils::FileName &path)
 {
     if (m_path == path)
         return;
@@ -120,7 +119,7 @@ void Node::setLine(int line)
     emitNodeUpdated();
 }
 
-void Node::setPathAndLine(const QString &path, int line)
+void Node::setPathAndLine(const Utils::FileName &path, int line)
 {
     if (m_path == path
             && m_line == line)
@@ -157,7 +156,7 @@ FolderNode *Node::parentFolderNode() const
 /*!
   The path of the file or folder in the filesystem the node represents.
   */
-QString Node::path() const
+Utils::FileName Node::path() const
 {
     return m_path;
 }
@@ -169,12 +168,12 @@ int Node::line() const
 
 QString Node::displayName() const
 {
-    return Utils::FileName::fromString(path()).fileName();
+    return path().fileName();
 }
 
 QString Node::tooltip() const
 {
-    return QDir::toNativeSeparators(path());
+    return path().toUserOutput();
 }
 
 bool Node::isEnabled() const
@@ -220,7 +219,7 @@ void Node::setParentFolderNode(FolderNode *parentFolder)
   \sa ProjectExplorer::FolderNode, ProjectExplorer::ProjectNode
 */
 
-FileNode::FileNode(const QString &filePath,
+FileNode::FileNode(const Utils::FileName &filePath,
                    const FileType fileType,
                    bool generated, int line)
         : Node(FileNodeType, filePath, line),
@@ -249,12 +248,12 @@ bool FileNode::isGenerated() const
 
   \sa ProjectExplorer::FileNode, ProjectExplorer::ProjectNode
 */
-FolderNode::FolderNode(const QString &folderPath, NodeType nodeType, const QString &displayName)  :
+FolderNode::FolderNode(const Utils::FileName &folderPath, NodeType nodeType, const QString &displayName) :
     Node(nodeType, folderPath),
     m_displayName(displayName)
 {
     if (m_displayName.isEmpty())
-        m_displayName = QDir::toNativeSeparators(folderPath);
+        m_displayName = folderPath.toUserOutput();
 }
 
 FolderNode::~FolderNode()
@@ -349,7 +348,7 @@ bool FolderNode::renameFile(const QString &filePath, const QString &newFilePath)
 FolderNode::AddNewInformation FolderNode::addNewInformation(const QStringList &files, Node *context) const
 {
     Q_UNUSED(files);
-    return AddNewInformation(Utils::FileName::fromString(path()).fileName(), context == this ? 120 : 100);
+    return AddNewInformation(path().fileName(), context == this ? 120 : 100);
 }
 
 /*!
@@ -517,7 +516,7 @@ bool FolderNode::showInSimpleTree() const
 
   \sa ProjectExplorer::FileNode, ProjectExplorer::ProjectNode
 */
-VirtualFolderNode::VirtualFolderNode(const QString &folderPath, int priority)
+VirtualFolderNode::VirtualFolderNode(const Utils::FileName &folderPath, int priority)
     : FolderNode(folderPath, VirtualFolderNodeType), m_priority(priority)
 {
 }
@@ -544,18 +543,18 @@ int VirtualFolderNode::priority() const
 /*!
   Creates an uninitialized project node object.
   */
-ProjectNode::ProjectNode(const QString &projectFilePath)
+ProjectNode::ProjectNode(const Utils::FileName &projectFilePath)
         : FolderNode(projectFilePath)
 {
     setNodeType(ProjectNodeType);
     // project node "manages" itself
     setProjectNode(this);
-    setDisplayName(Utils::FileName::fromString(projectFilePath).fileName());
+    setDisplayName(projectFilePath.fileName());
 }
 
 QString ProjectNode::vcsTopic() const
 {
-    const QString dir = QFileInfo(path()).absolutePath();
+    const QString dir = path().toFileInfo().absolutePath();
 
     if (Core::IVersionControl *const vc =
             Core::VcsManager::findVersionControlForDirectory(dir))
@@ -686,7 +685,7 @@ void ProjectNode::removeProjectNodes(const QList<ProjectNode*> &subProjects)
 */
 
 SessionNode::SessionNode()
-    : FolderNode(QLatin1String("session"))
+    : FolderNode(Utils::FileName::fromString(QLatin1String("session")))
 {
     setNodeType(SessionNodeType);
 }

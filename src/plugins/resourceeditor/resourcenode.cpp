@@ -60,13 +60,16 @@ static bool priority(const QStringList &files)
     return false;
 }
 
-static bool addFilesToResource(const QString &resourceFile, const QStringList &filePaths, QStringList *notAdded,
-                     const QString &prefix, const QString &lang)
+static bool addFilesToResource(const Utils::FileName &resourceFile,
+                               const QStringList &filePaths,
+                               QStringList *notAdded,
+                               const QString &prefix,
+                               const QString &lang)
 {
     if (notAdded)
         *notAdded = filePaths;
 
-    ResourceFile file(resourceFile);
+    ResourceFile file(resourceFile.toString());
     if (!file.load())
         return false;
 
@@ -85,9 +88,9 @@ static bool addFilesToResource(const QString &resourceFile, const QStringList &f
         }
     }
 
-    Core::DocumentManager::expectFileChange(resourceFile);
+    Core::DocumentManager::expectFileChange(resourceFile.toString());
     file.save();
-    Core::DocumentManager::unexpectFileChange(resourceFile);
+    Core::DocumentManager::unexpectFileChange(resourceFile.toString());
 
     return true;
 }
@@ -109,19 +112,18 @@ static bool sortNodesByPath(ProjectExplorer::Node *a, ProjectExplorer::Node *b)
     return a->path() < b->path();
 }
 
-ResourceTopLevelNode::ResourceTopLevelNode(const QString &filePath, FolderNode *parent)
+ResourceTopLevelNode::ResourceTopLevelNode(const Utils::FileName &filePath, FolderNode *parent)
     : ProjectExplorer::FolderNode(filePath)
 {
-    setIcon(Core::FileIconProvider::icon(filePath));
+    setIcon(Core::FileIconProvider::icon(filePath.toString()));
     m_document = new ResourceFileWatcher(this);
     Core::DocumentManager::addDocument(m_document);
 
-    Utils::FileName base = Utils::FileName::fromString(parent->path());
-    Utils::FileName file = Utils::FileName::fromString(filePath);
-    if (file.isChildOf(base))
-        setDisplayName(file.relativeChildPath(base).toString());
+    Utils::FileName base = parent->path();
+    if (filePath.isChildOf(base))
+        setDisplayName(filePath.relativeChildPath(base).toString());
     else
-        setDisplayName(file.toString());
+        setDisplayName(filePath.toString());
 }
 
 ResourceTopLevelNode::~ResourceTopLevelNode()
@@ -135,7 +137,7 @@ void ResourceTopLevelNode::update()
     QList<ProjectExplorer::FolderNode *> newFolderList;
     QMap<QPair<QString, QString>, QList<ProjectExplorer::FileNode *> > filesToAdd;
 
-    ResourceFile file(path());
+    ResourceFile file(path().toString());
     if (file.load()) {
         QSet<QPair<QString, QString > > prefixes;
 
@@ -156,9 +158,8 @@ void ResourceTopLevelNode::update()
             for (int j = 0; j < filecount; ++j) {
                 const QString &fileName = file.file(i, j);
                 QString alias = file.alias(i, j);
-                if (alias.isEmpty()) {
-                    alias = QFileInfo(path()).absoluteDir().relativeFilePath(fileName);
-                }
+                if (alias.isEmpty())
+                    alias = path().toFileInfo().absoluteDir().relativeFilePath(fileName);
                 if (fileNames.contains(fileName)) {
                     // The file name is duplicated, skip it
                     // Note: this is wrong, but the qrceditor doesn't allow it either
@@ -170,7 +171,8 @@ void ResourceTopLevelNode::update()
                     const QString qrcPath = QDir::cleanPath(prefixWithSlash + alias);
                     fileNames.insert(fileName);
                     filesToAdd[qMakePair(prefix, lang)]
-                            << new ResourceFileNode(fileName, qrcPath, this);
+                            << new ResourceFileNode(Utils::FileName::fromString(fileName),
+                                                    qrcPath, this);
                 }
 
             }
@@ -222,31 +224,31 @@ bool ResourceTopLevelNode::removeFiles(const QStringList &filePaths, QStringList
 
 bool ResourceTopLevelNode::addPrefix(const QString &prefix, const QString &lang)
 {
-    ResourceFile file(path());
+    ResourceFile file(path().toString());
     if (!file.load())
         return false;
     int index = file.addPrefix(prefix, lang);
     if (index == -1)
         return false;
-    Core::DocumentManager::expectFileChange(path());
+    Core::DocumentManager::expectFileChange(path().toString());
     file.save();
-    Core::DocumentManager::unexpectFileChange(path());
+    Core::DocumentManager::unexpectFileChange(path().toString());
 
     return true;
 }
 
 bool ResourceTopLevelNode::removePrefix(const QString &prefix, const QString &lang)
 {
-    ResourceFile file(path());
+    ResourceFile file(path().toString());
     if (!file.load())
         return false;
     for (int i = 0; i < file.prefixCount(); ++i) {
         if (file.prefix(i) == prefix
                 && file.lang(i) == lang) {
             file.removePrefix(i);
-            Core::DocumentManager::expectFileChange(path());
+            Core::DocumentManager::expectFileChange(path().toString());
             file.save();
-            Core::DocumentManager::unexpectFileChange(path());
+            Core::DocumentManager::unexpectFileChange(path().toString());
             return true;
         }
     }
@@ -256,7 +258,7 @@ bool ResourceTopLevelNode::removePrefix(const QString &prefix, const QString &la
 ProjectExplorer::FolderNode::AddNewInformation ResourceTopLevelNode::addNewInformation(const QStringList &files, Node *context) const
 {
     QString name = QCoreApplication::translate("ResourceTopLevelNode", "%1 Prefix: %2")
-            .arg(Utils::FileName::fromString(path()).fileName())
+            .arg(path().fileName())
             .arg(QLatin1Char('/'));
 
     int p = -1;
@@ -283,7 +285,7 @@ bool ResourceTopLevelNode::showInSimpleTree() const
 }
 
 ResourceFolderNode::ResourceFolderNode(const QString &prefix, const QString &lang, ResourceTopLevelNode *parent)
-    : ProjectExplorer::FolderNode(parent->path() + QLatin1Char('/') + prefix),
+    : ProjectExplorer::FolderNode(parent->path().appendPath(prefix)),
       // TOOD Why add existing directory doesn't work
       m_topLevelNode(parent),
       m_prefix(prefix),
@@ -325,7 +327,7 @@ bool ResourceFolderNode::removeFiles(const QStringList &filePaths, QStringList *
 {
     if (notRemoved)
         *notRemoved = filePaths;
-    ResourceFile file(m_topLevelNode->path());
+    ResourceFile file(m_topLevelNode->path().toString());
     if (!file.load())
         return false;
     int index = file.indexOfPrefix(m_prefix, m_lang);
@@ -340,16 +342,16 @@ bool ResourceFolderNode::removeFiles(const QStringList &filePaths, QStringList *
         file.removeFile(index, j);
         --j;
     }
-    Core::DocumentManager::expectFileChange(m_topLevelNode->path());
+    Core::DocumentManager::expectFileChange(m_topLevelNode->path().toString());
     file.save();
-    Core::DocumentManager::unexpectFileChange(m_topLevelNode->path());
+    Core::DocumentManager::unexpectFileChange(m_topLevelNode->path().toString());
 
     return true;
 }
 
 bool ResourceFolderNode::renameFile(const QString &filePath, const QString &newFilePath)
 {
-    ResourceFile file(m_topLevelNode->path());
+    ResourceFile file(m_topLevelNode->path().toString());
     if (!file.load())
         return false;
     int index = file.indexOfPrefix(m_prefix, m_lang);
@@ -359,9 +361,9 @@ bool ResourceFolderNode::renameFile(const QString &filePath, const QString &newF
     for (int j = 0; j < file.fileCount(index); ++j) {
         if (file.file(index, j) == filePath) {
             file.replaceFile(index, j, newFilePath);
-            Core::DocumentManager::expectFileChange(m_topLevelNode->path());
+            Core::DocumentManager::expectFileChange(m_topLevelNode->path().toString());
             file.save();
-            Core::DocumentManager::unexpectFileChange(m_topLevelNode->path());
+            Core::DocumentManager::unexpectFileChange(m_topLevelNode->path().toString());
             return true;
         }
     }
@@ -371,7 +373,7 @@ bool ResourceFolderNode::renameFile(const QString &filePath, const QString &newF
 
 bool ResourceFolderNode::renamePrefix(const QString &prefix, const QString &lang)
 {
-    ResourceFile file(m_topLevelNode->path());
+    ResourceFile file(m_topLevelNode->path().toString());
     if (!file.load())
         return false;
     int index = file.indexOfPrefix(m_prefix, m_lang);
@@ -381,16 +383,16 @@ bool ResourceFolderNode::renamePrefix(const QString &prefix, const QString &lang
     if (!file.replacePrefixAndLang(index, prefix, lang))
         return false;
 
-    Core::DocumentManager::expectFileChange(m_topLevelNode->path());
+    Core::DocumentManager::expectFileChange(m_topLevelNode->path().toString());
     file.save();
-    Core::DocumentManager::unexpectFileChange(m_topLevelNode->path());
+    Core::DocumentManager::unexpectFileChange(m_topLevelNode->path().toString());
     return true;
 }
 
 ProjectExplorer::FolderNode::AddNewInformation ResourceFolderNode::addNewInformation(const QStringList &files, Node *context) const
 {
     QString name = QCoreApplication::translate("ResourceTopLevelNode", "%1 Prefix: %2")
-            .arg(Utils::FileName::fromString(m_topLevelNode->path()).fileName())
+            .arg(m_topLevelNode->path().fileName())
             .arg(displayName());
 
     int p = -1; // never the default
@@ -447,7 +449,7 @@ ResourceFileWatcher::ResourceFileWatcher(ResourceTopLevelNode *node)
 {
     setId("ResourceNodeWatcher");
     setMimeType(QLatin1String(ResourceEditor::Constants::C_RESOURCE_MIMETYPE));
-    setFilePath(Utils::FileName::fromString(node->path()));
+    setFilePath(node->path());
 }
 
 bool ResourceFileWatcher::save(QString *errorString, const QString &fileName, bool autoSave)
@@ -495,13 +497,13 @@ bool ResourceFileWatcher::reload(QString *errorString, ReloadFlag flag, ChangeTy
     return true;
 }
 
-ResourceFileNode::ResourceFileNode(const QString &filePath, const QString &qrcPath, ResourceTopLevelNode *topLevel)
+ResourceFileNode::ResourceFileNode(const Utils::FileName &filePath, const QString &qrcPath, ResourceTopLevelNode *topLevel)
     : ProjectExplorer::FileNode(filePath, ProjectExplorer::UnknownFileType, false),
       m_qrcPath(qrcPath)
 
 {
-    QString baseDir = QFileInfo(topLevel->path()).absolutePath();
-    m_displayName = QDir(baseDir).relativeFilePath(filePath);
+    QDir baseDir = topLevel->path().toFileInfo().absoluteDir();
+    m_displayName = QDir(baseDir).relativeFilePath(filePath.toString());
 }
 
 QString ResourceFileNode::displayName() const

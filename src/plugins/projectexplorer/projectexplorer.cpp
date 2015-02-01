@@ -1902,29 +1902,28 @@ void ProjectExplorerPlugin::runConfigurationConfigurationFinished()
 
 static QString pathOrDirectoryFor(Node *node, bool dir)
 {
-    QString path = node->path();
+    Utils::FileName path = node->path();
     QString location;
     FolderNode *folder = dynamic_cast<FolderNode *>(node);
     if (node->nodeType() == VirtualFolderNodeType && folder) {
         // Virtual Folder case
         // If there are files directly below or no subfolders, take the folder path
         if (!folder->fileNodes().isEmpty() || folder->subFolderNodes().isEmpty()) {
-            location = path;
+            location = path.toString();
         } else {
             // Otherwise we figure out a commonPath from the subfolders
             QStringList list;
             foreach (FolderNode *f, folder->subFolderNodes())
-                list << f->path() + QLatin1Char('/');
+                list << f->path().toString() + QLatin1Char('/');
             location = Utils::commonPath(list);
         }
 
         QFileInfo fi(location);
-        while ((!fi.exists() || !fi.isDir())
-               && !fi.isRoot())
+        while ((!fi.exists() || !fi.isDir()) && !fi.isRoot())
             fi.setFile(fi.absolutePath());
         location = fi.absoluteFilePath();
     } else {
-        QFileInfo fi(path);
+        QFileInfo fi = path.toFileInfo();
         // remove any /suffixes, which e.g. ResourceNode uses
         // Note this should be removed again by making node->path() a true path again
         // That requires changes in both the VirtualFolderNode and ResourceNode
@@ -2827,7 +2826,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
             m_removeFileAction->setVisible(!enableDelete || enableRemove);
             m_renameFileAction->setEnabled(actions.contains(Rename));
 
-            DocumentManager::populateOpenWithMenu(m_openWithMenu, ProjectTree::currentNode()->path());
+            DocumentManager::populateOpenWithMenu(m_openWithMenu, ProjectTree::currentNode()->path().toString());
         }
 
         if (actions.contains(HidePathActions)) {
@@ -2945,17 +2944,17 @@ void ProjectExplorerPlugin::removeProject()
     ProjectNode *subProjectNode = dynamic_cast<ProjectNode*>(ProjectTree::currentNode()->projectNode());
     ProjectNode *projectNode = dynamic_cast<ProjectNode *>(subProjectNode->parentFolderNode());
     if (projectNode) {
-        RemoveFileDialog removeFileDialog(subProjectNode->path(), ICore::mainWindow());
+        RemoveFileDialog removeFileDialog(subProjectNode->path().toString(), ICore::mainWindow());
         removeFileDialog.setDeleteFileVisible(false);
         if (removeFileDialog.exec() == QDialog::Accepted)
-            projectNode->removeSubProjects(QStringList() << subProjectNode->path());
+            projectNode->removeSubProjects(QStringList() << subProjectNode->path().toString());
     }
 }
 
 void ProjectExplorerPlugin::openFile()
 {
     QTC_ASSERT(ProjectTree::currentNode(), return);
-    EditorManager::openEditor(ProjectTree::currentNode()->path());
+    EditorManager::openEditor(ProjectTree::currentNode()->path().toString());
 }
 
 void ProjectExplorerPlugin::searchOnFileSystem()
@@ -2983,7 +2982,7 @@ void ProjectExplorerPlugin::removeFile()
 
     FileNode *fileNode = dynamic_cast<FileNode*>(currentNode);
 
-    QString filePath = currentNode->path();
+    QString filePath = currentNode->path().toString();
     RemoveFileDialog removeFileDialog(filePath, ICore::mainWindow());
 
     if (removeFileDialog.exec() == QDialog::Accepted) {
@@ -3012,7 +3011,7 @@ void ProjectExplorerPlugin::deleteFile()
 
     FileNode *fileNode = dynamic_cast<FileNode*>(currentNode);
 
-    QString filePath = currentNode->path();
+    QString filePath = currentNode->path().toString();
     QMessageBox::StandardButton button =
             QMessageBox::question(ICore::mainWindow(),
                                   tr("Delete File"),
@@ -3055,7 +3054,7 @@ void ProjectExplorerPlugin::renameFile()
 
 void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
 {
-    QString orgFilePath = QFileInfo(node->path()).absoluteFilePath();
+    QString orgFilePath = node->path().toFileInfo().absoluteFilePath();
 
     if (FileUtils::renameFile(orgFilePath, newFilePath)) {
         // Tell the project plugin about rename

@@ -40,7 +40,7 @@ class CMakeProjectNode : public ProjectExplorer::ProjectNode
 {
     friend class CMakeProject;
 public:
-    CMakeProjectNode(const QString &fileName);
+    CMakeProjectNode(const Utils::FileName &fileName);
     virtual bool showInSimpleTree() const;
     virtual QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
 

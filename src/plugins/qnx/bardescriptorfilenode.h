@@ -41,7 +41,7 @@ namespace Internal {
 class BarDescriptorFileNode : public ProjectExplorer::FileNode
 {
 public:
-    explicit BarDescriptorFileNode(const QString &filePath);
+    explicit BarDescriptorFileNode(const Utils::FileName &filePath);
 
     QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
 };

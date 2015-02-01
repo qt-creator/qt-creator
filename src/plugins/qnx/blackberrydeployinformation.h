@@ -33,6 +33,8 @@
 #ifndef QNX_INTERNAL_BLACKBERRYDEPLOYINFORMATION_H
 #define QNX_INTERNAL_BLACKBERRYDEPLOYINFORMATION_H
 
+#include <utils/fileutils.h>
+
 #include <QAbstractTableModel>
 
 namespace ProjectExplorer { class Target; }
@@ -47,8 +49,11 @@ namespace Internal {
 
 class BarPackageDeployInformation {
 public:
-    BarPackageDeployInformation(bool enabled, const QString &proFilePath, const QString &sourceDir,
-                                const QString &buildDir, const QString &targetName)
+    BarPackageDeployInformation(bool enabled,
+                                const Utils::FileName &proFilePath,
+                                const Utils::FileName &sourceDir,
+                                const Utils::FileName &buildDir,
+                                const QString &targetName)
         : enabled(enabled)
         , proFilePath(proFilePath)
         , sourceDir(sourceDir)
@@ -57,17 +62,17 @@ public:
     {
     }
 
-    QString appDescriptorPath() const;
-    QString packagePath() const;
+    Utils::FileName appDescriptorPath() const;
+    Utils::FileName packagePath() const;
 
     bool enabled;
-    QString proFilePath;
-    QString sourceDir;
-    QString buildDir;
+    Utils::FileName proFilePath;
+    Utils::FileName sourceDir;
+    Utils::FileName buildDir;
     QString targetName;
 
-    QString userAppDescriptorPath;
-    QString userPackagePath;
+    Utils::FileName userAppDescriptorPath;
+    Utils::FileName userPackagePath;
 };
 
 class BlackBerryDeployInformation : public QAbstractTableModel

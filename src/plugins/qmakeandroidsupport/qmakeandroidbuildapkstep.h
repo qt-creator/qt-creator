@@ -66,7 +66,7 @@ class QmakeAndroidBuildApkStep : public Android::AndroidBuildApkStep
     Q_OBJECT
 public:
     QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepList *bc);
-    QString proFilePathForInputFile() const;
+    Utils::FileName proFilePathForInputFile() const;
     void setProFilePathForInputFile(const QString &path);
 
 

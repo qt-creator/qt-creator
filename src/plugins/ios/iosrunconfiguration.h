@@ -54,14 +54,14 @@ class IosRunConfiguration : public ProjectExplorer::RunConfiguration
     friend class IosRunConfigurationFactory;
 
 public:
-    IosRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const QString &path);
+    IosRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const Utils::FileName &path);
 
     QWidget *createConfigurationWidget() Q_DECL_OVERRIDE;
     Utils::OutputFormatter *createOutputFormatter() const Q_DECL_OVERRIDE;
     IosDeployStep *deployStep() const;
 
     QStringList commandLineArguments();
-    QString profilePath() const;
+    Utils::FileName profilePath() const;
     QString applicationName() const;
     Utils::FileName bundleDirectory() const;
     Utils::FileName localExecutable() const;
@@ -87,7 +87,7 @@ private:
     friend class IosRunConfigurationWidget;
     void updateDisplayNames();
 
-    QString m_profilePath;
+    Utils::FileName m_profilePath;
     QStringList m_arguments;
     QString m_lastDisabledReason;
     bool m_lastIsEnabled;

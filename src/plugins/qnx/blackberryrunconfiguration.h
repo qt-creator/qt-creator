@@ -35,6 +35,8 @@
 
 #include <projectexplorer/runconfiguration.h>
 
+#include <utils/fileutils.h>
+
 namespace ProjectExplorer { class Target; }
 
 namespace QmakeProjectManager {
@@ -53,14 +55,15 @@ class BlackBerryRunConfiguration : public ProjectExplorer::RunConfiguration
     friend class BlackBerryRunConfigurationFactory;
 
 public:
-    explicit BlackBerryRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const QString &path);
+    explicit BlackBerryRunConfiguration(ProjectExplorer::Target *parent, Core::Id id,
+                                        const Utils::FileName &path);
 
     QWidget *createConfigurationWidget();
 
-    QString proFilePath() const;
+    Utils::FileName proFilePath() const;
 
     QString deviceName() const;
-    QString barPackage() const;
+    Utils::FileName barPackage() const;
 
     QString localExecutableFilePath() const;
 
@@ -82,7 +85,7 @@ private:
     void init();
     void updateDisplayName();
 
-    QString m_proFilePath;
+    Utils::FileName m_proFilePath;
 };
 
 } // namespace Internal

@@ -35,6 +35,7 @@
 
 #include <projectexplorer/localapplicationrunconfiguration.h>
 
+#include <utils/fileutils.h>
 
 #include <QStringList>
 #include <QLabel>
@@ -86,7 +87,7 @@ public:
     bool isUsingDyldImageSuffix() const;
     void setUsingDyldImageSuffix(bool state);
 
-    QString proFilePath() const;
+    Utils::FileName proFilePath() const;
 
     QVariantMap toMap() const;
 
@@ -126,7 +127,7 @@ private:
 
     void updateTarget();
     QString m_commandLineArguments;
-    QString m_proFilePath; // Full path to the Application Pro File
+    Utils::FileName m_proFilePath; // Full path to the Application Pro File
 
     // Cached startup sub project information
     ProjectExplorer::ApplicationLauncher::Mode m_runMode;

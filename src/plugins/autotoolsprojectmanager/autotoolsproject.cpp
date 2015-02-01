@@ -272,7 +272,7 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
     // nodes later.
     QHash<QString, Node *> nodeHash;
     foreach (Node * node, nodes(m_rootNode))
-        nodeHash.insert(node->path(), node);
+        nodeHash.insert(node->path().toString(), node);
 
     // Add the sources to the filenode project tree. Sources
     // inside the same directory are grouped into a folder-node.
@@ -317,11 +317,12 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
         const QString filePath = directory.absoluteFilePath(file);
         if (nodeHash.contains(filePath)) {
             nodeHash.remove(filePath);
+        } else if (file == QLatin1String("Makefile.am") || file == QLatin1String("configure.ac")) {
+            fileNodes.append(new FileNode(Utils::FileName::fromString(filePath),
+                                          ProjectFileType, false));
         } else {
-            if (file == QLatin1String("Makefile.am") || file == QLatin1String("configure.ac"))
-                fileNodes.append(new FileNode(filePath, ProjectFileType, false));
-            else
-                fileNodes.append(new FileNode(filePath, ResourceType, false));
+            fileNodes.append(new FileNode(Utils::FileName::fromString(filePath),
+                                          ResourceType, false));
         }
     }
 
@@ -351,9 +352,9 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
 
 FolderNode *AutotoolsProject::insertFolderNode(const QDir &nodeDir, QHash<QString, Node *> &nodes)
 {
-    const QString nodePath = nodeDir.absolutePath();
-    QFileInfo rootInfo(m_rootNode->path());
-    const QString rootPath = rootInfo.absolutePath();
+    const Utils::FileName nodePath = Utils::FileName::fromString(nodeDir.absolutePath());
+    QFileInfo rootInfo = m_rootNode->path().toFileInfo();
+    const Utils::FileName rootPath = Utils::FileName::fromString(rootInfo.absolutePath());
 
     // Do not create a folder for the root node
     if (rootPath == nodePath)
@@ -379,7 +380,7 @@ FolderNode *AutotoolsProject::insertFolderNode(const QDir &nodeDir, QHash<QStrin
     }
 
     parentFolder->addFolderNodes(QList<FolderNode *>() << folder);
-    nodes.insert(nodePath, folder);
+    nodes.insert(nodePath.toString(), folder);
 
     return folder;
 }

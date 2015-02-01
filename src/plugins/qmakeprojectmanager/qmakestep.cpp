@@ -127,7 +127,7 @@ QString QMakeStep::allArguments(bool shorted)
     QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
     QStringList arguments;
     if (bc->subNodeBuild())
-        arguments << QDir::toNativeSeparators(bc->subNodeBuild()->path());
+        arguments << bc->subNodeBuild()->path().toUserOutput();
     else if (shorted)
         arguments << project()->projectFilePath().fileName();
     else
@@ -260,7 +260,7 @@ bool QMakeStep::init()
     QmakeProFileNode *node = static_cast<QmakeProject *>(qt4bc->target()->project())->rootQmakeProjectNode();
     if (qt4bc->subNodeBuild())
         node = qt4bc->subNodeBuild();
-    QString proFile = node->path();
+    QString proFile = node->path().toString();
 
     QList<ProjectExplorer::Task> tasks = qtVersion->reportIssues(proFile, workingDirectory);
     Utils::sort(tasks);

@@ -35,7 +35,7 @@
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-BarDescriptorFileNode::BarDescriptorFileNode(const QString &filePath)
+BarDescriptorFileNode::BarDescriptorFileNode(const Utils::FileName &filePath)
     : ProjectExplorer::FileNode(filePath, ProjectExplorer::ProjectFileType, false)
 {
 }

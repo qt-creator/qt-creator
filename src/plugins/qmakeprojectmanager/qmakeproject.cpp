@@ -256,21 +256,19 @@ void ProjectFilesVisitor::findProjectFiles(QmakeProFileNode *rootNode, QmakeProj
 
 void ProjectFilesVisitor::visitProjectNode(ProjectNode *projectNode)
 {
-    const QString path = projectNode->path();
-    m_files->proFiles.append(path);
+    m_files->proFiles.append(projectNode->path().toString());
     visitFolderNode(projectNode);
 }
 
 void ProjectFilesVisitor::visitFolderNode(FolderNode *folderNode)
 {
     if (dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(folderNode))
-        m_files->files[ResourceType].push_back(folderNode->path());
+        m_files->files[ResourceType].push_back(folderNode->path().toString());
 
     foreach (FileNode *fileNode, folderNode->fileNodes()) {
-        const QString path = fileNode->path();
         const int type = fileNode->fileType();
         QStringList &targetList = fileNode->isGenerated() ? m_files->generatedFiles[type] : m_files->files[type];
-        targetList.push_back(path);
+        targetList.push_back(fileNode->path().toString());
     }
 }
 
@@ -413,7 +411,7 @@ bool QmakeProject::fromMap(const QVariantMap &map)
 
     m_manager->registerProject(this);
 
-    m_rootProjectNode = new QmakeProFileNode(this, m_fileInfo->filePath().toString());
+    m_rootProjectNode = new QmakeProFileNode(this, m_fileInfo->filePath());
 
     // On active buildconfiguration changes, reevaluate the .pro files
     m_activeTarget = activeTarget();
@@ -504,7 +502,7 @@ void QmakeProject::updateCppCodeModel()
         ProjectPart::Ptr templatePart(new ProjectPart);
         templatePart->project = this;
         templatePart->displayName = pro->displayName();
-        templatePart->projectFile = pro->path();
+        templatePart->projectFile = pro->path().toString();
         templatePart->selectedForBuilding = pro->includedInExactParse();
 
         if (pro->variableValue(ConfigVar).contains(QLatin1String("qt")))
@@ -834,7 +832,7 @@ void QmakeProject::decrementPendingEvaluateFutures()
             QtQuickApp qtQuickApp;
 
             foreach (QmakeProFileNode *node, applicationProFiles(QmakeProject::ExactAndCumulativeParse)) {
-                const QString path = node->path();
+                const QString path = node->path().toString();
 
                 foreach (TemplateInfo info, QtQuickApp::templateInfos()) {
                     qtQuickApp.setTemplateInfo(info);
@@ -938,7 +936,7 @@ QStringList QmakeProject::files(FilesMode fileMode) const
 }
 
 // Find the folder that contains a file a certain type (recurse down)
-static FolderNode *folderOf(FolderNode *in, FileType fileType, const QString &fileName)
+static FolderNode *folderOf(FolderNode *in, FileType fileType, const FileName &fileName)
 {
     foreach (FileNode *fn, in->fileNodes())
         if (fn->fileType() == fileType && fn->path() == fileName)
@@ -951,7 +949,7 @@ static FolderNode *folderOf(FolderNode *in, FileType fileType, const QString &fi
 
 // Find the QmakeProFileNode that contains a file of a certain type.
 // First recurse down to folder, then find the pro-file.
-static QmakeProFileNode *proFileNodeOf(QmakeProFileNode *in, FileType fileType, const QString &fileName)
+static QmakeProFileNode *proFileNodeOf(QmakeProFileNode *in, FileType fileType, const FileName &fileName)
 {
     for (FolderNode *folder =  folderOf(in, fileType, fileName); folder; folder = folder->parentFolderNode())
         if (QmakeProFileNode *proFile = dynamic_cast<QmakeProFileNode *>(folder))
@@ -959,7 +957,7 @@ static QmakeProFileNode *proFileNodeOf(QmakeProFileNode *in, FileType fileType, 
     return 0;
 }
 
-QString QmakeProject::generatedUiHeader(const QString &formFile) const
+QString QmakeProject::generatedUiHeader(const FileName &formFile) const
 {
     // Look in sub-profiles as SessionManager::projectForFile returns
     // the top-level project only.
@@ -1074,7 +1072,7 @@ QmakeProFileNode *QmakeProject::rootQmakeProjectNode() const
     return m_rootProjectNode;
 }
 
-bool QmakeProject::validParse(const QString &proFilePath) const
+bool QmakeProject::validParse(const FileName &proFilePath) const
 {
     if (!m_rootProjectNode)
         return false;
@@ -1082,7 +1080,7 @@ bool QmakeProject::validParse(const QString &proFilePath) const
     return node && node->validParse();
 }
 
-bool QmakeProject::parseInProgress(const QString &proFilePath) const
+bool QmakeProject::parseInProgress(const FileName &proFilePath) const
 {
     if (!m_rootProjectNode)
         return false;
@@ -1117,7 +1115,7 @@ QList<QmakeProFileNode *> QmakeProject::allProFiles(const QList<QmakeProjectType
     return list;
 }
 
-bool QmakeProject::hasApplicationProFile(const QString &path) const
+bool QmakeProject::hasApplicationProFile(const FileName &path) const
 {
     if (path.isEmpty())
         return false;
@@ -1143,7 +1141,7 @@ QList<QmakeProFileNode *> QmakeProject::nodesWithQtcRunnable(QList<QmakeProFileN
 QList<Core::Id> QmakeProject::idsForNodes(Core::Id base, const QList<QmakeProFileNode *> &nodes)
 {
     return Utils::transform(nodes, [&base](QmakeProFileNode *node) {
-        return base.withSuffix(node->path());
+        return base.withSuffix(node->path().toString());
     });
 }
 
@@ -1165,7 +1163,7 @@ void QmakeProject::activeTargetWasChanged()
     scheduleAsyncUpdate();
 }
 
-bool QmakeProject::hasSubNode(QmakePriFileNode *root, const QString &path)
+bool QmakeProject::hasSubNode(QmakePriFileNode *root, const FileName &path)
 {
     if (root->path() == path)
         return true;
@@ -1180,7 +1178,7 @@ bool QmakeProject::hasSubNode(QmakePriFileNode *root, const QString &path)
     return false;
 }
 
-void QmakeProject::findProFile(const QString& fileName, QmakeProFileNode *root, QList<QmakeProFileNode *> &list)
+void QmakeProject::findProFile(const FileName &fileName, QmakeProFileNode *root, QList<QmakeProFileNode *> &list)
 {
     if (hasSubNode(root, fileName))
         list.append(root);
@@ -1190,13 +1188,13 @@ void QmakeProject::findProFile(const QString& fileName, QmakeProFileNode *root, 
             findProFile(fileName, qt4proFileNode, list);
 }
 
-void QmakeProject::notifyChanged(const QString &name)
+void QmakeProject::notifyChanged(const FileName &name)
 {
-    if (files(QmakeProject::ExcludeGeneratedFiles).contains(name)) {
+    if (files(QmakeProject::ExcludeGeneratedFiles).contains(name.toString())) {
         QList<QmakeProFileNode *> list;
         findProFile(name, rootQmakeProjectNode(), list);
         foreach (QmakeProFileNode *node, list) {
-            QtSupport::ProFileCacheManager::instance()->discardFile(name);
+            QtSupport::ProFileCacheManager::instance()->discardFile(name.toString());
             node->scheduleUpdate(QmakeProFileNode::ParseNow);
         }
     }
@@ -1435,21 +1433,21 @@ bool QmakeProject::requiresTargetPanel() const
 // All the Qmake run configurations should share code.
 // This is a rather suboptimal way to do that for disabledReason()
 // but more pratical then duplicated the code everywhere
-QString QmakeProject::disabledReasonForRunConfiguration(const QString &proFilePath)
+QString QmakeProject::disabledReasonForRunConfiguration(const FileName &proFilePath)
 {
-    if (!QFileInfo::exists(proFilePath))
+    if (!proFilePath.exists())
         return tr("The .pro file \"%1\" does not exist.")
-                .arg(FileName::fromString(proFilePath).fileName());
+                .arg(proFilePath.fileName());
 
     if (!m_rootProjectNode) // Shutting down
         return QString();
 
     if (!m_rootProjectNode->findProFileFor(proFilePath))
         return tr("The .pro file \"%1\" is not part of the project.")
-                .arg(FileName::fromString(proFilePath).fileName());
+                .arg(proFilePath.fileName());
 
     return tr("The .pro file \"%1\" could not be parsed.")
-            .arg(FileName::fromString(proFilePath).fileName());
+            .arg(proFilePath.fileName());
 }
 
 QString QmakeProject::buildNameFor(const Kit *k)
@@ -1477,14 +1475,14 @@ void QmakeProject::updateBuildSystemData()
     foreach (const QmakeProFileNode * const node, applicationProFiles()) {
         appTargetList.list << BuildTargetInfo(node->targetInformation().target,
                                               FileName::fromString(executableFor(node)),
-                                              FileName::fromString(node->path()));
+                                              node->path());
     }
     target->setApplicationTargets(appTargetList);
 }
 
 void QmakeProject::collectData(const QmakeProFileNode *node, DeploymentData &deploymentData)
 {
-    if (!node->isSubProjectDeployable(node->path()))
+    if (!node->isSubProjectDeployable(node->path().toString()))
         return;
 
     const InstallsList &installsList = node->installsList();

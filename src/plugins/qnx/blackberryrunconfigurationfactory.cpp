@@ -43,9 +43,9 @@
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-static QString pathFromId(Core::Id id)
+static Utils::FileName pathFromId(Core::Id id)
 {
-    return id.suffixAfter(Constants::QNX_BB_RUNCONFIGURATION_PREFIX);
+    return Utils::FileName::fromString(id.suffixAfter(Constants::QNX_BB_RUNCONFIGURATION_PREFIX));
 }
 
 BlackBerryRunConfigurationFactory::BlackBerryRunConfigurationFactory(QObject *parent) :
@@ -72,12 +72,12 @@ QList<Core::Id> BlackBerryRunConfigurationFactory::availableCreationIds(ProjectE
 
 QString BlackBerryRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
-    const QString path = pathFromId(id);
+    const Utils::FileName path = pathFromId(id);
     if (path.isEmpty())
         return QString();
 
     if (id.name().startsWith(Constants::QNX_BB_RUNCONFIGURATION_PREFIX))
-        return QFileInfo(path).completeBaseName();
+        return path.toFileInfo().completeBaseName();
 
     return QString();
 }
@@ -117,7 +117,8 @@ ProjectExplorer::RunConfiguration *BlackBerryRunConfigurationFactory::doRestore(
         const QVariantMap &map)
 {
     Q_UNUSED(map);
-    return new BlackBerryRunConfiguration(parent, Core::Id(Constants::QNX_BB_RUNCONFIGURATION_PREFIX), QString());
+    return new BlackBerryRunConfiguration(parent, Core::Id(Constants::QNX_BB_RUNCONFIGURATION_PREFIX),
+                                          Utils::FileName());
 }
 
 bool BlackBerryRunConfigurationFactory::canClone(ProjectExplorer::Target *parent,

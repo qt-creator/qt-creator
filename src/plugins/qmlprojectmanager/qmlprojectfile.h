@@ -44,7 +44,7 @@ class QmlProjectFile : public Core::IDocument
     Q_OBJECT
 
 public:
-    QmlProjectFile(QmlProject *parent, const QString &fileName);
+    QmlProjectFile(QmlProject *parent, const Utils::FileName &fileName);
     virtual ~QmlProjectFile();
 
     virtual bool save(QString *errorString, const QString &fileName, bool autoSave);

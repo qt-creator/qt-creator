@@ -58,7 +58,7 @@ namespace Internal {
 
 } // namespace Internal
 
-QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
+QmlProject::QmlProject(Internal::Manager *manager, const Utils::FileName &fileName)
     : m_manager(manager),
       m_fileName(fileName),
       m_defaultImport(UnknownImport),
@@ -68,7 +68,7 @@ QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
     setProjectContext(Context(QmlProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::LANG_QMLJS));
 
-    QFileInfo fileInfo(m_fileName);
+    QFileInfo fileInfo = m_fileName.toFileInfo();
     m_projectName = fileInfo.completeBaseName();
 
     m_file = new Internal::QmlProjectFile(this, fileName);
@@ -129,7 +129,7 @@ QDir QmlProject::projectDir() const
     return projectFilePath().toFileInfo().dir();
 }
 
-QString QmlProject::filesFileName() const
+Utils::FileName QmlProject::filesFileName() const
 { return m_fileName; }
 
 static QmlProject::QmlImport detectImport(const QString &qml) {
@@ -157,7 +157,9 @@ void QmlProject::parseProject(RefreshOptions options)
                           this, SLOT(refreshFiles(QSet<QString>,QSet<QString>)));
 
               } else {
-                  MessageManager::write(tr("Error while loading project file %1.").arg(m_fileName), MessageManager::NoModeSwitch);
+                  MessageManager::write(tr("Error while loading project file %1.")
+                                        .arg(m_fileName.toUserOutput()),
+                                        MessageManager::NoModeSwitch);
                   MessageManager::write(errorMessage);
               }
         }
@@ -172,7 +174,8 @@ void QmlProject::parseProject(RefreshOptions options)
                 Utils::FileReader reader;
                 QString errorMessage;
                 if (!reader.fetch(mainFilePath, &errorMessage)) {
-                    MessageManager::write(tr("Warning while loading project file %1.").arg(m_fileName));
+                    MessageManager::write(tr("Warning while loading project file %1.")
+                                          .arg(m_fileName.toUserOutput()));
                     MessageManager::write(errorMessage);
                 } else {
                     m_defaultImport = detectImport(QString::fromUtf8(reader.data()));
@@ -211,7 +214,7 @@ void QmlProject::refresh(RefreshOptions options)
 
 QStringList QmlProject::convertToAbsoluteFiles(const QStringList &paths) const
 {
-    const QDir projectDir(QFileInfo(m_fileName).dir());
+    const QDir projectDir(m_fileName.toFileInfo().dir());
     QStringList absolutePaths;
     foreach (const QString &file, paths) {
         QFileInfo fileInfo(projectDir, file);

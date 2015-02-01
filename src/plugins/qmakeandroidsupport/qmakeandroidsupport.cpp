@@ -119,7 +119,8 @@ Utils::FileName QmakeAndroidSupport::androiddeployJsonPath(ProjectExplorer::Targ
     if (!buildApkStep) // should never happen
         return Utils::FileName();
 
-    const QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(buildApkStep->proFilePathForInputFile());
+    const QmakeProFileNode *node =
+            pro->rootQmakeProjectNode()->findProFileFor(buildApkStep->proFilePathForInputFile());
     if (!node) // should never happen
         return Utils::FileName();
 

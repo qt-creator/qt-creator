@@ -85,7 +85,7 @@ void CMakeEditor::finalizeInitialization()
         info.setCustomButtonInfo(tr("Build now"), [document]() {
             foreach (Project *p, SessionManager::projects()) {
                 if (CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(p)) {
-                    if (cmakeProject->isProjectFile(document->filePath().toString())) {
+                    if (cmakeProject->isProjectFile(document->filePath())) {
                         ProjectExplorerPlugin::buildProject(cmakeProject);
                         break;
                     }

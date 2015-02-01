@@ -33,6 +33,8 @@
 
 #include "projectexplorer_export.h"
 
+#include <utils/fileutils.h>
+
 #include <QIcon>
 
 #include <QObject>
@@ -111,7 +113,7 @@ public:
     NodeType nodeType() const;
     ProjectNode *projectNode() const;     // managing project
     FolderNode *parentFolderNode() const; // parent folder or project
-    QString path() const;                 // file system path
+    Utils::FileName path() const;                 // file system path
     int line() const;
     virtual QString displayName() const;
     virtual QString tooltip() const;
@@ -119,13 +121,13 @@ public:
 
     virtual QList<ProjectAction> supportedActions(Node *node) const;
 
-    void setPath(const QString &path);
+    void setPath(const Utils::FileName &path);
     void setLine(int line);
-    void setPathAndLine(const QString &path, int line);
+    void setPathAndLine(const Utils::FileName &path, int line);
     void emitNodeUpdated();
 
 protected:
-    Node(NodeType nodeType, const QString &path, int line = -1);
+    Node(NodeType nodeType, const Utils::FileName &path, int line = -1);
 
     void setNodeType(NodeType type);
     void setProjectNode(ProjectNode *project);
@@ -139,13 +141,13 @@ private:
     int m_line;
     ProjectNode *m_projectNode;
     FolderNode *m_folderNode;
-    QString m_path;
+    Utils::FileName m_path;
 };
 
 class PROJECTEXPLORER_EXPORT FileNode : public Node
 {
 public:
-    FileNode(const QString &filePath, const FileType fileType, bool generated, int line = -1);
+    FileNode(const Utils::FileName &filePath, const FileType fileType, bool generated, int line = -1);
 
     FileType fileType() const;
     bool isGenerated() const;
@@ -163,7 +165,7 @@ private:
 class PROJECTEXPLORER_EXPORT FolderNode : public Node
 {
 public:
-    explicit FolderNode(const QString &folderPath, NodeType nodeType = FolderNodeType,
+    explicit FolderNode(const Utils::FileName &folderPath, NodeType nodeType = FolderNodeType,
                         const QString &displayName = QString());
     virtual ~FolderNode();
 
@@ -220,7 +222,7 @@ private:
 class PROJECTEXPLORER_EXPORT VirtualFolderNode : public FolderNode
 {
 public:
-    explicit VirtualFolderNode(const QString &folderPath, int priority);
+    explicit VirtualFolderNode(const Utils::FileName &folderPath, int priority);
     virtual ~VirtualFolderNode();
 
     int priority() const;
@@ -260,7 +262,7 @@ public:
 protected:
     // this is just the in-memory representation, a subclass
     // will add the persistent stuff
-    explicit ProjectNode(const QString &projectFilePath);
+    explicit ProjectNode(const Utils::FileName &projectFilePath);
 
 private:
     QList<ProjectNode*> m_subProjectNodes;

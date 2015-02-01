@@ -87,9 +87,8 @@ bool checkPackageName(const QString &packageName)
     return QRegExp(packageNameRegExp).exactMatch(packageName);
 }
 
-Project *androidProject(const QString &file)
+Project *androidProject(const Utils::FileName &fileName)
 {
-    Utils::FileName fileName = Utils::FileName::fromString(file);
     foreach (Project *project, SessionManager::projects()) {
         if (!project->activeTarget())
             continue;
@@ -476,8 +475,7 @@ bool AndroidManifestEditorWidget::eventFilter(QObject *obj, QEvent *event)
 
 void AndroidManifestEditorWidget::updateTargetComboBox()
 {
-    const QString docPath(m_textEditorWidget->textDocument()->filePath().toString());
-    Project *project = androidProject(docPath);
+    Project *project = androidProject(m_textEditorWidget->textDocument()->filePath());
     QStringList items;
     if (project) {
         Kit *kit = project->activeTarget()->kit();
@@ -696,7 +694,6 @@ void AndroidManifestEditorWidget::updateInfoBar()
 
 void AndroidManifestEditorWidget::updateSdkVersions()
 {
-    const QString docPath(m_textEditorWidget->textDocument()->filePath().toString());
     QPair<int, int> apiLevels = AndroidManager::apiLevelRange();
     for (int i = apiLevels.first; i < apiLevels.second + 1; ++i)
         m_androidMinSdkVersion->addItem(tr("API %1: %2")

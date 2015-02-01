@@ -33,7 +33,7 @@
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 
-CMakeProjectNode::CMakeProjectNode(const QString &fileName)
+CMakeProjectNode::CMakeProjectNode(const Utils::FileName &fileName)
     : ProjectExplorer::ProjectNode(fileName)
 {
 }

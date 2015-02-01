@@ -263,7 +263,7 @@ void ResourceEditorPlugin::renameFileContextMenu()
 void ResourceEditorPlugin::removeFileContextMenu()
 {
     ResourceFolderNode *rfn = static_cast<ResourceFolderNode *>(ProjectTree::currentNode());
-    QString path = rfn->path();
+    QString path = rfn->path().toString();
     FolderNode *parent = rfn->parentFolderNode();
     if (!parent->removeFiles(QStringList() << path))
         QMessageBox::warning(Core::ICore::mainWindow(),
@@ -273,7 +273,7 @@ void ResourceEditorPlugin::removeFileContextMenu()
 
 void ResourceEditorPlugin::openEditorContextMenu()
 {
-    Core::EditorManager::openEditor(ProjectTree::currentNode()->path());
+    Core::EditorManager::openEditor(ProjectTree::currentNode()->path().toString());
 }
 
 void ResourceEditorPlugin::copyPathContextMenu()
@@ -333,7 +333,7 @@ void ResourceEditorPlugin::updateContextActions(Node *node, Project *)
     m_renamePrefix->setVisible(isResourceFolder);
 
     if (isResourceNode)
-        Core::DocumentManager::populateOpenWithMenu(m_openWithMenu, node->path());
+        Core::DocumentManager::populateOpenWithMenu(m_openWithMenu, node->path().toString());
     else
         m_openWithMenu->clear();
     m_openWithMenu->menuAction()->setVisible(!m_openWithMenu->actions().isEmpty());

@@ -58,13 +58,13 @@ namespace Internal {
 #define IOS_PREFIX "Qt4ProjectManager.IosRunConfiguration"
 #define IOS_RC_ID_PREFIX IOS_PREFIX ":"
 
-static QString pathFromId(Core::Id id)
+static Utils::FileName pathFromId(Core::Id id)
 {
     QString pathStr = id.toString();
     const QString prefix = QLatin1String(IOS_RC_ID_PREFIX);
     if (!pathStr.startsWith(prefix))
-        return QString();
-    return pathStr.mid(prefix.size());
+        return Utils::FileName();
+    return Utils::FileName::fromString(pathStr.mid(prefix.size()));
 }
 
 IosRunConfigurationFactory::IosRunConfigurationFactory(QObject *parent)
@@ -111,7 +111,7 @@ QList<Core::Id> IosRunConfigurationFactory::availableCreationIds(Target *parent,
 
 QString IosRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
-    return QFileInfo(pathFromId(id)).completeBaseName();
+    return pathFromId(id).toFileInfo().completeBaseName();
 }
 
 RunConfiguration *IosRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
@@ -133,10 +133,12 @@ bool IosRunConfigurationFactory::canHandle(Target *t) const
 QList<RunConfiguration *> IosRunConfigurationFactory::runConfigurationsForNode(Target *t, const Node *n)
 {
     QList<RunConfiguration *> result;
-    foreach (RunConfiguration *rc, t->runConfigurations())
-        if (IosRunConfiguration *qt4c = qobject_cast<IosRunConfiguration *>(rc))
-                if (qt4c->profilePath() == n->path())
-                    result << rc;
+    foreach (RunConfiguration *rc, t->runConfigurations()) {
+        if (IosRunConfiguration *qt4c = qobject_cast<IosRunConfiguration *>(rc)) {
+            if (qt4c->profilePath() == n->path())
+                result << rc;
+        }
+    }
     return result;
 }
 

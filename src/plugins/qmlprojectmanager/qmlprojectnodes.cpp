@@ -42,7 +42,7 @@ namespace QmlProjectManager {
 namespace Internal {
 
 QmlProjectNode::QmlProjectNode(QmlProject *project, Core::IDocument *projectFile)
-    : ProjectExplorer::ProjectNode(projectFile->filePath().toString()),
+    : ProjectExplorer::ProjectNode(projectFile->filePath()),
       m_project(project),
       m_projectFile(projectFile)
 {
@@ -80,7 +80,7 @@ void QmlProjectNode::refresh()
                                               /* generated = */ false);
 
     QStringList files = m_project->files();
-    files.removeAll(m_project->filesFileName());
+    files.removeAll(m_project->filesFileName().toString());
 
     addFileNodes(QList<FileNode *>()
                  << projectFilesNode);
@@ -114,7 +114,8 @@ void QmlProjectNode::refresh()
         QList<FileNode *> fileNodes;
         foreach (const QString &file, it.value()) {
             FileType fileType = SourceType; // ### FIXME
-            FileNode *fileNode = new FileNode(file, fileType, /*generated = */ false);
+            FileNode *fileNode = new FileNode(Utils::FileName::fromString(file),
+                                              fileType, /*generated = */ false);
             fileNodes.append(fileNode);
         }
 
@@ -129,7 +130,7 @@ ProjectExplorer::FolderNode *QmlProjectNode::findOrCreateFolderByName(const QStr
     if (! end)
         return 0;
 
-    QString baseDir = QFileInfo(path()).path();
+    Utils::FileName folderPath = path().parentDir();
 
     QString folderName;
     for (int i = 0; i < end; ++i) {
@@ -145,7 +146,8 @@ ProjectExplorer::FolderNode *QmlProjectNode::findOrCreateFolderByName(const QStr
     else if (FolderNode *folder = m_folderByName.value(folderName))
         return folder;
 
-    FolderNode *folder = new FolderNode(baseDir + QLatin1Char('/') + folderName);
+    folderPath.appendPath(folderName);
+    FolderNode *folder = new FolderNode(folderPath);
     folder->setDisplayName(component);
 
     m_folderByName.insert(folderName, folder);

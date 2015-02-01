@@ -199,7 +199,7 @@ bool ProjectFileWizardExtension::processProject(
     if (m_context->wizard->kind() == IWizardFactory::ProjectWizard) {
         if (!static_cast<ProjectNode *>(folder)->addSubProjects(QStringList(generatedProject))) {
             *errorMessage = tr("Failed to add subproject \"%1\"\nto project \"%2\".")
-                            .arg(generatedProject).arg(folder->path());
+                            .arg(generatedProject).arg(folder->path().toUserOutput());
             return false;
         }
         *removeOpenProjectAttribute = true;
@@ -207,7 +207,7 @@ bool ProjectFileWizardExtension::processProject(
         QStringList filePaths = Utils::transform(files, &GeneratedFile::path);
         if (!folder->addFiles(filePaths)) {
             *errorMessage = tr("Failed to add one or more files to project\n\"%1\" (%2).").
-                    arg(folder->path(), filePaths.join(QLatin1Char(',')));
+                    arg(folder->path().toUserOutput(), filePaths.join(QLatin1Char(',')));
             return false;
         }
     }

@@ -33,6 +33,8 @@
 
 #include <android/androidrunconfiguration.h>
 
+#include <utils/fileutils.h>
+
 namespace QmakeProjectManager { class QmakeProFileNode; }
 
 namespace QmakeAndroidSupport {
@@ -44,9 +46,10 @@ class QmakeAndroidRunConfiguration : public Android::AndroidRunConfiguration
     friend class QmakeAndroidRunConfigurationFactory;
 
 public:
-    QmakeAndroidRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const QString &path = QString());
+    QmakeAndroidRunConfiguration(ProjectExplorer::Target *parent, Core::Id id,
+                                 const Utils::FileName &path = Utils::FileName());
 
-    QString proFilePath() const;
+    Utils::FileName proFilePath() const;
 
     bool isEnabled() const;
     QString disabledReason() const;
@@ -64,7 +67,7 @@ private slots:
 private:
     void init();
 
-    mutable QString m_proFilePath;
+    mutable Utils::FileName m_proFilePath;
     bool m_parseSuccess;
     bool m_parseInProgress;
 };

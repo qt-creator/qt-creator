@@ -106,7 +106,7 @@ protected:
 private:
     void ctor();
 
-    bool doUpdateAppDescriptorFile(const QString &appDescriptorPath,
+    bool doUpdateAppDescriptorFile(const Utils::FileName &appDescriptorPath,
                                    QFlags<EditMode> types,
                                    bool skipConfirmation = false);
 

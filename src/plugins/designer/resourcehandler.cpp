@@ -74,10 +74,10 @@ void QrcFilesVisitor::visitFolderNode(FolderNode *folderNode)
 {
     foreach (const FileNode *fileNode, folderNode->fileNodes()) {
         if (fileNode->fileType() == ResourceType)
-            m_qrcFiles.append(fileNode->path());
+            m_qrcFiles.append(fileNode->path().toString());
     }
     if (dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(folderNode))
-        m_qrcFiles.append(folderNode->path());
+        m_qrcFiles.append(folderNode->path().toString());
 }
 
 // ------------ ResourceHandler
@@ -125,7 +125,8 @@ void ResourceHandler::updateResources(bool updateProjectResources)
         qDebug() << "ResourceHandler::updateResources()" << fileName;
 
     // Filename could change in the meantime.
-    Project *project = SessionManager::projectForFile(fileName);
+    Project *project = SessionManager::projectForFile(
+                Utils::FileName::fromUserInput(QDir::fromNativeSeparators(fileName)));
     const bool dirty = m_form->property("_q_resourcepathchanged").toBool();
     if (dirty)
         m_form->setDirty(true);

@@ -85,7 +85,7 @@ using namespace Utils;
 /*!
   \class CMakeProject
 */
-CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
+CMakeProject::CMakeProject(CMakeManager *manager, const FileName &fileName)
     : m_manager(manager),
       m_activeTarget(0),
       m_fileName(fileName),
@@ -96,7 +96,7 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
     setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
-    m_projectName = QFileInfo(fileName).absoluteDir().dirName();
+    m_projectName = fileName.parentDir().fileName();
 
     m_file = new CMakeFile(this, fileName);
 
@@ -133,8 +133,8 @@ void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfigur
     if (!cbpFileFi.exists()) {
         mode = CMakeOpenProjectWizard::NeedToCreate;
     } else {
-        foreach (const QString &file, m_watchedFiles) {
-            if (QFileInfo(file).lastModified() > cbpFileFi.lastModified()) {
+        foreach (const FileName &file, m_watchedFiles) {
+            if (file.toFileInfo().lastModified() > cbpFileFi.lastModified()) {
                 mode = CMakeOpenProjectWizard::NeedToUpdate;
                 break;
             }
@@ -234,7 +234,7 @@ bool CMakeProject::parseCMakeLists()
 
     CMakeBuildConfiguration *activeBC = static_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
     foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments())
-        if (isProjectFile(document->filePath().toString()))
+        if (isProjectFile(document->filePath()))
             document->infoBar()->removeInfo("CMakeEditor.RunCMake");
 
     // Find cbp file
@@ -268,14 +268,14 @@ bool CMakeProject::parseCMakeLists()
 
     //qDebug()<<"Building Tree";
     QList<ProjectExplorer::FileNode *> fileList = cbpparser.fileList();
-    QSet<QString> projectFiles;
+    QSet<FileName> projectFiles;
     if (cbpparser.hasCMakeFiles()) {
         fileList.append(cbpparser.cmakeFileList());
         foreach (const ProjectExplorer::FileNode *node, cbpparser.cmakeFileList())
             projectFiles.insert(node->path());
     } else {
         // Manually add the CMakeLists.txt file
-        QString cmakeListTxt = projectDirectory().toString() + QLatin1String("/CMakeLists.txt");
+        FileName cmakeListTxt = projectDirectory().appendPath(QLatin1String("CMakeLists.txt"));
         bool generated = false;
         fileList.append(new ProjectExplorer::FileNode(cmakeListTxt, ProjectExplorer::ProjectFileType, generated));
         projectFiles.insert(cmakeListTxt);
@@ -285,7 +285,7 @@ bool CMakeProject::parseCMakeLists()
 
     m_files.clear();
     foreach (ProjectExplorer::FileNode *fn, fileList)
-        m_files.append(fn->path());
+        m_files.append(fn->path().toString());
     m_files.sort();
 
     buildTree(m_rootNode, fileList);
@@ -347,7 +347,7 @@ bool CMakeProject::parseCMakeLists()
     return true;
 }
 
-bool CMakeProject::isProjectFile(const QString &fileName)
+bool CMakeProject::isProjectFile(const FileName &fileName)
 {
     return m_watchedFiles.contains(fileName);
 }
@@ -409,7 +409,7 @@ void CMakeProject::buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::
     foreach (ProjectExplorer::FileNode *fn, added) {
 //        qDebug()<<"added"<<fn->path();
         // Get relative path to rootNode
-        QString parentDir = QFileInfo(fn->path()).absolutePath();
+        QString parentDir = fn->path().toFileInfo().absolutePath();
         ProjectExplorer::FolderNode *folder = findOrCreateFolder(rootNode, parentDir);
         folder->addFileNodes(QList<ProjectExplorer::FileNode *>()<< fn);
     }
@@ -432,13 +432,13 @@ void CMakeProject::buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::
 
 ProjectExplorer::FolderNode *CMakeProject::findOrCreateFolder(CMakeProjectNode *rootNode, QString directory)
 {
-    QString relativePath = QDir(QFileInfo(rootNode->path()).path()).relativeFilePath(directory);
+    FileName path = rootNode->path().parentDir();
+    QDir rootParentDir(path.toString());
+    QString relativePath = rootParentDir.relativeFilePath(directory);
     QStringList parts = relativePath.split(QLatin1Char('/'), QString::SkipEmptyParts);
     ProjectExplorer::FolderNode *parent = rootNode;
-    QString path = QFileInfo(rootNode->path()).path();
     foreach (const QString &part, parts) {
-        path += QLatin1Char('/');
-        path += part;
+        path.appendPath(part);
         // Find folder in subFolders
         bool found = false;
         foreach (ProjectExplorer::FolderNode *folder, parent->subFolderNodes()) {
@@ -522,7 +522,6 @@ bool CMakeProject::fromMap(const QVariantMap &map)
     } else {
         // We have a user file, but we could still be missing the cbp file
         // or simply run createXml with the saved settings
-        QFileInfo sourceFileInfo(m_fileName);
         CMakeBuildConfiguration *activeBC = qobject_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
         if (!activeBC)
             return false;
@@ -532,7 +531,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
         CMakeOpenProjectWizard::Mode mode = CMakeOpenProjectWizard::Nothing;
         if (!cbpFileFi.exists())
             mode = CMakeOpenProjectWizard::NeedToCreate;
-        else if (cbpFileFi.lastModified() < sourceFileInfo.lastModified())
+        else if (cbpFileFi.lastModified() < m_fileName.toFileInfo().lastModified())
             mode = CMakeOpenProjectWizard::NeedToUpdate;
 
         if (mode != CMakeOpenProjectWizard::Nothing) {
@@ -737,12 +736,12 @@ void CMakeProject::createUiCodeModelSupport()
 
 // CMakeFile
 
-CMakeFile::CMakeFile(CMakeProject *parent, QString fileName)
+CMakeFile::CMakeFile(CMakeProject *parent, const FileName &fileName)
     : Core::IDocument(parent), m_project(parent)
 {
     setId("Cmake.ProjectFile");
     setMimeType(QLatin1String(Constants::CMAKEPROJECTMIMETYPE));
-    setFilePath(FileName::fromString(fileName));
+    setFilePath(fileName);
 }
 
 bool CMakeFile::save(QString *errorString, const QString &fileName, bool autoSave)
@@ -873,7 +872,7 @@ void CMakeCbpParser::sortFiles()
 {
     QLoggingCategory log("qtc.cmakeprojectmanager.filetargetmapping");
     QList<FileName> fileNames = Utils::transform(m_fileList, [] (FileNode *node) {
-        return FileName::fromString(node->path());
+        return node->path();
     });
 
     Utils::sort(fileNames);
@@ -1203,7 +1202,8 @@ void CMakeCbpParser::parseAdd()
 void CMakeCbpParser::parseUnit()
 {
     //qDebug()<<stream.attributes().value("filename");
-    QString fileName = attributes().value(QLatin1String("filename")).toString();
+    FileName fileName =
+            FileName::fromUserInput(attributes().value(QLatin1String("filename")).toString());
     m_parsingCmakeUnit = false;
     while (!atEnd()) {
         readNext();
@@ -1214,7 +1214,7 @@ void CMakeCbpParser::parseUnit()
                     m_cmakeFileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::ProjectFileType, false));
                 } else {
                     bool generated = false;
-                    QString onlyFileName = FileName::fromString(fileName).fileName();
+                    QString onlyFileName = fileName.fileName();
                     if (   (onlyFileName.startsWith(QLatin1String("moc_")) && onlyFileName.endsWith(QLatin1String(".cxx")))
                         || (onlyFileName.startsWith(QLatin1String("ui_")) && onlyFileName.endsWith(QLatin1String(".h")))
                         || (onlyFileName.startsWith(QLatin1String("qrc_")) && onlyFileName.endsWith(QLatin1String(".cxx"))))

@@ -51,7 +51,7 @@ class QbsProjectFile;
 class QbsFileNode : public ProjectExplorer::FileNode
 {
 public:
-    QbsFileNode(const QString &filePath, const ProjectExplorer::FileType fileType, bool generated,
+    QbsFileNode(const Utils::FileName &filePath, const ProjectExplorer::FileType fileType, bool generated,
                 int line);
 
     QString displayName() const;
@@ -66,7 +66,7 @@ class QbsGroupNode;
 class QbsBaseProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
-    explicit QbsBaseProjectNode(const QString &path);
+    explicit QbsBaseProjectNode(const Utils::FileName &path);
 
     bool showInSimpleTree() const;
 
@@ -155,7 +155,7 @@ private:
 class QbsProjectNode : public QbsBaseProjectNode
 {
 public:
-    explicit QbsProjectNode(const QString &path);
+    explicit QbsProjectNode(const Utils::FileName &path);
     ~QbsProjectNode();
 
     virtual QbsProject *project() const;

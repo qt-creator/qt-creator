@@ -57,7 +57,7 @@ ProjectExplorer::Project *Manager::openProject(const QString &fileName, QString 
         return 0;
     }
 
-    return new QmlProject(this, fileName);
+    return new QmlProject(this, Utils::FileName::fromString(fileName));
 }
 
 void Manager::registerProject(QmlProject *project)
@@ -68,8 +68,9 @@ void Manager::unregisterProject(QmlProject *project)
 
 void Manager::notifyChanged(const QString &fileName)
 {
+    const Utils::FileName file = Utils::FileName::fromString(fileName);
     foreach (QmlProject *project, m_projects) {
-        if (fileName == project->filesFileName())
+        if (file == project->filesFileName())
             project->refresh(QmlProject::Files);
     }
 }

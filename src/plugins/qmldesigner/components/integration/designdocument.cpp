@@ -643,7 +643,7 @@ static inline Kit *getActiveKit(DesignDocument *designDocument)
     Project *currentProject = ProjectTree::currentProject();
 
     if (!currentProject)
-        currentProject = SessionManager::projectForFile(designDocument->fileName());
+        currentProject = SessionManager::projectForFile(Utils::FileName::fromString(designDocument->fileName()));
 
     if (!currentProject)
         return 0;

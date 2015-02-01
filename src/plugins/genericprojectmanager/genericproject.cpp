@@ -94,15 +94,15 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
 
     m_rootNode = new GenericProjectNode(this, m_creatorIDocument);
 
-    FileNode *projectFilesNode = new FileNode(m_filesFileName,
+    FileNode *projectFilesNode = new FileNode(Utils::FileName::fromString(m_filesFileName),
                                               ProjectFileType,
                                               /* generated = */ false);
 
-    FileNode *projectIncludesNode = new FileNode(m_includesFileName,
+    FileNode *projectIncludesNode = new FileNode(Utils::FileName::fromString(m_includesFileName),
                                                  ProjectFileType,
                                                  /* generated = */ false);
 
-    FileNode *projectConfigNode = new FileNode(m_configFileName,
+    FileNode *projectConfigNode = new FileNode(Utils::FileName::fromString(m_configFileName),
                                                ProjectFileType,
                                                /* generated = */ false);
 

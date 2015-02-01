@@ -80,22 +80,22 @@ public:
 
     ProjectExplorer::ProjectNode *rootProjectNode() const;
     QmakeProFileNode *rootQmakeProjectNode() const;
-    bool validParse(const QString &proFilePath) const;
-    bool parseInProgress(const QString &proFilePath) const;
+    bool validParse(const Utils::FileName &proFilePath) const;
+    bool parseInProgress(const Utils::FileName &proFilePath) const;
 
     virtual QStringList files(FilesMode fileMode) const;
-    virtual QString generatedUiHeader(const QString &formFile) const;
+    virtual QString generatedUiHeader(const Utils::FileName &formFile) const;
 
     enum Parsing {ExactParse, ExactAndCumulativeParse };
     QList<QmakeProFileNode *> allProFiles(const QList<QmakeProjectType> &projectTypes = QList<QmakeProjectType>(),
                                           Parsing parse = ExactParse) const;
     QList<QmakeProFileNode *> applicationProFiles(Parsing parse = ExactParse) const;
-    bool hasApplicationProFile(const QString &path) const;
+    bool hasApplicationProFile(const Utils::FileName &path) const;
 
     static QList<QmakeProFileNode *> nodesWithQtcRunnable(QList<QmakeProFileNode *> nodes);
     static QList<Core::Id> idsForNodes(Core::Id base, const QList<QmakeProFileNode *> &nodes);
 
-    void notifyChanged(const QString &name);
+    void notifyChanged(const Utils::FileName &name);
 
     /// \internal
     QtSupport::ProFileReader *createProFileReader(const QmakeProFileNode *qmakeProFileNode, QmakeBuildConfiguration *bc = 0);
@@ -130,7 +130,7 @@ public:
     bool requiresTargetPanel() const;
 
     /// \internal
-    QString disabledReasonForRunConfiguration(const QString &proFilePath);
+    QString disabledReasonForRunConfiguration(const Utils::FileName &proFilePath);
 
     /// used by the default implementation of shadowBuildDirectory
     static QString buildNameFor(const ProjectExplorer::Kit *k);
@@ -170,8 +170,8 @@ private:
 
     static void collectAllProFiles(QList<QmakeProFileNode *> &list, QmakeProFileNode *node, Parsing parse,
                                    const QList<QmakeProjectManager::QmakeProjectType> &projectTypes);
-    static void findProFile(const QString& fileName, QmakeProFileNode *root, QList<QmakeProFileNode *> &list);
-    static bool hasSubNode(QmakePriFileNode *root, const QString &path);
+    static void findProFile(const Utils::FileName &fileName, QmakeProFileNode *root, QList<QmakeProFileNode *> &list);
+    static bool hasSubNode(QmakePriFileNode *root, const Utils::FileName &path);
 
     static bool equalFileList(const QStringList &a, const QStringList &b);
 

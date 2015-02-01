@@ -112,14 +112,15 @@ void CMakeManager::runCMake(ProjectExplorer::Project *project)
 
 ProjectExplorer::Project *CMakeManager::openProject(const QString &fileName, QString *errorString)
 {
-    if (!QFileInfo(fileName).isFile()) {
+    Utils::FileName file = Utils::FileName::fromString(fileName);
+    if (!file.toFileInfo().isFile()) {
         if (errorString)
             *errorString = tr("Failed opening project \"%1\": Project is not a file")
-                .arg(fileName);
+                .arg(file.toUserOutput());
         return 0;
     }
 
-    return new CMakeProject(this, fileName);
+    return new CMakeProject(this, file);
 }
 
 QString CMakeManager::mimeType() const

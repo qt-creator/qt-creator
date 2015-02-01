@@ -142,12 +142,12 @@ QmakeAndroidBuildApkStep::QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepLis
     ctor();
 }
 
-QString QmakeAndroidBuildApkStep::proFilePathForInputFile() const
+Utils::FileName QmakeAndroidBuildApkStep::proFilePathForInputFile() const
 {
     ProjectExplorer::RunConfiguration *rc = target()->activeRunConfiguration();
     if (auto *arc = qobject_cast<QmakeAndroidRunConfiguration *>(rc))
         return arc->proFilePath();
-    return QString();
+    return Utils::FileName();
 }
 
 QmakeAndroidBuildApkStep::QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepList *bc, QmakeAndroidBuildApkStep *other)

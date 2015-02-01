@@ -132,7 +132,7 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
                                            QString *errorMessage) const
 {
     // Get the binary either from the current Qt version of the project or Path
-    if (Project *project = SessionManager::projectForFile(fileName)) {
+    if (Project *project = SessionManager::projectForFile(Utils::FileName::fromString(fileName))) {
         if (const Target *target = project->activeTarget()) {
             if (const QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target->kit())) {
                 data->binary = (qtVersion->*commandAccessor)();

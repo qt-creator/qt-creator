@@ -513,16 +513,17 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
 {
     typedef QMap<int, Document::Ptr> DocumentMap;
 
-    const QString currentUiFile = FormEditorW::activeEditor()->document()->filePath().toString();
+    const Utils::FileName currentUiFile = FormEditorW::activeEditor()->document()->filePath();
 #if 0
-    return Designer::Internal::navigateToSlot(currentUiFile, objectName, signalSignature, parameterNames, errorMessage);
+    return Designer::Internal::navigateToSlot(currentUiFile.toString(), objectName,
+                                              signalSignature, parameterNames, errorMessage);
 #endif
     // TODO: we should pass to findDocumentsIncluding an absolute path to generated .h file from ui.
     // Currently we are guessing the name of ui_<>.h file and pass the file name only to the findDocumentsIncluding().
     // The idea is that the .pro file knows if the .ui files is inside, and the .pro file knows it will
     // be generating the ui_<>.h file for it, and the .pro file knows what the generated file's name and its absolute path will be.
     // So we should somehow get that info from project manager (?)
-    const QFileInfo fi(currentUiFile);
+    const QFileInfo fi = currentUiFile.toFileInfo();
     const QString uiFolder = fi.absolutePath();
     const QString uicedName = QLatin1String("ui_") + fi.completeBaseName() + QLatin1String(".h");
 
@@ -532,7 +533,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     const Project *uiProject = SessionManager::projectForFile(currentUiFile);
     if (uiProject) {
         for (Snapshot::const_iterator i = docTable.begin(), ei = docTable.end(); i != ei; ++i) {
-            const Project *project = SessionManager::projectForFile(i.key().toString());
+            const Project *project = SessionManager::projectForFile(i.key());
             if (project == uiProject)
                 newDocTable.insert(i.value());
         }

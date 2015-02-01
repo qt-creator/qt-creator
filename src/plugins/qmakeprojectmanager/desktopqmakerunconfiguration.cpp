@@ -72,9 +72,9 @@ const char USE_TERMINAL_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.UseTermin
 const char USE_DYLD_IMAGE_SUFFIX_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.UseDyldImageSuffix";
 const char USER_WORKING_DIRECTORY_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory";
 
-static QString pathFromId(Core::Id id)
+static Utils::FileName pathFromId(Core::Id id)
 {
-    return id.suffixAfter(QMAKE_RC_PREFIX);
+    return Utils::FileName::fromString(id.suffixAfter(QMAKE_RC_PREFIX));
 }
 
 //
@@ -123,7 +123,7 @@ QString DesktopQmakeRunConfiguration::disabledReason() const
 {
     if (m_parseInProgress)
         return tr("The .pro file \"%1\" is currently being parsed.")
-                .arg(FileName::fromString(m_proFilePath).fileName());
+                .arg(m_proFilePath.fileName());
 
     if (!m_parseSuccess)
         return static_cast<QmakeProject *>(target()->project())->disabledReasonForRunConfiguration(m_proFilePath);
@@ -425,7 +425,7 @@ QVariantMap DesktopQmakeRunConfiguration::toMap() const
     const QDir projectDir = QDir(target()->project()->projectDirectory().toString());
     QVariantMap map(LocalApplicationRunConfiguration::toMap());
     map.insert(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY), m_commandLineArguments);
-    map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath));
+    map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath.toString()));
     map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == ApplicationLauncher::Console);
     map.insert(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), m_isUsingDyldImageSuffix);
     map.insert(QLatin1String(USER_WORKING_DIRECTORY_KEY), m_userWorkingDirectory);
@@ -436,7 +436,7 @@ bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
 {
     const QDir projectDir = QDir(target()->project()->projectDirectory().toString());
     m_commandLineArguments = map.value(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY)).toString();
-    m_proFilePath = QDir::cleanPath(projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString()));
+    m_proFilePath = Utils::FileName::fromUserInput(projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString()));
     m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY), false).toBool()
             ? ApplicationLauncher::Console : ApplicationLauncher::Gui;
     m_isUsingDyldImageSuffix = map.value(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), false).toBool();
@@ -560,7 +560,7 @@ void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
         env.prependOrSetLibrarySearchPath(qtVersion->qmakeProperty("QT_INSTALL_LIBS"));
 }
 
-QString DesktopQmakeRunConfiguration::proFilePath() const
+Utils::FileName DesktopQmakeRunConfiguration::proFilePath() const
 {
     return m_proFilePath;
 }
@@ -569,7 +569,7 @@ QString DesktopQmakeRunConfiguration::defaultDisplayName()
 {
     QString defaultName;
     if (!m_proFilePath.isEmpty())
-        defaultName = QFileInfo(m_proFilePath).completeBaseName();
+        defaultName = m_proFilePath.toFileInfo().completeBaseName();
     else
         defaultName = tr("Qt Run Configuration");
     return defaultName;
@@ -691,7 +691,7 @@ QList<Core::Id> DesktopQmakeRunConfigurationFactory::availableCreationIds(Target
 
 QString DesktopQmakeRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
-    return QFileInfo(pathFromId(id)).completeBaseName();
+    return pathFromId(id).toFileInfo().completeBaseName();
 }
 
 bool DesktopQmakeRunConfigurationFactory::canHandle(Target *t) const

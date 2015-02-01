@@ -59,7 +59,7 @@ static QString pathFromId(const Core::Id id)
     return id.suffixAfter(ANDROID_RC_ID_PREFIX);
 }
 
-QmakeAndroidRunConfiguration::QmakeAndroidRunConfiguration(Target *parent, Core::Id id, const QString &path)
+QmakeAndroidRunConfiguration::QmakeAndroidRunConfiguration(Target *parent, Core::Id id, const Utils::FileName &path)
     : AndroidRunConfiguration(parent, id)
     , m_proFilePath(path)
 {
@@ -88,7 +88,7 @@ void QmakeAndroidRunConfiguration::init()
 bool QmakeAndroidRunConfiguration::fromMap(const QVariantMap &map)
 {
     const QDir projectDir = QDir(target()->project()->projectDirectory().toString());
-    m_proFilePath = QDir::cleanPath(projectDir.filePath(map.value(PRO_FILE_KEY).toString()));
+    m_proFilePath = Utils::FileName::fromUserInput(projectDir.filePath(map.value(PRO_FILE_KEY).toString()));
     m_parseSuccess = static_cast<QmakeProject *>(target()->project())->validParse(m_proFilePath);
     m_parseInProgress = static_cast<QmakeProject *>(target()->project())->parseInProgress(m_proFilePath);
 
@@ -105,7 +105,7 @@ QVariantMap QmakeAndroidRunConfiguration::toMap() const
 
     const QDir projectDir = QDir(target()->project()->projectDirectory().toString());
     QVariantMap map(RunConfiguration::toMap());
-    map.insert(PRO_FILE_KEY, projectDir.relativeFilePath(m_proFilePath));
+    map.insert(PRO_FILE_KEY, projectDir.relativeFilePath(m_proFilePath.toString()));
     return map;
 }
 
@@ -123,7 +123,7 @@ QString QmakeAndroidRunConfiguration::disabledReason() const
 {
     if (m_parseInProgress)
         return tr("The .pro file \"%1\" is currently being parsed.")
-                .arg(Utils::FileName::fromString(m_proFilePath).fileName());
+                .arg(m_proFilePath.fileName());
 
     if (!m_parseSuccess)
         return static_cast<QmakeProject *>(target()->project())->disabledReasonForRunConfiguration(m_proFilePath);
@@ -147,7 +147,7 @@ void QmakeAndroidRunConfiguration::proFileUpdated(QmakeProjectManager::QmakeProF
         emit enabledChanged();
 }
 
-QString QmakeAndroidRunConfiguration::proFilePath() const
+Utils::FileName QmakeAndroidRunConfiguration::proFilePath() const
 {
     return m_proFilePath;
 }

@@ -217,7 +217,7 @@ int ProjectTreeWidget::expandedCount(Node *node)
 
 void ProjectTreeWidget::rowsInserted(const QModelIndex &parent, int start, int end)
 {
-    const QString &path = m_model->nodeForIndex(parent)->path();
+    const QString path = m_model->nodeForIndex(parent)->path().toString();
     if (m_toExpand.contains(path)) {
         m_view->expand(parent);
         m_toExpand.remove(path);
@@ -235,7 +235,7 @@ void ProjectTreeWidget::rowsInserted(const QModelIndex &parent, int start, int e
     }
 }
 
-Node *ProjectTreeWidget::nodeForFile(const QString &fileName)
+Node *ProjectTreeWidget::nodeForFile(const Utils::FileName &fileName)
 {
     Node *bestNode = 0;
     int bestNodeExpandCount = INT_MAX;
@@ -276,7 +276,7 @@ void ProjectTreeWidget::loadExpandData()
 
 void ProjectTreeWidget::recursiveLoadExpandData(const QModelIndex &index, QSet<QString> &data)
 {
-    const QString &path = m_model->nodeForIndex(index)->path();
+    const QString path = m_model->nodeForIndex(index)->path().toString();
     if (data.contains(path)) {
         m_view->expand(index);
         data.remove(path);
@@ -300,7 +300,7 @@ void ProjectTreeWidget::recursiveSaveExpandData(const QModelIndex &index, QStrin
     if (m_view->isExpanded(index) || index == m_view->rootIndex()) {
         // Note: We store the path of the node, which isn't unique for e.g. .pri files
         // but works for most nodes
-        data->append(m_model->nodeForIndex(index)->path());
+        data->append(m_model->nodeForIndex(index)->path().toString());
         int count = m_model->rowCount(index);
         for (int i = 0; i < count; ++i)
             recursiveSaveExpandData(index.child(i, 0), data);
@@ -335,9 +335,9 @@ void ProjectTreeWidget::setAutoSynchronization(bool sync)
 
     if (m_autoSync) {
         // sync from document manager
-        QString fileName;
+        Utils::FileName fileName;
         if (IDocument *doc = EditorManager::currentDocument())
-            fileName = doc->filePath().toString();
+            fileName = doc->filePath();
         if (!currentNode() || currentNode()->path() != fileName)
             setCurrentItem(ProjectTreeWidget::nodeForFile(fileName));
     }
@@ -356,7 +356,7 @@ void ProjectTreeWidget::editCurrentItem()
 }
 
 
-void ProjectTreeWidget::renamed(const QString &oldPath, const QString &newPath)
+void ProjectTreeWidget::renamed(const Utils::FileName &oldPath, const Utils::FileName &newPath)
 {
     Q_UNUSED(oldPath);
     if (!currentNode() || currentNode()->path() != newPath) {
@@ -452,7 +452,7 @@ void ProjectTreeWidget::openItem(const QModelIndex &mainIndex)
     Node *node = m_model->nodeForIndex(mainIndex);
     if (node->nodeType() != FileNodeType)
         return;
-    IEditor *editor = EditorManager::openEditor(node->path());
+    IEditor *editor = EditorManager::openEditor(node->path().toString());
     if (editor && node->line() >= 0)
         editor->gotoLine(node->line());
 }

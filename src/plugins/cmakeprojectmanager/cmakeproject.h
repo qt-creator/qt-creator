@@ -44,6 +44,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
+#include <utils/fileutils.h>
+
 #include <QFuture>
 #include <QXmlStreamReader>
 #include <QPushButton>
@@ -92,7 +94,7 @@ class CMakeProject : public ProjectExplorer::Project
     // for changeBuildDirectory
     friend class CMakeBuildSettingsWidget;
 public:
-    CMakeProject(CMakeManager *manager, const QString &filename);
+    CMakeProject(CMakeManager *manager, const Utils::FileName &filename);
     ~CMakeProject();
 
     QString displayName() const;
@@ -108,7 +110,7 @@ public:
 
     CMakeBuildTarget buildTargetForTitle(const QString &title);
 
-    bool isProjectFile(const QString &fileName);
+    bool isProjectFile(const Utils::FileName &fileName);
 
     bool parseCMakeLists();
 
@@ -142,7 +144,7 @@ private:
 
     CMakeManager *m_manager;
     ProjectExplorer::Target *m_activeTarget;
-    QString m_fileName;
+    Utils::FileName m_fileName;
     CMakeFile *m_file;
     QString m_projectName;
 
@@ -151,7 +153,7 @@ private:
     QStringList m_files;
     QList<CMakeBuildTarget> m_buildTargets;
     QFileSystemWatcher *m_watcher;
-    QSet<QString> m_watchedFiles;
+    QSet<Utils::FileName> m_watchedFiles;
     QFuture<void> m_codeModelFuture;
 };
 
@@ -185,7 +187,7 @@ private:
 
     QList<ProjectExplorer::FileNode *> m_fileList;
     QList<ProjectExplorer::FileNode *> m_cmakeFileList;
-    QSet<QString> m_processedUnits;
+    QSet<Utils::FileName> m_processedUnits;
     bool m_parsingCmakeUnit;
 
     CMakeBuildTarget m_buildTarget;
@@ -200,7 +202,7 @@ class CMakeFile : public Core::IDocument
 {
     Q_OBJECT
 public:
-    CMakeFile(CMakeProject *parent, QString fileName);
+    CMakeFile(CMakeProject *parent, const Utils::FileName &fileName);
 
     bool save(QString *errorString, const QString &fileName, bool autoSave);
 

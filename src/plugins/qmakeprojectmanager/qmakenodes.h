@@ -151,7 +151,7 @@ public:
 class QMAKEPROJECTMANAGER_EXPORT QmakePriFileNode : public ProjectExplorer::ProjectNode
 {
 public:
-    QmakePriFileNode(QmakeProject *project, QmakeProFileNode *qmakeProFileNode, const QString &filePath);
+    QmakePriFileNode(QmakeProject *project, QmakeProFileNode *qmakeProFileNode, const Utils::FileName &filePath);
     ~QmakePriFileNode();
 
     void update(const Internal::PriFileEvalResult &result);
@@ -226,7 +226,7 @@ private:
 
     QmakeProject *m_project;
     QmakeProFileNode *m_qmakeProFileNode;
-    QString m_projectFilePath;
+    Utils::FileName m_projectFilePath;
     QString m_projectDir;
 
     QMap<QString, QtSupport::UiCodeModelSupport *> m_uiCodeModelSupport;
@@ -269,7 +269,7 @@ private:
 class ProVirtualFolderNode : public ProjectExplorer::VirtualFolderNode
 {
 public:
-    explicit ProVirtualFolderNode(const QString &folderPath, int priority, const QString &typeName)
+    explicit ProVirtualFolderNode(const Utils::FileName &folderPath, int priority, const QString &typeName)
         : VirtualFolderNode(folderPath, priority), m_typeName(typeName)
     {
 
@@ -349,8 +349,7 @@ struct QMAKEPROJECTMANAGER_EXPORT ProjectVersion {
 class QMAKEPROJECTMANAGER_EXPORT QmakeProFileNode : public QmakePriFileNode
 {
 public:
-    QmakeProFileNode(QmakeProject *project,
-                   const QString &filePath);
+    QmakeProFileNode(QmakeProject *project, const Utils::FileName &filePath);
     ~QmakeProFileNode();
 
     bool isParent(QmakeProFileNode *node);
@@ -372,10 +371,10 @@ public:
     QString buildDir(QmakeBuildConfiguration *bc = 0) const;
 
     QString uiDirectory(const QString &buildDir) const;
-    static QString uiHeaderFile(const QString &uiDir, const QString &formFile);
+    static QString uiHeaderFile(const QString &uiDir, const Utils::FileName &formFile);
     QHash<QString, QString> uiFiles() const;
 
-    const QmakeProFileNode *findProFileFor(const QString &string) const;
+    const QmakeProFileNode *findProFileFor(const Utils::FileName &string) const;
     TargetInformation targetInformation() const;
 
     InstallsList installsList() const;
@@ -426,7 +425,7 @@ private:
     static QString mocDirPath(QtSupport::ProFileReader *reader, const QString &buildDir);
     static QStringList includePaths(QtSupport::ProFileReader *reader, const QString &buildDir, const QString &projectDir);
     static QStringList libDirectories(QtSupport::ProFileReader *reader);
-    static QStringList subDirsPaths(QtSupport::ProFileReader *reader, const QString &projectDir, QStringList *subProjectsNotToDeploy, QStringList *errors);
+    static Utils::FileNameList subDirsPaths(QtSupport::ProFileReader *reader, const QString &projectDir, QStringList *subProjectsNotToDeploy, QStringList *errors);
 
     static TargetInformation targetInformation(QtSupport::ProFileReader *reader, QtSupport::ProFileReader *readerBuildPass, const QString &buildDir, const QString &projectFilePath);
     static InstallsList installsList(const QtSupport::ProFileReader *reader, const QString &projectFilePath, const QString &projectDir);

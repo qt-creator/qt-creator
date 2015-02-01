@@ -79,7 +79,7 @@ void QmakeManager::unregisterProject(QmakeProject *project)
     m_projects.removeOne(project);
 }
 
-void QmakeManager::notifyChanged(const QString &name)
+void QmakeManager::notifyChanged(const Utils::FileName &name)
 {
     foreach (QmakeProject *pro, m_projects)
         pro->notifyChanged(name);
@@ -142,7 +142,7 @@ void QmakeManager::addLibraryContextMenu()
 {
     Node *node = ProjectTree::currentNode();
     if (dynamic_cast<QmakeProFileNode *>(node))
-        addLibrary(node->path());
+        addLibrary(node->path().toString());
 }
 
 void QmakeManager::addLibrary(const QString &fileName, BaseTextEditor *editor)
@@ -231,7 +231,7 @@ void QmakeManager::buildFileContextMenu()
 void QmakeManager::buildFile()
 {
     if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
-        const QString file = currentDocument->filePath().toString();
+        const Utils::FileName file = currentDocument->filePath();
         FileNode *node  = dynamic_cast<FileNode *>(SessionManager::nodeForFile(file));
         Project *project = SessionManager::projectForFile(file);
 

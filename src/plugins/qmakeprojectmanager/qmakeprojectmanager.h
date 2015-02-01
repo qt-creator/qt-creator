@@ -59,7 +59,7 @@ public:
 
     void registerProject(QmakeProject *project);
     void unregisterProject(QmakeProject *project);
-    void notifyChanged(const QString &name);
+    void notifyChanged(const Utils::FileName &name);
 
     virtual QString mimeType() const;
     ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString);

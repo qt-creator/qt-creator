@@ -177,7 +177,7 @@ Project *ProjectTree::projectForNode(Node *node)
 void ProjectTree::updateFromDocumentManager(bool invalidCurrentNode)
 {
     Core::IDocument *document = Core::EditorManager::currentDocument();
-    const QString &fileName = document ? document->filePath().toString() : QString();
+    const FileName fileName = document ? document->filePath() : FileName();
 
     Node *currentNode = 0;
     if (!invalidCurrentNode && m_currentNode && m_currentNode->path() == fileName)

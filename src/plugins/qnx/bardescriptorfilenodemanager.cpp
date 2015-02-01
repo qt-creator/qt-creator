@@ -150,7 +150,7 @@ void BarDescriptorFileNodeManager::updateBarDescriptorNodes(ProjectExplorer::Pro
         if (!projectNode)
             continue;
 
-        if (!QFileInfo::exists(package.appDescriptorPath())) {
+        if (!package.appDescriptorPath().exists()) {
             if (!attemptCreate)
                 continue;
 
@@ -165,7 +165,8 @@ void BarDescriptorFileNodeManager::updateBarDescriptorNodes(ProjectExplorer::Pro
         if (existingNode) {
             if (existingNode->path() != package.appDescriptorPath()) {
                 // Reload the new bar-descriptor document in the existing editor (if there is one)
-                Core::IDocument *oldDocument = Core::DocumentModel::documentForFilePath(existingNode->path());
+                Core::IDocument *oldDocument = Core::DocumentModel::documentForFilePath(
+                            existingNode->path().toString());
                 if (oldDocument) {
                     QString errorMessage;
 
@@ -173,7 +174,7 @@ void BarDescriptorFileNodeManager::updateBarDescriptorNodes(ProjectExplorer::Pro
                         Core::MessageManager::write(tr("Cannot save bar descriptor file: %1").arg(errorMessage));
                         continue;
                     } else {
-                        oldDocument->setFilePath(Utils::FileName::fromString(package.appDescriptorPath()));
+                        oldDocument->setFilePath(package.appDescriptorPath());
 
                         if (!oldDocument->reload(&errorMessage, Core::IDocument::FlagReload, Core::IDocument::TypeContents))
                             Core::MessageManager::write(tr("Cannot reload bar descriptor file: %1").arg(errorMessage));
@@ -190,17 +191,17 @@ void BarDescriptorFileNodeManager::updateBarDescriptorNodes(ProjectExplorer::Pro
 }
 
 bool BarDescriptorFileNodeManager::createBarDescriptor(ProjectExplorer::Project *project,
-                                                       const QString &barDescriptorPath,
+                                                       const Utils::FileName &barDescriptorPath,
                                                        ProjectExplorer::ProjectNode *projectNode)
 {
-    const QString projectName = QFileInfo(projectNode->path()).completeBaseName();
+    const QString projectName = projectNode->path().toFileInfo().completeBaseName();
 
     QmakeProjectManager::QmakeProFileNode *proFileNode =
             dynamic_cast<QmakeProjectManager::QmakeProFileNode*>(projectNode);
     QTC_ASSERT(proFileNode, return false);
     const QString targetName = proFileNode->targetInformation().target;
 
-    const QFile barDescriptorFile(barDescriptorPath);
+    const QFile barDescriptorFile(barDescriptorPath.toString());
     if (barDescriptorFile.exists())
         return false;
 
@@ -261,13 +262,13 @@ bool BarDescriptorFileNodeManager::createBarDescriptor(ProjectExplorer::Project 
     return true;
 }
 
-void BarDescriptorFileNodeManager::updateBarDescriptor(const QString &barDescriptorPath,
+void BarDescriptorFileNodeManager::updateBarDescriptor(const Utils::FileName &barDescriptorPath,
                                                        ProjectExplorer::Target *target,
                                                        bool skipConfirmation)
 {
     BarDescriptorDocument doc;
     QString errorString;
-    if (!doc.open(&errorString, barDescriptorPath)) {
+    if (!doc.open(&errorString, barDescriptorPath.toString())) {
         QMessageBox::warning(Core::ICore::mainWindow(), tr("Error"),
                              tr("Cannot open BAR application descriptor file"));
         return;
@@ -335,8 +336,9 @@ BarDescriptorFileNode *BarDescriptorFileNodeManager::findBarDescriptorFileNode(P
     return 0;
 }
 
-ProjectExplorer::ProjectNode *BarDescriptorFileNodeManager::findProjectNode(ProjectExplorer::ProjectNode *parent,
-                                                                            const QString &projectFilePath) const
+ProjectExplorer::ProjectNode *BarDescriptorFileNodeManager::findProjectNode(
+        ProjectExplorer::ProjectNode *parent,
+        const Utils::FileName &projectFilePath) const
 {
     QTC_ASSERT(parent, return 0);
 

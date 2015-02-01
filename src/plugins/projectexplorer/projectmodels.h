@@ -31,6 +31,8 @@
 #ifndef PROJECTMODELS_H
 #define PROJECTMODELS_H
 
+#include <utils/fileutils.h>
+
 #include <QAbstractItemModel>
 #include <QSet>
 
@@ -79,7 +81,7 @@ public:
     bool generatedFilesFilterEnabled();
 
 signals:
-    void renamed(const QString &oldName, const QString &newName);
+    void renamed(const Utils::FileName &oldName, const Utils::FileName &newName);
 
 public slots:
     void setProjectFilterEnabled(bool filter);

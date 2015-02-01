@@ -281,7 +281,7 @@ void EditorConfiguration::setUseGlobalSettings(bool use)
     d->m_defaultCodeStyle->setCurrentDelegate(use ? TextEditorSettings::codeStyle() : 0);
     foreach (Core::IEditor *editor, Core::DocumentModel::editorsForOpenedDocuments()) {
         if (TextEditorWidget *widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
-            Project *project = SessionManager::projectForFile(editor->document()->filePath().toString());
+            Project *project = SessionManager::projectForFile(editor->document()->filePath());
             if (project && project->editorConfiguration() == this)
                 switchSettings(widget);
         }
@@ -407,7 +407,7 @@ TabSettings actualTabSettings(const QString &fileName,
 {
     if (baseTextdocument)
         return baseTextdocument->tabSettings();
-    if (Project *project = SessionManager::projectForFile(fileName))
+    if (Project *project = SessionManager::projectForFile(Utils::FileName::fromString(fileName)))
         return project->editorConfiguration()->codeStyle()->tabSettings();
     return TextEditorSettings::codeStyle()->tabSettings();
 }

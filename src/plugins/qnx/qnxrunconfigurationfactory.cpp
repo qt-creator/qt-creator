@@ -44,9 +44,9 @@
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-static QString pathFromId(Core::Id id)
+static Utils::FileName pathFromId(Core::Id id)
 {
-    return id.suffixAfter(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX);
+    return Utils::FileName::fromString(id.suffixAfter(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX));
 }
 
 QnxRunConfigurationFactory::QnxRunConfigurationFactory(QObject *parent) :
@@ -74,12 +74,12 @@ QList<Core::Id> QnxRunConfigurationFactory::availableCreationIds(ProjectExplorer
 
 QString QnxRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
-    const QString path = pathFromId(id);
+    const Utils::FileName path = pathFromId(id);
     if (path.isEmpty())
         return QString();
 
     if (id.name().startsWith(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX))
-        return tr("%1 on QNX Device").arg(QFileInfo(path).completeBaseName());
+        return tr("%1 on QNX Device").arg(path.toFileInfo().completeBaseName());
 
     return QString();
 }
@@ -98,7 +98,7 @@ bool QnxRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, Core
 
 ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, Core::Id id)
 {
-    const QString projectFilePath = pathFromId(id);
+    const Utils::FileName projectFilePath = pathFromId(id);
     const QmakeProjectManager::QmakeProject * const qt4Project
             = qobject_cast<QmakeProjectManager::QmakeProject *>(parent->project());
     QTC_ASSERT(qt4Project, return 0);

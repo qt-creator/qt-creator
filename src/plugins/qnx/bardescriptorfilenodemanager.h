@@ -35,6 +35,10 @@
 
 #include <QObject>
 
+namespace Utils {
+class FileName;
+}
+
 namespace ProjectExplorer {
 class DeployConfiguration;
 class Project;
@@ -64,12 +68,12 @@ private slots:
 private:
     BarDescriptorFileNode *findBarDescriptorFileNode(ProjectExplorer::ProjectNode *parent) const;
     ProjectExplorer::ProjectNode *findProjectNode(ProjectExplorer::ProjectNode *parent,
-                                                  const QString &projectFilePath) const;
+                                                  const Utils::FileName &projectFilePath) const;
 
     void updateBarDescriptorNodes(ProjectExplorer::Project *project, bool attemptCreate);
-    bool createBarDescriptor(ProjectExplorer::Project *project, const QString &barDescriptorPath,
+    bool createBarDescriptor(ProjectExplorer::Project *project, const Utils::FileName &barDescriptorPath,
                              ProjectExplorer::ProjectNode *projectNode);
-    void updateBarDescriptor(const QString &barDescriptorPath, ProjectExplorer::Target *target,
+    void updateBarDescriptor(const Utils::FileName &barDescriptorPath, ProjectExplorer::Target *target,
                              bool skipConfirmation = false);
 
     void removeBarDescriptorNodes(ProjectExplorer::Project *project);

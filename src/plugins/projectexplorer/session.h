@@ -117,9 +117,9 @@ public:
     static SessionNode *sessionNode();
 
     static Project *projectForNode(Node *node);
-    static QList<Node *> nodesForFile(const QString &fileName);
-    static Node *nodeForFile(const QString &fileName);
-    static Project *projectForFile(const QString &fileName);
+    static QList<Node *> nodesForFile(const Utils::FileName &fileName);
+    static Node *nodeForFile(const Utils::FileName &fileName);
+    static Project *projectForFile(const Utils::FileName &fileName);
 
     static QStringList projectsForSessionName(const QString &session);
 

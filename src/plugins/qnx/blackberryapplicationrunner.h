@@ -41,6 +41,7 @@
 
 #include <ssh/sshconnection.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 
 #include <QObject>
 #include <QProcess>
@@ -126,7 +127,7 @@ private:
     Utils::Environment m_environment;
     QString m_deployCmd;
     BlackBerryDeviceConfiguration::ConstPtr m_device;
-    QString m_barPackage;
+    Utils::FileName m_barPackage;
     QSsh::SshConnectionParameters m_sshParams;
 
     QProcess *m_launchProcess;

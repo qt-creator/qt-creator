@@ -63,8 +63,8 @@ bool sortNodes(Node *n1, Node *n2)
     FileNode *file2 = dynamic_cast<FileNode*>(n2);
     if (file1 && file1->fileType() == ProjectFileType) {
         if (file2 && file2->fileType() == ProjectFileType) {
-            const QString fileName1 = Utils::FileName::fromString(file1->path()).fileName();
-            const QString fileName2 = Utils::FileName::fromString(file2->path()).fileName();
+            const QString fileName1 = file1->path().fileName();
+            const QString fileName2 = file2->path().fileName();
 
             int result = caseFriendlyCompare(fileName1, fileName2);
             if (result != 0)
@@ -89,7 +89,7 @@ bool sortNodes(Node *n1, Node *n2)
             if (result != 0)
                 return result < 0;
 
-            result = caseFriendlyCompare(project1->path(), project2->path());
+            result = caseFriendlyCompare(project1->path().toString(), project2->path().toString());
             if (result != 0)
                 return result < 0;
             return project1 < project2; // sort by pointer value
@@ -109,7 +109,7 @@ bool sortNodes(Node *n1, Node *n2)
                 return true;
             if (folder1->priority() < folder2->priority())
                 return false;
-            int result = caseFriendlyCompare(folder1->path(), folder2->path());
+            int result = caseFriendlyCompare(folder1->path().toString(), folder2->path().toString());
             if (result != 0)
                 return result < 0;
             else
@@ -128,7 +128,7 @@ bool sortNodes(Node *n1, Node *n2)
             FolderNode *folder1 = static_cast<FolderNode*>(n1);
             FolderNode *folder2 = static_cast<FolderNode*>(n2);
 
-            int result = caseFriendlyCompare(folder1->path(), folder2->path());
+            int result = caseFriendlyCompare(folder1->path().toString(), folder2->path().toString());
             if (result != 0)
                 return result < 0;
             else
@@ -146,8 +146,8 @@ bool sortNodes(Node *n1, Node *n2)
         if (result != 0)
             return result < 0;
 
-        const QString filePath1 = n1->path();
-        const QString filePath2 = n2->path();
+        const QString filePath1 = n1->path().toString();
+        const QString filePath2 = n2->path().toString();
 
         const QString fileName1 = Utils::FileName::fromString(filePath1).fileName();
         const QString fileName2 = Utils::FileName::fromString(filePath2).fileName();
@@ -288,7 +288,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
             break;
         }
         case Qt::EditRole: {
-            result = Utils::FileName::fromString(node->path()).fileName();
+            result = node->path().fileName();
             break;
         }
         case Qt::ToolTipRole: {
@@ -299,7 +299,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
             if (folderNode)
                 result = folderNode->icon();
             else
-                result = Core::FileIconProvider::icon(node->path());
+                result = Core::FileIconProvider::icon(node->path().toString());
             break;
         }
         case Qt::FontRole: {
@@ -310,7 +310,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
             break;
         }
         case Project::FilePathRole: {
-            result = node->path();
+            result = node->path().toString();
             break;
         }
         case Project::EnabledRole: {
@@ -354,11 +354,10 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
 
     Node *node = nodeForIndex(index);
 
-    QString orgFilePath = QFileInfo(node->path()).absoluteFilePath();
-    QString dir = QFileInfo(orgFilePath).absolutePath();
-    QString newFilePath = dir + QLatin1Char('/') + value.toString();
+    Utils::FileName orgFilePath = node->path();
+    Utils::FileName newFilePath = orgFilePath.parentDir().appendPath(value.toString());
 
-    ProjectExplorerPlugin::renameFile(node, newFilePath);
+    ProjectExplorerPlugin::renameFile(node, newFilePath.toString());
     emit renamed(orgFilePath, newFilePath);
     return true;
 }
@@ -515,7 +514,7 @@ QMimeData *FlatModel::mimeData(const QModelIndexList &indexes) const
     foreach (const QModelIndex &index, indexes) {
         Node *node = nodeForIndex(index);
         if (dynamic_cast<FileNode *>(node))
-            data->addFile(node->path());
+            data->addFile(node->path().toString());
     }
     return data;
 }

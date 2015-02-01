@@ -46,7 +46,7 @@ using namespace Qnx;
 using namespace Qnx::Internal;
 using namespace ProjectExplorer;
 
-BlackBerryRunConfiguration::BlackBerryRunConfiguration(Target *parent, Core::Id id, const QString &path)
+BlackBerryRunConfiguration::BlackBerryRunConfiguration(Target *parent, Core::Id id, const Utils::FileName &path)
     : RunConfiguration(parent, id)
     , m_proFilePath(path)
 {
@@ -72,7 +72,7 @@ void BlackBerryRunConfiguration::init()
 void BlackBerryRunConfiguration::updateDisplayName()
 {
     if (!m_proFilePath.isEmpty())
-        setDefaultDisplayName(QFileInfo(m_proFilePath).completeBaseName());
+        setDefaultDisplayName(m_proFilePath.toFileInfo().completeBaseName());
     else
         setDefaultDisplayName(tr("Run on BlackBerry device"));
 }
@@ -82,7 +82,7 @@ QWidget *BlackBerryRunConfiguration::createConfigurationWidget()
     return new BlackBerryRunConfigurationWidget(this);
 }
 
-QString BlackBerryRunConfiguration::proFilePath() const
+Utils::FileName BlackBerryRunConfiguration::proFilePath() const
 {
     return m_proFilePath;
 }
@@ -97,24 +97,23 @@ QString BlackBerryRunConfiguration::deviceName() const
     return device->displayName();
 }
 
-QString BlackBerryRunConfiguration::barPackage() const
+Utils::FileName BlackBerryRunConfiguration::barPackage() const
 {
     BlackBerryDeployConfiguration *dc = deployConfiguration();
     if (!dc)
-        return QString();
+        return Utils::FileName();
 
     QList<BarPackageDeployInformation> packages = dc->deploymentInfo()->enabledPackages();
     foreach (const BarPackageDeployInformation package, packages) {
         if (package.proFilePath == proFilePath())
             return package.packagePath();
     }
-    return QString();
+    return Utils::FileName();
 }
 
 QString BlackBerryRunConfiguration::localExecutableFilePath() const
 {
-    return target()->applicationTargets()
-            .targetForProject(Utils::FileName::fromString(m_proFilePath)).toString();
+    return target()->applicationTargets().targetForProject(m_proFilePath).toString();
 }
 
 bool BlackBerryRunConfiguration::fromMap(const QVariantMap &map)
@@ -122,8 +121,9 @@ bool BlackBerryRunConfiguration::fromMap(const QVariantMap &map)
     if (!RunConfiguration::fromMap(map))
         return false;
 
-    m_proFilePath = map.value(QLatin1String(Constants::QNX_PROFILEPATH_KEY)).toString();
-    if (m_proFilePath.isEmpty() || !QFileInfo::exists(m_proFilePath))
+    m_proFilePath = Utils::FileName::fromUserInput(
+                map.value(QLatin1String(Constants::QNX_PROFILEPATH_KEY)).toString());
+    if (m_proFilePath.isEmpty() || !m_proFilePath.exists())
         return false;
 
     init();
@@ -133,7 +133,7 @@ bool BlackBerryRunConfiguration::fromMap(const QVariantMap &map)
 QVariantMap BlackBerryRunConfiguration::toMap() const
 {
     QVariantMap map(RunConfiguration::toMap());
-    map.insert(QLatin1String(Constants::QNX_PROFILEPATH_KEY), m_proFilePath);
+    map.insert(QLatin1String(Constants::QNX_PROFILEPATH_KEY), m_proFilePath.toString());
     return map;
 }
 
@@ -144,5 +144,6 @@ BlackBerryDeployConfiguration *BlackBerryRunConfiguration::deployConfiguration()
 
 QString BlackBerryRunConfiguration::key() const
 {
-    return barPackage() + QLatin1Char('_') + BlackBerryDeviceConfiguration::device(target()->kit())->sshParameters().host;
+    return barPackage().toString() + QLatin1Char('_')
+            + BlackBerryDeviceConfiguration::device(target()->kit())->sshParameters().host;
 }

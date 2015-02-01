@@ -86,7 +86,7 @@ public:
         m_writer(0)
     {}
 
-    bool projectContainsFile(Project *p, const QString &fileName) const;
+    bool projectContainsFile(Project *p, const FileName &fileName) const;
     void restoreValues(const PersistentSettingsReader &reader);
     void restoreDependencies(const PersistentSettingsReader &reader);
     void restoreStartupProject(const PersistentSettingsReader &reader);
@@ -135,8 +135,8 @@ SessionManager::SessionManager(QObject *parent)
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             this, SLOT(saveActiveMode(Core::IMode*)));
 
-    connect(EditorManager::instance(), SIGNAL(editorCreated(Core::IEditor*,QString)),
-            this, SLOT(configureEditor(Core::IEditor*,QString)));
+    connect(EditorManager::instance(), &EditorManager::editorCreated,
+            this, &SessionManager::configureEditor);
     connect(this, SIGNAL(projectAdded(ProjectExplorer::Project*)),
             EditorManager::instance(), SLOT(updateWindowTitles()));
     connect(this, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
@@ -217,7 +217,7 @@ QList<Project *> SessionManager::dependencies(const Project *project)
 
     QList<Project *> projects;
     foreach (const QString &dep, proDeps) {
-        if (Project *pro = projectForFile(dep))
+        if (Project *pro = projectForFile(Utils::FileName::fromString(dep)))
             projects += pro;
     }
 
@@ -469,7 +469,8 @@ QString SessionManagerPrivate::windowTitleAddition(const QString &filePath)
             if (projects.size() == 1)
                 return projects.first()->displayName();
             return QString();
-        } else if (Project *project = SessionManager::projectForFile(filePath)) {
+        } else if (Project *project = SessionManager::projectForFile(
+                       Utils::FileName::fromString(filePath))) {
             return project->displayName();
         } else {
             return QString();
@@ -537,16 +538,16 @@ QList<Project *> SessionManager::projectOrder(Project *project)
     return result;
 }
 
-QList<Node *> SessionManager::nodesForFile(const QString &fileName)
+QList<Node *> SessionManager::nodesForFile(const Utils::FileName &fileName)
 {
-    FindNodesForFileVisitor findNodes(fileName);
+    FindNodesForFileVisitor findNodes(fileName.toString());
     sessionNode()->accept(&findNodes);
     return findNodes.nodes();
 }
 
 // node for file returns a randomly selected node if there are multiple
 // prefer to use nodesForFile and figure out which node you want
-Node *SessionManager::nodeForFile(const QString &fileName)
+Node *SessionManager::nodeForFile(const Utils::FileName &fileName)
 {
     Node *node = 0;
     foreach (Node *n, nodesForFile(fileName)) {
@@ -574,7 +575,7 @@ Project *SessionManager::projectForNode(Node *node)
     return Utils::findOrDefault(d->m_projects, Utils::equal(&Project::rootProjectNode, rootProjectNode));
 }
 
-Project *SessionManager::projectForFile(const QString &fileName)
+Project *SessionManager::projectForFile(const Utils::FileName &fileName)
 {
     if (debug)
         qDebug() << "SessionManager::projectForFile(" << fileName << ")";
@@ -587,18 +588,18 @@ Project *SessionManager::projectForFile(const QString &fileName)
     return 0;
 }
 
-bool SessionManagerPrivate::projectContainsFile(Project *p, const QString &fileName) const
+bool SessionManagerPrivate::projectContainsFile(Project *p, const Utils::FileName &fileName) const
 {
     if (!m_projectFileCache.contains(p))
         m_projectFileCache.insert(p, p->files(Project::AllFiles));
 
-    return m_projectFileCache.value(p).contains(fileName);
+    return m_projectFileCache.value(p).contains(fileName.toString());
 }
 
 void SessionManager::configureEditor(IEditor *editor, const QString &fileName)
 {
     if (TextEditor::BaseTextEditor *textEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor)) {
-        Project *project = projectForFile(fileName);
+        Project *project = projectForFile(Utils::FileName::fromString(fileName));
         // Global settings are the default.
         if (project)
             project->editorConfiguration()->configureEditor(textEditor);
@@ -608,7 +609,7 @@ void SessionManager::configureEditor(IEditor *editor, const QString &fileName)
 void SessionManager::configureEditors(Project *project)
 {
     foreach (IDocument *document, DocumentModel::openedDocuments()) {
-        if (d->projectContainsFile(project, document->filePath().toString())) {
+        if (d->projectContainsFile(project, document->filePath())) {
             foreach (IEditor *editor, DocumentModel::editorsForDocument(document)) {
                 if (TextEditor::BaseTextEditor *textEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor)) {
                         project->editorConfiguration()->configureEditor(textEditor);

@@ -73,13 +73,13 @@ namespace Internal {
 static Node *currentEditorNode()
 {
     Core::IDocument *doc = Core::EditorManager::currentDocument();
-    return doc ? SessionManager::nodeForFile(doc->filePath().toString()) : 0;
+    return doc ? SessionManager::nodeForFile(doc->filePath()) : 0;
 }
 
 static QbsProject *currentEditorProject()
 {
     Core::IDocument *doc = Core::EditorManager::currentDocument();
-    return doc ? qobject_cast<QbsProject *>(SessionManager::projectForFile(doc->filePath().toString())) : 0;
+    return doc ? qobject_cast<QbsProject *>(SessionManager::projectForFile(doc->filePath())) : 0;
 }
 
 QbsProjectManagerPlugin::QbsProjectManagerPlugin() :
@@ -288,7 +288,7 @@ void QbsProjectManagerPlugin::updateBuildActions()
                 && !BuildManager::isBuilding(m_editorProject)
                 && !m_editorProject->isParsing();
 
-        fileName = Utils::FileName::fromString(m_editorNode->path()).fileName();
+        fileName = m_editorNode->path().fileName();
         fileVisible = m_editorProject && m_editorNode && dynamic_cast<QbsBaseProjectNode *>(m_editorNode->projectNode());
 
         QbsProductNode *productNode
@@ -361,7 +361,7 @@ void QbsProjectManagerPlugin::buildFileContextMenu()
     QTC_ASSERT(m_selectedNode, return);
     QTC_ASSERT(m_selectedProject, return);
 
-    buildSingleFile(m_selectedProject, m_selectedNode->path());
+    buildSingleFile(m_selectedProject, m_selectedNode->path().toString());
 }
 
 void QbsProjectManagerPlugin::buildFile()
@@ -369,7 +369,7 @@ void QbsProjectManagerPlugin::buildFile()
     if (!m_editorProject || !m_editorNode)
         return;
 
-    buildSingleFile(m_editorProject, m_editorNode->path());
+    buildSingleFile(m_editorProject, m_editorNode->path().toString());
 }
 
 void QbsProjectManagerPlugin::buildProductContextMenu()

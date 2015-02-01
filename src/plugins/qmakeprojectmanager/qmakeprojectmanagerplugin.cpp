@@ -345,7 +345,7 @@ void QmakeProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node
     m_rebuildSubProjectAction->setParameter(subProjectName);
     m_cleanSubProjectAction->setParameter(subProjectName);
     m_buildSubProjectContextMenu->setParameter(subProjectName);
-    m_buildFileAction->setParameter(buildFilePossible ? Utils::FileName::fromString(fileNode->path()).fileName() : QString());
+    m_buildFileAction->setParameter(buildFilePossible ? fileNode->path().fileName() : QString());
 
     QmakeBuildConfiguration *buildConfiguration = (qmakeProject && qmakeProject->activeTarget()) ?
                 static_cast<QmakeBuildConfiguration *>(qmakeProject->activeTarget()->activeBuildConfiguration()) : 0;
@@ -392,10 +392,10 @@ void QmakeProjectManagerPlugin::updateBuildFileAction()
     bool enabled = false;
 
     if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
-        QString file = currentDocument->filePath().toString();
+        Utils::FileName file = currentDocument->filePath();
         Node *node  = SessionManager::nodeForFile(file);
         Project *project = SessionManager::projectForFile(file);
-        m_buildFileAction->setParameter(Utils::FileName::fromString(file).fileName());
+        m_buildFileAction->setParameter(file.fileName());
         visible = qobject_cast<QmakeProject *>(project)
                 && node
                 && dynamic_cast<QmakePriFileNode *>(node->projectNode());
