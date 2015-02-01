@@ -543,7 +543,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
             it.next();
             const Utils::FileName &fileName = it.key();
             if (fileName != configFileName)
-                newDocTable.insert(docTable.document(fileName.toString()));
+                newDocTable.insert(docTable.document(fileName));
         }
     }
     docTable = newDocTable;

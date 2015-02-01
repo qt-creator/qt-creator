@@ -74,7 +74,7 @@ CPlusPlus::Symbol *AnalyzerUtils::findSymbolUnderCursor()
     widget->convertPosition(pos, &line, &column);
 
     const CPlusPlus::Snapshot &snapshot = CppTools::CppModelManager::instance()->snapshot();
-    CPlusPlus::Document::Ptr doc = snapshot.document(widget->textDocument()->filePath().toString());
+    CPlusPlus::Document::Ptr doc = snapshot.document(widget->textDocument()->filePath());
     QTC_ASSERT(doc, return 0);
 
     // fetch the expression's code

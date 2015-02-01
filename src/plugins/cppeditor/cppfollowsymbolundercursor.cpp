@@ -550,7 +550,7 @@ TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &curs
     }
 
     // Now we prefer the doc from the snapshot with macros expanded.
-    Document::Ptr doc = snapshot.document(m_widget->textDocument()->filePath().toString());
+    Document::Ptr doc = snapshot.document(m_widget->textDocument()->filePath());
     if (!doc) {
         doc = documentFromSemanticInfo;
         if (!doc)
