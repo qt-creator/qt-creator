@@ -617,8 +617,16 @@ QList<InsertionLocation> InsertionPointLocator::methodDefinition(Symbol *declara
     } else {
         QTC_ASSERT(column, return result);
 
-        prefix = QLatin1String("\n\n");
         int firstNonSpace = targetFile->position(line, column);
+        prefix = QLatin1String("\n\n");
+        // Only one new line if at the end of file
+        if (const QTextDocument *doc = targetFile->document()) {
+            if (firstNonSpace + 1 == doc->characterCount() /* + 1 because zero based index */
+                    && doc->characterAt(firstNonSpace) == QChar::ParagraphSeparator) {
+                prefix = QLatin1String("\n");
+            }
+        }
+
         QChar c = targetFile->charAt(firstNonSpace);
         while (c == QLatin1Char(' ') || c == QLatin1Char('\t')) {
             ++firstNonSpace;

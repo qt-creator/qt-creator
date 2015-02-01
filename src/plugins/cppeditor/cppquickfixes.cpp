@@ -3046,26 +3046,30 @@ public:
         const QString implementationGetterTypeAndNameString = oo.prettyType(
             getterType, QString::fromLatin1("%1::%2").arg(classString, m_getterName));
         const QString implementationGetter = QString::fromLatin1(
-                    "\n%1()%2\n"
+                    "%1()%2\n"
                     "{\n"
                     "return %3;\n"
-                    "}\n")
+                    "}")
                 .arg(implementationGetterTypeAndNameString)
                 .arg(isStatic ? QString() : QLatin1String(" const"))
                 .arg(m_variableString);
         const QString implementationSetter = QString::fromLatin1(
-                    "\nvoid %1::%2(%3)\n"
+                    "void %1::%2(%3)\n"
                     "{\n"
                     "%4 = %5;\n"
-                    "}\n")
+                    "}")
                 .arg(classString).arg(m_setterName)
                 .arg(paramString).arg(m_variableString)
                 .arg(paramName);
+
         QString implementation;
         if (generateGetter())
             implementation += implementationGetter;
-        if (generateSetter())
+        if (generateSetter() && !fullySpecifiedType.isConst()) {
+            if (!implementation.isEmpty())
+                implementation += QLatin1String("\n\n");
             implementation += implementationSetter;
+        }
 
         // Create and apply changes
         ChangeSet currChanges;
@@ -3076,6 +3080,7 @@ public:
         if (sameFile) {
             InsertionLocation loc = insertLocationForMethodDefinition(m_symbol, false, refactoring,
                                                                       currentFile->fileName());
+            implementation = loc.prefix() + implementation + loc.suffix();
             currChanges.insert(currentFile->position(loc.line(), loc.column()), implementation);
         } else {
             CppRefactoringChanges implRef(snapshot());
@@ -3083,6 +3088,7 @@ public:
             ChangeSet implChanges;
             InsertionLocation loc = insertLocationForMethodDefinition(m_symbol, false,
                                                                       implRef, implFileName);
+            implementation = loc.prefix() + implementation + loc.suffix();
             const int implInsertPos = implFile->position(loc.line(), loc.column());
             implChanges.insert(implInsertPos, implementation);
             implFile->setChangeSet(implChanges);

@@ -567,6 +567,7 @@ void CppEditorPlugin::test_quickfix_data()
         "    int getIt() const;\n"
         "    void setIt(int value);\n"
         "};\n"
+        "\n"
         "int Something::getIt() const\n"
         "{\n"
         "    return it;\n"
@@ -1097,7 +1098,6 @@ void CppEditorPlugin::test_quickfix_data()
     QTest::newRow("InsertDefFromDecl_basic")
         << CppQuickFixFactoryPtr(new InsertDefFromDecl) << original
            << original + _(
-        "\n"
         "\n"
         "Foo::Foo()\n"
         "{\n\n"
@@ -1772,6 +1772,7 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAn
     expected =
         "#include \"file.h\"\n"
         "namespace SomeNamespace {\n"
+        "\n"
         "int Something::getIt() const\n"
         "{\n"
         "    return it;\n"
@@ -1780,7 +1781,8 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAn
         "void Something::setIt(int value)\n"
         "{\n"
         "    it = value;\n"
-        "}\n\n"
+        "}\n"
+        "\n"
         "}\n";
     testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
 
@@ -2040,7 +2042,6 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic2()
             "\n"
             "int x;\n"
             "\n"
-            "\n"
             "void f()\n"
             "{\n"
             "\n"
@@ -2070,7 +2071,6 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic3()
         "    Foo()@;\n"
         "};\n";
     expected = original +
-        "\n"
         "\n"
         "Foo::Foo()\n"
         "{\n\n"
@@ -2142,7 +2142,6 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace2()
             "using namespace N;\n"
             ;
     expected = original +
-            "\n"
             "\n"
             "Foo::Foo()\n"
             "{\n\n"
@@ -2304,7 +2303,6 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_respectWsInOperatorNames1(
         "    Foo &operator =();\n"
         "};\n"
         "\n"
-        "\n"
         "Foo &Foo::operator =()\n"
         "{\n"
         "\n"
@@ -2327,7 +2325,6 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_respectWsInOperatorNames2(
         "{\n"
         "    Foo &operator=();\n"
         "};\n"
-        "\n"
         "\n"
         "Foo &Foo::operator=()\n"
         "{\n"
@@ -2512,7 +2509,6 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_findImplementationFile()
     expected =
             "#include \"file.h\"\n"
             "\n"
-            "\n"
             "void Foo::baz()\n"
             "{\n"
             "\n"
@@ -2551,7 +2547,6 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_unicodeIdentifier()
             ;
     expected = original;
     expected +=
-            "\n"
             "\n"
             "void Foo::" TEST_UNICODE_IDENTIFIER "()\n"
             "{\n"
@@ -3372,7 +3367,6 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
     expected =
         "#include \"file.h\"\n"
         "\n"
-        "\n"
         "int Foo::number() const\n"
         "{\n"
         "    return 5;\n"
@@ -3537,7 +3531,6 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS()
     expected =
         "#include \"file.h\"\n"
         "\n"
-        "\n"
         "int MyNs::Foo::number() const\n"
         "{\n"
         "    return 5;\n"
@@ -3580,7 +3573,6 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNSUsing()
     expected =
         "#include \"file.h\"\n"
         "using namespace MyNs;\n"
-        "\n"
         "\n"
         "int Foo::number() const\n"
         "{\n"
@@ -3643,7 +3635,6 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCpp()
     expected =
         "#include \"file.h\"\n"
         "\n"
-        "\n"
         "int number() const\n"
         "{\n"
         "    return 5;\n"
@@ -3680,7 +3671,6 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS()
         "#include \"file.h\"\n";
     expected =
         "#include \"file.h\"\n"
-        "\n"
         "\n"
         "int MyNamespace::number() const\n"
         "{\n"
@@ -3723,7 +3713,6 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization1()
     expected =
         "#include \"file.h\"\n"
         "\n"
-        "\n"
         "Foo::Foo() : a(42), b(3.141) {}\n"
        ;
     testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
@@ -3765,7 +3754,6 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization2()
     original ="#include \"file.h\"\n";
     expected =
         "#include \"file.h\"\n"
-        "\n"
         "\n"
         "Foo::Foo() : member(2)\n"
         "{\n"
@@ -3833,7 +3821,6 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_respectWsInOperatorNames1
         "    Foo &operator =();\n"
         "};\n"
         "\n"
-        "\n"
         "Foo &Foo::operator =() {}\n"
        ;
 
@@ -3854,7 +3841,6 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_respectWsInOperatorNames2
         "{\n"
         "    Foo &operator=();\n"
         "};\n"
-        "\n"
         "\n"
         "Foo &Foo::operator=() {}\n"
        ;
@@ -4292,12 +4278,11 @@ void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_MemberFuncToCpp()
     expected =
         "#include \"file.h\"\n"
         "\n"
-        "\n"
         "int Foo::numberA() const\n"
         "{\n"
         "    return 5;\n"
         "}\n"
-        "\n\n"
+        "\n"
         "int Foo::numberB() const\n"
         "{\n"
         "    return 5;\n"
@@ -4328,12 +4313,12 @@ void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_MemberFuncOutside()
         "    int f1();\n"
         "    int f2() const;\n"
         "};\n"
-        "\n\n"
+        "\n"
         "int Foo::f1()\n"
         "{\n"
         "    return 1;\n"
         "}\n"
-        "\n\n"
+        "\n"
         "int Foo::f2() const\n"
         "{\n"
         "    return 2;\n"
@@ -4375,7 +4360,7 @@ void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_classWithBaseClass()
         "class Foo : public Bar {\n"
         "    int f1();\n"
         "};\n"
-        "\n\n"
+        "\n"
         "int Foo::f1()\n"
         "{\n"
         "    return 1;\n"
@@ -4403,7 +4388,7 @@ void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_ignoreMacroCode()
         "    FAKE_Q_OBJECT\n"
         "    int f1();\n"
         "};\n"
-        "\n\n"
+        "\n"
         "int Foo::f1()\n"
         "{\n"
         "    return 1;\n"
