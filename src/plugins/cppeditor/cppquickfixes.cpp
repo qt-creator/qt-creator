@@ -2971,7 +2971,7 @@ public:
             InsertionLocation loc = insertLocationForMethodDefinition(symbol, false,
                                                                       implRef, implFileName);
             const int implInsertPos = implFile->position(loc.line(), loc.column());
-            implChanges.insert(implFile->position(loc.line(), loc.column()), implementation);
+            implChanges.insert(implInsertPos, implementation);
             implFile->setChangeSet(implChanges);
             implFile->appendIndentRange(
                 ChangeSet::Range(implInsertPos, implInsertPos + implementation.size()));
