@@ -150,6 +150,7 @@ signals:
 
 public slots:
     void scheduleAsyncUpdate(QmakeProFileNode::AsyncUpdateDelay delay = QmakeProFileNode::ParseLater);
+    void scheduleAsyncUpdateLater() { scheduleAsyncUpdate(); }
 
 protected:
     bool fromMap(const QVariantMap &map);

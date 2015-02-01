@@ -52,6 +52,7 @@ namespace {
 const char EXTERNAL_FILE_WARNING[] = "ExternalFile";
 }
 
+using namespace Utils;
 using namespace ProjectExplorer;
 using namespace Internal;
 
@@ -133,8 +134,7 @@ void ProjectTree::updateFromFocus(bool invalidCurrentNode)
 {
     ProjectTreeWidget *focus = m_focusForContextMenu;
     if (!focus)
-        focus = Utils::findOrDefault(m_projectTreeWidgets,
-                                     &ProjectTree::hasFocus);
+        focus = Utils::findOrDefault(m_projectTreeWidgets, &ProjectTree::hasFocus);
 
     if (focus)
         updateFromProjectTreeWidget(focus);
@@ -413,12 +413,12 @@ void ProjectTree::updateExternalFileWarning()
     }
     if (!infoBar->canInfoBeAdded(externalFileId))
         return;
-    const Utils::FileName fileName = document->filePath();
+    const FileName fileName = document->filePath();
     const QList<Project *> projects = SessionManager::projects();
     if (projects.isEmpty())
         return;
     foreach (Project *project, projects) {
-        Utils::FileName projectDir = project->projectDirectory();
+        FileName projectDir = project->projectDirectory();
         if (projectDir.isEmpty())
             continue;
         if (fileName.isChildOf(projectDir))
@@ -426,7 +426,7 @@ void ProjectTree::updateExternalFileWarning()
         // External file. Test if it under the same VCS
         QString topLevel;
         if (Core::VcsManager::findVersionControlForDirectory(projectDir.toString(), &topLevel)
-                && fileName.isChildOf(Utils::FileName::fromString(topLevel))) {
+                && fileName.isChildOf(FileName::fromString(topLevel))) {
             return;
         }
     }

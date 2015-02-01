@@ -57,6 +57,8 @@
 #include <QPlainTextEdit>
 #include <QApplication>
 
+using namespace ProjectExplorer;
+
 enum {
     debug = false
 };
@@ -212,7 +214,7 @@ QString DesignDocument::fileName() const
     return editor()->document()->filePath().toString();
 }
 
-ProjectExplorer::Kit *DesignDocument::currentKit() const
+Kit *DesignDocument::currentKit() const
 {
     return m_currentKit;
 }
@@ -626,9 +628,9 @@ void DesignDocument::redo()
     viewManager().resetPropertyEditorView();
 }
 
-static bool isFileInProject(DesignDocument *designDocument, ProjectExplorer::Project *project)
+static bool isFileInProject(DesignDocument *designDocument, Project *project)
 {
-    foreach (const QString &fileNameInProject, project->files(ProjectExplorer::Project::ExcludeGeneratedFiles)) {
+    foreach (const QString &fileNameInProject, project->files(Project::ExcludeGeneratedFiles)) {
         if (designDocument->fileName() == fileNameInProject)
             return true;
     }
@@ -636,12 +638,12 @@ static bool isFileInProject(DesignDocument *designDocument, ProjectExplorer::Pro
     return false;
 }
 
-static inline ProjectExplorer::Kit *getActiveKit(DesignDocument *designDocument)
+static inline Kit *getActiveKit(DesignDocument *designDocument)
 {
-    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectTree::currentProject();
+    Project *currentProject = ProjectTree::currentProject();
 
     if (!currentProject)
-        currentProject = ProjectExplorer::SessionManager::projectForFile(designDocument->fileName());
+        currentProject = SessionManager::projectForFile(designDocument->fileName());
 
     if (!currentProject)
         return 0;
@@ -649,18 +651,20 @@ static inline ProjectExplorer::Kit *getActiveKit(DesignDocument *designDocument)
     if (!isFileInProject(designDocument, currentProject))
         return 0;
 
-    QObject::connect(ProjectExplorer::ProjectTree::instance(), &ProjectExplorer::ProjectTree::currentProjectChanged,
+    QObject::connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
                      designDocument, &DesignDocument::updateActiveQtVersion, Qt::UniqueConnection);
 
-    designDocument->connect(currentProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)), designDocument, SLOT(updateActiveQtVersion()), Qt::UniqueConnection);
+    QObject::connect(currentProject, &Project::activeTargetChanged,
+                     designDocument, &DesignDocument::updateActiveQtVersion, Qt::UniqueConnection);
 
 
-    ProjectExplorer::Target *target = currentProject->activeTarget();
+    Target *target = currentProject->activeTarget();
 
     if (!target)
         return 0;
 
-    designDocument->connect(target, SIGNAL(kitChanged()), designDocument, SLOT(updateActiveQtVersion()), Qt::UniqueConnection);
+    QObject::connect(target, &Target::kitChanged,
+                     designDocument, &DesignDocument::updateActiveQtVersion, Qt::UniqueConnection);
 
     return target->kit();
 }

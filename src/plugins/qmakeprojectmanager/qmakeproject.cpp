@@ -79,7 +79,7 @@ enum { debug = 0 };
 
 namespace {
 
-QmakeBuildConfiguration *enableActiveQmakeBuildConfiguration(ProjectExplorer::Target *t, bool enabled)
+QmakeBuildConfiguration *enableActiveQmakeBuildConfiguration(Target *t, bool enabled)
 {
     if (!t)
         return 0;
@@ -171,8 +171,8 @@ public:
     void clear();
     bool equals(const QmakeProjectFiles &f) const;
 
-    QStringList files[ProjectExplorer::FileTypeSize];
-    QStringList generatedFiles[ProjectExplorer::FileTypeSize];
+    QStringList files[FileTypeSize];
+    QStringList generatedFiles[FileTypeSize];
     QStringList proFiles;
 };
 
@@ -211,7 +211,7 @@ QDebug operator<<(QDebug d, const  QmakeProjectFiles &f)
 }
 
 // A visitor to collect all files of a project in a QmakeProjectFiles struct
-class ProjectFilesVisitor : public ProjectExplorer::NodesVisitor
+class ProjectFilesVisitor : public NodesVisitor
 {
     ProjectFilesVisitor(QmakeProjectFiles *files);
 
@@ -283,7 +283,7 @@ QmakeProjectFile::QmakeProjectFile(const QString &filePath, QObject *parent)
 {
     setId("Qmake.ProFile");
     setMimeType(QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE));
-    setFilePath(Utils::FileName::fromString(filePath));
+    setFilePath(FileName::fromString(filePath));
 }
 
 bool QmakeProjectFile::save(QString *, const QString &, bool)
@@ -417,12 +417,13 @@ bool QmakeProject::fromMap(const QVariantMap &map)
 
     // On active buildconfiguration changes, reevaluate the .pro files
     m_activeTarget = activeTarget();
-    if (m_activeTarget)
-        connect(m_activeTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-                this, SLOT(scheduleAsyncUpdate()));
+    if (m_activeTarget) {
+        connect(m_activeTarget, &Target::activeBuildConfigurationChanged,
+                this, &QmakeProject::scheduleAsyncUpdateLater);
+    }
 
-    connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-            this, SLOT(activeTargetWasChanged()));
+    connect(this, &Project::activeTargetChanged,
+            this, &QmakeProject::activeTargetWasChanged);
 
     scheduleAsyncUpdate(QmakeProFileNode::ParseNow);
     return true;
@@ -472,7 +473,7 @@ void QmakeProject::updateCppCodeModel()
 
     Kit *k = 0;
     QtSupport::BaseQtVersion *qtVersion = 0;
-    if (ProjectExplorer::Target *target = activeTarget())
+    if (Target *target = activeTarget())
         k = target->kit();
     else
         k = KitManager::defaultKit();
@@ -623,7 +624,7 @@ void QmakeProject::updateQmlJSCodeModel()
     bool hasQmlLib = false;
     foreach (QmakeProFileNode *node, proFiles) {
         foreach (const QString &path, node->variableValue(QmlImportPathVar))
-            projectInfo.importPaths.maybeInsert(Utils::FileName::fromString(path),
+            projectInfo.importPaths.maybeInsert(FileName::fromString(path),
                                                 QmlJS::Dialect::Qml);
         projectInfo.activeResourceFiles.append(node->variableValue(ExactResourceVar));
         projectInfo.allResourceFiles.append(node->variableValue(ResourceVar));
@@ -884,7 +885,7 @@ void QmakeProject::buildFinished(bool success)
         m_qmakeVfs->invalidateContents();
 }
 
-ProjectExplorer::IProjectManager *QmakeProject::projectManager() const
+IProjectManager *QmakeProject::projectManager() const
 {
     return m_manager;
 }
@@ -970,7 +971,7 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFileNo
         m_qmakeGlobalsRefCnt = 0;
 
         Kit *k;
-        Utils::Environment env = Utils::Environment::systemEnvironment();
+        Environment env = Environment::systemEnvironment();
         QStringList qmakeArgs;
         if (!bc)
             bc = activeTarget() ? static_cast<QmakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration()) : 0;
@@ -997,7 +998,7 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFileNo
         m_qmakeGlobals->setDirectories(m_rootProjectNode->sourceDir(), m_rootProjectNode->buildDir());
         m_qmakeGlobals->sysroot = systemRoot;
 
-        Utils::Environment::const_iterator eit = env.constBegin(), eend = env.constEnd();
+        Environment::const_iterator eit = env.constBegin(), eend = env.constEnd();
         for (; eit != eend; ++eit)
             m_qmakeGlobals->environment.insert(env.key(eit), env.value(eit));
 
@@ -1053,7 +1054,7 @@ void QmakeProject::destroyProFileReader(QtSupport::ProFileReader *reader)
     }
 }
 
-ProjectExplorer::ProjectNode *QmakeProject::rootProjectNode() const
+ProjectNode *QmakeProject::rootProjectNode() const
 {
     return m_rootProjectNode;
 }
@@ -1139,8 +1140,8 @@ QList<Core::Id> QmakeProject::idsForNodes(Core::Id base, const QList<QmakeProFil
 void QmakeProject::activeTargetWasChanged()
 {
     if (m_activeTarget) {
-        disconnect(m_activeTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-                   this, SLOT(scheduleAsyncUpdate()));
+        disconnect(m_activeTarget, &Target::activeBuildConfigurationChanged,
+                   this, &QmakeProject::scheduleAsyncUpdateLater);
     }
 
     m_activeTarget = activeTarget();
@@ -1148,8 +1149,8 @@ void QmakeProject::activeTargetWasChanged()
     if (!m_activeTarget)
         return;
 
-    connect(m_activeTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(scheduleAsyncUpdate()));
+    connect(m_activeTarget, &Target::activeBuildConfigurationChanged,
+            this, &QmakeProject::scheduleAsyncUpdateLater);
 
     scheduleAsyncUpdate();
 }
@@ -1346,7 +1347,7 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
         QList<QmakePriFileNode *> nodes = m_map.values(dir);
         if (!nodes.isEmpty()) {
             // Collect all the files
-            QSet<Utils::FileName> newFiles;
+            QSet<FileName> newFiles;
             newFiles += QmakePriFileNode::recursiveEnumerate(folder);
             foreach (QmakePriFileNode *node, nodes) {
                 newOrRemovedFiles = newOrRemovedFiles
@@ -1465,8 +1466,8 @@ void QmakeProject::updateBuildSystemData()
     BuildTargetInfoList appTargetList;
     foreach (const QmakeProFileNode * const node, applicationProFiles()) {
         appTargetList.list << BuildTargetInfo(node->targetInformation().target,
-                                              Utils::FileName::fromString(executableFor(node)),
-                                              Utils::FileName::fromString(node->path()));
+                                              FileName::fromString(executableFor(node)),
+                                              FileName::fromString(node->path()));
     }
     target->setApplicationTargets(appTargetList);
 }
@@ -1526,9 +1527,8 @@ void QmakeProject::collectLibraryData(const QmakeProFileNode *node, DeploymentDa
     const QString targetPath = node->installsList().targetPath;
     if (targetPath.isEmpty())
         return;
-    const ProjectExplorer::Kit * const kit = activeTarget()->kit();
-    const ProjectExplorer::ToolChain * const toolchain
-            = ProjectExplorer::ToolChainKitInformation::toolChain(kit);
+    const Kit * const kit = activeTarget()->kit();
+    const ToolChain * const toolchain = ToolChainKitInformation::toolChain(kit);
     if (!toolchain)
         return;
 
@@ -1538,7 +1538,7 @@ void QmakeProject::collectLibraryData(const QmakeProFileNode *node, DeploymentDa
     const bool isStatic = config.contains(QLatin1String("static"));
     const bool isPlugin = config.contains(QLatin1String("plugin"));
     switch (toolchain->targetAbi().os()) {
-    case ProjectExplorer::Abi::WindowsOS: {
+    case Abi::WindowsOS: {
         QString targetVersionExt = node->singleVariableValue(TargetVersionExtVar);
         if (targetVersionExt.isEmpty()) {
             const QString version = node->singleVariableValue(VersionVar);
@@ -1553,7 +1553,7 @@ void QmakeProject::collectLibraryData(const QmakeProFileNode *node, DeploymentDa
         deploymentData.addFile(destDirFor(ti) + QLatin1Char('/') + targetFileName, targetPath);
         break;
     }
-    case ProjectExplorer::Abi::MacOS: {
+    case Abi::MacOS: {
         QString destDir = destDirFor(ti);
         if (config.contains(QLatin1String("lib_bundle"))) {
             destDir.append(QLatin1Char('/')).append(ti.target)
@@ -1575,9 +1575,9 @@ void QmakeProject::collectLibraryData(const QmakeProFileNode *node, DeploymentDa
         deploymentData.addFile(destDir + QLatin1Char('/') + targetFileName, targetPath);
         break;
     }
-    case ProjectExplorer::Abi::LinuxOS:
-    case ProjectExplorer::Abi::BsdOS:
-    case ProjectExplorer::Abi::UnixOS:
+    case Abi::LinuxOS:
+    case Abi::BsdOS:
+    case Abi::UnixOS:
         targetFileName.prepend(QLatin1String("lib"));
         targetFileName += QLatin1Char('.');
         if (isStatic) {
@@ -1609,7 +1609,7 @@ void QmakeProject::collectLibraryData(const QmakeProFileNode *node, DeploymentDa
 bool QmakeProject::matchesKit(const Kit *kit)
 {
     QList<QtSupport::BaseQtVersion *> parentQts;
-    Utils::FileName filePath = projectFilePath();
+    FileName filePath = projectFilePath();
     foreach (QtSupport::BaseQtVersion *version, QtSupport::QtVersionManager::validVersions()) {
         if (version->isSubProject(filePath))
             parentQts.append(version);
@@ -1623,9 +1623,8 @@ bool QmakeProject::matchesKit(const Kit *kit)
 
 QString QmakeProject::executableFor(const QmakeProFileNode *node)
 {
-    const ProjectExplorer::Kit * const kit = activeTarget()->kit();
-    const ProjectExplorer::ToolChain * const toolchain
-            = ProjectExplorer::ToolChainKitInformation::toolChain(kit);
+    const Kit * const kit = activeTarget()->kit();
+    const ToolChain * const toolchain = ToolChainKitInformation::toolChain(kit);
     if (!toolchain)
         return QString();
 
@@ -1633,7 +1632,7 @@ QString QmakeProject::executableFor(const QmakeProFileNode *node)
     QString target;
 
     switch (toolchain->targetAbi().os()) {
-    case ProjectExplorer::Abi::MacOS:
+    case Abi::MacOS:
         if (node->variableValue(ConfigVar).contains(QLatin1String("app_bundle"))) {
             target = ti.target + QLatin1String(".app/Contents/MacOS/") + ti.target;
             break;

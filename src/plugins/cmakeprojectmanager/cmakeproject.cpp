@@ -71,6 +71,7 @@
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 // QtCreator CMake Generator wishlist:
 // Which make targets we need to build to get all executables
@@ -171,7 +172,7 @@ void CMakeProject::activeTargetWasChanged(Target *target)
 
 void CMakeProject::changeBuildDirectory(CMakeBuildConfiguration *bc, const QString &newBuildDirectory)
 {
-    bc->setBuildDirectory(Utils::FileName::fromString(newBuildDirectory));
+    bc->setBuildDirectory(FileName::fromString(newBuildDirectory));
     parseCMakeLists();
 }
 
@@ -493,7 +494,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
 
     bool hasUserFile = activeTarget();
     if (!hasUserFile) {
-        CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), m_manager, projectDirectory().toString(), Utils::Environment::systemEnvironment());
+        CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), m_manager, projectDirectory().toString(), Environment::systemEnvironment());
         if (copw.exec() != QDialog::Accepted)
             return false;
         Kit *k = copw.kit();
@@ -501,7 +502,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
         CMakeBuildConfiguration *bc(new CMakeBuildConfiguration(t));
         bc->setDefaultDisplayName(QLatin1String("all"));
         bc->setUseNinja(copw.useNinja());
-        bc->setBuildDirectory(Utils::FileName::fromString(copw.buildDirectory()));
+        bc->setBuildDirectory(FileName::fromString(copw.buildDirectory()));
         ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
         ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
 
@@ -578,17 +579,17 @@ CMakeBuildTarget CMakeProject::buildTargetForTitle(const QString &title)
 QString CMakeProject::uiHeaderFile(const QString &uiFile)
 {
     QFileInfo fi(uiFile);
-    Utils::FileName project = projectDirectory();
-    Utils::FileName baseDirectory = Utils::FileName::fromString(fi.absolutePath());
+    FileName project = projectDirectory();
+    FileName baseDirectory = FileName::fromString(fi.absolutePath());
 
     while (baseDirectory.isChildOf(project)) {
-        Utils::FileName cmakeListsTxt = baseDirectory;
+        FileName cmakeListsTxt = baseDirectory;
         cmakeListsTxt.appendPath(QLatin1String("CMakeLists.txt"));
         if (cmakeListsTxt.exists())
             break;
         QDir dir(baseDirectory.toString());
         dir.cdUp();
-        baseDirectory = Utils::FileName::fromString(dir.absolutePath());
+        baseDirectory = FileName::fromString(dir.absolutePath());
     }
 
     QDir srcDirRoot = QDir(project.toString());
@@ -699,8 +700,8 @@ void CMakeProject::updateApplicationAndDeploymentTargets()
         if (ct.targetType == ExecutableType) {
             // TODO: Put a path to corresponding .cbp file into projectFilePath?
             appTargetList.list << BuildTargetInfo(ct.title,
-                                                  Utils::FileName::fromString(ct.executable),
-                                                  Utils::FileName::fromString(ct.executable));
+                                                  FileName::fromString(ct.executable),
+                                                  FileName::fromString(ct.executable));
         }
     }
 
@@ -741,7 +742,7 @@ CMakeFile::CMakeFile(CMakeProject *parent, QString fileName)
 {
     setId("Cmake.ProjectFile");
     setMimeType(QLatin1String(Constants::CMAKEPROJECTMIMETYPE));
-    setFilePath(Utils::FileName::fromString(fileName));
+    setFilePath(FileName::fromString(fileName));
 }
 
 bool CMakeFile::save(QString *errorString, const QString &fileName, bool autoSave)
@@ -856,7 +857,7 @@ void CMakeBuildSettingsWidget::runCMake()
 ////
 
 namespace {
-int distance(const QString &targetDirectory, const Utils::FileName &fileName)
+int distance(const QString &targetDirectory, const FileName &fileName)
 {
     const QString commonParent = Utils::commonPath(QStringList() << targetDirectory << fileName.toString());
     return targetDirectory.mid(commonParent.size()).count(QLatin1Char('/'))
@@ -871,15 +872,15 @@ int distance(const QString &targetDirectory, const Utils::FileName &fileName)
 void CMakeCbpParser::sortFiles()
 {
     QLoggingCategory log("qtc.cmakeprojectmanager.filetargetmapping");
-    QList<Utils::FileName> fileNames = Utils::transform(m_fileList, [] (FileNode *node) {
-        return Utils::FileName::fromString(node->path());
+    QList<FileName> fileNames = Utils::transform(m_fileList, [] (FileNode *node) {
+        return FileName::fromString(node->path());
     });
 
     Utils::sort(fileNames);
 
 
     CMakeBuildTarget *last = 0;
-    Utils::FileName parentDirectory;
+    FileName parentDirectory;
 
     qCDebug(log) << "###############";
     qCDebug(log) << "# Pre Dump    #";
@@ -908,7 +909,7 @@ void CMakeCbpParser::sortFiles()
     qCDebug(log) << "# Sorting     #";
     qCDebug(log) << "###############";
 
-    foreach (const Utils::FileName &fileName, fileNames) {
+    foreach (const FileName &fileName, fileNames) {
         qCDebug(log) << fileName;
         if (fileName.parentDir() == parentDirectory && last) {
             // easy case, same parent directory as last file
@@ -1077,7 +1078,7 @@ void CMakeCbpParser::parseBuildTargetOption()
             QDir dir(m_buildDirectory);
             const QString relative = dir.relativeFilePath(m_buildTarget.workingDirectory);
             m_buildTarget.sourceDirectory
-                    = Utils::FileName::fromString(m_sourceDirectory).appendPath(relative).toString();
+                    = FileName::fromString(m_sourceDirectory).appendPath(relative).toString();
         }
     }
     while (!atEnd()) {
@@ -1213,7 +1214,7 @@ void CMakeCbpParser::parseUnit()
                     m_cmakeFileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::ProjectFileType, false));
                 } else {
                     bool generated = false;
-                    QString onlyFileName = Utils::FileName::fromString(fileName).fileName();
+                    QString onlyFileName = FileName::fromString(fileName).fileName();
                     if (   (onlyFileName.startsWith(QLatin1String("moc_")) && onlyFileName.endsWith(QLatin1String(".cxx")))
                         || (onlyFileName.startsWith(QLatin1String("ui_")) && onlyFileName.endsWith(QLatin1String(".h")))
                         || (onlyFileName.startsWith(QLatin1String("qrc_")) && onlyFileName.endsWith(QLatin1String(".cxx"))))

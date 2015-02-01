@@ -477,11 +477,11 @@ bool AndroidManifestEditorWidget::eventFilter(QObject *obj, QEvent *event)
 void AndroidManifestEditorWidget::updateTargetComboBox()
 {
     const QString docPath(m_textEditorWidget->textDocument()->filePath().toString());
-    ProjectExplorer::Project *project = androidProject(docPath);
+    Project *project = androidProject(docPath);
     QStringList items;
     if (project) {
-        ProjectExplorer::Kit *kit = project->activeTarget()->kit();
-        if (ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(kit) == Constants::ANDROID_DEVICE_TYPE)
+        Kit *kit = project->activeTarget()->kit();
+        if (DeviceTypeKitInformation::deviceTypeId(kit) == Constants::ANDROID_DEVICE_TYPE)
             items = AndroidManager::androidQtSupport(project->activeTarget())->projectTargetApplications(project->activeTarget());
     }
 
