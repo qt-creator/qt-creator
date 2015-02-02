@@ -153,9 +153,12 @@ def verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, e
         for ty in additionalKeyPresses:
             type(editor, ty)
         rect = editor.cursorRect(editor.textCursor())
+        expectedToolTip = "{type='%s' visible='1'}" % expectedType
+        # wait for similar tooltips to disappear
+        checkIfObjectExists(expectedToolTip, False, 1000, True)
         sendEvent("QMouseEvent", editor, QEvent.MouseMove, rect.x+rect.width/2, rect.y+rect.height/2, Qt.NoButton, 0)
         try:
-            tip = waitForObject("{type='%s' visible='1'}" % expectedType)
+            tip = waitForObject(expectedToolTip)
         except:
             tip = None
         if tip == None:
