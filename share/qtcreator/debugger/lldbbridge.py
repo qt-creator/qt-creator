@@ -1069,6 +1069,7 @@ class Dumper(DumperBase):
 
     def reportVariables(self, args = None):
         with self.outputLock:
+            sys.stdout.write("@\n")
             self.reportVariablesHelper(args)
             sys.stdout.write("@\n")
 
