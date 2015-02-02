@@ -2384,6 +2384,17 @@ void CppToolsPlugin::test_completion_data()
             "}\n"
     ) << _("s.") << (QStringList()
         << QLatin1String("S"));
+
+    QTest::newRow("auto_declaration_in_if_condition") << _(
+            "struct Foo { int bar; };\n"
+            "void fun() {\n"
+            "   if (auto s = new Foo) {\n"
+            "      @\n"
+            "   }\n"
+            "}\n"
+    ) << _("s->") << (QStringList()
+        << QLatin1String("Foo")
+        << QLatin1String("bar"));
 }
 
 void CppToolsPlugin::test_completion_member_access_operator()

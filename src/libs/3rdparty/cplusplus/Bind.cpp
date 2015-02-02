@@ -1634,6 +1634,15 @@ bool Bind::visit(ConditionAST *ast)
         unsigned sourceLocation = location(declaratorId->name, ast->firstToken());
         Declaration *decl = control()->newDeclaration(sourceLocation, declaratorId->name->name);
         decl->setType(type);
+
+        if (type.isAuto() && translationUnit()->languageFeatures().cxx11Enabled) {
+            const ExpressionAST *initializer = ast->declarator->initializer;
+
+            const unsigned startOfExpression = initializer->firstToken();
+            const unsigned endOfExpression = initializer->lastToken();
+            decl->setInitializer(asStringLiteral(startOfExpression, endOfExpression));
+        }
+
         _scope->addMember(decl);
     }
 
