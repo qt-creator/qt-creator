@@ -579,6 +579,23 @@ QVariant BreakpointItem::data(int column, int role) const
             break;
     };
 
+    if (role == Qt::ForegroundRole) {
+        static const QVariant gray(QColor(140, 140, 140));
+        switch (m_state) {
+            case BreakpointInsertRequested:
+            case BreakpointInsertProceeding:
+            case BreakpointChangeRequested:
+            case BreakpointChangeProceeding:
+            case BreakpointRemoveRequested:
+            case BreakpointRemoveProceeding:
+                return gray;
+            case BreakpointInserted:
+            case BreakpointNew:
+            case BreakpointDead:
+                break;
+        };
+    }
+
     switch (column) {
         case 0:
             if (role == Qt::DisplayRole)

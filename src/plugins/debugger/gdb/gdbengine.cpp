@@ -2617,6 +2617,15 @@ void GdbEngine::handleBreakInsert2(const GdbResponse &response)
     }
 }
 
+void GdbEngine::handleBreakDelete(const GdbResponse &response)
+{
+    Breakpoint bp = response.cookie.value<Breakpoint>();
+    if (response.resultClass == GdbResultDone)
+        bp.notifyBreakpointRemoveOk();
+    else
+        bp.notifyBreakpointRemoveFailed();
+}
+
 void GdbEngine::handleBreakDisable(const GdbResponse &response)
 {
     QTC_CHECK(response.resultClass == GdbResultDone);
@@ -2900,14 +2909,13 @@ void GdbEngine::removeBreakpoint(Breakpoint bp)
     }
 
     if (br.id.isValid()) {
+        QVariant vid = QVariant::fromValue(bp);
         // We already have a fully inserted breakpoint.
         bp.notifyBreakpointRemoveProceeding();
         showMessage(_("DELETING BP %1 IN %2").arg(br.id.toString()).arg(bp.fileName()));
         postCommand("-break-delete " + br.id.toByteArray(),
-            NeedsStop | RebuildBreakpointModel);
-        // Pretend it succeeds without waiting for response. Feels better.
-        // FIXME: Really?
-        bp.notifyBreakpointRemoveOk();
+            NeedsStop | RebuildBreakpointModel,
+            CB(handleBreakDelete), vid);
     } else {
         // Breakpoint was scheduled to be inserted, but we haven't had
         // an answer so far. Postpone activity by doing nothing.
