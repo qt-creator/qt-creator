@@ -781,7 +781,7 @@ void Breakpoint::removeAlienBreakpoint()
 
 void Breakpoint::removeBreakpoint() const
 {
-    b->deleteThis();
+    b->removeBreakpoint();
 }
 
 Breakpoint::Breakpoint(BreakpointItem *b)
@@ -1019,8 +1019,6 @@ void Breakpoint::notifyBreakpointNeedsReinsertion()
     QTC_ASSERT(b->m_state == BreakpointChangeProceeding, qDebug() << b->m_state);
     b->m_state = BreakpointInsertRequested;
 }
-
-
 
 void BreakpointItem::removeBreakpoint()
 {
