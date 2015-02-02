@@ -109,7 +109,9 @@ static QString makeFrameName(const Frame &frame, const QString &relativeTo,
     if (frame.line() != -1)
         path += QLatin1Char(':') + QString::number(frame.line());
 
-    path = QDir::toNativeSeparators(path.toHtmlEscaped());
+    // Since valgrind only runs on POSIX systems, converting path separators
+    // will ruin the paths on Windows. Leave it untouched.
+    path = path.toHtmlEscaped();
 
     if (link && !f.isEmpty() && QFile::exists(fullPath)) {
         // make a hyperlink label
