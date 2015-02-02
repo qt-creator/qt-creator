@@ -121,10 +121,10 @@ LldbEngine::~LldbEngine()
 
 void LldbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages)
 {
-    runCommand(Command("executeDebuggerCommand").arg("command", command));
+    runCommand(DebuggerCommand("executeDebuggerCommand").arg("command", command));
 }
 
-void LldbEngine::runCommand(const Command &command)
+void LldbEngine::runCommand(const DebuggerCommand &command)
 {
     QTC_ASSERT(m_lldbProc.state() == QProcess::Running, notifyEngineIll());
     ++m_lastToken;
@@ -142,7 +142,7 @@ void LldbEngine::debugLastCommand()
 void LldbEngine::shutdownInferior()
 {
     QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
-    runCommand(Command("shutdownInferior"));
+    runCommand(DebuggerCommand("shutdownInferior"));
 }
 
 void LldbEngine::shutdownEngine()
@@ -283,19 +283,19 @@ void LldbEngine::setupInferior()
 
     const QString path = stringSetting(ExtraDumperFile);
     if (!path.isEmpty()) {
-        Command cmd("addExtraDumper");
+        DebuggerCommand cmd("addExtraDumper");
         cmd.arg("path", path.toUtf8());
         runCommand(cmd);
     }
 
     const QString commands = stringSetting(ExtraDumperCommands);
     if (!commands.isEmpty()) {
-        Command cmd("executeDebuggerCommand");
+        DebuggerCommand cmd("executeDebuggerCommand");
         cmd.arg("commands", commands.toUtf8());
         runCommand(cmd);
     }
 
-    Command cmd1("loadDumperFiles");
+    DebuggerCommand cmd1("loadDumperFiles");
     runCommand(cmd1);
 
     QString executable;
@@ -303,7 +303,7 @@ void LldbEngine::setupInferior()
     QtcProcess::prepareCommand(QFileInfo(sp.executable).absoluteFilePath(),
                                sp.processArgs, &executable, &args);
 
-    Command cmd("setupInferior");
+    DebuggerCommand cmd("setupInferior");
     cmd.arg("executable", executable);
     cmd.arg("breakOnMain", sp.breakOnMain);
     cmd.arg("useTerminal", sp.useTerminal);
@@ -467,7 +467,7 @@ void LldbEngine::executeRunToLine(const ContextData &data)
 {
     resetLocation();
     notifyInferiorRunRequested();
-    Command cmd("executeRunToLocation");
+    DebuggerCommand cmd("executeRunToLocation");
     cmd.arg("file", data.fileName);
     cmd.arg("line", data.lineNumber);
     cmd.arg("address", data.address);
@@ -478,14 +478,14 @@ void LldbEngine::executeRunToFunction(const QString &functionName)
 {
     resetLocation();
     notifyInferiorRunRequested();
-    runCommand(Command("executeRunToFunction").arg("function", functionName));
+    runCommand(DebuggerCommand("executeRunToFunction").arg("function", functionName));
 }
 
 void LldbEngine::executeJumpToLine(const ContextData &data)
 {
     resetLocation();
     notifyInferiorRunRequested();
-    Command cmd("executeJumpToLocation");
+    DebuggerCommand cmd("executeJumpToLocation");
     cmd.arg("file", data.fileName);
     cmd.arg("line", data.lineNumber);
     cmd.arg("address", data.address);
@@ -500,13 +500,13 @@ void LldbEngine::activateFrame(int frameIndex)
 
     const int n = stackHandler()->stackSize();
     if (frameIndex == n) {
-        Command cmd("reportStack");
+        DebuggerCommand cmd("reportStack");
         cmd.arg("stacklimit", n * 10 + 3);
         runCommand(cmd);
         return;
     }
 
-    Command cmd("activateFrame");
+    DebuggerCommand cmd("activateFrame");
     cmd.arg("index", frameIndex);
     cmd.arg("thread", threadsHandler()->currentThread().raw());
     runCommand(cmd);
@@ -517,7 +517,7 @@ void LldbEngine::activateFrame(int frameIndex)
 
 void LldbEngine::selectThread(ThreadId threadId)
 {
-    runCommand(Command("selectThread").arg("id", threadId.raw()));
+    runCommand(DebuggerCommand("selectThread").arg("id", threadId.raw()));
 }
 
 bool LldbEngine::acceptsBreakpoint(Breakpoint bp) const
@@ -525,7 +525,7 @@ bool LldbEngine::acceptsBreakpoint(Breakpoint bp) const
     return bp.parameters().isCppBreakpoint() && startParameters().startMode != AttachCore;
 }
 
-bool LldbEngine::attemptBreakpointSynchronizationHelper(Command *cmd)
+bool LldbEngine::attemptBreakpointSynchronizationHelper(DebuggerCommand *cmd)
 {
     BreakHandler *handler = breakHandler();
 
@@ -620,7 +620,7 @@ void LldbEngine::attemptBreakpointSynchronization()
         return;
     }
 
-    Command cmd("handleBreakpoints");
+    DebuggerCommand cmd("handleBreakpoints");
     if (!attemptBreakpointSynchronizationHelper(&cmd)) {
         showMessage(_("BREAKPOINTS ARE NOT FULLY SYNCHRONIZED"));
         runCommand(cmd);
@@ -781,7 +781,7 @@ void LldbEngine::refreshModules(const GdbMi &modules)
 
 void LldbEngine::requestModuleSymbols(const QString &moduleName)
 {
-    runCommand(Command("listSymbols").arg("module", moduleName));
+    runCommand(DebuggerCommand("listSymbols").arg("module", moduleName));
 }
 
 void LldbEngine::refreshSymbols(const GdbMi &symbols)
@@ -839,14 +839,14 @@ void LldbEngine::updateAll()
 
 void LldbEngine::reloadFullStack()
 {
-    Command cmd("reportStack");
+    DebuggerCommand cmd("reportStack");
     cmd.arg("stacklimit", -1);
     runCommand(cmd);
 }
 
 void LldbEngine::updateStack()
 {
-    Command cmd("reportStack");
+    DebuggerCommand cmd("reportStack");
     cmd.arg("stacklimit", action(MaximalStackDepth)->value().toInt());
     runCommand(cmd);
 }
@@ -861,7 +861,7 @@ void LldbEngine::assignValueInDebugger(const Internal::WatchData *data,
     const QString &expression, const QVariant &value)
 {
     Q_UNUSED(data);
-    Command cmd("assignValue");
+    DebuggerCommand cmd("assignValue");
     cmd.arg("exp", expression.toLatin1().toHex());
     cmd.arg("value", value.toString().toLatin1().toHex());
     runCommand(cmd);
@@ -884,7 +884,7 @@ void LldbEngine::doUpdateLocals(UpdateParameters params)
 {
     WatchHandler *handler = watchHandler();
 
-    Command cmd("updateData");
+    DebuggerCommand cmd("updateData");
     cmd.arg("expanded", handler->expansionRequests());
     cmd.arg("typeformats", handler->typeFormatRequests());
     cmd.arg("formats", handler->individualFormatRequests());
@@ -1187,7 +1187,7 @@ void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)
         m_disassemblerAgents.insert(p, id);
     }
     const Location &loc = agent->location();
-    Command cmd("disassemble");
+    DebuggerCommand cmd("disassemble");
     cmd.arg("cookie", id);
     cmd.arg("address", loc.address());
     cmd.arg("function", loc.functionName());
@@ -1209,7 +1209,7 @@ void LldbEngine::fetchMemory(MemoryAgent *agent, QObject *editorToken,
         m_memoryAgents.insert(agent, id);
     }
     m_memoryAgentTokens.insert(id, editorToken);
-    Command cmd("fetchMemory");
+    DebuggerCommand cmd("fetchMemory");
     cmd.arg("address", addr);
     cmd.arg("length", length);
     cmd.arg("cookie", id);
@@ -1225,7 +1225,7 @@ void LldbEngine::changeMemory(MemoryAgent *agent, QObject *editorToken,
         m_memoryAgents.insert(agent, id);
         m_memoryAgentTokens.insert(id, editorToken);
     }
-    Command cmd("writeMemory");
+    DebuggerCommand cmd("writeMemory");
     cmd.arg("address", addr);
     cmd.arg("data", data.toHex());
     cmd.arg("cookie", id);
@@ -1234,7 +1234,7 @@ void LldbEngine::changeMemory(MemoryAgent *agent, QObject *editorToken,
 
 void LldbEngine::setRegisterValue(const QByteArray &name, const QString &value)
 {
-    runCommand(Command("setRegister").arg("name", name).arg("value", value));
+    runCommand(DebuggerCommand("setRegister").arg("name", name).arg("value", value));
 }
 
 
@@ -1294,125 +1294,6 @@ void LldbEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result
         notifyEngineSetupFailed();
         return;
     }
-}
-
-///////////////////////////////////////////////////////////////////////
-//
-// Command
-//
-///////////////////////////////////////////////////////////////////////
-
-const LldbEngine::Command &LldbEngine::Command::argHelper(const char *name, const QByteArray &data) const
-{
-    args.append('"');
-    args.append(name);
-    args.append("\":");
-    args.append(data);
-    args.append(",");
-    return *this;
-}
-
-QByteArray LldbEngine::Command::toData(const QList<QByteArray> &value)
-{
-    QByteArray res;
-    foreach (const QByteArray &item, value) {
-        if (!res.isEmpty())
-            res.append(',');
-        res += item;
-    }
-    return '[' + res + ']';
-}
-
-QByteArray LldbEngine::Command::toData(const QHash<QByteArray, QByteArray> &value)
-{
-    QByteArray res;
-    QHashIterator<QByteArray, QByteArray> it(value);
-    while (it.hasNext()) {
-        it.next();
-        if (!res.isEmpty())
-            res.append(',');
-        res += '"' + it.key() + "\":" + it.value();
-    }
-    return '{' + res + '}';
-}
-
-const LldbEngine::Command &LldbEngine::Command::arg(const char *name, int value) const
-{
-    return argHelper(name, QByteArray::number(value));
-}
-
-const LldbEngine::Command &LldbEngine::Command::arg(const char *name, qlonglong value) const
-{
-    return argHelper(name, QByteArray::number(value));
-}
-
-const LldbEngine::Command &LldbEngine::Command::arg(const char *name, qulonglong value) const
-{
-    return argHelper(name, QByteArray::number(value));
-}
-
-const LldbEngine::Command &LldbEngine::Command::arg(const char *name, const QString &value) const
-{
-    return arg(name, value.toUtf8().data());
-}
-
-const LldbEngine::Command &LldbEngine::Command::arg(const char *name, const QByteArray &value) const
-{
-    return arg(name, value.data());
-}
-
-const LldbEngine::Command &LldbEngine::Command::arg(const char *name, const char *value) const
-{
-    args.append('"');
-    args.append(name);
-    args.append("\":\"");
-    args.append(value);
-    args.append("\",");
-    return *this;
-}
-
-const LldbEngine::Command &LldbEngine::Command::arg(const char *value) const
-{
-    args.append("\"");
-    args.append(value);
-    args.append("\",");
-    return *this;
-}
-
-const LldbEngine::Command &LldbEngine::Command::beginList(const char *name) const
-{
-    if (name) {
-        args += '"';
-        args += name;
-        args += "\":";
-    }
-    args += '[';
-    return *this;
-}
-
-void LldbEngine::Command::endList() const
-{
-    if (args.endsWith(','))
-        args.chop(1);
-    args += "],";
-}
-
-const LldbEngine::Command &LldbEngine::Command::beginGroup(const char *name) const
-{
-    if (name) {
-        args += '"';
-        args += name;
-        args += "\":";
-    }
-    args += '{';
-    return *this;
-}
-
-void LldbEngine::Command::endGroup() const
-{
-    if (args.endsWith(','))
-        args.chop(1);
-    args += "},";
 }
 
 void LldbEngine::stubStarted()

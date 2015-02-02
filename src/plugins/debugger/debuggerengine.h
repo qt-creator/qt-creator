@@ -33,6 +33,7 @@
 
 #include "debugger_global.h"
 #include "debuggerconstants.h"
+#include "debuggerprotocol.h"
 #include "debuggerstartparameters.h"
 #include "threaddata.h" // For ThreadId.
 

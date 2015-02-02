@@ -66,33 +66,6 @@ public:
     ~LldbEngine();
 
 private:
-    // Convenience struct to build up backend commands.
-    struct Command
-    {
-        Command() {}
-        Command(const char *f) : function(f) {}
-
-        const Command &arg(const char *name) const;
-        const Command &arg(const char *name, int value) const;
-        const Command &arg(const char *name, qlonglong value) const;
-        const Command &arg(const char *name, qulonglong value) const;
-        const Command &arg(const char *name, const QString &value) const;
-        const Command &arg(const char *name, const QByteArray &value) const;
-        const Command &arg(const char *name, const char *value) const;
-        const Command &beginList(const char *name = 0) const;
-        void endList() const;
-        const Command &beginGroup(const char *name = 0) const;
-        void endGroup() const;
-
-        static QByteArray toData(const QList<QByteArray> &value);
-        static QByteArray toData(const QHash<QByteArray, QByteArray> &value);
-
-        QByteArray function;
-        mutable QByteArray args;
-        private:
-        const Command &argHelper(const char *name, const QByteArray &value) const;
-    };
-
     // DebuggerEngine implementation
     void executeStep();
     void executeStepOut();
@@ -124,7 +97,7 @@ private:
 
     bool acceptsBreakpoint(Breakpoint bp) const;
     void attemptBreakpointSynchronization();
-    bool attemptBreakpointSynchronizationHelper(Command *command);
+    bool attemptBreakpointSynchronizationHelper(DebuggerCommand *command);
 
     void assignValueInDebugger(const WatchData *data,
         const QString &expr, const QVariant &value);
@@ -200,9 +173,9 @@ private:
     void handleChildren(const WatchData &data0, const GdbMi &item,
         QList<WatchData> *list);
 
-    void runCommand(const Command &cmd);
+    void runCommand(const DebuggerCommand &cmd);
     void debugLastCommand();
-    Command m_lastDebuggableCommand;
+    DebuggerCommand m_lastDebuggableCommand;
 
     QByteArray m_inbuffer;
     QString m_scriptFileName;
