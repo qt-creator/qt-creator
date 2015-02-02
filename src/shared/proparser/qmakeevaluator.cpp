@@ -1315,14 +1315,13 @@ void QMakeEvaluator::setupProject()
 void QMakeEvaluator::evaluateCommand(const QString &cmds, const QString &where)
 {
     if (!cmds.isEmpty()) {
-        if (ProFile *pro = m_parser->parsedProBlock(cmds, where, -1)) {
-            if (pro->isOk()) {
-                m_locationStack.push(m_current);
-                visitProBlock(pro, pro->tokPtr());
-                m_current = m_locationStack.pop();
-            }
-            pro->deref();
+        ProFile *pro = m_parser->parsedProBlock(cmds, where, -1);
+        if (pro->isOk()) {
+            m_locationStack.push(m_current);
+            visitProBlock(pro, pro->tokPtr());
+            m_current = m_locationStack.pop();
         }
+        pro->deref();
     }
 }
 
@@ -1802,14 +1801,12 @@ bool QMakeEvaluator::evaluateConditional(const QString &cond, const QString &whe
 {
     bool ret = false;
     ProFile *pro = m_parser->parsedProBlock(cond, where, line, QMakeParser::TestGrammar);
-    if (pro) {
-        if (pro->isOk()) {
-            m_locationStack.push(m_current);
-            ret = visitProBlock(pro, pro->tokPtr()) == ReturnTrue;
-            m_current = m_locationStack.pop();
-        }
-        pro->deref();
+    if (pro->isOk()) {
+        m_locationStack.push(m_current);
+        ret = visitProBlock(pro, pro->tokPtr()) == ReturnTrue;
+        m_current = m_locationStack.pop();
     }
+    pro->deref();
     return ret;
 }
 

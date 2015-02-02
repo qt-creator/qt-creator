@@ -229,10 +229,7 @@ ProFile *QMakeParser::parsedProBlock(
         const QString &contents, const QString &name, int line, SubGrammar grammar)
 {
     ProFile *pro = new ProFile(name);
-    if (!read(pro, contents, line, grammar)) {
-        delete pro;
-        pro = 0;
-    }
+    read(pro, contents, line, grammar);
     return pro;
 }
 
@@ -252,7 +249,8 @@ bool QMakeParser::read(ProFile *pro, ParseFlags flags)
                                fL1S("Cannot read %1: %2").arg(pro->fileName(), errStr));
         return false;
     }
-    return read(pro, content, 1, FullGrammar);
+    read(pro, content, 1, FullGrammar);
+    return true;
 }
 
 void QMakeParser::putTok(ushort *&tokPtr, ushort tok)
@@ -292,7 +290,7 @@ void QMakeParser::finalizeHashStr(ushort *buf, uint len)
     buf[-2] = (ushort)(hash >> 16);
 }
 
-bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar grammar)
+void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar grammar)
 {
     m_proFile = pro;
     m_lineNo = line;
@@ -865,7 +863,6 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
         leaveScope(tokPtr);
     tokBuff.resize(tokPtr - (ushort *)tokBuff.constData()); // Reserved capacity stays
     *pro->itemsRef() = tokBuff;
-    return true;
 
 #undef FLUSH_VALUE_LIST
 #undef FLUSH_LITERAL

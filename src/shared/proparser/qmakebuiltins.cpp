@@ -1199,15 +1199,13 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             VisitReturn ret = ReturnFalse;
             ProFile *pro = m_parser->parsedProBlock(args.join(statics.field_sep),
                                                     m_current.pro->fileName(), m_current.line);
-            if (pro) {
-                if (m_cumulative || pro->isOk()) {
-                    m_locationStack.push(m_current);
-                    visitProBlock(pro, pro->tokPtr());
-                    ret = ReturnTrue; // This return value is not too useful, but that's qmake
-                    m_current = m_locationStack.pop();
-                }
-                pro->deref();
+            if (m_cumulative || pro->isOk()) {
+                m_locationStack.push(m_current);
+                visitProBlock(pro, pro->tokPtr());
+                ret = ReturnTrue; // This return value is not too useful, but that's qmake
+                m_current = m_locationStack.pop();
             }
+            pro->deref();
             return ret;
         }
     case T_IF: {

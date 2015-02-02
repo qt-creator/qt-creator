@@ -127,7 +127,7 @@ private:
     };
 
     bool read(ProFile *pro, ParseFlags flags);
-    bool read(ProFile *pro, const QString &content, int line, SubGrammar grammar);
+    void read(ProFile *pro, const QString &content, int line, SubGrammar grammar);
 
     ALWAYS_INLINE void putTok(ushort *&tokPtr, ushort tok);
     ALWAYS_INLINE void putBlockLen(ushort *&tokPtr, uint len);
