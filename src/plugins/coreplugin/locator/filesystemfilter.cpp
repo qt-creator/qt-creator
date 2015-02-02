@@ -119,7 +119,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
     // file names can match with +linenumber or :linenumber
     name = entry;
     const QString lineNoSuffix = EditorManager::splitLineNumber(&name);
-    name = Utils::FileName::fromString(name).fileName();
+    name = QFileInfo(name).fileName();
     foreach (const QString &file, files) {
         if (future.isCanceled())
             break;
