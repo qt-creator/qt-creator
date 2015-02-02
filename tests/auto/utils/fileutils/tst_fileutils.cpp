@@ -75,7 +75,7 @@ void tst_fileutils::parentDir_data()
     QTest::newRow("C:/") << "C:/" << "" << "";
     QTest::newRow("//./com1") << "//./com1" << "/" << "";
     QTest::newRow("//?/path") << "//?/path" << "/" << "Qt 4 can not handle this path.";
-    QTest::newRow("/Global??/UNC/host") << "/Global??/UNC/host" << "/Global??/UNC/host"
+    QTest::newRow("/Global?\?/UNC/host") << "/Global?\?/UNC/host" << "/Global?\?/UNC/host"
                                         << "Qt 4 can not handle this path.";
     QTest::newRow("//server/directory/file")
             << "//server/directory/file" << "//server/directory" << "";
@@ -115,8 +115,8 @@ void tst_fileutils::isChildOf_data()
     QTest::newRow("C:/") << "" << "C:/" << false;
     QTest::newRow("//./com1") << "/" << "//./com1" << true;
     QTest::newRow("//?/path") << "/" << "//?/path" << true;
-    QTest::newRow("/Global??/UNC/host") << "/Global??/UNC/host"
-                                        << "/Global??/UNC/host/file" << true;
+    QTest::newRow("/Global?\?/UNC/host") << "/Global?\?/UNC/host"
+                                        << "/Global?\?/UNC/host/file" << true;
     QTest::newRow("//server/directory/file")
             << "//server/directory" << "//server/directory/file" << true;
     QTest::newRow("//server/directory")
