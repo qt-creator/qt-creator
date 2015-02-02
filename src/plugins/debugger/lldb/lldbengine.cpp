@@ -309,7 +309,21 @@ void LldbEngine::setupInferior()
     cmd.arg("useTerminal", sp.useTerminal);
     cmd.arg("startMode", sp.startMode);
 
-    attemptBreakpointSynchronizationHelper(&cmd);
+    cmd.beginList("bkpts");
+    foreach (Breakpoint bp, breakHandler()->unclaimedBreakpoints()) {
+        if (acceptsBreakpoint(bp)) {
+            showMessage(_("TAKING OWNERSHIP OF BREAKPOINT %1 IN STATE %2")
+                            .arg(bp.id().toString()).arg(bp.state()));
+            bp.setEngine(this);
+            cmd.beginGroup();
+            insertBreakpointHelper(&cmd, bp);
+            cmd.endGroup();
+        } else {
+            showMessage(_("BREAKPOINT %1 IN STATE %2 IS NOT ACCEPTABLE")
+                .arg(bp.id().toString()).arg(bp.state()));
+        }
+    }
+    cmd.endList();
 
     cmd.beginList("processArgs");
     foreach (const QString &arg, args.toUnixArgs())
@@ -520,113 +534,81 @@ void LldbEngine::selectThread(ThreadId threadId)
     runCommand(DebuggerCommand("selectThread").arg("id", threadId.raw()));
 }
 
+bool LldbEngine::stateAcceptsBreakpointChanges() const
+{
+    switch (state()) {
+    case InferiorSetupRequested:
+    case InferiorRunRequested:
+    case InferiorRunOk:
+    case InferiorStopRequested:
+    case InferiorStopOk:
+        return true;
+    default:
+        return false;
+    }
+}
+
 bool LldbEngine::acceptsBreakpoint(Breakpoint bp) const
 {
-    return bp.parameters().isCppBreakpoint() && startParameters().startMode != AttachCore;
+    if (startParameters().startMode == AttachCore)
+        return false;
+    // We handle QML breakpoint unless specifically disabled.
+    if (isNativeMixedEnabled() && !(startParameters().languages & QmlLanguage))
+        return true;
+    return bp.parameters().isCppBreakpoint();
 }
 
-bool LldbEngine::attemptBreakpointSynchronizationHelper(DebuggerCommand *cmd)
+void LldbEngine::insertBreakpoint(Breakpoint bp)
 {
-    BreakHandler *handler = breakHandler();
-
-    foreach (Breakpoint bp, handler->unclaimedBreakpoints()) {
-        // Take ownership of the breakpoint. Requests insertion.
-        if (acceptsBreakpoint(bp)) {
-            showMessage(_("TAKING OWNERSHIP OF BREAKPOINT %1 IN STATE %2")
-                .arg(bp.id().toString()).arg(bp.state()));
-            bp.setEngine(this);
-        } else {
-            showMessage(_("BREAKPOINT %1 IN STATE %2 IS NOT ACCEPTABLE")
-                .arg(bp.id().toString()).arg(bp.state()));
-        }
-    }
-
-    bool done = true;
-    cmd->beginList("bkpts");
-    foreach (Breakpoint bp, handler->engineBreakpoints(this)) {
-        const BreakpointResponse &response = bp.response();
-        const BreakpointState bpState = bp.state();
-        switch (bpState) {
-        case BreakpointNew:
-            // Should not happen once claimed.
-            QTC_CHECK(false);
-            break;
-        case BreakpointInsertRequested:
-            done = false;
-            cmd->beginGroup()
-                    .arg("operation", "add")
-                    .arg("modelid", bp.id().toByteArray())
-                    .arg("type", bp.type())
-                    .arg("ignorecount", bp.ignoreCount())
-                    .arg("condition", bp.condition().toHex())
-                    .arg("function", bp.functionName().toUtf8())
-                    .arg("oneshot", bp.isOneShot())
-                    .arg("enabled", bp.isEnabled())
-                    .arg("file", bp.fileName().toUtf8())
-                    .arg("line", bp.lineNumber())
-                    .arg("address", bp.address())
-                    .arg("expression", bp.expression())
-                    .endGroup();
-            bp.notifyBreakpointInsertProceeding();
-            break;
-        case BreakpointChangeRequested:
-            done = false;
-            cmd->beginGroup()
-                    .arg("operation", "change")
-                    .arg("modelid", bp.id().toByteArray())
-                    .arg("lldbid", response.id.toByteArray())
-                    .arg("type", bp.type())
-                    .arg("ignorecount", bp.ignoreCount())
-                    .arg("condition", bp.condition().toHex())
-                    .arg("function", bp.functionName().toUtf8())
-                    .arg("oneshot", bp.isOneShot())
-                    .arg("enabled", bp.isEnabled())
-                    .arg("file", bp.fileName().toUtf8())
-                    .arg("line", bp.lineNumber())
-                    .arg("address", bp.address())
-                    .arg("expression", bp.expression())
-                    .endGroup();
-            bp.notifyBreakpointChangeProceeding();
-            break;
-        case BreakpointRemoveRequested:
-            done = false;
-            cmd->beginGroup()
-                    .arg("operation", "remove")
-                    .arg("modelid", bp.id().toByteArray())
-                    .arg("lldbid", response.id.toByteArray())
-                    .endGroup();
-            bp.notifyBreakpointRemoveProceeding();
-            break;
-        case BreakpointChangeProceeding:
-        case BreakpointInsertProceeding:
-        case BreakpointRemoveProceeding:
-        case BreakpointInserted:
-        case BreakpointDead:
-            QTC_ASSERT(false, qDebug() << "UNEXPECTED STATE" << bpState << "FOR BP " << bp.id());
-            break;
-        default:
-            QTC_ASSERT(false, qDebug() << "UNKNOWN STATE" << bpState << "FOR BP" << bp.id());
-        }
-    }
-    cmd->endList();
-    return done;
+    DebuggerCommand cmd("insertBreakpoint");
+    insertBreakpointHelper(&cmd, bp);
+    runCommand(cmd);
 }
 
-void LldbEngine::attemptBreakpointSynchronization()
+void LldbEngine::insertBreakpointHelper(DebuggerCommand *cmd, Breakpoint bp) const
 {
-    showMessage(_("ATTEMPT BREAKPOINT SYNCHRONIZATION"));
-    if (!stateAcceptsBreakpointChanges()) {
-        showMessage(_("BREAKPOINT SYNCHRONIZATION NOT POSSIBLE IN CURRENT STATE"));
-        return;
-    }
+    cmd->arg("modelid", bp.id().toByteArray());
+    cmd->arg("type", bp.type());
+    cmd->arg("ignorecount", bp.ignoreCount());
+    cmd->arg("condition", bp.condition().toHex());
+    cmd->arg("function", bp.functionName().toUtf8());
+    cmd->arg("oneshot", bp.isOneShot());
+    cmd->arg("enabled", bp.isEnabled());
+    cmd->arg("file", bp.fileName().toUtf8());
+    cmd->arg("line", bp.lineNumber());
+    cmd->arg("address", bp.address());
+    cmd->arg("expression", bp.expression());
+    bp.notifyBreakpointInsertProceeding();
+}
 
-    DebuggerCommand cmd("handleBreakpoints");
-    if (!attemptBreakpointSynchronizationHelper(&cmd)) {
-        showMessage(_("BREAKPOINTS ARE NOT FULLY SYNCHRONIZED"));
-        runCommand(cmd);
-    } else {
-        showMessage(_("BREAKPOINTS ARE SYNCHRONIZED"));
-    }
+void LldbEngine::changeBreakpoint(Breakpoint bp)
+{
+    const BreakpointResponse &response = bp.response();
+    DebuggerCommand cmd("changeBreakpoint");
+    cmd.arg("modelid", bp.id().toByteArray());
+    cmd.arg("lldbid", response.id.toByteArray());
+    cmd.arg("type", bp.type());
+    cmd.arg("ignorecount", bp.ignoreCount());
+    cmd.arg("condition", bp.condition().toHex());
+    cmd.arg("function", bp.functionName().toUtf8());
+    cmd.arg("oneshot", bp.isOneShot());
+    cmd.arg("enabled", bp.isEnabled());
+    cmd.arg("file", bp.fileName().toUtf8());
+    cmd.arg("line", bp.lineNumber());
+    cmd.arg("address", bp.address());
+    cmd.arg("expression", bp.expression());
+    bp.notifyBreakpointChangeProceeding();
+    runCommand(cmd);
+}
+
+void LldbEngine::removeBreakpoint(Breakpoint bp)
+{
+    const BreakpointResponse &response = bp.response();
+    DebuggerCommand cmd("removeBreakpoint");
+    cmd.arg("modelid", bp.id().toByteArray());
+    cmd.arg("lldbid", response.id.toByteArray());
+    bp.notifyBreakpointRemoveProceeding();
+    runCommand(cmd);
 }
 
 void LldbEngine::updateBreakpointData(const GdbMi &bkpt, bool added)

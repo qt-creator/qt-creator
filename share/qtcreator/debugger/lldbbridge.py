@@ -643,7 +643,8 @@ class Dumper(DumperBase):
             self.target = self.debugger.CreateTarget(None, None, None, True, error)
 
         if self.target.IsValid():
-            self.handleBreakpoints(args)
+            for bp in args['bkpts']:
+                self.insertBreakpoint(bp)
 
         state = "inferiorsetupok" if self.target.IsValid() else "inferiorsetupfailed"
         self.report('state="%s",msg="%s",exe="%s"' % (state, error, self.executable_))
@@ -1309,7 +1310,9 @@ class Dumper(DumperBase):
         return self.target.BreakpointCreateByName(
             "main", self.target.GetExecutable().GetFilename())
 
-    def addBreakpoint(self, args):
+    def insertBreakpoint(self, args):
+        more = True
+        modelId = args['modelid']
         bpType = args["type"]
         if bpType == BreakpointByFileAndLine:
             bp = self.target.BreakpointCreateByLocation(
@@ -1342,68 +1345,45 @@ class Dumper(DumperBase):
                 bp = self.target.WatchAddress(value.GetLoadAddress(),
                     value.GetByteSize(), False, True, error)
             except:
-                return self.target.BreakpointCreateByName(None)
+                bp = self.target.BreakpointCreateByName(None)
         else:
             # This leaves the unhandled breakpoint in a (harmless)
             # "pending" state.
-            return self.target.BreakpointCreateByName(None)
-        bp.SetIgnoreCount(int(args["ignorecount"]))
-        if hasattr(bp, 'SetCondition'):
-            bp.SetCondition(self.hexdecode(args["condition"]))
-        bp.SetEnabled(int(args["enabled"]))
-        if hasattr(bp, 'SetOneShot'):
-            bp.SetOneShot(int(args["oneshot"]))
-        self.breakpointsToCheck.add(bp.GetID())
-        return bp
+            bp = self.target.BreakpointCreateByName(None)
+            more = False
+
+        if more:
+            bp.SetIgnoreCount(int(args["ignorecount"]))
+            if hasattr(bp, 'SetCondition'):
+                bp.SetCondition(self.hexdecode(args["condition"]))
+            bp.SetEnabled(int(args["enabled"]))
+            if hasattr(bp, 'SetOneShot'):
+                bp.SetOneShot(int(args["oneshot"]))
+            self.breakpointsToCheck.add(bp.GetID())
+        self.report('breakpoint-added={%s,modelid="%s"}' % (self.describeBreakpoint(bp), modelId))
 
     def changeBreakpoint(self, args):
-        id = int(args["lldbid"])
-        if id > qqWatchpointOffset:
-            bp = self.target.FindWatchpointByID(id)
+        lldbId = int(args["lldbid"])
+        modelId = args['modelid']
+        if lldbId > qqWatchpointOffset:
+            bp = self.target.FindWatchpointByID(lldbId)
         else:
-            bp = self.target.FindBreakpointByID(id)
+            bp = self.target.FindBreakpointByID(lldbId)
         bp.SetIgnoreCount(int(args["ignorecount"]))
         bp.SetCondition(self.hexdecode(args["condition"]))
         bp.SetEnabled(int(args["enabled"]))
         if hasattr(bp, 'SetOneShot'):
             bp.SetOneShot(int(args["oneshot"]))
-        return bp
+        self.report('breakpoint-changed={%s,modelid="%s"}'
+              % (self.describeBreakpoint(bp), modelId))
 
     def removeBreakpoint(self, args):
-        id = int(args['lldbid'])
-        if id > qqWatchpointOffset:
-            return self.target.DeleteWatchpoint(id - qqWatchpointOffset)
-        return self.target.BreakpointDelete(id)
-
-    def handleBreakpoints(self, args):
-        # This seems to be only needed on Linux.
-        needStop = False
-        if self.process and platform.system() == "Linux":
-            needStop = self.process.GetState() != lldb.eStateStopped
-        if needStop:
-            error = self.process.Stop()
-
-        for bp in args['bkpts']:
-            operation = bp['operation']
-            modelId = bp['modelid']
-
-            if operation == 'add':
-                bpNew = self.addBreakpoint(bp)
-                self.report('breakpoint-added={%s,modelid="%s"}'
-                    % (self.describeBreakpoint(bpNew), modelId))
-
-            elif operation == 'change':
-                bpNew = self.changeBreakpoint(bp)
-                self.report('breakpoint-changed={%s,modelid="%s"}'
-                    % (self.describeBreakpoint(bpNew), modelId))
-
-            elif operation == 'remove':
-                bpDead = self.removeBreakpoint(bp)
-                self.report('breakpoint-removed={modelid="%s"}' % modelId)
-
-        if needStop:
-            error = self.process.Continue()
-
+        lldbId = int(args['lldbid'])
+        modelId = args['modelid']
+        if lldbId > qqWatchpointOffset:
+            res = self.target.DeleteWatchpoint(lldbId - qqWatchpointOffset)
+        res = self.target.BreakpointDelete(lldbId)
+        self.report('breakpoint-removed={modelid="%s"}' % modelId)
 
     def listModules(self, args):
         result = 'modules=['

@@ -95,9 +95,13 @@ private:
     void activateFrame(int index);
     void selectThread(ThreadId threadId);
 
+    // This should be always the last call in a function.
+    bool stateAcceptsBreakpointChanges() const;
     bool acceptsBreakpoint(Breakpoint bp) const;
-    void attemptBreakpointSynchronization();
-    bool attemptBreakpointSynchronizationHelper(DebuggerCommand *command);
+    void insertBreakpoint(Breakpoint bp);
+    void insertBreakpointHelper(DebuggerCommand *cmd, Breakpoint bp) const;
+    void removeBreakpoint(Breakpoint bp);
+    void changeBreakpoint(Breakpoint bp);
 
     void assignValueInDebugger(const WatchData *data,
         const QString &expr, const QVariant &value);
