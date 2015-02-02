@@ -223,7 +223,7 @@ void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     addContextMenuActions(menu, fileIndexForBlockNumber(blockNumber),
                           chunkIndexForBlockNumber(blockNumber));
 
-    connect(this, &UnifiedDiffEditorWidget::destroyed, menu, &QMenu::deleteLater);
+    connect(this, &UnifiedDiffEditorWidget::destroyed, menu.data(), &QMenu::deleteLater);
     menu->exec(e->globalPos());
     delete menu;
 }
