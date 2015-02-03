@@ -85,7 +85,10 @@ QtCreatorIntegration::QtCreatorIntegration(QDesignerFormEditorInterface *core, Q
     f |= SlotNavigationFeature;
     f &= ~ResourceEditorFeature;
     setFeatures(f);
-    connect(this, &QtCreatorIntegration::navigateToSlot,
+
+    connect(this, static_cast<void (QDesignerIntegrationInterface::*)
+                    (const QString&, const QString&, const QStringList&)>
+                       (&QDesignerIntegrationInterface::navigateToSlot),
             this, &QtCreatorIntegration::slotNavigateToSlot);
     connect(this, &QtCreatorIntegration::helpRequested,
             this, &QtCreatorIntegration::slotDesignerHelpRequested);
