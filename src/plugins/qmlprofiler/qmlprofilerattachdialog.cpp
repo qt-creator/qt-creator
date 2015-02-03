@@ -96,7 +96,7 @@ void QmlProfilerAttachDialog::setPort(const int port)
     d->portSpinBox->setValue(port);
 }
 
-ProjectExplorer::Kit *QmlProfilerAttachDialog::kit() const
+Kit *QmlProfilerAttachDialog::kit() const
 {
     return d->kitChooser->currentKit();
 }

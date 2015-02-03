@@ -41,9 +41,9 @@ class AddPropertyVisitor: public QMLRewriter
 {
 public:
 public:
-    AddPropertyVisitor(QmlDesigner::TextModifier &modifier,
+    AddPropertyVisitor(TextModifier &modifier,
                        quint32 parentLocation,
-                       const QmlDesigner::PropertyName &name,
+                       const PropertyName &name,
                        const QString &value,
                        QmlRefactoring::PropertyType propertyType,
                        const PropertyNameList &propertyOrder,
@@ -62,7 +62,7 @@ private:
     QString m_value;
     QmlRefactoring::PropertyType m_propertyType;
     PropertyNameList m_propertyOrder;
-    QmlDesigner::TypeName m_dynamicTypeName;
+    TypeName m_dynamicTypeName;
 };
 
 } // namespace Internal

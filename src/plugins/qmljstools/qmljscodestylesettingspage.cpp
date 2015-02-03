@@ -83,18 +83,18 @@ QmlJSCodeStylePreferencesWidget::~QmlJSCodeStylePreferencesWidget()
     delete m_ui;
 }
 
-void QmlJSCodeStylePreferencesWidget::setPreferences(TextEditor::ICodeStylePreferences *preferences)
+void QmlJSCodeStylePreferencesWidget::setPreferences(ICodeStylePreferences *preferences)
 {
     m_preferences = preferences;
     m_ui->tabPreferencesWidget->setPreferences(preferences);
     if (m_preferences)
-        connect(m_preferences, &TextEditor::ICodeStylePreferences::currentTabSettingsChanged,
+        connect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,
                 this, &QmlJSCodeStylePreferencesWidget::slotSettingsChanged);
     updatePreview();
 }
 
 
-void QmlJSCodeStylePreferencesWidget::decorateEditor(const TextEditor::FontSettings &fontSettings)
+void QmlJSCodeStylePreferencesWidget::decorateEditor(const FontSettings &fontSettings)
 {
     const ISnippetProvider *provider = ExtensionSystem::PluginManager::getObject<ISnippetProvider>(
         [](ISnippetProvider *current) {
@@ -122,7 +122,7 @@ void QmlJSCodeStylePreferencesWidget::updatePreview()
 {
     QTextDocument *doc = m_ui->previewTextEdit->document();
 
-    const TextEditor::TabSettings &ts = m_preferences
+    const TabSettings &ts = m_preferences
             ? m_preferences->currentTabSettings()
             : TextEditorSettings::codeStyle()->tabSettings();
     m_ui->previewTextEdit->textDocument()->setTabSettings(ts);
@@ -157,9 +157,9 @@ QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage(/*QSharedPointer<CppFileS
 QWidget *QmlJSCodeStyleSettingsPage::widget()
 {
     if (!m_widget) {
-        TextEditor::SimpleCodeStylePreferences *originalTabPreferences
+        SimpleCodeStylePreferences *originalTabPreferences
                 = QmlJSToolsSettings::globalCodeStyle();
-        m_pageTabPreferences = new TextEditor::SimpleCodeStylePreferences(m_widget);
+        m_pageTabPreferences = new SimpleCodeStylePreferences(m_widget);
         m_pageTabPreferences->setDelegatingPool(originalTabPreferences->delegatingPool());
         m_pageTabPreferences->setTabSettings(originalTabPreferences->tabSettings());
         m_pageTabPreferences->setCurrentDelegate(originalTabPreferences->currentDelegate());
@@ -175,7 +175,7 @@ void QmlJSCodeStyleSettingsPage::apply()
     if (m_widget) {
         QSettings *s = Core::ICore::settings();
 
-        TextEditor::SimpleCodeStylePreferences *originalTabPreferences = QmlJSToolsSettings::globalCodeStyle();
+        SimpleCodeStylePreferences *originalTabPreferences = QmlJSToolsSettings::globalCodeStyle();
         if (originalTabPreferences->tabSettings() != m_pageTabPreferences->tabSettings()) {
             originalTabPreferences->setTabSettings(m_pageTabPreferences->tabSettings());
             originalTabPreferences->toSettings(QLatin1String(QmlJSTools::Constants::QML_JS_SETTINGS_ID), s);

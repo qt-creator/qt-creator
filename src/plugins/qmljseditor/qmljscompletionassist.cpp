@@ -651,7 +651,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
 
     // currently path-in-stringliteral is the only completion available in imports
     if (contextFinder.isInImport()) {
-        QmlJS::ModelManagerInterface::ProjectInfo pInfo = QmlJS::ModelManagerInterface::instance()
+        ModelManagerInterface::ProjectInfo pInfo = ModelManagerInterface::instance()
                 ->projectInfo(ProjectExplorer::ProjectTree::currentProject());
         QmlBundle platform = pInfo.extendedBundle.bundleForLanguage(document->language());
         if (!platform.supportedImports().isEmpty()) {
@@ -661,8 +661,8 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
             expressionUnderCursor(tc);
             QString libVersion = contextFinder.libVersionImport();
             if (!libVersion.isNull()) {
-                QStringList completions=platform.supportedImports().complete(libVersion, QString(), QmlJS::PersistentTrie::LookupFlags(QmlJS::PersistentTrie::CaseInsensitive|QmlJS::PersistentTrie::SkipChars|QmlJS::PersistentTrie::SkipSpaces));
-                completions = QmlJS::PersistentTrie::matchStrengthSort(libVersion, completions);
+                QStringList completions=platform.supportedImports().complete(libVersion, QString(), PersistentTrie::LookupFlags(PersistentTrie::CaseInsensitive|PersistentTrie::SkipChars|PersistentTrie::SkipSpaces));
+                completions = PersistentTrie::matchStrengthSort(libVersion, completions);
 
                 int toSkip = qMax(libVersion.lastIndexOf(QLatin1Char(' '))
                                   , libVersion.lastIndexOf(QLatin1Char('.')));
@@ -691,7 +691,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
         tc.setPosition(m_startPosition - 1);
 
         QmlExpressionUnderCursor expressionUnderCursor;
-        QmlJS::AST::ExpressionNode *expression = expressionUnderCursor(tc);
+        AST::ExpressionNode *expression = expressionUnderCursor(tc);
 
         if (expression != 0 && ! isLiteral(expression)) {
             // Evaluate the expression under cursor.

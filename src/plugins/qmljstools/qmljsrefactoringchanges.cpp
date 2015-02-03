@@ -39,9 +39,10 @@
 #include <projectexplorer/editorconfiguration.h>
 
 using namespace QmlJS;
-using namespace QmlJSTools;
 
-class QmlJSTools::QmlJSRefactoringChangesData : public TextEditor::RefactoringChangesData
+namespace QmlJSTools {
+
+class QmlJSRefactoringChangesData : public TextEditor::RefactoringChangesData
 {
 public:
     QmlJSRefactoringChangesData(ModelManagerInterface *modelManager,
@@ -90,8 +91,8 @@ public:
         m_modelManager->updateSourceFiles(QStringList(fileName), true);
     }
 
-    QmlJS::ModelManagerInterface *m_modelManager;
-    QmlJS::Snapshot m_snapshot;
+    ModelManagerInterface *m_modelManager;
+    Snapshot m_snapshot;
 };
 
 QmlJSRefactoringChanges::QmlJSRefactoringChanges(ModelManagerInterface *modelManager,
@@ -129,7 +130,7 @@ QmlJSRefactoringFile::QmlJSRefactoringFile(const QString &fileName, const QShare
         m_fileName.clear();
 }
 
-QmlJSRefactoringFile::QmlJSRefactoringFile(TextEditor::TextEditorWidget *editor, QmlJS::Document::Ptr document)
+QmlJSRefactoringFile::QmlJSRefactoringFile(TextEditor::TextEditorWidget *editor, Document::Ptr document)
     : RefactoringFile(editor)
     , m_qmljsDocument(document)
 {
@@ -195,3 +196,5 @@ void QmlJSRefactoringFile::fileChanged()
     m_qmljsDocument.clear();
     RefactoringFile::fileChanged();
 }
+
+} // namespace QmlJSTools

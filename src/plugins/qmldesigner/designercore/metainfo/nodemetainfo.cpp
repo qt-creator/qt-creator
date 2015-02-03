@@ -135,10 +135,10 @@ static QString qualifiedTypeNameForContext(const ObjectValue *objectValue,
         foreach (const LanguageUtils::FakeMetaObject::Export &e, cppComponent->metaObject()->exports()) {
             if (e.type == className)
                 packages << e.package;
-            if (e.package == QmlJS::CppQmlTypes::cppPackage)
+            if (e.package == CppQmlTypes::cppPackage)
                 cppName = e.type;
         }
-        if (packages.size() == 1 && packages.at(0) == QmlJS::CppQmlTypes::cppPackage)
+        if (packages.size() == 1 && packages.at(0) == CppQmlTypes::cppPackage)
             return packages.at(0) + QLatin1Char('.') + className;
     }
     // try to recover a "global context name"
@@ -264,7 +264,7 @@ static QString qualifiedTypeNameForContext(const ObjectValue *objectValue,
             return optimalName(possibleFiles);
     } while (false);
     if (!cppName.isEmpty())
-        return QmlJS::CppQmlTypes::cppPackage + QLatin1Char('.') + cppName;
+        return CppQmlTypes::cppPackage + QLatin1Char('.') + cppName;
     if (const CppComponentValue *cppComponent = value_cast<CppComponentValue>(objectValue)) {
         if (cppComponent->moduleName().isEmpty())
             return cppComponent->className();
@@ -280,7 +280,7 @@ class PropertyMemberProcessor : public MemberProcessor
 public:
     PropertyMemberProcessor(const ContextPtr &context) : m_context(context)
     {}
-    bool processProperty(const QString &name, const Value *value, const QmlJS::PropertyInfo &)
+    bool processProperty(const QString &name, const Value *value, const PropertyInfo &)
     {
         PropertyName propertyName = name.toUtf8();
         const ASTPropertyReference *ref = value_cast<ASTPropertyReference>(value);
@@ -567,13 +567,13 @@ public:
 private:
     NodeMetaInfoPrivate(Model *model, TypeName type, int maj = -1, int min = -1);
 
-    const QmlJS::CppComponentValue *getCppComponentValue() const;
-    const QmlJS::ObjectValue *getObjectValue() const;
+    const CppComponentValue *getCppComponentValue() const;
+    const ObjectValue *getObjectValue() const;
     void setupPropertyInfo(QList<PropertyInfo> propertyInfos);
     void setupLocalPropertyInfo(QList<PropertyInfo> propertyInfos);
     QString lookupName() const;
     QStringList lookupNameComponent() const;
-    const QmlJS::CppComponentValue *getNearestCppComponentValue() const;
+    const CppComponentValue *getNearestCppComponentValue() const;
     QString fullQualifiedImportAliasType() const;
 
     TypeName m_qualfiedTypeName;
@@ -591,7 +591,7 @@ private:
     QSet<QString> m_prototypeCacheNegatives;
 
     //storing the pointer would not be save
-    QmlJS::ContextPtr context() const;
+    ContextPtr context() const;
     const Document *document() const;
 
     QPointer<Model> m_model;
@@ -721,7 +721,7 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, i
     }
 }
 
-const QmlJS::CppComponentValue *NodeMetaInfoPrivate::getCppComponentValue() const
+const CppComponentValue *NodeMetaInfoPrivate::getCppComponentValue() const
 {
     const QList<TypeName> nameComponents = m_qualfiedTypeName.split('.');
     if (nameComponents.size() < 2)
@@ -748,29 +748,29 @@ const QmlJS::CppComponentValue *NodeMetaInfoPrivate::getCppComponentValue() cons
             return cppValue;
     }
 
-    const QmlJS::CppComponentValue *value = value_cast<CppComponentValue>(getObjectValue());
+    const CppComponentValue *value = value_cast<CppComponentValue>(getObjectValue());
     if (value)
         return value;
 
     // maybe 'type' is a cpp name
-    const QmlJS::CppComponentValue *cppValue = context()->valueOwner()->cppQmlTypes().objectByCppName(type);
+    const CppComponentValue *cppValue = context()->valueOwner()->cppQmlTypes().objectByCppName(type);
 
     return cppValue;
 }
 
-const QmlJS::ObjectValue *NodeMetaInfoPrivate::getObjectValue() const
+const ObjectValue *NodeMetaInfoPrivate::getObjectValue() const
 {
     return context()->lookupType(document(), lookupNameComponent());
 }
 
-QmlJS::ContextPtr NodeMetaInfoPrivate::context() const
+ContextPtr NodeMetaInfoPrivate::context() const
 {
     if (m_model && m_model->rewriterView() && m_model->rewriterView()->scopeChain())
         return m_model->rewriterView()->scopeChain()->context();
-    return QmlJS::ContextPtr(0);
+    return ContextPtr(0);
 }
 
-const QmlJS::Document *NodeMetaInfoPrivate::document() const
+const Document *NodeMetaInfoPrivate::document() const
 {
     if (m_model && m_model->rewriterView())
         return m_model->rewriterView()->document();
@@ -815,7 +815,7 @@ bool NodeMetaInfoPrivate::isPropertyWritable(const PropertyName &propertyName) c
             return true;
     }
 
-    const QmlJS::CppComponentValue *qmlObjectValue = getNearestCppComponentValue();
+    const CppComponentValue *qmlObjectValue = getNearestCppComponentValue();
     if (!qmlObjectValue)
         return true;
     if (qmlObjectValue->hasProperty(propertyName))
@@ -846,7 +846,7 @@ bool NodeMetaInfoPrivate::isPropertyList(const PropertyName &propertyName) const
             return true;
     }
 
-    const QmlJS::CppComponentValue *qmlObjectValue = getNearestCppComponentValue();
+    const CppComponentValue *qmlObjectValue = getNearestCppComponentValue();
     if (!qmlObjectValue)
         return false;
     return qmlObjectValue->isListProperty(propertyName);
@@ -873,7 +873,7 @@ bool NodeMetaInfoPrivate::isPropertyPointer(const PropertyName &propertyName) co
             return true;
     }
 
-    const QmlJS::CppComponentValue *qmlObjectValue = getNearestCppComponentValue();
+    const CppComponentValue *qmlObjectValue = getNearestCppComponentValue();
     if (!qmlObjectValue)
         return false;
     return qmlObjectValue->isPointer(propertyName);
@@ -1239,7 +1239,7 @@ QList<TypeDescription> NodeMetaInfoPrivate::prototypes() const
     return m_prototypes;
 }
 
-const QmlJS::CppComponentValue *NodeMetaInfoPrivate::getNearestCppComponentValue() const
+const CppComponentValue *NodeMetaInfoPrivate::getNearestCppComponentValue() const
 {
     if (m_isFileComponent)
         return findQmlPrototype(getObjectValue(), context());

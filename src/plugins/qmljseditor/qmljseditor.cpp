@@ -134,8 +134,8 @@ void QmlJSEditorWidget::finalizeInitialization()
 
     textDocument()->setCodec(QTextCodec::codecForName("UTF-8")); // qml files are defined to be utf-8
 
-    m_modelManager = QmlJS::ModelManagerInterface::instance();
-    m_contextPane = ExtensionSystem::PluginManager::getObject<QmlJS::IContextPane>();
+    m_modelManager = ModelManagerInterface::instance();
+    m_contextPane = ExtensionSystem::PluginManager::getObject<IContextPane>();
 
     m_modelManager->activateScan();
 
@@ -207,7 +207,7 @@ static void appendExtraSelectionsForMessages(
     }
 }
 
-void QmlJSEditorWidget::updateCodeWarnings(QmlJS::Document::Ptr doc)
+void QmlJSEditorWidget::updateCodeWarnings(Document::Ptr doc)
 {
     if (doc->ast()) {
         setExtraSelections(CodeWarningsSelection, QList<QTextEdit::ExtraSelection>());
@@ -348,7 +348,7 @@ void QmlJSEditorWidget::updateUses()
             continue;
 
         QTextEdit::ExtraSelection sel;
-        sel.format = textDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES);
+        sel.format = textDocument()->fontSettings().toTextCharFormat(C_OCCURRENCES);
         sel.cursor = textCursor();
         sel.cursor.setPosition(loc.begin());
         sel.cursor.setPosition(loc.end(), QTextCursor::KeepAnchor);
@@ -791,7 +791,7 @@ void QmlJSEditorWidget::semanticInfoUpdated(const SemanticInfo &semanticInfo)
     if (m_firstSementicInfo) {
         m_firstSementicInfo = false;
         if (semanticInfo.document->language() == Dialect::QmlQtQuick2Ui) {
-            Core::InfoBarEntry info(Core::Id(Constants::QML_UI_FILE_WARNING),
+            InfoBarEntry info(Id(Constants::QML_UI_FILE_WARNING),
                                     tr("This file should only be edited in <b>Design</b> mode."));
             info.setCustomButtonInfo(tr("Switch Mode"), []() { ModeManager::activateMode(Core::Constants::MODE_DESIGN); });
             textDocument()->infoBar()->addInfo(info);
@@ -840,16 +840,16 @@ bool QmlJSEditorWidget::hideContextPane()
 }
 
 AssistInterface *QmlJSEditorWidget::createAssistInterface(
-    TextEditor::AssistKind assistKind,
-    TextEditor::AssistReason reason) const
+    AssistKind assistKind,
+    AssistReason reason) const
 {
-    if (assistKind == TextEditor::Completion) {
+    if (assistKind == Completion) {
         return new QmlJSCompletionAssistInterface(document(),
                                                   position(),
                                                   textDocument()->filePath().toString(),
                                                   reason,
                                                   m_qmlJsEditorDocument->semanticInfo());
-    } else if (assistKind == TextEditor::QuickFix) {
+    } else if (assistKind == QuickFix) {
         return new QmlJSQuickFixAssistInterface(const_cast<QmlJSEditorWidget *>(this), reason);
     }
     return 0;
@@ -868,7 +868,7 @@ QString QmlJSEditorWidget::foldReplacementText(const QTextBlock &block) const
             return QLatin1String("id: ") + objectId + QLatin1String("...");
     }
 
-    return TextEditor::TextEditorWidget::foldReplacementText(block);
+    return TextEditorWidget::foldReplacementText(block);
 }
 
 

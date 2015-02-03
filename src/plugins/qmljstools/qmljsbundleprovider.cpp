@@ -40,10 +40,6 @@
 
 namespace QmlJSTools {
 
-namespace {
-typedef QmlJS::QmlBundle QmlBundle;
-typedef QmlJS::QmlLanguageBundles QmlLanguageBundles;
-}
 using namespace QmlJS;
 
 /*!

@@ -35,9 +35,9 @@
 namespace QmlDesigner {
 namespace Internal {
 
-AddPropertyVisitor::AddPropertyVisitor(QmlDesigner::TextModifier &modifier,
+AddPropertyVisitor::AddPropertyVisitor(TextModifier &modifier,
                                        quint32 parentLocation,
-                                       const QmlDesigner::PropertyName &name,
+                                       const PropertyName &name,
                                        const QString &value,
                                        QmlRefactoring::PropertyType propertyType,
                                        const PropertyNameList &propertyOrder,

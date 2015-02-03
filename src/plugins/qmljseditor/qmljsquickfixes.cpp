@@ -70,12 +70,12 @@ class SplitInitializerOp: public QmlJSQuickFixFactory
 
         const int pos = interface->currentFile()->cursor().position();
 
-        if (QmlJS::AST::Node *member = interface->semanticInfo().rangeAt(pos)) {
-            if (QmlJS::AST::UiObjectBinding *b = QmlJS::AST::cast<QmlJS::AST::UiObjectBinding *>(member)) {
+        if (Node *member = interface->semanticInfo().rangeAt(pos)) {
+            if (UiObjectBinding *b = AST::cast<UiObjectBinding *>(member)) {
                 if (b->initializer->lbraceToken.startLine == b->initializer->rbraceToken.startLine)
                     objectInitializer = b->initializer;
 
-            } else if (QmlJS::AST::UiObjectDefinition *b = QmlJS::AST::cast<QmlJS::AST::UiObjectDefinition *>(member)) {
+            } else if (UiObjectDefinition *b = AST::cast<UiObjectDefinition *>(member)) {
                 if (b->initializer->lbraceToken.startLine == b->initializer->rbraceToken.startLine)
                     objectInitializer = b->initializer;
             }
@@ -106,9 +106,9 @@ class SplitInitializerOp: public QmlJSQuickFixFactory
 
             Utils::ChangeSet changes;
 
-            for (QmlJS::AST::UiObjectMemberList *it = _objectInitializer->members; it; it = it->next) {
-                if (QmlJS::AST::UiObjectMember *member = it->member) {
-                    const QmlJS::AST::SourceLocation loc = member->firstSourceLocation();
+            for (UiObjectMemberList *it = _objectInitializer->members; it; it = it->next) {
+                if (UiObjectMember *member = it->member) {
+                    const SourceLocation loc = member->firstSourceLocation();
 
                     // insert a newline at the beginning of this binding
                     changes.insert(currentFile->startOf(loc), QLatin1String("\n"));

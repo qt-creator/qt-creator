@@ -47,7 +47,7 @@ QMLRewriter::QMLRewriter(QmlDesigner::TextModifier &textModifier):
 {
 }
 
-bool QMLRewriter::operator()(QmlJS::AST::UiProgram *ast)
+bool QMLRewriter::operator()(UiProgram *ast)
 {
     setDidRewriting(false);
 
@@ -71,7 +71,7 @@ QString QMLRewriter::textBetween(int startPosition, int endPosition) const
     return m_textModifier->text().mid(startPosition, endPosition - startPosition);
 }
 
-QString QMLRewriter::textAt(const QmlJS::AST::SourceLocation &location) const
+QString QMLRewriter::textAt(const SourceLocation &location) const
 {
     return m_textModifier->text().mid(location.offset, location.length);
 }
@@ -154,7 +154,7 @@ QString QMLRewriter::removeIndentation(const QString &text, unsigned depth)
     return result;
 }
 
-QmlJS::AST::SourceLocation QMLRewriter::calculateLocation(QmlJS::AST::UiQualifiedId *id)
+SourceLocation QMLRewriter::calculateLocation(UiQualifiedId *id)
 {
     Q_ASSERT(id != 0);
 
@@ -170,7 +170,7 @@ QmlJS::AST::SourceLocation QMLRewriter::calculateLocation(QmlJS::AST::UiQualifie
     return SourceLocation(startLocation.offset, endLocation.end() - startLocation.offset);
 }
 
-bool QMLRewriter::isMissingSemicolon(QmlJS::AST::UiObjectMember *member)
+bool QMLRewriter::isMissingSemicolon(UiObjectMember *member)
 {
     UiScriptBinding *binding = AST::cast<UiScriptBinding *>(member);
     if (binding)
@@ -179,7 +179,7 @@ bool QMLRewriter::isMissingSemicolon(QmlJS::AST::UiObjectMember *member)
         return false;
 }
 
-bool QMLRewriter::isMissingSemicolon(QmlJS::AST::Statement *stmt)
+bool QMLRewriter::isMissingSemicolon(Statement *stmt)
 {
     if (ExpressionStatement *eStmt = AST::cast<ExpressionStatement *>(stmt)) {
         return !eStmt->semicolonToken.isValid();

@@ -125,7 +125,7 @@ QmlExpressionUnderCursor::QmlExpressionUnderCursor()
     : _expressionNode(0), _expressionOffset(0), _expressionLength(0)
 {}
 
-QmlJS::AST::ExpressionNode *QmlExpressionUnderCursor::operator()(const QTextCursor &cursor)
+ExpressionNode *QmlExpressionUnderCursor::operator()(const QTextCursor &cursor)
 {
     _expressionNode = 0;
     _expressionOffset = -1;
@@ -152,4 +152,3 @@ ExpressionNode *QmlExpressionUnderCursor::expressionNode() const
 {
     return _expressionNode;
 }
-

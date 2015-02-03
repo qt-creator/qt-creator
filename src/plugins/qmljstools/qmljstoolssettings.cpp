@@ -49,7 +49,7 @@ namespace QmlJSTools {
 
 const char idKey[] = "QmlJSGlobal";
 
-static TextEditor::SimpleCodeStylePreferences *m_globalCodeStyle = 0;
+static SimpleCodeStylePreferences *m_globalCodeStyle = 0;
 
 QmlJSToolsSettings::QmlJSToolsSettings(QObject *parent)
     : QObject(parent)

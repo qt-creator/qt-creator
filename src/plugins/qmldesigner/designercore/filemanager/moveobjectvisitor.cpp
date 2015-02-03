@@ -36,15 +36,16 @@
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
-using namespace QmlDesigner::Internal;
-using namespace QmlDesigner;
+
+namespace QmlDesigner {
+namespace Internal {
 
 class Inserter: public QMLRewriter
 {
 public:
-    Inserter(QmlDesigner::TextModifier &modifier,
+    Inserter(TextModifier &modifier,
              quint32 targetParentObjectLocation,
-             const QmlDesigner::PropertyName &targetPropertyName,
+             const PropertyName &targetPropertyName,
              bool targetIsArrayBinding,
              TextModifier::MoveInfo moveInfo,
              const PropertyNameList &propertyOrder):
@@ -150,15 +151,15 @@ private:
 
 private:
     quint32 targetParentObjectLocation;
-    QmlDesigner::PropertyName targetPropertyName;
+    PropertyName targetPropertyName;
     bool targetIsArrayBinding;
     TextModifier::MoveInfo moveInfo;
     PropertyNameList propertyOrder;
 };
 
-MoveObjectVisitor::MoveObjectVisitor(QmlDesigner::TextModifier &modifier,
+MoveObjectVisitor::MoveObjectVisitor(TextModifier &modifier,
                                      quint32 objectLocation,
-                                     const QmlDesigner::PropertyName &targetPropertyName,
+                                     const PropertyName &targetPropertyName,
                                      bool targetIsArrayBinding,
                                      quint32 targetParentObjectLocation,
                                      const PropertyNameList &propertyOrder):
@@ -292,3 +293,6 @@ void MoveObjectVisitor::doMove(const TextModifier::MoveInfo &moveInfo)
         setDidRewriting(findTargetAndInsert(program));
     }
 }
+
+} // namespace Internal
+} // namespace QmlDesigner

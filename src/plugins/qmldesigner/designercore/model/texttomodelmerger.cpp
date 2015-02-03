@@ -323,7 +323,7 @@ public:
         : m_snapshot(snapshot)
         , m_doc(doc)
         , m_link(snapshot, vContext,
-                 QmlJS::ModelManagerInterface::instance()->builtins(doc))
+                 ModelManagerInterface::instance()->builtins(doc))
         , m_context(m_link(doc, &m_diagnosticLinkMessages))
         , m_scopeChain(doc, m_context)
         , m_scopeBuilder(&m_scopeChain)
@@ -854,14 +854,14 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
         if (!doc->isParsedCorrectly()) {
             QList<RewriterView::Error> errors;
-            foreach (const QmlJS::DiagnosticMessage &message, doc->diagnosticMessages())
+            foreach (const DiagnosticMessage &message, doc->diagnosticMessages())
                 errors.append(RewriterView::Error(message, QUrl::fromLocalFile(doc->fileName())));
             m_rewriterView->setErrors(errors);
             setActive(false);
             return false;
         }
         snapshot.insert(doc);
-        m_vContext = QmlJS::ModelManagerInterface::instance()->defaultVContext(Dialect::Qml, doc, true);
+        m_vContext = ModelManagerInterface::instance()->defaultVContext(Dialect::Qml, doc, true);
         ReadingContext ctxt(snapshot, doc, m_vContext);
         m_scopeChain = QSharedPointer<const ScopeChain>(
                     new ScopeChain(ctxt.scopeChain()));
@@ -870,7 +870,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         QList<RewriterView::Error> errors;
         QList<RewriterView::Error> warnings;
 
-        foreach (const QmlJS::DiagnosticMessage &diagnosticMessage, ctxt.diagnosticLinkMessages()) {
+        foreach (const DiagnosticMessage &diagnosticMessage, ctxt.diagnosticLinkMessages()) {
             errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
         }
 
@@ -878,13 +878,13 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         setupPossibleImports(snapshot, m_vContext);
 
         if (m_rewriterView->model()->imports().isEmpty()) {
-            const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, AST::SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found"));
+            const DiagnosticMessage diagnosticMessage(Severity::Error, AST::SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found"));
             errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
         }
 
         foreach (const QmlDesigner::Import &import, m_rewriterView->model()->imports()) {
             if (import.isLibraryImport() && import.url() == QStringLiteral("QtQuick") && !supportedQtQuickVersion(import.version())) {
-                const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, AST::SourceLocation(0, 0, 0, 0),
+                const DiagnosticMessage diagnosticMessage(Severity::Error, AST::SourceLocation(0, 0, 0, 0),
                                                                  QCoreApplication::translate("QmlDesigner::TextToModelMerger", "Unsupported QtQuick version"));
                 errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
             }

@@ -211,7 +211,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
                 threadId = 0;
 
             emit rangedEvent(Event, MaximumRangeType, AnimationFrame, time, 0, QString(),
-                             QmlDebug::QmlEventLocation(), frameRate, animationCount, threadId,
+                             QmlEventLocation(), frameRate, animationCount, threadId,
                              0, 0);
             d->maximumTime = qMax(time, d->maximumTime);
             break;
@@ -222,7 +222,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
                 break;
 
             emit this->rangedEvent(Event, MaximumRangeType, subtype, time, 0, QString(),
-                                   QmlDebug::QmlEventLocation(), 0, 0, 0, 0, 0);
+                                   QmlEventLocation(), 0, 0, 0, 0, 0);
             d->maximumTime = qMax(time, d->maximumTime);
             break;
         }
@@ -244,8 +244,8 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         }
         while (count<5)
             params[count++] = 0;
-        emit rangedEvent(SceneGraphFrame, QmlDebug::MaximumRangeType, subtype,time, 0,
-                         QString(), QmlDebug::QmlEventLocation(), params[0], params[1],
+        emit rangedEvent(SceneGraphFrame, MaximumRangeType, subtype,time, 0,
+                         QString(), QmlEventLocation(), params[0], params[1],
                          params[2], params[3], params[4]);
         break;
     }
@@ -261,8 +261,8 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
             stream >> width >> height;
             refcount = 1;
         }
-        emit rangedEvent(QmlDebug::PixmapCacheEvent, QmlDebug::MaximumRangeType, subtype, time, 0,
-                         QString(), QmlDebug::QmlEventLocation(pixUrl,0,0), width, height,
+        emit rangedEvent(PixmapCacheEvent, MaximumRangeType, subtype, time, 0,
+                         QString(), QmlEventLocation(pixUrl,0,0), width, height,
                          refcount, 0, 0);
         d->maximumTime = qMax(time, d->maximumTime);
         break;
@@ -273,8 +273,8 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
 
         qint64 delta;
         stream >> delta;
-        emit rangedEvent(QmlDebug::MemoryAllocation, QmlDebug::MaximumRangeType, subtype, time, 0,
-                         QString(), QmlDebug::QmlEventLocation(), delta, 0, 0, 0, 0);
+        emit rangedEvent(MemoryAllocation, MaximumRangeType, subtype, time, 0,
+                         QString(), QmlEventLocation(), delta, 0, 0, 0, 0);
         d->maximumTime = qMax(time, d->maximumTime);
         break;
     }

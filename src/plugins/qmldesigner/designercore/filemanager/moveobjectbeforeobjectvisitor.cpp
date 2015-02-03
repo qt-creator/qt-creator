@@ -60,7 +60,7 @@ MoveObjectBeforeObjectVisitor::MoveObjectBeforeObjectVisitor(TextModifier &modif
     beforeObjectLocation(beforeObjectLocation)
 {}
 
-bool MoveObjectBeforeObjectVisitor::operator ()(QmlJS::AST::UiProgram *ast)
+bool MoveObjectBeforeObjectVisitor::operator ()(UiProgram *ast)
 {
     movingObject = 0;
     beforeObject = 0;

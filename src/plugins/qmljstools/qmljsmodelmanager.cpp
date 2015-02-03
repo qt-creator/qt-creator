@@ -71,7 +71,7 @@ using namespace QmlJSTools;
 using namespace QmlJSTools::Internal;
 
 
-ModelManagerInterface::ProjectInfo QmlJSTools::Internal::ModelManager::defaultProjectInfoForProject(
+ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
         ProjectExplorer::Project *project) const
 {
     ModelManagerInterface::ProjectInfo projectInfo(project);
@@ -171,9 +171,9 @@ void QmlJSTools::setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &
     }
 }
 
-QHash<QString,QmlJS::Dialect> ModelManager::languageForSuffix() const
+QHash<QString,Dialect> ModelManager::languageForSuffix() const
 {
-    QHash<QString,QmlJS::Dialect> res = ModelManagerInterface::languageForSuffix();
+    QHash<QString,Dialect> res = ModelManagerInterface::languageForSuffix();
 
     if (ICore::instance()) {
         Utils::MimeDatabase mdb;
@@ -223,7 +223,7 @@ void ModelManager::delayedInitialization()
     connect(ProjectExplorer::SessionManager::instance(), &ProjectExplorer::SessionManager::startupProjectChanged,
             this, &ModelManager::updateDefaultProjectInfo);
 
-    QmlJS::ViewerContext qbsVContext;
+    ViewerContext qbsVContext;
     qbsVContext.language = Dialect::QmlQbs;
     qbsVContext.maybeAddPath(ICore::resourcePath() + QLatin1String("/qbs"));
     setDefaultVContext(qbsVContext);

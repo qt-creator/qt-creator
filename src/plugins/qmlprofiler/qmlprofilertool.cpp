@@ -646,21 +646,21 @@ void QmlProfilerTool::clientsDisconnected()
     // If the connection is closed while the app is still running, no special action is needed
 }
 
-template<QmlDebug::ProfileFeature feature>
+template<ProfileFeature feature>
 void QmlProfilerTool::updateFeaturesMenu(quint64 features)
 {
     if (features & (1ULL << (feature))) {
         QAction *action = d->m_featuresMenu->addAction(tr(QmlProfilerModelManager::featureName(
-                                               static_cast<QmlDebug::ProfileFeature>(feature))));
+                                               static_cast<ProfileFeature>(feature))));
         action->setCheckable(true);
         action->setData(static_cast<uint>(feature));
         action->setChecked(d->m_profilerState->recordingFeatures() & (1ULL << (feature)));
     }
-    updateFeaturesMenu<static_cast<QmlDebug::ProfileFeature>(feature + 1)>(features);
+    updateFeaturesMenu<static_cast<ProfileFeature>(feature + 1)>(features);
 }
 
 template<>
-void QmlProfilerTool::updateFeaturesMenu<QmlDebug::MaximumProfileFeature>(quint64 features)
+void QmlProfilerTool::updateFeaturesMenu<MaximumProfileFeature>(quint64 features)
 {
     Q_UNUSED(features);
     return;
@@ -672,7 +672,7 @@ void QmlProfilerTool::setAvailableFeatures(quint64 features)
         d->m_profilerState->setRecordingFeatures(features); // by default, enable them all.
     if (d->m_featuresMenu) {
         d->m_featuresMenu->clear();
-        updateFeaturesMenu<static_cast<QmlDebug::ProfileFeature>(0)>(features);
+        updateFeaturesMenu<static_cast<ProfileFeature>(0)>(features);
     }
 }
 

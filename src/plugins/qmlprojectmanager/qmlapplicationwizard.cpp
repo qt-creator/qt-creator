@@ -81,11 +81,11 @@ QmlApplicationWizard::QmlApplicationWizard()
          QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY));
     setDisplayName(tr("Qt Quick UI"));
     setDescription(tr("Creates a Qt Quick UI project."));
-    setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QMLPROJECT)
-                        | Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK));
+    setRequiredFeatures(Feature(QtSupport::Constants::FEATURE_QMLPROJECT)
+                        | Feature(QtSupport::Constants::FEATURE_QT_QUICK));
 }
 
-Core::BaseFileWizard *QmlApplicationWizard::create(QWidget *parent, const WizardDialogParameters &parameters) const
+BaseFileWizard *QmlApplicationWizard::create(QWidget *parent, const WizardDialogParameters &parameters) const
 {
     QmlApplicationWizardDialog *wizardDialog = new QmlApplicationWizardDialog(parent, parameters);
 
@@ -113,7 +113,7 @@ GeneratedFiles QmlApplicationWizard::generateFiles(const QWizard *w,
 bool QmlApplicationWizard::postGenerateFiles(const QWizard * /*wizard*/, const GeneratedFiles &l,
     QString *errorMessage)
 {
-    return ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
+    return CustomProjectWizard::postGenerateOpen(l, errorMessage);
 }
 
 } // namespace Internal

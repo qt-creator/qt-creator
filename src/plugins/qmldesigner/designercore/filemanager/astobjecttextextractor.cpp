@@ -55,7 +55,7 @@ QString ASTObjectTextExtractor::operator ()(int location)
     return m_text;
 }
 
-bool ASTObjectTextExtractor::visit(QmlJS::AST::UiObjectBinding *ast)
+bool ASTObjectTextExtractor::visit(UiObjectBinding *ast)
 {
     if (!m_text.isEmpty())
         return false;
@@ -66,7 +66,7 @@ bool ASTObjectTextExtractor::visit(QmlJS::AST::UiObjectBinding *ast)
     return m_text.isEmpty();
 }
 
-bool ASTObjectTextExtractor::visit(QmlJS::AST::UiObjectDefinition *ast)
+bool ASTObjectTextExtractor::visit(UiObjectDefinition *ast)
 {
     if (!m_text.isEmpty())
         return false;

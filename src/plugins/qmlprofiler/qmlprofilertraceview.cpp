@@ -135,8 +135,8 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
 
     d->m_modelProxy->addModel(new QmlProfilerAnimationsModel(modelManager, d->m_modelProxy));
 
-    for (int i = 0; i < QmlDebug::MaximumRangeType; ++i)
-        d->m_modelProxy->addModel(new QmlProfilerRangeModel(modelManager, (QmlDebug::RangeType)i,
+    for (int i = 0; i < MaximumRangeType; ++i)
+        d->m_modelProxy->addModel(new QmlProfilerRangeModel(modelManager, (RangeType)i,
                                                             d->m_modelProxy));
 
     // Connect this last so that it's executed after the models have updated their data.

@@ -40,7 +40,7 @@ CreatorCodeFormatter::CreatorCodeFormatter()
 {
 }
 
-CreatorCodeFormatter::CreatorCodeFormatter(const TextEditor::TabSettings &tabSettings)
+CreatorCodeFormatter::CreatorCodeFormatter(const TabSettings &tabSettings)
 {
     setTabSize(tabSettings.m_tabSize);
     setIndentSize(tabSettings.m_indentSize);

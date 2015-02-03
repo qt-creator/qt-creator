@@ -39,11 +39,13 @@
 #include <QtTest>
 
 using namespace QmlJS;
-using namespace QmlJSTools;
 
-void QmlJSTools::Internal::QmlJSToolsPlugin::test_basic()
+namespace QmlJSTools {
+namespace Internal {
+
+void QmlJSToolsPlugin::test_basic()
 {
-    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
+    ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
     const QString welcomescreenRootPath = Core::ICore::resourcePath() + QLatin1String("/welcomescreen/welcomescreen.qml");
     modelManager->updateSourceFiles(QStringList(welcomescreenRootPath), false);
@@ -88,3 +90,6 @@ void QmlJSTools::Internal::QmlJSToolsPlugin::test_basic()
     QCOMPARE(qmlImageValue->className(), QLatin1String("Image"));
     QCOMPARE(qmlImageValue->propertyType(QLatin1String("source")), QLatin1String("QUrl"));
 }
+
+} // namespace Internal
+} // namespace QmlJSTools

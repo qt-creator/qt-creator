@@ -65,12 +65,10 @@ private:
     }
 };
 
-} // end of Internal namespace
-} // end of QmlJS namespace
-
+} // namespace Internal
 
 // globally shared data
-class QmlJS::SharedValueOwner : public ValueOwner
+class SharedValueOwner : public ValueOwner
 {
 public:
     enum SharedValueOwnerKind{
@@ -969,3 +967,5 @@ const Value *ValueOwner::defaultValueForBuiltinType(const QString &name) const
     }
     return undefinedValue();
 }
+
+} // namespace QmlJS

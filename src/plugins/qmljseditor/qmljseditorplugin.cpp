@@ -89,8 +89,8 @@ QmlJSEditorPlugin::QmlJSEditorPlugin() :
     m_reformatFileAction(0),
     m_currentDocument(0),
     m_jsonManager(new Utils::JsonSchemaManager(
-            QStringList() << Core::ICore::userResourcePath() + QLatin1String("/json/")
-                          << Core::ICore::resourcePath() + QLatin1String("/json/")))
+            QStringList() << ICore::userResourcePath() + QLatin1String("/json/")
+                          << ICore::resourcePath() + QLatin1String("/json/")))
 {
     m_instance = this;
 }
@@ -119,63 +119,63 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     connect(m_modelManager, SIGNAL(aboutToRemoveFiles(QStringList)),
             m_qmlTaskManager, SLOT(documentsRemoved(QStringList)));
 
-    Core::Context context(Constants::C_QMLJSEDITOR_ID);
+    Context context(Constants::C_QMLJSEDITOR_ID);
 
     addAutoReleasedObject(new QmlJSEditorFactory);
 
-    Core::ActionContainer *contextMenu = Core::ActionManager::createMenu(Constants::M_CONTEXT);
-    Core::ActionContainer *qmlToolsMenu = Core::ActionManager::actionContainer(Core::Id(QmlJSTools::Constants::M_TOOLS_QMLJS));
+    ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
+    ActionContainer *qmlToolsMenu = ActionManager::actionContainer(Id(QmlJSTools::Constants::M_TOOLS_QMLJS));
 
-    Core::Context globalContext(Core::Constants::C_GLOBAL);
+    Context globalContext(Core::Constants::C_GLOBAL);
     qmlToolsMenu->addSeparator(globalContext);
 
-    Core::Command *cmd;
-    cmd = Core::ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
+    Command *cmd;
+    cmd = ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
     QAction *findUsagesAction = new QAction(tr("Find Usages"), this);
-    cmd = Core::ActionManager::registerAction(findUsagesAction, Constants::FIND_USAGES, context);
+    cmd = ActionManager::registerAction(findUsagesAction, Constants::FIND_USAGES, context);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+U")));
     connect(findUsagesAction, SIGNAL(triggered()), this, SLOT(findUsages()));
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
     QAction *renameUsagesAction = new QAction(tr("Rename Symbol Under Cursor"), this);
-    cmd = Core::ActionManager::registerAction(renameUsagesAction, Constants::RENAME_USAGES, context);
+    cmd = ActionManager::registerAction(renameUsagesAction, Constants::RENAME_USAGES, context);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+R")));
     connect(renameUsagesAction, SIGNAL(triggered()), this, SLOT(renameUsages()));
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
     QAction *semanticScan = new QAction(tr("Run Checks"), this);
-    cmd = Core::ActionManager::registerAction(semanticScan, Core::Id(Constants::RUN_SEMANTIC_SCAN), globalContext);
+    cmd = ActionManager::registerAction(semanticScan, Id(Constants::RUN_SEMANTIC_SCAN), globalContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+C")));
     connect(semanticScan, SIGNAL(triggered()), this, SLOT(runSemanticScan()));
     qmlToolsMenu->addAction(cmd);
 
     m_reformatFileAction = new QAction(tr("Reformat File"), this);
-    cmd = Core::ActionManager::registerAction(m_reformatFileAction, Core::Id(Constants::REFORMAT_FILE), context);
+    cmd = ActionManager::registerAction(m_reformatFileAction, Id(Constants::REFORMAT_FILE), context);
     connect(m_reformatFileAction, SIGNAL(triggered()), this, SLOT(reformatFile()));
     qmlToolsMenu->addAction(cmd);
 
     QAction *showQuickToolbar = new QAction(tr("Show Qt Quick Toolbar"), this);
-    cmd = Core::ActionManager::registerAction(showQuickToolbar, Constants::SHOW_QT_QUICK_HELPER, context);
-    cmd->setDefaultKeySequence(Core::UseMacShortcuts ? QKeySequence(Qt::META + Qt::ALT + Qt::Key_Space)
+    cmd = ActionManager::registerAction(showQuickToolbar, Constants::SHOW_QT_QUICK_HELPER, context);
+    cmd->setDefaultKeySequence(UseMacShortcuts ? QKeySequence(Qt::META + Qt::ALT + Qt::Key_Space)
                                                      : QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Space));
     connect(showQuickToolbar, SIGNAL(triggered()), this, SLOT(showContextPane()));
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
     // Insert marker for "Refactoring" menu:
-    Core::Command *sep = contextMenu->addSeparator(globalContext);
+    Command *sep = contextMenu->addSeparator(globalContext);
     sep->action()->setObjectName(QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT));
     contextMenu->addSeparator(globalContext);
 
-    cmd = Core::ActionManager::command(TextEditor::Constants::AUTO_INDENT_SELECTION);
+    cmd = ActionManager::command(TextEditor::Constants::AUTO_INDENT_SELECTION);
     contextMenu->addAction(cmd);
 
-    cmd = Core::ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
+    cmd = ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
 
     m_quickFixAssistProvider = new QmlJSQuickFixAssistProvider;
@@ -183,14 +183,14 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
     errorMessage->clear();
 
-    Core::FileIconProvider::registerIconOverlayForSuffix(":/qmljseditor/images/qmlfile.png", "qml");
+    FileIconProvider::registerIconOverlayForSuffix(":/qmljseditor/images/qmlfile.png", "qml");
 
     registerQuickFixes(this);
 
     addAutoReleasedObject(new QmlJSOutlineWidgetFactory);
 
     addAutoReleasedObject(new QuickToolBar);
-    addAutoReleasedObject(new Internal::QuickToolBarSettingsPage);
+    addAutoReleasedObject(new QuickToolBarSettingsPage);
 
     connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)), SLOT(currentEditorChanged(Core::IEditor*)));
 
@@ -217,13 +217,13 @@ Utils::JsonSchemaManager *QmlJSEditorPlugin::jsonManager() const
 
 void QmlJSEditorPlugin::findUsages()
 {
-    if (QmlJSEditorWidget *editor = qobject_cast<QmlJSEditorWidget*>(Core::EditorManager::currentEditor()->widget()))
+    if (QmlJSEditorWidget *editor = qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget()))
         editor->findUsages();
 }
 
 void QmlJSEditorPlugin::renameUsages()
 {
-    if (QmlJSEditorWidget *editor = qobject_cast<QmlJSEditorWidget*>(Core::EditorManager::currentEditor()->widget()))
+    if (QmlJSEditorWidget *editor = qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget()))
         editor->renameUsages();
 }
 
@@ -242,15 +242,15 @@ void QmlJSEditorPlugin::reformatFile()
 
 void QmlJSEditorPlugin::showContextPane()
 {
-    if (QmlJSEditorWidget *editor = qobject_cast<QmlJSEditorWidget*>(Core::EditorManager::currentEditor()->widget()))
+    if (QmlJSEditorWidget *editor = qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget()))
         editor->showContextPane();
 }
 
-Core::Command *QmlJSEditorPlugin::addToolAction(QAction *a,
-                                          Core::Context &context, Core::Id id,
-                                          Core::ActionContainer *c1, const QString &keySequence)
+Command *QmlJSEditorPlugin::addToolAction(QAction *a,
+                                          Context &context, Id id,
+                                          ActionContainer *c1, const QString &keySequence)
 {
-    Core::Command *command = Core::ActionManager::registerAction(a, id, context);
+    Command *command = ActionManager::registerAction(a, id, context);
     if (!keySequence.isEmpty())
         command->setDefaultKeySequence(QKeySequence(keySequence));
     c1->addAction(command);
@@ -262,7 +262,7 @@ QmlJSQuickFixAssistProvider *QmlJSEditorPlugin::quickFixAssistProvider() const
     return m_quickFixAssistProvider;
 }
 
-void QmlJSEditorPlugin::currentEditorChanged(Core::IEditor *editor)
+void QmlJSEditorPlugin::currentEditorChanged(IEditor *editor)
 {
     QmlJSEditorDocument *document = 0;
     if (editor)

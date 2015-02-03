@@ -94,7 +94,7 @@ namespace {
 
 QmlJSHoverHandler::QmlJSHoverHandler() : m_modelManager(0)
 {
-    m_modelManager = QmlJS::ModelManagerInterface::instance();
+    m_modelManager = ModelManagerInterface::instance();
 }
 
 static inline QString getModuleName(const ScopeChain &scopeChain, const Document::Ptr &qmlDocument,
@@ -377,8 +377,8 @@ void QmlJSHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPo
         Utils::ToolTip::show(point, toolTip(), editorWidget);
 }
 
-void QmlJSHoverHandler::prettyPrintTooltip(const QmlJS::Value *value,
-                                      const QmlJS::ContextPtr &context)
+void QmlJSHoverHandler::prettyPrintTooltip(const Value *value,
+                                      const ContextPtr &context)
 {
     if (! value)
         return;

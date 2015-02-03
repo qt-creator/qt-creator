@@ -50,8 +50,7 @@ LocalQmlProfilerRunner *LocalQmlProfilerRunner::createLocalRunner(
     LocalApplicationRunConfiguration *larc =
                    qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
     QTC_ASSERT(larc, return 0);
-    ProjectExplorer::EnvironmentAspect *environment
-            = runConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
+    EnvironmentAspect *environment = runConfiguration->extraAspect<EnvironmentAspect>();
     QTC_ASSERT(environment, return 0);
     Configuration conf;
     conf.executable = larc->executable();
@@ -102,8 +101,7 @@ void LocalQmlProfilerRunner::start()
     m_launcher.setEnvironment(m_configuration.environment);
     connect(&m_launcher, SIGNAL(processExited(int,QProcess::ExitStatus)),
             this, SLOT(spontaneousStop(int,QProcess::ExitStatus)));
-    m_launcher.start(ProjectExplorer::ApplicationLauncher::Gui, m_configuration.executable,
-                     arguments);
+    m_launcher.start(ApplicationLauncher::Gui, m_configuration.executable, arguments);
 
     emit started();
 }

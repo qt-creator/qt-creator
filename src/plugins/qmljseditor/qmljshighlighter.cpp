@@ -47,15 +47,15 @@ QmlJSHighlighter::QmlJSHighlighter(QTextDocument *parent)
       m_inMultilineComment(false)
 {
     m_currentBlockParentheses.reserve(20);
-    static QVector<TextEditor::TextStyle> categories;
+    static QVector<TextStyle> categories;
     if (categories.isEmpty()) {
-        categories << TextEditor::C_NUMBER
-                   << TextEditor::C_STRING
-                   << TextEditor::C_TYPE
-                   << TextEditor::C_KEYWORD
-                   << TextEditor::C_FIELD
-                   << TextEditor::C_COMMENT
-                   << TextEditor::C_VISUAL_WHITESPACE;
+        categories << C_NUMBER
+                   << C_STRING
+                   << C_TYPE
+                   << C_KEYWORD
+                   << C_FIELD
+                   << C_COMMENT
+                   << C_VISUAL_WHITESPACE;
     }
     setTextFormatCategories(categories);
 }

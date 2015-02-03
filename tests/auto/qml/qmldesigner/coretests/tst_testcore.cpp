@@ -129,11 +129,11 @@ static void initializeMetaTypeSystem(const QString &resourcePath)
         qWarning() << qPrintable(errorAndWarning);
 }
 
-static QmlDesigner::Model* createModel(const QString &typeName, int major = 1, int minor = 1, Model *metaInfoPropxyModel = 0)
+static Model* createModel(const QString &typeName, int major = 1, int minor = 1, Model *metaInfoPropxyModel = 0)
 {
     QApplication::processEvents();
 
-    QmlDesigner::Model *model = QmlDesigner::Model::create(typeName, major, minor, metaInfoPropxyModel);
+    Model *model = Model::create(typeName, major, minor, metaInfoPropxyModel);
 
     QPlainTextEdit *textEdit = new QPlainTextEdit;
     QObject::connect(model, SIGNAL(destroyed()), textEdit, SLOT(deleteLater()));
@@ -145,7 +145,7 @@ static QmlDesigner::Model* createModel(const QString &typeName, int major = 1, i
     NotIndentingTextEditModifier *modifier = new NotIndentingTextEditModifier(textEdit);
     modifier->setParent(textEdit);
 
-    QmlDesigner::RewriterView *rewriterView = new QmlDesigner::RewriterView(QmlDesigner::RewriterView::Validate, model);
+    RewriterView *rewriterView = new RewriterView(RewriterView::Validate, model);
     rewriterView->setCheckSemanticErrors(false);
     rewriterView->setTextModifier(modifier);
 
@@ -2162,7 +2162,7 @@ void tst_TestCore::testModelRootNode()
         QVERIFY(childNode.isValid());
         QVERIFY(rootModelNode.isValid());
         QVERIFY(rootModelNode.isRootNode());
-    } catch (const QmlDesigner::Exception &exception) {
+    } catch (const Exception &exception) {
         QString errorMsg = tr("Exception: %1 %2 %3:%4").arg(exception.type(), exception.function(), exception.file()).arg(exception.line());
         QFAIL(errorMsg.toLatin1().constData());
     }

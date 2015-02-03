@@ -68,11 +68,11 @@ void tst_SimpleReader::testWellFormed()
                     "   propertyBlah: false\n"
                     "}\n";
 
-    QmlJS::SimpleReaderNode::WeakPtr weak01;
-    QmlJS::SimpleReaderNode::WeakPtr weak02;
+    SimpleReaderNode::WeakPtr weak01;
+    SimpleReaderNode::WeakPtr weak02;
     {
-        QmlJS::SimpleReader reader;
-        QmlJS::SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
+        SimpleReader reader;
+        SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
         QVERIFY(reader.errors().isEmpty());
         QVERIFY(rootNode);
         QVERIFY(rootNode->isValid());
@@ -90,7 +90,7 @@ void tst_SimpleReader::testWellFormed()
         QVERIFY(rootNode->children().first()->properties().contains("property01"));
         QCOMPARE(rootNode->children().first()->property("property01").toInt(), 10);
 
-        QmlJS::SimpleReaderNode::Ptr secondChild = rootNode->children().at(1);
+        SimpleReaderNode::Ptr secondChild = rootNode->children().at(1);
 
         QVERIFY(secondChild);
         QVERIFY(secondChild->isValid());
@@ -102,7 +102,7 @@ void tst_SimpleReader::testWellFormed()
 
         QCOMPARE(secondChild->children().count(), 1);
 
-        QmlJS::SimpleReaderNode::Ptr innerChild = secondChild->children().first();
+        SimpleReaderNode::Ptr innerChild = secondChild->children().first();
 
         QVERIFY(innerChild);
         QVERIFY(innerChild->isValid());
@@ -134,8 +134,8 @@ void tst_SimpleReader::testIllFormed01()
                     "   }\n"
                     "   propertyBlah: false\n"
                     "}\n";
-    QmlJS::SimpleReader reader;
-    QmlJS::SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
+    SimpleReader reader;
+    SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
 
     QVERIFY(!rootNode);
     QVERIFY(!reader.errors().empty());
@@ -157,8 +157,8 @@ void tst_SimpleReader::testIllFormed02()
                     "   }\n"
                     "}\n";
 
-        QmlJS::SimpleReader reader;
-        QmlJS::SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
+        SimpleReader reader;
+        SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
 
         QVERIFY(rootNode);
         QVERIFY(rootNode->isValid());
@@ -167,7 +167,7 @@ void tst_SimpleReader::testIllFormed02()
         QVERIFY(!reader.errors().empty());
         QCOMPARE(reader.errors().count(), 2);
 
-        QmlJS::SimpleReaderNode::Ptr firstChild = rootNode->children().at(0);
+        SimpleReaderNode::Ptr firstChild = rootNode->children().at(0);
 
         QVERIFY(firstChild);
         QVERIFY(firstChild->isValid());
@@ -192,8 +192,8 @@ void tst_SimpleReader::testArrays()
         variantList << QVariant(QLatin1String("string01")) << QVariant(QLatin1String("string02"));
         const QVariant variant = variantList;
 
-        QmlJS::SimpleReader reader;
-        QmlJS::SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
+        SimpleReader reader;
+        SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
 
         QVERIFY(rootNode);
         QVERIFY(rootNode->isValid());
@@ -202,7 +202,7 @@ void tst_SimpleReader::testArrays()
         QCOMPARE(rootNode->property("propertyArray"), variant);
 
 
-        QmlJS::SimpleReaderNode::Ptr firstChild = rootNode->children().at(0);
+        SimpleReaderNode::Ptr firstChild = rootNode->children().at(0);
 
         QVERIFY(firstChild);
         QVERIFY(firstChild->isValid());
@@ -243,8 +243,8 @@ void tst_SimpleReader::testBug01()
         "    }\n"
         "}\n";
 
-    QmlJS::SimpleReader reader;
-    QmlJS::SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
+    SimpleReader reader;
+    SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
 
     QVERIFY(rootNode);
     QVERIFY(rootNode->isValid());

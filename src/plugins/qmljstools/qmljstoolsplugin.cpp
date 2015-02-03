@@ -131,13 +131,13 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlJSToolsPlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
-void QmlJSToolsPlugin::onTaskStarted(Core::Id type)
+void QmlJSToolsPlugin::onTaskStarted(Id type)
 {
     if (type == QmlJS::Constants::TASK_INDEX)
         m_resetCodeModelAction->setEnabled(false);
 }
 
-void QmlJSToolsPlugin::onAllTasksFinished(Core::Id type)
+void QmlJSToolsPlugin::onAllTasksFinished(Id type)
 {
     if (type == QmlJS::Constants::TASK_INDEX)
         m_resetCodeModelAction->setEnabled(true);
