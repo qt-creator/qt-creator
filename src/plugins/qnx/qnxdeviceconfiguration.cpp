@@ -95,7 +95,7 @@ void QnxDeviceProcess::doSignal(int sig)
 }
 
 
-class QnxPortsGatheringMethod : public ProjectExplorer::PortsGatheringMethod
+class QnxPortsGatheringMethod : public PortsGatheringMethod
 {
     // TODO: The command is probably needlessly complicated because the parsing method
     // used to be fixed. These two can now be matched to each other.
@@ -177,7 +177,7 @@ int QnxDeviceConfiguration::qnxVersion() const
 void QnxDeviceConfiguration::updateVersionNumber() const
 {
     QEventLoop eventLoop;
-    ProjectExplorer::SshDeviceProcess versionNumberProcess(sharedFromThis());
+    SshDeviceProcess versionNumberProcess(sharedFromThis());
     QObject::connect(&versionNumberProcess, SIGNAL(finished()), &eventLoop, SLOT(quit()));
     QObject::connect(&versionNumberProcess, SIGNAL(error(QProcess::ProcessError)), &eventLoop, SLOT(quit()));
 
@@ -218,27 +218,27 @@ QVariantMap QnxDeviceConfiguration::toMap() const
     return map;
 }
 
-ProjectExplorer::IDevice::Ptr QnxDeviceConfiguration::clone() const
+IDevice::Ptr QnxDeviceConfiguration::clone() const
 {
     return Ptr(new QnxDeviceConfiguration(*this));
 }
 
-ProjectExplorer::PortsGatheringMethod::Ptr QnxDeviceConfiguration::portsGatheringMethod() const
+PortsGatheringMethod::Ptr QnxDeviceConfiguration::portsGatheringMethod() const
 {
-    return ProjectExplorer::PortsGatheringMethod::Ptr(new QnxPortsGatheringMethod);
+    return PortsGatheringMethod::Ptr(new QnxPortsGatheringMethod);
 }
 
-ProjectExplorer::DeviceProcessList *QnxDeviceConfiguration::createProcessListModel(QObject *parent) const
+DeviceProcessList *QnxDeviceConfiguration::createProcessListModel(QObject *parent) const
 {
     return new QnxDeviceProcessList(sharedFromThis(), parent);
 }
 
-ProjectExplorer::DeviceTester *QnxDeviceConfiguration::createDeviceTester() const
+DeviceTester *QnxDeviceConfiguration::createDeviceTester() const
 {
     return new QnxDeviceTester;
 }
 
-ProjectExplorer::DeviceProcess *QnxDeviceConfiguration::createProcess(QObject *parent) const
+DeviceProcess *QnxDeviceConfiguration::createProcess(QObject *parent) const
 {
     return new QnxDeviceProcess(sharedFromThis(), parent);
 }
@@ -270,9 +270,9 @@ void QnxDeviceConfiguration::executeAction(Core::Id actionId, QWidget *parent)
     }
 }
 
-ProjectExplorer::DeviceProcessSignalOperation::Ptr QnxDeviceConfiguration::signalOperation() const
+DeviceProcessSignalOperation::Ptr QnxDeviceConfiguration::signalOperation() const
 {
-    return ProjectExplorer::DeviceProcessSignalOperation::Ptr(
+    return DeviceProcessSignalOperation::Ptr(
                 new QnxDeviceProcessSignalOperation(sshParameters()));
 }
 

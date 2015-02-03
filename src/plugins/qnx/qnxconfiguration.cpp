@@ -61,7 +61,7 @@ using namespace Debugger;
 
 namespace Qnx {
 namespace Internal {
-QnxConfiguration::QnxConfiguration(const Utils::FileName &sdpEnvFile)
+QnxConfiguration::QnxConfiguration(const FileName &sdpEnvFile)
     : QnxBaseConfiguration(sdpEnvFile)
 {
     readInformation();
@@ -120,16 +120,16 @@ void QnxConfiguration::deactivate()
     if (!isActive())
         return;
 
-    QList<ProjectExplorer::ToolChain *> toolChainsToRemove;
-    QList<Debugger::DebuggerItem> debuggersToRemove;
-    foreach (ProjectExplorer::ToolChain *tc,
-             ProjectExplorer::ToolChainManager::toolChains()) {
+    QList<ToolChain *> toolChainsToRemove;
+    QList<DebuggerItem> debuggersToRemove;
+    foreach (ToolChain *tc,
+             ToolChainManager::toolChains()) {
         if (tc->compilerCommand() == qccCompilerPath())
             toolChainsToRemove.append(tc);
     }
 
-    foreach (Debugger::DebuggerItem debuggerItem,
-             Debugger::DebuggerItemManager::debuggers()) {
+    foreach (DebuggerItem debuggerItem,
+             DebuggerItemManager::debuggers()) {
         if (debuggerItem.command() == armDebuggerPath() ||
                 debuggerItem.command() == x86DebuggerPath())
             debuggersToRemove.append(debuggerItem);
@@ -142,11 +142,11 @@ void QnxConfiguration::deactivate()
             KitManager::deregisterKit(kit);
     }
 
-    foreach (ProjectExplorer::ToolChain *tc, toolChainsToRemove)
-        ProjectExplorer::ToolChainManager::deregisterToolChain(tc);
+    foreach (ToolChain *tc, toolChainsToRemove)
+        ToolChainManager::deregisterToolChain(tc);
 
-    foreach (Debugger::DebuggerItem debuggerItem, debuggersToRemove)
-        Debugger::DebuggerItemManager::
+    foreach (DebuggerItem debuggerItem, debuggersToRemove)
+        DebuggerItemManager::
                 deregisterDebugger(debuggerItem.id());
 }
 
@@ -154,16 +154,16 @@ bool QnxConfiguration::isActive() const
 {
     bool hasToolChain = false;
     bool hasDebugger = false;
-    foreach (ProjectExplorer::ToolChain *tc,
-             ProjectExplorer::ToolChainManager::toolChains()) {
+    foreach (ToolChain *tc,
+             ToolChainManager::toolChains()) {
         if (tc->compilerCommand() == qccCompilerPath()) {
             hasToolChain = true;
             break;
         }
     }
 
-    foreach (Debugger::DebuggerItem debuggerItem,
-             Debugger::DebuggerItemManager::debuggers()) {
+    foreach (DebuggerItem debuggerItem,
+             DebuggerItemManager::debuggers()) {
         if (debuggerItem.command() == armDebuggerPath() ||
                 debuggerItem.command() == x86DebuggerPath()) {
             hasDebugger = true;
@@ -179,7 +179,7 @@ bool QnxConfiguration::canCreateKits() const
     return isValid() && (qnxQtVersion(ArmLeV7) || qnxQtVersion(X86));
 }
 
-Utils::FileName QnxConfiguration::sdpPath() const
+FileName QnxConfiguration::sdpPath() const
 {
     return envFile().parentDir();
 }
@@ -200,7 +200,7 @@ QnxQtVersion* QnxConfiguration::qnxQtVersion(QnxArchitecture arch) const
     return 0;
 }
 
-ProjectExplorer::Kit *QnxConfiguration::createKit(QnxArchitecture arch,
+Kit *QnxConfiguration::createKit(QnxArchitecture arch,
                                                   QnxToolChain *toolChain,
                                                   const QVariant &debuggerItemId,
                                                   const QString &displayName)
@@ -210,7 +210,7 @@ ProjectExplorer::Kit *QnxConfiguration::createKit(QnxArchitecture arch,
     if (!qnxQt)
         return 0;
 
-    Kit *kit = new ProjectExplorer::Kit;
+    Kit *kit = new Kit;
 
     QtKitInformation::setQtVersion(kit, qnxQt);
     ToolChainKitInformation::setToolChain(kit, toolChain);

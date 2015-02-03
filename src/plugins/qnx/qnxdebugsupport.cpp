@@ -72,7 +72,7 @@ QnxDebugSupport::QnxDebugSupport(QnxRunConfiguration *runConfig, Debugger::Debug
             this, &QnxDebugSupport::handleAdapterSetupRequested);
 
     const QString applicationId = Utils::FileName::fromString(runConfig->remoteExecutableFilePath()).fileName();
-    ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(runConfig->target()->kit());
+    IDevice::ConstPtr dev = DeviceKitInformation::device(runConfig->target()->kit());
     QnxDeviceConfiguration::ConstPtr qnxDevice = dev.dynamicCast<const QnxDeviceConfiguration>();
 
     m_slog2Info = new Slog2InfoRunner(applicationId, qnxDevice, this);

@@ -88,7 +88,7 @@ BlackBerryApiLevelConfiguration::BlackBerryApiLevelConfiguration(const ConfigIns
     // The QNX_TARGET value is using Unix-like separator on all platforms.
     m_targetName = ndkInstallInfo.target.split(sep).first().split(QLatin1Char('/')).last();
     m_sysRoot = FileName::fromString(ndkInstallInfo.target);
-    m_autoDetectionSource = Utils::FileName::fromString(ndkInstallInfo.installationXmlFilePath);
+    m_autoDetectionSource = FileName::fromString(ndkInstallInfo.installationXmlFilePath);
     setVersion(QnxVersionNumber(ndkInstallInfo.version));
     ctor();
 }
@@ -120,7 +120,7 @@ BlackBerryApiLevelConfiguration::BlackBerryApiLevelConfiguration(const QVariantM
     m_targetName = data.value(NDKTargetKey).toString().split(sep).first().split(QLatin1Char('/')).last();
     m_sysRoot = FileName::fromString(data.value(NDKTargetKey).toString());
     if (data.value(QLatin1String(NDKAutoDetectedKey)).toBool())
-        m_autoDetectionSource = Utils::FileName::fromString(data.value(NDKAutoDetectionSourceKey).toString());
+        m_autoDetectionSource = FileName::fromString(data.value(NDKAutoDetectionSourceKey).toString());
 
     ctor();
 }
@@ -128,8 +128,8 @@ BlackBerryApiLevelConfiguration::BlackBerryApiLevelConfiguration(const QVariantM
 void BlackBerryApiLevelConfiguration::ctor()
 {
     QString host = qnxHost().toString();
-    FileName qmake4Path = FileName::fromString(Utils::HostOsInfo::withExecutableSuffix(host + QLatin1String("/usr/bin/qmake")));
-    FileName qmake5Path = FileName::fromString(Utils::HostOsInfo::withExecutableSuffix(host + QLatin1String("/usr/bin/qt5/qmake")));
+    FileName qmake4Path = FileName::fromString(HostOsInfo::withExecutableSuffix(host + QLatin1String("/usr/bin/qmake")));
+    FileName qmake5Path = FileName::fromString(HostOsInfo::withExecutableSuffix(host + QLatin1String("/usr/bin/qt5/qmake")));
     if (qmake4Path.exists())
         m_qmake4BinaryFile = qmake4Path;
 
@@ -157,7 +157,7 @@ bool BlackBerryApiLevelConfiguration::isAutoDetected() const
     return !m_autoDetectionSource.isEmpty();
 }
 
-Utils::FileName BlackBerryApiLevelConfiguration::autoDetectionSource() const
+FileName BlackBerryApiLevelConfiguration::autoDetectionSource() const
 {
     return m_autoDetectionSource;
 }

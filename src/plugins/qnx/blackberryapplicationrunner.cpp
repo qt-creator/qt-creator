@@ -213,10 +213,10 @@ void BlackBerryApplicationRunner::startFinished(int exitCode, QProcess::ExitStat
     }
 }
 
-ProjectExplorer::RunControl::StopResult BlackBerryApplicationRunner::stop()
+RunControl::StopResult BlackBerryApplicationRunner::stop()
 {
     if (m_stopping)
-        return ProjectExplorer::RunControl::AsynchronousStop;
+        return RunControl::AsynchronousStop;
 
     m_stopping = true;
 
@@ -238,7 +238,7 @@ ProjectExplorer::RunControl::StopResult BlackBerryApplicationRunner::stop()
     }
 
     m_stopProcess->start(m_deployCmd, args);
-    return ProjectExplorer::RunControl::AsynchronousStop;
+    return RunControl::AsynchronousStop;
 }
 
 bool BlackBerryApplicationRunner::isRunning() const

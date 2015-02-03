@@ -79,32 +79,32 @@ QnxBaseConfiguration::~QnxBaseConfiguration()
 {
 }
 
-Utils::FileName QnxBaseConfiguration::envFile() const
+FileName QnxBaseConfiguration::envFile() const
 {
     return m_envFile;
 }
 
-Utils::FileName QnxBaseConfiguration::qnxTarget() const
+FileName QnxBaseConfiguration::qnxTarget() const
 {
     return m_qnxTarget;
 }
 
-Utils::FileName QnxBaseConfiguration::qnxHost() const
+FileName QnxBaseConfiguration::qnxHost() const
 {
     return m_qnxHost;
 }
 
-Utils::FileName QnxBaseConfiguration::qccCompilerPath() const
+FileName QnxBaseConfiguration::qccCompilerPath() const
 {
     return m_qccCompiler;
 }
 
-Utils::FileName QnxBaseConfiguration::armDebuggerPath() const
+FileName QnxBaseConfiguration::armDebuggerPath() const
 {
     return m_armlev7Debugger;
 }
 
-Utils::FileName QnxBaseConfiguration::x86DebuggerPath() const
+FileName QnxBaseConfiguration::x86DebuggerPath() const
 {
     return m_x86Debugger;
 }
@@ -142,24 +142,24 @@ void QnxBaseConfiguration::ctor(const FileName &envScript)
 #endif
     m_envFile = envScript;
     m_qnxEnv = QnxUtils::qnxEnvironmentFromEnvFile(m_envFile.toString());
-    foreach (const Utils::EnvironmentItem &item, m_qnxEnv) {
+    foreach (const EnvironmentItem &item, m_qnxEnv) {
         if (item.name == QLatin1String("QNX_TARGET"))
-            m_qnxTarget = Utils::FileName::fromString(item.value);
+            m_qnxTarget = FileName::fromString(item.value);
 
         else if (item.name == QLatin1String("QNX_HOST"))
-            m_qnxHost = Utils::FileName::fromString(item.value);
+            m_qnxHost = FileName::fromString(item.value);
     }
 
-    FileName qccPath = FileName::fromString(Utils::HostOsInfo::withExecutableSuffix(
+    FileName qccPath = FileName::fromString(HostOsInfo::withExecutableSuffix(
         m_qnxHost.toString() + QLatin1String("/usr/bin/qcc")));
-    FileName armlev7GdbPath = FileName::fromString(Utils::HostOsInfo::withExecutableSuffix(
+    FileName armlev7GdbPath = FileName::fromString(HostOsInfo::withExecutableSuffix(
         m_qnxHost.toString() + QLatin1String("/usr/bin/ntoarm-gdb")));
     if (!armlev7GdbPath.exists()) {
-        armlev7GdbPath = FileName::fromString(Utils::HostOsInfo::withExecutableSuffix(
+        armlev7GdbPath = FileName::fromString(HostOsInfo::withExecutableSuffix(
             m_qnxHost.toString() + QLatin1String("/usr/bin/ntoarmv7-gdb")));
     }
 
-    FileName x86GdbPath = FileName::fromString(Utils::HostOsInfo::withExecutableSuffix(
+    FileName x86GdbPath = FileName::fromString(HostOsInfo::withExecutableSuffix(
         m_qnxHost.toString() + QLatin1String("/usr/bin/ntox86-gdb")));
 
     if (qccPath.exists())
@@ -175,7 +175,7 @@ void QnxBaseConfiguration::ctor(const FileName &envScript)
 QVariant QnxBaseConfiguration::createDebuggerItem(QnxArchitecture arch,
                                               const QString &displayName)
 {
-    Utils::FileName command = (arch == X86) ? x86DebuggerPath() : armDebuggerPath();
+    FileName command = (arch == X86) ? x86DebuggerPath() : armDebuggerPath();
     Debugger::DebuggerItem debugger;
     debugger.setCommand(command);
     debugger.setEngineType(Debugger::GdbEngineType);
@@ -190,13 +190,13 @@ QnxToolChain *QnxBaseConfiguration::createToolChain(QnxArchitecture arch,
                                                     const QString &displayName,
                                                     const QString &ndkPath)
 {
-    QnxToolChain *toolChain = new QnxToolChain(ProjectExplorer::ToolChain::AutoDetection);
+    QnxToolChain *toolChain = new QnxToolChain(ToolChain::AutoDetection);
     toolChain->resetToolChain(m_qccCompiler);
     toolChain->setTargetAbi(Abi((arch == Qnx::ArmLeV7) ? Abi::ArmArchitecture : Abi::X86Architecture,
                                 Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 32));
     toolChain->setDisplayName(displayName);
     toolChain->setNdkPath(ndkPath);
-    ProjectExplorer::ToolChainManager::registerToolChain(toolChain);
+    ToolChainManager::registerToolChain(toolChain);
     return toolChain;
 }
 

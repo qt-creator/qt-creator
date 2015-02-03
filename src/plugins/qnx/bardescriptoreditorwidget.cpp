@@ -171,9 +171,9 @@ void BarDescriptorEditorWidget::initSourcePage()
 {
     TextDocumentPtr doc(new TextDocument);
     doc->setId(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID); // FIXME: This looks odd.
-    doc->setIndenter(new TextEditor::NormalIndenter);
+    doc->setIndenter(new NormalIndenter);
 
-    m_xmlSourceWidget = new TextEditor::TextEditorWidget(this);
+    m_xmlSourceWidget = new TextEditorWidget(this);
     m_xmlSourceWidget->setTextDocument(doc);
     m_xmlSourceWidget->setupAsPlainEditor();
     addWidget(m_xmlSourceWidget);
@@ -187,7 +187,7 @@ void BarDescriptorEditorWidget::initPanelSize(ProjectExplorer::PanelsWidget *pan
     panelsWidget->widget()->setMinimumWidth(0);
 }
 
-TextEditor::TextEditorWidget *BarDescriptorEditorWidget::sourceWidget() const
+TextEditorWidget *BarDescriptorEditorWidget::sourceWidget() const
 {
     return m_xmlSourceWidget;
 }

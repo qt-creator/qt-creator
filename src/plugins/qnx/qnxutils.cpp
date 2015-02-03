@@ -58,14 +58,14 @@ QString QnxUtils::addQuotes(const QString &string)
     return QLatin1Char('"') + string + QLatin1Char('"');
 }
 
-Qnx::QnxArchitecture QnxUtils::cpudirToArch(const QString &cpuDir)
+QnxArchitecture QnxUtils::cpudirToArch(const QString &cpuDir)
 {
     if (cpuDir == QLatin1String("x86"))
-        return Qnx::X86;
+        return X86;
     else if (cpuDir == QLatin1String("armle-v7"))
-        return Qnx::ArmLeV7;
+        return ArmLeV7;
     else
-        return Qnx::UnknownArch;
+        return UnknownArch;
 }
 
 QStringList QnxUtils::searchPaths(QnxAbstractQtVersion *qtVersion)

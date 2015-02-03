@@ -67,7 +67,7 @@ QnxAnalyzeSupport::QnxAnalyzeSupport(QnxRunConfiguration *runConfig,
     connect(&m_outputParser, SIGNAL(waitingForConnectionOnPort(quint16)),
             SLOT(remoteIsRunning()));
 
-    ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(runConfig->target()->kit());
+    IDevice::ConstPtr dev = DeviceKitInformation::device(runConfig->target()->kit());
     QnxDeviceConfiguration::ConstPtr qnxDevice = dev.dynamicCast<const QnxDeviceConfiguration>();
 
     const QString applicationId = Utils::FileName::fromString(runConfig->remoteExecutableFilePath()).fileName();

@@ -88,8 +88,8 @@ static DebuggerStartParameters createDebuggerStartParameters(const QnxRunConfigu
     params.closeMode = KillAtClose;
     params.processArgs = runConfig->arguments().join(QLatin1Char(' '));
 
-    Debugger::DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
+    DebuggerRunConfigurationAspect *aspect
+            = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     if (aspect->useQmlDebugger()) {
         params.languages |= QmlLanguage;
         params.qmlServerAddress = device->sshParameters().host;
@@ -97,13 +97,13 @@ static DebuggerStartParameters createDebuggerStartParameters(const QnxRunConfigu
     }
 
     if (aspect->useCppDebugger())
-        params.languages |= Debugger::CppLanguage;
+        params.languages |= CppLanguage;
 
-    if (const ProjectExplorer::Project *project = runConfig->target()->project()) {
+    if (const Project *project = runConfig->target()->project()) {
         params.projectSourceDirectory = project->projectDirectory().toString();
-        if (const ProjectExplorer::BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration())
+        if (const BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration())
             params.projectBuildDirectory = buildConfig->buildDirectory().toString();
-        params.projectSourceFiles = project->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
+        params.projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
     }
 
     QnxQtVersion *qtVersion =

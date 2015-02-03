@@ -143,7 +143,7 @@ bool QnxPlugin::initialize(const QStringList &arguments, QString *errorString)
     }
     addAutoReleasedObject(new BarDescriptorEditorFactory);
 
-    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsLoaded()),
+    connect(KitManager::instance(), SIGNAL(kitsLoaded()),
             BlackBerryConfigurationManager::instance(), SLOT(loadSettings()));
 
     return true;
@@ -151,8 +151,7 @@ bool QnxPlugin::initialize(const QStringList &arguments, QString *errorString)
 
 void QnxPlugin::extensionsInitialized()
 {
-    ProjectExplorer::TaskHub::addCategory(Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR,
-                                          tr("BAR Descriptor"));
+    TaskHub::addCategory(Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR, tr("BAR Descriptor"));
 
     // Debug support
     QnxAttachDebugSupport *debugSupport = new QnxAttachDebugSupport(this);
@@ -169,7 +168,7 @@ void QnxPlugin::extensionsInitialized()
     Core::Command *cmd = Core::ActionManager::registerAction(m_attachToQnxApplication, "Debugger.AttachToQnxApplication", globalcontext);
     mstart->addAction(cmd, Constants::QNX_DEBUGGING_GROUP);
 
-    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsChanged()), this, SLOT(updateDebuggerActions()));
+    connect(KitManager::instance(), SIGNAL(kitsChanged()), this, SLOT(updateDebuggerActions()));
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QnxPlugin::aboutToShutdown()
