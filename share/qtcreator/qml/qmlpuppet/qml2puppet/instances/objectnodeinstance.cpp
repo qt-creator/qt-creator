@@ -1262,6 +1262,11 @@ void ObjectNodeInstance::populateResetHashes()
             m_resetValueHash.insert(propertyName, property.read());
         }
     }
+
+    m_resetValueHash.insert("Layout.rowSpan", 1);
+    m_resetValueHash.insert("Layout.columnSpan", 1);
+    m_resetValueHash.insert("Layout.fillHeight", false);
+    m_resetValueHash.insert("Layout.fillWidth", false);
 }
 
 QQmlAbstractBinding *ObjectNodeInstance::resetBinding(const PropertyName &propertyName) const
