@@ -186,7 +186,7 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
     document()->setDisplayName(QCoreApplication::translate("VCS", d->m_parameters->displayName));
 
     // Message font according to settings
-    Utils::CompletingTextEdit *descriptionEdit = editorWidget->descriptionEdit();
+    CompletingTextEdit *descriptionEdit = editorWidget->descriptionEdit();
     const TextEditor::FontSettings fs = TextEditor::TextEditorSettings::fontSettings();
     const QTextCharFormat tf = fs.toTextCharFormat(TextEditor::C_TEXT);
     descriptionEdit->setFont(tf.font());
@@ -279,7 +279,7 @@ static inline QStringList fieldTexts(const QString &fileContents)
 
 void VcsBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
 {
-    Utils::FileReader reader;
+    FileReader reader;
     if (!reader.fetch(fieldConfigFile, QIODevice::Text, Core::ICore::mainWindow()))
         return;
     // Parse into fields
@@ -364,7 +364,7 @@ bool VcsBaseSubmitEditor::open(QString *errorString, const QString &fileName, co
     if (fileName.isEmpty())
         return false;
 
-    Utils::FileReader reader;
+    FileReader reader;
     if (!reader.fetch(realFileName, QIODevice::Text, errorString))
         return false;
 
@@ -372,7 +372,7 @@ bool VcsBaseSubmitEditor::open(QString *errorString, const QString &fileName, co
     if (!setFileContents(text.toUtf8()))
         return false;
 
-    d->m_file->setFilePath(Utils::FileName::fromString(fileName));
+    d->m_file->setFilePath(FileName::fromString(fileName));
     d->m_file->setModified(fileName != realFileName);
     return true;
 }
@@ -565,12 +565,12 @@ VcsBaseSubmitEditor::PromptSubmitResult
             // Provide check box to turn off prompt ONLY if it was not forced
             if (*promptSetting && !forcePrompt) {
                 const QDialogButtonBox::StandardButton danswer =
-                        Utils::CheckableMessageBox::question(parent, title, question,
+                        CheckableMessageBox::question(parent, title, question,
                                                                    tr("Prompt to submit"), promptSetting,
                                                                    QDialogButtonBox::Yes|QDialogButtonBox::No|
                                                                    QDialogButtonBox::Cancel,
                                                                    QDialogButtonBox::Yes);
-                answer = Utils::CheckableMessageBox::dialogButtonBoxToMessageBoxButton(danswer);
+                answer = CheckableMessageBox::dialogButtonBoxToMessageBoxButton(danswer);
             } else {
                 answer = QMessageBox::question(parent, title, question,
                                                QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel,

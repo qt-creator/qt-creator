@@ -112,7 +112,7 @@ QString GitEditorWidget::changeUnderCursor(const QTextCursor &c) const
     return QString();
 }
 
-VcsBase::BaseAnnotationHighlighter *GitEditorWidget::createAnnotationHighlighter(const QSet<QString> &changes) const
+BaseAnnotationHighlighter *GitEditorWidget::createAnnotationHighlighter(const QSet<QString> &changes) const
 {
     return new GitAnnotationHighlighter(changes);
 }
@@ -181,7 +181,7 @@ void GitEditorWidget::setPlainTextFiltered(const QString &text)
     // If desired, filter out the date from annotation
     switch (contentType())
     {
-    case VcsBase::AnnotateOutput: {
+    case AnnotateOutput: {
         const bool omitAnnotationDate = plugin->settings().boolValue(GitSettings::omitAnnotationDateKey);
         if (omitAnnotationDate)
             modText = removeAnnotationDate(text);
@@ -244,7 +244,7 @@ void GitEditorWidget::stageDiffChunk()
 {
     const QAction *a = qobject_cast<QAction *>(sender());
     QTC_ASSERT(a, return);
-    const VcsBase::DiffChunk chunk = qvariant_cast<VcsBase::DiffChunk>(a->data());
+    const DiffChunk chunk = qvariant_cast<DiffChunk>(a->data());
     return applyDiffChunk(chunk, false);
 }
 
@@ -252,11 +252,11 @@ void GitEditorWidget::unstageDiffChunk()
 {
     const QAction *a = qobject_cast<QAction *>(sender());
     QTC_ASSERT(a, return);
-    const VcsBase::DiffChunk chunk = qvariant_cast<VcsBase::DiffChunk>(a->data());
+    const DiffChunk chunk = qvariant_cast<DiffChunk>(a->data());
     return applyDiffChunk(chunk, true);
 }
 
-void GitEditorWidget::applyDiffChunk(const VcsBase::DiffChunk& chunk, bool revert)
+void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, bool revert)
 {
     QTemporaryFile patchFile;
     if (!patchFile.open())
@@ -288,7 +288,7 @@ void GitEditorWidget::applyDiffChunk(const VcsBase::DiffChunk& chunk, bool rever
 
 void GitEditorWidget::init()
 {
-    VcsBase::VcsBaseEditorWidget::init();
+    VcsBaseEditorWidget::init();
     Core::Id editorId = textDocument()->id();
     if (editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID)
         textDocument()->setSyntaxHighlighter(new GitSubmitHighlighter);
@@ -296,7 +296,7 @@ void GitEditorWidget::init()
         textDocument()->setSyntaxHighlighter(new GitRebaseHighlighter);
 }
 
-void GitEditorWidget::addDiffActions(QMenu *menu, const VcsBase::DiffChunk &chunk)
+void GitEditorWidget::addDiffActions(QMenu *menu, const DiffChunk &chunk)
 {
     menu->addSeparator();
 
@@ -356,7 +356,7 @@ bool GitEditorWidget::isValidRevision(const QString &revision) const
 void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)
 {
     m_currentChange = change;
-    if (contentType() != VcsBase::OtherContent) {
+    if (contentType() != OtherContent) {
         menu->addAction(tr("Cherry-Pick Change %1").arg(change), this, SLOT(cherryPickChange()));
         menu->addAction(tr("Revert Change %1").arg(change), this, SLOT(revertChange()));
         menu->addAction(tr("Checkout Change %1").arg(change), this, SLOT(checkoutChange()));

@@ -52,10 +52,10 @@ using namespace VcsBase;
 namespace Git {
 namespace Internal {
 
-class GitSubmitFileModel : public VcsBase::SubmitFileModel
+class GitSubmitFileModel : public SubmitFileModel
 {
 public:
-    GitSubmitFileModel(QObject *parent = 0) : VcsBase::SubmitFileModel(parent)
+    GitSubmitFileModel(QObject *parent = 0) : SubmitFileModel(parent)
     { }
 
     void updateSelections(SubmitFileModel *source)
@@ -124,7 +124,7 @@ private:
  * option for staged files. So, we sort apart the diff file lists
  * according to a type flag we add to the model. */
 
-GitSubmitEditor::GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters) :
+GitSubmitEditor::GitSubmitEditor(const VcsBaseSubmitEditorParameters *parameters) :
     VcsBaseSubmitEditor(parameters, new GitSubmitEditorWidget),
     m_model(0),
     m_commitEncoding(0),
@@ -178,14 +178,14 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
              it != d.files.constEnd(); ++it) {
             const FileStates state = it->first;
             const QString file = it->second;
-            VcsBase::CheckMode checkMode;
+            CheckMode checkMode;
             if (state & UnmergedFile) {
-                checkMode = VcsBase::Uncheckable;
+                checkMode = Uncheckable;
                 w->setHasUnmerged(true);
             } else if (state & StagedFile) {
-                checkMode = VcsBase::Checked;
+                checkMode = Checked;
             } else {
-                checkMode = VcsBase::Unchecked;
+                checkMode = Unchecked;
             }
             m_model->addFile(file, CommitData::stateDisplayName(state), checkMode,
                              QVariant(static_cast<int>(state)));

@@ -312,7 +312,7 @@ void QueryContext::startQuery(const QString &query)
 {
     QStringList arguments = m_baseArguments;
     arguments.push_back(query);
-    VcsBase::VcsOutputWindow::appendCommand(
+    VcsOutputWindow::appendCommand(
                 m_process.workingDirectory(), Utils::FileName::fromString(m_binary), arguments);
     m_timer.start();
     m_process.start(m_binary, arguments);
@@ -323,7 +323,7 @@ void QueryContext::errorTermination(const QString &msg)
 {
     m_progress.reportCanceled();
     m_progress.reportFinished();
-    VcsBase::VcsOutputWindow::appendError(msg);
+    VcsOutputWindow::appendError(msg);
     emit finished();
 }
 
@@ -333,7 +333,7 @@ void QueryContext::processError(QProcess::ProcessError e)
     if (e == QProcess::FailedToStart)
         errorTermination(msg);
     else
-        VcsBase::VcsOutputWindow::appendError(msg);
+        VcsOutputWindow::appendError(msg);
 }
 
 void QueryContext::processFinished(int exitCode, QProcess::ExitStatus es)
@@ -361,7 +361,7 @@ void QueryContext::processFinished(int exitCode, QProcess::ExitStatus es)
 
 void QueryContext::readyReadStandardError()
 {
-    VcsBase::VcsOutputWindow::appendError(QString::fromLocal8Bit(m_process.readAllStandardError()));
+    VcsOutputWindow::appendError(QString::fromLocal8Bit(m_process.readAllStandardError()));
 }
 
 void QueryContext::readyReadStandardOutput()
@@ -597,7 +597,7 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
                     .arg(QString::fromLocal8Bit(line))
                     .arg(error.errorString());
             qWarning() << errorMessage;
-            VcsBase::VcsOutputWindow::appendError(errorMessage);
+            VcsOutputWindow::appendError(errorMessage);
             res = false;
             continue;
         }

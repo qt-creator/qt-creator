@@ -724,7 +724,7 @@ QString BranchModel::toolTip(const QString &sha) const
     QStringList arguments(QLatin1String("-n1"));
     arguments << sha;
     if (!m_client->synchronousLog(m_workingDirectory, arguments, &output, &errorMessage,
-                                  VcsBase::VcsBasePlugin::SuppressCommandLogging)) {
+                                  VcsBasePlugin::SuppressCommandLogging)) {
         return errorMessage;
     }
     return output;

@@ -305,7 +305,7 @@ void GerritPlugin::updateActions(bool hasTopLevel)
     m_pushToGerritCommand->action()->setEnabled(hasTopLevel);
 }
 
-void GerritPlugin::addToLocator(Core::CommandLocator *locator)
+void GerritPlugin::addToLocator(CommandLocator *locator)
 {
     locator->appendCommand(m_gerritCommand);
     locator->appendCommand(m_pushToGerritCommand);
@@ -439,7 +439,7 @@ void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
     QString repository;
     bool verifiedRepository = false;
     if (!m_dialog.isNull() && !m_parameters.isNull() && QFile::exists(m_dialog->repositoryPath()))
-        repository = Core::VcsManager::findTopLevelForDirectory(m_dialog->repositoryPath());
+        repository = VcsManager::findTopLevelForDirectory(m_dialog->repositoryPath());
 
     if (!repository.isEmpty()) {
         // Check if remote from a working dir is the same as remote from patch
@@ -550,7 +550,7 @@ QString GerritPlugin::findLocalRepository(QString project, const QString &branch
         } // branchRegexp or file name match
     } // for repositories
     // No match, do we have  a projects folder?
-    if (Core::DocumentManager::useProjectsDirectory())
+    if (DocumentManager::useProjectsDirectory())
         return DocumentManager::projectsDirectory();
 
     return QDir::currentPath();

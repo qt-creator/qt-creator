@@ -103,23 +103,23 @@ const char RC_GIT_MIME_XML[] = ":/git/Git.mimetypes.xml";
 
 const VcsBaseEditorParameters editorParameters[] = {
 {
-    VcsBase::OtherContent,
+    OtherContent,
     Git::Constants::GIT_COMMAND_LOG_EDITOR_ID,
     Git::Constants::GIT_COMMAND_LOG_EDITOR_DISPLAY_NAME,
     "text/vnd.qtcreator.git.commandlog"},
-{   VcsBase::LogOutput,
+{   LogOutput,
     Git::Constants::GIT_LOG_EDITOR_ID,
     Git::Constants::GIT_LOG_EDITOR_DISPLAY_NAME,
     "text/vnd.qtcreator.git.log"},
-{   VcsBase::AnnotateOutput,
+{   AnnotateOutput,
     Git::Constants::GIT_BLAME_EDITOR_ID,
     Git::Constants::GIT_BLAME_EDITOR_DISPLAY_NAME,
     "text/vnd.qtcreator.git.annotation"},
-{   VcsBase::OtherContent,
+{   OtherContent,
     Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID,
     Git::Constants::GIT_COMMIT_TEXT_EDITOR_DISPLAY_NAME,
     "text/vnd.qtcreator.git.commit"},
-{   VcsBase::OtherContent,
+{   OtherContent,
     Git::Constants::GIT_REBASE_EDITOR_ID,
     Git::Constants::GIT_REBASE_EDITOR_DISPLAY_NAME,
     "text/vnd.qtcreator.git.rebase"},
@@ -186,10 +186,10 @@ ParameterAction *GitPlugin::createParameterAction(ActionContainer *ac,
                                                   bool addToLocator, const QKeySequence &keys)
 {
     auto action = new ParameterAction(defaultText, parameterText, ParameterAction::EnabledWithParameter, this);
-    Core::Command *command = ActionManager::registerAction(action, id, context);
+    Command *command = ActionManager::registerAction(action, id, context);
     if (!keys.isEmpty())
         command->setDefaultKeySequence(keys);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     ac->addAction(command);
     if (addToLocator)
         m_commandLocator->appendCommand(command);
@@ -227,7 +227,7 @@ QAction *GitPlugin::createRepositoryAction(ActionContainer *ac,
                                            const QKeySequence &keys)
 {
     auto action = new QAction(text, this);
-    Core::Command *command = ActionManager::registerAction(action, id, context);
+    Command *command = ActionManager::registerAction(action, id, context);
     if (!keys.isEmpty())
         command->setDefaultKeySequence(keys);
     if (ac)
@@ -293,12 +293,12 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
         []() { return new GitSubmitEditor(&submitParameters); }));
 
-    auto cloneWizardFactory = new VcsBase::BaseCheckoutWizardFactory;
+    auto cloneWizardFactory = new BaseCheckoutWizardFactory;
     cloneWizardFactory->setId(QLatin1String(VcsBase::Constants::VCS_ID_GIT));
     cloneWizardFactory->setIcon(QIcon(QLatin1String(":/git/images/git.png")));
     cloneWizardFactory->setDescription(tr("Clones a Git repository and tries to load the contained project."));
     cloneWizardFactory->setDisplayName(tr("Git Repository Clone"));
-    cloneWizardFactory->setWizardCreator([this] (const Utils::FileName &path, QWidget *parent) {
+    cloneWizardFactory->setWizardCreator([this] (const FileName &path, QWidget *parent) {
         return new CloneWizard(path, parent);
     });
     addAutoReleasedObject(cloneWizardFactory);
@@ -310,7 +310,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     //register actions
     ActionContainer *toolsContainer = ActionManager::actionContainer(Core::Constants::M_TOOLS);
 
-    Core::ActionContainer *gitContainer = ActionManager::createMenu("Git");
+    ActionContainer *gitContainer = ActionManager::createMenu("Git");
     gitContainer->menu()->setTitle(tr("&Git"));
     toolsContainer->addMenu(gitContainer);
     m_menuAction = gitContainer->menu()->menuAction();
@@ -624,7 +624,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            context, false, SLOT(startChangeRelatedAction()));
 
     m_createRepositryAction = new QAction(tr("Create Repository..."), this);
-    Core::Command *createRepositoryCommand = ActionManager::registerAction(
+    Command *createRepositoryCommand = ActionManager::registerAction(
                 m_createRepositryAction, "Git.CreateRepository", globalcontext);
     connect(m_createRepositryAction, SIGNAL(triggered()), this, SLOT(createRepository()));
     gitContainer->addAction(createRepositoryCommand);
@@ -632,8 +632,8 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     // Submit editor
     Context submitContext(Constants::GITSUBMITEDITOR_ID);
     m_submitCurrentAction = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
-    Core::Command *command = ActionManager::registerAction(m_submitCurrentAction, Constants::SUBMIT_CURRENT, submitContext);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    Command *command = ActionManager::registerAction(m_submitCurrentAction, Constants::SUBMIT_CURRENT, submitContext);
+    command->setAttribute(Command::CA_UpdateText);
     connect(m_submitCurrentAction, SIGNAL(triggered()), this, SLOT(submitCurrentLog()));
 
     m_diffSelectedFilesAction = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);

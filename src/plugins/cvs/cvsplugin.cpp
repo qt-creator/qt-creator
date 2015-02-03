@@ -407,14 +407,14 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     cvsMenu->addSeparator(context);
 
     m_updateDirectoryAction = new ParameterAction(tr("Update Directory"), tr("Update Directory \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_updateDirectoryAction, CMD_ID_UPDATE_DIRECTORY, context);
+    command = ActionManager::registerAction(m_updateDirectoryAction, CMD_ID_UPDATE_DIRECTORY, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_updateDirectoryAction, SIGNAL(triggered()), this, SLOT(updateDirectory()));
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_commitDirectoryAction = new ParameterAction(tr("Commit Directory"), tr("Commit Directory \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_commitDirectoryAction,
+    command = ActionManager::registerAction(m_commitDirectoryAction,
         CMD_ID_COMMIT_DIRECTORY, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_commitDirectoryAction, SIGNAL(triggered()), this, SLOT(startCommitDirectory()));

@@ -114,13 +114,13 @@ void SubversionClient::commit(const QString &repositoryRoot,
     cmd->execute();
 }
 
-Core::Id SubversionClient::vcsEditorKind(VcsCommandTag cmd) const
+Id SubversionClient::vcsEditorKind(VcsCommandTag cmd) const
 {
     switch (cmd) {
     case VcsBaseClient::LogCommand: return Constants::SUBVERSION_LOG_EDITOR_ID;
     case VcsBaseClient::AnnotateCommand: return Constants::SUBVERSION_BLAME_EDITOR_ID;
     default:
-        return Core::Id();
+        return Id();
     }
 }
 

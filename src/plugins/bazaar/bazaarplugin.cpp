@@ -251,15 +251,15 @@ void BazaarPlugin::createMenu(const Context &context)
 void BazaarPlugin::createFileActions(const Context &context)
 {
     m_annotateFile = new ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), ParameterAction::EnabledWithParameter, this);
-    Core::Command *command = ActionManager::registerAction(m_annotateFile, ANNOTATE, context);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    Command *command = ActionManager::registerAction(m_annotateFile, ANNOTATE, context);
+    command->setAttribute(Command::CA_UpdateText);
     connect(m_annotateFile, SIGNAL(triggered()), this, SLOT(annotateCurrentFile()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_diffFile = new ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_diffFile, DIFF, context);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Z,Meta+D") : tr("ALT+Z,Alt+D")));
     connect(m_diffFile, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     m_bazaarContainer->addAction(command);
@@ -267,7 +267,7 @@ void BazaarPlugin::createFileActions(const Context &context)
 
     m_logFile = new ParameterAction(tr("Log Current File"), tr("Log \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_logFile, LOG, context);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Z,Meta+L") : tr("ALT+Z,Alt+L")));
     connect(m_logFile, SIGNAL(triggered()), this, SLOT(logCurrentFile()));
     m_bazaarContainer->addAction(command);
@@ -275,7 +275,7 @@ void BazaarPlugin::createFileActions(const Context &context)
 
     m_statusFile = new ParameterAction(tr("Status Current File"), tr("Status \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_statusFile, STATUS, context);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Z,Meta+S") : tr("ALT+Z,Alt+S")));
     connect(m_statusFile, SIGNAL(triggered()), this, SLOT(statusCurrentFile()));
     m_bazaarContainer->addAction(command);
@@ -285,21 +285,21 @@ void BazaarPlugin::createFileActions(const Context &context)
 
     m_addAction = new ParameterAction(tr("Add"), tr("Add \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_addAction, ADD, context);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_deleteAction = new ParameterAction(tr("Delete..."), tr("Delete \"%1\"..."), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_deleteAction, DELETE, context);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(promptToDeleteCurrentFile()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_revertFile = new ParameterAction(tr("Revert Current File..."), tr("Revert \"%1\"..."), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_revertFile, REVERT, context);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     connect(m_revertFile, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -360,7 +360,7 @@ void BazaarPlugin::createDirectoryActions(const Context &context)
 {
     auto action = new QAction(tr("Diff"), this);
     m_repositoryActionList.append(action);
-    Core::Command *command = ActionManager::registerAction(action, DIFFMULTI, context);
+    Command *command = ActionManager::registerAction(action, DIFFMULTI, context);
     connect(action, SIGNAL(triggered()), this, SLOT(diffRepository()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -428,7 +428,7 @@ void BazaarPlugin::createRepositoryActions(const Context &context)
 {
     auto action = new QAction(tr("Pull..."), this);
     m_repositoryActionList.append(action);
-    Core::Command *command = ActionManager::registerAction(action, PULL, context);
+    Command *command = ActionManager::registerAction(action, PULL, context);
     connect(action, SIGNAL(triggered()), this, SLOT(pull()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -527,11 +527,11 @@ void BazaarPlugin::update()
 void BazaarPlugin::createSubmitEditorActions()
 {
     Context context(COMMIT_ID);
-    Core::Command *command;
+    Command *command;
 
     m_editorCommit = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
     command = ActionManager::registerAction(m_editorCommit, COMMIT, context);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     connect(m_editorCommit, SIGNAL(triggered()), this, SLOT(commitFromEditor()));
 
     m_editorDiff = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
@@ -743,7 +743,7 @@ bool BazaarPlugin::submitEditorAboutToClose()
     return true;
 }
 
-void BazaarPlugin::updateActions(VcsBase::VcsBasePlugin::ActionState as)
+void BazaarPlugin::updateActions(VcsBasePlugin::ActionState as)
 {
     if (!enableMenuAction(as, m_menuAction)) {
         m_commandLocator->setEnabled(false);

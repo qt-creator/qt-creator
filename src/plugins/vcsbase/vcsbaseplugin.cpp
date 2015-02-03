@@ -801,7 +801,7 @@ void VcsBasePlugin::setProcessEnvironment(QProcessEnvironment *e,
 // Run a process synchronously, returning Utils::SynchronousProcessResponse
 // response struct and using the VcsBasePlugin flags as applicable
 SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
-                                                 const Utils::FileName &binary,
+                                                 const FileName &binary,
                                                  const QStringList &arguments,
                                                  int timeOutMS,
                                                  unsigned flags,

@@ -98,15 +98,15 @@ const char PERFORCE_ANNOTATION_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", 
 
 const VcsBaseEditorParameters editorParameters[] = {
 {
-    VcsBase::LogOutput,
+    LogOutput,
     PERFORCE_LOG_EDITOR_ID,
     PERFORCE_LOG_EDITOR_DISPLAY_NAME,
     "text/vnd.qtcreator.p4.log"},
-{    VcsBase::AnnotateOutput,
+{    AnnotateOutput,
     PERFORCE_ANNOTATION_EDITOR_ID,
     PERFORCE_ANNOTATION_EDITOR_DISPLAY_NAME,
     "text/vnd.qtcreator.p4.annotation"},
-{   VcsBase::DiffOutput,
+{   DiffOutput,
     PERFORCE_DIFF_EDITOR_ID,
     PERFORCE_DIFF_EDITOR_DISPLAY_NAME,
     "text/x-patch"}
@@ -249,18 +249,18 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 
     ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
 
-    Core::ActionContainer *perforceContainer = ActionManager::createMenu(CMD_ID_PERFORCE_MENU);
+    ActionContainer *perforceContainer = ActionManager::createMenu(CMD_ID_PERFORCE_MENU);
     perforceContainer->menu()->setTitle(tr("&Perforce"));
     mtools->addMenu(perforceContainer);
     m_menuAction = perforceContainer->menu()->menuAction();
 
     Context perforcesubmitcontext(PERFORCE_SUBMIT_EDITOR_ID);
 
-    Core::Command *command;
+    Command *command;
 
     m_diffFileAction = new ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_diffFileAction, CMD_ID_DIFF_CURRENT, context);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     command->setDescription(tr("Diff Current File"));
     connect(m_diffFileAction, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     perforceContainer->addAction(command);
@@ -268,7 +268,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 
     m_annotateCurrentAction = new ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_annotateCurrentAction, CMD_ID_ANNOTATE_CURRENT, context);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     command->setDescription(tr("Annotate Current File"));
     connect(m_annotateCurrentAction, SIGNAL(triggered()), this, SLOT(annotateCurrentFile()));
     perforceContainer->addAction(command);
@@ -276,7 +276,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 
     m_filelogCurrentAction = new ParameterAction(tr("Filelog Current File"), tr("Filelog \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_filelogCurrentAction, CMD_ID_FILELOG_CURRENT, context);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+P,Meta+F") : tr("Alt+P,Alt+F")));
     command->setDescription(tr("Filelog Current File"));
     connect(m_filelogCurrentAction, SIGNAL(triggered()), this, SLOT(filelogCurrentFile()));
@@ -287,7 +287,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 
     m_editAction = new ParameterAction(tr("Edit"), tr("Edit \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_editAction, CMD_ID_EDIT, context);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+P,Meta+E") : tr("Alt+P,Alt+E")));
     command->setDescription(tr("Edit File"));
     connect(m_editAction, SIGNAL(triggered()), this, SLOT(openCurrentFile()));
@@ -296,7 +296,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 
     m_addAction = new ParameterAction(tr("Add"), tr("Add \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_addAction, CMD_ID_ADD, context);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+P,Meta+A") : tr("Alt+P,Alt+A")));
     command->setDescription(tr("Add File"));
     connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
@@ -305,7 +305,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 
     m_deleteAction = new ParameterAction(tr("Delete..."), tr("Delete \"%1\"..."), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_deleteAction, CMD_ID_DELETE_FILE, context);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     command->setDescription(tr("Delete File"));
     connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(promptToDeleteCurrentFile()));
     perforceContainer->addAction(command);
@@ -313,7 +313,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 
     m_revertFileAction = new ParameterAction(tr("Revert"), tr("Revert \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_revertFileAction, CMD_ID_REVERT, context);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+P,Meta+R") : tr("Alt+P,Alt+R")));
     command->setDescription(tr("Revert File"));
     connect(m_revertFileAction, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
@@ -325,7 +325,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     const QString diffProjectDefaultText = tr("Diff Current Project/Session");
     m_diffProjectAction = new ParameterAction(diffProjectDefaultText, tr("Diff Project \"%1\""), ParameterAction::AlwaysEnabled, this);
     command = ActionManager::registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT, context);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+P,Meta+D") : tr("Alt+P,Alt+D")));
     command->setDescription(diffProjectDefaultText);
     connect(m_diffProjectAction, SIGNAL(triggered()), this, SLOT(diffCurrentProject()));
@@ -334,14 +334,14 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 
     m_logProjectAction = new ParameterAction(tr("Log Project"), tr("Log Project \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_logProjectAction, CMD_ID_PROJECTLOG, context);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     connect(m_logProjectAction, SIGNAL(triggered()), this, SLOT(logProject()));
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_submitProjectAction = new ParameterAction(tr("Submit Project"), tr("Submit Project \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_submitProjectAction, CMD_ID_SUBMIT, context);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+P,Meta+S") : tr("Alt+P,Alt+S")));
     connect(m_submitProjectAction, SIGNAL(triggered()), this, SLOT(startSubmitProject()));
     perforceContainer->addAction(command);
@@ -351,21 +351,21 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     m_updateProjectAction = new ParameterAction(updateProjectDefaultText, tr("Update Project \"%1\""), ParameterAction::AlwaysEnabled, this);
     command = ActionManager::registerAction(m_updateProjectAction, CMD_ID_UPDATE_PROJECT, context);
     command->setDescription(updateProjectDefaultText);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     connect(m_updateProjectAction, SIGNAL(triggered()), this, SLOT(updateCurrentProject()));
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_revertUnchangedAction = new ParameterAction(tr("Revert Unchanged"), tr("Revert Unchanged Files of Project \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_revertUnchangedAction, CMD_ID_REVERT_UNCHANGED_PROJECT, context);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     connect(m_revertUnchangedAction, SIGNAL(triggered()), this, SLOT(revertUnchangedCurrentProject()));
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_revertProjectAction = new ParameterAction(tr("Revert Project"), tr("Revert Project \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_revertProjectAction, CMD_ID_REVERT_PROJECT, context);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     connect(m_revertProjectAction, SIGNAL(triggered()), this, SLOT(revertCurrentProject()));
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -422,7 +422,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 
     m_submitCurrentLogAction = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Submit"), this);
     command = ActionManager::registerAction(m_submitCurrentLogAction, SUBMIT_CURRENT, perforcesubmitcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     connect(m_submitCurrentLogAction, SIGNAL(triggered()), this, SLOT(submitCurrentLog()));
 
     m_diffSelectedFiles = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
@@ -734,7 +734,7 @@ void PerforcePlugin::annotate(const QString &workingDir,
         if (lineNumber < 1)
             lineNumber = VcsBaseEditor::lineNumberOfCurrentEditor();
         IEditor *ed = showOutputInEditor(tr("p4 annotate %1").arg(id),
-                                         result.stdOut, VcsBase::AnnotateOutput,
+                                         result.stdOut, AnnotateOutput,
                                          source, codec);
         VcsBaseEditor::gotoLineOfEditor(ed, lineNumber);
     }
@@ -787,7 +787,7 @@ void PerforcePlugin::filelog(const QString &workingDir, const QString &fileName,
     if (!result.error) {
         const QString source = VcsBaseEditor::getSource(workingDir, fileName);
         IEditor *editor = showOutputInEditor(tr("p4 filelog %1").arg(id), result.stdOut,
-                                VcsBase::LogOutput, source, codec);
+                                LogOutput, source, codec);
         if (enableAnnotationContextMenu)
             VcsBaseEditor::getVcsBaseEditor(editor)->setFileLogAnnotateEnabled(true);
     }
@@ -809,7 +809,7 @@ void PerforcePlugin::changelists(const QString &workingDir, const QString &fileN
     if (!result.error) {
         const QString source = VcsBaseEditor::getSource(workingDir, fileName);
         IEditor *editor = showOutputInEditor(tr("p4 changelists %1").arg(id), result.stdOut,
-                                             VcsBase::LogOutput, source, codec);
+                                             LogOutput, source, codec);
         VcsBaseEditor::gotoLineOfEditor(editor, 1);
     }
 }
@@ -1286,7 +1286,7 @@ void PerforcePlugin::p4Diff(const PerforceDiffParameters &p)
     QTextCodec *codec = VcsBaseEditor::getCodec(p.workingDir, p.files);
     const QString id = VcsBaseEditor::getTitleId(p.workingDir, p.files);
     // Reuse existing editors for that id
-    const QString tag = VcsBaseEditor::editorTag(VcsBase::DiffOutput, p.workingDir, p.files);
+    const QString tag = VcsBaseEditor::editorTag(DiffOutput, p.workingDir, p.files);
     IEditor *existingEditor = VcsBaseEditor::locateEditorByTag(tag);
     // Split arguments according to size
     QStringList args;
