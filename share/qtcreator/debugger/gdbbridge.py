@@ -2030,18 +2030,18 @@ registerCommand("exitGdb", exitGdb)
 #
 #######################################################################
 
-class QmlEngineCreationTracker(gdb.Breakpoint):
-    def __init__(self):
-        spec = "QQmlEnginePrivate::init"
-        super(QmlEngineCreationTracker, self).\
-            __init__(spec, gdb.BP_BREAKPOINT, internal=True)
-
-    def stop(self):
-        engine = gdb.parse_and_eval("q_ptr")
-        print("QML engine created: %s" % engine)
-        theDumper.qmlEngines.append(engine)
-        return False
-
+#class QmlEngineCreationTracker(gdb.Breakpoint):
+#    def __init__(self):
+#        spec = "QQmlEnginePrivate::init"
+#        super(QmlEngineCreationTracker, self).\
+#            __init__(spec, gdb.BP_BREAKPOINT, internal=True)
+#
+#    def stop(self):
+#        engine = gdb.parse_and_eval("q_ptr")
+#        print("QML engine created: %s" % engine)
+#        theDumper.qmlEngines.append(engine)
+#        return False
+#
 #QmlEngineCreationTracker()
 
 class TriggeredBreakpointHookBreakpoint(gdb.Breakpoint):
@@ -2074,53 +2074,60 @@ class ResolvePendingBreakpointsHookBreakpoint(gdb.Breakpoint):
         self.enabled = False
         return False
 
+def sendQmlCommand(command, data = ""):
+    data += '"version":"1","command":"%s"' % command
+    data = data.replace('"', '\\"')
+    expr = 'qt_v4DebuggerHook("{%s}")' % data
+    try:
+        res = gdb.parse_and_eval(expr)
+        print("QML command ok, RES: %s, CMD: %s" % (res, expr))
+        gdb.execute("p qt_v4Output")
+    except RuntimeError as error:
+        print("QML command failed: gdb.parse_and_eval(%s): %s" % (expr, error))
+        res = None
+    return res
+
 def doInsertQmlBreakPoint(fullName, lineNumber):
     pos = fullName.rfind('/')
     engineName = "qrc:/" + fullName[pos+1:]
-    cmd = 'qt_v4InsertBreakpoint("%s",%s,"%s","")' \
-        % (fullName, lineNumber, engineName)
-    try:
-        bp = gdb.parse_and_eval(cmd)
-        print("Resolving QML breakpoint: %s" % bp)
-        return int(bp)
-    except RuntimeError as error:
-        print("Direct QML breakpoint insertion failed: %s" % error)
+    bp = sendQmlCommand('insertBreakpoint',
+            '"fullName":"%s","lineNumber":"%s","engineName":"%s",'
+            % (fullName, lineNumber, engineName))
+    if bp is None:
+        print("Direct QML breakpoint insertion failed.")
         print("Make pending.")
         ResolvePendingBreakpointsHookBreakpoint(fullName, lineNumber)
         return 0
+
+    print("Resolving QML breakpoint: %s" % bp)
+    return int(bp)
 
 def insertQmlBreakpoint(arg):
     (fullName, lineNumber) = arg.split(' ')
     print("Insert QML breakpoint %s:%s" % (fullName, lineNumber))
     bp = doInsertQmlBreakPoint(fullName, lineNumber)
-    try:
-        gdb.execute("set variable qt_v4IsStepping=0")
-    except RuntimeError as error:
-        print("Resetting stepping failed: %s" % error)
+    res = sendQmlCommand('prepareStep')
+    if res is None:
+        print("Resetting stepping failed.")
     return str(bp)
 
 registerCommand("insertQmlBreakpoint", insertQmlBreakpoint)
 
 def removeQmlBreakpoint(arg):
     (fullName, lineNumber) = arg.split(' ')
-    pos = fullName.rfind('/')
-    engineName = "qrc:/" + fullName[pos+1:]
-    fsName = fullName
-    cmd = 'qt_v4RemoveBreakpoint("%s",%s)' % (fullName, lineNumber)
     print("Remove QML breakpoint %s:%s" % (fullName, lineNumber))
-    try:
-        res = gdb.parse_and_eval(cmd)
-        print("Removing QML breakpoint: %s" % (cmd, res))
-        return int(res)
-    except RuntimeError as error:
-        print("Direct QML breakpoint removal failed: %s." % error)
+    bp = sendQmlCommand('removeBreakpoint',
+            '"fullName":"%s","lineNumber":"%s",'
+            % (fullName, lineNumber))
+    if bp is None:
+        print("Direct QML breakpoint removal failed: %s.")
         return 0
-    return str(bp)
+    print("Removing QML breakpoint: %s" % bp)
+    return int(bp)
 
 registerCommand("removeQmlBreakpoint", removeQmlBreakpoint)
 
 def prepareQmlStep(arg):
-    gdb.execute("set variable qt_v4IsStepping=1")
-    return ""
+    sendQmlCommand('prepareStep')
 
 registerCommand("prepareQmlStep", prepareQmlStep)
