@@ -120,7 +120,6 @@ public:
 
     void finalizeInitialization()
     {
-        setupAsPlainEditor();
         setReadOnly(true);
     }
 };
@@ -133,6 +132,7 @@ public:
         setId(K_DESIGNER_XML_EDITOR_ID);
         setEditorCreator([]() { return new FormWindowEditor; });
         setEditorWidgetCreator([]() { return new Internal::DesignerXmlEditorWidget; });
+        setUseGenericHighlighter(true);
         setDuplicatedSupported(false);
     }
 

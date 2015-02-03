@@ -110,7 +110,6 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget()
       m_appNameInStringsXml(false)
 {
     m_textEditorWidget = new AndroidManifestTextEditorWidget(this);
-    m_textEditorWidget->setupAsPlainEditor();
 
     initializePage();
 
@@ -1439,7 +1438,7 @@ AndroidManifestTextEditorWidget::AndroidManifestTextEditorWidget(AndroidManifest
     : TextEditor::TextEditorWidget(parent)
 {
     setTextDocument(TextEditor::TextDocumentPtr(new AndroidManifestDocument(parent)));
-    setupAsPlainEditor();
     textDocument()->setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
+    setupGenericHighlighter();
 }
 

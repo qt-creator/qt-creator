@@ -2735,7 +2735,8 @@ void TextEditorWidgetPrivate::updateCodeFoldingVisible()
 
 void TextEditorWidgetPrivate::reconfigure()
 {
-    q->configureMimeType(MimeDatabase::findByFile(m_document->filePath().toString()));
+    m_document->setMimeType(MimeDatabase::findByFile(m_document->filePath().toString()).type());
+    q->configureGenericHighlighter();
 }
 
 bool TextEditorWidget::codeFoldingVisible() const
@@ -7163,12 +7164,7 @@ QString TextEditorWidget::textAt(int from, int to) const
     return textDocument()->textAt(from, to);
 }
 
-void TextEditorWidget::configureMimeType(const QString &mimeType)
-{
-    configureMimeType(MimeDatabase::findByType(mimeType));
-}
-
-void TextEditorWidget::configureMimeType(const MimeType &mimeType)
+void TextEditorWidget::configureGenericHighlighter()
 {
     Highlighter *highlighter = new Highlighter();
     highlighter->setTabSettings(textDocument()->tabSettings());
@@ -7176,16 +7172,13 @@ void TextEditorWidget::configureMimeType(const MimeType &mimeType)
 
     setCodeFoldingSupported(false);
 
+    const QString type = textDocument()->mimeType();
+    const MimeType mimeType = MimeDatabase::findByType(type);
     if (!mimeType.isNull()) {
         d->m_isMissingSyntaxDefinition = true;
 
-        setMimeTypeForHighlighter(highlighter, mimeType);
-        const QString &type = mimeType.type();
-        textDocument()->setMimeType(type);
-
-        QString definitionId = Manager::instance()->definitionIdByMimeType(type);
-        if (definitionId.isEmpty())
-            definitionId = findDefinitionId(mimeType, true);
+        QString definitionId;
+        setMimeTypeForHighlighter(highlighter, mimeType, &definitionId);
 
         if (!definitionId.isEmpty()) {
             d->m_isMissingSyntaxDefinition = false;
@@ -7217,12 +7210,10 @@ bool TextEditorWidget::isMissingSyntaxDefinition() const
 }
 
 // The remnants of PlainTextEditor.
-void TextEditorWidget::setupAsPlainEditor()
+void TextEditorWidget::setupGenericHighlighter()
 {
     setMarksVisible(true);
     setLineSeparatorsAllowed(true);
-
-    textDocument()->setMimeType(QLatin1String(Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
 
     connect(textDocument(), &IDocument::filePathChanged,
             d, &TextEditorWidgetPrivate::reconfigure);
@@ -7295,6 +7286,7 @@ public:
         m_editorCreator([]() { return new BaseTextEditor; }),
         m_commentStyle(CommentDefinition::NoStyle),
         m_completionAssistProvider(0),
+        m_useGenericHighlighter(false),
         m_duplicatedSupported(true),
         m_codeFoldingSupported(false),
         m_paranthesesMatchinEnabled(false),
@@ -7320,6 +7312,7 @@ public:
     CommentDefinition::Style m_commentStyle;
     QList<BaseHoverHandler *> m_hoverHandlers; // owned
     CompletionAssistProvider * m_completionAssistProvider; // owned
+    bool m_useGenericHighlighter;
     bool m_duplicatedSupported;
     bool m_codeFoldingSupported;
     bool m_paranthesesMatchinEnabled;
@@ -7364,27 +7357,9 @@ void TextEditorFactory::setSyntaxHighlighterCreator(const SyntaxHighLighterCreat
     d->m_syntaxHighlighterCreator = creator;
 }
 
-void TextEditorFactory::setGenericSyntaxHighlighter(const QString &mimeType)
+void TextEditorFactory::setUseGenericHighlighter(bool enabled)
 {
-    d->m_syntaxHighlighterCreator = [this, mimeType]() -> SyntaxHighlighter * {
-        Highlighter *highlighter = new Highlighter;
-        setMimeTypeForHighlighter(highlighter, MimeDatabase::findByType(mimeType));
-        return highlighter;
-    };
-}
-
-void TextEditorFactory::setGenericSyntaxHighlighterByName(const QString &name)
-{
-    d->m_syntaxHighlighterCreator = [this, name]() -> SyntaxHighlighter * {
-        TextEditor::Highlighter *highlighter = new TextEditor::Highlighter();
-        QString definitionId = Manager::instance()->definitionIdByName(name);
-        if (!definitionId.isEmpty()) {
-            const QSharedPointer<HighlightDefinition> &definition = Manager::instance()->definition(definitionId);
-            if (!definition.isNull() && definition->isValid())
-                highlighter->setDefaultContext(definition->initialContext());
-        }
-        return highlighter;
-    };
+    d->m_useGenericHighlighter = enabled;
 }
 
 void TextEditorFactory::setAutoCompleterCreator(const AutoCompleterCreator &creator)
@@ -7479,6 +7454,8 @@ BaseTextEditor *TextEditorFactoryPrivate::createEditorHelper(const TextDocumentP
     QObject::connect(widget, &TextEditorWidget::activateEditor,
                      [editor]() { EditorManager::activateEditor(editor); });
 
+    if (m_useGenericHighlighter)
+        widget->setupGenericHighlighter();
     widget->finalizeInitialization();
     editor->finalizeInitialization();
 

@@ -241,7 +241,7 @@ void DisassemblerAgentPrivate::configureMimeType()
     if (mtype) {
         foreach (IEditor *editor, DocumentModel::editorsForDocument(document))
             if (TextEditorWidget *widget = qobject_cast<TextEditorWidget *>(editor->widget()))
-                widget->configureMimeType(mtype);
+                widget->configureGenericHighlighter();
     } else {
         qWarning("Assembler mimetype '%s' not found.", qPrintable(mimeType));
     }

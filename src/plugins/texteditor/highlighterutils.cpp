@@ -53,7 +53,8 @@ QString TextEditor::findDefinitionId(const Core::MimeType &mimeType,
     return definitionId;
 }
 
-void TextEditor::setMimeTypeForHighlighter(Highlighter *highlighter, const Core::MimeType &mimeType)
+void TextEditor::setMimeTypeForHighlighter(Highlighter *highlighter, const Core::MimeType &mimeType,
+                                           QString *foundDefinitionId)
 {
     const QString type = mimeType.type();
     QString definitionId = Manager::instance()->definitionIdByMimeType(type);
@@ -66,6 +67,9 @@ void TextEditor::setMimeTypeForHighlighter(Highlighter *highlighter, const Core:
         if (!definition.isNull() && definition->isValid())
             highlighter->setDefaultContext(definition->initialContext());
     }
+
+    if (foundDefinitionId)
+        *foundDefinitionId = definitionId;
 }
 
 SyntaxHighlighter *TextEditor::createGenericSyntaxHighlighter(const Core::MimeType &mimeType)

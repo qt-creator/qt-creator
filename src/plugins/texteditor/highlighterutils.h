@@ -45,7 +45,8 @@ namespace TextEditor {
 class Highlighter;
 class SyntaxHighlighter;
 
-void setMimeTypeForHighlighter(Highlighter *highlighter, const Core::MimeType &mimeType);
+void setMimeTypeForHighlighter(Highlighter *highlighter, const Core::MimeType &mimeType,
+                               QString *foundDefinitionId = 0);
 QString findDefinitionId(const Core::MimeType &mimeType, bool considerParents);
 TEXTEDITOR_EXPORT SyntaxHighlighter *createGenericSyntaxHighlighter(const Core::MimeType &mimeType);
 

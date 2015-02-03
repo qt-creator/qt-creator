@@ -92,7 +92,7 @@ JavaEditorFactory::JavaEditorFactory()
 
     setDocumentCreator([]() { return new JavaDocument; });
     setAutoCompleterCreator([]() { return new JavaAutoCompleter; });
-    setGenericSyntaxHighlighter(QLatin1String(Constants::JAVA_MIMETYPE));
+    setUseGenericHighlighter(true);
     setCommentStyle(Utils::CommentDefinition::CppStyle);
     setEditorActionHandlers(TextEditor::TextEditorActionHandler::UnCommentSelection);
     setCompletionAssistProvider(new JavaCompletionAssistProvider);

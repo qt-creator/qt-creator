@@ -468,8 +468,7 @@ public:
     /// Abort code assistant if it is running.
     void abortAssist();
 
-    void configureMimeType(const QString &mimeType);
-    void configureMimeType(const Core::MimeType &mimeType);
+    void configureGenericHighlighter();
 
     Q_INVOKABLE void inSnippetMode(bool *active); // Used by FakeVim.
 
@@ -559,7 +558,7 @@ public:
 
     QString selectedText() const;
 
-    void setupAsPlainEditor();
+    void setupGenericHighlighter();
     void setupFallBackEditor(Core::Id id);
 
     void remove(int length);
@@ -664,8 +663,7 @@ public:
     void setEditorCreator(const EditorCreator &creator);
     void setIndenterCreator(const IndenterCreator &creator);
     void setSyntaxHighlighterCreator(const SyntaxHighLighterCreator &creator);
-    void setGenericSyntaxHighlighter(const QString &mimeType);
-    void setGenericSyntaxHighlighterByName(const QString &name);
+    void setUseGenericHighlighter(bool enabled);
     void setAutoCompleterCreator(const AutoCompleterCreator &creator);
 
     void setEditorActionHandlers(Core::Id contextId, uint optionalActions);

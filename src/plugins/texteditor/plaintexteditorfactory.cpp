@@ -51,7 +51,10 @@ class PlainTextEditorWidget : public TextEditorWidget
 {
 public:
     PlainTextEditorWidget() {}
-    void finalizeInitialization() { setupAsPlainEditor(); }
+    void finalizeInitialization()
+    {
+        textDocument()->setMimeType(QLatin1String(Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
+    }
 };
 
 PlainTextEditorFactory::PlainTextEditorFactory()
@@ -65,6 +68,7 @@ PlainTextEditorFactory::PlainTextEditorFactory()
     setDocumentCreator([]() { return new TextDocument(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID); });
     setEditorWidgetCreator([]() { return new PlainTextEditorWidget; });
     setIndenterCreator([]() { return new NormalIndenter; });
+    setUseGenericHighlighter(true);
 
     setEditorActionHandlers(TextEditorActionHandler::Format |
         TextEditorActionHandler::UnCommentSelection |
