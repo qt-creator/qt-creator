@@ -70,7 +70,7 @@ void TextEditor::setMimeTypeForHighlighter(Highlighter *highlighter, const Core:
 
 SyntaxHighlighter *TextEditor::createGenericSyntaxHighlighter(const Core::MimeType &mimeType)
 {
-    TextEditor::Highlighter *highlighter = new TextEditor::Highlighter();
+    Highlighter *highlighter = new Highlighter();
     setMimeTypeForHighlighter(highlighter, mimeType);
     return highlighter;
 }

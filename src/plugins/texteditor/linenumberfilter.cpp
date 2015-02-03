@@ -63,7 +63,7 @@ void LineNumberFilter::prepareSearch(const QString &entry)
     m_hasCurrentEditor = EditorManager::currentEditor() != 0;
 }
 
-QList<LocatorFilterEntry> LineNumberFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &, const QString &entry)
+QList<LocatorFilterEntry> LineNumberFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &, const QString &entry)
 {
     QList<LocatorFilterEntry> value;
     QStringList lineAndColumn = entry.split(QLatin1Char(':'));

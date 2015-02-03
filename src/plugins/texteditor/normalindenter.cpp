@@ -63,7 +63,7 @@ NormalIndenter::~NormalIndenter()
 void NormalIndenter::indentBlock(QTextDocument *doc,
                                  const QTextBlock &block,
                                  const QChar &typedChar,
-                                 const TextEditor::TabSettings &tabSettings)
+                                 const TabSettings &tabSettings)
 {
     Q_UNUSED(typedChar)
 

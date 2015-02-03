@@ -111,7 +111,7 @@ private:
 class FontSettingsPagePrivate
 {
 public:
-    FontSettingsPagePrivate(const TextEditor::FormatDescriptions &fd,
+    FontSettingsPagePrivate(const FormatDescriptions &fd,
                             Core::Id id,
                             const QString &displayName,
                             const QString &category);
@@ -122,7 +122,7 @@ public:
     const QString m_displayName;
     const QString m_settingsGroup;
 
-    TextEditor::FormatDescriptions m_descriptions;
+    FormatDescriptions m_descriptions;
     FontSettings m_value;
     FontSettings m_lastValue;
     QPointer<QWidget> m_widget;
@@ -168,7 +168,7 @@ static QString createColorSchemeFileName(const QString &pattern)
 }
 
 // ------- FontSettingsPagePrivate
-FontSettingsPagePrivate::FontSettingsPagePrivate(const TextEditor::FormatDescriptions &fd,
+FontSettingsPagePrivate::FontSettingsPagePrivate(const FormatDescriptions &fd,
                                                  Core::Id id,
                                                  const QString &displayName,
                                                  const QString &category) :

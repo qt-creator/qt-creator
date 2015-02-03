@@ -145,11 +145,11 @@ QVariant ModelAdapter::data(const QModelIndex &index, int role) const
 // ------------------------
 // GenericProposalInfoFrame
 // ------------------------
-class GenericProposalInfoFrame : public Utils::FakeToolTip
+class GenericProposalInfoFrame : public FakeToolTip
 {
 public:
     GenericProposalInfoFrame(QWidget *parent = 0)
-        : Utils::FakeToolTip(parent), m_label(new QLabel(this))
+        : FakeToolTip(parent), m_label(new QLabel(this))
     {
         QVBoxLayout *layout = new QVBoxLayout(this);
         layout->setMargin(0);

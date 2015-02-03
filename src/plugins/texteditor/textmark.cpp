@@ -209,7 +209,7 @@ bool TextMarkRegistry::remove(TextMark *mark)
     return m_marks[FileName::fromString(mark->fileName())].remove(mark);
 }
 
-void TextMarkRegistry::editorOpened(Core::IEditor *editor)
+void TextMarkRegistry::editorOpened(IEditor *editor)
 {
     auto document = qobject_cast<TextDocument *>(editor ? editor->document() : 0);
     if (!document)

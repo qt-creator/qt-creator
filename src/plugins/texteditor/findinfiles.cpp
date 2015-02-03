@@ -56,7 +56,7 @@ FindInFiles::FindInFiles()
     m_directory(0)
 {
     m_instance = this;
-    connect(Core::EditorManager::instance(), SIGNAL(findOnFileSystemRequest(QString)),
+    connect(EditorManager::instance(), SIGNAL(findOnFileSystemRequest(QString)),
             this, SLOT(findOnFileSystem(QString)));
 }
 
@@ -74,7 +74,7 @@ QString FindInFiles::displayName() const
     return tr("Files on File System");
 }
 
-void FindInFiles::findAll(const QString &txt, Core::FindFlags findFlags)
+void FindInFiles::findAll(const QString &txt, FindFlags findFlags)
 {
     updateComboEntries(m_directory, true);
     BaseFileFind::findAll(txt, findFlags);
@@ -85,7 +85,7 @@ Utils::FileIterator *FindInFiles::files(const QStringList &nameFilters,
 {
     return new Utils::SubDirFileIterator(QStringList() << additionalParameters.toString(),
                                          nameFilters,
-                                         Core::EditorManager::defaultTextCodec());
+                                         EditorManager::defaultTextCodec());
 }
 
 QVariant FindInFiles::additionalParameters() const

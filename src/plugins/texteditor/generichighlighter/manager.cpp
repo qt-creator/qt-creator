@@ -176,10 +176,10 @@ QSharedPointer<HighlightDefinition> Manager::definition(const QString &id)
         try {
             reader.parse(source);
         } catch (const HighlighterException &e) {
-            Core::MessageManager::write(
+            MessageManager::write(
                         QCoreApplication::translate("GenericHighlighter",
                                                     "Generic highlighter error: ") + e.message(),
-                        Core::MessageManager::WithFocus);
+                        MessageManager::WithFocus);
             definition.clear();
         }
         m_isBuildingDefinition.remove(id);

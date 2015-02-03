@@ -82,7 +82,7 @@ HighlighterCodeFormatterData *formatterData(const QTextBlock &block)
 }
 
 Highlighter::Highlighter(QTextDocument *parent) :
-    TextEditor::SyntaxHighlighter(parent),
+    SyntaxHighlighter(parent),
     m_regionDepth(0),
     m_indentationBasedFolding(false),
     m_tabSettings(0),
@@ -90,24 +90,24 @@ Highlighter::Highlighter(QTextDocument *parent) :
     m_dynamicContextsCounter(0),
     m_isBroken(false)
 {
-    static QVector<TextEditor::TextStyle> categories;
+    static QVector<TextStyle> categories;
     if (categories.isEmpty()) {
-        categories << TextEditor::C_TEXT
-                   << TextEditor::C_VISUAL_WHITESPACE
-                   << TextEditor::C_KEYWORD
-                   << TextEditor::C_TYPE
-                   << TextEditor::C_COMMENT
-                   << TextEditor::C_NUMBER
-                   << TextEditor::C_NUMBER
-                   << TextEditor::C_NUMBER
-                   << TextEditor::C_STRING
-                   << TextEditor::C_STRING
-                   << TextEditor::C_TEXT // TODO : add style for alert (eg. yellow background)
-                   << TextEditor::C_TEXT // TODO : add style for error (eg. red underline)
-                   << TextEditor::C_FUNCTION
-                   << TextEditor::C_TEXT
-                   << TextEditor::C_TEXT
-                   << TextEditor::C_LOCAL;
+        categories << C_TEXT
+                   << C_VISUAL_WHITESPACE
+                   << C_KEYWORD
+                   << C_TYPE
+                   << C_COMMENT
+                   << C_NUMBER
+                   << C_NUMBER
+                   << C_NUMBER
+                   << C_STRING
+                   << C_STRING
+                   << C_TEXT // TODO : add style for alert (eg. yellow background)
+                   << C_TEXT // TODO : add style for error (eg. red underline)
+                   << C_FUNCTION
+                   << C_TEXT
+                   << C_TEXT
+                   << C_LOCAL;
     }
 
     setTextFormatCategories(categories);
@@ -196,7 +196,7 @@ void Highlighter::highlightBlock(const QString &text)
                 setCurrentBlockState(computeState(extractObservableState(currentBlockState())));
             }
 
-            TextEditor::Parentheses parentheses;
+            Parentheses parentheses;
             for (int pos = 0; pos < length; ++pos) {
                 const QChar c = text.at(pos);
                 if (isOpeningParenthesis(c))

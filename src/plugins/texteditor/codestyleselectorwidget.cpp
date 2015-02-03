@@ -190,7 +190,7 @@ CodeStyleSelectorWidget::~CodeStyleSelectorWidget()
     delete m_ui;
 }
 
-void CodeStyleSelectorWidget::setCodeStyle(TextEditor::ICodeStylePreferences *codeStyle)
+void CodeStyleSelectorWidget::setCodeStyle(ICodeStylePreferences *codeStyle)
 {
     if (m_codeStyle == codeStyle)
         return; // nothing changes
@@ -244,15 +244,15 @@ void CodeStyleSelectorWidget::slotComboBoxActivated(int index)
 
     if (index < 0 || index >= m_ui->delegateComboBox->count())
         return;
-    TextEditor::ICodeStylePreferences *delegate =
-            m_ui->delegateComboBox->itemData(index).value<TextEditor::ICodeStylePreferences *>();
+    ICodeStylePreferences *delegate =
+            m_ui->delegateComboBox->itemData(index).value<ICodeStylePreferences *>();
 
     const bool wasBlocked = blockSignals(true);
     m_codeStyle->setCurrentDelegate(delegate);
     blockSignals(wasBlocked);
 }
 
-void CodeStyleSelectorWidget::slotCurrentDelegateChanged(TextEditor::ICodeStylePreferences *delegate)
+void CodeStyleSelectorWidget::slotCurrentDelegateChanged(ICodeStylePreferences *delegate)
 {
     m_ignoreGuiSignals = true;
     m_ui->delegateComboBox->setCurrentIndex(m_ui->delegateComboBox->findData(QVariant::fromValue(delegate)));

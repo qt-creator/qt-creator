@@ -273,14 +273,14 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     ExtensionSystem::PluginManager::addObject(d->m_fontSettingsPage);
 
     // Add the GUI used to configure the tab, storage and interaction settings
-    TextEditor::BehaviorSettingsPageParameters behaviorSettingsPageParameters;
+    BehaviorSettingsPageParameters behaviorSettingsPageParameters;
     behaviorSettingsPageParameters.id = Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS;
     behaviorSettingsPageParameters.displayName = tr("Behavior");
     behaviorSettingsPageParameters.settingsPrefix = QLatin1String("text");
     d->m_behaviorSettingsPage = new BehaviorSettingsPage(behaviorSettingsPageParameters, this);
     ExtensionSystem::PluginManager::addObject(d->m_behaviorSettingsPage);
 
-    TextEditor::DisplaySettingsPageParameters displaySettingsPageParameters;
+    DisplaySettingsPageParameters displaySettingsPageParameters;
     displaySettingsPageParameters.id = Constants::TEXT_EDITOR_DISPLAY_SETTINGS;
     displaySettingsPageParameters.displayName = tr("Display");
     displaySettingsPageParameters.settingsPrefix = QLatin1String("text");
@@ -377,7 +377,7 @@ const ExtraEncodingSettings &TextEditorSettings::extraEncodingSettings()
     return d->m_behaviorSettingsPage->extraEncodingSettings();
 }
 
-void TextEditorSettings::setCompletionSettings(const TextEditor::CompletionSettings &settings)
+void TextEditorSettings::setCompletionSettings(const CompletionSettings &settings)
 {
     if (d->m_completionSettings == settings)
         return;

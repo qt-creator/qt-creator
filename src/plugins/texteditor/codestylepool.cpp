@@ -158,7 +158,7 @@ ICodeStylePreferences *CodeStylePool::createCodeStyle(const QByteArray &id, cons
     if (!d->m_factory)
         return 0;
 
-    TextEditor::ICodeStylePreferences *codeStyle = d->m_factory->createCodeStyle();
+    ICodeStylePreferences *codeStyle = d->m_factory->createCodeStyle();
     codeStyle->setId(id);
     codeStyle->setTabSettings(tabSettings);
     codeStyle->setValue(codeStyleData);
@@ -230,7 +230,7 @@ void CodeStylePool::loadCustomCodeStyles()
 
 ICodeStylePreferences *CodeStylePool::importCodeStyle(const Utils::FileName &fileName)
 {
-    TextEditor::ICodeStylePreferences *codeStyle = loadCodeStyle(fileName);
+    ICodeStylePreferences *codeStyle = loadCodeStyle(fileName);
     if (codeStyle)
         saveCodeStyle(codeStyle);
     return codeStyle;
@@ -238,7 +238,7 @@ ICodeStylePreferences *CodeStylePool::importCodeStyle(const Utils::FileName &fil
 
 ICodeStylePreferences *CodeStylePool::loadCodeStyle(const Utils::FileName &fileName)
 {
-    TextEditor::ICodeStylePreferences *codeStyle = 0;
+    ICodeStylePreferences *codeStyle = 0;
     Utils::PersistentSettingsReader reader;
     reader.load(fileName);
     QVariantMap m = reader.restoreValues();

@@ -40,7 +40,7 @@
 using namespace TextEditor;
 using namespace TextEditor::SemanticHighlighter;
 
-void TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
+void SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
         SyntaxHighlighter *highlighter,
         const QFuture<HighlightingResult> &future,
         int from, int to,
@@ -110,7 +110,7 @@ void TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
     }
 }
 
-void TextEditor::SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
+void SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
         SyntaxHighlighter *highlighter,
         const QFuture<HighlightingResult> &future)
 {

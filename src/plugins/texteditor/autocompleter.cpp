@@ -90,10 +90,10 @@ void AutoCompleter::countBrackets(QTextCursor cursor,
     cursor.setPosition(from);
     QTextBlock block = cursor.block();
     while (block.isValid() && block.position() < end) {
-        TextEditor::Parentheses parenList = TextEditor::TextDocumentLayout::parentheses(block);
-        if (!parenList.isEmpty() && !TextEditor::TextDocumentLayout::ifdefedOut(block)) {
+        Parentheses parenList = TextDocumentLayout::parentheses(block);
+        if (!parenList.isEmpty() && !TextDocumentLayout::ifdefedOut(block)) {
             for (int i = 0; i < parenList.count(); ++i) {
-                TextEditor::Parenthesis paren = parenList.at(i);
+                Parenthesis paren = parenList.at(i);
                 int position = block.position() + paren.pos;
                 if (position < from || position >= end)
                     continue;
@@ -151,10 +151,10 @@ QString AutoCompleter::autoComplete(QTextCursor &cursor, const QString &textToIn
     const QString brackets = QLatin1String("[]");
     if (parentheses.contains(character) || brackets.contains(character)) {
         QTextCursor tmp= cursor;
-        bool foundBlockStart = TextEditor::TextBlockUserData::findPreviousBlockOpenParenthesis(&tmp);
+        bool foundBlockStart = TextBlockUserData::findPreviousBlockOpenParenthesis(&tmp);
         int blockStart = foundBlockStart ? tmp.position() : 0;
         tmp = cursor;
-        bool foundBlockEnd = TextEditor::TextBlockUserData::findNextBlockClosingParenthesis(&tmp);
+        bool foundBlockEnd = TextBlockUserData::findNextBlockClosingParenthesis(&tmp);
         int blockEnd = foundBlockEnd ? tmp.position() : (cursor.document()->characterCount() - 1);
         const QChar openChar = parentheses.contains(character) ? QLatin1Char('(') : QLatin1Char('[');
         const QChar closeChar = parentheses.contains(character) ? QLatin1Char(')') : QLatin1Char(']');
@@ -218,10 +218,10 @@ bool AutoCompleter::autoBackspace(QTextCursor &cursor)
     const QChar character = lookBehind;
     if (character == QLatin1Char('(') || character == QLatin1Char('[')) {
         QTextCursor tmp = cursor;
-        TextEditor::TextBlockUserData::findPreviousBlockOpenParenthesis(&tmp);
+        TextBlockUserData::findPreviousBlockOpenParenthesis(&tmp);
         int blockStart = tmp.isNull() ? 0 : tmp.position();
         tmp = cursor;
-        TextEditor::TextBlockUserData::findNextBlockClosingParenthesis(&tmp);
+        TextBlockUserData::findNextBlockClosingParenthesis(&tmp);
         int blockEnd = tmp.isNull() ? (cursor.document()->characterCount()-1) : tmp.position();
         QChar openChar = character;
         QChar closeChar = (character == QLatin1Char('(')) ? QLatin1Char(')') : QLatin1Char(']');

@@ -267,11 +267,11 @@ const ExtraEncodingSettings &BehaviorSettingsPage::extraEncodingSettings() const
 void BehaviorSettingsPage::openCodingStylePreferences(TabSettingsWidget::CodingStyleLink link)
 {
     switch (link) {
-    case TextEditor::TabSettingsWidget::CppLink:
+    case TabSettingsWidget::CppLink:
         Core::ICore::showOptionsDialog(CppTools::Constants::CPP_SETTINGS_CATEGORY,
                                        CppTools::Constants::CPP_CODE_STYLE_SETTINGS_ID);
         break;
-    case TextEditor::TabSettingsWidget::QtQuickLink:
+    case TabSettingsWidget::QtQuickLink:
         Core::ICore::showOptionsDialog(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML,
                                        QmlJSTools::Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
         break;

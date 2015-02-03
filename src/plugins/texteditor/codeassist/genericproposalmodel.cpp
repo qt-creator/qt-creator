@@ -214,7 +214,7 @@ void GenericProposalModel::filter(const QString &prefix)
      *
      * It also implements the fully and first-letter-only case sensitivity.
      */
-    const TextEditor::CaseSensitivity caseSensitivity =
+    const CaseSensitivity caseSensitivity =
         TextEditorSettings::completionSettings().m_caseSensitivity;
 
     QString keyRegExp;
@@ -223,8 +223,8 @@ void GenericProposalModel::filter(const QString &prefix)
     const QLatin1String uppercaseWordContinuation("[a-z0-9_]*");
     const QLatin1String lowercaseWordContinuation("(?:[a-zA-Z0-9]*_)?");
     foreach (const QChar &c, prefix) {
-        if (caseSensitivity == TextEditor::CaseInsensitive ||
-            (caseSensitivity == TextEditor::FirstLetterCaseSensitive && !first)) {
+        if (caseSensitivity == CaseInsensitive ||
+            (caseSensitivity == FirstLetterCaseSensitive && !first)) {
 
             keyRegExp += QLatin1String("(?:");
             if (!first)

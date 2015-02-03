@@ -129,7 +129,7 @@ bool Context::isDynamic() const
 
 void Context::updateDynamicRules(const QStringList &captures) const
 {
-    TextEditor::Internal::updateDynamicRules(m_rules, captures);
+    Internal::updateDynamicRules(m_rules, captures);
 }
 
 void Context::addRule(const QSharedPointer<Rule> &rule)

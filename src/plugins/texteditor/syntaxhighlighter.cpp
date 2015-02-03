@@ -41,9 +41,9 @@
 
 #include <math.h>
 
-using namespace TextEditor;
+namespace TextEditor {
 
-class TextEditor::SyntaxHighlighterPrivate
+class SyntaxHighlighterPrivate
 {
     SyntaxHighlighter *q_ptr;
     Q_DECLARE_PUBLIC(SyntaxHighlighter)
@@ -74,7 +74,7 @@ public:
     }
 
     void applyFormatChanges(int from, int charsRemoved, int charsAdded);
-    void updateFormatsForCategories(const TextEditor::FontSettings &fontSettings);
+    void updateFormatsForCategories(const FontSettings &fontSettings);
 
     QVector<QTextCharFormat> formatChanges;
     QTextBlock currentBlock;
@@ -82,7 +82,7 @@ public:
     bool inReformatBlocks;
     TextDocumentLayout::FoldValidator foldValidator;
     QVector<QTextCharFormat> formats;
-    QVector<TextEditor::TextStyle> formatCategories;
+    QVector<TextStyle> formatCategories;
 };
 
 static bool adjustRange(QTextLayout::FormatRange &range, int from, int charsRemoved, int charsAdded) {
@@ -735,13 +735,13 @@ QList<QColor> SyntaxHighlighter::generateColors(int n, const QColor &background)
     return result;
 }
 
-void SyntaxHighlighter::setFontSettings(const TextEditor::FontSettings &fontSettings)
+void SyntaxHighlighter::setFontSettings(const FontSettings &fontSettings)
 {
     Q_D(SyntaxHighlighter);
     d->updateFormatsForCategories(fontSettings);
 }
 
-void SyntaxHighlighter::setTextFormatCategories(const QVector<TextEditor::TextStyle> &categories)
+void SyntaxHighlighter::setTextFormatCategories(const QVector<TextStyle> &categories)
 {
     Q_D(SyntaxHighlighter);
     d->formatCategories = categories;
@@ -756,10 +756,11 @@ QTextCharFormat SyntaxHighlighter::formatForCategory(int category) const
     return d->formats.at(category);
 }
 
-void SyntaxHighlighterPrivate::updateFormatsForCategories(const TextEditor::FontSettings &fontSettings)
+void SyntaxHighlighterPrivate::updateFormatsForCategories(const FontSettings &fontSettings)
 {
     formats = fontSettings.toTextCharFormats(formatCategories);
 }
 
+} // namespace TextEditor
 
 #include "moc_syntaxhighlighter.cpp"

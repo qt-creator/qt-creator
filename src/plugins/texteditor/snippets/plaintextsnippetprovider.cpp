@@ -54,5 +54,5 @@ QString PlainTextSnippetProvider::displayName() const
     return QCoreApplication::translate("TextEditor::Internal::PlainTextSnippetProvider", "Text");
 }
 
-void PlainTextSnippetProvider::decorateEditor(TextEditor::SnippetEditorWidget *) const
+void PlainTextSnippetProvider::decorateEditor(SnippetEditorWidget *) const
 {}

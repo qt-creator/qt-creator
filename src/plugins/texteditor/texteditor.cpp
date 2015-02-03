@@ -286,8 +286,8 @@ public:
 
     void processTooltipRequest(const QTextCursor &c);
 
-    void transformSelection(Internal::TransformationMethod method);
-    void transformBlockSelection(Internal::TransformationMethod method);
+    void transformSelection(TransformationMethod method);
+    void transformBlockSelection(TransformationMethod method);
 
     bool inFindScope(const QTextCursor &cursor);
     bool inFindScope(int selectionStart, int selectionEnd);
@@ -416,7 +416,7 @@ public:
 
     QTextCursor m_selectBlockAnchor;
 
-    Internal::TextBlockSelection m_blockSelection;
+    TextBlockSelection m_blockSelection;
 
     void moveCursorVisible(bool ensureVisible = true);
 
@@ -435,7 +435,7 @@ public:
     QPoint m_markDragStart;
     bool m_markDragging;
 
-    QScopedPointer<Internal::ClipboardAssistProvider> m_clipboardAssistProvider;
+    QScopedPointer<ClipboardAssistProvider> m_clipboardAssistProvider;
 
     bool m_isMissingSyntaxDefinition;
 
@@ -490,7 +490,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_cursorBlockNumber(-1),
     m_blockCount(0),
     m_markDragging(false),
-    m_clipboardAssistProvider(new Internal::ClipboardAssistProvider),
+    m_clipboardAssistProvider(new ClipboardAssistProvider),
     m_isMissingSyntaxDefinition(false),
     m_autoCompleter(new AutoCompleter)
 {
@@ -5871,14 +5871,14 @@ QList<QTextEdit::ExtraSelection> TextEditorWidget::extraSelections(ExtraSelectio
     return d->m_extraSelections[kind];
 }
 
-void TextEditorWidget::setExtraSelections(Core::Id kind, const QList<QTextEdit::ExtraSelection> &selections)
+void TextEditorWidget::setExtraSelections(Id kind, const QList<QTextEdit::ExtraSelection> &selections)
 {
     // Private Core:Id identifiers from the 0-1000 range cannot be used here, they conflict with ExtraSelectionKind
     QTC_ASSERT(kind.uniqueIdentifier() >= NExtraSelectionKinds, return);
     d->setExtraSelections(kind.uniqueIdentifier(), selections);
 }
 
-QList<QTextEdit::ExtraSelection> TextEditorWidget::extraSelections(Core::Id kind) const
+QList<QTextEdit::ExtraSelection> TextEditorWidget::extraSelections(Id kind) const
 {
     // Private Core:Id identifiers from the 0-1000 range cannot be used here, they conflict with ExtraSelectionKind
     QTC_ASSERT(kind.uniqueIdentifier() >= NExtraSelectionKinds, return QList<QTextEdit::ExtraSelection>());
@@ -7262,7 +7262,7 @@ void TextEditorLinkLabel::mouseMoveEvent(QMouseEvent *event)
     if ((event->pos() - m_dragStartPosition).manhattanLength() < QApplication::startDragDistance())
         return;
 
-    auto data = new Utils::FileDropMimeData;
+    auto data = new FileDropMimeData;
     data->addFile(m_link.targetFileName, m_link.targetLine, m_link.targetColumn);
     auto drag = new QDrag(this);
     drag->setMimeData(data);
@@ -7275,9 +7275,7 @@ void TextEditorLinkLabel::mouseReleaseEvent(QMouseEvent *event)
     if (!m_link.hasValidTarget())
         return;
 
-    Core::EditorManager::openEditorAt(m_link.targetFileName,
-                                      m_link.targetLine,
-                                      m_link.targetColumn);
+    EditorManager::openEditorAt(m_link.targetFileName, m_link.targetLine, m_link.targetColumn);
 }
 
 //
@@ -7317,7 +7315,7 @@ public:
     TextEditorFactory::AutoCompleterCreator m_autoCompleterCreator;
     TextEditorFactory::IndenterCreator m_indenterCreator;
     TextEditorFactory::SyntaxHighLighterCreator m_syntaxHighlighterCreator;
-    Utils::CommentDefinition::Style m_commentStyle;
+    CommentDefinition::Style m_commentStyle;
     QList<BaseHoverHandler *> m_hoverHandlers; // owned
     CompletionAssistProvider * m_completionAssistProvider; // owned
     bool m_duplicatedSupported;
@@ -7477,14 +7475,14 @@ BaseTextEditor *TextEditorFactoryPrivate::createEditorHelper(const TextDocumentP
     widget->d->m_commentDefinition.setStyle(m_commentStyle);
 
     QObject::connect(widget, &TextEditorWidget::activateEditor,
-                     [editor]() { Core::EditorManager::activateEditor(editor); });
+                     [editor]() { EditorManager::activateEditor(editor); });
 
     widget->finalizeInitialization();
     editor->finalizeInitialization();
 
     QObject::connect(widget->d->m_cursorPositionLabel, &LineColumnLabel::clicked, [editor] {
         EditorManager::activateEditor(editor, EditorManager::IgnoreNavigationHistory);
-        if (Core::Command *cmd = ActionManager::command(Core::Constants::GOTO)) {
+        if (Command *cmd = ActionManager::command(Core::Constants::GOTO)) {
             if (QAction *act = cmd->action())
                 act->trigger();
         }
