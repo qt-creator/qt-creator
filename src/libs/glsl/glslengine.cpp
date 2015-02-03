@@ -231,7 +231,7 @@ bool DiagnosticMessage::isError() const
     return _kind == Error;
 }
 
-bool GLSL::DiagnosticMessage::isWarning() const
+bool DiagnosticMessage::isWarning() const
 {
     return _kind == Warning;
 }

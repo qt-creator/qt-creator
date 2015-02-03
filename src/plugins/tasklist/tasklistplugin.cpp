@@ -166,7 +166,7 @@ static bool parseTaskFile(QString *errorString, const QString &base, const QStri
 // TaskListPlugin
 // --------------------------------------------------------------------------
 
-Core::IDocument *TaskListPlugin::openTasks(const QString &base, const QString &fileName)
+IDocument *TaskListPlugin::openTasks(const QString &base, const QString &fileName)
 {
     foreach (TaskFile *doc, m_openFiles) {
         if (doc->filePath().toString() == fileName)
@@ -178,7 +178,7 @@ Core::IDocument *TaskListPlugin::openTasks(const QString &base, const QString &f
 
     QString errorString;
     if (!file->open(&errorString, fileName)) {
-        QMessageBox::critical(Core::ICore::mainWindow(), tr("File Error"), errorString);
+        QMessageBox::critical(ICore::mainWindow(), tr("File Error"), errorString);
         delete file;
         return 0;
     }
@@ -186,7 +186,7 @@ Core::IDocument *TaskListPlugin::openTasks(const QString &base, const QString &f
     m_openFiles.append(file);
 
     // Register with filemanager:
-    Core::DocumentManager::addDocument(file);
+    DocumentManager::addDocument(file);
 
     return file;
 }
@@ -203,13 +203,13 @@ bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMess
     //: Category under which tasklist tasks are listed in Issues view
     TaskHub::addCategory(Constants::TASKLISTTASK_ID, tr("My Tasks"));
 
-    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":tasklist/TaskList.mimetypes.xml"), errorMessage))
+    if (!MimeDatabase::addMimeTypes(QLatin1String(":tasklist/TaskList.mimetypes.xml"), errorMessage))
         return false;
 
     m_fileFactory = new IDocumentFactory;
     m_fileFactory->addMimeType(QLatin1String("text/x-tasklist"));
     m_fileFactory->setOpener([this](const QString &fileName) -> IDocument * {
-        ProjectExplorer::Project *project = ProjectExplorer::ProjectTree::currentProject();
+        Project *project = ProjectTree::currentProject();
         return this->openTasks(project ? project->projectDirectory().toString() : QString(), fileName);
     });
 

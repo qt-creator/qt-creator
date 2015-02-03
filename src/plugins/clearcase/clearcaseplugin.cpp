@@ -131,15 +131,15 @@ static const char CMD_ID_STATUS[]             = "ClearCase.Status";
 
 static const VcsBaseEditorParameters editorParameters[] = {
 {
-    VcsBase::LogOutput,
+    LogOutput,
     "ClearCase File Log Editor",   // id
     QT_TRANSLATE_NOOP("VCS", "ClearCase File Log Editor"),   // display_name
     "text/vnd.qtcreator.clearcase.log"},
-{    VcsBase::AnnotateOutput,
+{    AnnotateOutput,
     "ClearCase Annotation Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "ClearCase Annotation Editor"),   // display_name
     "text/vnd.qtcreator.clearcase.annotation"},
-{   VcsBase::DiffOutput,
+{   DiffOutput,
     "ClearCase Diff Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "ClearCase Diff Editor"),   // display_name
     "text/x-patch"}

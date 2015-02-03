@@ -109,7 +109,7 @@ void TodoItemsProvider::createScanners()
 void TodoItemsProvider::setItemsListWithinStartupProject()
 {
     QHashIterator<QString, QList<TodoItem> > it(m_itemsHash);
-    QSet<QString> fileNames = QSet<QString>::fromList(m_startupProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles));
+    QSet<QString> fileNames = QSet<QString>::fromList(m_startupProject->files(Project::ExcludeGeneratedFiles));
     while (it.hasNext()) {
         it.next();
         if (fileNames.contains(it.key()))
@@ -125,7 +125,7 @@ void TodoItemsProvider::itemsFetched(const QString &fileName, const QList<TodoIt
     m_shouldUpdateList = true;
 }
 
-void TodoItemsProvider::startupProjectChanged(ProjectExplorer::Project *project)
+void TodoItemsProvider::startupProjectChanged(Project *project)
 {
     m_startupProject = project;
     updateList();

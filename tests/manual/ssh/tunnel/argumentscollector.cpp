@@ -43,7 +43,7 @@ ArgumentsCollector::ArgumentsCollector(const QStringList &args)
 {
 }
 
-QSsh::SshConnectionParameters ArgumentsCollector::collect(bool &success) const
+SshConnectionParameters ArgumentsCollector::collect(bool &success) const
 {
     SshConnectionParameters parameters;
     parameters.options &= ~SshIgnoreDefaultProxy;

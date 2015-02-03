@@ -93,8 +93,7 @@ void RemoteProcessTest::handleProcessStarted()
     } else {
         m_started = true;
         if (m_state == TestingCrash) {
-            QSsh::SshRemoteProcessRunner * const killer
-                = new QSsh::SshRemoteProcessRunner(this);
+            SshRemoteProcessRunner * const killer = new SshRemoteProcessRunner(this);
             killer->run("pkill -9 sleep", m_sshParams);
         } else if (m_state == TestingIoDevice) {
             connect(m_catProcess.data(), SIGNAL(readyRead()), SLOT(handleReadyRead()));
@@ -214,7 +213,7 @@ void RemoteProcessTest::handleProcessClosed(int exitStatus)
             }
             std::cout << "Ok.\nTesting I/O device functionality... " << std::flush;
             m_state = TestingIoDevice;
-            m_sshConnection = new QSsh::SshConnection(m_sshParams);
+            m_sshConnection = new SshConnection(m_sshParams);
             connect(m_sshConnection, SIGNAL(connected()), SLOT(handleConnected()));
             connect(m_sshConnection, SIGNAL(error(QSsh::SshError)),
                 SLOT(handleConnectionError()));
@@ -308,7 +307,7 @@ void RemoteProcessTest::handleReadyRead()
                 << qPrintable(testString()) << "', got '" << qPrintable(data) << "'." << std::endl;
             qApp->exit(1);
         }
-        QSsh::SshRemoteProcessRunner * const killer = new QSsh::SshRemoteProcessRunner(this);
+        SshRemoteProcessRunner * const killer = new SshRemoteProcessRunner(this);
         killer->run("pkill -9 cat", m_sshParams);
         break;
     }

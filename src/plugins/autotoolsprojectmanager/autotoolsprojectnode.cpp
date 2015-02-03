@@ -51,10 +51,10 @@ bool AutotoolsProjectNode::showInSimpleTree() const
     return true;
 }
 
-QList<ProjectExplorer::ProjectAction> AutotoolsProjectNode::supportedActions(Node *node) const
+QList<ProjectAction> AutotoolsProjectNode::supportedActions(Node *node) const
 {
     Q_UNUSED(node);
-    return QList<ProjectExplorer::ProjectAction>();
+    return QList<ProjectAction>();
 }
 
 bool AutotoolsProjectNode::canAddSubProject(const QString &proFilePath) const

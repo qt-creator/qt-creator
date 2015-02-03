@@ -41,7 +41,7 @@
 
 using namespace QSsh;
 
-Shell::Shell(const QSsh::SshConnectionParameters &parameters, QObject *parent)
+Shell::Shell(const SshConnectionParameters &parameters, QObject *parent)
     : QObject(parent),
       m_connection(new SshConnection(parameters)),
       m_stdin(new QFile(this))

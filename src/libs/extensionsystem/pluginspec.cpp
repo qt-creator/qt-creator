@@ -136,7 +136,7 @@ using namespace ExtensionSystem::Internal;
 /*!
     \internal
 */
-uint ExtensionSystem::qHash(const ExtensionSystem::PluginDependency &value)
+uint ExtensionSystem::qHash(const PluginDependency &value)
 {
     return qHash(value.name);
 }

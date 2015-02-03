@@ -82,7 +82,7 @@ enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 150
 };
 
-class CreateRanges: protected GLSL::Visitor
+class CreateRanges: protected Visitor
 {
     QTextDocument *textDocument;
     Document::Ptr glslDocument;
@@ -91,12 +91,12 @@ public:
     CreateRanges(QTextDocument *textDocument, Document::Ptr glslDocument)
         : textDocument(textDocument), glslDocument(glslDocument) {}
 
-    void operator()(GLSL::AST *ast) { accept(ast); }
+    void operator()(AST *ast) { accept(ast); }
 
 protected:
     using GLSL::Visitor::visit;
 
-    virtual void endVisit(GLSL::CompoundStatementAST *ast)
+    virtual void endVisit(CompoundStatementAST *ast)
     {
         if (ast->symbol) {
             QTextCursor tc(textDocument);
@@ -214,7 +214,7 @@ void GlslEditorWidget::updateDocumentNow()
 
     Document::Ptr doc(new Document());
     Engine engine;
-    doc->_engine = new GLSL::Engine();
+    doc->_engine = new Engine();
     Parser parser(doc->_engine, preprocessedCode.constData(), preprocessedCode.size(), variant);
     TranslationUnitAST *ast = parser.parse();
     if (ast != 0 || extraSelections(CodeWarningsSelection).isEmpty()) {

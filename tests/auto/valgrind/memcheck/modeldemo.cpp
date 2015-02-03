@@ -56,11 +56,11 @@ static QString dataFile(const QLatin1String &file)
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    qRegisterMetaType<Valgrind::XmlProtocol::Error>();
+    qRegisterMetaType<Error>();
 
     ThreadedParser parser;
 
-    Valgrind::Memcheck::MemcheckRunner runner;
+    Memcheck::MemcheckRunner runner;
     runner.setValgrindExecutable(fakeValgrindExecutable());
     runner.setValgrindArguments(QStringList() << QLatin1String("-i") << dataFile(QLatin1String("memcheck-output-sample1.xml")) );
     runner.setParser(&parser);

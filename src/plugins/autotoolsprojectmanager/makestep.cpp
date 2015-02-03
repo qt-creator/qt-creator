@@ -304,7 +304,7 @@ void MakeStepConfigWidget::updateDetails()
     BuildConfiguration *bc = m_makeStep->buildConfiguration();
     if (!bc)
         bc = m_makeStep->target()->activeBuildConfiguration();
-    ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(m_makeStep->target()->kit());
+    ToolChain *tc = ToolChainKitInformation::toolChain(m_makeStep->target()->kit());
 
     if (tc) {
         QString arguments = Utils::QtcProcess::joinArgs(m_makeStep->m_buildTargets);

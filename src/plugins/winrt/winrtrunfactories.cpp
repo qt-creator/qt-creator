@@ -136,8 +136,8 @@ WinRtRunControlFactory::WinRtRunControlFactory()
 {
 }
 
-bool WinRtRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfiguration,
-        ProjectExplorer::RunMode mode) const
+bool WinRtRunControlFactory::canRun(RunConfiguration *runConfiguration,
+        RunMode mode) const
 {
     if (!runConfiguration)
         return false;
@@ -158,7 +158,7 @@ bool WinRtRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfig
     }
 }
 
-ProjectExplorer::RunControl *WinRtRunControlFactory::create(
+RunControl *WinRtRunControlFactory::create(
         RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
 {
     WinRtRunConfiguration *rc = qobject_cast<WinRtRunConfiguration *>(runConfiguration);

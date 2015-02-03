@@ -161,7 +161,7 @@ public slots:
     void startTool();
     void selectToolboxAction(int);
     void selectMenuAction();
-    void modeChanged(Core::IMode *mode);
+    void modeChanged(IMode *mode);
     void resetLayout();
     void updateRunActions();
 

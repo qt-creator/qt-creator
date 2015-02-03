@@ -213,7 +213,7 @@ bool GenericProjectNode::showInSimpleTree() const
     return true;
 }
 
-QList<ProjectExplorer::ProjectAction> GenericProjectNode::supportedActions(Node *node) const
+QList<ProjectAction> GenericProjectNode::supportedActions(Node *node) const
 {
     Q_UNUSED(node);
     return QList<ProjectAction>()

@@ -48,10 +48,10 @@ CallgrindRunControl::CallgrindRunControl(const AnalyzerStartParameters &sp,
     : ValgrindRunControl(sp, runConfiguration)
     , m_markAsPaused(false)
 {
-    connect(&m_runner, &Valgrind::Callgrind::CallgrindRunner::finished,
+    connect(&m_runner, &Callgrind::CallgrindRunner::finished,
             this, &CallgrindRunControl::slotFinished);
     connect(m_runner.parser(), SIGNAL(parserDataReady()), this, SLOT(slotFinished()));
-    connect(&m_runner, &Valgrind::Callgrind::CallgrindRunner::statusMessage,
+    connect(&m_runner, &Callgrind::CallgrindRunner::statusMessage,
             this, &CallgrindRunControl::showStatusMessage);
 }
 
@@ -93,7 +93,7 @@ QString CallgrindRunControl::progressTitle() const
     return tr("Profiling");
 }
 
-Valgrind::ValgrindRunner * CallgrindRunControl::runner()
+ValgrindRunner * CallgrindRunControl::runner()
 {
     return &m_runner;
 }
@@ -106,7 +106,7 @@ bool CallgrindRunControl::startEngine()
 
 void CallgrindRunControl::dump()
 {
-    m_runner.controller()->run(Valgrind::Callgrind::CallgrindController::Dump);
+    m_runner.controller()->run(Callgrind::CallgrindController::Dump);
 }
 
 void CallgrindRunControl::setPaused(bool paused)
@@ -135,20 +135,20 @@ void CallgrindRunControl::setToggleCollectFunction(const QString &toggleCollectF
 
 void CallgrindRunControl::reset()
 {
-    m_runner.controller()->run(Valgrind::Callgrind::CallgrindController::ResetEventCounters);
+    m_runner.controller()->run(Callgrind::CallgrindController::ResetEventCounters);
 }
 
 void CallgrindRunControl::pause()
 {
-    m_runner.controller()->run(Valgrind::Callgrind::CallgrindController::Pause);
+    m_runner.controller()->run(Callgrind::CallgrindController::Pause);
 }
 
 void CallgrindRunControl::unpause()
 {
-    m_runner.controller()->run(Valgrind::Callgrind::CallgrindController::UnPause);
+    m_runner.controller()->run(Callgrind::CallgrindController::UnPause);
 }
 
-Valgrind::Callgrind::ParseData *CallgrindRunControl::takeParserData()
+Callgrind::ParseData *CallgrindRunControl::takeParserData()
 {
     return m_runner.parser()->takeData();
 }

@@ -196,7 +196,7 @@ void SftpTest::handleChannelClosed()
     m_connection->disconnectFromHost();
 }
 
-void SftpTest::handleJobFinished(QSsh::SftpJobId job, const QString &error)
+void SftpTest::handleJobFinished(SftpJobId job, const QString &error)
 {
     switch (m_state) {
     case UploadingSmall:

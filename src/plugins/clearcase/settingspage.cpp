@@ -82,7 +82,7 @@ void SettingsPageWidget::setSettings(const ClearCaseSettings &s)
     m_ui.commandPathChooser->setPath(s.ccCommand);
     m_ui.timeOutSpinBox->setValue(s.timeOutS);
     m_ui.autoCheckOutCheckBox->setChecked(s.autoCheckOut);
-    bool extDiffAvailable = !Utils::Environment::systemEnvironment().searchInPath(QLatin1String("diff")).isEmpty();
+    bool extDiffAvailable = !Environment::systemEnvironment().searchInPath(QLatin1String("diff")).isEmpty();
     if (extDiffAvailable) {
         m_ui.diffWarningLabel->setVisible(false);
     } else {

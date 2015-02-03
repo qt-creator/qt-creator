@@ -99,7 +99,7 @@ QWidget *GeneralSettingsPage::widget()
         m_ui->helpStartComboBox->setCurrentIndex(m_startOption);
 
         m_contextOption = HelpManager::customValue(QLatin1String("ContextHelpOption"),
-                                                   Core::HelpManager::SideBySideIfPossible).toInt();
+                                                   HelpManager::SideBySideIfPossible).toInt();
         m_ui->contextHelpComboBox->setCurrentIndex(m_contextOption);
 
         connect(m_ui->currentPageButton, &QPushButton::clicked,
@@ -182,7 +182,7 @@ void GeneralSettingsPage::apply()
         m_contextOption = helpOption;
         HelpManager::setCustomValue(QLatin1String("ContextHelpOption"), helpOption);
 
-        QSettings *settings = Core::ICore::settings();
+        QSettings *settings = ICore::settings();
         settings->beginGroup(QLatin1String(Help::Constants::ID_MODE_HELP));
         settings->setValue(QLatin1String("ContextHelpOption"), helpOption);
         settings->endGroup();
@@ -217,7 +217,7 @@ void GeneralSettingsPage::importBookmarks()
 {
     m_ui->errorLabel->setVisible(false);
 
-    QString fileName = QFileDialog::getOpenFileName(Core::ICore::dialogParent(),
+    QString fileName = QFileDialog::getOpenFileName(ICore::dialogParent(),
         tr("Import Bookmarks"), QDir::currentPath(), tr("Files (*.xbel)"));
 
     if (fileName.isEmpty())
@@ -239,7 +239,7 @@ void GeneralSettingsPage::exportBookmarks()
 {
     m_ui->errorLabel->setVisible(false);
 
-    QString fileName = QFileDialog::getSaveFileName(Core::ICore::dialogParent(),
+    QString fileName = QFileDialog::getSaveFileName(ICore::dialogParent(),
         tr("Save File"), QLatin1String("untitled.xbel"), tr("Files (*.xbel)"));
 
     QLatin1String suffix(".xbel");

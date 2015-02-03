@@ -378,8 +378,8 @@ bool Semantic::visit(FunctionCallExpressionAST *ast)
                 _engine->error(ast->lineno, QString::fromLatin1("too many arguments"));
             _expr.type = funTy->returnType();
         } else if (const OverloadSet *overloads = id.type->asOverloadSetType()) {
-            QVector<GLSL::Function *> candidates;
-            foreach (GLSL::Function *f, overloads->functions()) {
+            QVector<Function *> candidates;
+            foreach (Function *f, overloads->functions()) {
                 if (f->argumentCount() == actuals.size()) {
                     int argc = 0;
                     for (; argc < actuals.size(); ++argc) {

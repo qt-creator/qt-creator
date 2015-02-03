@@ -55,7 +55,7 @@ static QString pathFromId(Core::Id id)
 }
 
 BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory(QObject *parent) :
-    ProjectExplorer::IRunConfigurationFactory(parent)
+    IRunConfigurationFactory(parent)
 {
     setObjectName(QLatin1String("BareMetalRunConfigurationFactory"));
 }

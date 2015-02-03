@@ -55,7 +55,7 @@ namespace Valgrind {
 namespace Internal {
 
 ValgrindRunControl::ValgrindRunControl(const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration)
+        RunConfiguration *runConfiguration)
     : AnalyzerRunControl(sp, runConfiguration),
       m_settings(0),
       m_isStopping(false)

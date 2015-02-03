@@ -209,17 +209,17 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 }
 
 BookmarkView::BookmarkView(BookmarkManager *manager)  :
-    m_bookmarkContext(new Core::IContext(this)),
+    m_bookmarkContext(new IContext(this)),
     m_manager(manager)
 {
     setWindowTitle(tr("Bookmarks"));
 
     m_bookmarkContext->setWidget(this);
-    m_bookmarkContext->setContext(Core::Context(Constants::BOOKMARKS_CONTEXT));
+    m_bookmarkContext->setContext(Context(Constants::BOOKMARKS_CONTEXT));
 
     ICore::addContextObject(m_bookmarkContext);
 
-    Utils::ListView::setModel(manager);
+    ListView::setModel(manager);
 
     setItemDelegate(new BookmarkDelegate(this));
     setFrameStyle(QFrame::NoFrame);
@@ -289,12 +289,12 @@ void BookmarkView::keyPressEvent(QKeyEvent *event)
         event->accept();
         return;
     }
-    Utils::ListView::keyPressEvent(event);
+    ListView::keyPressEvent(event);
 }
 
 void BookmarkView::removeAll()
 {
-    if (Utils::CheckableMessageBox::doNotAskAgainQuestion(this,
+    if (CheckableMessageBox::doNotAskAgainQuestion(this,
             tr("Remove All Bookmarks"),
             tr("Are you sure you want to remove all bookmarks from all files in the current session?"),
             ICore::settings(),
@@ -323,7 +323,7 @@ BookmarkManager::BookmarkManager() :
     m_bookmarkIcon(QLatin1String(":/bookmarks/images/bookmark.png")),
     m_selectionModel(new QItemSelectionModel(this, this))
 {
-    connect(Core::ICore::instance(), &ICore::contextChanged,
+    connect(ICore::instance(), &ICore::contextChanged,
             this, &BookmarkManager::updateActionStatus);
 
     connect(SessionManager::instance(), &SessionManager::sessionLoaded,
@@ -421,7 +421,7 @@ QStringList BookmarkManager::mimeTypes() const
 
 QMimeData *BookmarkManager::mimeData(const QModelIndexList &indexes) const
 {
-    auto data = new Utils::FileDropMimeData;
+    auto data = new FileDropMimeData;
     foreach (const QModelIndex &index, indexes) {
         if (!index.isValid() || index.column() != 0 || index.row() < 0 || index.row() >= m_bookmarksList.count())
             continue;
@@ -861,7 +861,7 @@ BookmarkViewFactory::BookmarkViewFactory(BookmarkManager *bm)
     setDisplayName(BookmarkView::tr("Bookmarks"));
     setPriority(300);
     setId("Bookmarks");
-    setActivationSequence(QKeySequence(Core::UseMacShortcuts ? tr("Alt+Meta+M") : tr("Alt+M")));
+    setActivationSequence(QKeySequence(UseMacShortcuts ? tr("Alt+Meta+M") : tr("Alt+M")));
 }
 
 NavigationView BookmarkViewFactory::createWidget()

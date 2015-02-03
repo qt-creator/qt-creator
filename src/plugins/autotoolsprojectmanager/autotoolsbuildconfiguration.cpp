@@ -62,7 +62,7 @@ using namespace ProjectExplorer::Constants;
 //////////////////////////////////////
 // AutotoolsBuildConfiguration class
 //////////////////////////////////////
-AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(ProjectExplorer::Target *parent)
+AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent)
     : BuildConfiguration(parent, Core::Id(AUTOTOOLS_BC_ID))
 { }
 
@@ -71,11 +71,11 @@ NamedWidget *AutotoolsBuildConfiguration::createConfigWidget()
     return new AutotoolsBuildSettingsWidget(this);
 }
 
-AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, Core::Id id)
+AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent, Core::Id id)
     : BuildConfiguration(parent, id)
 { }
 
-AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(ProjectExplorer::Target *parent,
+AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent,
                                                          AutotoolsBuildConfiguration *source)
     : BuildConfiguration(parent, source)
 {
@@ -173,7 +173,7 @@ bool AutotoolsBuildConfigurationFactory::canHandle(const Target *t) const
     return t->project()->id() == Constants::AUTOTOOLS_PROJECT_ID;
 }
 
-BuildInfo *AutotoolsBuildConfigurationFactory::createBuildInfo(const ProjectExplorer::Kit *k,
+BuildInfo *AutotoolsBuildConfigurationFactory::createBuildInfo(const Kit *k,
                                                                const Utils::FileName &buildDir) const
 {
     BuildInfo *info = new BuildInfo(this);
@@ -230,7 +230,7 @@ void AutotoolsBuildConfiguration::setBuildDirectory(const Utils::FileName &direc
     if (directory == buildDirectory())
         return;
     BuildConfiguration::setBuildDirectory(directory);
-    ProjectExplorer::BuildStepList *bsl = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    BuildStepList *bsl = stepList(BUILDSTEPS_BUILD);
     foreach (BuildStep *bs, bsl->steps()) {
         ConfigureStep *cs = qobject_cast<ConfigureStep *>(bs);
         if (cs) {

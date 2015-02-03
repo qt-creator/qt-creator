@@ -168,7 +168,7 @@ QString QbsProjectParser::pluginsBaseDirectory() const
     const QString qbsInstallDir = QLatin1String(QBS_INSTALL_DIR);
     if (!qbsInstallDir.isEmpty())
         return qbsInstallDir + QLatin1String("/lib/");
-    if (Utils::HostOsInfo::isMacHost())
+    if (HostOsInfo::isMacHost())
         return QDir::cleanPath(QCoreApplication::applicationDirPath()
                                + QLatin1String("/../PlugIns"));
     else

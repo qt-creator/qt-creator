@@ -45,7 +45,7 @@ const QByteArray TestData("Urgsblubb?");
 
 using namespace QSsh;
 
-Tunnel::Tunnel(const QSsh::SshConnectionParameters &parameters, QObject *parent)
+Tunnel::Tunnel(const SshConnectionParameters &parameters, QObject *parent)
     : QObject(parent),
       m_connection(new SshConnection(parameters, this)),
       m_tunnelServer(new QTcpServer(this)),

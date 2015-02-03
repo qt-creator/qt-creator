@@ -201,36 +201,36 @@ QStringList QbsProject::files(Project::FilesMode fileMode) const
 
 bool QbsProject::isProjectEditable() const
 {
-    return m_qbsProject.isValid() && !isParsing() && !ProjectExplorer::BuildManager::isBuilding();
+    return m_qbsProject.isValid() && !isParsing() && !BuildManager::isBuilding();
 }
 
 class ChangeExpector
 {
 public:
-    ChangeExpector(const QString &filePath, const QSet<Core::IDocument *> &documents)
+    ChangeExpector(const QString &filePath, const QSet<IDocument *> &documents)
         : m_document(0)
     {
-        foreach (Core::IDocument * const doc, documents) {
+        foreach (IDocument * const doc, documents) {
             if (doc->filePath().toString() == filePath) {
                 m_document = doc;
                 break;
             }
         }
         QTC_ASSERT(m_document, return);
-        Core::DocumentManager::expectFileChange(filePath);
-        m_wasInDocumentManager = Core::DocumentManager::removeDocument(m_document);
+        DocumentManager::expectFileChange(filePath);
+        m_wasInDocumentManager = DocumentManager::removeDocument(m_document);
         QTC_CHECK(m_wasInDocumentManager);
     }
 
     ~ChangeExpector()
     {
         QTC_ASSERT(m_document, return);
-        Core::DocumentManager::addDocument(m_document);
-        Core::DocumentManager::unexpectFileChange(m_document->filePath().toString());
+        DocumentManager::addDocument(m_document);
+        DocumentManager::unexpectFileChange(m_document->filePath().toString());
     }
 
 private:
-    Core::IDocument *m_document;
+    IDocument *m_document;
     bool m_wasInDocumentManager;
 };
 
@@ -240,12 +240,12 @@ bool QbsProject::ensureWriteableQbsFile(const QString &file)
     QFileInfo fi(file);
     if (!fi.isWritable()) {
         // Try via vcs manager
-        Core::IVersionControl *versionControl =
-            Core::VcsManager::findVersionControlForDirectory(fi.absolutePath());
+        IVersionControl *versionControl =
+            VcsManager::findVersionControlForDirectory(fi.absolutePath());
         if (!versionControl || !versionControl->vcsOpen(file)) {
             bool makeWritable = QFile::setPermissions(file, fi.permissions() | QFile::WriteUser);
             if (!makeWritable) {
-                QMessageBox::warning(Core::ICore::mainWindow(),
+                QMessageBox::warning(ICore::mainWindow(),
                                      tr("Failed!"),
                                      tr("Could not write project file %1.").arg(file));
                 return false;
@@ -266,7 +266,7 @@ bool QbsProject::addFilesToProduct(QbsBaseProjectNode *node, const QStringList &
     foreach (const QString &path, filePaths) {
         qbs::ErrorInfo err = m_qbsProject.addFiles(productData, groupData, QStringList() << path);
         if (err.hasError()) {
-            Core::MessageManager::write(err.toString());
+            MessageManager::write(err.toString());
             *notAdded += path;
         } else {
             allPaths += path;
@@ -293,7 +293,7 @@ bool QbsProject::removeFilesFromProduct(QbsBaseProjectNode *node, const QStringL
         qbs::ErrorInfo err
                 = m_qbsProject.removeFiles(productData, groupData, QStringList() << path);
         if (err.hasError()) {
-            Core::MessageManager::write(err.toString());
+            MessageManager::write(err.toString());
             *notRemoved += path;
         } else {
             allPaths.removeOne(path);
@@ -489,7 +489,7 @@ void QbsProject::startParsing()
 {
     // Qbs does update the build graph during the build. So we cannot
     // start to parse while a build is running or we will lose information.
-    if (ProjectExplorer::BuildManager::isBuilding(this)) {
+    if (BuildManager::isBuilding(this)) {
         scheduleParsing();
         return;
     }
@@ -771,9 +771,9 @@ void QbsProject::updateCppCodeModel()
                 }
             }
 
-            const QList<Core::Id> languages =
+            const QList<Id> languages =
                     ppBuilder.createProjectPartsForFiles(grp.allFilePaths());
-            foreach (Core::Id language, languages)
+            foreach (Id language, languages)
                 setProjectLanguage(language, true);
         }
     }
@@ -847,24 +847,24 @@ void QbsProject::updateQmlJsCodeModel()
 
 void QbsProject::updateApplicationTargets()
 {
-    ProjectExplorer::BuildTargetInfoList applications;
+    BuildTargetInfoList applications;
     foreach (const qbs::ProductData &productData, m_projectData.allProducts()) {
         if (!productData.isEnabled() || !productData.isRunnable())
             continue;
         const QString displayName = productDisplayName(m_qbsProject, productData);
         if (productData.targetArtifacts().isEmpty()) { // No build yet.
-            applications.list << ProjectExplorer::BuildTargetInfo(displayName,
-                    Utils::FileName(),
-                    Utils::FileName::fromString(productData.location().filePath()));
+            applications.list << BuildTargetInfo(displayName,
+                    FileName(),
+                    FileName::fromString(productData.location().filePath()));
             continue;
         }
         foreach (const qbs::TargetArtifact &ta, productData.targetArtifacts()) {
             QTC_ASSERT(ta.isValid(), continue);
             if (!ta.isExecutable())
                 continue;
-            applications.list << ProjectExplorer::BuildTargetInfo(displayName,
-                    Utils::FileName::fromString(ta.filePath()),
-                    Utils::FileName::fromString(productData.location().filePath()));
+            applications.list << BuildTargetInfo(displayName,
+                    FileName::fromString(ta.filePath()),
+                    FileName::fromString(productData.location().filePath()));
         }
     }
     activeTarget()->setApplicationTargets(applications);
@@ -872,15 +872,15 @@ void QbsProject::updateApplicationTargets()
 
 void QbsProject::updateDeploymentInfo()
 {
-    ProjectExplorer::DeploymentData deploymentData;
+    DeploymentData deploymentData;
     if (m_qbsProject.isValid()) {
         qbs::InstallOptions installOptions;
         installOptions.setInstallRoot(QLatin1String("/"));
         foreach (const qbs::InstallableFile &f, m_qbsProject
                      .installableFilesForProject(m_projectData, installOptions)) {
             deploymentData.addFile(f.sourceFilePath(), f.targetDirectory(), f.isExecutable()
-                                   ? ProjectExplorer::DeployableFile::TypeExecutable
-                                   : ProjectExplorer::DeployableFile::TypeNormal);
+                                   ? DeployableFile::TypeExecutable
+                                   : DeployableFile::TypeNormal);
         }
     }
     activeTarget()->setDeploymentData(deploymentData);

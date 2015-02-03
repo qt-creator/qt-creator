@@ -280,7 +280,7 @@ PluginView::PluginView(QWidget *parent)
     m_categoryView->setColumnWidth(LoadedColumn, 40);
     m_categoryView->header()->setDefaultSectionSize(120);
     m_categoryView->header()->setMinimumSectionSize(35);
-    m_categoryView->setActivationMode(Utils::DoubleClickActivation);
+    m_categoryView->setActivationMode(DoubleClickActivation);
     m_categoryView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_categoryView->setSelectionBehavior(QAbstractItemView::SelectRows);
 

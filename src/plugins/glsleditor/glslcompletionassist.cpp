@@ -268,7 +268,7 @@ IAssistProposal *GlslCompletionAssistProcessor::perform(const AssistInterface *i
 
     QList<GLSL::Symbol *> members;
     QStringList specialMembers;
-    QList<TextEditor::AssistProposalItem *> m_completions;
+    QList<AssistProposalItem *> m_completions;
 
     bool functionCall = (ch == QLatin1Char('(') && pos == m_interface->position() - 1);
 

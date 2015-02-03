@@ -91,7 +91,7 @@ public:
 
 namespace Internal {
 
-class BinEditorFind : public Core::IFindSupport
+class BinEditorFind : public IFindSupport
 {
     Q_OBJECT
 
@@ -107,7 +107,7 @@ public:
     QString currentFindString() const { return QString(); }
     QString completedFindString() const { return QString(); }
 
-    Core::FindFlags supportedFindFlags() const
+    FindFlags supportedFindFlags() const
     {
         return FindBackward | FindCaseSensitively;
     }
@@ -118,7 +118,7 @@ public:
         m_incrementalWrappedState = false;
     }
 
-    virtual void highlightAll(const QString &txt, Core::FindFlags findFlags)
+    virtual void highlightAll(const QString &txt, FindFlags findFlags)
     {
         m_widget->highlightSearchResults(txt.toLatin1(), textDocumentFlagsForFindFlags(findFlags));
     }
@@ -128,7 +128,7 @@ public:
         m_widget->highlightSearchResults(QByteArray());
     }
 
-    int find(const QByteArray &pattern, int pos, Core::FindFlags findFlags, bool *wrapped)
+    int find(const QByteArray &pattern, int pos, FindFlags findFlags, bool *wrapped)
     {
         if (wrapped)
             *wrapped = false;
@@ -149,7 +149,7 @@ public:
         return res;
     }
 
-    Result findIncremental(const QString &txt, Core::FindFlags findFlags) {
+    Result findIncremental(const QString &txt, FindFlags findFlags) {
         QByteArray pattern = txt.toLatin1();
         if (pattern != m_lastPattern)
             resetIncrementalSearch(); // Because we don't search for nibbles.
@@ -184,7 +184,7 @@ public:
         return result;
     }
 
-    Result findStep(const QString &txt, Core::FindFlags findFlags) {
+    Result findStep(const QString &txt, FindFlags findFlags) {
         QByteArray pattern = txt.toLatin1();
         bool wasReset = (m_incrementalStartPos < 0);
         if (m_contPos == -1) {
@@ -224,12 +224,12 @@ private:
 };
 
 
-class BinEditorDocument : public Core::IDocument
+class BinEditorDocument : public IDocument
 {
     Q_OBJECT
 public:
     BinEditorDocument(BinEditorWidget *parent) :
-        Core::IDocument(parent)
+        IDocument(parent)
     {
         setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
         setMimeType(QLatin1String(BinEditor::Constants::C_BINEDITOR_MIMETYPE));
@@ -274,14 +274,14 @@ public:
             if (errorString)
                 *errorString = msg;
             else
-                QMessageBox::critical(Core::ICore::mainWindow(), tr("File Error"), msg);
+                QMessageBox::critical(ICore::mainWindow(), tr("File Error"), msg);
             return false;
         }
         if (offset >= size)
             return false;
         if (file.open(QIODevice::ReadOnly)) {
             file.close();
-            setFilePath(Utils::FileName::fromString(fileName));
+            setFilePath(FileName::fromString(fileName));
             m_widget->setSizes(offset, file.size());
             return true;
         }
@@ -290,7 +290,7 @@ public:
         if (errorString)
             *errorString = errStr;
         else
-            QMessageBox::critical(Core::ICore::mainWindow(), tr("File Error"), errStr);
+            QMessageBox::critical(ICore::mainWindow(), tr("File Error"), errStr);
         return false;
     }
 
@@ -311,7 +311,7 @@ private slots:
                 data += QByteArray(blockSize - dataSize, 0);
             m_widget->addData(block, data);
         } else {
-            QMessageBox::critical(Core::ICore::mainWindow(), tr("File Error"),
+            QMessageBox::critical(ICore::mainWindow(), tr("File Error"),
                                   tr("Cannot open %1: %2").arg(
                                         fn.toUserOutput(), file.errorString()));
         }
@@ -361,7 +361,7 @@ private:
     BinEditorWidget *m_widget;
 };
 
-class BinEditor : public Core::IEditor
+class BinEditor : public IEditor
 {
     Q_OBJECT
 public:
@@ -406,7 +406,7 @@ public:
         QTC_ASSERT(fileName == realFileName, return false); // The bineditor can do no autosaving
         return m_file->open(errorString, fileName);
     }
-    Core::IDocument *document() { return m_file; }
+    IDocument *document() { return m_file; }
 
     QWidget *toolBar() { return m_toolBar; }
 
@@ -445,7 +445,7 @@ BinEditorFactory::BinEditorFactory(BinEditorPlugin *owner) :
     addMimeType(Constants::C_BINEDITOR_MIMETYPE);
 }
 
-Core::IEditor *BinEditorFactory::createEditor()
+IEditor *BinEditorFactory::createEditor()
 {
     BinEditorWidget *widget = new BinEditorWidget();
     BinEditor *editor = new BinEditor(widget);
@@ -466,14 +466,14 @@ BinEditorPlugin::~BinEditorPlugin()
 {
 }
 
-QAction *BinEditorPlugin::registerNewAction(Core::Id id, const QString &title)
+QAction *BinEditorPlugin::registerNewAction(Id id, const QString &title)
 {
     QAction *result = new QAction(title, this);
-    Core::ActionManager::registerAction(result, id, m_context);
+    ActionManager::registerAction(result, id, m_context);
     return result;
 }
 
-QAction *BinEditorPlugin::registerNewAction(Core::Id id,
+QAction *BinEditorPlugin::registerNewAction(Id id,
                                             QObject *receiver,
                                             const char *slot,
                                             const QString &title)
@@ -522,7 +522,7 @@ void BinEditorPlugin::extensionsInitialized()
 {
 }
 
-void BinEditorPlugin::updateCurrentEditor(Core::IEditor *editor)
+void BinEditorPlugin::updateCurrentEditor(IEditor *editor)
 {
     BinEditorWidget *binEditor = 0;
     if (editor)

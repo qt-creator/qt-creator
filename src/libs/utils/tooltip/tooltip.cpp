@@ -102,7 +102,7 @@ bool ToolTip::pinToolTip(QWidget *w, QWidget *parent)
     // Find the parent WidgetTip, tell it to pin/release the
     // widget and close.
     for (QWidget *p = w->parentWidget(); p ; p = p->parentWidget()) {
-        if (Internal::WidgetTip *wt = qobject_cast<Internal::WidgetTip *>(p)) {
+        if (WidgetTip *wt = qobject_cast<WidgetTip *>(p)) {
             wt->pinToolTipWidget(parent);
             ToolTip::hide();
             return true;

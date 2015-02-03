@@ -137,7 +137,7 @@ QString BareMetalRunConfiguration::defaultDisplayName()
 QString BareMetalRunConfiguration::localExecutableFilePath() const
 {
     return target()->applicationTargets()
-            .targetForProject(Utils::FileName::fromString(m_projectFilePath)).toString();
+            .targetForProject(FileName::fromString(m_projectFilePath)).toString();
 }
 
 QString BareMetalRunConfiguration::arguments() const

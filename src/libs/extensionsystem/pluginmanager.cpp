@@ -106,8 +106,8 @@ enum { debugLeaks = 0 };
     loading.
     \code
         // 'plugins' and subdirs will be searched for plugins
-        ExtensionSystem::PluginManager::setPluginPaths(QStringList() << "plugins");
-        ExtensionSystem::PluginManager::loadPlugins(); // try to load all the plugins
+        PluginManager::setPluginPaths(QStringList() << "plugins");
+        PluginManager::loadPlugins(); // try to load all the plugins
     \endcode
     Additionally, it is possible to directly access the plugin specifications
     (the information in the descriptor file), the plugin instances (via PluginSpec),
@@ -129,10 +129,10 @@ enum { debugLeaks = 0 };
         // Plugin A provides a "MimeTypeHandler" extension point
         // in plugin B:
         MyMimeTypeHandler *handler = new MyMimeTypeHandler();
-        ExtensionSystem::PluginManager::instance()->addObject(handler);
+        PluginManager::instance()->addObject(handler);
         // In plugin A:
         QList<MimeTypeHandler *> mimeHandlers =
-            ExtensionSystem::PluginManager::getObjects<MimeTypeHandler>();
+            PluginManager::getObjects<MimeTypeHandler>();
     \endcode
 
 

@@ -6,7 +6,7 @@
 
 using namespace bb::cascades;
 
-ApplicationUI::ApplicationUI(bb::cascades::Application *app) :
+ApplicationUI::ApplicationUI(Application *app) :
         QObject(app)
 {
     // By default the QmlDocument object is owned by the Application instance

@@ -48,7 +48,7 @@ using namespace ProjectExplorer;
 namespace Analyzer {
 
 AnalyzerRunControl::AnalyzerRunControl(const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration)
+        RunConfiguration *runConfiguration)
     : RunControl(runConfiguration, sp.runMode)
 {
     setIcon(QLatin1String(":/images/analyzer_start_small.png"));

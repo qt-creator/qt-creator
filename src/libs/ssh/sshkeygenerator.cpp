@@ -78,20 +78,20 @@ bool SshKeyGenerator::generateKeys(KeyType type, PrivateKeyFormat format, int ke
             generateOpenSslPublicKeyString(key);
         }
         return true;
-    } catch (const Botan::Exception &e) {
+    } catch (const Exception &e) {
         m_error = tr("Error generating key: %1").arg(QString::fromLatin1(e.what()));
         return false;
     }
 }
 
-void SshKeyGenerator::generatePkcs8KeyStrings(const KeyPtr &key, Botan::RandomNumberGenerator &rng)
+void SshKeyGenerator::generatePkcs8KeyStrings(const KeyPtr &key, RandomNumberGenerator &rng)
 {
     generatePkcs8KeyString(key, false, rng);
     generatePkcs8KeyString(key, true, rng);
 }
 
 void SshKeyGenerator::generatePkcs8KeyString(const KeyPtr &key, bool privateKey,
-    Botan::RandomNumberGenerator &rng)
+    RandomNumberGenerator &rng)
 {
     Pipe pipe;
     pipe.start_msg();

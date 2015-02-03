@@ -118,7 +118,7 @@ public:
     void updateEventCombo();
 
     AnalyzerRunControl *createRunControl(const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration = 0);
+        RunConfiguration *runConfiguration = 0);
 
 signals:
     void cycleDetectionEnabled(bool enabled);
@@ -131,8 +131,8 @@ public slots:
     void slotRequestDump();
     void loadExternalLogFile();
 
-    void selectFunction(const Valgrind::Callgrind::Function *);
-    void setCostFormat(Valgrind::Internal::CostDelegate::CostFormat format);
+    void selectFunction(const Function *);
+    void setCostFormat(CostDelegate::CostFormat format);
     void enableCycleDetection(bool enabled);
     void shortenTemplates(bool enabled);
     void setCostEvent(int index);
@@ -160,15 +160,15 @@ public slots:
     void dataFunctionSelected(const QModelIndex &index);
     void calleeFunctionSelected(const QModelIndex &index);
     void callerFunctionSelected(const QModelIndex &index);
-    void visualisationFunctionSelected(const Valgrind::Callgrind::Function *function);
-    void showParserResults(const Valgrind::Callgrind::ParseData *data);
+    void visualisationFunctionSelected(const Function *function);
+    void showParserResults(const ParseData *data);
 
     void takeParserDataFromRunControl(CallgrindRunControl *rc);
     void takeParserData(ParseData *data);
-    void engineStarting(const Analyzer::AnalyzerRunControl *);
+    void engineStarting(const AnalyzerRunControl *);
     void engineFinished();
 
-    void editorOpened(Core::IEditor *);
+    void editorOpened(IEditor *);
     void requestContextMenu(TextEditorWidget *widget, int line, QMenu *menu);
 
 public:
@@ -401,7 +401,7 @@ void CallgrindToolPrivate::updateCostFormat()
 
 void CallgrindToolPrivate::handleFilterProjectCosts()
 {
-    ProjectExplorer::Project *pro = ProjectExplorer::ProjectTree::currentProject();
+    Project *pro = ProjectTree::currentProject();
     QTC_ASSERT(pro, return);
 
     if (m_filterProjectCosts->isChecked()) {
@@ -819,7 +819,7 @@ void CallgrindToolPrivate::clearTextMarks()
     m_textMarks.clear();
 }
 
-void CallgrindToolPrivate::engineStarting(const Analyzer::AnalyzerRunControl *)
+void CallgrindToolPrivate::engineStarting(const AnalyzerRunControl *)
 {
     // enable/disable actions
     m_resetAction->setEnabled(true);
@@ -929,7 +929,7 @@ void CallgrindToolPrivate::slotRequestDump()
 void CallgrindToolPrivate::loadExternalLogFile()
 {
     const QString filePath = QFileDialog::getOpenFileName(
-                Core::ICore::mainWindow(),
+                ICore::mainWindow(),
                 tr("Open Callgrind Log File"),
                 QString(),
                 tr("Callgrind Output (callgrind.out*);;All Files (*)"));

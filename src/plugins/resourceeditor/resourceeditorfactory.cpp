@@ -56,6 +56,6 @@ ResourceEditorFactory::ResourceEditorFactory(ResourceEditorPlugin *plugin) :
 
 Core::IEditor *ResourceEditorFactory::createEditor()
 {
-    Core::Context context(ResourceEditor::Constants::C_RESOURCEEDITOR);
+    Core::Context context(C_RESOURCEEDITOR);
     return new ResourceEditorW(context, m_plugin);
 }

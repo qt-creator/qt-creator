@@ -139,7 +139,7 @@ QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFi
 void HelpIndexFilter::accept(LocatorFilterEntry selection) const
 {
     const QString &key = selection.displayName;
-    const QMap<QString, QUrl> &links = Core::HelpManager::linksForKeyword(key);
+    const QMap<QString, QUrl> &links = HelpManager::linksForKeyword(key);
 
     if (links.size() == 1)
         emit linkActivated(links.begin().value());

@@ -41,7 +41,7 @@ HelpViewerFindSupport::HelpViewerFindSupport(HelpViewer *viewer)
 {
 }
 
-Core::FindFlags HelpViewerFindSupport::supportedFindFlags() const
+FindFlags HelpViewerFindSupport::supportedFindFlags() const
 {
     return FindBackward | FindCaseSensitively;
 }
@@ -52,23 +52,23 @@ QString HelpViewerFindSupport::currentFindString() const
     return m_viewer->selectedText();
 }
 
-Core::IFindSupport::Result HelpViewerFindSupport::findIncremental(const QString &txt,
-    Core::FindFlags findFlags)
+IFindSupport::Result HelpViewerFindSupport::findIncremental(const QString &txt,
+    FindFlags findFlags)
 {
     QTC_ASSERT(m_viewer, return NotFound);
     findFlags &= ~FindBackward;
     return find(txt, findFlags, true) ? Found : NotFound;
 }
 
-Core::IFindSupport::Result HelpViewerFindSupport::findStep(const QString &txt,
-    Core::FindFlags findFlags)
+IFindSupport::Result HelpViewerFindSupport::findStep(const QString &txt,
+    FindFlags findFlags)
 {
     QTC_ASSERT(m_viewer, return NotFound);
     return find(txt, findFlags, false) ? Found : NotFound;
 }
 
 bool HelpViewerFindSupport::find(const QString &txt,
-    Core::FindFlags findFlags, bool incremental)
+    FindFlags findFlags, bool incremental)
 {
     QTC_ASSERT(m_viewer, return false);
     bool wrapped = false;

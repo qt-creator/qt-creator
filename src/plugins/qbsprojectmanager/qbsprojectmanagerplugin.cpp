@@ -254,7 +254,7 @@ void QbsProjectManagerPlugin::updateContextActions()
             && m_selectedProject && !m_selectedProject->isParsing()
             && m_selectedNode && m_selectedNode->isEnabled();
 
-    bool isFile = m_selectedProject && m_selectedNode && (m_selectedNode->nodeType() == ProjectExplorer::FileNodeType);
+    bool isFile = m_selectedProject && m_selectedNode && (m_selectedNode->nodeType() == FileNodeType);
     bool isProduct = m_selectedProject && m_selectedNode && dynamic_cast<QbsProductNode *>(m_selectedNode->projectNode());
     QbsProjectNode *subproject = dynamic_cast<QbsProjectNode *>(m_selectedNode);
     bool isSubproject = m_selectedProject && subproject && subproject != m_selectedProject->rootProjectNode();
@@ -318,7 +318,7 @@ void QbsProjectManagerPlugin::updateBuildActions()
     m_buildSubproject->setParameter(subprojectName);
 }
 
-void QbsProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *project)
+void QbsProjectManagerPlugin::buildStateChanged(Project *project)
 {
     if (project == m_currentProject)
         updateReparseQbsAction();
@@ -445,7 +445,7 @@ void QbsProjectManagerPlugin::buildFiles(QbsProject *project, const QStringList 
     QTC_ASSERT(project, return);
     QTC_ASSERT(!files.isEmpty(), return);
 
-    ProjectExplorer::Target *t = project->activeTarget();
+    Target *t = project->activeTarget();
     if (!t)
         return;
     QbsBuildConfiguration *bc = qobject_cast<QbsBuildConfiguration *>(t->activeBuildConfiguration());
@@ -461,7 +461,7 @@ void QbsProjectManagerPlugin::buildFiles(QbsProject *project, const QStringList 
 
     const Core::Id buildStep = ProjectExplorer::Constants::BUILDSTEPS_BUILD;
 
-    const QString name = ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(buildStep);
+    const QString name = ProjectExplorerPlugin::displayNameForStepId(buildStep);
     BuildManager::buildList(bc->stepList(buildStep), name);
 
     bc->setChangedFiles(QStringList());
@@ -479,7 +479,7 @@ void QbsProjectManagerPlugin::buildProducts(QbsProject *project, const QStringLi
     QTC_ASSERT(project, return);
     QTC_ASSERT(!products.isEmpty(), return);
 
-    ProjectExplorer::Target *t = project->activeTarget();
+    Target *t = project->activeTarget();
     if (!t)
         return;
     QbsBuildConfiguration *bc = qobject_cast<QbsBuildConfiguration *>(t->activeBuildConfiguration());

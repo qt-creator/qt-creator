@@ -109,7 +109,7 @@ QVariantMap BareMetalGdbCommandsDeployStep::toMap() const
     return map;
 }
 
-ProjectExplorer::BuildStepConfigWidget *BareMetalGdbCommandsDeployStep::createConfigWidget()
+BuildStepConfigWidget *BareMetalGdbCommandsDeployStep::createConfigWidget()
 {
     return new BareMetalGdbCommandsDeployStepWidget(*this);
 }

@@ -78,11 +78,11 @@ void GenericProjectPlugin::test_simple()
     QCOMPARE(pPart->files.first().kind, ProjectFile::CXXSource);
 }
 
-static QStringList simplify(const QList<CppTools::ProjectFile> &files, const QString &prefix)
+static QStringList simplify(const QList<ProjectFile> &files, const QString &prefix)
 {
     QStringList result;
 
-    foreach (const CppTools::ProjectFile &file, files) {
+    foreach (const ProjectFile &file, files) {
         if (file.path.startsWith(prefix))
             result.append(file.path.mid(prefix.size()));
         else

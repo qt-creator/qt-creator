@@ -385,7 +385,7 @@ bool QtWebKitHelpWidget::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::KeyPress) {
         if (QKeyEvent *keyEvent = static_cast<QKeyEvent*> (event)) {
             if (keyEvent->key() == Qt::Key_Slash)
-                Core::FindPlugin::instance()->openFindToolBar(Core::FindPlugin::FindForwardDirection);
+                FindPlugin::instance()->openFindToolBar(FindPlugin::FindForwardDirection);
         }
     }
     return QWebView::eventFilter(obj, event);
@@ -569,7 +569,7 @@ void QtWebKitHelpViewer::setOpenInNewPageActionVisible(bool visible)
     m_webView->setOpenInNewPageActionVisible(visible);
 }
 
-bool QtWebKitHelpViewer::findText(const QString &text, Core::FindFlags flags,
+bool QtWebKitHelpViewer::findText(const QString &text, FindFlags flags,
     bool incremental, bool fromSearch, bool *wrapped)
 {
     Q_UNUSED(incremental);
@@ -577,9 +577,9 @@ bool QtWebKitHelpViewer::findText(const QString &text, Core::FindFlags flags,
     if (wrapped)
         *wrapped = false;
     QWebPage::FindFlags options;
-    if (flags & Core::FindBackward)
+    if (flags & FindBackward)
         options |= QWebPage::FindBackward;
-    if (flags & Core::FindCaseSensitively)
+    if (flags & FindCaseSensitively)
         options |= QWebPage::FindCaseSensitively;
 
     bool found = m_webView->findText(text, options);

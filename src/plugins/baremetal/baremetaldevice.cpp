@@ -90,7 +90,7 @@ BareMetalDevice::IDevice::Ptr BareMetalDevice::clone() const
 
 DeviceProcessSignalOperation::Ptr BareMetalDevice::signalOperation() const
 {
-    return ProjectExplorer::DeviceProcessSignalOperation::Ptr();
+    return DeviceProcessSignalOperation::Ptr();
 }
 
 QString BareMetalDevice::displayType() const
@@ -98,7 +98,7 @@ QString BareMetalDevice::displayType() const
     return QCoreApplication::translate("BareMetal::Internal::BareMetalDevice", "Bare Metal");
 }
 
-ProjectExplorer::IDeviceWidget *BareMetalDevice::createWidget()
+IDeviceWidget *BareMetalDevice::createWidget()
 {
     return new BareMetalDeviceConfigurationWidget(sharedFromThis());
 }
@@ -120,7 +120,7 @@ void BareMetalDevice::executeAction(Core::Id actionId, QWidget *parent)
     Q_UNUSED(parent);
 }
 
-ProjectExplorer::DeviceProcess *BareMetalDevice::createProcess(QObject *parent) const
+DeviceProcess *BareMetalDevice::createProcess(QObject *parent) const
 {
     return new GdbServerProviderProcess(sharedFromThis(), parent);
 }

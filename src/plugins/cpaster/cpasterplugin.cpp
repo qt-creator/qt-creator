@@ -122,10 +122,10 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
     Q_UNUSED(errorMessage)
 
     // Create the globalcontext list to register actions accordingly
-    Core::Context globalcontext(Core::Constants::C_GLOBAL);
+    Context globalcontext(Core::Constants::C_GLOBAL);
 
     // Create the settings Page
-    m_settings->fromSettings(Core::ICore::settings());
+    m_settings->fromSettings(ICore::settings());
     SettingsPage *settingsPage = new SettingsPage(m_settings);
     addAutoReleasedObject(settingsPage);
 
@@ -151,30 +151,30 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     //register actions
 
-    Core::ActionContainer *toolsContainer =
-        Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
+    ActionContainer *toolsContainer =
+        ActionManager::actionContainer(Core::Constants::M_TOOLS);
 
-    Core::ActionContainer *cpContainer =
-        Core::ActionManager::createMenu("CodePaster");
+    ActionContainer *cpContainer =
+        ActionManager::createMenu("CodePaster");
     cpContainer->menu()->setTitle(tr("&Code Pasting"));
     toolsContainer->addMenu(cpContainer);
 
-    Core::Command *command;
+    Command *command;
 
     m_postEditorAction = new QAction(tr("Paste Snippet..."), this);
-    command = Core::ActionManager::registerAction(m_postEditorAction, "CodePaster.Post", globalcontext);
+    command = ActionManager::registerAction(m_postEditorAction, "CodePaster.Post", globalcontext);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+P") : tr("Alt+C,Alt+P")));
     connect(m_postEditorAction, &QAction::triggered, this, &CodepasterPlugin::pasteSnippet);
     cpContainer->addAction(command);
 
     m_fetchAction = new QAction(tr("Fetch Snippet..."), this);
-    command = Core::ActionManager::registerAction(m_fetchAction, "CodePaster.Fetch", globalcontext);
+    command = ActionManager::registerAction(m_fetchAction, "CodePaster.Fetch", globalcontext);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+F") : tr("Alt+C,Alt+F")));
     connect(m_fetchAction, &QAction::triggered, this, &CodepasterPlugin::fetch);
     cpContainer->addAction(command);
 
     m_fetchUrlAction = new QAction(tr("Fetch from URL..."), this);
-    command = Core::ActionManager::registerAction(m_fetchUrlAction, "CodePaster.FetchUrl", globalcontext);
+    command = ActionManager::registerAction(m_fetchUrlAction, "CodePaster.FetchUrl", globalcontext);
     connect(m_fetchUrlAction, &QAction::triggered, this, &CodepasterPlugin::fetchUrl);
     cpContainer->addAction(command);
 
@@ -274,7 +274,7 @@ void CodepasterPlugin::post(QString data, const QString &mimeType)
     if (dialogResult == QDialog::Accepted
         && m_settings->protocol != view.protocol()) {
         m_settings->protocol = view.protocol();
-        m_settings->toSettings(Core::ICore::settings());
+        m_settings->toSettings(ICore::settings());
     }
 }
 
@@ -305,7 +305,7 @@ void CodepasterPlugin::fetch()
     // Save new protocol in case user changed it.
     if (m_settings->protocol != dialog.protocol()) {
         m_settings->protocol = dialog.protocol();
-        m_settings->toSettings(Core::ICore::settings());
+        m_settings->toSettings(ICore::settings());
     }
 
     const QString pasteID = dialog.pasteId();
@@ -320,7 +320,7 @@ void CodepasterPlugin::finishPost(const QString &link)
 {
     if (m_settings->copyToClipboard)
         QApplication::clipboard()->setText(link);
-    MessageManager::write(link, m_settings->displayOutput ? Core::MessageManager::ModeSwitch : Core::MessageManager::Silent);
+    MessageManager::write(link, m_settings->displayOutput ? MessageManager::ModeSwitch : MessageManager::Silent);
 }
 
 // Extract the characters that can be used for a file name from a title
@@ -392,7 +392,7 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     const QString fileName = saver.fileName();
     m_fetchedSnippets.push_back(fileName);
     // Open editor with title.
-    Core::IEditor *editor = EditorManager::openEditor(fileName);
+    IEditor *editor = EditorManager::openEditor(fileName);
     QTC_ASSERT(editor, return);
     editor->document()->setDisplayName(titleDescription);
 }

@@ -63,7 +63,7 @@ namespace BareMetal {
 namespace Internal {
 
 BareMetalRunControlFactory::BareMetalRunControlFactory(QObject *parent) :
-    ProjectExplorer::IRunControlFactory(parent)
+    IRunControlFactory(parent)
 {
 }
 

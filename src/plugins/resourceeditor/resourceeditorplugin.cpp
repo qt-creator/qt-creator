@@ -206,7 +206,7 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     m_renameResourceFile->setEnabled(false);
     m_removeResourceFile->setEnabled(false);
 
-    connect(ProjectExplorer::ProjectTree::instance(), &ProjectTree::currentNodeChanged,
+    connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
             this, &ResourceEditorPlugin::updateContextActions);
 
     return true;
@@ -264,7 +264,7 @@ void ResourceEditorPlugin::removeFileContextMenu()
 {
     ResourceFolderNode *rfn = static_cast<ResourceFolderNode *>(ProjectTree::currentNode());
     QString path = rfn->path();
-    ProjectExplorer::FolderNode *parent = rfn->parentFolderNode();
+    FolderNode *parent = rfn->parentFolderNode();
     if (!parent->removeFiles(QStringList() << path))
         QMessageBox::warning(Core::ICore::mainWindow(),
                              tr("File Removal Failed"),
@@ -302,7 +302,7 @@ void ResourceEditorPlugin::renamePrefixContextMenu()
     node->renamePrefix(prefix, dialog.lang());
 }
 
-void ResourceEditorPlugin::updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *)
+void ResourceEditorPlugin::updateContextActions(Node *node, Project *)
 {
     bool isResourceNode = dynamic_cast<ResourceTopLevelNode *>(node);
     m_addPrefix->setEnabled(isResourceNode);
@@ -312,9 +312,9 @@ void ResourceEditorPlugin::updateContextActions(ProjectExplorer::Node *node, Pro
     bool enableRemove = false;
 
     if (isResourceNode) {
-        ProjectExplorer::FolderNode *parent = node ? node->parentFolderNode() : 0;
-        enableRename = parent && parent->supportedActions(node).contains(ProjectExplorer::Rename);
-        enableRemove = parent && parent->supportedActions(node).contains(ProjectExplorer::RemoveFile);
+        FolderNode *parent = node ? node->parentFolderNode() : 0;
+        enableRename = parent && parent->supportedActions(node).contains(Rename);
+        enableRemove = parent && parent->supportedActions(node).contains(RemoveFile);
     }
 
     m_renameResourceFile->setEnabled(isResourceNode && enableRename);

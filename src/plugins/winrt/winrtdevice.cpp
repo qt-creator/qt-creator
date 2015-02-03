@@ -88,7 +88,7 @@ void WinRtDevice::executeAction(Core::Id actionId, QWidget *parent)
 
 DeviceProcessSignalOperation::Ptr WinRtDevice::signalOperation() const
 {
-    class WinRtDesktopSignalOperation : public ProjectExplorer::DesktopProcessSignalOperation
+    class WinRtDesktopSignalOperation : public DesktopProcessSignalOperation
     {
     public:
         WinRtDesktopSignalOperation() {}

@@ -49,7 +49,7 @@ namespace Valgrind {
 namespace Internal {
 
 MemcheckRunControl::MemcheckRunControl(const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration)
+        RunConfiguration *runConfiguration)
     : ValgrindRunControl(sp, runConfiguration)
 {
     connect(&m_parser, &XmlProtocol::ThreadedParser::error,

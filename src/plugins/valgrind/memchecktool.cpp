@@ -146,7 +146,7 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
         foreach (Project *project, SessionManager::projects()) {
             validFolders << project->projectDirectory().toString();
             foreach (Target *target, project->targets()) {
-                foreach (const ProjectExplorer::DeployableFile &file,
+                foreach (const DeployableFile &file,
                          target->deploymentData().allFiles()) {
                     if (file.isExecutable())
                         validFolders << file.remoteDirectory();
@@ -519,7 +519,7 @@ void MemcheckTool::loadExternalXmlLogFile()
     parser->parse(logFile); // ThreadedParser owns the file
 }
 
-void MemcheckTool::parserError(const Valgrind::XmlProtocol::Error &error)
+void MemcheckTool::parserError(const Error &error)
 {
     m_errorModel->addError(error);
 }

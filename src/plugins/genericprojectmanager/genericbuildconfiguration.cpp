@@ -95,7 +95,7 @@ int GenericBuildConfigurationFactory::priority(const Target *parent) const
 
 QList<BuildInfo *> GenericBuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
-    QList<ProjectExplorer::BuildInfo *> result;
+    QList<BuildInfo *> result;
     BuildInfo *info = createBuildInfo(parent->kit(), parent->project()->projectDirectory());
     result << info;
     return result;
@@ -110,7 +110,7 @@ int GenericBuildConfigurationFactory::priority(const Kit *k, const QString &proj
 QList<BuildInfo *> GenericBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
     QList<BuildInfo *> result;
-    BuildInfo *info = createBuildInfo(k, ProjectExplorer::Project::projectDirectory(Utils::FileName::fromString(projectPath)));
+    BuildInfo *info = createBuildInfo(k, Project::projectDirectory(Utils::FileName::fromString(projectPath)));
     //: The name of the build configuration created by default for a generic project.
     info->displayName = tr("Default");
     result << info;
@@ -184,7 +184,7 @@ bool GenericBuildConfigurationFactory::canHandle(const Target *t) const
     return qobject_cast<GenericProject *>(t->project());
 }
 
-BuildInfo *GenericBuildConfigurationFactory::createBuildInfo(const ProjectExplorer::Kit *k,
+BuildInfo *GenericBuildConfigurationFactory::createBuildInfo(const Kit *k,
                                                              const Utils::FileName &buildDir) const
 {
     BuildInfo *info = new BuildInfo(this);
