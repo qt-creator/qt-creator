@@ -112,18 +112,18 @@ Utils::FileName QmakeAndroidSupport::androiddeployqtPath(ProjectExplorer::Target
 
 Utils::FileName QmakeAndroidSupport::androiddeployJsonPath(ProjectExplorer::Target *target) const
 {
-    const auto *pro = static_cast<QmakeProjectManager::QmakeProject *>(target->project());
+    const auto *pro = static_cast<QmakeProject *>(target->project());
     QmakeAndroidBuildApkStep *buildApkStep
         = Android::AndroidGlobal::buildStep<QmakeAndroidBuildApkStep>(target->activeBuildConfiguration());
 
     if (!buildApkStep) // should never happen
         return Utils::FileName();
 
-    const QmakeProjectManager::QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(buildApkStep->proFilePathForInputFile());
+    const QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(buildApkStep->proFilePathForInputFile());
     if (!node) // should never happen
         return Utils::FileName();
 
-    QString inputFile = node->singleVariableValue(QmakeProjectManager::AndroidDeploySettingsFile);
+    QString inputFile = node->singleVariableValue(AndroidDeploySettingsFile);
     if (inputFile.isEmpty()) // should never happen
         return Utils::FileName();
 

@@ -53,7 +53,7 @@ QString AndroidPotentialKit::displayName() const
     return tr("Configure Android...");
 }
 
-void Android::Internal::AndroidPotentialKit::executeFromMenu()
+void AndroidPotentialKit::executeFromMenu()
 {
     Core::ICore::showOptionsDialog(Constants::ANDROID_SETTINGS_CATEGORY,
                                    Constants::ANDROID_SETTINGS_ID);

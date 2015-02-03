@@ -137,7 +137,7 @@ bool QmakeAndroidBuildApkStepFactory::canHandle(ProjectExplorer::Target *t) cons
 
 
 QmakeAndroidBuildApkStep::QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepList *bc)
-    :Android::AndroidBuildApkStep(bc, ANDROID_BUILD_APK_ID)
+    :AndroidBuildApkStep(bc, ANDROID_BUILD_APK_ID)
 {
     ctor();
 }
@@ -151,7 +151,7 @@ QString QmakeAndroidBuildApkStep::proFilePathForInputFile() const
 }
 
 QmakeAndroidBuildApkStep::QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepList *bc, QmakeAndroidBuildApkStep *other)
-    : Android::AndroidBuildApkStep(bc, other)
+    : AndroidBuildApkStep(bc, other)
 {
     ctor();
 }
@@ -175,7 +175,7 @@ bool QmakeAndroidBuildApkStep::init()
     if (AndroidManager::checkForQt51Files(project()->projectDirectory()))
         emit addOutput(tr("Found old folder \"android\" in source directory. Qt 5.2 does not use that folder by default."), ErrorOutput);
 
-    if (!Android::AndroidBuildApkStep::init())
+    if (!AndroidBuildApkStep::init())
         return false;
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
@@ -305,12 +305,12 @@ ProjectExplorer::BuildStepConfigWidget *QmakeAndroidBuildApkStep::createConfigWi
 
 bool QmakeAndroidBuildApkStep::fromMap(const QVariantMap &map)
 {
-    return Android::AndroidBuildApkStep::fromMap(map);
+    return AndroidBuildApkStep::fromMap(map);
 }
 
 QVariantMap QmakeAndroidBuildApkStep::toMap() const
 {
-    QVariantMap map = Android::AndroidBuildApkStep::toMap();
+    QVariantMap map = AndroidBuildApkStep::toMap();
     return map;
 }
 

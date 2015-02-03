@@ -58,7 +58,7 @@ static QString pathFromId(const Core::Id id)
 }
 
 QmakeAndroidRunConfigurationFactory::QmakeAndroidRunConfigurationFactory(QObject *parent)
-    : ProjectExplorer::IRunConfigurationFactory(parent)
+    : IRunConfigurationFactory(parent)
 {
 }
 
@@ -136,10 +136,10 @@ bool QmakeAndroidRunConfigurationFactory::canHandle(Target *t) const
 #ifdef Q_CC_GCC
 #  warning FIX ME !!!
 #endif
-QList<RunConfiguration *> QmakeAndroidRunConfigurationFactory::runConfigurationsForNode(Target *t, ProjectExplorer::Node *n)
+QList<RunConfiguration *> QmakeAndroidRunConfigurationFactory::runConfigurationsForNode(Target *t, Node *n)
 {
-    QList<ProjectExplorer::RunConfiguration *> result;
-    foreach (ProjectExplorer::RunConfiguration *rc, t->runConfigurations())
+    QList<RunConfiguration *> result;
+    foreach (RunConfiguration *rc, t->runConfigurations())
         if (QmakeAndroidRunConfiguration *qt4c = qobject_cast<QmakeAndroidRunConfiguration *>(rc))
                 if (qt4c->proFilePath() == n->path())
                     result << rc;

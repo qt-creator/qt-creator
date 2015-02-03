@@ -358,5 +358,5 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
 void CreateAndroidManifestWizard::accept()
 {
     createAndroidTemplateFiles();
-    Utils::Wizard::accept();
+    Wizard::accept();
 }

@@ -90,8 +90,8 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
     params.displayName = AndroidManager::packageName(target);
     params.remoteSetupNeeded = true;
 
-    Debugger::DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
+    DebuggerRunConfigurationAspect *aspect
+            = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     if (aspect->useCppDebugger()) {
         params.languages |= CppLanguage;
         Kit *kit = target->kit();
@@ -135,8 +135,8 @@ AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
     connect(m_runControl, SIGNAL(finished()),
             m_runner, SLOT(stop()));
 
-    Debugger::DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
+    DebuggerRunConfigurationAspect *aspect
+            = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     Q_ASSERT(aspect->useCppDebugger() || aspect->useQmlDebugger());
     Q_UNUSED(aspect)
 

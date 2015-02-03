@@ -64,16 +64,14 @@ using namespace Utils;
 static const char ANDROID_QT_VERSION_KEY[] = "Qt4ProjectManager.Android.QtVersion";
 static const char ANDROID_NDK_TC_VERION[] = "Qt4ProjectManager.Android.NDK_TC_VERION";
 
-QMap<ProjectExplorer::Abi::Architecture, QList<int> > AndroidToolChainFactory::m_newestVersionForArch;
-Utils::FileName AndroidToolChainFactory::m_ndkLocation;
+QMap<Abi::Architecture, QList<int> > AndroidToolChainFactory::m_newestVersionForArch;
+FileName AndroidToolChainFactory::m_ndkLocation;
 
 AndroidToolChain::AndroidToolChain(Abi::Architecture arch, const QString &ndkToolChainVersion, Detection d)
     : GccToolChain(QLatin1String(Constants::ANDROID_TOOLCHAIN_ID), d),
       m_ndkToolChainVersion(ndkToolChainVersion), m_secondaryToolChain(false)
 {
-    ProjectExplorer::Abi abi = ProjectExplorer::Abi(arch, ProjectExplorer::Abi::LinuxOS,
-                                                    ProjectExplorer::Abi::AndroidLinuxFlavor, ProjectExplorer::Abi::ElfFormat,
-                                                    32);
+    Abi abi = Abi(arch, Abi::LinuxOS, Abi::AndroidLinuxFlavor, Abi::ElfFormat, 32);
     setTargetAbi(abi);
     setDisplayName(QString::fromLatin1("Android GCC (%1-%2)")
                    .arg(Abi::toString(targetAbi().architecture()))
@@ -148,7 +146,7 @@ FileName AndroidToolChain::suggestedDebugger() const
 
 FileName AndroidToolChain::suggestedGdbServer() const
 {
-    Utils::FileName path = AndroidConfigurations::currentConfig().ndkLocation();
+    FileName path = AndroidConfigurations::currentConfig().ndkLocation();
     path.appendPath(QString::fromLatin1("prebuilt/android-%1/gdbserver/gdbserver")
                     .arg(Abi::toString(targetAbi().architecture())));
     if (path.exists())
@@ -160,7 +158,7 @@ FileName AndroidToolChain::suggestedGdbServer() const
     if (path.exists())
         return path;
 
-    return Utils::FileName();
+    return FileName();
 }
 
 QVariantMap AndroidToolChain::toMap() const
@@ -195,15 +193,13 @@ bool AndroidToolChain::fromMap(const QVariantMap &data)
         m_ndkToolChainVersion = command.mid(index + 1);
         QString platform = command.left(index);
         Abi::Architecture arch = AndroidConfig::architectureForToolChainPrefix(platform);
-        ProjectExplorer::Abi abi = ProjectExplorer::Abi(arch, ProjectExplorer::Abi::LinuxOS,
-                                                        ProjectExplorer::Abi::AndroidLinuxFlavor, ProjectExplorer::Abi::ElfFormat,
-                                                        32);
+        Abi abi = Abi(arch, Abi::LinuxOS, Abi::AndroidLinuxFlavor, Abi::ElfFormat, 32);
         setTargetAbi(abi);
     } else {
         m_ndkToolChainVersion = data.value(QLatin1String(ANDROID_NDK_TC_VERION)).toString();
     }
 
-    ProjectExplorer::Abi::Architecture arch = targetAbi().architecture();
+    Abi::Architecture arch = targetAbi().architecture();
     m_secondaryToolChain = AndroidToolChainFactory::versionCompareLess(AndroidToolChainFactory::versionNumberFromString(m_ndkToolChainVersion),
                                                                        AndroidToolChainFactory::newestToolChainVersionForArch(arch));
     return isValid();
@@ -214,7 +210,7 @@ QList<FileName> AndroidToolChain::suggestedMkspecList() const
     return QList<FileName>()<< FileName::fromLatin1("android-g++");
 }
 
-QString AndroidToolChain::makeCommand(const Utils::Environment &env) const
+QString AndroidToolChain::makeCommand(const Environment &env) const
 {
     QStringList extraDirectories = AndroidConfigurations::currentConfig().makeExtraSearchDirectories();
     if (HostOsInfo::isWindowsHost()) {
@@ -291,7 +287,7 @@ ToolChain *AndroidToolChainFactory::restore(const QVariantMap &data)
     return 0;
 }
 
-QList<AndroidToolChainFactory::AndroidToolChainInformation> AndroidToolChainFactory::toolchainPathsForNdk(const Utils::FileName &ndkPath)
+QList<AndroidToolChainFactory::AndroidToolChainInformation> AndroidToolChainFactory::toolchainPathsForNdk(const FileName &ndkPath)
 {
     QList<AndroidToolChainInformation> result;
     if (ndkPath.isEmpty())
@@ -364,7 +360,7 @@ bool AndroidToolChainFactory::versionCompareLess(AndroidToolChain *atc, AndroidT
     return versionCompareLess(a, b);
 }
 
-QList<ToolChain *> AndroidToolChainFactory::createToolChainsForNdk(const Utils::FileName &ndkPath)
+QList<ToolChain *> AndroidToolChainFactory::createToolChainsForNdk(const FileName &ndkPath)
 {
     QList<ToolChain *> result;
     if (ndkPath.isEmpty())

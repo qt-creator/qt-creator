@@ -88,20 +88,20 @@ QString AndroidQtVersion::invalidReason() const
     return tmp;
 }
 
-QList<ProjectExplorer::Abi> AndroidQtVersion::detectQtAbis() const
+QList<Abi> AndroidQtVersion::detectQtAbis() const
 {
-    QList<ProjectExplorer::Abi> abis = qtAbisFromLibrary(qtCorePaths(versionInfo(), qtVersionString()));
+    QList<Abi> abis = qtAbisFromLibrary(qtCorePaths(versionInfo(), qtVersionString()));
     for (int i = 0; i < abis.count(); ++i) {
         abis[i] = Abi(abis.at(i).architecture(),
                       abis.at(i).os(),
-                      ProjectExplorer::Abi::AndroidLinuxFlavor,
+                      Abi::AndroidLinuxFlavor,
                       abis.at(i).binaryFormat(),
                       abis.at(i).wordWidth());
     }
     return abis;
 }
 
-void AndroidQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const
+void AndroidQtVersion::addToEnvironment(const Kit *k, Utils::Environment &env) const
 {
     // this env vars are used by qmake mkspecs to generate makefiles (check QTDIR/mkspecs/android-g++/qmake.conf for more info)
     env.set(QLatin1String("ANDROID_NDK_HOST"), AndroidConfigurations::currentConfig().toolchainHost());

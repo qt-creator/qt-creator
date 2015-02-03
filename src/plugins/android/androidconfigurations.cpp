@@ -135,9 +135,9 @@ namespace {
     static bool is32BitUserSpace()
     {
         // Do the exact same check as android's emulator is doing:
-        if (Utils::HostOsInfo::isLinuxHost()) {
+        if (HostOsInfo::isLinuxHost()) {
             if (QSysInfo::WordSize == 32 ) {
-                Utils::Environment env = Utils::Environment::systemEnvironment();
+                Environment env = Environment::systemEnvironment();
                 QString executable = env.searchInPath(QLatin1String("file")).toString();
                 QString shell = env.value(QLatin1String("SHELL"));
                 if (executable.isEmpty() || shell.isEmpty())
@@ -390,13 +390,13 @@ QList<SdkPlatform> AndroidConfig::sdkTargets(int minApiLevel) const
 
 FileName AndroidConfig::adbToolPath() const
 {
-    Utils::FileName path = m_sdkLocation;
+    FileName path = m_sdkLocation;
     return path.appendPath(QLatin1String("platform-tools/adb" QTC_HOST_EXE_SUFFIX));
 }
 
-Utils::Environment AndroidConfig::androidToolEnvironment() const
+Environment AndroidConfig::androidToolEnvironment() const
 {
-    Utils::Environment env = Utils::Environment::systemEnvironment();
+    Environment env = Environment::systemEnvironment();
     if (!m_openJDKLocation.isEmpty())
         env.set(QLatin1String("JAVA_HOME"), m_openJDKLocation.toUserOutput());
     return env;
@@ -535,7 +535,7 @@ QFuture<AndroidConfig::CreateAvdInfo> AndroidConfig::createAVD(CreateAvdInfo inf
     return QtConcurrent::run(&AndroidConfig::createAVDImpl, info, androidToolPath(), androidToolEnvironment());
 }
 
-AndroidConfig::CreateAvdInfo AndroidConfig::createAVDImpl(CreateAvdInfo info, Utils::FileName androidToolPath, Utils::Environment env)
+AndroidConfig::CreateAvdInfo AndroidConfig::createAVDImpl(CreateAvdInfo info, FileName androidToolPath, Environment env)
 {
     QProcess proc;
     proc.setProcessEnvironment(env.toProcessEnvironment());
@@ -610,7 +610,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevices() const
     return androidVirtualDevicesImpl(androidToolPath(), androidToolEnvironment());
 }
 
-QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevicesImpl(const Utils::FileName &androidTool, const Utils::Environment &environment)
+QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevicesImpl(const FileName &androidTool, const Environment &environment)
 {
     QVector<AndroidDeviceInfo> devices;
     QProcess proc;
@@ -1015,7 +1015,7 @@ void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
     emit m_instance->updated();
 }
 
-AndroidDeviceInfo AndroidConfigurations::showDeviceDialog(ProjectExplorer::Project *project,
+AndroidDeviceInfo AndroidConfigurations::showDeviceDialog(Project *project,
                                                           int apiLevel, const QString &abi,
                                                           Options options)
 {
@@ -1045,13 +1045,13 @@ AndroidDeviceInfo AndroidConfigurations::showDeviceDialog(ProjectExplorer::Proje
     return AndroidDeviceInfo();
 }
 
-void AndroidConfigurations::clearDefaultDevices(ProjectExplorer::Project *project)
+void AndroidConfigurations::clearDefaultDevices(Project *project)
 {
     if (m_instance->m_defaultDeviceForAbi.contains(project))
         m_instance->m_defaultDeviceForAbi.remove(project);
 }
 
-void AndroidConfigurations::setDefaultDevice(ProjectExplorer::Project *project, const QString &abi, const QString &serialNumber)
+void AndroidConfigurations::setDefaultDevice(Project *project, const QString &abi, const QString &serialNumber)
 {
     m_instance->m_defaultDeviceForAbi[project][abi] = serialNumber;
 }
@@ -1124,7 +1124,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             continue;
 
         // Update code for 3.0 beta, which shipped with a bug for the debugger settings
-        ProjectExplorer::ToolChain *tc =ToolChainKitInformation::toolChain(k);
+        ToolChain *tc =ToolChainKitInformation::toolChain(k);
         if (tc && Debugger::DebuggerKitInformation::debuggerCommand(k) != tc->suggestedDebugger()) {
             Debugger::DebuggerItem debugger;
             debugger.setCommand(tc->suggestedDebugger());
@@ -1166,7 +1166,7 @@ void AndroidConfigurations::updateAutomaticKitList()
         foreach (QtSupport::BaseQtVersion *qt, qtVersions) {
             Kit *newKit = new Kit;
             newKit->setAutoDetected(true);
-            newKit->setIconPath(Utils::FileName::fromString(QLatin1String(Constants::ANDROID_SETTINGS_CATEGORY_ICON)));
+            newKit->setIconPath(FileName::fromString(QLatin1String(Constants::ANDROID_SETTINGS_CATEGORY_ICON)));
             DeviceTypeKitInformation::setDeviceTypeId(newKit, Core::Id(Constants::ANDROID_DEVICE_TYPE));
             ToolChainKitInformation::setToolChain(newKit, tc);
             QtSupport::QtKitInformation::setQtVersion(newKit, qt);
@@ -1203,7 +1203,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     }
 
     foreach (Kit *k, existingKits) {
-        ProjectExplorer::ToolChain *tc = ToolChainKitInformation::toolChain(k);
+        ToolChain *tc = ToolChainKitInformation::toolChain(k);
         QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
         if (tc && tc->type() == QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE)
                 && qtVersion && qtVersion->type() == QLatin1String(Constants::ANDROIDQT)) {
@@ -1319,7 +1319,7 @@ void AndroidConfigurations::load()
         } else if (HostOsInfo::isMacHost()) {
             QString javaHome = QLatin1String("/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home");
             if (QFileInfo::exists(javaHome))
-                m_config.setOpenJDKLocation(Utils::FileName::fromString(javaHome));
+                m_config.setOpenJDKLocation(FileName::fromString(javaHome));
         } else if (HostOsInfo::isWindowsHost()) {
             QSettings settings(QLatin1String("HKEY_LOCAL_MACHINE\\SOFTWARE\\Javasoft\\Java Development Kit"), QSettings::NativeFormat);
             QStringList allVersions = settings.childGroups();
@@ -1366,7 +1366,7 @@ void AndroidConfigurations::updateAndroidDevice()
 {
     DeviceManager * const devMgr = DeviceManager::instance();
     if (m_instance->m_config.adbToolPath().exists())
-        devMgr->addDevice(IDevice::Ptr(new Internal::AndroidDevice));
+        devMgr->addDevice(IDevice::Ptr(new AndroidDevice));
     else if (devMgr->find(Constants::ANDROID_DEVICE_ID))
         devMgr->removeDevice(Core::Id(Constants::ANDROID_DEVICE_ID));
 }

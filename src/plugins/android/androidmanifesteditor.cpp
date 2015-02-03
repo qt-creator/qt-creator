@@ -42,7 +42,7 @@
 using namespace Android;
 using namespace Internal;
 
-Android::Internal::AndroidManifestEditor::AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget)
+AndroidManifestEditor::AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget)
     : Core::IEditor(editorWidget), m_toolBar(0)
 {
     m_toolBar = new QToolBar(editorWidget);

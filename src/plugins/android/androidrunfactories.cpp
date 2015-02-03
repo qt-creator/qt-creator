@@ -56,8 +56,7 @@ AndroidRunControlFactory::AndroidRunControlFactory(QObject *parent)
 {
 }
 
-bool AndroidRunControlFactory::canRun(RunConfiguration *runConfiguration,
-                ProjectExplorer::RunMode mode) const
+bool AndroidRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
 {
     if (mode != NormalRunMode && mode != DebugRunMode && mode != QmlProfilerRunMode)
         return false;
@@ -65,7 +64,7 @@ bool AndroidRunControlFactory::canRun(RunConfiguration *runConfiguration,
 }
 
 RunControl *AndroidRunControlFactory::create(RunConfiguration *runConfig,
-                                        ProjectExplorer::RunMode mode, QString *errorMessage)
+                                        RunMode mode, QString *errorMessage)
 {
     Q_ASSERT(canRun(runConfig, mode));
     AndroidRunConfiguration *rc = qobject_cast<AndroidRunConfiguration *>(runConfig);
