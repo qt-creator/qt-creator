@@ -37,14 +37,14 @@ namespace RemoteLinux {
 
 using namespace Internal;
 
-RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target,
+RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(Target *target,
         const Core::Id id, const QString &defaultDisplayName)
     : DeployConfiguration(target, id)
 {
     setDefaultDisplayName(defaultDisplayName);
 }
 
-RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target,
+RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(Target *target,
         RemoteLinuxDeployConfiguration *source)
     : DeployConfiguration(target, source)
 { }

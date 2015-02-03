@@ -90,7 +90,7 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *parent, Core::I
     init();
 }
 
-RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(ProjectExplorer::Target *parent,
+RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *parent,
         RemoteLinuxRunConfiguration *source)
     : AbstractRemoteLinuxRunConfiguration(parent, source),
       d(new RemoteLinuxRunConfigurationPrivate(source->d))

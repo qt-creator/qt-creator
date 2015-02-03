@@ -48,7 +48,7 @@ class RemoteLinuxRunControl::RemoteLinuxRunControlPrivate
 {
 public:
     bool running;
-    ProjectExplorer::DeviceApplicationRunner runner;
+    DeviceApplicationRunner runner;
     IDevice::ConstPtr device;
     QString remoteExecutable;
     QStringList arguments;
@@ -57,7 +57,7 @@ public:
 };
 
 RemoteLinuxRunControl::RemoteLinuxRunControl(RunConfiguration *rc)
-        : RunControl(rc, ProjectExplorer::NormalRunMode), d(new RemoteLinuxRunControlPrivate)
+        : RunControl(rc, NormalRunMode), d(new RemoteLinuxRunControlPrivate)
 {
     setIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
 
@@ -80,15 +80,15 @@ void RemoteLinuxRunControl::start()
     d->running = true;
     emit started();
     d->runner.disconnect(this);
-    connect(&d->runner, &ProjectExplorer::DeviceApplicationRunner::reportError,
+    connect(&d->runner, &DeviceApplicationRunner::reportError,
             this, &RemoteLinuxRunControl::handleErrorMessage);
-    connect(&d->runner, &ProjectExplorer::DeviceApplicationRunner::remoteStderr,
+    connect(&d->runner, &DeviceApplicationRunner::remoteStderr,
             this, &RemoteLinuxRunControl::handleRemoteErrorOutput);
-    connect(&d->runner, &ProjectExplorer::DeviceApplicationRunner::remoteStdout,
+    connect(&d->runner, &DeviceApplicationRunner::remoteStdout,
             this, &RemoteLinuxRunControl::handleRemoteOutput);
-    connect(&d->runner, &ProjectExplorer::DeviceApplicationRunner::finished,
+    connect(&d->runner, &DeviceApplicationRunner::finished,
             this, &RemoteLinuxRunControl::handleRunnerFinished);
-    connect(&d->runner, &ProjectExplorer::DeviceApplicationRunner::reportProgress,
+    connect(&d->runner, &DeviceApplicationRunner::reportProgress,
             this, &RemoteLinuxRunControl::handleProgressReport);
     d->runner.setEnvironment(d->environment);
     d->runner.setWorkingDirectory(d->workingDir);

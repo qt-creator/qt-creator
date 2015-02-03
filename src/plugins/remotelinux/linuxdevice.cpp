@@ -123,7 +123,7 @@ private:
     }
 };
 
-class LinuxPortsGatheringMethod : public ProjectExplorer::PortsGatheringMethod
+class LinuxPortsGatheringMethod : public PortsGatheringMethod
 {
     QByteArray commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const
     {
@@ -175,7 +175,7 @@ QString LinuxDevice::displayType() const
     return tr("Generic Linux");
 }
 
-ProjectExplorer::IDeviceWidget *LinuxDevice::createWidget()
+IDeviceWidget *LinuxDevice::createWidget()
 {
     return new GenericLinuxDeviceConfigurationWidget(sharedFromThis());
 }
@@ -224,7 +224,7 @@ LinuxDevice::Ptr LinuxDevice::create()
     return Ptr(new LinuxDevice);
 }
 
-ProjectExplorer::IDevice::Ptr LinuxDevice::clone() const
+IDevice::Ptr LinuxDevice::clone() const
 {
     return Ptr(new LinuxDevice(*this));
 }

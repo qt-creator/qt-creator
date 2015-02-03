@@ -59,7 +59,7 @@ public:
     AbstractRemoteLinuxRunSupport::State state;
     DeviceApplicationRunner appRunner;
     DeviceUsedPortsGatherer portsGatherer;
-    const ProjectExplorer::IDevice::ConstPtr device;
+    const IDevice::ConstPtr device;
     Utils::PortList portList;
     const QString remoteFilePath;
     const QStringList arguments;

@@ -61,8 +61,8 @@ public:
     LinuxDeviceDebugSupportPrivate(const AbstractRemoteLinuxRunConfiguration *runConfig,
             DebuggerRunControl *runControl)
         : runControl(runControl),
-          qmlDebugging(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useQmlDebugger()),
-          cppDebugging(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useCppDebugger()),
+          qmlDebugging(runConfig->extraAspect<DebuggerRunConfigurationAspect>()->useQmlDebugger()),
+          cppDebugging(runConfig->extraAspect<DebuggerRunConfigurationAspect>()->useCppDebugger()),
           gdbServerPort(-1), qmlPort(-1)
     {
     }
@@ -93,8 +93,8 @@ DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const AbstractR
     if (ToolChain *tc = ToolChainKitInformation::toolChain(k))
         params.toolChainAbi = tc->targetAbi();
 
-    Debugger::DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
+    DebuggerRunConfigurationAspect *aspect
+            = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     if (aspect->useQmlDebugger()) {
         params.languages |= QmlLanguage;
         params.qmlServerAddress = device->sshParameters().host;

@@ -59,7 +59,7 @@ void PackageUploader::uploadPackage(SshConnection *connection,
     m_localFilePath = localFilePath;
     m_remoteFilePath = remoteFilePath;
     m_connection = connection;
-    connect(m_connection, &QSsh::SshConnection::error,
+    connect(m_connection, &SshConnection::error,
             this, &PackageUploader::handleConnectionFailure);
     m_uploader = m_connection->createSftpChannel();
     connect(m_uploader.data(), SIGNAL(initialized()), this,

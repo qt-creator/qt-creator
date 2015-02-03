@@ -164,7 +164,7 @@ void GenericLinuxDeviceConfigurationWidget::hostKeyCheckingChanged(bool doCheck)
 {
     SshConnectionParameters sshParams = device()->sshParameters();
     sshParams.hostKeyCheckingMode
-            = doCheck ? QSsh::SshHostKeyCheckingAllowNoMatch : QSsh::SshHostKeyCheckingNone;
+            = doCheck ? SshHostKeyCheckingAllowNoMatch : SshHostKeyCheckingNone;
     device()->setSshParameters(sshParams);
 }
 

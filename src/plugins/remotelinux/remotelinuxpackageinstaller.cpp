@@ -45,8 +45,8 @@ public:
 
     bool isRunning;
     IDevice::ConstPtr deviceConfig;
-    QSsh::SshRemoteProcessRunner *installer;
-    QSsh::SshRemoteProcessRunner *killProcess;
+    SshRemoteProcessRunner *installer;
+    SshRemoteProcessRunner *killProcess;
 };
 
 } // namespace Internal
@@ -70,13 +70,13 @@ void AbstractRemoteLinuxPackageInstaller::installPackage(const IDevice::ConstPtr
     prepareInstallation();
     if (!d->installer)
         d->installer = new SshRemoteProcessRunner(this);
-    connect(d->installer, &QSsh::SshRemoteProcessRunner::connectionError,
+    connect(d->installer, &SshRemoteProcessRunner::connectionError,
             this, &AbstractRemoteLinuxPackageInstaller::handleConnectionError);
-    connect(d->installer, &QSsh::SshRemoteProcessRunner::readyReadStandardOutput,
+    connect(d->installer, &SshRemoteProcessRunner::readyReadStandardOutput,
             this, &AbstractRemoteLinuxPackageInstaller::handleInstallerOutput);
-    connect(d->installer, &QSsh::SshRemoteProcessRunner::readyReadStandardError,
+    connect(d->installer, &SshRemoteProcessRunner::readyReadStandardError,
             this, &AbstractRemoteLinuxPackageInstaller::handleInstallerErrorOutput);
-    connect(d->installer, &QSsh::SshRemoteProcessRunner::processClosed,
+    connect(d->installer, &SshRemoteProcessRunner::processClosed,
             this, &AbstractRemoteLinuxPackageInstaller::handleInstallationFinished);
 
     QString cmdLine = installCommandLine(packageFilePath);

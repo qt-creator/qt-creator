@@ -156,7 +156,7 @@ void GenericDirectUploadService::handleSftpChannelError(const QString &message)
     handleDeploymentDone();
 }
 
-void GenericDirectUploadService::handleUploadFinished(QSsh::SftpJobId jobId, const QString &errorMsg)
+void GenericDirectUploadService::handleUploadFinished(SftpJobId jobId, const QString &errorMsg)
 {
     Q_UNUSED(jobId);
 

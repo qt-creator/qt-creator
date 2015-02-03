@@ -96,13 +96,13 @@ public:
 
 } // namespace Internal
 
-GenericDirectUploadStep::GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, Core::Id id)
+GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl, Core::Id id)
     : AbstractRemoteLinuxDeployStep(bsl, id)
 {
     ctor();
 }
 
-GenericDirectUploadStep::GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, GenericDirectUploadStep *other)
+GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl, GenericDirectUploadStep *other)
     : AbstractRemoteLinuxDeployStep(bsl, other)
 {
     ctor();
