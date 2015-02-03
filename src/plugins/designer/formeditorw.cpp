@@ -130,7 +130,7 @@ class FormWindowEditorFactory : public TextEditor::TextEditorFactory
 public:
     FormWindowEditorFactory()
     {
-        setId(Designer::Constants::K_DESIGNER_XML_EDITOR_ID);
+        setId(K_DESIGNER_XML_EDITOR_ID);
         setEditorCreator([]() { return new FormWindowEditor; });
         setEditorWidgetCreator([]() { return new Internal::DesignerXmlEditorWidget; });
         setDuplicatedSupported(false);
@@ -168,29 +168,29 @@ public:
 
     void setupActions();
     void setupViewActions();
-    void addDockViewAction(Core::ActionContainer *viewMenu,
+    void addDockViewAction(ActionContainer *viewMenu,
                            int index,
-                           const Core::Context &context,
-                           const QString &title, Core::Id id);
+                           const Context &context,
+                           const QString &title, Id id);
 
-    Core::ActionContainer *createPreviewStyleMenu(QActionGroup *actionGroup);
+    ActionContainer *createPreviewStyleMenu(QActionGroup *actionGroup);
 
     void critical(const QString &errorMessage);
-    void bindShortcut(Core::Command *command, QAction *action);
+    void bindShortcut(Command *command, QAction *action);
     QAction *createEditModeAction(QActionGroup *ag,
-                                  const Core::Context &context,
-                                  Core::ActionContainer *medit,
+                                  const Context &context,
+                                  ActionContainer *medit,
                                   const QString &actionName,
-                                  Core::Id id,
+                                  Id id,
                                   int toolNumber,
                                   const QString &iconName = QString(),
                                   const QString &keySequence = QString());
-    Core::Command *addToolAction(QAction *a,
-                                 const Core::Context &context, Core::Id id,
-                                 Core::ActionContainer *c1, const QString &keySequence = QString(),
-                                 Core::Id groupId = Core::Id());
+    Command *addToolAction(QAction *a,
+                                 const Context &context, Id id,
+                                 ActionContainer *c1, const QString &keySequence = QString(),
+                                 Id groupId = Id());
     QToolBar *createEditorToolBar() const;
-    Core::IEditor *createEditor();
+    IEditor *createEditor();
 
 public:
     QDesignerFormEditorInterface *m_formeditor;
@@ -198,12 +198,12 @@ public:
     QDesignerFormWindowManagerInterface *m_fwm;
     FormEditorW::InitializationStage m_initStage;
 
-    QWidget *m_designerSubWindows[Designer::Constants::DesignerSubWindowCount];
+    QWidget *m_designerSubWindows[DesignerSubWindowCount];
 
     QAction *m_lockAction;
     QAction *m_resetLayoutAction;
 
-    QList<Core::IOptionsPage *> m_settingsPages;
+    QList<IOptionsPage *> m_settingsPages;
     QActionGroup *m_actionGroupEditMode;
     QAction *m_actionPrint;
     QAction *m_actionPreview;
@@ -213,17 +213,17 @@ public:
     QSignalMapper m_shortcutMapper;
 
     DesignerContext *m_context;
-    Core::Context m_contexts;
+    Context m_contexts;
 
-    QList<Core::Id> m_toolActionIds;
+    QList<Id> m_toolActionIds;
     QWidget *m_modeWidget;
     EditorWidget *m_editorWidget;
-    Core::DesignMode *m_designMode;
+    DesignMode *m_designMode;
 
     QWidget *m_editorToolBar;
-    Core::EditorToolBar *m_toolBar;
+    EditorToolBar *m_toolBar;
 
-    QMap<Core::Command *, QAction *> m_commandToDesignerAction;
+    QMap<Command *, QAction *> m_commandToDesignerAction;
     FormWindowEditorFactory *m_xmlEditorFactory;
 };
 
@@ -254,7 +254,7 @@ FormEditorData::FormEditorData() :
     QTC_ASSERT(!d, return);
     d = this;
 
-    qFill(m_designerSubWindows, m_designerSubWindows + Designer::Constants::DesignerSubWindowCount,
+    qFill(m_designerSubWindows, m_designerSubWindows + DesignerSubWindowCount,
           static_cast<QWidget *>(0));
 
     m_formeditor->setTopLevel(ICore::mainWindow());
@@ -263,7 +263,7 @@ FormEditorData::FormEditorData() :
     m_fwm = m_formeditor->formWindowManager();
     QTC_ASSERT(m_fwm, return);
 
-    m_contexts.add(Designer::Constants::C_FORMEDITOR);
+    m_contexts.add(C_FORMEDITOR);
 
     setupActions();
 
@@ -456,7 +456,7 @@ void FormEditorData::fullInit()
 
 void FormEditorData::initDesignerSubWindows()
 {
-    qFill(m_designerSubWindows, m_designerSubWindows + Designer::Constants::DesignerSubWindowCount, static_cast<QWidget*>(0));
+    qFill(m_designerSubWindows, m_designerSubWindows + DesignerSubWindowCount, static_cast<QWidget*>(0));
 
     QDesignerWidgetBoxInterface *wb = QDesignerComponents::createWidgetBox(m_formeditor, 0);
     wb->setWindowTitle(tr("Widget Box"));
@@ -489,7 +489,7 @@ void FormEditorData::initDesignerSubWindows()
     m_initStage = FormEditorW::SubwindowsInitialized;
 }
 
-QList<Core::IOptionsPage *> FormEditorW::optionsPages()
+QList<IOptionsPage *> FormEditorW::optionsPages()
 {
     return d->m_settingsPages;
 }
@@ -760,7 +760,7 @@ QAction *FormEditorData::createEditModeAction(QActionGroup *ag,
     if (!iconName.isEmpty())
          rc->setIcon(designerIcon(iconName));
     Command *command = ActionManager::registerAction(rc, id, context);
-    command->setAttribute(Core::Command::CA_Hide);
+    command->setAttribute(Command::CA_Hide);
     if (!keySequence.isEmpty())
         command->setDefaultKeySequence(QKeySequence(keySequence));
     bindShortcut(command, rc);
@@ -773,7 +773,7 @@ QAction *FormEditorData::createEditModeAction(QActionGroup *ag,
 // Create a tool action
 Command *FormEditorData::addToolAction(QAction *a, const Context &context, Id id,
                                        ActionContainer *c1, const QString &keySequence,
-                                       Core::Id groupId)
+                                       Id groupId)
 {
     Command *command = ActionManager::registerAction(a, id, context);
     if (!keySequence.isEmpty())
@@ -784,7 +784,7 @@ Command *FormEditorData::addToolAction(QAction *a, const Context &context, Id id
     return command;
 }
 
-Core::IEditor *FormEditorData::createEditor()
+IEditor *FormEditorData::createEditor()
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << "FormEditorW::createEditor";
@@ -801,7 +801,7 @@ Core::IEditor *FormEditorData::createEditor()
     m_toolBar->addEditor(formWindowEditor);
 
     if (formWindowEditor) {
-        Core::InfoBarEntry info(Core::Id(Constants::INFO_READ_ONLY),
+        InfoBarEntry info(Id(Constants::INFO_READ_ONLY),
                                 tr("This file can only be edited in <b>Design</b> mode."));
         info.setCustomButtonInfo(tr("Switch Mode"), []() { ModeManager::activateMode(Core::Constants::MODE_DESIGN); });
         formWindowEditor->document()->infoBar()->addInfo(info);

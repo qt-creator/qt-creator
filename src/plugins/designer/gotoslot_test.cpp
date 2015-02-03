@@ -234,15 +234,18 @@ public:
 
 } // anonymous namespace
 
+namespace Designer {
+namespace Internal {
+
 /// Check: Executes "Go To Slot..." on a QPushButton in a *.ui file and checks if the respective
 /// header and source files are correctly updated.
-void Designer::Internal::FormEditorPlugin::test_gotoslot()
+void FormEditorPlugin::test_gotoslot()
 {
     QFETCH(QStringList, files);
     (GoToSlotTestCase(files));
 }
 
-void Designer::Internal::FormEditorPlugin::test_gotoslot_data()
+void FormEditorPlugin::test_gotoslot_data()
 {
     typedef QLatin1String _;
     QTest::addColumn<QStringList>("files");
@@ -282,3 +285,6 @@ void Designer::Internal::FormEditorPlugin::test_gotoslot_data()
             << testDataDir.file(_("form.h"))
             << testDataDir.file(_("form.ui")));
 }
+
+} // namespace Internal
+} // namespace Designer

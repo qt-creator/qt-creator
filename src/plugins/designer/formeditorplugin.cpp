@@ -115,8 +115,8 @@ void FormEditorPlugin::extensionsInitialized()
     mtools->addMenu(mformtools);
 
     connect(m_actionSwitchSource, &QAction::triggered, this, &FormEditorPlugin::switchSourceForm);
-    Core::Context context(Designer::Constants::C_FORMEDITOR, Core::Constants::C_EDITORMANAGER);
-    Core::Command *cmd = Core::ActionManager::registerAction(m_actionSwitchSource,
+    Context context(C_FORMEDITOR, Core::Constants::C_EDITORMANAGER);
+    Command *cmd = ActionManager::registerAction(m_actionSwitchSource,
                                                              "FormEditor.FormSwitchSource", context);
     cmd->setDefaultKeySequence(tr("Shift+F4"));
     mformtools->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
@@ -192,5 +192,5 @@ void FormEditorPlugin::switchSourceForm()
 {
     const QString fileToOpen = otherFile();
     if (!fileToOpen.isEmpty())
-        Core::EditorManager::openEditor(fileToOpen);
+        EditorManager::openEditor(fileToOpen);
 }
