@@ -564,7 +564,7 @@ IosDevice::ConstPtr IosKitInformation::device(Kit *kit)
 {
     if (!kit)
         return IosDevice::ConstPtr();
-    ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(kit);
+    IDevice::ConstPtr dev = DeviceKitInformation::device(kit);
     IosDevice::ConstPtr res = dev.dynamicCast<const IosDevice>();
     return res;
 }

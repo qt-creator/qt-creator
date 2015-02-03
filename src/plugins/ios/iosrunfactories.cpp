@@ -132,8 +132,8 @@ bool IosRunConfigurationFactory::canHandle(Target *t) const
 
 QList<RunConfiguration *> IosRunConfigurationFactory::runConfigurationsForNode(Target *t, const Node *n)
 {
-    QList<ProjectExplorer::RunConfiguration *> result;
-    foreach (ProjectExplorer::RunConfiguration *rc, t->runConfigurations())
+    QList<RunConfiguration *> result;
+    foreach (RunConfiguration *rc, t->runConfigurations())
         if (IosRunConfiguration *qt4c = qobject_cast<IosRunConfiguration *>(rc))
                 if (qt4c->profilePath() == n->path())
                     result << rc;
@@ -157,7 +157,7 @@ IosRunControlFactory::IosRunControlFactory(QObject *parent)
 }
 
 bool IosRunControlFactory::canRun(RunConfiguration *runConfiguration,
-                ProjectExplorer::RunMode mode) const
+                RunMode mode) const
 {
     if (mode != NormalRunMode && mode != DebugRunMode && mode != QmlProfilerRunMode
             && mode != DebugRunModeWithBreakOnMain)
@@ -166,16 +166,16 @@ bool IosRunControlFactory::canRun(RunConfiguration *runConfiguration,
 }
 
 RunControl *IosRunControlFactory::create(RunConfiguration *runConfig,
-                                        ProjectExplorer::RunMode mode, QString *errorMessage)
+                                        RunMode mode, QString *errorMessage)
 {
     Q_ASSERT(canRun(runConfig, mode));
     IosRunConfiguration *rc = qobject_cast<IosRunConfiguration *>(runConfig);
     Q_ASSERT(rc);
     RunControl *res = 0;
-    Core::Id devId = ProjectExplorer::DeviceKitInformation::deviceId(rc->target()->kit());
+    Core::Id devId = DeviceKitInformation::deviceId(rc->target()->kit());
     // The device can only run an application at a time, if an app is running stop it.
     if (m_activeRunControls.contains(devId)) {
-        if (QPointer<ProjectExplorer::RunControl> activeRunControl = m_activeRunControls[devId])
+        if (QPointer<RunControl> activeRunControl = m_activeRunControls[devId])
             activeRunControl->stop();
         m_activeRunControls.remove(devId);
     }

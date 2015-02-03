@@ -350,7 +350,7 @@ bool IosBuildStepFactory::canCreate(BuildStepList *parent, const Id id) const
             && parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
         return false;
     Kit *kit = parent->target()->kit();
-    Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(kit);
+    Id deviceType = DeviceTypeKitInformation::deviceTypeId(kit);
     return ((deviceType == Constants::IOS_DEVICE_TYPE
             || deviceType == Constants::IOS_SIMULATOR_TYPE)
             && id == IOS_BUILD_STEP_ID);
@@ -403,7 +403,7 @@ BuildStep *IosBuildStepFactory::restore(BuildStepList *parent, const QVariantMap
 QList<Id> IosBuildStepFactory::availableCreationIds(BuildStepList *parent) const
 {
     Kit *kit = parent->target()->kit();
-    Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(kit);
+    Id deviceType = DeviceTypeKitInformation::deviceTypeId(kit);
     if (deviceType == Constants::IOS_DEVICE_TYPE
             || deviceType == Constants::IOS_SIMULATOR_TYPE)
         return QList<Id>() << Id(IOS_BUILD_STEP_ID);

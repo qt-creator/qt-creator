@@ -74,7 +74,7 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
     Target *target = runConfig->target();
     if (!target)
         return 0;
-    ProjectExplorer::IDevice::ConstPtr device = DeviceKitInformation::device(target->kit());
+    IDevice::ConstPtr device = DeviceKitInformation::device(target->kit());
     if (device.isNull())
         return 0;
     QmakeProject *project = static_cast<QmakeProject *>(target->project());
@@ -119,8 +119,8 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
     if (!params.breakOnMain)
         params.continueAfterAttach = true;
 
-    Debugger::DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
+    DebuggerRunConfigurationAspect *aspect
+            = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     bool cppDebug = aspect->useCppDebugger();
     bool qmlDebug = aspect->useQmlDebugger();
     if (cppDebug) {

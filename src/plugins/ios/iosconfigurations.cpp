@@ -233,7 +233,7 @@ void IosConfigurations::updateAutomaticKitList()
             qtVersionsForArch[abi.architecture()].append(qtVersion);
     }
 
-    const DebuggerItem *possibleDebugger = DebuggerItemManager::findByEngineType(Debugger::LldbEngineType);
+    const DebuggerItem *possibleDebugger = DebuggerItemManager::findByEngineType(LldbEngineType);
     QVariant debuggerId = (possibleDebugger ? possibleDebugger->id() : QVariant());
 
     QList<Kit *> existingKits;
@@ -318,16 +318,16 @@ void IosConfigurations::updateAutomaticKitList()
                     }
                     kitAtt->setUnexpandedDisplayName(displayName);
                 }
-                kitAtt->setIconPath(Utils::FileName::fromString(
+                kitAtt->setIconPath(FileName::fromString(
                                         QLatin1String(Constants::IOS_SETTINGS_CATEGORY_ICON)));
                 DeviceTypeKitInformation::setDeviceTypeId(kitAtt, pDeviceType);
                 ToolChainKitInformation::setToolChain(kitAtt, pToolchain);
                 QtKitInformation::setQtVersion(kitAtt, qt);
-                if ((!Debugger::DebuggerKitInformation::debugger(kitAtt)
-                        || !Debugger::DebuggerKitInformation::debugger(kitAtt)->isValid()
-                        || Debugger::DebuggerKitInformation::debugger(kitAtt)->engineType() != Debugger::LldbEngineType)
+                if ((!DebuggerKitInformation::debugger(kitAtt)
+                        || !DebuggerKitInformation::debugger(kitAtt)->isValid()
+                        || DebuggerKitInformation::debugger(kitAtt)->engineType() != LldbEngineType)
                         && debuggerId.isValid())
-                    Debugger::DebuggerKitInformation::setDebugger(kitAtt,
+                    DebuggerKitInformation::setDebugger(kitAtt,
                                                                   debuggerId);
 
                 kitAtt->setMutable(DeviceKitInformation::id(), true);
@@ -335,7 +335,7 @@ void IosConfigurations::updateAutomaticKitList()
                 kitAtt->setSticky(ToolChainKitInformation::id(), true);
                 kitAtt->setSticky(DeviceTypeKitInformation::id(), true);
                 kitAtt->setSticky(SysRootKitInformation::id(), true);
-                kitAtt->setSticky(Debugger::DebuggerKitInformation::id(), false);
+                kitAtt->setSticky(DebuggerKitInformation::id(), false);
 
                 SysRootKitInformation::setSysRoot(kitAtt, p.sdkPath);
                 // QmakeProjectManager::QmakeKitInformation::setMkspec(newKit,

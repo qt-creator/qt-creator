@@ -132,7 +132,7 @@ void IosRunConfiguration::deviceChanges() {
     enabledCheck();
 }
 
-void IosRunConfiguration::proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success,
+void IosRunConfiguration::proFileUpdated(QmakeProFileNode *pro, bool success,
                                          bool parseInProgress)
 {
     if (m_profilePath != pro->path())
@@ -151,7 +151,7 @@ QWidget *IosRunConfiguration::createConfigurationWidget()
     return new IosRunConfigurationWidget(this);
 }
 
-Utils::OutputFormatter *IosRunConfiguration::createOutputFormatter() const
+OutputFormatter *IosRunConfiguration::createOutputFormatter() const
 {
     return new QtSupport::QtOutputFormatter(target()->project());
 }
@@ -211,9 +211,9 @@ QString IosRunConfiguration::applicationName() const
     return QString();
 }
 
-Utils::FileName IosRunConfiguration::bundleDirectory() const
+FileName IosRunConfiguration::bundleDirectory() const
 {
-    Utils::FileName res;
+    FileName res;
     Core::Id devType = DeviceTypeKitInformation::deviceTypeId(target()->kit());
     bool isDevice = (devType == Constants::IOS_DEVICE_TYPE);
     if (!isDevice && devType != Constants::IOS_SIMULATOR_TYPE) {
@@ -259,7 +259,7 @@ Utils::FileName IosRunConfiguration::bundleDirectory() const
     return res;
 }
 
-Utils::FileName IosRunConfiguration::localExecutable() const
+FileName IosRunConfiguration::localExecutable() const
 {
     return bundleDirectory().appendPath(applicationName());
 }
@@ -405,7 +405,7 @@ IosRunConfigurationWidget::~IosRunConfigurationWidget()
 
 QString IosRunConfigurationWidget::argListToString(const QStringList &args) const
 {
-    return Utils::QtcProcess::joinArgs(args);
+    return QtcProcess::joinArgs(args);
 }
 
 QStringList IosRunConfigurationWidget::stringToArgList(const QString &args) const

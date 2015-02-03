@@ -89,20 +89,20 @@ QString IosQtVersion::invalidReason() const
     return tmp;
 }
 
-QList<ProjectExplorer::Abi> IosQtVersion::detectQtAbis() const
+QList<Abi> IosQtVersion::detectQtAbis() const
 {
-    QList<ProjectExplorer::Abi> abis = qtAbisFromLibrary(qtCorePaths(versionInfo(), qtVersionString()));
+    QList<Abi> abis = qtAbisFromLibrary(qtCorePaths(versionInfo(), qtVersionString()));
     for (int i = 0; i < abis.count(); ++i) {
         abis[i] = Abi(abis.at(i).architecture(),
                       abis.at(i).os(),
-                      ProjectExplorer::Abi::GenericMacFlavor,
+                      Abi::GenericMacFlavor,
                       abis.at(i).binaryFormat(),
                       abis.at(i).wordWidth());
     }
     return abis;
 }
 
-void IosQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const
+void IosQtVersion::addToEnvironment(const Kit *k, Utils::Environment &env) const
 {
     Q_UNUSED(k);
     Q_UNUSED(env);

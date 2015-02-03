@@ -80,7 +80,7 @@ RunControl *IosAnalyzeSupport::createAnalyzeRunControl(IosRunConfiguration *runC
     Target *target = runConfig->target();
     if (!target)
         return 0;
-    ProjectExplorer::IDevice::ConstPtr device = DeviceKitInformation::device(target->kit());
+    IDevice::ConstPtr device = DeviceKitInformation::device(target->kit());
     if (device.isNull())
         return 0;
     AnalyzerStartParameters params;

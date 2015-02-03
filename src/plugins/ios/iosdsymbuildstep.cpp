@@ -400,7 +400,7 @@ QList<Id> IosDsymBuildStepFactory::availableCreationIds(BuildStepList *parent) c
             && parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
         return QList<Id>();
     Kit *kit = parent->target()->kit();
-    Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(kit);
+    Id deviceType = DeviceTypeKitInformation::deviceTypeId(kit);
     if (deviceType == Constants::IOS_DEVICE_TYPE
             || deviceType == Constants::IOS_SIMULATOR_TYPE)
         return QList<Id>() << Id(Constants::IOS_DSYM_BUILD_STEP_ID);
@@ -414,7 +414,7 @@ bool IosDsymBuildStepFactory::canCreate(BuildStepList *parent, const Id id) cons
             && parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
         return false;
     Kit *kit = parent->target()->kit();
-    Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(kit);
+    Id deviceType = DeviceTypeKitInformation::deviceTypeId(kit);
     return ((deviceType == Constants::IOS_DEVICE_TYPE
             || deviceType == Constants::IOS_SIMULATOR_TYPE)
             && id == Constants::IOS_DSYM_BUILD_STEP_ID);

@@ -209,7 +209,7 @@ IosSimulator::ConstPtr IosKitInformation::simulator(Kit *kit)
 {
     if (!kit)
         return IosSimulator::ConstPtr();
-    ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(kit);
+    IDevice::ConstPtr dev = DeviceKitInformation::device(kit);
     IosSimulator::ConstPtr res = dev.dynamicCast<const IosSimulator>();
     return res;
 }

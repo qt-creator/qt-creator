@@ -65,14 +65,14 @@ namespace Internal {
 
 const Core::Id IosDeployStep::Id("Qt4ProjectManager.IosDeployStep");
 
-IosDeployStep::IosDeployStep(ProjectExplorer::BuildStepList *parent)
+IosDeployStep::IosDeployStep(BuildStepList *parent)
     : BuildStep(parent, Id)
     , m_expectFail(false)
 {
     ctor();
 }
 
-IosDeployStep::IosDeployStep(ProjectExplorer::BuildStepList *parent,
+IosDeployStep::IosDeployStep(BuildStepList *parent,
     IosDeployStep *other)
     : BuildStep(parent, other)
     , m_expectFail(false)
@@ -96,8 +96,8 @@ void IosDeployStep::ctor()
 
 void IosDeployStep::updateDisplayNames()
 {
-    ProjectExplorer::IDevice::ConstPtr dev =
-            ProjectExplorer::DeviceKitInformation::device(target()->kit());
+    IDevice::ConstPtr dev =
+            DeviceKitInformation::device(target()->kit());
     const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
     setDefaultDisplayName(tr("Deploy to %1").arg(devName));
     setDisplayName(tr("Deploy to %1").arg(devName));
@@ -106,7 +106,7 @@ void IosDeployStep::updateDisplayNames()
 bool IosDeployStep::init()
 {
     QTC_ASSERT(m_transferStatus == NoTransfer, return false);
-    m_device = ProjectExplorer::DeviceKitInformation::device(target()->kit());
+    m_device = DeviceKitInformation::device(target()->kit());
     IosRunConfiguration * runConfig = qobject_cast<IosRunConfiguration *>(
                 this->target()->activeRunConfiguration());
     QTC_ASSERT(runConfig, return false);
@@ -229,12 +229,12 @@ BuildStepConfigWidget *IosDeployStep::createConfigWidget()
 
 bool IosDeployStep::fromMap(const QVariantMap &map)
 {
-    return ProjectExplorer::BuildStep::fromMap(map);
+    return BuildStep::fromMap(map);
 }
 
 QVariantMap IosDeployStep::toMap() const
 {
-    QVariantMap map = ProjectExplorer::BuildStep::toMap();
+    QVariantMap map = BuildStep::toMap();
     return map;
 }
 
