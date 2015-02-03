@@ -192,7 +192,8 @@ void QbsManager::addQtProfileFromKit(const QString &profileName, const ProjectEx
 
 void QbsManager::addProfileFromKit(const ProjectExplorer::Kit *k)
 {
-    const QString name = QString::fromLatin1("qtc_") + k->fileSystemFriendlyName();
+    const QString name = QString::fromLatin1("qtc_%1_%2").arg(k->fileSystemFriendlyName().left(8),
+            QString::number(k->id().uniqueIdentifier(), 16));
     setProfileForKit(name, k);
     addQtProfileFromKit(name, k);
 
