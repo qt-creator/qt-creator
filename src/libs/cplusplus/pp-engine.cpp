@@ -140,6 +140,12 @@ static bool isQtReservedWord(const char *name, int size)
     return false;
 }
 
+static void nestingTooDeep()
+{
+#ifndef NO_DEBUG
+        std::cerr << "*** WARNING #if / #ifdef nesting exceeded the max level " << MAX_LEVEL << std::endl;
+#endif
+}
 
 } // anonymous namespace
 
@@ -1819,6 +1825,12 @@ void Preprocessor::handleIfDirective(PPToken *tk)
     lex(tk); // consume "if" token
     Value result;
     const PPToken lastExpressionToken = evalExpression(tk, result);
+
+    if (m_state.m_ifLevel >= MAX_LEVEL - 1) {
+        nestingTooDeep();
+        return;
+    }
+
     const bool value = !result.is_zero();
 
     const bool wasSkipping = m_state.m_skipping[m_state.m_ifLevel];
@@ -1945,12 +1957,17 @@ void Preprocessor::handleIfDefDirective(bool checkUndefined, PPToken *tk)
             value = !value;
 
         const bool wasSkipping = m_state.m_skipping[m_state.m_ifLevel];
-        ++m_state.m_ifLevel;
-        m_state.m_trueTest[m_state.m_ifLevel] = value;
-        m_state.m_skipping[m_state.m_ifLevel] = wasSkipping ? wasSkipping : !value;
 
-        if (m_client && !wasSkipping && !value)
-            startSkippingBlocks(*tk);
+        if (m_state.m_ifLevel < MAX_LEVEL - 1) {
+            ++m_state.m_ifLevel;
+            m_state.m_trueTest[m_state.m_ifLevel] = value;
+            m_state.m_skipping[m_state.m_ifLevel] = wasSkipping ? wasSkipping : !value;
+
+            if (m_client && !wasSkipping && !value)
+                startSkippingBlocks(*tk);
+        } else {
+            nestingTooDeep();
+        }
 
         lex(tk); // consume the identifier
 #ifndef NO_DEBUG

@@ -390,6 +390,7 @@ private slots:
     void empty_trailing_lines_data();
     void undef();
     void concat();
+    void excessive_nesting();
 };
 
 // Remove all #... lines, and 'simplify' string, to allow easily comparing the result
@@ -1893,6 +1894,23 @@ void tst_Preprocessor::concat()
     );
     QEXPECT_FAIL(0, "QTCREATORBUG-13219", Abort);
     QCOMPARE(prep.constData(), output.constData());
+}
+
+void tst_Preprocessor::excessive_nesting()
+{
+    Environment env;
+    Preprocessor preprocess(0, &env);
+    QByteArray input;
+    const QByteArray output =
+        "# 1 \"<stdin>\"\n"
+        "# 2001 \"<stdin>\"\n";
+    for (int i = 0; i < 1000; ++i)
+        input += "#if FOO\n";
+    for (int i = 0; i < 1000; ++i)
+        input += "#endif\n";
+    QByteArray prep = preprocess.run(QLatin1String("<stdin>"), input);
+    // Output cannot be precisely determined, but it shouldn't crash.
+    QCOMPARE(prep, output);
 }
 
 void tst_Preprocessor::compare_input_output(bool keepComments)
