@@ -72,7 +72,7 @@ public:
         setAttribute(Qt::WA_MacShowFocusRect, false);
         setIndentation(indentation() * 7/10);
         header()->hide();
-        new Utils::HeaderViewStretcher(header(), 0);
+        new HeaderViewStretcher(header(), 0);
     }
 
     void contextMenuEvent(QContextMenuEvent *ev);
@@ -89,7 +89,7 @@ public:
 
     void createIconButton()
     {
-        m_iconButton = new Utils::IconButton;
+        m_iconButton = new IconButton;
         m_iconButton->setPixmap(QPixmap(QLatin1String(":/core/images/replace.png")));
         m_iconButton->setToolTip(tr("Insert variable"));
         m_iconButton->hide();
@@ -115,7 +115,7 @@ public:
     QPointer<QLineEdit> m_lineEdit;
     QPointer<QTextEdit> m_textEdit;
     QPointer<QPlainTextEdit> m_plainTextEdit;
-    QPointer<Utils::IconButton> m_iconButton;
+    QPointer<IconButton> m_iconButton;
 
     VariableTreeView *m_variableTree;
     QLabel *m_variableDescription;

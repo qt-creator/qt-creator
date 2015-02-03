@@ -250,11 +250,11 @@ MainWindow::~MainWindow()
     delete m_windowSupport;
     m_windowSupport = 0;
 
-    ExtensionSystem::PluginManager::removeObject(m_shortcutSettings);
-    ExtensionSystem::PluginManager::removeObject(m_generalSettings);
-    ExtensionSystem::PluginManager::removeObject(m_toolSettings);
-    ExtensionSystem::PluginManager::removeObject(m_mimeTypeSettings);
-    ExtensionSystem::PluginManager::removeObject(m_systemEditor);
+    PluginManager::removeObject(m_shortcutSettings);
+    PluginManager::removeObject(m_generalSettings);
+    PluginManager::removeObject(m_toolSettings);
+    PluginManager::removeObject(m_mimeTypeSettings);
+    PluginManager::removeObject(m_systemEditor);
     delete m_externalToolManager;
     m_externalToolManager = 0;
     delete m_messageManager;
@@ -280,7 +280,7 @@ MainWindow::~MainWindow()
     OutputPaneManager::destroy();
 
     // Now that the OutputPaneManager is gone, is a good time to delete the view
-    ExtensionSystem::PluginManager::removeObject(m_outputView);
+    PluginManager::removeObject(m_outputView);
     delete m_outputView;
 
     delete m_editorManager;
@@ -289,7 +289,7 @@ MainWindow::~MainWindow()
     m_progressManager = 0;
     delete m_statusBarManager;
     m_statusBarManager = 0;
-    ExtensionSystem::PluginManager::removeObject(m_coreImpl);
+    PluginManager::removeObject(m_coreImpl);
     delete m_coreImpl;
     m_coreImpl = 0;
 
@@ -314,23 +314,23 @@ bool MainWindow::init(QString *errorMessage)
     if (!MimeDatabase::addMimeTypes(QLatin1String(":/core/editormanager/BinFiles.mimetypes.xml"), errorMessage))
         return false;
 
-    ExtensionSystem::PluginManager::addObject(m_coreImpl);
+    PluginManager::addObject(m_coreImpl);
     m_statusBarManager->init();
     m_modeManager->init();
     m_progressManager->init(); // needs the status bar manager
 
-    ExtensionSystem::PluginManager::addObject(m_generalSettings);
-    ExtensionSystem::PluginManager::addObject(m_shortcutSettings);
-    ExtensionSystem::PluginManager::addObject(m_toolSettings);
-    ExtensionSystem::PluginManager::addObject(m_mimeTypeSettings);
-    ExtensionSystem::PluginManager::addObject(m_systemEditor);
+    PluginManager::addObject(m_generalSettings);
+    PluginManager::addObject(m_shortcutSettings);
+    PluginManager::addObject(m_toolSettings);
+    PluginManager::addObject(m_mimeTypeSettings);
+    PluginManager::addObject(m_systemEditor);
 
     // Add widget to the bottom, we create the view here instead of inside the
     // OutputPaneManager, since the StatusBarManager needs to be initialized before
     m_outputView = new StatusBarWidget;
     m_outputView->setWidget(OutputPaneManager::instance()->buttonsWidget());
     m_outputView->setPosition(StatusBarWidget::Second);
-    ExtensionSystem::PluginManager::addObject(m_outputView);
+    PluginManager::addObject(m_outputView);
     MessageManager::init();
     return true;
 }
@@ -342,7 +342,7 @@ void MainWindow::extensionsInitialized()
     m_statusBarManager->extensionsInitalized();
     OutputPaneManager::instance()->init();
     m_vcsManager->extensionsInitialized();
-    m_navigationWidget->setFactories(ExtensionSystem::PluginManager::getObjects<INavigationWidgetFactory>());
+    m_navigationWidget->setFactories(PluginManager::getObjects<INavigationWidgetFactory>());
 
     readSettings();
     updateContext();
@@ -364,7 +364,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 
     const QList<ICoreListener *> listeners =
-        ExtensionSystem::PluginManager::getObjects<ICoreListener>();
+        PluginManager::getObjects<ICoreListener>();
     foreach (ICoreListener *listener, listeners) {
         if (!listener->coreAboutToClose()) {
             event->ignore();
@@ -773,7 +773,7 @@ static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fil
  */
 IDocument *MainWindow::openFiles(const QStringList &fileNames, ICore::OpenFilesFlags flags)
 {
-    QList<IDocumentFactory*> documentFactories = ExtensionSystem::PluginManager::getObjects<IDocumentFactory>();
+    QList<IDocumentFactory*> documentFactories = PluginManager::getObjects<IDocumentFactory>();
     IDocument *res = 0;
 
     foreach (const QString &fileName, fileNames) {

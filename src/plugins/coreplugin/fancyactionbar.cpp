@@ -142,7 +142,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
     bool isTitledAction = defaultAction()->property("titledAction").toBool();
 
 
-    if (!Utils::HostOsInfo::isMacHost() // Mac UIs usually don't hover
+    if (!HostOsInfo::isMacHost() // Mac UIs usually don't hover
             && m_fader > 0 && isEnabled() && !isDown() && !isChecked()) {
         painter.save();
         const QColor hoverColor = creatorTheme()->color(Theme::FancyToolButtonHoverColor);
@@ -189,7 +189,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
 
         QFont normalFont(painter.font());
         QRect centerRect = rect();
-        normalFont.setPointSizeF(Utils::StyleHelper::sidebarFontSize());
+        normalFont.setPointSizeF(StyleHelper::sidebarFontSize());
         QFont boldFont(normalFont);
         boldFont.setBold(true);
         QFontMetrics fm(normalFont);
@@ -204,7 +204,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         centerRect.adjust(0, 0, 0, -lineHeight*2 - 4);
 
         iconRect.moveCenter(centerRect.center());
-        Utils::StyleHelper::drawIconWithShadow(icon(), iconRect, &painter, isEnabled() ? QIcon::Normal : QIcon::Disabled);
+        StyleHelper::drawIconWithShadow(icon(), iconRect, &painter, isEnabled() ? QIcon::Normal : QIcon::Disabled);
         painter.setFont(normalFont);
 
         QPoint textOffset = centerRect.center() - QPoint(iconRect.width()/2, iconRect.height()/2);
@@ -261,11 +261,11 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
             QStyleOption opt;
             opt.initFrom(this);
             opt.rect = rect().adjusted(rect().width() - 16, 0, -8, 0);
-            Utils::StyleHelper::drawArrow(QStyle::PE_IndicatorArrowRight, &painter, &opt);
+            StyleHelper::drawArrow(QStyle::PE_IndicatorArrowRight, &painter, &opt);
         }
     } else {
         iconRect.moveCenter(rect().center());
-        Utils::StyleHelper::drawIconWithShadow(icon(), iconRect, &painter, isEnabled() ? QIcon::Normal : QIcon::Disabled);
+        StyleHelper::drawIconWithShadow(icon(), iconRect, &painter, isEnabled() ? QIcon::Normal : QIcon::Disabled);
     }
 }
 
@@ -279,8 +279,8 @@ void FancyActionBar::paintEvent(QPaintEvent *event)
         painter.fillRect(event->rect(), creatorTheme()->color(Theme::FancyTabBarBackgroundColor));
     }
 
-    QColor light = Utils::StyleHelper::sidebarHighlight();
-    QColor dark = Utils::StyleHelper::sidebarShadow();
+    QColor light = StyleHelper::sidebarHighlight();
+    QColor dark = StyleHelper::sidebarShadow();
     painter.setPen(dark);
     painter.drawLine(rect().topLeft(), rect().topRight());
     painter.setPen(light);
@@ -292,7 +292,7 @@ QSize FancyToolButton::sizeHint() const
     QSizeF buttonSize = iconSize().expandedTo(QSize(64, 38));
     if (defaultAction()->property("titledAction").toBool()) {
         QFont boldFont(font());
-        boldFont.setPointSizeF(Utils::StyleHelper::sidebarFontSize());
+        boldFont.setPointSizeF(StyleHelper::sidebarFontSize());
         boldFont.setBold(true);
         QFontMetrics fm(boldFont);
         qreal lineHeight = fm.height();

@@ -47,7 +47,7 @@ MessageManager::MessageManager()
 {
     m_instance = this;
     m_messageOutputWindow = 0;
-    qRegisterMetaType<Core::MessageManager::PrintToOutputPaneFlags>();
+    qRegisterMetaType<MessageManager::PrintToOutputPaneFlags>();
 }
 
 MessageManager::~MessageManager()

@@ -180,7 +180,7 @@ QString ExternalTool::workingDirectory() const
     return m_workingDirectory;
 }
 
-QList<Utils::EnvironmentItem> ExternalTool::environment() const
+QList<EnvironmentItem> ExternalTool::environment() const
 {
     return m_environment;
 }
@@ -282,7 +282,7 @@ void ExternalTool::setWorkingDirectory(const QString &workingDirectory)
     m_workingDirectory = workingDirectory;
 }
 
-void ExternalTool::setEnvironment(const QList<Utils::EnvironmentItem> &items)
+void ExternalTool::setEnvironment(const QList<EnvironmentItem> &items)
 {
     m_environment = items;
 }
@@ -429,7 +429,7 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
                     QStringList lines = reader.readElementText().split(QLatin1Char(';'));
                     for (auto iter = lines.begin(); iter != lines.end(); ++iter)
                         *iter = QString::fromUtf8(QByteArray::fromPercentEncoding(iter->toUtf8()));
-                    tool->m_environment = Utils::EnvironmentItem::fromStringList(lines);
+                    tool->m_environment = EnvironmentItem::fromStringList(lines);
                 } else {
                     reader.raiseError(QString::fromLatin1("Unknown element <%1> as subelement of <%2>").arg(
                                           reader.qualifiedName().toString(), QLatin1String(kExecutable)));
@@ -507,7 +507,7 @@ bool ExternalTool::save(QString *errorMessage) const
         if (!m_workingDirectory.isEmpty())
             out.writeTextElement(QLatin1String(kWorkingDirectory), m_workingDirectory);
         if (!m_environment.isEmpty()) {
-            QStringList envLines = Utils::EnvironmentItem::toStringList(m_environment);
+            QStringList envLines = EnvironmentItem::toStringList(m_environment);
             for (auto iter = envLines.begin(); iter != envLines.end(); ++iter)
                 *iter = QString::fromUtf8(iter->toUtf8().toPercentEncoding());
             out.writeTextElement(QLatin1String(kEnvironment), envLines.join(QLatin1Char(';')));
@@ -573,7 +573,7 @@ bool ExternalToolRunner::resolve()
     m_resolvedExecutable.clear();
     m_resolvedArguments.clear();
     m_resolvedWorkingDirectory.clear();
-    m_resolvedEnvironment = Utils::Environment::systemEnvironment();
+    m_resolvedEnvironment = Environment::systemEnvironment();
 
 
     MacroExpander *expander = globalMacroExpander();

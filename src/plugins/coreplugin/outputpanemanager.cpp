@@ -158,12 +158,12 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     QVBoxLayout *mainlayout = new QVBoxLayout;
     mainlayout->setSpacing(0);
     mainlayout->setMargin(0);
-    m_toolBar = new Utils::StyledBar;
+    m_toolBar = new StyledBar;
     QHBoxLayout *toolLayout = new QHBoxLayout(m_toolBar);
     toolLayout->setMargin(0);
     toolLayout->setSpacing(0);
     toolLayout->addWidget(m_titleLabel);
-    toolLayout->addWidget(new Utils::StyledSeparator);
+    toolLayout->addWidget(new StyledSeparator);
     m_clearButton = new QToolButton;
     toolLayout->addWidget(m_clearButton);
     m_prevToolButton = new QToolButton;
@@ -196,7 +196,7 @@ QWidget *OutputPaneManager::buttonsWidget()
 // Return shortcut as Ctrl+<number>
 static inline int paneShortCut(int number)
 {
-    const int modifier = Utils::HostOsInfo::isMacHost() ? Qt::CTRL : Qt::ALT;
+    const int modifier = HostOsInfo::isMacHost() ? Qt::CTRL : Qt::ALT;
     return modifier | (Qt::Key_0 + number);
 }
 
@@ -662,11 +662,11 @@ QSize OutputPaneToggleButton::sizeHint() const
 
 void OutputPaneToggleButton::paintEvent(QPaintEvent*)
 {
-    static const QImage panelButton(Utils::StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button.png")));
-    static const QImage panelButtonHover(Utils::StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button_hover.png")));
-    static const QImage panelButtonPressed(Utils::StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button_pressed.png")));
-    static const QImage panelButtonChecked(Utils::StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button_checked.png")));
-    static const QImage panelButtonCheckedHover(Utils::StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button_checked_hover.png")));
+    static const QImage panelButton(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button.png")));
+    static const QImage panelButtonHover(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button_hover.png")));
+    static const QImage panelButtonPressed(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button_pressed.png")));
+    static const QImage panelButtonChecked(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button_checked.png")));
+    static const QImage panelButtonCheckedHover(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button_checked_hover.png")));
 
     const QFontMetrics fm = fontMetrics();
     const int baseLine = (height() - fm.height() + 1) / 2 + fm.ascent();
@@ -676,7 +676,7 @@ void OutputPaneToggleButton::paintEvent(QPaintEvent*)
 
     QStyleOption styleOption;
     styleOption.initFrom(this);
-    const bool hovered = !Utils::HostOsInfo::isMacHost() && (styleOption.state & QStyle::State_MouseOver);
+    const bool hovered = !HostOsInfo::isMacHost() && (styleOption.state & QStyle::State_MouseOver);
 
     const QImage *image = 0;
     if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
@@ -687,7 +687,7 @@ void OutputPaneToggleButton::paintEvent(QPaintEvent*)
         else
             image = hovered ? &panelButtonHover : &panelButton;
         if (image)
-            Utils::StyleHelper::drawCornerImage(*image, &p, rect(), numberAreaWidth, buttonBorderWidth, buttonBorderWidth, buttonBorderWidth);
+            StyleHelper::drawCornerImage(*image, &p, rect(), numberAreaWidth, buttonBorderWidth, buttonBorderWidth, buttonBorderWidth);
     } else {
         QColor c;
         if (isChecked()) {
@@ -775,8 +775,8 @@ void OutputPaneManageButton::paintEvent(QPaintEvent*)
 {
     QPainter p(this);
     if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
-        static const QImage button(Utils::StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_manage_button.png")));
-        Utils::StyleHelper::drawCornerImage(button, &p, rect(), buttonBorderWidth, buttonBorderWidth, buttonBorderWidth, buttonBorderWidth);
+        static const QImage button(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_manage_button.png")));
+        StyleHelper::drawCornerImage(button, &p, rect(), buttonBorderWidth, buttonBorderWidth, buttonBorderWidth, buttonBorderWidth);
     }
     QStyle *s = style();
     QStyleOption arrowOpt;

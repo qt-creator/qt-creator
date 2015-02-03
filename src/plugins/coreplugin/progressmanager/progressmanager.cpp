@@ -343,7 +343,7 @@ void ProgressManagerPrivate::init()
     Command *cmd = ActionManager::registerAction(toggleProgressView,
                                                  "QtCreator.ToggleProgressDetails",
                                                  Context(Constants::C_GLOBAL));
-    cmd->setDefaultKeySequence(QKeySequence(Utils::HostOsInfo::isMacHost()
+    cmd->setDefaultKeySequence(QKeySequence(HostOsInfo::isMacHost()
                                                ? tr("Ctrl+Shift+0")
                                                : tr("Alt+Shift+0")));
     connect(toggleProgressView, SIGNAL(toggled(bool)), this, SLOT(progressDetailsToggled(bool)));
@@ -532,7 +532,7 @@ void ProgressManagerPrivate::fadeAwaySummaryProgress()
 {
     stopFadeOfSummaryProgress();
     m_opacityAnimation = new QPropertyAnimation(m_opacityEffect, "opacity");
-    m_opacityAnimation->setDuration(Utils::StyleHelper::progressFadeAnimationDuration);
+    m_opacityAnimation->setDuration(StyleHelper::progressFadeAnimationDuration);
     m_opacityAnimation->setEndValue(0.);
     connect(m_opacityAnimation, SIGNAL(finished()), this, SLOT(summaryProgressFinishedFading()));
     m_opacityAnimation->start(QAbstractAnimation::DeleteWhenStopped);
@@ -725,7 +725,7 @@ void ToggleButton::paintEvent(QPaintEvent *event)
     QStyleOption arrowOpt;
     arrowOpt.initFrom(this);
     arrowOpt.rect.adjust(2, 0, -1, -2);
-    Utils::StyleHelper::drawArrow(QStyle::PE_IndicatorArrowUp, &p, &arrowOpt);
+    StyleHelper::drawArrow(QStyle::PE_IndicatorArrowUp, &p, &arrowOpt);
 }
 
 

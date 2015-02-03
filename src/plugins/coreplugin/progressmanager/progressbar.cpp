@@ -216,7 +216,7 @@ void ProgressBar::mousePressEvent(QMouseEvent *event)
 QFont ProgressBar::titleFont() const
 {
     QFont boldFont(font());
-    boldFont.setPointSizeF(Utils::StyleHelper::sidebarFontSize());
+    boldFont.setPointSizeF(StyleHelper::sidebarFontSize());
     boldFont.setBold(true);
     return boldFont;
 }
@@ -232,7 +232,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
     // TODO use Utils::StyleHelper white
 
     if (bar.isNull())
-        bar.load(Utils::StyleHelper::dpiSpecificImageFile(QLatin1String(":/core/images/progressbar.png")));
+        bar.load(StyleHelper::dpiSpecificImageFile(QLatin1String(":/core/images/progressbar.png")));
 
     double range = maximum() - minimum();
     double percent = 0.;
@@ -256,10 +256,10 @@ void ProgressBar::paintEvent(QPaintEvent *)
     // Draw separator
     int separatorHeight = m_separatorVisible ? SEPARATOR_HEIGHT : 0;
     if (m_separatorVisible) {
-        p.setPen(Utils::StyleHelper::sidebarShadow());
+        p.setPen(StyleHelper::sidebarShadow());
         p.drawLine(0,0, size().width(), 0);
 
-        p.setPen(Utils::StyleHelper::sidebarHighlight());
+        p.setPen(StyleHelper::sidebarHighlight());
         p.drawLine(1, 1, size().width(), 1);
     }
 
@@ -291,7 +291,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
                      size().width() - 2 * INDENT + 1, m_progressHeight);
 
     if (creatorTheme()->flag(Theme::DrawProgressBarSunken))
-        Utils::StyleHelper::drawCornerImage(bar, &p, rect, 3, 3, 3, 3);
+        StyleHelper::drawCornerImage(bar, &p, rect, 3, 3, 3, 3);
 
     // draw inner rect
     QColor c = creatorTheme()->color(Theme::ProgressBarColorNormal);
@@ -357,7 +357,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
             p.drawLine(cancelVisualRect.topLeft() + QPointF(0.5, 0.5), cancelVisualRect.bottomLeft() + QPointF(0.5, -0.5));
             p.setPen(QPen(QColor(255, 255, 255, 30)));
             p.drawLine(cancelVisualRect.topLeft() + QPointF(1.5, 0.5), cancelVisualRect.bottomLeft() + QPointF(1.5, -0.5));
-            p.setPen(QPen(hover ? Utils::StyleHelper::panelTextColor() : QColor(180, 180, 180), 1.2, Qt::SolidLine, Qt::FlatCap));
+            p.setPen(QPen(hover ? StyleHelper::panelTextColor() : QColor(180, 180, 180), 1.2, Qt::SolidLine, Qt::FlatCap));
             p.setRenderHint(QPainter::Antialiasing, true);
             p.drawLine(cancelVisualRect.topLeft() + QPointF(4.0, 2.0), cancelVisualRect.bottomRight() + QPointF(-3.0, -2.0));
             p.drawLine(cancelVisualRect.bottomLeft() + QPointF(4.0, -2.0), cancelVisualRect.topRight() + QPointF(-3.0, 2.0));

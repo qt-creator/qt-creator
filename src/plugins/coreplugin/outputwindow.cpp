@@ -203,7 +203,7 @@ void OutputWindow::setMaxLineCount(int count)
 
 void OutputWindow::appendMessage(const QString &output, OutputFormat format)
 {
-    const QString out = Utils::SynchronousProcess::normalizeNewlines(output);
+    const QString out = SynchronousProcess::normalizeNewlines(output);
     setMaximumBlockCount(m_maxLineCount);
     const bool atBottom = isScrollbarAtBottom();
 
@@ -253,7 +253,7 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
 // TODO rename
 void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &format)
 {
-    const QString text = Utils::SynchronousProcess::normalizeNewlines(textIn);
+    const QString text = SynchronousProcess::normalizeNewlines(textIn);
     if (m_maxLineCount > 0 && document()->blockCount() >= m_maxLineCount)
         return;
     const bool atBottom = isScrollbarAtBottom();

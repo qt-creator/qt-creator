@@ -323,7 +323,7 @@ ICore::ICore(MainWindow *mainwindow)
     m_instance = this;
     m_mainwindow = mainwindow;
     // Save settings once after all plugins are initialized:
-    connect(ExtensionSystem::PluginManager::instance(), SIGNAL(initializationDone()),
+    connect(PluginManager::instance(), SIGNAL(initializationDone()),
             this, SLOT(saveSettings()));
     connect(m_mainwindow, SIGNAL(newItemDialogRunningChanged()),
             this, SIGNAL(newItemDialogRunningChanged()));

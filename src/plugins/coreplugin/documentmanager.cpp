@@ -168,7 +168,7 @@ struct DocumentManagerPrivate
 };
 
 static DocumentManager *m_instance;
-static Internal::DocumentManagerPrivate *d;
+static DocumentManagerPrivate *d;
 
 QFileSystemWatcher *DocumentManagerPrivate::fileWatcher()
 {
@@ -1425,11 +1425,11 @@ void DocumentManager::executeOpenWithMenuAction(QAction *action)
     if (entry.editorFactory) {
         // close any open editors that have this file open
         // remember the views to open new editors in there
-        QList<Internal::EditorView *> views;
+        QList<EditorView *> views;
         QList<IEditor *> editorsOpenForFile
                 = DocumentModel::editorsForFilePath(entry.fileName);
         foreach (IEditor *openEditor, editorsOpenForFile) {
-            Internal::EditorView *view = EditorManagerPrivate::viewForEditor(openEditor);
+            EditorView *view = EditorManagerPrivate::viewForEditor(openEditor);
             if (view && view->currentEditor() == openEditor) // visible
                 views.append(view);
         }
@@ -1439,12 +1439,12 @@ void DocumentManager::executeOpenWithMenuAction(QAction *action)
         if (views.isEmpty()) {
             EditorManager::openEditor(entry.fileName, entry.editorFactory->id());
         } else {
-            if (Internal::EditorView *currentView = EditorManagerPrivate::currentEditorView()) {
+            if (EditorView *currentView = EditorManagerPrivate::currentEditorView()) {
                 if (views.removeOne(currentView))
                     views.prepend(currentView); // open editor in current view first
             }
             EditorManager::OpenEditorFlags flags;
-            foreach (Internal::EditorView *view, views) {
+            foreach (EditorView *view, views) {
                 IEditor *editor =
                         EditorManagerPrivate::openEditor(view, entry.fileName,
                                                          entry.editorFactory->id(), flags);

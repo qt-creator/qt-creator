@@ -329,7 +329,7 @@ void EditorManagerPrivate::init()
     connect(m_closeCurrentEditorAction, SIGNAL(triggered()),
             m_instance, SLOT(slotCloseCurrentEditorOrDocument()));
 
-    if (Utils::HostOsInfo::isWindowsHost()) {
+    if (HostOsInfo::isWindowsHost()) {
         // workaround for QTCREATORBUG-72
         QAction *action = new QAction(tr("Alternative Close"), this);
         cmd = ActionManager::registerAction(action, Constants::CLOSE_ALTERNATIVE, editManagerContext);
@@ -1593,7 +1593,7 @@ void EditorManagerPrivate::copyFilePathFromContextMenu()
 {
     if (!d->m_contextMenuEntry)
         return;
-    QApplication::clipboard()->setText(Utils::FileName::fromString(
+    QApplication::clipboard()->setText(FileName::fromString(
                                            d->m_contextMenuEntry->fileName()).toUserOutput());
 }
 
@@ -1603,7 +1603,7 @@ void EditorManagerPrivate::copyLocationFromContextMenu()
     if (!d->m_contextMenuEntry || !action)
         return;
     const QString text =
-        Utils::FileName::fromString(d->m_contextMenuEntry->fileName()).toUserOutput()
+        FileName::fromString(d->m_contextMenuEntry->fileName()).toUserOutput()
         + QLatin1Char(':') + action->data().toString();
     QApplication::clipboard()->setText(text);
 }

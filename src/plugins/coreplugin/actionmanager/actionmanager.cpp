@@ -101,9 +101,9 @@ using namespace Core::Internal;
     put the following in your plugin's IPlugin::initialize function:
     \code
         QAction *myAction = new QAction(tr("My Action"), this);
-        Core::Command *cmd = Core::ActionManager::registerAction(myAction,
+        Command *cmd = ActionManager::registerAction(myAction,
                                                  "myplugin.myaction",
-                                                 Core::Context(C_GLOBAL));
+                                                 Context(C_GLOBAL));
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+u")));
         connect(myAction, SIGNAL(triggered()), this, SLOT(performMyAction()));
     \endcode
@@ -125,7 +125,7 @@ using namespace Core::Internal;
 
     Following the example adding "My Action" to the "Tools" menu would be done by
     \code
-        Core::ActionManager::actionContainer(Core::M_TOOLS)->addAction(cmd);
+        ActionManager::actionContainer(M_TOOLS)->addAction(cmd);
     \endcode
 
     \section1 Important Guidelines:

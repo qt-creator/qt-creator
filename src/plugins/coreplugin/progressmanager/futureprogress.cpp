@@ -301,7 +301,7 @@ void FutureProgress::paintEvent(QPaintEvent *)
     if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
         p.fillRect(rect(), creatorTheme()->color(Theme::FutureProgressBackgroundColor));
     } else {
-      QLinearGradient grad = Utils::StyleHelper::statusBarGradient(rect());
+      QLinearGradient grad = StyleHelper::statusBarGradient(rect());
         p.fillRect(rect(), grad);
     }
 }
@@ -379,7 +379,7 @@ void FutureProgressPrivate::fadeAway()
 
     QSequentialAnimationGroup *group = new QSequentialAnimationGroup(this);
     QPropertyAnimation *animation = new QPropertyAnimation(opacityEffect, "opacity");
-    animation->setDuration(Utils::StyleHelper::progressFadeAnimationDuration);
+    animation->setDuration(StyleHelper::progressFadeAnimationDuration);
     animation->setEndValue(0.);
     group->addAnimation(animation);
     animation = new QPropertyAnimation(m_q, "maximumHeight");

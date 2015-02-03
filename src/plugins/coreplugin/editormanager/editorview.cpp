@@ -133,10 +133,10 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
     m_container->addWidget(empty);
     m_widgetEditorMap.insert(empty, 0);
 
-    auto dropSupport = new Utils::FileDropSupport(this, [this](QDropEvent *event) {
+    auto dropSupport = new FileDropSupport(this, [this](QDropEvent *event) {
         return event->source() != m_toolBar; // do not accept drops on ourselves
     });
-    connect(dropSupport, &Utils::FileDropSupport::filesDropped,
+    connect(dropSupport, &FileDropSupport::filesDropped,
             this, &EditorView::openDroppedFiles);
 
     updateNavigatorActions();
@@ -367,11 +367,11 @@ void EditorView::closeSplit()
     EditorManagerPrivate::updateActions();
 }
 
-void EditorView::openDroppedFiles(const QList<Utils::FileDropSupport::FileSpec> &files)
+void EditorView::openDroppedFiles(const QList<FileDropSupport::FileSpec> &files)
 {
     const int count = files.size();
     for (int i = 0; i < count; ++i) {
-        const Utils::FileDropSupport::FileSpec spec = files.at(i);
+        const FileDropSupport::FileSpec spec = files.at(i);
         EditorManagerPrivate::openEditorAt(this, spec.filePath, spec.line, spec.column, Id(),
                                   i < count - 1 ? EditorManager::DoNotChangeCurrentEditor
                                                   | EditorManager::DoNotMakeVisible

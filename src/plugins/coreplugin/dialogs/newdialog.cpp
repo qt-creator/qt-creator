@@ -193,7 +193,7 @@ QString NewDialog::m_lastCategory = QString();
 
 NewDialog::NewDialog(QWidget *parent) :
     QDialog(parent),
-    m_ui(new Core::Internal::Ui::NewDialog),
+    m_ui(new Ui::NewDialog),
     m_okButton(0)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);

@@ -66,7 +66,7 @@ CorePlugin::CorePlugin()
   , m_findPlugin(0)
   , m_locator(0)
 {
-    qRegisterMetaType<Core::Id>();
+    qRegisterMetaType<Id>();
 }
 
 CorePlugin::~CorePlugin()
@@ -181,12 +181,12 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     }
 
     // Make sure we respect the process's umask when creating new files
-    Utils::SaveFile::initializeUmask();
+    SaveFile::initializeUmask();
 
     m_findPlugin->initialize(arguments, errorMessage);
     m_locator->initialize(this, arguments, errorMessage);
 
-    Utils::MacroExpander *expander = Utils::globalMacroExpander();
+    MacroExpander *expander = Utils::globalMacroExpander();
     expander->registerVariable("CurrentDate:ISO", tr("The current date (ISO)."),
                                []() { return QDate::currentDate().toString(Qt::ISODate); });
     expander->registerVariable("CurrentTime:ISO", tr("The current time (ISO)."),
