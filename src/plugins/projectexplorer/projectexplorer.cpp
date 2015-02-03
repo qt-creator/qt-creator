@@ -197,7 +197,7 @@ public:
     ProjectExplorerPluginPrivate();
 
     void deploy(QList<Project *>);
-    int queue(QList<Project *>, QList<Core::Id> stepIds);
+    int queue(QList<Project *>, QList<Id> stepIds);
     void updateContextMenuActions();
     void executeRunConfiguration(RunConfiguration *, RunMode mode);
     QPair<bool, QString> buildSettingsEnabledForSession();
@@ -391,7 +391,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_kitManager = new KitManager; // register before ToolChainManager
     dd->m_toolChainManager = new ToolChainManager;
 
-    Core::IWizardFactory::registerFeatureProvider(new KitFeatureProvider);
+    IWizardFactory::registerFeatureProvider(new KitFeatureProvider);
 
     // Register KitInformation:
     KitManager::registerKitInformation(new DeviceTypeKitInformation);
@@ -442,9 +442,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(tree, &ProjectTree::currentProjectChanged,
             dd, &ProjectExplorerPluginPrivate::updateActions);
 
-    addAutoReleasedObject(new CustomWizardMetaFactory<CustomProjectWizard>(Core::IWizardFactory::ProjectWizard));
-    addAutoReleasedObject(new CustomWizardMetaFactory<CustomWizard>(Core::IWizardFactory::FileWizard));
-    addAutoReleasedObject(new CustomWizardMetaFactory<CustomWizard>(Core::IWizardFactory::ClassWizard));
+    addAutoReleasedObject(new CustomWizardMetaFactory<CustomProjectWizard>(IWizardFactory::ProjectWizard));
+    addAutoReleasedObject(new CustomWizardMetaFactory<CustomWizard>(IWizardFactory::FileWizard));
+    addAutoReleasedObject(new CustomWizardMetaFactory<CustomWizard>(IWizardFactory::ClassWizard));
 
     // For JsonWizard:
     JsonWizardFactory::registerPageFactory(new FieldPageFactory);
@@ -906,7 +906,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // add existing directory action
     dd->m_addExistingDirectoryAction = new QAction(tr("Add Existing Directory..."), this);
-    cmd = Core::ActionManager::registerAction(dd->m_addExistingDirectoryAction,
+    cmd = ActionManager::registerAction(dd->m_addExistingDirectoryAction,
                                               Constants::ADDEXISTINGDIRECTORY,
                                               projecTreeContext);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
@@ -1254,7 +1254,7 @@ void ProjectExplorerPlugin::loadAction()
         dir = isProject ? fn : QFileInfo(fn).absolutePath();
     }
 
-    QString filename = QFileDialog::getOpenFileName(Core::ICore::dialogParent(),
+    QString filename = QFileDialog::getOpenFileName(ICore::dialogParent(),
                                                     tr("Load Project"), dir,
                                                     dd->m_projectFilterString);
     if (filename.isEmpty())
@@ -1337,7 +1337,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
     QList<IProjectManager*> projectManagers =
         ExtensionSystem::PluginManager::getObjects<IProjectManager>();
 
-    QList<Core::MimeGlobPattern> allGlobPatterns;
+    QList<MimeGlobPattern> allGlobPatterns;
 
     const QString filterSeparator = QLatin1String(";;");
     QStringList filterStrings;
@@ -1347,7 +1347,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
         QString errorMessage;
         ProjectExplorerPlugin::openProject(fileName, &errorMessage);
         if (!errorMessage.isEmpty())
-            QMessageBox::critical(Core::ICore::mainWindow(),
+            QMessageBox::critical(ICore::mainWindow(),
                 tr("Failed to open project"), errorMessage);
         return 0;
     });
@@ -2905,7 +2905,7 @@ void ProjectExplorerPlugin::addExistingDirectory()
 {
     QTC_ASSERT(ProjectTree::currentNode(), return);
 
-    SelectableFilesDialogAddDirectory dialog(directoryFor(ProjectTree::currentNode()), QStringList(), Core::ICore::mainWindow());
+    SelectableFilesDialogAddDirectory dialog(directoryFor(ProjectTree::currentNode()), QStringList(), ICore::mainWindow());
 
     if (dialog.exec() == QDialog::Accepted)
         addExistingFiles(dialog.selectedFiles());

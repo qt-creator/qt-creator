@@ -129,9 +129,9 @@ public:
     QIcon m_icon;
     FileName m_iconPath;
 
-    QHash<Core::Id, QVariant> m_data;
-    QSet<Core::Id> m_sticky;
-    QSet<Core::Id> m_mutable;
+    QHash<Id, QVariant> m_data;
+    QSet<Id> m_sticky;
+    QSet<Id> m_mutable;
     MacroExpander m_macroExpander;
 };
 
@@ -141,7 +141,7 @@ public:
 // Kit:
 // -------------------------------------------------------------------------
 
-Kit::Kit(Core::Id id) :
+Kit::Kit(Id id) :
     d(new Internal::KitPrivate(id, this))
 {
     foreach (KitInformation *sti, KitManager::kitInformation())
@@ -151,7 +151,7 @@ Kit::Kit(Core::Id id) :
 }
 
 Kit::Kit(const QVariantMap &data) :
-    d(new Internal::KitPrivate(Core::Id(), this))
+    d(new Internal::KitPrivate(Id(), this))
 {
     d->m_id = Id::fromSetting(data.value(QLatin1String(ID_KEY)));
 
@@ -180,11 +180,11 @@ Kit::Kit(const QVariantMap &data) :
 
     QStringList mutableInfoList = data.value(QLatin1String(MUTABLE_INFO_KEY)).toStringList();
     foreach (const QString &mutableInfo, mutableInfoList)
-        d->m_mutable.insert(Core::Id::fromString(mutableInfo));
+        d->m_mutable.insert(Id::fromString(mutableInfo));
 
     QStringList stickyInfoList = data.value(QLatin1String(STICKY_INFO_KEY)).toStringList();
     foreach (const QString &stickyInfo, stickyInfoList)
-        d->m_sticky.insert(Core::Id::fromString(stickyInfo));
+        d->m_sticky.insert(Id::fromString(stickyInfo));
 }
 
 Kit::~Kit()
@@ -469,7 +469,7 @@ void Kit::removeKey(Id key)
     kitUpdated();
 }
 
-bool Kit::isSticky(Core::Id id) const
+bool Kit::isSticky(Id id) const
 {
     return d->m_sticky.contains(id);
 }
@@ -491,7 +491,7 @@ bool Kit::isEqual(const Kit *other) const
 
 QVariantMap Kit::toMap() const
 {
-    typedef QHash<Core::Id, QVariant>::ConstIterator IdVariantConstIt;
+    typedef QHash<Id, QVariant>::ConstIterator IdVariantConstIt;
 
     QVariantMap data;
     data.insert(QLatin1String(ID_KEY), QString::fromLatin1(d->m_id.name()));
@@ -504,12 +504,12 @@ QVariantMap Kit::toMap() const
     data.insert(QLatin1String(ICON_KEY), d->m_iconPath.toString());
 
     QStringList mutableInfo;
-    foreach (Core::Id id, d->m_mutable)
+    foreach (Id id, d->m_mutable)
         mutableInfo << id.toString();
     data.insert(QLatin1String(MUTABLE_INFO_KEY), mutableInfo);
 
     QStringList stickyInfo;
-    foreach (Core::Id id, d->m_sticky)
+    foreach (Id id, d->m_sticky)
         stickyInfo << id.toString();
     data.insert(QLatin1String(STICKY_INFO_KEY), stickyInfo);
 
@@ -602,7 +602,7 @@ void Kit::makeSticky()
     }
 }
 
-void Kit::setSticky(Core::Id id, bool b)
+void Kit::setSticky(Id id, bool b)
 {
     if (b)
         d->m_sticky.insert(id);
@@ -656,7 +656,7 @@ QString Kit::displayNameForPlatform(const QString &platform) const
 
 FeatureSet Kit::availableFeatures() const
 {
-    Core::FeatureSet features;
+    FeatureSet features;
     foreach (const KitInformation *ki, KitManager::kitInformation())
         features |= ki->availableFeatures(this);
     return features;

@@ -92,9 +92,9 @@ void RootWidget::paintEvent(QPaintEvent *e)
     if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
         // draw separator line to the right of the settings panel
         QPainter painter(this);
-        QColor light = Utils::StyleHelper::mergedColors(
+        QColor light = StyleHelper::mergedColors(
                     palette().button().color(), Qt::white, 30);
-        QColor dark = Utils::StyleHelper::mergedColors(
+        QColor dark = StyleHelper::mergedColors(
                     palette().button().color(), Qt::black, 85);
 
         painter.setPen(light);
@@ -119,7 +119,7 @@ PanelsWidget::PanelsWidget(QWidget *parent) :
     m_root->setContentsMargins(0, 0, 40, 0);
 
     QPalette pal;
-    QColor background = Utils::StyleHelper::mergedColors(
+    QColor background = StyleHelper::mergedColors(
                 palette().window().color(), Qt::white, 85);
     pal.setColor(QPalette::All, QPalette::Window, background.darker(102));
     setPalette(pal);

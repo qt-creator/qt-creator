@@ -140,7 +140,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
     QTest::addColumn<QString>("childStdOutLines");
     QTest::addColumn<QString>("childStdErrLines");
-    QTest::addColumn<QList<ProjectExplorer::Task> >("tasks");
+    QTest::addColumn<QList<Task> >("tasks");
     QTest::addColumn<QString>("outputLines");
 
     QTest::newRow("pass-through stdout")

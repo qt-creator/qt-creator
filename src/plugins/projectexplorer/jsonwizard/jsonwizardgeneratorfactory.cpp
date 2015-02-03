@@ -83,7 +83,7 @@ static ICodeStylePreferences *codeStylePreferences(Project *project, Id language
 // JsonWizardGenerator:
 // --------------------------------------------------------------------
 
-bool JsonWizardGenerator::formatFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage)
+bool JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile *file, QString *errorMessage)
 {
     Q_UNUSED(errorMessage);
 
@@ -132,7 +132,7 @@ JsonWizardGenerator::OverwriteResult JsonWizardGenerator::promptForOverwrite(Jso
 
     foreach (const JsonWizard::GeneratorFile &f, *files) {
         const QFileInfo fi(f.file.path());
-        if (fi.exists() && !(f.file.attributes() & Core::GeneratedFile::ForceOverwrite))
+        if (fi.exists() && !(f.file.attributes() & GeneratedFile::ForceOverwrite))
             existingFiles.append(f.file.path());
     }
     if (existingFiles.isEmpty())
@@ -173,7 +173,7 @@ JsonWizardGenerator::OverwriteResult JsonWizardGenerator::promptForOverwrite(Jso
     }
 
     // Prompt to overwrite existing files.
-    Core::PromptOverwriteDialog overwriteDialog;
+    PromptOverwriteDialog overwriteDialog;
 
     // Scripts cannot handle overwrite
     overwriteDialog.setFiles(existingFiles);
@@ -195,7 +195,7 @@ JsonWizardGenerator::OverwriteResult JsonWizardGenerator::promptForOverwrite(Jso
                                 { return f.file.path() == keepFile; });
         if (!file.isValid())
             return OverwriteCanceled;
-        file.file.setAttributes(file.file.attributes() | Core::GeneratedFile::KeepExistingFileAttribute);
+        file.file.setAttributes(file.file.attributes() | GeneratedFile::KeepExistingFileAttribute);
     }
     return OverwriteOk;
 }
@@ -243,7 +243,7 @@ bool JsonWizardGenerator::allDone(const JsonWizard *wizard, JsonWizard::Generato
 void JsonWizardGeneratorFactory::setTypeIdsSuffixes(const QStringList &suffixes)
 {
     m_typeIds = Utils::transform(suffixes, [](QString suffix)
-        { return Core::Id::fromString(QString::fromLatin1(Constants::GENERATOR_ID_PREFIX) + suffix); });
+        { return Id::fromString(QString::fromLatin1(Constants::GENERATOR_ID_PREFIX) + suffix); });
 }
 
 void JsonWizardGeneratorFactory::setTypeIdsSuffix(const QString &suffix)
@@ -261,7 +261,7 @@ FileGeneratorFactory::FileGeneratorFactory()
     setTypeIdsSuffix(QLatin1String("File"));
 }
 
-JsonWizardGenerator *FileGeneratorFactory::create(Core::Id typeId, const QVariant &data,
+JsonWizardGenerator *FileGeneratorFactory::create(Id typeId, const QVariant &data,
                                                   const QString &path, const QString &platform,
                                                   const QVariantMap &variables)
 {
@@ -285,7 +285,7 @@ JsonWizardGenerator *FileGeneratorFactory::create(Core::Id typeId, const QVarian
     return gen;
 }
 
-bool FileGeneratorFactory::validateData(Core::Id typeId, const QVariant &data, QString *errorMessage)
+bool FileGeneratorFactory::validateData(Id typeId, const QVariant &data, QString *errorMessage)
 {
     Q_UNUSED(data);
     Q_UNUSED(errorMessage);

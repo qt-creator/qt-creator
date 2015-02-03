@@ -36,6 +36,7 @@
 
 #include <QString>
 
+using namespace Utils;
 using namespace ProjectExplorer;
 
 CustomParserSettings::CustomParserSettings() :
@@ -138,8 +139,7 @@ bool CustomParser::parseLine(const QString &rawLine)
     if (m_errorRegExp.indexIn(rawLine.trimmed()) == -1)
         return false;
 
-    const Utils::FileName fileName =
-            Utils::FileName::fromUserInput(m_errorRegExp.cap(m_fileNameCap));
+    const FileName fileName = FileName::fromUserInput(m_errorRegExp.cap(m_fileNameCap));
     const int lineNumber = m_errorRegExp.cap(m_lineNumberCap).toInt();
     const QString message = m_errorRegExp.cap(m_messageCap);
 
@@ -156,8 +156,6 @@ bool CustomParser::parseLine(const QString &rawLine)
 #   include "metatypedeclarations.h"
 #   include "outputparser_test.h"
 
-using namespace Utils;
-
 void ProjectExplorerPlugin::testCustomOutputParsers_data()
 {
     QTest::addColumn<QString>("input");
@@ -168,12 +166,12 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
     QTest::addColumn<int>("messageCap");
     QTest::addColumn<QString>("childStdOutLines");
     QTest::addColumn<QString>("childStdErrLines");
-    QTest::addColumn<QList<ProjectExplorer::Task> >("tasks");
+    QTest::addColumn<QList<Task> >("tasks");
     QTest::addColumn<QString>("outputLines");
 
     const Core::Id categoryCompile = Constants::TASK_CATEGORY_COMPILE;
     const QString simplePattern = QLatin1String("^([a-z]+\\.[a-z]+):(\\d+): error: ([^\\s].+)$");
-    const Utils::FileName fileName = Utils::FileName::fromUserInput(QLatin1String("main.c"));
+    const FileName fileName = FileName::fromUserInput(QLatin1String("main.c"));
 
     QTest::newRow("empty pattern")
             << QString::fromLatin1("Sometext")
@@ -181,7 +179,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << QString::fromLatin1("")
             << 1 << 2 << 3
             << QString::fromLatin1("Sometext\n") << QString()
-            << QList<ProjectExplorer::Task>()
+            << QList<Task>()
             << QString();
 
     QTest::newRow("pass-through stdout")
@@ -190,7 +188,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << simplePattern
             << 1 << 2 << 3
             << QString::fromLatin1("Sometext\n") << QString()
-            << QList<ProjectExplorer::Task>()
+            << QList<Task>()
             << QString();
 
     QTest::newRow("pass-through stderr")
@@ -199,7 +197,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << simplePattern
             << 1 << 2 << 3
             << QString() << QString::fromLatin1("Sometext\n")
-            << QList<ProjectExplorer::Task>()
+            << QList<Task>()
             << QString();
 
     const QString simpleError = QLatin1String("main.c:9: error: `sfasdf' undeclared (first use this function)");
@@ -211,7 +209,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << simplePattern
             << 1 << 2 << 3
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>()
+            << (QList<Task>()
                 << Task(Task::Error, message, fileName, 9, categoryCompile)
                 )
             << QString();
@@ -226,7 +224,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << simplePattern2
             << 1 << 2 << 3
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>()
+            << (QList<Task>()
                 << Task(Task::Error, message, fileName, lineNumber2, categoryCompile)
                 )
             << QString();
@@ -237,7 +235,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << simplePattern2
             << 1 << 2 << 3
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>()
+            << (QList<Task>()
                 << Task(Task::Error, message, fileName, lineNumber2, categoryCompile)
                 )
             << QString();
@@ -254,7 +252,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << unitTestPattern
             << 1 << 2 << 3
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>()
+            << (QList<Task>()
                 << Task(Task::Error, unitTestMessage, unitTestFileName, unitTestLineNumber, categoryCompile)
                 )
             << QString();

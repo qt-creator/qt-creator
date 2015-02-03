@@ -56,13 +56,13 @@ using namespace ProjectExplorer::Internal;
 using namespace Utils;
 
 ToolWidget::ToolWidget(QWidget *parent)
-    : Utils::FadingPanel(parent), m_buildStepEnabled(true), m_targetOpacity(1.0f)
+    : FadingPanel(parent), m_buildStepEnabled(true), m_targetOpacity(1.0f)
 {
     QHBoxLayout *layout = new QHBoxLayout;
     layout->setMargin(4);
     layout->setSpacing(4);
     setLayout(layout);
-    m_firstWidget = new Utils::FadingWidget(this);
+    m_firstWidget = new FadingWidget(this);
     m_firstWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     QHBoxLayout *hbox = new QHBoxLayout();
     hbox->setContentsMargins(0, 0, 0, 0);
@@ -79,7 +79,7 @@ ToolWidget::ToolWidget(QWidget *parent)
     hbox->addWidget(m_disableButton);
     layout->addWidget(m_firstWidget);
 
-    m_secondWidget = new Utils::FadingWidget(this);
+    m_secondWidget = new FadingWidget(this);
     m_secondWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     hbox = new QHBoxLayout();
     hbox->setMargin(0);
@@ -179,7 +179,7 @@ BuildStepsWidgetData::BuildStepsWidgetData(BuildStep *s) :
     widget = s->createConfigWidget();
     Q_ASSERT(widget);
 
-    detailsWidget = new Utils::DetailsWidget;
+    detailsWidget = new DetailsWidget;
     detailsWidget->setWidget(widget);
 
     toolWidget = new ToolWidget(detailsWidget);
@@ -278,7 +278,7 @@ void BuildStepListWidget::init(BuildStepList *bsl)
         addBuildStep(i);
         // addBuilStep expands the config widget by default, which we don't want here
         if (m_buildStepsData.at(i)->widget->showWidget())
-            m_buildStepsData.at(i)->detailsWidget->setState(Utils::DetailsWidget::Collapsed);
+            m_buildStepsData.at(i)->detailsWidget->setState(DetailsWidget::Collapsed);
     }
 
     m_noStepsLabel->setVisible(bsl->isEmpty());
@@ -354,9 +354,9 @@ void BuildStepListWidget::addBuildStep(int pos)
     BuildStepsWidgetData *s = m_buildStepsData.at(pos);
     // Expand new build steps by default
     if (s->widget->showWidget())
-        s->detailsWidget->setState(Utils::DetailsWidget::Expanded);
+        s->detailsWidget->setState(DetailsWidget::Expanded);
     else
-        s->detailsWidget->setState(Utils::DetailsWidget::OnlySummary);
+        s->detailsWidget->setState(DetailsWidget::OnlySummary);
 
     m_noStepsLabel->setVisible(false);
     updateBuildStepButtonsState();

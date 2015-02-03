@@ -142,7 +142,7 @@ void TargetSelectorDelegate::paint(QPainter *painter,
                           option.palette.highlight().color() :
                           option.palette.dark().color();
             painter->fillRect(option.rect, color.darker(140));
-            Utils::StyleHelper::drawCornerImage(selectionGradient, painter, option.rect.adjusted(0, 0, 0, -1), 5, 5, 5, 5);
+            StyleHelper::drawCornerImage(selectionGradient, painter, option.rect.adjusted(0, 0, 0, -1), 5, 5, 5, 5);
             painter->setPen(QColor(255, 255, 255, 60));
             painter->drawLine(option.rect.topLeft(), option.rect.topRight());
             painter->setPen(QColor(255, 255, 255, 30));
@@ -625,7 +625,7 @@ void KitAreaWidget::updateKit(Kit *k)
 
 QWidget *MiniProjectTargetSelector::createTitleLabel(const QString &text)
 {
-    Utils::StyledBar *bar = new Utils::StyledBar(this);
+    StyledBar *bar = new StyledBar(this);
     bar->setSingleRow(true);
     QVBoxLayout *toolLayout = new QVBoxLayout(bar);
     toolLayout->setContentsMargins(6, 0, 6, 0);
@@ -1599,7 +1599,7 @@ void MiniProjectTargetSelector::paintEvent(QPaintEvent *)
         // draw thicker border on the bottom
         QRect bottomRect(0, rect().height() - 8, rect().width(), 8);
         static QImage image(QLatin1String(":/projectexplorer/images/targetpanel_bottom.png"));
-        Utils::StyleHelper::drawCornerImage(image, &painter, bottomRect, 1, 1, 1, 1);
+        StyleHelper::drawCornerImage(image, &painter, bottomRect, 1, 1, 1, 1);
     }
 }
 

@@ -128,7 +128,7 @@ static QByteArray gccPredefinedMacros(const FileName &gcc, const QStringList &ar
     QByteArray predefinedMacros = runGcc(gcc, arguments, env);
     // Sanity check in case we get an error message instead of real output:
     QTC_CHECK(predefinedMacros.isNull() || predefinedMacros.startsWith("#define "));
-    if (Utils::HostOsInfo::isMacHost()) {
+    if (HostOsInfo::isMacHost()) {
         // Turn off flag indicating Apple's blocks support
         const QByteArray blocksDefine("#define __BLOCKS__ 1");
         const QByteArray blocksUndefine("#undef __BLOCKS__");
@@ -539,7 +539,7 @@ GccToolChain::WarningFlags GccToolChain::warningFlags(const QStringList &cflags)
     return flags;
 }
 
-QList<HeaderPath> GccToolChain::systemHeaderPaths(const QStringList &cxxflags, const Utils::FileName &sysRoot) const
+QList<HeaderPath> GccToolChain::systemHeaderPaths(const QStringList &cxxflags, const FileName &sysRoot) const
 {
     if (m_headerPaths.isEmpty()) {
         // Using a clean environment breaks ccache/distcc/etc.
@@ -617,7 +617,7 @@ QList<FileName> GccToolChain::suggestedMkspecList() const
     return QList<FileName>();
 }
 
-QString GccToolChain::makeCommand(const Utils::Environment &environment) const
+QString GccToolChain::makeCommand(const Environment &environment) const
 {
     QString make = QLatin1String("make");
     FileName tmp = environment.searchInPath(make);
@@ -791,7 +791,7 @@ ToolChain *GccToolChainFactory::create()
 QList<ToolChain *> GccToolChainFactory::autoDetect()
 {
     QList<ToolChain *> tcs;
-    if (Utils::HostOsInfo::isMacHost()) {
+    if (HostOsInfo::isMacHost()) {
         // Old mac compilers needed to support macx-gccXY mkspecs:
         tcs.append(autoDetectToolchains(QLatin1String("g++-4.0"), Abi::hostAbi()));
         tcs.append(autoDetectToolchains(QLatin1String("g++-4.2"), Abi::hostAbi()));
@@ -1036,10 +1036,10 @@ QString ClangToolChain::typeDisplayName() const
     return ClangToolChainFactory::tr("Clang");
 }
 
-QString ClangToolChain::makeCommand(const Utils::Environment &environment) const
+QString ClangToolChain::makeCommand(const Environment &environment) const
 {
     QStringList makes;
-    if (Utils::HostOsInfo::isWindowsHost()) {
+    if (HostOsInfo::isWindowsHost()) {
         makes << QLatin1String("mingw32-make.exe");
         makes << QLatin1String("make.exe");
     } else {
@@ -1186,9 +1186,9 @@ QString MingwToolChain::typeDisplayName() const
 
 QList<FileName> MingwToolChain::suggestedMkspecList() const
 {
-    if (Utils::HostOsInfo::isWindowsHost())
+    if (HostOsInfo::isWindowsHost())
         return QList<FileName>() << FileName::fromLatin1("win32-g++");
-    if (Utils::HostOsInfo::isLinuxHost()) {
+    if (HostOsInfo::isLinuxHost()) {
         if (version().startsWith(QLatin1String("4.6.")))
             return QList<FileName>()
                     << FileName::fromLatin1("win32-g++-4.6-cross")
@@ -1201,10 +1201,10 @@ QList<FileName> MingwToolChain::suggestedMkspecList() const
     return QList<FileName>();
 }
 
-QString MingwToolChain::makeCommand(const Utils::Environment &environment) const
+QString MingwToolChain::makeCommand(const Environment &environment) const
 {
     QStringList makes;
-    if (Utils::HostOsInfo::isWindowsHost()) {
+    if (HostOsInfo::isWindowsHost()) {
         makes << QLatin1String("mingw32-make.exe");
         makes << QLatin1String("make.exe");
     } else {

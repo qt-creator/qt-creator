@@ -313,7 +313,7 @@ QVariantMap RunConfiguration::toMap() const
     return map;
 }
 
-ProjectExplorer::Abi RunConfiguration::abi() const
+Abi RunConfiguration::abi() const
 {
     BuildConfiguration *bc = target()->activeBuildConfiguration();
     if (!bc)

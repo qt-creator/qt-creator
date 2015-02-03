@@ -114,7 +114,7 @@ public:
     QLabel *kitLabel;
     KitChooser *kitChooser;
 
-    Utils::TreeView *procView;
+    TreeView *procView;
     QTextBrowser *errorText;
     FancyLineEdit *processFilterLineEdit;
     QPushButton *updateListButton;
@@ -144,7 +144,7 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
 
     kitChooser->populate();
 
-    procView = new Utils::TreeView(q);
+    procView = new TreeView(q);
     procView->setModel(&proxyModel);
     procView->setSelectionBehavior(QAbstractItemView::SelectRows);
     procView->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -155,7 +155,7 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
     procView->header()->setDefaultSectionSize(100);
     procView->header()->setStretchLastSection(true);
     procView->sortByColumn(1, Qt::AscendingOrder);
-    procView->setActivationMode(Utils::DoubleClickActivation);
+    procView->setActivationMode(DoubleClickActivation);
 
     errorText = new QTextBrowser(q);
 

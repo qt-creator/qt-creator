@@ -149,7 +149,7 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     m_baseLayout(0),
     m_firstWidget(0),
     m_ui(new TargetSetupPageUi),
-    m_importWidget(new Internal::ImportWidget(this)),
+    m_importWidget(new ImportWidget(this)),
     m_spacer(new QSpacerItem(0,0, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding)),
     m_forceOptionHint(false)
 {
@@ -213,7 +213,7 @@ void TargetSetupPage::setRequiredKitMatcher(const KitMatcher &matcher)
 QList<Core::Id> TargetSetupPage::selectedKits() const
 {
     QList<Core::Id> result;
-    QMap<Core::Id, Internal::TargetSetupWidget *>::const_iterator it, end;
+    QMap<Core::Id, TargetSetupWidget *>::const_iterator it, end;
     it = m_widgets.constBegin();
     end = m_widgets.constEnd();
 

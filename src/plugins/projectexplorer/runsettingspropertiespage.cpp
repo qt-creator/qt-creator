@@ -61,7 +61,7 @@ namespace Internal {
 
 struct FactoryAndId
 {
-    ProjectExplorer::IRunConfigurationFactory *factory;
+    IRunConfigurationFactory *factory;
     Core::Id id;
 };
 

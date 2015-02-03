@@ -333,25 +333,25 @@ void EditorConfiguration::switchSettings(TextEditorWidget *widget) const
     }
 }
 
-void EditorConfiguration::setTypingSettings(const TextEditor::TypingSettings &settings)
+void EditorConfiguration::setTypingSettings(const TypingSettings &settings)
 {
     d->m_typingSettings = settings;
     emit typingSettingsChanged(d->m_typingSettings);
 }
 
-void EditorConfiguration::setStorageSettings(const TextEditor::StorageSettings &settings)
+void EditorConfiguration::setStorageSettings(const StorageSettings &settings)
 {
     d->m_storageSettings = settings;
     emit storageSettingsChanged(d->m_storageSettings);
 }
 
-void EditorConfiguration::setBehaviorSettings(const TextEditor::BehaviorSettings &settings)
+void EditorConfiguration::setBehaviorSettings(const BehaviorSettings &settings)
 {
     d->m_behaviorSettings = settings;
     emit behaviorSettingsChanged(d->m_behaviorSettings);
 }
 
-void EditorConfiguration::setExtraEncodingSettings(const TextEditor::ExtraEncodingSettings &settings)
+void EditorConfiguration::setExtraEncodingSettings(const ExtraEncodingSettings &settings)
 {
     d->m_extraEncodingSettings = settings;
     emit extraEncodingSettingsChanged(d->m_extraEncodingSettings);
@@ -391,7 +391,7 @@ void EditorConfiguration::slotAboutToRemoveProject(Project *project)
     if (project->editorConfiguration() != this)
         return;
 
-    foreach (TextEditor::BaseTextEditor *editor, d->m_editors)
+    foreach (BaseTextEditor *editor, d->m_editors)
         deconfigureEditor(editor);
 }
 

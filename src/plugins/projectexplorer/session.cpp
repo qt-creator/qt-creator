@@ -175,7 +175,7 @@ bool SessionManager::isDefaultSession(const QString &session)
 }
 
 
-void SessionManager::saveActiveMode(Core::IMode *mode)
+void SessionManager::saveActiveMode(IMode *mode)
 {
     setValue(QLatin1String("ActiveMode"), mode->id().toString());
 }
@@ -411,7 +411,7 @@ bool SessionManager::save()
 
     data.insert(QLatin1String("valueKeys"), keys);
 
-    bool result = d->m_writer->save(data, Core::ICore::mainWindow());
+    bool result = d->m_writer->save(data, ICore::mainWindow());
     if (!result) {
         QMessageBox::warning(ICore::dialogParent(), tr("Error while saving session"),
             tr("Could not save session to file %1").arg(d->m_writer->fileName().toUserOutput()));
@@ -595,7 +595,7 @@ bool SessionManagerPrivate::projectContainsFile(Project *p, const QString &fileN
     return m_projectFileCache.value(p).contains(fileName);
 }
 
-void SessionManager::configureEditor(Core::IEditor *editor, const QString &fileName)
+void SessionManager::configureEditor(IEditor *editor, const QString &fileName)
 {
     if (TextEditor::BaseTextEditor *textEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor)) {
         Project *project = projectForFile(fileName);
@@ -702,7 +702,7 @@ QStringList SessionManager::sessions()
 {
     if (d->m_sessions.isEmpty()) {
         // We are not initialized yet, so do that now
-        QDir sessionDir(Core::ICore::userResourcePath());
+        QDir sessionDir(ICore::userResourcePath());
         QList<QFileInfo> sessionFiles = sessionDir.entryInfoList(QStringList() << QLatin1String("*.qws"), QDir::NoFilter, QDir::Time);
         foreach (const QFileInfo &fileInfo, sessionFiles) {
             if (fileInfo.completeBaseName() != QLatin1String("default"))
@@ -746,7 +746,7 @@ bool SessionManager::renameSession(const QString &original, const QString &newNa
 */
 bool SessionManager::confirmSessionDelete(const QString &session)
 {
-    return QMessageBox::question(Core::ICore::mainWindow(),
+    return QMessageBox::question(ICore::mainWindow(),
                                  tr("Delete Session"),
                                  tr("Delete session %1?").arg(session),
                                  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes;
@@ -870,7 +870,7 @@ void SessionManagerPrivate::restoreProjects(const QStringList &fileList)
         QString errors;
         QList<Project *> projects = ProjectExplorerPlugin::openProjects(fileList, &errors);
         if (!errors.isEmpty())
-            QMessageBox::critical(Core::ICore::mainWindow(), SessionManager::tr("Failed to open project"), errors);
+            QMessageBox::critical(ICore::mainWindow(), SessionManager::tr("Failed to open project"), errors);
         foreach (Project *p, projects)
             m_failedProjects.removeAll(p->projectFilePath().toString());
     }

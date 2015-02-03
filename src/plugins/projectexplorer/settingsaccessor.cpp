@@ -501,7 +501,7 @@ public:
         bool isValid() const;
 
         QVariantMap map;
-        Utils::FileName path;
+        FileName path;
     };
 
     int firstVersion() const { return m_upgraders.isEmpty() ? -1 : m_upgraders.first()->version(); }
@@ -514,10 +514,10 @@ public:
             return m_upgraders.at(pos);
         return 0;
     }
-    Settings bestSettings(const SettingsAccessor *accessor, const QList<Utils::FileName> &pathList);
+    Settings bestSettings(const SettingsAccessor *accessor, const QList<FileName> &pathList);
 
     QList<VersionUpgrader *> m_upgraders;
-    Utils::PersistentSettingsWriter *m_writer;
+    PersistentSettingsWriter *m_writer;
 };
 
 // Return path to shared directory for .user files, create if necessary.
@@ -577,16 +577,16 @@ static QString makeRelative(QString path)
 }
 
 // Return complete file path of the .user file.
-static Utils::FileName userFilePath(const ProjectExplorer::Project *project, const QString &suffix)
+static FileName userFilePath(const Project *project, const QString &suffix)
 {
-    Utils::FileName result;
-    const Utils::FileName projectFilePath = project->projectFilePath();
+    FileName result;
+    const FileName projectFilePath = project->projectFilePath();
     if (sharedUserFileDir().isEmpty()) {
         result = projectFilePath;
     } else {
         // Recreate the relative project file hierarchy under the shared directory.
         // PersistentSettingsWriter::write() takes care of creating the path.
-        result = Utils::FileName::fromString(sharedUserFileDir());
+        result = FileName::fromString(sharedUserFileDir());
         result.appendString(QLatin1Char('/') + makeRelative(projectFilePath.toString()));
     }
     result.appendString(suffix);
@@ -788,7 +788,7 @@ QVariantMap SettingsAccessor::upgradeSettings(const QVariantMap &data) const
  * Returns \c true if the settings are not usable anymore and \c false otherwise.
  */
 SettingsAccessor::ProceedInfo SettingsAccessor::reportIssues(const QVariantMap &data,
-                                                             const Utils::FileName &path,
+                                                             const FileName &path,
                                                              QWidget *parent) const
 {
     IssueInfo issue = findIssues(data, path);
@@ -819,11 +819,11 @@ SettingsAccessor::ProceedInfo SettingsAccessor::reportIssues(const QVariantMap &
  *
  * Returns a IssueInfo object which is then used by reportIssues.
  */
-SettingsAccessor::IssueInfo SettingsAccessor::findIssues(const QVariantMap &data, const Utils::FileName &path) const
+SettingsAccessor::IssueInfo SettingsAccessor::findIssues(const QVariantMap &data, const FileName &path) const
 {
     SettingsAccessor::IssueInfo result;
 
-    const Utils::FileName defaultSettingsPath = userFilePath(project(), m_userSuffix);
+    const FileName defaultSettingsPath = userFilePath(project(), m_userSuffix);
 
     int version = versionFromMap(data);
     if (!path.exists()) {
@@ -953,7 +953,7 @@ bool SettingsAccessor::saveSettings(const QVariantMap &map, QWidget *parent) con
 
     QVariantMap data = prepareToSaveSettings(map);
 
-    Utils::FileName path = FileName::fromString(defaultFileName(m_userSuffix));
+    FileName path = FileName::fromString(defaultFileName(m_userSuffix));
     if (!d->m_writer || d->m_writer->fileName() != path) {
         delete d->m_writer;
         d->m_writer = new PersistentSettingsWriter(path, QLatin1String("QtCreatorProject"));
@@ -981,7 +981,7 @@ bool SettingsAccessor::addVersionUpgrader(VersionUpgrader *upgrader)
 /* Will always return the default name first (if applicable) */
 QList<FileName> SettingsAccessor::settingsFiles(const QString &suffix) const
 {
-    QList<Utils::FileName> result;
+    QList<FileName> result;
 
     QFileInfoList list;
     const QFileInfo pfi = project()->projectFilePath().toFileInfo();
@@ -995,7 +995,7 @@ QList<FileName> SettingsAccessor::settingsFiles(const QString &suffix) const
     list.append(QDir(pfi.dir()).entryInfoList(filter, QDir::Files));
 
     foreach (const QFileInfo &fi, list) {
-        const Utils::FileName path = Utils::FileName::fromString(fi.absoluteFilePath());
+        const FileName path = FileName::fromString(fi.absoluteFilePath());
         if (!result.contains(path)) {
             if (path.endsWith(suffix))
                 result.prepend(path);
@@ -1027,7 +1027,7 @@ int SettingsAccessor::firstSupportedVersion() const
     return d->firstVersion();
 }
 
-Utils::FileName SettingsAccessor::backupName(const QVariantMap &data) const
+FileName SettingsAccessor::backupName(const QVariantMap &data) const
 {
     QString backupName = defaultFileName(m_userSuffix);
     const QByteArray oldEnvironmentId = environmentIdFromMap(data);
@@ -1041,7 +1041,7 @@ Utils::FileName SettingsAccessor::backupName(const QVariantMap &data) const
         else
             backupName += QLatin1Char('.') + QString::number(oldVersion);
     }
-    return Utils::FileName::fromString(backupName);
+    return FileName::fromString(backupName);
 }
 
 void SettingsAccessor::backupUserFile() const
@@ -1062,7 +1062,7 @@ void SettingsAccessor::backupUserFile() const
 QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
 {
     SettingsAccessorPrivate::Settings result;
-    QList<Utils::FileName> fileList = settingsFiles(m_userSuffix);
+    QList<FileName> fileList = settingsFiles(m_userSuffix);
     if (fileList.isEmpty()) // No settings found at all.
         return result.map;
 
@@ -1112,10 +1112,10 @@ QVariantMap SettingsAccessor::readSharedSettings(QWidget *parent) const
 }
 
 SettingsAccessorPrivate::Settings SettingsAccessorPrivate::bestSettings(const SettingsAccessor *accessor,
-                                                                        const QList<Utils::FileName> &pathList)
+                                                                        const QList<FileName> &pathList)
 {
     Settings bestMatch;
-    foreach (const Utils::FileName &path, pathList) {
+    foreach (const FileName &path, pathList) {
         QVariantMap tmp = accessor->readFile(path);
 
         int version = SettingsAccessor::versionFromMap(tmp);
@@ -1160,9 +1160,9 @@ bool SettingsAccessorPrivate::Settings::isValid() const
     return SettingsAccessor::versionFromMap(map) > -1 && !path.isEmpty();
 }
 
-QVariantMap SettingsAccessor::readFile(const Utils::FileName &path) const
+QVariantMap SettingsAccessor::readFile(const FileName &path) const
 {
-    Utils::PersistentSettingsReader reader;
+    PersistentSettingsReader reader;
     if (!reader.load(path))
         return QVariantMap();
 
@@ -2362,7 +2362,7 @@ void UserFileVersion11Upgrader::parseQtversionFile()
 {
     PersistentSettingsReader reader;
     QFileInfo settingsLocation = QFileInfo(Core::ICore::settings()->fileName());
-    reader.load(Utils::FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/qtversion.xml")));
+    reader.load(FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/qtversion.xml")));
     QVariantMap data = reader.restoreValues();
 
     int count = data.value(QLatin1String("QtVersion.Count"), 0).toInt();
@@ -2401,7 +2401,7 @@ void UserFileVersion11Upgrader::parseToolChainFile()
 {
     PersistentSettingsReader reader;
     QFileInfo settingsLocation(Core::ICore::settings()->fileName());
-    reader.load(Utils::FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/toolChains.xml")));
+    reader.load(FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/toolChains.xml")));
     QVariantMap data = reader.restoreValues();
     int count = data.value(QLatin1String("ToolChain.Count"), 0).toInt();
     for (int i = 0; i < count; ++i) {

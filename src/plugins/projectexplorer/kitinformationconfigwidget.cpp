@@ -215,7 +215,7 @@ void ToolChainInformationConfigWidget::toolChainUpdated(ToolChain *tc)
 
 void ToolChainInformationConfigWidget::manageToolChains()
 {
-    Core::ICore::showOptionsDialog(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
+    ICore::showOptionsDialog(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
                                    Constants::TOOLCHAIN_SETTINGS_PAGE_ID,
                                    buttonWidget());
 }
@@ -261,7 +261,7 @@ DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Kit *workin
     QList<IDeviceFactory *> factories
             = ExtensionSystem::PluginManager::getObjects<IDeviceFactory>();
     foreach (IDeviceFactory *factory, factories) {
-        foreach (Core::Id id, factory->availableCreationIds())
+        foreach (Id id, factory->availableCreationIds())
             m_comboBox->addItem(factory->displayNameForId(id), id.uniqueIdentifier());
     }
 
@@ -293,7 +293,7 @@ QString DeviceTypeInformationConfigWidget::toolTip() const
 
 void DeviceTypeInformationConfigWidget::refresh()
 {
-    Core::Id devType = DeviceTypeKitInformation::deviceTypeId(m_kit);
+    Id devType = DeviceTypeKitInformation::deviceTypeId(m_kit);
     if (!devType.isValid())
         m_comboBox->setCurrentIndex(-1);
     for (int i = 0; i < m_comboBox->count(); ++i) {
@@ -311,7 +311,7 @@ void DeviceTypeInformationConfigWidget::makeReadOnly()
 
 void DeviceTypeInformationConfigWidget::currentTypeChanged(int idx)
 {
-    Core::Id type = idx < 0 ? Core::Id() : Core::Id::fromUniqueIdentifier(m_comboBox->itemData(idx).toInt());
+    Id type = idx < 0 ? Id() : Id::fromUniqueIdentifier(m_comboBox->itemData(idx).toInt());
     DeviceTypeKitInformation::setDeviceTypeId(m_kit, type);
 }
 

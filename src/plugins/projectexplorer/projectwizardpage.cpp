@@ -65,7 +65,7 @@ using namespace Utils;
 namespace ProjectExplorer {
 namespace Internal {
 
-class AddNewTree : public Utils::TreeItem
+class AddNewTree : public TreeItem
 {
 public:
     AddNewTree(const QString &displayName);
@@ -323,15 +323,15 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent) :
     m_repositoryExists(false)
 {
     m_ui->setupUi(this);
-    m_ui->vcsManageButton->setText(Core::ICore::msgShowOptionsDialog());
+    m_ui->vcsManageButton->setText(ICore::msgShowOptionsDialog());
     connect(m_ui->projectComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(projectChanged(int)));
     connect(m_ui->addToVersionControlComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &ProjectWizardPage::versionControlChanged);
     connect(m_ui->vcsManageButton, &QAbstractButton::clicked, this, &ProjectWizardPage::manageVcs);
-    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Summary"));
+    setProperty(SHORT_TITLE_PROPERTY, tr("Summary"));
 
-    connect(Core::VcsManager::instance(), SIGNAL(configurationChanged(const IVersionControl*)),
+    connect(VcsManager::instance(), SIGNAL(configurationChanged(const IVersionControl*)),
             this, SLOT(initializeVersionControls()));
 }
 
@@ -556,7 +556,7 @@ void ProjectWizardPage::setFiles(const QStringList &fileNames)
             const bool filePath2HasDir = filePath2.contains(QLatin1Char('/'));
 
             if (filePath1HasDir == filePath2HasDir)
-                return Utils::FileName::fromString(filePath1) < Utils::FileName::fromString(filePath2);
+                return FileName::fromString(filePath1) < FileName::fromString(filePath2);
             return filePath1HasDir;
         }
 );
@@ -584,7 +584,7 @@ void ProjectWizardPage::projectChanged(int index)
 
 void ProjectWizardPage::manageVcs()
 {
-    Core::ICore::showOptionsDialog(VcsBase::Constants::VCS_SETTINGS_CATEGORY,
+    ICore::showOptionsDialog(VcsBase::Constants::VCS_SETTINGS_CATEGORY,
                                    VcsBase::Constants::VCS_COMMON_SETTINGS_ID,
                                    this);
 }

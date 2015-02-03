@@ -51,7 +51,7 @@ static const int MARGIN = 12;
 static const int OTHER_HEIGHT = 38;
 static const int SELECTION_IMAGE_WIDTH = 10;
 static const int SELECTION_IMAGE_HEIGHT = 20;
-static const int OVERFLOW_DROPDOWN_WIDTH = Utils::StyleHelper::navigationWidgetHeight();
+static const int OVERFLOW_DROPDOWN_WIDTH = StyleHelper::navigationWidgetHeight();
 
 static void drawFirstLevelSeparator(QPainter *painter, QPoint top, QPoint bottom)
 {
@@ -170,7 +170,7 @@ void DoubleTabWidget::setTitle(const QString &title)
 
 QSize DoubleTabWidget::minimumSizeHint() const
 {
-    return QSize(0, Utils::StyleHelper::navigationWidgetHeight() + OTHER_HEIGHT + 1);
+    return QSize(0, StyleHelper::navigationWidgetHeight() + OTHER_HEIGHT + 1);
 }
 
 void DoubleTabWidget::updateNameIsUniqueAdd(Tab *tab)
@@ -258,7 +258,7 @@ int DoubleTabWidget::tabCount() const
 /// is the tab or subtab number
 QPair<DoubleTabWidget::HitArea, int> DoubleTabWidget::convertPosToTab(QPoint pos)
 {
-    if (pos.y() < Utils::StyleHelper::navigationWidgetHeight()) {
+    if (pos.y() < StyleHelper::navigationWidgetHeight()) {
         // on the top level part of the bar
         int eventX = pos.x();
         QFontMetrics fm(font());
@@ -282,10 +282,10 @@ QPair<DoubleTabWidget::HitArea, int> DoubleTabWidget::convertPosToTab(QPoint pos
             if (eventX > x && eventX < x + OVERFLOW_DROPDOWN_WIDTH)
                 return qMakePair(HITOVERFLOW, -1);
         }
-    } else if (pos.y() < Utils::StyleHelper::navigationWidgetHeight() + OTHER_HEIGHT) {
+    } else if (pos.y() < StyleHelper::navigationWidgetHeight() + OTHER_HEIGHT) {
         int diff = (OTHER_HEIGHT - SELECTION_IMAGE_HEIGHT) / 2;
-        if (pos.y() < Utils::StyleHelper::navigationWidgetHeight() + diff
-                || pos.y() > Utils::StyleHelper::navigationWidgetHeight() + OTHER_HEIGHT - diff)
+        if (pos.y() < StyleHelper::navigationWidgetHeight() + diff
+                || pos.y() > StyleHelper::navigationWidgetHeight() + OTHER_HEIGHT - diff)
             return qMakePair(HITNOTHING, -1);
         // on the lower level part of the bar
         if (m_currentIndex == -1)
@@ -363,13 +363,13 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
     QRect r = rect();
 
     // draw top level tab bar
-    r.setHeight(Utils::StyleHelper::navigationWidgetHeight());
+    r.setHeight(StyleHelper::navigationWidgetHeight());
 
     if (creatorTheme()->widgetStyle () == Theme::StyleDefault) {
         QPoint offset = window()->mapToGlobal(QPoint(0, 0)) - mapToGlobal(r.topLeft());
         QRect gradientSpan = QRect(offset, window()->size());
-        Utils::StyleHelper::horizontalGradient(&painter, gradientSpan, r);
-        painter.setPen(Utils::StyleHelper::borderColor());
+        StyleHelper::horizontalGradient(&painter, gradientSpan, r);
+        painter.setPen(StyleHelper::borderColor());
         QColor lighter(255, 255, 255, 40);
         painter.drawLine(r.bottomLeft(), r.bottomRight());
         painter.setPen(lighter);
@@ -383,7 +383,7 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
 
     // top level title
     if (!m_title.isEmpty()) {
-        painter.setPen(Utils::StyleHelper::panelTextColor());
+        painter.setPen(StyleHelper::panelTextColor());
         painter.drawText(MARGIN, baseline, m_title);
     }
 
@@ -478,7 +478,7 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
         int actualIndex = m_currentTabIndices.at(i);
         Tab tab = m_tabs.at(actualIndex);
         if (actualIndex == m_currentIndex) {
-            painter.setPen(Utils::StyleHelper::borderColor());
+            painter.setPen(StyleHelper::borderColor());
             painter.drawLine(x - 1, 0, x - 1, r.height() - 1);
             painter.fillRect(QRect(x, 0,
                                    2 * MARGIN + fm.width(tab.displayName()),
@@ -495,7 +495,7 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
             x += nameWidth.at(actualIndex);
             x += MARGIN;
             if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
-                painter.setPen(Utils::StyleHelper::borderColor());
+                painter.setPen(StyleHelper::borderColor());
                 painter.drawLine(x, 0, x, r.height() - 1);
                 painter.setPen(QColor(0, 0, 0, 20));
                 painter.drawLine(x + 1, 0, x + 1, r.height() - 1);

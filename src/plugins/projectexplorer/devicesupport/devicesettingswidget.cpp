@@ -124,7 +124,7 @@ void DeviceSettingsWidget::initGui()
 
     m_ui->addConfigButton->setEnabled(hasDeviceFactories);
 
-    int lastIndex = Core::ICore::settings()
+    int lastIndex = ICore::settings()
         ->value(QLatin1String(LastDeviceIndexKey), 0).toInt();
     if (lastIndex == -1)
         lastIndex = 0;
@@ -143,7 +143,7 @@ void DeviceSettingsWidget::addDevice()
     if (d.exec() != QDialog::Accepted)
         return;
 
-    Core::Id toCreate = d.selectedId();
+    Id toCreate = d.selectedId();
     if (!toCreate.isValid())
         return;
     IDeviceFactory *factory = IDeviceFactory::find(toCreate);
@@ -221,7 +221,7 @@ void DeviceSettingsWidget::updateDeviceFromUi()
 
 void DeviceSettingsWidget::saveSettings()
 {
-    Core::ICore::settings()->setValue(QLatin1String(LastDeviceIndexKey), currentIndex());
+    ICore::settings()->setValue(QLatin1String(LastDeviceIndexKey), currentIndex());
     DeviceManager::replaceInstance();
 }
 
@@ -299,7 +299,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
         m_ui->buttonsLayout->insertWidget(m_ui->buttonsLayout->count() - 1, button);
     }
 
-    foreach (Core::Id actionId, device->actionIds()) {
+    foreach (Id actionId, device->actionIds()) {
         QPushButton * const button = new QPushButton(device->displayNameForActionId(actionId));
         m_additionalActionButtons << button;
         connect(button, SIGNAL(clicked()), m_additionalActionsMapper, SLOT(map()));
@@ -327,7 +327,7 @@ void DeviceSettingsWidget::handleAdditionalActionRequest(int actionId)
     const IDevice::Ptr device = m_deviceManager->mutableDevice(currentDevice()->id());
     QTC_ASSERT(device, return);
     updateDeviceFromUi();
-    device->executeAction(Core::Id::fromUniqueIdentifier(actionId), this);
+    device->executeAction(Id::fromUniqueIdentifier(actionId), this);
 
     // Widget must be set up from scratch, because the action could have changed random attributes.
     currentDeviceChanged(currentIndex());

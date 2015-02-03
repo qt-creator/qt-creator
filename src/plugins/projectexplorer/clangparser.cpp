@@ -141,7 +141,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
     QTest::addColumn<QString>("childStdOutLines");
     QTest::addColumn<QString>("childStdErrLines");
-    QTest::addColumn<QList<ProjectExplorer::Task> >("tasks");
+    QTest::addColumn<QList<Task> >("tasks");
     QTest::addColumn<QString>("outputLines");
 
     const Core::Id categoryCompile = Constants::TASK_CATEGORY_COMPILE;
@@ -149,19 +149,19 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
             << QString::fromLatin1("Sometext\n") << QString()
-            << QList<ProjectExplorer::Task>()
+            << QList<Task>()
             << QString();
     QTest::newRow("pass-through stderr")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
             << QString() << QString::fromLatin1("Sometext\n")
-            << QList<ProjectExplorer::Task>()
+            << QList<Task>()
             << QString();
 
     QTest::newRow("clang++ warning")
             << QString::fromLatin1("clang++: warning: argument unused during compilation: '-mthreads'")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>()
+            << (QList<Task>()
                 << Task(Task::Warning,
                         QLatin1String("argument unused during compilation: '-mthreads'"),
                         Utils::FileName(), -1,
@@ -171,7 +171,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
             << QString::fromLatin1("clang++: error: no input files [err_drv_no_input_files]")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>()
+            << (QList<Task>()
                 << Task(Task::Error,
                         QLatin1String("no input files [err_drv_no_input_files]"),
                         Utils::FileName(), -1,
@@ -184,7 +184,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                                    "      ^")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>()
+            << (QList<Task>()
                 << Task(Task::Unknown,
                         QLatin1String("In file included from ..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qnamespace.h:45:"),
                         Utils::FileName::fromUserInput(QLatin1String("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qnamespace.h")), 45,
@@ -202,7 +202,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                                        "                          ^")
                 << OutputParserTester::STDERR
                 << QString() << QString()
-                << (QList<ProjectExplorer::Task>()
+                << (QList<Task>()
                     << Task(Task::Unknown,
                             QLatin1String("instantiated from:\n"
                                           "#    define Q_CORE_EXPORT Q_DECL_IMPORT\n"
@@ -216,7 +216,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                                        "         ^")
                 << OutputParserTester::STDERR
                 << QString() << QString()
-                << (QList<ProjectExplorer::Task>()
+                << (QList<Task>()
                     << Task(Task::Error,
                             QLatin1String("'bits/c++config.h' file not found\n"
                                           "#include <bits/c++config.h>\n"
@@ -231,7 +231,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                                        "                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^")
                 << OutputParserTester::STDERR
                 << QString() << QString()
-                << (QList<ProjectExplorer::Task>()
+                << (QList<Task>()
                     << Task(Task::Warning,
                             QLatin1String("?: has lower precedence than +; + will be evaluated first [-Wparentheses]\n"
                                           "            int x = option->rect.x() + horizontal ? 2 : 6;\n"
@@ -245,7 +245,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                                        "CodeSign error: code signing is required for product type 'Application' in SDK 'iOS 7.0'")
                 << OutputParserTester::STDERR
                 << QString() << QString::fromLatin1("Check dependencies\n")
-                << (QList<ProjectExplorer::Task>()
+                << (QList<Task>()
                     << Task(Task::Error,
                             QLatin1String("No matching provisioning profiles found: No provisioning profiles with a valid signing identity (i.e. certificate and private key pair) were found."),
                             Utils::FileName(), -1,

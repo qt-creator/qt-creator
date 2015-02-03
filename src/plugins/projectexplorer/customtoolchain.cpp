@@ -177,7 +177,7 @@ void CustomToolChain::setPredefinedMacros(const QStringList &list)
     m_predefinedMacros = list;
 }
 
-QList<HeaderPath> CustomToolChain::systemHeaderPaths(const QStringList &cxxFlags, const Utils::FileName &) const
+QList<HeaderPath> CustomToolChain::systemHeaderPaths(const QStringList &cxxFlags, const FileName &) const
 {
     QList<HeaderPath> flagHeaderPaths;
     foreach (const QString &cxxFlag, cxxFlags) {
@@ -251,7 +251,7 @@ void CustomToolChain::setMakeCommand(const FileName &path)
     toolChainUpdated();
 }
 
-QString CustomToolChain::makeCommand(const Utils::Environment &) const
+QString CustomToolChain::makeCommand(const Environment &) const
 {
     return m_makeCommand.toString();
 }
@@ -272,7 +272,7 @@ const QStringList &CustomToolChain::cxx11Flags() const
 void CustomToolChain::setMkspecs(const QString &specs)
 {
     m_mkspecs = Utils::transform(specs.split(QLatin1Char(',')),
-                                 [](QString fn) { return Utils::FileName::fromString(fn); });
+                                 [](QString fn) { return FileName::fromString(fn); });
 }
 
 QString CustomToolChain::mkspecs() const
@@ -585,7 +585,7 @@ void CustomToolChainConfigWidget::setFromToolchain()
     bool blocked = blockSignals(true);
     CustomToolChain *tc = static_cast<CustomToolChain *>(toolChain());
     m_compilerCommand->setFileName(tc->compilerCommand());
-    m_makeCommand->setFileName(FileName::fromString(tc->makeCommand(Utils::Environment())));
+    m_makeCommand->setFileName(FileName::fromString(tc->makeCommand(Environment())));
     m_abiWidget->setAbis(QList<Abi>(), tc->targetAbi());
     m_predefinedMacros->setPlainText(tc->rawPredefinedMacros().join(QLatin1Char('\n')));
     m_headerPaths->setPlainText(tc->headerPathsList().join(QLatin1Char('\n')));
@@ -601,7 +601,7 @@ bool CustomToolChainConfigWidget::isDirtyImpl() const
     CustomToolChain *tc = static_cast<CustomToolChain *>(toolChain());
     Q_ASSERT(tc);
     return m_compilerCommand->fileName() != tc->compilerCommand()
-            || m_makeCommand->path() != tc->makeCommand(Utils::Environment())
+            || m_makeCommand->path() != tc->makeCommand(Environment())
             || m_abiWidget->currentAbi() != tc->targetAbi()
             || m_predefinedDetails->entries() != tc->rawPredefinedMacros()
             || m_headerDetails->entries() != tc->headerPathsList()

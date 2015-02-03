@@ -301,7 +301,7 @@ void TargetSettingsPanelWidget::menuShown(int targetIndex)
 
 void TargetSettingsPanelWidget::changeActionTriggered(QAction *action)
 {
-    Kit *k = KitManager::find(action->data().value<Core::Id>());
+    Kit *k = KitManager::find(action->data().value<Id>());
     Target *sourceTarget = m_targets.at(m_menuTargetIndex);
     Target *newTarget = cloneTarget(sourceTarget, k);
 
@@ -314,7 +314,7 @@ void TargetSettingsPanelWidget::changeActionTriggered(QAction *action)
 
 void TargetSettingsPanelWidget::duplicateActionTriggered(QAction *action)
 {
-    Kit *k = KitManager::find(action->data().value<Core::Id>());
+    Kit *k = KitManager::find(action->data().value<Id>());
     Target *newTarget = cloneTarget(m_targets.at(m_menuTargetIndex), k);
 
     if (newTarget) {
@@ -326,8 +326,8 @@ void TargetSettingsPanelWidget::duplicateActionTriggered(QAction *action)
 void TargetSettingsPanelWidget::addActionTriggered(QAction *action)
 {
     const QVariant data = action->data();
-    if (data.canConvert<Core::Id>()) { // id of kit
-        Kit *k = KitManager::find(action->data().value<Core::Id>());
+    if (data.canConvert<Id>()) { // id of kit
+        Kit *k = KitManager::find(action->data().value<Id>());
         QTC_ASSERT(!m_project->target(k), return);
 
         Target *target = m_project->createTarget(k);
@@ -427,7 +427,7 @@ Target *TargetSettingsPanelWidget::cloneTarget(Target *sourceTarget, Kit *k)
 
     if (fatalError) {
         // That could be a more granular error message
-        QMessageBox::critical(Core::ICore::mainWindow(),
+        QMessageBox::critical(ICore::mainWindow(),
                               tr("Incompatible Kit"),
                               tr("Kit %1 is incompatible with kit %2.")
                               .arg(sourceTarget->kit()->displayName())
@@ -460,7 +460,7 @@ Target *TargetSettingsPanelWidget::cloneTarget(Target *sourceTarget, Kit *k)
                     + runconfigurationError.join(QLatin1Char('\n'));
         }
 
-        QMessageBox msgBox(Core::ICore::mainWindow());
+        QMessageBox msgBox(ICore::mainWindow());
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.setWindowTitle(tr("Partially Incompatible Kit"));
         msgBox.setText(tr("Some configurations could not be copied."));

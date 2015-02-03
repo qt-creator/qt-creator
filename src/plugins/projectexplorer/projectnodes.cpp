@@ -185,7 +185,7 @@ bool Node::isEnabled() const
 QList<ProjectAction> Node::supportedActions(Node *node) const
 {
     QList<ProjectAction> list = parentFolderNode()->supportedActions(node);
-    list.append(ProjectExplorer::InheritedFromParent);
+    list.append(InheritedFromParent);
     return list;
 }
 
