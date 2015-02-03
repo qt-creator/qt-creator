@@ -279,8 +279,8 @@ extern "C" HRESULT CALLBACK pid(CIDebugClient *client, PCSTR args)
 
     int token;
     commandTokens<StringList>(args, &token);
-    dprintf("Qt Creator CDB extension version 3.3 %d bit built %s.\n",
-            sizeof(void *) * 8, __DATE__);
+    dprintf("Qt Creator CDB extension version 3.3 %d bit.\n",
+            sizeof(void *) * 8);
     if (const ULONG pid = currentProcessId(client))
         ExtensionContext::instance().report('R', token, 0, "pid", "%u", pid);
     else
@@ -940,7 +940,7 @@ extern "C" HRESULT CALLBACK setparameter(CIDebugClient *, PCSTR args)
 extern "C" HRESULT CALLBACK help(CIDebugClient *, PCSTR)
 {
     std::ostringstream str;
-    str << "### Qt Creator CDB extension built " << __DATE__ << "\n\n";
+    str << "### Qt Creator CDB extension" << "\n\n";
 
     const size_t commandCount = sizeof(commandDescriptions)/sizeof(CommandDescription);
     std::copy(commandDescriptions, commandDescriptions + commandCount,

@@ -138,9 +138,9 @@ void CrashHandlerDialog::setApplicationInfo(const QString &signalName)
      revision = QLatin1Char(' ') + tr("from revision %1").arg(QString::fromLatin1(Core::Constants::IDE_REVISION_STR).left(10));
 #endif
     const QString versionInformation = tr(
-        "%1 %2%3, built on %4 at %5, based on Qt %6 (%7 bit)\n")
+        "%1 %2%3, based on Qt %4 (%5 bit)\n")
             .arg(ideName, QLatin1String(Core::Constants::IDE_VERSION_LONG), revision,
-                 QLatin1String(__DATE__), QLatin1String(__TIME__), QLatin1String(QT_VERSION_STR),
+                 QLatin1String(QT_VERSION_STR),
                  QString::number(QSysInfo::WordSize));
     m_ui->debugInfoEdit->append(versionInformation);
 }
