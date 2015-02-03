@@ -396,13 +396,13 @@ void QmlInspectorAgent::setEngineClient(BaseEngineDebugClient *client)
     m_engineClient = client;
 
     if (m_engineClient) {
-        connect(m_engineClient, &QmlDebug::BaseEngineDebugClient::newState,
+        connect(m_engineClient, &BaseEngineDebugClient::newState,
                 this, &QmlInspectorAgent::updateState);
-        connect(m_engineClient, &QmlDebug::BaseEngineDebugClient::result,
+        connect(m_engineClient, &BaseEngineDebugClient::result,
                 this, &QmlInspectorAgent::onResult);
-        connect(m_engineClient, &QmlDebug::BaseEngineDebugClient::newObject,
+        connect(m_engineClient, &BaseEngineDebugClient::newObject,
                 this, &QmlInspectorAgent::newObject);
-        connect(m_engineClient, &QmlDebug::BaseEngineDebugClient::valueChanged,
+        connect(m_engineClient, &BaseEngineDebugClient::valueChanged,
                 this, &QmlInspectorAgent::onValueChanged);
     }
 

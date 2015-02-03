@@ -337,7 +337,7 @@ void DisassemblerAgent::updateBreakpointMarkers()
         return;
 
     const DisassemblerLines contents = d->contentsAtCurrentLocation();
-    foreach (TextEditor::TextMark *marker, d->breakpointMarks)
+    foreach (TextMark *marker, d->breakpointMarks)
         d->document->removeMark(marker);
     qDeleteAll(d->breakpointMarks);
     d->breakpointMarks.clear();

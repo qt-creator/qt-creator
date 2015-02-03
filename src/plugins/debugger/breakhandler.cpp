@@ -293,7 +293,7 @@ QIcon BreakHandler::emptyIcon()
 
 static inline bool fileNameMatch(const QString &f1, const QString &f2)
 {
-    if (Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
+    if (HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
         return f1.compare(f2, Qt::CaseInsensitive) == 0;
     return f1 == f2;
 }
@@ -637,7 +637,7 @@ QVariant BreakpointItem::data(int column, int role) const
                 if (str.isEmpty() && !m_params.fileName.isEmpty())
                     str = m_params.fileName;
                 if (str.isEmpty()) {
-                    QString s = Utils::FileName::fromString(str).fileName();
+                    QString s = FileName::fromString(str).fileName();
                     if (!s.isEmpty())
                         str = s;
                 }

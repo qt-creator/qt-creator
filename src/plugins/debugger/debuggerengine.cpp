@@ -313,7 +313,7 @@ public:
 
     DisassemblerAgent m_disassemblerAgent;
     MemoryAgent m_memoryAgent;
-    QScopedPointer<TextEditor::TextMark> m_locationMark;
+    QScopedPointer<TextMark> m_locationMark;
     QTimer m_locationTimer;
 
     bool m_isStateDebugging;
@@ -594,9 +594,9 @@ void DebuggerEngine::gotoLocation(const Location &loc)
         editor->document()->setProperty(Constants::OPENED_BY_DEBUGGER, true);
 
     if (loc.needsMarker()) {
-        d->m_locationMark.reset(new TextEditor::TextMark(file, line));
+        d->m_locationMark.reset(new TextMark(file, line));
         d->m_locationMark->setIcon(Internal::locationMarkIcon());
-        d->m_locationMark->setPriority(TextEditor::TextMark::HighPriority);
+        d->m_locationMark->setPriority(TextMark::HighPriority);
     }
 
     //qDebug() << "MEMORY: " << d->m_memoryAgent.hasVisibleEditor();
@@ -1404,7 +1404,7 @@ Terminal *DebuggerEngine::terminal() const
     return &d->m_terminal;
 }
 
-bool DebuggerEngine::setToolTipExpression(TextEditor::TextEditorWidget *,
+bool DebuggerEngine::setToolTipExpression(TextEditorWidget *,
     const DebuggerToolTipContext &)
 {
     return false;
@@ -1714,7 +1714,7 @@ void DebuggerEngine::showStoppedBySignalMessageBox(QString meaning, QString name
                            "<table><tr><td>Signal name : </td><td>%1</td></tr>"
                            "<tr><td>Signal meaning : </td><td>%2</td></tr></table>")
             .arg(name, meaning);
-    Core::AsynchronousMessageBox::information(tr("Signal received"), msg);
+    AsynchronousMessageBox::information(tr("Signal received"), msg);
 }
 
 void DebuggerEngine::showStoppedByExceptionMessageBox(const QString &description)
@@ -1722,7 +1722,7 @@ void DebuggerEngine::showStoppedByExceptionMessageBox(const QString &description
     const QString msg =
         tr("<p>The inferior stopped because it triggered an exception.<p>%1").
                          arg(description);
-    Core::AsynchronousMessageBox::information(tr("Exception Triggered"), msg);
+    AsynchronousMessageBox::information(tr("Exception Triggered"), msg);
 }
 
 void DebuggerEngine::openMemoryView(const MemoryViewSetupData &data)
@@ -1762,7 +1762,7 @@ void DebuggerEngine::validateExecutable(DebuggerStartParameters *sp)
     const bool warnOnRelease = boolSetting(WarnOnReleaseBuilds);
     QString detailedWarning;
     switch (sp->toolChainAbi.binaryFormat()) {
-    case ProjectExplorer::Abi::PEFormat: {
+    case Abi::PEFormat: {
         if (!warnOnRelease || (sp->masterEngineType != CdbEngineType))
             return;
         if (!binary.endsWith(QLatin1String(".exe"), Qt::CaseInsensitive))
@@ -1777,7 +1777,7 @@ void DebuggerEngine::validateExecutable(DebuggerStartParameters *sp)
         }
         break;
     }
-    case ProjectExplorer::Abi::ElfFormat: {
+    case Abi::ElfFormat: {
 
         Utils::ElfReader reader(binary);
         Utils::ElfData elfData = reader.readHeaders();
@@ -1876,7 +1876,7 @@ void DebuggerEngine::validateExecutable(DebuggerStartParameters *sp)
         return;
     }
     if (warnOnRelease) {
-        Core::AsynchronousMessageBox::information(tr("Warning"),
+        AsynchronousMessageBox::information(tr("Warning"),
                        tr("This does not seem to be a \"Debug\" build.\n"
                           "Setting breakpoints by file name and line number may fail.")
                        + QLatin1Char('\n') + detailedWarning);

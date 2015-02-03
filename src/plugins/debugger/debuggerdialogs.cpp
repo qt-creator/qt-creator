@@ -105,19 +105,19 @@ namespace Internal {
 ///////////////////////////////////////////////////////////////////////
 
 DebuggerKitChooser::DebuggerKitChooser(Mode mode, QWidget *parent)
-    : ProjectExplorer::KitChooser(parent)
-    , m_hostAbi(ProjectExplorer::Abi::hostAbi())
+    : KitChooser(parent)
+    , m_hostAbi(Abi::hostAbi())
     , m_mode(mode)
 {
 }
 
 // Match valid debuggers and restrict local debugging to compatible toolchains.
-bool DebuggerKitChooser::kitMatches(const ProjectExplorer::Kit *k) const
+bool DebuggerKitChooser::kitMatches(const Kit *k) const
 {
     if (!DebuggerKitInformation::isValidDebugger(k))
         return false;
     if (m_mode == LocalDebugging) {
-        const ProjectExplorer::ToolChain *tc = ToolChainKitInformation::toolChain(k);
+        const ToolChain *tc = ToolChainKitInformation::toolChain(k);
         return tc && tc->targetAbi().os() == m_hostAbi.os();
     }
     return true;

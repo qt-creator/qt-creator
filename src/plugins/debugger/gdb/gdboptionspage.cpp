@@ -311,7 +311,7 @@ QWidget *GdbOptionsPage::widget()
 void GdbOptionsPage::apply()
 {
     if (m_widget)
-        m_widget->group.apply(Core::ICore::settings());
+        m_widget->group.apply(ICore::settings());
 }
 
 void GdbOptionsPage::finish()
@@ -457,7 +457,7 @@ QWidget *GdbOptionsPage2::widget()
 void GdbOptionsPage2::apply()
 {
     if (m_widget)
-        m_widget->group.apply(Core::ICore::settings());
+        m_widget->group.apply(ICore::settings());
 }
 
 void GdbOptionsPage2::finish()

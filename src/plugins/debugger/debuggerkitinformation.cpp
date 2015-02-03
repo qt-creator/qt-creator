@@ -336,14 +336,14 @@ KitInformation::ItemList DebuggerKitInformation::toUserOutput(const Kit *k) cons
     return ItemList() << qMakePair(tr("Debugger"), displayString(k));
 }
 
-FileName DebuggerKitInformation::debuggerCommand(const ProjectExplorer::Kit *k)
+FileName DebuggerKitInformation::debuggerCommand(const Kit *k)
 {
     const DebuggerItem *item = debugger(k);
     QTC_ASSERT(item, return FileName());
     return item->command();
 }
 
-DebuggerEngineType DebuggerKitInformation::engineType(const ProjectExplorer::Kit *k)
+DebuggerEngineType DebuggerKitInformation::engineType(const Kit *k)
 {
     const DebuggerItem *item = debugger(k);
     QTC_ASSERT(item, return NoEngineType);

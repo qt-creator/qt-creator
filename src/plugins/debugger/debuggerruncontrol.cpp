@@ -295,7 +295,7 @@ bool DebuggerRunControlFactory::fillParametersFromLocalRunConfiguration
     QTC_ASSERT(runConfiguration, return false);
     auto rc = qobject_cast<const LocalApplicationRunConfiguration *>(runConfiguration);
     QTC_ASSERT(rc, return false);
-    EnvironmentAspect *environmentAspect = rc->extraAspect<ProjectExplorer::EnvironmentAspect>();
+    EnvironmentAspect *environmentAspect = rc->extraAspect<EnvironmentAspect>();
     QTC_ASSERT(environmentAspect, return false);
 
     Target *target = runConfiguration->target();
@@ -331,7 +331,7 @@ bool DebuggerRunControlFactory::fillParametersFromLocalRunConfiguration
         sp->languages |= CppLanguage;
 
     if (debuggerAspect->useQmlDebugger()) {
-        const ProjectExplorer::IDevice::ConstPtr device =
+        const IDevice::ConstPtr device =
                 DeviceKitInformation::device(runConfiguration->target()->kit());
         QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return sp);
         QTcpServer server;
@@ -491,7 +491,7 @@ bool DebuggerRunControlFactory::fillParametersFromKit(DebuggerStartParameters *s
                 sp->executable = executableForPid(sp->attachPID);
             }
             if (!sp->executable.isEmpty())
-                abis = Abi::abisOfBinary(Utils::FileName::fromString(sp->executable));
+                abis = Abi::abisOfBinary(FileName::fromString(sp->executable));
         }
         if (!abis.isEmpty()) {
             // Try exact abis.

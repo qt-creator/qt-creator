@@ -346,8 +346,8 @@ void MapObjectWithDebugReference::process(UiObjectBinding *ast)
 /*!
  * Manages a Qml/JS document for the inspector
  */
-QmlLiveTextPreview::QmlLiveTextPreview(const QmlJS::Document::Ptr &doc,
-                                       const QmlJS::Document::Ptr &initDoc,
+QmlLiveTextPreview::QmlLiveTextPreview(const Document::Ptr &doc,
+                                       const Document::Ptr &initDoc,
                                        QmlInspectorAdapter *inspectorAdapter,
                                        QObject *parent)
     : QObject(parent)
@@ -362,8 +362,8 @@ QmlLiveTextPreview::QmlLiveTextPreview(const QmlJS::Document::Ptr &doc,
 {
     QTC_CHECK(doc->fileName() == initDoc->fileName());
 
-    QmlJS::ModelManagerInterface *modelManager
-            = QmlJS::ModelManagerInterface::instance();
+    ModelManagerInterface *modelManager
+            = ModelManagerInterface::instance();
     if (modelManager) {
         connect(modelManager, SIGNAL(documentChangedOnDisk(QmlJS::Document::Ptr)),
                 SLOT(documentChanged(QmlJS::Document::Ptr)));
@@ -424,7 +424,7 @@ void QmlLiveTextPreview::unassociateEditor(Core::IEditor *oldEditor)
     }
 }
 
-void QmlLiveTextPreview::resetInitialDoc(const QmlJS::Document::Ptr &doc)
+void QmlLiveTextPreview::resetInitialDoc(const Document::Ptr &doc)
 {
     m_initialDoc = doc;
     m_previousDoc = doc;
@@ -463,7 +463,7 @@ void QmlLiveTextPreview::updateDebugIds()
     if (it != m_inspectorAdapter->agent()->debugIdHash().constEnd()) {
         // Map all the object that comes from the document as it has been loaded
         // by the server.
-        const QmlJS::Document::Ptr &doc = m_initialDoc;
+        const Document::Ptr &doc = m_initialDoc;
 
         MapObjectWithDebugReference visitor;
         visitor.ids = (*it);
@@ -477,7 +477,7 @@ void QmlLiveTextPreview::updateDebugIds()
         }
     }
 
-    const QmlJS::Document::Ptr &doc = m_previousDoc;
+    const Document::Ptr &doc = m_previousDoc;
     if (!doc->qmlProgram())
         return;
 
@@ -500,7 +500,7 @@ void QmlLiveTextPreview::updateDebugIds()
          = m_createdObjects.constBegin();
          it != m_createdObjects.constEnd(); ++it) {
 
-        const QmlJS::Document::Ptr &doc = it.key();
+        const Document::Ptr &doc = it.key();
 
         DebugIdHash::const_iterator id_it = m_inspectorAdapter->agent()->debugIdHash().constFind(
                     qMakePair<QString, int>(doc->fileName(), doc->editorRevision()));
@@ -527,14 +527,14 @@ void QmlLiveTextPreview::updateDebugIds()
         changeSelectedElements(m_lastOffsets, QString());
 }
 
-void QmlLiveTextPreview::changeSelectedElements(const QList<QmlJS::AST::UiObjectMember*> offsetObjects,
+void QmlLiveTextPreview::changeSelectedElements(const QList<UiObjectMember*> offsetObjects,
                                                 const QString &wordAtCursor)
 {
     if (m_editors.isEmpty() || !m_previousDoc)
         return;
 
     QList<int> offsets;
-    foreach (QmlJS::AST::UiObjectMember *member, offsetObjects)
+    foreach (UiObjectMember *member, offsetObjects)
         offsets << member->firstSourceLocation().offset;
 
     if (!changeSelectedElements(offsets, wordAtCursor) && m_initialDoc && offsetObjects.count()) {
@@ -588,7 +588,7 @@ bool QmlLiveTextPreview::changeSelectedElements(const QList<int> offsets,
     return true;
 }
 
-void QmlLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
+void QmlLiveTextPreview::documentChanged(Document::Ptr doc)
 {
     if (doc->fileName() != m_previousDoc->fileName())
         return;
@@ -650,11 +650,11 @@ void QmlLiveTextPreview::onAutomaticUpdateFailed()
 QList<int> QmlLiveTextPreview::objectReferencesForOffset(quint32 offset)
 {
     QList<int> result;
-    QHashIterator<QmlJS::AST::UiObjectMember*, QList<int> > iter(m_debugIds);
-    QmlJS::AST::UiObjectMember *possibleNode = 0;
+    QHashIterator<UiObjectMember*, QList<int> > iter(m_debugIds);
+    UiObjectMember *possibleNode = 0;
     while (iter.hasNext()) {
         iter.next();
-        QmlJS::AST::UiObjectMember *member = iter.key();
+        UiObjectMember *member = iter.key();
         quint32 startOffset = member->firstSourceLocation().offset;
         quint32 endOffset = member->lastSourceLocation().offset;
         if (startOffset <= offset && offset <= endOffset) {

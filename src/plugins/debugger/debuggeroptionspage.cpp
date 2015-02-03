@@ -92,7 +92,7 @@ public:
 // DebuggerItemModel
 // --------------------------------------------------------------------------
 
-class DebuggerItemModel : public Utils::TreeModel
+class DebuggerItemModel : public TreeModel
 {
     Q_DECLARE_TR_FUNCTIONS(Debugger::DebuggerOptionsPage)
 

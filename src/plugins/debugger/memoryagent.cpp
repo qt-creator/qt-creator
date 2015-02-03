@@ -189,7 +189,7 @@ bool MemoryAgent::doCreateBinEditor(const MemoryViewSetupData &data)
 void MemoryAgent::createBinEditor(const MemoryViewSetupData &data)
 {
     if (!doCreateBinEditor(data))
-        Core::AsynchronousMessageBox::warning(
+        AsynchronousMessageBox::warning(
             tr("No Memory Viewer Available"),
             tr("The memory contents cannot be shown as no viewer plugin "
                "for binary data has been loaded."));
@@ -234,7 +234,7 @@ void MemoryAgent::handleWatchpointRequest(quint64 address, uint size)
 
 void MemoryAgent::updateContents()
 {
-    foreach (const QPointer<Core::IEditor> &e, m_editors)
+    foreach (const QPointer<IEditor> &e, m_editors)
         if (e)
             MemoryView::binEditorUpdateContents(e->widget());
     // Update all views except register views, which trigger on

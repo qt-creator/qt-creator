@@ -249,9 +249,9 @@ public:
     quint32 *column;
 };
 
-QmlJS::ConsoleManagerInterface *qmlConsoleManager()
+ConsoleManagerInterface *qmlConsoleManager()
 {
-    return QmlJS::ConsoleManagerInterface::instance();
+    return ConsoleManagerInterface::instance();
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1041,7 +1041,7 @@ void QmlEngine::synchronizeWatchers()
     }
 }
 
-QmlJS::ConsoleItem *constructLogItemTree(QmlJS::ConsoleItem *parent,
+ConsoleItem *constructLogItemTree(ConsoleItem *parent,
                                                  const QVariant &result,
                                                  const QString &key = QString())
 {
@@ -1135,7 +1135,7 @@ void QmlEngine::disconnected()
     notifyInferiorExited();
 }
 
-void QmlEngine::documentUpdated(QmlJS::Document::Ptr doc)
+void QmlEngine::documentUpdated(Document::Ptr doc)
 {
     QString fileName = doc->fileName();
     if (pendingBreakpoints.contains(fileName)) {
@@ -1167,7 +1167,7 @@ void QmlEngine::updateCurrentContext()
 
     synchronizeWatchers();
 
-    QmlJS::ConsoleManagerInterface *consoleManager = qmlConsoleManager();
+    ConsoleManagerInterface *consoleManager = qmlConsoleManager();
     if (consoleManager)
         consoleManager->setContext(tr("Context:") + QLatin1Char(' ') + context);
 }

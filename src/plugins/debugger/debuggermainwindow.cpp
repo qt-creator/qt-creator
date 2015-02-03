@@ -89,16 +89,16 @@ public:
     bool isQmlActive() const;
     void setSimpleDockWidgetArrangement();
     // Debuggable languages are registered with this function.
-    void addLanguage(DebuggerLanguage language, const Core::Context &context);
+    void addLanguage(DebuggerLanguage language, const Context &context);
 
     QDockWidget *dockWidget(const QString &objectName) const
         { return q->findChild<QDockWidget *>(objectName); }
 
 public slots:
     void resetDebuggerLayout();
-    void updateUiForProject(ProjectExplorer::Project *project);
-    void updateUiForTarget(ProjectExplorer::Target *target);
-    void updateUiForRunConfiguration(ProjectExplorer::RunConfiguration *rc);
+    void updateUiForProject(Project *project);
+    void updateUiForTarget(Target *target);
+    void updateUiForRunConfiguration(RunConfiguration *rc);
     void updateUiForCurrentRunConfiguration();
     void updateActiveLanguages();
     void updateDockWidgetSettings();
@@ -162,26 +162,24 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *mw)
 void DebuggerMainWindowPrivate::updateUiForProject(Project *project)
 {
     if (m_previousProject) {
-        disconnect(m_previousProject,
-            SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-            this, SLOT(updateUiForTarget(ProjectExplorer::Target*)));
+        disconnect(m_previousProject, &Project::activeTargetChanged,
+            this, &DebuggerMainWindowPrivate::updateUiForTarget);
     }
     m_previousProject = project;
     if (!project) {
         updateUiForTarget(0);
         return;
     }
-    connect(project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-        SLOT(updateUiForTarget(ProjectExplorer::Target*)));
+    connect(project, &Project::activeTargetChanged,
+            this, &DebuggerMainWindowPrivate::updateUiForTarget);
     updateUiForTarget(project->activeTarget());
 }
 
 void DebuggerMainWindowPrivate::updateUiForTarget(Target *target)
 {
     if (m_previousTarget) {
-         disconnect(m_previousTarget,
-            SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
-            this, SLOT(updateUiForRunConfiguration(ProjectExplorer::RunConfiguration*)));
+         disconnect(m_previousTarget, &Target::activeRunConfigurationChanged,
+                    this, &DebuggerMainWindowPrivate::updateUiForRunConfiguration);
     }
 
     m_previousTarget = target;
@@ -191,9 +189,8 @@ void DebuggerMainWindowPrivate::updateUiForTarget(Target *target)
         return;
     }
 
-    connect(target,
-        SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
-        SLOT(updateUiForRunConfiguration(ProjectExplorer::RunConfiguration*)));
+    connect(target, &Target::activeRunConfigurationChanged,
+            this, &DebuggerMainWindowPrivate::updateUiForRunConfiguration);
     updateUiForRunConfiguration(target->activeRunConfiguration());
 }
 
@@ -297,7 +294,7 @@ void DebuggerMainWindow::onModeChanged(IMode *mode)
 void DebuggerMainWindowPrivate::createViewsMenuItems()
 {
     Context debugcontext(Constants::C_DEBUGMODE);
-    m_viewsMenu = Core::ActionManager::actionContainer(Id(Core::Constants::M_WINDOW_VIEWS));
+    m_viewsMenu = ActionManager::actionContainer(Id(Core::Constants::M_WINDOW_VIEWS));
     QTC_ASSERT(m_viewsMenu, return);
 
     QAction *openMemoryEditorAction = new QAction(this);
@@ -307,20 +304,20 @@ void DebuggerMainWindowPrivate::createViewsMenuItems()
 
     // Add menu items
     Command *cmd = 0;
-    cmd = Core::ActionManager::registerAction(openMemoryEditorAction,
+    cmd = ActionManager::registerAction(openMemoryEditorAction,
         "Debugger.Views.OpenMemoryEditor", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 
-    cmd = Core::ActionManager::registerAction(q->menuSeparator1(),
+    cmd = ActionManager::registerAction(q->menuSeparator1(),
         "Debugger.Views.Separator1", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
-    cmd = Core::ActionManager::registerAction(q->autoHideTitleBarsAction(),
+    cmd = ActionManager::registerAction(q->autoHideTitleBarsAction(),
         "Debugger.Views.AutoHideTitleBars", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
-    cmd = Core::ActionManager::registerAction(q->menuSeparator2(),
+    cmd = ActionManager::registerAction(q->menuSeparator2(),
         "Debugger.Views.Separator2", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
@@ -406,8 +403,8 @@ QDockWidget *DebuggerMainWindow::createDockWidget(const DebuggerLanguage &langua
     Context globalContext(Core::Constants::C_GLOBAL);
 
     QAction *toggleViewAction = dockWidget->toggleViewAction();
-    Command *cmd = Core::ActionManager::registerAction(toggleViewAction,
-             Core::Id("Debugger.").withSuffix(widget->objectName()), globalContext);
+    Command *cmd = ActionManager::registerAction(toggleViewAction,
+             Id("Debugger.").withSuffix(widget->objectName()), globalContext);
     cmd->setAttribute(Command::CA_Hide);
 
     dockWidget->installEventFilter(&d->m_resizeEventFilter);
@@ -429,10 +426,10 @@ void DebuggerMainWindow::addStagedMenuEntries()
 
 QWidget *DebuggerMainWindow::createContents(IMode *mode)
 {
-    connect(SessionManager::instance(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
-        d, SLOT(updateUiForProject(ProjectExplorer::Project*)));
+    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+        d, &DebuggerMainWindowPrivate::updateUiForProject);
 
-    d->m_viewsMenu = Core::ActionManager::actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
+    d->m_viewsMenu = ActionManager::actionContainer(Id(Core::Constants::M_WINDOW_VIEWS));
     QTC_ASSERT(d->m_viewsMenu, return 0);
 
     //d->m_mainWindow = new Internal::DebuggerMainWindow(this);

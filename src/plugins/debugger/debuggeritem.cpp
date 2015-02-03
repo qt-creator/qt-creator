@@ -232,7 +232,7 @@ void DebuggerItem::setEngineType(const DebuggerEngineType &engineType)
     m_engineType = engineType;
 }
 
-void DebuggerItem::setCommand(const Utils::FileName &command)
+void DebuggerItem::setCommand(const FileName &command)
 {
     m_command = command;
 }
@@ -257,7 +257,7 @@ void DebuggerItem::setAutoDetectionSource(const QString &autoDetectionSource)
     m_autoDetectionSource = autoDetectionSource;
 }
 
-void DebuggerItem::setAbis(const QList<ProjectExplorer::Abi> &abis)
+void DebuggerItem::setAbis(const QList<Abi> &abis)
 {
     m_abis = abis;
 }

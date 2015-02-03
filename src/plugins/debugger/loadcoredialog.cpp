@@ -83,7 +83,7 @@ public:
     QString remoteFile() const { return m_remoteFile; }
 
 private slots:
-    void handleSftpOperationFinished(QSsh::SftpJobId, const QString &error);
+    void handleSftpOperationFinished(SftpJobId, const QString &error);
     void handleSftpOperationFailed(const QString &errorMessage);
     void handleConnectionError(const QString &errorMessage);
     void handleRemoteError(const QString &errorMessage);
@@ -143,7 +143,7 @@ void SelectRemoteFileDialog::attachToDevice(Kit *k)
     QTC_ASSERT(k, return);
     IDevice::ConstPtr device = DeviceKitInformation::device(k);
     QTC_ASSERT(device, return);
-    QSsh::SshConnectionParameters sshParams = device->sshParameters();
+    SshConnectionParameters sshParams = device->sshParameters();
     m_fileSystemModel.setSshConnection(sshParams);
 }
 
@@ -159,7 +159,7 @@ void SelectRemoteFileDialog::handleConnectionError(const QString &errorMessage)
     //reject();
 }
 
-void SelectRemoteFileDialog::handleSftpOperationFinished(QSsh::SftpJobId, const QString &error)
+void SelectRemoteFileDialog::handleSftpOperationFinished(SftpJobId, const QString &error)
 {
     if (error.isEmpty()) {
         m_textBrowser->append(tr("Download of remote file succeeded."));
@@ -364,7 +364,7 @@ bool AttachCoreDialog::useLocalCoreFile() const
 
 void AttachCoreDialog::coreFileChanged(const QString &core)
 {
-    if (!Utils::HostOsInfo::isWindowsHost() && QFile::exists(core)) {
+    if (!HostOsInfo::isWindowsHost() && QFile::exists(core)) {
         Kit *k = d->kitChooser->currentKit();
         QTC_ASSERT(k, return);
         FileName cmd = DebuggerKitInformation::debuggerCommand(k);
@@ -441,7 +441,7 @@ QString AttachCoreDialog::remoteCoreFile() const
     return d->remoteCoreFileName->text();
 }
 
-void AttachCoreDialog::setKitId(Core::Id id)
+void AttachCoreDialog::setKitId(Id id)
 {
     d->kitChooser->setCurrentKitId(id);
 }

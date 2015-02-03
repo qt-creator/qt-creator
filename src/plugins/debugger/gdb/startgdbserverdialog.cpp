@@ -90,7 +90,7 @@ GdbServerStarter::~GdbServerStarter()
 
 void GdbServerStarter::handleRemoteError(const QString &errorMsg)
 {
-    Core::AsynchronousMessageBox::critical(tr("Remote Error"), errorMsg);
+    AsynchronousMessageBox::critical(tr("Remote Error"), errorMsg);
 }
 
 void GdbServerStarter::portGathererError(const QString &text)
@@ -198,15 +198,15 @@ void GdbServerStarter::attach(int port)
             localExecutable = candidate;
     }
     if (localExecutable.isEmpty()) {
-        Core::AsynchronousMessageBox::warning(tr("Warning"),
+        AsynchronousMessageBox::warning(tr("Warning"),
             tr("Cannot find local executable for remote process \"%1\".")
                 .arg(d->process.exe));
         return;
     }
 
-    QList<Abi> abis = Abi::abisOfBinary(Utils::FileName::fromString(localExecutable));
+    QList<Abi> abis = Abi::abisOfBinary(FileName::fromString(localExecutable));
     if (abis.isEmpty()) {
-        Core::AsynchronousMessageBox::warning(tr("Warning"),
+        AsynchronousMessageBox::warning(tr("Warning"),
             tr("Cannot find ABI for remote process \"%1\".")
                 .arg(d->process.exe));
         return;

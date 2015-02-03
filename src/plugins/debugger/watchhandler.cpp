@@ -256,11 +256,11 @@ WatchModel::WatchModel(WatchHandler *handler)
     root->appendChild(m_tooltipRoot = new WatchItem("tooltip", tr("Tooltip")));
     setRootItem(root);
 
-    connect(action(SortStructMembers), &Utils::SavedAction::valueChanged,
+    connect(action(SortStructMembers), &SavedAction::valueChanged,
         this, &WatchModel::reinsertAllData);
-    connect(action(ShowStdNamespace), &Utils::SavedAction::valueChanged,
+    connect(action(ShowStdNamespace), &SavedAction::valueChanged,
         this, &WatchModel::reinsertAllData);
-    connect(action(ShowQtNamespace), &Utils::SavedAction::valueChanged,
+    connect(action(ShowQtNamespace), &SavedAction::valueChanged,
         this, &WatchModel::reinsertAllData);
 }
 
@@ -1451,7 +1451,7 @@ void WatchHandler::clearWatches()
     if (theWatcherNames.isEmpty())
         return;
 
-    const QDialogButtonBox::StandardButton ret = Utils::CheckableMessageBox::doNotAskAgainQuestion(
+    const QDialogButtonBox::StandardButton ret = CheckableMessageBox::doNotAskAgainQuestion(
                 Core::ICore::mainWindow(), tr("Remove All Expression Evaluators"),
                 tr("Are you sure you want to remove all expression evaluators?"),
                 Core::ICore::settings(), QLatin1String("RemoveAllWatchers"));

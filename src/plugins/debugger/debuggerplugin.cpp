@@ -418,12 +418,12 @@ static QToolButton *toolButton(QAction *action)
     return button;
 }
 
-static void setProxyAction(ProxyAction *proxy, Core::Id id)
+static void setProxyAction(ProxyAction *proxy, Id id)
 {
     proxy->setAction(ActionManager::command(id)->action());
 }
 
-static QToolButton *toolButton(Core::Id id)
+static QToolButton *toolButton(Id id)
 {
     return toolButton(ActionManager::command(id)->action());
 }
@@ -688,12 +688,12 @@ public:
         }
     }
 
-    void editorOpened(Core::IEditor *editor);
-    void updateBreakMenuItem(Core::IEditor *editor);
+    void editorOpened(IEditor *editor);
+    void updateBreakMenuItem(IEditor *editor);
     void setBusyCursor(bool busy);
-    void requestMark(TextEditor::TextEditorWidget *widget, int lineNumber,
-                     TextEditor::TextMarkRequestKind kind);
-    void requestContextMenu(TextEditor::TextEditorWidget *widget,
+    void requestMark(TextEditorWidget *widget, int lineNumber,
+                     TextMarkRequestKind kind);
+    void requestContextMenu(TextEditorWidget *widget,
                             int lineNumber, QMenu *menu);
 
     void activatePreviousMode();
@@ -703,7 +703,7 @@ public:
                                        const QString &tracePointMessage = QString());
     void toggleBreakpointByAddress(quint64 address,
                                    const QString &tracePointMessage = QString());
-    void onModeChanged(Core::IMode *mode);
+    void onModeChanged(IMode *mode);
     void onCoreAboutToOpen();
     void showSettingsDialog();
     void updateDebugWithoutDeployMenu();
@@ -745,11 +745,11 @@ public:
     void cleanupViews();
     void setInitialState();
 
-    void fontSettingsChanged(const TextEditor::FontSettings &settings);
+    void fontSettingsChanged(const FontSettings &settings);
 
     void updateState(DebuggerEngine *engine);
     void updateWatchersWindow(bool showWatch, bool showReturn);
-    void onCurrentProjectChanged(ProjectExplorer::Project *project);
+    void onCurrentProjectChanged(Project *project);
 
     void sessionLoaded();
     void aboutToUnloadSession();
@@ -760,7 +760,7 @@ public:
 #ifdef WITH_TESTS
 public slots:
     void testLoadProject(const QString &proFile, const TestCallBack &cb);
-    void testProjectLoaded(ProjectExplorer::Project *project);
+    void testProjectLoaded(Project *project);
     void testProjectEvaluated();
     void testProjectBuilt(bool success);
     void testUnloadProject();
@@ -1276,9 +1276,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     // Cpp/Qml ui setup
     m_mainWindow = new DebuggerMainWindow;
 
-    TaskHub::addCategory(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO,
+    TaskHub::addCategory(TASK_CATEGORY_DEBUGGER_DEBUGINFO,
                          tr("Debug Information"));
-    TaskHub::addCategory(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME,
+    TaskHub::addCategory(TASK_CATEGORY_DEBUGGER_RUNTIME,
                          tr("Debugger Runtime"));
 
     return true;
@@ -1330,7 +1330,7 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
     m_startAction->setEnabled(canRun);
     m_startAction->setToolTip(whyNot);
     m_debugWithoutDeployAction->setEnabled(canRun);
-    setProxyAction(m_visibleStartAction, Core::Id(Constants::DEBUG));
+    setProxyAction(m_visibleStartAction, Id(Constants::DEBUG));
 }
 
 void DebuggerPluginPrivate::debugProject()
@@ -1441,7 +1441,7 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
         DebuggerKitChooser::RemoteDebugging : DebuggerKitChooser::LocalDebugging;
     DebuggerKitChooser *kitChooser = new DebuggerKitChooser(mode);
     DeviceProcessesDialog *dlg = new DeviceProcessesDialog(kitChooser, ICore::dialogParent());
-    dlg->addAcceptButton(ProjectExplorer::DeviceProcessesDialog::tr("&Attach to Process"));
+    dlg->addAcceptButton(DeviceProcessesDialog::tr("&Attach to Process"));
     dlg->showAllDevices();
     if (dlg->exec() == QDialog::Rejected) {
         delete dlg;
@@ -1508,7 +1508,7 @@ DebuggerRunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     QTC_ASSERT(device, return 0);
     if (process.pid == 0) {
-        Core::AsynchronousMessageBox::warning(tr("Warning"),
+        AsynchronousMessageBox::warning(tr("Warning"),
                                               tr("Cannot attach to process with PID 0"));
         return 0;
     }
@@ -1517,14 +1517,14 @@ DebuggerRunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     if (const ToolChain *tc = ToolChainKitInformation::toolChain(kit))
         isWindows = tc->targetAbi().os() == Abi::WindowsOS;
     if (isWindows && isWinProcessBeingDebugged(process.pid)) {
-        Core::AsynchronousMessageBox::warning(tr("Process Already Under Debugger Control"),
+        AsynchronousMessageBox::warning(tr("Process Already Under Debugger Control"),
                              tr("The process %1 is already under the control of a debugger.\n"
                                 "Qt Creator cannot attach to it.").arg(process.pid));
         return 0;
     }
 
     if (device->type() != PE::DESKTOP_DEVICE_TYPE) {
-        Core::AsynchronousMessageBox::warning(tr("Not a Desktop Device Type"),
+        AsynchronousMessageBox::warning(tr("Not a Desktop Device Type"),
                              tr("It is only possible to attach to a locally running process."));
         return 0;
     }
@@ -1865,7 +1865,7 @@ static void changeFontSize(QWidget *widget, qreal size)
 }
 
 void DebuggerPluginPrivate::fontSettingsChanged
-    (const TextEditor::FontSettings &settings)
+    (const FontSettings &settings)
 {
     if (!boolSetting(FontSizeFollowsEditor))
         return;
@@ -2013,7 +2013,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_exitAction->setEnabled(false);
         m_startAction->setEnabled(true);
         m_debugWithoutDeployAction->setEnabled(true);
-        setProxyAction(m_visibleStartAction, Core::Id(Constants::DEBUG));
+        setProxyAction(m_visibleStartAction, Id(Constants::DEBUG));
         m_hiddenStopAction->setAction(m_undisturbableAction);
     } else if (state == InferiorStopOk) {
         // F5 continues, Shift-F5 kills. It is "continuable".
@@ -2022,7 +2022,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_exitAction->setEnabled(true);
         m_startAction->setEnabled(false);
         m_debugWithoutDeployAction->setEnabled(false);
-        setProxyAction(m_visibleStartAction, Core::Id(Constants::CONTINUE));
+        setProxyAction(m_visibleStartAction, Id(Constants::CONTINUE));
         m_hiddenStopAction->setAction(m_exitAction);
         m_localsAndExpressionsWindow->setShowLocals(true);
     } else if (state == InferiorRunOk) {
@@ -2032,7 +2032,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_exitAction->setEnabled(true);
         m_startAction->setEnabled(false);
         m_debugWithoutDeployAction->setEnabled(false);
-        setProxyAction(m_visibleStartAction, Core::Id(Constants::INTERRUPT));
+        setProxyAction(m_visibleStartAction, Id(Constants::INTERRUPT));
         m_hiddenStopAction->setAction(m_interruptAction);
         m_localsAndExpressionsWindow->setShowLocals(false);
     } else if (state == DebuggerFinished) {
@@ -2044,7 +2044,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_exitAction->setEnabled(false);
         m_startAction->setEnabled(canRun);
         m_debugWithoutDeployAction->setEnabled(canRun);
-        setProxyAction(m_visibleStartAction, Core::Id(Constants::DEBUG));
+        setProxyAction(m_visibleStartAction, Id(Constants::DEBUG));
         m_hiddenStopAction->setAction(m_undisturbableAction);
         m_codeModelSnapshot = CPlusPlus::Snapshot();
         setBusyCursor(false);
@@ -2447,7 +2447,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 {
     const QKeySequence debugKey = QKeySequence(UseMacShortcuts ? tr("Ctrl+Y") : tr("F5"));
 
-    QSettings *settings = Core::ICore::settings();
+    QSettings *settings = ICore::settings();
 
     m_debuggerSettings = new DebuggerSettings;
     m_debuggerSettings->readSettings();
@@ -2733,17 +2733,17 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd = ActionManager::registerAction(m_attachToRunningApplication,
          "Debugger.AttachToRemoteProcess", globalcontext);
     cmd->setDescription(tr("Attach to Running Application"));
-    mstart->addAction(cmd, Debugger::Constants::G_GENERAL);
+    mstart->addAction(cmd, G_GENERAL);
 
     cmd = ActionManager::registerAction(m_attachToUnstartedApplication,
           "Debugger.AttachToUnstartedProcess", globalcontext);
     cmd->setDescription(tr("Attach to Unstarted Application"));
-    mstart->addAction(cmd, Debugger::Constants::G_GENERAL);
+    mstart->addAction(cmd, G_GENERAL);
 
     cmd = ActionManager::registerAction(m_startAndDebugApplicationAction,
         "Debugger.StartAndDebugApplication", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Debugger::Constants::G_GENERAL);
+    mstart->addAction(cmd, G_GENERAL);
 
     cmd = ActionManager::registerAction(m_attachToCoreAction,
         "Debugger.AttachCore", globalcontext);
@@ -2976,10 +2976,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
     // Debug mode setup
     DebugMode *debugMode = new DebugMode;
     QWidget *widget = m_mainWindow->createContents(debugMode);
-    Core::IContext *modeContextObject = new Core::IContext(this);
-    modeContextObject->setContext(Core::Context(CC::C_EDITORMANAGER));
+    IContext *modeContextObject = new IContext(this);
+    modeContextObject->setContext(Context(CC::C_EDITORMANAGER));
     modeContextObject->setWidget(widget);
-    Core::ICore::addContextObject(modeContextObject);
+    ICore::addContextObject(modeContextObject);
     debugMode->setWidget(widget);
 
     m_plugin->addAutoReleasedObject(debugMode);
@@ -3505,7 +3505,7 @@ void DebuggerPluginPrivate::testBenchmark1()
 {
 #ifdef WITH_BENCHMARK
     CALLGRIND_START_INSTRUMENTATION;
-    volatile Core::Id id1 = Core::Id(DEBUGGER_COMMON_SETTINGS_ID);
+    volatile Id id1 = Id(DEBUGGER_COMMON_SETTINGS_ID);
     CALLGRIND_STOP_INSTRUMENTATION;
     CALLGRIND_DUMP_STATS;
 

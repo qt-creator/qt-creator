@@ -152,7 +152,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     connect(m_pathChooser, SIGNAL(pathChanged(QString)), this, SLOT(stopAndCheckExecutable()));
     connect(m_closePushButton, SIGNAL(clicked()), this, SLOT(reject()));
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(findProcess()));
-    connect(m_kitChooser, &ProjectExplorer::KitChooser::currentIndexChanged,
+    connect(m_kitChooser, &KitChooser::currentIndexChanged,
             this, &UnstartedAppWatcherDialog::kitChanged);
     kitChanged();
 

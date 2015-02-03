@@ -62,11 +62,11 @@ GdbTermEngine::GdbTermEngine(const DebuggerStartParameters &startParameters)
 #ifdef Q_OS_WIN
     // Windows up to xp needs a workaround for attaching to freshly started processes. see proc_stub_win
     if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA)
-        m_stubProc.setMode(Utils::ConsoleProcess::Suspend);
+        m_stubProc.setMode(ConsoleProcess::Suspend);
     else
-        m_stubProc.setMode(Utils::ConsoleProcess::Debug);
+        m_stubProc.setMode(ConsoleProcess::Debug);
 #else
-    m_stubProc.setMode(Utils::ConsoleProcess::Debug);
+    m_stubProc.setMode(ConsoleProcess::Debug);
     m_stubProc.setSettings(Core::ICore::settings());
 #endif
 }
@@ -94,11 +94,11 @@ void GdbTermEngine::setupEngine()
     // Set environment + dumper preload.
     m_stubProc.setEnvironment(startParameters().environment);
 
-    connect(&m_stubProc, &Utils::ConsoleProcess::processError,
+    connect(&m_stubProc, &ConsoleProcess::processError,
             this, &GdbTermEngine::stubError);
-    connect(&m_stubProc, &Utils::ConsoleProcess::processStarted,
+    connect(&m_stubProc, &ConsoleProcess::processStarted,
             this, &GdbTermEngine::stubStarted);
-    connect(&m_stubProc, &Utils::ConsoleProcess::stubStopped,
+    connect(&m_stubProc, &ConsoleProcess::stubStopped,
             this, &GdbTermEngine::stubExited);
     // FIXME: Starting the stub implies starting the inferior. This is
     // fairly unclean as far as the state machine and error reporting go.
