@@ -125,7 +125,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     });
 
     // Generic highlighter.
-    connect(ICore::instance(), &ICore::coreOpened, Manager::instance(), &Manager::registerMimeTypes);
+    connect(ICore::instance(), &ICore::coreOpened, Manager::instance(), &Manager::registerHighlightingFiles);
 
     // Add text snippet provider.
     addAutoReleasedObject(new PlainTextSnippetProvider);

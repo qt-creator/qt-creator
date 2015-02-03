@@ -7178,7 +7178,8 @@ void TextEditorWidget::configureGenericHighlighter()
         d->m_isMissingSyntaxDefinition = true;
 
         QString definitionId;
-        setMimeTypeForHighlighter(highlighter, mimeType, &definitionId);
+        setMimeTypeForHighlighter(highlighter, mimeType, textDocument()->filePath().toString(),
+                                  &definitionId);
 
         if (!definitionId.isEmpty()) {
             d->m_isMissingSyntaxDefinition = false;
@@ -7218,7 +7219,7 @@ void TextEditorWidget::setupGenericHighlighter()
     connect(textDocument(), &IDocument::filePathChanged,
             d, &TextEditorWidgetPrivate::reconfigure);
 
-    connect(Manager::instance(), &Manager::mimeTypesRegistered,
+    connect(Manager::instance(), &Manager::highlightingFilesRegistered,
             d, &TextEditorWidgetPrivate::reconfigure);
 
     updateEditorInfoBar(this);

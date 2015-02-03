@@ -69,8 +69,10 @@ public:
     static Manager *instance();
 
     QString definitionIdByName(const QString &name) const;
-    QString definitionIdByMimeType(const QString &mimeType) const;
-    QString definitionIdByAnyMimeType(const QStringList &mimeTypes) const;
+    QString definitionIdByMimeType(const Core::MimeType &mimeType) const;
+    QString definitionIdByFile(const QString &filePath) const;
+    QString definitionIdByMimeTypeAndFile(const Core::MimeType &mimeType,
+                                          const QString &filePath) const;
     DefinitionMetaDataPtr availableDefinitionByName(const QString &name) const;
 
     bool isBuildingDefinition(const QString &id) const;
@@ -84,15 +86,15 @@ public:
     static DefinitionMetaDataPtr parseMetadata(const QFileInfo &fileInfo);
 
 public slots:
-    void registerMimeTypes();
+    void registerHighlightingFiles();
 
 private slots:
-    void registerMimeTypesFinished();
+    void registerHighlightingFilesFinished();
     void downloadAvailableDefinitionsListFinished();
     void downloadDefinitionsFinished();
 
 signals:
-    void mimeTypesRegistered();
+    void highlightingFilesRegistered();
 
 private:
     Manager();
@@ -114,7 +116,7 @@ private:
     };
     RegisterData m_register;
     bool m_hasQueuedRegistration;
-    QFutureWatcher<QPair<RegisterData, QList<Core::MimeType> > > m_registeringWatcher;
+    QFutureWatcher<RegisterData> m_registeringWatcher;
     friend class ManagerProcessor;
 
 signals:

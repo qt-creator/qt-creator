@@ -71,7 +71,7 @@ private:
 
     bool settingsChanged() const;
 
-    bool m_requestMimeTypeRegistration;
+    bool m_requestHighlightFileRegistration;
 
     struct HighlighterSettingsPagePrivate;
     HighlighterSettingsPagePrivate *m_d;

@@ -77,7 +77,7 @@ void HighlighterSettingsPage::HighlighterSettingsPagePrivate::ensureInitialized(
 
 HighlighterSettingsPage::HighlighterSettingsPage(Core::Id id, QObject *parent) :
     TextEditorOptionsPage(parent),
-    m_requestMimeTypeRegistration(false),
+    m_requestHighlightFileRegistration(false),
     m_d(new HighlighterSettingsPagePrivate(id))
 {
     setId(m_d->m_id);
@@ -122,9 +122,9 @@ void HighlighterSettingsPage::apply()
     if (settingsChanged())
         settingsFromUI();
 
-    if (m_requestMimeTypeRegistration) {
-        Manager::instance()->registerMimeTypes();
-        m_requestMimeTypeRegistration = false;
+    if (m_requestHighlightFileRegistration) {
+        Manager::instance()->registerHighlightingFiles();
+        m_requestHighlightFileRegistration = false;
     }
 }
 
@@ -146,12 +146,12 @@ const HighlighterSettings &HighlighterSettingsPage::highlighterSettings() const
 void HighlighterSettingsPage::settingsFromUI()
 {
     m_d->ensureInitialized();
-    if (!m_requestMimeTypeRegistration && (
+    if (!m_requestHighlightFileRegistration && (
         m_d->m_settings.definitionFilesPath() != m_d->m_page->definitionFilesPath->path() ||
         m_d->m_settings.fallbackDefinitionFilesPath() !=
             m_d->m_page->fallbackDefinitionFilesPath->path() ||
         m_d->m_settings.useFallbackLocation() != m_d->m_page->useFallbackLocation->isChecked())) {
-        m_requestMimeTypeRegistration = true;
+        m_requestHighlightFileRegistration = true;
     }
 
     m_d->m_settings.setDefinitionFilesPath(m_d->m_page->definitionFilesPath->path());
@@ -212,8 +212,8 @@ void HighlighterSettingsPage::manageDefinitions(const QList<DefinitionMetaDataPt
     ManageDefinitionsDialog dialog(metaData,
                                    m_d->m_page->definitionFilesPath->path() + QLatin1Char('/'),
                                    m_d->m_page->definitionFilesPath->buttonAtIndex(1)->window());
-    if (dialog.exec() && !m_requestMimeTypeRegistration)
-        m_requestMimeTypeRegistration = true;
+    if (dialog.exec() && !m_requestHighlightFileRegistration)
+        m_requestHighlightFileRegistration = true;
     setDownloadDefinitionsState(m_d->m_page->definitionFilesPath->isValid());
 }
 

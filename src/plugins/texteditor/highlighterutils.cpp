@@ -37,30 +37,10 @@
 using namespace TextEditor;
 using namespace Internal;
 
-QString TextEditor::findDefinitionId(const Core::MimeType &mimeType,
-                         bool considerParents)
-{
-    QString definitionId = Manager::instance()->definitionIdByAnyMimeType(mimeType.aliases());
-    if (definitionId.isEmpty() && considerParents) {
-        definitionId = Manager::instance()->definitionIdByAnyMimeType(mimeType.subClassesOf());
-        if (definitionId.isEmpty()) {
-            foreach (const QString &parent, mimeType.subClassesOf()) {
-                const Core::MimeType &parentMimeType = Core::MimeDatabase::findByType(parent);
-                definitionId = findDefinitionId(parentMimeType, considerParents);
-            }
-        }
-    }
-    return definitionId;
-}
-
 void TextEditor::setMimeTypeForHighlighter(Highlighter *highlighter, const Core::MimeType &mimeType,
-                                           QString *foundDefinitionId)
+                                           const QString &filePath, QString *foundDefinitionId)
 {
-    const QString type = mimeType.type();
-    QString definitionId = Manager::instance()->definitionIdByMimeType(type);
-    if (definitionId.isEmpty())
-        definitionId = findDefinitionId(mimeType, true);
-
+    QString definitionId = Manager::instance()->definitionIdByMimeTypeAndFile(mimeType, filePath);
     if (!definitionId.isEmpty()) {
         const QSharedPointer<HighlightDefinition> &definition =
             Manager::instance()->definition(definitionId);
@@ -72,9 +52,3 @@ void TextEditor::setMimeTypeForHighlighter(Highlighter *highlighter, const Core:
         *foundDefinitionId = definitionId;
 }
 
-SyntaxHighlighter *TextEditor::createGenericSyntaxHighlighter(const Core::MimeType &mimeType)
-{
-    Highlighter *highlighter = new Highlighter();
-    setMimeTypeForHighlighter(highlighter, mimeType);
-    return highlighter;
-}

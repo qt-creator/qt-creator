@@ -43,12 +43,10 @@ namespace Core { class MimeType; }
 namespace TextEditor {
 
 class Highlighter;
-class SyntaxHighlighter;
 
 void setMimeTypeForHighlighter(Highlighter *highlighter, const Core::MimeType &mimeType,
+                               const QString &filePath,
                                QString *foundDefinitionId = 0);
-QString findDefinitionId(const Core::MimeType &mimeType, bool considerParents);
-TEXTEDITOR_EXPORT SyntaxHighlighter *createGenericSyntaxHighlighter(const Core::MimeType &mimeType);
 
 } // namespace TextEditor
 
