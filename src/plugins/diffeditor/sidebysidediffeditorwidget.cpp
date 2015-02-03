@@ -81,7 +81,7 @@ public:
     MultiHighlighter(SideDiffEditorWidget *editor, QTextDocument *document = 0);
     ~MultiHighlighter();
 
-    virtual void setFontSettings(const TextEditor::FontSettings &fontSettings);
+    virtual void setFontSettings(const FontSettings &fontSettings);
     void setDocuments(const QList<QPair<DiffFileInfo, QString> > &documents);
 
 protected:
@@ -197,7 +197,7 @@ MultiHighlighter::MultiHighlighter(SideDiffEditorWidget *editor, QTextDocument *
       m_editor(editor)
 {
     const QList<HighlighterFactory *> &factories =
-        ExtensionSystem::PluginManager::getObjects<TextEditor::HighlighterFactory>();
+        ExtensionSystem::PluginManager::getObjects<HighlighterFactory>();
     foreach (HighlighterFactory *factory, factories) {
         QStringList mimeTypes = factory->mimeTypes();
         foreach (const QString &mimeType, mimeTypes)
@@ -210,7 +210,7 @@ MultiHighlighter::~MultiHighlighter()
     setDocuments(QList<QPair<DiffFileInfo, QString> >());
 }
 
-void MultiHighlighter::setFontSettings(const TextEditor::FontSettings &fontSettings)
+void MultiHighlighter::setFontSettings(const FontSettings &fontSettings)
 {
     foreach (SyntaxHighlighter *highlighter, m_highlighters) {
         if (highlighter) {
@@ -335,7 +335,7 @@ void SideDiffEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 void SideDiffEditorWidget::applyFontSettings()
 {
     SelectableTextEditorWidget::applyFontSettings();
-    const TextEditor::FontSettings &fs = textDocument()->fontSettings();
+    const FontSettings &fs = textDocument()->fontSettings();
     m_fileLineForeground = fs.formatFor(C_DIFF_FILE_LINE).foreground();
     m_chunkLineForeground = fs.formatFor(C_DIFF_CONTEXT_LINE).foreground();
     m_textForeground = fs.toTextCharFormat(C_TEXT).foreground().color();
@@ -362,7 +362,7 @@ bool SideDiffEditorWidget::selectionVisible(int blockNumber) const
 bool SideDiffEditorWidget::replacementVisible(int blockNumber) const
 {
     return isChunkLine(blockNumber) || (isFileLine(blockNumber)
-           && TextEditor::TextDocumentLayout::isFolded(
+           && TextDocumentLayout::isFolded(
                                             document()->findBlockByNumber(blockNumber)));
 }
 
@@ -530,7 +530,7 @@ void SideDiffEditorWidget::paintSeparator(QPainter &painter,
     const int replacementTextWidth = fontMetrics().width(replacementText) + 24;
     int x = replacementTextWidth + offset.x();
     if (x < document()->documentMargin()
-            || !TextEditor::TextDocumentLayout::isFolded(block)) {
+            || !TextDocumentLayout::isFolded(block)) {
         x = document()->documentMargin();
     }
     const QString elidedText = fontMetrics().elidedText(text,
@@ -815,7 +815,7 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
 //    connect(m_rightEditor->document()->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)),
 //            this, SLOT(rightDocumentSizeChanged()));
 
-    m_splitter = new Core::MiniSplitter(this);
+    m_splitter = new MiniSplitter(this);
     m_splitter->addWidget(m_leftEditor);
     m_splitter->addWidget(m_rightEditor);
     QVBoxLayout *l = new QVBoxLayout(this);
@@ -1099,15 +1099,15 @@ void SideBySideDiffEditorWidget::showDiff()
         for (int j = 0; j < contextFileData.chunks.count(); j++) {
             ChunkData chunkData = contextFileData.chunks.at(j);
             if (chunkData.contextChunk) {
-                TextEditor::BaseTextDocumentLayout::setFoldingIndent(leftBlock, FILE_LEVEL);
-                TextEditor::BaseTextDocumentLayout::setFoldingIndent(rightBlock, FILE_LEVEL);
+                BaseTextDocumentLayout::setFoldingIndent(leftBlock, FILE_LEVEL);
+                BaseTextDocumentLayout::setFoldingIndent(rightBlock, FILE_LEVEL);
                 leftBlock = leftBlock.next();
                 rightBlock = rightBlock.next();
             }
             const int indent = chunkData.contextChunk ? CHUNK_LEVEL : FILE_LEVEL;
             for (int k = 0; k < chunkData.rows.count(); k++) {
-                TextEditor::BaseTextDocumentLayout::setFoldingIndent(leftBlock, indent);
-                TextEditor::BaseTextDocumentLayout::setFoldingIndent(rightBlock, indent);
+                BaseTextDocumentLayout::setFoldingIndent(leftBlock, indent);
+                BaseTextDocumentLayout::setFoldingIndent(rightBlock, indent);
                 leftBlock = leftBlock.next();
                 rightBlock = rightBlock.next();
             }
@@ -1121,9 +1121,9 @@ void SideBySideDiffEditorWidget::showDiff()
             ChunkData chunkData = contextFileData.chunks.at(j);
             if (chunkData.contextChunk) {
                 QTextBlock leftBlock = m_leftEditor->document()->findBlockByNumber(blockNumber);
-                TextEditor::BaseTextDocumentLayout::doFoldOrUnfold(leftBlock, false);
+                BaseTextDocumentLayout::doFoldOrUnfold(leftBlock, false);
                 QTextBlock rightBlock = m_rightEditor->document()->findBlockByNumber(blockNumber);
-                TextEditor::BaseTextDocumentLayout::doFoldOrUnfold(rightBlock, false);
+                BaseTextDocumentLayout::doFoldOrUnfold(rightBlock, false);
                 blockNumber++;
             }
             blockNumber += chunkData.rows.count();
@@ -1147,7 +1147,7 @@ void SideBySideDiffEditorWidget::showDiff()
 }
 
 void SideBySideDiffEditorWidget::setFontSettings(
-        const TextEditor::FontSettings &fontSettings)
+        const FontSettings &fontSettings)
 {
     m_spanLineFormat  = fontSettings.toTextCharFormat(C_LINE_NUMBER);
     m_fileLineFormat  = fontSettings.toTextCharFormat(C_DIFF_FILE_LINE);
@@ -1221,7 +1221,7 @@ void SideBySideDiffEditorWidget::jumpToOriginalFile(const QString &fileName,
     const QString absoluteFileName = dir.absoluteFilePath(fileName);
     QFileInfo fi(absoluteFileName);
     if (fi.exists() && !fi.isDir())
-        Core::EditorManager::openEditorAt(absoluteFileName, lineNumber, columnNumber);
+        EditorManager::openEditorAt(absoluteFileName, lineNumber, columnNumber);
 }
 
 void SideBySideDiffEditorWidget::slotLeftContextMenuRequested(QMenu *menu,
@@ -1375,7 +1375,7 @@ void SideBySideDiffEditorWidget::patch(bool revert)
     if (patch.isEmpty())
         return;
 
-    if (PatchTool::runPatch(Core::EditorManager::defaultTextCodec()->fromUnicode(patch),
+    if (PatchTool::runPatch(EditorManager::defaultTextCodec()->fromUnicode(patch),
                         workingDirectory, strip, revert))
         m_controller->requestReload();
 }
@@ -1455,19 +1455,19 @@ void SideBySideDiffEditorWidget::rightDocumentSizeChanged()
     synchronizeFoldings(m_rightEditor, m_leftEditor);
 }
 
-/* Special version of that method (original: TextEditor::BaseTextDocumentLayout::doFoldOrUnfold())
+/* Special version of that method (original: BaseTextDocumentLayout::doFoldOrUnfold())
    The hack lies in fact, that when unfolding all direct sub-blocks are made visible,
    while some of them need to stay invisible (i.e. unfolded chunk lines)
 */
 static void doFoldOrUnfold(SideDiffEditorWidget *editor, const QTextBlock &block, bool unfold)
 {
-    if (!TextEditor::BaseTextDocumentLayout::canFold(block))
+    if (!BaseTextDocumentLayout::canFold(block))
         return;
     QTextBlock b = block.next();
 
-    int indent = TextEditor::BaseTextDocumentLayout::foldingIndent(block);
-    while (b.isValid() && TextEditor::BaseTextDocumentLayout::foldingIndent(b) > indent && (unfold || b.next().isValid())) {
-        if (unfold && editor->isChunkLine(b.blockNumber()) && !TextEditor::BaseTextDocumentLayout::isFolded(b)) {
+    int indent = BaseTextDocumentLayout::foldingIndent(block);
+    while (b.isValid() && BaseTextDocumentLayout::foldingIndent(b) > indent && (unfold || b.next().isValid())) {
+        if (unfold && editor->isChunkLine(b.blockNumber()) && !BaseTextDocumentLayout::isFolded(b)) {
             b.setVisible(false);
             b.setLineCount(0);
         } else {
@@ -1475,17 +1475,17 @@ static void doFoldOrUnfold(SideDiffEditorWidget *editor, const QTextBlock &block
             b.setLineCount(unfold ? qMax(1, b.layout()->lineCount()) : 0);
         }
         if (unfold) { // do not unfold folded sub-blocks
-            if (TextEditor::BaseTextDocumentLayout::isFolded(b) && b.next().isValid()) {
-                int jndent = TextEditor::BaseTextDocumentLayout::foldingIndent(b);
+            if (BaseTextDocumentLayout::isFolded(b) && b.next().isValid()) {
+                int jndent = BaseTextDocumentLayout::foldingIndent(b);
                 b = b.next();
-                while (b.isValid() && TextEditor::BaseTextDocumentLayout::foldingIndent(b) > jndent)
+                while (b.isValid() && BaseTextDocumentLayout::foldingIndent(b) > jndent)
                     b = b.next();
                 continue;
             }
         }
         b = b.next();
     }
-    TextEditor::BaseTextDocumentLayout::setFolded(block, !unfold);
+    BaseTextDocumentLayout::setFolded(block, !unfold);
 }
 
 void SideBySideDiffEditorWidget::synchronizeFoldings(SideDiffEditorWidget *source, SideDiffEditorWidget *destination)
@@ -1497,9 +1497,9 @@ void SideBySideDiffEditorWidget::synchronizeFoldings(SideDiffEditorWidget *sourc
     QTextBlock sourceBlock = source->document()->firstBlock();
     QTextBlock destinationBlock = destination->document()->firstBlock();
     while (sourceBlock.isValid() && destinationBlock.isValid()) {
-        if (TextEditor::BaseTextDocumentLayout::canFold(sourceBlock)) {
-            const bool isSourceFolded = TextEditor::BaseTextDocumentLayout::isFolded(sourceBlock);
-            const bool isDestinationFolded = TextEditor::BaseTextDocumentLayout::isFolded(destinationBlock);
+        if (BaseTextDocumentLayout::canFold(sourceBlock)) {
+            const bool isSourceFolded = BaseTextDocumentLayout::isFolded(sourceBlock);
+            const bool isDestinationFolded = BaseTextDocumentLayout::isFolded(destinationBlock);
             if (isSourceFolded != isDestinationFolded) {
                 if (source->isFileLine(sourceBlock.blockNumber())) {
                     doFoldOrUnfold(source, sourceBlock, !isSourceFolded);
@@ -1511,9 +1511,9 @@ void SideBySideDiffEditorWidget::synchronizeFoldings(SideDiffEditorWidget *sourc
                         if (source->isChunkLine(previousSource.blockNumber())) {
                             QTextBlock firstVisibleDestinationBlock = destination->firstVisibleBlock();
                             QTextBlock firstDestinationBlock = destination->document()->firstBlock();
-                            TextEditor::BaseTextDocumentLayout::doFoldOrUnfold(destinationBlock, !isSourceFolded);
-                            TextEditor::BaseTextDocumentLayout::setFoldingIndent(sourceBlock, CHUNK_LEVEL);
-                            TextEditor::BaseTextDocumentLayout::setFoldingIndent(destinationBlock, CHUNK_LEVEL);
+                            BaseTextDocumentLayout::doFoldOrUnfold(destinationBlock, !isSourceFolded);
+                            BaseTextDocumentLayout::setFoldingIndent(sourceBlock, CHUNK_LEVEL);
+                            BaseTextDocumentLayout::setFoldingIndent(destinationBlock, CHUNK_LEVEL);
                             previousSource.setVisible(true);
                             previousSource.setLineCount(1);
                             previousDestination.setVisible(true);
@@ -1522,8 +1522,8 @@ void SideBySideDiffEditorWidget::synchronizeFoldings(SideDiffEditorWidget *sourc
                             sourceBlock.setLineCount(0);
                             destinationBlock.setVisible(false);
                             destinationBlock.setLineCount(0);
-                            TextEditor::BaseTextDocumentLayout::setFolded(previousSource, true);
-                            TextEditor::BaseTextDocumentLayout::setFolded(previousDestination, true);
+                            BaseTextDocumentLayout::setFolded(previousSource, true);
+                            BaseTextDocumentLayout::setFolded(previousDestination, true);
 
                             if (firstVisibleDestinationBlock == destinationBlock) {
                                 /*
@@ -1546,15 +1546,15 @@ void SideBySideDiffEditorWidget::synchronizeFoldings(SideDiffEditorWidget *sourc
                         if (source->isChunkLine(sourceBlock.blockNumber())) {
                             QTextBlock nextSource = sourceBlock.next();
                             QTextBlock nextDestination = destinationBlock.next();
-                            TextEditor::BaseTextDocumentLayout::doFoldOrUnfold(destinationBlock, !isSourceFolded);
-                            TextEditor::BaseTextDocumentLayout::setFoldingIndent(nextSource, FILE_LEVEL);
-                            TextEditor::BaseTextDocumentLayout::setFoldingIndent(nextDestination, FILE_LEVEL);
+                            BaseTextDocumentLayout::doFoldOrUnfold(destinationBlock, !isSourceFolded);
+                            BaseTextDocumentLayout::setFoldingIndent(nextSource, FILE_LEVEL);
+                            BaseTextDocumentLayout::setFoldingIndent(nextDestination, FILE_LEVEL);
                             sourceBlock.setVisible(false);
                             sourceBlock.setLineCount(0);
                             destinationBlock.setVisible(false);
                             destinationBlock.setLineCount(0);
-                            TextEditor::BaseTextDocumentLayout::setFolded(nextSource, false);
-                            TextEditor::BaseTextDocumentLayout::setFolded(nextDestination, false);
+                            BaseTextDocumentLayout::setFolded(nextSource, false);
+                            BaseTextDocumentLayout::setFolded(nextDestination, false);
                         }
                     }
                 }

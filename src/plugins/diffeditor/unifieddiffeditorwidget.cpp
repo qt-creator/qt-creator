@@ -356,7 +356,7 @@ void UnifiedDiffEditorWidget::patch(bool revert)
         return;
 
     if (PatchTool::runPatch(
-                Core::EditorManager::defaultTextCodec()->fromUnicode(patch),
+                EditorManager::defaultTextCodec()->fromUnicode(patch),
                 workingDirectory, strip, revert))
         m_controller->requestReload();
 }
@@ -792,7 +792,7 @@ void UnifiedDiffEditorWidget::jumpToOriginalFile(const QString &fileName,
     const QString absoluteFileName = dir.absoluteFilePath(fileName);
     QFileInfo fi(absoluteFileName);
     if (fi.exists() && !fi.isDir())
-        Core::EditorManager::openEditorAt(absoluteFileName, lineNumber, columnNumber);
+        EditorManager::openEditorAt(absoluteFileName, lineNumber, columnNumber);
 }
 
 void UnifiedDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
