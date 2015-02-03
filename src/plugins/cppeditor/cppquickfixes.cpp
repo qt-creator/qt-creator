@@ -300,17 +300,24 @@ bool nameIncludesOperatorName(const Name *name)
 QString memberBaseName(const QString &name)
 {
     QString baseName = name;
-    if (baseName.startsWith(QLatin1Char('_'))) {
+
+    // Remove leading and trailing "_"
+    while (baseName.startsWith(QLatin1Char('_')))
         baseName.remove(0, 1);
-    } else if (baseName.endsWith(QLatin1Char('_'))) {
+    while (baseName.endsWith(QLatin1Char('_')))
         baseName.chop(1);
-    } else if (baseName.startsWith(QLatin1String("m_"))) {
+    if (baseName != name)
+        return baseName;
+
+    // If no leading/trailing "_": remove "m_" and "m" prefix
+    if (baseName.startsWith(QLatin1String("m_"))) {
         baseName.remove(0, 2);
     } else if (baseName.startsWith(QLatin1Char('m')) && baseName.length() > 1
                && baseName.at(1).isUpper()) {
         baseName.remove(0, 1);
         baseName[0] = baseName.at(0).toLower();
     }
+
     return baseName;
 }
 
