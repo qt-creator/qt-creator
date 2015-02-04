@@ -112,10 +112,13 @@ public:
 
     enum CustomModelRoles {
         FilterRole = Qt::UserRole + 1,
-        GerritChangeRole = Qt::UserRole + 2
+        GerritChangeRole = Qt::UserRole + 2,
+        SortRole = Qt::UserRole + 3
     };
     GerritModel(const QSharedPointer<GerritParameters> &, QObject *parent = 0);
     ~GerritModel();
+
+    QVariant data(const QModelIndex &index, int role) const;
 
     GerritChangePtr change(const QModelIndex &index) const;
     QString toHtml(const QModelIndex &index) const;

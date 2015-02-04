@@ -419,7 +419,14 @@ GerritModel::GerritModel(const QSharedPointer<GerritParameters> &p, QObject *par
 }
 
 GerritModel::~GerritModel()
+{ }
+
+QVariant GerritModel::data(const QModelIndex &index, int role) const
 {
+    QVariant value = QStandardItemModel::data(index, role);
+    if (role == SortRole && value.isNull())
+        return QStandardItemModel::data(index, Qt::DisplayRole);
+    return value;
 }
 
 static inline GerritChangePtr changeFromItem(const QStandardItem *item)
@@ -704,7 +711,8 @@ QList<QStandardItem *> GerritModel::changeToRow(const GerritChangePtr &c) const
     const QString dateString = c->lastUpdated.date() == QDate::currentDate() ?
                 c->lastUpdated.time().toString(Qt::SystemLocaleShortDate) :
                 c->lastUpdated.date().toString(Qt::SystemLocaleShortDate);
-    row[DateColumn]->setText(dateString);
+    row[DateColumn]->setData(dateString, Qt::DisplayRole);
+    row[DateColumn]->setData(c->lastUpdated, SortRole);
 
     QString project = c->project;
     if (c->branch != QLatin1String("master"))
@@ -726,6 +734,7 @@ QList<QStandardItem *> GerritModel::changeToRow(const GerritChangePtr &c) const
         for (int i = 0; i < GerritModel::ColumnCount; ++i)
             row[i]->setFont(font);
     }
+
     return row;
 }
 

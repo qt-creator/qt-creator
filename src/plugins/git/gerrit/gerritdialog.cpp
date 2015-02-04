@@ -158,6 +158,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
 
     m_filterModel->setSourceModel(m_model);
     m_filterModel->setFilterRole(GerritModel::FilterRole);
+    m_filterModel->setSortRole(GerritModel::SortRole);
     m_treeView->setRootIsDecorated(true);
     m_treeView->setModel(m_filterModel);
     m_treeView->setMinimumWidth(600);
