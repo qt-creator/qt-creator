@@ -1267,11 +1267,10 @@ void GitPlugin::stash()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    QString topLevel = state.topLevel();
-    if (!m_gitClient->beginStashScope(topLevel, QString(), NoPrompt))
-        return;
-    if (m_gitClient->stashInfo(topLevel).result() == GitClient::StashInfo::Stashed && m_stashDialog)
-        m_stashDialog->refresh(state.topLevel(), true);
+    const QString topLevel = state.topLevel();
+    m_gitClient->executeSynchronousStash(topLevel);
+    if (m_stashDialog)
+        m_stashDialog->refresh(topLevel, true);
 }
 
 void GitPlugin::stashSnapshot()
