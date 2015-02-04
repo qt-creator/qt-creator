@@ -16,39 +16,38 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGSTATICANALYZERPLUGIN_H
-#define CLANGSTATICANALYZERPLUGIN_H
+#ifndef CLANGSTATICANALYZERUNITTESTS_H
+#define CLANGSTATICANALYZERUNITTESTS_H
 
-#include <extensionsystem/iplugin.h>
+#include <QObject>
+#include <QTemporaryDir>
+
+namespace CppTools { namespace Tests { class TemporaryCopiedDir; } }
 
 namespace ClangStaticAnalyzer {
 namespace Internal {
-
 class ClangStaticAnalyzerTool;
-class ClangStaticAnalyzerSettings;
 
-class ClangStaticAnalyzerPlugin : public ExtensionSystem::IPlugin
+class ClangStaticAnalyzerUnitTests : public QObject
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangStaticAnalyzer.json")
 
 public:
-    ClangStaticAnalyzerPlugin();
-    ~ClangStaticAnalyzerPlugin();
+    ClangStaticAnalyzerUnitTests(ClangStaticAnalyzerTool *analyzerTool, QObject *parent = 0);
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    bool initializeEnterpriseFeatures(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+    void testProject();
+    void testProject_data();
 
 private:
-    QList<QObject *> createTestObjects() const override;
-
-    ClangStaticAnalyzerTool *m_analyzerTool;
+    ClangStaticAnalyzerTool * const m_analyzerTool;
+    CppTools::Tests::TemporaryCopiedDir *m_tmpDir;
 };
 
 } // namespace Internal
 } // namespace ClangStaticAnalyzerPlugin
 
-#endif // CLANGSTATICANALYZERPLUGIN_H
+#endif // Include guard
 

@@ -54,6 +54,7 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
     , m_diagnosticView(0)
     , m_goBack(0)
     , m_goNext(0)
+    , m_running(false)
 {
     setObjectName(QLatin1String("ClangStaticAnalyzerTool"));
     setRunMode(ProjectExplorer::ClangStaticAnalyzerMode);
@@ -206,6 +207,7 @@ void ClangStaticAnalyzerTool::startTool(StartMode mode)
     QTC_ASSERT(project, return);
     m_projectInfoBeforeBuild = CppTools::CppModelManager::instance()->projectInfo(project);
     QTC_ASSERT(m_projectInfoBeforeBuild.isValid(), return);
+    m_running = true;
     ProjectExplorerPlugin::instance()->runProject(project, runMode());
 }
 
@@ -218,6 +220,11 @@ void ClangStaticAnalyzerTool::resetCursorAndProjectInfoBeforeBuild()
 {
     setBusyCursor(false);
     m_projectInfoBeforeBuild = CppTools::ProjectInfo();
+}
+
+QList<Diagnostic> ClangStaticAnalyzerTool::diagnostics() const
+{
+    return m_diagnosticModel->diagnostics();
 }
 
 void ClangStaticAnalyzerTool::onEngineIsStarting()
@@ -246,6 +253,8 @@ void ClangStaticAnalyzerTool::onEngineFinished()
     AnalyzerManager::showStatusMessage(issuesFound > 0
       ? AnalyzerManager::tr("Clang Static Analyzer finished, %n issues were found.", 0, issuesFound)
       : AnalyzerManager::tr("Clang Static Analyzer finished, no issues were found."));
+    m_running = false;
+    emit finished();
 }
 
 void ClangStaticAnalyzerTool::setBusyCursor(bool busy)

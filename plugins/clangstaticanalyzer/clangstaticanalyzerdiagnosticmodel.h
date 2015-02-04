@@ -34,6 +34,7 @@ public:
     ClangStaticAnalyzerDiagnosticModel(QObject *parent = 0);
 
     void addDiagnostics(const QList<Diagnostic> &diagnostics);
+    QList<Diagnostic> diagnostics() const { return m_diagnostics; }
     void clear();
 
     // QAbstractListModel interface

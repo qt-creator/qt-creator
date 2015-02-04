@@ -22,6 +22,10 @@
 #include "clangstaticanalyzerruncontrolfactory.h"
 #include "clangstaticanalyzertool.h"
 
+#ifdef WITH_TESTS
+#include "clangstaticanalyzerunittests.h"
+#endif
+
 #include <analyzerbase/analyzermanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -154,6 +158,15 @@ ExtensionSystem::IPlugin::ShutdownFlag ClangStaticAnalyzerPlugin::aboutToShutdow
     // Disconnect from signals that are not needed during shutdown
     // Hide UI (if you add UI that is not in the main window directly)
     return SynchronousShutdown;
+}
+
+QList<QObject *> ClangStaticAnalyzerPlugin::createTestObjects() const
+{
+    QList<QObject *> tests;
+#ifdef WITH_TESTS
+    tests << new ClangStaticAnalyzerUnitTests(m_analyzerTool);
+#endif
+    return tests;
 }
 
 } // namespace Internal

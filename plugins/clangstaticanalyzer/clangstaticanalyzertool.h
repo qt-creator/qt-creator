@@ -40,6 +40,13 @@ public:
     CppTools::ProjectInfo projectInfoBeforeBuild() const;
     void resetCursorAndProjectInfoBeforeBuild();
 
+    // For testing.
+    bool isRunning() const { return m_running; }
+    QList<Diagnostic> diagnostics() const;
+
+signals:
+    void finished(); // For testing.
+
 private:
     QWidget *createWidgets();
     Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
@@ -60,6 +67,7 @@ private:
 
     QAction *m_goBack;
     QAction *m_goNext;
+    bool m_running;
 };
 
 } // namespace Internal

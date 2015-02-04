@@ -44,4 +44,15 @@ QtcPlugin {
         "clangstaticanalyzerutils.h",
         "clangstaticanalyzer_global.h",
     ]
+
+    Group {
+        name: "Unit tests"
+        condition: project.testsEnabled
+        files: [
+            "clangstaticanalyzerunittests.cpp",
+            "clangstaticanalyzerunittests.h",
+            "clangstaticanalyzerunittests.qrc",
+            "unit-tests/**/*",
+        ]
+    }
 }

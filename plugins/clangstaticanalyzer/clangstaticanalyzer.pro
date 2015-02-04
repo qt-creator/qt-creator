@@ -37,5 +37,11 @@ HEADERS += \
 FORMS += \
     clangstaticanalyzerconfigwidget.ui
 
+equals(TEST, 1) {
+    HEADERS += clangstaticanalyzerunittests.h
+    SOURCES += clangstaticanalyzerunittests.cpp
+    RESOURCES += clangstaticanalyzerunittests.qrc
+}
+
 DISTFILES += \
     tests/tests.pri
