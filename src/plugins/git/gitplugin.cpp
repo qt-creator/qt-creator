@@ -59,11 +59,11 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/locator/commandlocator.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/coreconstants.h>
 
 #include <coreplugin/messagebox.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
 
@@ -269,6 +269,7 @@ QAction *GitPlugin::createRepositoryAction(ActionContainer *ac,
 bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
+    Q_UNUSED(errorMessage)
 
     Context context(Constants::GIT_CONTEXT);
 
@@ -655,8 +656,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(VcsManager::instance(), SIGNAL(repositoryChanged(QString)),
             this, SLOT(updateBranches(QString)), Qt::QueuedConnection);
 
-    if (!MimeDatabase::addMimeTypes(QLatin1String(RC_GIT_MIME_XML), errorMessage))
-        return false;
+    Utils::MimeDatabase::addMimeTypes(QLatin1String(RC_GIT_MIME_XML));
 
     /* "Gerrit" */
     m_gerritPlugin = new Gerrit::Internal::GerritPlugin(this);

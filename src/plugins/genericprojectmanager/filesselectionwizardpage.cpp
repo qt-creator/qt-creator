@@ -33,7 +33,6 @@
 #include "genericprojectwizard.h"
 #include "genericprojectconstants.h"
 
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/selectablefilesmodel.h>
 

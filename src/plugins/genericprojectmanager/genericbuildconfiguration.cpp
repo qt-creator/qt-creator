@@ -35,12 +35,12 @@
 #include "genericprojectconstants.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
@@ -103,8 +103,10 @@ QList<BuildInfo *> GenericBuildConfigurationFactory::availableBuilds(const Targe
 
 int GenericBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
 {
-    return (k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
-            .matchesType(QLatin1String(Constants::GENERICMIMETYPE))) ? 0 : -1;
+    Utils::MimeDatabase mdb;
+    if (k && mdb.mimeTypeForFile(projectPath).matchesName(QLatin1String(Constants::GENERICMIMETYPE)))
+        return 0;
+    return -1;
 }
 
 QList<BuildInfo *> GenericBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const

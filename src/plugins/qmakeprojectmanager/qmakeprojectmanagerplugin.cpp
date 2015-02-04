@@ -55,7 +55,6 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -64,6 +63,7 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/hostosinfo.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/parameteraction.h>
 
 #ifdef WITH_TESTS
@@ -94,11 +94,11 @@ QmakeProjectManagerPlugin::~QmakeProjectManagerPlugin()
 bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
+    Q_UNUSED(errorMessage)
     const Core::Context projectContext(QmakeProjectManager::Constants::PROJECT_ID);
     Core::Context projecTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
 
-    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":qmakeprojectmanager/QmakeProjectManager.mimetypes.xml"), errorMessage))
-        return false;
+    Utils::MimeDatabase::addMimeTypes(QLatin1String(":qmakeprojectmanager/QmakeProjectManager.mimetypes.xml"));
 
     //create and register objects
     m_qmakeProjectManager = new QmakeManager;

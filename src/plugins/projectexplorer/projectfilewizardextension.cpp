@@ -39,7 +39,6 @@
 #include <utils/stringutils.h>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/icodestylepreferencesfactory.h>
@@ -48,7 +47,8 @@
 #include <texteditor/storagesettings.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/editorconfiguration.h>
-
+#include <utils/mimetypes/mimedatabase.h>
+#
 #include <QPointer>
 #include <QDebug>
 #include <QFileInfo>
@@ -230,8 +230,8 @@ void ProjectFileWizardExtension::applyCodeStyle(GeneratedFile *file) const
     if (file->isBinary() || file->contents().isEmpty())
         return; // nothing to do
 
-    MimeType mt = MimeDatabase::findByFile(QFileInfo(file->path()));
-    Id languageId = TextEditorSettings::languageId(mt.type());
+    Utils::MimeDatabase mdb;
+    Id languageId = TextEditorSettings::languageId(mdb.mimeTypeForFile(file->path()).name());
 
     if (!languageId.isValid())
         return; // don't modify files like *.ui *.pro

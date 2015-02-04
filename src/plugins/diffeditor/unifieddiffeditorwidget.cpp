@@ -55,7 +55,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/patchtool.h>
 
 #include <extensionsystem/pluginmanager.h>

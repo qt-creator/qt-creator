@@ -34,7 +34,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/mimedatabase.h>
 
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/ExpressionUnderCursor.h>
@@ -58,6 +57,7 @@
 #include <texteditor/completionsettings.h>
 
 #include <utils/algorithm.h>
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QCoreApplication>
 #include <QDirIterator>
@@ -1095,7 +1095,8 @@ bool ClangCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
     if (!headerPaths.contains(currentFilePath))
         headerPaths.append(currentFilePath);
 
-    const Core::MimeType mimeType = Core::MimeDatabase::findByType(QLatin1String("text/x-c++hdr"));
+    Utils::MimeDatabase mdb;
+    const Utils::MimeType mimeType = mdb.mimeTypeForName(QLatin1String("text/x-c++hdr"));
     const QStringList suffixes = mimeType.suffixes();
 
     foreach (const ProjectPart::HeaderPath &headerPath, headerPaths) {

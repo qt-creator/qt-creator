@@ -52,7 +52,6 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/messagebox.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -60,8 +59,9 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/vcsmanager.h>
-#include <utils/stringutils.h>
 #include <utils/fileutils.h>
+#include <utils/mimetypes/mimedatabase.h>
+#include <utils/stringutils.h>
 
 #include <QDebug>
 #include <QDate>
@@ -230,7 +230,8 @@ static const VcsBaseSubmitEditorParameters submitParameters = {
 
 bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    Q_UNUSED(arguments);
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorMessage)
     using namespace Constants;
     using namespace Core::Constants;
 
@@ -240,8 +241,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     m_cvsPluginInstance = this;
 
-    if (!MimeDatabase::addMimeTypes(QLatin1String(":/trolltech.cvs/CVS.mimetypes.xml"), errorMessage))
-        return false;
+    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/trolltech.cvs/CVS.mimetypes.xml"));
 
     m_settings.readSettings(ICore::settings());
     m_client = new CvsClient(&m_settings);

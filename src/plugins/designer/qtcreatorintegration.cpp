@@ -45,6 +45,7 @@
 #include <texteditor/texteditor.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
 #include <QDesignerFormWindowInterface>
@@ -641,6 +642,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
 void QtCreatorIntegration::slotSyncSettingsToDesigner()
 {
     // Set promotion-relevant parameters on integration.
-    setHeaderSuffix(Core::MimeDatabase::preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)));
+    Utils::MimeDatabase mdb;
+    setHeaderSuffix(mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)).preferredSuffix());
     setHeaderLowercase(FormClassWizardPage::lowercaseHeaderFiles());
 }

@@ -40,7 +40,6 @@
 #include "configurestep.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kitinformation.h>
@@ -48,6 +47,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <qtsupport/customexecutablerunconfiguration.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -104,8 +104,10 @@ QList<BuildInfo *> AutotoolsBuildConfigurationFactory::availableBuilds(const Tar
 
 int AutotoolsBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
 {
-    return (k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
-            .matchesType(QLatin1String(Constants::MAKEFILE_MIMETYPE))) ? 0 : -1;
+    Utils::MimeDatabase mdb;
+    if (k && mdb.mimeTypeForFile(projectPath).matchesName(QLatin1String(Constants::MAKEFILE_MIMETYPE)))
+        return 0;
+    return -1;
 }
 
 QList<BuildInfo *> AutotoolsBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const

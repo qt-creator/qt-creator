@@ -37,12 +37,12 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocumentfactory.h>
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/mimedatabase.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QDir>
 #include <QMessageBox>
@@ -199,12 +199,12 @@ TaskListPlugin::TaskListPlugin()
 bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
+    Q_UNUSED(errorMessage)
 
     //: Category under which tasklist tasks are listed in Issues view
     TaskHub::addCategory(Constants::TASKLISTTASK_ID, tr("My Tasks"));
 
-    if (!MimeDatabase::addMimeTypes(QLatin1String(":tasklist/TaskList.mimetypes.xml"), errorMessage))
-        return false;
+    Utils::MimeDatabase::addMimeTypes(QLatin1String(":tasklist/TaskList.mimetypes.xml"));
 
     m_fileFactory = new IDocumentFactory;
     m_fileFactory->addMimeType(QLatin1String("text/x-tasklist"));

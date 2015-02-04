@@ -33,7 +33,6 @@
 #include "editmode.h"
 #include "helpmanager.h"
 #include "mainwindow.h"
-#include "mimedatabase.h"
 #include "modemanager.h"
 #include "infobar.h"
 #include "iwizardfactory.h"
@@ -212,7 +211,8 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
 void CorePlugin::extensionsInitialized()
 {
-    MimeDatabase::syncUserModifiedMimeTypes();
+    // TODO
+//    MimeDatabase::syncUserModifiedMimeTypes();
     if (m_designMode->designModeIsRequired())
         addObject(m_designMode);
     m_findPlugin->extensionsInitialized();

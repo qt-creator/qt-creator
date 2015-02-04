@@ -30,7 +30,6 @@
 
 #include "coreconstants.h"
 #include "icore.h"
-#include "mimedatabase.h"
 #include "mimetypemagicdialog.h"
 #include "mimetypesettings.h"
 #include "ui_mimetypesettingspage.h"
@@ -39,6 +38,7 @@
 #include <coreplugin/editormanager/iexternaleditor.h>
 #include <utils/algorithm.h>
 #include <utils/headerviewstretcher.h>
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QAbstractTableModel>
 #include <QCoreApplication>
@@ -70,10 +70,10 @@ public:
     virtual QVariant data(const QModelIndex &modelIndex, int role = Qt::DisplayRole) const;
 
     void load();
-    void validatePatterns(QStringList *candidates, const MimeType &mimeType) const;
+    void validatePatterns(QStringList *candidates) const;
     void updateKnownPatterns(const QStringList &oldPatterns, const QStringList &newPatterns);
 
-    QList<MimeType> m_mimeTypes;
+    QList<Utils::MimeType> m_mimeTypes;
     QSet<QString> m_knownPatterns;
     QHash<QString, QString> m_handlersByMimeType;
 };
@@ -106,7 +106,7 @@ QVariant MimeTypeSettingsModel::data(const QModelIndex &modelIndex, int role) co
 
     const int column = modelIndex.column();
     if (role == Qt::DisplayRole) {
-        const QString &type = m_mimeTypes.at(modelIndex.row()).type();
+        const QString &type = m_mimeTypes.at(modelIndex.row()).name();
         if (column == 0)
             return type;
         else
@@ -117,14 +117,14 @@ QVariant MimeTypeSettingsModel::data(const QModelIndex &modelIndex, int role) co
 
 void MimeTypeSettingsModel::load()
 {
-    m_mimeTypes = MimeDatabase::mimeTypes();
-    Utils::sort(m_mimeTypes, [](const MimeType &a, const MimeType &b) {
-        return a.type().compare(b.type(), Qt::CaseInsensitive) < 0;
+    Utils::MimeDatabase mdb;
+    m_mimeTypes = mdb.allMimeTypes();
+    Utils::sort(m_mimeTypes, [](const Utils::MimeType &a, const Utils::MimeType &b) {
+        return a.name().compare(b.name(), Qt::CaseInsensitive) < 0;
     });
-    m_knownPatterns = QSet<QString>::fromList(
-        MimeDatabase::fromGlobPatterns(MimeDatabase::globPatterns()));
+    m_knownPatterns = QSet<QString>::fromList(Utils::MimeDatabase::allGlobPatterns());
 
-    foreach (const MimeType &mimeType, m_mimeTypes) {
+    foreach (const Utils::MimeType &mimeType, m_mimeTypes) {
         QString value;
         const QList<IEditorFactory *> factories =
             EditorManager::editorFactories(mimeType);
@@ -138,15 +138,14 @@ void MimeTypeSettingsModel::load()
             else
                 value = tr("Undefined");
         }
-        m_handlersByMimeType.insert(mimeType.type(), value);
+        m_handlersByMimeType.insert(mimeType.name(), value);
     }
 }
 
-void MimeTypeSettingsModel::validatePatterns(QStringList *candidates,
-                                             const MimeType &mimeType) const
+void MimeTypeSettingsModel::validatePatterns(QStringList *candidates) const
 {
     QSet<QString> oldPatterns =
-        QSet<QString>::fromList(MimeDatabase::fromGlobPatterns(mimeType.globPatterns()));
+        QSet<QString>::fromList(Utils::MimeDatabase::allGlobPatterns());
 
     QStringList duplicates;
     QStringList::iterator it = candidates->begin();
@@ -209,9 +208,10 @@ public:
     void clearSyncData();
     void markAsModified(int index);
 
-    void addMagicHeaderRow(const MagicData &data);
-    MagicData getMagicHeaderRowData(const int row) const;
-    void editMagicHeaderRowData(const int row, const MagicData &data);
+    // TODO
+//    void addMagicHeaderRow(const MagicData &data);
+//    MagicData getMagicHeaderRowData(const int row) const;
+//    void editMagicHeaderRowData(const int row, const MagicData &data);
 
     void updateMimeDatabase();
     void resetState();
@@ -219,9 +219,10 @@ public:
 public slots:
     void syncData(const QModelIndex &current, const QModelIndex &previous);
     void handlePatternEdited();
-    void addMagicHeader();
-    void removeMagicHeader();
-    void editMagicHeader();
+    // TODO
+//    void addMagicHeader();
+//    void removeMagicHeader();
+//    void editMagicHeader();
     void resetMimeTypes();
     void updateMagicHeaderButtons();
 
@@ -278,9 +279,10 @@ void MimeTypeSettingsPrivate::configureUi(QWidget *w)
             SLOT(syncData(QModelIndex,QModelIndex)));
     connect(m_ui.patternsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(handlePatternEdited()));
-    connect(m_ui.addMagicButton, SIGNAL(clicked()), this, SLOT(addMagicHeader()));
-    connect(m_ui.removeMagicButton, SIGNAL(clicked()), this, SLOT(removeMagicHeader()));
-    connect(m_ui.editMagicButton, SIGNAL(clicked()), this, SLOT(editMagicHeader()));
+    // TODO
+//    connect(m_ui.addMagicButton, SIGNAL(clicked()), this, SLOT(addMagicHeader()));
+//    connect(m_ui.removeMagicButton, SIGNAL(clicked()), this, SLOT(removeMagicHeader()));
+//    connect(m_ui.editMagicButton, SIGNAL(clicked()), this, SLOT(editMagicHeader()));
     connect(m_ui.resetButton, SIGNAL(clicked()), this, SLOT(resetMimeTypes()));
     connect(m_ui.magicHeadersTreeWidget,
             SIGNAL(itemSelectionChanged()),
@@ -332,35 +334,37 @@ void MimeTypeSettingsPrivate::markAsModified(int index)
 
 void MimeTypeSettingsPrivate::syncMimePattern()
 {
-    MimeType &mimeType = m_model->m_mimeTypes[m_mimeForPatternSync];
-    QStringList patterns = m_ui.patternsLineEdit->text().split(kSemiColon);
-    patterns.removeDuplicates();
-    m_model->validatePatterns(&patterns, mimeType);
-    m_model->updateKnownPatterns(MimeDatabase::fromGlobPatterns(mimeType.globPatterns()), patterns);
-    mimeType.setGlobPatterns(MimeDatabase::toGlobPatterns(patterns));
+    // TODO
+//    MimeType &mimeType = m_model->m_mimeTypes[m_mimeForPatternSync];
+//    QStringList patterns = m_ui.patternsLineEdit->text().split(kSemiColon);
+//    patterns.removeDuplicates();
+//    m_model->validatePatterns(&patterns);
+//    m_model->updateKnownPatterns(MimeDatabase::fromGlobPatterns(mimeType.globPatterns()), patterns);
+//    mimeType.setGlobPatterns(MimeDatabase::toGlobPatterns(patterns));
 }
 
 void MimeTypeSettingsPrivate::syncMimeMagic()
 {
-    typedef MagicRuleMatcher::MagicRuleList MagicRuleList;
-    typedef MagicRuleMatcher::MagicRuleSharedPointer MagicRuleSharedPointer;
+    // TODO
+//    typedef MagicRuleMatcher::MagicRuleList MagicRuleList;
+//    typedef MagicRuleMatcher::MagicRuleSharedPointer MagicRuleSharedPointer;
 
-    // Gather the magic rules.
-    QHash<int, MagicRuleList> rulesByPriority;
-    for (int row = 0; row < m_ui.magicHeadersTreeWidget->topLevelItemCount(); ++row) {
-        const MagicData &data = getMagicHeaderRowData(row);
-        // @TODO: Validate magic rule?
-        MagicRule *magicRule;
-        if (data.m_type == MagicStringRule::kMatchType)
-            magicRule = new MagicStringRule(data.m_value, data.m_start, data.m_end);
-        else
-            magicRule = new MagicByteRule(data.m_value, data.m_start, data.m_end);
-        rulesByPriority[data.m_priority].append(MagicRuleSharedPointer(magicRule));
-    }
+//    // Gather the magic rules.
+//    QHash<int, MagicRuleList> rulesByPriority;
+//    for (int row = 0; row < m_ui.magicHeadersTreeWidget->topLevelItemCount(); ++row) {
+//        const MagicData &data = getMagicHeaderRowData(row);
+//        // @TODO: Validate magic rule?
+//        MagicRule *magicRule;
+//        if (data.m_type == MagicStringRule::kMatchType)
+//            magicRule = new MagicStringRule(data.m_value, data.m_start, data.m_end);
+//        else
+//            magicRule = new MagicByteRule(data.m_value, data.m_start, data.m_end);
+//        rulesByPriority[data.m_priority].append(MagicRuleSharedPointer(magicRule));
+//    }
 
-    const QList<QSharedPointer<IMagicMatcher> > &matchers =
-        MagicRuleMatcher::createMatchers(rulesByPriority);
-    m_model->m_mimeTypes[m_mimeForMagicSync].setMagicRuleMatchers(matchers);
+//    const QList<QSharedPointer<IMagicMatcher> > &matchers =
+//        MagicRuleMatcher::createMatchers(rulesByPriority);
+//    m_model->m_mimeTypes[m_mimeForMagicSync].setMagicRuleMatchers(matchers);
 }
 
 void MimeTypeSettingsPrivate::clearSyncData()
@@ -384,27 +388,25 @@ void MimeTypeSettingsPrivate::syncData(const QModelIndex &current,
     }
 
     if (current.isValid()) {
-        const MimeType &currentMimeType =
+        const Utils::MimeType &currentMimeType =
                 m_model->m_mimeTypes.at(m_filterModel->mapToSource(current).row());
 
-        QStringList formatedPatterns;
-        foreach (const MimeGlobPattern &pattern, currentMimeType.globPatterns())
-            formatedPatterns.append(pattern.pattern());
-        m_ui.patternsLineEdit->setText(formatedPatterns.join(kSemiColon));
+        m_ui.patternsLineEdit->setText(currentMimeType.globPatterns().join(kSemiColon));
 
-        // Consider only rule-based matchers.
-        const QList<QSharedPointer<IMagicMatcher> > &matchers = currentMimeType.magicRuleMatchers();
-        foreach (const QSharedPointer<IMagicMatcher> &matcher, matchers) {
-            MagicRuleMatcher *ruleMatcher = static_cast<MagicRuleMatcher *>(matcher.data());
-            const int priority = ruleMatcher->priority();
-            const MagicRuleMatcher::MagicRuleList &rules = ruleMatcher->magicRules();
-            foreach (const MagicRuleMatcher::MagicRuleSharedPointer &rule, rules)
-                addMagicHeaderRow(MagicData(rule->matchValue(),
-                                            rule->matchType(),
-                                            rule->startPos(),
-                                            rule->endPos(),
-                                            priority));
-        }
+        // TODO
+//        // Consider only rule-based matchers.
+//        const QList<QSharedPointer<IMagicMatcher> > &matchers = currentMimeType.magicRuleMatchers();
+//        foreach (const QSharedPointer<IMagicMatcher> &matcher, matchers) {
+//            MagicRuleMatcher *ruleMatcher = static_cast<MagicRuleMatcher *>(matcher.data());
+//            const int priority = ruleMatcher->priority();
+//            const MagicRuleMatcher::MagicRuleList &rules = ruleMatcher->magicRules();
+//            foreach (const MagicRuleMatcher::MagicRuleSharedPointer &rule, rules)
+//                addMagicHeaderRow(MagicData(rule->matchValue(),
+//                                            rule->matchType(),
+//                                            rule->startPos(),
+//                                            rule->endPos(),
+//                                            priority));
+//        }
     }
 }
 
@@ -417,94 +419,96 @@ void MimeTypeSettingsPrivate::handlePatternEdited()
     }
 }
 
-void MimeTypeSettingsPrivate::addMagicHeaderRow(const MagicData &data)
-{
-    const int row = m_ui.magicHeadersTreeWidget->topLevelItemCount();
-    editMagicHeaderRowData(row, data);
-}
+// TODO
+//void MimeTypeSettingsPrivate::addMagicHeaderRow(const MagicData &data)
+//{
+//    const int row = m_ui.magicHeadersTreeWidget->topLevelItemCount();
+//    editMagicHeaderRowData(row, data);
+//}
 
-MagicData MimeTypeSettingsPrivate::getMagicHeaderRowData(const int row) const
-{
-    MagicData data;
-    data.m_value = m_ui.magicHeadersTreeWidget->topLevelItem(row)->text(0);
-    data.m_type = m_ui.magicHeadersTreeWidget->topLevelItem(row)->text(1);
-    QPair<int, int> startEnd =
-        MagicRule::fromOffset(m_ui.magicHeadersTreeWidget->topLevelItem(row)->text(2));
-    data.m_start = startEnd.first;
-    data.m_end = startEnd.second;
-    data.m_priority = m_ui.magicHeadersTreeWidget->topLevelItem(row)->text(3).toInt();
+//MagicData MimeTypeSettingsPrivate::getMagicHeaderRowData(const int row) const
+//{
+//    MagicData data;
+//    data.m_value = m_ui.magicHeadersTreeWidget->topLevelItem(row)->text(0);
+//    data.m_type = m_ui.magicHeadersTreeWidget->topLevelItem(row)->text(1);
+//    QPair<int, int> startEnd =
+//        MagicRule::fromOffset(m_ui.magicHeadersTreeWidget->topLevelItem(row)->text(2));
+//    data.m_start = startEnd.first;
+//    data.m_end = startEnd.second;
+//    data.m_priority = m_ui.magicHeadersTreeWidget->topLevelItem(row)->text(3).toInt();
 
-    return data;
-}
+//    return data;
+//}
 
-void MimeTypeSettingsPrivate::editMagicHeaderRowData(const int row, const MagicData &data)
-{
-    QTreeWidgetItem *item = new QTreeWidgetItem;
-    item->setText(0, data.m_value);
-    item->setText(1, data.m_type);
-    item->setText(2, MagicRule::toOffset(qMakePair(data.m_start, data.m_end)));
-    item->setText(3, QString::number(data.m_priority));
-    m_ui.magicHeadersTreeWidget->takeTopLevelItem(row);
-    m_ui.magicHeadersTreeWidget->insertTopLevelItem(row, item);
-    m_ui.magicHeadersTreeWidget->setCurrentItem(item);
-}
+//void MimeTypeSettingsPrivate::editMagicHeaderRowData(const int row, const MagicData &data)
+//{
+//    QTreeWidgetItem *item = new QTreeWidgetItem;
+//    item->setText(0, data.m_value);
+//    item->setText(1, data.m_type);
+//    item->setText(2, MagicRule::toOffset(qMakePair(data.m_start, data.m_end)));
+//    item->setText(3, QString::number(data.m_priority));
+//    m_ui.magicHeadersTreeWidget->takeTopLevelItem(row);
+//    m_ui.magicHeadersTreeWidget->insertTopLevelItem(row, item);
+//    m_ui.magicHeadersTreeWidget->setCurrentItem(item);
+//}
 
-void MimeTypeSettingsPrivate::addMagicHeader()
-{
-    if (!checkSelectedMimeType())
-        return;
+//void MimeTypeSettingsPrivate::addMagicHeader()
+//{
+//    if (!checkSelectedMimeType())
+//        return;
 
-    MimeTypeMagicDialog dlg;
-    if (dlg.exec()) {
-        addMagicHeaderRow(dlg.magicData());
-        markMimeForMagicSync(m_filterModel->mapToSource(
-            m_ui.mimeTypesTreeView->currentIndex()).row());
-    }
-}
+//    MimeTypeMagicDialog dlg;
+//    if (dlg.exec()) {
+//        addMagicHeaderRow(dlg.magicData());
+//        markMimeForMagicSync(m_filterModel->mapToSource(
+//            m_ui.mimeTypesTreeView->currentIndex()).row());
+//    }
+//}
 
-void MimeTypeSettingsPrivate::removeMagicHeader()
-{
-    if (!checkSelectedMagicHeader())
-        return;
+//void MimeTypeSettingsPrivate::removeMagicHeader()
+//{
+//    if (!checkSelectedMagicHeader())
+//        return;
 
-    m_ui.magicHeadersTreeWidget->takeTopLevelItem(m_ui.magicHeadersTreeWidget->indexOfTopLevelItem(m_ui.magicHeadersTreeWidget->currentItem()));
-    markMimeForMagicSync(m_filterModel->mapToSource(
-        m_ui.mimeTypesTreeView->currentIndex()).row());
-}
+//    m_ui.magicHeadersTreeWidget->takeTopLevelItem(m_ui.magicHeadersTreeWidget->indexOfTopLevelItem(m_ui.magicHeadersTreeWidget->currentItem()));
+//    markMimeForMagicSync(m_filterModel->mapToSource(
+//        m_ui.mimeTypesTreeView->currentIndex()).row());
+//}
 
-void MimeTypeSettingsPrivate::editMagicHeader()
-{
-    if (!checkSelectedMagicHeader())
-        return;
+//void MimeTypeSettingsPrivate::editMagicHeader()
+//{
+//    if (!checkSelectedMagicHeader())
+//        return;
 
-    MimeTypeMagicDialog dlg;
-    dlg.setMagicData(getMagicHeaderRowData(m_ui.magicHeadersTreeWidget->indexOfTopLevelItem(m_ui.magicHeadersTreeWidget->currentItem())));
-    if (dlg.exec()) {
-        editMagicHeaderRowData(m_ui.magicHeadersTreeWidget->indexOfTopLevelItem(m_ui.magicHeadersTreeWidget->currentItem()), dlg.magicData());
-        markMimeForMagicSync(m_filterModel->mapToSource(
-            m_ui.mimeTypesTreeView->currentIndex()).row());
-    }
-}
+//    MimeTypeMagicDialog dlg;
+//    dlg.setMagicData(getMagicHeaderRowData(m_ui.magicHeadersTreeWidget->indexOfTopLevelItem(m_ui.magicHeadersTreeWidget->currentItem())));
+//    if (dlg.exec()) {
+//        editMagicHeaderRowData(m_ui.magicHeadersTreeWidget->indexOfTopLevelItem(m_ui.magicHeadersTreeWidget->currentItem()), dlg.magicData());
+//        markMimeForMagicSync(m_filterModel->mapToSource(
+//            m_ui.mimeTypesTreeView->currentIndex()).row());
+//    }
+//}
 
 void MimeTypeSettingsPrivate::updateMimeDatabase()
 {
-    if (m_modifiedMimeTypes.isEmpty())
-        return;
+    // TODO
+//    if (m_modifiedMimeTypes.isEmpty())
+//        return;
 
-    // For this case it is a better approach to simply use a list and to remove duplicates
-    // afterwards than to keep a more complex data structure like a hash table.
-    Utils::sort(m_modifiedMimeTypes);
-    m_modifiedMimeTypes.erase(std::unique(m_modifiedMimeTypes.begin(), m_modifiedMimeTypes.end()),
-                              m_modifiedMimeTypes.end());
+//    // For this case it is a better approach to simply use a list and to remove duplicates
+//    // afterwards than to keep a more complex data structure like a hash table.
+//    Utils::sort(m_modifiedMimeTypes);
+//    m_modifiedMimeTypes.erase(std::unique(m_modifiedMimeTypes.begin(), m_modifiedMimeTypes.end()),
+//                              m_modifiedMimeTypes.end());
 
-    QList<MimeType> allModified;
-    foreach (int index, m_modifiedMimeTypes) {
-        const MimeType &mimeType = m_model->m_mimeTypes.at(index);
-        MimeDatabase::setGlobPatterns(mimeType.type(), mimeType.globPatterns());
-        MimeDatabase::setMagicMatchers(mimeType.type(), mimeType.magicMatchers());
-        allModified.append(mimeType);
-    }
-    MimeDatabase::writeUserModifiedMimeTypes(allModified);
+//    QList<MimeType> allModified;
+//    foreach (int index, m_modifiedMimeTypes) {
+//        const MimeType &mimeType = m_model->m_mimeTypes.at(index);
+//        MimeDatabase::setGlobPatterns(mimeType.type(), mimeType.globPatterns());
+//        MimeDatabase::setMagicMatchers(mimeType.type(), mimeType.magicMatchers());
+//        allModified.append(mimeType);
+//    }
+//    MimeDatabase::writeUserModifiedMimeTypes(allModified);
 }
 
 void MimeTypeSettingsPrivate::resetState()
@@ -561,6 +565,11 @@ QWidget *MimeTypeSettings::widget()
     if (!d->m_widget) {
         d->m_widget = new QWidget;
         d->configureUi(d->m_widget);
+        // TODO temporarily disabled
+        d->m_ui.addMagicButton->setEnabled(false);
+        d->m_ui.editMagicButton->setEnabled(false);
+        d->m_ui.removeMagicButton->setEnabled(false);
+        d->m_ui.patternsLineEdit->setEnabled(false);
     }
     return d->m_widget;
 }
@@ -585,12 +594,13 @@ void MimeTypeSettings::apply()
 
 void MimeTypeSettings::finish()
 {
-    if (d->m_persist) {
-        if (d->m_reset)
-            MimeDatabase::clearUserModifiedMimeTypes();
-        else
-            d->updateMimeDatabase();
-    }
+    // TODO
+//    if (d->m_persist) {
+//        if (d->m_reset)
+//            MimeDatabase::clearUserModifiedMimeTypes();
+//        else
+//            d->updateMimeDatabase();
+//    }
     d->resetState();
     delete d->m_widget;
 }

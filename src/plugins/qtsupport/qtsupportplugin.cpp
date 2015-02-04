@@ -45,7 +45,6 @@
 #include "profilereader.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/jsexpander.h>
 
 #include <projectexplorer/project.h>
@@ -69,9 +68,6 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     QMakeParser::initialize();
     ProFileEvaluator::initialize();
     new ProFileCacheManager(this);
-
-    if (!MimeDatabase::addMimeTypes(QLatin1String(":qtsupport/QtSupport.mimetypes.xml"), errorMessage))
-        return false;
 
     JsExpander::registerQObjectForJs(QLatin1String("QtSupport"), new CodeGenerator);
 

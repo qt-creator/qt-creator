@@ -42,8 +42,8 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QtPlugin>
 #include <QMenu>
@@ -72,9 +72,9 @@ QmlJSToolsPlugin::~QmlJSToolsPlugin()
 bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
 {
     Q_UNUSED(arguments)
+    Q_UNUSED(error)
 
-    if (!MimeDatabase::addMimeTypes(QLatin1String(":/qmljstools/QmlJSTools.mimetypes.xml"), error))
-        return false;
+    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/qmljstools/QmlJSTools.mimetypes.xml"));
 
     m_settings = new QmlJSToolsSettings(this); // force registration of qmljstools settings
 

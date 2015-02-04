@@ -37,6 +37,7 @@
 
 #include <coreplugin/id.h>
 #include <coreplugin/idocument.h> // enumerations
+#include <utils/mimetypes/mimetype.h>
 
 #include <QList>
 #include <QWidget>
@@ -53,7 +54,6 @@ class IContext;
 class IEditor;
 class IEditorFactory;
 class IExternalEditor;
-class MimeType;
 class IDocument;
 class IMode;
 class IVersionControl;
@@ -157,8 +157,8 @@ public:
                            QObject *object = 0, const char *member = 0);
     static void hideEditorStatusBar(const QString &id);
 
-    static EditorFactoryList editorFactories(const MimeType &mimeType, bool bestMatchOnly = true);
-    static ExternalEditorList externalEditors(const MimeType &mimeType, bool bestMatchOnly = true);
+    static EditorFactoryList editorFactories(const Utils::MimeType &mimeType, bool bestMatchOnly = true);
+    static ExternalEditorList externalEditors(const Utils::MimeType &mimeType, bool bestMatchOnly = true);
 
     static bool isAutoSaveFile(const QString &fileName);
 

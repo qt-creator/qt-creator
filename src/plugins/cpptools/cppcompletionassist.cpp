@@ -49,6 +49,7 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
 
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
 #include <cplusplus/BackwardsScanner.h>
@@ -1120,9 +1121,8 @@ bool InternalCppCompletionAssistProcessor::completeInclude(const QTextCursor &cu
     if (!headerPaths.contains(currentFilePath))
         headerPaths.append(currentFilePath);
 
-    const Core::MimeType mimeType =
-            Core::MimeDatabase::findByType(QLatin1String("text/x-c++hdr"));
-    const QStringList suffixes = mimeType.suffixes();
+    Utils::MimeDatabase mdb;
+    const QStringList suffixes = mdb.mimeTypeForName(QLatin1String("text/x-c++hdr")).suffixes();
 
     foreach (const ProjectPart::HeaderPath &headerPath, headerPaths) {
         QString realPath = headerPath.path;
@@ -1171,9 +1171,10 @@ bool InternalCppCompletionAssistProcessor::objcKeywordsWanted() const
 
     const QString fileName = m_interface->fileName();
 
-    const QString mt = Core::MimeDatabase::findByFile(fileName).type();
-    return mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
-            || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE);
+    Utils::MimeDatabase mdb;
+    const Utils::MimeType mt = mdb.mimeTypeForFile(fileName);
+    return mt.matchesName(QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE))
+            || mt.matchesName(QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
 }
 
 int InternalCppCompletionAssistProcessor::startCompletionInternal(const QString &fileName,

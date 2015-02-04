@@ -39,13 +39,14 @@
 #include "genericproject.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/selectablefilesmodel.h>
+
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QtPlugin>
 #include <QDebug>
@@ -62,10 +63,8 @@ GenericProjectPlugin::GenericProjectPlugin()
 
 bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage)
 {
-    const QLatin1String mimetypesXml(":genericproject/GenericProjectManager.mimetypes.xml");
-
-    if (!MimeDatabase::addMimeTypes(mimetypesXml, errorMessage))
-        return false;
+    Q_UNUSED(errorMessage)
+    Utils::MimeDatabase::addMimeTypes(QLatin1String(":genericproject/GenericProjectManager.mimetypes.xml"));
 
     addAutoReleasedObject(new Manager);
     addAutoReleasedObject(new ProjectFilesFactory);

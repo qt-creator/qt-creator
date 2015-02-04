@@ -36,9 +36,10 @@
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/fileiconprovider.h>
-#include <coreplugin/mimedatabase.h>
 
 #include <qmljstools/qmljstoolsconstants.h>
+
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -51,8 +52,8 @@ static bool priority(const QStringList &files)
 {
     if (files.isEmpty())
         return false;
-    Core::MimeType mt = Core::MimeDatabase::findByFile(files.at(0));
-    QString type = mt.type();
+    Utils::MimeDatabase mdb;
+    QString type = mdb.mimeTypeForFile(files.at(0)).name();
     if (type.startsWith(QLatin1String("image/"))
             || type == QLatin1String(QmlJSTools::Constants::QML_MIMETYPE)
             || type == QLatin1String(QmlJSTools::Constants::JS_MIMETYPE))

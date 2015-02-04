@@ -58,7 +58,6 @@ class IDocument;
 class IWizardFactory;
 class JsExpander;
 class MessageManager;
-class MimeDatabase;
 class ModeManager;
 class ProgressManager;
 class NavigationWidget;
@@ -172,7 +171,6 @@ private:
     VcsManager *m_vcsManager;
     StatusBarManager *m_statusBarManager;
     ModeManager *m_modeManager;
-    MimeDatabase *m_mimeDatabase;
     HelpManager *m_helpManager;
     FancyTabWidget *m_modeStack;
     NavigationWidget *m_navigationWidget;

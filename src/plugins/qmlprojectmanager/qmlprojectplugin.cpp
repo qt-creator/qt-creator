@@ -37,9 +37,10 @@
 
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
 
 #include <qtsupport/qtsupportconstants.h>
+
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QtPlugin>
 
@@ -58,18 +59,14 @@ QmlProjectPlugin::~QmlProjectPlugin()
 
 bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
 {
-    using namespace Core;
-
-    const QLatin1String mimetypesXml(":/qmlproject/QmlProjectManager.mimetypes.xml");
-
-    if (!MimeDatabase::addMimeTypes(mimetypesXml, errorMessage))
-        return false;
+    Q_UNUSED(errorMessage)
+    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/qmlproject/QmlProjectManager.mimetypes.xml"));
 
     addAutoReleasedObject(new Internal::Manager);
     addAutoReleasedObject(new Internal::QmlProjectRunConfigurationFactory);
     addAutoReleasedObject(new Internal::QmlApplicationWizard);
 
-    FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png", "qmlproject");
+    Core::FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png", "qmlproject");
     return true;
 }
 

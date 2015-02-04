@@ -43,6 +43,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/algorithm.h>
 #include <utils/QtConcurrentTools>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/networkaccessmanager.h>
 
 #include <QCoreApplication>
@@ -150,18 +151,19 @@ static bool matchesPattern(const QString &fileName, DefinitionMetaDataPtr metaDa
     return false;
 }
 
-QString Manager::definitionIdByMimeType(const Core::MimeType &mimeType) const
+QString Manager::definitionIdByMimeType(const Utils::MimeType &mimeType) const
 {
-    QList<Core::MimeType> queue;
+    Utils::MimeDatabase mdb;
+    QList<Utils::MimeType> queue;
     queue.append(mimeType);
     while (!queue.isEmpty()) {
-        const Core::MimeType mt = queue.takeFirst();
-        const QString id = m_register.m_idByMimeType.value(mt.type());
+        const Utils::MimeType mt = queue.takeFirst();
+        const QString id = m_register.m_idByMimeType.value(mt.name());
         if (!id.isEmpty())
             return id;
-        foreach (const QString &parent, mt.subClassesOf()) {
-            const Core::MimeType parentMt = Core::MimeDatabase::findByType(parent);
-            if (!parentMt.isNull())
+        foreach (const QString &parent, mt.parentMimeTypes()) {
+            const Utils::MimeType parentMt = mdb.mimeTypeForName(parent);
+            if (parentMt.isValid())
                 queue.append(parentMt);
         }
     }
@@ -186,7 +188,8 @@ QString Manager::definitionIdByFile(const QString &filePath) const
     return bestId;
 }
 
-QString Manager::definitionIdByMimeTypeAndFile(const MimeType &mimeType, const QString &filePath) const
+QString Manager::definitionIdByMimeTypeAndFile(const Utils::MimeType &mimeType,
+                                               const QString &filePath) const
 {
     QString id = definitionIdByMimeType(mimeType);
     if (!filePath.isEmpty()) {

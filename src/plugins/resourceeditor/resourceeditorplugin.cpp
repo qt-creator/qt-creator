@@ -36,7 +36,6 @@
 #include "resourcenode.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/id.h>
@@ -50,6 +49,7 @@
 #include <projectexplorer/projectnodes.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 
@@ -124,13 +124,11 @@ ResourceEditorPlugin::ResourceEditorPlugin() :
 bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
-    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":/resourceeditor/ResourceEditor.mimetypes.xml"), errorMessage))
-        return false;
+    Q_UNUSED(errorMessage)
+    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/resourceeditor/ResourceEditor.mimetypes.xml"));
 
     ResourceEditorFactory *editor = new ResourceEditorFactory(this);
     addAutoReleasedObject(editor);
-
-    errorMessage->clear();
 
     // Register undo and redo
     const Core::Context context(Constants::C_RESOURCEEDITOR);

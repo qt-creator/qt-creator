@@ -41,11 +41,11 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
 #include <QTextBlock>
@@ -237,8 +237,9 @@ void DisassemblerAgentPrivate::configureMimeType()
 
     document->setMimeType(mimeType);
 
-    MimeType mtype = MimeDatabase::findByType(mimeType);
-    if (mtype) {
+    Utils::MimeDatabase mdb;
+    Utils::MimeType mtype = mdb.mimeTypeForName(mimeType);
+    if (mtype.isValid()) {
         foreach (IEditor *editor, DocumentModel::editorsForDocument(document))
             if (TextEditorWidget *widget = qobject_cast<TextEditorWidget *>(editor->widget()))
                 widget->configureGenericHighlighter();

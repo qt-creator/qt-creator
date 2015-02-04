@@ -42,7 +42,6 @@
 #include "idocumentfactory.h"
 #include "messagemanager.h"
 #include "modemanager.h"
-#include "mimedatabase.h"
 #include "outputpanemanager.h"
 #include "plugindialog.h"
 #include "vcsmanager.h"
@@ -77,6 +76,7 @@
 #include <utils/algorithm.h>
 #include <utils/historycompleter.h>
 #include <utils/hostosinfo.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
@@ -124,7 +124,6 @@ MainWindow::MainWindow() :
     m_vcsManager(new VcsManager),
     m_statusBarManager(0),
     m_modeManager(0),
-    m_mimeDatabase(new MimeDatabase),
     m_helpManager(new HelpManager),
     m_modeStack(new FancyTabWidget(this)),
     m_navigationWidget(0),
@@ -298,8 +297,6 @@ MainWindow::~MainWindow()
 
     delete m_modeManager;
     m_modeManager = 0;
-    delete m_mimeDatabase;
-    m_mimeDatabase = 0;
 
     delete m_helpManager;
     m_helpManager = 0;
@@ -310,9 +307,6 @@ MainWindow::~MainWindow()
 bool MainWindow::init(QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
-
-    if (!MimeDatabase::addMimeTypes(QLatin1String(":/core/editormanager/BinFiles.mimetypes.xml"), errorMessage))
-        return false;
 
     PluginManager::addObject(m_coreImpl);
     m_statusBarManager->init();
@@ -751,10 +745,12 @@ void MainWindow::openFile()
 static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fileFactories,
                                      const QFileInfo &fi)
 {
-    if (const MimeType mt = MimeDatabase::findByFile(fi)) {
-        const QString type = mt.type();
+    Utils::MimeDatabase mdb;
+    const Utils::MimeType mt = mdb.mimeTypeForFile(fi);
+    if (mt.isValid()) {
+        const QString typeName = mt.name();
         foreach (IDocumentFactory *factory, fileFactories) {
-            if (factory->mimeTypes().contains(type))
+            if (factory->mimeTypes().contains(typeName))
                 return factory;
         }
     }

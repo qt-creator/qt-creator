@@ -33,7 +33,8 @@
 #include "cpptoolsconstants.h"
 
 #include <coreplugin/icore.h>
-
+#include <utils/mimetypes/mimedatabase.h>
+#
 #include <QDebug>
 
 namespace CppTools {
@@ -51,11 +52,11 @@ ProjectFile::ProjectFile(const QString &file, Kind kind)
 
 ProjectFile::Kind ProjectFile::classify(const QString &file)
 {
-    const QFileInfo fi(file);
-    const Core::MimeType mimeType = Core::MimeDatabase::findByFile(fi);
-    if (!mimeType)
+    Utils::MimeDatabase mdb;
+    const Utils::MimeType mimeType = mdb.mimeTypeForFile(file);
+    if (!mimeType.isValid())
         return Unclassified;
-    const QString mt = mimeType.type();
+    const QString mt = mimeType.name();
     if (mt == QLatin1String(CppTools::Constants::C_SOURCE_MIMETYPE))
         return CSource;
     if (mt == QLatin1String(CppTools::Constants::C_HEADER_MIMETYPE))
@@ -141,20 +142,22 @@ ProjectFileAdder::~ProjectFileAdder()
 
 bool ProjectFileAdder::maybeAdd(const QString &path)
 {
-    m_fileInfo.setFile(path);
-    foreach (const Pair &pair, m_mapping)
-        if (pair.first.matchesFile(path)) {
-            m_files << ProjectFile(path, pair.second);
-            return true;
-        }
+    const Utils::MimeType mt = Utils::MimeDatabase::bestMatch(path, m_mimeTypes);
+    if (mt.isValid()) {
+        m_files << ProjectFile(path, m_mimeNameMapping.value(mt.name()));
+        return true;
+    }
     return false;
 }
 
 void ProjectFileAdder::addMapping(const char *mimeName, ProjectFile::Kind kind)
 {
-    Core::MimeType mimeType = Core::MimeDatabase::findByType(QLatin1String(mimeName));
-    if (!mimeType.isNull())
-        m_mapping.append(Pair(mimeType, kind));
+    Utils::MimeDatabase mdb;
+    Utils::MimeType mimeType = mdb.mimeTypeForName(QLatin1String(mimeName));
+    if (mimeType.isValid()) {
+        m_mimeNameMapping.insert(mimeType.name(), kind);
+        m_mimeTypes.append(mimeType);
+    }
 }
 
 } // namespace Internal

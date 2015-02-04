@@ -36,7 +36,6 @@
 #include <QDebug>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/id.h>
 #include <extensionsystem/pluginmanager.h>
 
@@ -48,9 +47,7 @@ namespace Internal {
 bool ImageViewerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
-
-    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":/imageviewer/ImageViewer.mimetypes.xml"), errorMessage))
-        return false;
+    Q_UNUSED(errorMessage)
 
     m_factory = new ImageViewerFactory(this);
     addAutoReleasedObject(m_factory);

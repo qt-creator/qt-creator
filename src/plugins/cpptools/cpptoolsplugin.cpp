@@ -59,6 +59,7 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
 #include <QtPlugin>
@@ -270,24 +271,25 @@ static QStringList findFilesInProject(const QString &name,
 // source belonging to a header and vice versa
 static QStringList matchingCandidateSuffixes(ProjectFile::Kind kind)
 {
+    Utils::MimeDatabase mdb;
     switch (kind) {
      // Note that C/C++ headers are undistinguishable
     case ProjectFile::CHeader:
     case ProjectFile::CXXHeader:
     case ProjectFile::ObjCHeader:
     case ProjectFile::ObjCXXHeader:
-        return MimeDatabase::findByType(QLatin1String(Constants::C_SOURCE_MIMETYPE)).suffixes()
-                + MimeDatabase::findByType(QLatin1String(Constants::CPP_SOURCE_MIMETYPE)).suffixes()
-                + MimeDatabase::findByType(QLatin1String(Constants::OBJECTIVE_C_SOURCE_MIMETYPE)).suffixes()
-                + MimeDatabase::findByType(QLatin1String(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)).suffixes();
+        return mdb.mimeTypeForName(QLatin1String(Constants::C_SOURCE_MIMETYPE)).suffixes()
+                + mdb.mimeTypeForName(QLatin1String(Constants::CPP_SOURCE_MIMETYPE)).suffixes()
+                + mdb.mimeTypeForName(QLatin1String(Constants::OBJECTIVE_C_SOURCE_MIMETYPE)).suffixes()
+                + mdb.mimeTypeForName(QLatin1String(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)).suffixes();
     case ProjectFile::CSource:
     case ProjectFile::ObjCSource:
-        return MimeDatabase::findByType(QLatin1String(Constants::C_HEADER_MIMETYPE)).suffixes();
+        return mdb.mimeTypeForName(QLatin1String(Constants::C_HEADER_MIMETYPE)).suffixes();
     case ProjectFile::CXXSource:
     case ProjectFile::ObjCXXSource:
     case ProjectFile::CudaSource:
     case ProjectFile::OpenCLSource:
-        return MimeDatabase::findByType(QLatin1String(Constants::CPP_HEADER_MIMETYPE)).suffixes();
+        return mdb.mimeTypeForName(QLatin1String(Constants::CPP_HEADER_MIMETYPE)).suffixes();
     default:
         return QStringList();
     }

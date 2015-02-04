@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
-    <mime-type type="text/x-makefile">
-        <sub-class-of type="text/plain"/>
-        <comment>Automake based Makefile</comment>
-        <glob weight="10" pattern="Makefile.am"/>
-    </mime-type>
-</mime-info>

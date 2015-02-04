@@ -2,6 +2,6 @@
     <qresource prefix="/android">
         <file>images/QtAndroid.png</file>
         <file>images/download.png</file>
-        <file>Java.mimetypes.xml</file>
+        <file>Android.mimetypes.xml</file>
     </qresource>
 </RCC>

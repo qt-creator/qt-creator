@@ -101,12 +101,6 @@
 
 
 /*!
-    \fn MimeDatabase *ICore::mimeDatabase()
-
-    Uses the MIME database to manage MIME types.
-*/
-
-/*!
     \fn QSettings *ICore::settings(QSettings::Scope scope = QSettings::UserScope)
 
     Returns the application's main settings object.

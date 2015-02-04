@@ -50,7 +50,6 @@ SOURCES += qnxplugin.cpp \
     blackberryabstractdeploystep.cpp \
     blackberryndksettingswidget.cpp \
     blackberryndksettingspage.cpp \
-    bardescriptormagicmatcher.cpp \
     bardescriptoreditorfactory.cpp \
     bardescriptoreditor.cpp \
     bardescriptoreditorwidget.cpp \
@@ -161,7 +160,6 @@ HEADERS += qnxplugin.h\
     blackberryabstractdeploystep.h \
     blackberryndksettingswidget.h \
     blackberryndksettingspage.h \
-    bardescriptormagicmatcher.h \
     bardescriptoreditorfactory.h \
     bardescriptoreditor.h \
     bardescriptoreditorwidget.h \

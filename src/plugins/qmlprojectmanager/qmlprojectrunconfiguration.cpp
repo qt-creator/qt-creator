@@ -33,7 +33,6 @@
 #include "qmlprojectmanagerconstants.h"
 #include "qmlprojectrunconfigurationwidget.h"
 #include "qmlprojectenvironmentaspect.h"
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
@@ -43,6 +42,7 @@
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/fileutils.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcprocess.h>
 #include <utils/winutils.h>
 
@@ -264,22 +264,23 @@ void QmlProjectRunConfiguration::changeCurrentFile(IEditor *editor)
 void QmlProjectRunConfiguration::updateEnabled()
 {
     bool qmlFileFound = false;
+    Utils::MimeDatabase mdb;
     if (mainScriptSource() == FileInEditor) {
         IDocument *document = EditorManager::currentDocument();
         if (document) {
             m_currentFileFilename = document->filePath().toString();
-            if (MimeDatabase::findByFile(mainScript()).type() == QLatin1String("application/x-qml"))
+            if (mdb.mimeTypeForFile(mainScript()).matchesName(QLatin1String("application/x-qml")))
                 qmlFileFound = true;
         }
         if (!document
-                || MimeDatabase::findByFile(mainScript()).type() == QLatin1String("application/x-qmlproject")) {
+                || mdb.mimeTypeForFile(mainScript()).matchesName(QLatin1String("application/x-qmlproject"))) {
             // find a qml file with lowercase filename. This is slow, but only done
             // in initialization/other border cases.
             foreach (const QString &filename, target()->project()->files(Project::AllFiles)) {
                 const QFileInfo fi(filename);
 
                 if (!filename.isEmpty() && fi.baseName()[0].isLower()
-                        && MimeDatabase::findByFile(fi).type() == QLatin1String("application/x-qml"))
+                        && mdb.mimeTypeForFile(fi).matchesName(QLatin1String("application/x-qml")))
                 {
                     m_currentFileFilename = filename;
                     qmlFileFound = true;

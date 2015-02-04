@@ -34,7 +34,6 @@
 #include "projectexplorerconstants.h"
 #include "projecttree.h"
 
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>

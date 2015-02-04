@@ -41,7 +41,7 @@
 #include "cmakesettingspage.h"
 
 #include <coreplugin/featureprovider.h>
-#include <coreplugin/mimedatabase.h>
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QtPlugin>
 #include <QDebug>
@@ -59,8 +59,8 @@ CMakeProjectPlugin::~CMakeProjectPlugin()
 
 bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
-    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":cmakeproject/CMakeProjectManager.mimetypes.xml"), errorMessage))
-        return false;
+    Q_UNUSED(errorMessage)
+    Utils::MimeDatabase::addMimeTypes(QLatin1String(":cmakeproject/CMakeProjectManager.mimetypes.xml"));
 
     CMakeSettingsPage *cmp = new CMakeSettingsPage();
     addAutoReleasedObject(cmp);

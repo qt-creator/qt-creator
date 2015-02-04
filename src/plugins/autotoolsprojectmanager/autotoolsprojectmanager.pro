@@ -29,4 +29,3 @@ SOURCES = autotoolsprojectplugin.cpp\
           configurestep.cpp\
           makefileparserthread.cpp\
           makefileparser.cpp
-RESOURCES += autotoolsproject.qrc

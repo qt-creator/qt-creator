@@ -46,12 +46,12 @@
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>
-#include <coreplugin/mimedatabase.h>
 
 #include <extensionsystem/pluginmanager.h>
 
 #include <texteditor/texteditorconstants.h>
 
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
 #include <QAction>
@@ -122,8 +122,7 @@ GlslEditorPlugin::~GlslEditorPlugin()
 
 bool GlslEditorPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
-    if (!MimeDatabase::addMimeTypes(QLatin1String(":/glsleditor/GLSLEditor.mimetypes.xml"), errorMessage))
-        return false;
+    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/glsleditor/GLSLEditor.mimetypes.xml"));
 
     addAutoReleasedObject(new GlslEditorFactory);
     addAutoReleasedObject(new GlslCompletionAssistProvider);

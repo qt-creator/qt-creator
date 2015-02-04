@@ -4,6 +4,6 @@
         <file>images/target.png</file>
         <file>images/ok.png</file>
         <file>images/qnx-target.png</file>
+        <file>Qnx.mimetypes.xml</file>
     </qresource>
-    <qresource prefix="/"/>
 </RCC>

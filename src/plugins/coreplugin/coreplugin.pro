@@ -72,7 +72,6 @@ SOURCES += corejsextensions.cpp \
     rightpane.cpp \
     sidebar.cpp \
     fileiconprovider.cpp \
-    mimedatabase.cpp \
     icore.cpp \
     infobar.cpp \
     editormanager/ieditor.cpp \
@@ -196,7 +195,6 @@ HEADERS += corejsextensions.h \
     rightpane.h \
     sidebar.h \
     fileiconprovider.h \
-    mimedatabase.h \
     settingsdatabase.h \
     editormanager/systemeditor.h \
     designmode.h \

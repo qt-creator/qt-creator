@@ -91,9 +91,7 @@ TextEditorPlugin::~TextEditorPlugin()
 bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
-
-    if (!MimeDatabase::addMimeTypes(QLatin1String(":/texteditor/TextEditor.mimetypes.xml"), errorMessage))
-        return false;
+    Q_UNUSED(errorMessage)
 
     m_settings = new TextEditorSettings(this);
 

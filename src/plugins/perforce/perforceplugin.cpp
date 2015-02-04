@@ -48,12 +48,12 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/locator/commandlocator.h>
+#include <utils/fileutils.h>
+#include <utils/mimetypes/mimedatabase.h>
+#include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
-#include <utils/parameteraction.h>
-#include <utils/fileutils.h>
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -221,12 +221,13 @@ static const VcsBaseSubmitEditorParameters submitParameters = {
 
 bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *errorMessage)
 {
+    Q_UNUSED(errorMessage)
     Context context(PERFORCE_CONTEXT);
 
     initializeVcs(new PerforceVersionControl(this), context);
 
-    if (!MimeDatabase::addMimeTypes(QLatin1String(":/trolltech.perforce/Perforce.mimetypes.xml"), errorMessage))
-        return false;
+    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/trolltech.perforce/Perforce.mimetypes.xml"));
+
     m_instance = this;
 
     m_settings.fromSettings(ICore::settings());

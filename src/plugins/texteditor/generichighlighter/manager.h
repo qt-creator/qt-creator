@@ -33,8 +33,6 @@
 
 #include "highlightdefinitionmetadata.h"
 
-#include <coreplugin/mimedatabase.h>
-
 #include <QString>
 #include <QHash>
 #include <QSet>
@@ -50,6 +48,8 @@ class QStringList;
 class QIODevice;
 template <class> class QFutureInterface;
 QT_END_NAMESPACE
+
+namespace Utils { class MimeType; }
 
 namespace TextEditor {
 namespace Internal {
@@ -69,9 +69,9 @@ public:
     static Manager *instance();
 
     QString definitionIdByName(const QString &name) const;
-    QString definitionIdByMimeType(const Core::MimeType &mimeType) const;
+    QString definitionIdByMimeType(const Utils::MimeType &mimeType) const;
     QString definitionIdByFile(const QString &filePath) const;
-    QString definitionIdByMimeTypeAndFile(const Core::MimeType &mimeType,
+    QString definitionIdByMimeTypeAndFile(const Utils::MimeType &mimeType,
                                           const QString &filePath) const;
     DefinitionMetaDataPtr availableDefinitionByName(const QString &name) const;
 

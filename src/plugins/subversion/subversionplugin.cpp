@@ -57,10 +57,10 @@
 #include <coreplugin/id.h>
 #include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/mimedatabase.h>
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
@@ -233,6 +233,7 @@ const VcsBaseSubmitEditorParameters submitParameters = {
 
 bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *errorMessage)
 {
+    Q_UNUSED(errorMessage)
     using namespace Constants;
     using namespace Core::Constants;
 
@@ -242,8 +243,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
 
     m_subversionPluginInstance = this;
 
-    if (!MimeDatabase::addMimeTypes(QLatin1String(":/trolltech.subversion/Subversion.mimetypes.xml"), errorMessage))
-        return false;
+    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/trolltech.subversion/Subversion.mimetypes.xml"));
 
     m_settings.readSettings(ICore::settings());
     m_client = new SubversionClient(&m_settings);

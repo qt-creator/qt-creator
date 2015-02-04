@@ -1,33 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
-    <mime-type type="text/x-csrc">
-        <sub-class-of type="text/plain"/>
-        <comment>C Source file</comment>
-        <glob pattern="*.c"/>
-        <!-- NVIDIA CUDA files are like C -->
-        <glob pattern="*.cu"/>
-    </mime-type>
-
-    <!-- A C Header file is virtually undistinguishable from the C++ header  -->
-    <mime-type type="text/x-chdr">
+    <mime-type type="text/vnd.nvidia.cuda.csrc">
         <sub-class-of type="text/x-csrc"/>
-        <comment>C Header file</comment>
-        <glob pattern="*.h"/>
+        <comment>NVIDIA CUDA C source code</comment>
+        <glob pattern="*.cu"/>
     </mime-type>
 
     <!-- Those are used to find matching headers by the CppTools plugin,
          so, they should match -->
     <mime-type type="text/x-c++hdr">
         <sub-class-of type="text/x-chdr"/>
-        <comment>C++ Header file</comment>
         <comment>C++ header</comment>
-        <glob pattern="*.h"/>
         <glob pattern="*.hh"/>
         <glob pattern="*.hxx"/>
         <glob pattern="*.h++"/>
-        <glob pattern="*.H"/>
         <glob pattern="*.hpp"/>
         <glob pattern="*.hp"/>
+        <!-- Additions to freedesktop: -->
+        <glob pattern="*.h"/>
+        <glob pattern="*.H"/>
         <!-- Find include guards of header files without extension, for
              example, STL ones like <string>. Those can have a big initial
              comment exceeding 1000 chars, though. -->
@@ -39,17 +30,17 @@
     </mime-type>
 
     <mime-type type="text/x-c++src">
-        <comment>C++ Source file</comment>
+        <comment>C++ source code</comment>
         <sub-class-of type="text/x-csrc"/>
         <comment>C++ source code</comment>
         <glob pattern="*.cpp"/>
-        <glob pattern="*.cp"/>
-        <glob pattern="*.cc"/>
         <glob pattern="*.cxx"/>
+        <glob pattern="*.cc"/>
+        <glob pattern="*.C" case-sensitive="true"/>
         <glob pattern="*.c++"/>
-        <glob pattern="*.C"/>
+        <!-- Additions to freedesktop: -->
+        <glob pattern="*.cp"/>
         <glob pattern="*.inl"/>
-        <glob pattern="*.moc"/>
         <glob pattern="*.qdoc"/>
         <glob pattern="*.tcc"/>
         <glob pattern="*.tpp"/>
@@ -60,11 +51,14 @@
         </magic>
     </mime-type>
 
-    <mime-type type="text/x-objcsrc">
-         <comment>Objective-C source code</comment>
-         <sub-class-of type="text/x-csrc"/>
-         <glob pattern="*.m"/>
-    </mime-type>
+  <mime-type type="text/x-moc">
+    <comment>Qt MOC file</comment>
+    <acronym>Qt MOC</acronym>
+    <expanded-acronym>Qt Meta Object Compiler</expanded-acronym>
+    <!-- Fix to freedesktop: moc is C++ source -->
+    <sub-class-of type="text/x-c++src"/>
+    <glob pattern="*.moc"/>
+  </mime-type>
 
     <mime-type type="text/x-objc++src">
          <comment>Objective-C++ source code</comment>

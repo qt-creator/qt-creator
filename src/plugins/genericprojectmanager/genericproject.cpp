@@ -37,7 +37,6 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppmodelmanager.h>
 #include <extensionsystem/pluginmanager.h>

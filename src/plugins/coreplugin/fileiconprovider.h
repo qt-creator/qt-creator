@@ -38,8 +38,6 @@
 
 namespace Core {
 
-class MimeType;
-
 namespace FileIconProvider {
 
 // Access to the single instance

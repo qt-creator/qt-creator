@@ -39,8 +39,6 @@
 #include "configurestep.h"
 #include "autotoolsprojectconstants.h"
 
-#include <coreplugin/mimedatabase.h>
-
 #include <QStringList>
 #include <QtPlugin>
 
@@ -57,10 +55,8 @@ void AutotoolsProjectPlugin::extensionsInitialized()
 bool AutotoolsProjectPlugin::initialize(const QStringList &arguments,
                                         QString *errorString)
 {
-    Q_UNUSED(arguments);
-
-    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":autotoolsproject/AutotoolsProjectManager.mimetypes.xml"), errorString))
-        return false;
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorString)
 
     addAutoReleasedObject(new AutotoolsBuildConfigurationFactory);
     addAutoReleasedObject(new MakeStepFactory);

@@ -41,7 +41,6 @@
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
@@ -52,6 +51,7 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
@@ -687,8 +687,10 @@ QList<BuildInfo *> QmakeBuildConfigurationFactory::availableBuilds(const Target 
 
 int QmakeBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
 {
-    return (k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
-            .matchesType(QLatin1String(Constants::PROFILE_MIMETYPE))) ? 0 : -1;
+    Utils::MimeDatabase mdb;
+    if (k && mdb.mimeTypeForFile(projectPath).matchesName(QLatin1String(Constants::PROFILE_MIMETYPE)))
+        return 0;
+    return -1;
 }
 
 QList<BuildInfo *> QmakeBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const

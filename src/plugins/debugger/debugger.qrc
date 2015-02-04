@@ -38,5 +38,6 @@
         <file>images/qml/apply-on-save.png</file>
         <file>images/debugger_restart.png</file>
         <file>images/debugger_restart_small.png</file>
+        <file>Debugger.mimetypes.xml</file>
     </qresource>
 </RCC>

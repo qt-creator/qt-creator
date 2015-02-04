@@ -51,7 +51,6 @@
 #include "blackberryndksettingspage.h"
 #include "qnxsettingspage.h"
 #include "bardescriptoreditorfactory.h"
-#include "bardescriptormagicmatcher.h"
 #include "blackberrykeyspage.h"
 #include "blackberrycheckdevicestatusstepfactory.h"
 #include "blackberrydeviceconnectionmanager.h"
@@ -68,12 +67,12 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/kitmanager.h>
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QAction>
 #include <QtPlugin>
@@ -128,19 +127,8 @@ bool QnxPlugin::initialize(const QStringList &arguments, QString *errorString)
     // Handle Qcc Compiler
     addAutoReleasedObject(new QnxToolChainFactory);
 
-    // bar-descriptor.xml editor
-    Core::MimeGlobPattern barDescriptorGlobPattern(QLatin1String("*.xml"), Core::MimeGlobPattern::MinWeight + 1);
-    Core::MimeType barDescriptorMimeType;
-    barDescriptorMimeType.setType(QLatin1String(Constants::QNX_BAR_DESCRIPTOR_MIME_TYPE));
-    barDescriptorMimeType.setComment(tr("BAR descriptor file (BlackBerry)"));
-    barDescriptorMimeType.setGlobPatterns(QList<Core::MimeGlobPattern>() << barDescriptorGlobPattern);
-    barDescriptorMimeType.addMagicMatcher(QSharedPointer<Core::IMagicMatcher>(new BarDescriptorMagicMatcher));
-    barDescriptorMimeType.setSubClassesOf(QStringList() << QLatin1String("application/xml"));
+    Utils::MimeDatabase::addMimeTypes(QLatin1String(":qnx/Qnx.mimetypes.xml"));
 
-    if (!Core::MimeDatabase::addMimeType(barDescriptorMimeType)) {
-        *errorString = tr("Could not add MIME type for bar-descriptor.xml editor.");
-        return false;
-    }
     addAutoReleasedObject(new BarDescriptorEditorFactory);
 
     connect(KitManager::instance(), SIGNAL(kitsLoaded()),

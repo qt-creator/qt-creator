@@ -36,11 +36,11 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/mimedatabase.h>
 #include <cppeditor/cppeditorconstants.h>
 
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QSettings>
 #include <QDebug>
@@ -118,8 +118,17 @@ void CppFileSettings::fromSettings(QSettings *s)
 
 bool CppFileSettings::applySuffixesToMimeDB()
 {
-    return Core::MimeDatabase::setPreferredSuffix(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE), sourceSuffix)
-            && Core::MimeDatabase::setPreferredSuffix(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE), headerSuffix);
+    Utils::MimeDatabase mdb;
+    Utils::MimeType mt;
+    mt = mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE));
+    if (!mt.isValid())
+        return false;
+    mt.setPreferredSuffix(sourceSuffix);
+    mt = mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE));
+    if (!mt.isValid())
+        return false;
+    mt.setPreferredSuffix(headerSuffix);
+    return true;
 }
 
 bool CppFileSettings::equals(const CppFileSettings &rhs) const
@@ -255,13 +264,18 @@ CppFileSettingsWidget::CppFileSettingsWidget(QWidget *parent) :
 {
     m_ui->setupUi(this);
     // populate suffix combos
-    if (const Core::MimeType sourceMt = Core::MimeDatabase::findByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)))
+    Utils::MimeDatabase mdb;
+    const Utils::MimeType sourceMt = mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE));
+    if (sourceMt.isValid()) {
         foreach (const QString &suffix, sourceMt.suffixes())
             m_ui->sourceSuffixComboBox->addItem(suffix);
+    }
 
-    if (const Core::MimeType headerMt = Core::MimeDatabase::findByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)))
+    const Utils::MimeType headerMt = mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE));
+    if (headerMt.isValid()) {
         foreach (const QString &suffix, headerMt.suffixes())
             m_ui->headerSuffixComboBox->addItem(suffix);
+    }
     m_ui->licenseTemplatePathChooser->setExpectedKind(Utils::PathChooser::File);
     m_ui->licenseTemplatePathChooser->setHistoryCompleter(QLatin1String("Cpp.LicenseTemplate.History"));
     m_ui->licenseTemplatePathChooser->addButton(tr("Edit..."), this, SLOT(slotEdit()));

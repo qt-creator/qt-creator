@@ -32,10 +32,10 @@
 #include "customwizardpreprocessor.h"
 #include "customwizardscriptgenerator.h"
 
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/icore.h>
 #include <cpptools/cpptoolsconstants.h>
 
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
@@ -917,10 +917,13 @@ void CustomWizardContext::reset()
     const QDate currentDate = QDate::currentDate();
     const QTime currentTime = QTime::currentTime();
     baseReplacements.clear();
+    Utils::MimeDatabase mdb;
     baseReplacements.insert(QLatin1String("CppSourceSuffix"),
-                            MimeDatabase::preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)));
+                            mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE))
+                            .preferredSuffix());
     baseReplacements.insert(QLatin1String("CppHeaderSuffix"),
-                            MimeDatabase::preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)));
+                            mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE))
+                            .preferredSuffix());
     baseReplacements.insert(QLatin1String("CurrentDate"),
                             currentDate.toString(Qt::ISODate));
     baseReplacements.insert(QLatin1String("CurrentTime"),

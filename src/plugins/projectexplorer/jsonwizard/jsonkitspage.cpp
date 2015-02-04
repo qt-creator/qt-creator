@@ -37,12 +37,12 @@
 #include "../projectexplorer.h"
 
 #include <coreplugin/featureprovider.h>
-#include <coreplugin/mimedatabase.h>
 
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/macroexpander.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
 namespace ProjectExplorer {
@@ -102,11 +102,12 @@ void JsonKitsPage::setupProjectFiles(const JsonWizard::GeneratorFiles &files)
             if (fi.exists())
                 path = fi.canonicalFilePath();
 
-            Core::MimeType mt = Core::MimeDatabase::findByFile(fi);
-            if (mt.isNull())
+            Utils::MimeDatabase mdb;
+            Utils::MimeType mt = mdb.mimeTypeForFile(fi);
+            if (!mt.isValid())
                 continue;
 
-            auto manager = Utils::findOrDefault(managerList, Utils::equal(&IProjectManager::mimeType, mt.type()));
+            auto manager = Utils::findOrDefault(managerList, Utils::equal(&IProjectManager::mimeType, mt.name()));
             project = manager ? manager->openProject(path, &errorMessage) : 0;
             if (project) {
                 if (setupProject(project))

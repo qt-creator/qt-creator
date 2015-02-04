@@ -32,11 +32,11 @@
 #include "filesselectionwizardpage.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/customwizard/customwizard.h>
 
 #include <utils/filewizardpage.h>
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QApplication>
 #include <QDebug>
@@ -156,11 +156,10 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     const QString configFileName = QFileInfo(dir, projectName + QLatin1String(".config")).absoluteFilePath();
     const QStringList paths = wizard->selectedPaths();
 
-    Core::MimeType headerTy = Core::MimeDatabase::findByType(QLatin1String("text/x-chdr"));
+    Utils::MimeDatabase mdb;
+    Utils::MimeType headerTy = mdb.mimeTypeForName(QLatin1String("text/x-chdr"));
 
-    QStringList nameFilters;
-    foreach (const Core::MimeGlobPattern &gp, headerTy.globPatterns())
-        nameFilters.append(gp.pattern());
+    QStringList nameFilters = headerTy.globPatterns();
 
     QStringList includePaths;
     foreach (const QString &path, paths) {

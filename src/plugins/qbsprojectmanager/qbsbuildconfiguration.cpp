@@ -40,7 +40,6 @@
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
@@ -49,6 +48,7 @@
 #include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcprocess.h>
 
 #include <QCoreApplication>
@@ -397,8 +397,10 @@ QList<BuildInfo *> QbsBuildConfigurationFactory::availableBuilds(const Target *p
 
 int QbsBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
 {
-    return (k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
-            .matchesType(QLatin1String(Constants::MIME_TYPE))) ? 0 : -1;
+    Utils::MimeDatabase mdb;
+    if (k && mdb.mimeTypeForFile(projectPath).matchesName(QLatin1String(Constants::MIME_TYPE)))
+        return 0;
+    return -1;
 }
 
 static Utils::FileName defaultBuildDirectory(const QString &projectFilePath, const Kit *k,

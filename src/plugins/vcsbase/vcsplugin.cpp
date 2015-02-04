@@ -41,7 +41,6 @@
 
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/jsexpander.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
@@ -77,9 +76,7 @@ VcsPlugin::~VcsPlugin()
 bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
-
-    if (!MimeDatabase::addMimeTypes(QLatin1String(":/vcsbase/VcsBase.mimetypes.xml"), errorMessage))
-        return false;
+    Q_UNUSED(errorMessage)
 
     m_coreListener = new CoreListener;
     addAutoReleasedObject(m_coreListener);

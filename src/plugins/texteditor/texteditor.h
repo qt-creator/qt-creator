@@ -59,8 +59,6 @@ class QRect;
 class QTextBlock;
 QT_END_NAMESPACE
 
-namespace Core { class MimeType; }
-
 namespace TextEditor {
 
 class BaseHoverHandler;

@@ -44,7 +44,6 @@ const char C_EDITOR_DISPLAY_NAME[] =
  * MIME type
  ******************************************************************************/
 const char C_PY_MIMETYPE[] = "text/x-python";
-const char RC_PY_MIME_XML[] = ":/pythoneditor/PythonEditor.mimetypes.xml";
 const char C_PY_MIME_ICON[] = "text-x-python";
 
 } // namespace Constants

@@ -56,7 +56,6 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/find/ifindsupport.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/mimedatabase.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/reloadpromptutils.h>
 #include <utils/qtcassert.h>

@@ -38,13 +38,13 @@
  * but due to a very hackish test of that generic highlighter,
  * there functions must be outside. */
 
-namespace Core { class MimeType; }
+namespace Utils { class MimeType; }
 
 namespace TextEditor {
 
 class Highlighter;
 
-void setMimeTypeForHighlighter(Highlighter *highlighter, const Core::MimeType &mimeType,
+void setMimeTypeForHighlighter(Highlighter *highlighter, const Utils::MimeType &mimeType,
                                const QString &filePath,
                                QString *foundDefinitionId = 0);
 

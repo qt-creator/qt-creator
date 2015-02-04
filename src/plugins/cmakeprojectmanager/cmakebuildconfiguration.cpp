@@ -37,7 +37,6 @@
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
@@ -45,6 +44,7 @@
 #include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
 
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
 #include <QInputDialog>
@@ -161,8 +161,10 @@ QList<ProjectExplorer::BuildInfo *> CMakeBuildConfigurationFactory::availableBui
 
 int CMakeBuildConfigurationFactory::priority(const ProjectExplorer::Kit *k, const QString &projectPath) const
 {
-    return (k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
-            .matchesType(QLatin1String(Constants::CMAKEPROJECTMIMETYPE))) ? 0 : -1;
+    Utils::MimeDatabase mdb;
+    if (k && mdb.mimeTypeForFile(projectPath).matchesName(QLatin1String(Constants::CMAKEPROJECTMIMETYPE)))
+        return 0;
+    return -1;
 }
 
 QList<ProjectExplorer::BuildInfo *> CMakeBuildConfigurationFactory::availableSetups(const ProjectExplorer::Kit *k,

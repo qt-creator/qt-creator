@@ -32,7 +32,6 @@
 
 #include "icore.h"
 #include "idocument.h"
-#include "mimedatabase.h"
 #include "coreconstants.h"
 
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
@@ -46,6 +45,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 #include <utils/reloadpromptutils.h>
@@ -740,7 +740,9 @@ QString DocumentManager::getSaveAsFileName(const IDocument *document, const QStr
 
     QString filterString;
     if (filter.isEmpty()) {
-        if (const MimeType &mt = MimeDatabase::findByFile(fi))
+        Utils::MimeDatabase mdb;
+        const Utils::MimeType &mt = mdb.mimeTypeForFile(fi);
+        if (mt.isValid())
             filterString = mt.filterString();
         selectedFilter = &filterString;
     } else {
@@ -1391,7 +1393,9 @@ void DocumentManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
 
     bool anyMatches = false;
 
-    if (const MimeType mt = MimeDatabase::findByFile(QFileInfo(fileName))) {
+    Utils::MimeDatabase mdb;
+    const Utils::MimeType mt = mdb.mimeTypeForFile(fileName);
+    if (mt.isValid()) {
         const EditorFactoryList factories = EditorManager::editorFactories(mt, false);
         const ExternalEditorList externalEditors = EditorManager::externalEditors(mt, false);
         anyMatches = !factories.empty() || !externalEditors.empty();

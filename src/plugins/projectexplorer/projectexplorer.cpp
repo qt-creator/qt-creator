@@ -111,7 +111,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/imode.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -128,6 +127,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -1337,7 +1337,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
     QList<IProjectManager*> projectManagers =
         ExtensionSystem::PluginManager::getObjects<IProjectManager>();
 
-    QList<MimeGlobPattern> allGlobPatterns;
+    QStringList allGlobPatterns;
 
     const QString filterSeparator = QLatin1String(";;");
     QStringList filterStrings;
@@ -1352,10 +1352,11 @@ void ProjectExplorerPlugin::extensionsInitialized()
         return 0;
     });
 
+    Utils::MimeDatabase mdb;
     foreach (IProjectManager *manager, projectManagers) {
         const QString mimeType = manager->mimeType();
         factory->addMimeType(mimeType);
-        MimeType mime = MimeDatabase::findByType(mimeType);
+        Utils::MimeType mime = mdb.mimeTypeForName(mimeType);
         allGlobPatterns.append(mime.globPatterns());
         filterStrings.append(mime.filterString());
 
@@ -1364,8 +1365,10 @@ void ProjectExplorerPlugin::extensionsInitialized()
 
     addAutoReleasedObject(factory);
 
-    filterStrings.prepend(MimeType::formatFilterString(
-       tr("All Projects"), allGlobPatterns));
+    QString allProjectsFilter = tr("All Projects");
+    allProjectsFilter += QLatin1String(" (") + allGlobPatterns.join(QLatin1Char(' '))
+            + QLatin1Char(')');
+    filterStrings.prepend(allProjectsFilter);
     dd->m_projectFilterString = filterStrings.join(filterSeparator);
 
     BuildManager::extensionsInitialized();
@@ -1573,10 +1576,12 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
             continue;
         }
 
-        if (const MimeType mt = MimeDatabase::findByFile(QFileInfo(fileName))) {
+        Utils::MimeDatabase mdb;
+        Utils::MimeType mt = mdb.mimeTypeForFile(fileName);
+        if (mt.isValid()) {
             bool foundProjectManager = false;
             foreach (IProjectManager *manager, projectManagers) {
-                if (manager->mimeType() == mt.type()) {
+                if (mt.matchesName(manager->mimeType())) {
                     foundProjectManager = true;
                     QString tmp;
                     if (Project *pro = manager->openProject(filePath, &tmp)) {
@@ -1598,7 +1603,7 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
             if (!foundProjectManager) {
                 appendError(errorString, tr("Failed opening project \"%1\": No plugin can open project type \"%2\".")
                             .arg(QDir::toNativeSeparators(fileName))
-                            .arg((mt.type())));
+                            .arg(mt.name()));
             }
         } else {
             appendError(errorString, tr("Failed opening project \"%1\": Unknown project type.")
@@ -1666,11 +1671,13 @@ void ProjectExplorerPlugin::determineSessionToRestoreAtStartup()
 QStringList ProjectExplorerPlugin::projectFileGlobs()
 {
     QStringList result;
+    Utils::MimeDatabase mdb;
     foreach (const IProjectManager *ipm, ExtensionSystem::PluginManager::getObjects<IProjectManager>()) {
-        if (const MimeType mimeType = MimeDatabase::findByType(ipm->mimeType())) {
-            const QList<MimeGlobPattern> patterns = mimeType.globPatterns();
+        Utils::MimeType mimeType = mdb.mimeTypeForName(ipm->mimeType());
+        if (mimeType.isValid()) {
+            const QStringList patterns = mimeType.globPatterns();
             if (!patterns.isEmpty())
-                result.push_back(patterns.front().pattern());
+                result.append(patterns.front());
         }
     }
     return result;
@@ -3122,10 +3129,12 @@ ProjectExplorerSettings ProjectExplorerPlugin::projectExplorerSettings()
 QStringList ProjectExplorerPlugin::projectFilePatterns()
 {
     QStringList patterns;
-    foreach (const IProjectManager *pm, allProjectManagers())
-        if (const MimeType mt = MimeDatabase::findByType(pm->mimeType()))
-            foreach (const MimeGlobPattern &gp, mt.globPatterns())
-                patterns.append(gp.pattern());
+    Utils::MimeDatabase mdb;
+    foreach (const IProjectManager *pm, allProjectManagers()) {
+        Utils::MimeType mt = mdb.mimeTypeForName(pm->mimeType());
+        if (mt.isValid())
+            patterns.append(mt.globPatterns());
+    }
     return patterns;
 }
 

@@ -38,7 +38,6 @@
 #include "../projectexplorerconstants.h"
 
 #include <coreplugin/dialogs/promptoverwritedialog.h>
-#include <coreplugin/mimedatabase.h>
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/indenter.h>
@@ -48,6 +47,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/stringutils.h>
 #include <utils/qtcassert.h>
 
@@ -90,8 +90,8 @@ bool JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile *fi
     if (file->isBinary() || file->contents().isEmpty())
         return true; // nothing to do
 
-    MimeType mt = MimeDatabase::findByFile(QFileInfo(file->path()));
-    Id languageId = TextEditorSettings::languageId(mt.type());
+    Utils::MimeDatabase mdb;
+    Id languageId = TextEditorSettings::languageId(mdb.mimeTypeForFile(file->path()).name());
 
     if (!languageId.isValid())
         return true; // don't modify files like *.ui, *.pro

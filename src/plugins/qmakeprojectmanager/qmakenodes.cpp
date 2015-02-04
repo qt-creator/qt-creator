@@ -63,6 +63,7 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 #include <proparser/prowriter.h>
@@ -1033,9 +1034,10 @@ bool QmakePriFileNode::addFiles(const QStringList &filePaths, QStringList *notAd
     typedef QMap<QString, QStringList> TypeFileMap;
     // Split into lists by file type and bulk-add them.
     TypeFileMap typeFileMap;
+    Utils::MimeDatabase mdb;
     foreach (const QString &file, filePaths) {
-        const Core::MimeType mt = Core::MimeDatabase::findByFile(file);
-        typeFileMap[mt.type()] << file;
+        const Utils::MimeType mt = mdb.mimeTypeForFile(file);
+        typeFileMap[mt.name()] << file;
     }
 
     QStringList failedFiles;
@@ -1080,9 +1082,10 @@ bool QmakePriFileNode::removeFiles(const QStringList &filePaths,
     typedef QMap<QString, QStringList> TypeFileMap;
     // Split into lists by file type and bulk-add them.
     TypeFileMap typeFileMap;
+    Utils::MimeDatabase mdb;
     foreach (const QString &file, filePaths) {
-        const Core::MimeType mt = Core::MimeDatabase::findByFile(file);
-        typeFileMap[mt.type()] << file;
+        const Utils::MimeType mt = mdb.mimeTypeForFile(file);
+        typeFileMap[mt.name()] << file;
     }
     foreach (const QString &type, typeFileMap.keys()) {
         const QStringList typeFiles = typeFileMap.value(type);
@@ -1105,13 +1108,14 @@ bool QmakePriFileNode::renameFile(const QString &filePath, const QString &newFil
         return false;
 
     bool changeProFileOptional = deploysFolder(QFileInfo(filePath).absolutePath());
-    const Core::MimeType mt = Core::MimeDatabase::findByFile(newFilePath);
+    Utils::MimeDatabase mdb;
+    const Utils::MimeType mt = mdb.mimeTypeForFile(newFilePath);
     QStringList dummy;
 
-    changeFiles(mt.type(), QStringList() << filePath, &dummy, RemoveFromProFile);
+    changeFiles(mt.name(), QStringList() << filePath, &dummy, RemoveFromProFile);
     if (!dummy.isEmpty() && !changeProFileOptional)
         return false;
-    changeFiles(mt.type(), QStringList() << newFilePath, &dummy, AddToProFile);
+    changeFiles(mt.name(), QStringList() << newFilePath, &dummy, AddToProFile);
     if (!dummy.isEmpty() && !changeProFileOptional)
         return false;
     return true;

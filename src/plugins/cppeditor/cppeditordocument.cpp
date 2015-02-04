@@ -44,6 +44,7 @@
 
 #include <projectexplorer/session.h>
 
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 
@@ -202,7 +203,8 @@ void CppEditorDocument::onFilePathChanged(const Utils::FileName &oldPath,
     Q_UNUSED(oldPath);
 
     if (!newPath.isEmpty()) {
-        setMimeType(Core::MimeDatabase::findByFile(newPath.toFileInfo()).type());
+        Utils::MimeDatabase mdb;
+        setMimeType(mdb.mimeTypeForFile(newPath.toFileInfo()).name());
 
         disconnect(this, SIGNAL(contentsChanged()), this, SLOT(scheduleProcessDocument()));
         connect(this, SIGNAL(contentsChanged()), this, SLOT(scheduleProcessDocument()));

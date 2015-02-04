@@ -60,7 +60,7 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/hostosinfo.h>
-
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/theme/theme.h>
 
 #include <QCoreApplication>
@@ -153,8 +153,8 @@ CppQuickFixAssistProvider *CppEditorPlugin::quickFixProvider() const
 
 bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
-    if (!MimeDatabase::addMimeTypes(QLatin1String(":/cppeditor/CppEditor.mimetypes.xml"), errorMessage))
-        return false;
+    Q_UNUSED(errorMessage)
+    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/cppeditor/CppEditor.mimetypes.xml"));
 
     addAutoReleasedObject(new CppEditorFactory);
     addAutoReleasedObject(new CppOutlineWidgetFactory);

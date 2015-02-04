@@ -35,12 +35,12 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/id.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditorconstants.h>
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QtPlugin>
 #include <QCoreApplication>
@@ -209,9 +209,9 @@ PythonEditorPlugin::~PythonEditorPlugin()
 bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
+    Q_UNUSED(errorMessage)
 
-    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(RC_PY_MIME_XML), errorMessage))
-        return false;
+    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/pythoneditor/PythonEditor.mimetypes.xml"));
 
     addAutoReleasedObject(new PythonEditorFactory);
 

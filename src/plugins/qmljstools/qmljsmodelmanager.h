@@ -46,7 +46,7 @@
 QT_FORWARD_DECLARE_CLASS(QTimer)
 QT_FORWARD_DECLARE_CLASS(QLocale)
 
-namespace Core { class MimeType; }
+namespace Utils { class MimeType; }
 
 namespace QmlJSTools {
 namespace Internal {
@@ -70,7 +70,6 @@ private slots:
     void updateDefaultProjectInfo();
 private:
     void loadDefaultQmlTypeDescriptions();
-    static bool matchesMimeType(const Core::MimeType &fileMimeType, const Core::MimeType &knownMimeType);
 };
 
 } // namespace Internal

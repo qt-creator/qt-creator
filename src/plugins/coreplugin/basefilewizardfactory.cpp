@@ -34,14 +34,14 @@
 #include "icontext.h"
 #include "icore.h"
 #include "ifilewizardextension.h"
-#include "mimedatabase.h"
 #include "editormanager/editormanager.h"
 #include "dialogs/promptoverwritedialog.h"
 #include <extensionsystem/pluginmanager.h>
 #include <utils/filewizardpage.h>
-#include <utils/wizard.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/wizard.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -476,7 +476,11 @@ QString BaseFileWizardFactory::buildFileName(const QString &path,
 
 QString BaseFileWizardFactory::preferredSuffix(const QString &mimeType)
 {
-    const QString rc = MimeDatabase::preferredSuffixByType(mimeType);
+    QString rc;
+    Utils::MimeDatabase mdb;
+    Utils::MimeType mt = mdb.mimeTypeForName(mimeType);
+    if (mt.isValid())
+        rc = mt.preferredSuffix();
     if (rc.isEmpty())
         qWarning("%s: WARNING: Unable to find a preferred suffix for %s.",
                  Q_FUNC_INFO, mimeType.toUtf8().constData());

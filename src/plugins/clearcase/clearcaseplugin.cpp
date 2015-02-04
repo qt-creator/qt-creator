@@ -52,13 +52,13 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/locator/commandlocator.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/iprojectmanager.h>
 #include <utils/algorithm.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/synchronousprocess.h>
 #include <utils/parameteraction.h>
 #include <utils/fileutils.h>
@@ -441,6 +441,7 @@ static const VcsBaseSubmitEditorParameters submitParameters = {
 
 bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *errorMessage)
 {
+    Q_UNUSED(errorMessage)
     using namespace Constants;
     using namespace Core::Constants;
 
@@ -453,8 +454,7 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     connect(ProgressManager::instance(), SIGNAL(allTasksFinished(Core::Id)),
             this, SLOT(tasksFinished(Core::Id)));
 
-    if (!MimeDatabase::addMimeTypes(QLatin1String(":/clearcase/ClearCase.mimetypes.xml"), errorMessage))
-        return false;
+    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/clearcase/ClearCase.mimetypes.xml"));
 
     m_settings.fromSettings(ICore::settings());
 

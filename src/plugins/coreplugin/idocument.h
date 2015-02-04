@@ -40,7 +40,6 @@
 
 namespace Core {
 
-class MimeType;
 class InfoBar;
 
 namespace Internal {

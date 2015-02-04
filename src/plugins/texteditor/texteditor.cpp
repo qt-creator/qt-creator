@@ -74,6 +74,7 @@
 #include <utils/linecolumnlabel.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/tooltip/tooltip.h>
@@ -2735,7 +2736,8 @@ void TextEditorWidgetPrivate::updateCodeFoldingVisible()
 
 void TextEditorWidgetPrivate::reconfigure()
 {
-    m_document->setMimeType(MimeDatabase::findByFile(m_document->filePath().toString()).type());
+    Utils::MimeDatabase mdb;
+    m_document->setMimeType(mdb.mimeTypeForFile(m_document->filePath().toString()).name());
     q->configureGenericHighlighter();
 }
 
@@ -7109,7 +7111,8 @@ bool BaseTextEditor::open(QString *errorString, const QString &fileName, const Q
 {
     if (!editorWidget()->open(errorString, fileName, realFileName))
         return false;
-    textDocument()->setMimeType(MimeDatabase::findByFile(QFileInfo(fileName)).type());
+    Utils::MimeDatabase mdb;
+    textDocument()->setMimeType(mdb.mimeTypeForFile(fileName).name());
     return true;
 }
 
@@ -7173,8 +7176,9 @@ void TextEditorWidget::configureGenericHighlighter()
     setCodeFoldingSupported(false);
 
     const QString type = textDocument()->mimeType();
-    const MimeType mimeType = MimeDatabase::findByType(type);
-    if (!mimeType.isNull()) {
+    Utils::MimeDatabase mdb;
+    const Utils::MimeType mimeType = mdb.mimeTypeForName(type);
+    if (mimeType.isValid()) {
         d->m_isMissingSyntaxDefinition = true;
 
         QString definitionId;

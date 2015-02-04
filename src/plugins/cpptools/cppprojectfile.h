@@ -33,8 +33,10 @@
 
 #include "cpptools_global.h"
 
-#include <coreplugin/mimedatabase.h>
+#include <utils/mimetypes/mimetype.h>
 
+#include <QHash>
+#include <QList>
 #include <QString>
 
 namespace CppTools {
@@ -81,13 +83,12 @@ public:
     bool maybeAdd(const QString &path);
 
 private:
-    typedef QPair<Core::MimeType, ProjectFile::Kind> Pair;
 
     void addMapping(const char *mimeName, ProjectFile::Kind kind);
 
     QList<ProjectFile> &m_files;
-    QList<Pair> m_mapping;
-    QFileInfo m_fileInfo;
+    QHash<QString, ProjectFile::Kind> m_mimeNameMapping;
+    QList<Utils::MimeType> m_mimeTypes;
 };
 
 } // namespace Internal

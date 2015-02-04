@@ -46,7 +46,6 @@
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/mimedatabase.h>
 #include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/buildmanager.h>

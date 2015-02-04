@@ -1,6 +1,5 @@
 <RCC>
-    <qresource prefix="/vcsbase" >
-        <file>VcsBase.mimetypes.xml</file>
+    <qresource prefix="/vcsbase">
         <file>images/category_vcs.png</file>
         <file>images/diff.png</file>
         <file>images/removesubmitfield.png</file>

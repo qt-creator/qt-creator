@@ -49,7 +49,6 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/minisplitter.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/outputpane.h>
 #include <utils/qtcassert.h>
 

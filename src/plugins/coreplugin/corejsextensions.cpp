@@ -30,9 +30,8 @@
 
 #include "corejsextensions.h"
 
-#include "mimedatabase.h"
-
 #include <utils/fileutils.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -90,7 +89,11 @@ QString UtilsJsExtension::absoluteFilePath(const QString &in) const
 
 QString UtilsJsExtension::preferredSuffix(const QString &mimetype) const
 {
-    return MimeDatabase::preferredSuffixByType(mimetype);
+    Utils::MimeDatabase mdb;
+    Utils::MimeType mt = mdb.mimeTypeForName(mimetype);
+    if (mt.isValid())
+        return mt.preferredSuffix();
+    return QString();
 }
 
 QString UtilsJsExtension::fileName(const QString &path, const QString &extension) const

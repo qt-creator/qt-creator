@@ -46,11 +46,11 @@
 #include <coreplugin/id.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <utils/qtcassert.h>
 #include <utils/fileutils.h>
+#include <utils/mimetypes/mimedatabase.h>
+#include <utils/qtcassert.h>
 #include <texteditor/texteditor.h>
 
 #include <QtPlugin>
@@ -377,7 +377,9 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     // Default to "txt".
     QByteArray byteContent = content.toUtf8();
     QString suffix;
-    if (const MimeType mimeType = MimeDatabase::findByData(byteContent))
+    Utils::MimeDatabase mdb;
+    const Utils::MimeType mimeType = mdb.mimeTypeForData(byteContent);
+    if (mimeType.isValid())
         suffix = mimeType.preferredSuffix();
     if (suffix.isEmpty())
          suffix = QLatin1String("txt");

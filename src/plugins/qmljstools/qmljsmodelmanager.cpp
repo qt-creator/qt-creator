@@ -52,6 +52,7 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <texteditor/textdocument.h>
 #include <utils/hostosinfo.h>
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QDir>
 #include <QFile>
@@ -76,22 +77,18 @@ ModelManagerInterface::ProjectInfo QmlJSTools::Internal::ModelManager::defaultPr
     ModelManagerInterface::ProjectInfo projectInfo(project);
     ProjectExplorer::Target *activeTarget = 0;
     if (project) {
-        QList<MimeGlobPattern> globs;
-        foreach (const MimeType &mimeType, MimeDatabase::mimeTypes())
-            if (mimeType.type() == QLatin1String(Constants::QML_MIMETYPE)
-                    || mimeType.subClassesOf().contains(QLatin1String(Constants::QML_MIMETYPE)))
-                globs << mimeType.globPatterns();
-        if (globs.isEmpty()) {
-            globs.append(MimeGlobPattern(QLatin1String("*.qbs")));
-            globs.append(MimeGlobPattern(QLatin1String("*.qml")));
-            globs.append(MimeGlobPattern(QLatin1String("*.qmltypes")));
-            globs.append(MimeGlobPattern(QLatin1String("*.qmlproject")));
+        Utils::MimeDatabase mdb;
+        QList<Utils::MimeType> qmlTypes;
+        foreach (const Utils::MimeType &mimeType, mdb.allMimeTypes()) {
+            if (mimeType.matchesName(QLatin1String(Constants::QML_MIMETYPE))
+                    || mimeType.allAncestors().contains(QLatin1String(Constants::QML_MIMETYPE)))
+                qmlTypes.append(mimeType);
         }
         foreach (const QString &filePath,
-                 project->files(ProjectExplorer::Project::ExcludeGeneratedFiles))
-            foreach (const MimeGlobPattern &glob, globs)
-                if (glob.matches(filePath))
-                    projectInfo.sourceFiles << filePath;
+                    project->files(ProjectExplorer::Project::ExcludeGeneratedFiles)) {
+            if (mdb.bestMatch(filePath, qmlTypes).isValid())
+                projectInfo.sourceFiles << filePath;
+        }
         activeTarget = project->activeTarget();
     }
     ProjectExplorer::Kit *activeKit = activeTarget ? activeTarget->kit() :
@@ -179,22 +176,23 @@ QHash<QString,QmlJS::Dialect> ModelManager::languageForSuffix() const
     QHash<QString,QmlJS::Dialect> res = ModelManagerInterface::languageForSuffix();
 
     if (ICore::instance()) {
-        MimeType jsSourceTy = MimeDatabase::findByType(QLatin1String(Constants::JS_MIMETYPE));
+        Utils::MimeDatabase mdb;
+        Utils::MimeType jsSourceTy = mdb.mimeTypeForName(QLatin1String(Constants::JS_MIMETYPE));
         foreach (const QString &suffix, jsSourceTy.suffixes())
             res[suffix] = Dialect::JavaScript;
-        MimeType qmlSourceTy = MimeDatabase::findByType(QLatin1String(Constants::QML_MIMETYPE));
+        Utils::MimeType qmlSourceTy = mdb.mimeTypeForName(QLatin1String(Constants::QML_MIMETYPE));
         foreach (const QString &suffix, qmlSourceTy.suffixes())
             res[suffix] = Dialect::Qml;
-        MimeType qbsSourceTy = MimeDatabase::findByType(QLatin1String(Constants::QBS_MIMETYPE));
+        Utils::MimeType qbsSourceTy = mdb.mimeTypeForName(QLatin1String(Constants::QBS_MIMETYPE));
         foreach (const QString &suffix, qbsSourceTy.suffixes())
             res[suffix] = Dialect::QmlQbs;
-        MimeType qmlProjectSourceTy = MimeDatabase::findByType(QLatin1String(Constants::QMLPROJECT_MIMETYPE));
+        Utils::MimeType qmlProjectSourceTy = mdb.mimeTypeForName(QLatin1String(Constants::QMLPROJECT_MIMETYPE));
         foreach (const QString &suffix, qmlProjectSourceTy.suffixes())
             res[suffix] = Dialect::QmlProject;
-        MimeType qmlUiSourceTy = MimeDatabase::findByType(QLatin1String(Constants::QMLUI_MIMETYPE));
+        Utils::MimeType qmlUiSourceTy = mdb.mimeTypeForName(QLatin1String(Constants::QMLUI_MIMETYPE));
         foreach (const QString &suffix, qmlUiSourceTy.suffixes())
             res[suffix] = Dialect::QmlQtQuick2Ui;
-        MimeType jsonSourceTy = MimeDatabase::findByType(QLatin1String(Constants::JSON_MIMETYPE));
+        Utils::MimeType jsonSourceTy = mdb.mimeTypeForName(QLatin1String(Constants::JSON_MIMETYPE));
         foreach (const QString &suffix, jsonSourceTy.suffixes())
             res[suffix] = Dialect::Json;
     }
@@ -268,23 +266,6 @@ void ModelManager::updateDefaultProjectInfo()
     setDefaultProject(projectInfo(currentProject,newDefaultProjectInfo), currentProject);
 }
 
-
-// Check whether fileMimeType is the same or extends knownMimeType
-bool ModelManager::matchesMimeType(const MimeType &fileMimeType, const MimeType &knownMimeType)
-{
-    const QStringList knownTypeNames = QStringList(knownMimeType.type()) + knownMimeType.aliases();
-
-    foreach (const QString &knownTypeName, knownTypeNames)
-        if (fileMimeType.matchesType(knownTypeName))
-            return true;
-
-    // recursion to parent types of fileMimeType
-    foreach (const QString &parentMimeType, fileMimeType.subClassesOf())
-        if (matchesMimeType(MimeDatabase::findByType(parentMimeType), knownMimeType))
-            return true;
-
-    return false;
-}
 
 void ModelManager::addTaskInternal(QFuture<void> result, const QString &msg, const char *taskId) const
 {
