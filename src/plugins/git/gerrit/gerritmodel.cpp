@@ -52,6 +52,7 @@
 #include <QScopedPointer>
 #include <QTimer>
 #include <QApplication>
+#include <QFutureWatcher>
 
 enum { debug = 0 };
 
@@ -242,6 +243,7 @@ private slots:
 private:
     void startQuery(const QString &query);
     void errorTermination(const QString &msg);
+    void terminate();
 
     const QSharedPointer<GerritParameters> m_parameters;
     const QStringList m_queries;
@@ -251,6 +253,7 @@ private:
     QByteArray m_output;
     int m_currentQuery;
     QFutureInterface<void> m_progress;
+    QFutureWatcher<void> m_watcher;
     QStringList m_baseArguments;
 };
 
@@ -273,6 +276,9 @@ QueryContext::QueryContext(const QStringList &queries,
             this, SLOT(processFinished(int,QProcess::ExitStatus)));
     connect(&m_process, SIGNAL(error(QProcess::ProcessError)),
             this, SLOT(processError(QProcess::ProcessError)));
+    connect(&m_watcher, &QFutureWatcherBase::canceled,
+            this, &QueryContext::terminate);
+    m_watcher.setFuture(m_progress.future());
     m_process.setProcessEnvironment(Git::Internal::GitPlugin::instance()->
                                     gitClient()->processEnvironment());
     m_progress.setProgressRange(0, m_queries.size());
@@ -296,7 +302,7 @@ QueryContext::~QueryContext()
     if (m_timer.isActive())
         m_timer.stop();
     m_process.disconnect(this);
-    Utils::SynchronousProcess::stopProcess(m_process);
+    terminate();
 }
 
 void QueryContext::start()
@@ -321,10 +327,16 @@ void QueryContext::startQuery(const QString &query)
 
 void QueryContext::errorTermination(const QString &msg)
 {
+    if (!m_progress.isCanceled())
+        VcsOutputWindow::appendError(msg);
     m_progress.reportCanceled();
     m_progress.reportFinished();
-    VcsOutputWindow::appendError(msg);
     emit finished();
+}
+
+void QueryContext::terminate()
+{
+    Utils::SynchronousProcess::stopProcess(m_process);
 }
 
 void QueryContext::processError(QProcess::ProcessError e)
@@ -389,7 +401,7 @@ void QueryContext::timeout()
     if (m_process.state() != QProcess::Running)
         return;
     if (box.clickedButton() == terminateButton)
-        Utils::SynchronousProcess::stopProcess(m_process);
+        terminate();
     else
         m_timer.start();
 }
