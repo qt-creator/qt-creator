@@ -58,7 +58,7 @@ public:
     QString selectedPushType() const;
     QString selectedTopic() const;
     QString reviewers() const;
-    bool valid() const;
+    bool isValid() const;
 
 private slots:
     void setChangeRange();
@@ -76,7 +76,7 @@ private:
     QString m_suggestedRemoteBranch;
     Ui::GerritPushDialog *m_ui;
     RemoteBranchesMap m_remoteBranches;
-    bool m_valid;
+    bool m_isValid;
     Git::Internal::GitClient *m_client;
 };
 

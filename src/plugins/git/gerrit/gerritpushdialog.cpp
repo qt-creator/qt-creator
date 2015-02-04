@@ -136,7 +136,7 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
     QDialog(parent),
     m_workingDir(workingDir),
     m_ui(new Ui::GerritPushDialog),
-    m_valid(false)
+    m_isValid(false)
 {
     m_client = GitPlugin::instance()->gitClient();
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -166,7 +166,7 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
     m_ui->reviewersLineEdit->setValidator(noSpaceValidator);
     m_ui->topicLineEdit->setValidator(noSpaceValidator);
 
-    m_valid = true;
+    m_isValid = true;
 }
 
 GerritPushDialog::~GerritPushDialog()
@@ -216,9 +216,9 @@ void GerritPushDialog::setChangeRange()
                              .arg(calculateChangeRange(branch)));
 }
 
-bool GerritPushDialog::valid() const
+bool GerritPushDialog::isValid() const
 {
-    return m_valid;
+    return m_isValid;
 }
 
 void GerritPushDialog::setRemoteBranches(bool includeOld)
