@@ -1775,16 +1775,17 @@ bool GitClient::executeSynchronousStash(const QString &workingDirectory,
                                         const QString &message,
                                         QString *errorMessage) const
 {
-    QByteArray outputText;
-    QByteArray errorText;
     QStringList arguments;
-    arguments << QLatin1String("stash");
+    arguments << QLatin1String("stash") << QLatin1String("save");
     if (!message.isEmpty())
-        arguments << QLatin1String("save") << message;
-    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText,
-                                        VcsBasePlugin::ExpectRepoChanges);
+        arguments << message;
+    const unsigned flags = VcsBasePlugin::ShowStdOutInLogWindow
+            | VcsBasePlugin::ExpectRepoChanges
+            | VcsBasePlugin::ShowSuccessMessage;
+    const SynchronousProcessResponse response = synchronousGit(workingDirectory, arguments, flags);
+    const bool rc = response.result == SynchronousProcessResponse::Finished;
     if (!rc)
-        msgCannotRun(arguments, workingDirectory, errorText, errorMessage);
+        msgCannotRun(arguments, workingDirectory, response.stdErr.toLocal8Bit(), errorMessage);
 
     return rc;
 }
