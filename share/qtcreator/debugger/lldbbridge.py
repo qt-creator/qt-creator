@@ -256,6 +256,9 @@ class Dumper(DumperBase):
         self.isInterrupting_ = False
         self.dummyValue = None
         self.breakpointsToCheck = set([])
+        self.qmlBreakpointResolvers = {}
+        self.qmlTriggeredBreakpoint = None
+        self.nativeMixed = False
 
     def enterSubItem(self, item):
         if isinstance(item.name, lldb.SBValue):
@@ -809,15 +812,41 @@ class Dumper(DumperBase):
             if not frame.IsValid():
                 isLimited = False
                 break
+
             lineEntry = frame.GetLineEntry()
-            line = lineEntry.GetLine()
-            result += '{pc="0x%x"' % frame.GetPC()
-            result += ',level="%d"' % frame.idx
-            result += ',addr="0x%x"' % frame.GetPCAddress().GetLoadAddress(self.target)
-            result += ',func="%s"' % frame.GetFunctionName()
-            result += ',line="%d"' % line
-            result += ',fullname="%s"' % fileName(lineEntry.file)
-            result += ',file="%s"},' % fileName(lineEntry.file)
+            lineNumber = lineEntry.GetLine()
+
+            pc = frame.GetPC()
+            level = frame.idx
+            addr = frame.GetPCAddress().GetLoadAddress(self.target)
+            functionName = frame.GetFunctionName()
+            fullname = fileName(lineEntry.file)
+            usable = None
+            language = None
+
+            if self.nativeMixed:
+                if self.isReportableQmlFrame(functionName):
+                    #self.putQmlLocation(i, frame, sal)
+                    functionName = "### JS ###";
+                    language = "js"
+
+                elif not functionName is None:
+                    if functionName.startswith("qt_v4"):
+                        usable = 0
+                    elif functionName.find("QV4::") >= 0:
+                        usable = 0
+
+            result += '{pc="0x%x"' % pc
+            result += ',level="%d"' % level
+            result += ',addr="0x%x"' % addr
+            if not usable is None:
+                result += ',usable="%s"' % usable
+            result += ',func="%s"' % functionName
+            result += ',line="%d"' % lineNumber
+            if not language is None:
+                result += ',language="%s"' % language
+            result += ',fullname="%s"' % fullname
+            result += ',file="%s"},' % fullname
         result += ']'
         result += ',hasmore="%d"' % isLimited
         result += ',limit="%d"' % limit
@@ -1216,8 +1245,9 @@ class Dumper(DumperBase):
         msg = lldb.SBEvent.GetCStringFromEvent(event)
         flavor = event.GetDataFlavor()
         state = lldb.SBProcess.GetStateFromEvent(event)
-        self.report('event={type="%s",data="%s",msg="%s",flavor="%s",state="%s"}'
-            % (eventType, out.GetData(), msg, flavor, state))
+        bp = lldb.SBBreakpoint.GetBreakpointFromEvent(event)
+        self.report('event={type="%s",data="%s",msg="%s",flavor="%s",state="%s",bp="%s"}'
+            % (eventType, out.GetData(), msg, flavor, state, bp))
         if state != self.eventState:
             self.eventState = state
             if state == lldb.eStateExited:
@@ -1228,12 +1258,32 @@ class Dumper(DumperBase):
                 self.report('exited={status="%s",desc="%s"}'
                     % (self.process.GetExitStatus(), self.process.GetExitDescription()))
             elif state == lldb.eStateStopped:
+                stoppedThread = self.firstStoppedThread()
+                if stoppedThread:
+                    #self.report("STOPPED THREAD: %s" % stoppedThread)
+                    frame = stoppedThread.GetFrameAtIndex(0)
+                    #self.report("FRAME: %s" % frame)
+                    function = frame.GetFunction()
+                    #self.report("FUNCTION: %s" % function)
+                    if function.GetName() == "qt_v4ResolvePendingBreakpointsHook":
+                        #self.report("RESOLVER HIT")
+                        for bp in self.qmlBreakpointResolvers:
+                            self.qmlBreakpointResolvers[bp]()
+                            self.target.BreakpointDelete(bp.GetID())
+                        self.qmlBreakpointResolvers = {}
+                        self.process.Continue();
+                        return
+
                 if self.isInterrupting_:
                     self.isInterrupting_ = False
                     self.reportState("inferiorstopok")
                 elif self.ignoreStops > 0:
                     self.ignoreStops -= 1
                     self.process.Continue()
+                #elif bp and bp in self.qmlBreakpointResolvers:
+                #    self.report("RESOLVER HIT")
+                #    self.qmlBreakpointResolvers[bp]()
+                #    self.process.Continue();
                 else:
                     self.reportState("stopped")
             else:
@@ -1311,20 +1361,24 @@ class Dumper(DumperBase):
             "main", self.target.GetExecutable().GetFilename())
 
     def insertBreakpoint(self, args):
-        more = True
-        modelId = args['modelid']
         bpType = args["type"]
         if bpType == BreakpointByFileAndLine:
+            fileName = args["fileName"]
+            if fileName.endswith(".js") or fileName.endswith(".qml"):
+                self.insertQmlBreakpoint(args)
+                return
+
+        more = True
+        modelId = args['modelid']
+        if bpType == BreakpointByFileAndLine:
             bp = self.target.BreakpointCreateByLocation(
-                str(args["file"]), int(args["line"]))
+                str(args["fileName"]), int(args["lineNumber"]))
         elif bpType == BreakpointByFunction:
             bp = self.target.BreakpointCreateByName(args["function"])
         elif bpType == BreakpointByAddress:
             bp = self.target.BreakpointCreateByAddress(args["address"])
         elif bpType == BreakpointAtMain:
             bp = self.createBreakpointAtMain()
-        elif bpType == BreakpointByFunction:
-            bp = self.target.BreakpointCreateByName(args["function"])
         elif bpType == BreakpointAtThrow:
             bp = self.target.BreakpointCreateForException(
                 lldb.eLanguageTypeC_plus_plus, False, True)
@@ -1621,27 +1675,22 @@ class Dumper(DumperBase):
         self.reportError(error)
         self.reportVariables()
 
-def convertHash(args):
-    if sys.version_info[0] == 3:
-        return args
-    if isinstance(args, str):
-        return args
-    if isinstance(args, unicode):
-        return args.encode('utf8')
-    cargs = {}
-    for arg in args:
-        rhs = args[arg]
-        if type(rhs) == type([]):
-            rhs = [convertHash(i) for i in rhs]
-        elif type(rhs) == type({}):
-            rhs = convertHash(rhs)
-        else:
-            try:
-                rhs = rhs.encode('utf8')
-            except:
-                pass
-        cargs[arg.encode('utf8')] = rhs
-    return cargs
+    def createResolvePendingBreakpointsHookBreakpoint(self, fullName, lineNumber):
+        self.nativeMixed = True
+        if self.qmlTriggeredBreakpoint is None:
+            self.qmlTriggeredBreakpoint = \
+                self.target.BreakpointCreateByName("qt_v4TriggeredBreakpointHook")
+
+        bp = self.target.BreakpointCreateByName("qt_v4ResolvePendingBreakpointsHook")
+        bp.SetOneShot(True)
+        self.qmlBreakpointResolvers[bp] = lambda: \
+            self.resolvePendingQmlBreakpoint(fullName, lineNumber)
+
+    def resolvePendingQmlBreakpoint(self, fullName, lineNumber):
+        bp = self.doInsertQmlBreakPoint(fullName, lineNumber)
+        print("Resolving QML breakpoint %s:%s -> %s" % (fullName, lineNumber, bp))
+
+        #ns = self.qtNamespace()
 
 
 # Used in dumper auto test.

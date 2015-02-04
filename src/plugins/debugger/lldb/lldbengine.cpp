@@ -574,8 +574,8 @@ void LldbEngine::insertBreakpointHelper(DebuggerCommand *cmd, Breakpoint bp) con
     cmd->arg("function", bp.functionName().toUtf8());
     cmd->arg("oneshot", bp.isOneShot());
     cmd->arg("enabled", bp.isEnabled());
-    cmd->arg("file", bp.fileName().toUtf8());
-    cmd->arg("line", bp.lineNumber());
+    cmd->arg("fileName", bp.fileName().toUtf8());
+    cmd->arg("lineNumber", bp.lineNumber());
     cmd->arg("address", bp.address());
     cmd->arg("expression", bp.expression());
     bp.notifyBreakpointInsertProceeding();
@@ -593,8 +593,8 @@ void LldbEngine::changeBreakpoint(Breakpoint bp)
     cmd.arg("function", bp.functionName().toUtf8());
     cmd.arg("oneshot", bp.isOneShot());
     cmd.arg("enabled", bp.isEnabled());
-    cmd.arg("file", bp.fileName().toUtf8());
-    cmd.arg("line", bp.lineNumber());
+    cmd.arg("fileName", bp.fileName().toUtf8());
+    cmd.arg("lineNumber", bp.lineNumber());
     cmd.arg("address", bp.address());
     cmd.arg("expression", bp.expression());
     bp.notifyBreakpointChangeProceeding();
@@ -1020,7 +1020,11 @@ void LldbEngine::refreshStack(const GdbMi &stack)
         frame.from = item["func"].toUtf8();
         frame.line = item["line"].toInt();
         frame.address = item["addr"].toAddress();
-        frame.usable = QFileInfo(frame.file).isReadable();
+        GdbMi usable = item["usable"];
+        if (usable.isValid())
+            frame.usable = usable.data().toInt();
+        else
+            frame.usable = QFileInfo(frame.file).isReadable();
         frames.append(frame);
     }
     bool canExpand = stack["hasmore"].toInt();

@@ -1718,8 +1718,12 @@ class DumperBase:
         expr = 'qt_v4DebuggerHook("{%s}")' % data
         try:
             res = self.parseAndEvaluate(expr)
-            #print("QML command ok, RES: %s, CMD: %s" % (res, expr))
+            print("QML command ok, RES: %s, CMD: %s" % (res, expr))
         except RuntimeError as error:
+            #print("QML command failed: %s: %s" % (expr, error))
+            res = None
+        except AttributeError as error:
+            # Happens with LLDB and 'None' current thread.
             #print("QML command failed: %s: %s" % (expr, error))
             res = None
         return res
@@ -1764,6 +1768,16 @@ class DumperBase:
 
         print("Resolving QML breakpoint: %s" % bp)
         return int(bp)
+
+    def isInternalQmlFrame(self, functionName):
+        if functionName is None:
+            return False
+        if functionName.startswith("qt_v4"):
+            return True
+        return functionName.startswith(self.qtNamespace() + "QV4::")
+
+    def isReportableQmlFrame(self, functionName):
+        return functionName and functionName.find("QV4::Moth::VME::exec") >= 0
 
 
 # Some "Enums"

@@ -1752,14 +1752,6 @@ class Dumper(DumperBase):
                  'fullname="%s",line="%s",language="js",addr="0x%x"}')
             % (level, functionName, fileName, fileName, lineNumber, context))
 
-    def isInternalQmlFrame(self, functionName):
-        if functionName.startswith("qt_v4"):
-            return True
-        return functionName.startswith(self.qtNamespace() + "QV4::")
-
-    def isReportableQmlFrame(self, functionName):
-        return functionName.find("QV4::Moth::VME::exec") >= 0
-
     def stackListFrames(self, n, options):
         self.prepare("options:" + options + ",pe")
         self.output = []
