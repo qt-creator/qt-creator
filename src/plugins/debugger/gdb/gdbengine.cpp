@@ -2759,9 +2759,7 @@ void GdbEngine::insertBreakpoint(Breakpoint bp)
 
     if (!data.isCppBreakpoint()) {
         DebuggerCommand cmd("insertQmlBreakpoint");
-        cmd.arg("fileName", data.fileName);
-        cmd.arg("lineNumber", data.lineNumber);
-        cmd.arg("condition", data.condition);
+        bp.addToCommand(&cmd);
         runCommand(cmd);
         bp.notifyBreakpointInsertOk();
         return;
@@ -2912,8 +2910,7 @@ void GdbEngine::removeBreakpoint(Breakpoint bp)
     const BreakpointParameters &data = bp.parameters();
     if (!data.isCppBreakpoint()) {
         DebuggerCommand cmd("removeQmlBreakpoint");
-        cmd.arg("fileName", data.fileName);
-        cmd.arg("lineNumber", data.lineNumber);
+        bp.addToCommand(&cmd);
         runCommand(cmd);
         bp.notifyBreakpointRemoveOk();
         return;

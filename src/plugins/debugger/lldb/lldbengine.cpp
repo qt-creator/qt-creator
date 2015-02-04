@@ -316,7 +316,7 @@ void LldbEngine::setupInferior()
                             .arg(bp.id().toString()).arg(bp.state()));
             bp.setEngine(this);
             cmd.beginGroup();
-            insertBreakpointHelper(&cmd, bp);
+            bp.addToCommand(&cmd);
             cmd.endGroup();
         } else {
             showMessage(_("BREAKPOINT %1 IN STATE %2 IS NOT ACCEPTABLE")
@@ -561,42 +561,16 @@ bool LldbEngine::acceptsBreakpoint(Breakpoint bp) const
 void LldbEngine::insertBreakpoint(Breakpoint bp)
 {
     DebuggerCommand cmd("insertBreakpoint");
-    insertBreakpointHelper(&cmd, bp);
-    runCommand(cmd);
-}
-
-void LldbEngine::insertBreakpointHelper(DebuggerCommand *cmd, Breakpoint bp) const
-{
-    cmd->arg("modelid", bp.id().toByteArray());
-    cmd->arg("type", bp.type());
-    cmd->arg("ignorecount", bp.ignoreCount());
-    cmd->arg("condition", bp.condition().toHex());
-    cmd->arg("function", bp.functionName().toUtf8());
-    cmd->arg("oneshot", bp.isOneShot());
-    cmd->arg("enabled", bp.isEnabled());
-    cmd->arg("fileName", bp.fileName().toUtf8());
-    cmd->arg("lineNumber", bp.lineNumber());
-    cmd->arg("address", bp.address());
-    cmd->arg("expression", bp.expression());
+    bp.addToCommand(&cmd);
     bp.notifyBreakpointInsertProceeding();
+    runCommand(cmd);
 }
 
 void LldbEngine::changeBreakpoint(Breakpoint bp)
 {
     const BreakpointResponse &response = bp.response();
     DebuggerCommand cmd("changeBreakpoint");
-    cmd.arg("modelid", bp.id().toByteArray());
-    cmd.arg("lldbid", response.id.toByteArray());
-    cmd.arg("type", bp.type());
-    cmd.arg("ignorecount", bp.ignoreCount());
-    cmd.arg("condition", bp.condition().toHex());
-    cmd.arg("function", bp.functionName().toUtf8());
-    cmd.arg("oneshot", bp.isOneShot());
-    cmd.arg("enabled", bp.isEnabled());
-    cmd.arg("fileName", bp.fileName().toUtf8());
-    cmd.arg("lineNumber", bp.lineNumber());
-    cmd.arg("address", bp.address());
-    cmd.arg("expression", bp.expression());
+    bp.addToCommand(&cmd);
     bp.notifyBreakpointChangeProceeding();
     runCommand(cmd);
 }

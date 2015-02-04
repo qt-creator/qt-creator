@@ -745,6 +745,21 @@ const BreakpointParameters &Breakpoint::parameters() const
     return b->m_params;
 }
 
+void Breakpoint::addToCommand(DebuggerCommand *cmd) const
+{
+    cmd->arg("modelid", id().toByteArray());
+    cmd->arg("type", type());
+    cmd->arg("ignorecount", ignoreCount());
+    cmd->arg("condition", condition().toHex());
+    cmd->arg("function", functionName().toUtf8());
+    cmd->arg("oneshot", isOneShot());
+    cmd->arg("enabled", isEnabled());
+    cmd->arg("fileName", fileName().toUtf8());
+    cmd->arg("lineNumber", lineNumber());
+    cmd->arg("address", address());
+    cmd->arg("expression", expression());
+}
+
 BreakpointState Breakpoint::state() const
 {
     QTC_ASSERT(b, return BreakpointState());

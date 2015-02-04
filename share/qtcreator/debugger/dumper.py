@@ -1745,16 +1745,16 @@ class DumperBase:
         return int(bp)
 
     def insertQmlBreakpoint(self, args):
-        fullName = args['fileName']
-        lineNumber = args['lineNumber']
-        print("Insert QML breakpoint %s:%s" % (fullName, lineNumber))
-        bp = self.doInsertQmlBreakPoint(fullName, lineNumber)
+        print("Insert QML breakpoint %s" % self.describeBreakpointData(args))
+        bp = self.doInsertQmlBreakpoint(args)
         res = self.sendQmlCommand('prepareStep')
         #if res is None:
         #    print("Resetting stepping failed.")
         return str(bp)
 
-    def doInsertQmlBreakPoint(self, fullName, lineNumber):
+    def doInsertQmlBreakpoint(self, args):
+        fullName = args['fileName']
+        lineNumber = args['lineNumber']
         pos = fullName.rfind('/')
         engineName = "qrc:/" + fullName[pos+1:]
         bp = self.sendQmlCommand('insertBreakpoint',
@@ -1763,11 +1763,16 @@ class DumperBase:
         if bp is None:
             #print("Direct QML breakpoint insertion failed.")
             #print("Make pending.")
-            self.createResolvePendingBreakpointsHookBreakpoint(fullName, lineNumber)
+            self.createResolvePendingBreakpointsHookBreakpoint(args)
             return 0
 
         print("Resolving QML breakpoint: %s" % bp)
         return int(bp)
+
+    def describeBreakpointData(self, args):
+        fullName = args['fileName']
+        lineNumber = args['lineNumber']
+        return "%s:%s" % (fullName, lineNumber)
 
     def isInternalQmlFrame(self, functionName):
         if functionName is None:

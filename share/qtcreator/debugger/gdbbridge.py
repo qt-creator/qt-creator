@@ -1804,26 +1804,23 @@ class Dumper(DumperBase):
 
         return ''.join(self.output)
 
-    def createResolvePendingBreakpointsHookBreakpoint(self, fullName, lineNumber):
+    def createResolvePendingBreakpointsHookBreakpoint(self, args):
         class Resolver(gdb.Breakpoint):
-            def __init__(self, dumper, fullName, lineNumber):
+            def __init__(self, dumper, args):
                 self.dumper = dumper
-                self.fullName = fullName
-                self.lineNumber = lineNumber
+                self.args = args
                 spec = "qt_v4ResolvePendingBreakpointsHook"
-                print("Preparing hook to resolve pending QML breakpoint at %s:%s"
-                    % (self.fullName, self.lineNumber))
+                print("Preparing hook to resolve pending QML breakpoint at %s" % args)
                 super(Resolver, self).\
                     __init__(spec, gdb.BP_BREAKPOINT, internal=True, temporary=False)
 
             def stop(self):
-                bp = self.dumper.doInsertQmlBreakPoint(self.fullName, self.lineNumber)
-                print("Resolving QML breakpoint %s:%s -> %s"
-                    % (self.fullName, self.lineNumber, bp))
+                bp = self.dumper.doInsertQmlBreakpoint(args)
+                print("Resolving QML breakpoint %s -> %s" % (args, bp))
                 self.enabled = False
                 return False
 
-        self.qmlBreakpoints.append(Resolver(self, fullName, lineNumber))
+        self.qmlBreakpoints.append(Resolver(self, args))
 
 
 

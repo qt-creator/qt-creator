@@ -1716,7 +1716,7 @@ class Dumper(DumperBase):
         self.reportError(error)
         self.reportVariables()
 
-    def createResolvePendingBreakpointsHookBreakpoint(self, fullName, lineNumber):
+    def createResolvePendingBreakpointsHookBreakpoint(self, args):
         self.nativeMixed = True
         if self.qmlTriggeredBreakpoint is None:
             self.qmlTriggeredBreakpoint = \
@@ -1725,13 +1725,7 @@ class Dumper(DumperBase):
         bp = self.target.BreakpointCreateByName("qt_v4ResolvePendingBreakpointsHook")
         bp.SetOneShot(True)
         self.qmlBreakpointResolvers[bp] = lambda: \
-            self.resolvePendingQmlBreakpoint(fullName, lineNumber)
-
-    def resolvePendingQmlBreakpoint(self, fullName, lineNumber):
-        bp = self.doInsertQmlBreakPoint(fullName, lineNumber)
-        print("Resolving QML breakpoint %s:%s -> %s" % (fullName, lineNumber, bp))
-
-        #ns = self.qtNamespace()
+            self.doInsertQmlBreakpoint(args)
 
 
 # Used in dumper auto test.

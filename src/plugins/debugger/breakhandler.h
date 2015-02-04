@@ -49,6 +49,7 @@ namespace Internal {
 
 class BreakpointItem;
 class BreakHandler;
+class DebuggerCommand;
 class DebuggerEngine;
 
 // Non-owning "deletion-safe" wrapper around a BreakpointItem *
@@ -66,6 +67,7 @@ public:
     uint hash() const;
 
     const BreakpointParameters &parameters() const;
+    void addToCommand(DebuggerCommand *cmd) const;
 
     BreakpointModelId id() const;
     bool isLocatedAt(const QString &fileName, int lineNumber,

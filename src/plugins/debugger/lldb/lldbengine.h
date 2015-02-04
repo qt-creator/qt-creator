@@ -99,7 +99,6 @@ private:
     bool stateAcceptsBreakpointChanges() const;
     bool acceptsBreakpoint(Breakpoint bp) const;
     void insertBreakpoint(Breakpoint bp);
-    void insertBreakpointHelper(DebuggerCommand *cmd, Breakpoint bp) const;
     void removeBreakpoint(Breakpoint bp);
     void changeBreakpoint(Breakpoint bp);
 
