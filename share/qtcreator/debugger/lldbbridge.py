@@ -82,15 +82,6 @@ WatchpointAtExpression = 11
 BreakpointOnQmlSignalEmit = 12
 BreakpointAtJavaScriptThrow = 13
 
-# See db.StateType
-stateNames = ["invalid", "unloaded", "connected", "attaching", "launching", "stopped",
-    "running", "stepping", "crashed", "detached", "exited", "suspended" ]
-
-def loggingCallback(args):
-    s = args.strip()
-    s = s.replace('"', "'")
-    sys.stdout.write('log="%s"@\n' % s)
-
 def check(exp):
     if not exp:
         raise RuntimeError("Check failed")
@@ -201,8 +192,13 @@ class Dumper(DumperBase):
         self.outputLock = threading.Lock()
         self.debugger = lldb.SBDebugger.Create()
         #self.debugger.SetLoggingCallback(loggingCallback)
+        #def loggingCallback(args):
+        #    s = args.strip()
+        #    s = s.replace('"', "'")
+        #    sys.stdout.write('log="%s"@\n' % s)
         #Same as: self.debugger.HandleCommand("log enable lldb dyld step")
-        #self.debugger.EnableLog("lldb", ["dyld", "step", "process", "state", "thread", "events",
+        #self.debugger.EnableLog("lldb", ["dyld", "step", "process", "state",
+        #    "thread", "events",
         #    "communication", "unwind", "commands"])
         #self.debugger.EnableLog("lldb", ["all"])
         self.debugger.Initialize()
@@ -311,6 +307,46 @@ class Dumper(DumperBase):
         self.currentValue = item.savedValue
         self.currentType = item.savedType
         return True
+
+    def stateName(self, s):
+        try:
+            # See db.StateType
+            return (
+                'invalid',
+                'unloaded',  # Process is object is valid, but not currently loaded
+                'connected', # Process is connected to remote debug services,
+                             #  but not launched or attached to anything yet
+                'attaching', # Process is currently trying to attach
+                'launching', # Process is in the process of launching
+                'stopped',   # Process or thread is stopped and can be examined.
+                'running',   # Process or thread is running and can't be examined.
+                'stepping',  # Process or thread is in the process of stepping
+                             #  and can not be examined.
+                'crashed',   # Process or thread has crashed and can be examined.
+                'detached',  # Process has been detached and can't be examined.
+                'exited',    # Process has exited and can't be examined.
+                'suspended'  # Process or thread is in a suspended state as far
+                )[s]
+        except:
+            return 'unknown(%s)' % s
+
+    def stopReason(self, s):
+        try:
+            return (
+                'invalid',
+                'none',
+                'trace',
+                'breakpoint',
+                'watchpoint',
+                'signal',
+                'exception',
+                'exec',
+                'plancomplete',
+                'threadexiting',
+                'instrumentation',
+                )[s]
+        except:
+            return 'unknown(%s)' % s
 
     def isSimpleType(self, typeobj):
         typeClass = typeobj.GetTypeClass()
@@ -749,18 +785,21 @@ class Dumper(DumperBase):
         return None
 
     def reportThreads(self):
-        reasons = ['None', 'Trace', 'Breakpoint', 'Watchpoint', 'Signal', 'Exception',
-            'Exec', 'PlanComplete']
         result = 'threads={threads=['
         for i in xrange(0, self.process.GetNumThreads()):
             thread = self.process.GetThreadAtIndex(i)
-            stopReason = thread.GetStopReason()
+            if thread.is_stopped:
+                state = "stopped"
+            elif thread.is_suspended:
+                state = "suspended"
+            else:
+                state = "unknown"
+            reason = thread.GetStopReason()
             result += '{id="%d"' % thread.GetThreadID()
             result += ',index="%s"' % i
             result += ',details="%s"' % thread.GetQueueName()
-            result += ',stop-reason="%s"' % stopReason
-            if stopReason >= 0 and stopReason < len(reasons):
-                result += ',state="%s"' % reasons[stopReason]
+            result += ',stop-reason="%s"' % self.stopReason(thread.GetStopReason())
+            result += ',state="%s"' % state
             result += ',name="%s"' % thread.GetName()
             result += ',frame={'
             frame = thread.GetFrameAtIndex(0)
@@ -1247,7 +1286,7 @@ class Dumper(DumperBase):
         state = lldb.SBProcess.GetStateFromEvent(event)
         bp = lldb.SBBreakpoint.GetBreakpointFromEvent(event)
         self.report('event={type="%s",data="%s",msg="%s",flavor="%s",state="%s",bp="%s"}'
-            % (eventType, out.GetData(), msg, flavor, state, bp))
+            % (eventType, out.GetData(), msg, flavor, self.stateName(state), bp))
         if state != self.eventState:
             self.eventState = state
             if state == lldb.eStateExited:
@@ -1287,7 +1326,7 @@ class Dumper(DumperBase):
                 else:
                     self.reportState("stopped")
             else:
-                self.reportState(stateNames[state])
+                self.reportState(self.stateName(state))
         if eventType == lldb.SBProcess.eBroadcastBitStateChanged: # 1
             state = self.process.GetState()
             if state == lldb.eStateStopped:
