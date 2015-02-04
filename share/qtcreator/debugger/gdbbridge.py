@@ -274,6 +274,7 @@ class Dumper(DumperBase):
         self.typesToReport = {}
         self.qtNamespaceToReport = None
         self.qmlEngines = []
+        self.qmlBreakpoints = []
 
     def prepare(self, args):
         self.output = []
@@ -1811,6 +1812,29 @@ class Dumper(DumperBase):
 
         return ''.join(self.output)
 
+    def createResolvePendingBreakpointsHookBreakpoint(self, fullName, lineNumber):
+        class Resolver(gdb.Breakpoint):
+            def __init__(self, dumper, fullName, lineNumber):
+                self.dumper = dumper
+                self.fullName = fullName
+                self.lineNumber = lineNumber
+                spec = "qt_v4ResolvePendingBreakpointsHook"
+                print("Preparing hook to resolve pending QML breakpoint at %s:%s"
+                    % (self.fullName, self.lineNumber))
+                super(Resolver, self).\
+                    __init__(spec, gdb.BP_BREAKPOINT, internal=True, temporary=False)
+
+            def stop(self):
+                bp = self.dumper.doInsertQmlBreakPoint(self.fullName, self.lineNumber)
+                print("Resolving QML breakpoint %s:%s -> %s"
+                    % (self.fullName, self.lineNumber, bp))
+                self.enabled = False
+                return False
+
+        self.qmlBreakpoints.append(Resolver(self, fullName, lineNumber))
+
+
+
 class CliDumper(Dumper):
     def __init__(self):
         Dumper.__init__(self)
@@ -1915,7 +1939,6 @@ class CliDumper(Dumper):
         with TopLevelItem(self, name):
             self.putItem(value)
         return self.output
-
 
 def pp(args):
     return theDumper.run(args)
@@ -2056,78 +2079,3 @@ class TriggeredBreakpointHookBreakpoint(gdb.Breakpoint):
 
 TriggeredBreakpointHookBreakpoint()
 
-
-class ResolvePendingBreakpointsHookBreakpoint(gdb.Breakpoint):
-    def __init__(self, fullName, lineNumber):
-        self.fullName = fullName
-        self.lineNumber = lineNumber
-        spec = "qt_v4ResolvePendingBreakpointsHook"
-        print("Preparing hook to resolve pending QML breakpoint at %s:%s"
-            % (self.fullName, self.lineNumber))
-        super(ResolvePendingBreakpointsHookBreakpoint, self).\
-            __init__(spec, gdb.BP_BREAKPOINT, internal=True, temporary=False)
-
-    def stop(self):
-        bp = doInsertQmlBreakPoint(self.fullName, self.lineNumber)
-        print("Resolving QML breakpoint %s:%s -> %s"
-            % (self.fullName, self.lineNumber, bp))
-        self.enabled = False
-        return False
-
-def sendQmlCommand(command, data = ""):
-    data += '"version":"1","command":"%s"' % command
-    data = data.replace('"', '\\"')
-    expr = 'qt_v4DebuggerHook("{%s}")' % data
-    try:
-        res = gdb.parse_and_eval(expr)
-        print("QML command ok, RES: %s, CMD: %s" % (res, expr))
-        gdb.execute("p qt_v4Output")
-    except RuntimeError as error:
-        print("QML command failed: gdb.parse_and_eval(%s): %s" % (expr, error))
-        res = None
-    return res
-
-def doInsertQmlBreakPoint(fullName, lineNumber):
-    pos = fullName.rfind('/')
-    engineName = "qrc:/" + fullName[pos+1:]
-    bp = sendQmlCommand('insertBreakpoint',
-            '"fullName":"%s","lineNumber":"%s","engineName":"%s",'
-            % (fullName, lineNumber, engineName))
-    if bp is None:
-        print("Direct QML breakpoint insertion failed.")
-        print("Make pending.")
-        ResolvePendingBreakpointsHookBreakpoint(fullName, lineNumber)
-        return 0
-
-    print("Resolving QML breakpoint: %s" % bp)
-    return int(bp)
-
-def insertQmlBreakpoint(arg):
-    (fullName, lineNumber) = arg.split(' ')
-    print("Insert QML breakpoint %s:%s" % (fullName, lineNumber))
-    bp = doInsertQmlBreakPoint(fullName, lineNumber)
-    res = sendQmlCommand('prepareStep')
-    if res is None:
-        print("Resetting stepping failed.")
-    return str(bp)
-
-registerCommand("insertQmlBreakpoint", insertQmlBreakpoint)
-
-def removeQmlBreakpoint(arg):
-    (fullName, lineNumber) = arg.split(' ')
-    print("Remove QML breakpoint %s:%s" % (fullName, lineNumber))
-    bp = sendQmlCommand('removeBreakpoint',
-            '"fullName":"%s","lineNumber":"%s",'
-            % (fullName, lineNumber))
-    if bp is None:
-        print("Direct QML breakpoint removal failed: %s.")
-        return 0
-    print("Removing QML breakpoint: %s" % bp)
-    return int(bp)
-
-registerCommand("removeQmlBreakpoint", removeQmlBreakpoint)
-
-def prepareQmlStep(arg):
-    sendQmlCommand('prepareStep')
-
-registerCommand("prepareQmlStep", prepareQmlStep)

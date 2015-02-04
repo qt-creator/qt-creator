@@ -196,6 +196,7 @@ private: ////////// Gdb Command Management //////////
     // watch model updates before everything is finished.
     void flushCommand(const GdbCommand &cmd);
 protected:
+    void runCommand(const DebuggerCommand &command);
     void postCommand(const QByteArray &command,
                      GdbCommandFlags flags,
                      GdbCommandCallback callback = 0,

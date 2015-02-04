@@ -853,6 +853,12 @@ void GdbEngine::maybeHandleInferiorPidChanged(const QString &pid0)
     notifyInferiorPid(pid);
 }
 
+void GdbEngine::runCommand(const DebuggerCommand &command)
+{
+    QByteArray cmd  = command.function + "({" + command.args + "})";
+    postCommand("python theDumper." + cmd);
+}
+
 void GdbEngine::postCommand(const QByteArray &command, GdbCommandCallback callback,
                             const char *callbackName, const QVariant &cookie)
 {
@@ -2054,7 +2060,7 @@ void GdbEngine::executeStep()
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step requested..."), 5000);
     if (isNativeMixedActive()) {
-        postCommand("prepareQmlStep 0");
+        runCommand("prepareQmlStep");
         postCommand("-exec-continue", RunRequest, CB(handleExecuteContinue));
         return;
     }
@@ -2752,8 +2758,11 @@ void GdbEngine::insertBreakpoint(Breakpoint bp)
     QVariant vid = QVariant::fromValue(bp);
 
     if (!data.isCppBreakpoint()) {
-        postCommand("insertQmlBreakpoint " + data.fileName.toUtf8() + ' '
-                + QByteArray::number(data.lineNumber));
+        DebuggerCommand cmd("insertQmlBreakpoint");
+        cmd.arg("fileName", data.fileName);
+        cmd.arg("lineNumber", data.lineNumber);
+        cmd.arg("condition", data.condition);
+        runCommand(cmd);
         bp.notifyBreakpointInsertOk();
         return;
     }
@@ -2902,8 +2911,10 @@ void GdbEngine::removeBreakpoint(Breakpoint bp)
 
     const BreakpointParameters &data = bp.parameters();
     if (!data.isCppBreakpoint()) {
-        postCommand("removeQmlBreakpoint " + data.fileName.toUtf8() + ' '
-                + QByteArray::number(data.lineNumber));
+        DebuggerCommand cmd("removeQmlBreakpoint");
+        cmd.arg("fileName", data.fileName);
+        cmd.arg("lineNumber", data.lineNumber);
+        runCommand(cmd);
         bp.notifyBreakpointRemoveOk();
         return;
     }

@@ -1712,6 +1712,60 @@ class DumperBase:
         sys.path.insert(1, head)
         self.dumpermodules.append(os.path.splitext(tail)[0])
 
+    def sendQmlCommand(self, command, data = ""):
+        data += '"version":"1","command":"%s"' % command
+        data = data.replace('"', '\\"')
+        expr = 'qt_v4DebuggerHook("{%s}")' % data
+        try:
+            res = self.parseAndEvaluate(expr)
+            #print("QML command ok, RES: %s, CMD: %s" % (res, expr))
+        except RuntimeError as error:
+            #print("QML command failed: %s: %s" % (expr, error))
+            res = None
+        return res
+
+    def prepareQmlStep(self, _):
+        self.sendQmlCommand('prepareStep')
+
+    def removeQmlBreakpoint(self, args):
+        fullName = args['fileName']
+        lineNumber = args['lineNumber']
+        #print("Remove QML breakpoint %s:%s" % (fullName, lineNumber))
+        bp = self.sendQmlCommand('removeBreakpoint',
+                '"fullName":"%s","lineNumber":"%s",'
+                % (fullName, lineNumber))
+        if bp is None:
+            #print("Direct QML breakpoint removal failed: %s.")
+            return 0
+        #print("Removing QML breakpoint: %s" % bp)
+        return int(bp)
+
+    def insertQmlBreakpoint(self, args):
+        fullName = args['fileName']
+        lineNumber = args['lineNumber']
+        print("Insert QML breakpoint %s:%s" % (fullName, lineNumber))
+        bp = self.doInsertQmlBreakPoint(fullName, lineNumber)
+        res = self.sendQmlCommand('prepareStep')
+        #if res is None:
+        #    print("Resetting stepping failed.")
+        return str(bp)
+
+    def doInsertQmlBreakPoint(self, fullName, lineNumber):
+        pos = fullName.rfind('/')
+        engineName = "qrc:/" + fullName[pos+1:]
+        bp = self.sendQmlCommand('insertBreakpoint',
+                '"fullName":"%s","lineNumber":"%s","engineName":"%s",'
+                % (fullName, lineNumber, engineName))
+        if bp is None:
+            #print("Direct QML breakpoint insertion failed.")
+            #print("Make pending.")
+            self.createResolvePendingBreakpointsHookBreakpoint(fullName, lineNumber)
+            return 0
+
+        print("Resolving QML breakpoint: %s" % bp)
+        return int(bp)
+
+
 # Some "Enums"
 
 # Encodings. Keep that synchronized with DebuggerEncoding in debuggerprotocol.h
