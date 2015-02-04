@@ -53,8 +53,10 @@ TimelineModelAggregator::TimelineModelAggregator(TimelineNotesModel *notes, QObj
     : QObject(parent), d(new TimelineModelAggregatorPrivate(this))
 {
     d->notesModel = notes;
-    connect(this,SIGNAL(modelsChanged()),this,SIGNAL(heightChanged()));
-    connect(this,SIGNAL(stateChanged()),this,SIGNAL(heightChanged()));
+    connect(this, &TimelineModelAggregator::modelsChanged,
+            this, &TimelineModelAggregator::heightChanged);
+    connect(this, &TimelineModelAggregator::stateChanged,
+            this, &TimelineModelAggregator::heightChanged);
 }
 
 TimelineModelAggregator::~TimelineModelAggregator()

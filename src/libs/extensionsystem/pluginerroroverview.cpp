@@ -55,8 +55,8 @@ PluginErrorOverview::PluginErrorOverview(QWidget *parent) :
         }
     }
 
-    connect(m_ui->pluginList, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
-            this, SLOT(showDetails(QListWidgetItem*)));
+    connect(m_ui->pluginList, &QListWidget::currentItemChanged,
+            this, &PluginErrorOverview::showDetails);
 
     if (m_ui->pluginList->count() > 0)
         m_ui->pluginList->setCurrentRow(0);

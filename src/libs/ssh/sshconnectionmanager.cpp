@@ -122,7 +122,8 @@ public:
 
         // create a new connection:
         SshConnection * const connection = new SshConnection(sshParams);
-        connect(connection, SIGNAL(disconnected()), this, SLOT(cleanup()));
+        connect(connection, &SshConnection::disconnected,
+                this, &SshConnectionManager::cleanup);
         m_acquiredConnections.append(connection);
 
         return connection;

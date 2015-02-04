@@ -160,15 +160,18 @@ void SshRemoteProcess::setReadChannel(QProcess::ProcessChannel channel)
 
 void SshRemoteProcess::init()
 {
-    connect(d, SIGNAL(started()), this, SIGNAL(started()),
-        Qt::QueuedConnection);
-    connect(d, SIGNAL(readyReadStandardOutput()), this, SIGNAL(readyReadStandardOutput()),
-        Qt::QueuedConnection);
-    connect(d, SIGNAL(readyRead()), this, SIGNAL(readyRead()), Qt::QueuedConnection);
-    connect(d, SIGNAL(readyReadStandardError()), this,
-        SIGNAL(readyReadStandardError()), Qt::QueuedConnection);
-    connect(d, SIGNAL(closed(int)), this, SIGNAL(closed(int)), Qt::QueuedConnection);
-    connect(d, SIGNAL(eof()), SIGNAL(readChannelFinished()), Qt::QueuedConnection);
+    connect(d, &Internal::SshRemoteProcessPrivate::started,
+            this, &SshRemoteProcess::started, Qt::QueuedConnection);
+    connect(d, &Internal::SshRemoteProcessPrivate::readyReadStandardOutput,
+            this, &SshRemoteProcess::readyReadStandardOutput, Qt::QueuedConnection);
+    connect(d, &Internal::SshRemoteProcessPrivate::readyRead,
+            this, &SshRemoteProcess::readyRead, Qt::QueuedConnection);
+    connect(d, &Internal::SshRemoteProcessPrivate::readyReadStandardError,
+            this, &SshRemoteProcess::readyReadStandardError, Qt::QueuedConnection);
+    connect(d, &Internal::SshRemoteProcessPrivate::closed,
+            this, &SshRemoteProcess::closed, Qt::QueuedConnection);
+    connect(d, &Internal::SshRemoteProcessPrivate::eof,
+            this, &SshRemoteProcess::readChannelFinished, Qt::QueuedConnection);
 }
 
 void SshRemoteProcess::addToEnvironment(const QByteArray &var, const QByteArray &value)

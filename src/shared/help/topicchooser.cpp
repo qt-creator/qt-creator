@@ -69,12 +69,14 @@ TopicChooser::TopicChooser(QWidget *parent, const QString &keyword,
     if (m_filterModel->rowCount() != 0)
         ui.listWidget->setCurrentIndex(m_filterModel->index(0, 0));
 
-    connect(ui.buttonDisplay, SIGNAL(clicked()), this, SLOT(acceptDialog()));
-    connect(ui.buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
-    connect(ui.listWidget, SIGNAL(activated(QModelIndex)), this,
-        SLOT(activated(QModelIndex)));
-    connect(ui.lineEdit, SIGNAL(filterChanged(QString)), this,
-        SLOT(setFilter(QString)));
+    connect(ui.buttonDisplay, &QPushButton::clicked,
+            this, &TopicChooser::acceptDialog);
+    connect(ui.buttonCancel, &QPushButton::clicked,
+            this, &TopicChooser::reject);
+    connect(ui.listWidget, &QListView::activated,
+            this, &TopicChooser::activated);
+    connect(ui.lineEdit, &Utils::FancyLineEdit::filterChanged,
+            this, &TopicChooser::setFilter);
 }
 
 QUrl TopicChooser::link() const

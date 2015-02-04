@@ -56,10 +56,14 @@ SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
         + QLatin1String("/.ssh/qtc_id");
     setPrivateKeyFile(defaultPath);
 
-    connect(m_ui->rsa, SIGNAL(toggled(bool)), this, SLOT(keyTypeChanged()));
-    connect(m_ui->dsa, SIGNAL(toggled(bool)), this, SLOT(keyTypeChanged()));
-    connect(m_ui->privateKeyFileButton, SIGNAL(clicked()), SLOT(handleBrowseButtonClicked()));
-    connect(m_ui->generateButton, SIGNAL(clicked()), this, SLOT(generateKeys()));
+    connect(m_ui->rsa, &QRadioButton::toggled,
+            this, &SshKeyCreationDialog::keyTypeChanged);
+    connect(m_ui->dsa, &QRadioButton::toggled,
+            this, &SshKeyCreationDialog::keyTypeChanged);
+    connect(m_ui->privateKeyFileButton, &QPushButton::clicked,
+            this, &SshKeyCreationDialog::handleBrowseButtonClicked);
+    connect(m_ui->generateButton, &QPushButton::clicked,
+            this, &SshKeyCreationDialog::generateKeys);
 }
 
 SshKeyCreationDialog::~SshKeyCreationDialog()

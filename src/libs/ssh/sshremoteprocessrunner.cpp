@@ -113,13 +113,14 @@ void SshRemoteProcessRunner::runInternal(const QByteArray &command,
     d->m_exitCode = -1;
     d->m_command = command;
     d->m_connection = QSsh::acquireConnection(sshParams);
-    connect(d->m_connection, SIGNAL(error(QSsh::SshError)),
-        SLOT(handleConnectionError(QSsh::SshError)));
-    connect(d->m_connection, SIGNAL(disconnected()), SLOT(handleDisconnected()));
+    connect(d->m_connection, &SshConnection::error,
+            this, &SshRemoteProcessRunner::handleConnectionError);
+    connect(d->m_connection, &SshConnection::disconnected,
+            this, &SshRemoteProcessRunner::handleDisconnected);
     if (d->m_connection->state() == SshConnection::Connected) {
         handleConnected();
     } else {
-        connect(d->m_connection, SIGNAL(connected()), SLOT(handleConnected()));
+        connect(d->m_connection, &SshConnection::connected, this, &SshRemoteProcessRunner::handleConnected);
         if (d->m_connection->state() == SshConnection::Unconnected)
             d->m_connection->connectToHost();
     }

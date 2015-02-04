@@ -85,25 +85,25 @@ BookmarkDialog::BookmarkDialog(BookmarkManager *manager, const QString &title,
     ui.treeView->header()->setVisible(false);
     ui.treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(ui.buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-    connect(ui.buttonBox, SIGNAL(accepted()), this, SLOT(addAccepted()));
-    connect(ui.newFolderButton, SIGNAL(clicked()), this, SLOT(addNewFolder()));
-    connect(ui.toolButton, SIGNAL(clicked()), this, SLOT(toolButtonClicked()));
-    connect(ui.bookmarkEdit, SIGNAL(textChanged(QString)), this,
-        SLOT(textChanged(QString)));
+    connect(ui.buttonBox, &QDialogButtonBox::rejected, this, &BookmarkDialog::reject);
+    connect(ui.buttonBox, &QDialogButtonBox::accepted, this, &BookmarkDialog::addAccepted);
+    connect(ui.newFolderButton, &QPushButton::clicked, this, &BookmarkDialog::addNewFolder);
+    connect(ui.toolButton, &QToolButton::clicked, this, &BookmarkDialog::toolButtonClicked);
+    connect(ui.bookmarkEdit, &QLineEdit::textChanged, this, &BookmarkDialog::textChanged);
 
     connect(bookmarkManager->treeBookmarkModel(),
-        SIGNAL(itemChanged(QStandardItem*)),
-        this, SLOT(itemChanged(QStandardItem*)));
+            &QStandardItemModel::itemChanged,
+            this, &BookmarkDialog::itemChanged);
 
-    connect(ui.bookmarkFolders, SIGNAL(currentIndexChanged(QString)), this,
-        SLOT(selectBookmarkFolder(QString)));
+    connect(ui.bookmarkFolders,
+            static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::currentIndexChanged),
+            this, &BookmarkDialog::selectBookmarkFolder);
 
-    connect(ui.treeView, SIGNAL(customContextMenuRequested(QPoint)), this,
-        SLOT(customContextMenuRequested(QPoint)));
+    connect(ui.treeView, &TreeView::customContextMenuRequested,
+            this, &BookmarkDialog::customContextMenuRequested);
 
-    connect(ui.treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex,
-        QModelIndex)), this, SLOT(currentChanged(QModelIndex)));
+    connect(ui.treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
+            this, SLOT(currentChanged(QModelIndex)));
 }
 
 BookmarkDialog::~BookmarkDialog()
@@ -437,8 +437,8 @@ void BookmarkWidget::setup()
     vlayout->addWidget(toolbar);
 
     searchField->installEventFilter(this);
-    connect(searchField, SIGNAL(textChanged(QString)), this,
-        SLOT(filterChanged()));
+    connect(searchField, &Utils::FancyLineEdit::textChanged,
+            this, &BookmarkWidget::filterChanged);
 
     treeView = new TreeView(this);
     vlayout->addWidget(treeView);
@@ -453,14 +453,11 @@ void BookmarkWidget::setup()
     treeView->viewport()->installEventFilter(this);
     treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(treeView, SIGNAL(expanded(QModelIndex)), this,
-        SLOT(expand(QModelIndex)));
-    connect(treeView, SIGNAL(collapsed(QModelIndex)), this,
-        SLOT(expand(QModelIndex)));
-    connect(treeView, SIGNAL(activated(QModelIndex)), this,
-        SLOT(activated(QModelIndex)));
-    connect(treeView, SIGNAL(customContextMenuRequested(QPoint)),
-        this, SLOT(customContextMenuRequested(QPoint)));
+    connect(treeView, &TreeView::expanded, this, &BookmarkWidget::expand);
+    connect(treeView, &TreeView::collapsed, this, &BookmarkWidget::expand);
+    connect(treeView, &TreeView::activated, this, &BookmarkWidget::activated);
+    connect(treeView, &TreeView::customContextMenuRequested,
+            this, &BookmarkWidget::customContextMenuRequested);
 
     filterBookmarkModel->setFilterKeyColumn(0);
     filterBookmarkModel->setDynamicSortFilter(true);
@@ -582,8 +579,8 @@ BookmarkManager::BookmarkManager()
     , treeModel(new BookmarkModel(0, 1, this))
     , listModel(new BookmarkModel(0, 1, this))
 {
-    connect(treeModel, SIGNAL(itemChanged(QStandardItem*)), this,
-        SLOT(itemChanged(QStandardItem*)));
+    connect(treeModel, &BookmarkModel::itemChanged,
+            this, &BookmarkManager::itemChanged);
 }
 
 BookmarkManager::~BookmarkManager()

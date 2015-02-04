@@ -115,12 +115,14 @@ void SftpFileSystemModel::setSshConnection(const SshConnectionParameters &sshPar
 {
     QSSH_ASSERT_AND_RETURN(!d->sshConnection);
     d->sshConnection = QSsh::acquireConnection(sshParams);
-    connect(d->sshConnection, SIGNAL(error(QSsh::SshError)), SLOT(handleSshConnectionFailure()));
+    connect(d->sshConnection, &SshConnection::error,
+            this, &SftpFileSystemModel::handleSshConnectionFailure);
     if (d->sshConnection->state() == SshConnection::Connected) {
         handleSshConnectionEstablished();
         return;
     }
-    connect(d->sshConnection, SIGNAL(connected()), SLOT(handleSshConnectionEstablished()));
+    connect(d->sshConnection, &SshConnection::connected,
+            this, &SftpFileSystemModel::handleSshConnectionEstablished);
     if (d->sshConnection->state() == SshConnection::Unconnected)
         d->sshConnection->connectToHost();
 }

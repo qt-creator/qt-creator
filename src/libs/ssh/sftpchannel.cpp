@@ -87,18 +87,18 @@ SftpChannel::SftpChannel(quint32 channelId,
     Internal::SshSendFacility &sendFacility)
     : d(new Internal::SftpChannelPrivate(channelId, sendFacility, this))
 {
-    connect(d, SIGNAL(initialized()), this, SIGNAL(initialized()),
-        Qt::QueuedConnection);
-    connect(d, SIGNAL(channelError(QString)), this,
-        SIGNAL(channelError(QString)), Qt::QueuedConnection);
-    connect(d, SIGNAL(dataAvailable(QSsh::SftpJobId,QString)), this,
-        SIGNAL(dataAvailable(QSsh::SftpJobId,QString)), Qt::QueuedConnection);
-    connect(d, SIGNAL(fileInfoAvailable(QSsh::SftpJobId,QList<QSsh::SftpFileInfo>)), this,
-        SIGNAL(fileInfoAvailable(QSsh::SftpJobId,QList<QSsh::SftpFileInfo>)),
-        Qt::QueuedConnection);
-    connect(d, SIGNAL(finished(QSsh::SftpJobId,QString)), this,
-        SIGNAL(finished(QSsh::SftpJobId,QString)), Qt::QueuedConnection);
-    connect(d, SIGNAL(closed()), this, SIGNAL(closed()), Qt::QueuedConnection);
+    connect(d, &Internal::SftpChannelPrivate::initialized,
+            this, &SftpChannel::initialized, Qt::QueuedConnection);
+    connect(d, &Internal::SftpChannelPrivate::channelError,
+            this, &SftpChannel::channelError, Qt::QueuedConnection);
+    connect(d, &Internal::SftpChannelPrivate::dataAvailable,
+            this, &SftpChannel::dataAvailable, Qt::QueuedConnection);
+    connect(d, &Internal::SftpChannelPrivate::fileInfoAvailable,
+            this, &SftpChannel::fileInfoAvailable, Qt::QueuedConnection);
+    connect(d, &Internal::SftpChannelPrivate::finished,
+            this, &SftpChannel::finished, Qt::QueuedConnection);
+    connect(d, &Internal::SftpChannelPrivate::closed,
+            this, &SftpChannel::closed, Qt::QueuedConnection);
 }
 
 SftpChannel::State SftpChannel::state() const
