@@ -1394,7 +1394,7 @@ void FakeVimPluginPrivate::showSettingsDialog()
 
 void FakeVimPluginPrivate::triggerAction(Id id)
 {
-    Core::Command *cmd = ActionManager::command(id);
+    Command *cmd = ActionManager::command(id);
     QTC_ASSERT(cmd, qDebug() << "UNKNOWN CODE: " << id.name(); return);
     QAction *action = cmd->action();
     QTC_ASSERT(action, return);
@@ -1403,7 +1403,7 @@ void FakeVimPluginPrivate::triggerAction(Id id)
 
 void FakeVimPluginPrivate::setActionChecked(Id id, bool check)
 {
-    Core::Command *cmd = ActionManager::command(id);
+    Command *cmd = ActionManager::command(id);
     QTC_ASSERT(cmd, return);
     QAction *action = cmd->action();
     QTC_ASSERT(action, return);
@@ -1709,7 +1709,7 @@ void FakeVimPluginPrivate::foldGoTo(int count, bool current)
 void FakeVimPluginPrivate::jumpToGlobalMark(QChar mark, bool backTickMode,
     const QString &fileName)
 {
-    Core::IEditor *iedit = Core::EditorManager::openEditor(fileName);
+    IEditor *iedit = EditorManager::openEditor(fileName);
     if (!iedit)
         return;
     FakeVimHandler *handler = m_editorToHandler.value(iedit, 0);
@@ -1853,8 +1853,8 @@ void FakeVimPluginPrivate::setUseFakeVim(const QVariant &value)
 {
     //qDebug() << "SET USE FAKEVIM" << value;
     bool on = value.toBool();
-    if (Core::FindPlugin::instance())
-        Core::FindPlugin::instance()->setUseFakeVim(on);
+    if (FindPlugin::instance())
+        FindPlugin::instance()->setUseFakeVim(on);
     setUseFakeVimInternal(on);
     setShowRelativeLineNumbers(theFakeVimSetting(ConfigRelativeNumber)->value());
 }
@@ -2050,7 +2050,7 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
             const QString &id = it.key();
             QRegExp re = it.value();
             if (!re.pattern().isEmpty() && re.indexIn(cmd.cmd) != -1) {
-                triggerAction(Core::Id::fromString(id));
+                triggerAction(Id::fromString(id));
                 return;
             }
         }
@@ -2188,7 +2188,7 @@ void FakeVimPluginPrivate::highlightMatches(const QString &needle)
 {
     foreach (IEditor *editor, EditorManager::visibleEditors()) {
         QWidget *w = editor->widget();
-        Core::IFindSupport *find = Aggregation::query<Core::IFindSupport>(w);
+        IFindSupport *find = Aggregation::query<IFindSupport>(w);
         if (find != 0)
             find->highlightAll(needle, FindRegularExpression | FindCaseSensitively);
     }
@@ -2272,8 +2272,8 @@ void FakeVimPlugin::extensionsInitialized()
 void FakeVimPlugin::setupTest(QString *title, FakeVimHandler **handler, QWidget **edit)
 {
     *title = QString::fromLatin1("test.cpp");
-    Core::IEditor *iedit = Core::EditorManager::openEditorWithContents(Core::Id(), title);
-    Core::EditorManager::activateEditor(iedit);
+    IEditor *iedit = EditorManager::openEditorWithContents(Id(), title);
+    EditorManager::activateEditor(iedit);
     *edit = iedit->widget();
     *handler = d->m_editorToHandler.value(iedit, 0);
     (*handler)->setupWidget();
