@@ -67,6 +67,7 @@
 #include <QTemporaryFile>
 #include <QDir>
 #include <QMap>
+#include <QFutureWatcher>
 
 using namespace Core;
 using namespace Git::Internal;
@@ -126,6 +127,7 @@ private:
     void show();
     void cherryPick();
     void checkout();
+    void terminate();
 
     const QSharedPointer<GerritChange> m_change;
     const QString m_repository;
@@ -135,6 +137,7 @@ private:
     State m_state;
     QProcess m_process;
     QFutureInterface<void> m_progress;
+    QFutureWatcher<void> m_watcher;
 };
 
 FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
@@ -157,6 +160,9 @@ FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
             this, SLOT(processReadyReadStandardError()));
     connect(&m_process, SIGNAL(readyReadStandardOutput()),
             this, SLOT(processReadyReadStandardOutput()));
+    connect(&m_watcher, &QFutureWatcher<void>::canceled,
+            this, &FetchContext::terminate);
+    m_watcher.setFuture(m_progress.future());
     m_process.setWorkingDirectory(repository);
     m_process.setProcessEnvironment(gitClient()->processEnvironment());
     m_process.closeWriteChannel();
@@ -167,7 +173,7 @@ FetchContext::~FetchContext()
     if (m_progress.isRunning())
         m_progress.reportFinished();
     m_process.disconnect(this);
-    Utils::SynchronousProcess::stopProcess(m_process);
+    terminate();
 }
 
 void FetchContext::start()
@@ -228,7 +234,8 @@ void FetchContext::processReadyReadStandardOutput()
 void FetchContext::handleError(const QString &e)
 {
     m_state = ErrorState;
-    VcsBase::VcsOutputWindow::appendError(e);
+    if (!m_progress.isCanceled())
+        VcsBase::VcsOutputWindow::appendError(e);
     m_progress.reportCanceled();
     m_progress.reportFinished();
     deleteLater();
@@ -236,6 +243,8 @@ void FetchContext::handleError(const QString &e)
 
 void FetchContext::processError(QProcess::ProcessError e)
 {
+    if (m_progress.isCanceled())
+        return;
     const QString msg = tr("Error running %1: %2").arg(m_git.toUserOutput(), m_process.errorString());
     if (e == QProcess::FailedToStart)
         handleError(msg);
@@ -261,6 +270,11 @@ void FetchContext::cherryPick()
 void FetchContext::checkout()
 {
     gitClient()->stashAndCheckout(m_repository, QLatin1String("FETCH_HEAD"));
+}
+
+void FetchContext::terminate()
+{
+    Utils::SynchronousProcess::stopProcess(m_process);
 }
 
 
