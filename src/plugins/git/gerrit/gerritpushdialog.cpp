@@ -121,15 +121,7 @@ void GerritPushDialog::initRemoteBranches()
     QStringList remotes = m_remoteBranches.keys();
     remotes.removeDuplicates();
     m_ui->remoteComboBox->addItems(remotes);
-    const int remoteCount = m_ui->remoteComboBox->count();
-    if (remoteCount < 1) {
-        return;
-    } else if (remoteCount == 1) {
-        m_ui->remoteLabel->hide();
-        m_ui->remoteComboBox->hide();
-    } else {
-        connect(m_ui->remoteComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setRemoteBranches()));
-    }
+    m_ui->remoteComboBox->setEnabled(remotes.count() > 1);
 }
 
 GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &reviewerList, QWidget *parent) :
@@ -141,8 +133,7 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
     m_client = GitPlugin::instance()->gitClient();
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->setupUi(this);
-    m_ui->repositoryLabel->setText(tr("<b>Local repository:</b> %1").arg(
-                                       QDir::toNativeSeparators(workingDir)));
+    m_ui->repositoryLabel->setText(QDir::toNativeSeparators(workingDir));
 
     PushItemDelegate *delegate = new PushItemDelegate(m_ui->commitView);
     delegate->setParent(this);
@@ -153,10 +144,11 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
         return;
 
     m_ui->localBranchComboBox->init(workingDir);
-    connect(m_ui->localBranchComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(updateCommits(int)));
+    connect(m_ui->localBranchComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &GerritPushDialog::updateCommits);
 
-    connect(m_ui->targetBranchComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setChangeRange()));
+    connect(m_ui->targetBranchComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &GerritPushDialog::setChangeRange);
 
     updateCommits(m_ui->localBranchComboBox->currentIndex());
     setRemoteBranches();
@@ -165,6 +157,9 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
     m_ui->reviewersLineEdit->setText(reviewerList);
     m_ui->reviewersLineEdit->setValidator(noSpaceValidator);
     m_ui->topicLineEdit->setValidator(noSpaceValidator);
+
+    connect(m_ui->remoteComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &GerritPushDialog::setRemoteBranches);
 
     m_isValid = true;
 }
