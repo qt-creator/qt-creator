@@ -81,7 +81,8 @@ void MimeTypeMagicDialog::setMagicData(const MagicData &data)
 
 MagicData MimeTypeMagicDialog::magicData() const
 {
-    MagicData data;
+    MagicData data(Utils::Internal::MimeMagicRule(Utils::Internal::MimeMagicRule::Byte,
+                                                  QByteArray(), 0, 0), 0);
 //    data.m_value = ui.valueLineEdit->text();
 //    if (ui.stringRadioButton->isChecked())
 //        data.m_type = MagicStringRule::kMatchType;

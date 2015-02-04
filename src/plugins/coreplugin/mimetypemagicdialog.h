@@ -33,23 +33,20 @@
 
 #include "ui_mimetypemagicdialog.h"
 
+#include <utils/mimetypes/mimemagicrule_p.h>
+
 namespace Core {
 namespace Internal {
 
 struct MagicData
 {
-    MagicData() {}
-    MagicData(const QString &value, const QString &type, int start, int end, int p)
-        : m_value(value)
-        , m_type(type)
-        , m_start(start)
-        , m_end(end)
-        , m_priority(p) {}
+    MagicData(Utils::Internal::MimeMagicRule rule, int priority)
+        : m_rule(rule)
+        , m_priority(priority)
+    {
+    }
 
-    QString m_value;
-    QString m_type;
-    int m_start;
-    int m_end;
+    Utils::Internal::MimeMagicRule m_rule;
     int m_priority;
 };
 
