@@ -403,7 +403,7 @@ class Dumper(DumperBase):
                     item = LocalItem()
                     item.iname = "local." + name
                     item.name = name
-                    item.value = contextData["locals"][index]
+                    item.value = context["locals"][index]
                     items.append(item)
 
             for engine in self.qmlEngines:

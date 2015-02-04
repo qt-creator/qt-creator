@@ -2137,7 +2137,7 @@ void GdbEngine::executeNext()
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step next requested..."), 5000);
     if (isNativeMixedActive()) {
-        postCommand("prepareQmlStep 1");
+        runCommand("prepareQmlStep");
         postCommand("-exec-continue", RunRequest, CB(handleExecuteContinue));
         return;
     }
