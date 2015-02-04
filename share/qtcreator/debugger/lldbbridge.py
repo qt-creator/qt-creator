@@ -668,7 +668,9 @@ class Dumper(DumperBase):
         self.remoteChannel_ = args.get('remoteChannel', '')
         self.platform_ = args.get('platform', '')
 
-        self.ignoreStops = 1 if self.useTerminal_ else 0
+        self.ignoreStops = 0
+        if self.useTerminal_ and platform.system() == "Linux":
+            self.ignoreStops = 2
 
         if self.platform_:
             self.debugger.SetCurrentPlatform(self.platform_)
