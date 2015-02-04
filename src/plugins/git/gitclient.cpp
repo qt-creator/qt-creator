@@ -1773,10 +1773,13 @@ QString GitClient::synchronousStash(const QString &workingDirectory, const QStri
 
 bool GitClient::executeSynchronousStash(const QString &workingDirectory,
                                         const QString &message,
+                                        bool unstagedOnly,
                                         QString *errorMessage) const
 {
     QStringList arguments;
     arguments << QLatin1String("stash") << QLatin1String("save");
+    if (unstagedOnly)
+        arguments << QLatin1String("--keep-index");
     if (!message.isEmpty())
         arguments << message;
     const unsigned flags = VcsBasePlugin::ShowStdOutInLogWindow
@@ -3530,8 +3533,9 @@ void GitClient::StashInfo::stashPrompt(const QString &command, const QString &st
     } else if (msgBox.clickedButton() == cancelButton) {
         m_stashResult = StashCanceled;
     } else if (msgBox.clickedButton() == stashButton) {
-        m_stashResult = m_client->executeSynchronousStash(m_workingDir,
-                        creatorStashMessage(command), errorMessage) ? StashUnchanged : StashFailed;
+        const bool result = m_client->executeSynchronousStash(
+                    m_workingDir, creatorStashMessage(command), false, errorMessage);
+        m_stashResult = result ? StashUnchanged : StashFailed;
     } else if (msgBox.clickedButton() == stashAndPopButton) {
         executeStash(command, errorMessage);
     }
@@ -3540,7 +3544,7 @@ void GitClient::StashInfo::stashPrompt(const QString &command, const QString &st
 void GitClient::StashInfo::executeStash(const QString &command, QString *errorMessage)
 {
     m_message = creatorStashMessage(command);
-    if (!m_client->executeSynchronousStash(m_workingDir, m_message, errorMessage))
+    if (!m_client->executeSynchronousStash(m_workingDir, m_message, false, errorMessage))
         m_stashResult = StashFailed;
     else
         m_stashResult = Stashed;

@@ -202,6 +202,7 @@ public:
 
     bool executeSynchronousStash(const QString &workingDirectory,
                                  const QString &message = QString(),
+                                 bool unstagedOnly = false,
                                  QString *errorMessage = 0) const;
     bool synchronousStashRestore(const QString &workingDirectory,
                                  const QString &stash,

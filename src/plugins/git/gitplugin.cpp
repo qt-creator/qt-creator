@@ -502,6 +502,11 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                              context, true, SLOT(stash()));
     action->setToolTip(tr("Saves the current state of your work and resets the repository."));
 
+    action = createRepositoryAction(stashMenu, tr("Stash Unstaged Files"), "Git.StashUnstaged",
+                                    context, true, SLOT(stashUnstaged()));
+    action->setToolTip(tr("Saves the current state of your unstaged files and resets the repository "
+                          "to its staged state."));
+
     action = createRepositoryAction(stashMenu, tr("Take Snapshot..."), "Git.StashSnapshot",
                                     context, true, SLOT(stashSnapshot()));
     action->setToolTip(tr("Saves the current state of your work."));
@@ -1259,7 +1264,7 @@ void GitPlugin::applyPatch(const QString &workingDirectory, QString file)
     m_gitClient->endStashScope(workingDirectory);
 }
 
-void GitPlugin::stash()
+void GitPlugin::stash(bool unstagedOnly)
 {
     if (!DocumentManager::saveAllModifiedDocuments())
         return;
@@ -1268,9 +1273,14 @@ void GitPlugin::stash()
     QTC_ASSERT(state.hasTopLevel(), return);
 
     const QString topLevel = state.topLevel();
-    m_gitClient->executeSynchronousStash(topLevel);
+    m_gitClient->executeSynchronousStash(topLevel, QString(), unstagedOnly);
     if (m_stashDialog)
         m_stashDialog->refresh(topLevel, true);
+}
+
+void GitPlugin::stashUnstaged()
+{
+    stash(true);
 }
 
 void GitPlugin::stashSnapshot()

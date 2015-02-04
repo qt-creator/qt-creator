@@ -125,7 +125,8 @@ private slots:
 
     void startAmendCommit();
     void startFixupCommit();
-    void stash();
+    void stash(bool unstagedOnly = false);
+    void stashUnstaged();
     void stashSnapshot();
     void stashPop();
     void branchList();
