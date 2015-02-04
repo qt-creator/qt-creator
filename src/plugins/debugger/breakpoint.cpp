@@ -94,18 +94,6 @@ QString BreakpointModelId::toString() const
     return QString::number(m_majorPart);
 }
 
-BreakpointModelId BreakpointModelId::parent() const
-{
-    QTC_ASSERT(isMinor(), return BreakpointModelId());
-    return BreakpointModelId(m_majorPart, 0);
-}
-
-BreakpointModelId BreakpointModelId::child(int row) const
-{
-    QTC_ASSERT(isMajor(), return BreakpointModelId());
-    return BreakpointModelId(m_majorPart, row + 1);
-}
-
 
 //////////////////////////////////////////////////////////////////
 //

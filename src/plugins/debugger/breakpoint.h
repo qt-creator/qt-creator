@@ -63,8 +63,6 @@ public:
         { return m_majorPart == id.m_majorPart && m_minorPart == id.m_minorPart; }
     quint16 majorPart() const { return m_majorPart; }
     quint16 minorPart() const { return m_minorPart; }
-    BreakpointModelId parent() const;
-    BreakpointModelId child(int row) const;
 
     static BreakpointModelId fromInternalId(quint32 id)
         { return BreakpointModelId(id & 0xff, id >> 16); }
