@@ -238,7 +238,8 @@ int TaskModel::columnCount(const QModelIndex &parent) const
 
 QVariant TaskModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= m_tasks.count() || index.column() != 0)
+    int row = index.row();
+    if (!index.isValid() || row < 0 || row >= m_tasks.count() || index.column() != 0)
         return QVariant();
 
     if (role == TaskModel::File)
@@ -264,9 +265,10 @@ QVariant TaskModel::data(const QModelIndex &index, int role) const
 
 Task TaskModel::task(const QModelIndex &index) const
 {
-    if (!index.isValid())
+    int row = index.row();
+    if (!index.isValid() || row < 0 || row >= m_tasks.count())
         return Task();
-    return m_tasks.at(index.row());
+    return m_tasks.at(row);
 }
 
 QList<Core::Id> TaskModel::categoryIds() const
@@ -317,10 +319,11 @@ int TaskModel::sizeOfLineNumber(const QFont &font)
 
 void TaskModel::setFileNotFound(const QModelIndex &idx, bool b)
 {
-    if (idx.isValid() && idx.row() < m_tasks.count()) {
-        m_fileNotFound.insert(m_tasks[idx.row()].file.toUserOutput(), b);
-        emit dataChanged(idx, idx);
-    }
+    int row = idx.row();
+    if (!idx.isValid() || row < 0 || row >= m_tasks.count())
+        return;
+    m_fileNotFound.insert(m_tasks[row].file.toUserOutput(), b);
+    emit dataChanged(idx, idx);
 }
 
 /////
