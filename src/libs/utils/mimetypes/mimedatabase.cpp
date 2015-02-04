@@ -37,6 +37,7 @@
 
 #include "mimedatabase_p.h"
 
+#include "mimemagicrule_p.h"
 #include "mimeprovider_p.h"
 #include "mimetype_p.h"
 
@@ -710,3 +711,10 @@ QList<MimeType> MimeDatabase::allMimeTypes() const
 
     \value MatchContent The file content is used to look for a match
 */
+
+QMap<int, QList<MimeMagicRule> > MimeDatabase::magicRulesForMimeType(const MimeType &mimeType)
+{
+    auto d = MimeDatabasePrivate::instance();
+    QMutexLocker locker(&d->mutex);
+    return d->provider()->magicRulesForMimeType(mimeType);
+}

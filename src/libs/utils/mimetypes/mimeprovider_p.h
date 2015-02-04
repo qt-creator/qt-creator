@@ -46,6 +46,7 @@
 //
 
 #include "mimedatabase_p.h"
+#include "mimemagicrule_p.h"
 
 #include <QtCore/qdatetime.h>
 #include <QtCore/qset.h>
@@ -76,6 +77,7 @@ public:
     // Qt Creator additions
     virtual QStringList bestMatchByFileName(const QString &fileName, const QList<MimeType> &types) = 0;
     virtual MimeType bestMatchByMagic(const QByteArray &data, const QList<MimeType> &types, int *accuracyPtr) = 0;
+    virtual QMap<int, QList<MimeMagicRule> > magicRulesForMimeType(const MimeType &mimeType) = 0;
 
     MimeDatabasePrivate *m_db;
 protected:
@@ -156,6 +158,7 @@ public:
     void addFile(const QString &filePath);
     QStringList bestMatchByFileName(const QString &fileName, const QList<MimeType> &types);
     MimeType bestMatchByMagic(const QByteArray &data, const QList<MimeType> &types, int *accuracyPtr);
+    QMap<int, QList<MimeMagicRule> > magicRulesForMimeType(const MimeType &mimeType);
 
 private:
     void ensureLoaded();

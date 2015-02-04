@@ -35,6 +35,7 @@
 #define XMIMEDATABASE_H
 
 #include "mimetype.h"
+#include "mimemagicrule_p.h"
 
 #include <utils/utils_global.h>
 
@@ -87,6 +88,7 @@ public:
     static QString allFiltersString(QString *allFilesFilter = 0);
     static QStringList allGlobPatterns();
     static MimeType bestMatch(const QString &fileName, const QList<MimeType> &types);
+    static QMap<int, QList<Internal::MimeMagicRule> > magicRulesForMimeType(const MimeType &mimeType); // priority -> rules
 
 private:
     Internal::MimeDatabasePrivate *d;

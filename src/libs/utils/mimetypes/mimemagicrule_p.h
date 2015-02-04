@@ -45,16 +45,22 @@
 // We mean it.
 //
 
+#include <utils/utils_global.h>
+
 #include <QtCore/qbytearray.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qlist.h>
+#include <QtCore/qmap.h>
 
 namespace Utils {
+
+class MimeType;
+
 namespace Internal {
 
 class MimeMagicRulePrivate;
 
-class MimeMagicRule
+class QTCREATOR_UTILS_EXPORT MimeMagicRule
 {
 public:
     enum Type { Invalid = 0, String, Host16, Host32, Big16, Big32, Little16, Little32, Byte };

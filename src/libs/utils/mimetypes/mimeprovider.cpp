@@ -793,6 +793,16 @@ MimeType MimeXMLProvider::bestMatchByMagic(const QByteArray &data, const QList<M
     return mimeTypeForName(candidate);
 }
 
+QMap<int, QList<MimeMagicRule> > MimeXMLProvider::magicRulesForMimeType(const MimeType &mimeType)
+{
+    QMap<int, QList<MimeMagicRule> > result;
+    foreach (const MimeMagicRuleMatcher &matcher, m_magicMatchers) {
+        if (mimeType.matchesName(matcher.mimetype()))
+            result[matcher.priority()].append(matcher.magicRules());
+    }
+    return result;
+}
+
 void MimeXMLProvider::ensureLoaded()
 {
     if (!m_loaded /*|| shouldCheck()*/) {
