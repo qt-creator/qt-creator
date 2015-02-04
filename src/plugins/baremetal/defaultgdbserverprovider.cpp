@@ -34,6 +34,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <coreplugin/variablechooser.h>
+
 #include <QFormLayout>
 #include <QPlainTextEdit>
 
@@ -161,6 +163,10 @@ DefaultGdbServerProviderConfigWidget::DefaultGdbServerProviderConfigWidget(
 
     addErrorLabel();
     setFromProvider();
+
+    auto chooser = new Core::VariableChooser(this);
+    chooser->addSupportedWidget(m_initCommandsTextEdit.data());
+    chooser->addSupportedWidget(m_resetCommandsTextEdit.data());
 
     connect(m_hostWidget.data(), &HostWidget::dataChanged,
             this, &GdbServerProviderConfigWidget::dirty);

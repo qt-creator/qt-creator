@@ -36,6 +36,8 @@
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
 
+#include <coreplugin/variablechooser.h>
+
 #include <QString>
 #include <QFileInfo>
 
@@ -285,6 +287,10 @@ StLinkUtilGdbServerProviderConfigWidget::StLinkUtilGdbServerProviderConfigWidget
     populateTransportLayers();
     addErrorLabel();
     setFromProvider();
+
+    auto chooser = new Core::VariableChooser(this);
+    chooser->addSupportedWidget(m_initCommandsTextEdit.data());
+    chooser->addSupportedWidget(m_resetCommandsTextEdit.data());
 
     connect(m_hostWidget.data(), &HostWidget::dataChanged,
             this, &GdbServerProviderConfigWidget::dirty);
