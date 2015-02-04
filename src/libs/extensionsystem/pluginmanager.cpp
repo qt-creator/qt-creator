@@ -1081,7 +1081,8 @@ void PluginManagerPrivate::startTests()
 
     foreach (const PluginManagerPrivate::TestSpec &testSpec, testSpecs) {
         IPlugin *plugin = testSpec.pluginSpec->plugin();
-        QTC_ASSERT(plugin, continue);
+        if (!plugin)
+            continue; // plugin not loaded
 
         const QList<QObject *> testObjects = plugin->createTestObjects();
         ExecuteOnDestruction deleteTestObjects([&]() { qDeleteAll(testObjects); });
