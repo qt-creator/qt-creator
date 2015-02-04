@@ -516,9 +516,6 @@ void QmakeProject::updateCppCodeModel()
         templatePart->projectDefines += pro->cxxDefines();
 
         // part->headerPaths
-        foreach (const QString &inc, pro->variableValue(IncludePathVar))
-            templatePart->headerPaths += ProjectPart::HeaderPath(inc, ProjectPart::HeaderPath::IncludePath);
-
         if (qtVersion) {
             foreach (const HeaderPath &header, qtVersion->systemHeaderPathes(k)) {
                 ProjectPart::HeaderPath::Type type = ProjectPart::HeaderPath::IncludePath;
@@ -526,6 +523,19 @@ void QmakeProject::updateCppCodeModel()
                     type = ProjectPart::HeaderPath::FrameworkPath;
                 templatePart->headerPaths += ProjectPart::HeaderPath(header.path(), type);
             }
+        }
+
+        foreach (const QString &inc, pro->variableValue(IncludePathVar)) {
+            const auto headerPath
+                = ProjectPart::HeaderPath(inc, ProjectPart::HeaderPath::IncludePath);
+            // We've added header paths from qtVersion->systemHeaderPathes() above,
+            // which also contains the mkspecs dir. However, it's also part of
+            // the pro->variableValue(IncludePathVar), so check for duplicates.
+            if (!templatePart->headerPaths.contains(headerPath))
+                templatePart->headerPaths += headerPath;
+        }
+
+        if (qtVersion) {
             if (!qtVersion->frameworkInstallPath().isEmpty()) {
                 templatePart->headerPaths += ProjectPart::HeaderPath(
                             qtVersion->frameworkInstallPath(),
