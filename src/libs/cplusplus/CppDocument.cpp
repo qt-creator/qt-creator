@@ -503,7 +503,7 @@ QString Document::functionAt(int line, int column, int *lineOpeningDeclaratorPar
     if (line < 1 || column < 1)
         return QString();
 
-    CPlusPlus::Symbol *symbol = lastVisibleSymbolAt(line, column);
+    Symbol *symbol = lastVisibleSymbolAt(line, column);
     if (!symbol)
         return QString();
 

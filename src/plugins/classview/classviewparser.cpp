@@ -718,25 +718,24 @@ void Parser::emitCurrentTree()
     Generates a project node file list for the root node \a node.
 */
 
-QStringList Parser::projectNodeFileList(const ProjectExplorer::FolderNode *node) const
+QStringList Parser::projectNodeFileList(const FolderNode *node) const
 {
     QStringList list;
     if (!node)
         return list;
 
-    QList<ProjectExplorer::FileNode *> fileNodes = node->fileNodes();
-    QList<ProjectExplorer::FolderNode *> subFolderNodes = node->subFolderNodes();
+    QList<FileNode *> fileNodes = node->fileNodes();
+    QList<FolderNode *> subFolderNodes = node->subFolderNodes();
 
-    foreach (const ProjectExplorer::FileNode *file, fileNodes) {
+    foreach (const FileNode *file, fileNodes) {
         if (file->isGenerated())
             continue;
 
         list << file->path();
     }
 
-    foreach (const ProjectExplorer::FolderNode *folder, subFolderNodes) {
-        if (folder->nodeType() != ProjectExplorer::FolderNodeType
-                && folder->nodeType() != ProjectExplorer::VirtualFolderNodeType)
+    foreach (const FolderNode *folder, subFolderNodes) {
+        if (folder->nodeType() != FolderNodeType && folder->nodeType() != VirtualFolderNodeType)
             continue;
         list << projectNodeFileList(folder);
     }
@@ -751,8 +750,7 @@ QStringList Parser::projectNodeFileList(const ProjectExplorer::FolderNode *node)
     Returns a list of projects which were added to the item.
 */
 
-QStringList Parser::addProjectNode(const ParserTreeItem::Ptr &item,
-                                     const ProjectExplorer::ProjectNode *node)
+QStringList Parser::addProjectNode(const ParserTreeItem::Ptr &item, const ProjectNode *node)
 {
     QStringList projectList;
     if (!node)
@@ -777,9 +775,9 @@ QStringList Parser::addProjectNode(const ParserTreeItem::Ptr &item,
     }
 
     // subnodes
-    QList<ProjectExplorer::ProjectNode *> projectNodes = node->subProjectNodes();
+    QList<ProjectNode *> projectNodes = node->subProjectNodes();
 
-    foreach (const ProjectExplorer::ProjectNode *project, projectNodes) {
+    foreach (const ProjectNode *project, projectNodes) {
         ParserTreeItem::Ptr itemPrj(new ParserTreeItem());
         SymbolInformation information(project->displayName(), project->path());
 
@@ -813,11 +811,10 @@ QStringList Parser::getAllFiles(const ProjectNode *node)
         d->cachedPrjFileLists[nodePath] = fileList;
     }
     // subnodes
-    QList<ProjectExplorer::ProjectNode *> projectNodes = node->subProjectNodes();
+    QList<ProjectNode *> projectNodes = node->subProjectNodes();
 
-    foreach (const ProjectExplorer::ProjectNode *project, projectNodes) {
+    foreach (const ProjectNode *project, projectNodes)
         fileList += getAllFiles(project);
-    }
     return fileList;
 }
 

@@ -360,7 +360,7 @@ void CppUseSelectionsUpdater::handleSymbolCaseAsynchronously(const Document::Ptr
 void CppUseSelectionsUpdater::handleSymbolCaseSynchronously(const Document::Ptr document,
                                                             const Snapshot &snapshot)
 {
-    const CPlusPlus::Document::Ptr previousDocument = m_document;
+    const Document::Ptr previousDocument = m_document;
     m_document = document;
 
     const Params params = Params(m_editorWidget->textCursor(), document, snapshot);

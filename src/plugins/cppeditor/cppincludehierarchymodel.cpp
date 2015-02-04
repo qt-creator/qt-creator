@@ -51,7 +51,7 @@ namespace {
 
 Snapshot globalSnapshot()
 {
-    return CppTools::CppModelManager::instance()->snapshot();
+    return CppModelManager::instance()->snapshot();
 }
 
 } // anonymous namespace

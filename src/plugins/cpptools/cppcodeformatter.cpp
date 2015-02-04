@@ -703,7 +703,7 @@ int CodeFormatter::tokenCount() const
     return m_tokens.size();
 }
 
-const CPlusPlus::Token &CodeFormatter::currentToken() const
+const Token &CodeFormatter::currentToken() const
 {
     return m_currentToken;
 }
@@ -1111,7 +1111,7 @@ void CodeFormatter::dump() const
 
 namespace CppTools {
 namespace Internal {
-    class CppCodeFormatterData: public TextEditor::CodeFormatterData
+    class CppCodeFormatterData: public CodeFormatterData
     {
     public:
         CodeFormatter::BlockData m_data;
@@ -1123,7 +1123,7 @@ QtStyleCodeFormatter::QtStyleCodeFormatter()
 {
 }
 
-QtStyleCodeFormatter::QtStyleCodeFormatter(const TextEditor::TabSettings &tabSettings,
+QtStyleCodeFormatter::QtStyleCodeFormatter(const TabSettings &tabSettings,
                                            const CppCodeStyleSettings &settings)
     : m_tabSettings(tabSettings)
     , m_styleSettings(settings)
@@ -1131,7 +1131,7 @@ QtStyleCodeFormatter::QtStyleCodeFormatter(const TextEditor::TabSettings &tabSet
     setTabSize(tabSettings.m_tabSize);
 }
 
-void QtStyleCodeFormatter::setTabSettings(const TextEditor::TabSettings &tabSettings)
+void QtStyleCodeFormatter::setTabSettings(const TabSettings &tabSettings)
 {
     m_tabSettings = tabSettings;
     setTabSize(tabSettings.m_tabSize);

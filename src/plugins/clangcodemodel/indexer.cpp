@@ -244,7 +244,7 @@ protected:
             indexingResults.reserve(m_allFiles.size());
 
             foreach (const QString &fn, m_allFiles.keys()) {
-                QVector<ClangCodeModel::Symbol> symbols; unfoldSymbols(symbols, fn);
+                QVector<Symbol> symbols; unfoldSymbols(symbols, fn);
                 QSet<QString> processedFiles = QSet<QString>::fromList(m_allFiles.keys());
                 Unit::Ptr unit = Unit::create(fn);
                 IndexingResult indexingResult(symbols, processedFiles, unit, projectPart);
@@ -487,18 +487,18 @@ protected:
         }
     }
 
-    void unfoldSymbols(QVector<ClangCodeModel::Symbol> &result, const QString &fileName) {
+    void unfoldSymbols(QVector<Symbol> &result, const QString &fileName) {
         const QVector<Symbol *> symbolsForFile = file(fileName)->symbols();
         foreach (const Symbol *s, symbolsForFile) {
             unfoldSymbols(s, result);
         }
     }
 
-    void unfoldSymbols(const Symbol *s, QVector<ClangCodeModel::Symbol> &result) {
+    void unfoldSymbols(const Symbol *s, QVector<Symbol> &result) {
         if (!s->file)
             return;
 
-        ClangCodeModel::Symbol sym;
+        Symbol sym;
         sym.m_name = s->spellingName;
         sym.m_qualification = s->spellingName;
 
@@ -509,16 +509,16 @@ protected:
         sym.m_location = SourceLocation(s->file->name(), s->line, s->column, s->offset);
 
         switch (s->kind) {
-        case CXCursor_EnumDecl: sym.m_kind = ClangCodeModel::Symbol::Enum; break;
+        case CXCursor_EnumDecl: sym.m_kind = Symbol::Enum; break;
         case CXCursor_StructDecl:
-        case CXCursor_ClassDecl: sym.m_kind = ClangCodeModel::Symbol::Class; break;
-        case CXCursor_CXXMethod: sym.m_kind = ClangCodeModel::Symbol::Method; break;
+        case CXCursor_ClassDecl: sym.m_kind = Symbol::Class; break;
+        case CXCursor_CXXMethod: sym.m_kind = Symbol::Method; break;
         case CXCursor_FunctionTemplate:
-        case CXCursor_FunctionDecl: sym.m_kind = ClangCodeModel::Symbol::Function; break;
-        case CXCursor_DeclStmt: sym.m_kind = ClangCodeModel::Symbol::Declaration; break;
-        case CXCursor_Constructor: sym.m_kind = ClangCodeModel::Symbol::Constructor; break;
-        case CXCursor_Destructor: sym.m_kind = ClangCodeModel::Symbol::Destructor; break;
-        default: sym.m_kind = ClangCodeModel::Symbol::Unknown; break;
+        case CXCursor_FunctionDecl: sym.m_kind = Symbol::Function; break;
+        case CXCursor_DeclStmt: sym.m_kind = Symbol::Declaration; break;
+        case CXCursor_Constructor: sym.m_kind = Symbol::Constructor; break;
+        case CXCursor_Destructor: sym.m_kind = Symbol::Destructor; break;
+        default: sym.m_kind = Symbol::Unknown; break;
         }
 
         result.append(sym);
@@ -588,7 +588,7 @@ restart:
                 goto restart;
             }
 
-            QStringList opts = ClangCodeModel::Utils::createClangOptions(pPart, fd.m_fileName);
+            QStringList opts = Utils::createClangOptions(pPart, fd.m_fileName);
             if (!pchInfo.isNull())
                 opts.append(Utils::createPCHInclusionOptions(pchInfo->fileName()));
 

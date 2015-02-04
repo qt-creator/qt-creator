@@ -369,7 +369,7 @@ void Manager::onProjectListChanged()
    \sa CppTools::Constants::TASK_INDEX
 */
 
-void Manager::onTaskStarted(Core::Id type)
+void Manager::onTaskStarted(Id type)
 {
     if (type != CppTools::Constants::TASK_INDEX)
         return;
@@ -385,7 +385,7 @@ void Manager::onTaskStarted(Core::Id type)
    \sa CppTools::Constants::TASK_INDEX
 */
 
-void Manager::onAllTasksFinished(Core::Id type)
+void Manager::onAllTasksFinished(Id type)
 {
     if (type != CppTools::Constants::TASK_INDEX)
         return;

@@ -128,7 +128,7 @@ void CppElementEvaluator::checkDiagnosticMessage(int pos)
     }
 }
 
-bool CppElementEvaluator::matchIncludeFile(const CPlusPlus::Document::Ptr &document, unsigned line)
+bool CppElementEvaluator::matchIncludeFile(const Document::Ptr &document, unsigned line)
 {
     foreach (const Document::Include &includeFile, document->resolvedIncludes()) {
         if (includeFile.line() == line) {
@@ -139,7 +139,7 @@ bool CppElementEvaluator::matchIncludeFile(const CPlusPlus::Document::Ptr &docum
     return false;
 }
 
-bool CppElementEvaluator::matchMacroInUse(const CPlusPlus::Document::Ptr &document, unsigned pos)
+bool CppElementEvaluator::matchMacroInUse(const Document::Ptr &document, unsigned pos)
 {
     foreach (const Document::MacroUse &use, document->macroUses()) {
         if (use.containsUtf16charOffset(pos)) {
@@ -322,7 +322,7 @@ bool CppClass::operator==(const CppClass &other)
     return this->declaration == other.declaration;
 }
 
-void CppClass::lookupBases(Symbol *declaration, const CPlusPlus::LookupContext &context)
+void CppClass::lookupBases(Symbol *declaration, const LookupContext &context)
 {
     typedef QPair<ClassOrNamespace *, CppClass *> Data;
 
@@ -353,7 +353,7 @@ void CppClass::lookupBases(Symbol *declaration, const CPlusPlus::LookupContext &
     }
 }
 
-void CppClass::lookupDerived(CPlusPlus::Symbol *declaration, const CPlusPlus::Snapshot &snapshot)
+void CppClass::lookupDerived(Symbol *declaration, const Snapshot &snapshot)
 {
     typedef QPair<CppClass *, CppTools::TypeHierarchy> Data;
 
@@ -446,7 +446,7 @@ CppVariable::CppVariable(Symbol *declaration, const LookupContext &context, Scop
     }
 }
 
-CppEnumerator::CppEnumerator(CPlusPlus::EnumeratorDeclaration *declaration)
+CppEnumerator::CppEnumerator(EnumeratorDeclaration *declaration)
     : CppDeclarableElement(declaration)
 {
     helpCategory = TextEditor::HelpItem::Enum;

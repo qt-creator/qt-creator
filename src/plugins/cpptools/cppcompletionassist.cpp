@@ -423,9 +423,8 @@ AssistInterface *InternalCompletionAssistProvider::createAssistInterface(
     QTC_ASSERT(document, return 0);
 
     CppModelManager *modelManager = CppModelManager::instance();
-    return new CppTools::Internal::CppCompletionAssistInterface(filePath, document, isObjCEnabled,
-                                                                position, reason,
-                                                                modelManager->workingCopy());
+    return new CppCompletionAssistInterface(filePath, document, isObjCEnabled, position, reason,
+                                            modelManager->workingCopy());
 }
 
 // -----------------
@@ -729,7 +728,7 @@ IAssistProposal *InternalCppCompletionAssistProcessor::createContentProposal()
 }
 
 IAssistProposal *InternalCppCompletionAssistProcessor::createHintProposal(
-    QList<CPlusPlus::Function *> functionSymbols) const
+    QList<Function *> functionSymbols) const
 {
     IFunctionHintProposalModel *model =
             new CppFunctionHintModel(functionSymbols, m_model->m_typeOfExpression);
@@ -1038,8 +1037,7 @@ void InternalCppCompletionAssistProcessor::addCompletionItem(const QString &text
     m_completions.append(item);
 }
 
-void InternalCppCompletionAssistProcessor::addCompletionItem(CPlusPlus::Symbol *symbol,
-                                                             int order)
+void InternalCppCompletionAssistProcessor::addCompletionItem(Symbol *symbol, int order)
 {
     ConvertToCompletionItem toCompletionItem;
     AssistProposalItem *item = toCompletionItem(symbol);
@@ -1050,7 +1048,7 @@ void InternalCppCompletionAssistProcessor::addCompletionItem(CPlusPlus::Symbol *
     }
 }
 
-void InternalCppCompletionAssistProcessor::completeObjCMsgSend(CPlusPlus::ClassOrNamespace *binding,
+void InternalCppCompletionAssistProcessor::completeObjCMsgSend(ClassOrNamespace *binding,
                                                                bool staticClassAccess)
 {
     QList<Scope*> memberScopes;
@@ -1077,12 +1075,12 @@ void InternalCppCompletionAssistProcessor::completeObjCMsgSend(CPlusPlus::ClassO
                             Symbol *arg = method->argumentAt(i);
                             text += QString::fromUtf8(selectorName->nameAt(i)->identifier()->chars());
                             text += QLatin1Char(':');
-                            text += TextEditor::Snippet::kVariableDelimiter;
+                            text += Snippet::kVariableDelimiter;
                             text += QLatin1Char('(');
                             text += oo.prettyType(arg->type());
                             text += QLatin1Char(')');
                             text += oo.prettyName(arg->name());
-                            text += TextEditor::Snippet::kVariableDelimiter;
+                            text += Snippet::kVariableDelimiter;
                         }
                     } else {
                         text = QString::fromUtf8(selectorName->identifier()->chars());
@@ -1294,7 +1292,7 @@ int InternalCppCompletionAssistProcessor::startCompletionInternal(const QString 
     return -1;
 }
 
-void InternalCppCompletionAssistProcessor::globalCompletion(CPlusPlus::Scope *currentScope)
+void InternalCppCompletionAssistProcessor::globalCompletion(Scope *currentScope)
 {
     const LookupContext &context = m_model->m_typeOfExpression->context();
 
@@ -1371,8 +1369,7 @@ void InternalCppCompletionAssistProcessor::globalCompletion(CPlusPlus::Scope *cu
     addSnippets();
 }
 
-bool InternalCppCompletionAssistProcessor::completeMember(
-        const QList<CPlusPlus::LookupItem> &baseResults)
+bool InternalCppCompletionAssistProcessor::completeMember(const QList<LookupItem> &baseResults)
 {
     const LookupContext &context = m_model->m_typeOfExpression->context();
 
@@ -1398,8 +1395,7 @@ bool InternalCppCompletionAssistProcessor::completeMember(
     return false;
 }
 
-bool InternalCppCompletionAssistProcessor::completeScope(
-        const QList<CPlusPlus::LookupItem> &results)
+bool InternalCppCompletionAssistProcessor::completeScope(const QList<LookupItem> &results)
 {
     const LookupContext &context = m_model->m_typeOfExpression->context();
     if (results.isEmpty())
@@ -1466,7 +1462,7 @@ bool InternalCppCompletionAssistProcessor::completeScope(
     return !m_completions.isEmpty();
 }
 
-void InternalCppCompletionAssistProcessor::completeNamespace(CPlusPlus::ClassOrNamespace *b)
+void InternalCppCompletionAssistProcessor::completeNamespace(ClassOrNamespace *b)
 {
     QSet<ClassOrNamespace *> bindingsVisited;
     QList<ClassOrNamespace *> bindingsToVisit;
@@ -1506,8 +1502,7 @@ void InternalCppCompletionAssistProcessor::completeNamespace(CPlusPlus::ClassOrN
     }
 }
 
-void InternalCppCompletionAssistProcessor::completeClass(CPlusPlus::ClassOrNamespace *b,
-                                                         bool staticLookup)
+void InternalCppCompletionAssistProcessor::completeClass(ClassOrNamespace *b, bool staticLookup)
 {
     QSet<ClassOrNamespace *> bindingsVisited;
     QList<ClassOrNamespace *> bindingsToVisit;
@@ -1586,7 +1581,7 @@ void InternalCppCompletionAssistProcessor::addClassMembersToCompletion(Scope *sc
 }
 
 bool InternalCppCompletionAssistProcessor::completeQtMethod(
-        const QList<CPlusPlus::LookupItem> &results,
+        const QList<LookupItem> &results,
         bool wantSignals)
 {
     if (results.isEmpty())
@@ -1705,7 +1700,7 @@ void InternalCppCompletionAssistProcessor::addKeywords()
 }
 
 void InternalCppCompletionAssistProcessor::addMacros(const QString &fileName,
-                                                     const CPlusPlus::Snapshot &snapshot)
+                                                     const Snapshot &snapshot)
 {
     QSet<QString> processed;
     QSet<QString> definedMacros;
@@ -1716,7 +1711,7 @@ void InternalCppCompletionAssistProcessor::addMacros(const QString &fileName,
         addCompletionItem(macroName, m_icons.macroIcon(), MacrosOrder);
 }
 
-void InternalCppCompletionAssistProcessor::addMacros_helper(const CPlusPlus::Snapshot &snapshot,
+void InternalCppCompletionAssistProcessor::addMacros_helper(const Snapshot &snapshot,
                                                     const QString &fileName,
                                                     QSet<QString> *processed,
                                                     QSet<QString> *definedMacros)
@@ -1740,7 +1735,7 @@ void InternalCppCompletionAssistProcessor::addMacros_helper(const CPlusPlus::Sna
     }
 }
 
-bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPlusPlus::LookupItem> &results,
+bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const QList<LookupItem> &results,
                                                                          int endOfExpression,
                                                                          bool toolTipOnly)
 {

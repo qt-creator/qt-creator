@@ -306,7 +306,7 @@ private:
 } // end of anonymous namespace
 
 
-LocalSymbols::LocalSymbols(CPlusPlus::Document::Ptr doc, CPlusPlus::DeclarationAST *ast)
+LocalSymbols::LocalSymbols(Document::Ptr doc, DeclarationAST *ast)
 {
     FindLocalSymbols findLocalSymbols(doc);
     findLocalSymbols(ast);

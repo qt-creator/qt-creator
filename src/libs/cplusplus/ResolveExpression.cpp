@@ -747,7 +747,7 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
             if (typeItems.empty())
                 continue;
 
-            CPlusPlus::Clone cloner(_context.bindings()->control().data());
+            Clone cloner(_context.bindings()->control().data());
 
             for (int n = 0; n < typeItems.size(); ++ n) {
                 FullySpecifiedType newType = cloner.type(typeItems[n].type(), 0);

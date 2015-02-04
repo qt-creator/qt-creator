@@ -119,7 +119,7 @@ QString DoxygenGenerator::generate(QTextCursor cursor)
     return generate(cursor, doc->translationUnit()->ast()->asDeclaration());
 }
 
-QString DoxygenGenerator::generate(QTextCursor cursor, CPlusPlus::DeclarationAST *decl)
+QString DoxygenGenerator::generate(QTextCursor cursor, DeclarationAST *decl)
 {
     SpecifierAST *spec = 0;
     DeclaratorAST *decltr = 0;

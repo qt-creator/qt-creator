@@ -85,32 +85,32 @@ bool SymbolsFindFilter::isEnabled() const
 
 void SymbolsFindFilter::cancel()
 {
-    Core::SearchResult *search = qobject_cast<Core::SearchResult *>(sender());
+    SearchResult *search = qobject_cast<SearchResult *>(sender());
     QTC_ASSERT(search, return);
-    QFutureWatcher<Core::SearchResultItem> *watcher = m_watchers.key(search);
+    QFutureWatcher<SearchResultItem> *watcher = m_watchers.key(search);
     QTC_ASSERT(watcher, return);
     watcher->cancel();
 }
 
 void SymbolsFindFilter::setPaused(bool paused)
 {
-    Core::SearchResult *search = qobject_cast<Core::SearchResult *>(sender());
+    SearchResult *search = qobject_cast<SearchResult *>(sender());
     QTC_ASSERT(search, return);
-    QFutureWatcher<Core::SearchResultItem> *watcher = m_watchers.key(search);
+    QFutureWatcher<SearchResultItem> *watcher = m_watchers.key(search);
     QTC_ASSERT(watcher, return);
     if (!paused || watcher->isRunning()) // guard against pausing when the search is finished
         watcher->setPaused(paused);
 }
 
-Core::FindFlags SymbolsFindFilter::supportedFindFlags() const
+FindFlags SymbolsFindFilter::supportedFindFlags() const
 {
-    return Core::FindCaseSensitively | Core::FindRegularExpression | Core::FindWholeWords;
+    return FindCaseSensitively | FindRegularExpression | FindWholeWords;
 }
 
-void SymbolsFindFilter::findAll(const QString &txt, Core::FindFlags findFlags)
+void SymbolsFindFilter::findAll(const QString &txt, FindFlags findFlags)
 {
-    Core::SearchResultWindow *window = Core::SearchResultWindow::instance();
-    Core::SearchResult *search = window->startNewSearch(label(), toolTip(findFlags), txt);
+    SearchResultWindow *window = SearchResultWindow::instance();
+    SearchResult *search = window->startNewSearch(label(), toolTip(findFlags), txt);
     search->setSearchAgainSupported(true);
     connect(search, SIGNAL(activated(Core::SearchResultItem)),
             this, SLOT(openEditor(Core::SearchResultItem)));
@@ -129,7 +129,7 @@ void SymbolsFindFilter::findAll(const QString &txt, Core::FindFlags findFlags)
     startSearch(search);
 }
 
-void SymbolsFindFilter::startSearch(Core::SearchResult *search)
+void SymbolsFindFilter::startSearch(SearchResult *search)
 {
     SymbolSearcher::Parameters parameters = search->userData().value<SymbolSearcher::Parameters>();
     QSet<QString> projectFileNames;
@@ -138,7 +138,7 @@ void SymbolsFindFilter::startSearch(Core::SearchResult *search)
             projectFileNames += project->files(ProjectExplorer::Project::AllFiles).toSet();
     }
 
-    QFutureWatcher<Core::SearchResultItem> *watcher = new QFutureWatcher<Core::SearchResultItem>();
+    QFutureWatcher<SearchResultItem> *watcher = new QFutureWatcher<SearchResultItem>();
     m_watchers.insert(watcher, search);
     connect(watcher, SIGNAL(finished()),
             this, SLOT(finish()));
@@ -155,32 +155,32 @@ void SymbolsFindFilter::startSearch(Core::SearchResult *search)
 
 void SymbolsFindFilter::addResults(int begin, int end)
 {
-    QFutureWatcher<Core::SearchResultItem> *watcher =
-            static_cast<QFutureWatcher<Core::SearchResultItem> *>(sender());
-    Core::SearchResult *search = m_watchers.value(watcher);
+    QFutureWatcher<SearchResultItem> *watcher =
+            static_cast<QFutureWatcher<SearchResultItem> *>(sender());
+    SearchResult *search = m_watchers.value(watcher);
     if (!search) {
         // search was removed from search history while the search is running
         watcher->cancel();
         return;
     }
-    QList<Core::SearchResultItem> items;
+    QList<SearchResultItem> items;
     for (int i = begin; i < end; ++i)
         items << watcher->resultAt(i);
-    search->addResults(items, Core::SearchResult::AddSorted);
+    search->addResults(items, SearchResult::AddSorted);
 }
 
 void SymbolsFindFilter::finish()
 {
-    QFutureWatcher<Core::SearchResultItem> *watcher =
-            static_cast<QFutureWatcher<Core::SearchResultItem> *>(sender());
-    Core::SearchResult *search = m_watchers.value(watcher);
+    QFutureWatcher<SearchResultItem> *watcher =
+            static_cast<QFutureWatcher<SearchResultItem> *>(sender());
+    SearchResult *search = m_watchers.value(watcher);
     if (search)
         search->finishSearch(watcher->isCanceled());
     m_watchers.remove(watcher);
     watcher->deleteLater();
 }
 
-void SymbolsFindFilter::openEditor(const Core::SearchResultItem &item)
+void SymbolsFindFilter::openEditor(const SearchResultItem &item)
 {
     if (!item.userData.canConvert<IndexItem::Ptr>())
         return;
@@ -220,7 +220,7 @@ void SymbolsFindFilter::onTaskStarted(Id type)
     }
 }
 
-void SymbolsFindFilter::onAllTasksFinished(Core::Id type)
+void SymbolsFindFilter::onAllTasksFinished(Id type)
 {
     if (type == CppTools::Constants::TASK_INDEX) {
         m_enabled = true;
@@ -230,7 +230,7 @@ void SymbolsFindFilter::onAllTasksFinished(Core::Id type)
 
 void SymbolsFindFilter::searchAgain()
 {
-    Core::SearchResult *search = qobject_cast<Core::SearchResult *>(sender());
+    SearchResult *search = qobject_cast<SearchResult *>(sender());
     QTC_ASSERT(search, return);
     search->restart();
     startSearch(search);
@@ -241,7 +241,7 @@ QString SymbolsFindFilter::label() const
     return tr("C++ Symbols:");
 }
 
-QString SymbolsFindFilter::toolTip(Core::FindFlags findFlags) const
+QString SymbolsFindFilter::toolTip(FindFlags findFlags) const
 {
     QStringList types;
     if (m_symbolsToSearch & SymbolSearcher::Classes)
@@ -255,7 +255,7 @@ QString SymbolsFindFilter::toolTip(Core::FindFlags findFlags) const
     return tr("Scope: %1\nTypes: %2\nFlags: %3")
             .arg(searchScope() == SymbolSearcher::SearchGlobal ? tr("All") : tr("Projects"))
             .arg(types.join(tr(", ")))
-            .arg(Core::IFindFilter::descriptionForFindFlags(findFlags));
+            .arg(IFindFilter::descriptionForFindFlags(findFlags));
 }
 
 // #pragma mark -- SymbolsFindFilterConfigWidget

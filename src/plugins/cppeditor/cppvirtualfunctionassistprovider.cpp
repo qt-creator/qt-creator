@@ -128,12 +128,12 @@ public:
         : m_params(params)
     {}
 
-    IAssistProposal *immediateProposal(const TextEditor::AssistInterface *) Q_DECL_OVERRIDE
+    IAssistProposal *immediateProposal(const AssistInterface *) Q_DECL_OVERRIDE
     {
         QTC_ASSERT(m_params.function, return 0);
 
         AssistProposalItem *hintItem
-                = new VirtualFunctionProposalItem(TextEditor::TextEditorWidget::Link());
+                = new VirtualFunctionProposalItem(TextEditorWidget::Link());
         hintItem->setText(QCoreApplication::translate("VirtualFunctionsAssistProcessor",
                                                       "...searching overrides"));
         hintItem->setOrder(-1000);
@@ -180,8 +180,7 @@ private:
 
     AssistProposalItem *itemFromFunction(Function *func) const
     {
-        const TextEditor::TextEditorWidget::Link link
-                = CppTools::linkToSymbol(maybeDefinitionFor(func));
+        const TextEditorWidget::Link link = CppTools::linkToSymbol(maybeDefinitionFor(func));
         QString text = m_overview.prettyName(LookupContext::fullyQualifiedName(func));
         if (func->isPureVirtual())
             text += QLatin1String(" = 0");
@@ -196,7 +195,7 @@ private:
     VirtualFunctionAssistProvider::Parameters m_params;
     Overview m_overview;
     Icons m_icons;
-    mutable CppTools::SymbolFinder m_finder;
+    mutable SymbolFinder m_finder;
 };
 
 VirtualFunctionAssistProvider::VirtualFunctionAssistProvider()

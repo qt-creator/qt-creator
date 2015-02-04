@@ -53,11 +53,11 @@ namespace CppTools {
 class SemanticInfoUpdaterPrivate
 {
 public:
-    class FuturizedTopLevelDeclarationProcessor: public CPlusPlus::TopLevelDeclarationProcessor
+    class FuturizedTopLevelDeclarationProcessor: public TopLevelDeclarationProcessor
     {
     public:
         FuturizedTopLevelDeclarationProcessor(QFutureInterface<void> &future): m_future(future) {}
-        bool processDeclaration(CPlusPlus::DeclarationAST *) { return !isCanceled(); }
+        bool processDeclaration(DeclarationAST *) { return !isCanceled(); }
         bool isCanceled() { return m_future.isCanceled(); }
     private:
         QFutureInterface<void> m_future;

@@ -63,9 +63,9 @@ IAssistProcessor *CppQuickFixAssistProvider::createProcessor() const
     return new QuickFixAssistProcessor(this);
 }
 
-QList<TextEditor::QuickFixFactory *> CppQuickFixAssistProvider::quickFixFactories() const
+QList<QuickFixFactory *> CppQuickFixAssistProvider::quickFixFactories() const
 {
-    QList<TextEditor::QuickFixFactory *> results;
+    QList<QuickFixFactory *> results;
     foreach (CppQuickFixFactory *f, ExtensionSystem::PluginManager::getObjects<CppQuickFixFactory>())
         results.append(f);
     return results;
@@ -75,19 +75,19 @@ QList<TextEditor::QuickFixFactory *> CppQuickFixAssistProvider::quickFixFactorie
 // CppQuickFixAssistInterface
 // --------------------------
 CppQuickFixInterface::CppQuickFixInterface(CppEditorWidget *editor,
-                                                       TextEditor::AssistReason reason)
+                                                       AssistReason reason)
     : AssistInterface(editor->document(), editor->position(),
                       editor->textDocument()->filePath().toString(), reason)
     , m_editor(editor)
     , m_semanticInfo(editor->semanticInfo())
-    , m_snapshot(CppTools::CppModelManager::instance()->snapshot())
+    , m_snapshot(CppModelManager::instance()->snapshot())
     , m_currentFile(CppRefactoringChanges::file(editor, m_semanticInfo.doc))
     , m_context(m_semanticInfo.doc, m_snapshot)
 {
     QTC_CHECK(m_semanticInfo.doc);
     QTC_CHECK(m_semanticInfo.doc->translationUnit());
     QTC_CHECK(m_semanticInfo.doc->translationUnit()->ast());
-    CPlusPlus::ASTPath astPath(m_semanticInfo.doc);
+    ASTPath astPath(m_semanticInfo.doc);
     m_path = astPath(editor->textCursor());
 }
 
@@ -126,7 +126,7 @@ bool CppQuickFixInterface::isCursorOn(unsigned tokenIndex) const
     return currentFile()->isCursorOn(tokenIndex);
 }
 
-bool CppQuickFixInterface::isCursorOn(const CPlusPlus::AST *ast) const
+bool CppQuickFixInterface::isCursorOn(const AST *ast) const
 {
     return currentFile()->isCursorOn(ast);
 }

@@ -827,7 +827,7 @@ TopLevelDeclarationProcessor *Control::topLevelDeclarationProcessor() const
     return d->processor;
 }
 
-void Control::setTopLevelDeclarationProcessor(CPlusPlus::TopLevelDeclarationProcessor *processor)
+void Control::setTopLevelDeclarationProcessor(TopLevelDeclarationProcessor *processor)
 {
     d->processor = processor;
 }

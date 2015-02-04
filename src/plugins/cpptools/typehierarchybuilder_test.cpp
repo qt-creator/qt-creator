@@ -95,7 +95,7 @@ private:
     Class *m_clazz;
 };
 
-class TypeHierarchyBuilderTestCase : public CppTools::Tests::TestCase
+class TypeHierarchyBuilderTestCase : public Tests::TestCase
 {
 public:
     TypeHierarchyBuilderTestCase(const QList<Tests::TestDocument> &documents,

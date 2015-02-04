@@ -45,22 +45,22 @@ using namespace TextEditor;
 using namespace CPlusPlus;
 
 CppHighlighter::CppHighlighter(QTextDocument *document) :
-    TextEditor::SyntaxHighlighter(document)
+    SyntaxHighlighter(document)
 {
-    static QVector<TextEditor::TextStyle> categories;
+    static QVector<TextStyle> categories;
     if (categories.isEmpty()) {
-        categories << TextEditor::C_NUMBER
-                   << TextEditor::C_STRING
-                   << TextEditor::C_TYPE
-                   << TextEditor::C_KEYWORD
-                   << TextEditor::C_PRIMITIVE_TYPE
-                   << TextEditor::C_OPERATOR
-                   << TextEditor::C_PREPROCESSOR
-                   << TextEditor::C_LABEL
-                   << TextEditor::C_COMMENT
-                   << TextEditor::C_DOXYGEN_COMMENT
-                   << TextEditor::C_DOXYGEN_TAG
-                   << TextEditor::C_VISUAL_WHITESPACE;
+        categories << C_NUMBER
+                   << C_STRING
+                   << C_TYPE
+                   << C_KEYWORD
+                   << C_PRIMITIVE_TYPE
+                   << C_OPERATOR
+                   << C_PREPROCESSOR
+                   << C_LABEL
+                   << C_COMMENT
+                   << C_DOXYGEN_COMMENT
+                   << C_DOXYGEN_TAG
+                   << C_VISUAL_WHITESPACE;
     }
     setTextFormatCategories(categories);
 }

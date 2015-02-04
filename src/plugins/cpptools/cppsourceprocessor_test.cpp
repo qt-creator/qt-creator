@@ -208,7 +208,7 @@ void CppToolsPlugin::test_cppsourceprocessor_includeNext()
     const QString customHeaderPath = data.directory(QLatin1String("customIncludePath"));
     const QString systemHeaderPath = data.directory(QLatin1String("systemIncludePath"));
 
-    CppSourceProcessor::DocumentCallback documentCallback = [](const CPlusPlus::Document::Ptr &){};
+    CppSourceProcessor::DocumentCallback documentCallback = [](const Document::Ptr &){};
     CppSourceProcessor sourceProcessor(Snapshot(), documentCallback);
     ProjectPart::HeaderPaths headerPaths = ProjectPart::HeaderPaths()
         << ProjectPart::HeaderPath(customHeaderPath, ProjectPart::HeaderPath::IncludePath)

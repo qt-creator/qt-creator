@@ -72,7 +72,7 @@ class tst_cxx11: public QObject
         return result;
     }
 
-    struct Client: CPlusPlus::DiagnosticClient {
+    struct Client: DiagnosticClient {
         QByteArray *errors;
 
         Client(QByteArray *errors)
@@ -106,7 +106,7 @@ class tst_cxx11: public QObject
     public:
         FindLambdaFunction() : m_function(0) {}
 
-        Function *operator()(const CPlusPlus::Document::Ptr &document)
+        Function *operator()(const Document::Ptr &document)
         {
             accept(document->globalNamespace());
             return m_function;

@@ -92,7 +92,7 @@ static bool isOwnershipRAIIName(const QString &name)
     return knownNames.contains(name);
 }
 
-bool isOwnershipRAIIType(CPlusPlus::Symbol *symbol, const LookupContext &context)
+bool isOwnershipRAIIType(Symbol *symbol, const LookupContext &context)
 {
     if (!symbol)
         return false;

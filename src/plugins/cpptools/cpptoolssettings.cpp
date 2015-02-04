@@ -84,13 +84,13 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
 
     qRegisterMetaType<CppTools::CppCodeStyleSettings>("CppTools::CppCodeStyleSettings");
 
-    QSettings *s = Core::ICore::settings();
+    QSettings *s = ICore::settings();
     d->m_commentsSettings.fromSettings(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP), s);
     d->m_completionSettingsPage = new CompletionSettingsPage(this);
     ExtensionSystem::PluginManager::addObject(d->m_completionSettingsPage);
 
     // code style factory
-    ICodeStylePreferencesFactory *factory = new CppTools::CppCodeStylePreferencesFactory();
+    ICodeStylePreferencesFactory *factory = new CppCodeStylePreferencesFactory();
     TextEditorSettings::registerCodeStyleFactory(factory);
 
     // code style pool
@@ -206,7 +206,7 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
             // create custom code style out of old settings
             QVariant v;
             v.setValue(legacyCodeStyleSettings);
-            TextEditor::ICodeStylePreferences *oldCreator = pool->createCodeStyle(
+            ICodeStylePreferences *oldCreator = pool->createCodeStyle(
                      "legacy", legacyTabSettings, v, tr("Old Creator"));
 
             // change the current delegate and save
@@ -261,7 +261,7 @@ void CppToolsSettings::setCommentsSettings(const CommentsSettings &commentsSetti
 
     d->m_commentsSettings = commentsSettings;
     d->m_commentsSettings.toSettings(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP),
-                                     Core::ICore::settings());
+                                     ICore::settings());
 }
 
 static QString sortEditorDocumentOutlineKey()

@@ -221,7 +221,7 @@ namespace CppTools {
 
 namespace Internal {
 
-static void applyRefactorings(QTextDocument *textDocument, TextEditor::TextEditorWidget *editor,
+static void applyRefactorings(QTextDocument *textDocument, TextEditorWidget *editor,
                               const CppCodeStyleSettings &settings)
 {
     // Preprocess source
@@ -282,7 +282,7 @@ CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
 
     setVisualizeWhitespace(true);
 
-    connect(m_ui->tabSettingsWidget, &TextEditor::TabSettingsWidget::settingsChanged,
+    connect(m_ui->tabSettingsWidget, &TabSettingsWidget::settingsChanged,
             this, &CppCodeStylePreferencesWidget::slotTabSettingsChanged);
     connect(m_ui->indentBlockBraces, &QCheckBox::toggled,
             this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
@@ -382,7 +382,7 @@ CppCodeStyleSettings CppCodeStylePreferencesWidget::cppCodeStyleSettings() const
     return set;
 }
 
-void CppCodeStylePreferencesWidget::setTabSettings(const TextEditor::TabSettings &settings)
+void CppCodeStylePreferencesWidget::setTabSettings(const TabSettings &settings)
 {
     m_ui->tabSettingsWidget->setTabSettings(settings);
 }
@@ -416,7 +416,7 @@ void CppCodeStylePreferencesWidget::setCodeStyleSettings(const CppCodeStyleSetti
         updatePreview();
 }
 
-void CppCodeStylePreferencesWidget::slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences *preferences, bool preview)
+void CppCodeStylePreferencesWidget::slotCurrentPreferencesChanged(ICodeStylePreferences *preferences, bool preview)
 {
     const bool enable = !preferences->isReadOnly() && !m_preferences->currentDelegate();
     m_ui->tabSettingsWidget->setEnabled(enable);
@@ -443,7 +443,7 @@ void CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged()
     updatePreview();
 }
 
-void CppCodeStylePreferencesWidget::slotTabSettingsChanged(const TextEditor::TabSettings &settings)
+void CppCodeStylePreferencesWidget::slotTabSettingsChanged(const TabSettings &settings)
 {
     if (m_blockUpdates)
         return;
@@ -463,9 +463,9 @@ void CppCodeStylePreferencesWidget::updatePreview()
             ? m_preferences
             : CppToolsSettings::instance()->cppCodeStyle();
     const CppCodeStyleSettings ccss = cppCodeStylePreferences->currentCodeStyleSettings();
-    const TextEditor::TabSettings ts = cppCodeStylePreferences->currentTabSettings();
+    const TabSettings ts = cppCodeStylePreferences->currentTabSettings();
     QtStyleCodeFormatter formatter(ts, ccss);
-    foreach (TextEditor::SnippetEditorWidget *preview, m_previews) {
+    foreach (SnippetEditorWidget *preview, m_previews) {
         preview->textDocument()->setTabSettings(ts);
         preview->setCodeStyle(cppCodeStylePreferences);
 
@@ -485,14 +485,14 @@ void CppCodeStylePreferencesWidget::updatePreview()
     }
 }
 
-void CppCodeStylePreferencesWidget::decorateEditors(const TextEditor::FontSettings &fontSettings)
+void CppCodeStylePreferencesWidget::decorateEditors(const FontSettings &fontSettings)
 {
     const ISnippetProvider *provider = ExtensionSystem::PluginManager::getObject<ISnippetProvider>(
         [](ISnippetProvider *current) {
             return current->groupId() == QLatin1String(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
         });
 
-    foreach (TextEditor::SnippetEditorWidget *editor, m_previews) {
+    foreach (SnippetEditorWidget *editor, m_previews) {
         editor->textDocument()->setFontSettings(fontSettings);
         if (provider)
             provider->decorateEditor(editor);
@@ -501,7 +501,7 @@ void CppCodeStylePreferencesWidget::decorateEditors(const TextEditor::FontSettin
 
 void CppCodeStylePreferencesWidget::setVisualizeWhitespace(bool on)
 {
-    foreach (TextEditor::SnippetEditorWidget *editor, m_previews) {
+    foreach (SnippetEditorWidget *editor, m_previews) {
         DisplaySettings displaySettings = editor->displaySettings();
         displaySettings.m_visualizeWhitespace = on;
         editor->setDisplaySettings(displaySettings);

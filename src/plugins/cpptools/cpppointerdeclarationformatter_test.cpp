@@ -67,7 +67,7 @@ QString stripCursor(const QString &source)
     return copy;
 }
 
-class PointerDeclarationFormatterTestCase : public CppTools::Tests::TestCase
+class PointerDeclarationFormatterTestCase : public Tests::TestCase
 {
 public:
     PointerDeclarationFormatterTestCase(const QByteArray &source,

@@ -66,5 +66,5 @@ CppTools::CppCompletionAssistProvider *ModelManagerSupport::completionAssistProv
 CppTools::BaseEditorDocumentProcessor *ModelManagerSupport::editorDocumentProcessor(
         TextEditor::TextDocument *baseTextDocument)
 {
-    return new ClangCodeModel::ClangEditorDocumentProcessor(baseTextDocument);
+    return new ClangEditorDocumentProcessor(baseTextDocument);
 }

@@ -40,9 +40,10 @@
 #include <utils/qtcassert.h>
 
 using namespace CPlusPlus;
-using namespace CppTools;
 
-class CppTools::CppRefactoringChangesData : public TextEditor::RefactoringChangesData
+namespace CppTools {
+
+class CppRefactoringChangesData : public TextEditor::RefactoringChangesData
 {
 public:
     CppRefactoringChangesData(const Snapshot &snapshot)
@@ -262,3 +263,5 @@ void CppRefactoringFile::fileChanged()
     m_cppDocument.clear();
     RefactoringFile::fileChanged();
 }
+
+} // namespace CppTools

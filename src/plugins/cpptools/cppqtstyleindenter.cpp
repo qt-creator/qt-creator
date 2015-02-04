@@ -107,7 +107,7 @@ void CppQtStyleIndenter::indentBlock(QTextDocument *doc,
 {
     Q_UNUSED(doc)
 
-    CppTools::QtStyleCodeFormatter codeFormatter(tabSettings, codeStyleSettings());
+    QtStyleCodeFormatter codeFormatter(tabSettings, codeStyleSettings());
 
     codeFormatter.updateStateUntil(block);
     int indent;
@@ -140,7 +140,7 @@ void CppQtStyleIndenter::indent(QTextDocument *doc,
         QTextBlock block = doc->findBlock(cursor.selectionStart());
         const QTextBlock end = doc->findBlock(cursor.selectionEnd()).next();
 
-        CppTools::QtStyleCodeFormatter codeFormatter(tabSettings, codeStyleSettings());
+        QtStyleCodeFormatter codeFormatter(tabSettings, codeStyleSettings());
         codeFormatter.updateStateUntil(block);
 
         QTextCursor tc = cursor;
@@ -161,15 +161,15 @@ void CppQtStyleIndenter::indent(QTextDocument *doc,
 
 void CppQtStyleIndenter::setCodeStylePreferences(TextEditor::ICodeStylePreferences *preferences)
 {
-    CppTools::CppCodeStylePreferences *cppCodeStylePreferences
-            = qobject_cast<CppTools::CppCodeStylePreferences *>(preferences);
+    CppCodeStylePreferences *cppCodeStylePreferences
+            = qobject_cast<CppCodeStylePreferences *>(preferences);
     if (cppCodeStylePreferences)
         m_cppCodeStylePreferences = cppCodeStylePreferences;
 }
 
 void CppQtStyleIndenter::invalidateCache(QTextDocument *doc)
 {
-    CppTools::QtStyleCodeFormatter formatter;
+    QtStyleCodeFormatter formatter;
     formatter.invalidateCache(doc);
 }
 

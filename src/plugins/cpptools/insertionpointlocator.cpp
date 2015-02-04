@@ -497,7 +497,7 @@ static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration,
         return noResult;
 
     // scan preceding declarations for a function declaration (and see if it is defined)
-    CppTools::SymbolFinder symbolFinder;
+    SymbolFinder symbolFinder;
     Function *definitionFunction = 0;
     QString prefix, suffix;
     Declaration *surroundingFunctionDecl = 0;
@@ -572,7 +572,7 @@ QList<InsertionLocation> InsertionPointLocator::methodDefinition(Symbol *declara
         return result;
 
     if (useSymbolFinder) {
-        CppTools::SymbolFinder symbolFinder;
+        SymbolFinder symbolFinder;
         if (symbolFinder.findMatchingDefinition(declaration, m_refactoringChanges.snapshot(), true))
             return result;
     }

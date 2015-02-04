@@ -37,7 +37,8 @@
 #include <QDebug>
 
 using namespace CPlusPlus;
-using namespace CppTools;
+
+namespace CppTools {
 
 typedef Utils::ScopedSwap<IndexItem::Ptr> ScopedIndexItemPtr;
 typedef Utils::ScopedSwap<QString> ScopedScope;
@@ -48,7 +49,7 @@ SearchSymbols::SymbolTypes SearchSymbols::AllTypes =
         | SymbolSearcher::Enums
         | SymbolSearcher::Declarations;
 
-SearchSymbols::SearchSymbols(CppTools::Internal::StringTable &stringTable)
+SearchSymbols::SearchSymbols(Internal::StringTable &stringTable)
     : strings(stringTable)
     , symbolsToSearchFor(SymbolSearcher::Classes | SymbolSearcher::Functions | SymbolSearcher::Enums)
 {
@@ -157,92 +158,92 @@ bool SearchSymbols::visit(Class *symbol)
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::UsingNamespaceDirective *)
+bool SearchSymbols::visit(UsingNamespaceDirective *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::UsingDeclaration *)
+bool SearchSymbols::visit(UsingDeclaration *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::NamespaceAlias *)
+bool SearchSymbols::visit(NamespaceAlias *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::Argument *)
+bool SearchSymbols::visit(Argument *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::TypenameArgument *)
+bool SearchSymbols::visit(TypenameArgument *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::BaseClass *)
+bool SearchSymbols::visit(BaseClass *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::Template *)
+bool SearchSymbols::visit(Template *)
 {
     return true;
 }
 
-bool SearchSymbols::visit(CPlusPlus::Block *)
+bool SearchSymbols::visit(Block *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::ForwardClassDeclaration *)
+bool SearchSymbols::visit(ForwardClassDeclaration *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::ObjCBaseClass *)
+bool SearchSymbols::visit(ObjCBaseClass *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::ObjCBaseProtocol *)
+bool SearchSymbols::visit(ObjCBaseProtocol *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::ObjCClass *symbol)
-{
-    processClass(symbol);
-
-    return false;
-}
-
-bool SearchSymbols::visit(CPlusPlus::ObjCForwardClassDeclaration *)
-{
-    return false;
-}
-
-bool SearchSymbols::visit(CPlusPlus::ObjCProtocol *symbol)
+bool SearchSymbols::visit(ObjCClass *symbol)
 {
     processClass(symbol);
 
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::ObjCForwardProtocolDeclaration *)
+bool SearchSymbols::visit(ObjCForwardClassDeclaration *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::ObjCMethod *symbol)
+bool SearchSymbols::visit(ObjCProtocol *symbol)
+{
+    processClass(symbol);
+
+    return false;
+}
+
+bool SearchSymbols::visit(ObjCForwardProtocolDeclaration *)
+{
+    return false;
+}
+
+bool SearchSymbols::visit(ObjCMethod *symbol)
 {
     processFunction(symbol);
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::ObjCPropertyDeclaration *symbol)
+bool SearchSymbols::visit(ObjCPropertyDeclaration *symbol)
 {
     processFunction(symbol);
     return false;
@@ -336,3 +337,5 @@ void SearchSymbols::processFunction(T *func)
     QString type = overview.prettyType(func->type());
     addChildItem(name, type, _scope, IndexItem::Function, func);
 }
+
+} // namespace CppTools

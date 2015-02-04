@@ -149,13 +149,13 @@ public:
 
     bool writeContents(const QByteArray &contents) const
     {
-        return CppTools::Tests::TestCase::writeFile(m_filePath, contents);
+        return TestCase::writeFile(m_filePath, contents);
     }
 
 private:
     void restoreContents() const
     {
-        CppTools::Tests::TestCase::writeFile(m_filePath, m_originalFileContents);
+        TestCase::writeFile(m_filePath, m_originalFileContents);
     }
 
     QByteArray m_originalFileContents;

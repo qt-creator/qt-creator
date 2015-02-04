@@ -261,7 +261,7 @@ Namespace *isNamespaceFunction(const LookupContext &context, Function *function)
 
 // Given include is e.g. "afile.h" or <afile.h> (quotes/angle brackets included!).
 void insertNewIncludeDirective(const QString &include, CppRefactoringFilePtr file,
-                               const CPlusPlus::Document::Ptr &cppDocument)
+                               const Document::Ptr &cppDocument)
 {
     // Find optimal position
     using namespace IncludeUtils;
@@ -2636,7 +2636,7 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                                 return;
 
                             // Check if there is already a definition
-                            CppTools::SymbolFinder symbolFinder;
+                            SymbolFinder symbolFinder;
                             if (symbolFinder.findMatchingDefinition(decl, interface.snapshot(),
                                                                     true)) {
                                 return;
@@ -2729,7 +2729,7 @@ public:
         , m_classDecl(0)
         , m_offerQuickFix(true)
     {
-        setDescription(TextEditor::QuickFixFactory::tr("Create Getter and Setter Member Functions"));
+        setDescription(QuickFixFactory::tr("Create Getter and Setter Member Functions"));
 
         const QList<AST *> &path = interface.path();
         // We expect something like
@@ -3881,8 +3881,8 @@ public:
     {
         setDescription(
                 mode == FromPointer
-                ? TextEditor::QuickFixFactory::tr("Convert to Stack Variable")
-                : TextEditor::QuickFixFactory::tr("Convert to Pointer"));
+                ? QuickFixFactory::tr("Convert to Stack Variable")
+                : QuickFixFactory::tr("Convert to Pointer"));
     }
 
     void perform() Q_DECL_OVERRIDE
@@ -4220,7 +4220,7 @@ public:
         , m_signalName(signalName)
         , m_storageName(storageName)
     {
-        setDescription(TextEditor::QuickFixFactory::tr("Generate Missing Q_PROPERTY Members..."));
+        setDescription(QuickFixFactory::tr("Generate Missing Q_PROPERTY Members..."));
     }
 
     void perform()

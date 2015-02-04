@@ -75,7 +75,7 @@ UnsavedFiles createUnsavedFiles(WorkingCopy workingCopy)
     // TODO: Reason: the UnsavedFile needs a QByteArray.
 
     QSet< ::Utils::FileName> modifiedFiles;
-    foreach (IDocument *doc, Core::DocumentManager::modifiedDocuments())
+    foreach (IDocument *doc, DocumentManager::modifiedDocuments())
         modifiedFiles.insert(doc->filePath());
 
     UnsavedFiles result;
@@ -112,7 +112,7 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, const QString &fil
 
 static QString getResourceDir()
 {
-    QDir dir(Core::ICore::instance()->resourcePath() + QLatin1String("/cplusplus/clang/") +
+    QDir dir(ICore::instance()->resourcePath() + QLatin1String("/cplusplus/clang/") +
              QLatin1String(CLANG_VERSION) + QLatin1String("/include"));
     if (!dir.exists() || !QFileInfo(dir, QLatin1String("stdint.h")).exists())
         dir = QDir(QLatin1String(CLANG_RESOURCE_DIR));
@@ -144,18 +144,17 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, ProjectFile::Kind 
         result << QLatin1String("-v");
 
     const bool objcExt = pPart->languageExtensions & ProjectPart::ObjectiveCExtensions;
-    result << CppTools::CompilerOptionsBuilder::createLanguageOption(fileKind, objcExt);
-    result << CppTools::CompilerOptionsBuilder::createOptionsForLanguage(
-                                                      pPart->languageVersion,
-                                                      pPart->languageExtensions,
-                                                      maybeIncludeBorlandExtensions());
-    result << CppTools::CompilerOptionsBuilder::createDefineOptions(pPart->toolchainDefines);
-    result << CppTools::CompilerOptionsBuilder::createDefineOptions(pPart->projectDefines);
-    result << CppTools::CompilerOptionsBuilder::createHeaderPathOptions(pPart->headerPaths,
-                                                                        isBlacklisted);
+    result << CompilerOptionsBuilder::createLanguageOption(fileKind, objcExt);
+    result << CompilerOptionsBuilder::createOptionsForLanguage(
+                  pPart->languageVersion,
+                  pPart->languageExtensions,
+                  maybeIncludeBorlandExtensions());
+    result << CompilerOptionsBuilder::createDefineOptions(pPart->toolchainDefines);
+    result << CompilerOptionsBuilder::createDefineOptions(pPart->projectDefines);
+    result << CompilerOptionsBuilder::createHeaderPathOptions(pPart->headerPaths, isBlacklisted);
 
     // Inject header file
-    static const QString injectedHeader = Core::ICore::instance()->resourcePath()
+    static const QString injectedHeader = ICore::instance()->resourcePath()
             + QLatin1String("/cplusplus/qt%1-qobjectdefs-injected.h");
 //    if (qtVersion == ProjectPart::Qt4)
 //        opts << QLatin1String("-include") << injectedHeader.arg(QLatin1Char('4'));

@@ -100,7 +100,7 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget() :
     m_inspectedClass->setMargin(5);
     m_model = new CppTypeHierarchyModel(this);
     m_treeView = new NavigationTreeView(this);
-    m_treeView->setActivationMode(Utils::SingleClickActivation);
+    m_treeView->setActivationMode(SingleClickActivation);
     m_delegate = new AnnotatedItemDelegate(this);
     m_delegate->setDelimiter(QLatin1String(" "));
     m_delegate->setAnnotationRole(AnnotationRole);

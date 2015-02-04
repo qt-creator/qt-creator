@@ -105,7 +105,7 @@ public:
     CppEditorWidgetPrivate(CppEditorWidget *q);
 
 public:
-    QPointer<CppTools::CppModelManager> m_modelManager;
+    QPointer<CppModelManager> m_modelManager;
 
     CppEditorDocument *m_cppEditorDocument;
     CppEditorOutline *m_cppEditorOutline;
@@ -114,7 +114,7 @@ public:
 
     CppLocalRenaming m_localRenaming;
 
-    CppTools::SemanticInfo m_lastSemanticInfo;
+    SemanticInfo m_lastSemanticInfo;
     QuickFixOperations m_quickFixes;
 
     CppUseSelectionsUpdater m_useSelectionsUpdater;
@@ -172,7 +172,7 @@ void CppEditorWidget::finalizeInitialization()
             SLOT(updateSelectionsForVariableUnderCursor(QList<QTextEdit::ExtraSelection>)));
 
     connect(&d->m_useSelectionsUpdater, &CppUseSelectionsUpdater::finished,
-            [this] (CppTools::SemanticInfo::LocalUseMap localUses) {
+            [this] (SemanticInfo::LocalUseMap localUses) {
                 QTC_CHECK(isSemanticInfoValidExceptLocalUses());
                 d->m_lastSemanticInfo.localUsesUpdated = true;
                 d->m_lastSemanticInfo.localUses = localUses;
@@ -242,7 +242,7 @@ CppEditorDocument *CppEditorWidget::cppEditorDocument() const
     return d->m_cppEditorDocument;
 }
 
-CppTools::CppEditorOutline *CppEditorWidget::outline() const
+CppEditorOutline *CppEditorWidget::outline() const
 {
     return d->m_cppEditorOutline;
 }
@@ -588,7 +588,7 @@ void CppEditorWidget::applyFontSettings()
 
 void CppEditorWidget::slotCodeStyleSettingsChanged(const QVariant &)
 {
-    CppTools::QtStyleCodeFormatter formatter;
+    QtStyleCodeFormatter formatter;
     formatter.invalidateCache(document());
 }
 

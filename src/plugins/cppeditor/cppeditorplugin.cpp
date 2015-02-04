@@ -95,7 +95,7 @@ public:
         setEditorWidgetCreator([]() { return new CppEditorWidget; });
         setEditorCreator([]() { return new CppEditor; });
         setAutoCompleterCreator([]() { return new CppAutoCompleter; });
-        setCommentStyle(Utils::CommentDefinition::CppStyle);
+        setCommentStyle(CommentDefinition::CppStyle);
         setCodeFoldingSupported(true);
         setMarksVisible(true);
         setParenthesesMatchingEnabled(true);
@@ -107,7 +107,7 @@ public:
 
         addHoverHandler(new CppHoverHandler);
 
-        if (!Utils::HostOsInfo::isMacHost() && !Utils::HostOsInfo::isWindowsHost()) {
+        if (!HostOsInfo::isMacHost() && !HostOsInfo::isWindowsHost()) {
             FileIconProvider::registerIconOverlayForMimeType(
                         QIcon(creatorTheme()->imageFile(Theme::IconOverlayCppSource, QLatin1String(":/cppeditor/images/qt_cpp.png"))),
                         Constants::CPP_SOURCE_MIMETYPE);
@@ -153,7 +153,7 @@ CppQuickFixAssistProvider *CppEditorPlugin::quickFixProvider() const
 
 bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
-    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":/cppeditor/CppEditor.mimetypes.xml"), errorMessage))
+    if (!MimeDatabase::addMimeTypes(QLatin1String(":/cppeditor/CppEditor.mimetypes.xml"), errorMessage))
         return false;
 
     addAutoReleasedObject(new CppEditorFactory);
@@ -203,7 +203,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
             new QAction(tr("Open Function Declaration/Definition in Next Split"), this);
     cmd = ActionManager::registerAction(openDeclarationDefinitionInNextSplit,
         Constants::OPEN_DECLARATION_DEFINITION_IN_NEXT_SPLIT, context, true);
-    cmd->setDefaultKeySequence(QKeySequence(Utils::HostOsInfo::isMacHost()
+    cmd->setDefaultKeySequence(QKeySequence(HostOsInfo::isMacHost()
                                             ? tr("Meta+E, Shift+F2")
                                             : tr("Ctrl+E, Shift+F2")));
     connect(openDeclarationDefinitionInNextSplit, SIGNAL(triggered()),
@@ -225,8 +225,8 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     cppToolsMenu->addAction(cmd);
 
     m_openIncludeHierarchyAction = new QAction(tr("Open Include Hierarchy"), this);
-    cmd = Core::ActionManager::registerAction(m_openIncludeHierarchyAction, Constants::OPEN_INCLUDE_HIERARCHY, context);
-    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Shift+I") : tr("Ctrl+Shift+I")));
+    cmd = ActionManager::registerAction(m_openIncludeHierarchyAction, Constants::OPEN_INCLUDE_HIERARCHY, context);
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Shift+I") : tr("Ctrl+Shift+I")));
     connect(m_openIncludeHierarchyAction, SIGNAL(triggered()), this, SLOT(openIncludeHierarchy()));
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
@@ -258,7 +258,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     cppToolsMenu->addSeparator(globalContext);
     QAction *inspectCppCodeModel = new QAction(tr("Inspect C++ Code Model..."), this);
     cmd = ActionManager::registerAction(inspectCppCodeModel, Constants::INSPECT_CPP_CODEMODEL, globalContext);
-    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Shift+F12") : tr("Ctrl+Shift+F12")));
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Shift+F12") : tr("Ctrl+Shift+F12")));
     connect(inspectCppCodeModel, SIGNAL(triggered()), this, SLOT(inspectCppCodeModel()));
     cppToolsMenu->addAction(cmd);
 
@@ -322,7 +322,7 @@ void CppEditorPlugin::showPreProcessorDialog()
         editorWidget->showPreProcessorWidget();
 }
 
-void CppEditorPlugin::onTaskStarted(Core::Id type)
+void CppEditorPlugin::onTaskStarted(Id type)
 {
     if (type == CppTools::Constants::TASK_INDEX) {
         m_renameSymbolUnderCursorAction->setEnabled(false);
@@ -333,7 +333,7 @@ void CppEditorPlugin::onTaskStarted(Core::Id type)
     }
 }
 
-void CppEditorPlugin::onAllTasksFinished(Core::Id type)
+void CppEditorPlugin::onAllTasksFinished(Id type)
 {
     if (type == CppTools::Constants::TASK_INDEX) {
         m_renameSymbolUnderCursorAction->setEnabled(true);
@@ -375,8 +375,8 @@ void CppEditorPlugin::openTypeHierarchy()
 void CppEditorPlugin::openIncludeHierarchy()
 {
     if (currentCppEditorWidget()) {
-        Core::NavigationWidget *navigation = Core::NavigationWidget::instance();
-        navigation->activateSubWidget(Core::Id(Constants::INCLUDE_HIERARCHY_ID));
+        NavigationWidget *navigation = NavigationWidget::instance();
+        navigation->activateSubWidget(Id(Constants::INCLUDE_HIERARCHY_ID));
         emit includeHierarchyRequested();
     }
 }

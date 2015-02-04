@@ -47,16 +47,15 @@
     Tests CheckSymbols, the "data provider" of the semantic highlighter.
  */
 
-typedef QByteArray _;
-typedef CppTools::CheckSymbols::Result Use;
-typedef CppTools::CheckSymbols::Kind UseKind;
-typedef CppTools::SemanticHighlighter Highlighting;
-typedef QList<Use> UseList;
-Q_DECLARE_METATYPE(UseList)
-
 using namespace CPlusPlus;
 using namespace CppTools;
 
+typedef QByteArray _;
+typedef CheckSymbols::Result Use;
+typedef CheckSymbols::Kind UseKind;
+typedef SemanticHighlighter Highlighting;
+typedef QList<Use> UseList;
+Q_DECLARE_METATYPE(UseList)
 
 static QString useKindToString(UseKind useKind)
 {
@@ -117,7 +116,7 @@ public:
     {
         // Write source to temprorary file
         const QString filePath = QDir::tempPath() + QLatin1String("/file.h");
-        CppTools::Tests::TestCase::writeFile(filePath, source);
+        Tests::TestCase::writeFile(filePath, source);
 
         // Processs source
         const Document::Ptr document = createDocument(filePath, source);
@@ -1771,7 +1770,7 @@ void tst_CheckSymbols::test_checksymbols_infiniteLoop()
         "};\n"
         ;
     const QString filePath1 = QDir::tempPath() + QLatin1String("/file1.h");
-    CppTools::Tests::TestCase::writeFile(filePath1, source1);
+    Tests::TestCase::writeFile(filePath1, source1);
 
     const QByteArray source2 =
         "template<class _Elem, class _Traits>\n"
@@ -1787,7 +1786,7 @@ void tst_CheckSymbols::test_checksymbols_infiniteLoop()
         "};\n"
         ;
     const QString filePath2 = QDir::tempPath() + QLatin1String("/file2.h");
-    CppTools::Tests::TestCase::writeFile(filePath2, source2);
+    Tests::TestCase::writeFile(filePath2, source2);
 
     const Document::Ptr document1 = TestCase::createDocument(filePath1, source1);
     document1->addIncludeFile(Document::Include("file2.h", filePath2, 1, Client::IncludeLocal));

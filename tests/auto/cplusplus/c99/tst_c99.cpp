@@ -70,7 +70,7 @@ class tst_c99: public QObject
         return result;
     }
 
-    struct Client: CPlusPlus::DiagnosticClient {
+    struct Client: DiagnosticClient {
         QByteArray *errors;
 
         Client(QByteArray *errors)

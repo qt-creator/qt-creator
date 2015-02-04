@@ -212,7 +212,7 @@ QuickFixOperationTest::QuickFixOperationTest(const QList<QuickFixTestDocument::P
 
     // Perform operation if there is one
     CppQuickFixInterface quickFixInterface(m_documentWithMarker->m_editorWidget, ExplicitlyInvoked);
-    TextEditor::QuickFixOperations operations;
+    QuickFixOperations operations;
     factory->match(quickFixInterface, operations);
     if (operations.isEmpty()) {
         QVERIFY(testDocuments.first()->m_expectedSource.isEmpty());
@@ -259,7 +259,7 @@ QuickFixOfferedOperationsTest::QuickFixOfferedOperationsTest(
 {
     // Get operations
     CppQuickFixInterface quickFixInterface(m_documentWithMarker->m_editorWidget, ExplicitlyInvoked);
-    TextEditor::QuickFixOperations actualOperations;
+    QuickFixOperations actualOperations;
     factory->match(quickFixInterface, actualOperations);
 
     // Convert to QStringList

@@ -308,7 +308,7 @@ inline LookupItem skipForwardDeclarations(const QList<LookupItem> &resolvedSymbo
 }
 
 CppEditorWidget::Link attemptFuncDeclDef(const QTextCursor &cursor,
-    CppEditorWidget *, CPlusPlus::Snapshot snapshot, const CPlusPlus::Document::Ptr &document,
+    CppEditorWidget *, Snapshot snapshot, const Document::Ptr &document,
     SymbolFinder *symbolFinder)
 {
     Link result;
@@ -624,7 +624,7 @@ TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &curs
             continue;
         if (ch == QLatin1Char('(') && !expression.isEmpty()) {
             tc.setPosition(pos);
-            if (TextEditor::TextBlockUserData::findNextClosingParenthesis(&tc, true))
+            if (TextBlockUserData::findNextClosingParenthesis(&tc, true))
                 expression.append(tc.selectedText());
         }
 
@@ -684,8 +684,7 @@ TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &curs
                     params.openInNextSplit = inNextSplit;
 
                     if (m_virtualFunctionAssistProvider->configure(params)) {
-                        m_widget->invokeAssist(TextEditor::FollowSymbol,
-                                               m_virtualFunctionAssistProvider);
+                        m_widget->invokeAssist(FollowSymbol, m_virtualFunctionAssistProvider);
                         m_virtualFunctionAssistProvider->clearParams();
                     }
 

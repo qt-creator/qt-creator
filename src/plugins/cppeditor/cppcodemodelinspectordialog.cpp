@@ -1342,7 +1342,7 @@ void CppCodeModelInspectorDialog::onWorkingCopyDocumentSelected(const QModelInde
 
 void CppCodeModelInspectorDialog::refresh()
 {
-    CppTools::CppModelManager *cmmi = CppTools::CppModelManager::instance();
+    CppModelManager *cmmi = CppModelManager::instance();
 
     const int oldSnapshotIndex = m_ui->snapshotSelector->currentIndex();
     const bool selectEditorRelevant

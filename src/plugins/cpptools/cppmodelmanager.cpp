@@ -125,13 +125,13 @@ class CppModelManagerPrivate
 public:
     // Snapshot
     mutable QMutex m_snapshotMutex;
-    CPlusPlus::Snapshot m_snapshot;
+    Snapshot m_snapshot;
 
     // Project integration
     mutable QMutex m_projectMutex;
     QMap<ProjectExplorer::Project *, ProjectInfo> m_projectToProjectsInfo;
-    QMap<Utils::FileName, QList<CppTools::ProjectPart::Ptr> > m_fileToProjectParts;
-    QMap<QString, CppTools::ProjectPart::Ptr> m_projectFileToProjectPart;
+    QMap<Utils::FileName, QList<ProjectPart::Ptr> > m_fileToProjectParts;
+    QMap<QString, ProjectPart::Ptr> m_projectFileToProjectPart;
     // The members below are cached/(re)calculated from the projects and/or their project parts
     bool m_dirty;
     QStringList m_projectFiles;
@@ -236,7 +236,7 @@ QString CppModelManager::editorConfigurationFileName()
 
 QString CppModelManager::configurationFileName()
 {
-    return CPlusPlus::Preprocessor::configurationFileName;
+    return Preprocessor::configurationFileName;
 }
 
 void CppModelManager::updateModifiedSourceFiles()
@@ -312,7 +312,7 @@ CppModelManager::CppModelManager(QObject *parent)
             this, SLOT(onCoreAboutToClose()));
 
     qRegisterMetaType<CPlusPlus::Document::Ptr>("CPlusPlus::Document::Ptr");
-    qRegisterMetaType<QList<CPlusPlus::Document::DiagnosticMessage>>(
+    qRegisterMetaType<QList<Document::DiagnosticMessage>>(
                 "QList<CPlusPlus::Document::DiagnosticMessage>");
 
     d->m_modelManagerSupportFallback.reset(new ModelManagerSupportInternal);
@@ -503,36 +503,36 @@ void CppModelManager::unregisterCppEditorDocument(const QString &filePath)
     }
 }
 
-QList<int> CppModelManager::references(CPlusPlus::Symbol *symbol, const LookupContext &context)
+QList<int> CppModelManager::references(Symbol *symbol, const LookupContext &context)
 {
     return d->m_findReferences->references(symbol, context);
 }
 
-void CppModelManager::findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context)
+void CppModelManager::findUsages(Symbol *symbol, const LookupContext &context)
 {
     if (symbol->identifier())
         d->m_findReferences->findUsages(symbol, context);
 }
 
-void CppModelManager::renameUsages(CPlusPlus::Symbol *symbol,
-                                   const CPlusPlus::LookupContext &context,
+void CppModelManager::renameUsages(Symbol *symbol,
+                                   const LookupContext &context,
                                    const QString &replacement)
 {
     if (symbol->identifier())
         d->m_findReferences->renameUsages(symbol, context, replacement);
 }
 
-void CppModelManager::findMacroUsages(const CPlusPlus::Macro &macro)
+void CppModelManager::findMacroUsages(const Macro &macro)
 {
     d->m_findReferences->findMacroUses(macro);
 }
 
-void CppModelManager::renameMacroUsages(const CPlusPlus::Macro &macro, const QString &replacement)
+void CppModelManager::renameMacroUsages(const Macro &macro, const QString &replacement)
 {
     d->m_findReferences->renameMacroUses(macro, replacement);
 }
 
-void CppModelManager::replaceSnapshot(const CPlusPlus::Snapshot &newSnapshot)
+void CppModelManager::replaceSnapshot(const Snapshot &newSnapshot)
 {
     QMutexLocker snapshotLocker(&d->m_snapshotMutex);
     d->m_snapshot = newSnapshot;

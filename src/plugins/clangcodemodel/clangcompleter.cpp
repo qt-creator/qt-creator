@@ -46,12 +46,16 @@
 
 //#define TIME_COMPLETION
 
-class ClangCodeModel::ClangCompleter::PrivateData
+using namespace ClangCodeModel::Internal;
+
+namespace ClangCodeModel {
+
+class ClangCompleter::PrivateData
 {
 public:
     PrivateData()
         : m_mutex(QMutex::Recursive)
-        , m_unit(Internal::Unit::create())
+        , m_unit(Unit::create())
         , m_isSignalSlotCompletion(false)
     {
     }
@@ -60,7 +64,7 @@ public:
     {
     }
 
-    bool parseFromFile(const Internal::UnsavedFiles &unsavedFiles)
+    bool parseFromFile(const UnsavedFiles &unsavedFiles)
     {
         Q_ASSERT(!m_unit->isLoaded());
         if (m_unit->fileName().isEmpty())
@@ -80,12 +84,9 @@ public:
 
 public:
     QMutex m_mutex;
-    Internal::Unit::Ptr m_unit;
+    Unit::Ptr m_unit;
     bool m_isSignalSlotCompletion;
 };
-
-using namespace ClangCodeModel;
-using namespace ClangCodeModel::Internal;
 
 /**
  * @brief Constructs with highest possible priority
@@ -127,7 +128,7 @@ QString ClangCompleter::fileName() const
 void ClangCompleter::setFileName(const QString &fileName)
 {
     if (d->m_unit->fileName() != fileName) {
-        d->m_unit = Internal::Unit::create(fileName);
+        d->m_unit = Unit::create(fileName);
     }
 }
 
@@ -208,3 +209,5 @@ QMutex *ClangCompleter::mutex() const
 {
     return &d->m_mutex;
 }
+
+} // namespace ClangCodeModel

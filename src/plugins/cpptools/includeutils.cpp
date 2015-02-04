@@ -217,7 +217,7 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
         *newLinesToAppend = false;
 
     const QString pureIncludeFileName = newIncludeFileName.mid(1, newIncludeFileName.length() - 2);
-    const CPlusPlus::Client::IncludeType newIncludeType =
+    const Client::IncludeType newIncludeType =
         newIncludeFileName.startsWith(QLatin1Char('"')) ? Client::IncludeLocal
                                                         : Client::IncludeGlobal;
 
@@ -391,11 +391,11 @@ QList<IncludeGroup> IncludeGroup::detectIncludeGroupsByIncludeType(const QList<I
 {
     // Create sub groups
     QList<IncludeGroup> result;
-    CPlusPlus::Client::IncludeType lastIncludeType;
+    Client::IncludeType lastIncludeType;
     QList<Include> currentIncludes;
     bool isFirst = true;
     foreach (const Include &include, includes) {
-        const CPlusPlus::Client::IncludeType currentIncludeType = include.type();
+        const Client::IncludeType currentIncludeType = include.type();
 
         // First include...
         if (isFirst) {

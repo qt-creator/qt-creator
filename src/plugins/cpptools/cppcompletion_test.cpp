@@ -58,7 +58,7 @@ namespace {
 
 typedef QByteArray _;
 
-class CompletionTestCase : public CppTools::Tests::TestCase
+class CompletionTestCase : public Tests::TestCase
 {
 public:
     CompletionTestCase(const QByteArray &sourceText, const QByteArray &textToInsert = QByteArray())
@@ -82,7 +82,7 @@ public:
         m_editor = EditorManager::openEditor(fileName);
         QVERIFY(m_editor);
         closeEditorAtEndOfTestCase(m_editor);
-        m_editorWidget = qobject_cast<TextEditor::TextEditorWidget *>(m_editor->widget());
+        m_editorWidget = qobject_cast<TextEditorWidget *>(m_editor->widget());
         QVERIFY(m_editorWidget);
 
         m_textDocument = m_editorWidget->document();

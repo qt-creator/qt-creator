@@ -28,9 +28,9 @@
 
 #include <cstring>
 
-using namespace CPlusPlus;
+namespace CPlusPlus {
 
-class CPlusPlus::SymbolTable
+class SymbolTable
 {
     SymbolTable(const SymbolTable &other);
     void operator =(const SymbolTable &other);
@@ -293,3 +293,5 @@ unsigned Scope::endOffset() const
 
 void Scope::setEndOffset(unsigned offset)
 { _endOffset = offset; }
+
+} // namespace CPlusPlus

@@ -50,7 +50,7 @@ ProjectPart::ProjectPart()
     , languageVersion(CXX14)
     , languageExtensions(NoExtensions)
     , qtVersion(UnknownQt)
-    , warningFlags(ProjectExplorer::ToolChain::WarningsDefault)
+    , warningFlags(ToolChain::WarningsDefault)
     , selectedForBuilding(true)
 {
 }
@@ -62,7 +62,7 @@ ProjectPart::ProjectPart()
     \param cxxflags C++ or Objective-C++ flags.
     \param cflags C or ObjectiveC flags if possible, \a cxxflags otherwise.
 */
-void ProjectPart::evaluateToolchain(const ProjectExplorer::ToolChain *tc,
+void ProjectPart::evaluateToolchain(const ToolChain *tc,
                                     const QStringList &commandLineFlags,
                                     const Utils::FileName &sysRoot)
 {
@@ -136,7 +136,7 @@ QByteArray ProjectPart::readProjectConfigFile(const ProjectPart::Ptr &part)
 ProjectInfo::ProjectInfo()
 {}
 
-ProjectInfo::ProjectInfo(QPointer<ProjectExplorer::Project> project)
+ProjectInfo::ProjectInfo(QPointer<Project> project)
     : m_project(project)
 {}
 
@@ -175,7 +175,7 @@ bool ProjectInfo::isValid() const
     return !m_project.isNull();
 }
 
-QPointer<ProjectExplorer::Project> ProjectInfo::project() const
+QPointer<Project> ProjectInfo::project() const
 {
     return m_project;
 }
@@ -447,11 +447,11 @@ void ProjectPartBuilder::createProjectPart(const QStringList &theSources,
                                            ProjectPart::LanguageVersion languageVersion,
                                            ProjectPart::LanguageExtensions languageExtensions)
 {
-    CppTools::ProjectPart::Ptr part(m_templatePart->copy());
+    ProjectPart::Ptr part(m_templatePart->copy());
     part->displayName = partName;
 
     QTC_ASSERT(part->project, return);
-    if (ProjectExplorer::Target *activeTarget = part->project->activeTarget()) {
+    if (Target *activeTarget = part->project->activeTarget()) {
         if (Kit *kit = activeTarget->kit()) {
             if (ToolChain *toolChain = ToolChainKitInformation::toolChain(kit)) {
                 const QStringList flags = languageVersion >= ProjectPart::CXX98 ? m_cxxFlags
@@ -463,7 +463,7 @@ void ProjectPartBuilder::createProjectPart(const QStringList &theSources,
 
     part->languageExtensions |= languageExtensions;
 
-    CppTools::ProjectFileAdder adder(part->files);
+    ProjectFileAdder adder(part->files);
     foreach (const QString &file, theSources)
         adder.maybeAdd(file);
 

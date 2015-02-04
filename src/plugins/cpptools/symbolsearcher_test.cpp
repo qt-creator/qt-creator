@@ -88,7 +88,7 @@ public:
 
 typedef ResultData::ResultDataList ResultDataList;
 
-class SymbolSearcherTestCase : public CppTools::Tests::TestCase
+class SymbolSearcherTestCase : public Tests::TestCase
 {
 public:
     /// Takes no ownership of indexingSupportToUse
