@@ -1706,52 +1706,6 @@ class Dumper(DumperBase):
         self.typesToReport[typestring] = typeobj
         return typeobj
 
-    def extractQmlData(self, value):
-        if value.type.code == PointerCode:
-            value = value.dereference()
-        data = value["data"]
-        return data.cast(self.lookupType(str(value.type).replace("QV4::", "QV4::Heap::")))
-
-    def extractQmlRuntimeString(self, compilationUnitPtr, index):
-        # This mimics compilationUnit->runtimeStrings[index]
-        runtimeStrings = compilationUnitPtr.dereference()["runtimeStrings"] # QV4.StringValue *
-        entry = (runtimeStrings + index)                                    # QV4.StringValue *
-        text = entry["text"]
-        (elided, fn) = self.encodeStringHelper(toInteger(text), 100)
-        return self.encodedUtf16ToUtf8(fn)                                  # string
-
-    def putQmlLocation(self, level, frame, sal):
-        engine = frame.read_var("engine")                             # QV4.ExecutionEngine *
-        if self.currentCallContext is None:
-            context = engine["current"]                               # QV4.ExecutionContext * or derived
-            self.currentCallContext = context
-        else:
-            context = self.currentCallContext["parent"]
-        ctxCode = int(context["type"])
-        compilationUnit = context["compilationUnit"]         # QV4.CompiledData.CompilationUnit *
-        functionName = "### JS ###";
-        ns = self.qtNamespace()
-
-        # QV4.ExecutionContext.Type_SimpleCallContext - 4
-        # QV4.ExecutionContext.Type_CallContext - 5
-        if ctxCode == 4 or ctxCode == 5:
-            callContextDataType = self.lookupQtType("QV4::Heap::CallContext")
-            callContext = context.cast(callContextDataType.pointer())
-            functionObject = callContext["function"]
-            function = functionObject["function"]
-            compiledFunction = function["compiledFunction"].dereference()  # QV4.CompiledData.Function
-            index = int(compiledFunction["nameIndex"])
-            functionName = "### JS ###   " + self.extractQmlRuntimeString(compilationUnit, index)
-
-        string = gdb.parse_and_eval("((%s)0x%x)->fileName()"
-            % (compilationUnit.type, compilationUnit))
-        fileName = self.encodeStringUtf8(string)
-
-        lineNumber = int(context["lineNumber"])
-        self.put(('frame={level="%s",func="%s",file="%s",'
-                 'fullname="%s",line="%s",language="js",addr="0x%x"}')
-            % (level, functionName, fileName, fileName, lineNumber, context))
-
     def stackListFrames(self, n, options):
         self.prepare("options:" + options + ",pe")
         self.output = []
@@ -1779,7 +1733,13 @@ class Dumper(DumperBase):
 
                 if self.nativeMixed:
                     if self.isReportableQmlFrame(functionName):
-                        self.putQmlLocation(i, frame, sal)
+                        engine = frame.read_var("engine")
+                        h = self.extractQmlLocation(engine)
+                        self.put(('frame={level="%s",func="%s",file="%s",'
+                                 'fullname="%s",line="%s",language="js",addr="0x%x"}')
+                            % (i, h['functionName'], h['fileName'], h['fileName'],
+                                  h['lineNumber'], h['context']))
+
                         i += 1
                         frame = frame.older()
                         continue

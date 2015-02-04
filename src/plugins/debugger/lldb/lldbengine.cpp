@@ -1000,6 +1000,12 @@ void LldbEngine::refreshStack(const GdbMi &stack)
             frame.usable = usable.data().toInt();
         else
             frame.usable = QFileInfo(frame.file).isReadable();
+        if (item["language"].data() == "js"
+                || frame.file.endsWith(QLatin1String(".js"))
+                || frame.file.endsWith(QLatin1String(".qml"))) {
+            frame.language = QmlLanguage;
+            frame.fixQmlFrame(startParameters());
+        }
         frames.append(frame);
     }
     bool canExpand = stack["hasmore"].toInt();

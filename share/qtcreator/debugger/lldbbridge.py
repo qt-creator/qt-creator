@@ -90,7 +90,7 @@ Value = lldb.SBValue
 
 def impl_SBValue__add__(self, offset):
     if self.GetType().IsPointerType():
-        if isinstance(offset, int) or isinstance(offset, long):
+        if isinstance(offset, int):
             pass
         else:
             offset = offset.GetValueAsSigned()
@@ -138,7 +138,7 @@ def impl_SBValue__long__(self):
     return int(self.GetValue(), 0)
 
 def impl_SBValue__getitem__(value, index):
-    if isinstance(index, int):
+    if isinstance(index, int) or isinstance(index, long):
         type = value.GetType()
         if type.IsPointerType():
             innertype = value.Dereference().GetType()
@@ -846,6 +846,7 @@ class Dumper(DumperBase):
 
         (n, isLimited) = (limit, True) if limit > 0 else (thread.GetNumFrames(), False)
 
+        self.currentCallContext = None
         result = 'stack={current-thread="%s"' % thread.GetThreadID()
         result += ',frames=['
         for i in xrange(n):
@@ -867,9 +868,15 @@ class Dumper(DumperBase):
 
             if self.nativeMixed:
                 if self.isReportableQmlFrame(functionName):
-                    #self.putQmlLocation(i, frame, sal)
-                    functionName = "### JS ###";
-                    language = "js"
+                    engine = frame.FindVariable("engine")
+                    self.context = engine
+                    h = self.extractQmlLocation(engine)
+                    pc = 0
+                    functionName = h['functionName']
+                    fullname = h['fileName']
+                    lineNumber = h['lineNumber']
+                    addr = h['context']
+                    language = 'js'
 
                 elif not functionName is None:
                     if functionName.startswith("qt_v4"):
@@ -1669,6 +1676,9 @@ class Dumper(DumperBase):
             instructions = function.GetInstructions(self.target)
         else:
             base = args.get('address', 0)
+            if int(base) == 0xffffffffffffffff:
+                warn("INVALID DISASSEMBLER BASE")
+                return
             addr = lldb.SBAddress(base, self.target)
             instructions = self.target.ReadInstructions(addr, 100)
 

@@ -1784,6 +1784,53 @@ class DumperBase:
     def isReportableQmlFrame(self, functionName):
         return functionName and functionName.find("QV4::Moth::VME::exec") >= 0
 
+    def extractQmlData(self, value):
+        if value.type.code == PointerCode:
+            value = value.dereference()
+        data = value["data"]
+        return data.cast(self.lookupType(str(value.type).replace("QV4::", "QV4::Heap::")))
+
+    def extractQmlRuntimeString(self, compilationUnitPtr, index):
+        # This mimics compilationUnit->runtimeStrings[index]
+        # typeof runtimeStrings = QV4.StringValue **
+        runtimeStrings = compilationUnitPtr.dereference()["runtimeStrings"]
+        entry = runtimeStrings[index]
+        text = self.extractPointer(entry.dereference(), self.ptrSize())
+        (elided, fn) = self.encodeStringHelper(text, 100)
+        return self.encodedUtf16ToUtf8(fn)
+
+    def extractQmlLocation(self, engine):
+        if self.currentCallContext is None:
+            context = engine["current"]       # QV4.ExecutionContext * or derived
+            self.currentCallContext = context
+        else:
+            context = self.currentCallContext["parent"]
+        ctxCode = int(context["type"])
+        compilationUnit = context["compilationUnit"]
+        functionName = "Unknown JS";
+        ns = self.qtNamespace()
+
+        # QV4.ExecutionContext.Type_SimpleCallContext - 4
+        # QV4.ExecutionContext.Type_CallContext - 5
+        if ctxCode == 4 or ctxCode == 5:
+            callContextDataType = self.lookupQtType("QV4::Heap::CallContext")
+            callContext = context.cast(callContextDataType.pointer())
+            functionObject = callContext["function"]
+            function = functionObject["function"]
+            # QV4.CompiledData.Function
+            compiledFunction = function["compiledFunction"].dereference()
+            index = int(compiledFunction["nameIndex"])
+            functionName = "JS: " + self.extractQmlRuntimeString(compilationUnit, index)
+
+        string = self.parseAndEvaluate("((%s)0x%x)->fileName()"
+            % (compilationUnit.type, compilationUnit))
+        fileName = self.encodeStringUtf8(string)
+
+        return {'functionName': functionName,
+                'lineNumber': int(context["lineNumber"]),
+                'fileName': fileName,
+                'context': context }
+
 
 # Some "Enums"
 
