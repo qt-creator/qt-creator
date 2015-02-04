@@ -33,6 +33,7 @@
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
 #include "cmakesettingspage.h"
+#include "cmaketoolmanager.h"
 
 #include <utils/synchronousprocess.h>
 
@@ -47,8 +48,7 @@
 
 using namespace CMakeProjectManager::Internal;
 
-CMakeManager::CMakeManager(CMakeSettingsPage *cmakeSettingsPage)
-    : m_settingsPage(cmakeSettingsPage)
+CMakeManager::CMakeManager()
 {
     ProjectExplorer::ProjectTree *tree = ProjectExplorer::ProjectTree::instance();
     connect(tree, &ProjectExplorer::ProjectTree::aboutToShowContextMenu,
@@ -130,32 +130,39 @@ QString CMakeManager::mimeType() const
 
 QString CMakeManager::cmakeExecutable() const
 {
-    return m_settingsPage->cmakeExecutable();
+    CMakeTool *cmake = CMakeToolManager::defaultCMakeTool();
+    if (cmake)
+        return cmake->cmakeExecutable().toString();
+    return QString();
 }
 
 bool CMakeManager::isCMakeExecutableValid() const
 {
-    return m_settingsPage->isCMakeExecutableValid();
-}
-
-void CMakeManager::setCMakeExecutable(const QString &executable)
-{
-    m_settingsPage->setCMakeExecutable(executable);
+    CMakeTool *cmake = CMakeToolManager::defaultCMakeTool();
+    if (cmake)
+        return cmake->isValid();
+    return false;
 }
 
 bool CMakeManager::hasCodeBlocksMsvcGenerator() const
 {
-    return m_settingsPage->hasCodeBlocksMsvcGenerator();
+    CMakeTool *cmake = CMakeToolManager::defaultCMakeTool();
+    if (cmake)
+        return cmake->hasCodeBlocksMsvcGenerator();
+    return false;
 }
 
 bool CMakeManager::hasCodeBlocksNinjaGenerator() const
 {
-    return m_settingsPage->hasCodeBlocksNinjaGenerator();
+    CMakeTool *cmake = CMakeToolManager::defaultCMakeTool();
+    if (cmake)
+        return cmake->hasCodeBlocksNinjaGenerator();
+    return false;
 }
 
 bool CMakeManager::preferNinja() const
 {
-    return m_settingsPage->preferNinja();
+    return CMakeToolManager::preferNinja();
 }
 
 // need to refactor this out

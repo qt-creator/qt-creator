@@ -53,15 +53,13 @@ class CMakeManager : public ProjectExplorer::IProjectManager
 {
     Q_OBJECT
 public:
-    CMakeManager(CMakeSettingsPage *cmakeSettingsPage);
+    CMakeManager();
 
     virtual ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString);
     virtual QString mimeType() const;
 
     QString cmakeExecutable() const;
     bool isCMakeExecutableValid() const;
-
-    void setCMakeExecutable(const QString &executable);
 
     void createXmlFile(Utils::QtcProcess *process,
                        const QString &arguments,

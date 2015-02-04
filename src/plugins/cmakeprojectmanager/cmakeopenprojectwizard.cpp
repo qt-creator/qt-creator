@@ -30,6 +30,7 @@
 
 #include "cmakeopenprojectwizard.h"
 #include "cmakeprojectmanager.h"
+#include "cmaketoolmanager.h"
 #include "cmakebuildconfiguration.h"
 #include "cmakebuildinfo.h"
 #include "generatorinfo.h"
@@ -386,7 +387,13 @@ void ChooseCMakePage::updateErrorText()
 
 void ChooseCMakePage::cmakeExecutableChanged()
 {
-    m_cmakeWizard->cmakeManager()->setCMakeExecutable(m_cmakeExecutable->path());
+    CMakeTool *cmake = CMakeToolManager::defaultCMakeTool();
+    if (!cmake) {
+        Core::Id id = CMakeToolManager::registerOrFindCMakeTool(m_cmakeExecutable->fileName());
+        CMakeToolManager::setDefaultCMakeTool(id);
+    } else {
+        cmake->setCMakeExecutable(m_cmakeExecutable->fileName());
+    }
     updateErrorText();
     emit completeChanged();
 }

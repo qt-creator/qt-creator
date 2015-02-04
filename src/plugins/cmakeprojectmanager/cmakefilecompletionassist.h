@@ -43,14 +43,11 @@ class CMakeFileCompletionAssistProvider : public TextEditor::CompletionAssistPro
     Q_OBJECT
 
 public:
-    CMakeFileCompletionAssistProvider(CMakeSettingsPage *settingsPage);
+    CMakeFileCompletionAssistProvider();
     ~CMakeFileCompletionAssistProvider();
 
     bool supportsEditor(Core::Id editorId) const;
     TextEditor::IAssistProcessor *createProcessor() const;
-
-private:
-    CMakeSettingsPage *m_settingsPage;
 };
 
 } // Internal

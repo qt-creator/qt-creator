@@ -30,19 +30,49 @@
 
 #include "cmaketool.h"
 
+#include <utils/qtcassert.h>
+
 #include <QProcess>
 #include <QFileInfo>
 #include <QTextDocument>
+#include <QUuid>
 
-using namespace CMakeProjectManager::Internal;
+using namespace CMakeProjectManager;
+
+const char CMAKE_INFORMATION_ID[] = "Id";
+const char CMAKE_INFORMATION_COMMAND[] = "Binary";
+const char CMAKE_INFORMATION_DISPLAYNAME[] = "DisplayName";
+const char CMAKE_INFORMATION_AUTODETECTED[] = "AutoDetected";
 
 ///////////////////////////
 // CMakeTool
 ///////////////////////////
-CMakeTool::CMakeTool()
-    : m_state(Invalid), m_process(0), m_hasCodeBlocksMsvcGenerator(false), m_hasCodeBlocksNinjaGenerator(false)
+CMakeTool::CMakeTool(Detection d, const Core::Id &id)
+    : m_state(Invalid), m_process(0),
+      m_isAutoDetected(d == AutoDetection),
+      m_hasCodeBlocksMsvcGenerator(false),
+      m_hasCodeBlocksNinjaGenerator(false),
+      m_id(id)
 {
+    //make sure every CMakeTool has a valid ID
+    if (!m_id.isValid())
+        createId();
+}
 
+CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk)
+    : m_state(Invalid), m_process(0),
+      m_isAutoDetected(fromSdk),
+      m_hasCodeBlocksMsvcGenerator(false),
+      m_hasCodeBlocksNinjaGenerator(false)
+{
+    m_id = Core::Id::fromSetting(map.value(QLatin1String(CMAKE_INFORMATION_ID)));
+    m_displayName = map.value(QLatin1String(CMAKE_INFORMATION_DISPLAYNAME)).toString();
+
+    //loading a CMakeTool from SDK is always autodetection
+    if (!fromSdk)
+        m_isAutoDetected = map.value(QLatin1String(CMAKE_INFORMATION_AUTODETECTED), false).toBool();
+
+    setCMakeExecutable(Utils::FileName::fromUserInput(map.value(QLatin1String(CMAKE_INFORMATION_COMMAND)).toString()));
 }
 
 CMakeTool::~CMakeTool()
@@ -60,14 +90,14 @@ void CMakeTool::cancel()
     }
 }
 
-void CMakeTool::setCMakeExecutable(const QString &executable)
+void CMakeTool::setCMakeExecutable(const Utils::FileName &executable)
 {
     cancel();
     m_process = new QProcess();
     connect(m_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished), this, &CMakeTool::finished);
 
     m_executable = executable;
-    QFileInfo fi(m_executable);
+    QFileInfo fi = m_executable.toFileInfo();
     if (fi.exists() && fi.isExecutable()) {
         // Run it to find out more
         m_state = CMakeTool::RunningBasic;
@@ -121,20 +151,39 @@ void CMakeTool::finished(int exitCode)
 
 bool CMakeTool::isValid() const
 {
-    if (m_state == CMakeTool::Invalid)
+    if (m_state == CMakeTool::Invalid || !m_id.isValid())
         return false;
-    if (m_state == CMakeTool::RunningBasic)
-        m_process->waitForFinished();
+    if (m_state == CMakeTool::RunningBasic) {
+        if (!m_process->waitForFinished(10000)) {
+            return false;
+        }
+    }
     return (m_state != CMakeTool::Invalid);
+}
+
+void CMakeTool::createId()
+{
+    QTC_ASSERT(!m_id.isValid(), return);
+    m_id = Core::Id::fromString(QUuid::createUuid().toString());
+}
+
+QVariantMap CMakeTool::toMap() const
+{
+    QVariantMap data;
+    data.insert(QLatin1String(CMAKE_INFORMATION_DISPLAYNAME), m_displayName);
+    data.insert(QLatin1String(CMAKE_INFORMATION_ID), m_id.toSetting());
+    data.insert(QLatin1String(CMAKE_INFORMATION_COMMAND), m_executable.toString());
+    data.insert(QLatin1String(CMAKE_INFORMATION_AUTODETECTED), m_isAutoDetected);
+    return data;
 }
 
 bool CMakeTool::startProcess(const QStringList &args)
 {
-    m_process->start(m_executable, args);
+    m_process->start(m_executable.toString(), args);
     return m_process->waitForStarted(2000);
 }
 
-QString CMakeTool::cmakeExecutable() const
+Utils::FileName CMakeTool::cmakeExecutable() const
 {
     return m_executable;
 }
@@ -163,6 +212,11 @@ TextEditor::Keywords CMakeTool::keywords()
         return TextEditor::Keywords(QStringList(), QStringList(), QMap<QString, QStringList>());
 
     return TextEditor::Keywords(m_variables, m_functions, m_functionArgs);
+}
+
+bool CMakeTool::isAutoDetected() const
+{
+    return m_isAutoDetected;
 }
 
 static void extractKeywords(const QByteArray &input, QStringList *destination)
@@ -211,6 +265,17 @@ QString CMakeTool::formatFunctionDetails(const QString &command, const QString &
     return QString::fromLatin1("<table><tr><td><b>%1</b></td><td>%2</td></tr>")
             .arg(command.toHtmlEscaped(), args.toHtmlEscaped());
 }
+
+QString CMakeTool::displayName() const
+{
+    return m_displayName;
+}
+
+void CMakeTool::setDisplayName(const QString &displayName)
+{
+    m_displayName = displayName;
+}
+
 
 void CMakeTool::parseFunctionDetailsOutput(const QByteArray &output)
 {

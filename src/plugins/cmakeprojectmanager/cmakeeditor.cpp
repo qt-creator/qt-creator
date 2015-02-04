@@ -264,7 +264,7 @@ QString CMakeDocument::suggestedFileName() const
 // CMakeEditorFactory
 //
 
-CMakeEditorFactory::CMakeEditorFactory(CMakeSettingsPage *settingsPage)
+CMakeEditorFactory::CMakeEditorFactory()
 {
     setId(Constants::CMAKE_EDITOR_ID);
     setDisplayName(tr(Constants::CMAKE_EDITOR_DISPLAY_NAME));
@@ -278,7 +278,7 @@ CMakeEditorFactory::CMakeEditorFactory(CMakeSettingsPage *settingsPage)
     setCommentStyle(Utils::CommentDefinition::HashStyle);
     setCodeFoldingSupported(true);
 
-    setCompletionAssistProvider(new CMakeFileCompletionAssistProvider(settingsPage));
+    setCompletionAssistProvider(new CMakeFileCompletionAssistProvider);
 
     setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
             | TextEditorActionHandler::JumpToFileUnderCursor);

@@ -32,6 +32,7 @@
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanager.h"
 #include "cmakesettingspage.h"
+#include "cmaketoolmanager.h"
 
 #include <texteditor/codeassist/keywordscompletionassist.h>
 
@@ -41,8 +42,7 @@ using namespace TextEditor;
 // -------------------------------
 // CMakeFileCompletionAssistProvider
 // -------------------------------
-CMakeFileCompletionAssistProvider::CMakeFileCompletionAssistProvider(CMakeSettingsPage *settingsPage)
-    : m_settingsPage(settingsPage)
+CMakeFileCompletionAssistProvider::CMakeFileCompletionAssistProvider()
 {}
 
 CMakeFileCompletionAssistProvider::~CMakeFileCompletionAssistProvider()
@@ -55,5 +55,10 @@ bool CMakeFileCompletionAssistProvider::supportsEditor(Core::Id editorId) const
 
 IAssistProcessor *CMakeFileCompletionAssistProvider::createProcessor() const
 {
-    return new KeywordsCompletionAssistProcessor(m_settingsPage->keywords());
+    TextEditor::Keywords keywords = TextEditor::Keywords(QStringList(), QStringList(), QMap<QString, QStringList>());
+    CMakeTool *cmake = CMakeToolManager::defaultCMakeTool();
+    if (cmake && cmake->isValid())
+        keywords = cmake->keywords();
+
+    return new KeywordsCompletionAssistProcessor(keywords);
 }

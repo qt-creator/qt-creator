@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2015 Canonical Ltd.
 ** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
@@ -27,42 +27,15 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#ifndef CMAKE_GLOBAL_H
+#define CMAKE_GLOBAL_H
 
-#ifndef CMAKEPROJECTPLUGIN_H
-#define CMAKEPROJECTPLUGIN_H
+#include <QtGlobal>
 
-#include <extensionsystem/iplugin.h>
-
-#include <QObject>
-
-namespace CMakeProjectManager {
-
-class CMakeToolManager;
-
-namespace Internal {
-
-class CMakeProjectPlugin
-  : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CMakeProjectManager.json")
-
-public:
-    CMakeProjectPlugin();
-    ~CMakeProjectPlugin();
-
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-
-    void extensionsInitialized();
-
-private slots:
-#ifdef WITH_TESTS
-    void testCMakeParser_data();
-    void testCMakeParser();
+#if defined(CMAKEPROJECTMANAGER_LIBRARY)
+#  define CMAKE_EXPORT Q_DECL_EXPORT
+#else
+#  define CMAKE_EXPORT Q_DECL_IMPORT
 #endif
-};
 
-} // namespace Internal
-} // namespace CMakeProject
-
-#endif // CMAKEPROJECTPLUGIN_H
+#endif // CMAKE_GLOBAL_H

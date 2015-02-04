@@ -39,6 +39,7 @@
 #include "cmakelocatorfilter.h"
 #include "cmakefilecompletionassist.h"
 #include "cmakesettingspage.h"
+#include "cmaketoolmanager.h"
 
 #include <coreplugin/featureprovider.h>
 #include <utils/mimetypes/mimedatabase.h>
@@ -62,15 +63,17 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     Q_UNUSED(errorMessage)
     Utils::MimeDatabase::addMimeTypes(QLatin1String(":cmakeproject/CMakeProjectManager.mimetypes.xml"));
 
-    CMakeSettingsPage *cmp = new CMakeSettingsPage();
-    addAutoReleasedObject(cmp);
-    addAutoReleasedObject(new CMakeManager(cmp));
+    addAutoReleasedObject(new CMakeSettingsPage);
+    addAutoReleasedObject(new CMakeManager);
     addAutoReleasedObject(new MakeStepFactory);
     addAutoReleasedObject(new CMakeRunConfigurationFactory);
     addAutoReleasedObject(new CMakeBuildConfigurationFactory);
-    addAutoReleasedObject(new CMakeEditorFactory(cmp));
+    addAutoReleasedObject(new CMakeEditorFactory);
     addAutoReleasedObject(new CMakeLocatorFilter);
-    addAutoReleasedObject(new CMakeFileCompletionAssistProvider(cmp));
+    addAutoReleasedObject(new CMakeFileCompletionAssistProvider);
+
+    new CMakeToolManager(this);
+    CMakeToolManager::restoreCMakeTools();
 
     return true;
 }

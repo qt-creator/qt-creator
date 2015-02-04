@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2015 Canonical Ltd.
 ** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
@@ -28,41 +28,44 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEPROJECTPLUGIN_H
-#define CMAKEPROJECTPLUGIN_H
+#ifndef CMAKEPROJECTMANAGER_CMAKETOOLMANAGER_H
+#define CMAKEPROJECTMANAGER_CMAKETOOLMANAGER_H
 
-#include <extensionsystem/iplugin.h>
+#include "cmake_global.h"
+#include "cmaketool.h"
+
+#include <utils/fileutils.h>
+#include <texteditor/codeassist/keywordscompletionassist.h>
 
 #include <QObject>
 
 namespace CMakeProjectManager {
 
-class CMakeToolManager;
-
-namespace Internal {
-
-class CMakeProjectPlugin
-  : public ExtensionSystem::IPlugin
+class CMAKE_EXPORT CMakeToolManager : public QObject
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CMakeProjectManager.json")
-
 public:
-    CMakeProjectPlugin();
-    ~CMakeProjectPlugin();
+    CMakeToolManager(QObject *parent);
+    ~CMakeToolManager();
 
-    bool initialize(const QStringList &arguments, QString *errorMessage);
+    static QList<CMakeTool *> cmakeTools();
+    static void setPreferNinja(bool set);
+    static bool preferNinja();
 
-    void extensionsInitialized();
+    static Core::Id registerOrFindCMakeTool(const Utils::FileName &command);
+    static bool registerCMakeTool(CMakeTool *tool);
+    static void deregisterCMakeTool(const Core::Id &id);
 
-private slots:
-#ifdef WITH_TESTS
-    void testCMakeParser_data();
-    void testCMakeParser();
-#endif
+    static CMakeTool *defaultCMakeTool();
+    static void setDefaultCMakeTool(const Core::Id &id);
+    static CMakeTool *findByCommand(const Utils::FileName &command);
+    static CMakeTool *findById(const Core::Id &id);
+    static void restoreCMakeTools();
+
+private:
+    static void saveCMakeTools();
 };
 
-} // namespace Internal
-} // namespace CMakeProject
+} // namespace CMakeProjectManager
 
-#endif // CMAKEPROJECTPLUGIN_H
+#endif // CMAKEPROJECTMANAGER_CMAKETOOLMANAGER_H

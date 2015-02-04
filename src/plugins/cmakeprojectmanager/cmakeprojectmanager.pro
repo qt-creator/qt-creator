@@ -1,3 +1,4 @@
+DEFINES += CMAKEPROJECTMANAGER_LIBRARY
 include(../../qtcreatorplugin.pri)
 
 HEADERS = cmakebuildinfo.h \
@@ -16,7 +17,9 @@ HEADERS = cmakebuildinfo.h \
     cmaketool.h \
     cmakeparser.h \
     generatorinfo.h \
-    cmakesettingspage.h
+    cmakesettingspage.h \
+    cmaketoolmanager.h \
+    cmake_global.h
 
 SOURCES = cmakeproject.cpp \
     cmakeprojectplugin.cpp \
@@ -32,7 +35,8 @@ SOURCES = cmakeproject.cpp \
     cmaketool.cpp \
     cmakeparser.cpp \
     generatorinfo.cpp \
-    cmakesettingspage.cpp
+    cmakesettingspage.cpp \
+    cmaketoolmanager.cpp
 
 
 RESOURCES += cmakeproject.qrc

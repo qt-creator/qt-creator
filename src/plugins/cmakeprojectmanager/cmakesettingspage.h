@@ -32,17 +32,15 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <utils/pathchooser.h>
-#include <texteditor/codeassist/keywordscompletionassist.h>
 
 #include <QPointer>
 
 #include "cmaketool.h"
 
-QT_FORWARD_DECLARE_CLASS(QLabel)
-QT_FORWARD_DECLARE_CLASS(QCheckBox)
-
 namespace CMakeProjectManager {
 namespace Internal {
+
+class CMakeToolConfigWidget;
 
 class CMakeSettingsPage : public Core::IOptionsPage
 {
@@ -56,24 +54,8 @@ public:
     void apply();
     void finish();
 
-    QString cmakeExecutable() const;
-    void setCMakeExecutable(const QString &executable);
-    bool isCMakeExecutableValid() const;
-    bool hasCodeBlocksMsvcGenerator() const;
-    bool hasCodeBlocksNinjaGenerator() const;
-    bool preferNinja() const;
-
-    TextEditor::Keywords keywords();
-
 private:
-    void saveSettings() const;
-    QString findCmakeExecutable() const;
-
-    QPointer<QWidget> m_widget;
-    Utils::PathChooser *m_pathchooser;
-    QCheckBox *m_preferNinja;
-    CMakeTool m_cmakeValidatorForUser;
-    CMakeTool m_cmakeValidatorForSystem;
+    CMakeToolConfigWidget *m_widget;
 };
 
 } // namespace Internal

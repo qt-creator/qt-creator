@@ -18,6 +18,7 @@ QtcPlugin {
     ]
 
     files: [
+        "cmake_global.h",
         "cmakebuildconfiguration.cpp",
         "cmakebuildconfiguration.h",
         "cmakebuildinfo.h",
@@ -45,6 +46,8 @@ QtcPlugin {
         "cmakerunconfiguration.h",
         "cmaketool.cpp",
         "cmaketool.h",
+        "cmaketoolmanager.cpp",
+        "cmaketoolmanager.h",
         "makestep.cpp",
         "makestep.h",
         "cmakesettingspage.h",
