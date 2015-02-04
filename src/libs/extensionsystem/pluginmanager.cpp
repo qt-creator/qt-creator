@@ -881,7 +881,7 @@ typedef QMapIterator<QObject *, QStringList> TestPlanIterator;
 
 static bool isTestFunction(const QMetaMethod &metaMethod)
 {
-    static const QByteArrayList blackList = QByteArrayList()
+    static const QList<QByteArray> blackList = QList<QByteArray>()
         << "initTestCase()" << "cleanupTestCase()" << "init()" << "cleanup()";
 
     if (metaMethod.methodType() != QMetaMethod::Slot)
