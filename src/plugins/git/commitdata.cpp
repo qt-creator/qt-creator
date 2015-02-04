@@ -205,7 +205,7 @@ QStringList CommitData::filterFiles(const FileStates &state) const
 {
     QStringList result;
     foreach (const StateFilePair &p, files) {
-        if (state == p.first)
+        if (state == (p.first & ~(UnmergedFile | UnmergedUs | UnmergedThem)))
             result.append(p.second);
     }
     return result;
