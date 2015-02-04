@@ -308,6 +308,10 @@
                         \li \c openAsProject opens the project file in \QC if it
                             is set to \c{true}.
 
+                        \li \c isBinary treats the file as a binary and prevents
+                            replacements from being done in the file if set to
+                            \c true.
+
                         \li \c condition generates the file if the condition
                             returns \c{true}. For more information, see
                             \l{Using Variables in Wizards}.
