@@ -570,6 +570,7 @@ void LldbEngine::changeBreakpoint(Breakpoint bp)
 {
     const BreakpointResponse &response = bp.response();
     DebuggerCommand cmd("changeBreakpoint");
+    cmd.arg("lldbid", response.id.toByteArray());
     bp.addToCommand(&cmd);
     bp.notifyBreakpointChangeProceeding();
     runCommand(cmd);
