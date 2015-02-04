@@ -50,6 +50,7 @@ public:
     virtual void apply();
     virtual void finish();
 
+    static void restoreSettings();
 private:
     MimeTypeSettingsPrivate *d;
 };

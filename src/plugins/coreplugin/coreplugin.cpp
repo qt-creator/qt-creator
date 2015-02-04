@@ -211,8 +211,6 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
 void CorePlugin::extensionsInitialized()
 {
-    // TODO
-//    MimeDatabase::syncUserModifiedMimeTypes();
     if (m_designMode->designModeIsRequired())
         addObject(m_designMode);
     m_findPlugin->extensionsInitialized();
