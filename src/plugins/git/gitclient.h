@@ -278,8 +278,7 @@ public:
     void synchronousSubversionFetch(const QString &workingDirectory);
     void subversionLog(const QString &workingDirectory);
 
-    void stashPop(const QString &workingDirectory, const QString &stash);
-    void stashPop(const QString &workingDirectory);
+    void stashPop(const QString &workingDirectory, const QString &stash = QString());
     void revert(const QStringList &files, bool revertStaging);
     bool synchronousStashList(const QString &workingDirectory,
                               QList<Stash> *stashes,

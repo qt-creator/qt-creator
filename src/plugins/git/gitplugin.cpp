@@ -509,7 +509,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     stashMenu->addSeparator(context);
 
     action = createRepositoryAction(stashMenu, tr("Stash Pop"), "Git.StashPop",
-                                    context, true, &GitClient::stashPop);
+                                    context, true, SLOT(stashPop()));
     action->setToolTip(tr("Restores changes saved to the stash list using \"Stash\"."));
 
 
@@ -1282,6 +1282,16 @@ void GitPlugin::stashSnapshot()
                 GitClient::StashImmediateRestore | GitClient::StashPromptDescription);
     if (!id.isEmpty() && m_stashDialog)
         m_stashDialog->refresh(state.topLevel(), true);
+}
+
+void GitPlugin::stashPop()
+{
+    if (!DocumentManager::saveAllModifiedDocuments())
+        return;
+    const QString repository = currentState().topLevel();
+    m_gitClient->stashPop(repository);
+    if (m_stashDialog)
+        m_stashDialog->refresh(repository, true);
 }
 
 // Create a non-modal dialog with refresh function or raise if it exists

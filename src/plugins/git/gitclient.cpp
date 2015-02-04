@@ -3273,11 +3273,6 @@ void GitClient::stashPop(const QString &workingDirectory, const QString &stash)
     new ConflictHandler(cmd, workingDirectory);
 }
 
-void GitClient::stashPop(const QString &workingDirectory)
-{
-    stashPop(workingDirectory, QString());
-}
-
 bool GitClient::synchronousStashRestore(const QString &workingDirectory,
                                         const QString &stash,
                                         bool pop,

@@ -127,6 +127,7 @@ private slots:
     void startFixupCommit();
     void stash();
     void stashSnapshot();
+    void stashPop();
     void branchList();
     void remoteList();
     void stashList();
