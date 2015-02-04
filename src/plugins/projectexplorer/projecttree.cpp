@@ -53,7 +53,9 @@ const char EXTERNAL_FILE_WARNING[] = "ExternalFile";
 }
 
 using namespace Utils;
-using namespace ProjectExplorer;
+
+namespace ProjectExplorer {
+
 using namespace Internal;
 
 ProjectTree *ProjectTree::s_instance = 0;
@@ -499,3 +501,5 @@ bool ProjectTree::isInNodeHierarchy(Node *n)
     } while (n);
     return false;
 }
+
+} // namespace ProjectExplorer
