@@ -44,6 +44,7 @@
 #include <QAbstractTableModel>
 #include <QCoreApplication>
 #include <QDebug>
+#include <QDir>
 #include <QFile>
 #include <QHash>
 #include <QMessageBox>
@@ -55,6 +56,7 @@
 
 static const char kModifiedMimeTypesFile[] = "/mimetypes/modifiedmimetypes.xml";
 
+static const char mimeInfoTagC[] = "mime-info";
 static const char mimeTypeTagC[] = "mime-type";
 static const char mimeTypeAttributeC[] = "type";
 static const char patternAttributeC[] = "pattern";
@@ -63,6 +65,7 @@ static const char matchValueAttributeC[] = "value";
 static const char matchTypeAttributeC[] = "type";
 static const char matchOffsetAttributeC[] = "offset";
 static const char priorityAttributeC[] = "priority";
+static const char matchMaskAttributeC[] = "mask";
 
 namespace Core {
 namespace Internal {
@@ -70,6 +73,7 @@ namespace Internal {
 class UserMimeType
 {
 public:
+    bool isValid() { return !name.isEmpty(); }
     QString name;
     QStringList globPatterns;
     QMap<int, QList<Utils::Internal::MimeMagicRule> > rules;
@@ -92,11 +96,8 @@ public:
     virtual QVariant data(const QModelIndex &modelIndex, int role = Qt::DisplayRole) const;
 
     void load();
-    void validatePatterns(QStringList *candidates) const;
-    void updateKnownPatterns(const QStringList &oldPatterns, const QStringList &newPatterns);
 
     QList<Utils::MimeType> m_mimeTypes;
-    QSet<QString> m_knownPatterns;
     QHash<QString, QString> m_handlersByMimeType;
 };
 
@@ -139,12 +140,12 @@ QVariant MimeTypeSettingsModel::data(const QModelIndex &modelIndex, int role) co
 
 void MimeTypeSettingsModel::load()
 {
+    beginResetModel();
     Utils::MimeDatabase mdb;
     m_mimeTypes = mdb.allMimeTypes();
     Utils::sort(m_mimeTypes, [](const Utils::MimeType &a, const Utils::MimeType &b) {
         return a.name().compare(b.name(), Qt::CaseInsensitive) < 0;
     });
-    m_knownPatterns = QSet<QString>::fromList(Utils::MimeDatabase::allGlobPatterns());
 
     foreach (const Utils::MimeType &mimeType, m_mimeTypes) {
         QString value;
@@ -162,51 +163,7 @@ void MimeTypeSettingsModel::load()
         }
         m_handlersByMimeType.insert(mimeType.name(), value);
     }
-}
-
-void MimeTypeSettingsModel::validatePatterns(QStringList *candidates) const
-{
-    QSet<QString> oldPatterns =
-        QSet<QString>::fromList(Utils::MimeDatabase::allGlobPatterns());
-
-    QStringList duplicates;
-    QStringList::iterator it = candidates->begin();
-    while (it != candidates->end()) {
-        const QString &current = *it;
-        if (!oldPatterns.contains(current) && m_knownPatterns.contains(current)) {
-            duplicates.append(current);
-            it = candidates->erase(it);
-        } else {
-            ++it;
-        }
-    }
-
-    if (!duplicates.isEmpty()) {
-        QMessageBox msgBox(QMessageBox::NoIcon, tr("Invalid MIME Type"),
-                           tr("Conflicting pattern(s) will be discarded."),
-                           QMessageBox::Ok, ICore::dialogParent());
-        msgBox.setInformativeText(tr("%n pattern(s) already in use.", 0, duplicates.size()));
-        msgBox.setDetailedText(duplicates.join(QLatin1String("\n")));
-        msgBox.exec();
-    }
-}
-
-void MimeTypeSettingsModel::updateKnownPatterns(const QStringList &oldPatterns,
-                                                const QStringList &newPatterns)
-{
-    QStringList all = oldPatterns;
-    all.append(newPatterns);
-    all.removeDuplicates();
-    foreach (const QString &pattern, all) {
-        QSet<QString>::iterator it = m_knownPatterns.find(pattern);
-        if (it == m_knownPatterns.end()) {
-            // A pattern was added.
-            m_knownPatterns.insert(pattern);
-        } else {
-            // A pattern was removed.
-            m_knownPatterns.erase(it);
-        }
-    }
+    endResetModel();
 }
 
 // MimeTypeSettingsPrivate
@@ -220,70 +177,50 @@ public:
 
     void configureUi(QWidget *w);
 
-//    bool checkSelectedMimeType() const;
-//    bool checkSelectedMagicHeader() const;
-
-    void markMimeForPatternSync(int index);
-    void markMimeForMagicSync(int index);
-    void syncMimePattern();
-    void syncMimeMagic();
-    void clearSyncData();
-    void markAsModified(int index);
-
+private:
     void addMagicHeaderRow(const MagicData &data);
     void editMagicHeaderRowData(const int row, const MagicData &data);
 
-    // TODO
-//    MagicData getMagicHeaderRowData(const int row) const;
-
-    void updateMimeDatabase();
-    void resetState();
-
-public slots:
-    void syncData(const QModelIndex &current, const QModelIndex &previous);
-    void handlePatternEdited();
-    // TODO
-//    void addMagicHeader();
-//    void removeMagicHeader();
-//    void editMagicHeader();
-    void resetMimeTypes();
-    void updateMagicHeaderButtons();
-
-private slots:
     void setFilterPattern(const QString &pattern);
+    void syncData(const QModelIndex &current, const QModelIndex &previous);
+    void updatePatternEditAndMagicButtons();
+    void handlePatternEdited();
+    void addMagicHeader();
+    void removeMagicHeader();
+    void editMagicHeader();
+    void resetMimeTypes();
+
+    void ensurePendingMimeType(const Utils::MimeType &mimeType);
+
+    static void writeUserModifiedMimeTypes();
 
 public:
+    typedef QHash<QString, UserMimeType> UserMimeTypeHash; // name -> mime type
     static const QChar kSemiColon;
-    static QHash<QString, UserMimeType> readUserModifiedMimeTypes(); // name -> mime type
-    static void applyUserModifiedMimeTypes(const QHash<QString, UserMimeType> &mimeTypes);
+    static UserMimeTypeHash readUserModifiedMimeTypes();
+    static void applyUserModifiedMimeTypes(const UserMimeTypeHash &mimeTypes);
 
-    static QHash<QString, UserMimeType> m_userModifiedMimeTypes;
+    static UserMimeTypeHash m_userModifiedMimeTypes; // these are already in mime database
     MimeTypeSettingsModel *m_model;
     QSortFilterProxyModel *m_filterModel;
-    QList<int> m_modifiedMimeTypes;
+    UserMimeTypeHash m_pendingModifiedMimeTypes; // currently edited in the options page
     QString m_filterPattern;
     Ui::MimeTypeSettingsPage m_ui;
     QPointer<QWidget> m_widget;
-    int m_mimeForPatternSync;
-    int m_mimeForMagicSync;
-    bool m_reset;
-    bool m_persist;
 };
 
 const QChar MimeTypeSettingsPrivate::kSemiColon(QLatin1Char(';'));
-QHash<QString, UserMimeType> MimeTypeSettingsPrivate::m_userModifiedMimeTypes
-    = QHash<QString, UserMimeType>();
+MimeTypeSettingsPrivate::UserMimeTypeHash MimeTypeSettingsPrivate::m_userModifiedMimeTypes
+    = MimeTypeSettingsPrivate::UserMimeTypeHash();
 
 MimeTypeSettingsPrivate::MimeTypeSettingsPrivate()
     : m_model(new MimeTypeSettingsModel(this))
     , m_filterModel(new QSortFilterProxyModel(this))
-    , m_mimeForPatternSync(-1)
-    , m_mimeForMagicSync(-1)
-    , m_reset(false)
-    , m_persist(false)
 {
     m_filterModel->setSourceModel(m_model);
     m_filterModel->setFilterKeyColumn(-1);
+    connect(ICore::instance(), &ICore::saveSettingsRequested,
+            this, &MimeTypeSettingsPrivate::writeUserModifiedMimeTypes);
 }
 
 MimeTypeSettingsPrivate::~MimeTypeSettingsPrivate()
@@ -295,134 +232,51 @@ void MimeTypeSettingsPrivate::configureUi(QWidget *w)
     m_ui.filterLineEdit->setText(m_filterPattern);
 
     m_model->load();
-    connect(m_ui.filterLineEdit, SIGNAL(textChanged(QString)),
-            this, SLOT(setFilterPattern(QString)));
+    connect(m_ui.filterLineEdit, &QLineEdit::textChanged,
+            this, &MimeTypeSettingsPrivate::setFilterPattern);
     m_ui.mimeTypesTreeView->setModel(m_filterModel);
 
     new Utils::HeaderViewStretcher(m_ui.mimeTypesTreeView->header(), 1);
 
-    connect(m_ui.mimeTypesTreeView->selectionModel(),
-            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this,
-            SLOT(syncData(QModelIndex,QModelIndex)));
-    connect(m_ui.patternsLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(handlePatternEdited()));
+    connect(m_ui.mimeTypesTreeView->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &MimeTypeSettingsPrivate::syncData);
+    connect(m_ui.mimeTypesTreeView->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &MimeTypeSettingsPrivate::updatePatternEditAndMagicButtons);
+    connect(m_ui.patternsLineEdit, &QLineEdit::textEdited,
+            this, &MimeTypeSettingsPrivate::handlePatternEdited);
+    connect(m_ui.addMagicButton, &QPushButton::clicked,
+            this, &MimeTypeSettingsPrivate::addMagicHeader);
     // TODO
-//    connect(m_ui.addMagicButton, SIGNAL(clicked()), this, SLOT(addMagicHeader()));
-//    connect(m_ui.removeMagicButton, SIGNAL(clicked()), this, SLOT(removeMagicHeader()));
-//    connect(m_ui.editMagicButton, SIGNAL(clicked()), this, SLOT(editMagicHeader()));
-    connect(m_ui.resetButton, SIGNAL(clicked()), this, SLOT(resetMimeTypes()));
-    connect(m_ui.magicHeadersTreeWidget,
-            SIGNAL(itemSelectionChanged()),
-            SLOT(updateMagicHeaderButtons()));
-    updateMagicHeaderButtons();
-}
+    connect(m_ui.removeMagicButton, &QPushButton::clicked,
+            this, &MimeTypeSettingsPrivate::removeMagicHeader);
+    connect(m_ui.editMagicButton, &QPushButton::clicked,
+            this, &MimeTypeSettingsPrivate::editMagicHeader);
+    connect(m_ui.resetButton, &QPushButton::clicked,
+            this, &MimeTypeSettingsPrivate::resetMimeTypes);
+    connect(m_ui.magicHeadersTreeWidget, &QTreeWidget::itemSelectionChanged,
+            this, &MimeTypeSettingsPrivate::updatePatternEditAndMagicButtons);
 
-//bool MimeTypeSettingsPrivate::checkSelectedMimeType() const
-//{
-//    const QModelIndex &modelIndex = m_ui.mimeTypesTreeView->currentIndex();
-//    if (!modelIndex.isValid()) {
-//        QMessageBox::critical(0, tr("Error"), tr("No MIME type selected."));
-//        return false;
-//    }
-//    return true;
-//}
-
-//bool MimeTypeSettingsPrivate::checkSelectedMagicHeader() const
-//{
-//    const QModelIndex &modelIndex = m_ui.magicHeadersTreeWidget->selectionModel()->currentIndex();
-//    if (!modelIndex.isValid()) {
-//        QMessageBox::critical(0, tr("Error"), tr("No magic header selected."));
-//        return false;
-//    }
-//    return true;
-//}
-
-void MimeTypeSettingsPrivate::markMimeForPatternSync(int index)
-{
-    if (m_mimeForPatternSync != index) {
-        m_mimeForPatternSync = index;
-        markAsModified(index);
-    }
-}
-
-void MimeTypeSettingsPrivate::markMimeForMagicSync(int index)
-{
-    if (m_mimeForMagicSync != index) {
-        m_mimeForMagicSync = index;
-        markAsModified(index);
-    }
-}
-
-void MimeTypeSettingsPrivate::markAsModified(int index)
-{
-    // Duplicates are handled later.
-    m_modifiedMimeTypes.append(index);
-}
-
-void MimeTypeSettingsPrivate::syncMimePattern()
-{
-    // TODO
-//    MimeType &mimeType = m_model->m_mimeTypes[m_mimeForPatternSync];
-//    QStringList patterns = m_ui.patternsLineEdit->text().split(kSemiColon);
-//    patterns.removeDuplicates();
-//    m_model->validatePatterns(&patterns);
-//    m_model->updateKnownPatterns(MimeDatabase::fromGlobPatterns(mimeType.globPatterns()), patterns);
-//    mimeType.setGlobPatterns(MimeDatabase::toGlobPatterns(patterns));
-}
-
-void MimeTypeSettingsPrivate::syncMimeMagic()
-{
-    // TODO
-//    typedef MagicRuleMatcher::MagicRuleList MagicRuleList;
-//    typedef MagicRuleMatcher::MagicRuleSharedPointer MagicRuleSharedPointer;
-
-//    // Gather the magic rules.
-//    QHash<int, MagicRuleList> rulesByPriority;
-//    for (int row = 0; row < m_ui.magicHeadersTreeWidget->topLevelItemCount(); ++row) {
-//        const MagicData &data = getMagicHeaderRowData(row);
-//        // @TODO: Validate magic rule?
-//        MagicRule *magicRule;
-//        if (data.m_type == MagicStringRule::kMatchType)
-//            magicRule = new MagicStringRule(data.m_value, data.m_start, data.m_end);
-//        else
-//            magicRule = new MagicByteRule(data.m_value, data.m_start, data.m_end);
-//        rulesByPriority[data.m_priority].append(MagicRuleSharedPointer(magicRule));
-//    }
-
-//    const QList<QSharedPointer<IMagicMatcher> > &matchers =
-//        MagicRuleMatcher::createMatchers(rulesByPriority);
-//    m_model->m_mimeTypes[m_mimeForMagicSync].setMagicRuleMatchers(matchers);
-}
-
-void MimeTypeSettingsPrivate::clearSyncData()
-{
-    m_mimeForPatternSync = -1;
-    m_mimeForMagicSync = -1;
+    updatePatternEditAndMagicButtons();
 }
 
 void MimeTypeSettingsPrivate::syncData(const QModelIndex &current,
                                        const QModelIndex &previous)
 {
-    if (previous.isValid()) {
-        if (m_mimeForPatternSync == m_filterModel->mapToSource(previous).row())
-            syncMimePattern();
-        if (m_mimeForMagicSync == m_filterModel->mapToSource(previous).row())
-            syncMimeMagic();
-        clearSyncData();
-
-        m_ui.patternsLineEdit->clear();
-        m_ui.magicHeadersTreeWidget->clear();
-    }
+    Q_UNUSED(previous)
+    m_ui.patternsLineEdit->clear();
+    m_ui.magicHeadersTreeWidget->clear();
 
     if (current.isValid()) {
         const Utils::MimeType &currentMimeType =
                 m_model->m_mimeTypes.at(m_filterModel->mapToSource(current).row());
-
-        m_ui.patternsLineEdit->setText(currentMimeType.globPatterns().join(kSemiColon));
+        UserMimeType modifiedType = m_pendingModifiedMimeTypes.value(currentMimeType.name());
+        m_ui.patternsLineEdit->setText(
+                    modifiedType.isValid() ? modifiedType.globPatterns.join(kSemiColon)
+                                           : currentMimeType.globPatterns().join(kSemiColon));
 
         QMap<int, QList<Utils::Internal::MimeMagicRule> > rules =
-                Utils::MimeDatabase::magicRulesForMimeType(currentMimeType);
+                modifiedType.isValid() ? modifiedType.rules
+                                       : Utils::MimeDatabase::magicRulesForMimeType(currentMimeType);
         for (auto it = rules.constBegin(); it != rules.constEnd(); ++it) {
             int priority = it.key();
             foreach (const Utils::Internal::MimeMagicRule &rule, it.value()) {
@@ -432,13 +286,30 @@ void MimeTypeSettingsPrivate::syncData(const QModelIndex &current,
     }
 }
 
+void MimeTypeSettingsPrivate::updatePatternEditAndMagicButtons()
+{
+    const QModelIndex &mimeTypeIndex = m_ui.mimeTypesTreeView->currentIndex();
+    const bool mimeTypeValid = mimeTypeIndex.isValid();
+    m_ui.patternsLineEdit->setEnabled(mimeTypeValid);
+    m_ui.addMagicButton->setEnabled(mimeTypeValid);
+
+    const QModelIndex &magicIndex = m_ui.magicHeadersTreeWidget->currentIndex();
+    const bool magicValid = magicIndex.isValid();
+
+    m_ui.removeMagicButton->setEnabled(magicValid);
+    m_ui.editMagicButton->setEnabled(magicValid);
+}
+
 void MimeTypeSettingsPrivate::handlePatternEdited()
 {
-    if (m_mimeForPatternSync == -1) {
-        const QModelIndex &modelIndex = m_ui.mimeTypesTreeView->currentIndex();
-        if (modelIndex.isValid())
-            markMimeForPatternSync(m_filterModel->mapToSource(modelIndex).row());
-    }
+    const QModelIndex &modelIndex = m_ui.mimeTypesTreeView->currentIndex();
+    QTC_ASSERT(modelIndex.isValid(), return);
+
+    int index = m_filterModel->mapToSource(modelIndex).row();
+    const Utils::MimeType mt = m_model->m_mimeTypes.at(index);
+    ensurePendingMimeType(mt);
+    m_pendingModifiedMimeTypes[mt.name()].globPatterns
+            = m_ui.patternsLineEdit->text().split(kSemiColon, QString::SkipEmptyParts);
 }
 
 void MimeTypeSettingsPrivate::addMagicHeaderRow(const MagicData &data)
@@ -447,21 +318,6 @@ void MimeTypeSettingsPrivate::addMagicHeaderRow(const MagicData &data)
     editMagicHeaderRowData(row, data);
 }
 
-// TODO
-//MagicData MimeTypeSettingsPrivate::getMagicHeaderRowData(const int row) const
-//{
-//    MagicData data;
-//    data.m_value = m_ui.magicHeadersTreeWidget->topLevelItem(row)->text(0);
-//    data.m_type = m_ui.magicHeadersTreeWidget->topLevelItem(row)->text(1);
-//    QPair<int, int> startEnd =
-//        MagicRule::fromOffset(m_ui.magicHeadersTreeWidget->topLevelItem(row)->text(2));
-//    data.m_start = startEnd.first;
-//    data.m_end = startEnd.second;
-//    data.m_priority = m_ui.magicHeadersTreeWidget->topLevelItem(row)->text(3).toInt();
-
-//    return data;
-//}
-
 void MimeTypeSettingsPrivate::editMagicHeaderRowData(const int row, const MagicData &data)
 {
     QTreeWidgetItem *item = new QTreeWidgetItem;
@@ -469,99 +325,155 @@ void MimeTypeSettingsPrivate::editMagicHeaderRowData(const int row, const MagicD
     item->setText(1, QString::fromLatin1(Utils::Internal::MimeMagicRule::typeName(data.m_rule.type())));
     item->setText(2, QString::fromLatin1("%1:%2").arg(data.m_rule.startPos()).arg(data.m_rule.endPos()));
     item->setText(3, QString::number(data.m_priority));
+    item->setData(0, Qt::UserRole, qVariantFromValue(data));
     m_ui.magicHeadersTreeWidget->takeTopLevelItem(row);
     m_ui.magicHeadersTreeWidget->insertTopLevelItem(row, item);
     m_ui.magicHeadersTreeWidget->setCurrentItem(item);
 }
 
-//void MimeTypeSettingsPrivate::addMagicHeader()
-//{
-//    if (!checkSelectedMimeType())
-//        return;
-
-//    MimeTypeMagicDialog dlg;
-//    if (dlg.exec()) {
-//        addMagicHeaderRow(dlg.magicData());
-//        markMimeForMagicSync(m_filterModel->mapToSource(
-//            m_ui.mimeTypesTreeView->currentIndex()).row());
-//    }
-//}
-
-//void MimeTypeSettingsPrivate::removeMagicHeader()
-//{
-//    if (!checkSelectedMagicHeader())
-//        return;
-
-//    m_ui.magicHeadersTreeWidget->takeTopLevelItem(m_ui.magicHeadersTreeWidget->indexOfTopLevelItem(m_ui.magicHeadersTreeWidget->currentItem()));
-//    markMimeForMagicSync(m_filterModel->mapToSource(
-//        m_ui.mimeTypesTreeView->currentIndex()).row());
-//}
-
-//void MimeTypeSettingsPrivate::editMagicHeader()
-//{
-//    if (!checkSelectedMagicHeader())
-//        return;
-
-//    MimeTypeMagicDialog dlg;
-//    dlg.setMagicData(getMagicHeaderRowData(m_ui.magicHeadersTreeWidget->indexOfTopLevelItem(m_ui.magicHeadersTreeWidget->currentItem())));
-//    if (dlg.exec()) {
-//        editMagicHeaderRowData(m_ui.magicHeadersTreeWidget->indexOfTopLevelItem(m_ui.magicHeadersTreeWidget->currentItem()), dlg.magicData());
-//        markMimeForMagicSync(m_filterModel->mapToSource(
-//            m_ui.mimeTypesTreeView->currentIndex()).row());
-//    }
-//}
-
-void MimeTypeSettingsPrivate::updateMimeDatabase()
+void MimeTypeSettingsPrivate::addMagicHeader()
 {
-    // TODO
-//    if (m_modifiedMimeTypes.isEmpty())
-//        return;
+    const QModelIndex &mimeTypeIndex = m_ui.mimeTypesTreeView->currentIndex();
+    QTC_ASSERT(mimeTypeIndex.isValid(), return);
 
-//    // For this case it is a better approach to simply use a list and to remove duplicates
-//    // afterwards than to keep a more complex data structure like a hash table.
-//    Utils::sort(m_modifiedMimeTypes);
-//    m_modifiedMimeTypes.erase(std::unique(m_modifiedMimeTypes.begin(), m_modifiedMimeTypes.end()),
-//                              m_modifiedMimeTypes.end());
-
-//    QList<MimeType> allModified;
-//    foreach (int index, m_modifiedMimeTypes) {
-//        const MimeType &mimeType = m_model->m_mimeTypes.at(index);
-//        MimeDatabase::setGlobPatterns(mimeType.type(), mimeType.globPatterns());
-//        MimeDatabase::setMagicMatchers(mimeType.type(), mimeType.magicMatchers());
-//        allModified.append(mimeType);
-//    }
-//    MimeDatabase::writeUserModifiedMimeTypes(allModified);
+    int index = m_filterModel->mapToSource(mimeTypeIndex).row();
+    const Utils::MimeType mt = m_model->m_mimeTypes.at(index);
+    MimeTypeMagicDialog dlg;
+    if (dlg.exec()) {
+        const MagicData &data = dlg.magicData();
+        ensurePendingMimeType(mt);
+        m_pendingModifiedMimeTypes[mt.name()].rules[data.m_priority].append(data.m_rule);
+        addMagicHeaderRow(data);
+    }
 }
 
-void MimeTypeSettingsPrivate::resetState()
+void MimeTypeSettingsPrivate::removeMagicHeader()
 {
-    clearSyncData();
-    m_modifiedMimeTypes.clear();
-    m_reset = false;
-    m_persist = false;
+    const QModelIndex &mimeTypeIndex = m_ui.mimeTypesTreeView->currentIndex();
+    QTC_ASSERT(mimeTypeIndex.isValid(), return);
+
+    const QModelIndex &magicIndex = m_ui.magicHeadersTreeWidget->currentIndex();
+    QTC_ASSERT(magicIndex.isValid(), return);
+
+    int index = m_filterModel->mapToSource(mimeTypeIndex).row();
+    const Utils::MimeType mt = m_model->m_mimeTypes.at(index);
+
+    QTreeWidgetItem *item = m_ui.magicHeadersTreeWidget->topLevelItem(magicIndex.row());
+    QTC_ASSERT(item, return);
+    const MagicData data = item->data(0, Qt::UserRole).value<MagicData>();
+
+    ensurePendingMimeType(mt);
+    m_pendingModifiedMimeTypes[mt.name()].rules[data.m_priority].removeOne(data.m_rule);
+    syncData(mimeTypeIndex, mimeTypeIndex);
+}
+
+void MimeTypeSettingsPrivate::editMagicHeader()
+{
+    const QModelIndex &mimeTypeIndex = m_ui.mimeTypesTreeView->currentIndex();
+    QTC_ASSERT(mimeTypeIndex.isValid(), return);
+
+    const QModelIndex &magicIndex = m_ui.magicHeadersTreeWidget->currentIndex();
+    QTC_ASSERT(magicIndex.isValid(), return);
+
+    int index = m_filterModel->mapToSource(mimeTypeIndex).row();
+    const Utils::MimeType mt = m_model->m_mimeTypes.at(index);
+
+    QTreeWidgetItem *item = m_ui.magicHeadersTreeWidget->topLevelItem(magicIndex.row());
+    QTC_ASSERT(item, return);
+    const MagicData oldData = item->data(0, Qt::UserRole).value<MagicData>();
+
+    MimeTypeMagicDialog dlg;
+    dlg.setMagicData(oldData);
+    if (dlg.exec()) {
+        if (dlg.magicData() != oldData) {
+            ensurePendingMimeType(mt);
+            const MagicData &dialogData = dlg.magicData();
+            int ruleIndex = m_pendingModifiedMimeTypes[mt.name()].rules[oldData.m_priority].indexOf(oldData.m_rule);
+            if (oldData.m_priority != dialogData.m_priority) {
+                m_pendingModifiedMimeTypes[mt.name()].rules[oldData.m_priority].removeAt(ruleIndex);
+                m_pendingModifiedMimeTypes[mt.name()].rules[dialogData.m_priority].append(dialogData.m_rule);
+            } else {
+                m_pendingModifiedMimeTypes[mt.name()].rules[oldData.m_priority][ruleIndex] = dialogData.m_rule;
+            }
+            editMagicHeaderRowData(magicIndex.row(), dialogData);
+        }
+    }
 }
 
 void MimeTypeSettingsPrivate::resetMimeTypes()
 {
-    QMessageBox::information(0,
-                             tr("MIME Types"),
-                             tr("Changes will take effect in the next time you start Qt Creator."));
-    m_reset = true;
-}
-
-void MimeTypeSettingsPrivate::updateMagicHeaderButtons()
-{
-    const QModelIndex &modelIndex = m_ui.magicHeadersTreeWidget->currentIndex();
-    const bool enabled = modelIndex.isValid();
-
-    m_ui.removeMagicButton->setEnabled(enabled);
-    m_ui.editMagicButton->setEnabled(enabled);
+    m_pendingModifiedMimeTypes.clear();
+    m_userModifiedMimeTypes.clear(); // settings file will be removed with next settings-save
+    QMessageBox::information(ICore::dialogParent(),
+                             tr("Reset MIME Types"),
+                             tr("Changes will take effect after Qt Creator restart."));
 }
 
 void MimeTypeSettingsPrivate::setFilterPattern(const QString &pattern)
 {
     m_filterPattern = pattern;
     m_filterModel->setFilterWildcard(pattern);
+}
+
+void MimeTypeSettingsPrivate::ensurePendingMimeType(const Utils::MimeType &mimeType)
+{
+    if (!m_pendingModifiedMimeTypes.contains(mimeType.name())) {
+        // get a copy of the mime type into pending modified types
+        UserMimeType userMt;
+        userMt.name = mimeType.name();
+        userMt.globPatterns = mimeType.globPatterns();
+        userMt.rules = Utils::MimeDatabase::magicRulesForMimeType(mimeType);
+        m_pendingModifiedMimeTypes.insert(userMt.name, userMt);
+    }
+}
+
+void MimeTypeSettingsPrivate::writeUserModifiedMimeTypes()
+{
+    static Utils::FileName modifiedMimeTypesFile = Utils::FileName::fromString(
+                ICore::userResourcePath() + QLatin1String(kModifiedMimeTypesFile));
+
+    if (QFile::exists(modifiedMimeTypesFile.toString())
+            || QDir().mkpath(modifiedMimeTypesFile.parentDir().toString())) {
+        QFile file(modifiedMimeTypesFile.toString());
+        if (file.open(QFile::WriteOnly | QFile::Truncate)) {
+            // Notice this file only represents user modifications. It is writen in a
+            // convienient way for synchronization, which is similar to but not exactly the
+            // same format we use for the embedded mime type files.
+            QXmlStreamWriter writer(&file);
+            writer.setAutoFormatting(true);
+            writer.writeStartDocument();
+            writer.writeStartElement(QLatin1String(mimeInfoTagC));
+
+            foreach (const UserMimeType &mt, m_userModifiedMimeTypes) {
+                writer.writeStartElement(QLatin1String(mimeTypeTagC));
+                writer.writeAttribute(QLatin1String(mimeTypeAttributeC), mt.name);
+                writer.writeAttribute(QLatin1String(patternAttributeC),
+                                      mt.globPatterns.join(kSemiColon));
+                for (auto prioIt = mt.rules.constBegin(); prioIt != mt.rules.constEnd(); ++prioIt) {
+                    const QString priorityString = QString::number(prioIt.key());
+                    foreach (const Utils::Internal::MimeMagicRule &rule, prioIt.value()) {
+                        writer.writeStartElement(QLatin1String(matchTagC));
+                        writer.writeAttribute(QLatin1String(matchValueAttributeC),
+                                              QString::fromUtf8(rule.value()));
+                        writer.writeAttribute(QLatin1String(matchTypeAttributeC),
+                                              QString::fromUtf8(Utils::Internal::MimeMagicRule::typeName(rule.type())));
+                        writer.writeAttribute(QLatin1String(matchOffsetAttributeC),
+                                              QString::fromLatin1("%1:%2").arg(rule.startPos())
+                                              .arg(rule.endPos()));
+                        writer.writeAttribute(QLatin1String(priorityAttributeC),
+                                              priorityString);
+                        writer.writeAttribute(QLatin1String(matchMaskAttributeC),
+                                              QString::fromLatin1(MagicData::normalizedMask(rule)));
+                        writer.writeEndElement();
+                    }
+                }
+                writer.writeEndElement();
+            }
+            writer.writeEndElement();
+            writer.writeEndDocument();
+            file.close();
+        }
+    }
 }
 
 static QPair<int, int> rangeFromString(const QString &offset)
@@ -577,11 +489,11 @@ static QPair<int, int> rangeFromString(const QString &offset)
     return range;
 }
 
-QHash<QString, UserMimeType>  MimeTypeSettingsPrivate::readUserModifiedMimeTypes()
+MimeTypeSettingsPrivate::UserMimeTypeHash MimeTypeSettingsPrivate::readUserModifiedMimeTypes()
 {
     static QString modifiedMimeTypesPath = ICore::userResourcePath()
             + QLatin1String(kModifiedMimeTypesFile);
-    QHash<QString, UserMimeType> userMimeTypes;
+    UserMimeTypeHash userMimeTypes;
     QFile file(modifiedMimeTypesPath);
     if (file.open(QFile::ReadOnly)) {
         UserMimeType mt;
@@ -594,15 +506,16 @@ QHash<QString, UserMimeType>  MimeTypeSettingsPrivate::readUserModifiedMimeTypes
                 if (reader.name() == QLatin1String(mimeTypeTagC)) {
                     mt.name = atts.value(QLatin1String(mimeTypeAttributeC)).toString();
                     mt.globPatterns = atts.value(QLatin1String(patternAttributeC)).toString()
-                            .split(QLatin1Char(';'));
+                            .split(kSemiColon, QString::SkipEmptyParts);
                 } else if (reader.name() == QLatin1String(matchTagC)) {
                     QByteArray value = atts.value(QLatin1String(matchValueAttributeC)).toUtf8();
                     QByteArray typeName = atts.value(QLatin1String(matchTypeAttributeC)).toUtf8();
                     const QString rangeString = atts.value(QLatin1String(matchOffsetAttributeC)).toString();
                     QPair<int, int> range = rangeFromString(rangeString);
                     int priority = atts.value(QLatin1String(priorityAttributeC)).toString().toInt();
+                    QByteArray mask = atts.value(QLatin1String(matchMaskAttributeC)).toLatin1();
                     Utils::Internal::MimeMagicRule rule(Utils::Internal::MimeMagicRule::type(typeName),
-                                                        value, range.first, range.second);
+                                                        value, range.first, range.second, mask);
                     mt.rules[priority].append(rule);
                 }
                 break;
@@ -626,7 +539,7 @@ QHash<QString, UserMimeType>  MimeTypeSettingsPrivate::readUserModifiedMimeTypes
     return userMimeTypes;
 }
 
-void MimeTypeSettingsPrivate::applyUserModifiedMimeTypes(const QHash<QString, UserMimeType> &mimeTypes)
+void MimeTypeSettingsPrivate::applyUserModifiedMimeTypes(const UserMimeTypeHash &mimeTypes)
 {
     // register in mime data base, and remember for later
     Utils::MimeDatabase mdb;
@@ -663,49 +576,27 @@ QWidget *MimeTypeSettings::widget()
     if (!d->m_widget) {
         d->m_widget = new QWidget;
         d->configureUi(d->m_widget);
-        // TODO temporarily disabled
-        d->m_ui.addMagicButton->setEnabled(false);
-        d->m_ui.editMagicButton->setEnabled(false);
-        d->m_ui.removeMagicButton->setEnabled(false);
-        d->m_ui.patternsLineEdit->setEnabled(false);
     }
     return d->m_widget;
 }
 
 void MimeTypeSettings::apply()
 {
-    if (!d->m_modifiedMimeTypes.isEmpty()) {
-        const QModelIndex &modelIndex =
-            d->m_ui.mimeTypesTreeView->currentIndex();
-        if (modelIndex.isValid()) {
-            if (d->m_mimeForPatternSync == d->m_filterModel->mapToSource(modelIndex).row())
-                d->syncMimePattern();
-            if (d->m_mimeForMagicSync == d->m_filterModel->mapToSource(modelIndex).row())
-                d->syncMimeMagic();
-        }
-        d->clearSyncData();
-    }
-
-    if (!d->m_persist)
-        d->m_persist = true;
+    MimeTypeSettingsPrivate::applyUserModifiedMimeTypes(d->m_pendingModifiedMimeTypes);
+    d->m_pendingModifiedMimeTypes.clear();
+    d->m_model->load();
 }
 
 void MimeTypeSettings::finish()
 {
-    // TODO
-//    if (d->m_persist) {
-//        if (d->m_reset)
-//            MimeDatabase::clearUserModifiedMimeTypes();
-//        else
-//            d->updateMimeDatabase();
-//    }
-    d->resetState();
+    d->m_pendingModifiedMimeTypes.clear();
     delete d->m_widget;
 }
 
 void MimeTypeSettings::restoreSettings()
 {
-    QHash<QString, UserMimeType> mimetypes = MimeTypeSettingsPrivate::readUserModifiedMimeTypes();
+    MimeTypeSettingsPrivate::UserMimeTypeHash mimetypes
+            = MimeTypeSettingsPrivate::readUserModifiedMimeTypes();
     MimeTypeSettingsPrivate::applyUserModifiedMimeTypes(mimetypes);
 }
 

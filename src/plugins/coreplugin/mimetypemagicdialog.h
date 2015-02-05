@@ -38,13 +38,25 @@
 namespace Core {
 namespace Internal {
 
-struct MagicData
+class MagicData
 {
+public:
+    MagicData()
+        : m_rule(Utils::Internal::MimeMagicRule::String, QByteArray(" "), 0, 0),
+          m_priority(0)
+    {
+    }
+
     MagicData(Utils::Internal::MimeMagicRule rule, int priority)
         : m_rule(rule)
         , m_priority(priority)
     {
     }
+
+    bool operator==(const MagicData &other);
+    bool operator!=(const MagicData &other) { return !(*this == other); }
+
+    static QByteArray normalizedMask(const Utils::Internal::MimeMagicRule &rule);
 
     Utils::Internal::MimeMagicRule m_rule;
     int m_priority;
@@ -52,23 +64,25 @@ struct MagicData
 
 class MimeTypeMagicDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     explicit MimeTypeMagicDialog(QWidget *parent = 0);
 
     void setMagicData(const MagicData &data);
     MagicData magicData() const;
 
-private slots:
+private:
     void applyRecommended(bool checked);
     void validateAccept();
 
-private:
     Ui::MimeTypeMagicDialog ui;
+    int m_customRangeStart;
+    int m_customRangeEnd;
+    int m_customPriority;
 };
 
 } // Internal
 } // Core
+
+Q_DECLARE_METATYPE(Core::Internal::MagicData)
 
 #endif // MIMETYPEMAGICDIALOG_H

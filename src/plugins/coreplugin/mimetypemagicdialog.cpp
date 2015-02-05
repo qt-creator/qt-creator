@@ -30,66 +30,154 @@
 
 #include "mimetypemagicdialog.h"
 
-#include <utils/headerviewstretcher.h>
+#include "icore.h"
 
+#include <utils/headerviewstretcher.h>
+#include <utils/qtcassert.h>
+
+#include <QDesktopServices>
 #include <QMessageBox>
+#include <QUrl>
 
 using namespace Core;
 using namespace Internal;
 
+static Utils::Internal::MimeMagicRule::Type typeValue(int i)
+{
+    QTC_ASSERT(i < Utils::Internal::MimeMagicRule::Byte,
+               return Utils::Internal::MimeMagicRule::Invalid);
+    return Utils::Internal::MimeMagicRule::Type(i + 1/*0==invalid*/);
+}
+
 MimeTypeMagicDialog::MimeTypeMagicDialog(QWidget *parent) :
-    QDialog(parent)
+    QDialog(parent),
+    m_customRangeStart(0),
+    m_customRangeEnd(0),
+    m_customPriority(50)
 {
     ui.setupUi(this);
     setWindowTitle(tr("Add Magic Header"));
-    connect(ui.useRecommendedGroupBox, SIGNAL(clicked(bool)),
-            this, SLOT(applyRecommended(bool)));
-    connect(ui.buttonBox, SIGNAL(accepted()), this, SLOT(validateAccept()));
+    connect(ui.useRecommendedGroupBox, &QGroupBox::toggled,
+            this, &MimeTypeMagicDialog::applyRecommended);
+    connect(ui.buttonBox, &QDialogButtonBox::accepted, this, &MimeTypeMagicDialog::validateAccept);
+    connect(ui.informationLabel, &QLabel::linkActivated, this, [](const QString &link) {
+        QDesktopServices::openUrl(QUrl(link));
+    });
+    ui.valueLineEdit->setFocus();
 }
 
 void MimeTypeMagicDialog::applyRecommended(bool checked)
 {
     if (checked) {
+        // save previous custom values
+        m_customRangeStart = ui.startRangeSpinBox->value();
+        m_customRangeEnd = ui.endRangeSpinBox->value();
+        m_customPriority = ui.prioritySpinBox->value();
         ui.startRangeSpinBox->setValue(0);
         ui.endRangeSpinBox->setValue(0);
         ui.prioritySpinBox->setValue(50);
+    } else {
+        // restore previous custom values
+        ui.startRangeSpinBox->setValue(m_customRangeStart);
+        ui.endRangeSpinBox->setValue(m_customRangeEnd);
+        ui.prioritySpinBox->setValue(m_customPriority);
     }
+    ui.startRangeLabel->setEnabled(!checked);
+    ui.startRangeSpinBox->setEnabled(!checked);
+    ui.endRangeLabel->setEnabled(!checked);
+    ui.endRangeSpinBox->setEnabled(!checked);
+    ui.priorityLabel->setEnabled(!checked);
+    ui.prioritySpinBox->setEnabled(!checked);
+    ui.noteLabel->setEnabled(!checked);
 }
 
 void MimeTypeMagicDialog::validateAccept()
 {
-//    if (ui.valueLineEdit->text().isEmpty()
-//            || (ui.byteRadioButton->isChecked()
-//                && !MagicByteRule::validateByteSequence(ui.valueLineEdit->text()))) {
-//        QMessageBox::critical(0, tr("Error"), tr("Not a valid byte pattern."));
-//        return;
-//    }
+    Utils::Internal::MimeMagicRule::Type type = typeValue(ui.typeSelector->currentIndex());
+    // checks similar to the one in MimeMagicRule constructor, which asserts on these...
+    if (ui.valueLineEdit->text().isEmpty()) {
+        QMessageBox::critical(ICore::dialogParent(), tr("Error"), tr("Empty value not allowed."));
+        return;
+    } else if (type >= Utils::Internal::MimeMagicRule::Host16
+               && type <= Utils::Internal::MimeMagicRule::Byte) {
+        bool ok;
+        ui.valueLineEdit->text().toUInt(&ok, 0/*autodetect*/);
+        if (!ok) {
+            QMessageBox::critical(ICore::dialogParent(), tr("Error"), tr("Value must be a number."));
+            return;
+        }
+    } else if (type == Utils::Internal::MimeMagicRule::String) {
+        if (!ui.maskLineEdit->text().isEmpty()) {
+            QByteArray mask = ui.maskLineEdit->text().toLatin1();
+            if (mask.size() < 4) {
+                QMessageBox::critical(ICore::dialogParent(), tr("Error"), tr("Mask too short."));
+                return;
+            } else if (!mask.startsWith("0x")) {
+                QMessageBox::critical(ICore::dialogParent(), tr("Error"),
+                                      tr("Mask must start with \"0x\"."));
+                return;
+            } else {
+                QByteArray pattern = Utils::Internal::MimeMagicRule::makePattern(ui.valueLineEdit->text().toUtf8());
+                mask = QByteArray::fromHex(QByteArray::fromRawData(mask.constData() + 2, mask.size() - 2));
+                if (mask.size() != pattern.size()) {
+                    QMessageBox::critical(ICore::dialogParent(), tr("Error"),
+                                          tr("Mask has different size than pattern."));
+                    return;
+                }
+            }
+        }
+    } else if (type == Utils::Internal::MimeMagicRule::Invalid) {
+        QMessageBox::critical(ICore::dialogParent(), tr("Internal Error"),
+                              tr("Type is invalid."));
+        return;
+    }
     accept();
 }
 
 void MimeTypeMagicDialog::setMagicData(const MagicData &data)
 {
-//    ui.valueLineEdit->setText(data.m_value);
-//    if (data.m_type == MagicStringRule::kMatchType)
-//        ui.stringRadioButton->setChecked(true);
-//    else
-//        ui.byteRadioButton->setChecked(true);
-//    ui.startRangeSpinBox->setValue(data.m_start);
-//    ui.endRangeSpinBox->setValue(data.m_end);
-//    ui.prioritySpinBox->setValue(data.m_priority);
+    ui.valueLineEdit->setText(QString::fromUtf8(data.m_rule.value()));
+    ui.typeSelector->setCurrentIndex(data.m_rule.type() - 1/*0 == invalid*/);
+    ui.maskLineEdit->setText(QString::fromLatin1(MagicData::normalizedMask(data.m_rule)));
+    ui.useRecommendedGroupBox->setChecked(false); // resets values
+    ui.startRangeSpinBox->setValue(data.m_rule.startPos());
+    ui.endRangeSpinBox->setValue(data.m_rule.endPos());
+    ui.prioritySpinBox->setValue(data.m_priority);
 }
 
 MagicData MimeTypeMagicDialog::magicData() const
 {
-    MagicData data(Utils::Internal::MimeMagicRule(Utils::Internal::MimeMagicRule::Byte,
-                                                  QByteArray(), 0, 0), 0);
-//    data.m_value = ui.valueLineEdit->text();
-//    if (ui.stringRadioButton->isChecked())
-//        data.m_type = MagicStringRule::kMatchType;
-//    else
-//        data.m_type = MagicByteRule::kMatchType;
-//    data.m_start = ui.startRangeSpinBox->value();
-//    data.m_end = ui.endRangeSpinBox->value();
-//    data.m_priority = ui.prioritySpinBox->value();
+    MagicData data(Utils::Internal::MimeMagicRule(typeValue(ui.typeSelector->currentIndex()),
+                                                  ui.valueLineEdit->text().toUtf8(),
+                                                  ui.startRangeSpinBox->value(),
+                                                  ui.endRangeSpinBox->value(),
+                                                  ui.maskLineEdit->text().toLatin1()),
+                   ui.prioritySpinBox->value());
     return data;
+}
+
+
+bool MagicData::operator==(const MagicData &other)
+{
+    return m_priority == other.m_priority && m_rule == other.m_rule;
+}
+
+/*!
+    Returns the mask, or an empty string if the mask is the default mask which is set by
+    MimeMagicRule when setting an empty mask for string patterns.
+ */
+QByteArray MagicData::normalizedMask(const Utils::Internal::MimeMagicRule &rule)
+{
+    // convert mask and see if it is the "default" one (which corresponds to "empty" mask)
+    // see MimeMagicRule constructor
+    QByteArray mask = rule.mask();
+    if (rule.type() == Utils::Internal::MimeMagicRule::String) {
+        QByteArray actualMask = QByteArray::fromHex(QByteArray::fromRawData(mask.constData() + 2,
+                                                        mask.size() - 2));
+        if (actualMask.count(char(-1)) == actualMask.size()) {
+            // is the default-filled 0xfffffffff mask
+            mask.clear();
+        }
+    }
+    return mask;
 }
