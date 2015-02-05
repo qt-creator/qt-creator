@@ -78,6 +78,8 @@ public:
     virtual QStringList bestMatchByFileName(const QString &fileName, const QList<MimeType> &types) = 0;
     virtual MimeType bestMatchByMagic(const QByteArray &data, const QList<MimeType> &types, int *accuracyPtr) = 0;
     virtual QMap<int, QList<MimeMagicRule> > magicRulesForMimeType(const MimeType &mimeType) = 0;
+    virtual void setGlobPatternsForMimeType(const MimeType &mimeType, const QStringList &patterns) = 0;
+    virtual void setMagicRulesForMimeType(const MimeType &mimeType, const QMap<int, QList<MimeMagicRule> > &rules) = 0;
 
     MimeDatabasePrivate *m_db;
 protected:
@@ -159,6 +161,8 @@ public:
     QStringList bestMatchByFileName(const QString &fileName, const QList<MimeType> &types);
     MimeType bestMatchByMagic(const QByteArray &data, const QList<MimeType> &types, int *accuracyPtr);
     QMap<int, QList<MimeMagicRule> > magicRulesForMimeType(const MimeType &mimeType);
+    void setGlobPatternsForMimeType(const MimeType &mimeType, const QStringList &patterns);
+    void setMagicRulesForMimeType(const MimeType &mimeType, const QMap<int, QList<MimeMagicRule> > &rules);
 
 private:
     void ensureLoaded();

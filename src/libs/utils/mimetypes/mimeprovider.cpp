@@ -803,6 +803,32 @@ QMap<int, QList<MimeMagicRule> > MimeXMLProvider::magicRulesForMimeType(const Mi
     return result;
 }
 
+void MimeXMLProvider::setGlobPatternsForMimeType(const MimeType &mimeType, const QStringList &patterns)
+{
+    // remove all previous globs
+    m_mimeTypeGlobs.removeMimeType(mimeType.name());
+    // add new patterns as case-insensitive default-weight patterns
+    foreach (const QString &pattern, patterns)
+        addGlobPattern(MimeGlobPattern(pattern, mimeType.name()));
+    mimeType.d->globPatterns = patterns;
+}
+
+void MimeXMLProvider::setMagicRulesForMimeType(const MimeType &mimeType, const QMap<int, QList<MimeMagicRule> > &rules)
+{
+    // remove all previous rules
+    QMutableListIterator<MimeMagicRuleMatcher> matcherIt(m_magicMatchers);
+    while (matcherIt.hasNext()) {
+        if (matcherIt.next().mimetype() == mimeType.name())
+            matcherIt.remove();
+    }
+    // add new rules
+    for (auto it = rules.constBegin(); it != rules.constEnd(); ++it) {
+        MimeMagicRuleMatcher matcher(mimeType.name(), it.key()/*priority*/);
+        matcher.addRules(it.value());
+        addMagicMatcher(matcher);
+    }
+}
+
 void MimeXMLProvider::ensureLoaded()
 {
     if (!m_loaded /*|| shouldCheck()*/) {
