@@ -464,13 +464,13 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
                 QTC_ASSERT(testConfiguration,
                            qWarning() << "Illegal state (unnamed Quick Test listed as named)";
                            return QList<TestConfiguration *>());
-                foundMains[mainFile]->setTestCaseCount(testConfiguration->testCaseCount());
+                foundMains[mainFile]->setTestCaseCount(testConfiguration->testCaseCount() + 1);
             } else {
-                TestConfiguration *tc = new TestConfiguration(QString(), QStringList());
-                tc->setTestCaseCount(1);
-                tc->setUnnamedOnly(true);
-                addProjectInformation(tc, mainFile);
-                foundMains.insert(mainFile, tc);
+                testConfiguration = new TestConfiguration(QString(), QStringList());
+                testConfiguration->setTestCaseCount(1);
+                testConfiguration->setUnnamedOnly(true);
+                addProjectInformation(testConfiguration, mainFile);
+                foundMains.insert(mainFile, testConfiguration);
             }
         }
     }
