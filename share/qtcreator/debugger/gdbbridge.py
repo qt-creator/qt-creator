@@ -207,24 +207,11 @@ class OutputSafer:
 
 Value = gdb.Value
 
-
-
 def stripTypedefs(typeobj):
     typeobj = typeobj.unqualified()
     while typeobj.code == TypedefCode:
         typeobj = typeobj.strip_typedefs().unqualified()
     return typeobj
-
-
-#######################################################################
-#
-# LocalItem
-#
-#######################################################################
-
-# Contains iname, name, and value.
-class LocalItem:
-    pass
 
 
 #######################################################################
@@ -359,69 +346,6 @@ class Dumper(DumperBase):
     def listOfLocals(self):
         frame = gdb.selected_frame()
 
-        if self.qmlcontext:
-            items = []
-
-            contextType = self.lookupQtType("QV4::Heap::CallContext")
-            context = self.createPointerValue(self.qmlcontext, contextType)
-
-            contextItem = LocalItem()
-            contextItem.iname = "local.@context"
-            contextItem.name = "[context]"
-            contextItem.value = context.dereference()
-            items.append(contextItem)
-
-            argsItem = LocalItem()
-            argsItem.iname = "local.@args"
-            argsItem.name = "[args]"
-            argsItem.value = context["callData"]
-            items.append(argsItem)
-
-            functionObject = context["function"].dereference()
-            functionPtr = functionObject["function"]
-            if not self.isNull(functionPtr):
-                compilationUnit = context["compilationUnit"]
-                compiledFunction = functionPtr["compiledFunction"]
-                base = int(compiledFunction)
-
-                formalsOffset = int(compiledFunction["formalsOffset"])
-                formalsCount = int(compiledFunction["nFormals"])
-                for index in range(formalsCount):
-                    stringIndex = self.extractInt(base + formalsOffset + 4 * index)
-                    name = self.extractQmlRuntimeString(compilationUnit, stringIndex)
-                    item = LocalItem()
-                    item.iname = "local." + name
-                    item.name = name
-                    item.value = argsItem.value["args"][index]
-                    items.append(item)
-
-                localsOffset = int(compiledFunction["localsOffset"])
-                localsCount = int(compiledFunction["nLocals"])
-                for index in range(localsCount):
-                    stringIndex = self.extractInt(base + localsOffset + 4 * index)
-                    name = self.extractQmlRuntimeString(compilationUnit, stringIndex)
-                    item = LocalItem()
-                    item.iname = "local." + name
-                    item.name = name
-                    item.value = context["locals"][index]
-                    items.append(item)
-
-            for engine in self.qmlEngines:
-                engineItem = LocalItem()
-                engineItem.iname = "local.@qmlengine"
-                engineItem.name = "[engine]"
-                engineItem.value = engine
-                items.append(engineItem)
-
-                rootContext = LocalItem()
-                rootContext.iname = "local.@rootContext"
-                rootContext.name = "[rootContext]"
-                rootContext.value = engine["d_ptr"]
-                items.append(rootContext)
-                break
-
-            return items
-
         try:
             block = frame.block()
             #warn("BLOCK: %s " % block)
@@ -455,7 +379,7 @@ class Dumper(DumperBase):
                     name1 = name
                     shadowed[name] = 1
                 #warn("SYMBOL %s  (%s, %s)): " % (symbol, name, symbol.name))
-                item = LocalItem()
+                item = self.LocalItem()
                 item.iname = "local." + name1
                 item.name = name1
                 try:
@@ -507,14 +431,17 @@ class Dumper(DumperBase):
         # Locals
         #
         self.output.append('data=[')
-        if self.partialUpdate and len(self.varList) == 1 \
-                and not self.qmlcontext:
+
+        if self.qmlcontext:
+            locals = self.extractQmlVariables(self.qmlcontext)
+
+        elif self.partialUpdate and len(self.varList) == 1:
             #warn("PARTIAL: %s" % self.varList)
             parts = self.varList[0].split('.')
             #warn("PARTIAL PARTS: %s" % parts)
             name = parts[1]
             #warn("PARTIAL VAR: %s" % name)
-            item = LocalItem()
+            item = self.LocalItem()
             item.iname = parts[0] + '.' + name
             item.name = name
             try:
@@ -536,7 +463,7 @@ class Dumper(DumperBase):
         # Take care of the return value of the last function call.
         if len(self.resultVarName) > 0:
             try:
-                item = LocalItem()
+                item = self.LocalItem()
                 item.name = self.resultVarName
                 item.iname = "return." + self.resultVarName
                 item.value = self.parseAndEvaluate(self.resultVarName)

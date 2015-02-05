@@ -1831,6 +1831,73 @@ class DumperBase:
                 'fileName': fileName,
                 'context': context }
 
+    # Contains iname, name, and value.
+    class LocalItem:
+        pass
+
+    def extractQmlVariables(self, qmlcontext):
+        items = []
+
+        contextType = self.lookupQtType("QV4::Heap::CallContext")
+        context = self.createPointerValue(self.qmlcontext, contextType)
+
+        contextItem = self.LocalItem()
+        contextItem.iname = "local.@context"
+        contextItem.name = "[context]"
+        contextItem.value = context.dereference()
+        items.append(contextItem)
+
+        argsItem = self.LocalItem()
+        argsItem.iname = "local.@args"
+        argsItem.name = "[args]"
+        argsItem.value = context["callData"]
+        items.append(argsItem)
+
+        functionObject = context["function"].dereference()
+        functionPtr = functionObject["function"]
+        if not self.isNull(functionPtr):
+            compilationUnit = context["compilationUnit"]
+            compiledFunction = functionPtr["compiledFunction"]
+            base = int(compiledFunction)
+
+            formalsOffset = int(compiledFunction["formalsOffset"])
+            formalsCount = int(compiledFunction["nFormals"])
+            for index in range(formalsCount):
+                stringIndex = self.extractInt(base + formalsOffset + 4 * index)
+                name = self.extractQmlRuntimeString(compilationUnit, stringIndex)
+                item = self.LocalItem()
+                item.iname = "local." + name
+                item.name = name
+                item.value = argsItem.value["args"][index]
+                items.append(item)
+
+            localsOffset = int(compiledFunction["localsOffset"])
+            localsCount = int(compiledFunction["nLocals"])
+            for index in range(localsCount):
+                stringIndex = self.extractInt(base + localsOffset + 4 * index)
+                name = self.extractQmlRuntimeString(compilationUnit, stringIndex)
+                item = self.LocalItem()
+                item.iname = "local." + name
+                item.name = name
+                item.value = context["locals"][index]
+                items.append(item)
+
+        for engine in self.qmlEngines:
+            engineItem = self.LocalItem()
+            engineItem.iname = "local.@qmlengine"
+            engineItem.name = "[engine]"
+            engineItem.value = engine
+            items.append(engineItem)
+
+            rootContext = self.LocalItem()
+            rootContext.iname = "local.@rootContext"
+            rootContext.name = "[rootContext]"
+            rootContext.value = engine["d_ptr"]
+            items.append(rootContext)
+            break
+
+        return items
+
 
 # Some "Enums"
 
