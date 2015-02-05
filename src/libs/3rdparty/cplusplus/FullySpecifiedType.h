@@ -108,8 +108,6 @@ public:
 
     FullySpecifiedType simplified() const;
 
-    void copySpecifiers(const FullySpecifiedType &type);
-
     unsigned flags() const;
     void setFlags(unsigned flags);
 
