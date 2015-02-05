@@ -41,7 +41,7 @@ public:
     virtual ~TestTreeItem();
     TestTreeItem(const TestTreeItem& other);
 
-    TestTreeItem *child(int row);
+    TestTreeItem *child(int row) const;
     TestTreeItem *parent() const;
     void appendChild(TestTreeItem *child);
     int row() const;
@@ -78,6 +78,13 @@ private:
     QString m_mainFile;
     TestTreeItem *m_parent;
     QList<TestTreeItem *> m_children;
+};
+
+struct TestCodeLocationAndType {
+    QString m_fileName;
+    unsigned m_line;
+    unsigned m_column;
+    TestTreeItem::Type m_type;
 };
 
 } // namespace Internal

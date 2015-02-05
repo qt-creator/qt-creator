@@ -37,6 +37,7 @@ namespace {
 namespace Autotest {
 namespace Internal {
 
+struct TestCodeLocationAndType;
 class TestCodeParser;
 class TestInfo;
 class TestTreeItem;
@@ -45,6 +46,11 @@ class TestTreeModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
+    enum Type {
+        AutoTest,
+        QuickTest
+    };
+
     static TestTreeModel* instance();
     ~TestTreeModel();
 
@@ -62,18 +68,13 @@ public:
     bool hasTests() const;
     QList<TestConfiguration *> getAllTestCases() const;
     QList<TestConfiguration *> getSelectedTests() const;
-    TestTreeItem *unnamedQuickTests() const;
+    QString getMainFileForUnnamedQuickTest(const QString &qmlFile) const;
+    void qmlFilesAndFunctionNamesForMainFile(const QString &mainFile, QSet<QString> *filePaths,
+                                             QList<QString> *functionNames) const;
+    QList<QString> getUnnamedQuickTestFunctions() const;
+    QSet<QString> qmlFilesForProFile(const QString &proFile) const;
+    bool hasUnnamedQuickTests() const;
 
-    void modifyAutoTestSubtree(int row, TestTreeItem *newItem);
-    void removeAutoTestSubtreeByFilePath(const QString &file);
-    void addAutoTest(TestTreeItem *newItem);
-    void removeAllAutoTests();
-
-    void modifyQuickTestSubtree(int row, TestTreeItem *newItem);
-    void removeQuickTestSubtreeByFilePath(const QString &file);
-    void addQuickTest(TestTreeItem *newItem);
-    void removeAllQuickTests();
-    bool removeUnnamedQuickTests(const QString &filePath);
 
 signals:
     void testTreeModelChanged();
@@ -81,8 +82,23 @@ signals:
 public slots:
 
 private:
+    void addTestTreeItem(const TestTreeItem &item, Type type);
+    void addTestTreeItems(const QList<TestTreeItem> &itemList, Type type);
+    void updateUnnamedQuickTest(const QString &fileName, const QString &mainFile,
+                                const QMap<QString, TestCodeLocationAndType> &functions);
+    void modifyTestTreeItem(TestTreeItem item, Type type, const QString &file);
+    void removeAllTestItems();
+    void removeTestTreeItems(const QString &filePath, Type type);
+    void removeUnnamedQuickTests(const QString &filePath);
+
+    TestTreeItem *unnamedQuickTests() const;
+    TestTreeItem *rootItemForType(Type type);
+    QModelIndex rootIndexForType(Type type);
+
     explicit TestTreeModel(QObject *parent = 0);
-    void modifyTestSubtree(QModelIndex &toBeModifiedIndex, TestTreeItem *newItem);
+    void modifyTestSubtree(QModelIndex &toBeModifiedIndex, const TestTreeItem &newItem);
+    void processChildren(QModelIndex &parentIndex, const TestTreeItem &newItem,
+                         const int upperBound, const QHash<QString, Qt::CheckState> &checkStates);
 
     TestTreeItem *m_rootItem;
     TestTreeItem *m_autoTestRootItem;

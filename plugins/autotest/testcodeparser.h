@@ -19,6 +19,9 @@
 #ifndef TESTCODEPARSER_H
 #define TESTCODEPARSER_H
 
+#include "testtreeitem.h"
+#include "testtreemodel.h"
+
 #include <cplusplus/CppDocument.h>
 
 #include <qmljs/qmljsdocument.h>
@@ -35,8 +38,6 @@ namespace Internal {
 
 struct TestCodeLocationAndType;
 class TestInfo;
-class TestTreeModel;
-class TestTreeItem;
 
 class TestCodeParser : public QObject
 {
@@ -46,6 +47,14 @@ public:
     virtual ~TestCodeParser();
 
 signals:
+    void cacheCleared();
+    void testItemCreated(const TestTreeItem &item, TestTreeModel::Type type);
+    void testItemsCreated(const QList<TestTreeItem> &itemList, TestTreeModel::Type type);
+    void testItemModified(TestTreeItem tItem, TestTreeModel::Type type, const QString &file);
+    void testItemsRemoved(const QString &filePath, TestTreeModel::Type type);
+    void unnamedQuickTestsUpdated(const QString &filePath, const QString &mainFile,
+                                  const QMap<QString, TestCodeLocationAndType> &functions);
+    void unnamedQuickTestsRemoved(const QString &filePath);
 
 public slots:
     void emitUpdateTestTree();
@@ -63,16 +72,15 @@ private:
     void clearMaps();
     void removeTestsIfNecessary(const QString &fileName);
     void removeTestsIfNecessaryByProFile(const QString &proFile);
-    void removeUnnamedQuickTests(const QString &fileName, const QStringList &testFunctions);
-    void recreateUnnamedQuickTest(const QMap<QString, TestCodeLocationAndType> &testFunctions,
-                                  const QString &mainFile, TestTreeItem *rootItem);
+
     void onTaskStarted(Core::Id type);
     void onAllTasksFinished(Core::Id type);
-    void updateModelAndCppDocMap(CPlusPlus::Document::Ptr document, const QString &declFileName,
-                                 TestTreeItem *testItem, TestTreeItem *rootItem);
-    void updateModelAndQuickDocMap(QmlJS::Document::Ptr qmlDoc, const QString &currentQmlJSFile,
-                                   const QString &referencingFileName,
-                                   TestTreeItem *testItem, TestTreeItem *rootItem);
+    void updateUnnamedQuickTests(const QString &fileName, const QString &mainFile,
+                                 const QMap<QString, TestCodeLocationAndType> &functions);
+    void updateModelAndCppDocMap(CPlusPlus::Document::Ptr document,
+                                 const QString &declaringFile, TestTreeItem &testItem);
+    void updateModelAndQuickDocMap(QmlJS::Document::Ptr document,
+                                   const QString &referencingFile, TestTreeItem &testItem);
 
     TestTreeModel *m_model;
     QMap<QString, TestInfo> m_cppDocMap;

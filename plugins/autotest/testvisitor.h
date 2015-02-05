@@ -35,13 +35,6 @@
 namespace Autotest {
 namespace Internal {
 
-struct TestCodeLocationAndType {
-    QString m_fileName;
-    unsigned m_line;
-    unsigned m_column;
-    TestTreeItem::Type m_type;
-};
-
 class TestVisitor : public CPlusPlus::SymbolVisitor
 {
 public:

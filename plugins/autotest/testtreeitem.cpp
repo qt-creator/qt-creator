@@ -71,7 +71,7 @@ TestTreeItem::TestTreeItem(const TestTreeItem &other)
     }
 }
 
-TestTreeItem *TestTreeItem::child(int row)
+TestTreeItem *TestTreeItem::child(int row) const
 {
     return m_children.at(row);
 }
