@@ -665,10 +665,6 @@ void CppEditorWidget::updateFunctionDeclDefLink()
 
 void CppEditorWidget::updateFunctionDeclDefLinkNow()
 {
-    static bool noTracking = qgetenv("QTC_NO_FUNCTION_DECL_DEF_LINK_TRACKING").trimmed() == "1";
-    if (noTracking)
-        return;
-
     IEditor *editor = EditorManager::currentEditor();
     if (!editor || editor->widget() != this)
         return;
