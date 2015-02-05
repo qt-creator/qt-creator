@@ -81,21 +81,6 @@ void *MemoryPool::allocate_helper(size_t size)
     return addr;
 }
 
-RecursiveMemoryPool::RecursiveMemoryPool(MemoryPool *pool)
-    : _pool(pool),
-      _blockCount(pool->_blockCount),
-      _ptr(pool->_ptr),
-      _end(pool->_end)
-{
-}
-
-RecursiveMemoryPool::~RecursiveMemoryPool()
-{
-    _pool->_blockCount = _blockCount;
-    _pool->_ptr = _ptr;
-    _pool->_end = _end;
-}
-
 Managed::Managed()
 { }
 
