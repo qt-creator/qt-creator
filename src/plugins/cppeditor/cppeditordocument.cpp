@@ -63,17 +63,17 @@ namespace Internal {
 
 enum { processDocumentIntervalInMs = 150 };
 
-class CppEditorDocumentHandle : public CppTools::CppEditorDocumentHandle
+class CppEditorDocumentHandleImpl : public CppTools::CppEditorDocumentHandle
 {
 public:
-    CppEditorDocumentHandle(CppEditor::Internal::CppEditorDocument *cppEditorDocument)
+    CppEditorDocumentHandleImpl(CppEditorDocument *cppEditorDocument)
         : m_cppEditorDocument(cppEditorDocument)
         , m_registrationFilePath(cppEditorDocument->filePath().toString())
     {
         mm()->registerCppEditorDocument(this);
     }
 
-    ~CppEditorDocumentHandle() { mm()->unregisterCppEditorDocument(m_registrationFilePath); }
+    ~CppEditorDocumentHandleImpl() { mm()->unregisterCppEditorDocument(m_registrationFilePath); }
 
     QString filePath() const { return m_cppEditorDocument->filePath().toString(); }
     QByteArray contents() const { return m_cppEditorDocument->contentsText(); }
@@ -209,7 +209,7 @@ void CppEditorDocument::onFilePathChanged(const Utils::FileName &oldPath,
 
         // Un-Register/Register in ModelManager
         m_editorDocumentHandle.reset();
-        m_editorDocumentHandle.reset(new CppEditorDocumentHandle(this));
+        m_editorDocumentHandle.reset(new CppEditorDocumentHandleImpl(this));
 
         resetProcessor();
         updatePreprocessorSettings();

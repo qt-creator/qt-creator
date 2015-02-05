@@ -49,7 +49,7 @@ class CppEditorDocument : public TextEditor::TextDocument
 {
     Q_OBJECT
 
-    friend class CppEditorDocumentHandle;
+    friend class CppEditorDocumentHandleImpl;
 
 public:
     explicit CppEditorDocument();
