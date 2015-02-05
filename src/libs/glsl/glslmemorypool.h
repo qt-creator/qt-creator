@@ -37,7 +37,6 @@
 namespace GLSL {
 
 class MemoryPool;
-class RecursiveMemoryPool;
 
 class GLSL_EXPORT MemoryPool
 {
@@ -76,20 +75,6 @@ private:
         BLOCK_SIZE = 8 * 1024,
         DEFAULT_BLOCK_COUNT = 8
     };
-
-    friend class RecursiveMemoryPool;
-};
-
-class GLSL_EXPORT RecursiveMemoryPool
-{
-    MemoryPool *_pool;
-    int _blockCount;
-    char *_ptr;
-    char *_end;
-
-public:
-    RecursiveMemoryPool(MemoryPool *pool);
-    ~RecursiveMemoryPool();
 };
 
 class GLSL_EXPORT Managed
