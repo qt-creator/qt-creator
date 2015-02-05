@@ -96,7 +96,7 @@ enum { debugPending = 0 };
 
 #define PENDING_DEBUG(s) do { if (debugPending) qDebug() << s; } while (0)
 
-#define CB(callback) [this](const DebuggerResponse &r) { callback(r); }, STRINGIFY(callback)
+#define CB(callback) [this](const DebuggerResponse &r) { callback(r); }
 
 QByteArray GdbEngine::tooltipIName(const QString &exp)
 {
@@ -859,20 +859,18 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
 }
 
 void GdbEngine::postCommand(const QByteArray &command, GdbCommandCallback callback,
-                            const char *callbackName, const QVariant &cookie)
+                            const QVariant &cookie)
 {
-    postCommand(command, NoFlags, callback, callbackName, cookie);
+    postCommand(command, NoFlags, callback, cookie);
 }
 
 void GdbEngine::postCommand(const QByteArray &command, GdbCommandFlags flags,
-                            GdbCommandCallback callback, const char *callbackName,
-                            const QVariant &cookie)
+                            GdbCommandCallback callback, const QVariant &cookie)
 {
     GdbCommand cmd;
     cmd.command = command;
     cmd.flags = flags;
     cmd.callback = callback;
-    cmd.callbackName = callbackName;
     cmd.cookie = cookie;
     postCommandHelper(cmd);
 }
@@ -888,10 +886,10 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
 
     if (cmd.flags & RebuildBreakpointModel) {
         ++m_pendingBreakpointRequests;
-        PENDING_DEBUG("   BRWAKPOINT MODEL:" << cmd.command << "=>" << cmd.callbackName
+        PENDING_DEBUG("   BRWAKPOINT MODEL:" << cmd.command
                       << "INCREMENTS PENDING TO" << m_pendingBreakpointRequests);
     } else {
-        PENDING_DEBUG("   OTHER (IN):" << cmd.command << "=>" << cmd.callbackName
+        PENDING_DEBUG("   OTHER (IN):" << cmd.command
                       << "LEAVES PENDING WATCH AT" << m_uncompleted.size()
                       << "LEAVES PENDING BREAKPOINT AT" << m_pendingBreakpointRequests);
     }
@@ -938,8 +936,7 @@ void GdbEngine::flushQueuedCommands()
     showStatusMessage(tr("Processing queued commands"), 1000);
     while (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
         GdbCommand cmd = m_commandsToRunOnTemporaryBreak.takeFirst();
-        showMessage(_("RUNNING QUEUED COMMAND " + cmd.command + ' '
-            + (cmd.callbackName ? cmd.callbackName : "<unnamed callback>")));
+        showMessage(_("RUNNING QUEUED COMMAND " + cmd.command));
         flushCommand(cmd);
     }
 }
@@ -1006,10 +1003,7 @@ void GdbEngine::commandTimeout()
         const GdbCommand &cmd = m_cookieForToken.value(key);
         if (!(cmd.flags & NonCriticalResponse))
             killIt = true;
-        QByteArray msg = QByteArray::number(key);
-        msg += ": " + cmd.command + " => ";
-        msg += cmd.callbackName ? cmd.callbackName : "<unnamed callback>";
-        showMessage(_(msg));
+        showMessage(_(QByteArray::number(key) + ": " + cmd.command));
     }
     if (killIt) {
         QStringList commands;
@@ -1184,14 +1178,14 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
 
     if (cmd.flags & RebuildBreakpointModel) {
         --m_pendingBreakpointRequests;
-        PENDING_DEBUG("   BREAKPOINT" << cmd.command << "=>" << cmd.callbackName
+        PENDING_DEBUG("   BREAKPOINT" << cmd.command
                       << "DECREMENTS PENDING TO" << m_uncompleted.size());
         if (m_pendingBreakpointRequests <= 0) {
             PENDING_DEBUG("\n\n ... AND TRIGGERS BREAKPOINT MODEL UPDATE\n");
             attemptBreakpointSynchronization();
         }
     } else {
-        PENDING_DEBUG("   OTHER (OUT):" << cmd.command << "=>" << cmd.callbackName
+        PENDING_DEBUG("   OTHER (OUT):" << cmd.command
                       << "LEAVES PENDING WATCH AT" << m_uncompleted.size()
                       << "LEAVES PENDING BREAKPOINT AT" << m_pendingBreakpointRequests);
     }
@@ -2292,8 +2286,7 @@ void GdbEngine::setTokenBarrier()
         if (!(it.value().flags & Discardable)) {
             qDebug() << "TOKEN: " << it.key()
                 << "CMD:" << it.value().command
-                << " FLAGS:" << it.value().flags
-                << " CALLBACK:" << it.value().callbackName;
+                << " FLAGS:" << it.value().flags;
             good = false;
         }
     }
@@ -4668,7 +4661,7 @@ void GdbEngine::resetCommandQueue()
         QTextStream ts(&msg);
         ts << "RESETING COMMAND QUEUE. LEFT OVER TOKENS: ";
         foreach (const GdbCommand &cookie, m_cookieForToken)
-            ts << "CMD:" << cookie.command << cookie.callbackName;
+            ts << "CMD:" << cookie.command;
         m_cookieForToken.clear();
         showMessage(msg);
     }

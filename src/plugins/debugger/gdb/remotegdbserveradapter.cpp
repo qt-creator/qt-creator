@@ -49,7 +49,7 @@
 namespace Debugger {
 namespace Internal {
 
-#define CB(callback) [this](const DebuggerResponse &r) { callback(r); }, STRINGIFY(callback)
+#define CB(callback) [this](const DebuggerResponse &r) { callback(r); }
 
 ///////////////////////////////////////////////////////////////////////
 //

@@ -179,12 +179,11 @@ private: ////////// Gdb Command Management //////////
     struct GdbCommand
     {
         GdbCommand()
-            : flags(0), callback(0), callbackName(0)
+            : flags(0), callback(0)
         {}
 
         int flags;
         GdbCommandCallback callback;
-        const char *callbackName;
         QByteArray command;
         QVariant cookie;
         QTime postTime;
@@ -200,11 +199,9 @@ protected:
     void postCommand(const QByteArray &command,
                      GdbCommandFlags flags,
                      GdbCommandCallback callback = 0,
-                     const char *callbackName = 0,
                      const QVariant &cookie = QVariant());
     void postCommand(const QByteArray &command,
                      GdbCommandCallback callback = 0,
-                     const char *callbackName = 0,
                      const QVariant &cookie = QVariant());
 private:
     void postCommandHelper(const GdbCommand &cmd);
