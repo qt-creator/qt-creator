@@ -66,9 +66,9 @@ private:
     void interruptInferior();
     void shutdownEngine();
 
-    void handleFileExecAndSymbols(const GdbResponse &response);
-    void handleTargetCore(const GdbResponse &response);
-    void handleRoundTrip(const GdbResponse &response);
+    void handleFileExecAndSymbols(const DebuggerResponse &response);
+    void handleTargetCore(const DebuggerResponse &response);
+    void handleRoundTrip(const DebuggerResponse &response);
     void unpackCoreIfNeeded();
     QString coreFileName() const;
     QString coreName() const;

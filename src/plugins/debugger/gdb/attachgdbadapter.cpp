@@ -36,13 +36,10 @@
 
 #include <utils/qtcassert.h>
 
-
 namespace Debugger {
 namespace Internal {
 
-#define CB(callback) \
-    static_cast<GdbEngine::GdbCommandCallback>(&GdbAttachEngine::callback), \
-    STRINGIFY(callback)
+#define CB(callback) [this](const DebuggerResponse &r) { callback(r); }, STRINGIFY(callback)
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -85,17 +82,17 @@ void GdbAttachEngine::runEngine()
     handleStop1(GdbMi());
 }
 
-void GdbAttachEngine::handleAttach(const GdbResponse &response)
+void GdbAttachEngine::handleAttach(const DebuggerResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     switch (response.resultClass) {
-    case GdbResultDone:
-    case GdbResultRunning:
+    case ResultDone:
+    case ResultRunning:
         showMessage(_("INFERIOR ATTACHED"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
         handleInferiorPrepared();
         break;
-    case GdbResultError:
+    case ResultError:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
             notifyInferiorSetupFailed(msgPtraceError(startParameters().startMode));
             break;

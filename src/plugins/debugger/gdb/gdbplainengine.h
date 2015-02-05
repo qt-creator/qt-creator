@@ -46,8 +46,8 @@ public:
     explicit GdbPlainEngine(const DebuggerStartParameters &startParameters);
 
 private:
-    void handleExecRun(const GdbResponse &response);
-    void handleFileExecAndSymbols(const GdbResponse &response);
+    void handleExecRun(const DebuggerResponse &response);
+    void handleFileExecAndSymbols(const DebuggerResponse &response);
 
     void setupInferior();
     void runEngine();

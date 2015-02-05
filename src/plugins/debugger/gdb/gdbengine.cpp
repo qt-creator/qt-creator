@@ -96,8 +96,7 @@ enum { debugPending = 0 };
 
 #define PENDING_DEBUG(s) do { if (debugPending) qDebug() << s; } while (0)
 
-#define CB(callback) &GdbEngine::callback, STRINGIFY(callback)
-
+#define CB(callback) [this](const DebuggerResponse &r) { callback(r); }, STRINGIFY(callback)
 
 QByteArray GdbEngine::tooltipIName(const QString &exp)
 {
@@ -143,7 +142,7 @@ static int &currentToken()
     return token;
 }
 
-static QByteArray parsePlainConsoleStream(const GdbResponse &response)
+static QByteArray parsePlainConsoleStream(const DebuggerResponse &response)
 {
     QByteArray out = response.consoleStreamOutput;
     // FIXME: proper decoding needed
@@ -684,7 +683,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
         }
 
         case '^': {
-            GdbResponse response;
+            DebuggerResponse response;
 
             response.token = token;
 
@@ -694,17 +693,17 @@ void GdbEngine::handleResponse(const QByteArray &buff)
 
             QByteArray resultClass = QByteArray::fromRawData(from, inner - from);
             if (resultClass == "done")
-                response.resultClass = GdbResultDone;
+                response.resultClass = ResultDone;
             else if (resultClass == "running")
-                response.resultClass = GdbResultRunning;
+                response.resultClass = ResultRunning;
             else if (resultClass == "connected")
-                response.resultClass = GdbResultConnected;
+                response.resultClass = ResultConnected;
             else if (resultClass == "error")
-                response.resultClass = GdbResultError;
+                response.resultClass = ResultError;
             else if (resultClass == "exit")
-                response.resultClass = GdbResultExit;
+                response.resultClass = ResultExit;
             else
-                response.resultClass = GdbResultUnknown;
+                response.resultClass = ResultUnknown;
 
             from = inner;
             if (from != to) {
@@ -1044,7 +1043,7 @@ void GdbEngine::commandTimeout()
     }
 }
 
-void GdbEngine::handleResultRecord(GdbResponse *response)
+void GdbEngine::handleResultRecord(DebuggerResponse *response)
 {
     //qDebug() << "TOKEN:" << response->token
     //    << " ACCEPTABLE:" << m_oldestAcceptableToken;
@@ -1062,7 +1061,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
         showMessage(_("COOKIE FOR TOKEN %1 ALREADY EATEN (%2). "
                       "TWO RESPONSES FOR ONE COMMAND?").arg(token).
                     arg(QString::fromLatin1(stateName(state()))));
-        if (response->resultClass == GdbResultError) {
+        if (response->resultClass == ResultError) {
             QByteArray msg = response->data["msg"].data();
             if (msg == "Cannot find new threads: generic error") {
                 // Handle a case known to occur on Linux/gdb 6.8 when debugging moc
@@ -1148,18 +1147,18 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
     response->cookie = cmd.cookie;
 
     bool isExpectedResult =
-           (response->resultClass == GdbResultError) // Can always happen.
-        || (response->resultClass == GdbResultRunning && (cmd.flags & RunRequest))
-        || (response->resultClass == GdbResultExit && (cmd.flags & ExitRequest))
-        || (response->resultClass == GdbResultDone);
-        // GdbResultDone can almost "always" happen. Known examples are:
-        //  (response->resultClass == GdbResultDone && cmd.command == "continue")
+           (response->resultClass == ResultError) // Can always happen.
+        || (response->resultClass == ResultRunning && (cmd.flags & RunRequest))
+        || (response->resultClass == ResultExit && (cmd.flags & ExitRequest))
+        || (response->resultClass == ResultDone);
+        // ResultDone can almost "always" happen. Known examples are:
+        //  (response->resultClass == ResultDone && cmd.command == "continue")
         // Happens with some incarnations of gdb 6.8 for "jump to line"
-        //  (response->resultClass == GdbResultDone && cmd.command.startsWith("jump"))
-        //  (response->resultClass == GdbResultDone && cmd.command.startsWith("detach"))
+        //  (response->resultClass == ResultDone && cmd.command.startsWith("jump"))
+        //  (response->resultClass == ResultDone && cmd.command.startsWith("detach"))
         // Happens when stepping finishes very quickly and issues *stopped and ^done
         // instead of ^running and *stopped
-        //  (response->resultClass == GdbResultDone && (cmd.flags & RunRequest));
+        //  (response->resultClass == ResultDone && (cmd.flags & RunRequest));
 
     if (!isExpectedResult) {
         const DebuggerStartParameters &sp = startParameters();
@@ -1170,7 +1169,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
         {
             // Ignore spurious 'running' responses to 'attach'.
         } else {
-            QByteArray rsp = GdbResponse::stringFromResultClass(response->resultClass);
+            QByteArray rsp = DebuggerResponse::stringFromResultClass(response->resultClass);
             rsp = "UNEXPECTED RESPONSE '" + rsp + "' TO COMMAND '" + cmd.command + "'";
             qWarning() << rsp << " AT " __FILE__ ":" STRINGIFY(__LINE__);
             showMessage(_(rsp));
@@ -1181,7 +1180,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
         --m_nonDiscardableCount;
 
     if (cmd.callback)
-        (this->*cmd.callback)(*response);
+        cmd.callback(*response);
 
     if (cmd.flags & RebuildBreakpointModel) {
         --m_pendingBreakpointRequests;
@@ -1214,7 +1213,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
         showMessage(_("ALL COMMANDS DONE; INVOKING CALLBACK"));
         CommandsDoneCallback cont = m_commandsDoneCallback;
         m_commandsDoneCallback = 0;
-        if (response->resultClass != GdbResultRunning) //only start if the thing is not already running
+        if (response->resultClass != ResultRunning) //only start if the thing is not already running
             (this->*cont)();
     } else {
         PENDING_DEBUG("MISSING TOKENS: " << m_cookieForToken.keys());
@@ -1256,10 +1255,10 @@ void GdbEngine::updateAll()
     updateLocals();
 }
 
-void GdbEngine::handleQuerySources(const GdbResponse &response)
+void GdbEngine::handleQuerySources(const DebuggerResponse &response)
 {
     m_sourcesListUpdating = false;
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         QMap<QString, QString> oldShortToFull = m_shortToFullName;
         m_shortToFullName.clear();
         m_fullToShortName.clear();
@@ -1284,13 +1283,13 @@ void GdbEngine::handleQuerySources(const GdbResponse &response)
     }
 }
 
-void GdbEngine::handleExecuteJumpToLine(const GdbResponse &response)
+void GdbEngine::handleExecuteJumpToLine(const DebuggerResponse &response)
 {
-    if (response.resultClass == GdbResultRunning) {
+    if (response.resultClass == ResultRunning) {
         // All is fine. Waiting for a *running
         // and the temporary breakpoint to be hit.
         notifyInferiorRunOk(); // Only needed for gdb < 7.0.
-    } else if (response.resultClass == GdbResultError) {
+    } else if (response.resultClass == ResultError) {
         // Could be "Unreasonable jump request" or similar.
         QString out = tr("Cannot jump. Stopped");
         QByteArray msg = response.data["msg"].data();
@@ -1298,7 +1297,7 @@ void GdbEngine::handleExecuteJumpToLine(const GdbResponse &response)
             out += QString::fromLatin1(". " + msg);
         showStatusMessage(out);
         notifyInferiorRunFailed();
-    } else if (response.resultClass == GdbResultDone) {
+    } else if (response.resultClass == ResultDone) {
         // This happens on old gdb. Trigger the effect of a '*stopped'.
         showStatusMessage(tr("Jumped. Stopped"));
         notifyInferiorSpontaneousStop();
@@ -1306,12 +1305,12 @@ void GdbEngine::handleExecuteJumpToLine(const GdbResponse &response)
     }
 }
 
-void GdbEngine::handleExecuteRunToLine(const GdbResponse &response)
+void GdbEngine::handleExecuteRunToLine(const DebuggerResponse &response)
 {
-    if (response.resultClass == GdbResultRunning) {
+    if (response.resultClass == ResultRunning) {
         // All is fine. Waiting for a *running
         // and the temporary breakpoint to be hit.
-    } else if (response.resultClass == GdbResultDone) {
+    } else if (response.resultClass == ResultDone) {
         // This happens on old gdb (Mac). gdb is not stopped yet,
         // but merely accepted the continue.
         // >&"continue\n"
@@ -1475,7 +1474,7 @@ static QByteArray stopSignal(const Abi &abi)
     return (abi.os() == Abi::WindowsOS) ? QByteArray("SIGTRAP") : QByteArray("SIGINT");
 }
 
-void GdbEngine::handleStop1(const GdbResponse &response)
+void GdbEngine::handleStop1(const DebuggerResponse &response)
 {
     handleStop1(response.cookie.value<GdbMi>());
 }
@@ -1552,7 +1551,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
     handleStop2(data);
 }
 
-void GdbEngine::handleStop2(const GdbResponse &response)
+void GdbEngine::handleStop2(const DebuggerResponse &response)
 {
     handleStop2(response.cookie.value<GdbMi>());
 }
@@ -1687,9 +1686,9 @@ void GdbEngine::handleStop2()
     postCommand("-thread-info", Discardable, CB(handleThreadInfo));
 }
 
-void GdbEngine::handleInfoProc(const GdbResponse &response)
+void GdbEngine::handleInfoProc(const DebuggerResponse &response)
 {
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         static QRegExp re(_("\\bprocess ([0-9]+)\n"));
         QTC_ASSERT(re.isValid(), return);
         if (re.indexIn(_(response.consoleStreamOutput)) != -1)
@@ -1697,10 +1696,10 @@ void GdbEngine::handleInfoProc(const GdbResponse &response)
     }
 }
 
-void GdbEngine::handleShowVersion(const GdbResponse &response)
+void GdbEngine::handleShowVersion(const DebuggerResponse &response)
 {
     showMessage(_("PARSING VERSION: " + response.toString()));
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         bool isMacGdb = false;
         int gdbBuildVersion = -1;
         m_gdbVersion = 100;
@@ -1732,15 +1731,15 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
     }
 }
 
-void GdbEngine::handleListFeatures(const GdbResponse &response)
+void GdbEngine::handleListFeatures(const DebuggerResponse &response)
 {
     showMessage(_("FEATURES: " + response.toString()));
 }
 
-void GdbEngine::handlePythonSetup(const GdbResponse &response)
+void GdbEngine::handlePythonSetup(const DebuggerResponse &response)
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         GdbMi data;
         data.fromStringMultiple(response.consoleStreamOutput);
         watchHandler()->addDumpers(data["dumpers"]);
@@ -1766,10 +1765,10 @@ void GdbEngine::showExecutionError(const QString &message)
        tr("Cannot continue debugged process:") + QLatin1Char('\n') + message);
 }
 
-void GdbEngine::handleExecuteContinue(const GdbResponse &response)
+void GdbEngine::handleExecuteContinue(const DebuggerResponse &response)
 {
     QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
-    if (response.resultClass == GdbResultRunning) {
+    if (response.resultClass == ResultRunning) {
         // All is fine. Waiting for a *running.
         notifyInferiorRunOk(); // Only needed for gdb < 7.0.
         return;
@@ -1879,10 +1878,10 @@ void GdbEngine::shutdownInferior()
     QTC_ASSERT(false, notifyInferiorShutdownFailed());
 }
 
-void GdbEngine::handleInferiorShutdown(const GdbResponse &response)
+void GdbEngine::handleInferiorShutdown(const DebuggerResponse &response)
 {
     QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         notifyInferiorShutdownOk();
         return;
     }
@@ -1931,9 +1930,9 @@ void GdbEngine::notifyAdapterShutdownOk()
     }
 }
 
-void GdbEngine::handleGdbExit(const GdbResponse &response)
+void GdbEngine::handleGdbExit(const DebuggerResponse &response)
 {
-    if (response.resultClass == GdbResultExit) {
+    if (response.resultClass == ResultExit) {
         showMessage(_("GDB CLAIMS EXIT; WAITING"));
         // Don't set state here, this will be handled in handleGdbFinished()
         //notifyEngineShutdownOk();
@@ -1954,7 +1953,7 @@ void GdbEngine::detachDebugger()
     postCommand("detach", GdbEngine::ExitRequest, CB(handleDetach));
 }
 
-void GdbEngine::handleDetach(const GdbResponse &response)
+void GdbEngine::handleDetach(const DebuggerResponse &response)
 {
     Q_UNUSED(response);
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
@@ -2070,16 +2069,16 @@ void GdbEngine::executeStep()
         postCommand("-exec-step", RunRequest, CB(handleExecuteStep));
 }
 
-void GdbEngine::handleExecuteStep(const GdbResponse &response)
+void GdbEngine::handleExecuteStep(const DebuggerResponse &response)
 {
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         // Step was finishing too quick, and a '*stopped' messages should
         // have preceded it, so just ignore this result.
         QTC_CHECK(state() == InferiorStopOk);
         return;
     }
     QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
-    if (response.resultClass == GdbResultRunning) {
+    if (response.resultClass == ResultRunning) {
         // All is fine. Waiting for a *running.
         notifyInferiorRunOk(); // Only needed for gdb < 7.0.
         return;
@@ -2151,16 +2150,16 @@ void GdbEngine::executeNext()
     }
 }
 
-void GdbEngine::handleExecuteNext(const GdbResponse &response)
+void GdbEngine::handleExecuteNext(const DebuggerResponse &response)
 {
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         // Step was finishing too quick, and a '*stopped' messages should
         // have preceded it, so just ignore this result.
         QTC_CHECK(state() == InferiorStopOk);
         return;
     }
     QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
-    if (response.resultClass == GdbResultRunning) {
+    if (response.resultClass == ResultRunning) {
         // All is fine. Waiting for a *running.
         notifyInferiorRunOk(); // Only needed for gdb < 7.0.
         return;
@@ -2265,9 +2264,9 @@ void GdbEngine::executeReturn()
     postCommand("-exec-finish", RunRequest, CB(handleExecuteReturn));
 }
 
-void GdbEngine::handleExecuteReturn(const GdbResponse &response)
+void GdbEngine::handleExecuteReturn(const DebuggerResponse &response)
 {
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         notifyInferiorStopOk();
         updateAll();
         return;
@@ -2474,10 +2473,10 @@ QByteArray GdbEngine::breakpointLocation2(const BreakpointParameters &data)
         + QByteArray::number(data.lineNumber);
 }
 
-void GdbEngine::handleWatchInsert(const GdbResponse &response)
+void GdbEngine::handleWatchInsert(const DebuggerResponse &response)
 {
     Breakpoint bp = response.cookie.value<Breakpoint>();
-    if (bp && response.resultClass == GdbResultDone) {
+    if (bp && response.resultClass == ResultDone) {
         BreakpointResponse br = bp.response();
         // "Hardware watchpoint 2: *0xbfffed40\n"
         QByteArray ba = response.consoleStreamOutput;
@@ -2510,10 +2509,10 @@ void GdbEngine::handleWatchInsert(const GdbResponse &response)
     }
 }
 
-void GdbEngine::handleCatchInsert(const GdbResponse &response)
+void GdbEngine::handleCatchInsert(const DebuggerResponse &response)
 {
     Breakpoint bp = response.cookie.value<Breakpoint>();
-    if (bp && response.resultClass == GdbResultDone)
+    if (bp && response.resultClass == ResultDone)
         bp.notifyBreakpointInsertOk();
 }
 
@@ -2556,11 +2555,11 @@ void GdbEngine::handleBkpt(const GdbMi &bkpt, Breakpoint bp)
     bp.setResponse(br);
 }
 
-void GdbEngine::handleBreakInsert1(const GdbResponse &response)
+void GdbEngine::handleBreakInsert1(const DebuggerResponse &response)
 {
     Breakpoint bp = response.cookie.value<Breakpoint>();
     if (bp.state() == BreakpointRemoveRequested) {
-        if (response.resultClass == GdbResultDone) {
+        if (response.resultClass == ResultDone) {
             // This delete was deferred. Act now.
             const GdbMi mainbkpt = response.data["bkpt"];
             bp.notifyBreakpointRemoveProceeding();
@@ -2571,7 +2570,7 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
             return;
         }
     }
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         // The result is a list with the first entry marked "bkpt"
         // and "unmarked" rest. The "bkpt" one seems to always be
         // the "main" entry. Use the "main" entry to retrieve the
@@ -2609,9 +2608,9 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
     }
 }
 
-void GdbEngine::handleBreakInsert2(const GdbResponse &response)
+void GdbEngine::handleBreakInsert2(const DebuggerResponse &response)
 {
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         Breakpoint bp = response.cookie.value<Breakpoint>();
         QTC_ASSERT(bp, return);
         bp.notifyBreakpointInsertOk();
@@ -2623,18 +2622,18 @@ void GdbEngine::handleBreakInsert2(const GdbResponse &response)
     }
 }
 
-void GdbEngine::handleBreakDelete(const GdbResponse &response)
+void GdbEngine::handleBreakDelete(const DebuggerResponse &response)
 {
     Breakpoint bp = response.cookie.value<Breakpoint>();
-    if (response.resultClass == GdbResultDone)
+    if (response.resultClass == ResultDone)
         bp.notifyBreakpointRemoveOk();
     else
         bp.notifyBreakpointRemoveFailed();
 }
 
-void GdbEngine::handleBreakDisable(const GdbResponse &response)
+void GdbEngine::handleBreakDisable(const DebuggerResponse &response)
 {
-    QTC_CHECK(response.resultClass == GdbResultDone);
+    QTC_CHECK(response.resultClass == ResultDone);
     Breakpoint bp = response.cookie.value<Breakpoint>();
     // This should only be the requested state.
     QTC_ASSERT(!bp.isEnabled(), /* Prevent later recursion */);
@@ -2644,9 +2643,9 @@ void GdbEngine::handleBreakDisable(const GdbResponse &response)
     changeBreakpoint(bp); // Maybe there's more to do.
 }
 
-void GdbEngine::handleBreakEnable(const GdbResponse &response)
+void GdbEngine::handleBreakEnable(const DebuggerResponse &response)
 {
-    QTC_CHECK(response.resultClass == GdbResultDone);
+    QTC_CHECK(response.resultClass == ResultDone);
     Breakpoint bp = response.cookie.value<Breakpoint>();
     // This should only be the requested state.
     QTC_ASSERT(bp.isEnabled(), /* Prevent later recursion */);
@@ -2656,9 +2655,9 @@ void GdbEngine::handleBreakEnable(const GdbResponse &response)
     changeBreakpoint(bp); // Maybe there's more to do.
 }
 
-void GdbEngine::handleBreakThreadSpec(const GdbResponse &response)
+void GdbEngine::handleBreakThreadSpec(const DebuggerResponse &response)
 {
-    QTC_CHECK(response.resultClass == GdbResultDone);
+    QTC_CHECK(response.resultClass == ResultDone);
     Breakpoint bp = response.cookie.value<Breakpoint>();
     BreakpointResponse br = bp.response();
     br.threadSpec = bp.threadSpec();
@@ -2667,9 +2666,9 @@ void GdbEngine::handleBreakThreadSpec(const GdbResponse &response)
     insertBreakpoint(bp);
 }
 
-void GdbEngine::handleBreakLineNumber(const GdbResponse &response)
+void GdbEngine::handleBreakLineNumber(const DebuggerResponse &response)
 {
-    QTC_CHECK(response.resultClass == GdbResultDone);
+    QTC_CHECK(response.resultClass == ResultDone);
     Breakpoint bp = response.cookie.value<Breakpoint>();
     BreakpointResponse br = bp.response();
     br.lineNumber = bp.lineNumber();
@@ -2678,7 +2677,7 @@ void GdbEngine::handleBreakLineNumber(const GdbResponse &response)
     insertBreakpoint(bp);
 }
 
-void GdbEngine::handleBreakIgnore(const GdbResponse &response)
+void GdbEngine::handleBreakIgnore(const DebuggerResponse &response)
 {
     // gdb 6.8:
     // ignore 2 0:
@@ -2690,7 +2689,7 @@ void GdbEngine::handleBreakIgnore(const GdbResponse &response)
     // 29^done
     //
     // gdb 6.3 does not produce any console output
-    QTC_CHECK(response.resultClass == GdbResultDone);
+    QTC_CHECK(response.resultClass == ResultDone);
     //QString msg = _(response.consoleStreamOutput);
     Breakpoint bp = response.cookie.value<Breakpoint>();
     BreakpointResponse br = bp.response();
@@ -2706,10 +2705,10 @@ void GdbEngine::handleBreakIgnore(const GdbResponse &response)
     changeBreakpoint(bp); // Maybe there's more to do.
 }
 
-void GdbEngine::handleBreakCondition(const GdbResponse &response)
+void GdbEngine::handleBreakCondition(const DebuggerResponse &response)
 {
     // Can happen at invalid condition strings.
-    //QTC_CHECK(response.resultClass == GdbResultDone)
+    //QTC_CHECK(response.resultClass == ResultDone)
     Breakpoint bp = response.cookie.value<Breakpoint>();
     // We just assume it was successful. Otherwise we had to parse
     // the output stream data.
@@ -2991,12 +2990,12 @@ void GdbEngine::requestModuleSymbols(const QString &modulePath)
         QVariant(modulePath + QLatin1Char('@') +  fileName));
 }
 
-void GdbEngine::handleShowModuleSymbols(const GdbResponse &response)
+void GdbEngine::handleShowModuleSymbols(const DebuggerResponse &response)
 {
     const QString cookie = response.cookie.toString();
     const QString modulePath = cookie.section(QLatin1Char('@'), 0, 0);
     const QString fileName = cookie.section(QLatin1Char('@'), 1, 1);
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         Symbols symbols;
         QFile file(fileName);
         file.open(QIODevice::ReadOnly);
@@ -3059,11 +3058,11 @@ void GdbEngine::requestModuleSections(const QString &moduleName)
         NeedsStop, CB(handleShowModuleSections), moduleName);
 }
 
-void GdbEngine::handleShowModuleSections(const GdbResponse &response)
+void GdbEngine::handleShowModuleSections(const DebuggerResponse &response)
 {
     // ~"  Object file: /usr/lib/i386-linux-gnu/libffi.so.6\n"
     // ~"    0xb44a6114->0xb44a6138 at 0x00000114: .note.gnu.build-id ALLOC LOAD READONLY DATA HAS_CONTENTS\n"
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         const QString moduleName = response.cookie.toString();
         const QStringList lines = QString::fromLocal8Bit(response.consoleStreamOutput).split(QLatin1Char('\n'));
         const QString prefix = QLatin1String("  Object file: ");
@@ -3113,9 +3112,9 @@ static QString nameFromPath(const QString &path)
     return QFileInfo(path).baseName();
 }
 
-void GdbEngine::handleModulesList(const GdbResponse &response)
+void GdbEngine::handleModulesList(const DebuggerResponse &response)
 {
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         ModulesHandler *handler = modulesHandler();
         Module module;
         // That's console-based output, likely Linux or Windows,
@@ -3213,7 +3212,7 @@ void GdbEngine::selectThread(ThreadId threadId)
         CB(handleStackSelectThread));
 }
 
-void GdbEngine::handleStackSelectThread(const GdbResponse &)
+void GdbEngine::handleStackSelectThread(const DebuggerResponse &)
 {
     QTC_CHECK(state() == InferiorUnrunnable || state() == InferiorStopOk);
     showStatusMessage(tr("Retrieving data for stack view..."), 3000);
@@ -3263,7 +3262,7 @@ static QString msgCannotLoadQmlStack(const QString &why)
     return _("Unable to load QML stack: ") + why;
 }
 
-void GdbEngine::handleQmlStackFrameArguments(const GdbResponse &response)
+void GdbEngine::handleQmlStackFrameArguments(const DebuggerResponse &response)
 {
     if (!response.data.isValid()) {
         showMessage(msgCannotLoadQmlStack(_("No stack obtained.")), LogError);
@@ -3281,7 +3280,7 @@ void GdbEngine::handleQmlStackFrameArguments(const GdbResponse &response)
     postCommand(command, CB(handleQmlStackTrace));
 }
 
-void GdbEngine::handleQmlStackTrace(const GdbResponse &response)
+void GdbEngine::handleQmlStackTrace(const DebuggerResponse &response)
 {
     if (!response.data.isValid()) {
         showMessage(msgCannotLoadQmlStack(_("No result obtained.")), LogError);
@@ -3368,9 +3367,9 @@ StackFrame GdbEngine::parseStackFrame(const GdbMi &frameMi, int level)
     return frame;
 }
 
-void GdbEngine::handleStackListFrames(const GdbResponse &response)
+void GdbEngine::handleStackListFrames(const DebuggerResponse &response)
 {
-    if (response.resultClass != GdbResultDone) {
+    if (response.resultClass != ResultDone) {
         // That always happens on symbian gdb with
         // ^error,data={msg="Previous frame identical to this frame (corrupt stack?)"
         // logStreamOutput: "Previous frame identical to this frame (corrupt stack?)\n"
@@ -3461,9 +3460,9 @@ void GdbEngine::activateFrame(int frameIndex)
     reloadRegisters();
 }
 
-void GdbEngine::handleThreadInfo(const GdbResponse &response)
+void GdbEngine::handleThreadInfo(const DebuggerResponse &response)
 {
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         ThreadsHandler *handler = threadsHandler();
         handler->updateThreads(response.data);
         // This is necessary as the current thread might not be in the list.
@@ -3486,7 +3485,7 @@ void GdbEngine::handleThreadInfo(const GdbResponse &response)
     }
 }
 
-void GdbEngine::handleThreadListIds(const GdbResponse &response)
+void GdbEngine::handleThreadListIds(const DebuggerResponse &response)
 {
     // "72^done,{thread-ids={thread-id="2",thread-id="1"},number-of-threads="2"}
     // In gdb 7.1+ additionally: current-thread-id="1"
@@ -3500,9 +3499,9 @@ void GdbEngine::handleThreadListIds(const GdbResponse &response)
     reloadStack(false); // Will trigger register reload.
 }
 
-void GdbEngine::handleThreadNames(const GdbResponse &response)
+void GdbEngine::handleThreadNames(const DebuggerResponse &response)
 {
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         ThreadsHandler *handler = threadsHandler();
         GdbMi names;
         names.fromString(response.consoleStreamOutput);
@@ -3540,9 +3539,9 @@ void GdbEngine::createSnapshot()
     }
 }
 
-void GdbEngine::handleMakeSnapshot(const GdbResponse &response)
+void GdbEngine::handleMakeSnapshot(const DebuggerResponse &response)
 {
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         DebuggerStartParameters sp = startParameters();
         sp.startMode = AttachCore;
         sp.coreFile = response.cookie.toString();
@@ -3603,9 +3602,9 @@ static QByteArray readWord(const QByteArray &ba, int *pos)
     return ba.mid(start, *pos - start);
 }
 
-void GdbEngine::handleMaintPrintRegisters(const GdbResponse &response)
+void GdbEngine::handleMaintPrintRegisters(const DebuggerResponse &response)
 {
-    if (response.resultClass != GdbResultDone)
+    if (response.resultClass != ResultDone)
         return;
 
     const QByteArray &ba = response.consoleStreamOutput;
@@ -3653,9 +3652,9 @@ void GdbEngine::setRegisterValue(const QByteArray &name, const QString &value)
     reloadRegisters();
 }
 
-void GdbEngine::handleRegisterListNames(const GdbResponse &response)
+void GdbEngine::handleRegisterListNames(const DebuggerResponse &response)
 {
-    if (response.resultClass != GdbResultDone) {
+    if (response.resultClass != ResultDone) {
         m_registerNamesListed = false;
         return;
     }
@@ -3670,9 +3669,9 @@ void GdbEngine::handleRegisterListNames(const GdbResponse &response)
     }
 }
 
-void GdbEngine::handleRegisterListValues(const GdbResponse &response)
+void GdbEngine::handleRegisterListValues(const DebuggerResponse &response)
 {
-    if (response.resultClass != GdbResultDone)
+    if (response.resultClass != ResultDone)
         return;
 
     RegisterHandler *handler = registerHandler();
@@ -3804,7 +3803,7 @@ void GdbEngine::rebuildWatchModel()
     DebuggerToolTipManager::updateEngine(this);
 }
 
-void GdbEngine::handleVarAssign(const GdbResponse &)
+void GdbEngine::handleVarAssign(const DebuggerResponse &)
 {
     // Everything might have changed, force re-evaluation.
     setTokenBarrier();
@@ -3861,9 +3860,9 @@ void GdbEngine::watchPoint(const QPoint &pnt)
         NeedsStop, CB(handleWatchPoint));
 }
 
-void GdbEngine::handleWatchPoint(const GdbResponse &response)
+void GdbEngine::handleWatchPoint(const DebuggerResponse &response)
 {
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         // "$5 = (void *) 0xbfa7ebfc\n"
         const QByteArray ba = parsePlainConsoleStream(response);
         const int pos0x = ba.indexOf("0x");
@@ -3917,7 +3916,7 @@ void GdbEngine::changeMemory(MemoryAgent *agent, QObject *token,
     postCommand(cmd, NeedsStop, CB(handleChangeMemory), QVariant::fromValue(ac));
 }
 
-void GdbEngine::handleChangeMemory(const GdbResponse &response)
+void GdbEngine::handleChangeMemory(const DebuggerResponse &response)
 {
     Q_UNUSED(response);
 }
@@ -3942,7 +3941,7 @@ void GdbEngine::fetchMemoryHelper(const MemoryAgentCookie &ac)
                 NeedsStop, CB(handleFetchMemory), QVariant::fromValue(ac));
 }
 
-void GdbEngine::handleFetchMemory(const GdbResponse &response)
+void GdbEngine::handleFetchMemory(const DebuggerResponse &response)
 {
     // ^done,addr="0x08910c88",nr-bytes="16",total-bytes="16",
     // next-row="0x08910c98",prev-row="0x08910c78",next-page="0x08910c98",
@@ -3952,7 +3951,7 @@ void GdbEngine::handleFetchMemory(const GdbResponse &response)
     --*ac.pendingRequests;
     showMessage(QString::fromLatin1("PENDING: %1").arg(*ac.pendingRequests));
     QTC_ASSERT(ac.agent, return);
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         GdbMi memory = response.data["memory"];
         QTC_ASSERT(memory.children().size() <= 1, return);
         if (memory.children().isEmpty())
@@ -4115,12 +4114,12 @@ bool GdbEngine::handleCliDisassemblerResult(const QByteArray &output, Disassembl
     return false;
 }
 
-void GdbEngine::handleFetchDisassemblerByCliPointMixed(const GdbResponse &response)
+void GdbEngine::handleFetchDisassemblerByCliPointMixed(const DebuggerResponse &response)
 {
     DisassemblerAgentCookie ac = response.cookie.value<DisassemblerAgentCookie>();
     QTC_ASSERT(ac.agent, return);
 
-    if (response.resultClass == GdbResultDone)
+    if (response.resultClass == ResultDone)
         if (handleCliDisassemblerResult(response.consoleStreamOutput, ac.agent))
             return;
 
@@ -4129,24 +4128,24 @@ void GdbEngine::handleFetchDisassemblerByCliPointMixed(const GdbResponse &respon
     fetchDisassemblerByCliRangeMixed(ac);
 }
 
-void GdbEngine::handleFetchDisassemblerByCliRangeMixed(const GdbResponse &response)
+void GdbEngine::handleFetchDisassemblerByCliRangeMixed(const DebuggerResponse &response)
 {
     DisassemblerAgentCookie ac = response.cookie.value<DisassemblerAgentCookie>();
     QTC_ASSERT(ac.agent, return);
 
-    if (response.resultClass == GdbResultDone)
+    if (response.resultClass == ResultDone)
         if (handleCliDisassemblerResult(response.consoleStreamOutput, ac.agent))
             return;
 
     fetchDisassemblerByCliRangePlain(ac);
 }
 
-void GdbEngine::handleFetchDisassemblerByCliRangePlain(const GdbResponse &response)
+void GdbEngine::handleFetchDisassemblerByCliRangePlain(const DebuggerResponse &response)
 {
     DisassemblerAgentCookie ac = response.cookie.value<DisassemblerAgentCookie>();
     QTC_ASSERT(ac.agent, return);
 
-    if (response.resultClass == GdbResultDone)
+    if (response.resultClass == ResultDone)
         if (handleCliDisassemblerResult(response.consoleStreamOutput, ac.agent))
             return;
 
@@ -4580,9 +4579,9 @@ void GdbEngine::finishInferiorSetup()
     }
 }
 
-void GdbEngine::handleDebugInfoLocation(const GdbResponse &response)
+void GdbEngine::handleDebugInfoLocation(const DebuggerResponse &response)
 {
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         const QByteArray debugInfoLocation = startParameters().debugInfoLocation.toLocal8Bit();
         if (QFile::exists(QString::fromLocal8Bit(debugInfoLocation))) {
             const QByteArray curDebugInfoLocations = response.consoleStreamOutput.split('"').value(1);
@@ -4597,9 +4596,9 @@ void GdbEngine::handleDebugInfoLocation(const GdbResponse &response)
     }
 }
 
-void GdbEngine::handleBreakOnQFatal(const GdbResponse &response)
+void GdbEngine::handleBreakOnQFatal(const DebuggerResponse &response)
 {
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         GdbMi bkpt = response.data["bkpt"];
         GdbMi number = bkpt["number"];
         BreakpointResponseId rid(number.data());
@@ -4653,9 +4652,9 @@ void GdbEngine::createFullBacktrace()
         NeedsStop|ConsoleCommand, CB(handleCreateFullBacktrace));
 }
 
-void GdbEngine::handleCreateFullBacktrace(const GdbResponse &response)
+void GdbEngine::handleCreateFullBacktrace(const DebuggerResponse &response)
 {
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         Internal::openTextEditor(_("Backtrace $"),
             _(response.consoleStreamOutput + response.logStreamOutput));
     }
@@ -4912,9 +4911,9 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
         Discardable, CB(handleStackFramePython), QVariant(params.tryPartial));
 }
 
-void GdbEngine::handleStackFramePython(const GdbResponse &response)
+void GdbEngine::handleStackFramePython(const DebuggerResponse &response)
 {
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         const bool partial = response.cookie.toBool();
         QByteArray out = response.consoleStreamOutput;
         while (out.endsWith(' ') || out.endsWith('\n'))

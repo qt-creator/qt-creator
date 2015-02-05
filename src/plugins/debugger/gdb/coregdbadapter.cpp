@@ -48,9 +48,7 @@ using namespace Utils;
 namespace Debugger {
 namespace Internal {
 
-#define CB(callback) \
-    static_cast<GdbEngine::GdbCommandCallback>(&GdbCoreEngine::callback), \
-    STRINGIFY(callback)
+#define CB(callback) [this](const DebuggerResponse &r) { callback(r); }, STRINGIFY(callback)
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -219,11 +217,11 @@ void GdbCoreEngine::setupInferior()
          CB(handleFileExecAndSymbols));
 }
 
-void GdbCoreEngine::handleFileExecAndSymbols(const GdbResponse &response)
+void GdbCoreEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     QString core = coreFileName();
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         showMessage(tr("Symbols found."), StatusBar);
         postCommand("target core " + core.toLocal8Bit(),
             CB(handleTargetCore));
@@ -240,10 +238,10 @@ void GdbCoreEngine::handleFileExecAndSymbols(const GdbResponse &response)
     notifyInferiorSetupFailed(msg);
 }
 
-void GdbCoreEngine::handleTargetCore(const GdbResponse &response)
+void GdbCoreEngine::handleTargetCore(const DebuggerResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         showMessage(tr("Attached to core."), StatusBar);
         handleInferiorPrepared();
         // Due to the auto-solib-add off setting, we don't have any
@@ -260,7 +258,7 @@ void GdbCoreEngine::handleTargetCore(const GdbResponse &response)
     notifyInferiorSetupFailed(msg);
 }
 
-void GdbCoreEngine::handleRoundTrip(const GdbResponse &response)
+void GdbCoreEngine::handleRoundTrip(const DebuggerResponse &response)
 {
     Q_UNUSED(response);
     loadSymbolsForStack();

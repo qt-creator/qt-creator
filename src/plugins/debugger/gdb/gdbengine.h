@@ -53,7 +53,7 @@ namespace Internal {
 class GdbProcess;
 class DebugInfoTask;
 class DebugInfoTaskHandler;
-class GdbResponse;
+class DebuggerResponse;
 class GdbMi;
 class MemoryAgentCookie;
 class BreakpointParameters;
@@ -100,8 +100,8 @@ private: ////////// General State //////////
 protected: ////////// Gdb Process Management //////////
 
     void startGdb(const QStringList &args = QStringList());
-    void handleInferiorShutdown(const GdbResponse &response);
-    void handleGdbExit(const GdbResponse &response);
+    void handleInferiorShutdown(const DebuggerResponse &response);
+    void handleGdbExit(const DebuggerResponse &response);
 
     void loadInitScript();
 
@@ -116,7 +116,7 @@ protected: ////////// Gdb Process Management //////////
     // This notifies the base of a successful inferior setup.
     void finishInferiorSetup();
 
-    void handleDebugInfoLocation(const GdbResponse &response);
+    void handleDebugInfoLocation(const DebuggerResponse &response);
 
     // The adapter is still running just fine, but it failed to acquire a debuggee.
     void notifyInferiorSetupFailed(const QString &msg);
@@ -158,9 +158,9 @@ private: ////////// Gdb Command Management //////////
         Discardable = 2,
         // We can live without receiving an answer.
         NonCriticalResponse = 8,
-        // Callback expects GdbResultRunning instead of GdbResultDone.
+        // Callback expects ResultRunning instead of ResultDone.
         RunRequest = 16,
-        // Callback expects GdbResultExit instead of GdbResultDone.
+        // Callback expects ResultExit instead of ResultDone.
         ExitRequest = 32,
         // Auto-set inferior shutdown related states.
         LosesChild = 64,
@@ -174,7 +174,7 @@ private: ////////// Gdb Command Management //////////
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
 
     protected:
-    typedef void (GdbEngine::*GdbCommandCallback)(const GdbResponse &response);
+    typedef std::function<void(const DebuggerResponse &)> GdbCommandCallback;
 
     struct GdbCommand
     {
@@ -240,10 +240,10 @@ private: ////////// Gdb Output, State & Capability Handling //////////
 protected:
     Q_SLOT void handleResponse(const QByteArray &buff);
     void handleStopResponse(const GdbMi &data);
-    void handleResultRecord(GdbResponse *response);
-    void handleStop1(const GdbResponse &response);
+    void handleResultRecord(DebuggerResponse *response);
+    void handleStop1(const DebuggerResponse &response);
     void handleStop1(const GdbMi &data);
-    void handleStop2(const GdbResponse &response);
+    void handleStop2(const DebuggerResponse &response);
     void handleStop2(const GdbMi &data);
     Q_SLOT void handleStop2();
     StackFrame parseStackFrame(const GdbMi &mi, int level);
@@ -252,9 +252,9 @@ protected:
     bool isSynchronous() const { return true; }
 
     // Gdb initialization sequence
-    void handleShowVersion(const GdbResponse &response);
-    void handleListFeatures(const GdbResponse &response);
-    void handlePythonSetup(const GdbResponse &response);
+    void handleShowVersion(const DebuggerResponse &response);
+    void handleListFeatures(const DebuggerResponse &response);
+    void handlePythonSetup(const DebuggerResponse &response);
 
     int m_gdbVersion; // 7.6.1 is 70601
     bool m_isQnxGdb;
@@ -287,15 +287,15 @@ private: ////////// Inferior Management //////////
     void executeJumpToLine(const ContextData &data);
     void executeReturn();
 
-    void handleExecuteContinue(const GdbResponse &response);
-    void handleExecuteStep(const GdbResponse &response);
-    void handleExecuteNext(const GdbResponse &response);
-    void handleExecuteReturn(const GdbResponse &response);
-    void handleExecuteJumpToLine(const GdbResponse &response);
-    void handleExecuteRunToLine(const GdbResponse &response);
+    void handleExecuteContinue(const DebuggerResponse &response);
+    void handleExecuteStep(const DebuggerResponse &response);
+    void handleExecuteNext(const DebuggerResponse &response);
+    void handleExecuteReturn(const DebuggerResponse &response);
+    void handleExecuteJumpToLine(const DebuggerResponse &response);
+    void handleExecuteRunToLine(const DebuggerResponse &response);
 
     void maybeHandleInferiorPidChanged(const QString &pid);
-    void handleInfoProc(const GdbResponse &response);
+    void handleInfoProc(const DebuggerResponse &response);
     QString msgPtraceError(DebuggerStartMode sm);
 
 private: ////////// View & Data Stuff //////////
@@ -307,18 +307,18 @@ private: ////////// View & Data Stuff //////////
     // Breakpoint specific stuff
     //
     void handleBreakModifications(const GdbMi &bkpts);
-    void handleBreakIgnore(const GdbResponse &response);
-    void handleBreakDisable(const GdbResponse &response);
-    void handleBreakEnable(const GdbResponse &response);
-    void handleBreakInsert1(const GdbResponse &response);
-    void handleBreakInsert2(const GdbResponse &response);
-    void handleBreakDelete(const GdbResponse &response);
-    void handleTraceInsert2(const GdbResponse &response);
-    void handleBreakCondition(const GdbResponse &response);
-    void handleBreakThreadSpec(const GdbResponse &response);
-    void handleBreakLineNumber(const GdbResponse &response);
-    void handleWatchInsert(const GdbResponse &response);
-    void handleCatchInsert(const GdbResponse &response);
+    void handleBreakIgnore(const DebuggerResponse &response);
+    void handleBreakDisable(const DebuggerResponse &response);
+    void handleBreakEnable(const DebuggerResponse &response);
+    void handleBreakInsert1(const DebuggerResponse &response);
+    void handleBreakInsert2(const DebuggerResponse &response);
+    void handleBreakDelete(const DebuggerResponse &response);
+    void handleTraceInsert2(const DebuggerResponse &response);
+    void handleBreakCondition(const DebuggerResponse &response);
+    void handleBreakThreadSpec(const DebuggerResponse &response);
+    void handleBreakLineNumber(const DebuggerResponse &response);
+    void handleWatchInsert(const DebuggerResponse &response);
+    void handleCatchInsert(const DebuggerResponse &response);
     void handleBkpt(const GdbMi &bkpt, Breakpoint bp);
     void updateResponse(BreakpointResponse &response, const GdbMi &bkpt);
     QByteArray breakpointLocation(const BreakpointParameters &data); // For gdb/MI.
@@ -338,24 +338,24 @@ private: ////////// View & Data Stuff //////////
     void examineModules();
 
     void reloadModulesInternal();
-    void handleModulesList(const GdbResponse &response);
-    void handleShowModuleSymbols(const GdbResponse &response);
-    void handleShowModuleSections(const GdbResponse &response);
+    void handleModulesList(const DebuggerResponse &response);
+    void handleShowModuleSymbols(const DebuggerResponse &response);
+    void handleShowModuleSections(const DebuggerResponse &response);
 
     //
     // Snapshot specific stuff
     //
     virtual void createSnapshot();
-    void handleMakeSnapshot(const GdbResponse &response);
+    void handleMakeSnapshot(const DebuggerResponse &response);
 
     //
     // Register specific stuff
     //
     Q_SLOT void reloadRegisters();
     void setRegisterValue(const QByteArray &name, const QString &value);
-    void handleRegisterListNames(const GdbResponse &response);
-    void handleRegisterListValues(const GdbResponse &response);
-    void handleMaintPrintRegisters(const GdbResponse &response);
+    void handleRegisterListNames(const DebuggerResponse &response);
+    void handleRegisterListValues(const DebuggerResponse &response);
+    void handleMaintPrintRegisters(const DebuggerResponse &response);
     QHash<int, QByteArray> m_registerNames; // Map GDB register numbers to indices
 
     //
@@ -366,19 +366,19 @@ private: ////////// View & Data Stuff //////////
     void fetchDisassemblerByCliPointMixed(const DisassemblerAgentCookie &ac);
     void fetchDisassemblerByCliRangeMixed(const DisassemblerAgentCookie &ac);
     void fetchDisassemblerByCliRangePlain(const DisassemblerAgentCookie &ac);
-    void handleFetchDisassemblerByCliPointMixed(const GdbResponse &response);
-    void handleFetchDisassemblerByCliRangeMixed(const GdbResponse &response);
-    void handleFetchDisassemblerByCliRangePlain(const GdbResponse &response);
+    void handleFetchDisassemblerByCliPointMixed(const DebuggerResponse &response);
+    void handleFetchDisassemblerByCliRangeMixed(const DebuggerResponse &response);
+    void handleFetchDisassemblerByCliRangePlain(const DebuggerResponse &response);
     bool handleCliDisassemblerResult(const QByteArray &response, DisassemblerAgent *agent);
 
-    void handleBreakOnQFatal(const GdbResponse &response);
+    void handleBreakOnQFatal(const DebuggerResponse &response);
 
     //
     // Source file specific stuff
     //
     void reloadSourceFiles();
     void reloadSourceFilesInternal();
-    void handleQuerySources(const GdbResponse &response);
+    void handleQuerySources(const DebuggerResponse &response);
 
     QString fullName(const QString &fileName);
     QString cleanupFullName(const QString &fileName);
@@ -395,17 +395,17 @@ private: ////////// View & Data Stuff //////////
     //
 protected:
     void updateAll();
-    void handleStackListFrames(const GdbResponse &response);
-    void handleStackSelectThread(const GdbResponse &response);
-    void handleThreadListIds(const GdbResponse &response);
-    void handleThreadInfo(const GdbResponse &response);
-    void handleThreadNames(const GdbResponse &response);
+    void handleStackListFrames(const DebuggerResponse &response);
+    void handleStackSelectThread(const DebuggerResponse &response);
+    void handleThreadListIds(const DebuggerResponse &response);
+    void handleThreadInfo(const DebuggerResponse &response);
+    void handleThreadNames(const DebuggerResponse &response);
     QByteArray stackCommand(int depth);
     Q_SLOT void reloadStack(bool forceGotoLocation);
     Q_SLOT virtual void reloadFullStack();
     virtual void loadAdditionalQmlStack();
-    void handleQmlStackFrameArguments(const GdbResponse &response);
-    void handleQmlStackTrace(const GdbResponse &response);
+    void handleQmlStackFrameArguments(const DebuggerResponse &response);
+    void handleQmlStackTrace(const DebuggerResponse &response);
     int currentFrame() const;
 
     QList<GdbMi> m_currentFunctionArgs;
@@ -421,13 +421,13 @@ protected:
     virtual void fetchMemory(MemoryAgent *agent, QObject *token,
         quint64 addr, quint64 length);
     void fetchMemoryHelper(const MemoryAgentCookie &cookie);
-    void handleChangeMemory(const GdbResponse &response);
+    void handleChangeMemory(const DebuggerResponse &response);
     virtual void changeMemory(MemoryAgent *agent, QObject *token,
         quint64 addr, const QByteArray &data);
-    void handleFetchMemory(const GdbResponse &response);
+    void handleFetchMemory(const DebuggerResponse &response);
 
     virtual void watchPoint(const QPoint &);
-    void handleWatchPoint(const GdbResponse &response);
+    void handleWatchPoint(const DebuggerResponse &response);
 
     void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
     void rebuildWatchModel();
@@ -435,17 +435,17 @@ protected:
 
     void insertData(const WatchData &data);
 
-    void handleVarAssign(const GdbResponse &response);
-    void handleDetach(const GdbResponse &response);
+    void handleVarAssign(const DebuggerResponse &response);
+    void handleDetach(const DebuggerResponse &response);
     void handleThreadGroupCreated(const GdbMi &result);
     void handleThreadGroupExited(const GdbMi &result);
 
     Q_SLOT void createFullBacktrace();
-    void handleCreateFullBacktrace(const GdbResponse &response);
+    void handleCreateFullBacktrace(const DebuggerResponse &response);
 
     void updateLocals();
         void updateLocalsPython(const UpdateParameters &parameters);
-            void handleStackFramePython(const GdbResponse &response);
+            void handleStackFramePython(const DebuggerResponse &response);
 
     void setLocals(const QList<GdbMi> &locals);
 

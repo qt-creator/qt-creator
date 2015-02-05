@@ -170,26 +170,26 @@ public:
     void dumpChildren(QByteArray *str, bool multiline, int indent) const;
 };
 
-enum GdbResultClass
+enum ResultClass
 {
     // "done" | "running" | "connected" | "error" | "exit"
-    GdbResultUnknown,
-    GdbResultDone,
-    GdbResultRunning,
-    GdbResultConnected,
-    GdbResultError,
-    GdbResultExit
+    ResultUnknown,
+    ResultDone,
+    ResultRunning,
+    ResultConnected,
+    ResultError,
+    ResultExit
 };
 
-class GdbResponse
+class DebuggerResponse
 {
 public:
-    GdbResponse() : token(-1), resultClass(GdbResultUnknown) {}
+    DebuggerResponse() : token(-1), resultClass(ResultUnknown) {}
     QByteArray toString() const;
-    static QByteArray stringFromResultClass(GdbResultClass resultClass);
+    static QByteArray stringFromResultClass(ResultClass resultClass);
 
     int            token;
-    GdbResultClass resultClass;
+    ResultClass    resultClass;
     GdbMi          data;
     QVariant       cookie;
     QByteArray     logStreamOutput;

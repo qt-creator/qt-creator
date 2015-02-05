@@ -77,16 +77,16 @@ private:
     void notifyEngineRemoteServerRunning(const QByteArray &serverChannel, int inferiorPid);
     void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
 
-    void handleSetTargetAsync(const GdbResponse &response);
-    void handleFileExecAndSymbols(const GdbResponse &response);
-    void handleTargetRemote(const GdbResponse &response);
-    void handleTargetExtendedRemote(const GdbResponse &response);
-    void handleTargetExtendedAttach(const GdbResponse &response);
-    void handleTargetQnx(const GdbResponse &response);
-    void handleAttach(const GdbResponse &response);
-    void handleSetNtoExecutable(const GdbResponse &response);
-    void handleInterruptInferior(const GdbResponse &response);
-    void handleExecRun(const GdbResponse &response);
+    void handleSetTargetAsync(const DebuggerResponse &response);
+    void handleFileExecAndSymbols(const DebuggerResponse &response);
+    void handleTargetRemote(const DebuggerResponse &response);
+    void handleTargetExtendedRemote(const DebuggerResponse &response);
+    void handleTargetExtendedAttach(const DebuggerResponse &response);
+    void handleTargetQnx(const DebuggerResponse &response);
+    void handleAttach(const DebuggerResponse &response);
+    void handleSetNtoExecutable(const DebuggerResponse &response);
+    void handleInterruptInferior(const DebuggerResponse &response);
+    void handleExecRun(const DebuggerResponse &response);
 
     QProcess m_uploadProc;
     bool m_startAttempted;

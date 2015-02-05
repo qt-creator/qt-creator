@@ -60,7 +60,7 @@ private:
     void interruptInferior2();
     void shutdownEngine();
 
-    void handleStubAttached(const GdbResponse &response);
+    void handleStubAttached(const DebuggerResponse &response);
 
     Q_SLOT void stubStarted();
     Q_SLOT void stubExited();

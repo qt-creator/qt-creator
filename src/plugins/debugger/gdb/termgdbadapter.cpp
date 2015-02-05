@@ -46,9 +46,7 @@ using namespace Utils;
 namespace Debugger {
 namespace Internal {
 
-#define CB(callback) \
-    static_cast<GdbEngine::GdbCommandCallback>(&GdbTermEngine::callback), \
-    STRINGIFY(callback)
+#define CB(callback) [this](const DebuggerResponse &r) { callback(r); }, STRINGIFY(callback)
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -142,13 +140,13 @@ void GdbTermEngine::runEngine()
         CB(handleStubAttached));
 }
 
-void GdbTermEngine::handleStubAttached(const GdbResponse &response)
+void GdbTermEngine::handleStubAttached(const DebuggerResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
     switch (response.resultClass) {
-    case GdbResultDone:
-    case GdbResultRunning:
+    case ResultDone:
+    case ResultRunning:
         if (startParameters().toolChainAbi.os() != ProjectExplorer::Abi::WindowsOS) {
             showMessage(_("INFERIOR ATTACHED"));
         } else {
@@ -167,7 +165,7 @@ void GdbTermEngine::handleStubAttached(const GdbResponse &response)
         notifyEngineRunAndInferiorStopOk();
         continueInferiorInternal();
         break;
-    case GdbResultError:
+    case ResultError:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
             showMessage(msgPtraceError(startParameters().startMode));
             notifyEngineRunFailed();

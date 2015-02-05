@@ -57,7 +57,7 @@ private:
     void interruptInferior2();
     void shutdownEngine();
 
-    void handleAttach(const GdbResponse &response);
+    void handleAttach(const DebuggerResponse &response);
 };
 
 } // namespace Internal

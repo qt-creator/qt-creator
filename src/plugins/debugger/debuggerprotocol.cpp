@@ -395,19 +395,19 @@ qulonglong GdbMi::toAddress() const
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-QByteArray GdbResponse::stringFromResultClass(GdbResultClass resultClass)
+QByteArray DebuggerResponse::stringFromResultClass(ResultClass resultClass)
 {
     switch (resultClass) {
-        case GdbResultDone: return "done";
-        case GdbResultRunning: return "running";
-        case GdbResultConnected: return "connected";
-        case GdbResultError: return "error";
-        case GdbResultExit: return "exit";
+        case ResultDone: return "done";
+        case ResultRunning: return "running";
+        case ResultConnected: return "connected";
+        case ResultError: return "error";
+        case ResultExit: return "exit";
         default: return "unknown";
     }
 }
 
-QByteArray GdbResponse::toString() const
+QByteArray DebuggerResponse::toString() const
 {
     QByteArray result;
     if (token != -1)

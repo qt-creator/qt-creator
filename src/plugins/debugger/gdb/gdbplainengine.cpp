@@ -45,9 +45,7 @@
 namespace Debugger {
 namespace Internal {
 
-#define CB(callback) \
-    static_cast<GdbEngine::GdbCommandCallback>(&GdbPlainEngine::callback), \
-    STRINGIFY(callback)
+#define CB(callback) [this](const DebuggerResponse &r) { callback(r); }, STRINGIFY(callback)
 
 GdbPlainEngine::GdbPlainEngine(const DebuggerStartParameters &startParameters)
     : GdbEngine(startParameters)
@@ -56,7 +54,6 @@ GdbPlainEngine::GdbPlainEngine(const DebuggerStartParameters &startParameters)
     connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
         this, SLOT(readDebugeeOutput(QByteArray)));
 }
-
 
 void GdbPlainEngine::setupInferior()
 {
@@ -69,10 +66,10 @@ void GdbPlainEngine::setupInferior()
         CB(handleFileExecAndSymbols));
 }
 
-void GdbPlainEngine::handleFileExecAndSymbols(const GdbResponse &response)
+void GdbPlainEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         handleInferiorPrepared();
     } else {
         QByteArray ba = response.data["msg"].data();
@@ -92,10 +89,10 @@ void GdbPlainEngine::runEngine()
         postCommand("-exec-run", GdbEngine::RunRequest, CB(handleExecRun));
 }
 
-void GdbPlainEngine::handleExecRun(const GdbResponse &response)
+void GdbPlainEngine::handleExecRun(const DebuggerResponse &response)
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    if (response.resultClass == GdbResultRunning) {
+    if (response.resultClass == ResultRunning) {
         //notifyEngineRunOkAndInferiorRunRequested();
         notifyEngineRunAndInferiorRunOk(); // For gdb < 7.0
         //showStatusMessage(tr("Running..."));

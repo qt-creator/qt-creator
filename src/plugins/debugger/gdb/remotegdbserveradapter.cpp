@@ -49,9 +49,7 @@
 namespace Debugger {
 namespace Internal {
 
-#define CB(callback) \
-    static_cast<GdbEngine::GdbCommandCallback>(&GdbRemoteServerEngine::callback), \
-    STRINGIFY(callback)
+#define CB(callback) [this](const DebuggerResponse &r) { callback(r); }, STRINGIFY(callback)
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -220,17 +218,17 @@ void GdbRemoteServerEngine::setupInferior()
     }
 }
 
-void GdbRemoteServerEngine::handleSetTargetAsync(const GdbResponse &response)
+void GdbRemoteServerEngine::handleSetTargetAsync(const DebuggerResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    if (response.resultClass == GdbResultError)
+    if (response.resultClass == ResultError)
         qDebug() << "Adapter too old: does not support asynchronous mode.";
 }
 
-void GdbRemoteServerEngine::handleFileExecAndSymbols(const GdbResponse &response)
+void GdbRemoteServerEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         callTargetRemote();
     } else {
         QByteArray reason = response.data["msg"].data();
@@ -273,10 +271,10 @@ void GdbRemoteServerEngine::callTargetRemote()
         postCommand("target remote " + channel, CB(handleTargetRemote), 10);
 }
 
-void GdbRemoteServerEngine::handleTargetRemote(const GdbResponse &response)
+void GdbRemoteServerEngine::handleTargetRemote(const DebuggerResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         // gdb server will stop the remote application itself.
         showMessage(_("INFERIOR STARTED"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
@@ -294,10 +292,10 @@ void GdbRemoteServerEngine::handleTargetRemote(const GdbResponse &response)
     }
 }
 
-void GdbRemoteServerEngine::handleTargetExtendedRemote(const GdbResponse &response)
+void GdbRemoteServerEngine::handleTargetExtendedRemote(const DebuggerResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         showMessage(_("ATTACHED TO GDB SERVER STARTED"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
         QString postAttachCommands = stringSetting(GdbPostAttachCommands);
@@ -320,10 +318,10 @@ void GdbRemoteServerEngine::handleTargetExtendedRemote(const GdbResponse &respon
     }
 }
 
-void GdbRemoteServerEngine::handleTargetExtendedAttach(const GdbResponse &response)
+void GdbRemoteServerEngine::handleTargetExtendedAttach(const DebuggerResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         // gdb server will stop the remote application itself.
         handleInferiorPrepared();
     } else {
@@ -333,11 +331,11 @@ void GdbRemoteServerEngine::handleTargetExtendedAttach(const GdbResponse &respon
     }
 }
 
-void GdbRemoteServerEngine::handleTargetQnx(const GdbResponse &response)
+void GdbRemoteServerEngine::handleTargetQnx(const DebuggerResponse &response)
 {
     QTC_ASSERT(m_isQnxGdb, qDebug() << m_isQnxGdb);
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         // gdb server will stop the remote application itself.
         showMessage(_("INFERIOR STARTED"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
@@ -358,18 +356,18 @@ void GdbRemoteServerEngine::handleTargetQnx(const GdbResponse &response)
     }
 }
 
-void GdbRemoteServerEngine::handleAttach(const GdbResponse &response)
+void GdbRemoteServerEngine::handleAttach(const DebuggerResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     switch (response.resultClass) {
-    case GdbResultDone:
-    case GdbResultRunning: {
+    case ResultDone:
+    case ResultRunning: {
         showMessage(_("INFERIOR ATTACHED"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
         handleInferiorPrepared();
         break;
     }
-    case GdbResultError:
+    case ResultError:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
             notifyInferiorSetupFailed(msgPtraceError(startParameters().startMode));
             break;
@@ -381,18 +379,18 @@ void GdbRemoteServerEngine::handleAttach(const GdbResponse &response)
     }
 }
 
-void GdbRemoteServerEngine::handleSetNtoExecutable(const GdbResponse &response)
+void GdbRemoteServerEngine::handleSetNtoExecutable(const DebuggerResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     switch (response.resultClass) {
-    case GdbResultDone:
-    case GdbResultRunning: {
+    case ResultDone:
+    case ResultRunning: {
         showMessage(_("EXECUTABLE SET"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
         handleInferiorPrepared();
         break;
     }
-    case GdbResultError:
+    case ResultError:
     default:
         QString msg = QString::fromLocal8Bit(response.data["msg"].data());
         notifyInferiorSetupFailed(msg);
@@ -413,10 +411,10 @@ void GdbRemoteServerEngine::runEngine()
     }
 }
 
-void GdbRemoteServerEngine::handleExecRun(const GdbResponse &response)
+void GdbRemoteServerEngine::handleExecRun(const DebuggerResponse &response)
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    if (response.resultClass == GdbResultRunning) {
+    if (response.resultClass == ResultRunning) {
         notifyEngineRunAndInferiorRunOk();
         showMessage(_("INFERIOR STARTED"));
         showMessage(msgInferiorSetupOk(), StatusBar);
@@ -446,9 +444,9 @@ void GdbRemoteServerEngine::interruptInferior2()
     }
 }
 
-void GdbRemoteServerEngine::handleInterruptInferior(const GdbResponse &response)
+void GdbRemoteServerEngine::handleInterruptInferior(const DebuggerResponse &response)
 {
-    if (response.resultClass == GdbResultDone) {
+    if (response.resultClass == ResultDone) {
         // The gdb server will trigger extra output that we will pick up
         // to do a proper state transition.
     } else {
