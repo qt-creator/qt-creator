@@ -176,8 +176,8 @@ signals:
     void gcFinished(); // Needed for tests.
 
 public slots:
-    virtual void updateModifiedSourceFiles();
-    virtual void GC();
+    void updateModifiedSourceFiles();
+    void GC();
 
 private slots:
     // This should be executed in the GUI thread.
