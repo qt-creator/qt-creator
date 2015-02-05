@@ -116,7 +116,7 @@ const ObjectValue *Context::lookupType(const QmlJS::Document *doc, UiQualifiedId
 
     for (UiQualifiedId *iter = qmlTypeName; objectValue && iter && iter != qmlTypeNameEnd;
          iter = iter->next) {
-        const Value *value = objectValue->lookupMember(iter->name.toString(), this);
+        const Value *value = objectValue->lookupMember(iter->name.toString(), this, 0, false);
         if (!value)
             return 0;
 
