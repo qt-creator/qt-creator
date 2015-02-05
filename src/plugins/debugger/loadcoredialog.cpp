@@ -82,14 +82,13 @@ public:
     QString localFile() const { return m_localFile; }
     QString remoteFile() const { return m_remoteFile; }
 
-private slots:
+private:
     void handleSftpOperationFinished(SftpJobId, const QString &error);
     void handleSftpOperationFailed(const QString &errorMessage);
     void handleConnectionError(const QString &errorMessage);
     void handleRemoteError(const QString &errorMessage);
     void selectFile();
 
-private:
     QSortFilterProxyModel m_model;
     SftpFileSystemModel m_fileSystemModel;
     QTreeView *m_fileSystemView;
@@ -128,13 +127,15 @@ SelectRemoteFileDialog::SelectRemoteFileDialog(QWidget *parent)
     layout->addWidget(m_textBrowser);
     layout->addWidget(m_buttonBox);
 
-    QObject::connect(m_buttonBox, SIGNAL(rejected()), SLOT(reject()));
-    QObject::connect(m_buttonBox, SIGNAL(accepted()), SLOT(selectFile()));
+    connect(m_buttonBox, &QDialogButtonBox::rejected,
+            this, &QDialog::reject);
+    connect(m_buttonBox, &QDialogButtonBox::accepted,
+            this, &SelectRemoteFileDialog::selectFile);
 
-    connect(&m_fileSystemModel, SIGNAL(sftpOperationFailed(QString)),
-            SLOT(handleSftpOperationFailed(QString)));
-    connect(&m_fileSystemModel, SIGNAL(connectionError(QString)),
-            SLOT(handleConnectionError(QString)));
+    connect(&m_fileSystemModel, &SftpFileSystemModel::sftpOperationFailed,
+            this, &SelectRemoteFileDialog::handleSftpOperationFailed);
+    connect(&m_fileSystemModel, &SftpFileSystemModel::connectionError,
+            this, &SelectRemoteFileDialog::handleConnectionError);
 }
 
 void SelectRemoteFileDialog::attachToDevice(Kit *k)
@@ -184,8 +185,8 @@ void SelectRemoteFileDialog::selectFile()
     m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     m_fileSystemView->setEnabled(false);
 
-    connect(&m_fileSystemModel, SIGNAL(sftpOperationFinished(QSsh::SftpJobId,QString)),
-            SLOT(handleSftpOperationFinished(QSsh::SftpJobId,QString)));
+    connect(&m_fileSystemModel, &SftpFileSystemModel::sftpOperationFinished,
+            this, &SelectRemoteFileDialog::handleSftpOperationFinished);
 
     {
         QTemporaryFile localFile(QDir::tempPath() + QLatin1String("/remotecore-XXXXXX"));
@@ -323,14 +324,14 @@ AttachCoreDialog::~AttachCoreDialog()
 
 int AttachCoreDialog::exec()
 {
-    connect(d->selectRemoteCoreButton, SIGNAL(clicked()), SLOT(selectRemoteCoreFile()));
-    connect(d->remoteCoreFileName, SIGNAL(textChanged(QString)), SLOT(coreFileChanged(QString)));
-    connect(d->localExecFileName, SIGNAL(changed(QString)), SLOT(changed()));
-    connect(d->localCoreFileName, SIGNAL(changed(QString)), SLOT(coreFileChanged(QString)));
-    connect(d->forceLocalCheckBox, SIGNAL(stateChanged(int)), SLOT(changed()));
-    connect(d->kitChooser, SIGNAL(currentIndexChanged(int)), SLOT(changed()));
-    connect(d->buttonBox, SIGNAL(rejected()), SLOT(reject()));
-    connect(d->buttonBox, SIGNAL(accepted()), SLOT(accept()));
+    connect(d->selectRemoteCoreButton, &QAbstractButton::clicked, this, &AttachCoreDialog::selectRemoteCoreFile);
+    connect(d->remoteCoreFileName, &QLineEdit::textChanged, this, &AttachCoreDialog::coreFileChanged);
+    connect(d->localExecFileName, &PathChooser::changed, this, &AttachCoreDialog::changed);
+    connect(d->localCoreFileName, &PathChooser::changed, this, &AttachCoreDialog::coreFileChanged);
+    connect(d->forceLocalCheckBox, &QCheckBox::stateChanged, this, &AttachCoreDialog::changed);
+    connect(d->kitChooser, &KitChooser::currentIndexChanged, this, &AttachCoreDialog::changed);
+    connect(d->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(d->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     changed();
 
     AttachCoreDialogPrivate::State st = d->getDialogState(*this);

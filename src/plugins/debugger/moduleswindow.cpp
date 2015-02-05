@@ -57,8 +57,8 @@ ModulesTreeView::ModulesTreeView()
 {
     setSortingEnabled(true);
 
-    connect(this, SIGNAL(activated(QModelIndex)),
-        SLOT(moduleActivated(QModelIndex)));
+    connect(this, &QAbstractItemView::activated,
+            this, &ModulesTreeView::moduleActivated);
 }
 
 void ModulesTreeView::moduleActivated(const QModelIndex &index)

@@ -62,20 +62,19 @@ public:
     ProjectExplorer::DeviceProcessItem currentProcess() const;
     bool hideOnAttach() const;
     bool continueOnAttach() const;
-
-public slots:
-    void selectExecutable();
     void startWatching();
+
+signals:
+    void processFound();
+
+private:
+    void selectExecutable();
     void pidFound(const ProjectExplorer::DeviceProcessItem &p);
     void startStopWatching(bool start);
     void findProcess();
     void stopAndCheckExecutable();
     void kitChanged();
 
-signals:
-    void processFound();
-
-private:
     enum UnstartedAppWacherState
     {
         InvalidWacherState,

@@ -116,11 +116,11 @@ private:
     QString errorMessage(QProcess::ProcessError error) const;
     bool hasCapability(unsigned cap) const;
 
-    Q_SLOT void handlePdbFinished(int, QProcess::ExitStatus status);
-    Q_SLOT void handlePdbError(QProcess::ProcessError error);
-    Q_SLOT void readPdbStandardOutput();
-    Q_SLOT void readPdbStandardError();
-    Q_SLOT void handleOutput2(const QByteArray &data);
+    void handlePdbFinished(int, QProcess::ExitStatus status);
+    void handlePdbError(QProcess::ProcessError error);
+    void readPdbStandardOutput();
+    void readPdbStandardError();
+    void handleOutput2(const QByteArray &data);
     void handleResponse(const QByteArray &ba);
     void handleOutput(const QByteArray &data);
     void updateAll();

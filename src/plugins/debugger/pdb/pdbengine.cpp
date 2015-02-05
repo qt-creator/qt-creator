@@ -157,17 +157,17 @@ void PdbEngine::setupEngine()
     m_pdb = _("python");
     showMessage(_("STARTING PDB ") + m_pdb);
 
-    connect(&m_pdbProc, SIGNAL(error(QProcess::ProcessError)),
-        SLOT(handlePdbError(QProcess::ProcessError)));
-    connect(&m_pdbProc, SIGNAL(finished(int,QProcess::ExitStatus)),
-        SLOT(handlePdbFinished(int,QProcess::ExitStatus)));
-    connect(&m_pdbProc, SIGNAL(readyReadStandardOutput()),
-        SLOT(readPdbStandardOutput()));
-    connect(&m_pdbProc, SIGNAL(readyReadStandardError()),
-        SLOT(readPdbStandardError()));
+    connect(&m_pdbProc, static_cast<void(QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+        this, &PdbEngine::handlePdbError);
+    connect(&m_pdbProc, static_cast<void(QProcess::*)(int,QProcess::ExitStatus)>(&QProcess::finished),
+        this, &PdbEngine::handlePdbFinished);
+    connect(&m_pdbProc, &QProcess::readyReadStandardOutput,
+        this, &PdbEngine::readPdbStandardOutput);
+    connect(&m_pdbProc, &QProcess::readyReadStandardError,
+        this, &PdbEngine::readPdbStandardError);
 
-    connect(this, SIGNAL(outputReady(QByteArray)),
-        SLOT(handleOutput2(QByteArray)), Qt::QueuedConnection);
+    connect(this, &PdbEngine::outputReady,
+        this, &PdbEngine::handleOutput2, Qt::QueuedConnection);
 
     // We will stop immediately, so setup a proper callback.
     PdbCommand cmd;

@@ -147,11 +147,16 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     mainLayout->addRow(buttonsLine);
     setLayout(mainLayout);
 
-    connect(m_pathChooser, SIGNAL(beforeBrowsing()), this, SLOT(selectExecutable()));
-    connect(m_watchingPushButton, SIGNAL(toggled(bool)), this, SLOT(startStopWatching(bool)));
-    connect(m_pathChooser, SIGNAL(pathChanged(QString)), this, SLOT(stopAndCheckExecutable()));
-    connect(m_closePushButton, SIGNAL(clicked()), this, SLOT(reject()));
-    connect(&m_timer, SIGNAL(timeout()), this, SLOT(findProcess()));
+    connect(m_pathChooser, &Utils::PathChooser::beforeBrowsing,
+            this, &UnstartedAppWatcherDialog::selectExecutable);
+    connect(m_watchingPushButton, &QAbstractButton::toggled,
+            this, &UnstartedAppWatcherDialog::startStopWatching);
+    connect(m_pathChooser, &Utils::PathChooser::pathChanged, this,
+            &UnstartedAppWatcherDialog::stopAndCheckExecutable);
+    connect(m_closePushButton, &QAbstractButton::clicked,
+            this, &QDialog::reject);
+    connect(&m_timer, &QTimer::timeout,
+            this, &UnstartedAppWatcherDialog::findProcess);
     connect(m_kitChooser, &KitChooser::currentIndexChanged,
             this, &UnstartedAppWatcherDialog::kitChanged);
     kitChanged();
