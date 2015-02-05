@@ -580,12 +580,6 @@ bool CppEditorWidget::handleStringSplitting(QKeyEvent *e) const
     return false;
 }
 
-void CppEditorWidget::applyFontSettings()
-{
-    // This also makes the document apply font settings
-    TextEditorWidget::applyFontSettings();
-}
-
 void CppEditorWidget::slotCodeStyleSettingsChanged(const QVariant &)
 {
     QtStyleCodeFormatter formatter;

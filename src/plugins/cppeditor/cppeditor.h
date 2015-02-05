@@ -101,8 +101,6 @@ protected:
     void keyPressEvent(QKeyEvent *e) Q_DECL_OVERRIDE;
     bool handleStringSplitting(QKeyEvent *e) const;
 
-    void applyFontSettings() Q_DECL_OVERRIDE;
-
     Link findLinkAt(const QTextCursor &, bool resolveTarget = true,
                     bool inNextSplit = false) Q_DECL_OVERRIDE;
 
