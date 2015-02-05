@@ -68,7 +68,11 @@ public:
     Kind kind;
 };
 
-class CPPTOOLS_EXPORT ProjectFileAdder
+QDebug operator<<(QDebug stream, const CppTools::ProjectFile &cxxFile);
+
+namespace Internal {
+
+class ProjectFileAdder
 {
 public:
     ProjectFileAdder(QList<ProjectFile> &files);
@@ -86,8 +90,7 @@ private:
     QFileInfo m_fileInfo;
 };
 
-QDebug operator<<(QDebug stream, const CppTools::ProjectFile &cxxFile);
-
+} // namespace Internal
 } // namespace CppTools
 
 #endif // CPPTOOLS_CPPPROJECTFILE_H

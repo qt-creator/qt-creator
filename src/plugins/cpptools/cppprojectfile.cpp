@@ -102,6 +102,28 @@ bool ProjectFile::isSource(ProjectFile::Kind kind)
     }
 }
 
+QDebug operator<<(QDebug stream, const CppTools::ProjectFile &cxxFile)
+{
+    const char *kind;
+    switch (cxxFile.kind) {
+    case CppTools::ProjectFile::CHeader: kind = "CHeader"; break;
+    case CppTools::ProjectFile::CSource: kind = "CSource"; break;
+    case CppTools::ProjectFile::CXXHeader: kind = "CXXHeader"; break;
+    case CppTools::ProjectFile::CXXSource: kind = "CXXSource"; break;
+    case CppTools::ProjectFile::ObjCHeader: kind = "ObjCHeader"; break;
+    case CppTools::ProjectFile::ObjCSource: kind = "ObjCSource"; break;
+    case CppTools::ProjectFile::ObjCXXHeader: kind = "ObjCXXHeader"; break;
+    case CppTools::ProjectFile::ObjCXXSource: kind = "ObjCXXSource"; break;
+    case CppTools::ProjectFile::CudaSource: kind = "CudaSource"; break;
+    case CppTools::ProjectFile::OpenCLSource: kind = "OpenCLSource"; break;
+    default: kind = "INVALID"; break;
+    }
+    stream << cxxFile.path << QLatin1String(", ") << kind;
+    return stream;
+}
+
+namespace Internal {
+
 ProjectFileAdder::ProjectFileAdder(QList<ProjectFile> &files)
     : m_files(files)
 {
@@ -135,24 +157,6 @@ void ProjectFileAdder::addMapping(const char *mimeName, ProjectFile::Kind kind)
         m_mapping.append(Pair(mimeType, kind));
 }
 
-QDebug operator<<(QDebug stream, const CppTools::ProjectFile &cxxFile)
-{
-    const char *kind;
-    switch (cxxFile.kind) {
-    case CppTools::ProjectFile::CHeader: kind = "CHeader"; break;
-    case CppTools::ProjectFile::CSource: kind = "CSource"; break;
-    case CppTools::ProjectFile::CXXHeader: kind = "CXXHeader"; break;
-    case CppTools::ProjectFile::CXXSource: kind = "CXXSource"; break;
-    case CppTools::ProjectFile::ObjCHeader: kind = "ObjCHeader"; break;
-    case CppTools::ProjectFile::ObjCSource: kind = "ObjCSource"; break;
-    case CppTools::ProjectFile::ObjCXXHeader: kind = "ObjCXXHeader"; break;
-    case CppTools::ProjectFile::ObjCXXSource: kind = "ObjCXXSource"; break;
-    case CppTools::ProjectFile::CudaSource: kind = "CudaSource"; break;
-    case CppTools::ProjectFile::OpenCLSource: kind = "OpenCLSource"; break;
-    default: kind = "INVALID"; break;
-    }
-    stream << cxxFile.path << QLatin1String(", ") << kind;
-    return stream;
-}
-
+} // namespace Internal
 } // namespace CppTools
+

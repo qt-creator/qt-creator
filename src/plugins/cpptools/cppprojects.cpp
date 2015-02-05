@@ -43,6 +43,7 @@
 #include <QTextStream>
 
 using namespace CppTools;
+using namespace CppTools::Internal;
 using namespace ProjectExplorer;
 
 ProjectPart::ProjectPart()
