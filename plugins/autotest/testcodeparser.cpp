@@ -127,13 +127,19 @@ static QByteArray getFileContent(QString filePath)
 static bool includesQtTest(const CPlusPlus::Document::Ptr &doc,
                            const CppTools::CppModelManager *cppMM)
 {
+    static QString expectedHeaderPrefix
+            = Utils::HostOsInfo::isMacHost()
+            ? QLatin1String("QtTest.framework/Headers")
+            : QLatin1String("QtTest");
+
     const QList<CPlusPlus::Document::Include> includes = doc->resolvedIncludes();
 
     foreach (const CPlusPlus::Document::Include &inc, includes) {
         // TODO this short cut works only for #include <QtTest>
         // bad, as there could be much more different approaches
         if (inc.unresolvedFileName() == QLatin1String("QtTest")
-                && inc.resolvedFileName().endsWith(QLatin1String("QtTest/QtTest"))) {
+                && inc.resolvedFileName().endsWith(
+                    QString::fromLatin1("%1/QtTest").arg(expectedHeaderPrefix))) {
             return true;
         }
     }
@@ -142,7 +148,8 @@ static bool includesQtTest(const CPlusPlus::Document::Ptr &doc,
         CPlusPlus::Snapshot snapshot = cppMM->snapshot();
         const QSet<QString> allIncludes = snapshot.allIncludesForDocument(doc->fileName());
         foreach (const QString &include, allIncludes) {
-            if (include.endsWith(QLatin1String("QtTest/qtest.h"))) {
+
+            if (include.endsWith(QString::fromLatin1("%1/qtest.h").arg(expectedHeaderPrefix))) {
                 return true;
             }
         }
@@ -153,18 +160,24 @@ static bool includesQtTest(const CPlusPlus::Document::Ptr &doc,
 static bool includesQtQuickTest(const CPlusPlus::Document::Ptr &doc,
                                 const CppTools::CppModelManager *cppMM)
 {
+    static QString expectedHeaderPrefix
+            = Utils::HostOsInfo::isMacHost()
+            ? QLatin1String("QtQuickTest.framework/Headers")
+            : QLatin1String("QtQuickTest");
+
     const QList<CPlusPlus::Document::Include> includes = doc->resolvedIncludes();
 
     foreach (const CPlusPlus::Document::Include &inc, includes) {
         if (inc.unresolvedFileName() == QLatin1String("QtQuickTest/quicktest.h")
-                && inc.resolvedFileName().endsWith(QLatin1String("QtQuickTest/quicktest.h"))) {
+                && inc.resolvedFileName().endsWith(
+                    QString::fromLatin1("%1/quicktest.h").arg(expectedHeaderPrefix))) {
             return true;
         }
     }
 
     if (cppMM) {
         foreach (const QString &include, cppMM->snapshot().allIncludesForDocument(doc->fileName())) {
-            if (include.endsWith(QLatin1String("QtQuickTest/quicktest.h")))
+            if (include.endsWith(QString::fromLatin1("%1/quicktest.h").arg(expectedHeaderPrefix)))
                 return true;
         }
     }
