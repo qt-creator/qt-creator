@@ -685,7 +685,7 @@ QList<QStandardItem *> GerritModel::changeToRow(const GerritChangePtr &c) const
         item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
         row.append(item);
     }
-    row[NumberColumn]->setText(QString::number(c->number));
+    row[NumberColumn]->setData(c->number, Qt::DisplayRole);
     row[TitleColumn]->setText(c->title);
     row[OwnerColumn]->setText(c->owner);
     // Shorten columns: Display time if it is today, else date
