@@ -71,7 +71,7 @@ private:
     void resetHelper();
     void expandNode(const QModelIndex &idx);
     void collapseNode(const QModelIndex &idx);
-    void adjustSlider();
+    Q_SLOT void adjustSlider(); // Used by single-shot timer.
 
     void showUnprintable(int base);
     void doItemsLayout();
