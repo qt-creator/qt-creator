@@ -1,6 +1,6 @@
 DEFINES += QMLPROFILER_LIBRARY
 
-QT += network qml quick
+QT += network qml quick quickwidgets
 
 include(../../qtcreatorplugin.pri)
 

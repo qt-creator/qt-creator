@@ -32,7 +32,6 @@
 #define QMLPROFILERTRACEVIEW_H
 
 #include "qmlprofilermodelmanager.h"
-#include <QQuickView>
 #include <QWidget>
 #include <QTimer>
 
@@ -83,14 +82,6 @@ signals:
 private:
     class QmlProfilerTraceViewPrivate;
     QmlProfilerTraceViewPrivate *d;
-};
-
-class QmlProfilerQuickView : public QQuickView {
-public:
-    QmlProfilerQuickView(QmlProfilerTraceView *parent) : parent(parent) {}
-protected:
-    QmlProfilerTraceView *parent;
-    bool event(QEvent *ev);
 };
 
 } // namespace Internal

@@ -59,6 +59,7 @@
 #include <QSlider>
 #include <QMenu>
 #include <QQuickItem>
+#include <QQuickWidget>
 #include <QApplication>
 
 #include <math.h>
@@ -81,7 +82,7 @@ public:
 
     QSize m_sizeHint;
 
-    QQuickView *m_mainView;
+    QQuickWidget *m_mainView;
     QmlProfilerModelManager *m_modelManager;
     Timeline::TimelineModelAggregator *m_modelProxy;
 
@@ -109,12 +110,11 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
     qmlRegisterType<Timeline::TimelineModel>();
     qmlRegisterType<Timeline::TimelineNotesModel>();
 
-    d->m_mainView = new QmlProfilerQuickView(this);
-    d->m_mainView->setResizeMode(QQuickView::SizeRootObjectToView);
-    QWidget *mainViewContainer = QWidget::createWindowContainer(d->m_mainView);
-    mainViewContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    d->m_mainView = new QQuickWidget(this);
+    d->m_mainView->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    d->m_mainView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    groupLayout->addWidget(mainViewContainer);
+    groupLayout->addWidget(d->m_mainView);
     setLayout(groupLayout);
 
     d->m_profilerTool = profilerTool;
@@ -309,43 +309,6 @@ void QmlProfilerTraceView::profilerDataModelStateChanged()
     default:
         break;
     }
-}
-
-bool QmlProfilerQuickView::event(QEvent *ev)
-{
-    // We assume context menus can only be triggered by mouse press, mouse release, or
-    // pre-synthesized events from the window system.
-
-    bool relayed = false;
-    switch (ev->type()) {
-    case QEvent::ContextMenu:
-        // In the case of mouse clicks the active popup gets automatically closed before they show
-        // up here. That's not necessarily the case with keyboard triggered context menu events, so
-        // we just ignore them if there is a popup already. Also, the event's pos() and globalPos()
-        // don't make much sense in this case, so we just put the menu in the upper left corner.
-        if (QApplication::activePopupWidget() == 0) {
-            ev->accept();
-            parent->showContextMenu(parent->mapToGlobal(QPoint(0,0)));
-            relayed = true;
-        }
-        break;
-    case QEvent::MouseMove:
-    case QEvent::MouseButtonPress:
-    case QEvent::MouseButtonRelease: {
-        QMouseEvent *orig = static_cast<QMouseEvent *>(ev);
-        QCoreApplication::instance()->postEvent(parent->window()->windowHandle(),
-                new QMouseEvent(orig->type(), parent->window()->mapFromGlobal(orig->globalPos()),
-                                orig->button(), orig->buttons(), orig->modifiers()));
-        relayed = true;
-        break;
-    }
-    default:
-        break;
-    }
-
-    // QQuickView will eat mouse events even if they're not accepted by any QML construct. So we
-    // ignore the return value of event() above.
-    return QQuickView::event(ev) || relayed;
 }
 
 } // namespace Internal

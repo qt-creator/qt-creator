@@ -3,7 +3,7 @@ import qbs 1.0
 QtcPlugin {
     name: "QmlProfiler"
 
-    Depends { name: "Qt"; submodules: ["widgets", "network", "quick"] }
+    Depends { name: "Qt"; submodules: ["widgets", "network", "quick", "quickwidgets"] }
     Depends { name: "Aggregation" }
     Depends { name: "QmlJS" }
     Depends { name: "QmlDebug" }
