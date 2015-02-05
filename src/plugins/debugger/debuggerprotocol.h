@@ -43,25 +43,26 @@ public:
     DebuggerCommand() {}
     DebuggerCommand(const char *f) : function(f) {}
 
-    const DebuggerCommand &arg(const char *name) const;
-    const DebuggerCommand &arg(const char *name, int value) const;
-    const DebuggerCommand &arg(const char *name, qlonglong value) const;
-    const DebuggerCommand &arg(const char *name, qulonglong value) const;
-    const DebuggerCommand &arg(const char *name, const QString &value) const;
-    const DebuggerCommand &arg(const char *name, const QByteArray &value) const;
-    const DebuggerCommand &arg(const char *name, const char *value) const;
-    const DebuggerCommand &beginList(const char *name = 0) const;
-    void endList() const;
-    const DebuggerCommand &beginGroup(const char *name = 0) const;
-    void endGroup() const;
+    void arg(const char *name);
+    void arg(const char *name, int value);
+    void arg(const char *name, qlonglong value);
+    void arg(const char *name, qulonglong value);
+    void arg(const char *name, const QString &value);
+    void arg(const char *name, const QByteArray &value);
+    void arg(const char *name, const char *value);
+    void beginList(const char *name = 0);
+    void endList();
+    void beginGroup(const char *name = 0);
+    void endGroup();
 
     static QByteArray toData(const QList<QByteArray> &value);
     static QByteArray toData(const QHash<QByteArray, QByteArray> &value);
 
     QByteArray function;
-    mutable QByteArray args;
+    QByteArray args;
+
 private:
-    const DebuggerCommand &argHelper(const char *name, const QByteArray &value) const;
+    void argHelper(const char *name, const QByteArray &value);
 };
 
 /*

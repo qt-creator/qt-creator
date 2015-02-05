@@ -739,14 +739,13 @@ QString decodeData(const QByteArray &ba, int encoding)
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-const DebuggerCommand &DebuggerCommand::argHelper(const char *name, const QByteArray &data) const
+void DebuggerCommand::argHelper(const char *name, const QByteArray &data)
 {
     args.append('"');
     args.append(name);
     args.append("\":");
     args.append(data);
     args.append(",");
-    return *this;
 }
 
 QByteArray DebuggerCommand::toData(const QList<QByteArray> &value)
@@ -773,50 +772,48 @@ QByteArray DebuggerCommand::toData(const QHash<QByteArray, QByteArray> &value)
     return '{' + res + '}';
 }
 
-const DebuggerCommand &DebuggerCommand::arg(const char *name, int value) const
+void DebuggerCommand::arg(const char *name, int value)
 {
-    return argHelper(name, QByteArray::number(value));
+    argHelper(name, QByteArray::number(value));
 }
 
-const DebuggerCommand &DebuggerCommand::arg(const char *name, qlonglong value) const
+void DebuggerCommand::arg(const char *name, qlonglong value)
 {
-    return argHelper(name, QByteArray::number(value));
+    argHelper(name, QByteArray::number(value));
 }
 
-const DebuggerCommand &DebuggerCommand::arg(const char *name, qulonglong value) const
+void DebuggerCommand::arg(const char *name, qulonglong value)
 {
-    return argHelper(name, QByteArray::number(value));
+    argHelper(name, QByteArray::number(value));
 }
 
-const DebuggerCommand &DebuggerCommand::arg(const char *name, const QString &value) const
+void DebuggerCommand::arg(const char *name, const QString &value)
 {
-    return arg(name, value.toUtf8().data());
+    arg(name, value.toUtf8().data());
 }
 
-const DebuggerCommand &DebuggerCommand::arg(const char *name, const QByteArray &value) const
+void DebuggerCommand::arg(const char *name, const QByteArray &value)
 {
-    return arg(name, value.data());
+    arg(name, value.data());
 }
 
-const DebuggerCommand &DebuggerCommand::arg(const char *name, const char *value) const
+void DebuggerCommand::arg(const char *name, const char *value)
 {
     args.append('"');
     args.append(name);
     args.append("\":\"");
     args.append(value);
     args.append("\",");
-    return *this;
 }
 
-const DebuggerCommand &DebuggerCommand::arg(const char *value) const
+void DebuggerCommand::arg(const char *value)
 {
     args.append("\"");
     args.append(value);
     args.append("\",");
-    return *this;
 }
 
-const DebuggerCommand &DebuggerCommand::beginList(const char *name) const
+void DebuggerCommand::beginList(const char *name)
 {
     if (name) {
         args += '"';
@@ -824,17 +821,16 @@ const DebuggerCommand &DebuggerCommand::beginList(const char *name) const
         args += "\":";
     }
     args += '[';
-    return *this;
 }
 
-void DebuggerCommand::endList() const
+void DebuggerCommand::endList()
 {
     if (args.endsWith(','))
         args.chop(1);
     args += "],";
 }
 
-const DebuggerCommand &DebuggerCommand::beginGroup(const char *name) const
+void DebuggerCommand::beginGroup(const char *name)
 {
     if (name) {
         args += '"';
@@ -842,10 +838,9 @@ const DebuggerCommand &DebuggerCommand::beginGroup(const char *name) const
         args += "\":";
     }
     args += '{';
-    return *this;
 }
 
-void DebuggerCommand::endGroup() const
+void DebuggerCommand::endGroup()
 {
     if (args.endsWith(','))
         args.chop(1);

@@ -121,7 +121,9 @@ LldbEngine::~LldbEngine()
 
 void LldbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages)
 {
-    runCommand(DebuggerCommand("executeDebuggerCommand").arg("command", command));
+    DebuggerCommand cmd("executeDebuggerCommand");
+    cmd.arg("command", command);
+    runCommand(cmd);
 }
 
 void LldbEngine::runCommand(const DebuggerCommand &command)
@@ -492,7 +494,9 @@ void LldbEngine::executeRunToFunction(const QString &functionName)
 {
     resetLocation();
     notifyInferiorRunRequested();
-    runCommand(DebuggerCommand("executeRunToFunction").arg("function", functionName));
+    DebuggerCommand cmd("executeRunToFunction");
+    cmd.arg("function", functionName);
+    runCommand(cmd);
 }
 
 void LldbEngine::executeJumpToLine(const ContextData &data)
@@ -532,7 +536,9 @@ void LldbEngine::activateFrame(int frameIndex)
 
 void LldbEngine::selectThread(ThreadId threadId)
 {
-    runCommand(DebuggerCommand("selectThread").arg("id", threadId.raw()));
+    DebuggerCommand cmd("selectThread");
+    cmd.arg("id", threadId.raw());
+    runCommand(cmd);
 }
 
 bool LldbEngine::stateAcceptsBreakpointChanges() const
@@ -739,7 +745,9 @@ void LldbEngine::refreshModules(const GdbMi &modules)
 
 void LldbEngine::requestModuleSymbols(const QString &moduleName)
 {
-    runCommand(DebuggerCommand("listSymbols").arg("module", moduleName));
+    DebuggerCommand cmd("listSymbols");
+    cmd.arg("module", moduleName);
+    runCommand(cmd);
 }
 
 void LldbEngine::refreshSymbols(const GdbMi &symbols)
@@ -864,19 +872,19 @@ void LldbEngine::doUpdateLocals(UpdateParameters params)
     QHashIterator<QByteArray, int> it(WatchHandler::watcherNames());
     while (it.hasNext()) {
         it.next();
-        cmd.beginGroup()
-            .arg("iname", "watch." + QByteArray::number(it.value()))
-            .arg("exp", it.key().toHex())
-        .endGroup();
+        cmd.beginGroup();
+        cmd.arg("iname", "watch." + QByteArray::number(it.value()));
+        cmd.arg("exp", it.key().toHex());
+        cmd.endGroup();
     }
 
     // Tooltips
     DebuggerToolTipContexts toolTips = DebuggerToolTipManager::pendingTooltips(this);
     foreach (const DebuggerToolTipContext &p, toolTips) {
-        cmd.beginGroup()
-                .arg("iname", p.iname)
-                .arg("exp", p.expression.toLatin1().toHex())
-        .endGroup();
+        cmd.beginGroup();
+        cmd.arg("iname", p.iname);
+        cmd.arg("exp", p.expression.toLatin1().toHex());
+        cmd.endGroup();
     }
 
     cmd.endList();
@@ -1205,9 +1213,11 @@ void LldbEngine::changeMemory(MemoryAgent *agent, QObject *editorToken,
 
 void LldbEngine::setRegisterValue(const QByteArray &name, const QString &value)
 {
-    runCommand(DebuggerCommand("setRegister").arg("name", name).arg("value", value));
+    DebuggerCommand cmd("setRegister");
+    cmd.arg("name", name);
+    cmd.arg("value", value);
+    runCommand(cmd);
 }
-
 
 bool LldbEngine::hasCapability(unsigned cap) const
 {
