@@ -515,6 +515,7 @@ void LldbEngine::activateFrame(int frameIndex)
     const int n = stackHandler()->stackSize();
     if (frameIndex == n) {
         DebuggerCommand cmd("reportStack");
+        cmd.arg("nativeMixed", isNativeMixedActive());
         cmd.arg("stacklimit", n * 10 + 3);
         runCommand(cmd);
         return;
@@ -797,6 +798,7 @@ void LldbEngine::updateAll()
 void LldbEngine::reloadFullStack()
 {
     DebuggerCommand cmd("reportStack");
+    cmd.arg("nativeMixed", isNativeMixedActive());
     cmd.arg("stacklimit", -1);
     runCommand(cmd);
 }
@@ -804,6 +806,7 @@ void LldbEngine::reloadFullStack()
 void LldbEngine::updateStack()
 {
     DebuggerCommand cmd("reportStack");
+    cmd.arg("nativeMixed", isNativeMixedActive());
     cmd.arg("stacklimit", action(MaximalStackDepth)->value().toInt());
     runCommand(cmd);
 }
@@ -842,6 +845,7 @@ void LldbEngine::doUpdateLocals(UpdateParameters params)
     WatchHandler *handler = watchHandler();
 
     DebuggerCommand cmd("updateData");
+    cmd.arg("nativeMixed", isNativeMixedActive());
     cmd.arg("expanded", handler->expansionRequests());
     cmd.arg("typeformats", handler->typeFormatRequests());
     cmd.arg("formats", handler->individualFormatRequests());

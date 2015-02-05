@@ -66,10 +66,6 @@ StackHandler::StackHandler()
     m_canExpand = false;
     connect(action(OperateByInstruction), &QAction::triggered,
         this, &StackHandler::resetModel);
-
-    if (isNativeMixedEnabled())
-        connect(action(OperateNativeMixed), &QAction::triggered,
-            this, &StackHandler::resetModel);
 }
 
 StackHandler::~StackHandler()

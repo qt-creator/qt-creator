@@ -181,6 +181,9 @@ public:
         connect(action(IntelFlavor), SIGNAL(valueChanged(QVariant)),
                 SLOT(reloadDisassembly()));
 
+        connect(action(OperateNativeMixed), &QAction::triggered,
+                engine, &DebuggerEngine::reloadFullStack);
+
         Utils::globalMacroExpander()->registerFileVariables(PrefixDebugExecutable,
             tr("Debugged executable"),
             [this]() { return m_startParameters.executable; });

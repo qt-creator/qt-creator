@@ -254,7 +254,6 @@ class Dumper(DumperBase):
         self.breakpointsToCheck = set([])
         self.qmlBreakpointResolvers = {}
         self.qmlTriggeredBreakpoint = None
-        self.nativeMixed = False
 
     def enterSubItem(self, item):
         if isinstance(item.name, lldb.SBValue):
@@ -834,18 +833,19 @@ class Dumper(DumperBase):
                 return i
         return None
 
-    def reportStack(self, args = {}):
+    def reportStack(self, args):
         if not self.process:
             self.report('msg="No process"')
             return
         thread = self.currentThread()
-        limit = args.get('stacklimit', -1)
         if not thread:
             self.report('msg="No thread"')
             return
 
-        (n, isLimited) = (limit, True) if limit > 0 else (thread.GetNumFrames(), False)
+        isNativeMixed = int(args.get('nativeMixed', 0))
 
+        limit = args.get('stacklimit', -1)
+        (n, isLimited) = (limit, True) if limit > 0 else (thread.GetNumFrames(), False)
         self.currentCallContext = None
         result = 'stack={current-thread="%s"' % thread.GetThreadID()
         result += ',frames=['
@@ -866,7 +866,7 @@ class Dumper(DumperBase):
             usable = None
             language = None
 
-            if self.nativeMixed:
+            if isNativeMixed:
                 if self.isReportableQmlFrame(functionName):
                     engine = frame.FindVariable("engine")
                     self.context = engine
@@ -1727,7 +1727,6 @@ class Dumper(DumperBase):
         self.reportVariables()
 
     def createResolvePendingBreakpointsHookBreakpoint(self, args):
-        self.nativeMixed = True
         if self.qmlTriggeredBreakpoint is None:
             self.qmlTriggeredBreakpoint = \
                 self.target.BreakpointCreateByName("qt_v4TriggeredBreakpointHook")
