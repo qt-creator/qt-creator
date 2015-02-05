@@ -59,8 +59,7 @@ Result::Type TestResult::resultFromString(const QString &resultString)
         return Result::BLACKLISTED_PASS;
     if (resultString == QLatin1String("bfail"))
         return Result::BLACKLISTED_FAIL;
-    qDebug(" unexpected testresult...");
-    qDebug(resultString.toLatin1());
+    qDebug("Unexpected test result: %s", qPrintable(resultString));
     return Result::UNKNOWN;
 }
 
