@@ -36,6 +36,8 @@
 #include <QFileInfo>
 #include <QUrl>
 
+#include <algorithm>
+
 enum { debug = false };
 
 namespace Utils {
@@ -212,20 +214,19 @@ QString FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
         }
     }
 
-    // find (solely by filename) in project files
+    // find best matching file path in project files
     if (debug)
         qDebug() << "FileInProjectFinder: checking project files ...";
 
-    const QString fileName = FileName::fromString(originalPath).fileName();
-    foreach (const QString &f, m_projectFiles) {
-        if (FileName::fromString(f).fileName() == fileName) {
-            m_cache.insert(originalPath, f);
-            if (success)
-                *success = true;
-            if (debug)
-                qDebug() << "FileInProjectFinder: found" << f << "in project files";
-            return f;
-        }
+    const QString matchedFilePath
+            = bestMatch(
+                filesWithSameFileName(FileName::fromString(originalPath).fileName()),
+                originalPath);
+    if (!matchedFilePath.isEmpty()) {
+        m_cache.insert(originalPath, matchedFilePath);
+        if (success)
+            *success = true;
+        return matchedFilePath;
     }
 
     if (debug)
@@ -250,6 +251,46 @@ QString FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
     if (debug)
         qDebug() << "FileInProjectFinder: couldn't find file!";
     return originalPath;
+}
+
+QStringList FileInProjectFinder::filesWithSameFileName(const QString &fileName) const
+{
+    QStringList result;
+    foreach (const QString &f, m_projectFiles) {
+        if (FileName::fromString(f).fileName() == fileName)
+            result << f;
+    }
+    return result;
+}
+
+int FileInProjectFinder::rankFilePath(const QString &candidatePath, const QString &filePathToFind)
+{
+    int rank = 0;
+    for (int a = candidatePath.length(), b = filePathToFind.length();
+         --a >= 0 && --b >= 0 && candidatePath.at(a) == filePathToFind.at(b);)
+        rank++;
+    return rank;
+}
+
+QString FileInProjectFinder::bestMatch(const QStringList &filePaths, const QString &filePathToFind)
+{
+    if (filePaths.isEmpty())
+        return QString();
+    if (filePaths.length() == 1) {
+        if (debug)
+            qDebug() << "FileInProjectFinder: found" << filePaths.first() << "in project files";
+        return filePaths.first();
+    }
+    auto it = std::max_element(filePaths.constBegin(), filePaths.constEnd(),
+        [&filePathToFind] (const QString &a, const QString &b) -> bool {
+            return rankFilePath(a, filePathToFind) < rankFilePath(b, filePathToFind);
+    });
+    if (it != filePaths.cend()) {
+        if (debug)
+            qDebug() << "FileInProjectFinder: found best match" << *it << "in project files";
+        return *it;
+    }
+    return QString();
 }
 
 } // namespace Utils

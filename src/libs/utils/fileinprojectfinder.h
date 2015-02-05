@@ -54,6 +54,10 @@ public:
     QString findFile(const QUrl &fileUrl, bool *success = 0) const;
 
 private:
+    QStringList filesWithSameFileName(const QString &fileName) const;
+    static int rankFilePath(const QString &candidatePath, const QString &filePathToFind);
+    static QString bestMatch(const QStringList &filePaths, const QString &filePathToFind);
+
     QString m_projectDir;
     QString m_sysroot;
     QStringList m_projectFiles;
