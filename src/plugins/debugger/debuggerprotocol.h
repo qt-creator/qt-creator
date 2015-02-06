@@ -32,16 +32,22 @@
 #define DEBUGGER_PROTOCOL_H
 
 #include <QVariant>
+#include <QTime>
+
+#include <functional>
 
 namespace Debugger {
 namespace Internal {
+
+class DebuggerResponse;
 
 // Convenience structure to build up backend commands.
 class DebuggerCommand
 {
 public:
-    DebuggerCommand() {}
-    DebuggerCommand(const char *f) : function(f) {}
+    DebuggerCommand() : flags(0) {}
+    DebuggerCommand(const char *f) : function(f), flags(0) {}
+    DebuggerCommand(const QByteArray &f) : function(f), flags(0) {}
 
     void arg(const char *name);
     void arg(const char *name, int value);
@@ -58,8 +64,13 @@ public:
     static QByteArray toData(const QList<QByteArray> &value);
     static QByteArray toData(const QHash<QByteArray, QByteArray> &value);
 
+    typedef std::function<void(const DebuggerResponse &)> Callback;
+
     QByteArray function;
     QByteArray args;
+    Callback callback;
+    QTime postTime;
+    int flags;
 
 private:
     void argHelper(const char *name, const QByteArray &value);

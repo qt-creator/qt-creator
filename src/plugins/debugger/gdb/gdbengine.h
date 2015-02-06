@@ -173,31 +173,16 @@ private: ////////// Gdb Command Management //////////
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
 
-    protected:
-    typedef std::function<void(const DebuggerResponse &)> GdbCommandCallback;
-
-    struct GdbCommand
-    {
-        GdbCommand()
-            : flags(0), callback(0)
-        {}
-
-        int flags;
-        GdbCommandCallback callback;
-        QByteArray command;
-        QTime postTime;
-    };
-
     // Type and cookie are sender-internal data, opaque for the "event
     // queue". resultNeeded == true increments m_pendingResults on
     // send and decrements on receipt, effectively preventing
     // watch model updates before everything is finished.
-    void flushCommand(const GdbCommand &cmd);
+    void flushCommand(const DebuggerCommand &cmd);
 protected:
     void runCommand(const DebuggerCommand &command);
     void postCommand(const QByteArray &command,
-                     GdbCommandFlags flags = NoFlags,
-                     GdbCommandCallback callback = GdbCommandCallback());
+                     int flags = NoFlags,
+                     DebuggerCommand::Callback callback = DebuggerCommand::Callback());
 private:
     void flushQueuedCommands();
     Q_SLOT void commandTimeout();
@@ -206,7 +191,7 @@ private:
     // Sets up an "unexpected result" for the following commeand.
     void scheduleTestResponse(int testCase, const QByteArray &response);
 
-    QHash<int, GdbCommand> m_cookieForToken;
+    QHash<int, DebuggerCommand> m_commandForToken;
     int commandTimeoutTime() const;
     QTimer m_commandTimer;
 
@@ -225,7 +210,7 @@ private:
     // This function is called after all previous responses have been received.
     CommandsDoneCallback m_commandsDoneCallback;
 
-    QList<GdbCommand> m_commandsToRunOnTemporaryBreak;
+    QList<DebuggerCommand> m_commandsToRunOnTemporaryBreak;
 
 private: ////////// Gdb Output, State & Capability Handling //////////
 protected:

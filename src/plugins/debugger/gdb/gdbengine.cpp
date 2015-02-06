@@ -829,7 +829,7 @@ void GdbEngine::handleInterruptDeviceInferior(const QString &error)
 
 void GdbEngine::interruptInferiorTemporarily()
 {
-    foreach (const GdbCommand &cmd, m_commandsToRunOnTemporaryBreak) {
+    foreach (const DebuggerCommand &cmd, m_commandsToRunOnTemporaryBreak) {
         if (cmd.flags & LosesChild) {
             notifyInferiorIll();
             return;
@@ -858,27 +858,27 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
     postCommand("python theDumper." + cmd);
 }
 
-void GdbEngine::postCommand(const QByteArray &command, GdbCommandFlags flags,
-                            GdbCommandCallback callback)
+void GdbEngine::postCommand(const QByteArray &command, int flags,
+                            DebuggerCommand::Callback callback)
 {
-    GdbCommand cmd;
-    cmd.command = command;
+    DebuggerCommand cmd;
+    cmd.function = command;
     cmd.flags = flags;
     cmd.callback = callback;
 
     if (!stateAcceptsGdbCommands(state())) {
-        PENDING_DEBUG(_("NO GDB PROCESS RUNNING, CMD IGNORED: " + cmd.command));
+        PENDING_DEBUG(_("NO GDB PROCESS RUNNING, CMD IGNORED: " + cmd.function));
         showMessage(_("NO GDB PROCESS RUNNING, CMD IGNORED: %1 %2")
-            .arg(_(cmd.command)).arg(state()));
+            .arg(_(cmd.function)).arg(state()));
         return;
     }
 
     if (cmd.flags & RebuildBreakpointModel) {
         ++m_pendingBreakpointRequests;
-        PENDING_DEBUG("   BRWAKPOINT MODEL:" << cmd.command
+        PENDING_DEBUG("   BRWAKPOINT MODEL:" << cmd.function
                       << "INCREMENTS PENDING TO" << m_pendingBreakpointRequests);
     } else {
-        PENDING_DEBUG("   OTHER (IN):" << cmd.command
+        PENDING_DEBUG("   OTHER (IN):" << cmd.function
                       << "LEAVES PENDING WATCH AT" << m_uncompleted.size()
                       << "LEAVES PENDING BREAKPOINT AT" << m_pendingBreakpointRequests);
     }
@@ -899,7 +899,7 @@ void GdbEngine::postCommand(const QByteArray &command, GdbCommandFlags flags,
             flushCommand(cmd);
         } else {
             // Queue the commands that we cannot send at once.
-            showMessage(_("QUEUING COMMAND " + cmd.command));
+            showMessage(_("QUEUING COMMAND " + cmd.function));
             m_commandsToRunOnTemporaryBreak.append(cmd);
             if (state() == InferiorStopRequested) {
                 if (cmd.flags & LosesChild)
@@ -912,10 +912,10 @@ void GdbEngine::postCommand(const QByteArray &command, GdbCommandFlags flags,
                 interruptInferiorTemporarily();
             } else {
                 qDebug() << "ATTEMPTING TO QUEUE COMMAND "
-                    << cmd.command << "IN INAPPROPRIATE STATE" << state();
+                    << cmd.function << "IN INAPPROPRIATE STATE" << state();
             }
         }
-    } else if (!cmd.command.isEmpty()) {
+    } else if (!cmd.function.isEmpty()) {
         flushCommand(cmd);
     }
 }
@@ -924,16 +924,16 @@ void GdbEngine::flushQueuedCommands()
 {
     showStatusMessage(tr("Processing queued commands"), 1000);
     while (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
-        GdbCommand cmd = m_commandsToRunOnTemporaryBreak.takeFirst();
-        showMessage(_("RUNNING QUEUED COMMAND " + cmd.command));
+        DebuggerCommand cmd = m_commandsToRunOnTemporaryBreak.takeFirst();
+        showMessage(_("RUNNING QUEUED COMMAND " + cmd.function));
         flushCommand(cmd);
     }
 }
 
-void GdbEngine::flushCommand(const GdbCommand &cmd0)
+void GdbEngine::flushCommand(const DebuggerCommand &cmd0)
 {
     if (!stateAcceptsGdbCommands(state())) {
-        showMessage(_(cmd0.command), LogInput);
+        showMessage(_(cmd0.function), LogInput);
         showMessage(_("GDB PROCESS ACCEPTS NO CMD IN STATE %1 ").arg(state()));
         return;
     }
@@ -942,13 +942,13 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
 
     const int token = ++currentToken();
 
-    GdbCommand cmd = cmd0;
+    DebuggerCommand cmd = cmd0;
     cmd.postTime = QTime::currentTime();
-    m_cookieForToken[token] = cmd;
+    m_commandForToken[token] = cmd;
     if (cmd.flags & ConsoleCommand)
-        cmd.command = "-interpreter-exec console \"" + cmd.command + '"';
-    cmd.command = QByteArray::number(token) + cmd.command;
-    showMessage(_(cmd.command), LogInput);
+        cmd.function = "-interpreter-exec console \"" + cmd.function + '"';
+    cmd.function = QByteArray::number(token) + cmd.function;
+    showMessage(_(cmd.function), LogInput);
 
     if (m_scheduledTestResponses.contains(token)) {
         // Fake response for test cases.
@@ -960,7 +960,7 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
         QMetaObject::invokeMethod(this, "handleResponse",
             Q_ARG(QByteArray, buffer));
     } else {
-        write(cmd.command + "\r\n");
+        write(cmd.function + "\r\n");
 
         // Start Watchdog.
         if (m_commandTimer.interval() <= 20000)
@@ -969,7 +969,7 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
         // sent and a response could be retrieved. We don't want the watchdog
         // to bark in that case since the only possible outcome is a dead
         // process anyway.
-        if (!cmd.command.endsWith("-gdb-exit"))
+        if (!cmd.function.endsWith("-gdb-exit"))
             m_commandTimer.start();
 
         //if (cmd.flags & LosesChild)
@@ -985,20 +985,20 @@ int GdbEngine::commandTimeoutTime() const
 
 void GdbEngine::commandTimeout()
 {
-    QList<int> keys = m_cookieForToken.keys();
+    QList<int> keys = m_commandForToken.keys();
     Utils::sort(keys);
     bool killIt = false;
     foreach (int key, keys) {
-        const GdbCommand &cmd = m_cookieForToken.value(key);
+        const DebuggerCommand &cmd = m_commandForToken.value(key);
         if (!(cmd.flags & NonCriticalResponse))
             killIt = true;
-        showMessage(_(QByteArray::number(key) + ": " + cmd.command));
+        showMessage(_(QByteArray::number(key) + ": " + cmd.function));
     }
     if (killIt) {
         QStringList commands;
-        foreach (const GdbCommand &cookie, m_cookieForToken)
+        foreach (const DebuggerCommand &cmd, m_commandForToken)
             commands << QString(_("\"%1\"")).arg(
-                            QString::fromLatin1(cookie.command));
+                            QString::fromLatin1(cmd.function));
         showMessage(_("TIMED OUT WAITING FOR GDB REPLY. "
                       "COMMANDS STILL IN PROGRESS: ") + commands.join(_(", ")));
         int timeOut = m_commandTimer.interval();
@@ -1036,7 +1036,7 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
     if (token == -1)
         return;
 
-    if (!m_cookieForToken.contains(token)) {
+    if (!m_commandForToken.contains(token)) {
         // In theory this should not happen (rather the error should be
         // reported in the "first" response to the command) in practice it
         // does. We try to handle a few situations we are aware of gracefully.
@@ -1114,10 +1114,10 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
         return;
     }
 
-    GdbCommand cmd = m_cookieForToken.take(token);
+    DebuggerCommand cmd = m_commandForToken.take(token);
     if (boolSetting(LogTimeStamps)) {
         showMessage(_("Response time: %1: %2 s")
-            .arg(_(cmd.command))
+            .arg(_(cmd.function))
             .arg(cmd.postTime.msecsTo(QTime::currentTime()) / 1000.),
             LogTime);
     }
@@ -1133,10 +1133,10 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
         || (response->resultClass == ResultExit && (cmd.flags & ExitRequest))
         || (response->resultClass == ResultDone);
         // ResultDone can almost "always" happen. Known examples are:
-        //  (response->resultClass == ResultDone && cmd.command == "continue")
+        //  (response->resultClass == ResultDone && cmd.function == "continue")
         // Happens with some incarnations of gdb 6.8 for "jump to line"
-        //  (response->resultClass == ResultDone && cmd.command.startsWith("jump"))
-        //  (response->resultClass == ResultDone && cmd.command.startsWith("detach"))
+        //  (response->resultClass == ResultDone && cmd.function.startsWith("jump"))
+        //  (response->resultClass == ResultDone && cmd.function.startsWith("detach"))
         // Happens when stepping finishes very quickly and issues *stopped and ^done
         // instead of ^running and *stopped
         //  (response->resultClass == ResultDone && (cmd.flags & RunRequest));
@@ -1145,13 +1145,13 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
         const DebuggerStartParameters &sp = startParameters();
         Abi abi = sp.toolChainAbi;
         if (abi.os() == Abi::WindowsOS
-            && cmd.command.startsWith("attach")
+            && cmd.function.startsWith("attach")
             && (sp.startMode == AttachExternal || sp.useTerminal))
         {
             // Ignore spurious 'running' responses to 'attach'.
         } else {
             QByteArray rsp = DebuggerResponse::stringFromResultClass(response->resultClass);
-            rsp = "UNEXPECTED RESPONSE '" + rsp + "' TO COMMAND '" + cmd.command + "'";
+            rsp = "UNEXPECTED RESPONSE '" + rsp + "' TO COMMAND '" + cmd.function + "'";
             qWarning() << rsp << " AT " __FILE__ ":" STRINGIFY(__LINE__);
             showMessage(_(rsp));
         }
@@ -1165,14 +1165,14 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
 
     if (cmd.flags & RebuildBreakpointModel) {
         --m_pendingBreakpointRequests;
-        PENDING_DEBUG("   BREAKPOINT" << cmd.command
+        PENDING_DEBUG("   BREAKPOINT" << cmd.function
                       << "DECREMENTS PENDING TO" << m_uncompleted.size());
         if (m_pendingBreakpointRequests <= 0) {
             PENDING_DEBUG("\n\n ... AND TRIGGERS BREAKPOINT MODEL UPDATE\n");
             attemptBreakpointSynchronization();
         }
     } else {
-        PENDING_DEBUG("   OTHER (OUT):" << cmd.command
+        PENDING_DEBUG("   OTHER (OUT):" << cmd.function
                       << "LEAVES PENDING WATCH AT" << m_uncompleted.size()
                       << "LEAVES PENDING BREAKPOINT AT" << m_pendingBreakpointRequests);
     }
@@ -1190,17 +1190,17 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
     // An optimization would be requesting the continue immediately when the
     // event loop is entered, and let individual commands have a flag to suppress
     // that behavior.
-    if (m_commandsDoneCallback && m_cookieForToken.isEmpty()) {
+    if (m_commandsDoneCallback && m_commandForToken.isEmpty()) {
         showMessage(_("ALL COMMANDS DONE; INVOKING CALLBACK"));
         CommandsDoneCallback cont = m_commandsDoneCallback;
         m_commandsDoneCallback = 0;
         if (response->resultClass != ResultRunning) //only start if the thing is not already running
             (this->*cont)();
     } else {
-        PENDING_DEBUG("MISSING TOKENS: " << m_cookieForToken.keys());
+        PENDING_DEBUG("MISSING TOKENS: " << m_commandForToken.keys());
     }
 
-    if (m_cookieForToken.isEmpty())
+    if (m_commandForToken.isEmpty())
         m_commandTimer.stop();
 }
 
@@ -1216,8 +1216,8 @@ void GdbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages
     if (!(languages & CppLanguage))
         return;
     QTC_CHECK(acceptsDebuggerCommands());
-    GdbCommand cmd;
-    cmd.command = command.toLatin1();
+    DebuggerCommand cmd;
+    cmd.function = command.toLatin1();
     flushCommand(cmd);
 }
 
@@ -2257,12 +2257,11 @@ void GdbEngine::setTokenBarrier()
 {
     //QTC_ASSERT(m_nonDiscardableCount == 0, /**/);
     bool good = true;
-    QHashIterator<int, GdbCommand> it(m_cookieForToken);
+    QHashIterator<int, DebuggerCommand> it(m_commandForToken);
     while (it.hasNext()) {
         it.next();
         if (!(it.value().flags & Discardable)) {
-            qDebug() << "TOKEN: " << it.key()
-                << "CMD:" << it.value().command
+            qDebug() << "TOKEN: " << it.key() << "CMD:" << it.value().function
                 << " FLAGS:" << it.value().flags;
             good = false;
         }
@@ -4413,10 +4412,9 @@ void GdbEngine::resetInferior()
                 if (state() == InferiorStopOk) {
                     postCommand(command, ConsoleCommand|Immediate);
                 } else {
-                    GdbCommand gdbCmd;
-                    gdbCmd.command = command;
-                    gdbCmd.flags = ConsoleCommand;
-                    m_commandsToRunOnTemporaryBreak.append(gdbCmd);
+                    DebuggerCommand cmd(command);
+                    cmd.flags = ConsoleCommand;
+                    m_commandsToRunOnTemporaryBreak.append(cmd);
                 }
             }
         }
@@ -4476,7 +4474,7 @@ void GdbEngine::handleInferiorPrepared()
         attemptBreakpointSynchronization();
     }
 
-    if (m_cookieForToken.isEmpty()) {
+    if (m_commandForToken.isEmpty()) {
         finishInferiorSetup();
     } else {
         QTC_CHECK(m_commandsDoneCallback == 0);
@@ -4592,13 +4590,13 @@ void GdbEngine::handleCreateFullBacktrace(const DebuggerResponse &response)
 void GdbEngine::resetCommandQueue()
 {
     m_commandTimer.stop();
-    if (!m_cookieForToken.isEmpty()) {
+    if (!m_commandForToken.isEmpty()) {
         QString msg;
         QTextStream ts(&msg);
         ts << "RESETING COMMAND QUEUE. LEFT OVER TOKENS: ";
-        foreach (const GdbCommand &cookie, m_cookieForToken)
-            ts << "CMD:" << cookie.command;
-        m_cookieForToken.clear();
+        foreach (const DebuggerCommand &cmd, m_commandForToken)
+            ts << "CMD:" << cmd.function;
+        m_commandForToken.clear();
         showMessage(msg);
     }
 }
