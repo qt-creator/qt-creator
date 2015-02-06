@@ -4,6 +4,7 @@ include(../../qtcreatorplugin.pri)
 # BareMetal files
 
 SOURCES += baremetalplugin.cpp \
+    baremetalcustomrunconfiguration.cpp\
     baremetaldevice.cpp \
     baremetalrunconfigurationfactory.cpp \
     baremetalrunconfiguration.cpp \
@@ -26,6 +27,7 @@ SOURCES += baremetalplugin.cpp \
 
 HEADERS += baremetalplugin.h \
     baremetalconstants.h \
+    baremetalcustomrunconfiguration.h \
     baremetaldevice.h \
     baremetalrunconfigurationfactory.h \
     baremetalrunconfiguration.h \

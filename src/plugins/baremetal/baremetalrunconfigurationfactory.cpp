@@ -30,6 +30,7 @@
 
 #include "baremetalrunconfigurationfactory.h"
 #include "baremetalconstants.h"
+#include "baremetalcustomrunconfiguration.h"
 #include "baremetalrunconfiguration.h"
 
 #include <projectexplorer/buildtargetinfo.h>
@@ -68,14 +69,17 @@ bool BareMetalRunConfigurationFactory::canCreate(Target *parent, Core::Id id) co
 {
     if (!canHandle(parent))
         return false;
-    return !parent->applicationTargets().targetForProject(pathFromId(id)).isEmpty();
+    return id == BareMetalCustomRunConfiguration::runConfigId()
+            || !parent->applicationTargets().targetForProject(pathFromId(id)).isEmpty();
 }
 
 bool BareMetalRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
     if (!canHandle(parent))
         return false;
-    return idFromMap(map).name().startsWith(BareMetalRunConfiguration::IdPrefix);
+    const Core::Id id = idFromMap(map);
+    return id == BareMetalCustomRunConfiguration::runConfigId()
+            || idFromMap(map).name().startsWith(BareMetalRunConfiguration::IdPrefix);
 }
 
 bool BareMetalRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
@@ -95,30 +99,37 @@ QList<Core::Id> BareMetalRunConfigurationFactory::availableCreationIds(Target *p
     const Core::Id base = Core::Id(BareMetalRunConfiguration::IdPrefix);
     foreach (const BuildTargetInfo &bti, parent->applicationTargets().list)
         result << base.withSuffix(bti.projectFilePath.toString());
+    result << BareMetalCustomRunConfiguration::runConfigId();
     return result;
 }
 
 QString BareMetalRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
+    if (id == BareMetalCustomRunConfiguration::runConfigId())
+        return BareMetalCustomRunConfiguration::runConfigDefaultDisplayName();
     return tr("%1 (on GDB server or hardware debugger)")
         .arg(QFileInfo(pathFromId(id)).completeBaseName());
 }
 
 RunConfiguration *BareMetalRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
-    Q_UNUSED(id);
+    if (id == BareMetalCustomRunConfiguration::runConfigId())
+        return new BareMetalCustomRunConfiguration(parent);
     return new BareMetalRunConfiguration(parent, id, pathFromId(id));
 }
 
 RunConfiguration *BareMetalRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
 {
-    Q_UNUSED(map);
+    if (idFromMap(map) == BareMetalCustomRunConfiguration::runConfigId())
+        return new BareMetalCustomRunConfiguration(parent);
     return doCreate(parent,Core::Id(BareMetalRunConfiguration::IdPrefix));
 }
 
 RunConfiguration *BareMetalRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
 {
     QTC_ASSERT(canClone(parent, source), return 0);
+    if (BareMetalCustomRunConfiguration *old = qobject_cast<BareMetalCustomRunConfiguration *>(source))
+        return new BareMetalCustomRunConfiguration(parent, old);
     BareMetalRunConfiguration *old = static_cast<BareMetalRunConfiguration*>(source);
     return new BareMetalRunConfiguration(parent,old);
 }

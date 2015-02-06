@@ -176,7 +176,7 @@ void BareMetalRunConfiguration::handleBuildSystemDataUpdated()
     updateEnableState();
 }
 
-const char *BareMetalRunConfiguration::IdPrefix = "BareMetalRunConfiguration";
+const char *BareMetalRunConfiguration::IdPrefix = "BareMetal";
 
 } // namespace Internal
 } // namespace BareMetal

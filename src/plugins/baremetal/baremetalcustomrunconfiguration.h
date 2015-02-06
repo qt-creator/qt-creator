@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Tim Sander <tim@krieglstein.org>
+** Copyright (C) 2015 Tim Sander <tim@krieglstein.org>
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -28,71 +28,45 @@
 **
 ****************************************************************************/
 
-#ifndef BAREMETALRUNCONFIGURATION_H
-#define BAREMETALRUNCONFIGURATION_H
+#ifndef BAREMETALCUSTOMRUNCONFIGURATION_H
+#define BAREMETALCUSTOMRUNCONFIGURATION_H
 
-#include <projectexplorer/runconfiguration.h>
+#include "baremetalrunconfiguration.h"
+
+namespace Utils { class Environment; }
 
 namespace BareMetal {
 namespace Internal {
 
-class BareMetalRunConfigurationWidget;
-
-class BareMetalRunConfiguration : public ProjectExplorer::RunConfiguration
+class BareMetalCustomRunConfiguration : public BareMetalRunConfiguration
 {
     Q_OBJECT
-    Q_DISABLE_COPY(BareMetalRunConfiguration)
-
-    friend class BareMetalRunConfigurationFactory;
-    friend class BareMetalRunConfigurationWidget;
-
 public:
-    explicit BareMetalRunConfiguration(ProjectExplorer::Target *parent, Core::Id id,
-                                       const QString &projectFilePath);
+    BareMetalCustomRunConfiguration(ProjectExplorer::Target *parent);
+    BareMetalCustomRunConfiguration(ProjectExplorer::Target *parent,
+                                      BareMetalCustomRunConfiguration *source);
 
-    bool isEnabled() const;
-    QString disabledReason() const;
+    bool isEnabled() const { return true; }
+    bool isConfigured() const;
+    ConfigurationState ensureConfigured(QString *errorMessage);
     QWidget *createConfigurationWidget();
     Utils::OutputFormatter *createOutputFormatter() const;
 
-    virtual QString localExecutableFilePath() const;
-    QString arguments() const;
-    void setArguments(const QString &args);
-    QString workingDirectory() const;
-    void setWorkingDirectory(const QString &wd);
+    virtual QString localExecutableFilePath() const { return m_localExecutable; }
 
+    void setLocalExecutableFilePath(const QString &executable) { m_localExecutable = executable; }
+
+    static Core::Id runConfigId();
+    static QString runConfigDefaultDisplayName();
+
+    bool fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
 
-    QString projectFilePath() const;
-
-    static const char *IdPrefix;
-
-signals:
-    void deploySpecsChanged();
-    void targetInformationChanged() const;
-
-protected:
-    BareMetalRunConfiguration(ProjectExplorer::Target *parent, BareMetalRunConfiguration *source);
-    bool fromMap(const QVariantMap &map);
-    QString defaultDisplayName();
-    void setDisabledReason(const QString &reason) const;
-
-protected slots:
-    void updateEnableState() { emit enabledChanged(); }
-
-private slots:
-    void handleBuildSystemDataUpdated();
-
 private:
-    void init();
-
-    QString m_projectFilePath;
-    QString m_arguments;
-    mutable QString m_disabledReason;
-    QString m_workingDirectory;
+    QString m_localExecutable;
 };
 
 } // namespace Internal
 } // namespace BareMetal
 
-#endif // BAREMETALRUNCONFIGURATION_H
+#endif // Include guard.
