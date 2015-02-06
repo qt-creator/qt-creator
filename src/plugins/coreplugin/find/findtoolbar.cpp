@@ -170,8 +170,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     cmd = ActionManager::registerAction(m_findInDocumentAction, Constants::FIND_IN_DOCUMENT, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence::Find);
     mfind->addAction(cmd, Constants::G_FIND_CURRENTDOCUMENT);
-    connect(m_findInDocumentAction, &QAction::triggered,
-            this, &FindToolBar::openFind);
+    connect(m_findInDocumentAction, SIGNAL(triggered()), this, SLOT(openFind()));
 
     // Pressing the find shortcut while focus is in the tool bar should not change the search text,
     // so register a different find action for the tool bar
