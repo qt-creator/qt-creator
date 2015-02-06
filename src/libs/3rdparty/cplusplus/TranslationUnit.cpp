@@ -49,8 +49,7 @@ TranslationUnit::TranslationUnit(Control *control, const StringLiteral *fileId)
       _lastSourceChar(0),
       _pool(0),
       _ast(0),
-      _flags(0),
-      _retryParseDeclarationLimit(defaultRetryParseDeclarationLimit())
+      _flags(0)
 {
     _tokens = new std::vector<Token>();
     _comments = new std::vector<Token>();
@@ -300,7 +299,7 @@ bool TranslationUnit::parse(ParseMode mode)
 
     f._parsed = true;
 
-    Parser parser(this, _retryParseDeclarationLimit);
+    Parser parser(this);
     bool parsed = false;
 
     switch (mode) {

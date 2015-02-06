@@ -51,9 +51,7 @@ public:
                            TranslationUnit::ParseMode mode,
                            bool blockErrors = false,
                            bool qtMocRun = false,
-                           bool cxx11Enabled = false,
-                           int retryParseDeclarationLimit
-                            = TranslationUnit::defaultRetryParseDeclarationLimit())
+                           bool cxx11Enabled = false)
     {
         const StringLiteral *fileId = control.stringLiteral("<stdin>");
         LanguageFeatures features;
@@ -64,7 +62,6 @@ public:
         features.qtMocRunEnabled = qtMocRun;
         TranslationUnit *unit = new TranslationUnit(&control, fileId);
         unit->setLanguageFeatures(features);
-        unit->setRetryParseDeclarationLimit(retryParseDeclarationLimit);
         unit->setSource(source.constData(), source.length());
         unit->blockErrors(blockErrors);
         unit->parse(mode);
@@ -1866,7 +1863,7 @@ void tst_AST::invalidCode()
                                    "class Foo {};\n";
 
     QSharedPointer<TranslationUnit> unit(parse(invalidCode, TranslationUnit::ParseTranlationUnit,
-                                               false, false, false, 1000));
+                                               false, false, false));
     QVERIFY(unit->ast());
     TranslationUnitAST *unitAST = unit->ast()->asTranslationUnit();
     QVERIFY(unitAST->declaration_list);

@@ -125,7 +125,6 @@ SemanticInfo SemanticInfoUpdaterPrivate::update(const SemanticInfo::Source &sour
     Document::Ptr doc = newSemanticInfo.snapshot.preprocessedDocument(source.code, source.fileName);
     if (processor)
         doc->control()->setTopLevelDeclarationProcessor(processor);
-    doc->setRetryHarderToParseDeclarations(true);
     doc->check();
     if (processor && processor->isCanceled())
         newSemanticInfo.complete = false;
