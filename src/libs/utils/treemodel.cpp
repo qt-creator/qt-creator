@@ -624,7 +624,7 @@ TreeItem::TreeItem(const QStringList &displays, int flags)
 
 TreeItem::~TreeItem()
 {
-    clear();
+    removeChildren();
     delete m_displays;
 }
 
@@ -818,6 +818,7 @@ void TreeItem::clear()
 {
     while (m_children.size()) {
         TreeItem *item = m_children.takeLast();
+        item->m_model = 0;
         item->m_parent = 0;
         delete item;
     }
