@@ -121,15 +121,23 @@ CustomColorDialog::CustomColorDialog(QWidget *parent) : QFrame(parent )
 
     resize(sizeHint());
 
-    connect(m_colorBox, SIGNAL(colorChanged()), this, SLOT(onColorBoxChanged()));
-    connect(m_alphaSpinBox, SIGNAL(valueChanged(double)), this, SLOT(spinBoxChanged()));
-    connect(m_rSpinBox, SIGNAL(valueChanged(double)), this, SLOT(spinBoxChanged()));
-    connect(m_gSpinBox, SIGNAL(valueChanged(double)), this, SLOT(spinBoxChanged()));
-    connect(m_bSpinBox, SIGNAL(valueChanged(double)), this, SLOT(spinBoxChanged()));
-    connect(m_hueControl, SIGNAL(hueChanged(int)), this, SLOT(onHueChanged(int)));
+    connect(m_colorBox, &ColorBox::colorChanged, this, &CustomColorDialog::onColorBoxChanged);
+    connect(m_alphaSpinBox,
+            static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+            this, &CustomColorDialog::spinBoxChanged);
+    connect(m_rSpinBox,
+            static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+            this, &CustomColorDialog::spinBoxChanged);
+    connect(m_gSpinBox,
+            static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+            this, &CustomColorDialog::spinBoxChanged);
+    connect(m_bSpinBox,
+            static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+            this, &CustomColorDialog::spinBoxChanged);
+    connect(m_hueControl, &HueControl::hueChanged, this, &CustomColorDialog::onHueChanged);
 
-    connect(applyButton, SIGNAL(pressed()), this, SLOT(onAccept()));
-    connect(cancelButton, SIGNAL(pressed()), this, SIGNAL(rejected()));
+    connect(applyButton, &QPushButton::pressed, this, &CustomColorDialog::onAccept);
+    connect(cancelButton, &QPushButton::pressed, this, &CustomColorDialog::rejected);
 
     m_alphaSpinBox->setMaximum(1);
     m_rSpinBox->setMaximum(1);

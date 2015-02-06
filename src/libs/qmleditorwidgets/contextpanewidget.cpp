@@ -183,7 +183,7 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_cu
     m_toolButton->setFixedSize(16, 16);
 
     m_toolButton->setToolTip(tr("Hides this toolbar."));
-    connect(m_toolButton, SIGNAL(clicked()), this, SLOT(onTogglePane()));
+    connect(m_toolButton, &QToolButton::clicked, this, &ContextPaneWidget::onTogglePane);
     layout->addWidget(m_toolButton, 0, 0, 1, 1);
     colorDialog();
 
@@ -431,9 +431,12 @@ void ContextPaneWidget::protectedMoved()
 QWidget* ContextPaneWidget::createFontWidget()
 {
     m_textWidget = new ContextPaneTextWidget(this);
-    connect(m_textWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
-    connect(m_textWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));
-    connect(m_textWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)));
+    connect(m_textWidget, &ContextPaneTextWidget::propertyChanged,
+            this, &ContextPaneWidget::propertyChanged);
+    connect(m_textWidget, &ContextPaneTextWidget::removeProperty,
+            this, &ContextPaneWidget::removeProperty);
+    connect(m_textWidget, &ContextPaneTextWidget::removeAndChangeProperty,
+            this, &ContextPaneWidget::removeAndChangeProperty);
 
     return m_textWidget;
 }
@@ -442,9 +445,12 @@ QWidget* ContextPaneWidget::createEasingWidget()
 {
     m_easingWidget = new EasingContextPane(this);
 
-    connect(m_easingWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
-    connect(m_easingWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));
-    connect(m_easingWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)));
+    connect(m_easingWidget, &EasingContextPane::propertyChanged,
+            this, &ContextPaneWidget::propertyChanged);
+    connect(m_easingWidget, &EasingContextPane::removeProperty,
+            this, &ContextPaneWidget::removeProperty);
+    connect(m_easingWidget, &EasingContextPane::removeAndChangeProperty,
+            this, &ContextPaneWidget::removeAndChangeProperty);
 
     return m_easingWidget;
 }
@@ -452,9 +458,12 @@ QWidget* ContextPaneWidget::createEasingWidget()
 QWidget *ContextPaneWidget::createImageWidget()
 {
     m_imageWidget = new ContextPaneWidgetImage(this);
-    connect(m_imageWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
-    connect(m_imageWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));
-    connect(m_imageWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)));
+    connect(m_imageWidget, &ContextPaneWidgetImage::propertyChanged,
+            this, &ContextPaneWidget::propertyChanged);
+    connect(m_imageWidget, &ContextPaneWidgetImage::removeProperty,
+            this, &ContextPaneWidget::removeProperty);
+    connect(m_imageWidget, &ContextPaneWidgetImage::removeAndChangeProperty,
+            this, &ContextPaneWidget::removeAndChangeProperty);
 
     return m_imageWidget;
 }
@@ -462,9 +471,12 @@ QWidget *ContextPaneWidget::createImageWidget()
 QWidget *ContextPaneWidget::createBorderImageWidget()
 {
     m_borderImageWidget = new ContextPaneWidgetImage(this, true);
-    connect(m_borderImageWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
-    connect(m_borderImageWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));
-    connect(m_borderImageWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)));
+    connect(m_borderImageWidget, &ContextPaneWidgetImage::propertyChanged,
+            this, &ContextPaneWidget::propertyChanged);
+    connect(m_borderImageWidget, &ContextPaneWidgetImage::removeProperty,
+            this, &ContextPaneWidget::removeProperty);
+    connect(m_borderImageWidget, &ContextPaneWidgetImage::removeAndChangeProperty,
+            this, &ContextPaneWidget::removeAndChangeProperty);
 
     return m_borderImageWidget;
 
@@ -473,9 +485,12 @@ QWidget *ContextPaneWidget::createBorderImageWidget()
 QWidget *ContextPaneWidget::createRectangleWidget()
 {
     m_rectangleWidget = new ContextPaneWidgetRectangle(this);
-    connect(m_rectangleWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
-    connect(m_rectangleWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));
-    connect(m_rectangleWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)));
+    connect(m_rectangleWidget, &ContextPaneWidgetRectangle::propertyChanged,
+            this, &ContextPaneWidget::propertyChanged);
+    connect(m_rectangleWidget, &ContextPaneWidgetRectangle::removeProperty,
+            this, &ContextPaneWidget::removeProperty);
+    connect(m_rectangleWidget, &ContextPaneWidgetRectangle::removeAndChangeProperty,
+            this, &ContextPaneWidget::removeAndChangeProperty);
 
     return m_rectangleWidget;
 }

@@ -62,9 +62,9 @@ FileWidget::FileWidget(QWidget *parent) :
     m_comboBox->setEditable(true);
     layout->addWidget(m_pushButton);
     m_pushButton->setText(QLatin1String("..."));
-    connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(lineEditChanged()));
-    connect(m_pushButton, SIGNAL(released()), this, SLOT(onButtonReleased()));
-    connect(m_comboBox, SIGNAL(editTextChanged(QString)), this, SLOT(comboBoxChanged()));
+    connect(m_lineEdit, &QLineEdit::editingFinished, this, &FileWidget::lineEditChanged);
+    connect(m_pushButton, &QToolButton::released, this, &FileWidget::onButtonReleased);
+    connect(m_comboBox, &QComboBox::editTextChanged, this, &FileWidget::comboBoxChanged);
 }
 
 FileWidget::~FileWidget()

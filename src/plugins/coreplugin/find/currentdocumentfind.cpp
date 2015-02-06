@@ -45,8 +45,8 @@ using namespace Core::Internal;
 CurrentDocumentFind::CurrentDocumentFind()
   : m_currentFind(0)
 {
-    connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)),
-            this, SLOT(updateCandidateFindFilter(QWidget*,QWidget*)));
+    connect(qApp, &QApplication::focusChanged,
+            this, &CurrentDocumentFind::updateCandidateFindFilter);
 }
 
 void CurrentDocumentFind::removeConnections()
@@ -189,7 +189,8 @@ void CurrentDocumentFind::acceptCandidate()
 
     m_currentFind = m_candidateFind;
     if (m_currentFind) {
-        connect(m_currentFind, SIGNAL(changed()), this, SIGNAL(changed()));
+        connect(m_currentFind.data(), &IFindSupport::changed,
+                this, &CurrentDocumentFind::changed);
         connect(m_currentFind, SIGNAL(destroyed(QObject*)), SLOT(clearFindSupport()));
     }
     if (m_currentWidget)
@@ -200,8 +201,10 @@ void CurrentDocumentFind::acceptCandidate()
 void CurrentDocumentFind::removeFindSupportConnections()
 {
     if (m_currentFind) {
-        disconnect(m_currentFind, SIGNAL(changed()), this, SIGNAL(changed()));
-        disconnect(m_currentFind, SIGNAL(destroyed(QObject*)), this, SLOT(clearFindSupport()));
+        disconnect(m_currentFind.data(), &IFindSupport::changed,
+                   this, &CurrentDocumentFind::changed);
+        disconnect(m_currentFind.data(), &IFindSupport::destroyed,
+                   this, &CurrentDocumentFind::clearFindSupport);
     }
     if (m_currentWidget)
         m_currentWidget->removeEventFilter(this);

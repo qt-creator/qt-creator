@@ -50,23 +50,33 @@ ContextPaneWidgetRectangle::ContextPaneWidgetRectangle(QWidget *parent) :
     ui->colorColorButton->setShowArrow(false);
     ui->borderColorButton->setShowArrow(false);
 
-    connect(ui->colorColorButton, SIGNAL(toggled(bool)), this, SLOT(onColorButtonToggled(bool)));
-    connect(ui->borderColorButton, SIGNAL(toggled(bool)), this, SLOT(onBorderColorButtonToggled(bool)));
+    connect(ui->colorColorButton, &QmlEditorWidgets::ColorButton::toggled,
+            this, &ContextPaneWidgetRectangle::onColorButtonToggled);
+    connect(ui->borderColorButton, &QmlEditorWidgets::ColorButton::toggled,
+            this, &ContextPaneWidgetRectangle::onBorderColorButtonToggled);
 
-    connect(ui->colorSolid, SIGNAL(clicked()), this, SLOT(onColorSolidClicked()));
-    connect(ui->borderSolid, SIGNAL(clicked()), this, SLOT(onBorderSolidClicked()));
+    connect(ui->colorSolid, &QToolButton::clicked,
+            this, &ContextPaneWidgetRectangle::onColorSolidClicked);
+    connect(ui->borderSolid, &QToolButton::clicked,
+            this, &ContextPaneWidgetRectangle::onBorderSolidClicked);
 
-    connect(ui->colorNone, SIGNAL(clicked()), this, SLOT(onColorNoneClicked()));
-    connect(ui->borderNone, SIGNAL(clicked()), this, SLOT(onBorderNoneClicked()));
+    connect(ui->colorNone, &QToolButton::clicked,
+            this, &ContextPaneWidgetRectangle::onColorNoneClicked);
+    connect(ui->borderNone, &QToolButton::clicked,
+            this, &ContextPaneWidgetRectangle::onBorderNoneClicked);
 
-    connect(ui->colorGradient, SIGNAL(clicked()), this, SLOT(onGradientClicked()));
+    connect(ui->colorGradient, &QToolButton::clicked, this, &ContextPaneWidgetRectangle::onGradientClicked);
 
     ContextPaneWidget *parentContextWidget = qobject_cast<ContextPaneWidget*>(parentWidget());
-    connect(parentContextWidget->colorDialog(), SIGNAL(accepted(QColor)), this, SLOT(onColorDialogApplied(QColor)));
-    connect(parentContextWidget->colorDialog(), SIGNAL(rejected()), this, SLOT(onColorDialogCancled()));
+    connect(parentContextWidget->colorDialog(), &CustomColorDialog::accepted,
+            this, &ContextPaneWidgetRectangle::onColorDialogApplied);
+    connect(parentContextWidget->colorDialog(), &CustomColorDialog::rejected,
+            this, &ContextPaneWidgetRectangle::onColorDialogCancled);
 
-    connect(ui->gradientLine, SIGNAL(openColorDialog(QPoint)), this, SLOT(onGradientLineDoubleClicked(QPoint)));
-    connect(ui->gradientLine, SIGNAL(gradientChanged()), this, SLOT(onUpdateGradient()));
+    connect(ui->gradientLine, &QmlEditorWidgets::GradientLine::openColorDialog,
+            this, &ContextPaneWidgetRectangle::onGradientLineDoubleClicked);
+    connect(ui->gradientLine, &QmlEditorWidgets::GradientLine::gradientChanged,
+            this, &ContextPaneWidgetRectangle::onUpdateGradient);
 }
 
 ContextPaneWidgetRectangle::~ContextPaneWidgetRectangle()

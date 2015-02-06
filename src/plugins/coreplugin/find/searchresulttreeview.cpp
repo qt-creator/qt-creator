@@ -51,7 +51,8 @@ SearchResultTreeView::SearchResultTreeView(QWidget *parent)
     setExpandsOnDoubleClick(true);
     header()->hide();
 
-    connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(emitJumpToSearchResult(QModelIndex)));
+    connect(this, &SearchResultTreeView::activated,
+            this, &SearchResultTreeView::emitJumpToSearchResult);
 }
 
 void SearchResultTreeView::setAutoExpandResults(bool expand)

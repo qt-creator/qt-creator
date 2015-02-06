@@ -38,7 +38,8 @@ namespace QmlEditorWidgets {
 FontSizeSpinBox::FontSizeSpinBox(QWidget *parent) :
     QAbstractSpinBox(parent), m_isPointSize(true), m_value(0)
 {
-    connect(this, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(this, &FontSizeSpinBox::editingFinished,
+            this, &FontSizeSpinBox::onEditingFinished);
 }
 
 void FontSizeSpinBox::stepBy(int steps)

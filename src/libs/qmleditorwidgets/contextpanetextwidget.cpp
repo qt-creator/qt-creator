@@ -67,31 +67,50 @@ ContextPaneTextWidget::ContextPaneTextWidget(QWidget *parent) :
     ui->colorButton->setShowArrow(false);
     ui->textColorButton->setShowArrow(false);
 
-    connect(ui->colorButton, SIGNAL(toggled(bool)), this, SLOT(onColorButtonToggled(bool)));
-    connect(ui->textColorButton, SIGNAL(toggled(bool)), this, SLOT(onTextColorButtonToggled(bool)));
+    connect(ui->colorButton, &QmlEditorWidgets::ColorButton::toggled,
+            this, &ContextPaneTextWidget::onColorButtonToggled);
+    connect(ui->textColorButton, &QmlEditorWidgets::ColorButton::toggled,
+            this, &ContextPaneTextWidget::onTextColorButtonToggled);
 
     ContextPaneWidget *parentContextWidget = qobject_cast<ContextPaneWidget*>(parentWidget());
-    connect(parentContextWidget->colorDialog(), SIGNAL(accepted(QColor)), this, SLOT(onColorDialogApplied(QColor)));
-    connect(parentContextWidget->colorDialog(), SIGNAL(rejected()), this, SLOT(onColorDialogCancled()));
+    connect(parentContextWidget->colorDialog(), &CustomColorDialog::accepted,
+            this, &ContextPaneTextWidget::onColorDialogApplied);
+    connect(parentContextWidget->colorDialog(), &CustomColorDialog::rejected,
+            this, &ContextPaneTextWidget::onColorDialogCancled);
 
-    connect(ui->fontSizeSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onFontSizeChanged(int)));
-    connect(ui->fontSizeSpinBox, SIGNAL(formatChanged()), this, SLOT(onFontFormatChanged()));
+    connect(ui->fontSizeSpinBox,
+            static_cast<void (QmlEditorWidgets::FontSizeSpinBox::*)(int)>(&QmlEditorWidgets::FontSizeSpinBox::valueChanged),
+            this, &ContextPaneTextWidget::onFontSizeChanged);
+    connect(ui->fontSizeSpinBox, &QmlEditorWidgets::FontSizeSpinBox::formatChanged,
+            this, &ContextPaneTextWidget::onFontFormatChanged);
 
-    connect(ui->boldButton, SIGNAL(toggled(bool)), this, SLOT(onBoldCheckedChanged(bool)));
-    connect(ui->italicButton, SIGNAL(toggled(bool)), this, SLOT(onItalicCheckedChanged(bool)));
-    connect(ui->underlineButton, SIGNAL(toggled(bool)), this, SLOT(onUnderlineCheckedChanged(bool)));
-    connect(ui->strikeoutButton, SIGNAL(toggled(bool)), this, SLOT(onStrikeoutCheckedChanged(bool)));
-    connect(ui->fontComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(onCurrentFontChanged(QFont)));
+    connect(ui->boldButton, &QToolButton::toggled,
+            this, &ContextPaneTextWidget::onBoldCheckedChanged);
+    connect(ui->italicButton, &QToolButton::toggled,
+            this, &ContextPaneTextWidget::onItalicCheckedChanged);
+    connect(ui->underlineButton, &QToolButton::toggled,
+            this, &ContextPaneTextWidget::onUnderlineCheckedChanged);
+    connect(ui->strikeoutButton, &QToolButton::toggled,
+            this, &ContextPaneTextWidget::onStrikeoutCheckedChanged);
+    connect(ui->fontComboBox, &QFontComboBox::currentFontChanged,
+            this, &ContextPaneTextWidget::onCurrentFontChanged);
 
-    connect(ui->centerHAlignmentButton, SIGNAL(toggled(bool)), this, SLOT(onHorizontalAlignmentChanged()));
-    connect(ui->leftAlignmentButton, SIGNAL(toggled(bool)), this, SLOT(onHorizontalAlignmentChanged()));
-    connect(ui->rightAlignmentButton, SIGNAL(toggled(bool)), this, SLOT(onHorizontalAlignmentChanged()));
+    connect(ui->centerHAlignmentButton, &QToolButton::toggled,
+            this, &ContextPaneTextWidget::onHorizontalAlignmentChanged);
+    connect(ui->leftAlignmentButton, &QToolButton::toggled,
+            this, &ContextPaneTextWidget::onHorizontalAlignmentChanged);
+    connect(ui->rightAlignmentButton, &QToolButton::toggled,
+            this, &ContextPaneTextWidget::onHorizontalAlignmentChanged);
 
-    connect(ui->centerVAlignmentButton, SIGNAL(toggled(bool)), this, SLOT(onVerticalAlignmentChanged()));
-    connect(ui->topAlignmentButton, SIGNAL(toggled(bool)), this, SLOT(onVerticalAlignmentChanged()));
-    connect(ui->bottomAlignmentButton, SIGNAL(toggled(bool)), this, SLOT(onVerticalAlignmentChanged()));
+    connect(ui->centerVAlignmentButton, &QToolButton::toggled,
+            this, &ContextPaneTextWidget::onVerticalAlignmentChanged);
+    connect(ui->topAlignmentButton, &QToolButton::toggled,
+            this, &ContextPaneTextWidget::onVerticalAlignmentChanged);
+    connect(ui->bottomAlignmentButton, &QToolButton::toggled,
+            this, &ContextPaneTextWidget::onVerticalAlignmentChanged);
 
-    connect(ui->styleComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(onStyleComboBoxChanged(QString)));
+    connect(ui->styleComboBox, static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::currentIndexChanged),
+            this, &ContextPaneTextWidget::onStyleComboBoxChanged);
 }
 
 static inline bool checkIfBoolean(const QVariant &v)

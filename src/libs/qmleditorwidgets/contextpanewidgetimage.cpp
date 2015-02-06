@@ -89,18 +89,28 @@ ContextPaneWidgetImage::ContextPaneWidgetImage(QWidget *parent, bool borderImage
         uiBorderImage->label->installEventFilter(labelFilter);
 
 
-        connect(uiBorderImage->verticalTileRadioButton,  SIGNAL(toggled(bool)), this, SLOT(onVerticalStretchChanged()));
-        connect(uiBorderImage->verticalStretchRadioButton,  SIGNAL(toggled(bool)), this, SLOT(onVerticalStretchChanged()));
-        connect(uiBorderImage->verticalTileRadioButtonNoCrop,  SIGNAL(toggled(bool)), this, SLOT(onVerticalStretchChanged()));
+        connect(uiBorderImage->verticalTileRadioButton, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onVerticalStretchChanged);
+        connect(uiBorderImage->verticalStretchRadioButton, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onVerticalStretchChanged);
+        connect(uiBorderImage->verticalTileRadioButtonNoCrop, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onVerticalStretchChanged);
 
-        connect(uiBorderImage->horizontalTileRadioButton,  SIGNAL(toggled(bool)), this, SLOT(onHorizontalStretchChanged()));
-        connect(uiBorderImage->horizontalStretchRadioButton,  SIGNAL(toggled(bool)), this, SLOT(onHorizontalStretchChanged()));
-        connect(uiBorderImage->horizontalTileRadioButtonNoCrop, SIGNAL(toggled(bool)), this, SLOT(onHorizontalStretchChanged()));
+        connect(uiBorderImage->horizontalTileRadioButton, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onHorizontalStretchChanged);
+        connect(uiBorderImage->horizontalStretchRadioButton, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onHorizontalStretchChanged);
+        connect(uiBorderImage->horizontalTileRadioButtonNoCrop, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onHorizontalStretchChanged);
         PreviewLabel *previewLabel = previewDialog()->previewLabel();
-        connect(previewLabel, SIGNAL(leftMarginChanged()), this, SLOT(onLeftMarginsChanged()));
-        connect(previewLabel, SIGNAL(rightMarginChanged()), this, SLOT(onRightMarginsChanged()));
-        connect(previewLabel, SIGNAL(topMarginChanged()), this, SLOT(onTopMarginsChanged()));
-        connect(previewLabel, SIGNAL(bottomMarginChanged()), this, SLOT(onBottomMarginsChanged()));
+        connect(previewLabel, &PreviewLabel::leftMarginChanged,
+                this, &ContextPaneWidgetImage::onLeftMarginsChanged);
+        connect(previewLabel, &PreviewLabel::rightMarginChanged,
+                this, &ContextPaneWidgetImage::onRightMarginsChanged);
+        connect(previewLabel, &PreviewLabel::topMarginChanged,
+                this, &ContextPaneWidgetImage::onTopMarginsChanged);
+        connect(previewLabel, &PreviewLabel::bottomMarginChanged,
+                this, &ContextPaneWidgetImage::onBottomMarginsChanged);
 
     } else {
         ui = new Ui::ContextPaneWidgetImage;
@@ -110,19 +120,27 @@ ContextPaneWidgetImage::ContextPaneWidgetImage(QWidget *parent, bool borderImage
         m_fileWidget = ui->fileWidget;
         m_sizeLabel = ui->sizeLabel;
 
-        connect(ui->stretchRadioButton, SIGNAL(toggled(bool)), this, SLOT(onStretchChanged()));
-        connect(ui->tileRadioButton, SIGNAL(toggled(bool)), this, SLOT(onStretchChanged()));
-        connect(ui->horizontalStretchRadioButton, SIGNAL(toggled(bool)), this, SLOT(onStretchChanged()));
-        connect(ui->verticalStretchRadioButton, SIGNAL(toggled(bool)), this, SLOT(onStretchChanged()));
-        connect(ui->preserveAspectFitRadioButton, SIGNAL(toggled(bool)), this, SLOT(onStretchChanged()));
-        connect(ui->cropAspectFitRadioButton, SIGNAL(toggled(bool)), this, SLOT(onStretchChanged()));
+        connect(ui->stretchRadioButton, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onStretchChanged);
+        connect(ui->tileRadioButton, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onStretchChanged);
+        connect(ui->horizontalStretchRadioButton, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onStretchChanged);
+        connect(ui->verticalStretchRadioButton, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onStretchChanged);
+        connect(ui->preserveAspectFitRadioButton, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onStretchChanged);
+        connect(ui->cropAspectFitRadioButton, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onStretchChanged);
     }
     previewDialog();
     m_fileWidget->setShowComboBox(true);
     m_fileWidget->setFilter(QLatin1String("*.png *.gif *.jpg"));
 
-    connect(m_fileWidget, SIGNAL(fileNameChanged(QUrl)), this, SLOT(onFileNameChanged()));
-    connect(labelFilter, SIGNAL(doubleClicked()), this, SLOT(onPixmapDoubleClicked()));
+    connect(m_fileWidget, &FileWidget::fileNameChanged,
+            this, &ContextPaneWidgetImage::onFileNameChanged);
+    connect(labelFilter, &LabelFilter::doubleClicked,
+            this, &ContextPaneWidgetImage::onPixmapDoubleClicked);
 
 }
 
@@ -881,7 +899,7 @@ PreviewDialog::PreviewDialog(QWidget *parent) : DragWidget(parent)
     toolButton->setIcon(icon);
     toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
     toolButton->setFixedSize(icon.availableSizes().value(0) + QSize(4, 4));
-    connect(toolButton, SIGNAL(clicked()), this, SLOT(onTogglePane()));
+    connect(toolButton, &QToolButton::clicked, this, &PreviewDialog::onTogglePane);
 
     QScrollArea *scrollArea = new QScrollArea(this);
     WheelFilter *wheelFilter = new WheelFilter(scrollArea);
@@ -906,7 +924,7 @@ PreviewDialog::PreviewDialog(QWidget *parent) : DragWidget(parent)
 
     wheelFilter->setTarget(this);
 
-    connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(onSliderMoved(int)));
+    connect(m_slider, &QSlider::valueChanged, this, &PreviewDialog::onSliderMoved);
 
     foreach (QWidget *childWidget, findChildren<QWidget*>()) {
         childWidget->installEventFilter(wheelFilter);

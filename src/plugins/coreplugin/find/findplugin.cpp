@@ -214,7 +214,8 @@ void FindPlugin::setupMenu()
     cmd = ActionManager::registerAction(d->m_openFindDialog, Constants::ADVANCED_FIND, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F")));
     mfindadvanced->addAction(cmd);
-    connect(d->m_openFindDialog, SIGNAL(triggered()), this, SLOT(openFindFilter()));
+    connect(d->m_openFindDialog, &QAction::triggered,
+            this, &FindPlugin::openFindFilter);
 }
 
 void FindPlugin::setupFilterMenuItems()
@@ -240,8 +241,8 @@ void FindPlugin::setupFilterMenuItems()
         cmd->setDefaultKeySequence(filter->defaultShortcut());
         mfindadvanced->addAction(cmd);
         d->m_filterActions.insert(filter, action);
-        connect(action, SIGNAL(triggered(bool)), this, SLOT(openFindFilter()));
-        connect(filter, SIGNAL(enabledChanged(bool)), this, SLOT(filterChanged()));
+        connect(action, &QAction::triggered, this, &FindPlugin::openFindFilter);
+        connect(filter, &IFindFilter::enabledChanged, this, &FindPlugin::filterChanged);
     }
     d->m_findDialog->setFindFilters(findInterfaces);
     d->m_openFindDialog->setEnabled(haveEnabledFilters);
