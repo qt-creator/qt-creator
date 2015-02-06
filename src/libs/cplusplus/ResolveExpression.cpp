@@ -1078,8 +1078,9 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                 ClassOrNamespace *binding
                         = findClassForTemplateParameterInExpressionScope(r.binding(),
                                                                          ty);
+
                 if (! binding)
-                    binding = findClass(ty, scope);
+                    binding = findClass(ty, scope, r.binding());
 
                 if (binding){
                     // lookup for overloads of operator->

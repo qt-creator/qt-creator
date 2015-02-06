@@ -2533,6 +2533,26 @@ void CppToolsPlugin::test_completion_data()
     ) << _("(*list.begin()).") << (QStringList()
         << QLatin1String("Foo")
         << QLatin1String("bar"));
+
+    QTest::newRow("dereference_of_nested_type_opertor_->") << _(
+            "template<typename T>\n"
+            "struct QList\n"
+            "{\n"
+            "   struct iterator\n"
+            "   {\n"
+            "      T *operator->() { return &t; }\n"
+            "      T t;\n"
+            "   };\n"
+            "   iterator begin() { return iterator(); }\n"
+            "};\n"
+            "struct Foo { int bar; };\n"
+            "void fun() {\n"
+            "   QList<Foo> list;\n"
+            "   @\n"
+            "}\n"
+    ) << _("list.begin()->") << (QStringList()
+        << QLatin1String("Foo")
+        << QLatin1String("bar"));
 }
 
 void CppToolsPlugin::test_completion_member_access_operator()
