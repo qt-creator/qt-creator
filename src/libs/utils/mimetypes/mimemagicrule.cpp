@@ -185,7 +185,7 @@ static bool matchNumber(const MimeMagicRulePrivate *d, const QByteArray &data)
     return false;
 }
 
-static inline QByteArray makePattern(const QByteArray &value)
+QByteArray MimeMagicRule::makePattern(const QByteArray &value)
 {
     QByteArray pattern(value.size(), Qt::Uninitialized);
     char *data = pattern.data();
