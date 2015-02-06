@@ -267,7 +267,7 @@ void ValgrindRunner::processFinished(int ret, QProcess::ExitStatus status)
     emit finished();
 
     if (ret != 0 || status == QProcess::CrashExit)
-        emit processErrorReceived(errorString(), d->process->error());
+        emit processErrorReceived(errorString(), d->process->processError());
 }
 
 void ValgrindRunner::localHostAddressRetrieved(const QHostAddress &localHostAddress)

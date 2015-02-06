@@ -69,7 +69,7 @@ public:
     qint64 applicationPID() const;
 
     QString errorString() const;
-    QProcess::ProcessError error() const;
+    QProcess::ProcessError processError() const;
 
     static QString msgWinCannotRetrieveDebuggingOutput();
 

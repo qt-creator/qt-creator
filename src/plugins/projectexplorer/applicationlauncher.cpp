@@ -223,7 +223,7 @@ QString ApplicationLauncher::errorString() const
         return d->m_consoleProcess.errorString();
 }
 
-QProcess::ProcessError ApplicationLauncher::error() const
+QProcess::ProcessError ApplicationLauncher::processError() const
 {
     if (d->m_currentMode == Gui)
         return d->m_guiProcess.error();

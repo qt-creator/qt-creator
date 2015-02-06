@@ -75,7 +75,7 @@ public:
     void close();
 
     QString errorString() const;
-    QProcess::ProcessError error() const;
+    QProcess::ProcessError processError() const;
 
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
     void setWorkingDirectory(const QString &path);

@@ -180,10 +180,10 @@ QString ValgrindProcess::errorString() const
         return m_remote.m_errorString;
 }
 
-QProcess::ProcessError ValgrindProcess::error() const
+QProcess::ProcessError ValgrindProcess::processError() const
 {
     if (isLocal())
-        return m_localProcess.error();
+        return m_localProcess.processError();
     else
         return m_remote.m_error;
 }
