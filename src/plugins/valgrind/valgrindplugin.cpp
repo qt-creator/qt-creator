@@ -116,6 +116,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     addAutoReleasedObject(new ValgrindOptionsPage());
 
     m_memcheckTool = new MemcheckTool(this);
+    m_memcheckWithGdbTool = new MemcheckWithGdbTool(this);
     m_callgrindTool = new CallgrindTool(this);
 
     ValgrindAction *action = 0;
@@ -126,12 +127,26 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     QString memcheckToolTip = tr("Valgrind Analyze Memory uses the "
          "\"memcheck\" tool to find memory leaks.");
 
+    QString memcheckWithGdbToolTip = tr(
+                "Valgrind Analyze Memory with GDB uses the \"memcheck\" tool to find memory leaks.\n"
+                "When a problem is detected, the application is interrupted and can be debugged");
+
     if (!Utils::HostOsInfo::isWindowsHost()) {
         action = new ValgrindAction(this);
         action->setId("Memcheck.Local");
         action->setTool(m_memcheckTool);
         action->setText(tr("Valgrind Memory Analyzer"));
         action->setToolTip(memcheckToolTip);
+        action->setMenuGroup(Constants::G_ANALYZER_TOOLS);
+        action->setStartMode(StartLocal);
+        action->setEnabled(false);
+        AnalyzerManager::addAction(action);
+
+        action = new ValgrindAction(this);
+        action->setId("MemcheckWithGdb.Local");
+        action->setTool(m_memcheckWithGdbTool);
+        action->setText(tr("Valgrind Memory Analyzer with GDB"));
+        action->setToolTip(memcheckWithGdbToolTip);
         action->setMenuGroup(Constants::G_ANALYZER_TOOLS);
         action->setStartMode(StartLocal);
         action->setEnabled(false);

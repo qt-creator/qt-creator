@@ -54,6 +54,7 @@ namespace Internal {
 
 class FrameFinder;
 class MemcheckErrorView;
+class MemcheckRunControl;
 class ValgrindBaseSettings;
 
 class MemcheckErrorFilterProxyModel : public QSortFilterProxyModel
@@ -108,6 +109,11 @@ private:
     void updateFromSettings();
     int updateUiAfterFinishedHelper();
 
+protected:
+    virtual MemcheckRunControl *createMemcheckRunControl(
+            const Analyzer::AnalyzerStartParameters &sp,
+            ProjectExplorer::RunConfiguration *runConfiguration);
+
 private:
     ValgrindBaseSettings *m_settings;
     QMenu *m_filterMenu;
@@ -124,6 +130,17 @@ private:
     QAction *m_loadExternalLogFile;
     QAction *m_goBack;
     QAction *m_goNext;
+};
+
+class MemcheckWithGdbTool : public MemcheckTool
+{
+public:
+    MemcheckWithGdbTool(QObject *parent);
+
+protected:
+    MemcheckRunControl *createMemcheckRunControl(
+            const Analyzer::AnalyzerStartParameters &sp,
+            ProjectExplorer::RunConfiguration *runConfiguration) Q_DECL_OVERRIDE;
 };
 
 } // namespace Internal

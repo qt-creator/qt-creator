@@ -80,8 +80,8 @@ RunControl *AndroidRunControlFactory::create(RunConfiguration *runConfig,
     case DebugRunModeWithBreakOnMain:
     case CallgrindRunMode:
     case MemcheckRunMode:
+    case MemcheckWithGdbRunMode:
     case ClangStaticAnalyzerMode:
-    default:
         QTC_CHECK(false); // The other run modes are not supported
     }
     return 0;

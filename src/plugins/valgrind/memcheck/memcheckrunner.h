@@ -52,6 +52,7 @@ public:
 
     void setParser(XmlProtocol::ThreadedParser *parser);
     bool start();
+    void disableXml();
 
 signals:
     void logMessageReceived(const QByteArray &);

@@ -30,14 +30,22 @@
 ****************************************************************************/
 
 #include "memcheckengine.h"
-
+#include "valgrindprocess.h"
 #include "valgrindsettings.h"
+#include "xmlprotocol/error.h"
+#include "xmlprotocol/status.h"
 
+#include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerstartparameters.h>
+#include <debugger/debuggerruncontrol.h>
+
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
-
-#include <valgrind/xmlprotocol/error.h>
-#include <valgrind/xmlprotocol/status.h>
+#include <projectexplorer/toolchain.h>
 
 #include <utils/qtcassert.h>
 
@@ -65,7 +73,7 @@ QString MemcheckRunControl::progressTitle() const
     return tr("Analyzing Memory");
 }
 
-Valgrind::ValgrindRunner *MemcheckRunControl::runner()
+ValgrindRunner *MemcheckRunControl::runner()
 {
     return &m_runner;
 }
@@ -127,6 +135,71 @@ QStringList MemcheckRunControl::toolArguments() const
 QStringList MemcheckRunControl::suppressionFiles() const
 {
     return m_settings->suppressionFiles();
+}
+
+MemcheckWithGdbRunControl::MemcheckWithGdbRunControl(const AnalyzerStartParameters &sp,
+                                                     RunConfiguration *runConfiguration)
+    : MemcheckRunControl(sp, runConfiguration)
+{
+    connect(&m_runner, &Memcheck::MemcheckRunner::started,
+            this, &MemcheckWithGdbRunControl::startDebugger);
+    connect(&m_runner, &Memcheck::MemcheckRunner::logMessageReceived,
+            this, &MemcheckWithGdbRunControl::appendLog);
+    disconnect(&m_parser, &ThreadedParser::internalError,
+               this, &MemcheckRunControl::internalParserError);
+    m_runner.disableXml();
+}
+
+QStringList MemcheckWithGdbRunControl::toolArguments() const
+{
+    return MemcheckRunControl::toolArguments()
+            << QLatin1String("--vgdb=yes") << QLatin1String("--vgdb-error=0");
+}
+
+void MemcheckWithGdbRunControl::startDebugger()
+{
+    const qint64 valgrindPid = runner()->valgrindProcess()->pid();
+    const AnalyzerStartParameters &mySp = startParameters();
+    Debugger::DebuggerStartParameters sp;
+
+    RunConfiguration *rc = runConfiguration();
+    const Target *target = rc->target();
+    QTC_ASSERT(target, return);
+
+    const Kit *kit = target->kit();
+    QTC_ASSERT(kit, return);
+
+    if (const ToolChain *tc = ToolChainKitInformation::toolChain(kit))
+        sp.toolChainAbi = tc->targetAbi();
+
+    if (const Project *project = target->project()) {
+        sp.projectSourceDirectory = project->projectDirectory().toString();
+        sp.projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
+
+        if (const BuildConfiguration *bc = target->activeBuildConfiguration())
+            sp.projectBuildDirectory = bc->buildDirectory().toString();
+    }
+
+    sp.executable = mySp.debuggee;
+    sp.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
+    sp.debuggerCommand = Debugger::DebuggerKitInformation::debuggerCommand(kit).toString();
+    sp.languages |= Debugger::CppLanguage;
+    sp.startMode = Debugger::AttachToRemoteServer;
+    sp.displayName = QString::fromLatin1("VGdb %1").arg(valgrindPid);
+    sp.remoteChannel = QString::fromLatin1("| vgdb --pid=%1").arg(valgrindPid);
+    sp.useContinueInsteadOfRun = true;
+
+    QString errorMessage;
+    RunControl *gdbRunControl = Debugger::DebuggerRunControlFactory::doCreate(sp, rc, &errorMessage);
+    QTC_ASSERT(gdbRunControl, return);
+    connect(gdbRunControl, &RunControl::finished,
+            gdbRunControl, &RunControl::deleteLater);
+    gdbRunControl->start();
+}
+
+void MemcheckWithGdbRunControl::appendLog(const QByteArray &data)
+{
+    appendMessage(QString::fromUtf8(data), Utils::StdOutFormat);
 }
 
 } // namespace Internal

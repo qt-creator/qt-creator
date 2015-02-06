@@ -198,6 +198,7 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, RunMode mo
     case NoRunMode:
     case CallgrindRunMode:
     case MemcheckRunMode:
+    case MemcheckWithGdbRunMode:
     case ClangStaticAnalyzerMode:
     case DebugRunModeWithBreakOnMain:
         QTC_ASSERT(false, return 0);

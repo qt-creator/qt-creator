@@ -65,7 +65,7 @@ ValgrindRunControlFactory::ValgrindRunControlFactory(QObject *parent) :
 bool ValgrindRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
 {
     Q_UNUSED(runConfiguration);
-    return mode == CallgrindRunMode || mode == MemcheckRunMode;
+    return mode == CallgrindRunMode || mode == MemcheckRunMode || mode == MemcheckWithGdbRunMode;
 }
 
 RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)

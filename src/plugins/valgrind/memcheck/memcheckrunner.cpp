@@ -57,7 +57,8 @@ class MemcheckRunner::Private
 public:
     explicit Private()
         : parser(0),
-          logSocket(0)
+          logSocket(0),
+          disableXml(false)
     {
     }
 
@@ -65,6 +66,7 @@ public:
     XmlProtocol::ThreadedParser *parser;
     QTcpServer logServer;
     QTcpSocket *logSocket;
+    bool disableXml;
 };
 
 MemcheckRunner::MemcheckRunner(QObject *parent)
@@ -104,6 +106,13 @@ bool MemcheckRunner::start()
         setValgrindArguments(memcheckLogArguments() + valgrindArguments());
     }
     return ValgrindRunner::start();
+}
+
+// Workaround for valgrind bug when running vgdb with xml output
+// https://bugs.kde.org/show_bug.cgi?id=343902
+void MemcheckRunner::disableXml()
+{
+    d->disableXml = true;
 }
 
 void MemcheckRunner::xmlSocketConnected()
@@ -157,13 +166,15 @@ bool MemcheckRunner::startServers(const QHostAddress &localHostAddress)
 
 QStringList MemcheckRunner::memcheckLogArguments() const
 {
-    return QStringList()
-            << QLatin1String("--xml=yes")
-            << QString::fromLatin1("--xml-socket=%1:%2")
-               .arg(d->xmlServer.serverAddress().toString()).arg(d->xmlServer.serverPort())
-            << QLatin1String("--child-silent-after-fork=yes")
-            << QString::fromLatin1("--log-socket=%1:%2")
-               .arg(d->logServer.serverAddress().toString()).arg(d->logServer.serverPort());
+    QStringList arguments;
+    if (!d->disableXml)
+        arguments << QLatin1String("--xml=yes");
+    arguments << QString::fromLatin1("--xml-socket=%1:%2")
+                 .arg(d->xmlServer.serverAddress().toString()).arg(d->xmlServer.serverPort())
+              << QLatin1String("--child-silent-after-fork=yes")
+              << QString::fromLatin1("--log-socket=%1:%2")
+                 .arg(d->logServer.serverAddress().toString()).arg(d->logServer.serverPort());
+    return arguments;
 }
 
 void MemcheckRunner::localHostAddressRetrieved(const QHostAddress &localHostAddress)

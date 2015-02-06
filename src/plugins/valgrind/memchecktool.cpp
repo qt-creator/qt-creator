@@ -438,7 +438,7 @@ AnalyzerRunControl *MemcheckTool::createRunControl(const AnalyzerStartParameters
     m_frameFinder->setFiles(runConfiguration ? runConfiguration->target()
         ->project()->files(Project::AllFiles) : QStringList());
 
-    MemcheckRunControl *engine = new MemcheckRunControl(sp, runConfiguration);
+    MemcheckRunControl *engine = createMemcheckRunControl(sp, runConfiguration);
 
     connect(engine, &MemcheckRunControl::starting, this, &MemcheckTool::engineStarting);
     connect(engine, &MemcheckRunControl::parserError, this, &MemcheckTool::parserError);
@@ -571,6 +571,12 @@ int MemcheckTool::updateUiAfterFinishedHelper()
     return issuesFound;
 }
 
+MemcheckRunControl *MemcheckTool::createMemcheckRunControl(const AnalyzerStartParameters &sp,
+                                                           RunConfiguration *runConfiguration)
+{
+    return new MemcheckRunControl(sp, runConfiguration);
+}
+
 void MemcheckTool::engineFinished()
 {
     const int issuesFound = updateUiAfterFinishedHelper();
@@ -591,6 +597,19 @@ void MemcheckTool::setBusyCursor(bool busy)
 {
     QCursor cursor(busy ? Qt::BusyCursor : Qt::ArrowCursor);
     m_errorView->setCursor(cursor);
+}
+
+MemcheckWithGdbTool::MemcheckWithGdbTool(QObject *parent) :
+    MemcheckTool(parent)
+{
+    setRunMode(MemcheckWithGdbRunMode);
+    setObjectName(QLatin1String("MemcheckWithGdbTool"));
+}
+
+MemcheckRunControl *MemcheckWithGdbTool::createMemcheckRunControl(const AnalyzerStartParameters &sp,
+                                                                  RunConfiguration *runConfiguration)
+{
+    return new MemcheckWithGdbRunControl(sp, runConfiguration);
 }
 
 } // namespace Internal

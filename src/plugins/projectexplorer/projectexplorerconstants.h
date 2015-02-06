@@ -274,6 +274,7 @@ enum RunMode {
     QmlProfilerRunMode,
     CallgrindRunMode,
     MemcheckRunMode,
+    MemcheckWithGdbRunMode,
     ClangStaticAnalyzerMode
 };
 

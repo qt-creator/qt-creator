@@ -59,13 +59,27 @@ signals:
     void suppressionCount(const QString &name, qint64 count);
 
 protected:
-    virtual QString progressTitle() const;
-    virtual QStringList toolArguments() const;
-    virtual ValgrindRunner *runner();
+    QString progressTitle() const Q_DECL_OVERRIDE;
+    QStringList toolArguments() const Q_DECL_OVERRIDE;
+    ValgrindRunner *runner() Q_DECL_OVERRIDE;
 
-private:
+protected:
     XmlProtocol::ThreadedParser m_parser;
     Memcheck::MemcheckRunner m_runner;
+};
+
+class MemcheckWithGdbRunControl : public MemcheckRunControl
+{
+    Q_OBJECT
+
+public:
+    MemcheckWithGdbRunControl(const Analyzer::AnalyzerStartParameters &sp,
+                              ProjectExplorer::RunConfiguration *runConfiguration);
+
+protected:
+    QStringList toolArguments() const Q_DECL_OVERRIDE;
+    void startDebugger();
+    void appendLog(const QByteArray &data);
 };
 
 } // namespace Internal
