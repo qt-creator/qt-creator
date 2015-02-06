@@ -166,10 +166,14 @@ SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, const QList<Error>
 
     m_suppressionEdit->setPlainText(suppressions);
 
-    connect(m_fileChooser, SIGNAL(validChanged()), SLOT(validate()));
-    connect(m_suppressionEdit->document(), SIGNAL(contentsChanged()), SLOT(validate()));
-    connect(m_buttonBox, SIGNAL(accepted()), SLOT(accept()));
-    connect(m_buttonBox, SIGNAL(rejected()), SLOT(reject()));
+    connect(m_fileChooser, static_cast<void (Utils::PathChooser:: *)()>(&Utils::PathChooser::validChanged),
+            this, &SuppressionDialog::validate);
+    connect(m_suppressionEdit->document(), &QTextDocument::contentsChanged,
+            this, &SuppressionDialog::validate);
+    connect(m_buttonBox, &QDialogButtonBox::accepted,
+            this, &SuppressionDialog::accept);
+    connect(m_buttonBox, &QDialogButtonBox::rejected,
+            this, &SuppressionDialog::reject);
 }
 
 void SuppressionDialog::maybeShow(MemcheckErrorView *view)

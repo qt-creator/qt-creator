@@ -50,7 +50,8 @@ CallgrindRunControl::CallgrindRunControl(const AnalyzerStartParameters &sp,
 {
     connect(&m_runner, &Callgrind::CallgrindRunner::finished,
             this, &CallgrindRunControl::slotFinished);
-    connect(m_runner.parser(), SIGNAL(parserDataReady()), this, SLOT(slotFinished()));
+    connect(m_runner.parser(), &Callgrind::Parser::parserDataReady,
+            this, &CallgrindRunControl::slotFinished);
     connect(&m_runner, &Callgrind::CallgrindRunner::statusMessage,
             this, &CallgrindRunControl::showStatusMessage);
 }

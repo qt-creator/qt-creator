@@ -364,8 +364,8 @@ QWidget *MemcheckTool::createWidgets()
     errorDock->show();
     mw->splitDockWidget(mw->toolBarDockWidget(), errorDock, Qt::Vertical);
 
-    connect(ProjectExplorerPlugin::instance(),
-            SIGNAL(updateRunActions()), SLOT(maybeActiveRunConfigurationChanged()));
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
+            this, &MemcheckTool::maybeActiveRunConfigurationChanged);
 
     //
     // The Control Widget.

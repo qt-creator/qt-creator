@@ -234,9 +234,8 @@ Visualisation::Private::Private(Visualisation *qq)
 
     // setup model
     m_model->setMinimumInclusiveCostRatio(0.1);
-    connect(m_model,
-            SIGNAL(filterFunctionChanged(const Function*,const Function*)),
-            qq, SLOT(populateScene()));
+    connect(m_model, &DataProxyModel::filterFunctionChanged,
+            qq, &Visualisation::populateScene);
 }
 
 void Visualisation::Private::handleMousePressEvent(QMouseEvent *event,
@@ -326,32 +325,24 @@ void Visualisation::setModel(QAbstractItemModel *model)
     QTC_ASSERT(!d->m_model->sourceModel() && model, return); // only set once!
     d->m_model->setSourceModel(model);
 
-    connect(model,
-            SIGNAL(columnsInserted(QModelIndex,int,int)),
-            SLOT(populateScene()));
-    connect(model,
-            SIGNAL(columnsMoved(QModelIndex,int,int,QModelIndex,int)),
-            SLOT(populateScene()));
-    connect(model,
-            SIGNAL(columnsRemoved(QModelIndex,int,int)),
-            SLOT(populateScene()));
-    connect(model,
-            SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            SLOT(populateScene()));
-    connect(model,
-            SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
-            SLOT(populateScene()));
-    connect(model, SIGNAL(layoutChanged()), SLOT(populateScene()));
-    connect(model, SIGNAL(modelReset()), SLOT(populateScene()));
-    connect(model,
-            SIGNAL(rowsInserted(QModelIndex,int,int)),
-            SLOT(populateScene()));
-    connect(model,
-            SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
-            SLOT(populateScene()));
-    connect(model,
-            SIGNAL(rowsRemoved(QModelIndex,int,int)),
-            SLOT(populateScene()));
+    connect(model, &QAbstractItemModel::columnsInserted,
+            this, &Visualisation::populateScene);
+    connect(model, &QAbstractItemModel::columnsMoved,
+            this, &Visualisation::populateScene);
+    connect(model, &QAbstractItemModel::columnsRemoved,
+            this, &Visualisation::populateScene);
+    connect(model, &QAbstractItemModel::dataChanged,
+            this, &Visualisation::populateScene);
+    connect(model, &QAbstractItemModel::headerDataChanged,
+            this, &Visualisation::populateScene);
+    connect(model, &QAbstractItemModel::layoutChanged, this, &Visualisation::populateScene);
+    connect(model, &QAbstractItemModel::modelReset, this, &Visualisation::populateScene);
+    connect(model, &QAbstractItemModel::rowsInserted,
+            this, &Visualisation::populateScene);
+    connect(model, &QAbstractItemModel::rowsMoved,
+            this, &Visualisation::populateScene);
+    connect(model, &QAbstractItemModel::rowsRemoved,
+            this, &Visualisation::populateScene);
 
     populateScene();
 }

@@ -169,10 +169,10 @@ void ValgrindRunControl::runnerFinished()
 
     m_progress.reportFinished();
 
-    disconnect(runner(), SIGNAL(processOutputReceived(QString,Utils::OutputFormat)),
-               this, SLOT(receiveProcessOutput(QString,Utils::OutputFormat)));
-    disconnect(runner(), SIGNAL(finished()),
-               this, SLOT(runnerFinished()));
+    disconnect(runner(), &ValgrindRunner::processOutputReceived,
+               this, &ValgrindRunControl::receiveProcessOutput);
+    disconnect(runner(), &ValgrindRunner::finished,
+               this, &ValgrindRunControl::runnerFinished);
 }
 
 void ValgrindRunControl::receiveProcessOutput(const QString &output, OutputFormat format)

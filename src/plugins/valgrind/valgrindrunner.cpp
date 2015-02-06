@@ -94,16 +94,16 @@ void ValgrindRunner::Private::run(ValgrindProcess *_process)
     // consider appending our options last so they override any interfering user-supplied options
     // -q as suggested by valgrind manual
 
-    QObject::connect(process, SIGNAL(processOutput(QString,Utils::OutputFormat)),
-            q, SIGNAL(processOutputReceived(QString,Utils::OutputFormat)));
-    QObject::connect(process, SIGNAL(started()),
-            q, SLOT(processStarted()));
-    QObject::connect(process, SIGNAL(finished(int,QProcess::ExitStatus)),
-            q, SLOT(processFinished(int,QProcess::ExitStatus)));
-    QObject::connect(process, SIGNAL(error(QProcess::ProcessError)),
-            q, SLOT(processError(QProcess::ProcessError)));
-    QObject::connect(process, SIGNAL(localHostAddressRetrieved(QHostAddress)), q,
-                     SLOT(localHostAddressRetrieved(QHostAddress)));
+    QObject::connect(process, &ValgrindProcess::processOutput,
+                     q, &ValgrindRunner::processOutputReceived);
+    QObject::connect(process, &ValgrindProcess::started,
+                     q, &ValgrindRunner::started);
+    QObject::connect(process, &ValgrindProcess::finished,
+                     q, &ValgrindRunner::processFinished);
+    QObject::connect(process, &ValgrindProcess::error,
+                     q, &ValgrindRunner::processError);
+    QObject::connect(process, &ValgrindProcess::localHostAddressRetrieved, q,
+                     &ValgrindRunner::localHostAddressRetrieved);
 
     process->setValgrindExecutable(valgrindExecutable);
     process->setValgrindArguments(q->fullValgrindArguments());
@@ -234,7 +234,7 @@ void ValgrindRunner::waitForFinished() const
         return;
 
     QEventLoop loop;
-    connect(this, SIGNAL(finished()), &loop, SLOT(quit()));
+    connect(this, &ValgrindRunner::finished, &loop, &QEventLoop::quit);
     loop.exec();
 }
 
@@ -273,11 +273,6 @@ void ValgrindRunner::processFinished(int ret, QProcess::ExitStatus status)
 void ValgrindRunner::localHostAddressRetrieved(const QHostAddress &localHostAddress)
 {
     Q_UNUSED(localHostAddress);
-}
-
-void ValgrindRunner::processStarted()
-{
-    emit started();
 }
 
 QString ValgrindRunner::errorString() const

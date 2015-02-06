@@ -108,29 +108,30 @@ void ThreadedParser::parse(QIODevice *device)
     Parser *parser = new Parser;
     qRegisterMetaType<Valgrind::XmlProtocol::Status>();
     qRegisterMetaType<Valgrind::XmlProtocol::Error>();
-    connect(parser, SIGNAL(status(Valgrind::XmlProtocol::Status)),
-            SIGNAL(status(Valgrind::XmlProtocol::Status)),
+    connect(parser, &Parser::status,
+            this, &ThreadedParser::status,
             Qt::QueuedConnection);
-    connect(parser, SIGNAL(error(Valgrind::XmlProtocol::Error)),
-            SIGNAL(error(Valgrind::XmlProtocol::Error)),
+    connect(parser, &Parser::error,
+            this, &ThreadedParser::error,
             Qt::QueuedConnection);
-    connect(parser, SIGNAL(internalError(QString)),
-            SLOT(slotInternalError(QString)),
+    connect(parser, &Parser::internalError,
+            this, &ThreadedParser::slotInternalError,
             Qt::QueuedConnection);
-    connect(parser, SIGNAL(errorCount(qint64,qint64)),
-            SIGNAL(errorCount(qint64,qint64)),
+    connect(parser, &Parser::errorCount,
+            this, &ThreadedParser::errorCount,
             Qt::QueuedConnection);
-    connect(parser, SIGNAL(suppressionCount(QString,qint64)),
-            SIGNAL(suppressionCount(QString,qint64)),
+    connect(parser, &Parser::suppressionCount,
+            this, &ThreadedParser::suppressionCount,
             Qt::QueuedConnection);
-    connect(parser, SIGNAL(finished()), SIGNAL(finished()),
+    connect(parser, &Parser::finished,
+            this, &ThreadedParser::finished,
             Qt::QueuedConnection);
 
 
     Thread *thread = new Thread;
     d->parserThread = thread;
-    connect(thread, SIGNAL(finished()),
-            thread, SLOT(deleteLater()));
+    connect(thread, &QThread::finished,
+            thread, &QObject::deleteLater);
     device->setParent(0);
     device->moveToThread(thread);
     parser->moveToThread(thread);

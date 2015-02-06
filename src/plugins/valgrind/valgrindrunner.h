@@ -101,7 +101,6 @@ signals:
 
 protected slots:
     virtual void processError(QProcess::ProcessError);
-    virtual void processStarted();
     virtual void processFinished(int, QProcess::ExitStatus);
     virtual void localHostAddressRetrieved(const QHostAddress &localHostAddress);
 

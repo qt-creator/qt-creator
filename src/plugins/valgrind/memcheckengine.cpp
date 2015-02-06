@@ -84,8 +84,8 @@ bool MemcheckRunControl::startEngine()
 
 void MemcheckRunControl::stopEngine()
 {
-    disconnect(&m_parser, SIGNAL(internalError(QString)),
-               this, SIGNAL(internalParserError(QString)));
+    disconnect(&m_parser, &ThreadedParser::internalError,
+               this, &MemcheckRunControl::internalParserError);
     ValgrindRunControl::stopEngine();
 }
 

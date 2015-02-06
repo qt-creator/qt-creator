@@ -118,8 +118,8 @@ void MemcheckRunner::logSocketConnected()
 {
     d->logSocket = d->logServer.nextPendingConnection();
     QTC_ASSERT(d->logSocket, return);
-    connect(d->logSocket, SIGNAL(readyRead()),
-            this, SLOT(readLogSocket()));
+    connect(d->logSocket, &QIODevice::readyRead,
+            this, &MemcheckRunner::readLogSocket);
     d->logServer.close();
 }
 
@@ -141,7 +141,8 @@ bool MemcheckRunner::startServers(const QHostAddress &localHostAddress)
         return false;
     }
     d->xmlServer.setMaxPendingConnections(1);
-    connect(&d->xmlServer, SIGNAL(newConnection()), SLOT(xmlSocketConnected()));
+    connect(&d->xmlServer, &QTcpServer::newConnection,
+            this, &MemcheckRunner::xmlSocketConnected);
     check = d->logServer.listen(localHostAddress);
     if (!check) {
         emit processErrorReceived( tr("LogServer on %1:").arg(ip) + QLatin1Char(' ')
@@ -149,7 +150,8 @@ bool MemcheckRunner::startServers(const QHostAddress &localHostAddress)
         return false;
     }
     d->logServer.setMaxPendingConnections(1);
-    connect(&d->logServer, SIGNAL(newConnection()), SLOT(logSocketConnected()));
+    connect(&d->logServer, &QTcpServer::newConnection,
+            this, &MemcheckRunner::logSocketConnected);
     return true;
 }
 

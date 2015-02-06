@@ -103,10 +103,10 @@ void CallgrindController::run(Option option)
                 connection ? connection->connectionParameters() : QSsh::SshConnectionParameters(),
                 connection, this);
 
-    connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
-            SLOT(processFinished(int,QProcess::ExitStatus)));
-    connect(m_process, SIGNAL(error(QProcess::ProcessError)),
-            SLOT(processError(QProcess::ProcessError)));
+    connect(m_process, &ValgrindProcess::finished,
+            this, &CallgrindController::processFinished);
+    connect(m_process, &ValgrindProcess::error,
+            this, &CallgrindController::processError);
 
     // save back current running operation
     m_lastOption = option;
@@ -209,8 +209,8 @@ void CallgrindController::getLocalDataFile()
         // if there are files like callgrind.out.PID.NUM, set it to the most recent one of those
         QString cmd = QString::fromLatin1("ls -t %1* | head -n 1").arg(fileName);
         m_findRemoteFile = m_ssh->createRemoteProcess(cmd.toUtf8());
-        connect(m_findRemoteFile.data(), SIGNAL(readyReadStandardOutput()), this,
-            SLOT(foundRemoteFile()));
+        connect(m_findRemoteFile.data(), &QSsh::SshRemoteProcess::readyReadStandardOutput,
+                this, &CallgrindController::foundRemoteFile);
         m_findRemoteFile->start();
     } else {
         QDir dir(workingDir, QString::fromLatin1("%1.*").arg(baseFileName), QDir::Time);
@@ -228,9 +228,10 @@ void CallgrindController::foundRemoteFile()
     m_remoteFile = m_findRemoteFile->readAllStandardOutput().trimmed();
 
     m_sftp = m_ssh->createSftpChannel();
-    connect(m_sftp.data(), SIGNAL(finished(QSsh::SftpJobId,QString)),
-            this, SLOT(sftpJobFinished(QSsh::SftpJobId,QString)));
-    connect(m_sftp.data(), SIGNAL(initialized()), this, SLOT(sftpInitialized()));
+    connect(m_sftp.data(), &QSsh::SftpChannel::finished,
+            this, &CallgrindController::sftpJobFinished);
+    connect(m_sftp.data(), &QSsh::SftpChannel::initialized,
+            this, &CallgrindController::sftpInitialized);
     m_sftp->initialize();
 }
 

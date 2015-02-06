@@ -44,13 +44,12 @@ CallgrindRunner::CallgrindRunner(QObject *parent)
     , m_parser(new Parser(this))
     , m_paused(false)
 {
-    connect(m_controller,
-            SIGNAL(finished(Valgrind::Callgrind::CallgrindController::Option)),
-            SLOT(controllerFinished(Valgrind::Callgrind::CallgrindController::Option)));
-    connect(m_controller, SIGNAL(localParseDataAvailable(QString)),
-            this, SLOT(localParseDataAvailable(QString)));
-    connect(m_controller, SIGNAL(statusMessage(QString)),
-            this, SIGNAL(statusMessage(QString)));
+    connect(m_controller, &CallgrindController::finished,
+            this, &CallgrindRunner::controllerFinished);
+    connect(m_controller, &CallgrindController::localParseDataAvailable,
+            this, &CallgrindRunner::localParseDataAvailable);
+    connect(m_controller, &CallgrindController::statusMessage,
+            this, &CallgrindRunner::statusMessage);
 }
 
 QString CallgrindRunner::tool() const
