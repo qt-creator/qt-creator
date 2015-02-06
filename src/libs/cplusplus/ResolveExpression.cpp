@@ -612,7 +612,7 @@ bool ResolveExpression::visit(UnaryExpressionAST *ast)
                 added = true;
             } else if (namedTy != 0) {
                 const Name *starOp = control()->operatorNameId(OperatorNameId::StarOp);
-                if (ClassOrNamespace *b = _context.lookupType(namedTy->name(), p.scope())) {
+                if (ClassOrNamespace *b = _context.lookupType(namedTy->name(), p.scope(), p.binding())) {
                     foreach (const LookupItem &r, b->find(starOp)) {
                         Symbol *overload = r.declaration();
                         if (Function *funTy = overload->type()->asFunctionType()) {
