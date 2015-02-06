@@ -377,7 +377,11 @@ void NodeInstanceServerProxy::writeCommand(const QVariant &command)
 
 void NodeInstanceServerProxy::processFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    qWarning() << "Process" << (exitStatus == QProcess::CrashExit ? "crashed:" : "finished:") << sender() << "exitCode:" << exitCode;
+    QProcess* finishedProcess = qobject_cast<QProcess*>(sender());
+    if (finishedProcess)
+        qWarning() << "Process" << (exitStatus == QProcess::CrashExit ? "crashed:" : "finished:") << finishedProcess->arguments() << "exitCode:" << exitCode;
+    else
+        qWarning() << "Process" << (exitStatus == QProcess::CrashExit ? "crashed:" : "finished:") << sender() << "exitCode:" << exitCode;
 
     if (m_captureFileForTest.isOpen()) {
         m_captureFileForTest.close();
