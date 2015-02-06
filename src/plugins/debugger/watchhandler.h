@@ -160,7 +160,6 @@ public:
     bool tryPartial;
     bool tooltipOnly;
     QByteArray varList;
-    QString tooltipExpression;
 };
 
 typedef QHash<QString, QStringList> DumperTypeFormats; // Type name -> Dumper Formats

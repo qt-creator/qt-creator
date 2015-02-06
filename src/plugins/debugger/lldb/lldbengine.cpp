@@ -789,7 +789,6 @@ bool LldbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editorWidget
     UpdateParameters params;
     params.tryPartial = true;
     params.tooltipOnly = true;
-    params.tooltipExpression = context.expression;
     params.varList = context.iname;
     doUpdateLocals(params);
 

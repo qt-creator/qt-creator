@@ -3684,7 +3684,6 @@ bool GdbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editor,
     UpdateParameters params;
     params.tryPartial = true;
     params.tooltipOnly = true;
-    params.tooltipExpression = context.expression;
     params.varList = context.iname;
     updateLocalsPython(params);
     return true;
