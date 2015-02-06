@@ -777,10 +777,13 @@ void TreeItem::setModel(TreeModel *model)
 void TreeItem::walkTree(TreeItemVisitor *visitor)
 {
     if (visitor->preVisit(this)) {
+        ++visitor->m_level;
         visitor->visit(this);
         foreach (TreeItem *item, m_children)
             item->walkTree(visitor);
+        --visitor->m_level;
     }
+    visitor->postVisit(this);
 }
 
 void TreeItem::walkTree(std::function<void (TreeItem *)> f)

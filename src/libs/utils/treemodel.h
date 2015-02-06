@@ -49,11 +49,18 @@ class TreeModel;
 class QTCREATOR_UTILS_EXPORT TreeItemVisitor
 {
 public:
-    TreeItemVisitor() {}
+    TreeItemVisitor() : m_level(0) {}
     virtual ~TreeItemVisitor() {}
 
-    bool preVisit(TreeItem *) { return true; }
-    void visit(TreeItem *) {}
+    virtual bool preVisit(TreeItem *) { return true; }
+    virtual void visit(TreeItem *) {}
+    virtual void postVisit(TreeItem *) {}
+
+    int level() const { return m_level; }
+
+private:
+    friend class TreeItem;
+    int m_level;
 };
 
 class QTCREATOR_UTILS_EXPORT TreeItem
