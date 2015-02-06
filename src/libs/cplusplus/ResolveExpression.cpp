@@ -730,6 +730,7 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
                 continue;
 
             TypeOfExpression exprTyper;
+            exprTyper.setExpandTemplates(true);
             Document::Ptr doc = _context.snapshot().document(QString::fromLocal8Bit(decl->fileName()));
             exprTyper.init(doc, _context.snapshot(), _context.bindings(),
                            QSet<const Declaration* >(_autoDeclarationsBeingResolved) << decl);
@@ -754,10 +755,12 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
                 if (n == 0) {
                     item.setType(newType);
                     item.setScope(typeItems[n].scope());
+                    item.setBinding(typeItems[n].binding());
                 } else {
                     LookupItem newItem(item);
                     newItem.setType(newType);
                     newItem.setScope(typeItems[n].scope());
+                    newItem.setBinding(typeItems[n].binding());
                     newCandidates.push_back(newItem);
                 }
             }
