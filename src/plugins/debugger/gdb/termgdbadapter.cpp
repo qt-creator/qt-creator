@@ -46,8 +46,6 @@ using namespace Utils;
 namespace Debugger {
 namespace Internal {
 
-#define CB(callback) [this](const DebuggerResponse &r) { callback(r); }
-
 ///////////////////////////////////////////////////////////////////////
 //
 // TermGdbAdapter
@@ -136,8 +134,8 @@ void GdbTermEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     const qint64 attachedPID = m_stubProc.applicationPID();
-    postCommand("attach " + QByteArray::number(attachedPID),
-        CB(handleStubAttached));
+    postCommand("attach " + QByteArray::number(attachedPID), NoFlags,
+        [this](const DebuggerResponse &r) { handleStubAttached(r); });
 }
 
 void GdbTermEngine::handleStubAttached(const DebuggerResponse &response)

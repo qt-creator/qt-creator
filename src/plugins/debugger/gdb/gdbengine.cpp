@@ -858,25 +858,14 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
     postCommand("python theDumper." + cmd);
 }
 
-void GdbEngine::postCommand(const QByteArray &command, GdbCommandCallback callback,
-                            const QVariant &cookie)
-{
-    postCommand(command, NoFlags, callback, cookie);
-}
-
 void GdbEngine::postCommand(const QByteArray &command, GdbCommandFlags flags,
-                            GdbCommandCallback callback, const QVariant &cookie)
+                            GdbCommandCallback callback)
 {
     GdbCommand cmd;
     cmd.command = command;
     cmd.flags = flags;
     cmd.callback = callback;
-    cmd.cookie = cookie;
-    postCommandHelper(cmd);
-}
 
-void GdbEngine::postCommandHelper(const GdbCommand &cmd)
-{
     if (!stateAcceptsGdbCommands(state())) {
         PENDING_DEBUG(_("NO GDB PROCESS RUNNING, CMD IGNORED: " + cmd.command));
         showMessage(_("NO GDB PROCESS RUNNING, CMD IGNORED: %1 %2")
@@ -1138,8 +1127,6 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
         return;
     }
 
-    response->cookie = cmd.cookie;
-
     bool isExpectedResult =
            (response->resultClass == ResultError) // Can always happen.
         || (response->resultClass == ResultRunning && (cmd.flags & RunRequest))
@@ -1241,10 +1228,10 @@ void GdbEngine::updateAll()
     QTC_CHECK(state() == InferiorUnrunnable || state() == InferiorStopOk);
     reloadModulesInternal();
     int depth = action(MaximalStackDepth)->value().toInt();
-    postCommand(stackCommand(depth), CB(handleStackListFrames),
-        QVariant::fromValue<StackCookie>(StackCookie(false, true)));
+    postCommand(stackCommand(depth), NoFlags,
+            [this](const DebuggerResponse &r) { handleStackListFrames(r, false); });
     stackHandler()->setCurrentIndex(0);
-    postCommand("-thread-info", CB(handleThreadInfo), 0);
+    postCommand("-thread-info", NoFlags, CB(handleThreadInfo));
     reloadRegisters();
     updateLocals();
 }
@@ -1295,7 +1282,7 @@ void GdbEngine::handleExecuteJumpToLine(const DebuggerResponse &response)
         // This happens on old gdb. Trigger the effect of a '*stopped'.
         showStatusMessage(tr("Jumped. Stopped"));
         notifyInferiorSpontaneousStop();
-        handleStop2(response);
+        handleStop2(response.data);
     }
 }
 
@@ -1373,7 +1360,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     if (!m_fullStartDone) {
         m_fullStartDone = true;
         postCommand("sharedlibrary .*");
-        postCommand("p 3", CB(handleStop1));
+        postCommand("p 3", NoFlags, [this, data](const DebuggerResponse &) { handleStop1(data); });
         gotoHandleStop1 = false;
     }
 
@@ -1468,11 +1455,6 @@ static QByteArray stopSignal(const Abi &abi)
     return (abi.os() == Abi::WindowsOS) ? QByteArray("SIGTRAP") : QByteArray("SIGINT");
 }
 
-void GdbEngine::handleStop1(const DebuggerResponse &response)
-{
-    handleStop1(response.cookie.value<GdbMi>());
-}
-
 void GdbEngine::handleStop1(const GdbMi &data)
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
@@ -1543,11 +1525,6 @@ void GdbEngine::handleStop1(const GdbMi &data)
     }
 
     handleStop2(data);
-}
-
-void GdbEngine::handleStop2(const DebuggerResponse &response)
-{
-    handleStop2(response.cookie.value<GdbMi>());
 }
 
 void GdbEngine::handleStop2(const GdbMi &data)
@@ -1776,7 +1753,7 @@ void GdbEngine::handleExecuteContinue(const DebuggerResponse &response)
             flushQueuedCommands();
         QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
         showStatusMessage(tr("Stopped."), 5000);
-        reloadStack(true);
+        reloadStack();
     } else if (msg.startsWith("Cannot access memory at address")) {
         // Happens on single step on ARM prolog and epilogs.
     } else if (msg.startsWith("\"finish\" not meaningful in the outermost frame")) {
@@ -2466,9 +2443,8 @@ QByteArray GdbEngine::breakpointLocation2(const BreakpointParameters &data)
         + QByteArray::number(data.lineNumber);
 }
 
-void GdbEngine::handleWatchInsert(const DebuggerResponse &response)
+void GdbEngine::handleWatchInsert(const DebuggerResponse &response, Breakpoint bp)
 {
-    Breakpoint bp = response.cookie.value<Breakpoint>();
     if (bp && response.resultClass == ResultDone) {
         BreakpointResponse br = bp.response();
         // "Hardware watchpoint 2: *0xbfffed40\n"
@@ -2502,9 +2478,8 @@ void GdbEngine::handleWatchInsert(const DebuggerResponse &response)
     }
 }
 
-void GdbEngine::handleCatchInsert(const DebuggerResponse &response)
+void GdbEngine::handleCatchInsert(const DebuggerResponse &response, Breakpoint bp)
 {
-    Breakpoint bp = response.cookie.value<Breakpoint>();
     if (bp && response.resultClass == ResultDone)
         bp.notifyBreakpointInsertOk();
 }
@@ -2548,9 +2523,8 @@ void GdbEngine::handleBkpt(const GdbMi &bkpt, Breakpoint bp)
     bp.setResponse(br);
 }
 
-void GdbEngine::handleBreakInsert1(const DebuggerResponse &response)
+void GdbEngine::handleBreakInsert1(const DebuggerResponse &response, Breakpoint bp)
 {
-    Breakpoint bp = response.cookie.value<Breakpoint>();
     if (bp.state() == BreakpointRemoveRequested) {
         if (response.resultClass == ResultDone) {
             // This delete was deferred. Act now.
@@ -2597,14 +2571,13 @@ void GdbEngine::handleBreakInsert1(const DebuggerResponse &response)
         // again with MI.
         QByteArray cmd = "break " + breakpointLocation2(bp.parameters());
         postCommand(cmd, NeedsStop | RebuildBreakpointModel,
-            CB(handleBreakInsert2), QVariant::fromValue(bp));
+            [this, bp](const DebuggerResponse &r) {  handleBreakInsert2(r, bp); });
     }
 }
 
-void GdbEngine::handleBreakInsert2(const DebuggerResponse &response)
+void GdbEngine::handleBreakInsert2(const DebuggerResponse &response, Breakpoint bp)
 {
     if (response.resultClass == ResultDone) {
-        Breakpoint bp = response.cookie.value<Breakpoint>();
         QTC_ASSERT(bp, return);
         bp.notifyBreakpointInsertOk();
     } else {
@@ -2615,19 +2588,17 @@ void GdbEngine::handleBreakInsert2(const DebuggerResponse &response)
     }
 }
 
-void GdbEngine::handleBreakDelete(const DebuggerResponse &response)
+void GdbEngine::handleBreakDelete(const DebuggerResponse &response, Breakpoint bp)
 {
-    Breakpoint bp = response.cookie.value<Breakpoint>();
     if (response.resultClass == ResultDone)
         bp.notifyBreakpointRemoveOk();
     else
         bp.notifyBreakpointRemoveFailed();
 }
 
-void GdbEngine::handleBreakDisable(const DebuggerResponse &response)
+void GdbEngine::handleBreakDisable(const DebuggerResponse &response, Breakpoint bp)
 {
     QTC_CHECK(response.resultClass == ResultDone);
-    Breakpoint bp = response.cookie.value<Breakpoint>();
     // This should only be the requested state.
     QTC_ASSERT(!bp.isEnabled(), /* Prevent later recursion */);
     BreakpointResponse br = bp.response();
@@ -2636,10 +2607,9 @@ void GdbEngine::handleBreakDisable(const DebuggerResponse &response)
     changeBreakpoint(bp); // Maybe there's more to do.
 }
 
-void GdbEngine::handleBreakEnable(const DebuggerResponse &response)
+void GdbEngine::handleBreakEnable(const DebuggerResponse &response, Breakpoint bp)
 {
     QTC_CHECK(response.resultClass == ResultDone);
-    Breakpoint bp = response.cookie.value<Breakpoint>();
     // This should only be the requested state.
     QTC_ASSERT(bp.isEnabled(), /* Prevent later recursion */);
     BreakpointResponse br = bp.response();
@@ -2648,10 +2618,9 @@ void GdbEngine::handleBreakEnable(const DebuggerResponse &response)
     changeBreakpoint(bp); // Maybe there's more to do.
 }
 
-void GdbEngine::handleBreakThreadSpec(const DebuggerResponse &response)
+void GdbEngine::handleBreakThreadSpec(const DebuggerResponse &response, Breakpoint bp)
 {
     QTC_CHECK(response.resultClass == ResultDone);
-    Breakpoint bp = response.cookie.value<Breakpoint>();
     BreakpointResponse br = bp.response();
     br.threadSpec = bp.threadSpec();
     bp.setResponse(br);
@@ -2659,10 +2628,9 @@ void GdbEngine::handleBreakThreadSpec(const DebuggerResponse &response)
     insertBreakpoint(bp);
 }
 
-void GdbEngine::handleBreakLineNumber(const DebuggerResponse &response)
+void GdbEngine::handleBreakLineNumber(const DebuggerResponse &response, Breakpoint bp)
 {
     QTC_CHECK(response.resultClass == ResultDone);
-    Breakpoint bp = response.cookie.value<Breakpoint>();
     BreakpointResponse br = bp.response();
     br.lineNumber = bp.lineNumber();
     bp.setResponse(br);
@@ -2670,7 +2638,7 @@ void GdbEngine::handleBreakLineNumber(const DebuggerResponse &response)
     insertBreakpoint(bp);
 }
 
-void GdbEngine::handleBreakIgnore(const DebuggerResponse &response)
+void GdbEngine::handleBreakIgnore(const DebuggerResponse &response, Breakpoint bp)
 {
     // gdb 6.8:
     // ignore 2 0:
@@ -2684,7 +2652,6 @@ void GdbEngine::handleBreakIgnore(const DebuggerResponse &response)
     // gdb 6.3 does not produce any console output
     QTC_CHECK(response.resultClass == ResultDone);
     //QString msg = _(response.consoleStreamOutput);
-    Breakpoint bp = response.cookie.value<Breakpoint>();
     BreakpointResponse br = bp.response();
     //if (msg.contains(__("Will stop next time breakpoint")))
     //    response.ignoreCount = _("0");
@@ -2698,11 +2665,10 @@ void GdbEngine::handleBreakIgnore(const DebuggerResponse &response)
     changeBreakpoint(bp); // Maybe there's more to do.
 }
 
-void GdbEngine::handleBreakCondition(const DebuggerResponse &response)
+void GdbEngine::handleBreakCondition(const DebuggerResponse &, Breakpoint bp)
 {
     // Can happen at invalid condition strings.
     //QTC_CHECK(response.resultClass == ResultDone)
-    Breakpoint bp = response.cookie.value<Breakpoint>();
     // We just assume it was successful. Otherwise we had to parse
     // the output stream data.
     // The following happens on Mac:
@@ -2747,7 +2713,6 @@ void GdbEngine::insertBreakpoint(Breakpoint bp)
     bp.notifyBreakpointInsertProceeding();
 
     const BreakpointParameters &data = bp.parameters();
-    QVariant vid = QVariant::fromValue(bp);
 
     if (!data.isCppBreakpoint()) {
         DebuggerCommand cmd("insertQmlBreakpoint");
@@ -2761,22 +2726,22 @@ void GdbEngine::insertBreakpoint(Breakpoint bp)
     if (type == WatchpointAtAddress) {
         postCommand("watch " + addressSpec(bp.address()),
             NeedsStop | RebuildBreakpointModel | ConsoleCommand,
-            CB(handleWatchInsert), vid);
+            [this, bp](const DebuggerResponse &r) { handleWatchInsert(r, bp); });
         return;
     }
     if (type == WatchpointAtExpression) {
         postCommand("watch " + bp.expression().toLocal8Bit(),
             NeedsStop | RebuildBreakpointModel | ConsoleCommand,
-            CB(handleWatchInsert), vid);
+            [this, bp](const DebuggerResponse &r) { handleWatchInsert(r, bp); });
         return;
     }
     if (type == BreakpointAtFork) {
         postCommand("catch fork",
             NeedsStop | RebuildBreakpointModel | ConsoleCommand,
-            CB(handleCatchInsert), vid);
+            [this, bp](const DebuggerResponse &r) { handleCatchInsert(r, bp); });
         postCommand("catch vfork",
             NeedsStop | RebuildBreakpointModel | ConsoleCommand,
-            CB(handleCatchInsert), vid);
+            [this, bp](const DebuggerResponse &r) { handleCatchInsert(r, bp); });
         return;
     }
     //if (type == BreakpointAtVFork) {
@@ -2787,13 +2752,13 @@ void GdbEngine::insertBreakpoint(Breakpoint bp)
     if (type == BreakpointAtExec) {
         postCommand("catch exec",
             NeedsStop | RebuildBreakpointModel | ConsoleCommand,
-            CB(handleCatchInsert), vid);
+            [this, bp](const DebuggerResponse &r) { handleCatchInsert(r, bp); });
         return;
     }
     if (type == BreakpointAtSysCall) {
         postCommand("catch syscall",
             NeedsStop | RebuildBreakpointModel | ConsoleCommand,
-            CB(handleCatchInsert), vid);
+            [this, bp](const DebuggerResponse &r) { handleCatchInsert(r, bp); });
         return;
     }
 
@@ -2823,7 +2788,7 @@ void GdbEngine::insertBreakpoint(Breakpoint bp)
 
     cmd += breakpointLocation(bp.parameters());
     postCommand(cmd, NeedsStop | RebuildBreakpointModel,
-        CB(handleBreakInsert1), vid);
+        [this, bp](const DebuggerResponse &r) { handleBreakInsert1(r, bp); });
 }
 
 void GdbEngine::changeBreakpoint(Breakpoint bp)
@@ -2838,20 +2803,19 @@ void GdbEngine::changeBreakpoint(Breakpoint bp)
         bp.notifyBreakpointChangeProceeding();
     const BreakpointState state2 = bp.state();
     QTC_ASSERT(state2 == BreakpointChangeProceeding, qDebug() << state2);
-    QVariant vid = QVariant::fromValue(bp);
 
     if (!response.pending && data.threadSpec != response.threadSpec) {
         // The only way to change this seems to be to re-set the bp completely.
         postCommand("-break-delete " + bpnr,
             NeedsStop | RebuildBreakpointModel,
-            CB(handleBreakThreadSpec), vid);
+            [this, bp](const DebuggerResponse &r) { handleBreakThreadSpec(r, bp); });
         return;
     }
     if (!response.pending && data.lineNumber != response.lineNumber) {
         // The only way to change this seems to be to re-set the bp completely.
         postCommand("-break-delete " + bpnr,
             NeedsStop | RebuildBreakpointModel,
-            CB(handleBreakLineNumber), vid);
+            [this, bp](const DebuggerResponse &r) { handleBreakLineNumber(r, bp); });
         return;
     }
     if (data.command != response.command) {
@@ -2864,31 +2828,31 @@ void GdbEngine::changeBreakpoint(Breakpoint bp)
             }
         }
         postCommand(breakCommand, NeedsStop | RebuildBreakpointModel,
-                    CB(handleBreakIgnore), vid);
+            [this, bp](const DebuggerResponse &r) { handleBreakIgnore(r, bp); });
         return;
     }
     if (!data.conditionsMatch(response.condition)) {
         postCommand("condition " + bpnr + ' '  + data.condition,
             NeedsStop | RebuildBreakpointModel,
-            CB(handleBreakCondition), vid);
+            [this, bp](const DebuggerResponse &r) { handleBreakCondition(r, bp); });
         return;
     }
     if (data.ignoreCount != response.ignoreCount) {
         postCommand("ignore " + bpnr + ' ' + QByteArray::number(data.ignoreCount),
             NeedsStop | RebuildBreakpointModel,
-            CB(handleBreakIgnore), vid);
+            [this, bp](const DebuggerResponse &r) { handleBreakIgnore(r, bp); });
         return;
     }
     if (!data.enabled && response.enabled) {
         postCommand("-break-disable " + bpnr,
             NeedsStop | RebuildBreakpointModel,
-            CB(handleBreakDisable), vid);
+            [this, bp](const DebuggerResponse &r) { handleBreakDisable(r, bp); });
         return;
     }
     if (data.enabled && !response.enabled) {
         postCommand("-break-enable " + bpnr,
             NeedsStop | RebuildBreakpointModel,
-            CB(handleBreakEnable), vid);
+            [this, bp](const DebuggerResponse &r) { handleBreakEnable(r, bp); });
         return;
     }
     bp.notifyBreakpointChangeOk();
@@ -2909,13 +2873,12 @@ void GdbEngine::removeBreakpoint(Breakpoint bp)
     }
 
     if (br.id.isValid()) {
-        QVariant vid = QVariant::fromValue(bp);
         // We already have a fully inserted breakpoint.
         bp.notifyBreakpointRemoveProceeding();
         showMessage(_("DELETING BP %1 IN %2").arg(br.id.toString()).arg(bp.fileName()));
         postCommand("-break-delete " + br.id.toByteArray(),
             NeedsStop | RebuildBreakpointModel,
-            CB(handleBreakDelete), vid);
+            [this, bp](const DebuggerResponse &r) { handleBreakDelete(r, bp); });
     } else {
         // Breakpoint was scheduled to be inserted, but we haven't had
         // an answer so far. Postpone activity by doing nothing.
@@ -2934,7 +2897,7 @@ void GdbEngine::loadSymbols(const QString &modulePath)
     // FIXME: gdb does not understand quoted names here (tested with 6.8)
     postCommand("sharedlibrary " + dotEscape(modulePath.toLocal8Bit()));
     reloadModulesInternal();
-    reloadStack(true);
+    reloadStack();
     updateLocals();
 }
 
@@ -2942,7 +2905,7 @@ void GdbEngine::loadAllSymbols()
 {
     postCommand("sharedlibrary .*");
     reloadModulesInternal();
-    reloadStack(true);
+    reloadStack();
     updateLocals();
 }
 
@@ -2965,29 +2928,14 @@ void GdbEngine::loadSymbolsForStack()
     }
     if (needUpdate) {
         //reloadModulesInternal();
-        reloadStack(true);
+        reloadStack();
         updateLocals();
     }
 }
 
-void GdbEngine::requestModuleSymbols(const QString &modulePath)
+static void handleShowModuleSymbols(const DebuggerResponse &response,
+    const QString &modulePath, const QString &fileName)
 {
-    QTemporaryFile tf(QDir::tempPath() + _("/gdbsymbols"));
-    if (!tf.open())
-        return;
-    QString fileName = tf.fileName();
-    tf.close();
-    postCommand("maint print msymbols \"" + fileName.toLocal8Bit()
-            + "\" " + modulePath.toLocal8Bit(),
-        NeedsStop, CB(handleShowModuleSymbols),
-        QVariant(modulePath + QLatin1Char('@') +  fileName));
-}
-
-void GdbEngine::handleShowModuleSymbols(const DebuggerResponse &response)
-{
-    const QString cookie = response.cookie.toString();
-    const QString modulePath = cookie.section(QLatin1Char('@'), 0, 0);
-    const QString fileName = cookie.section(QLatin1Char('@'), 1, 1);
     if (response.resultClass == ResultDone) {
         Symbols symbols;
         QFile file(fileName);
@@ -3039,24 +2987,38 @@ void GdbEngine::handleShowModuleSymbols(const DebuggerResponse &response)
         file.remove();
         Internal::showModuleSymbols(modulePath, symbols);
     } else {
-        AsynchronousMessageBox::critical(tr("Cannot Read Symbols"),
-            tr("Cannot read symbols for module \"%1\".").arg(fileName));
+        AsynchronousMessageBox::critical(GdbEngine::tr("Cannot Read Symbols"),
+            GdbEngine::tr("Cannot read symbols for module \"%1\".").arg(fileName));
     }
+}
+
+void GdbEngine::requestModuleSymbols(const QString &modulePath)
+{
+    QTemporaryFile tf(QDir::tempPath() + _("/gdbsymbols"));
+    if (!tf.open())
+        return;
+    QString fileName = tf.fileName();
+    tf.close();
+    postCommand("maint print msymbols \"" + fileName.toLocal8Bit()
+            + "\" " + modulePath.toLocal8Bit(), NeedsStop,
+        [modulePath, fileName](const DebuggerResponse &r) {
+            handleShowModuleSymbols(r, modulePath, fileName); });
 }
 
 void GdbEngine::requestModuleSections(const QString &moduleName)
 {
     // There seems to be no way to get the symbols from a single .so.
-    postCommand("maint info section ALLOBJ",
-        NeedsStop, CB(handleShowModuleSections), moduleName);
+    postCommand("maint info section ALLOBJ", NeedsStop,
+        [this, moduleName](const DebuggerResponse &r) {
+            handleShowModuleSections(r, moduleName); });
 }
 
-void GdbEngine::handleShowModuleSections(const DebuggerResponse &response)
+void GdbEngine::handleShowModuleSections(const DebuggerResponse &response,
+                                         const QString &moduleName)
 {
     // ~"  Object file: /usr/lib/i386-linux-gnu/libffi.so.6\n"
     // ~"    0xb44a6114->0xb44a6138 at 0x00000114: .note.gnu.build-id ALLOC LOAD READONLY DATA HAS_CONTENTS\n"
     if (response.resultClass == ResultDone) {
-        const QString moduleName = response.cookie.toString();
         const QStringList lines = QString::fromLocal8Bit(response.consoleStreamOutput).split(QLatin1Char('\n'));
         const QString prefix = QLatin1String("  Object file: ");
         const QString needle = prefix + moduleName;
@@ -3209,7 +3171,7 @@ void GdbEngine::handleStackSelectThread(const DebuggerResponse &)
 {
     QTC_CHECK(state() == InferiorUnrunnable || state() == InferiorStopOk);
     showStatusMessage(tr("Retrieving data for stack view..."), 3000);
-    reloadStack(true); // Will reload registers.
+    reloadStack(); // Will reload registers.
     updateLocals();
 }
 
@@ -3217,8 +3179,8 @@ void GdbEngine::reloadFullStack()
 {
     PENDING_DEBUG("RELOAD FULL STACK");
     resetLocation();
-    postCommand(stackCommand(-1), Discardable, CB(handleStackListFrames),
-        QVariant::fromValue<StackCookie>(StackCookie(true, true)));
+    postCommand(stackCommand(-1), Discardable,
+        [this](const DebuggerResponse &r) { handleStackListFrames(r, true); });
 }
 
 void GdbEngine::loadAdditionalQmlStack()
@@ -3270,7 +3232,7 @@ void GdbEngine::handleQmlStackFrameArguments(const DebuggerResponse &response)
     QByteArray command = "-data-evaluate-expression \"qt_v4StackTrace((QV4::ExecutionContext *)0x";
     command += QByteArray::number(contextAddress, 16);
     command += ")\"";
-    postCommand(command, CB(handleQmlStackTrace));
+    postCommand(command, NoFlags, CB(handleQmlStackTrace));
 }
 
 void GdbEngine::handleQmlStackTrace(const DebuggerResponse &response)
@@ -3323,12 +3285,12 @@ QByteArray GdbEngine::stackCommand(int depth)
     return cmd;
 }
 
-void GdbEngine::reloadStack(bool forceGotoLocation)
+void GdbEngine::reloadStack()
 {
     PENDING_DEBUG("RELOAD STACK");
     int depth = action(MaximalStackDepth)->value().toInt();
-    postCommand(stackCommand(depth), Discardable, CB(handleStackListFrames),
-        QVariant::fromValue<StackCookie>(StackCookie(false, forceGotoLocation)));
+    postCommand(stackCommand(depth), Discardable,
+        [this](const DebuggerResponse &r) { handleStackListFrames(r, false); });
 }
 
 StackFrame GdbEngine::parseStackFrame(const GdbMi &frameMi, int level)
@@ -3360,7 +3322,7 @@ StackFrame GdbEngine::parseStackFrame(const GdbMi &frameMi, int level)
     return frame;
 }
 
-void GdbEngine::handleStackListFrames(const DebuggerResponse &response)
+void GdbEngine::handleStackListFrames(const DebuggerResponse &response, bool isFull)
 {
     if (response.resultClass != ResultDone) {
         // That always happens on symbian gdb with
@@ -3371,7 +3333,6 @@ void GdbEngine::handleStackListFrames(const DebuggerResponse &response)
         return;
     }
 
-    StackCookie cookie = response.cookie.value<StackCookie>();
     QList<StackFrame> stackFrames;
 
     GdbMi stack = response.data["stack"]; // C++
@@ -3396,8 +3357,7 @@ void GdbEngine::handleStackListFrames(const DebuggerResponse &response)
             targetFrame = i;
     }
 
-    bool canExpand = !cookie.isFull
-        && (n >= action(MaximalStackDepth)->value().toInt());
+    bool canExpand = !isFull && (n >= action(MaximalStackDepth)->value().toInt());
     action(ExpandStack)->setEnabled(canExpand);
     stackHandler()->setFrames(stackFrames, canExpand);
 
@@ -3470,7 +3430,7 @@ void GdbEngine::handleThreadInfo(const DebuggerResponse &response)
                 action(MaximalStackDepth)->value().toByteArray(),
                 Discardable, CB(handleThreadNames));
         }
-        reloadStack(false); // Will trigger register reload.
+        reloadStack(); // Will trigger register reload.
     } else {
         // Fall back for older versions: Try to get at least a list
         // of running threads.
@@ -3489,7 +3449,7 @@ void GdbEngine::handleThreadListIds(const DebuggerResponse &response)
         thread.id = ThreadId(items.at(index).toInt());
         handler->updateThread(thread);
     }
-    reloadStack(false); // Will trigger register reload.
+    reloadStack(); // Will trigger register reload.
 }
 
 void GdbEngine::handleThreadNames(const DebuggerResponse &response)
@@ -3524,20 +3484,20 @@ void GdbEngine::createSnapshot()
         fileName = tf.fileName();
         tf.close();
         // This must not be quoted, it doesn't work otherwise.
-        postCommand("gcore " + fileName.toLocal8Bit(),
-            NeedsStop|ConsoleCommand, CB(handleMakeSnapshot), fileName);
+        postCommand("gcore " + fileName.toLocal8Bit(), NeedsStop|ConsoleCommand,
+            [this, fileName](const DebuggerResponse &r) { handleMakeSnapshot(r, fileName); });
     } else {
         AsynchronousMessageBox::critical(tr("Snapshot Creation Error"),
             tr("Cannot create snapshot file."));
     }
 }
 
-void GdbEngine::handleMakeSnapshot(const DebuggerResponse &response)
+void GdbEngine::handleMakeSnapshot(const DebuggerResponse &response, const QString &coreFile)
 {
     if (response.resultClass == ResultDone) {
         DebuggerStartParameters sp = startParameters();
         sp.startMode = AttachCore;
-        sp.coreFile = response.cookie.toString();
+        sp.coreFile = coreFile;
         //snapshot.setDate(QDateTime::currentDateTime());
         StackFrames frames = stackHandler()->frames();
         QString function = _("<unknown>");
@@ -3572,7 +3532,7 @@ void GdbEngine::reloadRegisters()
 
     if (true) {
         if (!m_registerNamesListed) {
-            postCommand("-data-list-register-names", CB(handleRegisterListNames));
+            postCommand("-data-list-register-names", NoFlags, CB(handleRegisterListNames));
             m_registerNamesListed = true;
         }
         // Can cause i386-linux-nat.c:571: internal-error: Got request
@@ -3580,7 +3540,7 @@ void GdbEngine::reloadRegisters()
         postCommand("-data-list-register-values r",
                     Discardable, CB(handleRegisterListValues));
     } else {
-        postCommand("maintenance print cooked-registers", CB(handleMaintPrintRegisters));
+        postCommand("maintenance print cooked-registers", NoFlags, CB(handleMaintPrintRegisters));
     }
 }
 
@@ -3906,7 +3866,7 @@ void GdbEngine::changeMemory(MemoryAgent *agent, QObject *token,
     ac.token = token;
     ac.base = addr;
     ac.length = data.size();
-    postCommand(cmd, NeedsStop, CB(handleChangeMemory), QVariant::fromValue(ac));
+    postCommand(cmd, NeedsStop, CB(handleChangeMemory));
 }
 
 void GdbEngine::handleChangeMemory(const DebuggerResponse &response)
@@ -3930,17 +3890,16 @@ void GdbEngine::fetchMemory(MemoryAgent *agent, QObject *token, quint64 addr,
 void GdbEngine::fetchMemoryHelper(const MemoryAgentCookie &ac)
 {
     postCommand("-data-read-memory 0x" + QByteArray::number(ac.base + ac.offset, 16) + " x 1 1 "
-            + QByteArray::number(ac.length),
-                NeedsStop, CB(handleFetchMemory), QVariant::fromValue(ac));
+            + QByteArray::number(ac.length), NeedsStop,
+                [this, ac](const DebuggerResponse &r) { handleFetchMemory(r, ac); });
 }
 
-void GdbEngine::handleFetchMemory(const DebuggerResponse &response)
+void GdbEngine::handleFetchMemory(const DebuggerResponse &response, MemoryAgentCookie ac)
 {
     // ^done,addr="0x08910c88",nr-bytes="16",total-bytes="16",
     // next-row="0x08910c98",prev-row="0x08910c78",next-page="0x08910c98",
     // prev-page="0x08910c78",memory=[{addr="0x08910c88",
     // data=["1","0","0","0","5","0","0","0","0","0","0","0","0","0","0","0"]}]
-    MemoryAgentCookie ac = response.cookie.value<MemoryAgentCookie>();
     --*ac.pendingRequests;
     showMessage(QString::fromLatin1("PENDING: %1").arg(*ac.pendingRequests));
     QTC_ASSERT(ac.agent, return);
@@ -4020,25 +3979,34 @@ static inline QByteArray disassemblerCommand(const Location &location, bool mixe
     return command;
 }
 
-void GdbEngine::fetchDisassemblerByCliPointMixed(const DisassemblerAgentCookie &ac0)
+void GdbEngine::fetchDisassemblerByCliPointMixed(const DisassemblerAgentCookie &ac)
 {
-    DisassemblerAgentCookie ac = ac0;
     QTC_ASSERT(ac.agent, return);
     postCommand(disassemblerCommand(ac.agent->location(), true), Discardable|ConsoleCommand,
-        CB(handleFetchDisassemblerByCliPointMixed),
-        QVariant::fromValue(ac));
+        [this, ac](const DebuggerResponse &response) {
+            if (response.resultClass == ResultDone)
+                if (handleCliDisassemblerResult(response.consoleStreamOutput, ac.agent))
+                    return;
+            // 'point, plain' can take far too long.
+            // Skip this feature and immediately fall back to the 'range' version:
+            fetchDisassemblerByCliRangeMixed(ac);
+        });
 }
 
-void GdbEngine::fetchDisassemblerByCliRangeMixed(const DisassemblerAgentCookie &ac0)
+void GdbEngine::fetchDisassemblerByCliRangeMixed(const DisassemblerAgentCookie &ac)
 {
-    DisassemblerAgentCookie ac = ac0;
     QTC_ASSERT(ac.agent, return);
     const quint64 address = ac.agent->address();
     QByteArray start = QByteArray::number(address - 20, 16);
     QByteArray end = QByteArray::number(address + 100, 16);
     QByteArray cmd = "disassemble /rm 0x" + start + ",0x" + end;
     postCommand(cmd, Discardable|ConsoleCommand,
-        CB(handleFetchDisassemblerByCliRangeMixed), QVariant::fromValue(ac));
+        [this, ac](const DebuggerResponse &response) {
+            if (response.resultClass == ResultDone)
+                if (handleCliDisassemblerResult(response.consoleStreamOutput, ac.agent))
+                    return;
+            fetchDisassemblerByCliRangePlain(ac);
+        });
 }
 
 
@@ -4051,7 +4019,18 @@ void GdbEngine::fetchDisassemblerByCliRangePlain(const DisassemblerAgentCookie &
     QByteArray end = QByteArray::number(address + 100, 16);
     QByteArray cmd = "disassemble /r 0x" + start + ",0x" + end;
     postCommand(cmd, Discardable,
-        CB(handleFetchDisassemblerByCliRangePlain), QVariant::fromValue(ac));
+        [this, ac](const DebuggerResponse &response) {
+            if (response.resultClass == ResultDone)
+                if (handleCliDisassemblerResult(response.consoleStreamOutput, ac.agent))
+                    return;
+            // Finally, give up.
+            //76^error,msg="No function contains program counter for selected..."
+            //76^error,msg="No function contains specified address."
+            //>568^error,msg="Line number 0 out of range;
+            QByteArray msg = response.data["msg"].data();
+            showStatusMessage(tr("Disassembler failed: %1")
+                .arg(QString::fromLocal8Bit(msg)), 5000);
+        });
 }
 
 struct LineData
@@ -4064,6 +4043,7 @@ struct LineData
 
 bool GdbEngine::handleCliDisassemblerResult(const QByteArray &output, DisassemblerAgent *agent)
 {
+    QTC_ASSERT(agent, return true);
     // First line is something like
     // "Dump of assembler code from 0xb7ff598f to 0xb7ff5a07:"
     DisassemblerLines dlines;
@@ -4105,50 +4085,6 @@ bool GdbEngine::handleCliDisassemblerResult(const QByteArray &output, Disassembl
     }
 
     return false;
-}
-
-void GdbEngine::handleFetchDisassemblerByCliPointMixed(const DebuggerResponse &response)
-{
-    DisassemblerAgentCookie ac = response.cookie.value<DisassemblerAgentCookie>();
-    QTC_ASSERT(ac.agent, return);
-
-    if (response.resultClass == ResultDone)
-        if (handleCliDisassemblerResult(response.consoleStreamOutput, ac.agent))
-            return;
-
-    // 'point, plain' can take far too long.
-    // Skip this feature and immediately fall back to the 'range' version:
-    fetchDisassemblerByCliRangeMixed(ac);
-}
-
-void GdbEngine::handleFetchDisassemblerByCliRangeMixed(const DebuggerResponse &response)
-{
-    DisassemblerAgentCookie ac = response.cookie.value<DisassemblerAgentCookie>();
-    QTC_ASSERT(ac.agent, return);
-
-    if (response.resultClass == ResultDone)
-        if (handleCliDisassemblerResult(response.consoleStreamOutput, ac.agent))
-            return;
-
-    fetchDisassemblerByCliRangePlain(ac);
-}
-
-void GdbEngine::handleFetchDisassemblerByCliRangePlain(const DebuggerResponse &response)
-{
-    DisassemblerAgentCookie ac = response.cookie.value<DisassemblerAgentCookie>();
-    QTC_ASSERT(ac.agent, return);
-
-    if (response.resultClass == ResultDone)
-        if (handleCliDisassemblerResult(response.consoleStreamOutput, ac.agent))
-            return;
-
-    // Finally, give up.
-    //76^error,msg="No function contains program counter for selected..."
-    //76^error,msg="No function contains specified address."
-    //>568^error,msg="Line number 0 out of range;
-    QByteArray msg = response.data["msg"].data();
-    showStatusMessage(tr("Disassembler failed: %1")
-        .arg(QString::fromLocal8Bit(msg)), 5000);
 }
 
 // Binary/configuration check logic.
@@ -4219,9 +4155,9 @@ void GdbEngine::startGdb(const QStringList &args)
     }
 
     showMessage(_("GDB STARTED, INITIALIZING IT"));
-    postCommand("show version", CB(handleShowVersion));
+    postCommand("show version", NoFlags, CB(handleShowVersion));
     //postCommand("-list-features", CB(handleListFeatures));
-    postCommand("show debug-file-directory", CB(handleDebugInfoLocation));
+    postCommand("show debug-file-directory", NoFlags, CB(handleDebugInfoLocation));
 
     //postCommand("-enable-timings");
     //postCommand("set print static-members off"); // Seemingly doesn't work.
@@ -4562,10 +4498,10 @@ void GdbEngine::finishInferiorSetup()
             postCommand("-break-insert -f '" + qtNamespace() + "QMessageLogger::warning'");
         }
         if (boolSetting(BreakOnFatal)) {
-            postCommand("-break-insert -f '" + qtNamespace() + "qFatal'",
-                        CB(handleBreakOnQFatal), QVariant(false));
-            postCommand("-break-insert -f '" + qtNamespace() + "QMessageLogger::fatal'",
-                        CB(handleBreakOnQFatal), QVariant(true));
+            postCommand("-break-insert -f '" + qtNamespace() + "qFatal'", NoFlags,
+                        [this](const DebuggerResponse &r) { handleBreakOnQFatal(r, false); });
+            postCommand("-break-insert -f '" + qtNamespace() + "QMessageLogger::fatal'", NoFlags,
+                        [this](const DebuggerResponse &r) { handleBreakOnQFatal(r, true); });
         } else {
             notifyInferiorSetupOk();
         }
@@ -4589,7 +4525,7 @@ void GdbEngine::handleDebugInfoLocation(const DebuggerResponse &response)
     }
 }
 
-void GdbEngine::handleBreakOnQFatal(const DebuggerResponse &response)
+void GdbEngine::handleBreakOnQFatal(const DebuggerResponse &response, bool continueSetup)
 {
     if (response.resultClass == ResultDone) {
         GdbMi bkpt = response.data["bkpt"];
@@ -4602,7 +4538,7 @@ void GdbEngine::handleBreakOnQFatal(const DebuggerResponse &response)
     }
 
     // Continue setup.
-    if (response.cookie.toBool())
+    if (continueSetup)
         notifyInferiorSetupOk();
 }
 
@@ -4901,13 +4837,13 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
 
     postCommand("bb options:" + options + " vars:" + params.varList + ' '
             + resultVar + expanded + " watchers:" + watchers.toHex() + cutOff + context,
-        Discardable, CB(handleStackFramePython), QVariant(params.tryPartial));
+        Discardable,
+        [this, params](const DebuggerResponse &r) { handleStackFramePython(r, params.tryPartial); });
 }
 
-void GdbEngine::handleStackFramePython(const DebuggerResponse &response)
+void GdbEngine::handleStackFramePython(const DebuggerResponse &response, bool partial)
 {
     if (response.resultClass == ResultDone) {
-        const bool partial = response.cookie.toBool();
         QByteArray out = response.consoleStreamOutput;
         while (out.endsWith(' ') || out.endsWith('\n'))
             out.chop(1);
@@ -4995,10 +4931,7 @@ QString GdbEngine::msgPtraceError(DebuggerStartMode sm)
         "For more details, see /etc/sysctl.d/10-ptrace.conf\n");
 }
 
-
 } // namespace Internal
 } // namespace Debugger
 
-Q_DECLARE_METATYPE(Debugger::Internal::MemoryAgentCookie)
-Q_DECLARE_METATYPE(Debugger::Internal::DisassemblerAgentCookie)
 Q_DECLARE_METATYPE(Debugger::Internal::GdbMi)

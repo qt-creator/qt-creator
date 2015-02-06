@@ -213,7 +213,7 @@ void GdbCoreEngine::setupInferior()
     // Do that first, otherwise no symbols are loaded.
     QFileInfo fi(m_executable);
     QByteArray path = fi.absoluteFilePath().toLocal8Bit();
-    postCommand("-file-exec-and-symbols \"" + path + '"',
+    postCommand("-file-exec-and-symbols \"" + path + '"', NoFlags,
          CB(handleFileExecAndSymbols));
 }
 
@@ -223,7 +223,7 @@ void GdbCoreEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
     QString core = coreFileName();
     if (response.resultClass == ResultDone) {
         showMessage(tr("Symbols found."), StatusBar);
-        postCommand("target core " + core.toLocal8Bit(),
+        postCommand("target core " + core.toLocal8Bit(), NoFlags,
             CB(handleTargetCore));
         return;
     }
@@ -246,9 +246,9 @@ void GdbCoreEngine::handleTargetCore(const DebuggerResponse &response)
         handleInferiorPrepared();
         // Due to the auto-solib-add off setting, we don't have any
         // symbols yet. Load them in order of importance.
-        reloadStack(true);
+        reloadStack();
         reloadModulesInternal();
-        postCommand("p 5", CB(handleRoundTrip));
+        postCommand("p 5", NoFlags, CB(handleRoundTrip));
         return;
     }
     QString msg = tr("Attach to core \"%1\" failed:")

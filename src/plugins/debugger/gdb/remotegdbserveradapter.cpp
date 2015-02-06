@@ -204,7 +204,7 @@ void GdbRemoteServerEngine::setupInferior()
     // mi_execute_async_cli_command: Assertion `is_running (inferior_ptid)'
     // failed.\nA problem internal to GDB has been detected,[...]
     if (boolSetting(TargetAsync))
-        postCommand("set target-async on", CB(handleSetTargetAsync));
+        postCommand("set target-async on", NoFlags, CB(handleSetTargetAsync));
 
     if (executableFileName.isEmpty()) {
         showMessage(tr("No symbol file given."), StatusBar);
@@ -214,7 +214,7 @@ void GdbRemoteServerEngine::setupInferior()
 
     if (!executableFileName.isEmpty()) {
         postCommand("-file-exec-and-symbols \"" + executableFileName.toLocal8Bit() + '"',
-            CB(handleFileExecAndSymbols));
+            NoFlags, CB(handleFileExecAndSymbols));
     }
 }
 
@@ -264,11 +264,11 @@ void GdbRemoteServerEngine::callTargetRemote()
     }
 
     if (m_isQnxGdb)
-        postCommand("target qnx " + channel, CB(handleTargetQnx));
+        postCommand("target qnx " + channel, NoFlags, CB(handleTargetQnx));
     else if (startParameters().multiProcess)
-        postCommand("target extended-remote " + channel, CB(handleTargetExtendedRemote));
+        postCommand("target extended-remote " + channel, NoFlags, CB(handleTargetExtendedRemote));
     else
-        postCommand("target remote " + channel, CB(handleTargetRemote), 10);
+        postCommand("target remote " + channel, NoFlags, CB(handleTargetRemote));
 }
 
 void GdbRemoteServerEngine::handleTargetRemote(const DebuggerResponse &response)
@@ -306,10 +306,10 @@ void GdbRemoteServerEngine::handleTargetExtendedRemote(const DebuggerResponse &r
         if (startParameters().attachPID > 0) { // attach to pid if valid
             // gdb server will stop the remote application itself.
             postCommand("attach " + QByteArray::number(startParameters().attachPID),
-                        CB(handleTargetExtendedAttach));
+                        NoFlags, CB(handleTargetExtendedAttach));
         } else {
             postCommand("-gdb-set remote exec-file " + startParameters().remoteExecutable.toLatin1(),
-                        CB(handleTargetExtendedAttach));
+                        NoFlags, CB(handleTargetExtendedAttach));
         }
     } else {
         QString msg = msgConnectRemoteServerFailed(
@@ -343,9 +343,9 @@ void GdbRemoteServerEngine::handleTargetQnx(const DebuggerResponse &response)
         const qint64 pid = isMasterEngine() ? startParameters().attachPID : masterEngine()->startParameters().attachPID;
         const QString remoteExecutable = isMasterEngine() ? startParameters().remoteExecutable : masterEngine()->startParameters().remoteExecutable;
         if (pid > -1)
-            postCommand("attach " + QByteArray::number(pid), CB(handleAttach));
+            postCommand("attach " + QByteArray::number(pid), NoFlags, CB(handleAttach));
         else if (!remoteExecutable.isEmpty())
-            postCommand("set nto-executable " + remoteExecutable.toLatin1(), CB(handleSetNtoExecutable));
+            postCommand("set nto-executable " + remoteExecutable.toLatin1(), NoFlags, CB(handleSetNtoExecutable));
         else
             handleInferiorPrepared();
     } else {

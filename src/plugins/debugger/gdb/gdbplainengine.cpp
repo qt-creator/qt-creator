@@ -45,7 +45,7 @@
 namespace Debugger {
 namespace Internal {
 
-#define CB(callback) [this](const DebuggerResponse &r) { callback(r); }, STRINGIFY(callback)
+#define CB(callback) [this](const DebuggerResponse &r) { callback(r); }
 
 GdbPlainEngine::GdbPlainEngine(const DebuggerStartParameters &startParameters)
     : GdbEngine(startParameters)
@@ -63,7 +63,7 @@ void GdbPlainEngine::setupInferior()
         postCommand("-exec-arguments " + toLocalEncoding(args));
     }
     postCommand("-file-exec-and-symbols \"" + execFilePath() + '"',
-        CB(handleFileExecAndSymbols));
+        NoFlags, CB(handleFileExecAndSymbols));
 }
 
 void GdbPlainEngine::handleFileExecAndSymbols(const DebuggerResponse &response)

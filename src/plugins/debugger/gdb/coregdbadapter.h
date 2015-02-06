@@ -59,6 +59,7 @@ public:
         bool isCore;
     };
     static CoreInfo readExecutableNameFromCore(const QString &debuggerCmd, const QString &coreFile);
+
 private:
     void setupEngine();
     void setupInferior();

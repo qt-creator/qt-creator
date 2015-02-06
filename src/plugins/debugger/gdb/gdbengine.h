@@ -185,7 +185,6 @@ private: ////////// Gdb Command Management //////////
         int flags;
         GdbCommandCallback callback;
         QByteArray command;
-        QVariant cookie;
         QTime postTime;
     };
 
@@ -197,14 +196,9 @@ private: ////////// Gdb Command Management //////////
 protected:
     void runCommand(const DebuggerCommand &command);
     void postCommand(const QByteArray &command,
-                     GdbCommandFlags flags,
-                     GdbCommandCallback callback = 0,
-                     const QVariant &cookie = QVariant());
-    void postCommand(const QByteArray &command,
-                     GdbCommandCallback callback = 0,
-                     const QVariant &cookie = QVariant());
+                     GdbCommandFlags flags = NoFlags,
+                     GdbCommandCallback callback = GdbCommandCallback());
 private:
-    void postCommandHelper(const GdbCommand &cmd);
     void flushQueuedCommands();
     Q_SLOT void commandTimeout();
     void setTokenBarrier();
@@ -238,9 +232,7 @@ protected:
     Q_SLOT void handleResponse(const QByteArray &buff);
     void handleStopResponse(const GdbMi &data);
     void handleResultRecord(DebuggerResponse *response);
-    void handleStop1(const DebuggerResponse &response);
     void handleStop1(const GdbMi &data);
-    void handleStop2(const DebuggerResponse &response);
     void handleStop2(const GdbMi &data);
     Q_SLOT void handleStop2();
     StackFrame parseStackFrame(const GdbMi &mi, int level);
@@ -304,18 +296,17 @@ private: ////////// View & Data Stuff //////////
     // Breakpoint specific stuff
     //
     void handleBreakModifications(const GdbMi &bkpts);
-    void handleBreakIgnore(const DebuggerResponse &response);
-    void handleBreakDisable(const DebuggerResponse &response);
-    void handleBreakEnable(const DebuggerResponse &response);
-    void handleBreakInsert1(const DebuggerResponse &response);
-    void handleBreakInsert2(const DebuggerResponse &response);
-    void handleBreakDelete(const DebuggerResponse &response);
-    void handleTraceInsert2(const DebuggerResponse &response);
-    void handleBreakCondition(const DebuggerResponse &response);
-    void handleBreakThreadSpec(const DebuggerResponse &response);
-    void handleBreakLineNumber(const DebuggerResponse &response);
-    void handleWatchInsert(const DebuggerResponse &response);
-    void handleCatchInsert(const DebuggerResponse &response);
+    void handleBreakIgnore(const DebuggerResponse &response, Breakpoint bp);
+    void handleBreakDisable(const DebuggerResponse &response, Breakpoint bp);
+    void handleBreakEnable(const DebuggerResponse &response, Breakpoint bp);
+    void handleBreakInsert1(const DebuggerResponse &response, Breakpoint bp);
+    void handleBreakInsert2(const DebuggerResponse &response, Breakpoint bp);
+    void handleBreakDelete(const DebuggerResponse &response, Breakpoint bp);
+    void handleBreakCondition(const DebuggerResponse &response, Breakpoint bp);
+    void handleBreakThreadSpec(const DebuggerResponse &response, Breakpoint bp);
+    void handleBreakLineNumber(const DebuggerResponse &response, Breakpoint bp);
+    void handleWatchInsert(const DebuggerResponse &response, Breakpoint bp);
+    void handleCatchInsert(const DebuggerResponse &response, Breakpoint bp);
     void handleBkpt(const GdbMi &bkpt, Breakpoint bp);
     void updateResponse(BreakpointResponse &response, const GdbMi &bkpt);
     QByteArray breakpointLocation(const BreakpointParameters &data); // For gdb/MI.
@@ -336,14 +327,13 @@ private: ////////// View & Data Stuff //////////
 
     void reloadModulesInternal();
     void handleModulesList(const DebuggerResponse &response);
-    void handleShowModuleSymbols(const DebuggerResponse &response);
-    void handleShowModuleSections(const DebuggerResponse &response);
+    void handleShowModuleSections(const DebuggerResponse &response, const QString &moduleName);
 
     //
     // Snapshot specific stuff
     //
     virtual void createSnapshot();
-    void handleMakeSnapshot(const DebuggerResponse &response);
+    void handleMakeSnapshot(const DebuggerResponse &response, const QString &coreFile);
 
     //
     // Register specific stuff
@@ -363,12 +353,9 @@ private: ////////// View & Data Stuff //////////
     void fetchDisassemblerByCliPointMixed(const DisassemblerAgentCookie &ac);
     void fetchDisassemblerByCliRangeMixed(const DisassemblerAgentCookie &ac);
     void fetchDisassemblerByCliRangePlain(const DisassemblerAgentCookie &ac);
-    void handleFetchDisassemblerByCliPointMixed(const DebuggerResponse &response);
-    void handleFetchDisassemblerByCliRangeMixed(const DebuggerResponse &response);
-    void handleFetchDisassemblerByCliRangePlain(const DebuggerResponse &response);
     bool handleCliDisassemblerResult(const QByteArray &response, DisassemblerAgent *agent);
 
-    void handleBreakOnQFatal(const DebuggerResponse &response);
+    void handleBreakOnQFatal(const DebuggerResponse &response, bool continueSetup);
 
     //
     // Source file specific stuff
@@ -392,13 +379,13 @@ private: ////////// View & Data Stuff //////////
     //
 protected:
     void updateAll();
-    void handleStackListFrames(const DebuggerResponse &response);
+    void handleStackListFrames(const DebuggerResponse &response, bool isFull);
     void handleStackSelectThread(const DebuggerResponse &response);
     void handleThreadListIds(const DebuggerResponse &response);
     void handleThreadInfo(const DebuggerResponse &response);
     void handleThreadNames(const DebuggerResponse &response);
     QByteArray stackCommand(int depth);
-    Q_SLOT void reloadStack(bool forceGotoLocation);
+    Q_SLOT void reloadStack();
     Q_SLOT virtual void reloadFullStack();
     virtual void loadAdditionalQmlStack();
     void handleQmlStackFrameArguments(const DebuggerResponse &response);
@@ -421,7 +408,7 @@ protected:
     void handleChangeMemory(const DebuggerResponse &response);
     virtual void changeMemory(MemoryAgent *agent, QObject *token,
         quint64 addr, const QByteArray &data);
-    void handleFetchMemory(const DebuggerResponse &response);
+    void handleFetchMemory(const DebuggerResponse &response, MemoryAgentCookie ac);
 
     virtual void watchPoint(const QPoint &);
     void handleWatchPoint(const DebuggerResponse &response);
@@ -442,7 +429,7 @@ protected:
 
     void updateLocals();
         void updateLocalsPython(const UpdateParameters &parameters);
-            void handleStackFramePython(const DebuggerResponse &response);
+        void handleStackFramePython(const DebuggerResponse &response, bool partial);
 
     void setLocals(const QList<GdbMi> &locals);
 

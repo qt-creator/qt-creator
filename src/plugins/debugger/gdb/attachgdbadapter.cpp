@@ -39,8 +39,6 @@
 namespace Debugger {
 namespace Internal {
 
-#define CB(callback) [this](const DebuggerResponse &r) { callback(r); }
-
 ///////////////////////////////////////////////////////////////////////
 //
 // AttachGdbAdapter
@@ -69,7 +67,8 @@ void GdbAttachEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     const qint64 pid = startParameters().attachPID;
-    postCommand("attach " + QByteArray::number(pid), CB(handleAttach));
+    postCommand("attach " + QByteArray::number(pid), NoFlags,
+                [this](const DebuggerResponse &r) { handleAttach(r); });
     // Task 254674 does not want to remove them
     //qq->breakHandler()->removeAllBreakpoints();
 }
