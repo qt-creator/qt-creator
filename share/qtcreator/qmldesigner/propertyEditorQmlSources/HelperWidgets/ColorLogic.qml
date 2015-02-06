@@ -44,6 +44,9 @@ QtObject {
     property bool isInSubState: backendValue.isInSubState;
     property bool highlight: textColor == Constants.colorsChangedBaseText
 
+    property color __defaultTextColor: Constants.colorsDefaultText
+    property color __changedTextColor: Constants.colorsChangedBaseText
+
     onBackendValueChanged: {
         evaluate();
     }

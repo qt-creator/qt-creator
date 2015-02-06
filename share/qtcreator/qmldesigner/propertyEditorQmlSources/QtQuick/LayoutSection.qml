@@ -48,7 +48,13 @@ Section {
     anchors.right: parent.right
     caption: qsTr("Layout")
 
+    LayoutPoperties {
+        id: layoutPoperties
+        visible: anchorBackend.isInLayout
+    }
+
     ColumnLayout {
+        visible: !anchorBackend.isInLayout
         width: parent.width
         Label {
             text: qsTr("Anchors")
