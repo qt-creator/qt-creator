@@ -53,7 +53,7 @@ public:
 };
 
 } // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeAndroidSupport
 
 
 #endif // ANDROIDQMAKEBUILDCONFIGURATIONFACTORY_H

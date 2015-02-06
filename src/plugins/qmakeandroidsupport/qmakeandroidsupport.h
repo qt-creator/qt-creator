@@ -51,6 +51,6 @@ public:
 };
 
 } // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeAndroidSupport
 
 #endif // QMAKEANDROIDSUPPORT_H

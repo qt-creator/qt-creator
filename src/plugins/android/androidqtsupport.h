@@ -69,7 +69,7 @@ public:
     virtual void resetBuild(const ProjectExplorer::Target *target) = 0;
 };
 
-} // namespace QtSupport
+} // namespace Android
 
 
 #endif // ANDROIDSUPPORT_H

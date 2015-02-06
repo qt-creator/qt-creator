@@ -315,4 +315,4 @@ QVariantMap QmakeAndroidBuildApkStep::toMap() const
 }
 
 } // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeAndroidSupport

@@ -149,6 +149,6 @@ QString QmakeAndroidBuildApkWidget::displayName() const
 }
 
 } // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeAndroidSupport
 
 

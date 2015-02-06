@@ -154,4 +154,4 @@ void QmakeAndroidSupport::resetBuild(const ProjectExplorer::Target *target)
 }
 
 } // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeAndroidSupport
