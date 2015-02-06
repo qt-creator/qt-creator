@@ -788,7 +788,6 @@ bool LldbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editorWidget
 
     UpdateParameters params;
     params.tryPartial = true;
-    params.tooltipOnly = true;
     params.varList = context.iname;
     doUpdateLocals(params);
 
@@ -863,7 +862,6 @@ void LldbEngine::doUpdateLocals(UpdateParameters params)
     cmd.arg("autoderef", boolSetting(AutoDerefPointers));
     cmd.arg("dyntype", boolSetting(UseDynamicType));
     cmd.arg("partial", params.tryPartial);
-    cmd.arg("tooltiponly", params.tooltipOnly);
 
     cmd.beginList("watchers");
 

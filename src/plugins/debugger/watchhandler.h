@@ -155,10 +155,9 @@ class DebuggerEngine;
 class UpdateParameters
 {
 public:
-    UpdateParameters() { tryPartial = tooltipOnly = false; }
+    UpdateParameters() { tryPartial = false; }
 
     bool tryPartial;
-    bool tooltipOnly;
     QByteArray varList;
 };
 

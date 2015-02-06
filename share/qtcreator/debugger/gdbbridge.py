@@ -328,7 +328,6 @@ class Dumper(DumperBase):
         self.nativeMixed = "nativemixed" in self.options
         self.autoDerefPointers = "autoderef" in self.options
         self.partialUpdate = "partial" in self.options
-        self.tooltipOnly = "tooltiponly" in self.options
         self.fallbackQtVersion = 0x50200
         #warn("NAMESPACE: '%s'" % self.qtNamespace())
         #warn("VARIABLES: %s" % self.varList)

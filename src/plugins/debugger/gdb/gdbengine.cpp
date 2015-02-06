@@ -3683,7 +3683,6 @@ bool GdbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editor,
 
     UpdateParameters params;
     params.tryPartial = true;
-    params.tooltipOnly = true;
     params.varList = context.iname;
     updateLocalsPython(params);
     return true;
@@ -3731,9 +3730,7 @@ void GdbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &f
     //        << (m_pendingBreakpointRequests == 0);
 
     UpdateParameters params;
-    params.tooltipOnly = data.iname.startsWith("tooltip");
-    params.tryPartial = flags.tryIncremental
-            && m_pendingBreakpointRequests == 0;
+    params.tryPartial = flags.tryIncremental && m_pendingBreakpointRequests == 0;
     params.varList = data.iname;
 
     updateLocalsPython(params);
@@ -4813,8 +4810,6 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
         options += "defaults,";
     if (params.tryPartial)
         options += "partial,";
-    if (params.tooltipOnly)
-        options += "tooltiponly,";
     options.chop(1);
 
     QByteArray context;
