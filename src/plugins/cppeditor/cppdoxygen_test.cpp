@@ -162,6 +162,21 @@ void DoxygenTest::testBasic_data()
          "int a;\n"
      );
 
+    QTest::newRow("cpp_styleB_continuation") << _(
+         "bool preventFolding;\n"
+         "//!\n"
+         "//! \\brief a|\n"
+         "//!\n"
+         "int a;\n"
+        ) << _(
+         "bool preventFolding;\n"
+         "//!\n"
+         "//! \\brief a\n"
+         "//! \n"
+         "//!\n"
+         "int a;\n"
+     );
+
     /// test cpp style doxygen comment when inside a indented scope
     QTest::newRow("cpp_styleA_indented") << _(
          "    bool preventFolding;\n"
@@ -172,6 +187,18 @@ void DoxygenTest::testBasic_data()
          "    ///\n"
          "    /// \\brief a\n"
          "    ///\n"
+         "    int a;\n"
+    );
+
+    QTest::newRow("cpp_styleB_indented") << _(
+         "    bool preventFolding;\n"
+         "    //!|\n"
+         "    int a;\n"
+        ) << _(
+         "    bool preventFolding;\n"
+         "    //!\n"
+         "    //! \\brief a\n"
+         "    //!\n"
          "    int a;\n"
     );
 
@@ -191,6 +218,21 @@ void DoxygenTest::testBasic_data()
          "    int a;\n"
     );
 
+    QTest::newRow("cpp_styleB_indented_continuation") << _(
+         "    bool preventFolding;\n"
+         "    //!\n"
+         "    //! \\brief a|\n"
+         "    //!\n"
+         "    int a;\n"
+        ) << _(
+         "    bool preventFolding;\n"
+         "    //!\n"
+         "    //! \\brief a\n"
+         "    //! \n"
+         "    //!\n"
+         "    int a;\n"
+    );
+
     QTest::newRow("cpp_styleA_corner_case") << _(
           "bool preventFolding;\n"
           "///\n"
@@ -200,6 +242,17 @@ void DoxygenTest::testBasic_data()
             "///\n"
             "void d(); ///\n"
             "\n"
+    );
+
+    QTest::newRow("cpp_styleB_corner_case") << _(
+          "bool preventFolding;\n"
+          "//!\n"
+          "void d(); //!|\n"
+        ) << _(
+          "bool preventFolding;\n"
+          "//!\n"
+          "void d(); //!\n"
+          "\n"
     );
 
     QTest::newRow("noContinuationForExpressionAndComment1") << _(

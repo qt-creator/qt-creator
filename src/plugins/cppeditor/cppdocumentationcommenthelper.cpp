@@ -170,15 +170,12 @@ bool handleDoxygenCppStyleContinuation(QTextCursor &cursor)
     // If the line does not start with the comment we don't
     // consider it as a continuation. Handles situations like:
     // void d(); ///<enter>
-    if (!(text.trimmed().startsWith(QLatin1String("///"))
-          || text.startsWith(QLatin1String("//!")))) {
+    const QStringRef commentMarker = text.midRef(offset, 3);
+    if (commentMarker != QLatin1String("///") && commentMarker != QLatin1String("//!"))
         return false;
-    }
 
     QString newLine(QLatin1Char('\n'));
     newLine.append(QString(offset, QLatin1Char(' '))); // indent correctly
-
-    const QString commentMarker = text.mid(offset, 3);
     newLine.append(commentMarker);
     newLine.append(QLatin1Char(' '));
 
