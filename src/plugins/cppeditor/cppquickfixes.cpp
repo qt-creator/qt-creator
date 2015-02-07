@@ -2818,6 +2818,9 @@ public:
         m_variableString = QString::fromUtf8(variableId->chars(), variableId->size());
 
         m_baseName = memberBaseName(m_variableString);
+        if (m_baseName.isEmpty())
+            m_baseName = QLatin1String("value");
+
         m_getterName = m_baseName != m_variableString
             ? m_baseName
             : QString::fromLatin1("get%1%2")
