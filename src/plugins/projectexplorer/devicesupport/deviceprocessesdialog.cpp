@@ -139,7 +139,8 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
     processFilterLineEdit = new FancyLineEdit(q);
     processFilterLineEdit->setPlaceholderText(DeviceProcessesDialog::tr("Filter"));
     processFilterLineEdit->setFocus(Qt::TabFocusReason);
-    processFilterLineEdit->setHistoryCompleter(QLatin1String("DeviceProcessDialogFilter"));
+    processFilterLineEdit->setHistoryCompleter(QLatin1String("DeviceProcessDialogFilter"),
+        true /*restoreLastItemFromHistory*/);
     processFilterLineEdit->setFiltering(true);
 
     kitChooser->populate();

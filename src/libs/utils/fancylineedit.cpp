@@ -172,6 +172,13 @@ FancyLineEdit::FancyLineEdit(QWidget *parent) :
 
 FancyLineEdit::~FancyLineEdit()
 {
+    if (d->m_historyCompleter) {
+        // When dialog with FancyLineEdit widget closed by <Escape>
+        // the QueuedConnection don't have enough time to call slot callback
+        // because edit widget and all of its connections are destroyed before
+        // QCoreApplicationPrivate::sendPostedEvents dispatch our queued signal.
+        d->m_historyCompleter->addEntry(text());
+    }
 }
 
 void FancyLineEdit::setButtonVisible(Side side, bool visible)
@@ -297,10 +304,12 @@ bool FancyLineEdit::hasAutoHideButton(Side side) const
     return d->m_iconbutton[side]->hasAutoHide();
 }
 
-void FancyLineEdit::setHistoryCompleter(const QString &historyKey)
+void FancyLineEdit::setHistoryCompleter(const QString &historyKey, bool restoreLastItemFromHistory)
 {
     QTC_ASSERT(!d->m_historyCompleter, return);
     d->m_historyCompleter = new HistoryCompleter(historyKey, this);
+    if (restoreLastItemFromHistory)
+        setText(d->m_historyCompleter->historyItem());
     QLineEdit::setCompleter(d->m_historyCompleter);
 
     // Hitting <Return> in the popup first causes editingFinished()
