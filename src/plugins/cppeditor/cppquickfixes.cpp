@@ -2367,19 +2367,9 @@ public:
         , m_xsSpec(xsSpec)
         , m_decl(decl)
     {
-        QString type;
-        switch (xsSpec) {
-        case InsertionPointLocator::Public: type = QLatin1String("public"); break;
-        case InsertionPointLocator::Protected: type = QLatin1String("protected"); break;
-        case InsertionPointLocator::Private: type = QLatin1String("private"); break;
-        case InsertionPointLocator::PublicSlot: type = QLatin1String("public slot"); break;
-        case InsertionPointLocator::ProtectedSlot: type = QLatin1String("protected slot"); break;
-        case InsertionPointLocator::PrivateSlot: type = QLatin1String("private slot"); break;
-        default: break;
-        }
-
         setDescription(QCoreApplication::translate("CppEditor::InsertDeclOperation",
-                                                   "Add %1 Declaration").arg(type));
+                                                   "Add %1 Declaration")
+                       .arg(InsertionPointLocator::accessSpecToString(xsSpec)));
     }
 
     void perform()

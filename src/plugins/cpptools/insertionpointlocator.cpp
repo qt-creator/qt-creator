@@ -135,7 +135,7 @@ protected:
         if (needsLeadingEmptyLine)
             prefix += QLatin1String("\n");
         if (needsPrefix)
-            prefix += InsertionPointLocator::accessSpecToString(_xsSpec);
+            prefix += InsertionPointLocator::accessSpecToString(_xsSpec) + QLatin1String(":\n");
 
         QString suffix;
         if (needsSuffix)
@@ -278,25 +278,25 @@ QString InsertionPointLocator::accessSpecToString(InsertionPointLocator::AccessS
     switch (xsSpec) {
     default:
     case InsertionPointLocator::Public:
-        return QLatin1String("public:\n");
+        return QLatin1String("public");
 
     case InsertionPointLocator::Protected:
-        return QLatin1String("protected:\n");
+        return QLatin1String("protected");
 
     case InsertionPointLocator::Private:
-        return QLatin1String("private:\n");
+        return QLatin1String("private");
 
     case InsertionPointLocator::PublicSlot:
-        return QLatin1String("public slots:\n");
+        return QLatin1String("public slots");
 
     case InsertionPointLocator::ProtectedSlot:
-        return QLatin1String("protected slots:\n");
+        return QLatin1String("protected slots");
 
     case InsertionPointLocator::PrivateSlot:
-        return QLatin1String("private slots:\n");
+        return QLatin1String("private slots");
 
     case InsertionPointLocator::Signals:
-        return QLatin1String("signals:\n");
+        return QLatin1String("signals");
     }
 }
 

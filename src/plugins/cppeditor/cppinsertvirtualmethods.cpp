@@ -735,7 +735,7 @@ public:
                 const QString accessSpecString =
                         InsertionPointLocator::accessSpecToString(funcItem->accessSpec);
                 if (accessSpecString != lastAccessSpecString) {
-                    declaration = accessSpecString + declaration;
+                    declaration = accessSpecString + QLatin1String(":\n") + declaration;
                     if (!lastAccessSpecString.isEmpty()) // separate if not direct after the comment
                         declaration = QLatin1String("\n") + declaration;
                     lastAccessSpecString = accessSpecString;
