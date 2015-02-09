@@ -152,6 +152,7 @@ private:
     bool toolBarHasFocus() const;
     bool canShowAllControls(bool replaceIsVisible) const;
     void acceptCandidateAndMoveToolBar();
+    void indicateSearchState(IFindSupport::Result searchState);
 
     bool eventFilter(QObject *obj, QEvent *event);
     void setFindText(const QString &text);

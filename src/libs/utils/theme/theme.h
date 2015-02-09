@@ -116,6 +116,7 @@ public:
         ProgressBarTitleColor,
         SplitterColor,
         TextColorDisabled,
+        TextColorError,
         TextColorHighlight,
         TextColorNormal,
         TodoItemTextColor,

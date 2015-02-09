@@ -68,6 +68,7 @@ ProgressBarColorNormal=hoverBackground
 ProgressBarTitleColor=text
 SplitterColor=ffb0b0b0
 TextColorDisabled=textDisabled
+TextColorError=ffff4040
 TextColorHighlight=ffff0000
 TextColorNormal=text
 TodoItemTextColor=ff000000

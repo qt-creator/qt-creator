@@ -44,6 +44,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 
 #include <QDebug>
 #include <QSettings>
@@ -522,6 +523,7 @@ void FindToolBar::invokeFindStep()
         m_plugin->updateFindCompletion(getFindText());
         IFindSupport::Result result =
             m_currentDocumentFind->findStep(getFindText(), effectiveFindFlags());
+        indicateSearchState(result);
         if (result == IFindSupport::NotYetFound)
             m_findStepTimer.start(50);
     }
@@ -535,6 +537,7 @@ void FindToolBar::invokeFindIncremental()
         QString text = getFindText();
         IFindSupport::Result result =
             m_currentDocumentFind->findIncremental(text, effectiveFindFlags());
+        indicateSearchState(result);
         if (result == IFindSupport::NotYetFound)
             m_findIncrementalTimer.start(50);
         if (text.isEmpty())
@@ -772,6 +775,13 @@ void FindToolBar::acceptCandidateAndMoveToolBar()
         hide();
         m_currentDocumentFind->acceptCandidate();
     }
+}
+
+void FindToolBar::indicateSearchState(IFindSupport::Result searchState)
+{
+    const Utils::Theme::Color colorRole = searchState == IFindSupport::NotFound
+            ? Utils::Theme::TextColorError : Utils::Theme::TextColorNormal;
+    m_ui.findEdit->setTextColor(m_ui.findEdit, Utils::creatorTheme()->color(colorRole));
 }
 
 void FindToolBar::openFind(bool focus)
