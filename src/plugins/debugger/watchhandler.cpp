@@ -1296,6 +1296,7 @@ void WatchHandler::purgeOutdatedItems(const QSet<QByteArray> &inames)
     m_model->layoutChanged();
     m_model->reexpandItems();
     m_contentsValid = true;
+    updateWatchersWindow();
 }
 
 void WatchHandler::removeData(const QByteArray &iname)
