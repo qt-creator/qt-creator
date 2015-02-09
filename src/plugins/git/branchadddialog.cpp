@@ -114,7 +114,7 @@ BranchAddDialog::BranchAddDialog(const QStringList &localBranches, bool addBranc
     m_ui->setupUi(this);
     setWindowTitle(addBranch ? tr("Add Branch") : tr("Rename Branch"));
     m_ui->branchNameEdit->setValidator(new BranchNameValidator(localBranches, this));
-    connect(m_ui->branchNameEdit, SIGNAL(textChanged(QString)), this, SLOT(updateButtonStatus()));
+    connect(m_ui->branchNameEdit, &QLineEdit::textChanged, this, &BranchAddDialog::updateButtonStatus);
 }
 
 BranchAddDialog::~BranchAddDialog()

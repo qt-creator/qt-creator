@@ -55,7 +55,8 @@ BranchCheckoutDialog::BranchCheckoutDialog(QWidget *parent,
         foundNoLocalChanges();
     }
 
-    connect(m_ui->moveChangesRadioButton, SIGNAL(toggled(bool)), this, SLOT(updatePopStashCheckBox(bool)));
+    connect(m_ui->moveChangesRadioButton, &QRadioButton::toggled,
+            this, &BranchCheckoutDialog::updatePopStashCheckBox);
 }
 
 BranchCheckoutDialog::~BranchCheckoutDialog()

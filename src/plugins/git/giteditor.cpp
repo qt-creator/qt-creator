@@ -302,11 +302,11 @@ void GitEditorWidget::addDiffActions(QMenu *menu, const DiffChunk &chunk)
 
     QAction *stageAction = menu->addAction(tr("Stage Chunk..."));
     stageAction->setData(qVariantFromValue(chunk));
-    connect(stageAction, SIGNAL(triggered()), this, SLOT(stageDiffChunk()));
+    connect(stageAction, &QAction::triggered, this, &GitEditorWidget::stageDiffChunk);
 
     QAction *unstageAction = menu->addAction(tr("Unstage Chunk..."));
     unstageAction->setData(qVariantFromValue(chunk));
-    connect(unstageAction, SIGNAL(triggered()), this, SLOT(unstageDiffChunk()));
+    connect(unstageAction, &QAction::triggered, this, &GitEditorWidget::unstageDiffChunk);
 }
 
 bool GitEditorWidget::open(QString *errorString, const QString &fileName, const QString &realFileName)

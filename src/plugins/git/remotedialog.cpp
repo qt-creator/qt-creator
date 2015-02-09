@@ -98,11 +98,16 @@ RemoteDialog::RemoteDialog(QWidget *parent) :
     m_ui->remoteView->setModel(m_remoteModel);
     new Utils::HeaderViewStretcher(m_ui->remoteView->header(), 1);
 
-    connect(m_ui->addButton, SIGNAL(clicked()), this, SLOT(addRemote()));
-    connect(m_ui->fetchButton, SIGNAL(clicked()), this, SLOT(fetchFromRemote()));
-    connect(m_ui->pushButton, SIGNAL(clicked()), this, SLOT(pushToRemote()));
-    connect(m_ui->removeButton, SIGNAL(clicked()), this, SLOT(removeRemote()));
-    connect(m_ui->refreshButton, SIGNAL(clicked()), this, SLOT(refreshRemotes()));
+    connect(m_ui->addButton, &QPushButton::clicked,
+            this, &RemoteDialog::addRemote);
+    connect(m_ui->fetchButton, &QPushButton::clicked,
+            this, &RemoteDialog::fetchFromRemote);
+    connect(m_ui->pushButton, &QPushButton::clicked,
+            this, &RemoteDialog::pushToRemote);
+    connect(m_ui->removeButton, &QPushButton::clicked,
+            this, &RemoteDialog::removeRemote);
+    connect(m_ui->refreshButton, &QPushButton::clicked,
+            this, &RemoteDialog::refreshRemotes);
 
     connect(m_ui->remoteView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(updateButtonState()));

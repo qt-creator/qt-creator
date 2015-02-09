@@ -58,10 +58,10 @@ GitSubmitEditorWidget::GitSubmitEditorWidget() :
 
     m_emailValidator = new QRegExpValidator(QRegExp(QLatin1String("[^@ ]+@[^@ ]+\\.[a-zA-Z]+")), this);
 
-    connect(m_gitSubmitPanelUi.authorLineEdit, SIGNAL(textChanged(QString)),
-            this, SLOT(authorInformationChanged()));
-    connect(m_gitSubmitPanelUi.emailLineEdit, SIGNAL(textChanged(QString)),
-            this, SLOT(authorInformationChanged()));
+    connect(m_gitSubmitPanelUi.authorLineEdit, &QLineEdit::textChanged,
+            this, &GitSubmitEditorWidget::authorInformationChanged);
+    connect(m_gitSubmitPanelUi.emailLineEdit, &QLineEdit::textChanged,
+            this, &GitSubmitEditorWidget::authorInformationChanged);
 }
 
 void GitSubmitEditorWidget::setPanelInfo(const GitSubmitEditorPanelInfo &info)
@@ -99,7 +99,8 @@ void GitSubmitEditorWidget::initialize(CommitType commitType,
         logChangeGroupBox->setLayout(logChangeLayout);
         m_logChangeWidget = new LogChangeWidget;
         m_logChangeWidget->init(repository);
-        connect(m_logChangeWidget, SIGNAL(activated(QString)), this, SIGNAL(show(QString)));
+        connect(m_logChangeWidget, &LogChangeWidget::activated,
+                this, &GitSubmitEditorWidget::show);
         logChangeLayout->addWidget(m_logChangeWidget);
         insertTopWidget(logChangeGroupBox);
         m_gitSubmitPanelUi.editGroup->hide();

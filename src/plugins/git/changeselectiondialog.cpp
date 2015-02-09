@@ -66,15 +66,24 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Co
     m_ui->changeNumberEdit->setFocus();
     m_ui->changeNumberEdit->selectAll();
 
-    connect(m_ui->changeNumberEdit, SIGNAL(textChanged(QString)), this, SLOT(changeTextChanged(QString)));
-    connect(m_ui->workingDirectoryEdit, SIGNAL(textChanged(QString)), this, SLOT(recalculateDetails()));
-    connect(m_ui->workingDirectoryEdit, SIGNAL(textChanged(QString)), this, SLOT(recalculateCompletion()));
-    connect(m_ui->selectDirectoryButton, SIGNAL(clicked()), this, SLOT(chooseWorkingDirectory()));
-    connect(m_ui->selectFromHistoryButton, SIGNAL(clicked()), this, SLOT(selectCommitFromRecentHistory()));
-    connect(m_ui->showButton, SIGNAL(clicked()), this, SLOT(acceptShow()));
-    connect(m_ui->cherryPickButton, SIGNAL(clicked()), this, SLOT(acceptCherryPick()));
-    connect(m_ui->revertButton, SIGNAL(clicked()), this, SLOT(acceptRevert()));
-    connect(m_ui->checkoutButton, SIGNAL(clicked()), this, SLOT(acceptCheckout()));
+    connect(m_ui->changeNumberEdit, &Utils::CompletingLineEdit::textChanged,
+            this, &ChangeSelectionDialog::changeTextChanged);
+    connect(m_ui->workingDirectoryEdit, &QLineEdit::textChanged,
+            this, &ChangeSelectionDialog::recalculateDetails);
+    connect(m_ui->workingDirectoryEdit, &QLineEdit::textChanged,
+            this, &ChangeSelectionDialog::recalculateCompletion);
+    connect(m_ui->selectDirectoryButton, &QPushButton::clicked,
+            this, &ChangeSelectionDialog::chooseWorkingDirectory);
+    connect(m_ui->selectFromHistoryButton, &QPushButton::clicked,
+            this, &ChangeSelectionDialog::selectCommitFromRecentHistory);
+    connect(m_ui->showButton, &QPushButton::clicked,
+            this, &ChangeSelectionDialog::acceptShow);
+    connect(m_ui->cherryPickButton, &QPushButton::clicked,
+            this, &ChangeSelectionDialog::acceptCherryPick);
+    connect(m_ui->revertButton, &QPushButton::clicked,
+            this, &ChangeSelectionDialog::acceptRevert);
+    connect(m_ui->checkoutButton, &QPushButton::clicked,
+            this, &ChangeSelectionDialog::acceptCheckout);
 
     if (id == "Git.Revert")
         m_ui->revertButton->setDefault(true);
@@ -258,7 +267,8 @@ void ChangeSelectionDialog::recalculateDetails()
     m_process->setWorkingDirectory(workingDir);
     m_process->setProcessEnvironment(m_gitEnvironment);
 
-    connect(m_process, SIGNAL(finished(int)), this, SLOT(setDetails(int)));
+    connect(m_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+            this, &ChangeSelectionDialog::setDetails);
 
     m_process->start(m_gitExecutable.toString(), args);
     m_process->closeWriteChannel();

@@ -120,17 +120,23 @@ StashDialog::StashDialog(QWidget *parent) :
     ui->filterLineEdit->setFiltering(true);
     // Buttons
     ui->buttonBox->addButton(m_showCurrentButton, QDialogButtonBox::ActionRole);
-    connect(m_showCurrentButton, SIGNAL(clicked()), this, SLOT(showCurrent()));
+    connect(m_showCurrentButton, &QPushButton::clicked,
+            this, &StashDialog::showCurrent);
     ui->buttonBox->addButton(m_refreshButton, QDialogButtonBox::ActionRole);
-    connect(m_refreshButton, SIGNAL(clicked()), this, SLOT(forceRefresh()));
+    connect(m_refreshButton, &QPushButton::clicked,
+            this, &StashDialog::forceRefresh);
     ui->buttonBox->addButton(m_restoreCurrentButton, QDialogButtonBox::ActionRole);
-    connect(m_restoreCurrentButton, SIGNAL(clicked()), this, SLOT(restoreCurrent()));
+    connect(m_restoreCurrentButton, &QPushButton::clicked,
+            this, &StashDialog::restoreCurrent);
     ui->buttonBox->addButton(m_restoreCurrentInBranchButton, QDialogButtonBox::ActionRole);
-    connect(m_restoreCurrentInBranchButton, SIGNAL(clicked()), this, SLOT(restoreCurrentInBranch()));
+    connect(m_restoreCurrentInBranchButton, &QPushButton::clicked,
+            this, &StashDialog::restoreCurrentInBranch);
     ui->buttonBox->addButton(m_deleteSelectionButton, QDialogButtonBox::ActionRole);
-    connect(m_deleteSelectionButton, SIGNAL(clicked()), this, SLOT(deleteSelection()));
+    connect(m_deleteSelectionButton, &QPushButton::clicked,
+            this, &StashDialog::deleteSelection);
     ui->buttonBox->addButton(m_deleteAllButton, QDialogButtonBox::ActionRole);
-    connect(m_deleteAllButton, SIGNAL(clicked()), this, SLOT(deleteAll()));
+    connect(m_deleteAllButton, &QPushButton::clicked,
+            this, &StashDialog::deleteAll);
     // Models
     m_proxyModel->setSourceModel(m_model);
     m_proxyModel->setFilterKeyColumn(-1);
@@ -140,12 +146,14 @@ StashDialog::StashDialog(QWidget *parent) :
     ui->stashView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     ui->stashView->setAllColumnsShowFocus(true);
     ui->stashView->setUniformRowHeights(true);
-    connect(ui->filterLineEdit, SIGNAL(filterChanged(QString)), m_proxyModel, SLOT(setFilterFixedString(QString)));
+    connect(ui->filterLineEdit, &Utils::FancyLineEdit::filterChanged,
+            m_proxyModel, &QSortFilterProxyModel::setFilterFixedString);
     connect(ui->stashView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
             this, SLOT(enableButtons()));
     connect(ui->stashView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(enableButtons()));
-    connect(ui->stashView, SIGNAL(activated(QModelIndex)), this, SLOT(showCurrent()));
+    connect(ui->stashView, &Utils::TreeView::activated,
+            this, &StashDialog::showCurrent);
     ui->stashView->setFocus();
 }
 
