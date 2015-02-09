@@ -189,6 +189,7 @@ private slots:
     void enum_constantValue2();
     void enum_constantValue3();
     void enum_constantValue4();
+    void enum_constantValue5();
 };
 
 void tst_Semantic::function_declaration_1()
@@ -888,6 +889,31 @@ void tst_Semantic::enum_constantValue4()
     testEnumaratorDeclarator(e, 2, NULL);
     testEnumaratorDeclarator(e, 3, "10");
     testEnumaratorDeclarator(e, 4, "11");
+}
+
+void tst_Semantic::enum_constantValue5()
+{
+    QSharedPointer<Document> doc = document("\n"
+                                            "enum {\n"
+                                            "E1,\n"
+                                            "E2=E1,\n"
+                                            "E3,\n"
+                                            "E4=E3,\n"
+                                            "E5\n"
+                                            "};\n"
+                                            );
+
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
+    Enum *e = doc->globals->memberAt(0)->asEnum();
+    QVERIFY(e);
+    QCOMPARE(e->memberCount(), 5U);
+
+    testEnumaratorDeclarator(e, 0, "0");
+    testEnumaratorDeclarator(e, 1, "0");
+    testEnumaratorDeclarator(e, 2, "1");
+    testEnumaratorDeclarator(e, 3, "1");
+    testEnumaratorDeclarator(e, 4, "2");
 }
 
 QTEST_MAIN(tst_Semantic)

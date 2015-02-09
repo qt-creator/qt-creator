@@ -510,6 +510,24 @@ void calculateConstantValue(const Symbol *symbol, EnumeratorDeclaration *e, Cont
     }
 }
 
+const StringLiteral *valueOfEnumerator(const Enum *e, const Identifier *value) {
+    const int enumMemberCount = e->memberCount();
+    for (int i = 0; i < enumMemberCount; ++i) {
+        const Symbol *member = e->memberAt(i);
+        if (const Declaration *decl = member->asDeclaration()) {
+            if (const EnumeratorDeclaration *enumDecl = decl->asEnumeratorDeclarator()) {
+                if (const Name *enumDeclName = enumDecl->name()) {
+                    if (const Identifier *enumDeclIdentifier = enumDeclName->identifier()) {
+                        if (enumDeclIdentifier->equalTo(value))
+                            return enumDecl->constantValue();
+                    }
+                }
+            }
+        }
+    }
+    return 0;
+}
+
 } // anonymous namespace
 
 void Bind::enumerator(EnumeratorAST *ast, Enum *symbol)
@@ -528,12 +546,21 @@ void Bind::enumerator(EnumeratorAST *ast, Enum *symbol)
         EnumeratorDeclaration *e = control()->newEnumeratorDeclaration(ast->identifier_token, name);
         e->setType(control()->integerType(IntegerType::Int)); // ### introduce IntegerType::Enumerator
 
-        if (ExpressionAST *expr = ast->expression)
-            e->setConstantValue(asStringLiteral(expr->firstToken(), expr->lastToken()));
-        else if (!symbol->isEmpty())
+        if (ExpressionAST *expr = ast->expression) {
+            const int firstToken = expr->firstToken();
+            const int lastToken = expr->lastToken();
+            const StringLiteral *constantValue = asStringLiteral(firstToken, lastToken);
+            const StringLiteral *resolvedValue = 0;
+            if (lastToken - firstToken == 1) {
+                if (const Identifier *constantId = identifier(firstToken))
+                    resolvedValue = valueOfEnumerator(symbol, constantId);
+            }
+            e->setConstantValue(resolvedValue ? resolvedValue : constantValue);
+        } else if (!symbol->isEmpty()) {
             calculateConstantValue(*(symbol->memberEnd()-1), e, control());
-        else
+        } else {
             e->setConstantValue(control()->stringLiteral("0", 1));
+        }
 
         symbol->addMember(e);
     }
