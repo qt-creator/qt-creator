@@ -851,7 +851,7 @@ TreeModel::TreeModel(TreeItem *root, QObject *parent)
       m_root(root)
 {
     m_columnCount = 1;
-    m_root->m_model = this;
+    m_root->propagateModel(this);
 }
 
 TreeModel::~TreeModel()
@@ -866,6 +866,7 @@ QModelIndex TreeModel::parent(const QModelIndex &idx) const
         return QModelIndex();
 
     const TreeItem *item = itemFromIndex(idx);
+    QTC_ASSERT(item, return QModelIndex());
     const TreeItem *parent = item->parent();
     if (!parent || parent == m_root)
         return QModelIndex();
@@ -888,7 +889,9 @@ int TreeModel::rowCount(const QModelIndex &idx) const
         return m_root->rowCount();
     if (idx.column() > 0)
         return 0;
-    return itemFromIndex(idx)->rowCount();
+    const TreeItem *item = itemFromIndex(idx);
+    QTC_ASSERT(item, return 0);
+    return item->rowCount();
 }
 
 int TreeModel::columnCount(const QModelIndex &idx) const
