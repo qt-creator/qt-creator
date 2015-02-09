@@ -72,6 +72,7 @@ public:
 
     QVariant editValue() const;
     int editType() const;
+    QColor color() const;
 
     void formatRequests(QByteArray *out) const;
     void showInEditorHelper(QString *contents, int depth) const;
@@ -173,6 +174,7 @@ public:
 signals:
     void currentIndexRequested(const QModelIndex &idx);
     void itemIsExpanded(const QModelIndex &idx);
+    void inameIsExpanded(const QByteArray &iname);
     void columnAdjustmentRequested();
 };
 

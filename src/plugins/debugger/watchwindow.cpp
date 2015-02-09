@@ -46,9 +46,10 @@
 
 #include <coreplugin/messagebox.h>
 
+#include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
-#include <utils/fancylineedit.h>
+#include <utils/treemodel.h>
 
 #include <QApplication>
 #include <QClipboard>
@@ -61,6 +62,7 @@
 #include <QMimeData>
 #include <QScrollBar>
 #include <QTimer>
+#include <QTextStream>
 
 // For InputDialog, move to Utils?
 #include <coreplugin/helpmanager.h>
@@ -906,7 +908,17 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == &actRemoveAllWatchExpression) {
         handler->clearWatches();
     } else if (act == &actCopy) {
-        copyToClipboard(DebuggerToolTipManager::treeModelClipboardContents(model()));
+        QString text;
+        QTextStream str(&text);
+        handler->model()->rootItem()->walkTree([&str](Utils::TreeItem *item) {
+            str << QString(item->level(), QLatin1Char('\t'))
+                << item->data(0, Qt::DisplayRole).toString() << '\t'
+                << item->data(1, Qt::DisplayRole).toString() << '\t'
+                << item->data(2, Qt::DisplayRole).toString() << '\n';
+        });
+        QClipboard *clipboard = QApplication::clipboard();
+        clipboard->setText(text, QClipboard::Selection);
+        clipboard->setText(text, QClipboard::Clipboard);
     } else if (act == &actCopyValue) {
         copyToClipboard(mi1.data().toString());
     } else if (act == &actShowInEditor) {

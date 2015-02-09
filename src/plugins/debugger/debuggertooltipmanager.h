@@ -54,6 +54,7 @@ public:
     bool isValid() const { return !expression.isEmpty(); }
     bool matchesFrame(const StackFrame &frame) const;
     bool isSame(const DebuggerToolTipContext &other) const;
+    QString toolTip() const;
 
     QString fileName;
     int position;
@@ -89,8 +90,6 @@ public:
 
     virtual bool eventFilter(QObject *, QEvent *);
 
-    static QString treeModelClipboardContents(const QAbstractItemModel *model);
-
     void debugModeEntered();
     void leavingDebugMode();
     void sessionAboutToChange();
@@ -101,8 +100,6 @@ public:
 
 public slots:
     static void slotUpdateVisibleToolTips();
-    void slotItemIsExpanded(const QModelIndex &idx);
-    void slotColumnAdjustmentRequested();
 };
 
 } // namespace Internal

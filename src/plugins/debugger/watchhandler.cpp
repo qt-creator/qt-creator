@@ -679,7 +679,7 @@ QString WatchItem::expression() const
 QString WatchItem::displayName() const
 {
     QString result;
-    if (!parent())
+    if (!parentItem())
         return result;
     if (d.iname.startsWith("return"))
         result = WatchModel::tr("returned value");
@@ -718,6 +718,23 @@ QString WatchItem::displayType() const
     result.remove(QLatin1Char('\''));
     result = watchModel()->removeNamespaces(result);
     return result;
+}
+
+QColor WatchItem::color() const
+{
+    static const QColor red(200, 0, 0);
+    static const QColor gray(140, 140, 140);
+    if (watchModel()) {
+        if (!d.valueEnabled)
+            return gray;
+        if (!watchModel()->contentIsValid() && !d.isInspect())
+            return gray;
+        if (d.value.isEmpty()) // This might still show 0x...
+            return gray;
+        if (d.value != watchModel()->m_valueCache.value(d.iname))
+            return red;
+    }
+    return QColor();
 }
 
 QVariant WatchItem::data(int column, int role) const
@@ -763,22 +780,9 @@ QVariant WatchItem::data(int column, int role) const
             return boolSetting(UseToolTipsInLocalsView)
                 ? d.toToolTip() : QVariant();
 
-        case Qt::ForegroundRole: {
-            static const QVariant red(QColor(200, 0, 0));
-            static const QVariant gray(QColor(140, 140, 140));
-            if (column == 1) {
-                QTC_ASSERT(model(), break);
-                if (!d.valueEnabled)
-                    return gray;
-                if (!watchModel()->contentIsValid() && !d.isInspect())
-                    return gray;
-                if (d.value.isEmpty()) // This might still show 0x...
-                    return gray;
-                if (d.value != watchModel()->m_valueCache.value(d.iname))
-                    return red;
-            }
-            break;
-        }
+        case Qt::ForegroundRole:
+            if (column == 1)
+                return color();
 
         case LocalsExpressionRole:
             return QVariant(expression());
@@ -1109,8 +1113,10 @@ void WatchModel::insertDataItem(const WatchData &data, bool destructive)
         newItem->d = data;
         const int row = findInsertPosition(parent->children(), newItem);
         parent->insertChild(row, newItem);
-        if (m_expandedINames.contains(parent->d.iname))
+        if (m_expandedINames.contains(parent->d.iname)) {
+            emit inameIsExpanded(parent->d.iname);
             emit itemIsExpanded(indexFromItem(parent));
+        }
     }
 }
 
@@ -1245,6 +1251,7 @@ void WatchModel::reexpandItems()
     foreach (const QByteArray &iname, m_expandedINames) {
         WatchItem *item = findItem(iname);
         emit itemIsExpanded(indexFromItem(item));
+        emit inameIsExpanded(iname);
     }
 }
 
