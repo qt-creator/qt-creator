@@ -102,7 +102,7 @@ bool operator ==(const PropertyValueContainer &first, const PropertyValueContain
 
 bool operator <(const PropertyValueContainer &first, const PropertyValueContainer &second)
 {
-    return  (first.m_instanceId < second.m_instanceId)
+    return (first.m_instanceId < second.m_instanceId)
         || (first.m_instanceId == second.m_instanceId && first.m_name < second.m_name);
 }
 

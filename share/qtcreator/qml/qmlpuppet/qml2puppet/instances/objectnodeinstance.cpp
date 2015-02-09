@@ -1079,7 +1079,7 @@ QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource,
 
 static QQmlType *getQmlType(const QString &typeName, int majorNumber, int minorNumber)
 {
-     return  QQmlMetaType::qmlType(typeName.toUtf8(), majorNumber, minorNumber);
+     return QQmlMetaType::qmlType(typeName.toUtf8(), majorNumber, minorNumber);
 }
 
 static bool isWindowMetaObject(const QMetaObject *metaObject)
