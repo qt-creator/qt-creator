@@ -993,7 +993,10 @@ QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent) con
 TreeItem *TreeModel::itemFromIndex(const QModelIndex &idx) const
 {
     CHECK_INDEX(idx);
-    return idx.isValid() ? static_cast<TreeItem*>(idx.internalPointer()) : m_root;
+    TreeItem *item = idx.isValid() ? static_cast<TreeItem*>(idx.internalPointer()) : m_root;
+    QTC_ASSERT(item, return 0);
+    QTC_ASSERT(item->m_model == this, return 0);
+    return item;
 }
 
 QModelIndex TreeModel::indexFromItem(const TreeItem *item) const
