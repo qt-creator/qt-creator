@@ -58,7 +58,7 @@ public:
     virtual void token(const TokenCommand &command) = 0;
     virtual void debugOutput(const DebugOutputCommand &command) = 0;
 
-    virtual void flush() {};
+    virtual void flush() {}
     virtual void synchronizeWithClientProcess() {}
     virtual qint64 bytesToWrite() const {return 0;}
 };
