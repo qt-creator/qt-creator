@@ -205,6 +205,17 @@ void DoxygenTest::testBasic_data()
          "    int a;\n"
     );
 
+    QTest::newRow("cpp_styleA_indented_preserve_mixed_indention_continuation") << _(
+         "\t bool preventFolding;\n"
+         "\t /// \brief a|\n"
+         "\t int a;\n"
+        ) << _(
+         "\t bool preventFolding;\n"
+         "\t /// \brief a\n"
+         "\t /// \n"
+         "\t int a;\n"
+    );
+
     /// test cpp style doxygen comment continuation when inside a indented scope
     QTest::newRow("cpp_styleA_indented_continuation") << _(
          "    bool preventFolding;\n"
