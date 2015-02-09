@@ -67,6 +67,8 @@ QString DefaultGdbServerProvider::typeDisplayName() const
 QString DefaultGdbServerProvider::channel() const
 {
     // Just return as "host:port" form.
+    if (m_port == 0)
+        return m_host;
     return m_host + QLatin1Char(':') + QString::number(m_port);
 }
 

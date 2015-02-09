@@ -374,7 +374,7 @@ HostWidget::HostWidget(QWidget *parent)
     m_hostLineEdit->setToolTip(tr("Enter TCP/IP hostname of the GDB server provider, "
                                   "like \"localhost\" or \"192.0.2.1\"."));
     m_portSpinBox = new QSpinBox(this);
-    m_portSpinBox->setRange(1, 65535);
+    m_portSpinBox->setRange(0, 65535);
     m_portSpinBox->setToolTip(tr("Enter TCP/IP port which will be listened by "
                                  "the GDB server provider."));
     auto layout = new QHBoxLayout(this);
