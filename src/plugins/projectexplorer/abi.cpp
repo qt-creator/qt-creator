@@ -724,7 +724,7 @@ QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
                       << WindowsMsvc2012Flavor << WindowsMsvc2013Flavor << WindowsMSysFlavor
                       << WindowsCEFlavor << UnknownFlavor;
     case VxWorks:
-        return result << VxWorksFlavor;
+        return result << VxWorksFlavor << UnknownFlavor;
     case UnknownOS:
         return result << UnknownFlavor;
     default:
