@@ -360,7 +360,7 @@ void ToolTipModel::restoreTreeModel(QXmlStreamReader &r)
 
 */
 
-class DebuggerToolTipTreeView : public BaseTreeView
+class DebuggerToolTipTreeView : public QTreeView
 {
 public:
     explicit DebuggerToolTipTreeView(QWidget *parent = 0);
@@ -386,7 +386,7 @@ public:
 };
 
 DebuggerToolTipTreeView::DebuggerToolTipTreeView(QWidget *parent)
-    : BaseTreeView(parent)
+    : QTreeView(parent)
 {
     setHeaderHidden(true);
     setEditTriggers(NoEditTriggers);
@@ -450,10 +450,11 @@ void DebuggerToolTipTreeView::computeSize()
         reexpand(m->index(0, 0));
         const int columnCount = m->columnCount();
         rootDecorated = m->rowCount() > 0;
-        if (rootDecorated)
-        for (int i = 0; i < columnCount; ++i) {
-            resizeColumnToContents(i);
-            columns += sizeHintForColumn(i);
+        if (rootDecorated) {
+            for (int i = 0; i < columnCount; ++i) {
+                resizeColumnToContents(i);
+                columns += sizeHintForColumn(i);
+            }
         }
         if (columns < 100)
             columns = 100; // Prevent toolbar from shrinking when displaying 'Previous'
@@ -582,7 +583,7 @@ DebuggerToolTipWidget::DebuggerToolTipWidget()
 
     auto mainLayout = new QVBoxLayout(this);
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
-    mainLayout->setContentsMargins(1, 1, 1, 1);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->addWidget(toolBar);
     mainLayout->addWidget(treeView);
 
