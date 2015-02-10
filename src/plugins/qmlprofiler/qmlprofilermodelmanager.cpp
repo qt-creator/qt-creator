@@ -29,11 +29,14 @@
 ****************************************************************************/
 
 #include "qmlprofilermodelmanager.h"
+#include "qmlprofilerconstants.h"
 #include "qmlprofilerdatamodel.h"
 #include "qv8profilerdatamodel.h"
 #include "qmlprofilertracefile.h"
 #include "qmlprofilernotesmodel.h"
 
+#include <coreplugin/progressmanager/progressmanager.h>
+#include <utils/runextensions.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -363,20 +366,31 @@ void QmlProfilerModelManager::modelProcessingDone()
 
 void QmlProfilerModelManager::save(const QString &filename)
 {
-    QFile file(filename);
-    if (!file.open(QIODevice::WriteOnly)) {
+    QFile *file = new QFile(filename);
+    if (!file->open(QIODevice::WriteOnly)) {
         emit error(tr("Could not open %1 for writing.").arg(filename));
+        delete file;
+        emit saveFinished();
         return;
     }
 
-    QmlProfilerFileWriter writer;
-
     d->notesModel->saveData();
-    writer.setTraceTime(traceTime()->startTime(), traceTime()->endTime(), traceTime()->duration());
-    writer.setV8DataModel(d->v8Model);
-    writer.setQmlEvents(d->model->getEventTypes(), d->model->getEvents());
-    writer.setNotes(d->model->getEventNotes());
-    writer.save(&file);
+
+    QFuture<void> result = QtConcurrent::run<void>([this, file] (QFutureInterface<void> &future) {
+        QmlProfilerFileWriter writer;
+        writer.setTraceTime(traceTime()->startTime(), traceTime()->endTime(),
+                            traceTime()->duration());
+        writer.setV8DataModel(d->v8Model);
+        writer.setQmlEvents(d->model->getEventTypes(), d->model->getEvents());
+        writer.setNotes(d->model->getEventNotes());
+        writer.setFuture(&future);
+        writer.save(file);
+        file->deleteLater();
+        QMetaObject::invokeMethod(this, "saveFinished", Qt::QueuedConnection);
+    });
+
+    Core::ProgressManager::addTask(result, tr("Saving Trace Data"), Constants::TASK_SAVE,
+                                   Core::ProgressManager::ShowInApplicationIcon);
 }
 
 void QmlProfilerModelManager::load(const QString &filename)

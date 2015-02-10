@@ -164,6 +164,12 @@ QList<QV8ProfilerDataModel::QV8EventData *> QV8ProfilerDataModel::getV8Events() 
     return d->v8EventHash.values();
 }
 
+int QV8ProfilerDataModel::numberOfV8Events() const
+{
+    Q_D(const QV8ProfilerDataModel);
+    return d->v8EventHash.size();
+}
+
 QString getHashStringForV8Event(const QString &displayName, const QString &function)
 {
     return QString::fromLatin1("%1:%2").arg(displayName, function);
@@ -323,7 +329,7 @@ void QV8ProfilerDataModel::clearV8RootEvent()
     d->v8RootEvent.childrenHash.clear();
 }
 
-void QV8ProfilerDataModel::save(QXmlStreamWriter &stream)
+void QV8ProfilerDataModel::save(QXmlStreamWriter &stream, QFutureInterface<void> *future)
 {
     Q_D(QV8ProfilerDataModel);
     stream.writeStartElement(QLatin1String("v8profile")); // v8 profiler output
@@ -359,6 +365,9 @@ void QV8ProfilerDataModel::save(QXmlStreamWriter &stream)
             stream.writeEndElement();
         }
         stream.writeEndElement();
+
+        if (future)
+            future->setProgressValue(future->progressValue() + 1);
     }
     stream.writeEndElement(); // v8 profiler output
 }

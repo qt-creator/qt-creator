@@ -71,6 +71,7 @@ private slots:
     void profilerDataModelStateChanged();
 
 protected:
+    void changeEvent(QEvent *e) Q_DECL_OVERRIDE;
     virtual void contextMenuEvent(QContextMenuEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);

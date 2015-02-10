@@ -326,5 +326,13 @@ void QmlProfilerTraceView::profilerDataModelStateChanged()
     }
 }
 
+void QmlProfilerTraceView::changeEvent(QEvent *e)
+{
+    if (e->type() == QEvent::EnabledChange) {
+        QQuickItem *rootObject = d->m_mainView->rootObject();
+        rootObject->setProperty("enabled", isEnabled());
+    }
+}
+
 } // namespace Internal
 } // namespace QmlProfiler

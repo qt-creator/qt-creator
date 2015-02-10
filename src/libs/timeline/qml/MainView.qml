@@ -470,4 +470,13 @@ Rectangle {
         modelProxy: timelineModelAggregator
         zoomer: zoomControl
     }
+
+    Rectangle {
+        // Opal glass pane for visualizing the "disabled" state.
+        anchors.fill: parent
+        z: 10
+        color: parent.color
+        opacity: 0.5
+        visible: !parent.enabled
+    }
 }

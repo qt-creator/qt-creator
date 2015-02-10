@@ -425,7 +425,8 @@ QmlProfilerFileWriter::QmlProfilerFileWriter(QObject *parent) :
     m_startTime(0),
     m_endTime(0),
     m_measuredTime(0),
-    m_v8Model(0)
+    m_v8Model(0),
+    m_future(0)
 {
 }
 
@@ -453,8 +454,21 @@ void QmlProfilerFileWriter::setNotes(const QVector<QmlProfilerDataModel::QmlEven
     m_notes = notes;
 }
 
+void QmlProfilerFileWriter::setFuture(QFutureInterface<void> *future)
+{
+    m_future = future;
+}
+
 void QmlProfilerFileWriter::save(QIODevice *device)
 {
+    if (m_future) {
+        m_future->setProgressRange(0,
+            qMax(m_qmlEvents.size() + m_ranges.size() + m_notes.size()
+                 + m_v8Model->numberOfV8Events(), 1));
+        m_future->setProgressValue(0);
+        m_newProgressValue = 0;
+    }
+
     QXmlStreamWriter stream(device);
 
     stream.setAutoFormatting(true);
@@ -469,7 +483,10 @@ void QmlProfilerFileWriter::save(QIODevice *device)
     stream.writeStartElement(_("eventData"));
     stream.writeAttribute(_("totalTime"), QString::number(m_measuredTime));
 
-     for (int typeIndex = 0; typeIndex < m_qmlEvents.size(); ++typeIndex) {
+    for (int typeIndex = 0; typeIndex < m_qmlEvents.size(); ++typeIndex) {
+        if (isCanceled())
+            return;
+
         const QmlProfilerDataModel::QmlEventTypeData &event = m_qmlEvents[typeIndex];
 
         stream.writeStartElement(_("event"));
@@ -496,12 +513,16 @@ void QmlProfilerFileWriter::save(QIODevice *device)
         if (event.message == MemoryAllocation)
             stream.writeTextElement(_("memoryEventType"), QString::number(event.detailType));
         stream.writeEndElement();
+        incrementProgress();
     }
     stream.writeEndElement(); // eventData
 
     stream.writeStartElement(_("profilerDataModel"));
 
     for (int rangeIndex = 0; rangeIndex < m_ranges.size(); ++rangeIndex) {
+        if (isCanceled())
+            return;
+
         const QmlProfilerDataModel::QmlEventData &range = m_ranges[rangeIndex];
 
         stream.writeStartElement(_("range"));
@@ -550,11 +571,15 @@ void QmlProfilerFileWriter::save(QIODevice *device)
             stream.writeAttribute(_("amount"), QString::number(range.numericData1));
 
         stream.writeEndElement();
+        incrementProgress();
     }
     stream.writeEndElement(); // profilerDataModel
 
     stream.writeStartElement(_("noteData"));
     for (int noteIndex = 0; noteIndex < m_notes.size(); ++noteIndex) {
+        if (isCanceled())
+            return;
+
         const QmlProfilerDataModel::QmlEventNoteData &notes = m_notes[noteIndex];
         stream.writeStartElement(_("note"));
         stream.writeAttribute(_("startTime"), QString::number(notes.startTime));
@@ -562,13 +587,33 @@ void QmlProfilerFileWriter::save(QIODevice *device)
         stream.writeAttribute(_("eventIndex"), QString::number(notes.typeIndex));
         stream.writeCharacters(notes.text);
         stream.writeEndElement(); // note
+        incrementProgress();
     }
     stream.writeEndElement(); // noteData
 
-    m_v8Model->save(stream);
+    if (isCanceled())
+        return;
+    m_v8Model->save(stream, m_future);
 
     stream.writeEndElement(); // trace
     stream.writeEndDocument();
+}
+
+void QmlProfilerFileWriter::incrementProgress()
+{
+    if (!m_future)
+        return;
+
+    m_newProgressValue++;
+    if (float(m_newProgressValue - m_future->progressValue())
+            / float(m_future->progressMaximum() - m_future->progressMinimum()) >= 0.01) {
+        m_future->setProgressValue(m_newProgressValue);
+    }
+}
+
+bool QmlProfilerFileWriter::isCanceled() const
+{
+    return m_future && m_future->isCanceled();
 }
 
 

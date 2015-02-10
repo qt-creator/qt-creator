@@ -31,6 +31,7 @@
 #ifndef QMLPROFILERTRACEFILE_H
 #define QMLPROFILERTRACEFILE_H
 
+#include <QFutureInterface>
 #include <QObject>
 #include <QVector>
 #include <QString>
@@ -88,17 +89,22 @@ public:
     void setQmlEvents(const QVector<QmlProfilerDataModel::QmlEventTypeData> &types,
                       const QVector<QmlProfilerDataModel::QmlEventData> &events);
     void setNotes(const QVector<QmlProfilerDataModel::QmlEventNoteData> &notes);
+    void setFuture(QFutureInterface<void> *future);
 
     void save(QIODevice *device);
 
 private:
     void calculateMeasuredTime();
+    void incrementProgress();
+    bool isCanceled() const;
 
     qint64 m_startTime, m_endTime, m_measuredTime;
     QV8ProfilerDataModel *m_v8Model;
+    QFutureInterface<void> *m_future;
     QVector<QmlProfilerDataModel::QmlEventTypeData> m_qmlEvents;
     QVector<QmlProfilerDataModel::QmlEventData> m_ranges;
     QVector<QmlProfilerDataModel::QmlEventNoteData> m_notes;
+    int m_newProgressValue;
 };
 
 

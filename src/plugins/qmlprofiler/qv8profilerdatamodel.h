@@ -34,6 +34,7 @@
 #include "qmlprofilerbasemodel.h"
 #include <utils/fileinprojectfinder.h>
 
+#include <QFutureInterface>
 #include <QObject>
 #include <QHash>
 
@@ -82,11 +83,12 @@ public:
     void clear();
     bool isEmpty() const;
     QList<QV8EventData *> getV8Events() const;
+    int numberOfV8Events() const;
     QV8EventData *v8EventDescription(int typeId) const;
 
     qint64 v8MeasuredTime() const;
 
-    void save(QXmlStreamWriter &stream);
+    void save(QXmlStreamWriter &stream, QFutureInterface<void> *future = 0);
     void load(QXmlStreamReader &stream);
 
     void complete();

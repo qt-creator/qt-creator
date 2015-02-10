@@ -150,6 +150,8 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     connect(d->m_profilerModelManager, SIGNAL(error(QString)), this, SLOT(showErrorDialog(QString)));
     connect(d->m_profilerModelManager, SIGNAL(availableFeaturesChanged(quint64)),
             this, SLOT(setAvailableFeatures(quint64)));
+    connect(d->m_profilerModelManager, &QmlProfilerModelManager::saveFinished,
+            this, &QmlProfilerTool::onSaveFinished);
 
     d->m_profilerConnections->setModelManager(d->m_profilerModelManager);
     Command *command = 0;
@@ -590,8 +592,14 @@ void QmlProfilerTool::showSaveDialog()
     if (!filename.isEmpty()) {
         if (!filename.endsWith(QLatin1String(TraceFileExtension)))
             filename += QLatin1String(TraceFileExtension);
+        AnalyzerManager::mainWindow()->setEnabled(false);
         d->m_profilerModelManager->save(filename);
     }
+}
+
+void QmlProfilerTool::onSaveFinished()
+{
+    AnalyzerManager::mainWindow()->setEnabled(true);
 }
 
 void QmlProfilerTool::showLoadDialog()

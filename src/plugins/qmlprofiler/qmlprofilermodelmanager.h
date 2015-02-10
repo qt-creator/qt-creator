@@ -137,6 +137,7 @@ signals:
     void stateChanged();
     void progressChanged();
     void dataAvailable();
+    void saveFinished();
 
     void requestDetailsForLocation(int eventType, const QmlDebug::QmlEventLocation &location);
     void availableFeaturesChanged(quint64 features);
