@@ -563,6 +563,7 @@ DebuggerToolTipWidget::DebuggerToolTipWidget()
     pinButton->setIcon(pinIcon);
 
     auto copyButton = new QToolButton;
+    copyButton->setToolTip(DebuggerToolTipManager::tr("Copy Contents to Clipboard"));
     copyButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_COPY)));
 
     titleLabel = new DraggableLabel(this);
