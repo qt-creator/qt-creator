@@ -95,9 +95,9 @@ const char dateAttributeC[] = "date";
 const char treeElementC[] = "tree";
 const char treeExpressionAttributeC[] = "expression";
 const char treeInameAttributeC[] = "iname";
-const char modelElementC[] = "model";
-const char modelColumnCountAttributeC[] = "columncount";
-const char modelRowElementC[] = "row";
+// const char modelElementC[] = "model";
+// const char modelColumnCountAttributeC[] = "columncount";
+// const char modelRowElementC[] = "row";
 const char modelItemElementC[] = "item";
 
 static void purgeClosedToolTips();
