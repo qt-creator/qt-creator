@@ -199,6 +199,7 @@ private slots:
     void unnamed_class();
     void unnamed_class_data();
     void expensiveExpression();
+    void invalidCode_data();
     void invalidCode();
 };
 
@@ -1857,13 +1858,66 @@ void tst_AST::expensiveExpression()
     QVERIFY(unit->ast());
 }
 
+void tst_AST::invalidCode_data()
+{
+    QTest::addColumn<QByteArray>("source");
+
+    typedef QByteArray _;
+    QTest::newRow("simple") <<
+        _("static inValidLine()\n");
+
+    QTest::newRow("hard") <<
+        _("typedef\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true {}\n");
+}
+
 void tst_AST::invalidCode()
 {
-    const QByteArray invalidCode = "static inValidLine()\n"
-                                   "class Foo {};\n";
+    QFETCH(QByteArray, source);
 
-    QSharedPointer<TranslationUnit> unit(parse(invalidCode, TranslationUnit::ParseTranlationUnit,
-                                               false, false, false));
+    source += "\nclass Foo {};\n";
+    const QSharedPointer<TranslationUnit> unit(parse(source, TranslationUnit::ParseTranlationUnit,
+                                                     false, false, true));
+
+    // Check that we find the class coming after the invalid garbage.
     QVERIFY(unit->ast());
     TranslationUnitAST *unitAST = unit->ast()->asTranslationUnit();
     QVERIFY(unitAST->declaration_list);

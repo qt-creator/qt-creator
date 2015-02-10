@@ -165,6 +165,7 @@ public:
         Expression,
         ExpressionList,
         ParameterDeclarationClause,
+        TemplateId,
         TypeId
     };
 
@@ -510,6 +511,7 @@ bool Parser::parseClassOrNamespaceName(NameAST *&node)
 bool Parser::parseTemplateId(NameAST *&node, unsigned template_token)
 {
     DEBUG_THIS_RULE();
+    CHECK_CACHE(ASTCache::TemplateId, NameAST);
 
     const unsigned start = cursor();
 
@@ -523,14 +525,17 @@ bool Parser::parseTemplateId(NameAST *&node, unsigned template_token)
             if (maybeSplitGreaterGreaterToken() || LA() == T_GREATER) {
                 ast->greater_token = consumeToken();
                 node = ast;
-                return true;
+                const bool result = true;
+                _astCache->insert(ASTCache::TemplateId, start, node, cursor(), result);
+                return result;
             }
         }
     }
 
+    const bool result = false;
+    _astCache->insert(ASTCache::TemplateId, start, 0, cursor(), result);
     rewind(start);
-
-    return false;
+    return result;
 }
 
 bool Parser::parseNestedNameSpecifier(NestedNameSpecifierListAST *&node,
