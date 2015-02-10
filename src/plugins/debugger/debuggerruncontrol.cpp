@@ -381,41 +381,6 @@ RunControl *DebuggerRunControlFactory::create
     return doCreate(sp, runConfiguration, errorMessage);
 }
 
-static bool fixupEngineTypes(DebuggerStartParameters &sp, RunConfiguration *rc, QString *errorMessage)
-{
-    if (sp.masterEngineType != NoEngineType)
-        return true;
-
-    if (sp.executable.endsWith(_(".py"))) {
-        sp.masterEngineType = PdbEngineType;
-        return true;
-    }
-
-    if (rc) {
-        DebuggerRunConfigurationAspect *aspect
-                = rc->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-        if (const Target *target = rc->target())
-            if (!DebuggerRunControlFactory::fillParametersFromKit(&sp, target->kit(), errorMessage))
-                return false;
-        const bool useCppDebugger = aspect->useCppDebugger() && (sp.languages & CppLanguage);
-        const bool useQmlDebugger = aspect->useQmlDebugger() && (sp.languages & QmlLanguage);
-        if (useQmlDebugger) {
-            if (useCppDebugger) {
-                sp.masterEngineType = QmlCppEngineType;
-                sp.firstSlaveEngineType = sp.cppEngineType;
-                sp.secondSlaveEngineType = QmlCppEngineType;
-            } else {
-                sp.masterEngineType = QmlEngineType;
-            }
-        } else {
-            sp.masterEngineType = sp.cppEngineType;
-        }
-        return true;
-    }
-    sp.masterEngineType = sp.cppEngineType;
-    return true;
-}
-
 DebuggerRunControl *DebuggerRunControlFactory::doCreate
     (const DebuggerStartParameters &sp0, RunConfiguration *rc, QString *errorMessage)
 {
@@ -435,8 +400,35 @@ DebuggerRunControl *DebuggerRunControlFactory::doCreate
         }
     }
 
-    if (!fixupEngineTypes(sp, rc, errorMessage))
+    if (sp.masterEngineType == NoEngineType)
         return 0;
+
+    if (sp.executable.endsWith(_(".py"))) {
+        sp.masterEngineType = PdbEngineType;
+    } else {
+        if (rc) {
+            DebuggerRunConfigurationAspect *aspect
+                    = rc->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
+            if (const Target *target = rc->target())
+                if (!DebuggerRunControlFactory::fillParametersFromKit(&sp, target->kit(), errorMessage))
+                    return 0;
+            const bool useCppDebugger = aspect->useCppDebugger() && (sp.languages & CppLanguage);
+            const bool useQmlDebugger = aspect->useQmlDebugger() && (sp.languages & QmlLanguage);
+            if (useQmlDebugger) {
+                if (useCppDebugger) {
+                    sp.masterEngineType = QmlCppEngineType;
+                    sp.firstSlaveEngineType = sp.cppEngineType;
+                    sp.secondSlaveEngineType = QmlCppEngineType;
+                } else {
+                    sp.masterEngineType = QmlEngineType;
+                }
+            } else {
+                sp.masterEngineType = sp.cppEngineType;
+            }
+        } else {
+            sp.masterEngineType = sp.cppEngineType;
+        }
+    }
 
     QString error;
     DebuggerEngine *engine = createEngine(sp.masterEngineType, sp, &error);
