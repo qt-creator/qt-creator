@@ -55,16 +55,19 @@
 #include <analyzerbase/analyzerruncontrol.h>
 #include <coreplugin/messagemanager.h>
 
-using namespace Qnx;
-using namespace Qnx::Internal;
+using namespace Analyzer;
+using namespace Debugger;
+using namespace ProjectExplorer;
+
+namespace Qnx {
+namespace Internal {
 
 BlackBerryRunControlFactory::BlackBerryRunControlFactory(QObject *parent)
-    : ProjectExplorer::IRunControlFactory(parent)
+    : IRunControlFactory(parent)
 {
 }
 
-bool BlackBerryRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfiguration,
-                                  ProjectExplorer::RunMode mode) const
+bool BlackBerryRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
 {
     Q_UNUSED(mode);
 
@@ -80,7 +83,7 @@ bool BlackBerryRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runC
     // not launch a second instance. Disable the Run button if the application is already
     // running on the device.
     if (m_activeRunControls.contains(rc->key())) {
-        QPointer<ProjectExplorer::RunControl> activeRunControl = m_activeRunControls[rc->key()];
+        QPointer<RunControl> activeRunControl = m_activeRunControls[rc->key()];
         if (activeRunControl && activeRunControl.data()->isRunning())
             return false;
         else
@@ -92,65 +95,64 @@ bool BlackBerryRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runC
     return activeDeployConf != 0;
 }
 
-static void createAnalyzerStartParameters(Analyzer::AnalyzerStartParameters *pStartParameters, BlackBerryRunConfiguration* runConfiguration, ProjectExplorer::RunMode mode)
+static void createAnalyzerStartParameters(AnalyzerStartParameters *pStartParameters, BlackBerryRunConfiguration* runConfiguration, RunMode mode)
 {
     QTC_ASSERT(pStartParameters, return);
     pStartParameters->runMode = mode;
-    if (mode == ProjectExplorer::QmlProfilerRunMode)
-        pStartParameters->startMode = Analyzer::StartLocal;
+    if (mode == QmlProfilerRunMode)
+        pStartParameters->startMode = StartLocal;
 
-    ProjectExplorer::Target *target = runConfiguration->target();
-    ProjectExplorer::Kit *kit = target->kit();
+    Target *target = runConfiguration->target();
+    Kit *kit = target->kit();
 
-    ProjectExplorer::IDevice::ConstPtr device = ProjectExplorer::DeviceKitInformation::device(kit);
+    IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     if (device) {
         pStartParameters->connParams = device->sshParameters();
         pStartParameters->analyzerHost = device->qmlProfilerHost();
     }
-    pStartParameters->sysroot = ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString();
+    pStartParameters->sysroot = SysRootKitInformation::sysRoot(kit).toString();
 
-    Debugger::DebuggerRunConfigurationAspect *aspect = runConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
+    DebuggerRunConfigurationAspect *aspect = runConfiguration->extraAspect<DebuggerRunConfigurationAspect>();
     if (aspect)
         pStartParameters->analyzerPort = aspect->qmlDebugServerPort();
 }
 
-static Debugger::DebuggerStartParameters startParameters(BlackBerryRunConfiguration *runConfig)
+static DebuggerStartParameters startParameters(BlackBerryRunConfiguration *runConfig)
 {
-    Debugger::DebuggerStartParameters params;
-    ProjectExplorer::Target *target = runConfig->target();
-    ProjectExplorer::Kit *k = target->kit();
+    DebuggerStartParameters params;
+    Target *target = runConfig->target();
+    Kit *k = target->kit();
 
-    params.startMode = Debugger::AttachToRemoteServer;
-    params.debuggerCommand = Debugger::DebuggerKitInformation::debuggerCommand(k).toString();
-    params.sysRoot = ProjectExplorer::SysRootKitInformation::sysRoot(k).toString();
+    params.startMode = AttachToRemoteServer;
+    params.debuggerCommand = DebuggerKitInformation::debuggerCommand(k).toString();
+    params.sysRoot = SysRootKitInformation::sysRoot(k).toString();
     params.useCtrlCStub = true;
     params.runConfiguration = runConfig;
 
-    if (ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k))
+    if (ToolChain *tc = ToolChainKitInformation::toolChain(k))
         params.toolChainAbi = tc->targetAbi();
 
     params.executable = runConfig->localExecutableFilePath();
     params.displayName = runConfig->displayName();
     params.remoteSetupNeeded = true;
 
-    Debugger::DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
+    DebuggerRunConfigurationAspect *aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     if (aspect->useQmlDebugger()) {
         BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(runConfig->target()->kit());
         if (device) {
             params.qmlServerAddress = device->sshParameters().host;
             params.qmlServerPort = aspect->qmlDebugServerPort();
-            params.languages |= Debugger::QmlLanguage;
+            params.languages |= QmlLanguage;
         }
     }
     if (aspect->useCppDebugger())
-        params.languages |= Debugger::CppLanguage;
+        params.languages |= CppLanguage;
 
-    if (const ProjectExplorer::Project *project = runConfig->target()->project()) {
+    if (const Project *project = runConfig->target()->project()) {
         params.projectSourceDirectory = project->projectDirectory().toString();
-        if (const ProjectExplorer::BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration())
+        if (const BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration())
             params.projectBuildDirectory = buildConfig->buildDirectory().toString();
-        params.projectSourceFiles = project->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
+        params.projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
     }
 
     BlackBerryQtVersion *qtVersion =
@@ -161,8 +163,8 @@ static Debugger::DebuggerStartParameters startParameters(BlackBerryRunConfigurat
     return params;
 }
 
-ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(ProjectExplorer::RunConfiguration *runConfiguration,
-        ProjectExplorer::RunMode mode, QString *errorMessage)
+RunControl *BlackBerryRunControlFactory::create(RunConfiguration *runConfiguration,
+        RunMode mode, QString *errorMessage)
 {
     BlackBerryRunConfiguration *rc = qobject_cast<BlackBerryRunConfiguration *>(runConfiguration);
     if (!rc)
@@ -176,12 +178,12 @@ ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(ProjectExplorer
         return 0;
     }
 
-    if (mode == ProjectExplorer::NormalRunMode) {
+    if (mode == NormalRunMode) {
         BlackBerryRunControl *runControl = new BlackBerryRunControl(rc);
         m_activeRunControls[rc->key()] = runControl;
         return runControl;
     }
-    if (mode == ProjectExplorer::QmlProfilerRunMode) {
+    if (mode == QmlProfilerRunMode) {
         QtSupport::BaseQtVersion *qtVer = QtSupport::QtKitInformation::qtVersion(rc->target()->kit());
         if (qtVer && qtVer->qtVersion() <= QtSupport::QtVersionNumber(4, 8, 6))
             Core::MessageManager::write(tr("Target Qt version (%1) might not support QML profiling. "
@@ -190,10 +192,10 @@ ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(ProjectExplorer
                 .arg(qtVer->qtVersionString()), Core::MessageManager::Flash
             );
 
-        Analyzer::AnalyzerStartParameters params;
+        AnalyzerStartParameters params;
         createAnalyzerStartParameters(&params, rc, mode);
 
-        Analyzer::AnalyzerRunControl *runControl = Analyzer::AnalyzerManager::createRunControl(params, runConfiguration);
+        AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(params, runConfiguration);
         BlackBerryApplicationRunner::LaunchFlags launchFlags(BlackBerryApplicationRunner::QmlDebugLaunch
             | BlackBerryApplicationRunner::QmlDebugLaunchBlocking
             | BlackBerryApplicationRunner::QmlProfilerLaunch);
@@ -207,8 +209,8 @@ ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(ProjectExplorer
         connect(runControl, SIGNAL(finished()), runner, SLOT(stop()));
         return runControl;
     }
-    Debugger::DebuggerRunControl * const runControl =
-            Debugger::DebuggerRunControlFactory::doCreate(startParameters(rc), errorMessage);
+
+    DebuggerRunControl *runControl = DebuggerRunControlFactory::doCreate(startParameters(rc), errorMessage);
     if (!runControl)
         return 0;
 
@@ -216,3 +218,6 @@ ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(ProjectExplorer
     m_activeRunControls[rc->key()] = runControl;
     return runControl;
 }
+
+} // namespace Internal
+} // namespace Qnx
