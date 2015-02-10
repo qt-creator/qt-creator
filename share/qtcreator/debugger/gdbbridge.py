@@ -216,18 +216,6 @@ def stripTypedefs(typeobj):
 
 #######################################################################
 #
-# Edit Command
-#
-#######################################################################
-
-def bbedit(args):
-    theDumper.bbedit(args)
-
-registerCommand("bbedit", bbedit)
-
-
-#######################################################################
-#
 # Frame Command
 #
 #######################################################################
@@ -1456,9 +1444,11 @@ class Dumper(DumperBase):
         self.currentQtNamespaceGuess = ""
         return ""
 
-    def bbedit(self, args):
-        (typeName, expr, data) = args.split(',')
-        typeName = self.hexdecode(typeName)
+    def assignValue(self, args):
+        typeName = self.hexdecode(args['type'])
+        expr = self.hexdecode(args['expr'])
+        value = self.hexdecode(args['value'])
+        simpleType = int(args['simpleType'])
         ns = self.qtNamespace()
         if typeName.startswith(ns):
             typeName = typeName[len(ns):]
@@ -1466,14 +1456,12 @@ class Dumper(DumperBase):
         pos = typeName.find('<')
         if pos != -1:
             typeName = typeName[0:pos]
-        expr = self.hexdecode(expr)
-        data = self.hexdecode(data)
-        if typeName in self.qqEditable:
-            #self.qqEditable[typeName](self, expr, data)
-            value = gdb.parse_and_eval(expr)
-            self.qqEditable[typeName](self, value, data)
+        if typeName in self.qqEditable and not simpleType:
+            #self.qqEditable[typeName](self, expr, value)
+            expr = gdb.parse_and_eval(expr)
+            self.qqEditable[typeName](self, expr, value)
         else:
-            cmd = "set variable (%s)=%s" % (expr, data)
+            cmd = "set variable (%s)=%s" % (expr, value)
             gdb.execute(cmd)
 
     def hasVTable(self, typeobj):

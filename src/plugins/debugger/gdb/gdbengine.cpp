@@ -855,7 +855,7 @@ void GdbEngine::maybeHandleInferiorPidChanged(const QString &pid0)
 void GdbEngine::runCommand(const DebuggerCommand &command)
 {
     QByteArray cmd  = command.function + "({" + command.args + "})";
-    postCommand("python theDumper." + cmd);
+    postCommand("python theDumper." + cmd, command.flags, command.callback);
 }
 
 void GdbEngine::postCommand(const QByteArray &command, int flags,
@@ -3786,17 +3786,13 @@ void GdbEngine::insertData(const WatchData &data)
 void GdbEngine::assignValueInDebugger(const WatchData *data,
     const QString &expression, const QVariant &value)
 {
-    if (!isIntOrFloatType(data->type)) {
-        QByteArray cmd = "bbedit "
-            + data->type.toHex() + ','
-            + expression.toUtf8().toHex() + ','
-            + value.toString().toUtf8().toHex();
-        postCommand(cmd, Discardable, CB(handleVarAssign));
-    } else {
-        postCommand("set variable (" + expression.toLatin1() + ")="
-            + GdbMi::escapeCString(value.toString().toLatin1()),
-            Discardable, CB(handleVarAssign));
-    }
+    DebuggerCommand cmd("assignValue");
+    cmd.arg("type", data->type.toHex());
+    cmd.arg("expr", expression.toLatin1().toHex());
+    cmd.arg("value", value.toString().toLatin1().toHex());
+    cmd.arg("simpleType", isIntOrFloatType(data->type));
+    cmd.callback = CB(handleVarAssign);
+    runCommand(cmd);
 }
 
 void GdbEngine::watchPoint(const QPoint &pnt)
