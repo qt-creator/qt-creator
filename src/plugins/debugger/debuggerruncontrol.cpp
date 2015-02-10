@@ -401,33 +401,32 @@ DebuggerRunControl *DebuggerRunControlFactory::doCreate
         }
     }
 
-    if (sp.masterEngineType == NoEngineType)
-        return 0;
-
-    if (sp.executable.endsWith(_(".py"))) {
-        sp.masterEngineType = PdbEngineType;
-    } else {
-        if (RunConfiguration *rc = sp.runConfiguration) {
-            DebuggerRunConfigurationAspect *aspect
-                    = rc->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-            if (const Target *target = rc->target())
-                if (!DebuggerRunControlFactory::fillParametersFromKit(&sp, target->kit(), errorMessage))
-                    return 0;
-            const bool useCppDebugger = aspect->useCppDebugger() && (sp.languages & CppLanguage);
-            const bool useQmlDebugger = aspect->useQmlDebugger() && (sp.languages & QmlLanguage);
-            if (useQmlDebugger) {
-                if (useCppDebugger) {
-                    sp.masterEngineType = QmlCppEngineType;
-                    sp.firstSlaveEngineType = sp.cppEngineType;
-                    sp.secondSlaveEngineType = QmlCppEngineType;
+    if (sp.masterEngineType == NoEngineType) {
+        if (sp.executable.endsWith(_(".py"))) {
+            sp.masterEngineType = PdbEngineType;
+        } else {
+            if (RunConfiguration *rc = sp.runConfiguration) {
+                DebuggerRunConfigurationAspect *aspect
+                        = rc->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
+                if (const Target *target = rc->target())
+                    if (!DebuggerRunControlFactory::fillParametersFromKit(&sp, target->kit(), errorMessage))
+                        return 0;
+                const bool useCppDebugger = aspect->useCppDebugger() && (sp.languages & CppLanguage);
+                const bool useQmlDebugger = aspect->useQmlDebugger() && (sp.languages & QmlLanguage);
+                if (useQmlDebugger) {
+                    if (useCppDebugger) {
+                        sp.masterEngineType = QmlCppEngineType;
+                        sp.firstSlaveEngineType = sp.cppEngineType;
+                        sp.secondSlaveEngineType = QmlCppEngineType;
+                    } else {
+                        sp.masterEngineType = QmlEngineType;
+                    }
                 } else {
-                    sp.masterEngineType = QmlEngineType;
+                    sp.masterEngineType = sp.cppEngineType;
                 }
             } else {
                 sp.masterEngineType = sp.cppEngineType;
             }
-        } else {
-            sp.masterEngineType = sp.cppEngineType;
         }
     }
 
