@@ -282,7 +282,6 @@ QString cppExpressionAt(TextEditorWidget *editorWidget, int pos,
                         int *line, int *column, QString *function,
                         int *scopeFromLine, int *scopeToLine)
 {
-    *line = *column = 0;
     if (function)
         function->clear();
 
@@ -297,12 +296,10 @@ QString cppExpressionAt(TextEditorWidget *editorWidget, int pos,
         // Fetch the expression's code.
         ExpressionUnderCursor expressionUnderCursor;
         expr = expressionUnderCursor(tc);
-        *column = tc.positionInBlock();
-        *line = tc.blockNumber();
-    } else {
-        *column = tc.positionInBlock();
-        *line = tc.blockNumber();
     }
+
+    *column = tc.positionInBlock();
+    *line = tc.blockNumber() + 1;
 
     if (!expr.isEmpty()) {
         QString fileName = editorWidget->textDocument()->filePath().toString();
