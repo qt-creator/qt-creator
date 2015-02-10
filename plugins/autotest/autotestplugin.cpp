@@ -44,6 +44,10 @@
 
 #include <QtPlugin>
 
+#ifdef WITH_TESTS
+#include "autotestunittests.h"
+#endif
+
 using namespace Autotest::Internal;
 
 static AutotestPlugin *m_instance = 0;
@@ -151,3 +155,11 @@ void AutotestPlugin::triggerAction()
                              tr("This is an action from Autotest."));
 }
 
+QList<QObject *> AutotestPlugin::createTestObjects() const
+{
+    QList<QObject *> tests;
+#ifdef WITH_TESTS
+    tests << new AutoTestUnitTests(TestTreeModel::instance());
+#endif
+    return tests;
+}

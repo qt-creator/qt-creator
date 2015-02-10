@@ -49,7 +49,10 @@ TestCodeParser::TestCodeParser(TestTreeModel *parent)
     : QObject(parent),
       m_model(parent),
       m_parserEnabled(true),
-      m_pendingUpdate(false)
+      m_pendingUpdate(false),
+      m_fullUpdatePostPoned(false),
+      m_partialUpdatePostPoned(false),
+      m_parserState(Idle)
 {
     // connect to ProgressManager to post-pone test parsing when CppModelManager is parsing
     auto progressManager = qobject_cast<Core::ProgressManager *>(Core::ProgressManager::instance());
@@ -57,6 +60,8 @@ TestCodeParser::TestCodeParser(TestTreeModel *parent)
             this, &TestCodeParser::onTaskStarted);
     connect(progressManager, &Core::ProgressManager::allTasksFinished,
             this, &TestCodeParser::onAllTasksFinished);
+    connect(this, &TestCodeParser::partialParsingFinished,
+            this, &TestCodeParser::onPartialParsingFinished);
 }
 
 TestCodeParser::~TestCodeParser()
@@ -81,25 +86,26 @@ void TestCodeParser::updateTestTree()
 {
     if (!m_parserEnabled) {
         m_pendingUpdate = true;
-        qDebug() << "Skipped update due to running parser or pro file evaluate";
         return;
     }
 
-    qDebug("updating TestTreeModel");
-
-    clearMaps();
-    emit cacheCleared();
-
     if (ProjectExplorer::Project *project = currentProject()) {
         if (auto qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(project)) {
+            if (qmakeProject->asyncUpdateState() != QmakeProjectManager::QmakeProject::Base) {
+                m_pendingUpdate = true;
+                return;
+            }
             connect(qmakeProject, &QmakeProjectManager::QmakeProject::proFilesEvaluated,
                     this, &TestCodeParser::onProFileEvaluated, Qt::UniqueConnection);
         }
     } else
         return;
 
-    scanForTests();
     m_pendingUpdate = false;
+
+    clearMaps();
+    emit cacheCleared();
+    scanForTests();
 }
 
 /****** scan for QTest related stuff helpers ******/
@@ -443,7 +449,7 @@ void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &docume
     } else if (!project->files(ProjectExplorer::Project::AllFiles).contains(fileName)) {
         return;
     }
-    checkDocumentForTestCode(document);
+    scanForTests(QStringList(fileName));
 }
 
 void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
@@ -464,15 +470,17 @@ void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
     const CPlusPlus::Snapshot snapshot = CppTools::CppModelManager::instance()->snapshot();
     if (m_quickDocMap.contains(fileName)
             && snapshot.contains(m_quickDocMap[fileName].referencingFile())) {
-        checkDocumentForTestCode(snapshot.document(m_quickDocMap[fileName].referencingFile()));
+            if (!m_quickDocMap[fileName].referencingFile().isEmpty())
+                scanForTests(QStringList(m_quickDocMap[fileName].referencingFile()));
     }
     if (!m_quickDocMap.contains(tr(Constants::UNNAMED_QUICKTESTS)))
         return;
 
     // special case of having unnamed TestCases
     const QString &mainFile = m_model->getMainFileForUnnamedQuickTest(fileName);
-    if (!mainFile.isEmpty() && snapshot.contains(mainFile))
-        checkDocumentForTestCode(snapshot.document(mainFile));
+    if (!mainFile.isEmpty() && snapshot.contains(mainFile)) {
+        scanForTests(QStringList(mainFile));
+    }
 }
 
 void TestCodeParser::removeFiles(const QStringList &files)
@@ -481,13 +489,62 @@ void TestCodeParser::removeFiles(const QStringList &files)
         removeTestsIfNecessary(file);
 }
 
+bool TestCodeParser::postponed(const QStringList &fileList)
+{
+    switch (m_parserState) {
+    case Idle:
+        return false;
+    case PartialParse:
+        // partial is running, postponing a full parse
+        if (fileList.isEmpty()) {
+            m_partialUpdatePostPoned = false;
+            m_postPonedFiles.clear();
+            m_fullUpdatePostPoned = true;
+        } else {
+            // partial parse triggered, but full parse is postponed already, ignoring this
+            if (m_fullUpdatePostPoned)
+                return true;
+            // partial parse triggered, postpone or add current files to already postponed partial
+            foreach (const QString &file, fileList)
+                    m_postPonedFiles.insert(file);
+            m_partialUpdatePostPoned = true;
+        }
+        return true;
+    case FullParse:
+        // full parse is running, postponing another full parse
+        if (fileList.isEmpty()) {
+            m_partialUpdatePostPoned = false;
+            m_postPonedFiles.clear();
+            m_fullUpdatePostPoned = true;
+        } else {
+            // full parse already postponed, ignoring triggering a partial parse
+            if (m_fullUpdatePostPoned) {
+                return true;
+            }
+            // partial parse triggered, postpone or add current files to already postponed partial
+            foreach (const QString &file, fileList)
+                m_postPonedFiles.insert(file);
+            m_partialUpdatePostPoned = true;
+        }
+        return true;
+    }
+    QTC_ASSERT(false, return false); // should not happen at all
+}
+
 void TestCodeParser::scanForTests(const QStringList &fileList)
 {
+    if (postponed(fileList))
+        return;
+
     QStringList list;
     if (fileList.isEmpty()) {
         list = currentProject()->files(ProjectExplorer::Project::AllFiles);
+        if (list.isEmpty())
+            return;
+        m_parserState = FullParse;
     } else {
         list << fileList;
+        m_parserState = PartialParse;
     }
 
     CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
@@ -498,6 +555,18 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
             CPlusPlus::Document::Ptr doc = snapshot.find(file).value();
             checkDocumentForTestCode(doc);
         }
+    }
+    switch (m_parserState) {
+    case PartialParse:
+        m_parserState = Idle;
+        emit partialParsingFinished();
+        break;
+    case FullParse:
+        m_parserState = Idle;
+        emit parsingFinished();
+        break;
+    case Idle:
+        break;
     }
 }
 
@@ -588,20 +657,37 @@ void TestCodeParser::removeTestsIfNecessaryByProFile(const QString &proFile)
 
 void TestCodeParser::onTaskStarted(Core::Id type)
 {
-    if (type != CppTools::Constants::TASK_INDEX
-            && type != QmakeProjectManager::Constants::PROFILE_EVALUATE)
+    if (type != CppTools::Constants::TASK_INDEX)
         return;
     m_parserEnabled = false;
 }
 
 void TestCodeParser::onAllTasksFinished(Core::Id type)
 {
-    if (type != CppTools::Constants::TASK_INDEX
-            && type != QmakeProjectManager::Constants::PROFILE_EVALUATE)
+    // only CPP parsing is relevant as we trigger Qml parsing internally anyway
+    if (type != CppTools::Constants::TASK_INDEX)
         return;
     m_parserEnabled = true;
     if (m_pendingUpdate)
         updateTestTree();
+}
+
+void TestCodeParser::onPartialParsingFinished()
+{
+    QTC_ASSERT(m_fullUpdatePostPoned != m_partialUpdatePostPoned
+            || ((m_fullUpdatePostPoned || m_partialUpdatePostPoned) == false),
+               m_partialUpdatePostPoned = false;m_postPonedFiles.clear(););
+    if (m_fullUpdatePostPoned) {
+        m_fullUpdatePostPoned = false;
+        updateTestTree();
+    } else if (m_partialUpdatePostPoned) {
+        m_partialUpdatePostPoned = false;
+        QStringList tmp;
+        foreach (const QString &file, m_postPonedFiles)
+            tmp << file;
+        m_postPonedFiles.clear();
+        scanForTests(tmp);
+    }
 }
 
 void TestCodeParser::updateUnnamedQuickTests(const QString &fileName, const QString &mainFile,
@@ -709,6 +795,32 @@ void TestCodeParser::onProFileEvaluated()
         }
     }
 }
+
+#ifdef WITH_TESTS
+int TestCodeParser::autoTestsCount() const
+{
+    int count = 0;
+    foreach (const QString &file, m_cppDocMap.keys()) {
+        if (m_cppDocMap.value(file).referencingFile().isEmpty())
+            ++count;
+    }
+    return count;
+}
+
+int TestCodeParser::namedQuickTestsCount() const
+{
+    if (m_quickDocMap.contains(tr(Constants::UNNAMED_QUICKTESTS)))
+        return m_quickDocMap.size() - 1;
+    return m_quickDocMap.size();
+}
+
+int TestCodeParser::unnamedQuickTestsCount() const
+{
+    if (m_quickDocMap.contains(tr(Constants::UNNAMED_QUICKTESTS)))
+        return m_quickDocMap.value(tr(Constants::UNNAMED_QUICKTESTS)).testFunctions().size();
+    return 0;
+}
+#endif
 
 } // namespace Internal
 } // namespace Autotest

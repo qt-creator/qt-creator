@@ -43,8 +43,20 @@ class TestCodeParser : public QObject
 {
     Q_OBJECT
 public:
+    enum State {
+        Idle,
+        PartialParse,
+        FullParse
+    };
+
     explicit TestCodeParser(TestTreeModel *parent = 0);
     virtual ~TestCodeParser();
+
+#ifdef WITH_TESTS
+    int autoTestsCount() const;
+    int namedQuickTestsCount() const;
+    int unnamedQuickTestsCount() const;
+#endif
 
 signals:
     void cacheCleared();
@@ -55,6 +67,8 @@ signals:
     void unnamedQuickTestsUpdated(const QString &filePath, const QString &mainFile,
                                   const QMap<QString, TestCodeLocationAndType> &functions);
     void unnamedQuickTestsRemoved(const QString &filePath);
+    void parsingFinished();
+    void partialParsingFinished();
 
 public slots:
     void emitUpdateTestTree();
@@ -68,6 +82,7 @@ public slots:
     void onProFileEvaluated();
 
 private:
+    bool postponed(const QStringList &fileList);
     void scanForTests(const QStringList &fileList = QStringList());
     void clearMaps();
     void removeTestsIfNecessary(const QString &fileName);
@@ -75,6 +90,7 @@ private:
 
     void onTaskStarted(Core::Id type);
     void onAllTasksFinished(Core::Id type);
+    void onPartialParsingFinished();
     void updateUnnamedQuickTests(const QString &fileName, const QString &mainFile,
                                  const QMap<QString, TestCodeLocationAndType> &functions);
     void updateModelAndCppDocMap(CPlusPlus::Document::Ptr document,
@@ -87,6 +103,10 @@ private:
     QMap<QString, TestInfo> m_quickDocMap;
     bool m_parserEnabled;
     bool m_pendingUpdate;
+    bool m_fullUpdatePostPoned;
+    bool m_partialUpdatePostPoned;
+    QSet<QString> m_postPonedFiles;
+    State m_parserState;
 };
 
 } // namespace Internal

@@ -61,8 +61,6 @@ TestTreeModel::TestTreeModel(QObject *parent) :
     connect(m_parser, &TestCodeParser::unnamedQuickTestsRemoved,
             this, &TestTreeModel::removeUnnamedQuickTests);
 
-    m_parser->updateTestTree();
-
 //    CppTools::CppModelManagerInterface *cppMM = CppTools::CppModelManagerInterface::instance();
 //    if (cppMM) {
 //        // replace later on by
@@ -807,6 +805,27 @@ void TestTreeModel::processChildren(QModelIndex &parentIndex, const TestTreeItem
         }
     }
 }
+
+#ifdef WITH_TESTS
+int TestTreeModel::autoTestsCount() const
+{
+    return m_autoTestRootItem ? m_autoTestRootItem->childCount() : 0;
+}
+
+int TestTreeModel::namedQuickTestsCount() const
+{
+    return m_quickTestRootItem
+            ? m_quickTestRootItem->childCount() - (hasUnnamedQuickTests() ? 1 : 0)
+            : 0;
+}
+
+int TestTreeModel::unnamedQuickTestsCount() const
+{
+    if (TestTreeItem *unnamed = unnamedQuickTests())
+        return unnamed->childCount();
+    return 0;
+}
+#endif
 
 /***************************** Sort/Filter Model **********************************/
 

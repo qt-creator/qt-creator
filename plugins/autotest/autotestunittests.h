@@ -16,48 +16,40 @@
 **
 ****************************************************************************/
 
-#ifndef AUTOTESTPLUGIN_H
-#define AUTOTESTPLUGIN_H
+#ifndef AUTOTESTUNITTESTS_H
+#define AUTOTESTUNITTESTS_H
 
-#include "autotest_global.h"
+#include <QObject>
+#include <QTemporaryDir>
 
-#include <extensionsystem/iplugin.h>
+namespace CppTools { namespace Tests { class TemporaryCopiedDir; } }
 
 namespace Autotest {
 namespace Internal {
 
-struct TestSettings;
+class TestTreeModel;
 
-class AutotestPlugin : public ExtensionSystem::IPlugin
+class AutoTestUnitTests : public QObject
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "AutoTest.json")
-
 public:
-    AutotestPlugin();
-    ~AutotestPlugin();
+    explicit AutoTestUnitTests(TestTreeModel *model, QObject *parent = 0);
 
-    static AutotestPlugin *instance();
-
-    QSharedPointer<TestSettings> settings() const;
-
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
-
+signals:
 
 private slots:
-    void triggerAction();
+    void initTestCase();
+    void cleanupTestCase();
+    void testCodeParser();
+    void testCodeParser_data();
 
 private:
-    bool checkLicense();
-    void initializeMenuEntries();
-    QList<QObject *> createTestObjects() const;
-    const QSharedPointer<TestSettings> m_settings;
+    TestTreeModel *m_model;
+    CppTools::Tests::TemporaryCopiedDir *m_tmpDir;
+    bool m_isQt4;
 };
 
 } // namespace Internal
 } // namespace Autotest
 
-#endif // AUTOTESTPLUGIN_H
-
+#endif // AUTOTESTUNITTESTS_H

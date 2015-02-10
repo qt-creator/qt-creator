@@ -75,6 +75,11 @@ public:
     QSet<QString> qmlFilesForProFile(const QString &proFile) const;
     bool hasUnnamedQuickTests() const;
 
+#ifdef WITH_TESTS
+    int autoTestsCount() const;
+    int namedQuickTestsCount() const;
+    int unnamedQuickTestsCount() const;
+#endif
 
 signals:
     void testTreeModelChanged();

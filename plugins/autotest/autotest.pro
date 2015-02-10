@@ -56,3 +56,8 @@ RESOURCES += \
 FORMS += \
     testsettingspage.ui
 
+equals(TEST, 1) {
+    HEADERS += autotestunittests.h
+    SOURCES += autotestunittests.cpp
+    RESOURCES += autotestunittests.qrc
+}
