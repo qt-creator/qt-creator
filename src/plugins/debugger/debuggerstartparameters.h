@@ -42,6 +42,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 
 #include <QMetaType>
+#include <QVector>
 
 namespace Debugger {
 
@@ -155,6 +156,9 @@ public:
     QByteArray commandsForReset; // commands used for resetting the inferior
     bool useContinueInsteadOfRun; // if connected to a hw debugger run is not possible but continue is used
     QByteArray commandsAfterConnect; // additional commands to post after connection to debug target
+
+    // Used by Valgrind
+    QVector<QByteArray> expectedSignals;
 
     QStringList solibSearchPath;
     DebuggerStartMode startMode;

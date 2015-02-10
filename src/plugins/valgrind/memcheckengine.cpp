@@ -188,6 +188,7 @@ void MemcheckWithGdbRunControl::startDebugger()
     sp.displayName = QString::fromLatin1("VGdb %1").arg(valgrindPid);
     sp.remoteChannel = QString::fromLatin1("| vgdb --pid=%1").arg(valgrindPid);
     sp.useContinueInsteadOfRun = true;
+    sp.expectedSignals << "SIGTRAP";
 
     QString errorMessage;
     RunControl *gdbRunControl = Debugger::DebuggerRunControlFactory::doCreate(sp, rc, &errorMessage);

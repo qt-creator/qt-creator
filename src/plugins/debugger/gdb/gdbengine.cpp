@@ -1626,7 +1626,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
             QByteArray meaning = data["signal-meaning"].data();
             // Ignore these as they are showing up regularly when
             // stopping debugging.
-            if (name == stopSignal(sp.toolChainAbi)) {
+            if (name == stopSignal(sp.toolChainAbi) || sp.expectedSignals.contains(name)) {
                 showMessage(_(name + " CONSIDERED HARMLESS. CONTINUING."));
             } else {
                 showMessage(_("HANDLING SIGNAL " + name));
