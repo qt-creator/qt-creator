@@ -89,6 +89,7 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
     params.startMode = AttachToRemoteServer;
     params.displayName = AndroidManager::packageName(target);
     params.remoteSetupNeeded = true;
+    params.runConfiguration = runConfig;
 
     DebuggerRunConfigurationAspect *aspect
             = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
@@ -119,7 +120,7 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
     }
 
     DebuggerRunControl * const debuggerRunControl
-        = DebuggerRunControlFactory::doCreate(params, runConfig, errorMessage);
+        = DebuggerRunControlFactory::doCreate(params, errorMessage);
     new AndroidDebugSupport(runConfig, debuggerRunControl);
     return debuggerRunControl;
 }

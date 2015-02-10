@@ -119,8 +119,9 @@ RunControl *WinRtDebugSupport::createDebugRunControl(WinRtRunConfiguration *runC
                     return 0;
                 }
                 server.close();
+                params.runConfiguration = runConfig;
                 Debugger::DebuggerRunControl *debugRunControl
-                        = DebuggerRunControlFactory::doCreate(params, runConfig, errorMessage);
+                        = DebuggerRunControlFactory::doCreate(params, errorMessage);
                 runner->setRunControl(debugRunControl);
                 new WinRtDebugSupport(debugRunControl, runner);
                 return debugRunControl;

@@ -58,8 +58,6 @@ public:
                                         QString *errorMessage);
 
 private:
-    static Debugger::DebuggerStartParameters startParameters( const BlackBerryRunConfiguration *runConfig);
-
     mutable QMap<QString, QPointer<ProjectExplorer::RunControl> > m_activeRunControls;
 };
 

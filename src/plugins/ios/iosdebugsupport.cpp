@@ -118,6 +118,7 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
     params.remoteSetupNeeded = true;
     if (!params.breakOnMain)
         params.continueAfterAttach = true;
+    params.runConfiguration = runConfig;
 
     DebuggerRunConfigurationAspect *aspect
             = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
@@ -170,7 +171,7 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
     }
 
     DebuggerRunControl * const debuggerRunControl
-        = DebuggerRunControlFactory::doCreate(params, runConfig, errorMessage);
+        = DebuggerRunControlFactory::doCreate(params, errorMessage);
     if (debuggerRunControl)
         new IosDebugSupport(runConfig, debuggerRunControl, cppDebug, qmlDebug);
     return debuggerRunControl;

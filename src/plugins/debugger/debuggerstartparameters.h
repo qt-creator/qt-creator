@@ -39,6 +39,7 @@
 #include <utils/environment.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/devicesupport/idevice.h>
 
 #include <QMetaType>
@@ -82,6 +83,7 @@ public:
         firstSlaveEngineType(NoEngineType),
         secondSlaveEngineType(NoEngineType),
         cppEngineType(NoEngineType),
+        runConfiguration(0),
         isSnapshot(false),
         attachPID(-1),
         useTerminal(false),
@@ -112,6 +114,7 @@ public:
     QString debuggerCommand;
     ProjectExplorer::Abi toolChainAbi;
     ProjectExplorer::IDevice::ConstPtr device;
+    QPointer<ProjectExplorer::RunConfiguration> runConfiguration;
 
     QString platform;
     QString executable;

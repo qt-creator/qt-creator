@@ -62,7 +62,7 @@ using namespace ProjectExplorer;
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-static DebuggerStartParameters createDebuggerStartParameters(const QnxRunConfiguration *runConfig)
+static DebuggerStartParameters createDebuggerStartParameters(QnxRunConfiguration *runConfig)
 {
     DebuggerStartParameters params;
     Target *target = runConfig->target();
@@ -76,6 +76,7 @@ static DebuggerStartParameters createDebuggerStartParameters(const QnxRunConfigu
     params.debuggerCommand = DebuggerKitInformation::debuggerCommand(k).toString();
     params.sysRoot = SysRootKitInformation::sysRoot(k).toString();
     params.useCtrlCStub = true;
+    params.runConfiguration = runConfig;
 
     if (ToolChain *tc = ToolChainKitInformation::toolChain(k))
         params.toolChainAbi = tc->targetAbi();
@@ -179,7 +180,7 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, RunMode mo
         return new QnxRunControl(rc);
     case DebugRunMode: {
         const DebuggerStartParameters params = createDebuggerStartParameters(rc);
-        DebuggerRunControl * const runControl = DebuggerRunControlFactory::doCreate(params, rc, errorMessage);
+        DebuggerRunControl * const runControl = DebuggerRunControlFactory::doCreate(params, errorMessage);
         if (!runControl)
             return 0;
 

@@ -156,8 +156,8 @@ RunControl *BareMetalRunControlFactory::create(
     if (p->startupMode() == GdbServerProvider::StartupOnNetwork)
         sp.remoteSetupNeeded = true;
 
-    DebuggerRunControl *runControl =
-            DebuggerRunControlFactory::doCreate(sp, rc, errorMessage);
+    sp.runConfiguration = rc;
+    DebuggerRunControl *runControl = DebuggerRunControlFactory::doCreate(sp, errorMessage);
     if (runControl && sp.remoteSetupNeeded) {
         const auto debugSupport = new BareMetalDebugSupport(dev, runControl);
         Q_UNUSED(debugSupport);

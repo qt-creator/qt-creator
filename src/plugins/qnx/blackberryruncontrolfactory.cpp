@@ -114,6 +114,53 @@ static void createAnalyzerStartParameters(Analyzer::AnalyzerStartParameters *pSt
         pStartParameters->analyzerPort = aspect->qmlDebugServerPort();
 }
 
+static Debugger::DebuggerStartParameters startParameters(BlackBerryRunConfiguration *runConfig)
+{
+    Debugger::DebuggerStartParameters params;
+    ProjectExplorer::Target *target = runConfig->target();
+    ProjectExplorer::Kit *k = target->kit();
+
+    params.startMode = Debugger::AttachToRemoteServer;
+    params.debuggerCommand = Debugger::DebuggerKitInformation::debuggerCommand(k).toString();
+    params.sysRoot = ProjectExplorer::SysRootKitInformation::sysRoot(k).toString();
+    params.useCtrlCStub = true;
+    params.runConfiguration = runConfig;
+
+    if (ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k))
+        params.toolChainAbi = tc->targetAbi();
+
+    params.executable = runConfig->localExecutableFilePath();
+    params.displayName = runConfig->displayName();
+    params.remoteSetupNeeded = true;
+
+    Debugger::DebuggerRunConfigurationAspect *aspect
+            = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
+    if (aspect->useQmlDebugger()) {
+        BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(runConfig->target()->kit());
+        if (device) {
+            params.qmlServerAddress = device->sshParameters().host;
+            params.qmlServerPort = aspect->qmlDebugServerPort();
+            params.languages |= Debugger::QmlLanguage;
+        }
+    }
+    if (aspect->useCppDebugger())
+        params.languages |= Debugger::CppLanguage;
+
+    if (const ProjectExplorer::Project *project = runConfig->target()->project()) {
+        params.projectSourceDirectory = project->projectDirectory().toString();
+        if (const ProjectExplorer::BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration())
+            params.projectBuildDirectory = buildConfig->buildDirectory().toString();
+        params.projectSourceFiles = project->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
+    }
+
+    BlackBerryQtVersion *qtVersion =
+            dynamic_cast<BlackBerryQtVersion *>(QtSupport::QtKitInformation::qtVersion(k));
+    if (qtVersion)
+        params.solibSearchPath = QnxUtils::searchPaths(qtVersion);
+
+    return params;
+}
+
 ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(ProjectExplorer::RunConfiguration *runConfiguration,
         ProjectExplorer::RunMode mode, QString *errorMessage)
 {
@@ -161,58 +208,11 @@ ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(ProjectExplorer
         return runControl;
     }
     Debugger::DebuggerRunControl * const runControl =
-            Debugger::DebuggerRunControlFactory::doCreate(startParameters(rc), runConfiguration, errorMessage);
+            Debugger::DebuggerRunControlFactory::doCreate(startParameters(rc), errorMessage);
     if (!runControl)
         return 0;
 
     new BlackBerryDebugSupport(rc, runControl);
     m_activeRunControls[rc->key()] = runControl;
     return runControl;
-}
-
-Debugger::DebuggerStartParameters BlackBerryRunControlFactory::startParameters(
-        const BlackBerryRunConfiguration *runConfig)
-{
-    Debugger::DebuggerStartParameters params;
-    ProjectExplorer::Target *target = runConfig->target();
-    ProjectExplorer::Kit *k = target->kit();
-
-    params.startMode = Debugger::AttachToRemoteServer;
-    params.debuggerCommand = Debugger::DebuggerKitInformation::debuggerCommand(k).toString();
-    params.sysRoot = ProjectExplorer::SysRootKitInformation::sysRoot(k).toString();
-    params.useCtrlCStub = true;
-
-    if (ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k))
-        params.toolChainAbi = tc->targetAbi();
-
-    params.executable = runConfig->localExecutableFilePath();
-    params.displayName = runConfig->displayName();
-    params.remoteSetupNeeded = true;
-
-    Debugger::DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-    if (aspect->useQmlDebugger()) {
-        BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(runConfig->target()->kit());
-        if (device) {
-            params.qmlServerAddress = device->sshParameters().host;
-            params.qmlServerPort = aspect->qmlDebugServerPort();
-            params.languages |= Debugger::QmlLanguage;
-        }
-    }
-    if (aspect->useCppDebugger())
-        params.languages |= Debugger::CppLanguage;
-
-    if (const ProjectExplorer::Project *project = runConfig->target()->project()) {
-        params.projectSourceDirectory = project->projectDirectory().toString();
-        if (const ProjectExplorer::BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration())
-            params.projectBuildDirectory = buildConfig->buildDirectory().toString();
-        params.projectSourceFiles = project->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
-    }
-
-    BlackBerryQtVersion *qtVersion =
-            dynamic_cast<BlackBerryQtVersion *>(QtSupport::QtKitInformation::qtVersion(k));
-    if (qtVersion)
-        params.solibSearchPath = QnxUtils::searchPaths(qtVersion);
-
-    return params;
 }

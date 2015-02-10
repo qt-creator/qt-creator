@@ -132,7 +132,7 @@ void QnxAttachDebugSupport::attachToProcess()
         sp.solibSearchPath = QnxUtils::searchPaths(qtVersion);
 
     QString errorMessage;
-    Debugger::DebuggerRunControl * const runControl = Debugger::DebuggerRunControlFactory::doCreate(sp, 0, &errorMessage);
+    Debugger::DebuggerRunControl * const runControl = Debugger::DebuggerRunControlFactory::doCreate(sp, &errorMessage);
     if (!errorMessage.isEmpty()) {
         handleError(errorMessage);
         stopPDebug();

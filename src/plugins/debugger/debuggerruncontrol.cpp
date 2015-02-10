@@ -378,11 +378,12 @@ RunControl *DebuggerRunControlFactory::create
     if (mode == DebugRunModeWithBreakOnMain)
         sp.breakOnMain = true;
 
-    return doCreate(sp, runConfiguration, errorMessage);
+    sp.runConfiguration = runConfiguration;
+    return doCreate(sp, errorMessage);
 }
 
 DebuggerRunControl *DebuggerRunControlFactory::doCreate
-    (const DebuggerStartParameters &sp0, RunConfiguration *rc, QString *errorMessage)
+    (const DebuggerStartParameters &sp0, QString *errorMessage)
 {
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
@@ -406,7 +407,7 @@ DebuggerRunControl *DebuggerRunControlFactory::doCreate
     if (sp.executable.endsWith(_(".py"))) {
         sp.masterEngineType = PdbEngineType;
     } else {
-        if (rc) {
+        if (RunConfiguration *rc = sp.runConfiguration) {
             DebuggerRunConfigurationAspect *aspect
                     = rc->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
             if (const Target *target = rc->target())
@@ -438,7 +439,7 @@ DebuggerRunControl *DebuggerRunControlFactory::doCreate
             *errorMessage = error;
         return 0;
     }
-    return new DebuggerRunControl(rc, engine);
+    return new DebuggerRunControl(sp.runConfiguration, engine);
 }
 
 IRunConfigurationAspect *DebuggerRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)
@@ -449,7 +450,7 @@ IRunConfigurationAspect *DebuggerRunControlFactory::createRunConfigurationAspect
 DebuggerRunControl *DebuggerRunControlFactory::createAndScheduleRun(const DebuggerStartParameters &sp)
 {
     QString errorMessage;
-    DebuggerRunControl *rc = doCreate(sp, 0, &errorMessage);
+    DebuggerRunControl *rc = doCreate(sp, &errorMessage);
     if (!rc) {
         ProjectExplorerPlugin::showRunErrorMessage(errorMessage);
         return 0;
