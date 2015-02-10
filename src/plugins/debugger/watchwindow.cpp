@@ -1013,8 +1013,10 @@ void WatchTreeView::resetHelper()
 void WatchTreeView::reset()
 {
     BaseTreeView::reset();
-    setRootIndex(model()->index(m_type, 0));
-    resetHelper();
+    if (model()) {
+        setRootIndex(model()->index(m_type, 0));
+        resetHelper();
+    }
 }
 
 void WatchTreeView::doItemsLayout()
