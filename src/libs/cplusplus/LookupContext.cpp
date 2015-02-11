@@ -324,7 +324,7 @@ ClassOrNamespace *LookupContext::globalNamespace() const
 }
 
 ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
-                                            ClassOrNamespace* enclosingTemplateInstantiation,
+                                            ClassOrNamespace *enclosingBinding,
                                             QSet<const Declaration *> typedefsBeingResolved) const
 {
     if (! scope || ! name) {
@@ -367,7 +367,7 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
         }
         // try to find it in block (rare case but has priority before enclosing scope)
         // e.g.: void foo() { struct S {};  S s; }
-        if (ClassOrNamespace *b = bindings()->lookupType(scope, enclosingTemplateInstantiation)) {
+        if (ClassOrNamespace *b = bindings()->lookupType(scope, enclosingBinding)) {
             if (ClassOrNamespace *classOrNamespaceNestedInNestedBlock = b->lookupType(name, block))
                 return classOrNamespaceNestedInNestedBlock;
         }
@@ -376,13 +376,13 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
         if (ClassOrNamespace *found = lookupType(name, scope->enclosingScope()))
             return found;
 
-    } else if (ClassOrNamespace *b = bindings()->lookupType(scope, enclosingTemplateInstantiation)) {
+    } else if (ClassOrNamespace *b = bindings()->lookupType(scope, enclosingBinding)) {
         return b->lookupType(name);
     } else if (Class *scopeAsClass = scope->asClass()) {
         if (scopeAsClass->enclosingScope()->isBlock()) {
             if (ClassOrNamespace *b = lookupType(scopeAsClass->name(),
                                                  scopeAsClass->enclosingScope(),
-                                                 enclosingTemplateInstantiation,
+                                                 enclosingBinding,
                                                  typedefsBeingResolved)) {
                 return b->lookupType(name);
             }
@@ -393,9 +393,9 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
 }
 
 ClassOrNamespace *LookupContext::lookupType(Symbol *symbol,
-                                            ClassOrNamespace* enclosingTemplateInstantiation) const
+                                            ClassOrNamespace *enclosingBinding) const
 {
-    return bindings()->lookupType(symbol, enclosingTemplateInstantiation);
+    return bindings()->lookupType(symbol, enclosingBinding);
 }
 
 QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
@@ -1521,19 +1521,20 @@ ClassOrNamespace *CreateBindings::globalNamespace() const
     return _globalNamespace;
 }
 
-ClassOrNamespace *CreateBindings::lookupType(Symbol *symbol, ClassOrNamespace* enclosingTemplateInstantiation)
+ClassOrNamespace *CreateBindings::lookupType(Symbol *symbol, ClassOrNamespace *enclosingBinding)
 {
     const QList<const Name *> path = LookupContext::path(symbol);
-    return lookupType(path, enclosingTemplateInstantiation);
+    return lookupType(path, enclosingBinding);
 }
 
-ClassOrNamespace *CreateBindings::lookupType(const QList<const Name *> &path, ClassOrNamespace* enclosingTemplateInstantiation)
+ClassOrNamespace *CreateBindings::lookupType(const QList<const Name *> &path,
+                                             ClassOrNamespace *enclosingBinding)
 {
     if (path.isEmpty())
         return _globalNamespace;
 
-    if (enclosingTemplateInstantiation) {
-        if (ClassOrNamespace *b = enclosingTemplateInstantiation->lookupType(path.last()))
+    if (enclosingBinding) {
+        if (ClassOrNamespace *b = enclosingBinding->lookupType(path.last()))
             return b;
     }
 

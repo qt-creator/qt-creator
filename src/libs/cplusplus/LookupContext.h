@@ -202,10 +202,9 @@ public:
     ClassOrNamespace *globalNamespace() const;
 
     /// Finds the binding associated to the given symbol.
-    ClassOrNamespace *lookupType(Symbol *symbol,
-                                 ClassOrNamespace* enclosingTemplateInstantiation = 0);
+    ClassOrNamespace *lookupType(Symbol *symbol, ClassOrNamespace *enclosingBinding = 0);
     ClassOrNamespace *lookupType(const QList<const Name *> &path,
-                                 ClassOrNamespace* enclosingTemplateInstantiation = 0);
+                                 ClassOrNamespace *enclosingBinding = 0);
 
     /// Returns the Control that must be used to create temporary symbols.
     /// \internal
@@ -310,11 +309,11 @@ public:
 
     QList<LookupItem> lookup(const Name *name, Scope *scope) const;
     ClassOrNamespace *lookupType(const Name *name, Scope *scope,
-                                 ClassOrNamespace* enclosingTemplateInstantiation = 0,
+                                 ClassOrNamespace *enclosingBinding = 0,
                                  QSet<const Declaration *> typedefsBeingResolved
                                     = QSet<const Declaration *>()) const;
     ClassOrNamespace *lookupType(Symbol *symbol,
-                                 ClassOrNamespace* enclosingTemplateInstantiation = 0) const;
+                                 ClassOrNamespace *enclosingBinding = 0) const;
     ClassOrNamespace *lookupParent(Symbol *symbol) const;
 
     /// \internal

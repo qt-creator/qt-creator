@@ -1015,20 +1015,20 @@ bool ResolveExpression::visit(MemberAccessAST *ast)
 }
 
 ClassOrNamespace *ResolveExpression::findClass(const FullySpecifiedType &originalTy, Scope *scope,
-                                               ClassOrNamespace* enclosingTemplateInstantiation) const
+                                               ClassOrNamespace *enclosingBinding) const
 {
     FullySpecifiedType ty = originalTy.simplified();
     ClassOrNamespace *binding = 0;
 
     if (Class *klass = ty->asClassType()) {
         if (scope->isBlock())
-            binding = _context.lookupType(klass->name(), scope, enclosingTemplateInstantiation);
+            binding = _context.lookupType(klass->name(), scope, enclosingBinding);
         if (!binding)
-            binding = _context.lookupType(klass, enclosingTemplateInstantiation);
+            binding = _context.lookupType(klass, enclosingBinding);
     }
 
     else if (NamedType *namedTy = ty->asNamedType())
-        binding = _context.lookupType(namedTy->name(), scope, enclosingTemplateInstantiation);
+        binding = _context.lookupType(namedTy->name(), scope, enclosingBinding);
 
     else if (Function *funTy = ty->asFunctionType())
         return findClass(funTy->returnType(), scope);
@@ -1146,13 +1146,13 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                 return binding;
             }
 
-            ClassOrNamespace *enclosingTemplateInstantiation = 0;
+            ClassOrNamespace *enclosingBinding = 0;
             if (ClassOrNamespace *binding = r.binding()) {
                 if (binding->instantiationOrigin())
-                    enclosingTemplateInstantiation = binding;
+                    enclosingBinding = binding;
             }
 
-            if (ClassOrNamespace *binding = findClass(ty, scope, enclosingTemplateInstantiation))
+            if (ClassOrNamespace *binding = findClass(ty, scope, enclosingBinding))
                 return binding;
         }
     }
