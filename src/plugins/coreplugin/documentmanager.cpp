@@ -104,6 +104,8 @@ static const char projectDirectoryKeyC[] = "Projects";
 static const char useProjectDirectoryKeyC[] = "UseProjectsDirectory";
 static const char buildDirectoryKeyC[] = "BuildDirectory.Template";
 
+using namespace Utils;
+
 namespace Core {
 
 static void readSettings();
@@ -182,7 +184,7 @@ QFileSystemWatcher *DocumentManagerPrivate::fileWatcher()
 
 QFileSystemWatcher *DocumentManagerPrivate::linkWatcher()
 {
-    if (Utils::HostOsInfo::isAnyUnixHost()) {
+    if (HostOsInfo::isAnyUnixHost()) {
         if (!m_linkWatcher) {
             m_linkWatcher = new QFileSystemWatcher(m_instance);
             m_linkWatcher->setObjectName(QLatin1String("_qt_autotest_force_engine_poller"));
@@ -388,14 +390,14 @@ void DocumentManager::renamedFile(const QString &from, const QString &to)
     foreach (IDocument *document, documentsToRename) {
         d->m_blockedIDocument = document;
         removeFileInfo(document);
-        document->setFilePath(Utils::FileName::fromString(to));
+        document->setFilePath(FileName::fromString(to));
         addFileInfo(document);
         d->m_blockedIDocument = 0;
     }
     emit m_instance->allDocumentsRenamed(from, to);
 }
 
-void DocumentManager::filePathChanged(const Utils::FileName &oldName, const Utils::FileName &newName)
+void DocumentManager::filePathChanged(const FileName &oldName, const FileName &newName)
 {
     IDocument *doc = qobject_cast<IDocument *>(sender());
     QTC_ASSERT(doc, return);
@@ -480,7 +482,7 @@ QString DocumentManager::fixFileName(const QString &fileName, FixMode fixmode)
         s = QDir::cleanPath(s);
     }
     s = QDir::toNativeSeparators(s);
-    if (Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
+    if (HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
         s = s.toLower();
     return s;
 }
@@ -922,8 +924,8 @@ void DocumentManager::checkForReload()
     d->m_blockActivated = true;
 
     IDocument::ReloadSetting defaultBehavior = EditorManagerPrivate::reloadSetting();
-    Utils::ReloadPromptAnswer previousReloadAnswer = Utils::ReloadCurrent;
-    Utils::FileDeletedPromptAnswer previousDeletedAnswer = Utils::FileDeletedSave;
+    ReloadPromptAnswer previousReloadAnswer = ReloadCurrent;
+    FileDeletedPromptAnswer previousDeletedAnswer = FileDeletedSave;
 
     QList<IDocument *> documentsToClose;
     QMap<IDocument*, QString> documentsToSave;
@@ -1056,26 +1058,26 @@ void DocumentManager::checkForReload()
             // IDocument wants us to ask
             } else if (type == IDocument::TypeContents) {
                 // content change, IDocument wants to ask user
-                if (previousReloadAnswer == Utils::ReloadNone) {
+                if (previousReloadAnswer == ReloadNone) {
                     // answer already given, ignore
                     success = document->reload(&errorString, IDocument::FlagIgnore, IDocument::TypeContents);
-                } else if (previousReloadAnswer == Utils::ReloadAll) {
+                } else if (previousReloadAnswer == ReloadAll) {
                     // answer already given, reload
                     success = document->reload(&errorString, IDocument::FlagReload, IDocument::TypeContents);
                 } else {
                     // Ask about content change
-                    previousReloadAnswer = Utils::reloadPrompt(document->filePath(), document->isModified(),
+                    previousReloadAnswer = reloadPrompt(document->filePath(), document->isModified(),
                                                                ICore::dialogParent());
                     switch (previousReloadAnswer) {
-                    case Utils::ReloadAll:
-                    case Utils::ReloadCurrent:
+                    case ReloadAll:
+                    case ReloadCurrent:
                         success = document->reload(&errorString, IDocument::FlagReload, IDocument::TypeContents);
                         break;
-                    case Utils::ReloadSkipCurrent:
-                    case Utils::ReloadNone:
+                    case ReloadSkipCurrent:
+                    case ReloadNone:
                         success = document->reload(&errorString, IDocument::FlagIgnore, IDocument::TypeContents);
                         break;
-                    case Utils::CloseCurrent:
+                    case CloseCurrent:
                         documentsToClose << document;
                         break;
                     }
@@ -1085,18 +1087,18 @@ void DocumentManager::checkForReload()
                 // Ask about removed file
                 bool unhandled = true;
                 while (unhandled) {
-                    if (previousDeletedAnswer != Utils::FileDeletedCloseAll) {
+                    if (previousDeletedAnswer != FileDeletedCloseAll) {
                         previousDeletedAnswer =
-                                Utils::fileDeletedPrompt(document->filePath().toString(),
+                                fileDeletedPrompt(document->filePath().toString(),
                                                          trigger == IDocument::TriggerExternal,
                                                          QApplication::activeWindow());
                     }
                     switch (previousDeletedAnswer) {
-                    case Utils::FileDeletedSave:
+                    case FileDeletedSave:
                         documentsToSave.insert(document, document->filePath().toString());
                         unhandled = false;
                         break;
-                    case Utils::FileDeletedSaveAs:
+                    case FileDeletedSaveAs:
                     {
                         const QString &saveFileName = getSaveAsFileName(document);
                         if (!saveFileName.isEmpty()) {
@@ -1105,8 +1107,8 @@ void DocumentManager::checkForReload()
                         }
                         break;
                     }
-                    case Utils::FileDeletedClose:
-                    case Utils::FileDeletedCloseAll:
+                    case FileDeletedClose:
+                    case FileDeletedCloseAll:
                         documentsToClose << document;
                         unhandled = false;
                         break;
@@ -1227,7 +1229,7 @@ void readSettings()
     if (!settingsProjectDir.isEmpty() && QFileInfo(settingsProjectDir).isDir())
         d->m_projectsDirectory = settingsProjectDir;
     else
-        d->m_projectsDirectory = Utils::PathChooser::homePath();
+        d->m_projectsDirectory = PathChooser::homePath();
     d->m_useProjectsDirectory = s->value(QLatin1String(useProjectDirectoryKeyC),
                                          d->m_useProjectsDirectory).toBool();
 
