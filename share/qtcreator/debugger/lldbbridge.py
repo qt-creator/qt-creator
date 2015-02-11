@@ -1633,10 +1633,6 @@ class Dumper(DumperBase):
         error = str(result.GetError())
         self.report('success="%d",output="%s",error="%s"' % (success, output, error))
 
-    def addExtraDumper(self, args):
-        self.addDumperModule(args['path'])
-        self.report('ok')
-
     def updateData(self, args):
         if 'expanded' in args:
             self.expandedINames = set(args['expanded'].split(','))

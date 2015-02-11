@@ -1884,11 +1884,15 @@ void GdbEngine::notifyAdapterShutdownOk()
         .arg(lastGoodState()).arg(m_gdbProc->state()));
     m_commandsDoneCallback = 0;
     switch (m_gdbProc->state()) {
-    case QProcess::Running:
+    case QProcess::Running: {
         if (startParameters().closeMode == KillAndExitMonitorAtClose)
             postCommand("monitor exit");
-        postCommand("exitGdb", GdbEngine::ExitRequest, CB(handleGdbExit));
+        DebuggerCommand cmd("exitGdb");
+        cmd.flags = GdbEngine::ExitRequest;
+        cmd.callback = CB(handleGdbExit);
+        runCommand(cmd);
         break;
+    }
     case QProcess::NotRunning:
         // Cannot find executable.
         notifyEngineShutdownOk();
@@ -4287,8 +4291,11 @@ void GdbEngine::startGdb(const QStringList &args)
     postCommand("python from gdbbridge import *", flags);
 
     const QString path = stringSetting(ExtraDumperFile);
-    if (!path.isEmpty())
-        postCommand("python addExtraDumper('" + path.toUtf8() + "')", flags);
+    if (!path.isEmpty()) {
+        DebuggerCommand cmd("addDumperModule");
+        cmd.arg("path", path.toUtf8());
+        runCommand(cmd);
+    }
 
     const QString commands = stringSetting(ExtraDumperCommands);
     if (!commands.isEmpty())
@@ -4324,7 +4331,7 @@ void GdbEngine::loadInitScript()
 
 void GdbEngine::reloadDebuggingHelpers()
 {
-    postCommand("reload");
+    runCommand("reloadDumper");
     reloadLocals();
 }
 

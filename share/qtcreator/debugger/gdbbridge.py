@@ -1696,6 +1696,10 @@ class Dumper(DumperBase):
 
         self.qmlBreakpoints.append(Resolver(self, args))
 
+    def exitGdb(self, _):
+        if hasPlot:
+            matplotQuit()
+        gdb.execute("quit")
 
 
 class CliDumper(Dumper):
@@ -1862,17 +1866,6 @@ registerCommand("threadnames", threadnames)
 
 #######################################################################
 #
-# Reload Command
-#
-#######################################################################
-
-def reloadDumper(_):
-    theDumper.reloadDumper();
-
-registerCommand("reload", reloadDumper)
-
-#######################################################################
-#
 # StackFrames Command
 #
 #######################################################################
@@ -1890,25 +1883,6 @@ def stackListFrames(arg):
         traceback.print_exc()
 
 registerCommand("stackListFrames", stackListFrames)
-
-#######################################################################
-#
-# AddExtraDumpers Command
-#
-#######################################################################
-
-def addExtraDumper(args):
-    theDumper.addDumperModule(args)
-
-registerCommand("addExtraDumper", addExtraDumper)
-
-def exitGdb(arg):
-    if hasPlot:
-        matplotQuit()
-    gdb.execute("quit")
-    return ""
-
-registerCommand("exitGdb", exitGdb)
 
 #######################################################################
 #

@@ -1707,7 +1707,8 @@ class DumperBase:
 
         findDumperFunctions()
 
-    def addDumperModule(self, path):
+    def addDumperModule(self, args):
+        path = args['path']
         (head, tail) = os.path.split(path)
         sys.path.insert(1, head)
         self.dumpermodules.append(os.path.splitext(tail)[0])
