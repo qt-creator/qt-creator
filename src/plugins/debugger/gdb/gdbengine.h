@@ -369,7 +369,7 @@ protected:
     void handleThreadListIds(const DebuggerResponse &response);
     void handleThreadInfo(const DebuggerResponse &response);
     void handleThreadNames(const DebuggerResponse &response);
-    QByteArray stackCommand(int depth);
+    DebuggerCommand stackCommand(int depth);
     Q_SLOT void reloadStack();
     Q_SLOT virtual void reloadFullStack();
     virtual void loadAdditionalQmlStack();

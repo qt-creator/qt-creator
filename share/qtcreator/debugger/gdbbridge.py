@@ -1620,14 +1620,19 @@ class Dumper(DumperBase):
         self.typesToReport[typestring] = typeobj
         return typeobj
 
-    def stackListFrames(self, n, options):
+    def stackListFrames(self, args):
+        limit = int(args['limit'])
+        if limit <= 0:
+           limit = 10000
+        options = args['options']
+
         self.prepare("options:" + options + ",pe")
         self.output = []
 
         frame = gdb.newest_frame()
         i = 0
         self.currentCallContext = None
-        while i < n and frame:
+        while i < limit and frame:
             with OutputSafer(self):
                 name = frame.name()
                 functionName = "??" if name is None else name
@@ -1675,8 +1680,7 @@ class Dumper(DumperBase):
 
             frame = frame.older()
             i += 1
-
-        return ''.join(self.output)
+        print(''.join(self.output))
 
     def createResolvePendingBreakpointsHookBreakpoint(self, args):
         class Resolver(gdb.Breakpoint):
@@ -1863,26 +1867,6 @@ def threadnames(arg):
     return theDumper.threadnames(int(arg))
 
 registerCommand("threadnames", threadnames)
-
-#######################################################################
-#
-# StackFrames Command
-#
-#######################################################################
-
-def stackListFrames(arg):
-    try:
-        args = arg.split(' ')
-        limit = int(args[0]) if len(args) > 0 else 10000
-        if limit <= 0:
-            limit = 10000
-        options = args[1] if len(args) > 1 else ""
-        return theDumper.stackListFrames(limit, options)
-    except:
-        import traceback
-        traceback.print_exc()
-
-registerCommand("stackListFrames", stackListFrames)
 
 #######################################################################
 #

@@ -1227,9 +1227,10 @@ void GdbEngine::updateAll()
     //PENDING_DEBUG("UPDATING ALL\n");
     QTC_CHECK(state() == InferiorUnrunnable || state() == InferiorStopOk);
     reloadModulesInternal();
-    int depth = action(MaximalStackDepth)->value().toInt();
-    postCommand(stackCommand(depth), NoFlags,
-            [this](const DebuggerResponse &r) { handleStackListFrames(r, false); });
+    DebuggerCommand cmd = stackCommand(action(MaximalStackDepth)->value().toInt());
+    cmd.flags = NoFlags;
+    cmd.callback = [this](const DebuggerResponse &r) { handleStackListFrames(r, false); };
+    runCommand(cmd);
     stackHandler()->setCurrentIndex(0);
     postCommand("-thread-info", NoFlags, CB(handleThreadInfo));
     reloadRegisters();
@@ -3182,8 +3183,10 @@ void GdbEngine::reloadFullStack()
 {
     PENDING_DEBUG("RELOAD FULL STACK");
     resetLocation();
-    postCommand(stackCommand(-1), Discardable,
-        [this](const DebuggerResponse &r) { handleStackListFrames(r, true); });
+    DebuggerCommand cmd = stackCommand(-1);
+    cmd.flags = Discardable;
+    cmd.callback = [this](const DebuggerResponse &r) { handleStackListFrames(r, true); };
+    runCommand(cmd);
 }
 
 void GdbEngine::loadAdditionalQmlStack()
@@ -3270,30 +3273,21 @@ void GdbEngine::handleQmlStackTrace(const DebuggerResponse &response)
     stackHandler()->prependFrames(qmlFrames);
 }
 
-QByteArray GdbEngine::stackCommand(int depth)
+DebuggerCommand GdbEngine::stackCommand(int depth)
 {
-    QByteArray cmd;
-    if (isNativeMixedEnabled()) {
-        cmd = "stackListFrames " + QByteArray::number(depth) + ' ';
-        if (isNativeMixedActive())
-            cmd += "nativemixed";
-        else
-            cmd += "noopt";
-    } else {
-        if (depth == -1)
-            cmd = "-stack-list-frames";
-        else
-            cmd = "-stack-list-frames 0 " + QByteArray::number(depth);
-    }
+    DebuggerCommand cmd("stackListFrames");
+    cmd.arg("limit", depth);
+    cmd.arg("options", isNativeMixedActive() ? "nativemixed" : "");
     return cmd;
 }
 
 void GdbEngine::reloadStack()
 {
     PENDING_DEBUG("RELOAD STACK");
-    int depth = action(MaximalStackDepth)->value().toInt();
-    postCommand(stackCommand(depth), Discardable,
-        [this](const DebuggerResponse &r) { handleStackListFrames(r, false); });
+    DebuggerCommand cmd = stackCommand(action(MaximalStackDepth)->value().toInt());
+    cmd.flags = Discardable;
+    cmd.callback = [this](const DebuggerResponse &r) { handleStackListFrames(r, false); };
+    runCommand(cmd);
 }
 
 StackFrame GdbEngine::parseStackFrame(const GdbMi &frameMi, int level)
