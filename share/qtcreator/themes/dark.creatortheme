@@ -66,6 +66,7 @@ ProgressBarColorError=error
 ProgressBarColorFinished=ff5aaa3c
 ProgressBarColorNormal=hoverBackground
 ProgressBarTitleColor=text
+SplitterColor=ffb0b0b0
 TextColorDisabled=textDisabled
 TextColorHighlight=ffff0000
 TextColorNormal=text

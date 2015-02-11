@@ -620,7 +620,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
     switch (element) {
     case CE_Splitter:
         if (creatorTheme()->widgetStyle() == Theme::StyleFlat)
-            painter->fillRect(option->rect, creatorTheme()->color(Theme::BackgroundColorSelected));
+            painter->fillRect(option->rect, creatorTheme()->color(Theme::SplitterColor));
         else
             painter->fillRect(option->rect, StyleHelper::borderColor());
         break;
