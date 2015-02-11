@@ -210,22 +210,6 @@ def stripTypedefs(typeobj):
 
 #######################################################################
 #
-# Frame Command
-#
-#######################################################################
-
-
-def bb(args):
-    try:
-        print(theDumper.run(args))
-    except:
-        import traceback
-        traceback.print_exc()
-
-registerCommand("bb", bb)
-
-#######################################################################
-#
 # The Dumper Class
 #
 #######################################################################
@@ -236,7 +220,7 @@ class Dumper(DumperBase):
     def __init__(self):
         DumperBase.__init__(self)
 
-        # These values will be kept between calls to 'run'.
+        # These values will be kept between calls to 'showData'.
         self.isGdb = True
         self.childEventAddress = None
         self.typesReported = {}
@@ -256,60 +240,40 @@ class Dumper(DumperBase):
         self.currentValue = ReportItem()
         self.currentType = ReportItem()
         self.currentAddress = None
-        self.typeformats = {}
-        self.formats = {}
-        self.useDynamicType = True
-        self.expandedINames = {}
-        self.qmlcontext = ""
 
-        # The guess does not need to be updated during a run()
+        # The guess does not need to be updated during a showData()
         # as the result is fixed during that time (ignoring "active"
         # dumpers causing loading of shared objects etc).
         self.currentQtNamespaceGuess = None
 
-        self.watchers = ""
-        self.resultVarName = ""
-        self.varList = []
-        self.options = []
+        self.varList = args.get("vars", [])
+        self.resultVarName = args.get("resultvarname", "")
+        self.expandedINames = set(args.get("expanded", []))
+        self.stringCutOff = int(args.get("stringcutoff", 10000))
+        self.displayStringLimit = int(args.get("displaystringlimit", 10000))
 
-        for arg in args.split(' '):
-            pos = arg.find(":") + 1
-            if arg.startswith("options:"):
-                self.options = arg[pos:].split(",")
-            elif arg.startswith("vars:"):
-                if len(arg[pos:]) > 0:
-                    self.varList = arg[pos:].split(",")
-            elif arg.startswith("resultvarname:"):
-                self.resultVarName = arg[pos:]
-            elif arg.startswith("expanded:"):
-                self.expandedINames = set(arg[pos:].split(","))
-            elif arg.startswith("stringcutoff:"):
-                self.stringCutOff = int(arg[pos:])
-            elif arg.startswith("displaystringlimit:"):
-                self.displayStringLimit = int(arg[pos:])
-            elif arg.startswith("typeformats:"):
-                for f in arg[pos:].split(","):
-                    pos = f.find("=")
-                    if pos != -1:
-                        typeName = self.hexdecode(f[0:pos])
-                        self.typeformats[typeName] = int(f[pos+1:])
-            elif arg.startswith("formats:"):
-                for f in arg[pos:].split(","):
-                    pos = f.find("=")
-                    if pos != -1:
-                        self.formats[f[0:pos]] = int(f[pos+1:])
-            elif arg.startswith("watchers:"):
-                self.watchers = self.hexdecode(arg[pos:])
-            elif arg.startswith("qmlcontext:"):
-                self.qmlcontext = int(arg[pos:], 0)
+        self.typeformats = {}
+        for f in args.get("typeformats", "").split(","):
+            pos = f.find("=")
+            if pos != -1:
+                typeName = self.hexdecode(f[0:pos])
+                self.typeformats[typeName] = int(f[pos+1:])
 
-        self.useDynamicType = "dyntype" in self.options
-        self.useFancy = "fancy" in self.options
-        self.forceQtNamespace = "forcens" in self.options
-        self.passExceptions = "pe" in self.options
-        self.nativeMixed = "nativemixed" in self.options
-        self.autoDerefPointers = "autoderef" in self.options
-        self.partialUpdate = "partial" in self.options
+        self.formats = {}
+        for f in args.get("formats", "").split(","):
+            pos = f.find("=")
+            if pos != -1:
+                self.formats[f[0:pos]] = int(f[pos+1:])
+
+        self.watchers = args.get("watchers", {})
+        self.qmlcontext = int(args.get("qmlcontext", "0"))
+        self.useDynamicType = int(args.get("dyntype", "0"))
+        self.useFancy = int(args.get("fancy", "0"))
+        self.forceQtNamespace = int(args.get("forcens", "0"))
+        self.passExceptions = int(args.get("passExceptions", "0"))
+        self.nativeMixed = int(args.get("nativemixed", "0"))
+        self.autoDerefPointers = int(args.get("autoderef", "0"))
+        self.partialUpdate = int(args.get("partial", "0"))
         self.fallbackQtVersion = 0x50200
         #warn("NAMESPACE: '%s'" % self.qtNamespace())
         #warn("VARIABLES: %s" % self.varList)
@@ -319,10 +283,10 @@ class Dumper(DumperBase):
 
     def handleWatches(self):
         with OutputSafer(self):
-            if len(self.watchers) > 0:
-                for watcher in self.watchers.split("##"):
-                    (exp, iname) = watcher.split("#")
-                    self.handleWatch(exp, exp, iname)
+            for watcher in self.watchers:
+                iname = watcher['iname']
+                exp = self.hexdecode(watcher['exp'])
+                self.handleWatch(exp, exp, iname)
 
     def listOfLocals(self):
         frame = gdb.selected_frame()
@@ -405,7 +369,7 @@ class Dumper(DumperBase):
         return items
 
 
-    def run(self, args):
+    def showData(self, args):
         self.prepare(args)
 
         #
@@ -481,14 +445,13 @@ class Dumper(DumperBase):
         self.output.append(']')
         self.typesToReport = {}
 
-        if "forcens" in self.options:
+        if self.forceQtNamespace:
             self.qtNamepaceToReport = self.qtNamespace()
 
         if self.qtNamespaceToReport:
             self.output.append(',qtnamespace="%s"' % self.qtNamespaceToReport)
             self.qtNamespaceToReport = None
-
-        return "".join(self.output)
+        print(''.join(self.output))
 
     def enterSubItem(self, item):
         if not item.iname:
@@ -1619,8 +1582,11 @@ class Dumper(DumperBase):
         if limit <= 0:
            limit = 10000
         options = args['options']
+        opts = {}
+        if options == "nativemixed":
+            opts["nativemixed"] = 1
 
-        self.prepare("options:" + options + ",pe")
+        self.prepare(opts)
         self.output = []
 
         frame = gdb.newest_frame()
@@ -1698,6 +1664,21 @@ class Dumper(DumperBase):
         if hasPlot:
             matplotQuit()
         gdb.execute("quit")
+
+    def profile1(self, args):
+        """Internal profiling"""
+        import tempfile
+        import cProfile
+        tempDir = tempfile.gettempdir() + "/bbprof"
+        cProfile.run('theDumper.showData(%s)' % args, tempDir)
+        import pstats
+        pstats.Stats(tempDir).sort_stats('time').print_stats()
+
+    def profile2(self, args):
+        import timeit
+        print(timeit.repeat('theDumper.showData(%s)' % args,
+            'from __main__ import theDumper', number=10))
+
 
 
 class CliDumper(Dumper):
@@ -1788,7 +1769,7 @@ class CliDumper(Dumper):
     def putAddressRange(self, base, step):
         return True
 
-    def run(self, args):
+    def showData(self, args):
         arglist = args.split(' ')
         name = ''
         if len(arglist) >= 1:
@@ -1797,19 +1778,18 @@ class CliDumper(Dumper):
         if len(arglist) >= 2:
             for sub in arglist[1].split(','):
                 allexpanded.append(name + '.' + sub)
-        self.prepare("options:fancy,pe,autoderef expanded:" + ','.join(allexpanded))
+        pars = {}
+        pars['fancy': 1]
+        pars['passException': 1]
+        pars['autoderef': 1]
+        pars['expanded': allexpanded]
+        self.prepare(pars)
         self.output = name + ' = '
         frame = gdb.selected_frame()
         value = frame.read_var(name)
         with TopLevelItem(self, name):
             self.putItem(value)
         return self.output
-
-def pp(args):
-    return theDumper.run(args)
-
-registerCommand("pp", pp)
-
 
 # Global instance.
 if gdb.parameter('height') is None:
@@ -1818,40 +1798,7 @@ else:
     import codecs
     theDumper = CliDumper()
 
-#######################################################################
-#
-# Internal profiling
-#
-#######################################################################
-
-def p1(args):
-    import tempfile
-    import cProfile
-    tempDir = tempfile.gettempdir() + "/bbprof"
-    cProfile.run('bb("%s")' % args, tempDir)
-    import pstats
-    pstats.Stats(tempDir).sort_stats('time').print_stats()
-    return ""
-
-registerCommand("p1", p1)
-
-def p2(args):
-    import timeit
-    return timeit.repeat('bb("%s")' % args,
-        'from __main__ import bb', number=10)
-
-registerCommand("p2", p2)
-
-def p3(args):
-    eval(args)
-
-def p3(args):
-    import timeit
-    return timeit.repeat('p3("%s")' % args, 'from __main__ import p3', number=10000)
-
-registerCommand("p3", p3)
-
-#######################################################################
+######################################################################
 #
 # ThreadNames Command
 #

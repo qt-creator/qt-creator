@@ -486,7 +486,7 @@ protected:
     static QByteArray dotEscape(QByteArray str);
 
     void debugLastCommand();
-    QByteArray m_lastDebuggableCommand;
+    DebuggerCommand m_lastDebuggableCommand;
 
 protected:
     virtual void write(const QByteArray &data);

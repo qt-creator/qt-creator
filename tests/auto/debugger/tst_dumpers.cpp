@@ -1204,10 +1204,14 @@ void tst_Dumpers::dumper()
     }
 
     QByteArray expanded;
+    QByteArray expandedq;
     foreach (const QByteArray &iname, expandedINames) {
-        if (!expanded.isEmpty())
+        if (!expanded.isEmpty()) {
             expanded.append(',');
+            expandedq.append(',');
+        }
         expanded += iname;
+        expandedq += '\'' + iname + '\'';
     }
 
     QByteArray exe = m_debuggerBinary;
@@ -1238,7 +1242,8 @@ void tst_Dumpers::dumper()
                 "python from gdbbridge import *\n"
                 "python theDumper.setupDumper()\n"
                 "run " + nograb + "\n"
-                "bb options:fancy,forcens,autoderef,dyntype,pe vars: expanded:" + expanded + " typeformats:\n";
+                "python theDumper.showData({'fancy':1,'forcens':1,'autoderef':1,"
+                        "'dyntype':1,'passExceptions':1,'expanded':[" + expandedq + "]})\n";
 
         cmds += "quit\n";
 

@@ -4723,7 +4723,7 @@ QByteArray GdbEngine::dotEscape(QByteArray str)
 
 void GdbEngine::debugLastCommand()
 {
-    postCommand(m_lastDebuggableCommand, Discardable);
+    runCommand(m_lastDebuggableCommand);
 }
 
 //
@@ -4761,73 +4761,59 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
     m_processedNames.clear();
 
     WatchHandler *handler = watchHandler();
-    QByteArray expanded = "expanded:" + handler->expansionRequests() + ' ';
-    expanded += "typeformats:" + handler->typeFormatRequests() + ' ';
-    expanded += "formats:" + handler->individualFormatRequests();
 
-    QByteArray cutOff = " stringcutoff:"
-        + action(MaximalStringLength)->value().toByteArray()
-        + " displaystringlimit:"
-        + action(DisplayStringLimit)->value().toByteArray();
+    DebuggerCommand cmd("showData");
+    cmd.arg("expanded", handler->expansionRequests());
+    cmd.arg("typeformats", handler->typeFormatRequests());
+    cmd.arg("formats", handler->individualFormatRequests());
+
+    cmd.arg("stringcutoff", action(MaximalStringLength)->value().toByteArray());
+    cmd.arg("displaystringlimit", action(DisplayStringLimit)->value().toByteArray());
 
     // Re-create tooltip items that are not filters on existing local variables in
     // the tooltip model.
-    QByteArray watchers;
+    cmd.beginList("watchers");
     DebuggerToolTipContexts toolTips = DebuggerToolTipManager::pendingTooltips(this);
     foreach (const DebuggerToolTipContext &p, toolTips) {
-        if (!watchers.isEmpty())
-            watchers += "##";
-        watchers += p.expression.toLatin1();
-        watchers += '#';
-        watchers += p.iname;
+        cmd.beginGroup();
+        cmd.arg("iname", p.iname);
+        cmd.arg("exp", p.expression.toLatin1().toHex());
+        cmd.endGroup();
     }
 
-    QHash<QByteArray, int> watcherNames = handler->watcherNames();
-    QHashIterator<QByteArray, int> it(watcherNames);
+    QHashIterator<QByteArray, int> it(WatchHandler::watcherNames());
     while (it.hasNext()) {
         it.next();
-        if (!watchers.isEmpty())
-            watchers += "##";
-        watchers += it.key() + "#watch." + QByteArray::number(it.value());
+        cmd.beginGroup();
+        cmd.arg("iname", "watch." + QByteArray::number(it.value()));
+        cmd.arg("exp", it.key().toHex());
+        cmd.endGroup();
     }
+    cmd.endList();
 
     const static bool alwaysVerbose = !qgetenv("QTC_DEBUGGER_PYTHON_VERBOSE").isEmpty();
-    QByteArray options;
-    if (alwaysVerbose)
-        options += "pe,";
-    if (boolSetting(UseDebuggingHelpers))
-        options += "fancy,";
-    if (boolSetting(AutoDerefPointers))
-        options += "autoderef,";
-    if (boolSetting(UseDynamicType))
-        options += "dyntype,";
-    if (isNativeMixedActive())
-        options += "nativemixed,";
-    if (options.isEmpty())
-        options += "defaults,";
-    if (params.tryPartial)
-        options += "partial,";
-    options.chop(1);
 
-    QByteArray context;
+    cmd.arg("passExceptions", alwaysVerbose);
+    cmd.arg("fancy", boolSetting(UseDebuggingHelpers));
+    cmd.arg("autoderef", boolSetting(AutoDerefPointers));
+    cmd.arg("dyntype", boolSetting(UseDynamicType));
+    cmd.arg("nativemixed", isNativeMixedActive());
+    cmd.arg("partial", params.tryPartial);
+
     if (isNativeMixedActive()) {
         StackFrame frame = stackHandler()->currentFrame();
         if (frame.language == QmlLanguage)
-            context += " qmlcontext:0x" + QByteArray::number(frame.address, 16);
+            cmd.arg("qmlcontext", "0x" + QByteArray::number(frame.address, 16));
     }
 
-    QByteArray resultVar;
-    if (!m_resultVarName.isEmpty())
-        resultVar = "resultvarname:" + m_resultVarName + ' ';
+    cmd.arg("resultvarname", m_resultVarName);
+    cmd.arg("vars", params.varList);
+    cmd.flags = Discardable;
+    cmd.callback = [this, params](const DebuggerResponse &r) { handleStackFramePython(r, params.tryPartial); };
+    runCommand(cmd);
 
-    m_lastDebuggableCommand =
-           "bb options:pe," + options + " vars:" + params.varList + ' '
-               + expanded + " watchers:" + watchers.toHex() + cutOff + context;
-
-    postCommand("bb options:" + options + " vars:" + params.varList + ' '
-            + resultVar + expanded + " watchers:" + watchers.toHex() + cutOff + context,
-        Discardable,
-        [this, params](const DebuggerResponse &r) { handleStackFramePython(r, params.tryPartial); });
+    cmd.arg("passExceptions", true);
+    m_lastDebuggableCommand = cmd;
 }
 
 void GdbEngine::handleStackFramePython(const DebuggerResponse &response, bool partial)
