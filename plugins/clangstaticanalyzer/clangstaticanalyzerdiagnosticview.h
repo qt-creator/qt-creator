@@ -30,11 +30,6 @@ class ClangStaticAnalyzerDiagnosticView : public Analyzer::DetailedErrorView
 
 public:
     ClangStaticAnalyzerDiagnosticView(QWidget *parent = 0);
-
-private:
-    void contextMenuEvent(QContextMenuEvent *e);
-
-    QAction *m_copyAction;
 };
 
 class ClangStaticAnalyzerDiagnosticDelegate : public Analyzer::DetailedErrorDelegate
@@ -43,11 +38,11 @@ public:
     ClangStaticAnalyzerDiagnosticDelegate(QListView *parent);
 
     SummaryLineInfo summaryInfo(const QModelIndex &index) const;
-    void copy();
 
 private:
     QWidget *createDetailsWidget(const QFont &font, const QModelIndex &index,
                                  QWidget *parent) const;
+    QString textualRepresentation() const Q_DECL_OVERRIDE;
 };
 
 } // namespace Internal

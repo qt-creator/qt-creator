@@ -21,19 +21,12 @@
 #include "clangstaticanalyzerlogfilereader.h"
 #include "clangstaticanalyzerutils.h"
 
-#include <coreplugin/coreconstants.h>
-
 #include <utils/qtcassert.h>
 
-#include <QAction>
-#include <QApplication>
-#include <QClipboard>
-#include <QContextMenuEvent>
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFileInfo>
 #include <QLabel>
-#include <QMenu>
 #include <QVBoxLayout>
 
 using namespace Analyzer;
@@ -203,32 +196,6 @@ DetailedErrorDelegate::SummaryLineInfo ClangStaticAnalyzerDiagnosticDelegate::su
     return info;
 }
 
-void ClangStaticAnalyzerDiagnosticDelegate::copy()
-{
-    QTC_ASSERT(m_detailsIndex.isValid(), return);
-
-    const Diagnostic diagnostic = m_detailsIndex.data(Qt::UserRole).value<Diagnostic>();
-    QTC_ASSERT(diagnostic.isValid(), return);
-
-    // Create summary
-    QString clipboardText = diagnostic.category + QLatin1String(": ") + diagnostic.type;
-    if (diagnostic.type != diagnostic.description)
-        clipboardText += QLatin1String(": ") + diagnostic.description;
-    clipboardText += QLatin1Char('\n');
-
-    // Create explaining steps
-    int explainingStepNumber = 1;
-    foreach (const ExplainingStep &explainingStep, diagnostic.explainingSteps) {
-        clipboardText += createExplainingStepString(explainingStep,
-                                                    explainingStepNumber++,
-                                                    /*withMarkup=*/ false,
-                                                    /*withAbsolutePath=*/ true) + QLatin1Char('\n');
-    }
-
-    clipboardText.chop(1); // Remove \n
-    QApplication::clipboard()->setText(clipboardText);
-}
-
 QWidget *ClangStaticAnalyzerDiagnosticDelegate::createDetailsWidget(const QFont &font,
                                                                     const QModelIndex &index,
                                                                     QWidget *parent) const
@@ -269,31 +236,38 @@ QWidget *ClangStaticAnalyzerDiagnosticDelegate::createDetailsWidget(const QFont 
     return widget;
 }
 
+QString ClangStaticAnalyzerDiagnosticDelegate::textualRepresentation() const
+{
+    QTC_ASSERT(m_detailsIndex.isValid(), return QString());
+
+    const Diagnostic diagnostic = m_detailsIndex.data(Qt::UserRole).value<Diagnostic>();
+    QTC_ASSERT(diagnostic.isValid(), return QString());
+
+    // Create summary
+    QString clipboardText = diagnostic.category + QLatin1String(": ") + diagnostic.type;
+    if (diagnostic.type != diagnostic.description)
+        clipboardText += QLatin1String(": ") + diagnostic.description;
+    clipboardText += QLatin1Char('\n');
+
+    // Create explaining steps
+    int explainingStepNumber = 1;
+    foreach (const ExplainingStep &explainingStep, diagnostic.explainingSteps) {
+        clipboardText += createExplainingStepString(explainingStep,
+                                                    explainingStepNumber++,
+                                                    /*withMarkup=*/ false,
+                                                    /*withAbsolutePath=*/ true) + QLatin1Char('\n');
+    }
+
+    clipboardText.chop(1); // Remove \n
+    return clipboardText;
+}
+
 ClangStaticAnalyzerDiagnosticView::ClangStaticAnalyzerDiagnosticView(QWidget *parent)
     : Analyzer::DetailedErrorView(parent)
 {
     ClangStaticAnalyzerDiagnosticDelegate *delegate
             = new ClangStaticAnalyzerDiagnosticDelegate(this);
     setItemDelegate(delegate);
-
-    m_copyAction = new QAction(this);
-    m_copyAction->setText(tr("Copy"));
-    m_copyAction->setIcon(QIcon(QLatin1String(Core::Constants::ICON_COPY)));
-    m_copyAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
-    m_copyAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    connect(m_copyAction, &QAction::triggered,
-            delegate, &ClangStaticAnalyzerDiagnosticDelegate::copy);
-    addAction(m_copyAction);
-}
-
-void ClangStaticAnalyzerDiagnosticView::contextMenuEvent(QContextMenuEvent *e)
-{
-    if (selectionModel()->selectedRows().isEmpty())
-        return;
-
-    QMenu menu;
-    menu.addAction(m_copyAction);
-    menu.exec(e->globalPos());
 }
 
 } // namespace Internal
