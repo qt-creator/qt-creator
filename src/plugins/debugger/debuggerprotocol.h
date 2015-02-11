@@ -45,8 +45,12 @@ class DebuggerResponse;
 class DebuggerCommand
 {
 public:
+    typedef std::function<void(const DebuggerResponse &)> Callback;
+
     DebuggerCommand() : flags(0) {}
-    DebuggerCommand(const char *f) : function(f), flags(0) {}
+    DebuggerCommand(const char *f, int flags = 0, Callback cb = Callback())
+        : function(f), callback(cb), flags(flags)
+    {}
     DebuggerCommand(const QByteArray &f) : function(f), flags(0) {}
 
     void arg(const char *name);
@@ -63,8 +67,6 @@ public:
 
     static QByteArray toData(const QList<QByteArray> &value);
     static QByteArray toData(const QHash<QByteArray, QByteArray> &value);
-
-    typedef std::function<void(const DebuggerResponse &)> Callback;
 
     QByteArray function;
     QByteArray args;

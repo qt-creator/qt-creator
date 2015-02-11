@@ -1672,7 +1672,7 @@ class DumperBase:
         except:
             pass
 
-    def findDumperFunctions(self):
+    def setupDumper(self, _ = {}):
         self.qqDumpers = {}
         self.qqFormats = {}
         self.qqEditable = {}
@@ -1687,7 +1687,7 @@ class DumperBase:
 
         return self.reportDumpers()
 
-    def reportDumpers(self):
+    def reportDumpers(self, _ = {}):
         result = "dumpers=["
         for key, value in self.qqFormats.items():
             if key in self.qqEditable:
@@ -1705,7 +1705,7 @@ class DumperBase:
             else:
                 reload(m)
 
-        findDumperFunctions()
+        setupDumper()
 
     def addDumperModule(self, args):
         path = args['path']

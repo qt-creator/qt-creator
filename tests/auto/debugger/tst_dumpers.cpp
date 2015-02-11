@@ -1236,7 +1236,7 @@ void tst_Dumpers::dumper()
         cmds += "python sys.path.insert(1, '" + dumperDir + "')\n"
                 "python sys.path.append('" + uninstalledData + "')\n"
                 "python from gdbbridge import *\n"
-                "bbsetup\n"
+                "python theDumper.setupDumper()\n"
                 "run " + nograb + "\n"
                 "bb options:fancy,forcens,autoderef,dyntype,pe vars: expanded:" + expanded + " typeformats:\n";
 

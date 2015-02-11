@@ -1693,7 +1693,7 @@ class Dumper(DumperBase):
         self.report(result + ']')
 
     def loadDumperFiles(self, _ = None):
-        result = self.findDumperFunctions()
+        result = self.setupDumper()
         self.report(result)
 
     def fetchMemory(self, args):

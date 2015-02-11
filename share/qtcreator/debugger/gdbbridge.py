@@ -135,12 +135,6 @@ class ScanStackCommand(gdb.Command):
 ScanStackCommand()
 
 
-def bbsetup(args = ''):
-    print(theDumper.findDumperFunctions())
-
-registerCommand("bbsetup", bbsetup)
-
-
 #######################################################################
 #
 # Import plain gdb pretty printers
