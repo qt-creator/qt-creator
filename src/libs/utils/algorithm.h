@@ -324,7 +324,7 @@ template<template<typename> class C, // result container type
          typename R,
          typename S>
 Q_REQUIRED_RESULT
-auto transform(const SC &container, R (S::*p)())
+auto transform(const SC &container, R (S::*p)() const)
      -> C<typename RemoveCvAndReference<R>::type>
 {
     return TransformImpl<
