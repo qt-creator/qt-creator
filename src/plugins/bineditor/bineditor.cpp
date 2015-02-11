@@ -1380,8 +1380,9 @@ void BinEditorWidget::copy(bool raw)
                              tr("You cannot copy more than 4 MB of binary data."));
         return;
     }
-    const QByteArray &data = dataMid(selStart, selectionLength);
+    QByteArray data = dataMid(selStart, selectionLength);
     if (raw) {
+        data.replace(0, ' ');
         QApplication::clipboard()->setText(QString::fromLatin1(data));
         return;
     }
