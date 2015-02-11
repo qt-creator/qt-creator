@@ -83,7 +83,10 @@ def main():
 
     test.verify(checkIfObjectExists(gettingStartedText),
                    "Verifying: Qt Creator displays Welcome Page with 'Get Started Now' button.")
-    expectedText = "(QtCreator : Qt Creator Manual)|(Qt Creator Manual [|] QtCreator)"
+    if isQt53Build:
+        expectedText = "(QtCreator : Qt Creator Manual)|(Qt Creator Manual [|] QtCreator)"
+    else:
+        expectedText = "Qt Creator Manual"
     testDetails = "Verifying: Help with Creator Documentation is being opened."
 
     clickItemVerifyHelpCombo(gettingStartedText, expectedText, testDetails)
