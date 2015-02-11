@@ -41,7 +41,6 @@
 #include "xmlprotocol/modelhelpers.h"
 #include "xmlprotocol/suppression.h"
 
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -52,12 +51,7 @@
 #include <QDebug>
 
 #include <QAction>
-#include <QApplication>
-#include <QClipboard>
-#include <QContextMenuEvent>
 #include <QLabel>
-#include <QListView>
-#include <QMenu>
 #include <QPainter>
 #include <QScrollBar>
 #include <QSortFilterProxyModel>
@@ -77,13 +71,12 @@ class MemcheckErrorDelegate : public Analyzer::DetailedErrorDelegate
 public:
     explicit MemcheckErrorDelegate(QListView *parent);
 
-    void copy();
-
     SummaryLineInfo summaryInfo(const QModelIndex &index) const;
 
 private:
     QWidget *createDetailsWidget(const QFont &font, const QModelIndex &errorIndex,
                                  QWidget *parent) const;
+    QString textualRepresentation() const Q_DECL_OVERRIDE;
 };
 
 static QString makeFrameName(const Frame &frame, const QString &relativeTo,
@@ -261,9 +254,9 @@ Analyzer::DetailedErrorDelegate::SummaryLineInfo MemcheckErrorDelegate::summaryI
     return info;
 }
 
-void MemcheckErrorDelegate::copy()
+QString MemcheckErrorDelegate::textualRepresentation() const
 {
-    QTC_ASSERT(m_detailsIndex.isValid(), return);
+    QTC_ASSERT(m_detailsIndex.isValid(), return QString());
 
     QString content;
     QTextStream stream(&content);
@@ -283,7 +276,7 @@ void MemcheckErrorDelegate::copy()
     }
 
     stream.flush();
-    QApplication::clipboard()->setText(content);
+    return content;
 }
 
 MemcheckErrorView::MemcheckErrorView(QWidget *parent)
@@ -292,14 +285,6 @@ MemcheckErrorView::MemcheckErrorView(QWidget *parent)
 {
     MemcheckErrorDelegate *delegate = new MemcheckErrorDelegate(this);
     setItemDelegate(delegate);
-
-    m_copyAction = new QAction(this);
-    m_copyAction->setText(tr("Copy"));
-    m_copyAction->setIcon(QIcon(QLatin1String(Core::Constants::ICON_COPY)));
-    m_copyAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
-    m_copyAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    connect(m_copyAction, &QAction::triggered, delegate, &MemcheckErrorDelegate::copy);
-    addAction(m_copyAction);
 
     m_suppressAction = new QAction(this);
     m_suppressAction->setText(tr("Suppress Error"));
@@ -332,30 +317,28 @@ void MemcheckErrorView::settingsChanged(ValgrindBaseSettings *settings)
     m_settings = settings;
 }
 
-void MemcheckErrorView::contextMenuEvent(QContextMenuEvent *e)
-{
-    const QModelIndexList indizes = selectionModel()->selectedRows();
-    if (indizes.isEmpty())
-        return;
-
-    QList<Error> errors;
-    foreach (const QModelIndex &index, indizes) {
-        Error error = model()->data(index, ErrorListModel::ErrorRole).value<Error>();
-        if (!error.suppression().isNull())
-            errors << error;
-    }
-
-    QMenu menu;
-    menu.addAction(m_copyAction);
-    menu.addSeparator();
-    menu.addAction(m_suppressAction);
-    m_suppressAction->setEnabled(!errors.isEmpty());
-    menu.exec(e->globalPos());
-}
-
 void MemcheckErrorView::suppressError()
 {
     SuppressionDialog::maybeShow(this);
+}
+
+QList<QAction *> MemcheckErrorView::customActions() const
+{
+    QList<QAction *> actions;
+    const QModelIndexList indizes = selectionModel()->selectedRows();
+    QTC_ASSERT(!indizes.isEmpty(), return actions);
+
+    bool hasErrors = false;
+    foreach (const QModelIndex &index, indizes) {
+        Error error = model()->data(index, ErrorListModel::ErrorRole).value<Error>();
+        if (!error.suppression().isNull()) {
+            hasErrors = true;
+            break;
+        }
+    }
+    m_suppressAction->setEnabled(hasErrors);
+    actions << m_suppressAction;
+    return actions;
 }
 
 } // namespace Internal

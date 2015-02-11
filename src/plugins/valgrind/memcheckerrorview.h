@@ -57,11 +57,11 @@ public slots:
     void settingsChanged(ValgrindBaseSettings *settings);
 
 private slots:
-    void contextMenuEvent(QContextMenuEvent *e);
     void suppressError();
 
 private:
-    QAction *m_copyAction;
+    QList<QAction *> customActions() const Q_DECL_OVERRIDE;
+
     QAction *m_suppressAction;
     QString m_defaultSuppFile;
     ValgrindBaseSettings *m_settings;

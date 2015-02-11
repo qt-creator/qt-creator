@@ -30,10 +30,14 @@
 
 #include "detailederrorview.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/qtcassert.h>
 
+#include <QApplication>
+#include <QClipboard>
+#include <QContextMenuEvent>
 #include <QFontMetrics>
 #include <QPainter>
 #include <QScrollBar>
@@ -216,6 +220,11 @@ void DetailedErrorDelegate::openLinkInEditor(const QString &link)
     Core::EditorManager::openEditorAt(path, qMax(line, 0), qMax(column, 0));
 }
 
+void DetailedErrorDelegate::copyToClipboard()
+{
+    QApplication::clipboard()->setText(textualRepresentation());
+}
+
 DetailedErrorView::DetailedErrorView(QWidget *parent)
     : QListView(parent)
 {
@@ -232,6 +241,14 @@ void DetailedErrorView::setItemDelegate(QAbstractItemDelegate *delegate)
 
     DetailedErrorDelegate *myDelegate = qobject_cast<DetailedErrorDelegate *>(itemDelegate());
     connect(this, &DetailedErrorView::resized, myDelegate, &DetailedErrorDelegate::onViewResized);
+
+    m_copyAction = new QAction(this);
+    m_copyAction->setText(tr("Copy"));
+    m_copyAction->setIcon(QIcon(QLatin1String(Core::Constants::ICON_COPY)));
+    m_copyAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
+    m_copyAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    connect(m_copyAction, &QAction::triggered, myDelegate, &DetailedErrorDelegate::copyToClipboard);
+    addAction(m_copyAction);
 }
 
 void DetailedErrorView::setModel(QAbstractItemModel *model)
@@ -251,6 +268,21 @@ void DetailedErrorView::resizeEvent(QResizeEvent *e)
 {
     emit resized();
     QListView::resizeEvent(e);
+}
+
+void DetailedErrorView::contextMenuEvent(QContextMenuEvent *e)
+{
+    if (selectionModel()->selectedRows().isEmpty())
+        return;
+
+    QMenu menu;
+    menu.addActions(commonActions());
+    const QList<QAction *> custom = customActions();
+    if (!custom.isEmpty()) {
+        menu.addSeparator();
+        menu.addActions(custom);
+    }
+    menu.exec(e->globalPos());
 }
 
 void DetailedErrorView::updateGeometries()
@@ -282,6 +314,18 @@ void DetailedErrorView::goBack()
 int DetailedErrorView::rowCount() const
 {
     return model() ? model()->rowCount() : 0;
+}
+
+QList<QAction *> DetailedErrorView::commonActions() const
+{
+    QList<QAction *> actions;
+    actions << m_copyAction;
+    return actions;
+}
+
+QList<QAction *> DetailedErrorView::customActions() const
+{
+    return QList<QAction *>();
 }
 
 int DetailedErrorView::currentRow() const

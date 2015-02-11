@@ -55,7 +55,7 @@ public:
     explicit DetailedErrorDelegate(QListView *parent);
 
     virtual SummaryLineInfo summaryInfo(const QModelIndex &index) const = 0;
-    virtual void copy() = 0;
+    void copyToClipboard();
 
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
@@ -77,6 +77,7 @@ private:
     // the constness of this function is a necessary lie because it is called from paint() const.
     virtual QWidget *createDetailsWidget(const QFont &font, const QModelIndex &errorIndex,
                                          QWidget *parent) const = 0;
+    virtual QString textualRepresentation() const = 0;
 
     static const int s_itemMargin = 2;
     mutable QWidget *m_detailsWidget;
@@ -109,10 +110,16 @@ protected:
     void resizeEvent(QResizeEvent *e);
 
 private:
+    void contextMenuEvent(QContextMenuEvent *e) Q_DECL_OVERRIDE;
+
     int currentRow() const;
     void setCurrentRow(int row);
-
     int rowCount() const;
+
+    QList<QAction *> commonActions() const;
+    virtual QList<QAction *> customActions() const;
+
+    QAction *m_copyAction;
 };
 
 } // namespace Analyzer
