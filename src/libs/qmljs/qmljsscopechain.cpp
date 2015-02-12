@@ -286,6 +286,36 @@ void ScopeChain::update() const
     m_all += m_jsScopes;
 }
 
+static void addInstantiatingComponents(ContextPtr context, QmlComponentChain *chain)
+{
+    const QRegExp importCommentPattern(QLatin1String("@scope\\s+(.*)"));
+    foreach (const AST::SourceLocation &commentLoc, chain->document()->engine()->comments()) {
+        const QString &comment = chain->document()->source().mid(commentLoc.begin(), commentLoc.length);
+
+        // find all @scope annotations
+        QStringList additionalScopes;
+        int lastOffset = -1;
+        forever {
+            lastOffset = importCommentPattern.indexIn(comment, lastOffset + 1);
+            if (lastOffset == -1)
+                break;
+            additionalScopes << QFileInfo(chain->document()->path() + QLatin1Char('/') + importCommentPattern.cap(1).trimmed()).absoluteFilePath();
+        }
+
+        foreach (const QmlComponentChain *c, chain->instantiatingComponents())
+            additionalScopes.removeAll(c->document()->fileName());
+
+        foreach (const QString &scope, additionalScopes) {
+            Document::Ptr doc = context->snapshot().document(scope);
+            if (doc) {
+                QmlComponentChain *ch = new QmlComponentChain(doc);
+                chain->addInstantiatingComponent(ch);
+                addInstantiatingComponents(context, ch);
+            }
+        }
+    }
+}
+
 void ScopeChain::initializeRootScope()
 {
     ValueOwner *valueOwner = m_context->valueOwner();
@@ -329,7 +359,7 @@ void ScopeChain::initializeRootScope()
         if (bind->rootObjectValue())
             m_jsScopes += bind->rootObjectValue();
     }
-
+    addInstantiatingComponents(m_context, chain);
     m_modified = true;
 }
 
