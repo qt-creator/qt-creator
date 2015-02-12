@@ -174,23 +174,27 @@ void KitModel::isAutoDetectedChanged()
 {
     KitManagerConfigWidget *w = qobject_cast<KitManagerConfigWidget *>(sender());
     int idx = -1;
-    idx = Utils::indexOf(m_manualRoot->childNodes, [w](KitNode *node) { return node->widget == w; });
-    KitNode *oldParent = 0;
-    KitNode *newParent = w->workingCopy()->isAutoDetected() ? m_autoRoot : m_manualRoot;
+    idx = Utils::indexOf(m_manualRoot->children(), [w](TreeItem *node) {
+        return static_cast<KitNode *>(node)->widget == w;
+    });
+    TreeItem *oldParent = 0;
+    TreeItem *newParent = w->workingCopy()->isAutoDetected() ? m_autoRoot : m_manualRoot;
     if (idx != -1) {
         oldParent = m_manualRoot;
     } else {
-        idx = Utils::indexOf(m_autoRoot->childNodes, [w](KitNode *node) { return node->widget == w; });
+        idx = Utils::indexOf(m_autoRoot->children(), [w](TreeItem *node) {
+            return static_cast<KitNode *>(node)->widget == w;
+        });
         if (idx != -1) {
             oldParent = m_autoRoot;
         }
     }
 
     if (oldParent && oldParent != newParent) {
-        beginMoveRows(index(oldParent), idx, idx, index(newParent), newParent->childNodes.size());
-        KitNode *n = oldParent->childNodes.takeAt(idx);
-        n->parent = newParent;
-        newParent->childNodes.append(n);
+        beginMoveRows(indexFromItem(oldParent), idx, idx, indexFromItem(newParent), newParent->children().size());
+        TreeItem *n = oldParent->children().at(idx);
+        removeItem(n);
+        newParent->appendChild(n);
         endMoveRows();
     }
 }
