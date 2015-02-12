@@ -5,9 +5,9 @@
         <key>CFBundlePackageType</key>
         <string>APPL</string>
         <key>CFBundleSignature</key>
-        <string>@TYPEINFO@</string>
+        <string>????</string>
         <key>CFBundleExecutable</key>
-        <string>@EXECUTABLE@</string>
+        <string>iostool</string>
         <key>CFBundleIdentifier</key>
         <string>org.qt-project.qt-creator.iosTool</string>
         <key>LSUIElement</key>

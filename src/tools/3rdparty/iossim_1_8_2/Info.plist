@@ -5,11 +5,11 @@
         <key>CFBundlePackageType</key>
         <string>APPL</string>
         <key>CFBundleSignature</key>
-        <string>@TYPEINFO@</string>
+        <string>????</string>
         <key>CFBundleExecutable</key>
-        <string>@EXECUTABLE@</string>
+        <string>iossim_1_8_2</string>
         <key>CFBundleIdentifier</key>
-        <string>org.qt-project.qt-creator.iosTool</string>
+        <string>org.qt-project.qt-creator.iossim_1_8_2</string>
         <key>LSUIElement</key>
         <string>1</string>
 </dict>
