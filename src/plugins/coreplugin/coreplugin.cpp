@@ -91,21 +91,22 @@ CorePlugin::~CorePlugin()
     setCreatorTheme(0);
 }
 
-static QString absoluteThemePath(const QString &themeName)
+static QString absoluteThemePath(const QString &themeName, bool userProvidedTheme)
 {
     if (themeName.isEmpty())
         return themeName;
     QString res = QDir::fromNativeSeparators(themeName);
     QFileInfo fi(res);
+    bool tryRawName = userProvidedTheme || fi.isAbsolute();
     // Try the given name
-    if (fi.exists())
+    if (tryRawName && fi.exists())
         return fi.absoluteFilePath();
     const QString suffix = QLatin1String("creatortheme");
     // Try name.creatortheme
     if (fi.suffix() != suffix) {
         res = themeName + QLatin1Char('.') + suffix;
         fi.setFile(res);
-        if (fi.exists())
+        if (tryRawName && fi.exists())
             return fi.absoluteFilePath();
     }
     if (fi.path().isEmpty())
@@ -122,6 +123,7 @@ void CorePlugin::parseArguments(const QStringList &arguments)
                 QLatin1String(Constants::SETTINGS_THEME), defaultTheme).toString();
     QColor overrideColor;
     bool presentationMode = false;
+    bool userProvidedTheme = false;
 
     for (int i = 0; i < arguments.size(); ++i) {
         if (arguments.at(i) == QLatin1String("-color")) {
@@ -133,11 +135,12 @@ void CorePlugin::parseArguments(const QStringList &arguments)
             presentationMode = true;
         if (arguments.at(i) == QLatin1String("-theme")) {
             themeName = arguments.at(i + 1);
+            userProvidedTheme = true;
             i++;
         }
     }
 
-    QString themeURI = absoluteThemePath(themeName);
+    QString themeURI = absoluteThemePath(themeName, userProvidedTheme);
     if (themeURI.isEmpty()) {
         themeName = defaultTheme;
         themeURI = QStringLiteral("%1/themes/%2.creatortheme").arg(ICore::resourcePath()).arg(themeName);
