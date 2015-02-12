@@ -51,11 +51,11 @@ ManageDefinitionsDialog::ManageDefinitionsDialog(
     ui.definitionsTable->setHorizontalHeaderLabels(
         QStringList() << tr("Name") << tr("Installed") << tr("Available"));
     ui.definitionsTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-    ui.definitionsTable->sortItems(0);
 
     setWindowTitle(tr("Download Definitions"));
 
     populateDefinitionsWidget(metaDataList);
+    ui.definitionsTable->sortItems(0);
 
     connect(ui.downloadButton, &QPushButton::clicked, this, &ManageDefinitionsDialog::downloadDefinitions);
     connect(ui.allButton, &QPushButton::clicked, this, &ManageDefinitionsDialog::selectAll);
