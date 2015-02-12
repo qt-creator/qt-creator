@@ -122,18 +122,18 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(DebuggerRunConfigurationAspect 
 
     connect(m_qmlDebuggerInfoLabel, SIGNAL(linkActivated(QString)),
             Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
-    connect(m_useQmlDebugger, SIGNAL(toggled(bool)),
-            SLOT(useQmlDebuggerToggled(bool)));
-    connect(m_useQmlDebugger, SIGNAL(clicked(bool)),
-            SLOT(useQmlDebuggerClicked(bool)));
-    connect(m_useCppDebugger, SIGNAL(clicked(bool)),
-            SLOT(useCppDebuggerClicked(bool)));
-    connect(m_debugServerPort, SIGNAL(valueChanged(int)),
-            SLOT(qmlDebugServerPortChanged(int)));
-    connect(m_useMultiProcess, SIGNAL(toggled(bool)),
-            SLOT(useMultiProcessToggled(bool)));
+    connect(m_useQmlDebugger, &QAbstractButton::toggled,
+            this, &DebuggerRunConfigWidget::useQmlDebuggerToggled);
+    connect(m_useQmlDebugger, &QAbstractButton::clicked,
+            this, &DebuggerRunConfigWidget::useQmlDebuggerClicked);
+    connect(m_useCppDebugger, &QAbstractButton::clicked,
+            this, &DebuggerRunConfigWidget::useCppDebuggerClicked);
+    connect(m_debugServerPort, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this, &DebuggerRunConfigWidget::qmlDebugServerPortChanged);
+    connect(m_useMultiProcess, &QAbstractButton::toggled,
+            this, &DebuggerRunConfigWidget::useMultiProcessToggled);
 
-    QHBoxLayout *qmlLayout = new QHBoxLayout;
+    auto qmlLayout = new QHBoxLayout;
     qmlLayout->setMargin(0);
     qmlLayout->addWidget(m_useQmlDebugger);
     qmlLayout->addWidget(m_debugServerPortLabel);
@@ -141,7 +141,7 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(DebuggerRunConfigurationAspect 
     qmlLayout->addWidget(m_qmlDebuggerInfoLabel);
     qmlLayout->addStretch();
 
-    QVBoxLayout *layout = new QVBoxLayout;
+    auto layout = new QVBoxLayout;
     layout->setMargin(0);
     layout->addWidget(m_useCppDebugger);
     layout->addLayout(qmlLayout);

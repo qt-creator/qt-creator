@@ -228,40 +228,41 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent
     m_treeView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_treeView->setModel(m_model);
-    connect(m_treeView->selectionModel(),
-            SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            SLOT(slotCurrentRowChanged(QModelIndex,QModelIndex)));
+    connect(m_treeView->selectionModel(), &QItemSelectionModel::currentRowChanged,
+            this, &DebuggerSourcePathMappingWidget::slotCurrentRowChanged);
 
     // Top list/Right part: Buttons.
-    QVBoxLayout *buttonLayout = new QVBoxLayout;
+    auto buttonLayout = new QVBoxLayout;
     buttonLayout->addWidget(m_addButton);
     buttonLayout->addWidget(m_addQtButton);
     m_addQtButton->setVisible(sizeof(qtBuildPaths) > 0);
     m_addQtButton->setToolTip(tr("Add a mapping for Qt's source folders "
         "when using an unpatched version of Qt."));
     buttonLayout->addWidget(m_removeButton);
-    connect(m_addButton, SIGNAL(clicked()), this, SLOT(slotAdd()));
-    connect(m_addQtButton, SIGNAL(clicked()), this, SLOT(slotAddQt()));
-
-    connect(m_removeButton, SIGNAL(clicked()), this, SLOT(slotRemove()));
+    connect(m_addButton, &QAbstractButton::clicked,
+            this, &DebuggerSourcePathMappingWidget::slotAdd);
+    connect(m_addQtButton, &QAbstractButton::clicked,
+            this, &DebuggerSourcePathMappingWidget::slotAddQt);
+    connect(m_removeButton, &QAbstractButton::clicked,
+            this, &DebuggerSourcePathMappingWidget::slotRemove);
     buttonLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
 
     // Assemble top
-    QHBoxLayout *treeHLayout = new QHBoxLayout;
+    auto treeHLayout = new QHBoxLayout;
     treeHLayout->addWidget(m_treeView);
     treeHLayout->addLayout(buttonLayout);
 
     // Edit part
     m_targetChooser->setExpectedKind(PathChooser::ExistingDirectory);
     m_targetChooser->setHistoryCompleter(QLatin1String("Debugger.MappingTarget.History"));
-    connect(m_sourceLineEdit, SIGNAL(textChanged(QString)),
-            this, SLOT(slotEditSourceFieldChanged()));
-    connect(m_targetChooser, SIGNAL(changed(QString)),
-            this, SLOT(slotEditTargetFieldChanged()));
-    QFormLayout *editLayout = new QFormLayout;
+    connect(m_sourceLineEdit, &QLineEdit::textChanged,
+            this, &DebuggerSourcePathMappingWidget::slotEditSourceFieldChanged);
+    connect(m_targetChooser, &PathChooser::changed,
+            this, &DebuggerSourcePathMappingWidget::slotEditTargetFieldChanged);
+    auto editLayout = new QFormLayout;
     const QString sourceToolTip = tr("The source path contained in the "
         "debug information of the executable as reported by the debugger");
-    QLabel *editSourceLabel = new QLabel(tr("&Source path:"));
+    auto editSourceLabel = new QLabel(tr("&Source path:"));
     editSourceLabel->setToolTip(sourceToolTip);
     m_sourceLineEdit->setToolTip(sourceToolTip);
     editSourceLabel->setBuddy(m_sourceLineEdit);
@@ -269,7 +270,7 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent
 
     const QString targetToolTip = tr("The actual location of the source "
         "tree on the local machine");
-    QLabel *editTargetLabel = new QLabel(tr("&Target path:"));
+    auto editTargetLabel = new QLabel(tr("&Target path:"));
     editTargetLabel->setToolTip(targetToolTip);
     editTargetLabel->setBuddy(m_targetChooser);
     m_targetChooser->setToolTip(targetToolTip);
@@ -279,7 +280,7 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent
     chooser->addSupportedWidget(m_targetChooser->lineEdit());
 
     // Main layout
-    QVBoxLayout *mainLayout = new QVBoxLayout;
+    auto mainLayout = new QVBoxLayout;
     mainLayout->addLayout(treeHLayout);
     mainLayout->addLayout(editLayout);
     setLayout(mainLayout);

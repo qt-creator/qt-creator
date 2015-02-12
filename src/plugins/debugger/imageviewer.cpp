@@ -104,11 +104,11 @@ ImageViewer::ImageViewer(QWidget *parent)
     , m_imageWidget(new ImageWidget)
     , m_infoLabel(new QLabel)
 {
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    auto mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(m_infoLabel);
     mainLayout->addWidget(m_scrollArea);
     m_scrollArea->setWidget(m_imageWidget);
-    connect(m_imageWidget, SIGNAL(clicked(QString)), this, SLOT(clicked(QString)));
+    connect(m_imageWidget, &ImageWidget::clicked, this, &ImageViewer::clicked);
 }
 
 void ImageViewer::setImage(const QImage &i)

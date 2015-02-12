@@ -46,6 +46,8 @@
 
 #include <QFileInfo>
 
+using namespace Utils;
+
 namespace Debugger {
 namespace Internal {
 
@@ -60,8 +62,9 @@ namespace Internal {
 GdbRemoteServerEngine::GdbRemoteServerEngine(const DebuggerStartParameters &startParameters)
     : GdbEngine(startParameters), m_startAttempted(false)
 {
-    if (Utils::HostOsInfo::isWindowsHost())
+    if (HostOsInfo::isWindowsHost())
         m_gdbProc->setUseCtrlCStub(startParameters.useCtrlCStub); // This is only set for QNX/BlackBerry
+
     connect(&m_uploadProc, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
             this, &GdbRemoteServerEngine::uploadProcError);
     connect(&m_uploadProc, &QProcess::readyReadStandardOutput,
@@ -80,9 +83,9 @@ void GdbRemoteServerEngine::setupEngine()
 
         // Provide script information about the environment
         QString arglist;
-        Utils::QtcProcess::addArg(&arglist, startParameters().serverStartScript);
-        Utils::QtcProcess::addArg(&arglist, startParameters().executable);
-        Utils::QtcProcess::addArg(&arglist, startParameters().remoteChannel);
+        QtcProcess::addArg(&arglist, startParameters().serverStartScript);
+        QtcProcess::addArg(&arglist, startParameters().executable);
+        QtcProcess::addArg(&arglist, startParameters().remoteChannel);
 
         m_uploadProc.start(_("/bin/sh ") + arglist);
         m_uploadProc.waitForStarted();
@@ -172,12 +175,12 @@ void GdbRemoteServerEngine::setupInferior()
 
     //const QByteArray sysroot = sp.sysroot.toLocal8Bit();
     //const QByteArray remoteArch = sp.remoteArchitecture.toLatin1();
-    const QString args = isMasterEngine() ? startParameters().processArgs : masterEngine()->startParameters().processArgs;
+    const QString args = isMasterEngine() ? startParameters().processArgs
+                          : masterEngine()->startParameters().processArgs;
 
 //    if (!remoteArch.isEmpty())
 //        postCommand("set architecture " + remoteArch);
-    const QString solibSearchPath
-            = sp.solibSearchPath.join(Utils::HostOsInfo::pathListSeparator());
+    const QString solibSearchPath = sp.solibSearchPath.join(HostOsInfo::pathListSeparator());
     if (!solibSearchPath.isEmpty())
         postCommand("set solib-search-path " + solibSearchPath.toLocal8Bit());
 
@@ -431,7 +434,7 @@ void GdbRemoteServerEngine::interruptInferior2()
     if (boolSetting(TargetAsync)) {
         postCommand("-exec-interrupt", GdbEngine::Immediate,
             CB(handleInterruptInferior));
-    } else if (m_isQnxGdb && Utils::HostOsInfo::isWindowsHost()) {
+    } else if (m_isQnxGdb && HostOsInfo::isWindowsHost()) {
         m_gdbProc->winInterruptByCtrlC();
     } else {
         bool ok = m_gdbProc->interrupt();

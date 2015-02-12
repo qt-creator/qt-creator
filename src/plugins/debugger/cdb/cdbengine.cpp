@@ -340,17 +340,22 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &sp) :
     m_watchPointY(0),
     m_ignoreCdbOutput(false)
 {
-    connect(action(OperateByInstruction), SIGNAL(triggered(bool)),
-            this, SLOT(operateByInstructionTriggered(bool)));
-    connect(action(VerboseLog), SIGNAL(triggered(bool)),
-            this, SLOT(verboseLogTriggered(bool)));
-    connect(action(CreateFullBacktrace), SIGNAL(triggered()),
-            this, SLOT(createFullBacktrace()));
     setObjectName(QLatin1String("CdbEngine"));
-    connect(&m_process, SIGNAL(finished(int)), this, SLOT(processFinished()));
-    connect(&m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(processError()));
-    connect(&m_process, SIGNAL(readyReadStandardOutput()), this, SLOT(readyReadStandardOut()));
-    connect(&m_process, SIGNAL(readyReadStandardError()), this, SLOT(readyReadStandardOut()));
+
+    connect(action(OperateByInstruction), &QAction::triggered,
+            this, &CdbEngine::operateByInstructionTriggered);
+    connect(action(VerboseLog), &QAction::triggered,
+            this, &CdbEngine::verboseLogTriggered);
+    connect(action(CreateFullBacktrace), &QAction::triggered,
+            this, &CdbEngine::createFullBacktrace);
+    connect(&m_process, static_cast<void(QProcess::*)(int)>(&QProcess::finished),
+            this, &CdbEngine::processFinished);
+    connect(&m_process, static_cast<void(QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+            this, &CdbEngine::processError);
+    connect(&m_process, &QProcess::readyReadStandardOutput,
+            this, &CdbEngine::readyReadStandardOut);
+    connect(&m_process, &QProcess::readyReadStandardError,
+            this, &CdbEngine::readyReadStandardOut);
 }
 
 void CdbEngine::init()

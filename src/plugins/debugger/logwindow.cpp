@@ -145,27 +145,27 @@ class DebuggerPane : public QPlainTextEdit
     Q_OBJECT
 
 public:
-    DebuggerPane(QWidget *parent)
+    DebuggerPane(LogWindow *parent)
         : QPlainTextEdit(parent)
     {
         setFrameStyle(QFrame::NoFrame);
         m_clearContentsAction = new QAction(this);
         m_clearContentsAction->setText(tr("Clear Contents"));
         m_clearContentsAction->setEnabled(true);
-        connect(m_clearContentsAction, SIGNAL(triggered(bool)),
-            parent, SLOT(clearContents()));
+        connect(m_clearContentsAction, &QAction::triggered,
+                parent, &LogWindow::clearContents);
 
         m_saveContentsAction = new QAction(this);
         m_saveContentsAction->setText(tr("Save Contents"));
         m_saveContentsAction->setEnabled(true);
-        connect(m_saveContentsAction, SIGNAL(triggered()),
-            this, SLOT(saveContents()));
+        connect(m_saveContentsAction, &QAction::triggered,
+                this, &DebuggerPane::saveContents);
 
         m_reloadDebuggingHelpersAction = new QAction(this);
         m_reloadDebuggingHelpersAction->setText(tr("Reload Debugging Helpers"));
         m_reloadDebuggingHelpersAction->setEnabled(true);
-        connect(m_reloadDebuggingHelpersAction, SIGNAL(triggered()),
-            this, SLOT(reloadDebuggingHelpers()));
+        connect(m_reloadDebuggingHelpersAction, &QAction::triggered,
+                this, &DebuggerPane::reloadDebuggingHelpers);
     }
 
     void contextMenuEvent(QContextMenuEvent *ev)
@@ -209,11 +209,10 @@ public:
         setUndoRedoEnabled(true);
     }
 
-private slots:
+private:
     void saveContents();
     void reloadDebuggingHelpers();
 
-private:
     QAction *m_clearContentsAction;
     QAction *m_saveContentsAction;
     QAction *m_reloadDebuggingHelpersAction;
@@ -239,7 +238,7 @@ class InputPane : public DebuggerPane
 {
     Q_OBJECT
 public:
-    InputPane(QWidget *parent)
+    InputPane(LogWindow *parent)
         : DebuggerPane(parent)
     {
         (void) new InputHighlighter(this);
@@ -305,7 +304,7 @@ class CombinedPane : public DebuggerPane
 {
     Q_OBJECT
 public:
-    CombinedPane(QWidget *parent)
+    CombinedPane(LogWindow *parent)
         : DebuggerPane(parent)
     {
         (void) new OutputHighlighter(this);
@@ -354,7 +353,7 @@ LogWindow::LogWindow(QWidget *parent)
 
     m_ignoreNextInputEcho = false;
 
-    QSplitter *m_splitter = new Core::MiniSplitter(Qt::Horizontal);
+    auto m_splitter = new Core::MiniSplitter(Qt::Horizontal);
     m_splitter->setParent(this);
 
     // Mixed input/output.
@@ -374,25 +373,25 @@ LogWindow::LogWindow(QWidget *parent)
     m_commandEdit->setFrame(false);
     m_commandEdit->setHistoryCompleter(QLatin1String("DebuggerInput"));
 
-    QToolButton *repeatButton = new QToolButton(this);
+    auto repeatButton = new QToolButton(this);
     repeatButton->setIcon(QIcon(QLatin1String(":/debugger/images/debugger_stepover_small.png")));
     repeatButton->setIconSize(QSize(12, 12));
     repeatButton->setToolTip(tr("Repeat last command for debug reasons."));
 
-    QHBoxLayout *commandBox = new QHBoxLayout;
+    auto commandBox = new QHBoxLayout;
     commandBox->addWidget(repeatButton);
     commandBox->addWidget(new QLabel(tr("Command:"), this));
     commandBox->addWidget(m_commandEdit);
     commandBox->setMargin(2);
     commandBox->setSpacing(6);
 
-    QVBoxLayout *leftBox = new QVBoxLayout;
+    auto leftBox = new QVBoxLayout;
     leftBox->addWidget(m_inputText);
     leftBox->addItem(commandBox);
     leftBox->setMargin(0);
     leftBox->setSpacing(0);
 
-    QWidget *leftDummy = new QWidget;
+    auto leftDummy = new QWidget;
     leftDummy->setLayout(leftBox);
 
     m_splitter->addWidget(leftDummy);
@@ -400,14 +399,14 @@ LogWindow::LogWindow(QWidget *parent)
     m_splitter->setStretchFactor(0, 1);
     m_splitter->setStretchFactor(1, 3);
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto layout = new QVBoxLayout(this);
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addWidget(m_splitter);
     layout->addWidget(new Core::FindToolBarPlaceHolder(this));
     setLayout(layout);
 
-    Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
+    auto aggregate = new Aggregation::Aggregate;
     aggregate->add(m_combinedText);
     aggregate->add(new Core::BaseTextFind(m_combinedText));
 
@@ -419,14 +418,15 @@ LogWindow::LogWindow(QWidget *parent)
         SIGNAL(statusMessageRequested(QString,int)));
     connect(m_inputText, SIGNAL(commandSelected(int)),
         m_combinedText, SLOT(gotoResult(int)));
-    connect(m_commandEdit, SIGNAL(returnPressed()),
-        SLOT(sendCommand()));
+    connect(m_commandEdit, &QLineEdit::returnPressed,
+            this, &LogWindow::sendCommand);
     connect(m_inputText, SIGNAL(executeLineRequested()),
         SLOT(executeLine()));
-    connect(repeatButton, SIGNAL(clicked()),
-        SLOT(repeatLastCommand()));
+    connect(repeatButton, &QAbstractButton::clicked,
+            this, &LogWindow::repeatLastCommand);
 
-    connect(&m_outputTimer, SIGNAL(timeout()), SLOT(doOutput()));
+    connect(&m_outputTimer, &QTimer::timeout,
+            this, &LogWindow::doOutput);
 
     setMinimumHeight(60);
 }

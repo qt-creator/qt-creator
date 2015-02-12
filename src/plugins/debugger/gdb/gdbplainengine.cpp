@@ -51,8 +51,8 @@ GdbPlainEngine::GdbPlainEngine(const DebuggerStartParameters &startParameters)
     : GdbEngine(startParameters)
 {
     // Output
-    connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
-        this, SLOT(readDebugeeOutput(QByteArray)));
+    connect(&m_outputCollector, &OutputCollector::byteDelivery,
+            this, &GdbEngine::readDebugeeOutput);
 }
 
 void GdbPlainEngine::setupInferior()

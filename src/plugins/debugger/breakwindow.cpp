@@ -144,7 +144,7 @@ BreakpointDialog::BreakpointDialog(Breakpoint b, QWidget *parent)
 {
     setWindowTitle(tr("Edit Breakpoint Properties"));
 
-    QGroupBox *groupBoxBasic = new QGroupBox(tr("Basic"), this);
+    auto groupBoxBasic = new QGroupBox(tr("Basic"), this);
 
     // Match BreakpointType (omitting unknown type).
     QStringList types;
@@ -195,7 +195,7 @@ BreakpointDialog::BreakpointDialog(Breakpoint b, QWidget *parent)
     m_labelFunction = new QLabel(tr("Fun&ction:"), groupBoxBasic);
     m_labelFunction->setBuddy(m_lineEditFunction);
 
-    QGroupBox *groupBoxAdvanced = new QGroupBox(tr("Advanced"), this);
+    auto groupBoxAdvanced = new QGroupBox(tr("Advanced"), this);
 
     m_checkBoxTracepoint = new QCheckBox(groupBoxAdvanced);
     m_labelTracepoint = new QLabel(tr("T&racepoint only:"), groupBoxAdvanced);
@@ -279,7 +279,7 @@ BreakpointDialog::BreakpointDialog(Breakpoint b, QWidget *parent)
         }
     }
 
-    QFormLayout *basicLayout = new QFormLayout(groupBoxBasic);
+    auto basicLayout = new QFormLayout(groupBoxBasic);
     basicLayout->addRow(m_labelType, m_comboBoxType);
     basicLayout->addRow(m_labelFileName, m_pathChooserFileName);
     basicLayout->addRow(m_labelLineNumber, m_lineEditLineNumber);
@@ -289,7 +289,7 @@ BreakpointDialog::BreakpointDialog(Breakpoint b, QWidget *parent)
     basicLayout->addRow(m_labelFunction, m_lineEditFunction);
     basicLayout->addRow(m_labelOneShot, m_checkBoxOneShot);
 
-    QFormLayout *advancedLeftLayout = new QFormLayout();
+    auto advancedLeftLayout = new QFormLayout();
     advancedLeftLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     advancedLeftLayout->addRow(m_labelCondition, m_lineEditCondition);
     advancedLeftLayout->addRow(m_labelIgnoreCount, m_spinBoxIgnoreCount);
@@ -297,18 +297,18 @@ BreakpointDialog::BreakpointDialog(Breakpoint b, QWidget *parent)
     advancedLeftLayout->addRow(m_labelUseFullPath, m_comboBoxPathUsage);
     advancedLeftLayout->addRow(m_labelModule, m_lineEditModule);
 
-    QFormLayout *advancedRightLayout = new QFormLayout();
+    auto advancedRightLayout = new QFormLayout();
     advancedRightLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     advancedRightLayout->addRow(m_labelCommands, m_textEditCommands);
     advancedRightLayout->addRow(m_labelTracepoint, m_checkBoxTracepoint);
     advancedRightLayout->addRow(m_labelMessage, m_lineEditMessage);
 
-    QHBoxLayout *horizontalLayout = new QHBoxLayout(groupBoxAdvanced);
+    auto horizontalLayout = new QHBoxLayout(groupBoxAdvanced);
     horizontalLayout->addLayout(advancedLeftLayout);
     horizontalLayout->addSpacing(15);
     horizontalLayout->addLayout(advancedRightLayout);
 
-    QVBoxLayout *verticalLayout = new QVBoxLayout(this);
+    auto verticalLayout = new QVBoxLayout(this);
     verticalLayout->addWidget(groupBoxBasic);
     verticalLayout->addSpacing(10);
     verticalLayout->addWidget(groupBoxAdvanced);
@@ -316,9 +316,10 @@ BreakpointDialog::BreakpointDialog(Breakpoint b, QWidget *parent)
     verticalLayout->addWidget(m_buttonBox);
     verticalLayout->setStretchFactor(groupBoxAdvanced, 10);
 
-    connect(m_comboBoxType, SIGNAL(activated(int)), SLOT(typeChanged(int)));
-    connect(m_buttonBox, SIGNAL(accepted()), SLOT(accept()));
-    connect(m_buttonBox, SIGNAL(rejected()), SLOT(reject()));
+    connect(m_comboBoxType, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
+            this, &BreakpointDialog::typeChanged);
+    connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 void BreakpointDialog::setType(BreakpointType type)
@@ -654,18 +655,18 @@ MultiBreakPointsDialog::MultiBreakPointsDialog(QWidget *parent) :
     m_buttonBox = new QDialogButtonBox(this);
     m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
-    QFormLayout *formLayout = new QFormLayout;
+    auto formLayout = new QFormLayout;
     if (currentEngine()->hasCapability(BreakConditionCapability))
         formLayout->addRow(tr("&Condition:"), m_lineEditCondition);
     formLayout->addRow(tr("&Ignore count:"), m_spinBoxIgnoreCount);
     formLayout->addRow(tr("&Thread specification:"), m_lineEditThreadSpec);
 
-    QVBoxLayout *verticalLayout = new QVBoxLayout(this);
+    auto verticalLayout = new QVBoxLayout(this);
     verticalLayout->addLayout(formLayout);
     verticalLayout->addWidget(m_buttonBox);
 
-    QObject::connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    QObject::connect(m_buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -678,8 +679,8 @@ BreakTreeView::BreakTreeView()
 {
     setWindowIcon(QIcon(QLatin1String(":/debugger/images/debugger_breakpoints.png")));
     setSelectionMode(QAbstractItemView::ExtendedSelection);
-    connect(action(UseAddressInBreakpointsView),
-        SIGNAL(toggled(bool)), SLOT(showAddressColumn(bool)));
+    connect(action(UseAddressInBreakpointsView), &QAction::toggled,
+            this, &BreakTreeView::showAddressColumn);
 }
 
 void BreakTreeView::showAddressColumn(bool on)

@@ -129,12 +129,13 @@ protected: ////////// Gdb Process Management //////////
     void handleAdapterCrashed(const QString &msg);
 
 private slots:
+    friend class GdbPlainEngine;
     void handleInterruptDeviceInferior(const QString &error);
     void handleGdbFinished(int, QProcess::ExitStatus status);
     void handleGdbError(QProcess::ProcessError error);
+    void readDebugeeOutput(const QByteArray &data);
     void readGdbStandardOutput();
     void readGdbStandardError();
-    void readDebugeeOutput(const QByteArray &data);
 
 private:
     QTextCodec *m_outputCodec;

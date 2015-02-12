@@ -230,8 +230,8 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
         Utils::SavedAction *registerAction = action(RegisterForPostMortem);
         m_group->insert(registerAction,
                 checkBoxRegisterForPostMortem);
-        connect(registerAction, SIGNAL(toggled(bool)),
-                checkBoxRegisterForPostMortem, SLOT(setChecked(bool)));
+        connect(registerAction, &QAction::toggled,
+                checkBoxRegisterForPostMortem, &QAbstractButton::setChecked);
     } else {
         checkBoxRegisterForPostMortem->setVisible(false);
     }

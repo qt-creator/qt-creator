@@ -231,16 +231,17 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
     //ExtensionSystem::PluginManager::addObject(m_debugInfoTaskHandler);
 
     m_commandTimer.setSingleShot(true);
-    connect(&m_commandTimer, &QTimer::timeout, this, &GdbEngine::commandTimeout);
+    connect(&m_commandTimer, &QTimer::timeout,
+            this, &GdbEngine::commandTimeout);
 
-    connect(action(AutoDerefPointers), SIGNAL(valueChanged(QVariant)),
-            SLOT(reloadLocals()));
-    connect(action(CreateFullBacktrace), SIGNAL(triggered()),
-            SLOT(createFullBacktrace()));
-    connect(action(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
-            SLOT(reloadLocals()));
-    connect(action(UseDynamicType), SIGNAL(valueChanged(QVariant)),
-            SLOT(reloadLocals()));
+    connect(action(AutoDerefPointers), &SavedAction::valueChanged,
+            this, &GdbEngine::reloadLocals);
+    connect(action(CreateFullBacktrace), &QAction::triggered,
+            this, &GdbEngine::createFullBacktrace);
+    connect(action(UseDebuggingHelpers), &SavedAction::valueChanged,
+            this, &GdbEngine::reloadLocals);
+    connect(action(UseDynamicType), &SavedAction::valueChanged,
+            this, &GdbEngine::reloadLocals);
 }
 
 GdbEngine::~GdbEngine()

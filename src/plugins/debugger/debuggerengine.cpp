@@ -177,10 +177,10 @@ public:
         m_memoryAgent(engine),
         m_isStateDebugging(false)
     {
-        connect(&m_locationTimer, SIGNAL(timeout()), SLOT(resetLocation()));
-        connect(action(IntelFlavor), SIGNAL(valueChanged(QVariant)),
-                SLOT(reloadDisassembly()));
-
+        connect(&m_locationTimer, &QTimer::timeout,
+                this, &DebuggerEnginePrivate::resetLocation);
+        connect(action(IntelFlavor), &Utils::SavedAction::valueChanged,
+                this, &DebuggerEnginePrivate::reloadDisassembly);
         connect(action(OperateNativeMixed), &QAction::triggered,
                 engine, &DebuggerEngine::reloadFullStack);
 
@@ -526,7 +526,7 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
     d->m_progress.setProgressRange(0, 1000);
     FutureProgress *fp = ProgressManager::addTask(d->m_progress.future(),
         tr("Launching Debugger"), "Debugger.Launcher");
-    connect(fp, SIGNAL(canceled()), this, SLOT(quitDebugger()));
+    connect(fp, &FutureProgress::canceled, this, &DebuggerEngine::quitDebugger);
     fp->setKeepOnFinish(FutureProgress::HideOnFinish);
     d->m_progress.reportStarted();
 

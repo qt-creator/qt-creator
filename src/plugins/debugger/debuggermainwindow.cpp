@@ -299,8 +299,8 @@ void DebuggerMainWindowPrivate::createViewsMenuItems()
 
     QAction *openMemoryEditorAction = new QAction(this);
     openMemoryEditorAction->setText(tr("Memory..."));
-    connect(openMemoryEditorAction, SIGNAL(triggered()),
-       SLOT(openMemoryEditor()));
+    connect(openMemoryEditorAction, &QAction::triggered,
+            this, &DebuggerMainWindowPrivate::openMemoryEditor);
 
     // Add menu items
     Command *cmd = 0;
@@ -440,17 +440,17 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
     connect(autoHideTitleBarsAction(), SIGNAL(triggered()),
         d, SLOT(updateDockWidgetSettings()));
 
-    QBoxLayout *editorHolderLayout = new QVBoxLayout;
+    auto editorHolderLayout = new QVBoxLayout;
     editorHolderLayout->setMargin(0);
     editorHolderLayout->setSpacing(0);
 
-    QWidget *editorAndFindWidget = new QWidget;
+    auto editorAndFindWidget = new QWidget;
     editorAndFindWidget->setLayout(editorHolderLayout);
     auto editorManagerPlaceHolder = new EditorManagerPlaceHolder(mode);
     editorHolderLayout->addWidget(editorManagerPlaceHolder);
     editorHolderLayout->addWidget(new FindToolBarPlaceHolder(editorAndFindWidget));
 
-    MiniSplitter *documentAndRightPane = new MiniSplitter;
+    auto documentAndRightPane = new MiniSplitter;
     documentAndRightPane->addWidget(editorAndFindWidget);
     documentAndRightPane->addWidget(new RightPanePlaceHolder(mode));
     documentAndRightPane->setStretchFactor(0, 1);
@@ -462,18 +462,18 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
     hackyName.replace(QLatin1Char('&'), QString());
     d->m_viewButton->setText(hackyName);
 
-    Utils::StyledBar *debugToolBar = new Utils::StyledBar;
+    auto debugToolBar = new Utils::StyledBar;
     debugToolBar->setProperty("topBorder", true);
-    QHBoxLayout *debugToolBarLayout = new QHBoxLayout(debugToolBar);
+    auto debugToolBarLayout = new QHBoxLayout(debugToolBar);
     debugToolBarLayout->setMargin(0);
     debugToolBarLayout->setSpacing(0);
     debugToolBarLayout->addWidget(d->m_debugToolBar);
     debugToolBarLayout->addWidget(new Utils::StyledSeparator);
     debugToolBarLayout->addWidget(d->m_viewButton);
 
-    connect(d->m_viewButton, SIGNAL(clicked()), this, SLOT(showViewsMenu()));
+    connect(d->m_viewButton, &QAbstractButton::clicked, this, &DebuggerMainWindow::showViewsMenu);
 
-    QDockWidget *dock = new QDockWidget(DebuggerMainWindowPrivate::tr("Debugger Toolbar"));
+    auto dock = new QDockWidget(DebuggerMainWindowPrivate::tr("Debugger Toolbar"));
     dock->setObjectName(QLatin1String("Debugger Toolbar"));
     dock->setWidget(debugToolBar);
     dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
@@ -483,10 +483,10 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
     addDockWidget(Qt::BottomDockWidgetArea, dock);
     setToolBarDockWidget(dock);
 
-    QWidget *centralWidget = new QWidget;
+    auto centralWidget = new QWidget;
     setCentralWidget(centralWidget);
 
-    QVBoxLayout *centralLayout = new QVBoxLayout(centralWidget);
+    auto centralLayout = new QVBoxLayout(centralWidget);
     centralWidget->setLayout(centralLayout);
     centralLayout->setMargin(0);
     centralLayout->setSpacing(0);
@@ -495,9 +495,9 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
     centralLayout->setStretch(1, 0);
 
     // Right-side window with editor, output etc.
-    MiniSplitter *mainWindowSplitter = new MiniSplitter;
+    auto mainWindowSplitter = new MiniSplitter;
     mainWindowSplitter->addWidget(this);
-    QWidget *outputPane = new OutputPanePlaceHolder(mode, mainWindowSplitter);
+    auto outputPane = new OutputPanePlaceHolder(mode, mainWindowSplitter);
     outputPane->setObjectName(QLatin1String("DebuggerOutputPanePlaceHolder"));
     mainWindowSplitter->addWidget(outputPane);
     mainWindowSplitter->setStretchFactor(0, 10);
@@ -505,7 +505,7 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
     mainWindowSplitter->setOrientation(Qt::Vertical);
 
     // Navigation and right-side window.
-    MiniSplitter *splitter = new MiniSplitter;
+    auto splitter = new MiniSplitter;
     splitter->setFocusProxy(editorManagerPlaceHolder);
     splitter->addWidget(new NavigationWidgetPlaceHolder(mode));
     splitter->addWidget(mainWindowSplitter);
