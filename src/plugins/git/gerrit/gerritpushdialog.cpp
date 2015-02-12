@@ -221,22 +221,19 @@ void GerritPushDialog::setRemoteBranches(bool includeOld)
     bool blocked = m_ui->targetBranchComboBox->blockSignals(true);
     m_ui->targetBranchComboBox->clear();
 
+    const QString remoteName = selectedRemoteName();
     int i = 0;
     bool excluded = false;
-    for (RemoteBranchesMap::const_iterator it = m_remoteBranches.constBegin(),
-         end = m_remoteBranches.constEnd();
-         it != end; ++it) {
-        if (it.key() == selectedRemoteName()) {
-            const BranchDate &bd = it.value();
-            const bool isSuggested = bd.first == m_suggestedRemoteBranch;
-            if (includeOld || bd.second.daysTo(QDate::currentDate()) <= 60 || isSuggested) {
-                m_ui->targetBranchComboBox->addItem(bd.first);
-                if (isSuggested)
-                    m_ui->targetBranchComboBox->setCurrentIndex(i);
-                ++i;
-            } else {
-                excluded = true;
-            }
+    foreach (const BranchDate &bd, m_remoteBranches.values(remoteName)) {
+        const bool isSuggested = bd.first == m_suggestedRemoteBranch;
+        if (includeOld || isSuggested || !bd.second.isValid()
+                || bd.second.daysTo(QDate::currentDate()) <= 60) {
+            m_ui->targetBranchComboBox->addItem(bd.first);
+            if (isSuggested)
+                m_ui->targetBranchComboBox->setCurrentIndex(i);
+            ++i;
+        } else {
+            excluded = true;
         }
     }
     if (excluded)
