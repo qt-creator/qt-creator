@@ -52,7 +52,7 @@ public:
     void prepareSearch(const QString &entry);
 
 private slots:
-    void currentProjectChanged(ProjectExplorer::Project *project);
+    void currentProjectChanged();
     void markFilesAsOutOfDate();
 
 private:

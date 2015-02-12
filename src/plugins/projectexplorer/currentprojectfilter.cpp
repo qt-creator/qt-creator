@@ -75,8 +75,12 @@ void CurrentProjectFilter::prepareSearch(const QString &entry)
     BaseFileFilter::prepareSearch(entry);
 }
 
-void CurrentProjectFilter::currentProjectChanged(Project *project)
+void CurrentProjectFilter::currentProjectChanged()
 {
+    Project *project = ProjectTree::currentProject();
+    if (!project)
+        project = SessionManager::startupProject();
+
     if (project == m_project)
         return;
     if (m_project)
