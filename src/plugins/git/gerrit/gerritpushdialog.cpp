@@ -119,6 +119,15 @@ void GerritPushDialog::initRemoteBranches()
         m_remoteBranches.insertMulti(ref.left(refBranchIndex), bd);
     }
     QStringList remotes = m_client->synchronousRemotesList(m_workingDir).keys();
+    remotes.removeDuplicates();
+    {
+        const QString origin = QLatin1String("origin");
+        const QString gerrit = QLatin1String("gerrit");
+        if (remotes.removeOne(origin))
+            remotes.prepend(origin);
+        if (remotes.removeOne(gerrit))
+            remotes.prepend(gerrit);
+    }
     m_ui->remoteComboBox->addItems(remotes);
     m_ui->remoteComboBox->setEnabled(remotes.count() > 1);
 }
