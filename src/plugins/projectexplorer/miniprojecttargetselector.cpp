@@ -135,12 +135,12 @@ void TargetSelectorDelegate::paint(QPainter *painter,
         selectionGradient.load(QLatin1String(":/projectexplorer/images/targetpanel_gradient.png"));
 
     if (option.state & QStyle::State_Selected) {
+        const QColor color = (option.state & QStyle::State_HasFocus) ?
+                    option.palette.highlight().color() :
+                    option.palette.dark().color();
         if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
-            painter->fillRect(option.rect, creatorTheme()->color(Theme::BackgroundColorSelected));
+            painter->fillRect(option.rect, color);
         } else {
-            QColor color =(option.state & QStyle::State_HasFocus) ?
-                          option.palette.highlight().color() :
-                          option.palette.dark().color();
             painter->fillRect(option.rect, color.darker(140));
             StyleHelper::drawCornerImage(selectionGradient, painter, option.rect.adjusted(0, 0, 0, -1), 5, 5, 5, 5);
             painter->setPen(QColor(255, 255, 255, 60));

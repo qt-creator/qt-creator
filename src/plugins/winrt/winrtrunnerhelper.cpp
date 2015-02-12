@@ -52,7 +52,7 @@ using namespace WinRt;
 using namespace WinRt::Internal;
 
 WinRtRunnerHelper::WinRtRunnerHelper(WinRtRunConfiguration *runConfiguration, QString *errormessage)
-    : QObject(runConfiguration)
+    : QObject()
     , m_messenger(0)
     , m_runConfiguration(runConfiguration)
     , m_process(0)

@@ -578,9 +578,6 @@ def dumpChildren(item):
     return [item.child(index) for index in range(item.childCount())]
 
 def writeTestResults(folder):
-    if squishinfo.version < 0x040200FF:
-        print "Skipping writing test results (Squish < 4.2)"
-        return
     if not os.path.exists(folder):
         print "Skipping writing test results (folder '%s' does not exist)." % folder
         return

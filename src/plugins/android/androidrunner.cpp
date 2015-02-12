@@ -390,14 +390,6 @@ void AndroidRunner::asyncStart()
         args << _("-e") << _("qml_debug") << _("true");
         args << _("-e") << _("qmljsdebugger") << QString::fromLatin1("port:%1,block").arg(m_qmlPort);
     }
-    if (m_useLocalQtLibs) {
-        args << _("-e") << _("use_local_qt_libs") << _("true");
-        args << _("-e") << _("libs_prefix") << _("/data/local/tmp/qt/");
-        args << _("-e") << _("load_local_libs") << m_localLibs;
-        args << _("-e") << _("load_local_jars") << m_localJars;
-        if (!m_localJarsInitClasses.isEmpty())
-            args << _("-e") << _("static_init_classes") << m_localJarsInitClasses;
-    }
 
     QProcess adb;
     adb.start(m_adb, args);

@@ -123,32 +123,29 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
       m_runModus(runModus),
       m_synchronizeId(-1)
 {
-   PuppetCreator puppetCreator(kit, QString());
-
    QString socketToken(QUuid::createUuid().toString());
    m_localServer->listen(socketToken);
    m_localServer->setMaxPendingConnections(3);
 
    PuppetCreator::QmlPuppetVersion puppetVersion = hasQtQuick1(nodeInstanceView) ? PuppetCreator::Qml1Puppet : PuppetCreator::Qml2Puppet;
+   PuppetCreator puppetCreator(kit, QString(), nodeInstanceView->model(), puppetVersion);
 
-   puppetCreator.createPuppetExecutableIfMissing(puppetVersion);
 
-   m_qmlPuppetEditorProcess = puppetCreator.createPuppetProcess(puppetVersion,
-                                                                "editormode",
+   puppetCreator.createPuppetExecutableIfMissing();
+
+   m_qmlPuppetEditorProcess = puppetCreator.createPuppetProcess("editormode",
                                                               socketToken,
                                                               this,
                                                               SLOT(printEditorProcessOutput()),
                                                               SLOT(processFinished(int,QProcess::ExitStatus)));
 
    if (runModus == NormalModus) {
-       m_qmlPuppetRenderProcess = puppetCreator.createPuppetProcess(puppetVersion,
-                                                                    "rendermode",
+       m_qmlPuppetRenderProcess = puppetCreator.createPuppetProcess("rendermode",
                                                                     socketToken,
                                                                     this,
                                                                     SLOT(printRenderProcessOutput()),
                                                                     SLOT(processFinished(int,QProcess::ExitStatus)));
-       m_qmlPuppetPreviewProcess = puppetCreator.createPuppetProcess(puppetVersion,
-                                                                     "previewmode",
+       m_qmlPuppetPreviewProcess = puppetCreator.createPuppetProcess("previewmode",
                                                                      socketToken,
                                                                      this,
                                                                      SLOT(printPreviewProcessOutput()),

@@ -57,6 +57,11 @@ WinRtDebugSupport::WinRtDebugSupport(RunControl *runControl, WinRtRunnerHelper *
     connect(m_debugRunControl, SIGNAL(finished()), this, SLOT(finish()));
 }
 
+WinRtDebugSupport::~WinRtDebugSupport()
+{
+    delete m_runner;
+}
+
 void WinRtDebugSupport::finish()
 {
     m_runner->stop();

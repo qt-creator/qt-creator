@@ -32,6 +32,7 @@
 #include "importswidget.h"
 
 #include <rewritingexception.h>
+#include <qmldesignerplugin.h>
 
 namespace QmlDesigner {
 
@@ -264,6 +265,8 @@ void ImportManagerView::addImport(const Import &import)
     catch (const RewritingException &e) {
         e.showException();
     }
+
+    QmlDesignerPlugin::instance()->currentDesignDocument()->updateSubcomponentManager();
 }
 
 } // namespace QmlDesigner

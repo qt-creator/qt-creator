@@ -258,7 +258,7 @@
     changed over time, so they differ between Qt and \QC versions. Since \QC
     version 3.3, only Qt 5 is supported for building documentation. The
     templates to use are defined by the
-    \c qt5\qtbase\doc\global\qt-html-templates-offline.qdocconf} and
+    \c {qt5\qtbase\doc\global\qt-html-templates-offline.qdocconf} and
     \c {qt5\qtbase\doc\global\qt-html-templates-online.qdocconf} configuration
     file. They are fetched from Qt sources by adding the following lines to the
     qdocconf file:
@@ -266,10 +266,13 @@
     \list
 
         \li \c {include ($QT_INSTALL_DOCS/global/qt-html-templates-offline.qdocconf)}
-            for publishing on the web
-        \li \c {include ($QT_INSTALL_DOCS/global/qt-html-templates-online.qdocconf)}
             for help files
+        \li \c {include ($QT_INSTALL_DOCS/global/qt-html-templates-online.qdocconf)}
+            for publishing on the web
     \endlist
+
+    \note To have the correct fonts loaded for the online version, you must be
+    running it on a web server.
 
     \note If the styles look wrong to you when reading help files in \QC or \QA,
     you might be looking at them in the QTextBrowser instead of the WebKit

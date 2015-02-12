@@ -127,7 +127,6 @@ public:
 
     QScriptValue parser;
     QScriptValue stringifier;
-    QStringList scriptSourceRequests;
 
     QHash<int, QString> evaluatingExpression;
     QHash<int, QByteArray> localsAndWatchers;
@@ -952,6 +951,9 @@ void QmlV8DebuggerClient::executeDebuggerCommand(const QString &command)
 void QmlV8DebuggerClient::synchronizeWatchers(const QStringList &watchers)
 {
     SDEBUG(watchers);
+    if (d->engine->state() != InferiorStopOk)
+        return;
+
     foreach (const QString &exp, watchers) {
         StackHandler *stackHandler = d->engine->stackHandler();
         if (stackHandler->isContentsValid() && stackHandler->currentFrame().isUsable()) {

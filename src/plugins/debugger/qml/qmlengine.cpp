@@ -518,7 +518,7 @@ void QmlEngine::serviceConnectionError(const QString &serviceName)
 
 bool QmlEngine::canDisplayTooltip() const
 {
-    return state() == InferiorRunOk || state() == InferiorStopOk;
+    return false;
 }
 
 void QmlEngine::filterApplicationMessage(const QString &output, int /*channel*/)

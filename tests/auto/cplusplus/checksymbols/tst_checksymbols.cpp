@@ -192,6 +192,7 @@ private slots:
     void test_checksymbols_macroUses();
     void test_checksymbols_macroUses_data();
 
+    void test_checksymbols_infiniteLoop_data();
     void test_checksymbols_infiniteLoop();
 };
 
@@ -1755,36 +1756,12 @@ void tst_CheckSymbols::test_checksymbols_macroUses_data()
 
 void tst_CheckSymbols::test_checksymbols_infiniteLoop()
 {
-    const QByteArray source1 =
-        "#include \"file2.h\"\n"
-        "\n"
-        "template<class _Elem, class _Traits>\n"
-        "class basic_ios {\n"
-        "        typedef basic_ostream<_Elem, _Traits> _Myos;\n"
-        "};\n"
-        "\n"
-        "template<class _Elem, class _Traits>\n"
-        "class basic_ostream {\n"
-        "        typedef basic_ostream<_Elem, _Traits> _Myt;\n"
-        "        typedef ostreambuf_iterator<_Elem, _Traits> _Iter;\n"
-        "};\n"
-        ;
+    QFETCH(QByteArray, source1);
+    QFETCH(QByteArray, source2);
+
     const QString filePath1 = QDir::tempPath() + QLatin1String("/file1.h");
     Tests::TestCase::writeFile(filePath1, source1);
 
-    const QByteArray source2 =
-        "template<class _Elem, class _Traits>\n"
-        "class basic_streambuf {\n"
-        "        typedef basic_streambuf<_Elem, _Traits> _Myt;\n"
-        "};\n"
-        "\n"
-        "template<class _Elem, class _Traits>\n"
-        "class ostreambuf_iterator {\n"
-        "    typedef _Traits traits_type;\n"
-        "        typedef basic_streambuf<_Elem, _Traits> streambuf_type;\n"
-        "        typedef basic_ostream<_Elem, _Traits> ostream_type;\n"
-        "};\n"
-        ;
     const QString filePath2 = QDir::tempPath() + QLatin1String("/file2.h");
     Tests::TestCase::writeFile(filePath2, source2);
 
@@ -1795,6 +1772,78 @@ void tst_CheckSymbols::test_checksymbols_infiniteLoop()
     snapshot.insert(TestCase::createDocument(filePath2, source2));
 
     TestCase::runCheckSymbols(document1, snapshot);
+}
+
+void tst_CheckSymbols::test_checksymbols_infiniteLoop_data()
+{
+    QTest::addColumn<QByteArray>("source1");
+    QTest::addColumn<QByteArray>("source2");
+
+    QTest::newRow("1")
+        <<
+         _("#include \"file2.h\"\n"
+           "\n"
+           "template<class _Elem, class _Traits>\n"
+           "class basic_ios {\n"
+           "        typedef basic_ostream<_Elem, _Traits> _Myos;\n"
+           "};\n"
+           "\n"
+           "template<class _Elem, class _Traits>\n"
+           "class basic_ostream {\n"
+           "        typedef basic_ostream<_Elem, _Traits> _Myt;\n"
+           "        typedef ostreambuf_iterator<_Elem, _Traits> _Iter;\n"
+           "};\n")
+        <<
+         _("template<class _Elem, class _Traits>\n"
+           "class basic_streambuf {\n"
+           "        typedef basic_streambuf<_Elem, _Traits> _Myt;\n"
+           "};\n"
+           "\n"
+           "template<class _Elem, class _Traits>\n"
+           "class ostreambuf_iterator {\n"
+           "    typedef _Traits traits_type;\n"
+           "        typedef basic_streambuf<_Elem, _Traits> streambuf_type;\n"
+           "        typedef basic_ostream<_Elem, _Traits> ostream_type;\n"
+           "};\n")
+           ;
+
+    QTest::newRow("2")
+        <<
+         _("#include \"file2.h\"\n"
+           "\n"
+           "template<class _Ty >\n"
+           "struct _List_base_types\n"
+           "{\n"
+           "        typedef typename _Wrap_alloc<_Alloc>::template rebind<_Ty>::other _Alty;\n"
+           "        typedef typename _Alty::template rebind<_Node>::other _Alnod_type;\n"
+           "};\n"
+           "\n"
+           "template<class _Alloc_types>\n"
+           "struct _List_alloc \n"
+           "{\n"
+           "        const _Alloc_types::_Alnod_type& _Getal() const {}\n"
+           "};\n"
+           "\n"
+           "template<class _Ty, class _Alloc>\n"
+           "struct _List_buy : public _List_alloc< _List_base_types<_Ty> >\n"
+           "{\n"
+           "        void foo()\n"
+           "        {\n"
+           "                this->_Getal().construct(1, 2);\n"
+           "                this->_Getal().deallocate(0, 1);\n"
+           "        }\n"
+           "};\n")
+        <<
+         _("template<class _Alloc>\n"
+           "struct _Wrap_alloc : public _Alloc\n"
+           "{\n"
+           "    typedef _Alloc _Mybase;\n"
+           "    template<class _Other> struct rebind { typedef _Wrap_alloc<_Other_alloc> other; };\n"
+           "\n"
+           "    void deallocate(pointer _Ptr, size_type _Count) {}\n"
+           "    void construct(value_type *_Ptr) {}\n"
+           "};\n")
+           ;
 }
 
 QTEST_APPLESS_MAIN(tst_CheckSymbols)

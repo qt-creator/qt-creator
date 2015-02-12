@@ -8,11 +8,6 @@ QT += script network
 
 CONFIG += exceptions # used by portlist.cpp, textfileformat.cpp, and ssh/*
 
-win32-msvc* {
-    # disable warnings caused by botan headers
-    QMAKE_CXXFLAGS += -wd4250 -wd4290
-}
-
 SOURCES += $$PWD/environment.cpp \
     $$PWD/environmentmodel.cpp \
     $$PWD/qtcprocess.cpp \

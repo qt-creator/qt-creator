@@ -1006,7 +1006,8 @@ void ModelManagerInterface::importScan(QFutureInterface<void> &future,
     int totalWork(progressRange), workDone(0);
     future.setProgressRange(0, progressRange); // update max length while iterating?
     const Snapshot snapshot = modelManager->snapshot();
-    while (!pathsToScan.isEmpty() && !future.isCanceled()) {
+    bool isCanceled = future.isCanceled();
+    while (!pathsToScan.isEmpty() && !isCanceled) {
         ScanItem toScan = pathsToScan.last();
         pathsToScan.pop_back();
         int pathBudget = (1 << (maxScanDepth + 2 - toScan.depth));
@@ -1043,9 +1044,10 @@ void ModelManagerInterface::importScan(QFutureInterface<void> &future,
             workDone += pathBudget * 3 / 4;
         }
         future.setProgressValue(progressRange * workDone / totalWork);
+        isCanceled = future.isCanceled();
     }
     future.setProgressValue(progressRange);
-    if (future.isCanceled()) {
+    if (isCanceled) {
         // assume no work has been done
         QMutexLocker l(&modelManager->m_mutex);
         for (int i = 0; i < paths.size(); ++i)

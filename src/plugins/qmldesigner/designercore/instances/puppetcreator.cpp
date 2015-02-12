@@ -115,10 +115,12 @@ bool PuppetCreator::useOnlyFallbackPuppet() const
             || !qgetenv("USE_ONLY_FALLBACK_PUPPET").isEmpty() || m_kit == 0 || !m_kit->isValid();
 }
 
-PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreatorVersion)
+PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreatorVersion, const Model *model, QmlPuppetVersion puppetVersion)
     : m_qtCreatorVersion(qtCreatorVersion),
       m_kit(kit),
-      m_availablePuppetType(FallbackPuppet)
+      m_availablePuppetType(FallbackPuppet),
+      m_model(model),
+      m_puppetVersion(puppetVersion)
 {
 }
 
@@ -126,18 +128,18 @@ PuppetCreator::~PuppetCreator()
 {
 }
 
-void PuppetCreator::createPuppetExecutableIfMissing(PuppetCreator::QmlPuppetVersion puppetVersion)
+void PuppetCreator::createPuppetExecutableIfMissing()
 {
-    if (puppetVersion == Qml1Puppet)
+    if (m_puppetVersion == Qml1Puppet)
         createQml1PuppetExecutableIfMissing();
     else
         createQml2PuppetExecutableIfMissing();
 }
 
-QProcess *PuppetCreator::createPuppetProcess(PuppetCreator::QmlPuppetVersion puppetVersion, const QString &puppetMode, const QString &socketToken, QObject *handlerObject, const char *outputSlot, const char *finishSlot) const
+QProcess *PuppetCreator::createPuppetProcess(const QString &puppetMode, const QString &socketToken, QObject *handlerObject, const char *outputSlot, const char *finishSlot) const
 {
     QString puppetPath;
-    if (puppetVersion == Qml1Puppet)
+    if (m_puppetVersion == Qml1Puppet)
         puppetPath = qmlPuppetPath(m_availablePuppetType);
      else
         puppetPath = qml2PuppetPath(m_availablePuppetType);
@@ -333,13 +335,21 @@ QString PuppetCreator::qmlPuppetPath(PuppetType puppetType) const
 
 QProcessEnvironment PuppetCreator::processEnvironment() const
 {
+#if defined(Q_OS_WIN)
+    static QLatin1String pathSep(";");
+#else
+    static QLatin1String pathSep(":");
+#endif
     Utils::Environment environment = Utils::Environment::systemEnvironment();
     if (!useOnlyFallbackPuppet())
         m_kit->addToEnvironment(environment);
     environment.set("QML_BAD_GUI_RENDER_LOOP", "true");
     environment.set("QML_USE_MOCKUPS", "true");
     environment.set("QML_PUPPET_MODE", "true");
-
+    if (m_puppetVersion == Qml1Puppet)
+        environment.appendOrSet("QML_IMPORT_PATH", m_model->importPaths().join(pathSep), pathSep);
+    else
+        environment.appendOrSet("QML2_IMPORT_PATH", m_model->importPaths().join(pathSep), pathSep);
     return environment.toProcessEnvironment();
 }
 

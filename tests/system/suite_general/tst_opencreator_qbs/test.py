@@ -39,7 +39,12 @@ def main():
     if not startedWithoutPluginError():
         return
     openQbsProject(pathCreator)
-    progressBarWait(200000)
+    test.log("Start parsing project")
     naviTreeView = "{column='0' container=':Qt Creator_Utils::NavigationTreeView' text~='qtcreator( \[\S+\])?' type='QModelIndex'}"
+    ntwObject = waitForObject(naviTreeView)
+    if waitFor("ntwObject.model().rowCount(ntwObject) > 2", 200000):    # No need to wait for C++-parsing
+        test.log("Parsing project done")                                # we only need the project
+    else:
+        test.warning("Parsing project timed out")
     compareProjectTree(naviTreeView, "projecttree_creator.tsv")
     invokeMenuItem("File", "Exit")

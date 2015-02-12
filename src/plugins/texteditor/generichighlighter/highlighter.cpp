@@ -175,16 +175,17 @@ void Highlighter::highlightBlock(const QString &text)
             handleContextChange(m_currentContext->lineBeginContext(),
                                 m_currentContext->definition());
 
-            ProgressData progress;
+            ProgressData *progress = new ProgressData;
             const int length = text.length();
-            while (progress.offset() < length)
-                iterateThroughRules(text, length, &progress, false, m_currentContext->rules());
+            while (progress->offset() < length)
+                iterateThroughRules(text, length, progress, false, m_currentContext->rules());
 
             if (extractObservableState(currentBlockState()) != WillContinue) {
                 handleContextChange(m_currentContext->lineEndContext(),
                                     m_currentContext->definition(),
                                     false);
             }
+            delete progress;
             m_contexts.clear();
 
             if (m_indentationBasedFolding) {
