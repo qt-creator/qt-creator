@@ -1873,7 +1873,8 @@ bool GitClient::synchronousRemoteCmd(const QString &workingDirectory, QStringLis
         msgCannotRun(remoteArgs, workingDirectory, errorText, errorMessage);
         return false;
     }
-    *output = commandOutputFromLocal8Bit(outputText);
+    if (output)
+        *output = commandOutputFromLocal8Bit(outputText);
     return true;
 }
 
@@ -2420,14 +2421,15 @@ QString GitClient::extendedShowDescription(const QString &workingDirectory, cons
 // Quietly retrieve branch list of remote repository URL
 //
 // The branch HEAD is pointing to is always returned first.
-QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryURL) const
+QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryURL,
+                                                     const QString &workingDirectory) const
 {
     QStringList arguments(QLatin1String("ls-remote"));
     arguments << repositoryURL << QLatin1String(HEAD) << QLatin1String("refs/heads/*");
     const unsigned flags = VcsBasePlugin::SshPasswordPrompt
             | VcsBasePlugin::SuppressStdErrInLogWindow
             | VcsBasePlugin::SuppressFailMessageInLogWindow;
-    const SynchronousProcessResponse resp = synchronousGit(QString(), arguments, flags);
+    const SynchronousProcessResponse resp = synchronousGit(workingDirectory, arguments, flags);
     QStringList branches;
     branches << tr("<Detached HEAD>");
     QString headSha;

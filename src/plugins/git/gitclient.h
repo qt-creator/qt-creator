@@ -218,7 +218,7 @@ public:
     bool synchronousForEachRefCmd(const QString &workingDirectory, QStringList args,
                                QString *output, QString *errorMessage = 0) const;
     bool synchronousRemoteCmd(const QString &workingDirectory, QStringList remoteArgs,
-                              QString *output, QString *errorMessage, bool silent = false) const;
+                              QString *output = 0, QString *errorMessage = 0, bool silent = false) const;
 
     QMap<QString,QString> synchronousRemotesList(const QString &workingDirectory,
                                                  QString *errorMessage = 0) const;
@@ -325,7 +325,8 @@ public:
 
     void launchRepositoryBrowser(const QString &workingDirectory);
 
-    QStringList synchronousRepositoryBranches(const QString &repositoryURL) const;
+    QStringList synchronousRepositoryBranches(const QString &repositoryURL,
+                                              const QString &workingDirectory = QString()) const;
 
     GitSettings *settings() const;
 

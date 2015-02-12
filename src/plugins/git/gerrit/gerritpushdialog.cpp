@@ -118,8 +118,7 @@ void GerritPushDialog::initRemoteBranches()
         BranchDate bd(ref.mid(refBranchIndex + 1), QDateTime::fromTime_t(timeT).date());
         m_remoteBranches.insertMulti(ref.left(refBranchIndex), bd);
     }
-    QStringList remotes = m_remoteBranches.keys();
-    remotes.removeDuplicates();
+    QStringList remotes = m_client->synchronousRemotesList(m_workingDir).keys();
     m_ui->remoteComboBox->addItems(remotes);
     m_ui->remoteComboBox->setEnabled(remotes.count() > 1);
 }
@@ -224,6 +223,11 @@ void GerritPushDialog::setRemoteBranches(bool includeOld)
     m_ui->targetBranchComboBox->clear();
 
     const QString remoteName = selectedRemoteName();
+    if (!m_remoteBranches.contains(remoteName)) {
+        foreach (const QString &branch, m_client->synchronousRepositoryBranches(remoteName, m_workingDir))
+            m_remoteBranches.insertMulti(remoteName, qMakePair(branch, QDate()));
+    }
+
     int i = 0;
     bool excluded = false;
     foreach (const BranchDate &bd, m_remoteBranches.values(remoteName)) {
