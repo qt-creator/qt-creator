@@ -184,9 +184,9 @@ QString GerritPushDialog::calculateChangeRange(const QString &branch)
     args << QLatin1String("--count");
 
     QString number;
+    QString error;
 
-    if (!m_client->synchronousRevListCmd(m_workingDir, args, &number))
-        reject();
+    m_client->synchronousRevListCmd(m_workingDir, args, &number, &error);
 
     number.chop(1);
     return number;
@@ -201,14 +201,16 @@ void GerritPushDialog::setChangeRange()
     const QString remoteBranchName = selectedRemoteBranchName();
     if (remoteBranchName.isEmpty())
         return;
-    QString remote = selectedRemoteName();
-    remote += QLatin1Char('/');
-    remote += remoteBranchName;
     const QString branch = m_ui->localBranchComboBox->currentText();
-    m_ui->infoLabel->setText(tr("Number of commits between %1 and %2: %3")
-                             .arg(branch)
-                             .arg(remote)
-                             .arg(calculateChangeRange(branch)));
+    const QString range = calculateChangeRange(branch);
+    if (range.isEmpty()) {
+        m_ui->infoLabel->hide();
+        return;
+    }
+    m_ui->infoLabel->show();
+    const QString remote = selectedRemoteName() + QLatin1Char('/') + remoteBranchName;
+    m_ui->infoLabel->setText(
+                tr("Number of commits between %1 and %2: %3").arg(branch, remote, range));
 }
 
 bool GerritPushDialog::isValid() const
