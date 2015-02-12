@@ -31,6 +31,8 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
+#include <qmljs/qmljsmodelmanagerinterface.h>
+
 #include <texteditor/texteditor.h>
 
 #include <utils/fileutils.h>
@@ -46,7 +48,9 @@ TestTreeModel::TestTreeModel(QObject *parent) :
     m_rootItem(new TestTreeItem(QString(), QString(), TestTreeItem::ROOT)),
     m_autoTestRootItem(new TestTreeItem(tr("Auto Tests"), QString(), TestTreeItem::ROOT, m_rootItem)),
     m_quickTestRootItem(new TestTreeItem(tr("Qt Quick Tests"), QString(), TestTreeItem::ROOT, m_rootItem)),
-    m_parser(new TestCodeParser(this))
+    m_parser(new TestCodeParser(this)),
+    m_connectionsInitialized(false),
+    m_initializationCounter(0)
 {
     m_rootItem->appendChild(m_autoTestRootItem);
     m_rootItem->appendChild(m_quickTestRootItem);
@@ -88,6 +92,62 @@ TestTreeModel::~TestTreeModel()
 {
     delete m_rootItem;
     m_instance = 0;
+}
+
+void TestTreeModel::enableParsing()
+{
+    ++m_initializationCounter;
+
+    if (m_connectionsInitialized)
+        return;
+
+    m_parser->setState(TestCodeParser::Idle);
+
+    ProjectExplorer::SessionManager *sm = ProjectExplorer::SessionManager::instance();
+    connect(sm, &ProjectExplorer::SessionManager::startupProjectChanged,
+            m_parser, &TestCodeParser::emitUpdateTestTree);
+
+    CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
+    connect(cppMM, &CppTools::CppModelManager::documentUpdated,
+            m_parser, &TestCodeParser::onCppDocumentUpdated, Qt::QueuedConnection);
+    connect(cppMM, &CppTools::CppModelManager::aboutToRemoveFiles,
+            m_parser, &TestCodeParser::removeFiles, Qt::QueuedConnection);
+
+    QmlJS::ModelManagerInterface *qmlJsMM = QmlJS::ModelManagerInterface::instance();
+    connect(qmlJsMM, &QmlJS::ModelManagerInterface::documentUpdated,
+            m_parser, &TestCodeParser::onQmlDocumentUpdated, Qt::QueuedConnection);
+    connect(qmlJsMM, &QmlJS::ModelManagerInterface::aboutToRemoveFiles,
+            m_parser, &TestCodeParser::removeFiles, Qt::QueuedConnection);
+    m_connectionsInitialized = true;
+    m_parser->updateTestTree();
+}
+
+void TestTreeModel::disableParsing()
+{
+    if (!m_connectionsInitialized)
+        return;
+    if (--m_initializationCounter != 0)
+        return;
+
+    ProjectExplorer::SessionManager *sm = ProjectExplorer::SessionManager::instance();
+    disconnect(sm, &ProjectExplorer::SessionManager::startupProjectChanged,
+               m_parser, &TestCodeParser::emitUpdateTestTree);
+
+    CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
+    disconnect(cppMM, &CppTools::CppModelManager::documentUpdated,
+               m_parser, &TestCodeParser::onCppDocumentUpdated);
+    disconnect(cppMM, &CppTools::CppModelManager::aboutToRemoveFiles,
+               m_parser, &TestCodeParser::removeFiles);
+
+    QmlJS::ModelManagerInterface *qmlJsMM = QmlJS::ModelManagerInterface::instance();
+    disconnect(qmlJsMM, &QmlJS::ModelManagerInterface::documentUpdated,
+               m_parser, &TestCodeParser::onQmlDocumentUpdated);
+    disconnect(qmlJsMM, &QmlJS::ModelManagerInterface::aboutToRemoveFiles,
+               m_parser, &TestCodeParser::removeFiles);
+
+    m_parser->setState(TestCodeParser::Disabled);
+
+    m_connectionsInitialized = false;
 }
 
 QModelIndex TestTreeModel::index(int row, int column, const QModelIndex &parent) const

@@ -53,6 +53,8 @@ public:
 
     static TestTreeModel* instance();
     ~TestTreeModel();
+    void enableParsing();
+    void disableParsing();
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;
@@ -109,6 +111,8 @@ private:
     TestTreeItem *m_autoTestRootItem;
     TestTreeItem *m_quickTestRootItem;
     TestCodeParser *m_parser;
+    bool m_connectionsInitialized;
+    int m_initializationCounter;
 
 };
 

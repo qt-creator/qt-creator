@@ -46,11 +46,13 @@ public:
     enum State {
         Idle,
         PartialParse,
-        FullParse
+        FullParse,
+        Disabled
     };
 
     explicit TestCodeParser(TestTreeModel *parent = 0);
     virtual ~TestCodeParser();
+    void setState(State state);
 
 #ifdef WITH_TESTS
     int autoTestsCount() const;

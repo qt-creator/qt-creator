@@ -46,6 +46,7 @@ class TestNavigationWidget : public QWidget
 
 public:
     explicit TestNavigationWidget(QWidget *parent = 0);
+    ~TestNavigationWidget();
     void contextMenuEvent(QContextMenuEvent *event);
     QList<QToolButton *> createToolButtons();
 

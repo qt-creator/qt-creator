@@ -69,6 +69,15 @@ TestCodeParser::~TestCodeParser()
     clearMaps();
 }
 
+void TestCodeParser::setState(State state)
+{
+    m_parserState = state;
+    if (m_parserState == Disabled) {
+        m_pendingUpdate = m_fullUpdatePostPoned = m_partialUpdatePostPoned = false;
+        m_postPonedFiles.clear();
+    }
+}
+
 void TestCodeParser::emitUpdateTestTree()
 {
     QTimer::singleShot(1000, this, SLOT(updateTestTree()));
@@ -527,6 +536,9 @@ bool TestCodeParser::postponed(const QStringList &fileList)
             m_partialUpdatePostPoned = true;
         }
         return true;
+    case Disabled:
+        qWarning("Checking for postponing but being disabled...");
+        return false;
     }
     QTC_ASSERT(false, return false); // should not happen at all
 }
@@ -565,7 +577,8 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
         m_parserState = Idle;
         emit parsingFinished();
         break;
-    case Idle:
+    default:
+        qWarning("I should not be here...");
         break;
     }
 }

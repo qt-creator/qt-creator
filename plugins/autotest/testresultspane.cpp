@@ -42,7 +42,8 @@ namespace Internal {
 
 TestResultsPane::TestResultsPane(QObject *parent) :
     Core::IOutputPane(parent),
-    m_context(new Core::IContext(this))
+    m_context(new Core::IContext(this)),
+    m_wasVisibleBefore(false)
 {
     m_outputWidget = new QWidget;
     QVBoxLayout *outputLayout = new QVBoxLayout;
@@ -87,8 +88,6 @@ TestResultsPane::TestResultsPane(QObject *parent) :
             this, &TestResultsPane::onTestRunStarted);
     connect(TestRunner::instance(), &TestRunner::testRunFinished,
             this, &TestResultsPane::onTestRunFinished);
-    connect(TestTreeModel::instance(), &TestTreeModel::testTreeModelChanged,
-            this, &TestResultsPane::onTestTreeModelChanged);
 }
 
 void TestResultsPane::createToolButtons()
@@ -178,8 +177,23 @@ void TestResultsPane::clearContents()
     m_summaryWidget->setVisible(false);
 }
 
-void TestResultsPane::visibilityChanged(bool)
+void TestResultsPane::visibilityChanged(bool visible)
 {
+    if (visible) {
+        if (m_wasVisibleBefore)
+            return;
+        connect(TestTreeModel::instance(), &TestTreeModel::testTreeModelChanged,
+                this, &TestResultsPane::onTestTreeModelChanged);
+        m_wasVisibleBefore = true;
+        TestTreeModel::instance()->enableParsing();
+    } else {
+        if (!m_wasVisibleBefore)
+            return;
+        disconnect(TestTreeModel::instance(), &TestTreeModel::testTreeModelChanged,
+                   this, &TestResultsPane::onTestTreeModelChanged);
+        m_wasVisibleBefore = false;
+        TestTreeModel::instance()->disableParsing();
+    }
 }
 
 void TestResultsPane::setFocus()

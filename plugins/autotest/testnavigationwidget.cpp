@@ -26,12 +26,8 @@
 #include "testtreeitem.h"
 
 #include <coreplugin/find/itemviewfind.h>
-#include <projectexplorer/session.h>
-#include <cpptools/cppmodelmanager.h>
-#include <qmljstools/qmljsmodelmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-#include <projectexplorer/project.h>
 #include <texteditor/texteditor.h>
 
 #include <QToolButton>
@@ -58,24 +54,12 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
     layout->addWidget(Core::ItemViewFind::createSearchableWrapper(m_view));
     setLayout(layout);
 
-    TestCodeParser *parser = m_model->parser();
-    ProjectExplorer::SessionManager *sm = ProjectExplorer::SessionManager::instance();
-    connect(sm, &ProjectExplorer::SessionManager::startupProjectChanged,
-            parser, &TestCodeParser::emitUpdateTestTree);
-
-    CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
-    connect(cppMM, &CppTools::CppModelManager::documentUpdated,
-            parser, &TestCodeParser::onCppDocumentUpdated, Qt::QueuedConnection);
-    connect(cppMM, &CppTools::CppModelManager::aboutToRemoveFiles,
-            parser, &TestCodeParser::removeFiles, Qt::QueuedConnection);
-
-    QmlJS::ModelManagerInterface *qmlJsMM = QmlJSTools::Internal::ModelManager::instance();
-    connect(qmlJsMM, &QmlJS::ModelManagerInterface::documentUpdated,
-            parser, &TestCodeParser::onQmlDocumentUpdated, Qt::QueuedConnection);
-    connect(qmlJsMM, &QmlJS::ModelManagerInterface::aboutToRemoveFiles,
-            parser, &TestCodeParser::removeFiles, Qt::QueuedConnection);
-
     connect(m_view, &TestTreeView::activated, this, &TestNavigationWidget::onItemActivated);
+}
+
+TestNavigationWidget::~TestNavigationWidget()
+{
+    m_model->disableParsing();
 }
 
 void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
@@ -223,6 +207,7 @@ Core::NavigationView TestNavigationWidgetFactory::createWidget()
     Core::NavigationView view;
     view.widget = treeViewWidget;
     view.dockToolBarWidgets = treeViewWidget->createToolButtons();
+    TestTreeModel::instance()->enableParsing();
     return view;
 }
 

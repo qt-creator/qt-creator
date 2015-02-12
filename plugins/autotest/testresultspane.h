@@ -58,7 +58,7 @@ public:
     QString displayName() const;
     int priorityInStatusBar() const;
     void clearContents();
-    void visibilityChanged(bool);
+    void visibilityChanged(bool visible);
     void setFocus();
     bool hasFocus() const;
     bool canFocus() const;
@@ -102,6 +102,7 @@ private:
     QToolButton *m_stopTestRun;
     QToolButton *m_filterButton;
     QMenu *m_filterMenu;
+    bool m_wasVisibleBefore;
 };
 
 } // namespace Internal
