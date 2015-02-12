@@ -96,7 +96,7 @@ void ClangStaticAnalyzerUnitTests::testProject_data()
     QTest::addColumn<int>("expectedDiagCount");
     QTest::newRow("qbs project")
             << QString(m_tmpDir->path() + QLatin1String("/simple/simple.qbs")) << 1;
-    QTest::newRow("qbs project")
+    QTest::newRow("qmake project")
             << QString(m_tmpDir->path() + QLatin1String("/simple/simple.pro")) << 1;
 }
 
