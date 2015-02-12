@@ -4,7 +4,7 @@
     <Version>{version}</Version>
     <Title>Qt Creator {version}</Title>
     <Publisher>Qt Project</Publisher>
-    <ProductUrl>http://qt-project.org</ProductUrl>
+    <ProductUrl>http://www.qt.io</ProductUrl>
 
     <InstallerWindowIcon>logo.png</InstallerWindowIcon>
     <Watermark>watermark.png</Watermark>

@@ -3,10 +3,10 @@
     \"Version\" : \"$$QTCREATOR_VERSION\",
     \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
     \"Vendor\" : \"Brian McGillion\",
-    \"Copyright\" : \"(C) 2014 Brian McGillion\",
+    \"Copyright\" : \"(C) 2015 Brian McGillion\",
     \"License\" : [ \"Commercial Usage\",
                   \"\",
-                  \"Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and Digia.\",
+                  \"Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.\",
                   \"\",
                   \"GNU Lesser General Public License Usage\",
                   \"\",
@@ -14,6 +14,6 @@
     ],
     \"Category\" : \"Version Control\",
     \"Description\" : \"Mercurial integration.\",
-    \"Url\" : \"http://www.qt-project.org\",
+    \"Url\" : \"http://www.qt.io\",
     $$dependencyList
 }

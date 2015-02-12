@@ -233,7 +233,7 @@
 		</dict>
 	</array>
         <key>NSHumanReadableCopyright</key>
-        <string>(C) 2014 Digia Plc</string>
+        <string>(C) 2015 The Qt Company Ltd</string>
 	<key>CFBundleIconFile</key>
 	<string>$$ICON</string>
 	<key>CFBundlePackageType</key>
