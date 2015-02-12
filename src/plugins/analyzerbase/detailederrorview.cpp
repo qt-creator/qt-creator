@@ -245,7 +245,7 @@ void DetailedErrorView::setItemDelegate(QAbstractItemDelegate *delegate)
     m_copyAction = new QAction(this);
     m_copyAction->setText(tr("Copy"));
     m_copyAction->setIcon(QIcon(QLatin1String(Core::Constants::ICON_COPY)));
-    m_copyAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
+    m_copyAction->setShortcut(QKeySequence::Copy);
     m_copyAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     connect(m_copyAction, &QAction::triggered, myDelegate, &DetailedErrorDelegate::copyToClipboard);
     addAction(m_copyAction);
