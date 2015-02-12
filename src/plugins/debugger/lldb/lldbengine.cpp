@@ -848,13 +848,9 @@ void LldbEngine::updateLocals()
 
 void LldbEngine::doUpdateLocals(UpdateParameters params)
 {
-    WatchHandler *handler = watchHandler();
-
     DebuggerCommand cmd("updateData");
     cmd.arg("nativeMixed", isNativeMixedActive());
-    cmd.arg("expanded", handler->expansionRequests());
-    cmd.arg("typeformats", handler->typeFormatRequests());
-    cmd.arg("formats", handler->individualFormatRequests());
+    watchHandler()->appendFormatRequests(&cmd);
 
     const static bool alwaysVerbose = !qgetenv("QTC_DEBUGGER_PYTHON_VERBOSE").isEmpty();
     cmd.arg("passexceptions", alwaysVerbose);

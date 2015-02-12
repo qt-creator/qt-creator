@@ -4753,19 +4753,14 @@ void addGdbOptionPages(QList<IOptionsPage *> *opts)
     opts->push_back(new GdbOptionsPage2());
 }
 
-
 void GdbEngine::updateLocalsPython(const UpdateParameters &params)
 {
     //m_pendingWatchRequests = 0;
     m_pendingBreakpointRequests = 0;
     m_processedNames.clear();
 
-    WatchHandler *handler = watchHandler();
-
     DebuggerCommand cmd("showData");
-    cmd.arg("expanded", handler->expansionRequests());
-    cmd.arg("typeformats", handler->typeFormatRequests());
-    cmd.arg("formats", handler->individualFormatRequests());
+    watchHandler()->appendFormatRequests(&cmd);
 
     cmd.arg("stringcutoff", action(MaximalStringLength)->value().toByteArray());
     cmd.arg("displaystringlimit", action(DisplayStringLimit)->value().toByteArray());

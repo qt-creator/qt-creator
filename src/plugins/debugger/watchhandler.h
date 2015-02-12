@@ -41,6 +41,7 @@
 namespace Debugger {
 namespace Internal {
 
+class DebuggerCommand;
 class SeparatedView;
 class WatchModel;
 
@@ -74,7 +75,7 @@ public:
     int editType() const;
     QColor color() const;
 
-    void formatRequests(QByteArray *out) const;
+    int requestedFormat() const;
     void showInEditorHelper(QString *contents, int depth) const;
     WatchItem *findItem(const QByteArray &iname);
     void parseWatchData(const GdbMi &input);
@@ -211,7 +212,6 @@ public:
     static QStringList watchedExpressions();
     static QHash<QByteArray, int> watcherNames();
 
-    QByteArray expansionRequests() const;
     QByteArray typeFormatRequests() const;
     QByteArray individualFormatRequests() const;
 
@@ -234,6 +234,7 @@ public:
 
     void setCurrentItem(const QByteArray &iname);
     void updateWatchersWindow();
+    void appendFormatRequests(DebuggerCommand *cmd);
 
     void insertData(const WatchData &data); // Convenience.
     void insertData(const QList<WatchData> &list);

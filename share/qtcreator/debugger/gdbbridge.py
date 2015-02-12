@@ -250,21 +250,9 @@ class Dumper(DumperBase):
         self.resultVarName = args.get("resultvarname", "")
         self.expandedINames = set(args.get("expanded", []))
         self.stringCutOff = int(args.get("stringcutoff", 10000))
-        self.displayStringLimit = int(args.get("displaystringlimit", 10000))
-
-        self.typeformats = {}
-        for f in args.get("typeformats", "").split(","):
-            pos = f.find("=")
-            if pos != -1:
-                typeName = self.hexdecode(f[0:pos])
-                self.typeformats[typeName] = int(f[pos+1:])
-
-        self.formats = {}
-        for f in args.get("formats", "").split(","):
-            pos = f.find("=")
-            if pos != -1:
-                self.formats[f[0:pos]] = int(f[pos+1:])
-
+        self.displayStringLimit = int(args.get("displaystringlimit", 100))
+        self.typeformats = args.get("typeformats", {})
+        self.formats = args.get("formats", {})
         self.watchers = args.get("watchers", {})
         self.qmlcontext = int(args.get("qmlcontext", "0"))
         self.useDynamicType = int(args.get("dyntype", "0"))

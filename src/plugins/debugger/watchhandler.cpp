@@ -1130,15 +1130,12 @@ void WatchModel::insertBulkData(const QList<WatchData> &list)
     emit columnAdjustmentRequested();
 }
 
-void WatchItem::formatRequests(QByteArray *out) const
+int WatchItem::requestedFormat() const
 {
     int format = theIndividualFormats.value(d.iname, AutomaticFormat);
     if (format == AutomaticFormat)
         format = theTypeFormats.value(stripForFormat(d.type), AutomaticFormat);
-    if (format != AutomaticFormat)
-        *out += d.iname + ":format=" + QByteArray::number(format) + ',';
-    foreach (const TreeItem *child, children())
-        static_cast<const WatchItem *>(child)->formatRequests(out);
+    return format;
 }
 
 void WatchItem::showInEditorHelper(QString *contents, int depth) const
@@ -1639,22 +1636,6 @@ int WatchHandler::format(const QByteArray &iname) const
     return result;
 }
 
-QByteArray WatchHandler::expansionRequests() const
-{
-    QByteArray ba;
-    m_model->root()->formatRequests(&ba);
-    if (!m_model->m_expandedINames.isEmpty()) {
-        QSetIterator<QByteArray> jt(m_model->m_expandedINames);
-        while (jt.hasNext()) {
-            QByteArray iname = jt.next();
-            ba.append(iname);
-            ba.append(',');
-        }
-        ba.chop(1);
-    }
-    return ba;
-}
-
 QByteArray WatchHandler::typeFormatRequests() const
 {
     QByteArray ba;
@@ -1693,6 +1674,39 @@ QByteArray WatchHandler::individualFormatRequests() const
         ba.chop(1);
     }
     return ba;
+}
+
+void WatchHandler::appendFormatRequests(DebuggerCommand *cmd)
+{
+    cmd->beginList("expanded");
+    QSetIterator<QByteArray> jt(m_model->m_expandedINames);
+    while (jt.hasNext()) {
+        QByteArray iname = jt.next();
+        //WatchItem *item = m_model->findItem(iname);
+        cmd->arg(iname);
+        //cmd->arg("format", item->requestedFormat());
+    }
+    cmd->endList();
+
+    cmd->beginGroup("typeformats");
+    QHashIterator<QByteArray, int> it(theTypeFormats);
+    while (it.hasNext()) {
+        it.next();
+        const int format = it.value();
+        if (format >= RawFormat && format < ArtificialFormatBase)
+            cmd->arg(it.key(), format);
+    }
+    cmd->endGroup();
+
+    cmd->beginGroup("formats");
+    QHashIterator<QByteArray, int> it2(theIndividualFormats);
+    while (it2.hasNext()) {
+        it2.next();
+        const int format = it2.value();
+        if (format >= RawFormat && format < ArtificialFormatBase)
+            cmd->arg(it2.key(), format);
+    }
+    cmd->endGroup();
 }
 
 void WatchHandler::addDumpers(const GdbMi &dumpers)

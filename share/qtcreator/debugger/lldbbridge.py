@@ -1634,29 +1634,14 @@ class Dumper(DumperBase):
         self.report('success="%d",output="%s",error="%s"' % (success, output, error))
 
     def updateData(self, args):
-        if 'expanded' in args:
-            self.expandedINames = set(args['expanded'].split(','))
-        if 'autoderef' in args:
-            self.autoDerefPointers = int(args['autoderef'])
-        if 'dyntype' in args:
-            self.useDynamicType = int(args['dyntype'])
-        if 'fancy' in args:
-            self.useFancy = int(args['fancy'])
-        if 'passexceptions' in args:
-            self.passExceptions = int(args['passexceptions'])
-        if 'watchers' in args:
-            self.currentWatchers = args['watchers']
-        if 'typeformats' in args:
-            for f in args['typeformats'].split(','):
-                pos = f.find("=")
-                if pos != -1:
-                    typeName = self.hexdecode(f[0:pos])
-                    self.typeformats[typeName] = int(f[pos+1:])
-        if 'formats' in args:
-            for f in args['formats'].split(','):
-                pos = f.find("=")
-                if pos != -1:
-                    self.formats[f[0:pos]] = int(f[pos+1:])
+        self.expandedINames = set(args.get('expanded', []))
+        self.autoDerefPointers = int(args.get('autoderef', '0'))
+        self.useDynamicType = int(args.get('dyntype', '0'))
+        self.useFancy = int(args.get('fancy', '0'))
+        self.passExceptions = int(args.get('passexceptions', '0'))
+        self.currentWatchers = args.get('watchers', {})
+        self.typeformats = args.get("typeformats", {})
+        self.formats = args.get("formats", {})
         self.reportVariables(args)
 
     def disassemble(self, args):

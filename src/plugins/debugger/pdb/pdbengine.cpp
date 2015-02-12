@@ -725,7 +725,7 @@ void PdbEngine::updateLocals()
     options.chop(1);
 
     postCommand("qdebug('" + options + "','"
-        + handler->expansionRequests() + "','"
+//        + handler->expansionRequests() + "','"
         + handler->typeFormatRequests() + "','"
         + handler->individualFormatRequests() + "','"
         + watchers.toHex() + "')", CB(handleListLocals));
