@@ -173,11 +173,10 @@ def main():
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
     addCPlusPlusFileToCurrentProject("pointless_header.h", "C++ Header File", addToVCS = "Git")
     commitMessages.insert(0, commit("Added pointless header file", "Committed 2 file(s)."))
-    __createProjectOrFileSelectType__("  General", "Text File", isProject=False)
-    readmeName = "README"
+    __createProjectOrFileSelectType__("  General", "Empty File", isProject=False)
+    readmeName = "README.txt"
     replaceEditorContent(waitForObject(":New Text File.nameLineEdit_Utils::FileNameValidatingLineEdit"), readmeName)
     clickButton(waitForObject(":Next_QPushButton"))
-    readmeName += ".txt"
     __createProjectHandleLastPage__([readmeName], "Git", "<None>")
     replaceEditorContent(waitForObject(":Qt Creator_TextEditor::TextEditorWidget"),
                          "Some important advice in the README")

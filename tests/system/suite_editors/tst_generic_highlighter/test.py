@@ -31,7 +31,7 @@
 source("../../shared/qtcreator.py")
 
 def createFile(folder, filename):
-    __createProjectOrFileSelectType__("  General", "Text File", isProject = False)
+    __createProjectOrFileSelectType__("  General", "Empty File", isProject = False)
     replaceEditorContent(waitForObject("{name='nameLineEdit' visible='1' "
                                        "type='Utils::FileNameValidatingLineEdit'}"), filename)
     replaceEditorContent(waitForObject("{type='Utils::FancyLineEdit' unnamed='1' visible='1' "
