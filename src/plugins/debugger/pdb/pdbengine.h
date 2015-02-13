@@ -34,16 +34,13 @@
 #include <debugger/debuggerengine.h>
 
 #include <QProcess>
-#include <QQueue>
 #include <QVariant>
 
 namespace Debugger {
 namespace Internal {
 
-class WatchData;
-class GdbMi;
-
-/* A debugger engine for Python using the pdb command line debugger.
+/*
+ * A debugger engine for Python using the pdb command line debugger.
  */
 
 class PdbEngine : public DebuggerEngine
@@ -52,13 +49,6 @@ class PdbEngine : public DebuggerEngine
 
 public:
     explicit PdbEngine(const DebuggerStartParameters &startParameters);
-    ~PdbEngine();
-
-    void refreshStack(const GdbMi &stack);
-    void runCommand(const DebuggerCommand &cmd);
-    void refreshLocals(const GdbMi &vars);
-    void refreshModules(const GdbMi &modules);
-    void refreshSymbols(const GdbMi &symbols);
 
 private:
     // DebuggerEngine implementation
@@ -108,10 +98,14 @@ private:
     void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
     QString mainPythonFile() const;
 
-signals:
-    void outputReady(const QByteArray &data);
+    void runCommand(const DebuggerCommand &cmd);
+    void postDirectCommand(const QByteArray &command);
 
-private:
+    void refreshStack(const GdbMi &stack);
+    void refreshLocals(const GdbMi &vars);
+    void refreshModules(const GdbMi &modules);
+    void refreshSymbols(const GdbMi &symbols);
+
     QString errorMessage(QProcess::ProcessError error) const;
     bool hasCapability(unsigned cap) const;
 
@@ -124,19 +118,6 @@ private:
     void handleOutput(const QByteArray &data);
     void updateAll();
     void updateLocals();
-    void handleUpdateAll(const DebuggerResponse &response);
-    void handleFirstCommand(const DebuggerResponse &response);
-    void handleExecuteDebuggerCommand(const DebuggerResponse &response);
-    void handleStop(const DebuggerResponse &response);
-    void handleBreakInsert(const DebuggerResponse &response, Breakpoint bp);
-
-    void handleChildren(const WatchData &data0, const GdbMi &item,
-        QList<WatchData> *list);
-    void postCommand(const QByteArray &command,
-                     DebuggerCommand::Callback callback = DebuggerCommand::Callback());
-    void postDirectCommand(const QByteArray &command);
-
-    QQueue<DebuggerCommand> m_commands;
 
     QByteArray m_inbuffer;
     QProcess m_pdbProc;
