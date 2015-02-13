@@ -673,7 +673,7 @@ QString WatchItem::expression() const
         if (!p->d.exp.isEmpty())
            return QString::fromLatin1("(%1).%2").arg(QString::fromLatin1(p->d.exp), d.name);
     }
-    return QString();
+    return d.name;
 }
 
 QString WatchItem::displayName() const
@@ -754,7 +754,7 @@ QVariant WatchItem::data(int column, int role) const
         case Qt::EditRole: {
             switch (column) {
                 case 0:
-                    return QVariant(expression());
+                    return expression();
                 case 1:
                     return editValue();
                 case 2:
@@ -785,7 +785,7 @@ QVariant WatchItem::data(int column, int role) const
                 return color();
 
         case LocalsExpressionRole:
-            return QVariant(expression());
+            return expression();
 
         case LocalsRawExpressionRole:
             return d.exp;

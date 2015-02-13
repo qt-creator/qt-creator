@@ -233,6 +233,14 @@ def qdebug(cmd, args):
                 % (module, dir(module) if module else []))
         self.flushOutput()
 
+    def assignValue(self, args):
+        exp = args['expression']
+        value = args['value']
+        cmd = "%s=%s" % (exp, exp, value)
+        eval(cmd, {})
+        self.put("CMD: '%s'" % cmd)
+        self.flushOutput()
+
     def stackListFrames(self, args):
         #isNativeMixed = int(args.get('nativeMixed', 0))
         #result = 'stack={current-thread="%s"' % thread.GetThreadID()

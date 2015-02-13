@@ -454,17 +454,16 @@ bool PdbEngine::setToolTipExpression(TextEditor::TextEditorWidget *,
     return true;
 }
 
-void PdbEngine::assignValueInDebugger(const Internal::WatchData *, const QString &expression, const QVariant &value)
+void PdbEngine::assignValueInDebugger(const WatchData *, const QString &expression, const QVariant &value)
 {
-    Q_UNUSED(expression);
-    Q_UNUSED(value);
-    SDEBUG("ASSIGNING: " << (expression + QLatin1Char('=') + value.toString()));
-#if 0
-    m_scriptEngine->evaluate(expression + QLatin1Char('=') + value.toString());
+    //DebuggerCommand cmd("assignValue");
+    //cmd.arg("expression", expression);
+    //cmd.arg("value", value.toString());
+    //runCommand(cmd);
+    QByteArray exp = expression.toUtf8();
+    postDirectCommand("global " + exp + ';' + exp + "=" + value.toString().toUtf8());
     updateLocals();
-#endif
 }
-
 
 void PdbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &flags)
 {
