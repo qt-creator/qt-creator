@@ -37,7 +37,6 @@
 #include <QQueue>
 #include <QVariant>
 
-
 namespace Debugger {
 namespace Internal {
 
@@ -46,13 +45,6 @@ class GdbMi;
 
 /* A debugger engine for Python using the pdb command line debugger.
  */
-
-class PdbResponse
-{
-public:
-    QByteArray data;
-    QVariant cookie;
-};
 
 class PdbEngine : public DebuggerEngine
 {
@@ -126,40 +118,29 @@ private:
     void handleOutput(const QByteArray &data);
     void updateAll();
     void updateLocals();
-    void handleUpdateAll(const PdbResponse &response);
-    void handleFirstCommand(const PdbResponse &response);
-    void handleExecuteDebuggerCommand(const PdbResponse &response);
-
-    typedef void (PdbEngine::*PdbCommandCallback)
-        (const PdbResponse &response);
+    void handleUpdateAll(const DebuggerResponse &response);
+    void handleFirstCommand(const DebuggerResponse &response);
+    void handleExecuteDebuggerCommand(const DebuggerResponse &response);
 
     struct PdbCommand
     {
-        PdbCommand()
-            : callback(0), callbackName(0)
-        {}
+        PdbCommand() : callback(0) {}
 
-        PdbCommandCallback callback;
-        const char *callbackName;
+        DebuggerCommand::Callback callback;
         QByteArray command;
-        QVariant cookie;
-        //QTime postTime;
     };
 
-    void handleStop(const PdbResponse &response);
-    void handleBacktrace(const PdbResponse &response);
-    void handleListLocals(const PdbResponse &response);
-    void handleListModules(const PdbResponse &response);
-    void handleListSymbols(const PdbResponse &response);
-    void handleBreakInsert(const PdbResponse &response);
+    void handleStop(const DebuggerResponse &response);
+    void handleBacktrace(const DebuggerResponse &response);
+    void handleListLocals(const DebuggerResponse &response);
+    void handleListModules(const DebuggerResponse &response);
+    void handleListSymbols(const DebuggerResponse &response, const QString &moduleName);
+    void handleBreakInsert(const DebuggerResponse &response, Breakpoint bp);
 
     void handleChildren(const WatchData &data0, const GdbMi &item,
         QList<WatchData> *list);
     void postCommand(const QByteArray &command,
-                     //GdbCommandFlags flags = 0,
-                     PdbCommandCallback callback = 0,
-                     const char *callbackName = 0,
-                     const QVariant &cookie = QVariant());
+                     DebuggerCommand::Callback callback = 0);
     void postDirectCommand(const QByteArray &command);
 
     QQueue<PdbCommand> m_commands;

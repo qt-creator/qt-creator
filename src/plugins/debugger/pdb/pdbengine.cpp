@@ -74,7 +74,7 @@
 # define XSDEBUG(s) qDebug() << s
 
 
-#define CB(callback) &PdbEngine::callback, STRINGIFY(callback)
+#define CB(callback) [this](const DebuggerResponse &r) { callback(r); }
 
 namespace Debugger {
 namespace Internal {
@@ -108,7 +108,7 @@ void PdbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages
     postCommand(command.toLatin1(), CB(handleExecuteDebuggerCommand));
 }
 
-void PdbEngine::handleExecuteDebuggerCommand(const PdbResponse &response)
+void PdbEngine::handleExecuteDebuggerCommand(const DebuggerResponse &response)
 {
     Q_UNUSED(response);
 }
@@ -120,20 +120,14 @@ void PdbEngine::postDirectCommand(const QByteArray &command)
     m_pdbProc.write(command + '\n');
 }
 
-void PdbEngine::postCommand(const QByteArray &command,
-//                 PdbCommandFlags flags,
-                 PdbCommandCallback callback,
-                 const char *callbackName,
-                 const QVariant &cookie)
+void PdbEngine::postCommand(const QByteArray &command, DebuggerCommand::Callback callback)
 {
     QTC_ASSERT(m_pdbProc.state() == QProcess::Running, notifyEngineIll());
     PdbCommand cmd;
     cmd.command = command;
     cmd.callback = callback;
-    cmd.callbackName = callbackName;
-    cmd.cookie = cookie;
     m_commands.enqueue(cmd);
-    qDebug() << "ENQUEUE: " << command << cmd.callbackName;
+    qDebug() << "ENQUEUE: " << command;
     showMessage(_(cmd.command), LogInput);
     m_pdbProc.write(cmd.command + '\n');
 }
@@ -171,7 +165,7 @@ void PdbEngine::setupEngine()
 
     // We will stop immediately, so setup a proper callback.
     PdbCommand cmd;
-    cmd.callback = &PdbEngine::handleFirstCommand;
+    cmd.callback = CB(handleFirstCommand);
     m_commands.enqueue(cmd);
 
     m_pdbProc.start(m_pdb, QStringList() << _("-i"));
@@ -349,25 +343,24 @@ void PdbEngine::insertBreakpoint(Breakpoint bp)
         loc = bp.fileName().toLocal8Bit() + ':'
          + QByteArray::number(bp.lineNumber());
 
-    postCommand("break " + loc, CB(handleBreakInsert), QVariant::fromValue(bp));
+    postCommand("break " + loc, [this, bp](const DebuggerResponse &r) { handleBreakInsert(r, bp); });
 }
 
-void PdbEngine::handleBreakInsert(const PdbResponse &response)
+void PdbEngine::handleBreakInsert(const DebuggerResponse &response, Breakpoint bp)
 {
     //qDebug() << "BP RESPONSE: " << response.data;
     // "Breakpoint 1 at /pdb/math.py:10"
-    QTC_ASSERT(response.data.startsWith("Breakpoint "), return);
-    int pos1 = response.data.indexOf(" at ");
+    QTC_ASSERT(response.logStreamOutput.startsWith("Breakpoint "), return);
+    int pos1 = response.logStreamOutput.indexOf(" at ");
     QTC_ASSERT(pos1 != -1, return);
-    QByteArray bpnr = response.data.mid(11, pos1 - 11);
-    int pos2 = response.data.lastIndexOf(':');
-    QByteArray file = response.data.mid(pos1 + 4, pos2 - pos1 - 4);
-    QByteArray line = response.data.mid(pos2 + 1);
+    QByteArray bpnr = response.logStreamOutput.mid(11, pos1 - 11);
+    int pos2 = response.logStreamOutput.lastIndexOf(':');
+    QByteArray file = response.logStreamOutput.mid(pos1 + 4, pos2 - pos1 - 4);
+    QByteArray line = response.logStreamOutput.mid(pos2 + 1);
     BreakpointResponse br;
     br.id = BreakpointResponseId(bpnr);
     br.fileName = _(file);
     br.lineNumber = line.toInt();
-    Breakpoint bp = response.cookie.value<Breakpoint>();
     bp.setResponse(br);
     QTC_CHECK(!bp.needsChange());
     bp.notifyBreakpointInsertOk();
@@ -398,10 +391,10 @@ void PdbEngine::reloadModules()
     //postCommand("qdebug('listmodules')", CB(handleListModules));
 }
 
-void PdbEngine::handleListModules(const PdbResponse &response)
+void PdbEngine::handleListModules(const DebuggerResponse &response)
 {
     GdbMi out;
-    out.fromString(response.data.trimmed());
+    out.fromString(response.logStreamOutput.trimmed());
     ModulesHandler *handler = modulesHandler();
     handler->beginUpdateAll();
     foreach (const GdbMi &item, out.children()) {
@@ -426,15 +419,14 @@ void PdbEngine::handleListModules(const PdbResponse &response)
 void PdbEngine::requestModuleSymbols(const QString &moduleName)
 {
     postCommand("qdebug('listsymbols','" + moduleName.toLatin1() + "')",
-        CB(handleListSymbols), moduleName);
+                [this, moduleName](const DebuggerResponse &r) { handleListSymbols(r, moduleName); });
 }
 
-void PdbEngine::handleListSymbols(const PdbResponse &response)
+void PdbEngine::handleListSymbols(const DebuggerResponse &response, const QString &moduleName)
 {
     GdbMi out;
-    out.fromString(response.data.trimmed());
+    out.fromString(response.logStreamOutput.trimmed());
     Symbols symbols;
-    QString moduleName = response.cookie.toString();
     foreach (const GdbMi &item, out.children()) {
         Symbol symbol;
         symbol.name = _(item["name"].data());
@@ -634,19 +626,18 @@ void PdbEngine::handleOutput(const QByteArray &data)
 
 void PdbEngine::handleOutput2(const QByteArray &data)
 {
-    PdbResponse response;
-    response.data = data;
+    DebuggerResponse response;
+    response.logStreamOutput = data;
     showMessage(_(data));
     QTC_ASSERT(!m_commands.isEmpty(), qDebug() << "RESPONSE: " << data; return);
     PdbCommand cmd = m_commands.dequeue();
-    response.cookie = cmd.cookie;
-    qDebug() << "DEQUE: " << cmd.command << cmd.callbackName;
+    qDebug() << "DEQUE: " << cmd.command;
     if (cmd.callback) {
         //qDebug() << "EXECUTING CALLBACK " << cmd.callbackName
         //    << " RESPONSE: " << response.data;
-        (this->*cmd.callback)(response);
+        cmd.callback(response);
     } else {
-        qDebug() << "NO CALLBACK FOR RESPONSE: " << response.data;
+        qDebug() << "NO CALLBACK FOR RESPONSE: " << response.logStreamOutput;
     }
 }
 /*
@@ -684,12 +675,12 @@ void PdbEngine::handleResponse(const QByteArray &response0)
 }
 */
 
-void PdbEngine::handleFirstCommand(const PdbResponse &response)
+void PdbEngine::handleFirstCommand(const DebuggerResponse &response)
 {
     Q_UNUSED(response);
 }
 
-void PdbEngine::handleUpdateAll(const PdbResponse &response)
+void PdbEngine::handleUpdateAll(const DebuggerResponse &response)
 {
     Q_UNUSED(response);
     notifyInferiorSpontaneousStop();
@@ -735,7 +726,7 @@ void PdbEngine::updateLocals()
         + watchers.toHex() + "')", CB(handleListLocals));
 }
 
-void PdbEngine::handleBacktrace(const PdbResponse &response)
+void PdbEngine::handleBacktrace(const DebuggerResponse &response)
 {
     //qDebug() << " BACKTRACE: '" << response.data << "'";
     // "  /usr/lib/python2.6/bdb.py(368)run()"
@@ -754,7 +745,7 @@ void PdbEngine::handleBacktrace(const PdbResponse &response)
     StackFrames stackFrames;
     int level = 0;
     int currentIndex = -1;
-    foreach (const QByteArray &line, response.data.split('\n')) {
+    foreach (const QByteArray &line, response.logStreamOutput.split('\n')) {
         //qDebug() << "  LINE: '" << line << "'";
         if (line.startsWith("> ") || line.startsWith("  ")) {
             int pos1 = line.indexOf('(');
@@ -794,10 +785,10 @@ void PdbEngine::handleBacktrace(const PdbResponse &response)
     updateLocals();
 }
 
-void PdbEngine::handleListLocals(const PdbResponse &response)
+void PdbEngine::handleListLocals(const DebuggerResponse &response)
 {
     //qDebug() << " LOCALS: '" << response.data << "'";
-    QByteArray out = response.data.trimmed();
+    QByteArray out = response.logStreamOutput.trimmed();
 
     GdbMi all;
     all.fromStringMultiple(out);
