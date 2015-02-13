@@ -81,6 +81,22 @@ SeparateLatin1StringFormat, \
 SeparateUtf8StringFormat \
     = range(100, 112)
 
+# Breakpoints. Keep synchronized with BreakpointType in breakpoint.h
+UnknownType, \
+BreakpointByFileAndLine, \
+BreakpointByFunction, \
+BreakpointByAddress, \
+BreakpointAtThrow, \
+BreakpointAtCatch, \
+BreakpointAtMain, \
+BreakpointAtFork, \
+BreakpointAtExec, \
+BreakpointAtSysCall, \
+WatchpointAtAddress, \
+WatchpointAtExpression, \
+BreakpointOnQmlSignalEmit, \
+BreakpointAtJavaScriptThrow, \
+    = range(0, 14)
 #
 # matplot based display for array-like structures.
 #

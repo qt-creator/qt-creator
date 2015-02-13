@@ -28,18 +28,15 @@
 #
 #############################################################################
 
-import atexit
 import inspect
 import os
 import platform
 import re
 import sys
-import subprocess
 import threading
 import lldb
 
-currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-sys.path.insert(1, currentDir)
+sys.path.insert(1, os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
 
 from dumper import *
 
@@ -50,8 +47,6 @@ from dumper import *
 #######################################################################
 
 qqWatchpointOffset = 10000
-
-lldb.theDumper = None
 
 def warn(message):
     print('\n\nWARNING="%s",\n' % message.encode("latin1").replace('"', "'"))
@@ -65,22 +60,6 @@ def showException(msg, exType, exValue, exTraceback):
 def fileName(file):
     return str(file) if file.IsValid() else ''
 
-
-# Breakpoints. Keep synchronized with BreakpointType in breakpoint.h
-UnknownType = 0
-BreakpointByFileAndLine = 1
-BreakpointByFunction = 2
-BreakpointByAddress = 3
-BreakpointAtThrow = 4
-BreakpointAtCatch = 5
-BreakpointAtMain = 6
-BreakpointAtFork = 7
-BreakpointAtExec = 8
-BreakpointAtSysCall = 9
-WatchpointAtAddress = 10
-WatchpointAtExpression = 11
-BreakpointOnQmlSignalEmit = 12
-BreakpointAtJavaScriptThrow = 13
 
 def check(exp):
     if not exp:
@@ -187,8 +166,6 @@ class Dumper(DumperBase):
     def __init__(self):
         DumperBase.__init__(self)
 
-        lldb.theDumper = self
-
         self.outputLock = threading.Lock()
         self.debugger = lldb.SBDebugger.Create()
         #self.debugger.SetLoggingCallback(loggingCallback)
@@ -254,6 +231,9 @@ class Dumper(DumperBase):
         self.breakpointsToCheck = set([])
         self.qmlBreakpointResolvers = {}
         self.qmlTriggeredBreakpoint = None
+
+        self.report('lldbversion=\"%s\"' % lldb.SBDebugger.GetVersionString())
+        self.reportState("enginesetupok")
 
     def enterSubItem(self, item):
         if isinstance(item.name, lldb.SBValue):
@@ -1719,7 +1699,6 @@ class Dumper(DumperBase):
 
 
 # Used in dumper auto test.
-# Usage: python lldbbridge.py /path/to/testbinary comma-separated-inames
 class Tester(Dumper):
     def __init__(self, binary, expandedINames):
         Dumper.__init__(self)

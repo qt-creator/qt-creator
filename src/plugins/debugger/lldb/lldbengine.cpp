@@ -118,7 +118,6 @@ LldbEngine::~LldbEngine()
     m_stubProc.disconnect(); // Avoid spurious state transitions from late exiting stub
 }
 
-
 void LldbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages)
 {
     DebuggerCommand cmd("executeDebuggerCommand");
@@ -133,7 +132,7 @@ void LldbEngine::runCommand(const DebuggerCommand &command)
     QByteArray token = QByteArray::number(m_lastToken);
     QByteArray cmd  = command.function + "({" + command.args + "})";
     showMessage(_(token + cmd + '\n'), LogInput);
-    m_lldbProc.write("sc db." + cmd + "\n");
+    m_lldbProc.write("script theDumper." + cmd + "\n");
 }
 
 void LldbEngine::debugLastCommand()
@@ -269,14 +268,10 @@ void LldbEngine::startLldb()
     const QByteArray dumperSourcePath =
         ICore::resourcePath().toLocal8Bit() + "/debugger/";
 
-    m_lldbProc.write("sc sys.path.insert(1, '" + dumperSourcePath + "')\n");
-    m_lldbProc.write("sc from lldbbridge import *\n");
-    m_lldbProc.write("sc print(dir())\n");
-    m_lldbProc.write("sc db = Dumper()\n");
-    m_lldbProc.write("sc db.report('lldbversion=\"%s\"' % lldb.SBDebugger.GetVersionString())\n");
-
-    showMessage(_("ENGINE SUCCESSFULLY STARTED"));
-    notifyEngineSetupOk();
+    m_lldbProc.write("script sys.path.insert(1, '" + dumperSourcePath + "')\n");
+    m_lldbProc.write("script from lldbbridge import *\n");
+    m_lldbProc.write("script print(dir())\n");
+    m_lldbProc.write("script theDumper = Dumper()\n"); // This triggers reportState("enginesetupok")
 }
 
 void LldbEngine::setupInferior()
