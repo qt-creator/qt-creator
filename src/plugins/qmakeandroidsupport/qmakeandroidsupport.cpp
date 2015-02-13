@@ -156,7 +156,7 @@ Utils::FileName QmakeAndroidSupport::manifestSourcePath(const ProjectExplorer::T
 {
     ProjectExplorer::RunConfiguration *rc = target->activeRunConfiguration();
     if (auto qrc = qobject_cast<QmakeAndroidRunConfiguration *>(rc)) {
-        QString proFilePath = qrc->proFilePath();
+        Utils::FileName proFilePath = qrc->proFilePath();
         const auto project = static_cast<QmakeProjectManager::QmakeProject *>(target->project());
         const QmakeProFileNode *node = project->rootQmakeProjectNode()->findProFileFor(proFilePath);
         if (node) {

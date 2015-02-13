@@ -619,7 +619,7 @@ void AndroidManifestEditorWidget::preSave()
 
 void AndroidManifestEditorWidget::postSave()
 {
-    const QString docPath(m_textEditorWidget->textDocument()->filePath().toString());
+    const Utils::FileName docPath = m_textEditorWidget->textDocument()->filePath();
     ProjectExplorer::Project *project = androidProject(docPath);
     if (Target *target = project->activeTarget()) {
         AndroidQtSupport *androidQtSupport = AndroidManager::androidQtSupport(target);
