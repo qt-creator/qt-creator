@@ -51,6 +51,9 @@ public:
     DebuggerCommand(const char *f, int flags = 0, Callback cb = Callback())
         : function(f), callback(cb), flags(flags)
     {}
+    DebuggerCommand(const char *f, Callback cb)
+        : function(f), callback(cb), flags(0)
+    {}
     DebuggerCommand(const QByteArray &f) : function(f), flags(0) {}
 
     void arg(const char *name);

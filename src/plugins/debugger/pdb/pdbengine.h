@@ -121,15 +121,6 @@ private:
     void handleUpdateAll(const DebuggerResponse &response);
     void handleFirstCommand(const DebuggerResponse &response);
     void handleExecuteDebuggerCommand(const DebuggerResponse &response);
-
-    struct PdbCommand
-    {
-        PdbCommand() : callback(0) {}
-
-        DebuggerCommand::Callback callback;
-        QByteArray command;
-    };
-
     void handleStop(const DebuggerResponse &response);
     void handleBacktrace(const DebuggerResponse &response);
     void handleListLocals(const DebuggerResponse &response);
@@ -143,7 +134,7 @@ private:
                      DebuggerCommand::Callback callback = 0);
     void postDirectCommand(const QByteArray &command);
 
-    QQueue<PdbCommand> m_commands;
+    QQueue<DebuggerCommand> m_commands;
 
     QByteArray m_inbuffer;
     QString m_scriptFileName;

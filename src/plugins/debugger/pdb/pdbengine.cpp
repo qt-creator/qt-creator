@@ -123,13 +123,13 @@ void PdbEngine::postDirectCommand(const QByteArray &command)
 void PdbEngine::postCommand(const QByteArray &command, DebuggerCommand::Callback callback)
 {
     QTC_ASSERT(m_pdbProc.state() == QProcess::Running, notifyEngineIll());
-    PdbCommand cmd;
-    cmd.command = command;
+    DebuggerCommand cmd;
+    cmd.function = command;
     cmd.callback = callback;
     m_commands.enqueue(cmd);
-    qDebug() << "ENQUEUE: " << command;
-    showMessage(_(cmd.command), LogInput);
-    m_pdbProc.write(cmd.command + '\n');
+    qDebug() << "ENQUEUE: " << cmd.function;
+    showMessage(_(cmd.function), LogInput);
+    m_pdbProc.write(cmd.function + '\n');
 }
 
 void PdbEngine::shutdownInferior()
@@ -164,7 +164,7 @@ void PdbEngine::setupEngine()
         this, &PdbEngine::handleOutput2, Qt::QueuedConnection);
 
     // We will stop immediately, so setup a proper callback.
-    PdbCommand cmd;
+    DebuggerCommand cmd;
     cmd.callback = CB(handleFirstCommand);
     m_commands.enqueue(cmd);
 
@@ -630,8 +630,8 @@ void PdbEngine::handleOutput2(const QByteArray &data)
     response.logStreamOutput = data;
     showMessage(_(data));
     QTC_ASSERT(!m_commands.isEmpty(), qDebug() << "RESPONSE: " << data; return);
-    PdbCommand cmd = m_commands.dequeue();
-    qDebug() << "DEQUE: " << cmd.command;
+    DebuggerCommand cmd = m_commands.dequeue();
+    qDebug() << "DEQUE: " << cmd.function;
     if (cmd.callback) {
         //qDebug() << "EXECUTING CALLBACK " << cmd.callbackName
         //    << " RESPONSE: " << response.data;
