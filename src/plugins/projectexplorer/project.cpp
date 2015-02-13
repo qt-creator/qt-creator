@@ -407,7 +407,7 @@ EditorConfiguration *Project::editorConfiguration() const
     return &d->m_editorConfiguration;
 }
 
-QString Project::generatedUiHeader(const QString & /* formFile */) const
+QString Project::generatedUiHeader(const Utils::FileName & /* formFile */) const
 {
     return QString();
 }

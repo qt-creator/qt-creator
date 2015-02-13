@@ -53,7 +53,7 @@ static QString generatedHeaderOf(const QString &uiFileName)
 {
     if (const ProjectExplorer::Project *uiProject =
             ProjectExplorer::SessionManager::projectForFile(Utils::FileName::fromString(uiFileName))) {
-        return uiProject->generatedUiHeader(uiFileName);
+        return uiProject->generatedUiHeader(Utils::FileName::fromString(uiFileName));
     }
     return QString();
 }
