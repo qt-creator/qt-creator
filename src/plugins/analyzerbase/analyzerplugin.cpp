@@ -65,10 +65,6 @@ bool AnalyzerPlugin::initialize(const QStringList &arguments, QString *errorStri
 
     (void) new AnalyzerManager(this);
 
-    // Task integration.
-    //: Category under which Analyzer tasks are listed in Issues view
-    ProjectExplorer::TaskHub::addCategory(Constants::ANALYZERTASK_ID, tr("Analyzer"));
-
     return true;
 }
 
