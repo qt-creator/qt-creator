@@ -35,5 +35,11 @@ TestInfo::~TestInfo()
     m_functions.clear();
 }
 
+UnnamedQuickTestInfo::UnnamedQuickTestInfo(const QString &function, const QString &fileName)
+    : m_function(function),
+      m_fileName(fileName)
+{
+}
+
 } // namespace Internal
 } // namespace Autotest

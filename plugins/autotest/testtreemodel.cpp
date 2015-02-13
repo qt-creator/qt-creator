@@ -55,15 +55,20 @@ TestTreeModel::TestTreeModel(QObject *parent) :
     m_rootItem->appendChild(m_autoTestRootItem);
     m_rootItem->appendChild(m_quickTestRootItem);
 
-    connect(m_parser, &TestCodeParser::cacheCleared, this, &TestTreeModel::removeAllTestItems);
-    connect(m_parser, &TestCodeParser::testItemCreated, this, &TestTreeModel::addTestTreeItem);
-    connect(m_parser, &TestCodeParser::testItemsCreated, this, &TestTreeModel::addTestTreeItems);
-    connect(m_parser, &TestCodeParser::testItemModified, this, &TestTreeModel::modifyTestTreeItem);
-    connect(m_parser, &TestCodeParser::testItemsRemoved, this, &TestTreeModel::removeTestTreeItems);
+    connect(m_parser, &TestCodeParser::cacheCleared, this,
+            &TestTreeModel::removeAllTestItems, Qt::QueuedConnection);
+    connect(m_parser, &TestCodeParser::testItemCreated,
+            this, &TestTreeModel::addTestTreeItem, Qt::QueuedConnection);
+    connect(m_parser, &TestCodeParser::testItemsCreated,
+            this, &TestTreeModel::addTestTreeItems, Qt::QueuedConnection);
+    connect(m_parser, &TestCodeParser::testItemModified,
+            this, &TestTreeModel::modifyTestTreeItem, Qt::QueuedConnection);
+    connect(m_parser, &TestCodeParser::testItemsRemoved,
+            this, &TestTreeModel::removeTestTreeItems, Qt::QueuedConnection);
     connect(m_parser, &TestCodeParser::unnamedQuickTestsUpdated,
-            this, &TestTreeModel::updateUnnamedQuickTest);
+            this, &TestTreeModel::updateUnnamedQuickTest, Qt::QueuedConnection);
     connect(m_parser, &TestCodeParser::unnamedQuickTestsRemoved,
-            this, &TestTreeModel::removeUnnamedQuickTests);
+            this, &TestTreeModel::removeUnnamedQuickTests, Qt::QueuedConnection);
 
 //    CppTools::CppModelManagerInterface *cppMM = CppTools::CppModelManagerInterface::instance();
 //    if (cppMM) {

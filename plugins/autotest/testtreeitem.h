@@ -21,6 +21,7 @@
 
 #include <QList>
 #include <QString>
+#include <QMetaType>
 
 namespace Autotest {
 namespace Internal {
@@ -37,7 +38,8 @@ public:
         TEST_SPECIALFUNCTION
     };
 
-    TestTreeItem(const QString &name, const QString &filePath, Type type, TestTreeItem *parent = 0);
+    TestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
+                 Type type = ROOT, TestTreeItem *parent = 0);
     virtual ~TestTreeItem();
     TestTreeItem(const TestTreeItem& other);
 
@@ -89,5 +91,8 @@ struct TestCodeLocationAndType {
 
 } // namespace Internal
 } // namespace Autotest
+
+Q_DECLARE_METATYPE(Autotest::Internal::TestTreeItem)
+Q_DECLARE_METATYPE(Autotest::Internal::TestCodeLocationAndType)
 
 #endif // TESTTREEITEM_H

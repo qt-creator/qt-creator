@@ -54,6 +54,22 @@ private:
     QString m_proFile;
 };
 
+class UnnamedQuickTestInfo {
+public:
+    explicit UnnamedQuickTestInfo(const QString &function = QString(),
+                                  const QString& fileName = QString());
+    ~UnnamedQuickTestInfo() {}
+
+    const QString function() const { return m_function; }
+    void setFunction(const QString &function) { m_function = function; }
+    const QString fileName() const { return m_fileName; }
+    void setFileName(const QString &fileName) { m_fileName = fileName; }
+
+private:
+    QString m_function;
+    QString m_fileName;
+};
+
 } // namespace Internal
 } // namespace Autotest
 

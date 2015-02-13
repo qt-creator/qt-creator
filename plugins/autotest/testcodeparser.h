@@ -38,6 +38,7 @@ namespace Internal {
 
 struct TestCodeLocationAndType;
 class TestInfo;
+class UnnamedQuickTestInfo;
 
 class TestCodeParser : public QObject
 {
@@ -86,12 +87,13 @@ public slots:
 private:
     bool postponed(const QStringList &fileList);
     void scanForTests(const QStringList &fileList = QStringList());
-    void clearMaps();
+    void clearCache();
     void removeTestsIfNecessary(const QString &fileName);
     void removeTestsIfNecessaryByProFile(const QString &proFile);
 
     void onTaskStarted(Core::Id type);
     void onAllTasksFinished(Core::Id type);
+    void onFinished();
     void onPartialParsingFinished();
     void updateUnnamedQuickTests(const QString &fileName, const QString &mainFile,
                                  const QMap<QString, TestCodeLocationAndType> &functions);
@@ -99,10 +101,12 @@ private:
                                  const QString &declaringFile, TestTreeItem &testItem);
     void updateModelAndQuickDocMap(QmlJS::Document::Ptr document,
                                    const QString &referencingFile, TestTreeItem &testItem);
+    void removeUnnamedQuickTestsByName(const QString &fileName);
 
     TestTreeModel *m_model;
     QMap<QString, TestInfo> m_cppDocMap;
     QMap<QString, TestInfo> m_quickDocMap;
+    QList<UnnamedQuickTestInfo> m_unnamedQuickDocList;
     bool m_parserEnabled;
     bool m_pendingUpdate;
     bool m_fullUpdatePostPoned;

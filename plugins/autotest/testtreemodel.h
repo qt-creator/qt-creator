@@ -152,4 +152,6 @@ private:
 } // namespace Internal
 } // namespace Autotest
 
+Q_DECLARE_METATYPE(Autotest::Internal::TestTreeModel::Type)
+
 #endif // TESTTREEMODEL_H

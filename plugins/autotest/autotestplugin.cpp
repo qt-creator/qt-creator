@@ -21,6 +21,7 @@
 #include "testrunner.h"
 #include "testsettings.h"
 #include "testsettingspage.h"
+#include "testtreeitem.h"
 #include "testtreeview.h"
 #include "testtreemodel.h"
 #include "testresultspane.h"
@@ -57,7 +58,10 @@ AutotestPlugin::AutotestPlugin()
 {
     // needed to be used in QueuedConnection connects
     qRegisterMetaType<TestResult>();
-    // Create your members
+    qRegisterMetaType<TestTreeItem>();
+    qRegisterMetaType<TestCodeLocationAndType>();
+    qRegisterMetaType<TestTreeModel::Type>();
+
     m_instance = this;
 }
 
