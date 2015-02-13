@@ -195,7 +195,7 @@ void PdbEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
-    QString fileName = QFileInfo(startParameters().executable).absoluteFilePath();
+    QString fileName = mainPythonFile();
     QFile scriptFile(fileName);
     if (!scriptFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
         Core::AsynchronousMessageBox::critical(tr("Python Error"),
@@ -207,17 +207,21 @@ void PdbEngine::setupInferior()
     notifyInferiorSetupOk();
 }
 
+QString PdbEngine::mainPythonFile() const
+{
+    return QFileInfo(startParameters().processArgs).absoluteFilePath();
+}
+
 void PdbEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     showStatusMessage(tr("Running requested..."), 5000);
     const QByteArray dumperSourcePath =
         Core::ICore::resourcePath().toLocal8Bit() + "/debugger/";
-    QString fileName = QFileInfo(startParameters().executable).absoluteFilePath();
     postDirectCommand("import sys");
-    postDirectCommand("sys.argv.append('" + fileName.toLocal8Bit() + "')");
+    postDirectCommand("sys.argv.append('" + mainPythonFile().toLocal8Bit() + "')");
     postDirectCommand("execfile('/usr/bin/pdb')");
-    postDirectCommand("execfile('" + dumperSourcePath + "pdumper.py')");
+    postDirectCommand("execfile('" + dumperSourcePath + "pdbbridge.py')");
     attemptBreakpointSynchronization();
     notifyEngineRunAndInferiorStopOk();
     continueInferior();

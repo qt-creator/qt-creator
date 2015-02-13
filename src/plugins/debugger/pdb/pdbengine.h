@@ -108,6 +108,7 @@ private:
     bool supportsThreads() const { return true; }
     bool isSynchronous() const { return true; }
     void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
+    QString mainPythonFile() const;
 
 signals:
     void outputReady(const QByteArray &data);
