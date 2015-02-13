@@ -134,7 +134,7 @@ private:
     void handleChildren(const WatchData &data0, const GdbMi &item,
         QList<WatchData> *list);
     void postCommand(const QByteArray &command,
-                     DebuggerCommand::Callback callback = 0);
+                     DebuggerCommand::Callback callback = DebuggerCommand::Callback());
     void postDirectCommand(const QByteArray &command);
 
     QQueue<DebuggerCommand> m_commands;
