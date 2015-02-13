@@ -54,6 +54,10 @@ public:
     explicit PdbEngine(const DebuggerStartParameters &startParameters);
     ~PdbEngine();
 
+    void refreshStack(const GdbMi &stack);
+    void runCommand(const DebuggerCommand &cmd);
+    void refreshLocals(const GdbMi &vars);
+
 private:
     // DebuggerEngine implementation
     void executeStep();
@@ -122,7 +126,6 @@ private:
     void handleFirstCommand(const DebuggerResponse &response);
     void handleExecuteDebuggerCommand(const DebuggerResponse &response);
     void handleStop(const DebuggerResponse &response);
-    void handleBacktrace(const DebuggerResponse &response);
     void handleListLocals(const DebuggerResponse &response);
     void handleListModules(const DebuggerResponse &response);
     void handleListSymbols(const DebuggerResponse &response, const QString &moduleName);

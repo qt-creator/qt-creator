@@ -132,6 +132,14 @@ void PdbEngine::postCommand(const QByteArray &command, DebuggerCommand::Callback
     m_pdbProc.write(cmd.function + '\n');
 }
 
+void PdbEngine::runCommand(const DebuggerCommand &cmd)
+{
+    QTC_ASSERT(m_pdbProc.state() == QProcess::Running, notifyEngineIll());
+    QByteArray command = "theDumper." + cmd.function + "({" + cmd.args + "})";
+    showMessage(_(command), LogInput);
+    m_pdbProc.write(command + '\n');
+}
+
 void PdbEngine::shutdownInferior()
 {
     QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
@@ -361,6 +369,8 @@ void PdbEngine::handleBreakInsert(const DebuggerResponse &response, Breakpoint b
     br.id = BreakpointResponseId(bpnr);
     br.fileName = _(file);
     br.lineNumber = line.toInt();
+    if (!bp.isValid())
+        bp = breakHandler()->findBreakpointByFileAndLine(br.fileName, br.lineNumber, false);
     bp.setResponse(br);
     QTC_CHECK(!bp.needsChange());
     bp.notifyBreakpointInsertOk();
@@ -444,7 +454,6 @@ void PdbEngine::handleListSymbols(const DebuggerResponse &response, const QStrin
 
 static WatchData m_toolTip;
 static QPoint m_toolTipPos;
-static QHash<QString, WatchData> m_toolTipCache;
 
 bool PdbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editorWidget,
     const DebuggerToolTipContext &ctx)
@@ -626,19 +635,71 @@ void PdbEngine::handleOutput(const QByteArray &data)
 
 void PdbEngine::handleOutput2(const QByteArray &data)
 {
-    DebuggerResponse response;
-    response.logStreamOutput = data;
-    showMessage(_(data));
-    QTC_ASSERT(!m_commands.isEmpty(), qDebug() << "RESPONSE: " << data; return);
-    DebuggerCommand cmd = m_commands.dequeue();
-    qDebug() << "DEQUE: " << cmd.function;
-    if (cmd.callback) {
-        //qDebug() << "EXECUTING CALLBACK " << cmd.callbackName
-        //    << " RESPONSE: " << response.data;
-        cmd.callback(response);
-    } else {
-        qDebug() << "NO CALLBACK FOR RESPONSE: " << response.logStreamOutput;
+    QByteArray lineContext;
+    foreach (QByteArray line, data.split('\n')) {
+//        line = line.trimmed();
+
+        DebuggerResponse response;
+        response.logStreamOutput = line;
+        response.data.fromString(line);
+        showMessage(_("LINE: " + line));
+
+        if (line.startsWith("stack={")) {
+            refreshStack(response.data);
+            continue;
+        }
+        if (line.startsWith("data={")) {
+            refreshLocals(response.data);
+            continue;
+        }
+        if (line.startsWith("Breakpoint")) {
+            handleBreakInsert(response, Breakpoint());
+            continue;
+        }
+
+        if (line.startsWith("> /")) {
+            lineContext = line;
+            int pos1 = line.indexOf('(');
+            int pos2 = line.indexOf(')', pos1);
+            if (pos1 != -1 && pos2 != -1) {
+                int lineNumber = line.mid(pos1 + 1, pos2 - pos1 - 1).toInt();
+                QByteArray fileName = line.mid(2, pos1 - 2);
+                qDebug() << " " << pos1 << pos2 << lineNumber << fileName
+                         << line.mid(pos1 + 1, pos2 - pos1 - 1);
+                StackFrame frame;
+                frame.file = _(fileName);
+                frame.line = lineNumber;
+                if (state() == InferiorRunOk) {
+                    showMessage(QString::fromLatin1("STOPPED AT: %1:%2").arg(frame.file).arg(frame.line));
+                    gotoLocation(frame);
+                    notifyInferiorSpontaneousStop();
+                    updateAll();
+                    continue;
+                }
+            }
+        }
+
+        if (line.startsWith("-> ")) {
+            // Current line
+        }
+
+        showMessage(_(" #### ... UNHANDLED"));
     }
+
+
+//    DebuggerResponse response;
+//    response.logStreamOutput = data;
+//    showMessage(_(data));
+//    QTC_ASSERT(!m_commands.isEmpty(), qDebug() << "RESPONSE: " << data; return);
+//    DebuggerCommand cmd = m_commands.dequeue();
+//    qDebug() << "DEQUE: " << cmd.function;
+//    if (cmd.callback) {
+//        //qDebug() << "EXECUTING CALLBACK " << cmd.callbackName
+//        //    << " RESPONSE: " << response.data;
+//        cmd.callback(response);
+//    } else {
+//        qDebug() << "NO CALLBACK FOR RESPONSE: " << response.logStreamOutput;
+//    }
 }
 /*
 void PdbEngine::handleResponse(const QByteArray &response0)
@@ -653,27 +714,64 @@ void PdbEngine::handleResponse(const QByteArray &response0)
         qDebug() << "SKIPPING '--Return--' MARKER";
         response = response.mid(11);
     }
-    if (response.startsWith("> ")) {
-        int pos1 = response.indexOf('(');
-        int pos2 = response.indexOf(')', pos1);
-        if (pos1 != -1 && pos2 != -1) {
-            int lineNumber = response.mid(pos1 + 1, pos2 - pos1 - 1).toInt();
-            QByteArray fileName = response.mid(2, pos1 - 2);
-            qDebug() << " " << pos1 << pos2 << lineNumber << fileName
-                << response.mid(pos1 + 1, pos2 - pos1 - 1);
-            StackFrame frame;
-            frame.file = _(fileName);
-            frame.line = lineNumber;
-            if (frame.line > 0 && QFileInfo(frame.file).exists()) {
-                gotoLocation(frame);
-                notifyInferiorSpontaneousStop();
-                return;
-            }
-        }
-    }
-    qDebug() << "COULD NOT PARSE RESPONSE: '" << response << "'";
 }
 */
+
+void PdbEngine::refreshLocals(const GdbMi &vars)
+{
+    //const bool partial = response.cookie.toBool();
+    WatchHandler *handler = watchHandler();
+    handler->resetValueCache();
+
+    QSet<QByteArray> toDelete;
+    foreach (WatchItem *item, handler->model()->treeLevelItems<WatchItem *>(2))
+        toDelete.insert(item->d.iname);
+
+    foreach (const GdbMi &child, vars.children()) {
+        WatchItem *item = new WatchItem(child);
+        handler->insertItem(item);
+        toDelete.remove(item->d.iname);
+    }
+
+    handler->purgeOutdatedItems(toDelete);
+
+    DebuggerToolTipManager::updateEngine(this);
+}
+
+void PdbEngine::refreshStack(const GdbMi &stack)
+{
+    StackHandler *handler = stackHandler();
+    StackFrames frames;
+    foreach (const GdbMi &item, stack["frames"].children()) {
+        StackFrame frame;
+        frame.level = item["level"].toInt();
+        frame.file = item["file"].toUtf8();
+        frame.function = item["func"].toUtf8();
+        frame.from = item["func"].toUtf8();
+        frame.line = item["line"].toInt();
+        frame.address = item["addr"].toAddress();
+        GdbMi usable = item["usable"];
+        if (usable.isValid())
+            frame.usable = usable.data().toInt();
+        else
+            frame.usable = QFileInfo(frame.file).isReadable();
+        if (item["language"].data() == "js"
+                || frame.file.endsWith(QLatin1String(".js"))
+                || frame.file.endsWith(QLatin1String(".qml"))) {
+            frame.language = QmlLanguage;
+            frame.fixQmlFrame(startParameters());
+        }
+        frames.append(frame);
+    }
+    bool canExpand = stack["hasmore"].toInt();
+    //action(ExpandStack)->setEnabled(canExpand);
+    handler->setFrames(frames, canExpand);
+
+    int index = stackHandler()->firstUsableIndex();
+    handler->setCurrentIndex(index);
+    if (index >= 0 && index < handler->stackSize())
+        gotoLocation(handler->frameAt(index));
+}
 
 void PdbEngine::handleFirstCommand(const DebuggerResponse &response)
 {
@@ -689,100 +787,50 @@ void PdbEngine::handleUpdateAll(const DebuggerResponse &response)
 
 void PdbEngine::updateAll()
 {
-    postCommand("bt", CB(handleBacktrace));
-    //updateLocals();
+    postCommand("dir()");
+    postCommand("theDumper.stackListFrames({})");
+    updateLocals();
 }
 
 void PdbEngine::updateLocals()
 {
-    QByteArray watchers;
-    //if (!m_toolTipExpression.isEmpty())
-    //    watchers += m_toolTipExpression.toLatin1()
-    //        + '#' + tooltipINameForExpression(m_toolTipExpression.toLatin1());
+    DebuggerCommand cmd("updateData");
+    cmd.arg("nativeMixed", isNativeMixedActive());
+    watchHandler()->appendFormatRequests(&cmd);
 
-    WatchHandler *handler = watchHandler();
-    QHash<QByteArray, int> watcherNames = handler->watcherNames();
-    QHashIterator<QByteArray, int> it(watcherNames);
+    const static bool alwaysVerbose = !qgetenv("QTC_DEBUGGER_PYTHON_VERBOSE").isEmpty();
+    cmd.arg("passexceptions", alwaysVerbose);
+    cmd.arg("fancy", boolSetting(UseDebuggingHelpers));
+//    cmd.arg("partial", params.tryPartial);
+
+    cmd.beginList("watchers");
+
+    // Watchers
+    QHashIterator<QByteArray, int> it(WatchHandler::watcherNames());
     while (it.hasNext()) {
         it.next();
-        if (!watchers.isEmpty())
-            watchers += "##";
-        watchers += it.key() + "#watch." + QByteArray::number(it.value());
+        cmd.beginGroup();
+        cmd.arg("iname", "watch." + QByteArray::number(it.value()));
+        cmd.arg("exp", it.key().toHex());
+        cmd.endGroup();
     }
 
-    QByteArray options;
-    if (boolSetting(UseDebuggingHelpers))
-        options += "fancy,";
-    if (boolSetting(AutoDerefPointers))
-        options += "autoderef,";
-    if (options.isEmpty())
-        options += "defaults,";
-    options.chop(1);
-
-    postCommand("qdebug('" + options + "','"
-//        + handler->expansionRequests() + "','"
-        + handler->typeFormatRequests() + "','"
-        + handler->individualFormatRequests() + "','"
-        + watchers.toHex() + "')", CB(handleListLocals));
-}
-
-void PdbEngine::handleBacktrace(const DebuggerResponse &response)
-{
-    //qDebug() << " BACKTRACE: '" << response.data << "'";
-    // "  /usr/lib/python2.6/bdb.py(368)run()"
-    // "-> exec cmd in globals, locals"
-    // "  <string>(1)<module>()"
-    // "  /python/math.py(19)<module>()"
-    // "-> main()"
-    // "  /python/math.py(14)main()"
-    // "-> print cube(3)"
-    // "  /python/math.py(7)cube()"
-    // "-> x = square(a)"
-    // "> /python/math.py(2)square()"
-    // "-> def square(a):"
-
-    // Populate stack view.
-    StackFrames stackFrames;
-    int level = 0;
-    int currentIndex = -1;
-    foreach (const QByteArray &line, response.logStreamOutput.split('\n')) {
-        //qDebug() << "  LINE: '" << line << "'";
-        if (line.startsWith("> ") || line.startsWith("  ")) {
-            int pos1 = line.indexOf('(');
-            int pos2 = line.indexOf(')', pos1);
-            if (pos1 != -1 && pos2 != -1) {
-                int lineNumber = line.mid(pos1 + 1, pos2 - pos1 - 1).toInt();
-                QByteArray fileName = line.mid(2, pos1 - 2);
-                //qDebug() << " " << pos1 << pos2 << lineNumber << fileName
-                //    << line.mid(pos1 + 1, pos2 - pos1 - 1);
-                StackFrame frame;
-                frame.file = _(fileName);
-                frame.line = lineNumber;
-                frame.function = _(line.mid(pos2 + 1));
-                frame.usable = QFileInfo(frame.file).isReadable();
-                if (frame.line > 0 && QFileInfo::exists(frame.file)) {
-                    if (line.startsWith("> "))
-                        currentIndex = level;
-                    frame.level = level;
-                    stackFrames.prepend(frame);
-                    ++level;
-                }
-            }
-        }
-    }
-    const int frameCount = stackFrames.size();
-    for (int i = 0; i != frameCount; ++i)
-        stackFrames[i].level = frameCount - stackFrames[i].level - 1;
-    stackHandler()->setFrames(stackFrames);
-
-    // Select current frame.
-    if (currentIndex != -1) {
-        currentIndex = frameCount - currentIndex - 1;
-        stackHandler()->setCurrentIndex(currentIndex);
-        gotoLocation(stackFrames.at(currentIndex));
+    // Tooltips
+    DebuggerToolTipContexts toolTips = DebuggerToolTipManager::pendingTooltips(this);
+    foreach (const DebuggerToolTipContext &p, toolTips) {
+        cmd.beginGroup();
+        cmd.arg("iname", p.iname);
+        cmd.arg("exp", p.expression.toLatin1().toHex());
+        cmd.endGroup();
     }
 
-    updateLocals();
+    cmd.endList();
+
+    //cmd.arg("resultvarname", m_resultVarName);
+    //m_lastDebuggableCommand = cmd;
+    //m_lastDebuggableCommand.args.replace("\"passexceptions\":0", "\"passexceptions\":1");
+
+    runCommand(cmd);
 }
 
 void PdbEngine::handleListLocals(const DebuggerResponse &response)
