@@ -691,6 +691,13 @@ bool DebuggerToolTipContext::isSame(const DebuggerToolTipContext &other) const
             && iname == other.iname;
 }
 
+void DebuggerToolTipContext::appendFormatRequest(DebuggerCommand *cmd) const
+{
+    cmd->arg("expression", expression);
+    cmd->arg("fileName", fileName);
+    cmd->arg("iname", iname);
+}
+
 QString DebuggerToolTipContext::toolTip() const
 {
     return DebuggerToolTipManager::tr("Expression %1 in function %2 from line %3 to %4")
@@ -787,7 +794,10 @@ void DebuggerToolTipHolder::updateTooltip(DebuggerEngine *engine)
 
     StackFrame frame = engine->stackHandler()->currentFrame();
 
-    const bool sameFrame = context.matchesFrame(frame);
+    // FIXME: The engine should decide on whether it likes
+    // the context.
+    const bool sameFrame = context.matchesFrame(frame)
+        || context.fileName.endsWith(QLatin1String(".py"));
     DEBUG("UPDATE TOOLTIP: STATE " << state << context.iname
           << "PINNED: " << widget->isPinned
           << "SHOW NEEDED: " << widget->isPinned

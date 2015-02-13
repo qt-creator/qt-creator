@@ -452,69 +452,16 @@ void PdbEngine::handleListSymbols(const DebuggerResponse &response, const QStrin
 //////////////////////////////////////////////////////////////////////
 
 
-static WatchData m_toolTip;
-static QPoint m_toolTipPos;
-
-bool PdbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editorWidget,
+bool PdbEngine::setToolTipExpression(TextEditor::TextEditorWidget *,
     const DebuggerToolTipContext &ctx)
 {
-    if (state() != InferiorStopOk) {
-        //SDEBUG("SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED");
-        return false;
-    }
-    // Check mime type and get expression (borrowing some C++ - functions)
-    const QString javaPythonMimeType = QLatin1String("application/javascript");
-    if (editorWidget->textDocument()->mimeType() != javaPythonMimeType)
+    if (state() != InferiorStopOk)
         return false;
 
-    int line;
-    int column;
-    QString exp = cppExpressionAt(editorWidget, ctx.position, &line, &column);
-
-    QToolTip::hideText();
-    if (exp.isEmpty() || exp.startsWith(QLatin1Char('#')))  {
-        QToolTip::hideText();
-        return false;
-    }
-
-    if (!hasLetterOrNumber(exp)) {
-        QToolTip::showText(m_toolTipPos, tr("\"%1\" contains no identifier").arg(exp));
-        return true;
-    }
-
-    if (exp.startsWith(QLatin1Char('"')) && exp.endsWith(QLatin1Char('"'))) {
-        QToolTip::showText(m_toolTipPos, tr("String literal %1").arg(exp));
-        return true;
-    }
-
-    if (exp.startsWith(QLatin1String("++")) || exp.startsWith(QLatin1String("--")))
-        exp.remove(0, 2);
-
-    if (exp.endsWith(QLatin1String("++")) || exp.endsWith(QLatin1String("--")))
-        exp.remove(0, 2);
-
-    if (exp.startsWith(QLatin1Char('<')) || exp.startsWith(QLatin1Char('[')))
-        return false;
-
-    if (hasSideEffects(exp)) {
-        QToolTip::showText(m_toolTipPos,
-            tr("Cowardly refusing to evaluate expression \"%1\" "
-               "with potential side effects").arg(exp));
-        return true;
-    }
-
-#if 0
-    //if (status() != InferiorStopOk)
-    //    return;
-
-    // FIXME: 'exp' can contain illegal characters
-    m_toolTip = WatchData();
-    m_toolTip.exp = exp;
-    m_toolTip.name = exp;
-    m_toolTip.iname = tooltipIName;
-    insertData(m_toolTip);
-#endif
-    return false;
+    DebuggerCommand cmd("evaluateTooltip");
+    ctx.appendFormatRequest(&cmd);
+    runCommand(cmd);
+    return true;
 }
 
 

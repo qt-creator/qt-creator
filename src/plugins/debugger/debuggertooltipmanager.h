@@ -45,6 +45,7 @@ namespace Debugger {
 namespace Internal {
 
 class DebuggerEngine;
+class DebuggerCommand;
 class StackFrame;
 
 class DebuggerToolTipContext
@@ -54,6 +55,7 @@ public:
     bool isValid() const { return !expression.isEmpty(); }
     bool matchesFrame(const StackFrame &frame) const;
     bool isSame(const DebuggerToolTipContext &other) const;
+    void appendFormatRequest(DebuggerCommand *cmd) const;
     QString toolTip() const;
 
     QString fileName;
