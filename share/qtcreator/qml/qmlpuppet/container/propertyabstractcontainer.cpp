@@ -39,7 +39,7 @@ PropertyAbstractContainer::PropertyAbstractContainer()
 {
 }
 
-PropertyAbstractContainer::PropertyAbstractContainer(qint32 instanceId, const PropertyName &name, const QString &dynamicTypeName)
+PropertyAbstractContainer::PropertyAbstractContainer(qint32 instanceId, const PropertyName &name, const TypeName &dynamicTypeName)
     : m_instanceId(instanceId),
     m_name(name),
     m_dynamicTypeName(dynamicTypeName)
@@ -61,7 +61,7 @@ bool PropertyAbstractContainer::isDynamic() const
     return !m_dynamicTypeName.isEmpty();
 }
 
-QString PropertyAbstractContainer::dynamicTypeName() const
+TypeName PropertyAbstractContainer::dynamicTypeName() const
 {
     return m_dynamicTypeName;
 }

@@ -52,17 +52,17 @@ class PropertyAbstractContainer
     friend QDebug operator <<(QDebug debug, const PropertyAbstractContainer &container);
 public:
     PropertyAbstractContainer();
-    PropertyAbstractContainer(qint32 instanceId, const PropertyName &name, const QString &dynamicTypeName);
+    PropertyAbstractContainer(qint32 instanceId, const PropertyName &name, const TypeName &dynamicTypeName);
 
     qint32 instanceId() const;
     PropertyName name() const;
     bool isDynamic() const;
-    QString dynamicTypeName() const;
+    TypeName dynamicTypeName() const;
 
 private:
     qint32 m_instanceId;
     PropertyName m_name;
-    QString m_dynamicTypeName;
+    TypeName m_dynamicTypeName;
 };
 
 QDebug operator <<(QDebug debug, const PropertyAbstractContainer &container);
