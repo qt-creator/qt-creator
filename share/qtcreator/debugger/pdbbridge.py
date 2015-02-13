@@ -8,7 +8,10 @@ import os
 def qdebug(cmd, args):
   class Dumper:
     def __init__(self):
-        pass
+        self.output = ''
+
+    def evaluateTooltip(self, args):
+        self.updateData(args)
 
     def updateData(self, args):
         self.expandedINames = set(args.get("expanded", []))
@@ -16,8 +19,6 @@ def qdebug(cmd, args):
         self.formats = args.get("formats", {})
         self.watchers = args.get("watchers", {})
         self.output = "data={"
-        #    self.handleListModules()
-        #    self.handleListSymbols(expanded)
 
         # Trigger error to get a backtrace.
         frame = None
@@ -49,7 +50,11 @@ def qdebug(cmd, args):
         #sys.stdout.flush()
 
         self.output += '}'
+        self.flushOutput()
+
+    def flushOutput(self):
         sys.stdout.write(self.output)
+        self.output = ""
 
     def put(self, value):
         #sys.stdout.write(value)
@@ -61,9 +66,6 @@ def qdebug(cmd, args):
     def putItemCount(self, count):
         self.put('value="<%s items>",' % count)
 
-    def putEllipsis(self):
-        self.put('{name="<incomplete>",value="",type="",numchild="0"},')
-
     def cleanType(self, type):
         t = str(type)
         if t.startswith("<type '") and t.endswith("'>"):
@@ -74,9 +76,6 @@ def qdebug(cmd, args):
 
     def putType(self, type, priority = 0):
         self.putField("type", self.cleanType(type))
-
-    def putAddress(self, addr):
-        self.put('addr="%s",' % cleanAddress(addr))
 
     def putNumChild(self, numchild):
         self.put('numchild="%s",' % numchild)
@@ -217,7 +216,7 @@ def qdebug(cmd, args):
     def warn(self, msg):
         self.putField("warning", msg)
 
-    def handleListModules(self):
+    def listModules(self, args):
         self.put("modules=[");
         for name in sys.modules:
             self.put("{")
@@ -225,18 +224,14 @@ def qdebug(cmd, args):
             self.putValue(sys.modules[name])
             self.put("},")
         self.put("]")
-        #sys.stdout.flush()
+        self.flushOutput()
 
-    def handleListSymbols(self, module):
-        #self.put("symbols=%s" % dir(sys.modules[module]))
-        self.put("symbols=[");
-        for name in sys.modules:
-            self.put("{")
-            self.putName(name)
-            #self.putValue(sys.modules[name])
-            self.put("},")
-        self.put("]")
-        #sys.stdout.flush()
+    def listSymbols(self, args):
+        moduleName = args['module']
+        module = sys.modules.get(moduleName, None)
+        self.put("symbols={module='%s',symbols='%s'}"
+                % (module, dir(module) if module else []))
+        self.flushOutput()
 
     def stackListFrames(self, args):
         #isNativeMixed = int(args.get('nativeMixed', 0))

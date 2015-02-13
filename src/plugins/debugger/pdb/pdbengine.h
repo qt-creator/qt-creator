@@ -57,6 +57,8 @@ public:
     void refreshStack(const GdbMi &stack);
     void runCommand(const DebuggerCommand &cmd);
     void refreshLocals(const GdbMi &vars);
+    void refreshModules(const GdbMi &modules);
+    void refreshSymbols(const GdbMi &symbols);
 
 private:
     // DebuggerEngine implementation
@@ -126,9 +128,6 @@ private:
     void handleFirstCommand(const DebuggerResponse &response);
     void handleExecuteDebuggerCommand(const DebuggerResponse &response);
     void handleStop(const DebuggerResponse &response);
-    void handleListLocals(const DebuggerResponse &response);
-    void handleListModules(const DebuggerResponse &response);
-    void handleListSymbols(const DebuggerResponse &response, const QString &moduleName);
     void handleBreakInsert(const DebuggerResponse &response, Breakpoint bp);
 
     void handleChildren(const WatchData &data0, const GdbMi &item,
@@ -140,7 +139,6 @@ private:
     QQueue<DebuggerCommand> m_commands;
 
     QByteArray m_inbuffer;
-    QString m_scriptFileName;
     QProcess m_pdbProc;
     QString m_pdb;
 };

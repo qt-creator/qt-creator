@@ -398,16 +398,14 @@ void PdbEngine::loadAllSymbols()
 
 void PdbEngine::reloadModules()
 {
-    //postCommand("qdebug('listmodules')", CB(handleListModules));
+    runCommand("listModules");
 }
 
-void PdbEngine::handleListModules(const DebuggerResponse &response)
+void PdbEngine::refreshModules(const GdbMi &modules)
 {
-    GdbMi out;
-    out.fromString(response.logStreamOutput.trimmed());
     ModulesHandler *handler = modulesHandler();
     handler->beginUpdateAll();
-    foreach (const GdbMi &item, out.children()) {
+    foreach (const GdbMi &item, modules.children()) {
         Module module;
         module.moduleName = _(item["name"].data());
         QString path = _(item["value"].data());
@@ -428,29 +426,20 @@ void PdbEngine::handleListModules(const DebuggerResponse &response)
 
 void PdbEngine::requestModuleSymbols(const QString &moduleName)
 {
-    postCommand("qdebug('listsymbols','" + moduleName.toLatin1() + "')",
-                [this, moduleName](const DebuggerResponse &r) { handleListSymbols(r, moduleName); });
+    postCommand("qdebug('listSymbols',{'module':'" + moduleName.toLatin1() + "'})");
 }
 
-void PdbEngine::handleListSymbols(const DebuggerResponse &response, const QString &moduleName)
+void PdbEngine::refreshSymbols(const GdbMi &symbols)
 {
-    GdbMi out;
-    out.fromString(response.logStreamOutput.trimmed());
-    Symbols symbols;
-    foreach (const GdbMi &item, out.children()) {
+    QString moduleName = symbols["module"].toUtf8();
+    Symbols syms;
+    foreach (const GdbMi &item, symbols["symbols"].children()) {
         Symbol symbol;
-        symbol.name = _(item["name"].data());
-        symbols.append(symbol);
+        symbol.name = item["name"].toUtf8();
+        syms.append(symbol);
     }
-    Internal::showModuleSymbols(moduleName, symbols);
+    Internal::showModuleSymbols(moduleName, syms);
 }
-
-//////////////////////////////////////////////////////////////////////
-//
-// Tooltip specific stuff
-//
-//////////////////////////////////////////////////////////////////////
-
 
 bool PdbEngine::setToolTipExpression(TextEditor::TextEditorWidget *,
     const DebuggerToolTipContext &ctx)
@@ -460,16 +449,10 @@ bool PdbEngine::setToolTipExpression(TextEditor::TextEditorWidget *,
 
     DebuggerCommand cmd("evaluateTooltip");
     ctx.appendFormatRequest(&cmd);
+    watchHandler()->appendFormatRequests(&cmd);
     runCommand(cmd);
     return true;
 }
-
-
-//////////////////////////////////////////////////////////////////////
-//
-// Watch specific stuff
-//
-//////////////////////////////////////////////////////////////////////
 
 void PdbEngine::assignValueInDebugger(const Internal::WatchData *, const QString &expression, const QVariant &value)
 {
@@ -579,75 +562,56 @@ void PdbEngine::handleOutput(const QByteArray &data)
     //m_inbuffer.clear();
 }
 
-
 void PdbEngine::handleOutput2(const QByteArray &data)
 {
     QByteArray lineContext;
     foreach (QByteArray line, data.split('\n')) {
-//        line = line.trimmed();
 
-        DebuggerResponse response;
-        response.logStreamOutput = line;
-        response.data.fromString(line);
+        GdbMi data;
+        data.fromString(line);
+
         showMessage(_("LINE: " + line));
 
         if (line.startsWith("stack={")) {
-            refreshStack(response.data);
-            continue;
-        }
-        if (line.startsWith("data={")) {
-            refreshLocals(response.data);
-            continue;
-        }
-        if (line.startsWith("Breakpoint")) {
+            refreshStack(data);
+        } else if (line.startsWith("data={")) {
+            refreshLocals(data);
+        } else if (line.startsWith("modules=[")) {
+            refreshModules(data);
+        } else if (line.startsWith("symbols={")) {
+            refreshSymbols(data);
+        } else if (line.startsWith("Breakpoint")) {
+            DebuggerResponse response;
+            response.data = data;
+            response.logStreamOutput = line;
             handleBreakInsert(response, Breakpoint());
-            continue;
-        }
-
-        if (line.startsWith("> /")) {
-            lineContext = line;
-            int pos1 = line.indexOf('(');
-            int pos2 = line.indexOf(')', pos1);
-            if (pos1 != -1 && pos2 != -1) {
-                int lineNumber = line.mid(pos1 + 1, pos2 - pos1 - 1).toInt();
-                QByteArray fileName = line.mid(2, pos1 - 2);
-                qDebug() << " " << pos1 << pos2 << lineNumber << fileName
-                         << line.mid(pos1 + 1, pos2 - pos1 - 1);
-                StackFrame frame;
-                frame.file = _(fileName);
-                frame.line = lineNumber;
-                if (state() == InferiorRunOk) {
-                    showMessage(QString::fromLatin1("STOPPED AT: %1:%2").arg(frame.file).arg(frame.line));
-                    gotoLocation(frame);
-                    notifyInferiorSpontaneousStop();
-                    updateAll();
-                    continue;
+        } else {
+            if (line.startsWith("> /")) {
+                lineContext = line;
+                int pos1 = line.indexOf('(');
+                int pos2 = line.indexOf(')', pos1);
+                if (pos1 != -1 && pos2 != -1) {
+                    int lineNumber = line.mid(pos1 + 1, pos2 - pos1 - 1).toInt();
+                    QByteArray fileName = line.mid(2, pos1 - 2);
+                    qDebug() << " " << pos1 << pos2 << lineNumber << fileName
+                             << line.mid(pos1 + 1, pos2 - pos1 - 1);
+                    StackFrame frame;
+                    frame.file = _(fileName);
+                    frame.line = lineNumber;
+                    if (state() == InferiorRunOk) {
+                        showMessage(QString::fromLatin1("STOPPED AT: %1:%2").arg(frame.file).arg(frame.line));
+                        gotoLocation(frame);
+                        notifyInferiorSpontaneousStop();
+                        updateAll();
+                        continue;
+                    }
                 }
             }
+            showMessage(_(" #### ... UNHANDLED"));
         }
-
-        if (line.startsWith("-> ")) {
-            // Current line
-        }
-
-        showMessage(_(" #### ... UNHANDLED"));
     }
-
-
-//    DebuggerResponse response;
-//    response.logStreamOutput = data;
-//    showMessage(_(data));
-//    QTC_ASSERT(!m_commands.isEmpty(), qDebug() << "RESPONSE: " << data; return);
-//    DebuggerCommand cmd = m_commands.dequeue();
-//    qDebug() << "DEQUE: " << cmd.function;
-//    if (cmd.callback) {
-//        //qDebug() << "EXECUTING CALLBACK " << cmd.callbackName
-//        //    << " RESPONSE: " << response.data;
-//        cmd.callback(response);
-//    } else {
-//        qDebug() << "NO CALLBACK FOR RESPONSE: " << response.logStreamOutput;
-//    }
 }
+
 /*
 void PdbEngine::handleResponse(const QByteArray &response0)
 {
@@ -747,7 +711,6 @@ void PdbEngine::updateLocals()
     const static bool alwaysVerbose = !qgetenv("QTC_DEBUGGER_PYTHON_VERBOSE").isEmpty();
     cmd.arg("passexceptions", alwaysVerbose);
     cmd.arg("fancy", boolSetting(UseDebuggingHelpers));
-//    cmd.arg("partial", params.tryPartial);
 
     cmd.beginList("watchers");
 
@@ -779,34 +742,11 @@ void PdbEngine::updateLocals()
     runCommand(cmd);
 }
 
-void PdbEngine::handleListLocals(const DebuggerResponse &response)
-{
-    //qDebug() << " LOCALS: '" << response.data << "'";
-    QByteArray out = response.logStreamOutput.trimmed();
-
-    GdbMi all;
-    all.fromStringMultiple(out);
-    //qDebug() << "ALL: " << all.toString();
-
-    //GdbMi data = all.findChild("data");
-    WatchHandler *handler = watchHandler();
-
-    QSet<QByteArray> toDelete;
-    foreach (WatchItem *item, handler->model()->treeLevelItems<WatchItem *>(2))
-        toDelete.insert(item->d.iname);
-
-    foreach (const GdbMi &child, all.children()) {
-        WatchItem *item = new WatchItem(child);
-        handler->insertItem(item);
-        toDelete.remove(item->d.iname);
-    }
-
-    handler->purgeOutdatedItems(toDelete);
-}
-
 bool PdbEngine::hasCapability(unsigned cap) const
 {
-    return cap & (ReloadModuleCapability|BreakConditionCapability);
+    return cap & (ReloadModuleCapability
+              | BreakConditionCapability
+              | ShowModuleSymbolsCapability);
 }
 
 DebuggerEngine *createPdbEngine(const DebuggerStartParameters &startParameters)

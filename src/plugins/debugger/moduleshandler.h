@@ -89,7 +89,7 @@ typedef QVector<Section> Sections;
 class Module
 {
 public:
-    Module() : symbolsRead(UnknownReadState) {}
+    Module() : symbolsRead(UnknownReadState), startAddress(0), endAddress(0) {}
 
 public:
     enum SymbolReadState {
