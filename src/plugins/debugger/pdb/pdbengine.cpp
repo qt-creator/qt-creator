@@ -82,23 +82,23 @@ void PdbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages
         showMessage(_("PDB PROCESS NOT RUNNING, PLAIN CMD IGNORED: ") + command);
         return;
     }
-    QTC_ASSERT(m_pdbProc.state() == QProcess::Running, notifyEngineIll());
+    QTC_ASSERT(m_proc.state() == QProcess::Running, notifyEngineIll());
     postDirectCommand(command.toLatin1());
 }
 
 void PdbEngine::postDirectCommand(const QByteArray &command)
 {
-    QTC_ASSERT(m_pdbProc.state() == QProcess::Running, notifyEngineIll());
+    QTC_ASSERT(m_proc.state() == QProcess::Running, notifyEngineIll());
     showMessage(_(command), LogInput);
-    m_pdbProc.write(command + '\n');
+    m_proc.write(command + '\n');
 }
 
 void PdbEngine::runCommand(const DebuggerCommand &cmd)
 {
-    QTC_ASSERT(m_pdbProc.state() == QProcess::Running, notifyEngineIll());
+    QTC_ASSERT(m_proc.state() == QProcess::Running, notifyEngineIll());
     QByteArray command = "qdebug('" + cmd.function + "',{" + cmd.args + "})";
     showMessage(_(command), LogInput);
-    m_pdbProc.write(command + '\n');
+    m_proc.write(command + '\n');
 }
 
 void PdbEngine::shutdownInferior()
@@ -110,30 +110,30 @@ void PdbEngine::shutdownInferior()
 void PdbEngine::shutdownEngine()
 {
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
-    m_pdbProc.kill();
+    m_proc.kill();
 }
 
 void PdbEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
-    m_pdb = _("python");
-    showMessage(_("STARTING PDB ") + m_pdb);
+    QString python = pythonInterpreter();
+    showMessage(_("STARTING PDB ") + python);
 
-    connect(&m_pdbProc, static_cast<void(QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+    connect(&m_proc, static_cast<void(QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
         this, &PdbEngine::handlePdbError);
-    connect(&m_pdbProc, static_cast<void(QProcess::*)(int,QProcess::ExitStatus)>(&QProcess::finished),
+    connect(&m_proc, static_cast<void(QProcess::*)(int,QProcess::ExitStatus)>(&QProcess::finished),
         this, &PdbEngine::handlePdbFinished);
-    connect(&m_pdbProc, &QProcess::readyReadStandardOutput,
+    connect(&m_proc, &QProcess::readyReadStandardOutput,
         this, &PdbEngine::readPdbStandardOutput);
-    connect(&m_pdbProc, &QProcess::readyReadStandardError,
+    connect(&m_proc, &QProcess::readyReadStandardError,
         this, &PdbEngine::readPdbStandardError);
 
-    m_pdbProc.start(m_pdb, QStringList() << _("-i"));
+    m_proc.start(python, QStringList() << _("-i"));
 
-    if (!m_pdbProc.waitForStarted()) {
+    if (!m_proc.waitForStarted()) {
         const QString msg = tr("Unable to start pdb \"%1\": %2")
-            .arg(m_pdb, m_pdbProc.errorString());
+            .arg(pythonInterpreter(), m_proc.errorString());
         notifyEngineSetupFailed();
         showMessage(_("ADAPTER START FAILED"));
         if (!msg.isEmpty())
@@ -165,15 +165,23 @@ QString PdbEngine::mainPythonFile() const
     return QFileInfo(startParameters().processArgs).absoluteFilePath();
 }
 
+QString PdbEngine::pythonInterpreter() const
+{
+    return startParameters().executable;
+}
+
 void PdbEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     showStatusMessage(tr("Running requested..."), 5000);
-    const QByteArray dumperSourcePath = ICore::resourcePath().toLocal8Bit() + "/debugger/";
+    QByteArray bridge = ICore::resourcePath().toUtf8() + "/debugger/pdbbridge.py";
+    QByteArray pdb = "/usr/bin/pdb";
+    if (pythonInterpreter().endsWith(QLatin1Char('3')))
+        pdb += '3';
     postDirectCommand("import sys");
     postDirectCommand("sys.argv.append('" + mainPythonFile().toLocal8Bit() + "')");
-    postDirectCommand("execfile('/usr/bin/pdb')");
-    postDirectCommand("execfile('" + dumperSourcePath + "pdbbridge.py')");
+    postDirectCommand("exec(open('" + pdb + "').read())");
+    postDirectCommand("exec(open('" + bridge + "').read())");
     attemptBreakpointSynchronization();
     notifyEngineRunAndInferiorStopOk();
     continueInferior();
@@ -412,7 +420,7 @@ void PdbEngine::handlePdbError(QProcess::ProcessError error)
     case QProcess::Timedout:
     default:
         //setState(EngineShutdownRequested, true);
-        m_pdbProc.kill();
+        m_proc.kill();
         AsynchronousMessageBox::critical(tr("Pdb I/O Error"), errorMessage(error));
         break;
     }
@@ -425,7 +433,7 @@ QString PdbEngine::errorMessage(QProcess::ProcessError error) const
             return tr("The Pdb process failed to start. Either the "
                 "invoked program \"%1\" is missing, or you may have insufficient "
                 "permissions to invoke the program.")
-                .arg(m_pdb);
+                .arg(pythonInterpreter());
         case QProcess::Crashed:
             return tr("The Pdb process crashed some time after starting "
                 "successfully.");
@@ -454,7 +462,7 @@ void PdbEngine::handlePdbFinished(int code, QProcess::ExitStatus type)
 
 void PdbEngine::readPdbStandardError()
 {
-    QByteArray err = m_pdbProc.readAllStandardError();
+    QByteArray err = m_proc.readAllStandardError();
     qDebug() << "\nPDB STDERR" << err;
     //qWarning() << "Unexpected pdb stderr:" << err;
     //showMessage(_("Unexpected pdb stderr: " + err));
@@ -463,7 +471,7 @@ void PdbEngine::readPdbStandardError()
 
 void PdbEngine::readPdbStandardOutput()
 {
-    QByteArray out = m_pdbProc.readAllStandardOutput();
+    QByteArray out = m_proc.readAllStandardOutput();
     qDebug() << "\nPDB STDOUT" << out;
     handleOutput(out);
 }

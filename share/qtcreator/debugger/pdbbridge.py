@@ -1,11 +1,11 @@
 
-import pdb
-import sys
-import linecache
-import inspect
-import os
-
 def qdebug(cmd, args):
+
+  import sys
+  import linecache
+  import inspect
+  import os
+
   class Dumper:
     def __init__(self):
         self.output = ''
@@ -165,7 +165,11 @@ def qdebug(cmd, args):
             self.putField("childnumchild", 2)
             self.put("children=[")
             i = 0
-            for (k, v) in value.iteritems():
+            if sys.version_info[0] >= 3:
+                vals = value.iter()
+            else:
+                vals = value.iteritems()
+            for (k, v) in vals:
                 self.put("{")
                 self.putType(" ")
                 self.putValue("%s: %s" % (k, v))

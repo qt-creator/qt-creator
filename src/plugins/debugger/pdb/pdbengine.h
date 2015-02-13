@@ -97,7 +97,9 @@ private:
     bool supportsThreads() const { return true; }
     bool isSynchronous() const { return true; }
     void updateWatchItem(WatchItem *item);
+
     QString mainPythonFile() const;
+    QString pythonInterpreter() const;
 
     void runCommand(const DebuggerCommand &cmd);
     void postDirectCommand(const QByteArray &command);
@@ -121,8 +123,7 @@ private:
     void updateLocals();
 
     QByteArray m_inbuffer;
-    QProcess m_pdbProc;
-    QString m_pdb;
+    QProcess m_proc;
 };
 
 } // namespace Internal

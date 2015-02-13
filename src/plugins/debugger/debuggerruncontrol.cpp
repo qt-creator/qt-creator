@@ -401,7 +401,9 @@ DebuggerRunControl *DebuggerRunControlFactory::doCreate
     }
 
     if (sp.masterEngineType == NoEngineType) {
-        if (sp.executable.endsWith(_(".py")) || sp.executable == _("/usr/bin/python")) {
+        if (sp.executable.endsWith(_(".py"))
+                || sp.executable == _("/usr/bin/python")
+                || sp.executable == _("/usr/bin/python3")) {
             sp.masterEngineType = PdbEngineType;
         } else {
             if (RunConfiguration *rc = sp.runConfiguration) {
