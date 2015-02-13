@@ -42,7 +42,7 @@ public:
 private:
     QWidget *createDetailsWidget(const QFont &font, const QModelIndex &index,
                                  QWidget *parent) const;
-    QString textualRepresentation() const Q_DECL_OVERRIDE;
+    QString textualRepresentation() const;
 };
 
 } // namespace Internal

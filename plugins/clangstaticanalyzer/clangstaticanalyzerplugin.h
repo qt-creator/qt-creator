@@ -42,7 +42,7 @@ public:
     ShutdownFlag aboutToShutdown();
 
 private:
-    QList<QObject *> createTestObjects() const override;
+    QList<QObject *> createTestObjects() const;
 
     ClangStaticAnalyzerTool *m_analyzerTool;
 };
