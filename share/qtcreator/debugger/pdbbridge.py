@@ -5,7 +5,8 @@ import linecache
 import inspect
 import os
 
-class Dumper:
+def qdebug(cmd, args):
+  class Dumper:
     def __init__(self):
         pass
 
@@ -273,12 +274,7 @@ class Dumper:
         sys.stdout.write("@\n" + stuff + "@\n")
         sys.stdout.flush()
 
-def qdebug(options = None,
-            expanded = None,
-            typeformats = None,
-            individualformats = None,
-            watchers = None):
-    sys.stdout.write("\n(Pdb)\n")
-    sys.stdout.flush()
 
-theDumper = Dumper()
+  d = Dumper()
+  method = getattr(d, cmd)
+  method(args)

@@ -135,7 +135,7 @@ void PdbEngine::postCommand(const QByteArray &command, DebuggerCommand::Callback
 void PdbEngine::runCommand(const DebuggerCommand &cmd)
 {
     QTC_ASSERT(m_pdbProc.state() == QProcess::Running, notifyEngineIll());
-    QByteArray command = "theDumper." + cmd.function + "({" + cmd.args + "})";
+    QByteArray command = "qdebug('" + cmd.function + "',{" + cmd.args + "})";
     showMessage(_(command), LogInput);
     m_pdbProc.write(command + '\n');
 }
@@ -734,8 +734,7 @@ void PdbEngine::handleUpdateAll(const DebuggerResponse &response)
 
 void PdbEngine::updateAll()
 {
-    postCommand("dir()");
-    postCommand("theDumper.stackListFrames({})");
+    postCommand("qdebug('stackListFrames',{})");
     updateLocals();
 }
 
