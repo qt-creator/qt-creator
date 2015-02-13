@@ -50,6 +50,8 @@
 #include "texteditoroverlay.h"
 #include "texteditorsettings.h"
 #include "typingsettings.h"
+#include "extraencodingsettings.h"
+#include "storagesettings.h"
 
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/codeassistant.h>
