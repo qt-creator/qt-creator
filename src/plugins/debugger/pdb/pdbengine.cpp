@@ -205,7 +205,7 @@ void PdbEngine::executeStepOut()
     resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
-    postDirectCommand("finish");
+    postDirectCommand("return");
 }
 
 void PdbEngine::executeNext()
