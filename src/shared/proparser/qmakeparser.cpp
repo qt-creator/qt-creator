@@ -1034,10 +1034,12 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
                 }
                 flushCond(tokPtr);
                 putLineMarker(tokPtr);
+                --ptr;
+                Q_ASSERT(*ptr == TokFuncTerminator);
                 if (*uce == (TokLiteral|TokNewStr)) {
                     nlen = uce[1];
                     uc = uce + 2 + nlen;
-                    if (*uc == TokFuncTerminator) {
+                    if (uc == ptr) {
                         // for(literal) (only "ever" would be legal if qmake was sane)
                         putTok(tokPtr, TokForLoop);
                         putHashStr(tokPtr, (ushort *)0, (uint)0);
