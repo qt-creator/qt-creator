@@ -68,6 +68,7 @@ public:
     void setRevision(unsigned revision);
     void setWorkingCopy(const CppTools::WorkingCopy &workingCopy);
     void setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths);
+    void setLanguageFeatures(CPlusPlus::LanguageFeatures languageFeatures);
     void setTodo(const QSet<QString> &files);
 
     void run(const QString &fileName, const QStringList &initialIncludes = QStringList());
@@ -117,6 +118,7 @@ private:
     CPlusPlus::Environment m_env;
     CPlusPlus::Preprocessor m_preprocess;
     ProjectPart::HeaderPaths m_headerPaths;
+    CPlusPlus::LanguageFeatures m_languageFeatures;
     CppTools::WorkingCopy m_workingCopy;
     QSet<QString> m_included;
     CPlusPlus::Document::Ptr m_currentDoc;

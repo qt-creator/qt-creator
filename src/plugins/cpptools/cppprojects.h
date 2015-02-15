@@ -38,6 +38,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/toolchain.h>
 
+#include <cplusplus/Token.h>
+
 #include <QPointer>
 #include <QSet>
 
@@ -109,6 +111,7 @@ public: // methods
                            const QStringList &commandLineFlags,
                            const Utils::FileName &sysRoot);
 
+    void updateLanguageFeatures();
     Ptr copy() const;
 
     QString id() const;
@@ -127,6 +130,7 @@ public: // fields
     QStringList precompiledHeaders;
     LanguageVersion languageVersion;
     LanguageExtensions languageExtensions;
+    CPlusPlus::LanguageFeatures languageFeatures;
     QtVersion qtVersion;
     ProjectExplorer::ToolChain::WarningFlags warningFlags;
     bool selectedForBuilding;

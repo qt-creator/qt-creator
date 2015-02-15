@@ -840,6 +840,7 @@ ProjectPart::Ptr CppModelManager::fallbackProjectPart() const
     part->languageVersion = ProjectPart::CXX14;
     part->languageExtensions = ProjectPart::AllExtensions;
     part->qtVersion = ProjectPart::Qt5;
+    part->updateLanguageFeatures();
 
     return part;
 }

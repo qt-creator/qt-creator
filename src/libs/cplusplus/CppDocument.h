@@ -115,6 +115,9 @@ public:
     void setFingerprint(const QByteArray &fingerprint)
     { m_fingerprint = fingerprint; }
 
+    LanguageFeatures languageFeatures() const;
+    void setLanguageFeatures(LanguageFeatures features);
+
     void startSkippingBlocks(unsigned utf16charsOffset);
     void stopSkippingBlocks(unsigned utf16charsOffset);
 

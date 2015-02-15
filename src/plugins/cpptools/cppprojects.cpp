@@ -108,6 +108,29 @@ void ProjectPart::evaluateToolchain(const ToolChain *tc,
     }
 
     toolchainDefines = tc->predefinedMacros(commandLineFlags);
+    updateLanguageFeatures();
+}
+
+void ProjectPart::updateLanguageFeatures()
+{
+    const bool hasQt = qtVersion != NoQt;
+    languageFeatures.cxx11Enabled = languageVersion >= CXX11;
+    languageFeatures.qtEnabled = hasQt;
+    languageFeatures.qtMocRunEnabled = hasQt;
+    if (!hasQt) {
+        languageFeatures.qtKeywordsEnabled = false;
+    } else {
+        const QByteArray noKeywordsMacro = "#define QT_NO_KEYWORDS";
+        const int noKeywordsIndex = projectDefines.indexOf(noKeywordsMacro);
+        if (noKeywordsIndex == -1) {
+            languageFeatures.qtKeywordsEnabled = true;
+        } else {
+            const char nextChar = projectDefines.at(noKeywordsIndex + noKeywordsMacro.length());
+            // Detect "#define QT_NO_KEYWORDS" and "#define QT_NO_KEYWORDS 1", but exclude
+            // "#define QT_NO_KEYWORDS_FOO"
+            languageFeatures.qtKeywordsEnabled = nextChar != '\n' && nextChar != ' ';
+        }
+    }
 }
 
 ProjectPart::Ptr ProjectPart::copy() const
@@ -198,6 +221,7 @@ void ProjectInfo::finish()
 
     QSet<HeaderPath> incs;
     foreach (const ProjectPart::Ptr &part, m_projectParts) {
+        part->updateLanguageFeatures();
         // Update header paths
         foreach (const HeaderPath &hp, part->headerPaths) {
             if (!incs.contains(hp)) {

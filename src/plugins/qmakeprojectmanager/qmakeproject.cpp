@@ -538,6 +538,8 @@ void QmakeProject::updateCppCodeModel()
         // part->precompiledHeaders
         templatePart->precompiledHeaders.append(pro->variableValue(PrecompiledHeaderVar));
 
+        templatePart->updateLanguageFeatures();
+
         ProjectPart::Ptr cppPart = templatePart->copy();
         { // C++ files:
             // part->files

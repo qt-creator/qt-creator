@@ -60,6 +60,7 @@ void BuiltinEditorDocumentParser::update(WorkingCopy workingCopy)
     ProjectPart::HeaderPaths headerPaths;
     QStringList precompiledHeaders;
     QString projectConfigFile;
+    LanguageFeatures features = LanguageFeatures::defaultFeatures();
 
     updateProjectPart();
 
@@ -75,6 +76,7 @@ void BuiltinEditorDocumentParser::update(WorkingCopy workingCopy)
         projectConfigFile = part->projectConfigFile;
         if (usePrecompiledHeaders())
             precompiledHeaders = part->precompiledHeaders;
+        features = part->languageFeatures;
     }
 
     if (configFile != m_configFile) {
@@ -169,6 +171,7 @@ void BuiltinEditorDocumentParser::update(WorkingCopy workingCopy)
         sourceProcessor.setGlobalSnapshot(globalSnapshot);
         sourceProcessor.setWorkingCopy(workingCopy);
         sourceProcessor.setHeaderPaths(m_headerPaths);
+        sourceProcessor.setLanguageFeatures(features);
         sourceProcessor.run(configurationFileName);
         if (!m_projectConfigFile.isEmpty())
             sourceProcessor.run(m_projectConfigFile);
