@@ -73,7 +73,7 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locat
     foreach (const DocumentModel::Entry &editorEntry, editors()) {
         if (future.isCanceled())
             break;
-        QString fileName = editorEntry.fileName();
+        QString fileName = editorEntry.fileName().toString();
         if (fileName.isEmpty())
             continue;
         QString displayName = editorEntry.displayName();

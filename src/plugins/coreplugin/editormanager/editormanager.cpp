@@ -1049,7 +1049,7 @@ void EditorManagerPrivate::activateEditorForEntry(EditorView *view, DocumentMode
         return;
     }
 
-    if (!openEditor(view, entry->fileName(), entry->id(), flags))
+    if (!openEditor(view, entry->fileName().toString(), entry->id(), flags))
         DocumentModel::removeEntry(entry);
 }
 
@@ -1593,8 +1593,7 @@ void EditorManagerPrivate::copyFilePathFromContextMenu()
 {
     if (!d->m_contextMenuEntry)
         return;
-    QApplication::clipboard()->setText(FileName::fromString(
-                                           d->m_contextMenuEntry->fileName()).toUserOutput());
+    QApplication::clipboard()->setText(d->m_contextMenuEntry->fileName().toUserOutput());
 }
 
 void EditorManagerPrivate::copyLocationFromContextMenu()
@@ -1602,9 +1601,8 @@ void EditorManagerPrivate::copyLocationFromContextMenu()
     const QAction *action = qobject_cast<const QAction *>(sender());
     if (!d->m_contextMenuEntry || !action)
         return;
-    const QString text =
-        FileName::fromString(d->m_contextMenuEntry->fileName()).toUserOutput()
-        + QLatin1Char(':') + action->data().toString();
+    const QString text = d->m_contextMenuEntry->fileName().toUserOutput()
+            + QLatin1Char(':') + action->data().toString();
     QApplication::clipboard()->setText(text);
 }
 
@@ -1612,7 +1610,7 @@ void EditorManagerPrivate::copyFileNameFromContextMenu()
 {
     if (!d->m_contextMenuEntry)
         return;
-    QApplication::clipboard()->setText(FileName::fromString(d->m_contextMenuEntry->fileName()).fileName());
+    QApplication::clipboard()->setText(d->m_contextMenuEntry->fileName().fileName());
 }
 
 void EditorManagerPrivate::saveDocumentFromContextMenu()
@@ -1766,21 +1764,21 @@ void EditorManagerPrivate::showInGraphicalShell()
 {
     if (!d->m_contextMenuEntry || d->m_contextMenuEntry->fileName().isEmpty())
         return;
-    FileUtils::showInGraphicalShell(ICore::mainWindow(), d->m_contextMenuEntry->fileName());
+    FileUtils::showInGraphicalShell(ICore::mainWindow(), d->m_contextMenuEntry->fileName().toString());
 }
 
 void EditorManagerPrivate::openTerminal()
 {
     if (!d->m_contextMenuEntry || d->m_contextMenuEntry->fileName().isEmpty())
         return;
-    FileUtils::openTerminal(QFileInfo(d->m_contextMenuEntry->fileName()).path());
+    FileUtils::openTerminal(d->m_contextMenuEntry->fileName().parentDir().toString());
 }
 
 void EditorManagerPrivate::findInDirectory()
 {
     if (!d->m_contextMenuEntry || d->m_contextMenuEntry->fileName().isEmpty())
         return;
-    emit m_instance->findOnFileSystemRequest(QFileInfo(d->m_contextMenuEntry->fileName()).path());
+    emit m_instance->findOnFileSystemRequest(d->m_contextMenuEntry->fileName().parentDir().toString());
 }
 
 void EditorManagerPrivate::split(Qt::Orientation orientation)
@@ -1927,7 +1925,7 @@ void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentMod
     d->m_contextMenuEntry = entry;
     d->m_contextMenuEditor = editor;
 
-    const QString filePath = entry ? entry->fileName() : QString();
+    const FileName filePath = entry ? entry->fileName() : FileName();
     const bool copyActionsEnabled = !filePath.isEmpty();
     d->m_copyFilePathContextAction->setEnabled(copyActionsEnabled);
     d->m_copyLocationContextAction->setEnabled(copyActionsEnabled);
@@ -1993,7 +1991,7 @@ void EditorManager::addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentM
             DocumentManager::instance(), SLOT(executeOpenWithMenuAction(QAction*)));
     openWith->setEnabled(enabled);
     if (enabled)
-        DocumentManager::populateOpenWithMenu(openWith, entry->fileName());
+        DocumentManager::populateOpenWithMenu(openWith, entry->fileName().toString());
 }
 
 void EditorManager::saveDocument()
@@ -2339,7 +2337,7 @@ IEditor *EditorManager::openEditorWithContents(Id editorId,
             int i = 1;
             QSet<QString> docnames;
             foreach (DocumentModel::Entry *entry, DocumentModel::entries()) {
-                QString name = entry->fileName();
+                QString name = entry->fileName().toString();
                 if (name.isEmpty())
                     name = entry->displayName();
                 else
@@ -2485,7 +2483,7 @@ QByteArray EditorManager::saveState()
 
     foreach (DocumentModel::Entry *entry, entries) {
         if (!entry->document || !entry->document->isTemporary())
-            stream << entry->fileName() << entry->displayName() << entry->id();
+            stream << entry->fileName().toString() << entry->displayName() << entry->id();
     }
 
     stream << d->m_editorAreas.first()->saveState(); // TODO

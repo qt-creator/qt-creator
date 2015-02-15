@@ -34,6 +34,8 @@
 #include "../core_global.h"
 #include "../id.h"
 
+#include <utils/fileutils.h>
+
 #include <QAbstractItemModel>
 
 QT_FORWARD_DECLARE_CLASS(QIcon)
@@ -57,10 +59,10 @@ public:
     struct CORE_EXPORT Entry {
         Entry();
         IDocument *document;
-        QString fileName() const;
+        Utils::FileName fileName() const;
         QString displayName() const;
         Id id() const;
-        QString m_fileName;
+        Utils::FileName m_fileName;
         QString m_displayName;
         Id m_id;
     };

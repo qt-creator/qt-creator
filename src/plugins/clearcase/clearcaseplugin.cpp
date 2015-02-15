@@ -1657,7 +1657,7 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
         }
 
         foreach (DocumentModel::Entry *e, DocumentModel::entries()) {
-            if (e->fileName() == absPath) {
+            if (e->fileName().toString() == absPath) {
                 e->document->checkPermissions();
                 break;
             }

@@ -66,7 +66,7 @@ public:
     void addEntry(DocumentModel::Entry *entry);
     void removeDocument(int idx);
 
-    int indexOfFilePath(const QString &filePath) const;
+    int indexOfFilePath(const Utils::FileName &filePath) const;
     int indexOfDocument(IDocument *document) const;
 
 private slots:
@@ -128,9 +128,9 @@ QAbstractItemModel *DocumentModel::model()
     return d;
 }
 
-QString DocumentModel::Entry::fileName() const
+Utils::FileName DocumentModel::Entry::fileName() const
 {
-    return document ? document->filePath().toString() : m_fileName;
+    return document ? document->filePath() : m_fileName;
 }
 
 QString DocumentModel::Entry::displayName() const
@@ -177,7 +177,7 @@ void DocumentModel::addEditor(IEditor *editor, bool *isNewDocument)
 void DocumentModel::addRestoredDocument(const QString &fileName, const QString &displayName, Id id)
 {
     Entry *entry = new Entry;
-    entry->m_fileName = fileName;
+    entry->m_fileName = Utils::FileName::fromString(fileName);
     entry->m_displayName = displayName;
     entry->m_id = id;
     d->addEntry(entry);
@@ -190,10 +190,8 @@ DocumentModel::Entry *DocumentModel::firstRestoredEntry()
 
 void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
 {
-    QString fileName = entry->fileName();
-
     // replace a non-loaded entry (aka 'restored') if possible
-    int previousIndex = indexOfFilePath(fileName);
+    int previousIndex = indexOfFilePath(entry->fileName());
     if (previousIndex >= 0) {
         if (entry->document && m_entries.at(previousIndex)->document == 0) {
             DocumentModel::Entry *previousEntry = m_entries.at(previousIndex);
@@ -220,13 +218,14 @@ void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
     endInsertRows();
 }
 
-int DocumentModelPrivate::indexOfFilePath(const QString &filePath) const
+int DocumentModelPrivate::indexOfFilePath(const Utils::FileName &filePath) const
 {
     if (filePath.isEmpty())
         return -1;
-    const QString fixedPath = DocumentManager::fixFileName(filePath, DocumentManager::ResolveLinks);
+    const QString fixedPath = DocumentManager::fixFileName(filePath.toString(),
+                                                           DocumentManager::ResolveLinks);
     return Utils::indexOf(m_entries, [&fixedPath](DocumentModel::Entry *entry) {
-        return DocumentManager::fixFileName(entry->fileName(),
+        return DocumentManager::fixFileName(entry->fileName().toString(),
                                             DocumentManager::ResolveLinks) == fixedPath;
     });
 }
@@ -256,7 +255,7 @@ void DocumentModel::removeEditor(IEditor *editor, bool *lastOneForDocument)
 
 void DocumentModel::removeDocument(const QString &fileName)
 {
-    int index = d->indexOfFilePath(fileName);
+    int index = d->indexOfFilePath(Utils::FileName::fromString(fileName));
     QTC_ASSERT(!d->m_entries.at(index)->document, return); // we wouldn't know what to do with the associated editors
     d->removeDocument(index);
 }
@@ -330,7 +329,7 @@ QList<IDocument *> DocumentModel::openedDocuments()
 
 IDocument *DocumentModel::documentForFilePath(const QString &filePath)
 {
-    const int index = d->indexOfFilePath(filePath);
+    const int index = d->indexOfFilePath(Utils::FileName::fromString(filePath));
     if (index < 0)
         return 0;
     return d->m_entries.at(index)->document;
@@ -403,13 +402,13 @@ QVariant DocumentModelPrivate::data(const QModelIndex &index, int role) const
         if (e->document)
             showLock = e->document->filePath().isEmpty() ? false : e->document->isFileReadOnly();
         else
-            showLock = !QFileInfo(e->m_fileName).isWritable();
+            showLock = !e->m_fileName.toFileInfo().isWritable();
         return showLock ? m_lockedIcon : QIcon();
     }
     case Qt::ToolTipRole:
         return e->fileName().isEmpty()
                 ? e->displayName()
-                : QDir::toNativeSeparators(e->fileName());
+                : e->fileName().toUserOutput();
     default:
         return QVariant();
     }
@@ -431,7 +430,7 @@ QMimeData *DocumentModelPrivate::mimeData(const QModelIndexList &indexes) const
         const DocumentModel::Entry *e = DocumentModel::entryAtRow(index.row());
         if (!e || e->fileName().isEmpty())
             continue;
-        data->addFile(e->fileName());
+        data->addFile(e->fileName().toString());
     }
     return data;
 }

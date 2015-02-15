@@ -71,7 +71,7 @@ Utils::FileIterator *FindInOpenFiles::files(const QStringList &nameFilters,
     QList<QTextCodec *> codecs;
     foreach (Core::DocumentModel::Entry *entry,
              Core::DocumentModel::entries()) {
-        QString fileName = entry->fileName();
+        QString fileName = entry->fileName().toString();
         if (!fileName.isEmpty()) {
             fileNames.append(fileName);
             QTextCodec *codec = openEditorEncodings.value(fileName);

@@ -168,7 +168,7 @@ void CppIncludesFilter::prepareSearch(const QString &entry)
         }
         foreach (DocumentModel::Entry *entry, DocumentModel::entries()) {
             if (entry)
-                seedPaths.insert(entry->fileName());
+                seedPaths.insert(entry->fileName().toString());
         }
         CPlusPlus::Snapshot snapshot = CppModelManager::instance()->snapshot();
         setFileIterator(new CppIncludesIterator(snapshot, seedPaths));

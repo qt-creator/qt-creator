@@ -254,7 +254,7 @@ void OpenEditorsWindow::addRestoredItems()
         QString title = entry->displayName();
         item->setIcon(0, m_emptyIcon);
         item->setText(0, title);
-        item->setToolTip(0, entry->fileName());
+        item->setToolTip(0, entry->fileName().toString());
         item->setData(0, Qt::UserRole+2, QVariant::fromValue(entry->id()));
         item->setTextAlignment(0, Qt::AlignLeft);
 
