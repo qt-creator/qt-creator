@@ -344,15 +344,11 @@ QStringList GenericProject::processEntries(const QStringList &paths,
 
 void GenericProject::refreshCppCodeModel()
 {
-    CppTools::CppModelManager *modelManager =
-            CppTools::CppModelManager::instance();
-
-    if (!modelManager)
-        return;
+    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
 
     m_codeModelFuture.cancel();
 
-    CppTools::ProjectInfo pInfo = CppTools::ProjectInfo(this);
+    CppTools::ProjectInfo pInfo(this);
     CppTools::ProjectPartBuilder ppBuilder(pInfo);
     ppBuilder.setIncludePaths(projectIncludePaths());
     ppBuilder.setConfigFileName(configFileName());

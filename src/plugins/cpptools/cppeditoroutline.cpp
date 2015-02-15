@@ -187,9 +187,6 @@ QWidget *CppEditorOutline::widget() const
 void CppEditorOutline::updateNow()
 {
     CppTools::CppModelManager *cmmi = CppTools::CppModelManager::instance();
-    if (!cmmi)
-        return;
-
     const CPlusPlus::Snapshot snapshot = cmmi->snapshot();
     const QString filePath = m_editorWidget->textDocument()->filePath().toString();
     CPlusPlus::Document::Ptr document = snapshot.document(filePath);

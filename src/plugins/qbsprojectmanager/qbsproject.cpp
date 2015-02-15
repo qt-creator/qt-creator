@@ -689,10 +689,7 @@ void QbsProject::updateCppCodeModel()
             QtSupport::QtKitInformation::qtVersion(activeTarget()->kit());
 
     CppTools::CppModelManager *modelmanager = CppTools::CppModelManager::instance();
-    if (!modelmanager)
-        return;
-
-    CppTools::ProjectInfo pinfo = CppTools::ProjectInfo(this);
+    CppTools::ProjectInfo pinfo(this);
     CppTools::ProjectPartBuilder ppBuilder(pinfo);
 
     if (qtVersion) {

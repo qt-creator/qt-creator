@@ -312,31 +312,28 @@ bool CMakeProject::parseCMakeLists()
         return true;
     }
 
-    CppTools::CppModelManager *modelmanager =
-            CppTools::CppModelManager::instance();
-    if (modelmanager) {
-        CppTools::ProjectInfo pinfo = CppTools::ProjectInfo(this);
-        CppTools::ProjectPartBuilder ppBuilder(pinfo);
+    CppTools::CppModelManager *modelmanager = CppTools::CppModelManager::instance();
+    CppTools::ProjectInfo pinfo(this);
+    CppTools::ProjectPartBuilder ppBuilder(pinfo);
 
-        foreach (const CMakeBuildTarget &cbt, m_buildTargets) {
-            // This explicitly adds -I. to the include paths
-            QStringList includePaths = cbt.includeFiles;
-            includePaths += projectDirectory().toString();
-            ppBuilder.setIncludePaths(includePaths);
-            ppBuilder.setCFlags(getCXXFlagsFor(cbt));
-            ppBuilder.setCxxFlags(getCXXFlagsFor(cbt));
-            ppBuilder.setDefines(cbt.defines);
-            ppBuilder.setDisplayName(cbt.title);
+    foreach (const CMakeBuildTarget &cbt, m_buildTargets) {
+        // This explicitly adds -I. to the include paths
+        QStringList includePaths = cbt.includeFiles;
+        includePaths += projectDirectory().toString();
+        ppBuilder.setIncludePaths(includePaths);
+        ppBuilder.setCFlags(getCXXFlagsFor(cbt));
+        ppBuilder.setCxxFlags(getCXXFlagsFor(cbt));
+        ppBuilder.setDefines(cbt.defines);
+        ppBuilder.setDisplayName(cbt.title);
 
-            const QList<Core::Id> languages = ppBuilder.createProjectPartsForFiles(cbt.files);
-            foreach (Core::Id language, languages)
-                setProjectLanguage(language, true);
-        }
-
-        m_codeModelFuture.cancel();
-        pinfo.finish();
-        m_codeModelFuture = modelmanager->updateProjectInfo(pinfo);
+        const QList<Core::Id> languages = ppBuilder.createProjectPartsForFiles(cbt.files);
+        foreach (Core::Id language, languages)
+            setProjectLanguage(language, true);
     }
+
+    m_codeModelFuture.cancel();
+    pinfo.finish();
+    m_codeModelFuture = modelmanager->updateProjectInfo(pinfo);
 
     emit displayNameChanged();
     emit buildTargetsChanged();

@@ -58,8 +58,6 @@ ModelManagerTestHelper::ModelManagerTestHelper(QObject *parent) :
 
 {
     CppModelManager *mm = CppModelManager::instance();
-    assert(mm);
-
     connect(this, &ModelManagerTestHelper::aboutToRemoveProject,
             mm, &CppModelManager::onAboutToRemoveProject);
     connect(this, &ModelManagerTestHelper::projectAdded,
@@ -82,8 +80,6 @@ ModelManagerTestHelper::~ModelManagerTestHelper()
 void ModelManagerTestHelper::cleanup()
 {
     CppModelManager *mm = CppModelManager::instance();
-    assert(mm);
-
     QList<ProjectInfo> pies = mm->projectInfos();
     foreach (const ProjectInfo &pie, pies)
         emit aboutToRemoveProject(pie.project().data());

@@ -270,8 +270,7 @@ void Manager::initialize()
             &d->parser, SLOT(setFlatMode(bool)), Qt::QueuedConnection);
 
     // connect to the cpp model manager for signals about document updates
-    CppTools::CppModelManager *codeModelManager
-        = CppTools::CppModelManager::instance();
+    CppTools::CppModelManager *codeModelManager = CppTools::CppModelManager::instance();
 
     // when code manager signals that document is updated - handle it by ourselves
     connect(codeModelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),

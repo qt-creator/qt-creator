@@ -252,15 +252,14 @@ static Function *findDeclaration(const Class *cl, const QString &functionName)
 // TODO: remove me, this is taken from cppeditor.cpp. Find some common place for this function
 static Document::Ptr findDefinition(Function *functionDeclaration, int *line)
 {
-    if (CppTools::CppModelManager *cppModelManager = CppTools::CppModelManager::instance()) {
-        const Snapshot snapshot = cppModelManager->snapshot();
-        CppTools::SymbolFinder symbolFinder;
-        if (Function *fun = symbolFinder.findMatchingDefinition(functionDeclaration, snapshot)) {
-            if (line)
-                *line = fun->line();
+    CppTools::CppModelManager *cppModelManager = CppTools::CppModelManager::instance();
+    const Snapshot snapshot = cppModelManager->snapshot();
+    CppTools::SymbolFinder symbolFinder;
+    if (Function *fun = symbolFinder.findMatchingDefinition(functionDeclaration, snapshot)) {
+        if (line)
+            *line = fun->line();
 
-            return snapshot.document(QString::fromUtf8(fun->fileName(), fun->fileNameLength()));
-        }
+        return snapshot.document(QString::fromUtf8(fun->fileName(), fun->fileNameLength()));
     }
 
     return Document::Ptr();

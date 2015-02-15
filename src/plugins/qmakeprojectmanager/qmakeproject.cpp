@@ -470,24 +470,18 @@ void QmakeProject::updateCppCodeModel()
     typedef CppTools::ProjectFile ProjectFile;
 
     Kit *k = 0;
-    QtSupport::BaseQtVersion *qtVersion = 0;
     if (Target *target = activeTarget())
         k = target->kit();
     else
         k = KitManager::defaultKit();
-    qtVersion = QtSupport::QtKitInformation::qtVersion(k);
 
-    CppTools::CppModelManager *modelmanager =
-        CppTools::CppModelManager::instance();
-
-    if (!modelmanager)
-        return;
-
+    CppTools::CppModelManager *modelmanager = CppTools::CppModelManager::instance();
     FindQmakeProFiles findQmakeProFiles;
     QList<QmakeProFileNode *> proFiles = findQmakeProFiles(rootProjectNode());
 
-    CppTools::ProjectInfo pinfo = CppTools::ProjectInfo(this);
+    CppTools::ProjectInfo pinfo(this);
 
+    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
     ProjectPart::QtVersion qtVersionForPart = ProjectPart::NoQt;
     if (qtVersion) {
         if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))

@@ -402,14 +402,10 @@ QList<Node *> AutotoolsProject::nodes(FolderNode *parent) const
 
 void AutotoolsProject::updateCppCodeModel()
 {
-    CppTools::CppModelManager *modelManager =
-        CppTools::CppModelManager::instance();
-
-    if (!modelManager)
-        return;
+    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
 
     m_codeModelFuture.cancel();
-    CppTools::ProjectInfo pInfo = CppTools::ProjectInfo(this);
+    CppTools::ProjectInfo pInfo(this);
     CppTools::ProjectPartBuilder ppBuilder(pInfo);
 
     const QStringList cflags = m_makefileParserThread->cflags();

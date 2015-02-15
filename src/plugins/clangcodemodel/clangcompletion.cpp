@@ -555,7 +555,6 @@ ClangCompletionAssistInterface::ClangCompletionAssistInterface(ClangCompleter::P
     Q_ASSERT(!clangWrapper.isNull());
 
     CppModelManager *mmi = CppModelManager::instance();
-    Q_ASSERT(mmi);
     m_unsavedFiles = Utils::createUnsavedFiles(mmi->workingCopy());
 }
 

@@ -358,7 +358,6 @@ VerifyCleanCppModelManager::~VerifyCleanCppModelManager() {
 bool VerifyCleanCppModelManager::isClean()
 {
     CppModelManager *mm = CppModelManager::instance();
-    RETURN_FALSE_IF_NOT(mm);
     RETURN_FALSE_IF_NOT(mm->projectInfos().isEmpty());
     RETURN_FALSE_IF_NOT(mm->headerPaths().isEmpty());
     RETURN_FALSE_IF_NOT(mm->definedMacros().isEmpty());
