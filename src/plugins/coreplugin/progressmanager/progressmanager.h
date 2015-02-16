@@ -52,7 +52,7 @@ public:
     };
     Q_DECLARE_FLAGS(ProgressFlags, ProgressFlag)
 
-    static QObject *instance();
+    static ProgressManager *instance();
 
     static FutureProgress *addTask(const QFuture<void> &future, const QString &title,
                                    Id type, ProgressFlags flags = 0);

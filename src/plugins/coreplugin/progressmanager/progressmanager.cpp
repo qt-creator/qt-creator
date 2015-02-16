@@ -737,7 +737,7 @@ ProgressManager::~ProgressManager()
 {
 }
 
-QObject *ProgressManager::instance()
+ProgressManager *ProgressManager::instance()
 {
     return m_instance;
 }
