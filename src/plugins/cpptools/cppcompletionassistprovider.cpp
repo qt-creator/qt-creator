@@ -57,7 +57,7 @@ bool CppCompletionAssistProvider::isActivationCharSequence(const QString &sequen
     const QChar &ch  = sequence.at(2);
     const QChar &ch2 = sequence.at(1);
     const QChar &ch3 = sequence.at(0);
-    if (activationSequenceChar(ch, ch2, ch3, 0, true) != 0)
+    if (activationSequenceChar(ch, ch2, ch3, 0, true, false) != 0)
         return true;
     return false;
 }
@@ -71,7 +71,8 @@ int CppCompletionAssistProvider::activationSequenceChar(const QChar &ch,
                                                         const QChar &ch2,
                                                         const QChar &ch3,
                                                         unsigned *kind,
-                                                        bool wantFunctionCall)
+                                                        bool wantFunctionCall,
+                                                        bool wantQt5SignalSlots)
 {
     int referencePosition = 0;
     int completionKind = T_EOF_SYMBOL;
@@ -135,6 +136,12 @@ int CppCompletionAssistProvider::activationSequenceChar(const QChar &ch,
     case '#':
         completionKind = T_POUND;
         referencePosition = 1;
+        break;
+    case '&':
+        if (wantQt5SignalSlots) {
+            completionKind = T_AMPER;
+            referencePosition = 1;
+        }
         break;
     }
 

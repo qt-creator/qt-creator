@@ -283,7 +283,8 @@ enum Kind {
     T___VOLATILE = T_VOLATILE,
     T___VOLATILE__ = T_VOLATILE,
 
-    T___ATTRIBUTE = T___ATTRIBUTE__
+    T___ATTRIBUTE = T___ATTRIBUTE__,
+    T_LAST_TOKEN
 };
 
 class CPLUSPLUS_EXPORT Token

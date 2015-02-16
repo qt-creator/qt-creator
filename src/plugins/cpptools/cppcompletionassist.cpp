@@ -596,6 +596,34 @@ bool isQPrivateSignal(const Symbol *symbol)
     return false;
 }
 
+QString createQt4SignalOrSlot(CPlusPlus::Function *function, const Overview &overview)
+{
+    QString signature;
+    signature += Overview().prettyName(function->name());
+    signature += QLatin1Char('(');
+    for (unsigned i = 0, to = function->argumentCount(); i < to; ++i) {
+        Symbol *arg = function->argumentAt(i);
+        if (isQPrivateSignal(arg))
+            continue;
+        if (i != 0)
+            signature += QLatin1Char(',');
+        signature += overview.prettyType(arg->type());
+    }
+    signature += QLatin1Char(')');
+
+    const QByteArray normalized = QMetaObject::normalizedSignature(signature.toUtf8());
+    return QString::fromUtf8(normalized, normalized.size());
+}
+
+QString createQt5SignalOrSlot(CPlusPlus::Function *function, Class *klass)
+{
+    QString text;
+    text += Overview().prettyName(klass->name());
+    text += QLatin1String("::");
+    text += Overview().prettyName(function->name());
+    return text;
+}
+
 } // Anonymous
 
 // ------------------------------------
@@ -745,7 +773,8 @@ int InternalCppCompletionAssistProcessor::startOfOperator(int pos,
     const QChar ch2 = pos >  0 ? m_interface->characterAt(pos - 2) : QChar();
     const QChar ch3 = pos >  1 ? m_interface->characterAt(pos - 3) : QChar();
 
-    int start = pos - CppCompletionAssistProvider::activationSequenceChar(ch, ch2, ch3, kind, wantFunctionCall);
+    int start = pos - CppCompletionAssistProvider::activationSequenceChar(ch, ch2, ch3, kind,
+        wantFunctionCall, /*wantQt5SignalSlots*/ true);
     if (start != pos) {
         QTextCursor tc(m_interface->textDocument());
         tc.setPosition(pos);
@@ -776,7 +805,13 @@ int InternalCppCompletionAssistProcessor::startOfOperator(int pos,
         const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1)); // get the token at the left of the cursor
         const Token tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
 
-        if (*kind == T_DOXY_COMMENT && !(tk.is(T_DOXY_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))) {
+        if (*kind == T_AMPER && tokenIdx > 0) {
+            const Token &previousToken = tokens.at(tokenIdx - 1);
+            if (previousToken.kind() == T_COMMA) {
+                start = pos - (tk.utf16charOffset - previousToken.utf16charOffset) - 1;
+                QTC_CHECK(m_interface->characterAt(start) == QLatin1Char(','));
+            }
+        } else if (*kind == T_DOXY_COMMENT && !(tk.is(T_DOXY_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))) {
             *kind = T_EOF_SYMBOL;
             start = pos;
         }
@@ -836,7 +871,8 @@ int InternalCppCompletionAssistProcessor::startOfOperator(int pos,
                     const QChar ch4  = start > -1 ? m_interface->characterAt(start - 1) : QChar();
                     const QChar ch5 = start >  0 ? m_interface->characterAt(start - 2) : QChar();
                     const QChar ch6 = start >  1 ? m_interface->characterAt(start - 3) : QChar();
-                    start = start - CppCompletionAssistProvider::activationSequenceChar(ch4, ch5, ch6, kind, wantFunctionCall);
+                    start = start - CppCompletionAssistProvider::activationSequenceChar(
+                                        ch4, ch5, ch6, kind, wantFunctionCall, false);
                 }
             }
         }
@@ -857,6 +893,18 @@ int InternalCppCompletionAssistProcessor::findStartOfName(int pos) const
     } while (CppTools::isValidIdentifierChar(chr));
 
     return pos + 1;
+}
+
+static bool isPrecededByConnectAndOpenParenthesis(
+        const CppCompletionAssistInterface *assistInterface,
+        int startOfExpression)
+{
+    QTC_ASSERT(startOfExpression >= 0, return false);
+
+    int beforeExpression = startOfExpression;
+    while (beforeExpression > 0 && assistInterface->characterAt(--beforeExpression).isSpace()) ;
+    const int pos = beforeExpression - 7;
+    return pos >= 0 && assistInterface->textAt(pos, 7) == QLatin1String("connect");
 }
 
 int InternalCppCompletionAssistProcessor::startCompletionHelper()
@@ -929,7 +977,12 @@ int InternalCppCompletionAssistProcessor::startCompletionHelper()
         expression = expressionUnderCursor(tc);
         startOfExpression = endOfExpression - expression.length();
 
-        if (m_model->m_completionOperator == T_LPAREN) {
+        if (m_model->m_completionOperator == T_AMPER) {
+            m_model->m_completionOperator
+                = isPrecededByConnectAndOpenParenthesis(m_interface.data(), startOfExpression)
+                    ? CompleteQt5SignalTrigger
+                    : CompleteQtSlotTrigger;
+        } else if (m_model->m_completionOperator == T_LPAREN) {
             if (expression.endsWith(QLatin1String("SIGNAL"))) {
                 m_model->m_completionOperator = T_SIGNAL;
             } else if (expression.endsWith(QLatin1String("SLOT"))) {
@@ -1276,12 +1329,22 @@ int InternalCppCompletionAssistProcessor::startCompletionInternal(const QString 
         break;
 
     case T_SIGNAL:
-        if (completeSignal(results))
+        if (completeQtMethod(results, CompleteQt4Signals))
             return m_startPosition;
         break;
 
     case T_SLOT:
-        if (completeSlot(results))
+        if (completeQtMethod(results, CompleteQt4Slots))
+            return m_startPosition;
+        break;
+
+    case CompleteQt5SignalTrigger:
+        if (completeQtMethod(results, CompleteQt5Signals))
+            return m_startPosition;
+        break;
+
+    case CompleteQtSlotTrigger:
+        if (completeQtMethod(results, CompleteQt5Slots))
             return m_startPosition;
         break;
 
@@ -1581,9 +1644,8 @@ void InternalCppCompletionAssistProcessor::addClassMembersToCompletion(Scope *sc
         addClassMembersToCompletion(*cit, staticLookup);
 }
 
-bool InternalCppCompletionAssistProcessor::completeQtMethod(
-        const QList<LookupItem> &results,
-        bool wantSignals)
+bool InternalCppCompletionAssistProcessor::completeQtMethod(const QList<LookupItem> &results,
+                                                            CompleteQtMethodMode type)
 {
     if (results.isEmpty())
         return false;
@@ -1630,46 +1692,35 @@ bool InternalCppCompletionAssistProcessor::completeQtMethod(
             }
         }
 
+        const bool wantSignals = type == CompleteQt4Signals || type == CompleteQt5Signals;
+        const bool wantQt5SignalOrSlot = type == CompleteQt5Signals || type == CompleteQt5Slots;
         foreach (Scope *scope, scopes) {
-            if (!scope->isClass())
+            Class *klass = scope->asClass();
+            if (!klass)
                 continue;
 
             for (unsigned i = 0; i < scope->memberCount(); ++i) {
                 Symbol *member = scope->memberAt(i);
                 Function *fun = member->type()->asFunctionType();
-                if (!fun)
+                if (!fun || fun->isGenerated())
                     continue;
                 if (wantSignals && !fun->isSignal())
                     continue;
-                else if (!wantSignals && !fun->isSlot())
+                else if (!wantSignals && type == CompleteQt4Slots && !fun->isSlot())
                     continue;
 
                 unsigned count = fun->argumentCount();
                 while (true) {
-                    QString signature;
-                    signature += Overview().prettyName(fun->name());
-                    signature += QLatin1Char('(');
-                    for (unsigned i = 0; i < count; ++i) {
-                        Symbol *arg = fun->argumentAt(i);
-                        if (isQPrivateSignal(arg))
-                            continue;
-                        if (i != 0)
-                            signature += QLatin1Char(',');
-                        signature += o.prettyType(arg->type());
-                    }
-                    signature += QLatin1Char(')');
+                    const QString completionText = wantQt5SignalOrSlot
+                            ? createQt5SignalOrSlot(fun, klass)
+                            : createQt4SignalOrSlot(fun, o);
 
-                    const QByteArray normalized =
-                            QMetaObject::normalizedSignature(signature.toUtf8());
-
-                    signature = QString::fromUtf8(normalized, normalized.size());
-
-                    if (!signatures.contains(signature)) {
+                    if (!signatures.contains(completionText)) {
                         AssistProposalItem *ci = toCompletionItem(fun);
                         if (!ci)
                             break;
-                        signatures.insert(signature);
-                        ci->setText(signature); // fix the completion item.
+                        signatures.insert(completionText);
+                        ci->setText(completionText); // fix the completion item.
                         m_completions.append(ci);
                     }
 

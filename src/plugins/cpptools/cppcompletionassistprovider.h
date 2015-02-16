@@ -65,7 +65,7 @@ public:
 
     static int activationSequenceChar(const QChar &ch, const QChar &ch2,
                                       const QChar &ch3, unsigned *kind,
-                                      bool wantFunctionCall);
+                                      bool wantFunctionCall, bool wantQt5SignalSlots);
 };
 
 } // namespace CppTools

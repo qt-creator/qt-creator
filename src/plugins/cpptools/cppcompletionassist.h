@@ -132,11 +132,13 @@ private:
     void completeNamespace(CPlusPlus::ClassOrNamespace *binding);
     void completeClass(CPlusPlus::ClassOrNamespace *b, bool staticLookup = true);
     void addClassMembersToCompletion(CPlusPlus::Scope *scope, bool staticLookup);
-    bool completeQtMethod(const QList<CPlusPlus::LookupItem> &results, bool wantSignals);
-    bool completeSignal(const QList<CPlusPlus::LookupItem> &results)
-    { return completeQtMethod(results, true); }
-    bool completeSlot(const QList<CPlusPlus::LookupItem> &results)
-    { return completeQtMethod(results, false); }
+    enum CompleteQtMethodMode {
+        CompleteQt4Signals,
+        CompleteQt4Slots,
+        CompleteQt5Signals,
+        CompleteQt5Slots,
+    };
+    bool completeQtMethod(const QList<CPlusPlus::LookupItem> &results, CompleteQtMethodMode type);
     void globalCompletion(CPlusPlus::Scope *scope);
 
     void addCompletionItem(const QString &text,
@@ -152,6 +154,10 @@ private:
                           QSet<QString> *processed,
                           QSet<QString> *definedMacros);
 
+    enum {
+        CompleteQt5SignalTrigger = CPlusPlus::T_LAST_TOKEN + 1,
+        CompleteQtSlotTrigger
+    };
     CPlusPlus::LanguageFeatures m_languageFeatures;
     QScopedPointer<const CppCompletionAssistInterface> m_interface;
     QScopedPointer<CppAssistProposalModel> m_model;
