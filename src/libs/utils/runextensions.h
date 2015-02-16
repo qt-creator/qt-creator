@@ -424,7 +424,7 @@ QFuture<T> run(void (Class::*fn)(QFutureInterface<T> &, Arg1, Arg2, Arg3, Arg4, 
 template <typename T>
 QFuture<T> run(const std::function<void (QFutureInterface<T> &)> &fn)
 {
-    return (new StoredInterfaceFunctionCall0<T, std::function<void (QFutureInterface<T>)>>(fn))->start();
+    return (new StoredInterfaceFunctionCall0<T, std::function<void (QFutureInterface<T> &)>>(fn))->start();
 }
 
 } // namespace QtConcurrent
