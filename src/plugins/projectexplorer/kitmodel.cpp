@@ -292,8 +292,8 @@ KitNode *KitModel::createNode(Kit *k)
                 || m_manualRoot->children().contains(node))
             node->update();
     });
-    connect(node->widget, SIGNAL(isAutoDetectedChanged()),
-            this, SLOT(isAutoDetectedChanged()));
+    connect(node->widget, &KitManagerConfigWidget::isAutoDetectedChanged,
+            this, &KitModel::isAutoDetectedChanged);
 
     return node;
 }
