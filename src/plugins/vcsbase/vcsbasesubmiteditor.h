@@ -147,7 +147,6 @@ private slots:
     void slotInsertNickName();
     void slotSetFieldNickName(int);
     void slotUpdateEditorSettings(const VcsBase::Internal::CommonVcsSettings &);
-    void slotRefreshCommitData();
 
 protected:
     /* These hooks allow for modifying the contents that goes to

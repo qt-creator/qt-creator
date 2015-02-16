@@ -203,8 +203,10 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
     d->m_file->setModified(false);
     // We are always clean to prevent the editor manager from asking to save.
 
-    connect(d->m_widget, SIGNAL(diffSelected(QList<int>)), this, SLOT(slotDiffSelectedVcsFiles(QList<int>)));
-    connect(descriptionEdit, SIGNAL(textChanged()), this, SLOT(slotDescriptionChanged()));
+    connect(d->m_widget, &SubmitEditorWidget::diffSelected,
+            this, &VcsBaseSubmitEditor::slotDiffSelectedVcsFiles);
+    connect(descriptionEdit, &QTextEdit::textChanged,
+            this, &VcsBaseSubmitEditor::slotDescriptionChanged);
 
     const CommonVcsSettings settings = VcsPlugin::instance()->settings();
     // Add additional context menu settings
@@ -215,13 +217,14 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
         // Run check action
         if (!settings.submitMessageCheckScript.isEmpty()) {
             auto checkAction = new QAction(tr("Check Message"), this);
-            connect(checkAction, SIGNAL(triggered()), this, SLOT(slotCheckSubmitMessage()));
+            connect(checkAction, &QAction::triggered,
+                    this, &VcsBaseSubmitEditor::slotCheckSubmitMessage);
             d->m_widget->addDescriptionEditContextMenuAction(checkAction);
         }
         // Insert nick
         if (!settings.nickNameMailMap.isEmpty()) {
             auto insertAction = new QAction(tr("Insert Name..."), this);
-            connect(insertAction, SIGNAL(triggered()), this, SLOT(slotInsertNickName()));
+            connect(insertAction, &QAction::triggered, this, &VcsBaseSubmitEditor::slotInsertNickName);
             d->m_widget->addDescriptionEditContextMenuAction(insertAction);
         }
     }
@@ -231,14 +234,19 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
 
     // wrapping. etc
     slotUpdateEditorSettings(settings);
-    connect(VcsPlugin::instance(),
-            SIGNAL(settingsChanged(VcsBase::Internal::CommonVcsSettings)),
-            this, SLOT(slotUpdateEditorSettings(VcsBase::Internal::CommonVcsSettings)));
+    connect(VcsPlugin::instance(), &VcsPlugin::settingsChanged,
+            this, &VcsBaseSubmitEditor::slotUpdateEditorSettings);
     // Commit data refresh might lead to closing the editor, so use a queued connection
-    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(slotRefreshCommitData()), Qt::QueuedConnection);
-    connect(Core::ICore::mainWindow(), SIGNAL(windowActivated()),
-            this, SLOT(slotRefreshCommitData()), Qt::QueuedConnection);
+    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
+            this, [this]() {
+                if (Core::EditorManager::currentEditor() == this)
+                    updateFileModel();
+            }, Qt::QueuedConnection);
+    connect(qApp, &QApplication::applicationStateChanged,
+            this, [this](Qt::ApplicationState state) {
+                if (state == Qt::ApplicationActive)
+                    updateFileModel();
+            }, Qt::QueuedConnection);
 
     auto aggregate = new Aggregation::Aggregate;
     aggregate->add(new Core::BaseTextFind(descriptionEdit));
@@ -256,12 +264,6 @@ void VcsBaseSubmitEditor::slotUpdateEditorSettings(const CommonVcsSettings &s)
 {
     setLineWrapWidth(s.lineWrapWidth);
     setLineWrap(s.lineWrap);
-}
-
-void VcsBaseSubmitEditor::slotRefreshCommitData()
-{
-    if (Core::EditorManager::currentEditor() == this)
-        updateFileModel();
 }
 
 // Return a trimmed list of non-empty field texts
@@ -291,8 +293,8 @@ void VcsBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
     auto completer = new QCompleter(NickNameDialog::nickNameList(nickNameModel), this);
 
     auto fieldWidget = new SubmitFieldWidget;
-    connect(fieldWidget, SIGNAL(browseButtonClicked(int,QString)),
-            this, SLOT(slotSetFieldNickName(int)));
+    connect(fieldWidget, &SubmitFieldWidget::browseButtonClicked,
+            this, &VcsBaseSubmitEditor::slotSetFieldNickName);
     fieldWidget->setCompleter(completer);
     fieldWidget->setAllowDuplicateFields(true);
     fieldWidget->setHasBrowseButton(true);
