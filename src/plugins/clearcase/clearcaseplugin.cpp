@@ -55,7 +55,7 @@
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/locator/commandlocator.h>
-#include <projectexplorer/projecttree.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/iprojectmanager.h>
 #include <utils/algorithm.h>
@@ -195,6 +195,11 @@ ClearCasePlugin::ClearCasePlugin() :
   #endif
 {
     qRegisterMetaType<ClearCase::Internal::FileStatus::Status>("ClearCase::Internal::FileStatus::Status");
+    connect(qApp, &QApplication::applicationStateChanged,
+            this, [this](Qt::ApplicationState state) {
+                if (state == Qt::ApplicationActive)
+                    syncSlot();
+            });
 }
 
 ClearCasePlugin::~ClearCasePlugin()
@@ -454,7 +459,7 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     m_settings.fromSettings(ICore::settings());
 
     // update view name when changing active project
-    connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
+    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
             this, &ClearCasePlugin::projectChanged);
 
     addAutoReleasedObject(new SettingsPage);
@@ -2028,7 +2033,6 @@ void ClearCasePlugin::projectChanged(Project *project)
     m_viewData = ViewData();
     m_stream.clear();
     m_intStream.clear();
-    disconnect(ICore::mainWindow(), SIGNAL(windowActivated()), this, SLOT(syncSlot()));
     ProgressManager::cancelTasks(ClearCase::Constants::TASK_INDEX);
     if (project) {
         QString projDir = project->projectDirectory().toString();
@@ -2056,7 +2060,7 @@ void ClearCasePlugin::updateIndex()
 {
     QTC_ASSERT(currentState().hasTopLevel(), return);
     ProgressManager::cancelTasks(ClearCase::Constants::TASK_INDEX);
-    Project *project = ProjectTree::currentProject();
+    Project *project = SessionManager::startupProject();
     if (!project)
         return;
     m_checkInAllAction->setEnabled(false);
@@ -2207,7 +2211,7 @@ void ClearCasePlugin::closing()
 {
     // prevent syncSlot from being called on shutdown
     ProgressManager::cancelTasks(ClearCase::Constants::TASK_INDEX);
-    disconnect(ICore::mainWindow(), SIGNAL(windowActivated()), this, SLOT(syncSlot()));
+    disconnect(qApp, &QApplication::applicationStateChanged, 0, 0);
 }
 
 void ClearCasePlugin::sync(QFutureInterface<void> &future, QStringList files)
