@@ -21,6 +21,7 @@
 
 #include <QString>
 #include <QColor>
+#include <QMetaType>
 
 namespace Autotest {
 namespace Internal {
