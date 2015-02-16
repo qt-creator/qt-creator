@@ -187,6 +187,9 @@ public:
                 lineText += AndroidDeviceDialog::tr("ABI:") + device.cpuAbi.join(QLatin1Char(' '));
             } else {
                 lineText = node->incompatibleReason();
+                QFont f = painter->font();
+                f.setBold(true);
+                painter->setFont(f);
             }
             painter->drawText(size + 12, opt.rect.top() + fm.ascent() + fm.height() + 6, lineText);
         }
