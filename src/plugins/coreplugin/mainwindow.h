@@ -111,7 +111,6 @@ public:
     bool isNewItemDialogRunning() const;
 
 signals:
-    void windowActivated();
     void newItemDialogRunningChanged();
 
 public slots:
@@ -133,7 +132,6 @@ public slots:
                                 QWidget *parent = 0);
 
 protected:
-    virtual void changeEvent(QEvent *e);
     virtual void closeEvent(QCloseEvent *event);
 
 private slots:

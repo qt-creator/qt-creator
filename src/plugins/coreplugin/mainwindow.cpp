@@ -894,18 +894,6 @@ void MainWindow::removeContextObject(IContext *context)
         updateContextObject(m_activeContext);
 }
 
-void MainWindow::changeEvent(QEvent *e)
-{
-    QMainWindow::changeEvent(e);
-    if (e->type() == QEvent::ActivationChange) {
-        if (isActiveWindow()) {
-            if (debugMainWindow)
-                qDebug() << "main window activated";
-            emit windowActivated();
-        }
-    }
-}
-
 void MainWindow::updateFocusWidget(QWidget *old, QWidget *now)
 {
     Q_UNUSED(old)
