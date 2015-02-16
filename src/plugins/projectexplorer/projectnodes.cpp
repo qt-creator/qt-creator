@@ -187,11 +187,6 @@ QList<ProjectAction> Node::supportedActions(Node *node) const
     return list;
 }
 
-void Node::setNodeType(NodeType type)
-{
-    m_nodeType = type;
-}
-
 void Node::setProjectNode(ProjectNode *project)
 {
     m_projectNode = project;
@@ -543,9 +538,8 @@ int VirtualFolderNode::priority() const
   Creates an uninitialized project node object.
   */
 ProjectNode::ProjectNode(const Utils::FileName &projectFilePath)
-        : FolderNode(projectFilePath)
+        : FolderNode(projectFilePath, ProjectNodeType)
 {
-    setNodeType(ProjectNodeType);
     // project node "manages" itself
     setProjectNode(this);
     setDisplayName(projectFilePath.fileName());
@@ -684,9 +678,8 @@ void ProjectNode::removeProjectNodes(const QList<ProjectNode*> &subProjects)
 */
 
 SessionNode::SessionNode()
-    : FolderNode(Utils::FileName::fromString(QLatin1String("session")))
+    : FolderNode(Utils::FileName::fromString(QLatin1String("session")), SessionNodeType)
 {
-    setNodeType(SessionNodeType);
 }
 
 QList<ProjectAction> SessionNode::supportedActions(Node *node) const

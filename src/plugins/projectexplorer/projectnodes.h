@@ -127,7 +127,6 @@ public:
 protected:
     Node(NodeType nodeType, const Utils::FileName &path, int line = -1);
 
-    void setNodeType(NodeType type);
     void setProjectNode(ProjectNode *project);
     void setParentFolderNode(FolderNode *parentFolder);
 
