@@ -372,19 +372,19 @@ void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr document)
             TestTreeItem item = constructTestTreeItem(declaringDoc->fileName(), QString(),
                                                       testCaseName, line, column, testFunctions);
             updateModelAndCppDocMap(document, declaringDoc->fileName(), item);
-        } else {
-            // could not find the class to test, but QTest is included and QT_TESTLIB_LIB defined
-            // maybe file is only a referenced file
-            if (m_cppDocMap.contains(fileName)) {
-                const TestInfo info = m_cppDocMap[fileName];
-                CPlusPlus::Snapshot snapshot = modelManager->snapshot();
-                if (snapshot.contains(info.referencingFile())) {
-                    checkDocumentForTestCode(snapshot.find(info.referencingFile()).value());
-                } else { // no referencing file too, so this test case is no more a test case
-                    m_cppDocMap.remove(fileName);
-                    emit testItemsRemoved(fileName, TestTreeModel::AutoTest);
-                }
-            }
+            return;
+        }
+    }
+    // could not find the class to test, or QTest is not included and QT_TESTLIB_LIB defined
+    // maybe file is only a referenced file
+    if (m_cppDocMap.contains(fileName)) {
+        const TestInfo info = m_cppDocMap[fileName];
+        CPlusPlus::Snapshot snapshot = modelManager->snapshot();
+        if (snapshot.contains(info.referencingFile())) {
+            checkDocumentForTestCode(snapshot.find(info.referencingFile()).value());
+        } else { // no referencing file too, so this test case is no more a test case
+            m_cppDocMap.remove(fileName);
+            emit testItemsRemoved(fileName, TestTreeModel::AutoTest);
         }
     }
 }
