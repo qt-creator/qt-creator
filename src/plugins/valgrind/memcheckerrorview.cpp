@@ -288,7 +288,7 @@ MemcheckErrorView::MemcheckErrorView(QWidget *parent)
 
     m_suppressAction = new QAction(this);
     m_suppressAction->setText(tr("Suppress Error"));
-    m_suppressAction->setIcon(QIcon(QLatin1String(":/qmldesigner/images/eye_crossed.png")));
+    m_suppressAction->setIcon(QIcon(QLatin1String(":/valgrind/images/eye_crossed.png")));
     m_suppressAction->setShortcut(QKeySequence(Qt::Key_Delete));
     m_suppressAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     connect(m_suppressAction, &QAction::triggered, this, &MemcheckErrorView::suppressError);

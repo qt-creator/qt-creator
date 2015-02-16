@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/valgrind">
+        <file>images/eye_crossed.png</file>
+    </qresource>
+</RCC>

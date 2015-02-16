@@ -55,3 +55,5 @@ SOURCES += \
 FORMS += \
     valgrindconfigwidget.ui
 
+RESOURCES += \
+    valgrind.qrc
