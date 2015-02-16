@@ -92,8 +92,8 @@ QActionPushButton::QActionPushButton(QAction *a) :
     setIcon(a->icon());
     setText(a->text());
     setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    connect(a, SIGNAL(changed()), this, SLOT(actionChanged()));
-    connect(this, SIGNAL(clicked()), a, SLOT(trigger()));
+    connect(a, &QAction::changed, this, &QActionPushButton::actionChanged);
+    connect(this, &QAbstractButton::clicked, a, &QAction::trigger);
     setEnabled(a->isEnabled());
 }
 
@@ -185,22 +185,22 @@ SubmitEditorWidget::SubmitEditorWidget() :
     d->m_ui.description->setContextMenuPolicy(Qt::CustomContextMenu);
     d->m_ui.description->setLineWrapMode(QTextEdit::NoWrap);
     d->m_ui.description->setWordWrapMode(QTextOption::WordWrap);
-    connect(d->m_ui.description, SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(editorCustomContextMenuRequested(QPoint)));
-    connect(d->m_ui.description, SIGNAL(textChanged()),
-            this, SLOT(descriptionTextChanged()));
+    connect(d->m_ui.description, &QWidget::customContextMenuRequested,
+            this, &SubmitEditorWidget::editorCustomContextMenuRequested);
+    connect(d->m_ui.description, &QTextEdit::textChanged,
+            this, &SubmitEditorWidget::descriptionTextChanged);
 
     // File List
     d->m_ui.fileView->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(d->m_ui.fileView, SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(fileListCustomContextMenuRequested(QPoint)));
+    connect(d->m_ui.fileView, &QWidget::customContextMenuRequested,
+            this, &SubmitEditorWidget::fileListCustomContextMenuRequested);
     d->m_ui.fileView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     d->m_ui.fileView->setRootIsDecorated(false);
-    connect(d->m_ui.fileView, SIGNAL(doubleClicked(QModelIndex)),
-            this, SLOT(diffActivated(QModelIndex)));
+    connect(d->m_ui.fileView, &QAbstractItemView::doubleClicked,
+            this, &SubmitEditorWidget::diffActivated);
 
-    connect(d->m_ui.checkAllCheckBox, SIGNAL(stateChanged(int)),
-            this, SLOT(checkAllToggled()));
+    connect(d->m_ui.checkAllCheckBox, &QCheckBox::stateChanged,
+            this, &SubmitEditorWidget::checkAllToggled);
 
     setFocusPolicy(Qt::StrongFocus);
     setFocusProxy(d->m_ui.description);
@@ -216,13 +216,15 @@ void SubmitEditorWidget::registerActions(QAction *editorUndoAction, QAction *edi
 {
     if (editorUndoAction) {
         editorUndoAction->setEnabled(d->m_ui.description->document()->isUndoAvailable());
-        connect(d->m_ui.description, SIGNAL(undoAvailable(bool)), editorUndoAction, SLOT(setEnabled(bool)));
-        connect(editorUndoAction, SIGNAL(triggered()), d->m_ui.description, SLOT(undo()));
+        connect(d->m_ui.description, &QTextEdit::undoAvailable,
+                editorUndoAction, &QAction::setEnabled);
+        connect(editorUndoAction, &QAction::triggered, d->m_ui.description, &QTextEdit::undo);
     }
     if (editorRedoAction) {
         editorRedoAction->setEnabled(d->m_ui.description->document()->isRedoAvailable());
-        connect(d->m_ui.description, SIGNAL(redoAvailable(bool)), editorRedoAction, SLOT(setEnabled(bool)));
-        connect(editorRedoAction, SIGNAL(triggered()), d->m_ui.description, SLOT(redo()));
+        connect(d->m_ui.description, &QTextEdit::redoAvailable,
+                editorRedoAction, &QAction::setEnabled);
+        connect(editorRedoAction, &QAction::triggered, d->m_ui.description, &QTextEdit::redo);
     }
 
     if (submitAction) {
@@ -232,24 +234,27 @@ void SubmitEditorWidget::registerActions(QAction *editorUndoAction, QAction *edi
             qDebug() << Q_FUNC_INFO << submitAction << count << "items";
         }
         d->m_commitEnabled = !canSubmit();
-        connect(this, SIGNAL(submitActionEnabledChanged(bool)), submitAction, SLOT(setEnabled(bool)));
+        connect(this, &SubmitEditorWidget::submitActionEnabledChanged,
+                submitAction, &QAction::setEnabled);
         // Wire setText via QActionSetTextSlotHelper.
-        QActionSetTextSlotHelper *actionSlotHelper = submitAction->findChild<QActionSetTextSlotHelper *>();
+        QActionSetTextSlotHelper *actionSlotHelper
+                = submitAction->findChild<QActionSetTextSlotHelper *>();
         if (!actionSlotHelper)
             actionSlotHelper = new QActionSetTextSlotHelper(submitAction);
-        connect(this, SIGNAL(submitActionTextChanged(QString)), actionSlotHelper, SLOT(setText(QString)));
+        connect(this, &SubmitEditorWidget::submitActionTextChanged,
+                actionSlotHelper, &QActionSetTextSlotHelper::setText);
         d->m_submitButton = new QActionPushButton(submitAction);
         d->m_ui.buttonLayout->addWidget(d->m_submitButton);
         if (!d->m_submitShortcut)
             d->m_submitShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Return), this);
-        connect(d->m_submitShortcut, SIGNAL(activated()), submitAction, SLOT(trigger()));
+        connect(d->m_submitShortcut, &QShortcut::activated, submitAction, &QAction::trigger);
     }
     if (diffAction) {
         if (debug)
             qDebug() << diffAction << d->m_filesSelected;
         diffAction->setEnabled(d->m_filesSelected);
-        connect(this, SIGNAL(fileSelectionChanged(bool)), diffAction, SLOT(setEnabled(bool)));
-        connect(diffAction, SIGNAL(triggered()), this, SLOT(triggerDiffSelected()));
+        connect(this, &SubmitEditorWidget::fileSelectionChanged, diffAction, &QAction::setEnabled);
+        connect(diffAction, &QAction::triggered, this, &SubmitEditorWidget::triggerDiffSelected);
         d->m_ui.buttonLayout->addWidget(new QActionPushButton(diffAction));
     }
 }
@@ -258,23 +263,30 @@ void SubmitEditorWidget::unregisterActions(QAction *editorUndoAction,  QAction *
                                            QAction *submitAction, QAction *diffAction)
 {
     if (editorUndoAction) {
-        disconnect(d->m_ui.description, SIGNAL(undoAvailableChanged(bool)), editorUndoAction, SLOT(setEnabled(bool)));
-        disconnect(editorUndoAction, SIGNAL(triggered()), d->m_ui.description, SLOT(undo()));
+        disconnect(d->m_ui.description, &Utils::CompletingTextEdit::undoAvailable,
+                   editorUndoAction, &QAction::setEnabled);
+        disconnect(editorUndoAction, &QAction::triggered,
+                   d->m_ui.description, &Utils::CompletingTextEdit::undo);
     }
     if (editorRedoAction) {
-        disconnect(d->m_ui.description, SIGNAL(redoAvailableChanged(bool)), editorRedoAction, SLOT(setEnabled(bool)));
-        disconnect(editorRedoAction, SIGNAL(triggered()), d->m_ui.description, SLOT(redo()));
+        disconnect(d->m_ui.description, &Utils::CompletingTextEdit::redoAvailable,
+                   editorRedoAction, &QAction::setEnabled);
+        disconnect(editorRedoAction, &QAction::triggered,
+                   d->m_ui.description, &Utils::CompletingTextEdit::redo);
     }
 
     if (submitAction) {
-        disconnect(this, SIGNAL(submitActionEnabledChanged(bool)), submitAction, SLOT(setEnabled(bool)));
+        disconnect(this, &SubmitEditorWidget::submitActionEnabledChanged,
+                   submitAction, &QAction::setEnabled);
         // Just deactivate the QActionSetTextSlotHelper on the action
-        disconnect(this, SIGNAL(submitActionTextChanged(QString)), 0, 0);
+        disconnect(this, &SubmitEditorWidget::submitActionTextChanged, 0, 0);
     }
 
     if (diffAction) {
-         disconnect(this, SIGNAL(fileSelectionChanged(bool)), diffAction, SLOT(setEnabled(bool)));
-         disconnect(diffAction, SIGNAL(triggered()), this, SLOT(triggerDiffSelected()));
+         disconnect(this, &SubmitEditorWidget::fileSelectionChanged,
+                    diffAction, &QAction::setEnabled);
+         disconnect(diffAction, &QAction::triggered,
+                    this, &SubmitEditorWidget::triggerDiffSelected);
     }
 }
 
@@ -287,7 +299,9 @@ void SubmitEditorWidget::trimDescription()
     // Trim back of string.
     const int last = d->m_description.size() - 1;
     int lastWordCharacter = last;
-    for ( ; lastWordCharacter >= 0 && d->m_description.at(lastWordCharacter).isSpace() ; lastWordCharacter--) ;
+    for ( ; lastWordCharacter >= 0 && d->m_description.at(lastWordCharacter).isSpace() ;
+          lastWordCharacter--)
+    { }
     if (lastWordCharacter != last)
         d->m_description.truncate(lastWordCharacter + 1);
     d->m_description += QLatin1Char('\n');
@@ -406,20 +420,20 @@ void SubmitEditorWidget::setFileModel(SubmitFileModel *model)
             d->m_ui.fileView->resizeColumnToContents(c);
     }
 
-    connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            this, SLOT(updateSubmitAction()));
-    connect(model, SIGNAL(modelReset()),
-            this, SLOT(updateSubmitAction()));
-    connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            this, SLOT(updateCheckAllComboBox()));
-    connect(model, SIGNAL(modelReset()),
-            this, SLOT(updateCheckAllComboBox()));
-    connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-            this, SLOT(updateSubmitAction()));
-    connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-            this, SLOT(updateSubmitAction()));
-    connect(d->m_ui.fileView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(updateDiffAction()));
+    connect(model, &QAbstractItemModel::dataChanged,
+            this, &SubmitEditorWidget::updateSubmitAction);
+    connect(model, &QAbstractItemModel::modelReset,
+            this, &SubmitEditorWidget::updateSubmitAction);
+    connect(model, &QAbstractItemModel::dataChanged,
+            this, &SubmitEditorWidget::updateCheckAllComboBox);
+    connect(model, &QAbstractItemModel::modelReset,
+            this, &SubmitEditorWidget::updateCheckAllComboBox);
+    connect(model, &QAbstractItemModel::rowsInserted,
+            this, &SubmitEditorWidget::updateSubmitAction);
+    connect(model, &QAbstractItemModel::rowsRemoved,
+            this, &SubmitEditorWidget::updateSubmitAction);
+    connect(d->m_ui.fileView->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &SubmitEditorWidget::updateDiffAction);
     updateActions();
 }
 
@@ -616,19 +630,22 @@ QList<SubmitFieldWidget *> SubmitEditorWidget::submitFieldWidgets() const
 
 void SubmitEditorWidget::addDescriptionEditContextMenuAction(QAction *a)
 {
-    d->descriptionEditContextMenuActions.push_back(SubmitEditorWidgetPrivate::AdditionalContextMenuAction(-1, a));
+    d->descriptionEditContextMenuActions
+            .push_back(SubmitEditorWidgetPrivate::AdditionalContextMenuAction(-1, a));
 }
 
 void SubmitEditorWidget::insertDescriptionEditContextMenuAction(int pos, QAction *a)
 {
-    d->descriptionEditContextMenuActions.push_back(SubmitEditorWidgetPrivate::AdditionalContextMenuAction(pos, a));
+    d->descriptionEditContextMenuActions
+            .push_back(SubmitEditorWidgetPrivate::AdditionalContextMenuAction(pos, a));
 }
 
 void SubmitEditorWidget::editorCustomContextMenuRequested(const QPoint &pos)
 {
     QScopedPointer<QMenu> menu(d->m_ui.description->createStandardContextMenu());
     // Extend
-    foreach (const SubmitEditorWidgetPrivate::AdditionalContextMenuAction &a, d->descriptionEditContextMenuActions) {
+    foreach (const SubmitEditorWidgetPrivate::AdditionalContextMenuAction &a,
+             d->descriptionEditContextMenuActions) {
         if (a.second) {
             if (a.first >= 0)
                 menu->insertAction(menu->actions().at(a.first), a.second);
