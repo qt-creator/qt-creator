@@ -112,23 +112,6 @@ enum QmakeVariable {
     IsoIconsVar
 };
 
-// Import base classes into namespace
-using ProjectExplorer::Node;
-using ProjectExplorer::FileNode;
-using ProjectExplorer::FolderNode;
-using ProjectExplorer::ProjectNode;
-
-// Import enums into namespace
-using ProjectExplorer::NodeType;
-using ProjectExplorer::FileNodeType;
-using ProjectExplorer::FolderNodeType;
-using ProjectExplorer::ProjectNodeType;
-
-using ProjectExplorer::UnknownFileType;
-using ProjectExplorer::ProjectFileType;
-
-using ProjectExplorer::FileType;
-
 namespace Internal {
 class QmakePriFile;
 struct InternalNode;
