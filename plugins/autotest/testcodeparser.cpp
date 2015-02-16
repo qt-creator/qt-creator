@@ -485,7 +485,6 @@ void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &docume
     if (m_cppDocMap.contains(fileName)) {
         if (m_cppDocMap[fileName].revision() == document->revision()
                 && m_cppDocMap[fileName].editorRevision() == document->editorRevision()) {
-            qDebug("Skipped due revision equality"); // added to verify if this ever happens..
             return;
         }
     } else if (!project->files(ProjectExplorer::Project::AllFiles).contains(fileName)) {
@@ -510,7 +509,6 @@ void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
     const QString fileName = document->fileName();
     if (m_quickDocMap.contains(fileName)) {
         if ((int)m_quickDocMap[fileName].editorRevision() == document->editorRevision()) {
-            qDebug("Skipped due revision equality (QML)"); // added to verify this ever happens....
             return;
         }
     } else if (!project->files(ProjectExplorer::Project::AllFiles).contains(fileName)) {

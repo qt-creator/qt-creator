@@ -31,7 +31,6 @@
 
 #include <QSignalSpy>
 #include <QTest>
-#include <QTime>
 
 #include <coreplugin/navigationwidget.h>
 

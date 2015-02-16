@@ -801,7 +801,6 @@ QModelIndex TestTreeModel::rootIndexForType(TestTreeModel::Type type)
 }
 
 void TestTreeModel::modifyTestSubtree(QModelIndex &toBeModifiedIndex, const TestTreeItem &newItem)
-
 {
     if (!toBeModifiedIndex.isValid())
         return;

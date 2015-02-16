@@ -45,10 +45,6 @@ public:
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
 
-
-private slots:
-    void triggerAction();
-
 private:
     bool checkLicense();
     void initializeMenuEntries();

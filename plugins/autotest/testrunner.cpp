@@ -23,8 +23,6 @@
 #include "testsettings.h"
 #include "testxmloutputreader.h"
 
-#include <QDebug> // REMOVE
-
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
@@ -106,7 +104,9 @@ void TestRunner::setSelectedTests(const QList<TestConfiguration *> &selected)
      m_selectedTests = selected;
 }
 
-void performTestRun(QFutureInterface<void> &futureInterface, const QList<TestConfiguration *> selectedTests, const int timeout, const QString metricsOption, TestRunner* testRunner)
+void performTestRun(QFutureInterface<void> &futureInterface,
+                    const QList<TestConfiguration *> selectedTests, const int timeout,
+                    const QString metricsOption, TestRunner* testRunner)
 {
     int testCaseCount = 0;
     foreach (const TestConfiguration *config, selectedTests)
