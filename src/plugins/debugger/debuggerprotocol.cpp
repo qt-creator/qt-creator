@@ -64,11 +64,6 @@ void skipCommas(const char *&from, const char *to)
         ++from;
 }
 
-QTextStream &operator<<(QTextStream &os, const GdbMi &mi)
-{
-    return os << mi.toString();
-}
-
 void GdbMi::parseResultOrValue(const char *&from, const char *to)
 {
     while (from != to && isspace(*from))

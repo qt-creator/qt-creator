@@ -31,7 +31,6 @@
 #ifndef DEBUGGER_PROTOCOL_H
 #define DEBUGGER_PROTOCOL_H
 
-#include <QVariant>
 #include <QTime>
 
 #include <functional>
