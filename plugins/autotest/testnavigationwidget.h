@@ -26,11 +26,16 @@
 QT_BEGIN_NAMESPACE
 class QAction;
 class QMenu;
+class QTimer;
 class QToolButton;
 QT_END_NAMESPACE
 
 namespace Core {
 class IContext;
+}
+
+namespace Utils {
+class ProgressIndicator;
 }
 
 namespace Autotest {
@@ -60,6 +65,8 @@ private slots:
     void onRunSelectedTriggered();
     void onSortClicked();
     void onFilterMenuTriggered(QAction *action);
+    void onParsingStarted();
+    void onParsingFinished();
 
 private:
     void initializeFilterMenu();
@@ -71,7 +78,8 @@ private:
     QToolButton *m_filterButton;
     QMenu *m_filterMenu;
     bool m_sortAlphabetically;
-
+    Utils::ProgressIndicator *m_progressIndicator;
+    QTimer *m_progressTimer;
 };
 
 class TestNavigationWidgetFactory : public Core::INavigationWidgetFactory

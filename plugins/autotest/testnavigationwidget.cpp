@@ -29,7 +29,9 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <texteditor/texteditor.h>
+#include <utils/progressindicator.h>
 
+#include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
 
@@ -55,6 +57,21 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
     setLayout(layout);
 
     connect(m_view, &TestTreeView::activated, this, &TestNavigationWidget::onItemActivated);
+
+    m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicator::Medium, this);
+    m_progressIndicator->attachToWidget(m_view);
+    m_progressIndicator->hide();
+
+    m_progressTimer = new QTimer(this);
+    m_progressTimer->setSingleShot(true);
+    m_progressTimer->setInterval(100); // don't display indicator if progress takes less than 100ms
+
+    connect(m_model->parser(), &TestCodeParser::parsingStarted,
+            this, &TestNavigationWidget::onParsingStarted);
+    connect(m_model->parser(), &TestCodeParser::parsingFinished,
+            this, &TestNavigationWidget::onParsingFinished);
+    connect(m_progressTimer, &QTimer::timeout,
+            m_progressIndicator, &Utils::ProgresssIndicator::show);
 }
 
 TestNavigationWidget::~TestNavigationWidget()
@@ -176,6 +193,17 @@ void TestNavigationWidget::onFilterMenuTriggered(QAction *action)
 {
     m_sortFilterModel->toggleFilter(
         TestTreeSortFilterModel::toFilterMode(action->data().value<int>()));
+}
+
+void TestNavigationWidget::onParsingStarted()
+{
+    m_progressTimer->start();
+}
+
+void TestNavigationWidget::onParsingFinished()
+{
+    m_progressTimer->stop();
+    m_progressIndicator->hide();
 }
 
 void TestNavigationWidget::initializeFilterMenu()

@@ -70,6 +70,7 @@ signals:
     void unnamedQuickTestsUpdated(const QString &filePath, const QString &mainFile,
                                   const QMap<QString, TestCodeLocationAndType> &functions);
     void unnamedQuickTestsRemoved(const QString &filePath);
+    void parsingStarted();
     void parsingFinished();
     void partialParsingFinished();
 

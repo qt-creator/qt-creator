@@ -620,6 +620,8 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
                                              Autotest::Constants::TASK_PARSE);
     connect(progress, &Core::FutureProgress::finished,
             this, &TestCodeParser::onFinished);
+
+    emit parsingStarted();
 }
 
 void TestCodeParser::clearCache()
