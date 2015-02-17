@@ -99,6 +99,8 @@ private:
 } // Internal
 } // Utils
 
+QT_BEGIN_NAMESPACE
 Q_DECLARE_TYPEINFO(Utils::Internal::MimeMagicRule, Q_MOVABLE_TYPE);
+QT_END_NAMESPACE
 
 #endif // MIMEMAGICRULE_H

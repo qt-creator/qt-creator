@@ -61,17 +61,17 @@ public:
     MimeType();
     MimeType(const MimeType &other);
     MimeType &operator=(const MimeType &other);
-#ifdef Q_COMPILER_RVALUE_REFS
-    MimeType &operator=(MimeType &&other)
-    {
-        qSwap(d, other.d);
-        return *this;
-    }
-#endif
-    void swap(MimeType &other)
-    {
-        qSwap(d, other.d);
-    }
+//#ifdef Q_COMPILER_RVALUE_REFS
+//    MimeType &operator=(MimeType &&other)
+//    {
+//        qSwap(d, other.d);
+//        return *this;
+//    }
+//#endif
+//    void swap(MimeType &other)
+//    {
+//        qSwap(d, other.d);
+//    }
     explicit MimeType(const Internal::MimeTypePrivate &dd);
     ~MimeType();
 
@@ -118,7 +118,7 @@ protected:
 
 } // Utils
 
-Q_DECLARE_SHARED(Utils::MimeType)
+//Q_DECLARE_SHARED(Utils::MimeType)
 
 #ifndef QT_NO_DEBUG_STREAM
 QT_BEGIN_NAMESPACE
