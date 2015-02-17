@@ -928,14 +928,19 @@ void QMakeParser::flushCond(ushort *&tokPtr)
     }
 }
 
-void QMakeParser::finalizeTest(ushort *&tokPtr)
+void QMakeParser::putOperator(ushort *&tokPtr)
 {
-    flushScopes(tokPtr);
-    putLineMarker(tokPtr);
     if (m_operator != NoOperator) {
         putTok(tokPtr, (m_operator == AndOperator) ? TokAnd : TokOr);
         m_operator = NoOperator;
     }
+}
+
+void QMakeParser::finalizeTest(ushort *&tokPtr)
+{
+    flushScopes(tokPtr);
+    putLineMarker(tokPtr);
+    putOperator(tokPtr);
     if (m_invert) {
         putTok(tokPtr, TokNot);
         m_invert = false;
@@ -1079,10 +1084,7 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
                 if (*uce == (TokLiteral|TokNewStr)) {
                     uint nlen = uce[1];
                     if (uce[nlen + 2] == TokFuncTerminator) {
-                        if (m_operator != NoOperator) {
-                            putTok(tokPtr, (m_operator == AndOperator) ? TokAnd : TokOr);
-                            m_operator = NoOperator;
-                        }
+                        putOperator(tokPtr);
                         putTok(tokPtr, defType);
                         putHashStr(tokPtr, uce + 2, nlen);
                         enterScope(tokPtr, true, StCtrl);

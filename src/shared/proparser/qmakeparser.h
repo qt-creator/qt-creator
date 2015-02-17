@@ -141,6 +141,7 @@ private:
                                        const ushort *cur, const QString &in);
     void finalizeCond(ushort *&tokPtr, ushort *uc, ushort *ptr, int wordCount);
     void finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int argc);
+    void putOperator(ushort *&tokPtr);
     void finalizeTest(ushort *&tokPtr);
     void bogusTest(ushort *&tokPtr, const QString &msg);
     void enterScope(ushort *&tokPtr, bool special, ScopeState state);
