@@ -145,58 +145,58 @@ bool QmlProfilerFileReader::load(QIODevice *device)
     qint64 traceEnd = -1;
 
     while (validVersion && !stream.atEnd() && !stream.hasError()) {
-         QXmlStreamReader::TokenType token = stream.readNext();
-         const QStringRef elementName = stream.name();
-         switch (token) {
-         case QXmlStreamReader::StartDocument :  continue;
-         case QXmlStreamReader::StartElement : {
-             if (elementName == _("trace")) {
-                 QXmlStreamAttributes attributes = stream.attributes();
-                 if (attributes.hasAttribute(_("version")))
-                     validVersion = attributes.value(_("version")) == _(PROFILER_FILE_VERSION);
-                 else
-                     validVersion = false;
-                 if (attributes.hasAttribute(_("traceStart")))
-                     traceStart = attributes.value(_("traceStart")).toString().toLongLong();
-                 if (attributes.hasAttribute(_("traceEnd")))
-                     traceEnd = attributes.value(_("traceEnd")).toString().toLongLong();
-             }
+        QXmlStreamReader::TokenType token = stream.readNext();
+        const QStringRef elementName = stream.name();
+        switch (token) {
+        case QXmlStreamReader::StartDocument :  continue;
+        case QXmlStreamReader::StartElement : {
+            if (elementName == _("trace")) {
+                QXmlStreamAttributes attributes = stream.attributes();
+                if (attributes.hasAttribute(_("version")))
+                    validVersion = attributes.value(_("version")) == _(PROFILER_FILE_VERSION);
+                else
+                    validVersion = false;
+                if (attributes.hasAttribute(_("traceStart")))
+                    traceStart = attributes.value(_("traceStart")).toString().toLongLong();
+                if (attributes.hasAttribute(_("traceEnd")))
+                    traceEnd = attributes.value(_("traceEnd")).toString().toLongLong();
+            }
 
-             if (elementName == _("eventData")) {
-                 loadEventData(stream);
-                 break;
-             }
+            if (elementName == _("eventData")) {
+                loadEventData(stream);
+                break;
+            }
 
-             if (elementName == _("profilerDataModel")) {
-                 loadProfilerDataModel(stream);
-                 break;
-             }
+            if (elementName == _("profilerDataModel")) {
+                loadProfilerDataModel(stream);
+                break;
+            }
 
-             if (elementName == _("noteData")) {
-                 loadNoteData(stream);
-                 break;
-             }
+            if (elementName == _("noteData")) {
+                loadNoteData(stream);
+                break;
+            }
 
-             if (elementName == _("v8profile")) {
-                 if (m_v8Model)
-                     m_v8Model->load(stream);
-                 break;
-             }
+            if (elementName == _("v8profile")) {
+                if (m_v8Model)
+                    m_v8Model->load(stream);
+                break;
+            }
 
-             break;
-         }
-         default: break;
-         }
-     }
+            break;
+        }
+        default: break;
+        }
+    }
 
-     if (stream.hasError()) {
-         emit error(tr("Error while parsing trace data file: %1").arg(stream.errorString()));
-         return false;
-     } else {
-         m_qmlModel->setData(traceStart, qMax(traceStart, traceEnd), m_qmlEvents, m_ranges);
-         m_qmlModel->setNoteData(m_notes);
-         return true;
-     }
+    if (stream.hasError()) {
+        emit error(tr("Error while parsing trace data file: %1").arg(stream.errorString()));
+        return false;
+    } else {
+        m_qmlModel->setData(traceStart, qMax(traceStart, traceEnd), m_qmlEvents, m_ranges);
+        m_qmlModel->setNoteData(m_notes);
+        return true;
+    }
 }
 
 void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
