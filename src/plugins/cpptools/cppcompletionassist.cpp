@@ -615,13 +615,184 @@ QString createQt4SignalOrSlot(CPlusPlus::Function *function, const Overview &ove
     return QString::fromUtf8(normalized, normalized.size());
 }
 
-QString createQt5SignalOrSlot(CPlusPlus::Function *function, Class *klass)
+QString createQt5SignalOrSlot(CPlusPlus::Function *function, const Overview &overview)
 {
     QString text;
-    text += Overview().prettyName(klass->name());
-    text += QLatin1String("::");
-    text += Overview().prettyName(function->name());
+    text += overview.prettyName(function->name());
     return text;
+}
+
+/*!
+    \class BackwardsEater
+    \brief Checks strings and expressions before given position.
+
+    Similar to BackwardsScanner, but also can handle expressions. Ignores whitespace.
+*/
+class BackwardsEater
+{
+public:
+    explicit BackwardsEater(const CppCompletionAssistInterface *assistInterface, int position)
+        : m_position(position)
+        , m_assistInterface(assistInterface)
+    {
+    }
+
+    bool isPositionValid() const
+    {
+        return m_position >= 0;
+    }
+
+    bool eatConnectOpenParenthesis()
+    {
+        return eatString(QLatin1String("(")) && eatString(QLatin1String("connect"));
+    }
+
+    bool eatExpressionCommaAmpersand()
+    {
+        return eatString(QLatin1String("&")) && eatString(QLatin1String(",")) && eatExpression();
+    }
+
+    bool eatConnectOpenParenthesisExpressionCommaAmpersandExpressionComma()
+    {
+        return eatString(QLatin1String(","))
+            && eatExpression()
+            && eatExpressionCommaAmpersand()
+            && eatConnectOpenParenthesis();
+    }
+
+private:
+    bool eatExpression()
+    {
+        if (!isPositionValid())
+            return false;
+
+        maybeEatWhitespace();
+
+        QTextCursor cursor(m_assistInterface->textDocument());
+        cursor.setPosition(m_position + 1);
+        ExpressionUnderCursor expressionUnderCursor;
+        const QString expression = expressionUnderCursor(cursor);
+        if (expression.isEmpty())
+            return false;
+        m_position = m_position - expression.length();
+        return true;
+    }
+
+    bool eatString(const QString &string)
+    {
+        if (!isPositionValid())
+            return false;
+
+        if (string.isEmpty())
+            return true;
+
+        maybeEatWhitespace();
+
+        const int stringLength = string.length();
+        const int stringStart = m_position - (stringLength - 1);
+
+        if (stringStart < 0)
+            return false;
+
+        if (m_assistInterface->textAt(stringStart, stringLength) == string) {
+            m_position = stringStart - 1;
+            return true;
+        }
+
+        return false;
+    }
+
+    void maybeEatWhitespace()
+    {
+        while (isPositionValid() && m_assistInterface->characterAt(m_position).isSpace())
+            --m_position;
+    }
+
+private:
+    int m_position;
+    const CppCompletionAssistInterface * const m_assistInterface;
+};
+
+bool canCompleteConnectSignalAt2ndArgument(const CppCompletionAssistInterface *assistInterface,
+                                           int startOfExpression)
+{
+    BackwardsEater eater(assistInterface, startOfExpression);
+
+    return eater.isPositionValid()
+        && eater.eatExpressionCommaAmpersand()
+        && eater.eatConnectOpenParenthesis();
+}
+
+bool canCompleteConnectSignalAt4thArgument(const CppCompletionAssistInterface *assistInterface,
+                                           int startPosition)
+{
+    BackwardsEater eater(assistInterface, startPosition);
+
+    return eater.isPositionValid()
+        && eater.eatExpressionCommaAmpersand()
+        && eater.eatConnectOpenParenthesisExpressionCommaAmpersandExpressionComma();
+}
+
+bool canCompleteClassNameAt2ndOr4thConnectArgument(
+        const CppCompletionAssistInterface *assistInterface,
+        int startPosition)
+{
+    BackwardsEater eater(assistInterface, startPosition);
+
+    if (!eater.isPositionValid())
+        return false;
+
+    return eater.eatConnectOpenParenthesis()
+        || eater.eatConnectOpenParenthesisExpressionCommaAmpersandExpressionComma();
+}
+
+ClassOrNamespace *classOrNamespaceFromLookupItem(const LookupItem &lookupItem,
+                                                 const LookupContext &context)
+{
+    const Name *name = 0;
+
+    if (Symbol *d = lookupItem.declaration()) {
+        if (Class *k = d->asClass())
+            name = k->name();
+    }
+
+    if (!name) {
+        FullySpecifiedType type = lookupItem.type().simplified();
+
+        if (PointerType *pointerType = type->asPointerType())
+            type = pointerType->elementType().simplified();
+        else
+            return 0; // not a pointer or a reference to a pointer.
+
+        NamedType *namedType = type->asNamedType();
+        if (!namedType) // not a class name.
+            return 0;
+
+        name = namedType->name();
+    }
+
+    return name ? context.lookupType(name, lookupItem.scope()) : 0;
+}
+
+Class *classFromLookupItem(const LookupItem &lookupItem, const LookupContext &context)
+{
+    ClassOrNamespace *b = classOrNamespaceFromLookupItem(lookupItem, context);
+    if (!b)
+        return 0;
+
+    foreach (Symbol *s, b->symbols()) {
+        if (Class *klass = s->asClass())
+            return klass;
+    }
+    return 0;
+}
+
+const Name *minimalName(Symbol *symbol, Scope *targetScope, const LookupContext &context)
+{
+    ClassOrNamespace *target = context.lookupType(targetScope);
+    if (!target)
+        target = context.globalNamespace();
+    return context.minimalName(symbol, target, context.bindings()->control().data());
 }
 
 } // Anonymous
@@ -807,10 +978,8 @@ int InternalCppCompletionAssistProcessor::startOfOperator(int pos,
 
         if (*kind == T_AMPER && tokenIdx > 0) {
             const Token &previousToken = tokens.at(tokenIdx - 1);
-            if (previousToken.kind() == T_COMMA) {
+            if (previousToken.kind() == T_COMMA)
                 start = pos - (tk.utf16charOffset - previousToken.utf16charOffset) - 1;
-                QTC_CHECK(m_interface->characterAt(start) == QLatin1Char(','));
-            }
         } else if (*kind == T_DOXY_COMMENT && !(tk.is(T_DOXY_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))) {
             *kind = T_EOF_SYMBOL;
             start = pos;
@@ -895,18 +1064,6 @@ int InternalCppCompletionAssistProcessor::findStartOfName(int pos) const
     return pos + 1;
 }
 
-static bool isPrecededByConnectAndOpenParenthesis(
-        const CppCompletionAssistInterface *assistInterface,
-        int startOfExpression)
-{
-    QTC_ASSERT(startOfExpression >= 0, return false);
-
-    int beforeExpression = startOfExpression;
-    while (beforeExpression > 0 && assistInterface->characterAt(--beforeExpression).isSpace()) ;
-    const int pos = beforeExpression - 7;
-    return pos >= 0 && assistInterface->textAt(pos, 7) == QLatin1String("connect");
-}
-
 int InternalCppCompletionAssistProcessor::startCompletionHelper()
 {
     if (m_languageFeatures.objCEnabled) {
@@ -978,10 +1135,21 @@ int InternalCppCompletionAssistProcessor::startCompletionHelper()
         startOfExpression = endOfExpression - expression.length();
 
         if (m_model->m_completionOperator == T_AMPER) {
-            m_model->m_completionOperator
-                = isPrecededByConnectAndOpenParenthesis(m_interface.data(), startOfExpression)
-                    ? CompleteQt5SignalTrigger
-                    : CompleteQtSlotTrigger;
+            // We expect 'expression' to be either "sender" or "receiver" in
+            //  "connect(sender, &" or
+            //  "connect(otherSender, &Foo::signal1, receiver, &"
+            const int beforeExpression = startOfExpression - 1;
+            if (canCompleteClassNameAt2ndOr4thConnectArgument(m_interface.data(), beforeExpression))
+                m_model->m_completionOperator = CompleteQt5SignalOrSlotClassNameTrigger;
+        } else if (m_model->m_completionOperator == T_COLON_COLON) {
+            // We expect 'expression' to be "Foo" in
+            //  "connect(sender, &Foo::" or
+            //  "connect(sender, &Bar::signal1, receiver, &Foo::"
+            const int beforeExpression = startOfExpression - 1;
+            if (canCompleteConnectSignalAt2ndArgument(m_interface.data(), beforeExpression))
+                m_model->m_completionOperator = CompleteQt5SignalTrigger;
+            else if (canCompleteConnectSignalAt4thArgument(m_interface.data(), beforeExpression))
+                m_model->m_completionOperator = CompleteQt5SlotTrigger;
         } else if (m_model->m_completionOperator == T_LPAREN) {
             if (expression.endsWith(QLatin1String("SIGNAL"))) {
                 m_model->m_completionOperator = T_SIGNAL;
@@ -1249,10 +1417,7 @@ int InternalCppCompletionAssistProcessor::startCompletionInternal(const QString 
     if (expression.isEmpty()) {
         if (m_model->m_completionOperator == T_EOF_SYMBOL || m_model->m_completionOperator == T_COLON_COLON) {
             (void) (*m_model->m_typeOfExpression)(expression.toUtf8(), scope);
-            globalCompletion(scope);
-            if (m_completions.isEmpty())
-                return -1;
-            return m_startPosition;
+            return globalCompletion(scope) ? m_startPosition : -1;
         }
 
         if (m_model->m_completionOperator == T_SIGNAL || m_model->m_completionOperator == T_SLOT) {
@@ -1304,10 +1469,12 @@ int InternalCppCompletionAssistProcessor::startCompletionInternal(const QString 
             }
             return -1;
 
-        } else {
-            // nothing to do.
-            return -1;
+        } else if (m_model->m_completionOperator == CompleteQt5SignalOrSlotClassNameTrigger) {
+            // Fallback to global completion if we could not lookup sender/receiver object.
+            return globalCompletion(scope) ? m_startPosition : -1;
 
+        } else {
+            return -1; // nothing to do.
         }
     }
 
@@ -1338,13 +1505,20 @@ int InternalCppCompletionAssistProcessor::startCompletionInternal(const QString 
             return m_startPosition;
         break;
 
-    case CompleteQt5SignalTrigger:
-        if (completeQtMethod(results, CompleteQt5Signals))
+    case CompleteQt5SignalOrSlotClassNameTrigger:
+        if (completeQtMethodClassName(results, scope) || globalCompletion(scope))
             return m_startPosition;
         break;
 
-    case CompleteQtSlotTrigger:
-        if (completeQtMethod(results, CompleteQt5Slots))
+    case CompleteQt5SignalTrigger:
+        // Fallback to scope completion if "X::" is a namespace and not a class.
+        if (completeQtMethod(results, CompleteQt5Signals) || completeScope(results))
+            return m_startPosition;
+        break;
+
+    case CompleteQt5SlotTrigger:
+        // Fallback to scope completion if "X::" is a namespace and not a class.
+        if (completeQtMethod(results, CompleteQt5Slots) || completeScope(results))
             return m_startPosition;
         break;
 
@@ -1356,13 +1530,13 @@ int InternalCppCompletionAssistProcessor::startCompletionInternal(const QString 
     return -1;
 }
 
-void InternalCppCompletionAssistProcessor::globalCompletion(Scope *currentScope)
+bool InternalCppCompletionAssistProcessor::globalCompletion(Scope *currentScope)
 {
     const LookupContext &context = m_model->m_typeOfExpression->context();
 
     if (m_model->m_completionOperator == T_COLON_COLON) {
         completeNamespace(context.globalNamespace());
-        return;
+        return !m_completions.isEmpty();
     }
 
     QList<ClassOrNamespace *> usingBindings;
@@ -1431,6 +1605,7 @@ void InternalCppCompletionAssistProcessor::globalCompletion(Scope *currentScope)
     addMacros(CppModelManager::configurationFileName(), context.snapshot());
     addMacros(context.thisDocument()->fileName(), context.snapshot());
     addSnippets();
+    return !m_completions.isEmpty();
 }
 
 bool InternalCppCompletionAssistProcessor::completeMember(const QList<LookupItem> &baseResults)
@@ -1659,19 +1834,8 @@ bool InternalCppCompletionAssistProcessor::completeQtMethod(const QList<LookupIt
     o.showFunctionSignatures = true;
 
     QSet<QString> signatures;
-    foreach (const LookupItem &p, results) {
-        FullySpecifiedType ty = p.type().simplified();
-
-        if (PointerType *ptrTy = ty->asPointerType())
-            ty = ptrTy->elementType().simplified();
-        else
-            continue; // not a pointer or a reference to a pointer.
-
-        NamedType *namedTy = ty->asNamedType();
-        if (!namedTy) // not a class name.
-            continue;
-
-        ClassOrNamespace *b = context.lookupType(namedTy->name(), p.scope());
+    foreach (const LookupItem &lookupItem, results) {
+        ClassOrNamespace *b = classOrNamespaceFromLookupItem(lookupItem, context);
         if (!b)
             continue;
 
@@ -1712,7 +1876,7 @@ bool InternalCppCompletionAssistProcessor::completeQtMethod(const QList<LookupIt
                 unsigned count = fun->argumentCount();
                 while (true) {
                     const QString completionText = wantQt5SignalOrSlot
-                            ? createQt5SignalOrSlot(fun, klass)
+                            ? createQt5SignalOrSlot(fun, o)
                             : createQt4SignalOrSlot(fun, o);
 
                     if (!signatures.contains(completionText)) {
@@ -1731,6 +1895,34 @@ bool InternalCppCompletionAssistProcessor::completeQtMethod(const QList<LookupIt
                 }
             }
         }
+    }
+
+    return !m_completions.isEmpty();
+}
+
+bool InternalCppCompletionAssistProcessor::completeQtMethodClassName(
+        const QList<LookupItem> &results, Scope *cursorScope)
+{
+    QTC_ASSERT(cursorScope, return false);
+
+    if (results.isEmpty())
+        return false;
+
+    const LookupContext &context = m_model->m_typeOfExpression->context();
+    Overview overview;
+
+    foreach (const LookupItem &lookupItem, results) {
+        Class *klass = classFromLookupItem(lookupItem, context);
+        QTC_ASSERT(klass, continue);
+        const Name *name = minimalName(klass, cursorScope, context);
+        QTC_ASSERT(name, continue);
+
+        AssistProposalItem *item = new CppAssistProposalItem;
+        item->setText(overview.prettyName(name));
+        item->setDetail(overview.prettyType(klass->type(), klass->name()));
+        item->setData(QVariant::fromValue(static_cast<Symbol *>(klass)));
+        m_completions.append(item);
+        break;
     }
 
     return !m_completions.isEmpty();

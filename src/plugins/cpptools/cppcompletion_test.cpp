@@ -2174,6 +2174,8 @@ void CppToolsPlugin::test_completion_data()
             "#define slots\n"
             "#define Q_OBJECT virtual const QMetaObject *metaObject() const;"
             "\n"
+            "namespace N {\n"
+            "\n"
             "class Base : public QObject\n"
             "{\n"
             "    Q_OBJECT\n"
@@ -2204,9 +2206,11 @@ void CppToolsPlugin::test_completion_data()
             "    void derivedSlot2(int newValue);\n"
             "};\n"
             "\n"
+            "} // namespace N\n"
+            "\n"
             "void client()\n"
             "{\n"
-            "    Derived *myObject = new Derived;\n"
+            "    N::Derived *myObject = new N::Derived;\n"
             "    @\n"
             "}\n";
 
@@ -2227,33 +2231,60 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("derivedSlot1()")
             << QLatin1String("derivedSlot2(int)"));
 
-    QTest::newRow("Qt5 signal")
+    QTest::newRow("Qt5 signals: complete class after & at 2nd connect arg")
          << commonSignalSlotCompletionTestCode
          << _("connect(myObject, &") << (QStringList()
-            << QLatin1String("Base::baseSignal1")
-            << QLatin1String("Base::baseSignal2")
-            << QLatin1String("Base::hiddenSignal")
-            << QLatin1String("Derived::derivedSignal1")
-            << QLatin1String("Derived::derivedSignal2")
-            << QLatin1String("Derived::hiddenSignal")); // OK, hidden signal
+            << QLatin1String("N::Derived"));
 
-    QTest::newRow("Qt5 slot")
+    QTest::newRow("Qt5 signals: complete class after & at 4th connect arg")
          << commonSignalSlotCompletionTestCode
          << _("connect(myObject, &MyObject::timeout, myObject, &") << (QStringList()
-           << QLatin1String("Base::baseSignal1")
-           << QLatin1String("Base::baseSignal2")
-           << QLatin1String("Base::baseSlot1")
-           << QLatin1String("Base::baseSlot2")
-           << QLatin1String("Base::baseFunction")
-           << QLatin1String("Base::hiddenFunction")
-           << QLatin1String("Base::hiddenSignal")
-           << QLatin1String("Derived::derivedFunction")
-           << QLatin1String("Derived::derivedSignal1")
-           << QLatin1String("Derived::derivedSignal2")
-           << QLatin1String("Derived::derivedSlot1")
-           << QLatin1String("Derived::derivedSlot2")
-           << QLatin1String("Derived::hiddenFunction")
-           << QLatin1String("Derived::hiddenSignal"));
+            << QLatin1String("N::Derived"));
+
+    QTest::newRow("Qt5 signals: complete signals")
+         << commonSignalSlotCompletionTestCode
+         << _("connect(myObject, &N::Derived::") << (QStringList()
+            << QLatin1String("baseSignal1")
+            << QLatin1String("baseSignal2")
+            << QLatin1String("hiddenSignal")
+            << QLatin1String("derivedSignal1")
+            << QLatin1String("derivedSignal2"));
+
+    QTest::newRow("Qt5 slots")
+         << commonSignalSlotCompletionTestCode
+         << _("connect(myObject, &N::Derived, myObject, &N::Derived::") << (QStringList()
+           << QLatin1String("baseFunction")
+           << QLatin1String("baseSignal1")
+           << QLatin1String("baseSignal2")
+           << QLatin1String("baseSlot1")
+           << QLatin1String("baseSlot2")
+           << QLatin1String("derivedFunction")
+           << QLatin1String("derivedSignal1")
+           << QLatin1String("derivedSignal2")
+           << QLatin1String("derivedSlot1")
+           << QLatin1String("derivedSlot2")
+           << QLatin1String("hiddenFunction")
+           << QLatin1String("hiddenSignal"));
+
+    QTest::newRow("Qt5 signals: no class name completion if not after 'connect(' 1")
+         << commonSignalSlotCompletionTestCode
+         << _("foo(myObject, &") << (QStringList());
+
+    QTest::newRow("Qt5 signals/slots: no class name completion if not after 'connect(' 2")
+         << commonSignalSlotCompletionTestCode
+         << _("&") << (QStringList());
+
+    QTest::newRow("Qt5 signals: fallback to scope completion")
+         << commonSignalSlotCompletionTestCode
+         << _("connect(myObject, &N::") << (QStringList()
+            << QLatin1String("Base")
+            << QLatin1String("Derived"));
+
+    QTest::newRow("Qt5 slots: fallback to scope completion")
+         << commonSignalSlotCompletionTestCode
+         << _("connect(myObject, &N::Derived, myObject, &N::") << (QStringList()
+            << QLatin1String("Base")
+            << QLatin1String("Derived"));
 
     QTest::newRow("signals_hide_QPrivateSignal") << _(
             "#define SIGNAL(a) #a\n"
