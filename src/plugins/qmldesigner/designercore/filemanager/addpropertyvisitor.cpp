@@ -32,10 +32,8 @@
 
 #include <qmljs/parser/qmljsast_p.h>
 
-using namespace QmlDesigner;
-using namespace QmlDesigner::Internal;
-using namespace QmlJS;
-using namespace QmlJS::AST;
+namespace QmlDesigner {
+namespace Internal {
 
 AddPropertyVisitor::AddPropertyVisitor(QmlDesigner::TextModifier &modifier,
                                        quint32 parentLocation,
@@ -43,7 +41,7 @@ AddPropertyVisitor::AddPropertyVisitor(QmlDesigner::TextModifier &modifier,
                                        const QString &value,
                                        QmlRefactoring::PropertyType propertyType,
                                        const PropertyNameList &propertyOrder,
-                                       const QmlDesigner::TypeName &dynamicTypeName) :
+                                       const TypeName &dynamicTypeName) :
     QMLRewriter(modifier),
     m_parentLocation(parentLocation),
     m_name(name),
@@ -85,9 +83,9 @@ bool AddPropertyVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializer)
 {
-    UiObjectMemberList *insertAfter = searchMemberToInsertAfter(initializer->members, m_name, m_propertyOrder);
-    SourceLocation endOfPreviousMember;
-    SourceLocation startOfNextMember;
+    QmlJS::AST::UiObjectMemberList *insertAfter = searchMemberToInsertAfter(initializer->members, m_name, m_propertyOrder);
+    QmlJS::AST::SourceLocation endOfPreviousMember;
+    QmlJS::AST::SourceLocation startOfNextMember;
     unsigned depth;
 
     if (insertAfter == 0 || insertAfter->member == 0) {
@@ -168,3 +166,6 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
 
     setDidRewriting(true);
 }
+
+} // namespace Internal
+} // namespace QmlDesigner

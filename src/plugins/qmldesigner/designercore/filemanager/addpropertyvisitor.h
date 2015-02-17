@@ -45,9 +45,9 @@ public:
                        quint32 parentLocation,
                        const QmlDesigner::PropertyName &name,
                        const QString &value,
-                       QmlDesigner::QmlRefactoring::PropertyType propertyType,
+                       QmlRefactoring::PropertyType propertyType,
                        const PropertyNameList &propertyOrder,
-                       const QmlDesigner::TypeName &dynamicTypeName);
+                       const TypeName &dynamicTypeName);
 
 protected:
     virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
