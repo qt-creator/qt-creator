@@ -420,7 +420,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 data.parseResultOrValue(from, to);
                 if (data.isValid()) {
                     //qDebug() << "parsed result:" << data.toString();
-                    result.m_children += data;
+                    result.m_children.push_back(data);
                     result.m_type = GdbMi::Tuple;
                 }
             }
@@ -944,7 +944,7 @@ void GdbEngine::flushCommand(const DebuggerCommand &cmd0)
     const int token = ++currentToken();
 
     DebuggerCommand cmd = cmd0;
-    cmd.postTime = QTime::currentTime();
+    cmd.postTime = QTime::currentTime().msecsSinceStartOfDay();
     m_commandForToken[token] = cmd;
     if (cmd.flags & ConsoleCommand)
         cmd.function = "-interpreter-exec console \"" + cmd.function + '"';
@@ -1119,7 +1119,7 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
     if (boolSetting(LogTimeStamps)) {
         showMessage(_("Response time: %1: %2 s")
             .arg(_(cmd.function))
-            .arg(cmd.postTime.msecsTo(QTime::currentTime()) / 1000.),
+            .arg(QTime::fromMSecsSinceStartOfDay(cmd.postTime).msecsTo(QTime::currentTime()) / 1000.),
             LogTime);
     }
 
@@ -3441,8 +3441,8 @@ void GdbEngine::handleThreadListIds(const DebuggerResponse &response)
     // "72^done,{thread-ids={thread-id="2",thread-id="1"},number-of-threads="2"}
     // In gdb 7.1+ additionally: current-thread-id="1"
     ThreadsHandler *handler = threadsHandler();
-    const QList<GdbMi> items = response.data["thread-ids"].children();
-    for (int index = 0, n = items.size(); index != n; ++index) {
+    const std::vector<GdbMi> &items = response.data["thread-ids"].children();
+    for (size_t index = 0, n = items.size(); index != n; ++index) {
         ThreadData thread;
         thread.id = ThreadId(items.at(index).toInt());
         handler->updateThread(thread);
@@ -3896,7 +3896,7 @@ void GdbEngine::handleFetchMemory(const DebuggerResponse &response, MemoryAgentC
     if (response.resultClass == ResultDone) {
         GdbMi memory = response.data["memory"];
         QTC_ASSERT(memory.children().size() <= 1, return);
-        if (memory.children().isEmpty())
+        if (memory.children().empty())
             return;
         GdbMi memory0 = memory.children().at(0); // we asked for only one 'row'
         GdbMi data = memory0["data"];

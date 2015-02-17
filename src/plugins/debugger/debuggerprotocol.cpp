@@ -233,7 +233,7 @@ void GdbMi::parseTuple_helper(const char *&from, const char *to)
         //qDebug() << "\n=======\n" << qPrintable(child.toString()) << "\n========\n";
         if (!child.isValid())
             return;
-        m_children += child;
+        m_children.push_back(child);
         skipCommas(from, to);
     }
 }
@@ -253,7 +253,7 @@ void GdbMi::parseList(const char *&from, const char *to)
         GdbMi child;
         child.parseResultOrValue(from, to);
         if (child.isValid())
-            m_children += child;
+            m_children.push_back(child);
         skipCommas(from, to);
     }
 }
@@ -265,7 +265,7 @@ static QByteArray ind(int indent)
 
 void GdbMi::dumpChildren(QByteArray * str, bool multiline, int indent) const
 {
-    for (int i = 0; i < m_children.size(); ++i) {
+    for (size_t i = 0; i < m_children.size(); ++i) {
         if (i != 0) {
             *str += ',';
             if (multiline)
@@ -741,30 +741,6 @@ void DebuggerCommand::argHelper(const char *name, const QByteArray &data)
     args.append("\":");
     args.append(data);
     args.append(",");
-}
-
-QByteArray DebuggerCommand::toData(const QList<QByteArray> &value)
-{
-    QByteArray res;
-    foreach (const QByteArray &item, value) {
-        if (!res.isEmpty())
-            res.append(',');
-        res += item;
-    }
-    return '[' + res + ']';
-}
-
-QByteArray DebuggerCommand::toData(const QHash<QByteArray, QByteArray> &value)
-{
-    QByteArray res;
-    QHashIterator<QByteArray, QByteArray> it(value);
-    while (it.hasNext()) {
-        it.next();
-        if (!res.isEmpty())
-            res.append(',');
-        res += '"' + it.key() + "\":" + it.value();
-    }
-    return '{' + res + '}';
 }
 
 void DebuggerCommand::arg(const char *name, int value)

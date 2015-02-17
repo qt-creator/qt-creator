@@ -31,9 +31,11 @@
 #ifndef DEBUGGER_PROTOCOL_H
 #define DEBUGGER_PROTOCOL_H
 
-#include <QTime>
+#include <QByteArray>
+#include <QString>
 
 #include <functional>
+#include <vector>
 
 namespace Debugger {
 namespace Internal {
@@ -67,13 +69,10 @@ public:
     void beginGroup(const char *name = 0);
     void endGroup();
 
-    static QByteArray toData(const QList<QByteArray> &value);
-    static QByteArray toData(const QHash<QByteArray, QByteArray> &value);
-
     QByteArray function;
     QByteArray args;
     Callback callback;
-    QTime postTime;
+    uint postTime; // msecsSinceStartOfDay
     int flags;
 
 private:
@@ -137,7 +136,7 @@ public:
 
     QByteArray m_name;
     QByteArray m_data;
-    QList<GdbMi> m_children;
+    std::vector<GdbMi> m_children;
 
     enum Type {
         Invalid,
@@ -159,7 +158,7 @@ public:
 
 
     inline QByteArray data() const { return m_data; }
-    inline const QList<GdbMi> &children() const { return m_children; }
+    inline const std::vector<GdbMi> &children() const { return m_children; }
     inline int childCount() const { return m_children.size(); }
 
     const GdbMi &childAt(int index) const { return m_children[index]; }
