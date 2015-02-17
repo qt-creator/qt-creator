@@ -1095,8 +1095,8 @@ bool ClangCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
     if (!headerPaths.contains(currentFilePath))
         headerPaths.append(currentFilePath);
 
-    Utils::MimeDatabase mdb;
-    const Utils::MimeType mimeType = mdb.mimeTypeForName(QLatin1String("text/x-c++hdr"));
+    ::Utils::MimeDatabase mdb;
+    const ::Utils::MimeType mimeType = mdb.mimeTypeForName(QLatin1String("text/x-c++hdr"));
     const QStringList suffixes = mimeType.suffixes();
 
     foreach (const ProjectPart::HeaderPath &headerPath, headerPaths) {
