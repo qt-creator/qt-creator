@@ -50,6 +50,7 @@ public:
     void setEnvironment(const Utils::Environment &env);
     void setProject(ProjectExplorer::Project *project);
     void setUnnamedOnly(bool unnamedOnly);
+    void setGuessedConfiguration(bool guessed);
 
     QString testClass() const { return m_testClass; }
     QStringList testCases() const { return m_testCases; }
@@ -62,7 +63,7 @@ public:
     Utils::Environment environment() const { return m_environment; }
     ProjectExplorer::Project *project() const { return m_project; }
     bool unnamedOnly() const { return m_unnamedOnly; }
-
+    bool guessedConfiguration() const { return m_guessedConfiguration; }
 
 signals:
 
@@ -80,6 +81,7 @@ private:
     QString m_displayName;
     Utils::Environment m_environment;
     ProjectExplorer::Project *m_project;
+    bool m_guessedConfiguration;
 };
 
 } // namespace Internal

@@ -185,12 +185,17 @@ void performTestRun(QFutureInterface<void> &futureInterface,
 
 void TestRunner::runTests()
 {
+    const QSharedPointer<TestSettings> settings = AutotestPlugin::instance()->settings();
+    const int timeout = settings->timeout;
+    const QString metricsOption = TestSettings::metricsTypeToOption(settings->metrics);
+    const bool displayRunConfigWarnings = !settings->omitRunConfigWarn;
+
     // clear old log and output pane
     TestResultsPane::instance()->clearContents();
 
     // handle faulty test configurations
     QList<TestConfiguration *> toBeRemoved;
-    foreach (TestConfiguration *config, m_selectedTests)
+    foreach (TestConfiguration *config, m_selectedTests) {
         if (!config->project()) {
             toBeRemoved.append(config);
             TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_WARN,
@@ -198,6 +203,12 @@ void TestRunner::runTests()
                 "This might be the case for a faulty environment or similar."
                 ).arg(config->displayName())));
         }
+        if (displayRunConfigWarnings && config->guessedConfiguration()) {
+            TestResultsPane::instance()->addTestResult(FaultyTestResult(Result::MESSAGE_WARN,
+                tr("*** Project's run configuration was guessed for '%1' ***\n"
+                "This might cause trouble during execution.").arg(config->displayName())));
+        }
+    }
     foreach (TestConfiguration *config, toBeRemoved) {
         m_selectedTests.removeOne(config);
         delete config;
@@ -242,10 +253,6 @@ void TestRunner::runTests()
     connect(this, &TestRunner::testResultCreated,
             TestResultsPane::instance(), &TestResultsPane::addTestResult,
             Qt::QueuedConnection);
-
-    const QSharedPointer<TestSettings> settings = AutotestPlugin::instance()->settings();
-    const int timeout = settings->timeout;
-    const QString metricsOption = TestSettings::metricsTypeToOption(settings->metrics);
 
     emit testRunStarted();
 

@@ -30,7 +30,8 @@ TestConfiguration::TestConfiguration(const QString &testClass, const QStringList
       m_testCases(testCases),
       m_testCaseCount(testCaseCount),
       m_unnamedOnly(false),
-      m_project(0)
+      m_project(0),
+      m_guessedConfiguration(false)
 {
     if (testCases.size() != 0) {
         m_testCaseCount = testCases.size();
@@ -100,6 +101,11 @@ void TestConfiguration::setProject(ProjectExplorer::Project *project)
 void TestConfiguration::setUnnamedOnly(bool unnamedOnly)
 {
     m_unnamedOnly = unnamedOnly;
+}
+
+void TestConfiguration::setGuessedConfiguration(bool guessed)
+{
+    m_guessedConfiguration = guessed;
 }
 
 } // namespace Internal

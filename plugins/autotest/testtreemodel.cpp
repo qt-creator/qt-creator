@@ -27,6 +27,7 @@
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/localapplicationrunconfiguration.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
@@ -385,8 +386,10 @@ static void addProjectInformation(TestConfiguration *config, const QString &file
     QString workDir;
     QString proFile;
     QString displayName;
+    ProjectExplorer::Project *targetProject = 0;
     Utils::Environment env;
     bool hasDesktopTarget = false;
+    bool guessedRunConfiguration = false;
     CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
     QList<CppTools::ProjectPart::Ptr> projParts = cppMM->projectInfo(project).projectParts();
 
@@ -396,6 +399,7 @@ static void addProjectInformation(TestConfiguration *config, const QString &file
                 if (currentFile.path == filePath) {
                     proFile = part->projectFile;
                     displayName = part->displayName;
+                    targetProject = part->project;
                     break;
                 }
             }
@@ -429,6 +433,34 @@ static void addProjectInformation(TestConfiguration *config, const QString &file
                     break;
                 }
             }
+
+            // if we could not figure out the run configuration
+            // try to use the run configuration of the parent project
+            if (!hasDesktopTarget && targetProject && !targetFile.isEmpty()) {
+                QList<ProjectExplorer::RunConfiguration *> rcs = target->runConfigurations();
+                foreach (ProjectExplorer::RunConfiguration *rc, rcs) {
+                    ProjectExplorer::LocalApplicationRunConfiguration *localRunConfiguration
+                            = qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(rc);
+                    if (localRunConfiguration) {
+                        if (ProjectExplorer::ProjectNode *localRootProjectNode = targetProject->rootProjectNode()) {
+                            QList<ProjectExplorer::FileNode *> localFileNodes = localRootProjectNode->fileNodes();
+                            if (localFileNodes.size()) {
+                                if (localFileNodes.at(0)->path()
+                                        == targetProject->projectFilePath()) {
+                                    hasDesktopTarget = true;
+                                    workDir = Utils::FileUtils::normalizePathName(
+                                                localRunConfiguration->workingDirectory());
+                                    ProjectExplorer::EnvironmentAspect *environmentAspect
+                                            = localRunConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
+                                    env = environmentAspect->environment();
+                                    guessedRunConfiguration = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -440,6 +472,7 @@ static void addProjectInformation(TestConfiguration *config, const QString &file
         config->setEnvironment(env);
         config->setProject(project);
         config->setDisplayName(displayName);
+        config->setGuessedConfiguration(guessedRunConfiguration);
     } else {
         config->setProFile(proFile);
         config->setDisplayName(displayName);

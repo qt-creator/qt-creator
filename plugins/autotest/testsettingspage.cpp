@@ -39,6 +39,7 @@ void TestSettingsWidget::setSettings(const TestSettings &settings)
 {
     m_ui.timeoutSpin->setValue(settings.timeout / 1000); // we store milliseconds
     m_ui.omitInternalMsgCB->setChecked(settings.omitInternalMssg);
+    m_ui.omitRunConfigWarnCB->setChecked(settings.omitRunConfigWarn);
 
     switch (settings.metrics) {
     case MetricsType::Walltime:
@@ -66,6 +67,7 @@ TestSettings TestSettingsWidget::settings() const
     TestSettings result;
     result.timeout = m_ui.timeoutSpin->value() * 1000; // we display seconds
     result.omitInternalMssg = m_ui.omitInternalMsgCB->isChecked();
+    result.omitRunConfigWarn = m_ui.omitRunConfigWarnCB->isChecked();
 
     if (m_ui.walltimeRB->isChecked())
         result.metrics = MetricsType::Walltime;

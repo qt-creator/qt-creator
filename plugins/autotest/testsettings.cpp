@@ -27,10 +27,11 @@ static const char group[] = "Autotest";
 static const char timeoutKey[] = "Timeout";
 static const char metricsKey[] = "Metrics";
 static const char omitInternalKey[] = "OmitInternal";
+static const char omitRunConfigWarnKey[] = "OmitRCWarnings";
 static const int defaultTimeout = 60000;
 
 TestSettings::TestSettings()
-    : timeout(defaultTimeout), metrics(Walltime), omitInternalMssg(true)
+    : timeout(defaultTimeout), metrics(Walltime), omitInternalMssg(true), omitRunConfigWarn(false)
 {
 }
 
@@ -40,6 +41,7 @@ void TestSettings::toSettings(QSettings *s) const
     s->setValue(QLatin1String(timeoutKey), timeout);
     s->setValue(QLatin1String(metricsKey), metrics);
     s->setValue(QLatin1String(omitInternalKey), omitInternalMssg);
+    s->setValue(QLatin1String(omitRunConfigWarnKey), omitRunConfigWarn);
     s->endGroup();
 }
 
@@ -67,12 +69,14 @@ void TestSettings::fromSettings(const QSettings *s)
     timeout = s->value(root + QLatin1String(timeoutKey), defaultTimeout).toInt();
     metrics = intToMetrics(s->value(root + QLatin1String(metricsKey), Walltime).toInt());
     omitInternalMssg = s->value(root + QLatin1String(omitInternalKey), true).toBool();
+    omitRunConfigWarn = s->value(root + QLatin1String(omitRunConfigWarnKey), false).toBool();
 }
 
 bool TestSettings::equals(const TestSettings &rhs) const
 {
     return timeout == rhs.timeout && metrics == rhs.metrics
-            && omitInternalMssg == rhs.omitInternalMssg;
+            && omitInternalMssg == rhs.omitInternalMssg
+            && omitRunConfigWarn == rhs.omitRunConfigWarn;
 }
 
 QString TestSettings::metricsTypeToOption(const MetricsType type)

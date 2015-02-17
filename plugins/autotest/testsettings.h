@@ -47,6 +47,7 @@ struct TestSettings
     int timeout;
     MetricsType metrics;
     bool omitInternalMssg;
+    bool omitRunConfigWarn;
 };
 
 inline bool operator==(const TestSettings &s1, const TestSettings &s2) { return s1.equals(s2); }
