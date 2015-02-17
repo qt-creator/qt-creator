@@ -920,6 +920,33 @@ void FindReferences::renameUsages(const QString &fileName, quint32 offset,
     m_watcher.setFuture(result);
 }
 
+QList<FindReferences::Usage> FindReferences::findUsageOfType(const QString &fileName, const QString typeName)
+{
+    QList<Usage> usages;
+    ModelManagerInterface *modelManager = ModelManagerInterface::instance();
+
+    Document::Ptr doc = modelManager->snapshot().document(fileName);
+    if (!doc)
+        return usages;
+
+    Link link(modelManager->snapshot(), modelManager->defaultVContext(doc->language(), doc), modelManager->builtins(doc));
+    ContextPtr context = link();
+    ScopeChain scopeChain(doc, context);
+
+    const ObjectValue *targetValue = scopeChain.context()->lookupType(doc.data(), QStringList(typeName));
+
+    QmlJS::Snapshot snapshot =  modelManager->snapshot();
+
+    foreach (const QmlJS::Document::Ptr &doc, snapshot) {
+        FindTypeUsages findUsages(doc, context);
+        FindTypeUsages::Result results = findUsages(typeName, targetValue);
+        foreach (const AST::SourceLocation &loc, results) {
+            usages.append(Usage(doc->fileName(), matchingLine(loc.offset, doc->source()), loc.startLine, loc.startColumn - 1, loc.length));
+        }
+    }
+    return usages;
+}
+
 void FindReferences::displayResults(int first, int last)
 {
     // the first usage is always a dummy to indicate we now start searching

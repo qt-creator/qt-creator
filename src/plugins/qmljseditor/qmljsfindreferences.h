@@ -31,6 +31,8 @@
 #ifndef QMLJSFINDREFERENCES_H
 #define QMLJSFINDREFERENCES_H
 
+#include "qmljseditor_global.h"
+
 #include <QMutex>
 #include <QObject>
 #include <QFuture>
@@ -48,7 +50,7 @@ class SearchResult;
 
 namespace QmlJSEditor {
 
-class FindReferences: public QObject
+class QMLJSEDITOR_EXPORT FindReferences: public QObject
 {
     Q_OBJECT
 public:
@@ -80,6 +82,8 @@ public:
     void findUsages(const QString &fileName, quint32 offset);
     void renameUsages(const QString &fileName, quint32 offset,
                       const QString &replacement = QString());
+
+    static QList<Usage> findUsageOfType(const QString &fileName, const QString typeName);
 
 private Q_SLOTS:
     void displayResults(int first, int last);
