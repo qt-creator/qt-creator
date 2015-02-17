@@ -37,7 +37,6 @@
 #include <QDir>
 
 using namespace Core;
-using namespace Core;
 using namespace Core::Internal;
 
 namespace {

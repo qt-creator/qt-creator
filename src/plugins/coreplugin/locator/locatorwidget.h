@@ -79,8 +79,6 @@ private slots:
 private:
     bool eventFilter(QObject *obj, QEvent *event);
 
-    void showEvent(QShowEvent *e);
-
     void showCompletionList();
     void updateCompletionList(const QString &text);
     QList<ILocatorFilter*> filtersFor(const QString &text, QString &searchText);

@@ -623,11 +623,6 @@ void LocatorWidget::filterSelected()
     m_fileLineEdit->setFocus();
 }
 
-void LocatorWidget::showEvent(QShowEvent *event)
-{
-    QWidget::showEvent(event);
-}
-
 void LocatorWidget::showConfigureDialog()
 {
     ICore::showOptionsDialog(Constants::SETTINGS_CATEGORY_CORE, Constants::FILTER_OPTIONS_PAGE);
