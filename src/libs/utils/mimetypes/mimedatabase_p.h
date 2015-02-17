@@ -47,6 +47,9 @@
 
 #include <QtCore/qhash.h>
 #include <QtCore/qmutex.h>
+QT_BEGIN_NAMESPACE
+class QIODevice;
+QT_END_NAMESPACE
 
 #include "mimetype.h"
 #include "mimetype_p.h"
