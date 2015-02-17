@@ -832,27 +832,27 @@ void MimeXMLProvider::setMagicRulesForMimeType(const MimeType &mimeType, const Q
 void MimeXMLProvider::ensureLoaded()
 {
     if (!m_loaded /*|| shouldCheck()*/) {
-        bool fdoXmlFound = false;
+//        bool fdoXmlFound = false;
         QStringList allFiles;
 
-        const QStringList packageDirs = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QLatin1String("mime/packages"), QStandardPaths::LocateDirectory);
-        //qDebug() << "packageDirs=" << packageDirs;
-        foreach (const QString &packageDir, packageDirs) {
-            QDir dir(packageDir);
-            const QStringList files = dir.entryList(QDir::Files | QDir::NoDotAndDotDot);
-            //qDebug() << static_cast<const void *>(this) << Q_FUNC_INFO << packageDir << files;
-            if (!fdoXmlFound)
-                fdoXmlFound = files.contains(QLatin1String("freedesktop.org.xml"));
-            QStringList::const_iterator endIt(files.constEnd());
-            for (QStringList::const_iterator it(files.constBegin()); it != endIt; ++it) {
-                allFiles.append(packageDir + QLatin1Char('/') + *it);
-            }
-        }
+//        const QStringList packageDirs = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QLatin1String("mime/packages"), QStandardPaths::LocateDirectory);
+//        //qDebug() << "packageDirs=" << packageDirs;
+//        foreach (const QString &packageDir, packageDirs) {
+//            QDir dir(packageDir);
+//            const QStringList files = dir.entryList(QDir::Files | QDir::NoDotAndDotDot);
+//            //qDebug() << static_cast<const void *>(this) << Q_FUNC_INFO << packageDir << files;
+//            if (!fdoXmlFound)
+//                fdoXmlFound = files.contains(QLatin1String("freedesktop.org.xml"));
+//            QStringList::const_iterator endIt(files.constEnd());
+//            for (QStringList::const_iterator it(files.constBegin()); it != endIt; ++it) {
+//                allFiles.append(packageDir + QLatin1Char('/') + *it);
+//            }
+//        }
 
-        if (!fdoXmlFound) {
-            // We could instead install the file as part of installing Qt?
+//        if (!fdoXmlFound) {
+//            // We could instead install the file as part of installing Qt?
             allFiles.prepend(QLatin1String(":/qt-project.org/qmime/freedesktop.org.xml"));
-        }
+//        }
 
         allFiles.append(m_additionalFiles);
 
