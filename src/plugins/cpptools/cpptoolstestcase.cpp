@@ -170,14 +170,19 @@ bool TestCase::closeEditorWithoutGarbageCollectorInvocation(Core::IEditor *edito
     return closeEditorsWithoutGarbageCollectorInvocation(QList<Core::IEditor *>() << editor);
 }
 
-CPlusPlus::Document::Ptr TestCase::waitForFileInGlobalSnapshot(const QString &filePath)
+CPlusPlus::Document::Ptr TestCase::waitForFileInGlobalSnapshot(const QString &filePath,
+                                                               int timeOutInMs)
 {
-    return waitForFilesInGlobalSnapshot(QStringList(filePath)).first();
+    const auto documents = waitForFilesInGlobalSnapshot(QStringList(filePath), timeOutInMs);
+    return documents.isEmpty() ? CPlusPlus::Document::Ptr() : documents.first();
 }
 
-QList<CPlusPlus::Document::Ptr> TestCase::waitForFilesInGlobalSnapshot(
-        const QStringList &filePaths)
+QList<CPlusPlus::Document::Ptr> TestCase::waitForFilesInGlobalSnapshot(const QStringList &filePaths,
+                                                                       int timeOutInMs)
 {
+    QTime t;
+    t.start();
+
     QList<CPlusPlus::Document::Ptr> result;
     foreach (const QString &filePath, filePaths) {
         forever {
@@ -185,13 +190,15 @@ QList<CPlusPlus::Document::Ptr> TestCase::waitForFilesInGlobalSnapshot(
                 result.append(document);
                 break;
             }
+            if (t.elapsed() > timeOutInMs)
+                return QList<CPlusPlus::Document::Ptr>();
             QCoreApplication::processEvents();
         }
     }
     return result;
 }
 
-bool TestCase::waitUntilCppModelManagerIsAwareOf(Project *project, int timeOut)
+bool TestCase::waitUntilCppModelManagerIsAwareOf(Project *project, int timeOutInMs)
 {
     if (!project)
         return false;
@@ -203,7 +210,7 @@ bool TestCase::waitUntilCppModelManagerIsAwareOf(Project *project, int timeOut)
     forever {
         if (modelManager->projectInfo(project).isValid())
             return true;
-        if (t.elapsed() > timeOut)
+        if (t.elapsed() > timeOutInMs)
             return false;
         QCoreApplication::processEvents();
     }

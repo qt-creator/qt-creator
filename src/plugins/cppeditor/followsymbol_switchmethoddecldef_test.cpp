@@ -295,6 +295,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
         // that is the function bodies are processed.
         forever {
             const Document::Ptr document = waitForFileInGlobalSnapshot(testFile->filePath());
+            QVERIFY(document);
             if (document->checkMode() == Document::FullCheck) {
                 QVERIFY(document->diagnosticMessages().isEmpty());
                 break;

@@ -128,7 +128,7 @@ private:
         m_editor = EditorManager::openEditor(m_fileName);
         QVERIFY(m_editor);
 
-        waitForFileInGlobalSnapshot(m_fileName);
+        QVERIFY(waitForFileInGlobalSnapshot(m_fileName));
     }
 
     void doAfterLocatorRun()

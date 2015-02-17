@@ -93,11 +93,16 @@ public:
     static CPlusPlus::Snapshot globalSnapshot();
     static bool garbageCollectGlobalSnapshot();
 
-    static bool waitUntilCppModelManagerIsAwareOf(ProjectExplorer::Project *project,
-                                                  int timeOut = 30 * 1000 /*= 30 secs*/);
-    static CPlusPlus::Document::Ptr waitForFileInGlobalSnapshot(const QString &filePath);
+    enum { defaultTimeOutInMs = 30 * 1000 /*= 30 secs*/ };
+    static bool waitUntilCppModelManagerIsAwareOf(
+            ProjectExplorer::Project *project,
+            int timeOutInMs = defaultTimeOutInMs);
+    static CPlusPlus::Document::Ptr waitForFileInGlobalSnapshot(
+            const QString &filePath,
+            int timeOutInMs = defaultTimeOutInMs);
     static QList<CPlusPlus::Document::Ptr> waitForFilesInGlobalSnapshot(
-            const QStringList &filePaths);
+            const QStringList &filePaths,
+            int timeOutInMs = defaultTimeOutInMs);
 
     static bool writeFile(const QString &filePath, const QByteArray &contents);
 
