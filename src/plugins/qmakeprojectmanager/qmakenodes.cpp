@@ -117,8 +117,9 @@ public:
     { return operator()(a->path(), b); }
     bool operator()(const FileName &a, Node *b)
     { return operator()(a, b->path()); }
+    // Compare as strings to correctly detect case-only file rename
     bool operator()(const FileName &a, const FileName &b)
-    { return a < b; }
+    { return a.toString() < b.toString(); }
 };
 
 class QmakeNodeStaticData {
