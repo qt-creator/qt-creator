@@ -89,7 +89,7 @@ public:
     qint64 v8MeasuredTime() const;
 
     void save(QXmlStreamWriter &stream, QFutureInterface<void> *future = 0);
-    void load(QXmlStreamReader &stream);
+    void load(QXmlStreamReader &stream, QFutureInterface<void> *future = 0);
 
     void complete();
 

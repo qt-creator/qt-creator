@@ -95,8 +95,8 @@ private slots:
     void showSaveOption();
     void showLoadOption();
     void showSaveDialog();
-    void onSaveFinished();
     void showLoadDialog();
+    void onLoadSaveFinished();
 
     void toggleRecordingFeature(QAction *action);
 

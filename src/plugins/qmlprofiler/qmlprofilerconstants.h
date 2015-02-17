@@ -36,6 +36,7 @@ namespace Constants {
 
 const char ATTACH[] = "Menu.Analyzer.Attach";
 const char TraceFileExtension[] = ".qtd";
+const char TASK_LOAD[] = "QmlProfiler.TaskLoad";
 const char TASK_SAVE[] = "QmlProfiler.TaskSave";
 
 } // namespace Constants

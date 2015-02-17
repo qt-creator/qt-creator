@@ -137,6 +137,7 @@ signals:
     void stateChanged();
     void progressChanged();
     void dataAvailable();
+    void loadFinished();
     void saveFinished();
 
     void requestDetailsForLocation(int eventType, const QmlDebug::QmlEventLocation &location);
@@ -162,6 +163,7 @@ public slots:
     void load();
 
     void newTimeEstimation(qint64 estimation);
+
 private:
     void setState(QmlProfilerDataState::State state);
 

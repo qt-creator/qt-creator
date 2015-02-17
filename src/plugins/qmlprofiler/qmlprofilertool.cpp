@@ -151,7 +151,9 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     connect(d->m_profilerModelManager, SIGNAL(availableFeaturesChanged(quint64)),
             this, SLOT(setAvailableFeatures(quint64)));
     connect(d->m_profilerModelManager, &QmlProfilerModelManager::saveFinished,
-            this, &QmlProfilerTool::onSaveFinished);
+            this, &QmlProfilerTool::onLoadSaveFinished);
+    connect(d->m_profilerModelManager, &QmlProfilerModelManager::loadFinished,
+            this, &QmlProfilerTool::onLoadSaveFinished);
 
     d->m_profilerConnections->setModelManager(d->m_profilerModelManager);
     Command *command = 0;
@@ -597,11 +599,6 @@ void QmlProfilerTool::showSaveDialog()
     }
 }
 
-void QmlProfilerTool::onSaveFinished()
-{
-    AnalyzerManager::mainWindow()->setEnabled(true);
-}
-
 void QmlProfilerTool::showLoadDialog()
 {
     if (!checkForUnsavedNotes())
@@ -616,10 +613,14 @@ void QmlProfilerTool::showLoadDialog()
                                                     tr("QML traces (*%1)").arg(QLatin1String(TraceFileExtension)));
 
     if (!filename.isEmpty()) {
-        // delayed load (prevent graphical artifacts due to long load time)
-        d->m_profilerModelManager->setFilename(filename);
-        QTimer::singleShot(100, d->m_profilerModelManager, SLOT(load()));
+        AnalyzerManager::mainWindow()->setEnabled(false);
+        d->m_profilerModelManager->load(filename);
     }
+}
+
+void QmlProfilerTool::onLoadSaveFinished()
+{
+    AnalyzerManager::mainWindow()->setEnabled(true);
 }
 
 /*!

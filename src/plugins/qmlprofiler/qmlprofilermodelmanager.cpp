@@ -406,27 +406,33 @@ void QmlProfilerModelManager::setFilename(const QString &filename)
 
 void QmlProfilerModelManager::load()
 {
-    QString filename = d->fileName;
-
-    QFile file(filename);
-
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        emit error(tr("Could not open %1 for reading.").arg(filename));
+    QFile *file = new QFile(d->fileName, this);
+    if (!file->open(QIODevice::ReadOnly | QIODevice::Text)) {
+        emit error(tr("Could not open %1 for reading.").arg(d->fileName));
+        delete file;
+        emit loadFinished();
         return;
     }
 
-    // erase current
     clear();
-
     setState(QmlProfilerDataState::AcquiringData);
 
-    QmlProfilerFileReader reader;
-    connect(&reader, SIGNAL(error(QString)), this, SIGNAL(error(QString)));
-    reader.setV8DataModel(d->v8Model);
-    reader.setQmlDataModel(d->model);
-    reader.load(&file);
+    QFuture<void> result = QtConcurrent::run<void>([this, file] (QFutureInterface<void> &future) {
+        QmlProfilerFileReader reader;
+        reader.setFuture(&future);
+        connect(&reader, &QmlProfilerFileReader::error, this, &QmlProfilerModelManager::error);
+        reader.setV8DataModel(d->v8Model);
+        reader.setQmlDataModel(d->model);
+        reader.load(file);
+        file->close();
+        file->deleteLater();
 
-    complete();
+        // The completion step uses the old progress display widget for now.
+        complete();
+        QMetaObject::invokeMethod(this, "loadFinished", Qt::QueuedConnection);
+    });
+
+    Core::ProgressManager::addTask(result, tr("Loading Trace Data"), Constants::TASK_LOAD);
 }
 
 

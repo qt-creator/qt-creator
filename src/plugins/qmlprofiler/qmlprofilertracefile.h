@@ -58,6 +58,7 @@ public:
 
     void setV8DataModel(QV8ProfilerDataModel *dataModel);
     void setQmlDataModel(QmlProfilerDataModel *dataModel);
+    void setFuture(QFutureInterface<void> *future);
 
     bool load(QIODevice *device);
 
@@ -68,9 +69,12 @@ private:
     void loadEventData(QXmlStreamReader &reader);
     void loadProfilerDataModel(QXmlStreamReader &reader);
     void loadNoteData(QXmlStreamReader &reader);
+    void progress(QIODevice *device);
+    bool isCanceled() const;
 
     QV8ProfilerDataModel *m_v8Model;
     QmlProfilerDataModel *m_qmlModel;
+    QFutureInterface<void> *m_future;
     QVector<QmlProfilerDataModel::QmlEventTypeData> m_qmlEvents;
     QVector<QmlProfilerDataModel::QmlEventData> m_ranges;
     QVector<QmlProfilerDataModel::QmlEventNoteData> m_notes;

@@ -122,7 +122,8 @@ static QString qmlTypeAsString(Message message, RangeType rangeType)
 
 QmlProfilerFileReader::QmlProfilerFileReader(QObject *parent) :
     QObject(parent),
-    m_v8Model(0)
+    m_v8Model(0),
+    m_future(0)
 {
 }
 
@@ -136,8 +137,18 @@ void QmlProfilerFileReader::setQmlDataModel(QmlProfilerDataModel *dataModel)
     m_qmlModel = dataModel;
 }
 
+void QmlProfilerFileReader::setFuture(QFutureInterface<void> *future)
+{
+    m_future = future;
+}
+
 bool QmlProfilerFileReader::load(QIODevice *device)
 {
+    if (m_future) {
+        m_future->setProgressRange(0, qMin(device->size(), qint64(INT_MAX)));
+        m_future->setProgressValue(0);
+    }
+
     QXmlStreamReader stream(device);
 
     bool validVersion = true;
@@ -145,6 +156,8 @@ bool QmlProfilerFileReader::load(QIODevice *device)
     qint64 traceEnd = -1;
 
     while (validVersion && !stream.atEnd() && !stream.hasError()) {
+        if (isCanceled())
+            return false;
         QXmlStreamReader::TokenType token = stream.readNext();
         const QStringRef elementName = stream.name();
         switch (token) {
@@ -179,7 +192,7 @@ bool QmlProfilerFileReader::load(QIODevice *device)
 
             if (elementName == _("v8profile")) {
                 if (m_v8Model)
-                    m_v8Model->load(stream);
+                    m_v8Model->load(stream, m_future);
                 break;
             }
 
@@ -217,12 +230,16 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
     const QmlProfilerDataModel::QmlEventTypeData defaultEvent = event;
 
     while (!stream.atEnd() && !stream.hasError()) {
+        if (isCanceled())
+            return;
+
         QXmlStreamReader::TokenType token = stream.readNext();
         const QStringRef elementName = stream.name();
 
         switch (token) {
         case QXmlStreamReader::StartElement: {
             if (elementName == _("event")) {
+                progress(stream.device());
                 event = defaultEvent;
 
                 const QXmlStreamAttributes attributes = stream.attributes();
@@ -322,12 +339,16 @@ void QmlProfilerFileReader::loadProfilerDataModel(QXmlStreamReader &stream)
     QTC_ASSERT(stream.name() == _("profilerDataModel"), return);
 
     while (!stream.atEnd() && !stream.hasError()) {
+        if (isCanceled())
+            return;
+
         QXmlStreamReader::TokenType token = stream.readNext();
         const QStringRef elementName = stream.name();
 
         switch (token) {
         case QXmlStreamReader::StartElement: {
             if (elementName == _("range")) {
+                progress(stream.device());
                 QmlProfilerDataModel::QmlEventData range = { -1, 0, 0, 0, 0, 0, 0, 0 };
 
                 const QXmlStreamAttributes attributes = stream.attributes();
@@ -389,12 +410,16 @@ void QmlProfilerFileReader::loadNoteData(QXmlStreamReader &stream)
 {
     QmlProfilerDataModel::QmlEventNoteData currentNote;
     while (!stream.atEnd() && !stream.hasError()) {
+        if (isCanceled())
+            return;
+
         QXmlStreamReader::TokenType token = stream.readNext();
         const QStringRef elementName = stream.name();
 
         switch (token) {
         case QXmlStreamReader::StartElement: {
             if (elementName == _("note")) {
+                progress(stream.device());
                 QXmlStreamAttributes attrs = stream.attributes();
                 currentNote.startTime = attrs.value(_("startTime")).toString().toLongLong();
                 currentNote.duration = attrs.value(_("duration")).toString().toLongLong();
@@ -418,6 +443,19 @@ void QmlProfilerFileReader::loadNoteData(QXmlStreamReader &stream)
             break;
         }
     }
+}
+
+void QmlProfilerFileReader::progress(QIODevice *device)
+{
+    if (!m_future)
+        return;
+
+    m_future->setProgressValue(qMin(device->pos(), qint64(INT_MAX)));
+}
+
+bool QmlProfilerFileReader::isCanceled() const
+{
+    return m_future && m_future->isCanceled();
 }
 
 QmlProfilerFileWriter::QmlProfilerFileWriter(QObject *parent) :

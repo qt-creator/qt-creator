@@ -372,7 +372,7 @@ void QV8ProfilerDataModel::save(QXmlStreamWriter &stream, QFutureInterface<void>
     stream.writeEndElement(); // v8 profiler output
 }
 
-void QV8ProfilerDataModel::load(QXmlStreamReader &stream)
+void QV8ProfilerDataModel::load(QXmlStreamReader &stream, QFutureInterface<void> *future)
 {
     Q_D(QV8ProfilerDataModel);
     QHash <int, QV8EventData *> v8eventBuffer;
@@ -392,12 +392,17 @@ void QV8ProfilerDataModel::load(QXmlStreamReader &stream)
 
     bool finishedReading = false;
     while (!stream.atEnd() && !stream.hasError() && !finishedReading) {
+        if (future && future->isCanceled())
+            return;
+
         QXmlStreamReader::TokenType token = stream.readNext();
         const QStringRef elementName = stream.name();
         switch (token) {
         case QXmlStreamReader::StartDocument :  continue;
         case QXmlStreamReader::StartElement : {
                 if (elementName == QLatin1String("event")) {
+                    if (future)
+                        future->setProgressValue(qMin(stream.device()->pos(), qint64(INT_MAX)));
                     QXmlStreamAttributes attributes = stream.attributes();
                     if (attributes.hasAttribute(QLatin1String("index"))) {
                         int ndx = attributes.value(QLatin1String("index")).toString().toInt();
