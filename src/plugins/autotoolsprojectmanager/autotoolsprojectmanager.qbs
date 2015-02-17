@@ -25,7 +25,6 @@ QtcPlugin {
         "autotoolsopenprojectwizard.h",
         "autotoolsproject.cpp",
         "autotoolsproject.h",
-        "autotoolsproject.qrc",
         "autotoolsprojectconstants.h",
         "autotoolsprojectfile.cpp",
         "autotoolsprojectfile.h",

@@ -53,8 +53,6 @@ QtcPlugin {
         "bardescriptorfilenode.h",
         "bardescriptorfilenodemanager.cpp",
         "bardescriptorfilenodemanager.h",
-        "bardescriptormagicmatcher.cpp",
-        "bardescriptormagicmatcher.h",
         "bardescriptorpermissionsmodel.cpp",
         "bardescriptorpermissionsmodel.h",
         "blackberryabstractdeploystep.cpp",

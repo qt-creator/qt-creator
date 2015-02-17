@@ -75,7 +75,6 @@ QtcPlugin {
             "messagebox.cpp", "messagebox.h",
             "messagemanager.cpp", "messagemanager.h",
             "messageoutputwindow.cpp", "messageoutputwindow.h",
-            "mimedatabase.cpp", "mimedatabase.h",
             "mimetypemagicdialog.cpp", "mimetypemagicdialog.h", "mimetypemagicdialog.ui",
             "mimetypesettings.cpp", "mimetypesettings.h",
             "mimetypesettingspage.ui",
@@ -143,7 +142,6 @@ QtcPlugin {
         name: "Editor Manager"
         prefix: "editormanager/"
         files: [
-            "BinFiles.mimetypes.xml",
             "documentmodel.cpp", "documentmodel.h",
             "editorarea.cpp", "editorarea.h",
             "editormanager.cpp", "editormanager.h", "editormanager_p.h",
