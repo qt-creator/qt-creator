@@ -87,6 +87,8 @@ enum { debugBreakpoints = 0 };
 
 enum { LocalsUpdateForNewFrame = 0x1 };
 
+#define CB(callback) [this](const CdbCommandPtr &r) { callback(r); }
+
 #if 0
 #  define STATE_DEBUG(state, func, line, notifyFunc) qDebug("%s in %s at %s:%d", notifyFunc, stateName(state), func, line);
 #else
@@ -211,8 +213,8 @@ struct CdbCommand
     {}
 
     CdbCommand(bool builtin, const QByteArray &cmd, int token, unsigned flags,
-               CommandHandler h, unsigned nc, const QVariant &cookie)
-        : token(token), flags(flags), command(cmd), cookie(cookie), commandSequence(nc),
+               CommandHandler h, unsigned nc)
+        : token(token), flags(flags), command(cmd), commandSequence(nc),
           isBuiltin(builtin), handler(h), success(false)
     {}
 
@@ -221,7 +223,6 @@ struct CdbCommand
     int token;
     unsigned flags;
     QByteArray command;
-    QVariant cookie;
     // Continue with another commands as specified in CommandSequenceFlags
     unsigned commandSequence;
 
@@ -536,7 +537,7 @@ void CdbEngine::consoleStubExited()
 
 void CdbEngine::createFullBacktrace()
 {
-    postBuiltinCommand("~*kp", 0, &CdbEngine::handleCreateFullBackTrace);
+    postBuiltinCommand("~*kp", 0, CB(handleCreateFullBackTrace));
 }
 
 void CdbEngine::handleCreateFullBackTrace(const CdbEngine::CdbCommandPtr &cmd)
@@ -732,7 +733,7 @@ void CdbEngine::setupInferior()
         const BreakpointParameters bp(BreakpointAtMain);
         postBuiltinCommand(cdbAddBreakpointCommand(bp, m_sourcePathMappings,
                                             BreakpointModelId(quint16(-1)), true), 0,
-                           &CdbEngine::handleBreakInsert);
+                           CB(handleBreakInsert));
     }
     postCommand("sxn 0x4000001f", 0); // Do not break on WowX86 exceptions.
     postCommand("sxn ibp", 0); // Do not break on initial breakpoints.
@@ -742,7 +743,7 @@ void CdbEngine::setupInferior()
                 + " maxStackDepth="
                 + action(MaximalStackDepth)->value().toByteArray()
                 , 0);
-    postExtensionCommand("pid", QByteArray(), 0, &CdbEngine::handlePid);
+    postExtensionCommand("pid", QByteArray(), 0, CB(handlePid));
 }
 
 static QByteArray msvcRunTime(const Abi::OSFlavor flavour)
@@ -791,25 +792,25 @@ void CdbEngine::runEngine()
         const QByteArray debugModule = module + 'D';
         const QByteArray wideFunc = QByteArray(CdbOptionsPage::crtDbgReport).append('W');
         postBuiltinCommand(breakAtFunctionCommand(CdbOptionsPage::crtDbgReport, module), 0,
-                           &CdbEngine::handleBreakInsert);
+                           CB(handleBreakInsert));
         postBuiltinCommand(breakAtFunctionCommand(wideFunc, module), 0,
-                           &CdbEngine::handleBreakInsert);
+                           CB(handleBreakInsert));
         postBuiltinCommand(breakAtFunctionCommand(CdbOptionsPage::crtDbgReport, debugModule), 0,
-                           &CdbEngine::handleBreakInsert);
+                           CB(handleBreakInsert));
         postBuiltinCommand(breakAtFunctionCommand(wideFunc, debugModule), 0,
-                           &CdbEngine::handleBreakInsert);
+                           CB(handleBreakInsert));
     }
     if (boolSetting(BreakOnWarning)) {
         postBuiltinCommand("bm /( QtCored4!qWarning", 0,
-                           &CdbEngine::handleBreakInsert); // 'bm': All overloads.
+                           CB(handleBreakInsert)); // 'bm': All overloads.
         postBuiltinCommand("bm /( Qt5Cored!QMessageLogger::warning", 0,
-                           &CdbEngine::handleBreakInsert);
+                           CB(handleBreakInsert));
     }
     if (boolSetting(BreakOnFatal)) {
         postBuiltinCommand("bm /( QtCored4!qFatal", 0,
-                           &CdbEngine::handleBreakInsert); // 'bm': All overloads.
+                           CB(handleBreakInsert)); // 'bm': All overloads.
         postBuiltinCommand("bm /( Qt5Cored!QMessageLogger::fatal", 0,
-                           &CdbEngine::handleBreakInsert);
+                           CB(handleBreakInsert));
     }
     if (startParameters().startMode == AttachCore) {
         QTC_ASSERT(!m_coreStopReason.isNull(), return; );
@@ -995,8 +996,7 @@ void CdbEngine::updateWatchData(const WatchData &dataIn,
         if (!dataIn.name.isEmpty() && dataIn.name != QLatin1String(dataIn.exp))
             m_watchInameToName.insert(dataIn.iname, dataIn.name);
         postExtensionCommand("addwatch", args, 0,
-                             &CdbEngine::handleAddWatch, 0,
-                             qVariantFromValue(dataIn));
+                             [this, dataIn](const CdbCommandPtr &r) { handleAddWatch(r, dataIn); });
         return;
     }
 
@@ -1009,9 +1009,8 @@ void CdbEngine::updateWatchData(const WatchData &dataIn,
     updateLocalVariable(dataIn.iname);
 }
 
-void CdbEngine::handleAddWatch(const CdbCommandPtr &reply)
+void CdbEngine::handleAddWatch(const CdbCommandPtr &reply, WatchData item)
 {
-    WatchData item = qvariant_cast<WatchData>(reply->cookie);
     if (debugWatches)
         qDebug() << "handleAddWatch ok="  << reply->success << item.iname;
     if (reply->success) {
@@ -1056,8 +1055,8 @@ void CdbEngine::updateLocalVariable(const QByteArray &iname)
         str << blankSeparator << stackFrame;
     }
     str << blankSeparator << iname;
-    postExtensionCommand(isWatch ? "watches" : "locals",
-                         localsArguments, 0, &CdbEngine::handleLocals);
+    postExtensionCommand(isWatch ? "watches" : "locals", localsArguments, 0,
+                         [this](const CdbCommandPtr &r) { handleLocals(r, 0); });
 }
 
 bool CdbEngine::hasCapability(unsigned cap) const
@@ -1192,7 +1191,7 @@ void CdbEngine::executeRunToLine(const ContextData &data)
         bp.lineNumber = data.lineNumber;
     }
     postBuiltinCommand(cdbAddBreakpointCommand(bp, m_sourcePathMappings, BreakpointModelId(), true),
-                       0, &CdbEngine::handleBreakInsert);
+                       0, CB(handleBreakInsert));
     continueInferior();
 }
 
@@ -1203,7 +1202,7 @@ void CdbEngine::executeRunToFunction(const QString &functionName)
     bp.functionName = functionName;
 
     postBuiltinCommand(cdbAddBreakpointCommand(bp, m_sourcePathMappings, BreakpointModelId(), true),
-                       0, &CdbEngine::handleBreakInsert);
+                       0, CB(handleBreakInsert));
     continueInferior();
 }
 
@@ -1228,8 +1227,7 @@ void CdbEngine::executeJumpToLine(const ContextData &data)
         QByteArray cmd;
         ByteArrayInputStream str(cmd);
         str << "? `" << QDir::toNativeSeparators(data.fileName) << ':' << data.lineNumber << '`';
-        const QVariant cookie = qVariantFromValue(data);
-        postBuiltinCommand(cmd, 0, &CdbEngine::handleJumpToLineAddressResolution, 0, cookie);
+        postBuiltinCommand(cmd, 0, [this, data](const CdbCommandPtr &r) { handleJumpToLineAddressResolution(r, data); });
     }
 }
 
@@ -1246,7 +1244,7 @@ void CdbEngine::jumpToAddress(quint64 address)
     postCommand(registerCmd, 0);
 }
 
-void CdbEngine::handleJumpToLineAddressResolution(const CdbCommandPtr &cmd)
+void CdbEngine::handleJumpToLineAddressResolution(const CdbCommandPtr &cmd, const ContextData &context)
 {
     if (cmd->builtinReply.isEmpty())
         return;
@@ -1263,10 +1261,8 @@ void CdbEngine::handleJumpToLineAddressResolution(const CdbCommandPtr &cmd)
     bool ok;
     const quint64 address = answer.toLongLong(&ok, 16);
     if (ok && address) {
-        QTC_ASSERT(cmd->cookie.canConvert<ContextData>(), return);
-        const ContextData cookie = qvariant_cast<ContextData>(cmd->cookie);
         jumpToAddress(address);
-        gotoLocation(Location(cookie.fileName, cookie.lineNumber));
+        gotoLocation(Location(context.fileName, context.lineNumber));
     }
 }
 
@@ -1353,8 +1349,7 @@ void CdbEngine::postCommand(const QByteArray &cmd, unsigned flags)
 // printing a specially formatted token to be identifiable in the output.
 void CdbEngine::postBuiltinCommand(const QByteArray &cmd, unsigned flags,
                                    CommandHandler handler,
-                                   unsigned nextCommandFlag,
-                                   const QVariant &cookie)
+                                   unsigned nextCommandFlag)
 {
     if (!m_accessible) {
         const QString msg = QString::fromLatin1("Attempt to issue builtin command \"%1\" to non-accessible session (%2)")
@@ -1366,7 +1361,7 @@ void CdbEngine::postBuiltinCommand(const QByteArray &cmd, unsigned flags,
         showMessage(QString::fromLocal8Bit(cmd), LogInput);
 
     const int token = m_nextCommandToken++;
-    CdbCommandPtr pendingCommand(new CdbCommand(true, cmd, token, flags, handler, nextCommandFlag, cookie));
+    CdbCommandPtr pendingCommand(new CdbCommand(true, cmd, token, flags, handler, nextCommandFlag));
 
     m_builtinCommandQueue.push_back(pendingCommand);
     // Enclose command in echo-commands for token
@@ -1375,8 +1370,8 @@ void CdbEngine::postBuiltinCommand(const QByteArray &cmd, unsigned flags,
     str << ".echo \"" << m_tokenPrefix << token << "<\"\n"
             << cmd << "\n.echo \"" << m_tokenPrefix << token << ">\"\n";
     if (debug)
-        qDebug("CdbEngine::postBuiltinCommand %dms '%s' flags=%u token=%d %s next=%u, cookie='%s', pending=%d, sequence=0x%x",
-               elapsedLogTime(), cmd.constData(), flags, token, stateName(state()), nextCommandFlag, qPrintable(cookie.toString()),
+        qDebug("CdbEngine::postBuiltinCommand %dms '%s' flags=%u token=%d %s next=%u, pending=%d, sequence=0x%x",
+               elapsedLogTime(), cmd.constData(), flags, token, stateName(state()), nextCommandFlag,
                m_builtinCommandQueue.size(), nextCommandFlag);
     if (debug > 1)
         qDebug("CdbEngine::postBuiltinCommand: resulting command '%s'\n",
@@ -1390,8 +1385,7 @@ void CdbEngine::postExtensionCommand(const QByteArray &cmd,
                                      const QByteArray &arguments,
                                      unsigned flags,
                                      CommandHandler handler,
-                                     unsigned nextCommandFlag,
-                                     const QVariant &cookie)
+                                     unsigned nextCommandFlag)
 {
     if (!m_accessible) {
         const QString msg = QString::fromLatin1("Attempt to issue extension command \"%1\" to non-accessible session (%2)")
@@ -1412,13 +1406,13 @@ void CdbEngine::postExtensionCommand(const QByteArray &cmd,
     if (!(flags & QuietCommand))
         showMessage(QString::fromLocal8Bit(fullCmd), LogInput);
 
-    CdbCommandPtr pendingCommand(new CdbCommand(false, fullCmd, token, flags, handler, nextCommandFlag, cookie));
+    CdbCommandPtr pendingCommand(new CdbCommand(false, fullCmd, token, flags, handler, nextCommandFlag));
 
     m_extensionCommandQueue.push_back(pendingCommand);
     // Enclose command in echo-commands for token
     if (debug)
-        qDebug("CdbEngine::postExtensionCommand %dms '%s' flags=%u token=%d %s next=%u, cookie='%s', pending=%d, sequence=0x%x",
-               elapsedLogTime(), fullCmd.constData(), flags, token, stateName(state()), nextCommandFlag, qPrintable(cookie.toString()),
+        qDebug("CdbEngine::postExtensionCommand %dms '%s' flags=%u token=%d %s next=%u, pending=%d, sequence=0x%x",
+               elapsedLogTime(), fullCmd.constData(), flags, token, stateName(state()), nextCommandFlag,
                m_extensionCommandQueue.size(), nextCommandFlag);
     m_process.write(fullCmd + '\n');
 }
@@ -1514,8 +1508,7 @@ void CdbEngine::updateLocals(bool forNewStackFrame)
     const int flags = forNewStackFrame ? LocalsUpdateForNewFrame : 0;
     str << blankSeparator << frameIndex;
     postExtensionCommand("locals", arguments, 0,
-                         &CdbEngine::handleLocals, 0,
-                         QVariant(flags));
+                         [this, flags](const CdbCommandPtr &r) { handleLocals(r, flags); });
 }
 
 void CdbEngine::selectThread(ThreadId threadId)
@@ -1526,7 +1519,7 @@ void CdbEngine::selectThread(ThreadId threadId)
     threadsHandler()->setCurrentThread(threadId);
 
     const QByteArray cmd = '~' + QByteArray::number(threadId.raw()) + " s";
-    postBuiltinCommand(cmd, 0, &CdbEngine::dummyHandler, CommandListStack);
+    postBuiltinCommand(cmd, 0, CB(dummyHandler), CommandListStack);
 }
 
 // Default address range for showing disassembly.
@@ -1543,7 +1536,6 @@ enum { DisassemblerRange = 512 };
 void CdbEngine::fetchDisassembler(DisassemblerAgent *agent)
 {
     QTC_ASSERT(m_accessible, return);
-    const QVariant cookie = qVariantFromValue<DisassemblerAgent*>(agent);
     const Location location = agent->location();
     if (debug)
         qDebug() << "CdbEngine::fetchDisassembler 0x"
@@ -1552,48 +1544,46 @@ void CdbEngine::fetchDisassembler(DisassemblerAgent *agent)
     if (!location.functionName().isEmpty()) {
         // Resolve function (from stack frame with function and address
         // or just function from editor).
-        postResolveSymbol(location.from(), location.functionName(), cookie);
+        postResolveSymbol(location.from(), location.functionName(), agent);
     } else if (location.address()) {
         // No function, display a default range.
-        postDisassemblerCommand(location.address(), cookie);
+        postDisassemblerCommand(location.address(), agent);
     } else {
         QTC_ASSERT(false, return);
     }
 }
 
-void CdbEngine::postDisassemblerCommand(quint64 address, const QVariant &cookie)
+void CdbEngine::postDisassemblerCommand(quint64 address, DisassemblerAgent *agent)
 {
     postDisassemblerCommand(address - DisassemblerRange / 2,
-                            address + DisassemblerRange / 2, cookie);
+                            address + DisassemblerRange / 2, agent);
 }
 
 void CdbEngine::postDisassemblerCommand(quint64 address, quint64 endAddress,
-                                        const QVariant &cookie)
+                                        DisassemblerAgent *agent)
 {
     QByteArray cmd;
     ByteArrayInputStream str(cmd);
     str <<  "u " << hex <<hexPrefixOn << address << ' ' << endAddress;
-    postBuiltinCommand(cmd, 0, &CdbEngine::handleDisassembler, 0, cookie);
+    postBuiltinCommand(cmd, 0,
+                       [this, agent](const CdbCommandPtr &r) { handleDisassembler(r, agent); });
 }
 
 void CdbEngine::postResolveSymbol(const QString &module, const QString &function,
-                                  const QVariant &cookie)
+                                  DisassemblerAgent *agent)
 {
     QString symbol = module.isEmpty() ? QString(QLatin1Char('*')) : module;
     symbol += QLatin1Char('!');
     symbol += function;
     const QList<quint64> addresses = m_symbolAddressCache.values(symbol);
     if (addresses.isEmpty()) {
-        QVariantList cookieList;
-        cookieList << QVariant(symbol) << cookie;
         showMessage(QLatin1String("Resolving symbol: ") + symbol + QLatin1String("..."), LogMisc);
         postBuiltinCommand(QByteArray("x ") + symbol.toLatin1(), 0,
-                           &CdbEngine::handleResolveSymbol, 0,
-                           QVariant(cookieList));
+                           [this, symbol, agent](const CdbCommandPtr &r) { handleResolveSymbol(r, symbol, agent); });
     } else {
         showMessage(QString::fromLatin1("Using cached addresses for %1.").
                     arg(symbol), LogMisc);
-        handleResolveSymbol(addresses, cookie);
+        handleResolveSymbolHelper(addresses, agent);
     }
 }
 
@@ -1614,11 +1604,9 @@ static inline quint64 resolvedAddress(const QByteArray &line)
     return 0;
 }
 
-void CdbEngine::handleResolveSymbol(const CdbCommandPtr &command)
+void CdbEngine::handleResolveSymbol(const CdbCommandPtr &command, const QString &symbol,
+                                    DisassemblerAgent *agent)
 {
-    QTC_ASSERT(command->cookie.type() == QVariant::List, return; );
-    const QVariantList cookieList = command->cookie.toList();
-    const QString symbol = cookieList.front().toString();
     // Insert all matches of (potentially) ambiguous symbols
     if (const int size = command->builtinReply.size()) {
         for (int i = 0; i < size; i++) {
@@ -1633,7 +1621,7 @@ void CdbEngine::handleResolveSymbol(const CdbCommandPtr &command)
                     + QString::fromLatin1(command->joinedReply()),
                     LogError);
     }
-    handleResolveSymbol(m_symbolAddressCache.values(symbol), cookieList.back());
+    handleResolveSymbolHelper(m_symbolAddressCache.values(symbol), agent);
 }
 
 // Find the function address matching needle in a list of function
@@ -1681,51 +1669,45 @@ static inline QString msgAmbiguousFunction(const QString &functionName,
     return result;
 }
 
-void CdbEngine::handleResolveSymbol(const QList<quint64> &addresses, const QVariant &cookie)
+void CdbEngine::handleResolveSymbolHelper(const QList<quint64> &addresses, DisassemblerAgent *agent)
 {
     // Disassembly mode: Determine suitable range containing the
     // agent's address within the function to display.
-    if (cookie.canConvert<DisassemblerAgent*>()) {
-        DisassemblerAgent *agent = cookie.value<DisassemblerAgent *>();
-        const quint64 agentAddress = agent->address();
-        quint64 functionAddress = 0;
-        quint64 endAddress = 0;
-        if (agentAddress) {
-            // We have an address from the agent, find closest.
-            if (const quint64 closest = findClosestFunctionAddress(addresses, agentAddress)) {
-                if (closest <= agentAddress) {
-                    functionAddress = closest;
-                    endAddress = agentAddress + DisassemblerRange / 2;
-                }
-            }
-        } else {
-            // No agent address, disassembly was started with a function name only.
-            if (!addresses.isEmpty()) {
-                functionAddress = addresses.first();
-                endAddress = functionAddress + DisassemblerRange / 2;
-                if (addresses.size() > 1)
-                    showMessage(msgAmbiguousFunction(agent->location().functionName(), functionAddress, addresses), LogMisc);
+    const quint64 agentAddress = agent->address();
+    quint64 functionAddress = 0;
+    quint64 endAddress = 0;
+    if (agentAddress) {
+        // We have an address from the agent, find closest.
+        if (const quint64 closest = findClosestFunctionAddress(addresses, agentAddress)) {
+            if (closest <= agentAddress) {
+                functionAddress = closest;
+                endAddress = agentAddress + DisassemblerRange / 2;
             }
         }
-        // Disassemble a function, else use default range around agent address
-        if (functionAddress) {
-            if (const quint64 remainder = endAddress % 8)
-                endAddress += 8 - remainder;
-            postDisassemblerCommand(functionAddress, endAddress, cookie);
-        } else if (agentAddress) {
-            postDisassemblerCommand(agentAddress, cookie);
-        } else {
-            QTC_ASSERT(false, return);
+    } else {
+        // No agent address, disassembly was started with a function name only.
+        if (!addresses.isEmpty()) {
+            functionAddress = addresses.first();
+            endAddress = functionAddress + DisassemblerRange / 2;
+            if (addresses.size() > 1)
+                showMessage(msgAmbiguousFunction(agent->location().functionName(), functionAddress, addresses), LogMisc);
         }
-        return;
-    } // DisassemblerAgent
+    }
+    // Disassemble a function, else use default range around agent address
+    if (functionAddress) {
+        if (const quint64 remainder = endAddress % 8)
+            endAddress += 8 - remainder;
+        postDisassemblerCommand(functionAddress, endAddress, agent);
+    } else if (agentAddress) {
+        postDisassemblerCommand(agentAddress, agent);
+    } else {
+        QTC_CHECK(false);
+    }
 }
 
 // Parse: "00000000`77606060 cc              int     3"
-void CdbEngine::handleDisassembler(const CdbCommandPtr &command)
+void CdbEngine::handleDisassembler(const CdbCommandPtr &command, DisassemblerAgent *agent)
 {
-    QTC_ASSERT(command->cookie.canConvert<DisassemblerAgent*>(), return);
-    DisassemblerAgent *agent = qvariant_cast<DisassemblerAgent*>(command->cookie);
     agent->setContents(parseCdbDisassembler(command->builtinReply));
 }
 
@@ -1745,8 +1727,8 @@ void CdbEngine::postFetchMemory(const MemoryViewCookie &cookie)
     QByteArray args;
     ByteArrayInputStream str(args);
     str << cookie.address << ' ' << cookie.length;
-    postExtensionCommand("memory", args, 0, &CdbEngine::handleMemory, 0,
-                         qVariantFromValue(cookie));
+    postExtensionCommand("memory", args, 0,
+                         [this, cookie](const CdbCommandPtr &r) { handleMemory(r, cookie); });
 }
 
 void CdbEngine::changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr, const QByteArray &data)
@@ -1760,10 +1742,8 @@ void CdbEngine::changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr, c
     }
 }
 
-void CdbEngine::handleMemory(const CdbCommandPtr &command)
+void CdbEngine::handleMemory(const CdbCommandPtr &command, const MemoryViewCookie &memViewCookie)
 {
-    QTC_ASSERT(command->cookie.canConvert<MemoryViewCookie>(), return);
-    const MemoryViewCookie memViewCookie = qvariant_cast<MemoryViewCookie>(command->cookie);
     if (command->success && memViewCookie.agent) {
         const QByteArray data = QByteArray::fromBase64(command->extensionReply);
         if (unsigned(data.size()) == memViewCookie.length)
@@ -1883,9 +1863,8 @@ void CdbEngine::handleRegistersExt(const CdbCommandPtr &reply)
     postCommandSequence(reply->commandSequence);
 }
 
-void CdbEngine::handleLocals(const CdbCommandPtr &reply)
+void CdbEngine::handleLocals(const CdbCommandPtr &reply, int flags)
 {
-    const int flags = reply->cookie.toInt();
     if (reply->success) {
         if (boolSetting(VerboseLog))
             showMessage(QLatin1String("Locals: ") + QString::fromLatin1(reply->extensionReply), LogDebug);
@@ -2065,7 +2044,7 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
                                                                 QString::number(threadId));
                     ConditionalBreakPointCookie cookie(id);
                     cookie.stopReason = stopReason;
-                    evaluateExpression(parameters.condition, qVariantFromValue(cookie));
+                    evaluateExpression(parameters.condition, cookie);
                     return StopReportLog;
                 }
             } else {
@@ -2227,8 +2206,8 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
                     executeStepOut();
                     return;
                 case ParseStackWow64:
-                    postBuiltinCommand("lm m wow64", 0, &CdbEngine::handleCheckWow64,
-                                       0, qVariantFromValue(stack));
+                    postBuiltinCommand("lm m wow64", 0,
+                                       [this, stack](const CdbCommandPtr &r) { handleCheckWow64(r, stack); });
                     break;
                 }
             } else {
@@ -2321,22 +2300,22 @@ void CdbEngine::handleBreakInsert(const CdbCommandPtr &cmd)
     attemptBreakpointSynchronization();
 }
 
-void CdbEngine::handleCheckWow64(const CdbCommandPtr &cmd)
+void CdbEngine::handleCheckWow64(const CdbCommandPtr &cmd, const GdbMi &stack)
 {
     // Using the lm (list modules) command to check if there is a 32 bit subsystem in this debuggee.
     // expected reply if there is a 32 bit stack:
     // start             end                 module name
     // 00000000`77490000 00000000`774d5000   wow64      (deferred)
     if (cmd->builtinReply.value(1).contains("wow64")) {
-        postBuiltinCommand("k", 0, &CdbEngine::ensureUsing32BitStackInWow64, 0, cmd->cookie);
+        postBuiltinCommand("k", 0,
+                           [this, stack](const CdbCommandPtr &r) { ensureUsing32BitStackInWow64(r, stack); });
         return;
     }
     m_wow64State = noWow64Stack;
-    if (cmd->cookie.canConvert<GdbMi>())
-        parseStackTrace(qvariant_cast<GdbMi>(cmd->cookie), false);
+    parseStackTrace(stack, false);
 }
 
-void CdbEngine::ensureUsing32BitStackInWow64(const CdbEngine::CdbCommandPtr &cmd)
+void CdbEngine::ensureUsing32BitStackInWow64(const CdbEngine::CdbCommandPtr &cmd, const GdbMi &stack)
 {
     // Parsing the header of the stack output to check which bitness
     // the cdb is currently using.
@@ -2345,18 +2324,16 @@ void CdbEngine::ensureUsing32BitStackInWow64(const CdbEngine::CdbCommandPtr &cmd
             continue;
         if (line.startsWith("ChildEBP")) {
             m_wow64State = wow64Stack32Bit;
-            if (cmd->cookie.canConvert<GdbMi>())
-                parseStackTrace(qvariant_cast<GdbMi>(cmd->cookie), false);
+            parseStackTrace(stack, false);
             return;
         } else if (line.startsWith("Child-SP")) {
             m_wow64State = wow64Stack64Bit;
-            postBuiltinCommand("!wow64exts.sw", 0, &CdbEngine::handleSwitchWow64Stack);
+            postBuiltinCommand("!wow64exts.sw", 0, CB(handleSwitchWow64Stack));
             return;
         }
     }
     m_wow64State = noWow64Stack;
-    if (cmd->cookie.canConvert<GdbMi>())
-        parseStackTrace(qvariant_cast<GdbMi>(cmd->cookie), false);
+    parseStackTrace(stack, false);
 }
 
 void CdbEngine::handleSwitchWow64Stack(const CdbEngine::CdbCommandPtr &cmd)
@@ -2467,7 +2444,7 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QByteArray &what
                 qDebug("### Completed extension command '%s', token=%d, pending=%d",
                        command->command.constData(), command->token, m_extensionCommandQueue.size());
             if (command->handler)
-                (this->*(command->handler))(command);
+                command->handler(command);
             return;
         }
     }
@@ -2626,7 +2603,7 @@ void CdbEngine::parseOutputLine(QByteArray line)
                        currentCommand->builtinReply.size(), m_builtinCommandQueue.size() - 1);
             QTC_ASSERT(token == currentCommand->token, return; );
             if (currentCommand->handler)
-                (this->*(currentCommand->handler))(currentCommand);
+                currentCommand->handler(currentCommand);
             m_builtinCommandQueue.removeAt(m_currentBuiltinCommandIndex);
             m_currentBuiltinCommandIndex = -1;
         } else {
@@ -2872,11 +2849,11 @@ void CdbEngine::attemptBreakpointSynchronization()
                 response.lineNumber = lineCorrection->fixLineNumber(parameters.fileName, parameters.lineNumber);
                 postBuiltinCommand(
                             cdbAddBreakpointCommand(response, m_sourcePathMappings, id, false), 0,
-                            &CdbEngine::handleBreakInsert);
+                            CB(handleBreakInsert));
             } else {
                 postBuiltinCommand(
                             cdbAddBreakpointCommand(parameters, m_sourcePathMappings, id, false), 0,
-                            &CdbEngine::handleBreakInsert);
+                            CB(handleBreakInsert));
             }
             if (!parameters.enabled)
                 postCommand("bd " + QByteArray::number(breakPointIdToCdbId(id)), 0);
@@ -2909,7 +2886,7 @@ void CdbEngine::attemptBreakpointSynchronization()
                 postCommand(cdbClearBreakpointCommand(id), 0);
                 postBuiltinCommand(
                             cdbAddBreakpointCommand(parameters, m_sourcePathMappings, id, false), 0,
-                            &CdbEngine::handleBreakInsert);
+                            CB(handleBreakInsert));
                 m_pendingBreakpointMap.insert(id, response);
             }
             bp.notifyBreakpointChangeOk();
@@ -3049,7 +3026,7 @@ unsigned CdbEngine::parseStackTrace(const GdbMi &data, bool sourceStepInto)
 
 void CdbEngine::loadAdditionalQmlStack()
 {
-    postExtensionCommand("qmlstack", QByteArray(), 0, &CdbEngine::handleAdditionalQmlStack);
+    postExtensionCommand("qmlstack", QByteArray(), 0, CB(handleAdditionalQmlStack));
 }
 
 void CdbEngine::handleAdditionalQmlStack(const CdbCommandPtr &reply)
@@ -3094,11 +3071,11 @@ void CdbEngine::mergeStartParametersSourcePathMap()
 void CdbEngine::handleStackTrace(const CdbCommandPtr &command)
 {
     if (command->success) {
-        GdbMi data;
-        data.fromString(command->extensionReply);
-        if (parseStackTrace(data, false) == ParseStackWow64) {
-            postBuiltinCommand("lm m wow64", 0, &CdbEngine::handleCheckWow64,
-                               0, qVariantFromValue(data));
+        GdbMi stack;
+        stack.fromString(command->extensionReply);
+        if (parseStackTrace(stack, false) == ParseStackWow64) {
+            postBuiltinCommand("lm m wow64", 0,
+                               [this, stack](const CdbCommandPtr &r) { handleCheckWow64(r, stack); });
         }
         postCommandSequence(command->commandSequence);
     } else {
@@ -3106,7 +3083,7 @@ void CdbEngine::handleStackTrace(const CdbCommandPtr &command)
     }
 }
 
-void CdbEngine::handleExpression(const CdbCommandPtr &command)
+void CdbEngine::handleExpression(const CdbCommandPtr &command, const ConditionalBreakPointCookie &cookie)
 {
     int value = 0;
     if (command->success)
@@ -3114,29 +3091,27 @@ void CdbEngine::handleExpression(const CdbCommandPtr &command)
     else
         showMessage(QString::fromLocal8Bit(command->errorMessage), LogError);
     // Is this a conditional breakpoint?
-    if (command->cookie.isValid() && command->cookie.canConvert<ConditionalBreakPointCookie>()) {
-        const ConditionalBreakPointCookie cookie = qvariant_cast<ConditionalBreakPointCookie>(command->cookie);
-        const QString message = value ?
-            tr("Value %1 obtained from evaluating the condition of breakpoint %2, stopping.").
-            arg(value).arg(cookie.id.toString()) :
-            tr("Value 0 obtained from evaluating the condition of breakpoint %1, continuing.").
-            arg(cookie.id.toString());
-        showMessage(message, LogMisc);
-        // Stop if evaluation is true, else continue
-        if (value)
-            processStop(cookie.stopReason, true);
-        else
-            doContinueInferior();
-    }
+    const QString message = value ?
+        tr("Value %1 obtained from evaluating the condition of breakpoint %2, stopping.").
+        arg(value).arg(cookie.id.toString()) :
+        tr("Value 0 obtained from evaluating the condition of breakpoint %1, continuing.").
+        arg(cookie.id.toString());
+    showMessage(message, LogMisc);
+    // Stop if evaluation is true, else continue
+    if (value)
+        processStop(cookie.stopReason, true);
+    else
+        doContinueInferior();
 }
 
-void CdbEngine::evaluateExpression(QByteArray exp, const QVariant &cookie)
+void CdbEngine::evaluateExpression(QByteArray exp, const ConditionalBreakPointCookie &cookie)
 {
     if (exp.contains(' ') && !exp.startsWith('"')) {
         exp.prepend('"');
         exp.append('"');
     }
-    postExtensionCommand("expression", exp, 0, &CdbEngine::handleExpression, 0, cookie);
+    postExtensionCommand("expression", exp, 0,
+                         [this, cookie](const CdbCommandPtr &r) { handleExpression(r, cookie); });
 }
 
 void CdbEngine::dummyHandler(const CdbCommandPtr &command)
@@ -3153,25 +3128,25 @@ void CdbEngine::postCommandSequence(unsigned mask)
     if (!mask)
         return;
     if (mask & CommandListThreads) {
-        postExtensionCommand("threads", QByteArray(), 0, &CdbEngine::handleThreads, mask & ~CommandListThreads);
+        postExtensionCommand("threads", QByteArray(), 0, CB(handleThreads), mask & ~CommandListThreads);
         return;
     }
     if (mask & CommandListStack) {
-        postExtensionCommand("stack", "unlimited", 0, &CdbEngine::handleStackTrace, mask & ~CommandListStack);
+        postExtensionCommand("stack", "unlimited", 0, CB(handleStackTrace), mask & ~CommandListStack);
         return;
     }
     if (mask & CommandListRegisters) {
         QTC_ASSERT(threadsHandler()->currentThreadIndex() >= 0,  return);
-        postExtensionCommand("registers", QByteArray(), 0, &CdbEngine::handleRegistersExt, mask & ~CommandListRegisters);
+        postExtensionCommand("registers", QByteArray(), 0, CB(handleRegistersExt), mask & ~CommandListRegisters);
         return;
     }
     if (mask & CommandListModules) {
-        postExtensionCommand("modules", QByteArray(), 0, &CdbEngine::handleModules, mask & ~CommandListModules);
+        postExtensionCommand("modules", QByteArray(), 0, CB(handleModules), mask & ~CommandListModules);
         return;
     }
     if (mask & CommandListBreakPoints) {
         postExtensionCommand("breakpoints", QByteArray("-v"), 0,
-                             &CdbEngine::handleBreakPoints, mask & ~CommandListBreakPoints);
+                             CB(handleBreakPoints), mask & ~CommandListBreakPoints);
         return;
     }
 }
@@ -3329,7 +3304,7 @@ void CdbEngine::postWidgetAtCommand()
     QByteArray arguments = QByteArray::number(m_watchPointX);
     arguments.append(' ');
     arguments.append(QByteArray::number(m_watchPointY));
-    postExtensionCommand("widgetat", arguments, 0, &CdbEngine::handleWidgetAt, 0);
+    postExtensionCommand("widgetat", arguments, 0, CB(handleWidgetAt));
 }
 
 void CdbEngine::handleCustomSpecialStop(const QVariant &v)
