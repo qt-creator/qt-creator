@@ -692,7 +692,7 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                         FLUSH_LHS_LITERAL();
                         finalizeCond(tokPtr, buf, ptr, wordCount);
                         if (m_state == StNew)
-                            parseError(fL1S("And operator without prior condition."));
+                            parseError(fL1S("AND operator without prior condition."));
                         else
                             m_operator = AndOperator;
                       nextItem:
@@ -702,7 +702,7 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                         FLUSH_LHS_LITERAL();
                         finalizeCond(tokPtr, buf, ptr, wordCount);
                         if (m_state != StCond)
-                            parseError(fL1S("Or operator without prior condition."));
+                            parseError(fL1S("OR operator without prior condition."));
                         else
                             m_operator = OrOperator;
                         goto nextItem;
@@ -1082,7 +1082,7 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
                 defType = TokTestDef;
               deffunc:
                 if (m_invert) {
-                    bogusTest(tokPtr, fL1S("Unexpected operator in front of function definition."));
+                    bogusTest(tokPtr, fL1S("Unexpected NOT operator in front of function definition."));
                     return;
                 }
                 flushScopes(tokPtr);
