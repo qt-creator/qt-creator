@@ -43,6 +43,8 @@ namespace QmlProfiler {
 namespace Internal {
 
 const char QmlProfilerToolId[] = "QmlProfiler";
+const char QmlProfilerLocalActionId[] = "QmlProfiler.Local";
+const char QmlProfilerRemoteActionId[] = "QmlProfiler.Remote";
 
 class QmlProfilerTool : public QObject
 {

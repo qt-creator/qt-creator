@@ -178,7 +178,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
         AnalyzerManager::addAction(action);
 
         action = new AnalyzerAction(this);
-        action->setActionId("Callgrind.Local");
+        action->setActionId(CallgrindLocalActionId);
         action->setToolId(CallgrindToolId);
         action->setWidgetCreator(cgWidgetCreator);
         action->setRunControlCreator(cgRunControlCreator);
@@ -206,7 +206,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     AnalyzerManager::addAction(action);
 
     action = new AnalyzerAction(this);
-    action->setActionId("Callgrind.Remote");
+    action->setActionId(CallgrindRemoteActionId);
     action->setToolId(CallgrindToolId);
     action->setWidgetCreator(cgWidgetCreator);
     action->setRunControlCreator(cgRunControlCreator);

@@ -906,7 +906,7 @@ void CallgrindToolPrivate::handleShowCostsOfFunction()
 
     m_toggleCollectFunction = qualifiedFunctionName + QLatin1String("()");
 
-    AnalyzerManager::selectTool(CallgrindToolId, StartLocal);
+    AnalyzerManager::selectTool(CallgrindLocalActionId);
     AnalyzerManager::startTool();
 }
 

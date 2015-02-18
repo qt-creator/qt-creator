@@ -153,14 +153,9 @@ public:
     void handleToolFinished();
     void saveToolSettings(Id toolId);
     void loadToolSettings(Id toolId);
-
-    // Convenience.
     bool isActionRunnable(AnalyzerAction *action) const;
-
-public slots:
     void startTool();
     void selectToolboxAction(int);
-    void selectMenuAction();
     void modeChanged(IMode *mode);
     void resetLayout();
     void updateRunActions();
@@ -472,15 +467,6 @@ void AnalyzerManagerPrivate::selectSavedTool()
         selectAction(m_actions.first());
 }
 
-void AnalyzerManagerPrivate::selectMenuAction()
-{
-    AnalyzerManager::showMode();
-    AnalyzerAction *action = qobject_cast<AnalyzerAction *>(sender());
-    QTC_ASSERT(action, return);
-    selectAction(action);
-    startTool();
-}
-
 void AnalyzerManagerPrivate::selectToolboxAction(int index)
 {
     selectAction(m_actions[index]);
@@ -540,7 +526,13 @@ void AnalyzerManagerPrivate::addAction(AnalyzerAction *action)
     m_actions.append(action);
     m_toolBox->addItem(action->text());
     m_toolBox->blockSignals(blocked);
-    connect(action, &QAction::triggered, this, &AnalyzerManagerPrivate::selectMenuAction);
+
+    connect(action, &QAction::triggered, this, [this, action] {
+        AnalyzerManager::showMode();
+        selectAction(action);
+        startTool();
+    });
+
     m_toolBox->setEnabled(true);
 }
 
@@ -643,10 +635,10 @@ QDockWidget *AnalyzerManager::createDockWidget(Core::Id toolId,
     return dockWidget;
 }
 
-void AnalyzerManager::selectTool(Id toolId, StartMode mode)
+void AnalyzerManager::selectTool(Id actionId)
 {
     foreach (AnalyzerAction *action, d->m_actions)
-        if (action->toolId() == toolId && action->startMode() == mode)
+        if (action->actionId() == actionId)
             d->selectAction(action);
 }
 

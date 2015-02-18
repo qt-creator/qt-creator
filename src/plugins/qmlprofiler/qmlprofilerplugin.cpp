@@ -67,7 +67,7 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
         "applications using QML.");
 
     action = new AnalyzerAction(this);
-    action->setActionId("QmlProfiler.Local");
+    action->setActionId(QmlProfilerLocalActionId);
     action->setToolId(QmlProfilerToolId);
     action->setWidgetCreator(widgetCreator);
     action->setRunControlCreator(runControlCreator);
@@ -80,7 +80,7 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
     AnalyzerManager::addAction(action);
 
     action = new AnalyzerAction(this);
-    action->setActionId("QmlProfiler.Remote");
+    action->setActionId(QmlProfilerRemoteActionId);
     action->setToolId(QmlProfilerToolId);
     action->setWidgetCreator(widgetCreator);
     action->setRunControlCreator(runControlCreator);

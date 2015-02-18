@@ -37,6 +37,8 @@ namespace Valgrind {
 namespace Internal {
 
 const char CallgrindToolId[] = "Callgrind";
+const char CallgrindLocalActionId[] = "Callgrind.Local";
+const char CallgrindRemoteActionId[] = "Callgrind.Remote";
 
 class CallgrindToolPrivate;
 
