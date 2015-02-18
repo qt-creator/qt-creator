@@ -24,4 +24,4 @@ HEADERS += qmlprofilerextensionplugin.h \
         inputeventsmodel.h
 
 OTHER_FILES += \
-    QmlProfilerExtension.json
+    QmlProfilerExtension.json.in
