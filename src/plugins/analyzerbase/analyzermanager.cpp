@@ -151,8 +151,8 @@ public:
     void selectAction(AnalyzerAction *action);
     void handleToolStarted();
     void handleToolFinished();
-    void saveToolSettings(AnalyzerAction *action);
-    void loadToolSettings(AnalyzerAction *action);
+    void saveToolSettings(Id toolId);
+    void loadToolSettings(Id toolId);
 
     // Convenience.
     bool isActionRunnable(AnalyzerAction *action) const;
@@ -496,7 +496,7 @@ void AnalyzerManagerPrivate::selectAction(AnalyzerAction *action)
 
     // Clean up old tool.
     if (m_currentAction) {
-        saveToolSettings(m_currentAction);
+        saveToolSettings(m_currentAction->toolId());
         foreach (QDockWidget *widget, m_toolWidgets.value(m_currentAction->toolId()))
             deactivateDock(widget);
     }
@@ -516,7 +516,7 @@ void AnalyzerManagerPrivate::selectAction(AnalyzerAction *action)
     foreach (QDockWidget *widget, m_toolWidgets.value(toolId))
         activateDock(Qt::DockWidgetArea(widget->property(INITIAL_DOCK_AREA).toInt()), widget);
 
-    loadToolSettings(action);
+    loadToolSettings(action->toolId());
 
     QTC_CHECK(m_controlsWidgetFromTool.contains(toolId));
     m_controlsStackWidget->setCurrentWidget(m_controlsWidgetFromTool.value(toolId));
@@ -556,29 +556,28 @@ void AnalyzerManagerPrivate::handleToolFinished()
     updateRunActions();
 }
 
-void AnalyzerManagerPrivate::loadToolSettings(AnalyzerAction *action)
+void AnalyzerManagerPrivate::loadToolSettings(Id toolId)
 {
     QTC_ASSERT(m_mainWindow, return);
     QSettings *settings = ICore::settings();
-    settings->beginGroup(QLatin1String("AnalyzerViewSettings_") + action->toolId().toString());
+    settings->beginGroup(QLatin1String("AnalyzerViewSettings_") + toolId.toString());
     if (settings->value(QLatin1String("ToolSettingsSaved"), false).toBool())
         m_mainWindow->restoreSettings(settings);
     else
-        m_mainWindow->restoreSettings(m_defaultSettings.value(action->toolId()));
+        m_mainWindow->restoreSettings(m_defaultSettings.value(toolId));
     settings->endGroup();
 }
 
-void AnalyzerManagerPrivate::saveToolSettings(AnalyzerAction *action)
+void AnalyzerManagerPrivate::saveToolSettings(Id toolId)
 {
-    QTC_ASSERT(action, return);
     QTC_ASSERT(m_mainWindow, return);
 
     QSettings *settings = ICore::settings();
-    settings->beginGroup(QLatin1String("AnalyzerViewSettings_") + action->toolId().toString());
+    settings->beginGroup(QLatin1String("AnalyzerViewSettings_") + toolId.toString());
     m_mainWindow->saveSettings(settings);
     settings->setValue(QLatin1String("ToolSettingsSaved"), true);
     settings->endGroup();
-    settings->setValue(QLatin1String(LAST_ACTIVE_TOOL), action->toolId().toString());
+    settings->setValue(QLatin1String(LAST_ACTIVE_TOOL), toolId.toString());
 }
 
 void AnalyzerManagerPrivate::updateRunActions()
@@ -625,7 +624,7 @@ AnalyzerManager::~AnalyzerManager()
 void AnalyzerManager::shutdown()
 {
     if (d->m_currentAction)
-        d->saveToolSettings(d->m_currentAction);
+        d->saveToolSettings(d->m_currentAction->toolId());
 }
 
 void AnalyzerManager::addAction(AnalyzerAction *action)
