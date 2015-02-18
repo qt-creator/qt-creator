@@ -76,12 +76,18 @@ private:
     bool m_filterExternalIssues;
 };
 
-class MemcheckTool : public Analyzer::IAnalyzerTool
+class MemcheckTool : public QObject
 {
     Q_OBJECT
 
 public:
     MemcheckTool(QObject *parent);
+
+    void startTool(Analyzer::StartMode mode);
+    QWidget *createWidgets();
+
+    Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
+                               ProjectExplorer::RunConfiguration *runConfiguration = 0);
 
 private slots:
     void settingsDestroyed(QObject *settings);
@@ -99,8 +105,6 @@ private slots:
     void loadExternalXmlLogFile();
 
 private:
-    void startTool(Analyzer::StartMode mode);
-    QWidget *createWidgets();
     void setBusyCursor(bool busy);
 
     void clearErrorView();
@@ -108,9 +112,6 @@ private:
     int updateUiAfterFinishedHelper();
 
 protected:
-    Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
-                               ProjectExplorer::RunConfiguration *runConfiguration = 0);
-
     virtual MemcheckRunControl *createMemcheckRunControl(
             const Analyzer::AnalyzerStartParameters &sp,
             ProjectExplorer::RunConfiguration *runConfiguration);
@@ -138,7 +139,6 @@ class MemcheckWithGdbTool : public MemcheckTool
 public:
     MemcheckWithGdbTool(QObject *parent);
 
-protected:
     void startTool(Analyzer::StartMode mode);
     MemcheckRunControl *createMemcheckRunControl(
             const Analyzer::AnalyzerStartParameters &sp,

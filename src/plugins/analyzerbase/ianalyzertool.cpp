@@ -58,41 +58,24 @@ using namespace ProjectExplorer;
 
 namespace Analyzer {
 
-IAnalyzerTool::IAnalyzerTool(QObject *parent)
-    : QObject(parent)
-{}
-
-ProjectExplorer::RunMode AnalyzerAction::runMode() const
-{
-    return m_runMode;
-}
-
-void AnalyzerAction::setRunMode(ProjectExplorer::RunMode mode)
-{
-    m_runMode = mode;
-}
-
 AnalyzerAction::AnalyzerAction(QObject *parent)
     : QAction(parent)
 {}
 
-static bool buildTypeAccepted(IAnalyzerTool::ToolMode toolMode,
-                       BuildConfiguration::BuildType buildType)
+static bool buildTypeAccepted(ToolMode toolMode, BuildConfiguration::BuildType buildType)
 {
-    if (toolMode == IAnalyzerTool::AnyMode)
+    if (toolMode == AnyMode)
         return true;
     if (buildType == BuildConfiguration::Unknown)
         return true;
-    if (buildType == BuildConfiguration::Debug
-            && toolMode == IAnalyzerTool::DebugMode)
+    if (buildType == BuildConfiguration::Debug && toolMode == DebugMode)
         return true;
-    if (buildType == BuildConfiguration::Release
-            && toolMode == IAnalyzerTool::ReleaseMode)
+    if (buildType == BuildConfiguration::Release && toolMode == ReleaseMode)
         return true;
     return false;
 }
 
-bool checkForLocalStart(IAnalyzerTool::ToolMode toolMode)
+bool checkForLocalStart(ToolMode toolMode)
 {
     // Make sure mode is shown.
     AnalyzerManager::showMode();
@@ -117,10 +100,10 @@ bool checkForLocalStart(IAnalyzerTool::ToolMode toolMode)
 
         QString toolModeString;
         switch (toolMode) {
-            case IAnalyzerTool::DebugMode:
+            case DebugMode:
                 toolModeString = AnalyzerManager::tr("Debug");
                 break;
-            case IAnalyzerTool::ReleaseMode:
+            case ReleaseMode:
                 toolModeString = AnalyzerManager::tr("Release");
                 break;
             default:

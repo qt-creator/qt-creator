@@ -104,7 +104,7 @@ public:
 
     QV8ProfilerEventsWidget *q;
 
-    Analyzer::IAnalyzerTool *m_profilerTool;
+    QmlProfilerTool *m_profilerTool;
     QmlProfilerViewManager *m_viewContainer;
 
     QV8ProfilerEventsMainView *m_eventTree;
@@ -115,7 +115,7 @@ public:
 };
 
 QV8ProfilerEventsWidget::QV8ProfilerEventsWidget(QWidget *parent,
-                                 Analyzer::IAnalyzerTool *profilerTool,
+                                 QmlProfilerTool *profilerTool,
                                  QmlProfilerViewManager *container,
                                  QmlProfilerModelManager *profilerModelManager )
     : QWidget(parent), d(new QV8ProfilerEventsWidgetPrivate(this))

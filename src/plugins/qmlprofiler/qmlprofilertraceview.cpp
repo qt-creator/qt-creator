@@ -77,7 +77,7 @@ public:
     QmlProfilerTraceView *q;
 
     QmlProfilerStateManager *m_profilerState;
-    Analyzer::IAnalyzerTool *m_profilerTool;
+    QmlProfilerTool *m_profilerTool;
     QmlProfilerViewManager *m_viewContainer;
 
     QSize m_sizeHint;
@@ -90,7 +90,7 @@ public:
     Timeline::TimelineZoomControl *m_zoomControl;
 };
 
-QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerTool *profilerTool, QmlProfilerViewManager *container, QmlProfilerModelManager *modelManager, QmlProfilerStateManager *profilerState)
+QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerTool *profilerTool, QmlProfilerViewManager *container, QmlProfilerModelManager *modelManager, QmlProfilerStateManager *profilerState)
     : QWidget(parent), d(new QmlProfilerTraceViewPrivate(this))
 {
     setObjectName(QLatin1String("QML Profiler"));

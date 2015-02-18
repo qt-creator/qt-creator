@@ -500,7 +500,7 @@ static QToolButton *createToolButton(QAction *action)
 }
 
 CallgrindTool::CallgrindTool(QObject *parent)
-    : IAnalyzerTool(parent)
+    : QObject(parent)
 {
     d = new CallgrindToolPrivate(this);
     setObjectName(QLatin1String("CallgrindTool"));
@@ -643,11 +643,11 @@ QWidget *CallgrindToolPrivate::createWidgets()
 
     updateCostFormat();
 
-    QDockWidget *callersDock = AnalyzerManager::createDockWidget(q, m_callersView);
-    QDockWidget *flatDock = AnalyzerManager::createDockWidget(q, m_flatView);
-    QDockWidget *calleesDock = AnalyzerManager::createDockWidget(q, m_calleesView);
+    QDockWidget *callersDock = AnalyzerManager::createDockWidget(CallgrindToolId, m_callersView);
+    QDockWidget *flatDock = AnalyzerManager::createDockWidget(CallgrindToolId, m_flatView);
+    QDockWidget *calleesDock = AnalyzerManager::createDockWidget(CallgrindToolId, m_calleesView);
     QDockWidget *visualizationDock = AnalyzerManager::createDockWidget
-        (q, m_visualisation, Qt::RightDockWidgetArea);
+        (CallgrindToolId, m_visualisation, Qt::RightDockWidgetArea);
 
     callersDock->show();
     calleesDock->show();
@@ -925,7 +925,7 @@ void CallgrindToolPrivate::handleShowCostsOfFunction()
 
     m_toggleCollectFunction = qualifiedFunctionName + QLatin1String("()");
 
-    AnalyzerManager::selectTool(q, StartLocal);
+    AnalyzerManager::selectTool(CallgrindToolId, StartLocal);
     AnalyzerManager::startTool();
 }
 

@@ -124,11 +124,11 @@ void QmlProfilerViewManager::createViews()
             d->v8profilerView, SLOT(selectBySourceLocation(QString,int,int)));
 
     QDockWidget *eventsDock = AnalyzerManager::createDockWidget
-            (d->profilerTool, d->eventsView);
+            (QmlProfilerToolId, d->eventsView);
     QDockWidget *timelineDock = AnalyzerManager::createDockWidget
-            (d->profilerTool, d->traceView);
+            (QmlProfilerToolId, d->traceView);
     QDockWidget *v8profilerDock = AnalyzerManager::createDockWidget
-            (d->profilerTool, d->v8profilerView);
+            (QmlProfilerToolId, d->v8profilerView);
 
     eventsDock->show();
     timelineDock->show();

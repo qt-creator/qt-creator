@@ -121,7 +121,7 @@ public:
 };
 
 QmlProfilerTool::QmlProfilerTool(QObject *parent)
-    : IAnalyzerTool(parent), d(new QmlProfilerToolPrivate)
+    : QObject(parent), d(new QmlProfilerToolPrivate)
 {
     setObjectName(QLatin1String("QmlProfilerTool"));
 
@@ -486,7 +486,7 @@ void QmlProfilerTool::clearDisplay()
     updateTimeDisplay();
 }
 
-static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
+static void startRemoteTool(QmlProfilerTool *tool, StartMode mode)
 {
     Id kitId;
     quint16 port;
@@ -601,7 +601,7 @@ void QmlProfilerTool::showLoadDialog()
     if (ModeManager::currentMode()->id() != MODE_ANALYZE)
         AnalyzerManager::showMode();
 
-    AnalyzerManager::selectTool(this, StartRemote);
+    AnalyzerManager::selectTool("QmlProfiler", StartRemote);
 
     QString filename = QFileDialog::getOpenFileName(ICore::mainWindow(), tr("Load QML Trace"), QString(),
                                                     tr("QML traces (*%1)").arg(QLatin1String(TraceFileExtension)));

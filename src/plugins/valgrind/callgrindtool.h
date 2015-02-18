@@ -36,9 +36,11 @@
 namespace Valgrind {
 namespace Internal {
 
+const char CallgrindToolId[] = "Callgrind";
+
 class CallgrindToolPrivate;
 
-class CallgrindTool : public Analyzer::IAnalyzerTool
+class CallgrindTool : public QObject
 {
     Q_OBJECT
 

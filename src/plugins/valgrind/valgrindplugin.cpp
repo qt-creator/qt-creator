@@ -124,10 +124,37 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
                 "Valgrind Analyze Memory with GDB uses the \"memcheck\" tool to find memory leaks.\n"
                 "When a problem is detected, the application is interrupted and can be debugged");
 
+    MemcheckTool *mcTool = m_memcheckTool;
+    auto mcToolStarter = [mcTool](StartMode mode) { return mcTool->startTool(mode); };
+    auto mcWidgetCreator = [mcTool] { return mcTool->createWidgets(); };
+    auto mcRunControlCreator = [mcTool](const AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration) {
+        return mcTool->createRunControl(sp, runConfiguration);
+    };
+
+    MemcheckWithGdbTool *mcgTool = m_memcheckWithGdbTool;
+    auto mcgToolStarter = [mcgTool](StartMode mode) { return mcgTool->startTool(mode); };
+    auto mcgWidgetCreator = [mcgTool] { return mcgTool->createWidgets(); };
+    auto mcgRunControlCreator = [mcgTool](const AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration) {
+        return mcgTool->createRunControl(sp, runConfiguration);
+    };
+
+    CallgrindTool *cgTool = m_callgrindTool;
+    auto cgToolStarter = [cgTool](StartMode mode) { return cgTool->startTool(mode); };
+    auto cgWidgetCreator = [cgTool] { return cgTool->createWidgets(); };
+    auto cgRunControlCreator = [cgTool](const AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration) {
+        return cgTool->createRunControl(sp, runConfiguration);
+    };
+
     if (!Utils::HostOsInfo::isWindowsHost()) {
         action = new AnalyzerAction(this);
-        action->setId("Memcheck.Local");
-        action->setTool(m_memcheckTool);
+        action->setActionId("Memcheck.Local");
+        action->setToolId("Memcheck");
+        action->setWidgetCreator(mcWidgetCreator);
+        action->setRunControlCreator(mcRunControlCreator);
+        action->setToolStarter(mcToolStarter);
         action->setRunMode(ProjectExplorer::MemcheckRunMode);
         action->setText(tr("Valgrind Memory Analyzer"));
         action->setToolTip(memcheckToolTip);
@@ -137,8 +164,11 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
         AnalyzerManager::addAction(action);
 
         action = new AnalyzerAction(this);
-        action->setId("MemcheckWithGdb.Local");
-        action->setTool(m_memcheckWithGdbTool);
+        action->setActionId("MemcheckWithGdb.Local");
+        action->setToolId("MemcheckWithGdb");
+        action->setWidgetCreator(mcgWidgetCreator);
+        action->setRunControlCreator(mcgRunControlCreator);
+        action->setToolStarter(mcgToolStarter);
         action->setRunMode(ProjectExplorer::MemcheckWithGdbRunMode);
         action->setText(tr("Valgrind Memory Analyzer with GDB"));
         action->setToolTip(memcheckWithGdbToolTip);
@@ -148,8 +178,11 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
         AnalyzerManager::addAction(action);
 
         action = new AnalyzerAction(this);
-        action->setId("Callgrind.Local");
-        action->setTool(m_callgrindTool);
+        action->setActionId("Callgrind.Local");
+        action->setToolId(CallgrindToolId);
+        action->setWidgetCreator(cgWidgetCreator);
+        action->setRunControlCreator(cgRunControlCreator);
+        action->setToolStarter(cgToolStarter);
         action->setRunMode(ProjectExplorer::CallgrindRunMode);
         action->setText(tr("Valgrind Function Profiler"));
         action->setToolTip(callgrindToolTip);
@@ -160,8 +193,11 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     }
 
     action = new AnalyzerAction(this);
-    action->setId("Memcheck.Remote");
-    action->setTool(m_memcheckTool);
+    action->setActionId("Memcheck.Remote");
+    action->setToolId("Memcheck");
+    action->setWidgetCreator(mcWidgetCreator);
+    action->setRunControlCreator(mcRunControlCreator);
+    action->setToolStarter(mcToolStarter);
     action->setRunMode(ProjectExplorer::MemcheckRunMode);
     action->setText(tr("Valgrind Memory Analyzer (External Remote Application)"));
     action->setToolTip(memcheckToolTip);
@@ -170,8 +206,11 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     AnalyzerManager::addAction(action);
 
     action = new AnalyzerAction(this);
-    action->setId("Callgrind.Remote");
-    action->setTool(m_callgrindTool);
+    action->setActionId("Callgrind.Remote");
+    action->setToolId(CallgrindToolId);
+    action->setWidgetCreator(cgWidgetCreator);
+    action->setRunControlCreator(cgRunControlCreator);
+    action->setToolStarter(cgToolStarter);
     action->setRunMode(ProjectExplorer::CallgrindRunMode);
     action->setText(tr("Valgrind Function Profiler (External Remote Application)"));
     action->setToolTip(callgrindToolTip);

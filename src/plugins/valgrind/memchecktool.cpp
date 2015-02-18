@@ -187,7 +187,7 @@ static void initKindFilterAction(QAction *action, const QList<int> &kinds)
 }
 
 MemcheckTool::MemcheckTool(QObject *parent)
-  : IAnalyzerTool(parent)
+  : QObject(parent)
 {
     m_settings = 0;
     m_errorModel = 0;
@@ -358,7 +358,7 @@ QWidget *MemcheckTool::createWidgets()
     m_errorView->setObjectName(QLatin1String("Valgrind.MemcheckTool.ErrorView"));
     m_errorView->setWindowTitle(tr("Memory Issues"));
 
-    QDockWidget *errorDock = AnalyzerManager::createDockWidget(this, m_errorView);
+    QDockWidget *errorDock = AnalyzerManager::createDockWidget("Memcheck", m_errorView);
     errorDock->show();
     mw->splitDockWidget(mw->toolBarDockWidget(), errorDock, Qt::Vertical);
 

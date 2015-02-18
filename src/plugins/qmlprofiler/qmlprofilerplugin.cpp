@@ -52,7 +52,13 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    IAnalyzerTool *tool = new QmlProfilerTool(this);
+    auto tool = new QmlProfilerTool(this);
+    auto toolStarter = [tool](StartMode mode) { return tool->startTool(mode); };
+    auto widgetCreator = [tool] { return tool->createWidgets(); };
+    auto runControlCreator = [tool](const AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration) {
+        return tool->createRunControl(sp, runConfiguration);
+    };
 
     AnalyzerAction *action = 0;
 
@@ -61,8 +67,11 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
         "applications using QML.");
 
     action = new AnalyzerAction(this);
-    action->setId("QmlProfiler.Local");
-    action->setTool(tool);
+    action->setActionId("QmlProfiler.Local");
+    action->setToolId(QmlProfilerToolId);
+    action->setWidgetCreator(widgetCreator);
+    action->setRunControlCreator(runControlCreator);
+    action->setToolStarter(toolStarter);
     action->setRunMode(ProjectExplorer::QmlProfilerRunMode);
     action->setText(tr("QML Profiler"));
     action->setToolTip(description);
@@ -71,8 +80,11 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
     AnalyzerManager::addAction(action);
 
     action = new AnalyzerAction(this);
-    action->setId("QmlProfiler.Remote");
-    action->setTool(tool);
+    action->setActionId("QmlProfiler.Remote");
+    action->setToolId(QmlProfilerToolId);
+    action->setWidgetCreator(widgetCreator);
+    action->setRunControlCreator(runControlCreator);
+    action->setToolStarter(toolStarter);
     action->setRunMode(ProjectExplorer::QmlProfilerRunMode);
     action->setText(tr("QML Profiler (External)"));
     action->setToolTip(description);

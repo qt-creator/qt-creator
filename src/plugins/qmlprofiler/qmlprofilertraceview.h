@@ -35,14 +35,13 @@
 #include <QWidget>
 #include <QTimer>
 
-namespace Analyzer { class IAnalyzerTool; }
-
 namespace QmlProfiler {
 
 class QmlProfilerModelManager;
 namespace Internal {
 
 class QmlProfilerStateManager;
+class QmlProfilerTool;
 class QmlProfilerViewManager;
 
 class QmlProfilerTraceView : public QWidget
@@ -50,7 +49,7 @@ class QmlProfilerTraceView : public QWidget
     Q_OBJECT
 
 public:
-    explicit QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerTool *profilerTool,
+    explicit QmlProfilerTraceView(QWidget *parent, QmlProfilerTool *profilerTool,
                                   QmlProfilerViewManager *container,
                                   QmlProfilerModelManager *modelManager,
                                   QmlProfilerStateManager *profilerState);
