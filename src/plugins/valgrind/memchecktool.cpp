@@ -196,7 +196,6 @@ MemcheckTool::MemcheckTool(QObject *parent)
     m_filterMenu = 0;
 
     setObjectName(QLatin1String("MemcheckTool"));
-    setToolMode(DebugMode);
 
     m_filterProjectAction = new QAction(tr("External Errors"), this);
     m_filterProjectAction->setToolTip(
@@ -601,7 +600,7 @@ void MemcheckTool::setBusyCursor(bool busy)
 void MemcheckTool::startTool(StartMode mode)
 {
     if (mode == StartLocal)
-        startLocalTool(MemcheckRunMode);
+        startLocalTool(DebugMode, MemcheckRunMode);
     if (mode == StartRemote)
         startRemoteTool(MemcheckRunMode);
 }
@@ -612,15 +611,13 @@ MemcheckWithGdbTool::MemcheckWithGdbTool(QObject *parent) :
     setObjectName(QLatin1String("MemcheckWithGdbTool"));
 }
 
-
 void MemcheckWithGdbTool::startTool(Analyzer::StartMode mode)
 {
     if (mode == StartLocal)
-        startLocalTool(MemcheckWithGdbRunMode);
+        startLocalTool(DebugMode, MemcheckWithGdbRunMode);
     if (mode == StartRemote)
         startRemoteTool(MemcheckWithGdbRunMode);
 }
-
 
 MemcheckRunControl *MemcheckWithGdbTool::createMemcheckRunControl(const AnalyzerStartParameters &sp,
                                                                   RunConfiguration *runConfiguration)

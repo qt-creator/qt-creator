@@ -72,16 +72,6 @@ void AnalyzerAction::setRunMode(ProjectExplorer::RunMode mode)
     m_runMode = mode;
 }
 
-IAnalyzerTool::ToolMode IAnalyzerTool::toolMode() const
-{
-    return m_toolMode;
-}
-
-void IAnalyzerTool::setToolMode(IAnalyzerTool::ToolMode mode)
-{
-    m_toolMode = mode;
-}
-
 AnalyzerAction::AnalyzerAction(QObject *parent)
     : QAction(parent)
 {}
@@ -102,7 +92,7 @@ static bool buildTypeAccepted(IAnalyzerTool::ToolMode toolMode,
     return false;
 }
 
-void IAnalyzerTool::startLocalTool(RunMode runMode)
+void IAnalyzerTool::startLocalTool(ToolMode toolMode, RunMode runMode)
 {
     // Make sure mode is shown.
     AnalyzerManager::showMode();
@@ -120,13 +110,13 @@ void IAnalyzerTool::startLocalTool(RunMode runMode)
 
     // Check the project for whether the build config is in the correct mode
     // if not, notify the user and urge him to use the correct mode.
-    if (!buildTypeAccepted(toolMode(), buildType)) {
+    if (!buildTypeAccepted(toolMode, buildType)) {
         const QString currentMode = buildType == BuildConfiguration::Debug
                 ? AnalyzerManager::tr("Debug")
                 : AnalyzerManager::tr("Release");
 
         QString toolModeString;
-        switch (toolMode()) {
+        switch (toolMode) {
             case IAnalyzerTool::DebugMode:
                 toolModeString = AnalyzerManager::tr("Debug");
                 break;

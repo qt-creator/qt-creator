@@ -502,7 +502,6 @@ CallgrindTool::CallgrindTool(QObject *parent)
 {
     d = new CallgrindToolPrivate(this);
     setObjectName(QLatin1String("CallgrindTool"));
-    setToolMode(ReleaseMode);
 
     connect(EditorManager::instance(), &EditorManager::editorOpened,
             d, &CallgrindToolPrivate::editorOpened);
@@ -560,7 +559,7 @@ AnalyzerRunControl *CallgrindToolPrivate::createRunControl(const AnalyzerStartPa
 void CallgrindTool::startTool(StartMode mode)
 {
     if (mode == StartLocal)
-        startLocalTool(CallgrindRunMode);
+        startLocalTool(ReleaseMode, CallgrindRunMode);
     if (mode == StartRemote)
         startRemoteTool(CallgrindRunMode);
     d->setBusyCursor(true);

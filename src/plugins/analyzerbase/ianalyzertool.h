@@ -80,8 +80,6 @@ public:
         ReleaseMode,
         AnyMode
     };
-    ToolMode toolMode() const;
-    void setToolMode(ToolMode mode);
 
     /// Creates all widgets used by the tool.
     /// Returns a control widget which will be shown in the status bar when
@@ -95,11 +93,8 @@ public:
 
     virtual void startTool(StartMode mode) = 0;
 
-    void startLocalTool(ProjectExplorer::RunMode runMode);
+    void startLocalTool(ToolMode toolMode, ProjectExplorer::RunMode runMode);
     void startRemoteTool(ProjectExplorer::RunMode runMode);
-
-private:
-    ToolMode m_toolMode;
 };
 
 /**
