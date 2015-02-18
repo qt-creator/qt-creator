@@ -136,7 +136,6 @@ protected:
 private slots:
     void openFile();
     void aboutToShowRecentFiles();
-    void openRecentFile();
     void setFocusToEditor();
     void saveAll();
     void aboutQtCreator();
