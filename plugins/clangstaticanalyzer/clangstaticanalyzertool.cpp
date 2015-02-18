@@ -49,7 +49,7 @@ namespace ClangStaticAnalyzer {
 namespace Internal {
 
 ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
-    : IAnalyzerTool(parent)
+    : QObject(parent)
     , m_diagnosticModel(0)
     , m_diagnosticView(0)
     , m_goBack(0)
@@ -57,8 +57,6 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
     , m_running(false)
 {
     setObjectName(QLatin1String("ClangStaticAnalyzerTool"));
-    setRunMode(ProjectExplorer::ClangStaticAnalyzerMode);
-    setToolMode(AnyMode);
 }
 
 QWidget *ClangStaticAnalyzerTool::createWidgets()
@@ -85,7 +83,8 @@ QWidget *ClangStaticAnalyzerTool::createWidgets()
     m_diagnosticView->setObjectName(QLatin1String("ClangStaticAnalyzerIssuesView"));
     m_diagnosticView->setWindowTitle(tr("Clang Static Analyzer Issues"));
 
-    QDockWidget *issuesDock = AnalyzerManager::createDockWidget(this, m_diagnosticView);
+    QDockWidget *issuesDock = AnalyzerManager::createDockWidget(ClangStaticAnalyzerToolId,
+                                                                m_diagnosticView);
     issuesDock->show();
     Utils::FancyMainWindow *mw = AnalyzerManager::mainWindow();
     mw->splitDockWidget(mw->toolBarDockWidget(), issuesDock, Qt::Vertical);
@@ -208,7 +207,7 @@ void ClangStaticAnalyzerTool::startTool(StartMode mode)
     m_projectInfoBeforeBuild = CppTools::CppModelManager::instance()->projectInfo(project);
     QTC_ASSERT(m_projectInfoBeforeBuild.isValid(), return);
     m_running = true;
-    ProjectExplorerPlugin::instance()->runProject(project, runMode());
+    ProjectExplorerPlugin::runProject(project, ProjectExplorer::ClangStaticAnalyzerMode);
 }
 
 CppTools::ProjectInfo ClangStaticAnalyzerTool::projectInfoBeforeBuild() const

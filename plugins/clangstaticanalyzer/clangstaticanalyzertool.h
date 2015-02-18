@@ -31,7 +31,9 @@ class ClangStaticAnalyzerDiagnosticModel;
 class ClangStaticAnalyzerDiagnosticView;
 class Diagnostic;
 
-class ClangStaticAnalyzerTool : public Analyzer::IAnalyzerTool
+const char ClangStaticAnalyzerToolId[] = "ClangStaticAnalyzer";
+
+class ClangStaticAnalyzerTool : public QObject
 {
     Q_OBJECT
 
@@ -44,15 +46,15 @@ public:
     bool isRunning() const { return m_running; }
     QList<Diagnostic> diagnostics() const;
 
-signals:
-    void finished(); // For testing.
-
-private:
     QWidget *createWidgets();
     Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
                                             ProjectExplorer::RunConfiguration *runConfiguration);
     void startTool(Analyzer::StartMode mode);
 
+signals:
+    void finished(); // For testing.
+
+private:
     void onEngineIsStarting();
     void onNewDiagnosticsAvailable(const QList<Diagnostic> &diagnostics);
     void onEngineFinished();

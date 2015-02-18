@@ -125,16 +125,27 @@ bool ClangStaticAnalyzerPlugin::initializeEnterpriseFeatures(const QStringList &
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
 
-    m_analyzerTool = new ClangStaticAnalyzerTool(this);
+    auto tool = m_analyzerTool = new ClangStaticAnalyzerTool(this);
     addAutoReleasedObject(new ClangStaticAnalyzerRunControlFactory(m_analyzerTool));
     addAutoReleasedObject(new ClangStaticAnalyzerOptionsPage);
+
+    auto toolStarter = [tool](StartMode mode) { return tool->startTool(mode); };
+    auto widgetCreator = [tool] { return tool->createWidgets(); };
+    auto runControlCreator = [tool](const AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration) {
+        return tool->createRunControl(sp, runConfiguration);
+    };
 
     const QString toolTip = tr("Clang Static Analyzer uses the analyzer from the clang project "
                                "to find bugs.");
 
     AnalyzerAction *action = new AnalyzerAction(this);
-    action->setId("ClangStaticAnalyzer");
-    action->setTool(m_analyzerTool);
+    action->setRunMode(ProjectExplorer::ClangStaticAnalyzerMode);
+    action->setToolId(ClangStaticAnalyzerToolId);
+    action->setActionId("ClangStaticAnalyzer");
+    action->setWidgetCreator(widgetCreator);
+    action->setRunControlCreator(runControlCreator);
+    action->setToolStarter(toolStarter);
     action->setText(tr("Clang Static Analyzer"));
     action->setToolTip(toolTip);
     action->setMenuGroup(Constants::G_ANALYZER_TOOLS);
