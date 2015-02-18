@@ -141,6 +141,9 @@ private:
                                        const ushort *cur, const QString &in);
     void finalizeCond(ushort *&tokPtr, ushort *uc, ushort *ptr, int wordCount);
     void finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int argc);
+    void warnOperator(const char *msg);
+    bool failOperator(const char *msg);
+    bool acceptColon(const char *msg);
     void putOperator(ushort *&tokPtr);
     void finalizeTest(ushort *&tokPtr);
     void bogusTest(ushort *&tokPtr, const QString &msg);

@@ -691,6 +691,7 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                     } else if (c == ':') {
                         FLUSH_LHS_LITERAL();
                         finalizeCond(tokPtr, buf, ptr, wordCount);
+                        warnOperator("in front of AND operator");
                         if (m_state == StNew)
                             parseError(fL1S("AND operator without prior condition."));
                         else
@@ -701,6 +702,7 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                     } else if (c == '|') {
                         FLUSH_LHS_LITERAL();
                         finalizeCond(tokPtr, buf, ptr, wordCount);
+                        warnOperator("in front of OR operator");
                         if (m_state != StCond)
                             parseError(fL1S("OR operator without prior condition."));
                         else
@@ -709,7 +711,13 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                     } else if (c == '{') {
                         FLUSH_LHS_LITERAL();
                         finalizeCond(tokPtr, buf, ptr, wordCount);
+                        if (m_operator == AndOperator) {
+                            languageWarning(fL1S("Excess colon in front of opening brace."));
+                            m_operator = NoOperator;
+                        }
+                        failOperator("in front of opening brace");
                         flushCond(tokPtr);
+                        m_state = StNew; // Reset possible StCtrl, so colons get rejected.
                         ++m_blockstack.top().braceLevel;
                         if (grammar == TestGrammar)
                             parseError(fL1S("Opening scope not permitted in this context."));
@@ -720,6 +728,7 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                         m_state = StNew; // De-facto newline
                       closeScope:
                         flushScopes(tokPtr);
+                        failOperator("in front of closing brace");
                         if (!m_blockstack.top().braceLevel) {
                             parseError(fL1S("Excess closing brace."));
                         } else if (!--m_blockstack.top().braceLevel
@@ -751,6 +760,7 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                       doOp:
                         FLUSH_LHS_LITERAL();
                         flushCond(tokPtr);
+                        acceptColon("in front of assignment");
                         putLineMarker(tokPtr);
                         if (grammar == TestGrammar) {
                             parseError(fL1S("Assignment not permitted in this context."));
@@ -835,6 +845,7 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                     putTok(tokPtr, TokValueTerminator);
                 } else {
                     finalizeCond(tokPtr, buf, ptr, wordCount);
+                    warnOperator("at end of line");
                 }
                 if (!cur)
                     break;
@@ -928,6 +939,48 @@ void QMakeParser::flushCond(ushort *&tokPtr)
     }
 }
 
+void QMakeParser::warnOperator(const char *msg)
+{
+    if (m_invert) {
+        languageWarning(fL1S("Stray NOT operator %1.").arg(fL1S(msg)));
+        m_invert = false;
+    }
+    if (m_operator == AndOperator) {
+        languageWarning(fL1S("Stray AND operator %1.").arg(fL1S(msg)));
+        m_operator = NoOperator;
+    } else if (m_operator == OrOperator) {
+        languageWarning(fL1S("Stray OR operator %1.").arg(fL1S(msg)));
+        m_operator = NoOperator;
+    }
+}
+
+bool QMakeParser::failOperator(const char *msg)
+{
+    bool fail = false;
+    if (m_invert) {
+        parseError(fL1S("Unexpected NOT operator %1.").arg(fL1S(msg)));
+        m_invert = false;
+        fail = true;
+    }
+    if (m_operator == AndOperator) {
+        parseError(fL1S("Unexpected AND operator %1.").arg(fL1S(msg)));
+        m_operator = NoOperator;
+        fail = true;
+    } else if (m_operator == OrOperator) {
+        parseError(fL1S("Unexpected OR operator %1.").arg(fL1S(msg)));
+        m_operator = NoOperator;
+        fail = true;
+    }
+    return fail;
+}
+
+bool QMakeParser::acceptColon(const char *msg)
+{
+    if (m_operator == AndOperator)
+        m_operator = NoOperator;
+    return !failOperator(msg);
+}
+
 void QMakeParser::putOperator(ushort *&tokPtr)
 {
     if (m_operator== AndOperator) {
@@ -981,10 +1034,8 @@ void QMakeParser::finalizeCond(ushort *&tokPtr, ushort *uc, ushort *ptr, int wor
         if (uce == ptr) {
             m_tmp.setRawData((QChar *)uc + 4, nlen);
             if (!m_tmp.compare(statics.strelse, Qt::CaseInsensitive)) {
-                if (m_invert || m_operator != NoOperator) {
-                    parseError(fL1S("Unexpected operator in front of else."));
+                if (failOperator("in front of else"))
                     return;
-                }
                 BlockScope &top = m_blockstack.top();
                 if (m_canElse && (!top.special || top.braceLevel)) {
                     // A list of tests (the last one likely with side effects),
@@ -1029,9 +1080,8 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
             const QString *defName;
             ushort defType;
             if (m_tmp == statics.strfor) {
-                if (m_invert || m_operator == OrOperator) {
-                    // '|' could actually work reasonably, but qmake does nonsense here.
-                    bogusTest(tokPtr, fL1S("Unexpected operator in front of for()."));
+                if (!acceptColon("in front of for()")) {
+                    bogusTest(tokPtr, QString());
                     return;
                 }
                 flushCond(tokPtr);
