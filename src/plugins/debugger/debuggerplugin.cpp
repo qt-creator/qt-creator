@@ -903,15 +903,6 @@ public slots:
         }
     }
 
-    void slotDisassembleFunction()
-    {
-        const QAction *action = qobject_cast<const QAction *>(sender());
-        QTC_ASSERT(action, return);
-        const StackFrame frame = action->data().value<StackFrame>();
-        QTC_ASSERT(!frame.function.isEmpty(), return);
-        currentEngine()->openDisassemblerView(Location(frame));
-    }
-
     void handleAddToWatchWindow()
     {
         // Requires a selection, but that's the only case we want anyway.
@@ -1738,18 +1729,18 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
             });
         }
         // Disassemble current function in stopped state.
-        if (currentEngine()->state() == InferiorStopOk
-            && currentEngine()->hasCapability(DisassemblerCapability)) {
+        if (currentEngine()->hasCapability(DisassemblerCapability)) {
             StackFrame frame;
-            frame.function = cppFunctionAt(args.fileName, lineNumber);
+            frame.function = cppFunctionAt(args.fileName, lineNumber, 1);
             frame.line = 42; // trick gdb into mixed mode.
             if (!frame.function.isEmpty()) {
                 const QString text = tr("Disassemble Function \"%1\"")
                     .arg(frame.function);
-                QAction *disassembleAction = new QAction(text, menu);
-                disassembleAction->setData(QVariant::fromValue(frame));
-                connect(disassembleAction, &QAction::triggered, this, &DebuggerPluginPrivate::slotDisassembleFunction);
-                menu->addAction(disassembleAction );
+                auto act = new QAction(text, menu);
+                connect(act, &QAction::triggered, [this, frame] {
+                    currentEngine()->openDisassemblerView(Location(frame));
+                });
+                menu->addAction(act);
             }
         }
     }
