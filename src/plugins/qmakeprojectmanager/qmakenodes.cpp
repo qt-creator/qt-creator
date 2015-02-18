@@ -1527,13 +1527,13 @@ namespace {
     };
 }
 
-const QmakeProFileNode *QmakeProFileNode::findProFileFor(const FileName &fileName) const
+QmakeProFileNode *QmakeProFileNode::findProFileFor(const FileName &fileName) const
 {
     if (fileName == path())
-        return this;
+        return const_cast<QmakeProFileNode *>(this);
     foreach (ProjectNode *pn, subProjectNodes())
         if (QmakeProFileNode *qmakeProFileNode = dynamic_cast<QmakeProFileNode *>(pn))
-            if (const QmakeProFileNode *result = qmakeProFileNode->findProFileFor(fileName))
+            if (QmakeProFileNode *result = qmakeProFileNode->findProFileFor(fileName))
                 return result;
     return 0;
 }

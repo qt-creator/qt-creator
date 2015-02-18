@@ -357,7 +357,7 @@ public:
     static QString uiHeaderFile(const QString &uiDir, const Utils::FileName &formFile);
     QHash<QString, QString> uiFiles() const;
 
-    const QmakeProFileNode *findProFileFor(const Utils::FileName &string) const;
+    QmakeProFileNode *findProFileFor(const Utils::FileName &string) const;
     TargetInformation targetInformation() const;
 
     InstallsList installsList() const;
