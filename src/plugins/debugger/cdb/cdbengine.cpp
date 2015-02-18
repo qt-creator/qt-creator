@@ -209,7 +209,7 @@ struct CdbCommand
     typedef CdbEngine::CommandHandler CommandHandler;
 
     CdbCommand()
-        : token(0), flags(0), commandSequence(0), isBuiltin(true), handler(0), success(false)
+        : token(0), flags(0), commandSequence(0), isBuiltin(true), handler(CommandHandler()), success(false)
     {}
 
     CdbCommand(bool builtin, const QByteArray &cmd, int token, unsigned flags,
