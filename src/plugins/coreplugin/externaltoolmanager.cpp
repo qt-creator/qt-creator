@@ -80,7 +80,9 @@ ExternalToolManager::ExternalToolManager()
     d->m_configureSeparator = new QAction(this);
     d->m_configureSeparator->setSeparator(true);
     d->m_configureAction = new QAction(ICore::msgShowOptionsDialog(), this);
-    connect(d->m_configureAction, SIGNAL(triggered()), this, SLOT(openPreferences()));
+    connect(d->m_configureAction, &QAction::triggered, [this] {
+        ICore::showOptionsDialog(Constants::SETTINGS_CATEGORY_CORE, Constants::SETTINGS_ID_TOOLS);
+    });
 
     // add the external tools menu
     ActionContainer *mexternaltools = ActionManager::createMenu(Id(Constants::M_TOOLS_EXTERNAL));
@@ -159,17 +161,6 @@ static void parseDirectory(const QString &directory,
     }
 }
 
-void ExternalToolManager::menuActivated()
-{
-    QAction *action = qobject_cast<QAction *>(sender());
-    QTC_ASSERT(action, return);
-    ExternalTool *tool = d->m_tools.value(action->data().toString());
-    QTC_ASSERT(tool, return);
-    ExternalToolRunner *runner = new ExternalToolRunner(tool);
-    if (runner->hasError())
-        MessageManager::write(runner->errorString());
-}
-
 QMap<QString, QList<ExternalTool *> > ExternalToolManager::toolsByCategory()
 {
     return d->m_categoryMap;
@@ -246,9 +237,13 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<ExternalT
                 command = ActionManager::command(externalToolsPrefix.withSuffix(toolId));
             } else {
                 action = new QAction(tool->displayName(), m_instance);
-                action->setData(toolId);
                 d->m_actions.insert(toolId, action);
-                connect(action, SIGNAL(triggered()), m_instance, SLOT(menuActivated()));
+                connect(action, &QAction::triggered, [tool] {
+                    ExternalToolRunner *runner = new ExternalToolRunner(tool);
+                    if (runner->hasError())
+                        MessageManager::write(runner->errorString());
+                });
+
                 command = ActionManager::registerAction(action, externalToolsPrefix.withSuffix(toolId), Context(Constants::C_GLOBAL));
                 command->setAttribute(Command::CA_UpdateText);
             }
@@ -328,11 +323,6 @@ static void writeSettings()
     settings->endGroup();
 
     settings->endGroup();
-}
-
-void ExternalToolManager::openPreferences()
-{
-    ICore::showOptionsDialog(Constants::SETTINGS_CATEGORY_CORE, Constants::SETTINGS_ID_TOOLS);
 }
 
 void ExternalToolManager::emitReplaceSelectionRequested(const QString &output)

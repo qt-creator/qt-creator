@@ -58,10 +58,6 @@ public:
 
 signals:
     void replaceSelectionRequested(const QString &text);
-
-private slots:
-    void menuActivated();
-    void openPreferences();
 };
 
 } // namespace Core
