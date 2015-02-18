@@ -27,7 +27,7 @@
     To use Qbs to build a project, you must create a .qbs file for the project.
     You can use \QC to create a C or C++ project that is built with Qbs.
     For more information about Qbs, see
-    the \l{http://qt-project.org/doc/qbs/index.html}{Qbs Manual}.
+    the \l{http://doc.qt.io/qbs/index.html}{Qbs Manual}.
 
     \section1 Building Qbs
 
@@ -89,7 +89,7 @@
                 \li In the \uicontrol Properties field, specify the properties to pass
                     to the project. Use colons (:) to separate keys from values.
                     For more information, see
-                    \l{http://qt-project.org/doc/qbs/language-introduction.html}
+                    \l{http://doc.qt.io/qbs/language-introduction.html}
                     {Modules} in the Qbs Manual.
 
                 \li In the \uicontrol Flags field:

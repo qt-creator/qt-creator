@@ -35,6 +35,6 @@ DummyContextObject {
     property variant model: QtObject {
         property string name: "Calculator"
         property string description: "his demo shows how to write a simple calculator application in QML and JavaScript."
-        property string imageSource: "http://qt-project.org/doc/qt-4.8/images/qml-calculator-example-small.png"
+        property string imageSource: "http://doc.qt.io/qt-4.8/images/qml-calculator-example-small.png"
     }
 }

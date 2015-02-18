@@ -896,7 +896,7 @@
             does not have signals or slots, if it is intended to be used
             with qobject_cast<>. See also \l{Casting}.
         \li Normalize the arguments for signals and slots
-            (see \l{http://qt-project.org/doc/qt-4.8/qmetaobject.html#normalizedSignature}{QMetaObject::normalizedSignature}
+            (see QMetaObject::normalizedSignature)
             inside connect statements
             to safely make signal and slot lookup a few cycles faster.
             You can use $QTDIR/util/normalize to normalize existing code.
