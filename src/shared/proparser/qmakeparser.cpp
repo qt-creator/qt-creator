@@ -721,8 +721,9 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                     } else if (c == '}') {
                         FLUSH_LHS_LITERAL();
                         finalizeCond(tokPtr, buf, ptr, wordCount);
-                        flushScopes(tokPtr);
+                        m_state = StNew; // De-facto newline
                       closeScope:
+                        flushScopes(tokPtr);
                         if (!m_blockstack.top().braceLevel) {
                             parseError(fL1S("Excess closing brace."));
                         } else if (!--m_blockstack.top().braceLevel
