@@ -50,8 +50,8 @@
 
         \li Debugging is enabled by default for Qt 4.8, or later. For Qt 4.7,
             select \uicontrol Projects, and then select the
-            \uicontrol {Enable QML debugging} check box in the \uicontrol qmake section
-            in \uicontrol {Build Steps}.
+            \uicontrol {Enable QML debugging and profiling} check box in the \uicontrol qmake
+            section in \uicontrol {Build Steps}.
 
             You might have to compile the library first, by selecting the
             \uicontrol Compile link.

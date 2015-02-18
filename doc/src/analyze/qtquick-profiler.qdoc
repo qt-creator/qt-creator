@@ -85,7 +85,7 @@
     \section1 Attaching to Running Qt Quick Applications
 
     To profile Qt Quick applications that are not launched by \QC, select
-    \uicontrol {Analyze > QML Profiler (External)}. You must enable QML debugging for
+    \uicontrol {Analyze > QML Profiler (External)}. You must enable QML debugging and profiling for
     the application in the project build settings. For more information, see
     \l{Setting Up QML Debugging}.
 
