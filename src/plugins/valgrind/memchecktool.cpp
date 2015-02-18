@@ -187,7 +187,7 @@ static void initKindFilterAction(QAction *action, const QList<int> &kinds)
 }
 
 MemcheckTool::MemcheckTool(QObject *parent)
-  : ValgrindTool(parent)
+  : IAnalyzerTool(parent)
 {
     m_settings = 0;
     m_errorModel = 0;
@@ -597,6 +597,14 @@ void MemcheckTool::setBusyCursor(bool busy)
 {
     QCursor cursor(busy ? Qt::BusyCursor : Qt::ArrowCursor);
     m_errorView->setCursor(cursor);
+}
+
+void MemcheckTool::startTool(StartMode mode)
+{
+    if (mode == StartLocal)
+        startLocalTool();
+    if (mode == StartRemote)
+        startRemoteTool();
 }
 
 MemcheckWithGdbTool::MemcheckWithGdbTool(QObject *parent) :

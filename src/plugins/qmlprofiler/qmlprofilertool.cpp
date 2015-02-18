@@ -548,7 +548,7 @@ void QmlProfilerTool::startTool(StartMode mode)
         Project *pro = SessionManager::startupProject();
         ProjectExplorerPlugin::instance()->runProject(pro, runMode());
     } else if (mode == StartRemote) {
-        startRemoteTool(this, mode);
+        Internal::startRemoteTool(this, mode);
     }
 }
 

@@ -51,7 +51,7 @@ class AnalyzerRunControl;
 /**
  * This class represents an analyzation tool, e.g. "Valgrind Memcheck".
  *
- * Each tool can run in different run modes. The modes are specific to the mode.
+ * Each tool can run in different run modes. The modes are specific to the tool.
  *
  * @code
  * bool YourPlugin::initialize(const QStringList &arguments, QString *errorString)
@@ -97,6 +97,9 @@ public:
         ProjectExplorer::RunConfiguration *runConfiguration) = 0;
 
     virtual void startTool(StartMode mode) = 0;
+
+    void startLocalTool();
+    void startRemoteTool();
 
 private:
     ProjectExplorer::RunMode m_runMode;

@@ -32,7 +32,7 @@
 #ifndef MEMCHECKTOOL_H
 #define MEMCHECKTOOL_H
 
-#include "valgrindtool.h"
+#include <analyzerbase/ianalyzertool.h>
 
 #include <QSortFilterProxyModel>
 
@@ -76,7 +76,7 @@ private:
     bool m_filterExternalIssues;
 };
 
-class MemcheckTool : public ValgrindTool
+class MemcheckTool : public Analyzer::IAnalyzerTool
 {
     Q_OBJECT
 
@@ -99,6 +99,7 @@ private slots:
     void loadExternalXmlLogFile();
 
 private:
+    void startTool(Analyzer::StartMode mode);
     QWidget *createWidgets();
     void setBusyCursor(bool busy);
 
