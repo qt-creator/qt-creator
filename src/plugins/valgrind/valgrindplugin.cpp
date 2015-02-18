@@ -95,13 +95,6 @@ private:
     QPointer<QWidget> m_widget;
 };
 
-class ValgrindAction : public AnalyzerAction
-{
-public:
-    explicit ValgrindAction(QObject *parent = 0) : AnalyzerAction(parent) { }
-};
-
-
 ValgrindPlugin::~ValgrindPlugin()
 {
     delete theGlobalSettings;
@@ -119,7 +112,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     m_memcheckWithGdbTool = new MemcheckWithGdbTool(this);
     m_callgrindTool = new CallgrindTool(this);
 
-    ValgrindAction *action = 0;
+    AnalyzerAction *action = 0;
 
     QString callgrindToolTip = tr("Valgrind Function Profile uses the "
         "\"callgrind\" tool to record function calls when a program runs.");
@@ -132,7 +125,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
                 "When a problem is detected, the application is interrupted and can be debugged");
 
     if (!Utils::HostOsInfo::isWindowsHost()) {
-        action = new ValgrindAction(this);
+        action = new AnalyzerAction(this);
         action->setId("Memcheck.Local");
         action->setTool(m_memcheckTool);
         action->setText(tr("Valgrind Memory Analyzer"));
@@ -142,7 +135,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
         action->setEnabled(false);
         AnalyzerManager::addAction(action);
 
-        action = new ValgrindAction(this);
+        action = new AnalyzerAction(this);
         action->setId("MemcheckWithGdb.Local");
         action->setTool(m_memcheckWithGdbTool);
         action->setText(tr("Valgrind Memory Analyzer with GDB"));
@@ -152,7 +145,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
         action->setEnabled(false);
         AnalyzerManager::addAction(action);
 
-        action = new ValgrindAction(this);
+        action = new AnalyzerAction(this);
         action->setId("Callgrind.Local");
         action->setTool(m_callgrindTool);
         action->setText(tr("Valgrind Function Profiler"));
@@ -163,7 +156,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
         AnalyzerManager::addAction(action);
     }
 
-    action = new ValgrindAction(this);
+    action = new AnalyzerAction(this);
     action->setId("Memcheck.Remote");
     action->setTool(m_memcheckTool);
     action->setText(tr("Valgrind Memory Analyzer (External Remote Application)"));
@@ -172,7 +165,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     action->setStartMode(StartRemote);
     AnalyzerManager::addAction(action);
 
-    action = new ValgrindAction(this);
+    action = new AnalyzerAction(this);
     action->setId("Callgrind.Remote");
     action->setTool(m_callgrindTool);
     action->setText(tr("Valgrind Function Profiler (External Remote Application)"));
