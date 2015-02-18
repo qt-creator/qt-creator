@@ -135,10 +135,10 @@ static inline bool isTextFile(const QByteArray &data)
 
 MimeType MimeDatabasePrivate::findByData(const QByteArray &data, int *accuracyPtr)
 {
-    if (data.isEmpty()) {
-        *accuracyPtr = 100;
-        return mimeTypeForName(QLatin1String("application/x-zerosize"));
-    }
+//    if (data.isEmpty()) {
+//        *accuracyPtr = 100;
+//        return mimeTypeForName(QLatin1String("application/x-zerosize"));
+//    }
 
     *accuracyPtr = 0;
     MimeType candidate = provider()->findByMagic(data, accuracyPtr);
