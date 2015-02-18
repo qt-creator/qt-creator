@@ -67,6 +67,7 @@ public:
     bool parse(QIODevice *dev, const QString &fileName, QString *errorMessage);
 
 protected:
+    virtual bool mimeTypeExists(const QString &mimeTypeName) = 0;
     virtual bool process(const MimeType &t, QString *errorMessage) = 0;
     virtual bool process(const MimeGlobPattern &t, QString *errorMessage) = 0;
     virtual void processParent(const QString &child, const QString &parent) = 0;
@@ -100,6 +101,9 @@ public:
     explicit MimeTypeParser(MimeXMLProvider &provider) : m_provider(provider) {}
 
 protected:
+    inline bool mimeTypeExists(const QString &mimeTypeName)
+    { return m_provider.mimeTypeForName(mimeTypeName).isValid(); }
+
     inline bool process(const MimeType &t, QString *)
     { m_provider.addMimeType(t); return true; }
 

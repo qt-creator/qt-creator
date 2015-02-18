@@ -833,7 +833,8 @@ void MimeXMLProvider::ensureLoaded()
 {
     if (!m_loaded /*|| shouldCheck()*/) {
 //        bool fdoXmlFound = false;
-        QStringList allFiles;
+        // add custom mime types first, which overrides any default from freedesktop.org.xml
+        QStringList allFiles = m_additionalFiles;
 
 //        const QStringList packageDirs = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QLatin1String("mime/packages"), QStandardPaths::LocateDirectory);
 //        //qDebug() << "packageDirs=" << packageDirs;
@@ -851,10 +852,8 @@ void MimeXMLProvider::ensureLoaded()
 
 //        if (!fdoXmlFound) {
 //            // We could instead install the file as part of installing Qt?
-            allFiles.prepend(QLatin1String(":/qt-project.org/qmime/freedesktop.org.xml"));
+            allFiles.append(QLatin1String(":/qt-project.org/qmime/freedesktop.org.xml"));
 //        }
-
-        allFiles.append(m_additionalFiles);
 
         if (m_allFiles == allFiles)
             return;
