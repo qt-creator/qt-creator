@@ -288,10 +288,9 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     connect(m_entriesWatcher, &QFutureWatcher<LocatorFilterEntry>::finished,
             this, &LocatorWidget::handleSearchFinished);
 
-    m_showPopupTimer = new QTimer(this);
-    m_showPopupTimer->setInterval(100);
-    m_showPopupTimer->setSingleShot(true);
-    connect(m_showPopupTimer, SIGNAL(timeout()), SLOT(showPopupNow()));
+    m_showPopupTimer.setInterval(100);
+    m_showPopupTimer.setSingleShot(true);
+    connect(&m_showPopupTimer, SIGNAL(timeout()), SLOT(showPopupNow()));
 
     m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicator::Small,
                                                        m_fileLineEdit);
@@ -453,12 +452,12 @@ void LocatorWidget::showCompletionList()
 void LocatorWidget::showPopup()
 {
     m_updateRequested = true;
-    m_showPopupTimer->start();
+    m_showPopupTimer.start();
 }
 
 void LocatorWidget::showPopupNow()
 {
-    m_showPopupTimer->stop();
+    m_showPopupTimer.stop();
     updateCompletionList(m_fileLineEdit->text());
     showCompletionList();
 }

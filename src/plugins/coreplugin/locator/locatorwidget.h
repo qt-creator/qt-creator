@@ -92,7 +92,7 @@ private:
     QAction *m_refreshAction;
     QAction *m_configureAction;
     Utils::FancyLineEdit *m_fileLineEdit;
-    QTimer *m_showPopupTimer;
+    QTimer m_showPopupTimer;
     QFutureWatcher<LocatorFilterEntry> *m_entriesWatcher;
     QMap<Id, QAction *> m_filterActionMap;
     QString m_requestedCompletionText;
