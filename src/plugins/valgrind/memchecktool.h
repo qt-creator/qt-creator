@@ -103,14 +103,14 @@ private:
     QWidget *createWidgets();
     void setBusyCursor(bool busy);
 
-    Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
-                               ProjectExplorer::RunConfiguration *runConfiguration = 0);
-
     void clearErrorView();
     void updateFromSettings();
     int updateUiAfterFinishedHelper();
 
 protected:
+    Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
+                               ProjectExplorer::RunConfiguration *runConfiguration = 0);
+
     virtual MemcheckRunControl *createMemcheckRunControl(
             const Analyzer::AnalyzerStartParameters &sp,
             ProjectExplorer::RunConfiguration *runConfiguration);

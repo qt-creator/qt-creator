@@ -93,9 +93,11 @@ public:
 
     virtual void startTool(StartMode mode) = 0;
 
-    void startLocalTool(ToolMode toolMode, ProjectExplorer::RunMode runMode);
-    void startRemoteTool(ProjectExplorer::RunMode runMode);
 };
+
+ANALYZER_EXPORT bool checkForLocalStart(IAnalyzerTool::ToolMode toolMode);
+ANALYZER_EXPORT bool checkForRemoteStart(AnalyzerStartParameters *sp);
+
 
 /**
  * This class represents an analyzation action, i.e. a tool that runs in a specific mode.

@@ -57,7 +57,10 @@
 
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
+#include <cplusplus/Symbols.h>
+
 #include <extensionsystem/iplugin.h>
+
 #include <texteditor/texteditor.h>
 
 #include <utils/qtcassert.h>
@@ -65,7 +68,9 @@
 #include <utils/styledbar.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/session.h>
 
 #include <QFile>
 #include <QFileInfo>
@@ -86,9 +91,6 @@
 #include <QToolBar>
 #include <QToolButton>
 #include <QVBoxLayout>
-
-// shared/cplusplus includes
-#include <cplusplus/Symbols.h>
 
 using namespace Analyzer;
 using namespace Core;
@@ -558,11 +560,18 @@ AnalyzerRunControl *CallgrindToolPrivate::createRunControl(const AnalyzerStartPa
 
 void CallgrindTool::startTool(StartMode mode)
 {
-    if (mode == StartLocal)
-        startLocalTool(ReleaseMode, CallgrindRunMode);
-    if (mode == StartRemote)
-        startRemoteTool(CallgrindRunMode);
-    d->setBusyCursor(true);
+    if (mode == StartLocal && checkForLocalStart(ReleaseMode)) {
+        Project *pro = SessionManager::startupProject();
+        ProjectExplorerPlugin::instance()->runProject(pro, CallgrindRunMode);
+        d->setBusyCursor(true);
+    }
+
+    AnalyzerStartParameters sp;
+    if (mode == StartRemote && checkForRemoteStart(&sp)) {
+        AnalyzerRunControl *rc = createRunControl(sp, 0);
+        ProjectExplorerPlugin::startRunControl(rc, CallgrindRunMode);
+        d->setBusyCursor(true);
+    }
 }
 
 void CallgrindTool::handleShowCostsOfFunction()

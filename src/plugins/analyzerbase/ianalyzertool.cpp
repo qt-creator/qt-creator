@@ -92,7 +92,7 @@ static bool buildTypeAccepted(IAnalyzerTool::ToolMode toolMode,
     return false;
 }
 
-void IAnalyzerTool::startLocalTool(ToolMode toolMode, RunMode runMode)
+bool checkForLocalStart(IAnalyzerTool::ToolMode toolMode)
 {
     // Make sure mode is shown.
     AnalyzerManager::showMode();
@@ -140,29 +140,26 @@ void IAnalyzerTool::startLocalTool(ToolMode toolMode, RunMode runMode)
         if (Utils::CheckableMessageBox::doNotAskAgainQuestion(ICore::mainWindow(),
                 title, message, ICore::settings(), QLatin1String("AnalyzerCorrectModeWarning"))
                     != QDialogButtonBox::Yes)
-            return;
+            return false;
     }
 
-    ProjectExplorerPlugin::instance()->runProject(pro, runMode);
+    return true;
 }
 
-void IAnalyzerTool::startRemoteTool(RunMode runMode)
+bool checkForRemoteStart(AnalyzerStartParameters *sp)
 {
     StartRemoteDialog dlg;
     if (dlg.exec() != QDialog::Accepted)
-        return;
+        return false;
 
-    AnalyzerStartParameters sp;
-    sp.startMode = StartRemote;
-    sp.connParams = dlg.sshParams();
-    sp.debuggee = dlg.executable();
-    sp.debuggeeArgs = dlg.arguments();
-    sp.displayName = dlg.executable();
-    sp.workingDirectory = dlg.workingDirectory();
+    sp->startMode = StartRemote;
+    sp->connParams = dlg.sshParams();
+    sp->debuggee = dlg.executable();
+    sp->debuggeeArgs = dlg.arguments();
+    sp->displayName = dlg.executable();
+    sp->workingDirectory = dlg.workingDirectory();
 
-    AnalyzerRunControl *rc = createRunControl(sp, 0);
-
-    ProjectExplorerPlugin::startRunControl(rc, runMode);
+    return true;
 }
 
 } // namespace Analyzer

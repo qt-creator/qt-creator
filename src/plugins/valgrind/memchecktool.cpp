@@ -599,10 +599,16 @@ void MemcheckTool::setBusyCursor(bool busy)
 
 void MemcheckTool::startTool(StartMode mode)
 {
-    if (mode == StartLocal)
-        startLocalTool(DebugMode, MemcheckRunMode);
-    if (mode == StartRemote)
-        startRemoteTool(MemcheckRunMode);
+    if (mode == StartLocal && checkForLocalStart(DebugMode)) {
+        Project *pro = SessionManager::startupProject();
+        ProjectExplorerPlugin::instance()->runProject(pro, MemcheckRunMode);
+    }
+
+    AnalyzerStartParameters sp;
+    if (mode == StartRemote && checkForRemoteStart(&sp)) {
+        AnalyzerRunControl *rc = createRunControl(sp, 0);
+        ProjectExplorerPlugin::startRunControl(rc, MemcheckRunMode);
+    }
 }
 
 MemcheckWithGdbTool::MemcheckWithGdbTool(QObject *parent) :
@@ -613,10 +619,16 @@ MemcheckWithGdbTool::MemcheckWithGdbTool(QObject *parent) :
 
 void MemcheckWithGdbTool::startTool(Analyzer::StartMode mode)
 {
-    if (mode == StartLocal)
-        startLocalTool(DebugMode, MemcheckWithGdbRunMode);
-    if (mode == StartRemote)
-        startRemoteTool(MemcheckWithGdbRunMode);
+    if (mode == StartLocal && checkForLocalStart(DebugMode)) {
+        Project *pro = SessionManager::startupProject();
+        ProjectExplorerPlugin::instance()->runProject(pro, MemcheckWithGdbRunMode);
+    }
+
+    AnalyzerStartParameters sp;
+    if (mode == StartRemote && checkForRemoteStart(&sp)) {
+        AnalyzerRunControl *rc = createRunControl(sp, 0);
+        ProjectExplorerPlugin::startRunControl(rc, MemcheckWithGdbRunMode);
+    }
 }
 
 MemcheckRunControl *MemcheckWithGdbTool::createMemcheckRunControl(const AnalyzerStartParameters &sp,
