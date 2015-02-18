@@ -206,14 +206,12 @@ static inline bool isCreatorConsole(const DebuggerStartParameters &sp)
 // Base data structure for command queue entries with callback
 struct CdbCommand
 {
-    typedef CdbEngine::CommandHandler CommandHandler;
-
     CdbCommand()
         : token(0), flags(0), commandSequence(0), isBuiltin(true), success(false)
     {}
 
     CdbCommand(bool builtin, const QByteArray &cmd, int token, unsigned flags,
-               CommandHandler h, unsigned nc)
+               CdbEngine::CommandHandler h, unsigned nc)
         : token(token), flags(flags), command(cmd), commandSequence(nc),
           isBuiltin(builtin), handler(h), success(false)
     {}
@@ -223,11 +221,11 @@ struct CdbCommand
     int token;
     unsigned flags;
     QByteArray command;
-    // Continue with another commands as specified in CommandSequenceFlags
+    // Continue with other commands as specified in CommandSequenceFlags
     unsigned commandSequence;
 
     bool isBuiltin;
-    CommandHandler handler;
+    CdbEngine::CommandHandler handler;
     QList<QByteArray> builtinReply;
 
     QByteArray extensionReply;
