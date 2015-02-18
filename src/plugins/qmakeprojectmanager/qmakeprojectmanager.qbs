@@ -121,4 +121,9 @@ QtcPlugin {
             "qtquickapp.png",
         ]
     }
+
+    Export {
+        Depends { name: "cpp" }
+        cpp.includePaths: [project.sharedSourcesDir]
+    }
 }

@@ -19,7 +19,7 @@ Project {
     Project {
         name: "qbs"
         id: qbsProject
-        property string qbsBaseDir: path + "/shared/qbs"
+        property string qbsBaseDir: project.sharedSourcesDir + "/qbs"
         condition: qbsSubModuleExists && !useExternalQbs
         qbsSearchPaths: [qbsBaseDir + "/qbs-resources"]
 

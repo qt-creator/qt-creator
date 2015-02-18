@@ -17,7 +17,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
 
-    cpp.includePaths: base.concat(["../../shared/registryaccess"])
+    cpp.includePaths: base.concat([project.sharedSourcesDir + "/registryaccess"])
 
     pluginRecommends: [
         "CppEditor"
@@ -214,7 +214,7 @@ QtcPlugin {
     Group {
         name: "RegistryAccess"
         condition: qbs.targetOS.contains("windows")
-        prefix: "../../shared/registryaccess/"
+        prefix: project.sharedSourcesDir + "/registryaccess/"
         files: [
             "registryaccess.cpp",
             "registryaccess.h",

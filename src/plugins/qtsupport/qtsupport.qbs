@@ -13,7 +13,7 @@ QtcPlugin {
     Depends { name: "CppTools" }
 
     cpp.includePaths: base.concat([
-        "../../shared",
+        project.sharedSourcesDir,
     ])
 
     cpp.defines: base.concat([
@@ -28,7 +28,7 @@ QtcPlugin {
 
     Group {
         name: "Shared"
-        prefix: "../../shared/proparser/"
+        prefix: project.sharedSourcesDir + "/proparser/"
         files: [
             "ioutils.cpp",
             "ioutils.h",

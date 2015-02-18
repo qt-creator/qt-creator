@@ -4,7 +4,9 @@ QtcTool {
     name: "qtcdebugger"
     condition: qbs.targetOS.contains("windows")
 
-    cpp.includePaths: base.concat(["../../shared/registryaccess"])
+    property string registryAccessDir: project.sharedSourcesDir + "/registryaccess"
+
+    cpp.includePaths: base.concat([registryAccessDir])
     cpp.dynamicLibraries: [
         "psapi",
         "advapi32"
@@ -15,7 +17,7 @@ QtcTool {
 
     files: [
         "main.cpp",
-        "../../shared/registryaccess/registryaccess.cpp",
-        "../../shared/registryaccess/registryaccess.h",
+        registryAccessDir + "/registryaccess.cpp",
+        registryAccessDir + "/registryaccess.h",
     ]
 }

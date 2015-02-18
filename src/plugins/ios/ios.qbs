@@ -12,7 +12,6 @@ QtcPlugin {
     Depends { name: "QmlDebug" }
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
 
-    cpp.includePaths: base.concat("../../shared")
     cpp.frameworks: base.concat(qbs.targetOS.contains("osx") ? ["CoreFoundation", "IOKit"] : [])
 
     files: [

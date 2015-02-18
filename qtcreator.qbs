@@ -18,6 +18,7 @@ Project {
     property pathList additionalLibs: []
     property pathList additionalTools: []
     property pathList additionalAutotests: []
+    property string sharedSourcesDir: path + "/src/shared"
     property string libDirName: "lib"
     property string ide_library_path: {
         if (qbs.targetOS.contains("osx"))

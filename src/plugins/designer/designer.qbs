@@ -49,7 +49,7 @@ QtcPlugin {
     Group {
         name: "Shared Sources"
         id: sharedSources
-        prefix: "../../shared/designerintegrationv2/"
+        prefix: project.sharedSourcesDir + "/designerintegrationv2/"
         files: [
             "formresizer.cpp", "formresizer.h",
             "sizehandlerect.cpp", "sizehandlerect.h",
