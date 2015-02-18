@@ -53,7 +53,6 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
     Q_UNUSED(errorString)
 
     auto tool = new QmlProfilerTool(this);
-    auto toolStarter = [tool](StartMode mode) { return tool->startTool(mode); };
     auto widgetCreator = [tool] { return tool->createWidgets(); };
     auto runControlCreator = [tool](const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration) {
@@ -71,7 +70,7 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
     action->setToolId(QmlProfilerToolId);
     action->setWidgetCreator(widgetCreator);
     action->setRunControlCreator(runControlCreator);
-    action->setToolStarter(toolStarter);
+    action->setToolStarter([tool] { tool->startLocalTool(); });
     action->setRunMode(ProjectExplorer::QmlProfilerRunMode);
     action->setText(tr("QML Profiler"));
     action->setToolTip(description);
@@ -84,7 +83,7 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
     action->setToolId(QmlProfilerToolId);
     action->setWidgetCreator(widgetCreator);
     action->setRunControlCreator(runControlCreator);
-    action->setToolStarter(toolStarter);
+    action->setToolStarter([tool] { tool->startRemoteTool(); });
     action->setRunMode(ProjectExplorer::QmlProfilerRunMode);
     action->setText(tr("QML Profiler (External)"));
     action->setToolTip(description);

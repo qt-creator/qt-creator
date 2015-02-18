@@ -421,7 +421,7 @@ bool AnalyzerManagerPrivate::showPromptDialog(const QString &title, const QStrin
 void AnalyzerManagerPrivate::startTool()
 {
     QTC_ASSERT(m_currentAction, return);
-    m_currentAction->toolStarter()(m_currentAction->startMode());
+    m_currentAction->toolStarter()();
 }
 
 void AnalyzerManagerPrivate::modeChanged(IMode *mode)
@@ -687,8 +687,8 @@ AnalyzerRunControl *AnalyzerManager::createRunControl(
     const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration)
 {
     foreach (AnalyzerAction *action, d->m_actions) {
-        if (action->runMode() == sp.runMode && action->startMode() == sp.startMode)
-            return action->createRunControl(sp, runConfiguration);
+        if (AnalyzerRunControl *rc = action->tryCreateRunControl(sp, runConfiguration))
+            return rc;
     }
     QTC_CHECK(false);
     return 0;

@@ -83,11 +83,12 @@ class MemcheckTool : public QObject
 public:
     MemcheckTool(QObject *parent);
 
-    void startTool(Analyzer::StartMode mode);
+    void startLocalTool();
+    void startRemoteTool();
     QWidget *createWidgets();
 
     Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
-                               ProjectExplorer::RunConfiguration *runConfiguration = 0);
+                               ProjectExplorer::RunConfiguration *runConfiguration);
 
 private slots:
     void settingsDestroyed(QObject *settings);
@@ -139,7 +140,8 @@ class MemcheckWithGdbTool : public MemcheckTool
 public:
     MemcheckWithGdbTool(QObject *parent);
 
-    void startTool(Analyzer::StartMode mode);
+    void startLocalTool();
+    void startRemoteTool();
     MemcheckRunControl *createMemcheckRunControl(
             const Analyzer::AnalyzerStartParameters &sp,
             ProjectExplorer::RunConfiguration *runConfiguration) Q_DECL_OVERRIDE;

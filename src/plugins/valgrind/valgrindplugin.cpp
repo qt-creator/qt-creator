@@ -125,7 +125,6 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
                 "When a problem is detected, the application is interrupted and can be debugged");
 
     MemcheckTool *mcTool = m_memcheckTool;
-    auto mcToolStarter = [mcTool](StartMode mode) { return mcTool->startTool(mode); };
     auto mcWidgetCreator = [mcTool] { return mcTool->createWidgets(); };
     auto mcRunControlCreator = [mcTool](const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration) {
@@ -133,7 +132,6 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     };
 
     MemcheckWithGdbTool *mcgTool = m_memcheckWithGdbTool;
-    auto mcgToolStarter = [mcgTool](StartMode mode) { return mcgTool->startTool(mode); };
     auto mcgWidgetCreator = [mcgTool] { return mcgTool->createWidgets(); };
     auto mcgRunControlCreator = [mcgTool](const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration) {
@@ -141,7 +139,6 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     };
 
     CallgrindTool *cgTool = m_callgrindTool;
-    auto cgToolStarter = [cgTool](StartMode mode) { return cgTool->startTool(mode); };
     auto cgWidgetCreator = [cgTool] { return cgTool->createWidgets(); };
     auto cgRunControlCreator = [cgTool](const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration) {
@@ -154,7 +151,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
         action->setToolId("Memcheck");
         action->setWidgetCreator(mcWidgetCreator);
         action->setRunControlCreator(mcRunControlCreator);
-        action->setToolStarter(mcToolStarter);
+        action->setToolStarter([mcTool] { mcTool->startLocalTool(); });
         action->setRunMode(ProjectExplorer::MemcheckRunMode);
         action->setText(tr("Valgrind Memory Analyzer"));
         action->setToolTip(memcheckToolTip);
@@ -168,7 +165,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
         action->setToolId("MemcheckWithGdb");
         action->setWidgetCreator(mcgWidgetCreator);
         action->setRunControlCreator(mcgRunControlCreator);
-        action->setToolStarter(mcgToolStarter);
+        action->setToolStarter([mcgTool] { mcgTool->startLocalTool(); });
         action->setRunMode(ProjectExplorer::MemcheckWithGdbRunMode);
         action->setText(tr("Valgrind Memory Analyzer with GDB"));
         action->setToolTip(memcheckWithGdbToolTip);
@@ -182,7 +179,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
         action->setToolId(CallgrindToolId);
         action->setWidgetCreator(cgWidgetCreator);
         action->setRunControlCreator(cgRunControlCreator);
-        action->setToolStarter(cgToolStarter);
+        action->setToolStarter([cgTool] { cgTool->startLocalTool(); });
         action->setRunMode(ProjectExplorer::CallgrindRunMode);
         action->setText(tr("Valgrind Function Profiler"));
         action->setToolTip(callgrindToolTip);
@@ -197,7 +194,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     action->setToolId("Memcheck");
     action->setWidgetCreator(mcWidgetCreator);
     action->setRunControlCreator(mcRunControlCreator);
-    action->setToolStarter(mcToolStarter);
+    action->setToolStarter([mcTool] { mcTool->startRemoteTool(); });
     action->setRunMode(ProjectExplorer::MemcheckRunMode);
     action->setText(tr("Valgrind Memory Analyzer (External Remote Application)"));
     action->setToolTip(memcheckToolTip);
@@ -210,7 +207,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     action->setToolId(CallgrindToolId);
     action->setWidgetCreator(cgWidgetCreator);
     action->setRunControlCreator(cgRunControlCreator);
-    action->setToolStarter(cgToolStarter);
+    action->setToolStarter([cgTool] { cgTool->startRemoteTool(); });
     action->setRunMode(ProjectExplorer::CallgrindRunMode);
     action->setText(tr("Valgrind Function Profiler (External Remote Application)"));
     action->setToolTip(callgrindToolTip);

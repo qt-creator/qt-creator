@@ -557,16 +557,19 @@ AnalyzerRunControl *CallgrindToolPrivate::createRunControl(const AnalyzerStartPa
     return rc;
 }
 
-void CallgrindTool::startTool(StartMode mode)
+void CallgrindTool::startLocalTool()
 {
-    if (mode == StartLocal && checkForLocalStart(ReleaseMode)) {
+    if (checkForLocalStart(ReleaseMode)) {
         Project *pro = SessionManager::startupProject();
-        ProjectExplorerPlugin::instance()->runProject(pro, CallgrindRunMode);
+        ProjectExplorerPlugin::runProject(pro, CallgrindRunMode);
         d->setBusyCursor(true);
     }
+}
 
+void CallgrindTool::startRemoteTool()
+{
     AnalyzerStartParameters sp;
-    if (mode == StartRemote && checkForRemoteStart(&sp)) {
+    if (checkForRemoteStart(&sp)) {
         AnalyzerRunControl *rc = createRunControl(sp, 0);
         ProjectExplorerPlugin::startRunControl(rc, CallgrindRunMode);
         d->setBusyCursor(true);
