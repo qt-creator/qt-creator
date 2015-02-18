@@ -64,7 +64,7 @@
          <comment>Objective-C++ source code</comment>
          <sub-class-of type="text/x-c++src"/>
          <sub-class-of type="text/x-objcsrc"/>
-         <glob pattern="*.mm"/>
+         <glob pattern="*.mm" weight="70"/>
     </mime-type>
 
 </mime-info>
