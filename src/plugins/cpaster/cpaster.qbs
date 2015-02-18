@@ -9,7 +9,7 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
 
-    cpp.includePaths: base.concat("../../shared/cpaster")
+    cpp.includePaths: base.concat([project.sharedSourcesDir + "/cpaster"])
 
     files: [
         "columnindicatortextedit.cpp",

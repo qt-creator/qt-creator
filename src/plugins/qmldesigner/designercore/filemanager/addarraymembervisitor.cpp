@@ -37,7 +37,7 @@ using namespace QmlDesigner::Internal;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 
-AddArrayMemberVisitor::AddArrayMemberVisitor(QmlDesigner::TextModifier &modifier,
+AddArrayMemberVisitor::AddArrayMemberVisitor(TextModifier &modifier,
                                              quint32 parentLocation,
                                              const QString &propertyName,
                                              const QString &content):
@@ -62,7 +62,7 @@ void AddArrayMemberVisitor::findArrayBindingAndInsert(const QString &propertyNam
     }
 }
 
-bool AddArrayMemberVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
+bool AddArrayMemberVisitor::visit(UiObjectBinding *ast)
 {
     if (didRewriting())
         return false;
@@ -73,7 +73,7 @@ bool AddArrayMemberVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
     return !didRewriting();
 }
 
-bool AddArrayMemberVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
+bool AddArrayMemberVisitor::visit(UiObjectDefinition *ast)
 {
     if (didRewriting())
         return false;
@@ -85,7 +85,7 @@ bool AddArrayMemberVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
-void AddArrayMemberVisitor::insertInto(QmlJS::AST::UiArrayBinding *arrayBinding)
+void AddArrayMemberVisitor::insertInto(UiArrayBinding *arrayBinding)
 {
     UiObjectMember *lastMember = 0;
     for (UiArrayMemberList *iter = arrayBinding->members; iter; iter = iter->next)
@@ -103,7 +103,7 @@ void AddArrayMemberVisitor::insertInto(QmlJS::AST::UiArrayBinding *arrayBinding)
     setDidRewriting(true);
 }
 
-void AddArrayMemberVisitor::convertAndAdd(QmlJS::AST::UiObjectBinding *objectBinding)
+void AddArrayMemberVisitor::convertAndAdd(UiObjectBinding *objectBinding)
 {
     const int indentDepth = calculateIndentDepth(objectBinding->firstSourceLocation());
     const QString arrayPrefix = QStringLiteral("[\n") + addIndentation(QString(), indentDepth);

@@ -35,6 +35,7 @@
 #include "analyzerbase_global.h"
 #include "analyzerconstants.h"
 
+#include <coreplugin/id.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <QObject>
@@ -49,7 +50,6 @@ namespace ProjectExplorer { class RunConfiguration; }
 
 namespace Analyzer {
 
-class IAnalyzerTool;
 class AnalyzerAction;
 class AnalyzerRunControl;
 class AnalyzerStartParameters;
@@ -70,13 +70,13 @@ public:
     static void addAction(AnalyzerAction *action);
 
     // Dockwidgets are registered to the main window.
-    static QDockWidget *createDockWidget(IAnalyzerTool *tool,
+    static QDockWidget *createDockWidget(Core::Id toolId,
         QWidget *widget, Qt::DockWidgetArea area = Qt::BottomDockWidgetArea);
 
     static Utils::FancyMainWindow *mainWindow();
 
     static void showMode();
-    static void selectTool(IAnalyzerTool *tool, StartMode mode);
+    static void selectTool(Core::Id toolId, StartMode mode);
     static void startTool();
     static void stopTool();
 

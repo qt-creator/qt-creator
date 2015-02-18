@@ -243,7 +243,7 @@ void ModelToTextMerger::applyChanges()
         ModelNodePositionRecalculator positionRecalculator(m_rewriterView->positionStorage(), m_rewriterView->positionStorage()->modelNodes());
         positionRecalculator.connectTo(textModifier);
 
-        QmlDesigner::QmlRefactoring refactoring(tmpDocument, *textModifier, getPropertyOrder());
+        QmlRefactoring refactoring(tmpDocument, *textModifier, getPropertyOrder());
 
         textModifier->deactivateChangeSignals();
         textModifier->startGroup();
@@ -312,26 +312,26 @@ void ModelToTextMerger::schedule(RewriteAction *action)
     m_rewriteActions.append(action);
 }
 
-QmlDesigner::QmlRefactoring::PropertyType ModelToTextMerger::propertyType(const AbstractProperty &property, const QString &textValue)
+QmlRefactoring::PropertyType ModelToTextMerger::propertyType(const AbstractProperty &property, const QString &textValue)
 {
     if (property.isBindingProperty() || property.isSignalHandlerProperty()) {
         QString val = textValue.trimmed();
         if (val.isEmpty())
-            return QmlDesigner::QmlRefactoring::ObjectBinding;
+            return QmlRefactoring::ObjectBinding;
         const QChar lastChar = val.at(val.size() - 1);
         if (lastChar == '}' || lastChar == ';')
-            return QmlDesigner::QmlRefactoring::ObjectBinding;
+            return QmlRefactoring::ObjectBinding;
         else
-            return QmlDesigner::QmlRefactoring::ScriptBinding;
+            return QmlRefactoring::ScriptBinding;
     } else if (property.isNodeListProperty())
-        return QmlDesigner::QmlRefactoring::ArrayBinding;
+        return QmlRefactoring::ArrayBinding;
     else if (property.isNodeProperty())
-        return QmlDesigner::QmlRefactoring::ObjectBinding;
+        return QmlRefactoring::ObjectBinding;
     else if (property.isVariantProperty())
-        return QmlDesigner::QmlRefactoring::ScriptBinding;
+        return QmlRefactoring::ScriptBinding;
 
     Q_ASSERT(!"cannot convert property type");
-    return (QmlDesigner::QmlRefactoring::PropertyType) -1;
+    return (QmlRefactoring::PropertyType) -1;
 }
 
 PropertyNameList ModelToTextMerger::m_propertyOrder;

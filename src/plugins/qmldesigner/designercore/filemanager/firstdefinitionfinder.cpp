@@ -46,7 +46,7 @@ FirstDefinitionFinder::FirstDefinitionFinder(const QString &text):
 
     if (!ok) {
         qDebug() << text;
-        foreach (const QmlJS::DiagnosticMessage &message, m_doc->diagnosticMessages())
+        foreach (const DiagnosticMessage &message, m_doc->diagnosticMessages())
                 qDebug() << message.message;
     }
 
@@ -81,7 +81,7 @@ void FirstDefinitionFinder::extractFirstObjectDefinition(UiObjectInitializer* as
     }
 }
 
-bool FirstDefinitionFinder::visit(QmlJS::AST::UiObjectBinding *ast)
+bool FirstDefinitionFinder::visit(UiObjectBinding *ast)
 {
     if (ast->qualifiedTypeNameId && ast->qualifiedTypeNameId->identifierToken.isValid()) {
         const quint32 start = ast->qualifiedTypeNameId->identifierToken.offset;
@@ -94,7 +94,7 @@ bool FirstDefinitionFinder::visit(QmlJS::AST::UiObjectBinding *ast)
     return true;
 }
 
-bool FirstDefinitionFinder::visit(QmlJS::AST::UiObjectDefinition *ast)
+bool FirstDefinitionFinder::visit(UiObjectDefinition *ast)
 {
     const quint32 start = ast->firstSourceLocation().offset;
 

@@ -60,7 +60,7 @@ bool ObjectLengthCalculator::operator()(const QString &text, quint32 offset,
     }
 }
 
-bool ObjectLengthCalculator::visit(QmlJS::AST::UiObjectBinding *ast)
+bool ObjectLengthCalculator::visit(UiObjectBinding *ast)
 {
     if (m_length > 0)
         return false;
@@ -80,7 +80,7 @@ bool ObjectLengthCalculator::visit(QmlJS::AST::UiObjectBinding *ast)
     }
 }
 
-bool ObjectLengthCalculator::visit(QmlJS::AST::UiObjectDefinition *ast)
+bool ObjectLengthCalculator::visit(UiObjectDefinition *ast)
 {
     if (m_length > 0)
         return false;

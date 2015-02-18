@@ -42,7 +42,9 @@ QT_END_NAMESPACE
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerTool : public Analyzer::IAnalyzerTool
+const char QmlProfilerToolId[] = "QmlProfiler";
+
+class QmlProfilerTool : public QObject
 {
     Q_OBJECT
 

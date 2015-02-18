@@ -41,67 +41,30 @@
 #include <QObject>
 #include <QAction>
 
+#include <functional>
+
 namespace ProjectExplorer { class RunConfiguration; }
 
 namespace Analyzer {
 
 class AnalyzerRunControl;
 
-
 /**
- * This class represents an analyzation tool, e.g. "Valgrind Memcheck".
+ * The mode in which this tool should preferably be run
  *
- * Each tool can run in different run modes. The modes are specific to the mode.
- *
- * @code
- * bool YourPlugin::initialize(const QStringList &arguments, QString *errorString)
- * {
- *    AnalyzerManager::addTool(new MemcheckTool(this));
- *    return true;
- * }
- * @endcode
+ * The memcheck tool, for example, requires debug symbols, hence DebugMode
+ * is preferred. On the other hand, callgrind should look at optimized code,
+ * hence ReleaseMode.
  */
-class ANALYZER_EXPORT IAnalyzerTool : public QObject
-{
-    Q_OBJECT
-
-public:
-    explicit IAnalyzerTool(QObject *parent = 0);
-
-    ProjectExplorer::RunMode runMode() const;
-    void setRunMode(ProjectExplorer::RunMode mode);
-
-    /**
-     * The mode in which this tool should preferably be run
-     *
-     * The memcheck tool, for example, requires debug symbols, hence DebugMode
-     * is preferred. On the other hand, callgrind should look at optimized code,
-     * hence ReleaseMode.
-     */
-    enum ToolMode {
-        DebugMode,
-        ReleaseMode,
-        AnyMode
-    };
-    ToolMode toolMode() const;
-    void setToolMode(ToolMode mode);
-
-    /// Creates all widgets used by the tool.
-    /// Returns a control widget which will be shown in the status bar when
-    /// this tool is selected. Must be non-zero.
-    virtual QWidget *createWidgets() = 0;
-
-    /// Returns a new engine for the given start parameters.
-    /// Called each time the tool is launched.
-    virtual AnalyzerRunControl *createRunControl(const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration) = 0;
-
-    virtual void startTool(StartMode mode) = 0;
-
-private:
-    ProjectExplorer::RunMode m_runMode;
-    ToolMode m_toolMode;
+enum ToolMode {
+    DebugMode,
+    ReleaseMode,
+    AnyMode
 };
+
+ANALYZER_EXPORT bool checkForLocalStart(ToolMode toolMode);
+ANALYZER_EXPORT bool checkForRemoteStart(AnalyzerStartParameters *sp);
+
 
 /**
  * This class represents an analyzation action, i.e. a tool that runs in a specific mode.
@@ -116,25 +79,51 @@ public:
     explicit AnalyzerAction(QObject *parent = 0);
 
 public:
-    IAnalyzerTool *tool() const { return m_tool; }
-    void setTool(IAnalyzerTool *tool) { m_tool = tool; }
-
     StartMode startMode() const { return m_startMode; }
     void setStartMode(StartMode startMode) { m_startMode = startMode; }
 
     Core::Id menuGroup() const { return m_menuGroup; }
     void setMenuGroup(Core::Id menuGroup) { m_menuGroup = menuGroup; }
 
-    Core::Id id() const { return m_id; }
-    void setId(Core::Id id) { m_id = id; }
+    Core::Id actionId() const { return m_actionId; }
+    void setActionId(Core::Id id) { m_actionId = id; }
+
+    Core::Id toolId() const { return m_toolId; }
+    void setToolId(Core::Id id) { m_toolId = id; }
+
+    ProjectExplorer::RunMode runMode() const { return m_runMode; }
+    void setRunMode(ProjectExplorer::RunMode mode) { m_runMode = mode; }
+
+    /// Creates all widgets used by the tool.
+    /// Returns a control widget which will be shown in the status bar when
+    /// this tool is selected.
+    typedef std::function<QWidget *()> WidgetCreator;
+    QWidget *createWidget() const { return m_widgetCreator(); }
+    void setWidgetCreator(const WidgetCreator &creator) { m_widgetCreator = creator; }
+
+    /// Returns a new engine for the given start parameters.
+    /// Called each time the tool is launched.
+    typedef std::function<AnalyzerRunControl *(const AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration)> RunControlCreator;
+    AnalyzerRunControl *createRunControl(const AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration) const
+        { return m_runControlCreator(sp, runConfiguration); }
+    void setRunControlCreator(const RunControlCreator &creator) { m_runControlCreator = creator; }
+
+    typedef std::function<void(StartMode)> ToolStarter;
+    ToolStarter toolStarter() const { return m_toolStarter; }
+    void setToolStarter(const ToolStarter &toolStarter) { m_toolStarter = toolStarter; }
 
 protected:
-    IAnalyzerTool *m_tool;
     StartMode m_startMode;
     Core::Id m_menuGroup;
-    Core::Id m_id;
+    Core::Id m_actionId;
+    Core::Id m_toolId;
+    ProjectExplorer::RunMode m_runMode;
+    WidgetCreator m_widgetCreator;
+    RunControlCreator m_runControlCreator;
+    ToolStarter m_toolStarter;
 };
-
 
 } // namespace Analyzer
 

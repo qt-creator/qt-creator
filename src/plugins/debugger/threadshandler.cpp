@@ -461,10 +461,10 @@ void ThreadsHandler::updateThreads(const GdbMi &data)
 //        m_currentIndex = -1;
 //    }
 
-    const QList<GdbMi> items = data["threads"].children();
+    const std::vector<GdbMi> items = data["threads"].children();
     const int n = items.size();
     for (int index = 0; index != n; ++index) {
-        const GdbMi item = items.at(index);
+        const GdbMi item = items[index];
         const GdbMi frame = item["frame"];
         ThreadData thread;
         thread.id = ThreadId(item["id"].toInt());

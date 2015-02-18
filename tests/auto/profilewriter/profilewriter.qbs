@@ -6,7 +6,7 @@ QtcAutotest {
     Group {
         name: "Sources from ProParser"
         id: proParserGroup
-        prefix: project.ide_source_tree + "/src/shared/proparser/"
+        prefix: project.sharedSourcesDir + "/proparser/"
         files: [
             "ioutils.h", "ioutils.cpp",
             "profileevaluator.h", "profileevaluator.cpp",

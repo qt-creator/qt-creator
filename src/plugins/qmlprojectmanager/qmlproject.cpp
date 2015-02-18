@@ -89,18 +89,18 @@ QmlProject::~QmlProject()
     delete m_rootNode;
 }
 
-void QmlProject::addedTarget(ProjectExplorer::Target *target)
+void QmlProject::addedTarget(Target *target)
 {
     connect(target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
             this, SLOT(addedRunConfiguration(ProjectExplorer::RunConfiguration*)));
-    foreach (ProjectExplorer::RunConfiguration *rc, target->runConfigurations())
+    foreach (RunConfiguration *rc, target->runConfigurations())
         addedRunConfiguration(rc);
 }
 
-void QmlProject::onActiveTargetChanged(ProjectExplorer::Target *target)
+void QmlProject::onActiveTargetChanged(Target *target)
 {
     if (m_activeTarget)
-        disconnect(m_activeTarget, &ProjectExplorer::Target::kitChanged, this, &QmlProject::onKitChanged);
+        disconnect(m_activeTarget, &Target::kitChanged, this, &QmlProject::onKitChanged);
     m_activeTarget = target;
     if (m_activeTarget)
         connect(target, SIGNAL(kitChanged()), this, SLOT(onKitChanged()));
@@ -115,7 +115,7 @@ void QmlProject::onKitChanged()
     refresh(Configuration);
 }
 
-void QmlProject::addedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
+void QmlProject::addedRunConfiguration(RunConfiguration *rc)
 {
     // The enabled state of qml runconfigurations can only be decided after
     // they have been added to a project
@@ -297,14 +297,14 @@ IDocument *QmlProject::document() const
     return m_file;
 }
 
-ProjectExplorer::IProjectManager *QmlProject::projectManager() const
+IProjectManager *QmlProject::projectManager() const
 {
     return m_manager;
 }
 
-bool QmlProject::supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const
+bool QmlProject::supportsKit(Kit *k, QString *errorMessage) const
 {
-    Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k);
+    Id deviceType = DeviceTypeKitInformation::deviceTypeId(k);
     if (deviceType != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         if (errorMessage)
             *errorMessage = tr("Device type is not desktop.");
@@ -333,7 +333,7 @@ bool QmlProject::supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) con
     return true;
 }
 
-ProjectExplorer::ProjectNode *QmlProject::rootProjectNode() const
+ProjectNode *QmlProject::rootProjectNode() const
 {
     return m_rootNode;
 }

@@ -121,11 +121,9 @@ public:
 };
 
 QmlProfilerTool::QmlProfilerTool(QObject *parent)
-    : IAnalyzerTool(parent), d(new QmlProfilerToolPrivate)
+    : QObject(parent), d(new QmlProfilerToolPrivate)
 {
     setObjectName(QLatin1String("QmlProfilerTool"));
-    setRunMode(QmlProfilerRunMode);
-    setToolMode(AnyMode);
 
     d->m_profilerState = 0;
     d->m_viewContainer = 0;
@@ -488,7 +486,7 @@ void QmlProfilerTool::clearDisplay()
     updateTimeDisplay();
 }
 
-static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
+static void startRemoteTool(QmlProfilerTool *tool, StartMode mode)
 {
     Id kitId;
     quint16 port;
@@ -528,7 +526,7 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
 
     AnalyzerRunControl *rc = tool->createRunControl(sp, 0);
 
-    ProjectExplorerPlugin::startRunControl(rc, tool->runMode());
+    ProjectExplorerPlugin::startRunControl(rc, QmlProfilerRunMode);
 }
 
 void QmlProfilerTool::startTool(StartMode mode)
@@ -546,9 +544,9 @@ void QmlProfilerTool::startTool(StartMode mode)
     if (mode == StartLocal) {
         // ### not sure if we're supposed to check if the RunConFiguration isEnabled
         Project *pro = SessionManager::startupProject();
-        ProjectExplorerPlugin::instance()->runProject(pro, runMode());
+        ProjectExplorerPlugin::instance()->runProject(pro, QmlProfilerRunMode);
     } else if (mode == StartRemote) {
-        startRemoteTool(this, mode);
+        Internal::startRemoteTool(this, mode);
     }
 }
 
@@ -603,7 +601,7 @@ void QmlProfilerTool::showLoadDialog()
     if (ModeManager::currentMode()->id() != MODE_ANALYZE)
         AnalyzerManager::showMode();
 
-    AnalyzerManager::selectTool(this, StartRemote);
+    AnalyzerManager::selectTool("QmlProfiler", StartRemote);
 
     QString filename = QFileDialog::getOpenFileName(ICore::mainWindow(), tr("Load QML Trace"), QString(),
                                                     tr("QML traces (*%1)").arg(QLatin1String(TraceFileExtension)));
@@ -646,21 +644,21 @@ void QmlProfilerTool::clientsDisconnected()
     // If the connection is closed while the app is still running, no special action is needed
 }
 
-template<QmlDebug::ProfileFeature feature>
+template<ProfileFeature feature>
 void QmlProfilerTool::updateFeaturesMenu(quint64 features)
 {
     if (features & (1ULL << (feature))) {
         QAction *action = d->m_featuresMenu->addAction(tr(QmlProfilerModelManager::featureName(
-                                               static_cast<QmlDebug::ProfileFeature>(feature))));
+                                               static_cast<ProfileFeature>(feature))));
         action->setCheckable(true);
         action->setData(static_cast<uint>(feature));
         action->setChecked(d->m_profilerState->recordingFeatures() & (1ULL << (feature)));
     }
-    updateFeaturesMenu<static_cast<QmlDebug::ProfileFeature>(feature + 1)>(features);
+    updateFeaturesMenu<static_cast<ProfileFeature>(feature + 1)>(features);
 }
 
 template<>
-void QmlProfilerTool::updateFeaturesMenu<QmlDebug::MaximumProfileFeature>(quint64 features)
+void QmlProfilerTool::updateFeaturesMenu<MaximumProfileFeature>(quint64 features)
 {
     Q_UNUSED(features);
     return;
@@ -672,7 +670,7 @@ void QmlProfilerTool::setAvailableFeatures(quint64 features)
         d->m_profilerState->setRecordingFeatures(features); // by default, enable them all.
     if (d->m_featuresMenu) {
         d->m_featuresMenu->clear();
-        updateFeaturesMenu<static_cast<QmlDebug::ProfileFeature>(0)>(features);
+        updateFeaturesMenu<static_cast<ProfileFeature>(0)>(features);
     }
 }
 

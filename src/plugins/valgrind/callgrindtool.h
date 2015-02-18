@@ -31,14 +31,16 @@
 #ifndef CALLGRINDTOOL_H
 #define CALLGRINDTOOL_H
 
-#include "valgrindtool.h"
+#include <analyzerbase/ianalyzertool.h>
 
 namespace Valgrind {
 namespace Internal {
 
+const char CallgrindToolId[] = "Callgrind";
+
 class CallgrindToolPrivate;
 
-class CallgrindTool : public ValgrindTool
+class CallgrindTool : public QObject
 {
     Q_OBJECT
 

@@ -342,7 +342,7 @@ void QmlProfilerClientManager::qmlComplete(qint64 maximumTime)
     d->modelManager->traceTime()->increaseEndTime(maximumTime);
     d->qmlDataReady = true;
     if (!d->v8clientplugin ||
-            d->v8clientplugin.data()->state() != QmlDebug::QmlDebugClient::Enabled ||
+            d->v8clientplugin.data()->state() != QmlDebugClient::Enabled ||
             d->v8DataReady) {
         emit dataReadyForProcessing();
         // once complete is sent, reset the flags
@@ -355,7 +355,7 @@ void QmlProfilerClientManager::v8Complete()
 {
     d->v8DataReady = true;
     if (!d->qmlclientplugin ||
-            d->qmlclientplugin.data()->state() != QmlDebug::QmlDebugClient::Enabled ||
+            d->qmlclientplugin.data()->state() != QmlDebugClient::Enabled ||
             d->qmlDataReady) {
         emit dataReadyForProcessing();
         // once complete is sent, reset the flags

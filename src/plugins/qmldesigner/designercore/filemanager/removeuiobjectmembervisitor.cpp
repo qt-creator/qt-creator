@@ -39,7 +39,7 @@ using namespace QmlDesigner::Internal;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 
-RemoveUIObjectMemberVisitor::RemoveUIObjectMemberVisitor(QmlDesigner::TextModifier &modifier,
+RemoveUIObjectMemberVisitor::RemoveUIObjectMemberVisitor(TextModifier &modifier,
                                                          quint32 objectLocation):
     QMLRewriter(modifier),
     objectLocation(objectLocation)
@@ -58,15 +58,15 @@ void RemoveUIObjectMemberVisitor::postVisit(Node *)
     parents.pop();
 }
 
-bool RemoveUIObjectMemberVisitor::visit(QmlJS::AST::UiPublicMember *ast) { return visitObjectMember(ast); }
-bool RemoveUIObjectMemberVisitor::visit(QmlJS::AST::UiObjectDefinition *ast) { return visitObjectMember(ast); }
-bool RemoveUIObjectMemberVisitor::visit(QmlJS::AST::UiSourceElement *ast) { return visitObjectMember(ast); }
-bool RemoveUIObjectMemberVisitor::visit(QmlJS::AST::UiObjectBinding *ast) { return visitObjectMember(ast); }
-bool RemoveUIObjectMemberVisitor::visit(QmlJS::AST::UiScriptBinding *ast) { return visitObjectMember(ast); }
-bool RemoveUIObjectMemberVisitor::visit(QmlJS::AST::UiArrayBinding *ast) { return visitObjectMember(ast); }
+bool RemoveUIObjectMemberVisitor::visit(UiPublicMember *ast) { return visitObjectMember(ast); }
+bool RemoveUIObjectMemberVisitor::visit(UiObjectDefinition *ast) { return visitObjectMember(ast); }
+bool RemoveUIObjectMemberVisitor::visit(UiSourceElement *ast) { return visitObjectMember(ast); }
+bool RemoveUIObjectMemberVisitor::visit(UiObjectBinding *ast) { return visitObjectMember(ast); }
+bool RemoveUIObjectMemberVisitor::visit(UiScriptBinding *ast) { return visitObjectMember(ast); }
+bool RemoveUIObjectMemberVisitor::visit(UiArrayBinding *ast) { return visitObjectMember(ast); }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
-bool RemoveUIObjectMemberVisitor::visitObjectMember(QmlJS::AST::UiObjectMember *ast)
+bool RemoveUIObjectMemberVisitor::visitObjectMember(UiObjectMember *ast)
 {
     const quint32 memberStart = ast->firstSourceLocation().offset;
 
@@ -106,8 +106,8 @@ UiArrayBinding *RemoveUIObjectMemberVisitor::containingArray() const
 }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
-void RemoveUIObjectMemberVisitor::extendToLeadingOrTrailingComma(QmlJS::AST::UiArrayBinding *parentArray,
-                                                                 QmlJS::AST::UiObjectMember *ast,
+void RemoveUIObjectMemberVisitor::extendToLeadingOrTrailingComma(UiArrayBinding *parentArray,
+                                                                 UiObjectMember *ast,
                                                                  int &start,
                                                                  int &end) const
 {

@@ -64,7 +64,7 @@ QtcPlugin {
     Group {
         id: sharedSources
         name: "Shared Sources"
-        prefix: "../../shared/help/"
+        prefix: project.sharedSourcesDir + "/help/"
         files: [
             "bookmarkdialog.ui",
             "bookmarkmanager.cpp", "bookmarkmanager.h",

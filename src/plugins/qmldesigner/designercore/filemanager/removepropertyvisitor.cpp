@@ -45,7 +45,7 @@ RemovePropertyVisitor::RemovePropertyVisitor(QmlDesigner::TextModifier &modifier
 {
 }
 
-bool RemovePropertyVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
+bool RemovePropertyVisitor::visit(UiObjectBinding *ast)
 {
     if (ast->firstSourceLocation().offset == parentLocation) {
         //this condition is wrong for the UiObjectBinding case, but we keep it
@@ -62,7 +62,7 @@ bool RemovePropertyVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
     return !didRewriting();
 }
 
-bool RemovePropertyVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
+bool RemovePropertyVisitor::visit(UiObjectDefinition *ast)
 {
     if (ast->firstSourceLocation().offset == parentLocation) {
         // FIXME: change this to use the QmlJS::Rewriter class
@@ -73,7 +73,7 @@ bool RemovePropertyVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
-void RemovePropertyVisitor::removeFrom(QmlJS::AST::UiObjectInitializer *ast)
+void RemovePropertyVisitor::removeFrom(UiObjectInitializer *ast)
 {
     QString prefix;
     int dotIdx = propertyName.indexOf(QLatin1Char('.'));

@@ -31,35 +31,118 @@
 
 #include "ianalyzertool.h"
 
+#include "analyzermanager.h"
+#include "analyzerruncontrol.h"
+#include "startremotedialog.h"
+
+#include <coreplugin/icore.h>
+#include <coreplugin/imode.h>
+#include <coreplugin/modemanager.h>
+
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
+
+#include <utils/qtcassert.h>
+#include <utils/checkablemessagebox.h>
+
+#include <QAction>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QSettings>
+
+using namespace Core;
+using namespace ProjectExplorer;
+
 namespace Analyzer {
-
-IAnalyzerTool::IAnalyzerTool(QObject *parent)
-    : QObject(parent)
-{}
-
- /// Returns the run mode for this tool.
-ProjectExplorer::RunMode IAnalyzerTool::runMode() const
-{
-    return m_runMode;
-}
-
-void IAnalyzerTool::setRunMode(ProjectExplorer::RunMode mode)
-{
-    m_runMode = mode;
-}
-
-IAnalyzerTool::ToolMode IAnalyzerTool::toolMode() const
-{
-    return m_toolMode;
-}
-
-void IAnalyzerTool::setToolMode(IAnalyzerTool::ToolMode mode)
-{
-    m_toolMode = mode;
-}
 
 AnalyzerAction::AnalyzerAction(QObject *parent)
     : QAction(parent)
 {}
+
+static bool buildTypeAccepted(ToolMode toolMode, BuildConfiguration::BuildType buildType)
+{
+    if (toolMode == AnyMode)
+        return true;
+    if (buildType == BuildConfiguration::Unknown)
+        return true;
+    if (buildType == BuildConfiguration::Debug && toolMode == DebugMode)
+        return true;
+    if (buildType == BuildConfiguration::Release && toolMode == ReleaseMode)
+        return true;
+    return false;
+}
+
+bool checkForLocalStart(ToolMode toolMode)
+{
+    // Make sure mode is shown.
+    AnalyzerManager::showMode();
+
+    // ### not sure if we're supposed to check if the RunConFiguration isEnabled
+    Project *pro = SessionManager::startupProject();
+    BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
+    if (pro) {
+        if (const Target *target = pro->activeTarget()) {
+            // Build configuration is 0 for QML projects.
+            if (const BuildConfiguration *buildConfig = target->activeBuildConfiguration())
+                buildType = buildConfig->buildType();
+        }
+    }
+
+    // Check the project for whether the build config is in the correct mode
+    // if not, notify the user and urge him to use the correct mode.
+    if (!buildTypeAccepted(toolMode, buildType)) {
+        const QString currentMode = buildType == BuildConfiguration::Debug
+                ? AnalyzerManager::tr("Debug")
+                : AnalyzerManager::tr("Release");
+
+        QString toolModeString;
+        switch (toolMode) {
+            case DebugMode:
+                toolModeString = AnalyzerManager::tr("Debug");
+                break;
+            case ReleaseMode:
+                toolModeString = AnalyzerManager::tr("Release");
+                break;
+            default:
+                QTC_CHECK(false);
+        }
+        //const QString toolName = displayName();
+        const QString toolName = AnalyzerManager::tr("Tool"); // FIXME
+        const QString title = AnalyzerManager::tr("Run %1 in %2 Mode?").arg(toolName).arg(currentMode);
+        const QString message = AnalyzerManager::tr("<html><head/><body><p>You are trying "
+            "to run the tool \"%1\" on an application in %2 mode. "
+            "The tool is designed to be used in %3 mode.</p><p>"
+            "Debug and Release mode run-time characteristics differ "
+            "significantly, analytical findings for one mode may or "
+            "may not be relevant for the other.</p><p>"
+            "Do you want to continue and run the tool in %2 mode?</p></body></html>")
+                .arg(toolName).arg(currentMode).arg(toolModeString);
+        if (Utils::CheckableMessageBox::doNotAskAgainQuestion(ICore::mainWindow(),
+                title, message, ICore::settings(), QLatin1String("AnalyzerCorrectModeWarning"))
+                    != QDialogButtonBox::Yes)
+            return false;
+    }
+
+    return true;
+}
+
+bool checkForRemoteStart(AnalyzerStartParameters *sp)
+{
+    StartRemoteDialog dlg;
+    if (dlg.exec() != QDialog::Accepted)
+        return false;
+
+    sp->startMode = StartRemote;
+    sp->connParams = dlg.sshParams();
+    sp->debuggee = dlg.executable();
+    sp->debuggeeArgs = dlg.arguments();
+    sp->displayName = dlg.executable();
+    sp->workingDirectory = dlg.workingDirectory();
+
+    return true;
+}
 
 } // namespace Analyzer

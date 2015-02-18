@@ -59,7 +59,6 @@
 
 using namespace LanguageUtils;
 using namespace QmlJS;
-using namespace QmlJS::AST;
 
 namespace {
 
@@ -170,34 +169,34 @@ static inline QVariant cleverConvert(const QString &value)
     return QVariant(value);
 }
 
-static bool isLiteralValue(ExpressionNode *expr)
+static bool isLiteralValue(AST::ExpressionNode *expr)
 {
-    if (cast<NumericLiteral*>(expr))
+    if (AST::cast<AST::NumericLiteral*>(expr))
         return true;
-    else if (cast<StringLiteral*>(expr))
+    else if (AST::cast<AST::StringLiteral*>(expr))
         return true;
-    else if (UnaryPlusExpression *plusExpr = cast<UnaryPlusExpression*>(expr))
+    else if (AST::UnaryPlusExpression *plusExpr = AST::cast<AST::UnaryPlusExpression*>(expr))
         return isLiteralValue(plusExpr->expression);
-    else if (UnaryMinusExpression *minusExpr = cast<UnaryMinusExpression*>(expr))
+    else if (AST::UnaryMinusExpression *minusExpr = AST::cast<AST::UnaryMinusExpression*>(expr))
         return isLiteralValue(minusExpr->expression);
-    else if (cast<TrueLiteral*>(expr))
+    else if (AST::cast<AST::TrueLiteral*>(expr))
         return true;
-    else if (cast<FalseLiteral*>(expr))
+    else if (AST::cast<AST::FalseLiteral*>(expr))
         return true;
     else
         return false;
 }
 
-static bool isLiteralValue(Statement *stmt)
+static bool isLiteralValue(AST::Statement *stmt)
 {
-    ExpressionStatement *exprStmt = cast<ExpressionStatement *>(stmt);
+    AST::ExpressionStatement *exprStmt = AST::cast<AST::ExpressionStatement *>(stmt);
     if (exprStmt)
         return isLiteralValue(exprStmt->expression);
     else
         return false;
 }
 
-static inline bool isLiteralValue(UiScriptBinding *script)
+static inline bool isLiteralValue(AST::UiScriptBinding *script)
 {
     if (!script || !script->statement)
         return false;
@@ -324,7 +323,7 @@ public:
         : m_snapshot(snapshot)
         , m_doc(doc)
         , m_link(snapshot, vContext,
-                 QmlJS::ModelManagerInterface::instance()->builtins(doc))
+                 ModelManagerInterface::instance()->builtins(doc))
         , m_context(m_link(doc, &m_diagnosticLinkMessages))
         , m_scopeChain(doc, m_context)
         , m_scopeBuilder(&m_scopeChain)
@@ -337,31 +336,31 @@ public:
     Document::Ptr doc() const
     { return m_doc; }
 
-    void enterScope(Node *node)
+    void enterScope(AST::Node *node)
     { m_scopeBuilder.push(node); }
 
     void leaveScope()
     { m_scopeBuilder.pop(); }
 
-    void lookup(UiQualifiedId *astTypeNode, QString &typeName, int &majorVersion,
+    void lookup(AST::UiQualifiedId *astTypeNode, QString &typeName, int &majorVersion,
                 int &minorVersion, QString &defaultPropertyName)
     {
         const ObjectValue *value = m_context->lookupType(m_doc.data(), astTypeNode);
         defaultPropertyName = m_context->defaultPropertyName(value);
 
-        const CppComponentValue * qmlValue = value_cast<CppComponentValue>(value);
+        const CppComponentValue *qmlValue = value_cast<CppComponentValue>(value);
         if (qmlValue) {
             typeName = qmlValue->moduleName() + QStringLiteral(".") + qmlValue->className();
 
             majorVersion = qmlValue->componentVersion().majorVersion();
             minorVersion = qmlValue->componentVersion().minorVersion();
         } else {
-            for (UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
+            for (AST::UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
                 if (!iter->next && !iter->name.isEmpty())
                     typeName = iter->name.toString();
 
             QString fullTypeName;
-            for (UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
+            for (AST::UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
                 if (!iter->name.isEmpty())
                     fullTypeName += iter->name.toString() + QLatin1Char('.');
 
@@ -399,13 +398,13 @@ public:
     /// When something is changed here, also change Check::checkScopeObjectMember in
     /// qmljscheck.cpp
     /// ### Maybe put this into the context as a helper function.
-    bool lookupProperty(const QString &prefix, const UiQualifiedId *id, const Value **property = 0, const ObjectValue **parentObject = 0, QString *name = 0)
+    bool lookupProperty(const QString &prefix, const AST::UiQualifiedId *id, const Value **property = 0, const ObjectValue **parentObject = 0, QString *name = 0)
     {
         QList<const ObjectValue *> scopeObjects = m_scopeChain.qmlScopeObjects();
         if (scopeObjects.isEmpty())
             return false;
 
-        if (! id)
+        if (!id)
             return false; // ### error?
 
         if (id->name.isEmpty()) // possible after error recovery
@@ -459,7 +458,7 @@ public:
             value = m_context->lookupReference(ref);
 
         // member lookup
-        const UiQualifiedId *idPart = id;
+        const AST::UiQualifiedId *idPart = id;
         if (prefix.isEmpty())
             idPart = idPart->next;
         for (; idPart; idPart = idPart->next) {
@@ -519,7 +518,7 @@ public:
         return false;
     }
 
-    QVariant convertToVariant(const QString &astValue, const QString &propertyPrefix, UiQualifiedId *propertyId)
+    QVariant convertToVariant(const QString &astValue, const QString &propertyPrefix, AST::UiQualifiedId *propertyId)
     {
         const bool hasQuotes = astValue.trimmed().left(1) == QStringLiteral("\"") && astValue.trimmed().right(1) == QStringLiteral("\"");
         const QString cleanedValue = fixEscapedUnicodeChar(deEscape(stripQuotes(astValue.trimmed())));
@@ -571,7 +570,7 @@ public:
         return value;
     }
 
-    QVariant convertToEnum(Statement *rhs, const QString &propertyPrefix, UiQualifiedId *propertyId, const QString &astValue)
+    QVariant convertToEnum(AST::Statement *rhs, const QString &propertyPrefix, AST::UiQualifiedId *propertyId, const QString &astValue)
     {
         QStringList astValueList = astValue.split(QStringLiteral("."));
 
@@ -580,7 +579,7 @@ public:
                 && globalQtEnums().contains(astValueList.last()))
             return QVariant::fromValue(Enumeration(astValue));
 
-        ExpressionStatement *eStmt = cast<ExpressionStatement *>(rhs);
+        AST::ExpressionStatement *eStmt = AST::cast<AST::ExpressionStatement *>(rhs);
         if (!eStmt || !eStmt->expression)
             return QVariant();
 
@@ -598,12 +597,12 @@ public:
 
         const ObjectValue *rhsValueObject = 0;
         QString rhsValueName;
-        if (IdentifierExpression *idExp = cast<IdentifierExpression *>(eStmt->expression)) {
+        if (AST::IdentifierExpression *idExp = AST::cast<AST::IdentifierExpression *>(eStmt->expression)) {
             if (!m_scopeChain.qmlScopeObjects().isEmpty())
                 rhsValueObject = m_scopeChain.qmlScopeObjects().last();
             if (!idExp->name.isEmpty())
                 rhsValueName = idExp->name.toString();
-        } else if (FieldMemberExpression *memberExp = cast<FieldMemberExpression *>(eStmt->expression)) {
+        } else if (AST::FieldMemberExpression *memberExp = AST::cast<AST::FieldMemberExpression *>(eStmt->expression)) {
             Evaluate evaluate(&m_scopeChain);
             const Value *result = evaluate(memberExp->base);
             rhsValueObject = result->asObjectValue();
@@ -706,8 +705,8 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
 {
     QList<Import> existingImports = m_rewriterView->model()->imports();
 
-    for (UiHeaderItemList *iter = doc->qmlProgram()->headers; iter; iter = iter->next) {
-        UiImport *import = AST::cast<UiImport *>(iter->headerItem);
+    for (AST::UiHeaderItemList *iter = doc->qmlProgram()->headers; iter; iter = iter->next) {
+        AST::UiImport *import = AST::cast<AST::UiImport *>(iter->headerItem);
         if (!import)
             continue;
 
@@ -855,14 +854,14 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
         if (!doc->isParsedCorrectly()) {
             QList<RewriterView::Error> errors;
-            foreach (const QmlJS::DiagnosticMessage &message, doc->diagnosticMessages())
+            foreach (const DiagnosticMessage &message, doc->diagnosticMessages())
                 errors.append(RewriterView::Error(message, QUrl::fromLocalFile(doc->fileName())));
             m_rewriterView->setErrors(errors);
             setActive(false);
             return false;
         }
         snapshot.insert(doc);
-        m_vContext = QmlJS::ModelManagerInterface::instance()->defaultVContext(Dialect::Qml, doc, true);
+        m_vContext = ModelManagerInterface::instance()->defaultVContext(Dialect::Qml, doc, true);
         ReadingContext ctxt(snapshot, doc, m_vContext);
         m_scopeChain = QSharedPointer<const ScopeChain>(
                     new ScopeChain(ctxt.scopeChain()));
@@ -871,7 +870,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         QList<RewriterView::Error> errors;
         QList<RewriterView::Error> warnings;
 
-        foreach (const QmlJS::DiagnosticMessage &diagnosticMessage, ctxt.diagnosticLinkMessages()) {
+        foreach (const DiagnosticMessage &diagnosticMessage, ctxt.diagnosticLinkMessages()) {
             errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
         }
 
@@ -879,13 +878,13 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         setupPossibleImports(snapshot, m_vContext);
 
         if (m_rewriterView->model()->imports().isEmpty()) {
-            const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, AST::SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found"));
+            const DiagnosticMessage diagnosticMessage(Severity::Error, AST::SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found"));
             errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
         }
 
         foreach (const QmlDesigner::Import &import, m_rewriterView->model()->imports()) {
             if (import.isLibraryImport() && import.url() == QStringLiteral("QtQuick") && !supportedQtQuickVersion(import.version())) {
-                const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, AST::SourceLocation(0, 0, 0, 0),
+                const DiagnosticMessage diagnosticMessage(Severity::Error, AST::SourceLocation(0, 0, 0, 0),
                                                                  QCoreApplication::translate("QmlDesigner::TextToModelMerger", "Unsupported QtQuick version"));
                 errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
             }
@@ -955,8 +954,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         }
         setupUsedImports();
 
-        UiObjectMember *astRootNode = 0;
-        if (UiProgram *program = doc->qmlProgram())
+        AST::UiObjectMember *astRootNode = 0;
+        if (AST::UiProgram *program = doc->qmlProgram())
             if (program->members)
                 astRootNode = program->members->member;
         ModelNode modelRootNode = m_rewriterView->rootModelNode();
@@ -981,12 +980,12 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 }
 
 void TextToModelMerger::syncNode(ModelNode &modelNode,
-                                 UiObjectMember *astNode,
+                                 AST::UiObjectMember *astNode,
                                  ReadingContext *context,
                                  DifferenceHandler &differenceHandler)
 {
-    UiQualifiedId *astObjectType = qualifiedTypeNameId(astNode);
-    UiObjectInitializer *astInitializer = initializerOfObject(astNode);
+    AST::UiQualifiedId *astObjectType = qualifiedTypeNameId(astNode);
+    AST::UiObjectInitializer *astInitializer = initializerOfObject(astNode);
 
     if (!astObjectType || !astInitializer)
         return;
@@ -1011,8 +1010,8 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     }
 
     if (modelNode.isRootNode() && isComponentType(typeName)) {
-        for (UiObjectMemberList *iter = astInitializer->members; iter; iter = iter->next) {
-            if (UiObjectDefinition *def = cast<UiObjectDefinition *>(iter->member)) {
+        for (AST::UiObjectMemberList *iter = astInitializer->members; iter; iter = iter->next) {
+            if (AST::UiObjectDefinition *def = AST::cast<AST::UiObjectDefinition *>(iter->member)) {
                 syncNode(modelNode, def, context, differenceHandler);
                 return;
             }
@@ -1044,20 +1043,20 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     QSet<PropertyName> modelPropertyNames = QSet<PropertyName>::fromList(modelNode.propertyNames());
     if (!modelNode.id().isEmpty())
         modelPropertyNames.insert("id");
-    QList<UiObjectMember *> defaultPropertyItems;
+    QList<AST::UiObjectMember *> defaultPropertyItems;
 
-    for (UiObjectMemberList *iter = astInitializer->members; iter; iter = iter->next) {
-        UiObjectMember *member = iter->member;
+    for (AST::UiObjectMemberList *iter = astInitializer->members; iter; iter = iter->next) {
+        AST::UiObjectMember *member = iter->member;
         if (!member)
             continue;
 
-        if (UiArrayBinding *array = cast<UiArrayBinding *>(member)) {
+        if (AST::UiArrayBinding *array = AST::cast<AST::UiArrayBinding *>(member)) {
             const QString astPropertyName = toString(array->qualifiedId);
             if (isPropertyChangesType(typeName) || isConnectionsType(typeName) || context->lookupProperty(QString(), array->qualifiedId)) {
                 AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
-                QList<UiObjectMember *> arrayMembers;
-                for (UiArrayMemberList *iter = array->members; iter; iter = iter->next)
-                    if (UiObjectMember *member = iter->member)
+                QList<AST::UiObjectMember *> arrayMembers;
+                for (AST::UiArrayMemberList *iter = array->members; iter; iter = iter->next)
+                    if (AST::UiObjectMember *member = iter->member)
                         arrayMembers.append(member);
 
                 syncArrayProperty(modelProperty, arrayMembers, context, differenceHandler);
@@ -1066,7 +1065,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                 qWarning() << "Skipping invalid array property" << astPropertyName
                            << "for node type" << modelNode.type();
             }
-        } else if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member)) {
+        } else if (AST::UiObjectDefinition *def = AST::cast<AST::UiObjectDefinition *>(member)) {
             const QString &name = def->qualifiedTypeNameId->name.toString();
             if (name.isEmpty() || !name.at(0).isUpper()) {
                 QStringList props = syncGroupedProperties(modelNode,
@@ -1079,7 +1078,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
             } else {
                 defaultPropertyItems.append(member);
             }
-        } else if (UiObjectBinding *binding = cast<UiObjectBinding *>(member)) {
+        } else if (AST::UiObjectBinding *binding = AST::cast<AST::UiObjectBinding *>(member)) {
             const QString astPropertyName = toString(binding->qualifiedId);
             if (binding->hasOnToken) {
                 // skip value sources
@@ -1092,7 +1091,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                         || isConnectionsType(typeName)) {
                     AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
                     if (context->isArrayProperty(propertyType, containingObject, name))
-                        syncArrayProperty(modelProperty, QList<QmlJS::AST::UiObjectMember*>() << member, context, differenceHandler);
+                        syncArrayProperty(modelProperty, QList<AST::UiObjectMember*>() << member, context, differenceHandler);
                     else
                         syncNodeProperty(modelProperty, binding, context, differenceHandler);
                     modelPropertyNames.remove(astPropertyName.toUtf8());
@@ -1101,10 +1100,10 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                                << "for node type" << modelNode.type();
                 }
             }
-        } else if (UiScriptBinding *script = cast<UiScriptBinding *>(member)) {
+        } else if (AST::UiScriptBinding *script = AST::cast<AST::UiScriptBinding *>(member)) {
             modelPropertyNames.remove(syncScriptBinding(modelNode, QString(), script, context, differenceHandler));
-        } else if (UiPublicMember *property = cast<UiPublicMember *>(member)) {
-            if (property->type == UiPublicMember::Signal)
+        } else if (AST::UiPublicMember *property = AST::cast<AST::UiPublicMember *>(member)) {
+            if (property->type == AST::UiPublicMember::Signal)
                 continue; // QML designer doesn't support this yet.
 
             if (property->name.isEmpty() || property->memberType.isEmpty())
@@ -1163,32 +1162,32 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     context->leaveScope();
 }
 
-static QVariant parsePropertyExpression(ExpressionNode *expressionNode)
+static QVariant parsePropertyExpression(AST::ExpressionNode *expressionNode)
 {
     Q_ASSERT(expressionNode);
 
-    ArrayLiteral *arrayLiteral = cast<ArrayLiteral *>(expressionNode);
+    AST::ArrayLiteral *arrayLiteral = AST::cast<AST::ArrayLiteral *>(expressionNode);
 
     if (arrayLiteral) {
         QList<QVariant> variantList;
-        for (ElementList *it = arrayLiteral->elements; it; it = it->next)
+        for (AST::ElementList *it = arrayLiteral->elements; it; it = it->next)
             variantList << parsePropertyExpression(it->expression);
         return variantList;
     }
 
-    StringLiteral *stringLiteral = cast<AST::StringLiteral *>(expressionNode);
+    AST::StringLiteral *stringLiteral = AST::cast<AST::StringLiteral *>(expressionNode);
     if (stringLiteral)
         return stringLiteral->value.toString();
 
-    TrueLiteral *trueLiteral = cast<AST::TrueLiteral *>(expressionNode);
+    AST::TrueLiteral *trueLiteral = AST::cast<AST::TrueLiteral *>(expressionNode);
     if (trueLiteral)
         return true;
 
-    FalseLiteral *falseLiteral = cast<AST::FalseLiteral *>(expressionNode);
+    AST::FalseLiteral *falseLiteral = AST::cast<AST::FalseLiteral *>(expressionNode);
     if (falseLiteral)
         return false;
 
-    NumericLiteral *numericLiteral = cast<AST::NumericLiteral *>(expressionNode);
+    AST::NumericLiteral *numericLiteral = AST::cast<AST::NumericLiteral *>(expressionNode);
     if (numericLiteral)
         return numericLiteral->value;
 
@@ -1196,11 +1195,11 @@ static QVariant parsePropertyExpression(ExpressionNode *expressionNode)
     return QVariant();
 }
 
-QVariant parsePropertyScriptBinding(UiScriptBinding *uiScriptBinding)
+QVariant parsePropertyScriptBinding(AST::UiScriptBinding *uiScriptBinding)
 {
     Q_ASSERT(uiScriptBinding);
 
-    ExpressionStatement *expStmt = cast<ExpressionStatement *>(uiScriptBinding->statement);
+    AST::ExpressionStatement *expStmt = AST::cast<AST::ExpressionStatement *>(uiScriptBinding->statement);
     if (!expStmt)
         return QVariant();
 
@@ -1209,7 +1208,7 @@ QVariant parsePropertyScriptBinding(UiScriptBinding *uiScriptBinding)
 
 QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelNode,
                                              const QString &prefix,
-                                             UiScriptBinding *script,
+                                             AST::UiScriptBinding *script,
                                              ReadingContext *context,
                                              DifferenceHandler &differenceHandler)
 {
@@ -1304,7 +1303,7 @@ void TextToModelMerger::syncNodeId(ModelNode &modelNode, const QString &astObjec
 }
 
 void TextToModelMerger::syncNodeProperty(AbstractProperty &modelProperty,
-                                         UiObjectBinding *binding,
+                                         AST::UiObjectBinding *binding,
                                          ReadingContext *context,
                                          DifferenceHandler &differenceHandler)
 {
@@ -1366,7 +1365,7 @@ void TextToModelMerger::syncSignalHandler(AbstractProperty &modelProperty,
 
 
 void TextToModelMerger::syncArrayProperty(AbstractProperty &modelProperty,
-                                          const QList<UiObjectMember *> &arrayMembers,
+                                          const QList<AST::UiObjectMember *> &arrayMembers,
                                           ReadingContext *context,
                                           DifferenceHandler &differenceHandler)
 {
@@ -1403,7 +1402,7 @@ void TextToModelMerger::syncVariantProperty(AbstractProperty &modelProperty,
 }
 
 void TextToModelMerger::syncNodeListProperty(NodeListProperty &modelListProperty,
-                                             const QList<UiObjectMember *> arrayMembers,
+                                             const QList<AST::UiObjectMember *> arrayMembers,
                                              ReadingContext *context,
                                              DifferenceHandler &differenceHandler)
 {
@@ -1416,7 +1415,7 @@ void TextToModelMerger::syncNodeListProperty(NodeListProperty &modelListProperty
 
     for (int j = i; j < arrayMembers.size(); ++j) {
         // more elements in the dom-list, so add them to the model
-        UiObjectMember *arrayMember = arrayMembers.at(j);
+        AST::UiObjectMember *arrayMember = arrayMembers.at(j);
         const ModelNode newNode = differenceHandler.listPropertyMissingModelNode(modelListProperty, context, arrayMember);
     }
 
@@ -1431,13 +1430,14 @@ ModelNode TextToModelMerger::createModelNode(const TypeName &typeName,
                                              int majorVersion,
                                              int minorVersion,
                                              bool isImplicitComponent,
-                                             UiObjectMember *astNode,
+                                             AST::UiObjectMember *astNode,
                                              ReadingContext *context,
                                              DifferenceHandler &differenceHandler)
 {
     QString nodeSource;
 
-    UiQualifiedId *astObjectType = qualifiedTypeNameId(astNode);
+
+    AST::UiQualifiedId *astObjectType = qualifiedTypeNameId(astNode);
 
     if (isCustomParserType(typeName))
         nodeSource = textAt(context->doc(),
@@ -1475,16 +1475,16 @@ ModelNode TextToModelMerger::createModelNode(const TypeName &typeName,
 
 QStringList TextToModelMerger::syncGroupedProperties(ModelNode &modelNode,
                                                      const QString &name,
-                                                     UiObjectMemberList *members,
+                                                     AST::UiObjectMemberList *members,
                                                      ReadingContext *context,
                                                      DifferenceHandler &differenceHandler)
 {
     QStringList props;
 
-    for (UiObjectMemberList *iter = members; iter; iter = iter->next) {
-        UiObjectMember *member = iter->member;
+    for (AST::UiObjectMemberList *iter = members; iter; iter = iter->next) {
+        AST::UiObjectMember *member = iter->member;
 
-        if (UiScriptBinding *script = cast<UiScriptBinding *>(member)) {
+        if (AST::UiScriptBinding *script = AST::cast<AST::UiScriptBinding *>(member)) {
             const QString prop = syncScriptBinding(modelNode, name, script, context, differenceHandler);
             if (!prop.isEmpty())
                 props.append(prop);
@@ -1542,7 +1542,7 @@ void ModelValidator::shouldBeSignalHandlerProperty(AbstractProperty &modelProper
 }
 
 void ModelValidator::shouldBeNodeListProperty(AbstractProperty &modelProperty,
-                                              const QList<UiObjectMember *> /*arrayMembers*/,
+                                              const QList<AST::UiObjectMember *> /*arrayMembers*/,
                                               ReadingContext * /*context*/)
 {
     Q_UNUSED(modelProperty)
@@ -1577,7 +1577,7 @@ void ModelValidator::shouldBeNodeProperty(AbstractProperty &modelProperty,
                                           const TypeName &/*typeName*/,
                                           int /*majorVersion*/,
                                           int /*minorVersion*/,
-                                          UiObjectMember * /*astNode*/,
+                                          AST::UiObjectMember * /*astNode*/,
                                           ReadingContext * /*context*/)
 {
     Q_UNUSED(modelProperty)
@@ -1596,7 +1596,7 @@ void ModelValidator::modelNodeAbsentFromQml(ModelNode &modelNode)
 
 ModelNode ModelValidator::listPropertyMissingModelNode(NodeListProperty &/*modelProperty*/,
                                                        ReadingContext * /*context*/,
-                                                       UiObjectMember * /*arrayMember*/)
+                                                       AST::UiObjectMember * /*arrayMember*/)
 {
     Q_ASSERT(0);
     return ModelNode();
@@ -1683,7 +1683,7 @@ void ModelAmender::shouldBeSignalHandlerProperty(AbstractProperty &modelProperty
 }
 
 void ModelAmender::shouldBeNodeListProperty(AbstractProperty &modelProperty,
-                                            const QList<UiObjectMember *> arrayMembers,
+                                            const QList<AST::UiObjectMember *> arrayMembers,
                                             ReadingContext *context)
 {
     ModelNode theNode = modelProperty.parentModelNode();
@@ -1724,7 +1724,7 @@ void ModelAmender::shouldBeNodeProperty(AbstractProperty &modelProperty,
                                         const TypeName &typeName,
                                         int majorVersion,
                                         int minorVersion,
-                                        UiObjectMember *astNode,
+                                        AST::UiObjectMember *astNode,
                                         ReadingContext *context)
 {
     ModelNode theNode = modelProperty.parentModelNode();
@@ -1754,14 +1754,14 @@ void ModelAmender::modelNodeAbsentFromQml(ModelNode &modelNode)
 
 ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProperty,
                                                      ReadingContext *context,
-                                                     UiObjectMember *arrayMember)
+                                                     AST::UiObjectMember *arrayMember)
 {
-    UiQualifiedId *astObjectType = 0;
-    UiObjectInitializer *astInitializer = 0;
-    if (UiObjectDefinition *def = cast<UiObjectDefinition *>(arrayMember)) {
+    AST::UiQualifiedId *astObjectType = 0;
+    AST::UiObjectInitializer *astInitializer = 0;
+    if (AST::UiObjectDefinition *def = AST::cast<AST::UiObjectDefinition *>(arrayMember)) {
         astObjectType = def->qualifiedTypeNameId;
         astInitializer = def->initializer;
-    } else if (UiObjectBinding *bin = cast<UiObjectBinding *>(arrayMember)) {
+    } else if (AST::UiObjectBinding *bin = AST::cast<AST::UiObjectBinding *>(arrayMember)) {
         astObjectType = bin->qualifiedTypeNameId;
         astInitializer = bin->initializer;
     }
@@ -1815,7 +1815,7 @@ void ModelAmender::typeDiffers(bool isRootNode,
                                const TypeName &typeName,
                                int majorVersion,
                                int minorVersion,
-                               QmlJS::AST::UiObjectMember *astNode,
+                               AST::UiObjectMember *astNode,
                                ReadingContext *context)
 {
     const bool propertyTakesComponent = modelNode.hasParentProperty() && propertyIsComponentType(modelNode.parentProperty(), typeName, modelNode.model());
@@ -1926,14 +1926,14 @@ void TextToModelMerger::delayedSetup()
 }
 
 QString TextToModelMerger::textAt(const Document::Ptr &doc,
-                                  const SourceLocation &location)
+                                  const AST::SourceLocation &location)
 {
     return doc->source().mid(location.offset, location.length);
 }
 
 QString TextToModelMerger::textAt(const Document::Ptr &doc,
-                                  const SourceLocation &from,
-                                  const SourceLocation &to)
+                                  const AST::SourceLocation &from,
+                                  const AST::SourceLocation &to)
 {
     return doc->source().mid(from.offset, to.end() - from.begin());
 }

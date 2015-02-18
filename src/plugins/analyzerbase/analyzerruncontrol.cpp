@@ -58,7 +58,8 @@ AnalyzerRunControl::AnalyzerRunControl(const AnalyzerStartParameters &sp,
 
     connect(this, &AnalyzerRunControl::finished,
             this, &AnalyzerRunControl::runControlFinished);
-    connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), SLOT(stopIt()));
+    connect(AnalyzerManager::stopAction(), &QAction::triggered,
+            this, &AnalyzerRunControl::stopIt);
 }
 
 void AnalyzerRunControl::stopIt()

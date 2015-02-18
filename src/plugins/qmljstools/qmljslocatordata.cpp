@@ -44,11 +44,11 @@ using namespace QmlJS::AST;
 LocatorData::LocatorData(QObject *parent)
     : QObject(parent)
 {
-    QmlJS::ModelManagerInterface *manager = QmlJS::ModelManagerInterface::instance();
+    ModelManagerInterface *manager = ModelManagerInterface::instance();
 
-    connect(manager, &QmlJS::ModelManagerInterface::documentUpdated,
+    connect(manager, &ModelManagerInterface::documentUpdated,
             this, &LocatorData::onDocumentUpdated);
-    connect(manager, &QmlJS::ModelManagerInterface::aboutToRemoveFiles,
+    connect(manager, &ModelManagerInterface::aboutToRemoveFiles,
             this, &LocatorData::onAboutToRemoveFiles);
 }
 
@@ -185,7 +185,7 @@ QHash<QString, QList<LocatorData::Entry> > LocatorData::entries() const
     return m_entries;
 }
 
-void LocatorData::onDocumentUpdated(const QmlJS::Document::Ptr &doc)
+void LocatorData::onDocumentUpdated(const Document::Ptr &doc)
 {
     QList<Entry> entries = FunctionFinder().run(doc);
     QMutexLocker l(&m_mutex);

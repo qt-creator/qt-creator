@@ -210,9 +210,12 @@ bool MimeTypeParserBase::parse(QIODevice *dev, const QString &fileName, QString 
     QXmlStreamReader reader(dev);
     ParseState ps = ParseBeginning;
     QXmlStreamAttributes atts;
+    bool ignoreCurrentMimeType = false;
     while (!reader.atEnd()) {
         switch (reader.readNext()) {
         case QXmlStreamReader::StartElement:
+            if (ignoreCurrentMimeType)
+                continue;
             ps = nextState(ps, reader.name());
             atts = reader.attributes();
             switch (ps) {
@@ -221,7 +224,10 @@ bool MimeTypeParserBase::parse(QIODevice *dev, const QString &fileName, QString 
                 if (name.isEmpty()) {
                     reader.raiseError(QString::fromLatin1("Missing '%1'-attribute").arg(QString::fromLatin1(mimeTypeAttributeC)));
                 } else {
-                    data.name = name;
+                    if (mimeTypeExists(name))
+                        ignoreCurrentMimeType = true;
+                    else
+                        data.name = name;
                 }
             }
                 break;
@@ -307,20 +313,25 @@ bool MimeTypeParserBase::parse(QIODevice *dev, const QString &fileName, QString 
         {
             const QStringRef elementName = reader.name();
             if (elementName == QLatin1String(mimeTypeTagC)) {
-                if (!process(MimeType(data), errorMessage))
-                    return false;
+                if (!ignoreCurrentMimeType) {
+                    if (!process(MimeType(data), errorMessage))
+                        return false;
+                }
+                ignoreCurrentMimeType = false;
                 data.clear();
-            } else if (elementName == QLatin1String(matchTagC)) {
-                // Closing a <match> tag, pop stack
-                currentRules.pop();
-                //qDebug() << " MATCH closed. Stack size is now" << currentRules.size();
-            } else if (elementName == QLatin1String(magicTagC)) {
-                //qDebug() << "MAGIC ended, we got" << rules.count() << "rules, with prio" << priority;
-                // Finished a <magic> sequence
-                MimeMagicRuleMatcher ruleMatcher(data.name, priority);
-                ruleMatcher.addRules(rules);
-                processMagicMatcher(ruleMatcher);
-                rules.clear();
+            } else if (!ignoreCurrentMimeType) {
+                if (elementName == QLatin1String(matchTagC)) {
+                    // Closing a <match> tag, pop stack
+                    currentRules.pop();
+                    //qDebug() << " MATCH closed. Stack size is now" << currentRules.size();
+                } else if (elementName == QLatin1String(magicTagC)) {
+                    //qDebug() << "MAGIC ended, we got" << rules.count() << "rules, with prio" << priority;
+                    // Finished a <magic> sequence
+                    MimeMagicRuleMatcher ruleMatcher(data.name, priority);
+                    ruleMatcher.addRules(rules);
+                    processMagicMatcher(ruleMatcher);
+                    rules.clear();
+                }
             }
             break;
         }

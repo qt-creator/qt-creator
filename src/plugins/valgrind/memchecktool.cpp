@@ -187,7 +187,7 @@ static void initKindFilterAction(QAction *action, const QList<int> &kinds)
 }
 
 MemcheckTool::MemcheckTool(QObject *parent)
-  : ValgrindTool(parent)
+  : QObject(parent)
 {
     m_settings = 0;
     m_errorModel = 0;
@@ -196,8 +196,6 @@ MemcheckTool::MemcheckTool(QObject *parent)
     m_filterMenu = 0;
 
     setObjectName(QLatin1String("MemcheckTool"));
-    setRunMode(MemcheckRunMode);
-    setToolMode(DebugMode);
 
     m_filterProjectAction = new QAction(tr("External Errors"), this);
     m_filterProjectAction->setToolTip(
@@ -360,7 +358,7 @@ QWidget *MemcheckTool::createWidgets()
     m_errorView->setObjectName(QLatin1String("Valgrind.MemcheckTool.ErrorView"));
     m_errorView->setWindowTitle(tr("Memory Issues"));
 
-    QDockWidget *errorDock = AnalyzerManager::createDockWidget(this, m_errorView);
+    QDockWidget *errorDock = AnalyzerManager::createDockWidget("Memcheck", m_errorView);
     errorDock->show();
     mw->splitDockWidget(mw->toolBarDockWidget(), errorDock, Qt::Vertical);
 
@@ -599,11 +597,38 @@ void MemcheckTool::setBusyCursor(bool busy)
     m_errorView->setCursor(cursor);
 }
 
+void MemcheckTool::startTool(StartMode mode)
+{
+    if (mode == StartLocal && checkForLocalStart(DebugMode)) {
+        Project *pro = SessionManager::startupProject();
+        ProjectExplorerPlugin::instance()->runProject(pro, MemcheckRunMode);
+    }
+
+    AnalyzerStartParameters sp;
+    if (mode == StartRemote && checkForRemoteStart(&sp)) {
+        AnalyzerRunControl *rc = createRunControl(sp, 0);
+        ProjectExplorerPlugin::startRunControl(rc, MemcheckRunMode);
+    }
+}
+
 MemcheckWithGdbTool::MemcheckWithGdbTool(QObject *parent) :
     MemcheckTool(parent)
 {
-    setRunMode(MemcheckWithGdbRunMode);
     setObjectName(QLatin1String("MemcheckWithGdbTool"));
+}
+
+void MemcheckWithGdbTool::startTool(Analyzer::StartMode mode)
+{
+    if (mode == StartLocal && checkForLocalStart(DebugMode)) {
+        Project *pro = SessionManager::startupProject();
+        ProjectExplorerPlugin::instance()->runProject(pro, MemcheckWithGdbRunMode);
+    }
+
+    AnalyzerStartParameters sp;
+    if (mode == StartRemote && checkForRemoteStart(&sp)) {
+        AnalyzerRunControl *rc = createRunControl(sp, 0);
+        ProjectExplorerPlugin::startRunControl(rc, MemcheckWithGdbRunMode);
+    }
 }
 
 MemcheckRunControl *MemcheckWithGdbTool::createMemcheckRunControl(const AnalyzerStartParameters &sp,

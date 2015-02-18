@@ -308,6 +308,8 @@ void QmakeProjectManagerPlugin::updateRunQMakeAction()
     if (BuildManager::isBuilding(ProjectTree::currentProject()))
         enable = false;
     QmakeProject *pro = qobject_cast<QmakeProject *>(ProjectTree::currentProject());
+    if (!pro)
+        pro = qobject_cast<QmakeProject *>(SessionManager::startupProject());
     if (!pro
             || !pro->activeTarget()
             || !pro->activeTarget()->activeBuildConfiguration())

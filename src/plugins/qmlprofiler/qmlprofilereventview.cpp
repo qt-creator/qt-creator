@@ -68,9 +68,9 @@ struct RootEventType : public QmlProfilerDataModel::QmlEventTypeData {
     {
         QString rootEventName = QmlProfilerEventsMainView::tr("<program>");
         displayName = rootEventName;
-        location = QmlDebug::QmlEventLocation(rootEventName, 1, 1);
-        message = QmlDebug::MaximumMessage;
-        rangeType = QmlDebug::MaximumRangeType;
+        location = QmlEventLocation(rootEventName, 1, 1);
+        message = MaximumMessage;
+        rangeType = MaximumRangeType;
         detailType = -1;
         data = QmlProfilerEventsMainView::tr("Main Program");
     }
@@ -339,30 +339,30 @@ bool QmlProfilerEventsWidget::showExtendedStatistics() const
 
 void QmlProfilerEventsWidget::setShowJavaScript(bool show)
 {
-    d->modelProxy->setEventTypeAccepted(QmlDebug::Javascript, show);
+    d->modelProxy->setEventTypeAccepted(Javascript, show);
     d->modelProxy->limitToRange(d->rangeStart, d->rangeEnd);
 }
 
 void QmlProfilerEventsWidget::setShowQml(bool show)
 {
-    d->modelProxy->setEventTypeAccepted(QmlDebug::Binding, show);
-    d->modelProxy->setEventTypeAccepted(QmlDebug::HandlingSignal, show);
-    d->modelProxy->setEventTypeAccepted(QmlDebug::Compiling, show);
-    d->modelProxy->setEventTypeAccepted(QmlDebug::Creating, show);
+    d->modelProxy->setEventTypeAccepted(Binding, show);
+    d->modelProxy->setEventTypeAccepted(HandlingSignal, show);
+    d->modelProxy->setEventTypeAccepted(Compiling, show);
+    d->modelProxy->setEventTypeAccepted(Creating, show);
     d->modelProxy->limitToRange(d->rangeStart, d->rangeEnd);
 }
 
 bool QmlProfilerEventsWidget::showJavaScript() const
 {
-    return d->modelProxy->eventTypeAccepted(QmlDebug::Javascript);
+    return d->modelProxy->eventTypeAccepted(Javascript);
 }
 
 bool QmlProfilerEventsWidget::showQml() const
 {
-    return d->modelProxy->eventTypeAccepted(QmlDebug::Binding) &&
-            d->modelProxy->eventTypeAccepted(QmlDebug::HandlingSignal) &&
-            d->modelProxy->eventTypeAccepted(QmlDebug::Compiling) &&
-            d->modelProxy->eventTypeAccepted(QmlDebug::Creating);
+    return d->modelProxy->eventTypeAccepted(Binding) &&
+            d->modelProxy->eventTypeAccepted(HandlingSignal) &&
+            d->modelProxy->eventTypeAccepted(Compiling) &&
+            d->modelProxy->eventTypeAccepted(Creating);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -700,15 +700,15 @@ void QmlProfilerEventsMainView::parseModelProxy()
     }
 }
 
-QString QmlProfilerEventsMainView::nameForType(QmlDebug::RangeType typeNumber)
+QString QmlProfilerEventsMainView::nameForType(RangeType typeNumber)
 {
     switch (typeNumber) {
-    case QmlDebug::Painting: return QmlProfilerEventsMainView::tr("Paint");
-    case QmlDebug::Compiling: return QmlProfilerEventsMainView::tr("Compile");
-    case QmlDebug::Creating: return QmlProfilerEventsMainView::tr("Create");
-    case QmlDebug::Binding: return QmlProfilerEventsMainView::tr("Binding");
-    case QmlDebug::HandlingSignal: return QmlProfilerEventsMainView::tr("Signal");
-    case QmlDebug::Javascript: return QmlProfilerEventsMainView::tr("JavaScript");
+    case Painting: return QmlProfilerEventsMainView::tr("Paint");
+    case Compiling: return QmlProfilerEventsMainView::tr("Compile");
+    case Creating: return QmlProfilerEventsMainView::tr("Create");
+    case Binding: return QmlProfilerEventsMainView::tr("Binding");
+    case HandlingSignal: return QmlProfilerEventsMainView::tr("Signal");
+    case Javascript: return QmlProfilerEventsMainView::tr("JavaScript");
     default: return QString();
     }
 }

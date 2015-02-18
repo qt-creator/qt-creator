@@ -79,41 +79,41 @@ Q_STATIC_ASSERT(sizeof(MESSAGE_STRINGS) == QmlDebug::MaximumMessage * sizeof(con
 namespace QmlProfiler {
 namespace Internal {
 
-static QPair<QmlDebug::Message, QmlDebug::RangeType> qmlTypeAsEnum(const QString &typeString)
+static QPair<Message, RangeType> qmlTypeAsEnum(const QString &typeString)
 {
-    QPair<QmlDebug::Message, QmlDebug::RangeType> ret(QmlDebug::MaximumMessage,
-                                                      QmlDebug::MaximumRangeType);
+    QPair<Message, RangeType> ret(MaximumMessage,
+                                                      MaximumRangeType);
 
-    for (int i = 0; i < QmlDebug::MaximumMessage; ++i) {
+    for (int i = 0; i < MaximumMessage; ++i) {
         if (typeString == _(MESSAGE_STRINGS[i])) {
-            ret.first = static_cast<QmlDebug::Message>(i);
+            ret.first = static_cast<Message>(i);
             break;
         }
     }
 
-    for (int i = 0; i < QmlDebug::MaximumRangeType; ++i) {
+    for (int i = 0; i < MaximumRangeType; ++i) {
         if (typeString == _(RANGE_TYPE_STRINGS[i])) {
-            ret.second = static_cast<QmlDebug::RangeType>(i);
+            ret.second = static_cast<RangeType>(i);
             break;
         }
     }
 
-    if (ret.first == QmlDebug::MaximumMessage && ret.second == QmlDebug::MaximumRangeType) {
+    if (ret.first == MaximumMessage && ret.second == MaximumRangeType) {
         bool isNumber = false;
         int type = typeString.toUInt(&isNumber);
-        if (isNumber && type < QmlDebug::MaximumRangeType)
+        if (isNumber && type < MaximumRangeType)
             // Allow saving ranges as numbers, but not messages.
-            ret.second = static_cast<QmlDebug::RangeType>(type);
+            ret.second = static_cast<RangeType>(type);
     }
 
     return ret;
 }
 
-static QString qmlTypeAsString(QmlDebug::Message message, QmlDebug::RangeType rangeType)
+static QString qmlTypeAsString(Message message, RangeType rangeType)
 {
-    if (rangeType < QmlDebug::MaximumRangeType)
+    if (rangeType < MaximumRangeType)
         return _(RANGE_TYPE_STRINGS[rangeType]);
-    else if (message != QmlDebug::MaximumMessage)
+    else if (message != MaximumMessage)
         return _(MESSAGE_STRINGS[message]);
     else
         return QString::number((int)rangeType);
@@ -247,7 +247,7 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
             }
 
             if (elementName == _("type")) {
-                QPair<QmlDebug::Message, QmlDebug::RangeType> enums = qmlTypeAsEnum(readData);
+                QPair<Message, RangeType> enums = qmlTypeAsEnum(readData);
                 event.message = enums.first;
                 event.rangeType = enums.second;
                 break;
@@ -513,14 +513,14 @@ void QmlProfilerFileWriter::save(QIODevice *device)
         const QmlProfilerDataModel::QmlEventTypeData &event = m_qmlEvents[range.typeIndex];
 
         // special: animation event
-        if (event.message == QmlDebug::Event && event.detailType == QmlDebug::AnimationFrame) {
+        if (event.message == Event && event.detailType == AnimationFrame) {
             stream.writeAttribute(_("framerate"), QString::number(range.numericData1));
             stream.writeAttribute(_("animationcount"), QString::number(range.numericData2));
             stream.writeAttribute(_("thread"), QString::number(range.numericData3));
         }
 
         // special: pixmap cache event
-        if (event.message == QmlDebug::PixmapCacheEvent) {
+        if (event.message == PixmapCacheEvent) {
             if (event.detailType == PixmapSizeKnown) {
                 stream.writeAttribute(_("width"), QString::number(range.numericData1));
                 stream.writeAttribute(_("height"), QString::number(range.numericData2));
@@ -531,7 +531,7 @@ void QmlProfilerFileWriter::save(QIODevice *device)
                 stream.writeAttribute(_("refCount"), QString::number(range.numericData3));
         }
 
-        if (event.message == QmlDebug::SceneGraphFrame) {
+        if (event.message == SceneGraphFrame) {
             // special: scenegraph frame events
             if (range.numericData1 > 0)
                 stream.writeAttribute(_("timing1"), QString::number(range.numericData1));
@@ -546,7 +546,7 @@ void QmlProfilerFileWriter::save(QIODevice *device)
         }
 
         // special: memory allocation event
-        if (event.message == QmlDebug::MemoryAllocation)
+        if (event.message == MemoryAllocation)
             stream.writeAttribute(_("amount"), QString::number(range.numericData1));
 
         stream.writeEndElement();

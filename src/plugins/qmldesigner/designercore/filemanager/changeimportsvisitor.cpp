@@ -44,7 +44,7 @@ ChangeImportsVisitor::ChangeImportsVisitor(TextModifier &textModifier,
         QMLRewriter(textModifier), m_source(source)
 {}
 
-bool ChangeImportsVisitor::add(QmlJS::AST::UiProgram *ast, const Import &import)
+bool ChangeImportsVisitor::add(UiProgram *ast, const Import &import)
 {
     setDidRewriting(false);
     if (!ast)
@@ -72,7 +72,7 @@ bool ChangeImportsVisitor::add(QmlJS::AST::UiProgram *ast, const Import &import)
     return true;
 }
 
-bool ChangeImportsVisitor::remove(QmlJS::AST::UiProgram *ast, const Import &import)
+bool ChangeImportsVisitor::remove(UiProgram *ast, const Import &import)
 {
     setDidRewriting(false);
     if (!ast)
@@ -92,7 +92,7 @@ bool ChangeImportsVisitor::remove(QmlJS::AST::UiProgram *ast, const Import &impo
     return didRewriting();
 }
 
-bool ChangeImportsVisitor::equals(QmlJS::AST::UiImport *ast, const Import &import)
+bool ChangeImportsVisitor::equals(UiImport *ast, const Import &import)
 {
     if (import.isLibraryImport())
         return toString(ast->importUri) == import.url();

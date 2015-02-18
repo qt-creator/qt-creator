@@ -150,7 +150,7 @@ AST::Node *SemanticInfo::rangeAt(int cursorPosition) const
 }
 
 // ### the name and behavior of this function is dubious
-QmlJS::AST::Node *SemanticInfo::declaringMemberNoProperties(int cursorPosition) const
+Node *SemanticInfo::declaringMemberNoProperties(int cursorPosition) const
 {
     AST::Node *node = rangeAt(cursorPosition);
 
@@ -191,7 +191,7 @@ QList<AST::Node *> SemanticInfo::rangePath(int cursorPosition) const
     return path;
 }
 
-ScopeChain SemanticInfo::scopeChain(const QList<QmlJS::AST::Node *> &path) const
+ScopeChain SemanticInfo::scopeChain(const QList<Node *> &path) const
 {
     Q_ASSERT(m_rootScopeChain);
 

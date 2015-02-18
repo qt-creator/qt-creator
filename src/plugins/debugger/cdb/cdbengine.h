@@ -42,14 +42,16 @@
 #include <QVariant>
 #include <QTime>
 
+#include <functional>
+
 namespace Utils { class ConsoleProcess; }
 namespace Debugger {
 namespace Internal {
 
 class DisassemblerAgent;
-struct CdbBuiltinCommand;
-struct CdbExtensionCommand;
+struct CdbCommand;
 struct MemoryViewCookie;
+struct ConditionalBreakPointCookie;
 class ByteArrayInputStream;
 class GdbMi;
 
@@ -68,10 +70,8 @@ public:
         CommandListBreakPoints = 0x10
     };
 
-    typedef QSharedPointer<CdbBuiltinCommand> CdbBuiltinCommandPtr;
-    typedef QSharedPointer<CdbExtensionCommand> CdbExtensionCommandPtr;
-    typedef void (CdbEngine::*BuiltinCommandHandler)(const CdbBuiltinCommandPtr &);
-    typedef void (CdbEngine::*ExtensionCommandHandler)(const CdbExtensionCommandPtr &);
+    typedef QSharedPointer<CdbCommand> CdbCommandPtr;
+    typedef std::function<void(const CdbCommandPtr &)> CommandHandler;
 
     CdbEngine(const DebuggerStartParameters &sp);
     ~CdbEngine();
@@ -139,16 +139,14 @@ private slots:
     void postCommand(const QByteArray &cmd, unsigned flags);
     void postBuiltinCommand(const QByteArray &cmd,
                             unsigned flags,
-                            BuiltinCommandHandler handler,
-                            unsigned nextCommandFlag = 0,
-                            const QVariant &cookie = QVariant());
+                            CommandHandler handler,
+                            unsigned nextCommandFlag = 0);
 
     void postExtensionCommand(const QByteArray &cmd,
                               const QByteArray &arguments,
                               unsigned flags,
-                              ExtensionCommandHandler handler,
-                              unsigned nextCommandFlag = 0,
-                              const QVariant &cookie = QVariant());
+                              CommandHandler handler,
+                              unsigned nextCommandFlag = 0);
 
     void postCommandSequence(unsigned mask);
     void operateByInstructionTriggered(bool);
@@ -212,41 +210,41 @@ private:
     void postWidgetAtCommand();
     void handleCustomSpecialStop(const QVariant &v);
     void postFetchMemory(const MemoryViewCookie &c);
-    inline void postDisassemblerCommand(quint64 address, const QVariant &cookie = QVariant());
+    inline void postDisassemblerCommand(quint64 address, DisassemblerAgent *agent);
     void postDisassemblerCommand(quint64 address, quint64 endAddress,
-                                 const QVariant &cookie = QVariant());
+                                 DisassemblerAgent *agent);
     void postResolveSymbol(const QString &module, const QString &function,
-                           const QVariant &cookie =  QVariant());
-    void evaluateExpression(QByteArray exp, const QVariant &cookie = QVariant());
+                           DisassemblerAgent *agent);
+    void evaluateExpression(QByteArray exp, const ConditionalBreakPointCookie &cookie);
     // Builtin commands
-    void dummyHandler(const CdbBuiltinCommandPtr &);
-    void handleStackTrace(const CdbExtensionCommandPtr &);
-    void handleRegisters(const CdbBuiltinCommandPtr &);
-    void handleDisassembler(const CdbBuiltinCommandPtr &);
-    void handleJumpToLineAddressResolution(const CdbBuiltinCommandPtr &);
-    void handleExpression(const CdbExtensionCommandPtr &);
-    void handleResolveSymbol(const CdbBuiltinCommandPtr &command);
-    void handleResolveSymbol(const QList<quint64> &addresses, const QVariant &cookie);
-    void handleBreakInsert(const CdbBuiltinCommandPtr &cmd);
-    void handleCheckWow64(const CdbBuiltinCommandPtr &cmd);
-    void ensureUsing32BitStackInWow64(const CdbBuiltinCommandPtr &cmd);
-    void handleSwitchWow64Stack(const CdbBuiltinCommandPtr &cmd);
+    void dummyHandler(const CdbCommandPtr &);
+    void handleStackTrace(const CdbCommandPtr &);
+    void handleRegisters(const CdbCommandPtr &);
+    void handleDisassembler(const CdbCommandPtr &, DisassemblerAgent *agent);
+    void handleJumpToLineAddressResolution(const CdbCommandPtr &, const ContextData &context);
+    void handleExpression(const CdbCommandPtr &, const ConditionalBreakPointCookie &cookie);
+    void handleResolveSymbol(const CdbCommandPtr &command, const QString &symbol, DisassemblerAgent *agent);
+    void handleResolveSymbolHelper(const QList<quint64> &addresses, DisassemblerAgent *agent);
+    void handleBreakInsert(const CdbCommandPtr &cmd);
+    void handleCheckWow64(const CdbCommandPtr &cmd, const GdbMi &stack);
+    void ensureUsing32BitStackInWow64(const CdbCommandPtr &cmd, const GdbMi &stack);
+    void handleSwitchWow64Stack(const CdbCommandPtr &cmd);
     void jumpToAddress(quint64 address);
-    void handleCreateFullBackTrace(const CdbBuiltinCommandPtr &cmd);
+    void handleCreateFullBackTrace(const CdbCommandPtr &cmd);
 
     // Extension commands
-    void handleThreads(const CdbExtensionCommandPtr &);
-    void handlePid(const CdbExtensionCommandPtr &reply);
-    void handleLocals(const CdbExtensionCommandPtr &reply);
-    void handleAddWatch(const CdbExtensionCommandPtr &reply);
-    void handleExpandLocals(const CdbExtensionCommandPtr &reply);
-    void handleRegisters(const CdbExtensionCommandPtr &reply);
-    void handleModules(const CdbExtensionCommandPtr &reply);
-    void handleMemory(const CdbExtensionCommandPtr &);
-    void handleWidgetAt(const CdbExtensionCommandPtr &);
-    void handleBreakPoints(const CdbExtensionCommandPtr &);
+    void handleThreads(const CdbCommandPtr &);
+    void handlePid(const CdbCommandPtr &reply);
+    void handleLocals(const CdbCommandPtr &reply, int flags);
+    void handleAddWatch(const CdbCommandPtr &reply, WatchData item);
+    void handleExpandLocals(const CdbCommandPtr &reply);
+    void handleRegistersExt(const CdbCommandPtr &reply);
+    void handleModules(const CdbCommandPtr &reply);
+    void handleMemory(const CdbCommandPtr &, const MemoryViewCookie &memViewCookie);
+    void handleWidgetAt(const CdbCommandPtr &);
+    void handleBreakPoints(const CdbCommandPtr &);
     void handleBreakPoints(const GdbMi &value);
-    void handleAdditionalQmlStack(const CdbExtensionCommandPtr &);
+    void handleAdditionalQmlStack(const CdbCommandPtr &);
     NormalizedSourceFileName sourceMapNormalizeFileNameFromDebugger(const QString &f);
     void updateLocalVariable(const QByteArray &iname);
     void updateLocals(bool forNewStackFrame = false);
@@ -266,9 +264,9 @@ private:
     SpecialStopMode m_specialStopMode;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr m_signalOperation;
     int m_nextCommandToken;
-    QList<CdbBuiltinCommandPtr> m_builtinCommandQueue;
+    QList<CdbCommandPtr> m_builtinCommandQueue;
     int m_currentBuiltinCommandIndex; //!< Current command whose output is recorded.
-    QList<CdbExtensionCommandPtr> m_extensionCommandQueue;
+    QList<CdbCommandPtr> m_extensionCommandQueue;
     QMap<QString, NormalizedSourceFileName> m_normalizedFileCache;
     const QByteArray m_extensionCommandPrefixBA; //!< Library name used as prefix
     bool m_operateByInstructionPending; //!< Creator operate by instruction action changed.

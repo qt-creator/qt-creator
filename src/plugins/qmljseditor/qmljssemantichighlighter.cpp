@@ -363,7 +363,7 @@ protected:
         return false;
     }
 
-    void addMessages(QList<QmlJS::DiagnosticMessage> messages,
+    void addMessages(QList<DiagnosticMessage> messages,
             const Document::Ptr &doc)
     {
         foreach (const DiagnosticMessage &d, messages) {
@@ -399,10 +399,10 @@ protected:
         }
     }
 
-    void addMessages(const QList<QmlJS::StaticAnalysis::Message> &messages,
+    void addMessages(const QList<StaticAnalysis::Message> &messages,
                      const Document::Ptr &doc)
     {
-        foreach (const QmlJS::StaticAnalysis::Message &d, messages) {
+        foreach (const StaticAnalysis::Message &d, messages) {
             int line = d.location.startLine;
             int column = qMax(1U, d.location.startColumn);
             int length = d.location.length;

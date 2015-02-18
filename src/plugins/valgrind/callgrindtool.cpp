@@ -57,7 +57,10 @@
 
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
+#include <cplusplus/Symbols.h>
+
 #include <extensionsystem/iplugin.h>
+
 #include <texteditor/texteditor.h>
 
 #include <utils/qtcassert.h>
@@ -65,7 +68,9 @@
 #include <utils/styledbar.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/session.h>
 
 #include <QFile>
 #include <QFileInfo>
@@ -86,9 +91,6 @@
 #include <QToolBar>
 #include <QToolButton>
 #include <QVBoxLayout>
-
-// shared/cplusplus includes
-#include <cplusplus/Symbols.h>
 
 using namespace Analyzer;
 using namespace Core;
@@ -498,12 +500,10 @@ static QToolButton *createToolButton(QAction *action)
 }
 
 CallgrindTool::CallgrindTool(QObject *parent)
-    : ValgrindTool(parent)
+    : QObject(parent)
 {
     d = new CallgrindToolPrivate(this);
     setObjectName(QLatin1String("CallgrindTool"));
-    setRunMode(CallgrindRunMode);
-    setToolMode(ReleaseMode);
 
     connect(EditorManager::instance(), &EditorManager::editorOpened,
             d, &CallgrindToolPrivate::editorOpened);
@@ -560,8 +560,18 @@ AnalyzerRunControl *CallgrindToolPrivate::createRunControl(const AnalyzerStartPa
 
 void CallgrindTool::startTool(StartMode mode)
 {
-    ValgrindTool::startTool(mode);
-    d->setBusyCursor(true);
+    if (mode == StartLocal && checkForLocalStart(ReleaseMode)) {
+        Project *pro = SessionManager::startupProject();
+        ProjectExplorerPlugin::instance()->runProject(pro, CallgrindRunMode);
+        d->setBusyCursor(true);
+    }
+
+    AnalyzerStartParameters sp;
+    if (mode == StartRemote && checkForRemoteStart(&sp)) {
+        AnalyzerRunControl *rc = createRunControl(sp, 0);
+        ProjectExplorerPlugin::startRunControl(rc, CallgrindRunMode);
+        d->setBusyCursor(true);
+    }
 }
 
 void CallgrindTool::handleShowCostsOfFunction()
@@ -633,11 +643,11 @@ QWidget *CallgrindToolPrivate::createWidgets()
 
     updateCostFormat();
 
-    QDockWidget *callersDock = AnalyzerManager::createDockWidget(q, m_callersView);
-    QDockWidget *flatDock = AnalyzerManager::createDockWidget(q, m_flatView);
-    QDockWidget *calleesDock = AnalyzerManager::createDockWidget(q, m_calleesView);
+    QDockWidget *callersDock = AnalyzerManager::createDockWidget(CallgrindToolId, m_callersView);
+    QDockWidget *flatDock = AnalyzerManager::createDockWidget(CallgrindToolId, m_flatView);
+    QDockWidget *calleesDock = AnalyzerManager::createDockWidget(CallgrindToolId, m_calleesView);
     QDockWidget *visualizationDock = AnalyzerManager::createDockWidget
-        (q, m_visualisation, Qt::RightDockWidgetArea);
+        (CallgrindToolId, m_visualisation, Qt::RightDockWidgetArea);
 
     callersDock->show();
     calleesDock->show();
@@ -915,7 +925,7 @@ void CallgrindToolPrivate::handleShowCostsOfFunction()
 
     m_toggleCollectFunction = qualifiedFunctionName + QLatin1String("()");
 
-    AnalyzerManager::selectTool(q, StartLocal);
+    AnalyzerManager::selectTool(CallgrindToolId, StartLocal);
     AnalyzerManager::startTool();
 }
 

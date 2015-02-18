@@ -16,7 +16,7 @@ QtcPlugin {
     Depends { name: "Qt.widgets" }
 
     cpp.includePaths: base.concat([
-        "../../shared",
+        project.sharedSourcesDir,
     ])
 
     files: [

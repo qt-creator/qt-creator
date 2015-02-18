@@ -49,7 +49,7 @@ class QmlConsoleManagerPrivate
 public:
     Internal::QmlConsoleItemModel *qmlConsoleItemModel;
     Internal::QmlConsolePane *qmlConsolePane;
-    QmlJS::IScriptEvaluator *scriptEvaluator;
+    IScriptEvaluator *scriptEvaluator;
 };
 
 QmlConsoleManager::QmlConsoleManager(QObject *parent)
@@ -81,7 +81,7 @@ ConsoleItem *QmlConsoleManager::rootItem() const
     return d->qmlConsoleItemModel->root();
 }
 
-void QmlConsoleManager::setScriptEvaluator(QmlJS::IScriptEvaluator *scriptEvaluator)
+void QmlConsoleManager::setScriptEvaluator(IScriptEvaluator *scriptEvaluator)
 {
     d->scriptEvaluator = scriptEvaluator;
     if (!scriptEvaluator)

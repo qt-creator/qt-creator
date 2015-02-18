@@ -8,8 +8,8 @@ QtcProduct {
     cpp.rpaths: qbs.targetOS.contains("osx") ? ["@executable_path/.."]
                                              : ["$ORIGIN/../" + project.libDirName + "/qtcreator"]
     cpp.includePaths: [
-        "../shared/qtsingleapplication",
-        "../shared/qtlockedfile",
+        project.sharedSourcesDir + "/qtsingleapplication",
+        project.sharedSourcesDir + "/qtlockedfile",
     ]
 
     Depends { name: "app_version_header" }

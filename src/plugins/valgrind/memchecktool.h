@@ -32,7 +32,7 @@
 #ifndef MEMCHECKTOOL_H
 #define MEMCHECKTOOL_H
 
-#include "valgrindtool.h"
+#include <analyzerbase/ianalyzertool.h>
 
 #include <QSortFilterProxyModel>
 
@@ -76,12 +76,18 @@ private:
     bool m_filterExternalIssues;
 };
 
-class MemcheckTool : public ValgrindTool
+class MemcheckTool : public QObject
 {
     Q_OBJECT
 
 public:
     MemcheckTool(QObject *parent);
+
+    void startTool(Analyzer::StartMode mode);
+    QWidget *createWidgets();
+
+    Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
+                               ProjectExplorer::RunConfiguration *runConfiguration = 0);
 
 private slots:
     void settingsDestroyed(QObject *settings);
@@ -99,11 +105,7 @@ private slots:
     void loadExternalXmlLogFile();
 
 private:
-    QWidget *createWidgets();
     void setBusyCursor(bool busy);
-
-    Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
-                               ProjectExplorer::RunConfiguration *runConfiguration = 0);
 
     void clearErrorView();
     void updateFromSettings();
@@ -137,7 +139,7 @@ class MemcheckWithGdbTool : public MemcheckTool
 public:
     MemcheckWithGdbTool(QObject *parent);
 
-protected:
+    void startTool(Analyzer::StartMode mode);
     MemcheckRunControl *createMemcheckRunControl(
             const Analyzer::AnalyzerStartParameters &sp,
             ProjectExplorer::RunConfiguration *runConfiguration) Q_DECL_OVERRIDE;

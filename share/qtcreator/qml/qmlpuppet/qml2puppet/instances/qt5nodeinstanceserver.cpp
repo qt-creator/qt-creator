@@ -91,7 +91,7 @@ void Qt5NodeInstanceServer::resetAllItems()
 void Qt5NodeInstanceServer::setupScene(const CreateSceneCommand &command)
 {
     setupFileUrl(command.fileUrl());
-    setupImports(command.imports());
+    setupImports(command.imports(), command.ids());
     setupDummyData(command.fileUrl());
 
     setupInstances(command);

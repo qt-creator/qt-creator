@@ -48,7 +48,7 @@ using namespace Internal;
 // QuickFixAssistInterface
 // -----------------------
 QmlJSQuickFixAssistInterface::QmlJSQuickFixAssistInterface(QmlJSEditorWidget *editor,
-                                                           TextEditor::AssistReason reason)
+                                                           AssistReason reason)
     : AssistInterface(editor->document(), editor->position(),
                       editor->textDocument()->filePath().toString(), reason)
     , m_semanticInfo(editor->qmlJsEditorDocument()->semanticInfo())
@@ -94,7 +94,7 @@ IAssistProcessor *QmlJSQuickFixAssistProvider::createProcessor() const
 
 QList<QuickFixFactory *> QmlJSQuickFixAssistProvider::quickFixFactories() const
 {
-    QList<TextEditor::QuickFixFactory *> results;
+    QList<QuickFixFactory *> results;
     foreach (QmlJSQuickFixFactory *f, ExtensionSystem::PluginManager::getObjects<QmlJSQuickFixFactory>())
         results.append(f);
     return results;

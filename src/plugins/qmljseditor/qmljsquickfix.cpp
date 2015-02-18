@@ -57,7 +57,7 @@ QmlJSQuickFixOperation::QmlJSQuickFixOperation(const QmlJSQuickFixInterface &int
 
 void QmlJSQuickFixOperation::perform()
 {
-    QmlJSRefactoringChanges refactoring(QmlJS::ModelManagerInterface::instance(),
+    QmlJSRefactoringChanges refactoring(ModelManagerInterface::instance(),
                                         m_interface->semanticInfo().snapshot);
     QmlJSRefactoringFilePtr current = refactoring.file(fileName());
 

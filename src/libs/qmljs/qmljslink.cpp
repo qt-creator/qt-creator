@@ -41,8 +41,9 @@
 #include <QDir>
 
 using namespace LanguageUtils;
-using namespace QmlJS;
 using namespace QmlJS::AST;
+
+namespace QmlJS {
 
 namespace {
 class ImportCacheKey
@@ -76,8 +77,7 @@ bool operator==(const ImportCacheKey &i1, const ImportCacheKey &i2)
 }
 }
 
-
-class QmlJS::LinkPrivate
+class LinkPrivate
 {
 public:
     Snapshot snapshot;
@@ -602,3 +602,5 @@ void LinkPrivate::loadImplicitDefaultImports(Imports *imports)
         imports->append(import);
     }
 }
+
+} // namespace QmlJS

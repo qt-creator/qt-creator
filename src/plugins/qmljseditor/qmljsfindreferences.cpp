@@ -834,7 +834,7 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
     if (!doc)
         return;
 
-    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
+    ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
     Link link(snapshot, modelManager->defaultVContext(doc->language(), doc), modelManager->builtins(doc));
     ContextPtr context = link();
@@ -957,12 +957,12 @@ void FindReferences::displayResults(int first, int last)
         const QString label = tr("QML/JS Usages:");
 
         if (replacement.isEmpty()) {
-            m_currentSearch = Core::SearchResultWindow::instance()->startNewSearch(
-                        label, QString(), symbolName, Core::SearchResultWindow::SearchOnly);
+            m_currentSearch = SearchResultWindow::instance()->startNewSearch(
+                        label, QString(), symbolName, SearchResultWindow::SearchOnly);
         } else {
-            m_currentSearch = Core::SearchResultWindow::instance()->startNewSearch(
-                        label, QString(), symbolName, Core::SearchResultWindow::SearchAndReplace,
-                        Core::SearchResultWindow::PreserveCaseDisabled);
+            m_currentSearch = SearchResultWindow::instance()->startNewSearch(
+                        label, QString(), symbolName, SearchResultWindow::SearchAndReplace,
+                        SearchResultWindow::PreserveCaseDisabled);
             m_currentSearch->setTextToReplace(replacement);
             connect(m_currentSearch, SIGNAL(replaceButtonClicked(QString,QList<Core::SearchResultItem>,bool)),
                     SLOT(onReplaceButtonClicked(QString,QList<Core::SearchResultItem>,bool)));
@@ -971,7 +971,7 @@ void FindReferences::displayResults(int first, int last)
                 this, SLOT(openEditor(Core::SearchResultItem)));
         connect(m_currentSearch, SIGNAL(cancelled()), this, SLOT(cancel()));
         connect(m_currentSearch, SIGNAL(paused(bool)), this, SLOT(setPaused(bool)));
-        Core::SearchResultWindow::instance()->popup(IOutputPane::Flags(IOutputPane::ModeSwitch | IOutputPane::WithFocus));
+        SearchResultWindow::instance()->popup(IOutputPane::Flags(IOutputPane::ModeSwitch | IOutputPane::WithFocus));
 
         FutureProgress *progress = ProgressManager::addTask(
                     m_watcher.future(), tr("Searching for Usages"),
@@ -1014,7 +1014,7 @@ void FindReferences::setPaused(bool paused)
         m_watcher.setPaused(paused);
 }
 
-void FindReferences::openEditor(const Core::SearchResultItem &item)
+void FindReferences::openEditor(const SearchResultItem &item)
 {
     if (item.path.size() > 0) {
         EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
@@ -1024,7 +1024,7 @@ void FindReferences::openEditor(const Core::SearchResultItem &item)
     }
 }
 
-void FindReferences::onReplaceButtonClicked(const QString &text, const QList<Core::SearchResultItem> &items, bool preserveCase)
+void FindReferences::onReplaceButtonClicked(const QString &text, const QList<SearchResultItem> &items, bool preserveCase)
 {
     const QStringList fileNames = TextEditor::BaseFileFind::replaceAll(text, items, preserveCase);
 
@@ -1039,9 +1039,9 @@ void FindReferences::onReplaceButtonClicked(const QString &text, const QList<Cor
     }
 
     if (!changedOnDisk.isEmpty())
-        QmlJS::ModelManagerInterface::instance()->updateSourceFiles(changedOnDisk, true);
+        ModelManagerInterface::instance()->updateSourceFiles(changedOnDisk, true);
     if (!changedUnsavedEditors.isEmpty())
-        QmlJS::ModelManagerInterface::instance()->updateSourceFiles(changedUnsavedEditors, false);
+        ModelManagerInterface::instance()->updateSourceFiles(changedUnsavedEditors, false);
 
-    Core::SearchResultWindow::instance()->hide();
+    SearchResultWindow::instance()->hide();
 }

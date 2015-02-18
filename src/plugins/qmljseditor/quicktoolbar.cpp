@@ -79,7 +79,7 @@ static inline const ObjectValue * getPropertyChangesTarget(Node *node, const Sco
 }
 
 QuickToolBar::QuickToolBar(QObject *parent)
-    : ::QmlJS::IContextPane(parent)
+    : ::IContextPane(parent)
     , m_editorWidget(0)
     , m_blockWriting(false)
 {
@@ -116,7 +116,7 @@ QuickToolBar::~QuickToolBar()
     m_widget = 0;
 }
 
-void QuickToolBar::apply(TextEditor::TextEditorWidget *editorWidget, Document::Ptr document, const ScopeChain *scopeChain, AST::Node *node, bool update, bool force)
+void QuickToolBar::apply(TextEditor::TextEditorWidget *editorWidget, Document::Ptr document, const ScopeChain *scopeChain, Node *node, bool update, bool force)
 {
     if (!QuickToolBarSettings::get().enableContextPane && !force && !update) {
         contextWidget()->hide();
@@ -246,7 +246,7 @@ void QuickToolBar::apply(TextEditor::TextEditorWidget *editorWidget, Document::P
 
 }
 
-bool QuickToolBar::isAvailable(TextEditor::TextEditorWidget *, Document::Ptr document, AST::Node *node)
+bool QuickToolBar::isAvailable(TextEditor::TextEditorWidget *, Document::Ptr document, Node *node)
 {
     if (document.isNull())
         return false;
