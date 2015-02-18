@@ -62,6 +62,14 @@ AnalyzerAction::AnalyzerAction(QObject *parent)
     : QAction(parent)
 {}
 
+bool AnalyzerAction::isRunnable() const
+{
+    if (startMode() == StartRemote)
+        return true;
+
+    return ProjectExplorerPlugin::canRun(SessionManager::startupProject(), runMode(), 0);
+}
+
 static bool buildTypeAccepted(ToolMode toolMode, BuildConfiguration::BuildType buildType)
 {
     if (toolMode == AnyMode)

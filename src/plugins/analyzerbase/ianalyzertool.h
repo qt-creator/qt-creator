@@ -94,6 +94,8 @@ public:
     ProjectExplorer::RunMode runMode() const { return m_runMode; }
     void setRunMode(ProjectExplorer::RunMode mode) { m_runMode = mode; }
 
+    bool isRunnable() const;
+
     /// Creates all widgets used by the tool.
     /// Returns a control widget which will be shown in the status bar when
     /// this tool is selected.

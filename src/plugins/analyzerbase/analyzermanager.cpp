@@ -153,7 +153,6 @@ public:
     void handleToolFinished();
     void saveToolSettings(Id toolId);
     void loadToolSettings(Id toolId);
-    bool isActionRunnable(AnalyzerAction *action) const;
     void startTool();
     void selectToolboxAction(int);
     void modeChanged(IMode *mode);
@@ -419,16 +418,6 @@ bool AnalyzerManagerPrivate::showPromptDialog(const QString &title, const QStrin
     return messageBox.clickedStandardButton() == QDialogButtonBox::Yes;
 }
 
-bool AnalyzerManagerPrivate::isActionRunnable(AnalyzerAction *action) const
-{
-    if (!action || m_isRunning)
-        return false;
-    if (action->startMode() == StartRemote)
-        return true;
-
-    return ProjectExplorerPlugin::canRun(SessionManager::startupProject(), action->runMode(), 0);
-}
-
 void AnalyzerManagerPrivate::startTool()
 {
     QTC_ASSERT(m_currentAction, return);
@@ -583,12 +572,12 @@ void AnalyzerManagerPrivate::updateRunActions()
         ProjectExplorerPlugin::canRun(SessionManager::startupProject(),
                                       m_currentAction->runMode(), &disabledReason);
 
-    m_startAction->setEnabled(isActionRunnable(m_currentAction));
+    m_startAction->setEnabled(!m_isRunning && m_currentAction && m_currentAction->isRunnable());
     m_startAction->setToolTip(disabledReason);
     m_toolBox->setEnabled(!m_isRunning);
     m_stopAction->setEnabled(m_isRunning);
     foreach (AnalyzerAction *action, m_actions)
-        action->setEnabled(isActionRunnable(action));
+        action->setEnabled(!m_isRunning && action->isRunnable());
 }
 
 ////////////////////////////////////////////////////////////////////
