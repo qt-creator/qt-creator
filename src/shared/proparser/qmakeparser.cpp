@@ -597,7 +597,6 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                                 parseError(fL1S("Missing %1 terminator [found %2]")
                                     .arg(QChar(term))
                                     .arg(c ? QString(c) : QString::fromLatin1("end-of-line")));
-                                pro->setOk(false);
                                 m_inError = true;
                                 // Just parse on, as if there was a terminator ...
                             } else {
@@ -681,7 +680,6 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                                 parseError(fL1S("Extra characters after test expression."));
                             else
                                 parseError(fL1S("Opening parenthesis without prior test name."));
-                            pro->setOk(false);
                             ptr = buf; // Put empty function name
                         }
                         *ptr++ = TokTestCall;
@@ -713,10 +711,8 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                         finalizeCond(tokPtr, buf, ptr, wordCount);
                         flushCond(tokPtr);
                         ++m_blockstack.top().braceLevel;
-                        if (grammar == TestGrammar) {
+                        if (grammar == TestGrammar)
                             parseError(fL1S("Opening scope not permitted in this context."));
-                            pro->setOk(false);
-                        }
                         goto nextItem;
                     } else if (c == '}') {
                         FLUSH_LHS_LITERAL();
@@ -758,10 +754,8 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                         putLineMarker(tokPtr);
                         if (grammar == TestGrammar) {
                             parseError(fL1S("Assignment not permitted in this context."));
-                            pro->setOk(false);
                         } else if (wordCount != 1) {
                             parseError(fL1S("Assignment needs exactly one word on the left hand side."));
-                            pro->setOk(false);
                             // Put empty variable name.
                         } else {
                             putBlock(tokPtr, buf, ptr - buf);
@@ -856,10 +850,8 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
     }
 
     flushScopes(tokPtr);
-    if (m_blockstack.size() > 1) {
+    if (m_blockstack.size() > 1)
         parseError(fL1S("Missing closing brace(s)."));
-        pro->setOk(false);
-    }
     while (m_blockstack.size())
         leaveScope(tokPtr);
     tokBuff.resize(tokPtr - (ushort *)tokBuff.constData()); // Reserved capacity stays
@@ -959,7 +951,6 @@ void QMakeParser::bogusTest(ushort *&tokPtr)
     m_invert = false;
     m_state = StCond;
     m_canElse = true;
-    m_proFile->setOk(false);
 }
 
 void QMakeParser::finalizeCond(ushort *&tokPtr, ushort *uc, ushort *ptr, int wordCount)

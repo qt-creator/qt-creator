@@ -150,7 +150,10 @@ private:
 
     void message(int type, const QString &msg) const;
     void parseError(const QString &msg) const
-            { message(QMakeParserHandler::ParserError, msg); }
+    {
+        message(QMakeParserHandler::ParserError, msg);
+        m_proFile->setOk(false);
+    }
     void languageWarning(const QString &msg) const
             { message(QMakeParserHandler::ParserWarnLanguage, msg); }
     void deprecationWarning(const QString &msg) const
