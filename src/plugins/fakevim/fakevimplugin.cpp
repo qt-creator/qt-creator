@@ -57,6 +57,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <texteditor/displaysettings.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
@@ -126,9 +127,9 @@ public:
         , m_eventFilter(0)
         , m_lastMessageLevel(MessageMode)
     {
-        connect(m_edit, SIGNAL(textEdited(QString)), SLOT(changed()));
-        connect(m_edit, SIGNAL(cursorPositionChanged(int,int)), SLOT(changed()));
-        connect(m_edit, SIGNAL(selectionChanged()), SLOT(changed()));
+        connect(m_edit, &QLineEdit::textEdited, this, &MiniBuffer::changed);
+        connect(m_edit, &QLineEdit::cursorPositionChanged, this, &MiniBuffer::changed);
+        connect(m_edit, &QLineEdit::selectionChanged, this, &MiniBuffer::changed);
         m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
         addWidget(m_label);
@@ -136,7 +137,7 @@ public:
 
         m_hideTimer.setSingleShot(true);
         m_hideTimer.setInterval(8000);
-        connect(&m_hideTimer, SIGNAL(timeout()), SLOT(hide()));
+        connect(&m_hideTimer, &QTimer::timeout, this, &QWidget::hide);
     }
 
     void setContents(const QString &contents, int cursorPos, int anchorPos,
@@ -212,7 +213,7 @@ public:
 signals:
     void edited(const QString &text, int cursorPos, int anchorPos);
 
-private slots:
+private:
     void changed()
     {
         const int cursorPos = m_edit->cursorPosition();
@@ -222,7 +223,6 @@ private slots:
         emit edited(m_edit->text(), cursorPos, anchorPos);
     }
 
-private:
     QLabel *m_label;
     QLineEdit *m_edit;
     QObject *m_eventFilter;
@@ -245,12 +245,18 @@ public:
 
         m_timerUpdate.setSingleShot(true);
         m_timerUpdate.setInterval(0);
-        connect(&m_timerUpdate, SIGNAL(timeout()), SLOT(followEditorLayout()));
-        updateOnSignal(m_editor, SIGNAL(cursorPositionChanged()));
-        updateOnSignal(m_editor->verticalScrollBar(), SIGNAL(valueChanged(int)));
-        updateOnSignal(m_editor->document(), SIGNAL(contentsChanged()));
-        updateOnSignal(TextEditorSettings::instance(),
-                       SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)));
+        connect(&m_timerUpdate, &QTimer::timeout,
+                this, &RelativeNumbersColumn::followEditorLayout);
+
+        auto start = static_cast<void(QTimer::*)()>(&QTimer::start);
+        connect(m_editor, &QPlainTextEdit::cursorPositionChanged,
+                &m_timerUpdate, start);
+        connect(m_editor->verticalScrollBar(), &QAbstractSlider::valueChanged,
+                &m_timerUpdate, start);
+        connect(m_editor->document(), &QTextDocument::contentsChanged,
+                &m_timerUpdate, start);
+        connect(TextEditorSettings::instance(), &TextEditorSettings::displaySettingsChanged,
+                &m_timerUpdate, start);
 
         m_editor->installEventFilter(this);
 
@@ -337,11 +343,6 @@ private slots:
         setGeometry(rect);
 
         update();
-    }
-
-    void updateOnSignal(QObject *object, const char *signal)
-    {
-        connect(object, signal, &m_timerUpdate, SLOT(start()));
     }
 
 private:
@@ -458,14 +459,14 @@ QWidget *FakeVimOptionPage::widget()
         m_group.insert(theFakeVimSetting(ConfigRelativeNumber),
                        m_ui.checkBoxRelativeNumber);
 
-        connect(m_ui.pushButtonCopyTextEditorSettings, SIGNAL(clicked()),
-                SLOT(copyTextEditorSettings()));
-        connect(m_ui.pushButtonSetQtStyle, SIGNAL(clicked()),
-                SLOT(setQtStyle()));
-        connect(m_ui.pushButtonSetPlainStyle, SIGNAL(clicked()),
-                SLOT(setPlainStyle()));
-        connect(m_ui.checkBoxReadVimRc, SIGNAL(stateChanged(int)),
-                SLOT(updateVimRcWidgets()));
+        connect(m_ui.pushButtonCopyTextEditorSettings, &QAbstractButton::clicked,
+                this, &FakeVimOptionPage::copyTextEditorSettings);
+        connect(m_ui.pushButtonSetQtStyle, &QAbstractButton::clicked,
+                this, &FakeVimOptionPage::setQtStyle);
+        connect(m_ui.pushButtonSetPlainStyle, &QAbstractButton::clicked,
+                this, &FakeVimOptionPage::setPlainStyle);
+        connect(m_ui.checkBoxReadVimRc, &QCheckBox::stateChanged,
+                this, &FakeVimOptionPage::updateVimRcWidgets);
         updateVimRcWidgets();
 
     }
@@ -1039,7 +1040,7 @@ private slots:
 
     void handleDelayedQuitAll(bool forced);
     void handleDelayedQuit(bool forced, Core::IEditor *editor);
-    void userActionTriggered();
+    void userActionTriggered(int key);
 
     void switchToFile(int n);
     int currentFile() const;
@@ -1157,8 +1158,8 @@ FakeVimPluginPrivate::~FakeVimPluginPrivate()
 void FakeVimPluginPrivate::onCoreAboutToClose()
 {
     // Don't attach to editors anymore.
-    disconnect(EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
-        this, SLOT(editorOpened(Core::IEditor*)));
+    disconnect(EditorManager::instance(), &EditorManager::editorOpened,
+               this, &FakeVimPluginPrivate::editorOpened);
 }
 
 void FakeVimPluginPrivate::aboutToShutdown()
@@ -1205,41 +1206,41 @@ bool FakeVimPluginPrivate::initialize()
 
     const Id base = "FakeVim.UserAction";
     for (int i = 1; i < 10; ++i) {
-        QAction *act = new QAction(this);
+        auto act = new QAction(this);
         act->setText(Tr::tr("Execute User Action #%1").arg(i));
-        act->setData(i);
         cmd = ActionManager::registerAction(act, base.withSuffix(i), globalcontext);
         cmd->setDefaultKeySequence(QKeySequence((UseMacShortcuts ? Tr::tr("Meta+V,%1") : Tr::tr("Alt+V,%1")).arg(i)));
-        connect(act, SIGNAL(triggered()), SLOT(userActionTriggered()));
+        connect(act, &QAction::triggered, this, [this, i] { userActionTriggered(i); });
     }
 
-    connect(ICore::instance(), SIGNAL(coreAboutToClose()), this, SLOT(onCoreAboutToClose()));
+    connect(ICore::instance(), &ICore::coreAboutToClose,
+            this, &FakeVimPluginPrivate::onCoreAboutToClose);
 
     // EditorManager
-    connect(EditorManager::instance(), SIGNAL(editorAboutToClose(Core::IEditor*)),
-        this, SLOT(editorAboutToClose(Core::IEditor*)));
-    connect(EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
-        this, SLOT(editorOpened(Core::IEditor*)));
+    connect(EditorManager::instance(), &EditorManager::editorAboutToClose,
+            this, &FakeVimPluginPrivate::editorAboutToClose);
+    connect(EditorManager::instance(), &EditorManager::editorOpened,
+            this, &FakeVimPluginPrivate::editorOpened);
 
-    connect(DocumentManager::instance(), SIGNAL(allDocumentsRenamed(QString,QString)),
-            this, SLOT(allDocumentsRenamed(QString,QString)));
-    connect(DocumentManager::instance(), SIGNAL(documentRenamed(Core::IDocument*,QString,QString)),
-            this, SLOT(documentRenamed(Core::IDocument*,QString,QString)));
+    connect(DocumentManager::instance(), &DocumentManager::allDocumentsRenamed,
+            this, &FakeVimPluginPrivate::allDocumentsRenamed);
+    connect(DocumentManager::instance(), &DocumentManager::documentRenamed,
+            this, &FakeVimPluginPrivate::documentRenamed);
 
-    connect(theFakeVimSetting(ConfigUseFakeVim), SIGNAL(valueChanged(QVariant)),
-        this, SLOT(setUseFakeVim(QVariant)));
-    connect(theFakeVimSetting(ConfigReadVimRc), SIGNAL(valueChanged(QVariant)),
-        this, SLOT(maybeReadVimRc()));
-    connect(theFakeVimSetting(ConfigVimRcPath), SIGNAL(valueChanged(QVariant)),
-        this, SLOT(maybeReadVimRc()));
-    connect(theFakeVimSetting(ConfigRelativeNumber), SIGNAL(valueChanged(QVariant)),
-        this, SLOT(setShowRelativeLineNumbers(QVariant)));
+    connect(theFakeVimSetting(ConfigUseFakeVim), &Utils::SavedAction::valueChanged,
+            this, &FakeVimPluginPrivate::setUseFakeVim);
+    connect(theFakeVimSetting(ConfigReadVimRc), &Utils::SavedAction::valueChanged,
+            this, &FakeVimPluginPrivate::maybeReadVimRc);
+    connect(theFakeVimSetting(ConfigVimRcPath), &Utils::SavedAction::valueChanged,
+            this, &FakeVimPluginPrivate::maybeReadVimRc);
+    connect(theFakeVimSetting(ConfigRelativeNumber), &Utils::SavedAction::valueChanged,
+            this, &FakeVimPluginPrivate::setShowRelativeLineNumbers);
 
     // Delayed operations.
-    connect(this, SIGNAL(delayedQuitRequested(bool,Core::IEditor*)),
-        this, SLOT(handleDelayedQuit(bool,Core::IEditor*)), Qt::QueuedConnection);
-    connect(this, SIGNAL(delayedQuitAllRequested(bool)),
-        this, SLOT(handleDelayedQuitAll(bool)), Qt::QueuedConnection);
+    connect(this, &FakeVimPluginPrivate::delayedQuitRequested,
+            this, &FakeVimPluginPrivate::handleDelayedQuit, Qt::QueuedConnection);
+    connect(this, &FakeVimPluginPrivate::delayedQuitAllRequested,
+            this, &FakeVimPluginPrivate::handleDelayedQuitAll, Qt::QueuedConnection);
 
     // Vimrc can break test so don't source it if running tests.
     if (!ExtensionSystem::PluginManager::testRunRequested())
@@ -1249,14 +1250,8 @@ bool FakeVimPluginPrivate::initialize()
     return true;
 }
 
-void FakeVimPluginPrivate::userActionTriggered()
+void FakeVimPluginPrivate::userActionTriggered(int key)
 {
-    QAction *act = qobject_cast<QAction *>(sender());
-    if (!act)
-        return;
-    const int key = act->data().toInt();
-    if (!key)
-        return;
     IEditor *editor = EditorManager::currentEditor();
     FakeVimHandler *handler = m_editorToHandler[editor];
     if (handler) {
@@ -1277,10 +1272,10 @@ void FakeVimPluginPrivate::createRelativeNumberWidget(IEditor *editor)
 {
     if (TextEditorWidget *textEditor = qobject_cast<TextEditorWidget *>(editor->widget())) {
         RelativeNumbersColumn *relativeNumbers = new RelativeNumbersColumn(textEditor);
-        connect(theFakeVimSetting(ConfigRelativeNumber), SIGNAL(valueChanged(QVariant)),
-                relativeNumbers, SLOT(deleteLater()));
-        connect(theFakeVimSetting(ConfigUseFakeVim), SIGNAL(valueChanged(QVariant)),
-                relativeNumbers, SLOT(deleteLater()));
+        connect(theFakeVimSetting(ConfigRelativeNumber), &Utils::SavedAction::valueChanged,
+                relativeNumbers, &QObject::deleteLater);
+        connect(theFakeVimSetting(ConfigUseFakeVim), &Utils::SavedAction::valueChanged,
+                relativeNumbers, &QObject::deleteLater);
         relativeNumbers->show();
     }
 }
@@ -1761,54 +1756,54 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
     new DeferredDeleter(widget, handler);
     m_editorToHandler[editor] = handler;
 
-    connect(handler, SIGNAL(extraInformationChanged(QString)),
-        SLOT(showExtraInformation(QString)));
-    connect(handler, SIGNAL(commandBufferChanged(QString,int,int,int,QObject*)),
-        SLOT(showCommandBuffer(QString,int,int,int,QObject*)));
-    connect(handler, SIGNAL(selectionChanged(QList<QTextEdit::ExtraSelection>)),
-        SLOT(changeSelection(QList<QTextEdit::ExtraSelection>)));
-    connect(handler, SIGNAL(highlightMatches(QString)),
-        SLOT(highlightMatches(QString)));
-    connect(handler, SIGNAL(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)),
-        SLOT(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)), Qt::DirectConnection);
-    connect(handler, SIGNAL(indentRegion(int,int,QChar)),
-        SLOT(indentRegion(int,int,QChar)));
-    connect(handler, SIGNAL(checkForElectricCharacter(bool*,QChar)),
-        SLOT(checkForElectricCharacter(bool*,QChar)), Qt::DirectConnection);
-    connect(handler, SIGNAL(requestDisableBlockSelection()),
-        SLOT(disableBlockSelection()));
-    connect(handler, SIGNAL(requestSetBlockSelection(QTextCursor)),
-        SLOT(setBlockSelection(QTextCursor)));
-    connect(handler, SIGNAL(requestBlockSelection(QTextCursor*)),
-        SLOT(blockSelection(QTextCursor*)), Qt::DirectConnection);
-    connect(handler, SIGNAL(requestHasBlockSelection(bool*)),
-        SLOT(hasBlockSelection(bool*)), Qt::DirectConnection);
-    connect(handler, SIGNAL(completionRequested()),
-        SLOT(triggerCompletions()));
-    connect(handler, SIGNAL(simpleCompletionRequested(QString,bool)),
-        SLOT(triggerSimpleCompletions(QString,bool)));
-    connect(handler, SIGNAL(windowCommandRequested(QString,int)),
-        SLOT(windowCommand(QString,int)));
-    connect(handler, SIGNAL(findRequested(bool)),
-        SLOT(find(bool)));
-    connect(handler, SIGNAL(findNextRequested(bool)),
-        SLOT(findNext(bool)));
-    connect(handler, SIGNAL(foldToggle(int)),
-        SLOT(foldToggle(int)));
-    connect(handler, SIGNAL(foldAll(bool)),
-        SLOT(foldAll(bool)));
-    connect(handler, SIGNAL(fold(int,bool)),
-        SLOT(fold(int,bool)));
-    connect(handler, SIGNAL(foldGoTo(int,bool)),
-        SLOT(foldGoTo(int,bool)));
-    connect(handler, SIGNAL(jumpToGlobalMark(QChar,bool,QString)),
-        SLOT(jumpToGlobalMark(QChar,bool,QString)));
+    connect(handler, &FakeVimHandler::extraInformationChanged,
+            this, &FakeVimPluginPrivate::showExtraInformation);
+    connect(handler, &FakeVimHandler::commandBufferChanged,
+            this, &FakeVimPluginPrivate::showCommandBuffer);
+    connect(handler, &FakeVimHandler::selectionChanged,
+            this, &FakeVimPluginPrivate::changeSelection);
+    connect(handler, &FakeVimHandler::highlightMatches,
+            this, &FakeVimPluginPrivate::highlightMatches);
+    connect(handler, &FakeVimHandler::moveToMatchingParenthesis,
+            this, &FakeVimPluginPrivate::moveToMatchingParenthesis, Qt::DirectConnection);
+    connect(handler, &FakeVimHandler::indentRegion,
+            this, &FakeVimPluginPrivate::indentRegion);
+    connect(handler, &FakeVimHandler::checkForElectricCharacter,
+            this, &FakeVimPluginPrivate::checkForElectricCharacter, Qt::DirectConnection);
+    connect(handler, &FakeVimHandler::requestDisableBlockSelection,
+            this, &FakeVimPluginPrivate::disableBlockSelection);
+    connect(handler, &FakeVimHandler::requestSetBlockSelection,
+            this, &FakeVimPluginPrivate::setBlockSelection);
+    connect(handler, &FakeVimHandler::requestBlockSelection,
+            this, &FakeVimPluginPrivate::blockSelection, Qt::DirectConnection);
+    connect(handler, &FakeVimHandler::requestHasBlockSelection,
+            this, &FakeVimPluginPrivate::hasBlockSelection, Qt::DirectConnection);
+    connect(handler, &FakeVimHandler::completionRequested,
+            this, &FakeVimPluginPrivate::triggerCompletions);
+    connect(handler, &FakeVimHandler::simpleCompletionRequested,
+            this, &FakeVimPluginPrivate::triggerSimpleCompletions);
+    connect(handler, &FakeVimHandler::windowCommandRequested,
+            this, &FakeVimPluginPrivate::windowCommand);
+    connect(handler, &FakeVimHandler::findRequested,
+            this, &FakeVimPluginPrivate::find);
+    connect(handler, &FakeVimHandler::findNextRequested,
+            this, &FakeVimPluginPrivate::findNext);
+    connect(handler, &FakeVimHandler::foldToggle,
+            this, &FakeVimPluginPrivate::foldToggle);
+    connect(handler, &FakeVimHandler::foldAll,
+            this, &FakeVimPluginPrivate::foldAll);
+    connect(handler, &FakeVimHandler::fold,
+            this, &FakeVimPluginPrivate::fold);
+    connect(handler, &FakeVimHandler::foldGoTo,
+            this, &FakeVimPluginPrivate::foldGoTo);
+    connect(handler, &FakeVimHandler::jumpToGlobalMark,
+            this, &FakeVimPluginPrivate::jumpToGlobalMark);
 
-    connect(handler, SIGNAL(handleExCommandRequested(bool*,ExCommand)),
-        SLOT(handleExCommand(bool*,ExCommand)), Qt::DirectConnection);
+    connect(handler, &FakeVimHandler::handleExCommandRequested,
+            this, &FakeVimPluginPrivate::handleExCommand, Qt::DirectConnection);
 
-    connect(ICore::instance(), SIGNAL(saveSettingsRequested()),
-        SLOT(writeSettings()));
+    connect(ICore::instance(), &ICore::saveSettingsRequested,
+            this, &FakeVimPluginPrivate::writeSettings);
 
     handler->setCurrentFileName(editor->document()->filePath().toString());
     handler->installEventFilter();
