@@ -198,6 +198,26 @@ void Node::emitNodeUpdated()
         ProjectTree::instance()->emitNodeUpdated(this);
 }
 
+FileNode *Node::asFileNode()
+{
+    return 0;
+}
+
+FolderNode *Node::asFolderNode()
+{
+    return 0;
+}
+
+ProjectNode *Node::asProjectNode()
+{
+    return 0;
+}
+
+SessionNode *Node::asSessionNode()
+{
+    return 0;
+}
+
 void Node::setParentFolderNode(FolderNode *parentFolder)
 {
     m_folderNode = parentFolder;
@@ -233,6 +253,11 @@ FileType FileNode::fileType() const
 bool FileNode::isGenerated() const
 {
     return m_generated;
+}
+
+FileNode *FileNode::asFileNode()
+{
+    return this;
 }
 
 /*!
@@ -494,6 +519,11 @@ void FolderNode::removeFolderNodes(const QList<FolderNode*> &subFolders)
     ProjectTree::instance()->emitFoldersRemoved(this);
 }
 
+FolderNode *FolderNode::asFolderNode()
+{
+    return this;
+}
+
 bool FolderNode::showInSimpleTree() const
 {
     return false;
@@ -672,6 +702,11 @@ void ProjectNode::removeProjectNodes(const QList<ProjectNode*> &subProjects)
     }
 }
 
+ProjectNode *ProjectNode::asProjectNode()
+{
+    return this;
+}
+
 
 /*!
   \class ProjectExplorer::SessionNode
@@ -705,6 +740,11 @@ void SessionNode::projectDisplayNameChanged(Node *node)
 {
     ProjectTree::instance()->emitNodeSortKeyAboutToChange(node);
     ProjectTree::instance()->emitNodeSortKeyChanged(node);
+}
+
+SessionNode *SessionNode::asSessionNode()
+{
+    return this;
 }
 
 QList<ProjectNode*> SessionNode::projectNodes() const

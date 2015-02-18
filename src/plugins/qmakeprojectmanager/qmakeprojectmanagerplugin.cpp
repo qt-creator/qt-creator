@@ -329,7 +329,7 @@ void QmakeProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node
         if (QmakePriFileNode *subPriFileNode = dynamic_cast<QmakePriFileNode *>(node->projectNode()))
             subProjectNode = subPriFileNode->proFileNode();
     }
-    ProjectExplorer::FileNode *fileNode = dynamic_cast<ProjectExplorer::FileNode *>(node);
+    ProjectExplorer::FileNode *fileNode = node ? node->asFileNode() : 0;
     bool buildFilePossible = subProjectNode && fileNode
             && (fileNode->fileType() == ProjectExplorer::SourceType);
 

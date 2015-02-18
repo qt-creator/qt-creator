@@ -563,7 +563,7 @@ Project *SessionManager::projectForNode(Node *node)
     if (!node)
         return 0;
 
-    FolderNode *rootProjectNode = dynamic_cast<FolderNode*>(node);
+    FolderNode *rootProjectNode = node->asFolderNode();
     if (!rootProjectNode)
         rootProjectNode = node->parentFolderNode();
 

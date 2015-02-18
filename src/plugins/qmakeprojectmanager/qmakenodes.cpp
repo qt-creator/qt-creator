@@ -932,7 +932,7 @@ QList<ProjectAction> QmakePriFileNode::supportedActions(Node *node) const
         bool addExistingFiles = true;
         if (node->nodeType() == VirtualFolderNodeType) {
             // A virtual folder, we do what the projectexplorer does
-            FolderNode *folder = dynamic_cast<FolderNode *>(node);
+            FolderNode *folder = node->asFolderNode();
             if (folder) {
                 QStringList list;
                 foreach (FolderNode *f, folder->subFolderNodes())
@@ -956,7 +956,7 @@ QList<ProjectAction> QmakePriFileNode::supportedActions(Node *node) const
         break;
     }
 
-    FileNode *fileNode = dynamic_cast<FileNode *>(node);
+    FileNode *fileNode = node->asFileNode();
     if ((fileNode && fileNode->fileType() != ProjectFileType)
             || dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(node))
         actions << Rename;

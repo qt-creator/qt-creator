@@ -162,7 +162,7 @@ Project *ProjectTree::projectForNode(Node *node)
     if (!node)
         return 0;
 
-    FolderNode *rootProjectNode = dynamic_cast<FolderNode*>(node);
+    FolderNode *rootProjectNode = node->asFolderNode();
     if (!rootProjectNode)
         rootProjectNode = node->parentFolderNode();
 
@@ -310,7 +310,7 @@ void ProjectTree::emitFoldersAboutToBeRemoved(FolderNode *parentFolder, const QL
 
     Node *n = ProjectTree::currentNode();
     while (n) {
-        if (FolderNode *fn = dynamic_cast<FolderNode *>(n)) {
+        if (FolderNode *fn = n->asFolderNode()) {
             if (staleFolders.contains(fn)) {
                 ProjectNode *pn = n->projectNode();
                 // Make sure the node we are switching too isn't going to be removed also
@@ -363,9 +363,10 @@ void ProjectTree::emitFilesAboutToBeRemoved(FolderNode *folder, const QList<File
     if (!isInNodeHierarchy(folder))
         return;
 
-    if (FileNode *fileNode = dynamic_cast<FileNode *>(m_currentNode))
-        if (staleFiles.contains(fileNode))
-            m_resetCurrentNodeFile = true;
+    if (m_currentNode)
+        if (FileNode *fileNode = m_currentNode->asFileNode())
+            if (staleFiles.contains(fileNode))
+                m_resetCurrentNodeFile = true;
 
     emit filesAboutToBeRemoved(folder, staleFiles);
 }
