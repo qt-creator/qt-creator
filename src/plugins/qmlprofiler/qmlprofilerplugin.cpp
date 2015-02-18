@@ -63,6 +63,7 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
     action = new AnalyzerAction(this);
     action->setId("QmlProfiler.Local");
     action->setTool(tool);
+    action->setRunMode(ProjectExplorer::QmlProfilerRunMode);
     action->setText(tr("QML Profiler"));
     action->setToolTip(description);
     action->setStartMode(StartLocal);
@@ -72,6 +73,7 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
     action = new AnalyzerAction(this);
     action->setId("QmlProfiler.Remote");
     action->setTool(tool);
+    action->setRunMode(ProjectExplorer::QmlProfilerRunMode);
     action->setText(tr("QML Profiler (External)"));
     action->setToolTip(description);
     action->setStartMode(StartRemote);

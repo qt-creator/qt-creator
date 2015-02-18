@@ -128,6 +128,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
         action = new AnalyzerAction(this);
         action->setId("Memcheck.Local");
         action->setTool(m_memcheckTool);
+        action->setRunMode(ProjectExplorer::MemcheckRunMode);
         action->setText(tr("Valgrind Memory Analyzer"));
         action->setToolTip(memcheckToolTip);
         action->setMenuGroup(Constants::G_ANALYZER_TOOLS);
@@ -138,6 +139,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
         action = new AnalyzerAction(this);
         action->setId("MemcheckWithGdb.Local");
         action->setTool(m_memcheckWithGdbTool);
+        action->setRunMode(ProjectExplorer::MemcheckWithGdbRunMode);
         action->setText(tr("Valgrind Memory Analyzer with GDB"));
         action->setToolTip(memcheckWithGdbToolTip);
         action->setMenuGroup(Constants::G_ANALYZER_TOOLS);
@@ -148,6 +150,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
         action = new AnalyzerAction(this);
         action->setId("Callgrind.Local");
         action->setTool(m_callgrindTool);
+        action->setRunMode(ProjectExplorer::CallgrindRunMode);
         action->setText(tr("Valgrind Function Profiler"));
         action->setToolTip(callgrindToolTip);
         action->setMenuGroup(Constants::G_ANALYZER_TOOLS);
@@ -159,6 +162,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     action = new AnalyzerAction(this);
     action->setId("Memcheck.Remote");
     action->setTool(m_memcheckTool);
+    action->setRunMode(ProjectExplorer::MemcheckRunMode);
     action->setText(tr("Valgrind Memory Analyzer (External Remote Application)"));
     action->setToolTip(memcheckToolTip);
     action->setMenuGroup(Constants::G_ANALYZER_REMOTE_TOOLS);
@@ -168,6 +172,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     action = new AnalyzerAction(this);
     action->setId("Callgrind.Remote");
     action->setTool(m_callgrindTool);
+    action->setRunMode(ProjectExplorer::CallgrindRunMode);
     action->setText(tr("Valgrind Function Profiler (External Remote Application)"));
     action->setToolTip(callgrindToolTip);
     action->setMenuGroup(Constants::G_ANALYZER_REMOTE_TOOLS);

@@ -62,13 +62,12 @@ IAnalyzerTool::IAnalyzerTool(QObject *parent)
     : QObject(parent)
 {}
 
- /// Returns the run mode for this tool.
-ProjectExplorer::RunMode IAnalyzerTool::runMode() const
+ProjectExplorer::RunMode AnalyzerAction::runMode() const
 {
     return m_runMode;
 }
 
-void IAnalyzerTool::setRunMode(ProjectExplorer::RunMode mode)
+void AnalyzerAction::setRunMode(ProjectExplorer::RunMode mode)
 {
     m_runMode = mode;
 }
@@ -103,7 +102,7 @@ static bool buildTypeAccepted(IAnalyzerTool::ToolMode toolMode,
     return false;
 }
 
-void IAnalyzerTool::startLocalTool()
+void IAnalyzerTool::startLocalTool(RunMode runMode)
 {
     // Make sure mode is shown.
     AnalyzerManager::showMode();
@@ -154,10 +153,10 @@ void IAnalyzerTool::startLocalTool()
             return;
     }
 
-    ProjectExplorerPlugin::instance()->runProject(pro, runMode());
+    ProjectExplorerPlugin::instance()->runProject(pro, runMode);
 }
 
-void IAnalyzerTool::startRemoteTool()
+void IAnalyzerTool::startRemoteTool(RunMode runMode)
 {
     StartRemoteDialog dlg;
     if (dlg.exec() != QDialog::Accepted)
@@ -173,7 +172,7 @@ void IAnalyzerTool::startRemoteTool()
 
     AnalyzerRunControl *rc = createRunControl(sp, 0);
 
-    ProjectExplorerPlugin::startRunControl(rc, runMode());
+    ProjectExplorerPlugin::startRunControl(rc, runMode);
 }
 
 } // namespace Analyzer

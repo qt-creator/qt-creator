@@ -139,6 +139,7 @@ public:
     MemcheckWithGdbTool(QObject *parent);
 
 protected:
+    void startTool(Analyzer::StartMode mode);
     MemcheckRunControl *createMemcheckRunControl(
             const Analyzer::AnalyzerStartParameters &sp,
             ProjectExplorer::RunConfiguration *runConfiguration) Q_DECL_OVERRIDE;

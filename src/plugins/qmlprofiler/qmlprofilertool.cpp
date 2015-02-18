@@ -124,7 +124,6 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     : IAnalyzerTool(parent), d(new QmlProfilerToolPrivate)
 {
     setObjectName(QLatin1String("QmlProfilerTool"));
-    setRunMode(QmlProfilerRunMode);
     setToolMode(AnyMode);
 
     d->m_profilerState = 0;
@@ -528,7 +527,7 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
 
     AnalyzerRunControl *rc = tool->createRunControl(sp, 0);
 
-    ProjectExplorerPlugin::startRunControl(rc, tool->runMode());
+    ProjectExplorerPlugin::startRunControl(rc, QmlProfilerRunMode);
 }
 
 void QmlProfilerTool::startTool(StartMode mode)
@@ -546,7 +545,7 @@ void QmlProfilerTool::startTool(StartMode mode)
     if (mode == StartLocal) {
         // ### not sure if we're supposed to check if the RunConFiguration isEnabled
         Project *pro = SessionManager::startupProject();
-        ProjectExplorerPlugin::instance()->runProject(pro, runMode());
+        ProjectExplorerPlugin::instance()->runProject(pro, QmlProfilerRunMode);
     } else if (mode == StartRemote) {
         Internal::startRemoteTool(this, mode);
     }

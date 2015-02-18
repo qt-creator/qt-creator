@@ -431,7 +431,7 @@ bool AnalyzerManagerPrivate::isActionRunnable(AnalyzerAction *action) const
     if (action->startMode() == StartRemote)
         return true;
 
-    return ProjectExplorerPlugin::canRun(SessionManager::startupProject(), action->tool()->runMode(), 0);
+    return ProjectExplorerPlugin::canRun(SessionManager::startupProject(), action->runMode(), 0);
 }
 
 void AnalyzerManagerPrivate::startTool()
@@ -590,7 +590,7 @@ void AnalyzerManagerPrivate::updateRunActions()
         disabledReason = tr("No analyzer tool selected.");
     else
         ProjectExplorerPlugin::canRun(SessionManager::startupProject(),
-                                      m_currentAction->tool()->runMode(), &disabledReason);
+                                      m_currentAction->runMode(), &disabledReason);
 
     m_startAction->setEnabled(isActionRunnable(m_currentAction));
     m_startAction->setToolTip(disabledReason);
@@ -707,9 +707,8 @@ AnalyzerRunControl *AnalyzerManager::createRunControl(
     const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration)
 {
     foreach (AnalyzerAction *action, d->m_actions) {
-        IAnalyzerTool *tool = action->tool();
-        if (tool->runMode() == sp.runMode && action->startMode() == sp.startMode)
-            return tool->createRunControl(sp, runConfiguration);
+        if (action->runMode() == sp.runMode && action->startMode() == sp.startMode)
+            return action->tool()->createRunControl(sp, runConfiguration);
     }
     QTC_CHECK(false);
     return 0;

@@ -68,9 +68,6 @@ class ANALYZER_EXPORT IAnalyzerTool : public QObject
 public:
     explicit IAnalyzerTool(QObject *parent = 0);
 
-    ProjectExplorer::RunMode runMode() const;
-    void setRunMode(ProjectExplorer::RunMode mode);
-
     /**
      * The mode in which this tool should preferably be run
      *
@@ -98,11 +95,10 @@ public:
 
     virtual void startTool(StartMode mode) = 0;
 
-    void startLocalTool();
-    void startRemoteTool();
+    void startLocalTool(ProjectExplorer::RunMode runMode);
+    void startRemoteTool(ProjectExplorer::RunMode runMode);
 
 private:
-    ProjectExplorer::RunMode m_runMode;
     ToolMode m_toolMode;
 };
 
@@ -131,11 +127,15 @@ public:
     Core::Id id() const { return m_id; }
     void setId(Core::Id id) { m_id = id; }
 
+    ProjectExplorer::RunMode runMode() const;
+    void setRunMode(ProjectExplorer::RunMode mode);
+
 protected:
     IAnalyzerTool *m_tool;
     StartMode m_startMode;
     Core::Id m_menuGroup;
     Core::Id m_id;
+    ProjectExplorer::RunMode m_runMode;
 };
 
 
