@@ -34,6 +34,7 @@
 #include <QMetaType>
 #include <QString>
 #include <QDataStream>
+#include <QVector>
 
 namespace QmlDesigner {
 
@@ -51,12 +52,14 @@ public:
     };
 
     DebugOutputCommand();
-    explicit DebugOutputCommand(const QString &text, Type type);
+    explicit DebugOutputCommand(const QString &text, Type type, const QVector<qint32> &instanceIds);
 
     qint32 type() const;
     QString text() const;
+    QVector<qint32> instanceIds() const;
 
 private:
+    QVector<qint32> m_instanceIds;
     QString m_text;
     quint32 m_type;
 };

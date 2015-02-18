@@ -128,7 +128,7 @@ public:
     virtual QDeclarativeView *declarativeView() const = 0;
     virtual QSGView *sgView() const = 0;
 
-    void sendDebugOutput(DebugOutputCommand::Type type, const QString &message);
+    void sendDebugOutput(DebugOutputCommand::Type type, const QString &message, qint32 instanceId);
 
 public slots:
     void refreshLocalFileProperty(const QString &path);

@@ -1071,9 +1071,11 @@ QObject *NodeInstanceServer::dummyContextObject() const
     return m_dummyContextObject.data();
 }
 
-void NodeInstanceServer::sendDebugOutput(DebugOutputCommand::Type type, const QString &message)
+void NodeInstanceServer::sendDebugOutput(DebugOutputCommand::Type type, const QString &message, qint32 instanceId)
 {
-    DebugOutputCommand command(message, type);
+    QVector<qint32> instanceIds;
+    instanceIds.append(instanceId);
+    DebugOutputCommand command(message, type, instanceIds);
     nodeInstanceClient()->debugOutput(command);
 }
 

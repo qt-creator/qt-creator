@@ -81,7 +81,7 @@
 #include "dummycontextobject.h"
 
 namespace {
-    bool testImportStatements(const QStringList &importStatementList, const QUrl &url, bool enableErrorOutput = false) {
+    bool testImportStatements(const QStringList &importStatementList, const QUrl &url, QString *errorMessage = 0) {
         QQmlEngine engine;
         QQmlComponent testImportComponent(&engine);
 
@@ -93,8 +93,10 @@ namespace {
         if (testImportComponent.errors().isEmpty()) {
             return true;
         } else {
-            if (enableErrorOutput)
-                qWarning() << "found not working imports: " << testImportComponent.errorString();
+            if (errorMessage) {
+                errorMessage->append("found not working imports: ");
+                errorMessage->append(testImportComponent.errorString());
+            }
             return false;
         }
     }
@@ -367,7 +369,7 @@ void NodeInstanceServer::removeSharedMemory(const RemoveSharedMemoryCommand &/*c
 {
 }
 
-void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &containerVector)
+void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &containerVector, const QVector<IdContainer> &idContainerVector)
 {
     Q_ASSERT(quickView());
     QSet<QString> importStatementSet;
@@ -394,8 +396,7 @@ void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &contain
     QStringList workingImportStatementList;
 
     // check possible import statements combinations
-    bool enableErrorOutput(true);
-
+    QString errorMessage;
     // maybe it just works
     if (testImportStatements(importStatementList, fileUrl())) {
         workingImportStatementList = importStatementList;
@@ -412,13 +413,18 @@ void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &contain
         // find the bad imports from otherImportStatements
         foreach (const QString &importStatement, otherImportStatements) {
             if (testImportStatements(QStringList(firstWorkingImportStatement) <<
-                importStatement, fileUrl(), enableErrorOutput)) {
+                importStatement, fileUrl(), &errorMessage)) {
                 workingImportStatementList.append(importStatement);
             }
         }
         workingImportStatementList.prepend(firstWorkingImportStatement);
     }
 
+    QVector<qint32> instanceIds;
+    foreach (const IdContainer &idContainer, idContainerVector)
+        instanceIds.append(idContainer.instanceId());
+    if (!errorMessage.isEmpty())
+        sendDebugOutput(DebugOutputCommand::WarningType, errorMessage, instanceIds);
     setupOnlyWorkingImports(workingImportStatementList);
 }
 
@@ -1198,9 +1204,16 @@ void NodeInstanceServer::loadDummyDataContext(const QString& directory)
     }
 }
 
-void NodeInstanceServer::sendDebugOutput(DebugOutputCommand::Type type, const QString &message)
+void NodeInstanceServer::sendDebugOutput(DebugOutputCommand::Type type, const QString &message, qint32 instanceId)
 {
-    DebugOutputCommand command(message, type);
+    QVector<qint32> ids;
+    ids.append(instanceId);
+    sendDebugOutput(type, message, ids);
+}
+
+void NodeInstanceServer::sendDebugOutput(DebugOutputCommand::Type type, const QString &message, const QVector<qint32> &instanceIds)
+{
+    DebugOutputCommand command(message, type, instanceIds);
     nodeInstanceClient()->debugOutput(command);
 }
 
