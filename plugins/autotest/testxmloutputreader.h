@@ -19,7 +19,7 @@
 #ifndef TESTXMLOUTPUTREADER_H
 #define TESTXMLOUTPUTREADER_H
 
-#include <testresult.h>
+#include "testresult.h"
 
 #include <QObject>
 #include <QString>
