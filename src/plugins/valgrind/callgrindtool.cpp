@@ -150,7 +150,6 @@ public slots:
     void updateCostFormat();
 
     void handleFilterProjectCosts();
-    void handleShowCostsAction();
     void handleShowCostsOfFunction();
 
     void slotGoToOverview();
@@ -882,33 +881,15 @@ void CallgrindToolPrivate::editorOpened(IEditor *editor)
 
 void CallgrindToolPrivate::requestContextMenu(TextEditorWidget *widget, int line, QMenu *menu)
 {
-    // find callgrind text mark that corresponds to this editor's file and line number
-    const Function *func = 0;
+    // Find callgrind text mark that corresponds to this editor's file and line number
     foreach (CallgrindTextMark *textMark, m_textMarks) {
         if (textMark->fileName() == widget->textDocument()->filePath().toString() && textMark->lineNumber() == line) {
-            func = textMark->function();
+            const Function *func = textMark->function();
+            QAction *action = menu->addAction(tr("Select this Function in the Analyzer Output"));
+            connect(action, &QAction::triggered, this, [this, func] { selectFunction(func); });
             break;
         }
     }
-    if (!func)
-        return; // no callgrind text mark under cursor, return
-
-    // add our action to the context menu
-    QAction *action = new QAction(tr("Select this Function in the Analyzer Output"), menu);
-    connect(action, &QAction::triggered, this, &CallgrindToolPrivate::handleShowCostsAction);
-    action->setData(QVariant::fromValue<const Function *>(func));
-    menu->addAction(action);
-}
-
-void CallgrindToolPrivate::handleShowCostsAction()
-{
-    const QAction *action = qobject_cast<QAction *>(sender());
-    QTC_ASSERT(action, return);
-
-    const Function *func = action->data().value<const Function *>();
-    QTC_ASSERT(func, return);
-
-    selectFunction(func);
 }
 
 void CallgrindToolPrivate::handleShowCostsOfFunction()
