@@ -33,14 +33,6 @@ How to do so, see QTCREATOR_REPO/src/plugins/clangcodemodel/README.
 Attention! If any of these prerequisites cannot be satisfied the tests will likely fail (or not run at all).
 
 
-Prerequisites - testing on Qt4
-------------------------------
-If you want to test a Qt Creator based on Qt4, you should make sure that your build of Qt contains the change
-98530cbc3a0bbb633bab96eebb535d7f92ecb1fa
-Qt 4.8.7 will contain this change.
-Additionally, you'll have to set the variable isQt4Build to "True" in shared/classes.py.
-
-
 Prerequisites - hooking into subprocesses
 -----------------------------------------
 The usage of the hook-into subprocess has following prerequisites:
