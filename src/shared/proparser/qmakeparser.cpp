@@ -930,8 +930,14 @@ void QMakeParser::flushCond(ushort *&tokPtr)
 
 void QMakeParser::putOperator(ushort *&tokPtr)
 {
-    if (m_operator != NoOperator) {
-        putTok(tokPtr, (m_operator == AndOperator) ? TokAnd : TokOr);
+    if (m_operator== AndOperator) {
+        // A colon must be used after else and for() if no brace is used,
+        // but in this case it is obviously not a binary operator.
+        if (m_state == StCond)
+            putTok(tokPtr, TokAnd);
+        m_operator = NoOperator;
+    } else if (m_operator == OrOperator) {
+        putTok(tokPtr, TokOr);
         m_operator = NoOperator;
     }
 }
