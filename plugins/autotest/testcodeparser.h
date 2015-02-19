@@ -113,6 +113,7 @@ private:
     bool m_pendingUpdate;
     bool m_fullUpdatePostPoned;
     bool m_partialUpdatePostPoned;
+    bool m_dirty;
     QSet<QString> m_postPonedFiles;
     State m_parserState;
 };

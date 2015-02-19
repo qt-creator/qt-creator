@@ -59,7 +59,8 @@ TestCodeParser::TestCodeParser(TestTreeModel *parent)
       m_pendingUpdate(false),
       m_fullUpdatePostPoned(false),
       m_partialUpdatePostPoned(false),
-      m_parserState(Idle)
+      m_dirty(true),
+      m_parserState(Disabled)
 {
     // connect to ProgressManager to post-pone test parsing when CppModelManager is parsing
     auto progressManager = qobject_cast<Core::ProgressManager *>(Core::ProgressManager::instance());
@@ -76,26 +77,28 @@ TestCodeParser::~TestCodeParser()
     clearCache();
 }
 
-void TestCodeParser::setState(State state)
-{
-    m_parserState = state;
-    if (m_parserState == Disabled) {
-        m_pendingUpdate = m_fullUpdatePostPoned = m_partialUpdatePostPoned = false;
-        m_postPonedFiles.clear();
-    }
-}
-
-void TestCodeParser::emitUpdateTestTree()
-{
-    QTimer::singleShot(1000, this, SLOT(updateTestTree()));
-}
-
 ProjectExplorer::Project *currentProject()
 {
     const ProjectExplorer::SessionManager *session = ProjectExplorer::SessionManager::instance();
     if (!session || !session->hasProjects())
         return 0;
     return session->startupProject();
+}
+
+void TestCodeParser::setState(State state)
+{
+    m_parserState = state;
+    if (m_parserState == Disabled) {
+        m_pendingUpdate = m_fullUpdatePostPoned = m_partialUpdatePostPoned = false;
+        m_postPonedFiles.clear();
+    } else if (m_parserState == Idle && m_dirty && currentProject()) {
+        scanForTests(m_postPonedFiles.toList());
+    }
+}
+
+void TestCodeParser::emitUpdateTestTree()
+{
+    QTimer::singleShot(1000, this, SLOT(updateTestTree()));
 }
 
 void TestCodeParser::updateTestTree()
@@ -578,14 +581,29 @@ bool TestCodeParser::postponed(const QStringList &fileList)
         }
         return true;
     case Disabled:
-        qWarning("Checking for postponing but being disabled...");
-        return false;
+        break;
     }
     QTC_ASSERT(false, return false); // should not happen at all
 }
 
 void TestCodeParser::scanForTests(const QStringList &fileList)
 {
+    if (m_parserState == Disabled) {
+        m_dirty = true;
+        if (fileList.isEmpty()) {
+            m_fullUpdatePostPoned = true;
+            m_partialUpdatePostPoned = false;
+            m_postPonedFiles.clear();
+        } else {
+            if (!m_fullUpdatePostPoned) {
+                m_partialUpdatePostPoned = true;
+                foreach (const QString &file, fileList)
+                    m_postPonedFiles.insert(file);
+            }
+        }
+        return;
+    }
+
     if (postponed(fileList))
         return;
 
@@ -730,6 +748,7 @@ void TestCodeParser::onFinished()
     case FullParse:
         m_parserState = Idle;
         emit parsingFinished();
+        m_dirty = false;
         break;
     default:
         qWarning("I should not be here...");
@@ -752,6 +771,9 @@ void TestCodeParser::onPartialParsingFinished()
             tmp << file;
         m_postPonedFiles.clear();
         scanForTests(tmp);
+    } else {
+        m_dirty = false;
+        emit parsingFinished();
     }
 }
 
