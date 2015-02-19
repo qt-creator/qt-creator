@@ -861,7 +861,7 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
     }
 
     flushScopes(tokPtr);
-    if (m_blockstack.size() > 1)
+    if (m_blockstack.size() > 1 || m_blockstack.top().braceLevel)
         parseError(fL1S("Missing closing brace(s)."));
     while (m_blockstack.size())
         leaveScope(tokPtr);
