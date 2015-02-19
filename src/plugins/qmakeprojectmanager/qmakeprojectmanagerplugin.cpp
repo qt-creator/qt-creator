@@ -218,10 +218,9 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_CLEAN);
     connect(m_cleanSubProjectAction, SIGNAL(triggered()), m_qmakeProjectManager, SLOT(cleanSubDirContextMenu()));
 
-    const Core::Context globalcontext(Core::Constants::C_GLOBAL);
     m_buildFileAction = new Utils::ParameterAction(tr("Build File"), tr("Build File \"%1\""),
                                                    Utils::ParameterAction::AlwaysEnabled, this);
-    command = Core::ActionManager::registerAction(m_buildFileAction, Constants::BUILDFILE, globalcontext);
+    command = Core::ActionManager::registerAction(m_buildFileAction, Constants::BUILDFILE);
     command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDescription(m_buildFileAction->text());

@@ -180,7 +180,7 @@ void ModeManager::objectAdded(QObject *obj)
     // Register mode shortcut
     const Id actionId = mode->id().withPrefix("QtCreator.Mode.");
     QAction *action = new QAction(tr("Switch to <b>%1</b> mode").arg(mode->displayName()), this);
-    Command *cmd = ActionManager::registerAction(action, actionId, Context(Constants::C_GLOBAL));
+    Command *cmd = ActionManager::registerAction(action, actionId);
 
     d->m_modeCommands.insert(index, cmd);
     connect(cmd, SIGNAL(keySequenceChanged()), m_instance, SLOT(updateModeToolTip()));

@@ -153,7 +153,6 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
 
     d->m_profilerConnections->setModelManager(d->m_profilerModelManager);
     Command *command = 0;
-    const Context globalContext(C_GLOBAL);
 
     ActionContainer *menu = ActionManager::actionContainer(M_DEBUG_ANALYZER);
     ActionContainer *options = ActionManager::createMenu(M_DEBUG_ANALYZER_QML_OPTIONS);
@@ -162,13 +161,13 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     options->menu()->setEnabled(true);
 
     QAction *act = d->m_loadQmlTrace = new QAction(tr("Load QML Trace"), options);
-    command = ActionManager::registerAction(act, "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.LoadQMLTrace", globalContext);
+    command = ActionManager::registerAction(act, "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.LoadQMLTrace");
     connect(act, SIGNAL(triggered()), this, SLOT(showLoadDialog()));
     options->addAction(command);
 
     act = d->m_saveQmlTrace = new QAction(tr("Save QML Trace"), options);
     d->m_saveQmlTrace->setEnabled(false);
-    command = ActionManager::registerAction(act, "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.SaveQMLTrace", globalContext);
+    command = ActionManager::registerAction(act, "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.SaveQMLTrace");
     connect(act, SIGNAL(triggered()), this, SLOT(showSaveDialog()));
     options->addAction(command);
 

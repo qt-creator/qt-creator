@@ -484,14 +484,14 @@ void MainWindow::registerDefaultActions()
     // Return to editor shortcut: Note this requires Qt to fix up
     // handling of shortcut overrides in menus, item views, combos....
     m_focusToEditor = new QAction(tr("Return to Editor"), this);
-    Command *cmd = ActionManager::registerAction(m_focusToEditor, Constants::S_RETURNTOEDITOR, globalContext);
+    Command *cmd = ActionManager::registerAction(m_focusToEditor, Constants::S_RETURNTOEDITOR);
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_Escape));
     connect(m_focusToEditor, SIGNAL(triggered()), this, SLOT(setFocusToEditor()));
 
     // New File Action
     QIcon icon = QIcon::fromTheme(QLatin1String("document-new"), QIcon(QLatin1String(Constants::ICON_NEWFILE)));
     m_newAction = new QAction(icon, tr("&New File or Project..."), this);
-    cmd = ActionManager::registerAction(m_newAction, Constants::NEW, globalContext);
+    cmd = ActionManager::registerAction(m_newAction, Constants::NEW);
     cmd->setDefaultKeySequence(QKeySequence::New);
     mfile->addAction(cmd, Constants::G_FILE_NEW);
     connect(m_newAction, SIGNAL(triggered()), this, SLOT(newFile()));
@@ -499,14 +499,14 @@ void MainWindow::registerDefaultActions()
     // Open Action
     icon = QIcon::fromTheme(QLatin1String("document-open"), QIcon(QLatin1String(Constants::ICON_OPENFILE)));
     m_openAction = new QAction(icon, tr("&Open File or Project..."), this);
-    cmd = ActionManager::registerAction(m_openAction, Constants::OPEN, globalContext);
+    cmd = ActionManager::registerAction(m_openAction, Constants::OPEN);
     cmd->setDefaultKeySequence(QKeySequence::Open);
     mfile->addAction(cmd, Constants::G_FILE_OPEN);
     connect(m_openAction, SIGNAL(triggered()), this, SLOT(openFile()));
 
     // Open With Action
     m_openWithAction = new QAction(tr("Open File &With..."), this);
-    cmd = ActionManager::registerAction(m_openWithAction, Constants::OPEN_WITH, globalContext);
+    cmd = ActionManager::registerAction(m_openWithAction, Constants::OPEN_WITH);
     mfile->addAction(cmd, Constants::G_FILE_OPEN);
     connect(m_openWithAction, SIGNAL(triggered()), this, SLOT(openFileWith()));
 
@@ -520,7 +520,7 @@ void MainWindow::registerDefaultActions()
     icon = QIcon::fromTheme(QLatin1String("document-save"), QIcon(QLatin1String(Constants::ICON_SAVEFILE)));
     QAction *tmpaction = new QAction(icon, tr("&Save"), this);
     tmpaction->setEnabled(false);
-    cmd = ActionManager::registerAction(tmpaction, Constants::SAVE, globalContext);
+    cmd = ActionManager::registerAction(tmpaction, Constants::SAVE);
     cmd->setDefaultKeySequence(QKeySequence::Save);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(tr("Save"));
@@ -530,7 +530,7 @@ void MainWindow::registerDefaultActions()
     icon = QIcon::fromTheme(QLatin1String("document-save-as"));
     tmpaction = new QAction(icon, tr("Save &As..."), this);
     tmpaction->setEnabled(false);
-    cmd = ActionManager::registerAction(tmpaction, Constants::SAVEAS, globalContext);
+    cmd = ActionManager::registerAction(tmpaction, Constants::SAVEAS);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Shift+S") : QString()));
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(tr("Save As..."));
@@ -538,7 +538,7 @@ void MainWindow::registerDefaultActions()
 
     // SaveAll Action
     m_saveAllAction = new QAction(tr("Save A&ll"), this);
-    cmd = ActionManager::registerAction(m_saveAllAction, Constants::SAVEALL, globalContext);
+    cmd = ActionManager::registerAction(m_saveAllAction, Constants::SAVEALL);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? QString() : tr("Ctrl+Shift+S")));
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
     connect(m_saveAllAction, SIGNAL(triggered()), this, SLOT(saveAll()));
@@ -547,7 +547,7 @@ void MainWindow::registerDefaultActions()
     icon = QIcon::fromTheme(QLatin1String("document-print"));
     tmpaction = new QAction(icon, tr("&Print..."), this);
     tmpaction->setEnabled(false);
-    cmd = ActionManager::registerAction(tmpaction, Constants::PRINT, globalContext);
+    cmd = ActionManager::registerAction(tmpaction, Constants::PRINT);
     cmd->setDefaultKeySequence(QKeySequence::Print);
     mfile->addAction(cmd, Constants::G_FILE_PRINT);
 
@@ -555,7 +555,7 @@ void MainWindow::registerDefaultActions()
     icon = QIcon::fromTheme(QLatin1String("application-exit"));
     m_exitAction = new QAction(icon, tr("E&xit"), this);
     m_exitAction->setMenuRole(QAction::QuitRole);
-    cmd = ActionManager::registerAction(m_exitAction, Constants::EXIT, globalContext);
+    cmd = ActionManager::registerAction(m_exitAction, Constants::EXIT);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Q")));
     mfile->addAction(cmd, Constants::G_FILE_OTHER);
     connect(m_exitAction, SIGNAL(triggered()), this, SLOT(exit()));
@@ -563,7 +563,7 @@ void MainWindow::registerDefaultActions()
     // Undo Action
     icon = QIcon::fromTheme(QLatin1String("edit-undo"), QIcon(QLatin1String(Constants::ICON_UNDO)));
     tmpaction = new QAction(icon, tr("&Undo"), this);
-    cmd = ActionManager::registerAction(tmpaction, Constants::UNDO, globalContext);
+    cmd = ActionManager::registerAction(tmpaction, Constants::UNDO);
     cmd->setDefaultKeySequence(QKeySequence::Undo);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(tr("Undo"));
@@ -573,7 +573,7 @@ void MainWindow::registerDefaultActions()
     // Redo Action
     icon = QIcon::fromTheme(QLatin1String("edit-redo"), QIcon(QLatin1String(Constants::ICON_REDO)));
     tmpaction = new QAction(icon, tr("&Redo"), this);
-    cmd = ActionManager::registerAction(tmpaction, Constants::REDO, globalContext);
+    cmd = ActionManager::registerAction(tmpaction, Constants::REDO);
     cmd->setDefaultKeySequence(QKeySequence::Redo);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(tr("Redo"));
@@ -583,7 +583,7 @@ void MainWindow::registerDefaultActions()
     // Cut Action
     icon = QIcon::fromTheme(QLatin1String("edit-cut"), QIcon(QLatin1String(Constants::ICON_CUT)));
     tmpaction = new QAction(icon, tr("Cu&t"), this);
-    cmd = ActionManager::registerAction(tmpaction, Constants::CUT, globalContext);
+    cmd = ActionManager::registerAction(tmpaction, Constants::CUT);
     cmd->setDefaultKeySequence(QKeySequence::Cut);
     medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
     tmpaction->setEnabled(false);
@@ -591,7 +591,7 @@ void MainWindow::registerDefaultActions()
     // Copy Action
     icon = QIcon::fromTheme(QLatin1String("edit-copy"), QIcon(QLatin1String(Constants::ICON_COPY)));
     tmpaction = new QAction(icon, tr("&Copy"), this);
-    cmd = ActionManager::registerAction(tmpaction, Constants::COPY, globalContext);
+    cmd = ActionManager::registerAction(tmpaction, Constants::COPY);
     cmd->setDefaultKeySequence(QKeySequence::Copy);
     medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
     tmpaction->setEnabled(false);
@@ -599,7 +599,7 @@ void MainWindow::registerDefaultActions()
     // Paste Action
     icon = QIcon::fromTheme(QLatin1String("edit-paste"), QIcon(QLatin1String(Constants::ICON_PASTE)));
     tmpaction = new QAction(icon, tr("&Paste"), this);
-    cmd = ActionManager::registerAction(tmpaction, Constants::PASTE, globalContext);
+    cmd = ActionManager::registerAction(tmpaction, Constants::PASTE);
     cmd->setDefaultKeySequence(QKeySequence::Paste);
     medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
     tmpaction->setEnabled(false);
@@ -607,7 +607,7 @@ void MainWindow::registerDefaultActions()
     // Select All
     icon = QIcon::fromTheme(QLatin1String("edit-select-all"));
     tmpaction = new QAction(icon, tr("Select &All"), this);
-    cmd = ActionManager::registerAction(tmpaction, Constants::SELECTALL, globalContext);
+    cmd = ActionManager::registerAction(tmpaction, Constants::SELECTALL);
     cmd->setDefaultKeySequence(QKeySequence::SelectAll);
     medit->addAction(cmd, Constants::G_EDIT_SELECTALL);
     tmpaction->setEnabled(false);
@@ -615,7 +615,7 @@ void MainWindow::registerDefaultActions()
     // Goto Action
     icon = QIcon::fromTheme(QLatin1String("go-jump"));
     tmpaction = new QAction(icon, tr("&Go to Line..."), this);
-    cmd = ActionManager::registerAction(tmpaction, Constants::GOTO, globalContext);
+    cmd = ActionManager::registerAction(tmpaction, Constants::GOTO);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+L")));
     medit->addAction(cmd, Constants::G_EDIT_OTHER);
     tmpaction->setEnabled(false);
@@ -626,7 +626,7 @@ void MainWindow::registerDefaultActions()
 
     m_optionsAction = new QAction(tr("&Options..."), this);
     m_optionsAction->setMenuRole(QAction::PreferencesRole);
-    cmd = ActionManager::registerAction(m_optionsAction, Constants::OPTIONS, globalContext);
+    cmd = ActionManager::registerAction(m_optionsAction, Constants::OPTIONS);
     cmd->setDefaultKeySequence(QKeySequence::Preferences);
     mtools->addAction(cmd, Constants::G_TOOLS_OPTIONS);
     connect(m_optionsAction, SIGNAL(triggered()), this, SLOT(showOptionsDialog()));
@@ -637,14 +637,14 @@ void MainWindow::registerDefaultActions()
         // Minimize Action
         QAction *minimizeAction = new QAction(tr("Minimize"), this);
         minimizeAction->setEnabled(false); // actual implementation in WindowSupport
-        cmd = ActionManager::registerAction(minimizeAction, Constants::MINIMIZE_WINDOW, globalContext);
+        cmd = ActionManager::registerAction(minimizeAction, Constants::MINIMIZE_WINDOW);
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+M")));
         mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
 
         // Zoom Action
         QAction *zoomAction = new QAction(tr("Zoom"), this);
         zoomAction->setEnabled(false); // actual implementation in WindowSupport
-        cmd = ActionManager::registerAction(zoomAction, Constants::ZOOM_WINDOW, globalContext);
+        cmd = ActionManager::registerAction(zoomAction, Constants::ZOOM_WINDOW);
         mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
     }
 
@@ -652,7 +652,7 @@ void MainWindow::registerDefaultActions()
     QAction *toggleFullScreenAction = new QAction(tr("Full Screen"), this);
     toggleFullScreenAction->setCheckable(!HostOsInfo::isMacHost());
     toggleFullScreenAction->setEnabled(false); // actual implementation in WindowSupport
-    cmd = ActionManager::registerAction(toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN, globalContext);
+    cmd = ActionManager::registerAction(toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Meta+F") : tr("Ctrl+Shift+F11")));
     if (HostOsInfo::isMacHost())
         cmd->setAttribute(Command::CA_UpdateText);
@@ -663,7 +663,7 @@ void MainWindow::registerDefaultActions()
 
         QAction *closeAction = new QAction(tr("Close Window"), this);
         closeAction->setEnabled(false);
-        cmd = ActionManager::registerAction(closeAction, Constants::CLOSE_WINDOW, globalContext);
+        cmd = ActionManager::registerAction(closeAction, Constants::CLOSE_WINDOW);
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Meta+W")));
         mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
 
@@ -674,7 +674,7 @@ void MainWindow::registerDefaultActions()
     m_toggleSideBarAction = new QAction(QIcon(QLatin1String(Constants::ICON_TOGGLE_SIDEBAR)),
                                         tr(Constants::TR_SHOW_SIDEBAR), this);
     m_toggleSideBarAction->setCheckable(true);
-    cmd = ActionManager::registerAction(m_toggleSideBarAction, Constants::TOGGLE_SIDEBAR, globalContext);
+    cmd = ActionManager::registerAction(m_toggleSideBarAction, Constants::TOGGLE_SIDEBAR);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+0") : tr("Alt+0")));
     connect(m_toggleSideBarAction, &QAction::triggered, this, &MainWindow::setSidebarVisible);
@@ -685,7 +685,7 @@ void MainWindow::registerDefaultActions()
     // Show Mode Selector Action
     m_toggleModeSelectorAction = new QAction(tr("Show Mode Selector"), this);
     m_toggleModeSelectorAction->setCheckable(true);
-    cmd = ActionManager::registerAction(m_toggleModeSelectorAction, Constants::TOGGLE_MODE_SELECTOR, globalContext);
+    cmd = ActionManager::registerAction(m_toggleModeSelectorAction, Constants::TOGGLE_MODE_SELECTOR);
     connect(m_toggleModeSelectorAction, &QAction::triggered, ModeManager::instance(), &ModeManager::setModeSelectorVisible);
     mwindow->addAction(cmd, Constants::G_WINDOW_VIEWS);
 
@@ -706,7 +706,7 @@ void MainWindow::registerDefaultActions()
     else
         tmpaction = new QAction(icon, tr("About &Qt Creator..."), this);
     tmpaction->setMenuRole(QAction::AboutRole);
-    cmd = ActionManager::registerAction(tmpaction, Constants::ABOUT_QTCREATOR, globalContext);
+    cmd = ActionManager::registerAction(tmpaction, Constants::ABOUT_QTCREATOR);
     mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
     tmpaction->setEnabled(true);
     connect(tmpaction, &QAction::triggered, this, &MainWindow::aboutQtCreator);
@@ -714,13 +714,13 @@ void MainWindow::registerDefaultActions()
     //About Plugins Action
     tmpaction = new QAction(tr("About &Plugins..."), this);
     tmpaction->setMenuRole(QAction::ApplicationSpecificRole);
-    cmd = ActionManager::registerAction(tmpaction, Constants::ABOUT_PLUGINS, globalContext);
+    cmd = ActionManager::registerAction(tmpaction, Constants::ABOUT_PLUGINS);
     mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
     tmpaction->setEnabled(true);
     connect(tmpaction, &QAction::triggered, this, &MainWindow::aboutPlugins);
     // About Qt Action
 //    tmpaction = new QAction(tr("About &Qt..."), this);
-//    cmd = ActionManager::registerAction(tmpaction, Constants:: ABOUT_QT, globalContext);
+//    cmd = ActionManager::registerAction(tmpaction, Constants:: ABOUT_QT);
 //    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
 //    tmpaction->setEnabled(true);
 //    connect(tmpaction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
@@ -728,7 +728,7 @@ void MainWindow::registerDefaultActions()
     if (!HostOsInfo::isMacHost()) { // doesn't have the "About" actions in the Help menu
         tmpaction = new QAction(this);
         tmpaction->setSeparator(true);
-        cmd = ActionManager::registerAction(tmpaction, "QtCreator.Help.Sep.About", globalContext);
+        cmd = ActionManager::registerAction(tmpaction, "QtCreator.Help.Sep.About");
         mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
     }
 }

@@ -98,8 +98,7 @@ void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
     m_corePlugin->addAutoReleasedObject(view);
 
     QAction *action = new QAction(m_locatorWidget->windowIcon(), m_locatorWidget->windowTitle(), this);
-    Command *cmd = ActionManager::registerAction(action, Constants::LOCATE,
-                                                             Context(Constants::C_GLOBAL));
+    Command *cmd = ActionManager::registerAction(action, Constants::LOCATE);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+K")));
     connect(action, &QAction::triggered, this, &Locator::openLocator);
     connect(cmd, SIGNAL(keySequenceChanged()), this, SLOT(updatePlaceholderText()));

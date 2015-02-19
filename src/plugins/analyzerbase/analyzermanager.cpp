@@ -216,7 +216,6 @@ AnalyzerManagerPrivate::~AnalyzerManagerPrivate()
 
 void AnalyzerManagerPrivate::setupActions()
 {
-    const Context globalcontext(C_GLOBAL);
     Command *command = 0;
 
     // Menus
@@ -235,15 +234,16 @@ void AnalyzerManagerPrivate::setupActions()
 
     m_startAction = new QAction(tr("Start"), m_menu);
     m_startAction->setIcon(QIcon(QLatin1String(ANALYZER_CONTROL_START_ICON)));
-    ActionManager::registerAction(m_startAction, "Analyzer.Start", globalcontext);
+    ActionManager::registerAction(m_startAction, "Analyzer.Start");
     connect(m_startAction, &QAction::triggered, this, &AnalyzerManagerPrivate::startTool);
 
     m_stopAction = new QAction(tr("Stop"), m_menu);
     m_stopAction->setEnabled(false);
     m_stopAction->setIcon(QIcon(QLatin1String(ANALYZER_CONTROL_STOP_ICON)));
-    command = ActionManager::registerAction(m_stopAction, "Analyzer.Stop", globalcontext);
+    command = ActionManager::registerAction(m_stopAction, "Analyzer.Stop");
     m_menu->addAction(command, G_ANALYZER_CONTROL);
 
+    const Context globalcontext(C_GLOBAL);
     m_menu->addSeparator(globalcontext, G_ANALYZER_TOOLS);
     m_menu->addSeparator(globalcontext, G_ANALYZER_REMOTE_TOOLS);
     m_menu->addSeparator(globalcontext, G_ANALYZER_OPTIONS);
@@ -377,12 +377,10 @@ void AnalyzerManagerPrivate::activateDock(Qt::DockWidgetArea area, QDockWidget *
     dockWidget->setParent(m_mainWindow);
     m_mainWindow->addDockWidget(area, dockWidget);
 
-    Context globalContext(C_GLOBAL);
-
     QAction *toggleViewAction = dockWidget->toggleViewAction();
     toggleViewAction->setText(dockWidget->windowTitle());
     Command *cmd = ActionManager::registerAction(toggleViewAction,
-        Id("Analyzer.").withSuffix(dockWidget->objectName()), globalContext);
+        Id("Analyzer.").withSuffix(dockWidget->objectName()));
     cmd->setAttribute(Command::CA_Hide);
 
     ActionContainer *viewsMenu = ActionManager::actionContainer(Id(M_WINDOW_VIEWS));
@@ -525,7 +523,7 @@ void AnalyzerManagerPrivate::addAction(AnalyzerAction *action)
 
     Id menuGroup = action->menuGroup();
     if (menuGroup.isValid()) {
-        Command *command = ActionManager::registerAction(action, action->actionId(), Context(C_GLOBAL));
+        Command *command = ActionManager::registerAction(action, action->actionId());
         m_menu->addAction(command, menuGroup);
     }
 

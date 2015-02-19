@@ -400,11 +400,9 @@ QDockWidget *DebuggerMainWindow::createDockWidget(const DebuggerLanguage &langua
     if (!(d->m_activeDebugLanguages & language))
         dockWidget->hide();
 
-    Context globalContext(Core::Constants::C_GLOBAL);
-
     QAction *toggleViewAction = dockWidget->toggleViewAction();
     Command *cmd = ActionManager::registerAction(toggleViewAction,
-             Id("Debugger.").withSuffix(widget->objectName()), globalContext);
+             Id("Debugger.").withSuffix(widget->objectName()));
     cmd->setAttribute(Command::CA_Hide);
 
     dockWidget->installEventFilter(&d->m_resizeEventFilter);

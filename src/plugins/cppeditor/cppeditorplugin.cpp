@@ -232,10 +232,9 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     cppToolsMenu->addAction(cmd);
 
     // Refactoring sub-menu
-    Context globalContext(Core::Constants::C_GLOBAL);
-    Command *sep = contextMenu->addSeparator(globalContext);
+    Command *sep = contextMenu->addSeparator();
     sep->action()->setObjectName(QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT));
-    contextMenu->addSeparator(globalContext);
+    contextMenu->addSeparator();
 
     m_renameSymbolUnderCursorAction = new QAction(tr("Rename Symbol Under Cursor"),
                                                   this);
@@ -248,16 +247,16 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     cppToolsMenu->addAction(cmd);
 
     // Update context in global context
-    cppToolsMenu->addSeparator(globalContext);
+    cppToolsMenu->addSeparator();
     m_reparseExternallyChangedFiles = new QAction(tr("Reparse Externally Changed Files"), this);
-    cmd = ActionManager::registerAction(m_reparseExternallyChangedFiles, Constants::UPDATE_CODEMODEL, globalContext);
+    cmd = ActionManager::registerAction(m_reparseExternallyChangedFiles, Constants::UPDATE_CODEMODEL);
     CppTools::CppModelManager *cppModelManager = CppTools::CppModelManager::instance();
     connect(m_reparseExternallyChangedFiles, SIGNAL(triggered()), cppModelManager, SLOT(updateModifiedSourceFiles()));
     cppToolsMenu->addAction(cmd);
 
-    cppToolsMenu->addSeparator(globalContext);
+    cppToolsMenu->addSeparator();
     QAction *inspectCppCodeModel = new QAction(tr("Inspect C++ Code Model..."), this);
-    cmd = ActionManager::registerAction(inspectCppCodeModel, Constants::INSPECT_CPP_CODEMODEL, globalContext);
+    cmd = ActionManager::registerAction(inspectCppCodeModel, Constants::INSPECT_CPP_CODEMODEL);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Shift+F12") : tr("Ctrl+Shift+F12")));
     connect(inspectCppCodeModel, SIGNAL(triggered()), this, SLOT(inspectCppCodeModel()));
     cppToolsMenu->addAction(cmd);

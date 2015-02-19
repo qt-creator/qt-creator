@@ -1207,7 +1207,7 @@ bool FakeVimPluginPrivate::initialize()
     for (int i = 1; i < 10; ++i) {
         auto act = new QAction(this);
         act->setText(Tr::tr("Execute User Action #%1").arg(i));
-        cmd = ActionManager::registerAction(act, base.withSuffix(i), globalcontext);
+        cmd = ActionManager::registerAction(act, base.withSuffix(i));
         cmd->setDefaultKeySequence(QKeySequence((UseMacShortcuts ? Tr::tr("Meta+V,%1") : Tr::tr("Alt+V,%1")).arg(i)));
         connect(act, &QAction::triggered, this, [this, i] { userActionTriggered(i); });
     }

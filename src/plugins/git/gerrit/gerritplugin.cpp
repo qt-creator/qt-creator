@@ -297,16 +297,14 @@ bool GerritPlugin::initialize(ActionContainer *ac)
     QAction *openViewAction = new QAction(tr("Gerrit..."), this);
 
     m_gerritCommand =
-        ActionManager::registerAction(openViewAction, Constants::GERRIT_OPEN_VIEW,
-                           Context(Core::Constants::C_GLOBAL));
+        ActionManager::registerAction(openViewAction, Constants::GERRIT_OPEN_VIEW);
     connect(openViewAction, SIGNAL(triggered()), this, SLOT(openView()));
     ac->addAction(m_gerritCommand);
 
     QAction *pushAction = new QAction(tr("Push to Gerrit..."), this);
 
     m_pushToGerritCommand =
-        ActionManager::registerAction(pushAction, Constants::GERRIT_PUSH,
-                           Context(Core::Constants::C_GLOBAL));
+        ActionManager::registerAction(pushAction, Constants::GERRIT_PUSH);
     connect(pushAction, SIGNAL(triggered()), this, SLOT(push()));
     ac->addAction(m_pushToGerritCommand);
 

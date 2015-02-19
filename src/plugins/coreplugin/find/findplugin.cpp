@@ -213,7 +213,7 @@ void FindPlugin::setupMenu()
     mfind->addMenu(mfindadvanced, Constants::G_FIND_FILTERS);
     d->m_openFindDialog = new QAction(tr("Open Advanced Find..."), this);
     d->m_openFindDialog->setIconText(tr("Advanced..."));
-    cmd = ActionManager::registerAction(d->m_openFindDialog, Constants::ADVANCED_FIND, globalcontext);
+    cmd = ActionManager::registerAction(d->m_openFindDialog, Constants::ADVANCED_FIND);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F")));
     mfindadvanced->addAction(cmd);
     connect(d->m_openFindDialog, &QAction::triggered,
@@ -225,7 +225,6 @@ void FindPlugin::setupFilterMenuItems()
     QList<IFindFilter*> findInterfaces =
         ExtensionSystem::PluginManager::getObjects<IFindFilter>();
     Command *cmd;
-    Context globalcontext(Constants::C_GLOBAL);
 
     ActionContainer *mfindadvanced = ActionManager::actionContainer(Constants::M_FIND_ADVANCED);
     d->m_filterActions.clear();
@@ -238,8 +237,7 @@ void FindPlugin::setupFilterMenuItems()
             haveEnabledFilters = true;
         action->setEnabled(isEnabled);
         action->setData(qVariantFromValue(filter));
-        cmd = ActionManager::registerAction(action,
-            base.withSuffix(filter->id()), globalcontext);
+        cmd = ActionManager::registerAction(action, base.withSuffix(filter->id()));
         cmd->setDefaultKeySequence(filter->defaultShortcut());
         mfindadvanced->addAction(cmd);
         d->m_filterActions.insert(filter, action);

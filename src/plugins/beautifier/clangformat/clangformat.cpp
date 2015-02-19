@@ -77,15 +77,13 @@ bool ClangFormat::initialize()
     m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
     Core::Command *cmd
             = Core::ActionManager::registerAction(m_formatFile,
-                                                  Constants::ClangFormat::ACTION_FORMATFILE,
-                                                  Core::Context(Core::Constants::C_GLOBAL));
+                                                  Constants::ClangFormat::ACTION_FORMATFILE);
     menu->addAction(cmd);
     connect(m_formatFile, &QAction::triggered, this, &ClangFormat::formatFile);
 
     m_formatRange = new QAction(BeautifierPlugin::msgFormatSelectedText(), this);
     cmd = Core::ActionManager::registerAction(m_formatRange,
-                                              Constants::ClangFormat::ACTION_FORMATSELECTED,
-                                              Core::Context(Core::Constants::C_GLOBAL));
+                                              Constants::ClangFormat::ACTION_FORMATSELECTED);
     menu->addAction(cmd);
     connect(m_formatRange, &QAction::triggered, this, &ClangFormat::formatSelectedText);
 
