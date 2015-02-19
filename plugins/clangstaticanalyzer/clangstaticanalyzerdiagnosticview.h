@@ -23,6 +23,7 @@
 
 namespace ClangStaticAnalyzer {
 namespace Internal {
+class Diagnostic;
 
 class ClangStaticAnalyzerDiagnosticView : public Analyzer::DetailedErrorView
 {
@@ -30,6 +31,13 @@ class ClangStaticAnalyzerDiagnosticView : public Analyzer::DetailedErrorView
 
 public:
     ClangStaticAnalyzerDiagnosticView(QWidget *parent = 0);
+
+private:
+    void suppressCurrentDiagnostic();
+
+    QList<QAction *> customActions() const;
+
+    QAction *m_suppressAction;
 };
 
 class ClangStaticAnalyzerDiagnosticDelegate : public Analyzer::DetailedErrorDelegate
@@ -38,6 +46,7 @@ public:
     ClangStaticAnalyzerDiagnosticDelegate(QListView *parent);
 
     SummaryLineInfo summaryInfo(const QModelIndex &index) const;
+    Diagnostic getDiagnostic(const QModelIndex &index) const;
 
 private:
     QWidget *createDetailsWidget(const QFont &font, const QModelIndex &index,

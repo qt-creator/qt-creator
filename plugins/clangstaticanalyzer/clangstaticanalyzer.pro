@@ -12,6 +12,9 @@ SOURCES += \
     clangstaticanalyzerlogfilereader.cpp \
     clangstaticanalyzerpathchooser.cpp \
     clangstaticanalyzerplugin.cpp \
+    clangstaticanalyzerprojectsettings.cpp \
+    clangstaticanalyzerprojectsettingsmanager.cpp \
+    clangstaticanalyzerprojectsettingswidget.cpp \
     clangstaticanalyzerruncontrol.cpp \
     clangstaticanalyzerruncontrolfactory.cpp \
     clangstaticanalyzerrunner.cpp \
@@ -29,6 +32,9 @@ HEADERS += \
     clangstaticanalyzerlogfilereader.h \
     clangstaticanalyzerpathchooser.h \
     clangstaticanalyzerplugin.h \
+    clangstaticanalyzerprojectsettings.h \
+    clangstaticanalyzerprojectsettingsmanager.h \
+    clangstaticanalyzerprojectsettingswidget.h \
     clangstaticanalyzerruncontrolfactory.h \
     clangstaticanalyzerruncontrol.h \
     clangstaticanalyzerrunner.h \
@@ -37,7 +43,8 @@ HEADERS += \
     clangstaticanalyzerutils.h
 
 FORMS += \
-    clangstaticanalyzerconfigwidget.ui
+    clangstaticanalyzerconfigwidget.ui \
+    clangstaticanalyzerprojectsettingswidget.ui
 
 equals(TEST, 1) {
     HEADERS += clangstaticanalyzerunittests.h

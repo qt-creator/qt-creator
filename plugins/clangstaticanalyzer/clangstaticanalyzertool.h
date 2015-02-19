@@ -27,6 +27,7 @@ namespace Analyzer { class DetailedErrorView; }
 namespace ClangStaticAnalyzer {
 namespace Internal {
 
+class ClangStaticAnalyzerDiagnosticFilterModel;
 class ClangStaticAnalyzerDiagnosticModel;
 class ClangStaticAnalyzerDiagnosticView;
 class Diagnostic;
@@ -65,6 +66,7 @@ private:
     CppTools::ProjectInfo m_projectInfoBeforeBuild;
 
     ClangStaticAnalyzerDiagnosticModel *m_diagnosticModel;
+    ClangStaticAnalyzerDiagnosticFilterModel *m_diagnosticFilterModel;
     Analyzer::DetailedErrorView *m_diagnosticView;
 
     QAction *m_goBack;

@@ -19,6 +19,7 @@
 #include "clangstaticanalyzerplugin.h"
 
 #include "clangstaticanalyzerconfigwidget.h"
+#include "clangstaticanalyzerprojectsettingswidget.h"
 #include "clangstaticanalyzerruncontrolfactory.h"
 #include "clangstaticanalyzertool.h"
 
@@ -35,6 +36,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <licensechecker/licensecheckerplugin.h>
+#include <projectexplorer/projectpanelfactory.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -105,6 +107,12 @@ bool ClangStaticAnalyzerPlugin::initialize(const QStringList &arguments, QString
     // Connect to other plugins' signals
     // In the initialize method, a plugin can be sure that the plugins it
     // depends on have initialized their members.
+
+    auto panelFactory = new ProjectExplorer::ProjectPanelFactory();
+    panelFactory->setPriority(100);
+    panelFactory->setDisplayName(tr("Clang Static Analyzer Settings"));
+    panelFactory->setSimpleCreateWidgetFunction<ProjectSettingsWidget>(QIcon());
+    ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
 
     LicenseChecker::LicenseCheckerPlugin *licenseChecker
             = ExtensionSystem::PluginManager::getObject<LicenseChecker::LicenseCheckerPlugin>();

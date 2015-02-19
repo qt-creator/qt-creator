@@ -51,6 +51,7 @@ namespace Internal {
 ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
     : QObject(parent)
     , m_diagnosticModel(0)
+    , m_diagnosticFilterModel(0)
     , m_diagnosticView(0)
     , m_goBack(0)
     , m_goNext(0)
@@ -74,10 +75,9 @@ QWidget *ClangStaticAnalyzerTool::createWidgets()
     m_diagnosticView->setFrameStyle(QFrame::NoFrame);
     m_diagnosticView->setAttribute(Qt::WA_MacShowFocusRect, false);
     m_diagnosticModel = new ClangStaticAnalyzerDiagnosticModel(m_diagnosticView);
-    // TODO: Make use of the proxy model
-    QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(m_diagnosticView);
-    proxyModel->setSourceModel(m_diagnosticModel);
-    m_diagnosticView->setModel(proxyModel);
+    m_diagnosticFilterModel = new ClangStaticAnalyzerDiagnosticFilterModel(m_diagnosticView);
+    m_diagnosticFilterModel->setSourceModel(m_diagnosticModel);
+    m_diagnosticView->setModel(m_diagnosticFilterModel);
     m_diagnosticView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     m_diagnosticView->setAutoScroll(false);
     m_diagnosticView->setObjectName(QLatin1String("ClangStaticAnalyzerIssuesView"));
@@ -203,6 +203,7 @@ void ClangStaticAnalyzerTool::startTool()
     setBusyCursor(true);
     Project *project = SessionManager::startupProject();
     QTC_ASSERT(project, return);
+    m_diagnosticFilterModel->setProject(project);
     m_projectInfoBeforeBuild = CppTools::CppModelManager::instance()->projectInfo(project);
     QTC_ASSERT(m_projectInfoBeforeBuild.isValid(), return);
     m_running = true;
@@ -241,15 +242,18 @@ void ClangStaticAnalyzerTool::onEngineFinished()
     QTC_ASSERT(m_goBack, return);
     QTC_ASSERT(m_goNext, return);
     QTC_ASSERT(m_diagnosticModel, return);
+    QTC_ASSERT(m_diagnosticFilterModel, return);
 
     resetCursorAndProjectInfoBeforeBuild();
 
     const int issuesFound = m_diagnosticModel->rowCount();
-    m_goBack->setEnabled(issuesFound > 1);
-    m_goNext->setEnabled(issuesFound > 1);
+    const int issuesVisible = m_diagnosticFilterModel->rowCount();
+    m_goBack->setEnabled(issuesVisible > 1);
+    m_goNext->setEnabled(issuesVisible > 1);
 
     AnalyzerManager::showPermanentStatusMessage(issuesFound > 0
-      ? AnalyzerManager::tr("Clang Static Analyzer finished, %n issues were found.", 0, issuesFound)
+      ? AnalyzerManager::tr("Clang Static Analyzer finished, %n issues were found (%1 suppressed).",
+                            0, issuesFound).arg(issuesFound - issuesVisible)
       : AnalyzerManager::tr("Clang Static Analyzer finished, no issues were found."));
     m_running = false;
     emit finished();

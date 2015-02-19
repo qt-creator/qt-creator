@@ -18,9 +18,15 @@
 
 #include "clangstaticanalyzerdiagnosticmodel.h"
 
+#include "clangstaticanalyzerprojectsettingsmanager.h"
 #include "clangstaticanalyzerutils.h"
 
+#include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
+#include <utils/qtcassert.h>
+
 #include <QCoreApplication>
+#include <QFileInfo>
 
 namespace ClangStaticAnalyzer {
 namespace Internal {
@@ -116,6 +122,71 @@ QVariant ClangStaticAnalyzerDiagnosticModel::data(const QModelIndex &index, int 
         return QVariant::fromValue<Diagnostic>(diagnostic);
 
     return QVariant();
+}
+
+
+ClangStaticAnalyzerDiagnosticFilterModel::ClangStaticAnalyzerDiagnosticFilterModel(QObject *parent)
+    : QSortFilterProxyModel(parent)
+{
+    // So that when a user closes and re-opens a project and *then* clicks "Suppress",
+    // we enter that information into the project settings.
+    connect(ProjectExplorer::SessionManager::instance(),
+            &ProjectExplorer::SessionManager::projectAdded, this,
+            [this](ProjectExplorer::Project *project) {
+                if (!m_project && project->projectDirectory() == m_lastProjectDirectory)
+                    setProject(project);
+            });
+}
+
+void ClangStaticAnalyzerDiagnosticFilterModel::setProject(ProjectExplorer::Project *project)
+{
+    QTC_ASSERT(project, return);
+    if (m_project) {
+        disconnect(ProjectSettingsManager::getSettings(m_project),
+                   &ProjectSettings::suppressedDiagnosticsChanged, this,
+                   &ClangStaticAnalyzerDiagnosticFilterModel::handleSuppressedDiagnosticsChanged);
+    }
+    m_project = project;
+    m_lastProjectDirectory = m_project->projectDirectory();
+    connect(ProjectSettingsManager::getSettings(m_project),
+            &ProjectSettings::suppressedDiagnosticsChanged,
+            this, &ClangStaticAnalyzerDiagnosticFilterModel::handleSuppressedDiagnosticsChanged);
+    handleSuppressedDiagnosticsChanged();
+}
+
+void ClangStaticAnalyzerDiagnosticFilterModel::addSuppressedDiagnostic(
+        const SuppressedDiagnostic &diag)
+{
+    QTC_ASSERT(!m_project, return);
+    m_suppressedDiagnostics << diag;
+    invalidate();
+}
+
+bool ClangStaticAnalyzerDiagnosticFilterModel::filterAcceptsRow(int sourceRow,
+        const QModelIndex &sourceParent) const
+{
+    Q_UNUSED(sourceParent);
+    const Diagnostic diag = static_cast<ClangStaticAnalyzerDiagnosticModel *>(sourceModel())
+            ->diagnostics().at(sourceRow);
+    foreach (const SuppressedDiagnostic &d, m_suppressedDiagnostics) {
+        if (d.description != diag.description)
+            continue;
+        QString filePath = d.filePath.toString();
+        QFileInfo fi(filePath);
+        if (fi.isRelative())
+            filePath = m_lastProjectDirectory.toString() + QLatin1Char('/') + filePath;
+        if (filePath == diag.location.filePath)
+            return false;
+    }
+    return true;
+}
+
+void ClangStaticAnalyzerDiagnosticFilterModel::handleSuppressedDiagnosticsChanged()
+{
+    QTC_ASSERT(m_project, return);
+    m_suppressedDiagnostics
+            = ProjectSettingsManager::getSettings(m_project)->suppressedDiagnostics();
+    invalidate();
 }
 
 } // namespace Internal
