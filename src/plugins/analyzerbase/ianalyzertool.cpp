@@ -62,12 +62,12 @@ AnalyzerAction::AnalyzerAction(QObject *parent)
     : QAction(parent)
 {}
 
-bool AnalyzerAction::isRunnable() const
+bool AnalyzerAction::isRunnable(QString *reason) const
 {
     if (m_startMode == StartRemote)
         return true;
 
-    return ProjectExplorerPlugin::canRun(SessionManager::startupProject(), runMode(), 0);
+    return ProjectExplorerPlugin::canRun(SessionManager::startupProject(), m_runMode, reason);
 }
 
 AnalyzerRunControl *AnalyzerAction::tryCreateRunControl(const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration) const

@@ -564,15 +564,18 @@ void AnalyzerManagerPrivate::saveToolSettings(Id toolId)
 void AnalyzerManagerPrivate::updateRunActions()
 {
     QString disabledReason;
-    if (m_isRunning)
+    bool enabled = true;
+    if (m_isRunning) {
         disabledReason = tr("An analysis is still in progress.");
-    else if (!m_currentAction)
+        enabled = false;
+    } else if (!m_currentAction) {
         disabledReason = tr("No analyzer tool selected.");
-    else
-        ProjectExplorerPlugin::canRun(SessionManager::startupProject(),
-                                      m_currentAction->runMode(), &disabledReason);
+        enabled = false;
+    } else {
+        enabled = m_currentAction->isRunnable(&disabledReason);
+    }
 
-    m_startAction->setEnabled(!m_isRunning && m_currentAction && m_currentAction->isRunnable());
+    m_startAction->setEnabled(enabled);
     m_startAction->setToolTip(disabledReason);
     m_toolBox->setEnabled(!m_isRunning);
     m_stopAction->setEnabled(m_isRunning);

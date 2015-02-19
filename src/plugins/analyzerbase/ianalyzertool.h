@@ -90,10 +90,8 @@ public:
     Core::Id toolId() const { return m_toolId; }
     void setToolId(Core::Id id) { m_toolId = id; }
 
-    ProjectExplorer::RunMode runMode() const { return m_runMode; }
     void setRunMode(ProjectExplorer::RunMode mode) { m_runMode = mode; }
-
-    bool isRunnable() const;
+    bool isRunnable(QString *reason = 0) const;
 
     /// Creates all widgets used by the tool.
     /// Returns a control widget which will be shown in the status bar when
