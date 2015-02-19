@@ -824,7 +824,7 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                     } else if (context == CtxPureValue) {
                         putTok(tokPtr, TokValueTerminator);
                     } else {
-                        bogusTest(tokPtr);
+                        bogusTest(tokPtr, QString());
                     }
                 } else if (context == CtxValue) {
                     FLUSH_VALUE_LIST();
@@ -944,8 +944,10 @@ void QMakeParser::finalizeTest(ushort *&tokPtr)
     m_canElse = true;
 }
 
-void QMakeParser::bogusTest(ushort *&tokPtr)
+void QMakeParser::bogusTest(ushort *&tokPtr, const QString &msg)
 {
+    if (!msg.isEmpty())
+        parseError(msg);
     flushScopes(tokPtr);
     m_operator = NoOperator;
     m_invert = false;
@@ -956,10 +958,8 @@ void QMakeParser::bogusTest(ushort *&tokPtr)
 void QMakeParser::finalizeCond(ushort *&tokPtr, ushort *uc, ushort *ptr, int wordCount)
 {
     if (wordCount != 1) {
-        if (wordCount) {
-            parseError(fL1S("Extra characters after test expression."));
-            bogusTest(tokPtr);
-        }
+        if (wordCount)
+            bogusTest(tokPtr, fL1S("Extra characters after test expression."));
         return;
     }
 
@@ -1020,8 +1020,7 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
             if (m_tmp == statics.strfor) {
                 if (m_invert || m_operator == OrOperator) {
                     // '|' could actually work reasonably, but qmake does nonsense here.
-                    parseError(fL1S("Unexpected operator in front of for()."));
-                    bogusTest(tokPtr);
+                    bogusTest(tokPtr, fL1S("Unexpected operator in front of for()."));
                     return;
                 }
                 flushCond(tokPtr);
@@ -1072,8 +1071,7 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
                 defType = TokTestDef;
               deffunc:
                 if (m_invert) {
-                    parseError(fL1S("Unexpected operator in front of function definition."));
-                    bogusTest(tokPtr);
+                    bogusTest(tokPtr, fL1S("Unexpected operator in front of function definition."));
                     return;
                 }
                 flushScopes(tokPtr);
@@ -1097,14 +1095,12 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
             } else if (m_tmp == statics.strreturn) {
                 if (m_blockstack.top().nest & NestFunction) {
                     if (argc > 1) {
-                        parseError(fL1S("return() requires zero or one argument."));
-                        bogusTest(tokPtr);
+                        bogusTest(tokPtr, fL1S("return() requires zero or one argument."));
                         return;
                     }
                 } else {
                     if (*uce != TokFuncTerminator) {
-                        parseError(fL1S("Top-level return() requires zero arguments."));
-                        bogusTest(tokPtr);
+                        bogusTest(tokPtr, fL1S("Top-level return() requires zero arguments."));
                         return;
                     }
                 }
@@ -1117,19 +1113,16 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
                 defType = TokBreak;
               ctrlstm:
                 if (*uce != TokFuncTerminator) {
-                    parseError(fL1S("%1() requires zero arguments.").arg(m_tmp));
-                    bogusTest(tokPtr);
+                    bogusTest(tokPtr, fL1S("%1() requires zero arguments.").arg(m_tmp));
                     return;
                 }
                 if (!(m_blockstack.top().nest & NestLoop)) {
-                    parseError(fL1S("Unexpected %1().").arg(m_tmp));
-                    bogusTest(tokPtr);
+                    bogusTest(tokPtr, fL1S("Unexpected %1().").arg(m_tmp));
                     return;
                 }
               ctrlstm2:
                 if (m_invert) {
-                    parseError(fL1S("Unexpected NOT operator in front of %1().").arg(m_tmp));
-                    bogusTest(tokPtr);
+                    bogusTest(tokPtr, fL1S("Unexpected NOT operator in front of %1().").arg(m_tmp));
                     return;
                 }
                 finalizeTest(tokPtr);
@@ -1139,8 +1132,7 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
             } else if (m_tmp == statics.stroption) {
                 if (m_state != StNew || m_blockstack.top().braceLevel || m_blockstack.size() > 1
                         || m_invert || m_operator != NoOperator) {
-                    parseError(fL1S("option() must appear outside any control structures."));
-                    bogusTest(tokPtr);
+                    bogusTest(tokPtr, fL1S("option() must appear outside any control structures."));
                     return;
                 }
                 if (*uce == (TokLiteral|TokNewStr)) {
