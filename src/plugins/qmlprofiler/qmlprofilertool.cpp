@@ -498,8 +498,7 @@ void QmlProfilerTool::startLocalTool()
     AnalyzerManager::showMode();
 
     // ### not sure if we're supposed to check if the RunConFiguration isEnabled
-    Project *pro = SessionManager::startupProject();
-    ProjectExplorerPlugin::runProject(pro, QmlProfilerRunMode);
+    ProjectExplorerPlugin::runStartupProject(QmlProfilerRunMode);
 }
 
 void QmlProfilerTool::startRemoteTool()

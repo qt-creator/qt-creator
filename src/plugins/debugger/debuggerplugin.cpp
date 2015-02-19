@@ -709,9 +709,6 @@ public:
     void showSettingsDialog();
     void updateDebugWithoutDeployMenu();
 
-    void debugProject();
-    void debugProjectWithoutDeploy();
-    void debugProjectBreakMain();
     void startAndDebugApplication();
     void startRemoteCdbSession();
     void startRemoteServer();
@@ -819,7 +816,7 @@ public slots:
     void handleExecStep()
     {
         if (currentEngine()->state() == DebuggerNotReady) {
-            debugProjectBreakMain();
+            ProjectExplorerPlugin::runStartupProject(DebugRunModeWithBreakOnMain);
         } else {
             currentEngine()->resetLocation();
             if (boolSetting(OperateByInstruction))
@@ -832,7 +829,7 @@ public slots:
     void handleExecNext()
     {
         if (currentEngine()->state() == DebuggerNotReady) {
-            debugProjectBreakMain();
+            ProjectExplorerPlugin::runStartupProject(DebugRunModeWithBreakOnMain);
         } else {
             currentEngine()->resetLocation();
             if (boolSetting(OperateByInstruction))
@@ -1325,21 +1322,6 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
     m_startAction->setToolTip(whyNot);
     m_debugWithoutDeployAction->setEnabled(canRun);
     setProxyAction(m_visibleStartAction, Id(Constants::DEBUG));
-}
-
-void DebuggerPluginPrivate::debugProject()
-{
-    ProjectExplorerPlugin::runProject(SessionManager::startupProject(), DebugRunMode);
-}
-
-void DebuggerPluginPrivate::debugProjectWithoutDeploy()
-{
-    ProjectExplorerPlugin::runProject(SessionManager::startupProject(), DebugRunMode, true);
-}
-
-void DebuggerPluginPrivate::debugProjectBreakMain()
-{
-    ProjectExplorerPlugin::runProject(SessionManager::startupProject(), DebugRunModeWithBreakOnMain);
 }
 
 void DebuggerPluginPrivate::startAndDebugApplication()
@@ -2652,11 +2634,11 @@ void DebuggerPluginPrivate::extensionsInitialized()
     debuggerIcon.addFile(QLatin1String(":/projectexplorer/images/debugger_start.png"));
     act->setIcon(debuggerIcon);
     act->setText(tr("Start Debugging"));
-    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::debugProject);
+    connect(act, &QAction::triggered, [] { ProjectExplorerPlugin::runStartupProject(DebugRunMode); });
 
     act = m_debugWithoutDeployAction = new QAction(this);
     act->setText(tr("Start Debugging Without Deployment"));
-    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::debugProjectWithoutDeploy);
+    connect(act, &QAction::triggered, [] { ProjectExplorerPlugin::runStartupProject(DebugRunMode, true); });
 
     act = m_startAndDebugApplicationAction = new QAction(this);
     act->setText(tr("Start and Debug External Application..."));

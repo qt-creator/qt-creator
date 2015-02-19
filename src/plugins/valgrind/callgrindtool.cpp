@@ -560,8 +560,7 @@ AnalyzerRunControl *CallgrindToolPrivate::createRunControl(const AnalyzerStartPa
 void CallgrindTool::startLocalTool()
 {
     if (checkForLocalStart(ReleaseMode)) {
-        Project *pro = SessionManager::startupProject();
-        ProjectExplorerPlugin::runProject(pro, CallgrindRunMode);
+        ProjectExplorerPlugin::runStartupProject(CallgrindRunMode);
         d->setBusyCursor(true);
     }
 }

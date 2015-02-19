@@ -599,10 +599,8 @@ void MemcheckTool::setBusyCursor(bool busy)
 
 void MemcheckTool::startLocalTool()
 {
-    if (checkForLocalStart(DebugMode)) {
-        Project *pro = SessionManager::startupProject();
-        ProjectExplorerPlugin::runProject(pro, MemcheckRunMode);
-    }
+    if (checkForLocalStart(DebugMode))
+        ProjectExplorerPlugin::runStartupProject(MemcheckRunMode);
 }
 
 void MemcheckTool::startRemoteTool()
@@ -622,10 +620,8 @@ MemcheckWithGdbTool::MemcheckWithGdbTool(QObject *parent) :
 
 void MemcheckWithGdbTool::startLocalTool()
 {
-    if (checkForLocalStart(DebugMode)) {
-        Project *pro = SessionManager::startupProject();
-        ProjectExplorerPlugin::runProject(pro, MemcheckWithGdbRunMode);
-    }
+    if (checkForLocalStart(DebugMode))
+        ProjectExplorerPlugin::runStartupProject(MemcheckWithGdbRunMode);
 }
 
 void MemcheckWithGdbTool::startRemoteTool()

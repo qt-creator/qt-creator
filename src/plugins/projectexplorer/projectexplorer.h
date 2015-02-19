@@ -99,6 +99,7 @@ public:
 
     static bool canRun(Project *pro, RunMode runMode, QString *whyNot = 0);
     static void runProject(Project *pro, RunMode, const bool forceSkipDeploy = false);
+    static void runStartupProject(RunMode runMode, bool forceSkipDeploy = false);
     static void runRunConfiguration(RunConfiguration *rc, RunMode runMode,
                              const bool forceSkipDeploy = false);
 

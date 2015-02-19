@@ -2256,12 +2256,12 @@ void ProjectExplorerPlugin::cleanSession()
 
 void ProjectExplorerPlugin::runProject()
 {
-    runProject(SessionManager::startupProject(), NormalRunMode);
+    runStartupProject(NormalRunMode);
 }
 
 void ProjectExplorerPlugin::runProjectWithoutDeploy()
 {
-    runProject(SessionManager::startupProject(), NormalRunMode, true);
+    runStartupProject(NormalRunMode, true);
 }
 
 void ProjectExplorerPlugin::runProjectContextMenu()
@@ -2388,6 +2388,11 @@ void ProjectExplorerPlugin::runProject(Project *pro, RunMode mode, const bool fo
     if (Target *target = pro->activeTarget())
         if (RunConfiguration *rc = target->activeRunConfiguration())
             runRunConfiguration(rc, mode, forceSkipDeploy);
+}
+
+void ProjectExplorerPlugin::runStartupProject(RunMode runMode, bool forceSkipDeploy)
+{
+    runProject(SessionManager::startupProject(), runMode, forceSkipDeploy);
 }
 
 void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
