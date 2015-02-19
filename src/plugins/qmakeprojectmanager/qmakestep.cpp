@@ -178,7 +178,7 @@ QStringList QMakeStep::deducedArguments()
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     arguments << QmakeBuildConfiguration::deduceArgumentsForTargetAbi(targetAbi, version);
-    if (linkQmlDebuggingLibrary() && version && !useQtQuickCompiler()) {
+    if (linkQmlDebuggingLibrary() && version) {
         arguments << QLatin1String(Constants::QMAKEVAR_QUICK1_DEBUG);
         if (version->qtVersion().majorVersion >= 5)
             arguments << QLatin1String(Constants::QMAKEVAR_QUICK2_DEBUG);
