@@ -172,7 +172,7 @@ private:
     int m_markLine; // Put marker for this line
     bool m_inError; // Current line had a parsing error; suppress followup error messages
     bool m_canElse; // Conditionals met on previous line, but no scope was opened
-    bool m_invert; // Pending conditional is negated
+    int m_invert; // Pending conditional is negated
     enum { NoOperator, AndOperator, OrOperator } m_operator; // Pending conditional is ORed/ANDed
 
     QString m_tmp; // Temporary for efficient toQString
