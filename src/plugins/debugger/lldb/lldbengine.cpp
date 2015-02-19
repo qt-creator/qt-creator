@@ -609,7 +609,7 @@ void LldbEngine::updateBreakpointData(const GdbMi &bkpt, bool added)
     response.lineNumber = bkpt["line"].toInt();
 
     GdbMi locations = bkpt["locations"];
-    const int numChild = locations.children().size();
+    const int numChild = int(locations.children().size());
     if (numChild > 1) {
         foreach (const GdbMi &location, locations.children()) {
             const int locid = location["locid"].toInt();

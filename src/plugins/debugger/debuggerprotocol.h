@@ -159,7 +159,7 @@ public:
 
     inline QByteArray data() const { return m_data; }
     inline const std::vector<GdbMi> &children() const { return m_children; }
-    inline int childCount() const { return m_children.size(); }
+    inline int childCount() const { return int(m_children.size()); }
 
     const GdbMi &childAt(int index) const { return m_children[index]; }
     GdbMi &childAt(int index) { return m_children[index]; }

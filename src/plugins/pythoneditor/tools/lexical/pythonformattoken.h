@@ -61,8 +61,8 @@ public:
 
     FormatToken(Format format, size_t position, size_t length)
         :m_format(format)
-        ,m_position(position)
-        ,m_length(length)
+        ,m_position(int(position))
+        ,m_length(int(length))
     {}
 
     inline Format format() const { return m_format; }

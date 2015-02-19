@@ -70,7 +70,7 @@ void InvokerBase::invoke(QObject *t, const char *slot)
         if (paramCount)
             sig.append(',');
         const char *type = arg[paramCount].name();
-        sig.append(type, strlen(type));
+        sig.append(type, int(strlen(type)));
     }
     sig.append(')');
     sig.append('\0');

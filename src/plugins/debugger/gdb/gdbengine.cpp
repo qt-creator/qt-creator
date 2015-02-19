@@ -3900,7 +3900,7 @@ void GdbEngine::handleFetchMemory(const DebuggerResponse &response, MemoryAgentC
             return;
         GdbMi memory0 = memory.children().at(0); // we asked for only one 'row'
         GdbMi data = memory0["data"];
-        for (int i = 0, n = data.children().size(); i != n; ++i) {
+        for (int i = 0, n = int(data.children().size()); i != n; ++i) {
             const GdbMi &child = data.children().at(i);
             bool ok = true;
             unsigned char c = '?';

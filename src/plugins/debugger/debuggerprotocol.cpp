@@ -368,7 +368,7 @@ void GdbMi::fromStringMultiple(const QByteArray &ba)
 
 GdbMi GdbMi::operator[](const char *name) const
 {
-    for (int i = 0, n = m_children.size(); i < n; ++i)
+    for (int i = 0, n = int(m_children.size()); i < n; ++i)
         if (m_children.at(i).m_name == name)
             return m_children.at(i);
     return GdbMi();
