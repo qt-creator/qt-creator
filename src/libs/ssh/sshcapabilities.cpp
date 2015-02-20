@@ -78,8 +78,10 @@ const QList<QByteArray> SshCapabilities::EncryptionAlgorithms
 
 const QByteArray SshCapabilities::HMacSha1("hmac-sha1");
 const QByteArray SshCapabilities::HMacSha196("hmac-sha1-96");
+const QByteArray SshCapabilities::HMacSha256("hmac-sha2-256");
 const QList<QByteArray> SshCapabilities::MacAlgorithms
     = QList<QByteArray>() /* << SshCapabilities::HMacSha196 */
+        << SshCapabilities::HMacSha256 // Recommended as per RFC 6668
         << SshCapabilities::HMacSha1;
 
 const QList<QByteArray> SshCapabilities::CompressionAlgorithms
