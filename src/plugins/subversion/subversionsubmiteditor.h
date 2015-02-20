@@ -50,6 +50,9 @@ public:
     typedef QPair<QString, QString> StatusFilePair;
 
     void setStatusList(const QList<StatusFilePair> &statusOutput);
+
+    QByteArray fileContents() const;
+    bool setFileContents(const QByteArray &contents);
 };
 
 } // namespace Internal

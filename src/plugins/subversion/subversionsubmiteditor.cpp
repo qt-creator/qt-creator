@@ -28,7 +28,6 @@
 **
 ****************************************************************************/
 
-
 #include "subversionsubmiteditor.h"
 
 #include <coreplugin/idocument.h>
@@ -55,4 +54,15 @@ void SubversionSubmitEditor::setStatusList(const QList<StatusFilePair> &statusOu
     // Hack to allow completion in "description" field : completion needs a root repository, the
     // checkScriptWorkingDirectory property is fine (at this point it was set by SubversionPlugin)
     setFileModel(model, this->checkScriptWorkingDirectory());
+}
+
+QByteArray SubversionSubmitEditor::fileContents() const
+{
+    return description().toUtf8();
+}
+
+bool SubversionSubmitEditor::setFileContents(const QByteArray &contents)
+{
+    setDescription(QString::fromUtf8(contents));
+    return true;
 }
