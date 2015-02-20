@@ -129,7 +129,6 @@ bool ClangStaticAnalyzerPlugin::initializeEnterpriseFeatures(const QStringList &
     addAutoReleasedObject(new ClangStaticAnalyzerRunControlFactory(m_analyzerTool));
     addAutoReleasedObject(new ClangStaticAnalyzerOptionsPage);
 
-    auto toolStarter = [tool](StartMode mode) { return tool->startTool(mode); };
     auto widgetCreator = [tool] { return tool->createWidgets(); };
     auto runControlCreator = [tool](const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration) {
@@ -145,7 +144,7 @@ bool ClangStaticAnalyzerPlugin::initializeEnterpriseFeatures(const QStringList &
     action->setActionId("ClangStaticAnalyzer");
     action->setWidgetCreator(widgetCreator);
     action->setRunControlCreator(runControlCreator);
-    action->setToolStarter(toolStarter);
+    action->setToolStarter([tool] { tool->startTool(); });
     action->setText(tr("Clang Static Analyzer"));
     action->setToolTip(toolTip);
     action->setMenuGroup(Constants::G_ANALYZER_TOOLS);

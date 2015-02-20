@@ -191,10 +191,8 @@ static bool dontStartAfterHintForDebugMode()
     return false;
 }
 
-void ClangStaticAnalyzerTool::startTool(StartMode mode)
+void ClangStaticAnalyzerTool::startTool()
 {
-    QTC_ASSERT(mode == Analyzer::StartLocal, return);
-
     AnalyzerManager::showMode();
 
     if (dontStartAfterHintForDebugMode())
