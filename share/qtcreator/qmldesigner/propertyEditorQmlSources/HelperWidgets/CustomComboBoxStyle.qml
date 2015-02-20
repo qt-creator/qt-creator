@@ -68,7 +68,6 @@ ComboBoxStyle {
             anchors.fill: parent
             anchors.margins: -1
             color: "transparent"
-            radius: 4
             opacity: 0.3
             visible: control.activeFocus
         }

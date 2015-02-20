@@ -48,7 +48,7 @@ Rectangle {
     property bool roundRight: false
 
 
-    radius: roundLeft || roundRight ? 4 : 0
+    radius: roundLeft || roundRight ? 1 : 0
     gradient: Gradient {
         GradientStop {color: '#555' ; position: 0}
         GradientStop {color: '#444' ; position: 1}

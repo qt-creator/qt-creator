@@ -68,12 +68,10 @@ Item {
             Behavior on rotation {NumberAnimation{duration: 80}}
         }
 
-        gradient: Gradient {
-            GradientStop {color: '#555' ; position: 0}
-            GradientStop {color: '#444' ; position: 1}
-        }
+        color: "#444"
 
         Rectangle {
+            visible: false
             color:"#333"
             width: parent.width
             height: 1

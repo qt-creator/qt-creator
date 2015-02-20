@@ -102,14 +102,24 @@ FocusScope {
             id: addStateButton
             visible: canAddNewStates
 
+            tooltip: qsTr("Add a new state.")
+
             anchors.right: parent.right
-            anchors.rightMargin: padding
+            anchors.rightMargin: 8
             anchors.verticalCenter: parent.verticalCenter
-            width: Math.max(parent.height / 2, 24)
+            width: Math.max(parent.height / 2 - 8, 18)
             height: width
             iconSource: "images/plus.png"
 
             onClicked: root.createNewState()
+
+            style: ButtonStyle {
+                background: Rectangle {
+                    property color buttonBaseColor: "#6f6f6f"
+                    color: control.hovered ? Qt.lighter(buttonBaseColor, 1.2)  : buttonBaseColor
+                    border.width: 1
+                }
+            }
         }
     }
 
@@ -136,7 +146,7 @@ FocusScope {
                 height: delegateHeight
                 isBaseState: 0 == internalNodeId
                 isCurrentState: root.currentStateInternalId == internalNodeId
-                gradiantBaseColor: isCurrentState ? Qt.darker(highlightColor, 1.2) : background.color
+                baseColor: isCurrentState ? Qt.darker(highlightColor, 1.2) : background.color
                 delegateStateName: stateName
                 delegateStateImageSource: stateImageSource
                 delegateStateImageSize: stateImageSize

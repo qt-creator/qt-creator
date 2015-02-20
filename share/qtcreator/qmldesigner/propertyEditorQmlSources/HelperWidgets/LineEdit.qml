@@ -123,7 +123,6 @@ Controls.TextField {
             implicitWidth: 100
             implicitHeight: 23
             border.color: borderColor
-            radius: 3
             gradient: Gradient {
                 GradientStop {color: "#2c2c2c" ; position: 0}
                 GradientStop {color: "#343434" ; position: 0.15}
