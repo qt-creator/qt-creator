@@ -110,7 +110,6 @@ private:
     QMap<QString, TestInfo> m_quickDocMap;
     QList<UnnamedQuickTestInfo> m_unnamedQuickDocList;
     bool m_parserEnabled;
-    bool m_pendingUpdate;
     bool m_fullUpdatePostPoned;
     bool m_partialUpdatePostPoned;
     bool m_dirty;

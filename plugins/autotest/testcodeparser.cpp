@@ -56,7 +56,6 @@ TestCodeParser::TestCodeParser(TestTreeModel *parent)
     : QObject(parent),
       m_model(parent),
       m_parserEnabled(true),
-      m_pendingUpdate(false),
       m_fullUpdatePostPoned(false),
       m_partialUpdatePostPoned(false),
       m_dirty(true),
@@ -89,7 +88,7 @@ void TestCodeParser::setState(State state)
 {
     m_parserState = state;
     if (m_parserState == Disabled) {
-        m_pendingUpdate = m_fullUpdatePostPoned = m_partialUpdatePostPoned = false;
+        m_fullUpdatePostPoned = m_partialUpdatePostPoned = false;
         m_postPonedFiles.clear();
     } else if (m_parserState == Idle && m_dirty && currentProject()) {
         scanForTests(m_postPonedFiles.toList());
@@ -104,14 +103,14 @@ void TestCodeParser::emitUpdateTestTree()
 void TestCodeParser::updateTestTree()
 {
     if (!m_parserEnabled) {
-        m_pendingUpdate = true;
+        m_fullUpdatePostPoned = true;
         return;
     }
 
     if (ProjectExplorer::Project *project = currentProject()) {
         if (auto qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(project)) {
             if (qmakeProject->asyncUpdateState() != QmakeProjectManager::QmakeProject::Base) {
-                m_pendingUpdate = true;
+                m_fullUpdatePostPoned = true;
                 return;
             }
             connect(qmakeProject, &QmakeProjectManager::QmakeProject::proFilesEvaluated,
@@ -120,7 +119,7 @@ void TestCodeParser::updateTestTree()
     } else
         return;
 
-    m_pendingUpdate = false;
+    m_fullUpdatePostPoned = false;
 
     clearCache();
     emit cacheCleared();
@@ -476,7 +475,7 @@ void TestCodeParser::handleQtQuickTest(CPlusPlus::Document::Ptr document)
 void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &document)
 {
     if (!m_parserEnabled) {
-        if (!m_pendingUpdate) {
+        if (!m_fullUpdatePostPoned) {
             m_partialUpdatePostPoned = true;
             m_postPonedFiles.insert(document->fileName());
         }
@@ -501,7 +500,7 @@ void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &docume
 void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
 {
     if (!m_parserEnabled) {
-        if (!m_pendingUpdate) {
+        if (!m_fullUpdatePostPoned) {
             m_partialUpdatePostPoned = true;
             m_postPonedFiles.insert(document->fileName());
         }
@@ -726,7 +725,7 @@ void TestCodeParser::onAllTasksFinished(Core::Id type)
     if (type != CppTools::Constants::TASK_INDEX)
         return;
     m_parserEnabled = true;
-    if (m_pendingUpdate)
+    if (m_fullUpdatePostPoned)
         updateTestTree();
     else if (m_partialUpdatePostPoned) {
         m_partialUpdatePostPoned = false;
