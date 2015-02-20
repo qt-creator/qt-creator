@@ -1885,6 +1885,7 @@ bool InternalCppCompletionAssistProcessor::completeQtMethod(const QList<LookupIt
                             break;
                         signatures.insert(completionText);
                         ci->setText(completionText); // fix the completion item.
+                        ci->setIcon(m_icons.iconForSymbol(fun));
                         m_completions.append(ci);
                     }
 
@@ -1909,6 +1910,7 @@ bool InternalCppCompletionAssistProcessor::completeQtMethodClassName(
         return false;
 
     const LookupContext &context = m_model->m_typeOfExpression->context();
+    const QIcon classIcon = m_icons.iconForType(Icons::ClassIconType);
     Overview overview;
 
     foreach (const LookupItem &lookupItem, results) {
@@ -1917,11 +1919,7 @@ bool InternalCppCompletionAssistProcessor::completeQtMethodClassName(
         const Name *name = minimalName(klass, cursorScope, context);
         QTC_ASSERT(name, continue);
 
-        AssistProposalItem *item = new CppAssistProposalItem;
-        item->setText(overview.prettyName(name));
-        item->setDetail(overview.prettyType(klass->type(), klass->name()));
-        item->setData(QVariant::fromValue(static_cast<Symbol *>(klass)));
-        m_completions.append(item);
+        addCompletionItem(overview.prettyName(name), classIcon);
         break;
     }
 
