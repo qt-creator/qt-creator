@@ -56,21 +56,3 @@ void SubversionSubmitEditor::setStatusList(const QList<StatusFilePair> &statusOu
     // checkScriptWorkingDirectory property is fine (at this point it was set by SubversionPlugin)
     setFileModel(model, this->checkScriptWorkingDirectory());
 }
-
-/*
-QStringList SubversionSubmitEditor::vcsFileListToFileList(const QStringList &rl) const
-{
-    QStringList files;
-    const QStringList::const_iterator cend = rl.constEnd();
-    for (QStringList::const_iterator it = rl.constBegin(); it != cend; ++it)
-        files.push_back(SubversionSubmitEditor::fileFromStatusLine(*it));
-    return files;
-}
-
-QString SubversionSubmitEditor::fileFromStatusLine(const QString &statusLine)
-{
-    enum { filePos = 7 };
-    return statusLine.mid(filePos, statusLine.size() - filePos);
-}
-
-*/
