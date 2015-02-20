@@ -516,13 +516,23 @@ void VcsBaseSubmitEditor::slotDiffSelectedVcsFiles(const QList<int> &rawList)
 
 QByteArray VcsBaseSubmitEditor::fileContents() const
 {
-    return d->m_widget->descriptionText().toLocal8Bit();
+    return description().toLocal8Bit();
 }
 
 bool VcsBaseSubmitEditor::setFileContents(const QByteArray &contents)
 {
-    d->m_widget->setDescriptionText(QString::fromUtf8(contents));
+    setDescription(QString::fromUtf8(contents));
     return true;
+}
+
+QString VcsBaseSubmitEditor::description() const
+{
+    return d->m_widget->descriptionText();
+}
+
+void VcsBaseSubmitEditor::setDescription(const QString &text)
+{
+    d->m_widget->setDescriptionText(text);
 }
 
 bool VcsBaseSubmitEditor::isDescriptionMandatory() const
