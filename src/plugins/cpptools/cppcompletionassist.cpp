@@ -1886,6 +1886,8 @@ bool InternalCppCompletionAssistProcessor::completeQtMethod(const QList<LookupIt
                         signatures.insert(completionText);
                         ci->setText(completionText); // fix the completion item.
                         ci->setIcon(m_icons.iconForSymbol(fun));
+                        if (wantQt5SignalOrSlot && fun->isSlot())
+                            ci->setOrder(1);
                         m_completions.append(ci);
                     }
 
