@@ -86,6 +86,7 @@ public:
     enum BuildType {
         Unknown,
         Debug,
+        Profile,
         Release
     };
     virtual BuildType buildType() const = 0;

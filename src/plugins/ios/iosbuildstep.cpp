@@ -187,6 +187,7 @@ QStringList IosBuildStep::defaultArguments() const
         res << QLatin1String("-configuration") << QLatin1String("Debug");
         break;
     case BuildConfiguration::Release :
+    case BuildConfiguration::Profile :
         res << QLatin1String("-configuration") << QLatin1String("Release");
         break;
     case BuildConfiguration::Unknown :

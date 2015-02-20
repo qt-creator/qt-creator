@@ -445,9 +445,9 @@ BuildConfiguration *QbsBuildConfigurationFactory::create(Target *parent, const B
 
     QVariantMap configData;
     configData.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY),
-                      (qbsInfo->type == BuildConfiguration::Release)
-                      ? QLatin1String(Constants::QBS_VARIANT_RELEASE)
-                      : QLatin1String(Constants::QBS_VARIANT_DEBUG));
+                      (qbsInfo->type == BuildConfiguration::Debug)
+                      ? QLatin1String(Constants::QBS_VARIANT_DEBUG)
+                      : QLatin1String(Constants::QBS_VARIANT_RELEASE));
 
     Utils::FileName buildDir = info->buildDirectory;
     if (buildDir.isEmpty())

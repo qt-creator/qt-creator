@@ -97,6 +97,7 @@ static Utils::FileName defaultBuildDirectory(const QString &projectPath,
 const char QMAKE_BC_ID[] = "Qt4ProjectManager.Qt4BuildConfiguration";
 const char USE_SHADOW_BUILD_KEY[] = "Qt4ProjectManager.Qt4BuildConfiguration.UseShadowBuild";
 const char BUILD_CONFIGURATION_KEY[] = "Qt4ProjectManager.Qt4BuildConfiguration.BuildConfiguration";
+const char PROFILE_BUILD_KEY[] = "Qt4ProjectManager.Qt4BuildConfiguration.ProfileBuild";
 
 enum { debug = 0 };
 
@@ -566,10 +567,18 @@ QmakeBuildInfo *QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
         //: Non-ASCII characters in directory suffix may cause build issues.
         suffix = tr("Release", "Shadow build directory suffix");
     } else {
-        //: The name of the debug build configuration created by default for a qmake project.
-        info->displayName = tr("Debug");
-        //: Non-ASCII characters in directory suffix may cause build issues.
-        suffix = tr("Debug", "Shadow build directory suffix");
+        if (type == BuildConfiguration::Debug) {
+            //: The name of the debug build configuration created by default for a qmake project.
+            info->displayName = tr("Debug");
+            //: Non-ASCII characters in directory suffix may cause build issues.
+            suffix = tr("Debug", "Shadow build directory suffix");
+        } else if (type == BuildConfiguration::Profile) {
+            //: The name of the profile build configuration created by default for a qmake project.
+            info->displayName = tr("Profile");
+            //: Non-ASCII characters in directory suffix may cause build issues.
+            suffix = tr("Profile", "Shadow build directory suffix");
+            info->config.separateDebugInfo = true;
+        }
         if (version && version->qtVersion().majorVersion >= 5)
             info->config.linkQmlDebuggingQQ2 = true;
     }
@@ -607,6 +616,7 @@ QList<BuildInfo *> QmakeBuildConfigurationFactory::availableBuilds(const Target 
     const QString projectFilePath = parent->project()->projectFilePath().toString();
 
     for (BuildConfiguration::BuildType buildType : { BuildConfiguration::Debug,
+                                                     BuildConfiguration::Profile,
                                                      BuildConfiguration::Release }) {
         QmakeBuildInfo *info = createBuildInfo(parent->kit(), projectFilePath,
                                                buildType);
@@ -633,6 +643,7 @@ QList<BuildInfo *> QmakeBuildConfigurationFactory::availableSetups(const Kit *k,
     if (!qtVersion || !qtVersion->isValid())
         return result;
     result << createBuildInfo(k, projectPath, ProjectExplorer::BuildConfiguration::Debug);
+    result << createBuildInfo(k, projectPath, ProjectExplorer::BuildConfiguration::Profile);
     result << createBuildInfo(k, projectPath, ProjectExplorer::BuildConfiguration::Release);
     return result;
 }
@@ -644,10 +655,10 @@ void QmakeBuildConfigurationFactory::configureBuildConfiguration(Target *parent,
     BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(parent->kit());
 
     BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
-    if (qmakeInfo->type == BuildConfiguration::Release)
-        config &= ~QtSupport::BaseQtVersion::DebugBuild;
-    else
+    if (qmakeInfo->type == BuildConfiguration::Debug)
         config |= QtSupport::BaseQtVersion::DebugBuild;
+    else
+        config &= ~QtSupport::BaseQtVersion::DebugBuild;
 
     bc->setDefaultDisplayName(qmakeInfo->displayName);
     bc->setDisplayName(qmakeInfo->displayName);
@@ -733,6 +744,8 @@ BuildConfiguration::BuildType QmakeBuildConfiguration::buildType() const
 {
     if (qmakeBuildConfiguration() & BaseQtVersion::DebugBuild)
         return Debug;
+    else if (qmakeStep()->separateDebugInfo())
+        return Profile;
     else
         return Release;
 }

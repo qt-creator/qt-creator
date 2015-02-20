@@ -244,6 +244,7 @@ FileName IosRunConfiguration::bundleDirectory() const
             else
                 res.appendPath(QLatin1String("Debug-iphonesimulator"));
             break;
+        case BuildConfiguration::Profile :
         case BuildConfiguration::Release :
             if (isDevice)
                 res.appendPath(QLatin1String("Release-iphoneos"));

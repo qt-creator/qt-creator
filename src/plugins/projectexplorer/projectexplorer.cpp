@@ -1377,6 +1377,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                     return tr("debug");
                 if (type == BuildConfiguration::Release)
                     return tr("release");
+                if (type == BuildConfiguration::Profile)
+                    return tr("profile");
             }
             return tr("unknown");
         });
