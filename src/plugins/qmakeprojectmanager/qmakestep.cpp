@@ -177,7 +177,7 @@ QStringList QMakeStep::deducedArguments()
     // explicitly add architecture to CONFIG
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    arguments << QmakeBuildConfiguration::deduceArgumnetsForTargetAbi(targetAbi, version);
+    arguments << QmakeBuildConfiguration::deduceArgumentsForTargetAbi(targetAbi, version);
     if (linkQmlDebuggingLibrary() && version && !useQtQuickCompiler()) {
         arguments << QLatin1String(Constants::QMAKEVAR_QUICK1_DEBUG);
         if (version->qtVersion().majorVersion >= 5)

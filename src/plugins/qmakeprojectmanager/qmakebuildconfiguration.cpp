@@ -550,7 +550,7 @@ QStringList QmakeBuildConfiguration::extractDeducedArguments(QString *args)
     return result;
 }
 
-QStringList QmakeBuildConfiguration::deduceArgumnetsForTargetAbi(const ProjectExplorer::Abi &targetAbi, const BaseQtVersion *version)
+QStringList QmakeBuildConfiguration::deduceArgumentsForTargetAbi(const ProjectExplorer::Abi &targetAbi, const BaseQtVersion *version)
 {
     QStringList arguments;
     if ((targetAbi.os() == ProjectExplorer::Abi::MacOS)

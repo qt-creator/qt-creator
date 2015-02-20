@@ -148,7 +148,7 @@ QList<BuildInfo *> QmakeProjectImporter::import(const FileName &importPath, bool
                 kitSpec = kitVersion->mkspecFor(tc);
             QStringList kitDeducedArguments;
             if (tc)
-                kitDeducedArguments = QmakeBuildConfiguration::deduceArgumnetsForTargetAbi(tc->targetAbi(), kitVersion);
+                kitDeducedArguments = QmakeBuildConfiguration::deduceArgumentsForTargetAbi(tc->targetAbi(), kitVersion);
 
             if (kitVersion == version
                     && kitSpec == parsedSpec
@@ -300,7 +300,7 @@ static ToolChain *preferredToolChain(BaseQtVersion *qtVersion, const FileName &m
                          [&spec, &deducedArguments, &qtAbis](ToolChain *tc) -> bool{
                                 return qtAbis.contains(tc->targetAbi())
                                         && tc->suggestedMkspecList().contains(spec)
-                                        && QmakeBuildConfiguration::deduceArgumnetsForTargetAbi(tc->targetAbi(), 0) == deducedArguments;
+                                        && QmakeBuildConfiguration::deduceArgumentsForTargetAbi(tc->targetAbi(), 0) == deducedArguments;
                           });
 }
 
