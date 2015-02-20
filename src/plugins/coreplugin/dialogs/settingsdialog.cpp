@@ -333,14 +333,15 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     m_categoryList->setSelectionMode(QAbstractItemView::SingleSelection);
     m_categoryList->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
-    connect(m_categoryList->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            this, SLOT(currentChanged(QModelIndex)));
+    connect(m_categoryList->selectionModel(), &QItemSelectionModel::currentRowChanged,
+            this, &SettingsDialog::currentChanged);
 
     // The order of the slot connection matters here, the filter slot
     // opens the matching page after the model has filtered.
-    connect(m_filterLineEdit, SIGNAL(filterChanged(QString)),
-                m_proxyModel, SLOT(setFilterFixedString(QString)));
-    connect(m_filterLineEdit, SIGNAL(filterChanged(QString)), this, SLOT(filter(QString)));
+    connect(m_filterLineEdit, &Utils::FancyLineEdit::filterChanged,
+            m_proxyModel, &QSortFilterProxyModel::setFilterFixedString);
+    connect(m_filterLineEdit, &Utils::FancyLineEdit::filterChanged,
+            this, &SettingsDialog::filter);
     m_categoryList->setFocus();
 }
 
@@ -412,9 +413,11 @@ void SettingsDialog::createGui()
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok |
                                                        QDialogButtonBox::Apply |
                                                        QDialogButtonBox::Cancel);
-    connect(buttonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(buttonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked,
+            this, &SettingsDialog::apply);
+
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &SettingsDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &SettingsDialog::reject);
 
     QGridLayout *mainGridLayout = new QGridLayout;
     mainGridLayout->addWidget(m_filterLineEdit, 0, 0, 1, 1);
@@ -474,8 +477,8 @@ void SettingsDialog::ensureCategoryWidget(Category *category)
         tabWidget->addTab(widget, page->displayName());
     }
 
-    connect(tabWidget, SIGNAL(currentChanged(int)),
-            this, SLOT(currentTabChanged(int)));
+    connect(tabWidget, &QTabWidget::currentChanged,
+            this, &SettingsDialog::currentTabChanged);
 
     category->tabWidget = tabWidget;
     category->index = m_stackedLayout->addWidget(tabWidget);
@@ -485,8 +488,8 @@ void SettingsDialog::disconnectTabWidgets()
 {
     foreach (Category *category, m_model->categories()) {
         if (category->tabWidget)
-            disconnect(category->tabWidget, SIGNAL(currentChanged(int)),
-                    this, SLOT(currentTabChanged(int)));
+            disconnect(category->tabWidget, &QTabWidget::currentChanged,
+                       this, &SettingsDialog::currentTabChanged);
     }
 }
 

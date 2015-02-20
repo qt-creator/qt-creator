@@ -73,17 +73,16 @@ public:
 public slots:
     void done(int);
 
-private slots:
+private:
+    SettingsDialog(QWidget *parent);
+    ~SettingsDialog();
+
     void accept();
     void reject();
     void apply();
     void currentChanged(const QModelIndex &current);
     void currentTabChanged(int);
     void filter(const QString &text);
-
-private:
-    SettingsDialog(QWidget *parent);
-    ~SettingsDialog();
 
     void createGui();
     void showCategory(int index);
