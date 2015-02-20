@@ -3,7 +3,7 @@ QT       = core
 @if "%SCRIPT%" == "true"
 QT += script
 @endif
-CONFIG   += console
+CONFIG   += console c++11
 CONFIG   -= app_bundle
 
 TEMPLATE = app
