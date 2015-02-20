@@ -62,6 +62,8 @@ struct Suite
 {
     Suite() : flags(0) {}
 
+    void clear() { cases.clear(); }
+
     QByteArray title;
     int flags;
     QByteArray cmd;
@@ -99,6 +101,7 @@ public:
 
 private slots:
     void initTestCase();
+
     void codesize();
     void codesize_data();
     void init();
@@ -205,7 +208,7 @@ void tst_CodeSize::codesize()
     QProcess qmake;
     qmake.setWorkingDirectory(t->buildPath);
     QString cmd = QString::fromLatin1(m_qmakeBinary + " -r doit.pro");
-    //qDebug() << "Starting qmake: " << cmd;
+    qDebug() << "Starting qmake: " << cmd;
     qmake.start(cmd);
 //    QVERIFY(qmake.waitForFinished());
     qmake.waitForFinished();
@@ -272,8 +275,10 @@ void tst_CodeSize::codesize_data()
 {
     QTest::addColumn<Suite>("suite");
 
+    Case c;
     Suite s;
     s.flags = Optimize;
+
 // FIXME: Cannot be hardcoded. Assume matching qmake for now.
 #ifdef Q_CC_MSVC
     s.cmd = "dumpbin /DISASM /SECTION:.text$mn";
@@ -282,7 +287,6 @@ void tst_CodeSize::codesize_data()
 #endif
     s.title = "This 'test' compares different approaches to return something \n"
               "like an immutable string from a function.";
-    Case c;
     c.file = "latin1string";
     c.gist = "QString f1() { return QLatin1String(\"foo\"); }\n";
     c.code = "#include <QString>\n" + c.gist;
@@ -309,7 +313,29 @@ void tst_CodeSize::codesize_data()
     c.code = c.gist;
     s.cases.append(c);
 
-    QTest::newRow("return string (no stack protector)") << s;
+    QTest::newRow("return_string") << s;
+    s.clear();
+
+
+    c.file = "one";
+    c.gist = "one";
+    c.code = "#include <functional>\n"
+             "int x(int a) { return a * a; }\n"
+             "void bar(std::function<int()>);\n"
+             "void foo() { bar([] { return x(1); }); }\n";
+    s.cases.append(c);
+
+    c.file = "two";
+    c.gist = "two";
+    c.code = "#include <functional>\n"
+             "int x(int a) { return a * a; }\n"
+             "void bar(std::function<int()>);\n"
+             "void foo1() { int a = 1; bar([a] { return x(a); }); }\n"
+             "void foo2() { int a = 2; bar([a] { return x(a); }); }\n";
+    s.cases.append(c);
+
+    QTest::newRow("lambdas") << s;
+    s.clear();
 }
 
 int main(int argc, char *argv[])
