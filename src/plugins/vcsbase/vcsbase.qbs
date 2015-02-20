@@ -76,6 +76,8 @@ QtcPlugin {
         "vcsoutputwindow.h",
         "vcsplugin.cpp",
         "vcsplugin.h",
+        "vcsprojectcache.cpp",
+        "vcsprojectcache.h",
         "images/diff.png",
         "images/removesubmitfield.png",
         "images/submit.png",

@@ -38,6 +38,7 @@
 #include "submitfilemodel.h"
 #include "vcsoutputwindow.h"
 #include "vcsplugin.h"
+#include "vcsprojectcache.h"
 
 #include <aggregation/aggregate.h>
 #include <cpptools/cppmodelmanager.h>
@@ -52,14 +53,13 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
 
-#include <QDebug>
 #include <QDir>
-#include <QProcess>
 #include <QFileInfo>
 #include <QPointer>
+#include <QProcess>
+#include <QSet>
 #include <QStringListModel>
 #include <QStyle>
 #include <QToolBar>
@@ -144,8 +144,9 @@ static inline QString submitMessageCheckScript()
     return VcsPlugin::instance()->settings().submitMessageCheckScript;
 }
 
-struct VcsBaseSubmitEditorPrivate
+class VcsBaseSubmitEditorPrivate
 {
+public:
     VcsBaseSubmitEditorPrivate(const VcsBaseSubmitEditorParameters *parameters,
                                SubmitEditorWidget *editorWidget,
                                VcsBaseSubmitEditor *q);
@@ -747,39 +748,27 @@ QIcon VcsBaseSubmitEditor::submitIcon()
     return QIcon(QLatin1String(":/vcsbase/images/submit.png"));
 }
 
-// Compile a list if files in the current projects. TODO: Recurse down qrc files?
-QStringList VcsBaseSubmitEditor::currentProjectFiles(bool nativeSeparators, QString *name)
-{
-    if (name)
-        name->clear();
-
-    if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectTree::currentProject()) {
-        QStringList files = currentProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
-        if (name)
-            *name = currentProject->displayName();
-        if (nativeSeparators && !files.empty()) {
-            const QStringList::iterator end = files.end();
-            for (QStringList::iterator it = files.begin(); it != end; ++it)
-                *it = QDir::toNativeSeparators(*it);
-        }
-        return files;
-    }
-    return QStringList();
-}
-
 // Reduce a list of untracked files reported by a VCS down to the files
 // that are actually part of the current project(s).
-void VcsBaseSubmitEditor::filterUntrackedFilesOfProject(const QString &repositoryDirectory, QStringList *untrackedFiles)
+void VcsBaseSubmitEditor::filterUntrackedFilesOfProject(const QString &repositoryDirectory,
+                                                        QStringList *untrackedFiles)
 {
     if (untrackedFiles->empty())
         return;
-    const QStringList nativeProjectFiles = VcsBaseSubmitEditor::currentProjectFiles(true);
-    if (nativeProjectFiles.empty())
+
+    ProjectExplorer::Project *vcsProject = VcsProjectCache::projectFor(repositoryDirectory);
+    if (!vcsProject)
+        return;
+
+    const QSet<QString> projectFiles
+            = QSet<QString>::fromList(vcsProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles));
+
+    if (projectFiles.empty())
         return;
     const QDir repoDir(repositoryDirectory);
     for (QStringList::iterator it = untrackedFiles->begin(); it != untrackedFiles->end(); ) {
-        const QString path = QDir::toNativeSeparators(repoDir.absoluteFilePath(*it));
-        if (nativeProjectFiles.contains(path))
+        const QString path = repoDir.absoluteFilePath(*it);
+        if (projectFiles.contains(path))
             ++it;
         else
             it = untrackedFiles->erase(it);

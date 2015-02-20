@@ -42,14 +42,16 @@ class QIcon;
 class QAction;
 QT_END_NAMESPACE
 
+namespace ProjectExplorer { class Project; }
+
 namespace VcsBase {
 namespace Internal {
     class CommonVcsSettings;
     class SubmitEditorFile;
-}
-struct VcsBaseSubmitEditorPrivate;
+} // namespace Internal
 class SubmitEditorWidget;
 class SubmitFileModel;
+class VcsBaseSubmitEditorPrivate;
 
 class VCSBASE_EXPORT VcsBaseSubmitEditorParameters
 {
@@ -128,10 +130,6 @@ public:
     static QIcon diffIcon();
     static QIcon submitIcon();
 
-    // Utility returning all project files in case submit lists need to
-    // be restricted to them
-    static QStringList currentProjectFiles(bool nativeSeparators, QString *name = 0);
-
     // Reduce a list of untracked files reported by a VCS down to the files
     // that are actually part of the current project(s).
     static void filterUntrackedFilesOfProject(const QString &repositoryDirectory, QStringList *untrackedFiles);
@@ -168,6 +166,7 @@ private:
     QString promptForNickName();
 
     VcsBaseSubmitEditorPrivate *d;
+
     friend class Internal::SubmitEditorFile; // for the file contents
 };
 
