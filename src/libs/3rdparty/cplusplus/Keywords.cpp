@@ -674,7 +674,7 @@ static inline int classify7(const char *s, LanguageFeatures features)
       }
     }
   }
-  else if (features.qtEnabled && s[0] == 's') {
+  else if (features.qtKeywordsEnabled && s[0] == 's') {
     if (s[1] == 'i') {
       if (s[2] == 'g') {
         if (s[3] == 'n') {
