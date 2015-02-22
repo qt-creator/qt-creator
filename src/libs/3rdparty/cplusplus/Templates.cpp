@@ -100,7 +100,7 @@ void CloneType::visit(NamedType *type)
     const Name *name = _clone->name(type->name(), _subst);
     FullySpecifiedType ty;
     if (_subst)
-        ty = _subst->apply(name);
+        ty = _clone->type(_subst->apply(name), 0);
     if (! ty.isValid())
         ty = _control->namedType(name);
     _type.setType(ty.type());

@@ -2595,6 +2595,27 @@ void CppToolsPlugin::test_completion_data()
     ) << _("a->") << (QStringList()
         << QLatin1String("Foo")
         << QLatin1String("bar"));
+
+    QTest::newRow("direct_nested_template_type_access") << _(
+            "template<typename T>\n"
+            "struct QList\n"
+            "{\n"
+            "   struct iterator\n"
+            "   {\n"
+            "      T *operator->() { return &t; }\n"
+            "      T t;\n"
+            "   };\n"
+            "   iterator begin() { return iterator(); }\n"
+            "};\n"
+            "struct Foo { int bar; };\n"
+            "void fun() {\n"
+            "   auto a = QList<Foo>::begin();\n"
+            "   @\n"
+            "}\n"
+    ) << _("a.") << (QStringList()
+        << QLatin1String("operator ->")
+        << QLatin1String("t")
+        << QLatin1String("iterator"));
 }
 
 void CppToolsPlugin::test_completion_member_access_operator()
