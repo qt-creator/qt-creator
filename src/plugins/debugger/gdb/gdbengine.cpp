@@ -2593,14 +2593,6 @@ void GdbEngine::handleBreakInsert2(const DebuggerResponse &response, Breakpoint 
     }
 }
 
-void GdbEngine::handleBreakDelete(const DebuggerResponse &response, Breakpoint bp)
-{
-    if (response.resultClass == ResultDone)
-        bp.notifyBreakpointRemoveOk();
-    else
-        bp.notifyBreakpointRemoveFailed();
-}
-
 void GdbEngine::handleBreakDisable(const DebuggerResponse &response, Breakpoint bp)
 {
     QTC_CHECK(response.resultClass == ResultDone);
@@ -2882,8 +2874,14 @@ void GdbEngine::removeBreakpoint(Breakpoint bp)
         bp.notifyBreakpointRemoveProceeding();
         showMessage(_("DELETING BP %1 IN %2").arg(br.id.toString()).arg(bp.fileName()));
         postCommand("-break-delete " + br.id.toByteArray(),
-            NeedsStop | RebuildBreakpointModel,
-            [this, bp](const DebuggerResponse &r) { handleBreakDelete(r, bp); });
+            NeedsStop | RebuildBreakpointModel);
+
+        // Pretend it succeeds without waiting for response. Feels better.
+        // Otherwise, clicking in the gutter leaves the breakpoint visible
+        // for quite some time, so the user assumes a mis-click and clicks
+        // again, effectivly re-introducing the breakpoint.
+        bp.notifyBreakpointRemoveOk();
+
     } else {
         // Breakpoint was scheduled to be inserted, but we haven't had
         // an answer so far. Postpone activity by doing nothing.
