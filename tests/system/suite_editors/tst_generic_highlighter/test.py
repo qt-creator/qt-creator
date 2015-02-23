@@ -97,6 +97,8 @@ def getOrModifyFilePatternsFor(mimeType, filter='', toBePresent=None):
                     result = toSuffixArray(patterns)
                     test.passes("Added suffixes")
                 return result
+            else:
+                result = toSuffixArray(patterns)
         else:
             result = toSuffixArray(patterns)
     elif model.rowCount() > 1:
@@ -136,9 +138,11 @@ def addHighlighterDefinition(language):
                         "type='QPushButton' visible='1'}")
             # downloading happens asynchronously
             languageFile = os.path.join(tmpSettingsDir, "QtProject", "qtcreator",
-                                        "generic-highlighter", "%s.xml" % language.lower())
+                                        "generic-highlighter", "%s.xml"
+                                        % language.lower().replace(" ", "-"))
             test.verify(waitFor("os.path.exists(languageFile)", 10000),
-                        "Verifying whether file has been downloaded and placed to settings.")
+                        "Verifying whether highlight definition file for '%s' has been downloaded "
+                        "and placed to settings." % language)
             clickButton("{text='Download Definitions...' type='QPushButton' unnamed='1' "
                         "visible='1'}")
             table = waitForObject("{name='definitionsTable' type='QTableWidget' visible='1'}")
@@ -160,13 +164,24 @@ def hasSuffix(fileName, suffixPatterns):
             return True
     return False
 
+def displayHintForHighlighterDefinition(fileName, patterns, lPatterns, added, addedLiterate):
+    if hasSuffix(fileName, patterns):
+        return not added
+    if hasSuffix(fileName, lPatterns):
+        return not addedLiterate
+    test.warning("Got an unexpected suffix.", "Filename: %s, Patterns: %s"
+                 % (fileName, str(patterns + lPatterns)))
+    return False
+
 def main():
     miss = "A highlight definition was not found for this file. Would you like to try to find one?"
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
     uncheckGenericHighlighterFallback()
-    patterns = getOrModifyFilePatternsFor("text/x-haskell", "haskell")
+    patterns = getOrModifyFilePatternsFor("text/x-haskell", "x-haskell")
+    lPatterns = getOrModifyFilePatternsFor("text/x-literate-haskell", "literate-haskell")
+
     folder = tempDir()
     filesToTest = ["Main.lhs", "Main.hs"]
     code = ['module Main where', '', 'main :: IO ()', '', 'main = putStrLn "Hello World!"']
@@ -177,7 +192,7 @@ def main():
         if editor == None:
             earlyExit("Something's really wrong! (did the UI change?)")
             return
-        expectHint = hasSuffix(current, patterns)
+        expectHint = hasSuffix(current, patterns) or hasSuffix(current, lPatterns)
         mssg = "Verifying whether hint for missing highlight definition is present. (expected: %s)"
         try:
             waitForObject("{text='%s' type='QLabel' unnamed='1' visible='1' "
@@ -194,7 +209,9 @@ def main():
     invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Close All")
     addedHighlighterDefinition = addHighlighterDefinition("Haskell")
-    patterns = getOrModifyFilePatternsFor('text/x-haskell', 'haskell', ['.lhs', '.hs'])
+    addedLiterateHighlighterDefinition = addHighlighterDefinition("Literate Haskell")
+    patterns = getOrModifyFilePatternsFor('text/x-haskell', 'x-haskell', ['.hs'])
+    lPatterns = getOrModifyFilePatternsFor('text/x-literate-haskell', 'literate-haskell', ['.lhs'])
 
     home = os.path.expanduser("~")
     for current in filesToTest:
@@ -203,14 +220,17 @@ def main():
             recentFile = recentFile.replace(home, "~", 1)
         invokeMenuItem("File", "Recent Files", recentFile)
         editor = getEditorForFileSuffix(current)
+        display = displayHintForHighlighterDefinition(current, patterns, lPatterns,
+                                                      addedHighlighterDefinition,
+                                                      addedLiterateHighlighterDefinition)
         try:
             waitForObject("{text='%s' type='QLabel' unnamed='1' visible='1' "
                           "window=':Qt Creator_Core::Internal::MainWindow'}" % miss, 2000)
-            test.verify(not addedHighlighterDefinition and hasSuffix(current, patterns),
-                        "Hint for missing highlight definition was present.")
+            test.verify(display, "Hint for missing highlight definition was present "
+                        "- current file: %s" % current)
         except:
-            test.verify(addedHighlighterDefinition or not hasSuffix(current, patterns),
-                        "Hint for missing highlight definition is not shown.")
+            test.verify(not display, "Hint for missing highlight definition is not shown "
+                        "- current file: %s" % current)
         placeCursorToLine(editor, '.*%s' % code[-1], True)
         for _ in range(23):
             type(editor, "<Left>")
