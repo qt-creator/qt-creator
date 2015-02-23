@@ -55,8 +55,7 @@ QString AndroidPotentialKit::displayName() const
 
 void AndroidPotentialKit::executeFromMenu()
 {
-    Core::ICore::showOptionsDialog(Constants::ANDROID_SETTINGS_CATEGORY,
-                                   Constants::ANDROID_SETTINGS_ID);
+    Core::ICore::showOptionsDialog(Constants::ANDROID_SETTINGS_ID);
 }
 
 QWidget *AndroidPotentialKit::createWidget(QWidget *parent) const
@@ -120,9 +119,7 @@ AndroidPotentialKitWidget::AndroidPotentialKitWidget(QWidget *parent)
 
 void AndroidPotentialKitWidget::openOptions()
 {
-    Core::ICore::showOptionsDialog(Constants::ANDROID_SETTINGS_CATEGORY,
-                                   Constants::ANDROID_SETTINGS_ID,
-                                   this);
+    Core::ICore::showOptionsDialog(Constants::ANDROID_SETTINGS_ID, this);
 }
 
 void AndroidPotentialKitWidget::recheck()

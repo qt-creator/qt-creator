@@ -1016,7 +1016,6 @@ private slots:
     void fold(int depth, bool fold);
     void foldGoTo(int count, bool current);
     void jumpToGlobalMark(QChar mark, bool backTickMode, const QString &fileName);
-    void showSettingsDialog();
     void maybeReadVimRc();
     void disableBlockSelection();
     void setBlockSelection(const QTextCursor&);
@@ -1380,11 +1379,6 @@ void FakeVimPluginPrivate::maybeReadVimRc()
     handler.handleCommand(_("source ") + fileName);
     //writeSettings();
     //qDebug() << theFakeVimSetting(ConfigShiftWidth)->value();
-}
-
-void FakeVimPluginPrivate::showSettingsDialog()
-{
-    ICore::showOptionsDialog(SETTINGS_CATEGORY, SETTINGS_ID);
 }
 
 void FakeVimPluginPrivate::triggerAction(Id id)
@@ -2007,7 +2001,7 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
     } else if (cmd.matches(_("se"), _("set"))) {
         if (cmd.args.isEmpty()) {
             // :se[t]
-            showSettingsDialog();
+            ICore::showOptionsDialog(SETTINGS_ID);
         } else if (cmd.args == _("ic") || cmd.args == _("ignorecase")) {
             // :set nc
             setActionChecked(Core::Constants::CASE_SENSITIVE, false);

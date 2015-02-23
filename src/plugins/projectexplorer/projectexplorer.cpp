@@ -473,7 +473,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new VcsAnnotateTaskHandler);
     addAutoReleasedObject(new RemoveTaskHandler);
     addAutoReleasedObject(new ConfigTaskHandler(Task::compilerMissingTask(),
-                                                Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
                                                 Constants::KITS_SETTINGS_PAGE_ID));
     addAutoReleasedObject(new CoreListener);
 

@@ -428,9 +428,7 @@ void TargetSetupPage::updateVisibility()
 
 void TargetSetupPage::openOptions()
 {
-    Core::ICore::instance()->showOptionsDialog(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
-                                               Constants::KITS_SETTINGS_PAGE_ID,
-                                               this);
+    Core::ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, this);
 }
 
 void TargetSetupPage::import(const Utils::FileName &path)

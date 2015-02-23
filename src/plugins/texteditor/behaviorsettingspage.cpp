@@ -268,12 +268,10 @@ void BehaviorSettingsPage::openCodingStylePreferences(TabSettingsWidget::CodingS
 {
     switch (link) {
     case TabSettingsWidget::CppLink:
-        Core::ICore::showOptionsDialog(CppTools::Constants::CPP_SETTINGS_CATEGORY,
-                                       CppTools::Constants::CPP_CODE_STYLE_SETTINGS_ID);
+        Core::ICore::showOptionsDialog(CppTools::Constants::CPP_CODE_STYLE_SETTINGS_ID);
         break;
     case TabSettingsWidget::QtQuickLink:
-        Core::ICore::showOptionsDialog(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML,
-                                       QmlJSTools::Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
+        Core::ICore::showOptionsDialog(QmlJSTools::Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
         break;
     }
 }

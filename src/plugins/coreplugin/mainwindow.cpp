@@ -823,12 +823,12 @@ void MainWindow::showNewItemDialog(const QString &title,
     emit newItemDialogRunningChanged();
 }
 
-bool MainWindow::showOptionsDialog(Id category, Id page, QWidget *parent)
+bool MainWindow::showOptionsDialog(Id page, QWidget *parent)
 {
     emit m_coreImpl->optionsDialogRequested();
     if (!parent)
         parent = ICore::dialogParent();
-    SettingsDialog *dialog = SettingsDialog::getSettingsDialog(parent, category, page);
+    SettingsDialog *dialog = SettingsDialog::getSettingsDialog(parent, page);
     return dialog->execDialog();
 }
 
@@ -1092,7 +1092,6 @@ QPrinter *MainWindow::printer() const
 bool MainWindow::showWarningWithOptions(const QString &title,
                                         const QString &text,
                                         const QString &details,
-                                        Id settingsCategory,
                                         Id settingsId,
                                         QWidget *parent)
 {
@@ -1103,11 +1102,11 @@ bool MainWindow::showWarningWithOptions(const QString &title,
     if (!details.isEmpty())
         msgBox.setDetailedText(details);
     QAbstractButton *settingsButton = 0;
-    if (settingsId.isValid() || settingsCategory.isValid())
+    if (settingsId.isValid())
         settingsButton = msgBox.addButton(tr("Settings..."), QMessageBox::AcceptRole);
     msgBox.exec();
     if (settingsButton && msgBox.clickedButton() == settingsButton)
-        return showOptionsDialog(settingsCategory, settingsId);
+        return showOptionsDialog(settingsId);
     return false;
 }
 

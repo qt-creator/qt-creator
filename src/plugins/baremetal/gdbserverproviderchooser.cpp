@@ -85,8 +85,7 @@ void GdbServerProviderChooser::setCurrentProviderId(const QString &id)
 
 void GdbServerProviderChooser::manageButtonClicked()
 {
-    Core::ICore::showOptionsDialog(Constants::BAREMETAL_SETTINGS_CATEGORY,
-                                   Constants::GDB_PROVIDERS_SETTINGS_ID, this);
+    Core::ICore::showOptionsDialog(Constants::GDB_PROVIDERS_SETTINGS_ID, this);
 }
 
 void GdbServerProviderChooser::currentIndexChanged(int index)

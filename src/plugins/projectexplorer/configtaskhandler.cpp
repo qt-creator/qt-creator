@@ -42,9 +42,8 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-ConfigTaskHandler::ConfigTaskHandler(const Task &pattern, Core::Id group, Core::Id page) :
+ConfigTaskHandler::ConfigTaskHandler(const Task &pattern, Core::Id page) :
     m_pattern(pattern),
-    m_targetGroup(group),
     m_targetPage(page)
 { }
 
@@ -57,7 +56,7 @@ bool ConfigTaskHandler::canHandle(const Task &task) const
 void ConfigTaskHandler::handle(const Task &task)
 {
     Q_UNUSED(task);
-    Core::ICore::showOptionsDialog(m_targetGroup, m_targetPage);
+    Core::ICore::showOptionsDialog(m_targetPage);
 }
 
 QAction *ConfigTaskHandler::createAction(QObject *parent) const

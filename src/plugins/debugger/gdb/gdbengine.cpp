@@ -4426,8 +4426,7 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg, Id settingsIdHint)
         if (!settingsIdHint.isValid()) {
             ICore::showWarningWithOptions(title, msg);
         } else {
-            ICore::showWarningWithOptions(title, msg, QString(),
-                Constants::DEBUGGER_SETTINGS_CATEGORY, settingsIdHint);
+            ICore::showWarningWithOptions(title, msg, QString(), settingsIdHint);
         }
     }
     notifyEngineSetupFailed();

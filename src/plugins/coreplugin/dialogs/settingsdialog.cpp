@@ -54,7 +54,6 @@
 #include <QStyle>
 #include <QStyledItemDelegate>
 
-static const char categoryKeyC[] = "General/LastPreferenceCategory";
 static const char pageKeyC[] = "General/LastPreferencePage";
 const int categoryIconSize = 24;
 
@@ -69,6 +68,18 @@ class Category
 {
 public:
     Category() : index(-1), providerPagesCreated(false) { }
+
+    bool findPageById(const Id id, int *pageIndex) const
+    {
+        for (int j = 0; j < pages.size(); ++j) {
+            IOptionsPage *page = pages.at(j);
+            if (page->id() == id) {
+                *pageIndex = j;
+                return true;
+            }
+        }
+        return false;
+    }
 
     Id id;
     int index;
@@ -345,43 +356,49 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     m_categoryList->setFocus();
 }
 
-void SettingsDialog::showPage(Id categoryId, Id pageId)
+void SettingsDialog::showPage(const Id pageId)
 {
     // handle the case of "show last page"
-    Id initialCategory = categoryId;
-    Id initialPage = pageId;
-    if (!initialCategory.isValid() && !initialPage.isValid()) {
+    Id initialPageId = pageId;
+    if (!initialPageId.isValid()) {
         QSettings *settings = ICore::settings();
-        initialCategory = Id::fromSetting(settings->value(QLatin1String(categoryKeyC)));
-        initialPage = Id::fromSetting(settings->value(QLatin1String(pageKeyC)));
+        initialPageId = Id::fromSetting(settings->value(QLatin1String(pageKeyC)));
     }
-
-    if (!initialCategory.isValid()) // no category given and no old setting
-        return;
 
     int initialCategoryIndex = -1;
     int initialPageIndex = -1;
+
     const QList<Category*> &categories = m_model->categories();
-    for (int i = 0; i < categories.size(); ++i) {
-        Category *category = categories.at(i);
-        if (category->id == initialCategory) {
-            initialCategoryIndex = i;
-            if (initialPage.isValid()) {
+    if (initialPageId.isValid()) {
+        // First try categories without lazy items.
+        for (int i = 0; i < categories.size(); ++i) {
+            Category *category = categories.at(i);
+            if (category->providers.isEmpty()) {  // no providers
                 ensureCategoryWidget(category);
-                for (int j = 0; j < category->pages.size(); ++j) {
-                    IOptionsPage *page = category->pages.at(j);
-                    if (page->id() == initialPage)
-                        initialPageIndex = j;
+                if (category->findPageById(initialPageId, &initialPageIndex)) {
+                    initialCategoryIndex = i;
+                    break;
                 }
             }
-            break;
+        }
+
+        if (initialPageIndex == -1) {
+            // On failure, expand the remaining items.
+            for (int i = 0; i < categories.size(); ++i) {
+                Category *category = categories.at(i);
+                if (!category->providers.isEmpty()) { // has providers
+                    ensureCategoryWidget(category);
+                    if (category->findPageById(initialPageId, &initialPageIndex)) {
+                        initialCategoryIndex = i;
+                        break;
+                    }
+                }
+            }
         }
     }
 
-    QTC_ASSERT(initialCategoryIndex != -1,
-               qDebug("Unknown category: %s", initialCategory.name().constData()); return);
-    QTC_ASSERT(!initialPage.isValid() || initialPageIndex != -1,
-               qDebug("Unknown page: %s", initialPage.name().constData()));
+    QTC_ASSERT(!initialPageId.isValid() || initialPageIndex != -1,
+               qDebug("Unknown page: %s", initialPageId.name().constData()));
 
     if (initialCategoryIndex != -1) {
         const QModelIndex modelIndex = m_proxyModel->mapFromSource(m_model->index(initialCategoryIndex));
@@ -588,7 +605,6 @@ void SettingsDialog::apply()
 void SettingsDialog::done(int val)
 {
     QSettings *settings = ICore::settings();
-    settings->setValue(QLatin1String(categoryKeyC), m_currentCategory.toSetting());
     settings->setValue(QLatin1String(pageKeyC), m_currentPage.toSetting());
 
     ICore::saveSettings(); // save all settings
@@ -612,12 +628,11 @@ QSize SettingsDialog::sizeHint() const
     return minimumSize();
 }
 
-SettingsDialog *SettingsDialog::getSettingsDialog(QWidget *parent,
-    Id initialCategory, Id initialPage)
+SettingsDialog *SettingsDialog::getSettingsDialog(QWidget *parent, Id initialPage)
 {
     if (!m_instance)
         m_instance = new SettingsDialog(parent);
-    m_instance->showPage(initialCategory, initialPage);
+    m_instance->showPage(initialPage);
     return m_instance;
 }
 

@@ -67,8 +67,7 @@ KitChooser::KitChooser(QWidget *parent) :
 
 void KitChooser::onManageButtonClicked()
 {
-    Core::ICore::showOptionsDialog(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
-           Constants::KITS_SETTINGS_PAGE_ID, this);
+    Core::ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, this);
 }
 
 void KitChooser::onCurrentIndexChanged(int index)

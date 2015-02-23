@@ -43,7 +43,7 @@ class ConfigTaskHandler : public ITaskHandler
     Q_OBJECT
 
 public:
-    ConfigTaskHandler(const Task &pattern, Core::Id group, Core::Id page);
+    ConfigTaskHandler(const Task &pattern, Core::Id page);
 
     bool canHandle(const Task &task) const;
     void handle(const Task &task);
@@ -51,8 +51,6 @@ public:
 
 private:
     const Task m_pattern;
-
-    const Core::Id m_targetGroup;
     const Core::Id m_targetPage;
 };
 

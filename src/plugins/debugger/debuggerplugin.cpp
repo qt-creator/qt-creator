@@ -706,7 +706,6 @@ public:
                                    const QString &tracePointMessage = QString());
     void onModeChanged(IMode *mode);
     void onCoreAboutToOpen();
-    void showSettingsDialog();
     void updateDebugWithoutDeployMenu();
 
     void startAndDebugApplication();
@@ -2161,11 +2160,6 @@ void DebuggerPluginPrivate::onModeChanged(IMode *mode)
     m_toolTipManager.debugModeEntered();
 }
 
-void DebuggerPluginPrivate::showSettingsDialog()
-{
-    ICore::showOptionsDialog(DEBUGGER_SETTINGS_CATEGORY, DEBUGGER_COMMON_SETTINGS_ID);
-}
-
 void DebuggerPluginPrivate::updateDebugWithoutDeployMenu()
 {
     const bool state = ProjectExplorerPlugin::projectExplorerSettings().deployBeforeRun;
@@ -2990,7 +2984,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     // Application interaction
     connect(action(SettingsDialog), &QAction::triggered,
-            this, &DebuggerPluginPrivate::showSettingsDialog);
+            [] { ICore::showOptionsDialog(DEBUGGER_COMMON_SETTINGS_ID); });
 
     // QML Actions
     connect(action(ShowQmlObjectTree), &SavedAction::valueChanged,

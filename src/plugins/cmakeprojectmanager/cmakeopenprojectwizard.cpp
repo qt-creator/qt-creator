@@ -289,9 +289,7 @@ bool NoKitPage::isComplete() const
 
 void NoKitPage::showOptions()
 {
-    Core::ICore::showOptionsDialog(Core::Id(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
-                                   Core::Id(ProjectExplorer::Constants::KITS_SETTINGS_PAGE_ID),
-                                   this);
+    Core::ICore::showOptionsDialog(ProjectExplorer::Constants::KITS_SETTINGS_PAGE_ID, this);
 }
 
 InSourceBuildPage::InSourceBuildPage(CMakeOpenProjectWizard *cmakeWizard)

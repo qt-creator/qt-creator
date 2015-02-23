@@ -625,7 +625,7 @@ void LocatorWidget::filterSelected()
 
 void LocatorWidget::showConfigureDialog()
 {
-    ICore::showOptionsDialog(Constants::SETTINGS_CATEGORY_CORE, Constants::FILTER_OPTIONS_PAGE);
+    ICore::showOptionsDialog(Constants::FILTER_OPTIONS_PAGE);
 }
 
 void LocatorWidget::addSearchResults(int firstIndex, int endIndex)

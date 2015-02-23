@@ -337,9 +337,9 @@ void ICore::showNewItemDialog(const QString &title,
     m_mainwindow->showNewItemDialog(title, factories, defaultLocation, extraVariables);
 }
 
-bool ICore::showOptionsDialog(const Id group, const Id page, QWidget *parent)
+bool ICore::showOptionsDialog(const Id page, QWidget *parent)
 {
-    return m_mainwindow->showOptionsDialog(group, page, parent);
+    return m_mainwindow->showOptionsDialog(page, parent);
 }
 
 QString ICore::msgShowOptionsDialog()
@@ -358,14 +358,9 @@ QString ICore::msgShowOptionsDialogToolTip()
 }
 
 bool ICore::showWarningWithOptions(const QString &title, const QString &text,
-                                   const QString &details,
-                                   Id settingsCategory,
-                                   Id settingsId,
-                                   QWidget *parent)
+                                   const QString &details, Id settingsId, QWidget *parent)
 {
-    return m_mainwindow->showWarningWithOptions(title, text,
-                                                details, settingsCategory,
-                                                settingsId, parent);
+    return m_mainwindow->showWarningWithOptions(title, text, details, settingsId, parent);
 }
 
 QSettings *ICore::settings(QSettings::Scope scope)
