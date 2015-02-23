@@ -65,7 +65,7 @@ public:
     void extensionsInitialized();
 
 private slots:
-    void startupProjectChanged();
+    void projectChanged();
     void activeTargetChanged();
     void updateRunQMakeAction();
     void updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project);

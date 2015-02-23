@@ -196,8 +196,8 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     connect(m_buildSubProjectAction, SIGNAL(triggered()), m_qmakeProjectManager, SLOT(buildSubDirContextMenu()));
 
     m_runQMakeAction = new QAction(tr("Run qmake"), this);
-    command = Core::ActionManager::registerAction(m_runQMakeAction, Constants::RUNQMAKE, projectContext);
-    command->setAttribute(Core::Command::CA_Hide);
+    const Core::Context globalcontext(Core::Constants::C_GLOBAL);
+    command = Core::ActionManager::registerAction(m_runQMakeAction, Constants::RUNQMAKE, globalcontext);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
     connect(m_runQMakeAction, SIGNAL(triggered()), m_qmakeProjectManager, SLOT(runQMake()));
 
@@ -231,8 +231,11 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
 
     connect(BuildManager::instance(), SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
             this, SLOT(buildStateChanged(ProjectExplorer::Project*)));
-    connect(SessionManager::instance(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
-            this, SLOT(startupProjectChanged()));
+    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+            this, &QmakeProjectManagerPlugin::projectChanged);
+    connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
+            this, &QmakeProjectManagerPlugin::projectChanged);
+
     connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
             this, &QmakeProjectManagerPlugin::updateContextActions);
 
@@ -272,13 +275,16 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
 void QmakeProjectManagerPlugin::extensionsInitialized()
 { }
 
-void QmakeProjectManagerPlugin::startupProjectChanged()
+void QmakeProjectManagerPlugin::projectChanged()
 {
     if (m_previousStartupProject)
         disconnect(m_previousStartupProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
                    this, SLOT(activeTargetChanged()));
 
-    m_previousStartupProject = qobject_cast<QmakeProject *>(SessionManager::startupProject());
+    if (ProjectTree::currentProject())
+        m_previousStartupProject = qobject_cast<QmakeProject *>(ProjectTree::currentProject());
+    else
+        m_previousStartupProject = qobject_cast<QmakeProject *>(SessionManager::startupProject());
 
     if (m_previousStartupProject)
         connect(m_previousStartupProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
@@ -305,11 +311,10 @@ void QmakeProjectManagerPlugin::activeTargetChanged()
 void QmakeProjectManagerPlugin::updateRunQMakeAction()
 {
     bool enable = true;
-    if (BuildManager::isBuilding(ProjectTree::currentProject()))
+    if (BuildManager::isBuilding(m_previousStartupProject))
         enable = false;
-    QmakeProject *pro = qobject_cast<QmakeProject *>(ProjectTree::currentProject());
-    if (!pro)
-        pro = qobject_cast<QmakeProject *>(SessionManager::startupProject());
+    QmakeProject *pro = qobject_cast<QmakeProject *>(m_previousStartupProject);
+    m_runQMakeAction->setVisible(pro);
     if (!pro
             || !pro->activeTarget()
             || !pro->activeTarget()->activeBuildConfiguration())
