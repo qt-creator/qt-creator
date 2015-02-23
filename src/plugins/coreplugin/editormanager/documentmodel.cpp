@@ -190,8 +190,10 @@ DocumentModel::Entry *DocumentModel::firstRestoredEntry()
 
 void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
 {
+    const Utils::FileName fileName = entry->fileName();
+
     // replace a non-loaded entry (aka 'restored') if possible
-    int previousIndex = indexOfFilePath(entry->fileName());
+    int previousIndex = indexOfFilePath(fileName);
     if (previousIndex >= 0) {
         if (entry->document && m_entries.at(previousIndex)->document == 0) {
             DocumentModel::Entry *previousEntry = m_entries.at(previousIndex);
@@ -265,13 +267,13 @@ void DocumentModelPrivate::removeDocument(int idx)
     if (idx < 0)
         return;
     QTC_ASSERT(idx < d->m_entries.size(), return);
-    IDocument *document = d->m_entries.at(idx)->document;
     int row = idx + 1/*<no document>*/;
     beginRemoveRows(QModelIndex(), row, row);
-    delete d->m_entries.takeAt(idx);
+    DocumentModel::Entry *entry = d->m_entries.takeAt(idx);
     endRemoveRows();
-    if (document)
+    if (IDocument *document = entry->document)
         disconnect(document, SIGNAL(changed()), this, SLOT(itemChanged()));
+    delete entry;
 }
 
 void DocumentModel::removeAllRestoredEntries()
