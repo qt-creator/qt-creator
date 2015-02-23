@@ -137,84 +137,9 @@ signals:
 
 public slots:
     static void openOpenProjectDialog();
-    void handleRunControlFinished();
-    void runConfigurationConfigurationFinished();
-    void runProjectContextMenu();
 
 private slots:
-    void buildStateChanged(ProjectExplorer::Project * pro);
-    void buildQueueFinished(bool success);
-    void buildProjectOnly();
-    void handleBuildProject();
-    void buildProjectContextMenu();
-    void buildSession();
-    void rebuildProjectOnly();
-    void rebuildProject();
-    void rebuildProjectContextMenu();
-    void rebuildSession();
-    void deployProjectOnly();
-    void deployProject();
-    void deployProjectContextMenu();
-    void deploySession();
-    void cleanProjectOnly();
-    void cleanProject();
-    void cleanProjectContextMenu();
-    void cleanSession();
-    void cancelBuild();
-    void loadAction();
-    void handleUnloadProject();
-    void unloadProjectContextMenu();
-    void closeAllProjects();
-    void newProject();
-    void showSessionManager();
-    void updateSessionMenu();
-    void setSession(QAction *action);
-
-    void determineSessionToRestoreAtStartup();
-    void restoreSession();
     void restoreSession2();
-    void loadSession(const QString &session);
-    void handleRunProject();
-    void runProjectWithoutDeploy();
-    void savePersistentSettings();
-
-    void addNewFile();
-    void handleAddExistingFiles();
-    void addExistingDirectory();
-    void addNewSubproject();
-    void removeProject();
-    void openFile();
-    void searchOnFileSystem();
-    void showInGraphicalShell();
-    void removeFile();
-    void deleteFile();
-    void handleRenameFile();
-    void handleSetStartupProject();
-    void setStartupProject(ProjectExplorer::Project *project);
-
-    void updateRecentProjectMenu();
-    void clearRecentProjects();
-    void openRecentProject();
-    void updateUnloadProjectMenu();
-    void openTerminalHere();
-
-    void invalidateProject(ProjectExplorer::Project *project);
-
-    void projectAdded(ProjectExplorer::Project *pro);
-    void projectRemoved(ProjectExplorer::Project *pro);
-    void projectDisplayNameChanged(ProjectExplorer::Project *pro);
-    void startupProjectChanged(); // Calls updateRunAction
-    void activeTargetChanged();
-    void activeRunConfigurationChanged();
-
-    void slotUpdateRunActions();
-
-    void currentModeChanged(Core::IMode *mode, Core::IMode *oldMode);
-    void loadCustomWizards();
-
-    void updateWelcomePage();
-
-    void updateActions();
     void showRenameFileError();
 
 #ifdef WITH_TESTS
