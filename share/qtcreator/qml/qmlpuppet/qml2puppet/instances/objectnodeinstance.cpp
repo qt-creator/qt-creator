@@ -111,7 +111,15 @@ ObjectNodeInstance::ObjectNodeInstance(QObject *object)
       m_deleteHeldInstance(true),
       m_isInLayoutable(false)
 {
+    if (object)
+        QObject::connect(m_object.data(), &QObject::destroyed, [=] {
 
+            /*This lambda is save because m_nodeInstanceServer
+            is a smartpointer and object is a dangling pointer anyway.*/
+
+            if (m_nodeInstanceServer)
+                m_nodeInstanceServer->removeInstanceRelationsipForDeletedObject(object);
+        });
 }
 
 ObjectNodeInstance::~ObjectNodeInstance()

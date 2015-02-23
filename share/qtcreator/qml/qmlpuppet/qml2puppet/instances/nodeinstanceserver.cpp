@@ -1217,6 +1217,17 @@ void NodeInstanceServer::sendDebugOutput(DebugOutputCommand::Type type, const QS
     nodeInstanceClient()->debugOutput(command);
 }
 
+void NodeInstanceServer::removeInstanceRelationsipForDeletedObject(QObject *object)
+{
+    if (m_objectInstanceHash.contains(object)) {
+        ServerNodeInstance instance = instanceForObject(object);
+        m_objectInstanceHash.remove(object);
+
+        if (m_idInstanceHash.contains(instance.instanceId()))
+            m_idInstanceHash.remove(instance.instanceId());
+    }
+}
+
 QStringList NodeInstanceServer::dummyDataDirectories(const QString& directoryPath)
 {
     QStringList dummyDataDirectoryList;
