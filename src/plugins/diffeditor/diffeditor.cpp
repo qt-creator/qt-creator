@@ -202,7 +202,7 @@ DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
     : m_document(doc)
     , m_descriptionWidget(0)
     , m_stackedWidget(0)
-    , m_currentViewIndex(0)
+    , m_currentViewIndex(-1)
     , m_guiController(0)
     , m_toolBar(0)
     , m_entriesComboBox(0)
@@ -516,6 +516,8 @@ void DiffEditor::addView(IDiffView *view)
 
 IDiffView *DiffEditor::currentView() const
 {
+    if (m_currentViewIndex < 0)
+        return 0;
     return m_views.at(m_currentViewIndex);
 }
 
@@ -528,11 +530,11 @@ void DiffEditor::setCurrentView(IDiffView *view)
 
 IDiffView *DiffEditor::nextView()
 {
-    ++m_currentViewIndex;
-    if (m_currentViewIndex >= m_views.count())
-        m_currentViewIndex = 0;
+    int pos = m_currentViewIndex + 1;
+    if (pos >= m_views.count())
+        pos = 0;
 
-    return currentView();
+    return m_views.at(pos);
 }
 
 void DiffEditor::showDiffView(IDiffView *newView)
@@ -542,7 +544,8 @@ void DiffEditor::showDiffView(IDiffView *newView)
     if (currentView() == newView)
         return;
 
-    currentView()->setDiffEditorGuiController(0);
+    if (currentView()) // during initialization
+        currentView()->setDiffEditorGuiController(0);
     setCurrentView(newView);
     currentView()->setDiffEditorGuiController(m_guiController);
 
