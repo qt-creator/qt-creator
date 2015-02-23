@@ -79,6 +79,7 @@ private:
 
     QList<DocumentModel::Entry *> m_entries;
     QMap<IDocument *, QList<IEditor *> > m_editors;
+    QHash<QString, DocumentModel::Entry *> m_entryByFixedPath;
 };
 
 DocumentModelPrivate::DocumentModelPrivate() :
@@ -191,6 +192,9 @@ DocumentModel::Entry *DocumentModel::firstRestoredEntry()
 void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
 {
     const Utils::FileName fileName = entry->fileName();
+    QString fixedPath;
+    if (!fileName.isEmpty())
+        fixedPath = DocumentManager::fixFileName(fileName.toString(), DocumentManager::ResolveLinks);
 
     // replace a non-loaded entry (aka 'restored') if possible
     int previousIndex = indexOfFilePath(fileName);
@@ -199,6 +203,8 @@ void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
             DocumentModel::Entry *previousEntry = m_entries.at(previousIndex);
             m_entries[previousIndex] = entry;
             delete previousEntry;
+            if (!fixedPath.isEmpty())
+                m_entryByFixedPath[fixedPath] = entry;
             connect(entry->document, SIGNAL(changed()), this, SLOT(itemChanged()));
         } else {
             delete entry;
@@ -215,6 +221,8 @@ void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
     int row = index + 1/*<no document>*/;
     beginInsertRows(QModelIndex(), row, row);
     m_entries.insert(index, entry);
+    if (!fixedPath.isEmpty())
+        m_entryByFixedPath[fixedPath] = entry;
     if (entry->document)
         connect(entry->document, SIGNAL(changed()), this, SLOT(itemChanged()));
     endInsertRows();
@@ -226,10 +234,7 @@ int DocumentModelPrivate::indexOfFilePath(const Utils::FileName &filePath) const
         return -1;
     const QString fixedPath = DocumentManager::fixFileName(filePath.toString(),
                                                            DocumentManager::ResolveLinks);
-    return Utils::indexOf(m_entries, [&fixedPath](DocumentModel::Entry *entry) {
-        return DocumentManager::fixFileName(entry->fileName().toString(),
-                                            DocumentManager::ResolveLinks) == fixedPath;
-    });
+    return m_entries.indexOf(m_entryByFixedPath.value(fixedPath));
 }
 
 void DocumentModel::removeEntry(DocumentModel::Entry *entry)
@@ -271,6 +276,13 @@ void DocumentModelPrivate::removeDocument(int idx)
     beginRemoveRows(QModelIndex(), row, row);
     DocumentModel::Entry *entry = d->m_entries.takeAt(idx);
     endRemoveRows();
+
+    const QString fileName = entry->fileName().toString();
+    if (!fileName.isEmpty()) {
+        const QString fixedPath = DocumentManager::fixFileName(fileName,
+                                                               DocumentManager::ResolveLinks);
+        m_entryByFixedPath.remove(fixedPath);
+    }
     if (IDocument *document = entry->document)
         disconnect(document, SIGNAL(changed()), this, SLOT(itemChanged()));
     delete entry;
@@ -451,6 +463,27 @@ void DocumentModelPrivate::itemChanged()
     int idx = indexOfDocument(document);
     if (idx < 0)
         return;
+    const QString fileName = document->filePath().toString();
+    QString fixedPath;
+    if (!fileName.isEmpty())
+        fixedPath = DocumentManager::fixFileName(fileName, DocumentManager::ResolveLinks);
+    DocumentModel::Entry *entry = d->m_entries.at(idx);
+    bool found = false;
+    // The entry's fileName might have changed, so find the previous fileName that was associated
+    // with it and remove it, then add the new fileName.
+    for (auto it = m_entryByFixedPath.begin(), end = m_entryByFixedPath.end(); it != end; ++it) {
+        if (it.value() == entry) {
+            found = true;
+            if (it.key() != fixedPath) {
+                m_entryByFixedPath.remove(it.key());
+                if (!fixedPath.isEmpty())
+                    m_entryByFixedPath[fixedPath] = entry;
+            }
+            break;
+        }
+    }
+    if (!found && !fixedPath.isEmpty())
+        m_entryByFixedPath[fixedPath] = entry;
     QModelIndex mindex = index(idx + 1/*<no document>*/, 0);
     emit dataChanged(mindex, mindex);
 }
