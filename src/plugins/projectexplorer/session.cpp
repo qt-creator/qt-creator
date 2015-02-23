@@ -132,21 +132,21 @@ SessionManager::SessionManager(QObject *parent)
 
     d->m_sessionNode = new SessionNode;
 
-    connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
-            this, SLOT(saveActiveMode(Core::IMode*)));
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
+            this, &SessionManager::saveActiveMode);
 
     connect(EditorManager::instance(), &EditorManager::editorCreated,
             this, &SessionManager::configureEditor);
-    connect(this, SIGNAL(projectAdded(ProjectExplorer::Project*)),
-            EditorManager::instance(), SLOT(updateWindowTitles()));
-    connect(this, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
-            EditorManager::instance(), SLOT(updateWindowTitles()));
-    connect(this, SIGNAL(projectDisplayNameChanged(ProjectExplorer::Project*)),
-            EditorManager::instance(), SLOT(updateWindowTitles()));
-    connect(EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
-            this, SLOT(markSessionFileDirty()));
-    connect(EditorManager::instance(), SIGNAL(editorsClosed(QList<Core::IEditor*>)),
-            this, SLOT(markSessionFileDirty()));
+    connect(this, &SessionManager::projectAdded,
+            EditorManager::instance(), &EditorManager::updateWindowTitles);
+    connect(this, &SessionManager::projectRemoved,
+            EditorManager::instance(), &EditorManager::updateWindowTitles);
+    connect(this, &SessionManager::projectDisplayNameChanged,
+            EditorManager::instance(), &EditorManager::updateWindowTitles);
+    connect(EditorManager::instance(), &EditorManager::editorOpened,
+            [this] { markSessionFileDirty(); });
+    connect(EditorManager::instance(), &EditorManager::editorsClosed,
+            [this] { markSessionFileDirty(); });
 
     EditorManager::setWindowTitleAdditionHandler(&SessionManagerPrivate::windowTitleAddition);
 }
@@ -310,11 +310,11 @@ void SessionManager::addProjects(const QList<Project*> &projects)
             d->m_projects.append(pro);
             d->m_sessionNode->addProjectNodes(QList<ProjectNode *>() << pro->rootProjectNode());
 
-            connect(pro, SIGNAL(fileListChanged()),
-                    m_instance, SLOT(clearProjectFileCache()));
+            connect(pro, &Project::fileListChanged,
+                    m_instance, &SessionManager::clearProjectFileCache);
 
-            connect(pro, SIGNAL(displayNameChanged()),
-                    m_instance, SLOT(projectDisplayNameChanged()));
+            connect(pro, &Project::displayNameChanged,
+                    m_instance, &SessionManager::handleProjectDisplayNameChanged);
 
             if (debug)
                 qDebug() << "SessionManager - adding project " << pro->displayName();
@@ -661,7 +661,8 @@ void SessionManager::removeProjects(QList<Project *> remove)
         if (pro == d->m_startupProject)
             setStartupProject(0);
 
-        disconnect(pro, SIGNAL(fileListChanged()), m_instance, SLOT(clearProjectFileCache()));
+        disconnect(pro, &Project::fileListChanged,
+                   m_instance, &SessionManager::clearProjectFileCache);
         d->m_projectFileCache.remove(pro);
 
         if (debug)
@@ -1008,7 +1009,7 @@ void SessionManagerPrivate::sessionLoadingProgress()
     QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 }
 
-void SessionManager::projectDisplayNameChanged()
+void SessionManager::handleProjectDisplayNameChanged()
 {
     Project *pro = qobject_cast<Project*>(m_instance->sender());
     if (pro) {

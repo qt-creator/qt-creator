@@ -137,12 +137,15 @@ signals:
 
 public slots:
     static void openOpenProjectDialog();
+    void handleRunControlFinished();
+    void runConfigurationConfigurationFinished();
+    void runProjectContextMenu();
 
 private slots:
     void buildStateChanged(ProjectExplorer::Project * pro);
     void buildQueueFinished(bool success);
     void buildProjectOnly();
-    void buildProject();
+    void handleBuildProject();
     void buildProjectContextMenu();
     void buildSession();
     void rebuildProjectOnly();
@@ -159,7 +162,7 @@ private slots:
     void cleanSession();
     void cancelBuild();
     void loadAction();
-    void unloadProject();
+    void handleUnloadProject();
     void unloadProjectContextMenu();
     void closeAllProjects();
     void newProject();
@@ -171,13 +174,12 @@ private slots:
     void restoreSession();
     void restoreSession2();
     void loadSession(const QString &session);
-    void runProject();
+    void handleRunProject();
     void runProjectWithoutDeploy();
-    void runProjectContextMenu();
     void savePersistentSettings();
 
     void addNewFile();
-    void addExistingFiles();
+    void handleAddExistingFiles();
     void addExistingDirectory();
     void addNewSubproject();
     void removeProject();
@@ -186,8 +188,8 @@ private slots:
     void showInGraphicalShell();
     void removeFile();
     void deleteFile();
-    void renameFile();
-    void setStartupProject();
+    void handleRenameFile();
+    void handleSetStartupProject();
     void setStartupProject(ProjectExplorer::Project *project);
 
     void updateRecentProjectMenu();
@@ -197,8 +199,6 @@ private slots:
     void openTerminalHere();
 
     void invalidateProject(ProjectExplorer::Project *project);
-
-    void runControlFinished();
 
     void projectAdded(ProjectExplorer::Project *pro);
     void projectRemoved(ProjectExplorer::Project *pro);
@@ -215,7 +215,6 @@ private slots:
     void updateWelcomePage();
 
     void updateActions();
-    void runConfigurationConfigurationFinished();
     void showRenameFileError();
 
 #ifdef WITH_TESTS

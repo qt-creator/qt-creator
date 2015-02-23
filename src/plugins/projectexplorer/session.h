@@ -143,10 +143,10 @@ signals:
 
 private slots:
     static void saveActiveMode(Core::IMode *mode);
-    static void clearProjectFileCache();
+    void clearProjectFileCache();
     static void configureEditor(Core::IEditor *editor, const QString &fileName);
     static void markSessionFileDirty(bool makeDefaultVirginDirty = true);
-    static void projectDisplayNameChanged();
+    static void handleProjectDisplayNameChanged();
 private:
     static void configureEditors(Project *project);
 };
