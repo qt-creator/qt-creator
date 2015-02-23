@@ -705,6 +705,8 @@ void TreeItem::insertChild(int pos, TreeItem *item)
         m_model->endInsertRows();
     } else {
         item->m_parent = this;
+        if (m_model)
+            item->propagateModel(m_model);
         m_children.insert(m_children.begin() + pos, item);
     }
 }
