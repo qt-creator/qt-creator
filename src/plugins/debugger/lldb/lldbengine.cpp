@@ -460,6 +460,8 @@ void LldbEngine::handleResponse(const QByteArray &response)
             refreshMemory(item);
         else if (name == "full-backtrace")
             showFullBacktrace(item);
+        else if (name == "continuation")
+            handleContinuation(item);
         else if (name == "statusmessage") {
             QString msg = QString::fromUtf8(item.data());
             if (msg.size())
@@ -467,6 +469,15 @@ void LldbEngine::handleResponse(const QByteArray &response)
             showStatusMessage(msg);
         }
     }
+}
+
+void LldbEngine::handleContinuation(const GdbMi &data)
+{
+    if (data.data() == "updateLocals") {
+        updateLocals();
+        return;
+    }
+    QTC_ASSERT(false, qDebug() << "Unknown continuation: " << data.data());
 }
 
 void LldbEngine::showFullBacktrace(const GdbMi &data)
@@ -524,10 +535,10 @@ void LldbEngine::activateFrame(int frameIndex)
     DebuggerCommand cmd("activateFrame");
     cmd.arg("index", frameIndex);
     cmd.arg("thread", threadsHandler()->currentThread().raw());
+    cmd.arg("continuation", "updateLocals");
     runCommand(cmd);
 
     reloadRegisters();
-    updateLocals();
 }
 
 void LldbEngine::selectThread(ThreadId threadId)
@@ -793,8 +804,12 @@ bool LldbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editorWidget
 void LldbEngine::updateAll()
 {
     reloadRegisters();
-    updateStack();
-    updateLocals();
+
+    DebuggerCommand cmd("reportStack");
+    cmd.arg("nativeMixed", isNativeMixedActive());
+    cmd.arg("stacklimit", action(MaximalStackDepth)->value().toInt());
+    cmd.arg("continuation", "updateLocals");
+    runCommand(cmd);
 }
 
 void LldbEngine::reloadFullStack()
@@ -802,14 +817,6 @@ void LldbEngine::reloadFullStack()
     DebuggerCommand cmd("reportStack");
     cmd.arg("nativeMixed", isNativeMixedActive());
     cmd.arg("stacklimit", -1);
-    runCommand(cmd);
-}
-
-void LldbEngine::updateStack()
-{
-    DebuggerCommand cmd("reportStack");
-    cmd.arg("nativeMixed", isNativeMixedActive());
-    cmd.arg("stacklimit", action(MaximalStackDepth)->value().toInt());
     runCommand(cmd);
 }
 

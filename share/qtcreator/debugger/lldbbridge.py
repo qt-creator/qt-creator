@@ -871,6 +871,11 @@ class Dumper(DumperBase):
         result += ',limit="%d"' % limit
         result += '}'
         self.report(result)
+        self.reportContinuation(args)
+
+    def reportContinuation(self, args):
+        if "continuation" in args:
+            self.report('continuation=\"%s\"' % args["continuation"])
 
     def reportStackPosition(self):
         thread = self.currentThread()

@@ -132,16 +132,17 @@ private:
     QString errorMessage(QProcess::ProcessError error) const;
     bool hasCapability(unsigned cap) const;
 
-    Q_SLOT void handleLldbFinished(int, QProcess::ExitStatus status);
-    Q_SLOT void handleLldbError(QProcess::ProcessError error);
-    Q_SLOT void readLldbStandardOutput();
-    Q_SLOT void readLldbStandardError();
-    Q_SLOT void handleResponse(const QByteArray &data);
-    Q_SLOT void updateAll();
-    Q_SLOT void updateStack();
-    Q_SLOT void updateLocals();
-    Q_SLOT void createFullBacktrace();
+    void handleLldbFinished(int, QProcess::ExitStatus status);
+    void handleLldbError(QProcess::ProcessError error);
+    void readLldbStandardOutput();
+    void readLldbStandardError();
+    void handleResponse(const QByteArray &data);
+    void updateAll();
+    void updateLocals();
+    void createFullBacktrace();
     void doUpdateLocals(UpdateParameters params);
+    void handleContinuation(const GdbMi &data);
+
     void refreshAll(const GdbMi &all);
     void refreshThreads(const GdbMi &threads);
     void refreshStack(const GdbMi &stack);
