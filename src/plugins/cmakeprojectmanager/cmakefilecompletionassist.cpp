@@ -33,11 +33,20 @@
 #include "cmakeprojectmanager.h"
 #include "cmakesettingspage.h"
 #include "cmaketoolmanager.h"
+#include "cmakekitinformation.h"
 
-#include <texteditor/codeassist/keywordscompletionassist.h>
+#include <texteditor/codeassist/assistinterface.h>
+#include <projectexplorer/projecttree.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/target.h>
+
+#include <coreplugin/editormanager/editormanager.h>
+#include <projectexplorer/session.h>
 
 using namespace CMakeProjectManager::Internal;
 using namespace TextEditor;
+using namespace ProjectExplorer;
 
 // -------------------------------
 // CMakeFileCompletionAssistProvider
@@ -55,10 +64,31 @@ bool CMakeFileCompletionAssistProvider::supportsEditor(Core::Id editorId) const
 
 IAssistProcessor *CMakeFileCompletionAssistProvider::createProcessor() const
 {
-    TextEditor::Keywords keywords = TextEditor::Keywords(QStringList(), QStringList(), QMap<QString, QStringList>());
-    CMakeTool *cmake = CMakeToolManager::defaultCMakeTool();
-    if (cmake && cmake->isValid())
-        keywords = cmake->keywords();
+    return new CMakeFileCompletionAssist();
+}
 
-    return new KeywordsCompletionAssistProcessor(keywords);
+
+CMakeFileCompletionAssist::CMakeFileCompletionAssist() :
+    KeywordsCompletionAssistProcessor(Keywords())
+{}
+
+IAssistProposal *CMakeFileCompletionAssist::perform(const AssistInterface *interface)
+{
+    TextEditor::Keywords keywords;
+
+    QString fileName = interface->fileName();
+    if (!fileName.isEmpty() && QFileInfo(fileName).isFile()) {
+        Utils::FileName file = Utils::FileName::fromString(fileName);
+        if (Project *p = SessionManager::projectForFile(file)) {
+            if (Target *t = p->activeTarget()) {
+                if (CMakeTool *cmake = CMakeKitInformation::cmakeTool(t->kit())) {
+                    if (cmake->isValid())
+                        keywords = cmake->keywords();
+                }
+            }
+        }
+    }
+
+    setKeywords(keywords);
+    return KeywordsCompletionAssistProcessor::perform(interface);
 }

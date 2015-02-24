@@ -48,6 +48,8 @@ public:
     CMakeToolManager(QObject *parent);
     ~CMakeToolManager();
 
+    static CMakeToolManager *instance();
+
     static QList<CMakeTool *> cmakeTools();
     static void setPreferNinja(bool set);
     static bool preferNinja();
@@ -62,8 +64,19 @@ public:
     static CMakeTool *findById(const Core::Id &id);
     static void restoreCMakeTools();
 
+    static void notifyAboutUpdate(CMakeTool *);
+
+signals:
+    void cmakeAdded (const Core::Id &id);
+    void cmakeRemoved (const Core::Id &id);
+    void cmakeUpdated (const Core::Id &id);
+    void cmakeToolsChanged ();
+    void defaultCMakeChanged ();
+
 private:
     static void saveCMakeTools();
+
+    static CMakeToolManager *m_instance;
 };
 
 } // namespace CMakeProjectManager

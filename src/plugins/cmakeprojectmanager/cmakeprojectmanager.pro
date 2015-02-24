@@ -19,7 +19,9 @@ HEADERS = cmakebuildinfo.h \
     generatorinfo.h \
     cmakesettingspage.h \
     cmaketoolmanager.h \
-    cmake_global.h
+    cmake_global.h \
+    cmakekitinformation.h \
+    cmakekitconfigwidget.h
 
 SOURCES = cmakeproject.cpp \
     cmakeprojectplugin.cpp \
@@ -36,7 +38,9 @@ SOURCES = cmakeproject.cpp \
     cmakeparser.cpp \
     generatorinfo.cpp \
     cmakesettingspage.cpp \
-    cmaketoolmanager.cpp
+    cmaketoolmanager.cpp \
+    cmakekitinformation.cpp \
+    cmakekitconfigwidget.cpp
 
 
 RESOURCES += cmakeproject.qrc

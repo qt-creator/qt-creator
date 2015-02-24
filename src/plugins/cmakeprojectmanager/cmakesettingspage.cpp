@@ -27,6 +27,7 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#include "cmakeprojectconstants.h"
 #include "cmakesettingspage.h"
 #include "cmaketoolmanager.h"
 
@@ -393,6 +394,7 @@ public:
 
         m_makeDefButton = new QPushButton(tr("Make Default"), this);
         m_makeDefButton->setEnabled(false);
+        m_makeDefButton->setToolTip(tr("Set as the default CMake Tool to use when creating a new Kit, or no value is set."));
 
         m_preferNinjaCheckBox = new QCheckBox(tr("Prefer Ninja generator (CMake 2.8.9 or higher required)"));
         m_preferNinjaCheckBox->setChecked(CMakeToolManager::preferNinja());
@@ -539,7 +541,7 @@ void CMakeToolConfigWidget::currentCMakeToolChanged(const QModelIndex &newCurren
 
 CMakeSettingsPage::CMakeSettingsPage() : m_widget(0)
 {
-    setId("Z.CMake");
+    setId(Constants::CMAKE_SETTINGSPAGE_ID);
     setDisplayName(tr("CMake"));
     setCategory(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",

@@ -28,11 +28,14 @@
 **
 ****************************************************************************/
 
+#include "cmakeprojectconstants.h"
 #include "cmakeopenprojectwizard.h"
 #include "cmakeprojectmanager.h"
 #include "cmaketoolmanager.h"
 #include "cmakebuildconfiguration.h"
 #include "cmakebuildinfo.h"
+#include "cmakekitinformation.h"
+#include "cmaketool.h"
 #include "generatorinfo.h"
 
 #include <coreplugin/icore.h>
@@ -85,6 +88,9 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cm
       m_useNinja(false),
       m_kit(0)
 {
+    if (CMakeToolManager::cmakeTools().isEmpty())
+        addPage(new NoCMakePage(this));
+
     if (!compatibleKitExist())
         addPage(new NoKitPage(this));
 
@@ -95,9 +101,6 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cm
         m_buildDirectory = m_sourceDirectory + QLatin1String("-build");
         addPage(new ShadowBuildPage(this));
     }
-
-    if (!m_cmakeManager->isCMakeExecutableValid())
-        addPage(new ChooseCMakePage(this));
 
     addPage(new CMakeRunPage(this));
 
@@ -129,8 +132,9 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cm
         m_buildDirectory = info->buildDirectory.toString();
         addPage(new ShadowBuildPage(this, true));
     }
-    if (!m_cmakeManager->isCMakeExecutableValid())
-        addPage(new ChooseCMakePage(this));
+
+    if (CMakeToolManager::cmakeTools().isEmpty())
+        addPage(new NoCMakePage(this));
 
     addPage(new CMakeRunPage(this, rmode, info->buildDirectory.toString()));
     init();
@@ -153,13 +157,17 @@ bool CMakeOpenProjectWizard::hasInSourceBuild() const
 
 bool CMakeOpenProjectWizard::compatibleKitExist() const
 {
-    bool hasCodeBlocksGenerator = m_cmakeManager->hasCodeBlocksMsvcGenerator();
-    bool hasNinjaGenerator = m_cmakeManager->hasCodeBlocksNinjaGenerator();
     bool preferNinja = m_cmakeManager->preferNinja();
-
     QList<ProjectExplorer::Kit *> kitList = ProjectExplorer::KitManager::kits();
 
     foreach (ProjectExplorer::Kit *k, kitList) {
+        CMakeTool *cmake = CMakeKitInformation::cmakeTool(k);
+        if (!cmake)
+            continue;
+
+        bool hasCodeBlocksGenerator = cmake->hasCodeBlocksMsvcGenerator();
+        bool hasNinjaGenerator = cmake->hasCodeBlocksNinjaGenerator();
+
         // OfferNinja and ForceNinja differ in what they return
         // but not whether the list is empty or not, which is what we
         // are interested in here
@@ -288,6 +296,12 @@ bool NoKitPage::isComplete() const
     return m_cmakeWizard->compatibleKitExist();
 }
 
+void NoKitPage::initializePage()
+{
+    //if the NoCMakePage was added, we need to recheck if kits exist
+    kitsChanged();
+}
+
 void NoKitPage::showOptions()
 {
     Core::ICore::showOptionsDialog(ProjectExplorer::Constants::KITS_SETTINGS_PAGE_ID, this);
@@ -338,67 +352,60 @@ void ShadowBuildPage::buildDirectoryChanged()
     m_cmakeWizard->setBuildDirectory(m_pc->path());
 }
 
-ChooseCMakePage::ChooseCMakePage(CMakeOpenProjectWizard *cmakeWizard)
-    : QWizardPage(cmakeWizard), m_cmakeWizard(cmakeWizard)
+//////
+// NoCMakePage
+/////
+
+NoCMakePage::NoCMakePage(CMakeOpenProjectWizard *cmakeWizard)
+    : QWizardPage(cmakeWizard)
 {
-    QFormLayout *fl = new QFormLayout;
-    fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    setLayout(fl);
+    QVBoxLayout *layout = new QVBoxLayout;
+    setLayout(layout);
 
-    m_cmakeLabel = new QLabel;
-    m_cmakeLabel->setWordWrap(true);
-    fl->addRow(m_cmakeLabel);
-    // Show a field for the user to enter
-    m_cmakeExecutable = new Utils::PathChooser(this);
-    m_cmakeExecutable->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_cmakeExecutable->setHistoryCompleter(QLatin1String("Cmake.Command.History"));
-    fl->addRow(tr("CMake Executable:"), m_cmakeExecutable);
+    m_descriptionLabel = new QLabel(this);
+    m_descriptionLabel->setWordWrap(true);
+    layout->addWidget(m_descriptionLabel);
 
-    connect(m_cmakeExecutable, SIGNAL(editingFinished()),
-            this, SLOT(cmakeExecutableChanged()));
-    connect(m_cmakeExecutable, SIGNAL(browsingFinished()),
-            this, SLOT(cmakeExecutableChanged()));
+    m_optionsButton = new QPushButton;
+    m_optionsButton->setText(Core::ICore::msgShowOptionsDialog());
 
-    setTitle(tr("Choose CMake Executable"));
+    connect(m_optionsButton, SIGNAL(clicked()),
+            this, SLOT(showOptions()));
+
+    QHBoxLayout *hbox = new QHBoxLayout;
+    hbox->addWidget(m_optionsButton);
+    hbox->addStretch();
+
+    layout->addLayout(hbox);
+
+    setTitle(tr("Check CMake Tools"));
+
+    connect(CMakeToolManager::instance(), &CMakeToolManager::cmakeToolsChanged,
+            this, &NoCMakePage::cmakeToolsChanged);
+
+    cmakeToolsChanged();
 }
 
-void ChooseCMakePage::updateErrorText()
+void NoCMakePage::cmakeToolsChanged()
 {
-    QString cmakeExecutable = m_cmakeWizard->cmakeManager()->cmakeExecutable();
-    if (m_cmakeWizard->cmakeManager()->isCMakeExecutableValid()) {
-        m_cmakeLabel->setText(tr("The CMake executable is valid."));
+    if (isComplete()) {
+        m_descriptionLabel->setText(tr("There are CMake Tools registered."));
+        m_optionsButton->setVisible(false);
     } else {
-        QString text = tr("Specify the path to the CMake executable. No CMake executable was found in the path.");
-        if (!cmakeExecutable.isEmpty()) {
-            text += QLatin1Char(' ');
-            QFileInfo fi(cmakeExecutable);
-            if (!fi.exists())
-                text += tr("The CMake executable (%1) does not exist.").arg(cmakeExecutable);
-            else if (!fi.isExecutable())
-                text += tr("The path %1 is not an executable.").arg(cmakeExecutable);
-            else
-                text += tr("The path %1 is not a valid CMake executable.").arg(cmakeExecutable);
-        }
-        m_cmakeLabel->setText(text);
+        m_descriptionLabel->setText(tr("Qt Creator has no CMake Tools that are required for CMake projects. Please configure at least one."));
+        m_optionsButton->setVisible(true);
     }
-}
-
-void ChooseCMakePage::cmakeExecutableChanged()
-{
-    CMakeTool *cmake = CMakeToolManager::defaultCMakeTool();
-    if (!cmake) {
-        Core::Id id = CMakeToolManager::registerOrFindCMakeTool(m_cmakeExecutable->fileName());
-        CMakeToolManager::setDefaultCMakeTool(id);
-    } else {
-        cmake->setCMakeExecutable(m_cmakeExecutable->fileName());
-    }
-    updateErrorText();
     emit completeChanged();
 }
 
-bool ChooseCMakePage::isComplete() const
+bool NoCMakePage::isComplete() const
 {
-    return m_cmakeWizard->cmakeManager()->isCMakeExecutableValid();
+    return !CMakeToolManager::cmakeTools().isEmpty();
+}
+
+void NoCMakePage::showOptions()
+{
+    Core::ICore::showOptionsDialog(Constants::CMAKE_SETTINGSPAGE_ID, this);
 }
 
 CMakeRunPage::CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, Mode mode, const QString &buildDirectory)
@@ -531,8 +538,6 @@ void CMakeRunPage::initializePage()
     // Build the list of generators/toolchains we want to offer
     m_generatorComboBox->clear();
 
-    bool hasCodeBlocksGenerator = m_cmakeWizard->cmakeManager()->hasCodeBlocksMsvcGenerator();
-    bool hasNinjaGenerator = m_cmakeWizard->cmakeManager()->hasCodeBlocksNinjaGenerator();
     bool preferNinja = m_cmakeWizard->cmakeManager()->preferNinja();
 
     if (m_mode == Initial) {
@@ -544,6 +549,13 @@ void CMakeRunPage::initializePage()
         int defaultIndex = 0;
 
         foreach (ProjectExplorer::Kit *k, kitList) {
+            CMakeTool *cmake = CMakeKitInformation::cmakeTool(k);
+            if (!cmake)
+                continue;
+
+            bool hasCodeBlocksGenerator = cmake->hasCodeBlocksMsvcGenerator();
+            bool hasNinjaGenerator = cmake->hasCodeBlocksNinjaGenerator();
+
             QList<GeneratorInfo> infos = GeneratorInfo::generatorInfosFor(k,
                                                                           hasNinjaGenerator ? GeneratorInfo::OfferNinja : GeneratorInfo::NoNinja,
                                                                           preferNinja,
@@ -568,22 +580,26 @@ void CMakeRunPage::initializePage()
 
         m_generatorComboBox->setCurrentIndex(defaultIndex);
     } else {
-        // Note: We don't compare the actually cached generator to what is set in the buildconfiguration
-        // We assume that the buildconfiguration is correct
-        GeneratorInfo::Ninja ninja;
-        if (m_mode == CMakeRunPage::NeedToUpdate || m_mode == CMakeRunPage::WantToUpdate) {
-            ninja = m_cmakeWizard->useNinja() ? GeneratorInfo::ForceNinja : GeneratorInfo::NoNinja;
-        } else { // Recreate, ChangeDirectory
-            // Note: ReCreate is technically just a removed .cbp file, we assume the cache
-            // got removed too. If the cache still exists the error message from cmake should
-            // be a good hint to change the generator
-            ninja = hasNinjaGenerator ? GeneratorInfo::OfferNinja : GeneratorInfo::NoNinja;
-        }
+        QList<GeneratorInfo> infos;
+        CMakeTool *cmake = CMakeKitInformation::cmakeTool(m_cmakeWizard->kit());
+        if (cmake) {
+            // Note: We don't compare the actually cached generator to what is set in the buildconfiguration
+            // We assume that the buildconfiguration is correct
+            GeneratorInfo::Ninja ninja;
+            if (m_mode == CMakeRunPage::NeedToUpdate || m_mode == CMakeRunPage::WantToUpdate) {
+                ninja = m_cmakeWizard->useNinja() ? GeneratorInfo::ForceNinja : GeneratorInfo::NoNinja;
+            } else { // Recreate, ChangeDirectory
+                // Note: ReCreate is technically just a removed .cbp file, we assume the cache
+                // got removed too. If the cache still exists the error message from cmake should
+                // be a good hint to change the generator
+                ninja = cmake->hasCodeBlocksNinjaGenerator() ? GeneratorInfo::OfferNinja : GeneratorInfo::NoNinja;
+            }
 
-        QList<GeneratorInfo> infos = GeneratorInfo::generatorInfosFor(m_cmakeWizard->kit(),
-                                                                      ninja,
-                                                                      preferNinja,
-                                                                      true);
+            infos = GeneratorInfo::generatorInfosFor(m_cmakeWizard->kit(),
+                                                     ninja,
+                                                     preferNinja,
+                                                     true);
+        }
         foreach (const GeneratorInfo &info, infos)
             m_generatorComboBox->addItem(info.displayName(), qVariantFromValue(info));
     }
@@ -626,19 +642,21 @@ void CMakeRunPage::runCMake()
 
     m_output->clear();
 
+    CMakeTool *cmake = CMakeKitInformation::cmakeTool(generatorInfo.kit());
     CMakeManager *cmakeManager = m_cmakeWizard->cmakeManager();
-    if (m_cmakeWizard->cmakeManager()->isCMakeExecutableValid()) {
+    if (cmake && cmake->isValid()) {
         m_cmakeProcess = new Utils::QtcProcess();
         connect(m_cmakeProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(cmakeReadyReadStandardOutput()));
         connect(m_cmakeProcess, SIGNAL(readyReadStandardError()), this, SLOT(cmakeReadyReadStandardError()));
         connect(m_cmakeProcess, SIGNAL(finished(int)), this, SLOT(cmakeFinished()));
-        cmakeManager->createXmlFile(m_cmakeProcess, m_argumentsLineEdit->text(), m_cmakeWizard->sourceDirectory(),
-                                    m_buildDirectory, env, QString::fromLatin1(generatorInfo.generatorArgument()));
+        cmakeManager->createXmlFile(m_cmakeProcess, cmake->cmakeExecutable().toString(), m_argumentsLineEdit->text(),
+                                    m_cmakeWizard->sourceDirectory(), m_buildDirectory, env,
+                                    QString::fromLatin1(generatorInfo.generatorArgument()));
     } else {
         m_runCMake->setEnabled(true);
         m_argumentsLineEdit->setEnabled(true);
         m_generatorComboBox->setEnabled(true);
-        m_output->appendPlainText(tr("No valid CMake executable specified."));
+        m_output->appendPlainText(tr("Selected Kit has no valid CMake executable specified."));
     }
 }
 

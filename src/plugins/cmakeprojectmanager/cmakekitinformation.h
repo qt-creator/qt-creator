@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2015 Canonical Ltd.
 ** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
@@ -27,34 +27,38 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#ifndef CMAKEPROJECTMANAGER_CMAKEKITINFORMATION_H
+#define CMAKEPROJECTMANAGER_CMAKEKITINFORMATION_H
 
-#ifndef CMAKEPROJECTCONSTANTS_H
-#define CMAKEPROJECTCONSTANTS_H
+#include "cmake_global.h"
+
+#include <projectexplorer/kitmanager.h>
 
 namespace CMakeProjectManager {
-namespace Constants {
 
-const char PROJECTCONTEXT[] = "CMakeProject.ProjectContext";
-const char CMAKEMIMETYPE[]  = "text/x-cmake";
-const char CMAKEPROJECTMIMETYPE[]  = "text/x-cmake-project";
-const char CMAKE_EDITOR_ID[] = "CMakeProject.CMakeEditor";
-const char CMAKE_EDITOR_DISPLAY_NAME[] = "CMake Editor";
-const char RUNCMAKE[] = "CMakeProject.RunCMake";
-const char RUNCMAKECONTEXTMENU[] = "CMakeProject.RunCMakeContextMenu";
+class CMakeTool;
 
-// Project
-const char CMAKEPROJECT_ID[] = "CMakeProjectManager.CMakeProject";
+class CMAKE_EXPORT CMakeKitInformation : public ProjectExplorer::KitInformation
+{
+    Q_OBJECT
+public:
+    CMakeKitInformation();
 
-// Buildconfiguration
-const char CMAKE_BC_ID[] = "CMakeProjectManager.CMakeBuildConfiguration";
+    static Core::Id id();
 
-// Menu
-const char M_CONTEXT[] = "CMakeEditor.ContextMenu";
+    static CMakeTool *cmakeTool(const ProjectExplorer::Kit *k);
+    static void setCMakeTool(ProjectExplorer::Kit *k, const Core::Id id);
+    static Core::Id defaultValue();
 
-// Settings page
-const char CMAKE_SETTINGSPAGE_ID[] = "Z.CMake";
+    // KitInformation interface
+    QVariant defaultValue(ProjectExplorer::Kit *) const Q_DECL_OVERRIDE;
+    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const Q_DECL_OVERRIDE;
+    void setup(ProjectExplorer::Kit *k) Q_DECL_OVERRIDE;
+    void fix(ProjectExplorer::Kit *k) Q_DECL_OVERRIDE;
+    virtual ItemList toUserOutput(const ProjectExplorer::Kit *k) const Q_DECL_OVERRIDE;
+    virtual ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const Q_DECL_OVERRIDE;
+};
 
-} // namespace Constants
 } // namespace CMakeProjectManager
 
-#endif // CMAKEPROJECTCONSTANTS_H
+#endif // CMAKEPROJECTMANAGER_CMAKEKITINFORMATION_H

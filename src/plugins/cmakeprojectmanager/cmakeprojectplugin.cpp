@@ -37,12 +37,13 @@
 #include "makestep.h"
 #include "cmakeprojectconstants.h"
 #include "cmakelocatorfilter.h"
-#include "cmakefilecompletionassist.h"
 #include "cmakesettingspage.h"
 #include "cmaketoolmanager.h"
+#include "cmakekitinformation.h"
 
 #include <coreplugin/featureprovider.h>
 #include <utils/mimetypes/mimedatabase.h>
+#include <projectexplorer/kitmanager.h>
 
 #include <QtPlugin>
 #include <QDebug>
@@ -70,10 +71,11 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     addAutoReleasedObject(new CMakeBuildConfigurationFactory);
     addAutoReleasedObject(new CMakeEditorFactory);
     addAutoReleasedObject(new CMakeLocatorFilter);
-    addAutoReleasedObject(new CMakeFileCompletionAssistProvider);
 
     new CMakeToolManager(this);
     CMakeToolManager::restoreCMakeTools();
+
+    ProjectExplorer::KitManager::registerKitInformation(new CMakeKitInformation);
 
     return true;
 }

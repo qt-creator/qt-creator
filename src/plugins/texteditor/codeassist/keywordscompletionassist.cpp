@@ -209,6 +209,11 @@ QChar KeywordsCompletionAssistProcessor::startOfCommentChar() const
     return QLatin1Char('#');
 }
 
+void KeywordsCompletionAssistProcessor::setKeywords(Keywords keywords)
+{
+    m_keywords = keywords;
+}
+
 bool KeywordsCompletionAssistProcessor::acceptsIdleEditor()
 {
     const int pos = m_interface->position();

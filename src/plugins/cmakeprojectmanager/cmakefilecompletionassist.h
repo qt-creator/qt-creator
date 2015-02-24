@@ -32,11 +32,21 @@
 #define CMAKEFILECOMPLETIONASSIST_H
 
 #include <texteditor/codeassist/completionassistprovider.h>
+#include <texteditor/codeassist/keywordscompletionassist.h>
 
 namespace CMakeProjectManager {
 namespace Internal {
 
 class CMakeSettingsPage;
+
+class CMakeFileCompletionAssist : public TextEditor::KeywordsCompletionAssistProcessor
+{
+public:
+    CMakeFileCompletionAssist();
+
+    // IAssistProcessor interface
+    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) Q_DECL_OVERRIDE;
+};
 
 class CMakeFileCompletionAssistProvider : public TextEditor::CompletionAssistProvider
 {

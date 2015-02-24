@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "cmaketool.h"
+#include "cmaketoolmanager.h"
 
 #include <utils/qtcassert.h>
 
@@ -106,6 +107,8 @@ void CMakeTool::setCMakeExecutable(const Utils::FileName &executable)
     } else {
         m_state = CMakeTool::Invalid;
     }
+
+    CMakeToolManager::notifyAboutUpdate(this);
 }
 
 void CMakeTool::finished(int exitCode)
@@ -274,6 +277,7 @@ QString CMakeTool::displayName() const
 void CMakeTool::setDisplayName(const QString &displayName)
 {
     m_displayName = displayName;
+    CMakeToolManager::notifyAboutUpdate(this);
 }
 
 

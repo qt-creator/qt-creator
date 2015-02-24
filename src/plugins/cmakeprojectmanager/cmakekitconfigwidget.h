@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2015 Canonical Ltd.
 ** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
@@ -27,34 +27,56 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#ifndef CMAKEPROJECTMANAGER_INTERNAL_CMAKEKITCONFIGWIDGET_H
+#define CMAKEPROJECTMANAGER_INTERNAL_CMAKEKITCONFIGWIDGET_H
 
-#ifndef CMAKEPROJECTCONSTANTS_H
-#define CMAKEPROJECTCONSTANTS_H
+#include <projectexplorer/kitconfigwidget.h>
+
+namespace ProjectExplorer {
+    class Kit;
+    class KitInformation;
+}
+
+QT_FORWARD_DECLARE_CLASS(QComboBox)
+QT_FORWARD_DECLARE_CLASS(QPushButton)
 
 namespace CMakeProjectManager {
-namespace Constants {
 
-const char PROJECTCONTEXT[] = "CMakeProject.ProjectContext";
-const char CMAKEMIMETYPE[]  = "text/x-cmake";
-const char CMAKEPROJECTMIMETYPE[]  = "text/x-cmake-project";
-const char CMAKE_EDITOR_ID[] = "CMakeProject.CMakeEditor";
-const char CMAKE_EDITOR_DISPLAY_NAME[] = "CMake Editor";
-const char RUNCMAKE[] = "CMakeProject.RunCMake";
-const char RUNCMAKECONTEXTMENU[] = "CMakeProject.RunCMakeContextMenu";
+class CMakeTool;
 
-// Project
-const char CMAKEPROJECT_ID[] = "CMakeProjectManager.CMakeProject";
+namespace Internal {
 
-// Buildconfiguration
-const char CMAKE_BC_ID[] = "CMakeProjectManager.CMakeBuildConfiguration";
+class CMakeKitConfigWidget : public ProjectExplorer::KitConfigWidget
+{
+    Q_OBJECT
+public:
+    CMakeKitConfigWidget(ProjectExplorer::Kit *kit, const ProjectExplorer::KitInformation *ki);
+    virtual ~CMakeKitConfigWidget();
 
-// Menu
-const char M_CONTEXT[] = "CMakeEditor.ContextMenu";
+    // KitConfigWidget interface
+    QString displayName() const Q_DECL_OVERRIDE;
+    void makeReadOnly() Q_DECL_OVERRIDE;
+    void refresh() Q_DECL_OVERRIDE;
+    QWidget *mainWidget() const Q_DECL_OVERRIDE;
+    QWidget *buttonWidget() const Q_DECL_OVERRIDE;
+    QString toolTip() const Q_DECL_OVERRIDE;
 
-// Settings page
-const char CMAKE_SETTINGSPAGE_ID[] = "Z.CMake";
+private:
+    int indexOf(const Core::Id &id);
+    void updateComboBox();
+    void cmakeToolAdded(const Core::Id &id);
+    void cmakeToolUpdated(const Core::Id &id);
+    void cmakeToolRemoved(const Core::Id &id);
+    void currentCMakeToolChanged(int index);
+    void manageCMakeTools();
 
-} // namespace Constants
+private:
+    bool m_removingItem;
+    QComboBox *m_comboBox;
+    QPushButton *m_manageButton;
+};
+
+} // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKEPROJECTCONSTANTS_H
+#endif // CMAKEPROJECTMANAGER_INTERNAL_CMAKEKITCONFIGWIDGET_H

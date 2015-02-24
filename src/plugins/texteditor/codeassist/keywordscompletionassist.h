@@ -92,6 +92,9 @@ public:
     IAssistProposal *perform(const AssistInterface *interface) Q_DECL_OVERRIDE;
     QChar startOfCommentChar() const;
 
+protected:
+    void setKeywords (Keywords keywords);
+
 private:
     bool acceptsIdleEditor();
     int findStartOfName(int pos = -1);

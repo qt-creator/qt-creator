@@ -58,17 +58,13 @@ public:
     virtual ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString);
     virtual QString mimeType() const;
 
-    QString cmakeExecutable() const;
-    bool isCMakeExecutableValid() const;
-
     void createXmlFile(Utils::QtcProcess *process,
+                       const QString &executable,
                        const QString &arguments,
                        const QString &sourceDirectory,
                        const QDir &buildDirectory,
                        const Utils::Environment &env,
                        const QString &generator);
-    bool hasCodeBlocksMsvcGenerator() const;
-    bool hasCodeBlocksNinjaGenerator() const;
     bool preferNinja() const;
     static QString findCbpFile(const QDir &);
 

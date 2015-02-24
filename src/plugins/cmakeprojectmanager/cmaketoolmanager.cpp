@@ -72,11 +72,11 @@ static void addCMakeTool(CMakeTool *item)
 {
     QTC_ASSERT(item->id().isValid(), return);
 
+    d->m_cmakeTools.append(item);
+
     //set the first registered cmake tool as default if there is not already one
     if (!d->m_defaultCMake.isValid())
-        d->m_defaultCMake = item->id();
-
-    d->m_cmakeTools.append(item);
+        CMakeToolManager::setDefaultCMakeTool(item->id());
 }
 
 static FileName userSettingsFileName()
@@ -189,12 +189,22 @@ static QList<CMakeTool *> autoDetectCMakeTools()
     return found;
 }
 
-CMakeToolManager::CMakeToolManager(QObject *parent) : QObject(parent)
+CMakeToolManager *CMakeToolManager::m_instance = 0;
+
+CMakeToolManager::CMakeToolManager(QObject *parent) :
+    QObject(parent)
 {
+    QTC_ASSERT(!m_instance, return);
+    m_instance = this;
+
     d = new CMakeToolManagerPrivate;
     d->m_writer = new PersistentSettingsWriter(userSettingsFileName(), QStringLiteral("QtCreatorCMakeTools"));
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             this, &CMakeToolManager::saveCMakeTools);
+
+    connect(this, &CMakeToolManager::cmakeAdded, this, &CMakeToolManager::cmakeToolsChanged);
+    connect(this, &CMakeToolManager::cmakeRemoved, this, &CMakeToolManager::cmakeToolsChanged);
+    connect(this, &CMakeToolManager::cmakeUpdated, this, &CMakeToolManager::cmakeToolsChanged);
 }
 
 CMakeToolManager::~CMakeToolManager()
@@ -202,6 +212,11 @@ CMakeToolManager::~CMakeToolManager()
     delete d->m_writer;
     delete d;
     d = 0;
+}
+
+CMakeToolManager *CMakeToolManager::instance()
+{
+    return m_instance;
 }
 
 QList<CMakeTool *> CMakeToolManager::cmakeTools()
@@ -228,8 +243,9 @@ Id CMakeToolManager::registerOrFindCMakeTool(const FileName &command)
     cmake = new CMakeTool(CMakeTool::ManualDetection);
     cmake->setCMakeExecutable(command);
     cmake->setDisplayName(tr("CMake at %1").arg(command.toUserOutput()));
-    addCMakeTool(cmake);
 
+    addCMakeTool(cmake);
+    emit m_instance->cmakeAdded(cmake->id());
     return cmake->id();
 }
 
@@ -247,6 +263,7 @@ bool CMakeToolManager::registerCMakeTool(CMakeTool *tool)
     }
 
     addCMakeTool(tool);
+    emit m_instance->cmakeAdded(tool->id());
     return true;
 }
 
@@ -260,7 +277,11 @@ void CMakeToolManager::deregisterCMakeTool(const Id &id)
                 d->m_defaultCMake = Id();
             else
                 d->m_defaultCMake = d->m_cmakeTools.first()->id();
+
+            emit m_instance->defaultCMakeChanged();
         }
+
+        emit m_instance->cmakeRemoved(id);
         delete toRemove;
     }
 }
@@ -272,6 +293,8 @@ CMakeTool *CMakeToolManager::defaultCMakeTool()
         //if the id is not valid, we set the firstly registered one as default
         if (!d->m_cmakeTools.isEmpty()) {
             d->m_defaultCMake = d->m_cmakeTools.first()->id();
+            emit m_instance->defaultCMakeChanged();
+
             return d->m_cmakeTools.first();
         }
     }
@@ -283,8 +306,10 @@ void CMakeToolManager::setDefaultCMakeTool(const Id &id)
     if (d->m_defaultCMake == id)
         return;
 
-    if (findById(id))
+    if (findById(id)) {
         d->m_defaultCMake = id;
+        emit m_instance->defaultCMakeChanged();
+    }
 }
 
 CMakeTool *CMakeToolManager::findByCommand(const FileName &command)
@@ -363,6 +388,13 @@ void CMakeToolManager::restoreCMakeTools()
 
     // restore the legacy cmake settings only once and keep them around
     readAndDeleteLegacyCMakeSettings();
+}
+
+void CMakeToolManager::notifyAboutUpdate(CMakeTool *tool)
+{
+    if (!tool || !d->m_cmakeTools.contains(tool))
+        return;
+    emit m_instance->cmakeUpdated(tool->id());
 }
 
 void CMakeToolManager::saveCMakeTools()
