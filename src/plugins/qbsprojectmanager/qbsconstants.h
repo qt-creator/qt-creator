@@ -41,6 +41,7 @@ const char QBS_ARCHITECTURE[] = "qbs.architecture";
 const char QBS_ENDIANNESS[] = "qbs.endianness";
 const char QBS_TOOLCHAIN[] = "qbs.toolchain";
 const char CPP_TOOLCHAINPATH[] = "cpp.toolchainInstallPath";
+const char CPP_COMPILERPATHBYLANGUAGE[] = "cpp.compilerPathByLanguage";
 const char CPP_TOOLCHAINPREFIX[] = "cpp.toolchainPrefix";
 const char CPP_COMPILERNAME[] = "cpp.compilerName";
 const char CPP_LINKERNAME[] = "cpp.linkerName";
