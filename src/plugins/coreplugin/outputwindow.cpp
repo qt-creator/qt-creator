@@ -34,6 +34,7 @@
 #include "coreconstants.h"
 #include "icore.h"
 
+#include <utils/outputformatter.h>
 #include <utils/synchronousprocess.h>
 
 #include <QAction>
@@ -43,16 +44,45 @@ using namespace Utils;
 
 namespace Core {
 
+namespace Internal {
+
+class OutputWindowPrivate
+{
+public:
+    OutputWindowPrivate()
+        : outputWindowContext(0)
+        , formatter(0)
+        , enforceNewline(false)
+        , scrollToBottom(false)
+        , linksActive(true)
+        , mousePressed(false)
+        , maxLineCount(100000)
+    {
+    }
+
+    ~OutputWindowPrivate()
+    {
+        ICore::removeContextObject(outputWindowContext);
+        delete outputWindowContext;
+    }
+
+    IContext *outputWindowContext;
+    Utils::OutputFormatter *formatter;
+
+    bool enforceNewline;
+    bool scrollToBottom;
+    bool linksActive;
+    bool mousePressed;
+    int maxLineCount;
+};
+
+} // namespace Internal
+
 /*******************/
 
 OutputWindow::OutputWindow(Context context, QWidget *parent)
     : QPlainTextEdit(parent)
-    , m_formatter(0)
-    , m_enforceNewline(false)
-    , m_scrollToBottom(false)
-    , m_linksActive(true)
-    , m_mousePressed(false)
-    , m_maxLineCount(100000)
+    , d(new Internal::OutputWindowPrivate)
 {
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     //setCenterOnScroll(false);
@@ -60,10 +90,10 @@ OutputWindow::OutputWindow(Context context, QWidget *parent)
     setMouseTracking(true);
     setUndoRedoEnabled(false);
 
-    m_outputWindowContext = new IContext;
-    m_outputWindowContext->setContext(context);
-    m_outputWindowContext->setWidget(this);
-    ICore::addContextObject(m_outputWindowContext);
+    d->outputWindowContext = new IContext;
+    d->outputWindowContext->setContext(context);
+    d->outputWindowContext->setWidget(this);
+    ICore::addContextObject(d->outputWindowContext);
 
     QAction *undoAction = new QAction(this);
     QAction *redoAction = new QAction(this);
@@ -99,28 +129,27 @@ OutputWindow::OutputWindow(Context context, QWidget *parent)
 
 OutputWindow::~OutputWindow()
 {
-    ICore::removeContextObject(m_outputWindowContext);
-    delete m_outputWindowContext;
+    delete d;
 }
 
 void OutputWindow::mousePressEvent(QMouseEvent * e)
 {
-    m_mousePressed = true;
+    d->mousePressed = true;
     QPlainTextEdit::mousePressEvent(e);
 }
 
 void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
 {
-    m_mousePressed = false;
+    d->mousePressed = false;
 
-    if (m_linksActive) {
+    if (d->linksActive) {
         const QString href = anchorAt(e->pos());
-        if (m_formatter)
-            m_formatter->handleLink(href);
+        if (d->formatter)
+            d->formatter->handleLink(href);
     }
 
     // Mouse was released, activate links again
-    m_linksActive = true;
+    d->linksActive = true;
 
     QPlainTextEdit::mouseReleaseEvent(e);
 }
@@ -128,10 +157,10 @@ void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
 void OutputWindow::mouseMoveEvent(QMouseEvent *e)
 {
     // Cursor was dragged to make a selection, deactivate links
-    if (m_mousePressed && textCursor().hasSelection())
-        m_linksActive = false;
+    if (d->mousePressed && textCursor().hasSelection())
+        d->linksActive = false;
 
-    if (!m_linksActive || anchorAt(e->pos()).isEmpty())
+    if (!d->linksActive || anchorAt(e->pos()).isEmpty())
         viewport()->setCursor(Qt::IBeamCursor);
     else
         viewport()->setCursor(Qt::PointingHandCursor);
@@ -161,34 +190,34 @@ void OutputWindow::keyPressEvent(QKeyEvent *ev)
 
 OutputFormatter *OutputWindow::formatter() const
 {
-    return m_formatter;
+    return d->formatter;
 }
 
 void OutputWindow::setFormatter(OutputFormatter *formatter)
 {
-    m_formatter = formatter;
-    m_formatter->setPlainTextEdit(this);
+    d->formatter = formatter;
+    d->formatter->setPlainTextEdit(this);
 }
 
 void OutputWindow::showEvent(QShowEvent *e)
 {
     QPlainTextEdit::showEvent(e);
-    if (m_scrollToBottom)
+    if (d->scrollToBottom)
         verticalScrollBar()->setValue(verticalScrollBar()->maximum());
-    m_scrollToBottom = false;
+    d->scrollToBottom = false;
 }
 
 QString OutputWindow::doNewlineEnforcement(const QString &out)
 {
-    m_scrollToBottom = true;
+    d->scrollToBottom = true;
     QString s = out;
-    if (m_enforceNewline) {
+    if (d->enforceNewline) {
         s.prepend(QLatin1Char('\n'));
-        m_enforceNewline = false;
+        d->enforceNewline = false;
     }
 
     if (s.endsWith(QLatin1Char('\n'))) {
-        m_enforceNewline = true; // make appendOutputInline put in a newline next time
+        d->enforceNewline = true; // make appendOutputInline put in a newline next time
         s.chop(1);
     }
 
@@ -197,19 +226,24 @@ QString OutputWindow::doNewlineEnforcement(const QString &out)
 
 void OutputWindow::setMaxLineCount(int count)
 {
-    m_maxLineCount = count;
-    setMaximumBlockCount(m_maxLineCount);
+    d->maxLineCount = count;
+    setMaximumBlockCount(d->maxLineCount);
+}
+
+int OutputWindow::maxLineCount() const
+{
+    return d->maxLineCount;
 }
 
 void OutputWindow::appendMessage(const QString &output, OutputFormat format)
 {
     const QString out = SynchronousProcess::normalizeNewlines(output);
-    setMaximumBlockCount(m_maxLineCount);
+    setMaximumBlockCount(d->maxLineCount);
     const bool atBottom = isScrollbarAtBottom();
 
     if (format == ErrorMessageFormat || format == NormalMessageFormat) {
 
-        m_formatter->appendMessage(doNewlineEnforcement(out), format);
+        d->formatter->appendMessage(doNewlineEnforcement(out), format);
 
     } else {
 
@@ -217,31 +251,31 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
                      || format == StdErrFormatSameLine;
 
         if (sameLine) {
-            m_scrollToBottom = true;
+            d->scrollToBottom = true;
 
             int newline = -1;
-            bool enforceNewline = m_enforceNewline;
-            m_enforceNewline = false;
+            bool enforceNewline = d->enforceNewline;
+            d->enforceNewline = false;
 
             if (!enforceNewline) {
                 newline = out.indexOf(QLatin1Char('\n'));
                 moveCursor(QTextCursor::End);
                 if (newline != -1)
-                    m_formatter->appendMessage(out.left(newline), format);// doesn't enforce new paragraph like appendPlainText
+                    d->formatter->appendMessage(out.left(newline), format);// doesn't enforce new paragraph like appendPlainText
             }
 
             QString s = out.mid(newline+1);
             if (s.isEmpty()) {
-                m_enforceNewline = true;
+                d->enforceNewline = true;
             } else {
                 if (s.endsWith(QLatin1Char('\n'))) {
-                    m_enforceNewline = true;
+                    d->enforceNewline = true;
                     s.chop(1);
                 }
-                m_formatter->appendMessage(QLatin1Char('\n') + s, format);
+                d->formatter->appendMessage(QLatin1Char('\n') + s, format);
             }
         } else {
-            m_formatter->appendMessage(doNewlineEnforcement(out), format);
+            d->formatter->appendMessage(doNewlineEnforcement(out), format);
         }
     }
 
@@ -254,7 +288,7 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
 void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &format)
 {
     const QString text = SynchronousProcess::normalizeNewlines(textIn);
-    if (m_maxLineCount > 0 && document()->blockCount() >= m_maxLineCount)
+    if (d->maxLineCount > 0 && document()->blockCount() >= d->maxLineCount)
         return;
     const bool atBottom = isScrollbarAtBottom();
     QTextCursor cursor = QTextCursor(document());
@@ -262,7 +296,7 @@ void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &form
     cursor.beginEditBlock();
     cursor.insertText(doNewlineEnforcement(text), format);
 
-    if (m_maxLineCount > 0 && document()->blockCount() >= m_maxLineCount) {
+    if (d->maxLineCount > 0 && document()->blockCount() >= d->maxLineCount) {
         QTextCharFormat tmp;
         tmp.setFontWeight(QFont::Bold);
         cursor.insertText(doNewlineEnforcement(tr("Additional output omitted") + QLatin1Char('\n')), tmp);
@@ -280,7 +314,7 @@ bool OutputWindow::isScrollbarAtBottom() const
 
 void OutputWindow::clear()
 {
-    m_enforceNewline = false;
+    d->enforceNewline = false;
     QPlainTextEdit::clear();
 }
 

@@ -34,13 +34,15 @@
 #include "core_global.h"
 #include "icontext.h"
 
-#include <utils/outputformatter.h>
+#include <utils/outputformat.h>
 
 #include <QPlainTextEdit>
 
+namespace Utils { class OutputFormatter; }
+
 namespace Core {
 
-class IContext;
+namespace Internal { class OutputWindowPrivate; }
 
 class CORE_EXPORT OutputWindow : public QPlainTextEdit
 {
@@ -65,7 +67,7 @@ public:
     void scrollToBottom();
 
     void setMaxLineCount(int count);
-    int maxLineCount() const { return m_maxLineCount; }
+    int maxLineCount() const;
 
 public slots:
     void setWordWrapEnabled(bool wrap);
@@ -83,14 +85,7 @@ private:
     void enableUndoRedo();
     QString doNewlineEnforcement(const QString &out);
 
-    IContext *m_outputWindowContext;
-    Utils::OutputFormatter *m_formatter;
-
-    bool m_enforceNewline;
-    bool m_scrollToBottom;
-    bool m_linksActive;
-    bool m_mousePressed;
-    int m_maxLineCount;
+    Internal::OutputWindowPrivate *d;
 };
 
 } // namespace Core

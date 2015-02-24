@@ -44,8 +44,9 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/invoker.h>
 
-#include <utils/qtcassert.h>
 #include <utils/algorithm.h>
+#include <utils/outputformatter.h>
+#include <utils/qtcassert.h>
 
 #include <QAction>
 #include <QVBoxLayout>
