@@ -805,16 +805,6 @@
     Format the lambda according to the following rules:
 
     \list
-        \li Always write parentheses for the parameter list, even if the function does not take
-            parameters.
-            \code
-            []() { doSomething(); }
-
-            -NOT
-
-            [] { doSomething(); }
-            \endcode
-
         \li Place the capture-list, parameter list, return type, and opening brace on the first line,
             the body indented on the following lines, and the closing brace on a new line.
             \code
@@ -859,9 +849,9 @@
 
         \li Optionally, place the lambda completely on one line if it fits.
             \code
-            foo([]() { return true; });
+            foo([] { return true; });
 
-            if (foo([]() { return true; })) {
+            if (foo([] { return true; })) {
                 ...
             }
             \endcode
