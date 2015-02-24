@@ -1885,7 +1885,7 @@ void ProjectExplorerPluginPrivate::restoreSession()
     connect(dd->m_welcomePage, &ProjectWelcomePage::requestProject,
             m_instance, &ProjectExplorerPlugin::openProjectWelcomePage);
     dd->m_arguments = arguments;
-    QTimer::singleShot(0, this, SLOT(restoreSession2()));
+    QTimer::singleShot(0, m_instance, SLOT(restoreSession2()));
     updateActions();
 }
 
