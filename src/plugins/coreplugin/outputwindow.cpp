@@ -49,7 +49,7 @@ namespace Internal {
 class OutputWindowPrivate
 {
 public:
-    OutputWindowPrivate()
+    OutputWindowPrivate(QTextDocument *document)
         : outputWindowContext(0)
         , formatter(0)
         , enforceNewline(false)
@@ -57,6 +57,7 @@ public:
         , linksActive(true)
         , mousePressed(false)
         , maxLineCount(100000)
+        , cursor(document)
     {
     }
 
@@ -74,6 +75,7 @@ public:
     bool linksActive;
     bool mousePressed;
     int maxLineCount;
+    QTextCursor cursor;
 };
 
 } // namespace Internal
@@ -82,7 +84,7 @@ public:
 
 OutputWindow::OutputWindow(Context context, QWidget *parent)
     : QPlainTextEdit(parent)
-    , d(new Internal::OutputWindowPrivate)
+    , d(new Internal::OutputWindowPrivate(document()))
 {
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     //setCenterOnScroll(false);
@@ -291,18 +293,18 @@ void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &form
     if (d->maxLineCount > 0 && document()->blockCount() >= d->maxLineCount)
         return;
     const bool atBottom = isScrollbarAtBottom();
-    QTextCursor cursor = QTextCursor(document());
-    cursor.movePosition(QTextCursor::End);
-    cursor.beginEditBlock();
-    cursor.insertText(doNewlineEnforcement(text), format);
+    if (!d->cursor.atEnd())
+        d->cursor.movePosition(QTextCursor::End);
+    d->cursor.beginEditBlock();
+    d->cursor.insertText(doNewlineEnforcement(text), format);
 
     if (d->maxLineCount > 0 && document()->blockCount() >= d->maxLineCount) {
         QTextCharFormat tmp;
         tmp.setFontWeight(QFont::Bold);
-        cursor.insertText(doNewlineEnforcement(tr("Additional output omitted") + QLatin1Char('\n')), tmp);
+        d->cursor.insertText(doNewlineEnforcement(tr("Additional output omitted") + QLatin1Char('\n')), tmp);
     }
 
-    cursor.endEditBlock();
+    d->cursor.endEditBlock();
     if (atBottom)
         scrollToBottom();
 }
@@ -329,11 +331,11 @@ void OutputWindow::scrollToBottom()
 
 void OutputWindow::grayOutOldContent()
 {
-    QTextCursor cursor = textCursor();
-    cursor.movePosition(QTextCursor::End);
-    QTextCharFormat endFormat = cursor.charFormat();
+    if (!d->cursor.atEnd())
+        d->cursor.movePosition(QTextCursor::End);
+    QTextCharFormat endFormat = d->cursor.charFormat();
 
-    cursor.select(QTextCursor::Document);
+    d->cursor.select(QTextCursor::Document);
 
     QTextCharFormat format;
     const QColor bkgColor = palette().base().color();
@@ -343,11 +345,12 @@ void OutputWindow::grayOutOldContent()
     format.setForeground(QColor((bkgFactor * bkgColor.red() + fgdFactor * fgdColor.red()),
                              (bkgFactor * bkgColor.green() + fgdFactor * fgdColor.green()),
                              (bkgFactor * bkgColor.blue() + fgdFactor * fgdColor.blue()) ));
-    cursor.mergeCharFormat(format);
+    d->cursor.mergeCharFormat(format);
 
-    cursor.movePosition(QTextCursor::End);
-    cursor.setCharFormat(endFormat);
-    cursor.insertBlock(QTextBlockFormat());
+    if (!d->cursor.atEnd())
+        d->cursor.movePosition(QTextCursor::End);
+    d->cursor.setCharFormat(endFormat);
+    d->cursor.insertBlock(QTextBlockFormat());
 }
 
 void OutputWindow::enableUndoRedo()
