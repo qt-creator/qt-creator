@@ -29,7 +29,7 @@
             "data":
             {
                 "source": "file.qml",
-                "target": "%{JS: Util.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('application/x-qml')}')}",
+                "target": "%{JS: Util.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('text/x-qml')}')}",
                 "openInEditor": true
             }
         }

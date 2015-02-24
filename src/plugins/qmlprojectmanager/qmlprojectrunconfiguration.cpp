@@ -269,7 +269,7 @@ void QmlProjectRunConfiguration::updateEnabled()
         IDocument *document = EditorManager::currentDocument();
         if (document) {
             m_currentFileFilename = document->filePath().toString();
-            if (mdb.mimeTypeForFile(mainScript()).matchesName(QLatin1String("application/x-qml")))
+            if (mdb.mimeTypeForFile(mainScript()).matchesName(QLatin1String("text/x-qml")))
                 qmlFileFound = true;
         }
         if (!document
@@ -280,7 +280,7 @@ void QmlProjectRunConfiguration::updateEnabled()
                 const QFileInfo fi(filename);
 
                 if (!filename.isEmpty() && fi.baseName()[0].isLower()
-                        && mdb.mimeTypeForFile(fi).matchesName(QLatin1String("application/x-qml")))
+                        && mdb.mimeTypeForFile(fi).matchesName(QLatin1String("text/x-qml")))
                 {
                     m_currentFileFilename = filename;
                     qmlFileFound = true;
