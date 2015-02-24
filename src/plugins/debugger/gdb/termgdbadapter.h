@@ -62,9 +62,9 @@ private:
 
     void handleStubAttached(const DebuggerResponse &response);
 
-    Q_SLOT void stubStarted();
-    Q_SLOT void stubExited();
-    Q_SLOT void stubError(const QString &msg);
+    void stubStarted();
+    void stubExited();
+    void stubError(const QString &msg);
 
     Utils::ConsoleProcess m_stubProc;
 };
