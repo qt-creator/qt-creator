@@ -33,6 +33,7 @@
 #include "theme/theme.h"
 
 #include <QPlainTextEdit>
+#include <QTextCursor>
 
 namespace Utils {
 
@@ -58,6 +59,7 @@ public:
     QPlainTextEdit *plainTextEdit;
     QTextCharFormat *formats;
     QFont font;
+    QTextCursor cursor;
     AnsiEscapeCodeHandler *escapeCodeHandler;
     bool overwriteOutput;
 };
@@ -82,6 +84,7 @@ QPlainTextEdit *OutputFormatter::plainTextEdit() const
 void OutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
 {
     d->plainTextEdit = plainText;
+    d->cursor = plainText ? plainText->textCursor() : QTextCursor();
     initFormats();
 }
 
@@ -92,19 +95,19 @@ void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
 
 void OutputFormatter::appendMessage(const QString &text, const QTextCharFormat &format)
 {
-    QTextCursor cursor(d->plainTextEdit->document());
-    cursor.movePosition(QTextCursor::End);
+    if (!d->cursor.atEnd())
+        d->cursor.movePosition(QTextCursor::End);
 
     foreach (const FormattedText &output, parseAnsi(text, format)) {
         int startPos = 0;
         int crPos = -1;
         while ((crPos = output.text.indexOf(QLatin1Char('\r'), startPos)) >= 0)  {
-            append(cursor, output.text.mid(startPos, crPos - startPos), output.format);
+            append(d->cursor, output.text.mid(startPos, crPos - startPos), output.format);
             startPos = crPos + 1;
             d->overwriteOutput = true;
         }
         if (startPos < output.text.count())
-            append(cursor, output.text.mid(startPos), output.format);
+            append(d->cursor, output.text.mid(startPos), output.format);
     }
 }
 
@@ -131,10 +134,10 @@ void OutputFormatter::append(QTextCursor &cursor, const QString &text,
 
 void OutputFormatter::clearLastLine()
 {
-    QTextCursor cursor(d->plainTextEdit->document());
-    cursor.movePosition(QTextCursor::End);
-    cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
-    cursor.removeSelectedText();
+    if (!d->cursor.atEnd())
+        d->cursor.movePosition(QTextCursor::End);
+    d->cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
+    d->cursor.removeSelectedText();
 }
 
 void OutputFormatter::initFormats()
