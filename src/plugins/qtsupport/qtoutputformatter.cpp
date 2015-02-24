@@ -81,6 +81,7 @@ public:
     QPointer<Project> project;
     QString lastLine;
     FileInProjectFinder projectFinder;
+    QTextCursor cursor;
 };
 
 } // namespace Internal
@@ -172,14 +173,14 @@ void QtOutputFormatter::appendMessagePart(QTextCursor &cursor, const QString &tx
 
 void QtOutputFormatter::appendMessage(const QString &txt, const QTextCharFormat &format)
 {
-    QTextCursor cursor(plainTextEdit()->document());
-    cursor.movePosition(QTextCursor::End);
-    cursor.beginEditBlock();
+    if (!d->cursor.atEnd())
+        d->cursor.movePosition(QTextCursor::End);
+    d->cursor.beginEditBlock();
 
     foreach (const FormattedText &output, parseAnsi(txt, format))
-        appendMessagePart(cursor, output.text, output.format);
+        appendMessagePart(d->cursor, output.text, output.format);
 
-    cursor.endEditBlock();
+    d->cursor.endEditBlock();
 }
 
 void QtOutputFormatter::appendLine(QTextCursor &cursor, const LinkResult &lr,
@@ -261,6 +262,12 @@ void QtOutputFormatter::handleLink(const QString &href)
             return;
         }
     }
+}
+
+void QtOutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
+{
+    OutputFormatter::setPlainTextEdit(plainText);
+    d->cursor = plainText ? plainText->textCursor() : QTextCursor();
 }
 
 void QtOutputFormatter::clearLastLine()

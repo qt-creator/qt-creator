@@ -63,6 +63,7 @@ public:
     void appendMessage(const QString &text, Utils::OutputFormat format);
     void appendMessage(const QString &text, const QTextCharFormat &format);
     void handleLink(const QString &href);
+    void setPlainTextEdit(QPlainTextEdit *plainText);
 
 protected:
     void clearLastLine();

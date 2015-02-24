@@ -58,7 +58,7 @@ public:
     virtual ~OutputFormatter();
 
     QPlainTextEdit *plainTextEdit() const;
-    void setPlainTextEdit(QPlainTextEdit *plainText);
+    virtual void setPlainTextEdit(QPlainTextEdit *plainText);
 
     QFont font() const;
     void setFont(const QFont &font);
