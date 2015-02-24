@@ -275,6 +275,7 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent
     editTargetLabel->setBuddy(m_targetChooser);
     m_targetChooser->setToolTip(targetToolTip);
     editLayout->addRow(editTargetLabel, m_targetChooser);
+    editLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
     auto chooser = new Core::VariableChooser(this);
     chooser->addSupportedWidget(m_targetChooser->lineEdit());
