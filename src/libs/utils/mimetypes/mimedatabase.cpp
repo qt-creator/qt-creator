@@ -323,8 +323,11 @@ QString MimeDatabase::allFiltersString(QString *allFilesFilter)
 {
     MimeDatabase mdb;
     QSet<QString> uniqueFilters;
-    foreach (const MimeType &mt, mdb.allMimeTypes())
-        uniqueFilters.insert(mt.filterString());
+    foreach (const MimeType &mt, mdb.allMimeTypes()) {
+        const QString &filterString = mt.filterString();
+        if (!filterString.isEmpty())
+            uniqueFilters.insert(mt.filterString());
+    }
     QStringList filters;
     foreach (const QString &filter, uniqueFilters)
         filters.append(filter);
