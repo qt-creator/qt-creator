@@ -2195,36 +2195,42 @@ IEditor *EditorManager::activateEditorForDocument(IDocument *document, OpenEdito
  * or IExternalEditor), find the one best matching the mimetype passed in.
  *  Recurse over the parent classes of the mimetype to find them. */
 template <class EditorFactoryLike>
-static void mimeTypeFactoryRecursion(const Utils::MimeType &mimeType,
+static void mimeTypeFactoryLookup(const Utils::MimeType &mimeType,
                                      const QList<EditorFactoryLike*> &allFactories,
                                      bool firstMatchOnly,
                                      QList<EditorFactoryLike*> *list)
 {
-    typedef typename QList<EditorFactoryLike*>::const_iterator EditorFactoryLikeListConstIterator;
-    // Loop factories to find type
-    const EditorFactoryLikeListConstIterator fcend = allFactories.constEnd();
-    for (EditorFactoryLikeListConstIterator fit = allFactories.constBegin(); fit != fcend; ++fit) {
-        // Exclude duplicates when recursing over xml or C++ -> C -> text.
-        EditorFactoryLike *factory = *fit;
-        if (!list->contains(factory)) {
-            foreach (const QString &mt, factory->mimeTypes()) {
-                if (mimeType.matchesName(mt)) {
-                    list->push_back(*fit);
-                    if (firstMatchOnly)
-                        return;
+    Utils::MimeDatabase mdb;
+    QSet<EditorFactoryLike *> matches;
+    // search breadth-first through parent hierarchy, e.g. for hierarchy
+    // * application/x-ruby
+    //     * application/x-executable
+    //         * application/octet-stream
+    //     * text/plain
+    QList<Utils::MimeType> queue;
+    queue.append(mimeType);
+    while (!queue.isEmpty()) {
+        Utils::MimeType mt = queue.takeFirst();
+        // check for matching factories
+        foreach (EditorFactoryLike *factory, allFactories) {
+            if (!matches.contains(factory)) {
+                foreach (const QString &mimeName, factory->mimeTypes()) {
+                    if (mt.matchesName(mimeName)) {
+                        list->append(factory);
+                        if (firstMatchOnly)
+                            return;
+                        matches.insert(factory);
+                    }
                 }
             }
         }
-    }
-    // Any parent mime type classes? -> recurse
-    QStringList parentNames = mimeType.parentMimeTypes();
-    if (parentNames.empty())
-        return;
-    Utils::MimeDatabase mdb;
-    foreach (const QString &parentName, parentNames) {
-        const Utils::MimeType parent = mdb.mimeTypeForName(parentName);
-        if (parent.isValid())
-            mimeTypeFactoryRecursion(parent, allFactories, firstMatchOnly, list);
+        // add parent mime types
+        QStringList parentNames = mt.parentMimeTypes();
+        foreach (const QString &parentName, parentNames) {
+            const Utils::MimeType parent = mdb.mimeTypeForName(parentName);
+            if (parent.isValid())
+                queue.append(parent);
+        }
     }
 }
 
@@ -2233,7 +2239,7 @@ EditorManager::EditorFactoryList
 {
     EditorFactoryList rc;
     const EditorFactoryList allFactories = ExtensionSystem::PluginManager::getObjects<IEditorFactory>();
-    mimeTypeFactoryRecursion(mimeType, allFactories, bestMatchOnly, &rc);
+    mimeTypeFactoryLookup(mimeType, allFactories, bestMatchOnly, &rc);
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << mimeType.name() << " returns " << rc;
     return rc;
@@ -2244,7 +2250,7 @@ EditorManager::ExternalEditorList
 {
     ExternalEditorList rc;
     const ExternalEditorList allEditors = ExtensionSystem::PluginManager::getObjects<IExternalEditor>();
-    mimeTypeFactoryRecursion(mimeType, allEditors, bestMatchOnly, &rc);
+    mimeTypeFactoryLookup(mimeType, allEditors, bestMatchOnly, &rc);
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << mimeType.name() << " returns " << rc;
     return rc;
