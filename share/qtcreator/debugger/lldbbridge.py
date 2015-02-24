@@ -934,7 +934,7 @@ class Dumper(DumperBase):
 
     def putSubItem(self, component, value, tryDynamic=True):
         if not value.IsValid():
-            warn("INVALID SUBITEM: %s" % value.GetName())
+            self.warn("INVALID SUBITEM: %s" % value.GetName())
             return
         with SubItem(self, component):
             self.putItem(value, tryDynamic)
