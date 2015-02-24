@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/codemodel" >
         <file>images/class.png</file>
+        <file>images/struct.png</file>
         <file>images/enum.png</file>
         <file>images/enumerator.png</file>
         <file>images/func.png</file>

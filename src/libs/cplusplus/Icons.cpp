@@ -40,6 +40,7 @@ using CPlusPlus::Icons;
 
 Icons::Icons()
     : _classIcon(QLatin1String(":/codemodel/images/class.png")),
+      _structIcon(QLatin1String(":/codemodel/images/struct.png")),
       _enumIcon(QLatin1String(":/codemodel/images/enum.png")),
       _enumeratorIcon(QLatin1String(":/codemodel/images/enumerator.png")),
       _funcPublicIcon(QLatin1String(":/codemodel/images/func.png")),
@@ -115,8 +116,10 @@ Icons::IconType Icons::iconTypeForSymbol(const Symbol *symbol)
             return VarPrivateIconType;
     } else if (symbol->isEnum()) {
         return EnumIconType;
-    } else if (symbol->isClass() || symbol->isForwardClassDeclaration()) {
-        return ClassIconType;
+    } else if (symbol->isForwardClassDeclaration()) {
+        return ClassIconType; // TODO: Store class key in ForwardClassDeclaration
+    } else if (const Class *klass = symbol->asClass()) {
+        return klass->isStruct() ? StructIconType : ClassIconType;
     } else if (symbol->isObjCClass() || symbol->isObjCForwardClassDeclaration()) {
         return ClassIconType;
     } else if (symbol->isObjCProtocol() || symbol->isObjCForwardProtocolDeclaration()) {
@@ -141,6 +144,8 @@ QIcon Icons::iconForType(IconType type) const
     switch (type) {
     case ClassIconType:
         return _classIcon;
+    case StructIconType:
+        return _structIcon;
     case EnumIconType:
         return _enumIcon;
     case EnumeratorIconType:

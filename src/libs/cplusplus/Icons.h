@@ -51,6 +51,7 @@ public:
 
     enum IconType {
         ClassIconType = 0,
+        StructIconType,
         EnumIconType,
         EnumeratorIconType,
         FuncPublicIconType,
@@ -74,6 +75,7 @@ public:
 
 private:
     QIcon _classIcon;
+    QIcon _structIcon;
     QIcon _enumIcon;
     QIcon _enumeratorIcon;
     QIcon _funcPublicIcon;

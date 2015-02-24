@@ -132,6 +132,7 @@ QtcLibrary {
         prefix: "images/"
         files: [
             "class.png",
+            "struct.png",
             "enum.png",
             "enumerator.png",
             "func.png",
