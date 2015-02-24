@@ -312,6 +312,7 @@ void LldbEngine::setupInferior()
             showMessage(_("TAKING OWNERSHIP OF BREAKPOINT %1 IN STATE %2")
                             .arg(bp.id().toString()).arg(bp.state()));
             bp.setEngine(this);
+            bp.notifyBreakpointInsertProceeding();
             cmd.beginGroup();
             bp.addToCommand(&cmd);
             cmd.endGroup();
