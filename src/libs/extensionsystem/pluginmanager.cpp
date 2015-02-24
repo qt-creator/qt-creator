@@ -52,6 +52,7 @@
 #include <QSysInfo>
 
 #include <utils/algorithm.h>
+#include <utils/executeondestruction.h>
 #include <utils/qtcassert.h>
 
 #ifdef WITH_TESTS
@@ -1059,16 +1060,6 @@ static TestPlan generateCustomTestPlan(IPlugin *plugin, const QList<QObject *> &
     return testPlan;
 }
 
-class ExecuteOnDestruction
-{
-public:
-    ExecuteOnDestruction(std::function<void()> code) : destructionCode(code) {}
-    ~ExecuteOnDestruction() { if (destructionCode) destructionCode(); }
-
-private:
-    const std::function<void()> destructionCode;
-};
-
 void PluginManagerPrivate::startTests()
 {
     if (PluginManager::hasError()) {
@@ -1084,7 +1075,8 @@ void PluginManagerPrivate::startTests()
             continue; // plugin not loaded
 
         const QList<QObject *> testObjects = plugin->createTestObjects();
-        ExecuteOnDestruction deleteTestObjects([&]() { qDeleteAll(testObjects); });
+        Utils::ExecuteOnDestruction deleteTestObjects([&]() { qDeleteAll(testObjects); });
+        Q_UNUSED(deleteTestObjects)
 
         const bool hasDuplicateTestObjects = testObjects.size() != testObjects.toSet().size();
         QTC_ASSERT(!hasDuplicateTestObjects, continue);

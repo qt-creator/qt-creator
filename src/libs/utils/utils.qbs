@@ -72,6 +72,7 @@ QtcLibrary {
         "environmentmodel.h",
         "execmenu.cpp",
         "execmenu.h",
+        "executeondestruction.h",
         "fadingindicator.cpp",
         "fadingindicator.h",
         "faketooltip.cpp",
