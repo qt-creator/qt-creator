@@ -186,9 +186,6 @@ public:
 public slots:
     void clearContents();
 
-private slots:
-    void handleExpandCollapseToolButton(bool checked);
-
 public: // Used by plugin, do not use
     void writeSettings();
 
