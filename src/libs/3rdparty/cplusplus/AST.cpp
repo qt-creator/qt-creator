@@ -89,7 +89,9 @@ unsigned BaseSpecifierAST::firstToken() const
 
 unsigned BaseSpecifierAST::lastToken() const
 {
-    if (name)
+    if (ellipsis_token)
+        return ellipsis_token;
+    else if (name)
         return name->lastToken();
     else if (virtual_token && access_specifier_token)
         return std::max(virtual_token, access_specifier_token) + 1;

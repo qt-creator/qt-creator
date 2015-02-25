@@ -599,6 +599,12 @@ bool BaseClass::isVirtual() const
 void BaseClass::setVirtual(bool isVirtual)
 { _isVirtual = isVirtual; }
 
+bool BaseClass::isVariadic() const
+{ return _isVariadic; }
+
+void BaseClass::setVariadic(bool isVariadic)
+{ _isVariadic = isVariadic; }
+
 void BaseClass::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
 

@@ -287,6 +287,7 @@ BaseSpecifierAST *BaseSpecifierAST::clone(MemoryPool *pool) const
     ast->access_specifier_token = access_specifier_token;
     if (name)
         ast->name = name->clone(pool);
+    ast->ellipsis_token = ellipsis_token;
     return ast;
 }
 

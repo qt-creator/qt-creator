@@ -1002,6 +1002,7 @@ public:
     unsigned virtual_token;
     unsigned access_specifier_token;
     NameAST *name;
+    unsigned ellipsis_token;
 
 public: // annotations
     BaseClass *symbol;
@@ -1011,6 +1012,7 @@ public:
         : virtual_token(0)
         , access_specifier_token(0)
         , name(0)
+        , ellipsis_token(0)
         , symbol(0)
     {}
 

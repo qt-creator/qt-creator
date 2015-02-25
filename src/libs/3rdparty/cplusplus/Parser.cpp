@@ -3006,6 +3006,11 @@ bool Parser::parseBaseSpecifier(BaseSpecifierListAST *&node)
     if (! ast->name)
         error(cursor(), "expected class-name");
 
+    // a name can have ellipsis in case of C++11
+    // note: the id must be unqualified then - TODO
+    if (_languageFeatures.cxx11Enabled && LA() == T_DOT_DOT_DOT)
+        ast->ellipsis_token = consumeToken();
+
     node = new (_pool) BaseSpecifierListAST;
     node->value = ast;
     return true;

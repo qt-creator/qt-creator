@@ -474,6 +474,9 @@ public:
     bool isVirtual() const;
     void setVirtual(bool isVirtual);
 
+    bool isVariadic() const;
+    void setVariadic(bool isVariadic);
+
     // Symbol's interface
     virtual FullySpecifiedType type() const;
     void setType(const FullySpecifiedType &type);
@@ -488,6 +491,7 @@ protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
 
 private:
+    bool _isVariadic;
     bool _isVirtual;
     FullySpecifiedType _type;
 };

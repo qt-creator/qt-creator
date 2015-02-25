@@ -292,6 +292,8 @@ virtual bool visit(BaseSpecifierAST *ast)
     if (ast->access_specifier_token)
         terminal(ast->access_specifier_token, ast);
     nonterminal(ast->name);
+    if (ast->ellipsis_token)
+        terminal(ast->ellipsis_token, ast);
     return false;
 }
 

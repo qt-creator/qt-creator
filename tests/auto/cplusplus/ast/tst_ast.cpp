@@ -75,8 +75,10 @@ public:
         return unit;
     }
 
-    TranslationUnit *parseDeclaration(const QByteArray &source, bool blockErrors = false, bool qtMocRun = false)
-    { return parse(source, TranslationUnit::ParseDeclaration, blockErrors, qtMocRun); }
+    TranslationUnit *parseDeclaration(const QByteArray &source, bool blockErrors = false,
+        bool qtMocRun = false, bool cxx11Enabled = false)
+    { return parse(source, TranslationUnit::ParseDeclaration,
+        blockErrors, qtMocRun, cxx11Enabled); }
 
     TranslationUnit *parseExpression(const QByteArray &source)
     { return parse(source, TranslationUnit::ParseExpression); }
@@ -166,6 +168,11 @@ private slots:
     void cpp_constructor_no_arg();
     void cpp_constructor_multiple_args();
     void cpp_constructor_function_try_catch();
+
+    // c++11 ast
+    //! checks for both correct ellipsis tokens in
+    //! "template<class ...Args> class T : Args... {};"
+    void cpp11_variadic_inheritance();
 
     // Q_PROPERTY
     void cpp_qproperty();
@@ -1271,6 +1278,49 @@ void tst_AST::cpp_constructor_function_try_catch()
     QVERIFY(funDecl != 0);
     QVERIFY(funDecl->parameter_declaration_clause != 0);
     QVERIFY(funDecl->parameter_declaration_clause->parameter_declaration_list != 0);
+}
+
+void tst_AST::cpp11_variadic_inheritance()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration(
+        "template<class ...Args> class C : public Args... {};",
+        false, false, true));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    DeclarationAST *d = ast->asDeclaration();
+    QVERIFY(d != 0);
+
+    TemplateDeclarationAST *t = d->asTemplateDeclaration();
+    QVERIFY(t != 0);
+
+    DeclarationListAST *tp = t->template_parameter_list;
+    QVERIFY(tp != 0);
+    QVERIFY(tp->next == 0);
+
+    DeclarationAST *d3 = tp->value;
+    QVERIFY(d3 != 0);
+
+    TypenameTypeParameterAST *ttp = d3->asTypenameTypeParameter();
+    QVERIFY(ttp != 0);
+    QVERIFY(ttp->dot_dot_dot_token != 0); // important
+
+    DeclarationAST *d2 = t->declaration;
+    QVERIFY(d2 != 0);
+
+    SimpleDeclarationAST *sd = d2->asSimpleDeclaration();
+    QVERIFY(sd != 0);
+
+    ClassSpecifierAST *cl = sd->decl_specifier_list->value->asClassSpecifier();
+    QVERIFY(cl != 0);
+
+    BaseSpecifierListAST *bl = cl->base_clause_list;
+    QVERIFY(bl != 0);
+    QVERIFY(bl->next == 0);
+
+    BaseSpecifierAST *ba = bl->value;
+    QVERIFY(ba != 0);
+    QVERIFY(ba->ellipsis_token != 0); // important
 }
 
 void tst_AST::cpp_qproperty()

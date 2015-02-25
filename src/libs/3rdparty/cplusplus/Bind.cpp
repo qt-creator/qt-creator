@@ -429,6 +429,8 @@ void Bind::baseSpecifier(BaseSpecifierAST *ast, unsigned colon_token, Class *kla
         const int visibility = visibilityForAccessSpecifier(tokenKind(ast->access_specifier_token));
         baseClass->setVisibility(visibility); // ### well, not exactly.
     }
+    if (ast->ellipsis_token)
+        baseClass->setVariadic(true);
     klass->addBaseClass(baseClass);
     ast->symbol = baseClass;
 }

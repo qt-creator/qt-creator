@@ -462,6 +462,8 @@ bool ASTMatcher::match(BaseSpecifierAST *node, BaseSpecifierAST *pattern)
     else if (! AST::match(node->name, pattern->name, this))
         return false;
 
+    pattern->ellipsis_token = node->ellipsis_token;
+
     return true;
 }
 
