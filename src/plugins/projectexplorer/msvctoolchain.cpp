@@ -586,9 +586,12 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect()
         const QString vcvarsAllbat = path + QLatin1String("/vcvarsall.bat");
         if (QFileInfo(vcvarsAllbat).isFile()) {
             QList<MsvcToolChain::Platform> platforms; // prioritized list
+            // x86_arm was put before amd64_arm as a workaround for auto detected windows phone
+            // toolchains. As soon as windows phone builds support x64 cross builds, this change
+            // can be reverted.
             platforms << MsvcToolChain::x86
                       << MsvcToolChain::amd64 << MsvcToolChain::x86_amd64
-                      << MsvcToolChain::arm << MsvcToolChain::amd64_arm << MsvcToolChain::x86_arm
+                      << MsvcToolChain::arm << MsvcToolChain::x86_arm << MsvcToolChain::amd64_arm
                       << MsvcToolChain::ia64 << MsvcToolChain::x86_ia64;
             foreach (const MsvcToolChain::Platform &platform, platforms) {
                 if (hostSupportsPlatform(platform)

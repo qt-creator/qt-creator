@@ -227,7 +227,7 @@
     for use in \QC, by using the information you gave above.
 
     For more information about qmake, and writing .pro files in general,
-    see the \l{http://qt-project.org/doc/qt-4.8/qmake-manual.html}{qmake Manual}.
+    see the \l{qmake Manual}.
 
     \section1 Plugin Meta Data Template
 

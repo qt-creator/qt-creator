@@ -635,7 +635,7 @@ void HelpPlugin::handleHelpRequest(const QUrl &url, HelpManager::HelpViewerLocat
             || address.startsWith(QLatin1String("qthelp://com.nokia."))
             || address.startsWith(QLatin1String("qthelp://com.trolltech."))) {
                 // local help not installed, resort to external web help
-                QString urlPrefix = QLatin1String("http://qt-project.org/doc/");
+                QString urlPrefix = QLatin1String("http://doc.qt.io/");
                 if (url.authority() == QLatin1String("org.qt-project.qtcreator"))
                     urlPrefix.append(QString::fromLatin1("qtcreator"));
                 else
