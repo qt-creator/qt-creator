@@ -79,20 +79,30 @@ QWidget *ZoomAction::createWidget(QWidget *parent)
 
     if (m_comboBoxModel.isNull()) {
         m_comboBoxModel = comboBox->model();
-        comboBox->addItem("10 %", 0.1);
-        comboBox->addItem("25 %", 0.25);
-        comboBox->addItem("50 %", 0.5);
-        comboBox->addItem("100 %", 1.0);
-        comboBox->addItem("200 %", 2.0);
-        comboBox->addItem("400 %", 4.0);
-        comboBox->addItem("800 %", 8.0);
-        comboBox->addItem("1600 %", 16.0);
-
+        comboBox->addItem(QLatin1String("6.25 %"), 0.0625);
+        comboBox->addItem(QLatin1String("12.5 %"), 0.125);
+        comboBox->addItem(QLatin1String("25 %"), 0.25);
+        comboBox->addItem(QLatin1String("33 %"), 0.33);
+        comboBox->addItem(QLatin1String("50 %"), 0.5);
+        comboBox->addItem(QLatin1String("66 %"), 0.66);
+        comboBox->addItem(QLatin1String("75 %"), 0.75);
+        comboBox->addItem(QLatin1String("90 %"), 0.90);
+        comboBox->addItem(QLatin1String("100 %"), 1.0);
+        comboBox->addItem(QLatin1String("125 %"), 1.25);
+        comboBox->addItem(QLatin1String("150 %"), 1.5);
+        comboBox->addItem(QLatin1String("175 %"), 1.75);
+        comboBox->addItem(QLatin1String("200 %"), 2.0);
+        comboBox->addItem(QLatin1String("300 %"), 3.0);
+        comboBox->addItem(QLatin1String("400 %"), 4.0);
+        comboBox->addItem(QLatin1String("600 %"), 6.0);
+        comboBox->addItem(QLatin1String("800 %"), 8.0);
+        comboBox->addItem(QLatin1String("1000 %"), 10.0);
+        comboBox->addItem(QLatin1String("1600 %"), 16.0);
     } else {
         comboBox->setModel(m_comboBoxModel.data());
     }
 
-    comboBox->setCurrentIndex(3);
+    comboBox->setCurrentIndex(8);
     connect(comboBox, SIGNAL(currentIndexChanged(int)), SLOT(emitZoomLevelChanged(int)));
     connect(this, SIGNAL(indexChanged(int)), comboBox, SLOT(setCurrentIndex(int)));
 
