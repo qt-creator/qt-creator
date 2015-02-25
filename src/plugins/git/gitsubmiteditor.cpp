@@ -276,7 +276,7 @@ QString GitSubmitEditor::amendSHA1() const
 
 QByteArray GitSubmitEditor::fileContents() const
 {
-    const QString &text = submitEditorWidget()->descriptionText();
+    const QString &text = description();
 
     // Do the encoding convert, When use user-defined encoding
     // e.g. git config --global i18n.commitencoding utf-8

@@ -956,8 +956,5 @@ void MimeXMLProvider::addMagicMatcher(const MimeMagicRuleMatcher &matcher)
 void MimeXMLProvider::addFile(const QString &filePath)
 {
     m_additionalFiles.append(filePath);
-    if (m_loaded) {
-        m_allFiles.append(filePath);
-        load(filePath);
-    } // else: will be loaded in ensureLoaded()
+    m_loaded = false; // force reload to ensure correct load order for overridden mime types
 }

@@ -20,7 +20,8 @@
         {
             "trDisplayName": "Project Location",
             "trShortTitle": "Location",
-            "typeId": "Project"
+            "typeId": "Project",
+            "data": { "trDescription": "This wizard creates an empty .pro file." }
         },
         {
             "trDisplayName": "Kit Selection",

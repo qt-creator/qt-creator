@@ -131,6 +131,7 @@ public:
     void sendDebugOutput(DebugOutputCommand::Type type, const QString &message, qint32 instanceId);
     void sendDebugOutput(DebugOutputCommand::Type type, const QString &message, const QVector<qint32> &instanceIds);
 
+    void removeInstanceRelationsipForDeletedObject(QObject *object);
 public slots:
     void refreshLocalFileProperty(const QString &path);
     void refreshDummyData(const QString &path);

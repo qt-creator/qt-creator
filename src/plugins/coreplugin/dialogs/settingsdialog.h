@@ -62,8 +62,7 @@ public:
     // Returns a settings dialog. This makes sure that always only
     // a single settings dialog instance is running.
     // The dialog will be deleted automatically on close.
-    static SettingsDialog *getSettingsDialog(QWidget *parent,
-        Id initialCategory, Id initialPage);
+    static SettingsDialog *getSettingsDialog(QWidget *parent, Id initialPage);
     // Run the dialog and wait for it to finish.
     // Returns if the changes have been applied.
     bool execDialog();
@@ -73,7 +72,10 @@ public:
 public slots:
     void done(int);
 
-private slots:
+private:
+    SettingsDialog(QWidget *parent);
+    ~SettingsDialog();
+
     void accept();
     void reject();
     void apply();
@@ -81,13 +83,9 @@ private slots:
     void currentTabChanged(int);
     void filter(const QString &text);
 
-private:
-    SettingsDialog(QWidget *parent);
-    ~SettingsDialog();
-
     void createGui();
     void showCategory(int index);
-    void showPage(Id categoryId, Id pageId);
+    void showPage(Id pageId);
     void updateEnabledTabs(Category *category, const QString &searchText);
     void ensureCategoryWidget(Category *category);
     void disconnectTabWidgets();

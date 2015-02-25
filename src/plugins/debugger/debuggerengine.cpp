@@ -1859,7 +1859,7 @@ void DebuggerEngine::validateExecutable(DebuggerStartParameters *sp)
                     if (found)
                         break;
 
-                    const int len = strlen(str);
+                    const int len = int(strlen(str));
                     if (len == 0)
                         break;
                     str += len + 1;

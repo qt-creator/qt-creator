@@ -228,7 +228,6 @@ class Dumper(DumperBase):
         self.isShuttingDown_ = False
         self.isInterrupting_ = False
         self.dummyValue = None
-        self.breakpointsToCheck = set([])
         self.qmlBreakpointResolvers = {}
         self.qmlTriggeredBreakpoint = None
 
@@ -796,14 +795,6 @@ class Dumper(DumperBase):
         result += '],current-thread-id="%s"},' % self.currentThread().id
         self.report(result)
 
-    def reportChangedBreakpoints(self):
-        for i in xrange(0, self.target.GetNumBreakpoints()):
-            bp = self.target.GetBreakpointAtIndex(i)
-            if bp.GetID() in self.breakpointsToCheck:
-                if bp.GetNumLocations():
-                    self.breakpointsToCheck.remove(bp.GetID())
-                    self.report('breakpoint-changed={%s}' % self.describeBreakpoint(bp))
-
     def firstUsableFrame(self, thread):
         for i in xrange(10):
             frame = thread.GetFrameAtIndex(i)
@@ -880,6 +871,11 @@ class Dumper(DumperBase):
         result += ',limit="%d"' % limit
         result += '}'
         self.report(result)
+        self.reportContinuation(args)
+
+    def reportContinuation(self, args):
+        if "continuation" in args:
+            self.report('continuation=\"%s\"' % args["continuation"])
 
     def reportStackPosition(self):
         thread = self.currentThread()
@@ -943,7 +939,7 @@ class Dumper(DumperBase):
 
     def putSubItem(self, component, value, tryDynamic=True):
         if not value.IsValid():
-            warn("INVALID SUBITEM: %s" % value.GetName())
+            self.warn("INVALID SUBITEM: %s" % value.GetName())
             return
         with SubItem(self, component):
             self.putItem(value, tryDynamic)
@@ -1325,7 +1321,6 @@ class Dumper(DumperBase):
                 self.reportStackTop()
                 self.reportThreads()
                 self.reportLocation()
-                self.reportChangedBreakpoints()
         elif eventType == lldb.SBProcess.eBroadcastBitInterrupt: # 2
             pass
         elif eventType == lldb.SBProcess.eBroadcastBitSTDOUT:
@@ -1441,7 +1436,6 @@ class Dumper(DumperBase):
             bp.SetEnabled(int(args["enabled"]))
             if hasattr(bp, 'SetOneShot'):
                 bp.SetOneShot(int(args["oneshot"]))
-            self.breakpointsToCheck.add(bp.GetID())
         self.report('breakpoint-added={%s,modelid="%s"}' % (self.describeBreakpoint(bp), modelId))
 
     def changeBreakpoint(self, args):

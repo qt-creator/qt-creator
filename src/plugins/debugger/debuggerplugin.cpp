@@ -706,12 +706,8 @@ public:
                                    const QString &tracePointMessage = QString());
     void onModeChanged(IMode *mode);
     void onCoreAboutToOpen();
-    void showSettingsDialog();
     void updateDebugWithoutDeployMenu();
 
-    void debugProject();
-    void debugProjectWithoutDeploy();
-    void debugProjectBreakMain();
     void startAndDebugApplication();
     void startRemoteCdbSession();
     void startRemoteServer();
@@ -819,7 +815,7 @@ public slots:
     void handleExecStep()
     {
         if (currentEngine()->state() == DebuggerNotReady) {
-            debugProjectBreakMain();
+            ProjectExplorerPlugin::runStartupProject(DebugRunModeWithBreakOnMain);
         } else {
             currentEngine()->resetLocation();
             if (boolSetting(OperateByInstruction))
@@ -832,7 +828,7 @@ public slots:
     void handleExecNext()
     {
         if (currentEngine()->state() == DebuggerNotReady) {
-            debugProjectBreakMain();
+            ProjectExplorerPlugin::runStartupProject(DebugRunModeWithBreakOnMain);
         } else {
             currentEngine()->resetLocation();
             if (boolSetting(OperateByInstruction))
@@ -901,15 +897,6 @@ public slots:
             currentEngine()->resetLocation();
             currentEngine()->executeRunToFunction(functionName);
         }
-    }
-
-    void slotDisassembleFunction()
-    {
-        const QAction *action = qobject_cast<const QAction *>(sender());
-        QTC_ASSERT(action, return);
-        const StackFrame frame = action->data().value<StackFrame>();
-        QTC_ASSERT(!frame.function.isEmpty(), return);
-        currentEngine()->openDisassemblerView(Location(frame));
     }
 
     void handleAddToWatchWindow()
@@ -1336,21 +1323,6 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
     setProxyAction(m_visibleStartAction, Id(Constants::DEBUG));
 }
 
-void DebuggerPluginPrivate::debugProject()
-{
-    ProjectExplorerPlugin::runProject(SessionManager::startupProject(), DebugRunMode);
-}
-
-void DebuggerPluginPrivate::debugProjectWithoutDeploy()
-{
-    ProjectExplorerPlugin::runProject(SessionManager::startupProject(), DebugRunMode, true);
-}
-
-void DebuggerPluginPrivate::debugProjectBreakMain()
-{
-    ProjectExplorerPlugin::runProject(SessionManager::startupProject(), DebugRunModeWithBreakOnMain);
-}
-
 void DebuggerPluginPrivate::startAndDebugApplication()
 {
     DebuggerStartParameters sp;
@@ -1738,18 +1710,18 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
             });
         }
         // Disassemble current function in stopped state.
-        if (currentEngine()->state() == InferiorStopOk
-            && currentEngine()->hasCapability(DisassemblerCapability)) {
+        if (currentEngine()->hasCapability(DisassemblerCapability)) {
             StackFrame frame;
-            frame.function = cppFunctionAt(args.fileName, lineNumber);
+            frame.function = cppFunctionAt(args.fileName, lineNumber, 1);
             frame.line = 42; // trick gdb into mixed mode.
             if (!frame.function.isEmpty()) {
                 const QString text = tr("Disassemble Function \"%1\"")
                     .arg(frame.function);
-                QAction *disassembleAction = new QAction(text, menu);
-                disassembleAction->setData(QVariant::fromValue(frame));
-                connect(disassembleAction, &QAction::triggered, this, &DebuggerPluginPrivate::slotDisassembleFunction);
-                menu->addAction(disassembleAction );
+                auto act = new QAction(text, menu);
+                connect(act, &QAction::triggered, [this, frame] {
+                    currentEngine()->openDisassemblerView(Location(frame));
+                });
+                menu->addAction(act);
             }
         }
     }
@@ -2186,11 +2158,6 @@ void DebuggerPluginPrivate::onModeChanged(IMode *mode)
         editor->widget()->setFocus();
 
     m_toolTipManager.debugModeEntered();
-}
-
-void DebuggerPluginPrivate::showSettingsDialog()
-{
-    ICore::showOptionsDialog(DEBUGGER_SETTINGS_CATEGORY, DEBUGGER_COMMON_SETTINGS_ID);
 }
 
 void DebuggerPluginPrivate::updateDebugWithoutDeployMenu()
@@ -2661,11 +2628,11 @@ void DebuggerPluginPrivate::extensionsInitialized()
     debuggerIcon.addFile(QLatin1String(":/projectexplorer/images/debugger_start.png"));
     act->setIcon(debuggerIcon);
     act->setText(tr("Start Debugging"));
-    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::debugProject);
+    connect(act, &QAction::triggered, [] { ProjectExplorerPlugin::runStartupProject(DebugRunMode); });
 
     act = m_debugWithoutDeployAction = new QAction(this);
     act->setText(tr("Start Debugging Without Deployment"));
-    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::debugProjectWithoutDeploy);
+    connect(act, &QAction::triggered, [] { ProjectExplorerPlugin::runStartupProject(DebugRunMode, true); });
 
     act = m_startAndDebugApplicationAction = new QAction(this);
     act->setText(tr("Start and Debug External Application..."));
@@ -3017,7 +2984,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     // Application interaction
     connect(action(SettingsDialog), &QAction::triggered,
-            this, &DebuggerPluginPrivate::showSettingsDialog);
+            [] { ICore::showOptionsDialog(DEBUGGER_COMMON_SETTINGS_ID); });
 
     // QML Actions
     connect(action(ShowQmlObjectTree), &SavedAction::valueChanged,

@@ -153,14 +153,8 @@ public:
     void handleToolFinished();
     void saveToolSettings(Id toolId);
     void loadToolSettings(Id toolId);
-
-    // Convenience.
-    bool isActionRunnable(AnalyzerAction *action) const;
-
-public slots:
     void startTool();
     void selectToolboxAction(int);
-    void selectMenuAction();
     void modeChanged(IMode *mode);
     void resetLayout();
     void updateRunActions();
@@ -424,20 +418,10 @@ bool AnalyzerManagerPrivate::showPromptDialog(const QString &title, const QStrin
     return messageBox.clickedStandardButton() == QDialogButtonBox::Yes;
 }
 
-bool AnalyzerManagerPrivate::isActionRunnable(AnalyzerAction *action) const
-{
-    if (!action || m_isRunning)
-        return false;
-    if (action->startMode() == StartRemote)
-        return true;
-
-    return ProjectExplorerPlugin::canRun(SessionManager::startupProject(), action->runMode(), 0);
-}
-
 void AnalyzerManagerPrivate::startTool()
 {
     QTC_ASSERT(m_currentAction, return);
-    m_currentAction->toolStarter()(m_currentAction->startMode());
+    m_currentAction->toolStarter()();
 }
 
 void AnalyzerManagerPrivate::modeChanged(IMode *mode)
@@ -470,15 +454,6 @@ void AnalyzerManagerPrivate::selectSavedTool()
     // fallback to first available tool
     if (!m_actions.isEmpty())
         selectAction(m_actions.first());
-}
-
-void AnalyzerManagerPrivate::selectMenuAction()
-{
-    AnalyzerManager::showMode();
-    AnalyzerAction *action = qobject_cast<AnalyzerAction *>(sender());
-    QTC_ASSERT(action, return);
-    selectAction(action);
-    startTool();
 }
 
 void AnalyzerManagerPrivate::selectToolboxAction(int index)
@@ -540,7 +515,13 @@ void AnalyzerManagerPrivate::addAction(AnalyzerAction *action)
     m_actions.append(action);
     m_toolBox->addItem(action->text());
     m_toolBox->blockSignals(blocked);
-    connect(action, &QAction::triggered, this, &AnalyzerManagerPrivate::selectMenuAction);
+
+    connect(action, &QAction::triggered, this, [this, action] {
+        AnalyzerManager::showMode();
+        selectAction(action);
+        startTool();
+    });
+
     m_toolBox->setEnabled(true);
 }
 
@@ -583,20 +564,23 @@ void AnalyzerManagerPrivate::saveToolSettings(Id toolId)
 void AnalyzerManagerPrivate::updateRunActions()
 {
     QString disabledReason;
-    if (m_isRunning)
+    bool enabled = true;
+    if (m_isRunning) {
         disabledReason = tr("An analysis is still in progress.");
-    else if (!m_currentAction)
+        enabled = false;
+    } else if (!m_currentAction) {
         disabledReason = tr("No analyzer tool selected.");
-    else
-        ProjectExplorerPlugin::canRun(SessionManager::startupProject(),
-                                      m_currentAction->runMode(), &disabledReason);
+        enabled = false;
+    } else {
+        enabled = m_currentAction->isRunnable(&disabledReason);
+    }
 
-    m_startAction->setEnabled(isActionRunnable(m_currentAction));
+    m_startAction->setEnabled(enabled);
     m_startAction->setToolTip(disabledReason);
     m_toolBox->setEnabled(!m_isRunning);
     m_stopAction->setEnabled(m_isRunning);
     foreach (AnalyzerAction *action, m_actions)
-        action->setEnabled(isActionRunnable(action));
+        action->setEnabled(!m_isRunning && action->isRunnable());
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -643,10 +627,10 @@ QDockWidget *AnalyzerManager::createDockWidget(Core::Id toolId,
     return dockWidget;
 }
 
-void AnalyzerManager::selectTool(Id toolId, StartMode mode)
+void AnalyzerManager::selectTool(Id actionId)
 {
     foreach (AnalyzerAction *action, d->m_actions)
-        if (action->toolId() == toolId && action->startMode() == mode)
+        if (action->actionId() == actionId)
             d->selectAction(action);
 }
 
@@ -706,8 +690,8 @@ AnalyzerRunControl *AnalyzerManager::createRunControl(
     const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration)
 {
     foreach (AnalyzerAction *action, d->m_actions) {
-        if (action->runMode() == sp.runMode && action->startMode() == sp.startMode)
-            return action->createRunControl(sp, runConfiguration);
+        if (AnalyzerRunControl *rc = action->tryCreateRunControl(sp, runConfiguration))
+            return rc;
     }
     QTC_CHECK(false);
     return 0;

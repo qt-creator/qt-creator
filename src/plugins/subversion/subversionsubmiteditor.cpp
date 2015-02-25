@@ -28,7 +28,6 @@
 **
 ****************************************************************************/
 
-
 #include "subversionsubmiteditor.h"
 
 #include <coreplugin/idocument.h>
@@ -57,20 +56,13 @@ void SubversionSubmitEditor::setStatusList(const QList<StatusFilePair> &statusOu
     setFileModel(model, this->checkScriptWorkingDirectory());
 }
 
-/*
-QStringList SubversionSubmitEditor::vcsFileListToFileList(const QStringList &rl) const
+QByteArray SubversionSubmitEditor::fileContents() const
 {
-    QStringList files;
-    const QStringList::const_iterator cend = rl.constEnd();
-    for (QStringList::const_iterator it = rl.constBegin(); it != cend; ++it)
-        files.push_back(SubversionSubmitEditor::fileFromStatusLine(*it));
-    return files;
+    return description().toUtf8();
 }
 
-QString SubversionSubmitEditor::fileFromStatusLine(const QString &statusLine)
+bool SubversionSubmitEditor::setFileContents(const QByteArray &contents)
 {
-    enum { filePos = 7 };
-    return statusLine.mid(filePos, statusLine.size() - filePos);
+    setDescription(QString::fromUtf8(contents));
+    return true;
 }
-
-*/

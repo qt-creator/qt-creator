@@ -344,8 +344,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
                 d->m_unconfiguredVcs = versionControl;
                 info.setCustomButtonInfo(ICore::msgShowOptionsDialog(), []() {
                     QTC_ASSERT(d->m_unconfiguredVcs, return);
-                    ICore::showOptionsDialog(Id(VcsBase::Constants::VCS_SETTINGS_CATEGORY),
-                                             d->m_unconfiguredVcs->id());
+                    ICore::showOptionsDialog(d->m_unconfiguredVcs->id());
                  });
 
                 infoBar->addInfo(info);

@@ -304,6 +304,7 @@ void PchManager::doPchInfoUpdateFuzzy(QFutureInterface<void> &future,
         projectPart->languageVersion = languageVersions[pch];
         projectPart->languageExtensions = languageExtensionsMap[pch];
         projectPart->headerPaths = headers[pch].toList();
+        projectPart->updateLanguageFeatures();
 
         QList<QByteArray> defines = definesPerPCH[pch].toList();
         if (!defines.isEmpty()) {
@@ -386,6 +387,7 @@ void PchManager::doPchInfoUpdateCustom(QFutureInterface<void> &future,
         objc |= hasObjCFiles(projectPart);
         cplusplus |= hasCppFiles(projectPart);
     }
+    united->updateLanguageFeatures();
     united->headerPaths = headers;
     QStringList opts = Utils::createClangOptions(
                 united, getPrefixFileKind(objc, cplusplus));

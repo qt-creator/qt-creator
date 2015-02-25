@@ -96,7 +96,7 @@ bool SearchFunction::visit(CPlusPlus::Function * f)
     if (const CPlusPlus::Name *name = f->name())
         if (const CPlusPlus::Identifier *id = name->identifier())
             if (id->size() == m_length)
-                if (!qstrncmp(m_name, id->chars(), m_length))
+                if (!qstrncmp(m_name, id->chars(), uint(m_length)))
                     m_matches.push_back(f);
     return true;
 }

@@ -548,9 +548,7 @@ static void updateEditorInfoBar(TextEditorWidget *widget)
                                              "Would you like to try to find one?"),
                           InfoBarEntry::GlobalSuppressionEnabled);
         info.setCustomButtonInfo(BaseTextEditor::tr("Show Highlighter Options..."), [widget]() {
-            ICore::showOptionsDialog(Constants::TEXT_EDITOR_SETTINGS_CATEGORY,
-                                     Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS,
-                                     widget);
+            ICore::showOptionsDialog(Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS, widget);
         });
 
         infoBar->addInfo(info);

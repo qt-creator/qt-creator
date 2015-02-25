@@ -462,7 +462,7 @@ void ThreadsHandler::updateThreads(const GdbMi &data)
 //    }
 
     const std::vector<GdbMi> items = data["threads"].children();
-    const int n = items.size();
+    const int n = int(items.size());
     for (int index = 0; index != n; ++index) {
         const GdbMi item = items[index];
         const GdbMi frame = item["frame"];

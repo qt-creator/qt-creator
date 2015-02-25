@@ -122,11 +122,10 @@ public slots:
                            const QString &defaultLocation = QString(),
                            const QVariantMap &extraVariables = QVariantMap());
 
-    bool showOptionsDialog(Id category = Id(), Id page = Id(), QWidget *parent = 0);
+    bool showOptionsDialog(Id page = Id(), QWidget *parent = 0);
 
     bool showWarningWithOptions(const QString &title, const QString &text,
                                 const QString &details = QString(),
-                                Id settingsCategory = Id(),
                                 Id settingsId = Id(),
                                 QWidget *parent = 0);
 
@@ -136,7 +135,6 @@ protected:
 private slots:
     void openFile();
     void aboutToShowRecentFiles();
-    void openRecentFile();
     void setFocusToEditor();
     void saveAll();
     void aboutQtCreator();

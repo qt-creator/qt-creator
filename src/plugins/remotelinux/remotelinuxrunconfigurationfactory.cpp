@@ -52,7 +52,7 @@ QString stringFromId(Core::Id id)
     QByteArray idStr = id.name();
     if (!idStr.startsWith(RemoteLinuxRunConfiguration::IdPrefix))
         return QString();
-    return QString::fromUtf8(idStr.mid(strlen(RemoteLinuxRunConfiguration::IdPrefix)));
+    return QString::fromUtf8(idStr.mid(int(strlen(RemoteLinuxRunConfiguration::IdPrefix))));
 }
 
 } // namespace

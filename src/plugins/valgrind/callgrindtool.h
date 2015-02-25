@@ -37,6 +37,8 @@ namespace Valgrind {
 namespace Internal {
 
 const char CallgrindToolId[] = "Callgrind";
+const char CallgrindLocalActionId[] = "Callgrind.Local";
+const char CallgrindRemoteActionId[] = "Callgrind.Remote";
 
 class CallgrindToolPrivate;
 
@@ -52,7 +54,8 @@ public:
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
     QWidget *createWidgets();
 
-    void startTool(Analyzer::StartMode mode);
+    void startLocalTool();
+    void startRemoteTool();
 
 public slots:
     void handleShowCostsOfFunction();

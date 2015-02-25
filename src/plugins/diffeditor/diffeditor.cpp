@@ -32,8 +32,7 @@
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
 #include "diffeditorguicontroller.h"
-#include "sidebysidediffeditorwidget.h"
-#include "unifieddiffeditorwidget.h"
+#include "diffview.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -44,6 +43,7 @@
 #include <texteditor/displaysettings.h>
 #include <texteditor/marginsettings.h>
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
@@ -61,8 +61,6 @@
 
 static const char settingsGroupC[] = "DiffEditor";
 static const char diffEditorTypeKeyC[] = "DiffEditorType";
-static const char sideBySideDiffEditorValueC[] = "SideBySide";
-static const char unifiedDiffEditorValueC[] = "Unified";
 
 static const char legacySettingsGroupC[] = "Git";
 static const char useDiffEditorKeyC[] = "UseDiffEditor";
@@ -204,9 +202,7 @@ DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
     : m_document(doc)
     , m_descriptionWidget(0)
     , m_stackedWidget(0)
-    , m_sideBySideEditor(0)
-    , m_unifiedEditor(0)
-    , m_currentEditor(0)
+    , m_currentViewIndex(-1)
     , m_guiController(0)
     , m_toolBar(0)
     , m_entriesComboBox(0)
@@ -225,14 +221,10 @@ DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
     m_stackedWidget = new QStackedWidget(splitter);
     splitter->addWidget(m_stackedWidget);
 
-    m_sideBySideEditor = new SideBySideDiffEditorWidget(m_stackedWidget);
-    m_stackedWidget->addWidget(m_sideBySideEditor);
-
-    m_unifiedEditor = new UnifiedDiffEditorWidget(m_stackedWidget);
-    m_stackedWidget->addWidget(m_unifiedEditor);
+    addView(new SideBySideView);
+    addView(new UnifiedView);
 
     setWidget(splitter);
-
 
     DiffEditorController *control = controller();
     m_guiController = new DiffEditorGuiController(control, this);
@@ -254,7 +246,7 @@ DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
     slotDescriptionChanged(control->description());
     slotDescriptionVisibilityChanged();
 
-    showDiffEditor(readCurrentDiffEditorSetting());
+    showDiffView(readCurrentDiffEditorSetting());
 
     toolBar();
 }
@@ -283,12 +275,12 @@ Core::IDocument *DiffEditor::document()
     return m_document.data();
 }
 
-static QToolBar *createToolBar(const QWidget *someWidget)
+static QToolBar *createToolBar(IDiffView *someView)
 {
     // Create
     QToolBar *toolBar = new QToolBar;
     toolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
-    const int size = someWidget->style()->pixelMetric(QStyle::PM_SmallIconSize);
+    const int size = someView->widget()->style()->pixelMetric(QStyle::PM_SmallIconSize);
     toolBar->setIconSize(QSize(size, size));
 
     return toolBar;
@@ -296,13 +288,15 @@ static QToolBar *createToolBar(const QWidget *someWidget)
 
 QWidget *DiffEditor::toolBar()
 {
+    QTC_ASSERT(!m_views.isEmpty(), return 0);
+
     if (m_toolBar)
         return m_toolBar;
 
     DiffEditorController *control = controller();
 
     // Create
-    m_toolBar = createToolBar(m_sideBySideEditor);
+    m_toolBar = createToolBar(m_views.at(0));
 
     m_entriesComboBox = new QComboBox;
     m_entriesComboBox->setMinimumContentsLength(20);
@@ -334,8 +328,7 @@ QWidget *DiffEditor::toolBar()
     m_contextSpinBoxAction = m_toolBar->addWidget(contextSpinBox);
 
     QToolButton *toggleDescription = new QToolButton(m_toolBar);
-    toggleDescription->setIcon(
-                QIcon(QLatin1String(Constants::ICON_TOP_BAR)));
+    toggleDescription->setIcon(QIcon(QLatin1String(Constants::ICON_TOP_BAR)));
     toggleDescription->setCheckable(true);
     toggleDescription->setChecked(m_guiController->isDescriptionVisible());
     m_toggleDescriptionAction = m_toolBar->addWidget(toggleDescription);
@@ -371,7 +364,7 @@ QWidget *DiffEditor::toolBar()
     connect(toggleDescription, &QAbstractButton::clicked,
             m_guiController, &DiffEditorGuiController::setDescriptionVisible);
     connect(m_diffEditorSwitcher, &QAbstractButton::clicked,
-            this, &DiffEditor::slotDiffEditorSwitched);
+            this, [this]() { showDiffView(nextView()); });
     connect(reloadButton, &QAbstractButton::clicked,
             control, &DiffEditorController::requestReload);
     connect(control, &DiffEditorController::reloaderChanged,
@@ -505,65 +498,70 @@ void DiffEditor::slotReloaderChanged()
     m_reloadAction->setVisible(reloader);
 }
 
-void DiffEditor::slotDiffEditorSwitched()
-{
-    QWidget *oldEditor = m_currentEditor;
-    QWidget *newEditor = 0;
-    if (oldEditor == m_sideBySideEditor)
-        newEditor = m_unifiedEditor;
-    else if (oldEditor == m_unifiedEditor)
-        newEditor = m_sideBySideEditor;
-    else
-        newEditor = readCurrentDiffEditorSetting();
-
-    showDiffEditor(newEditor);
-}
-
 void DiffEditor::updateDiffEditorSwitcher()
 {
     if (!m_diffEditorSwitcher)
         return;
 
-    QIcon actionIcon;
-    QString actionToolTip;
-    if (m_currentEditor == m_unifiedEditor) {
-        actionIcon = QIcon(QLatin1String(Constants::ICON_SIDE_BY_SIDE_DIFF));
-        actionToolTip = tr("Switch to Side By Side Diff Editor");
-    } else if (m_currentEditor == m_sideBySideEditor) {
-        actionIcon = QIcon(QLatin1String(Constants::ICON_UNIFIED_DIFF));
-        actionToolTip = tr("Switch to Unified Diff Editor");
-    }
-
-    m_diffEditorSwitcher->setIcon(actionIcon);
-    m_diffEditorSwitcher->setToolTip(actionToolTip);
+    m_diffEditorSwitcher->setIcon(currentView()->icon());
+    m_diffEditorSwitcher->setToolTip(currentView()->toolTip());
 }
 
-void DiffEditor::showDiffEditor(QWidget *newEditor)
+void DiffEditor::addView(IDiffView *view)
 {
-    if (m_currentEditor == newEditor)
+    QTC_ASSERT(!m_views.contains(view), return);
+    m_views.append(view);
+    m_stackedWidget->addWidget(view->widget());
+}
+
+IDiffView *DiffEditor::currentView() const
+{
+    if (m_currentViewIndex < 0)
+        return 0;
+    return m_views.at(m_currentViewIndex);
+}
+
+void DiffEditor::setCurrentView(IDiffView *view)
+{
+    const int pos = Utils::indexOf(m_views, [view](IDiffView *v) { return v == view; });
+    QTC_ASSERT(pos >= 0 && pos < m_views.count(), return);
+    m_currentViewIndex = pos;
+}
+
+IDiffView *DiffEditor::nextView()
+{
+    int pos = m_currentViewIndex + 1;
+    if (pos >= m_views.count())
+        pos = 0;
+
+    return m_views.at(pos);
+}
+
+void DiffEditor::showDiffView(IDiffView *newView)
+{
+    QTC_ASSERT(newView, return);
+
+    if (currentView() == newView)
         return;
 
-    if (m_currentEditor == m_sideBySideEditor)
-        m_sideBySideEditor->setDiffEditorGuiController(0);
-    else if (m_currentEditor == m_unifiedEditor)
-        m_unifiedEditor->setDiffEditorGuiController(0);
+    if (currentView()) // during initialization
+        currentView()->setDiffEditorGuiController(0);
+    setCurrentView(newView);
+    currentView()->setDiffEditorGuiController(m_guiController);
 
-    m_currentEditor = newEditor;
+    m_stackedWidget->setCurrentWidget(currentView()->widget());
 
-    if (m_currentEditor == m_unifiedEditor)
-        m_unifiedEditor->setDiffEditorGuiController(m_guiController);
-    else if (m_currentEditor == m_sideBySideEditor)
-        m_sideBySideEditor->setDiffEditorGuiController(m_guiController);
-
-    m_stackedWidget->setCurrentWidget(m_currentEditor);
-
-    writeCurrentDiffEditorSetting(m_currentEditor);
+    writeCurrentDiffEditorSetting(currentView());
     updateDiffEditorSwitcher();
-    widget()->setFocusProxy(m_currentEditor);
+    widget()->setFocusProxy(currentView()->widget());
 }
 
-QWidget *DiffEditor::readLegacyCurrentDiffEditorSetting()
+// TODO: Remove in 3.6:
+IDiffView *DiffEditor::readLegacyCurrentDiffEditorSetting()
 {
+    QTC_ASSERT(!m_views.isEmpty(), return 0);
+    QTC_ASSERT(m_views.count() == 2, return m_views.at(0));
+
     QSettings *s = Core::ICore::settings();
 
     s->beginGroup(QLatin1String(legacySettingsGroupC));
@@ -574,43 +572,35 @@ QWidget *DiffEditor::readLegacyCurrentDiffEditorSetting()
         s->remove(QLatin1String(useDiffEditorKeyC));
     s->endGroup();
 
-    QWidget *currentEditor = m_sideBySideEditor;
+    IDiffView *currentEditor = m_views.at(0);
     if (!legacyEditor)
-        currentEditor = m_unifiedEditor;
+        currentEditor = m_views.at(1);
 
-    if (legacyExists && currentEditor == m_unifiedEditor)
+    if (legacyExists)
         writeCurrentDiffEditorSetting(currentEditor);
 
     return currentEditor;
 }
 
-QWidget *DiffEditor::readCurrentDiffEditorSetting()
+IDiffView *DiffEditor::readCurrentDiffEditorSetting()
 {
     // replace it with m_sideBySideEditor when dropping legacy stuff
-    QWidget *defaultEditor = readLegacyCurrentDiffEditorSetting();
+    IDiffView *view = readLegacyCurrentDiffEditorSetting();
 
     QSettings *s = Core::ICore::settings();
     s->beginGroup(QLatin1String(settingsGroupC));
-    const QString editorString = s->value(
-                QLatin1String(diffEditorTypeKeyC)).toString();
+    const Core::Id id = Core::Id::fromSetting(s->value(QLatin1String(diffEditorTypeKeyC)));
     s->endGroup();
-    if (editorString == QLatin1String(unifiedDiffEditorValueC))
-        return m_unifiedEditor;
 
-    if (editorString == QLatin1String(sideBySideDiffEditorValueC))
-        return m_sideBySideEditor;
-
-    return defaultEditor;
+    return Utils::findOr(m_views, view, [id](IDiffView *v) { return v->id() == id; });
 }
 
-void DiffEditor::writeCurrentDiffEditorSetting(QWidget *currentEditor)
+void DiffEditor::writeCurrentDiffEditorSetting(IDiffView *currentEditor)
 {
-    const QString editorString = currentEditor == m_unifiedEditor
-            ? QLatin1String(unifiedDiffEditorValueC)
-            : QLatin1String(sideBySideDiffEditorValueC);
+    QTC_ASSERT(currentEditor, return);
     QSettings *s = Core::ICore::settings();
     s->beginGroup(QLatin1String(settingsGroupC));
-    s->setValue(QLatin1String(diffEditorTypeKeyC), editorString);
+    s->setValue(QLatin1String(diffEditorTypeKeyC), currentEditor->id().toSetting());
     s->endGroup();
 }
 

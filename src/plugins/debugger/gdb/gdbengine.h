@@ -287,7 +287,6 @@ private: ////////// View & Data Stuff //////////
     void handleBreakEnable(const DebuggerResponse &response, Breakpoint bp);
     void handleBreakInsert1(const DebuggerResponse &response, Breakpoint bp);
     void handleBreakInsert2(const DebuggerResponse &response, Breakpoint bp);
-    void handleBreakDelete(const DebuggerResponse &response, Breakpoint bp);
     void handleBreakCondition(const DebuggerResponse &response, Breakpoint bp);
     void handleBreakThreadSpec(const DebuggerResponse &response, Breakpoint bp);
     void handleBreakLineNumber(const DebuggerResponse &response, Breakpoint bp);

@@ -97,7 +97,7 @@ public:
                                             const QString &directory, const QtSupport::BaseQtVersion *version,
                                             QStringList *outArgs = 0);
     static QStringList extractDeducedArguments(QString *args);
-    static QStringList deduceArgumnetsForTargetAbi(const ProjectExplorer::Abi &targetAbi, const QtSupport::BaseQtVersion *version);
+    static QStringList deduceArgumentsForTargetAbi(const ProjectExplorer::Abi &targetAbi, const QtSupport::BaseQtVersion *version);
 
     QVariantMap toMap() const;
 

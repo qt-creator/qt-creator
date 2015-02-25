@@ -49,6 +49,7 @@ class JsonWizardFactory;
 class JsonWizardPageFactory;
 class JsonWizardGeneratorFactory;
 class ProjectExplorerPlugin;
+class ProjectExplorerPluginPrivate;
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT JsonWizardFactory : public Core::IWizardFactory
@@ -116,6 +117,7 @@ private:
     static int m_verbose;
 
     friend class ProjectExplorerPlugin;
+    friend class ProjectExplorerPluginPrivate;
 };
 
 } //namespace ProjectExplorer

@@ -665,7 +665,7 @@ void parseChildrenData(const WatchData &data0, const GdbMi &item,
         childtemplate.address = addressBase;
         arrayDecoder(childtemplate, mi.data(), encoding);
     } else {
-        for (int i = 0, n = children.children().size(); i != n; ++i) {
+        for (int i = 0, n = int(children.children().size()); i != n; ++i) {
             const GdbMi &child = children.children().at(i);
             WatchData data1 = childtemplate;
             data1.sortId = i;

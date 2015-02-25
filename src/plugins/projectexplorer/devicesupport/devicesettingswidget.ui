@@ -72,6 +72,9 @@
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <item>
              <layout class="QFormLayout" name="formLayout_2">
+              <property name="fieldGrowthPolicy">
+               <enum>QFormLayout::ExpandingFieldsGrow</enum>
+              </property>
               <item row="0" column="0">
                <widget class="QLabel" name="deviceNameLabel">
                 <property name="text">

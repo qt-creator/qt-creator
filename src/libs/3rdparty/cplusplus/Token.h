@@ -396,6 +396,12 @@ public:
 struct LanguageFeatures
 {
     LanguageFeatures() : flags(0) {}
+    static LanguageFeatures defaultFeatures()
+    {
+        LanguageFeatures features;
+        features.flags = 0xffffffff; // Enable all flags
+        return features;
+    }
 
     union {
         unsigned int flags;

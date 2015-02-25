@@ -99,6 +99,7 @@ public:
 
     static bool canRun(Project *pro, RunMode runMode, QString *whyNot = 0);
     static void runProject(Project *pro, RunMode, const bool forceSkipDeploy = false);
+    static void runStartupProject(RunMode runMode, bool forceSkipDeploy = false);
     static void runRunConfiguration(RunConfiguration *rc, RunMode runMode,
                              const bool forceSkipDeploy = false);
 
@@ -138,83 +139,7 @@ public slots:
     static void openOpenProjectDialog();
 
 private slots:
-    void buildStateChanged(ProjectExplorer::Project * pro);
-    void buildQueueFinished(bool success);
-    void buildProjectOnly();
-    void buildProject();
-    void buildProjectContextMenu();
-    void buildSession();
-    void rebuildProjectOnly();
-    void rebuildProject();
-    void rebuildProjectContextMenu();
-    void rebuildSession();
-    void deployProjectOnly();
-    void deployProject();
-    void deployProjectContextMenu();
-    void deploySession();
-    void cleanProjectOnly();
-    void cleanProject();
-    void cleanProjectContextMenu();
-    void cleanSession();
-    void cancelBuild();
-    void loadAction();
-    void unloadProject();
-    void unloadProjectContextMenu();
-    void closeAllProjects();
-    void newProject();
-    void showSessionManager();
-    void updateSessionMenu();
-    void setSession(QAction *action);
-
-    void determineSessionToRestoreAtStartup();
-    void restoreSession();
     void restoreSession2();
-    void loadSession(const QString &session);
-    void runProject();
-    void runProjectWithoutDeploy();
-    void runProjectContextMenu();
-    void savePersistentSettings();
-
-    void addNewFile();
-    void addExistingFiles();
-    void addExistingDirectory();
-    void addNewSubproject();
-    void removeProject();
-    void openFile();
-    void searchOnFileSystem();
-    void showInGraphicalShell();
-    void removeFile();
-    void deleteFile();
-    void renameFile();
-    void setStartupProject();
-    void setStartupProject(ProjectExplorer::Project *project);
-
-    void updateRecentProjectMenu();
-    void clearRecentProjects();
-    void openRecentProject();
-    void updateUnloadProjectMenu();
-    void openTerminalHere();
-
-    void invalidateProject(ProjectExplorer::Project *project);
-
-    void runControlFinished();
-
-    void projectAdded(ProjectExplorer::Project *pro);
-    void projectRemoved(ProjectExplorer::Project *pro);
-    void projectDisplayNameChanged(ProjectExplorer::Project *pro);
-    void startupProjectChanged(); // Calls updateRunAction
-    void activeTargetChanged();
-    void activeRunConfigurationChanged();
-
-    void slotUpdateRunActions();
-
-    void currentModeChanged(Core::IMode *mode, Core::IMode *oldMode);
-    void loadCustomWizards();
-
-    void updateWelcomePage();
-
-    void updateActions();
-    void runConfigurationConfigurationFinished();
     void showRenameFileError();
 
 #ifdef WITH_TESTS

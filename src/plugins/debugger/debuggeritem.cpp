@@ -148,7 +148,7 @@ void DebuggerItem::reinitializeFromFile()
 
         // Version
         if (ba.startsWith(("lldb version "))) { // Linux typically.
-            int pos1 = strlen("lldb version ");
+            int pos1 = int(strlen("lldb version "));
             int pos2 = ba.indexOf(' ', pos1);
             m_version = QString::fromLatin1(ba.mid(pos1, pos2 - pos1));
         } else if (ba.startsWith("lldb-") || ba.startsWith("LLDB-")) { // Mac typically.

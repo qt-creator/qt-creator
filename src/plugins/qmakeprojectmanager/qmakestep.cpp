@@ -177,7 +177,7 @@ QStringList QMakeStep::deducedArguments()
     // explicitly add architecture to CONFIG
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    arguments << QmakeBuildConfiguration::deduceArgumnetsForTargetAbi(targetAbi, version);
+    arguments << QmakeBuildConfiguration::deduceArgumentsForTargetAbi(targetAbi, version);
     if (linkQmlDebuggingLibrary() && version && !useQtQuickCompiler()) {
         arguments << QLatin1String(Constants::QMAKEVAR_QUICK1_DEBUG);
         if (version->qtVersion().majorVersion >= 5)
@@ -653,17 +653,18 @@ void QMakeStepConfigWidget::updateQmlDebuggingOption()
 {
     QString warningText;
     bool supported = QtSupport::BaseQtVersion::isQmlDebuggingSupported(m_step->target()->kit(),
-                                                                     &warningText)
-            && !m_step->useQtQuickCompiler();
+                                                                       &warningText);
 
     m_ui->qmlDebuggingLibraryCheckBox->setEnabled(supported);
-    m_ui->debuggingLibraryLabel->setText(tr("Enable QML debugging:"));
+    m_ui->debuggingLibraryLabel->setText(tr("Enable QML debugging and profiling:"));
 
     if (supported && m_step->linkQmlDebuggingLibrary())
         warningText = tr("Might make your application vulnerable. Only use in a safe environment.");
 
     m_ui->qmlDebuggingWarningText->setText(warningText);
     m_ui->qmlDebuggingWarningIcon->setVisible(!warningText.isEmpty());
+
+    updateQtQuickCompilerOption(); // show or clear compiler warning text
 }
 
 void QMakeStepConfigWidget::updateQtQuickCompilerOption()
@@ -673,6 +674,10 @@ void QMakeStepConfigWidget::updateQtQuickCompilerOption()
                                                                           &warningText);
     m_ui->qtQuickCompilerCheckBox->setEnabled(supported);
     m_ui->qtQuickCompilerLabel->setText(tr("Enable Qt Quick Compiler:"));
+
+    if (supported && m_step->useQtQuickCompiler() && m_step->linkQmlDebuggingLibrary())
+        warningText = tr("Disables QML debugging. QML profiling will still work.");
+
     m_ui->qtQuickCompilerWarningText->setText(warningText);
     m_ui->qtQuickCompilerWarningIcon->setVisible(!warningText.isEmpty());
 }

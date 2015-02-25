@@ -2040,9 +2040,15 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
                 if (!conditionalBreakPointTriggered && !parameters.condition.isEmpty()) {
                     *message = msgCheckingConditionalBreakPoint(id, number, parameters.condition,
                                                                 QString::number(threadId));
-                    ConditionalBreakPointCookie cookie(id);
-                    cookie.stopReason = stopReason;
-                    evaluateExpression(parameters.condition, cookie);
+
+                    QByteArray exp = parameters.condition;
+                    if (exp.contains(' ') && !exp.startsWith('"')) {
+                        exp.prepend('"');
+                        exp.append('"');
+                    }
+                    postExtensionCommand("expression", exp, 0,
+                         [this, id, stopReason](const CdbCommandPtr &r) { handleExpression(r, id, stopReason); });
+
                     return StopReportLog;
                 }
             } else {
@@ -3081,7 +3087,7 @@ void CdbEngine::handleStackTrace(const CdbCommandPtr &command)
     }
 }
 
-void CdbEngine::handleExpression(const CdbCommandPtr &command, const ConditionalBreakPointCookie &cookie)
+void CdbEngine::handleExpression(const CdbCommandPtr &command, BreakpointModelId id, const GdbMi &stopReason)
 {
     int value = 0;
     if (command->success)
@@ -3091,25 +3097,15 @@ void CdbEngine::handleExpression(const CdbCommandPtr &command, const Conditional
     // Is this a conditional breakpoint?
     const QString message = value ?
         tr("Value %1 obtained from evaluating the condition of breakpoint %2, stopping.").
-        arg(value).arg(cookie.id.toString()) :
+        arg(value).arg(id.toString()) :
         tr("Value 0 obtained from evaluating the condition of breakpoint %1, continuing.").
-        arg(cookie.id.toString());
+        arg(id.toString());
     showMessage(message, LogMisc);
     // Stop if evaluation is true, else continue
     if (value)
-        processStop(cookie.stopReason, true);
+        processStop(stopReason, true);
     else
         doContinueInferior();
-}
-
-void CdbEngine::evaluateExpression(QByteArray exp, const ConditionalBreakPointCookie &cookie)
-{
-    if (exp.contains(' ') && !exp.startsWith('"')) {
-        exp.prepend('"');
-        exp.append('"');
-    }
-    postExtensionCommand("expression", exp, 0,
-                         [this, cookie](const CdbCommandPtr &r) { handleExpression(r, cookie); });
 }
 
 void CdbEngine::dummyHandler(const CdbCommandPtr &command)

@@ -208,6 +208,8 @@ void index(QFutureInterface<void> &future, const ParseParams params)
 
     CppModelManager *cmm = CppModelManager::instance();
     const ProjectPart::HeaderPaths fallbackHeaderPaths = cmm->headerPaths();
+    const CPlusPlus::LanguageFeatures defaultFeatures =
+            CPlusPlus::LanguageFeatures::defaultFeatures();
     for (int i = 0; i < files.size(); ++i) {
         if (future.isPaused())
             future.waitForResume();
@@ -216,6 +218,11 @@ void index(QFutureInterface<void> &future, const ParseParams params)
             break;
 
         const QString fileName = files.at(i);
+        const QList<ProjectPart::Ptr> parts = cmm->projectPart(fileName);
+        const CPlusPlus::LanguageFeatures languageFeatures = parts.isEmpty()
+                ? defaultFeatures
+                : parts.first()->languageFeatures;
+        sourceProcessor->setLanguageFeatures(languageFeatures);
 
         const bool isSourceFile = i < sourceCount;
         if (isSourceFile) {
@@ -226,7 +233,6 @@ void index(QFutureInterface<void> &future, const ParseParams params)
             processingHeaders = true;
         }
 
-        QList<ProjectPart::Ptr> parts = cmm->projectPart(fileName);
         ProjectPart::HeaderPaths headerPaths = parts.isEmpty()
                 ? fallbackHeaderPaths
                 : parts.first()->headerPaths;

@@ -51,7 +51,6 @@ namespace Internal {
 class DisassemblerAgent;
 struct CdbCommand;
 struct MemoryViewCookie;
-struct ConditionalBreakPointCookie;
 class ByteArrayInputStream;
 class GdbMi;
 
@@ -215,14 +214,13 @@ private:
                                  DisassemblerAgent *agent);
     void postResolveSymbol(const QString &module, const QString &function,
                            DisassemblerAgent *agent);
-    void evaluateExpression(QByteArray exp, const ConditionalBreakPointCookie &cookie);
     // Builtin commands
     void dummyHandler(const CdbCommandPtr &);
     void handleStackTrace(const CdbCommandPtr &);
     void handleRegisters(const CdbCommandPtr &);
     void handleDisassembler(const CdbCommandPtr &, DisassemblerAgent *agent);
     void handleJumpToLineAddressResolution(const CdbCommandPtr &, const ContextData &context);
-    void handleExpression(const CdbCommandPtr &, const ConditionalBreakPointCookie &cookie);
+    void handleExpression(const CdbCommandPtr &command, BreakpointModelId id, const GdbMi &stopReason);
     void handleResolveSymbol(const CdbCommandPtr &command, const QString &symbol, DisassemblerAgent *agent);
     void handleResolveSymbolHelper(const QList<quint64> &addresses, DisassemblerAgent *agent);
     void handleBreakInsert(const CdbCommandPtr &cmd);

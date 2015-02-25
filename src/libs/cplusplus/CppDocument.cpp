@@ -283,15 +283,8 @@ Document::Document(const QString &fileName)
     const QByteArray localFileName = fileName.toUtf8();
     const StringLiteral *fileId = _control->stringLiteral(localFileName.constData(),
                                                                       localFileName.size());
-    LanguageFeatures features;
-    features.qtEnabled = true;
-    features.qtMocRunEnabled = true;
-    features.qtKeywordsEnabled = true;
-    features.cxx11Enabled = true;
-    features.objCEnabled = true;
-    features.c99Enabled = true;
     _translationUnit = new TranslationUnit(_control, fileId);
-    _translationUnit->setLanguageFeatures(features);
+    _translationUnit->setLanguageFeatures(LanguageFeatures::defaultFeatures());
     (void) _control->switchTranslationUnit(_translationUnit);
 }
 
@@ -596,6 +589,19 @@ void Document::setUtf8Source(const QByteArray &source)
     _translationUnit->setSource(_source.constBegin(), _source.size());
 }
 
+LanguageFeatures Document::languageFeatures() const
+{
+    if (TranslationUnit *tu = translationUnit())
+        return tu->languageFeatures();
+    return LanguageFeatures::defaultFeatures();
+}
+
+void Document::setLanguageFeatures(LanguageFeatures features)
+{
+    if (TranslationUnit *tu = translationUnit())
+        tu->setLanguageFeatures(features);
+}
+
 void Document::startSkippingBlocks(unsigned utf16charsOffset)
 {
     _skippedBlocks.append(Block(0, 0, utf16charsOffset, 0));
@@ -767,6 +773,7 @@ Document::Ptr Snapshot::preprocessedDocument(const QByteArray &source,
         newDoc->_lastModified = thisDocument->_lastModified;
         newDoc->_resolvedIncludes = thisDocument->_resolvedIncludes;
         newDoc->_unresolvedIncludes = thisDocument->_unresolvedIncludes;
+        newDoc->setLanguageFeatures(thisDocument->languageFeatures());
     }
 
     FastPreprocessor pp(*this);
@@ -788,6 +795,7 @@ Document::Ptr Snapshot::documentFromSource(const QByteArray &preprocessedCode,
         newDoc->_unresolvedIncludes = thisDocument->_unresolvedIncludes;
         newDoc->_definedMacros = thisDocument->_definedMacros;
         newDoc->_macroUses = thisDocument->_macroUses;
+        newDoc->setLanguageFeatures(thisDocument->languageFeatures());
     }
 
     newDoc->setUtf8Source(preprocessedCode);

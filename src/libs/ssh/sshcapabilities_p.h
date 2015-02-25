@@ -58,6 +58,7 @@ public:
 
     static const QByteArray HMacSha1;
     static const QByteArray HMacSha196;
+    static const QByteArray HMacSha256;
     static const QList<QByteArray> MacAlgorithms;
 
     static const QList<QByteArray> CompressionAlgorithms;

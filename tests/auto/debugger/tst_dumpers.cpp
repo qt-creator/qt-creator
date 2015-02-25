@@ -5768,6 +5768,23 @@ void tst_Dumpers::dumper_data()
                + Check("u32", "68", "uint32_t")
                + Check("s32", "69", "int32_t");
 
+    QTest::newRow("QPolygon")
+            << Data("#include <QGraphicsScene>\n"
+                    "#include <QGraphicsPolygonItem>\n"
+                    "#include <QApplication>\n",
+                    "QApplication app(argc, argv);\n"
+                    "QGraphicsScene sc;\n"
+                    "QPolygonF pol;\n"
+                    "pol.append(QPointF(1, 2));\n"
+                    "pol.append(QPointF(2, 2));\n"
+                    "pol.append(QPointF(3, 3));\n"
+                    "pol.append(QPointF(2, 4));\n"
+                    "pol.append(QPointF(1, 4));\n"
+                    "QGraphicsPolygonItem *p = sc.addPolygon(pol);\n"
+                    "unused(&p);\n")
+               + GuiProfile()
+               + Check("pol", "<5 items>", "@QPolygonF")
+               + Check("p", "<5 items>", "@QGraphicsPolygonItem");
 }
 
 int main(int argc, char *argv[])

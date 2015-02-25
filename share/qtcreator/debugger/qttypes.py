@@ -1715,6 +1715,21 @@ def qform__QStack():
 def qdump__QStack(d, value):
     qdump__QVector(d, value)
 
+def qdump__QPolygonF(d, value):
+    qdump__QVector(d, value.cast(d.directBaseClass(value.type, 0)))
+    d.putBetterType(d.currentType)
+
+def qdump__QPolygon(d, value):
+    qdump__QVector(d, value.cast(d.directBaseClass(value.type, 0)))
+    d.putBetterType(d.currentType)
+
+def qdump__QGraphicsPolygonItem(d, value):
+    dptr = d.extractPointer(d.addressOf(value) + d.ptrSize()) # Skip vtable
+    # Assume sizeof(QGraphicsPolygonItemPrivate) == 400
+    offset = 308 if d.is32bit() else 384
+    data, size, alloc = d.vectorDataHelper(d.extractPointer(dptr + offset))
+    d.putItemCount(size)
+    d.putPlotData(data, size, d.lookupQtType("QPointF"))
 
 def qdump__QStandardItem(d, value):
     d.putBetterType(d.currentType)

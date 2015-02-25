@@ -236,17 +236,16 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
     slotUpdateEditorSettings(settings);
     connect(VcsPlugin::instance(), &VcsPlugin::settingsChanged,
             this, &VcsBaseSubmitEditor::slotUpdateEditorSettings);
-    // Commit data refresh might lead to closing the editor, so use a queued connection
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
             this, [this]() {
                 if (Core::EditorManager::currentEditor() == this)
                     updateFileModel();
-            }, Qt::QueuedConnection);
+            });
     connect(qApp, &QApplication::applicationStateChanged,
             this, [this](Qt::ApplicationState state) {
                 if (state == Qt::ApplicationActive)
                     updateFileModel();
-            }, Qt::QueuedConnection);
+            });
 
     auto aggregate = new Aggregation::Aggregate;
     aggregate->add(new Core::BaseTextFind(descriptionEdit));
@@ -516,13 +515,23 @@ void VcsBaseSubmitEditor::slotDiffSelectedVcsFiles(const QList<int> &rawList)
 
 QByteArray VcsBaseSubmitEditor::fileContents() const
 {
-    return d->m_widget->descriptionText().toLocal8Bit();
+    return description().toLocal8Bit();
 }
 
 bool VcsBaseSubmitEditor::setFileContents(const QByteArray &contents)
 {
-    d->m_widget->setDescriptionText(QString::fromUtf8(contents));
+    setDescription(QString::fromUtf8(contents));
     return true;
+}
+
+QString VcsBaseSubmitEditor::description() const
+{
+    return d->m_widget->descriptionText();
+}
+
+void VcsBaseSubmitEditor::setDescription(const QString &text)
+{
+    d->m_widget->setDescriptionText(text);
 }
 
 bool VcsBaseSubmitEditor::isDescriptionMandatory() const

@@ -174,7 +174,7 @@ bool VcsConfigurationPage::isComplete() const
 
 void VcsConfigurationPage::openConfiguration()
 {
-    ICore::showOptionsDialog(Constants::VCS_SETTINGS_CATEGORY, d->m_versionControl->id(), this);
+    ICore::showOptionsDialog(d->m_versionControl->id(), this);
 }
 
 } // namespace VcsBase

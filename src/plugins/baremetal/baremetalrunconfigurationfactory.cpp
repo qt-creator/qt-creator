@@ -52,7 +52,7 @@ static QString pathFromId(Core::Id id)
     QByteArray idStr = id.name();
     if (!idStr.startsWith(BareMetalRunConfiguration::IdPrefix))
         return QString();
-    return QString::fromUtf8(idStr.mid(strlen(BareMetalRunConfiguration::IdPrefix)));
+    return QString::fromUtf8(idStr.mid(int(strlen(BareMetalRunConfiguration::IdPrefix))));
 }
 
 BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory(QObject *parent) :

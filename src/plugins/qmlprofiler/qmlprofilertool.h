@@ -43,6 +43,8 @@ namespace QmlProfiler {
 namespace Internal {
 
 const char QmlProfilerToolId[] = "QmlProfiler";
+const char QmlProfilerLocalActionId[] = "QmlProfiler.Local";
+const char QmlProfilerRemoteActionId[] = "QmlProfiler.Remote";
 
 class QmlProfilerTool : public QObject
 {
@@ -56,7 +58,8 @@ public:
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
 
     QWidget *createWidgets();
-    void startTool(Analyzer::StartMode mode);
+    void startLocalTool();
+    void startRemoteTool();
 
     QList <QAction *> profilerContextMenuActions() const;
 

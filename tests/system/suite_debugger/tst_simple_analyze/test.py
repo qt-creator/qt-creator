@@ -37,7 +37,7 @@ def main():
     # using a temporary directory won't mess up a potentially existing
     workingDir = tempDir()
     # we need a Qt >= 4.8
-    analyzerTargets = Targets.desktopTargetClasses() ^ Targets.DESKTOP_474_GCC
+    analyzerTargets = Targets.desktopTargetClasses() & ~Targets.DESKTOP_474_GCC
     checkedTargets, projectName = createNewQtQuickApplication(workingDir, targets=analyzerTargets)
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     if placeCursorToLine(editor, "MouseArea.*", True):

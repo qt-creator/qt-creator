@@ -116,6 +116,7 @@ CppSourceProcessor::CppSourceProcessor(const Snapshot &snapshot, DocumentCallbac
     : m_snapshot(snapshot),
       m_documentFinished(documentFinished),
       m_preprocess(this, &m_env),
+      m_languageFeatures(LanguageFeatures::defaultFeatures()),
       m_revision(0),
       m_defaultCodec(Core::EditorManager::defaultTextCodec())
 {
@@ -143,6 +144,11 @@ void CppSourceProcessor::setHeaderPaths(const ProjectPart::HeaderPaths &headerPa
         else
             addFrameworkPath(path);
     }
+}
+
+void CppSourceProcessor::setLanguageFeatures(const LanguageFeatures languageFeatures)
+{
+    m_languageFeatures = languageFeatures;
 }
 
 // Add the given framework path, and expand private frameworks.
@@ -466,6 +472,7 @@ void CppSourceProcessor::sourceNeeded(unsigned line, const QString &fileName, In
     Document::Ptr document = Document::create(absoluteFileName);
     document->setRevision(m_revision);
     document->setEditorRevision(editorRevision);
+    document->setLanguageFeatures(m_languageFeatures);
     foreach (const QString &include, initialIncludes) {
         m_included.insert(include);
         Document::Include inc(include, include, 0, IncludeLocal);

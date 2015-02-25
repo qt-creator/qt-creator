@@ -210,7 +210,7 @@ void DetailedErrorDelegate::onVerticalScroll()
 // Expects "file://some/path[:line[:column]]" - the line/column part is optional
 void DetailedErrorDelegate::openLinkInEditor(const QString &link)
 {
-    const QString linkWithoutPrefix = link.mid(strlen("file://"));
+    const QString linkWithoutPrefix = link.mid(int(strlen("file://")));
     const QChar separator = QLatin1Char(':');
     const int lineColon = linkWithoutPrefix.indexOf(separator, /*after drive letter + colon =*/ 2);
     const QString path = linkWithoutPrefix.left(lineColon);

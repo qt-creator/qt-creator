@@ -79,7 +79,6 @@ public:
     explicit AnalyzerAction(QObject *parent = 0);
 
 public:
-    StartMode startMode() const { return m_startMode; }
     void setStartMode(StartMode startMode) { m_startMode = startMode; }
 
     Core::Id menuGroup() const { return m_menuGroup; }
@@ -91,8 +90,8 @@ public:
     Core::Id toolId() const { return m_toolId; }
     void setToolId(Core::Id id) { m_toolId = id; }
 
-    ProjectExplorer::RunMode runMode() const { return m_runMode; }
     void setRunMode(ProjectExplorer::RunMode mode) { m_runMode = mode; }
+    bool isRunnable(QString *reason = 0) const;
 
     /// Creates all widgets used by the tool.
     /// Returns a control widget which will be shown in the status bar when
@@ -105,12 +104,11 @@ public:
     /// Called each time the tool is launched.
     typedef std::function<AnalyzerRunControl *(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration)> RunControlCreator;
-    AnalyzerRunControl *createRunControl(const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration) const
-        { return m_runControlCreator(sp, runConfiguration); }
+    AnalyzerRunControl *tryCreateRunControl(const AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration) const;
     void setRunControlCreator(const RunControlCreator &creator) { m_runControlCreator = creator; }
 
-    typedef std::function<void(StartMode)> ToolStarter;
+    typedef std::function<void()> ToolStarter;
     ToolStarter toolStarter() const { return m_toolStarter; }
     void setToolStarter(const ToolStarter &toolStarter) { m_toolStarter = toolStarter; }
 

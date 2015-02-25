@@ -155,6 +155,9 @@ protected:
     virtual QByteArray fileContents() const;
     virtual bool setFileContents(const QByteArray &contents);
 
+    QString description() const;
+    void setDescription(const QString &text);
+
     void setDescriptionMandatory(bool v);
     bool isDescriptionMandatory() const;
 

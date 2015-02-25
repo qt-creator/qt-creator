@@ -486,8 +486,31 @@ void QmlProfilerTool::clearDisplay()
     updateTimeDisplay();
 }
 
-static void startRemoteTool(QmlProfilerTool *tool, StartMode mode)
+void QmlProfilerTool::startLocalTool()
 {
+    if (d->m_recordButton->isChecked()) {
+        if (!checkForUnsavedNotes())
+            return;
+        clearData(); // clear right away to suppress second warning on server recording change
+    }
+
+    // Make sure mode is shown.
+    AnalyzerManager::showMode();
+
+    // ### not sure if we're supposed to check if the RunConFiguration isEnabled
+    ProjectExplorerPlugin::runStartupProject(QmlProfilerRunMode);
+}
+
+void QmlProfilerTool::startRemoteTool()
+{
+    if (d->m_recordButton->isChecked()) {
+        if (!checkForUnsavedNotes())
+            return;
+        clearData(); // clear right away to suppress second warning on server recording change
+    }
+
+    AnalyzerManager::showMode();
+
     Id kitId;
     quint16 port;
     Kit *kit = 0;
@@ -514,7 +537,7 @@ static void startRemoteTool(QmlProfilerTool *tool, StartMode mode)
     }
 
     AnalyzerStartParameters sp;
-    sp.startMode = mode;
+    sp.startMode = StartRemote;
 
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     if (device) {
@@ -524,30 +547,8 @@ static void startRemoteTool(QmlProfilerTool *tool, StartMode mode)
     sp.sysroot = SysRootKitInformation::sysRoot(kit).toString();
     sp.analyzerPort = port;
 
-    AnalyzerRunControl *rc = tool->createRunControl(sp, 0);
-
+    AnalyzerRunControl *rc = createRunControl(sp, 0);
     ProjectExplorerPlugin::startRunControl(rc, QmlProfilerRunMode);
-}
-
-void QmlProfilerTool::startTool(StartMode mode)
-{
-    if (d->m_recordButton->isChecked()) {
-        if (!checkForUnsavedNotes())
-            return;
-        else
-            clearData(); // clear right away to suppress second warning on server recording change
-    }
-
-    // Make sure mode is shown.
-    AnalyzerManager::showMode();
-
-    if (mode == StartLocal) {
-        // ### not sure if we're supposed to check if the RunConFiguration isEnabled
-        Project *pro = SessionManager::startupProject();
-        ProjectExplorerPlugin::instance()->runProject(pro, QmlProfilerRunMode);
-    } else if (mode == StartRemote) {
-        Internal::startRemoteTool(this, mode);
-    }
 }
 
 void QmlProfilerTool::logState(const QString &msg)
@@ -601,7 +602,7 @@ void QmlProfilerTool::showLoadDialog()
     if (ModeManager::currentMode()->id() != MODE_ANALYZE)
         AnalyzerManager::showMode();
 
-    AnalyzerManager::selectTool("QmlProfiler", StartRemote);
+    AnalyzerManager::selectTool(QmlProfilerRemoteActionId);
 
     QString filename = QFileDialog::getOpenFileName(ICore::mainWindow(), tr("Load QML Trace"), QString(),
                                                     tr("QML traces (*%1)").arg(QLatin1String(TraceFileExtension)));

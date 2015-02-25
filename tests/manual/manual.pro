@@ -4,7 +4,8 @@ SUBDIRS= \
 fakevim \
 debugger \
 subdir_proparser \
-utils
+utils \
+shootout
 
 unix {
 #   Uses popen

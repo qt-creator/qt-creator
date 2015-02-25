@@ -139,7 +139,9 @@ private:
         CompleteQt5Slots,
     };
     bool completeQtMethod(const QList<CPlusPlus::LookupItem> &results, CompleteQtMethodMode type);
-    void globalCompletion(CPlusPlus::Scope *scope);
+    bool completeQtMethodClassName(const QList<CPlusPlus::LookupItem> &results,
+                                   CPlusPlus::Scope *cursorScope);
+    bool globalCompletion(CPlusPlus::Scope *scope);
 
     void addCompletionItem(const QString &text,
                            const QIcon &icon = QIcon(),
@@ -155,9 +157,11 @@ private:
                           QSet<QString> *definedMacros);
 
     enum {
-        CompleteQt5SignalTrigger = CPlusPlus::T_LAST_TOKEN + 1,
-        CompleteQtSlotTrigger
+        CompleteQt5SignalOrSlotClassNameTrigger = CPlusPlus::T_LAST_TOKEN + 1,
+        CompleteQt5SignalTrigger,
+        CompleteQt5SlotTrigger
     };
+
     CPlusPlus::LanguageFeatures m_languageFeatures;
     QScopedPointer<const CppCompletionAssistInterface> m_interface;
     QScopedPointer<CppAssistProposalModel> m_model;

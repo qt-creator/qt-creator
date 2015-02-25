@@ -644,9 +644,7 @@ void TargetSettingsPanelWidget::openTargetPreferences()
         if (KitOptionsPage *page = ExtensionSystem::PluginManager::getObject<KitOptionsPage>())
             page->showKit(m_targets.at(targetIndex)->kit());
     }
-    ICore::showOptionsDialog(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
-                             Constants::KITS_SETTINGS_PAGE_ID,
-                             this);
+    ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, this);
 }
 
 void TargetSettingsPanelWidget::importTarget()
