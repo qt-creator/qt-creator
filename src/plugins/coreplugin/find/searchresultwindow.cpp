@@ -86,7 +86,6 @@ namespace Internal {
         int visibleSearchIndex() const;
         void setCurrentIndex(int index, bool focus);
 
-        FindPlugin *m_plugin;
         SearchResultWindow *q;
         QList<Internal::SearchResultWidget *> m_searchResultWidgets;
         QToolButton *m_expandCollapseButton;
@@ -109,9 +108,16 @@ namespace Internal {
         void popupRequested(bool focus);
     };
 
-    SearchResultWindowPrivate::SearchResultWindowPrivate(SearchResultWindow *window)
-        : q(window),
-          m_tabWidth(8)
+    SearchResultWindowPrivate::SearchResultWindowPrivate(SearchResultWindow *window) :
+        q(window),
+        m_expandCollapseButton(0),
+        m_expandCollapseAction(0),
+        m_spacer(0),
+        m_historyLabel(0),
+        m_spacer2(0),
+        m_recentSearchesBox(0),
+        m_widget(0),
+        m_tabWidth(8)
     {
     }
 
