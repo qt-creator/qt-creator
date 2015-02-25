@@ -70,7 +70,8 @@ ClearCaseSettings::ClearCaseSettings() :
     autoAssignActivityName(true),
     autoCheckOut(true),
     promptToCheckIn(false),
-    disableIndexer(false)
+    disableIndexer(false),
+    extDiffAvailable(false)
 {
 }
 
