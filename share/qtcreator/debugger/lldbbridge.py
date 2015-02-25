@@ -69,7 +69,7 @@ Value = lldb.SBValue
 
 def impl_SBValue__add__(self, offset):
     if self.GetType().IsPointerType():
-        if isinstance(offset, int):
+        if isinstance(offset, int) or isinstance(offset, long):
             pass
         else:
             offset = offset.GetValueAsSigned()
