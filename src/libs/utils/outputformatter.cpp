@@ -43,24 +43,14 @@ class OutputFormatterPrivate
 {
 public:
     OutputFormatterPrivate()
-        : plainTextEdit(0)
-        , formats(0)
-        , escapeCodeHandler(new AnsiEscapeCodeHandler)
-        , overwriteOutput(false)
-    {
-    }
-
-    ~OutputFormatterPrivate()
-    {
-        delete[] formats;
-        delete escapeCodeHandler;
-    }
+        : plainTextEdit(0), overwriteOutput(false)
+    {}
 
     QPlainTextEdit *plainTextEdit;
-    QTextCharFormat *formats;
+    QTextCharFormat formats[NumberOfFormats];
     QFont font;
     QTextCursor cursor;
-    AnsiEscapeCodeHandler *escapeCodeHandler;
+    AnsiEscapeCodeHandler escapeCodeHandler;
     bool overwriteOutput;
 };
 
@@ -118,7 +108,7 @@ QTextCharFormat OutputFormatter::charFormat(OutputFormat format) const
 
 QList<FormattedText> OutputFormatter::parseAnsi(const QString &text, const QTextCharFormat &format)
 {
-    return d->escapeCodeHandler->parseText(FormattedText(text, format));
+    return d->escapeCodeHandler.parseText(FormattedText(text, format));
 }
 
 void OutputFormatter::append(QTextCursor &cursor, const QString &text,
@@ -147,8 +137,6 @@ void OutputFormatter::initFormats()
 
     QFont boldFont = d->font;
     boldFont.setBold(true);
-
-    d->formats = new QTextCharFormat[NumberOfFormats];
 
     Theme *theme = creatorTheme();
 
@@ -192,7 +180,7 @@ void OutputFormatter::setFont(const QFont &font)
 
 void OutputFormatter::flush()
 {
-    d->escapeCodeHandler->endFormatScope();
+    d->escapeCodeHandler.endFormatScope();
 }
 
 } // namespace Utils
