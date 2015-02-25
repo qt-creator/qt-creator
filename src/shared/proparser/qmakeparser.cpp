@@ -1270,4 +1270,258 @@ void QMakeParser::message(int type, const QString &msg) const
         m_handler->message(type, msg, m_proFile->fileName(), m_lineNo);
 }
 
+#ifdef PROPARSER_DEBUG
+
+#define BOUNDS_CHECK(need) \
+    do { \
+        int have = limit - offset; \
+        if (have < (int)need) { \
+            *outStr += fL1S("<out of bounds (need %1, got %2)>").arg(need).arg(have); \
+            return false; \
+        } \
+    } while (0)
+
+static bool getRawUshort(const ushort *tokens, int limit, int &offset, ushort *outVal, QString *outStr)
+{
+    BOUNDS_CHECK(1);
+    uint val = tokens[offset++];
+    *outVal = val;
+    return true;
+}
+
+static bool getUshort(const ushort *tokens, int limit, int &offset, ushort *outVal, QString *outStr)
+{
+    *outStr += fL1S(" << H(");
+    if (!getRawUshort(tokens, limit, offset, outVal, outStr))
+        return false;
+    *outStr += QString::number(*outVal) + QLatin1Char(')');
+    return true;
+}
+
+static bool getRawUint(const ushort *tokens, int limit, int &offset, uint *outVal, QString *outStr)
+{
+    BOUNDS_CHECK(2);
+    uint val = tokens[offset++];
+    val |= (uint)tokens[offset++] << 16;
+    *outVal = val;
+    return true;
+}
+
+static bool getUint(const ushort *tokens, int limit, int &offset, uint *outVal, QString *outStr)
+{
+    *outStr += fL1S(" << I(");
+    if (!getRawUint(tokens, limit, offset, outVal, outStr))
+        return false;
+    *outStr += QString::number(*outVal) + QLatin1Char(')');
+    return true;
+}
+
+static bool getRawStr(const ushort *tokens, int limit, int &offset, int strLen, QString *outStr)
+{
+    BOUNDS_CHECK(strLen);
+    *outStr += fL1S("L\"");
+    bool attn = false;
+    for (int i = 0; i < strLen; i++) {
+        ushort val = tokens[offset++];
+        switch (val) {
+        case '"': *outStr += fL1S("\\\""); break;
+        case '\n': *outStr += fL1S("\\n"); break;
+        case '\r': *outStr += fL1S("\\r"); break;
+        case '\t': *outStr += fL1S("\\t"); break;
+        case '\\': *outStr += fL1S("\\\\"); break;
+        default:
+            if (val < 32 || val > 126) {
+                *outStr += (val > 255 ? fL1S("\\u") : fL1S("\\x")) + QString::number(val, 16);
+                attn = true;
+                continue;
+            }
+            if (attn && isxdigit(val))
+                *outStr += fL1S("\"\"");
+            *outStr += QChar(val);
+            break;
+        }
+        attn = false;
+    }
+    *outStr += QLatin1Char('"');
+    return true;
+}
+
+static bool getStr(const ushort *tokens, int limit, int &offset, QString *outStr)
+{
+    *outStr += fL1S(" << S(");
+    ushort len;
+    if (!getRawUshort(tokens, limit, offset, &len, outStr))
+        return false;
+    if (!getRawStr(tokens, limit, offset, len, outStr))
+        return false;
+    *outStr += QLatin1Char(')');
+    return true;
+}
+
+static bool getHashStr(const ushort *tokens, int limit, int &offset, QString *outStr)
+{
+    *outStr += fL1S(" << HS(");
+    uint hash;
+    if (!getRawUint(tokens, limit, offset, &hash, outStr))
+        return false;
+    ushort len;
+    if (!getRawUshort(tokens, limit, offset, &len, outStr))
+        return false;
+    const QChar *chars = (const QChar *)tokens + offset;
+    if (!getRawStr(tokens, limit, offset, len, outStr))
+        return false;
+    uint realhash = ProString::hash(chars, len);
+    if (realhash != hash)
+        *outStr += fL1S(" /* Bad hash ") + QString::number(hash) + fL1S(" */");
+    *outStr += QLatin1Char(')');
+    return true;
+}
+
+static bool getBlock(const ushort *tokens, int limit, int &offset, QString *outStr, int indent);
+
+static bool getSubBlock(const ushort *tokens, int limit, int &offset, QString *outStr, int indent,
+                        const char *scope)
+{
+    *outStr += fL1S("\n    /* %1 */ ").arg(offset, 5)
+               + QString(indent * 4, QLatin1Char(' '))
+               + fL1S("/* ") + fL1S(scope) + fL1S(" */");
+    uint len;
+    if (!getUint(tokens, limit, offset, &len, outStr))
+        return false;
+    if (len) {
+        BOUNDS_CHECK(len);
+        int tmpOff = offset;
+        offset += len;
+        forever {
+            if (!getBlock(tokens, offset, tmpOff, outStr, indent + 1))
+                break;  // Error was already reported, try to continue
+            if (tmpOff == offset)
+                break;
+            *outStr += QLatin1Char('\n') + QString(20 + indent * 4, QLatin1Char(' '))
+                       + fL1S("/* Warning: Excess tokens follow. */");
+        }
+    }
+    return true;
+}
+
+static bool getBlock(const ushort *tokens, int limit, int &offset, QString *outStr, int indent)
+{
+    static const char * const tokNames[] = {
+        "TokTerminator",
+        "TokLine",
+        "TokAssign", "TokAppend", "TokAppendUnique", "TokRemove", "TokReplace",
+        "TokValueTerminator",
+        "TokLiteral", "TokHashLiteral", "TokVariable", "TokProperty", "TokEnvVar",
+        "TokFuncName", "TokArgSeparator", "TokFuncTerminator",
+        "TokCondition", "TokTestCall",
+        "TokReturn", "TokBreak", "TokNext",
+        "TokNot", "TokAnd", "TokOr",
+        "TokBranch", "TokForLoop",
+        "TokTestDef", "TokReplaceDef"
+    };
+
+    while (offset != limit) {
+        *outStr += fL1S("\n    /* %1 */").arg(offset, 5)
+                   + QString(indent * 4, QLatin1Char(' '));
+        BOUNDS_CHECK(1);
+        ushort tok = tokens[offset++];
+        ushort maskedTok = tok & TokMask;
+        if (maskedTok >= sizeof(tokNames)/sizeof(tokNames[0])
+            || (tok & ~(TokNewStr | TokQuoted | TokMask))) {
+            *outStr += fL1S(" << {invalid token %1}").arg(tok);
+            return false;
+        }
+        *outStr += fL1S(" << H(") + fL1S(tokNames[maskedTok]);
+        if (tok & TokNewStr)
+            *outStr += fL1S(" | TokNewStr");
+        if (tok & TokQuoted)
+            *outStr += fL1S(" | TokQuoted");
+        *outStr += QLatin1Char(')');
+        bool ok;
+        switch (maskedTok) {
+        case TokFuncTerminator:   // Recursion, but not a sub-block
+            return true;
+        case TokArgSeparator:
+        case TokValueTerminator:  // Not recursion
+        case TokTerminator:       // Recursion, and limited by (sub-)block length
+        case TokCondition:
+        case TokReturn:
+        case TokBreak:
+        case TokNext:
+        case TokNot:
+        case TokAnd:
+        case TokOr:
+            ok = true;
+            break;
+        case TokTestCall:
+            ok = getBlock(tokens, limit, offset, outStr, indent + 1);
+            break;
+        case TokBranch:
+            ok = getSubBlock(tokens, limit, offset, outStr, indent, "then branch");
+            if (ok)
+                ok = getSubBlock(tokens, limit, offset, outStr, indent, "else branch");
+            break;
+        default:
+            switch (maskedTok) {
+            case TokAssign:
+            case TokAppend:
+            case TokAppendUnique:
+            case TokRemove:
+            case TokReplace:
+                // The parameter is the sizehint for the output.
+                // fallthrough
+            case TokLine: {
+                ushort dummy;
+                ok = getUshort(tokens, limit, offset, &dummy, outStr);
+                break; }
+            case TokLiteral:
+            case TokEnvVar:
+                ok = getStr(tokens, limit, offset, outStr);
+                break;
+            case TokHashLiteral:
+            case TokVariable:
+            case TokProperty:
+                ok = getHashStr(tokens, limit, offset, outStr);
+                break;
+            case TokFuncName:
+                ok = getHashStr(tokens, limit, offset, outStr);
+                if (ok)
+                    ok = getBlock(tokens, limit, offset, outStr, indent + 1);
+                break;
+            case TokForLoop:
+                ok = getHashStr(tokens, limit, offset, outStr);
+                if (ok)
+                    ok = getSubBlock(tokens, limit, offset, outStr, indent, "iterator");
+                if (ok)
+                    ok = getSubBlock(tokens, limit, offset, outStr, indent, "body");
+                break;
+            case TokTestDef:
+            case TokReplaceDef:
+                ok = getHashStr(tokens, limit, offset, outStr);
+                if (ok)
+                    ok = getSubBlock(tokens, limit, offset, outStr, indent, "body");
+                break;
+            default:
+                Q_ASSERT(!"unhandled token");
+            }
+        }
+        if (!ok)
+            return false;
+    }
+    return true;
+}
+
+QString QMakeParser::formatProBlock(const QString &block)
+{
+    QString outStr;
+    outStr += fL1S("\n            << TS(");
+    int offset = 0;
+    getBlock(reinterpret_cast<const ushort *>(block.constData()), block.length(),
+             offset, &outStr, 0);
+    outStr += QLatin1Char(')');
+    return outStr;
+}
+
+#endif // PROPARSER_DEBUG
+
 QT_END_NAMESPACE

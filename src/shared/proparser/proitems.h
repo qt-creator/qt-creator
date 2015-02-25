@@ -135,6 +135,7 @@ public:
     int toInt(bool *ok = 0, int base = 10) const { return toQString().toInt(ok, base); } // XXX optimize
     short toShort(bool *ok = 0, int base = 10) const { return toQString().toShort(ok, base); } // XXX optimize
 
+    uint hash() const { return m_hash; }
     static uint hash(const QChar *p, int n);
 
     ALWAYS_INLINE QStringRef toQStringRef() const { return QStringRef(&m_string, m_offset, m_length); }
