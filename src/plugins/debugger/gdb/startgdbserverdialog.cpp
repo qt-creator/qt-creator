@@ -63,7 +63,7 @@ public:
     StartGdbServerDialogPrivate() : dialog(0), kit(0) {}
 
     DeviceProcessesDialog *dialog;
-    bool startServerOnly;
+    bool attachToServer;
     DeviceProcessItem process;
     Kit *kit;
     IDevice::ConstPtr device;
@@ -72,7 +72,7 @@ public:
     SshRemoteProcessRunner runner;
 };
 
-GdbServerStarter::GdbServerStarter(DeviceProcessesDialog *dlg, bool startServerOnly)
+GdbServerStarter::GdbServerStarter(DeviceProcessesDialog *dlg, bool attachAfterServerStart)
   : QObject(dlg)
 {
     d = new StartGdbServerDialogPrivate;
@@ -80,7 +80,7 @@ GdbServerStarter::GdbServerStarter(DeviceProcessesDialog *dlg, bool startServerO
     d->kit = dlg->kitChooser()->currentKit();
     d->process = dlg->currentProcess();
     d->device = DeviceKitInformation::device(d->kit);
-    d->startServerOnly = startServerOnly;
+    d->attachToServer = attachAfterServerStart;
 }
 
 GdbServerStarter::~GdbServerStarter()
@@ -167,7 +167,7 @@ void GdbServerStarter::handleProcessErrorOutput()
             logMessage(tr("Port %1 is now accessible.").arg(port));
             logMessage(tr("Server started on %1:%2")
                 .arg(d->device->sshParameters().host).arg(port));
-            if (!d->startServerOnly)
+            if (d->attachToServer)
                 attach(port);
         }
     }

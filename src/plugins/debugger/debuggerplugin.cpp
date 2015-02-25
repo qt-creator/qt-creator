@@ -612,7 +612,8 @@ public:
         m_threadBox->setCurrentIndex(index);
         m_threadBox->blockSignals(state);
     }
-    DebuggerRunControl *attachToRunningProcess(Kit *kit, DeviceProcessItem process);
+
+    DebuggerRunControl *attachToRunningProcess(Kit *kit, DeviceProcessItem process, bool contAfterAttach);
 
     void writeSettings()
     {
@@ -710,13 +711,10 @@ public:
 
     void startAndDebugApplication();
     void startRemoteCdbSession();
-    void startRemoteServer();
+    void startRemoteServerAndAttachToProcess();
     void attachToRemoteServer();
-    void attachToProcess(bool startServerOnly);
     void attachToRunningApplication();
     void attachToUnstartedApplicationDialog();
-    void attachToFoundProcess();
-    void continueOnAttach(Debugger::DebuggerState state);
     void attachToQmlPort();
     Q_SLOT void runScheduled();
     void attachCore();
@@ -1400,22 +1398,10 @@ void DebuggerPluginPrivate::attachToRemoteServer()
     }
 }
 
-void DebuggerPluginPrivate::startRemoteServer()
+void DebuggerPluginPrivate::startRemoteServerAndAttachToProcess()
 {
-    attachToProcess(true);
-}
-
-void DebuggerPluginPrivate::attachToRunningApplication()
-{
-    attachToProcess(false);
-}
-
-void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
-{
-    const DebuggerKitChooser::Mode mode = startServerOnly ?
-        DebuggerKitChooser::RemoteDebugging : DebuggerKitChooser::LocalDebugging;
-    DebuggerKitChooser *kitChooser = new DebuggerKitChooser(mode);
-    DeviceProcessesDialog *dlg = new DeviceProcessesDialog(kitChooser, ICore::dialogParent());
+    auto kitChooser = new DebuggerKitChooser(DebuggerKitChooser::AnyDebugging);
+    auto dlg = new DeviceProcessesDialog(kitChooser, ICore::dialogParent());
     dlg->addAcceptButton(DeviceProcessesDialog::tr("&Attach to Process"));
     dlg->showAllDevices();
     if (dlg->exec() == QDialog::Rejected) {
@@ -1429,62 +1415,63 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     QTC_ASSERT(device, return);
 
-    if (device->type() != PE::DESKTOP_DEVICE_TYPE) {
-        GdbServerStarter *starter = new GdbServerStarter(dlg, startServerOnly);
-        starter->run();
+    GdbServerStarter *starter = new GdbServerStarter(dlg, true);
+    starter->run();
+}
+
+void DebuggerPluginPrivate::attachToRunningApplication()
+{
+    auto kitChooser = new DebuggerKitChooser(DebuggerKitChooser::LocalDebugging);
+
+    auto dlg = new DeviceProcessesDialog(kitChooser, ICore::dialogParent());
+    dlg->addAcceptButton(DeviceProcessesDialog::tr("&Attach to Process"));
+    dlg->showAllDevices();
+    if (dlg->exec() == QDialog::Rejected) {
+        delete dlg;
+        return;
+    }
+
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    Kit *kit = kitChooser->currentKit();
+    QTC_ASSERT(kit, return);
+    IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+    QTC_ASSERT(device, return);
+
+    if (device->type() == PE::DESKTOP_DEVICE_TYPE) {
+        attachToRunningProcess(kit, dlg->currentProcess(), false);
     } else {
-        attachToRunningProcess(kit, dlg->currentProcess());
+        GdbServerStarter *starter = new GdbServerStarter(dlg, true);
+        starter->run();
     }
 }
 
 void DebuggerPluginPrivate::attachToUnstartedApplicationDialog()
 {
-    UnstartedAppWatcherDialog *dlg = new UnstartedAppWatcherDialog(ICore::dialogParent());
+    auto dlg = new UnstartedAppWatcherDialog(ICore::dialogParent());
 
     connect(dlg, &QDialog::finished, dlg, &QObject::deleteLater);
-    connect(dlg, &UnstartedAppWatcherDialog::processFound, this, &DebuggerPluginPrivate::attachToFoundProcess);
+    connect(dlg, &UnstartedAppWatcherDialog::processFound, this, [this, dlg] {
+        DebuggerRunControl *rc = attachToRunningProcess(dlg->currentKit(),
+                                                        dlg->currentProcess(),
+                                                        dlg->continueOnAttach());
+        if (!rc)
+            return;
+
+        if (dlg->hideOnAttach())
+            connect(rc, &RunControl::finished, dlg, &UnstartedAppWatcherDialog::startWatching);
+    });
+
     dlg->show();
 }
 
-void DebuggerPluginPrivate::attachToFoundProcess()
-{
-    UnstartedAppWatcherDialog *dlg = qobject_cast<UnstartedAppWatcherDialog *>(QObject::sender());
-    if (!dlg)
-        return;
-
-    DebuggerRunControl *rc = attachToRunningProcess(dlg->currentKit(), dlg->currentProcess());
-    if (!rc)
-        return;
-
-    if (dlg->hideOnAttach())
-        connect(rc, &RunControl::finished, dlg, &UnstartedAppWatcherDialog::startWatching);
-
-    if (dlg->continueOnAttach()) {
-        connect(currentEngine(), &DebuggerEngine::stateChanged,
-                this, &DebuggerPluginPrivate::continueOnAttach);
-    }
-}
-
-void DebuggerPluginPrivate::continueOnAttach(Debugger::DebuggerState state)
-{
-    // wait for state when we can continue
-    if (state != InferiorStopOk)
-        return;
-    // disconnect and continue
-    disconnect(currentEngine(), &DebuggerEngine::stateChanged,
-               this, &DebuggerPluginPrivate::continueOnAttach);
-    handleExecContinue();
-}
-
 DebuggerRunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
-                                                                  DeviceProcessItem process)
+    DeviceProcessItem process, bool contAfterAttach)
 {
     QTC_ASSERT(kit, return 0);
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     QTC_ASSERT(device, return 0);
     if (process.pid == 0) {
-        AsynchronousMessageBox::warning(tr("Warning"),
-                                              tr("Cannot attach to process with PID 0"));
+        AsynchronousMessageBox::warning(tr("Warning"), tr("Cannot attach to process with PID 0"));
         return 0;
     }
 
@@ -1512,6 +1499,7 @@ DebuggerRunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     sp.executable = process.exe;
     sp.startMode = AttachExternal;
     sp.closeMode = DetachAtClose;
+    sp.continueAfterAttach = contAfterAttach;
     return DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
@@ -2648,7 +2636,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     act = m_startRemoteServerAction = new QAction(this);
     act->setText(tr("Start Remote Debug Server Attached to Process..."));
-    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::startRemoteServer);
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::startRemoteServerAndAttachToProcess);
 
     act = m_attachToRunningApplication = new QAction(this);
     act->setText(tr("Attach to Running Application..."));

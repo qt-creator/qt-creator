@@ -89,12 +89,17 @@ void GdbAttachEngine::handleAttach(const DebuggerResponse &response)
     case ResultRunning:
         showMessage(_("INFERIOR ATTACHED"));
         if (state() == EngineRunRequested) {
-            // FIXME: Really? Looks like we are always stopped already.
+            // Happens e.g. for "Attach to unstarted application"
             // We will get a '*stopped' later that we'll interpret as 'spontaneous'
             // So acknowledge the current state and put a delayed 'continue' in the pipe.
-            showMessage(msgAttachedToStoppedInferior(), StatusBar);
+            showMessage(tr("Attached to running application"), StatusBar);
             notifyEngineRunAndInferiorRunOk();
-            interruptInferior();
+        } else {
+            // InferiorStopOk, e.g. for "Attach to running application".
+            // The *stopped came in between sending the 'attach' and
+            // receiving its '^done'.
+            if (startParameters().continueAfterAttach)
+                continueInferiorInternal();
         }
         break;
     case ResultError:

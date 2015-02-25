@@ -59,12 +59,14 @@ class StartApplicationParameters;
 class StartApplicationDialogPrivate;
 class StartRemoteEngineDialogPrivate;
 
-class DebuggerKitChooser : public ProjectExplorer::KitChooser {
+class DebuggerKitChooser : public ProjectExplorer::KitChooser
+{
     Q_OBJECT
-public:
-    enum Mode { RemoteDebugging, LocalDebugging };
 
-    explicit DebuggerKitChooser(Mode mode = RemoteDebugging, QWidget *parent = 0);
+public:
+    enum Mode { AnyDebugging, LocalDebugging };
+
+    explicit DebuggerKitChooser(Mode mode = AnyDebugging, QWidget *parent = 0);
 
 protected:
     bool kitMatches(const ProjectExplorer::Kit *k) const;
