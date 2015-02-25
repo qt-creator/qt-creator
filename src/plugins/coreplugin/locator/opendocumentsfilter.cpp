@@ -78,9 +78,8 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locat
             continue;
         QString displayName = editorEntry.displayName();
         if (regexp.exactMatch(displayName)) {
-            QFileInfo fi(fileName);
             LocatorFilterEntry fiEntry(this, displayName, QString(fileName + lineNoSuffix));
-            fiEntry.extraInfo = FileUtils::shortNativePath(FileName(fi));
+            fiEntry.extraInfo = FileUtils::shortNativePath(FileName::fromString(fileName));
             fiEntry.fileName = fileName;
             QList<LocatorFilterEntry> &category = displayName.startsWith(entry, caseSensitivityForPrefix)
                     ? betterEntries : goodEntries;
