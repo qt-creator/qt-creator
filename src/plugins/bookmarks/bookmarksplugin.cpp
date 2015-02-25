@@ -56,9 +56,16 @@ using namespace TextEditor;
 namespace Bookmarks {
 namespace Internal {
 
-BookmarksPlugin::BookmarksPlugin()
-    : m_bookmarkManager(0),
-      m_bookmarkMarginActionLineNumber(0)
+BookmarksPlugin::BookmarksPlugin() :
+    m_bookmarkManager(0),
+    m_toggleAction(0),
+    m_prevAction(0),
+    m_nextAction(0),
+    m_docPrevAction(0),
+    m_docNextAction(0),
+    m_editBookmarkAction(0),
+    m_bookmarkMarginAction(0),
+    m_bookmarkMarginActionLineNumber(0)
 {
 }
 
