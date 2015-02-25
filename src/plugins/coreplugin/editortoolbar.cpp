@@ -97,8 +97,11 @@ EditorToolBarPrivate::EditorToolBarPrivate(QWidget *parent, EditorToolBar *q) :
     m_closeEditorButton(new QToolButton(q)),
     m_lockButton(new QToolButton(q)),
     m_dragHandle(new QToolButton(q)),
+    m_dragHandleMenu(0),
     m_goBackAction(new QAction(QIcon(QLatin1String(Constants::ICON_PREV)), EditorManager::tr("Go Back"), parent)),
     m_goForwardAction(new QAction(QIcon(QLatin1String(Constants::ICON_NEXT)), EditorManager::tr("Go Forward"), parent)),
+    m_backButton(new QToolButton(q)),
+    m_forwardButton(new QToolButton(q)),
     m_splitButton(new QToolButton(q)),
     m_horizontalSplitAction(new QAction(QIcon(QLatin1String(Constants::ICON_SPLIT_HORIZONTAL)), EditorManager::tr("Split"), parent)),
     m_verticalSplitAction(new QAction(QIcon(QLatin1String(Constants::ICON_SPLIT_VERTICAL)), EditorManager::tr("Split Side by Side"), parent)),
@@ -154,10 +157,8 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
 
     d->m_toolBarPlaceholder->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
-    d->m_backButton = new QToolButton(this);
     d->m_backButton->setDefaultAction(d->m_goBackAction);
 
-    d->m_forwardButton= new QToolButton(this);
     d->m_forwardButton->setDefaultAction(d->m_goForwardAction);
 
     if (Utils::HostOsInfo::isMacHost()) {
