@@ -94,8 +94,10 @@ public:
 
 FindPluginPrivate::FindPluginPrivate(FindPlugin *q) :
     m_currentDocumentFind(0), m_findToolBar(0), m_findDialog(0),
+    m_searchResultWindow(0),
     m_findCompletionModel(new QStringListModel(q)),
-    m_replaceCompletionModel(new QStringListModel(q))
+    m_replaceCompletionModel(new QStringListModel(q)),
+    m_openFindDialog(0)
 {
 }
 
