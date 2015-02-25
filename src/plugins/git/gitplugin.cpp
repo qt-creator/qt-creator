@@ -1011,7 +1011,7 @@ IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &
         title = tr("Git Commit");
     }
     IDocument *document = submitEditor->document();
-    document->setDisplayName(title);
+    document->setPreferredDisplayName(title);
     VcsBasePlugin::setSource(document, m_submitRepository);
     connect(submitEditor, SIGNAL(diff(QStringList,QStringList)), this, SLOT(submitEditorDiff(QStringList,QStringList)));
     connect(submitEditor, SIGNAL(merge(QStringList)), this, SLOT(submitEditorMerge(QStringList)));

@@ -185,7 +185,7 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
     d(new VcsBaseSubmitEditorPrivate(parameters, editorWidget, this))
 {
     setWidget(d->m_widget);
-    document()->setDisplayName(QCoreApplication::translate("VCS", d->m_parameters->displayName));
+    document()->setPreferredDisplayName(QCoreApplication::translate("VCS", d->m_parameters->displayName));
 
     // Message font according to settings
     CompletingTextEdit *descriptionEdit = editorWidget->descriptionEdit();

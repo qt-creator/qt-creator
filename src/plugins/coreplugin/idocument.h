@@ -92,7 +92,9 @@ public:
     Utils::FileName filePath() const;
     virtual void setFilePath(const Utils::FileName &filePath);
     QString displayName() const;
-    void setDisplayName(const QString &name);
+    void setPreferredDisplayName(const QString &name);
+    QString plainDisplayName() const;
+    void setUniqueDisplayName(const QString &name);
 
     virtual bool isFileReadOnly() const;
     bool isTemporary() const;

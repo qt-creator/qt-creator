@@ -581,7 +581,7 @@ void MercurialPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &s
 
     const QString msg = tr("Commit changes for \"%1\".").
                         arg(QDir::toNativeSeparators(m_submitRepository));
-    commitEditor->document()->setDisplayName(msg);
+    commitEditor->document()->setPreferredDisplayName(msg);
 
     QString branch = versionControl()->vcsTopic(m_submitRepository);
     commitEditor->setFields(m_submitRepository, branch,

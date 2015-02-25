@@ -394,7 +394,7 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     // Open editor with title.
     IEditor *editor = EditorManager::openEditor(fileName);
     QTC_ASSERT(editor, return);
-    editor->document()->setDisplayName(titleDescription);
+    editor->document()->setPreferredDisplayName(titleDescription);
 }
 
 CodepasterPlugin *CodepasterPlugin::instance()

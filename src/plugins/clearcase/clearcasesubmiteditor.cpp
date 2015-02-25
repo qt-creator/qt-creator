@@ -41,7 +41,7 @@ using namespace ClearCase::Internal;
 ClearCaseSubmitEditor::ClearCaseSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters) :
     VcsBase::VcsBaseSubmitEditor(parameters, new ClearCaseSubmitEditorWidget)
 {
-    document()->setDisplayName(tr("ClearCase Check In"));
+    document()->setPreferredDisplayName(tr("ClearCase Check In"));
 }
 
 ClearCaseSubmitEditorWidget *ClearCaseSubmitEditor::submitEditorWidget()

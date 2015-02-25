@@ -40,6 +40,7 @@
 #include <QDir>
 #include <QIcon>
 #include <QMimeData>
+#include <QSet>
 #include <QUrl>
 
 namespace Core {
@@ -69,11 +70,40 @@ public:
     int indexOfFilePath(const Utils::FileName &filePath) const;
     int indexOfDocument(IDocument *document) const;
 
+    bool disambiguateDisplayNames(DocumentModel::Entry *entry);
+
 private slots:
     friend class DocumentModel;
     void itemChanged();
 
 private:
+    class DynamicEntry
+    {
+    public:
+        DocumentModel::Entry *entry;
+        int pathComponents;
+
+        DynamicEntry(DocumentModel::Entry *e) :
+            entry(e),
+            pathComponents(0)
+        {
+        }
+
+        DocumentModel::Entry *operator->() const { return entry; }
+
+        void disambiguate()
+        {
+            entry->document->setUniqueDisplayName(entry->fileName().fileName(++pathComponents));
+        }
+
+        void setNumberedName(int number)
+        {
+            entry->document->setUniqueDisplayName(QStringLiteral("%1 (%2)")
+                                                  .arg(entry->document->displayName())
+                                                  .arg(number));
+        }
+    };
+
     const QIcon m_lockedIcon;
     const QIcon m_unlockedIcon;
 
@@ -139,6 +169,11 @@ QString DocumentModel::Entry::displayName() const
     return document ? document->displayName() : m_displayName;
 }
 
+QString DocumentModel::Entry::plainDisplayName() const
+{
+    return document ? document->plainDisplayName() : m_displayName;
+}
+
 Id DocumentModel::Entry::id() const
 {
     return document ? document->id() : m_id;
@@ -199,33 +234,107 @@ void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
     // replace a non-loaded entry (aka 'restored') if possible
     int previousIndex = indexOfFilePath(fileName);
     if (previousIndex >= 0) {
-        if (entry->document && m_entries.at(previousIndex)->document == 0) {
-            DocumentModel::Entry *previousEntry = m_entries.at(previousIndex);
-            m_entries[previousIndex] = entry;
+        DocumentModel::Entry *previousEntry = m_entries.at(previousIndex);
+        const bool replace = entry->document && !previousEntry->document;
+        if (replace) {
             delete previousEntry;
+            m_entries[previousIndex] = entry;
             if (!fixedPath.isEmpty())
                 m_entryByFixedPath[fixedPath] = entry;
-            connect(entry->document, SIGNAL(changed()), this, SLOT(itemChanged()));
         } else {
             delete entry;
+            entry = previousEntry;
         }
+        previousEntry = 0;
+        disambiguateDisplayNames(entry);
+        if (replace)
+            connect(entry->document, SIGNAL(changed()), this, SLOT(itemChanged()));
         return;
     }
 
     int index;
-    QString displayName = entry->displayName();
+    const QString displayName = entry->plainDisplayName();
     for (index = 0; index < m_entries.count(); ++index) {
-        if (displayName.localeAwareCompare(m_entries.at(index)->displayName()) < 0)
+        int cmp = displayName.localeAwareCompare(m_entries.at(index)->plainDisplayName());
+        if (cmp < 0)
+            break;
+        if (cmp == 0 && fileName < d->m_entries.at(index)->fileName())
             break;
     }
     int row = index + 1/*<no document>*/;
     beginInsertRows(QModelIndex(), row, row);
     m_entries.insert(index, entry);
+    disambiguateDisplayNames(entry);
     if (!fixedPath.isEmpty())
         m_entryByFixedPath[fixedPath] = entry;
     if (entry->document)
         connect(entry->document, SIGNAL(changed()), this, SLOT(itemChanged()));
     endInsertRows();
+}
+
+bool DocumentModelPrivate::disambiguateDisplayNames(DocumentModel::Entry *entry)
+{
+    const QString displayName = entry->plainDisplayName();
+    int minIdx = -1, maxIdx = -1;
+
+    QList<DynamicEntry> dups;
+
+    for (int i = 0, total = m_entries.count(); i < total; ++i) {
+        DocumentModel::Entry *e = m_entries.at(i);
+        if (!e->document)
+            continue;
+        if (e == entry || e->plainDisplayName() == displayName) {
+            e->document->setUniqueDisplayName(QString());
+            dups += DynamicEntry(e);
+            maxIdx = i;
+            if (minIdx < 0)
+                minIdx = i;
+        }
+    }
+
+    const int dupsCount = dups.count();
+    if (dupsCount == 0)
+        return false;
+
+    if (dupsCount > 1) {
+        int serial = 0;
+        int count = 0;
+        // increase uniqueness unless no dups are left
+        forever {
+            bool seenDups = false;
+            for (int i = 0; i < dupsCount - 1; ++i) {
+                DynamicEntry &e = dups[i];
+                const Utils::FileName myFileName = e->document->filePath();
+                if (e->document->isTemporary() || myFileName.isEmpty() || count > 10) {
+                    // path-less entry, append number
+                    e.setNumberedName(++serial);
+                    continue;
+                }
+                for (int j = i + 1; j < dupsCount; ++j) {
+                    DynamicEntry &e2 = dups[j];
+                    if (e->displayName() == e2->displayName()) {
+                        const Utils::FileName otherFileName = e2->document->filePath();
+                        if (otherFileName.isEmpty())
+                            continue;
+                        seenDups = true;
+                        e2.disambiguate();
+                        if (j > maxIdx)
+                            maxIdx = j;
+                    }
+                }
+                if (seenDups) {
+                    e.disambiguate();
+                    ++count;
+                    break;
+                }
+            }
+            if (!seenDups)
+                break;
+        }
+    }
+
+    emit dataChanged(index(minIdx + 1, 0), index(maxIdx + 1, 0));
+    return true;
 }
 
 int DocumentModelPrivate::indexOfFilePath(const Utils::FileName &filePath) const
@@ -285,6 +394,7 @@ void DocumentModelPrivate::removeDocument(int idx)
     }
     if (IDocument *document = entry->document)
         disconnect(document, SIGNAL(changed()), this, SLOT(itemChanged()));
+    disambiguateDisplayNames(entry);
     delete entry;
 }
 
@@ -297,6 +407,14 @@ void DocumentModel::removeAllRestoredEntries()
             delete d->m_entries.takeAt(i);
             d->endRemoveRows();
         }
+    }
+    QSet<QString> displayNames;
+    foreach (DocumentModel::Entry *entry, d->m_entries) {
+        const QString displayName = entry->plainDisplayName();
+        if (displayNames.contains(displayName))
+            continue;
+        displayNames.insert(displayName);
+        d->disambiguateDisplayNames(entry);
     }
 }
 
@@ -406,10 +524,12 @@ QVariant DocumentModelPrivate::data(const QModelIndex &index, int role) const
     }
     const DocumentModel::Entry *e = m_entries.at(entryIndex);
     switch (role) {
-    case Qt::DisplayRole:
-        return (e->document && e->document->isModified())
-                ? e->displayName() + QLatin1Char('*')
-                : e->displayName();
+    case Qt::DisplayRole: {
+        QString name = e->displayName();
+        if (e->document && e->document->isModified())
+            name += QLatin1Char('*');
+        return name;
+    }
     case Qt::DecorationRole:
     {
         bool showLock = false;
@@ -420,9 +540,7 @@ QVariant DocumentModelPrivate::data(const QModelIndex &index, int role) const
         return showLock ? m_lockedIcon : QIcon();
     }
     case Qt::ToolTipRole:
-        return e->fileName().isEmpty()
-                ? e->displayName()
-                : e->fileName().toUserOutput();
+        return e->fileName().isEmpty() ? e->displayName() : e->fileName().toUserOutput();
     default:
         return QVariant();
     }
@@ -484,8 +602,10 @@ void DocumentModelPrivate::itemChanged()
     }
     if (!found && !fixedPath.isEmpty())
         m_entryByFixedPath[fixedPath] = entry;
-    QModelIndex mindex = index(idx + 1/*<no document>*/, 0);
-    emit dataChanged(mindex, mindex);
+    if (!disambiguateDisplayNames(d->m_entries.at(idx))) {
+        QModelIndex mindex = index(idx + 1/*<no document>*/, 0);
+        emit dataChanged(mindex, mindex);
+    }
 }
 
 QList<DocumentModel::Entry *> DocumentModel::entries()

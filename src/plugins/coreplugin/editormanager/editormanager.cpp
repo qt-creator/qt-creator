@@ -2386,7 +2386,7 @@ IEditor *EditorManager::openEditorWithContents(Id editorId,
     }
 
     if (!title.isEmpty())
-        edt->document()->setDisplayName(title);
+        edt->document()->setPreferredDisplayName(title);
 
 
     EditorManagerPrivate::addEditor(edt);

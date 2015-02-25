@@ -50,10 +50,12 @@ OpenDocumentsFilter::OpenDocumentsFilter()
     setPriority(High);
     setIncludedByDefault(true);
 
-    connect(EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
-            this, SLOT(refreshInternally()));
-    connect(EditorManager::instance(), SIGNAL(editorsClosed(QList<Core::IEditor*>)),
-            this, SLOT(refreshInternally()));
+    connect(DocumentModel::model(), &QAbstractItemModel::dataChanged,
+            this, &OpenDocumentsFilter::refreshInternally);
+    connect(DocumentModel::model(), &QAbstractItemModel::rowsInserted,
+            this, &OpenDocumentsFilter::refreshInternally);
+    connect(DocumentModel::model(), &QAbstractItemModel::rowsRemoved,
+            this, &OpenDocumentsFilter::refreshInternally);
 }
 
 QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry_)

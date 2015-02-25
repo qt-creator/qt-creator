@@ -42,7 +42,7 @@ CommitEditor::CommitEditor(const VcsBase::VcsBaseSubmitEditorParameters *paramet
     : VcsBase::VcsBaseSubmitEditor(parameters, new BazaarCommitWidget),
       m_fileModel(0)
 {
-    document()->setDisplayName(tr("Commit Editor"));
+    document()->setPreferredDisplayName(tr("Commit Editor"));
 }
 
 BazaarCommitWidget *CommitEditor::commitWidget()

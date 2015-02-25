@@ -98,7 +98,7 @@ Core::IDocument *DiffEditorManager::findOrCreate(const QString &vcsId, const QSt
     document = qobject_cast<Internal::DiffEditorDocument *>(diffEditor->document());
     QTC_ASSERT(diffEditor, return 0);
 
-    document->setDisplayName(displayName);
+    document->setPreferredDisplayName(displayName);
 
     m_instance->m_idToDocument.insert(vcsId, document);
 
