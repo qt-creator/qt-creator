@@ -36,6 +36,7 @@
 #include <QApplication>
 #include <QFileInfo>
 #include <QMetaEnum>
+#include <QPalette>
 #include <QSettings>
 
 namespace Utils {
