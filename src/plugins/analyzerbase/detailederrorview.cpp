@@ -225,8 +225,9 @@ void DetailedErrorDelegate::copyToClipboard()
     QApplication::clipboard()->setText(textualRepresentation());
 }
 
-DetailedErrorView::DetailedErrorView(QWidget *parent)
-    : QListView(parent)
+DetailedErrorView::DetailedErrorView(QWidget *parent) :
+    QListView(parent),
+    m_copyAction(0)
 {
 }
 
