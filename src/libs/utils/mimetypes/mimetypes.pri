@@ -20,3 +20,4 @@ SOURCES += \
         $$PWD/mimeglobpattern.cpp \
         $$PWD/mimeprovider.cpp
 
+OTHER_FILES += $$[QT_HOST_DATA/src]/src/corelib/mimetypes/mime/packages/freedesktop.org.xml
