@@ -104,10 +104,6 @@ Rectangle {
         zoomSlider.value = zoomSlider.minimumValue;
     }
 
-    function enableButtonsBar(enable) {
-        buttonsBar.enabled = enable;
-    }
-
     function selectByTypeId(typeId)
     {
         if (lockItemSelection || typeId === -1)
@@ -399,7 +395,7 @@ Rectangle {
                 y: index * height
                 text: modelData.displayName
                 enabled: !modelData.empty
-                checked: enabled && !modelData.hidden
+                checked: !modelData.empty && !modelData.hidden
                 onCheckedChanged: modelData.hidden = !checked
             }
         }
