@@ -55,15 +55,13 @@ def main():
         previous = filenames[-1]
         for filename in filenames:
             tempFiletype = filetype
-            if filetype == "QML" and previous[-4:] != ".qml":
+            if previous in ("test", "TEST"):
+                if tempFiletype in ("Headers", "Sources", "QML"):
+                    tempFiletype = "Sources"
+                else: # then it must be Resources
+                    tempFiletype = "Other files"
+            elif filetype == "QML" and previous[-4:] != ".qml":
                 tempFiletype = "Other files"
-            # following is necessary due to QTCREATORBUG-10179
-            # will be fixed when Qt5's MIME type database can be used
-            if ((filenames[-1] in ("main.cpp", "utility.cpp") and previous[-4:] != ".cpp")
-                or (filenames[-1] == "utility.h" and previous[-2:].lower() != ".h")
-                or (filetype == "Resources" and previous[-4:] != ".qrc")):
-                tempFiletype = "Other files"
-            # end of handling QTCREATORBUG-10179
             renameFile(templateDir, usedProFile, projectName + "." + tempFiletype,
                        previous, filename)
             # QTCREATORBUG-13176 does update the navigator async
@@ -99,7 +97,7 @@ def renameFile(projectDir, proFile, branch, oldname, newname):
     if platform.system() == 'Darwin':
         waitFor("macHackActivateContextMenuItem('Rename...')", 5000)
     else:
-        if oldname.endswith(".qrc"):
+        if oldname.lower().endswith(".qrc"):
             menu = ":Qt Creator.Project.Menu.Folder_QMenu"
         else:
             menu = ":Qt Creator.Project.Menu.File_QMenu"
