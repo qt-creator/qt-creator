@@ -175,11 +175,15 @@ MimeType MimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileName
 
     // Extension is unknown, or matches multiple mimetypes.
     // Pass 2) Match on content, if we can read the data
+    const bool openedByUs = !device->isOpen() && device->open(QIODevice::ReadOnly);
     if (device->isOpen()) {
 
         // Read 16K in one go (QIODEVICE_BUFFERSIZE in qiodevice_p.h).
         // This is much faster than seeking back and forth into QIODevice.
         const QByteArray data = device->peek(16384);
+
+        if (openedByUs)
+            device->close();
 
         int magicAccuracy = 0;
         MimeType candidateByData(findByData(data, &magicAccuracy));
@@ -485,7 +489,6 @@ MimeType MimeDatabase::mimeTypeForFile(const QFileInfo &fileInfo, MatchMode mode
     int priority = 0;
     switch (mode) {
     case MatchDefault:
-        file.open(QIODevice::ReadOnly); // isOpen() will be tested by method below
         return d->mimeTypeForFileNameAndData(fileInfo.absoluteFilePath(), &file, &priority);
     case MatchExtension:
         locker.unlock();
@@ -655,10 +658,7 @@ MimeType MimeDatabase::mimeTypeForUrl(const QUrl &url) const
 MimeType MimeDatabase::mimeTypeForFileNameAndData(const QString &fileName, QIODevice *device) const
 {
     int accuracy = 0;
-    const bool openedByUs = !device->isOpen() && device->open(QIODevice::ReadOnly);
     const MimeType result = d->mimeTypeForFileNameAndData(fileName, device, &accuracy);
-    if (openedByUs)
-        device->close();
     return result;
 }
 
