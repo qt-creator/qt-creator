@@ -384,8 +384,8 @@ void ActionManager::setContext(const Context &context)
     \internal
 */
 
-ActionManagerPrivate::ActionManagerPrivate()
-  : m_presentationModeEnabled(false)
+ActionManagerPrivate::ActionManagerPrivate() :
+    m_presentationModeEnabled(false)
 {
 }
 
