@@ -180,6 +180,9 @@ public:
     // list of dock widgets to prevent memory leak
     typedef QPointer<QDockWidget> DockPtr;
     QList<DockPtr> m_dockWidgets;
+
+private:
+    void rebuildToolBox();
 };
 
 AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
@@ -500,11 +503,29 @@ void AnalyzerManagerPrivate::selectAction(AnalyzerAction *action)
     updateRunActions();
 }
 
+void AnalyzerManagerPrivate::rebuildToolBox()
+{
+    const bool blocked = m_toolBox->blockSignals(true); // Do not make current.
+    QStringList integratedTools;
+    QStringList externalTools;
+    foreach (AnalyzerAction * const action, m_actions) {
+        if (action->menuGroup() == Constants::G_ANALYZER_TOOLS)
+            integratedTools << action->text();
+        else
+            externalTools << action->text();
+    }
+    m_toolBox->clear();
+    m_toolBox->addItems(integratedTools);
+    m_toolBox->addItems(externalTools);
+    if (!integratedTools.isEmpty() && !externalTools.isEmpty())
+        m_toolBox->insertSeparator(integratedTools.count());
+    m_toolBox->blockSignals(blocked);
+    m_toolBox->setEnabled(true);
+}
+
 void AnalyzerManagerPrivate::addAction(AnalyzerAction *action)
 {
     delayedInit(); // Make sure that there is a valid IMode instance.
-
-    const bool blocked = m_toolBox->blockSignals(true); // Do not make current.
 
     Id menuGroup = action->menuGroup();
     if (menuGroup.isValid()) {
@@ -513,16 +534,13 @@ void AnalyzerManagerPrivate::addAction(AnalyzerAction *action)
     }
 
     m_actions.append(action);
-    m_toolBox->addItem(action->text());
-    m_toolBox->blockSignals(blocked);
+    rebuildToolBox();
 
     connect(action, &QAction::triggered, this, [this, action] {
         AnalyzerManager::showMode();
         selectAction(action);
         startTool();
     });
-
-    m_toolBox->setEnabled(true);
 }
 
 void AnalyzerManagerPrivate::handleToolStarted()
