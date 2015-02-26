@@ -1,0 +1,165 @@
+Qt Creator version 3.4 contains bug fixes and new features.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline origin/3.3..origin/3.4
+
+General
+   * Added option to change environment for running external tools (QTCREATORBUG-4995)
+   * Improved performance of output panes
+   * Fixed that wizard windows were missing in Window menu (QTCREATORBUG-13766)
+
+Editing
+   * Switched to a QMimeDatabase based MIME database implementation
+   * Added hint in empty editor area
+   * Added "Copy Path and Line Number" to context menu of document selector
+   * Added parenthesis highlighting to generic highlighter
+   * Fixed that files with same file name but different path were not distinguishable
+     in document selector and open documents pane (QTCREATORBUG-10185)
+   * Fixed that symlinks and their target could be opened at the same time (QTCREATORBUG-5941)
+   * Fixed that wrong highlight definition was downloaded when sorting the list in the settings
+
+Help
+   * Fixed clean up of automatically registered documentation
+
+QMake Projects
+    * Added handling of QMAKE_CXXFLAGS_(APP|SHLIB|PLUGIN) variables
+    * Added option to put debug information in separate file (QTCREATORBUG-14009)
+    * Fixed ANSI color support for application output (QTCREATORBUG-13764)
+    * Fixed handling of DEFINES with escaped characters
+
+CMake Projects
+   * Fixed that static libraries were deployed
+   * Fixed finding source directory for build directory
+
+Qbs Projects
+   * Added option to show full command lines during build
+
+QML-Only Projects (.qmlproject)
+   * Disabled plugin by default
+
+Debugging
+   * LLDB
+      * Fixed debugging of console applications (QTCREATORBUG-13803)
+
+Analyzer
+   * Added Valgrind Memory Analyzer with GDB
+
+QML Profiler
+   * Made it possible to search through event notes (QTCREATORBUG-13417)
+
+C++ Support
+   * Added support for binary literals (n3472)
+   * Added locator filter for all included files (QTCREATORBUG-280)
+   * Added refactoring action that moves all function definitions out of a class declaration
+   * Added support for signal and slot completion in Qt 5 style connects
+   * Improved support for non-Qt projects that use Qt keywords
+   * Made auto-completion delay configurable (QTCREATORBUG-13393)
+   * Fixed auto-indentation for break in switch statement (QTCREATORBUG-13155)
+   * Fixed issues with case-insensitive file systems (QTCREATORBUG-12390)
+   * Fixed completion for enums inside member functions (QTCREATORBUG-13757)
+   * Fixed crash on closing one of multiple outline views (QTCREATORBUG-13614)
+   * Fixed that Move Definition to Class refactoring action was not available when using "override"
+     (QTCREATORBUG-13564)
+   * Fixed that Assign to Local Variable refactoring action was not working with chained
+     function calls (QTCREATORBUG-10355)
+   * Fixed several issues with completion and iterators (QTCREATORBUG-13799)
+
+QML Support
+   * Fixed crash on closing one of multiple outline views (QTCREATORBUG-13614)
+
+Version Control Systems
+   * Git
+      * Added support for "git stash --keep-index" (QTCREATORBUG-13587)
+   * Gerrit
+      * Fixed that it was not possible to abort query and fetch (QTCREATORBUG-9743)
+      * Fixed that not all remotes where shown in Push to Gerrit dialog (QTCREATORBUG-13718)
+   * Subversion
+      * Added option to show verbose log
+      * Changed to use the new unified diff viewer
+      * Fixed that committing failed when using non-Latin1 characters in commit message
+        (QTCREATORBUG-13979)
+   * Perforce
+      * Improved repository log (QTCREATORBUG-13526)
+
+FakeVim
+   * Fixed target column for various commands
+   * Fixed behavior of "D" in visual block mode
+   * Fixed cursor shape after failing search
+   * Fixed issues with pasting in presence of splits (QTCREATORBUG-13481)
+
+Platform Specific
+
+Windows
+
+OS X
+
+Android
+   * Added support for 64bit tool chains
+   * Fixed that active run configuration setting was ignored for deploying application
+     (QTCREATORBUG-13732)
+
+Remote Linux
+   * Added optional host key checking (QTCREATORBUG-13339)
+   * Added automatic closing of SSH connections after a period of inactivity
+   * Added support for SHA-256 HMAC for SSH
+   * Fixed that it was not possible to quote run arguments (QTCREATORBUG-14002)
+
+BareMetal
+   * Added GDB server configuration management (QTCREATORBUG-13686)
+   * Added support for remote channel without port
+   * Added support for generic projects
+
+Credits for these changes go to:
+Adam Strzelecki
+Alessandro Portale
+André Hartmann
+André Pönitz
+BogDan Vatra
+Christian Kandeler
+Christian Stenger
+Cristian Adam
+Daniel Teske
+David Schulz
+Denis Shienkov
+Eike Ziller
+Erik Verbruggen
+Fawzi Mohamed
+Francois Ferrand
+Friedemann Kleint
+Hugues Delorme
+Jake Petroules
+Jarek Kobus
+Jörg Bornemann
+Kai Köhne
+Leena Miettinen
+lemelisk
+Libor Tomsik
+Lorenz Haas
+Lukas Holecek
+Maksim Klimov
+Marco Bubke
+Mitch Curtis
+Montel Laurent
+Nikita Baryshnikov
+Nikolai Kosjar
+Orgad Shaneh
+Oswald Buddenhagen
+Przemyslaw Gorszkowski
+Robert Löhning
+Sune Vuorela
+Takumi Asaki
+Tasuku Suzuki
+Thiago Macieira
+Thomas Hartmann
+Tim Jenssen
+Tim Sander
+Tobias Hunger
+Tom Deblauwe
+Toralf Lund
+Ulf Hermann
+Volker Vogelhuber
+Yuchen Deng
