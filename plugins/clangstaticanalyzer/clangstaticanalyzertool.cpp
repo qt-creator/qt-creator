@@ -247,7 +247,7 @@ void ClangStaticAnalyzerTool::onEngineFinished()
     m_goBack->setEnabled(issuesFound > 1);
     m_goNext->setEnabled(issuesFound > 1);
 
-    AnalyzerManager::showStatusMessage(issuesFound > 0
+    AnalyzerManager::showPermanentStatusMessage(issuesFound > 0
       ? AnalyzerManager::tr("Clang Static Analyzer finished, %n issues were found.", 0, issuesFound)
       : AnalyzerManager::tr("Clang Static Analyzer finished, no issues were found."));
     m_running = false;
