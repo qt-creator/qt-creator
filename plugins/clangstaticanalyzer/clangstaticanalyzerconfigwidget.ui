@@ -30,7 +30,7 @@
       <item row="0" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="Utils::PathChooser" name="clangExecutableChooser" native="true"/>
+         <widget class="ClangStaticAnalyzer::Internal::PathChooser" name="clangExecutableChooser" native="true"/>
         </item>
        </layout>
       </item>
@@ -88,9 +88,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Utils::PathChooser</class>
+   <class>ClangStaticAnalyzer::Internal::PathChooser</class>
    <extends>QWidget</extends>
-   <header location="global">utils/pathchooser.h</header>
+   <header location="global">clangstaticanalyzer/clangstaticanalyzerpathchooser.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

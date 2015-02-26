@@ -10,6 +10,7 @@ SOURCES += \
     clangstaticanalyzerdiagnosticmodel.cpp \
     clangstaticanalyzerdiagnosticview.cpp \
     clangstaticanalyzerlogfilereader.cpp \
+    clangstaticanalyzerpathchooser.cpp \
     clangstaticanalyzerplugin.cpp \
     clangstaticanalyzerruncontrol.cpp \
     clangstaticanalyzerruncontrolfactory.cpp \
@@ -26,6 +27,7 @@ HEADERS += \
     clangstaticanalyzerdiagnosticview.h \
     clangstaticanalyzer_global.h \
     clangstaticanalyzerlogfilereader.h \
+    clangstaticanalyzerpathchooser.h \
     clangstaticanalyzerplugin.h \
     clangstaticanalyzerruncontrolfactory.h \
     clangstaticanalyzerruncontrol.h \

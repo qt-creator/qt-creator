@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** For any questions to The Qt Company, please use contact form at http://www.qt.io/contact-us
 **
-** This file is part of the Qt Enterprise Qt LicenseChecker Add-on.
+** This file is part of the Qt Enterprise LicenseChecker Add-on.
 **
 ** Licensees holding valid Qt Enterprise licenses may use this file in
 ** accordance with the Qt Enterprise License Agreement provided with the
@@ -15,29 +15,26 @@
 ** contact form at http://www.qt.io/contact-us
 **
 ****************************************************************************/
+#ifndef QTC_CLANGSTATICANALYZER_PATHCHOOSER_H
+#define QTC_CLANGSTATICANALYZER_PATHCHOOSER_H
 
-#ifndef CLANGSTATICANALYZERUTILS_H
-#define CLANGSTATICANALYZERUTILS_H
-
-#include <QtGlobal>
-
-QT_BEGIN_NAMESPACE
-class QString;
-QT_END_NAMESPACE
+#include <utils/pathchooser.h>
 
 namespace ClangStaticAnalyzer {
 namespace Internal {
 
-class Location;
+class PathChooser : public Utils::PathChooser
+{
+    Q_OBJECT
 
-bool isClangExecutableUsable(const QString &filePath, QString *errorMessage = 0);
+public:
+    PathChooser(QWidget *parent = 0);
 
-QString clangExecutable(const QString &fileNameOrPath, bool *isValid);
-QString clangExecutableFromSettings(const QString &toolchainType, bool *isValid);
-
-QString createFullLocationString(const ClangStaticAnalyzer::Internal::Location &location);
+private:
+    bool validatePath(const QString &path, QString *errorMessage = 0);
+};
 
 } // namespace Internal
 } // namespace ClangStaticAnalyzer
 
-#endif // CLANGSTATICANALYZERUTILS_H
+#endif // Include guard.
