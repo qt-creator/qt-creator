@@ -26,6 +26,7 @@
 #include "testtreemodel.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icontext.h>
 
 #include <texteditor/texteditor.h>
@@ -35,6 +36,7 @@
 
 #include <QDebug>
 #include <QHBoxLayout>
+#include <QMenu>
 #include <QToolButton>
 #include <QVBoxLayout>
 

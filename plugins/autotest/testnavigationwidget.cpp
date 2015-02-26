@@ -26,12 +26,15 @@
 #include "autotestconstants.h"
 #include "testtreeitem.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <texteditor/texteditor.h>
 #include <utils/progressindicator.h>
 
+#include <QAction>
+#include <QMenu>
 #include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>

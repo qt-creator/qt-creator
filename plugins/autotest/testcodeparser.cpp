@@ -22,6 +22,7 @@
 #include "testinfo.h"
 #include "testvisitor.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
