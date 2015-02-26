@@ -34,6 +34,7 @@
 #include "watchutils.h"
 
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 #include <cpptools/abstracteditorsupport.h>
 #include <cpptools/cppprojectfile.h>
 #include <cpptools/cppmodelmanager.h>

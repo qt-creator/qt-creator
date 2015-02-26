@@ -40,6 +40,9 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/documentmodel.h>
 #include <qmldebug/declarativeenginedebugclient.h>
 #include <qmldebug/declarativeenginedebugclientv2.h>
 #include <qmldebug/declarativetoolsclient.h>

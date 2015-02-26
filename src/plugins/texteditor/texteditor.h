@@ -31,22 +31,17 @@
 #ifndef TEXTEDITOR_H
 #define TEXTEDITOR_H
 
-#include "textdocument.h"
-#include "codeassist/assistenums.h"
 #include "texteditor_global.h"
+#include "codeassist/assistenums.h"
 
-#include <texteditor/texteditoractionhandler.h>
-
-#include <coreplugin/textdocument.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/find/ifindsupport.h>
 
 #include <utils/uncommentselection.h>
 
 #include <QLabel>
 #include <QPlainTextEdit>
+#include <QSharedPointer>
 #include <functional>
 
 QT_BEGIN_NAMESPACE
@@ -60,11 +55,12 @@ class QTextBlock;
 QT_END_NAMESPACE
 
 namespace TextEditor {
-
+class TextDocument;
 class BaseHoverHandler;
 class TabSettings;
 class RefactorOverlay;
 struct RefactorMarker;
+class SyntaxHighlighter;
 class IAssistMonitorInterface;
 class AssistInterface;
 class IAssistProvider;
@@ -211,9 +207,9 @@ public:
     TextEditorWidget(QWidget *parent = 0);
     ~TextEditorWidget();
 
-    void setTextDocument(const TextDocumentPtr &doc);
+    void setTextDocument(const QSharedPointer<TextDocument> &doc);
     TextDocument *textDocument() const;
-    TextDocumentPtr textDocumentPtr() const;
+    QSharedPointer<TextDocument> textDocumentPtr() const;
 
     // IEditor
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);

@@ -36,6 +36,7 @@
 #include <cpptools/commentssettings.h>
 #include <cpptools/doxygengenerator.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 
 #include <QDebug>
 #include <QTextBlock>

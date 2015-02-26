@@ -34,6 +34,9 @@
 
 #include <cpptools/cpptoolssettings.h>
 
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/documentmodel.h>
+
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>

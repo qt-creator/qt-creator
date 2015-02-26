@@ -34,6 +34,7 @@
 #include "qmlinspectoragent.h"
 
 #include <coreplugin/infobar.h>
+#include <texteditor/textdocument.h>
 #include <qmldebug/basetoolsclient.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljs/parser/qmljsast_p.h>

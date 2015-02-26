@@ -44,6 +44,8 @@
 #include "cppsnippetprovider.h"
 #include "cpptypehierarchy.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+
 #ifdef WITH_TESTS
 #  include "cppdoxygen_test.h"
 #endif

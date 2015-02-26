@@ -42,6 +42,7 @@
 #include <coreplugin/id.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
 
 #include <QtPlugin>

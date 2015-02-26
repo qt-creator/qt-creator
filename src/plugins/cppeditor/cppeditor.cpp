@@ -45,6 +45,8 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/documentmodel.h>
 
 #include <cpptools/cppchecksymbols.h>
 #include <cpptools/cppchecksymbols.h>

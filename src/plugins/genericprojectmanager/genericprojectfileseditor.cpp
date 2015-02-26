@@ -34,6 +34,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/texteditoractionhandler.h>
+#include <texteditor/textdocument.h>
 
 #include <QCoreApplication>
 

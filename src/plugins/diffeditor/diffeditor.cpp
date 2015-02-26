@@ -55,6 +55,7 @@
 #include <QHBoxLayout>
 #include <QToolBar>
 #include <QComboBox>
+#include <QAction>
 #include <QDir>
 #include <QTextCodec>
 #include <QTextBlock>

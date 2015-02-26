@@ -41,6 +41,8 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/documentmodel.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>

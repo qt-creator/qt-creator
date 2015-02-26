@@ -37,6 +37,8 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QTextDocument>
+#include <QPointer>
 #include <qtimer.h>
 
 #include <math.h>

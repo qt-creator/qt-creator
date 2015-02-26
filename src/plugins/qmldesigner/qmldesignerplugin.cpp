@@ -43,7 +43,9 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginspec.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <projectexplorer/projectexplorerconstants.h>

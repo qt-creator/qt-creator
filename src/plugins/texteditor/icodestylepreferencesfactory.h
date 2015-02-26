@@ -33,10 +33,9 @@
 
 #include "texteditor_global.h"
 
-#include <coreplugin/id.h>
-
 #include <QObject>
 
+namespace Core { class Id; }
 namespace TextEditor {
 
 class ICodeStylePreferences;

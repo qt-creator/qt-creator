@@ -34,6 +34,7 @@
 #include "snippet.h"
 #include "snippetscollection.h"
 #include "snippetssettings.h"
+#include "textdocument.h"
 #include "ui_snippetssettingspage.h"
 
 #include <coreplugin/icore.h>

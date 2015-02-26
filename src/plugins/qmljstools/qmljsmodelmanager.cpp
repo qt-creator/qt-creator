@@ -34,6 +34,7 @@
 #include "qmljsbundleprovider.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <cpptools/cppmodelmanager.h>

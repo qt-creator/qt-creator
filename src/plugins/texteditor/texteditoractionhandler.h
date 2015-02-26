@@ -33,11 +33,12 @@
 
 #include "texteditor_global.h"
 
-#include <coreplugin/id.h>
-
 #include <QObject>
 
-namespace Core { class IEditor; }
+namespace Core {
+class Id;
+class IEditor;
+}
 
 namespace TextEditor {
 class TextEditorWidget;

@@ -33,8 +33,8 @@
 
 #include "texteditor_global.h"
 
-#include "texteditor.h"
 #include "textmark.h"
+#include "textdocument.h"
 
 #include <QTextBlockUserData>
 #include <QPlainTextDocumentLayout>

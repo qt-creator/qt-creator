@@ -46,6 +46,8 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/textdocument.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <extensionsystem/pluginmanager.h>

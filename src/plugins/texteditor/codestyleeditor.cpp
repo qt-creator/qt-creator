@@ -30,6 +30,7 @@
 
 #include "codestyleeditor.h"
 
+#include "textdocument.h"
 #include "icodestylepreferencesfactory.h"
 #include "icodestylepreferences.h"
 #include "codestyleselectorwidget.h"

@@ -32,6 +32,7 @@
 #include "androidconstants.h"
 
 #include <texteditor/codeassist/keywordscompletionassist.h>
+#include <coreplugin/id.h>
 
 using namespace Android;
 using namespace Android::Internal;

@@ -36,6 +36,8 @@
 #include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/convenience.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/changeset.h>
 #include <utils/fileutils.h>

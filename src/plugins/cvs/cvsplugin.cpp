@@ -43,6 +43,9 @@
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
+
+#include <texteditor/textdocument.h>
+
 #include <utils/synchronousprocess.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>

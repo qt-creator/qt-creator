@@ -34,6 +34,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/documentmodel.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
 #include <utils/hostosinfo.h>
 

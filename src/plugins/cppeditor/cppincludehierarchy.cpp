@@ -37,6 +37,8 @@
 #include "cppincludehierarchymodel.h"
 #include "cppincludehierarchytreeview.h"
 
+#include <texteditor/textdocument.h>
+
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <cplusplus/CppDocument.h>

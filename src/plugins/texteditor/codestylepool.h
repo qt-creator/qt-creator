@@ -33,10 +33,9 @@
 
 #include "texteditor_global.h"
 
-#include <utils/fileutils.h>
-
 #include <QObject>
 
+namespace Utils { class FileName; }
 namespace TextEditor {
 
 class ICodeStylePreferences;

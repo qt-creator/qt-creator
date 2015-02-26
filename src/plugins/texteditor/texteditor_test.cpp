@@ -40,6 +40,7 @@
 
 #include "texteditor.h"
 #include "texteditorplugin.h"
+#include "textdocument.h"
 
 using namespace TextEditor;
 

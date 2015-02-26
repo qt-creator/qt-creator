@@ -31,6 +31,7 @@
 #include "cpplocalrenaming.h"
 
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/fontsettings.h>
 
 #include <utils/qtcassert.h>

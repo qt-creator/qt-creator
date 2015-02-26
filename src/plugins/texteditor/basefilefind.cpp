@@ -30,6 +30,7 @@
 
 #include "basefilefind.h"
 #include "basefilefind_p.h"
+#include "textdocument.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/icore.h>
@@ -37,6 +38,7 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/ifindsupport.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/refactoringchanges.h>

@@ -54,6 +54,7 @@
 #include <extensionsystem/pluginspec.h>
 
 #include <texteditor/refactoroverlay.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>

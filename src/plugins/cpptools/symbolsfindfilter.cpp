@@ -35,6 +35,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 

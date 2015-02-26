@@ -41,6 +41,7 @@
 #include <utils/qtcassert.h>
 
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 
 #include <QAction>
 #include <QPlainTextEdit>

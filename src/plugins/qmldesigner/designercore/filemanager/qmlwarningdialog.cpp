@@ -33,6 +33,8 @@
 
 #include <qmldesignerplugin.h>
 
+#include <coreplugin/editormanager/editormanager.h>
+
 #include <QPushButton>
 
 namespace QmlDesigner {

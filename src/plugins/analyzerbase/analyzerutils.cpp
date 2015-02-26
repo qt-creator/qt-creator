@@ -34,6 +34,7 @@
 
 #include <cpptools/cppmodelmanager.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 
 #include <utils/qtcassert.h>
 

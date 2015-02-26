@@ -81,6 +81,8 @@
 #include <coreplugin/messagebox.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/documentmodel.h>
 
 #include <cppeditor/cppeditorconstants.h>
 #include <cpptools/cppmodelmanager.h>
@@ -101,6 +103,7 @@
 #include <projectexplorer/target.h>
 
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
 
@@ -128,6 +131,7 @@
 #include <QtPlugin>
 #include <QTreeWidget>
 #include <QVBoxLayout>
+#include <QMenu>
 
 #ifdef WITH_TESTS
 #include <QTest>

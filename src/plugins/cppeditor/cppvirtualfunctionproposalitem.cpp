@@ -32,6 +32,8 @@
 
 #include "cppeditorconstants.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+
 using namespace CppEditor::Internal;
 
 VirtualFunctionProposalItem::VirtualFunctionProposalItem(

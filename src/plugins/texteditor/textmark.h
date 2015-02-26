@@ -33,7 +33,6 @@
 
 #include "texteditor_global.h"
 
-#include <QObject>
 #include <QIcon>
 
 QT_BEGIN_NAMESPACE

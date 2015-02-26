@@ -33,7 +33,8 @@
 
 #include "texteditor_global.h"
 #include "helpitem.h"
-#include <texteditor/codeassist/keywordscompletionassist.h>
+
+#include <QObject>
 
 namespace Core { class IEditor; }
 

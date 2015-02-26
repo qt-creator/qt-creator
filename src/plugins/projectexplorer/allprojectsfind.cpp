@@ -36,6 +36,8 @@
 #include "editorconfiguration.h"
 
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <utils/filesearch.h>
 #include <utils/algorithm.h>
 

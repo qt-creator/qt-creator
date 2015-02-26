@@ -30,6 +30,10 @@
 
 #include "texteditor.h"
 #include "texteditor_p.h"
+#include "displaysettings.h"
+#include "marginsettings.h"
+#include "fontsettings.h"
+#include "texteditoractionhandler.h"
 
 #include "autocompleter.h"
 #include "basehoverhandler.h"
@@ -48,6 +52,7 @@
 #include "textdocument.h"
 #include "textdocumentlayout.h"
 #include "texteditoroverlay.h"
+#include "refactoroverlay.h"
 #include "texteditorsettings.h"
 #include "typingsettings.h"
 #include "extraencodingsettings.h"

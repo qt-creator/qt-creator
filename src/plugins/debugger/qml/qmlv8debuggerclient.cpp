@@ -42,6 +42,8 @@
 #include <utils/qtcassert.h>
 #include <texteditor/texteditor.h>
 
+#include <coreplugin/editormanager/documentmodel.h>
+
 #include <qmljs/consolemanagerinterface.h>
 
 #include <QTextBlock>

@@ -33,6 +33,8 @@
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/typehierarchybuilder.h>
 
+#include <texteditor/textdocument.h>
+
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/Icons.h>
 #include <cplusplus/TypeOfExpression.h>

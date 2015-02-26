@@ -52,6 +52,7 @@
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 
 #include <QtPlugin>
 #include <QDebug>

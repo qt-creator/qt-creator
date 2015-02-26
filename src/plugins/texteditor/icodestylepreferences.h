@@ -34,9 +34,9 @@
 #include "texteditor_global.h"
 
 #include <QObject>
-#include <QVariant>
 
 QT_BEGIN_NAMESPACE
+class QVariant;
 class QSettings;
 QT_END_NAMESPACE
 

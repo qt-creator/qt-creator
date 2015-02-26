@@ -41,6 +41,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <texteditor/texteditoractionhandler.h>
+#include <texteditor/textdocument.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 

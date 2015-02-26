@@ -36,10 +36,13 @@
 #include "cpptools_global.h"
 
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 
 #include <cplusplus/CppDocument.h>
 
 #include <QTextEdit>
+
+namespace TextEditor { class TextDocument; }
 
 namespace CppTools {
 

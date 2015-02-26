@@ -33,7 +33,8 @@
 
 #include "texteditor_global.h"
 
-#include "fontsettings.h"
+#include "texteditorconstants.h"
+#include "colorscheme.h"
 
 #include "texteditoroptionspage.h"
 
@@ -47,6 +48,8 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
+class Format;
+class FontSettings;
 namespace Internal { class FontSettingsPagePrivate; }
 
 // GUI description of a format consisting of id (settings key)

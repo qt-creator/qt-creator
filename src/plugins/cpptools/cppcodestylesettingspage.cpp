@@ -40,6 +40,7 @@
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <texteditor/codestyleeditor.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/snippets/isnippetprovider.h>
 #include <texteditor/texteditorsettings.h>

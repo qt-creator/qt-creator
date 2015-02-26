@@ -33,6 +33,8 @@
 
 #include <texteditor/codeassist/keywordscompletionassist.h>
 
+#include <coreplugin/id.h>
+
 using namespace QmakeProjectManager::Internal;
 using namespace TextEditor;
 

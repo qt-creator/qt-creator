@@ -41,7 +41,9 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/documentmodel.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 
 #include <utils/tooltip/tooltip.h>
 #include <utils/treemodel.h>
