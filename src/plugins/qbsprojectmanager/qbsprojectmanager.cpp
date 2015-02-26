@@ -163,10 +163,6 @@ void QbsManager::addQtProfileFromKit(const QString &profileName, const ProjectEx
             qtEnv.architecture.append(QLatin1String("_64"));
     }
     qtEnv.binaryPath = qt->binPath().toString();
-    if (qt->hasDebugBuild())
-        qtEnv.buildVariant << QLatin1String("debug");
-    if (qt->hasReleaseBuild())
-        qtEnv.buildVariant << QLatin1String("release");
     qtEnv.documentationPath = qt->docsPath().toString();
     qtEnv.includePath = qt->headerPath().toString();
     qtEnv.libraryPath = qt->libraryPath().toString();
@@ -183,6 +179,11 @@ void QbsManager::addQtProfileFromKit(const QString &profileName, const ProjectEx
     qtEnv.frameworkBuild = qt->isFrameworkBuild();
     qtEnv.configItems = qt->configValues();
     qtEnv.qtConfigItems = qt->qtConfigValues();
+    foreach (const QString &buildVariant,
+            QStringList() << QLatin1String("debug") << QLatin1String("release")) {
+        if (qtEnv.qtConfigItems.contains(buildVariant))
+            qtEnv.buildVariant << buildVariant;
+    }
     const qbs::ErrorInfo errorInfo = qbs::setupQtProfile(profileName, settings(), qtEnv);
     if (errorInfo.hasError()) {
         Core::MessageManager::write(tr("Failed to set up kit for Qbs: %1")
