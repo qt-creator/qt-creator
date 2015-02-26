@@ -33,14 +33,11 @@
 
 #include "core_global.h"
 #include "generatedfile.h"
-#include "featureprovider.h"
 
 #include <coreplugin/iwizardfactory.h>
 
-#include <extensionsystem/iplugin.h>
-
-#include <QSharedDataPointer>
 #include <QList>
+#include <QVariantMap>
 
 QT_BEGIN_NAMESPACE
 class QIcon;

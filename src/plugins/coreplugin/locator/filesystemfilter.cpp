@@ -32,6 +32,7 @@
 #include "locatorwidget.h"
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/idocument.h>
 #include <utils/fileutils.h>
 
 #include <QDir>

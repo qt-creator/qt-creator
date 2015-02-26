@@ -32,6 +32,7 @@
 
 #include "actionmanager/actioncontainer.h"
 #include "actionmanager/actionmanager.h"
+#include "actionmanager/command.h"
 #include "coreconstants.h"
 #include "icore.h"
 

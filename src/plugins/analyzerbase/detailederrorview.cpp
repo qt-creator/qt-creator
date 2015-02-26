@@ -35,10 +35,12 @@
 
 #include <utils/qtcassert.h>
 
+#include <QAction>
 #include <QApplication>
 #include <QClipboard>
 #include <QContextMenuEvent>
 #include <QFontMetrics>
+#include <QMenu>
 #include <QPainter>
 #include <QScrollBar>
 

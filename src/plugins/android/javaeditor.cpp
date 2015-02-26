@@ -34,15 +34,16 @@
 #include "androidconstants.h"
 #include "javacompletionassistprovider.h"
 
-#include <texteditor/textdocument.h>
-#include <texteditor/texteditor.h>
-#include <utils/uncommentselection.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
-
+#include <texteditor/normalindenter.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/normalindenter.h>
+#include <texteditor/texteditor.h>
+
 #include <extensionsystem/pluginmanager.h>
+#include <utils/fileutils.h>
+#include <utils/uncommentselection.h>
 
 #include <QFileInfo>
 

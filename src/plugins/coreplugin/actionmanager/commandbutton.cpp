@@ -29,8 +29,10 @@
 ****************************************************************************/
 
 #include "commandbutton.h"
+#include "actionmanager.h"
+#include "command.h"
+#include "../id.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <utils/proxyaction.h>
 
 using namespace Core;

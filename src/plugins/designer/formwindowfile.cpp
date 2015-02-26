@@ -32,6 +32,7 @@
 #include "designerconstants.h"
 #include "resourcehandler.h"
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>

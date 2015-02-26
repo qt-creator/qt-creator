@@ -33,6 +33,8 @@
 #include "imageviewer.h"
 #include "imageviewerconstants.h"
 
+#include <utils/fileutils.h>
+
 #include <QFileInfo>
 
 namespace ImageViewer {

@@ -108,12 +108,14 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/id.h>
 #include <coreplugin/idocumentfactory.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/findplaceholder.h>

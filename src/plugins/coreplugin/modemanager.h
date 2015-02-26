@@ -32,7 +32,6 @@
 #define MODEMANAGER_H
 
 #include <coreplugin/core_global.h>
-#include <coreplugin/id.h>
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
@@ -41,6 +40,7 @@ QT_END_NAMESPACE
 
 namespace Core {
 
+class Id;
 class IMode;
 
 namespace Internal {

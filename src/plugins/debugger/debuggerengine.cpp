@@ -53,6 +53,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/messagebox.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>

@@ -41,6 +41,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/find/itemviewfind.h>

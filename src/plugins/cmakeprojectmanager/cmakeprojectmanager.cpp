@@ -34,15 +34,17 @@
 #include "cmakeproject.h"
 #include "cmakesettingspage.h"
 
-#include <utils/synchronousprocess.h>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projecttree.h>
+
+#include <utils/synchronousprocess.h>
+
+#include <QAction>
 #include <QDateTime>
 
 using namespace CMakeProjectManager::Internal;

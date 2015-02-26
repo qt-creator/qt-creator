@@ -66,6 +66,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>

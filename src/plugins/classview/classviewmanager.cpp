@@ -42,6 +42,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/idocument.h>
 #include <texteditor/texteditor.h>
 
 #include <QThread>

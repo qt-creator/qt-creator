@@ -48,6 +48,8 @@ QT_END_NAMESPACE
 namespace Core {
 
 class ActionContainer;
+class Command;
+class Context;
 
 namespace Internal {
 class CorePlugin;

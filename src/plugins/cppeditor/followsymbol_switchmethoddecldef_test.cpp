@@ -42,6 +42,7 @@
 #include <texteditor/codeassist/iassistproposal.h>
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/idocument.h>
 
 #include <utils/fileutils.h>
 

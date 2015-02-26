@@ -52,6 +52,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/jsexpander.h>
 #include <coreplugin/vcsmanager.h>
 #include <cppeditor/cppeditorconstants.h>

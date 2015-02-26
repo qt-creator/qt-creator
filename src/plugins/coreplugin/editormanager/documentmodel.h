@@ -36,9 +36,10 @@
 
 #include <utils/fileutils.h>
 
-#include <QAbstractItemModel>
-
-QT_FORWARD_DECLARE_CLASS(QIcon)
+QT_BEGIN_NAMESPACE
+class QAbstractItemModel;
+class QIcon;
+QT_END_NAMESPACE
 
 namespace Core {
 

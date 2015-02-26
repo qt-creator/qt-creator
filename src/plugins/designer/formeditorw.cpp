@@ -68,6 +68,7 @@
 #include <QApplication>
 #include <QCursor>
 #include <QDockWidget>
+#include <QMenu>
 #include <QMessageBox>
 #include <QKeySequence>
 #include <QPrintDialog>

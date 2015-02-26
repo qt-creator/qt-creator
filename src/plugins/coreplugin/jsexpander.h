@@ -33,10 +33,10 @@
 
 #include "core_global.h"
 
-#include <functional>
-
-#include <QFileInfo>
-#include <QString>
+QT_BEGIN_NAMESPACE
+class QObject;
+class QString;
+QT_END_NAMESPACE
 
 namespace Core {
 

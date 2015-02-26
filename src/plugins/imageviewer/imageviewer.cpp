@@ -39,6 +39,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QMap>

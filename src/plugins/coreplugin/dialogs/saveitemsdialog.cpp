@@ -32,6 +32,8 @@
 
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/idocument.h>
+
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 
 #include <QDir>

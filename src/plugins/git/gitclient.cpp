@@ -75,6 +75,8 @@
 #include <QSignalMapper>
 #include <QTemporaryFile>
 
+#include <QAction>
+#include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QToolButton>

@@ -38,8 +38,6 @@
 #include <utils/macroexpander.h>
 #include <functional>
 
-namespace Utils { class MacroExpander; }
-
 namespace Core {
 
 namespace Internal { class VariableChooserPrivate; }

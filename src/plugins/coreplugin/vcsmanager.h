@@ -32,13 +32,13 @@
 #define VCSMANAGER_H
 
 #include "core_global.h"
-#include "id.h"
 
 #include <QString>
 #include <QObject>
 
 namespace Core {
 
+class Id;
 class IVersionControl;
 
 namespace Internal { class MainWindow; }

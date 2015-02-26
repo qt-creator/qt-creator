@@ -33,9 +33,13 @@
 
 #include <coreplugin/id.h>
 
-#include <QIcon>
 #include <QObject>
 #include <QStringList>
+
+QT_BEGIN_NAMESPACE
+class QIcon;
+class QWidget;
+QT_END_NAMESPACE
 
 namespace Core {
 
@@ -51,7 +55,7 @@ public:
     QString displayName() const { return m_displayName; }
     Id category() const { return m_category; }
     QString displayCategory() const { return m_displayCategory; }
-    QIcon categoryIcon() const { return QIcon(m_categoryIcon); }
+    QIcon categoryIcon() const;
 
     virtual bool matches(const QString &searchKeyWord) const;
     virtual QWidget *widget() = 0;
@@ -92,7 +96,7 @@ public:
 
     Id category() const { return m_category; }
     QString displayCategory() const { return m_displayCategory; }
-    QIcon categoryIcon() const { return QIcon(m_categoryIcon); }
+    QIcon categoryIcon() const;
 
     virtual QList<IOptionsPage *> pages() const = 0;
     virtual bool matches(const QString & /* searchKeyWord*/) const = 0;

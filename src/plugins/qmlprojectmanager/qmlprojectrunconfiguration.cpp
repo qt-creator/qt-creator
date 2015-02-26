@@ -36,6 +36,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtoutputformatter.h>

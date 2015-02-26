@@ -37,6 +37,7 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
+#include <QAbstractItemModel>
 #include <QDir>
 #include <QIcon>
 #include <QMimeData>

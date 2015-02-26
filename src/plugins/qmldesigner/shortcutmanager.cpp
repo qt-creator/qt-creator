@@ -32,7 +32,9 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>

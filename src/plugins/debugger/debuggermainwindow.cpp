@@ -39,6 +39,7 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -55,9 +56,11 @@
 
 #include <QDebug>
 
+#include <QAction>
 #include <QDockWidget>
-#include <QVBoxLayout>
+#include <QMenu>
 #include <QToolButton>
+#include <QVBoxLayout>
 
 using namespace Core;
 using namespace ProjectExplorer;

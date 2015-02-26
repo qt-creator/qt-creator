@@ -36,6 +36,7 @@
 #include "windebuginterface.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/outputwindow.h>
 #include <coreplugin/find/basetextfind.h>

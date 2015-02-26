@@ -31,6 +31,7 @@
 #include "externaltool.h"
 #include "externaltoolmanager.h"
 
+#include "idocument.h"
 #include "messagemanager.h"
 #include "documentmanager.h"
 #include "editormanager/editormanager.h"

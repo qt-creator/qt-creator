@@ -38,6 +38,7 @@
 #include "qmlconsolemanager.h"
 #include "qmljsbundleprovider.h"
 
+#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>

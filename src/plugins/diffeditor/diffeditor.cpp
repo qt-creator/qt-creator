@@ -47,6 +47,7 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
+#include <QAction>
 #include <QStackedWidget>
 #include <QToolButton>
 #include <QSpinBox>
