@@ -432,7 +432,9 @@ QString MimeType::filterString() const
 
 bool MimeType::matchesName(const QString &nameOrAlias) const
 {
-    return d->name == nameOrAlias || aliases().contains(nameOrAlias);
+    if (d->name == nameOrAlias)
+        return true;
+    return MimeDatabasePrivate::instance()->provider()->resolveAlias(nameOrAlias) == d->name;
 }
 
 void MimeType::setPreferredSuffix(const QString &suffix)
