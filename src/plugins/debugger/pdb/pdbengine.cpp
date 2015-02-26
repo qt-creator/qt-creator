@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "pdbengine.h"
+#include "threaddata.h"
 
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>

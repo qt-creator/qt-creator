@@ -32,13 +32,16 @@
 #define DEBUGGER_DEBUGGERITEMMANAGER_H
 
 #include "debugger_global.h"
-#include "debuggeritem.h"
+#include "debuggerconstants.h"
 
 #include <QList>
 #include <QObject>
 #include <QString>
 
+namespace Utils { class FileName; }
+
 namespace Debugger {
+class DebuggerItem;
 
 // -----------------------------------------------------------------------
 // DebuggerItemManager

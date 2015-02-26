@@ -31,6 +31,7 @@
 #include "qmlengine.h"
 #include "baseqmldebuggerclient.h"
 #include "qmlinspectoragent.h"
+#include "threaddata.h"
 
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>

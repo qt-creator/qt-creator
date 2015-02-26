@@ -30,6 +30,7 @@
 
 #include "unstartedappwatcherdialog.h"
 
+#include "debuggeritem.h"
 #include "debuggerdialogs.h"
 #include "debuggerkitinformation.h"
 

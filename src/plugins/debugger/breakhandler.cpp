@@ -40,6 +40,7 @@
 #include <texteditor/textmark.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/fileutils.h>
 
 #if USE_BREAK_MODEL_TEST
 #include <modeltest.h>

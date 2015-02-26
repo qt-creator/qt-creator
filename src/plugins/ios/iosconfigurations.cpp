@@ -44,6 +44,7 @@
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <debugger/debuggeritemmanager.h>
+#include <debugger/debuggeritem.h>
 #include <debugger/debuggerkitinformation.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>

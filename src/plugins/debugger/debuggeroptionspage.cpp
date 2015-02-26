@@ -30,6 +30,7 @@
 
 #include "debuggeroptionspage.h"
 #include "debuggeritemmanager.h"
+#include "debuggeritem.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 

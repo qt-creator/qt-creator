@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "debuggeritemmanager.h"
+#include "debuggeritem.h"
 #include "debuggerkitinformation.h"
 
 #include <coreplugin/icore.h>

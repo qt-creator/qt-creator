@@ -33,9 +33,6 @@
 
 #include "debugger_global.h"
 #include "debuggerconstants.h"
-#include "debuggerprotocol.h"
-#include "debuggerstartparameters.h"
-#include "threaddata.h" // For ThreadId.
 
 #include <QObject>
 
@@ -52,6 +49,7 @@ namespace Debugger {
 
 class DebuggerRunControl;
 class DebuggerStartParameters;
+class RemoteSetupResult;
 
 DEBUGGER_EXPORT QDebug operator<<(QDebug str, const DebuggerStartParameters &);
 DEBUGGER_EXPORT QDebug operator<<(QDebug str, DebuggerState state);
@@ -77,6 +75,7 @@ class QmlCppEngine;
 class DebuggerToolTipContext;
 class MemoryViewSetupData;
 class Terminal;
+class ThreadId;
 
 struct WatchUpdateFlags
 {

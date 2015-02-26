@@ -38,6 +38,8 @@
 
 namespace Debugger {
 namespace Internal {
+class DebuggerCommand;
+class GdbMi;
 
 /*
  * A debugger engine for Python using the pdb command line debugger.

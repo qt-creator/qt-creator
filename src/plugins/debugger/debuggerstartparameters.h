@@ -34,16 +34,15 @@
 #include "debugger_global.h"
 #include "debuggerconstants.h"
 
-#include <coreplugin/id.h>
 #include <ssh/sshconnection.h>
 #include <utils/environment.h>
 #include <projectexplorer/abi.h>
-#include <projectexplorer/kit.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/devicesupport/idevice.h>
 
 #include <QMetaType>
 #include <QVector>
+#include <QPointer>
 
 namespace Debugger {
 

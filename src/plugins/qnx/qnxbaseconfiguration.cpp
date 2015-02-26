@@ -37,6 +37,7 @@
 #include <projectexplorer/toolchainmanager.h>
 
 #include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggeritem.h>
 
 #include <coreplugin/icore.h>
 

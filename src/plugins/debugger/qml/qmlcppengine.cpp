@@ -30,6 +30,7 @@
 
 #include "qmlcppengine.h"
 #include "qmlengine.h"
+#include "threaddata.h"
 
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>

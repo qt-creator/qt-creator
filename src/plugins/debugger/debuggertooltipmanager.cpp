@@ -31,6 +31,7 @@
 #include "debuggertooltipmanager.h"
 #include "debuggerinternalconstants.h"
 #include "debuggerengine.h"
+#include "debuggerprotocol.h"
 #include "debuggeractions.h"
 #include "stackhandler.h"
 #include "debuggercore.h"

@@ -32,6 +32,7 @@
 #define DEBUGGER_BREAKHANDLER_H
 
 #include "breakpoint.h"
+#include "debuggerprotocol.h"
 
 #include <utils/treemodel.h>
 

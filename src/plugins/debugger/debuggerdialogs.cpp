@@ -31,6 +31,7 @@
 #include "debuggerdialogs.h"
 
 #include "debuggerkitinformation.h"
+#include "debuggerstartparameters.h"
 #include "debuggerruncontrol.h"
 #include "debuggerstringutils.h"
 #include "cdb/cdbengine.h"
