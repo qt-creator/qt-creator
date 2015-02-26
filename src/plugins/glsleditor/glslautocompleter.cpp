@@ -70,7 +70,8 @@ bool GlslCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor,
 bool GlslCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor) const
 {
     const Token tk = SimpleLexer::tokenAt(cursor.block().text(), cursor.positionInBlock(),
-                                          BackwardsScanner::previousBlockState(cursor.block()));
+                                          BackwardsScanner::previousBlockState(cursor.block()),
+                                          LanguageFeatures::defaultFeatures());
 
     // XXX Duplicated from CppEditor::isInComment to avoid tokenizing twice
     if (tk.isComment()) {
@@ -99,7 +100,8 @@ bool GlslCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor) c
 bool GlslCompleter::isInComment(const QTextCursor &cursor) const
 {
     const Token tk = SimpleLexer::tokenAt(cursor.block().text(), cursor.positionInBlock(),
-                                          BackwardsScanner::previousBlockState(cursor.block()));
+                                          BackwardsScanner::previousBlockState(cursor.block()),
+                                          LanguageFeatures::defaultFeatures());
 
     if (tk.isComment()) {
         const unsigned pos = cursor.selectionEnd() - cursor.block().position();

@@ -68,7 +68,7 @@ public:
     static Token tokenAt(const QString &text,
                          unsigned utf16charsOffset,
                          int state,
-                         bool qtMocRunEnabled = false);
+                         const LanguageFeatures &languageFeatures);
 
     static int tokenBefore(const Tokens &tokens, unsigned utf16charsOffset);
 

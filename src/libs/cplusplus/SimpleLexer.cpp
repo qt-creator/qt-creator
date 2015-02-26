@@ -129,17 +129,10 @@ int SimpleLexer::tokenAt(const Tokens &tokens, unsigned utf16charsOffset)
 Token SimpleLexer::tokenAt(const QString &text,
                            unsigned utf16charsOffset,
                            int state,
-                           bool qtMocRunEnabled)
+                           const LanguageFeatures &languageFeatures)
 {
-    // FIXME: Check default values.
-    LanguageFeatures features;
-    features.qtMocRunEnabled = qtMocRunEnabled;
-    features.qtEnabled = qtMocRunEnabled;
-    features.qtKeywordsEnabled = qtMocRunEnabled;
-    features.objCEnabled = qtMocRunEnabled;
-    features.cxx11Enabled = qtMocRunEnabled;
     SimpleLexer tokenize;
-    tokenize.setLanguageFeatures(features);
+    tokenize.setLanguageFeatures(languageFeatures);
     const QVector<Token> tokens = tokenize(text, state);
     const int tokenIdx = tokenAt(tokens, utf16charsOffset);
     return (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
