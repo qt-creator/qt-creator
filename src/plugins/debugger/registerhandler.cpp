@@ -31,10 +31,6 @@
 #include "registerhandler.h"
 #include "watchdelegatewidgets.h"
 
-#if USE_REGISTER_MODEL_TEST
-#include <modeltest.h>
-#endif
-
 #include <utils/qtcassert.h>
 
 namespace Debugger {
@@ -282,6 +278,7 @@ static uint decodeHexChar(unsigned char c)
 
 void RegisterValue::operator=(const QByteArray &ba)
 {
+    known = !ba.isEmpty();
     uint shift = 0;
     int j = 0;
     v.u64[1] = v.u64[0] = 0;
@@ -318,6 +315,8 @@ static QByteArray format(quint64 v, int base, int size)
 
 QByteArray RegisterValue::toByteArray(int base, RegisterKind kind, int size) const
 {
+    if (!known)
+        return "[inaccessible]";
     if (kind == FloatRegister) {
         if (size == 4)
             return QByteArray::number(v.f[0]);
@@ -452,13 +451,13 @@ QVariant RegisterItem::data(int column, int role) const
 
         case Qt::DisplayRole:
             switch (column) {
-                case 0: {
+                case RegisterNameColumn: {
                     QByteArray res = m_reg.name;
                     if (!m_reg.description.isEmpty())
                         res += " (" + m_reg.description + ')';
                     return res;
                 }
-                case 1: {
+                case RegisterValueColumn: {
                     return m_reg.value.toByteArray(m_base, m_reg.kind, m_reg.size);
                 }
             }
@@ -472,7 +471,7 @@ QVariant RegisterItem::data(int column, int role) const
             return m_reg.value.toByteArray(m_base, m_reg.kind, m_reg.size);
 
         case Qt::TextAlignmentRole:
-            return column == 1 ? QVariant(Qt::AlignRight) : QVariant();
+            return column == RegisterValueColumn ? QVariant(Qt::AlignRight) : QVariant();
 
         default:
             break;
@@ -494,9 +493,9 @@ QVariant RegisterSubItem::data(int column, int role) const
 
         case Qt::DisplayRole:
             switch (column) {
-                case 0:
+                case RegisterNameColumn:
                     return subTypeName(m_subKind, m_subSize);
-                case 1: {
+                case RegisterValueColumn: {
                     QTC_ASSERT(parent(), return QVariant());
                     RegisterItem *registerItem = static_cast<RegisterItem *>(parent());
                     RegisterValue value = registerItem->m_reg.value;
@@ -526,10 +525,6 @@ RegisterHandler::RegisterHandler()
 {
     setObjectName(QLatin1String("RegisterModel"));
     setHeader(QStringList() << tr("Name") << tr("Value"));
-
-#if USE_REGISTER_MODEL_TEST
-    new ModelTest(this, 0);
-#endif
 }
 
 void RegisterHandler::updateRegister(const Register &r)

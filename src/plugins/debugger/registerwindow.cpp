@@ -108,7 +108,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
         const QModelIndex &index) const
     {
-        if (index.column() == 1) {
+        if (index.column() == RegisterValueColumn) {
             const bool paintRed = index.data(RegisterChangedRole).toBool();
             QPen oldPen = painter->pen();
             const QColor lightColor(140, 140, 140);

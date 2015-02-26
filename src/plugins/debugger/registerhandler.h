@@ -40,6 +40,13 @@
 namespace Debugger {
 namespace Internal {
 
+enum RegisterColumns
+{
+    RegisterNameColumn,
+    RegisterValueColumn,
+    RegisterColumnCount
+};
+
 enum RegisterDataRole
 {
     RegisterNameRole = Qt::UserRole,
@@ -62,7 +69,7 @@ enum RegisterKind
 class RegisterValue
 {
 public:
-    RegisterValue() { v.u64[1] = v.u64[0] = 0; }
+    RegisterValue() { known = false; v.u64[1] = v.u64[0] = 0; }
     void operator=(const QByteArray &ba);
     bool operator==(const RegisterValue &other);
     bool operator!=(const RegisterValue &other) { return !operator==(other); }
@@ -77,6 +84,7 @@ public:
         float     f[4];
         double    d[2];
     } v;
+    bool known;
 };
 
 class Register

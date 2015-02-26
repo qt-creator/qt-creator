@@ -1218,7 +1218,11 @@ class Dumper(DumperBase):
                 for group in frame.GetRegisters():
                     for reg in group:
                         result += '{name="%s"' % reg.GetName()
-                        result += ',value="%s"' % reg.GetValue()
+                        value = reg.GetValue()
+                        if value is None:
+                            result += ',value=""'
+                        else:
+                            result += ',value="%s"' % value
                         result += ',size="%s"' % reg.GetByteSize()
                         result += ',type="%s"},' % reg.GetType()
                 result += ']'
