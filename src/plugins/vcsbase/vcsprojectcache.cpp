@@ -79,9 +79,9 @@ VcsProjectCache::VcsProjectCache()
     m_instance = this;
 
     connect(ProjectExplorer::SessionManager::instance(), &ProjectExplorer::SessionManager::projectAdded,
-            this, []() { VcsProjectCache::invalidate(); });
+            this, [&]() { VcsProjectCache::invalidate(); });
     connect(ProjectExplorer::SessionManager::instance(), &ProjectExplorer::SessionManager::projectRemoved,
-            this, []() { VcsProjectCache::invalidate(); });
+            this, [&]() { VcsProjectCache::invalidate(); });
 }
 
 VcsProjectCache::~VcsProjectCache()
