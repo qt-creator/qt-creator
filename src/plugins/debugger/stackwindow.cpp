@@ -60,18 +60,21 @@ StackTreeView::StackTreeView()
 {
     setWindowTitle(tr("Stack"));
 
-    connect(action(UseAddressInStackView), SIGNAL(toggled(bool)),
-        SLOT(showAddressColumn(bool)));
-    connect(action(ExpandStack), SIGNAL(triggered()),
-        SLOT(reloadFullStack()));
-    connect(action(MaximalStackDepth), SIGNAL(triggered()),
-        SLOT(reloadFullStack()));
+    connect(action(UseAddressInStackView), &QAction::toggled,
+        this, &StackTreeView::showAddressColumn);
+    connect(action(ExpandStack), &QAction::triggered,
+        this, &StackTreeView::reloadFullStack);
+    connect(action(MaximalStackDepth), &QAction::triggered,
+        this, &StackTreeView::reloadFullStack);
     showAddressColumn(false);
 }
 
 void StackTreeView::showAddressColumn(bool on)
 {
     setColumnHidden(StackAddressColumn, !on);
+    resizeColumnToContents(StackLevelColumn);
+    resizeColumnToContents(StackLineNumberColumn);
+    resizeColumnToContents(StackAddressColumn);
 }
 
 void StackTreeView::rowActivated(const QModelIndex &index)

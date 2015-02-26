@@ -38,19 +38,16 @@ namespace Internal {
 
 class StackTreeView : public Utils::BaseTreeView
 {
-    Q_OBJECT
-
 public:
     StackTreeView();
-
-private slots:
-    void showAddressColumn(bool on);
-    void reloadFullStack();
 
 private:
     void rowActivated(const QModelIndex &index);
     void setModel(QAbstractItemModel *model);
     void contextMenuEvent(QContextMenuEvent *ev);
+
+    void showAddressColumn(bool on);
+    void reloadFullStack();
     void copyContentsToClipboard();
 };
 
