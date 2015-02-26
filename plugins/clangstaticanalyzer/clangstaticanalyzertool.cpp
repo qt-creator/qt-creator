@@ -198,6 +198,7 @@ void ClangStaticAnalyzerTool::startTool()
     if (dontStartAfterHintForDebugMode())
         return;
 
+    AnalyzerManager::showPermanentStatusMessage(QString());
     m_diagnosticModel->clear();
     setBusyCursor(true);
     Project *project = SessionManager::startupProject();
