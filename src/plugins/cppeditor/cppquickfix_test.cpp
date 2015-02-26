@@ -1471,6 +1471,23 @@ void CppEditorPlugin::test_quickfix_data()
              "        str.clear();\n"
              "}\n");
 
+    QTest::newRow("ConvertFromPointer_structWithPointer")
+        << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
+        << _("struct Bar{ QString *str; };\n"
+             "void foo() {\n"
+             "    Bar *@bar = new Bar;\n"
+             "    bar->str = new QString;\n"
+             "    delete bar->str;\n"
+             "    delete bar;\n"
+             "}\n")
+        << _("struct Bar{ QString *str; };\n"
+             "void foo() {\n"
+             "    Bar bar;\n"
+             "    bar.str = new QString;\n"
+             "    delete bar.str;\n"
+             "    // delete bar;\n"
+             "}\n");
+
     QTest::newRow("ConvertToPointer_withInitializer")
         << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
         << _("void foo() {\n"
