@@ -151,7 +151,7 @@ public:
     void saveToolSettings(Id toolId);
     void loadToolSettings(Id toolId);
     void startTool();
-    void selectToolboxAction(int);
+    void selectToolboxAction(const QString &item);
     void modeChanged(IMode *mode);
     void resetLayout();
     void updateRunActions();
@@ -196,7 +196,7 @@ AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
     m_statusLabel(new StatusLabel)
 {
     m_toolBox->setObjectName(QLatin1String("AnalyzerManagerToolBox"));
-    connect(m_toolBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+    connect(m_toolBox, static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::activated),
             this, &AnalyzerManagerPrivate::selectToolboxAction);
 
     setupActions();
@@ -454,18 +454,16 @@ void AnalyzerManagerPrivate::selectSavedTool()
         selectAction(m_actions.first());
 }
 
-void AnalyzerManagerPrivate::selectToolboxAction(int index)
+void AnalyzerManagerPrivate::selectToolboxAction(const QString &item)
 {
-    AnalyzerAction * const action  = Utils::findOrDefault(m_actions,
-            [this, index](const AnalyzerAction *action) {
-                return action->text() == m_toolBox->itemText(index);
-            });
-    QTC_ASSERT(action, return);
-    selectAction(action);
+    selectAction(Utils::findOrDefault(m_actions, [item](const AnalyzerAction *action) {
+        return action->text() == item;
+    }));
 }
 
 void AnalyzerManagerPrivate::selectAction(AnalyzerAction *action)
 {
+    QTC_ASSERT(action, return);
     if (m_currentAction == action)
         return;
 
