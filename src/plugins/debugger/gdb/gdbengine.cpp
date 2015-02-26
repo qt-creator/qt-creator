@@ -1230,7 +1230,7 @@ void GdbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages
     flushCommand(cmd);
 }
 
-// This is called from CoreAdapter and AttachAdapter.
+// This is triggered when switching snapshots.
 void GdbEngine::updateAll()
 {
     //PENDING_DEBUG("UPDATING ALL\n");

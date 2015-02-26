@@ -223,27 +223,29 @@ void GdbCoreEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
     QString core = coreFileName();
     if (response.resultClass == ResultDone) {
         showMessage(tr("Symbols found."), StatusBar);
-        postCommand("target core " + core.toLocal8Bit(), NoFlags,
-            CB(handleTargetCore));
-        return;
+        handleInferiorPrepared();
+    } else {
+        QString msg = tr("No symbols found in core file <i>%1</i>.").arg(core)
+            + _(" ") + tr("This can be caused by a path length limitation "
+                          "in the core file.")
+            + _(" ") + tr("Try to specify the binary using the "
+                          "<i>Debug->Start Debugging->Attach to Core</i> dialog.");
+        notifyInferiorSetupFailed(msg);
     }
-    QString msg = tr("No symbols found in core file <i>%1</i>.")
-        .arg(core);
-    msg += _(" ");
-    msg += tr("This can be caused by a path length limitation in the "
-        "core file.");
-    msg += _(" ");
-    msg += tr("Try to specify the binary using the "
-        "<i>Debug->Start Debugging->Attach to Core</i> dialog.");
-    notifyInferiorSetupFailed(msg);
+}
+
+void GdbCoreEngine::runEngine()
+{
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    postCommand("target core " + coreFileName().toLocal8Bit(), NoFlags, CB(handleTargetCore));
 }
 
 void GdbCoreEngine::handleTargetCore(const DebuggerResponse &response)
 {
-    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    notifyInferiorUnrunnable();
     if (response.resultClass == ResultDone) {
         showMessage(tr("Attached to core."), StatusBar);
-        handleInferiorPrepared();
         // Due to the auto-solib-add off setting, we don't have any
         // symbols yet. Load them in order of importance.
         reloadStack();
@@ -251,25 +253,17 @@ void GdbCoreEngine::handleTargetCore(const DebuggerResponse &response)
         postCommand("p 5", NoFlags, CB(handleRoundTrip));
         return;
     }
-    QString msg = tr("Attach to core \"%1\" failed:")
-        .arg(startParameters().coreFile)
-        + QLatin1Char('\n')
-        + QString::fromLocal8Bit(response.data["msg"].data());
-    notifyInferiorSetupFailed(msg);
+    showStatusMessage(tr("Attach to core \"%1\" failed:").arg(startParameters().coreFile)
+        + QLatin1Char('\n') + QString::fromLocal8Bit(response.data["msg"].data()));
+    notifyEngineIll();
 }
 
 void GdbCoreEngine::handleRoundTrip(const DebuggerResponse &response)
 {
     Q_UNUSED(response);
     loadSymbolsForStack();
+    handleStop2();
     QTimer::singleShot(1000, this, SLOT(loadAllSymbols()));
-}
-
-void GdbCoreEngine::runEngine()
-{
-    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    notifyInferiorUnrunnable();
-    updateAll();
 }
 
 void GdbCoreEngine::interruptInferior()
