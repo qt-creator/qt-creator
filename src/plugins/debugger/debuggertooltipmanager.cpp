@@ -610,7 +610,7 @@ DebuggerToolTipWidget::DebuggerToolTipWidget()
 //
 /////////////////////////////////////////////////////////////////////////
 
-enum DebuggerTootipState
+enum DebuggerTooltipState
 {
     New, // All new, widget not shown, not async (yet)
     PendingUnshown, // Widget not (yet) shown, async.
@@ -635,7 +635,7 @@ public:
 
     void updateTooltip(DebuggerEngine *engine);
 
-    void setState(DebuggerTootipState newState);
+    void setState(DebuggerTooltipState newState);
     void destroy();
 
 public:
@@ -643,7 +643,7 @@ public:
     QDate creationDate;
     DebuggerToolTipContext context;
 
-    DebuggerTootipState state;
+    DebuggerTooltipState state;
 };
 
 static void hideAllToolTips()
@@ -817,7 +817,7 @@ void DebuggerToolTipHolder::updateTooltip(DebuggerEngine *engine)
     widget->titleLabel->setToolTip(context.toolTip());
 }
 
-void DebuggerToolTipHolder::setState(DebuggerTootipState newState)
+void DebuggerToolTipHolder::setState(DebuggerTooltipState newState)
 {
     bool ok = (state == New && newState == PendingUnshown)
         || (state == PendingUnshown && newState == PendingShown)
