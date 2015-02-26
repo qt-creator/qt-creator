@@ -23,6 +23,7 @@
 #include "clangstaticanalyzersettings.h"
 #include "clangstaticanalyzerutils.h"
 
+#include <analyzerbase/analyzerconstants.h>
 #include <analyzerbase/analyzermanager.h>
 
 #include <clangcodemodel/clangutils.h>
@@ -37,6 +38,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
 
 #include <utils/algorithm.h>
 
@@ -50,6 +52,14 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.clangstaticanalyzer.runcontrol")
 
 namespace ClangStaticAnalyzer {
 namespace Internal {
+
+static void logToIssuesPane(Task::TaskType type, const QString &message)
+{
+    TaskHub::addTask(type, message, Analyzer::Constants::ANALYZERTASK_ID);
+    if (type == Task::Error)
+        TaskHub::requestPopup();
+}
+
 
 ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
             const Analyzer::AnalyzerStartParameters &startParams,
@@ -191,9 +201,10 @@ bool ClangStaticAnalyzerRunControl::startEngine()
     const QString executable
             = clangExecutableFromSettings(m_toolchainType, &isValidClangExecutable);
     if (!isValidClangExecutable) {
-        emit appendMessage(tr("Clang Static Analyzer: Invalid executable \"%1\", stop.")
-                            .arg(executable) + QLatin1Char('\n'),
-                           Utils::ErrorMessageFormat);
+        const QString errorMessage = tr("Clang Static Analyzer: Invalid executable \"%1\", stop.")
+                .arg(executable);
+        appendMessage(errorMessage + QLatin1Char('\n'), Utils::ErrorMessageFormat);
+        logToIssuesPane(Task::Error, errorMessage);
         emit finished();
         return false;
     }
@@ -203,8 +214,10 @@ bool ClangStaticAnalyzerRunControl::startEngine()
     QTemporaryDir temporaryDir(QDir::tempPath() + QLatin1String("/qtc-clangstaticanalyzer-XXXXXX"));
     temporaryDir.setAutoRemove(false);
     if (!temporaryDir.isValid()) {
-        emit appendMessage(tr("Clang Static Analyzer: Failed to create temporary dir, stop.")
-                           + QLatin1Char('\n'), Utils::ErrorMessageFormat);
+        const QString errorMessage
+                = tr("Clang Static Analyzer: Failed to create temporary dir, stop.");
+        appendMessage(errorMessage + QLatin1Char('\n'), Utils::ErrorMessageFormat);
+        logToIssuesPane(Task::Error, errorMessage);
         emit finished();
         return false;
     }
@@ -273,6 +286,10 @@ void ClangStaticAnalyzerRunControl::analyzeNextFile()
                                 .arg(m_filesNotAnalyzed)
                              + QLatin1Char('\n'),
                           Utils::NormalMessageFormat);
+            if (m_filesAnalyzed == 0 && m_filesNotAnalyzed != 0) {
+                logToIssuesPane(Task::Error,
+                                tr("Clang Static Analyzer: Failed to analyze any files."));
+            }
             m_progress.reportFinished();
             emit finished();
         }
@@ -336,7 +353,8 @@ void ClangStaticAnalyzerRunControl::onRunnerFinishedWithFailure(const QString &e
                   + QLatin1Char('\n')
                   , Utils::StdErrFormat);
     appendMessage(errorDetails, Utils::StdErrFormat);
-
+    logToIssuesPane(Task::Warning, errorMessage);
+    logToIssuesPane(Task::Warning, errorDetails);
     handleFinished();
 }
 
