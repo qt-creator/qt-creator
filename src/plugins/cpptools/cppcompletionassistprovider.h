@@ -36,6 +36,7 @@
 #include <texteditor/codeassist/assistenums.h>
 #include <texteditor/codeassist/completionassistprovider.h>
 
+#include <cplusplus/Token.h>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;
@@ -60,7 +61,9 @@ public:
 
     virtual TextEditor::AssistInterface *createAssistInterface(
             const QString &filePath,
-            QTextDocument *document, bool isObjCEnabled, int position,
+            QTextDocument *document,
+            const CPlusPlus::LanguageFeatures &languageFeatures,
+            int position,
             TextEditor::AssistReason reason) const = 0;
 
     static int activationSequenceChar(const QChar &ch, const QChar &ch2,

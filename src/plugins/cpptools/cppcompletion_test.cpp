@@ -105,11 +105,14 @@ public:
     QStringList getCompletions(bool *replaceAccessOperator = 0) const
     {
         QStringList completions;
+        LanguageFeatures languageFeatures = LanguageFeatures::defaultFeatures();
+        languageFeatures.objCEnabled = false;
         CppCompletionAssistInterface *ai
             = new CppCompletionAssistInterface(m_editorWidget->textDocument()->filePath().toString(),
                                                m_editorWidget->document(), m_position,
                                                ExplicitlyInvoked, m_snapshot,
-                                               ProjectPart::HeaderPaths());
+                                               ProjectPart::HeaderPaths(),
+                                               languageFeatures);
         InternalCppCompletionAssistProcessor processor;
 
         const Tests::IAssistProposalScopedPointer proposal(processor.perform(ai));

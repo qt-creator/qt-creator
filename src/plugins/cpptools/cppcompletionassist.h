@@ -92,7 +92,7 @@ public:
     TextEditor::AssistInterface *createAssistInterface(
             const QString &filePath,
             QTextDocument *document,
-            bool isObjCEnabled,
+            const CPlusPlus::LanguageFeatures &languageFeatures,
             int position,
             TextEditor::AssistReason reason) const Q_DECL_OVERRIDE;
 };
@@ -162,7 +162,6 @@ private:
         CompleteQt5SlotTrigger
     };
 
-    CPlusPlus::LanguageFeatures m_languageFeatures;
     QScopedPointer<const CppCompletionAssistInterface> m_interface;
     QScopedPointer<CppAssistProposalModel> m_model;
 };
@@ -172,14 +171,14 @@ class CppCompletionAssistInterface : public TextEditor::AssistInterface
 public:
     CppCompletionAssistInterface(const QString &filePath,
                                  QTextDocument *textDocument,
-                                 bool isObjCEnabled,
+                                 const CPlusPlus::LanguageFeatures &languageFeatures,
                                  int position,
                                  TextEditor::AssistReason reason,
                                  const WorkingCopy &workingCopy)
         : TextEditor::AssistInterface(textDocument, position, filePath, reason)
-        , m_isObjCEnabled(isObjCEnabled)
         , m_gotCppSpecifics(false)
         , m_workingCopy(workingCopy)
+        , m_languageFeatures(languageFeatures)
     {}
 
     CppCompletionAssistInterface(const QString &filePath,
@@ -187,28 +186,29 @@ public:
                                  int position,
                                  TextEditor::AssistReason reason,
                                  const CPlusPlus::Snapshot &snapshot,
-                                 const ProjectPart::HeaderPaths &headerPaths)
+                                 const ProjectPart::HeaderPaths &headerPaths,
+                                 const CPlusPlus::LanguageFeatures &features)
         : TextEditor::AssistInterface(textDocument, position, filePath, reason)
-        , m_isObjCEnabled(false)
         , m_gotCppSpecifics(true)
         , m_snapshot(snapshot)
         , m_headerPaths(headerPaths)
+        , m_languageFeatures(features)
     {}
-
-    bool isObjCEnabled() const { return m_isObjCEnabled; }
 
     const CPlusPlus::Snapshot &snapshot() const { getCppSpecifics(); return m_snapshot; }
     const ProjectPart::HeaderPaths &headerPaths() const
     { getCppSpecifics(); return m_headerPaths; }
+    CPlusPlus::LanguageFeatures languageFeatures() const
+    { getCppSpecifics(); return m_languageFeatures; }
 
 private:
     void getCppSpecifics() const;
 
-    mutable bool m_isObjCEnabled;
     mutable bool m_gotCppSpecifics;
     WorkingCopy m_workingCopy;
     mutable CPlusPlus::Snapshot m_snapshot;
     mutable ProjectPart::HeaderPaths m_headerPaths;
+    mutable CPlusPlus::LanguageFeatures m_languageFeatures;
 };
 
 } // Internal

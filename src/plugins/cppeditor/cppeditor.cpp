@@ -612,10 +612,14 @@ AssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistR
     if (kind == Completion) {
         if (CppCompletionAssistProvider *cap =
                 qobject_cast<CppCompletionAssistProvider *>(cppEditorDocument()->completionAssistProvider())) {
+            LanguageFeatures features = LanguageFeatures::defaultFeatures();
+            if (Document::Ptr doc = d->m_lastSemanticInfo.doc)
+                features = doc->languageFeatures();
+            features.objCEnabled = cppEditorDocument()->isObjCEnabled();
             return cap->createAssistInterface(
                             textDocument()->filePath().toString(),
                             document(),
-                            cppEditorDocument()->isObjCEnabled(),
+                            features,
                             position(),
                             reason);
         }

@@ -419,12 +419,12 @@ IAssistProcessor *InternalCompletionAssistProvider::createProcessor() const
 
 AssistInterface *InternalCompletionAssistProvider::createAssistInterface(
         const QString &filePath, QTextDocument *document,
-        bool isObjCEnabled, int position, AssistReason reason) const
+        const LanguageFeatures &languageFeatures, int position, AssistReason reason) const
 {
     QTC_ASSERT(document, return 0);
 
     CppModelManager *modelManager = CppModelManager::instance();
-    return new CppCompletionAssistInterface(filePath, document, isObjCEnabled, position, reason,
+    return new CppCompletionAssistInterface(filePath, document, languageFeatures, position, reason,
                                             modelManager->workingCopy());
 }
 
@@ -803,11 +803,6 @@ const Name *minimalName(Symbol *symbol, Scope *targetScope, const LookupContext 
 InternalCppCompletionAssistProcessor::InternalCppCompletionAssistProcessor()
     : m_model(new CppAssistProposalModel)
 {
-    // FIXME: C++11?
-    m_languageFeatures.objCEnabled = true;
-    m_languageFeatures.qtEnabled = true;
-    m_languageFeatures.qtKeywordsEnabled = true;
-    m_languageFeatures.qtMocRunEnabled = true;
 }
 
 InternalCppCompletionAssistProcessor::~InternalCppCompletionAssistProcessor()
@@ -858,14 +853,8 @@ bool InternalCppCompletionAssistProcessor::accepts() const
                     QTextCursor tc(m_interface->textDocument());
                     tc.setPosition(pos);
 
-                    LanguageFeatures features;
-                    features.qtEnabled = true;
-                    features.qtMocRunEnabled = true;
-                    features.qtKeywordsEnabled = true;
-                    features.objCEnabled = true;
-
                     SimpleLexer tokenize;
-                    tokenize.setLanguageFeatures(features);
+                    tokenize.setLanguageFeatures(m_interface->languageFeatures());
                     tokenize.setSkipComments(false);
 
                     const Tokens &tokens = tokenize(tc.block().text(), BackwardsScanner::previousBlockState(tc.block()));
@@ -885,7 +874,7 @@ bool InternalCppCompletionAssistProcessor::accepts() const
                                             idToken.utf16charsEnd() - idToken.utf16charsBegin());
                         if (identifier == QLatin1String("include")
                                 || identifier == QLatin1String("include_next")
-                                || (m_languageFeatures.objCEnabled && identifier == QLatin1String("import"))) {
+                                || (m_interface->languageFeatures().objCEnabled && identifier == QLatin1String("import"))) {
                             return true;
                         }
                     }
@@ -970,7 +959,7 @@ int InternalCppCompletionAssistProcessor::startOfOperator(int pos,
         }
 
         SimpleLexer tokenize;
-        tokenize.setLanguageFeatures(m_languageFeatures);
+        tokenize.setLanguageFeatures(m_interface->languageFeatures());
         tokenize.setSkipComments(false);
         const Tokens &tokens = tokenize(tc.block().text(), BackwardsScanner::previousBlockState(tc.block()));
         const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1)); // get the token at the left of the cursor
@@ -1066,7 +1055,7 @@ int InternalCppCompletionAssistProcessor::findStartOfName(int pos) const
 
 int InternalCppCompletionAssistProcessor::startCompletionHelper()
 {
-    if (m_languageFeatures.objCEnabled) {
+    if (m_interface->languageFeatures().objCEnabled) {
         if (tryObjCCompletion())
             return m_startPosition;
     }
@@ -1387,7 +1376,7 @@ void InternalCppCompletionAssistProcessor::completePreprocessor()
 
 bool InternalCppCompletionAssistProcessor::objcKeywordsWanted() const
 {
-    if (!m_languageFeatures.objCEnabled)
+    if (!m_interface->languageFeatures().objCEnabled)
         return false;
 
     const QString fileName = m_interface->fileName();
@@ -1618,7 +1607,7 @@ bool InternalCppCompletionAssistProcessor::completeMember(const QList<LookupItem
     ResolveExpression resolveExpression(context);
 
     bool *replaceDotForArrow = 0;
-    if (!m_interface->isObjCEnabled())
+    if (!m_interface->languageFeatures().objCEnabled)
         replaceDotForArrow = &m_model->m_replaceDotForArrow;
 
     if (ClassOrNamespace *binding =
@@ -2181,5 +2170,9 @@ void CppCompletionAssistInterface::getCppSpecifics() const
         parser->update(m_workingCopy);
         m_snapshot = parser->snapshot();
         m_headerPaths = parser->headerPaths();
+        if (Document::Ptr document = parser->document())
+            m_languageFeatures = document->languageFeatures();
+        else
+            m_languageFeatures = LanguageFeatures::defaultFeatures();
     }
 }
