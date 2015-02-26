@@ -420,11 +420,8 @@ void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &contain
         workingImportStatementList.prepend(firstWorkingImportStatement);
     }
 
-    QVector<qint32> instanceIds;
-    foreach (const IdContainer &idContainer, idContainerVector)
-        instanceIds.append(idContainer.instanceId());
     if (!errorMessage.isEmpty())
-        sendDebugOutput(DebugOutputCommand::WarningType, errorMessage, instanceIds);
+        sendDebugOutput(DebugOutputCommand::WarningType, errorMessage);
     setupOnlyWorkingImports(workingImportStatementList);
 }
 
@@ -438,6 +435,15 @@ void NodeInstanceServer::setupOnlyWorkingImports(const QStringList &workingImpor
 
     m_importComponent->setData(componentCode.append("\nItem {}\n"), fileUrl());
     m_importComponentObject = m_importComponent->create();
+
+    if (!m_importComponentObject) {
+        delete m_importComponent;
+        m_importComponent = new QQmlComponent(engine(), quickView());
+        m_importComponent->setData("import QtQuick 2.0\n\nItem {}\n", fileUrl());
+        sendDebugOutput(DebugOutputCommand::WarningType, tr("No working QtQuick import"));
+        m_importComponentObject = m_importComponent->create();
+    }
+
     Q_ASSERT(m_importComponent && m_importComponentObject);
     Q_ASSERT_X(m_importComponent->errors().isEmpty(), __FUNCTION__, m_importComponent->errorString().toLatin1());
 }
