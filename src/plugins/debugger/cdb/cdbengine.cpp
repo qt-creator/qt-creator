@@ -812,7 +812,7 @@ void CdbEngine::runEngine()
     }
     if (startParameters().startMode == AttachCore) {
         QTC_ASSERT(!m_coreStopReason.isNull(), return; );
-        notifyInferiorUnrunnable();
+        notifyEngineRunOkAndInferiorUnrunnable();
         processStop(*m_coreStopReason, false);
     } else {
         doContinueInferior();

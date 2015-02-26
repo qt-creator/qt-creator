@@ -535,7 +535,7 @@ void QmlCppEngine::slaveEngineStateChanged
         }
         case InferiorUnrunnable: {
             qmlEngine()->quitDebugger();
-            notifyInferiorUnrunnable();
+            notifyEngineRunOkAndInferiorUnrunnable();
             break;
         }
         case InferiorRunRequested: {

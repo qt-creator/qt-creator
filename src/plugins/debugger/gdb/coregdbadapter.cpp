@@ -243,7 +243,7 @@ void GdbCoreEngine::runEngine()
 void GdbCoreEngine::handleTargetCore(const DebuggerResponse &response)
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    notifyInferiorUnrunnable();
+    notifyEngineRunOkAndInferiorUnrunnable();
     if (response.resultClass == ResultDone) {
         showMessage(tr("Attached to core."), StatusBar);
         // Due to the auto-solib-add off setting, we don't have any
