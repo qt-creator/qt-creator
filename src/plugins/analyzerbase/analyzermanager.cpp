@@ -93,8 +93,6 @@ const char INITIAL_DOCK_AREA[] = "initial_dock_area";
 
 class AnalyzerMode : public IMode
 {
-    Q_OBJECT
-
 public:
     AnalyzerMode(QObject *parent = 0)
         : IMode(parent)
@@ -123,8 +121,6 @@ public:
 
 class AnalyzerManagerPrivate : public QObject
 {
-    Q_OBJECT
-
 public:
     typedef QHash<QString, QVariant> FancyMainWindowSettings;
 
@@ -716,5 +712,3 @@ AnalyzerRunControl *AnalyzerManager::createRunControl(
 }
 
 } // namespace Analyzer
-
-#include "analyzermanager.moc"
