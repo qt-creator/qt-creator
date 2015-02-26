@@ -168,7 +168,7 @@ static bool isDereferenced(TextEditorWidget *editorWidget, int basePosition)
     QTextCursor cursor = editorWidget->textCursor();
     cursor.setPosition(basePosition);
 
-    BackwardsScanner scanner(cursor);
+    BackwardsScanner scanner(cursor, LanguageFeatures());
     for (int pos = scanner.startToken()-1; pos >= 0; pos--) {
         switch (scanner[pos].kind()) {
         case T_COLON_COLON:
@@ -670,7 +670,7 @@ private:
 
         QTextCursor cursor(m_assistInterface->textDocument());
         cursor.setPosition(m_position + 1);
-        ExpressionUnderCursor expressionUnderCursor;
+        ExpressionUnderCursor expressionUnderCursor(m_assistInterface->languageFeatures());
         const QString expression = expressionUnderCursor(cursor);
         if (expression.isEmpty())
             return false;
@@ -951,7 +951,7 @@ int InternalCppCompletionAssistProcessor::startOfOperator(int pos,
         }
 
         if (*kind == T_COMMA) {
-            ExpressionUnderCursor expressionUnderCursor;
+            ExpressionUnderCursor expressionUnderCursor(m_interface->languageFeatures());
             if (expressionUnderCursor.startOfFunctionCall(tc) == -1) {
                 *kind = T_EOF_SYMBOL;
                 start = pos;
@@ -1099,7 +1099,7 @@ int InternalCppCompletionAssistProcessor::startCompletionHelper()
         return m_startPosition;
     }
 
-    ExpressionUnderCursor expressionUnderCursor;
+    ExpressionUnderCursor expressionUnderCursor(m_interface->languageFeatures());
     QTextCursor tc(m_interface->textDocument());
 
     if (m_model->m_completionOperator == T_COMMA) {
@@ -1173,7 +1173,7 @@ bool InternalCppCompletionAssistProcessor::tryObjCCompletion()
 
     QTextCursor tc(m_interface->textDocument());
     tc.setPosition(end);
-    BackwardsScanner tokens(tc);
+    BackwardsScanner tokens(tc, m_interface->languageFeatures());
     if (tokens[tokens.startToken() - 1].isNot(T_RBRACKET))
         return false;
 
@@ -1439,7 +1439,7 @@ int InternalCppCompletionAssistProcessor::startCompletionInternal(const QString 
             QTextCursor tc(m_interface->textDocument());
             tc.setPosition(index);
 
-            ExpressionUnderCursor expressionUnderCursor;
+            ExpressionUnderCursor expressionUnderCursor(m_interface->languageFeatures());
             const QString baseExpression = expressionUnderCursor(tc);
 
             // Resolve the type of this expression
@@ -2086,7 +2086,7 @@ bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const Q
 
             QTextCursor tc(m_interface->textDocument());
             tc.setPosition(endOfExpression);
-            BackwardsScanner bs(tc);
+            BackwardsScanner bs(tc, m_interface->languageFeatures());
             const int startToken = bs.startToken();
             int lineStartToken = bs.startOfLine(startToken);
             // make sure the required tokens are actually available

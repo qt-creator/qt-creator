@@ -77,7 +77,7 @@ Scope *CanonicalSymbol::getScopeAndExpression(const QTextCursor &cursor, QString
         ++pos;
     tc.setPosition(pos);
 
-    ExpressionUnderCursor expressionUnderCursor;
+    ExpressionUnderCursor expressionUnderCursor(m_document->languageFeatures());
     *code = expressionUnderCursor(tc);
     return m_document->scopeAt(line, column);
 }

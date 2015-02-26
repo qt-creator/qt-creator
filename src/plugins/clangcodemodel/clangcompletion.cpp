@@ -639,7 +639,7 @@ int ClangCompletionAssistProcessor::startCompletionHelper()
         return m_startPosition;
     }
 
-    ExpressionUnderCursor expressionUnderCursor;
+    ExpressionUnderCursor expressionUnderCursor(m_interface->languageFeatures());
     QTextCursor tc(m_interface->textDocument());
 
     if (m_model->m_completionOperator == T_COMMA) {
@@ -705,7 +705,7 @@ int ClangCompletionAssistProcessor::startOfOperator(int pos,
         }
 
         if (*kind == T_COMMA) {
-            ExpressionUnderCursor expressionUnderCursor;
+            ExpressionUnderCursor expressionUnderCursor(m_interface->languageFeatures());
             if (expressionUnderCursor.startOfFunctionCall(tc) == -1) {
                 *kind = T_EOF_SYMBOL;
                 start = pos;
@@ -931,7 +931,7 @@ int ClangCompletionAssistProcessor::startCompletionInternal(const QString fileNa
 
         QTextCursor tc(m_interface->textDocument());
         tc.setPosition(index);
-        ExpressionUnderCursor euc;
+        ExpressionUnderCursor euc(m_interface->languageFeatures());
         index = euc.startOfFunctionCall(tc);
         int nameStart = findStartOfName(index);
         QTextCursor tc2(m_interface->textDocument());

@@ -32,6 +32,7 @@
 #define CPLUSPLUS_EXPRESSIONUNDERCURSOR_H
 
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
+#include <cplusplus/Token.h>
 
 #include <QList>
 
@@ -47,7 +48,7 @@ class BackwardsScanner;
 class CPLUSPLUS_EXPORT ExpressionUnderCursor
 {
 public:
-    ExpressionUnderCursor();
+    ExpressionUnderCursor(const LanguageFeatures &languageFeatures);
 
     QString operator()(const QTextCursor &cursor);
     int startOfFunctionCall(const QTextCursor &cursor) const;
@@ -59,6 +60,7 @@ private:
 
 private:
     bool _jumpedComma;
+    LanguageFeatures _languageFeatures;
 };
 
 } // namespace CPlusPlus

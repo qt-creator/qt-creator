@@ -102,7 +102,7 @@ void CppElementEvaluator::execute()
         CppTools::moveCursorToEndOfIdentifier(&m_tc);
 
         // Fetch the expression's code
-        ExpressionUnderCursor expressionUnderCursor;
+        ExpressionUnderCursor expressionUnderCursor(doc->languageFeatures());
         const QString &expression = expressionUnderCursor(m_tc);
         Scope *scope = doc->scopeAt(line, column);
 

@@ -532,7 +532,7 @@ void tst_Semantic::expression_under_cursor_1()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    ExpressionUnderCursor expressionUnderCursor;
+    ExpressionUnderCursor expressionUnderCursor(LanguageFeatures::defaultFeatures());
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, QString("bar"));
@@ -548,7 +548,7 @@ void tst_Semantic::bracketed_expression_under_cursor_1()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    ExpressionUnderCursor expressionUnderCursor;
+    ExpressionUnderCursor expressionUnderCursor(LanguageFeatures::defaultFeatures());
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, QString("i"));
@@ -564,7 +564,7 @@ void tst_Semantic::bracketed_expression_under_cursor_2()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    ExpressionUnderCursor expressionUnderCursor;
+    ExpressionUnderCursor expressionUnderCursor(LanguageFeatures::defaultFeatures());
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, plainText);
@@ -580,7 +580,7 @@ void tst_Semantic::bracketed_expression_under_cursor_3()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    ExpressionUnderCursor expressionUnderCursor;
+    ExpressionUnderCursor expressionUnderCursor(LanguageFeatures::defaultFeatures());
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, QString("[receiver message"));
@@ -596,7 +596,7 @@ void tst_Semantic::bracketed_expression_under_cursor_4()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    ExpressionUnderCursor expressionUnderCursor;
+    ExpressionUnderCursor expressionUnderCursor(LanguageFeatures::defaultFeatures());
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, QString("i"));

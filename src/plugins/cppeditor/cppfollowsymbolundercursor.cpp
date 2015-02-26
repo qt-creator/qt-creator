@@ -615,7 +615,7 @@ TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &curs
         return link;
 
     // Evaluate the type of the expression under the cursor
-    ExpressionUnderCursor expressionUnderCursor;
+    ExpressionUnderCursor expressionUnderCursor(features);
     QString expression = expressionUnderCursor(tc);
 
     for (int pos = tc.position();; ++pos) {

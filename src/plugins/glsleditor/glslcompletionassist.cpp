@@ -263,7 +263,8 @@ IAssistProposal *GlslCompletionAssistProcessor::perform(const AssistInterface *i
     while (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
         ch = m_interface->characterAt(--pos);
 
-    CPlusPlus::ExpressionUnderCursor expressionUnderCursor;
+    CPlusPlus::ExpressionUnderCursor expressionUnderCursor(
+                CPlusPlus::LanguageFeatures::defaultFeatures());
     //GLSLTextEditorWidget *edit = qobject_cast<GLSLTextEditorWidget *>(editor->widget());
 
     QList<GLSL::Symbol *> members;

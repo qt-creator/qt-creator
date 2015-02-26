@@ -40,8 +40,9 @@
 
 using namespace CPlusPlus;
 
-ExpressionUnderCursor::ExpressionUnderCursor()
+ExpressionUnderCursor::ExpressionUnderCursor(const LanguageFeatures &languageFeatures)
     : _jumpedComma(false)
+    , _languageFeatures(languageFeatures)
 { }
 
 int ExpressionUnderCursor::startOfExpression(BackwardsScanner &tk, int index)
@@ -243,7 +244,7 @@ bool ExpressionUnderCursor::isAccessToken(const Token &tk)
 
 QString ExpressionUnderCursor::operator()(const QTextCursor &cursor)
 {
-    BackwardsScanner scanner(cursor);
+    BackwardsScanner scanner(cursor, _languageFeatures);
 
     _jumpedComma = false;
 
@@ -257,7 +258,7 @@ QString ExpressionUnderCursor::operator()(const QTextCursor &cursor)
 
 int ExpressionUnderCursor::startOfFunctionCall(const QTextCursor &cursor) const
 {
-    BackwardsScanner scanner(cursor);
+    BackwardsScanner scanner(cursor, _languageFeatures);
 
     int index = scanner.startToken();
 
