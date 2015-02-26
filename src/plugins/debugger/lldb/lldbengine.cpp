@@ -537,8 +537,6 @@ void LldbEngine::activateFrame(int frameIndex)
     cmd.arg("thread", threadsHandler()->currentThread().raw());
     cmd.arg("continuation", "updateLocals");
     runCommand(cmd);
-
-    reloadRegisters();
 }
 
 void LldbEngine::selectThread(ThreadId threadId)
@@ -803,8 +801,6 @@ bool LldbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editorWidget
 
 void LldbEngine::updateAll()
 {
-    reloadRegisters();
-
     DebuggerCommand cmd("reportStack");
     cmd.arg("nativeMixed", isNativeMixedActive());
     cmd.arg("stacklimit", action(MaximalStackDepth)->value().toInt());
