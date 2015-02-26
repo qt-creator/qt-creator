@@ -3267,17 +3267,14 @@ DebuggerPlugin::~DebuggerPlugin()
 bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     // Menu groups
-    const Context globalcontext(CC::C_GLOBAL);
-
     ActionContainer *mstart = ActionManager::actionContainer(PE::M_DEBUG_STARTDEBUGGING);
-
     mstart->appendGroup(Constants::G_GENERAL);
     mstart->appendGroup(Constants::G_SPECIAL);
     mstart->appendGroup(Constants::G_START_QML);
 
     // Separators
-    mstart->addSeparator(globalcontext, Constants::G_GENERAL);
-    mstart->addSeparator(globalcontext, Constants::G_SPECIAL);
+    mstart->addSeparator(Constants::G_GENERAL);
+    mstart->addSeparator(Constants::G_SPECIAL);
 
     addAutoReleasedObject(new DebuggerItemManager);
     DebuggerItemManager::restoreDebuggers();

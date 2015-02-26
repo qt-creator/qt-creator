@@ -244,10 +244,9 @@ void AnalyzerManagerPrivate::setupActions()
     command = ActionManager::registerAction(m_stopAction, "Analyzer.Stop");
     m_menu->addAction(command, G_ANALYZER_CONTROL);
 
-    const Context globalcontext(C_GLOBAL);
-    m_menu->addSeparator(globalcontext, G_ANALYZER_TOOLS);
-    m_menu->addSeparator(globalcontext, G_ANALYZER_REMOTE_TOOLS);
-    m_menu->addSeparator(globalcontext, G_ANALYZER_OPTIONS);
+    m_menu->addSeparator(G_ANALYZER_TOOLS);
+    m_menu->addSeparator(G_ANALYZER_REMOTE_TOOLS);
+    m_menu->addSeparator(G_ANALYZER_OPTIONS);
 }
 
 void AnalyzerManagerPrivate::delayedInit()

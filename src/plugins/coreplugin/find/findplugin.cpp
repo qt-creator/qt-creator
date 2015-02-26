@@ -203,10 +203,9 @@ void FindPlugin::setupMenu()
     mfind->appendGroup(Constants::G_FIND_FILTERS);
     mfind->appendGroup(Constants::G_FIND_FLAGS);
     mfind->appendGroup(Constants::G_FIND_ACTIONS);
-    Context globalcontext(Constants::C_GLOBAL);
     Command *cmd;
-    mfind->addSeparator(globalcontext, Constants::G_FIND_FLAGS);
-    mfind->addSeparator(globalcontext, Constants::G_FIND_ACTIONS);
+    mfind->addSeparator(Constants::G_FIND_FLAGS);
+    mfind->addSeparator(Constants::G_FIND_ACTIONS);
 
     ActionContainer *mfindadvanced = ActionManager::createMenu(Constants::M_FIND_ADVANCED);
     mfindadvanced->menu()->setTitle(tr("Advanced Find"));

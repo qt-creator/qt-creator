@@ -568,4 +568,11 @@ bool MenuBarActionContainer::canBeAddedToMenu() const
 }
 
 } // namespace Internal
+
+Command *ActionContainer::addSeparator(Id group)
+{
+    static const Context context(Constants::C_GLOBAL);
+    return addSeparator(context, group);
+}
+
 } // namespace Core

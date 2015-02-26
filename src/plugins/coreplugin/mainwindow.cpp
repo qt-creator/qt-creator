@@ -468,18 +468,16 @@ void MainWindow::registerDefaultActions()
     ActionContainer *mwindow = ActionManager::actionContainer(Constants::M_WINDOW);
     ActionContainer *mhelp = ActionManager::actionContainer(Constants::M_HELP);
 
-    Context globalContext(Constants::C_GLOBAL);
-
     // File menu separators
-    mfile->addSeparator(globalContext, Constants::G_FILE_SAVE);
-    mfile->addSeparator(globalContext, Constants::G_FILE_PRINT);
-    mfile->addSeparator(globalContext, Constants::G_FILE_CLOSE);
-    mfile->addSeparator(globalContext, Constants::G_FILE_OTHER);
+    mfile->addSeparator(Constants::G_FILE_SAVE);
+    mfile->addSeparator(Constants::G_FILE_PRINT);
+    mfile->addSeparator(Constants::G_FILE_CLOSE);
+    mfile->addSeparator(Constants::G_FILE_OTHER);
     // Edit menu separators
-    medit->addSeparator(globalContext, Constants::G_EDIT_COPYPASTE);
-    medit->addSeparator(globalContext, Constants::G_EDIT_SELECTALL);
-    medit->addSeparator(globalContext, Constants::G_EDIT_FIND);
-    medit->addSeparator(globalContext, Constants::G_EDIT_ADVANCED);
+    medit->addSeparator(Constants::G_EDIT_COPYPASTE);
+    medit->addSeparator(Constants::G_EDIT_SELECTALL);
+    medit->addSeparator(Constants::G_EDIT_FIND);
+    medit->addSeparator(Constants::G_EDIT_ADVANCED);
 
     // Return to editor shortcut: Note this requires Qt to fix up
     // handling of shortcut overrides in menus, item views, combos....
@@ -622,7 +620,7 @@ void MainWindow::registerDefaultActions()
 
     // Options Action
     mtools->appendGroup(Constants::G_TOOLS_OPTIONS);
-    mtools->addSeparator(globalContext, Constants::G_TOOLS_OPTIONS);
+    mtools->addSeparator(Constants::G_TOOLS_OPTIONS);
 
     m_optionsAction = new QAction(tr("&Options..."), this);
     m_optionsAction->setMenuRole(QAction::PreferencesRole);
@@ -631,7 +629,7 @@ void MainWindow::registerDefaultActions()
     mtools->addAction(cmd, Constants::G_TOOLS_OPTIONS);
     connect(m_optionsAction, SIGNAL(triggered()), this, SLOT(showOptionsDialog()));
 
-    mwindow->addSeparator(globalContext, Constants::G_WINDOW_LIST);
+    mwindow->addSeparator(Constants::G_WINDOW_LIST);
 
     if (UseMacShortcuts) {
         // Minimize Action
@@ -659,7 +657,7 @@ void MainWindow::registerDefaultActions()
     mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
 
     if (UseMacShortcuts) {
-        mwindow->addSeparator(globalContext, Constants::G_WINDOW_SIZE);
+        mwindow->addSeparator(Constants::G_WINDOW_SIZE);
 
         QAction *closeAction = new QAction(tr("Close Window"), this);
         closeAction->setEnabled(false);
@@ -667,7 +665,7 @@ void MainWindow::registerDefaultActions()
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Meta+W")));
         mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
 
-        mwindow->addSeparator(globalContext, Constants::G_WINDOW_SIZE);
+        mwindow->addSeparator(Constants::G_WINDOW_SIZE);
     }
 
     // Show Sidebar Action
@@ -695,9 +693,9 @@ void MainWindow::registerDefaultActions()
     mviews->menu()->setTitle(tr("&Views"));
 
     // "Help" separators
-    mhelp->addSeparator(globalContext, Constants::G_HELP_SUPPORT);
+    mhelp->addSeparator(Constants::G_HELP_SUPPORT);
     if (!HostOsInfo::isMacHost())
-        mhelp->addSeparator(globalContext, Constants::G_HELP_ABOUT);
+        mhelp->addSeparator(Constants::G_HELP_ABOUT);
 
     // About IDE Action
     icon = QIcon::fromTheme(QLatin1String("help-about"));

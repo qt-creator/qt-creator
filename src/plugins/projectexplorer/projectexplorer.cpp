@@ -541,7 +541,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_proWindow = new ProjectWindow;
     addAutoReleasedObject(dd->m_proWindow);
 
-    Context globalcontext(Core::Constants::C_GLOBAL);
     Context projecTreeContext(Constants::C_PROJECT_TREE);
 
     dd->m_projectsMode = new ProjectsMode(dd->m_proWindow);
@@ -735,12 +734,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msessionContextMenu->addSeparator(projecTreeContext, Constants::G_SESSION_FILES);
     mprojectContextMenu->addSeparator(projecTreeContext, Constants::G_PROJECT_FILES);
     msubProjectContextMenu->addSeparator(projecTreeContext, Constants::G_PROJECT_FILES);
-    mfile->addSeparator(globalcontext, Core::Constants::G_FILE_PROJECT);
-    mbuild->addSeparator(globalcontext, Constants::G_BUILD_REBUILD);
-    msessionContextMenu->addSeparator(globalcontext, Constants::G_SESSION_OTHER);
-    mbuild->addSeparator(globalcontext, Constants::G_BUILD_CANCEL);
-    mbuild->addSeparator(globalcontext, Constants::G_BUILD_RUN);
-    mprojectContextMenu->addSeparator(globalcontext, Constants::G_PROJECT_REBUILD);
+    mfile->addSeparator(Core::Constants::G_FILE_PROJECT);
+    mbuild->addSeparator(Constants::G_BUILD_REBUILD);
+    msessionContextMenu->addSeparator(Constants::G_SESSION_OTHER);
+    mbuild->addSeparator(Constants::G_BUILD_CANCEL);
+    mbuild->addSeparator(Constants::G_BUILD_RUN);
+    mprojectContextMenu->addSeparator(Constants::G_PROJECT_REBUILD);
 
     //
     // Actions
@@ -1055,15 +1054,15 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd = ActionManager::registerAction(dd->m_projectTreeCollapseAllAction, Constants::PROJECTTREE_COLLAPSE_ALL,
                              projecTreeContext);
     const Id treeGroup = Constants::G_PROJECT_TREE;
-    mfileContextMenu->addSeparator(globalcontext, treeGroup);
+    mfileContextMenu->addSeparator(treeGroup);
     mfileContextMenu->addAction(cmd, treeGroup);
-    msubProjectContextMenu->addSeparator(globalcontext, treeGroup);
+    msubProjectContextMenu->addSeparator(treeGroup);
     msubProjectContextMenu->addAction(cmd, treeGroup);
-    mfolderContextMenu->addSeparator(globalcontext, treeGroup);
+    mfolderContextMenu->addSeparator(treeGroup);
     mfolderContextMenu->addAction(cmd, treeGroup);
-    mprojectContextMenu->addSeparator(globalcontext, treeGroup);
+    mprojectContextMenu->addSeparator(treeGroup);
     mprojectContextMenu->addAction(cmd, treeGroup);
-    msessionContextMenu->addSeparator(globalcontext, treeGroup);
+    msessionContextMenu->addSeparator(treeGroup);
     msessionContextMenu->addAction(cmd, treeGroup);
 
     // target selector
