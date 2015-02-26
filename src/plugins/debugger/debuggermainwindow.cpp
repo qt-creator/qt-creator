@@ -469,7 +469,11 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
     debugToolBarLayout->addWidget(new Utils::StyledSeparator);
     debugToolBarLayout->addWidget(d->m_viewButton);
 
-    connect(d->m_viewButton, &QAbstractButton::clicked, this, &DebuggerMainWindow::showViewsMenu);
+    connect(d->m_viewButton, &QAbstractButton::clicked, [this] {
+        QMenu menu;
+        addDockActionsToMenu(&menu);
+        menu.exec(d->m_viewButton->mapToGlobal(QPoint()));
+    });
 
     auto dock = new QDockWidget(DebuggerMainWindowPrivate::tr("Debugger Toolbar"));
     dock->setObjectName(QLatin1String("Debugger Toolbar"));
@@ -531,13 +535,6 @@ void DebuggerMainWindow::writeSettings() const
         settings->setValue(it.key(), it.value());
     }
     settings->endGroup();
-}
-
-void DebuggerMainWindow::showViewsMenu()
-{
-    QMenu menu;
-    addDockActionsToMenu(&menu);
-    menu.exec(d->m_viewButton->mapToGlobal(QPoint()));
 }
 
 void DebuggerMainWindow::readSettings()

@@ -45,16 +45,12 @@ namespace Internal {
 class LocalsAndExpressionsWindow : public QWidget
 {
     Q_OBJECT
+
 public:
-    explicit LocalsAndExpressionsWindow(
-            QWidget *locals, QWidget *inspector,
-            QWidget *returnWidget, QWidget *watchers, QWidget *parent = 0);
+    LocalsAndExpressionsWindow(QWidget *locals, QWidget *inspector,
+                               QWidget *returnWidget, QWidget *watchers);
 
     void setShowLocals(bool showLocals);
-    QWidget *inspectorWidget() const;
-
-private slots:
-    void showLocals();
 
 private:
     QSplitter *m_splitter;

@@ -38,12 +38,6 @@
 namespace Debugger {
 namespace Internal {
 
-///////////////////////////////////////////////////////////////////////
-//
-// CoreGdbAdapter
-//
-///////////////////////////////////////////////////////////////////////
-
 class GdbCoreEngine : public GdbEngine
 {
     Q_OBJECT
@@ -74,7 +68,6 @@ private:
     QString coreFileName() const;
     QString coreName() const;
 
-private slots:
     void continueSetupEngine();
     void writeCoreChunk();
 
