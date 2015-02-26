@@ -32,6 +32,7 @@
 
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
+#include <utils/completingtextedit.h>
 #include <utils/qtcassert.h>
 
 #include <QSyntaxHighlighter>

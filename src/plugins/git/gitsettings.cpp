@@ -30,6 +30,7 @@
 
 #include "gitsettings.h"
 
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <QCoreApplication>
 

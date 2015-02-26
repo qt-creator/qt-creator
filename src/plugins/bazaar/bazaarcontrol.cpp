@@ -32,6 +32,8 @@
 
 #include <vcsbase/vcsbaseconstants.h>
 
+#include <utils/fileutils.h>
+
 #include <QFileInfo>
 #include <QVariant>
 #include <QStringList>

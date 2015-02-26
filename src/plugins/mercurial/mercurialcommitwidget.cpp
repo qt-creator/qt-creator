@@ -34,6 +34,7 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/texteditorconstants.h>
+#include <utils/completingtextedit.h>
 #include <utils/qtcassert.h>
 
 #include <QRegExp>

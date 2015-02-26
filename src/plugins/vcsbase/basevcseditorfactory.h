@@ -32,11 +32,12 @@
 #define BASEVCSEDITORFACTORY_H
 
 #include "vcsbase_global.h"
-#include "vcsbaseeditor.h"
 
 #include <texteditor/texteditor.h>
 
 namespace VcsBase {
+class VcsBaseEditor;
+class VcsBaseEditorParameters;
 
 class VCSBASE_EXPORT VcsEditorFactory : public TextEditor::TextEditorFactory
 {

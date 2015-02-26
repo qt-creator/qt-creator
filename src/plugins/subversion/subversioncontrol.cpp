@@ -34,6 +34,8 @@
 
 #include <vcsbase/vcsbaseconstants.h>
 
+#include <utils/fileutils.h>
+
 #include <QFileInfo>
 
 namespace Subversion {

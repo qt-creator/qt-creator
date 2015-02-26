@@ -33,8 +33,6 @@
 
 #include "vcsbase_global.h"
 
-#include <utils/fileutils.h>
-
 #include <QStringList>
 #include <QVariant>
 #include <QSharedDataPointer>
@@ -43,6 +41,7 @@ QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
+namespace Utils { class FileName; }
 namespace VcsBase {
 
 namespace Internal { class VcsBaseClientSettingsPrivate; }

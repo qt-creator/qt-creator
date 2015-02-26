@@ -44,6 +44,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/completingtextedit.h>
 #include <utils/synchronousprocess.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>

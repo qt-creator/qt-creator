@@ -36,6 +36,8 @@
 
 #include <coreplugin/vcsmanager.h>
 
+#include <utils/fileutils.h>
+
 #include <QFileInfo>
 #include <QVariant>
 #include <QStringList>

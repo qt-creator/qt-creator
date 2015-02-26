@@ -35,8 +35,7 @@
 
 #include  <coreplugin/ioutputpane.h>
 
-#include <utils/fileutils.h>
-
+namespace Utils { class FileName; }
 namespace VcsBase {
 
 class VCSBASE_EXPORT VcsOutputWindow : public Core::IOutputPane

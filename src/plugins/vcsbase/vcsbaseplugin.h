@@ -34,7 +34,6 @@
 #include "vcsbase_global.h"
 
 #include <extensionsystem/iplugin.h>
-#include <utils/fileutils.h>
 
 #include <QSharedDataPointer>
 #include <QList>
@@ -45,7 +44,11 @@ class QAction;
 class QTextCodec;
 QT_END_NAMESPACE
 
-namespace Utils { struct SynchronousProcessResponse; }
+namespace Utils
+{
+class FileName;
+struct SynchronousProcessResponse;
+}
 
 namespace Core {
 class Context;

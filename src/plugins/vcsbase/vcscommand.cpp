@@ -35,6 +35,7 @@
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/icore.h>
 #include <vcsbase/vcsoutputwindow.h>
+#include <utils/fileutils.h>
 #include <utils/synchronousprocess.h>
 #include <utils/runextensions.h>
 #include <utils/qtcassert.h>
