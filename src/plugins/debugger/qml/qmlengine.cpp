@@ -1154,6 +1154,8 @@ void QmlEngine::updateCurrentContext()
     } else {
         QModelIndex currentIndex = inspectorTreeView()->currentIndex();
         const WatchData *currentData = watchHandler()->watchData(currentIndex);
+        if (!currentData)
+            return;
         const WatchData *parentData = watchHandler()->watchData(currentIndex.parent());
         const WatchData *grandParentData = watchHandler()->watchData(
                     currentIndex.parent().parent());
