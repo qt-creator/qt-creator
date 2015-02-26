@@ -52,6 +52,7 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
+#include <utils/algorithm.h>
 #include <utils/fancymainwindow.h>
 #include <utils/styledbar.h>
 #include <utils/qtcassert.h>
@@ -455,7 +456,12 @@ void AnalyzerManagerPrivate::selectSavedTool()
 
 void AnalyzerManagerPrivate::selectToolboxAction(int index)
 {
-    selectAction(m_actions[index]);
+    AnalyzerAction * const action  = Utils::findOrDefault(m_actions,
+            [this, index](const AnalyzerAction *action) {
+                return action->text() == m_toolBox->itemText(index);
+            });
+    QTC_ASSERT(action, return);
+    selectAction(action);
 }
 
 void AnalyzerManagerPrivate::selectAction(AnalyzerAction *action)
@@ -463,8 +469,8 @@ void AnalyzerManagerPrivate::selectAction(AnalyzerAction *action)
     if (m_currentAction == action)
         return;
 
-    const int actionIndex = m_actions.indexOf(action);
-    QTC_ASSERT(actionIndex >= 0, return);
+    const int toolboxIndex = m_toolBox->findText(action->text());
+    QTC_ASSERT(toolboxIndex >= 0, return);
 
     // Clean up old tool.
     if (m_currentAction) {
@@ -492,7 +498,7 @@ void AnalyzerManagerPrivate::selectAction(AnalyzerAction *action)
 
     QTC_CHECK(m_controlsWidgetFromTool.contains(toolId));
     m_controlsStackWidget->setCurrentWidget(m_controlsWidgetFromTool.value(toolId));
-    m_toolBox->setCurrentIndex(actionIndex);
+    m_toolBox->setCurrentIndex(toolboxIndex);
 
     updateRunActions();
 }
