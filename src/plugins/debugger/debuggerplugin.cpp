@@ -3157,7 +3157,7 @@ void openTextEditor(const QString &titlePattern0, const QString &contents)
         return;
     QString titlePattern = titlePattern0;
     IEditor *editor = EditorManager::openEditorWithContents(
-                CC::K_DEFAULT_TEXT_EDITOR_ID, &titlePattern, contents.toUtf8(),
+                CC::K_DEFAULT_TEXT_EDITOR_ID, &titlePattern, contents.toUtf8(), QString(),
                 EditorManager::IgnoreNavigationHistory);
     QTC_ASSERT(editor, return);
 }

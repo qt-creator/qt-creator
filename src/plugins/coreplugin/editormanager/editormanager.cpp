@@ -102,6 +102,8 @@ static const char reloadBehaviorKey[] = "EditorManager/ReloadBehavior";
 static const char autoSaveEnabledKey[] = "EditorManager/AutoSaveEnabled";
 static const char autoSaveIntervalKey[] = "EditorManager/AutoSaveInterval";
 
+static const char scratchBufferKey[] = "_q_emScratchBuffer";
+
 //===================EditorClosingCoreListener======================
 
 namespace Core {
@@ -2329,20 +2331,8 @@ QStringList EditorManager::getOpenFileNames()
     return DocumentManager::getOpenFileNames(fileFilters, QString(), &selectedFilter);
 }
 
-
-IEditor *EditorManager::openEditorWithContents(Id editorId,
-                                        QString *titlePattern,
-                                        const QByteArray &contents,
-                                        OpenEditorFlags flags)
+static QString makeTitleUnique(QString *titlePattern)
 {
-    if (debugEditorManager)
-        qDebug() << Q_FUNC_INFO << editorId.name() << titlePattern << contents;
-
-    if (flags & EditorManager::OpenInOtherSplit)
-            EditorManager::gotoOtherSplit();
-
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
     QString title;
     if (titlePattern) {
         const QChar dollar = QLatin1Char('$');
@@ -2371,8 +2361,42 @@ IEditor *EditorManager::openEditorWithContents(Id editorId,
         }
         *titlePattern = title;
     }
+    return title;
+}
 
-    IEditor *edt = EditorManagerPrivate::createEditor(editorId, title);
+IEditor *EditorManager::openEditorWithContents(Id editorId,
+                                        QString *titlePattern,
+                                        const QByteArray &contents,
+                                        const QString &uniqueId,
+                                        OpenEditorFlags flags)
+{
+    if (debugEditorManager)
+        qDebug() << Q_FUNC_INFO << editorId.name() << titlePattern << uniqueId << contents;
+
+    if (flags & EditorManager::OpenInOtherSplit)
+            EditorManager::gotoOtherSplit();
+
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+
+    const QString title = makeTitleUnique(titlePattern);
+
+    IEditor *edt = 0;
+    if (!uniqueId.isEmpty()) {
+        foreach (IDocument *document, DocumentModel::openedDocuments())
+            if (document->property(scratchBufferKey).toString() == uniqueId) {
+                edt = DocumentModel::editorsForDocument(document).first();
+
+                document->setContents(contents);
+                if (!title.isEmpty())
+                    edt->document()->setPreferredDisplayName(title);
+
+                QApplication::restoreOverrideCursor();
+                activateEditor(edt, flags);
+                return edt;
+            }
+    }
+
+    edt = EditorManagerPrivate::createEditor(editorId, title);
     if (!edt) {
         QApplication::restoreOverrideCursor();
         return 0;
@@ -2385,9 +2409,11 @@ IEditor *EditorManager::openEditorWithContents(Id editorId,
         return 0;
     }
 
+    if (!uniqueId.isEmpty())
+        edt->document()->setProperty(scratchBufferKey, uniqueId);
+
     if (!title.isEmpty())
         edt->document()->setPreferredDisplayName(title);
-
 
     EditorManagerPrivate::addEditor(edt);
     QApplication::restoreOverrideCursor();
