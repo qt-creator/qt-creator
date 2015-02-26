@@ -138,32 +138,23 @@ public:
     QByteArray m_data;
     std::vector<GdbMi> m_children;
 
-    enum Type {
-        Invalid,
-        Const,
-        Tuple,
-        List
-    };
+    enum Type { Invalid, Const, Tuple, List };
 
     Type m_type;
 
-    inline Type type() const { return m_type; }
-    inline QByteArray name() const { return m_name; }
-    inline bool hasName(const char *name) const { return m_name == name; }
+    Type type() const { return m_type; }
+    const QByteArray &name() const { return m_name; }
+    bool hasName(const char *name) const { return m_name == name; }
 
-    inline bool isValid() const { return m_type != Invalid; }
-    inline bool isConst() const { return m_type == Const; }
-    inline bool isTuple() const { return m_type == Tuple; }
-    inline bool isList() const { return m_type == List; }
+    bool isValid() const { return m_type != Invalid; }
+    bool isList() const { return m_type == List; }
 
-
-    inline QByteArray data() const { return m_data; }
-    inline const std::vector<GdbMi> &children() const { return m_children; }
-    inline int childCount() const { return int(m_children.size()); }
+    const QByteArray &data() const { return m_data; }
+    const std::vector<GdbMi> &children() const { return m_children; }
+    int childCount() const { return int(m_children.size()); }
 
     const GdbMi &childAt(int index) const { return m_children[index]; }
-    GdbMi &childAt(int index) { return m_children[index]; }
-    GdbMi operator[](const char *name) const;
+    const GdbMi &operator[](const char *name) const;
 
     QByteArray toString(bool multiline = false, int indent = 0) const;
     qulonglong toAddress() const;
@@ -181,6 +172,7 @@ public:
     void parseTuple_helper(const char *&from, const char *to);
     void parseList(const char *&from, const char *to);
 
+private:
     void dumpChildren(QByteArray *str, bool multiline, int indent) const;
 };
 
