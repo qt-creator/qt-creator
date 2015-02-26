@@ -30,12 +30,12 @@
 
 #include "qmlcppengine.h"
 #include "qmlengine.h"
-#include "threaddata.h"
 
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/breakhandler.h>
 #include <debugger/stackhandler.h>
+#include <debugger/threaddata.h>
 #include <debugger/watchhandler.h>
 
 #include <utils/qtcassert.h>
