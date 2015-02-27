@@ -71,7 +71,7 @@ public:
     static FileName fromLatin1(const QByteArray &filename);
     static FileName fromUserInput(const QString &filename);
     static FileName fromUtf8(const char *filename, int filenameSize = -1);
-    QString toString() const;
+    const QString &toString() const;
     QString toUserOutput() const;
     QString fileName(int pathComponents = 0) const;
     bool exists() const;

@@ -548,9 +548,9 @@ QFileInfo FileName::toFileInfo() const
 }
 
 /// \returns a QString for passing on to QString based APIs
-QString FileName::toString() const
+const QString &FileName::toString() const
 {
-    return QString(*this);
+    return *this;
 }
 
 /// \returns a QString to display to the user
