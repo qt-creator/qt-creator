@@ -847,6 +847,11 @@ void LldbEngine::updateLocals()
 
 void LldbEngine::doUpdateLocals(UpdateParameters params)
 {
+    if (stackHandler()->stackSize() == 0) {
+        showMessage(_("SKIPPING LOCALS DUE TO EMPTY STACK"));
+        return;
+    }
+
     DebuggerCommand cmd("updateData");
     cmd.arg("nativeMixed", isNativeMixedActive());
     watchHandler()->appendFormatRequests(&cmd);
