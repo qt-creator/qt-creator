@@ -50,32 +50,32 @@ class QTCREATOR_UTILS_EXPORT SavedAction : public QAction
 public:
     SavedAction(QObject *parent = 0);
 
-    virtual QVariant value() const;
-    Q_SLOT virtual void setValue(const QVariant &value, bool doemit = true);
+    QVariant value() const;
+    Q_SLOT void setValue(const QVariant &value, bool doemit = true);
 
-    virtual QVariant defaultValue() const;
-    Q_SLOT virtual void setDefaultValue(const QVariant &value);
+    QVariant defaultValue() const;
+    Q_SLOT void setDefaultValue(const QVariant &value);
 
-    virtual QAction *updatedAction(const QString &newText);
-    Q_SLOT virtual void trigger(const QVariant &data);
+    QAction *updatedAction(const QString &newText);
+    Q_SLOT void trigger(const QVariant &data);
 
     // used for persistency
-    virtual QString settingsKey() const;
-    Q_SLOT virtual void setSettingsKey(const QString &key);
-    Q_SLOT virtual void setSettingsKey(const QString &group, const QString &key);
+    QString settingsKey() const;
+    Q_SLOT void setSettingsKey(const QString &key);
+    Q_SLOT void setSettingsKey(const QString &group, const QString &key);
 
-    virtual QString settingsGroup() const;
-    Q_SLOT virtual void setSettingsGroup(const QString &group);
+    QString settingsGroup() const;
+    Q_SLOT void setSettingsGroup(const QString &group);
 
     virtual void readSettings(const QSettings *settings);
     Q_SLOT virtual void writeSettings(QSettings *settings);
 
-    virtual void connectWidget(QWidget *widget, ApplyMode applyMode = DeferedApply);
-    virtual void disconnectWidget();
-    Q_SLOT virtual void apply(QSettings *settings);
+    void connectWidget(QWidget *widget, ApplyMode applyMode = DeferedApply);
+    void disconnectWidget();
+    Q_SLOT void apply(QSettings *settings);
 
-    virtual QString textPattern() const;
-    Q_SLOT virtual void setTextPattern(const QString &value);
+    QString textPattern() const;
+    Q_SLOT void setTextPattern(const QString &value);
 
     QString toString() const;
 
@@ -83,15 +83,14 @@ signals:
     void valueChanged(const QVariant &newValue);
 
 private:
-    Q_SLOT void uncheckableButtonClicked();
-    Q_SLOT void checkableButtonClicked(bool);
-    Q_SLOT void lineEditEditingFinished();
-    Q_SLOT void pathChooserEditingFinished();
-    Q_SLOT void actionTriggered(bool);
-    Q_SLOT void spinBoxValueChanged(int);
-    Q_SLOT void spinBoxValueChanged(QString);
-    Q_SLOT void groupBoxToggled(bool checked);
-    Q_SLOT void textEditTextChanged();
+    void uncheckableButtonClicked();
+    void checkableButtonClicked(bool);
+    void lineEditEditingFinished();
+    void pathChooserEditingFinished();
+    void actionTriggered(bool);
+    void spinBoxValueChanged(int);
+    void groupBoxToggled(bool checked);
+    void textEditTextChanged();
 
     QVariant m_value;
     QVariant m_defaultValue;

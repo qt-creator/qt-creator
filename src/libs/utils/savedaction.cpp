@@ -62,7 +62,7 @@ SavedAction::SavedAction(QObject *parent)
   : QAction(parent)
 {
     m_widget = 0;
-    connect(this, SIGNAL(triggered(bool)), this, SLOT(actionTriggered(bool)));
+    connect(this, &QAction::triggered, this, &SavedAction::actionTriggered);
 }
 
 
@@ -281,38 +281,36 @@ void SavedAction::connectWidget(QWidget *widget, ApplyMode applyMode)
     if (QAbstractButton *button = qobject_cast<QAbstractButton *>(widget)) {
         if (button->isCheckable()) {
             button->setChecked(m_value.toBool());
-            connect(button, SIGNAL(clicked(bool)),
-                this, SLOT(checkableButtonClicked(bool)));
+            connect(button, &QAbstractButton::clicked,
+                    this, &SavedAction::checkableButtonClicked);
         } else {
-            connect(button, SIGNAL(clicked()),
-                this, SLOT(uncheckableButtonClicked()));
+            connect(button, &QAbstractButton::clicked,
+                    this, &SavedAction::uncheckableButtonClicked);
         }
     } else if (QSpinBox *spinBox = qobject_cast<QSpinBox *>(widget)) {
         spinBox->setValue(m_value.toInt());
         //qDebug() << "SETTING VALUE" << spinBox->value();
-        connect(spinBox, SIGNAL(valueChanged(int)),
-            this, SLOT(spinBoxValueChanged(int)));
-        connect(spinBox, SIGNAL(valueChanged(QString)),
-            this, SLOT(spinBoxValueChanged(QString)));
+        connect(spinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+                this, &SavedAction::spinBoxValueChanged);
     } else if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(widget)) {
         lineEdit->setText(m_value.toString());
         //qDebug() << "SETTING TEXT" << lineEdit->text();
-        connect(lineEdit, SIGNAL(editingFinished()),
-            this, SLOT(lineEditEditingFinished()));
+        connect(lineEdit, &QLineEdit::editingFinished,
+                this, &SavedAction::lineEditEditingFinished);
     } else if (PathChooser *pathChooser = qobject_cast<PathChooser *>(widget)) {
         pathChooser->setPath(m_value.toString());
-        connect(pathChooser, SIGNAL(editingFinished()),
-            this, SLOT(pathChooserEditingFinished()));
-        connect(pathChooser, SIGNAL(browsingFinished()),
-            this, SLOT(pathChooserEditingFinished()));
+        connect(pathChooser, &PathChooser::editingFinished,
+                this, &SavedAction::pathChooserEditingFinished);
+        connect(pathChooser, &PathChooser::browsingFinished,
+                this, &SavedAction::pathChooserEditingFinished);
     } else if (QGroupBox *groupBox = qobject_cast<QGroupBox *>(widget)) {
         if (!groupBox->isCheckable())
             qDebug() << "connectWidget to non-checkable group box" << widget << toString();
         groupBox->setChecked(m_value.toBool());
-        connect(groupBox, SIGNAL(toggled(bool)), this, SLOT(groupBoxToggled(bool)));
+        connect(groupBox, &QGroupBox::toggled, this, &SavedAction::groupBoxToggled);
     } else if (QTextEdit *textEdit = qobject_cast<QTextEdit *>(widget)) {
         textEdit->setPlainText(m_value.toString());
-        connect(textEdit, SIGNAL(textChanged()), this, SLOT(textEditTextChanged()));
+        connect(textEdit, &QTextEdit::textChanged, this, &SavedAction::textEditTextChanged);
     } else if (PathListEditor *editor = qobject_cast<PathListEditor *>(widget)) {
         editor->setPathList(m_value.toStringList());
     } else {
@@ -376,14 +374,6 @@ void SavedAction::lineEditEditingFinished()
 }
 
 void SavedAction::spinBoxValueChanged(int value)
-{
-    QSpinBox *spinBox = qobject_cast<QSpinBox *>(sender());
-    QTC_ASSERT(spinBox, return);
-    if (m_applyMode == ImmediateApply)
-        setValue(value);
-}
-
-void SavedAction::spinBoxValueChanged(QString value)
 {
     QSpinBox *spinBox = qobject_cast<QSpinBox *>(sender());
     QTC_ASSERT(spinBox, return);
