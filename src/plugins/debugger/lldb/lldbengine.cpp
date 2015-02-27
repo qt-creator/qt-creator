@@ -551,6 +551,7 @@ void LldbEngine::selectThread(ThreadId threadId)
     DebuggerCommand cmd("selectThread");
     cmd.arg("id", threadId.raw());
     runCommand(cmd);
+    updateAll();
 }
 
 bool LldbEngine::stateAcceptsBreakpointChanges() const
