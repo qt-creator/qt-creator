@@ -30,6 +30,8 @@
 
 #include "attachgdbadapter.h"
 
+#include <coreplugin/messagebox.h>
+
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggerstringutils.h>
 #include <debugger/debuggerstartparameters.h>
@@ -104,8 +106,9 @@ void GdbAttachEngine::handleAttach(const DebuggerResponse &response)
         break;
     case ResultError:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
-            showStatusMessage(tr("Failed to attach to application: %1")
-                              .arg(msgPtraceError(startParameters().startMode)));
+            QString msg = msgPtraceError(startParameters().startMode);
+            showStatusMessage(tr("Failed to attach to application: %1").arg(msg));
+            Core::AsynchronousMessageBox::warning(tr("Debugger Error"), msg);
             notifyEngineIll();
             break;
         }
