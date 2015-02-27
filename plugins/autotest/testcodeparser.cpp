@@ -56,12 +56,12 @@ TestCodeParser::TestCodeParser(TestTreeModel *parent)
     : QObject(parent),
       m_model(parent),
       m_parserEnabled(true),
-      m_fullUpdatePostPoned(false),
-      m_partialUpdatePostPoned(false),
+      m_fullUpdatePostponed(false),
+      m_partialUpdatePostponed(false),
       m_dirty(true),
       m_parserState(Disabled)
 {
-    // connect to ProgressManager to post-pone test parsing when CppModelManager is parsing
+    // connect to ProgressManager to postpone test parsing when CppModelManager is parsing
     auto progressManager = qobject_cast<Core::ProgressManager *>(Core::ProgressManager::instance());
     connect(progressManager, &Core::ProgressManager::taskStarted,
             this, &TestCodeParser::onTaskStarted);
@@ -88,10 +88,10 @@ void TestCodeParser::setState(State state)
 {
     m_parserState = state;
     if (m_parserState == Disabled) {
-        m_fullUpdatePostPoned = m_partialUpdatePostPoned = false;
-        m_postPonedFiles.clear();
+        m_fullUpdatePostponed = m_partialUpdatePostponed = false;
+        m_postponedFiles.clear();
     } else if (m_parserState == Idle && m_dirty && currentProject()) {
-        scanForTests(m_postPonedFiles.toList());
+        scanForTests(m_postponedFiles.toList());
     }
 }
 
@@ -103,14 +103,14 @@ void TestCodeParser::emitUpdateTestTree()
 void TestCodeParser::updateTestTree()
 {
     if (!m_parserEnabled) {
-        m_fullUpdatePostPoned = true;
+        m_fullUpdatePostponed = true;
         return;
     }
 
     if (ProjectExplorer::Project *project = currentProject()) {
         if (auto qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(project)) {
             if (qmakeProject->asyncUpdateState() != QmakeProjectManager::QmakeProject::Base) {
-                m_fullUpdatePostPoned = true;
+                m_fullUpdatePostponed = true;
                 return;
             }
             connect(qmakeProject, &QmakeProjectManager::QmakeProject::proFilesEvaluated,
@@ -119,7 +119,7 @@ void TestCodeParser::updateTestTree()
     } else
         return;
 
-    m_fullUpdatePostPoned = false;
+    m_fullUpdatePostponed = false;
 
     clearCache();
     emit cacheCleared();
@@ -475,9 +475,9 @@ void TestCodeParser::handleQtQuickTest(CPlusPlus::Document::Ptr document)
 void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &document)
 {
     if (!m_parserEnabled) {
-        if (!m_fullUpdatePostPoned) {
-            m_partialUpdatePostPoned = true;
-            m_postPonedFiles.insert(document->fileName());
+        if (!m_fullUpdatePostponed) {
+            m_partialUpdatePostponed = true;
+            m_postponedFiles.insert(document->fileName());
         }
         return;
     }
@@ -500,9 +500,9 @@ void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &docume
 void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
 {
     if (!m_parserEnabled) {
-        if (!m_fullUpdatePostPoned) {
-            m_partialUpdatePostPoned = true;
-            m_postPonedFiles.insert(document->fileName());
+        if (!m_fullUpdatePostponed) {
+            m_partialUpdatePostponed = true;
+            m_postponedFiles.insert(document->fileName());
         }
         return;
     }
@@ -549,34 +549,34 @@ bool TestCodeParser::postponed(const QStringList &fileList)
     case PartialParse:
         // partial is running, postponing a full parse
         if (fileList.isEmpty()) {
-            m_partialUpdatePostPoned = false;
-            m_postPonedFiles.clear();
-            m_fullUpdatePostPoned = true;
+            m_partialUpdatePostponed = false;
+            m_postponedFiles.clear();
+            m_fullUpdatePostponed = true;
         } else {
             // partial parse triggered, but full parse is postponed already, ignoring this
-            if (m_fullUpdatePostPoned)
+            if (m_fullUpdatePostponed)
                 return true;
             // partial parse triggered, postpone or add current files to already postponed partial
             foreach (const QString &file, fileList)
-                    m_postPonedFiles.insert(file);
-            m_partialUpdatePostPoned = true;
+                    m_postponedFiles.insert(file);
+            m_partialUpdatePostponed = true;
         }
         return true;
     case FullParse:
         // full parse is running, postponing another full parse
         if (fileList.isEmpty()) {
-            m_partialUpdatePostPoned = false;
-            m_postPonedFiles.clear();
-            m_fullUpdatePostPoned = true;
+            m_partialUpdatePostponed = false;
+            m_postponedFiles.clear();
+            m_fullUpdatePostponed = true;
         } else {
             // full parse already postponed, ignoring triggering a partial parse
-            if (m_fullUpdatePostPoned) {
+            if (m_fullUpdatePostponed) {
                 return true;
             }
             // partial parse triggered, postpone or add current files to already postponed partial
             foreach (const QString &file, fileList)
-                m_postPonedFiles.insert(file);
-            m_partialUpdatePostPoned = true;
+                m_postponedFiles.insert(file);
+            m_partialUpdatePostponed = true;
         }
         return true;
     case Disabled:
@@ -590,14 +590,14 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
     if (m_parserState == Disabled) {
         m_dirty = true;
         if (fileList.isEmpty()) {
-            m_fullUpdatePostPoned = true;
-            m_partialUpdatePostPoned = false;
-            m_postPonedFiles.clear();
+            m_fullUpdatePostponed = true;
+            m_partialUpdatePostponed = false;
+            m_postponedFiles.clear();
         } else {
-            if (!m_fullUpdatePostPoned) {
-                m_partialUpdatePostPoned = true;
+            if (!m_fullUpdatePostponed) {
+                m_partialUpdatePostponed = true;
                 foreach (const QString &file, fileList)
-                    m_postPonedFiles.insert(file);
+                    m_postponedFiles.insert(file);
             }
         }
         return;
@@ -725,14 +725,14 @@ void TestCodeParser::onAllTasksFinished(Core::Id type)
     if (type != CppTools::Constants::TASK_INDEX)
         return;
     m_parserEnabled = true;
-    if (m_fullUpdatePostPoned)
+    if (m_fullUpdatePostponed)
         updateTestTree();
-    else if (m_partialUpdatePostPoned) {
-        m_partialUpdatePostPoned = false;
+    else if (m_partialUpdatePostponed) {
+        m_partialUpdatePostponed = false;
         QStringList tmp;
-        foreach (const QString &file, m_postPonedFiles)
+        foreach (const QString &file, m_postponedFiles)
             tmp << file;
-        m_postPonedFiles.clear();
+        m_postponedFiles.clear();
         scanForTests(tmp);
     }
 }
@@ -757,18 +757,18 @@ void TestCodeParser::onFinished()
 
 void TestCodeParser::onPartialParsingFinished()
 {
-    QTC_ASSERT(m_fullUpdatePostPoned != m_partialUpdatePostPoned
-            || ((m_fullUpdatePostPoned || m_partialUpdatePostPoned) == false),
-               m_partialUpdatePostPoned = false;m_postPonedFiles.clear(););
-    if (m_fullUpdatePostPoned) {
-        m_fullUpdatePostPoned = false;
+    QTC_ASSERT(m_fullUpdatePostponed != m_partialUpdatePostponed
+            || ((m_fullUpdatePostponed || m_partialUpdatePostponed) == false),
+               m_partialUpdatePostponed = false;m_postponedFiles.clear(););
+    if (m_fullUpdatePostponed) {
+        m_fullUpdatePostponed = false;
         updateTestTree();
-    } else if (m_partialUpdatePostPoned) {
-        m_partialUpdatePostPoned = false;
+    } else if (m_partialUpdatePostponed) {
+        m_partialUpdatePostponed = false;
         QStringList tmp;
-        foreach (const QString &file, m_postPonedFiles)
+        foreach (const QString &file, m_postponedFiles)
             tmp << file;
-        m_postPonedFiles.clear();
+        m_postponedFiles.clear();
         scanForTests(tmp);
     } else {
         m_dirty = false;

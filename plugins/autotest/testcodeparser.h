@@ -110,10 +110,10 @@ private:
     QMap<QString, TestInfo> m_quickDocMap;
     QList<UnnamedQuickTestInfo> m_unnamedQuickDocList;
     bool m_parserEnabled;
-    bool m_fullUpdatePostPoned;
-    bool m_partialUpdatePostPoned;
+    bool m_fullUpdatePostponed;
+    bool m_partialUpdatePostponed;
     bool m_dirty;
-    QSet<QString> m_postPonedFiles;
+    QSet<QString> m_postponedFiles;
     State m_parserState;
 };
 
