@@ -647,14 +647,22 @@ class Dumper(DumperBase):
         self.platform_ = args.get('platform', '')
 
         self.ignoreStops = 0
-        if self.useTerminal_ and platform.system() == "Linux":
-            self.ignoreStops = 2
+        self.silentStops = 0
+        if platform.system() == "Linux":
+            if self.startMode_ == AttachCore:
+                pass
+            else:
+                if self.useTerminal_:
+                    self.ignoreStops = 2
+                else:
+                    self.silentStops = 1
 
         if self.platform_:
             self.debugger.SetCurrentPlatform(self.platform_)
         # sysroot has to be set *after* the platform
         if self.sysRoot_:
             self.debugger.SetCurrentPlatformSDKRoot(self.sysRoot_)
+
 
         if os.path.isfile(self.executable_):
             self.target = self.debugger.CreateTarget(self.executable_, None, None, True, error)
@@ -668,12 +676,12 @@ class Dumper(DumperBase):
         state = "inferiorsetupok" if self.target.IsValid() else "inferiorsetupfailed"
         self.report('state="%s",msg="%s",exe="%s"' % (state, error, self.executable_))
 
-    def runEngine(self, _):
-        self.prepare()
+    def runEngine(self, args):
+        self.prepare(args)
         s = threading.Thread(target=self.loop, args=[])
         s.start()
 
-    def prepare(self):
+    def prepare(self, args):
         error = lldb.SBError()
         listener = self.debugger.GetListener()
 
@@ -700,6 +708,11 @@ class Dumper(DumperBase):
             # and later detects that it did stop after all, so it is be
             # better to mirror that and wait for the spontaneous stop.
             self.reportState("enginerunandinferiorrunok")
+        elif self.startMode_ == AttachCore:
+            coreFile = args.get('coreFile', '');
+            self.process = self.target.LoadCore(coreFile)
+            self.reportState("enginerunokandinferiorunrunnable")
+            #self.reportContinuation(args)
         else:
             launchInfo = lldb.SBLaunchInfo(self.processArgs_)
             launchInfo.SetWorkingDirectory(os.getcwd())
@@ -747,10 +760,11 @@ class Dumper(DumperBase):
     def reportLocation(self):
         thread = self.currentThread()
         frame = thread.GetSelectedFrame()
-        file = fileName(frame.line_entry.file)
-        line = frame.line_entry.line
-        self.report('location={file="%s",line="%s",addr="%s"}'
-            % (file, line, frame.pc))
+        if int(frame.pc) != 0xffffffffffffffff:
+            file = fileName(frame.line_entry.file)
+            line = frame.line_entry.line
+            self.report('location={file="%s",line="%s",addr="%s"}'
+                % (file, line, frame.pc))
 
     def firstStoppedThread(self):
         for i in xrange(0, self.process.GetNumThreads()):
@@ -1308,6 +1322,8 @@ class Dumper(DumperBase):
                 elif self.ignoreStops > 0:
                     self.ignoreStops -= 1
                     self.process.Continue()
+                elif self.silentStops > 0:
+                    self.silentStops -= 1
                 #elif bp and bp in self.qmlBreakpointResolvers:
                 #    self.report("RESOLVER HIT")
                 #    self.qmlBreakpointResolvers[bp]()

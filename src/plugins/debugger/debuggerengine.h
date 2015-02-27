@@ -103,6 +103,8 @@ public:
     bool needsRaise() const { return m_needsRaise; }
     bool needsMarker() const { return m_needsMarker; }
     bool hasDebugInfo() const { return m_hasDebugInfo; }
+    bool canBeDisassembled() const
+        { return m_address != quint64(-1) || !m_functionName.isEmpty(); }
     quint64 address() const { return m_address; }
 
 private:

@@ -362,9 +362,15 @@ void LldbEngine::setupInferior()
 
 void LldbEngine::runEngine()
 {
+    const DebuggerStartParameters &sp = startParameters();
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state(); return);
     showStatusMessage(tr("Running requested..."), 5000);
-    runCommand("runEngine");
+    DebuggerCommand cmd("runEngine");
+    if (sp.startMode == AttachCore) {
+        cmd.arg("coreFile", sp.coreFile);
+        cmd.arg("continuation", "updateAll");
+    }
+    runCommand(cmd);
 }
 
 void LldbEngine::interruptInferior()
@@ -475,9 +481,11 @@ void LldbEngine::handleContinuation(const GdbMi &data)
 {
     if (data.data() == "updateLocals") {
         updateLocals();
-        return;
+    } else if (data.data() == "updateAll") {
+        updateAll();
+    } else {
+        QTC_ASSERT(false, qDebug() << "Unknown continuation: " << data.data());
     }
-    QTC_ASSERT(false, qDebug() << "Unknown continuation: " << data.data());
 }
 
 void LldbEngine::showFullBacktrace(const GdbMi &data)
@@ -1122,6 +1130,8 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
         notifyEngineRunAndInferiorRunOk();
     } else if (newState == "enginerunandinferiorstopok")
         notifyEngineRunAndInferiorStopOk();
+    else if (newState == "enginerunokandinferiorunrunnable")
+        notifyEngineRunOkAndInferiorUnrunnable();
     else if (newState == "inferiorshutdownok")
         notifyInferiorShutdownOk();
     else if (newState == "inferiorshutdownfailed")

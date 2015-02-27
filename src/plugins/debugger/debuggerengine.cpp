@@ -574,16 +574,18 @@ void DebuggerEngine::gotoLocation(const Location &loc)
 {
      d->resetLocation();
 
-    if ((hasCapability(OperateByInstructionCapability) &&
-            boolSetting(OperateByInstruction)) || !loc.hasDebugInfo()) {
+    if (loc.canBeDisassembled()
+            && ((hasCapability(OperateByInstructionCapability) && boolSetting(OperateByInstruction))
+                || !loc.hasDebugInfo()) )
+    {
         d->m_disassemblerAgent.setLocation(loc);
         return;
     }
-    // CDB might hit on breakpoints while shutting down.
-    //if (m_shuttingDown)
-    //    return;
 
-
+    if (loc.fileName().isEmpty()) {
+        showMessage(QLatin1String("CANNOT GO TO THIS LOCATION"));
+        return;
+    }
     const QString file = QDir::cleanPath(loc.fileName());
     const int line = loc.lineNumber();
     bool newEditor = false;
