@@ -149,7 +149,6 @@ class LibraryPathChooser : public Utils::PathChooser
     Q_OBJECT
 public:
     LibraryPathChooser(QWidget *parent);
-    virtual bool validatePath(const QString &path, QString *errorMessage);
 };
 
 

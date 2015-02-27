@@ -42,9 +42,6 @@ class SrcProjectPathChooser : public Utils::PathChooser
     Q_OBJECT
 public:
     explicit SrcProjectPathChooser(QWidget *parent = 0);
-    virtual ~SrcProjectPathChooser();
-
-    virtual bool validatePath(const QString &path, QString *errorMessage = 0);
 };
 
 } // namespace Internal

@@ -36,22 +36,8 @@
 namespace Qnx {
 namespace Internal {
 
-SrcProjectPathChooser::SrcProjectPathChooser(QWidget *parent) :
-    Utils::PathChooser(parent)
+static bool validateProjectPath(const QString &path, QString *errorMessage)
 {
-    setPromptDialogTitle(tr("Choose imported Cascades project directory"));
-    setExpectedKind(Utils::PathChooser::ExistingDirectory);
-}
-
-SrcProjectPathChooser::~SrcProjectPathChooser()
-{
-}
-
-bool SrcProjectPathChooser::validatePath(const QString &path, QString *errorMessage)
-{
-    if (!Utils::PathChooser::validatePath(path, errorMessage))
-        return false;
-
     bool proFound = false;
     bool barDescriptorFound = false;
     QDirIterator di(path);
@@ -68,11 +54,21 @@ bool SrcProjectPathChooser::validatePath(const QString &path, QString *errorMess
             break;
     }
     const bool ret = barDescriptorFound && proFound;
-    if (!ret && errorMessage)
-        *errorMessage = tr("Directory does not seem to be a valid Cascades project.");
+    if (!ret && errorMessage) {
+        *errorMessage = QCoreApplication::translate("Qnx",
+                "Directory does not seem to be a valid Cascades project.");
+    }
     return ret;
 }
 
+
+SrcProjectPathChooser::SrcProjectPathChooser(QWidget *parent) :
+    Utils::PathChooser(parent)
+{
+    setPromptDialogTitle(tr("Choose imported Cascades project directory"));
+    setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    setAdditionalPathValidator(validateProjectPath);
+}
 
 } // namespace Internal
 } // namespace Qnx

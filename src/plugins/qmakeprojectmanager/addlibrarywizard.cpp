@@ -59,24 +59,17 @@ QStringList qt_clean_filter_list(const QString &filter)
     return f.split(QLatin1Char(' '), QString::SkipEmptyParts);
 }
 
-LibraryPathChooser::LibraryPathChooser(QWidget *parent)
-    : Utils::PathChooser(parent)
+static bool validateLibraryPath(const QString &path, const Utils::PathChooser *pathChooser,
+                                QString *errorMessage)
 {
-}
-
-bool LibraryPathChooser::validatePath(const QString &path, QString *errorMessage)
-{
-    bool result = PathChooser::validatePath(path, errorMessage);
-    if (!result)
-        return false;
-
+    Q_UNUSED(errorMessage);
     QFileInfo fi(path);
     if (!fi.exists())
         return false;
 
     const QString fileName = fi.fileName();
 
-    QStringList filters = qt_clean_filter_list(promptDialogFilter());
+    QStringList filters = qt_clean_filter_list(pathChooser->promptDialogFilter());
     for (int i = 0; i < filters.count(); i++) {
         QRegExp regExp(filters.at(i));
         regExp.setPatternSyntax(QRegExp::Wildcard);
@@ -85,6 +78,15 @@ bool LibraryPathChooser::validatePath(const QString &path, QString *errorMessage
         }
     return false;
 }
+
+LibraryPathChooser::LibraryPathChooser(QWidget *parent)
+    : Utils::PathChooser(parent)
+{
+    setAdditionalPathValidator([this](const QString &path, QString *errorMessage) {
+        return validateLibraryPath(path, this, errorMessage);
+    });
+}
+
 
 AddLibraryWizard::AddLibraryWizard(const QString &fileName, QWidget *parent) :
     Utils::Wizard(parent), m_proFile(fileName)

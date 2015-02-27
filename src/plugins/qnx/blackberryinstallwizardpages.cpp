@@ -72,15 +72,15 @@ NdkPathChooser::NdkPathChooser(Mode mode, QWidget *parent)
         setPromptDialogFilter(Utils::HostOsInfo::isWindowsHost() ? QLatin1String("*.bat") :
                                                                    QLatin1String("*.sh"));
     }
+    setAdditionalPathValidator([this](const QString &path, QString *errorMessage) {
+        return validateNdkPath(path, errorMessage);
+    });
 }
 
-bool NdkPathChooser::validatePath(const QString &path, QString *errorMessage)
+bool NdkPathChooser::validateNdkPath(const QString &path, QString *errorMessage) const
 {
-    bool result = PathChooser::validatePath(path, errorMessage);
-    if (!result)
-        return false;
-
-    if (m_mode == NdkPathChooser::InstallMode)
+    Q_UNUSED(errorMessage);
+    if (m_mode == InstallMode)
         return !(QnxUtils::sdkInstallerPath(path).isEmpty());
 
     QFileInfo fi(path);

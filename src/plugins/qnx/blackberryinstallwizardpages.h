@@ -63,9 +63,10 @@ public:
     };
 
     NdkPathChooser(Mode mode, QWidget *parent = 0);
-    virtual bool validatePath(const QString &path, QString *errorMessage);
 
 private:
+    bool validateNdkPath(const QString &path, QString *errorMessage) const;
+
     Mode m_mode;
 };
 

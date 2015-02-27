@@ -191,13 +191,15 @@ public:
     Environment m_environment;
     BinaryVersionToolTipEventFilter *m_binaryVersionToolTipEventFilter;
     QList<QAbstractButton *> m_buttons;
+    PathChooser::PathValidator m_additionalValidator;
 };
 
 PathChooserPrivate::PathChooserPrivate(PathChooser *chooser) :
     m_hLayout(new QHBoxLayout),
     m_lineEdit(new PathValidatingLineEdit(chooser)),
     m_acceptingKind(PathChooser::ExistingDirectory),
-    m_binaryVersionToolTipEventFilter(0)
+    m_binaryVersionToolTipEventFilter(0),
+    m_additionalValidator([](const QString &, QString *) { return true; })
 {
 }
 
@@ -461,6 +463,11 @@ void PathChooser::triggerChanged()
     d->m_lineEdit->triggerChanged();
 }
 
+void PathChooser::setAdditionalPathValidator(const PathChooser::PathValidator &pathValidator)
+{
+    d->m_additionalValidator = pathValidator;
+}
+
 bool PathChooser::validatePath(const QString &path, QString *errorMessage)
 {
     QString expandedPath = d->expandedPath(path);
@@ -579,6 +586,10 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
     default:
         ;
     }
+
+    if (!d->m_additionalValidator(path, errorMessage))
+        return false;
+
     if (errorMessage)
         *errorMessage = tr("Full path: <b>%1</b>").arg(QDir::toNativeSeparators(expandedPath));
     return true;

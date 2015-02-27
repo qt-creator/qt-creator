@@ -35,6 +35,8 @@
 
 #include <QWidget>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QAbstractButton;
 class QLineEdit;
@@ -108,7 +110,7 @@ public:
     /** Returns the suggested label title when used in a form layout. */
     static QString label();
 
-    virtual bool validatePath(const QString &path, QString *errorMessage = 0);
+    bool validatePath(const QString &path, QString *errorMessage = 0);
 
     /** Return the home directory, which needs some fixing under Windows. */
     static QString homePath();
@@ -137,6 +139,10 @@ public:
     void setReadOnly(bool b);
 
     void triggerChanged();
+
+    typedef std::function<bool(const QString &, QString *)> PathValidator;
+    void setAdditionalPathValidator(const PathValidator &pathValidator);
+
 private:
     // Returns overridden title or the one from <title>
     QString makeDialogTitle(const QString &title);
