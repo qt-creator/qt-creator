@@ -893,20 +893,6 @@ class Dumper(DumperBase):
         if "continuation" in args:
             self.report('continuation=\"%s\"' % args["continuation"])
 
-    def reportStackPosition(self):
-        thread = self.currentThread()
-        if not thread:
-            self.report('msg="No thread"')
-            return
-        frame = thread.GetSelectedFrame()
-        if frame:
-            self.report('stack-position={id="%s"}' % frame.GetFrameID())
-        else:
-            self.report('stack-position={id="-1"}')
-
-    def reportStackTop(self):
-        self.report('stack-top={}')
-
     def extractBlob(self, base, size):
         if size == 0:
             return Blob("")
@@ -1220,7 +1206,6 @@ class Dumper(DumperBase):
         else:
             state = self.process.GetState()
             if state == lldb.eStateStopped:
-                self.reportStackPosition()
                 self.reportThreads()
                 self.reportVariables()
 
@@ -1340,7 +1325,6 @@ class Dumper(DumperBase):
                 stoppedThread = self.firstStoppedThread()
                 if stoppedThread:
                     self.process.SetSelectedThread(stoppedThread)
-                self.reportStackTop()
                 self.reportThreads()
                 if stoppedThread:
                     self.reportLocation(stoppedThread.GetSelectedFrame())
@@ -1605,9 +1589,7 @@ class Dumper(DumperBase):
     def activateFrame(self, args):
         thread = args['thread']
         self.currentThread().SetSelectedFrame(args['index'])
-        state = self.process.GetState()
-        if state == lldb.eStateStopped:
-            self.reportStackPosition()
+        self.reportContinuation(args)
 
     def selectThread(self, args):
         self.process.SetSelectedThreadByID(args['id'])

@@ -434,10 +434,6 @@ void LldbEngine::handleResponse(const QByteArray &response)
             watchHandler()->addDumpers(item);
         else if (name == "stack")
             refreshStack(item);
-        else if (name == "stack-position")
-            refreshStackPosition(item);
-        else if (name == "stack-top")
-            refreshStackTop(item);
         else if (name == "registers")
             refreshRegisters(item);
         else if (name == "threads")
@@ -526,11 +522,12 @@ void LldbEngine::executeJumpToLine(const ContextData &data)
 
 void LldbEngine::activateFrame(int frameIndex)
 {
-    resetLocation();
     if (state() != InferiorStopOk && state() != InferiorUnrunnable)
         return;
 
-    const int n = stackHandler()->stackSize();
+    StackHandler *handler = stackHandler();
+
+    const int n = handler->stackSize();
     if (frameIndex == n) {
         DebuggerCommand cmd("reportStack");
         cmd.arg("nativeMixed", isNativeMixedActive());
@@ -538,6 +535,10 @@ void LldbEngine::activateFrame(int frameIndex)
         runCommand(cmd);
         return;
     }
+
+    QTC_ASSERT(frameIndex < handler->stackSize(), return);
+    handler->setCurrentIndex(frameIndex);
+    gotoLocation(handler->currentFrame());
 
     DebuggerCommand cmd("activateFrame");
     cmd.arg("index", frameIndex);
@@ -786,11 +787,6 @@ void LldbEngine::refreshSymbols(const GdbMi &symbols)
 //
 //////////////////////////////////////////////////////////////////////
 
-void LldbEngine::resetLocation()
-{
-    DebuggerEngine::resetLocation();
-}
-
 bool LldbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editorWidget, const DebuggerToolTipContext &context)
 {
     if (state() != InferiorStopOk || !isCppEditor(editorWidget)) {
@@ -1028,25 +1024,6 @@ void LldbEngine::refreshStack(const GdbMi &stack)
     bool canExpand = stack["hasmore"].toInt();
     action(ExpandStack)->setEnabled(canExpand);
     handler->setFrames(frames, canExpand);
-}
-
-void LldbEngine::refreshStackPosition(const GdbMi &position)
-{
-    setStackPosition(position["id"].toInt());
-}
-
-void LldbEngine::refreshStackTop(const GdbMi &)
-{
-    setStackPosition(stackHandler()->firstUsableIndex());
-}
-
-void LldbEngine::setStackPosition(int index)
-{
-    StackHandler *handler = stackHandler();
-    handler->setFrames(handler->frames());
-    handler->setCurrentIndex(index);
-    if (index >= 0 && index < handler->stackSize())
-        gotoLocation(handler->frameAt(index));
 }
 
 void LldbEngine::refreshRegisters(const GdbMi &registers)
