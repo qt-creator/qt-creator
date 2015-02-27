@@ -757,9 +757,7 @@ class Dumper(DumperBase):
         thread = self.currentThread()
         return None if thread is None else thread.GetSelectedFrame()
 
-    def reportLocation(self):
-        thread = self.currentThread()
-        frame = thread.GetSelectedFrame()
+    def reportLocation(self, frame):
         if int(frame.pc) != 0xffffffffffffffff:
             file = fileName(frame.line_entry.file)
             line = frame.line_entry.line
@@ -1340,7 +1338,8 @@ class Dumper(DumperBase):
                     self.process.SetSelectedThread(stoppedThread)
                 self.reportStackTop()
                 self.reportThreads()
-                self.reportLocation()
+                if stoppedThread:
+                    self.reportLocation(stoppedThread.GetSelectedFrame())
         elif eventType == lldb.SBProcess.eBroadcastBitInterrupt: # 2
             pass
         elif eventType == lldb.SBProcess.eBroadcastBitSTDOUT:
@@ -1565,16 +1564,14 @@ class Dumper(DumperBase):
             self.reportState("running")
             self.reportState("stopped")
             self.reportError(error)
-            self.reportLocation()
+            self.reportLocation(self.currentFrame())
         else:
             self.reportData()
 
     def executeJumpToLocation(self, args):
         frame = self.currentFrame()
-        self.reportState("stopped")
         if not frame:
             self.reportStatus("No frame available.")
-            self.reportLocation()
             return
         addr = args.get('address', 0)
         if addr:
@@ -1585,12 +1582,15 @@ class Dumper(DumperBase):
         if bp.GetNumLocations() == 0:
             self.target.BreakpointDelete(bp.GetID())
             self.reportStatus("No target location found.")
-            self.reportLocation()
+            self.reportLocation(frame)
             return
         loc = bp.GetLocationAtIndex(0)
         self.target.BreakpointDelete(bp.GetID())
-        frame.SetPC(loc.GetLoadAddress())
-        self.reportData()
+        if frame.SetPC(loc.GetLoadAddress()):
+            self.report("Jumped.")
+        else:
+            self.report("Cannot jump.")
+        self.reportLocation(frame)
 
     def breakList(self):
         result = lldb.SBCommandReturnObject()

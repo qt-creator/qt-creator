@@ -517,7 +517,6 @@ void LldbEngine::executeRunToFunction(const QString &functionName)
 void LldbEngine::executeJumpToLine(const ContextData &data)
 {
     resetLocation();
-    notifyInferiorRunRequested();
     DebuggerCommand cmd("executeJumpToLocation");
     cmd.arg("file", data.fileName);
     cmd.arg("line", data.lineNumber);
