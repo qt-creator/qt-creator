@@ -657,6 +657,10 @@ class Dumper(DumperBase):
                 else:
                     self.silentStops = 1
 
+        else:
+            if self.useTerminal_:
+                self.ignoreStops = 1
+
         if self.platform_:
             self.debugger.SetCurrentPlatform(self.platform_)
         # sysroot has to be set *after* the platform
