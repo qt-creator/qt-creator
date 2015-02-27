@@ -88,7 +88,6 @@ private:
 
     QList<ProjectFile> &m_files;
     QHash<QString, ProjectFile::Kind> m_mimeNameMapping;
-    QList<Utils::MimeType> m_mimeTypes;
 };
 
 } // namespace Internal

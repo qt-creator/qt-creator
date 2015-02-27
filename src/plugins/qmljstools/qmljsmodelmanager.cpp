@@ -81,14 +81,14 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
     Target *activeTarget = 0;
     if (project) {
         MimeDatabase mdb;
-        QList<MimeType> qmlTypes;
-        foreach (const MimeType &mimeType, mdb.allMimeTypes()) {
-            if (mimeType.matchesName(QLatin1String(Constants::QML_MIMETYPE))
-                    || mimeType.allAncestors().contains(QLatin1String(Constants::QML_MIMETYPE)))
-                qmlTypes.append(mimeType);
-        }
+        QSet<QString> qmlTypeNames;
+        qmlTypeNames << QLatin1String(Constants::QML_MIMETYPE)
+                     << QLatin1String(Constants::QBS_MIMETYPE)
+                     << QLatin1String(Constants::QMLPROJECT_MIMETYPE)
+                     << QLatin1String(Constants::QMLTYPES_MIMETYPE)
+                     << QLatin1String(Constants::QMLUI_MIMETYPE);
         foreach (const QString &filePath, project->files(Project::ExcludeGeneratedFiles)) {
-            if (mdb.bestMatch(filePath, qmlTypes).isValid())
+            if (qmlTypeNames.contains(mdb.mimeTypeForFile(filePath).name()))
                 projectInfo.sourceFiles << filePath;
         }
         activeTarget = project->activeTarget();

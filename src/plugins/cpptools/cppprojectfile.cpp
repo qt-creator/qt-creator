@@ -142,8 +142,9 @@ ProjectFileAdder::~ProjectFileAdder()
 
 bool ProjectFileAdder::maybeAdd(const QString &path)
 {
-    const Utils::MimeType mt = Utils::MimeDatabase::bestMatch(path, m_mimeTypes);
-    if (mt.isValid()) {
+    Utils::MimeDatabase mdb;
+    const Utils::MimeType mt = mdb.mimeTypeForFile(path);
+    if (m_mimeNameMapping.contains(mt.name())) {
         m_files << ProjectFile(path, m_mimeNameMapping.value(mt.name()));
         return true;
     }
@@ -154,10 +155,8 @@ void ProjectFileAdder::addMapping(const char *mimeName, ProjectFile::Kind kind)
 {
     Utils::MimeDatabase mdb;
     Utils::MimeType mimeType = mdb.mimeTypeForName(QLatin1String(mimeName));
-    if (mimeType.isValid()) {
+    if (mimeType.isValid())
         m_mimeNameMapping.insert(mimeType.name(), kind);
-        m_mimeTypes.append(mimeType);
-    }
 }
 
 } // namespace Internal
