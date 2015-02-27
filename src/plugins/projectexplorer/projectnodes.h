@@ -112,7 +112,7 @@ public:
     NodeType nodeType() const;
     ProjectNode *projectNode() const;     // managing project
     FolderNode *parentFolderNode() const; // parent folder or project
-    Utils::FileName path() const;                 // file system path
+    const Utils::FileName &path() const;  // file system path
     int line() const;
     virtual QString displayName() const;
     virtual QString tooltip() const;

@@ -155,7 +155,7 @@ FolderNode *Node::parentFolderNode() const
 /*!
   The path of the file or folder in the filesystem the node represents.
   */
-Utils::FileName Node::path() const
+const Utils::FileName &Node::path() const
 {
     return m_path;
 }

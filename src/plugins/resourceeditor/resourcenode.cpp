@@ -286,7 +286,7 @@ bool ResourceTopLevelNode::showInSimpleTree() const
 }
 
 ResourceFolderNode::ResourceFolderNode(const QString &prefix, const QString &lang, ResourceTopLevelNode *parent)
-    : ProjectExplorer::FolderNode(parent->path().appendPath(prefix)),
+    : ProjectExplorer::FolderNode(Utils::FileName(parent->path()).appendPath(prefix)),
       // TOOD Why add existing directory doesn't work
       m_topLevelNode(parent),
       m_prefix(prefix),
