@@ -1112,7 +1112,7 @@ void SideBySideDiffEditorWidget::slotRightJumpToOriginalFileRequested(
 }
 
 void SideBySideDiffEditorWidget::jumpToOriginalFile(const QString &fileName,
-                                          int lineNumber, int columnNumber)
+                                                    int lineNumber, int columnNumber)
 {
     if (!m_document)
         return;
