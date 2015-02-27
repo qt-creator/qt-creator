@@ -137,6 +137,7 @@ void QmlProfilerViewManager::createViews()
     mw->splitDockWidget(mw->toolBarDockWidget(), timelineDock, Qt::Vertical);
     mw->tabifyDockWidget(timelineDock, eventsDock);
     mw->tabifyDockWidget(eventsDock, v8profilerDock);
+    timelineDock->raise();
 
     new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, d->eventsView);
     new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, d->traceView);
