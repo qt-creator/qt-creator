@@ -79,15 +79,6 @@ static bool validateLibraryPath(const QString &path, const Utils::PathChooser *p
     return false;
 }
 
-LibraryPathChooser::LibraryPathChooser(QWidget *parent)
-    : Utils::PathChooser(parent)
-{
-    setAdditionalPathValidator([this](const QString &path, QString *errorMessage) {
-        return validateLibraryPath(path, this, errorMessage);
-    });
-}
-
-
 AddLibraryWizard::AddLibraryWizard(const QString &fileName, QWidget *parent) :
     Utils::Wizard(parent), m_proFile(fileName)
 {
@@ -203,7 +194,11 @@ DetailsPage::DetailsPage(AddLibraryWizard *parent)
 {
     m_libraryDetailsWidget = new Ui::LibraryDetailsWidget();
     m_libraryDetailsWidget->setupUi(this);
-
+    Utils::PathChooser * const libPathChooser = m_libraryDetailsWidget->libraryPathChooser;
+    const auto pathValidator = [libPathChooser](const QString &path, QString *errorMessage) {
+        return validateLibraryPath(path, libPathChooser, errorMessage);
+    };
+    libPathChooser->setAdditionalPathValidator(pathValidator);
     setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Details"));
 }
 

@@ -25,15 +25,15 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="Qnx::Internal::SrcProjectPathChooser" name="pathChooser" native="true"/>
+    <widget class="Utils::PathChooser" name="pathChooser" native="true"/>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Qnx::Internal::SrcProjectPathChooser</class>
+   <class>Utils::PathChooser</class>
    <extends>QWidget</extends>
-   <header location="global">qnx/cascadesimport/srcprojectpathchooser.h</header>
+   <header location="global">utils/pathchooser.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

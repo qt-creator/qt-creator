@@ -274,21 +274,16 @@ QtcPlugin {
         prefix: "cascadesimport/"
         files: [
             "cascadesimport.qrc",
-
             "srcprojectwizardpage.ui",
-
             "cascadesimportwizard.cpp",
             "srcprojectwizardpage.cpp",
-            "srcprojectpathchooser.cpp",
             "fileconverter.cpp",
             "bardescriptorconverter.cpp",
             "projectfileconverter.cpp",
             "importlogconverter.cpp",
             "importlog.cpp",
-
             "cascadesimportwizard.h",
             "srcprojectwizardpage.h",
-            "srcprojectpathchooser.h",
             "fileconverter.h",
             "bardescriptorconverter.h",
             "projectfileconverter.h",

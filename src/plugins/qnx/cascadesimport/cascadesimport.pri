@@ -1,7 +1,6 @@
 SOURCES += \
     $$PWD/cascadesimportwizard.cpp \
     $$PWD/srcprojectwizardpage.cpp \
-    $$PWD/srcprojectpathchooser.cpp \
     $$PWD/fileconverter.cpp \
     $$PWD/bardescriptorconverter.cpp \
     $$PWD/projectfileconverter.cpp \
@@ -11,7 +10,6 @@ SOURCES += \
 HEADERS += \
     $$PWD/cascadesimportwizard.h \
     $$PWD/srcprojectwizardpage.h \
-    $$PWD/srcprojectpathchooser.h \
     $$PWD/fileconverter.h \
     $$PWD/bardescriptorconverter.h \
     $$PWD/projectfileconverter.h \

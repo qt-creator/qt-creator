@@ -144,14 +144,6 @@ private:
     QString m_snippet;
 };
 
-class LibraryPathChooser : public Utils::PathChooser
-{
-    Q_OBJECT
-public:
-    LibraryPathChooser(QWidget *parent);
-};
-
-
 } // namespace Internal
 } // namespace QmakeProjectManager
 

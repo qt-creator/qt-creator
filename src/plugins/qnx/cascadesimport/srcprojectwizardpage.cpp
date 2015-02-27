@@ -34,15 +34,45 @@
 #include <utils/wizard.h>
 
 #include <QDir>
+#include <QDirIterator>
 
 namespace Qnx {
 namespace Internal {
+
+static bool validateProjectPath(const QString &path, QString *errorMessage)
+{
+    bool proFound = false;
+    bool barDescriptorFound = false;
+    QDirIterator di(path);
+    while (di.hasNext()) {
+        di.next();
+        QFileInfo fi = di.fileInfo();
+        if (fi.isFile()) {
+            if (fi.fileName() == QLatin1String("bar-descriptor.xml"))
+                barDescriptorFound = true;
+            else if (fi.fileName().endsWith(QLatin1String(".pro")))
+                proFound = true;
+        }
+        if (barDescriptorFound && proFound)
+            break;
+    }
+    const bool ret = barDescriptorFound && proFound;
+    if (!ret && errorMessage) {
+        *errorMessage = QCoreApplication::translate("Qnx",
+                "Directory does not seem to be a valid Cascades project.");
+    }
+    return ret;
+}
+
 
 SrcProjectWizardPage::SrcProjectWizardPage(QWidget *parent)
     : QWizardPage(parent), m_complete(false)
 {
     ui = new Ui::SrcProjectWizardPage;
     ui->setupUi(this);
+    ui->pathChooser->setPromptDialogTitle(tr("Choose imported Cascades project directory"));
+    ui->pathChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    ui->pathChooser->setAdditionalPathValidator(validateProjectPath);
 
     connect(ui->pathChooser, SIGNAL(pathChanged(QString)), this, SLOT(onPathChooserPathChanged(QString)));
 
