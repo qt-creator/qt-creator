@@ -131,7 +131,7 @@ namespace Internal {
 
         m_widget->setWindowTitle(q->displayName());
 
-        InternalScrollArea *newSearchArea = new InternalScrollArea(m_widget);
+        auto newSearchArea = new InternalScrollArea(m_widget);
         newSearchArea->setWidget(nsp);
         newSearchArea->setFocusProxy(nsp);
         m_widget->addWidget(newSearchArea);
@@ -387,12 +387,15 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
             d->m_currentIndex = d->m_recentSearchesBox->count() - 1;
         }
     }
-    Internal::SearchResultWidget *widget = new Internal::SearchResultWidget;
+    auto widget = new SearchResultWidget;
     d->m_searchResultWidgets.prepend(widget);
     d->m_widget->insertWidget(1, widget);
-    connect(widget, SIGNAL(navigateStateChanged()), this, SLOT(navigateStateChanged()));
-    connect(widget, SIGNAL(restarted()), d, SLOT(moveWidgetToTop()));
-    connect(widget, SIGNAL(requestPopup(bool)), d, SLOT(popupRequested(bool)));
+    connect(widget, &SearchResultWidget::navigateStateChanged,
+            this, &SearchResultWindow::navigateStateChanged);
+    connect(widget, &SearchResultWidget::restarted,
+            d, &SearchResultWindowPrivate::moveWidgetToTop);
+    connect(widget, &SearchResultWidget::requestPopup,
+            d, &SearchResultWindowPrivate::popupRequested);
     widget->setTextEditorFont(d->m_font, d->m_color);
     widget->setTabWidth(d->m_tabWidth);
     widget->setSupportPreserveCase(preserveCaseMode == PreserveCaseEnabled);
@@ -401,7 +404,7 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
     widget->setInfo(label, toolTip, searchTerm);
     if (searchOrSearchAndReplace == SearchAndReplace)
         widget->setDontAskAgainGroup(cfgGroup);
-    SearchResult *result = new SearchResult(widget);
+    auto result = new SearchResult(widget);
     d->m_searchResults.prepend(result);
     d->m_recentSearchesBox->insertItem(1, tr("%1 %2").arg(label, searchTerm));
     if (d->m_currentIndex > 0)
@@ -595,18 +598,15 @@ bool SearchResultWindow::canNavigate() const
 SearchResult::SearchResult(SearchResultWidget *widget)
     : m_widget(widget)
 {
-    connect(widget, SIGNAL(activated(Core::SearchResultItem)),
-            this, SIGNAL(activated(Core::SearchResultItem)));
-    connect(widget, SIGNAL(replaceButtonClicked(QString,QList<Core::SearchResultItem>,bool)),
-            this, SIGNAL(replaceButtonClicked(QString,QList<Core::SearchResultItem>,bool)));
-    connect(widget, SIGNAL(cancelled()),
-            this, SIGNAL(cancelled()));
-    connect(widget, SIGNAL(paused(bool)),
-            this, SIGNAL(paused(bool)));
-    connect(widget, SIGNAL(visibilityChanged(bool)),
-            this, SIGNAL(visibilityChanged(bool)));
-    connect(widget, SIGNAL(searchAgainRequested()),
-            this, SIGNAL(searchAgainRequested()));
+    connect(widget, &SearchResultWidget::activated, this, &SearchResult::activated);
+    connect(widget, &SearchResultWidget::replaceButtonClicked,
+            this, &SearchResult::replaceButtonClicked);
+    connect(widget, &SearchResultWidget::cancelled, this, &SearchResult::cancelled);
+    connect(widget, &SearchResultWidget::paused, this, &SearchResult::paused);
+    connect(widget, &SearchResultWidget::visibilityChanged,
+            this, &SearchResult::visibilityChanged);
+    connect(widget, &SearchResultWidget::searchAgainRequested,
+            this, &SearchResult::searchAgainRequested);
 }
 
 /*!
