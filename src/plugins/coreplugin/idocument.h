@@ -89,7 +89,7 @@ public:
     virtual bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false) = 0;
     virtual bool setContents(const QByteArray &contents);
 
-    Utils::FileName filePath() const;
+    const Utils::FileName &filePath() const;
     virtual void setFilePath(const Utils::FileName &filePath);
     QString displayName() const;
     void setPreferredDisplayName(const QString &name);

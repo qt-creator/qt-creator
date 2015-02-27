@@ -129,7 +129,7 @@ bool IDocument::setContents(const QByteArray &contents)
     return false;
 }
 
-Utils::FileName IDocument::filePath() const
+const Utils::FileName &IDocument::filePath() const
 {
     return d->filePath;
 }
