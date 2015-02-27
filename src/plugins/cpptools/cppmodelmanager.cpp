@@ -179,6 +179,8 @@ const char pp_configuration[] =
 
     "#define __builtin_va_arg(a,b) ((b)0)\n"
 
+    "#define _Pragma(x)\n" // C99 _Pragma operator
+
     // ### add macros for win32
     "#define __cdecl\n"
     "#define __stdcall\n"
@@ -193,7 +195,8 @@ const char pp_configuration[] =
     "#define __except catch\n"
     "#define __finally\n"
     "#define __inline inline\n"
-    "#define __forceinline inline\n";
+    "#define __forceinline inline\n"
+    "#define __pragma(x)\n";
 
 QSet<QString> CppModelManager::timeStampModifiedFiles(const QList<Document::Ptr> &documentsToCheck)
 {
