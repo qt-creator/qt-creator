@@ -76,7 +76,7 @@ using namespace ProjectExplorer;
   Searches the first node that has the given file as its path.
  */
 
-FindNodesForFileVisitor::FindNodesForFileVisitor(const QString &fileToSearch)
+FindNodesForFileVisitor::FindNodesForFileVisitor(const Utils::FileName &fileToSearch)
     : m_path(fileToSearch)
 {
 }
@@ -93,10 +93,10 @@ void FindNodesForFileVisitor::visitProjectNode(ProjectNode *node)
 
 void FindNodesForFileVisitor::visitFolderNode(FolderNode *node)
 {
-    if (node->path().toString() == m_path)
+    if (node->path() == m_path)
         m_nodes << node;
     foreach (FileNode *fileNode, node->fileNodes()) {
-        if (fileNode->path().toString() == m_path)
+        if (fileNode->path() == m_path)
             m_nodes << fileNode;
     }
 }
@@ -112,7 +112,7 @@ void FindNodesForFileVisitor::visitSessionNode(SessionNode *node)
   Collects file information from all sub file nodes.
  */
 
-QStringList FindAllFilesVisitor::filePaths() const
+Utils::FileNameList FindAllFilesVisitor::filePaths() const
 {
     return m_filePaths;
 }
@@ -124,7 +124,7 @@ void FindAllFilesVisitor::visitProjectNode(ProjectNode *projectNode)
 
 void FindAllFilesVisitor::visitFolderNode(FolderNode *folderNode)
 {
-    m_filePaths.append(folderNode->path().toString());
+    m_filePaths.append(folderNode->path());
     foreach (const FileNode *fileNode, folderNode->fileNodes())
-        m_filePaths.append(fileNode->path().toString());
+        m_filePaths.append(fileNode->path());
 }
