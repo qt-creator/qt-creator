@@ -1566,6 +1566,9 @@ class Dumper(DumperBase):
         return typeobj
 
     def stackListFrames(self, args):
+        def fromNativePath(str):
+            return str.replace(os.path.sep, '/')
+
         limit = int(args['limit'])
         if limit <= 0:
            limit = 10000
@@ -1594,9 +1597,9 @@ class Dumper(DumperBase):
                     line = sal.line
                     symtab = sal.symtab
                     if not symtab is None:
-                        objfile = symtab.objfile.filename
-                        fileName = symtab.filename
-                        fullName = symtab.fullname()
+                        objfile = fromNativePath(symtab.objfile.filename)
+                        fileName = fromNativePath(symtab.filename)
+                        fullName = fromNativePath(symtab.fullname())
 
                 if self.nativeMixed:
                     if self.isReportableQmlFrame(functionName):
