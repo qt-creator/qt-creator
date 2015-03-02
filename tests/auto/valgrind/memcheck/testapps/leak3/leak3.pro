@@ -7,6 +7,6 @@ QT += core
 
 macx:CONFIG -= app_bundle
 
-win32-msvc*:QMAKE_CXXFLAGS += -w4996
+win32-msvc*:QMAKE_CXXFLAGS += -w44996
 
 SOURCES += main.cpp
