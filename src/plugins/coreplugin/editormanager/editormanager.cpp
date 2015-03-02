@@ -1662,7 +1662,7 @@ bool EditorManagerPrivate::saveDocument(IDocument *document)
 
     document->checkPermissions();
 
-    const QString &fileName = document->filePath().toString();
+    const QString fileName = document->filePath().toString();
 
     if (fileName.isEmpty())
         return saveDocumentAs(document);

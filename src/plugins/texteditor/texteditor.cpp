@@ -7201,7 +7201,7 @@ void TextEditorWidget::configureGenericHighlighter()
                 setCodeFoldingSupported(true);
             }
         } else {
-            const QString &fileName = textDocument()->filePath().toString();
+            const QString fileName = textDocument()->filePath().toString();
             if (TextEditorSettings::highlighterSettings().isIgnoredFilePattern(fileName))
                 d->m_isMissingSyntaxDefinition = false;
         }
