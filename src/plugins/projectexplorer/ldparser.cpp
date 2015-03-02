@@ -42,11 +42,14 @@ namespace {
     // line no. or elf segment + offset (1 bracket)
     const char * const POSITION_PATTERN = "(\\d+|\\(\\..+?[+-]0x[a-fA-F0-9]+\\)):";
     const char * const COMMAND_PATTERN = "^(.*[\\\\/])?([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(ld|gold)(-[0-9\\.]+)?(\\.exe)?: ";
+    const char *const RANLIB_PATTERN = "ranlib(.exe)?: (file: (.*) has no symbols)$";
 }
 
 LdParser::LdParser()
 {
     setObjectName(QLatin1String("LdParser"));
+    m_ranlib.setPattern(QLatin1String(RANLIB_PATTERN));
+    QTC_CHECK(m_ranlib.isValid());
     m_regExpLinker.setPattern(QLatin1Char('^') +
                               QString::fromLatin1(FILE_PATTERN) + QLatin1Char('(') +
                               QString::fromLatin1(FILE_PATTERN) + QLatin1String(")?(") +
@@ -76,7 +79,17 @@ void LdParser::stdError(const QString &line)
         return;
     }
 
-    QRegularExpressionMatch match = m_regExpGccNames.match(lne);
+    QRegularExpressionMatch match = m_ranlib.match(lne);
+    if (match.hasMatch()) {
+        QString description = match.captured(2);
+        Task task(Task::Warning, description,
+                  Utils::FileName(), -1,
+                  Constants::TASK_CATEGORY_COMPILE);
+        emit addTask(task);
+        return;
+    }
+
+    match = m_regExpGccNames.match(lne);
     if (match.hasMatch()) {
         QString description = lne.mid(match.capturedLength());
         Task::TaskType type = Task::Error;
