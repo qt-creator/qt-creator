@@ -33,7 +33,7 @@
 #define IANALYZERTOOL_H
 
 #include "analyzerbase_global.h"
-#include "analyzerstartparameters.h"
+#include "analyzerconstants.h"
 
 #include <coreplugin/id.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -47,6 +47,7 @@ namespace ProjectExplorer { class RunConfiguration; }
 
 namespace Analyzer {
 
+class AnalyzerStartParameters;
 class AnalyzerRunControl;
 
 /**
