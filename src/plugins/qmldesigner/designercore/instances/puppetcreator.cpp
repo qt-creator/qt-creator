@@ -346,10 +346,14 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     environment.set("QML_BAD_GUI_RENDER_LOOP", "true");
     environment.set("QML_USE_MOCKUPS", "true");
     environment.set("QML_PUPPET_MODE", "true");
-    if (m_puppetVersion == Qml1Puppet)
-        environment.appendOrSet("QML_IMPORT_PATH", m_model->importPaths().join(pathSep), pathSep);
-    else
-        environment.appendOrSet("QML2_IMPORT_PATH", m_model->importPaths().join(pathSep), pathSep);
+
+    if (m_availablePuppetType != FallbackPuppet) {
+        if (m_puppetVersion == Qml1Puppet)
+            environment.appendOrSet("QML_IMPORT_PATH", m_model->importPaths().join(pathSep), pathSep);
+        else
+            environment.appendOrSet("QML2_IMPORT_PATH", m_model->importPaths().join(pathSep), pathSep);
+    }
+
     return environment.toProcessEnvironment();
 }
 
