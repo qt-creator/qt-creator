@@ -1,0 +1,7 @@
+Clang Static Analyzer 3.4.0
+
+* Removed experimental state
+* Added support for MSVC (requires Clang 3.6 or later)
+* Added support for MinGW
+* Added support for suppressing diagnostics
+  (added tool button in diagnostics view, and option pane in Projects mode)
