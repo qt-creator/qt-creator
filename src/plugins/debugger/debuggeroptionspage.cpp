@@ -55,7 +55,7 @@ using namespace Utils;
 namespace Debugger {
 namespace Internal {
 
-static const char debuggingToolsWikiLinkC[] = "http://qt-project.org/wiki/Qt_Creator_Windows_Debugging";
+static const char debuggingToolsWikiLinkC[] = "http://wiki.qt.io/Qt_Creator_Windows_Debugging";
 
 // -----------------------------------------------------------------------
 // DebuggerItemConfigWidget

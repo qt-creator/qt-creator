@@ -84,7 +84,7 @@
     filter, so you need to set this filter in the top-right corner of the
     \uicontrol {New} dialog to enable those templates.
 
-    \note Currently, the BlackBerry 10 devices and Simulator have Qt 4.8 libraries preinstalled. To use Qt 5 features, you must compile the Qt libraries for BlackBerry 10 yourself. For more information, see \l {http://qt-project.org/wiki/Building-Qt5-for-Blackberry}{http://qt-p roject.org/wiki/Building-Qt5-for-Blackberry}.
+    \note Currently, the BlackBerry 10 devices and Simulator have Qt 4.8 libraries preinstalled. To use Qt 5 features, you must compile the Qt libraries for BlackBerry 10 yourself. For more information, see \l {http://wiki.qt.io/Building_Qt5_for_Blackberry}{Building Qt5 for BlackBerry}.
 
-    For more details please refer to the Qt-Project wiki page: \l {http://qt-project.org/wiki/BlackBerry} {http://qt-project.org/wiki/BlackBerry}.
+    For more details please refer to the Qt-Project wiki page: \l {http://wiki.qt.io/BlackBerry}{Qt for BlackBerry}.
 */

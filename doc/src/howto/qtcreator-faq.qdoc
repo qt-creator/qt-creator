@@ -191,7 +191,7 @@
     installed when you install \QC and \QSDK. On OS X, GDB is no longer
     officially supported. To build your own Python-enabled GDB, follow the
     instructions in
-    \l{http://qt-project.org/wiki/QtCreatorBuildGdb}{Building GDB}.
+    \l{http://wiki.qt.io/QtCreator_Build_Gdb}{Building GDB}.
 
     You must use Python version 2.6 or 2.7.
 

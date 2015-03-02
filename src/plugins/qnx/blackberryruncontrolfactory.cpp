@@ -139,7 +139,7 @@ ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(ProjectExplorer
         if (qtVer && qtVer->qtVersion() <= QtSupport::QtVersionNumber(4, 8, 6))
             Core::MessageManager::write(tr("Target Qt version (%1) might not support QML profiling. "
                 "Cascades applications are not affected and should work as expected. "
-                "For more info see http://qt-project.org/wiki/Qt-Creator-with-BlackBerry-10")
+                "For more info see http://wiki.qt.io/Qt_Creator_with_BlackBerry_10")
                 .arg(qtVer->qtVersionString()), Core::MessageManager::Flash
             );
 
