@@ -45,7 +45,8 @@ def main():
         return
     # open example project
     # qmlapplicationviewer of this example supports only Qt version < 5
-    targets = Targets.desktopTargetClasses() & ~Targets.DESKTOP_521_DEFAULT & ~Targets.DESKTOP_531_DEFAULT
+    targets = (Targets.desktopTargetClasses() & ~Targets.DESKTOP_521_DEFAULT
+               & ~Targets.DESKTOP_531_DEFAULT & ~Targets.DESKTOP_541_GCC)
     checkedTargets = openQmakeProject(examplePath, targets)
     if not replaceLine("propertyanimation.Sources.main\\.cpp",
                        "#include <QtGui/QApplication>",

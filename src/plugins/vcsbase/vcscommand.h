@@ -33,9 +33,6 @@
 
 #include "vcsbase_global.h"
 
-#include <utils/fileutils.h>
-#include <utils/synchronousprocess.h>
-
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
@@ -46,6 +43,12 @@ class QProcessEnvironment;
 template <typename T>
 class QFutureInterface;
 QT_END_NAMESPACE
+
+namespace Utils {
+struct SynchronousProcessResponse;
+class ExitCodeInterpreter;
+class FileName;
+}
 
 namespace VcsBase {
 

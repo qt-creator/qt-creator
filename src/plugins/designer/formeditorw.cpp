@@ -47,6 +47,7 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/outputpane.h>

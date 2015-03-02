@@ -33,9 +33,6 @@
 
 #include "debugger_global.h"
 #include "debuggerconstants.h"
-#include "debuggerprotocol.h"
-#include "debuggerstartparameters.h"
-#include "threaddata.h" // For ThreadId.
 
 #include <QObject>
 
@@ -52,6 +49,7 @@ namespace Debugger {
 
 class DebuggerRunControl;
 class DebuggerStartParameters;
+class RemoteSetupResult;
 
 DEBUGGER_EXPORT QDebug operator<<(QDebug str, const DebuggerStartParameters &);
 DEBUGGER_EXPORT QDebug operator<<(QDebug str, DebuggerState state);
@@ -77,6 +75,7 @@ class QmlCppEngine;
 class DebuggerToolTipContext;
 class MemoryViewSetupData;
 class Terminal;
+class ThreadId;
 
 struct WatchUpdateFlags
 {
@@ -104,6 +103,8 @@ public:
     bool needsRaise() const { return m_needsRaise; }
     bool needsMarker() const { return m_needsMarker; }
     bool hasDebugInfo() const { return m_hasDebugInfo; }
+    bool canBeDisassembled() const
+        { return m_address != quint64(-1) || !m_functionName.isEmpty(); }
     quint64 address() const { return m_address; }
 
 private:
@@ -294,10 +295,9 @@ protected:
     virtual void notifyInferiorSetupOk();
     virtual void notifyInferiorSetupFailed();
 
-    virtual void notifyEngineRunOkAndInferiorRunRequested();
     virtual void notifyEngineRunAndInferiorRunOk();
     virtual void notifyEngineRunAndInferiorStopOk();
-    virtual void notifyInferiorUnrunnable(); // Called by CoreAdapter.
+    virtual void notifyEngineRunOkAndInferiorUnrunnable(); // Called by CoreAdapter.
 
     // Use notifyInferiorRunRequested() plus notifyInferiorRunOk() instead.
     //virtual void notifyInferiorSpontaneousRun();

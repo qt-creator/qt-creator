@@ -79,11 +79,8 @@ bool ArtisticStyle::initialize()
     menu->menu()->setTitle(QLatin1String(Constants::ArtisticStyle::DISPLAY_NAME));
 
     m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
-    Core::Command *cmd
-            = Core::ActionManager::registerAction(m_formatFile,
-                                                  Constants::ArtisticStyle::ACTION_FORMATFILE,
-                                                  Core::Context(Core::Constants::C_GLOBAL));
-    menu->addAction(cmd);
+    menu->addAction(Core::ActionManager::registerAction(m_formatFile,
+                                                        Constants::ArtisticStyle::ACTION_FORMATFILE));
     connect(m_formatFile, &QAction::triggered, this, &ArtisticStyle::formatFile);
 
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);

@@ -36,6 +36,8 @@
 #include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/convenience.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/changeset.h>
 #include <utils/fileutils.h>
@@ -103,11 +105,14 @@ public:
     QStringList getCompletions(bool *replaceAccessOperator = 0) const
     {
         QStringList completions;
+        LanguageFeatures languageFeatures = LanguageFeatures::defaultFeatures();
+        languageFeatures.objCEnabled = false;
         CppCompletionAssistInterface *ai
             = new CppCompletionAssistInterface(m_editorWidget->textDocument()->filePath().toString(),
                                                m_editorWidget->document(), m_position,
                                                ExplicitlyInvoked, m_snapshot,
-                                               ProjectPart::HeaderPaths());
+                                               ProjectPart::HeaderPaths(),
+                                               languageFeatures);
         InternalCppCompletionAssistProcessor processor;
 
         const Tests::IAssistProposalScopedPointer proposal(processor.perform(ai));
@@ -2513,6 +2518,109 @@ void CppToolsPlugin::test_completion_data()
     ) << _("s->") << (QStringList()
         << QLatin1String("Foo")
         << QLatin1String("bar"));
+
+    QTest::newRow("dereference_of_nested_type_opertor_*") << _(
+            "template<typename T>\n"
+            "struct QList\n"
+            "{\n"
+            "   struct iterator\n"
+            "   {\n"
+            "      T &operator*() { return t; }\n"
+            "      T t;\n"
+            "   };\n"
+            "   iterator begin() { return iterator(); }\n"
+            "};\n"
+            "struct Foo { int bar; };\n"
+            "void fun() {\n"
+            "   QList<Foo> list;\n"
+            "   @\n"
+            "}\n"
+    ) << _("(*list.begin()).") << (QStringList()
+        << QLatin1String("Foo")
+        << QLatin1String("bar"));
+
+    QTest::newRow("dereference_of_nested_type_opertor_->") << _(
+            "template<typename T>\n"
+            "struct QList\n"
+            "{\n"
+            "   struct iterator\n"
+            "   {\n"
+            "      T *operator->() { return &t; }\n"
+            "      T t;\n"
+            "   };\n"
+            "   iterator begin() { return iterator(); }\n"
+            "};\n"
+            "struct Foo { int bar; };\n"
+            "void fun() {\n"
+            "   QList<Foo> list;\n"
+            "   @\n"
+            "}\n"
+    ) << _("list.begin()->") << (QStringList()
+        << QLatin1String("Foo")
+        << QLatin1String("bar"));
+
+    QTest::newRow("dereference_of_nested_type_opertor_*_and_auto") << _(
+            "template<typename T>\n"
+            "struct QList\n"
+            "{\n"
+            "   struct iterator\n"
+            "   {\n"
+            "      T &operator*() { return t; }\n"
+            "      T t;\n"
+            "   };\n"
+            "   iterator begin() { return iterator(); }\n"
+            "};\n"
+            "struct Foo { int bar; };\n"
+            "void fun() {\n"
+            "   QList<Foo> list;\n"
+            "   auto a = list.begin();\n"
+            "   @\n"
+            "}\n"
+    ) << _("(*a).") << (QStringList()
+        << QLatin1String("Foo")
+        << QLatin1String("bar"));
+
+    QTest::newRow("dereference_of_nested_type_opertor_->_and_auto") << _(
+            "template<typename T>\n"
+            "struct QList\n"
+            "{\n"
+            "   struct iterator\n"
+            "   {\n"
+            "      T *operator->() { return &t; }\n"
+            "      T t;\n"
+            "   };\n"
+            "   iterator begin() { return iterator(); }\n"
+            "};\n"
+            "struct Foo { int bar; };\n"
+            "void fun() {\n"
+            "   QList<Foo> list;\n"
+            "   auto a = list.begin();\n"
+            "   @\n"
+            "}\n"
+    ) << _("a->") << (QStringList()
+        << QLatin1String("Foo")
+        << QLatin1String("bar"));
+
+    QTest::newRow("direct_nested_template_type_access") << _(
+            "template<typename T>\n"
+            "struct QList\n"
+            "{\n"
+            "   struct iterator\n"
+            "   {\n"
+            "      T *operator->() { return &t; }\n"
+            "      T t;\n"
+            "   };\n"
+            "   iterator begin() { return iterator(); }\n"
+            "};\n"
+            "struct Foo { int bar; };\n"
+            "void fun() {\n"
+            "   auto a = QList<Foo>::begin();\n"
+            "   @\n"
+            "}\n"
+    ) << _("a.") << (QStringList()
+        << QLatin1String("operator ->")
+        << QLatin1String("t")
+        << QLatin1String("iterator"));
 }
 
 void CppToolsPlugin::test_completion_member_access_operator()

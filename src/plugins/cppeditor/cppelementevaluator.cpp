@@ -33,6 +33,8 @@
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/typehierarchybuilder.h>
 
+#include <texteditor/textdocument.h>
+
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/Icons.h>
 #include <cplusplus/TypeOfExpression.h>
@@ -100,7 +102,7 @@ void CppElementEvaluator::execute()
         CppTools::moveCursorToEndOfIdentifier(&m_tc);
 
         // Fetch the expression's code
-        ExpressionUnderCursor expressionUnderCursor;
+        ExpressionUnderCursor expressionUnderCursor(doc->languageFeatures());
         const QString &expression = expressionUnderCursor(m_tc);
         Scope *scope = doc->scopeAt(line, column);
 

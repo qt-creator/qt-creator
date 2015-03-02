@@ -23,7 +23,7 @@
     \section1 Introduction
 
     If the functionality provided by template-based
-    \l{http://doc.qt.digia.com/qtcreator-snapshot/creator-project-wizards.html}{custom wizards}
+    \l{http://doc.qt.io/qtcreator/creator-project-wizards.html}{custom wizards}
     is not sufficient for your case, you can write wizards in code.
 
     A wizard in Qt Creator is an instance of a class implementing

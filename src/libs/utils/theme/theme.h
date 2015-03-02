@@ -33,11 +33,11 @@
 
 #include "../utils_global.h"
 
-#include <QFlags>
-#include <QPalette>
-#include <QStyle>
+#include <QBrush> // QGradientStops
+#include <QObject>
 
 QT_FORWARD_DECLARE_CLASS(QSettings)
+QT_FORWARD_DECLARE_CLASS(QPalette)
 
 namespace Utils {
 

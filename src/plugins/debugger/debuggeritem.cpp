@@ -28,6 +28,7 @@
 **
 ****************************************************************************/
 
+#include "debuggeritem.h"
 #include "debuggerkitinformation.h"
 #include "debuggerkitconfigwidget.h"
 #include "debuggeroptionspage.h"

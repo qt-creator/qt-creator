@@ -87,7 +87,6 @@ public:
     static void addMimeTypes(const QString &fileName);
     static QString allFiltersString(QString *allFilesFilter = 0);
     static QStringList allGlobPatterns();
-    static MimeType bestMatch(const QString &fileName, const QList<MimeType> &types);
     static QMap<int, QList<Internal::MimeMagicRule> > magicRulesForMimeType(const MimeType &mimeType); // priority -> rules
     static void setGlobPatternsForMimeType(const MimeType &mimeType, const QStringList &patterns);
     static void setMagicRulesForMimeType(const MimeType &mimeType,

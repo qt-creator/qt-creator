@@ -41,6 +41,8 @@
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/iassistproposal.h>
 
+#include <coreplugin/editormanager/editormanager.h>
+
 #include <utils/fileutils.h>
 
 #include <QDebug>

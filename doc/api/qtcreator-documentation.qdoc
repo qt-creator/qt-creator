@@ -61,7 +61,7 @@
     \section1 Configuring the Documentation Project
 
     \QC documentation is written by using QDoc. For more information about using
-    QDoc, see the \l{http://qt-project.org/doc/qt-5.1/qdoc/qdoc-index.html}
+    QDoc, see the \l{http://doc.qt.io/qt-5/qdoc-index.html}
     {QDoc Manual}.
 
     QDoc finds the new topics automatically, when you place them as .qdoc files
@@ -299,7 +299,7 @@
     on OS X. You can view the HTML files in a browser and the help files in
     the \QC \uicontrol Help mode. For more information about adding the help files to
     \QC, see
-    \l{http://qt-project.org/doc/qtcreator/creator-help.html#adding-external-documentation}
+    \l{http://doc.qt.io/qtcreator/creator-help.html#adding-external-documentation}
     {Adding External Documentation}.
 
     Besides \c docs, you have the following options:

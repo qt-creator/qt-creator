@@ -70,7 +70,6 @@ bool MacrosPlugin::initialize(const QStringList &arguments, QString *errorMessag
     addAutoReleasedObject(new MacroOptionsPage);
     addAutoReleasedObject(new MacroLocatorFilter);
 
-    Core::Context globalcontext(Core::Constants::C_GLOBAL);
     Core::Context textContext(TextEditor::Constants::C_TEXTEDITOR);
     m_macroManager = new MacroManager(this);
 
@@ -90,7 +89,7 @@ bool MacrosPlugin::initialize(const QStringList &arguments, QString *errorMessag
 
     QAction *endMacro = new QAction(tr("Stop Recording Macro"),  this);
     endMacro->setEnabled(false);
-    command = Core::ActionManager::registerAction(endMacro, Constants::END_MACRO, globalcontext);
+    command = Core::ActionManager::registerAction(endMacro, Constants::END_MACRO);
     command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Ctrl+)") : tr("Alt+)")));
     mmacrotools->addAction(command);
     connect(endMacro, &QAction::triggered, m_macroManager, &MacroManager::endMacro);

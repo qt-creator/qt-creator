@@ -36,6 +36,7 @@
 #include "cppeditorplugin.h"
 
 #include <coreplugin/find/itemviewfind.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <utils/algorithm.h>
 #include <utils/annotateditemdelegate.h>
 #include <utils/navigationtreeview.h>

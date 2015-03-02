@@ -38,6 +38,7 @@
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerstringutils.h>
 #include <debugger/debuggertooltipmanager.h>
+#include <debugger/threaddata.h>
 
 #include <debugger/breakhandler.h>
 #include <debugger/moduleshandler.h>

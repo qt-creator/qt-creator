@@ -243,6 +243,8 @@ ActionContainer *ActionManager::createMenuBar(Id id)
     same \a id as long as the \a context is different. In this case
     a trigger of the actual action is forwarded to the registered QAction
     for the currently active context.
+    If the optional \a context argument is not specified, the global context
+    will be assumed.
     A scriptable action can be called from a script without the need for the user
     to interact with it.
 */
@@ -384,8 +386,8 @@ void ActionManager::setContext(const Context &context)
     \internal
 */
 
-ActionManagerPrivate::ActionManagerPrivate()
-  : m_presentationModeEnabled(false)
+ActionManagerPrivate::ActionManagerPrivate() :
+    m_presentationModeEnabled(false)
 {
 }
 

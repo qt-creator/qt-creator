@@ -105,9 +105,8 @@ bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
 
     // Update context in global context
     m_resetCodeModelAction = new QAction(tr("Reset Code Model"), this);
-    Context globalContext(Core::Constants::C_GLOBAL);
     Command *cmd = ActionManager::registerAction(
-                m_resetCodeModelAction, Constants::RESET_CODEMODEL, globalContext);
+                m_resetCodeModelAction, Constants::RESET_CODEMODEL);
     connect(m_resetCodeModelAction, &QAction::triggered,
             m_modelManager, &ModelManager::resetCodeModel);
     mqmljstools->addAction(cmd);

@@ -94,8 +94,10 @@ public:
 
 FindPluginPrivate::FindPluginPrivate(FindPlugin *q) :
     m_currentDocumentFind(0), m_findToolBar(0), m_findDialog(0),
+    m_searchResultWindow(0),
     m_findCompletionModel(new QStringListModel(q)),
-    m_replaceCompletionModel(new QStringListModel(q))
+    m_replaceCompletionModel(new QStringListModel(q)),
+    m_openFindDialog(0)
 {
 }
 
@@ -201,17 +203,16 @@ void FindPlugin::setupMenu()
     mfind->appendGroup(Constants::G_FIND_FILTERS);
     mfind->appendGroup(Constants::G_FIND_FLAGS);
     mfind->appendGroup(Constants::G_FIND_ACTIONS);
-    Context globalcontext(Constants::C_GLOBAL);
     Command *cmd;
-    mfind->addSeparator(globalcontext, Constants::G_FIND_FLAGS);
-    mfind->addSeparator(globalcontext, Constants::G_FIND_ACTIONS);
+    mfind->addSeparator(Constants::G_FIND_FLAGS);
+    mfind->addSeparator(Constants::G_FIND_ACTIONS);
 
     ActionContainer *mfindadvanced = ActionManager::createMenu(Constants::M_FIND_ADVANCED);
     mfindadvanced->menu()->setTitle(tr("Advanced Find"));
     mfind->addMenu(mfindadvanced, Constants::G_FIND_FILTERS);
     d->m_openFindDialog = new QAction(tr("Open Advanced Find..."), this);
     d->m_openFindDialog->setIconText(tr("Advanced..."));
-    cmd = ActionManager::registerAction(d->m_openFindDialog, Constants::ADVANCED_FIND, globalcontext);
+    cmd = ActionManager::registerAction(d->m_openFindDialog, Constants::ADVANCED_FIND);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F")));
     mfindadvanced->addAction(cmd);
     connect(d->m_openFindDialog, &QAction::triggered,
@@ -223,7 +224,6 @@ void FindPlugin::setupFilterMenuItems()
     QList<IFindFilter*> findInterfaces =
         ExtensionSystem::PluginManager::getObjects<IFindFilter>();
     Command *cmd;
-    Context globalcontext(Constants::C_GLOBAL);
 
     ActionContainer *mfindadvanced = ActionManager::actionContainer(Constants::M_FIND_ADVANCED);
     d->m_filterActions.clear();
@@ -236,8 +236,7 @@ void FindPlugin::setupFilterMenuItems()
             haveEnabledFilters = true;
         action->setEnabled(isEnabled);
         action->setData(qVariantFromValue(filter));
-        cmd = ActionManager::registerAction(action,
-            base.withSuffix(filter->id()), globalcontext);
+        cmd = ActionManager::registerAction(action, base.withSuffix(filter->id()));
         cmd->setDefaultKeySequence(filter->defaultShortcut());
         mfindadvanced->addAction(cmd);
         d->m_filterActions.insert(filter, action);

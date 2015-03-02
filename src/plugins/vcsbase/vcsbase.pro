@@ -2,6 +2,7 @@ DEFINES += VCSBASE_LIBRARY
 include(../../qtcreatorplugin.pri)
 HEADERS += vcsbase_global.h \
     vcsbaseconstants.h \
+    vcsprojectcache.h \
     wizard/vcsconfigurationpage.h \
     wizard/vcsjsextension.h \
     vcsplugin.h \
@@ -34,6 +35,7 @@ HEADERS += vcsbase_global.h \
 
 SOURCES += vcsplugin.cpp \
     vcsbaseplugin.cpp \
+    vcsprojectcache.cpp \
     wizard/vcsconfigurationpage.cpp \
     wizard/vcsjsextension.cpp \
     corelistener.cpp \

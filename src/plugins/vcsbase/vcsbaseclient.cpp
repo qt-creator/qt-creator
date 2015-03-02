@@ -35,6 +35,9 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
+#include <coreplugin/editormanager/documentmodel.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/idocument.h>
 
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>

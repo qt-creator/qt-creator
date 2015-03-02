@@ -39,6 +39,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/patchtool.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/projectexplorer.h>

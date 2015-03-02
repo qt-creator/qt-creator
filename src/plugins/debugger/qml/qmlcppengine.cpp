@@ -35,10 +35,12 @@
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/breakhandler.h>
 #include <debugger/stackhandler.h>
+#include <debugger/threaddata.h>
 #include <debugger/watchhandler.h>
 
 #include <utils/qtcassert.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <qmljs/consolemanagerinterface.h>
@@ -533,7 +535,7 @@ void QmlCppEngine::slaveEngineStateChanged
         }
         case InferiorUnrunnable: {
             qmlEngine()->quitDebugger();
-            notifyInferiorUnrunnable();
+            notifyEngineRunOkAndInferiorUnrunnable();
             break;
         }
         case InferiorRunRequested: {

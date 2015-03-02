@@ -78,23 +78,20 @@ CppTools::CheckSymbols *createHighlighter(const CPlusPlus::Document::Ptr &doc,
         macroUses.append(use);
     }
 
+    const LanguageFeatures features = doc->languageFeatures();
+
     // Get macro uses
     foreach (const Document::MacroUse &macro, doc->macroUses()) {
         const QString name = macro.macro().nameToQString();
 
         //Filter out QtKeywords
-        if (isQtKeyword(QStringRef(&name)))
+        if (features.qtKeywordsEnabled && isQtKeyword(QStringRef(&name)))
             continue;
-
-        // Filter out C++ keywords
-        // FIXME: Check default values or get from document.
-        LanguageFeatures features;
-        features.cxx11Enabled = true;
-        features.c99Enabled = true;
 
         SimpleLexer tokenize;
         tokenize.setLanguageFeatures(features);
 
+        // Filter out C++ keywords
         const Tokens tokens = tokenize(name);
         if (tokens.length() && (tokens.at(0).isKeyword() || tokens.at(0).isObjCAtKeyword()))
             continue;

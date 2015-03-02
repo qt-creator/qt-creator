@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorQtVersions>
-<!-- Written by QtCreator 3.1.83, 2014-07-22T13:13:46. -->
+<!-- Written by QtCreator 3.3.81, 2015-02-18T14:20:56. -->
 <qtcreator>
  <data>
   <variable>QtVersion.0</variable>
@@ -68,6 +68,16 @@
    <value type="int" key="Id">11</value>
    <value type="QString" key="Name">Qt 5.3.1 (SQUISH_DEFAULT_COMPILER)</value>
    <value type="QString" key="QMakePath">~/Qt5.3.1/5.3/SQUISH_DEFAULT_COMPILER/bin/qmake</value>
+   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
+   <value type="bool" key="isAutodetected">false</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>QtVersion.7</variable>
+  <valuemap type="QVariantMap">
+   <value type="int" key="Id">13</value>
+   <value type="QString" key="Name">Qt %{Qt:Version} (SQUISH_DEFAULT_COMPILER)</value>
+   <value type="QString" key="QMakePath">~/Qt5.4.1/5.4/SQUISH_DEFAULT_COMPILER/bin/qmake</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
    <value type="bool" key="isAutodetected">false</value>
   </valuemap>

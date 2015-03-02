@@ -200,15 +200,14 @@ IAssistProcessor *ClangCompletionAssistProvider::createProcessor() const
 }
 
 AssistInterface *ClangCompletionAssistProvider::createAssistInterface(
-        const QString &filePath,
-        QTextDocument *document, bool isObjCEnabled, int position, AssistReason reason) const
+        const QString &filePath, QTextDocument *document,
+        const LanguageFeatures &languageFeatures, int position, AssistReason reason) const
 {
-    Q_UNUSED(isObjCEnabled);
-
     CppModelManager *modelManager = CppModelManager::instance();
     QList<ProjectPart::Ptr> parts = modelManager->projectPart(filePath);
     if (parts.isEmpty())
         parts += modelManager->fallbackProjectPart();
+    LanguageFeatures features = languageFeatures;
     ProjectPart::HeaderPaths headerPaths;
     QStringList options;
     PchInfo::Ptr pchInfo;
@@ -220,13 +219,14 @@ AssistInterface *ClangCompletionAssistProvider::createAssistInterface(
         if (!pchInfo.isNull())
             options.append(Utils::createPCHInclusionOptions(pchInfo->fileName()));
         headerPaths = part->headerPaths;
+        features = part->languageFeatures;
         break;
     }
 
     return new ClangCompletionAssistInterface(
                 m_clangCompletionWrapper,
                 document, position, filePath, reason,
-                options, headerPaths, pchInfo);
+                options, headerPaths, pchInfo, features);
 }
 
 // ------------------------
@@ -545,12 +545,14 @@ ClangCompletionAssistInterface::ClangCompletionAssistInterface(ClangCompleter::P
         AssistReason reason,
         const QStringList &options,
         const QList<ProjectPart::HeaderPath> &headerPaths,
-        const PchInfo::Ptr &pchInfo)
+        const PchInfo::Ptr &pchInfo,
+        const LanguageFeatures &features)
     : AssistInterface(document, position, fileName, reason)
     , m_clangWrapper(clangWrapper)
     , m_options(options)
     , m_headerPaths(headerPaths)
     , m_savedPchPointer(pchInfo)
+    , m_languageFeatures(features)
 {
     Q_ASSERT(!clangWrapper.isNull());
 
@@ -637,7 +639,7 @@ int ClangCompletionAssistProcessor::startCompletionHelper()
         return m_startPosition;
     }
 
-    ExpressionUnderCursor expressionUnderCursor;
+    ExpressionUnderCursor expressionUnderCursor(m_interface->languageFeatures());
     QTextCursor tc(m_interface->textDocument());
 
     if (m_model->m_completionOperator == T_COMMA) {
@@ -703,7 +705,7 @@ int ClangCompletionAssistProcessor::startOfOperator(int pos,
         }
 
         if (*kind == T_COMMA) {
-            ExpressionUnderCursor expressionUnderCursor;
+            ExpressionUnderCursor expressionUnderCursor(m_interface->languageFeatures());
             if (expressionUnderCursor.startOfFunctionCall(tc) == -1) {
                 *kind = T_EOF_SYMBOL;
                 start = pos;
@@ -711,10 +713,7 @@ int ClangCompletionAssistProcessor::startOfOperator(int pos,
         }
 
         SimpleLexer tokenize;
-        LanguageFeatures lf = tokenize.languageFeatures();
-        lf.qtMocRunEnabled = true;
-        lf.objCEnabled = true;
-        tokenize.setLanguageFeatures(lf);
+        tokenize.setLanguageFeatures(m_interface->languageFeatures());
         tokenize.setSkipComments(false);
         const Tokens &tokens = tokenize(tc.block().text(), BackwardsScanner::previousBlockState(tc.block()));
         const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1)); // get the token at the left of the cursor
@@ -932,7 +931,7 @@ int ClangCompletionAssistProcessor::startCompletionInternal(const QString fileNa
 
         QTextCursor tc(m_interface->textDocument());
         tc.setPosition(index);
-        ExpressionUnderCursor euc;
+        ExpressionUnderCursor euc(m_interface->languageFeatures());
         index = euc.startOfFunctionCall(tc);
         int nameStart = findStartOfName(index);
         QTextCursor tc2(m_interface->textDocument());

@@ -30,6 +30,8 @@
 
 #include "simplecodestylepreferences.h"
 
+#include <QVariant>
+
 using namespace TextEditor;
 
 static const char settingsSuffixKey[] = "TabPreferences";

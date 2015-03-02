@@ -574,16 +574,18 @@ void DebuggerEngine::gotoLocation(const Location &loc)
 {
      d->resetLocation();
 
-    if ((hasCapability(OperateByInstructionCapability) &&
-            boolSetting(OperateByInstruction)) || !loc.hasDebugInfo()) {
+    if (loc.canBeDisassembled()
+            && ((hasCapability(OperateByInstructionCapability) && boolSetting(OperateByInstruction))
+                || !loc.hasDebugInfo()) )
+    {
         d->m_disassemblerAgent.setLocation(loc);
         return;
     }
-    // CDB might hit on breakpoints while shutting down.
-    //if (m_shuttingDown)
-    //    return;
 
-
+    if (loc.fileName().isEmpty()) {
+        showMessage(QLatin1String("CANNOT GO TO THIS LOCATION"));
+        return;
+    }
     const QString file = QDir::cleanPath(loc.fileName());
     const int line = loc.lineNumber();
     bool newEditor = false;
@@ -825,7 +827,7 @@ void DebuggerEnginePrivate::doRunEngine()
     m_engine->runEngine();
 }
 
-void DebuggerEngine::notifyInferiorUnrunnable()
+void DebuggerEngine::notifyEngineRunOkAndInferiorUnrunnable()
 {
     showMessage(_("NOTE: INFERIOR UNRUNNABLE"));
     d->m_progress.setProgressValue(1000);
@@ -902,16 +904,6 @@ void DebuggerEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &re
         d->setRemoteSetupState(RemoteSetupFailed);
         showMessage(_("NOTE: REMOTE SETUP FAILED: ") + result.reason);
     }
-}
-
-void DebuggerEngine::notifyEngineRunOkAndInferiorRunRequested()
-{
-    showMessage(_("NOTE: ENGINE RUN OK AND INFERIOR RUN REQUESTED"));
-    d->m_progress.setProgressValue(1000);
-    d->m_progress.reportFinished();
-    QTC_ASSERT(state() == EngineRunRequested, qDebug() << this << state());
-    showStatusMessage(tr("Running."));
-    setState(InferiorRunRequested);
 }
 
 void DebuggerEngine::notifyEngineRunAndInferiorRunOk()

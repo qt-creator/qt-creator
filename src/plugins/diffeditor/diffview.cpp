@@ -35,6 +35,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <QCoreApplication>
+
 namespace DiffEditor {
 namespace Internal {
 

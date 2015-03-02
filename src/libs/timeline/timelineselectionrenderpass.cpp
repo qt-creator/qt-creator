@@ -103,8 +103,8 @@ TimelineRenderPass::State *TimelineSelectionRenderPass::update(
         // left and width the error on the left border is inherited by the right border. Like this
         // they're independent.
 
-        QRectF outer(QPointF(qFloor(left * parentState->scale()), top),
-                     QPointF(qCeil(right * parentState->scale()), top + height));
+        QRectF outer(QPointF(left * parentState->scale(), top),
+                     QPointF(right * parentState->scale(), top + height));
 
         float scaleConversion = parentState->scale() / spacing;
         float missing = 3.0 - outer.width() / scaleConversion;

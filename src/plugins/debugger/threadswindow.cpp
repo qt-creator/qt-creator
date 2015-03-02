@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "threadswindow.h"
+#include "threaddata.h"
 
 #include "debuggeractions.h"
 #include "debuggercore.h"

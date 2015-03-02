@@ -47,6 +47,7 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/session.h>
 #include <debugger/debuggeritemmanager.h>
+#include <debugger/debuggeritem.h>
 #include <debugger/debuggerkitinformation.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>

@@ -98,6 +98,15 @@ enum { debugPending = 0 };
 
 #define CB(callback) [this](const DebuggerResponse &r) { callback(r); }
 
+#define CHECK_STATE(s) \
+    do { \
+        if (state() != s) { \
+            showMessage(QString::fromLatin1("UNEXPECTED STATE: %1  WANTED: %2 IN %3:%4") \
+                .arg(state()).arg(s).arg(QLatin1String(__FILE__)).arg(__LINE__), LogError); \
+            QTC_ASSERT(false, qDebug() << state() << s); \
+        } \
+    } while (0)
+
 QByteArray GdbEngine::tooltipIName(const QString &exp)
 {
     return "tooltip." + exp.toLatin1().toHex();
@@ -788,8 +797,7 @@ void GdbEngine::readGdbStandardOutput()
 
 void GdbEngine::interruptInferior()
 {
-    QTC_ASSERT(state() == InferiorStopRequested,
-        qDebug() << "INTERRUPT INFERIOR: " << state(); return);
+    CHECK_STATE(InferiorStopRequested);
 
     if (terminal()->sendInterrupt())
         return;
@@ -1222,7 +1230,7 @@ void GdbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages
     flushCommand(cmd);
 }
 
-// This is called from CoreAdapter and AttachAdapter.
+// This is triggered when switching snapshots.
 void GdbEngine::updateAll()
 {
     //PENDING_DEBUG("UPDATING ALL\n");
@@ -1323,10 +1331,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         showMessage(_("IGNORING TERMINAL SIGTRAP"), LogMisc);
         return;
     }
-    // This is gdb 7+'s initial *stopped in response to attach.
-    // For consistency, we just discard it.
-    if (state() == InferiorSetupRequested)
-        return;
 
     if (isDying()) {
         notifyInferiorStopOk();
@@ -1337,6 +1341,8 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     threadsHandler()->notifyStopped(threads.data());
 
     const QByteArray reason = data["reason"].data();
+    const GdbMi frame = data["frame"];
+    const QByteArray func = frame["from"].data();
 
     if (isExitedReason(reason)) {
         //   // The user triggered a stop, but meanwhile the app simply exited ...
@@ -1358,6 +1364,19 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         return;
     }
 
+    // Ignore signals from the process stub.
+    if (startParameters().useTerminal
+            && data["reason"].data() == "signal-received"
+            && data["signal-name"].data() == "SIGSTOP"
+            && (func.endsWith("/ld-linux.so.2")
+                || func.endsWith("/ld-linux-x86-64.so.2")))
+    {
+        showMessage(_("INTERNAL CONTINUE AFTER SIGSTOP FROM STUB"), LogMisc);
+        notifyInferiorSpontaneousStop();
+        continueInferiorInternal();
+        return;
+    }
+
     bool gotoHandleStop1 = true;
     if (!m_fullStartDone) {
         m_fullStartDone = true;
@@ -1367,8 +1386,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     }
 
     BreakpointResponseId rid(data["bkptno"].data());
-    const GdbMi frame = data["frame"];
-
     int lineNumber = 0;
     QString fullName;
     QByteArray function;
@@ -1410,14 +1427,14 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         gotoLocation(Location(fullName, lineNumber));
 
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
-        QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state());
+        CHECK_STATE(InferiorStopRequested);
         notifyInferiorStopOk();
         flushQueuedCommands();
         if (state() == InferiorStopOk) {
             QTC_CHECK(m_commandsDoneCallback == 0);
             m_commandsDoneCallback = &GdbEngine::autoContinueInferior;
         } else {
-            QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
+            CHECK_STATE(InferiorShutdownRequested);
         }
         return;
     }
@@ -1441,12 +1458,18 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         notifyInferiorSpontaneousStop();
     } else if (state() == InferiorStopOk) {
         // That's expected.
-    } else {
-        QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state());
+    } else if (state() == InferiorStopRequested) {
         notifyInferiorStopOk();
+    } else if (state() == EngineRunRequested) {
+        // This is gdb 7+'s initial *stopped in response to attach that
+        // appears before the ^done is seen.
+        notifyEngineRunAndInferiorStopOk();
+        return;
+    } else {
+        QTC_CHECK(false);
     }
 
-    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    CHECK_STATE(InferiorStopOk);
 
     if (gotoHandleStop1)
         handleStop1(data);
@@ -1459,7 +1482,7 @@ static QByteArray stopSignal(const Abi &abi)
 
 void GdbEngine::handleStop1(const GdbMi &data)
 {
-    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    CHECK_STATE(InferiorStopOk);
     QTC_ASSERT(!isDying(), return);
     const GdbMi frame = data["frame"];
     const QByteArray reason = data["reason"].data();
@@ -1531,7 +1554,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
 
 void GdbEngine::handleStop2(const GdbMi &data)
 {
-    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    CHECK_STATE(InferiorStopOk);
     QTC_ASSERT(!isDying(), return);
 
     // A user initiated stop looks like the following. Note that there is
@@ -1560,22 +1583,9 @@ void GdbEngine::handleStop2(const GdbMi &data)
     // dState changed from InferiorStopRequested(13) to InferiorStopOk(14).
 
     const QByteArray reason = data["reason"].data();
-    const QByteArray func = data["frame"]["from"].data();
     const DebuggerStartParameters &sp = startParameters();
 
     bool isStopperThread = false;
-
-    if (sp.useTerminal
-            && reason == "signal-received"
-            && data["signal-name"].data() == "SIGSTOP"
-            && (func.endsWith("/ld-linux.so.2")
-                || func.endsWith("/ld-linux-x86-64.so.2")))
-    {
-        // Ignore signals from the process stub.
-        showMessage(_("INTERNAL CONTINUE AFTER SIGSTOP FROM STUB"), LogMisc);
-        continueInferiorInternal();
-        return;
-    }
 
     if (sp.toolChainAbi.os() == Abi::WindowsOS
             && sp.useTerminal
@@ -1711,13 +1721,13 @@ void GdbEngine::handleListFeatures(const DebuggerResponse &response)
 
 void GdbEngine::handlePythonSetup(const DebuggerResponse &response)
 {
-    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
+    CHECK_STATE(EngineSetupRequested);
     if (response.resultClass == ResultDone) {
         GdbMi data;
         data.fromStringMultiple(response.consoleStreamOutput);
         watchHandler()->addDumpers(data["dumpers"]);
         loadInitScript();
-        QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
+        CHECK_STATE(EngineSetupRequested);
         showMessage(_("ENGINE SUCCESSFULLY STARTED"));
         notifyEngineSetupOk();
     } else {
@@ -1740,7 +1750,7 @@ void GdbEngine::showExecutionError(const QString &message)
 
 void GdbEngine::handleExecuteContinue(const DebuggerResponse &response)
 {
-    QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
+    CHECK_STATE(InferiorRunRequested);
     if (response.resultClass == ResultRunning) {
         // All is fine. Waiting for a *running.
         notifyInferiorRunOk(); // Only needed for gdb < 7.0.
@@ -1753,7 +1763,7 @@ void GdbEngine::handleExecuteContinue(const DebuggerResponse &response)
             return;
         if (!m_commandsToRunOnTemporaryBreak.isEmpty())
             flushQueuedCommands();
-        QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+        CHECK_STATE(InferiorStopOk);
         showStatusMessage(tr("Stopped."), 5000);
         reloadStack();
     } else if (msg.startsWith("Cannot access memory at address")) {
@@ -1762,7 +1772,7 @@ void GdbEngine::handleExecuteContinue(const DebuggerResponse &response)
         notifyInferiorRunFailed();
         if (isDying())
             return;
-        QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+        CHECK_STATE(InferiorStopOk);
         // FIXME: Fix translation in master.
         showStatusMessage(QString::fromLocal8Bit(msg), 5000);
         gotoLocation(stackHandler()->currentFrame());
@@ -1837,7 +1847,7 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
 
 void GdbEngine::shutdownInferior()
 {
-    QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
+    CHECK_STATE(InferiorShutdownRequested);
     m_commandsToRunOnTemporaryBreak.clear();
     switch (startParameters().closeMode) {
         case KillAtClose:
@@ -1853,7 +1863,7 @@ void GdbEngine::shutdownInferior()
 
 void GdbEngine::handleInferiorShutdown(const DebuggerResponse &response)
 {
-    QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
+    CHECK_STATE(InferiorShutdownRequested);
     if (response.resultClass == ResultDone) {
         notifyInferiorShutdownOk();
         return;
@@ -1875,13 +1885,13 @@ void GdbEngine::handleInferiorShutdown(const DebuggerResponse &response)
 void GdbEngine::notifyAdapterShutdownFailed()
 {
     showMessage(_("ADAPTER SHUTDOWN FAILED"));
-    QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
+    CHECK_STATE(EngineShutdownRequested);
     notifyEngineShutdownFailed();
 }
 
 void GdbEngine::notifyAdapterShutdownOk()
 {
-    QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
+    CHECK_STATE(EngineShutdownRequested);
     showMessage(_("INITIATE GDBENGINE SHUTDOWN IN STATE %1, PROC: %2")
         .arg(lastGoodState()).arg(m_gdbProc->state()));
     m_commandsDoneCallback = 0;
@@ -1925,7 +1935,7 @@ void GdbEngine::handleGdbExit(const DebuggerResponse &response)
 
 void GdbEngine::detachDebugger()
 {
-    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    CHECK_STATE(InferiorStopOk);
     QTC_ASSERT(startMode() != AttachCore, qDebug() << startMode());
     postCommand("detach", GdbEngine::ExitRequest, CB(handleDetach));
 }
@@ -1933,7 +1943,7 @@ void GdbEngine::detachDebugger()
 void GdbEngine::handleDetach(const DebuggerResponse &response)
 {
     Q_UNUSED(response);
-    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    CHECK_STATE(InferiorStopOk);
     notifyInferiorExited();
 }
 
@@ -2008,10 +2018,10 @@ bool GdbEngine::hasCapability(unsigned cap) const
 
 void GdbEngine::continueInferiorInternal()
 {
-    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    CHECK_STATE(InferiorStopOk);
     notifyInferiorRunRequested();
     showStatusMessage(tr("Running requested..."), 5000);
-    QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
+    CHECK_STATE(InferiorRunRequested);
     postCommand("-exec-continue", RunRequest, CB(handleExecuteContinue));
 }
 
@@ -2024,14 +2034,14 @@ void GdbEngine::autoContinueInferior()
 
 void GdbEngine::continueInferior()
 {
-    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    CHECK_STATE(InferiorStopOk);
     setTokenBarrier();
     continueInferiorInternal();
 }
 
 void GdbEngine::executeStep()
 {
-    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    CHECK_STATE(InferiorStopOk);
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step requested..."), 5000);
@@ -2054,7 +2064,7 @@ void GdbEngine::handleExecuteStep(const DebuggerResponse &response)
         QTC_CHECK(state() == InferiorStopOk);
         return;
     }
-    QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
+    CHECK_STATE(InferiorRunRequested);
     if (response.resultClass == ResultRunning) {
         // All is fine. Waiting for a *running.
         notifyInferiorRunOk(); // Only needed for gdb < 7.0.
@@ -2086,7 +2096,7 @@ void GdbEngine::handleExecuteStep(const DebuggerResponse &response)
 
 void GdbEngine::executeStepI()
 {
-    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    CHECK_STATE(InferiorStopOk);
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step by instruction requested..."), 5000);
@@ -2098,7 +2108,7 @@ void GdbEngine::executeStepI()
 
 void GdbEngine::executeStepOut()
 {
-    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    CHECK_STATE(InferiorStopOk);
     postCommand("-stack-select-frame 0", Discardable);
     setTokenBarrier();
     notifyInferiorRunRequested();
@@ -2108,7 +2118,7 @@ void GdbEngine::executeStepOut()
 
 void GdbEngine::executeNext()
 {
-    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    CHECK_STATE(InferiorStopOk);
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step next requested..."), 5000);
@@ -2132,16 +2142,16 @@ void GdbEngine::handleExecuteNext(const DebuggerResponse &response)
     if (response.resultClass == ResultDone) {
         // Step was finishing too quick, and a '*stopped' messages should
         // have preceded it, so just ignore this result.
-        QTC_CHECK(state() == InferiorStopOk);
+        CHECK_STATE(InferiorStopOk);
         return;
     }
-    QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
+    CHECK_STATE(InferiorRunRequested);
     if (response.resultClass == ResultRunning) {
         // All is fine. Waiting for a *running.
         notifyInferiorRunOk(); // Only needed for gdb < 7.0.
         return;
     }
-    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    CHECK_STATE(InferiorStopOk);
     QByteArray msg = response.data["msg"].data();
     if (msg.startsWith("Cannot find bounds of current function")
             || msg.contains("Error accessing memory address ")) {
@@ -2162,7 +2172,7 @@ void GdbEngine::handleExecuteNext(const DebuggerResponse &response)
 
 void GdbEngine::executeNextI()
 {
-    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    CHECK_STATE(InferiorStopOk);
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step next instruction requested..."), 5000);
@@ -2179,7 +2189,7 @@ static QByteArray addressSpec(quint64 address)
 
 void GdbEngine::executeRunToLine(const ContextData &data)
 {
-    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    CHECK_STATE(InferiorStopOk);
     setTokenBarrier();
     resetLocation();
     notifyInferiorRunRequested();
@@ -2204,7 +2214,7 @@ void GdbEngine::executeRunToLine(const ContextData &data)
 
 void GdbEngine::executeRunToFunction(const QString &functionName)
 {
-    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    CHECK_STATE(InferiorStopOk);
     setTokenBarrier();
     resetLocation();
     postCommand("-break-insert -t " + functionName.toLatin1());
@@ -2214,7 +2224,7 @@ void GdbEngine::executeRunToFunction(const QString &functionName)
 
 void GdbEngine::executeJumpToLine(const ContextData &data)
 {
-    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    CHECK_STATE(InferiorStopOk);
     QByteArray loc;
     if (data.address)
         loc = addressSpec(data.address);
@@ -2234,7 +2244,7 @@ void GdbEngine::executeJumpToLine(const ContextData &data)
 
 void GdbEngine::executeReturn()
 {
-    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    CHECK_STATE(InferiorStopOk);
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Immediate return from function requested..."), 5000);
@@ -4417,7 +4427,7 @@ void GdbEngine::resetInferior()
 
 void GdbEngine::handleAdapterStartFailed(const QString &msg, Id settingsIdHint)
 {
-    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
+    CHECK_STATE(EngineSetupOk);
     showMessage(_("ADAPTER START FAILED"));
     if (!msg.isEmpty()) {
         const QString title = tr("Adapter start failed");
@@ -4442,7 +4452,7 @@ void GdbEngine::handleInferiorPrepared()
 {
     const DebuggerStartParameters &sp = startParameters();
 
-    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+    CHECK_STATE(InferiorSetupRequested);
 
     if (!sp.commandsAfterConnect.isEmpty()) {
         QByteArray commands = globalMacroExpander()->expand(sp.commandsAfterConnect);
@@ -4475,7 +4485,7 @@ void GdbEngine::handleInferiorPrepared()
 
 void GdbEngine::finishInferiorSetup()
 {
-    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+    CHECK_STATE(InferiorSetupRequested);
 
     if (startParameters().startMode == AttachCore) {
         notifyInferiorSetupOk(); // No breakpoints in core files.

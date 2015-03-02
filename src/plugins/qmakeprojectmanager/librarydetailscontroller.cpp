@@ -753,7 +753,7 @@ void NonInternalLibraryDetailsController::slotLibraryPathChanged()
             if (parentFolderName != QLatin1String("debug") &&
                 parentFolderName != QLatin1String("release"))
                 subfoldersEnabled = false;
-            const QString baseName = fi.baseName();
+            const QString baseName = fi.completeBaseName();
 
             if (baseName.isEmpty() || baseName.at(baseName.size() - 1).toLower() != QLatin1Char('d'))
                 removeSuffixEnabled = false;
@@ -786,18 +786,18 @@ QString NonInternalLibraryDetailsController::snippet() const
     const bool removeSuffix = isWindowsGroupVisible()
             && libraryDetailsWidget()->removeSuffixCheckBox->isChecked();
     if (creatorPlatform() == CreatorWindows) {
-        libName = fi.baseName();
+        libName = fi.completeBaseName();
         if (removeSuffix && !libName.isEmpty()) // remove last letter which needs to be "d"
             libName = libName.left(libName.size() - 1);
         if (fi.completeSuffix() == QLatin1String("a")) // the mingw lib case
             libName = libName.mid(3); // cut the "lib" prefix
     } else if (creatorPlatform() == CreatorMac) {
         if (macLibraryType() == AddLibraryWizard::FrameworkType)
-            libName = fi.baseName();
+            libName = fi.completeBaseName();
         else
-            libName = fi.baseName().mid(3); // cut the "lib" prefix
+            libName = fi.completeBaseName().mid(3); // cut the "lib" prefix
     } else {
-        libName = fi.baseName().mid(3); // cut the "lib" prefix
+        libName = fi.completeBaseName().mid(3); // cut the "lib" prefix
     }
 
     QString targetRelativePath;
@@ -946,7 +946,7 @@ void ExternalLibraryDetailsController::updateWindowsOptionsEnablement()
         if (parentFolderName != QLatin1String("debug") &&
                 parentFolderName != QLatin1String("release"))
             subfoldersEnabled = false;
-        const QString baseName = fi.baseName();
+        const QString baseName = fi.completeBaseName();
 
         if (baseName.isEmpty() || baseName.at(baseName.size() - 1).toLower() != QLatin1Char('d'))
             removeSuffixEnabled = false;

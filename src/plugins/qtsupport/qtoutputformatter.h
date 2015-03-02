@@ -34,10 +34,6 @@
 #include "qtsupport_global.h"
 
 #include <utils/outputformatter.h>
-#include <utils/fileinprojectfinder.h>
-
-#include <QRegExp>
-#include <QPointer>
 
 QT_FORWARD_DECLARE_CLASS(QTextCursor)
 
@@ -53,19 +49,21 @@ struct LinkResult
 };
 
 namespace Internal {
-    class QtSupportPlugin;
+class QtOutputFormatterPrivate;
+class QtSupportPlugin;
 }
 
-class QTSUPPORT_EXPORT QtOutputFormatter
-    : public Utils::OutputFormatter
+class QTSUPPORT_EXPORT QtOutputFormatter : public Utils::OutputFormatter
 {
     Q_OBJECT
 public:
     explicit QtOutputFormatter(ProjectExplorer::Project *project);
+    ~QtOutputFormatter();
 
     void appendMessage(const QString &text, Utils::OutputFormat format);
     void appendMessage(const QString &text, const QTextCharFormat &format);
     void handleLink(const QString &href);
+    void setPlainTextEdit(QPlainTextEdit *plainText);
 
 protected:
     void clearLastLine();
@@ -82,14 +80,7 @@ private:
     void appendLine(QTextCursor &cursor, const LinkResult &lr, const QString &line,
                     const QTextCharFormat &format);
 
-    mutable QRegExp m_qmlError;
-    mutable QRegExp m_qtError;
-    mutable QRegExp m_qtAssert;
-    mutable QRegExp m_qtAssertX;
-    mutable QRegExp m_qtTestFail;
-    QPointer<ProjectExplorer::Project> m_project;
-    QString m_lastLine;
-    Utils::FileInProjectFinder m_projectFinder;
+    Internal::QtOutputFormatterPrivate *d;
 
     // for testing
     friend class Internal::QtSupportPlugin;

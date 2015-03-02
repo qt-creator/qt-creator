@@ -41,6 +41,7 @@
 #include <debugger/debuggerstringutils.h>
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/localsandexpressionswindow.h>
+#include <debugger/threaddata.h>
 #include <debugger/watchwindow.h>
 
 #include <debugger/breakhandler.h>
@@ -1154,6 +1155,8 @@ void QmlEngine::updateCurrentContext()
     } else {
         QModelIndex currentIndex = inspectorTreeView()->currentIndex();
         const WatchData *currentData = watchHandler()->watchData(currentIndex);
+        if (!currentData)
+            return;
         const WatchData *parentData = watchHandler()->watchData(currentIndex.parent());
         const WatchData *grandParentData = watchHandler()->watchData(
                     currentIndex.parent().parent());

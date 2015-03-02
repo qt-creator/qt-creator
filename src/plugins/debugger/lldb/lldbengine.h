@@ -36,6 +36,7 @@
 #include <debugger/memoryagent.h>
 #include <debugger/watchhandler.h>
 #include <debugger/debuggertooltipmanager.h>
+#include <debugger/debuggerprotocol.h>
 
 #include <utils/consoleprocess.h>
 

@@ -59,8 +59,8 @@ bool sortNodes(Node *n1, Node *n2)
     const NodeType n2Type = n2->nodeType();
 
     // project files
-    FileNode *file1 = dynamic_cast<FileNode*>(n1);
-    FileNode *file2 = dynamic_cast<FileNode*>(n2);
+    FileNode *file1 = n1->asFileNode();
+    FileNode *file2 = n2->asFileNode();
     if (file1 && file1->fileType() == ProjectFileType) {
         if (file2 && file2->fileType() == ProjectFileType) {
             const QString fileName1 = file1->path().fileName();
@@ -221,7 +221,7 @@ QModelIndex FlatModel::index(int row, int column, const QModelIndex &parent) con
     if (!parent.isValid() && row == 0 && column == 0) { // session
         result = createIndex(0, 0, m_rootNode);
     } else if (parent.isValid() && column == 0) {
-        FolderNode *parentNode = dynamic_cast<FolderNode*>(nodeForIndex(parent));
+        FolderNode *parentNode = nodeForIndex(parent)->asFolderNode();
         Q_ASSERT(parentNode);
         QHash<FolderNode*, QList<Node*> >::const_iterator it = m_childNodes.constFind(parentNode);
         if (it == m_childNodes.constEnd()) {
@@ -270,7 +270,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
     QVariant result;
 
     if (Node *node = nodeForIndex(index)) {
-        FolderNode *folderNode = dynamic_cast<FolderNode*>(node);
+        FolderNode *folderNode = node->asFolderNode();
         switch (role) {
         case Qt::DisplayRole: {
             QString name = node->displayName();
@@ -334,11 +334,11 @@ Qt::ItemFlags FlatModel::flags(const QModelIndex &index) const
     if (Node *node = nodeForIndex(index)) {
         if (node == m_rootNode)
             return 0; // no flags for session node...
-        if (!dynamic_cast<ProjectNode *>(node)) {
+        if (!node->asProjectNode()) {
             // either folder or file node
             if (node->supportedActions(node).contains(Rename))
                 f = f | Qt::ItemIsEditable;
-            if (dynamic_cast<FileNode *>(node))
+            if (node->asFileNode())
                 f = f | Qt::ItemIsDragEnabled;
         }
     }
@@ -368,7 +368,7 @@ int FlatModel::rowCount(const QModelIndex &parent) const
     if (!parent.isValid()) {
         rows = 1;
     } else {
-        FolderNode *folderNode = dynamic_cast<FolderNode*>(nodeForIndex(parent));
+        FolderNode *folderNode = nodeForIndex(parent)->asFolderNode();
         if (folderNode && m_childNodes.contains(folderNode))
             rows = m_childNodes.value(folderNode).size();
     }
@@ -385,7 +385,7 @@ bool FlatModel::hasChildren(const QModelIndex &parent) const
     if (!parent.isValid())
         return true;
 
-    FolderNode *folderNode = dynamic_cast<FolderNode*>(nodeForIndex(parent));
+    FolderNode *folderNode = nodeForIndex(parent)->asFolderNode();
     if (!folderNode)
         return false;
 
@@ -402,7 +402,7 @@ bool FlatModel::canFetchMore(const QModelIndex & parent) const
     if (!parent.isValid()) {
         return false;
     } else {
-        if (FolderNode *folderNode = dynamic_cast<FolderNode*>(nodeForIndex(parent)))
+        if (FolderNode *folderNode = nodeForIndex(parent)->asFolderNode())
             return !m_childNodes.contains(folderNode);
         else
             return false;
@@ -472,7 +472,7 @@ void FlatModel::fetchMore(FolderNode *folderNode) const
 
 void FlatModel::fetchMore(const QModelIndex &parent)
 {
-    FolderNode *folderNode = dynamic_cast<FolderNode*>(nodeForIndex(parent));
+    FolderNode *folderNode = nodeForIndex(parent)->asFolderNode();
     Q_ASSERT(folderNode);
 
     fetchMore(folderNode);
@@ -513,7 +513,7 @@ QMimeData *FlatModel::mimeData(const QModelIndexList &indexes) const
     auto data = new Utils::FileDropMimeData;
     foreach (const QModelIndex &index, indexes) {
         Node *node = nodeForIndex(index);
-        if (dynamic_cast<FileNode *>(node))
+        if (node->asFileNode())
             data->addFile(node->path().toString());
     }
     return data;
@@ -600,10 +600,10 @@ FolderNode *FlatModel::visibleFolderNode(FolderNode *node) const
 bool FlatModel::filter(Node *node) const
 {
     bool isHidden = false;
-    if (FolderNode *folderNode = dynamic_cast<FolderNode*>(node)) {
+    if (FolderNode *folderNode = node->asFolderNode()) {
         if (m_filterProjects)
             isHidden = !folderNode->showInSimpleTree();
-    } else if (FileNode *fileNode = dynamic_cast<FileNode*>(node)) {
+    } else if (FileNode *fileNode = node->asFileNode()) {
         if (m_filterGeneratedFiles)
             isHidden = fileNode->isGenerated();
     }
@@ -802,7 +802,7 @@ void FlatModel::aboutToShowInSimpleTreeChanged(FolderNode* node)
     QList<Node *> staleFolders;
     recursiveAddFolderNodesImpl(node, &staleFolders);
     foreach (Node *n, staleFolders)
-        if (FolderNode *fn = dynamic_cast<FolderNode *>(n))
+        if (FolderNode *fn = n->asFolderNode())
             m_childNodes.remove(fn);
 }
 

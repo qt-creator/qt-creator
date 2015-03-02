@@ -41,6 +41,7 @@
 
 #include <QAction>
 #include <QComboBox>
+#include <QCoreApplication>
 #include <QDebug>
 #include <QFont>
 #include <QLabel>
@@ -79,14 +80,17 @@ namespace Internal {
 
     class SearchResultWindowPrivate : public QObject
     {
-        Q_OBJECT
+        Q_DECLARE_TR_FUNCTIONS(Core::SearchResultWindow)
     public:
-        SearchResultWindowPrivate(SearchResultWindow *window);
-        bool isSearchVisible() const;
-        int visibleSearchIndex() const;
+        SearchResultWindowPrivate(SearchResultWindow *window, QWidget *newSearchPanel);
+        bool isSearchVisible() const { return m_currentIndex > 0; }
+        int visibleSearchIndex() const { return m_currentIndex - 1; }
         void setCurrentIndex(int index, bool focus);
+        void setCurrentIndexWithFocus(int index) { setCurrentIndex(index, true); }
+        void moveWidgetToTop();
+        void popupRequested(bool focus);
+        void handleExpandCollapseToolButton(bool checked);
 
-        FindPlugin *m_plugin;
         SearchResultWindow *q;
         QList<Internal::SearchResultWidget *> m_searchResultWidgets;
         QToolButton *m_expandCollapseButton;
@@ -103,26 +107,47 @@ namespace Internal {
         SearchResultColor m_color;
         int m_tabWidth;
 
-    public slots:
-        void setCurrentIndex(int index);
-        void moveWidgetToTop();
-        void popupRequested(bool focus);
     };
 
-    SearchResultWindowPrivate::SearchResultWindowPrivate(SearchResultWindow *window)
-        : q(window),
-          m_tabWidth(8)
+    SearchResultWindowPrivate::SearchResultWindowPrivate(SearchResultWindow *window, QWidget *nsp) :
+        q(window),
+        m_expandCollapseButton(0),
+        m_expandCollapseAction(new QAction(tr("Expand All"), window)),
+        m_spacer(new QWidget),
+        m_historyLabel(new QLabel(tr("History:"))),
+        m_spacer2(new QWidget),
+        m_recentSearchesBox(new QComboBox),
+        m_widget(new QStackedWidget),
+        m_currentIndex(0),
+        m_tabWidth(8)
     {
-    }
+        m_spacer->setMinimumWidth(30);
+        m_spacer2->setMinimumWidth(5);
+        m_recentSearchesBox->setProperty("drawleftborder", true);
+        m_recentSearchesBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+        m_recentSearchesBox->addItem(tr("New Search"));
+        connect(m_recentSearchesBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+                this, &SearchResultWindowPrivate::setCurrentIndexWithFocus);
 
-    bool SearchResultWindowPrivate::isSearchVisible() const
-    {
-        return m_currentIndex > 0;
-    }
+        m_widget->setWindowTitle(q->displayName());
 
-    int SearchResultWindowPrivate::visibleSearchIndex() const
-    {
-        return m_currentIndex - 1;
+        auto newSearchArea = new InternalScrollArea(m_widget);
+        newSearchArea->setWidget(nsp);
+        newSearchArea->setFocusProxy(nsp);
+        m_widget->addWidget(newSearchArea);
+
+        m_expandCollapseButton = new QToolButton(m_widget);
+        m_expandCollapseButton->setAutoRaise(true);
+
+        m_expandCollapseAction->setCheckable(true);
+        m_expandCollapseAction->setIcon(QIcon(QLatin1String(":/find/images/expand.png")));
+        Command *cmd = ActionManager::registerAction(m_expandCollapseAction, "Find.ExpandAll");
+        cmd->setAttribute(Command::CA_UpdateText);
+        m_expandCollapseButton->setDefaultAction(cmd->action());
+
+        connect(m_expandCollapseAction, &QAction::toggled, this,
+                &SearchResultWindowPrivate::handleExpandCollapseToolButton);
+
     }
 
     void SearchResultWindowPrivate::setCurrentIndex(int index, bool focus)
@@ -143,11 +168,6 @@ namespace Internal {
             m_expandCollapseButton->setEnabled(true);
         }
         q->navigateStateChanged();
-    }
-
-    void SearchResultWindowPrivate::setCurrentIndex(int index)
-    {
-        setCurrentIndex(index, true/*focus*/);
     }
 
     void SearchResultWindowPrivate::moveWidgetToTop()
@@ -277,43 +297,9 @@ SearchResultWindow *SearchResultWindow::m_instance = 0;
     \internal
 */
 SearchResultWindow::SearchResultWindow(QWidget *newSearchPanel)
-    : d(new SearchResultWindowPrivate(this))
+    : d(new SearchResultWindowPrivate(this, newSearchPanel))
 {
     m_instance = this;
-
-    d->m_spacer = new QWidget;
-    d->m_spacer->setMinimumWidth(30);
-    d->m_historyLabel = new QLabel(tr("History:"));
-    d->m_spacer2 = new QWidget;
-    d->m_spacer2->setMinimumWidth(5);
-    d->m_recentSearchesBox = new QComboBox;
-    d->m_recentSearchesBox->setProperty("drawleftborder", true);
-    d->m_recentSearchesBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    d->m_recentSearchesBox->addItem(tr("New Search"));
-    connect(d->m_recentSearchesBox, SIGNAL(activated(int)), d, SLOT(setCurrentIndex(int)));
-
-    d->m_widget = new QStackedWidget;
-    d->m_widget->setWindowTitle(displayName());
-
-    InternalScrollArea *newSearchArea = new InternalScrollArea(d->m_widget);
-    newSearchArea->setWidget(newSearchPanel);
-    newSearchArea->setFocusProxy(newSearchPanel);
-    d->m_widget->addWidget(newSearchArea);
-    d->m_currentIndex = 0;
-
-    d->m_expandCollapseButton = new QToolButton(d->m_widget);
-    d->m_expandCollapseButton->setAutoRaise(true);
-
-    d->m_expandCollapseAction = new QAction(tr("Expand All"), this);
-    d->m_expandCollapseAction->setCheckable(true);
-    d->m_expandCollapseAction->setIcon(QIcon(QLatin1String(":/find/images/expand.png")));
-    Command *cmd = ActionManager::registerAction(
-            d->m_expandCollapseAction, "Find.ExpandAll",
-            Context(Constants::C_GLOBAL));
-    cmd->setAttribute(Command::CA_UpdateText);
-    d->m_expandCollapseButton->setDefaultAction(cmd->action());
-
-    connect(d->m_expandCollapseAction, SIGNAL(toggled(bool)), this, SLOT(handleExpandCollapseToolButton(bool)));
     readSettings();
 }
 
@@ -401,12 +387,15 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
             d->m_currentIndex = d->m_recentSearchesBox->count() - 1;
         }
     }
-    Internal::SearchResultWidget *widget = new Internal::SearchResultWidget;
+    auto widget = new SearchResultWidget;
     d->m_searchResultWidgets.prepend(widget);
     d->m_widget->insertWidget(1, widget);
-    connect(widget, SIGNAL(navigateStateChanged()), this, SLOT(navigateStateChanged()));
-    connect(widget, SIGNAL(restarted()), d, SLOT(moveWidgetToTop()));
-    connect(widget, SIGNAL(requestPopup(bool)), d, SLOT(popupRequested(bool)));
+    connect(widget, &SearchResultWidget::navigateStateChanged,
+            this, &SearchResultWindow::navigateStateChanged);
+    connect(widget, &SearchResultWidget::restarted,
+            d, &SearchResultWindowPrivate::moveWidgetToTop);
+    connect(widget, &SearchResultWidget::requestPopup,
+            d, &SearchResultWindowPrivate::popupRequested);
     widget->setTextEditorFont(d->m_font, d->m_color);
     widget->setTabWidth(d->m_tabWidth);
     widget->setSupportPreserveCase(preserveCaseMode == PreserveCaseEnabled);
@@ -415,12 +404,12 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
     widget->setInfo(label, toolTip, searchTerm);
     if (searchOrSearchAndReplace == SearchAndReplace)
         widget->setDontAskAgainGroup(cfgGroup);
-    SearchResult *result = new SearchResult(widget);
+    auto result = new SearchResult(widget);
     d->m_searchResults.prepend(result);
     d->m_recentSearchesBox->insertItem(1, tr("%1 %2").arg(label, searchTerm));
     if (d->m_currentIndex > 0)
         ++d->m_currentIndex; // so setCurrentIndex still knows about the right "currentIndex" and its widget
-    d->setCurrentIndex(1);
+    d->setCurrentIndexWithFocus(1);
     return result;
 }
 
@@ -509,24 +498,21 @@ void SearchResultWindow::setTabWidth(int tabWidth)
 
 void SearchResultWindow::openNewSearchPanel()
 {
-    d->setCurrentIndex(0);
+    d->setCurrentIndexWithFocus(0);
     popup(IOutputPane::ModeSwitch  | IOutputPane::WithFocus | IOutputPane::EnsureSizeHint);
 }
 
-/*!
-    \internal
-*/
-void SearchResultWindow::handleExpandCollapseToolButton(bool checked)
+void SearchResultWindowPrivate::handleExpandCollapseToolButton(bool checked)
 {
-    if (!d->isSearchVisible())
+    if (!isSearchVisible())
         return;
-    d->m_searchResultWidgets.at(d->visibleSearchIndex())->setAutoExpandResults(checked);
+    m_searchResultWidgets.at(visibleSearchIndex())->setAutoExpandResults(checked);
     if (checked) {
-        d->m_expandCollapseAction->setText(tr("Collapse All"));
-        d->m_searchResultWidgets.at(d->visibleSearchIndex())->expandAll();
+        m_expandCollapseAction->setText(tr("Collapse All"));
+        m_searchResultWidgets.at(visibleSearchIndex())->expandAll();
     } else {
-        d->m_expandCollapseAction->setText(tr("Expand All"));
-        d->m_searchResultWidgets.at(d->visibleSearchIndex())->collapseAll();
+        m_expandCollapseAction->setText(tr("Expand All"));
+        m_searchResultWidgets.at(visibleSearchIndex())->collapseAll();
     }
 }
 
@@ -612,18 +598,15 @@ bool SearchResultWindow::canNavigate() const
 SearchResult::SearchResult(SearchResultWidget *widget)
     : m_widget(widget)
 {
-    connect(widget, SIGNAL(activated(Core::SearchResultItem)),
-            this, SIGNAL(activated(Core::SearchResultItem)));
-    connect(widget, SIGNAL(replaceButtonClicked(QString,QList<Core::SearchResultItem>,bool)),
-            this, SIGNAL(replaceButtonClicked(QString,QList<Core::SearchResultItem>,bool)));
-    connect(widget, SIGNAL(cancelled()),
-            this, SIGNAL(cancelled()));
-    connect(widget, SIGNAL(paused(bool)),
-            this, SIGNAL(paused(bool)));
-    connect(widget, SIGNAL(visibilityChanged(bool)),
-            this, SIGNAL(visibilityChanged(bool)));
-    connect(widget, SIGNAL(searchAgainRequested()),
-            this, SIGNAL(searchAgainRequested()));
+    connect(widget, &SearchResultWidget::activated, this, &SearchResult::activated);
+    connect(widget, &SearchResultWidget::replaceButtonClicked,
+            this, &SearchResult::replaceButtonClicked);
+    connect(widget, &SearchResultWidget::cancelled, this, &SearchResult::cancelled);
+    connect(widget, &SearchResultWidget::paused, this, &SearchResult::paused);
+    connect(widget, &SearchResultWidget::visibilityChanged,
+            this, &SearchResult::visibilityChanged);
+    connect(widget, &SearchResultWidget::searchAgainRequested,
+            this, &SearchResult::searchAgainRequested);
 }
 
 /*!

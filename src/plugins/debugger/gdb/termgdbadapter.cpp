@@ -140,11 +140,13 @@ void GdbTermEngine::runEngine()
 
 void GdbTermEngine::handleStubAttached(const DebuggerResponse &response)
 {
-    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+    // InferiorStopOk can happen if the "*stopped" in response to the
+    // 'attach' comes in before its '^done'
+    QTC_ASSERT(state() == EngineRunRequested || state() == InferiorStopOk,
+               qDebug() << state());
 
     switch (response.resultClass) {
     case ResultDone:
-    case ResultRunning:
         if (startParameters().toolChainAbi.os() != ProjectExplorer::Abi::WindowsOS) {
             showMessage(_("INFERIOR ATTACHED"));
         } else {
@@ -160,8 +162,19 @@ void GdbTermEngine::handleStubAttached(const DebuggerResponse &response)
                             LogWarning);
             }
         }
-        notifyEngineRunAndInferiorStopOk();
-        continueInferiorInternal();
+        if (state() == EngineRunRequested) {
+            // We will get a '*stopped' later that we'll interpret as 'spontaneous'
+            // So acknowledge the current state and put a delayed 'continue' in the pipe.
+            notifyEngineRunAndInferiorRunOk();
+        } else {
+            //postCommand("print 43", NoFlags, [this](const DebuggerResponse &) { continueInferiorInternal(); });
+            continueInferiorInternal();
+        }
+        break;
+    case ResultRunning:
+        // Has anyone seen such a result lately?
+        showMessage(_("INFERIOR ATTACHED AND RUNNING"));
+        notifyEngineRunAndInferiorRunOk();
         break;
     case ResultError:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
@@ -170,11 +183,11 @@ void GdbTermEngine::handleStubAttached(const DebuggerResponse &response)
             break;
         }
         showMessage(QString::fromLocal8Bit(response.data["msg"].data()));
-        notifyEngineRunFailed();
+        notifyEngineIll();
         break;
     default:
         showMessage(QString::fromLatin1("Invalid response %1").arg(response.resultClass));
-        notifyEngineRunFailed();
+        notifyEngineIll();
         break;
     }
 }

@@ -43,10 +43,8 @@ class ModulesTreeView : public Utils::BaseTreeView
 public:
     ModulesTreeView();
 
-private slots:
-    void moduleActivated(const QModelIndex &index);
-
 private:
+    void moduleActivated(const QModelIndex &index);
     void contextMenuEvent(QContextMenuEvent *ev);
 };
 

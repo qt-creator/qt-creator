@@ -37,7 +37,9 @@
 
 #include <utils/qtcassert.h>
 
+#include <QIcon>
 #include <QDebug>
+#include <QFile>
 
 namespace Debugger {
 namespace Internal {

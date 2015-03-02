@@ -33,7 +33,7 @@
 
 #include <texteditor/texteditor_global.h>
 
-#include <QString>
+QT_FORWARD_DECLARE_CLASS(QString)
 
 namespace TextEditor {
 

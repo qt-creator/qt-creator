@@ -80,8 +80,7 @@ bool Uncrustify::initialize()
     m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
     Core::Command *cmd
             = Core::ActionManager::registerAction(m_formatFile,
-                                                  Constants::Uncrustify::ACTION_FORMATFILE,
-                                                  Core::Context(Core::Constants::C_GLOBAL));
+                                                  Constants::Uncrustify::ACTION_FORMATFILE);
     menu->addAction(cmd);
     connect(m_formatFile, &QAction::triggered, this, &Uncrustify::formatFile);
 

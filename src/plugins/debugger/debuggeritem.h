@@ -37,7 +37,6 @@
 #include <projectexplorer/abi.h>
 
 #include <utils/fileutils.h>
-#include <utils/macroexpander.h>
 
 #include <QList>
 #include <QVariant>

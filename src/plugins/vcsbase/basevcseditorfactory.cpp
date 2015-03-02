@@ -32,6 +32,7 @@
 #include "vcsbaseeditor.h"
 
 #include <texteditor/texteditoractionhandler.h>
+#include <texteditor/textdocument.h>
 
 #include <diffeditor/diffeditorconstants.h>
 #include <extensionsystem/pluginmanager.h>

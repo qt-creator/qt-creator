@@ -36,6 +36,7 @@
 #include <cpptools/commentssettings.h>
 #include <cpptools/doxygengenerator.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 
 #include <QDebug>
 #include <QTextBlock>
@@ -175,7 +176,7 @@ bool handleDoxygenCppStyleContinuation(QTextCursor &cursor)
         return false;
 
     QString newLine(QLatin1Char('\n'));
-    newLine.append(QString(offset, QLatin1Char(' '))); // indent correctly
+    newLine.append(text.left(offset)); // indent correctly
     newLine.append(commentMarker);
     newLine.append(QLatin1Char(' '));
 

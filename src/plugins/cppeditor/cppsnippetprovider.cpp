@@ -37,6 +37,7 @@
 #include <cpptools/cppqtstyleindenter.h>
 
 #include <texteditor/snippets/snippeteditor.h>
+#include <texteditor/textdocument.h>
 
 #include <QLatin1String>
 #include <QCoreApplication>

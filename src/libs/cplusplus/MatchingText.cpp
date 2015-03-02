@@ -154,7 +154,8 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
     if (text.isEmpty() || !shouldInsertMatchingText(la))
         return QString();
 
-    BackwardsScanner tk(tc, MAX_NUM_LINES, textToProcess.left(*skippedChars));
+    BackwardsScanner tk(tc, LanguageFeatures::defaultFeatures(), MAX_NUM_LINES,
+                        textToProcess.left(*skippedChars));
     const int startToken = tk.startToken();
     int index = startToken;
 
@@ -215,7 +216,7 @@ static bool shouldInsertNewline(const QTextCursor &tc)
 
 QString MatchingText::insertParagraphSeparator(const QTextCursor &tc)
 {
-    BackwardsScanner tk(tc, MAX_NUM_LINES);
+    BackwardsScanner tk(tc, LanguageFeatures::defaultFeatures(), MAX_NUM_LINES);
     int index = tk.startToken();
 
     if (tk[index - 1].isNot(T_LBRACE))

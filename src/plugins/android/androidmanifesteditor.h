@@ -39,6 +39,7 @@
 
 QT_BEGIN_NAMESPACE
 class QToolBar;
+class QActionGroup;
 QT_END_NAMESPACE
 
 namespace Android {

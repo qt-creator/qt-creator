@@ -42,6 +42,7 @@
 #include <coreplugin/id.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
 
 #include <QtPlugin>
@@ -56,16 +57,22 @@ using namespace TextEditor;
 namespace Bookmarks {
 namespace Internal {
 
-BookmarksPlugin::BookmarksPlugin()
-    : m_bookmarkManager(0),
-      m_bookmarkMarginActionLineNumber(0)
+BookmarksPlugin::BookmarksPlugin() :
+    m_bookmarkManager(0),
+    m_toggleAction(0),
+    m_prevAction(0),
+    m_nextAction(0),
+    m_docPrevAction(0),
+    m_docNextAction(0),
+    m_editBookmarkAction(0),
+    m_bookmarkMarginAction(0),
+    m_bookmarkMarginActionLineNumber(0)
 {
 }
 
 bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
 {
     Context textcontext(TextEditor::Constants::C_TEXTEDITOR);
-    Context globalcontext(Core::Constants::C_GLOBAL);
 
     ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
     ActionContainer *mbm = ActionManager::createMenu(Id(BOOKMARKS_MENU));
@@ -82,26 +89,26 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
 
     //Previous
     m_prevAction = new QAction(tr("Previous Bookmark"), this);
-    cmd = ActionManager::registerAction(m_prevAction, BOOKMARKS_PREV_ACTION, globalcontext);
+    cmd = ActionManager::registerAction(m_prevAction, BOOKMARKS_PREV_ACTION);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+,") : tr("Ctrl+,")));
     mbm->addAction(cmd);
 
     //Next
     m_nextAction = new QAction(tr("Next Bookmark"), this);
-    cmd = ActionManager::registerAction(m_nextAction, BOOKMARKS_NEXT_ACTION, globalcontext);
+    cmd = ActionManager::registerAction(m_nextAction, BOOKMARKS_NEXT_ACTION);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+.") : tr("Ctrl+.")));
     mbm->addAction(cmd);
 
-    mbm->addSeparator(globalcontext);
+    mbm->addSeparator();
 
     //Previous Doc
     m_docPrevAction = new QAction(tr("Previous Bookmark in Document"), this);
-    cmd = ActionManager::registerAction(m_docPrevAction, BOOKMARKS_PREVDOC_ACTION, globalcontext);
+    cmd = ActionManager::registerAction(m_docPrevAction, BOOKMARKS_PREVDOC_ACTION);
     mbm->addAction(cmd);
 
     //Next Doc
     m_docNextAction = new QAction(tr("Next Bookmark in Document"), this);
-    cmd = ActionManager::registerAction(m_docNextAction, BOOKMARKS_NEXTDOC_ACTION, globalcontext);
+    cmd = ActionManager::registerAction(m_docNextAction, BOOKMARKS_NEXTDOC_ACTION);
     mbm->addAction(cmd);
 
     m_editBookmarkAction = new QAction(tr("Edit Bookmark"), this);

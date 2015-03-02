@@ -466,12 +466,9 @@ TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &curs
     int beginOfToken = 0;
     int endOfToken = 0;
 
-    LanguageFeatures features;
-    features.qtEnabled = true;
-    features.qtKeywordsEnabled = true;
-    features.qtMocRunEnabled = true;
-    features.objCEnabled = true;
-    features.cxx11Enabled = true;
+    const LanguageFeatures features = documentFromSemanticInfo
+            ? documentFromSemanticInfo->languageFeatures()
+            : LanguageFeatures::defaultFeatures();
 
     SimpleLexer tokenize;
     tokenize.setLanguageFeatures(features);
@@ -564,7 +561,8 @@ TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &curs
         if (pos > 0 && !isValidIdentifierChar(ch))
             --pos; // positionInBlock points to a delimiter character.
         const Token tk = SimpleLexer::tokenAt(block.text(), pos,
-                                              BackwardsScanner::previousBlockState(block), true);
+                                              BackwardsScanner::previousBlockState(block),
+                                              features);
 
         beginOfToken = block.position() + tk.utf16charsBegin();
         endOfToken = block.position() + tk.utf16charsEnd();
@@ -615,7 +613,7 @@ TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &curs
         return link;
 
     // Evaluate the type of the expression under the cursor
-    ExpressionUnderCursor expressionUnderCursor;
+    ExpressionUnderCursor expressionUnderCursor(features);
     QString expression = expressionUnderCursor(tc);
 
     for (int pos = tc.position();; ++pos) {

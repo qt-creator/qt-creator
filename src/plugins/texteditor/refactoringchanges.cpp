@@ -30,9 +30,11 @@
 
 #include "refactoringchanges.h"
 #include "texteditor.h"
+#include "textdocument.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
 

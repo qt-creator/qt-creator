@@ -148,12 +148,11 @@ void QnxPlugin::extensionsInitialized()
     m_attachToQnxApplication->setText(tr("Attach to remote QNX application..."));
     connect(m_attachToQnxApplication, SIGNAL(triggered()), debugSupport, SLOT(showProcessesDialog()));
 
-    const Core::Context globalcontext(Core::Constants::C_GLOBAL);
     Core::ActionContainer *mstart = Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
     mstart->appendGroup(Constants::QNX_DEBUGGING_GROUP);
-    mstart->addSeparator(globalcontext, Constants::QNX_DEBUGGING_GROUP, &m_debugSeparator);
+    mstart->addSeparator(Core::Context(Core::Constants::C_GLOBAL), Constants::QNX_DEBUGGING_GROUP, &m_debugSeparator);
 
-    Core::Command *cmd = Core::ActionManager::registerAction(m_attachToQnxApplication, "Debugger.AttachToQnxApplication", globalcontext);
+    Core::Command *cmd = Core::ActionManager::registerAction(m_attachToQnxApplication, "Debugger.AttachToQnxApplication");
     mstart->addAction(cmd, Constants::QNX_DEBUGGING_GROUP);
 
     connect(KitManager::instance(), SIGNAL(kitsChanged()), this, SLOT(updateDebuggerActions()));

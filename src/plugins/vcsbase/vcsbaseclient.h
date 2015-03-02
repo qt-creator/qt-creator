@@ -32,7 +32,6 @@
 #define VCSBASECLIENT_H
 
 #include "vcsbase_global.h"
-#include <coreplugin/id.h>
 
 #include <QObject>
 #include <QStringList>
@@ -44,6 +43,8 @@ class QFileInfo;
 class QVariant;
 class QProcessEnvironment;
 QT_END_NAMESPACE
+
+namespace Core { class Id; }
 
 namespace Utils {
 struct SynchronousProcessResponse;

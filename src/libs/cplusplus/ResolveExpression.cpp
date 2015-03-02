@@ -612,7 +612,7 @@ bool ResolveExpression::visit(UnaryExpressionAST *ast)
                 added = true;
             } else if (namedTy != 0) {
                 const Name *starOp = control()->operatorNameId(OperatorNameId::StarOp);
-                if (ClassOrNamespace *b = _context.lookupType(namedTy->name(), p.scope())) {
+                if (ClassOrNamespace *b = _context.lookupType(namedTy->name(), p.scope(), p.binding())) {
                     foreach (const LookupItem &r, b->find(starOp)) {
                         Symbol *overload = r.declaration();
                         if (Function *funTy = overload->type()->asFunctionType()) {
@@ -730,6 +730,7 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
                 continue;
 
             TypeOfExpression exprTyper;
+            exprTyper.setExpandTemplates(true);
             Document::Ptr doc = _context.snapshot().document(QString::fromLocal8Bit(decl->fileName()));
             exprTyper.init(doc, _context.snapshot(), _context.bindings(),
                            QSet<const Declaration* >(_autoDeclarationsBeingResolved) << decl);
@@ -754,10 +755,12 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
                 if (n == 0) {
                     item.setType(newType);
                     item.setScope(typeItems[n].scope());
+                    item.setBinding(typeItems[n].binding());
                 } else {
                     LookupItem newItem(item);
                     newItem.setType(newType);
                     newItem.setScope(typeItems[n].scope());
+                    newItem.setBinding(typeItems[n].binding());
                     newCandidates.push_back(newItem);
                 }
             }
@@ -1015,20 +1018,20 @@ bool ResolveExpression::visit(MemberAccessAST *ast)
 }
 
 ClassOrNamespace *ResolveExpression::findClass(const FullySpecifiedType &originalTy, Scope *scope,
-                                               ClassOrNamespace* enclosingTemplateInstantiation) const
+                                               ClassOrNamespace *enclosingBinding) const
 {
     FullySpecifiedType ty = originalTy.simplified();
     ClassOrNamespace *binding = 0;
 
     if (Class *klass = ty->asClassType()) {
         if (scope->isBlock())
-            binding = _context.lookupType(klass->name(), scope, enclosingTemplateInstantiation);
+            binding = _context.lookupType(klass->name(), scope, enclosingBinding);
         if (!binding)
-            binding = _context.lookupType(klass, enclosingTemplateInstantiation);
+            binding = _context.lookupType(klass, enclosingBinding);
     }
 
     else if (NamedType *namedTy = ty->asNamedType())
-        binding = _context.lookupType(namedTy->name(), scope, enclosingTemplateInstantiation);
+        binding = _context.lookupType(namedTy->name(), scope, enclosingBinding);
 
     else if (Function *funTy = ty->asFunctionType())
         return findClass(funTy->returnType(), scope);
@@ -1078,8 +1081,9 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                 ClassOrNamespace *binding
                         = findClassForTemplateParameterInExpressionScope(r.binding(),
                                                                          ty);
+
                 if (! binding)
-                    binding = findClass(ty, scope);
+                    binding = findClass(ty, scope, r.binding());
 
                 if (binding){
                     // lookup for overloads of operator->
@@ -1145,13 +1149,13 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                 return binding;
             }
 
-            ClassOrNamespace *enclosingTemplateInstantiation = 0;
+            ClassOrNamespace *enclosingBinding = 0;
             if (ClassOrNamespace *binding = r.binding()) {
                 if (binding->instantiationOrigin())
-                    enclosingTemplateInstantiation = binding;
+                    enclosingBinding = binding;
             }
 
-            if (ClassOrNamespace *binding = findClass(ty, scope, enclosingTemplateInstantiation))
+            if (ClassOrNamespace *binding = findClass(ty, scope, enclosingBinding))
                 return binding;
         }
     }

@@ -33,10 +33,12 @@
 
 #include "texteditor_global.h"
 
-#include <QTextBlock>
+#include <QVariantMap>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
+class QTextDocument;
+class QTextCursor;
 QT_END_NAMESPACE
 
 namespace TextEditor {

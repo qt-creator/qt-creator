@@ -49,6 +49,7 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
+#include <coreplugin/idocument.h>
 
 #include <QFileInfo>
 #include <QUrl>

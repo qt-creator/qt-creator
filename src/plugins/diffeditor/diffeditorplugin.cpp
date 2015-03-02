@@ -160,11 +160,9 @@ bool DiffEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     toolsContainer->insertGroup(Core::Constants::G_TOOLS_OPTIONS,
                                 Constants::G_TOOLS_DIFF);
 
-    Core::Context globalcontext(Core::Constants::C_GLOBAL);
-
     QAction *diffAction = new QAction(tr("Diff..."), this);
     Core::Command *diffCommand = Core::ActionManager::registerAction(diffAction,
-                             "DiffEditor.Diff", globalcontext);
+                             "DiffEditor.Diff");
     connect(diffAction, &QAction::triggered, this, &DiffEditorPlugin::diff);
     toolsContainer->addAction(diffCommand, Constants::G_TOOLS_DIFF);
 

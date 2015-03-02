@@ -38,7 +38,6 @@
 #include <QFont>
 
 QT_BEGIN_NAMESPACE
-class QColor;
 class QPlainTextEdit;
 class QTextCharFormat;
 class QTextCursor;
@@ -46,8 +45,9 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
-class AnsiEscapeCodeHandler;
 class FormattedText;
+
+namespace Internal { class OutputFormatterPrivate; }
 
 class QTCREATOR_UTILS_EXPORT OutputFormatter : public QObject
 {
@@ -58,7 +58,7 @@ public:
     virtual ~OutputFormatter();
 
     QPlainTextEdit *plainTextEdit() const;
-    void setPlainTextEdit(QPlainTextEdit *plainText);
+    virtual void setPlainTextEdit(QPlainTextEdit *plainText);
 
     QFont font() const;
     void setFont(const QFont &font);
@@ -76,11 +76,7 @@ protected:
     void append(QTextCursor &cursor, const QString &text, const QTextCharFormat &format);
 
 private:
-    QPlainTextEdit *m_plainTextEdit;
-    QTextCharFormat *m_formats;
-    QFont m_font;
-    AnsiEscapeCodeHandler *m_escapeCodeHandler;
-    bool m_overwriteOutput;
+    Internal::OutputFormatterPrivate *d;
 };
 
 } // namespace Utils

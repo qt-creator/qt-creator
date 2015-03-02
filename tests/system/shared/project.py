@@ -395,6 +395,8 @@ def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None):
         if platform.system() in ('Windows', 'Microsoft'):
             available.remove(Targets.EMBEDDED_LINUX)
             available.append(Targets.DESKTOP_480_MSVC2010)
+        if platform.system() != 'Darwin':
+            available.append(Targets.DESKTOP_541_GCC)
     for target in filter(lambda x: x in available,
                          (Targets.MAEMO5, Targets.HARMATTAN)):
         available.remove(target)
@@ -625,6 +627,8 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
                 elif platform.system() in ('Windows', 'Microsoft'):
                     result.append(Targets.DESKTOP_480_MSVC2010)
             result.extend([Targets.DESKTOP_521_DEFAULT, Targets.DESKTOP_531_DEFAULT])
+            if platform.system() != 'Darwin':
+                result.append(Targets.DESKTOP_541_GCC)
         if 'MeeGo/Harmattan' in supports:
             result.append(Targets.HARMATTAN)
         if 'Maemo/Fremantle' in supports:
@@ -637,6 +641,8 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
                   Targets.DESKTOP_531_DEFAULT, Targets.MAEMO5, Targets.SIMULATOR, Targets.HARMATTAN]
         if platform.system() in ('Windows', 'Microsoft'):
             result.append(Targets.DESKTOP_480_MSVC2010)
+        if platform.system() != 'Darwin':
+            result.append(Targets.DESKTOP_541_GCC)
     else:
         test.warning("Returning None (__getSupportedPlatforms__())",
                      "Parsed text: '%s'" % text)

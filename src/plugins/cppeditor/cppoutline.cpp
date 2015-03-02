@@ -34,7 +34,10 @@
 
 #include <cplusplus/OverviewModel.h>
 
+#include <texteditor/textdocument.h>
+
 #include <coreplugin/find/itemviewfind.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>

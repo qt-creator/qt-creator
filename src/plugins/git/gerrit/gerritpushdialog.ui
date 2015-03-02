@@ -204,6 +204,15 @@ Partial names can be used if they are unambiguous.</string>
    <header location="global">git/gerrit/branchcombobox.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>localBranchComboBox</tabstop>
+  <tabstop>remoteComboBox</tabstop>
+  <tabstop>targetBranchComboBox</tabstop>
+  <tabstop>commitView</tabstop>
+  <tabstop>topicLineEdit</tabstop>
+  <tabstop>draftCheckBox</tabstop>
+  <tabstop>reviewersLineEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

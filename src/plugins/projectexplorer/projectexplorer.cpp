@@ -541,7 +541,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_proWindow = new ProjectWindow;
     addAutoReleasedObject(dd->m_proWindow);
 
-    Context globalcontext(Core::Constants::C_GLOBAL);
     Context projecTreeContext(Constants::C_PROJECT_TREE);
 
     dd->m_projectsMode = new ProjectsMode(dd->m_proWindow);
@@ -735,12 +734,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msessionContextMenu->addSeparator(projecTreeContext, Constants::G_SESSION_FILES);
     mprojectContextMenu->addSeparator(projecTreeContext, Constants::G_PROJECT_FILES);
     msubProjectContextMenu->addSeparator(projecTreeContext, Constants::G_PROJECT_FILES);
-    mfile->addSeparator(globalcontext, Core::Constants::G_FILE_PROJECT);
-    mbuild->addSeparator(globalcontext, Constants::G_BUILD_REBUILD);
-    msessionContextMenu->addSeparator(globalcontext, Constants::G_SESSION_OTHER);
-    mbuild->addSeparator(globalcontext, Constants::G_BUILD_CANCEL);
-    mbuild->addSeparator(globalcontext, Constants::G_BUILD_RUN);
-    mprojectContextMenu->addSeparator(globalcontext, Constants::G_PROJECT_REBUILD);
+    mfile->addSeparator(Core::Constants::G_FILE_PROJECT);
+    mbuild->addSeparator(Constants::G_BUILD_REBUILD);
+    msessionContextMenu->addSeparator(Constants::G_SESSION_OTHER);
+    mbuild->addSeparator(Constants::G_BUILD_CANCEL);
+    mbuild->addSeparator(Constants::G_BUILD_RUN);
+    mprojectContextMenu->addSeparator(Constants::G_PROJECT_REBUILD);
 
     //
     // Actions
@@ -748,13 +747,13 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // new action
     dd->m_newAction = new QAction(tr("New Project..."), this);
-    cmd = ActionManager::registerAction(dd->m_newAction, Constants::NEWPROJECT, globalcontext);
+    cmd = ActionManager::registerAction(dd->m_newAction, Constants::NEWPROJECT);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+N")));
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
 
     // open action
     dd->m_loadAction = new QAction(tr("Load Project..."), this);
-    cmd = ActionManager::registerAction(dd->m_loadAction, Constants::LOAD, globalcontext);
+    cmd = ActionManager::registerAction(dd->m_loadAction, Constants::LOAD);
 #ifndef Q_OS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+O")));
 #endif
@@ -809,7 +808,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // session manager action
     dd->m_sessionManagerAction = new QAction(tr("Session Manager..."), this);
-    cmd = ActionManager::registerAction(dd->m_sessionManagerAction, Constants::NEWSESSION, globalcontext);
+    cmd = ActionManager::registerAction(dd->m_sessionManagerAction, Constants::NEWSESSION);
     mfile->addAction(cmd, Core::Constants::G_FILE_OPEN);
     cmd->setDefaultKeySequence(QKeySequence());
 
@@ -817,7 +816,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // unload action
     dd->m_unloadAction = new Utils::ParameterAction(tr("Close Project"), tr("Close Project \"%1\""),
                                                       Utils::ParameterAction::AlwaysEnabled, this);
-    cmd = ActionManager::registerAction(dd->m_unloadAction, Constants::UNLOAD, globalcontext);
+    cmd = ActionManager::registerAction(dd->m_unloadAction, Constants::UNLOAD);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(dd->m_unloadAction->text());
     mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
@@ -832,7 +831,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // unload session action
     dd->m_closeAllProjects = new QAction(tr("Close All Projects and Editors"), this);
-    cmd = ActionManager::registerAction(dd->m_closeAllProjects, Constants::CLEARSESSION, globalcontext);
+    cmd = ActionManager::registerAction(dd->m_closeAllProjects, Constants::CLEARSESSION);
     mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
 
@@ -840,14 +839,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     QIcon buildIcon = QIcon(QLatin1String(Constants::ICON_BUILD));
     buildIcon.addFile(QLatin1String(Constants::ICON_BUILD_SMALL));
     dd->m_buildSessionAction = new QAction(buildIcon, tr("Build All"), this);
-    cmd = ActionManager::registerAction(dd->m_buildSessionAction, Constants::BUILDSESSION, globalcontext);
+    cmd = ActionManager::registerAction(dd->m_buildSessionAction, Constants::BUILDSESSION);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+B")));
     mbuild->addAction(cmd, Constants::G_BUILD_BUILD);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
 
     // deploy session
     dd->m_deploySessionAction = new QAction(tr("Deploy All"), this);
-    cmd = ActionManager::registerAction(dd->m_deploySessionAction, Constants::DEPLOYSESSION, globalcontext);
+    cmd = ActionManager::registerAction(dd->m_deploySessionAction, Constants::DEPLOYSESSION);
     mbuild->addAction(cmd, Constants::G_BUILD_DEPLOY);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
 
@@ -855,7 +854,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     QIcon rebuildIcon = QIcon(QLatin1String(Constants::ICON_REBUILD));
     rebuildIcon.addFile(QLatin1String(Constants::ICON_REBUILD_SMALL));
     dd->m_rebuildSessionAction = new QAction(rebuildIcon, tr("Rebuild All"), this);
-    cmd = ActionManager::registerAction(dd->m_rebuildSessionAction, Constants::REBUILDSESSION, globalcontext);
+    cmd = ActionManager::registerAction(dd->m_rebuildSessionAction, Constants::REBUILDSESSION);
     mbuild->addAction(cmd, Constants::G_BUILD_REBUILD);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
 
@@ -863,7 +862,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     QIcon cleanIcon = QIcon(QLatin1String(Constants::ICON_CLEAN));
     cleanIcon.addFile(QLatin1String(Constants::ICON_CLEAN_SMALL));
     dd->m_cleanSessionAction = new QAction(cleanIcon, tr("Clean All"), this);
-    cmd = ActionManager::registerAction(dd->m_cleanSessionAction, Constants::CLEANSESSION, globalcontext);
+    cmd = ActionManager::registerAction(dd->m_cleanSessionAction, Constants::CLEANSESSION);
     mbuild->addAction(cmd, Constants::G_BUILD_CLEAN);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
 
@@ -871,7 +870,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_buildAction = new Utils::ParameterAction(tr("Build Project"), tr("Build Project \"%1\""),
                                                      Utils::ParameterAction::AlwaysEnabled, this);
     dd->m_buildAction->setIcon(buildIcon);
-    cmd = ActionManager::registerAction(dd->m_buildAction, Constants::BUILD, globalcontext);
+    cmd = ActionManager::registerAction(dd->m_buildAction, Constants::BUILD);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(dd->m_buildAction->text());
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+B")));
@@ -883,7 +882,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // deploy action
     dd->m_deployAction = new Utils::ParameterAction(tr("Deploy Project"), tr("Deploy Project \"%1\""),
                                                      Utils::ParameterAction::AlwaysEnabled, this);
-    cmd = ActionManager::registerAction(dd->m_deployAction, Constants::DEPLOY, globalcontext);
+    cmd = ActionManager::registerAction(dd->m_deployAction, Constants::DEPLOY);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(dd->m_deployAction->text());
     mbuild->addAction(cmd, Constants::G_BUILD_DEPLOY);
@@ -891,7 +890,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // rebuild action
     dd->m_rebuildAction = new Utils::ParameterAction(tr("Rebuild Project"), tr("Rebuild Project \"%1\""),
                                                        Utils::ParameterAction::AlwaysEnabled, this);
-    cmd = ActionManager::registerAction(dd->m_rebuildAction, Constants::REBUILD, globalcontext);
+    cmd = ActionManager::registerAction(dd->m_rebuildAction, Constants::REBUILD);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(dd->m_rebuildAction->text());
     mbuild->addAction(cmd, Constants::G_BUILD_REBUILD);
@@ -899,7 +898,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // clean action
     dd->m_cleanAction = new Utils::ParameterAction(tr("Clean Project"), tr("Clean Project \"%1\""),
                                                      Utils::ParameterAction::AlwaysEnabled, this);
-    cmd = ActionManager::registerAction(dd->m_cleanAction, Constants::CLEAN, globalcontext);
+    cmd = ActionManager::registerAction(dd->m_cleanAction, Constants::CLEAN);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(dd->m_cleanAction->text());
     mbuild->addAction(cmd, Constants::G_BUILD_CLEAN);
@@ -908,12 +907,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     QIcon stopIcon = QIcon(QLatin1String(Constants::ICON_STOP));
     stopIcon.addFile(QLatin1String(Constants::ICON_STOP_SMALL));
     dd->m_cancelBuildAction = new QAction(stopIcon, tr("Cancel Build"), this);
-    cmd = ActionManager::registerAction(dd->m_cancelBuildAction, Constants::CANCELBUILD, globalcontext);
+    cmd = ActionManager::registerAction(dd->m_cancelBuildAction, Constants::CANCELBUILD);
     mbuild->addAction(cmd, Constants::G_BUILD_CANCEL);
 
     // run action
     dd->m_runAction = new QAction(runIcon, tr("Run"), this);
-    cmd = ActionManager::registerAction(dd->m_runAction, Constants::RUN, globalcontext);
+    cmd = ActionManager::registerAction(dd->m_runAction, Constants::RUN);
     cmd->setAttribute(Command::CA_UpdateText);
 
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+R")));
@@ -923,7 +922,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // Run without deployment action
     dd->m_runWithoutDeployAction = new QAction(tr("Run Without Deployment"), this);
-    cmd = ActionManager::registerAction(dd->m_runWithoutDeployAction, Constants::RUNWITHOUTDEPLOY, globalcontext);
+    cmd = ActionManager::registerAction(dd->m_runWithoutDeployAction, Constants::RUNWITHOUTDEPLOY);
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
 
     // build action (context menu)
@@ -946,19 +945,19 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // build without dependencies action
     dd->m_buildProjectOnlyAction = new QAction(tr("Build Without Dependencies"), this);
-    ActionManager::registerAction(dd->m_buildProjectOnlyAction, Constants::BUILDPROJECTONLY, globalcontext);
+    ActionManager::registerAction(dd->m_buildProjectOnlyAction, Constants::BUILDPROJECTONLY);
 
     // rebuild without dependencies action
     dd->m_rebuildProjectOnlyAction = new QAction(tr("Rebuild Without Dependencies"), this);
-    ActionManager::registerAction(dd->m_rebuildProjectOnlyAction, Constants::REBUILDPROJECTONLY, globalcontext);
+    ActionManager::registerAction(dd->m_rebuildProjectOnlyAction, Constants::REBUILDPROJECTONLY);
 
     // deploy without dependencies action
     dd->m_deployProjectOnlyAction = new QAction(tr("Deploy Without Dependencies"), this);
-    ActionManager::registerAction(dd->m_deployProjectOnlyAction, Constants::DEPLOYPROJECTONLY, globalcontext);
+    ActionManager::registerAction(dd->m_deployProjectOnlyAction, Constants::DEPLOYPROJECTONLY);
 
     // clean without dependencies action
     dd->m_cleanProjectOnlyAction = new QAction(tr("Clean Without Dependencies"), this);
-    ActionManager::registerAction(dd->m_cleanProjectOnlyAction, Constants::CLEANPROJECTONLY, globalcontext);
+    ActionManager::registerAction(dd->m_cleanProjectOnlyAction, Constants::CLEANPROJECTONLY);
 
     // deploy action (context menu)
     dd->m_deployActionContextMenu = new QAction(tr("Deploy"), this);
@@ -1005,7 +1004,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // unload project again, in right position
     dd->m_unloadActionContextMenu = new Utils::ParameterAction(tr("Close Project"), tr("Close Project \"%1\""),
                                                               Utils::ParameterAction::EnabledWithParameter, this);
-    cmd = ActionManager::registerAction(dd->m_unloadActionContextMenu, Constants::UNLOADCM, globalcontext);
+    cmd = ActionManager::registerAction(dd->m_unloadActionContextMenu, Constants::UNLOADCM);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(dd->m_unloadActionContextMenu->text());
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
@@ -1055,15 +1054,15 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd = ActionManager::registerAction(dd->m_projectTreeCollapseAllAction, Constants::PROJECTTREE_COLLAPSE_ALL,
                              projecTreeContext);
     const Id treeGroup = Constants::G_PROJECT_TREE;
-    mfileContextMenu->addSeparator(globalcontext, treeGroup);
+    mfileContextMenu->addSeparator(treeGroup);
     mfileContextMenu->addAction(cmd, treeGroup);
-    msubProjectContextMenu->addSeparator(globalcontext, treeGroup);
+    msubProjectContextMenu->addSeparator(treeGroup);
     msubProjectContextMenu->addAction(cmd, treeGroup);
-    mfolderContextMenu->addSeparator(globalcontext, treeGroup);
+    mfolderContextMenu->addSeparator(treeGroup);
     mfolderContextMenu->addAction(cmd, treeGroup);
-    mprojectContextMenu->addSeparator(globalcontext, treeGroup);
+    mprojectContextMenu->addSeparator(treeGroup);
     mprojectContextMenu->addAction(cmd, treeGroup);
-    msessionContextMenu->addSeparator(globalcontext, treeGroup);
+    msessionContextMenu->addSeparator(treeGroup);
     msessionContextMenu->addAction(cmd, treeGroup);
 
     // target selector
@@ -1080,8 +1079,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_projectSelectorActionMenu->setText(tr("Open Build and Run Kit Selector..."));
     connect(dd->m_projectSelectorActionMenu, &QAction::triggered, dd->m_targetSelector,
             &MiniProjectTargetSelector::toggleVisible);
-    cmd = ActionManager::registerAction(dd->m_projectSelectorActionMenu, Constants::SELECTTARGET,
-                       globalcontext);
+    cmd = ActionManager::registerAction(dd->m_projectSelectorActionMenu, Constants::SELECTTARGET);
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
 
     dd->m_projectSelectorActionQuick = new QAction(this);
@@ -1089,7 +1087,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_projectSelectorActionQuick->setText(tr("Quick Switch Kit Selector"));
     connect(dd->m_projectSelectorActionQuick, &QAction::triggered,
             dd->m_targetSelector, &MiniProjectTargetSelector::nextOrShow);
-    cmd = ActionManager::registerAction(dd->m_projectSelectorActionQuick, Constants::SELECTTARGETQUICK, globalcontext);
+    cmd = ActionManager::registerAction(dd->m_projectSelectorActionQuick, Constants::SELECTTARGETQUICK);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+T")));
 
     connect(ICore::instance(), &ICore::saveSettingsRequested,
@@ -2042,7 +2040,7 @@ static QString pathOrDirectoryFor(Node *node, bool dir)
 {
     Utils::FileName path = node->path();
     QString location;
-    FolderNode *folder = dynamic_cast<FolderNode *>(node);
+    FolderNode *folder = node->asFolderNode();
     if (node->nodeType() == VirtualFolderNodeType && folder) {
         // Virtual Folder case
         // If there are files directly below or no subfolders, take the folder path
@@ -2397,7 +2395,8 @@ void ProjectExplorerPluginPrivate::runProjectWithoutDeploy()
 
 void ProjectExplorerPluginPrivate::runProjectContextMenu()
 {
-    ProjectNode *projectNode = dynamic_cast<ProjectNode*>(ProjectTree::currentNode());
+    Node *node = ProjectTree::currentNode();
+    ProjectNode *projectNode = node ? node->asProjectNode() : 0;
     if (projectNode == ProjectTree::currentProject()->rootProjectNode() || !projectNode) {
         m_instance->runProject(ProjectTree::currentProject(), NormalRunMode);
     } else {
@@ -2916,7 +2915,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
     if (currentNode && currentNode->projectNode()) {
         QList<ProjectAction> actions = currentNode->supportedActions(currentNode);
 
-        if (ProjectNode *pn = dynamic_cast<ProjectNode *>(currentNode)) {
+        if (ProjectNode *pn = currentNode->asProjectNode()) {
             if (ProjectTree::currentProject() && pn == ProjectTree::currentProject()->rootProjectNode()) {
                 m_runActionContextMenu->setVisible(true);
             } else {
@@ -2937,7 +2936,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
                 }
             }
         }
-        if (dynamic_cast<FolderNode*>(currentNode)) {
+        if (currentNode->asFolderNode()) {
             // Also handles ProjectNode
             m_addNewFileAction->setEnabled(actions.contains(AddNewFile)
                                               && !ICore::isNewItemDialogRunning());
@@ -2949,7 +2948,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
             m_addExistingFilesAction->setEnabled(actions.contains(AddExistingFile));
             m_addExistingDirectoryAction->setEnabled(actions.contains(AddExistingDirectory));
             m_renameFileAction->setEnabled(actions.contains(Rename));
-        } else if (dynamic_cast<FileNode*>(currentNode)) {
+        } else if (currentNode->asFileNode()) {
             // Enable and show remove / delete in magic ways:
             // If both are disabled show Remove
             // If both are enabled show both (can't happen atm)
@@ -3050,7 +3049,8 @@ void ProjectExplorerPluginPrivate::addExistingDirectory()
 
 void ProjectExplorerPlugin::addExistingFiles(const QStringList &filePaths)
 {
-    FolderNode *folderNode = dynamic_cast<FolderNode *>(ProjectTree::currentNode());
+    Node *node = ProjectTree::currentNode();
+    FolderNode *folderNode = node ? node->asFolderNode() : 0;
     addExistingFiles(folderNode, filePaths);
 }
 
@@ -3079,8 +3079,13 @@ void ProjectExplorerPlugin::addExistingFiles(FolderNode *folderNode, const QStri
 
 void ProjectExplorerPluginPrivate::removeProject()
 {
-    ProjectNode *subProjectNode = dynamic_cast<ProjectNode*>(ProjectTree::currentNode()->projectNode());
-    ProjectNode *projectNode = dynamic_cast<ProjectNode *>(subProjectNode->parentFolderNode());
+    Node *node = ProjectTree::currentNode();
+    if (!node)
+        return;
+    ProjectNode *subProjectNode = node->projectNode();
+    if (!subProjectNode)
+        return;
+    ProjectNode *projectNode = subProjectNode->parentFolderNode()->asProjectNode();
     if (projectNode) {
         RemoveFileDialog removeFileDialog(subProjectNode->path().toString(), ICore::mainWindow());
         removeFileDialog.setDeleteFileVisible(false);
@@ -3118,7 +3123,7 @@ void ProjectExplorerPluginPrivate::removeFile()
     Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode && currentNode->nodeType() == FileNodeType, return);
 
-    FileNode *fileNode = dynamic_cast<FileNode*>(currentNode);
+    FileNode *fileNode = currentNode->asFileNode();
 
     QString filePath = currentNode->path().toString();
     RemoveFileDialog removeFileDialog(filePath, ICore::mainWindow());
@@ -3147,7 +3152,7 @@ void ProjectExplorerPluginPrivate::deleteFile()
     Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode && currentNode->nodeType() == FileNodeType, return);
 
-    FileNode *fileNode = dynamic_cast<FileNode*>(currentNode);
+    FileNode *fileNode = currentNode->asFileNode();
 
     QString filePath = currentNode->path().toString();
     QMessageBox::StandardButton button =

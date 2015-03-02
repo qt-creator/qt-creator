@@ -4077,6 +4077,8 @@ private:
             bool starFound = false;
             int ampersandPos = 0;
             bool memberAccess = false;
+            bool deleteCall = false;
+
             for (int i = path.count() - 2; i >= 0; --i) {
                 if (path.at(i) == m_declaratorAST) {
                     declarationFound = true;
@@ -4088,6 +4090,11 @@ private:
                     int pos = m_file->startOf(memberAccessAST->access_token);
                     changes.replace(pos, pos + 2, QLatin1String("."));
                     memberAccess = true;
+                    break;
+                } else if (DeleteExpressionAST *deleteAST = path.at(i)->asDeleteExpression()) {
+                    const int pos = m_file->startOf(deleteAST->delete_token);
+                    changes.insert(pos, QLatin1String("// "));
+                    deleteCall = true;
                     break;
                 } else if (UnaryExpressionAST *unaryExprAST = path.at(i)->asUnaryExpression()) {
                     const Token tk = m_file->tokenAt(unaryExprAST->unary_op_token);
@@ -4110,7 +4117,7 @@ private:
                     break;
                 }
             }
-            if (!declarationFound && !starFound && !memberAccess) {
+            if (!declarationFound && !starFound && !memberAccess && !deleteCall) {
                 if (ampersandPos) {
                     changes.insert(ampersandPos, QLatin1String("&("));
                     changes.insert(m_file->endOf(idAST->firstToken()), QLatin1String(")"));

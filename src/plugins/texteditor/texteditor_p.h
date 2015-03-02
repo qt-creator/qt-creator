@@ -31,22 +31,10 @@
 #ifndef TEXTEDITOR_P_H
 #define TEXTEDITOR_P_H
 
-#include "texteditor.h"
-#include "behaviorsettings.h"
-#include "displaysettings.h"
-#include "marginsettings.h"
-#include "fontsettings.h"
-#include "refactoroverlay.h"
 
-#include <coreplugin/id.h>
-#include <utils/changeset.h>
+#include "texteditor_global.h"
 
-#include <QBasicTimer>
-#include <QSharedPointer>
-#include <QPointer>
-#include <QScopedPointer>
-#include <QTextBlock>
-#include <QTimer>
+#include <QList>
 
 namespace TextEditor {
 

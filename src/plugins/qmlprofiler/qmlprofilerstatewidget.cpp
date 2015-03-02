@@ -264,13 +264,14 @@ void QmlProfilerStateWidget::profilerStateChanged()
         if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppStarting)
             d->appKilled = false;
 
-    d->isRecording = d->m_profilerState->serverRecording();
-    if (d->isRecording)
+    if (d->m_profilerState->serverRecording()) {
         d->profilingTimer.start();
-    else {
+        d->isRecording = true;
+    } else if (d->isRecording) {
         // estimated time in ns
         d->estimatedProfilingTime = d->profilingTimer.elapsed() * 1e6;
         emit newTimeEstimation(d->estimatedProfilingTime);
+        d->isRecording = false;
     }
     updateDisplay();
 }

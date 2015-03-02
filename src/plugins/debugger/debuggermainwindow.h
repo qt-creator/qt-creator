@@ -86,9 +86,6 @@ public:
     void readSettings();
     void writeSettings() const;
 
-private slots:
-    void showViewsMenu();
-
 private:
     friend class Internal::DebuggerMainWindowPrivate;
     Internal::DebuggerMainWindowPrivate *d;

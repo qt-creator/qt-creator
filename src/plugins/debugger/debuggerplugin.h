@@ -54,6 +54,8 @@ private:
     QObject *remoteCommand(const QStringList &options, const QStringList &arguments);
     ShutdownFlag aboutToShutdown();
     void extensionsInitialized();
+
+    // Called from AppOutputPane::attachToRunControl().
     Q_SLOT void attachExternalApplication(ProjectExplorer::RunControl *rc);
 
 #ifdef WITH_TESTS

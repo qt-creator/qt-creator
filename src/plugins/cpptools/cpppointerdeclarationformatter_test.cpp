@@ -36,6 +36,7 @@
 #include <coreplugin/coreconstants.h>
 
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/plaintexteditorfactory.h>
 
 #include <utils/fileutils.h>

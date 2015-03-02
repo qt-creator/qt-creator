@@ -49,6 +49,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/locator/commandlocator.h>
+#include <texteditor/textdocument.h>
 #include <utils/fileutils.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/parameteraction.h>

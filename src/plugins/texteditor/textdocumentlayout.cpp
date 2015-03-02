@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "textdocumentlayout.h"
+#include "textdocument.h"
 #include <utils/qtcassert.h>
 #include <QDebug>
 

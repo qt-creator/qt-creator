@@ -45,7 +45,8 @@ class GdbServerStarter : public QObject
     Q_OBJECT
 
 public:
-    GdbServerStarter(ProjectExplorer::DeviceProcessesDialog *dlg, bool startServerOnly);
+    GdbServerStarter(ProjectExplorer::DeviceProcessesDialog *dlg,
+                     bool attachAfterServerStart);
     ~GdbServerStarter();
 
     void run();

@@ -45,7 +45,7 @@ CommitEditor::CommitEditor(const VcsBaseSubmitEditorParameters *parameters)
         : VcsBaseSubmitEditor(parameters, new MercurialCommitWidget),
         fileModel(0)
 {
-    document()->setDisplayName(tr("Commit Editor"));
+    document()->setPreferredDisplayName(tr("Commit Editor"));
 }
 
 MercurialCommitWidget *CommitEditor::commitWidget()

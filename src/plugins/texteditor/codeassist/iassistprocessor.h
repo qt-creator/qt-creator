@@ -31,8 +31,6 @@
 #ifndef IASSISTPROCESSOR_H
 #define IASSISTPROCESSOR_H
 
-#include "iassistproposalwidget.h"
-
 #include <texteditor/texteditor_global.h>
 
 namespace TextEditor {

@@ -409,7 +409,7 @@ MercurialClient::StatusItem MercurialClient::parseStatusLine(const QString &line
 
         //the status line should be similar to "M file_with_changes"
         //so just should take the file name part and store it
-        item.file = line.mid(2);
+        item.file = QDir::fromNativeSeparators(line.mid(2));
     }
     return item;
 }

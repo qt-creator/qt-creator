@@ -73,7 +73,7 @@ namespace Internal {
 
 class SelectRemoteFileDialog : public QDialog
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::SelectRemoteFileDialog)
 
 public:
     explicit SelectRemoteFileDialog(QWidget *parent);
@@ -263,7 +263,7 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     d->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
     d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
-    d->kitChooser = new DebuggerKitChooser(DebuggerKitChooser::RemoteDebugging, this);
+    d->kitChooser = new DebuggerKitChooser(DebuggerKitChooser::AnyDebugging, this);
     d->kitChooser->populate();
 
     d->forceLocalCheckBox = new QCheckBox(this);
@@ -289,12 +289,12 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     d->overrideStartScriptFileName->setExpectedKind(PathChooser::File);
     d->overrideStartScriptFileName->setPromptDialogTitle(tr("Select Startup Script"));
 
-    QHBoxLayout *coreLayout = new QHBoxLayout;
+    auto coreLayout = new QHBoxLayout;
     coreLayout->addWidget(d->localCoreFileName);
     coreLayout->addWidget(d->remoteCoreFileName);
     coreLayout->addWidget(d->selectRemoteCoreButton);
 
-    QFormLayout *formLayout = new QFormLayout;
+    auto formLayout = new QFormLayout;
     formLayout->setContentsMargins(0, 0, 0, 0);
     formLayout->setHorizontalSpacing(6);
     formLayout->setVerticalSpacing(6);
@@ -304,13 +304,13 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     formLayout->addRow(tr("&Executable:"), d->localExecFileName);
     formLayout->addRow(tr("Override &start script:"), d->overrideStartScriptFileName);
 
-    QFrame *line = new QFrame(this);
+    auto line = new QFrame(this);
     line->setFrameShape(QFrame::HLine);
     line->setFrameShadow(QFrame::Sunken);
 
     formLayout->addRow(d->buttonBox);
 
-    QVBoxLayout *vboxLayout = new QVBoxLayout(this);
+    auto vboxLayout = new QVBoxLayout(this);
     vboxLayout->addLayout(formLayout);
     vboxLayout->addStretch();
     vboxLayout->addWidget(line);
@@ -474,5 +474,3 @@ void AttachCoreDialog::setOverrideStartScript(const QString &scriptName)
 
 } // namespace Internal
 } // namespace Debugger
-
-#include "loadcoredialog.moc"

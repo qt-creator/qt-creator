@@ -46,15 +46,13 @@ public:
 
     static void editBreakpoint(Breakpoint bp, QWidget *parent);
 
-private slots:
-    void showAddressColumn(bool on);
-
 private:
     void rowActivated(const QModelIndex &index);
     void contextMenuEvent(QContextMenuEvent *ev);
     void keyPressEvent(QKeyEvent *ev);
     void mouseDoubleClickEvent(QMouseEvent *ev);
 
+    void showAddressColumn(bool on);
     void deleteBreakpoints(const Breakpoints &bps);
     void deleteAllBreakpoints();
     void addBreakpoint();

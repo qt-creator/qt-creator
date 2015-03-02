@@ -38,9 +38,9 @@
 
 
 #include <QHash>
-#include <QIcon>
 #include <QList>
-#include <QPair>
+
+QT_FORWARD_DECLARE_CLASS(QIcon)
 
 namespace TextEditor {
 

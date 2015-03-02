@@ -38,6 +38,7 @@
 
 #include <coreplugin/locator/locatormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>

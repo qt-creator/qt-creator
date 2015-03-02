@@ -54,6 +54,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
@@ -62,6 +63,7 @@
 #include <extensionsystem/iplugin.h>
 
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>

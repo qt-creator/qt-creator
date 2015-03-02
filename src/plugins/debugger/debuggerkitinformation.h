@@ -33,14 +33,11 @@
 
 #include "debugger_global.h"
 #include "debuggerconstants.h"
-#include "debuggeritem.h"
 
-#include <projectexplorer/abi.h>
 #include <projectexplorer/kitinformation.h>
 
-#include <utils/persistentsettings.h>
-
 namespace Debugger {
+class DebuggerItem;
 
 class DEBUGGER_EXPORT DebuggerKitInformation : public ProjectExplorer::KitInformation
 {

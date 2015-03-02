@@ -68,12 +68,11 @@ public:
     void setKitId(Core::Id id);
     void setForceLocalCoreFile(bool on);
 
-private slots:
+private:
     void changed();
     void coreFileChanged(const QString &core);
     void selectRemoteCoreFile();
 
-private:
     AttachCoreDialogPrivate *d;
 };
 

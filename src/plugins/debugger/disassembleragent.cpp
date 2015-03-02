@@ -41,7 +41,10 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/documentmodel.h>
+#include <coreplugin/editormanager/editormanager.h>
 
+#include <texteditor/textmark.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
@@ -304,7 +307,7 @@ void DisassemblerAgent::setContentsToDocument(const DisassemblerLines &contents)
 
     d->document->setPlainText(contents.toString());
 
-    d->document->setDisplayName(_("Disassembler (%1)")
+    d->document->setPreferredDisplayName(_("Disassembler (%1)")
         .arg(d->location.functionName()));
 
     updateBreakpointMarkers();

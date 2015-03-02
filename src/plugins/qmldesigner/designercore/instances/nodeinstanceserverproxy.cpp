@@ -79,6 +79,7 @@
 #include <coreplugin/icore.h>
 #include <utils/hostosinfo.h>
 #include <coreplugin/messagebox.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/kit.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/baseqtversion.h>

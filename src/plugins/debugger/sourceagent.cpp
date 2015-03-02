@@ -35,7 +35,11 @@
 #include "debuggercore.h"
 #include "stackhandler.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/idocument.h>
+
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/textmark.h>
 
 #include <cppeditor/cppeditorconstants.h>

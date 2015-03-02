@@ -30,6 +30,7 @@
 
 #include "texteditorsettings.h"
 
+#include "fontsettings.h"
 #include "texteditor.h"
 #include "behaviorsettings.h"
 #include "behaviorsettingspage.h"

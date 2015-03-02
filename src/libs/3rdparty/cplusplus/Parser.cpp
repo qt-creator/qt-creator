@@ -5696,7 +5696,13 @@ bool Parser::parseDesignatedInitializer(ExpressionAST *&node)
 
     if (LA() == T_EQUAL) {
         ast->equal_token = consumeToken();
-        if (parseAssignmentExpression(ast->initializer)) {
+
+        if (LA() == T_LBRACE) {
+            if (parseBracedInitList0x(node)) {
+                node = ast;
+                return true;
+            }
+        } else if (parseAssignmentExpression(ast->initializer)) {
             node = ast;
             return true;
         }

@@ -52,6 +52,7 @@
 #include <qmakeprojectmanager/qmakekitinformation.h>
 
 #include <debugger/debuggeritemmanager.h>
+#include <debugger/debuggeritem.h>
 #include <debugger/debuggerkitinformation.h>
 
 #include <coreplugin/icore.h>

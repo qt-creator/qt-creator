@@ -39,7 +39,7 @@ using namespace Subversion::Internal;
 SubversionSubmitEditor::SubversionSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters) :
     VcsBase::VcsBaseSubmitEditor(parameters, new VcsBase::SubmitEditorWidget)
 {
-    document()->setDisplayName(tr("Subversion Submit"));
+    document()->setPreferredDisplayName(tr("Subversion Submit"));
     setDescriptionMandatory(false);
 }
 

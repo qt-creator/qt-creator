@@ -30,6 +30,8 @@
 
 #include "attachgdbadapter.h"
 
+#include <coreplugin/messagebox.h>
+
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggerstringutils.h>
 #include <debugger/debuggerstartparameters.h>
@@ -66,40 +68,55 @@ void GdbAttachEngine::setupEngine()
 void GdbAttachEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    const qint64 pid = startParameters().attachPID;
-    postCommand("attach " + QByteArray::number(pid), NoFlags,
-                [this](const DebuggerResponse &r) { handleAttach(r); });
     // Task 254674 does not want to remove them
     //qq->breakHandler()->removeAllBreakpoints();
+    handleInferiorPrepared();
 }
 
 void GdbAttachEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    const qint64 pid = startParameters().attachPID;
+    postCommand("attach " + QByteArray::number(pid), NoFlags,
+                [this](const DebuggerResponse &r) { handleAttach(r); });
     showStatusMessage(tr("Attached to process %1.").arg(inferiorPid()));
-    notifyEngineRunAndInferiorStopOk();
-    handleStop1(GdbMi());
 }
 
 void GdbAttachEngine::handleAttach(const DebuggerResponse &response)
 {
-    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+    QTC_ASSERT(state() == EngineRunRequested || state() == InferiorStopOk,
+               qDebug() << state());
     switch (response.resultClass) {
     case ResultDone:
     case ResultRunning:
         showMessage(_("INFERIOR ATTACHED"));
-        showMessage(msgAttachedToStoppedInferior(), StatusBar);
-        handleInferiorPrepared();
+        if (state() == EngineRunRequested) {
+            // Happens e.g. for "Attach to unstarted application"
+            // We will get a '*stopped' later that we'll interpret as 'spontaneous'
+            // So acknowledge the current state and put a delayed 'continue' in the pipe.
+            showMessage(tr("Attached to running application"), StatusBar);
+            notifyEngineRunAndInferiorRunOk();
+        } else {
+            // InferiorStopOk, e.g. for "Attach to running application".
+            // The *stopped came in between sending the 'attach' and
+            // receiving its '^done'.
+            if (startParameters().continueAfterAttach)
+                continueInferiorInternal();
+        }
         break;
     case ResultError:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
-            notifyInferiorSetupFailed(msgPtraceError(startParameters().startMode));
+            QString msg = msgPtraceError(startParameters().startMode);
+            showStatusMessage(tr("Failed to attach to application: %1").arg(msg));
+            Core::AsynchronousMessageBox::warning(tr("Debugger Error"), msg);
+            notifyEngineIll();
             break;
         }
         // if msg != "ptrace: ..." fall through
     default:
-        QString msg = QString::fromLocal8Bit(response.data["msg"].data());
-        notifyInferiorSetupFailed(msg);
+        showStatusMessage(tr("Failed to attach to application: %1")
+                          .arg(QString::fromLocal8Bit(response.data["msg"].data())));
+        notifyEngineIll();
     }
 }
 

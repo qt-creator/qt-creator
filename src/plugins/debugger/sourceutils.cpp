@@ -34,6 +34,7 @@
 #include "watchutils.h"
 
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 #include <cpptools/abstracteditorsupport.h>
 #include <cpptools/cppprojectfile.h>
 #include <cpptools/cppmodelmanager.h>
@@ -285,6 +286,9 @@ QString cppExpressionAt(TextEditorWidget *editorWidget, int pos,
     if (function)
         function->clear();
 
+    const QString fileName = editorWidget->textDocument()->filePath().toString();
+    const Snapshot snapshot = CppModelManager::instance()->snapshot();
+    const Document::Ptr document = snapshot.document(fileName);
     QTextCursor tc = editorWidget->textCursor();
     QString expr = tc.selectedText();
     if (expr.isEmpty()) {
@@ -294,21 +298,18 @@ QString cppExpressionAt(TextEditorWidget *editorWidget, int pos,
             tc.movePosition(QTextCursor::EndOfWord);
 
         // Fetch the expression's code.
-        ExpressionUnderCursor expressionUnderCursor;
+        ExpressionUnderCursor expressionUnderCursor(document ? document->languageFeatures()
+                                                             : LanguageFeatures::defaultFeatures());
         expr = expressionUnderCursor(tc);
     }
 
     *column = tc.positionInBlock();
     *line = tc.blockNumber() + 1;
 
-    if (!expr.isEmpty()) {
-        QString fileName = editorWidget->textDocument()->filePath().toString();
-        const Snapshot snapshot = CppModelManager::instance()->snapshot();
-        if (const Document::Ptr document = snapshot.document(fileName)) {
-            QString func = document->functionAt(*line, *column, scopeFromLine, scopeToLine);
-            if (function)
-                *function = func;
-        }
+    if (!expr.isEmpty() && document) {
+        QString func = document->functionAt(*line, *column, scopeFromLine, scopeToLine);
+        if (function)
+            *function = func;
     }
 
     return expr;

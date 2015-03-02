@@ -45,7 +45,7 @@ enum StackColumns
     StackFileNameColumn,
     StackLineNumberColumn,
     StackAddressColumn,
-    StackColumnCount = StackAddressColumn,
+    StackColumnCount
 };
 
 ////////////////////////////////////////////////////////////////////////

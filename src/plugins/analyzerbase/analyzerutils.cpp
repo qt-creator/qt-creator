@@ -34,6 +34,7 @@
 
 #include <cpptools/cppmodelmanager.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 
 #include <utils/qtcassert.h>
 
@@ -78,7 +79,7 @@ CPlusPlus::Symbol *AnalyzerUtils::findSymbolUnderCursor()
     QTC_ASSERT(doc, return 0);
 
     // fetch the expression's code
-    CPlusPlus::ExpressionUnderCursor expressionUnderCursor;
+    CPlusPlus::ExpressionUnderCursor expressionUnderCursor(doc->languageFeatures());
     moveCursorToEndOfName(&tc);
     const QString &expression = expressionUnderCursor(tc);
     CPlusPlus::Scope *scope = doc->scopeAt(line, column);

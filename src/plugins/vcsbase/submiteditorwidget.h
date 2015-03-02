@@ -33,9 +33,6 @@
 
 #include "vcsbase_global.h"
 
-#include <utils/completingtextedit.h>
-
-#include <QWidget>
 #include <QAbstractItemView>
 
 QT_BEGIN_NAMESPACE
@@ -43,6 +40,7 @@ class QAction;
 class QModelIndex;
 QT_END_NAMESPACE
 
+namespace Utils { class CompletingTextEdit; }
 namespace VcsBase {
 
 class SubmitFieldWidget;

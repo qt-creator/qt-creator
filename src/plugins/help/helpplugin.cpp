@@ -124,7 +124,6 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(error)
-    Context globalcontext(Core::Constants::C_GLOBAL);
     Context modecontext(Constants::C_MODE_HELP);
 
     const QString &locale = ICore::userInterfaceLanguage();
@@ -177,28 +176,28 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     // Add Contents, Index, and Context menu items
     action = new QAction(QIcon::fromTheme(QLatin1String("help-contents")),
         tr(Constants::SB_CONTENTS), this);
-    cmd = ActionManager::registerAction(action, "Help.ContentsMenu", globalcontext);
+    cmd = ActionManager::registerAction(action, "Help.ContentsMenu");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, SIGNAL(triggered()), this, SLOT(activateContents()));
 
     action = new QAction(tr(Constants::SB_INDEX), this);
-    cmd = ActionManager::registerAction(action, "Help.IndexMenu", globalcontext);
+    cmd = ActionManager::registerAction(action, "Help.IndexMenu");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, SIGNAL(triggered()), this, SLOT(activateIndex()));
 
     action = new QAction(tr("Context Help"), this);
-    cmd = ActionManager::registerAction(action, Help::Constants::CONTEXT_HELP, globalcontext);
+    cmd = ActionManager::registerAction(action, Help::Constants::CONTEXT_HELP);
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F1));
     connect(action, SIGNAL(triggered()), this, SLOT(showContextHelp()));
 
     action = new QAction(tr("Technical Support"), this);
-    cmd = ActionManager::registerAction(action, "Help.TechSupport", globalcontext);
+    cmd = ActionManager::registerAction(action, "Help.TechSupport");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
     connect(action, SIGNAL(triggered()), this, SLOT(slotOpenSupportPage()));
 
     action = new QAction(tr("Report Bug..."), this);
-    cmd = ActionManager::registerAction(action, "Help.ReportBug", globalcontext);
+    cmd = ActionManager::registerAction(action, "Help.ReportBug");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
     connect(action, SIGNAL(triggered()), this, SLOT(slotReportBug()));
 
@@ -635,7 +634,7 @@ void HelpPlugin::handleHelpRequest(const QUrl &url, HelpManager::HelpViewerLocat
             || address.startsWith(QLatin1String("qthelp://com.nokia."))
             || address.startsWith(QLatin1String("qthelp://com.trolltech."))) {
                 // local help not installed, resort to external web help
-                QString urlPrefix = QLatin1String("http://qt-project.org/doc/");
+                QString urlPrefix = QLatin1String("http://doc.qt.io/");
                 if (url.authority() == QLatin1String("org.qt-project.qtcreator"))
                     urlPrefix.append(QString::fromLatin1("qtcreator"));
                 else

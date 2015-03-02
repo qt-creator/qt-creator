@@ -52,6 +52,7 @@
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 
 #include <QtPlugin>
 #include <QDebug>
@@ -121,9 +122,6 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    // Create the globalcontext list to register actions accordingly
-    Context globalcontext(Core::Constants::C_GLOBAL);
-
     // Create the settings Page
     m_settings->fromSettings(ICore::settings());
     SettingsPage *settingsPage = new SettingsPage(m_settings);
@@ -162,19 +160,19 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
     Command *command;
 
     m_postEditorAction = new QAction(tr("Paste Snippet..."), this);
-    command = ActionManager::registerAction(m_postEditorAction, "CodePaster.Post", globalcontext);
+    command = ActionManager::registerAction(m_postEditorAction, "CodePaster.Post");
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+P") : tr("Alt+C,Alt+P")));
     connect(m_postEditorAction, &QAction::triggered, this, &CodepasterPlugin::pasteSnippet);
     cpContainer->addAction(command);
 
     m_fetchAction = new QAction(tr("Fetch Snippet..."), this);
-    command = ActionManager::registerAction(m_fetchAction, "CodePaster.Fetch", globalcontext);
+    command = ActionManager::registerAction(m_fetchAction, "CodePaster.Fetch");
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+F") : tr("Alt+C,Alt+F")));
     connect(m_fetchAction, &QAction::triggered, this, &CodepasterPlugin::fetch);
     cpContainer->addAction(command);
 
     m_fetchUrlAction = new QAction(tr("Fetch from URL..."), this);
-    command = ActionManager::registerAction(m_fetchUrlAction, "CodePaster.FetchUrl", globalcontext);
+    command = ActionManager::registerAction(m_fetchUrlAction, "CodePaster.FetchUrl");
     connect(m_fetchUrlAction, &QAction::triggered, this, &CodepasterPlugin::fetchUrl);
     cpContainer->addAction(command);
 
@@ -396,7 +394,7 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     // Open editor with title.
     IEditor *editor = EditorManager::openEditor(fileName);
     QTC_ASSERT(editor, return);
-    editor->document()->setDisplayName(titleDescription);
+    editor->document()->setPreferredDisplayName(titleDescription);
 }
 
 CodepasterPlugin *CodepasterPlugin::instance()

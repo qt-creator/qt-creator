@@ -100,6 +100,7 @@ class FileNode;
 class FileContainerNode;
 class FolderNode;
 class ProjectNode;
+class SessionNode;
 class NodesVisitor;
 class SessionManager;
 
@@ -111,7 +112,7 @@ public:
     NodeType nodeType() const;
     ProjectNode *projectNode() const;     // managing project
     FolderNode *parentFolderNode() const; // parent folder or project
-    Utils::FileName path() const;                 // file system path
+    const Utils::FileName &path() const;  // file system path
     int line() const;
     virtual QString displayName() const;
     virtual QString tooltip() const;
@@ -123,6 +124,11 @@ public:
     void setLine(int line);
     void setPathAndLine(const Utils::FileName &path, int line);
     void emitNodeUpdated();
+
+    virtual FileNode *asFileNode();
+    virtual FolderNode *asFolderNode();
+    virtual ProjectNode *asProjectNode();
+    virtual SessionNode *asSessionNode();
 
 protected:
     Node(NodeType nodeType, const Utils::FileName &path, int line = -1);
@@ -148,6 +154,8 @@ public:
 
     FileType fileType() const;
     bool isGenerated() const;
+
+    FileNode *asFileNode();
 
 private:
     // managed by ProjectNode
@@ -204,6 +212,7 @@ public:
     void addFolderNodes(const QList<FolderNode*> &subFolders);
     void removeFolderNodes(const QList<FolderNode*> &subFolders);
 
+    FolderNode *asFolderNode();
 
 protected:
     QList<FolderNode*> m_subFolderNodes;
@@ -256,6 +265,8 @@ public:
     void addProjectNodes(const QList<ProjectNode*> &subProjects);
     void removeProjectNodes(const QList<ProjectNode*> &subProjects);
 
+    ProjectNode *asProjectNode();
+
 protected:
     // this is just the in-memory representation, a subclass
     // will add the persistent stuff
@@ -285,6 +296,8 @@ public:
 
     bool showInSimpleTree() const;
     void projectDisplayNameChanged(Node *node);
+
+    SessionNode *asSessionNode();
 protected:
     void addProjectNodes(const QList<ProjectNode*> &projectNodes);
     void removeProjectNodes(const QList<ProjectNode*> &projectNodes);

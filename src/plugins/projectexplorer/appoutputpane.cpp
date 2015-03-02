@@ -44,8 +44,9 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/invoker.h>
 
-#include <utils/qtcassert.h>
 #include <utils/algorithm.h>
+#include <utils/outputformatter.h>
+#include <utils/qtcassert.h>
 
 #include <QAction>
 #include <QVBoxLayout>
@@ -160,15 +161,13 @@ AppOutputPane::AppOutputPane() :
             this, SLOT(reRunRunControl()));
 
     // Stop
-    Core::Context globalcontext(Core::Constants::C_GLOBAL);
-
     QIcon stopIcon = QIcon(QLatin1String(Constants::ICON_STOP));
     stopIcon.addFile(QLatin1String(Constants::ICON_STOP_SMALL));
     m_stopAction->setIcon(stopIcon);
     m_stopAction->setToolTip(tr("Stop"));
     m_stopAction->setEnabled(false);
 
-    Core::Command *cmd = Core::ActionManager::registerAction(m_stopAction, Constants::STOP, globalcontext);
+    Core::Command *cmd = Core::ActionManager::registerAction(m_stopAction, Constants::STOP);
 
     m_stopButton->setDefaultAction(cmd->action());
     m_stopButton->setAutoRaise(true);

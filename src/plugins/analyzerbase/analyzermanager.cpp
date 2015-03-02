@@ -52,6 +52,7 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
+#include <utils/algorithm.h>
 #include <utils/fancymainwindow.h>
 #include <utils/styledbar.h>
 #include <utils/qtcassert.h>
@@ -93,8 +94,6 @@ const char INITIAL_DOCK_AREA[] = "initial_dock_area";
 
 class AnalyzerMode : public IMode
 {
-    Q_OBJECT
-
 public:
     AnalyzerMode(QObject *parent = 0)
         : IMode(parent)
@@ -123,8 +122,6 @@ public:
 
 class AnalyzerManagerPrivate : public QObject
 {
-    Q_OBJECT
-
 public:
     typedef QHash<QString, QVariant> FancyMainWindowSettings;
 
@@ -154,7 +151,7 @@ public:
     void saveToolSettings(Id toolId);
     void loadToolSettings(Id toolId);
     void startTool();
-    void selectToolboxAction(int);
+    void selectToolboxAction(const QString &item);
     void modeChanged(IMode *mode);
     void resetLayout();
     void updateRunActions();
@@ -180,6 +177,9 @@ public:
     // list of dock widgets to prevent memory leak
     typedef QPointer<QDockWidget> DockPtr;
     QList<DockPtr> m_dockWidgets;
+
+private:
+    void rebuildToolBox();
 };
 
 AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
@@ -196,7 +196,7 @@ AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
     m_statusLabel(new StatusLabel)
 {
     m_toolBox->setObjectName(QLatin1String("AnalyzerManagerToolBox"));
-    connect(m_toolBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+    connect(m_toolBox, static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::activated),
             this, &AnalyzerManagerPrivate::selectToolboxAction);
 
     setupActions();
@@ -217,7 +217,6 @@ AnalyzerManagerPrivate::~AnalyzerManagerPrivate()
 
 void AnalyzerManagerPrivate::setupActions()
 {
-    const Context globalcontext(C_GLOBAL);
     Command *command = 0;
 
     // Menus
@@ -236,18 +235,18 @@ void AnalyzerManagerPrivate::setupActions()
 
     m_startAction = new QAction(tr("Start"), m_menu);
     m_startAction->setIcon(QIcon(QLatin1String(ANALYZER_CONTROL_START_ICON)));
-    ActionManager::registerAction(m_startAction, "Analyzer.Start", globalcontext);
+    ActionManager::registerAction(m_startAction, "Analyzer.Start");
     connect(m_startAction, &QAction::triggered, this, &AnalyzerManagerPrivate::startTool);
 
     m_stopAction = new QAction(tr("Stop"), m_menu);
     m_stopAction->setEnabled(false);
     m_stopAction->setIcon(QIcon(QLatin1String(ANALYZER_CONTROL_STOP_ICON)));
-    command = ActionManager::registerAction(m_stopAction, "Analyzer.Stop", globalcontext);
+    command = ActionManager::registerAction(m_stopAction, "Analyzer.Stop");
     m_menu->addAction(command, G_ANALYZER_CONTROL);
 
-    m_menu->addSeparator(globalcontext, G_ANALYZER_TOOLS);
-    m_menu->addSeparator(globalcontext, G_ANALYZER_REMOTE_TOOLS);
-    m_menu->addSeparator(globalcontext, G_ANALYZER_OPTIONS);
+    m_menu->addSeparator(G_ANALYZER_TOOLS);
+    m_menu->addSeparator(G_ANALYZER_REMOTE_TOOLS);
+    m_menu->addSeparator(G_ANALYZER_OPTIONS);
 }
 
 void AnalyzerManagerPrivate::delayedInit()
@@ -378,12 +377,10 @@ void AnalyzerManagerPrivate::activateDock(Qt::DockWidgetArea area, QDockWidget *
     dockWidget->setParent(m_mainWindow);
     m_mainWindow->addDockWidget(area, dockWidget);
 
-    Context globalContext(C_GLOBAL);
-
     QAction *toggleViewAction = dockWidget->toggleViewAction();
     toggleViewAction->setText(dockWidget->windowTitle());
     Command *cmd = ActionManager::registerAction(toggleViewAction,
-        Id("Analyzer.").withSuffix(dockWidget->objectName()), globalContext);
+        Id("Analyzer.").withSuffix(dockWidget->objectName()));
     cmd->setAttribute(Command::CA_Hide);
 
     ActionContainer *viewsMenu = ActionManager::actionContainer(Id(M_WINDOW_VIEWS));
@@ -456,18 +453,21 @@ void AnalyzerManagerPrivate::selectSavedTool()
         selectAction(m_actions.first());
 }
 
-void AnalyzerManagerPrivate::selectToolboxAction(int index)
+void AnalyzerManagerPrivate::selectToolboxAction(const QString &item)
 {
-    selectAction(m_actions[index]);
+    selectAction(Utils::findOrDefault(m_actions, [item](const AnalyzerAction *action) {
+        return action->text() == item;
+    }));
 }
 
 void AnalyzerManagerPrivate::selectAction(AnalyzerAction *action)
 {
+    QTC_ASSERT(action, return);
     if (m_currentAction == action)
         return;
 
-    const int actionIndex = m_actions.indexOf(action);
-    QTC_ASSERT(actionIndex >= 0, return);
+    const int toolboxIndex = m_toolBox->findText(action->text());
+    QTC_ASSERT(toolboxIndex >= 0, return);
 
     // Clean up old tool.
     if (m_currentAction) {
@@ -495,34 +495,49 @@ void AnalyzerManagerPrivate::selectAction(AnalyzerAction *action)
 
     QTC_CHECK(m_controlsWidgetFromTool.contains(toolId));
     m_controlsStackWidget->setCurrentWidget(m_controlsWidgetFromTool.value(toolId));
-    m_toolBox->setCurrentIndex(actionIndex);
+    m_toolBox->setCurrentIndex(toolboxIndex);
 
     updateRunActions();
+}
+
+void AnalyzerManagerPrivate::rebuildToolBox()
+{
+    const bool blocked = m_toolBox->blockSignals(true); // Do not make current.
+    QStringList integratedTools;
+    QStringList externalTools;
+    foreach (AnalyzerAction * const action, m_actions) {
+        if (action->menuGroup() == Constants::G_ANALYZER_TOOLS)
+            integratedTools << action->text();
+        else
+            externalTools << action->text();
+    }
+    m_toolBox->clear();
+    m_toolBox->addItems(integratedTools);
+    m_toolBox->addItems(externalTools);
+    if (!integratedTools.isEmpty() && !externalTools.isEmpty())
+        m_toolBox->insertSeparator(integratedTools.count());
+    m_toolBox->blockSignals(blocked);
+    m_toolBox->setEnabled(true);
 }
 
 void AnalyzerManagerPrivate::addAction(AnalyzerAction *action)
 {
     delayedInit(); // Make sure that there is a valid IMode instance.
 
-    const bool blocked = m_toolBox->blockSignals(true); // Do not make current.
-
     Id menuGroup = action->menuGroup();
     if (menuGroup.isValid()) {
-        Command *command = ActionManager::registerAction(action, action->actionId(), Context(C_GLOBAL));
+        Command *command = ActionManager::registerAction(action, action->actionId());
         m_menu->addAction(command, menuGroup);
     }
 
     m_actions.append(action);
-    m_toolBox->addItem(action->text());
-    m_toolBox->blockSignals(blocked);
+    rebuildToolBox();
 
     connect(action, &QAction::triggered, this, [this, action] {
         AnalyzerManager::showMode();
         selectAction(action);
         startTool();
     });
-
-    m_toolBox->setEnabled(true);
 }
 
 void AnalyzerManagerPrivate::handleToolStarted()
@@ -698,5 +713,3 @@ AnalyzerRunControl *AnalyzerManager::createRunControl(
 }
 
 } // namespace Analyzer
-
-#include "analyzermanager.moc"

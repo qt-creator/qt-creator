@@ -33,6 +33,8 @@
 #include "githighlighters.h"
 #include "logchangedialog.h"
 
+#include <utils/completingtextedit.h>
+
 #include <QRegExpValidator>
 #include <QTextEdit>
 

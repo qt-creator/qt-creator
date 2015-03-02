@@ -31,6 +31,7 @@
 #include "debuggerdialogs.h"
 
 #include "debuggerkitinformation.h"
+#include "debuggerstartparameters.h"
 #include "debuggerruncontrol.h"
 #include "debuggerstringutils.h"
 #include "cdb/cdbengine.h"
@@ -487,7 +488,7 @@ AttachToQmlPortDialog::AttachToQmlPortDialog(QWidget *parent)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start Debugger"));
 
-    d->kitChooser = new DebuggerKitChooser(DebuggerKitChooser::RemoteDebugging, this);
+    d->kitChooser = new DebuggerKitChooser(DebuggerKitChooser::AnyDebugging, this);
     d->kitChooser->populate();
 
     d->portSpinBox = new QSpinBox(this);

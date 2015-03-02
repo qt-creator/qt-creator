@@ -114,7 +114,7 @@
     the build step and add a custom build step that specifies another shell
     command.
 
-    \QC is integrated to \l{http://doc.qt.digia.com/QtQuickCompiler/}
+    \QC is integrated to \l{http://doc.qt.io/QtQuickCompiler/}
     {Qt Quick Compiler} (commercial only) that enables you to compile QML source
     code into the final binary. This
     improves the startup time of the application and eliminates the need to

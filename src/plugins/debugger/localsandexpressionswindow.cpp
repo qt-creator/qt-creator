@@ -35,19 +35,16 @@
 #include <QVBoxLayout>
 #include <QStackedWidget>
 
-const int LOCAL_WIDGET_INDEX = 0;
-const int INSPECTOR_WIDGET_INDEX = 1;
-
 namespace Debugger {
 namespace Internal {
 
-LocalsAndExpressionsWindow::LocalsAndExpressionsWindow(
-        QWidget *locals, QWidget *inspector, QWidget *returnWidget,
-        QWidget *watchers, QWidget *parent)
-    : QWidget(parent),
-      m_showLocals(false)
+enum { LocalsIndex = 0, InspectorIndex = 1 };
+
+LocalsAndExpressionsWindow::LocalsAndExpressionsWindow(QWidget *locals,
+      QWidget *inspector, QWidget *returnWidget, QWidget *watchers)
+    : m_showLocals(false)
 {
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto layout = new QVBoxLayout(this);
     layout->setMargin(0);
     layout->setSpacing(0);
 
@@ -71,24 +68,15 @@ LocalsAndExpressionsWindow::LocalsAndExpressionsWindow(
     // when debugger engine changes states.
     m_timer.setSingleShot(true);
     m_timer.setInterval(500); // TODO: remove the magic number!
-    connect(&m_timer, SIGNAL(timeout()), SLOT(showLocals()));
+    connect(&m_timer, &QTimer::timeout, [this] {
+        m_localsAndInspector->setCurrentIndex(m_showLocals ? LocalsIndex : InspectorIndex);
+    });
 }
 
 void LocalsAndExpressionsWindow::setShowLocals(bool showLocals)
 {
     m_showLocals = showLocals;
     m_timer.start();
-}
-
-void LocalsAndExpressionsWindow::showLocals()
-{
-    m_localsAndInspector->setCurrentIndex(m_showLocals ? LOCAL_WIDGET_INDEX
-                                                       : INSPECTOR_WIDGET_INDEX);
-}
-
-QWidget *LocalsAndExpressionsWindow::inspectorWidget() const
-{
-    return m_localsAndInspector->widget(INSPECTOR_WIDGET_INDEX);
 }
 
 } // namespace Internal

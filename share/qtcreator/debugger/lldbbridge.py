@@ -69,7 +69,7 @@ Value = lldb.SBValue
 
 def impl_SBValue__add__(self, offset):
     if self.GetType().IsPointerType():
-        if isinstance(offset, int):
+        if isinstance(offset, int) or isinstance(offset, long):
             pass
         else:
             offset = offset.GetValueAsSigned()
@@ -647,14 +647,26 @@ class Dumper(DumperBase):
         self.platform_ = args.get('platform', '')
 
         self.ignoreStops = 0
-        if self.useTerminal_ and platform.system() == "Linux":
-            self.ignoreStops = 2
+        self.silentStops = 0
+        if platform.system() == "Linux":
+            if self.startMode_ == AttachCore:
+                pass
+            else:
+                if self.useTerminal_:
+                    self.ignoreStops = 2
+                else:
+                    self.silentStops = 1
+
+        else:
+            if self.useTerminal_:
+                self.ignoreStops = 1
 
         if self.platform_:
             self.debugger.SetCurrentPlatform(self.platform_)
         # sysroot has to be set *after* the platform
         if self.sysRoot_:
             self.debugger.SetCurrentPlatformSDKRoot(self.sysRoot_)
+
 
         if os.path.isfile(self.executable_):
             self.target = self.debugger.CreateTarget(self.executable_, None, None, True, error)
@@ -668,12 +680,12 @@ class Dumper(DumperBase):
         state = "inferiorsetupok" if self.target.IsValid() else "inferiorsetupfailed"
         self.report('state="%s",msg="%s",exe="%s"' % (state, error, self.executable_))
 
-    def runEngine(self, _):
-        self.prepare()
+    def runEngine(self, args):
+        self.prepare(args)
         s = threading.Thread(target=self.loop, args=[])
         s.start()
 
-    def prepare(self):
+    def prepare(self, args):
         error = lldb.SBError()
         listener = self.debugger.GetListener()
 
@@ -700,6 +712,11 @@ class Dumper(DumperBase):
             # and later detects that it did stop after all, so it is be
             # better to mirror that and wait for the spontaneous stop.
             self.reportState("enginerunandinferiorrunok")
+        elif self.startMode_ == AttachCore:
+            coreFile = args.get('coreFile', '');
+            self.process = self.target.LoadCore(coreFile)
+            self.reportState("enginerunokandinferiorunrunnable")
+            #self.reportContinuation(args)
         else:
             launchInfo = lldb.SBLaunchInfo(self.processArgs_)
             launchInfo.SetWorkingDirectory(os.getcwd())
@@ -744,13 +761,12 @@ class Dumper(DumperBase):
         thread = self.currentThread()
         return None if thread is None else thread.GetSelectedFrame()
 
-    def reportLocation(self):
-        thread = self.currentThread()
-        frame = thread.GetSelectedFrame()
-        file = fileName(frame.line_entry.file)
-        line = frame.line_entry.line
-        self.report('location={file="%s",line="%s",addr="%s"}'
-            % (file, line, frame.pc))
+    def reportLocation(self, frame):
+        if int(frame.pc) != 0xffffffffffffffff:
+            file = fileName(frame.line_entry.file)
+            line = frame.line_entry.line
+            self.report('location={file="%s",line="%s",addr="%s"}'
+                % (file, line, frame.pc))
 
     def firstStoppedThread(self):
         for i in xrange(0, self.process.GetNumThreads()):
@@ -1218,7 +1234,11 @@ class Dumper(DumperBase):
                 for group in frame.GetRegisters():
                     for reg in group:
                         result += '{name="%s"' % reg.GetName()
-                        result += ',value="%s"' % reg.GetValue()
+                        value = reg.GetValue()
+                        if value is None:
+                            result += ',value=""'
+                        else:
+                            result += ',value="%s"' % value
                         result += ',size="%s"' % reg.GetByteSize()
                         result += ',type="%s"},' % reg.GetType()
                 result += ']'
@@ -1304,6 +1324,8 @@ class Dumper(DumperBase):
                 elif self.ignoreStops > 0:
                     self.ignoreStops -= 1
                     self.process.Continue()
+                elif self.silentStops > 0:
+                    self.silentStops -= 1
                 #elif bp and bp in self.qmlBreakpointResolvers:
                 #    self.report("RESOLVER HIT")
                 #    self.qmlBreakpointResolvers[bp]()
@@ -1320,7 +1342,8 @@ class Dumper(DumperBase):
                     self.process.SetSelectedThread(stoppedThread)
                 self.reportStackTop()
                 self.reportThreads()
-                self.reportLocation()
+                if stoppedThread:
+                    self.reportLocation(stoppedThread.GetSelectedFrame())
         elif eventType == lldb.SBProcess.eBroadcastBitInterrupt: # 2
             pass
         elif eventType == lldb.SBProcess.eBroadcastBitSTDOUT:
@@ -1545,16 +1568,14 @@ class Dumper(DumperBase):
             self.reportState("running")
             self.reportState("stopped")
             self.reportError(error)
-            self.reportLocation()
+            self.reportLocation(self.currentFrame())
         else:
             self.reportData()
 
     def executeJumpToLocation(self, args):
         frame = self.currentFrame()
-        self.reportState("stopped")
         if not frame:
             self.reportStatus("No frame available.")
-            self.reportLocation()
             return
         addr = args.get('address', 0)
         if addr:
@@ -1565,12 +1586,15 @@ class Dumper(DumperBase):
         if bp.GetNumLocations() == 0:
             self.target.BreakpointDelete(bp.GetID())
             self.reportStatus("No target location found.")
-            self.reportLocation()
+            self.reportLocation(frame)
             return
         loc = bp.GetLocationAtIndex(0)
         self.target.BreakpointDelete(bp.GetID())
-        frame.SetPC(loc.GetLoadAddress())
-        self.reportData()
+        if frame.SetPC(loc.GetLoadAddress()):
+            self.report("Jumped.")
+        else:
+            self.report("Cannot jump.")
+        self.reportLocation(frame)
 
     def breakList(self):
         result = lldb.SBCommandReturnObject()
@@ -1587,7 +1611,6 @@ class Dumper(DumperBase):
 
     def selectThread(self, args):
         self.process.SetSelectedThreadByID(args['id'])
-        self.reportData()
 
     def requestModuleSymbols(self, frame):
         self.handleCommand("target module list " + frame)

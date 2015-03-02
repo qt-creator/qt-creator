@@ -79,10 +79,8 @@ signals:
     void aboutToNotifyInferiorSetupOk();
     void stateChanged(Debugger::DebuggerState state);
 
-private slots:
-    void handleFinished();
-
 private:
+    void handleFinished();
     friend class DebuggerRunControlFactory;
     DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
                        Internal::DebuggerEngine *engine);

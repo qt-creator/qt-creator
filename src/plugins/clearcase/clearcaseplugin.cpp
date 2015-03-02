@@ -54,6 +54,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/locator/commandlocator.h>
+#include <texteditor/textdocument.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/iprojectmanager.h>

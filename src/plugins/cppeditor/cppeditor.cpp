@@ -45,6 +45,8 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/documentmodel.h>
 
 #include <cpptools/cppchecksymbols.h>
 #include <cpptools/cppchecksymbols.h>
@@ -610,10 +612,14 @@ AssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistR
     if (kind == Completion) {
         if (CppCompletionAssistProvider *cap =
                 qobject_cast<CppCompletionAssistProvider *>(cppEditorDocument()->completionAssistProvider())) {
+            LanguageFeatures features = LanguageFeatures::defaultFeatures();
+            if (Document::Ptr doc = d->m_lastSemanticInfo.doc)
+                features = doc->languageFeatures();
+            features.objCEnabled = cppEditorDocument()->isObjCEnabled();
             return cap->createAssistInterface(
                             textDocument()->filePath().toString(),
                             document(),
-                            cppEditorDocument()->isObjCEnabled(),
+                            features,
                             position(),
                             reason);
         }

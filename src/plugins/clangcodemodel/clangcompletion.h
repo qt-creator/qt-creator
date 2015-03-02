@@ -58,9 +58,9 @@ public:
 
     virtual TextEditor::IAssistProcessor *createProcessor() const;
     virtual TextEditor::AssistInterface *createAssistInterface(
-            const QString &filePath,
-            QTextDocument *document, bool isObjCEnabled, int position,
-            TextEditor::AssistReason reason) const;
+            const QString &filePath, QTextDocument *document,
+            const CPlusPlus::LanguageFeatures &languageFeatures,
+            int position, TextEditor::AssistReason reason) const;
 
 private:
     ClangCodeModel::ClangCompleter::Ptr m_clangCompletionWrapper;
@@ -78,7 +78,8 @@ public:
                                    TextEditor::AssistReason reason,
                                    const QStringList &options,
                                    const QList<CppTools::ProjectPart::HeaderPath> &headerPaths,
-                                   const Internal::PchInfo::Ptr &pchInfo);
+                                   const Internal::PchInfo::Ptr &pchInfo,
+                                   const CPlusPlus::LanguageFeatures &features);
 
     ClangCodeModel::ClangCompleter::Ptr clangWrapper() const
     { return m_clangWrapper; }
@@ -94,12 +95,16 @@ public:
     const QList<CppTools::ProjectPart::HeaderPath> &headerPaths() const
     { return m_headerPaths; }
 
+    CPlusPlus::LanguageFeatures languageFeatures() const
+    { return m_languageFeatures; }
+
 private:
     ClangCodeModel::ClangCompleter::Ptr m_clangWrapper;
     ClangCodeModel::Internal::UnsavedFiles m_unsavedFiles;
     QStringList m_options;
     QList<CppTools::ProjectPart::HeaderPath> m_headerPaths;
     Internal::PchInfo::Ptr m_savedPchPointer;
+    CPlusPlus::LanguageFeatures m_languageFeatures;
 };
 
 class CLANG_EXPORT ClangCompletionAssistProcessor : public CppTools::CppCompletionAssistProcessor

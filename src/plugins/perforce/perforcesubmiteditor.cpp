@@ -48,7 +48,7 @@ PerforceSubmitEditor::PerforceSubmitEditor(const VcsBase::VcsBaseSubmitEditorPar
     VcsBaseSubmitEditor(parameters, new PerforceSubmitEditorWidget),
     m_fileModel(new VcsBase::SubmitFileModel(this))
 {
-    document()->setDisplayName(tr("Perforce Submit"));
+    document()->setPreferredDisplayName(tr("Perforce Submit"));
     setFileModel(m_fileModel);
 }
 

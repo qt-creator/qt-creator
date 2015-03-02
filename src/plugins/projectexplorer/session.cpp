@@ -490,7 +490,7 @@ QStringList SessionManagerPrivate::dependenciesOrder() const
 
     // copy the map to a temporary list
     foreach (Project *pro, m_projects) {
-        const QString &proName = pro->projectFilePath().toString();
+        const QString proName = pro->projectFilePath().toString();
         unordered << QPair<QString, QStringList>(proName, m_depMap.value(proName));
     }
 
@@ -563,7 +563,7 @@ Project *SessionManager::projectForNode(Node *node)
     if (!node)
         return 0;
 
-    FolderNode *rootProjectNode = dynamic_cast<FolderNode*>(node);
+    FolderNode *rootProjectNode = node->asFolderNode();
     if (!rootProjectNode)
         rootProjectNode = node->parentFolderNode();
 

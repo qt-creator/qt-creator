@@ -34,27 +34,27 @@ ListModel {
     ListElement {
         name: "Calculator with more info on something bla bla on Qt if you know"
         description: "his demo shows how to write a simple calculator application in QML and JavaScript."
-        imageSource: "http://qt-project.org/doc/qt-4.8/images/qml-calculator-example-small.png"
+        imageSource: "http://doc.qt.io/qt-4.8/images/qml-calculator-example-small.png"
     }
     ListElement {
         name: "RSS News Reader"
         description: "This demo shows how to write a RSS news reader in QML."
-        imageSource: "http://qt-project.org/doc/qt-4.8/images/qml-rssnews-demo-small.png"
+        imageSource: "http://doc.qt.io/qt-4.8/images/qml-rssnews-demo-small.png"
     }
     ListElement {
         name: "Twitter"
         description: "This demo shows how to write a mobile Twitter search client in QML. Use it to see what people think about Qt Quick!"
-        imageSource: "http://qt-project.org/doc/qt-4.8/images/qml-twitter-demo-small.png"
+        imageSource: "http://doc.qt.io/qt-4.8/images/qml-twitter-demo-small.png"
     }
     ListElement {
         name: "Basic Drawing Example"
         description: "The Basic Drawing example shows how to display basic graphics primitives in a variety of styles using the QPainter class."
-        imageSource: "http://qt-project.org/doc/qt-4.8/images/basicdrawing-example.png"
+        imageSource: "http://doc.qt.io/qt-4.8/images/basicdrawing-example.png"
     }
 
     ListElement {
         name: "Border Layout Example"
         description: "The Border Layout example shows how to create a custom layout that arranges child widgets according to a simple set of rules. The Border Layout example shows how to create a custom layout that arranges child widgets according to a simple set of rules. The Border Layout example shows how to create a custom layout that arranges child widgets according to a simple set of rules. The Border Layout example shows how to create a custom layout that arranges child widgets according to a simple set of rules."
-        imageSource: "http://qt-project.org/doc/qt-4.8/images/borderlayout-example.png"
+        imageSource: "http://doc.qt.io/qt-4.8/images/borderlayout-example.png"
     }
 }

@@ -54,6 +54,7 @@ namespace Core {
     class IEditor;
     class DesignMode;
     class EditorManager;
+    class IMode;
 }
 
 namespace QmlDesigner {

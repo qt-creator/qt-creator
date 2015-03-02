@@ -65,7 +65,8 @@ if [ $LLVM_INSTALL_DIR ]; then
         _CLANG_CODEMODEL_LIB="$1/Contents/PlugIns/libClangCodeModel.dylib"
     fi
     # this will just fail when run a second time on libClangCodeModel
-    xcrun install_name_tool -rpath "$LLVM_INSTALL_DIR/lib" "@loader_path/" "$_CLANG_CODEMODEL_LIB" || true
+    xcrun install_name_tool -delete_rpath "$LLVM_INSTALL_DIR/lib" "$_CLANG_CODEMODEL_LIB" || true
+    xcrun install_name_tool -add_rpath "@loader_path/" "$_CLANG_CODEMODEL_LIB" || true
 fi
 
 #### macdeployqt

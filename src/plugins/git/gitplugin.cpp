@@ -279,9 +279,6 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     initializeVcs(new GitVersionControl(m_gitClient), context);
 
-    // Create the contexts to register actions accordingly
-    Context globalcontext(Core::Constants::C_GLOBAL);
-
     // Create the settings Page
     addAutoReleasedObject(new SettingsPage());
 
@@ -631,7 +628,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     m_createRepositryAction = new QAction(tr("Create Repository..."), this);
     Command *createRepositoryCommand = ActionManager::registerAction(
-                m_createRepositryAction, "Git.CreateRepository", globalcontext);
+                m_createRepositryAction, "Git.CreateRepository");
     connect(m_createRepositryAction, SIGNAL(triggered()), this, SLOT(createRepository()));
     gitContainer->addAction(createRepositoryCommand);
 
@@ -1014,7 +1011,7 @@ IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &
         title = tr("Git Commit");
     }
     IDocument *document = submitEditor->document();
-    document->setDisplayName(title);
+    document->setPreferredDisplayName(title);
     VcsBasePlugin::setSource(document, m_submitRepository);
     connect(submitEditor, SIGNAL(diff(QStringList,QStringList)), this, SLOT(submitEditorDiff(QStringList,QStringList)));
     connect(submitEditor, SIGNAL(merge(QStringList)), this, SLOT(submitEditorMerge(QStringList)));

@@ -297,14 +297,15 @@ void LibraryWizardDialog::setupFilesPage()
         }
         m_filesPage->setBaseClassInputVisible(true);
         break;
-    default: {
-        // Urrm, figure out a good class name. Use project name this time
-        QString className = projectName();
-        if (!className.isEmpty())
-            className[0] = className.at(0).toUpper();
-        m_filesPage->setClassName(className);
-        m_filesPage->setBaseClassInputVisible(false);
-    }
+    default:
+        if (!m_filesPage->isComplete()) {
+            // Urrm, figure out a good class name. Use project name this time
+            QString className = projectName();
+            if (!className.isEmpty())
+                className[0] = className.at(0).toUpper();
+            m_filesPage->setClassName(className);
+            m_filesPage->setBaseClassInputVisible(false);
+        }
         break;
     }
 }

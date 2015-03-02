@@ -120,6 +120,7 @@ public:
                                  bool *newEditor = 0);
     static IEditor *openEditorWithContents(Id editorId, QString *titlePattern = 0,
                                            const QByteArray &contents = QByteArray(),
+                                           const QString &uniqueId = QString(),
                                            OpenEditorFlags flags = NoFlags);
 
     static bool openExternalEditor(const QString &fileName, Id editorId);

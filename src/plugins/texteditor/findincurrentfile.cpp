@@ -30,6 +30,7 @@
 
 #include "findincurrentfile.h"
 #include "texteditor.h"
+#include "textdocument.h"
 
 #include <utils/filesearch.h>
 #include <utils/fileutils.h>

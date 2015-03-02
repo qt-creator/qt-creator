@@ -32,7 +32,8 @@
 #define ACTIONMANAGER_H
 
 #include "coreplugin/core_global.h"
-#include "coreplugin/id.h"
+#include "coreplugin/coreconstants.h"
+#include "coreplugin/icontext.h"
 #include <coreplugin/actionmanager/command.h>
 
 #include <QObject>
@@ -62,7 +63,9 @@ public:
     static ActionContainer *createMenu(Id id);
     static ActionContainer *createMenuBar(Id id);
 
-    static Command *registerAction(QAction *action, Id id, const Context &context, bool scriptable = false);
+    static Command *registerAction(QAction *action, Id id,
+                                   const Context &context = Context(Constants::C_GLOBAL),
+                                   bool scriptable = false);
 
     static Command *command(Id id);
     static ActionContainer *actionContainer(Id id);

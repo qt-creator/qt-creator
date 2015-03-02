@@ -33,40 +33,74 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/project.h>
 #include <utils/ansiescapecodehandler.h>
+#include <utils/fileinprojectfinder.h>
 #include <utils/theme/theme.h>
 
 #include <QPlainTextEdit>
+#include <QPointer>
+#include <QRegExp>
 #include <QTextCursor>
 #include <QUrl>
 
 using namespace ProjectExplorer;
-using namespace QtSupport;
 using namespace Utils;
+
+namespace QtSupport {
 
 // "file" or "qrc", colon, optional '//', '/' and further characters
 #define QML_URL_REGEXP \
     "(?:file|qrc):(?://)?/.+"
 
+namespace Internal {
 
-QtOutputFormatter::QtOutputFormatter(ProjectExplorer::Project *project)
-    : OutputFormatter()
-    , m_qmlError(QLatin1String("^(" QML_URL_REGEXP    // url
-                               ":\\d+"           // colon, line
-                               "(?::\\d+)?)"     // colon, column (optional)
-                               "[: \t]"))        // colon, space or tab
-    , m_qtError(QLatin1String("Object::.*in (.*:\\d+)"))
-    , m_qtAssert(QLatin1String("ASSERT: .* in file (.+, line \\d+)"))
-    , m_qtAssertX(QLatin1String("ASSERT failure in .*: \".*\", file (.+, line \\d+)"))
-    , m_qtTestFail(QLatin1String("^   Loc: \\[(.*)\\]"))
-    , m_project(project)
+class QtOutputFormatterPrivate
+{
+public:
+    QtOutputFormatterPrivate(Project *proj)
+        : qmlError(QLatin1String("^(" QML_URL_REGEXP    // url
+                                   ":\\d+"           // colon, line
+                                   "(?::\\d+)?)"     // colon, column (optional)
+                                   "[: \t]"))        // colon, space or tab
+        , qtError(QLatin1String("Object::.*in (.*:\\d+)"))
+        , qtAssert(QLatin1String("ASSERT: .* in file (.+, line \\d+)"))
+        , qtAssertX(QLatin1String("ASSERT failure in .*: \".*\", file (.+, line \\d+)"))
+        , qtTestFail(QLatin1String("^   Loc: \\[(.*)\\]"))
+        , project(proj)
+    {
+    }
+
+    ~QtOutputFormatterPrivate()
+    {
+    }
+
+    QRegExp qmlError;
+    QRegExp qtError;
+    QRegExp qtAssert;
+    QRegExp qtAssertX;
+    QRegExp qtTestFail;
+    QPointer<Project> project;
+    QString lastLine;
+    FileInProjectFinder projectFinder;
+    QTextCursor cursor;
+};
+
+} // namespace Internal
+
+QtOutputFormatter::QtOutputFormatter(Project *project)
+    : d(new Internal::QtOutputFormatterPrivate(project))
 {
     if (project) {
-        m_projectFinder.setProjectFiles(project->files(Project::ExcludeGeneratedFiles));
-        m_projectFinder.setProjectDirectory(project->projectDirectory().toString());
+        d->projectFinder.setProjectFiles(project->files(Project::ExcludeGeneratedFiles));
+        d->projectFinder.setProjectDirectory(project->projectDirectory().toString());
 
         connect(project, SIGNAL(fileListChanged()),
                 this, SLOT(updateProjectFileList()));
     }
+}
+
+QtOutputFormatter::~QtOutputFormatter()
+{
+    delete d;
 }
 
 LinkResult QtOutputFormatter::matchLine(const QString &line) const
@@ -75,31 +109,31 @@ LinkResult QtOutputFormatter::matchLine(const QString &line) const
     lr.start = -1;
     lr.end = -1;
 
-    if (m_qmlError.indexIn(line) != -1) {
-        lr.href = m_qmlError.cap(1);
-        lr.start = m_qmlError.pos(1);
+    if (d->qmlError.indexIn(line) != -1) {
+        lr.href = d->qmlError.cap(1);
+        lr.start = d->qmlError.pos(1);
         lr.end = lr.start + lr.href.length();
-    } else if (m_qtError.indexIn(line) != -1) {
-        lr.href = m_qtError.cap(1);
-        lr.start = m_qtError.pos(1);
+    } else if (d->qtError.indexIn(line) != -1) {
+        lr.href = d->qtError.cap(1);
+        lr.start = d->qtError.pos(1);
         lr.end = lr.start + lr.href.length();
-    } else if (m_qtAssert.indexIn(line) != -1) {
-        lr.href = m_qtAssert.cap(1);
-        lr.start = m_qtAssert.pos(1);
+    } else if (d->qtAssert.indexIn(line) != -1) {
+        lr.href = d->qtAssert.cap(1);
+        lr.start = d->qtAssert.pos(1);
         lr.end = lr.start + lr.href.length();
-    } else if (m_qtAssertX.indexIn(line) != -1) {
-        lr.href = m_qtAssertX.cap(1);
-        lr.start = m_qtAssertX.pos(1);
+    } else if (d->qtAssertX.indexIn(line) != -1) {
+        lr.href = d->qtAssertX.cap(1);
+        lr.start = d->qtAssertX.pos(1);
         lr.end = lr.start + lr.href.length();
-    } else if (m_qtTestFail.indexIn(line) != -1) {
-        lr.href = m_qtTestFail.cap(1);
-        lr.start = m_qtTestFail.pos(1);
+    } else if (d->qtTestFail.indexIn(line) != -1) {
+        lr.href = d->qtTestFail.cap(1);
+        lr.start = d->qtTestFail.pos(1);
         lr.end = lr.start + lr.href.length();
     }
     return lr;
 }
 
-void QtOutputFormatter::appendMessage(const QString &txt, Utils::OutputFormat format)
+void QtOutputFormatter::appendMessage(const QString &txt, OutputFormat format)
 {
     appendMessage(txt, charFormat(format));
 }
@@ -113,14 +147,14 @@ void QtOutputFormatter::appendMessagePart(QTextCursor &cursor, const QString &tx
     for (int start = 0, pos = -1; start < length; start = pos + 1) {
         pos = txt.indexOf(QLatin1Char('\n'), start);
         const QString newPart = txt.mid(start, (pos == -1) ? -1 : pos - start + 1);
-        const QString line = m_lastLine + newPart;
+        const QString line = d->lastLine + newPart;
 
         LinkResult lr = matchLine(line);
         if (!lr.href.isEmpty()) {
             // Found something && line continuation
             cursor.insertText(deferredText, format);
             deferredText.clear();
-            if (!m_lastLine.isEmpty())
+            if (!d->lastLine.isEmpty())
                 clearLastLine();
             appendLine(cursor, lr, line, format);
         } else {
@@ -129,28 +163,28 @@ void QtOutputFormatter::appendMessagePart(QTextCursor &cursor, const QString &tx
         }
 
         if (pos == -1) {
-            m_lastLine = line;
+            d->lastLine = line;
             break;
         }
-        m_lastLine.clear(); // Handled line continuation
+        d->lastLine.clear(); // Handled line continuation
     }
     cursor.insertText(deferredText, format);
 }
 
 void QtOutputFormatter::appendMessage(const QString &txt, const QTextCharFormat &format)
 {
-    QTextCursor cursor(plainTextEdit()->document());
-    cursor.movePosition(QTextCursor::End);
-    cursor.beginEditBlock();
+    if (!d->cursor.atEnd())
+        d->cursor.movePosition(QTextCursor::End);
+    d->cursor.beginEditBlock();
 
     foreach (const FormattedText &output, parseAnsi(txt, format))
-        appendMessagePart(cursor, output.text, output.format);
+        appendMessagePart(d->cursor, output.text, output.format);
 
-    cursor.endEditBlock();
+    d->cursor.endEditBlock();
 }
 
 void QtOutputFormatter::appendLine(QTextCursor &cursor, const LinkResult &lr,
-    const QString &line, Utils::OutputFormat format)
+                                   const QString &line, OutputFormat format)
 {
     appendLine(cursor, lr, line, charFormat(format));
 }
@@ -186,7 +220,7 @@ void QtOutputFormatter::handleLink(const QString &href)
             const int line = qmlLineColumnLink.cap(2).toInt();
             const int column = qmlLineColumnLink.cap(3).toInt();
 
-            openEditor(m_projectFinder.findFile(fileUrl), line, column - 1);
+            openEditor(d->projectFinder.findFile(fileUrl), line, column - 1);
 
             return;
         }
@@ -197,7 +231,7 @@ void QtOutputFormatter::handleLink(const QString &href)
         if (qmlLineLink.indexIn(href) != -1) {
             const QUrl fileUrl = QUrl(qmlLineLink.cap(1));
             const int line = qmlLineLink.cap(2).toInt();
-            openEditor(m_projectFinder.findFile(m_projectFinder.findFile(fileUrl)), line);
+            openEditor(d->projectFinder.findFile(d->projectFinder.findFile(fileUrl)), line);
             return;
         }
 
@@ -223,17 +257,23 @@ void QtOutputFormatter::handleLink(const QString &href)
         }
 
         if (!fileName.isEmpty()) {
-            fileName = m_projectFinder.findFile(QUrl::fromLocalFile(fileName));
+            fileName = d->projectFinder.findFile(QUrl::fromLocalFile(fileName));
             openEditor(fileName, line);
             return;
         }
     }
 }
 
+void QtOutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
+{
+    OutputFormatter::setPlainTextEdit(plainText);
+    d->cursor = plainText ? plainText->textCursor() : QTextCursor();
+}
+
 void QtOutputFormatter::clearLastLine()
 {
     OutputFormatter::clearLastLine();
-    m_lastLine.clear();
+    d->lastLine.clear();
 }
 
 void QtOutputFormatter::openEditor(const QString &fileName, int line, int column)
@@ -243,9 +283,11 @@ void QtOutputFormatter::openEditor(const QString &fileName, int line, int column
 
 void QtOutputFormatter::updateProjectFileList()
 {
-    if (m_project)
-        m_projectFinder.setProjectFiles(m_project.data()->files(Project::ExcludeGeneratedFiles));
+    if (d->project)
+        d->projectFinder.setProjectFiles(d->project.data()->files(Project::ExcludeGeneratedFiles));
 }
+
+} // namespace QtSupport
 
 // Unit tests:
 
@@ -255,9 +297,11 @@ void QtOutputFormatter::updateProjectFileList()
 
 #   include "qtsupportplugin.h"
 
-using namespace QtSupport::Internal;
+Q_DECLARE_METATYPE(QTextCharFormat)
 
-Q_DECLARE_METATYPE(QTextCharFormat);
+namespace QtSupport {
+
+using namespace QtSupport::Internal;
 
 class TestQtOutputFormatter : public QtOutputFormatter
 {
@@ -426,5 +470,7 @@ void QtSupportPlugin::testQtOutputFormatter_appendMixedAssertAndAnsi()
     edit.moveCursor(QTextCursor::End);
     QCOMPARE(edit.currentCharFormat(), blueFormat());
 }
+
+} // namespace QtSupport
 
 #endif // WITH_TESTS

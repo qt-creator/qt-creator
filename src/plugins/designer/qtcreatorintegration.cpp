@@ -42,7 +42,9 @@
 #include <cpptools/symbolfinder.h>
 #include <cplusplus/Overview.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <utils/mimetypes/mimedatabase.h>

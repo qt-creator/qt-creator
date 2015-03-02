@@ -41,9 +41,11 @@
 #include <qmldebug/qmloutputparser.h>
 #include <qmljs/iscriptevaluator.h>
 
-#include <QTextDocument>
+QT_FORWARD_DECLARE_CLASS(QTextDocument)
 
 namespace Core { class IDocument; }
+
+namespace TextEditor { class BaseTextEditor; }
 
 namespace Debugger {
 namespace Internal {

@@ -36,17 +36,12 @@ Rectangle {
     border.width: 1
     property bool isBaseState
     property bool isCurrentState
-    property color gradiantBaseColor
+    property color baseColor
     property string delegateStateName
     property string delegateStateImageSource
     property int delegateStateImageSize
 
-    gradient: Gradient {
-        GradientStop { position: 0.0; color: Qt.lighter(gradiantBaseColor, 1.5) }
-        GradientStop { position: 0.1; color: Qt.lighter(gradiantBaseColor, 1) }
-        GradientStop { position: 0.8; color: gradiantBaseColor }
-        GradientStop { position: 1.0; color: Qt.darker(gradiantBaseColor) }
-    }
+    color: baseColor
 
     MouseArea {
         anchors.fill: parent
@@ -63,7 +58,7 @@ Rectangle {
 
         style: ButtonStyle {
             background: Rectangle {
-                color: control.hovered ? Qt.lighter(gradiantBaseColor, 1.4)  : "transparent"
+                color: control.hovered ? Qt.lighter(baseColor, 1.2)  : "transparent"
                 radius: 2
             }
         }

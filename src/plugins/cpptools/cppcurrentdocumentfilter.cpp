@@ -32,6 +32,8 @@
 
 #include "cppmodelmanager.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+
 #include <QStringMatcher>
 
 using namespace CppTools::Internal;

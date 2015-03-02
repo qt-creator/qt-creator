@@ -83,7 +83,8 @@ public:
 
     QString mimeType;
     Utils::FileName filePath;
-    QString displayName;
+    QString preferredDisplayName;
+    QString uniqueDisplayName;
     QString autoSaveName;
     InfoBar *infoBar;
     Id id;
@@ -128,7 +129,7 @@ bool IDocument::setContents(const QByteArray &contents)
     return false;
 }
 
-Utils::FileName IDocument::filePath() const
+const Utils::FileName &IDocument::filePath() const
 {
     return d->filePath;
 }
@@ -258,13 +259,16 @@ void IDocument::setFilePath(const Utils::FileName &filePath)
 /*!
     Returns the string to display for this document, e.g. in the open document combo box
     and pane.
+    The returned string has the following priority:
+      * Unique display name set by the document model
+      * Preferred display name set by the owner
+      * Base name of the document's file name
+
     \sa setDisplayName()
 */
 QString IDocument::displayName() const
 {
-    if (!d->displayName.isEmpty())
-        return d->displayName;
-    return d->filePath.fileName();
+    return d->uniqueDisplayName.isEmpty() ? plainDisplayName() : d->uniqueDisplayName;
 }
 
 /*!
@@ -274,12 +278,30 @@ QString IDocument::displayName() const
     \sa displayName()
     \sa filePath()
  */
-void IDocument::setDisplayName(const QString &name)
+void IDocument::setPreferredDisplayName(const QString &name)
 {
-    if (name == d->displayName)
+    if (name == d->preferredDisplayName)
         return;
-    d->displayName = name;
+    d->preferredDisplayName = name;
     emit changed();
+}
+
+/*!
+    \internal
+    Returns displayName without disambiguation.
+ */
+QString IDocument::plainDisplayName() const
+{
+    return d->preferredDisplayName.isEmpty() ? d->filePath.fileName() : d->preferredDisplayName;
+}
+
+/*!
+    \internal
+    Sets unique display name for the document. Used by the document model.
+ */
+void IDocument::setUniqueDisplayName(const QString &name)
+{
+    d->uniqueDisplayName = name;
 }
 
 } // namespace Core

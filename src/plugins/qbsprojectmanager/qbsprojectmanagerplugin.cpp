@@ -96,7 +96,6 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     Q_UNUSED(errorMessage);
 
     const Core::Context projectContext(::QbsProjectManager::Constants::PROJECT_ID);
-    const Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
     Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "qbs");
 
@@ -146,7 +145,7 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     m_buildFile = new Utils::ParameterAction(tr("Build File"), tr("Build File \"%1\""),
                                                    Utils::ParameterAction::AlwaysEnabled, this);
-    command = Core::ActionManager::registerAction(m_buildFile, Constants::ACTION_BUILD_FILE, globalcontext);
+    command = Core::ActionManager::registerAction(m_buildFile, Constants::ACTION_BUILD_FILE);
     command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDescription(m_buildFile->text());
@@ -162,7 +161,7 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     m_buildProduct = new Utils::ParameterAction(tr("Build Product"), tr("Build Product \"%1\""),
                                                 Utils::ParameterAction::AlwaysEnabled, this);
-    command = Core::ActionManager::registerAction(m_buildProduct, Constants::ACTION_BUILD_PRODUCT, globalcontext);
+    command = Core::ActionManager::registerAction(m_buildProduct, Constants::ACTION_BUILD_PRODUCT);
     command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDescription(m_buildFile->text());
@@ -178,7 +177,7 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     m_buildSubproject = new Utils::ParameterAction(tr("Build Subproject"), tr("Build Subproject \"%1\""),
                                                 Utils::ParameterAction::AlwaysEnabled, this);
-    command = Core::ActionManager::registerAction(m_buildSubproject, Constants::ACTION_BUILD_SUBPROJECT, globalcontext);
+    command = Core::ActionManager::registerAction(m_buildSubproject, Constants::ACTION_BUILD_SUBPROJECT);
     command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDescription(m_buildFile->text());

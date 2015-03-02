@@ -70,7 +70,6 @@ SpinBoxStyle {
         implicitWidth: Math.max(64, styleData.contentWidth)
         implicitHeight: 23
         border.color: borderColor
-        radius: 3
         gradient: Gradient {
             GradientStop {color: "#2c2c2c" ; position: 0}
             GradientStop {color: "#343434" ; position: 0.15}
@@ -81,7 +80,6 @@ SpinBoxStyle {
             anchors.fill: parent
             anchors.margins: -1
             color: "transparent"
-            radius: 4
             opacity: 0.3
             visible: control.activeFocus
         }

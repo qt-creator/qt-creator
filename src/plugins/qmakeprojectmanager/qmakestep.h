@@ -114,6 +114,8 @@ public:
     void setLinkQmlDebuggingLibrary(bool enable);
     bool useQtQuickCompiler() const;
     void setUseQtQuickCompiler(bool enable);
+    bool separateDebugInfo() const;
+    void setSeparateDebugInfo(bool enable);
 
     QVariantMap toMap() const;
 
@@ -121,6 +123,7 @@ signals:
     void userArgumentsChanged();
     void linkQmlDebuggingLibraryChanged();
     void useQtQuickCompilerChanged();
+    void separateDebugInfoChanged();
 
 protected:
     QMakeStep(ProjectExplorer::BuildStepList *parent, QMakeStep *source);
@@ -140,6 +143,7 @@ private:
     QmlLibraryLink m_linkQmlDebuggingLibrary;
     bool m_useQtQuickCompiler;
     bool m_scriptTemplate;
+    bool m_separateDebugInfo;
 };
 
 
@@ -159,12 +163,14 @@ private slots:
     void userArgumentsChanged();
     void linkQmlDebuggingLibraryChanged();
     void useQtQuickCompilerChanged();
+    void separateDebugInfoChanged();
 
     // slots for dealing with user changes in our UI
     void qmakeArgumentsLineEdited();
     void buildConfigurationSelected();
     void linkQmlDebuggingLibraryChecked(bool checked);
     void useQtQuickCompilerChecked(bool checked);
+    void separateDebugInfoChecked(bool checked);
     void askForRebuild();
 
 private slots:

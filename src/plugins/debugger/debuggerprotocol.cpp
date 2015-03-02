@@ -366,12 +366,13 @@ void GdbMi::fromStringMultiple(const QByteArray &ba)
     parseTuple_helper(from, to);
 }
 
-GdbMi GdbMi::operator[](const char *name) const
+const GdbMi &GdbMi::operator[](const char *name) const
 {
+    static GdbMi empty;
     for (int i = 0, n = int(m_children.size()); i < n; ++i)
         if (m_children.at(i).m_name == name)
             return m_children.at(i);
-    return GdbMi();
+    return empty;
 }
 
 qulonglong GdbMi::toAddress() const

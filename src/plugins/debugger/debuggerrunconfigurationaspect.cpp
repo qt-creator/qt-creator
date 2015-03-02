@@ -50,12 +50,12 @@
 #include <QFormLayout>
 #include <QLabel>
 
-static const char USE_CPP_DEBUGGER_KEY[] = "RunConfiguration.UseCppDebugger";
-static const char USE_CPP_DEBUGGER_AUTO_KEY[] = "RunConfiguration.UseCppDebuggerAuto";
-static const char USE_QML_DEBUGGER_KEY[] = "RunConfiguration.UseQmlDebugger";
-static const char USE_QML_DEBUGGER_AUTO_KEY[] = "RunConfiguration.UseQmlDebuggerAuto";
-static const char QML_DEBUG_SERVER_PORT_KEY[] = "RunConfiguration.QmlDebugServerPort";
-static const char USE_MULTIPROCESS_KEY[] = "RunConfiguration.UseMultiProcess";
+const char USE_CPP_DEBUGGER_KEY[] = "RunConfiguration.UseCppDebugger";
+const char USE_CPP_DEBUGGER_AUTO_KEY[] = "RunConfiguration.UseCppDebuggerAuto";
+const char USE_QML_DEBUGGER_KEY[] = "RunConfiguration.UseQmlDebugger";
+const char USE_QML_DEBUGGER_AUTO_KEY[] = "RunConfiguration.UseQmlDebuggerAuto";
+const char QML_DEBUG_SERVER_PORT_KEY[] = "RunConfiguration.QmlDebugServerPort";
+const char USE_MULTIPROCESS_KEY[] = "RunConfiguration.UseMultiProcess";
 
 using namespace ProjectExplorer;
 
@@ -70,7 +70,7 @@ namespace Internal {
 
 class DebuggerRunConfigWidget : public RunConfigWidget
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::RunConfigWidget)
 
 public:
     explicit DebuggerRunConfigWidget(DebuggerRunConfigurationAspect *aspect);
@@ -79,7 +79,6 @@ public:
     void showEvent(QShowEvent *event);
     void update();
 
-private slots:
     void useCppDebuggerClicked(bool on);
     void useQmlDebuggerToggled(bool on);
     void useQmlDebuggerClicked(bool on);
@@ -120,8 +119,8 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(DebuggerRunConfigurationAspect 
         new QCheckBox(tr("Enable Debugging of Subprocesses"), this);
     m_useMultiProcess->setVisible(env.toInt());
 
-    connect(m_qmlDebuggerInfoLabel, SIGNAL(linkActivated(QString)),
-            Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
+    connect(m_qmlDebuggerInfoLabel, &QLabel::linkActivated,
+            [](const QString &link) { Core::HelpManager::handleHelpRequest(link); });
     connect(m_useQmlDebugger, &QAbstractButton::toggled,
             this, &DebuggerRunConfigWidget::useQmlDebuggerToggled);
     connect(m_useQmlDebugger, &QAbstractButton::clicked,
@@ -343,6 +342,3 @@ RunConfigWidget *DebuggerRunConfigurationAspect::createConfigurationWidget()
 }
 
 } // namespace Debugger
-
-
-#include "debuggerrunconfigurationaspect.moc"

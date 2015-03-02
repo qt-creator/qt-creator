@@ -84,7 +84,7 @@ static QString createThemeFileName(const QString &pattern)
 
 struct ThemeEntry
 {
-    ThemeEntry() {}
+    ThemeEntry() : m_readOnly(true) {}
     ThemeEntry(const QString &name, const QString &filePath, bool readOnly):
         m_name(name),
         m_filePath(filePath),

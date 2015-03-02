@@ -31,6 +31,7 @@
 #include "debuggerkitinformation.h"
 
 #include "debuggeritemmanager.h"
+#include "debuggeritem.h"
 #include "debuggerkitconfigwidget.h"
 
 #include <projectexplorer/toolchain.h>

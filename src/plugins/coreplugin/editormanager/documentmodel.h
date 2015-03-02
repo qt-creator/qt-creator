@@ -61,6 +61,8 @@ public:
         IDocument *document;
         Utils::FileName fileName() const;
         QString displayName() const;
+        QString plainDisplayName() const;
+        QString uniqueDisplayName() const;
         Id id() const;
         Utils::FileName m_fileName;
         QString m_displayName;

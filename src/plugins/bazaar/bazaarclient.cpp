@@ -30,6 +30,8 @@
 #include "bazaarclient.h"
 #include "constants.h"
 
+#include <coreplugin/id.h>
+
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>

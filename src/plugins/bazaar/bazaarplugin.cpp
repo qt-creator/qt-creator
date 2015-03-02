@@ -601,7 +601,7 @@ void BazaarPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &stat
 
     const QString msg = tr("Commit changes for \"%1\".").
             arg(QDir::toNativeSeparators(m_submitRepository));
-    commitEditor->document()->setDisplayName(msg);
+    commitEditor->document()->setPreferredDisplayName(msg);
 
     const BranchInfo branch = m_client->synchronousBranchQuery(m_submitRepository);
     commitEditor->setFields(m_submitRepository, branch,

@@ -88,7 +88,7 @@ bool DiffEditorDocument::save(QString *errorString, const QString &fileName, boo
     const QFileInfo fi(fileName);
     setTemporary(false);
     setFilePath(Utils::FileName::fromString(fi.absoluteFilePath()));
-    setDisplayName(QString());
+    setPreferredDisplayName(QString());
     return true;
 }
 

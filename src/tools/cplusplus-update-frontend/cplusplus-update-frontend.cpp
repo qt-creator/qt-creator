@@ -987,7 +987,7 @@ static QString createConstructor(ClassSpecifierAST *classAST)
 
 bool checkGenerated(const QTextCursor &cursor, int *doxyStart)
 {
-    BackwardsScanner tokens(cursor, 10, QString(), false);
+    BackwardsScanner tokens(cursor, LanguageFeatures::defaultFeatures(), 10, QString(), false);
     Token prevToken = tokens.LA(1);
     if (prevToken.kind() != T_DOXY_COMMENT && prevToken.kind() != T_CPP_DOXY_COMMENT)
         return false;

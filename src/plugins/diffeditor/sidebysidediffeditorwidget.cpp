@@ -34,6 +34,8 @@
 #include "diffutils.h"
 #include "diffeditorconstants.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+
 #include <QPlainTextEdit>
 #include <QVBoxLayout>
 #include <QPlainTextDocumentLayout>
@@ -44,6 +46,7 @@
 #include <QToolButton>
 #include <QTextCodec>
 #include <QMessageBox>
+#include <QMenu>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocumentlayout.h>

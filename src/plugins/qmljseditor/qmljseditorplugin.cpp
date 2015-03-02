@@ -126,8 +126,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
     ActionContainer *qmlToolsMenu = ActionManager::actionContainer(Id(QmlJSTools::Constants::M_TOOLS_QMLJS));
 
-    Context globalContext(Core::Constants::C_GLOBAL);
-    qmlToolsMenu->addSeparator(globalContext);
+    qmlToolsMenu->addSeparator();
 
     Command *cmd;
     cmd = ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
@@ -149,7 +148,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     qmlToolsMenu->addAction(cmd);
 
     QAction *semanticScan = new QAction(tr("Run Checks"), this);
-    cmd = ActionManager::registerAction(semanticScan, Id(Constants::RUN_SEMANTIC_SCAN), globalContext);
+    cmd = ActionManager::registerAction(semanticScan, Id(Constants::RUN_SEMANTIC_SCAN));
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+C")));
     connect(semanticScan, SIGNAL(triggered()), this, SLOT(runSemanticScan()));
     qmlToolsMenu->addAction(cmd);
@@ -168,9 +167,9 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     qmlToolsMenu->addAction(cmd);
 
     // Insert marker for "Refactoring" menu:
-    Command *sep = contextMenu->addSeparator(globalContext);
+    Command *sep = contextMenu->addSeparator();
     sep->action()->setObjectName(QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT));
-    contextMenu->addSeparator(globalContext);
+    contextMenu->addSeparator();
 
     cmd = ActionManager::command(TextEditor::Constants::AUTO_INDENT_SELECTION);
     contextMenu->addAction(cmd);

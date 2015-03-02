@@ -175,11 +175,15 @@ MimeType MimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileName
 
     // Extension is unknown, or matches multiple mimetypes.
     // Pass 2) Match on content, if we can read the data
+    const bool openedByUs = !device->isOpen() && device->open(QIODevice::ReadOnly);
     if (device->isOpen()) {
 
         // Read 16K in one go (QIODEVICE_BUFFERSIZE in qiodevice_p.h).
         // This is much faster than seeking back and forth into QIODevice.
         const QByteArray data = device->peek(16384);
+
+        if (openedByUs)
+            device->close();
 
         int magicAccuracy = 0;
         MimeType candidateByData(findByData(data, &magicAccuracy));
@@ -319,8 +323,11 @@ QString MimeDatabase::allFiltersString(QString *allFilesFilter)
 {
     MimeDatabase mdb;
     QSet<QString> uniqueFilters;
-    foreach (const MimeType &mt, mdb.allMimeTypes())
-        uniqueFilters.insert(mt.filterString());
+    foreach (const MimeType &mt, mdb.allMimeTypes()) {
+        const QString &filterString = mt.filterString();
+        if (!filterString.isEmpty())
+            uniqueFilters.insert(mt.filterString());
+    }
     QStringList filters;
     foreach (const QString &filter, uniqueFilters)
         filters.append(filter);
@@ -343,79 +350,6 @@ QStringList MimeDatabase::allGlobPatterns()
     foreach (const MimeType &mt, mdb.allMimeTypes())
         patterns.append(mt.globPatterns());
     return patterns;
-}
-
-static MimeType mimeForName(const QList<MimeType> &types, const QString &name)
-{
-    foreach (const MimeType &mt, types)
-        if (mt.matchesName(name))
-            return mt;
-    return MimeType();
-}
-
-MimeType MimeDatabase::bestMatch(const QString &fileName, const QList<MimeType> &types)
-{
-    // Copied together from mimeTypeForFile(QFileInfo) code path ...
-    // It would be better to be able to work on a list of mime types directly
-
-    // Check for directory. We just ignore the code path for special unix nodes.
-    if (fileName.endsWith(QLatin1Char('/')))
-        return mimeForName(types, QLatin1String("inode/directory"));
-
-    auto d = MimeDatabasePrivate::instance();
-    QMutexLocker locker(&d->mutex);
-
-    QStringList candidatesByName = d->provider()->bestMatchByFileName(QFileInfo(fileName).fileName(),
-                                                                   types);
-    if (candidatesByName.count() == 1) {
-        MimeType mt = mimeForName(types, candidatesByName.first());
-        if (mt.isValid())
-            return mt;
-        candidatesByName.clear();
-    }
-    // Extension is unknown, or matches multiple mimetypes.
-    // Pass 2) Match on content, if we can read the data
-    QFile file(QFileInfo(fileName).absoluteFilePath());
-    file.open(QIODevice::ReadOnly);
-    if (file.isOpen()) {
-        // Read 16K in one go (QIODEVICE_BUFFERSIZE in qiodevice_p.h).
-        // This is much faster than seeking back and forth into QIODevice.
-        const QByteArray data = file.peek(16384);
-
-        int magicAccuracy = 0;
-        MimeType candidateByData;
-        if (data.isEmpty()) {
-            magicAccuracy = 100;
-            candidateByData = mimeForName(types, QLatin1String("application/x-zerosize"));
-        } else {
-            candidateByData = d->provider()->bestMatchByMagic(data, types, &magicAccuracy);
-            if (!candidateByData.isValid()) {
-                if (isTextFile(data)) {
-                    magicAccuracy = 5;
-                    candidateByData = mimeForName(types, QLatin1String("text/plain"));
-                }
-            }
-        }
-        // Disambiguate conflicting extensions (if magic matching found something)
-        if (candidateByData.isValid() && magicAccuracy > 0) {
-            // "for glob_match in glob_matches:"
-            // "if glob_match is subclass or equal to sniffed_type, use glob_match"
-            const QString sniffedMime = candidateByData.name();
-            foreach (const QString &m, candidatesByName) {
-                if (d->inherits(m, sniffedMime)) {
-                    // We have magic + pattern pointing to this, so it's a pretty good match
-                    return mimeForName(types, m);
-                }
-            }
-            return candidateByData;
-        }
-    }
-
-    if (candidatesByName.count() > 1) {
-        candidatesByName.sort();
-        return mimeForName(types, candidatesByName.first());
-    }
-    return MimeType();
 }
 
 /*!
@@ -485,7 +419,6 @@ MimeType MimeDatabase::mimeTypeForFile(const QFileInfo &fileInfo, MatchMode mode
     int priority = 0;
     switch (mode) {
     case MatchDefault:
-        file.open(QIODevice::ReadOnly); // isOpen() will be tested by method below
         return d->mimeTypeForFileNameAndData(fileInfo.absoluteFilePath(), &file, &priority);
     case MatchExtension:
         locker.unlock();
@@ -655,10 +588,7 @@ MimeType MimeDatabase::mimeTypeForUrl(const QUrl &url) const
 MimeType MimeDatabase::mimeTypeForFileNameAndData(const QString &fileName, QIODevice *device) const
 {
     int accuracy = 0;
-    const bool openedByUs = !device->isOpen() && device->open(QIODevice::ReadOnly);
     const MimeType result = d->mimeTypeForFileNameAndData(fileName, device, &accuracy);
-    if (openedByUs)
-        device->close();
     return result;
 }
 

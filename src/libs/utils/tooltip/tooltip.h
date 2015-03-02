@@ -37,7 +37,6 @@
 #include <QObject>
 #include <QTimer>
 #include <QRect>
-#include <QFont>
 
 /*
  * In its current form QToolTip is not extensible. So this is an attempt to provide a more

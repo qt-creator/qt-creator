@@ -812,7 +812,7 @@ void CdbEngine::runEngine()
     }
     if (startParameters().startMode == AttachCore) {
         QTC_ASSERT(!m_coreStopReason.isNull(), return; );
-        notifyInferiorUnrunnable();
+        notifyEngineRunOkAndInferiorUnrunnable();
         processStop(*m_coreStopReason, false);
     } else {
         doContinueInferior();
@@ -1874,7 +1874,7 @@ void CdbEngine::handleLocals(const CdbCommandPtr &reply, int flags)
         }
         GdbMi root;
         root.fromString(reply->extensionReply);
-        QTC_ASSERT(root.isList(), return);
+        QTC_ASSERT(root.type() == GdbMi::List, return);
         if (debugLocals)
             qDebug() << root.toString(true, 4);
         // Courtesy of GDB engine

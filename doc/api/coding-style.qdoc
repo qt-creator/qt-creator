@@ -891,7 +891,7 @@
             for signals and slots inside connect statements to safely make
             signal and slot lookup a few cycles faster. You can use
             $QTDIR/util/normalize to normalize existing code. For more
-            information, see \l{http://qt-project.org/doc/qt-4.8/qmetaobject.html#normalizedSignature}{QMetaObject::normalizedSignature}.
+            information, see QMetaObject::normalizedSignature.
     \endlist
 
     \section2 File Headers

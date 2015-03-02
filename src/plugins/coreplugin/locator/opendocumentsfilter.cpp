@@ -50,10 +50,12 @@ OpenDocumentsFilter::OpenDocumentsFilter()
     setPriority(High);
     setIncludedByDefault(true);
 
-    connect(EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
-            this, SLOT(refreshInternally()));
-    connect(EditorManager::instance(), SIGNAL(editorsClosed(QList<Core::IEditor*>)),
-            this, SLOT(refreshInternally()));
+    connect(DocumentModel::model(), &QAbstractItemModel::dataChanged,
+            this, &OpenDocumentsFilter::refreshInternally);
+    connect(DocumentModel::model(), &QAbstractItemModel::rowsInserted,
+            this, &OpenDocumentsFilter::refreshInternally);
+    connect(DocumentModel::model(), &QAbstractItemModel::rowsRemoved,
+            this, &OpenDocumentsFilter::refreshInternally);
 }
 
 QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry_)
@@ -78,9 +80,8 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locat
             continue;
         QString displayName = editorEntry.displayName();
         if (regexp.exactMatch(displayName)) {
-            QFileInfo fi(fileName);
             LocatorFilterEntry fiEntry(this, displayName, QString(fileName + lineNoSuffix));
-            fiEntry.extraInfo = FileUtils::shortNativePath(FileName(fi));
+            fiEntry.extraInfo = FileUtils::shortNativePath(FileName::fromString(fileName));
             fiEntry.fileName = fileName;
             QList<LocatorFilterEntry> &category = displayName.startsWith(entry, caseSensitivityForPrefix)
                     ? betterEntries : goodEntries;

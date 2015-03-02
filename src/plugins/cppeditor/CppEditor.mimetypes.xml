@@ -6,6 +6,13 @@
         <glob pattern="*.cu"/>
     </mime-type>
 
+    <mime-type type="text/x-chdr">
+        <comment>C header</comment>
+        <sub-class-of type="text/x-csrc"/>
+        <!-- reduce weight from freedesktop to avoid conflict with text/x-c++hdr -->
+        <glob pattern="*.h" weight="30"/>
+    </mime-type>
+
     <!-- Those are used to find matching headers by the CppTools plugin,
          so, they should match -->
     <mime-type type="text/x-c++hdr">

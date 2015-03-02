@@ -327,8 +327,7 @@ void LocatorWidget::updateFilterList()
         if (!actionCopy.contains(filterId)) {
             // register new action
             action = new QAction(filter->displayName(), this);
-            cmd = ActionManager::registerAction(action, locatorId,
-                               Context(Constants::C_GLOBAL));
+            cmd = ActionManager::registerAction(action, locatorId);
             cmd->setAttribute(Command::CA_UpdateText);
             connect(action, SIGNAL(triggered()), this, SLOT(filterSelected()));
             action->setData(qVariantFromValue(filter));

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE QtCreatorDebugger>
-<!-- Written by QtCreator 2.8.82, 2013-10-24T15:19:45. -->
+<!DOCTYPE QtCreatorDebuggers>
+<!-- Written by QtCreator 3.3.81, 2015-02-17T18:11:11. -->
 <qtcreator>
  <data>
   <variable>DebuggerItem.0</variable>
@@ -9,21 +9,27 @@
     <value type="QString">x86-windows-msvc2010-pe-64bit</value>
    </valuelist>
    <value type="bool" key="AutoDetected">true</value>
-   <value type="QString" key="Binary">C:\Program Files\Debugging Tools for Windows (x64)\cdb.exe</value>
+   <value type="QString" key="AutoDetectionSource"></value>
+   <value type="QString" key="Binary">C:/Program Files/Debugging Tools for Windows (x64)/cdb.exe</value>
    <value type="QString" key="DisplayName">Auto-detected CDB at C:\Program Files\Debugging Tools for Windows (x64)\cdb.exe</value>
    <value type="int" key="EngineType">4</value>
    <value type="QString" key="Id">{811977c9-ea95-4616-bc28-c66d1935ff65}</value>
+   <value type="QString" key="Version"></value>
   </valuemap>
  </data>
  <data>
   <variable>DebuggerItem.1</variable>
   <valuemap type="QVariantMap">
-   <valuelist type="QVariantList" key="Abis"/>
-   <value type="bool" key="AutoDetected">true</value>
-   <value type="QString" key="Binary">C:\QtSDK\pythongdb\python_2.7based\gdb-i686-pc-mingw32.exe</value>
-   <value type="QString" key="DisplayName">Extracted from Kit Desktop 474 GCC</value>
+   <valuelist type="QVariantList" key="Abis">
+    <value type="QString">x86-windows-msys-pe-unknown</value>
+   </valuelist>
+   <value type="bool" key="AutoDetected">false</value>
+   <value type="QString" key="AutoDetectionSource"></value>
+   <value type="QString" key="Binary">C:/Qt/Qt5.4.1/Tools/mingw491_32/bin/gdb.exe</value>
+   <value type="QString" key="DisplayName">gdb 7.8</value>
    <value type="int" key="EngineType">1</value>
-   <value type="QString" key="Id">{44aee0bd-999d-4abe-82c6-5c7979e7cf01}</value>
+   <value type="QString" key="Id">{2f8a1f59-ddd7-49f0-ae61-1337223f56a3}</value>
+   <value type="QString" key="Version">7.8.0</value>
   </valuemap>
  </data>
  <data>
@@ -33,10 +39,12 @@
     <value type="QString">arm-linux-generic-elf-32bit</value>
    </valuelist>
    <value type="bool" key="AutoDetected">true</value>
-   <value type="QString" key="Binary">C:\QtSDK\pythongdb\python_2.7based\gdb-arm-none-linux-gnueabi.exe</value>
+   <value type="QString" key="AutoDetectionSource"></value>
+   <value type="QString" key="Binary">C:/QtSDK/pythongdb/python_2.7based/gdb-arm-none-linux-gnueabi.exe</value>
    <value type="QString" key="DisplayName">Extracted from Kit Fremantle</value>
    <value type="int" key="EngineType">1</value>
    <value type="QString" key="Id">{5ad1d623-7300-41b4-ba32-99e11bfcb988}</value>
+   <value type="QString" key="Version"></value>
   </valuemap>
  </data>
  <data>

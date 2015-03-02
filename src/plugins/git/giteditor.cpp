@@ -43,6 +43,8 @@
 #include <vcsbase/vcsoutputwindow.h>
 #include <texteditor/textdocument.h>
 
+#include <QMenu>
+
 #include <QFileInfo>
 #include <QRegExp>
 #include <QSet>

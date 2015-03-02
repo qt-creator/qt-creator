@@ -34,10 +34,13 @@
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/cpptoolssettings.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <cplusplus/OverviewModel.h>
 #include <utils/treeviewcombobox.h>
 
+#include <QAction>
 #include <QSortFilterProxyModel>
 #include <QTimer>
 

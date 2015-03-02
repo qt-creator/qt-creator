@@ -362,9 +362,15 @@ void LldbEngine::setupInferior()
 
 void LldbEngine::runEngine()
 {
+    const DebuggerStartParameters &sp = startParameters();
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state(); return);
     showStatusMessage(tr("Running requested..."), 5000);
-    runCommand("runEngine");
+    DebuggerCommand cmd("runEngine");
+    if (sp.startMode == AttachCore) {
+        cmd.arg("coreFile", sp.coreFile);
+        cmd.arg("continuation", "updateAll");
+    }
+    runCommand(cmd);
 }
 
 void LldbEngine::interruptInferior()
@@ -475,9 +481,11 @@ void LldbEngine::handleContinuation(const GdbMi &data)
 {
     if (data.data() == "updateLocals") {
         updateLocals();
-        return;
+    } else if (data.data() == "updateAll") {
+        updateAll();
+    } else {
+        QTC_ASSERT(false, qDebug() << "Unknown continuation: " << data.data());
     }
-    QTC_ASSERT(false, qDebug() << "Unknown continuation: " << data.data());
 }
 
 void LldbEngine::showFullBacktrace(const GdbMi &data)
@@ -509,7 +517,6 @@ void LldbEngine::executeRunToFunction(const QString &functionName)
 void LldbEngine::executeJumpToLine(const ContextData &data)
 {
     resetLocation();
-    notifyInferiorRunRequested();
     DebuggerCommand cmd("executeJumpToLocation");
     cmd.arg("file", data.fileName);
     cmd.arg("line", data.lineNumber);
@@ -537,8 +544,6 @@ void LldbEngine::activateFrame(int frameIndex)
     cmd.arg("thread", threadsHandler()->currentThread().raw());
     cmd.arg("continuation", "updateLocals");
     runCommand(cmd);
-
-    reloadRegisters();
 }
 
 void LldbEngine::selectThread(ThreadId threadId)
@@ -546,6 +551,7 @@ void LldbEngine::selectThread(ThreadId threadId)
     DebuggerCommand cmd("selectThread");
     cmd.arg("id", threadId.raw());
     runCommand(cmd);
+    updateAll();
 }
 
 bool LldbEngine::stateAcceptsBreakpointChanges() const
@@ -803,8 +809,6 @@ bool LldbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editorWidget
 
 void LldbEngine::updateAll()
 {
-    reloadRegisters();
-
     DebuggerCommand cmd("reportStack");
     cmd.arg("nativeMixed", isNativeMixedActive());
     cmd.arg("stacklimit", action(MaximalStackDepth)->value().toInt());
@@ -851,6 +855,11 @@ void LldbEngine::updateLocals()
 
 void LldbEngine::doUpdateLocals(UpdateParameters params)
 {
+    if (stackHandler()->stackSize() == 0) {
+        showMessage(_("SKIPPING LOCALS DUE TO EMPTY STACK"));
+        return;
+    }
+
     DebuggerCommand cmd("updateData");
     cmd.arg("nativeMixed", isNativeMixedActive());
     watchHandler()->appendFormatRequests(&cmd);
@@ -1121,6 +1130,8 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
         notifyEngineRunAndInferiorRunOk();
     } else if (newState == "enginerunandinferiorstopok")
         notifyEngineRunAndInferiorStopOk();
+    else if (newState == "enginerunokandinferiorunrunnable")
+        notifyEngineRunOkAndInferiorUnrunnable();
     else if (newState == "inferiorshutdownok")
         notifyInferiorShutdownOk();
     else if (newState == "inferiorshutdownfailed")

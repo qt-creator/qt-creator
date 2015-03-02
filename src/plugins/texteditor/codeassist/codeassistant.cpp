@@ -32,6 +32,7 @@
 #include "completionassistprovider.h"
 #include "quickfixassistprovider.h"
 #include "iassistprocessor.h"
+#include "textdocument.h"
 #include "iassistproposal.h"
 #include "iassistproposalwidget.h"
 #include "assistinterface.h"

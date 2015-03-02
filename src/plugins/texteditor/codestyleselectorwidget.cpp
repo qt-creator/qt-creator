@@ -35,6 +35,8 @@
 #include "codestylepool.h"
 #include "tabsettings.h"
 
+#include <utils/fileutils.h>
+
 #include <QPushButton>
 #include <QDialogButtonBox>
 #include <QDialog>

@@ -34,6 +34,9 @@
 
 #include <cpptools/cpptoolssettings.h>
 
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/documentmodel.h>
+
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
@@ -200,6 +203,17 @@ void DoxygenTest::testBasic_data()
          "    //! \\brief a\n"
          "    //!\n"
          "    int a;\n"
+    );
+
+    QTest::newRow("cpp_styleA_indented_preserve_mixed_indention_continuation") << _(
+         "\t bool preventFolding;\n"
+         "\t /// \brief a|\n"
+         "\t int a;\n"
+        ) << _(
+         "\t bool preventFolding;\n"
+         "\t /// \brief a\n"
+         "\t /// \n"
+         "\t int a;\n"
     );
 
     /// test cpp style doxygen comment continuation when inside a indented scope

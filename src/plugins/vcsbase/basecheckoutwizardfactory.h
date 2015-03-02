@@ -34,10 +34,9 @@
 #include "vcsbase_global.h"
 #include <coreplugin/iwizardfactory.h>
 
-#include <utils/fileutils.h>
-
 #include <functional>
 
+namespace Utils { class FileName; }
 namespace VcsBase {
 class BaseCheckoutWizard;
 class VcsCommand;

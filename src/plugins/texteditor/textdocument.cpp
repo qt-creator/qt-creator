@@ -42,6 +42,8 @@
 #include "texteditorconstants.h"
 #include "typingsettings.h"
 #include <texteditor/generichighlighter/highlighter.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/documentmodel.h>
 
 #include <QApplication>
 #include <QDir>

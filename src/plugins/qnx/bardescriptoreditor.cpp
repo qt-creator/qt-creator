@@ -41,6 +41,7 @@
 #include <projectexplorer/taskhub.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/tabsettings.h>
 #include <utils/linecolumnlabel.h>
 #include <utils/qtcassert.h>

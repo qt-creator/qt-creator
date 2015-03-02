@@ -35,6 +35,7 @@
 
 #include <QPlainTextEdit>
 #include <QVBoxLayout>
+#include <QMenu>
 #include <QPlainTextDocumentLayout>
 #include <QTextBlock>
 #include <QScrollBar>
@@ -45,6 +46,7 @@
 #include <QMessageBox>
 
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
@@ -56,6 +58,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/patchtool.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <extensionsystem/pluginmanager.h>
 
