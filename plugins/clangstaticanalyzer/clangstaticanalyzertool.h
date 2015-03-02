@@ -61,6 +61,7 @@ private:
     void onEngineFinished();
 
     void setBusyCursor(bool busy);
+    void handleStateUpdate();
 
 private:
     CppTools::ProjectInfo m_projectInfoBeforeBuild;

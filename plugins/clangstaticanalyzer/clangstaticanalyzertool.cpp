@@ -82,6 +82,17 @@ QWidget *ClangStaticAnalyzerTool::createWidgets()
     m_diagnosticView->setAutoScroll(false);
     m_diagnosticView->setObjectName(QLatin1String("ClangStaticAnalyzerIssuesView"));
     m_diagnosticView->setWindowTitle(tr("Clang Static Analyzer Issues"));
+    foreach (auto * const model,
+             QList<QAbstractItemModel *>() << m_diagnosticModel << m_diagnosticFilterModel) {
+        connect(model, &QAbstractItemModel::rowsInserted,
+                this, &ClangStaticAnalyzerTool::handleStateUpdate);
+        connect(model, &QAbstractItemModel::rowsRemoved,
+                this, &ClangStaticAnalyzerTool::handleStateUpdate);
+        connect(model, &QAbstractItemModel::modelReset,
+                this, &ClangStaticAnalyzerTool::handleStateUpdate);
+        connect(model, &QAbstractItemModel::layoutChanged, // For QSortFilterProxyModel::invalidate()
+                this, &ClangStaticAnalyzerTool::handleStateUpdate);
+    }
 
     QDockWidget *issuesDock = AnalyzerManager::createDockWidget(ClangStaticAnalyzerToolId,
                                                                 m_diagnosticView);
@@ -198,7 +209,6 @@ void ClangStaticAnalyzerTool::startTool()
     if (dontStartAfterHintForDebugMode())
         return;
 
-    AnalyzerManager::showPermanentStatusMessage(QString());
     m_diagnosticModel->clear();
     setBusyCursor(true);
     Project *project = SessionManager::startupProject();
@@ -207,6 +217,7 @@ void ClangStaticAnalyzerTool::startTool()
     m_projectInfoBeforeBuild = CppTools::CppModelManager::instance()->projectInfo(project);
     QTC_ASSERT(m_projectInfoBeforeBuild.isValid(), return);
     m_running = true;
+    handleStateUpdate();
     ProjectExplorerPlugin::runProject(project, ProjectExplorer::ClangStaticAnalyzerMode);
 }
 
@@ -239,23 +250,9 @@ void ClangStaticAnalyzerTool::onNewDiagnosticsAvailable(const QList<Diagnostic> 
 
 void ClangStaticAnalyzerTool::onEngineFinished()
 {
-    QTC_ASSERT(m_goBack, return);
-    QTC_ASSERT(m_goNext, return);
-    QTC_ASSERT(m_diagnosticModel, return);
-    QTC_ASSERT(m_diagnosticFilterModel, return);
-
     resetCursorAndProjectInfoBeforeBuild();
-
-    const int issuesFound = m_diagnosticModel->rowCount();
-    const int issuesVisible = m_diagnosticFilterModel->rowCount();
-    m_goBack->setEnabled(issuesVisible > 1);
-    m_goNext->setEnabled(issuesVisible > 1);
-
-    AnalyzerManager::showPermanentStatusMessage(issuesFound > 0
-      ? AnalyzerManager::tr("Clang Static Analyzer finished, %n issues were found (%1 suppressed).",
-                            0, issuesFound).arg(issuesFound - issuesVisible)
-      : AnalyzerManager::tr("Clang Static Analyzer finished, no issues were found."));
     m_running = false;
+    handleStateUpdate();
     emit finished();
 }
 
@@ -264,6 +261,30 @@ void ClangStaticAnalyzerTool::setBusyCursor(bool busy)
     QTC_ASSERT(m_diagnosticView, return);
     QCursor cursor(busy ? Qt::BusyCursor : Qt::ArrowCursor);
     m_diagnosticView->setCursor(cursor);
+}
+
+void ClangStaticAnalyzerTool::handleStateUpdate()
+{
+    QTC_ASSERT(m_goBack, return);
+    QTC_ASSERT(m_goNext, return);
+    QTC_ASSERT(m_diagnosticModel, return);
+    QTC_ASSERT(m_diagnosticFilterModel, return);
+
+    const int issuesFound = m_diagnosticModel->rowCount();
+    const int issuesVisible = m_diagnosticFilterModel->rowCount();
+    m_goBack->setEnabled(issuesVisible > 1);
+    m_goNext->setEnabled(issuesVisible > 1);
+
+    QString message = m_running ? tr("Clang Static Analyzer running.")
+                                : tr("Clang Static Analyzer finished.");
+    message += QLatin1Char(' ');
+    if (issuesFound == 0) {
+        message += tr("No issues found.");
+    } else {
+        message += tr("%n issues found (%1 suppressed).", 0, issuesFound)
+                .arg(issuesFound - issuesVisible);
+    }
+    AnalyzerManager::showPermanentStatusMessage(message);
 }
 
 } // namespace Internal
