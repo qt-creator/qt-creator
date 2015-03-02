@@ -246,6 +246,9 @@ void KitModel::markForRemoval(Kit *k)
         setDefaultNode(static_cast<KitNode *>(newDefault));
     }
 
+    if (node == m_defaultNode)
+        setDefaultNode(findItemAtLevel<KitNode *>(2, [node](KitNode *kn) { return kn != node; }));
+
     removeItem(node);
     if (node->widget->configures(0))
         delete node;
@@ -353,8 +356,9 @@ void KitModel::removeKit(Kit *k)
         }
     }
 
-    if (m_defaultNode == node)
-        m_defaultNode = 0;
+    if (node == m_defaultNode)
+        setDefaultNode(findItemAtLevel<KitNode *>(2, [node](KitNode *kn) { return kn != node; }));
+
     removeItem(node);
     delete node;
 
