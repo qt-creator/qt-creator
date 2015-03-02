@@ -460,7 +460,7 @@ void ReadOnlyFilesDialogPrivate::initDialog(const QStringList &fileNames)
         ui.treeWidget->setAlternatingRowColors(true);
 
     // Do not show any options to the user if he has no choice.
-    if (!useSaveAs && (useVCS || !useMakeWritable)) {
+    if (!useSaveAs && (!useVCS || !useMakeWritable)) {
         ui.treeWidget->setColumnHidden(MakeWritable, true);
         ui.treeWidget->setColumnHidden(OpenWithVCS, true);
         ui.treeWidget->setColumnHidden(SaveAs, true);
