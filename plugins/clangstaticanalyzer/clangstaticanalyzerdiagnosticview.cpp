@@ -19,10 +19,15 @@
 #include "clangstaticanalyzerdiagnosticview.h"
 
 #include "clangstaticanalyzerlogfilereader.h"
+#include "clangstaticanalyzerdiagnosticmodel.h"
+#include "clangstaticanalyzerprojectsettings.h"
+#include "clangstaticanalyzerprojectsettingsmanager.h"
 #include "clangstaticanalyzerutils.h"
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
+#include <QAction>
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFileInfo>
@@ -196,13 +201,18 @@ DetailedErrorDelegate::SummaryLineInfo ClangStaticAnalyzerDiagnosticDelegate::su
     return info;
 }
 
+Diagnostic ClangStaticAnalyzerDiagnosticDelegate::getDiagnostic(const QModelIndex &index) const
+{
+    return index.data(Qt::UserRole).value<Diagnostic>();
+}
+
 QWidget *ClangStaticAnalyzerDiagnosticDelegate::createDetailsWidget(const QFont &font,
                                                                     const QModelIndex &index,
                                                                     QWidget *parent) const
 {
     QWidget *widget = new QWidget(parent);
 
-    const Diagnostic diagnostic = index.data(Qt::UserRole).value<Diagnostic>();
+    const Diagnostic diagnostic = getDiagnostic(index);
     if (!diagnostic.isValid())
         return widget;
 
@@ -240,7 +250,7 @@ QString ClangStaticAnalyzerDiagnosticDelegate::textualRepresentation() const
 {
     QTC_ASSERT(m_detailsIndex.isValid(), return QString());
 
-    const Diagnostic diagnostic = m_detailsIndex.data(Qt::UserRole).value<Diagnostic>();
+    const Diagnostic diagnostic = getDiagnostic(m_detailsIndex);
     QTC_ASSERT(diagnostic.isValid(), return QString());
 
     // Create summary
@@ -268,6 +278,39 @@ ClangStaticAnalyzerDiagnosticView::ClangStaticAnalyzerDiagnosticView(QWidget *pa
     ClangStaticAnalyzerDiagnosticDelegate *delegate
             = new ClangStaticAnalyzerDiagnosticDelegate(this);
     setItemDelegate(delegate);
+    m_suppressAction = new QAction(tr("Suppress this diagnostic"), this);
+    connect(m_suppressAction, &QAction::triggered, [this](bool) { suppressCurrentDiagnostic(); });
+}
+
+void ClangStaticAnalyzerDiagnosticView::suppressCurrentDiagnostic()
+{
+    const QModelIndexList indexes = selectedIndexes();
+    QTC_ASSERT(indexes.count() == 1, return);
+    const Diagnostic diag = static_cast<ClangStaticAnalyzerDiagnosticDelegate *>(itemDelegate())
+            ->getDiagnostic(indexes.first());
+    QTC_ASSERT(diag.isValid(), return);
+
+    // If the original project was closed, we work directly on the filter model, otherwise
+    // we go via the project settings.
+    auto * const filterModel = static_cast<ClangStaticAnalyzerDiagnosticFilterModel *>(model());
+    ProjectExplorer::Project * const project = filterModel->project();
+    if (project) {
+        Utils::FileName filePath = Utils::FileName::fromString(diag.location.filePath);
+        const Utils::FileName relativeFilePath
+                = filePath.relativeChildPath(project->projectDirectory());
+        if (!relativeFilePath.isEmpty())
+            filePath = relativeFilePath;
+        const SuppressedDiagnostic supDiag(filePath, diag.description, diag.issueContextKind,
+                                           diag.issueContext, diag.explainingSteps.count());
+        ProjectSettingsManager::getSettings(project)->addSuppressedDiagnostic(supDiag);
+    } else {
+        filterModel->addSuppressedDiagnostic(SuppressedDiagnostic(diag));
+    }
+}
+
+QList<QAction *> ClangStaticAnalyzerDiagnosticView::customActions() const
+{
+    return QList<QAction *>() << m_suppressAction;
 }
 
 } // namespace Internal

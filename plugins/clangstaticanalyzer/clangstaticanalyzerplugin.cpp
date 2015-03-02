@@ -19,6 +19,7 @@
 #include "clangstaticanalyzerplugin.h"
 
 #include "clangstaticanalyzerconfigwidget.h"
+#include "clangstaticanalyzerprojectsettingswidget.h"
 #include "clangstaticanalyzerruncontrolfactory.h"
 #include "clangstaticanalyzertool.h"
 
@@ -35,6 +36,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <licensechecker/licensecheckerplugin.h>
+#include <projectexplorer/projectpanelfactory.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -106,6 +108,12 @@ bool ClangStaticAnalyzerPlugin::initialize(const QStringList &arguments, QString
     // In the initialize method, a plugin can be sure that the plugins it
     // depends on have initialized their members.
 
+    auto panelFactory = new ProjectExplorer::ProjectPanelFactory();
+    panelFactory->setPriority(100);
+    panelFactory->setDisplayName(tr("Clang Static Analyzer Settings"));
+    panelFactory->setSimpleCreateWidgetFunction<ProjectSettingsWidget>(QIcon());
+    ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
+
     LicenseChecker::LicenseCheckerPlugin *licenseChecker
             = ExtensionSystem::PluginManager::getObject<LicenseChecker::LicenseCheckerPlugin>();
 
@@ -125,16 +133,26 @@ bool ClangStaticAnalyzerPlugin::initializeEnterpriseFeatures(const QStringList &
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
 
-    m_analyzerTool = new ClangStaticAnalyzerTool(this);
+    auto tool = m_analyzerTool = new ClangStaticAnalyzerTool(this);
     addAutoReleasedObject(new ClangStaticAnalyzerRunControlFactory(m_analyzerTool));
     addAutoReleasedObject(new ClangStaticAnalyzerOptionsPage);
+
+    auto widgetCreator = [tool] { return tool->createWidgets(); };
+    auto runControlCreator = [tool](const AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration) {
+        return tool->createRunControl(sp, runConfiguration);
+    };
 
     const QString toolTip = tr("Clang Static Analyzer uses the analyzer from the clang project "
                                "to find bugs.");
 
     AnalyzerAction *action = new AnalyzerAction(this);
-    action->setId("ClangStaticAnalyzer");
-    action->setTool(m_analyzerTool);
+    action->setRunMode(ProjectExplorer::ClangStaticAnalyzerMode);
+    action->setToolId(ClangStaticAnalyzerToolId);
+    action->setActionId("ClangStaticAnalyzer");
+    action->setWidgetCreator(widgetCreator);
+    action->setRunControlCreator(runControlCreator);
+    action->setToolStarter([tool] { tool->startTool(); });
     action->setText(tr("Clang Static Analyzer"));
     action->setToolTip(toolTip);
     action->setMenuGroup(Constants::G_ANALYZER_TOOLS);

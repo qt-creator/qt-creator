@@ -23,6 +23,7 @@
 
 #include <utils/environment.h>
 
+#include <QCoreApplication>
 #include <QFileInfo>
 
 static bool isFileExecutable(const QString &executablePath)
@@ -63,7 +64,7 @@ QString clangExecutable(const QString &fileNameOrPath, bool *isValid)
         executable = executableFromPath;
     }
 
-    *isValid = isFileExecutable(executable);
+    *isValid = isFileExecutable(executable) && isClangExecutableUsable(executable);
     return executable;
 }
 
@@ -72,6 +73,21 @@ QString createFullLocationString(const ClangStaticAnalyzer::Internal::Location &
     const QString filePath = location.filePath;
     const QString lineNumber = QString::number(location.line);
     return filePath + QLatin1Char(':') + lineNumber;
+}
+
+bool isClangExecutableUsable(const QString &filePath, QString *errorMessage)
+{
+    const QFileInfo fi(filePath);
+    if (fi.isSymLink() && fi.symLinkTarget().contains(QLatin1String("icecc"))) {
+        if (errorMessage) {
+            *errorMessage = QCoreApplication::translate("ClangStaticAnalyzer",
+                    "The chosen file \"%1\" seems to point to an icecc binary not suitable "
+                    "for analyzing.\nPlease set a real clang executable.")
+                    .arg(filePath);
+        }
+        return false;
+    }
+    return true;
 }
 
 } // namespace Internal

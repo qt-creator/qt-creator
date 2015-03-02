@@ -33,10 +33,6 @@ ClangStaticAnalyzerConfigWidget::ClangStaticAnalyzerConfigWidget(
 {
     m_ui->setupUi(this);
 
-    m_ui->clangExecutableChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_ui->clangExecutableChooser->setHistoryCompleter(
-                QLatin1String("ClangStaticAnalyzer.ClangCommand.History"));
-    m_ui->clangExecutableChooser->setPromptDialogTitle(tr("Clang Command"));
     m_ui->clangExecutableChooser->setPath(settings->clangExecutable());
     connect(m_ui->clangExecutableChooser, &Utils::PathChooser::changed,
             m_settings, &ClangStaticAnalyzerSettings::setClangExecutable);

@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** For any questions to The Qt Company, please use contact form at http://www.qt.io/contact-us
 **
-** This file is part of the Qt Enterprise Qt LicenseChecker Add-on.
+** This file is part of the Qt Enterprise Qt Quick Profiler Add-on.
 **
 ** Licensees holding valid Qt Enterprise licenses may use this file in
 ** accordance with the Qt Enterprise License Agreement provided with the
@@ -15,29 +15,38 @@
 ** contact form at http://www.qt.io/contact-us
 **
 ****************************************************************************/
+#ifndef CLANGSTATICANALYZERPROJECTSETTINGSWIDGET_H
+#define CLANGSTATICANALYZERPROJECTSETTINGSWIDGET_H
 
-#ifndef CLANGSTATICANALYZERUTILS_H
-#define CLANGSTATICANALYZERUTILS_H
+#include <QWidget>
 
-#include <QtGlobal>
-
-QT_BEGIN_NAMESPACE
-class QString;
-QT_END_NAMESPACE
+namespace ProjectExplorer { class Project; }
 
 namespace ClangStaticAnalyzer {
 namespace Internal {
+class ProjectSettings;
 
-class Location;
+namespace Ui { class ProjectSettingsWidget; }
 
-bool isClangExecutableUsable(const QString &filePath, QString *errorMessage = 0);
+class ProjectSettingsWidget : public QWidget
+{
+    Q_OBJECT
 
-QString clangExecutable(const QString &fileNameOrPath, bool *isValid);
-QString clangExecutableFromSettings(const QString &toolchainType, bool *isValid);
+public:
+    explicit ProjectSettingsWidget(ProjectExplorer::Project *project, QWidget *parent = 0);
+    ~ProjectSettingsWidget();
 
-QString createFullLocationString(const ClangStaticAnalyzer::Internal::Location &location);
+private:
+    void updateButtonStates();
+    void updateButtonStateRemoveSelected();
+    void updateButtonStateRemoveAll();
+    void removeSelected();
+
+    Ui::ProjectSettingsWidget * const m_ui;
+    ProjectSettings * const m_projectSettings;
+};
 
 } // namespace Internal
 } // namespace ClangStaticAnalyzer
 
-#endif // CLANGSTATICANALYZERUTILS_H
+#endif // Include guard.

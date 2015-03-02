@@ -15,46 +15,26 @@
 ** contact form at http://www.qt.io/contact-us
 **
 ****************************************************************************/
+#ifndef QTC_CLANGSTATICANALYZER_PATHCHOOSER_H
+#define QTC_CLANGSTATICANALYZER_PATHCHOOSER_H
 
-#ifndef CLANGSTATICANALYZERDIAGNOSTICVIEW_H
-#define CLANGSTATICANALYZERDIAGNOSTICVIEW_H
-
-#include <analyzerbase/detailederrorview.h>
+#include <utils/pathchooser.h>
 
 namespace ClangStaticAnalyzer {
 namespace Internal {
-class Diagnostic;
 
-class ClangStaticAnalyzerDiagnosticView : public Analyzer::DetailedErrorView
+class PathChooser : public Utils::PathChooser
 {
     Q_OBJECT
 
 public:
-    ClangStaticAnalyzerDiagnosticView(QWidget *parent = 0);
+    PathChooser(QWidget *parent = 0);
 
 private:
-    void suppressCurrentDiagnostic();
-
-    QList<QAction *> customActions() const;
-
-    QAction *m_suppressAction;
-};
-
-class ClangStaticAnalyzerDiagnosticDelegate : public Analyzer::DetailedErrorDelegate
-{
-public:
-    ClangStaticAnalyzerDiagnosticDelegate(QListView *parent);
-
-    SummaryLineInfo summaryInfo(const QModelIndex &index) const;
-    Diagnostic getDiagnostic(const QModelIndex &index) const;
-
-private:
-    QWidget *createDetailsWidget(const QFont &font, const QModelIndex &index,
-                                 QWidget *parent) const;
-    QString textualRepresentation() const;
+    bool validatePath(const QString &path, QString *errorMessage = 0);
 };
 
 } // namespace Internal
 } // namespace ClangStaticAnalyzer
 
-#endif // CLANGSTATICANALYZERDIAGNOSTICVIEW_H
+#endif // Include guard.

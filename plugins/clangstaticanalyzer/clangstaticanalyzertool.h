@@ -27,11 +27,14 @@ namespace Analyzer { class DetailedErrorView; }
 namespace ClangStaticAnalyzer {
 namespace Internal {
 
+class ClangStaticAnalyzerDiagnosticFilterModel;
 class ClangStaticAnalyzerDiagnosticModel;
 class ClangStaticAnalyzerDiagnosticView;
 class Diagnostic;
 
-class ClangStaticAnalyzerTool : public Analyzer::IAnalyzerTool
+const char ClangStaticAnalyzerToolId[] = "ClangStaticAnalyzer";
+
+class ClangStaticAnalyzerTool : public QObject
 {
     Q_OBJECT
 
@@ -44,15 +47,15 @@ public:
     bool isRunning() const { return m_running; }
     QList<Diagnostic> diagnostics() const;
 
+    QWidget *createWidgets();
+    Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
+                                            ProjectExplorer::RunConfiguration *runConfiguration);
+    void startTool();
+
 signals:
     void finished(); // For testing.
 
 private:
-    QWidget *createWidgets();
-    Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
-                                            ProjectExplorer::RunConfiguration *runConfiguration);
-    void startTool(Analyzer::StartMode mode);
-
     void onEngineIsStarting();
     void onNewDiagnosticsAvailable(const QList<Diagnostic> &diagnostics);
     void onEngineFinished();
@@ -63,6 +66,7 @@ private:
     CppTools::ProjectInfo m_projectInfoBeforeBuild;
 
     ClangStaticAnalyzerDiagnosticModel *m_diagnosticModel;
+    ClangStaticAnalyzerDiagnosticFilterModel *m_diagnosticFilterModel;
     Analyzer::DetailedErrorView *m_diagnosticView;
 
     QAction *m_goBack;

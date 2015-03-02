@@ -20,8 +20,15 @@
 #define CLANGSTATICANALYZERDIAGNOSTICMODEL_H
 
 #include "clangstaticanalyzerlogfilereader.h"
+#include "clangstaticanalyzerprojectsettings.h"
+
+#include <utils/fileutils.h>
 
 #include <QAbstractListModel>
+#include <QPointer>
+#include <QSortFilterProxyModel>
+
+namespace ProjectExplorer { class Project; }
 
 namespace ClangStaticAnalyzer {
 namespace Internal {
@@ -43,6 +50,26 @@ public:
 
 private:
     QList<Diagnostic> m_diagnostics;
+};
+
+class ClangStaticAnalyzerDiagnosticFilterModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+
+public:
+    ClangStaticAnalyzerDiagnosticFilterModel(QObject *parent = 0);
+
+    void setProject(ProjectExplorer::Project *project);
+    void addSuppressedDiagnostic(const SuppressedDiagnostic &diag);
+    ProjectExplorer::Project *project() const { return m_project; }
+
+private:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+    void handleSuppressedDiagnosticsChanged();
+
+    QPointer<ProjectExplorer::Project> m_project;
+    Utils::FileName m_lastProjectDirectory;
+    SuppressedDiagnosticsList m_suppressedDiagnostics;
 };
 
 } // namespace Internal
