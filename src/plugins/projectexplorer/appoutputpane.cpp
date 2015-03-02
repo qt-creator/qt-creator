@@ -543,7 +543,7 @@ void AppOutputPane::enableButtons()
 void AppOutputPane::enableButtons(const RunControl *rc /* = 0 */, bool isRunning /*  = false */)
 {
     if (rc) {
-        m_reRunButton->setEnabled(!isRunning);
+        m_reRunButton->setEnabled(!isRunning && rc->supportsReRunning());
         m_reRunButton->setIcon(QIcon(rc->icon()));
         m_stopAction->setEnabled(isRunning);
         if (isRunning && debuggerPlugin() && rc->applicationProcessHandle().isValid()) {

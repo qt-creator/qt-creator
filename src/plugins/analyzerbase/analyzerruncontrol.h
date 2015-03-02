@@ -105,6 +105,8 @@ signals:
     void starting(const Analyzer::AnalyzerRunControl *);
 
 private:
+    bool supportsReRunning() const { return false; }
+
     ProjectExplorer::RunConfiguration *m_runConfig;
     AnalyzerStartParameters m_sp;
 };

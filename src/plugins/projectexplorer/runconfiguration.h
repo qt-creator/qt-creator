@@ -287,6 +287,7 @@ public:
     virtual StopResult stop() = 0;
     virtual bool isRunning() const = 0;
     virtual QString displayName() const;
+    virtual bool supportsReRunning() const { return true; }
 
     void setIcon(const QString &icon) { m_icon = icon; }
     QString icon() const { return m_icon; }
