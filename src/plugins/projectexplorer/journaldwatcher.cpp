@@ -33,7 +33,6 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QDebug>
 #include <QSocketNotifier>
 
 #include <systemd/sd-journal.h>
@@ -153,6 +152,17 @@ JournaldWatcher *JournaldWatcher::instance()
     return m_instance;
 }
 
+const QByteArray &JournaldWatcher::machineId()
+{
+    static QByteArray id;
+    if (id.isEmpty()) {
+        sd_id128 sdId;
+        if (sd_id128_get_machine(&sdId) == 0)
+            id = QByteArray(reinterpret_cast<char *>(sdId.bytes), 16);
+    }
+    return id;
+}
+
 bool JournaldWatcher::subscribe(QObject *subscriber, const Subscription &subscription)
 {
     // Check that we do not have that subscriber yet:
@@ -196,8 +206,7 @@ JournaldWatcher::JournaldWatcher()
 
 void JournaldWatcher::handleEntry()
 {
-    // process events:
-    if (!d->m_notifier || sd_journal_process(d->m_journalContext) == SD_JOURNAL_NOP)
+    if (!d->m_notifier)
         return;
 
     LogEntry logEntry;
@@ -209,12 +218,15 @@ void JournaldWatcher::handleEntry()
         foreach (const JournaldWatcherPrivate::SubscriberInformation &info, d->m_subscriptions)
             info.subscription(logEntry);
 
-        QByteArray tmp = logEntry.value(QByteArrayLiteral("_PID"));
-        quint64 pid = tmp.isEmpty() ? 0 : QString::fromLatin1(tmp).toInt();
+        if (logEntry.value(QByteArrayLiteral("_MACHINE_ID")) != machineId())
+            continue;
+
+        const QByteArray pid = logEntry.value(QByteArrayLiteral("_PID"));
+        quint64 pidNum = pid.isEmpty() ? 0 : QString::fromLatin1(pid).toInt();
 
         QString message = QString::fromUtf8(logEntry.value(QByteArrayLiteral("MESSAGE")));
 
-        emit journaldOutput(pid, message);
+        emit journaldOutput(pidNum, message);
     }
 }
 
