@@ -50,7 +50,9 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
+
 #include <utils/macroexpander.h>
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QtPlugin>
 
@@ -68,6 +70,8 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     QMakeParser::initialize();
     ProFileEvaluator::initialize();
     new ProFileCacheManager(this);
+
+    Utils::MimeDatabase::addMimeTypes(QLatin1String(":qtsupport/QtSupport.mimetypes.xml"));
 
     JsExpander::registerQObjectForJs(QLatin1String("QtSupport"), new CodeGenerator);
 
