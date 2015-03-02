@@ -1464,6 +1464,9 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         // This is gdb 7+'s initial *stopped in response to attach that
         // appears before the ^done is seen.
         notifyEngineRunAndInferiorStopOk();
+        const DebuggerStartParameters &sp = startParameters();
+        if (sp.useTerminal)
+            continueInferiorInternal();
         return;
     } else {
         QTC_CHECK(false);
