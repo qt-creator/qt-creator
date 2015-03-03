@@ -615,19 +615,15 @@ QString TestTreeModel::getMainFileForUnnamedQuickTest(const QString &qmlFile) co
     return QString();
 }
 
-void TestTreeModel::qmlFilesAndFunctionNamesForMainFile(const QString &mainFile,
-                                                        QSet<QString> *filePaths,
-                                                        QList<QString> *functionNames) const
+void TestTreeModel::qmlFilesForMainFile(const QString &mainFile, QSet<QString> *filePaths) const
 {
     TestTreeItem *unnamed = unnamedQuickTests();
     if (!unnamed)
         return;
     for (int i = 0; i < unnamed->childCount(); ++i) {
         const TestTreeItem *child = unnamed->child(i);
-        if (child->mainFile() == mainFile) {
+        if (child->mainFile() == mainFile)
             filePaths->insert(child->filePath());
-            functionNames->append(child->name());
-        }
     }
 }
 
