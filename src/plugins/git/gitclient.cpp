@@ -672,10 +672,6 @@ GitClient::GitClient(GitSettings *settings) :
             .arg(QCoreApplication::applicationPid());
 }
 
-GitClient::~GitClient()
-{
-}
-
 QString GitClient::findRepositoryForDirectory(const QString &dir) const
 {
     if (dir.isEmpty() || dir.endsWith(QLatin1String("/.git"))

@@ -136,7 +136,6 @@ public:
     static const char *stashNamePrefix;
 
     explicit GitClient(GitSettings *settings);
-    ~GitClient();
 
     Utils::FileName gitExecutable(bool *ok = 0, QString *errorMessage = 0) const;
     unsigned gitVersion(QString *errorMessage = 0) const;
