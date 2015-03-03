@@ -116,6 +116,7 @@ LldbEngine::LldbEngine(const DebuggerStartParameters &startParameters)
 LldbEngine::~LldbEngine()
 {
     m_stubProc.disconnect(); // Avoid spurious state transitions from late exiting stub
+    m_lldbProc.disconnect();
 }
 
 void LldbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages)
