@@ -64,7 +64,6 @@ private slots:
     void updateBuildSettings();
     void currentIndexChanged(int index);
 
-    void createConfiguration();
     void cloneConfiguration();
     void deleteConfiguration();
     void renameConfiguration();
@@ -73,6 +72,7 @@ private slots:
     void updateActiveConfiguration();
 
 private:
+    void createConfiguration(BuildInfo *info);
     void cloneConfiguration(BuildConfiguration *toClone);
     void deleteConfiguration(BuildConfiguration *toDelete);
     QString uniqueName(const QString &name);

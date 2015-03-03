@@ -186,8 +186,10 @@ void BuildSettingsWidget::updateAddButtonMenu()
             return;
         m_buildInfoList = factory->availableBuilds(m_target);
         foreach (BuildInfo *info, m_buildInfoList) {
-            QAction *action = m_addButtonMenu->addAction(info->typeName, this, SLOT(createConfiguration()));
-            action->setData(QVariant::fromValue(static_cast<void *>(info)));
+            QAction *action = m_addButtonMenu->addAction(info->typeName);
+            connect(action, &QAction::triggered, this, [this, info] {
+                createConfiguration(info);
+            });
         }
     }
 }
@@ -235,10 +237,8 @@ void BuildSettingsWidget::updateActiveConfiguration()
     updateBuildSettings();
 }
 
-void BuildSettingsWidget::createConfiguration()
+void BuildSettingsWidget::createConfiguration(BuildInfo *info)
 {
-    QAction *action = qobject_cast<QAction *>(sender());
-    BuildInfo *info = static_cast<BuildInfo *>(action->data().value<void*>());
     QString originalDisplayName = info->displayName;
 
     if (info->displayName.isEmpty()) {

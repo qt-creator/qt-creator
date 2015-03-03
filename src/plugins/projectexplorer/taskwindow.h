@@ -101,7 +101,6 @@ private slots:
     void actionTriggered();
     void setShowWarnings(bool);
     void updateCategoriesMenu();
-    void filterCategoryTriggered(QAction *action);
 
 private:
     int sizeHintForColumn(int column) const;

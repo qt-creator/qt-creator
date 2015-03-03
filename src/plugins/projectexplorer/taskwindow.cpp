@@ -272,7 +272,6 @@ TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
 
     d->m_categoriesMenu = new QMenu(d->m_categoriesButton);
     connect(d->m_categoriesMenu, SIGNAL(aboutToShow()), this, SLOT(updateCategoriesMenu()));
-    connect(d->m_categoriesMenu, SIGNAL(triggered(QAction*)), this, SLOT(filterCategoryTriggered(QAction*)));
 
     d->m_categoriesButton->setMenu(d->m_categoriesMenu);
 
@@ -523,18 +522,12 @@ void TaskWindow::updateCategoriesMenu()
         QAction *action = new QAction(d->m_categoriesMenu);
         action->setCheckable(true);
         action->setText(displayName);
-        action->setData(categoryId.toSetting());
         action->setChecked(!filteredCategories.contains(categoryId));
+        connect(action, &QAction::triggered, this, [this, action, categoryId] {
+            setCategoryVisibility(categoryId, action->isChecked());
+        });
         d->m_categoriesMenu->addAction(action);
     }
-}
-
-void TaskWindow::filterCategoryTriggered(QAction *action)
-{
-    Core::Id categoryId = Core::Id::fromSetting(action->data());
-    QTC_CHECK(categoryId.uniqueIdentifier() != 0);
-
-    setCategoryVisibility(categoryId, action->isChecked());
 }
 
 int TaskWindow::taskCount(Core::Id category) const
