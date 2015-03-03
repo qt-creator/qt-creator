@@ -36,12 +36,6 @@
 namespace Debugger {
 namespace Internal {
 
-///////////////////////////////////////////////////////////////////////
-//
-// RemoteGdbAdapter
-//
-///////////////////////////////////////////////////////////////////////
-
 class GdbRemoteServerEngine : public GdbEngine
 {
     Q_OBJECT
@@ -56,23 +50,11 @@ private:
     void interruptInferior2();
     void shutdownEngine();
 
-signals:
-    /*
-     * For "external" clients of a debugger run control that need to do
-     * further setup before the debugger is started (e.g. RemoteLinux).
-     * Afterwards, handleSetupDone() or handleSetupFailed() must be called
-     * to continue or abort debugging, respectively.
-     * This signal is only emitted if the start parameters indicate that
-     * a server start script should be used, but none is given.
-     */
-    void requestSetup();
-
-private:
-    Q_SLOT void readUploadStandardOutput();
-    Q_SLOT void readUploadStandardError();
-    Q_SLOT void uploadProcError(QProcess::ProcessError error);
-    Q_SLOT void uploadProcFinished();
-    Q_SLOT void callTargetRemote();
+    void readUploadStandardOutput();
+    void readUploadStandardError();
+    void uploadProcError(QProcess::ProcessError error);
+    void uploadProcFinished();
+    void callTargetRemote();
 
     void notifyEngineRemoteServerRunning(const QByteArray &serverChannel, int inferiorPid);
     void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
