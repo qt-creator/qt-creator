@@ -150,7 +150,7 @@ KitNode *KitModel::kitNode(const QModelIndex &index)
 QModelIndex KitModel::indexOf(Kit *k) const
 {
     KitNode *n = findWorkingCopy(k);
-    return indexFromItem(n);
+    return n ? indexFromItem(n) : QModelIndex();
 }
 
 void KitModel::setDefaultKit(const QModelIndex &index)
