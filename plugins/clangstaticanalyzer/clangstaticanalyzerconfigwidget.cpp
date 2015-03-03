@@ -19,6 +19,8 @@
 #include "clangstaticanalyzerconfigwidget.h"
 #include "ui_clangstaticanalyzerconfigwidget.h"
 
+#include "clangstaticanalyzerutils.h"
+
 #include <QThread>
 
 namespace ClangStaticAnalyzer {
@@ -33,7 +35,15 @@ ClangStaticAnalyzerConfigWidget::ClangStaticAnalyzerConfigWidget(
 {
     m_ui->setupUi(this);
 
-    m_ui->clangExecutableChooser->setPath(settings->clangExecutable());
+    Utils::PathChooser * const chooser = m_ui->clangExecutableChooser;
+    chooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    chooser->setHistoryCompleter(QLatin1String("ClangStaticAnalyzer.ClangCommand.History"));
+    chooser->setPromptDialogTitle(tr("Clang Command"));
+    chooser->setPath(settings->clangExecutable());
+    const auto validator = [chooser](const QString &, QString *errorMessage) {
+        return isClangExecutableUsable(chooser->fileName().toString(), errorMessage);
+    };
+    chooser->setAdditionalPathValidator(validator);
     connect(m_ui->clangExecutableChooser, &Utils::PathChooser::changed,
             m_settings, &ClangStaticAnalyzerSettings::setClangExecutable);
 

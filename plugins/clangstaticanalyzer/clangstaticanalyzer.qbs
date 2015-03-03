@@ -28,8 +28,6 @@ QtcPlugin {
         "clangstaticanalyzerdiagnosticview.h",
         "clangstaticanalyzerlogfilereader.cpp",
         "clangstaticanalyzerlogfilereader.h",
-        "clangstaticanalyzerpathchooser.cpp",
-        "clangstaticanalyzerpathchooser.h",
         "clangstaticanalyzerplugin.cpp",
         "clangstaticanalyzerplugin.h",
         "clangstaticanalyzerprojectsettings.cpp",
