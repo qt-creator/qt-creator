@@ -1713,7 +1713,7 @@ class DumperBase:
         result += ']'
         return result
 
-    def reloadDumper(self):
+    def reloadDumper(self, args):
         for mod in self.dumpermodules:
             m = sys.modules[mod]
             if sys.version_info[0] >= 3:
@@ -1721,7 +1721,7 @@ class DumperBase:
             else:
                 reload(m)
 
-        setupDumper()
+        self.setupDumper(args)
 
     def addDumperModule(self, args):
         path = args['path']
