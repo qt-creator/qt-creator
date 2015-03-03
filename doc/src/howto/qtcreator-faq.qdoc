@@ -191,7 +191,7 @@
     installed when you install \QC and \QSDK. On OS X, GDB is no longer
     officially supported. To build your own Python-enabled GDB, follow the
     instructions in
-    \l{http://wiki.qt.io/QtCreator_Build_Gdb}{Building GDB}.
+    \l{https://wiki.qt.io/QtCreator_Build_Gdb}{Building GDB}.
 
     You must use Python version 2.6 or 2.7.
 
@@ -220,7 +220,7 @@
 
     On Windows, nmake does not support the \c{-j} parameter. Instead, we
     provide a drop-in replacement called jom. You can download a precompiled
-    version of jom from \l{http://releases.qt-project.org/jom/}{Qt Project Release server}.
+    version of jom from \l{https://download.qt.io/official_releases/jom/}{Qt Downloads}.
     Put jom.exe in a location in the %PATH%. Go to the \uicontrol {Build Settings}
     and set jom.exe as the make command.
 

@@ -40,24 +40,28 @@
             \li Where to Go
 
         \row
-            \li Learn more about Qt
-            \li \l{http://wiki.qt.io/developer_guides}
-                {Qt Developer Guides}
+            \li View examples of what you can do with Qt
+            \li \l{https://doc.qt.io/qt-5/all-examples.html}{List of Qt Examples}
+
+                \l{https://doc.qt.io/qt-5/qtquick-codesamples.html}
+                {List of Qt Quick Examples}
 
         \row
             \li Develop Qt applications for desktop and mobile devices
-            \li \l{http://qt-project.org}{Qt Developer Network}
+            \li \l{https://www.qt.io/developers/}{Qt Developers}
 
         \row
             \li Participate in Qt development
-            \li \l{http://qt-project.org/contribute}{Contribute to Qt}
+            \li \l{https://wiki.qt.io/Qt_Contribution_Guidelines}
+                {Qt Contribution Guidelines}
 
         \row
             \li Find free Qt-based applications
             \li \l{http://qt-apps.org/}{Qt Apps}
 
         \row
-            \li Develop with a commercial Qt license and support - Qt by The Qt Company
+            \li Develop with a commercial Qt license and support -
+                Qt by The Qt Company
             \li \l{http://qt.io/licensing/}{Qt Licensing}
     \endtable
 
