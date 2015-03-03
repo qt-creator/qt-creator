@@ -2634,11 +2634,11 @@ void DebuggerPluginPrivate::extensionsInitialized()
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::attachCore);
 
     act = m_attachToRemoteServerAction = new QAction(this);
-    act->setText(tr("Attach to Remote Debug Server..."));
+    act->setText(tr("Attach to Running Debug Server..."));
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::attachToRemoteServer);
 
     act = m_startRemoteServerAction = new QAction(this);
-    act->setText(tr("Start Remote Debug Server Attached to Process..."));
+    act->setText(tr("Start Debug Server Attached to Process..."));
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::startRemoteServerAndAttachToProcess);
 
     act = m_attachToRunningApplication = new QAction(this);

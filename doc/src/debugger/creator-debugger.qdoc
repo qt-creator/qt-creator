@@ -273,7 +273,7 @@
 
     \list 1
 
-        \li Select \uicontrol {Debug > Start Debugging > Attach to Remote
+        \li Select \uicontrol {Debug > Start Debugging > Attach to Running
             Debug Server}.
 
         \li In the \uicontrol {Host and port} field, enter the name of the remote
