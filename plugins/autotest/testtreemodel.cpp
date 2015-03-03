@@ -620,6 +620,8 @@ void TestTreeModel::qmlFilesAndFunctionNamesForMainFile(const QString &mainFile,
                                                         QList<QString> *functionNames) const
 {
     TestTreeItem *unnamed = unnamedQuickTests();
+    if (!unnamed)
+        return;
     for (int i = 0; i < unnamed->childCount(); ++i) {
         const TestTreeItem *child = unnamed->child(i);
         if (child->mainFile() == mainFile) {
