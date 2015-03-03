@@ -259,7 +259,7 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget(DebuggerItemModel *model)
 DebuggerItem DebuggerItemConfigWidget::item() const
 {
     DebuggerItem item(m_id);
-    item.setDisplayName(m_displayNameLineEdit->text());
+    item.setUnexpandedDisplayName(m_displayNameLineEdit->text());
     item.setCommand(m_binaryChooser->fileName());
     item.setAutoDetected(m_autodetected);
     QList<ProjectExplorer::Abi> abiList;
@@ -295,7 +295,7 @@ void DebuggerItemConfigWidget::load(const DebuggerItem *item)
     m_autodetected = item->isAutoDetected();
 
     m_displayNameLineEdit->setEnabled(!item->isAutoDetected());
-    m_displayNameLineEdit->setText(item->displayName());
+    m_displayNameLineEdit->setText(item->unexpandedDisplayName());
 
     m_typeLineEdit->setText(item->engineTypeName());
 
@@ -435,11 +435,9 @@ void DebuggerConfigWidget::cloneDebugger()
 
     DebuggerItem newItem;
     newItem.createId();
-    newItem.setAutoDetected(false);
     newItem.setCommand(item->command());
-    newItem.setEngineType(item->engineType());
-    newItem.setAbis(item->abis());
-    newItem.setDisplayName(DebuggerItemManager::uniqueDisplayName(tr("Clone of %1").arg(item->displayName())));
+    newItem.setUnexpandedDisplayName(DebuggerItemManager::uniqueDisplayName(tr("Clone of %1").arg(item->displayName())));
+    newItem.reinitializeFromFile();
     newItem.setAutoDetected(false);
     m_model.addDebugger(newItem, true);
     m_debuggerView->setCurrentIndex(m_model.lastIndex());
@@ -451,7 +449,7 @@ void DebuggerConfigWidget::addDebugger()
     item.createId();
     item.setAutoDetected(false);
     item.setEngineType(NoEngineType);
-    item.setDisplayName(DebuggerItemManager::uniqueDisplayName(tr("New Debugger")));
+    item.setUnexpandedDisplayName(DebuggerItemManager::uniqueDisplayName(tr("New Debugger")));
     item.setAutoDetected(false);
     m_model.addDebugger(item, true);
     m_debuggerView->setCurrentIndex(m_model.lastIndex());

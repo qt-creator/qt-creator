@@ -35,8 +35,10 @@
 #include "debuggerprotocol.h"
 
 #include <projectexplorer/abi.h>
+
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
 #include <QProcess>
@@ -83,7 +85,7 @@ DebuggerItem::DebuggerItem(const QVariantMap &data)
 {
     m_command = FileName::fromUserInput(data.value(QLatin1String(DEBUGGER_INFORMATION_COMMAND)).toString());
     m_id = data.value(QLatin1String(DEBUGGER_INFORMATION_ID)).toString();
-    m_displayName = data.value(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME)).toString();
+    m_unexpandedDisplayName = data.value(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME)).toString();
     m_isAutoDetected = data.value(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTED), false).toBool();
     m_autoDetectionSource = data.value(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTION_SOURCE)).toString();
     m_version = data.value(QLatin1String(DEBUGGER_INFORMATION_VERSION)).toString();
@@ -95,6 +97,9 @@ DebuggerItem::DebuggerItem(const QVariantMap &data)
         if (!abi.isNull())
             m_abis.append(abi);
     }
+
+    if (m_version.isEmpty())
+        reinitializeFromFile();
 }
 
 void DebuggerItem::createId()
@@ -204,7 +209,7 @@ QStringList DebuggerItem::abiNames() const
 bool DebuggerItem::operator==(const DebuggerItem &other) const
 {
     return m_id == other.m_id
-            && m_displayName == other.m_displayName
+            && m_unexpandedDisplayName == other.m_unexpandedDisplayName
             && m_isAutoDetected == other.m_isAutoDetected
             && m_command == other.m_command;
 }
@@ -212,7 +217,7 @@ bool DebuggerItem::operator==(const DebuggerItem &other) const
 QVariantMap DebuggerItem::toMap() const
 {
     QVariantMap data;
-    data.insert(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME), m_displayName);
+    data.insert(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME), m_unexpandedDisplayName);
     data.insert(QLatin1String(DEBUGGER_INFORMATION_ID), m_id);
     data.insert(QLatin1String(DEBUGGER_INFORMATION_COMMAND), m_command.toString());
     data.insert(QLatin1String(DEBUGGER_INFORMATION_ENGINETYPE), int(m_engineType));
@@ -223,9 +228,26 @@ QVariantMap DebuggerItem::toMap() const
     return data;
 }
 
-void DebuggerItem::setDisplayName(const QString &displayName)
+QString DebuggerItem::displayName() const
 {
-    m_displayName = displayName;
+    if (!m_unexpandedDisplayName.contains(QLatin1Char('%')))
+        return m_unexpandedDisplayName;
+
+    MacroExpander expander;
+    expander.registerVariable("Debugger:Type", DebuggerKitInformation::tr("Type of Debugger Backend"),
+        [this] { return engineTypeName(); });
+    expander.registerVariable("Debugger:Version", DebuggerKitInformation::tr("Debugger"),
+        [this] { return !m_version.isEmpty() ? m_version :
+                                               DebuggerKitInformation::tr("Unknown debugger version"); });
+    expander.registerVariable("Debugger:Abi", DebuggerKitInformation::tr("Debugger"),
+        [this] { return !m_abis.isEmpty() ? abiNames().join(QLatin1Char(' ')) :
+                                            DebuggerKitInformation::tr("Unknown debugger ABI"); });
+    return expander.expand(m_unexpandedDisplayName);
+}
+
+void DebuggerItem::setUnexpandedDisplayName(const QString &displayName)
+{
+    m_unexpandedDisplayName = displayName;
 }
 
 void DebuggerItem::setEngineType(const DebuggerEngineType &engineType)

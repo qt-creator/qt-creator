@@ -44,7 +44,9 @@
 namespace Debugger {
 
 class DebuggerItemManager;
+
 namespace Internal {
+class DebuggerConfigWidget;
 class DebuggerItemConfigWidget;
 class DebuggerItemModel;
 } // namespace Internal
@@ -68,8 +70,9 @@ public:
 
     QVariant id() const { return m_id; }
 
-    QString displayName() const { return m_displayName; }
-    void setDisplayName(const QString &displayName);
+    QString displayName() const;
+    QString unexpandedDisplayName() const { return m_unexpandedDisplayName; }
+    void setUnexpandedDisplayName(const QString &unexpandedDisplayName);
 
     DebuggerEngineType engineType() const { return m_engineType; }
     void setEngineType(const DebuggerEngineType &engineType);
@@ -101,9 +104,10 @@ public:
 private:
     DebuggerItem(const QVariant &id);
     void reinitializeFromFile();
+    void initMacroExpander();
 
     QVariant m_id;
-    QString m_displayName;
+    QString m_unexpandedDisplayName;
     DebuggerEngineType m_engineType;
     Utils::FileName m_command;
     bool m_isAutoDetected;
@@ -111,6 +115,7 @@ private:
     QString m_version;
     QList<ProjectExplorer::Abi> m_abis;
 
+    friend class Internal::DebuggerConfigWidget;
     friend class Internal::DebuggerItemConfigWidget;
     friend class Internal::DebuggerItemModel;
     friend class DebuggerItemManager;
