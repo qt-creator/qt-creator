@@ -672,11 +672,11 @@ void TestCodeParser::removeTestsIfNecessary(const QString &fileName)
             emit testItemsRemoved(file, TestTreeModel::QuickTest);
         }
         // unnamed Quick Tests must be handled separately
-        QSet<QString> filePaths;
         if (fileName.endsWith(QLatin1String(".qml"))) {
             removeUnnamedQuickTestsByName(fileName);
             emit unnamedQuickTestsRemoved(fileName);
         } else {
+            QSet<QString> filePaths;
             m_model->qmlFilesForMainFile(fileName, &filePaths);
             foreach (const QString &file, filePaths) {
                 removeUnnamedQuickTestsByName(file);
