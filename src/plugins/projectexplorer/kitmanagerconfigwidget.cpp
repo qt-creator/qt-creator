@@ -219,12 +219,15 @@ void KitManagerConfigWidget::addConfigWidget(KitConfigWidget *widget)
 
     QAction *action = new QAction(tr("Mark as Mutable"), 0);
     action->setCheckable(true);
-    action->setData(QVariant::fromValue(qobject_cast<QObject *>(widget)));
     action->setChecked(widget->isMutable());
     action->setEnabled(!widget->isSticky());
     widget->mainWidget()->addAction(action);
     widget->mainWidget()->setContextMenuPolicy(Qt::ActionsContextMenu);
-    connect(action, &QAction::toggled, this, &KitManagerConfigWidget::updateMutableState);
+    connect(action, &QAction::toggled, this, [this, widget, action] {
+        widget->setMutable(action->isChecked());
+        emit dirty();
+    });
+
     m_actions << action;
 
     int row = m_layout->rowCount();
@@ -361,18 +364,6 @@ void KitManagerConfigWidget::kitWasUpdated(Kit *k)
             emit isAutoDetectedChanged();
     }
     updateVisibility();
-}
-
-void KitManagerConfigWidget::updateMutableState()
-{
-    QAction *action = qobject_cast<QAction *>(sender());
-    if (!action)
-        return;
-    KitConfigWidget *widget = qobject_cast<KitConfigWidget *>(action->data().value<QObject *>());
-    if (!widget)
-        return;
-    widget->setMutable(action->isChecked());
-    emit dirty();
 }
 
 QLabel *KitManagerConfigWidget::createLabel(const QString &name, const QString &toolTip)
