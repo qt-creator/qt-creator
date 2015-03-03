@@ -22,7 +22,10 @@
 #include <analyzerbase/ianalyzertool.h>
 #include <cpptools/cppprojects.h>
 
+#include <QHash>
+
 namespace Analyzer { class DetailedErrorView; }
+namespace ProjectExplorer { class Target; }
 
 namespace ClangStaticAnalyzer {
 namespace Internal {
@@ -31,6 +34,7 @@ class ClangStaticAnalyzerDiagnosticFilterModel;
 class ClangStaticAnalyzerDiagnosticModel;
 class ClangStaticAnalyzerDiagnosticView;
 class Diagnostic;
+class DummyRunConfiguration;
 
 const char ClangStaticAnalyzerToolId[] = "ClangStaticAnalyzer";
 
@@ -72,6 +76,7 @@ private:
 
     QAction *m_goBack;
     QAction *m_goNext;
+    QHash<ProjectExplorer::Target *, DummyRunConfiguration *> m_runConfigs;
     bool m_running;
 };
 
