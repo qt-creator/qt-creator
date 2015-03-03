@@ -33,6 +33,7 @@
 #include "analyzerconstants.h"
 
 #include <cpptools/cppmodelmanager.h>
+#include <projectexplorer/taskhub.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 
@@ -46,6 +47,7 @@
 
 using namespace Analyzer;
 using namespace Core;
+using namespace ProjectExplorer;
 
 static void moveCursorToEndOfName(QTextCursor *tc)
 {
@@ -92,4 +94,11 @@ CPlusPlus::Symbol *AnalyzerUtils::findSymbolUnderCursor()
 
     const CPlusPlus::LookupItem &lookupItem = lookupItems.first(); // ### TODO: select best candidate.
     return lookupItem.declaration();
+}
+
+void AnalyzerUtils::logToIssuesPane(Task::TaskType type, const QString &message)
+{
+    TaskHub::addTask(type, message, Analyzer::Constants::ANALYZERTASK_ID);
+    if (type == Task::Error)
+        TaskHub::requestPopup();
 }

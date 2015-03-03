@@ -88,7 +88,6 @@
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QMenu>
-#include <QMessageBox>
 #include <QSortFilterProxyModel>
 #include <QToolBar>
 #include <QToolButton>
@@ -933,8 +932,8 @@ void CallgrindToolPrivate::loadExternalLogFile()
 
     QFile logFile(filePath);
     if (!logFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QMessageBox::critical(AnalyzerManager::mainWindow(), tr("Internal Error"),
-            tr("Failed to open file for reading: %1").arg(filePath));
+        AnalyzerUtils::logToIssuesPane(Task::Error,
+                tr("Callgrind: Failed to open file for reading: %1").arg(filePath));
         return;
     }
 
