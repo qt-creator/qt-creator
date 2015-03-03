@@ -32,6 +32,7 @@
 #include "qmldumptool.h"
 #include "baseqtversion.h"
 #include "qtversionmanager.h"
+#include <projectexplorer/toolchain.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>

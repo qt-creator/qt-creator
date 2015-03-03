@@ -35,11 +35,12 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <coreplugin/messagemanager.h>
-#include <projectexplorer/toolchain.h>
 
 #include <QObject>
 #include <QFutureInterface>
 #include <QMetaType>
+
+namespace ProjectExplorer { class ToolChain; }
 
 namespace QtSupport {
 
