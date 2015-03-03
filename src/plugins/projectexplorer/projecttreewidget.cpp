@@ -238,10 +238,15 @@ void ProjectTreeWidget::rowsInserted(const QModelIndex &parent, int start, int e
 
 Node *ProjectTreeWidget::nodeForFile(const Utils::FileName &fileName)
 {
+    return mostExpandedNode(SessionManager::nodesForFile(fileName));
+}
+
+Node *ProjectTreeWidget::mostExpandedNode(const QList<Node *> &nodes)
+{
     Node *bestNode = 0;
     int bestNodeExpandCount = INT_MAX;
 
-    foreach (Node *node, SessionManager::nodesForFile(fileName)) {
+    foreach (Node *node, nodes) {
         if (!bestNode) {
             bestNode = node;
             bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
@@ -256,7 +261,6 @@ Node *ProjectTreeWidget::nodeForFile(const Utils::FileName &fileName)
             }
         }
     }
-
     return bestNode;
 }
 

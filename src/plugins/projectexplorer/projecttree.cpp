@@ -34,6 +34,7 @@
 #include "project.h"
 #include "projectnodes.h"
 #include "projectexplorerconstants.h"
+#include "nodesvisitor.h"
 
 #include <utils/algorithm.h>
 #include <coreplugin/icore.h>
@@ -187,11 +188,16 @@ void ProjectTree::updateFromDocumentManager(bool invalidCurrentNode)
     else
         currentNode = ProjectTreeWidget::nodeForFile(fileName);
 
-    Project *project = projectForNode(currentNode);
+    updateFromNode(currentNode);
+}
 
-    update(currentNode, project);
+void ProjectTree::updateFromNode(Node *node)
+{
+    Project *project = projectForNode(node);
+
+    update(node, project);
     foreach (ProjectTreeWidget *widget, m_projectTreeWidgets)
-        widget->sync(currentNode);
+        widget->sync(node);
 }
 
 void ProjectTree::update(Node *node, Project *project)
@@ -289,6 +295,8 @@ void ProjectTree::emitFoldersAboutToBeAdded(FolderNode *parentFolder, const QLis
     if (!isInNodeHierarchy(parentFolder))
         return;
 
+    m_foldersAdded = newFolders;
+
     emit foldersAboutToBeAdded(parentFolder, newFolders);
 }
 
@@ -302,7 +310,22 @@ void ProjectTree::emitFoldersAdded(FolderNode *folder)
     if (Utils::anyOf(m_projectTreeWidgets, &ProjectTreeWidget::hasFocus))
         return;
 
-    updateFromDocumentManager();
+    if (!m_currentNode) {
+        Core::IDocument *document = Core::EditorManager::currentDocument();
+        const FileName fileName = document ? document->filePath() : FileName();
+
+
+        FindNodesForFileVisitor findNodes(fileName);
+        foreach (FolderNode *fn, m_foldersAdded)
+            fn->accept(&findNodes);
+
+        Node *bestNode = ProjectTreeWidget::mostExpandedNode(findNodes.nodes());
+        if (!bestNode)
+            return;
+
+        updateFromNode(bestNode);
+    }
+    m_foldersAdded.clear();
 }
 
 void ProjectTree::emitFoldersAboutToBeRemoved(FolderNode *parentFolder, const QList<FolderNode *> &staleFolders)
@@ -344,6 +367,7 @@ void ProjectTree::emitFilesAboutToBeAdded(FolderNode *folder, const QList<FileNo
 {
     if (!isInNodeHierarchy(folder))
         return;
+    m_filesAdded = newFiles;
     emit filesAboutToBeAdded(folder, newFiles);
 }
 
@@ -357,7 +381,20 @@ void ProjectTree::emitFilesAdded(FolderNode *folder)
     if (Utils::anyOf(m_projectTreeWidgets, &ProjectTreeWidget::hasFocus))
         return;
 
-    updateFromDocumentManager();
+    if (!m_currentNode) {
+        Core::IDocument *document = Core::EditorManager::currentDocument();
+        const FileName fileName = document ? document->filePath() : FileName();
+
+        int index = Utils::indexOf(m_filesAdded, [&fileName](FileNode *node) {
+                return node->path() == fileName;
+        });
+
+        if (index == -1)
+            return;
+
+        updateFromNode(m_filesAdded.at(index));
+    }
+    m_filesAdded.clear();
 }
 
 void ProjectTree::emitFilesAboutToBeRemoved(FolderNode *folder, const QList<FileNode *> &staleFiles)
