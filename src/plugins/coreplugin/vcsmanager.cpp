@@ -415,8 +415,8 @@ QString VcsManager::msgAddToVcsFailedTitle()
 QString VcsManager::msgToAddToVcsFailed(const QStringList &files, const IVersionControl *vc)
 {
     return files.size() == 1
-        ? tr("Could not add the file\n%1\nto version control (%2)")
-              .arg(files.front(), vc->displayName()) + QLatin1Char('\n')
+        ? tr("Could not add the file\n%1\nto version control (%2)\n")
+              .arg(files.front(), vc->displayName())
         : tr("Could not add the following files to version control (%1)\n%2")
               .arg(vc->displayName(), files.join(QString(QLatin1Char('\n'))));
 }
