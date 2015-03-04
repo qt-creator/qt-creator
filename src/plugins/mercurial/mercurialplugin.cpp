@@ -576,8 +576,8 @@ void MercurialPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &s
     setSubmitEditor(commitEditor);
 
     commitEditor->registerActions(editorUndo, editorRedo, editorCommit, editorDiff);
-    connect(commitEditor, SIGNAL(diffSelectedFiles(QStringList)),
-            this, SLOT(diffFromEditorSelected(QStringList)));
+    connect(commitEditor, &VcsBaseSubmitEditor::diffSelectedFiles,
+            this, &MercurialPlugin::diffFromEditorSelected);
     commitEditor->setCheckScriptWorkingDirectory(m_submitRepository);
 
     const QString msg = tr("Commit changes for \"%1\".").

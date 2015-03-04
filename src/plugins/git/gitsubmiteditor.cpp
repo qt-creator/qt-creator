@@ -132,7 +132,8 @@ GitSubmitEditor::GitSubmitEditor(const VcsBaseSubmitEditorParameters *parameters
     m_firstUpdate(true),
     m_commitDataFetcher(0)
 {
-    connect(this, SIGNAL(diffSelectedFiles(QList<int>)), this, SLOT(slotDiffSelected(QList<int>)));
+    connect(this, &VcsBaseSubmitEditor::diffSelectedRows,
+            this, &GitSubmitEditor::slotDiffSelected);
     connect(submitEditorWidget(), SIGNAL(show(QString)), this, SLOT(showCommit(QString)));
 }
 

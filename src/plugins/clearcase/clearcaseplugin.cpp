@@ -785,7 +785,8 @@ ClearCaseSubmitEditor *ClearCasePlugin::openClearCaseSubmitEditor(const QString 
     ClearCaseSubmitEditor *submitEditor = qobject_cast<ClearCaseSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, return 0);
     submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_checkInSelectedAction, m_checkInDiffAction);
-    connect(submitEditor, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(diffCheckInFiles(QStringList)));
+    connect(submitEditor, &VcsBaseSubmitEditor::diffSelectedFiles,
+            this, &ClearCasePlugin::diffCheckInFiles);
     submitEditor->setCheckScriptWorkingDirectory(m_checkInView);
     submitEditor->setIsUcm(isUcm);
     return submitEditor;
