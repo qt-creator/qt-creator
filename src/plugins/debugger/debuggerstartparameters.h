@@ -79,8 +79,6 @@ public:
 
     DebuggerStartParameters()
       : masterEngineType(NoEngineType),
-        firstSlaveEngineType(NoEngineType),
-        secondSlaveEngineType(NoEngineType),
         cppEngineType(NoEngineType),
         runConfiguration(0),
         isSnapshot(false),
@@ -102,11 +100,7 @@ public:
         testCase(0)
     {}
 
-    //Core::Id profileId;
-
     DebuggerEngineType masterEngineType;
-    DebuggerEngineType firstSlaveEngineType;
-    DebuggerEngineType secondSlaveEngineType;
     DebuggerEngineType cppEngineType;
     QString sysRoot;
     QString deviceSymbolsRoot;

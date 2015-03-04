@@ -414,13 +414,10 @@ DebuggerRunControl *DebuggerRunControlFactory::doCreate
                 const bool useCppDebugger = aspect->useCppDebugger() && (sp.languages & CppLanguage);
                 const bool useQmlDebugger = aspect->useQmlDebugger() && (sp.languages & QmlLanguage);
                 if (useQmlDebugger) {
-                    if (useCppDebugger) {
+                    if (useCppDebugger)
                         sp.masterEngineType = QmlCppEngineType;
-                        sp.firstSlaveEngineType = sp.cppEngineType;
-                        sp.secondSlaveEngineType = QmlCppEngineType;
-                    } else {
+                    else
                         sp.masterEngineType = QmlEngineType;
-                    }
                 } else {
                     sp.masterEngineType = sp.cppEngineType;
                 }

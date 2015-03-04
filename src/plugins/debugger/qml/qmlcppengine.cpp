@@ -74,7 +74,7 @@ QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp, QString *errorMess
 {
     setObjectName(QLatin1String("QmlCppEngine"));
     m_qmlEngine = new QmlEngine(sp, this);
-    m_cppEngine = DebuggerRunControlFactory::createEngine(sp.firstSlaveEngineType, sp, errorMessage);
+    m_cppEngine = DebuggerRunControlFactory::createEngine(sp.cppEngineType, sp, errorMessage);
     if (!m_cppEngine) {
         *errorMessage = tr("The slave debugging engine required for combined QML/C++-Debugging could not be created: %1").arg(*errorMessage);
         return;
