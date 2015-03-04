@@ -596,8 +596,8 @@ void BazaarPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &stat
     setSubmitEditor(commitEditor);
 
     commitEditor->registerActions(m_editorUndo, m_editorRedo, m_editorCommit, m_editorDiff);
-    connect(commitEditor, SIGNAL(diffSelectedFiles(QStringList)),
-            this, SLOT(diffFromEditorSelected(QStringList)));
+    connect(commitEditor, &VcsBaseSubmitEditor::diffSelectedFiles,
+            this, &BazaarPlugin::diffFromEditorSelected);
     commitEditor->setCheckScriptWorkingDirectory(m_submitRepository);
 
     const QString msg = tr("Commit changes for \"%1\".").

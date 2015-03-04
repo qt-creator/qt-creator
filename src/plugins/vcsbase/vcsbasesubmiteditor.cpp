@@ -510,7 +510,7 @@ QStringList VcsBaseSubmitEditor::rowsToFiles(const QList<int> &rows) const
 void VcsBaseSubmitEditor::slotDiffSelectedVcsFiles(const QList<int> &rawList)
 {
     if (d->m_parameters->diffType == VcsBaseSubmitEditorParameters::DiffRows)
-        emit diffSelectedFiles(rawList);
+        emit diffSelectedRows(rawList);
     else
         emit diffSelectedFiles(rowsToFiles(rawList));
 }

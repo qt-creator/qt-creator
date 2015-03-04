@@ -136,7 +136,7 @@ public:
 
 signals:
     void diffSelectedFiles(const QStringList &files);
-    void diffSelectedFiles(const QList<int> &rows);
+    void diffSelectedRows(const QList<int> &rows);
 
 private slots:
     void slotDiffSelectedVcsFiles(const QList<int> &rawList);
