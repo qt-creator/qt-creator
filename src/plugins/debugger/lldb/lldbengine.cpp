@@ -964,7 +964,7 @@ void LldbEngine::readLldbStandardError()
 void LldbEngine::readLldbStandardOutput()
 {
     QByteArray out = m_lldbProc.readAllStandardOutput();
-    showMessage(_("Lldb stdout: " + out));
+    showMessage(_(out));
     m_inbuffer.append(out);
     while (true) {
         int pos = m_inbuffer.indexOf("@\n");
