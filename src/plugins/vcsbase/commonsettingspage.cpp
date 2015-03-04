@@ -34,6 +34,7 @@
 #include "ui_commonsettingspage.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <utils/environment.h>
@@ -62,8 +63,8 @@ CommonSettingsWidget::CommonSettingsWidget(QWidget *parent) :
 
     updatePath();
 
-    connect(Core::VcsManager::instance(), SIGNAL(configurationChanged(const IVersionControl*)),
-            this, SLOT(updatePath()));
+    connect(Core::VcsManager::instance(), &Core::VcsManager::configurationChanged,
+            this, &CommonSettingsWidget::updatePath);
 }
 
 CommonSettingsWidget::~CommonSettingsWidget()

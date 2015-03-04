@@ -116,8 +116,10 @@ VcsConfigurationPage::VcsConfigurationPage() : d(new Internal::VcsConfigurationP
     auto verticalLayout = new QVBoxLayout(this);
     verticalLayout->addWidget(d->m_configureButton);
 
-    connect(d->m_versionControl, SIGNAL(configurationChanged()), SIGNAL(completeChanged()));
-    connect(d->m_configureButton, SIGNAL(clicked()), SLOT(openConfiguration()));
+    connect(d->m_versionControl, &IVersionControl::configurationChanged,
+            this, &QWizardPage::completeChanged);
+    connect(d->m_configureButton, &QAbstractButton::clicked,
+            this, &VcsConfigurationPage::openConfiguration);
 }
 
 VcsConfigurationPage::~VcsConfigurationPage()

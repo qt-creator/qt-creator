@@ -51,8 +51,9 @@ BaseCheckoutWizard::BaseCheckoutWizard(const Utils::FileName &path, QWidget *par
     m_progressPageId(-1)
 {
     Q_UNUSED(path);
-    connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotPageChanged(int)));
-    connect(m_progressPage, SIGNAL(terminated(bool)), this, SLOT(slotTerminated(bool)));
+    connect(this, &QWizard::currentIdChanged, this, &BaseCheckoutWizard::slotPageChanged);
+    connect(m_progressPage, &Internal::CheckoutProgressWizardPage::terminated,
+            this, &BaseCheckoutWizard::slotTerminated);
     setOption(QWizard::NoBackButtonOnLastPage);
 }
 
