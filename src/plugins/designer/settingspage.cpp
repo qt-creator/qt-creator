@@ -31,6 +31,8 @@
 #include "settingspage.h"
 #include "formeditorw.h"
 
+#include <coreplugin/icontext.h>
+
 #include <QDesignerOptionsPageInterface>
 #include <QCoreApplication>
 

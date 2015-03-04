@@ -33,14 +33,17 @@
 
 #include "designerconstants.h"
 
-#include <coreplugin/icontext.h>
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QDesignerFormEditorInterface;
 QT_END_NAMESPACE
 
-namespace Core { class IEditor; }
+namespace Core {
+class IEditor;
+class IOptionsPage;
+}
+
 namespace SharedTools { class WidgetHost; }
 
 namespace Designer {

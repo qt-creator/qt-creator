@@ -32,7 +32,6 @@
 #define FORMWINDOWEDITOR_H
 
 #include "designer_export.h"
-#include <coreplugin/editormanager/ieditor.h>
 #include <texteditor/texteditor.h>
 
 namespace Designer {
