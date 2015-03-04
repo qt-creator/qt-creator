@@ -1482,7 +1482,7 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("A")
             << QLatin1String("a"));
 
-    QTest::newRow("nested_class_declaration_with_object_name_inside_function") << _(
+    QTest::newRow("nested_named_class_declaration_inside_function") << _(
             "int foo()\n"
             "{\n"
             "    struct Nested\n"
@@ -1494,6 +1494,39 @@ void CppToolsPlugin::test_completion_data()
         ) << _("n.") << (QStringList()
             << QLatin1String("Nested")
             << QLatin1String("i"));
+
+    QTest::newRow("nested_class_inside_member_function") << _(
+          "struct User { void use(); };\n"
+          "void User::use()\n"
+          "{\n"
+          "   struct Foo { int bar; };\n"
+          "   Foo foo;\n"
+          "   @\n"
+          "}\n"
+    ) << _("foo.") << (QStringList()
+        << QLatin1String("Foo")
+        << QLatin1String("bar"));
+
+    QTest::newRow("nested_typedef_inside_member_function") << _(
+          "struct User { void use(); };\n"
+          "template<class T>\n"
+          "struct Pointer { T *operator->(); };\n"
+          "struct Foo\n"
+          "{\n"
+          "   typedef Pointer<Foo> Ptr;\n"
+          "   int bar;\n"
+          "};\n"
+          "\n"
+          "void User::use()\n"
+          "{\n"
+          "   typedef Foo MyFoo;\n"
+          "   MyFoo::Ptr myfoo;\n"
+          "   @\n"
+          "}\n"
+    ) << _("myfoo->") << (QStringList()
+        << QLatin1String("Foo")
+        << QLatin1String("Ptr")
+        << QLatin1String("bar"));
 
     QTest::newRow("nested_anonymous_class_QTCREATORBUG10876_1") << _(
             "struct EnclosingStruct\n"
