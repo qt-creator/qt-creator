@@ -74,10 +74,6 @@ isEmpty(TARGET) {
     error("qtcreatorplugin.pri: You must provide a TARGET")
 }
 
-defineReplace(stripOutDir) {
-    return($$relative_path($$1, $$OUT_PWD))
-}
-
 PLUGINJSON = $$_PRO_FILE_PWD_/$${TARGET}.json
 PLUGINJSON_IN = $${PLUGINJSON}.in
 exists($$PLUGINJSON_IN) {
