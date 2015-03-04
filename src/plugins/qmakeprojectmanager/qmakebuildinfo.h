@@ -32,6 +32,7 @@
 #define QMAKEBUILDINFO_H
 
 #include "qmakebuildconfiguration.h"
+#include "qmakestep.h"
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/kitmanager.h>
@@ -48,6 +49,7 @@ public:
     ProjectExplorer::BuildConfiguration::BuildType type;
     QString additionalArguments;
     QString makefile;
+    QMakeStepConfig config;
 
     bool operator==(const QmakeBuildInfo &o) {
         return displayName == o.displayName
@@ -55,7 +57,8 @@ public:
                 && buildDirectory == o.buildDirectory
                 && kitId == o.kitId
                 && type == o.type
-                && additionalArguments == o.additionalArguments;
+                && additionalArguments == o.additionalArguments
+                && config == o.config;
     }
 
     QList<ProjectExplorer::Task> reportIssues(const QString &projectPath,

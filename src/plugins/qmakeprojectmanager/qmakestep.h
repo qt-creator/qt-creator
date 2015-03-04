@@ -39,10 +39,14 @@
 namespace Utils { class FileName; }
 
 namespace ProjectExplorer {
+class Abi;
 class BuildStep;
 class IBuildStepFactory;
 class Project;
+class Kit;
 }
+
+namespace QtSupport { class BaseQtVersion; }
 
 namespace QmakeProjectManager {
 class QmakeBuildConfiguration;
@@ -71,6 +75,56 @@ public:
 
 } // namespace Internal
 
+class QMAKEPROJECTMANAGER_EXPORT QMakeStepConfig
+{
+public:
+    enum TargetArchConfig {
+        NoArch, X86, X86_64, PPC, PPC64
+    };
+
+    enum OsType {
+        NoOsType, IphoneSimulator, IphoneOS
+    };
+
+    static TargetArchConfig targetArchFor(const ProjectExplorer::Abi &targetAbi, const QtSupport::BaseQtVersion *version);
+    static OsType osTypeFor(const ProjectExplorer::Abi &targetAbi, const QtSupport::BaseQtVersion *version);
+
+
+    QMakeStepConfig()
+        : archConfig(NoArch),
+          osType(NoOsType),
+          linkQmlDebuggingQQ1(false),
+          linkQmlDebuggingQQ2(false),
+          useQtQuickCompiler(false),
+          separateDebugInfo(false)
+    {}
+
+    QStringList toArguments() const;
+
+    // Actual data
+    TargetArchConfig archConfig;
+    OsType osType;
+    bool linkQmlDebuggingQQ1;
+    bool linkQmlDebuggingQQ2;
+    bool useQtQuickCompiler;
+    bool separateDebugInfo;
+};
+
+
+inline bool operator ==(const QMakeStepConfig &a, const QMakeStepConfig &b) {
+    return std::tie(a.archConfig, a.osType, a.linkQmlDebuggingQQ1, a.linkQmlDebuggingQQ2, a.useQtQuickCompiler, a.separateDebugInfo)
+            == std::tie(b.archConfig, b.osType, b.linkQmlDebuggingQQ1, b.linkQmlDebuggingQQ2, b.useQtQuickCompiler, b.separateDebugInfo);
+}
+
+inline bool operator !=(const QMakeStepConfig &a, const QMakeStepConfig &b) {
+    return !(a == b);
+}
+
+inline QDebug operator<<(QDebug dbg, const QMakeStepConfig &c)
+{
+   dbg << c.archConfig << c.osType << c.linkQmlDebuggingQQ1 << c.linkQmlDebuggingQQ2 << c.useQtQuickCompiler << c.separateDebugInfo;
+   return dbg;
+}
 
 class QMAKEPROJECTMANAGER_EXPORT QMakeStep : public ProjectExplorer::AbstractProcessStep
 {
@@ -100,8 +154,7 @@ public:
 
     // the complete argument line
     QString allArguments(bool shorted = false);
-    // deduced arguments e.g. qmljs debugging
-    QStringList deducedArguments();
+    QMakeStepConfig deducedArguments();
     // arguments passed to the pro file parser
     QStringList parserArguments();
     // arguments set by the user

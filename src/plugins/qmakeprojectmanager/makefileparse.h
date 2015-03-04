@@ -28,42 +28,76 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEPROJECTIMPORTER_H
-#define QMAKEPROJECTIMPORTER_H
+#ifndef MAKEFILEPARSE_H
+#define MAKEFILEPARSE_H
 
-#include <projectexplorer/projectimporter.h>
-#include <qmakestep.h>
+#include <utils/fileutils.h>
+#include <qtsupport/baseqtversion.h>
+#include <qmakeprojectmanager/qmakestep.h>
 
-namespace QtSupport { class BaseQtVersion; }
+QT_BEGIN_NAMESPACE
+class QLogggingCategory;
+QT_END_NAMESPACE
 
 namespace QmakeProjectManager {
-
-class QmakeProject;
-
 namespace Internal {
 
-// Documentation inside.
-class QmakeProjectImporter : public ProjectExplorer::ProjectImporter
+struct QMakeAssignment
+{
+    QString variable;
+    QString op;
+    QString value;
+};
+
+class MakeFileParse
 {
 public:
-    QmakeProjectImporter(const QString &path);
+    MakeFileParse(const QString &makefile);
 
-    QList<ProjectExplorer::BuildInfo *> import(const Utils::FileName &importPath, bool silent = false);
-    QStringList importCandidates(const Utils::FileName &projectFilePath);
-    ProjectExplorer::Target *preferredTarget(const QList<ProjectExplorer::Target *> &possibleTargets);
+    enum MakefileState { MakefileMissing, CouldNotParse, Okay };
 
-    void cleanupKit(ProjectExplorer::Kit *k);
+    MakefileState makeFileState() const;
+    Utils::FileName qmakePath() const;
+    QString srcProFile() const;
+    QMakeStepConfig config() const;
 
-    void makePermanent(ProjectExplorer::Kit *k);
+    QString unparsedArguments() const;
+
+    QtSupport::BaseQtVersion::QmakeBuildConfigs
+        effectiveBuildConfig(QtSupport::BaseQtVersion::QmakeBuildConfigs defaultBuildConfig) const;
+
+    static const QLoggingCategory &logging();
 
 private:
-    ProjectExplorer::Kit *createTemporaryKit(QtSupport::BaseQtVersion *version,
-                                             bool temporaryVersion,
-                                             const Utils::FileName &parsedSpec,
-                                             const QmakeProjectManager::QMakeStepConfig::TargetArchConfig &archConfig, const QMakeStepConfig::OsType &osType);
+    void parseArgs(const QString &args, QList<QMakeAssignment> *assignments, QList<QMakeAssignment> *afterAssignments);
+    void parseAssignments(QList<QMakeAssignment> *assignments);
+
+    class QmakeBuildConfig
+    {
+    public:
+        QmakeBuildConfig()
+            : explicitDebug(false),
+              explicitRelease(false),
+              explicitBuildAll(false),
+              explicitNoBuildAll(false)
+        {}
+        bool explicitDebug;
+        bool explicitRelease;
+        bool explicitBuildAll;
+        bool explicitNoBuildAll;
+    };
+
+    MakefileState m_state;
+    Utils::FileName m_qmakePath;
+    QString m_srcProFile;
+
+    QmakeBuildConfig m_qmakeBuildConfig;
+    QMakeStepConfig m_config;
+    QString m_unparsedArguments;
 };
 
 } // namespace Internal
 } // namespace QmakeProjectManager
 
-#endif // QMAKEPROJECTIMPORTER_H
+
+#endif // MAKEFILEPARSE_H
