@@ -256,6 +256,7 @@ public:
     bool isSlaveEngine() const;
     bool isMasterEngine() const;
     DebuggerEngine *masterEngine() const;
+    virtual DebuggerEngine *cppEngine() { return 0; }
 
     virtual bool canDisplayTooltip() const { return state() == InferiorStopOk; }
 

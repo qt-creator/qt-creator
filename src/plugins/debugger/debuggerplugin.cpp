@@ -943,10 +943,12 @@ public slots:
     void handleOperateByInstructionTriggered(bool operateByInstructionTriggered)
     {
         // Go to source only if we have the file.
-        if (currentEngine()->stackHandler()->currentIndex() >= 0) {
-            const StackFrame frame = currentEngine()->stackHandler()->currentFrame();
-            if (operateByInstructionTriggered || frame.isUsable())
-                currentEngine()->gotoLocation(Location(frame, true));
+        if (DebuggerEngine *cppEngine = currentEngine()->cppEngine()) {
+            if (cppEngine->stackHandler()->currentIndex() >= 0) {
+                const StackFrame frame = cppEngine->stackHandler()->currentFrame();
+                if (operateByInstructionTriggered || frame.isUsable())
+                    cppEngine->gotoLocation(Location(frame, true));
+            }
         }
     }
 

@@ -72,6 +72,7 @@ public:
     ~GdbEngine();
 
 private: ////////// General Interface //////////
+    virtual DebuggerEngine *cppEngine() { return this; }
 
     virtual void setupEngine() = 0;
     virtual void handleGdbStartFailed();

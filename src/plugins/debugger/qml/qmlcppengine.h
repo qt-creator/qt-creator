@@ -84,7 +84,7 @@ public:
     void assignValueInDebugger(const WatchData *data,
         const QString &expr, const QVariant &value);
 
-    DebuggerEngine *cppEngine() const;
+    DebuggerEngine *cppEngine() { return m_cppEngine; }
     DebuggerEngine *qmlEngine() const;
 
     void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);

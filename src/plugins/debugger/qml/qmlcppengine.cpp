@@ -773,11 +773,6 @@ void QmlCppEngine::debugLastCommand()
         m_cppEngine->debugLastCommand();
 }
 
-DebuggerEngine *QmlCppEngine::cppEngine() const
-{
-    return m_cppEngine;
-}
-
 DebuggerEngine *QmlCppEngine::qmlEngine() const
 {
     return m_qmlEngine;

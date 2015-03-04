@@ -79,6 +79,9 @@ public:
 
     virtual bool setToolTipExpression(TextEditor::TextEditorWidget *editorWidget,
                                       const DebuggerToolTipContext &context);
+
+    virtual DebuggerEngine *cppEngine() { return this; }
+
     virtual void setupEngine();
     virtual void setupInferior();
     virtual void runEngine();

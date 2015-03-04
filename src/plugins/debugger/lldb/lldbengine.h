@@ -68,6 +68,8 @@ public:
 
 private:
     // DebuggerEngine implementation
+    DebuggerEngine *cppEngine() { return this; }
+
     void executeStep();
     void executeStepOut();
     void executeNext();
