@@ -300,7 +300,11 @@ bool PathsAndLanguages::maybeInsert(const PathAndLanguage &pathAndLanguage) {
     return true;
 }
 
-void PathsAndLanguages::compact() {
+void PathsAndLanguages::compact()
+{
+    if (m_list.isEmpty())
+        return;
+
     int oldCompactionPlace = 0;
     Utils::FileName oldPath = m_list.first().path();
     QList<PathAndLanguage> compactedList;
