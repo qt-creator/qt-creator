@@ -45,11 +45,3 @@ designer's internal file watcher updates the changes to qrc files silently.
 
 A call to setResourceEditingEnabled(false) removes the edit resources action
 form resource browser in designer
-
-Building
---------
-
-The plugin accesses some private headers of Qt Designer 4.5.
-Copies of them are located in qt_private to achieve a clean build
-from a standard Qt distribution. The script syncqtheader.sh
-can be used to update them.
