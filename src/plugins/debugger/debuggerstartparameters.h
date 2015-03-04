@@ -72,11 +72,6 @@ public:
 class DEBUGGER_EXPORT DebuggerStartParameters
 {
 public:
-    enum CommunicationChannel {
-        CommunicationChannelTcpIp,
-        CommunicationChannelUsb
-    };
-
     DebuggerStartParameters()
       : masterEngineType(NoEngineType),
         cppEngineType(NoEngineType),
@@ -95,8 +90,6 @@ public:
         startMode(NoStartMode),
         closeMode(KillAtClose),
         useCtrlCStub(false),
-        testReceiver(0),
-        testCallback(0),
         testCase(0)
     {}
 
@@ -165,8 +158,6 @@ public:
     bool useCtrlCStub;
 
     // For Debugger testing.
-    QObject *testReceiver;
-    const char *testCallback;
     int testCase;
 };
 
