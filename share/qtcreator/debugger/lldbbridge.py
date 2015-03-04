@@ -829,6 +829,8 @@ class Dumper(DumperBase):
             self.report('msg="No thread"')
             return
 
+        self.reportLocation(thread.GetFrameAtIndex(0)) # FIXME
+
         isNativeMixed = int(args.get('nativeMixed', 0))
 
         limit = args.get('stacklimit', -1)
@@ -1326,8 +1328,6 @@ class Dumper(DumperBase):
                 if stoppedThread:
                     self.process.SetSelectedThread(stoppedThread)
                 self.reportThreads()
-                if stoppedThread:
-                    self.reportLocation(stoppedThread.GetSelectedFrame())
         elif eventType == lldb.SBProcess.eBroadcastBitInterrupt: # 2
             pass
         elif eventType == lldb.SBProcess.eBroadcastBitSTDOUT:
@@ -1552,7 +1552,6 @@ class Dumper(DumperBase):
             self.reportState("running")
             self.reportState("stopped")
             self.reportError(error)
-            self.reportLocation(self.currentFrame())
         else:
             self.reportData()
 
