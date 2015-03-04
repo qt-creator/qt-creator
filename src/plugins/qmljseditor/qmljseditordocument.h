@@ -33,7 +33,6 @@
 
 #include "qmljseditor_global.h"
 
-#include <qmljs/qmljsdocument.h>
 #include <qmljstools/qmljssemanticinfo.h>
 #include <texteditor/textdocument.h>
 

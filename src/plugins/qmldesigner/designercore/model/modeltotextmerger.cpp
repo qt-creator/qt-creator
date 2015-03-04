@@ -36,6 +36,7 @@
 
 #include <nodelistproperty.h>
 #include <nodeproperty.h>
+#include <qmljs/parser/qmljsengine_p.h>
 #include <utils/algorithm.h>
 
 #include <QDebug>

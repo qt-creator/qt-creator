@@ -31,6 +31,7 @@
 #include "qmljsimportdependencies.h"
 #include "qmljsinterpreter.h"
 #include "qmljsqrcparser.h"
+#include "qmljsviewercontext.h"
 
 #include <utils/qtcassert.h>
 

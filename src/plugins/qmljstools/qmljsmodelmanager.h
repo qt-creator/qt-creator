@@ -34,10 +34,6 @@
 #include "qmljstools_global.h"
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
-#include <qmljs/qmljsqrcparser.h>
-#include <qmljs/qmljsconstants.h>
-
-#include <cplusplus/CppDocument.h>
 
 #include <QFuture>
 #include <QFutureSynchronizer>

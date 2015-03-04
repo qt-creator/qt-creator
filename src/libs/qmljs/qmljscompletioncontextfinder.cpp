@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "qmljscompletioncontextfinder.h"
+#include "qmljsscanner.h"
 
 #include <QTextDocument>
 #include <QStringList>

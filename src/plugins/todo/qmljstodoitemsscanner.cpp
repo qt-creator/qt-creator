@@ -33,6 +33,8 @@
 
 #include <projectexplorer/project.h>
 
+#include <qmljs/parser/qmljsengine_p.h>
+
 namespace Todo {
 namespace Internal {
 

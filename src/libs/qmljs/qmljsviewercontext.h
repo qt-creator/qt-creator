@@ -32,7 +32,6 @@
 #define VIEWERCONTEXT_H
 
 #include "qmljs_global.h"
-#include "qmljsconstants.h"
 #include "qmljsdialect.h"
 
 #include <QStringList>

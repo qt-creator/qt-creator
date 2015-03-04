@@ -44,6 +44,7 @@
 #include "signalhandlerproperty.h"
 
 
+#include <qmljs/parser/qmljsengine_p.h>
 
 using namespace QmlDesigner::Internal;
 

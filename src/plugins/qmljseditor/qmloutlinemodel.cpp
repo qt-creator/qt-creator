@@ -36,6 +36,7 @@
 #include <qmljs/qmljsscopechain.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsrewriter.h>
+#include <qmljs/qmljsvalueowner.h>
 #include <qmljstools/qmljsrefactoringchanges.h>
 
 #include <utils/fileutils.h>

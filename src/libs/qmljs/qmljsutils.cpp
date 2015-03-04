@@ -32,6 +32,8 @@
 
 #include "parser/qmljsast_p.h"
 
+#include <QColor>
+
 using namespace QmlJS;
 using namespace QmlJS::AST;
 

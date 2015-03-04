@@ -38,7 +38,7 @@
 
 #include "qmljsdialect.h"
 #include "parser/qmldirparser_p.h"
-#include "parser/qmljsengine_p.h"
+#include "parser/qmljsastfwd_p.h"
 #include "qmljs_global.h"
 #include "qmljsconstants.h"
 #include "qmljsimportdependencies.h"
@@ -46,11 +46,14 @@
 namespace QmlJS {
 
 class Bind;
+class DiagnosticMessage;
+class Engine;
 class Snapshot;
 class ImportDependencies;
 
 class QMLJS_EXPORT Document
 {
+    Q_DISABLE_COPY(Document)
 public:
     typedef QSharedPointer<const Document> Ptr;
     typedef QSharedPointer<Document> MutablePtr;

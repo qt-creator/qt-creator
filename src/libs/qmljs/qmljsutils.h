@@ -36,7 +36,7 @@
 #include "parser/qmljsastfwd_p.h"
 #include "parser/qmljsengine_p.h"
 
-#include <QColor>
+QT_FORWARD_DECLARE_CLASS(QColor)
 
 namespace QmlJS {
 

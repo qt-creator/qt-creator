@@ -38,8 +38,6 @@
 #include <QFuture>
 #include <QFutureWatcher>
 #include <QPointer>
-#include <utils/filesearch.h>
-#include <qmljs/qmljsdocument.h>
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 

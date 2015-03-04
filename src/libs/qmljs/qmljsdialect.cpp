@@ -29,6 +29,9 @@
 ****************************************************************************/
 
 #include "qmljsdialect.h"
+#include "qmljsconstants.h"
+
+#include <QDebug>
 
 namespace QmlJS {
 

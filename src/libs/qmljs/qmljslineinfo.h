@@ -32,12 +32,12 @@
 #define QMLJSLINEINFO_H
 
 #include <qmljs/qmljs_global.h>
-#include <qmljs/qmljsscanner.h>
 
 #include <QRegExp>
 #include <QTextBlock>
 
 namespace QmlJS {
+class Token;
 
 class QMLJS_EXPORT LineInfo
 {

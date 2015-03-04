@@ -31,6 +31,8 @@
 #include "qmljscontext.h"
 
 #include "parser/qmljsast_p.h"
+#include "parser/qmljsengine_p.h"
+#include "qmljsvalueowner.h"
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

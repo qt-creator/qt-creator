@@ -51,6 +51,7 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsqrcparser.h>
 #include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljsvalueowner.h>
 
 #include <utils/qtcassert.h>
 

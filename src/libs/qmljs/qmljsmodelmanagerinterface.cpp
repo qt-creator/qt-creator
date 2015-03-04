@@ -36,6 +36,7 @@
 #include "qmljsplugindumper.h"
 #include "qmljstypedescriptionreader.h"
 #include "qmljsdialect.h"
+#include "qmljsviewercontext.h"
 
 #include <cplusplus/cppmodelmanagerbase.h>
 #include <utils/hostosinfo.h>

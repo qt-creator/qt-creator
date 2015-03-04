@@ -32,7 +32,8 @@
 #define QMLJS_CONTEXT_H
 
 #include "qmljs_global.h"
-#include "qmljsvalueowner.h"
+#include "qmljsdocument.h"
+#include "qmljsinterpreter.h"
 #include "qmljsviewercontext.h"
 
 #include <QSharedPointer>
