@@ -91,6 +91,7 @@ bool OptionsParser::parse()
     }
     if (m_isDependencyRefreshNeeded)
         m_pmPrivate->resolveDependencies();
+    m_pmPrivate->enableOnlyTestedSpecs();
     return !m_hasError;
 }
 

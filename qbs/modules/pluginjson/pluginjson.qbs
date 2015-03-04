@@ -36,6 +36,7 @@ Module {
                 }
             }
             cmd.plugin_recommends = product.pluginRecommends
+            cmd.plugin_test_depends = product.pluginTestDepends
 
             cmd.sourceCode = function() {
                 var i;
@@ -56,6 +57,9 @@ Module {
                 }
                 for (i in plugin_recommends) {
                     deplist.push("        { \"Name\" : \"" + plugin_recommends[i] + "\", \"Version\" : \"" + project.qtcreator_version + "\", \"Type\" : \"optional\" }");
+                }
+                for (i in plugin_test_depends) {
+                    deplist.push("        { \"Name\" : \"" + plugin_test_depends[i] + "\", \"Version\" : \"" + project.qtcreator_version + "\", \"Type\" : \"test\" }");
                 }
                 deplist = deplist.join(",\n")
                 vars['dependencyList'] = "\"Dependencies\" : [\n" + deplist + "\n    ]";

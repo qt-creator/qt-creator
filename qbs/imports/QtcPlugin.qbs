@@ -8,6 +8,7 @@ QtcProduct {
 
     property var pluginJsonReplacements
     property var pluginRecommends: []
+    property var pluginTestDepends: []
 
     property string minimumQtVersion: "5.3.1"
     condition: QtcFunctions.versionIsAtLeast(Qt.core.version, minimumQtVersion)

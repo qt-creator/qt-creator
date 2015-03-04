@@ -9,3 +9,5 @@ QTC_PLUGIN_DEPENDS += \
     coreplugin \
     cpptools \
     projectexplorer
+QTC_TEST_DEPENDS += \
+    qmakeprojectmanager

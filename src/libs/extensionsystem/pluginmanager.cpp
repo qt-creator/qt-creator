@@ -1255,7 +1255,14 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec, QList<PluginSpec *> &queu
     }
 
     // add dependencies
-    foreach (PluginSpec *depSpec, spec->dependencySpecs()) {
+    QHashIterator<PluginDependency, PluginSpec *> it(spec->dependencySpecs());
+    while (it.hasNext()) {
+        it.next();
+        // Skip test dependencies since they are not real dependencies but just force-loaded
+        // plugins when running tests
+        if (it.key().type == PluginDependency::Test)
+            continue;
+        PluginSpec *depSpec = it.value();
         if (!loadQueue(depSpec, queue, circularityCheckQueue)) {
             spec->d->hasError = true;
             spec->d->errorString =
@@ -1299,7 +1306,7 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
     QHashIterator<PluginDependency, PluginSpec *> it(spec->dependencySpecs());
     while (it.hasNext()) {
         it.next();
-        if (it.key().type == PluginDependency::Optional)
+        if (it.key().type != PluginDependency::Required)
             continue;
         PluginSpec *depSpec = it.value();
         if (depSpec->state() != destState) {
@@ -1420,6 +1427,35 @@ void PluginManagerPrivate::resolveDependencies()
 
     foreach (PluginSpec *spec, loadQueue()) {
         spec->d->disableIndirectlyIfDependencyDisabled();
+    }
+}
+
+void PluginManagerPrivate::enableOnlyTestedSpecs()
+{
+    if (testSpecs.isEmpty())
+        return;
+
+    QList<PluginSpec *> specsForTests;
+    foreach (const TestSpec &testSpec, testSpecs) {
+        QList<PluginSpec *> circularityCheckQueue;
+        loadQueue(testSpec.pluginSpec, specsForTests, circularityCheckQueue);
+        // add plugins that must be force loaded when running tests for the plugin
+        // (aka "test dependencies")
+        QHashIterator<PluginDependency, PluginSpec *> it(testSpec.pluginSpec->dependencySpecs());
+        while (it.hasNext()) {
+            it.next();
+            if (it.key().type != PluginDependency::Test)
+                continue;
+            PluginSpec *depSpec = it.value();
+            circularityCheckQueue.clear();
+            loadQueue(depSpec, specsForTests, circularityCheckQueue);
+        }
+    }
+    foreach (PluginSpec *spec, pluginSpecs)
+        spec->setForceDisabled(true);
+    foreach (PluginSpec *spec, specsForTests) {
+        spec->setForceDisabled(false);
+        spec->setForceEnabled(true);
     }
 }
 

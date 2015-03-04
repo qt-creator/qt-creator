@@ -98,8 +98,16 @@ void PluginDetailsView::update(PluginSpec *spec)
         QString depString = dep.name;
         depString += QLatin1String(" (");
         depString += dep.version;
-        if (dep.type == PluginDependency::Optional)
+        switch (dep.type) {
+        case PluginDependency::Required:
+            break;
+        case PluginDependency::Optional:
             depString += QLatin1String(", optional");
+            break;
+        case PluginDependency::Test:
+            depString += QLatin1String(", test");
+            break;
+        }
         depString += QLatin1Char(')');
         depStrings.append(depString);
     }
