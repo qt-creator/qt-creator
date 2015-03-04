@@ -147,8 +147,6 @@ public:
         { return b ? ReturnTrue : ReturnFalse; }
 
     static ALWAYS_INLINE uint getBlockLen(const ushort *&tokPtr);
-    ProString getStr(const ushort *&tokPtr);
-    ProKey getHashStr(const ushort *&tokPtr);
     void evaluateExpression(const ushort *&tokPtr, ProStringList *ret, bool joined);
     static ALWAYS_INLINE void skipStr(const ushort *&tokPtr);
     static ALWAYS_INLINE void skipHashStr(const ushort *&tokPtr);

@@ -255,24 +255,6 @@ uint QMakeEvaluator::getBlockLen(const ushort *&tokPtr)
     return len;
 }
 
-ProString QMakeEvaluator::getStr(const ushort *&tokPtr)
-{
-    uint len = *tokPtr++;
-    ProString ret(m_current.pro->items(), tokPtr - m_current.pro->tokPtr(), len);
-    ret.setSource(m_current.pro);
-    tokPtr += len;
-    return ret;
-}
-
-ProKey QMakeEvaluator::getHashStr(const ushort *&tokPtr)
-{
-    uint hash = getBlockLen(tokPtr);
-    uint len = *tokPtr++;
-    ProKey ret(m_current.pro->items(), tokPtr - m_current.pro->tokPtr(), len, hash);
-    tokPtr += len;
-    return ret;
-}
-
 void QMakeEvaluator::skipStr(const ushort *&tokPtr)
 {
     uint len = *tokPtr++;
@@ -427,6 +409,7 @@ void QMakeEvaluator::evaluateExpression(
         const ushort *&tokPtr, ProStringList *ret, bool joined)
 {
     debugMsg(2, joined ? "evaluating joined expression" : "evaluating expression");
+    ProFile *pro = m_current.pro;
     if (joined)
         *ret << ProString();
     bool pending = false;
@@ -442,35 +425,35 @@ void QMakeEvaluator::evaluateExpression(
             m_current.line = *tokPtr++;
             break;
         case TokLiteral: {
-            const ProString &val = getStr(tokPtr);
+            const ProString &val = pro->getStr(tokPtr);
             debugMsg(2, "literal %s", dbgStr(val));
             addStr(val, ret, pending, joined);
             break; }
         case TokHashLiteral: {
-            const ProKey &val = getHashStr(tokPtr);
+            const ProKey &val = pro->getHashStr(tokPtr);
             debugMsg(2, "hashed literal %s", dbgStr(val.toString()));
             addStr(val, ret, pending, joined);
             break; }
         case TokVariable: {
-            const ProKey &var = getHashStr(tokPtr);
+            const ProKey &var = pro->getHashStr(tokPtr);
             const ProStringList &val = values(map(var));
             debugMsg(2, "variable %s => %s", dbgKey(var), dbgStrList(val));
             addStrList(val, tok, ret, pending, joined);
             break; }
         case TokProperty: {
-            const ProKey &var = getHashStr(tokPtr);
+            const ProKey &var = pro->getHashStr(tokPtr);
             const ProString &val = propertyValue(var);
             debugMsg(2, "property %s => %s", dbgKey(var), dbgStr(val));
             addStr(val, ret, pending, joined);
             break; }
         case TokEnvVar: {
-            const ProString &var = getStr(tokPtr);
+            const ProString &var = pro->getStr(tokPtr);
             const ProString &val = ProString(m_option->getEnv(var.toQString()));
             debugMsg(2, "env var %s => %s", dbgStr(var), dbgStr(val));
             addStr(val, ret, pending, joined);
             break; }
         case TokFuncName: {
-            const ProKey &func = getHashStr(tokPtr);
+            const ProKey &func = pro->getHashStr(tokPtr);
             debugMsg(2, "function %s", dbgKey(func));
             addStrList(evaluateExpandFunction(func, tokPtr), tok, ret, pending, joined);
             break; }
@@ -535,6 +518,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
 {
     traceMsg("entering block");
     ProStringList curr;
+    ProFile *pro = m_current.pro;
     bool okey = true, or_op = false, invert = false;
     uint blockLen;
     while (ushort tok = *tokPtr++) {
@@ -588,7 +572,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
             break;
         case TokForLoop:
             if (m_cumulative || okey != or_op) {
-                const ProKey &variable = getHashStr(tokPtr);
+                const ProKey &variable = pro->getHashStr(tokPtr);
                 uint exprLen = getBlockLen(tokPtr);
                 const ushort *exprPtr = tokPtr;
                 tokPtr += exprLen;
@@ -608,7 +592,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
         case TokTestDef:
         case TokReplaceDef:
             if (m_cumulative || okey != or_op) {
-                const ProKey &name = getHashStr(tokPtr);
+                const ProKey &name = pro->getHashStr(tokPtr);
                 blockLen = getBlockLen(tokPtr);
                 visitProFunctionDef(tok, name, tokPtr);
                 traceMsg("defined %s function %s",

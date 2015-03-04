@@ -478,4 +478,23 @@ ProFile::~ProFile()
 {
 }
 
+ProString ProFile::getStr(const ushort *&tPtr)
+{
+    uint len = *tPtr++;
+    ProString ret(items(), tPtr - tokPtr(), len);
+    ret.setSource(this);
+    tPtr += len;
+    return ret;
+}
+
+ProKey ProFile::getHashStr(const ushort *&tPtr)
+{
+    uint hash = *tPtr++;
+    hash |= (uint)*tPtr++ << 16;
+    uint len = *tPtr++;
+    ProKey ret(items(), tPtr - tokPtr(), len, hash);
+    tPtr += len;
+    return ret;
+}
+
 QT_END_NAMESPACE

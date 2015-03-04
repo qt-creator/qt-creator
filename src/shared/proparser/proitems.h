@@ -350,6 +350,9 @@ public:
     bool isHostBuild() const { return m_hostBuild; }
     void setHostBuild(bool host_build) { m_hostBuild = host_build; }
 
+    ProString getStr(const ushort *&tPtr);
+    ProKey getHashStr(const ushort *&tPtr);
+
 private:
     ProItemRefCount m_refCount;
     QString m_proitems;
