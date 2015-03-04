@@ -73,7 +73,6 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     addAutoReleasedObject(new CMakeLocatorFilter);
 
     new CMakeToolManager(this);
-    CMakeToolManager::restoreCMakeTools();
 
     ProjectExplorer::KitManager::registerKitInformation(new CMakeKitInformation);
 
@@ -82,4 +81,6 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
 
 void CMakeProjectPlugin::extensionsInitialized()
 {
+    //restore the cmake tools before loading the kits
+    CMakeToolManager::restoreCMakeTools();
 }

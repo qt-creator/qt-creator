@@ -36,6 +36,7 @@
 
 #include <utils/fileutils.h>
 #include <texteditor/codeassist/keywordscompletionassist.h>
+#include <functional>
 
 #include <QObject>
 
@@ -45,6 +46,8 @@ class CMAKE_EXPORT CMakeToolManager : public QObject
 {
     Q_OBJECT
 public:
+    typedef std::function<QList<CMakeTool *> ()> AutodetectionHelper;
+
     CMakeToolManager(QObject *parent);
     ~CMakeToolManager();
 
@@ -62,9 +65,10 @@ public:
     static void setDefaultCMakeTool(const Core::Id &id);
     static CMakeTool *findByCommand(const Utils::FileName &command);
     static CMakeTool *findById(const Core::Id &id);
-    static void restoreCMakeTools();
+    static void registerAutodetectionHelper(AutodetectionHelper helper);
 
     static void notifyAboutUpdate(CMakeTool *);
+    static void restoreCMakeTools();
 
 signals:
     void cmakeAdded (const Core::Id &id);

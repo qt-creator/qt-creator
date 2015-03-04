@@ -31,6 +31,7 @@
 #include "cmaketoolmanager.h"
 
 #include <coreplugin/icore.h>
+#include <projectexplorer/toolchainmanager.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
 #include <utils/environment.h>
@@ -42,6 +43,7 @@
 
 using namespace Core;
 using namespace Utils;
+using namespace ProjectExplorer;
 
 namespace CMakeProjectManager {
 
@@ -65,6 +67,7 @@ public:
     Id m_defaultCMake;
     QList<CMakeTool *> m_cmakeTools;
     PersistentSettingsWriter *m_writer;
+    QList<CMakeToolManager::AutodetectionHelper> m_autoDetectionHelpers;
 };
 static CMakeToolManagerPrivate *d = 0;
 
@@ -185,6 +188,10 @@ static QList<CMakeTool *> autoDetectCMakeTools()
 
         found.append(item);
     }
+
+    //execute custom helpers if available
+    foreach (CMakeToolManager::AutodetectionHelper source, d->m_autoDetectionHelpers)
+        found.append(source());
 
     return found;
 }
@@ -363,8 +370,8 @@ void CMakeToolManager::restoreCMakeTools()
     }
 
     //filter out the tools that are already known
-    for (int i = autoDetected.size() - 1; i >= 0; i--) {
-        CMakeTool *currTool = autoDetected.takeAt(i);
+    while (autoDetected.size()) {
+        CMakeTool *currTool = autoDetected.takeFirst();
         if (Utils::anyOf(toolsToRegister,
                          Utils::equal(&CMakeTool::cmakeExecutable, currTool->cmakeExecutable())))
             delete currTool;
@@ -388,6 +395,11 @@ void CMakeToolManager::restoreCMakeTools()
 
     // restore the legacy cmake settings only once and keep them around
     readAndDeleteLegacyCMakeSettings();
+}
+
+void CMakeToolManager::registerAutodetectionHelper(CMakeToolManager::AutodetectionHelper helper)
+{
+    d->m_autoDetectionHelpers.append(helper);
 }
 
 void CMakeToolManager::notifyAboutUpdate(CMakeTool *tool)
