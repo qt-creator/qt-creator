@@ -166,12 +166,13 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
     Context context(Constants::BAZAAR_CONTEXT);
 
     m_client = new BazaarClient(&m_bazaarSettings);
-    initializeVcs(new BazaarControl(m_client), context);
+    auto vcsCtrl = new BazaarControl(m_client);
+    initializeVcs(vcsCtrl, context);
 
     addAutoReleasedObject(new OptionsPage);
     m_bazaarSettings.readSettings(ICore::settings());
 
-    connect(m_client, SIGNAL(changed(QVariant)), versionControl(), SLOT(changed(QVariant)));
+    connect(m_client, &VcsBaseClient::changed, vcsCtrl, &BazaarControl::changed);
 
     static const char *describeSlot = SLOT(view(QString,QString));
     const int editorCount = sizeof(editorParameters) / sizeof(VcsBaseEditorParameters);
@@ -254,7 +255,7 @@ void BazaarPlugin::createFileActions(const Context &context)
     m_annotateFile = new ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), ParameterAction::EnabledWithParameter, this);
     Command *command = ActionManager::registerAction(m_annotateFile, ANNOTATE, context);
     command->setAttribute(Command::CA_UpdateText);
-    connect(m_annotateFile, SIGNAL(triggered()), this, SLOT(annotateCurrentFile()));
+    connect(m_annotateFile, &QAction::triggered, this, &BazaarPlugin::annotateCurrentFile);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -262,7 +263,7 @@ void BazaarPlugin::createFileActions(const Context &context)
     command = ActionManager::registerAction(m_diffFile, DIFF, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Z,Meta+D") : tr("ALT+Z,Alt+D")));
-    connect(m_diffFile, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
+    connect(m_diffFile, &QAction::triggered, this, &BazaarPlugin::diffCurrentFile);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -270,7 +271,7 @@ void BazaarPlugin::createFileActions(const Context &context)
     command = ActionManager::registerAction(m_logFile, LOG, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Z,Meta+L") : tr("ALT+Z,Alt+L")));
-    connect(m_logFile, SIGNAL(triggered()), this, SLOT(logCurrentFile()));
+    connect(m_logFile, &QAction::triggered, this, &BazaarPlugin::logCurrentFile);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -278,7 +279,7 @@ void BazaarPlugin::createFileActions(const Context &context)
     command = ActionManager::registerAction(m_statusFile, STATUS, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Z,Meta+S") : tr("ALT+Z,Alt+S")));
-    connect(m_statusFile, SIGNAL(triggered()), this, SLOT(statusCurrentFile()));
+    connect(m_statusFile, &QAction::triggered, this, &BazaarPlugin::statusCurrentFile);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -287,21 +288,21 @@ void BazaarPlugin::createFileActions(const Context &context)
     m_addAction = new ParameterAction(tr("Add"), tr("Add \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_addAction, ADD, context);
     command->setAttribute(Command::CA_UpdateText);
-    connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
+    connect(m_addAction, &QAction::triggered, this, &BazaarPlugin::addCurrentFile);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_deleteAction = new ParameterAction(tr("Delete..."), tr("Delete \"%1\"..."), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_deleteAction, DELETE, context);
     command->setAttribute(Command::CA_UpdateText);
-    connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(promptToDeleteCurrentFile()));
+    connect(m_deleteAction, &QAction::triggered, this, &BazaarPlugin::promptToDeleteCurrentFile);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_revertFile = new ParameterAction(tr("Revert Current File..."), tr("Revert \"%1\"..."), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_revertFile, REVERT, context);
     command->setAttribute(Command::CA_UpdateText);
-    connect(m_revertFile, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
+    connect(m_revertFile, &QAction::triggered, this, &BazaarPlugin::revertCurrentFile);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 }
@@ -362,28 +363,28 @@ void BazaarPlugin::createDirectoryActions(const Context &context)
     auto action = new QAction(tr("Diff"), this);
     m_repositoryActionList.append(action);
     Command *command = ActionManager::registerAction(action, DIFFMULTI, context);
-    connect(action, SIGNAL(triggered()), this, SLOT(diffRepository()));
+    connect(action, &QAction::triggered, this, &BazaarPlugin::diffRepository);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Log"), this);
     m_repositoryActionList.append(action);
     command = ActionManager::registerAction(action, LOGMULTI, context);
-    connect(action, SIGNAL(triggered()), this, SLOT(logRepository()));
+    connect(action, &QAction::triggered, this, &BazaarPlugin::logRepository);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Revert..."), this);
     m_repositoryActionList.append(action);
     command = ActionManager::registerAction(action, REVERTMULTI, context);
-    connect(action, SIGNAL(triggered()), this, SLOT(revertAll()));
+    connect(action, &QAction::triggered, this, &BazaarPlugin::revertAll);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Status"), this);
     m_repositoryActionList.append(action);
     command = ActionManager::registerAction(action, STATUSMULTI, context);
-    connect(action, SIGNAL(triggered()), this, SLOT(statusMulti()));
+    connect(action, &QAction::triggered, this, &BazaarPlugin::statusMulti);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 }
@@ -430,21 +431,21 @@ void BazaarPlugin::createRepositoryActions(const Context &context)
     auto action = new QAction(tr("Pull..."), this);
     m_repositoryActionList.append(action);
     Command *command = ActionManager::registerAction(action, PULL, context);
-    connect(action, SIGNAL(triggered()), this, SLOT(pull()));
+    connect(action, &QAction::triggered, this, &BazaarPlugin::pull);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Push..."), this);
     m_repositoryActionList.append(action);
     command = ActionManager::registerAction(action, PUSH, context);
-    connect(action, SIGNAL(triggered()), this, SLOT(push()));
+    connect(action, &QAction::triggered, this, &BazaarPlugin::push);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Update..."), this);
     m_repositoryActionList.append(action);
     command = ActionManager::registerAction(action, UPDATE, context);
-    connect(action, SIGNAL(triggered()), this, SLOT(update()));
+    connect(action, &QAction::triggered, this, &BazaarPlugin::update);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -452,20 +453,20 @@ void BazaarPlugin::createRepositoryActions(const Context &context)
     m_repositoryActionList.append(action);
     command = ActionManager::registerAction(action, COMMIT, context);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Z,Meta+C") : tr("ALT+Z,Alt+C")));
-    connect(action, SIGNAL(triggered()), this, SLOT(commit()));
+    connect(action, &QAction::triggered, this, &BazaarPlugin::commit);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Uncommit..."), this);
     m_repositoryActionList.append(action);
     command = ActionManager::registerAction(action, UNCOMMIT, context);
-    connect(action, SIGNAL(triggered()), this, SLOT(uncommit()));
+    connect(action, &QAction::triggered, this, &BazaarPlugin::uncommit);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     auto createRepositoryAction = new QAction(tr("Create Repository..."), this);
     command = ActionManager::registerAction(createRepositoryAction, CREATE_REPOSITORY, context);
-    connect(createRepositoryAction, SIGNAL(triggered()), this, SLOT(createRepository()));
+    connect(createRepositoryAction, &QAction::triggered, this, &BazaarPlugin::createRepository);
     m_bazaarContainer->addAction(command);
 }
 
@@ -533,7 +534,7 @@ void BazaarPlugin::createSubmitEditorActions()
     m_editorCommit = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
     command = ActionManager::registerAction(m_editorCommit, COMMIT, context);
     command->setAttribute(Command::CA_UpdateText);
-    connect(m_editorCommit, SIGNAL(triggered()), this, SLOT(commitFromEditor()));
+    connect(m_editorCommit, &QAction::triggered, this, &BazaarPlugin::commitFromEditor);
 
     m_editorDiff = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
     command = ActionManager::registerAction(m_editorDiff, DIFFEDITOR, context);
