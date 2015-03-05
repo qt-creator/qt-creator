@@ -685,7 +685,7 @@ QString WatchItem::displayName() const
         return result;
     if (d.iname.startsWith("return"))
         result = WatchModel::tr("returned value");
-    else if (parentItem()->d.name == QLatin1String("*"))
+    else if (d.name == QLatin1String("*"))
         result = QLatin1Char('*') + parentItem()->d.name;
     else
         result = watchModel()->removeNamespaces(d.name);
