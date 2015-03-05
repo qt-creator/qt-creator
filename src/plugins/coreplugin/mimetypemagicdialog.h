@@ -73,6 +73,7 @@ public:
 private:
     void applyRecommended(bool checked);
     void validateAccept();
+    Utils::Internal::MimeMagicRule createRule(QString *errorMessage = 0) const;
 
     Ui::MimeTypeMagicDialog ui;
     int m_customRangeStart;
