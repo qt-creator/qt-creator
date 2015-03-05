@@ -59,6 +59,8 @@ public:
 
     QStringList list;
     QString historyKey;
+    bool isLastItemEmpty;
+    QString historyKeyIsLastItemEmpty;
     int maxLines;
 };
 
@@ -149,8 +151,11 @@ void HistoryCompleterPrivate::clearHistory()
 void HistoryCompleterPrivate::addEntry(const QString &str)
 {
     const QString entry = str.trimmed();
-    if (entry.isEmpty())
+    if (entry.isEmpty()) {
+        isLastItemEmpty = true;
+        theSettings->setValue(historyKeyIsLastItemEmpty, isLastItemEmpty);
         return;
+    }
     int removeIndex = list.indexOf(entry);
     beginResetModel();
     if (removeIndex != -1)
@@ -159,6 +164,8 @@ void HistoryCompleterPrivate::addEntry(const QString &str)
     list = list.mid(0, maxLines - 1);
     endResetModel();
     theSettings->setValue(historyKey, list);
+    isLastItemEmpty = false;
+    theSettings->setValue(historyKeyIsLastItemEmpty, isLastItemEmpty);
 }
 
 HistoryCompleter::HistoryCompleter(const QString &historyKey, QObject *parent)
@@ -170,6 +177,9 @@ HistoryCompleter::HistoryCompleter(const QString &historyKey, QObject *parent)
 
     d->historyKey = QLatin1String("CompleterHistory/") + historyKey;
     d->list = theSettings->value(d->historyKey).toStringList();
+    d->historyKeyIsLastItemEmpty = QLatin1String("CompleterHistory/")
+        + historyKey + QLatin1String(".IsLastItemEmpty");
+    d->isLastItemEmpty = theSettings->value(d->historyKeyIsLastItemEmpty, false).toBool();
 
     setModel(d);
     setPopup(new HistoryLineView(d));
@@ -178,6 +188,13 @@ HistoryCompleter::HistoryCompleter(const QString &historyKey, QObject *parent)
 bool HistoryCompleter::removeHistoryItem(int index)
 {
     return d->removeRow(index);
+}
+
+QString HistoryCompleter::historyItem() const
+{
+    if (historySize() == 0 || d->isLastItemEmpty)
+        return QString();
+    return d->list.at(0);
 }
 
 HistoryCompleter::~HistoryCompleter()

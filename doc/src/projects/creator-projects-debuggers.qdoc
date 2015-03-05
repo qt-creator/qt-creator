@@ -58,20 +58,7 @@
 
                 \li For GDB, specify the path to the GDB executable. The
                     executable must be built with Python scripting support
-                    enabled. The options you
-                    have depend on the development and target platform:
-
-                \list
-
-                    \li For debugging on embedded devices using a different ABI,
-                        you must provide a special executable.
-
-                    \li For debugging on Windows using MinGW, select a Windows
-                        executable of GDB with Python scripting enabled. You can
-                        download it from
-                        \l{http://builds.qt-project.org/job/gdb-windows}.
-
-                \endlist
+                    enabled.
 
                 \li For LLDB (experimental), specify the path to the LLDB
                 executable.

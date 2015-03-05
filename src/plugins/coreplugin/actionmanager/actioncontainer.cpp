@@ -32,6 +32,7 @@
 #include "actionmanager.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/id.h>
 
 #include <utils/hostosinfo.h>

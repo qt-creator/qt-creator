@@ -55,6 +55,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/id.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -82,6 +83,7 @@
 
 #include <QAction>
 #include <QFileDialog>
+#include <QMenu>
 #include <QScopedPointer>
 
 #ifdef WITH_TESTS

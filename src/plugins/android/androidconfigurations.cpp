@@ -1183,7 +1183,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             Debugger::DebuggerItem debugger;
             debugger.setCommand(tc->suggestedDebugger());
             debugger.setEngineType(Debugger::GdbEngineType);
-            debugger.setDisplayName(tr("Android Debugger for %1").arg(tc->displayName()));
+            debugger.setUnexpandedDisplayName(tr("Android Debugger for %1").arg(tc->displayName()));
             debugger.setAutoDetected(true);
             debugger.setAbi(tc->targetAbi());
             QVariant id = Debugger::DebuggerItemManager::registerDebugger(debugger);
@@ -1229,7 +1229,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             Debugger::DebuggerItem debugger;
             debugger.setCommand(tc->suggestedDebugger());
             debugger.setEngineType(Debugger::GdbEngineType);
-            debugger.setDisplayName(tr("Android Debugger for %1").arg(tc->displayName()));
+            debugger.setUnexpandedDisplayName(tr("Android Debugger for %1").arg(tc->displayName()));
             debugger.setAutoDetected(true);
             debugger.setAbi(tc->targetAbi());
             QVariant id = Debugger::DebuggerItemManager::registerDebugger(debugger);

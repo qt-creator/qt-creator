@@ -35,6 +35,7 @@
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljsscopechain.h>
 #include <qmljs/qmljsutils.h>
 #include <qmljs/qmljsbind.h>
 #include <qmljstools/qmljsrefactoringchanges.h>

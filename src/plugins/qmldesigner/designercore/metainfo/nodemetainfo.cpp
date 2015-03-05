@@ -42,6 +42,7 @@
 #include <qmljs/qmljsscopechain.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljs/qmljsvalueowner.h>
 #include <languageutils/fakemetaobject.h>
 
 namespace QmlDesigner {

@@ -33,11 +33,17 @@
 
 #include "qmljstools_global.h"
 
-#include <qmljs/parser/qmljsast_p.h>
-#include <qmljs/qmljsscopechain.h>
+#include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsstaticanalysismessage.h>
+#include <qmljs/parser/qmljsengine_p.h>
 
 #include <QTextCursor>
+
+namespace QmlJS {
+class ScopeChain;
+namespace AST { class Node; }
+}
 
 namespace QmlJSTools {
 

@@ -54,7 +54,7 @@ Item {
     signal clearSelection
 
     width: col.width + 25
-    height: col.height + 30
+    height: contentArea.height + titleBar.height
 
     function hide() {
         noteEdit.focus = false;
@@ -146,8 +146,8 @@ Item {
         y: px + 1
     }
 
-    // title bar
     Rectangle {
+        id: titleBar
         width: parent.width
         height: 20
         color: "#55a3b8"
@@ -186,6 +186,7 @@ Item {
 
     // Details area
     Rectangle {
+        id: contentArea
         color: "white"
         width: parent.width
         height: 10 + col.height + (noteEdit.visible ? (noteEdit.height + 5) : 0)
@@ -204,6 +205,7 @@ Item {
             Repeater {
                 model: eventInfo
                 Detail {
+                    valueWidth: dragHandle.x - x - 15
                     isLabel: index % 2 === 0
                     text: (content === undefined) ? "" : (isLabel ? (content + ":") : content)
                 }
@@ -298,4 +300,26 @@ Item {
         }
     }
 
+    Item {
+        id: dragHandle
+        width: 10
+        height: 10
+        x: 300
+        anchors.bottom: parent.bottom
+        clip: true
+        MouseArea {
+            anchors.fill: parent
+            drag.target: parent
+            drag.axis: Drag.XAxis
+            cursorShape: Qt.SizeHorCursor
+        }
+        Rectangle {
+            color: "#55a3b8"
+            rotation: 45
+            width: parent.width * Math.SQRT2
+            height: parent.height * Math.SQRT2
+            x: parent.width - width / 2
+            y: parent.height - height / 2
+        }
+    }
 }

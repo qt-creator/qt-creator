@@ -37,7 +37,6 @@
 #include <ssh/sshconnection.h>
 
 namespace QSsh {
-class SshConnectionParameters;
 class SshRemoteProcessRunner;
 }
 

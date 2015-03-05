@@ -14,33 +14,27 @@ plugin_recmds = $$QTC_PLUGIN_RECOMMENDS
 
 include(../qtcreator.pri)
 
+defineReplace(dependencyName) {
+    dependencies_file =
+    for(dir, QTC_PLUGIN_DIRS) {
+        exists($$dir/$$1/$${1}_dependencies.pri) {
+            dependencies_file = $$dir/$$1/$${1}_dependencies.pri
+            break()
+        }
+    }
+    isEmpty(dependencies_file): \
+        error("Plugin dependency $$dep not found")
+    include($$dependencies_file)
+    return($$QTC_PLUGIN_NAME)
+}
+
 # for substitution in the .json
 dependencyList =
 for(dep, plugin_deps) {
-    dependencies_file =
-    for(dir, QTC_PLUGIN_DIRS) {
-        exists($$dir/$$dep/$${dep}_dependencies.pri) {
-            dependencies_file = $$dir/$$dep/$${dep}_dependencies.pri
-            break()
-        }
-    }
-    isEmpty(dependencies_file): \
-        error("Plugin dependency $$dep not found")
-    include($$dependencies_file)
-    dependencyList += "        { \"Name\" : \"$$QTC_PLUGIN_NAME\", \"Version\" : \"$$QTCREATOR_VERSION\" }"
+    dependencyList += "        { \"Name\" : \"$$dependencyName($$dep)\", \"Version\" : \"$$QTCREATOR_VERSION\" }"
 }
 for(dep, plugin_recmds) {
-    dependencies_file =
-    for(dir, QTC_PLUGIN_DIRS) {
-        exists($$dir/$$dep/$${dep}_dependencies.pri) {
-            dependencies_file = $$dir/$$dep/$${dep}_dependencies.pri
-            break()
-        }
-    }
-    isEmpty(dependencies_file): \
-        error("Plugin dependency $$dep not found")
-    include($$dependencies_file)
-    dependencyList += "        { \"Name\" : \"$$QTC_PLUGIN_NAME\", \"Version\" : \"$$QTCREATOR_VERSION\", \"Type\" : \"optional\" }"
+    dependencyList += "        { \"Name\" : \"$$dependencyName($$dep)\", \"Version\" : \"$$QTCREATOR_VERSION\", \"Type\" : \"optional\" }"
 }
 dependencyList = $$join(dependencyList, ",$$escape_expand(\\n)")
 
@@ -72,10 +66,6 @@ LIBS += -L$$DESTDIR
 # copy the plugin spec
 isEmpty(TARGET) {
     error("qtcreatorplugin.pri: You must provide a TARGET")
-}
-
-defineReplace(stripOutDir) {
-    return($$relative_path($$1, $$OUT_PWD))
 }
 
 PLUGINJSON = $$_PRO_FILE_PWD_/$${TARGET}.json

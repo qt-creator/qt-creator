@@ -30,10 +30,12 @@
 
 #include "qmljsstaticanalysismessage.h"
 #include "qmljsconstants.h"
+#include "parser/qmljsengine_p.h"
 
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
+#include <QRegExp>
 
 using namespace QmlJS;
 using namespace QmlJS::StaticAnalysis;

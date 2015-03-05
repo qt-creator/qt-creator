@@ -36,11 +36,11 @@
 #include <texteditor/codeassist/assistenums.h>
 #include <texteditor/codeassist/completionassistprovider.h>
 
-#include <cplusplus/Token.h>
-
 QT_BEGIN_NAMESPACE
 class QTextDocument;
 QT_END_NAMESPACE
+
+namespace CPlusPlus { struct LanguageFeatures; }
 
 namespace TextEditor {
 class BaseTextEditor;

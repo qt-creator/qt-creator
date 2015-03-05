@@ -34,7 +34,11 @@
 #include "cpptools_global.h"
 #include "cpprefactoringchanges.h"
 
-#include <cplusplus/Overview.h>
+#include <cplusplus/ASTVisitor.h>
+
+#include <utils/changeset.h>
+
+namespace CPlusPlus { class Overview; }
 
 namespace CppTools {
 

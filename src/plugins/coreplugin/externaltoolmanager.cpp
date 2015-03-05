@@ -31,10 +31,12 @@
 #include "externaltoolmanager.h"
 #include "externaltool.h"
 #include "coreconstants.h"
+#include "icontext.h"
 #include "icore.h"
 #include "messagemanager.h"
 #include "actionmanager/actionmanager.h"
 #include "actionmanager/actioncontainer.h"
+#include "actionmanager/command.h"
 
 #include <utils/qtcassert.h>
 

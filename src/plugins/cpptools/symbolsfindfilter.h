@@ -41,6 +41,8 @@
 #include <QCheckBox>
 #include <QRadioButton>
 
+namespace Core { class SearchResult; }
+
 namespace CppTools {
 
 class CppModelManager;

@@ -46,6 +46,7 @@ public:
     void stdError(const QString &line);
 
 private:
+    QRegularExpression m_ranlib;
     QRegularExpression m_regExpLinker;
     QRegularExpression m_regExpGccNames;
 };

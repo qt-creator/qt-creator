@@ -34,6 +34,7 @@
 #include "cppquickfixassistant.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <cpptools/cppcodestylesettings.h>
 #include <cpptools/cpplocalsymbols.h>
 #include <cpptools/symbolfinder.h>
@@ -42,6 +43,7 @@
 
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/CppRewriter.h>
+#include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
 
 #include <utils/proxyaction.h>

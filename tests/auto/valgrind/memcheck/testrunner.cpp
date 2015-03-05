@@ -559,7 +559,7 @@ void TestRunner::syscall()
 
     const Frame frame = stack.frames().first();
     QCOMPARE(frame.functionName(), QLatin1String("main"));
-    QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
+    QCOMPARE(frame.line(), 2 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
     QCOMPARE(frame.file(), QLatin1String("main.cpp"));

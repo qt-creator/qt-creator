@@ -33,6 +33,7 @@
 #include "qmljscodeformatter.h"
 #include "parser/qmljsast_p.h"
 #include "parser/qmljsastvisitor_p.h"
+#include "parser/qmljsengine_p.h"
 
 #include <QString>
 #include <QTextBlock>

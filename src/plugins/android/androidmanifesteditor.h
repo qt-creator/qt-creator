@@ -37,6 +37,8 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <texteditor/texteditor.h>
 
+#include <QActionGroup>
+
 QT_BEGIN_NAMESPACE
 class QToolBar;
 class QActionGroup;

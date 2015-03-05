@@ -45,6 +45,7 @@
 #include <coreplugin/sidebar.h>
 #include <coreplugin/editortoolbar.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 #include <extensionsystem/pluginmanager.h>
 

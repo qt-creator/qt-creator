@@ -41,6 +41,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/command.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projecttree.h>

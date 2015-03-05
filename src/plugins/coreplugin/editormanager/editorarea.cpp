@@ -35,6 +35,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 

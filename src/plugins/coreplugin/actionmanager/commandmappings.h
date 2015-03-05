@@ -33,8 +33,6 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QObject>
-
 QT_BEGIN_NAMESPACE
 class QLineEdit;
 class QTreeWidget;

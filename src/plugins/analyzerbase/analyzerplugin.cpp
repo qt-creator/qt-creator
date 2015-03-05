@@ -30,6 +30,7 @@
 ****************************************************************************/
 
 #include "analyzerplugin.h"
+#include "analyzerconstants.h"
 #include "analyzermanager.h"
 
 #include <projectexplorer/projectexplorer.h>

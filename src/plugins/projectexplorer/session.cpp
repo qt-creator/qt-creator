@@ -37,6 +37,7 @@
 #include "projectnodes.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
@@ -540,7 +541,7 @@ QList<Project *> SessionManager::projectOrder(Project *project)
 
 QList<Node *> SessionManager::nodesForFile(const Utils::FileName &fileName)
 {
-    FindNodesForFileVisitor findNodes(fileName.toString());
+    FindNodesForFileVisitor findNodes(fileName);
     sessionNode()->accept(&findNodes);
     return findNodes.nodes();
 }

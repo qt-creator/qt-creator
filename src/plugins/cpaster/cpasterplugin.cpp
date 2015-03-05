@@ -61,6 +61,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QInputDialog>
+#include <QMenu>
 #include <QUrl>
 
 using namespace Core;

@@ -108,12 +108,14 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/id.h>
 #include <coreplugin/idocumentfactory.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/findplaceholder.h>
@@ -266,7 +268,7 @@ public:
 
     void updateRecentProjectMenu();
     void clearRecentProjects();
-    void openRecentProject();
+    void openRecentProject(const QString &fileName);
     void updateUnloadProjectMenu();
     void openTerminalHere();
 
@@ -2830,12 +2832,13 @@ void ProjectExplorerPluginPrivate::updateRecentProjectMenu()
     //projects (ignore sessions, they used to be in this list)
     const StringPairListConstIterator end = dd->m_recentProjects.constEnd();
     for (StringPairListConstIterator it = dd->m_recentProjects.constBegin(); it != end; ++it) {
-        const QPair<QString, QString> &s = *it;
-        if (s.first.endsWith(QLatin1String(".qws")))
+        const QString fileName = it->first;
+        if (fileName.endsWith(QLatin1String(".qws")))
             continue;
-        QAction *action = menu->addAction(Utils::withTildeHomePath(s.first));
-        action->setData(s.first);
-        connect(action, &QAction::triggered, this, &ProjectExplorerPluginPrivate::openRecentProject);
+        QAction *action = menu->addAction(Utils::withTildeHomePath(fileName));
+        connect(action, &QAction::triggered, this, [this, fileName] {
+            openRecentProject(fileName);
+        });
         hasRecentProjects = true;
     }
     menu->setEnabled(hasRecentProjects);
@@ -2856,15 +2859,11 @@ void ProjectExplorerPluginPrivate::clearRecentProjects()
     updateWelcomePage();
 }
 
-void ProjectExplorerPluginPrivate::openRecentProject()
+void ProjectExplorerPluginPrivate::openRecentProject(const QString &fileName)
 {
     if (debug)
         qDebug() << "ProjectExplorerPlugin::openRecentProject()";
 
-    QAction *a = qobject_cast<QAction*>(sender());
-    if (!a)
-        return;
-    QString fileName = a->data().toString();
     if (!fileName.isEmpty()) {
         QString errorMessage;
         ProjectExplorerPlugin::openProject(fileName, &errorMessage);

@@ -39,6 +39,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -46,6 +47,7 @@
 #include <coreplugin/documentmanager.h>
 
 #include <QApplication>
+#include <QMenu>
 #include <QTimer>
 
 namespace {

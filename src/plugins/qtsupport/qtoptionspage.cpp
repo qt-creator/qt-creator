@@ -42,6 +42,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/variablechooser.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/hostosinfo.h>

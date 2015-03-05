@@ -35,6 +35,7 @@
 #include "debuggerconstants.h"
 
 #include <QObject>
+#include <QProcess>
 
 QT_BEGIN_NAMESPACE
 class QDebug;
@@ -256,6 +257,7 @@ public:
     bool isSlaveEngine() const;
     bool isMasterEngine() const;
     DebuggerEngine *masterEngine() const;
+    virtual DebuggerEngine *cppEngine() { return 0; }
 
     virtual bool canDisplayTooltip() const { return state() == InferiorStopOk; }
 
@@ -312,6 +314,8 @@ protected:
 
     public:
     virtual void notifyInferiorExited();
+    void notifyDebuggerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus,
+                                       const QString &backendName);
 
 protected:
     virtual void notifyInferiorShutdownOk();

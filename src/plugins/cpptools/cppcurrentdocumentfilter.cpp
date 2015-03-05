@@ -32,7 +32,9 @@
 
 #include "cppmodelmanager.h"
 
+#include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 
 #include <QStringMatcher>
 

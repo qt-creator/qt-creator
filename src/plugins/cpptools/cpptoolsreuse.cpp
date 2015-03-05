@@ -31,6 +31,7 @@
 #include "cpptoolsreuse.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/idocument.h>
 #include <texteditor/convenience.h>
 
 #include <cplusplus/Overview.h>

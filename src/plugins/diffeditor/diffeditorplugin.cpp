@@ -37,6 +37,7 @@
 #include "diffeditorreloader.h"
 #include "differ.h"
 
+#include <QAction>
 #include <QFileDialog>
 #include <QTextCodec>
 #include <QtPlugin>

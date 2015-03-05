@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "cppcodemodelinspectordumper.h"
+#include "cppmodelmanager.h"
 
 #include "cppworkingcopy.h"
 

@@ -41,16 +41,18 @@
 #include <QMap>
 #include <QFutureInterface>
 
-#include <projectexplorer/abi.h>
-
 #include <utils/fileutils.h>
-#include <utils/environment.h>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer { class Project; }
+namespace ProjectExplorer {
+class Abi;
+class Project;
+}
+
+namespace Utils { class Environment; }
 
 namespace Android {
 class AndroidPlugin;

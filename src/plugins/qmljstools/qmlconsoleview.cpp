@@ -36,6 +36,8 @@
 #include <coreplugin/manhattanstyle.h>
 #include <utils/hostosinfo.h>
 
+#include <QAction>
+#include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QApplication>

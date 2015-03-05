@@ -33,7 +33,7 @@
 
 #include <qmljs/qmljs_global.h>
 #include <qmljs/persistenttrie.h>
-#include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljsdialect.h>
 
 #include <QString>
 #include <QHash>

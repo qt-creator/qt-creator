@@ -41,6 +41,7 @@
 #include <coreplugin/id.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -58,6 +59,7 @@
 #include <QAction>
 #include <QDebug>
 #include <QInputDialog>
+#include <QMenu>
 #include <QMessageBox>
 #include <QFormLayout>
 #include <QDialogButtonBox>

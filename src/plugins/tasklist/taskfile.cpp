@@ -32,6 +32,8 @@
 
 #include "tasklistplugin.h"
 
+#include <utils/fileutils.h>
+
 using namespace TaskList;
 using namespace TaskList::Internal;
 

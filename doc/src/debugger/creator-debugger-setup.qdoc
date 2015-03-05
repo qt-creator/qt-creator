@@ -181,7 +181,7 @@
                 versions of MinGW. On most Linux distributions the GDB
                 builds shipped with the system are sufficient. You can
                 also build your own. Follow the instructions in
-                \l{http://qt-project.org/wiki/QtCreatorBuildGdb}
+                \l{http://wiki.qt.io/QtCreator_Build_Gdb}
                 {Building GDB}.
                 Builds of GDB shipped with Xcode on OS X are no longer
                 supported.

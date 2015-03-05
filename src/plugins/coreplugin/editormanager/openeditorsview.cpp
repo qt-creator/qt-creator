@@ -35,6 +35,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 
 #include <QApplication>
 #include <QMenu>

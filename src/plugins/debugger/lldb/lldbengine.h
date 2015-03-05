@@ -68,6 +68,8 @@ public:
 
 private:
     // DebuggerEngine implementation
+    DebuggerEngine *cppEngine() { return this; }
+
     void executeStep();
     void executeStepOut();
     void executeNext();
@@ -81,7 +83,6 @@ private:
     void shutdownInferior();
     void shutdownEngine();
     void abortDebugger();
-    void resetLocation();
 
     bool setToolTipExpression(TextEditor::TextEditorWidget *editorWidget,
         const DebuggerToolTipContext &);
@@ -133,7 +134,7 @@ private:
     QString errorMessage(QProcess::ProcessError error) const;
     bool hasCapability(unsigned cap) const;
 
-    void handleLldbFinished(int, QProcess::ExitStatus status);
+    void handleLldbFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void handleLldbError(QProcess::ProcessError error);
     void readLldbStandardOutput();
     void readLldbStandardError();
@@ -147,9 +148,6 @@ private:
     void refreshAll(const GdbMi &all);
     void refreshThreads(const GdbMi &threads);
     void refreshStack(const GdbMi &stack);
-    void refreshStackPosition(const GdbMi &position);
-    void refreshStackTop(const GdbMi &position);
-    void setStackPosition(int index);
     void refreshRegisters(const GdbMi &registers);
     void refreshLocals(const GdbMi &vars);
     void refreshTypeInfo(const GdbMi &typeInfo);

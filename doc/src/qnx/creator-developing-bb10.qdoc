@@ -120,5 +120,5 @@
 
     \include qnx/creator-key-management-qnx.qdocinc
 
-    For more details please refer to the Qt-Project wiki page: \l {http://qt-project.org/wiki/BlackBerry} {http://qt-project.org/wiki/BlackBerry}.
+    For more details please refer to the Qt-Project wiki page: \l {http://wiki.qt.io/BlackBerry}{Qt for BlackBerry}.
 */

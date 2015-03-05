@@ -31,7 +31,10 @@
 from dumper import *
 
 def dumpLiteral(d, value):
-    d.putSimpleCharArray(value["_chars"], value["_size"])
+    if d.isNull(value):
+        d.putValue("<null>")
+    else:
+        d.putSimpleCharArray(value["_chars"], value["_size"])
 
 def qdump__Core__Id(d, value):
     try:

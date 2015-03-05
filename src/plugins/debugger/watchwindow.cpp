@@ -744,9 +744,12 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     actSelectWidgetToWatch.setEnabled(canHandleWatches && canInsertWatches
            && engine->hasCapability(WatchWidgetsCapability));
 
+    bool canAddWatches = canHandleWatches && !exp.isEmpty();
+    // Suppress for top-level watchers.
+    if (m_type == WatchersType && mi0.parent().isValid() && !mi0.parent().parent().isValid())
+        canAddWatches = false;
     QAction actWatchExpression(addWatchActionText(exp), 0);
-    actWatchExpression.setEnabled(
-        canHandleWatches && !exp.isEmpty() && m_type == LocalsType);
+    actWatchExpression.setEnabled(canAddWatches);
 
     // Can remove watch if engine can handle it or session engine.
     QModelIndex p = mi0;

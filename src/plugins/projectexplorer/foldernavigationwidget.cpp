@@ -35,6 +35,7 @@
 
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>

@@ -621,7 +621,9 @@ bool WatchItem::canFetchMore() const
 
 void WatchItem::fetchMore()
 {
-    QTC_ASSERT(!fetchTriggered, return);
+    if (fetchTriggered)
+        return;
+
     watchModel()->m_expandedINames.insert(d.iname);
     fetchTriggered = true;
     if (children().isEmpty()) {
@@ -1246,9 +1248,15 @@ void WatchModel::insertItem(WatchItem *item)
 void WatchModel::reexpandItems()
 {
     foreach (const QByteArray &iname, m_expandedINames) {
-        WatchItem *item = findItem(iname);
-        emit itemIsExpanded(indexFromItem(item));
-        emit inameIsExpanded(iname);
+        if (WatchItem *item = findItem(iname)) {
+            emit itemIsExpanded(indexFromItem(item));
+            emit inameIsExpanded(iname);
+        } else {
+            // Can happen. We might have stepped into another frame
+            // not containing that iname, but we still like to
+            // remember the expanded state of iname in case we step
+            // out of the frame again.
+        }
     }
 }
 

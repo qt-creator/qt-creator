@@ -33,8 +33,6 @@
 
 #include "cpptools_global.h"
 
-#include <utils/mimetypes/mimetype.h>
-
 #include <QHash>
 #include <QList>
 #include <QString>

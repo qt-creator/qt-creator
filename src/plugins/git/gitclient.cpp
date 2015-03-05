@@ -75,6 +75,8 @@
 #include <QSignalMapper>
 #include <QTemporaryFile>
 
+#include <QAction>
+#include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QToolButton>
@@ -670,10 +672,6 @@ GitClient::GitClient(GitSettings *settings) :
     m_gitQtcEditor = QString::fromLatin1("\"%1\" -client -block -pid %2")
             .arg(QCoreApplication::applicationFilePath())
             .arg(QCoreApplication::applicationPid());
-}
-
-GitClient::~GitClient()
-{
 }
 
 QString GitClient::findRepositoryForDirectory(const QString &dir) const

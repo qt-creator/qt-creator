@@ -995,11 +995,11 @@ bool QmakePriFileNode::addSubProjects(const QStringList &proFilePaths)
 {
     FindAllFilesVisitor visitor;
     accept(&visitor);
-    const QStringList &allFiles = visitor.filePaths();
+    const FileNameList &allFiles = visitor.filePaths();
 
     QStringList uniqueProFilePaths;
     foreach (const QString &proFile, proFilePaths)
-        if (!allFiles.contains(proFile))
+        if (!allFiles.contains(FileName::fromString(proFile)))
             uniqueProFilePaths.append(simplifyProFilePath(proFile));
 
     QStringList failedFiles;
@@ -1030,7 +1030,7 @@ bool QmakePriFileNode::addFiles(const QStringList &filePaths, QStringList *notAd
 
     FindAllFilesVisitor visitor;
     accept(&visitor);
-    const QStringList &allFiles = visitor.filePaths();
+    const FileNameList &allFiles = visitor.filePaths();
 
     typedef QMap<QString, QStringList> TypeFileMap;
     // Split into lists by file type and bulk-add them.
@@ -1056,13 +1056,13 @@ bool QmakePriFileNode::addFiles(const QStringList &filePaths, QStringList *notAd
 
         QStringList uniqueQrcFiles;
         foreach (const QString &file, qrcFiles) {
-            if (!allFiles.contains(file))
+            if (!allFiles.contains(FileName::fromString(file)))
                 uniqueQrcFiles.append(file);
         }
 
         QStringList uniqueFilePaths;
         foreach (const QString &file, typeFiles) {
-            if (!allFiles.contains(file))
+            if (!allFiles.contains(FileName::fromString(file)))
                 uniqueFilePaths.append(file);
         }
 

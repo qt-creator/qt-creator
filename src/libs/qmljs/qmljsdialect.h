@@ -31,7 +31,7 @@
 #ifndef QMLJSDIALECT_H
 #define QMLJSDIALECT_H
 
-#include "qmljsconstants.h"
+#include "qmljs_global.h"
 
 #include <utils/fileutils.h>
 

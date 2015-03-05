@@ -45,6 +45,7 @@
 #include <texteditor/snippets/isnippetprovider.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <cplusplus/Overview.h>
 #include <cplusplus/pp.h>
 
 #include <extensionsystem/pluginmanager.h>

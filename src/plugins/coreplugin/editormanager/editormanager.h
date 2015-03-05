@@ -35,18 +35,14 @@
 
 #include "documentmodel.h"
 
-#include <coreplugin/id.h>
-#include <coreplugin/idocument.h> // enumerations
-#include <utils/mimetypes/mimetype.h>
-
 #include <QList>
 #include <QWidget>
-#include <QMenu>
 
 #include <functional>
 
-QT_BEGIN_NAMESPACE
-QT_END_NAMESPACE
+QT_FORWARD_DECLARE_CLASS(QMenu)
+
+namespace Utils { class MimeType; }
 
 namespace Core {
 

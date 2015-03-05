@@ -1197,7 +1197,7 @@ bool FakeVimPluginPrivate::initialize()
     Command *cmd = 0;
     cmd = ActionManager::registerAction(theFakeVimSetting(ConfigUseFakeVim),
         INSTALL_HANDLER, globalcontext, true);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? Tr::tr("Meta+V,Meta+V") : Tr::tr("Alt+V,Alt+V")));
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? Tr::tr("Meta+Shift+V,Meta+Shift+V") : Tr::tr("Alt+V,Alt+V")));
 
     ActionContainer *advancedMenu =
         ActionManager::actionContainer(Core::Constants::M_EDIT_ADVANCED);
@@ -1208,7 +1208,7 @@ bool FakeVimPluginPrivate::initialize()
         auto act = new QAction(this);
         act->setText(Tr::tr("Execute User Action #%1").arg(i));
         cmd = ActionManager::registerAction(act, base.withSuffix(i));
-        cmd->setDefaultKeySequence(QKeySequence((UseMacShortcuts ? Tr::tr("Meta+V,%1") : Tr::tr("Alt+V,%1")).arg(i)));
+        cmd->setDefaultKeySequence(QKeySequence((UseMacShortcuts ? Tr::tr("Meta+Shift+V,%1") : Tr::tr("Alt+V,%1")).arg(i)));
         connect(act, &QAction::triggered, this, [this, i] { userActionTriggered(i); });
     }
 

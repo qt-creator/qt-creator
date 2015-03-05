@@ -33,13 +33,13 @@
 
 #include "cpptools_global.h"
 
-#include <cplusplus/Overview.h>
-
-#include <QVariant>
+#include <QVariantMap>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
+
+namespace CPlusPlus { class Overview; }
 
 namespace CppTools {
 

@@ -88,7 +88,6 @@ void GccParser::stdError(const QString &line)
     }
 
     QRegularExpressionMatch match = m_regExpGccNames.match(lne);
-
     if (match.hasMatch()) {
         QString description = lne.mid(match.capturedLength());
         Task::TaskType type = Task::Error;
@@ -456,12 +455,6 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
             << QString::fromLatin1("rm: cannot remove `release/moc_mainwindow.cpp': No such file or directory")
             << OutputParserTester::STDERR
             << QString() << QString::fromLatin1("rm: cannot remove `release/moc_mainwindow.cpp': No such file or directory\n")
-            << QList<Task>()
-            << QString();
-    QTest::newRow("ranlib false positive")
-            << QString::fromLatin1("ranlib: file: libSupport.a(HashTable.o) has no symbols")
-            << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("ranlib: file: libSupport.a(HashTable.o) has no symbols\n")
             << QList<Task>()
             << QString();
     QTest::newRow("ld: missing library")
@@ -862,6 +855,29 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                         categoryCompile)
                 << Task(Task::Error,
                         QLatin1String("collect2: error: ld returned 1 exit status"),
+                        Utils::FileName(), -1,
+                        categoryCompile)
+                )
+            << QString();
+
+    QTest::newRow("Mac: ranlib warning")
+            << QString::fromLatin1("ranlib: file: lib/libtest.a(Test0.cpp.o) has no symbols")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<Task>()
+                << Task(Task::Warning,
+                        QLatin1String("file: lib/libtest.a(Test0.cpp.o) has no symbols"),
+                        Utils::FileName(), -1,
+                        categoryCompile)
+                )
+            << QString();
+    QTest::newRow("Mac: ranlib warning2")
+            << QString::fromLatin1("/path/to/XCode/and/ranlib: file: lib/libtest.a(Test0.cpp.o) has no symbols")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<Task>()
+                << Task(Task::Warning,
+                        QLatin1String("file: lib/libtest.a(Test0.cpp.o) has no symbols"),
                         Utils::FileName(), -1,
                         categoryCompile)
                 )

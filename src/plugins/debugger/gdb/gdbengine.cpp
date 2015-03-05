@@ -1464,6 +1464,9 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         // This is gdb 7+'s initial *stopped in response to attach that
         // appears before the ^done is seen.
         notifyEngineRunAndInferiorStopOk();
+        const DebuggerStartParameters &sp = startParameters();
+        if (sp.useTerminal)
+            continueInferiorInternal();
         return;
     } else {
         QTC_CHECK(false);
@@ -3643,6 +3646,8 @@ void GdbEngine::handleRegisterListValues(const DebuggerResponse &response)
         QByteArray data = item["value"].data();
         if (data.startsWith("0x")) {
             reg.value = data;
+        } else if (data == "<error reading variable>") {
+            // Nothing. See QTCREATORBUG-14029.
         } else {
             // This is what GDB considers machine readable output:
             // value="{v4_float = {0x00000000, 0x00000000, 0x00000000, 0x00000000},
@@ -4361,33 +4366,12 @@ void GdbEngine::handleGdbError(QProcess::ProcessError error)
     }
 }
 
-void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
+void GdbEngine::handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     if (m_commandTimer.isActive())
         m_commandTimer.stop();
 
-    showMessage(_("GDB PROCESS FINISHED, status %1, code %2").arg(type).arg(code));
-
-    switch (state()) {
-    case EngineShutdownRequested:
-        notifyEngineShutdownOk();
-        break;
-    case InferiorRunOk:
-        // This could either be a real gdb crash or a quickly exited inferior
-        // in the terminal adapter. In this case the stub proc will die soon,
-        // too, so there's no need to act here.
-        showMessage(_("The gdb process exited somewhat unexpectedly."));
-        notifyEngineSpontaneousShutdown();
-        break;
-    default: {
-        notifyEngineIll(); // Initiate shutdown sequence
-        const QString msg = type == QProcess::CrashExit ?
-                    tr("The gdb process terminated.") :
-                    tr("The gdb process terminated unexpectedly (code %1)").arg(code);
-        AsynchronousMessageBox::critical(tr("Unexpected GDB Exit"), msg);
-        break;
-    }
-    }
+    notifyDebuggerProcessFinished(exitCode, exitStatus, QLatin1String("GDB"));
 }
 
 void GdbEngine::abortDebugger()

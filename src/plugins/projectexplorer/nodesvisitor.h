@@ -33,6 +33,8 @@
 
 #include "projectexplorer_export.h"
 
+#include <utils/fileutils.h>
+
 #include <QStringList>
 
 namespace ProjectExplorer {
@@ -58,7 +60,7 @@ protected:
 
 class PROJECTEXPLORER_EXPORT FindNodesForFileVisitor : public NodesVisitor {
 public:
-    FindNodesForFileVisitor(const QString &fileToSearch);
+    FindNodesForFileVisitor(const Utils::FileName &fileToSearch);
 
     QList<Node*> nodes() const;
 
@@ -66,18 +68,18 @@ public:
     void visitFolderNode(FolderNode *node);
     void visitSessionNode(SessionNode *node);
 private:
-    QString m_path;
+    Utils::FileName m_path;
     QList<Node*> m_nodes;
 };
 
 class PROJECTEXPLORER_EXPORT FindAllFilesVisitor : public NodesVisitor {
 public:
-    QStringList filePaths() const;
+    Utils::FileNameList filePaths() const;
 
     void visitProjectNode(ProjectNode *projectNode);
     void visitFolderNode(FolderNode *folderNode);
 private:
-    QStringList m_filePaths;
+    Utils::FileNameList m_filePaths;
 };
 
 } // namespace ProjectExplorer

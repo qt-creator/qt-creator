@@ -34,6 +34,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <utils/fileutils.h>
 
+#include <QAbstractItemModel>
 #include <QFileInfo>
 #include <QMutexLocker>
 

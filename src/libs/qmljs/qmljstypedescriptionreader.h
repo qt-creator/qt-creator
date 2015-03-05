@@ -31,7 +31,10 @@
 #ifndef QMLJSTYPEDESCRIPTIONREADER_H
 #define QMLJSTYPEDESCRIPTIONREADER_H
 
-#include "qmljsdocument.h"
+#include "qmljs_global.h"
+#include <qmljs/parser/qmljsastfwd_p.h>
+
+#include <languageutils/fakemetaobject.h>
 
 // for Q_DECLARE_TR_FUNCTIONS
 #include <QCoreApplication>
@@ -43,6 +46,7 @@ QT_END_NAMESPACE
 
 namespace QmlJS {
 
+class ModuleApiInfo;
 namespace AST {
 class UiProgram;
 class UiObjectDefinition;

@@ -176,10 +176,6 @@ static bool createMagicMatchRule(const QXmlStreamAttributes &atts,
         return true;
     }
     const QString value = atts.value(QLatin1String(matchValueAttributeC)).toString();
-    if (value.isEmpty()) {
-        *errorMessage = QString::fromLatin1("Empty match value detected.");
-        return false;
-    }
     // Parse for offset as "1" or "1:10"
     int startPos, endPos;
     const QString offsetS = atts.value(QLatin1String(matchOffsetAttributeC)).toString();
@@ -190,8 +186,12 @@ static bool createMagicMatchRule(const QXmlStreamAttributes &atts,
         return false;
     const QString mask = atts.value(QLatin1String(matchMaskAttributeC)).toString();
 
-    rule = new MimeMagicRule(magicType, value.toUtf8(), startPos, endPos, mask.toLatin1());
+    MimeMagicRule *tempRule = new MimeMagicRule(magicType, value.toUtf8(), startPos, endPos,
+                                                mask.toLatin1(), errorMessage);
+    if (!tempRule->isValid())
+        return false;
 
+    rule = tempRule;
     return true;
 }
 #endif

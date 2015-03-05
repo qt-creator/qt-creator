@@ -33,6 +33,9 @@
 #include "androidconstants.h"
 
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/idocument.h>
+
+#include <utils/fileutils.h>
 
 #include <QFileInfo>
 

@@ -242,22 +242,6 @@ void GitEditorWidget::revertChange()
                 sourceWorkingDirectory(), m_currentChange);
 }
 
-void GitEditorWidget::stageDiffChunk()
-{
-    const QAction *a = qobject_cast<QAction *>(sender());
-    QTC_ASSERT(a, return);
-    const DiffChunk chunk = qvariant_cast<DiffChunk>(a->data());
-    return applyDiffChunk(chunk, false);
-}
-
-void GitEditorWidget::unstageDiffChunk()
-{
-    const QAction *a = qobject_cast<QAction *>(sender());
-    QTC_ASSERT(a, return);
-    const DiffChunk chunk = qvariant_cast<DiffChunk>(a->data());
-    return applyDiffChunk(chunk, true);
-}
-
 void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, bool revert)
 {
     QTemporaryFile patchFile;
@@ -303,12 +287,14 @@ void GitEditorWidget::addDiffActions(QMenu *menu, const DiffChunk &chunk)
     menu->addSeparator();
 
     QAction *stageAction = menu->addAction(tr("Stage Chunk..."));
-    stageAction->setData(qVariantFromValue(chunk));
-    connect(stageAction, &QAction::triggered, this, &GitEditorWidget::stageDiffChunk);
+    connect(stageAction, &QAction::triggered, this, [this, chunk] {
+        applyDiffChunk(chunk, false);
+    });
 
     QAction *unstageAction = menu->addAction(tr("Unstage Chunk..."));
-    unstageAction->setData(qVariantFromValue(chunk));
-    connect(unstageAction, &QAction::triggered, this, &GitEditorWidget::unstageDiffChunk);
+    connect(unstageAction, &QAction::triggered, this, [this, chunk] {
+        applyDiffChunk(chunk, true);
+    });
 }
 
 bool GitEditorWidget::open(QString *errorString, const QString &fileName, const QString &realFileName)

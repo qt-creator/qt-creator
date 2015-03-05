@@ -33,8 +33,10 @@
 
 #include <qmljs/qmljs_global.h>
 #include <qmljs/qmljsconstants.h>
-#include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsimportdependencies.h>
+#include <qmljs/parser/qmljsastfwd_p.h>
+
+#include <languageutils/fakemetaobject.h>
 
 #include <QFileInfoList>
 #include <QHash>
@@ -67,6 +69,7 @@ class JSImportScope;
 class NameId;
 class NullValue;
 class NumberValue;
+class ModuleApiInfo;
 class ObjectValue;
 class QmlEnumValue;
 class QmlPrototypeReference;

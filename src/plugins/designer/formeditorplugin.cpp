@@ -43,18 +43,22 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <utils/mimetypes/mimedatabase.h>
-#
+
+#include <QAction>
 #include <QApplication>
 #include <QDebug>
 #include <QFileInfo>
 #include <QLibraryInfo>
+#include <QMenu>
 #include <QTranslator>
 #include <QtPlugin>
 

@@ -36,6 +36,7 @@
 #include <coreplugin/coreconstants.h>
 #include <texteditor/textdocument.h>
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QBuffer>

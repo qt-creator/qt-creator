@@ -93,45 +93,12 @@ void MimeTypeMagicDialog::applyRecommended(bool checked)
 
 void MimeTypeMagicDialog::validateAccept()
 {
-    Utils::Internal::MimeMagicRule::Type type = typeValue(ui.typeSelector->currentIndex());
-    // checks similar to the one in MimeMagicRule constructor, which asserts on these...
-    if (ui.valueLineEdit->text().isEmpty()) {
-        QMessageBox::critical(ICore::dialogParent(), tr("Error"), tr("Empty value not allowed."));
-        return;
-    } else if (type >= Utils::Internal::MimeMagicRule::Host16
-               && type <= Utils::Internal::MimeMagicRule::Byte) {
-        bool ok;
-        ui.valueLineEdit->text().toUInt(&ok, 0/*autodetect*/);
-        if (!ok) {
-            QMessageBox::critical(ICore::dialogParent(), tr("Error"), tr("Value must be a number."));
-            return;
-        }
-    } else if (type == Utils::Internal::MimeMagicRule::String) {
-        if (!ui.maskLineEdit->text().isEmpty()) {
-            QByteArray mask = ui.maskLineEdit->text().toLatin1();
-            if (mask.size() < 4) {
-                QMessageBox::critical(ICore::dialogParent(), tr("Error"), tr("Mask too short."));
-                return;
-            } else if (!mask.startsWith("0x")) {
-                QMessageBox::critical(ICore::dialogParent(), tr("Error"),
-                                      tr("Mask must start with \"0x\"."));
-                return;
-            } else {
-                QByteArray pattern = Utils::Internal::MimeMagicRule::makePattern(ui.valueLineEdit->text().toUtf8());
-                mask = QByteArray::fromHex(QByteArray::fromRawData(mask.constData() + 2, mask.size() - 2));
-                if (mask.size() != pattern.size()) {
-                    QMessageBox::critical(ICore::dialogParent(), tr("Error"),
-                                          tr("Mask has different size than pattern."));
-                    return;
-                }
-            }
-        }
-    } else if (type == Utils::Internal::MimeMagicRule::Invalid) {
-        QMessageBox::critical(ICore::dialogParent(), tr("Internal Error"),
-                              tr("Type is invalid."));
-        return;
-    }
-    accept();
+    QString errorMessage;
+    Utils::Internal::MimeMagicRule rule = createRule(&errorMessage);
+    if (rule.isValid())
+        accept();
+    else
+        QMessageBox::critical(ICore::dialogParent(), tr("Error"), errorMessage);
 }
 
 void MimeTypeMagicDialog::setMagicData(const MagicData &data)
@@ -147,12 +114,7 @@ void MimeTypeMagicDialog::setMagicData(const MagicData &data)
 
 MagicData MimeTypeMagicDialog::magicData() const
 {
-    MagicData data(Utils::Internal::MimeMagicRule(typeValue(ui.typeSelector->currentIndex()),
-                                                  ui.valueLineEdit->text().toUtf8(),
-                                                  ui.startRangeSpinBox->value(),
-                                                  ui.endRangeSpinBox->value(),
-                                                  ui.maskLineEdit->text().toLatin1()),
-                   ui.prioritySpinBox->value());
+    MagicData data(createRule(), ui.prioritySpinBox->value());
     return data;
 }
 
@@ -180,4 +142,20 @@ QByteArray MagicData::normalizedMask(const Utils::Internal::MimeMagicRule &rule)
         }
     }
     return mask;
+}
+
+Utils::Internal::MimeMagicRule MimeTypeMagicDialog::createRule(QString *errorMessage) const
+{
+    Utils::Internal::MimeMagicRule::Type type = typeValue(ui.typeSelector->currentIndex());
+    Utils::Internal::MimeMagicRule rule(type,
+                                        ui.valueLineEdit->text().toUtf8(),
+                                        ui.startRangeSpinBox->value(),
+                                        ui.endRangeSpinBox->value(),
+                                        ui.maskLineEdit->text().toLatin1(),
+                                        errorMessage);
+    if (type == Utils::Internal::MimeMagicRule::Invalid) {
+        if (errorMessage)
+            *errorMessage = tr("Internal error: Type is invalid");
+    }
+    return rule;
 }

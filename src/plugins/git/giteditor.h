@@ -59,8 +59,6 @@ private slots:
     void resetChange();
     void cherryPickChange();
     void revertChange();
-    void stageDiffChunk();
-    void unstageDiffChunk();
     void applyDiffChunk(const VcsBase::DiffChunk& chunk, bool revert);
 
 private:

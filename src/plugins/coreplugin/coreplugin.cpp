@@ -31,6 +31,7 @@
 #include "coreplugin.h"
 #include "designmode.h"
 #include "editmode.h"
+#include "idocument.h"
 #include "helpmanager.h"
 #include "mainwindow.h"
 #include "modemanager.h"

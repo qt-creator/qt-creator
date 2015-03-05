@@ -204,6 +204,7 @@ public:
     QString name;
     QString value;
     QString type;
+    QString expression;
     QColor color;
     bool expandable;
     QByteArray iname;
@@ -217,6 +218,7 @@ ToolTipWatchItem::ToolTipWatchItem(WatchItem *item)
     iname = item->d.iname;
     color = item->color();
     expandable = item->d.hasChildren;
+    expression = item->expression();
     foreach (TreeItem *child, item->children())
         appendChild(new ToolTipWatchItem(static_cast<WatchItem *>(child)));
 }
@@ -366,136 +368,35 @@ void ToolTipModel::restoreTreeModel(QXmlStreamReader &r)
 class DebuggerToolTipTreeView : public QTreeView
 {
 public:
-    explicit DebuggerToolTipTreeView(QWidget *parent = 0);
+    explicit DebuggerToolTipTreeView(QWidget *parent)
+        : QTreeView(parent)
+    {
+        setHeaderHidden(true);
+        setEditTriggers(NoEditTriggers);
+        setUniformRowHeights(true);
+        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    }
 
     QSize sizeHint() const { return m_size; }
 
-    void computeSize();
-
-    void setEngine(DebuggerEngine *engine);
-private:
-    int computeHeight(const QModelIndex &index) const;
-
-    WatchHandler *watchHandler() const
+    int sizeHintForColumn(int column) const
     {
-        return m_model.m_engine->watchHandler();
+        return QTreeView::sizeHintForColumn(column);
+    }
+
+    int computeHeight(const QModelIndex &index) const
+    {
+        int s = rowHeight(index);
+        const int rowCount = model()->rowCount(index);
+        for (int i = 0; i < rowCount; ++i)
+            s += computeHeight(model()->index(i, 0, index));
+        return s;
     }
 
     QSize m_size;
-
-public:
-    ToolTipModel m_model;
-    void reexpand(const QModelIndex &idx);
 };
 
-DebuggerToolTipTreeView::DebuggerToolTipTreeView(QWidget *parent)
-    : QTreeView(parent)
-{
-    setHeaderHidden(true);
-    setEditTriggers(NoEditTriggers);
-
-    setUniformRowHeights(true);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-    setModel(&m_model);
-
-    connect(this, &QTreeView::collapsed, this, &DebuggerToolTipTreeView::computeSize,
-        Qt::QueuedConnection);
-    connect(this, &QTreeView::expanded, this, &DebuggerToolTipTreeView::computeSize,
-        Qt::QueuedConnection);
-
-    connect(this, &QTreeView::expanded, &m_model, &ToolTipModel::expandNode);
-    connect(this, &QTreeView::collapsed, &m_model, &ToolTipModel::collapseNode);
-}
-
-void DebuggerToolTipTreeView::setEngine(DebuggerEngine *engine)
-{
-    m_model.m_engine = engine;
-}
-
-int DebuggerToolTipTreeView::computeHeight(const QModelIndex &index) const
-{
-    int s = rowHeight(index);
-    const int rowCount = model()->rowCount(index);
-    for (int i = 0; i < rowCount; ++i)
-        s += computeHeight(model()->index(i, 0, index));
-    return s;
-}
-
-void DebuggerToolTipTreeView::reexpand(const QModelIndex &idx)
-{
-    TreeItem *item = m_model.itemFromIndex(idx);
-    QTC_ASSERT(item, return);
-    QByteArray iname = item->data(0, LocalsINameRole).toByteArray();
-    bool shouldExpand = m_model.m_expandedINames.contains(iname);
-    if (shouldExpand) {
-        if (!isExpanded(idx)) {
-            expand(idx);
-            for (int i = 0, n = model()->rowCount(idx); i != n; ++i) {
-                QModelIndex idx1 = model()->index(i, 0, idx);
-                reexpand(idx1);
-            }
-        }
-    } else {
-        if (isExpanded(idx))
-            collapse(idx);
-    }
-}
-
-void DebuggerToolTipTreeView::computeSize()
-{
-    int columns = 30; // Decoration
-    int rows = 0;
-    bool rootDecorated = false;
-
-    if (QAbstractItemModel *m = model()) {
-        reexpand(m->index(0, 0));
-        const int columnCount = m->columnCount();
-        rootDecorated = m->rowCount() > 0;
-        if (rootDecorated) {
-            for (int i = 0; i < columnCount; ++i) {
-                resizeColumnToContents(i);
-                columns += sizeHintForColumn(i);
-            }
-        }
-        if (columns < 100)
-            columns = 100; // Prevent toolbar from shrinking when displaying 'Previous'
-        rows += computeHeight(QModelIndex());
-
-        // Fit tooltip to screen, showing/hiding scrollbars as needed.
-        // Add a bit of space to account for tooltip border, and not
-        // touch the border of the screen.
-        QPoint pos(x(), y());
-        QTC_ASSERT(QApplication::desktop(), return);
-        QRect desktopRect = QApplication::desktop()->availableGeometry(pos);
-        const int maxWidth = desktopRect.right() - pos.x() - 5 - 5;
-        const int maxHeight = desktopRect.bottom() - pos.y() - 5 - 5;
-
-        if (columns > maxWidth)
-            rows += horizontalScrollBar()->height();
-
-        if (rows > maxHeight) {
-            setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-            rows = maxHeight;
-            columns += verticalScrollBar()->width();
-        } else {
-            setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        }
-
-        if (columns > maxWidth) {
-            setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-            columns = maxWidth;
-        } else {
-            setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        }
-    }
-
-    m_size = QSize(columns + 5, rows + 5);
-    setMinimumSize(m_size);
-    setMaximumSize(m_size);
-    setRootIsDecorated(rootDecorated);
-}
 
 /////////////////////////////////////////////////////////////////////////
 //
@@ -508,10 +409,7 @@ class DebuggerToolTipWidget : public QWidget
 public:
     DebuggerToolTipWidget();
 
-    ~DebuggerToolTipWidget()
-    {
-        DEBUG("DESTROY DEBUGGERTOOLTIP WIDGET");
-    }
+    ~DebuggerToolTipWidget() { DEBUG("DESTROY DEBUGGERTOOLTIP WIDGET"); }
 
     void closeEvent(QCloseEvent *)
     {
@@ -548,11 +446,54 @@ public:
         titleLabel->active = true; // User can now drag
     }
 
+    void computeSize();
+
+    void setContents(ToolTipWatchItem *item)
+    {
+        titleLabel->setText(item->expression);
+        //treeView->setEnabled(true);
+        model.m_enabled = true;
+        if (item) {
+            model.rootItem()->removeChildren();
+            model.rootItem()->appendChild(item);
+        }
+        reexpand(QModelIndex());
+        computeSize();
+    }
+
+    WatchHandler *watchHandler() const
+    {
+        return model.m_engine->watchHandler();
+    }
+
+    void setEngine(DebuggerEngine *engine) { model.m_engine = engine; }
+
+    void reexpand(const QModelIndex &idx)
+    {
+        TreeItem *item = model.itemFromIndex(idx);
+        QTC_ASSERT(item, return);
+        QByteArray iname = item->data(0, LocalsINameRole).toByteArray();
+        bool shouldExpand = model.m_expandedINames.contains(iname);
+        if (shouldExpand) {
+            if (!treeView->isExpanded(idx)) {
+                treeView->expand(idx);
+                for (int i = 0, n = model.rowCount(idx); i != n; ++i) {
+                    QModelIndex idx1 = model.index(i, 0, idx);
+                    reexpand(idx1);
+                }
+            }
+        } else {
+            if (treeView->isExpanded(idx))
+                treeView->collapse(idx);
+        }
+    }
+
 public:
     bool isPinned;
     QToolButton *pinButton;
     DraggableLabel *titleLabel;
     DebuggerToolTipTreeView *treeView;
+    ToolTipModel model;
 };
 
 DebuggerToolTipWidget::DebuggerToolTipWidget()
@@ -584,6 +525,7 @@ DebuggerToolTipWidget::DebuggerToolTipWidget()
 
     treeView = new DebuggerToolTipTreeView(this);
     treeView->setFocusPolicy(Qt::NoFocus);
+    treeView->setModel(&model);
 
     auto mainLayout = new QVBoxLayout(this);
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
@@ -594,7 +536,7 @@ DebuggerToolTipWidget::DebuggerToolTipWidget()
     connect(copyButton, &QAbstractButton::clicked, [this] {
         QString text;
         QTextStream str(&text);
-        treeView->m_model.rootItem()->walkTree([&str](TreeItem *item) {
+        model.rootItem()->walkTree([&str](TreeItem *item) {
             auto titem = static_cast<ToolTipWatchItem *>(item);
             str << QString(item->level(), QLatin1Char('\t'))
                 << titem->name << '\t' << titem->value << '\t' << titem->type << '\n';
@@ -603,7 +545,67 @@ DebuggerToolTipWidget::DebuggerToolTipWidget()
         clipboard->setText(text, QClipboard::Selection);
         clipboard->setText(text, QClipboard::Clipboard);
     });
+
+    connect(treeView, &QTreeView::expanded, &model, &ToolTipModel::expandNode);
+    connect(treeView, &QTreeView::collapsed, &model, &ToolTipModel::collapseNode);
+
+    connect(treeView, &QTreeView::collapsed, this, &DebuggerToolTipWidget::computeSize,
+        Qt::QueuedConnection);
+    connect(treeView, &QTreeView::expanded, this, &DebuggerToolTipWidget::computeSize,
+        Qt::QueuedConnection);
     DEBUG("CREATE DEBUGGERTOOLTIP WIDGET");
+}
+
+void DebuggerToolTipWidget::computeSize()
+{
+    int columns = 30; // Decoration
+    int rows = 0;
+    bool rootDecorated = false;
+
+    reexpand(model.index(0, 0, QModelIndex()));
+    const int columnCount = model.columnCount(QModelIndex());
+    rootDecorated = model.rowCount() > 0;
+    if (rootDecorated) {
+        for (int i = 0; i < columnCount; ++i) {
+            treeView->resizeColumnToContents(i);
+            columns += treeView->sizeHintForColumn(i);
+        }
+    }
+    if (columns < 100)
+        columns = 100; // Prevent toolbar from shrinking when displaying 'Previous'
+    rows += treeView->computeHeight(QModelIndex());
+
+    // Fit tooltip to screen, showing/hiding scrollbars as needed.
+    // Add a bit of space to account for tooltip border, and not
+    // touch the border of the screen.
+    QPoint pos(x(), y());
+    QTC_ASSERT(QApplication::desktop(), return);
+    QRect desktopRect = QApplication::desktop()->availableGeometry(pos);
+    const int maxWidth = desktopRect.right() - pos.x() - 5 - 5;
+    const int maxHeight = desktopRect.bottom() - pos.y() - 5 - 5;
+
+    if (columns > maxWidth)
+        rows += treeView->horizontalScrollBar()->height();
+
+    if (rows > maxHeight) {
+        treeView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+        rows = maxHeight;
+        columns += treeView->verticalScrollBar()->width();
+    } else {
+        treeView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    }
+
+    if (columns > maxWidth) {
+        treeView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+        columns = maxWidth;
+    } else {
+        treeView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    }
+
+    treeView->m_size = QSize(columns + 5, rows + 5);
+    treeView->setMinimumSize(treeView->m_size);
+    treeView->setMaximumSize(treeView->m_size);
+    treeView->setRootIsDecorated(rootDecorated);
 }
 
 
@@ -645,7 +647,6 @@ public:
     QPointer<DebuggerToolTipWidget> widget;
     QDate creationDate;
     DebuggerToolTipContext context;
-
     DebuggerTooltipState state;
 };
 
@@ -788,7 +789,7 @@ DebuggerToolTipHolder::~DebuggerToolTipHolder()
 
 void DebuggerToolTipHolder::updateTooltip(DebuggerEngine *engine)
 {
-    widget->treeView->setEngine(engine);
+    widget->setEngine(engine);
 
     if (!engine) {
         setState(Released);
@@ -796,6 +797,7 @@ void DebuggerToolTipHolder::updateTooltip(DebuggerEngine *engine)
     }
 
     StackFrame frame = engine->stackHandler()->currentFrame();
+    WatchItem *item = engine->watchHandler()->findItem(context.iname);
 
     // FIXME: The engine should decide on whether it likes
     // the context.
@@ -806,14 +808,15 @@ void DebuggerToolTipHolder::updateTooltip(DebuggerEngine *engine)
           << "SHOW NEEDED: " << widget->isPinned
           << "SAME FRAME: " << sameFrame);
 
-
     if (state == PendingUnshown) {
         ToolTip::show(context.mousePosition, widget, Internal::mainWindow());
         setState(PendingShown);
     }
 
-    if (sameFrame) {
-        acquireEngine(engine);
+    if (item && sameFrame) {
+        setState(Acquired);
+        DEBUG("ACQUIRE ENGINE: STATE " << state);
+        widget->setContents(new ToolTipWatchItem(item));
     } else {
         releaseEngine();
     }
@@ -848,26 +851,6 @@ void DebuggerToolTipHolder::destroy()
     }
 }
 
-void DebuggerToolTipHolder::acquireEngine(DebuggerEngine *engine)
-{
-    DEBUG("ACQUIRE ENGINE: STATE " << state);
-    setState(Acquired);
-
-    QTC_ASSERT(widget, return);
-    widget->titleLabel->setText(context.expression);
-    //widget->treeView->setEnabled(true);
-    widget->treeView->m_model.m_enabled = true;
-
-    WatchItem *item = engine->watchHandler()->findItem(context.iname);
-    if (item) {
-        auto clone = new ToolTipWatchItem(item);
-        widget->treeView->m_model.rootItem()->removeChildren();
-        widget->treeView->m_model.rootItem()->appendChild(clone);
-    }
-    WatchTreeView::reexpand(widget->treeView, QModelIndex());
-    widget->treeView->computeSize();
-}
-
 void DebuggerToolTipHolder::releaseEngine()
 {
     if (state == Released)
@@ -876,8 +859,8 @@ void DebuggerToolTipHolder::releaseEngine()
     setState(Released);
 
     QTC_ASSERT(widget, return);
-    widget->treeView->m_model.m_enabled = false;
-    widget->treeView->m_model.layoutChanged();
+    widget->model.m_enabled = false;
+    widget->model.layoutChanged();
     widget->titleLabel->setText(DebuggerToolTipManager::tr("%1 (Previous)").arg(context.expression));
 //    widget->treeView->setEnabled(false);
 }
@@ -963,7 +946,7 @@ void DebuggerToolTipHolder::saveSessionData(QXmlStreamWriter &w) const
     w.writeAttributes(attributes);
 
     w.writeStartElement(QLatin1String(treeElementC));
-    widget->treeView->m_model.rootItem()->walkTree([&w](TreeItem *item) {
+    widget->model.rootItem()->walkTree([&w](TreeItem *item) {
         const QString modelItemElement = QLatin1String(modelItemElementC);
         for (int i = 0; i < 3; ++i) {
             const QString value = item->data(i, Qt::DisplayRole).toString();
@@ -1126,7 +1109,7 @@ void DebuggerToolTipManager::loadSessionData()
 
                 if (readTree) {
                     DebuggerToolTipHolder *tw = findOrCreateTooltip(context);
-                    tw->widget->treeView->m_model.restoreTreeModel(r);
+                    tw->widget->model.restoreTreeModel(r);
                     tw->widget->pin();
                     tw->widget->titleLabel->setText(DebuggerToolTipManager::tr("%1 (Restored)").arg(context.expression));
                     tw->widget->treeView->expandAll();

@@ -33,13 +33,16 @@
 
 #include "qmljs_global.h"
 #include "qmljsconstants.h"
-#include "parser/qmljsengine_p.h"
+#include "parser/qmljsastfwd_p.h"
 
-#include <QRegExp>
 #include <QString>
 #include <QList>
 
+QT_FORWARD_DECLARE_CLASS(QRegExp)
+
 namespace QmlJS {
+class DiagnosticMessage;
+
 namespace StaticAnalysis {
 
 enum Type

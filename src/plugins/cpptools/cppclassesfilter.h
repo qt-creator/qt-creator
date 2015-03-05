@@ -32,11 +32,11 @@
 #define CPPCLASSESFILTER_H
 
 #include "cpptools_global.h"
-#include "cpplocatordata.h"
 #include "cpplocatorfilter.h"
 
 
 namespace CppTools {
+class CppLocatorData;
 
 // TODO: un-export this
 class CPPTOOLS_EXPORT CppClassesFilter : public Internal::CppLocatorFilter

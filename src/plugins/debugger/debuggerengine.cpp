@@ -53,6 +53,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/messagebox.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
@@ -1175,6 +1176,38 @@ void DebuggerEngine::notifyInferiorExited()
     setState(InferiorShutdownOk);
     if (isMasterEngine())
         d->queueShutdownEngine();
+}
+
+void DebuggerEngine::notifyDebuggerProcessFinished(int exitCode,
+    QProcess::ExitStatus exitStatus, const QString &backendName)
+{
+    showMessage(_("%1 PROCESS FINISHED, status %2, exit code %3")
+                .arg(backendName).arg(exitStatus).arg(exitCode));
+
+    switch (state()) {
+    case DebuggerFinished:
+        // Nothing to do.
+        break;
+    case EngineShutdownRequested:
+        notifyEngineShutdownOk();
+        break;
+    case InferiorRunOk:
+        // This could either be a real gdb/lldb crash or a quickly exited inferior
+        // in the terminal adapter. In this case the stub proc will die soon,
+        // too, so there's no need to act here.
+        showMessage(_("The %1 process exited somewhat unexpectedly.").arg(backendName));
+        notifyEngineSpontaneousShutdown();
+        break;
+    default: {
+        notifyEngineIll(); // Initiate shutdown sequence
+        const QString msg = exitStatus == QProcess::CrashExit ?
+                tr("The %1 process terminated.") :
+                tr("The %2 process terminated unexpectedly (exitCode %1)").arg(exitCode);
+        AsynchronousMessageBox::critical(tr("Unexpected %1 Exit").arg(backendName),
+                                         msg.arg(backendName));
+        break;
+    }
+    }
 }
 
 void DebuggerEngine::slaveEngineStateChanged(DebuggerEngine *slaveEngine,

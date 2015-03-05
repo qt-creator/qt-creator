@@ -31,17 +31,18 @@
 #ifndef SEMANTICHIGHLIGHTER_H
 #define SEMANTICHIGHLIGHTER_H
 
-#include "cppsemanticinfo.h"
 #include "cpptools_global.h"
-
-#include <texteditor/textdocument.h>
-#include <texteditor/semantichighlighter.h>
 
 #include <QFutureWatcher>
 #include <QScopedPointer>
-#include <QTextEdit>
+#include <QTextCharFormat>
 
 #include <functional>
+
+namespace TextEditor {
+class HighlightingResult;
+class TextDocument;
+}
 
 namespace CppTools {
 

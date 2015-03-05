@@ -666,11 +666,23 @@ const QtInfo &QtInfo::get(const SymbolGroupValueContext &ctx)
             modulePattern != total; ++modulePattern) {
         const std::string pattern = *modulePattern + qstrdupSymbol;
         const StringList &allMatches = SymbolGroupValue::resolveSymbolName(pattern.c_str(), ctx);
-        const StringListConstIt match = *modulePattern == "*" ? allMatches.begin()
+        const bool wildcardPattern = *modulePattern == "*";
+        const StringListConstIt match = wildcardPattern
+                ? std::find_if(allMatches.begin(), allMatches.end(), SubStringPredicate("Core"))
                 : std::find_if(allMatches.begin(), allMatches.end(), SubStringPredicate(modulePattern->c_str()));
-        if (match == allMatches.end())
+
+        if (match != allMatches.end()) {
+            qualifiedSymbol = *match;
+        } else if (wildcardPattern && !allMatches.empty()) {
+            // Use the first qstrdup symbol if there is no Core in all available qstrdup symbols
+            // This is useful when qt is statically linked.
+            qualifiedSymbol = *allMatches.begin();
+        } else {
+            // If we haven't found a match and this isn't the wildcard pattern we continue
+            // we could still find a dynamic qt library with a libinfix
             continue;
-        qualifiedSymbol = *match;
+        }
+
         exclPos = qualifiedSymbol.find('!'); // Resolved: 'QtCored4!qstrdup'
         libPos = qualifiedSymbol.find("Core");
         if (exclPos != std::string::npos && libPos != std::string::npos)

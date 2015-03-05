@@ -42,6 +42,7 @@
 #include <coreplugin/editortoolbar.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/helpmanager.h>
@@ -67,6 +68,7 @@
 #include <QApplication>
 #include <QCursor>
 #include <QDockWidget>
+#include <QMenu>
 #include <QMessageBox>
 #include <QKeySequence>
 #include <QPrintDialog>

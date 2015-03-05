@@ -30,6 +30,7 @@
 
 #include "qmljstypedescriptionreader.h"
 
+#include "qmljsdocument.h"
 #include "parser/qmljsparser_p.h"
 #include "parser/qmljslexer_p.h"
 #include "parser/qmljsengine_p.h"

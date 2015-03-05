@@ -35,6 +35,7 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
+#include <QDebug>
 #include <QDir>
 #include <QTextStream>
 

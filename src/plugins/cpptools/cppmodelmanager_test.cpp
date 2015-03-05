@@ -28,6 +28,7 @@
 **
 ****************************************************************************/
 
+#include "baseeditordocumentprocessor.h"
 #include "builtineditordocumentparser.h"
 #include "cppsourceprocessor.h"
 #include "cpptoolsplugin.h"

@@ -40,6 +40,7 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsreformatter.h>
 #include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/parser/qmljsengine_p.h>
 
 #include <QtTest>
 #include <algorithm>

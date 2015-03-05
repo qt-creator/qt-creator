@@ -72,15 +72,8 @@ public:
 class DEBUGGER_EXPORT DebuggerStartParameters
 {
 public:
-    enum CommunicationChannel {
-        CommunicationChannelTcpIp,
-        CommunicationChannelUsb
-    };
-
     DebuggerStartParameters()
       : masterEngineType(NoEngineType),
-        firstSlaveEngineType(NoEngineType),
-        secondSlaveEngineType(NoEngineType),
         cppEngineType(NoEngineType),
         runConfiguration(0),
         isSnapshot(false),
@@ -97,16 +90,10 @@ public:
         startMode(NoStartMode),
         closeMode(KillAtClose),
         useCtrlCStub(false),
-        testReceiver(0),
-        testCallback(0),
         testCase(0)
     {}
 
-    //Core::Id profileId;
-
     DebuggerEngineType masterEngineType;
-    DebuggerEngineType firstSlaveEngineType;
-    DebuggerEngineType secondSlaveEngineType;
     DebuggerEngineType cppEngineType;
     QString sysRoot;
     QString deviceSymbolsRoot;
@@ -171,8 +158,6 @@ public:
     bool useCtrlCStub;
 
     // For Debugger testing.
-    QObject *testReceiver;
-    const char *testCallback;
     int testCase;
 };
 

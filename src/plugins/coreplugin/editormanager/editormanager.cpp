@@ -40,6 +40,7 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/openwithdialog.h>
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
@@ -68,6 +69,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
 #include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimetypes/mimetype.h>
 #include <utils/qtcassert.h>
 
 #include <QClipboard>

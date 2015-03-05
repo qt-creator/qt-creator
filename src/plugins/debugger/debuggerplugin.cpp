@@ -74,6 +74,7 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/coreconstants.h>
@@ -942,10 +943,12 @@ public slots:
     void handleOperateByInstructionTriggered(bool operateByInstructionTriggered)
     {
         // Go to source only if we have the file.
-        if (currentEngine()->stackHandler()->currentIndex() >= 0) {
-            const StackFrame frame = currentEngine()->stackHandler()->currentFrame();
-            if (operateByInstructionTriggered || frame.isUsable())
-                currentEngine()->gotoLocation(Location(frame, true));
+        if (DebuggerEngine *cppEngine = currentEngine()->cppEngine()) {
+            if (cppEngine->stackHandler()->currentIndex() >= 0) {
+                const StackFrame frame = cppEngine->stackHandler()->currentFrame();
+                if (operateByInstructionTriggered || frame.isUsable())
+                    cppEngine->gotoLocation(Location(frame, true));
+            }
         }
     }
 
@@ -2634,11 +2637,11 @@ void DebuggerPluginPrivate::extensionsInitialized()
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::attachCore);
 
     act = m_attachToRemoteServerAction = new QAction(this);
-    act->setText(tr("Attach to Remote Debug Server..."));
+    act->setText(tr("Attach to Running Debug Server..."));
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::attachToRemoteServer);
 
     act = m_startRemoteServerAction = new QAction(this);
-    act->setText(tr("Start Remote Debug Server Attached to Process..."));
+    act->setText(tr("Start Debug Server Attached to Process..."));
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::startRemoteServerAndAttachToProcess);
 
     act = m_attachToRunningApplication = new QAction(this);

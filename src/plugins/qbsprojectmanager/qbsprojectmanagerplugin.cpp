@@ -49,6 +49,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/featureprovider.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/fileiconprovider.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>

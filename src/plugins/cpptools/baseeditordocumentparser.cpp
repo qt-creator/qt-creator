@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "baseeditordocumentparser.h"
+#include "baseeditordocumentprocessor.h"
 
 #include "editordocumenthandle.h"
 

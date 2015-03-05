@@ -32,13 +32,11 @@
 #define IWIZARDFACTORY_H
 
 #include <coreplugin/core_global.h>
-#include <coreplugin/id.h>
 #include <coreplugin/featureprovider.h>
 
 #include <QIcon>
 #include <QObject>
 #include <QString>
-#include <QVariantMap>
 
 namespace Core {
 

@@ -32,6 +32,7 @@
 #include "qmljsbind.h"
 #include "qmljsevaluate.h"
 #include "qmljsmodelmanagerinterface.h"
+#include "parser/qmljsengine_p.h"
 
 using namespace QmlJS;
 

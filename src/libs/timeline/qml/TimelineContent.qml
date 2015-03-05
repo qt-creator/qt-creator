@@ -172,12 +172,11 @@ ScrollView {
                         if (modelData.endTime(selectedItem) < zoomer.rangeStart ||
                                 modelData.startTime(selectedItem) > zoomer.rangeEnd) {
 
-                            var newStart = (modelData.startTime(selectedItem) +
-                                            modelData.endTime(selectedItem) -
-                                            zoomer.rangeDuration) / 2;
-                            zoomer.setRange(Math.max(newStart, zoomer.traceStart),
-                                            Math.min(newStart + zoomer.rangeDuration,
-                                                     zoomer.traceEnd));
+                            var newStart = Math.max((modelData.startTime(selectedItem) +
+                                                     modelData.endTime(selectedItem) -
+                                                     zoomer.rangeDuration) / 2, zoomer.traceStart);
+                            zoomer.setRange(newStart,
+                                            Math.min(newStart + zoomer.rangeDuration, zoomer.traceEnd));
                         }
 
                         var row = modelData.row(selectedItem);

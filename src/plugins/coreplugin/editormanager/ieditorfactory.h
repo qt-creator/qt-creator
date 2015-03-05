@@ -31,7 +31,11 @@
 #ifndef IEDITORFACTORY_H
 #define IEDITORFACTORY_H
 
-#include <coreplugin/idocumentfactory.h>
+#include <coreplugin/core_global.h>
+#include <coreplugin/id.h>
+
+#include <QObject>
+#include <QStringList>
 
 namespace Core {
 

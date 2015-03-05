@@ -32,14 +32,13 @@
 #define IDOCUMENT_H
 
 #include "core_global.h"
-#include "id.h"
-
-#include <utils/fileutils.h>
 
 #include <QObject>
 
-namespace Core {
+namespace Utils { class FileName; }
 
+namespace Core {
+class Id;
 class InfoBar;
 
 namespace Internal {

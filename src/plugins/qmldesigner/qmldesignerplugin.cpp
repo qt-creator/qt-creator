@@ -40,6 +40,7 @@
 #include <qmljstools/qmljstoolsconstants.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/icore.h>

@@ -31,6 +31,9 @@
 
 #include "cpppointerdeclarationformatter.h"
 
+#include <cplusplus/Overview.h>
+
+#include <QDebug>
 #include <QTextCursor>
 
 #define DEBUG_OUTPUT 0

@@ -35,8 +35,6 @@
 
 #include <utils/styledbar.h>
 
-#include <QIcon>
-
 #include <functional>
 
 QT_BEGIN_NAMESPACE

@@ -147,9 +147,8 @@ void GdbTermEngine::handleStubAttached(const DebuggerResponse &response)
 
     switch (response.resultClass) {
     case ResultDone:
-        if (startParameters().toolChainAbi.os() != ProjectExplorer::Abi::WindowsOS) {
-            showMessage(_("INFERIOR ATTACHED"));
-        } else {
+    case ResultRunning:
+        if (startParameters().toolChainAbi.os() == ProjectExplorer::Abi::WindowsOS) {
             QString errorMessage;
             // Resume thread that was suspended by console stub process (see stub code).
             const qint64 mainThreadId = m_stubProc.applicationMainThreadID();
@@ -161,20 +160,13 @@ void GdbTermEngine::handleStubAttached(const DebuggerResponse &response)
                             arg(mainThreadId).arg(errorMessage),
                             LogWarning);
             }
-        }
-        if (state() == EngineRunRequested) {
-            // We will get a '*stopped' later that we'll interpret as 'spontaneous'
-            // So acknowledge the current state and put a delayed 'continue' in the pipe.
-            notifyEngineRunAndInferiorRunOk();
-        } else {
-            //postCommand("print 43", NoFlags, [this](const DebuggerResponse &) { continueInferiorInternal(); });
+            notifyEngineRunAndInferiorStopOk();
             continueInferiorInternal();
+        } else {
+            showMessage(_("INFERIOR ATTACHED AND RUNNING"));
+            //notifyEngineRunAndInferiorRunOk();
+            // Wait for the upcoming *stopped and handle it there.
         }
-        break;
-    case ResultRunning:
-        // Has anyone seen such a result lately?
-        showMessage(_("INFERIOR ATTACHED AND RUNNING"));
-        notifyEngineRunAndInferiorRunOk();
         break;
     case ResultError:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {

@@ -321,7 +321,7 @@ Rectangle {
     }
 
     SelectionRangeDetails {
-        z: 1
+        z: 3
         x: 200
         y: 125
 
@@ -347,7 +347,7 @@ Rectangle {
     RangeDetails {
         id: rangeDetails
 
-        z: 1
+        z: 3
         visible: false
         x: 200
         y: 25

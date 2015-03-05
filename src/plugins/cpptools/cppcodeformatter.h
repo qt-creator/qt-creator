@@ -36,7 +36,6 @@
 
 #include <texteditor/tabsettings.h>
 
-#include <cplusplus/Token.h>
 #include <cplusplus/SimpleLexer.h>
 
 #include <QStack>

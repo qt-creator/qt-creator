@@ -30,6 +30,7 @@
 
 #include "cppelementevaluator.h"
 
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/typehierarchybuilder.h>
 

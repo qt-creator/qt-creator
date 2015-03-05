@@ -31,10 +31,9 @@
 #ifndef CPPTOOLSTESTCASE_H
 #define CPPTOOLSTESTCASE_H
 
-#include "cppmodelmanager.h"
 #include "cpptools_global.h"
 
-#include <coreplugin/editormanager/ieditor.h>
+#include <cplusplus/CppDocument.h>
 
 #include <QStringList>
 #include <QTemporaryDir>
@@ -53,6 +52,9 @@ class IAssistProposal;
 }
 
 namespace CppTools {
+class CppModelManager;
+class ProjectInfo;
+
 namespace Tests {
 
 class CPPTOOLS_EXPORT TestDocument

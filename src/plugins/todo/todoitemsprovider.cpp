@@ -38,6 +38,7 @@
 
 #include <projectexplorer/projectexplorer.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/idocument.h>
 #include <projectexplorer/session.h>
 
 #include <QTimer>

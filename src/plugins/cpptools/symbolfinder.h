@@ -33,12 +33,19 @@
 
 #include "cpptools_global.h"
 
-#include <cplusplus/CppDocument.h>
-
 #include <QHash>
 #include <QStringList>
 #include <QMultiMap>
 #include <QSet>
+
+namespace CPlusPlus {
+class Class;
+class Declaration;
+class Function;
+class LookupContext;
+class Snapshot;
+class Symbol;
+}
 
 namespace CppTools {
 

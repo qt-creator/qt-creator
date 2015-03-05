@@ -33,8 +33,11 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/idocument.h>
 
+#include <QAction>
 #include <QLabel>
+#include <QMenu>
 #include <QImage>
 #include <QVBoxLayout>
 #include <QMouseEvent>

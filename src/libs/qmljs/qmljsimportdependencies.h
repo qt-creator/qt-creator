@@ -31,7 +31,7 @@
 #ifndef QMLJSIMPORTCACHE_H
 #define QMLJSIMPORTCACHE_H
 
-#include "qmljsviewercontext.h"
+#include "qmljsconstants.h"
 #include "qmljsdialect.h"
 
 #include <languageutils/componentversion.h>
@@ -52,6 +52,7 @@ QT_END_NAMESPACE
 
 namespace QmlJS {
 class ImportInfo;
+class ViewerContext;
 namespace Internal { class ImportDependenciesPrivate; }
 class ImportDependencies;
 

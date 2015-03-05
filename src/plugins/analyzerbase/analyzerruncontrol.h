@@ -35,19 +35,13 @@
 #include "analyzerbase_global.h"
 
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/task.h>
 
-#include "analyzerbase_global.h"
 #include "analyzerstartparameters.h"
 
-#include <projectexplorer/task.h>
-#include <projectexplorer/runconfiguration.h>
 #include <utils/outputformat.h>
 
 #include <QObject>
 #include <QString>
-
-namespace ProjectExplorer { class RunConfiguration; }
 
 namespace Analyzer {
 
@@ -105,6 +99,8 @@ signals:
     void starting(const Analyzer::AnalyzerRunControl *);
 
 private:
+    bool supportsReRunning() const { return false; }
+
     ProjectExplorer::RunConfiguration *m_runConfig;
     AnalyzerStartParameters m_sp;
 };

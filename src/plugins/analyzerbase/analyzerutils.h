@@ -33,15 +33,15 @@
 
 #include "analyzerbase_global.h"
 
-QT_BEGIN_NAMESPACE
-class QWidget;
-QT_END_NAMESPACE
+#include <projectexplorer/task.h>
 
 namespace CPlusPlus { class Symbol; }
 
 namespace AnalyzerUtils
 {
     ANALYZER_EXPORT CPlusPlus::Symbol *findSymbolUnderCursor();
+    ANALYZER_EXPORT void logToIssuesPane(ProjectExplorer::Task::TaskType type,
+                                         const QString &message);
 }
 
 #endif // ANALYZERUTILS_H

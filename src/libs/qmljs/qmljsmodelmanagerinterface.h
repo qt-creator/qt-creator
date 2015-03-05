@@ -33,25 +33,21 @@
 
 #include "qmljs_global.h"
 #include "qmljsbundle.h"
-#include "qmljsconstants.h"
 #include "qmljsdocument.h"
 #include "qmljsqrcparser.h"
-#include "qmljsviewercontext.h"
 #include "qmljsdialect.h"
 
 #include <cplusplus/CppDocument.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 
 #include <QFuture>
 #include <QFutureSynchronizer>
 #include <QHash>
-#include <QMultiHash>
 #include <QObject>
 #include <QPointer>
 #include <QStringList>
-#include <QStringList>
-#include <QTimer>
+
+QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace ProjectExplorer { class Project; }
 

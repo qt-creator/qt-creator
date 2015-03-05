@@ -1705,11 +1705,14 @@ bool CreateBindings::visit(Declaration *decl)
 
 bool CreateBindings::visit(Function *function)
 {
+    ClassOrNamespace *previous = _currentClassOrNamespace;
+    _currentClassOrNamespace = lookupType(function, previous);
     for (unsigned i = 0, count = function->memberCount(); i < count; ++i) {
         Symbol *s = function->memberAt(i);
         if (Block *b = s->asBlock())
             visit(b);
     }
+    _currentClassOrNamespace = previous;
     return false;
 }
 

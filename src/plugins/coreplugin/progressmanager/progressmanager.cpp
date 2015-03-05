@@ -33,6 +33,7 @@
 #include "progressbar.h"
 #include "progressview.h"
 #include "../actionmanager/actionmanager.h"
+#include "../actionmanager/command.h"
 #include "../icontext.h"
 #include "../coreconstants.h"
 #include "../icore.h"

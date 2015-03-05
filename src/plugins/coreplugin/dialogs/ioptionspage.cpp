@@ -35,6 +35,7 @@
 
 #include <QCheckBox>
 #include <QGroupBox>
+#include <QIcon>
 #include <QLabel>
 #include <QPushButton>
 
@@ -79,6 +80,11 @@
     Returns the category icon of the options page. This icon is displayed in the list on the left
     side of the \gui Options dialog.
 */
+
+QIcon Core::IOptionsPage::categoryIcon() const
+{
+    return QIcon(m_categoryIcon);
+}
 
 /*!
     \fn QWidget *IOptionsPage::widget()
@@ -182,4 +188,9 @@ bool Core::IOptionsPage::matches(const QString &searchKeyWord) const
         if (keyword.contains(searchKeyWord, Qt::CaseInsensitive))
             return true;
     return false;
+}
+
+QIcon Core::IOptionsPageProvider::categoryIcon() const
+{
+    return QIcon(m_categoryIcon);
 }

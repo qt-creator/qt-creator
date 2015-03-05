@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "findtoolbar.h"
+#include "icontext.h"
 #include "ifindfilter.h"
 #include "findplugin.h"
 
@@ -37,6 +38,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/findplaceholder.h>
 
 #include <extensionsystem/pluginmanager.h>

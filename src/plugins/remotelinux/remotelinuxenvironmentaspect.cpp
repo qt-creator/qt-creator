@@ -30,6 +30,7 @@
 
 #include "remotelinuxenvironmentaspect.h"
 
+#include "abstractremotelinuxrunconfiguration.h"
 #include "remotelinuxenvironmentaspectwidget.h"
 
 namespace RemoteLinux {

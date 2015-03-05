@@ -34,6 +34,7 @@
 
 #include <coreplugin/icore.h>
 #include <qmljs/qmljslink.h>
+#include <qmljs/qmljsvalueowner.h>
 #include <qmljstools/qmljsmodelmanager.h>
 
 #include <QtTest>

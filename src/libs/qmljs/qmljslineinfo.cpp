@@ -67,6 +67,7 @@
 */
 
 #include <qmljs/qmljslineinfo.h>
+#include <qmljs/qmljsscanner.h>
 
 using namespace QmlJS;
 

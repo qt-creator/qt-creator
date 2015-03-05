@@ -183,7 +183,7 @@ QVariant QnxBaseConfiguration::createDebuggerItem(QnxArchitecture arch,
     debugger.setAbi(Abi(arch == Qnx::ArmLeV7 ? Abi::ArmArchitecture : Abi::X86Architecture,
                         Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 32));
     debugger.setAutoDetected(true);
-    debugger.setDisplayName(displayName);
+    debugger.setUnexpandedDisplayName(displayName);
     return Debugger::DebuggerItemManager::registerDebugger(debugger);
 }
 

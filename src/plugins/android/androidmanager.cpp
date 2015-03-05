@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "androidmanager.h"
+#include "androidconstants.h"
 #include "androiddeployconfiguration.h"
 #include "androidconfigurations.h"
 #include "androidrunconfiguration.h"

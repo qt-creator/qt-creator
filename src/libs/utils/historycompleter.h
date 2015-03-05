@@ -51,6 +51,7 @@ public:
     static void setSettings(QSettings *settings);
     HistoryCompleter(const QString &historyKey, QObject *parent = 0);
     bool removeHistoryItem(int index);
+    QString historyItem() const;
 
 private:
     ~HistoryCompleter();

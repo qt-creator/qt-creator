@@ -36,6 +36,7 @@
 
 #include <utils/qtcassert.h>
 
+#include <QColor>
 #include <QDir>
 
 using namespace QmlJS;

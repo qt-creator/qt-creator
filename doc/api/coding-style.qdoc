@@ -59,7 +59,7 @@
     the philosophy behind Qt development. For more information about how to set up
     the development environment for working on Qt Creator and how to submit code
     and documentation for inclusion, see
-    \l{http://wiki.qt-project.org/index.php/Main_Page}{Guidelines for Contributions to the Qt Project}.
+    \l{https://wiki.qt.io/Qt_Contribution_Guidelines}{Qt Contribution Guidelines}.
 
     \section1 Binary and Source Compatibility
 
@@ -109,7 +109,7 @@
         \li Do not reimplement functions (not even inlines,
             nor protected or private functions).
         \li Check
-            \l {http://wiki.qt-project.org/index.php/Binary_Compatibility_Workarounds}{Binary Compatibility Workarounds}
+            \l {https://wiki.qt.io/Binary_Compatibility_Workarounds}{Binary Compatibility Workarounds}
             for ways to preserve binary compatibility.
     \endlist
 
@@ -640,7 +640,7 @@
     \target coding-rules-namespacing
     \section2 Namespacing
 
-    Read \l {http://wiki.qt-project.org/index.php/Qt_In_Namespace}{Qt In Namespace}
+    Read \l{https://wiki.qt.io/Qt_In_Namespace}{Qt In Namespace}
     and keep in mind that all of Qt Creator is \e{namespace aware} code.
 
     The namespacing policy within Qt Creator is as follows:

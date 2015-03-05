@@ -37,8 +37,7 @@
     (You can find the current version in our source repository here:
     \l{http://qt.gitorious.org/qt-creator/qt-creator/blobs/master/qtcreator.pro}.)
 
-    You can get prebuilt Qt packages from the
-    \l{https://download.qt-project.org/official_releases/qt/}{Qt Project download page}.
+    You can get prebuilt Qt packages from \l{https://download.qt.io}{Qt Downloads}.
     If you want to use Qt as provided by your Linux distribution, you need to make sure that all
     Qt development packages and private header packages are also installed.
 
@@ -48,7 +47,7 @@
     released source bundles, or from the Gitorious repository
     \l{http://qt.gitorious.org/qt-creator}. If you intend to contribute to \QC
     itself, you should use the repository from our Gerrit review tool as described
-    in the developer wiki here: \l{http://wiki.qt-project.org/Setting_up_Gerrit}.
+    in: \l{https://wiki.qt.io/Setting_up_Gerrit}{Setting up Gerrit}.
 
     We strongly encourage you to do out-of-source builds of \QC (also called
     shadow-builds).

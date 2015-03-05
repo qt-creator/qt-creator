@@ -85,7 +85,6 @@ private slots:
     void setFileSystemFriendlyName();
     void workingCopyWasUpdated(ProjectExplorer::Kit *k);
     void kitWasUpdated(ProjectExplorer::Kit *k);
-    void updateMutableState();
 
 private:
     enum LayoutColumns {

@@ -32,13 +32,14 @@
 #define CPPTOOLS_TYPEHIERARCHYBUILDER_H
 
 #include "cpptools_global.h"
-#include "cppmodelmanager.h"
 
+#include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
 
 #include <QList>
-#include <QStringList>
 #include <QSet>
+
+QT_FORWARD_DECLARE_CLASS(QStringList)
 
 namespace CppTools {
 

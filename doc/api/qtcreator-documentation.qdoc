@@ -131,7 +131,7 @@
     \section1 Writing Text
 
     Follow the guidelines for
-    \l{http://qt-project.org/wiki/Writing_Qt_Documentation}
+    \l{http://wiki.qt.io/Writing_Qt_Documentation}
     {writing Qt documentation}.
 
     The documentation must be grammatically correct English and use the standard

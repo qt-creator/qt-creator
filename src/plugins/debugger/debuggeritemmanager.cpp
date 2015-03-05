@@ -191,7 +191,7 @@ void DebuggerItemManager::autoDetectCdbDebuggers()
         item.setAbis(Abi::abisOfBinary(cdb));
         item.setCommand(cdb);
         item.setEngineType(CdbEngineType);
-        item.setDisplayName(uniqueDisplayName(tr("Auto-detected CDB at %1").arg(cdb.toUserOutput())));
+        item.setUnexpandedDisplayName(uniqueDisplayName(tr("Auto-detected CDB at %1").arg(cdb.toUserOutput())));
         addDebugger(item);
     }
 }
@@ -260,7 +260,7 @@ void DebuggerItemManager::autoDetectGdbOrLldbDebuggers()
         item.setCommand(command);
         item.reinitializeFromFile();
         //: %1: Debugger engine type (GDB, LLDB, CDB...), %2: Path
-        item.setDisplayName(tr("System %1 at %2")
+        item.setUnexpandedDisplayName(tr("System %1 at %2")
             .arg(item.engineTypeName()).arg(command.toUserOutput()));
         item.setAutoDetected(true);
         addDebugger(item);
@@ -299,7 +299,7 @@ void DebuggerItemManager::readLegacyDebuggers(const FileName &file)
         item.setCommand(command);
         item.setAutoDetected(true);
         item.reinitializeFromFile();
-        item.setDisplayName(tr("Extracted from Kit %1").arg(kitName));
+        item.setUnexpandedDisplayName(tr("Extracted from Kit %1").arg(kitName));
         addDebugger(item);
     }
 }
@@ -379,7 +379,7 @@ QVariant DebuggerItemManager::registerDebugger(const DebuggerItem &item)
         if (d.command() == item.command()
                 && d.isAutoDetected() == item.isAutoDetected()
                 && d.engineType() == item.engineType()
-                && d.displayName() == item.displayName()
+                && d.unexpandedDisplayName() == item.unexpandedDisplayName()
                 && d.abis() == item.abis()) {
             return d.id();
         }
@@ -407,7 +407,7 @@ void DebuggerItemManager::deregisterDebugger(const QVariant &id)
 QString DebuggerItemManager::uniqueDisplayName(const QString &base)
 {
     foreach (const DebuggerItem &item, m_debuggers)
-        if (item.displayName() == base)
+        if (item.unexpandedDisplayName() == base)
             return uniqueDisplayName(base + QLatin1String(" (1)"));
 
     return base;

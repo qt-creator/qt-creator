@@ -150,7 +150,7 @@ KitNode *KitModel::kitNode(const QModelIndex &index)
 QModelIndex KitModel::indexOf(Kit *k) const
 {
     KitNode *n = findWorkingCopy(k);
-    return indexFromItem(n);
+    return n ? indexFromItem(n) : QModelIndex();
 }
 
 void KitModel::setDefaultKit(const QModelIndex &index)
@@ -245,6 +245,9 @@ void KitModel::markForRemoval(Kit *k)
             newDefault = m_manualRoot->firstChild();
         setDefaultNode(static_cast<KitNode *>(newDefault));
     }
+
+    if (node == m_defaultNode)
+        setDefaultNode(findItemAtLevel<KitNode *>(2, [node](KitNode *kn) { return kn != node; }));
 
     removeItem(node);
     if (node->widget->configures(0))
@@ -353,8 +356,9 @@ void KitModel::removeKit(Kit *k)
         }
     }
 
-    if (m_defaultNode == node)
-        m_defaultNode = 0;
+    if (node == m_defaultNode)
+        setDefaultNode(findItemAtLevel<KitNode *>(2, [node](KitNode *kn) { return kn != node; }));
+
     removeItem(node);
     delete node;
 

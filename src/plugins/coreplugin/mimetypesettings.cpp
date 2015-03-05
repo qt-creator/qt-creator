@@ -514,9 +514,16 @@ MimeTypeSettingsPrivate::UserMimeTypeHash MimeTypeSettingsPrivate::readUserModif
                     QPair<int, int> range = rangeFromString(rangeString);
                     int priority = atts.value(QLatin1String(priorityAttributeC)).toString().toInt();
                     QByteArray mask = atts.value(QLatin1String(matchMaskAttributeC)).toLatin1();
+                    QString errorMessage;
                     Utils::Internal::MimeMagicRule rule(Utils::Internal::MimeMagicRule::type(typeName),
-                                                        value, range.first, range.second, mask);
-                    mt.rules[priority].append(rule);
+                                                        value, range.first, range.second, mask,
+                                                        &errorMessage);
+                    if (rule.isValid()) {
+                        mt.rules[priority].append(rule);
+                    } else {
+                        qWarning("Error reading magic rule in custom mime type %s: %s",
+                                 qPrintable(mt.name), qPrintable(errorMessage));
+                    }
                 }
                 break;
             case QXmlStreamReader::EndElement:

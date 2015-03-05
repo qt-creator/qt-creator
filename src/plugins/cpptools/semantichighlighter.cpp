@@ -29,13 +29,16 @@
 ****************************************************************************/
 
 #include "semantichighlighter.h"
+#include "cppsemanticinfo.h"
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/syntaxhighlighter.h>
+#include <texteditor/textdocument.h>
 
 #include <utils/qtcassert.h>
 
 #include <QLoggingCategory>
+#include <QTextDocument>
 
 using namespace CPlusPlus;
 using TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats;

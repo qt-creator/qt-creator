@@ -44,6 +44,7 @@
 #include <coreplugin/rightpane.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <projectexplorer/projectexplorer.h>
@@ -65,6 +66,7 @@
 #include <QVBoxLayout>
 #include <QDockWidget>
 #include <QAction>
+#include <QMenu>
 #include <QToolButton>
 #include <QComboBox>
 #include <QStackedWidget>

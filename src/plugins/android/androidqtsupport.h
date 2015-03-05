@@ -31,20 +31,19 @@
 #ifndef ANDROIDSUPPORT_H
 #define ANDROIDSUPPORT_H
 
+#include "android_global.h"
+
 #include <QObject>
 #include <QList>
 
-#include <projectexplorer/project.h>
-
-#include <utils/fileutils.h>
-
-#include "android_global.h"
-
 namespace ProjectExplorer {
-    class Target;
     class DeployConfiguration;
     class ProcessParameters;
+    class Project;
+    class Target;
 }
+
+namespace Utils { class FileName; }
 
 namespace Android {
 
