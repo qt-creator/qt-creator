@@ -128,7 +128,7 @@ const char QNX_BLACKBERRY_DEFAULT_DEPLOY_QT_BASEPATH[] = "/accounts/devuser/";
 
 const char QNX_OK_ICON[] = ":/qnx/images/ok.png";
 
-const char QNX_BLACKBERRY_SETUP_URL[] = "http://qt-project.org/wiki/Qt-Creator-with-BlackBerry-10";
+const char QNX_BLACKBERRY_SETUP_URL[] = "http://wiki.qt.io/Qt_Creator_with_BlackBerry_10";
 const char QNX_LEGACY_KEYS_URL[] = "https://developer.blackberry.com/native/documentation/core"
         "/com.qnx.doc.ide.userguide/topic/signing_and_publishing.html";
 const char QNX_REGISTER_KEYS_URL[] = "https://www.blackberry.com/SignedKeys/codesigning.html";

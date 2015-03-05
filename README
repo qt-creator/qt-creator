@@ -43,7 +43,7 @@ versions of Qt and Qt Creator on Windows. Alternatively, to avoid having to
 compile Qt yourself, you can use one of the versions of Qt shipped with the Qt
 SDK (release builds of Qt using MinGW and Visual C++ 2010 or later).
 For detailed information on the supported compilers, see
-http://qt-project.org/wiki/Building_Qt_5_from_Git .
+http://wiki.qt.io/Building_Qt_5_from_Git .
 
    1.  Decide which compiler to use: MinGW or Microsoft Visual Studio. If you
        plan to contribute to Qt Creator, you should compile your changes with
@@ -75,7 +75,7 @@ http://qt-project.org/wiki/Building_Qt_5_from_Git .
        directory.
 
    7.  Install a compiler:
-       - For a MinGW toolchain for Qt, see http://qt-project.org/wiki/MinGW .
+       - For a MinGW toolchain for Qt, see http://wiki.qt.io/MinGW .
 
        - For Microsoft Visual C++, install the Windows SDK and the "Debugging
          Tools for Windows" from the SDK image. We strongly recommend using the
@@ -122,7 +122,7 @@ http://qt-project.org/wiki/Building_Qt_5_from_Git .
        You have to remove it from the path.
 
   10.  You are now ready to configure and build Qt and Qt Creator.
-       Please see http://qt-project.org/wiki/Building_Qt_5_from_Git for
+       Please see http://wiki.qt.io/Building_Qt_5_from_Git for
        recommended configure-options for Qt 5.
        To use MinGW, open the the shell prompt and enter:
 

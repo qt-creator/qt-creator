@@ -23,6 +23,6 @@
  <screenshots>
   <screenshot type="default" width="800" height="600">http://qt-project.org/uploads/image_upload/qtcreator-edit-mode.png</screenshot>
  </screenshots>
- <url type="homepage">https://qt-project.org/wiki/Category:Tools::QtCreator</url>
+ <url type="homepage">https://wiki.qt.io/Category:Tools::QtCreator</url>
  <project_group>Qt</project_group>
 </application>
