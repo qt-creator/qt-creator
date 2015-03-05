@@ -141,3 +141,16 @@ def qdump__CPlusPlus__Internal__PPToken(d, value):
     d.putValue(d.readMemory(data + offset, min(100, length)),
         Hex2EncodedLatin1)
     d.putPlainChildren(value)
+
+def qdump__ProString(d, value):
+    try:
+        s = value["m_string"]
+        data, size, alloc = d.stringData(s)
+        data += 2 * int(value["m_offset"])
+        size = int(value["m_length"])
+        s = d.readMemory(data, 2 * size)
+        d.putValue(s, Hex4EncodedLittleEndian)
+    except:
+        d.putEmptyValue()
+    d.putPlainChildren(value)
+
