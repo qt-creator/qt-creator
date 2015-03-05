@@ -52,6 +52,15 @@ enum { debug = 0 };
 
 #define EDEBUG(s) do { if (debug) qDebug() << s; } while (0)
 
+#define CHECK_STATE(s) \
+    do { \
+        if (state() != s) { \
+            showMessage(QString::fromLatin1("UNEXPECTED STATE: %1  WANTED: %2 IN %3:%4") \
+                .arg(state()).arg(s).arg(QLatin1String(__FILE__)).arg(__LINE__), LogError); \
+            QTC_ASSERT(false, qDebug() << state() << s); \
+        } \
+    } while (0)
+
 DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp,
                                    QString *errorMessage)
 {
@@ -497,8 +506,8 @@ void QmlCppEngine::slaveEngineStateChanged
             break;
         }
         case EngineSetupRequested: {
-            // set by queueSetupEngine()
-            QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
+            // Set by queueSetupEngine()
+            CHECK_STATE(EngineSetupRequested);
             break;
         }
         case EngineSetupFailed: {
@@ -511,8 +520,8 @@ void QmlCppEngine::slaveEngineStateChanged
             break;
         }
         case InferiorSetupRequested: {
-            // set by queueSetupInferior()
-            QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+            // Set by queueSetupInferior()
+            CHECK_STATE(InferiorSetupRequested);
             break;
         }
         case InferiorSetupFailed: {
@@ -539,20 +548,20 @@ void QmlCppEngine::slaveEngineStateChanged
             break;
         }
         case InferiorRunRequested: {
-            // might be set already by notifyInferiorRunRequested()
-            QTC_ASSERT(state() == InferiorRunRequested
-                       || state() == InferiorStopOk, qDebug() << state());
-            if (state() != InferiorRunRequested)
+            // Might be set already by notifyInferiorRunRequested()
+            if (state() != InferiorRunRequested) {
+                CHECK_STATE(InferiorStopOk);
                 notifyInferiorRunRequested();
+            }
             break;
         }
         case InferiorRunOk: {
-            QTC_ASSERT(state() == EngineRunRequested
-                       || state() == InferiorRunRequested, qDebug() << state());
             if (state() == EngineRunRequested)
                 notifyEngineRunAndInferiorRunOk();
             else if (state() == InferiorRunRequested)
                 notifyInferiorRunOk();
+            else
+                QTC_ASSERT(false, qDebug() << state());
 
             if (qmlEngine()->state() == InferiorStopOk) {
                 // track qml engine again
@@ -569,17 +578,14 @@ void QmlCppEngine::slaveEngineStateChanged
         }
         case InferiorStopRequested: {
             if (m_activeEngine == cppEngine()) {
-                // might be set by doInterruptInferior()
-                QTC_ASSERT(state() == InferiorStopRequested
-                           || state() == InferiorRunOk, qDebug() << state());
-                if (state() == InferiorRunOk)
+                if (state() == InferiorRunOk) {
                     setState(InferiorStopRequested);
+                } else {
+                    // Might be set by doInterruptInferior()
+                    CHECK_STATE(InferiorStopRequested);
+                }
             } else {
-                // we're debugging qml, but got an interrupt, or abort
-                QTC_ASSERT(state() == InferiorRunOk
-                          || state() == InferiorStopOk
-                           || state() == InferiorRunRequested, qDebug() << state());
-
+                // We're debugging qml, but got an interrupt, or abort
                 if (state() == InferiorRunOk) {
                     setState(InferiorStopRequested);
                 } else if (state() == InferiorStopOk) {
@@ -589,6 +595,8 @@ void QmlCppEngine::slaveEngineStateChanged
                 } else if (state() == InferiorRunRequested) {
                     notifyInferiorRunOk();
                     setState(InferiorStopRequested);
+                } else {
+                    QTC_ASSERT(false, qDebug() << state());
                 }
                 // now track cpp engine
                 setActiveEngine(m_cppEngine);
@@ -613,12 +621,6 @@ void QmlCppEngine::slaveEngineStateChanged
                     showStatusMessage(tr("C++ debugger activated"));
                     setActiveEngine(m_cppEngine);
                 }
-
-                QTC_ASSERT(state() == InferiorStopRequested
-                           || state() == InferiorRunRequested
-                           || state() == EngineRunRequested
-                           || state() == InferiorRunOk
-                           || state() == InferiorStopOk, qDebug() << state());
                 switch (state()) {
                 case InferiorStopRequested:
                     EDEBUG("... CPP ENGINE STOPPED EXPECTEDLY");
@@ -636,13 +638,14 @@ void QmlCppEngine::slaveEngineStateChanged
                     // can happen if qml engine was active
                     notifyInferiorRunFailed();
                 default:
+                    CHECK_STATE(InferiorStopOk);
                     break;
                 }
             }
             break;
         }
         case InferiorStopFailed: {
-            QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state());
+            CHECK_STATE(InferiorStopRequested);
             notifyInferiorStopFailed();
             break;
         }
@@ -653,16 +656,17 @@ void QmlCppEngine::slaveEngineStateChanged
             break;
         }
         case InferiorShutdownRequested: {
-            // might be set by queueShutdownInferior() already
-            QTC_ASSERT(state() == InferiorShutdownRequested
-                       || state() == InferiorStopOk, qDebug() << state());
-            if (state() == InferiorStopOk)
+            if (state() == InferiorStopOk) {
                 setState(InferiorShutdownRequested);
+            } else {
+                // might be set by queueShutdownInferior() already
+                CHECK_STATE(InferiorShutdownRequested);
+            }
             qmlEngine()->quitDebugger();
             break;
         }
         case InferiorShutdownFailed: {
-            QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
+            CHECK_STATE(InferiorShutdownRequested);
             notifyInferiorShutdownFailed();
             break;
         }
@@ -677,22 +681,22 @@ void QmlCppEngine::slaveEngineStateChanged
         }
         case EngineShutdownRequested: {
             // set by queueShutdownEngine()
-            QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
+            CHECK_STATE(EngineShutdownRequested);
             break;
         }
         case EngineShutdownFailed: {
-            QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
+            CHECK_STATE(EngineShutdownRequested);
             notifyEngineShutdownFailed();
             break;
         }
         case EngineShutdownOk: {
-            QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
+            CHECK_STATE(EngineShutdownRequested);
             notifyEngineShutdownOk();
             break;
         }
         case DebuggerFinished: {
             // set by queueFinishDebugger()
-            QTC_ASSERT(state() == DebuggerFinished, qDebug() << state());
+            CHECK_STATE(DebuggerFinished);
             break;
         }
         }
@@ -714,19 +718,17 @@ void QmlCppEngine::slaveEngineStateChanged
                     setActiveEngine(m_qmlEngine);
                 }
 
-                QTC_ASSERT(state() == InferiorRunOk
-                           || state() == InferiorStopRequested
-                           || state() == InferiorShutdownRequested, qDebug() << state());
-
                 if (state() == InferiorRunOk)
                     notifyInferiorSpontaneousStop();
                 else if (state() == InferiorStopRequested)
                     notifyInferiorStopOk();
+                else
+                    CHECK_STATE(InferiorShutdownRequested);
             }
 
         } else if (newState == InferiorRunOk) {
             if (m_activeEngine == qmlEngine()) {
-                QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
+                CHECK_STATE(InferiorRunRequested);
                 notifyInferiorRunOk();
             }
         }
