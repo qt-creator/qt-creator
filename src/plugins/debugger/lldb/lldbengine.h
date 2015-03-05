@@ -187,7 +187,6 @@ private:
 
     // FIXME: Make generic.
     int m_lastAgentId;
-    int m_lastToken;
     int m_continueAtNextSpontaneousStop;
     QMap<QPointer<DisassemblerAgent>, int> m_disassemblerAgents;
     QMap<QPointer<MemoryAgent>, int> m_memoryAgents;
