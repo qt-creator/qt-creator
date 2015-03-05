@@ -32,7 +32,6 @@
 #define ANDROIDMANAGER_H
 
 #include "android_global.h"
-#include <utils/fileutils.h>
 
 #include <QPair>
 #include <QObject>
@@ -42,6 +41,8 @@ namespace ProjectExplorer {
 class Kit;
 class Target;
 }
+
+namespace Utils { class FileName; }
 
 namespace Android {
 

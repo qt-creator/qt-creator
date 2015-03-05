@@ -31,8 +31,6 @@
 #ifndef REMOTELINUXENVIRONMENTASPECT_H
 #define REMOTELINUXENVIRONMENTASPECT_H
 
-#include "abstractremotelinuxrunconfiguration.h"
-
 #include "remotelinux_export.h"
 
 #include <projectexplorer/environmentaspect.h>

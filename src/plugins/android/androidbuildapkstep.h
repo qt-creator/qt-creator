@@ -34,7 +34,6 @@
 
 #include "android_global.h"
 #include <projectexplorer/abstractprocessstep.h>
-#include <qtsupport/baseqtversion.h>
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;

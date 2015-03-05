@@ -32,8 +32,6 @@
 #define ANDROIDRUNCONFIGURATION_H
 
 #include "android_global.h"
-#include "androidconstants.h"
-#include "androidconfigurations.h"
 
 #include <projectexplorer/runconfiguration.h>
 

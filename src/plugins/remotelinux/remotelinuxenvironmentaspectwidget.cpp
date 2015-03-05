@@ -30,6 +30,7 @@
 
 #include "remotelinuxenvironmentaspectwidget.h"
 
+#include "remotelinuxrunconfiguration.h"
 #include "remotelinuxenvironmentreader.h"
 
 #include <QCoreApplication>
