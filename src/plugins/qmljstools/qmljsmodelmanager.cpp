@@ -35,6 +35,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/documentmodel.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <cpptools/cppmodelmanager.h>

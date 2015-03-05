@@ -41,6 +41,7 @@
 
 #include <utils/fileutils.h>
 
+#include <cplusplus/Overview.h>
 #include <cplusplus/pp.h>
 
 #include <QDebug>

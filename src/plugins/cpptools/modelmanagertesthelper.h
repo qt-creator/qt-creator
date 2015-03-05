@@ -33,6 +33,8 @@
 
 #include "cppmodelmanager.h"
 
+#include <projectexplorer/project.h>
+
 #include <QObject>
 
 namespace CppTools {

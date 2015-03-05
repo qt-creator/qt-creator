@@ -30,11 +30,14 @@
 
 #include "insertionpointlocator.h"
 
+#include "cppprojectfile.h"
 #include "cpptoolsreuse.h"
 #include "symbolfinder.h"
 #include "cpptoolsconstants.h"
 
 #include <coreplugin/icore.h>
+
+#include <cplusplus/LookupContext.h>
 
 #include <utils/qtcassert.h>
 

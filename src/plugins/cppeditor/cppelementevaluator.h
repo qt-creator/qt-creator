@@ -35,6 +35,8 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/helpitem.h>
 
+#include <cplusplus/CppDocument.h>
+
 #include <QString>
 #include <QStringList>
 #include <QSharedPointer>

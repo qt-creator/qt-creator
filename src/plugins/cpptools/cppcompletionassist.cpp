@@ -59,6 +59,7 @@
 #include <cplusplus/Overview.h>
 #include <cplusplus/ResolveExpression.h>
 
+#include <QDirIterator>
 #include <QLatin1String>
 #include <QTextCursor>
 #include <QTextDocument>

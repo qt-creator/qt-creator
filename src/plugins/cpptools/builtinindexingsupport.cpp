@@ -40,6 +40,7 @@
 #include "searchsymbols.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/find/searchresultwindow.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <cplusplus/LookupContext.h>
@@ -47,6 +48,7 @@
 #include <utils/runextensions.h>
 
 #include <QCoreApplication>
+#include <QDir>
 #include <QElapsedTimer>
 
 using namespace CppTools;

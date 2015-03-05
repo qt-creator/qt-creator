@@ -31,6 +31,7 @@
 #include "cppmodelmanager.h"
 
 #include "abstracteditorsupport.h"
+#include "baseeditordocumentprocessor.h"
 #include "builtinindexingsupport.h"
 #include "cppcodemodelinspectordumper.h"
 #include "cppcodemodelsettings.h"
@@ -48,6 +49,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/textdocument.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <extensionsystem/pluginmanager.h>
@@ -56,6 +58,7 @@
 
 #include <QCoreApplication>
 #include <QDebug>
+#include <QDir>
 #include <QMutexLocker>
 #include <QTextBlock>
 #include <QTimer>

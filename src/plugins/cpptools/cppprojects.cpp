@@ -34,11 +34,14 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
+#include <QDir>
 #include <QSet>
 #include <QTextStream>
 

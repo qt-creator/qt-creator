@@ -33,13 +33,15 @@
 
 #include "cpptools_global.h"
 
-#include <cpptools/cppmodelmanager.h>
+#include <cpptools/cppprojects.h>
 #include <cplusplus/CppDocument.h>
 
 #include <QFile>
 #include <QTextStream>
 
 namespace CppTools {
+class WorkingCopy;
+
 namespace CppCodeModelInspector {
 
 struct CPPTOOLS_EXPORT Utils

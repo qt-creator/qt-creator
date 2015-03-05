@@ -39,6 +39,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <QTextDocument>
+
 using namespace CPlusPlus;
 
 namespace CppTools {

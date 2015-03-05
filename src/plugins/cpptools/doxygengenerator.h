@@ -35,7 +35,7 @@
 
 #include <cplusplus/Overview.h>
 
-#include <QTextCursor>
+QT_FORWARD_DECLARE_CLASS(QTextCursor)
 
 namespace CPlusPlus { class DeclarationAST; }
 

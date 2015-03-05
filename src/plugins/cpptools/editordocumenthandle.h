@@ -31,10 +31,10 @@
 #ifndef EDITORDOCUMENTHANDLE_H
 #define EDITORDOCUMENTHANDLE_H
 
-#include "baseeditordocumentprocessor.h"
 #include "cpptools_global.h"
 
 namespace CppTools {
+class BaseEditorDocumentProcessor;
 
 class CPPTOOLS_EXPORT CppEditorDocumentHandle
 {

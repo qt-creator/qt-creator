@@ -40,6 +40,7 @@
 #include <cpptools/cppworkingcopy.h>
 #include <cpptools/insertionpointlocator.h>
 #include <cpptools/symbolfinder.h>
+#include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>

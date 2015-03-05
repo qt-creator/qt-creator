@@ -34,6 +34,7 @@
 
 #include <cplusplus/CppDocument.h>
 #include <coreplugin/editormanager/documentmodel.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 

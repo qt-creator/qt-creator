@@ -35,7 +35,6 @@
 
 #include "cppprojectfile.h"
 
-#include <projectexplorer/project.h>
 #include <projectexplorer/toolchain.h>
 
 #include <cplusplus/Token.h>
@@ -45,7 +44,12 @@
 
 #include <functional>
 
+namespace ProjectExplorer { class Project; }
+
+namespace Utils { class FileName; }
+
 namespace CppTools {
+class ProjectFile;
 
 class CPPTOOLS_EXPORT ProjectPart
 {

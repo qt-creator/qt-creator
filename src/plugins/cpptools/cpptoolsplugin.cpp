@@ -56,6 +56,7 @@
 #include <coreplugin/jsexpander.h>
 #include <coreplugin/vcsmanager.h>
 #include <cppeditor/cppeditorconstants.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 
 #include <utils/fileutils.h>

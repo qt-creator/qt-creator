@@ -43,6 +43,7 @@
 
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/CppRewriter.h>
+#include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
 
 #include <utils/proxyaction.h>

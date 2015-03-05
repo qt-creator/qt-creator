@@ -30,6 +30,8 @@
 
 #include "cppeditortestcase.h"
 
+#include <cpptools/cppprojects.h>
+
 #include <QByteArray>
 #include <QList>
 #include <QSharedPointer>

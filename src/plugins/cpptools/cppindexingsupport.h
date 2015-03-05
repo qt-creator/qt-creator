@@ -35,11 +35,12 @@
 
 #include "cppmodelmanager.h"
 
-#include <coreplugin/find/searchresultwindow.h>
 #include <coreplugin/find/textfindconstants.h>
 
 #include <QFuture>
 #include <QStringList>
+
+namespace Core { class SearchResultItem; }
 
 namespace CppTools {
 

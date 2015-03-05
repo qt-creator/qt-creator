@@ -36,6 +36,7 @@
 #include "searchsymbols.h"
 
 #include <coreplugin/testdatadir.h>
+#include <coreplugin/find/searchresultwindow.h>
 #include <utils/runextensions.h>
 
 #include <QtTest>

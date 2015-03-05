@@ -32,11 +32,10 @@
 #define CPPREFACTORINGCHANGES_H
 
 #include "cpptools_global.h"
-#include "cppmodelmanager.h"
+
+#include <cplusplus/CppDocument.h>
 
 #include <texteditor/refactoringchanges.h>
-
-#include <cplusplus/LookupContext.h>
 
 namespace CppTools {
 

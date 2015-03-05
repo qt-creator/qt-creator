@@ -33,6 +33,7 @@
 #include "cppeditorconstants.h"
 #include "cppeditor.h"
 
+#include <cpptools/cppmodelmanager.h>
 #include <texteditor/textdocument.h>
 
 #include <cplusplus/ASTPath.h>
