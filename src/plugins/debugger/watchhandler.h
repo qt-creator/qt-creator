@@ -239,7 +239,7 @@ public:
     void insertData(const WatchData &data); // Convenience.
     void insertData(const QList<WatchData> &list);
     void insertIncompleteData(const WatchData &data);
-    void insertItem(WatchItem *item);
+    void insertItem(WatchItem *item); // Takes ownership.
     void removeData(const QByteArray &iname);
     void removeChildren(const QByteArray &iname);
     void removeAllData(bool includeInspectData = false);

@@ -903,7 +903,6 @@ void GdbEngine::postCommand(const QByteArray &command, int flags,
                       << "INCREMENTS PENDING TO" << m_pendingBreakpointRequests);
     } else {
         PENDING_DEBUG("   OTHER (IN):" << cmd.function
-                      << "LEAVES PENDING WATCH AT" << m_uncompleted.size()
                       << "LEAVES PENDING BREAKPOINT AT" << m_pendingBreakpointRequests);
     }
 
@@ -1189,15 +1188,13 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
 
     if (cmd.flags & RebuildBreakpointModel) {
         --m_pendingBreakpointRequests;
-        PENDING_DEBUG("   BREAKPOINT" << cmd.function
-                      << "DECREMENTS PENDING TO" << m_uncompleted.size());
+        PENDING_DEBUG("   BREAKPOINT" << cmd.function);
         if (m_pendingBreakpointRequests <= 0) {
             PENDING_DEBUG("\n\n ... AND TRIGGERS BREAKPOINT MODEL UPDATE\n");
             attemptBreakpointSynchronization();
         }
     } else {
         PENDING_DEBUG("   OTHER (OUT):" << cmd.function
-                      << "LEAVES PENDING WATCH AT" << m_uncompleted.size()
                       << "LEAVES PENDING BREAKPOINT AT" << m_pendingBreakpointRequests);
     }
 
@@ -3740,13 +3737,13 @@ void GdbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &f
     QByteArray processedName = "1-" + data.iname;
     //qDebug() << "PROCESSED NAMES: " << processedName << m_processedNames;
     if (m_processedNames.contains(processedName)) {
-        WatchData data1 = data;
-        showMessage(_("<Breaking endless loop for " + data.iname + '>'),
-            LogMiscInput);
-        data1.setAllUnneeded();
-        data1.setValue(_("<unavailable>"));
-        data1.setHasChildren(false);
-        insertData(data1);
+        showMessage(_("<Breaking endless loop for " + data.iname + '>'), LogMiscInput);
+        auto item = new WatchItem(data);
+        item->d.setAllUnneeded();
+        item->d.setValue(_("<unavailable>"));
+        item->d.setHasChildren(false);
+        watchHandler()->insertItem(item);
+        rebuildWatchModel();
         return;
     }
     m_processedNames.insert(processedName);
@@ -3765,8 +3762,6 @@ void GdbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &f
 
 void GdbEngine::rebuildWatchModel()
 {
-    QTC_CHECK(m_completed.isEmpty());
-    QTC_CHECK(m_uncompleted.isEmpty());
     static int count = 0;
     ++count;
     PENDING_DEBUG("REBUILDING MODEL" << count);
@@ -3789,25 +3784,6 @@ void GdbEngine::updateLocals()
 {
     watchHandler()->resetValueCache();
     updateLocalsPython(UpdateParameters());
-}
-
-void GdbEngine::insertData(const WatchData &data)
-{
-    PENDING_DEBUG("INSERT DATA" << data.toString());
-    if (data.isSomethingNeeded()) {
-        m_uncompleted.insert(data.iname);
-        WatchUpdateFlags flags;
-        flags.tryIncremental = true;
-        updateWatchData(data, flags);
-    } else {
-        m_completed.append(data);
-        m_uncompleted.remove(data.iname);
-        if (m_uncompleted.isEmpty()) {
-            watchHandler()->insertData(m_completed);
-            m_completed.clear();
-            rebuildWatchModel();
-        }
-    }
 }
 
 void GdbEngine::assignValueInDebugger(const WatchData *data,

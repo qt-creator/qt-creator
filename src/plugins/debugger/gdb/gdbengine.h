@@ -403,8 +403,6 @@ protected:
     void rebuildWatchModel();
     void showToolTip();
 
-    void insertData(const WatchData &data);
-
     void handleVarAssign(const DebuggerResponse &response);
     void handleDetach(const DebuggerResponse &response);
     void handleThreadGroupCreated(const GdbMi &result);
@@ -473,10 +471,6 @@ protected:
     bool attemptQuickStart() const;
     bool m_fullStartDone;
     bool m_systemDumpersLoaded;
-
-    // Test
-    QList<WatchData> m_completed;
-    QSet<QByteArray> m_uncompleted;
 
     static QString msgGdbStopFailed(const QString &why);
     static QString msgInferiorStopFailed(const QString &why);
