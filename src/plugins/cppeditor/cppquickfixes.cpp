@@ -5592,6 +5592,7 @@ Class *senderOrReceiverClass(const CppQuickFixInterface &interface,
         objectPointerExpression = "this";
 
     TypeOfExpression toe;
+    toe.setExpandTemplates(true);
     toe.init(interface.semanticInfo().doc, interface.snapshot(), context.bindings());
     const QList<LookupItem> objectPointerExpressions = toe(objectPointerExpression,
                                                            objectPointerScope, TypeOfExpression::Preprocess);
