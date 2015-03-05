@@ -1139,6 +1139,8 @@ void DebuggerEngine::notifyEngineIll()
             interruptInferior();
             break;
         case InferiorStopRequested:
+            notifyInferiorStopFailed();
+            break;
         case InferiorStopOk:
             showMessage(_("FORWARDING STATE TO InferiorShutdownFailed"));
             setState(InferiorShutdownFailed, true);

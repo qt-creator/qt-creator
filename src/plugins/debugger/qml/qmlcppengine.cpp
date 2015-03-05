@@ -492,6 +492,11 @@ void QmlCppEngine::slaveEngineStateChanged
         EDEBUG("  COMBINED ENGINE: " << this << state() << isDying());
     }
 
+    if (state() == DebuggerFinished) {
+        // We are done and don't care about slave state changes anymore.
+        return;
+    }
+
     // Idea is to follow the state of the cpp engine, except where we are stepping in QML.
     // That is, when the QmlEngine moves between InferiorStopOk, and InferiorRunOk, InferiorStopOk ...
     //
