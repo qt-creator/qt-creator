@@ -166,7 +166,7 @@ SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, const QList<Error>
 
     m_suppressionEdit->setPlainText(suppressions);
 
-    connect(m_fileChooser, static_cast<void (Utils::PathChooser:: *)()>(&Utils::PathChooser::validChanged),
+    connect(m_fileChooser, &Utils::PathChooser::validChanged,
             this, &SuppressionDialog::validate);
     connect(m_suppressionEdit->document(), &QTextDocument::contentsChanged,
             this, &SuppressionDialog::validate);

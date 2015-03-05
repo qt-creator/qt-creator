@@ -135,7 +135,7 @@ PathListEditor::PathListEditor(QWidget *parent) :
     d->toolButton->setPopupMode(QToolButton::MenuButtonPopup);
     d->toolButton->setText(tr("Insert..."));
     d->toolButton->setMenu(d->buttonMenu);
-    connect(d->toolButton, SIGNAL(clicked()), this, SLOT(slotInsert()));
+    connect(d->toolButton, &QAbstractButton::clicked, this, &PathListEditor::slotInsert);
 
     addAction(tr("Add..."), this, SLOT(slotAdd()));
     addAction(tr("Delete Line"), this, SLOT(deletePathAtCursor()));
@@ -255,7 +255,9 @@ void PathListEditor::addEnvVariableImportAction(const QString &var)
 {
     if (!d->envVarMapper) {
         d->envVarMapper = new QSignalMapper(this);
-        connect(d->envVarMapper, SIGNAL(mapped(QString)), this, SLOT(setPathListFromEnvVariable(QString)));
+        connect(d->envVarMapper,
+                static_cast<void (QSignalMapper::*)(const QString &)>(&QSignalMapper::mapped),
+                this, &PathListEditor::setPathListFromEnvVariable);
     }
 
     QAction *a = insertAction(lastAddActionIndex() + 1,

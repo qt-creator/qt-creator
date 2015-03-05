@@ -83,14 +83,18 @@ public:
             QFutureWatcher<R> *watcher = new QFutureWatcher<R>();
             watchers.insert(object, watcher);
             finished.insert(watcher, false);
-            connect(watcher, SIGNAL(finished()), this, SLOT(setFinished()));
-            connect(watcher, SIGNAL(progressRangeChanged(int,int)), this, SLOT(setProgressRange(int,int)));
-            connect(watcher, SIGNAL(progressValueChanged(int)), this, SLOT(setProgressValue(int)));
-            connect(watcher, SIGNAL(progressTextChanged(QString)), this, SLOT(setProgressText(QString)));
+            connect(watcher, &QFutureWatcherBase::finished,
+                    this, &MultiTask::setFinished);
+            connect(watcher, &QFutureWatcherBase::progressRangeChanged,
+                    this, &MultiTask::setProgressRange);
+            connect(watcher, &QFutureWatcherBase::progressValueChanged,
+                    this, &MultiTask::setProgressValue);
+            connect(watcher, &QFutureWatcherBase::progressTextChanged,
+                    this, &MultiTask::setProgressText);
             watcher->setFuture(QtConcurrent::run(fn, object));
         }
         selfWatcher = new QFutureWatcher<R>();
-        connect(selfWatcher, SIGNAL(canceled()), this, SLOT(cancelSelf()));
+        connect(selfWatcher, &QFutureWatcherBase::canceled, this, &MultiTask::cancelSelf);
         selfWatcher->setFuture(futureInterface.future());
         loop = new QEventLoop;
         loop->exec();

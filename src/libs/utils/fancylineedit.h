@@ -156,7 +156,6 @@ signals:
 
     void filterChanged(const QString &);
 
-    void validChanged();
     void validChanged(bool validState);
     void validReturnPressed();
 

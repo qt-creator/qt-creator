@@ -39,7 +39,7 @@ ProxyAction::ProxyAction(QObject *parent) :
     m_showShortcut(false),
     m_block(false)
 {
-    connect(this, SIGNAL(changed()), this, SLOT(updateToolTipWithKeySequence()));
+    connect(this, &QAction::changed, this, &ProxyAction::updateToolTipWithKeySequence);
     updateState();
 }
 
@@ -68,18 +68,18 @@ void ProxyAction::updateState()
 void ProxyAction::disconnectAction()
 {
     if (m_action) {
-        disconnect(m_action, SIGNAL(changed()), this, SLOT(actionChanged()));
-        disconnect(this, SIGNAL(triggered(bool)), m_action, SIGNAL(triggered(bool)));
-        disconnect(this, SIGNAL(toggled(bool)), m_action, SLOT(setChecked(bool)));
+        disconnect(m_action.data(), &QAction::changed, this, &ProxyAction::actionChanged);
+        disconnect(this, &QAction::triggered, m_action.data(), &QAction::triggered);
+        disconnect(this, &QAction::toggled, m_action.data(), &QAction::setChecked);
     }
 }
 
 void ProxyAction::connectAction()
 {
     if (m_action) {
-        connect(m_action, SIGNAL(changed()), this, SLOT(actionChanged()));
-        connect(this, SIGNAL(triggered(bool)), m_action, SIGNAL(triggered(bool)));
-        connect(this, SIGNAL(toggled(bool)), m_action, SLOT(setChecked(bool)));
+        connect(m_action.data(), &QAction::changed, this, &ProxyAction::actionChanged);
+        connect(this, &QAction::triggered, m_action.data(), &QAction::triggered);
+        connect(this, &ProxyAction::toggled, m_action.data(), &QAction::setChecked);
     }
 }
 
@@ -120,7 +120,7 @@ void ProxyAction::update(QAction *action, bool initialize)
     if (!action)
         return;
     disconnectAction();
-    disconnect(this, SIGNAL(changed()), this, SLOT(updateToolTipWithKeySequence()));
+    disconnect(this, &QAction::changed, this, &ProxyAction::updateToolTipWithKeySequence);
     if (initialize) {
         setSeparator(action->isSeparator());
         setMenuRole(action->menuRole());
@@ -146,7 +146,7 @@ void ProxyAction::update(QAction *action, bool initialize)
         setVisible(action->isVisible());
     }
     connectAction();
-    connect(this, SIGNAL(changed()), this, SLOT(updateToolTipWithKeySequence()));
+    connect(this, &QAction::changed, this, &ProxyAction::updateToolTipWithKeySequence);
 }
 
 bool ProxyAction::shortcutVisibleInToolTip() const

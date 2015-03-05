@@ -93,12 +93,19 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     d->m_ui.projectComboBox->setVisible(d->m_forceSubProject);
     d->m_ui.pathChooser->setDisabled(d->m_forceSubProject);
     d->m_ui.projectsDirectoryCheckBox->setDisabled(d->m_forceSubProject);
-    connect(d->m_ui.pathChooser, SIGNAL(changed(QString)), this, SLOT(slotChanged()));
-    connect(d->m_ui.nameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(slotChanged()));
-    connect(d->m_ui.pathChooser, SIGNAL(validChanged()), this, SLOT(slotChanged()));
-    connect(d->m_ui.pathChooser, SIGNAL(returnPressed()), this, SLOT(slotActivated()));
-    connect(d->m_ui.nameLineEdit, SIGNAL(validReturnPressed()), this, SLOT(slotActivated()));
-    connect(d->m_ui.projectComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(slotChanged()));
+    connect(d->m_ui.pathChooser, &PathChooser::changed,
+            this, &ProjectIntroPage::slotChanged);
+    connect(d->m_ui.nameLineEdit, &QLineEdit::textChanged,
+            this, &ProjectIntroPage::slotChanged);
+    connect(d->m_ui.pathChooser, &PathChooser::validChanged,
+            this, &ProjectIntroPage::slotChanged);
+    connect(d->m_ui.pathChooser, &PathChooser::returnPressed,
+            this, &ProjectIntroPage::slotActivated);
+    connect(d->m_ui.nameLineEdit, &FancyLineEdit::validReturnPressed,
+            this, &ProjectIntroPage::slotActivated);
+    connect(d->m_ui.projectComboBox,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &ProjectIntroPage::slotChanged);
 
     setProperty(SHORT_TITLE_PROPERTY, tr("Location"));
     registerFieldWithName(QLatin1String("Path"), d->m_ui.pathChooser, "path", SIGNAL(pathChanged(QString)));

@@ -133,7 +133,7 @@ QtColorButton::QtColorButton(QWidget *parent)
 
     setAcceptDrops(true);
 
-    connect(this, SIGNAL(clicked()), d_ptr, SLOT(slotEditColor()));
+    connect(this, &QtColorButton::clicked, d_ptr, &QtColorButtonPrivate::slotEditColor);
     setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
 }
 

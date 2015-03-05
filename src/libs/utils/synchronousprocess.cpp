@@ -249,13 +249,16 @@ SynchronousProcess::SynchronousProcess() :
     d(new SynchronousProcessPrivate)
 {
     d->m_timer.setInterval(1000);
-    connect(&d->m_timer, SIGNAL(timeout()), this, SLOT(slotTimeout()));
-    connect(&d->m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished(int,QProcess::ExitStatus)));
-    connect(&d->m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(error(QProcess::ProcessError)));
-    connect(&d->m_process, SIGNAL(readyReadStandardOutput()),
-            this, SLOT(stdOutReady()));
-    connect(&d->m_process, SIGNAL(readyReadStandardError()),
-            this, SLOT(stdErrReady()));
+    connect(&d->m_timer, &QTimer::timeout, this, &SynchronousProcess::slotTimeout);
+    connect(&d->m_process,
+            static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+            this, &SynchronousProcess::finished);
+    connect(&d->m_process, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+            this, &SynchronousProcess::error);
+    connect(&d->m_process, &QProcess::readyReadStandardOutput,
+            this, &SynchronousProcess::stdOutReady);
+    connect(&d->m_process, &QProcess::readyReadStandardError,
+            this, &SynchronousProcess::stdErrReady);
 }
 
 SynchronousProcess::~SynchronousProcess()

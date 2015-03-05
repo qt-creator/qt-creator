@@ -209,12 +209,12 @@ DetailsWidget::DetailsWidget(QWidget *parent) :
 
     setUseCheckBox(false);
 
-    connect(d->m_detailsButton, SIGNAL(toggled(bool)),
-            this, SLOT(setExpanded(bool)));
-    connect(d->m_summaryCheckBox, SIGNAL(toggled(bool)),
-            this, SIGNAL(checked(bool)));
-    connect(d->m_summaryLabel, SIGNAL(linkActivated(QString)),
-            this, SIGNAL(linkActivated(QString)));
+    connect(d->m_detailsButton, &QAbstractButton::toggled,
+            this, &DetailsWidget::setExpanded);
+    connect(d->m_summaryCheckBox, &QAbstractButton::toggled,
+            this, &DetailsWidget::checked);
+    connect(d->m_summaryLabel, &QLabel::linkActivated,
+            this, &DetailsWidget::linkActivated);
     d->updateControls();
 }
 

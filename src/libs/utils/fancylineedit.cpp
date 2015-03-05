@@ -165,9 +165,9 @@ FancyLineEdit::FancyLineEdit(QWidget *parent) :
     ensurePolished();
     updateMargins();
 
-    connect(d->m_iconbutton[Left], SIGNAL(clicked()), this, SLOT(iconClicked()));
-    connect(d->m_iconbutton[Right], SIGNAL(clicked()), this, SLOT(iconClicked()));
-    connect(this, SIGNAL(textChanged(QString)), this, SLOT(onTextChanged(QString)));
+    connect(d->m_iconbutton[Left], &QAbstractButton::clicked, this, &FancyLineEdit::iconClicked);
+    connect(d->m_iconbutton[Right], &QAbstractButton::clicked, this, &FancyLineEdit::iconClicked);
+    connect(this, &QLineEdit::textChanged, this, &FancyLineEdit::onTextChanged);
 }
 
 FancyLineEdit::~FancyLineEdit()
@@ -316,8 +316,8 @@ void FancyLineEdit::setHistoryCompleter(const QString &historyKey, bool restoreL
     // being emitted and more updates finally calling setText() (again).
     // To make sure we report the "final" content delay the addEntry()
     // "a bit".
-    connect(this, SIGNAL(editingFinished()),
-            this, SLOT(onEditingFinished()), Qt::QueuedConnection);
+    connect(this, &QLineEdit::editingFinished,
+            this, &FancyLineEdit::onEditingFinished, Qt::QueuedConnection);
 }
 
 void FancyLineEdit::onEditingFinished()
@@ -371,9 +371,9 @@ void FancyLineEdit::setFiltering(bool on)
         setPlaceholderText(tr("Filter"));
         setButtonToolTip(Right, tr("Clear text"));
         setAutoHideButton(Right, true);
-        connect(this, SIGNAL(rightButtonClicked()), this, SLOT(clear()));
+        connect(this, &FancyLineEdit::rightButtonClicked, this, &QLineEdit::clear);
     } else {
-        disconnect(this, SIGNAL(rightButtonClicked()), this, SLOT(clear()));
+        disconnect(this, &FancyLineEdit::rightButtonClicked, this, &QLineEdit::clear);
     }
 }
 
@@ -462,10 +462,8 @@ void FancyLineEdit::onTextChanged(const QString &t)
         d->m_state = newState;
         d->m_firstChange = false;
         setTextColor(this, newState == Invalid ? d->m_errorTextColor : d->m_okTextColor);
-        if (validHasChanged) {
+        if (validHasChanged)
             emit validChanged(newState == Valid);
-            emit validChanged();
-        }
     }
     bool block = blockSignals(true);
     const QString fixedString = fixInputString(t);

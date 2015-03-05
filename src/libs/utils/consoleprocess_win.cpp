@@ -58,7 +58,8 @@ ConsoleProcessPrivate::ConsoleProcessPrivate() :
 ConsoleProcess::ConsoleProcess(QObject *parent) :
     QObject(parent), d(new ConsoleProcessPrivate)
 {
-    connect(&d->m_stubServer, SIGNAL(newConnection()), SLOT(stubConnectionAvailable()));
+    connect(&d->m_stubServer, &QLocalServer::newConnection,
+            this, &ConsoleProcess::stubConnectionAvailable);
 }
 
 qint64 ConsoleProcess::applicationMainThreadID() const
@@ -156,7 +157,8 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
     }
 
     d->processFinishedNotifier = new QWinEventNotifier(d->m_pid->hProcess, this);
-    connect(d->processFinishedNotifier, SIGNAL(activated(HANDLE)), SLOT(stubExited()));
+    connect(d->processFinishedNotifier, &QWinEventNotifier::activated,
+            this, &ConsoleProcess::stubExited);
     return true;
 }
 
@@ -210,7 +212,7 @@ void ConsoleProcess::stubConnectionAvailable()
 {
     emit stubStarted();
     d->m_stubSocket = d->m_stubServer.nextPendingConnection();
-    connect(d->m_stubSocket, SIGNAL(readyRead()), SLOT(readStubOutput()));
+    connect(d->m_stubSocket, &QIODevice::readyRead, this, &ConsoleProcess::readStubOutput);
 }
 
 void ConsoleProcess::readStubOutput()
@@ -240,7 +242,8 @@ void ConsoleProcess::readStubOutput()
                 continue;
             }
             d->inferiorFinishedNotifier = new QWinEventNotifier(d->m_hInferior, this);
-            connect(d->inferiorFinishedNotifier, SIGNAL(activated(HANDLE)), SLOT(inferiorExited()));
+            connect(d->inferiorFinishedNotifier, &QWinEventNotifier::activated,
+                    this, &ConsoleProcess::inferiorExited);
             emit processStarted();
         } else {
             emitError(QProcess::UnknownError, msgUnexpectedOutput(out));

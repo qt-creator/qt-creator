@@ -142,20 +142,20 @@ LinearProgressWidget::LinearProgressWidget(WizardProgress *progress, QWidget *pa
     m_dotsItemWidget->setVisible(false);
     m_dotsItemWidget->setEnabled(false);
 
-    connect(m_wizardProgress, SIGNAL(itemAdded(WizardProgressItem*)),
-            this, SLOT(slotItemAdded(WizardProgressItem*)));
-    connect(m_wizardProgress, SIGNAL(itemRemoved(WizardProgressItem*)),
-            this, SLOT(slotItemRemoved(WizardProgressItem*)));
-    connect(m_wizardProgress, SIGNAL(itemChanged(WizardProgressItem*)),
-            this, SLOT(slotItemChanged(WizardProgressItem*)));
-    connect(m_wizardProgress, SIGNAL(nextItemsChanged(WizardProgressItem*,QList<WizardProgressItem*>)),
-            this, SLOT(slotNextItemsChanged(WizardProgressItem*,QList<WizardProgressItem*>)));
-    connect(m_wizardProgress, SIGNAL(nextShownItemChanged(WizardProgressItem*,WizardProgressItem*)),
-            this, SLOT(slotNextShownItemChanged(WizardProgressItem*,WizardProgressItem*)));
-    connect(m_wizardProgress, SIGNAL(startItemChanged(WizardProgressItem*)),
-            this, SLOT(slotStartItemChanged(WizardProgressItem*)));
-    connect(m_wizardProgress, SIGNAL(currentItemChanged(WizardProgressItem*)),
-            this, SLOT(slotCurrentItemChanged(WizardProgressItem*)));
+    connect(m_wizardProgress, &WizardProgress::itemAdded,
+            this, &LinearProgressWidget::slotItemAdded);
+    connect(m_wizardProgress, &WizardProgress::itemRemoved,
+            this, &LinearProgressWidget::slotItemRemoved);
+    connect(m_wizardProgress, &WizardProgress::itemChanged,
+            this, &LinearProgressWidget::slotItemChanged);
+    connect(m_wizardProgress, &WizardProgress::nextItemsChanged,
+            this, &LinearProgressWidget::slotNextItemsChanged);
+    connect(m_wizardProgress, &WizardProgress::nextShownItemChanged,
+            this, &LinearProgressWidget::slotNextShownItemChanged);
+    connect(m_wizardProgress, &WizardProgress::startItemChanged,
+            this, &LinearProgressWidget::slotStartItemChanged);
+    connect(m_wizardProgress, &WizardProgress::currentItemChanged,
+            this, &LinearProgressWidget::slotCurrentItemChanged);
 
     QList<WizardProgressItem *> items = m_wizardProgress->items();
     for (int i = 0; i < items.count(); i++)

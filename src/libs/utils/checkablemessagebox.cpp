@@ -121,20 +121,15 @@ CheckableMessageBox::CheckableMessageBox(QWidget *parent) :
 {
     setModal(true);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    connect(d->buttonBox, SIGNAL(accepted()), SLOT(accept()));
-    connect(d->buttonBox, SIGNAL(rejected()), SLOT(reject()));
-    connect(d->buttonBox, SIGNAL(clicked(QAbstractButton*)),
-        SLOT(slotClicked(QAbstractButton*)));
+    connect(d->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(d->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(d->buttonBox, &QDialogButtonBox::clicked,
+            this, [this](QAbstractButton *b) { d->clickedButton = b; });
 }
 
 CheckableMessageBox::~CheckableMessageBox()
 {
     delete d;
-}
-
-void CheckableMessageBox::slotClicked(QAbstractButton *b)
-{
-    d->clickedButton = b;
 }
 
 QAbstractButton *CheckableMessageBox::clickedButton() const

@@ -198,10 +198,10 @@ void FileSystemWatcher::init()
             qDebug() << this << "Created watcher for id " << d->m_id;
     }
     ++(d->m_staticData->m_objectCount);
-    connect(d->m_staticData->m_watcher, SIGNAL(fileChanged(QString)),
-            this, SLOT(slotFileChanged(QString)));
-    connect(d->m_staticData->m_watcher, SIGNAL(directoryChanged(QString)),
-            this, SLOT(slotDirectoryChanged(QString)));
+    connect(d->m_staticData->m_watcher, &QFileSystemWatcher::fileChanged,
+            this, &FileSystemWatcher::slotFileChanged);
+    connect(d->m_staticData->m_watcher, &QFileSystemWatcher::directoryChanged,
+            this, &FileSystemWatcher::slotDirectoryChanged);
 }
 
 FileSystemWatcher::~FileSystemWatcher()

@@ -98,44 +98,45 @@ NewClassWidget::NewClassWidget(QWidget *parent) :
 
     setNamesDelimiter(QLatin1String("::"));
 
-    connect(d->m_ui.classLineEdit, SIGNAL(updateFileName(QString)),
-            this, SLOT(slotUpdateFileNames(QString)));
-    connect(d->m_ui.classLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(classNameEdited()));
-    connect(d->m_ui.baseClassComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(suggestClassNameFromBase()));
-    connect(d->m_ui.baseClassComboBox, SIGNAL(editTextChanged(QString)),
-            this, SLOT(slotValidChanged()));
-    connect(d->m_ui.classLineEdit, SIGNAL(validChanged()),
-            this, SLOT(slotValidChanged()));
-    connect(d->m_ui.headerFileLineEdit, SIGNAL(validChanged()),
-            this, SLOT(slotValidChanged()));
-    connect(d->m_ui.sourceFileLineEdit, SIGNAL(validChanged()),
-            this, SLOT(slotValidChanged()));
-    connect(d->m_ui.formFileLineEdit, SIGNAL(validChanged()),
-            this, SLOT(slotValidChanged()));
-    connect(d->m_ui.pathChooser, SIGNAL(validChanged()),
-            this, SLOT(slotValidChanged()));
-    connect(d->m_ui.generateFormCheckBox, SIGNAL(toggled(bool)),
-            this, SLOT(slotValidChanged()));
+    connect(d->m_ui.classLineEdit, &ClassNameValidatingLineEdit::updateFileName,
+            this, &NewClassWidget::slotUpdateFileNames);
+    connect(d->m_ui.classLineEdit, &QLineEdit::textEdited,
+            this, &NewClassWidget::classNameEdited);
+    connect(d->m_ui.baseClassComboBox,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &NewClassWidget::suggestClassNameFromBase);
+    connect(d->m_ui.baseClassComboBox, &QComboBox::editTextChanged,
+            this, &NewClassWidget::slotValidChanged);
+    connect(d->m_ui.classLineEdit, &FancyLineEdit::validChanged,
+            this, &NewClassWidget::slotValidChanged);
+    connect(d->m_ui.headerFileLineEdit, &FancyLineEdit::validChanged,
+            this, &NewClassWidget::slotValidChanged);
+    connect(d->m_ui.sourceFileLineEdit, &FancyLineEdit::validChanged,
+            this, &NewClassWidget::slotValidChanged);
+    connect(d->m_ui.formFileLineEdit, &FancyLineEdit::validChanged,
+            this, &NewClassWidget::slotValidChanged);
+    connect(d->m_ui.pathChooser, &PathChooser::validChanged,
+            this, &NewClassWidget::slotValidChanged);
+    connect(d->m_ui.generateFormCheckBox, &QAbstractButton::toggled,
+            this, &NewClassWidget::slotValidChanged);
 
-    connect(d->m_ui.classLineEdit, SIGNAL(validReturnPressed()),
-            this, SLOT(slotActivated()));
-    connect(d->m_ui.headerFileLineEdit, SIGNAL(validReturnPressed()),
-            this, SLOT(slotActivated()));
-    connect(d->m_ui.sourceFileLineEdit, SIGNAL(validReturnPressed()),
-            this, SLOT(slotActivated()));
-    connect(d->m_ui.formFileLineEdit, SIGNAL(validReturnPressed()),
-            this, SLOT(slotActivated()));
-    connect(d->m_ui.formFileLineEdit, SIGNAL(validReturnPressed()),
-            this, SLOT(slotActivated()));
-    connect(d->m_ui.pathChooser, SIGNAL(returnPressed()),
-             this, SLOT(slotActivated()));
+    connect(d->m_ui.classLineEdit, &FancyLineEdit::validReturnPressed,
+            this, &NewClassWidget::slotActivated);
+    connect(d->m_ui.headerFileLineEdit, &FancyLineEdit::validReturnPressed,
+            this, &NewClassWidget::slotActivated);
+    connect(d->m_ui.sourceFileLineEdit, &FancyLineEdit::validReturnPressed,
+            this, &NewClassWidget::slotActivated);
+    connect(d->m_ui.formFileLineEdit, &FancyLineEdit::validReturnPressed,
+            this, &NewClassWidget::slotActivated);
+    connect(d->m_ui.formFileLineEdit, &FancyLineEdit::validReturnPressed,
+            this, &NewClassWidget::slotActivated);
+    connect(d->m_ui.pathChooser, &PathChooser::returnPressed,
+             this, &NewClassWidget::slotActivated);
 
-    connect(d->m_ui.generateFormCheckBox, SIGNAL(stateChanged(int)),
-            this, SLOT(slotFormInputChecked()));
-    connect(d->m_ui.baseClassComboBox, SIGNAL(editTextChanged(QString)),
-            this, SLOT(slotBaseClassEdited(QString)));
+    connect(d->m_ui.generateFormCheckBox, &QCheckBox::stateChanged,
+            this, &NewClassWidget::slotFormInputChecked);
+    connect(d->m_ui.baseClassComboBox, &QComboBox::editTextChanged,
+            this, &NewClassWidget::slotBaseClassEdited);
     d->m_ui.generateFormCheckBox->setChecked(true);
     setFormInputCheckable(false, true);
     setClassType(NoClassType);

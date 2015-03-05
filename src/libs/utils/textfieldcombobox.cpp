@@ -48,8 +48,8 @@ TextFieldComboBox::TextFieldComboBox(QWidget *parent) :
     QComboBox(parent)
 {
     setEditable(false);
-    connect(this, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(slotCurrentIndexChanged(int)));
+    connect(this, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &TextFieldComboBox::slotCurrentIndexChanged);
 }
 
 QString TextFieldComboBox::text() const

@@ -310,7 +310,7 @@ void CrumblePath::pushElement(const QString &title, const QVariant &data)
 {
     CrumblePathButton *newButton = new CrumblePathButton(title, this);
     newButton->hide();
-    connect(newButton, SIGNAL(clicked()), SLOT(emitElementClicked()));
+    connect(newButton, &QAbstractButton::clicked, this, &CrumblePath::emitElementClicked);
 
     int segType = CrumblePathButton::MiddleSegment;
     if (!d->m_buttons.isEmpty()) {
@@ -339,7 +339,7 @@ void CrumblePath::addChild(const QString &title, const QVariant &data)
 
     QAction *childAction = new QAction(title, lastButton);
     childAction->setData(data);
-    connect(childAction, SIGNAL(triggered()), this, SLOT(emitElementClicked()));
+    connect(childAction, &QAction::triggered, this, &CrumblePath::emitElementClicked);
     childList->addAction(childAction);
     lastButton->setMenu(childList);
 }

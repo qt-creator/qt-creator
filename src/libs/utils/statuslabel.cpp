@@ -60,7 +60,7 @@ void StatusLabel::showStatusMessage(const QString &message, int timeoutMS)
         if (!m_timer) {
             m_timer = new QTimer(this);
             m_timer->setSingleShot(true);
-            connect(m_timer, SIGNAL(timeout()), this, SLOT(slotTimeout()));
+            connect(m_timer, &QTimer::timeout, this, &StatusLabel::slotTimeout);
         }
         m_timer->start(timeoutMS);
     } else {

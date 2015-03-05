@@ -65,7 +65,6 @@ protected:
 
 private:
     class CompletingTextEditPrivate *d;
-    Q_PRIVATE_SLOT(d, void insertCompletion(const QString &))
 };
 
 } // namespace Utils
