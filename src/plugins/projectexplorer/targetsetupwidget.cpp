@@ -179,9 +179,8 @@ void TargetSetupWidget::addBuildInfo(BuildInfo *info, bool isImport)
     Utils::PathChooser *pathChooser = new Utils::PathChooser();
     pathChooser->setExpectedKind(Utils::PathChooser::Directory);
     pathChooser->setFileName(info->buildDirectory);
-    pathChooser->setEnabled(info->supportsShadowBuild);
     pathChooser->setHistoryCompleter(QLatin1String("TargetSetup.BuildDir.History"));
-    pathChooser->setReadOnly(!info->supportsShadowBuild || isImport);
+    pathChooser->setReadOnly(isImport);
     m_newBuildsLayout->addWidget(pathChooser, pos * 2, 1);
 
     QLabel *reportIssuesLabel = new QLabel;

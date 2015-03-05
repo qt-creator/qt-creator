@@ -77,11 +77,6 @@ QString QmakeBuildConfiguration::shadowBuildDirectory(const QString &proFilePath
 {
     if (proFilePath.isEmpty())
         return QString();
-    QFileInfo info(proFilePath);
-
-    BaseQtVersion *version = QtKitInformation::qtVersion(k);
-    if (version && !version->supportsShadowBuilds())
-        return info.absolutePath();
 
     const QString projectName = QFileInfo(proFilePath).completeBaseName();
     ProjectMacroExpander expander(projectName, k, suffix);
@@ -90,14 +85,11 @@ QString QmakeBuildConfiguration::shadowBuildDirectory(const QString &proFilePath
     return FileUtils::resolvePath(projectDir, buildPath);
 }
 
-static Utils::FileName defaultBuildDirectory(bool supportsShadowBuild,
-                                             const QString &projectPath,
+static Utils::FileName defaultBuildDirectory(const QString &projectPath,
                                              const ProjectExplorer::Kit *k,
                                              const QString &suffix)
 {
-    if (supportsShadowBuild)
-        return Utils::FileName::fromString(QmakeBuildConfiguration::shadowBuildDirectory(projectPath, k, suffix));
-    return ProjectExplorer::Project::projectDirectory(Utils::FileName::fromString(projectPath));
+    return Utils::FileName::fromString(QmakeBuildConfiguration::shadowBuildDirectory(projectPath, k, suffix));
 }
 
 const char QMAKE_BC_ID[] = "Qt4ProjectManager.Qt4BuildConfiguration";
@@ -160,8 +152,6 @@ bool QmakeBuildConfiguration::fromMap(const QVariantMap &map)
     m_shadowBuild = map.value(QLatin1String(USE_SHADOW_BUILD_KEY), true).toBool();
     m_qmakeBuildConfiguration = BaseQtVersion::QmakeBuildConfigs(map.value(QLatin1String(BUILD_CONFIGURATION_KEY)).toInt());
 
-    m_qtVersionSupportsShadowBuilds =  supportsShadowBuilds();
-
     m_lastKitState = LastKitState(target()->kit());
 
     connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainUpdated(ProjectExplorer::ToolChain*)),
@@ -187,7 +177,6 @@ void QmakeBuildConfiguration::kitChanged()
         // For that reason the QmakeBuildConfiguration is also connected
         // to the toolchain and qtversion managers
         emitProFileEvaluateNeeded();
-        updateShadowBuild();
         m_lastKitState = newState;
     }
 }
@@ -204,17 +193,6 @@ void QmakeBuildConfiguration::qtVersionsChanged(const QList<int> &,const QList<i
         emitProFileEvaluateNeeded();
 }
 
-void QmakeBuildConfiguration::updateShadowBuild()
-{
-    // We also emit buildDirectoryChanged if the Qt version's supportShadowBuild changed
-    bool currentShadowBuild = supportsShadowBuilds();
-    if (currentShadowBuild != m_qtVersionSupportsShadowBuilds) {
-        if (!currentShadowBuild)
-            setBuildDirectory(target()->project()->projectDirectory());
-        m_qtVersionSupportsShadowBuilds = currentShadowBuild;
-    }
-}
-
 NamedWidget *QmakeBuildConfiguration::createConfigWidget()
 {
     return new QmakeProjectConfigWidget(this);
@@ -225,12 +203,6 @@ QString QmakeBuildConfiguration::defaultShadowBuildDirectory() const
     // todo displayName isn't ideal
     return shadowBuildDirectory(target()->project()->projectFilePath().toString(),
                                 target()->kit(), displayName());
-}
-
-bool QmakeBuildConfiguration::supportsShadowBuilds()
-{
-    BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
-    return !version || version->supportsShadowBuilds();
 }
 
 /// If only a sub tree should be build this function returns which sub node
@@ -276,9 +248,6 @@ void QmakeBuildConfiguration::setBuildDirectory(const FileName &directory)
     if (directory == buildDirectory())
         return;
     BuildConfiguration::setBuildDirectory(directory);
-    QTC_CHECK(supportsShadowBuilds()
-              || (!supportsShadowBuilds()
-                  && buildDirectory() == target()->project()->projectDirectory()));
     emitProFileEvaluateNeeded();
 }
 
@@ -389,7 +358,7 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
                 // This copies the settings from userArgs to actualArgs (minus some we
                 // are not interested in), splitting them up into individual strings:
                 extractSpecFromArguments(&userArgs, workingDirectory, version, &actualArgs);
-                actualArgs = qs->deducedArguments() + actualArgs + qs->deducedArgumentsAfter();
+                actualArgs = qs->deducedArguments() + actualArgs;
                 FileName actualSpec = qs->mkspec();
 
                 QString qmakeArgs = result.second;
@@ -647,7 +616,6 @@ QmakeBuildInfo *QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
     info->typeName = tr("Build");
     // Leave info->buildDirectory unset;
     info->kitId = k->id();
-    info->supportsShadowBuild = (version && version->supportsShadowBuilds());
 
     // check if this project is in the source directory:
     Utils::FileName projectFilePath = Utils::FileName::fromString(projectPath);
@@ -661,8 +629,7 @@ QmakeBuildInfo *QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
 
         info->buildDirectory = Utils::FileName::fromString(absoluteBuildPath);
     } else {
-        info->buildDirectory
-                = defaultBuildDirectory(info->supportsShadowBuild, projectPath, k, suffix);
+        info->buildDirectory = defaultBuildDirectory(projectPath, k, suffix);
     }
     info->type = type;
     return info;
@@ -745,8 +712,7 @@ void QmakeBuildConfigurationFactory::configureBuildConfiguration(Target *parent,
 
     Utils::FileName directory = qmakeInfo->buildDirectory;
     if (directory.isEmpty()) {
-        directory = defaultBuildDirectory(qmakeInfo->supportsShadowBuild,
-                                          parent->project()->projectFilePath().toString(),
+        directory = defaultBuildDirectory(parent->project()->projectFilePath().toString(),
                                           parent->kit(), qmakeInfo->displayName);
     }
 

@@ -275,7 +275,6 @@ CMakeBuildInfo *CMakeBuildConfigurationFactory::createBuildInfo(const ProjectExp
     k->addToEnvironment(info->environment);
     info->useNinja = false;
     info->sourceDirectory = sourceDir;
-    info->supportsShadowBuild = true;
 
     return info;
 }

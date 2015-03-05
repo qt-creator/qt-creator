@@ -108,9 +108,6 @@ public:
 
     BuildType buildType() const;
 
-    /// returns whether the Qt version in the profile supports shadow building (also true for no Qt version)
-    bool supportsShadowBuilds();
-
 public slots:
     void emitProFileEvaluateNeeded();
 
@@ -134,7 +131,6 @@ protected:
 private:
     void ctor();
     QString defaultShadowBuildDirectory() const;
-    void updateShadowBuild();
 
     class LastKitState
     {
@@ -153,7 +149,6 @@ private:
 
     bool m_shadowBuild;
     bool m_isEnabled;
-    bool m_qtVersionSupportsShadowBuilds;
     QtSupport::BaseQtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
     QmakeProjectManager::QmakeProFileNode *m_subNodeBuild;
     ProjectExplorer::FileNode *m_fileNodeBuild;

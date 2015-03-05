@@ -54,7 +54,6 @@ public:
                 && typeName == o.typeName
                 && buildDirectory == o.buildDirectory
                 && kitId == o.kitId
-                && supportsShadowBuild == o.supportsShadowBuild
                 && type == o.type
                 && additionalArguments == o.additionalArguments;
     }
