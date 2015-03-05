@@ -163,6 +163,13 @@ static QByteArray parsePlainConsoleStream(const DebuggerResponse &response)
     return out.mid(pos + 3);
 }
 
+static bool isMostlyHarmlessMessage(const QByteArray &msg)
+{
+    return msg == "warning: GDB: Failed to set controlling terminal: "
+                  "Inappropriate ioctl for device\\n"
+            || msg == "warning: GDB: Failed to set controlling terminal: Invalid argument\\n";
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // Debuginfo Taskhandler
@@ -339,6 +346,8 @@ static inline QString msgWinException(const QByteArray &data, unsigned *exCodeIn
 
 void GdbEngine::readDebugeeOutput(const QByteArray &data)
 {
+    if (isMostlyHarmlessMessage(data.mid(2, data.size() - 4)))
+        return;
     QString msg = m_outputCodec->toUnicode(data.constData(), data.length(),
         &m_outputCodecState);
     showMessage(msg, AppOutput);
@@ -657,11 +666,17 @@ void GdbEngine::handleResponse(const QByteArray &buff)
 
         case '&': {
             QByteArray data = GdbMi::parseCString(from, to);
-            m_pendingLogStreamOutput += data;
             // On Windows, the contents seem to depend on the debugger
             // version and/or OS version used.
-            if (data.startsWith("warning:"))
+            if (data.startsWith("warning:")) {
+                if (isMostlyHarmlessMessage(data)) {
+                    showMessage(_("Mostly harmless terminal warning suppressed."), LogWarning);
+                    break;
+                }
                 showMessage(_(data.mid(9)), AppStuff); // Cut "warning: "
+            }
+
+            m_pendingLogStreamOutput += data;
 
             if (isGdbConnectionError(data)) {
                 notifyInferiorExited();
