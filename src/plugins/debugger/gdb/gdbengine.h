@@ -132,7 +132,7 @@ protected: ////////// Gdb Process Management //////////
 private slots:
     friend class GdbPlainEngine;
     void handleInterruptDeviceInferior(const QString &error);
-    void handleGdbFinished(int, QProcess::ExitStatus status);
+    void handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void handleGdbError(QProcess::ProcessError error);
     void readDebugeeOutput(const QByteArray &data);
     void readGdbStandardOutput();

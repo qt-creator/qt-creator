@@ -903,8 +903,7 @@ void LldbEngine::doUpdateLocals(UpdateParameters params)
 
 void LldbEngine::handleLldbError(QProcess::ProcessError error)
 {
-    qDebug() << "HANDLE LLDB ERROR";
-    showMessage(_("HANDLE LLDB ERROR"));
+    showMessage(_("LLDB PROCESS ERROR: %1").arg(error));
     switch (error) {
     case QProcess::Crashed:
         break; // will get a processExited() as well
@@ -947,11 +946,9 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
     }
 }
 
-void LldbEngine::handleLldbFinished(int code, QProcess::ExitStatus type)
+void LldbEngine::handleLldbFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    qDebug() << "LLDB FINISHED";
-    showMessage(_("LLDB PROCESS FINISHED, status %1, code %2").arg(type).arg(code));
-    notifyEngineSpontaneousShutdown();
+    notifyDebuggerProcessFinished(exitCode, exitStatus, QLatin1String("LLDB"));
 }
 
 void LldbEngine::readLldbStandardError()

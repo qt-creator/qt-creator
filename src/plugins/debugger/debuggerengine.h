@@ -35,6 +35,7 @@
 #include "debuggerconstants.h"
 
 #include <QObject>
+#include <QProcess>
 
 QT_BEGIN_NAMESPACE
 class QDebug;
@@ -313,6 +314,8 @@ protected:
 
     public:
     virtual void notifyInferiorExited();
+    void notifyDebuggerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus,
+                                       const QString &backendName);
 
 protected:
     virtual void notifyInferiorShutdownOk();
