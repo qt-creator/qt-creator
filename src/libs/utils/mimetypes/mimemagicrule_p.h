@@ -65,7 +65,8 @@ class QTCREATOR_UTILS_EXPORT MimeMagicRule
 public:
     enum Type { Invalid = 0, String, Host16, Host32, Big16, Big32, Little16, Little32, Byte };
 
-    MimeMagicRule(Type type, const QByteArray &value, int startPos, int endPos, const QByteArray &mask = QByteArray());
+    MimeMagicRule(Type type, const QByteArray &value, int startPos, int endPos,
+                  const QByteArray &mask = QByteArray(), QString *errorString = 0);
     MimeMagicRule(const MimeMagicRule &other);
     ~MimeMagicRule();
 
