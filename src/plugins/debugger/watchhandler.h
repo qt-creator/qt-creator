@@ -240,7 +240,6 @@ public:
     void insertDataList(const QList<WatchData> &list); // DEPRECATED
     void insertItem(WatchItem *item); // Takes ownership.
     void removeData(const QByteArray &iname);
-    void removeChildren(const QByteArray &iname);
     void removeAllData(bool includeInspectData = false);
     void resetValueCache();
     void purgeOutdatedItems(const QSet<QByteArray> &inames);

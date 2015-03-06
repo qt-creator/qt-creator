@@ -1298,14 +1298,6 @@ void WatchHandler::removeData(const QByteArray &iname)
     updateWatchersWindow();
 }
 
-void WatchHandler::removeChildren(const QByteArray &iname)
-{
-    WatchItem *item = m_model->findItem(iname);
-    if (item)
-        item->removeChildren();
-    updateWatchersWindow();
-}
-
 QByteArray WatchHandler::watcherName(const QByteArray &exp)
 {
     return "watch." + QByteArray::number(theWatcherNames[exp]);
