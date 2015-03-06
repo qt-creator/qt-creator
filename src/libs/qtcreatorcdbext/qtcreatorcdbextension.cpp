@@ -507,16 +507,16 @@ static std::string commandLocals(ExtensionCommandContext &commandExtCtx,PCSTR ar
     // Synchronize watches if desired.
     WatchesSymbolGroup *watchesSymbolGroup = extCtx.watchesSymbolGroup();
     if (watchSynchronization) {
-        if (watcherInameExpressionMap.empty()) { // No watches..kill group.
-            watchesSymbolGroup = 0;
-            extCtx.discardWatchesSymbolGroup();
-            if (SymbolGroupValue::verbose)
-                DebugPrint() << "Discarding watchers";
-        } else {
+        watchesSymbolGroup = 0;
+        extCtx.discardWatchesSymbolGroup();
+        if (!watcherInameExpressionMap.empty()) {
             // Force group into existence
             watchesSymbolGroup = extCtx.watchesSymbolGroup(commandExtCtx.symbols(), errorMessage);
-            if (!watchesSymbolGroup || !watchesSymbolGroup->synchronize(commandExtCtx.symbols(), watcherInameExpressionMap, errorMessage))
+            if (!watchesSymbolGroup || !watchesSymbolGroup->synchronize(commandExtCtx.symbols(),
+                                                                        watcherInameExpressionMap,
+                                                                        errorMessage)) {
                 return std::string();
+            }
         }
     }
 
