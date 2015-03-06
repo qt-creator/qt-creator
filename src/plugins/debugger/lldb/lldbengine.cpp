@@ -844,10 +844,9 @@ void LldbEngine::assignValueInDebugger(const Internal::WatchData *data,
     runCommand(cmd);
 }
 
-void LldbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &flags)
+void LldbEngine::updateWatchData(const WatchData &data)
 {
     Q_UNUSED(data);
-    Q_UNUSED(flags);
     updateLocals();
 }
 

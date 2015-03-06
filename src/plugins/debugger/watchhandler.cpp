@@ -628,9 +628,7 @@ void WatchItem::fetchMore()
     fetchTriggered = true;
     if (children().isEmpty()) {
         d.setChildrenNeeded();
-        WatchUpdateFlags flags;
-        flags.tryIncremental = true;
-        watchModel()->engine()->updateWatchData(d, flags);
+        watchModel()->engine()->updateWatchData(d);
     }
 }
 

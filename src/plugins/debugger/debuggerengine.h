@@ -78,12 +78,6 @@ class MemoryViewSetupData;
 class Terminal;
 class ThreadId;
 
-struct WatchUpdateFlags
-{
-    WatchUpdateFlags() : tryIncremental(false) {}
-    bool tryIncremental;
-};
-
 class Location
 {
 public:
@@ -146,8 +140,7 @@ public:
     virtual bool setToolTipExpression(TextEditor::TextEditorWidget *,
         const Internal::DebuggerToolTipContext &);
 
-    virtual void updateWatchData(const Internal::WatchData &data,
-        const Internal::WatchUpdateFlags & flags = Internal::WatchUpdateFlags());
+    virtual void updateWatchData(const Internal::WatchData &data);
     virtual void watchDataSelected(const QByteArray &iname);
 
     virtual void startDebugger(DebuggerRunControl *runControl);

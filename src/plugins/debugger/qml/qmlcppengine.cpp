@@ -115,13 +115,12 @@ bool QmlCppEngine::setToolTipExpression(TextEditor::TextEditorWidget *editorWidg
     return success;
 }
 
-void QmlCppEngine::updateWatchData(const WatchData &data,
-    const WatchUpdateFlags &flags)
+void QmlCppEngine::updateWatchData(const WatchData &data)
 {
     if (data.isInspect())
-        m_qmlEngine->updateWatchData(data, flags);
+        m_qmlEngine->updateWatchData(data);
     else
-        m_activeEngine->updateWatchData(data, flags);
+        m_activeEngine->updateWatchData(data);
 }
 
 void QmlCppEngine::watchDataSelected(const QByteArray &iname)

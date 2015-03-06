@@ -3725,10 +3725,10 @@ void GdbEngine::reloadLocals()
     updateLocals();
 }
 
-void GdbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &flags)
+void GdbEngine::updateWatchData(const WatchData &data)
 {
     UpdateParameters params;
-    params.tryPartial = flags.tryIncremental && m_pendingBreakpointRequests == 0;
+    params.tryPartial = m_pendingBreakpointRequests == 0;
     params.varList = data.iname;
     updateLocalsPython(params);
 }

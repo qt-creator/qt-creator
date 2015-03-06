@@ -1440,7 +1440,7 @@ bool DebuggerEngine::setToolTipExpression(TextEditorWidget *,
     return false;
 }
 
-void DebuggerEngine::updateWatchData(const WatchData &, const WatchUpdateFlags &)
+void DebuggerEngine::updateWatchData(const WatchData &)
 {
 }
 

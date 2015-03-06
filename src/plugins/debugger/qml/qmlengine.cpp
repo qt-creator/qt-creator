@@ -999,8 +999,7 @@ void QmlEngine::assignValueInDebugger(const WatchData *data,
     }
 }
 
-void QmlEngine::updateWatchData(const WatchData &data,
-    const WatchUpdateFlags &)
+void QmlEngine::updateWatchData(const WatchData &data)
 {
 //    qDebug() << "UPDATE WATCH DATA" << data.toString();
     //showStatusMessage(tr("Stopped."), 5000);

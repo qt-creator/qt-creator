@@ -49,8 +49,7 @@ public:
     bool canDisplayTooltip() const;
     bool setToolTipExpression(TextEditor::TextEditorWidget *editorWidget,
         const DebuggerToolTipContext &);
-    void updateWatchData(const WatchData &data,
-        const WatchUpdateFlags &flags);
+    void updateWatchData(const WatchData &data);
     void watchDataSelected(const QByteArray &iname);
 
     void watchPoint(const QPoint &);

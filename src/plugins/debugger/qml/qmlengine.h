@@ -159,8 +159,7 @@ private:
     void reloadFullStack() {}
 
     bool supportsThreads() const { return false; }
-    void updateWatchData(const WatchData &data,
-        const WatchUpdateFlags &flags);
+    void updateWatchData(const WatchData &data);
     void watchDataSelected(const QByteArray &iname);
     void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
     bool evaluateScript(const QString &expression);

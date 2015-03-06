@@ -395,10 +395,9 @@ void PdbEngine::assignValueInDebugger(const WatchData *, const QString &expressi
     updateLocals();
 }
 
-void PdbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &flags)
+void PdbEngine::updateWatchData(const WatchData &data)
 {
     Q_UNUSED(data);
-    Q_UNUSED(flags);
     updateAll();
 }
 

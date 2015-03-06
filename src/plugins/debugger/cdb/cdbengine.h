@@ -89,8 +89,7 @@ public:
     virtual void shutdownEngine();
     virtual void abortDebugger();
     virtual void detachDebugger();
-    virtual void updateWatchData(const WatchData &data,
-                                 const WatchUpdateFlags & flags = WatchUpdateFlags());
+    virtual void updateWatchData(const WatchData &data);
     virtual bool hasCapability(unsigned cap) const;
     virtual void watchPoint(const QPoint &);
     virtual void setRegisterValue(const QByteArray &name, const QString &value);

@@ -972,13 +972,11 @@ static inline bool isWatchIName(const QByteArray &iname)
     return iname.startsWith("watch");
 }
 
-void CdbEngine::updateWatchData(const WatchData &dataIn,
-                                const WatchUpdateFlags & flags)
+void CdbEngine::updateWatchData(const WatchData &dataIn)
 {
     if (debug || debugLocals || debugWatches)
-        qDebug("CdbEngine::updateWatchData() %dms accessible=%d %s incr=%d: %s",
+        qDebug("CdbEngine::updateWatchData() %dms accessible=%d %s: %s",
                elapsedLogTime(), m_accessible, stateName(state()),
-               flags.tryIncremental,
                qPrintable(dataIn.toString()));
 
     if (!m_accessible) // Add watch data while running?
