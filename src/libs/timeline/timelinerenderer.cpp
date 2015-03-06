@@ -73,9 +73,9 @@ void TimelineRenderer::TimelineRendererPrivate::resetCurrentSelection()
 TimelineRenderState *TimelineRenderer::TimelineRendererPrivate::findRenderState()
 {
     int newLevel = 0;
-    int newOffset = 0;
+    qint64 newOffset = 0;
     int level;
-    int offset;
+    qint64 offset;
 
     qint64 newStart = zoomer->traceStart();
     qint64 newEnd = zoomer->traceEnd();
@@ -97,8 +97,6 @@ TimelineRenderState *TimelineRenderer::TimelineRendererPrivate::findRenderState(
 
     if (renderStates.length() <= level)
         renderStates.resize(level + 1);
-    if (renderStates[level].length() <= offset)
-        renderStates[level].resize(offset + 1);
     TimelineRenderState *state = renderStates[level][offset];
     if (state == 0) {
         state = new TimelineRenderState(start, end, 1.0 / static_cast<qreal>(SafeFloatMax),
@@ -124,8 +122,8 @@ QSGNode *TimelineRenderer::updatePaintNode(QSGNode *node, UpdatePaintNodeData *u
     if (d->modelDirty) {
         if (node)
             node->removeAllChildNodes();
-        foreach (QVector<TimelineRenderState *> stateVector, d->renderStates)
-            qDeleteAll(stateVector);
+        for (auto i = d->renderStates.begin(); i != d->renderStates.end(); ++i)
+            qDeleteAll(*i);
         d->renderStates.clear();
         d->lastState = 0;
     }
