@@ -29,12 +29,12 @@
 ****************************************************************************/
 
 #include "findtoolbar.h"
-#include "icontext.h"
 #include "ifindfilter.h"
 #include "findplugin.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreplugin.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>

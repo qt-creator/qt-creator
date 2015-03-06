@@ -29,8 +29,9 @@
 ****************************************************************************/
 
 #include "futureprogress.h"
-#include "id.h"
 #include "progressbar.h"
+
+#include <coreplugin/id.h>
 
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>

@@ -34,7 +34,6 @@
 #include "findtoolbar.h"
 #include "findtoolwindow.h"
 #include "searchresultwindow.h"
-#include "icontext.h"
 #include "ifindfilter.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -42,6 +41,7 @@
 #include <coreplugin/actionmanager/command.h>
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>
 #include <coreplugin/coreplugin.h>
