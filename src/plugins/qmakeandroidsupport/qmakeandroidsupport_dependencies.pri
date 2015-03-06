@@ -1,6 +1,5 @@
 QTC_PLUGIN_NAME = QmakeAndroidSupport
 QTC_LIB_DEPENDS += \
-    aggregation \
     extensionsystem \
     qmljs \
     utils

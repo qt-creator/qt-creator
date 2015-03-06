@@ -1,6 +1,5 @@
 QTC_PLUGIN_NAME = QmlProfiler
 QTC_LIB_DEPENDS += \
-    aggregation \
     extensionsystem \
     qmldebug \
     qmljs \

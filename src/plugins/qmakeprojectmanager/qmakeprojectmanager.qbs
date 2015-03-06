@@ -4,7 +4,6 @@ QtcPlugin {
     name: "QmakeProjectManager"
 
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
-    Depends { name: "Aggregation" }
     Depends { name: "QmlJS" }
     Depends { name: "Utils" }
 

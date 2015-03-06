@@ -4,7 +4,6 @@ QtcPlugin {
     name: "QmlJSEditor"
 
     Depends { name: "Qt"; submodules: ["widgets", "script"] }
-    Depends { name: "Aggregation" }
     Depends { name: "LanguageUtils" }
     Depends { name: "Utils" }
     Depends { name: "QmlEditorWidgets" }

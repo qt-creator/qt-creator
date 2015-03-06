@@ -5,7 +5,6 @@ QtcPlugin {
 
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
     Depends { name: "Qt.quick"; condition: product.condition; }
-    Depends { name: "Aggregation" }
     Depends { name: "Utils" }
 
     Depends { name: "Core" }

@@ -27,7 +27,6 @@ QtcPlugin {
     property bool useInternalQbsProducts: project.qbsSubModuleExists && !project.useExternalQbs
 
     Depends { name: "Qt"; submodules: [ "widgets", "script" ] }
-    Depends { name: "Aggregation" }
     Depends {
         name: "qbscore"
         condition: product.useInternalQbsProducts

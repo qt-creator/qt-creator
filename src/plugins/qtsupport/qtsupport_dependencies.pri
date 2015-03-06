@@ -1,6 +1,5 @@
 QTC_PLUGIN_NAME = QtSupport
 QTC_LIB_DEPENDS += \
-    aggregation \
     extensionsystem \
     qmljs \
     utils

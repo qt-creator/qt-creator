@@ -4,7 +4,6 @@ QtcPlugin {
     name: "GLSLEditor"
 
     Depends { name: "Qt.widgets" }
-    Depends { name: "Aggregation" }
     Depends { name: "GLSL" }
     Depends { name: "CPlusPlus" }
     Depends { name: "Utils" }
