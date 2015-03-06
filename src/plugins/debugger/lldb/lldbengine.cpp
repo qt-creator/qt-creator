@@ -54,8 +54,6 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
 
-#include <texteditor/texteditor.h>
-
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 #include <utils/qtcprocess.h>
@@ -795,9 +793,9 @@ void LldbEngine::refreshSymbols(const GdbMi &symbols)
 //
 //////////////////////////////////////////////////////////////////////
 
-bool LldbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editorWidget, const DebuggerToolTipContext &context)
+bool LldbEngine::setToolTipExpression(const DebuggerToolTipContext &context)
 {
-    if (state() != InferiorStopOk || !isCppEditor(editorWidget)) {
+    if (state() != InferiorStopOk || !context.isCppEditor) {
         //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED "
         // " OR NOT A CPPEDITOR";
         return false;

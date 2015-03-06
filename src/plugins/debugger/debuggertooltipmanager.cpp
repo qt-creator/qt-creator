@@ -43,6 +43,9 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
+
+#include <cpptools/cppprojectfile.h>
+
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 
@@ -669,7 +672,7 @@ static void hideAllToolTips()
 */
 
 DebuggerToolTipContext::DebuggerToolTipContext()
-    : position(0), line(0), column(0), scopeFromLine(0), scopeToLine(0)
+    : position(0), line(0), column(0), scopeFromLine(0), scopeToLine(0), isCppEditor(true)
 {
 }
 
@@ -1165,18 +1168,21 @@ static void slotTooltipOverrideRequested
     if (!boolSetting(UseToolTipsInMainEditor))
         return;
 
+    const TextDocument *document = editorWidget->textDocument();
     DebuggerEngine *engine = currentEngine();
     if (!engine || !engine->canDisplayTooltip())
         return;
 
     DebuggerToolTipContext context;
     context.engineType = engine->objectName();
-    context.fileName = editorWidget->textDocument()->filePath().toString();
+    context.fileName = document->filePath().toString();
     context.position = pos;
     editorWidget->convertPosition(pos, &context.line, &context.column);
     QString raw = cppExpressionAt(editorWidget, context.position, &context.line, &context.column,
                                   &context.function, &context.scopeFromLine, &context.scopeToLine);
     context.expression = fixCppExpression(raw);
+    context.isCppEditor = CppTools::ProjectFile::classify(document->filePath().toString())
+                            != CppTools::ProjectFile::Unclassified;
 
     if (context.expression.isEmpty()) {
         ToolTip::show(point, DebuggerToolTipManager::tr("No valid expression"),
@@ -1224,7 +1230,7 @@ static void slotTooltipOverrideRequested
             tooltip->setState(PendingShown);
         else
             QTC_CHECK(false);
-        *handled = engine->setToolTipExpression(editorWidget, context);
+        *handled = engine->setToolTipExpression(context);
         if (!*handled) {
             ToolTip::show(point, DebuggerToolTipManager::tr("Expression too complex"),
                                  Internal::mainWindow());

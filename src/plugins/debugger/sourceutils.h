@@ -40,7 +40,6 @@ namespace Debugger {
 namespace Internal {
 
 // Editor tooltip support
-bool isCppEditor(TextEditor::TextEditorWidget *editorWidget);
 QString cppExpressionAt(TextEditor::TextEditorWidget *editorWidget, int pos,
                         int *line, int *column, QString *function = 0,
                         int *scopeFromLine = 0, int *scopeToLine = 0);

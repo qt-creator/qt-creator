@@ -67,10 +67,10 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
+
 #include <projectexplorer/devicesupport/deviceprocess.h>
 #include <projectexplorer/itaskhandler.h>
 #include <projectexplorer/taskhub.h>
-#include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -3699,10 +3699,9 @@ void GdbEngine::handleRegisterListValues(const DebuggerResponse &response)
 //
 //////////////////////////////////////////////////////////////////////
 
-bool GdbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editor,
-    const DebuggerToolTipContext &context)
+bool GdbEngine::setToolTipExpression(const DebuggerToolTipContext &context)
 {
-    if (state() != InferiorStopOk || !isCppEditor(editor))
+    if (state() != InferiorStopOk || !context.isCppEditor)
         return false;
 
     UpdateParameters params;

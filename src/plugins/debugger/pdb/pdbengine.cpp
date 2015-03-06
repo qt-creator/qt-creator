@@ -50,7 +50,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <texteditor/texteditor.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
@@ -371,8 +370,7 @@ void PdbEngine::refreshSymbols(const GdbMi &symbols)
     Internal::showModuleSymbols(moduleName, syms);
 }
 
-bool PdbEngine::setToolTipExpression(TextEditor::TextEditorWidget *,
-    const DebuggerToolTipContext &ctx)
+bool PdbEngine::setToolTipExpression(const DebuggerToolTipContext &ctx)
 {
     if (state() != InferiorStopOk)
         return false;

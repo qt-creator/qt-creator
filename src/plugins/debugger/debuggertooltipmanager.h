@@ -71,6 +71,7 @@ public:
     QPoint mousePosition;
     QString expression;
     QByteArray iname;
+    bool isCppEditor;
 };
 
 typedef QList<DebuggerToolTipContext> DebuggerToolTipContexts;

@@ -412,10 +412,8 @@ void CdbEngine::syncVerboseLog(bool verboseLog)
     postCommand(m_verboseLog ? QByteArray("!sym noisy") : QByteArray("!sym quiet"), 0);
 }
 
-bool CdbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editorWidget,
-                                     const DebuggerToolTipContext &context)
+bool CdbEngine::setToolTipExpression(const DebuggerToolTipContext &context)
 {
-    Q_UNUSED(editorWidget);
     Q_UNUSED(context);
     // Tooltips matching local variables are already handled in the
     // base class. We don't handle anything else here in CDB

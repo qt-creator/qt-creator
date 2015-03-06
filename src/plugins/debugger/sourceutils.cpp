@@ -261,13 +261,6 @@ bool getUninitializedVariables(const Snapshot &snapshot,
 }
 
 
-// Editor tooltip support
-bool isCppEditor(TextEditorWidget *editorWidget)
-{
-    const TextDocument *document = editorWidget->textDocument();
-    return ProjectFile::classify(document->filePath().toString()) != ProjectFile::Unclassified;
-}
-
 QString cppFunctionAt(const QString &fileName, int line, int column)
 {
     const Snapshot snapshot = CppModelManager::instance()->snapshot();

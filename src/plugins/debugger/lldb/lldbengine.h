@@ -84,8 +84,7 @@ private:
     void shutdownEngine();
     void abortDebugger();
 
-    bool setToolTipExpression(TextEditor::TextEditorWidget *editorWidget,
-        const DebuggerToolTipContext &);
+    bool setToolTipExpression(const DebuggerToolTipContext &);
 
     void continueInferior();
     void interruptInferior();

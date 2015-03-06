@@ -137,8 +137,7 @@ public:
     const DebuggerStartParameters &startParameters() const;
     DebuggerStartParameters &startParameters();
 
-    virtual bool setToolTipExpression(TextEditor::TextEditorWidget *,
-        const Internal::DebuggerToolTipContext &);
+    virtual bool setToolTipExpression(const Internal::DebuggerToolTipContext &);
 
     virtual void updateWatchData(const Internal::WatchData &data);
     virtual void watchDataSelected(const QByteArray &iname);
