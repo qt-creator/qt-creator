@@ -1488,11 +1488,12 @@ struct QtStringAddressData
  * pointer. In Qt 5, the d-elements and the data are in a storage pool
  * and the data are at an offset behind the d-structures (QString,
  * QByteArray, QVector). */
-QtStringAddressData readQtStringAddressData(const SymbolGroupValue &dV,
-                                           int qtMajorVersion)
+QtStringAddressData readQtStringAddressData(const SymbolGroupValue &dV, const QtInfo &qtInfo)
 {
     QtStringAddressData result;
-    const SymbolGroupValue adV = qtMajorVersion < 5 ? dV : dV["QArrayData"];
+    const std::string &arrayData =
+            qtInfo.prependModuleAndNameSpace("QArrayData", std::string(), qtInfo.nameSpace);
+    const SymbolGroupValue adV = qtInfo.version < 5 ? dV : dV[arrayData.c_str()];
     if (!adV)
         return QtStringAddressData();
     const SymbolGroupValue sizeV = adV["size"];
@@ -1501,7 +1502,7 @@ QtStringAddressData readQtStringAddressData(const SymbolGroupValue &dV,
         return QtStringAddressData();
     result.size = sizeV.intValue();
     result.allocated = allocV.intValue();
-    if (qtMajorVersion < 5) {
+    if (qtInfo.version < 5) {
         // Qt 4: Simple 'data' pointer.
         result.address = adV["data"].pointerValue();
     } else {
@@ -1523,13 +1524,13 @@ QtStringAddressData readQtStringAddressData(const SymbolGroupValue &dV,
 // All sizes are in CharType units. zeroTerminated means data are 0-terminated
 // in the data type, but "size" does not contain it.
 template <typename CharType>
-bool readQt5StringData(const SymbolGroupValue &dV, int qtMajorVersion,
+bool readQt5StringData(const SymbolGroupValue &dV, const QtInfo &qtInfo,
                        bool zeroTerminated, unsigned position, unsigned sizeLimit,
                        unsigned *fullSize, unsigned *arraySize,
                        CharType **array)
 {
     *array = 0;
-    const QtStringAddressData data = readQtStringAddressData(dV, qtMajorVersion);
+    const QtStringAddressData data = readQtStringAddressData(dV, qtInfo);
     if (!data.address || position > data.size)
         return false;
     const ULONG64 address = data.address + sizeof(CharType) * position;
@@ -1582,7 +1583,7 @@ static inline bool dumpQString(const SymbolGroupValue &v, std::wostream &str,
     wchar_t *memory;
     unsigned fullSize;
     unsigned size;
-    if (!readQt5StringData(dV, qtInfo.version, true, position,
+    if (!readQt5StringData(dV, qtInfo, true, position,
                            std::min(length, ExtensionContext::instance().parameters().maxStringLength),
                            &fullSize, &size, &memory))
         return false;
@@ -1695,7 +1696,7 @@ static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str,
     char *memory;
     unsigned fullSize;
     unsigned size;
-    if (!readQt5StringData(dV, qtInfo.version, false, 0, 10240, &fullSize, &size, &memory))
+    if (!readQt5StringData(dV, qtInfo, false, 0, 10240, &fullSize, &size, &memory))
         return false;
     if (size) {
         // Emulate CDB's behavior of replacing unprintable characters
@@ -2929,7 +2930,7 @@ static inline std::vector<AbstractSymbolGroupNode *>
 
     unsigned size = 0;
     ULONG64 address = 0;
-    const QtStringAddressData data = readQtStringAddressData(dV, QtInfo::get(ctx).version);
+    const QtStringAddressData data = readQtStringAddressData(dV, QtInfo::get(ctx));
     size = data.size;
     address = data.address;
 
@@ -3073,7 +3074,7 @@ static int assignQStringI(SymbolGroupNode  *n, const char *className,
         return 1;
     const QtInfo &qtInfo = QtInfo::get(ctx);
     // Check the size, re-allocate if required.
-    const QtStringAddressData addressData = readQtStringAddressData(d, qtInfo.version);
+    const QtStringAddressData addressData = readQtStringAddressData(d, qtInfo);
     if (!addressData.address)
         return 9;
     const bool needRealloc = addressData.allocated < data.stringLength;
@@ -3097,7 +3098,9 @@ static int assignQStringI(SymbolGroupNode  *n, const char *className,
         return 11;
     // Correct size unless we re-allocated
     if (!needRealloc) {
-        const SymbolGroupValue dV = qtInfo.version < 5 ? d : d["QArrayData"];
+        const std::string &arrayData =
+                qtInfo.prependModuleAndNameSpace("QArrayData", std::string(), qtInfo.nameSpace);
+        const SymbolGroupValue dV = qtInfo.version < 5 ? d : d[arrayData.c_str()];
         if (!dV)
             return 14;
         const SymbolGroupValue size = dV["size"];
