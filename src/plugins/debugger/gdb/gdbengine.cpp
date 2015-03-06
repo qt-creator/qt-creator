@@ -3727,36 +3727,9 @@ void GdbEngine::reloadLocals()
 
 void GdbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &flags)
 {
-    // This should only be called for fresh expanded items, not for
-    // items that had their children retrieved earlier.
-    //qDebug() << "\nUPDATE WATCH DATA: " << data.toString() << "\n";
-    if (data.iname.endsWith("."))
-        return;
-
-    // Avoid endless loops created by faulty dumpers.
-    QByteArray processedName = "1-" + data.iname;
-    //qDebug() << "PROCESSED NAMES: " << processedName << m_processedNames;
-    if (m_processedNames.contains(processedName)) {
-        showMessage(_("<Breaking endless loop for " + data.iname + '>'), LogMiscInput);
-        auto item = new WatchItem(data);
-        item->d.setAllUnneeded();
-        item->d.setValue(_("<unavailable>"));
-        item->d.setHasChildren(false);
-        watchHandler()->insertItem(item);
-        rebuildWatchModel();
-        return;
-    }
-    m_processedNames.insert(processedName);
-
-    // FIXME: Is this sufficient when "external" changes are
-    // triggered e.g. by manually entered command in the gdb console?
-    //qDebug() << "TRY PARTIAL: " << flags.tryIncremental
-    //        << (m_pendingBreakpointRequests == 0);
-
     UpdateParameters params;
     params.tryPartial = flags.tryIncremental && m_pendingBreakpointRequests == 0;
     params.varList = data.iname;
-
     updateLocalsPython(params);
 }
 
@@ -4740,7 +4713,6 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
 {
     //m_pendingWatchRequests = 0;
     m_pendingBreakpointRequests = 0;
-    m_processedNames.clear();
 
     DebuggerCommand cmd("showData");
     watchHandler()->appendFormatRequests(&cmd);

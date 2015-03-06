@@ -417,7 +417,6 @@ protected:
 
     void setLocals(const QList<GdbMi> &locals);
 
-    QSet<QByteArray> m_processedNames;
     struct TypeInfo
     {
         TypeInfo(uint s = 0) : size(s) {}
