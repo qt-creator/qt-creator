@@ -156,6 +156,18 @@ QString &ProString::toQString(QString &tmp) const
     return tmp.setRawData(m_string.constData() + m_offset, m_length);
 }
 
+/*!
+ * \brief ProString::prepareExtend
+ * \param extraLen number of new characters to be added
+ * \param thisTarget offset to which current contents should be moved
+ * \param extraTarget offset at which new characters will be added
+ * \return pointer to storage location for new characters
+ *
+ * Prepares the string for adding new characters.
+ * If the string is detached and has enough space, it will be changed in place.
+ * Otherwise, it will be replaced with a new string object, thus detaching.
+ * In either case, the hash will be reset.
+ */
 QChar *ProString::prepareExtend(int extraLen, int thisTarget, int extraTarget)
 {
     if (m_string.isDetached() && m_length + extraLen <= m_string.capacity()) {
