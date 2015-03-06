@@ -122,5 +122,5 @@ void OpenDocumentsFilter::refresh(QFutureInterface<void> &future)
 void OpenDocumentsFilter::accept(LocatorFilterEntry selection) const
 {
     EditorManager::openEditor(selection.internalData.toString(), Id(),
-                              EditorManager::CanContainLineNumber);
+                              EditorManager::CanContainLineAndColumnNumber);
 }

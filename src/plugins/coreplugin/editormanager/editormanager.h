@@ -102,7 +102,7 @@ public:
         DoNotChangeCurrentEditor = 1,
         IgnoreNavigationHistory = 2,
         DoNotMakeVisible = 4,
-        CanContainLineNumber = 8,
+        CanContainLineAndColumnNumber = 8,
         OpenInOtherSplit = 16,
         DoNotSwitchToDesignMode = 32
     };

@@ -1899,7 +1899,7 @@ void ProjectExplorerPluginPrivate::loadSession(const QString &session)
 void ProjectExplorerPlugin::restoreSession2()
 {
     QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-    ICore::openFiles(dd->m_arguments, ICore::OpenFilesFlags(ICore::CanContainLineNumbers | ICore::SwitchMode));
+    ICore::openFiles(dd->m_arguments, ICore::OpenFilesFlags(ICore::CanContainLineAndColumnNumbers | ICore::SwitchMode));
 }
 
 void ProjectExplorerPluginPrivate::buildStateChanged(Project * pro)

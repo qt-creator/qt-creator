@@ -169,7 +169,7 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
 void BaseFileFilter::accept(LocatorFilterEntry selection) const
 {
     EditorManager::openEditor(selection.internalData.toString(), Id(),
-                              EditorManager::CanContainLineNumber);
+                              EditorManager::CanContainLineAndColumnNumber);
 }
 
 /*!

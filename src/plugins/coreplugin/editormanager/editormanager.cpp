@@ -173,7 +173,7 @@ void EditorManagerPlaceHolder::currentModeChanged(IMode *mode)
 static EditorManager *m_instance = 0;
 static EditorManagerPrivate *d;
 
-static int extractLineNumber(QString *fileName)
+static int extractNumericSuffix(QString *fileName)
 {
     int i = fileName->length() - 1;
     for (; i >= 0; --i) {
@@ -193,6 +193,22 @@ static int extractLineNumber(QString *fileName)
         }
     }
     return -1;
+}
+
+static void extractLineAndColumnNumbers(QString *fileName, int *lineNumber, int *columnNumber)
+{
+    *lineNumber = -1;
+    *columnNumber = -1;
+    int lastSuffix = extractNumericSuffix(fileName);
+    if (lastSuffix == -1)
+        return;
+    int secondToLastSuffix = extractNumericSuffix(fileName);
+    if (secondToLastSuffix == -1) {
+        *lineNumber = lastSuffix;
+        return;
+    }
+    *lineNumber = secondToLastSuffix;
+    *columnNumber = lastSuffix - 1; //column is 0 based, despite line being 1 based
 }
 
 static QString autoSaveName(const QString &fileName)
@@ -533,8 +549,9 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
     QString fn = fileName;
     QFileInfo fi(fn);
     int lineNumber = -1;
-    if ((flags & EditorManager::CanContainLineNumber) && !fi.exists()) {
-        lineNumber = extractLineNumber(&fn);
+    int columnNumber = -1;
+    if ((flags & EditorManager::CanContainLineAndColumnNumber) && !fi.exists()) {
+        extractLineAndColumnNumbers(&fn, &lineNumber, &columnNumber);
         if (lineNumber != -1)
             fi.setFile(fn);
     }
@@ -549,8 +566,8 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
     if (!editors.isEmpty()) {
         IEditor *editor = editors.first();
         editor = activateEditor(view, editor, flags);
-        if (editor && flags & EditorManager::CanContainLineNumber)
-            editor->gotoLine(lineNumber, -1);
+        if (editor && flags & EditorManager::CanContainLineAndColumnNumber)
+            editor->gotoLine(lineNumber, columnNumber);
         return editor;
     }
 
@@ -586,8 +603,8 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
     if (editor == result)
         restoreEditorState(editor);
 
-    if (flags & EditorManager::CanContainLineNumber)
-        editor->gotoLine(lineNumber, -1);
+    if (flags & EditorManager::CanContainLineAndColumnNumber)
+        editor->gotoLine(lineNumber, columnNumber);
 
     QApplication::restoreOverrideCursor();
     return result;

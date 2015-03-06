@@ -787,8 +787,8 @@ IDocument *MainWindow::openFiles(const QStringList &fileNames, ICore::OpenFilesF
             }
         } else {
             QFlags<EditorManager::OpenEditorFlag> emFlags;
-            if (flags & ICore::CanContainLineNumbers)
-                emFlags |=  EditorManager::CanContainLineNumber;
+            if (flags & ICore::CanContainLineAndColumnNumbers)
+                emFlags |=  EditorManager::CanContainLineAndColumnNumber;
             IEditor *editor = EditorManager::openEditor(absoluteFilePath, Id(), emFlags);
             if (!editor) {
                 if (flags & ICore::StopOnLoadFail)

@@ -229,7 +229,7 @@ bool CorePlugin::delayedInitialize()
 QObject *CorePlugin::remoteCommand(const QStringList & /* options */, const QStringList &args)
 {
     IDocument *res = m_mainWindow->openFiles(
-                args, ICore::OpenFilesFlags(ICore::SwitchMode | ICore::CanContainLineNumbers));
+                args, ICore::OpenFilesFlags(ICore::SwitchMode | ICore::CanContainLineAndColumnNumbers));
     m_mainWindow->raiseWindow();
     return res;
 }
