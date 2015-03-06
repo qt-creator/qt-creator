@@ -178,19 +178,11 @@ struct MemoryChangeCookie
     QByteArray data;
 };
 
-struct ConditionalBreakPointCookie
-{
-    ConditionalBreakPointCookie(BreakpointModelId i = BreakpointModelId()) : id(i) {}
-    BreakpointModelId id;
-    GdbMi stopReason;
-};
-
 } // namespace Internal
 } // namespace Debugger
 
 Q_DECLARE_METATYPE(Debugger::Internal::MemoryViewCookie)
 Q_DECLARE_METATYPE(Debugger::Internal::MemoryChangeCookie)
-Q_DECLARE_METATYPE(Debugger::Internal::ConditionalBreakPointCookie)
 
 namespace Debugger {
 namespace Internal {
