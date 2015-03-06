@@ -69,14 +69,11 @@ namespace Internal {
 // -----------------------------------------------------------------------
 
 DebuggerKitConfigWidget::DebuggerKitConfigWidget(Kit *workingCopy, const KitInformation *ki)
-    : KitConfigWidget(workingCopy, ki)
+    : KitConfigWidget(workingCopy, ki),
+      m_ignoreChanges(false)
 {
     m_comboBox = new QComboBox;
     m_comboBox->setEnabled(true);
-    m_comboBox->setToolTip(toolTip());
-    m_comboBox->addItem(tr("None"), QString());
-    foreach (const DebuggerItem &item, DebuggerItemManager::debuggers())
-        m_comboBox->addItem(item.displayName(), item.id());
 
     refresh();
     connect(m_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
@@ -112,8 +109,16 @@ void DebuggerKitConfigWidget::makeReadOnly()
 
 void DebuggerKitConfigWidget::refresh()
 {
+    m_ignoreChanges = true;
+    m_comboBox->clear();
+    m_comboBox->setToolTip(toolTip());
+    m_comboBox->addItem(tr("None"), QString());
+    foreach (const DebuggerItem &item, DebuggerItemManager::debuggers())
+        m_comboBox->addItem(item.displayName(), item.id());
+
     const DebuggerItem *item = DebuggerKitInformation::debugger(m_kit);
     updateComboBox(item ? item->id() : QVariant());
+    m_ignoreChanges = false;
 }
 
 QWidget *DebuggerKitConfigWidget::buttonWidget() const
@@ -134,6 +139,9 @@ void DebuggerKitConfigWidget::manageDebuggers()
 
 void DebuggerKitConfigWidget::currentDebuggerChanged(int)
 {
+    if (m_ignoreChanges)
+        return;
+
     int currentIndex = m_comboBox->currentIndex();
     QVariant id = m_comboBox->itemData(currentIndex);
     m_kit->setValue(DebuggerKitInformation::id(), id);

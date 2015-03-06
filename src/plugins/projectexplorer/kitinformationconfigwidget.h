@@ -100,9 +100,6 @@ public:
     QString toolTip() const;
 
 private slots:
-    void toolChainAdded(ProjectExplorer::ToolChain *tc);
-    void toolChainRemoved(ProjectExplorer::ToolChain *tc);
-    void toolChainUpdated(ProjectExplorer::ToolChain *tc);
     void manageToolChains();
     void currentToolChainChanged(int idx);
 
@@ -112,6 +109,7 @@ private:
 
     QComboBox *m_comboBox;
     QPushButton *m_manageButton;
+    bool m_ignoreChanges;
 };
 
 // --------------------------------------------------------------------------
