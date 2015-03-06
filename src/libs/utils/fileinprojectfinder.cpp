@@ -229,6 +229,9 @@ QString FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
         return matchedFilePath;
     }
 
+    if (findInSearchPaths(&originalPath))
+        return originalPath;
+
     if (debug)
         qDebug() << "FileInProjectFinder: checking absolute path in sysroot ...";
 
@@ -251,6 +254,45 @@ QString FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
     if (debug)
         qDebug() << "FileInProjectFinder: couldn't find file!";
     return originalPath;
+}
+
+bool FileInProjectFinder::findInSearchPaths(QString *filePath) const
+{
+    foreach (const QString &dirPath, m_searchDirectories) {
+        if (findInSearchPath(dirPath, filePath))
+            return true;
+    }
+    return false;
+}
+
+static void chopFirstDir(QString *dirPath)
+{
+    int i = dirPath->indexOf(QLatin1Char('/'));
+    if (i == -1)
+        dirPath->clear();
+    else
+        dirPath->remove(0, i + 1);
+}
+
+bool FileInProjectFinder::findInSearchPath(const QString &searchPath, QString *filePath)
+{
+    if (debug)
+        qDebug() << "FileInProjectFinder: checking search path" << searchPath;
+
+    QFileInfo fi;
+    QString s = *filePath;
+    while (!s.isEmpty()) {
+        fi.setFile(searchPath + QLatin1Char('/') + s);
+        if (debug)
+            qDebug() << "FileInProjectFinder: trying" << fi.filePath();
+        if (fi.exists() && fi.isReadable()) {
+            *filePath = fi.filePath();
+            return true;
+        }
+        chopFirstDir(&s);
+    }
+
+    return false;
 }
 
 QStringList FileInProjectFinder::filesWithSameFileName(const QString &fileName) const
@@ -292,5 +334,16 @@ QString FileInProjectFinder::bestMatch(const QStringList &filePaths, const QStri
     }
     return QString();
 }
+
+QStringList FileInProjectFinder::searchDirectories() const
+{
+    return m_searchDirectories;
+}
+
+void FileInProjectFinder::setAdditionalSearchDirectories(const QStringList &searchDirectories)
+{
+    m_searchDirectories = searchDirectories;
+}
+
 
 } // namespace Utils

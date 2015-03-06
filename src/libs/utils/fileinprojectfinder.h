@@ -53,7 +53,12 @@ public:
 
     QString findFile(const QUrl &fileUrl, bool *success = 0) const;
 
+    QStringList searchDirectories() const;
+    void setAdditionalSearchDirectories(const QStringList &searchDirectories);
+
 private:
+    bool findInSearchPaths(QString *filePath) const;
+    static bool findInSearchPath(const QString &searchPath, QString *filePath);
     QStringList filesWithSameFileName(const QString &fileName) const;
     static int rankFilePath(const QString &candidatePath, const QString &filePathToFind);
     static QString bestMatch(const QStringList &filePaths, const QString &filePathToFind);
@@ -61,6 +66,7 @@ private:
     QString m_projectDir;
     QString m_sysroot;
     QStringList m_projectFiles;
+    QStringList m_searchDirectories;
     mutable QHash<QString,QString> m_cache;
 };
 
