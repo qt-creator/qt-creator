@@ -234,7 +234,7 @@ private:
     // Extension commands
     void handleThreads(const CdbCommandPtr &);
     void handlePid(const CdbCommandPtr &reply);
-    void handleLocals(const CdbCommandPtr &reply, int flags);
+    void handleLocals(const CdbCommandPtr &reply, bool newFrame);
     void handleAddWatch(const CdbCommandPtr &reply, WatchData item);
     void handleExpandLocals(const CdbCommandPtr &reply);
     void handleRegistersExt(const CdbCommandPtr &reply);
@@ -246,7 +246,7 @@ private:
     void handleAdditionalQmlStack(const CdbCommandPtr &);
     NormalizedSourceFileName sourceMapNormalizeFileNameFromDebugger(const QString &f);
     void updateLocalVariable(const QByteArray &iname);
-    void updateLocals(bool forNewStackFrame = false);
+    void updateLocals(bool forNewStackFrame);
     int elapsedLogTime() const;
     void addLocalsOptions(ByteArrayInputStream &s) const;
     unsigned parseStackTrace(const GdbMi &data, bool sourceStepInto);

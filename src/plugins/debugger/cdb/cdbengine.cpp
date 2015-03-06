@@ -85,8 +85,6 @@ enum { debugSourceMapping = 0 };
 enum { debugWatches = 0 };
 enum { debugBreakpoints = 0 };
 
-enum { LocalsUpdateForNewFrame = 0x1 };
-
 #define CB(callback) [this](const CdbCommandPtr &r) { callback(r); }
 
 #if 0
@@ -1050,7 +1048,7 @@ void CdbEngine::updateLocalVariable(const QByteArray &iname)
     }
     str << blankSeparator << iname;
     postExtensionCommand(isWatch ? "watches" : "locals", localsArguments, 0,
-                         [this](const CdbCommandPtr &r) { handleLocals(r, 0); });
+                         [this](const CdbCommandPtr &r) { handleLocals(r, false); });
 }
 
 bool CdbEngine::hasCapability(unsigned cap) const
@@ -1303,7 +1301,7 @@ void CdbEngine::assignValueInDebugger(const WatchData *w, const QString &expr, c
     postCommand(cmd, 0);
     // Update all locals in case we change a union or something pointed to
     // that affects other variables, too.
-    updateLocals();
+    updateLocals(false);
 }
 
 void CdbEngine::handleThreads(const CdbCommandPtr &reply)
@@ -1436,7 +1434,7 @@ void CdbEngine::activateFrame(int index)
     updateLocals(true);
 }
 
-void CdbEngine::updateLocals(bool forNewStackFrame)
+void CdbEngine::updateLocals(bool newFrame)
 {
     typedef QHash<QByteArray, int> WatcherHash;
 
@@ -1450,7 +1448,7 @@ void CdbEngine::updateLocals(bool forNewStackFrame)
         watchHandler()->removeAllData();
         return;
     }
-    if (forNewStackFrame)
+    if (newFrame)
         watchHandler()->resetValueCache();
     /* Watchers: Forcibly discard old symbol group as switching from
      * thread 0/frame 0 -> thread 1/assembly -> thread 0/frame 0 will otherwise re-use it
@@ -1499,10 +1497,9 @@ void CdbEngine::updateLocals(bool forNewStackFrame)
     }
 
     // Required arguments: frame
-    const int flags = forNewStackFrame ? LocalsUpdateForNewFrame : 0;
     str << blankSeparator << frameIndex;
     postExtensionCommand("locals", arguments, 0,
-                         [this, flags](const CdbCommandPtr &r) { handleLocals(r, flags); });
+                         [this, newFrame](const CdbCommandPtr &r) { handleLocals(r, newFrame); });
 }
 
 void CdbEngine::selectThread(ThreadId threadId)
@@ -1857,14 +1854,14 @@ void CdbEngine::handleRegistersExt(const CdbCommandPtr &reply)
     postCommandSequence(reply->commandSequence);
 }
 
-void CdbEngine::handleLocals(const CdbCommandPtr &reply, int flags)
+void CdbEngine::handleLocals(const CdbCommandPtr &reply, bool newFrame)
 {
     if (reply->success) {
         if (boolSetting(VerboseLog))
             showMessage(QLatin1String("Locals: ") + QString::fromLatin1(reply->extensionReply), LogDebug);
         QList<WatchData> watchData;
         WatchHandler *handler = watchHandler();
-        if (flags & LocalsUpdateForNewFrame) {
+        if (newFrame) {
             watchData.append(*handler->findData("local"));
             watchData.append(*handler->findData("watch"));
         }
@@ -1896,7 +1893,7 @@ void CdbEngine::handleLocals(const CdbCommandPtr &reply, int flags)
             foreach (const WatchData &wd, watchData)
                 nsp << wd.toString() <<'\n';
         }
-        if (flags & LocalsUpdateForNewFrame) {
+        if (newFrame) {
             emit stackFrameCompleted();
             DebuggerToolTipManager::updateEngine(this);
         }
