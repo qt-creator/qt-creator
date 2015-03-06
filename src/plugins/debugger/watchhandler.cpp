@@ -204,7 +204,6 @@ public:
     void insertDataItem(const WatchData &data, bool destructive);
     void reinsertAllData();
     void reinsertAllDataHelper(WatchItem *item, QList<WatchData> *data);
-    void insertBulkData(const QList<WatchData> &data);
     QString displayForAutoTest(const QByteArray &iname) const;
     void reinitialize(bool includeInspectData = false);
 
@@ -304,7 +303,8 @@ void WatchModel::reinsertAllData()
     foreach (TreeItem *child, rootItem()->children())
         reinsertAllDataHelper(static_cast<WatchItem *>(child), &list);
     reinitialize(true);
-    insertBulkData(list);
+    for (int i = 0, n = list.size(); i != n; ++i)
+        insertDataItem(list.at(i), true);
 }
 
 void WatchModel::reinsertAllDataHelper(WatchItem *item, QList<WatchData> *data)
@@ -1138,14 +1138,6 @@ void WatchModel::insertDataItem(const WatchData &data, bool destructive)
     m_handler->showEditValue(data);
 }
 
-void WatchModel::insertBulkData(const QList<WatchData> &list)
-{
-    for (int i = 0, n = list.size(); i != n; ++i) {
-        const WatchData &data = list.at(i);
-        insertDataItem(data, true);
-    }
-}
-
 int WatchItem::requestedFormat() const
 {
     int format = theIndividualFormats.value(d.iname, AutomaticFormat);
@@ -1253,7 +1245,8 @@ void WatchHandler::insertData(const WatchData &data)
 
 void WatchHandler::insertDataList(const QList<WatchData> &list)
 {
-    m_model->insertBulkData(list);
+    for (int i = 0, n = list.size(); i != n; ++i)
+        m_model->insertDataItem(list.at(i), true);
     m_contentsValid = true;
     updateWatchersWindow();
 }
@@ -1339,7 +1332,7 @@ void WatchHandler::watchExpression(const QString &exp0, const QString &name)
         data.setAllUnneeded();
         data.setValue(QString(QLatin1Char(' ')));
         data.setHasChildren(false);
-        insertData(data);
+        m_model->insertDataItem(data, true);
     } else {
         m_engine->updateWatchData(data);
     }
