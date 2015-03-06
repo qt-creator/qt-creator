@@ -1500,6 +1500,7 @@ void CdbEngine::updateLocals(bool newFrame)
 
     // Required arguments: frame
     str << blankSeparator << frameIndex;
+    watchHandler()->updateRequested();
     postExtensionCommand("locals", arguments, 0,
                          [this, newFrame](const CdbResponse &r) { handleLocals(r, newFrame); });
 }
@@ -1859,6 +1860,7 @@ void CdbEngine::handleRegistersExt(const CdbResponse &response)
 void CdbEngine::handleLocals(const CdbResponse &response, bool newFrame)
 {
     if (response.success) {
+        watchHandler()->updateFinished();
         if (boolSetting(VerboseLog))
             showMessage(QLatin1String("Locals: ") + QString::fromLatin1(response.extensionReply), LogDebug);
         WatchHandler *handler = watchHandler();

@@ -952,6 +952,12 @@ void WatchTreeView::setModel(QAbstractItemModel *model)
             this, &QAbstractItemView::setCurrentIndex);
     connect(watchModel, &WatchModelBase::itemIsExpanded,
             this, &WatchTreeView::handleItemIsExpanded);
+    if (m_type == LocalsType) {
+        connect(watchModel, &WatchModelBase::updateRequested,
+                this, &WatchTreeView::showProgressIndicator);
+        connect(watchModel, &WatchModelBase::updateFinished,
+                this, &WatchTreeView::hideProgressIndicator);
+    }
 }
 
 void WatchTreeView::rowActivated(const QModelIndex &index)

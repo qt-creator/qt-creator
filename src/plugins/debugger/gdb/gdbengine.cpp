@@ -3755,6 +3755,7 @@ void GdbEngine::handleVarAssign(const DebuggerResponse &)
 void GdbEngine::updateLocals()
 {
     watchHandler()->resetValueCache();
+    watchHandler()->updateRequested();
     updateLocalsPython(UpdateParameters());
 }
 
@@ -4767,6 +4768,7 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
 
 void GdbEngine::handleStackFramePython(const DebuggerResponse &response, bool partial)
 {
+    watchHandler()->updateFinished();
     if (response.resultClass == ResultDone) {
         QByteArray out = response.consoleStreamOutput;
         while (out.endsWith(' ') || out.endsWith('\n'))

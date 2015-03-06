@@ -1177,6 +1177,7 @@ void WatchHandler::cleanup()
     m_model->m_expandedINames.clear();
     theWatcherNames.remove(QByteArray());
     m_model->reinitialize();
+    emit m_model->updateFinished();
     m_separatedView->hide();
 }
 
@@ -1269,6 +1270,16 @@ void WatchHandler::resetValueCache()
         auto watchItem = static_cast<WatchItem *>(item);
         m_model->m_valueCache[watchItem->d.iname] = watchItem->d.value;
     });
+}
+
+void WatchHandler::updateRequested()
+{
+    emit m_model->updateRequested();
+}
+
+void WatchHandler::updateFinished()
+{
+    emit m_model->updateFinished();
 }
 
 void WatchHandler::purgeOutdatedItems(const QSet<QByteArray> &inames)

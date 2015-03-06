@@ -177,6 +177,8 @@ signals:
     void itemIsExpanded(const QModelIndex &idx);
     void inameIsExpanded(const QByteArray &iname);
     void columnAdjustmentRequested();
+    void updateRequested();
+    void updateFinished();
 };
 
 class WatchHandler : public QObject
@@ -242,6 +244,8 @@ public:
     void removeItemByIName(const QByteArray &iname);
     void removeAllData(bool includeInspectData = false);
     void resetValueCache();
+    void updateRequested();
+    void updateFinished();
     void purgeOutdatedItems(const QSet<QByteArray> &inames);
 
 private:

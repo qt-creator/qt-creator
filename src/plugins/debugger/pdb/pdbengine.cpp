@@ -664,6 +664,7 @@ void PdbEngine::updateLocals()
     //m_lastDebuggableCommand = cmd;
     //m_lastDebuggableCommand.args.replace("\"passexceptions\":0", "\"passexceptions\":1");
 
+    watchHandler()->updateRequested();
     runCommand(cmd);
 }
 
