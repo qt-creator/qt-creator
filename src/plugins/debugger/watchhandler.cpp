@@ -201,7 +201,7 @@ public:
 
     bool setData(const QModelIndex &idx, const QVariant &value, int role);
 
-    void insertDataItem(const WatchData &data, bool destructive);
+    void insertDataItem(const WatchData &data);
     void reinsertAllData();
     void reinsertAllDataHelper(WatchItem *item, QList<WatchData> *data);
     QString displayForAutoTest(const QByteArray &iname) const;
@@ -304,7 +304,7 @@ void WatchModel::reinsertAllData()
         reinsertAllDataHelper(static_cast<WatchItem *>(child), &list);
     reinitialize(true);
     for (int i = 0, n = list.size(); i != n; ++i)
-        insertDataItem(list.at(i), true);
+        insertDataItem(list.at(i));
 }
 
 void WatchModel::reinsertAllDataHelper(WatchItem *item, QList<WatchData> *data)
@@ -1109,35 +1109,6 @@ static int findInsertPosition(const QVector<TreeItem *> &list, const WatchItem *
     return it - list.begin();
 }
 
-void WatchModel::insertDataItem(const WatchData &data, bool destructive)
-{
-    QTC_ASSERT(!data.iname.isEmpty(), qDebug() << data.toString(); return);
-
-    if (WatchItem *item = findItem(data.iname)) {
-        // Remove old children.
-        item->fetchTriggered = false;
-        if (destructive)
-            item->removeChildren();
-
-        // Overwrite old entry.
-        item->d = data;
-        item->update();
-    } else {
-        // Add new entry.
-        WatchItem *parent = findItem(parentName(data.iname));
-        QTC_ASSERT(parent, return);
-        WatchItem *newItem = new WatchItem;
-        newItem->d = data;
-        const int row = findInsertPosition(parent->children(), newItem);
-        parent->insertChild(row, newItem);
-        if (m_expandedINames.contains(parent->d.iname)) {
-            emit inameIsExpanded(parent->d.iname);
-            emit itemIsExpanded(indexFromItem(parent));
-        }
-    }
-    m_handler->showEditValue(data);
-}
-
 int WatchItem::requestedFormat() const
 {
     int format = theIndividualFormats.value(d.iname, AutomaticFormat);
@@ -1221,6 +1192,34 @@ void WatchModel::insertItem(WatchItem *item)
     parent->insertChild(row, item);
 }
 
+void WatchModel::insertDataItem(const WatchData &data)
+{
+    QTC_ASSERT(!data.iname.isEmpty(), qDebug() << data.toString(); return);
+
+    if (WatchItem *item = findItem(data.iname)) {
+        // Remove old children.
+        item->fetchTriggered = false;
+        item->removeChildren();
+
+        // Overwrite old entry.
+        item->d = data;
+        item->update();
+    } else {
+        // Add new entry.
+        WatchItem *parent = findItem(parentName(data.iname));
+        QTC_ASSERT(parent, return);
+        WatchItem *newItem = new WatchItem;
+        newItem->d = data;
+        const int row = findInsertPosition(parent->children(), newItem);
+        parent->insertChild(row, newItem);
+        if (m_expandedINames.contains(parent->d.iname)) {
+            emit inameIsExpanded(parent->d.iname);
+            emit itemIsExpanded(indexFromItem(parent));
+        }
+    }
+    m_handler->showEditValue(data);
+}
+
 void WatchModel::reexpandItems()
 {
     foreach (const QByteArray &iname, m_expandedINames) {
@@ -1238,7 +1237,7 @@ void WatchModel::reexpandItems()
 
 void WatchHandler::insertData(const WatchData &data)
 {
-    m_model->insertDataItem(data, true);
+    m_model->insertDataItem(data);
     m_contentsValid = true;
     updateWatchersWindow();
 }
@@ -1246,7 +1245,7 @@ void WatchHandler::insertData(const WatchData &data)
 void WatchHandler::insertDataList(const QList<WatchData> &list)
 {
     for (int i = 0, n = list.size(); i != n; ++i)
-        m_model->insertDataItem(list.at(i), true);
+        m_model->insertDataItem(list.at(i));
     m_contentsValid = true;
     updateWatchersWindow();
 }
@@ -1332,7 +1331,7 @@ void WatchHandler::watchExpression(const QString &exp0, const QString &name)
         data.setAllUnneeded();
         data.setValue(QString(QLatin1Char(' ')));
         data.setHasChildren(false);
-        m_model->insertDataItem(data, true);
+        m_model->insertDataItem(data);
     } else {
         m_engine->updateWatchData(data);
     }
