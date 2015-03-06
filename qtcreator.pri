@@ -107,7 +107,9 @@ for(dir, QTC_PLUGIN_DIRS) {
     INCLUDEPATH += $$dir
 }
 
-CONFIG += depend_includepath
+CONFIG += \
+    depend_includepath \
+    no_include_pwd
 
 LIBS += -L$$IDE_LIBRARY_PATH
 
