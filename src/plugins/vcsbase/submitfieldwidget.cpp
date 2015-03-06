@@ -298,17 +298,17 @@ void SubmitFieldWidget::createField(const QString &f)
         }
     }
 
-    connect(fe.browseButton, SIGNAL(clicked()), this, SLOT(slotBrowseButtonClicked()));
+    connect(fe.browseButton, &QAbstractButton::clicked, this, &SubmitFieldWidget::slotBrowseButtonClicked);
     if (!d->hasBrowseButton)
         fe.browseButton->setVisible(false);
 
     if (d->completer)
         fe.lineEdit->setCompleter(d->completer);
 
-    connect(fe.combo, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(slotComboIndexChanged(int)));
-    connect(fe.clearButton, SIGNAL(clicked()),
-            this, SLOT(slotRemove()));
+    connect(fe.combo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &SubmitFieldWidget::slotComboIndexChanged);
+    connect(fe.clearButton, &QAbstractButton::clicked,
+            this, &SubmitFieldWidget::slotRemove);
     d->layout->addLayout(fe.layout);
     d->fieldEntries.push_back(fe);
 }

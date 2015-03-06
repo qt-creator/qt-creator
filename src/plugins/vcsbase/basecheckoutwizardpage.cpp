@@ -68,21 +68,27 @@ BaseCheckoutWizardPage::BaseCheckoutWizardPage(QWidget *parent) :
 {
     d->ui.setupUi(this);
 
-    connect(d->ui.repositoryLineEdit, SIGNAL(textChanged(QString)), this, SLOT(slotRepositoryChanged(QString)));
+    connect(d->ui.repositoryLineEdit, &QLineEdit::textChanged,
+            this, &BaseCheckoutWizardPage::slotRepositoryChanged);
 
-    connect(d->ui.checkoutDirectoryLineEdit, SIGNAL(textChanged(QString)),
-            this, SLOT(slotChanged()));
-    connect(d->ui.checkoutDirectoryLineEdit, SIGNAL(textEdited(QString)), this, SLOT(slotDirectoryEdited()));
-    connect(d->ui.branchComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(slotChanged()));
+    connect(d->ui.checkoutDirectoryLineEdit, &QLineEdit::textChanged,
+            this, &BaseCheckoutWizardPage::slotChanged);
+    connect(d->ui.checkoutDirectoryLineEdit, &QLineEdit::textEdited,
+            this, &BaseCheckoutWizardPage::slotDirectoryEdited);
+    connect(d->ui.branchComboBox,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &BaseCheckoutWizardPage::slotChanged);
 
     d->ui.pathChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     d->ui.pathChooser->setHistoryCompleter(QLatin1String("Vcs.CheckoutDir.History"));
-    connect(d->ui.pathChooser, SIGNAL(validChanged()), this, SLOT(slotChanged()));
+    connect(d->ui.pathChooser,
+            static_cast<void (Utils::PathChooser::*)()>(&Utils::PathChooser::validChanged),
+            this, &BaseCheckoutWizardPage::slotChanged);
 
     d->ui.branchComboBox->setEnabled(false);
     d->ui.branchRefreshToolButton->setIcon(QIcon(QLatin1String(":/locator/images/reload.png")));
-    connect(d->ui.branchRefreshToolButton, SIGNAL(clicked()), this, SLOT(slotRefreshBranches()));
+    connect(d->ui.branchRefreshToolButton, &QAbstractButton::clicked,
+            this, &BaseCheckoutWizardPage::slotRefreshBranches);
 }
 
 BaseCheckoutWizardPage::~BaseCheckoutWizardPage()

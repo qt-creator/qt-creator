@@ -86,10 +86,10 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_settingsPage = new CommonOptionsPage;
     addAutoReleasedObject(m_settingsPage);
     addAutoReleasedObject(VcsOutputWindow::instance());
-    connect(m_settingsPage, SIGNAL(settingsChanged(VcsBase::Internal::CommonVcsSettings)),
-            this, SIGNAL(settingsChanged(VcsBase::Internal::CommonVcsSettings)));
-    connect(m_settingsPage, SIGNAL(settingsChanged(VcsBase::Internal::CommonVcsSettings)),
-            this, SLOT(slotSettingsChanged()));
+    connect(m_settingsPage, &CommonOptionsPage::settingsChanged,
+            this, &VcsPlugin::settingsChanged);
+    connect(m_settingsPage, &CommonOptionsPage::settingsChanged,
+            this, &VcsPlugin::slotSettingsChanged);
     slotSettingsChanged();
 
     JsonWizardFactory::registerPageFactory(new Internal::VcsConfigurationPageFactory);

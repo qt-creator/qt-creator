@@ -169,10 +169,12 @@ CleanDialog::CleanDialog(QWidget *parent) :
     d->ui.filesTreeView->setSelectionMode(QAbstractItemView::NoSelection);
     d->ui.filesTreeView->setAllColumnsShowFocus(true);
     d->ui.filesTreeView->setRootIsDecorated(false);
-    connect(d->ui.filesTreeView, SIGNAL(doubleClicked(QModelIndex)),
-            this, SLOT(slotDoubleClicked(QModelIndex)));
-    connect(d->ui.selectAllCheckBox, SIGNAL(clicked(bool)), this, SLOT(selectAllItems(bool)));
-    connect(d->ui.filesTreeView, SIGNAL(clicked(QModelIndex)), this, SLOT(updateSelectAllCheckBox()));
+    connect(d->ui.filesTreeView, &QAbstractItemView::doubleClicked,
+            this, &CleanDialog::slotDoubleClicked);
+    connect(d->ui.selectAllCheckBox, &QAbstractButton::clicked,
+            this, &CleanDialog::selectAllItems);
+    connect(d->ui.filesTreeView, &QAbstractItemView::clicked,
+            this, &CleanDialog::updateSelectAllCheckBox);
 }
 
 CleanDialog::~CleanDialog()
@@ -262,8 +264,8 @@ bool CleanDialog::promptToDelete()
 
     // Remove in background
     auto cleanTask = new Internal::CleanFilesTask(d->m_workingDirectory, selectedFiles);
-    connect(cleanTask, SIGNAL(error(QString)),
-            VcsOutputWindow::instance(), SLOT(appendSilently(QString)),
+    connect(cleanTask, &Internal::CleanFilesTask::error,
+            VcsOutputWindow::instance(), &VcsOutputWindow::appendSilently,
             Qt::QueuedConnection);
 
     QFuture<void> task = QtConcurrent::run(cleanTask, &Internal::CleanFilesTask::run);

@@ -95,6 +95,13 @@ public:
     tst_CodeSize()
     {
         m_makeBinary = "make";
+#ifdef Q_OS_WIN
+#  ifdef Q_CC_MSVC
+        m_makeBinary = "nmake";
+#  else
+        m_makeBinary = "mingw32-make";
+#  endif
+#endif
         m_keepTemp = false;
         m_forceKeepTemp = false;
     }
@@ -199,7 +206,11 @@ void tst_CodeSize::codesize()
         caseCpp.close();
     }
 
+#ifdef Q_OS_WIN
+    mainPro.write("\nLIBS += -L$$OUT_PWD\\release");
+#else
     mainPro.write("\nLIBS += -L$$OUT_PWD");
+#endif
     mainPro.close();
 
     bigPro.write("\nSUBDIRS += main.pro");
@@ -246,7 +257,15 @@ void tst_CodeSize::codesize()
              << "\n\nCode:            " << c.gist.data()
              << "\nOptimized:       " << ((suite.flags & Optimize) ? "Yes" : "No")
              << "\nExtra CXX Flags: " << c.extraCxxFlags.data();
+#ifdef Q_OS_WIN
+#    ifdef Q_CC_MSVC
+        QByteArray finalCommand = suite.cmd + ' ' + "release\\" + c.file + ".obj";
+#    else
+        QByteArray finalCommand = suite.cmd + ' ' + "release\\" + c.file + ".o";
+#    endif
+#else
         QByteArray finalCommand = suite.cmd + ' ' + c.file + ".o";
+#endif
         QProcess final;
         final.setWorkingDirectory(t->buildPath);
         final.setProcessEnvironment(m_env);
@@ -281,7 +300,7 @@ void tst_CodeSize::codesize_data()
 
 // FIXME: Cannot be hardcoded. Assume matching qmake for now.
 #ifdef Q_CC_MSVC
-    s.cmd = "dumpbin /DISASM /SECTION:.text$mn";
+    s.cmd = "dumpbin /DISASM /SECTION:.text";
 #else
     s.cmd = "objdump -D -j.text";
 #endif

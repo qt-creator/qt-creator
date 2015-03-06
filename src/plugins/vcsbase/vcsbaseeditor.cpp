@@ -346,7 +346,7 @@ void ChangeTextCursorHandler::slotCopyRevision()
 QAction *ChangeTextCursorHandler::createDescribeAction(const QString &change) const
 {
     auto a = new QAction(VcsBaseEditorWidget::tr("Describe Change %1").arg(change), 0);
-    connect(a, SIGNAL(triggered()), this, SLOT(slotDescribe()));
+    connect(a, &QAction::triggered, this, &ChangeTextCursorHandler::slotDescribe);
     return a;
 }
 
@@ -359,7 +359,7 @@ QAction *ChangeTextCursorHandler::createAnnotateAction(const QString &change, bo
                 editorWidget()->annotateRevisionTextFormat();
     auto a = new QAction(format.arg(change), 0);
     a->setData(change);
-    connect(a, SIGNAL(triggered()), editorWidget(), SLOT(slotAnnotateRevision()));
+    connect(a, &QAction::triggered, editorWidget(), &VcsBaseEditorWidget::slotAnnotateRevision);
     return a;
 }
 
@@ -367,7 +367,7 @@ QAction *ChangeTextCursorHandler::createCopyRevisionAction(const QString &change
 {
     auto a = new QAction(editorWidget()->copyRevisionTextFormat().arg(change), 0);
     a->setData(change);
-    connect(a, SIGNAL(triggered()), this, SLOT(slotCopyRevision()));
+    connect(a, &QAction::triggered, this, &ChangeTextCursorHandler::slotCopyRevision);
     return a;
 }
 
@@ -499,7 +499,7 @@ QAction *UrlTextCursorHandler::createOpenUrlAction(const QString &text) const
 {
     auto a = new QAction(text, 0);
     a->setData(m_urlData.url);
-    connect(a, SIGNAL(triggered()), this, SLOT(slotOpenUrl()));
+    connect(a, &QAction::triggered, this, &UrlTextCursorHandler::slotOpenUrl);
     return a;
 }
 
@@ -507,7 +507,7 @@ QAction *UrlTextCursorHandler::createCopyUrlAction(const QString &text) const
 {
     auto a = new QAction(text, 0);
     a->setData(m_urlData.url);
-    connect(a, SIGNAL(triggered()), this, SLOT(slotCopyUrl()));
+    connect(a, &QAction::triggered, this, &UrlTextCursorHandler::slotCopyUrl);
     return a;
 }
 
@@ -714,19 +714,25 @@ void VcsBaseEditorWidget::init()
     case OtherContent:
         break;
     case LogOutput:
-        connect(d->entriesComboBox(), SIGNAL(activated(int)), this, SLOT(slotJumpToEntry(int)));
-        connect(this, SIGNAL(textChanged()), this, SLOT(slotPopulateLogBrowser()));
-        connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(slotCursorPositionChanged()));
+        connect(d->entriesComboBox(), static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+                this, &VcsBaseEditorWidget::slotJumpToEntry);
+        connect(this, &QPlainTextEdit::textChanged,
+                this, &VcsBaseEditorWidget::slotPopulateLogBrowser);
+        connect(this, &QPlainTextEdit::cursorPositionChanged,
+                this, &VcsBaseEditorWidget::slotCursorPositionChanged);
         break;
     case AnnotateOutput:
         // Annotation highlighting depends on contents, which is set later on
-        connect(this, SIGNAL(textChanged()), this, SLOT(slotActivateAnnotation()));
+        connect(this, &QPlainTextEdit::textChanged, this, &VcsBaseEditorWidget::slotActivateAnnotation);
         break;
     case DiffOutput:
         // Diff: set up diff file browsing
-        connect(d->entriesComboBox(), SIGNAL(activated(int)), this, SLOT(slotJumpToEntry(int)));
-        connect(this, SIGNAL(textChanged()), this, SLOT(slotPopulateDiffBrowser()));
-        connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(slotCursorPositionChanged()));
+        connect(d->entriesComboBox(), static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+                this, &VcsBaseEditorWidget::slotJumpToEntry);
+        connect(this, &QPlainTextEdit::textChanged,
+                this, &VcsBaseEditorWidget::slotPopulateDiffBrowser);
+        connect(this, &QPlainTextEdit::cursorPositionChanged,
+                this, &VcsBaseEditorWidget::slotCursorPositionChanged);
         break;
     }
     if (hasDiff()) {
@@ -948,8 +954,8 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     case LogOutput: // log might have diff
     case DiffOutput: {
         menu->addSeparator();
-        connect(menu->addAction(tr("Send to CodePaster...")), SIGNAL(triggered()),
-                this, SLOT(slotPaste()));
+        connect(menu->addAction(tr("Send to CodePaster...")), &QAction::triggered,
+                this, &VcsBaseEditorWidget::slotPaste);
         menu->addSeparator();
         // Apply/revert diff chunk.
         const DiffChunk chunk = diffChunk(cursorForPosition(e->pos()));
@@ -962,11 +968,11 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
         // fileNameFromDiffSpecification() works.
         QAction *applyAction = menu->addAction(tr("Apply Chunk..."));
         applyAction->setData(qVariantFromValue(Internal::DiffChunkAction(chunk, false)));
-        connect(applyAction, SIGNAL(triggered()), this, SLOT(slotApplyDiffChunk()));
+        connect(applyAction, &QAction::triggered, this, &VcsBaseEditorWidget::slotApplyDiffChunk);
         // Revert a chunk from a VCS diff, which might be linked to reloading the diff.
         QAction *revertAction = menu->addAction(tr("Revert Chunk..."));
         revertAction->setData(qVariantFromValue(Internal::DiffChunkAction(chunk, true)));
-        connect(revertAction, SIGNAL(triggered()), this, SLOT(slotApplyDiffChunk()));
+        connect(revertAction, &QAction::triggered, this, &VcsBaseEditorWidget::slotApplyDiffChunk);
         // Custom diff actions
         addDiffActions(menu, chunk);
         break;
@@ -974,7 +980,7 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     default:
         break;
     }
-    connect(this, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
+    connect(this, &QObject::destroyed, menu, &QObject::deleteLater);
     menu->exec(e->globalPos());
     delete menu;
 }
@@ -1058,7 +1064,7 @@ void VcsBaseEditorWidget::slotActivateAnnotation()
     if (changes.isEmpty())
         return;
 
-    disconnect(this, SIGNAL(textChanged()), this, SLOT(slotActivateAnnotation()));
+    disconnect(this, &QPlainTextEdit::textChanged, this, &VcsBaseEditorWidget::slotActivateAnnotation);
 
     if (BaseAnnotationHighlighter *ah = qobject_cast<BaseAnnotationHighlighter *>(textDocument()->syntaxHighlighter())) {
         ah->setChangeNumbers(changes);

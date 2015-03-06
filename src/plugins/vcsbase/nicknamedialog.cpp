@@ -189,12 +189,12 @@ NickNameDialog::NickNameDialog(QStandardItemModel *model, QWidget *parent) :
     }
     m_ui->filterTreeView->setMinimumWidth(treeWidth + 20);
     m_ui->filterLineEdit->setFiltering(true);
-    connect(m_ui->filterTreeView, SIGNAL(activated(QModelIndex)), this,
-            SLOT(slotActivated(QModelIndex)));
-    connect(m_ui->filterTreeView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            this, SLOT(slotCurrentItemChanged(QModelIndex)));
-    connect(m_ui->filterLineEdit, SIGNAL(filterChanged(QString)),
-            m_filterModel, SLOT(setFilterFixedString(QString)));
+    connect(m_ui->filterTreeView, &QAbstractItemView::activated, this,
+            &NickNameDialog::slotActivated);
+    connect(m_ui->filterTreeView->selectionModel(), &QItemSelectionModel::currentRowChanged,
+            this, &NickNameDialog::slotCurrentItemChanged);
+    connect(m_ui->filterLineEdit, &Utils::FancyLineEdit::filterChanged,
+            m_filterModel, &QSortFilterProxyModel::setFilterFixedString);
 }
 
 NickNameDialog::~NickNameDialog()
