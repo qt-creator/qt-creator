@@ -1284,7 +1284,7 @@ void WatchHandler::purgeOutdatedItems(const QSet<QByteArray> &inames)
     updateWatchersWindow();
 }
 
-void WatchHandler::removeData(const QByteArray &iname)
+void WatchHandler::removeItemByIName(const QByteArray &iname)
 {
     WatchItem *item = m_model->findItem(iname);
     if (!item)

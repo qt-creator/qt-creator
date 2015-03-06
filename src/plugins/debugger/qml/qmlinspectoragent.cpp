@@ -775,7 +775,7 @@ QList<WatchData> QmlInspectorAgent::buildWatchData(const ObjectReference &obj,
             // hence we can insert the data in the correct position
             const QByteArray oldIname = m_debugIdToIname.value(objDebugId);
             if (oldIname != objIname)
-                m_debuggerEngine->watchHandler()->removeData(oldIname);
+                m_debuggerEngine->watchHandler()->removeItemByIName(oldIname);
         }
         m_debugIdToIname.insert(objDebugId, objIname);
     }

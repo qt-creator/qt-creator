@@ -460,7 +460,7 @@ void WatchTreeView::keyPressEvent(QKeyEvent *ev)
     if (ev->key() == Qt::Key_Delete && m_type == WatchersType) {
         WatchHandler *handler = currentEngine()->watchHandler();
         foreach (const QModelIndex &idx, activeRows())
-            handler->removeData(idx.data(LocalsINameRole).toByteArray());
+            handler->removeItemByIName(idx.data(LocalsINameRole).toByteArray());
     } else if (ev->key() == Qt::Key_Return
             && ev->modifiers() == Qt::ControlModifier
             && m_type == LocalsType) {
@@ -886,7 +886,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == &actWatchExpression) {
         watchExpression(exp, name);
     } else if (act == &actRemoveWatchExpression) {
-        handler->removeData(p.data(LocalsINameRole).toByteArray());
+        handler->removeItemByIName(p.data(LocalsINameRole).toByteArray());
     } else if (act == &actRemoveAllWatchExpression) {
         handler->clearWatches();
     } else if (act == &actCopy) {
