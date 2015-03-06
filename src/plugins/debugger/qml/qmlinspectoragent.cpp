@@ -678,7 +678,7 @@ void QmlInspectorAgent::insertObjectInTree(const ObjectReference &object)
     WatchHandler *watchHandler = m_debuggerEngine->watchHandler();
     if (printTime)
         timeElapsed.start();
-    watchHandler->insertData(watchData);
+    watchHandler->insertDataList(watchData);
     qCDebug(qmlInspectorLog) << __FUNCTION__ << "Time: Insertion took "
                              << timeElapsed.elapsed() << " ms";
 

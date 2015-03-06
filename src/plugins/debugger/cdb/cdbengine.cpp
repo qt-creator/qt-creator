@@ -1889,7 +1889,7 @@ void CdbEngine::handleLocals(const CdbCommandPtr &reply, int flags)
                     watchData[i].name = it.value();
             }
         }
-        handler->insertData(watchData);
+        handler->insertDataList(watchData);
         if (debugLocals) {
             QDebug nsp = qDebug().nospace();
             nsp << "Obtained " << watchData.size() << " items:\n";

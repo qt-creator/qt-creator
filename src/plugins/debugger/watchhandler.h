@@ -236,8 +236,8 @@ public:
     void updateWatchersWindow();
     void appendFormatRequests(DebuggerCommand *cmd);
 
-    void insertData(const WatchData &data); // Convenience.
-    void insertData(const QList<WatchData> &list);
+    void insertData(const WatchData &data); // DEPRECATED
+    void insertDataList(const QList<WatchData> &list); // DEPRECATED
     void insertItem(WatchItem *item); // Takes ownership.
     void removeData(const QByteArray &iname);
     void removeChildren(const QByteArray &iname);

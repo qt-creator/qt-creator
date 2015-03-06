@@ -1135,6 +1135,7 @@ void WatchModel::insertDataItem(const WatchData &data, bool destructive)
             emit itemIsExpanded(indexFromItem(parent));
         }
     }
+    m_handler->showEditValue(data);
 }
 
 void WatchModel::insertBulkData(const QList<WatchData> &list)
@@ -1142,9 +1143,7 @@ void WatchModel::insertBulkData(const QList<WatchData> &list)
     for (int i = 0, n = list.size(); i != n; ++i) {
         const WatchData &data = list.at(i);
         insertDataItem(data, true);
-        m_handler->showEditValue(data);
     }
-    emit columnAdjustmentRequested();
 }
 
 int WatchItem::requestedFormat() const
@@ -1247,15 +1246,14 @@ void WatchModel::reexpandItems()
 
 void WatchHandler::insertData(const WatchData &data)
 {
-    QList<WatchData> list;
-    list.append(data);
-    insertData(list);
+    m_model->insertDataItem(data, true);
+    m_contentsValid = true;
+    updateWatchersWindow();
 }
 
-void WatchHandler::insertData(const QList<WatchData> &list)
+void WatchHandler::insertDataList(const QList<WatchData> &list)
 {
     m_model->insertBulkData(list);
-
     m_contentsValid = true;
     updateWatchersWindow();
 }
@@ -1463,6 +1461,8 @@ void WatchHandler::clearWatches()
 
 void WatchHandler::updateWatchersWindow()
 {
+    emit m_model->columnAdjustmentRequested();
+
     // Force show/hide of watchers and return view.
     static int previousShowWatch = -1;
     static int previousShowReturn = -1;

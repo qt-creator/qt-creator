@@ -1582,7 +1582,7 @@ void QmlV8DebuggerClient::updateScope(const QVariant &bodyVal, const QVariant &r
         d->lookup(handlesToLookup);
 
     if (!locals.isEmpty())
-        d->engine->watchHandler()->insertData(locals);
+        d->engine->watchHandler()->insertDataList(locals);
 }
 
 QmlJS::ConsoleItem *constructLogItemTree(QmlJS::ConsoleItem *parent,
@@ -1687,7 +1687,7 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success,
                 watchDataList << data << createWatchDataList(&data, body.properties, refsVal);
             }
             //Insert the newly evaluated expression to the Watchers Window
-            watchHandler->insertData(watchDataList);
+            watchHandler->insertDataList(watchDataList);
         }
     }
 }
@@ -1734,7 +1734,7 @@ void QmlV8DebuggerClient::expandLocalsAndWatchers(const QVariant &bodyVal, const
         }
     }
 
-    watchHandler->insertData(watchDataList);
+    watchHandler->insertDataList(watchDataList);
 }
 
 QList<WatchData> QmlV8DebuggerClient::createWatchDataList(const WatchData *parent,
