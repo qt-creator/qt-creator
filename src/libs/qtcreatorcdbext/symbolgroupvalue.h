@@ -139,6 +139,9 @@ public:
                                     const SymbolGroupValueContext &c,
                                     std::string *errorMessage = 0);
 
+    static std::list<std::string> getAllModuleNames(const SymbolGroupValueContext &c,
+                                                    std::string *errorMessage = 0);
+
     static unsigned char *readMemory(CIDebugDataSpaces *ds, ULONG64 address, ULONG length,
                                      std::string *errorMessage = 0);
     static ULONG64 readPointerValue(CIDebugDataSpaces *ds, ULONG64 address,

@@ -652,75 +652,78 @@ const QtInfo &QtInfo::get(const SymbolGroupValueContext &ctx)
     typedef std::list<std::string> StringList;
     typedef StringList::const_iterator StringListConstIt;
 
-    // Lookup qstrdup() to hopefully get module (potential libinfix) and namespace
-    // Typically, this resolves to 'QtGuid4!qstrdup' and 'QtCored4!qstrdup'...
-    const char* qstrdupSymbol = "qstrdup";
-    StringList modulePatterns;
-    modulePatterns.push_back("Qt5Cored!");
-    modulePatterns.push_back("QtCored4!");
-    modulePatterns.push_back("*");
+    std::string moduleName;
+    std::string::size_type exclPos = std::string::npos;
+    std::string::size_type libPos = std::string::npos;
+
+    const StringList &modules = SymbolGroupValue::getAllModuleNames(ctx);
+    for (StringListConstIt module = modules.begin(), total = modules.end();
+         module != total; ++module) {
+        moduleName = *module;
+        if (moduleName.find("Qt") != std::string::npos) {
+            libPos = moduleName.find("Core");
+            if (libPos != std::string::npos)
+                break;
+        }
+    }
+
+    if (libPos == std::string::npos)
+        moduleName.clear();
+    else
+        moduleName += '!';
+
+    const char* qstrdupSymbol = "*qstrdup";
     std::string qualifiedSymbol;
-    std::string::size_type exclPos;
-    std::string::size_type libPos;
-    for (StringListConstIt modulePattern = modulePatterns.begin(), total = modulePatterns.end();
-            modulePattern != total; ++modulePattern) {
-        const std::string pattern = *modulePattern + qstrdupSymbol;
+    do {
+        // Lookup qstrdup() to get the core module
+        const std::string pattern = moduleName + qstrdupSymbol;
         const StringList &allMatches = SymbolGroupValue::resolveSymbolName(pattern.c_str(), ctx);
-        const bool wildcardPattern = *modulePattern == "*";
-        const StringListConstIt match = wildcardPattern
-                ? std::find_if(allMatches.begin(), allMatches.end(), SubStringPredicate("Core"))
-                : std::find_if(allMatches.begin(), allMatches.end(), SubStringPredicate(modulePattern->c_str()));
-
-        if (match != allMatches.end()) {
-            qualifiedSymbol = *match;
-        } else if (wildcardPattern && !allMatches.empty()) {
-            // Use the first qstrdup symbol if there is no Core in all available qstrdup symbols
-            // This is useful when qt is statically linked.
-            qualifiedSymbol = *allMatches.begin();
+        if (!allMatches.empty()) {
+            qualifiedSymbol = allMatches.front();
         } else {
-            // If we haven't found a match and this isn't the wildcard pattern we continue
-            // we could still find a dynamic qt library with a libinfix
-            continue;
+            if (!moduleName.empty()) {
+                // If there is no qstrdup symbol in the module fall back to a global lookup.
+                moduleName.clear();
+                continue;
+            }
         }
 
-        exclPos = qualifiedSymbol.find('!'); // Resolved: 'QtCored4!qstrdup'
+        exclPos = qualifiedSymbol.find('!');
         libPos = qualifiedSymbol.find("Core");
-        if (exclPos != std::string::npos && libPos != std::string::npos)
-            break;
-    }
 
-    if (exclPos != std::string::npos) {
-        if (libPos != std::string::npos) {
-            // found the core module
-            // determine the qt version from the module name
-            if (isdigit(qualifiedSymbol.at(2)))
-                rc.version = qualifiedSymbol.at(2) - '0';
-            else
-                rc.version = qualifiedSymbol.at(exclPos - 1) - '0';
-            rc.libInfix = qualifiedSymbol.substr(libPos + 4, exclPos - libPos - 4);
+        if (exclPos != std::string::npos) {
+            if (!moduleName.empty()) {
+                // found the core module
+                // determine the qt version from the module name
+                if (isdigit(qualifiedSymbol.at(2)))
+                    rc.version = qualifiedSymbol.at(2) - '0';
+                else
+                    rc.version = qualifiedSymbol.at(exclPos - 1) - '0';
+                rc.libInfix = qualifiedSymbol.substr(libPos + 4, exclPos - libPos - 4);
+            } else {
+                // Found the Qt symbol but in an unexpected module, most probably
+                // it is a static build.
+                rc.isStatic = true;
+                rc.libInfix = qualifiedSymbol.substr(0, exclPos);
+                // The Qt version cannot be determined by the module name. Looking up
+                // qInstallMessageHandler which is in Qt since 5.0 to determine the version.
+                const std::string pattern = rc.libInfix + "!*qInstallMessageHandler";
+                const StringList &allMatches = SymbolGroupValue::resolveSymbolName(pattern.c_str(), ctx);
+                const StringListConstIt match = std::find_if(allMatches.begin(), allMatches.end(),
+                                                             SubStringPredicate(rc.libInfix.c_str()));
+                rc.version = match == allMatches.end() ? 4 : 5;
+            }
+            // Any namespace? 'QtCored4!nsp::qstrdup'
+            const std::string::size_type nameSpaceStart = exclPos + 1;
+            const std::string::size_type colonPos = qualifiedSymbol.find(':', nameSpaceStart);
+            if (colonPos != std::string::npos)
+                rc.nameSpace = qualifiedSymbol.substr(nameSpaceStart, colonPos - nameSpaceStart);
         } else {
-            // Found the Qt symbol but in an unexpected module, most probably
-            // it is a static build.
-            rc.isStatic = true;
-            rc.libInfix = qualifiedSymbol.substr(0, exclPos);
-            // The Qt version cannot be determined by the module name. Looking up
-            // qInstallMessageHandler which is in Qt since 5.0 to determine the version.
-            const std::string pattern = rc.libInfix + "!qInstallMessageHandler";
-            const StringList &allMatches = SymbolGroupValue::resolveSymbolName(pattern.c_str(), ctx);
-            const StringListConstIt match = std::find_if(allMatches.begin(), allMatches.end(),
-                                                         SubStringPredicate(rc.libInfix.c_str()));
-            rc.version = match == allMatches.end() ? 4 : 5;
+            // Can't find a basic Qt symbol so use a fallback
+            rc.libInfix = "d4";
+            rc.version = 4;
         }
-        // Any namespace? 'QtCored4!nsp::qstrdup'
-        const std::string::size_type nameSpaceStart = exclPos + 1;
-        const std::string::size_type colonPos = qualifiedSymbol.find(':', nameSpaceStart);
-        if (colonPos != std::string::npos)
-            rc.nameSpace = qualifiedSymbol.substr(nameSpaceStart, colonPos - nameSpaceStart);
-    } else {
-        // Can't find a basic Qt symbol so use a fallback
-        rc.libInfix = "d4";
-        rc.version = 4;
-    }
+    } while (false);
 
     rc.qObjectType = rc.prependQtCoreModule("QObject");
     rc.qObjectPrivateType = rc.prependQtCoreModule("QObjectPrivate");
@@ -839,6 +842,38 @@ SymbolGroupValue::SymbolList
             rc.push_back(Symbol(std::string(buf), offset));
     }
     c.symbols->EndSymbolMatch(handle);
+    return rc;
+}
+
+std::list<std::string> SymbolGroupValue::getAllModuleNames(const SymbolGroupValueContext &c,
+                                                           std::string *errorMessage)
+{
+    enum { bufSize = 2048 };
+
+    std::list<std::string> rc;
+    ULONG moduleCount = 0;
+    ULONG unloaded = 0;
+
+    HRESULT hr = c.symbols->GetNumberModules(&moduleCount, &unloaded);
+    if (FAILED(hr)) {
+        if (errorMessage)
+            *errorMessage = msgDebugEngineComFailed("GetNumberModules", hr);
+        return rc;
+    }
+    moduleCount += unloaded;
+
+    // lookup module names
+    char moduleBuffer[bufSize];
+    for (ULONG index = 0; index < moduleCount; ++index) {
+        hr = c.symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, index,
+                                            NULL, moduleBuffer, bufSize - 1, NULL);
+        if (FAILED(hr)) {
+            if (errorMessage)
+                *errorMessage = msgDebugEngineComFailed("GetNumberModules", hr);
+            return rc;
+        }
+        rc.push_back(moduleBuffer);
+    }
     return rc;
 }
 
