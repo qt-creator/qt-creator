@@ -1198,36 +1198,6 @@ void WatchHandler::cleanup()
     m_separatedView->hide();
 }
 
-void WatchHandler::insertIncompleteData(const WatchData &data)
-{
-    MODEL_DEBUG("INSERTDATA: " << data.toString());
-    if (!data.isValid()) {
-        qWarning("%s:%d: Attempt to insert invalid watch item: %s",
-            __FILE__, __LINE__, qPrintable(data.toString()));
-        return;
-    }
-
-    if (data.isSomethingNeeded() && data.iname.contains('.')) {
-        MODEL_DEBUG("SOMETHING NEEDED: " << data.toString());
-        if (!m_engine->isSynchronous() || data.isInspect()) {
-            m_model->insertDataItem(data, true);
-            m_engine->updateWatchData(data);
-        } else {
-            m_engine->showMessage(QLatin1String("ENDLESS LOOP: SOMETHING NEEDED: ")
-                + data.toString());
-            WatchData data1 = data;
-            data1.setAllUnneeded();
-            data1.setValue(QLatin1String("<unavailable synchronous data>"));
-            data1.setHasChildren(false);
-            m_model->insertDataItem(data1, true);
-        }
-    } else {
-        MODEL_DEBUG("NOTHING NEEDED: " << data.toString());
-        m_model->insertDataItem(data, true);
-        showEditValue(data);
-    }
-}
-
 void WatchHandler::insertItem(WatchItem *item)
 {
     m_model->insertItem(item);
@@ -1356,11 +1326,9 @@ void WatchHandler::watchExpression(const QString &exp0, const QString &name)
         data.setAllUnneeded();
         data.setValue(QString(QLatin1Char(' ')));
         data.setHasChildren(false);
-        insertIncompleteData(data);
-    } else if (m_engine->isSynchronous()) {
-        m_engine->updateWatchData(data);
+        insertData(data);
     } else {
-        insertIncompleteData(data);
+        m_engine->updateWatchData(data);
     }
     updateWatchersWindow();
 }
