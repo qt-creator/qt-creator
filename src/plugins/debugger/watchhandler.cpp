@@ -857,8 +857,25 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
     switch (role) {
         case Qt::EditRole:
             switch (idx.column()) {
-            case 0: // Watch expression: See delegate.
+            case 0: {
+                QByteArray exp = value.toByteArray();
+                if (!exp.isEmpty()) {
+                    theWatcherNames.remove(item->d.exp);
+                    item->d.exp = exp;
+                    item->d.name = QString::fromLatin1(exp);
+                    theWatcherNames[exp] = m_handler->m_watcherCounter++;
+                    m_handler->saveWatchers();
+                    if (engine()->state() == DebuggerNotReady) {
+                        item->d.setAllUnneeded();
+                        item->d.setValue(QString(QLatin1Char(' ')));
+                        item->d.setHasChildren(false);
+                    } else {
+                        engine()->updateWatchData(item->d);
+                    }
+                }
+                m_handler->updateWatchersWindow();
                 break;
+            }
             case 1: // Change value
                 engine()->assignValueInDebugger(&data, item->expression(), value);
                 break;
