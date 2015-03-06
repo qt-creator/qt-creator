@@ -49,9 +49,10 @@
 namespace QmlJS { class Value; }
 
 namespace QmlJSEditor {
-namespace Internal {
 
 class QmlJSCompletionAssistInterface;
+
+namespace Internal {
 
 class QmlJSAssistProposalItem : public TextEditor::AssistProposalItem
 {
@@ -117,8 +118,9 @@ private:
     TextEditor::SnippetAssistCollector m_snippetCollector;
 };
 
+} // Internal
 
-class QmlJSCompletionAssistInterface : public TextEditor::AssistInterface
+class QMLJSEDITOR_EXPORT QmlJSCompletionAssistInterface : public TextEditor::AssistInterface
 {
 public:
     QmlJSCompletionAssistInterface(QTextDocument *textDocument,
@@ -138,7 +140,6 @@ private:
     QIcon m_darkCyanIcon;
 };
 
-} // Internal
 } // QmlJSEditor
 
 #endif // QMLJSCOMPLETIONASSIST_H
