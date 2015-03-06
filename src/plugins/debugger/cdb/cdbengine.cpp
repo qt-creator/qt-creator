@@ -1015,7 +1015,7 @@ void CdbEngine::handleAddWatch(const CdbCommandPtr &reply, WatchData item)
         updateLocalVariable(item.iname);
     } else {
         item.setError(tr("Unable to add expression"));
-        watchHandler()->insertIncompleteData(item);
+        watchHandler()->insertData(item);
         showMessage(QString::fromLatin1("Unable to add watch item \"%1\"/\"%2\": %3").
                     arg(QString::fromLatin1(item.iname), QString::fromLatin1(item.exp),
                         QString::fromLocal8Bit(reply->errorMessage)), LogError);
