@@ -522,13 +522,13 @@ void MercurialPlugin::createSubmitEditorActions()
     connect(editorCommit, SIGNAL(triggered()), this, SLOT(commitFromEditor()));
 
     editorDiff = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
-    command = Core::ActionManager::registerAction(editorDiff, Core::Id(Constants::DIFFEDITOR), context);
+    Core::ActionManager::registerAction(editorDiff, Core::Id(Constants::DIFFEDITOR), context);
 
     editorUndo = new QAction(tr("&Undo"), this);
-    command = Core::ActionManager::registerAction(editorUndo, Core::Id(Core::Constants::UNDO), context);
+    Core::ActionManager::registerAction(editorUndo, Core::Id(Core::Constants::UNDO), context);
 
     editorRedo = new QAction(tr("&Redo"), this);
-    command = Core::ActionManager::registerAction(editorRedo, Core::Id(Core::Constants::REDO), context);
+    Core::ActionManager::registerAction(editorRedo, Core::Id(Core::Constants::REDO), context);
 }
 
 void MercurialPlugin::commit()

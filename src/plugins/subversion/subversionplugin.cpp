@@ -440,13 +440,13 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     connect(m_submitCurrentLogAction, SIGNAL(triggered()), this, SLOT(submitCurrentLog()));
 
     m_submitDiffAction = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
-    command = ActionManager::registerAction(m_submitDiffAction , DIFF_SELECTED, svncommitcontext);
+    ActionManager::registerAction(m_submitDiffAction , DIFF_SELECTED, svncommitcontext);
 
     m_submitUndoAction = new QAction(tr("&Undo"), this);
-    command = ActionManager::registerAction(m_submitUndoAction, Core::Constants::UNDO, svncommitcontext);
+    ActionManager::registerAction(m_submitUndoAction, Core::Constants::UNDO, svncommitcontext);
 
     m_submitRedoAction = new QAction(tr("&Redo"), this);
-    command = ActionManager::registerAction(m_submitRedoAction, Core::Constants::REDO, svncommitcontext);
+    ActionManager::registerAction(m_submitRedoAction, Core::Constants::REDO, svncommitcontext);
 
     return true;
 }

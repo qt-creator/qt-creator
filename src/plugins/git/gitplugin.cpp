@@ -642,13 +642,13 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_submitCurrentAction, SIGNAL(triggered()), this, SLOT(submitCurrentLog()));
 
     m_diffSelectedFilesAction = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
-    command = ActionManager::registerAction(m_diffSelectedFilesAction, Constants::DIFF_SELECTED, submitContext);
+    ActionManager::registerAction(m_diffSelectedFilesAction, Constants::DIFF_SELECTED, submitContext);
 
     m_undoAction = new QAction(tr("&Undo"), this);
-    command = ActionManager::registerAction(m_undoAction, Core::Constants::UNDO, submitContext);
+    ActionManager::registerAction(m_undoAction, Core::Constants::UNDO, submitContext);
 
     m_redoAction = new QAction(tr("&Redo"), this);
-    command = ActionManager::registerAction(m_redoAction, Core::Constants::REDO, submitContext);
+    ActionManager::registerAction(m_redoAction, Core::Constants::REDO, submitContext);
 
     connect(VcsManager::instance(), SIGNAL(repositoryChanged(QString)),
             this, SLOT(updateContinueAndAbortCommands()));
