@@ -455,8 +455,8 @@ void Parser::Private::parseCostItem(const char *begin, const char *end)
     bool ok;
     const char *current = begin;
 
-    CostItem *costItem = new CostItem(data);
     QTC_ASSERT(currentDifferingFile == -1 || currentDifferingFile != currentFunction->fileId(), return);
+    CostItem *costItem = new CostItem(data);
     costItem->setDifferingFile(currentDifferingFile);
     FunctionCall *call = 0;
     if (isParsingFunctionCall) {
