@@ -1436,6 +1436,7 @@ bool QtcProcess::ArgIterator::next()
                 state.current = MxParen;
                 m_simple = false;
                 hadWord = true;
+                continue;
 #if 0 // Should match only at the beginning of a command, which we never have currently.
             } else if (cc == '{') {
                 sstack.push(state);
