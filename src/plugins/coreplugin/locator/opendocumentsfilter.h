@@ -57,10 +57,17 @@ public slots:
     void refreshInternally();
 
 private:
-    QList<DocumentModel::Entry> editors() const;
+    class Entry
+    {
+    public:
+        Utils::FileName fileName;
+        QString displayName;
+    };
+
+    QList<Entry> editors() const;
 
     mutable QMutex m_mutex;
-    QList<DocumentModel::Entry> m_editors;
+    QList<Entry> m_editors;
 };
 
 } // namespace Internal

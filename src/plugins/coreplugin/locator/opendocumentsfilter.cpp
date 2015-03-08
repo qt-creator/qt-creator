@@ -73,13 +73,13 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locat
     if (!regexp.isValid())
         return goodEntries;
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
-    foreach (const DocumentModel::Entry &editorEntry, editors()) {
+    foreach (const Entry &editorEntry, editors()) {
         if (future.isCanceled())
             break;
-        QString fileName = editorEntry.fileName().toString();
+        QString fileName = editorEntry.fileName.toString();
         if (fileName.isEmpty())
             continue;
-        QString displayName = editorEntry.displayName();
+        QString displayName = editorEntry.displayName;
         if (regexp.exactMatch(displayName)) {
             LocatorFilterEntry fiEntry(this, displayName, QString(fileName + lineNoSuffix));
             fiEntry.extraInfo = FileUtils::shortNativePath(FileName::fromString(fileName));
@@ -98,16 +98,16 @@ void OpenDocumentsFilter::refreshInternally()
     QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
     m_editors.clear();
     foreach (DocumentModel::Entry *e, DocumentModel::entries()) {
-        DocumentModel::Entry entry;
+        Entry entry;
         // create copy with only the information relevant to use
         // to avoid model deleting entries behind our back
-        entry.m_displayName = e->displayName();
-        entry.m_fileName = e->fileName();
+        entry.displayName = e->displayName();
+        entry.fileName = e->fileName();
         m_editors.append(entry);
     }
 }
 
-QList<DocumentModel::Entry> OpenDocumentsFilter::editors() const
+QList<OpenDocumentsFilter::Entry> OpenDocumentsFilter::editors() const
 {
     QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
     return m_editors;

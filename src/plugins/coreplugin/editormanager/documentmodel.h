@@ -59,15 +59,15 @@ public:
 
     struct CORE_EXPORT Entry {
         Entry();
-        IDocument *document;
+        ~Entry();
         Utils::FileName fileName() const;
         QString displayName() const;
         QString plainDisplayName() const;
         QString uniqueDisplayName() const;
         Id id() const;
-        Utils::FileName m_fileName;
-        QString m_displayName;
-        Id m_id;
+
+        IDocument *document;
+        bool isRestored;
     };
 
     static Entry *entryAtRow(int row);
