@@ -88,7 +88,7 @@ http://wiki.qt.io/Building_Qt_5_from_Git .
          For the Visual C++ compilers, it is recommended to use the tool 'jom'.
          It is a replacement for nmake that utilizes all CPU cores and thus
          speeds up compilation significantly. Download it from
-         http://download.qt-project.org/official_releases/jom
+         http://download.qt.io/official_releases/jom
          and add the executable to the path.
 
    8.  For convenience, we recommend creating shell prompts with the correct

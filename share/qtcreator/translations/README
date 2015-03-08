@@ -3,7 +3,7 @@ How To add translations to Qt Creator
 
 - Coordinate over the mailing list to avoid duplicate work.
 
-- Read the instructions at http://wiki.qt-project.org/Qt_Localization
+- Read the instructions at http://wiki.qt.io/Qt_Localization
 
 - Add your language to the LANGUAGES line in translations.pro.
   Don't qualify it with a country unless it is reasonable to expect
@@ -29,7 +29,7 @@ How To add translations to Qt Creator
   - Run "make commit-ts" to create a commit with a cleaned .ts file
   - If needed, amend the commit with the modified .pro file
 
-- Follow http://wiki.qt-project.org/Qt_Contribution_Guidelines to post the
+- Follow http://wiki.qt.io/Qt_Contribution_Guidelines to post the
   change for review.
 
 - .qm files are generated as part of the regular build.

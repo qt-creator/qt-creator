@@ -90,8 +90,8 @@ def main():
     testDetails = "Verifying: Help with Creator Documentation is being opened."
 
     clickItemVerifyHelpCombo(gettingStartedText, expectedText, testDetails)
-    textUrls = {'Online Community':'http://qt-project.org/forums',
-                'Blogs':'http://planet.qt-project.org',
+    textUrls = {'Online Community':'http://forum.qt.io',
+                'Blogs':'http://planet.qt.io',
                 'Qt Account':'https://account.qt.io',
                 'Qt Cloud Services':'https://developer.qtcloudservices.com',
                 'User Guide':'qthelp://org.qt-project.qtcreator/doc/index.html'

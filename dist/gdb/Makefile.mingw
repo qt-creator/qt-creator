@@ -36,7 +36,7 @@ checkunzip:
 ${source}/python.zip: | makesourcedir checkwget
 	cd ${source} && \
 	echo "Downloading python..." && \
-	wget -q http://download.qt-project.org/development_releases/prebuilt/gdb/build-prerequisites/python.zip && \
+	wget -q http://download.qt.io/development_releases/prebuilt/gdb/build-prerequisites/python.zip && \
 	touch python.zip
 
 ${broot}/python/python.exe: ${source}/python.zip | checkunzip

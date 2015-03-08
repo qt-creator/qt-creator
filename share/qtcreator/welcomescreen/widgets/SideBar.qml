@@ -180,12 +180,12 @@ ColumnLayout {
                 IconAndLink {
                     iconSource: "images/icons/onlineCommunity.png"
                     title: qsTr("Online Community")
-                    openUrl: "http://qt-project.org/forums"
+                    openUrl: "http://forum.qt.io"
                 }
                 IconAndLink {
                     iconSource: "images/icons/blogs.png"
                     title: qsTr("Blogs")
-                    openUrl: "http://planet.qt-project.org"
+                    openUrl: "http://planet.qt.io"
                 }
                 IconAndLink {
                     iconSource: "images/icons/userGuide.png"
