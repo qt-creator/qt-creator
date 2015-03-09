@@ -751,8 +751,11 @@ void TestCodeParser::onFinished()
         emit parsingFinished();
         m_dirty = false;
         break;
+    case Disabled: // can happen if all Test related widgets become hidden while parsing
+        emit parsingFinished();
+        break;
     default:
-        qWarning("I should not be here...");
+        qWarning("I should not be here... State: %d", m_parserState);
         break;
     }
 }
