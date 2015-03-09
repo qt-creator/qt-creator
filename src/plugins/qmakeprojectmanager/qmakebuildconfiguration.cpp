@@ -663,6 +663,8 @@ int QmakeBuildConfigurationFactory::priority(const Kit *k, const QString &projec
 QList<BuildInfo *> QmakeBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
     QList<ProjectExplorer::BuildInfo *> result;
+    if (!QtSupport::QtKitInformation::qtVersion(k))
+        return result;
     result << createBuildInfo(k, projectPath, ProjectExplorer::BuildConfiguration::Debug);
     result << createBuildInfo(k, projectPath, ProjectExplorer::BuildConfiguration::Release);
     return result;
