@@ -54,16 +54,7 @@ FormEditorGraphicsView::FormEditorGraphicsView(QWidget *parent) :
     setAutoFillBackground(true);
     setBackgroundRole(QPalette::Window);
 
-    const int checkerbordSize= 20;
-    QPixmap tilePixmap(checkerbordSize * 2, checkerbordSize * 2);
-    tilePixmap.fill(Qt::white);
-    QPainter tilePainter(&tilePixmap);
-    QColor color(220, 220, 220);
-    tilePainter.fillRect(0, 0, checkerbordSize, checkerbordSize, color);
-    tilePainter.fillRect(checkerbordSize, checkerbordSize, checkerbordSize, checkerbordSize, color);
-    tilePainter.end();
-
-    setBackgroundBrush(tilePixmap);
+    activateCheckboardBackground();
 
     viewport()->setMouseTracking(true);
 }
@@ -124,6 +115,25 @@ void FormEditorGraphicsView::setRootItemRect(const QRectF &rect)
 QRectF FormEditorGraphicsView::rootItemRect() const
 {
     return m_rootItemRect;
+}
+
+void FormEditorGraphicsView::activateCheckboardBackground()
+{
+    const int checkerbordSize= 20;
+    QPixmap tilePixmap(checkerbordSize * 2, checkerbordSize * 2);
+    tilePixmap.fill(Qt::white);
+    QPainter tilePainter(&tilePixmap);
+    QColor color(220, 220, 220);
+    tilePainter.fillRect(0, 0, checkerbordSize, checkerbordSize, color);
+    tilePainter.fillRect(checkerbordSize, checkerbordSize, checkerbordSize, checkerbordSize, color);
+    tilePainter.end();
+
+    setBackgroundBrush(tilePixmap);
+}
+
+void FormEditorGraphicsView::activateColoredBackground(const QColor &color)
+{
+    setBackgroundBrush(color);
 }
 
 void FormEditorGraphicsView::drawBackground(QPainter *painter, const QRectF &rectangle)

@@ -42,6 +42,7 @@ namespace QmlDesigner {
 
 class ZoomAction;
 class LineEditAction;
+class BackgroundAction;
 class FormEditorView;
 class FormEditorScene;
 class FormEditorGraphicsView;
@@ -88,6 +89,7 @@ private slots:
     void setZoomLevel(double zoomLevel);
     void changeRootItemWidth(const QString &widthText);
     void changeRootItemHeight(const QString &heightText);
+    void changeBackgound(const QColor &color);
     void resetNodeInstanceView();
 
 private:
@@ -104,6 +106,7 @@ private:
     QPointer<QAction> m_selectOnlyContentItemsAction;
     QPointer<LineEditAction> m_rootWidthAction;
     QPointer<LineEditAction> m_rootHeightAction;
+    QPointer<BackgroundAction> m_backgroundAction;
     QPointer<QAction> m_resetAction;
 };
 
