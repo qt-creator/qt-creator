@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
-    <mime-type type="application/vnd.rim.qnx.bar_descriptor">
+    <mime-type type="application/z-vnd.rim.qnx.bar_descriptor">
         <comment>BAR descriptor file (BlackBerry)</comment>
         <sub-class-of type="application/xml"/>
         <glob pattern="*.xml"/>
