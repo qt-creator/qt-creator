@@ -266,8 +266,15 @@ void LldbEngine::startLldb()
         showMessage(_("ADAPTER START FAILED"));
         if (!msg.isEmpty())
             ICore::showWarningWithOptions(tr("Adapter start failed."), msg);
+        return;
     }
+    m_lldbProc.waitForReadyRead(1000);
+    m_lldbProc.write("sc print('@\\nlldbstartupok@\\n')\n");
+}
 
+// FIXME: splitting of startLldb() necessary to support LLDB <= 310 - revert asap
+void LldbEngine::startLldbStage2()
+{
     showMessage(_("ADAPTER STARTED"));
     showStatusMessage(tr("Setting up inferior..."));
 
@@ -282,8 +289,6 @@ void LldbEngine::startLldb()
 
 void LldbEngine::setupInferior()
 {
-    const DebuggerStartParameters &sp = startParameters();
-
     const QString path = stringSetting(ExtraDumperFile);
     if (!path.isEmpty()) {
         DebuggerCommand cmd("addDumperModule");
@@ -300,6 +305,12 @@ void LldbEngine::setupInferior()
 
     DebuggerCommand cmd1("loadDumperFiles");
     runCommand(cmd1);
+}
+
+// FIXME: splitting of setupInferior() necessary to support LLDB <= 310 - revert asap
+void LldbEngine::setupInferiorStage2()
+{
+    const DebuggerStartParameters &sp = startParameters();
 
     QString executable;
     QtcProcess::Arguments args;
@@ -436,9 +447,10 @@ void LldbEngine::handleResponse(const QByteArray &response)
         const QByteArray name = item.name();
         if (name == "data")
             refreshLocals(item);
-        else if (name == "dumpers")
+        else if (name == "dumpers") {
             watchHandler()->addDumpers(item);
-        else if (name == "stack")
+            setupInferiorStage2();
+        } else if (name == "stack")
             refreshStack(item);
         else if (name == "registers")
             refreshRegisters(item);
@@ -973,7 +985,10 @@ void LldbEngine::readLldbStandardOutput()
             break;
         QByteArray response = m_inbuffer.left(pos).trimmed();
         m_inbuffer = m_inbuffer.mid(pos + 2);
-        emit outputReady(response);
+        if (response == "lldbstartupok")
+            startLldbStage2();
+        else
+            emit outputReady(response);
     }
 }
 
