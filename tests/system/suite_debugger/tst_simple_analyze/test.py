@@ -168,13 +168,14 @@ def containsOnce(tuple, items):
 
 def safeClickTab(tab):
     for bar in [":*Qt Creator.JavaScript_QTabBar",
-                ":*Qt Creator.Events_QTabBar"]:
+                ":*Qt Creator.Events_QTabBar",
+                ":*Qt Creator.Timeline_QTabBar"]:
         try:
             clickOnTab(bar, tab, 1000)
             return True
         except:
             pass
-    test.fail("Tab %s is not being shown." % tab)
+    test.fatal("Tab %s is not being shown." % tab)
     return False
 
 def init():
