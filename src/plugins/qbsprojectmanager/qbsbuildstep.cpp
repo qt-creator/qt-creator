@@ -186,7 +186,7 @@ bool QbsBuildStep::keepGoing() const
 
 bool QbsBuildStep::showCommandLines() const
 {
-    return m_qbsBuildOptions.showCommandLines();
+    return m_qbsBuildOptions.echoMode() == qbs::CommandEchoModeCommandLine;
 }
 
 bool QbsBuildStep::install() const
@@ -215,7 +215,9 @@ bool QbsBuildStep::fromMap(const QVariantMap &map)
     m_qbsBuildOptions.setDryRun(map.value(QLatin1String(QBS_DRY_RUN)).toBool());
     m_qbsBuildOptions.setKeepGoing(map.value(QLatin1String(QBS_KEEP_GOING)).toBool());
     m_qbsBuildOptions.setMaxJobCount(map.value(QLatin1String(QBS_MAXJOBCOUNT)).toInt());
-    m_qbsBuildOptions.setShowCommandLines(map.value(QLatin1String(QBS_SHOWCOMMANDLINES)).toBool());
+    const bool showCommandLines = map.value(QLatin1String(QBS_SHOWCOMMANDLINES)).toBool();
+    m_qbsBuildOptions.setEchoMode(showCommandLines ? qbs::CommandEchoModeCommandLine
+                                                   : qbs::CommandEchoModeSummary);
     m_qbsBuildOptions.setInstall(map.value(QLatin1String(QBS_INSTALL), true).toBool());
     m_qbsBuildOptions.setRemoveExistingInstallation(map.value(QLatin1String(QBS_CLEAN_INSTALL_ROOT))
                                                     .toBool());
@@ -229,7 +231,8 @@ QVariantMap QbsBuildStep::toMap() const
     map.insert(QLatin1String(QBS_DRY_RUN), m_qbsBuildOptions.dryRun());
     map.insert(QLatin1String(QBS_KEEP_GOING), m_qbsBuildOptions.keepGoing());
     map.insert(QLatin1String(QBS_MAXJOBCOUNT), m_qbsBuildOptions.maxJobCount());
-    map.insert(QLatin1String(QBS_SHOWCOMMANDLINES), m_qbsBuildOptions.showCommandLines());
+    map.insert(QLatin1String(QBS_SHOWCOMMANDLINES),
+               m_qbsBuildOptions.echoMode() == qbs::CommandEchoModeCommandLine);
     map.insert(QLatin1String(QBS_INSTALL), m_qbsBuildOptions.install());
     map.insert(QLatin1String(QBS_CLEAN_INSTALL_ROOT),
                m_qbsBuildOptions.removeExistingInstallation());
@@ -379,9 +382,10 @@ void QbsBuildStep::setMaxJobs(int jobcount)
 
 void QbsBuildStep::setShowCommandLines(bool show)
 {
-    if (m_qbsBuildOptions.showCommandLines() == show)
+    if (showCommandLines() == show)
         return;
-    m_qbsBuildOptions.setShowCommandLines(show);
+    m_qbsBuildOptions.setEchoMode(show ? qbs::CommandEchoModeCommandLine
+                                       : qbs::CommandEchoModeSummary);
     emit qbsBuildOptionsChanged();
 }
 
