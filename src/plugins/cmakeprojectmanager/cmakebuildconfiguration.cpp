@@ -62,7 +62,7 @@ static FileName shadowBuildDirectory(const FileName &projectFilePath, const Kit 
     if (projectFilePath.isEmpty())
         return FileName();
 
-    const QString projectName = projectFilePath.fileName();
+    const QString projectName = projectFilePath.parentDir().fileName();
     ProjectMacroExpander expander(projectName, k, bcName);
     QDir projectDir = QDir(Project::projectDirectory(projectFilePath).toString());
     QString buildPath = expander.expand(Core::DocumentManager::buildDirectory());
