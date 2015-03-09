@@ -64,6 +64,7 @@ void CommitEditor::setFields(const QFileInfo &repositoryRoot, const QString &bra
     mercurialWidget->setFields(repositoryRoot.absoluteFilePath(), branch, userName, email);
 
     fileModel = new SubmitFileModel(this);
+    fileModel->setRepositoryRoot(repositoryRoot.absoluteFilePath());
 
     QStringList shouldTrack;
 
@@ -74,8 +75,7 @@ void CommitEditor::setFields(const QFileInfo &repositoryRoot, const QString &bra
             fileModel->addFile(item.file, item.flags, Unchecked);
     }
 
-    VcsBaseSubmitEditor::filterUntrackedFilesOfProject(repositoryRoot.absoluteFilePath(),
-                                                                &shouldTrack);
+    VcsBaseSubmitEditor::filterUntrackedFilesOfProject(fileModel->repositoryRoot(), &shouldTrack);
 
     foreach (const QString &track, shouldTrack) {
         foreach (const VcsBaseClient::StatusItem &item, repoStatus) {
@@ -84,7 +84,7 @@ void CommitEditor::setFields(const QFileInfo &repositoryRoot, const QString &bra
         }
     }
 
-    setFileModel(fileModel, repositoryRoot.absoluteFilePath());
+    setFileModel(fileModel);
 }
 
 QString CommitEditor::committerInfo()

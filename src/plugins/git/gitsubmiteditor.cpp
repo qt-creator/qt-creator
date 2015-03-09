@@ -174,6 +174,7 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
     setEmptyFileListEnabled(m_commitType == AmendCommit); // Allow for just correcting the message
 
     m_model = new GitSubmitFileModel(this);
+    m_model->setRepositoryRoot(d.panelInfo.repository);
     if (!d.files.isEmpty()) {
         for (QList<CommitData::StateFilePair>::const_iterator it = d.files.constBegin();
              it != d.files.constEnd(); ++it) {
@@ -192,7 +193,7 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
                              QVariant(static_cast<int>(state)));
         }
     }
-    setFileModel(m_model, d.panelInfo.repository);
+    setFileModel(m_model);
 }
 
 void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)

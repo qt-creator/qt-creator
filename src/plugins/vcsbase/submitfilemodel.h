@@ -50,6 +50,9 @@ class VCSBASE_EXPORT SubmitFileModel : public QStandardItemModel
 public:
     explicit SubmitFileModel(QObject *parent = 0);
 
+    const QString &repositoryRoot() const;
+    void setRepositoryRoot(const QString &repoRoot);
+
     // Convenience to create and add rows containing a file plus status text.
     QList<QStandardItem *> addFile(const QString &fileName, const QString &status = QString(),
                                    CheckMode checkMode = Checked, const QVariant &data = QVariant());
@@ -69,6 +72,9 @@ public:
     unsigned int filterFiles(const QStringList &filter);
 
     virtual void updateSelections(SubmitFileModel *source);
+
+private:
+    QString m_repositoryRoot;
 };
 
 } // namespace VcsBase

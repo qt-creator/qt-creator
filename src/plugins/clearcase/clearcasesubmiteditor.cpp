@@ -58,11 +58,12 @@ void ClearCaseSubmitEditor::setStatusList(const QStringList &statusOutput)
 {
     typedef QStringList::const_iterator ConstIterator;
     auto model = new VcsBase::SubmitFileModel(this);
+    model->setRepositoryRoot(checkScriptWorkingDirectory());
 
     const ConstIterator cend = statusOutput.constEnd();
     for (ConstIterator it = statusOutput.constBegin(); it != cend; ++it)
         model->addFile(*it, QLatin1String("C"));
-    setFileModel(model, checkScriptWorkingDirectory());
+    setFileModel(model);
     if (statusOutput.count() > 1)
         submitEditorWidget()->addKeep();
 }

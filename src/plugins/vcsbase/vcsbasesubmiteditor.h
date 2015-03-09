@@ -121,7 +121,7 @@ public:
 
     QStringList checkedFiles() const;
 
-    void setFileModel(SubmitFileModel *m, const QString &repositoryDirectory = QString());
+    void setFileModel(SubmitFileModel *m);
     SubmitFileModel *fileModel() const;
     virtual void updateFileModel() { }
     QStringList rowsToFiles(const QList<int> &rows) const;
