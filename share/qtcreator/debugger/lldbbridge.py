@@ -633,6 +633,7 @@ class Dumper(DumperBase):
         return None
 
     def setupInferior(self, args):
+        self.reportToken(args)
         error = lldb.SBError()
 
         self.executable_ = args['executable']
@@ -686,6 +687,7 @@ class Dumper(DumperBase):
         s.start()
 
     def prepare(self, args):
+        self.reportToken(args)
         error = lldb.SBError()
         listener = self.debugger.GetListener()
 
@@ -821,6 +823,7 @@ class Dumper(DumperBase):
         return None
 
     def reportStack(self, args):
+        self.reportToken(args)
         if not self.process:
             self.report('msg="No process"')
             return
@@ -890,6 +893,12 @@ class Dumper(DumperBase):
         result += '}'
         self.report(result)
         self.reportContinuation(args)
+
+    def reportToken(self, args):
+        if "token" in args:
+            # Unusual syntax intended, to support the double-click in left
+            # logview pane feature.
+            self.report('token(\"%s\")' % args["token"])
 
     def reportContinuation(self, args):
         if "continuation" in args:
@@ -1529,17 +1538,21 @@ class Dumper(DumperBase):
                 self.process.Kill()
             self.reportState("inferiorshutdownok")
 
-    def quit(self, _ = None):
+    def quit(self, args = {}):
+        self.reportToken(args)
         self.reportState("engineshutdownok")
         self.process.Kill()
 
-    def executeStepI(self, _ = None):
+    def executeStepI(self, args = {}):
+        self.reportToken(args)
         self.currentThread().StepInstruction(lldb.eOnlyThisThread)
 
-    def executeStepOut(self, _ = None):
+    def executeStepOut(self, args = {}):
+        self.reportToken(args)
         self.currentThread().StepOut()
 
     def executeRunToLocation(self, args):
+        self.reportToken(args)
         addr = args.get('address', 0)
         if addr:
             error = self.currentThread().RunToAddress(addr)
@@ -1556,6 +1569,7 @@ class Dumper(DumperBase):
             self.reportData()
 
     def executeJumpToLocation(self, args):
+        self.reportToken(args)
         frame = self.currentFrame()
         if not frame:
             self.reportStatus("No frame available.")
@@ -1612,6 +1626,7 @@ class Dumper(DumperBase):
         self.report('success="%d",output="%s",error="%s"' % (success, output, error))
 
     def updateData(self, args):
+        self.reportToken(args)
         self.expandedINames = set(args.get('expanded', []))
         self.autoDerefPointers = int(args.get('autoderef', '0'))
         self.useDynamicType = int(args.get('dyntype', '0'))
@@ -1655,7 +1670,8 @@ class Dumper(DumperBase):
             result += ',offset="%s"},' % (addr - base)
         self.report(result + ']')
 
-    def loadDumperFiles(self, _ = None):
+    def loadDumperFiles(self, args):
+        self.reportToken(args)
         result = self.setupDumper()
         self.report(result)
 

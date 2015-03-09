@@ -33,6 +33,14 @@ from dumper import *
 def dumpLiteral(d, value):
     if d.isNull(value):
         d.putValue("<null>")
+        return
+    type = value.type.unqualified()
+    try:
+        type = type.target()
+    except:
+        pass
+    if str(type) == "CPlusPlus::TemplateNameId":
+        dumpLiteral(d, value["_identifier"])
     else:
         d.putSimpleCharArray(value["_chars"], value["_size"])
 

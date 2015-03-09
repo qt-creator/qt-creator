@@ -383,8 +383,7 @@ protected:
     //
     // Watch specific stuff
     //
-    virtual bool setToolTipExpression(TextEditor::TextEditorWidget *editor,
-        const DebuggerToolTipContext &);
+    virtual bool setToolTipExpression(const DebuggerToolTipContext &);
     virtual void assignValueInDebugger(const WatchData *data,
         const QString &expr, const QVariant &value);
 
@@ -399,11 +398,9 @@ protected:
     virtual void watchPoint(const QPoint &);
     void handleWatchPoint(const DebuggerResponse &response);
 
-    void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
+    void updateWatchData(const WatchData &data);
     void rebuildWatchModel();
     void showToolTip();
-
-    void insertData(const WatchData &data);
 
     void handleVarAssign(const DebuggerResponse &response);
     void handleDetach(const DebuggerResponse &response);
@@ -419,7 +416,6 @@ protected:
 
     void setLocals(const QList<GdbMi> &locals);
 
-    QSet<QByteArray> m_processedNames;
     struct TypeInfo
     {
         TypeInfo(uint s = 0) : size(s) {}
@@ -473,10 +469,6 @@ protected:
     bool attemptQuickStart() const;
     bool m_fullStartDone;
     bool m_systemDumpersLoaded;
-
-    // Test
-    QList<WatchData> m_completed;
-    QSet<QByteArray> m_uncompleted;
 
     static QString msgGdbStopFailed(const QString &why);
     static QString msgInferiorStopFailed(const QString &why);

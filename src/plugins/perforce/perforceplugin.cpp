@@ -428,13 +428,13 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     connect(m_submitCurrentLogAction, SIGNAL(triggered()), this, SLOT(submitCurrentLog()));
 
     m_diffSelectedFiles = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
-    command = ActionManager::registerAction(m_diffSelectedFiles, DIFF_SELECTED, perforcesubmitcontext);
+    ActionManager::registerAction(m_diffSelectedFiles, DIFF_SELECTED, perforcesubmitcontext);
 
     m_undoAction = new QAction(tr("&Undo"), this);
-    command = ActionManager::registerAction(m_undoAction, Core::Constants::UNDO, perforcesubmitcontext);
+    ActionManager::registerAction(m_undoAction, Core::Constants::UNDO, perforcesubmitcontext);
 
     m_redoAction = new QAction(tr("&Redo"), this);
-    command = ActionManager::registerAction(m_redoAction, Core::Constants::REDO, perforcesubmitcontext);
+    ActionManager::registerAction(m_redoAction, Core::Constants::REDO, perforcesubmitcontext);
 
     return true;
 }

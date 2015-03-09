@@ -116,27 +116,6 @@ public:
         return lineEdit;
     }
 
-    void setModelData(QWidget *editor, QAbstractItemModel *model,
-                      const QModelIndex &index) const
-    {
-        // Standard handling for anything but the watcher name column (change
-        // expression), which removes/recreates a row, which cannot be done
-        // in model->setData().
-        if (index.column() != 0) {
-            QItemDelegate::setModelData(editor, model, index);
-            return;
-        }
-        const QMetaProperty userProperty = editor->metaObject()->userProperty();
-        QTC_ASSERT(userProperty.isValid(), return);
-        const QString value = editor->property(userProperty.name()).toString();
-        const QString exp = index.data(LocalsExpressionRole).toString();
-        if (exp == value)
-            return;
-        WatchHandler *handler = currentEngine()->watchHandler();
-        handler->removeData(index.data(LocalsINameRole).toByteArray());
-        handler->watchExpression(value);
-    }
-
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
         const QModelIndex &) const
     {

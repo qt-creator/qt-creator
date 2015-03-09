@@ -81,8 +81,7 @@ BaseCheckoutWizardPage::BaseCheckoutWizardPage(QWidget *parent) :
 
     d->ui.pathChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     d->ui.pathChooser->setHistoryCompleter(QLatin1String("Vcs.CheckoutDir.History"));
-    connect(d->ui.pathChooser,
-            static_cast<void (Utils::PathChooser::*)()>(&Utils::PathChooser::validChanged),
+    connect(d->ui.pathChooser, &Utils::PathChooser::validChanged,
             this, &BaseCheckoutWizardPage::slotChanged);
 
     d->ui.branchComboBox->setEnabled(false);

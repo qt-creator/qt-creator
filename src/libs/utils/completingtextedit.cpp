@@ -121,7 +121,8 @@ void CompletingTextEdit::setCompleter(QCompleter *c)
 
     completer()->setWidget(this);
     completer()->setCompletionMode(QCompleter::PopupCompletion);
-    connect(completer(), SIGNAL(activated(QString)), this, SLOT(insertCompletion(QString)));
+    connect(completer(), static_cast<void (QCompleter::*)(const QString &)>(&QCompleter::activated),
+            this, [this](const QString &str) { d->insertCompletion(str); });
 }
 
 QCompleter *CompletingTextEdit::completer() const

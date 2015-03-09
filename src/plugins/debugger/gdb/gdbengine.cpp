@@ -67,10 +67,10 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
+
 #include <projectexplorer/devicesupport/deviceprocess.h>
 #include <projectexplorer/itaskhandler.h>
 #include <projectexplorer/taskhub.h>
-#include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -903,7 +903,6 @@ void GdbEngine::postCommand(const QByteArray &command, int flags,
                       << "INCREMENTS PENDING TO" << m_pendingBreakpointRequests);
     } else {
         PENDING_DEBUG("   OTHER (IN):" << cmd.function
-                      << "LEAVES PENDING WATCH AT" << m_uncompleted.size()
                       << "LEAVES PENDING BREAKPOINT AT" << m_pendingBreakpointRequests);
     }
 
@@ -1189,15 +1188,13 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
 
     if (cmd.flags & RebuildBreakpointModel) {
         --m_pendingBreakpointRequests;
-        PENDING_DEBUG("   BREAKPOINT" << cmd.function
-                      << "DECREMENTS PENDING TO" << m_uncompleted.size());
+        PENDING_DEBUG("   BREAKPOINT" << cmd.function);
         if (m_pendingBreakpointRequests <= 0) {
             PENDING_DEBUG("\n\n ... AND TRIGGERS BREAKPOINT MODEL UPDATE\n");
             attemptBreakpointSynchronization();
         }
     } else {
         PENDING_DEBUG("   OTHER (OUT):" << cmd.function
-                      << "LEAVES PENDING WATCH AT" << m_uncompleted.size()
                       << "LEAVES PENDING BREAKPOINT AT" << m_pendingBreakpointRequests);
     }
 
@@ -3702,10 +3699,9 @@ void GdbEngine::handleRegisterListValues(const DebuggerResponse &response)
 //
 //////////////////////////////////////////////////////////////////////
 
-bool GdbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editor,
-    const DebuggerToolTipContext &context)
+bool GdbEngine::setToolTipExpression(const DebuggerToolTipContext &context)
 {
-    if (state() != InferiorStopOk || !isCppEditor(editor))
+    if (state() != InferiorStopOk || !context.isCppEditor)
         return false;
 
     UpdateParameters params;
@@ -3728,45 +3724,16 @@ void GdbEngine::reloadLocals()
     updateLocals();
 }
 
-void GdbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &flags)
+void GdbEngine::updateWatchData(const WatchData &data)
 {
-    // This should only be called for fresh expanded items, not for
-    // items that had their children retrieved earlier.
-    //qDebug() << "\nUPDATE WATCH DATA: " << data.toString() << "\n";
-    if (data.iname.endsWith("."))
-        return;
-
-    // Avoid endless loops created by faulty dumpers.
-    QByteArray processedName = "1-" + data.iname;
-    //qDebug() << "PROCESSED NAMES: " << processedName << m_processedNames;
-    if (m_processedNames.contains(processedName)) {
-        WatchData data1 = data;
-        showMessage(_("<Breaking endless loop for " + data.iname + '>'),
-            LogMiscInput);
-        data1.setAllUnneeded();
-        data1.setValue(_("<unavailable>"));
-        data1.setHasChildren(false);
-        insertData(data1);
-        return;
-    }
-    m_processedNames.insert(processedName);
-
-    // FIXME: Is this sufficient when "external" changes are
-    // triggered e.g. by manually entered command in the gdb console?
-    //qDebug() << "TRY PARTIAL: " << flags.tryIncremental
-    //        << (m_pendingBreakpointRequests == 0);
-
     UpdateParameters params;
-    params.tryPartial = flags.tryIncremental && m_pendingBreakpointRequests == 0;
+    params.tryPartial = m_pendingBreakpointRequests == 0;
     params.varList = data.iname;
-
     updateLocalsPython(params);
 }
 
 void GdbEngine::rebuildWatchModel()
 {
-    QTC_CHECK(m_completed.isEmpty());
-    QTC_CHECK(m_uncompleted.isEmpty());
     static int count = 0;
     ++count;
     PENDING_DEBUG("REBUILDING MODEL" << count);
@@ -3789,25 +3756,6 @@ void GdbEngine::updateLocals()
 {
     watchHandler()->resetValueCache();
     updateLocalsPython(UpdateParameters());
-}
-
-void GdbEngine::insertData(const WatchData &data)
-{
-    PENDING_DEBUG("INSERT DATA" << data.toString());
-    if (data.isSomethingNeeded()) {
-        m_uncompleted.insert(data.iname);
-        WatchUpdateFlags flags;
-        flags.tryIncremental = true;
-        updateWatchData(data, flags);
-    } else {
-        m_completed.append(data);
-        m_uncompleted.remove(data.iname);
-        if (m_uncompleted.isEmpty()) {
-            watchHandler()->insertData(m_completed);
-            m_completed.clear();
-            rebuildWatchModel();
-        }
-    }
 }
 
 void GdbEngine::assignValueInDebugger(const WatchData *data,
@@ -4764,7 +4712,6 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
 {
     //m_pendingWatchRequests = 0;
     m_pendingBreakpointRequests = 0;
-    m_processedNames.clear();
 
     DebuggerCommand cmd("showData");
     watchHandler()->appendFormatRequests(&cmd);

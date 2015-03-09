@@ -84,8 +84,7 @@ private:
     void shutdownEngine();
     void abortDebugger();
 
-    bool setToolTipExpression(TextEditor::TextEditorWidget *editorWidget,
-        const DebuggerToolTipContext &);
+    bool setToolTipExpression(const DebuggerToolTipContext &);
 
     void continueInferior();
     void interruptInferior();
@@ -120,7 +119,7 @@ private:
 
     bool supportsThreads() const { return true; }
     bool isSynchronous() const { return true; }
-    void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
+    void updateWatchData(const WatchData &data);
     void setRegisterValue(const QByteArray &name, const QString &value);
 
     void fetchMemory(Internal::MemoryAgent *, QObject *, quint64 addr, quint64 length);
@@ -187,7 +186,6 @@ private:
 
     // FIXME: Make generic.
     int m_lastAgentId;
-    int m_lastToken;
     int m_continueAtNextSpontaneousStop;
     QMap<QPointer<DisassemblerAgent>, int> m_disassemblerAgents;
     QMap<QPointer<MemoryAgent>, int> m_memoryAgents;

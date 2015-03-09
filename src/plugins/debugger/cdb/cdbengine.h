@@ -77,8 +77,7 @@ public:
 
     // Factory function that returns 0 if the debug engine library cannot be found.
 
-    virtual bool setToolTipExpression(TextEditor::TextEditorWidget *editorWidget,
-                                      const DebuggerToolTipContext &context);
+    virtual bool setToolTipExpression(const DebuggerToolTipContext &context);
 
     virtual DebuggerEngine *cppEngine() { return this; }
 
@@ -89,8 +88,7 @@ public:
     virtual void shutdownEngine();
     virtual void abortDebugger();
     virtual void detachDebugger();
-    virtual void updateWatchData(const WatchData &data,
-                                 const WatchUpdateFlags & flags = WatchUpdateFlags());
+    virtual void updateWatchData(const WatchData &data);
     virtual bool hasCapability(unsigned cap) const;
     virtual void watchPoint(const QPoint &);
     virtual void setRegisterValue(const QByteArray &name, const QString &value);

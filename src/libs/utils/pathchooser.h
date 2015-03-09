@@ -148,7 +148,6 @@ private:
     QString makeDialogTitle(const QString &title);
 
 signals:
-    void validChanged();
     void validChanged(bool validState);
     void changed(const QString &text);
     void pathChanged(const QString &path);

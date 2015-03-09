@@ -62,7 +62,8 @@ ConsoleProcessPrivate::ConsoleProcessPrivate() :
 ConsoleProcess::ConsoleProcess(QObject *parent)  :
     QObject(parent), d(new ConsoleProcessPrivate)
 {
-    connect(&d->m_stubServer, SIGNAL(newConnection()), SLOT(stubConnectionAvailable()));
+    connect(&d->m_stubServer, &QLocalServer::newConnection,
+            this, &ConsoleProcess::stubConnectionAvailable);
 
     d->m_process.setProcessChannelMode(QProcess::ForwardedChannels);
 }
@@ -177,7 +178,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         return false;
     }
     d->m_stubConnectTimer = new QTimer(this);
-    connect(d->m_stubConnectTimer, SIGNAL(timeout()), SLOT(stop()));
+    connect(d->m_stubConnectTimer, &QTimer::timeout, this, &ConsoleProcess::stop);
     d->m_stubConnectTimer->setSingleShot(true);
     d->m_stubConnectTimer->start(10000);
     d->m_executable = program;
@@ -282,8 +283,8 @@ void ConsoleProcess::stubConnectionAvailable()
     d->m_stubConnected = true;
     emit stubStarted();
     d->m_stubSocket = d->m_stubServer.nextPendingConnection();
-    connect(d->m_stubSocket, SIGNAL(readyRead()), SLOT(readStubOutput()));
-    connect(d->m_stubSocket, SIGNAL(disconnected()), SLOT(stubExited()));
+    connect(d->m_stubSocket, &QIODevice::readyRead, this, &ConsoleProcess::readStubOutput);
+    connect(d->m_stubSocket, &QLocalSocket::disconnected, this, &ConsoleProcess::stubExited);
 }
 
 static QString errorMsg(int code)

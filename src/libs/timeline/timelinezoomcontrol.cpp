@@ -119,7 +119,7 @@ void TimelineZoomControl::rebuildWindow()
 
         m_windowEnd = m_rangeEnd + keep;
         if (m_windowEnd > m_traceEnd) {
-            m_windowStart = qMax(m_traceStart, m_windowStart - m_windowEnd - m_traceEnd);
+            m_windowStart = qMax(m_traceStart, m_windowStart - (m_windowEnd - m_traceEnd));
             m_windowEnd = m_traceEnd;
         }
     } else {

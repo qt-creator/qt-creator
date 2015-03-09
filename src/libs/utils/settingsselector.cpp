@@ -72,11 +72,14 @@ SettingsSelector::SettingsSelector(QWidget *parent) :
 
     updateButtonState();
 
-    connect(m_addButton, SIGNAL(clicked()), this, SIGNAL(add()));
-    connect(m_removeButton, SIGNAL(clicked()), this, SLOT(removeButtonClicked()));
-    connect(m_renameButton, SIGNAL(clicked()), this, SLOT(renameButtonClicked()));
-    connect(m_configurationCombo, SIGNAL(currentIndexChanged(int)),
-            this, SIGNAL(currentChanged(int)));
+    connect(m_addButton, &QAbstractButton::clicked, this, &SettingsSelector::add);
+    connect(m_removeButton, &QAbstractButton::clicked,
+            this, &SettingsSelector::removeButtonClicked);
+    connect(m_renameButton, &QAbstractButton::clicked,
+            this, &SettingsSelector::renameButtonClicked);
+    connect(m_configurationCombo,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &SettingsSelector::currentChanged);
 }
 
 SettingsSelector::~SettingsSelector()
@@ -85,12 +88,14 @@ SettingsSelector::~SettingsSelector()
 void SettingsSelector::setConfigurationModel(QAbstractItemModel *model)
 {
     if (m_configurationCombo->model()) {
-        disconnect(m_configurationCombo->model(), SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(updateButtonState()));
-        disconnect(m_configurationCombo->model(), SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(updateButtonState()));
+        disconnect(m_configurationCombo->model(), &QAbstractItemModel::rowsInserted,
+                   this, &SettingsSelector::updateButtonState);
+        disconnect(m_configurationCombo->model(), &QAbstractItemModel::rowsRemoved,
+                   this, &SettingsSelector::updateButtonState);
     }
     m_configurationCombo->setModel(model);
-    connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(updateButtonState()));
-    connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(updateButtonState()));
+    connect(model, &QAbstractItemModel::rowsInserted, this, &SettingsSelector::updateButtonState);
+    connect(model, &QAbstractItemModel::rowsRemoved, this, &SettingsSelector::updateButtonState);
 
     updateButtonState();
 }

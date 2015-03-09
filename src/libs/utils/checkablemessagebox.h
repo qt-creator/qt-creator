@@ -130,9 +130,6 @@ public:
     static QString msgDoNotAskAgain();
     static QString msgDoNotShowAgain();
 
-private slots:
-    void slotClicked(QAbstractButton *b);
-
 private:
     CheckableMessageBoxPrivate *d;
 };

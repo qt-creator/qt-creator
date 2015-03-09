@@ -54,8 +54,6 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
 
-#include <texteditor/texteditor.h>
-
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 #include <utils/qtcprocess.h>
@@ -75,6 +73,12 @@ using namespace Utils;
 namespace Debugger {
 namespace Internal {
 
+static int &currentToken()
+{
+    static int token = 0;
+    return token;
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // LldbEngine
@@ -85,7 +89,6 @@ LldbEngine::LldbEngine(const DebuggerStartParameters &startParameters)
     : DebuggerEngine(startParameters), m_continueAtNextSpontaneousStop(false)
 {
     m_lastAgentId = 0;
-    m_lastToken = 0;
     setObjectName(QLatin1String("LldbEngine"));
 
     if (startParameters.useTerminal) {
@@ -126,11 +129,13 @@ void LldbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguage
     runCommand(cmd);
 }
 
-void LldbEngine::runCommand(const DebuggerCommand &command)
+void LldbEngine::runCommand(const DebuggerCommand &command_)
 {
     QTC_ASSERT(m_lldbProc.state() == QProcess::Running, notifyEngineIll());
-    ++m_lastToken;
-    QByteArray token = QByteArray::number(m_lastToken);
+    const int tok = ++currentToken();
+    DebuggerCommand command = command_;
+    command.arg("token", tok);
+    QByteArray token = QByteArray::number(tok);
     QByteArray cmd  = command.function + "({" + command.args + "})";
     showMessage(_(token + cmd + '\n'), LogInput);
     m_lldbProc.write("script theDumper." + cmd + "\n");
@@ -788,9 +793,9 @@ void LldbEngine::refreshSymbols(const GdbMi &symbols)
 //
 //////////////////////////////////////////////////////////////////////
 
-bool LldbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editorWidget, const DebuggerToolTipContext &context)
+bool LldbEngine::setToolTipExpression(const DebuggerToolTipContext &context)
 {
-    if (state() != InferiorStopOk || !isCppEditor(editorWidget)) {
+    if (state() != InferiorStopOk || !context.isCppEditor) {
         //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED "
         // " OR NOT A CPPEDITOR";
         return false;
@@ -837,10 +842,9 @@ void LldbEngine::assignValueInDebugger(const Internal::WatchData *data,
     runCommand(cmd);
 }
 
-void LldbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &flags)
+void LldbEngine::updateWatchData(const WatchData &data)
 {
     Q_UNUSED(data);
-    Q_UNUSED(flags);
     updateLocals();
 }
 

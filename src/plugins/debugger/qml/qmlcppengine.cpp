@@ -32,6 +32,7 @@
 #include "qmlengine.h"
 
 #include <debugger/debuggerruncontrol.h>
+#include <debugger/debuggertooltipmanager.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/breakhandler.h>
 #include <debugger/stackhandler.h>
@@ -39,8 +40,6 @@
 #include <debugger/watchhandler.h>
 
 #include <utils/qtcassert.h>
-#include <texteditor/texteditor.h>
-#include <texteditor/textdocument.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <qmljs/consolemanagerinterface.h>
@@ -103,25 +102,22 @@ bool QmlCppEngine::canDisplayTooltip() const
     return m_cppEngine->canDisplayTooltip() || m_qmlEngine->canDisplayTooltip();
 }
 
-bool QmlCppEngine::setToolTipExpression(TextEditor::TextEditorWidget *editorWidget, const DebuggerToolTipContext &ctx)
+bool QmlCppEngine::setToolTipExpression(const DebuggerToolTipContext &ctx)
 {
-    QTC_ASSERT(editorWidget, return false);
     bool success = false;
-    Core::Id id = editorWidget->textDocument()->id();
-    if (id == CppEditor::Constants::CPPEDITOR_ID)
-        success = m_cppEngine->setToolTipExpression(editorWidget, ctx);
-    else if (id == QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
-        success = m_qmlEngine->setToolTipExpression(editorWidget, ctx);
+    if (ctx.isCppEditor)
+        success = m_cppEngine->setToolTipExpression(ctx);
+    else
+        success = m_qmlEngine->setToolTipExpression(ctx);
     return success;
 }
 
-void QmlCppEngine::updateWatchData(const WatchData &data,
-    const WatchUpdateFlags &flags)
+void QmlCppEngine::updateWatchData(const WatchData &data)
 {
     if (data.isInspect())
-        m_qmlEngine->updateWatchData(data, flags);
+        m_qmlEngine->updateWatchData(data);
     else
-        m_activeEngine->updateWatchData(data, flags);
+        m_activeEngine->updateWatchData(data);
 }
 
 void QmlCppEngine::watchDataSelected(const QByteArray &iname)

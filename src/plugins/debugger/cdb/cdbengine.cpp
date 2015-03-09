@@ -412,10 +412,8 @@ void CdbEngine::syncVerboseLog(bool verboseLog)
     postCommand(m_verboseLog ? QByteArray("!sym noisy") : QByteArray("!sym quiet"), 0);
 }
 
-bool CdbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editorWidget,
-                                     const DebuggerToolTipContext &context)
+bool CdbEngine::setToolTipExpression(const DebuggerToolTipContext &context)
 {
-    Q_UNUSED(editorWidget);
     Q_UNUSED(context);
     // Tooltips matching local variables are already handled in the
     // base class. We don't handle anything else here in CDB
@@ -972,13 +970,11 @@ static inline bool isWatchIName(const QByteArray &iname)
     return iname.startsWith("watch");
 }
 
-void CdbEngine::updateWatchData(const WatchData &dataIn,
-                                const WatchUpdateFlags & flags)
+void CdbEngine::updateWatchData(const WatchData &dataIn)
 {
     if (debug || debugLocals || debugWatches)
-        qDebug("CdbEngine::updateWatchData() %dms accessible=%d %s incr=%d: %s",
+        qDebug("CdbEngine::updateWatchData() %dms accessible=%d %s: %s",
                elapsedLogTime(), m_accessible, stateName(state()),
-               flags.tryIncremental,
                qPrintable(dataIn.toString()));
 
     if (!m_accessible) // Add watch data while running?
@@ -1015,7 +1011,7 @@ void CdbEngine::handleAddWatch(const CdbCommandPtr &reply, WatchData item)
         updateLocalVariable(item.iname);
     } else {
         item.setError(tr("Unable to add expression"));
-        watchHandler()->insertIncompleteData(item);
+        watchHandler()->insertData(item);
         showMessage(QString::fromLatin1("Unable to add watch item \"%1\"/\"%2\": %3").
                     arg(QString::fromLatin1(item.iname), QString::fromLatin1(item.exp),
                         QString::fromLocal8Bit(reply->errorMessage)), LogError);
@@ -1893,7 +1889,7 @@ void CdbEngine::handleLocals(const CdbCommandPtr &reply, int flags)
                     watchData[i].name = it.value();
             }
         }
-        handler->insertData(watchData);
+        handler->insertDataList(watchData);
         if (debugLocals) {
             QDebug nsp = qDebug().nospace();
             nsp << "Obtained " << watchData.size() << " items:\n";

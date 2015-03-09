@@ -236,12 +236,11 @@ PathChooser::PathChooser(QWidget *parent) :
 {
     d->m_hLayout->setContentsMargins(0, 0, 0, 0);
 
-    connect(d->m_lineEdit, SIGNAL(validReturnPressed()), this, SIGNAL(returnPressed()));
-    connect(d->m_lineEdit, SIGNAL(textChanged(QString)), this, SIGNAL(changed(QString)));
-    connect(d->m_lineEdit, SIGNAL(validChanged()), this, SIGNAL(validChanged()));
-    connect(d->m_lineEdit, SIGNAL(validChanged(bool)), this, SIGNAL(validChanged(bool)));
-    connect(d->m_lineEdit, SIGNAL(editingFinished()), this, SIGNAL(editingFinished()));
-    connect(d->m_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(slotTextChanged()));
+    connect(d->m_lineEdit, &FancyLineEdit::validReturnPressed, this, &PathChooser::returnPressed);
+    connect(d->m_lineEdit, &QLineEdit::textChanged, this, &PathChooser::changed);
+    connect(d->m_lineEdit, &FancyLineEdit::validChanged, this, &PathChooser::validChanged);
+    connect(d->m_lineEdit, &QLineEdit::editingFinished, this, &PathChooser::editingFinished);
+    connect(d->m_lineEdit, &QLineEdit::textChanged, this, &PathChooser::slotTextChanged);
 
     d->m_lineEdit->setMinimumWidth(120);
     d->m_hLayout->addWidget(d->m_lineEdit);

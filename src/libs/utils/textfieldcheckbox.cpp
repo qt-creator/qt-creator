@@ -45,7 +45,7 @@ TextFieldCheckBox::TextFieldCheckBox(const QString &text, QWidget *parent) :
         QCheckBox(text, parent),
         m_trueText(QLatin1String("true")), m_falseText(QLatin1String("false"))
 {
-    connect(this, SIGNAL(stateChanged(int)), this, SLOT(slotStateChanged(int)));
+    connect(this, &QCheckBox::stateChanged, this, &TextFieldCheckBox::slotStateChanged);
 }
 
 QString TextFieldCheckBox::text() const

@@ -89,8 +89,7 @@ public:
     void insertBreakpoint(Breakpoint bp);
 
 signals:
-    void tooltipRequested(const QPoint &mousePos,
-        TextEditor::TextEditorWidget *editorWidget, int cursorPos);
+    void tooltipRequested(const DebuggerToolTipContext &context);
 
 private slots:
     void disconnected();
@@ -128,8 +127,7 @@ private:
     void shutdownInferior();
     void shutdownEngine();
 
-    bool setToolTipExpression(TextEditor::TextEditorWidget *editorWidget,
-        const DebuggerToolTipContext &);
+    bool setToolTipExpression(const DebuggerToolTipContext &);
 
     void continueInferior();
     void interruptInferior();
@@ -159,8 +157,7 @@ private:
     void reloadFullStack() {}
 
     bool supportsThreads() const { return false; }
-    void updateWatchData(const WatchData &data,
-        const WatchUpdateFlags &flags);
+    void updateWatchData(const WatchData &data);
     void watchDataSelected(const QByteArray &iname);
     void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
     bool evaluateScript(const QString &expression);

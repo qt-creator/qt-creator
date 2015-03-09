@@ -1434,13 +1434,12 @@ Terminal *DebuggerEngine::terminal() const
     return &d->m_terminal;
 }
 
-bool DebuggerEngine::setToolTipExpression(TextEditorWidget *,
-    const DebuggerToolTipContext &)
+bool DebuggerEngine::setToolTipExpression(const DebuggerToolTipContext &)
 {
     return false;
 }
 
-void DebuggerEngine::updateWatchData(const WatchData &, const WatchUpdateFlags &)
+void DebuggerEngine::updateWatchData(const WatchData &)
 {
 }
 

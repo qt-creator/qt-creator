@@ -980,7 +980,7 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     default:
         break;
     }
-    connect(this, &QObject::destroyed, menu, &QObject::deleteLater);
+    connect(this, &QObject::destroyed, menu.data(), &QObject::deleteLater);
     menu->exec(e->globalPos());
     delete menu;
 }

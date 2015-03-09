@@ -64,11 +64,15 @@ FileWizardPage::FileWizardPage(QWidget *parent) :
     d(new FileWizardPagePrivate)
 {
     d->m_ui.setupUi(this);
-    connect(d->m_ui.pathChooser, SIGNAL(validChanged()), this, SLOT(slotValidChanged()));
-    connect(d->m_ui.nameLineEdit, SIGNAL(validChanged()), this, SLOT(slotValidChanged()));
+    connect(d->m_ui.pathChooser, &PathChooser::validChanged,
+            this, &FileWizardPage::slotValidChanged);
+    connect(d->m_ui.nameLineEdit, &FancyLineEdit::validChanged,
+            this, &FileWizardPage::slotValidChanged);
 
-    connect(d->m_ui.pathChooser, SIGNAL(returnPressed()), this, SLOT(slotActivated()));
-    connect(d->m_ui.nameLineEdit, SIGNAL(validReturnPressed()), this, SLOT(slotActivated()));
+    connect(d->m_ui.pathChooser, &PathChooser::returnPressed,
+            this, &FileWizardPage::slotActivated);
+    connect(d->m_ui.nameLineEdit, &FancyLineEdit::validReturnPressed,
+            this, &FileWizardPage::slotActivated);
 
     setProperty(SHORT_TITLE_PROPERTY, tr("Location"));
 

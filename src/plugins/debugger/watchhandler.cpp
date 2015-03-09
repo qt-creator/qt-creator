@@ -201,10 +201,9 @@ public:
 
     bool setData(const QModelIndex &idx, const QVariant &value, int role);
 
-    void insertDataItem(const WatchData &data, bool destructive);
+    void insertDataItem(const WatchData &data);
     void reinsertAllData();
     void reinsertAllDataHelper(WatchItem *item, QList<WatchData> *data);
-    void insertBulkData(const QList<WatchData> &data);
     QString displayForAutoTest(const QByteArray &iname) const;
     void reinitialize(bool includeInspectData = false);
 
@@ -304,7 +303,8 @@ void WatchModel::reinsertAllData()
     foreach (TreeItem *child, rootItem()->children())
         reinsertAllDataHelper(static_cast<WatchItem *>(child), &list);
     reinitialize(true);
-    insertBulkData(list);
+    for (int i = 0, n = list.size(); i != n; ++i)
+        insertDataItem(list.at(i));
 }
 
 void WatchModel::reinsertAllDataHelper(WatchItem *item, QList<WatchData> *data)
@@ -628,9 +628,7 @@ void WatchItem::fetchMore()
     fetchTriggered = true;
     if (children().isEmpty()) {
         d.setChildrenNeeded();
-        WatchUpdateFlags flags;
-        flags.tryIncremental = true;
-        watchModel()->engine()->updateWatchData(d, flags);
+        watchModel()->engine()->updateWatchData(d);
     }
 }
 
@@ -857,8 +855,25 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
     switch (role) {
         case Qt::EditRole:
             switch (idx.column()) {
-            case 0: // Watch expression: See delegate.
+            case 0: {
+                QByteArray exp = value.toByteArray();
+                if (!exp.isEmpty()) {
+                    theWatcherNames.remove(item->d.exp);
+                    item->d.exp = exp;
+                    item->d.name = QString::fromLatin1(exp);
+                    theWatcherNames[exp] = m_handler->m_watcherCounter++;
+                    m_handler->saveWatchers();
+                    if (engine()->state() == DebuggerNotReady) {
+                        item->d.setAllUnneeded();
+                        item->d.setValue(QString(QLatin1Char(' ')));
+                        item->d.setHasChildren(false);
+                    } else {
+                        engine()->updateWatchData(item->d);
+                    }
+                }
+                m_handler->updateWatchersWindow();
                 break;
+            }
             case 1: // Change value
                 engine()->assignValueInDebugger(&data, item->expression(), value);
                 break;
@@ -1094,44 +1109,6 @@ static int findInsertPosition(const QVector<TreeItem *> &list, const WatchItem *
     return it - list.begin();
 }
 
-void WatchModel::insertDataItem(const WatchData &data, bool destructive)
-{
-    QTC_ASSERT(!data.iname.isEmpty(), qDebug() << data.toString(); return);
-
-    if (WatchItem *item = findItem(data.iname)) {
-        // Remove old children.
-        item->fetchTriggered = false;
-        if (destructive)
-            item->removeChildren();
-
-        // Overwrite old entry.
-        item->d = data;
-        item->update();
-    } else {
-        // Add new entry.
-        WatchItem *parent = findItem(parentName(data.iname));
-        QTC_ASSERT(parent, return);
-        WatchItem *newItem = new WatchItem;
-        newItem->d = data;
-        const int row = findInsertPosition(parent->children(), newItem);
-        parent->insertChild(row, newItem);
-        if (m_expandedINames.contains(parent->d.iname)) {
-            emit inameIsExpanded(parent->d.iname);
-            emit itemIsExpanded(indexFromItem(parent));
-        }
-    }
-}
-
-void WatchModel::insertBulkData(const QList<WatchData> &list)
-{
-    for (int i = 0, n = list.size(); i != n; ++i) {
-        const WatchData &data = list.at(i);
-        insertDataItem(data, true);
-        m_handler->showEditValue(data);
-    }
-    emit columnAdjustmentRequested();
-}
-
 int WatchItem::requestedFormat() const
 {
     int format = theIndividualFormats.value(d.iname, AutomaticFormat);
@@ -1198,36 +1175,6 @@ void WatchHandler::cleanup()
     m_separatedView->hide();
 }
 
-void WatchHandler::insertIncompleteData(const WatchData &data)
-{
-    MODEL_DEBUG("INSERTDATA: " << data.toString());
-    if (!data.isValid()) {
-        qWarning("%s:%d: Attempt to insert invalid watch item: %s",
-            __FILE__, __LINE__, qPrintable(data.toString()));
-        return;
-    }
-
-    if (data.isSomethingNeeded() && data.iname.contains('.')) {
-        MODEL_DEBUG("SOMETHING NEEDED: " << data.toString());
-        if (!m_engine->isSynchronous() || data.isInspect()) {
-            m_model->insertDataItem(data, true);
-            m_engine->updateWatchData(data);
-        } else {
-            m_engine->showMessage(QLatin1String("ENDLESS LOOP: SOMETHING NEEDED: ")
-                + data.toString());
-            WatchData data1 = data;
-            data1.setAllUnneeded();
-            data1.setValue(QLatin1String("<unavailable synchronous data>"));
-            data1.setHasChildren(false);
-            m_model->insertDataItem(data1, true);
-        }
-    } else {
-        MODEL_DEBUG("NOTHING NEEDED: " << data.toString());
-        m_model->insertDataItem(data, true);
-        showEditValue(data);
-    }
-}
-
 void WatchHandler::insertItem(WatchItem *item)
 {
     m_model->insertItem(item);
@@ -1243,6 +1190,34 @@ void WatchModel::insertItem(WatchItem *item)
     QTC_ASSERT(parent, return);
     const int row = findInsertPosition(parent->children(), item);
     parent->insertChild(row, item);
+}
+
+void WatchModel::insertDataItem(const WatchData &data)
+{
+    QTC_ASSERT(!data.iname.isEmpty(), qDebug() << data.toString(); return);
+
+    if (WatchItem *item = findItem(data.iname)) {
+        // Remove old children.
+        item->fetchTriggered = false;
+        item->removeChildren();
+
+        // Overwrite old entry.
+        item->d = data;
+        item->update();
+    } else {
+        // Add new entry.
+        WatchItem *parent = findItem(parentName(data.iname));
+        QTC_ASSERT(parent, return);
+        WatchItem *newItem = new WatchItem;
+        newItem->d = data;
+        const int row = findInsertPosition(parent->children(), newItem);
+        parent->insertChild(row, newItem);
+        if (m_expandedINames.contains(parent->d.iname)) {
+            emit inameIsExpanded(parent->d.iname);
+            emit itemIsExpanded(indexFromItem(parent));
+        }
+    }
+    m_handler->showEditValue(data);
 }
 
 void WatchModel::reexpandItems()
@@ -1262,15 +1237,15 @@ void WatchModel::reexpandItems()
 
 void WatchHandler::insertData(const WatchData &data)
 {
-    QList<WatchData> list;
-    list.append(data);
-    insertData(list);
+    m_model->insertDataItem(data);
+    m_contentsValid = true;
+    updateWatchersWindow();
 }
 
-void WatchHandler::insertData(const QList<WatchData> &list)
+void WatchHandler::insertDataList(const QList<WatchData> &list)
 {
-    m_model->insertBulkData(list);
-
+    for (int i = 0, n = list.size(); i != n; ++i)
+        m_model->insertDataItem(list.at(i));
     m_contentsValid = true;
     updateWatchersWindow();
 }
@@ -1356,11 +1331,9 @@ void WatchHandler::watchExpression(const QString &exp0, const QString &name)
         data.setAllUnneeded();
         data.setValue(QString(QLatin1Char(' ')));
         data.setHasChildren(false);
-        insertIncompleteData(data);
-    } else if (m_engine->isSynchronous()) {
-        m_engine->updateWatchData(data);
+        m_model->insertDataItem(data);
     } else {
-        insertIncompleteData(data);
+        m_engine->updateWatchData(data);
     }
     updateWatchersWindow();
 }
@@ -1480,6 +1453,8 @@ void WatchHandler::clearWatches()
 
 void WatchHandler::updateWatchersWindow()
 {
+    emit m_model->columnAdjustmentRequested();
+
     // Force show/hide of watchers and return view.
     static int previousShowWatch = -1;
     static int previousShowReturn = -1;

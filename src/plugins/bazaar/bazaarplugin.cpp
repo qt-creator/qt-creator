@@ -537,13 +537,13 @@ void BazaarPlugin::createSubmitEditorActions()
     connect(m_editorCommit, &QAction::triggered, this, &BazaarPlugin::commitFromEditor);
 
     m_editorDiff = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
-    command = ActionManager::registerAction(m_editorDiff, DIFFEDITOR, context);
+    ActionManager::registerAction(m_editorDiff, DIFFEDITOR, context);
 
     m_editorUndo = new QAction(tr("&Undo"), this);
-    command = ActionManager::registerAction(m_editorUndo, Core::Constants::UNDO, context);
+    ActionManager::registerAction(m_editorUndo, Core::Constants::UNDO, context);
 
     m_editorRedo = new QAction(tr("&Redo"), this);
-    command = ActionManager::registerAction(m_editorRedo, Core::Constants::REDO, context);
+    ActionManager::registerAction(m_editorRedo, Core::Constants::REDO, context);
 }
 
 void BazaarPlugin::commit()

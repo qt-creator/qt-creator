@@ -66,8 +66,7 @@ private:
     void shutdownInferior();
     void shutdownEngine();
 
-    bool setToolTipExpression(TextEditor::TextEditorWidget *,
-        const DebuggerToolTipContext &);
+    bool setToolTipExpression(const DebuggerToolTipContext &);
 
     void continueInferior();
     void interruptInferior();
@@ -97,7 +96,7 @@ private:
 
     bool supportsThreads() const { return true; }
     bool isSynchronous() const { return true; }
-    void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
+    void updateWatchData(const WatchData &data);
     QString mainPythonFile() const;
 
     void runCommand(const DebuggerCommand &cmd);

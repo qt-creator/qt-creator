@@ -2825,7 +2825,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     //cmd->setAttribute(Command::CA_Hide);
     //debugMenu->addAction(cmd);
 
-    cmd = ActionManager::registerAction(m_frameDownAction,
+    ActionManager::registerAction(m_frameDownAction,
         "Debugger.FrameDown", cppDebuggercontext);
     ActionManager::registerAction(m_frameUpAction,
         "Debugger.FrameUp", cppDebuggercontext);

@@ -42,8 +42,6 @@
 
 #include <QDebug>
 
-enum { debug = false };
-
 namespace ClassView {
 namespace Internal {
 
