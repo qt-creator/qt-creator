@@ -63,7 +63,9 @@ public:
     virtual void extensionsInitialized() = 0;
     virtual bool delayedInitialize() { return false; }
     virtual ShutdownFlag aboutToShutdown() { return SynchronousShutdown; }
-    virtual QObject *remoteCommand(const QStringList & /* options */, const QStringList & /* arguments */) { return 0; }
+    virtual QObject *remoteCommand(const QStringList & /* options */,
+                                   const QString & /* workingDirectory */,
+                                   const QStringList & /* arguments */) { return 0; }
     virtual QList<QObject *> createTestObjects() const;
 
     PluginSpec *pluginSpec() const;

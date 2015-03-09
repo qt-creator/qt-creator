@@ -226,17 +226,20 @@ bool CorePlugin::delayedInitialize()
     return true;
 }
 
-QObject *CorePlugin::remoteCommand(const QStringList & /* options */, const QStringList &args)
+QObject *CorePlugin::remoteCommand(const QStringList & /* options */,
+                                   const QString &workingDirectory,
+                                   const QStringList &args)
 {
     IDocument *res = m_mainWindow->openFiles(
-                args, ICore::OpenFilesFlags(ICore::SwitchMode | ICore::CanContainLineNumbers));
+                args, ICore::OpenFilesFlags(ICore::SwitchMode | ICore::CanContainLineNumbers),
+                workingDirectory);
     m_mainWindow->raiseWindow();
     return res;
 }
 
 void CorePlugin::fileOpenRequest(const QString &f)
 {
-    remoteCommand(QStringList(), QStringList(f));
+    remoteCommand(QStringList(), QString(), QStringList(f));
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()

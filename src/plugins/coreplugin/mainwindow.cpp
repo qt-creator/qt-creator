@@ -761,18 +761,24 @@ static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fil
  *  \a flags can be used to stop on first failure, indicate that a file name
  *  might include line numbers and/or switch mode to edit mode.
  *
+ *  \a workingDirectory is used when files are opened by a remote client, since
+ *  the file names are relative to the client working directory.
+ *
  *  \returns the first opened document. Required to support the -block flag
  *  for client mode.
  *
  *  \sa IPlugin::remoteArguments()
  */
-IDocument *MainWindow::openFiles(const QStringList &fileNames, ICore::OpenFilesFlags flags)
+IDocument *MainWindow::openFiles(const QStringList &fileNames,
+                                 ICore::OpenFilesFlags flags,
+                                 const QString &workingDirectory)
 {
     QList<IDocumentFactory*> documentFactories = PluginManager::getObjects<IDocumentFactory>();
     IDocument *res = 0;
 
     foreach (const QString &fileName, fileNames) {
-        const QFileInfo fi(fileName);
+        const QDir workingDir(workingDirectory.isEmpty() ? QDir::currentPath() : workingDirectory);
+        const QFileInfo fi(workingDir, fileName);
         const QString absoluteFilePath = fi.absoluteFilePath();
         if (IDocumentFactory *documentFactory = findDocumentFactory(documentFactories, fi)) {
             IDocument *document = documentFactory->open(absoluteFilePath);

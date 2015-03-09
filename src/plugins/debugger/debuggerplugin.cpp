@@ -737,7 +737,7 @@ public:
 
     void runControlStarted(DebuggerEngine *engine);
     void runControlFinished(DebuggerEngine *engine);
-    void remoteCommand(const QStringList &options, const QStringList &);
+    void remoteCommand(const QStringList &options);
 
     void displayDebugger(DebuggerEngine *engine, bool updateEngine = true);
 
@@ -2370,8 +2370,7 @@ void DebuggerPluginPrivate::runControlFinished(DebuggerEngine *engine)
     m_logWindow->clearUndoRedoStacks();
 }
 
-void DebuggerPluginPrivate::remoteCommand(const QStringList &options,
-    const QStringList &)
+void DebuggerPluginPrivate::remoteCommand(const QStringList &options)
 {
     if (options.isEmpty())
         return;
@@ -3295,9 +3294,12 @@ IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
 }
 
 QObject *DebuggerPlugin::remoteCommand(const QStringList &options,
-    const QStringList &list)
+                                       const QString &workingDirectory,
+                                       const QStringList &list)
 {
-    dd->remoteCommand(options, list);
+    Q_UNUSED(workingDirectory);
+    Q_UNUSED(list);
+    dd->remoteCommand(options);
     return 0;
 }
 
