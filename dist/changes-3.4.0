@@ -97,6 +97,12 @@ Windows
 
 OS X
 
+Linux
+   * Added support to retrieve application output from journald.
+
+     Journald support needs to be explicitly enabled by passing CONFIG+=journald to
+     qmake when configuring Qt Creator.
+
 Android
    * Added support for 64bit tool chains
    * Fixed that active run configuration setting was ignored for deploying application
