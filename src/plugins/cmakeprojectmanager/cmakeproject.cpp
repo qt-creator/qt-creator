@@ -246,12 +246,14 @@ bool CMakeProject::parseCMakeLists()
         return false;
     }
 
+    Kit *k = activeTarget()->kit();
+
     // setFolderName
     m_rootNode->setDisplayName(QFileInfo(cbpFile).completeBaseName());
     CMakeCbpParser cbpparser;
     // Parsing
     //qDebug()<<"Parsing file "<<cbpFile;
-    if (!cbpparser.parseCbpFile(cbpFile, projectDirectory().toString())) {
+    if (!cbpparser.parseCbpFile(k,cbpFile, projectDirectory().toString())) {
         // TODO report error
         emit buildTargetsChanged();
         return false;
@@ -305,7 +307,6 @@ bool CMakeProject::parseCMakeLists()
 
     createUiCodeModelSupport();
 
-    Kit *k = activeTarget()->kit();
     ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
     if (!tc) {
         emit buildTargetsChanged();

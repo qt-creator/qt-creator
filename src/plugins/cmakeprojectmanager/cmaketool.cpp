@@ -284,6 +284,17 @@ void CMakeTool::setDisplayName(const QString &displayName)
     CMakeToolManager::notifyAboutUpdate(this);
 }
 
+void CMakeTool::setPathMapper(const CMakeTool::PathMapper &pathMapper)
+{
+    m_pathMapper = pathMapper;
+}
+
+QString CMakeTool::mapAllPaths(ProjectExplorer::Kit *kit, const QString &in) const
+{
+    if (m_pathMapper)
+        return m_pathMapper(kit, in);
+    return in;
+}
 
 void CMakeTool::parseFunctionDetailsOutput(const QByteArray &output)
 {

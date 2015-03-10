@@ -29,6 +29,8 @@
 ****************************************************************************/
 
 #include "cmakecbpparser.h"
+#include "cmakekitinformation.h"
+#include "cmaketool.h"
 
 #include <utils/fileutils.h>
 #include <utils/stringutils.h>
@@ -147,8 +149,9 @@ void CMakeCbpParser::sortFiles()
         qCDebug(log) << target.title << target.sourceDirectory << target.includeFiles << target.defines << target.files << "\n";
 }
 
-bool CMakeCbpParser::parseCbpFile(const QString &fileName, const QString &sourceDirectory)
+bool CMakeCbpParser::parseCbpFile(Kit *kit, const QString &fileName, const QString &sourceDirectory)
 {
+    m_kit = kit;
     m_buildDirectory = QFileInfo(fileName).absolutePath();
     m_sourceDirectory = sourceDirectory;
 
@@ -245,6 +248,9 @@ void CMakeCbpParser::parseBuildTargetOption()
 {
     if (attributes().hasAttribute(QLatin1String("output"))) {
         m_buildTarget.executable = attributes().value(QLatin1String("output")).toString();
+        CMakeTool *tool = CMakeKitInformation::cmakeTool(m_kit);
+        if (tool)
+            m_buildTarget.executable = tool->mapAllPaths(m_kit, m_buildTarget.executable);
     } else if (attributes().hasAttribute(QLatin1String("type"))) {
         const QStringRef value = attributes().value(QLatin1String("type"));
         if (value == QLatin1String("2") || value == QLatin1String("3"))
@@ -304,8 +310,13 @@ void CMakeCbpParser::parseMakeCommands()
 
 void CMakeCbpParser::parseBuildTargetBuild()
 {
-    if (attributes().hasAttribute(QLatin1String("command")))
+    if (attributes().hasAttribute(QLatin1String("command"))) {
         m_buildTarget.makeCommand = attributes().value(QLatin1String("command")).toString();
+
+        CMakeTool *tool = CMakeKitInformation::cmakeTool(m_kit);
+        if (tool)
+            m_buildTarget.makeCommand = tool->mapAllPaths(m_kit, m_buildTarget.makeCommand);
+    }
     while (!atEnd()) {
         readNext();
         if (isEndElement())
@@ -317,8 +328,13 @@ void CMakeCbpParser::parseBuildTargetBuild()
 
 void CMakeCbpParser::parseBuildTargetClean()
 {
-    if (attributes().hasAttribute(QLatin1String("command")))
+    if (attributes().hasAttribute(QLatin1String("command"))) {
         m_buildTarget.makeCleanCommand = attributes().value(QLatin1String("command")).toString();
+
+        CMakeTool *tool = CMakeKitInformation::cmakeTool(m_kit);
+        if (tool)
+            m_buildTarget.makeCleanCommand = tool->mapAllPaths(m_kit, m_buildTarget.makeCleanCommand);
+    }
     while (!atEnd()) {
         readNext();
         if (isEndElement())
@@ -346,7 +362,12 @@ void CMakeCbpParser::parseAdd()
     // CMake only supports <Add option=\> and <Add directory=\>
     const QXmlStreamAttributes addAttributes = attributes();
 
-    const QString includeDirectory = addAttributes.value(QLatin1String("directory")).toString();
+    QString includeDirectory = addAttributes.value(QLatin1String("directory")).toString();
+
+    CMakeTool *tool = CMakeKitInformation::cmakeTool(m_kit);
+    if (tool)
+        includeDirectory = tool->mapAllPaths(m_kit, includeDirectory);
+
     // allow adding multiple times because order happens
     if (!includeDirectory.isEmpty())
         m_buildTarget.includeFiles.append(includeDirectory);
@@ -380,6 +401,13 @@ void CMakeCbpParser::parseUnit()
     //qDebug()<<stream.attributes().value("filename");
     FileName fileName =
             FileName::fromUserInput(attributes().value(QLatin1String("filename")).toString());
+
+    CMakeTool *tool = CMakeKitInformation::cmakeTool(m_kit);
+    if (tool) {
+        QString mappedFile = tool->mapAllPaths(m_kit, fileName.toString());
+        fileName = FileName::fromUserInput(mappedFile);
+    }
+
     m_parsingCmakeUnit = false;
     while (!atEnd()) {
         readNext();

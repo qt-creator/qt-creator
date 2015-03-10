@@ -394,6 +394,7 @@ void CMakeToolManager::restoreCMakeTools()
 
     // restore the legacy cmake settings only once and keep them around
     readAndDeleteLegacyCMakeSettings();
+    emit m_instance->cmakeToolsLoaded();
 }
 
 void CMakeToolManager::registerAutodetectionHelper(CMakeToolManager::AutodetectionHelper helper)

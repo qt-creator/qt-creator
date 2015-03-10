@@ -43,6 +43,8 @@
 
 QT_FORWARD_DECLARE_CLASS(QProcess)
 
+namespace ProjectExplorer { class Kit; }
+
 namespace CMakeProjectManager {
 
 class CMAKE_EXPORT CMakeTool : public QObject
@@ -53,6 +55,8 @@ public:
         ManualDetection,
         AutoDetection
     };
+
+    typedef std::function<QString (ProjectExplorer::Kit *, const QString &)> PathMapper;
 
     explicit CMakeTool(Detection d, const Core::Id &id = Core::Id());
     explicit CMakeTool(const QVariantMap &map, bool fromSdk);
@@ -74,6 +78,9 @@ public:
     bool isAutoDetected() const;
     QString displayName() const;
     void setDisplayName(const QString &displayName);
+
+    void setPathMapper(const PathMapper &includePathMapper);
+    QString mapAllPaths(ProjectExplorer::Kit *kit, const QString &in) const;
 
 private slots:
     void finished(int exitCode);
@@ -103,6 +110,7 @@ private:
 
     Core::Id m_id;
     QString m_displayName;
+    PathMapper m_pathMapper;
 };
 
 } // namespace CMakeProjectManager

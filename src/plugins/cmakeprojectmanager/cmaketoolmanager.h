@@ -75,6 +75,7 @@ signals:
     void cmakeRemoved (const Core::Id &id);
     void cmakeUpdated (const Core::Id &id);
     void cmakeToolsChanged ();
+    void cmakeToolsLoaded ();
     void defaultCMakeChanged ();
 
 private:
