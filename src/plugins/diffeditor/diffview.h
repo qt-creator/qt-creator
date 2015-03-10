@@ -36,7 +36,8 @@
 #include <QIcon>
 #include <QString>
 #include <QObject>
-#include <QWidget>
+
+QT_FORWARD_DECLARE_CLASS(QWidget)
 
 namespace DiffEditor {
 

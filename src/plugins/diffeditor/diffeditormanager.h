@@ -33,12 +33,13 @@
 
 #include "diffeditor_global.h"
 
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/idocument.h>
-
 #include <QMap>
+#include <QObject>
 
-namespace Core { class IDocument; }
+namespace Core {
+class IDocument;
+class IEditor;
+}
 
 namespace DiffEditor {
 

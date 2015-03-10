@@ -35,9 +35,6 @@
 
 #include <QString>
 #include <QMap>
-#include <QTextEdit>
-
-#include "texteditor/texteditorconstants.h"
 
 namespace TextEditor { class FontSettings; }
 

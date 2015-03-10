@@ -45,6 +45,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/id.h>
 #include <coreplugin/iversioncontrol.h>
@@ -534,8 +535,6 @@ protected:
 private:
     QRegExp m_progressExp;
 };
-
-
 
 IEditor *locateEditor(const char *property, const QString &entry)
 {

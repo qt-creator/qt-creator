@@ -31,8 +31,7 @@
 #ifndef UNIFIEDDIFFEDITORWIDGET_H
 #define UNIFIEDDIFFEDITORWIDGET_H
 
-#include "differ.h"
-#include "diffeditorcontroller.h"
+#include "diffutils.h"
 #include "selectabletexteditorwidget.h"
 
 namespace TextEditor {
@@ -48,10 +47,11 @@ QT_END_NAMESPACE
 namespace DiffEditor {
 
 class ChunkData;
-class DiffEditorController;
 class FileData;
 
 namespace Internal {
+
+class DiffEditorDocument;
 
 class UnifiedDiffEditorWidget : public SelectableTextEditorWidget
 {

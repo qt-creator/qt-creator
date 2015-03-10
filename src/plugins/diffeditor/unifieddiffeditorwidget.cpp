@@ -29,35 +29,28 @@
 ****************************************************************************/
 
 #include "unifieddiffeditorwidget.h"
-
+#include "diffeditorcontroller.h"
+#include "diffutils.h"
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
-#include "diffutils.h"
 
 #include <QPlainTextEdit>
-#include <QVBoxLayout>
 #include <QMenu>
 #include <QPlainTextDocumentLayout>
 #include <QTextBlock>
-#include <QScrollBar>
+#include <QTextCodec>
 #include <QPainter>
 #include <QDir>
-#include <QToolButton>
-#include <QTextCodec>
 #include <QMessageBox>
 
-#include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
-#include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/highlighterutils.h>
 
-#include <coreplugin/icore.h>
-#include <coreplugin/minisplitter.h>
 #include <coreplugin/patchtool.h>
 #include <coreplugin/editormanager/editormanager.h>
 

@@ -30,34 +30,29 @@
 
 #include "sidebysidediffeditorwidget.h"
 #include "selectabletexteditorwidget.h"
+#include "diffeditordocument.h"
 #include "diffutils.h"
-#include "diffeditorcontroller.h"
 #include "diffeditorconstants.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QPlainTextEdit>
-#include <QVBoxLayout>
-#include <QPlainTextDocumentLayout>
 #include <QTextBlock>
+#include <QTextCodec>
 #include <QScrollBar>
 #include <QPainter>
 #include <QDir>
-#include <QToolButton>
-#include <QTextCodec>
 #include <QMessageBox>
 #include <QMenu>
+#include <QVBoxLayout>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocumentlayout.h>
-#include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/highlighterutils.h>
 
-#include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/patchtool.h>
 

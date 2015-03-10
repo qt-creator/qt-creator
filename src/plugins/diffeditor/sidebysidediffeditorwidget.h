@@ -31,28 +31,26 @@
 #ifndef SIDEBYSIDEDIFFEDITORWIDGET_H
 #define SIDEBYSIDEDIFFEDITORWIDGET_H
 
-#include "differ.h"
-#include "diffeditordocument.h"
+#include "diffutils.h"
+
 #include <QWidget>
 #include <QTextCharFormat>
 
 namespace TextEditor { class FontSettings; }
 
 QT_BEGIN_NAMESPACE
-class QSplitter;
 class QMenu;
+class QSplitter;
 QT_END_NAMESPACE
-
 
 namespace DiffEditor {
 
-class ChunkData;
-class FileData;
+class DiffEditorController;
 
 namespace Internal {
 
+class DiffEditorDocument;
 class SideDiffEditorWidget;
-class DiffEditorGuiController;
 
 class SideBySideDiffEditorWidget : public QWidget
 {

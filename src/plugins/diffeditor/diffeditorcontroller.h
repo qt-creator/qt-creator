@@ -36,9 +36,12 @@
 
 #include <QObject>
 
+QT_FORWARD_DECLARE_CLASS(QMenu)
+
 namespace Core { class IDocument; }
 
 namespace DiffEditor {
+
 namespace Internal { class DiffEditorDocument; }
 
 class DIFFEDITOR_EXPORT DiffEditorController : public QObject
