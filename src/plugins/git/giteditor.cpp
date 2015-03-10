@@ -243,6 +243,12 @@ void GitEditorWidget::revertChange()
                 sourceWorkingDirectory(), m_currentChange);
 }
 
+void GitEditorWidget::logChange()
+{
+    GitPlugin::instance()->gitClient()->log(
+                sourceWorkingDirectory(), QString(), false, QStringList(m_currentChange));
+}
+
 void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, bool revert)
 {
     QTemporaryFile patchFile;
@@ -349,6 +355,7 @@ void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)
         menu->addAction(tr("Cherr&y-Pick Change %1").arg(change), this, SLOT(cherryPickChange()));
         menu->addAction(tr("Re&vert Change %1").arg(change), this, SLOT(revertChange()));
         menu->addAction(tr("C&heckout Change %1").arg(change), this, SLOT(checkoutChange()));
+        menu->addAction(tr("&Log for Change %1").arg(change), this, SLOT(logChange()));
         QMenu *resetMenu = new QMenu(tr("&Reset to Change %1").arg(change), menu);
         connect(resetMenu->addAction(tr("&Hard")), &QAction::triggered,
                 this, [this]() { resetChange("hard"); });

@@ -892,16 +892,22 @@ void GitClient::status(const QString &workingDirectory)
 void GitClient::log(const QString &workingDirectory, const QString &fileName,
                     bool enableAnnotationContextMenu, const QStringList &args)
 {
-    const QString msgArg = fileName.isEmpty() ? workingDirectory : fileName;
+    QString msgArg;
+    if (!fileName.isEmpty())
+        msgArg = fileName;
+    else if (!args.isEmpty())
+        msgArg = args.first();
+    else
+        msgArg = workingDirectory;
     const QString title = tr("Git Log \"%1\"").arg(msgArg);
     const Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
     const QString sourceFile = VcsBaseEditor::getSource(workingDirectory, fileName);
-    VcsBaseEditorWidget *editor = findExistingVCSEditor("logFileName", sourceFile);
+    VcsBaseEditorWidget *editor = findExistingVCSEditor("logTitle", msgArg);
     if (!editor) {
         auto *argWidget = new GitLogArgumentsWidget(settings());
         connect(argWidget, &VcsBaseEditorParameterWidget::commandExecutionRequested,
                 [=]() { this->log(workingDirectory, fileName, enableAnnotationContextMenu, args); });
-        editor = createVcsEditor(editorId, title, sourceFile, CodecLogOutput, "logFileName", sourceFile,
+        editor = createVcsEditor(editorId, title, sourceFile, CodecLogOutput, "logTitle", msgArg,
                                  argWidget);
     }
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
