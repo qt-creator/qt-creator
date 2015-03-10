@@ -254,6 +254,25 @@ bool QbsProject::ensureWriteableQbsFile(const QString &file)
     return true;
 }
 
+qbs::GroupData QbsProject::reRetrieveGroupData(const qbs::ProductData &oldProduct,
+                                          const qbs::GroupData &oldGroup)
+{
+    qbs::GroupData newGroup;
+    foreach (const qbs::ProductData &pd, m_projectData.allProducts()) {
+        if (uniqueProductName(pd) == uniqueProductName(oldProduct)) {
+            foreach (const qbs::GroupData &gd, pd.groups()) {
+                if (gd.location() == oldGroup.location()) {
+                    newGroup = gd;
+                    break;
+                }
+            }
+            break;
+        }
+    }
+    QTC_CHECK(newGroup.isValid());
+    return newGroup;
+}
+
 bool QbsProject::addFilesToProduct(QbsBaseProjectNode *node, const QStringList &filePaths,
         const qbs::ProductData &productData, const qbs::GroupData &groupData, QStringList *notAdded)
 {
@@ -273,7 +292,8 @@ bool QbsProject::addFilesToProduct(QbsBaseProjectNode *node, const QStringList &
     }
     if (notAdded->count() != filePaths.count()) {
         m_projectData = m_qbsProject.projectData();
-        QbsGroupNode::setupFiles(node, allPaths, QFileInfo(productFilePath).absolutePath(), true);
+        QbsGroupNode::setupFiles(node, reRetrieveGroupData(productData, groupData),
+                                 allPaths, QFileInfo(productFilePath).absolutePath(), true);
         m_rootProjectNode->update();
     }
     return notAdded->isEmpty();
@@ -300,7 +320,8 @@ bool QbsProject::removeFilesFromProduct(QbsBaseProjectNode *node, const QStringL
     }
     if (notRemoved->count() != filePaths.count()) {
         m_projectData = m_qbsProject.projectData();
-        QbsGroupNode::setupFiles(node, allPaths, QFileInfo(productFilePath).absolutePath(), true);
+        QbsGroupNode::setupFiles(node, reRetrieveGroupData(productData, groupData), allPaths,
+                                 QFileInfo(productFilePath).absolutePath(), true);
         m_rootProjectNode->update();
     }
     return notRemoved->isEmpty();

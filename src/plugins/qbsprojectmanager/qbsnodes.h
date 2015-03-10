@@ -108,12 +108,15 @@ public:
 
     QString productPath() const;
 
-    static void setupFiles(FolderNode *root, const QStringList &files,
+    // group can be invalid
+    static void setupFiles(FolderNode *root, const qbs::GroupData &group, const QStringList &files,
                            const QString &productPath, bool updateExisting);
 
 private:
-    static void setupFolder(ProjectExplorer::FolderNode *folder,
-                            const FileTreeNode *subFileTree, const QString &baseDir, bool updateExisting);
+    static void setupFolder(ProjectExplorer::FolderNode *folder, const qbs::GroupData &group,
+            const FileTreeNode *subFileTree, const QString &baseDir, bool updateExisting);
+    static ProjectExplorer::FileType fileType(const qbs::GroupData &group, const QString &filePath);
+
     qbs::GroupData m_qbsGroupData;
     QString m_productPath;
 
