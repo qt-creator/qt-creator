@@ -32,6 +32,8 @@
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/coreconstants.h>
+
+#include <utils/fadingindicator.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -134,7 +136,12 @@ bool CurrentDocumentFind::replaceStep(const QString &before, const QString &afte
 int CurrentDocumentFind::replaceAll(const QString &before, const QString &after, FindFlags findFlags)
 {
     QTC_ASSERT(m_currentFind, return 0);
-    return m_currentFind->replaceAll(before, after, findFlags);
+    QTC_CHECK(m_currentWidget);
+    int count = m_currentFind->replaceAll(before, after, findFlags);
+    Utils::FadingIndicator::showText(m_currentWidget,
+                                     tr("%1 occurrences replaced.").arg(count),
+                                     Utils::FadingIndicator::SmallText);
+    return count;
 }
 
 void CurrentDocumentFind::defineFindScope()
