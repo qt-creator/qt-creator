@@ -75,8 +75,8 @@ GitEditorWidget::GitEditorWidget() :
     */
     setDiffFilePattern(QRegExp(QLatin1String("^(?:diff --git a/|index |[+-]{3} (?:/dev/null|[ab]/(.+$)))")));
     setLogEntryPattern(QRegExp(QLatin1String("^commit ([0-9a-f]{8})[0-9a-f]{32}")));
-    setAnnotateRevisionTextFormat(tr("Blame %1"));
-    setAnnotatePreviousRevisionTextFormat(tr("Blame Parent Revision %1"));
+    setAnnotateRevisionTextFormat(tr("&Blame %1"));
+    setAnnotatePreviousRevisionTextFormat(tr("Blame &Parent Revision %1"));
 }
 
 QSet<QString> GitEditorWidget::annotationChanges() const
@@ -345,10 +345,10 @@ void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)
 {
     m_currentChange = change;
     if (contentType() != OtherContent) {
-        menu->addAction(tr("Cherry-Pick Change %1").arg(change), this, SLOT(cherryPickChange()));
-        menu->addAction(tr("Revert Change %1").arg(change), this, SLOT(revertChange()));
-        menu->addAction(tr("Checkout Change %1").arg(change), this, SLOT(checkoutChange()));
-        menu->addAction(tr("Hard Reset to Change %1").arg(change), this, SLOT(resetChange()));
+        menu->addAction(tr("Cherr&y-Pick Change %1").arg(change), this, SLOT(cherryPickChange()));
+        menu->addAction(tr("Re&vert Change %1").arg(change), this, SLOT(revertChange()));
+        menu->addAction(tr("C&heckout Change %1").arg(change), this, SLOT(checkoutChange()));
+        menu->addAction(tr("Hard &Reset to Change %1").arg(change), this, SLOT(resetChange()));
     }
 }
 
