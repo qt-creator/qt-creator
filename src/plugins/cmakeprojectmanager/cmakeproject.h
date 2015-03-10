@@ -37,7 +37,6 @@
 #include "makestep.h"
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/namedwidget.h>
 #include <coreplugin/idocument.h>
@@ -55,11 +54,9 @@ QT_BEGIN_NAMESPACE
 class QFileSystemWatcher;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer { class Target; }
-
 namespace CMakeProjectManager {
-namespace Internal {
 
+namespace Internal {
 class CMakeFile;
 class CMakeBuildSettingsWidget;
 
@@ -155,83 +152,6 @@ private:
     QFileSystemWatcher *m_watcher;
     QSet<Utils::FileName> m_watchedFiles;
     QFuture<void> m_codeModelFuture;
-};
-
-class CMakeCbpParser : public QXmlStreamReader
-{
-public:
-    bool parseCbpFile(const QString &fileName, const QString &sourceDirectory);
-    QList<ProjectExplorer::FileNode *> fileList();
-    QList<ProjectExplorer::FileNode *> cmakeFileList();
-    QList<CMakeBuildTarget> buildTargets();
-    QString projectName() const;
-    QString compilerName() const;
-    bool hasCMakeFiles();
-
-private:
-    void parseCodeBlocks_project_file();
-    void parseProject();
-    void parseBuild();
-    void parseOption();
-    void parseBuildTarget();
-    void parseBuildTargetOption();
-    void parseMakeCommands();
-    void parseBuildTargetBuild();
-    void parseBuildTargetClean();
-    void parseCompiler();
-    void parseAdd();
-    void parseUnit();
-    void parseUnitOption();
-    void parseUnknownElement();
-    void sortFiles();
-
-    QList<ProjectExplorer::FileNode *> m_fileList;
-    QList<ProjectExplorer::FileNode *> m_cmakeFileList;
-    QSet<Utils::FileName> m_processedUnits;
-    bool m_parsingCmakeUnit;
-
-    CMakeBuildTarget m_buildTarget;
-    QList<CMakeBuildTarget> m_buildTargets;
-    QString m_projectName;
-    QString m_compiler;
-    QString m_sourceDirectory;
-    QString m_buildDirectory;
-};
-
-class CMakeFile : public Core::IDocument
-{
-    Q_OBJECT
-public:
-    CMakeFile(CMakeProject *parent, const Utils::FileName &fileName);
-
-    bool save(QString *errorString, const QString &fileName, bool autoSave);
-
-    QString defaultPath() const;
-    QString suggestedFileName() const;
-
-    bool isModified() const;
-    bool isSaveAsAllowed() const;
-
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
-
-private:
-    CMakeProject *m_project;
-};
-
-class CMakeBuildSettingsWidget : public ProjectExplorer::NamedWidget
-{
-    Q_OBJECT
-public:
-    CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc);
-
-private slots:
-    void openChangeBuildDirectoryDialog();
-    void runCMake();
-private:
-    QLineEdit *m_pathLineEdit;
-    QPushButton *m_changeButton;
-    CMakeBuildConfiguration *m_buildConfiguration;
 };
 
 } // namespace Internal

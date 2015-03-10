@@ -34,6 +34,7 @@
 #include "cmakeopenprojectwizard.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
+#include "cmakebuildsettingswidget.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
