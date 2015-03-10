@@ -60,39 +60,12 @@
 
 #include <utils/tooltip/tooltip.h>
 
-//static const int FILE_LEVEL = 1;
-//static const int CHUNK_LEVEL = 2;
-
 using namespace Core;
 using namespace TextEditor;
 using namespace Utils;
 
 namespace DiffEditor {
 namespace Internal {
-
-////////////////////////
-/*
-class MultiHighlighter : public SyntaxHighlighter
-{
-    Q_OBJECT
-public:
-    MultiHighlighter(SideDiffEditorWidget *editor, QTextDocument *document = 0);
-    ~MultiHighlighter();
-
-    virtual void setFontSettings(const FontSettings &fontSettings);
-    void setDocuments(const QList<QPair<DiffFileInfo, QString> > &documents);
-
-protected:
-    virtual void highlightBlock(const QString &text);
-
-private:
-    SideDiffEditorWidget *m_editor;
-    QMap<QString, HighlighterFactory *> m_mimeTypeToHighlighterFactory;
-    QList<SyntaxHighlighter *> m_highlighters;
-    QList<QTextDocument *> m_documents;
-};
-*/
-////////////////////////
 
 class SideDiffEditorWidget : public SelectableTextEditorWidget
 {
@@ -127,7 +100,6 @@ public:
     QTextBlock firstVisibleBlock() const {
         return TextEditorWidget::firstVisibleBlock();
     }
-//    void setDocuments(const QList<QPair<DiffFileInfo, QString> > &documents);
     void saveState();
     void restoreState();
 
@@ -154,17 +126,12 @@ protected:
     virtual bool replacementVisible(int blockNumber) const;
     QColor replacementPenColor(int blockNumber) const;
     virtual QString plainTextFromSelection(const QTextCursor &cursor) const;
-//    virtual void drawCollapsedBlockPopup(QPainter &painter,
-//                                 const QTextBlock &block,
-//                                 QPointF offset,
-//                                 const QRect &clip);
     void mouseDoubleClickEvent(QMouseEvent *e);
     void contextMenuEvent(QContextMenuEvent *e);
     virtual void paintEvent(QPaintEvent *e);
     virtual void scrollContentsBy(int dx, int dy);
 
 private:
-//    void paintCollapsedBlockPopup(QPainter &painter, const QRect &clipRect);
     void paintSeparator(QPainter &painter, QColor &color, const QString &text,
                         const QTextBlock &block, int top);
     void jumpToOriginalFile(const QTextCursor &cursor);
@@ -185,97 +152,7 @@ private:
     QColor m_chunkLineForeground;
     QColor m_textForeground;
     QByteArray m_state;
-//    MultiHighlighter *m_highlighter;
 };
-
-////////////////////////
-/*
-MultiHighlighter::MultiHighlighter(SideDiffEditorWidget *editor, QTextDocument *document)
-    : SyntaxHighlighter(document),
-      m_editor(editor)
-{
-    const QList<HighlighterFactory *> &factories =
-        ExtensionSystem::PluginManager::getObjects<HighlighterFactory>();
-    foreach (HighlighterFactory *factory, factories) {
-        QStringList mimeTypes = factory->mimeTypes();
-        foreach (const QString &mimeType, mimeTypes)
-            m_mimeTypeToHighlighterFactory.insert(mimeType, factory);
-    }
-}
-
-MultiHighlighter::~MultiHighlighter()
-{
-    setDocuments(QList<QPair<DiffFileInfo, QString> >());
-}
-
-void MultiHighlighter::setFontSettings(const FontSettings &fontSettings)
-{
-    foreach (SyntaxHighlighter *highlighter, m_highlighters) {
-        if (highlighter) {
-            highlighter->setFontSettings(fontSettings);
-            highlighter->rehighlight();
-        }
-    }
-}
-
-void MultiHighlighter::setDocuments(const QList<QPair<DiffFileInfo, QString> > &documents)
-{
-    // clear old documents
-    qDeleteAll(m_documents);
-    m_documents.clear();
-    qDeleteAll(m_highlighters);
-    m_highlighters.clear();
-
-    // create new documents
-    for (int i = 0; i < documents.count(); i++) {
-        DiffFileInfo fileInfo = documents.at(i).first;
-        const QString contents = documents.at(i).second;
-        QTextDocument *document = new QTextDocument(contents);
-        const MimeType mimeType = MimeDatabase::findByFile(QFileInfo(fileInfo.fileName));
-        SyntaxHighlighter *highlighter = 0;
-        if (const HighlighterFactory *factory = m_mimeTypeToHighlighterFactory.value(mimeType.type())) {
-            highlighter = factory->createHighlighter();
-            if (highlighter)
-                highlighter->setDocument(document);
-        }
-        if (!highlighter) {
-            highlighter = createGenericSyntaxHighlighter(mimeType);
-            highlighter->setDocument(document);
-        }
-        m_documents.append(document);
-        m_highlighters.append(highlighter);
-    }
-}
-
-void MultiHighlighter::highlightBlock(const QString &text)
-{
-    Q_UNUSED(text)
-
-    QTextBlock block = currentBlock();
-    const int fileIndex = m_editor->fileIndexForBlockNumber(block.blockNumber());
-    if (fileIndex < 0)
-        return;
-
-    SyntaxHighlighter *currentHighlighter = m_highlighters.at(fileIndex);
-    if (!currentHighlighter)
-        return;
-
-    // find block in document
-    QTextDocument *currentDocument = m_documents.at(fileIndex);
-    if (!currentDocument)
-        return;
-
-    QTextBlock documentBlock = currentDocument->findBlockByNumber(
-                block.blockNumber() - m_editor->blockNumberForFileIndex(fileIndex));
-
-    if (!documentBlock.isValid())
-        return;
-
-    QList<QTextLayout::FormatRange> formats = documentBlock.layout()->additionalFormats();
-    setExtraAdditionalFormats(block, formats);
-}
-*/
-////////////////////////
 
 SideDiffEditorWidget::SideDiffEditorWidget(QWidget *parent)
     : SelectableTextEditorWidget("DiffEditor.SideDiffEditor", parent),
@@ -299,11 +176,6 @@ SideDiffEditorWidget::SideDiffEditorWidget(QWidget *parent)
         else
             ToolTip::hide();
     });
-
-//    setCodeFoldingSupported(true);
-
-//    m_highlighter = new MultiHighlighter(this, baseTextDocument()->document());
-//    baseTextDocument()->setSyntaxHighlighter(m_highlighter);
 }
 
 void SideDiffEditorWidget::saveState()
@@ -630,109 +502,7 @@ void SideDiffEditorWidget::paintEvent(QPaintEvent *e)
         }
         currentBlock = currentBlock.next();
     }
-//    paintCollapsedBlockPopup(painter, e->rect());
 }
-/*
-void SideDiffEditorWidget::paintCollapsedBlockPopup(QPainter &painter, const QRect &clipRect)
-{
-    QPointF offset(contentOffset());
-    QRect viewportRect = viewport()->rect();
-    QTextBlock block = firstVisibleBlock();
-    QTextBlock visibleCollapsedBlock;
-    QPointF visibleCollapsedBlockOffset;
-
-    while (block.isValid()) {
-
-        QRectF r = blockBoundingRect(block).translated(offset);
-
-        offset.ry() += r.height();
-
-        if (offset.y() > viewportRect.height())
-            break;
-
-        block = block.next();
-
-        if (!block.isVisible()) {
-            if (block.blockNumber() == visibleFoldedBlockNumber()) {
-                visibleCollapsedBlock = block;
-                visibleCollapsedBlockOffset = offset + QPointF(0,1);
-                break;
-            }
-
-            // invisible blocks do have zero line count
-            block = document()->findBlockByLineNumber(block.firstLineNumber());
-        }
-    }
-    if (visibleCollapsedBlock.isValid()) {
-        drawCollapsedBlockPopup(painter,
-                                visibleCollapsedBlock,
-                                visibleCollapsedBlockOffset,
-                                clipRect);
-    }
-}
-
-void SideDiffEditorWidget::drawCollapsedBlockPopup(QPainter &painter,
-                                             const QTextBlock &block,
-                                             QPointF offset,
-                                             const QRect &clip)
-{
-    // We ignore the call coming from the SelectableTextEditorWidget::paintEvent()
-    // since we will draw it later, after custom drawings of this paintEvent.
-    // We need to draw it after our custom drawings, otherwise custom
-    // drawings will appear in front of block popup.
-    if (m_inPaintEvent)
-        return;
-
-    int margin = block.document()->documentMargin();
-    qreal maxWidth = 0;
-    qreal blockHeight = 0;
-    QTextBlock b = block;
-
-    while (!b.isVisible()) {
-        if (!m_separators.contains(b.blockNumber())) {
-            b.setVisible(true); // make sure block bounding rect works
-            QRectF r = blockBoundingRect(b).translated(offset);
-
-            QTextLayout *layout = b.layout();
-            for (int i = layout->lineCount()-1; i >= 0; --i)
-                maxWidth = qMax(maxWidth, layout->lineAt(i).naturalTextWidth() + 2*margin);
-
-            blockHeight += r.height();
-
-            b.setVisible(false); // restore previous state
-            b.setLineCount(0); // restore 0 line count for invisible block
-        }
-        b = b.next();
-    }
-
-    painter.save();
-    painter.setRenderHint(QPainter::Antialiasing, true);
-    painter.translate(.5, .5);
-    QBrush brush = palette().base();
-    painter.setBrush(brush);
-    painter.drawRoundedRect(QRectF(offset.x(),
-                                   offset.y(),
-                                   maxWidth, blockHeight).adjusted(0, 0, 0, 0), 3, 3);
-    painter.restore();
-
-    QTextBlock end = b;
-    b = block;
-    while (b != end) {
-        if (!m_separators.contains(b.blockNumber())) {
-            b.setVisible(true); // make sure block bounding rect works
-            QRectF r = blockBoundingRect(b).translated(offset);
-            QTextLayout *layout = b.layout();
-            QVector<QTextLayout::FormatRange> selections;
-            layout->draw(&painter, offset, selections, clip);
-
-            b.setVisible(false); // restore previous state
-            b.setLineCount(0); // restore 0 line count for invisible block
-            offset.ry() += r.height();
-        }
-        b = b.next();
-    }
-}
-*/
 
 //////////////////
 
@@ -1196,8 +966,8 @@ void SideBySideDiffEditorWidget::slotSendChunkToCodePaster()
         return;
 
     // Retrieve service by soft dependency.
-    QObject *pasteService= ExtensionSystem::PluginManager::getObjectByClassName(
-                QLatin1String("CodePaster::CodePasterService"));
+    QObject *pasteService
+            = ExtensionSystem::PluginManager::getObjectByClassName(QLatin1String("CodePaster::CodePasterService"));
     if (pasteService) {
         QMetaObject::invokeMethod(pasteService, "postText",
                                   Q_ARG(QString, patch),
