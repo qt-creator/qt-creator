@@ -369,7 +369,7 @@ void NodeInstanceServer::removeSharedMemory(const RemoveSharedMemoryCommand &/*c
 {
 }
 
-void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &containerVector, const QVector<IdContainer> &idContainerVector)
+void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &containerVector)
 {
     Q_ASSERT(quickView());
     QSet<QString> importStatementSet;
