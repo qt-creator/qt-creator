@@ -468,7 +468,7 @@ Core::IDocument *CMakeProject::document() const
     return m_file;
 }
 
-CMakeManager *CMakeProject::projectManager() const
+IProjectManager *CMakeProject::projectManager() const
 {
     return m_manager;
 }

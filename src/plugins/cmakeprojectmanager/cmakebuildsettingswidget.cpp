@@ -82,9 +82,10 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
 {
     CMakeProject *project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
+    CMakeManager *manager = static_cast<CMakeManager *>(project->projectManager());
     CMakeBuildInfo info(m_buildConfiguration);
     CMakeOpenProjectWizard copw(Core::ICore::mainWindow(),
-                                project->projectManager(), CMakeOpenProjectWizard::ChangeDirectory,
+                                manager, CMakeOpenProjectWizard::ChangeDirectory,
                                 &info);
     if (copw.exec() == QDialog::Accepted) {
         project->changeBuildDirectory(m_buildConfiguration, copw.buildDirectory());
@@ -98,9 +99,10 @@ void CMakeBuildSettingsWidget::runCMake()
     if (!ProjectExplorer::ProjectExplorerPlugin::saveModifiedFiles())
         return;
     CMakeProject *project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
+    CMakeManager *manager = static_cast<CMakeManager *>(project->projectManager());
     CMakeBuildInfo info(m_buildConfiguration);
     CMakeOpenProjectWizard copw(Core::ICore::mainWindow(),
-                                project->projectManager(),
+                                manager,
                                 CMakeOpenProjectWizard::WantToUpdate, &info);
     if (copw.exec() == QDialog::Accepted)
         project->parseCMakeLists();

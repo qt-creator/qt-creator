@@ -34,9 +34,9 @@
 #include <coreplugin/idocument.h>
 
 namespace CMakeProjectManager {
+class CMakeProject;
 
 namespace Internal {
-class CMakeProject;
 
 class CMakeFile : public Core::IDocument
 {

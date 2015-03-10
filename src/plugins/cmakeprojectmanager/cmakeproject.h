@@ -31,10 +31,8 @@
 #ifndef CMAKEPROJECT_H
 #define CMAKEPROJECT_H
 
-#include "cmakeprojectmanager.h"
+#include "cmake_global.h"
 #include "cmakeprojectnodes.h"
-#include "cmakebuildconfiguration.h"
-#include "makestep.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -59,6 +57,10 @@ namespace CMakeProjectManager {
 namespace Internal {
 class CMakeFile;
 class CMakeBuildSettingsWidget;
+class CMakeBuildConfiguration;
+class CMakeProjectNode;
+class CMakeManager;
+}
 
 enum TargetType {
     ExecutableType = 0,
@@ -66,7 +68,7 @@ enum TargetType {
     DynamicLibraryType = 3
 };
 
-struct CMakeBuildTarget
+struct CMAKE_EXPORT CMakeBuildTarget
 {
     QString title;
     QString executable; // TODO: rename to output?
@@ -85,18 +87,18 @@ struct CMakeBuildTarget
     void clear();
 };
 
-class CMakeProject : public ProjectExplorer::Project
+class CMAKE_EXPORT CMakeProject : public ProjectExplorer::Project
 {
     Q_OBJECT
     // for changeBuildDirectory
-    friend class CMakeBuildSettingsWidget;
+    friend class Internal::CMakeBuildSettingsWidget;
 public:
-    CMakeProject(CMakeManager *manager, const Utils::FileName &filename);
+    CMakeProject(Internal::CMakeManager *manager, const Utils::FileName &filename);
     ~CMakeProject();
 
     QString displayName() const;
     Core::IDocument *document() const;
-    CMakeManager *projectManager() const;
+    ProjectExplorer::IProjectManager *projectManager() const;
 
     ProjectExplorer::ProjectNode *rootProjectNode() const;
 
@@ -120,7 +122,7 @@ protected:
     bool setupTarget(ProjectExplorer::Target *t);
 
     // called by CMakeBuildSettingsWidget
-    void changeBuildDirectory(CMakeBuildConfiguration *bc, const QString &newBuildDirectory);
+    void changeBuildDirectory(Internal::CMakeBuildConfiguration *bc, const QString &newBuildDirectory);
 
 private slots:
     void fileChanged(const QString &fileName);
@@ -130,23 +132,23 @@ private slots:
     void updateRunConfigurations();
 
 private:
-    void buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list);
+    void buildTree(Internal::CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list);
     void gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list);
-    ProjectExplorer::FolderNode *findOrCreateFolder(CMakeProjectNode *rootNode, QString directory);
+    ProjectExplorer::FolderNode *findOrCreateFolder(Internal::CMakeProjectNode *rootNode, QString directory);
     void createUiCodeModelSupport();
     QString uiHeaderFile(const QString &uiFile);
     void updateRunConfigurations(ProjectExplorer::Target *t);
     void updateApplicationAndDeploymentTargets();
     QStringList getCXXFlagsFor(const CMakeBuildTarget &buildTarget);
 
-    CMakeManager *m_manager;
+    Internal::CMakeManager *m_manager;
     ProjectExplorer::Target *m_activeTarget;
     Utils::FileName m_fileName;
-    CMakeFile *m_file;
+    Internal::CMakeFile *m_file;
     QString m_projectName;
 
     // TODO probably need a CMake specific node structure
-    CMakeProjectNode *m_rootNode;
+    Internal::CMakeProjectNode *m_rootNode;
     QStringList m_files;
     QList<CMakeBuildTarget> m_buildTargets;
     QFileSystemWatcher *m_watcher;
@@ -154,7 +156,6 @@ private:
     QFuture<void> m_codeModelFuture;
 };
 
-} // namespace Internal
 } // namespace CMakeProjectManager
 
 #endif // CMAKEPROJECT_H

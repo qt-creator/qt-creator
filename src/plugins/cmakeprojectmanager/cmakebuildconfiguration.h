@@ -38,9 +38,9 @@ namespace ProjectExplorer { class ToolChain; }
 
 namespace CMakeProjectManager {
 class CMakeBuildInfo;
+class CMakeProject;
 
 namespace Internal {
-class CMakeProject;
 
 class CMakeBuildConfigurationFactory;
 
@@ -75,7 +75,7 @@ private:
     QString m_msvcVersion;
     bool m_useNinja;
 
-    friend class CMakeProject;
+    friend class CMakeProjectManager::CMakeProject;
 };
 
 class CMakeBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
