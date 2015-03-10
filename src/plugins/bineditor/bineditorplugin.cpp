@@ -278,6 +278,14 @@ public:
                     QMessageBox::critical(ICore::mainWindow(), tr("File Error"), msg);
                 return false;
             }
+            if (size > INT_MAX) {
+                QString msg = tr("The file is too big for the Binary Editor (max. 2GB).");
+                if (errorString)
+                    *errorString = msg;
+                else
+                    QMessageBox::critical(ICore::mainWindow(), tr("File Error"), msg);
+                return false;
+            }
             if (offset >= size)
                 return false;
             setFilePath(FileName::fromString(fileName));
