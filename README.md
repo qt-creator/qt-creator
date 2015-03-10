@@ -65,12 +65,11 @@ For detailed information on the supported compilers, see
        that the version displayed is 5.10 or later. Note that git ships
        an outdated version 5.8 which cannot be used for Qt.
 
-   5.  In the working directory, check out the respective branch of Qt
-       (we recommend the latest released version from the release branch,
-       5.2.1; see <https://qt.gitorious.org/qt>).
+   5.  In the working directory, check out the respective branch of Qt from
+       <https://code.qt.io/cgit/qt/qt5.git> (we recommend the latest released version).
 
    6.  Check out Qt Creator (master branch or latest version, see
-       <https://qt.gitorious.org/qt-creator>).
+       <https://code.qt.io/cgit/qt-creator/qt-creator.git>).
        You should now have the directories qt and creator under your working
        directory.
 
@@ -154,7 +153,7 @@ For detailed information on the supported compilers, see
        Windows, you can obtain the 64 bit versions of the extension library
        and the binary `win64interrupt.exe`, which is required for
        debugging from the repository
-       <https://qt.gitorious.org/qt-creator/binary-artifacts/source/> .
+       <https://code.qt.io/cgit/qt-creator/binary-artifacts.git/tree> .
 
    13. Qt Creator can be registered as a post-mortem debugger. This
        can be done in the options page or by running the tool qtcdebugger

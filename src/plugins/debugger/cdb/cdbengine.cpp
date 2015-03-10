@@ -614,7 +614,7 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
     if (!extensionFi.isFile()) {
         *errorMessage = QString::fromLatin1("Internal error: The extension %1 cannot be found.\n"
                                             "If you build Qt Creator from sources, check out "
-                                            "https://qt.gitorious.org/qt-creator/binary-artifacts/").
+                                            "https://code.qt.io/cgit/qt-creator/binary-artifacts.git/.").
                 arg(QDir::toNativeSeparators(extensionFi.absoluteFilePath()));
         return false;
     }
