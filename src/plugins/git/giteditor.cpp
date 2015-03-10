@@ -212,12 +212,13 @@ void GitEditorWidget::checkoutChange()
                 sourceWorkingDirectory(), m_currentChange);
 }
 
-void GitEditorWidget::resetChange()
+void GitEditorWidget::resetChange(const QByteArray &resetType)
 {
     const QString workingDir = sourceWorkingDirectory();
 
     GitClient *client = GitPlugin::instance()->gitClient();
-    if (client->gitStatus(workingDir, StatusMode(NoUntracked | NoSubmodules))
+    if (resetType == "hard"
+            && client->gitStatus(workingDir, StatusMode(NoUntracked | NoSubmodules))
             != GitClient::StatusUnchanged) {
         if (QMessageBox::question(
                     Core::ICore::mainWindow(), tr("Reset"),
@@ -227,7 +228,7 @@ void GitEditorWidget::resetChange()
             return;
         }
     }
-    client->reset(workingDir, QLatin1String("--hard"), m_currentChange);
+    client->reset(workingDir, QLatin1String("--" + resetType), m_currentChange);
 }
 
 void GitEditorWidget::cherryPickChange()
@@ -348,7 +349,14 @@ void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)
         menu->addAction(tr("Cherr&y-Pick Change %1").arg(change), this, SLOT(cherryPickChange()));
         menu->addAction(tr("Re&vert Change %1").arg(change), this, SLOT(revertChange()));
         menu->addAction(tr("C&heckout Change %1").arg(change), this, SLOT(checkoutChange()));
-        menu->addAction(tr("Hard &Reset to Change %1").arg(change), this, SLOT(resetChange()));
+        QMenu *resetMenu = new QMenu(tr("&Reset to Change %1").arg(change), menu);
+        connect(resetMenu->addAction(tr("&Hard")), &QAction::triggered,
+                this, [this]() { resetChange("hard"); });
+        connect(resetMenu->addAction(tr("&Mixed")), &QAction::triggered,
+                this, [this]() { resetChange("mixed"); });
+        connect(resetMenu->addAction(tr("&Soft")), &QAction::triggered,
+                this, [this]() { resetChange("soft"); });
+        menu->addMenu(resetMenu);
     }
 }
 
