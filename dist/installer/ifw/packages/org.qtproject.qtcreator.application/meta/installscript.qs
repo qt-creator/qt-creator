@@ -160,10 +160,10 @@ Component.prototype.createOperations = function()
                                 "workingDirectory=@homeDir@" );
 
         // only install c runtime if it is needed, no minor version check of the c runtime till we need it
-        if (installer.value("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\10.0\\VC\\VCRedist\\x86\\Installed") != 1) {
+        if (installer.value("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\12.0\\VC\\Runtimes\\x86\\Installed") != 1) {
            // return value 3010 means it need a reboot, but in most cases it is not needed for run Qt application
            // return value 5100 means there's a newer version of the runtime already installed
-           component.addElevatedOperation("Execute", "{0,1638,3010,5100}", "@TargetDir@\\lib\\vcredist_msvc2010\\vcredist_x86.exe", "/norestart", "/q");
+           component.addElevatedOperation("Execute", "{0,1638,3010,5100}", "@TargetDir@\\lib\\vcredist_msvc2013\\vcredist_x86.exe", "/norestart", "/q");
         }
 
         registerWindowsFileTypeExtensions();
