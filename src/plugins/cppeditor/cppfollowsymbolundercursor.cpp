@@ -395,6 +395,36 @@ Symbol *findDefinition(Symbol *symbol, const Snapshot &snapshot, SymbolFinder *s
     return symbolFinder->findMatchingDefinition(symbol, snapshot);
 }
 
+void maybeAppendArgumentOrParameterList(QString *expression, const QTextCursor &textCursor)
+{
+    QTC_ASSERT(expression, return);
+    QTextDocument *textDocument = textCursor.document();
+    QTC_ASSERT(textDocument, return);
+
+    // Skip white space
+    QTextCursor cursor(textCursor);
+    while (textDocument->characterAt(cursor.position()).isSpace()
+           && cursor.movePosition(QTextCursor::NextCharacter)) {
+    }
+
+    // Find/Include (...)
+    if (textDocument->characterAt(cursor.position()) == QLatin1Char('(')) {
+        if (TextBlockUserData::findNextClosingParenthesis(&cursor, true))
+            expression->append(cursor.selectedText());
+    }
+}
+
+QString expressionUnderCursorAsString(const QTextCursor &textCursor,
+                                      const LanguageFeatures &features)
+{
+    ExpressionUnderCursor expressionUnderCursor(features);
+    QString expression = expressionUnderCursor(textCursor);
+
+    maybeAppendArgumentOrParameterList(&expression, textCursor);
+
+    return expression;
+}
+
 } // anonymous namespace
 
 FollowSymbolUnderCursor::FollowSymbolUnderCursor(CppEditorWidget *widget)
@@ -613,22 +643,8 @@ TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &curs
         return link;
 
     // Evaluate the type of the expression under the cursor
-    ExpressionUnderCursor expressionUnderCursor(features);
-    QString expression = expressionUnderCursor(tc);
-
-    for (int pos = tc.position();; ++pos) {
-        const QChar ch = document->characterAt(pos);
-        if (ch.isSpace())
-            continue;
-        if (ch == QLatin1Char('(') && !expression.isEmpty()) {
-            tc.setPosition(pos);
-            if (TextBlockUserData::findNextClosingParenthesis(&tc, true))
-                expression.append(tc.selectedText());
-        }
-
-        break;
-    }
-
+    QTC_CHECK(document == tc.document());
+    const QString expression = expressionUnderCursorAsString(tc, features);
     const QSharedPointer<TypeOfExpression> typeOfExpression(new TypeOfExpression);
     typeOfExpression->init(doc, snapshot);
     // make possible to instantiate templates
