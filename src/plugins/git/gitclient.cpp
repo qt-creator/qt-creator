@@ -361,8 +361,6 @@ private:
 
 void ShowController::reload()
 {
-    QTC_ASSERT(m_state == Idle, return);
-
     QStringList args;
     args << QLatin1String("show") << QLatin1String("-s") << QLatin1String(noColorOption)
               << QLatin1String(decorateOption) << m_id;
