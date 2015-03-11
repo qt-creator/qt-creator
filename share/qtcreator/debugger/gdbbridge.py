@@ -1599,7 +1599,9 @@ class Dumper(DumperBase):
                     if not symtab is None:
                         objfile = fromNativePath(symtab.objfile.filename)
                         fileName = fromNativePath(symtab.filename)
-                        fullName = fromNativePath(symtab.fullname())
+                        fullName = ""
+                        if symtab.fullname():
+                            fullname = fromNativePath(symtab.fullname())
 
                 if self.nativeMixed:
                     if self.isReportableQmlFrame(functionName):
