@@ -941,6 +941,9 @@ bool SessionManager::loadSession(const QString &session)
         d->restoreValues(reader);
         emit m_instance->aboutToLoadSession(session);
 
+        // retrieve all values before the following code could change them again
+        Id modeId = Id::fromSetting(value(QLatin1String("ActiveMode")));
+
         QColor c = QColor(reader.restoreValue(QLatin1String("Color")).toString());
         if (c.isValid())
             StyleHelper::setBaseColor(c);
@@ -965,7 +968,6 @@ bool SessionManager::loadSession(const QString &session)
         d->m_future = QFutureInterface<void>();
 
         // restore the active mode
-        Id modeId = Id::fromSetting(value(QLatin1String("ActiveMode")));
         if (!modeId.isValid())
             modeId = Id(Core::Constants::MODE_EDIT);
 
