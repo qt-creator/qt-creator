@@ -1067,7 +1067,7 @@ void EditorManagerPrivate::activateEditorForEntry(EditorView *view, DocumentMode
         return;
     }
     IDocument *document = entry->document;
-    if (document)  {
+    if (!entry->isRestored)  {
         activateEditorForDocument(view, document, flags);
         return;
     }
@@ -2048,10 +2048,10 @@ void EditorManager::closeDocument(DocumentModel::Entry *entry)
 {
     if (!entry)
         return;
-    if (entry->document)
-        closeDocuments(QList<IDocument *>() << entry->document);
-    else
+    if (entry->isRestored)
         DocumentModel::removeEntry(entry);
+    else
+        closeDocuments(QList<IDocument *>() << entry->document);
 }
 
 bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool askAboutModifiedEditors)
@@ -2537,15 +2537,15 @@ QByteArray EditorManager::saveState()
     int entriesCount = 0;
     foreach (DocumentModel::Entry *entry, entries) {
         // The editor may be 0 if it was not loaded yet: In that case it is not temporary
-        if (!entry->document || !entry->document->isTemporary())
+        if (!entry->document->isTemporary())
             ++entriesCount;
     }
 
     stream << entriesCount;
 
     foreach (DocumentModel::Entry *entry, entries) {
-        if (!entry->document || !entry->document->isTemporary())
-            stream << entry->fileName().toString() << entry->displayName() << entry->id();
+        if (!entry->document->isTemporary())
+            stream << entry->fileName().toString() << entry->plainDisplayName() << entry->id();
     }
 
     stream << d->m_editorAreas.first()->saveState(); // TODO

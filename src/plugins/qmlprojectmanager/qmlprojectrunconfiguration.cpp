@@ -104,6 +104,7 @@ void QmlProjectRunConfiguration::ctor()
         setDisplayName(tr("QML Scene", "QMLRunConfiguration display name."));
     else
         setDisplayName(tr("QML Viewer", "QMLRunConfiguration display name."));
+    updateEnabled();
 }
 
 QString QmlProjectRunConfiguration::executable() const

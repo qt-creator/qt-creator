@@ -159,9 +159,6 @@ QString QMakeStep::allArguments(bool shorted)
     QString args = QtcProcess::joinArgs(arguments);
     // User arguments
     QtcProcess::addArgs(&args, m_userArgs);
-    // moreArgumentsAfter
-    foreach (const QString &arg, deducedArgumentsAfter())
-        QtcProcess::addArg(&args, arg);
     return args;
 }
 
@@ -197,25 +194,6 @@ QStringList QMakeStep::deducedArguments()
     }
 
     return arguments;
-}
-
-/// -after OBJECTS_DIR, MOC_DIR, UI_DIR, RCC_DIR
-QStringList QMakeStep::deducedArgumentsAfter()
-{
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    if (version && !version->supportsShadowBuilds()) {
-        // We have a target which does not allow shadow building.
-        // But we really don't want to have the build artefacts in the source dir
-        // so we try to hack around it, to make the common cases work.
-        // This is a HACK, remove once all make generators support
-        // shadow building
-        return QStringList() << QLatin1String("-after")
-                             << QLatin1String("OBJECTS_DIR=obj")
-                             << QLatin1String("MOC_DIR=moc")
-                             << QLatin1String("UI_DIR=ui")
-                             << QLatin1String("RCC_DIR=rcc");
-    }
-    return QStringList();
 }
 
 bool QMakeStep::init()

@@ -906,48 +906,41 @@ class DumperBase:
                self.putFields(value)
 
     def putCStyleArray(self, value):
-        type = value.type.unqualified()
+        arrayType = value.type.unqualified()
         innerType = value[0].type
+        ts = innerType.sizeof
         #self.putAddress(value.address)
-        self.putType(type)
+        self.putType(arrayType)
         self.putNumChild(1)
-        format = self.currentItemFormat()
-        isDefault1 = format == None and str(innerType.unqualified()) == "char"
-        isDefault2 = format == None and str(innerType.unqualified()) == "wchar_t"
-        if isDefault1 or isDefault2 or format == 0 or format == 1 or format == 2:
-            blob = self.readMemory(self.addressOf(value), type.sizeof)
 
-        if isDefault1:
-            # Use Latin1 as default for char [].
-            self.putValue(blob, Hex2EncodedLatin1)
-        elif isDefault2:
-            if type.sizeof == 2:
-                self.putValue(blob, Hex4EncodedLittleEndian)
-            else:
-                self.putValue(blob, Hex8EncodedLittleEndian)
-        elif format == 0:
-            # Explicitly requested Latin1 formatting.
-            self.putValue(blob, Hex2EncodedLatin1)
-        elif format == 1:
-            # Explicitly requested UTF-8 formatting.
-            self.putValue(blob, Hex2EncodedUtf8)
-        elif format == 2:
-            # Explicitly requested Local 8-bit formatting.
-            self.putValue(blob, Hex2EncodedLocal8Bit)
-        else:
-            try:
-                self.putValue("@0x%x" % self.pointerValue(value.cast(innerType.pointer())))
-            except:
-                self.putEmptyValue()
+        try:
+            p = self.addressOf(value)
+        except:
+            p = None
+
+        itemFormat = self.currentItemFormat()
+        n = int(arrayType.sizeof / ts)
+
+        if p and self.tryPutSimpleFormattedPointer(p, str(arrayType), itemFormat, arrayType.sizeof):
+            self.putNumChild(n)
+            pass
+        elif itemFormat is None:
+            innerTypeName = str(innerType.unqualified())
+            blob = self.readMemory(self.addressOf(value), arrayType.sizeof)
+            if innerTypeName == "char":
+                # Use Latin1 as default for char [].
+                self.putValue(blob, Hex2EncodedLatin1)
+            elif innerTypeName == "wchar_t":
+                if innerType.sizeof == 2:
+                    self.putValue(blob, Hex4EncodedLittleEndian)
+                else:
+                    self.putValue(blob, Hex8EncodedLittleEndian)
 
         if self.currentIName in self.expandedINames:
             try:
                 # May fail on artificial items like xmm register data.
-                p = self.addressOf(value)
-                ts = innerType.sizeof
-                if not self.tryPutArrayContents(p, int(type.sizeof / ts), innerType):
-                    with Children(self, childType=innerType,
-                            addrBase=p, addrStep=ts):
+                if not self.tryPutArrayContents(p, n, innerType):
+                    with Children(self, childType=innerType, addrBase=p, addrStep=ts):
                         self.putFields(value)
             except:
                 with Children(self, childType=innerType):
@@ -1004,6 +997,74 @@ class DumperBase:
         else:
             self.put('editvalue="%s|%s",' % (cmd, value))
 
+    # This is shared by pointer and array formatting.
+    def tryPutSimpleFormattedPointer(self, value, typeName, itemFormat, limit):
+        if itemFormat == None and typeName == "char":
+            # Use Latin1 as default for char *.
+            self.putType(typeName)
+            (elided, data) = self.encodeCArray(value, 1, limit)
+            self.putValue(data, Hex2EncodedLatin1, elided=elided)
+            self.putDisplay(StopDisplay)
+            return True
+
+        if itemFormat == Latin1StringFormat:
+            # Explicitly requested Latin1 formatting.
+            self.putType(typeName)
+            (elided, data) = self.encodeCArray(value, 1, limit)
+            self.putValue(data, Hex2EncodedLatin1, elided=elided)
+            self.putDisplay(StopDisplay)
+            return True
+
+        if itemFormat == SeparateLatin1StringFormat:
+            # Explicitly requested Latin1 formatting in separate window.
+            self.putType(typeName)
+            (elided, data) = self.encodeCArray(value, 1, limit)
+            self.putValue(data, Hex2EncodedLatin1, elided=elided)
+            self.putDisplay(DisplayLatin1String, data)
+            return True
+
+        if itemFormat == Utf8StringFormat:
+            # Explicitly requested UTF-8 formatting.
+            self.putType(typeName)
+            (elided, data) = self.encodeCArray(value, 1, limit)
+            self.putValue(data, Hex2EncodedUtf8, elided=elided)
+            self.putDisplay(StopDisplay)
+            return True
+
+        if itemFormat == SeparateUtf8StringFormat:
+            # Explicitly requested UTF-8 formatting in separate window.
+            self.putType(typeName)
+            (elided, data) = self.encodeCArray(value, 1, limit)
+            self.putValue(data, Hex2EncodedUtf8, elided=elided)
+            self.putDisplay(DisplayUtf8String, data)
+            return True
+
+        if itemFormat == Local8BitStringFormat:
+            # Explicitly requested local 8 bit formatting.
+            self.putType(typeName)
+            (elided, data) = self.encodeCArray(value, 1, limit)
+            self.putValue(data, Hex2EncodedLocal8Bit, elided=elided)
+            self.putDisplay(StopDisplay)
+            return True
+
+        if itemFormat == Utf16StringFormat:
+            # Explicitly requested UTF-16 formatting.
+            self.putType(typeName)
+            (elided, data) = self.encodeCArray(value, 2, limit)
+            self.putValue(data, Hex4EncodedLittleEndian, elided=elided)
+            self.putDisplay(StopDisplay)
+            return True
+
+        if itemFormat == Ucs4StringFormat:
+            # Explicitly requested UCS-4 formatting.
+            self.putType(typeName)
+            (elided, data) = self.encodeCArray(value, 4, limit)
+            self.putValue(data, Hex8EncodedLittleEndian, elided=elided)
+            self.putDisplay(StopDisplay)
+            return True
+
+        return False
+
     def putFormattedPointer(self, value):
         #warn("POINTER: %s" % value)
         if self.isNull(value):
@@ -1037,14 +1098,6 @@ class DumperBase:
             self.putNumChild(0)
             return
 
-        if format == None and innerTypeName == "char":
-            # Use Latin1 as default for char *.
-            self.putType(typeName)
-            (elided, data) = self.encodeCArray(value, 1, self.displayStringLimit)
-            self.putValue(data, Hex2EncodedLatin1, elided=elided)
-            self.putNumChild(0)
-            return
-
         if format == 0:
             # Explicitly requested bald pointer.
             self.putType(typeName)
@@ -1056,47 +1109,10 @@ class DumperBase:
                         self.putItem(value.dereference())
             return
 
-        if format == Latin1StringFormat or format == SeparateLatin1StringFormat:
-            # Explicitly requested Latin1 formatting.
-            limit = self.displayStringLimit if format == Latin1StringFormat else 1000000
-            self.putType(typeName)
-            (elided, data) = self.encodeCArray(value, 1, limit)
-            self.putValue(data, Hex2EncodedLatin1, elided=elided)
-            self.putNumChild(0)
-            self.putDisplay((StopDisplay if format == Latin1StringFormat else DisplayLatin1String), data)
-            return
-
-        if format == Utf8StringFormat or format == SeparateUtf8StringFormat:
-            # Explicitly requested UTF-8 formatting.
-            limit = self.displayStringLimit if format == Utf8StringFormat else 1000000
-            self.putType(typeName)
-            (elided, data) = self.encodeCArray(value, 1, limit)
-            self.putValue(data, Hex2EncodedUtf8, elided=elided)
-            self.putNumChild(0)
-            self.putDisplay((StopDisplay if format == Utf8StringFormat else DisplayUtf8String), data)
-            return
-
-        if format == Local8BitStringFormat:
-            # Explicitly requested local 8 bit formatting.
-            self.putType(typeName)
-            (elided, data) = self.encodeCArray(value, 1, self.displayStringLimit)
-            self.putValue(data, Hex2EncodedLocal8Bit, elided=elided)
-            self.putNumChild(0)
-            return
-
-        if format == Utf16StringFormat:
-            # Explicitly requested UTF-16 formatting.
-            self.putType(typeName)
-            (elided, data) = self.encodeCArray(value, 2, self.displayStringLimit)
-            self.putValue(data, Hex4EncodedLittleEndian, elided=elided)
-            self.putNumChild(0)
-            return
-
-        if format == Ucs4StringFormat:
-            # Explicitly requested UCS-4 formatting.
-            self.putType(typeName)
-            (elided, data) = self.encodeCArray(value, 4, self.displayStringLimit)
-            self.putValue(data, Hex8EncodedLittleEndian, elided=elided)
+        limit = self.displayStringLimit
+        if format == DisplayLatin1String or format == DisplayUtf8String:
+            limit = 1000000
+        if self.tryPutSimpleFormattedPointer(value, typeName, format, limit):
             self.putNumChild(0)
             return
 

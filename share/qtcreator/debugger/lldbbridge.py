@@ -1721,7 +1721,7 @@ class Tester(Dumper):
         self.expandedINames = set(expandedINames)
         self.passExceptions = True
 
-        self.loadDumperFiles()
+        self.loadDumperFiles({})
         error = lldb.SBError()
         self.target = self.debugger.CreateTarget(binary, None, None, True, error)
 

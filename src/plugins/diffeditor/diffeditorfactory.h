@@ -33,8 +33,6 @@
 
 #include "diffeditor_global.h"
 
-#include <QStringList>
-
 #include <coreplugin/editormanager/ieditorfactory.h>
 
 namespace DiffEditor {

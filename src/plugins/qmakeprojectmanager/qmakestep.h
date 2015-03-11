@@ -102,8 +102,6 @@ public:
     QString allArguments(bool shorted = false);
     // deduced arguments e.g. qmljs debugging
     QStringList deducedArguments();
-    // deduced arguments with -after, e.g. OBJECTS_DIR for symbian
-    QStringList deducedArgumentsAfter();
     // arguments passed to the pro file parser
     QStringList parserArguments();
     // arguments set by the user

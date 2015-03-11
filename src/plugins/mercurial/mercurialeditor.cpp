@@ -55,8 +55,8 @@ MercurialEditorWidget::MercurialEditorWidget() :
 {
     setDiffFilePattern(QRegExp(QLatin1String(Constants::DIFFIDENTIFIER)));
     setLogEntryPattern(QRegExp(QLatin1String("^changeset:\\s+(\\S+)$")));
-    setAnnotateRevisionTextFormat(tr("Annotate %1"));
-    setAnnotatePreviousRevisionTextFormat(tr("Annotate parent revision %1"));
+    setAnnotateRevisionTextFormat(tr("&Annotate %1"));
+    setAnnotatePreviousRevisionTextFormat(tr("Annotate &parent revision %1"));
 }
 
 QSet<QString> MercurialEditorWidget::annotationChanges() const

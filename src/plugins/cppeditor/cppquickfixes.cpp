@@ -5578,10 +5578,75 @@ Symbol *skipForwardDeclarations(const QList<Symbol *> &symbols)
     return 0;
 }
 
+bool findRawAccessFunction(Class *klass, PointerType *pointerType, QString *objAccessFunction)
+{
+    QList<Function *> candidates;
+    for (auto it = klass->memberBegin(), end = klass->memberEnd(); it != end; ++it) {
+        if (Function *func = (*it)->asFunction()) {
+            const Name *funcName = func->name();
+            if (!funcName->isOperatorNameId()
+                    && !funcName->isConversionNameId()
+                    && func->returnType().type() == pointerType
+                    && func->isConst()
+                    && func->argumentCount() == 0) {
+                candidates << func;
+            }
+        }
+    }
+    const Name *funcName = 0;
+    switch (candidates.size()) {
+    case 0:
+        return false;
+    case 1:
+        funcName = candidates.first()->name();
+        break;
+    default:
+        // Multiple candidates - prefer a function named data
+        foreach (Function *func, candidates) {
+            if (!strcmp(func->name()->identifier()->chars(), "data")) {
+                funcName = func->name();
+                break;
+            }
+        }
+        if (!funcName)
+            funcName = candidates.first()->name();
+    }
+    const Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
+    *objAccessFunction = QLatin1Char('.') + oo.prettyName(funcName) + QLatin1String("()");
+    return true;
+}
+
+PointerType *determineConvertedType(NamedType *namedType, const LookupContext &context,
+                                    Scope *scope, QString *objAccessFunction)
+{
+    if (!namedType)
+        return 0;
+    if (ClassOrNamespace *binding = context.lookupType(namedType->name(), scope)) {
+        if (Symbol *objectClassSymbol = skipForwardDeclarations(binding->symbols())) {
+            if (Class *klass = objectClassSymbol->asClass()) {
+                for (auto it = klass->memberBegin(), end = klass->memberEnd(); it != end; ++it) {
+                    if (Function *func = (*it)->asFunction()) {
+                        if (const ConversionNameId *conversionName =
+                                func->name()->asConversionNameId()) {
+                            if (PointerType *type = conversionName->type()->asPointerType()) {
+                                if (findRawAccessFunction(klass, type, objAccessFunction))
+                                    return type;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
 Class *senderOrReceiverClass(const CppQuickFixInterface &interface,
                              const CppRefactoringFilePtr &file,
                              const ExpressionAST *objectPointerAST,
-                             Scope *objectPointerScope)
+                             Scope *objectPointerScope,
+                             QString *objAccessFunction)
 {
     const LookupContext &context = interface.context();
 
@@ -5592,6 +5657,7 @@ Class *senderOrReceiverClass(const CppQuickFixInterface &interface,
         objectPointerExpression = "this";
 
     TypeOfExpression toe;
+    toe.setExpandTemplates(true);
     toe.init(interface.semanticInfo().doc, interface.snapshot(), context.bindings());
     const QList<LookupItem> objectPointerExpressions = toe(objectPointerExpression,
                                                            objectPointerScope, TypeOfExpression::Preprocess);
@@ -5601,6 +5667,10 @@ Class *senderOrReceiverClass(const CppQuickFixInterface &interface,
     QTC_ASSERT(objectPointerTypeBase, return 0);
 
     PointerType *objectPointerType = objectPointerTypeBase->asPointerType();
+    if (!objectPointerType) {
+        objectPointerType = determineConvertedType(objectPointerTypeBase->asNamedType(), context,
+                                               objectPointerScope, objAccessFunction);
+    }
     QTC_ASSERT(objectPointerType, return 0);
 
     Type *objectTypeBase = objectPointerType->elementType().type(); // Dereference
@@ -5623,7 +5693,8 @@ bool findConnectReplacement(const CppQuickFixInterface &interface,
                             const ExpressionAST *objectPointerAST,
                             const QtMethodAST *methodAST,
                             const CppRefactoringFilePtr &file,
-                            QString *replacement)
+                            QString *replacement,
+                            QString *objAccessFunction)
 {
     // Get name of method
     if (!methodAST->declarator || !methodAST->declarator->core_declarator)
@@ -5639,7 +5710,8 @@ bool findConnectReplacement(const CppQuickFixInterface &interface,
 
     // Lookup object pointer type
     Scope *scope = file->scopeAt(methodAST->firstToken());
-    Class *objectClass = senderOrReceiverClass(interface, file, objectPointerAST, scope);
+    Class *objectClass = senderOrReceiverClass(interface, file, objectPointerAST, scope,
+                                               objAccessFunction);
     QTC_ASSERT(objectClass, return false);
 
     // Look up member function in call, including base class members.
@@ -5761,17 +5833,22 @@ void ConvertQt4Connect::match(const CppQuickFixInterface &interface, QuickFixOpe
         const CppRefactoringFilePtr file = interface.currentFile();
 
         QString newSignal;
-        if (!findConnectReplacement(interface, arg1, arg2, file, &newSignal))
+        QString senderAccessFunc;
+        if (!findConnectReplacement(interface, arg1, arg2, file, &newSignal, &senderAccessFunc))
             continue;
 
         QString newMethod;
-        if (!findConnectReplacement(interface, arg3, arg4, file, &newMethod))
+        QString receiverAccessFunc;
+        if (!findConnectReplacement(interface, arg3, arg4, file, &newMethod, &receiverAccessFunc))
             continue;
 
         ChangeSet changes;
+        changes.replace(file->endOf(arg1), file->endOf(arg1), senderAccessFunc);
         changes.replace(file->startOf(arg2), file->endOf(arg2), newSignal);
         if (!arg3)
             newMethod.prepend(QLatin1String("this, "));
+        else
+            changes.replace(file->endOf(arg3), file->endOf(arg3), receiverAccessFunc);
         changes.replace(file->startOf(arg4), file->endOf(arg4), newMethod);
 
         result.append(new ConvertQt4ConnectOperation(interface, changes));

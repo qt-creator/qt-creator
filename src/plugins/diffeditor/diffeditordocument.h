@@ -31,7 +31,11 @@
 #ifndef DIFFEDITORDOCUMENT_H
 #define DIFFEDITORDOCUMENT_H
 
+#include "diffutils.h"
+
 #include <coreplugin/textdocument.h>
+
+QT_FORWARD_DECLARE_CLASS(QMenu)
 
 namespace DiffEditor {
 
@@ -45,8 +49,25 @@ class DiffEditorDocument : public Core::BaseTextDocument
     Q_PROPERTY(QString plainText READ plainText STORED false) // For access by code pasters
 public:
     DiffEditorDocument();
+    ~DiffEditorDocument();
 
     DiffEditorController *controller() const;
+
+    QString makePatch(int fileIndex, int chunkIndex, bool revert, bool addPrefix = false) const;
+
+    void setDiffFiles(const QList<FileData> &data, const QString &directory);
+    QList<FileData> diffFiles() const;
+    QString baseDirectory() const;
+
+    void setDescription(const QString &description);
+    QString description() const;
+
+    void setContextLineCount(int lines);
+    int contextLineCount() const;
+    void forceContextLineCount(int lines);
+    bool isContextLineCountForced() const;
+    void setIgnoreWhitespace(bool ignore);
+    bool ignoreWhitespace() const;
 
     bool setContents(const QByteArray &contents);
     QString defaultPath() const;
@@ -55,13 +76,35 @@ public:
     bool isModified() const { return false; }
     bool isSaveAsAllowed() const { return true; }
     bool save(QString *errorString, const QString &fileName, bool autoSave);
+    void reload();
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
     bool open(QString *errorString, const QString &fileName);
 
     QString plainText() const;
 
+signals:
+    void temporaryStateChanged();
+    void documentChanged();
+    void descriptionChanged();
+    void chunkActionsRequested(QMenu *menu, int diffFileIndex, int chunkIndex);
+    void requestMoreInformation();
+
+public slots:
+    void beginReload();
+    void endReload(bool success);
+
 private:
-    DiffEditorController *const m_controller;
+    void setController(DiffEditorController *controller);
+
+    DiffEditorController *m_controller;
+    QList<FileData> m_diffFiles;
+    QString m_baseDirectory;
+    QString m_description;
+    int m_contextLineCount;
+    bool m_isContextLineCountForced;
+    bool m_ignoreWhitespace;
+
+    friend class ::DiffEditor::DiffEditorController;
 };
 
 } // namespace Internal

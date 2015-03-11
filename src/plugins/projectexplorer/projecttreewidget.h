@@ -68,6 +68,7 @@ public:
     void sync(ProjectExplorer::Node *node);
 
     static Node *nodeForFile(const Utils::FileName &fileName);
+    static Node *mostExpandedNode(const QList<Node*> &nodes);
 
 public slots:
     void toggleAutoSynchronization();

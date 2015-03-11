@@ -33,12 +33,13 @@
 
 #include "diffeditor_global.h"
 
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/idocument.h>
-
 #include <QMap>
+#include <QObject>
 
-namespace Core { class IDocument; }
+namespace Core {
+class IDocument;
+class IEditor;
+}
 
 namespace DiffEditor {
 
@@ -53,17 +54,16 @@ public:
     explicit DiffEditorManager(QObject *parent);
     virtual ~DiffEditorManager();
 
-    static Core::IDocument *find(const QString &vcsId);
     static Core::IDocument *findOrCreate(const QString &vcsId, const QString &displayName);
     static DiffEditorController *controller(Core::IDocument *document);
 
+private:
+    static Core::IDocument *find(const QString &vcsId);
     static void removeDocument(Core::IDocument *document);
 
-private slots:
-    void slotEditorsClosed(const QList<Core::IEditor *> &editors);
-
-private:
     QMap<QString, Internal::DiffEditorDocument *> m_idToDocument;
+
+    friend class Internal::DiffEditorDocument;
 };
 
 } // namespace DiffEditor

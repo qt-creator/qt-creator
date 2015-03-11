@@ -4537,6 +4537,18 @@ void CppEditorPlugin::test_quickfix_ConvertQt4Connect_connectWithinClass_data()
     QTest::newRow("three-args-connect")
             << QByteArray("conne@ct(this, SIGNAL(sigFoo(int)), SLOT(setProp(int)));")
             << QByteArray("connect(this, &TestClass::sigFoo, this, &TestClass::setProp);");
+
+    QTest::newRow("template-value")
+            << QByteArray("Pointer<TestClass> p;\n"
+                          "conne@ct(p.t, SIGNAL(sigFoo(int)), p.t, SLOT(setProp(int)));")
+            << QByteArray("Pointer<TestClass> p;\n"
+                          "connect(p.t, &TestClass::sigFoo, p.t, &TestClass::setProp);");
+
+    QTest::newRow("implicit-pointer")
+            << QByteArray("Pointer<TestClass> p;\n"
+                          "conne@ct(p, SIGNAL(sigFoo(int)), p, SLOT(setProp(int)));")
+            << QByteArray("Pointer<TestClass> p;\n"
+                          "connect(p.data(), &TestClass::sigFoo, p.data(), &TestClass::setProp);");
 }
 
 void CppEditorPlugin::test_quickfix_ConvertQt4Connect_connectWithinClass()
@@ -4545,6 +4557,13 @@ void CppEditorPlugin::test_quickfix_ConvertQt4Connect_connectWithinClass()
     QFETCH(QByteArray, expected);
 
     QByteArray prefix =
+        "template<class T>\n"
+        "struct Pointer\n"
+        "{\n"
+        "    T *t;\n"
+        "    operator T*() const { return t; }\n"
+        "    T *data() const { return t; }\n"
+        "};\n"
         "class QObject {};\n"
         "class TestClass : public QObject\n"
         "{\n"

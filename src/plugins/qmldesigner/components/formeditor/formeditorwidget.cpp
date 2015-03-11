@@ -41,6 +41,7 @@
 #include <formeditorscene.h>
 #include <formeditorview.h>
 #include <lineeditaction.h>
+#include <backgroundaction.h>
 
 #include <utils/fileutils.h>
 
@@ -128,6 +129,11 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     fillLayout->addWidget(m_toolBox.data());
     m_toolBox->setLeftSideActions(upperActions);
 
+    m_backgroundAction = new BackgroundAction(m_toolActionGroup.data());
+    connect(m_backgroundAction.data(), &BackgroundAction::backgroundChanged, this, &FormEditorWidget::changeBackgound);
+    addAction(m_backgroundAction.data());
+    upperActions.append(m_backgroundAction.data());
+    m_toolBox->addRightSideAction(m_backgroundAction.data());
 
     m_zoomAction = new ZoomAction(m_toolActionGroup.data());
     connect(m_zoomAction.data(), SIGNAL(zoomLevelChanged(double)), SLOT(setZoomLevel(double)));
@@ -175,6 +181,14 @@ void FormEditorWidget::changeRootItemHeight(const QString &heighText)
         m_formEditorView->rootModelNode().setAuxiliaryData("height", height);
     else
         m_formEditorView->rootModelNode().setAuxiliaryData("height", QVariant());
+}
+
+void FormEditorWidget::changeBackgound(const QColor &color)
+{
+    if (color.alpha() == 0)
+        m_graphicsView->activateCheckboardBackground();
+    else
+        m_graphicsView->activateColoredBackground(color);
 }
 
 void FormEditorWidget::resetNodeInstanceView()

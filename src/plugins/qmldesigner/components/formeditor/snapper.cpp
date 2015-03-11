@@ -587,7 +587,6 @@ static QmlItemNode findItemOnSnappingLine(const QmlItemNode &sourceQmlItemNode, 
             if (possibleAchorItemNode != sourceQmlItemNode) {
                 if (sourceQmlItemNode.instanceParent() == possibleAchorItemNode) {
                     targetQmlItemNode = possibleAchorItemNode;
-                    targetAnchorLine = currentToAnchorLine;
                     break;
                 } else if (currentToAnchorLine < targetAnchorLine) {
                     targetQmlItemNode = possibleAchorItemNode;

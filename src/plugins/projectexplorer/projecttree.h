@@ -135,6 +135,7 @@ private:
     void updateFromProjectTreeWidget(Internal::ProjectTreeWidget *widget);
     void documentManagerCurrentFileChanged();
     void updateFromDocumentManager(bool invalidCurrentNode = false);
+    void updateFromNode(Node *node);
     void update(Node *node, Project *project);
     void updateContext();
 
@@ -150,6 +151,8 @@ private:
     QList<Internal::ProjectTreeWidget *> m_projectTreeWidgets;
     Node *m_currentNode;
     Project *m_currentProject;
+    QList<FileNode *> m_filesAdded;
+    QList<FolderNode *> m_foldersAdded;
     bool m_resetCurrentNodeFolder;
     bool m_resetCurrentNodeFile;
     bool m_resetCurrentNodeProject;

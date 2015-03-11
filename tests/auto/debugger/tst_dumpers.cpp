@@ -1287,6 +1287,8 @@ void tst_Dumpers::dumper()
     debugger.setWorkingDirectory(t->buildPath);
     debugger.start(QString::fromLatin1(exe), args);
     QVERIFY(debugger.waitForStarted());
+    // FIXME: next line is necessary for LLDB <= 310 - remove asap
+    debugger.waitForReadyRead(1000);
     debugger.write(cmds);
     QVERIFY(debugger.waitForFinished());
     output = debugger.readAllStandardOutput();

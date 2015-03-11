@@ -36,6 +36,9 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/id.h>
+#include <coreplugin/idocument.h>
+#include <coreplugin/editormanager/ieditor.h>
+
 #include <utils/qtcassert.h>
 
 namespace DiffEditor {
@@ -49,10 +52,6 @@ DiffEditorManager::DiffEditorManager(QObject *parent)
 {
     QTC_ASSERT(!m_instance, return);
     m_instance = this;
-
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    connect(editorManager, &Core::EditorManager::editorsClosed,
-            this, &DiffEditorManager::slotEditorsClosed);
 }
 
 DiffEditorManager::~DiffEditorManager()
@@ -60,27 +59,11 @@ DiffEditorManager::~DiffEditorManager()
     m_instance = 0;
 }
 
-void DiffEditorManager::slotEditorsClosed(const QList<Core::IEditor *> &editors)
-{
-    QMap<Core::IDocument *, int> editorsForDocument;
-    for (int i = 0; i < editors.count(); i++) {
-        DiffEditor *diffEditor = qobject_cast<DiffEditor *>(editors.at(i));
-        if (diffEditor) {
-            Core::IDocument *document = diffEditor->document();
-            editorsForDocument[document]++;
-        }
-    }
-    QMapIterator<Core::IDocument *, int> it(editorsForDocument);
-    while (it.hasNext()) {
-        it.next();
-        if (Core::DocumentModel::editorsForDocument(it.key()).count() == 0) // no other editors use that document
-            removeDocument(it.key());
-    }
-}
-
 Core::IDocument *DiffEditorManager::find(const QString &vcsId)
 {
-    return m_instance->m_idToDocument.value(vcsId);
+    Core::IDocument *document = m_instance->m_idToDocument.value(vcsId);
+    QTC_ASSERT(!document || document->isTemporary(), return 0);
+    return document;
 }
 
 Core::IDocument *DiffEditorManager::findOrCreate(const QString &vcsId, const QString &displayName)
@@ -89,10 +72,8 @@ Core::IDocument *DiffEditorManager::findOrCreate(const QString &vcsId, const QSt
     if (document)
         return document;
 
-    const QString msgWait = tr("Waiting for data...");
     DiffEditor *diffEditor = qobject_cast<DiffEditor *>(
-                Core::EditorManager::openEditorWithContents(Constants::DIFF_EDITOR_ID,
-                                                            0, msgWait.toUtf8()));
+                Core::EditorManager::openEditorWithContents(Constants::DIFF_EDITOR_ID, 0));
     QTC_ASSERT(diffEditor, return 0);
 
     document = qobject_cast<Internal::DiffEditorDocument *>(diffEditor->document());

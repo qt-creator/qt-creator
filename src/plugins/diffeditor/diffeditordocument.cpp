@@ -32,31 +32,163 @@
 #include "diffeditorconstants.h"
 #include "diffeditorcontroller.h"
 #include "diffeditormanager.h"
-#include "diffeditorreloader.h"
 #include "diffutils.h"
+
+#include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <QCoreApplication>
 #include <QFile>
 #include <QDir>
+#include <QMenu>
 #include <QTextCodec>
+#include <QUuid>
+
+using namespace Utils;
 
 namespace DiffEditor {
 namespace Internal {
 
 DiffEditorDocument::DiffEditorDocument() :
     Core::BaseTextDocument(),
-    m_controller(new DiffEditorController(this))
+    m_controller(0),
+    m_contextLineCount(3),
+    m_isContextLineCountForced(false),
+    m_ignoreWhitespace(false)
 {
     setId(Constants::DIFF_EDITOR_ID);
     setMimeType(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE));
     setTemporary(true);
 }
 
+DiffEditorDocument::~DiffEditorDocument()
+{
+    DiffEditorManager::removeDocument(this);
+}
+
+/**
+ * @brief Set a controller for a document
+ * @param controller The controller to set.
+ *
+ * This method takes ownership of the controller and will delete it after it is done with it.
+ */
+void DiffEditorDocument::setController(DiffEditorController *controller)
+{
+    QTC_ASSERT(isTemporary(), return);
+    if (m_controller == controller)
+        return;
+
+    if (m_controller)
+        m_controller->deleteLater();
+    m_controller = controller;
+
+    if (m_controller) {
+        connect(this, &DiffEditorDocument::chunkActionsRequested,
+                m_controller, &DiffEditorController::requestChunkActions);
+        connect(this, &DiffEditorDocument::requestMoreInformation,
+                m_controller, &DiffEditorController::requestMoreInformation);
+    }
+}
+
 DiffEditorController *DiffEditorDocument::controller() const
 {
     return m_controller;
+}
+
+QString DiffEditorDocument::makePatch(int fileIndex, int chunkIndex, bool revert, bool addPrefix) const
+{
+    if (fileIndex < 0 || chunkIndex < 0)
+        return QString();
+
+    if (fileIndex >= m_diffFiles.count())
+        return QString();
+
+    const FileData &fileData = m_diffFiles.at(fileIndex);
+    if (chunkIndex >= fileData.chunks.count())
+        return QString();
+
+    const ChunkData &chunkData = fileData.chunks.at(chunkIndex);
+    const bool lastChunk = (chunkIndex == fileData.chunks.count() - 1);
+
+    const QString fileName = revert
+            ? fileData.rightFileInfo.fileName
+            : fileData.leftFileInfo.fileName;
+
+    QString leftPrefix, rightPrefix;
+    if (addPrefix) {
+        leftPrefix = QLatin1String("a/");
+        rightPrefix = QLatin1String("b/");
+    }
+    return DiffUtils::makePatch(chunkData,
+                                leftPrefix + fileName,
+                                rightPrefix + fileName,
+                                lastChunk && fileData.lastChunkAtTheEndOfFile);
+}
+
+void DiffEditorDocument::setDiffFiles(const QList<FileData> &data, const QString &directory)
+{
+    m_diffFiles = data;
+    m_baseDirectory = directory;
+    emit documentChanged();
+}
+
+QList<FileData> DiffEditorDocument::diffFiles() const
+{
+    return m_diffFiles;
+}
+
+QString DiffEditorDocument::baseDirectory() const
+{
+    return m_baseDirectory;
+}
+
+void DiffEditorDocument::setDescription(const QString &description)
+{
+    if (m_description == description)
+        return;
+
+    m_description = description;
+    emit descriptionChanged();
+}
+
+QString DiffEditorDocument::description() const
+{
+    return m_description;
+}
+
+void DiffEditorDocument::setContextLineCount(int lines)
+{
+    m_contextLineCount = lines;
+}
+
+int DiffEditorDocument::contextLineCount() const
+{
+    return m_contextLineCount;
+}
+
+void DiffEditorDocument::forceContextLineCount(int lines)
+{
+    m_contextLineCount = lines;
+    m_isContextLineCountForced = true;
+}
+
+bool DiffEditorDocument::isContextLineCountForced() const
+{
+    return m_isContextLineCountForced;
+}
+
+void DiffEditorDocument::setIgnoreWhitespace(bool ignore)
+{
+    if (m_isContextLineCountForced)
+        return;
+    m_ignoreWhitespace = ignore;
+}
+
+bool DiffEditorDocument::ignoreWhitespace() const
+{
+    return m_ignoreWhitespace;
 }
 
 bool DiffEditorDocument::setContents(const QByteArray &contents)
@@ -67,7 +199,9 @@ bool DiffEditorDocument::setContents(const QByteArray &contents)
 
 QString DiffEditorDocument::defaultPath() const
 {
-    return m_controller->workingDirectory();
+    if (!m_baseDirectory.isEmpty())
+        return m_baseDirectory;
+    return QDir::homePath();
 }
 
 bool DiffEditorDocument::save(QString *errorString, const QString &fileName, bool autoSave)
@@ -75,21 +209,33 @@ bool DiffEditorDocument::save(QString *errorString, const QString &fileName, boo
     Q_UNUSED(errorString)
     Q_UNUSED(autoSave)
 
-    const bool ok = write(fileName, format(), m_controller->contents(), errorString);
+    const bool ok = write(fileName, format(), plainText(), errorString);
 
     if (!ok)
         return false;
 
-    m_controller->setReloader(0);
-    m_controller->setDescription(QString());
-    m_controller->setDescriptionEnabled(false);
-
     DiffEditorManager::removeDocument(this);
+
+    setController(0);
+    setDescription(QString());
+
     const QFileInfo fi(fileName);
     setTemporary(false);
-    setFilePath(Utils::FileName::fromString(fi.absoluteFilePath()));
+    setFilePath(FileName::fromString(fi.absoluteFilePath()));
     setPreferredDisplayName(QString());
+    emit temporaryStateChanged();
+
     return true;
+}
+
+void DiffEditorDocument::reload()
+{
+    if (m_controller) {
+        m_controller->requestReload();
+    } else {
+        QString errorMessage;
+        reload(&errorMessage, Core::IDocument::FlagReload, Core::IDocument::TypeContents);
+    }
 }
 
 bool DiffEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
@@ -102,8 +248,10 @@ bool DiffEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeTyp
 
 bool DiffEditorDocument::open(QString *errorString, const QString &fileName)
 {
+    QTC_ASSERT(errorString, return false);
+    beginReload();
     QString patch;
-    if (read(fileName, &patch, errorString) != Utils::TextFileFormat::ReadSuccess)
+    if (read(fileName, &patch, errorString) != TextFileFormat::ReadSuccess)
         return false;
 
     bool ok = false;
@@ -112,49 +260,82 @@ bool DiffEditorDocument::open(QString *errorString, const QString &fileName)
         *errorString = tr("Could not parse patch file \"%1\". "
                           "The content is not of unified diff format.")
                 .arg(fileName);
-        return false;
+    } else {
+        const QFileInfo fi(fileName);
+        setTemporary(false);
+        emit temporaryStateChanged();
+        setFilePath(FileName::fromString(fi.absoluteFilePath()));
+        setDiffFiles(fileDataList, fi.absolutePath());
     }
-
-    const QFileInfo fi(fileName);
-    setTemporary(false);
-    setFilePath(Utils::FileName::fromString(fi.absoluteFilePath()));
-    m_controller->setDiffFiles(fileDataList, fi.absolutePath());
-    return true;
+    endReload(ok);
+    return ok;
 }
 
 QString DiffEditorDocument::suggestedFileName() const
 {
-    enum { maxSubjectLength = 50 };
-    QString result = QStringLiteral("0001");
-    const QString description = m_controller->description();
-    if (!description.isEmpty()) {
-        // Derive "git format-patch-type" file name from subject.
-        const int pos = description.indexOf(QLatin1String("\n\n    "));
-        const int endPos = pos >= 0 ? description.indexOf(QLatin1Char('\n'), pos + 6) : -1;
-        if (endPos > pos) {
-            const QChar space(QLatin1Char(' '));
-            const QChar dash(QLatin1Char('-'));
-            QString subject = description.mid(pos, endPos - pos);
-            for (int i = 0; i < subject.size(); ++i) {
-                if (!subject.at(i).isLetterOrNumber())
-                    subject[i] = space;
-            }
-            subject = subject.simplified();
-            if (subject.size() > maxSubjectLength) {
-                const int lastSpace = subject.lastIndexOf(space, maxSubjectLength);
-                subject.truncate(lastSpace > 0 ? lastSpace : maxSubjectLength);
-             }
-            subject.replace(space, dash);
-            result += dash;
-            result += subject;
-        }
+    const int maxSubjectLength = 50;
+
+    const QString desc = description();
+    if (!desc.isEmpty()) {
+        QString name = QString::fromLatin1("0001-%1").arg(desc.left(desc.indexOf(QLatin1Char('\n'))));
+        name = FileUtils::fileSystemFriendlyName(name);
+        name.truncate(maxSubjectLength);
+        name.append(QLatin1String(".patch"));
+        return name;
     }
-    return result + QStringLiteral(".patch");
+    return QStringLiteral("0001.patch");
+}
+
+// ### fixme: git-specific handling should be done in the git plugin:
+// Remove unexpanded branches and follows-tag, clear indentation
+// and create E-mail
+static void formatGitDescription(QString *description)
+{
+    QString result;
+    result.reserve(description->size());
+    foreach (QString line, description->split(QLatin1Char('\n'))) {
+        if (line.startsWith(QLatin1String("commit "))
+            || line.startsWith(QLatin1String("Branches: <Expand>"))) {
+            continue;
+        }
+        if (line.startsWith(QLatin1String("Author: ")))
+            line.replace(0, 8, QStringLiteral("From: "));
+        else if (line.startsWith(QLatin1String("    ")))
+            line.remove(0, 4);
+        result.append(line);
+        result.append(QLatin1Char('\n'));
+    }
+    *description = result;
 }
 
 QString DiffEditorDocument::plainText() const
 {
-    return m_controller->contents();
+    QString result = description();
+    const int formattingOptions = DiffUtils::GitFormat;
+    if (formattingOptions & DiffUtils::GitFormat)
+        formatGitDescription(&result);
+
+    const QString diff = DiffUtils::makePatch(diffFiles(), formattingOptions);
+    if (!diff.isEmpty()) {
+        if (!result.isEmpty())
+            result += QLatin1Char('\n');
+        result += diff;
+    }
+    return result;
+}
+
+void DiffEditorDocument::beginReload()
+{
+    emit aboutToReload();
+    const bool blocked = blockSignals(true);
+    setDiffFiles(QList<FileData>(), QString());
+    setDescription(QString());
+    blockSignals(blocked);
+}
+
+void DiffEditorDocument::endReload(bool success)
+{
+    emit reloadFinished(success);
 }
 
 } // namespace Internal

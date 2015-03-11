@@ -1202,11 +1202,6 @@ void BaseQtVersion::recheckDumper()
     m_versionInfoUpToDate = false;
 }
 
-bool BaseQtVersion::supportsShadowBuilds() const
-{
-    return true;
-}
-
 QList<Task> BaseQtVersion::reportIssuesImpl(const QString &proFile, const QString &buildDir) const
 {
     QList<Task> results;

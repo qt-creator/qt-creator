@@ -1017,8 +1017,13 @@ TypeFormatList WatchModel::typeFormatList(const WatchData &data) const
         formats.append(Array1000Format);
         formats.append(Array10000Format);
     } else if (data.type.contains("char[") || data.type.contains("char [")) {
+        formats.append(RawFormat);
         formats.append(Latin1StringFormat);
+        formats.append(SeparateLatin1StringFormat);
         formats.append(Utf8StringFormat);
+        formats.append(SeparateUtf8StringFormat);
+        formats.append(Local8BitStringFormat);
+        formats.append(Utf16StringFormat);
         formats.append(Ucs4StringFormat);
     }
 
@@ -1279,7 +1284,7 @@ void WatchHandler::purgeOutdatedItems(const QSet<QByteArray> &inames)
     updateWatchersWindow();
 }
 
-void WatchHandler::removeData(const QByteArray &iname)
+void WatchHandler::removeItemByIName(const QByteArray &iname)
 {
     WatchItem *item = m_model->findItem(iname);
     if (!item)
@@ -1290,14 +1295,6 @@ void WatchHandler::removeData(const QByteArray &iname)
     }
     m_model->removeItem(item);
     delete item;
-    updateWatchersWindow();
-}
-
-void WatchHandler::removeChildren(const QByteArray &iname)
-{
-    WatchItem *item = m_model->findItem(iname);
-    if (item)
-        item->removeChildren();
     updateWatchersWindow();
 }
 

@@ -31,7 +31,6 @@
 #include "diffeditor.h"
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
-#include "diffeditorguicontroller.h"
 #include "diffview.h"
 
 #include <coreplugin/icore.h>
@@ -62,7 +61,13 @@
 #include <QTextBlock>
 
 static const char settingsGroupC[] = "DiffEditor";
-static const char diffEditorTypeKeyC[] = "DiffEditorType";
+static const char descriptionVisibleKeyC[] = "DescriptionVisible";
+static const char horizontalScrollBarSynchronizationKeyC[] =
+        "HorizontalScrollBarSynchronization";
+static const char contextLineCountKeyC[] = "ContextLineNumbers";
+static const char ignoreWhitespaceKeyC[] = "IgnoreWhitespace";
+
+static const char diffViewKeyC[] = "DiffEditorType";
 
 static const char legacySettingsGroupC[] = "Git";
 static const char useDiffEditorKeyC[] = "UseDiffEditor";
@@ -187,7 +192,6 @@ void DescriptionEditorWidget::highlightCurrentContents()
     sel.format.setFontUnderline(true);
     setExtraSelections(TextEditorWidget::OtherSelection,
                        QList<QTextEdit::ExtraSelection>() << sel);
-
 }
 
 void DescriptionEditorWidget::handleCurrentContents()
@@ -204,15 +208,23 @@ DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
     : m_document(doc)
     , m_descriptionWidget(0)
     , m_stackedWidget(0)
-    , m_currentViewIndex(-1)
-    , m_guiController(0)
     , m_toolBar(0)
     , m_entriesComboBox(0)
+    , m_toggleSyncAction(0)
+    , m_whitespaceButtonAction(0)
+    , m_contextLabelAction(0)
+    , m_contextSpinBoxAction(0)
     , m_toggleDescriptionAction(0)
     , m_reloadAction(0)
     , m_diffEditorSwitcher(0)
+    , m_currentViewIndex(-1)
+    , m_currentDiffFileIndex(-1)
+    , m_sync(false)
+    , m_showDescription(true)
+    , m_ignoreChanges(true)
 {
     QTC_ASSERT(m_document, return);
+    setDuplicateSupported(true);
 
     QSplitter *splitter = new Core::MiniSplitter(Qt::Vertical);
 
@@ -228,29 +240,23 @@ DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
 
     setWidget(splitter);
 
-    DiffEditorController *control = controller();
-    m_guiController = new DiffEditorGuiController(control, this);
-
     connect(m_descriptionWidget, &DescriptionEditorWidget::requestBranchList,
-            control, &DiffEditorController::expandBranchesRequested);
-    connect(control, &DiffEditorController::cleared, this, &DiffEditor::slotCleared);
-    connect(control, &DiffEditorController::diffFilesChanged,
-            this, &DiffEditor::slotDiffFilesChanged);
-    connect(control, &DiffEditorController::descriptionChanged,
-            this, &DiffEditor::slotDescriptionChanged);
-    connect(control, &DiffEditorController::descriptionEnablementChanged,
-            this, &DiffEditor::slotDescriptionVisibilityChanged);
-    connect(m_guiController, &DiffEditorGuiController::descriptionVisibilityChanged,
-            this, &DiffEditor::slotDescriptionVisibilityChanged);
-    connect(m_guiController, &DiffEditorGuiController::currentDiffFileIndexChanged,
-            this, &DiffEditor::activateEntry);
-
-    slotDescriptionChanged(control->description());
-    slotDescriptionVisibilityChanged();
-
-    showDiffView(readCurrentDiffEditorSetting());
+            m_document.data(), &DiffEditorDocument::requestMoreInformation);
+    connect(m_document.data(), &DiffEditorDocument::documentChanged,
+            this, &DiffEditor::documentHasChanged);
+    connect(m_document.data(), &DiffEditorDocument::descriptionChanged,
+            this, &DiffEditor::updateDescription);
+    connect(m_document.data(), &DiffEditorDocument::aboutToReload,
+            this, &DiffEditor::prepareForReload);
+    connect(m_document.data(), &DiffEditorDocument::reloadFinished,
+            this, &DiffEditor::reloadHasFinished);
 
     toolBar();
+
+    loadSettings();
+    updateDescription();
+
+    m_ignoreChanges = false;
 }
 
 DiffEditor::~DiffEditor()
@@ -295,8 +301,6 @@ QWidget *DiffEditor::toolBar()
     if (m_toolBar)
         return m_toolBar;
 
-    DiffEditorController *control = controller();
-
     // Create
     m_toolBar = createToolBar(m_views.at(0));
 
@@ -306,109 +310,77 @@ QWidget *DiffEditor::toolBar()
     QSizePolicy policy = m_entriesComboBox->sizePolicy();
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_entriesComboBox->setSizePolicy(policy);
-    connect(m_entriesComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
-            this, &DiffEditor::entryActivated);
+    connect(m_entriesComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &DiffEditor::setCurrentDiffFileIndex);
     m_toolBar->addWidget(m_entriesComboBox);
 
-    QToolButton *whitespaceButton = new QToolButton(m_toolBar);
-    whitespaceButton->setText(tr("Ignore Whitespace"));
-    whitespaceButton->setCheckable(true);
-    whitespaceButton->setChecked(control->isIgnoreWhitespace());
-    m_whitespaceButtonAction = m_toolBar->addWidget(whitespaceButton);
+    m_whitespaceButton = new QToolButton(m_toolBar);
+    m_whitespaceButton->setText(tr("Ignore Whitespace"));
+    m_whitespaceButton->setCheckable(true);
+    m_whitespaceButton->setChecked(m_document->ignoreWhitespace());
+    m_whitespaceButtonAction = m_toolBar->addWidget(m_whitespaceButton);
 
     QLabel *contextLabel = new QLabel(m_toolBar);
     contextLabel->setText(tr("Context Lines:"));
     contextLabel->setContentsMargins(6, 0, 6, 0);
     m_contextLabelAction = m_toolBar->addWidget(contextLabel);
 
-    QSpinBox *contextSpinBox = new QSpinBox(m_toolBar);
-    contextSpinBox->setRange(1, 100);
-    contextSpinBox->setValue(control->contextLinesNumber());
-    contextSpinBox->setFrame(false);
-    contextSpinBox->setSizePolicy(QSizePolicy::Minimum,
-                                  QSizePolicy::Expanding); // Mac Qt5
-    m_contextSpinBoxAction = m_toolBar->addWidget(contextSpinBox);
+    m_contextSpinBox = new QSpinBox(m_toolBar);
+    m_contextSpinBox->setRange(1, 100);
+    m_contextSpinBox->setValue(m_document->contextLineCount());
+    m_contextSpinBox->setFrame(false);
+    m_contextSpinBox->setSizePolicy(QSizePolicy::Minimum,
+                                    QSizePolicy::Expanding); // Mac Qt5
+    m_contextSpinBoxAction = m_toolBar->addWidget(m_contextSpinBox);
 
     QToolButton *toggleDescription = new QToolButton(m_toolBar);
     toggleDescription->setIcon(QIcon(QLatin1String(Constants::ICON_TOP_BAR)));
     toggleDescription->setCheckable(true);
-    toggleDescription->setChecked(m_guiController->isDescriptionVisible());
+    toggleDescription->setChecked(m_showDescription);
     m_toggleDescriptionAction = m_toolBar->addWidget(toggleDescription);
-    slotDescriptionVisibilityChanged();
+    updateDescription();
 
     QToolButton *reloadButton = new QToolButton(m_toolBar);
     reloadButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_RELOAD_GRAY)));
     reloadButton->setToolTip(tr("Reload Editor"));
     m_reloadAction = m_toolBar->addWidget(reloadButton);
-    slotReloaderChanged();
+    documentStateChanged();
 
     QToolButton *toggleSync = new QToolButton(m_toolBar);
     toggleSync->setIcon(QIcon(QLatin1String(Core::Constants::ICON_LINK)));
     toggleSync->setCheckable(true);
-    toggleSync->setChecked(m_guiController->horizontalScrollBarSynchronization());
-    toggleSync->setToolTip(tr("Synchronize Horizontal Scroll Bars"));
-    m_toolBar->addWidget(toggleSync);
+    m_toggleSyncAction = m_toolBar->addWidget(toggleSync);
 
     m_diffEditorSwitcher = new QToolButton(m_toolBar);
     m_toolBar->addWidget(m_diffEditorSwitcher);
     updateDiffEditorSwitcher();
 
-    connect(whitespaceButton, &QToolButton::clicked,
-            control, &DiffEditorController::setIgnoreWhitespace);
-    connect(control, &DiffEditorController::ignoreWhitespaceChanged,
-            whitespaceButton, &QToolButton::setChecked);
-    connect(contextSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
-            control, &DiffEditorController::setContextLinesNumber);
-    connect(control, &DiffEditorController::contextLinesNumberChanged,
-            contextSpinBox, &QSpinBox::setValue);
-    connect(toggleSync, &QAbstractButton::clicked,
-            m_guiController, &DiffEditorGuiController::setHorizontalScrollBarSynchronization);
+    connect(m_whitespaceButton, &QToolButton::clicked,
+            this, &DiffEditor::ignoreWhitespaceHasChanged);
+    connect(m_contextSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this, &DiffEditor::contextLineCountHasChanged);
+    connect(toggleSync, &QAbstractButton::clicked, this, &DiffEditor::toggleSync);
     connect(toggleDescription, &QAbstractButton::clicked,
-            m_guiController, &DiffEditorGuiController::setDescriptionVisible);
+            this, &DiffEditor::toggleDescription);
     connect(m_diffEditorSwitcher, &QAbstractButton::clicked,
             this, [this]() { showDiffView(nextView()); });
-    connect(reloadButton, &QAbstractButton::clicked,
-            control, &DiffEditorController::requestReload);
-    connect(control, &DiffEditorController::reloaderChanged,
-            this, &DiffEditor::slotReloaderChanged);
-    connect(control, &DiffEditorController::contextLinesNumberEnablementChanged,
-            this, &DiffEditor::slotReloaderChanged);
+
+    connect(reloadButton, &QAbstractButton::clicked, this, [this]() { m_document->reload(); });
+    connect(m_document.data(), &DiffEditorDocument::temporaryStateChanged,
+            this, &DiffEditor::documentStateChanged);
 
     return m_toolBar;
 }
 
-DiffEditorController *DiffEditor::controller() const
+void DiffEditor::documentHasChanged()
 {
-    return m_document->controller();
-}
+    m_ignoreChanges = true;
+    const QList<FileData> diffFileList = m_document->diffFiles();
 
-void DiffEditor::updateEntryToolTip()
-{
-    const QString &toolTip = m_entriesComboBox->itemData(
-                m_entriesComboBox->currentIndex(), Qt::ToolTipRole).toString();
-    m_entriesComboBox->setToolTip(toolTip);
-}
-
-void DiffEditor::entryActivated(int index)
-{
-    updateEntryToolTip();
-    m_guiController->setCurrentDiffFileIndex(index);
-}
-
-void DiffEditor::slotCleared(const QString &message)
-{
-    Q_UNUSED(message)
+    currentView()->setDiff(diffFileList, m_document->baseDirectory());
 
     m_entriesComboBox->clear();
-    updateEntryToolTip();
-}
-
-void DiffEditor::slotDiffFilesChanged(const QList<FileData> &diffFileList,
-                                      const QString &workingDirectory)
-{
-    Q_UNUSED(workingDirectory)
-
-    m_entriesComboBox->clear();
+    int index = 0;
     const int count = diffFileList.count();
     for (int i = 0; i < count; i++) {
         const DiffFileInfo leftEntry = diffFileList.at(i).leftFileInfo;
@@ -449,64 +421,193 @@ void DiffEditor::slotDiffFilesChanged(const QList<FileData> &diffFileList,
                              rightEntry.fileName);
             }
         }
+        if (m_currentFileChunk.first == leftEntry.fileName
+                && m_currentFileChunk.second == rightEntry.fileName)
+            index = i;
         m_entriesComboBox->addItem(itemText);
+        m_entriesComboBox->setItemData(m_entriesComboBox->count() - 1,
+                                       leftEntry.fileName, Qt::UserRole);
+        m_entriesComboBox->setItemData(m_entriesComboBox->count() - 1,
+                                       rightEntry.fileName, Qt::UserRole + 1);
         m_entriesComboBox->setItemData(m_entriesComboBox->count() - 1,
                                        itemToolTip, Qt::ToolTipRole);
     }
-    updateEntryToolTip();
+
+    m_ignoreChanges = false;
+
+    setCurrentDiffFileIndex(m_entriesComboBox->count() > 0 ? index : -1);
 }
 
-void DiffEditor::activateEntry(int index)
+void DiffEditor::toggleDescription()
 {
-    m_entriesComboBox->blockSignals(true);
-    m_entriesComboBox->setCurrentIndex(index);
-    m_entriesComboBox->blockSignals(false);
-    updateEntryToolTip();
+    m_showDescription = !m_showDescription;
+    saveSetting(QLatin1String(descriptionVisibleKeyC), m_showDescription);
+    updateDescription();
 }
 
-void DiffEditor::slotDescriptionChanged(const QString &description)
+void DiffEditor::updateDescription()
 {
+    QString description = m_document->description();
     m_descriptionWidget->setPlainText(description);
-}
+    m_descriptionWidget->setVisible(m_showDescription && !description.isEmpty());
 
-void DiffEditor::slotDescriptionVisibilityChanged()
-{
-    const bool enabled = controller()->isDescriptionEnabled();
-    const bool visible = m_guiController->isDescriptionVisible();
-
-    m_descriptionWidget->setVisible(visible && enabled);
-
-    if (!m_toggleDescriptionAction)
-        return;
+    QTC_ASSERT(m_toolBar, return);
+    QTC_ASSERT(m_toggleDescriptionAction, return);
 
     QWidget *toggle = m_toolBar->widgetForAction(m_toggleDescriptionAction);
-    if (visible)
-        toggle->setToolTip(tr("Hide Change Description"));
-    else
-        toggle->setToolTip(tr("Show Change Description"));
-
-    m_toggleDescriptionAction->setVisible(enabled);
+    toggle->setToolTip(m_showDescription ? tr("Hide Change Description")
+                                         : tr("Show Change Description"));
+    m_toggleDescriptionAction->setVisible(!description.isEmpty());
 }
 
-void DiffEditor::slotReloaderChanged()
+void DiffEditor::contextLineCountHasChanged(int lines)
 {
-    DiffEditorController *control = controller();
-    const DiffEditorReloader *reloader = control->reloader();
-    const bool contextVisible = control->isContextLinesNumberEnabled();
+    QTC_ASSERT(!m_document->isContextLineCountForced(), return);
+    if (m_ignoreChanges || lines == m_document->contextLineCount())
+        return;
 
-    m_whitespaceButtonAction->setVisible(reloader);
-    m_contextLabelAction->setVisible(reloader && contextVisible);
-    m_contextSpinBoxAction->setVisible(reloader && contextVisible);
-    m_reloadAction->setVisible(reloader);
+    m_document->setContextLineCount(lines);
+    saveSetting(QLatin1String(contextLineCountKeyC), lines);
+
+    m_document->reload();
+}
+
+void DiffEditor::ignoreWhitespaceHasChanged(bool ignore)
+{
+    if (m_ignoreChanges || ignore == m_document->ignoreWhitespace())
+        return;
+
+    m_document->setIgnoreWhitespace(ignore);
+    saveSetting(QLatin1String(ignoreWhitespaceKeyC), ignore);
+    m_document->reload();
+}
+
+void DiffEditor::prepareForReload()
+{
+    documentStateChanged(); // To update actions...
+
+    QTC_ASSERT(currentView(), return);
+
+    if (m_entriesComboBox->count() > 0) {
+        m_currentFileChunk
+                = qMakePair(m_entriesComboBox->itemData(m_currentDiffFileIndex, Qt::UserRole).toString(),
+                            m_entriesComboBox->itemData(m_currentDiffFileIndex, Qt::UserRole + 1).toString());
+    } else {
+        m_currentFileChunk = qMakePair(QString(), QString());
+    }
+
+    m_ignoreChanges = true;
+    m_contextSpinBox->setValue(m_document->contextLineCount());
+    m_whitespaceButton->setChecked(m_document->ignoreWhitespace());
+    m_ignoreChanges = false;
+    currentView()->beginOperation();
+}
+
+void DiffEditor::reloadHasFinished(bool success)
+{
+    if (!currentView())
+        return;
+
+    m_currentFileChunk = qMakePair(QString(), QString());
+
+    currentView()->endOperation(success);
+}
+
+void DiffEditor::updateEntryToolTip()
+{
+    const QString &toolTip = m_entriesComboBox->itemData(
+                m_entriesComboBox->currentIndex(), Qt::ToolTipRole).toString();
+    m_entriesComboBox->setToolTip(toolTip);
+}
+
+void DiffEditor::setCurrentDiffFileIndex(int index)
+{
+    if (m_ignoreChanges)
+        return;
+
+    QTC_ASSERT((index < 0) != (m_entriesComboBox->count() > 0), return);
+
+    m_ignoreChanges = true;
+
+    m_currentDiffFileIndex = index;
+    currentView()->setCurrentDiffFileIndex(index);
+
+    m_entriesComboBox->setCurrentIndex(m_entriesComboBox->count() > 0 ? qMax(0, index) : -1);
+    updateEntryToolTip();
+
+    m_ignoreChanges = false;
+}
+
+void DiffEditor::documentStateChanged()
+{
+    const bool canReload = m_document->isTemporary();
+    const bool contextVisible = !m_document->isContextLineCountForced();
+
+    m_whitespaceButtonAction->setVisible(canReload);
+    m_contextLabelAction->setVisible(canReload && contextVisible);
+    m_contextSpinBoxAction->setVisible(canReload && contextVisible);
+    m_reloadAction->setVisible(canReload);
 }
 
 void DiffEditor::updateDiffEditorSwitcher()
 {
     if (!m_diffEditorSwitcher)
         return;
+    IDiffView *next = nextView();
+    m_diffEditorSwitcher->setIcon(next->icon());
+    m_diffEditorSwitcher->setToolTip(next->toolTip());
+}
 
-    m_diffEditorSwitcher->setIcon(currentView()->icon());
-    m_diffEditorSwitcher->setToolTip(currentView()->toolTip());
+void DiffEditor::toggleSync()
+{
+    QTC_ASSERT(currentView(), return);
+    m_sync = !m_sync;
+    saveSetting(QLatin1String(horizontalScrollBarSynchronizationKeyC), m_sync);
+    currentView()->setSync(m_sync);
+}
+
+void DiffEditor::loadSettings()
+{
+    QTC_ASSERT(currentView(), return);
+    QSettings *s = Core::ICore::settings();
+
+    // TODO: Remove in 3.6: Read legacy settings first:
+    s->beginGroup(QLatin1String(legacySettingsGroupC));
+    const bool legacyExists = s->contains(QLatin1String(useDiffEditorKeyC));
+    const bool legacyEditor = s->value(
+                QLatin1String(useDiffEditorKeyC), true).toBool();
+    s->remove(QLatin1String(useDiffEditorKeyC));
+    s->endGroup();
+
+    // Save legacy settings to current settings:
+    if (legacyExists) {
+        saveSetting(QLatin1String(diffViewKeyC), legacyEditor ? m_views.at(0)->id().toSetting() :
+                                                                m_views.at(1)->id().toSetting());
+    }
+
+    // Read current settings:
+    s->beginGroup(QLatin1String(settingsGroupC));
+    m_showDescription = s->value(QLatin1String(descriptionVisibleKeyC),
+                                 true).toBool();
+    m_sync = s->value(QLatin1String(horizontalScrollBarSynchronizationKeyC),
+                                true).toBool();
+    m_document->setIgnoreWhitespace(s->value(QLatin1String(ignoreWhitespaceKeyC), false).toBool());
+    m_document->setContextLineCount(s->value(QLatin1String(contextLineCountKeyC), 3).toInt());
+    Core::Id id = Core::Id::fromSetting(s->value(QLatin1String(diffViewKeyC)));
+    s->endGroup();
+
+    IDiffView *view = Utils::findOr(m_views, m_views.at(0), [id](IDiffView *v) { return v->id() == id; });
+    QTC_ASSERT(view, return);
+
+    setupView(view);
+}
+
+void DiffEditor::saveSetting(const QString &key, const QVariant &value) const
+{
+    QSettings *s = Core::ICore::settings();
+    s->beginGroup(QLatin1String(settingsGroupC));
+    s->setValue(key, value);
+    s->endGroup();
 }
 
 void DiffEditor::addView(IDiffView *view)
@@ -514,6 +615,10 @@ void DiffEditor::addView(IDiffView *view)
     QTC_ASSERT(!m_views.contains(view), return);
     m_views.append(view);
     m_stackedWidget->addWidget(view->widget());
+    if (m_views.count() == 1)
+        setCurrentView(view);
+
+    connect(view, &IDiffView::currentDiffFileIndexChanged, this, &DiffEditor::setCurrentDiffFileIndex);
 }
 
 IDiffView *DiffEditor::currentView() const
@@ -539,71 +644,42 @@ IDiffView *DiffEditor::nextView()
     return m_views.at(pos);
 }
 
-void DiffEditor::showDiffView(IDiffView *newView)
+void DiffEditor::setupView(IDiffView *view)
 {
-    QTC_ASSERT(newView, return);
+    QTC_ASSERT(view, return);
+    setCurrentView(view);
 
-    if (currentView() == newView)
+    saveSetting(QLatin1String(diffViewKeyC), currentView()->id().toSetting());
+
+    m_toggleSyncAction->setVisible(currentView()->supportsSync());
+    m_toggleSyncAction->setToolTip(currentView()->syncToolTip());
+    m_toggleSyncAction->setChecked(m_sync);
+
+    view->setDocument(m_document.data());
+    view->setSync(m_sync);
+
+    view->beginOperation();
+    view->setDiff(m_document->diffFiles(), m_document->baseDirectory());
+    view->endOperation(true);
+    view->setCurrentDiffFileIndex(m_currentDiffFileIndex);
+
+    m_stackedWidget->setCurrentWidget(view->widget());
+
+    updateDiffEditorSwitcher();
+    if (widget())
+        widget()->setFocusProxy(view->widget());
+}
+
+void DiffEditor::showDiffView(IDiffView *view)
+{
+    if (currentView() == view)
         return;
 
     if (currentView()) // during initialization
-        currentView()->setDiffEditorGuiController(0);
-    setCurrentView(newView);
-    currentView()->setDiffEditorGuiController(m_guiController);
+        currentView()->setDocument(0);
 
-    m_stackedWidget->setCurrentWidget(currentView()->widget());
-
-    writeCurrentDiffEditorSetting(currentView());
-    updateDiffEditorSwitcher();
-    widget()->setFocusProxy(currentView()->widget());
-}
-
-// TODO: Remove in 3.6:
-IDiffView *DiffEditor::readLegacyCurrentDiffEditorSetting()
-{
-    QTC_ASSERT(!m_views.isEmpty(), return 0);
-    QTC_ASSERT(m_views.count() == 2, return m_views.at(0));
-
-    QSettings *s = Core::ICore::settings();
-
-    s->beginGroup(QLatin1String(legacySettingsGroupC));
-    const bool legacyExists = s->contains(QLatin1String(useDiffEditorKeyC));
-    const bool legacyEditor = s->value(
-                QLatin1String(useDiffEditorKeyC), true).toBool();
-    if (legacyExists)
-        s->remove(QLatin1String(useDiffEditorKeyC));
-    s->endGroup();
-
-    IDiffView *currentEditor = m_views.at(0);
-    if (!legacyEditor)
-        currentEditor = m_views.at(1);
-
-    if (legacyExists)
-        writeCurrentDiffEditorSetting(currentEditor);
-
-    return currentEditor;
-}
-
-IDiffView *DiffEditor::readCurrentDiffEditorSetting()
-{
-    // replace it with m_sideBySideEditor when dropping legacy stuff
-    IDiffView *view = readLegacyCurrentDiffEditorSetting();
-
-    QSettings *s = Core::ICore::settings();
-    s->beginGroup(QLatin1String(settingsGroupC));
-    const Core::Id id = Core::Id::fromSetting(s->value(QLatin1String(diffEditorTypeKeyC)));
-    s->endGroup();
-
-    return Utils::findOr(m_views, view, [id](IDiffView *v) { return v->id() == id; });
-}
-
-void DiffEditor::writeCurrentDiffEditorSetting(IDiffView *currentEditor)
-{
-    QTC_ASSERT(currentEditor, return);
-    QSettings *s = Core::ICore::settings();
-    s->beginGroup(QLatin1String(settingsGroupC));
-    s->setValue(QLatin1String(diffEditorTypeKeyC), currentEditor->id().toSetting());
-    s->endGroup();
+    QTC_ASSERT(view, return);
+    setupView(view);
 }
 
 } // namespace Internal

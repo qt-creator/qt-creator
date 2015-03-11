@@ -94,7 +94,9 @@ public:
     void addContextObject(IContext *context);
     void removeContextObject(IContext *context);
 
-    IDocument *openFiles(const QStringList &fileNames, ICore::OpenFilesFlags flags);
+    IDocument *openFiles(const QStringList &fileNames,
+                         ICore::OpenFilesFlags flags,
+                         const QString &workingDirectory = QString());
 
     inline SettingsDatabase *settingsDatabase() const { return m_settingsDatabase; }
     virtual QPrinter *printer() const;

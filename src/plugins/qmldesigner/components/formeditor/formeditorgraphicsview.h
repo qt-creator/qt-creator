@@ -44,6 +44,9 @@ public:
     void setRootItemRect(const QRectF &rect);
     QRectF rootItemRect() const;
 
+    void activateCheckboardBackground();
+    void activateColoredBackground(const QColor &color);
+
 protected:
     void drawBackground(QPainter *painter, const QRectF &rect);
     void wheelEvent(QWheelEvent *event);

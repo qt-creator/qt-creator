@@ -128,7 +128,7 @@ public:
     virtual QQmlView *declarativeView() const = 0;
     virtual QQuickView *quickView() const = 0;
 
-    void sendDebugOutput(DebugOutputCommand::Type type, const QString &message, qint32 instanceId);
+    void sendDebugOutput(DebugOutputCommand::Type type, const QString &message, qint32 instanceId = 0);
     void sendDebugOutput(DebugOutputCommand::Type type, const QString &message, const QVector<qint32> &instanceIds);
 
     void removeInstanceRelationsipForDeletedObject(QObject *object);
@@ -195,7 +195,7 @@ protected:
     void setupDummysForContext(QQmlContext *context);
 
     void setupFileUrl(const QUrl &fileUrl);
-    void setupImports(const QVector<AddImportContainer> &container, const QVector<IdContainer> &idContainerVector);
+    void setupImports(const QVector<AddImportContainer> &container);
     void setupDummyData(const QUrl &fileUrl);
     void setupDefaultDummyData();
     QList<ServerNodeInstance> setupInstances(const CreateSceneCommand &command);

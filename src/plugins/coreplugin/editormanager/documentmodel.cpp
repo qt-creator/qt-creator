@@ -113,6 +113,17 @@ private:
     QHash<QString, DocumentModel::Entry *> m_entryByFixedPath;
 };
 
+class RestoredDocument : public IDocument
+{
+public:
+    bool save(QString *, const QString &, bool) { return false; }
+    QString defaultPath() const { return filePath().toFileInfo().absolutePath(); }
+    QString suggestedFileName() const { return filePath().fileName(); }
+    bool isModified() const { return false; }
+    bool isSaveAsAllowed() const { return false; }
+    bool reload(QString *, ReloadFlag, ChangeType) { return true; }
+};
+
 DocumentModelPrivate::DocumentModelPrivate() :
     m_lockedIcon(QLatin1String(":/core/images/locked.png")),
     m_unlockedIcon(QLatin1String(":/core/images/unlocked.png"))
@@ -127,8 +138,15 @@ DocumentModelPrivate::~DocumentModelPrivate()
 static DocumentModelPrivate *d;
 
 DocumentModel::Entry::Entry() :
-    document(0)
+    document(0),
+    isRestored(false)
 {
+}
+
+DocumentModel::Entry::~Entry()
+{
+    if (isRestored)
+        delete document;
 }
 
 DocumentModel::DocumentModel()
@@ -162,22 +180,22 @@ QAbstractItemModel *DocumentModel::model()
 
 Utils::FileName DocumentModel::Entry::fileName() const
 {
-    return document ? document->filePath() : m_fileName;
+    return document->filePath();
 }
 
 QString DocumentModel::Entry::displayName() const
 {
-    return document ? document->displayName() : m_displayName;
+    return document->displayName();
 }
 
 QString DocumentModel::Entry::plainDisplayName() const
 {
-    return document ? document->plainDisplayName() : m_displayName;
+    return document->plainDisplayName();
 }
 
 Id DocumentModel::Entry::id() const
 {
-    return document ? document->id() : m_id;
+    return document->id();
 }
 
 int DocumentModelPrivate::columnCount(const QModelIndex &parent) const
@@ -214,15 +232,17 @@ void DocumentModel::addEditor(IEditor *editor, bool *isNewDocument)
 void DocumentModel::addRestoredDocument(const QString &fileName, const QString &displayName, Id id)
 {
     Entry *entry = new Entry;
-    entry->m_fileName = Utils::FileName::fromString(fileName);
-    entry->m_displayName = displayName;
-    entry->m_id = id;
+    entry->document = new RestoredDocument;
+    entry->document->setFilePath(Utils::FileName::fromString(fileName));
+    entry->document->setPreferredDisplayName(displayName);
+    entry->document->setId(id);
+    entry->isRestored = true;
     d->addEntry(entry);
 }
 
 DocumentModel::Entry *DocumentModel::firstRestoredEntry()
 {
-    return Utils::findOrDefault(d->m_entries, [](Entry *entry) { return !entry->document; });
+    return Utils::findOrDefault(d->m_entries, [](Entry *entry) { return entry->isRestored; });
 }
 
 void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
@@ -236,7 +256,7 @@ void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
     int previousIndex = indexOfFilePath(fileName);
     if (previousIndex >= 0) {
         DocumentModel::Entry *previousEntry = m_entries.at(previousIndex);
-        const bool replace = entry->document && !previousEntry->document;
+        const bool replace = !entry->isRestored && previousEntry->isRestored;
         if (replace) {
             delete previousEntry;
             m_entries[previousIndex] = entry;
@@ -268,8 +288,7 @@ void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
     disambiguateDisplayNames(entry);
     if (!fixedPath.isEmpty())
         m_entryByFixedPath[fixedPath] = entry;
-    if (entry->document)
-        connect(entry->document, SIGNAL(changed()), this, SLOT(itemChanged()));
+    connect(entry->document, SIGNAL(changed()), this, SLOT(itemChanged()));
     endInsertRows();
 }
 
@@ -282,8 +301,6 @@ bool DocumentModelPrivate::disambiguateDisplayNames(DocumentModel::Entry *entry)
 
     for (int i = 0, total = m_entries.count(); i < total; ++i) {
         DocumentModel::Entry *e = m_entries.at(i);
-        if (!e->document)
-            continue;
         if (e == entry || e->plainDisplayName() == displayName) {
             e->document->setUniqueDisplayName(QString());
             dups += DynamicEntry(e);
@@ -349,7 +366,8 @@ int DocumentModelPrivate::indexOfFilePath(const Utils::FileName &filePath) const
 
 void DocumentModel::removeEntry(DocumentModel::Entry *entry)
 {
-    QTC_ASSERT(!entry->document, return); // we wouldn't know what to do with the associated editors
+    // For non restored entries, we wouldn't know what to do with the associated editors
+    QTC_ASSERT(entry->isRestored, return);
     int index = d->m_entries.indexOf(entry);
     d->removeDocument(index);
 }
@@ -373,7 +391,8 @@ void DocumentModel::removeEditor(IEditor *editor, bool *lastOneForDocument)
 void DocumentModel::removeDocument(const QString &fileName)
 {
     int index = d->indexOfFilePath(Utils::FileName::fromString(fileName));
-    QTC_ASSERT(!d->m_entries.at(index)->document, return); // we wouldn't know what to do with the associated editors
+    // For non restored entries, we wouldn't know what to do with the associated editors
+    QTC_ASSERT(d->m_entries.at(index)->isRestored, return);
     d->removeDocument(index);
 }
 
@@ -393,8 +412,7 @@ void DocumentModelPrivate::removeDocument(int idx)
                                                                DocumentManager::ResolveLinks);
         m_entryByFixedPath.remove(fixedPath);
     }
-    if (IDocument *document = entry->document)
-        disconnect(document, SIGNAL(changed()), this, SLOT(itemChanged()));
+    disconnect(entry->document, SIGNAL(changed()), this, SLOT(itemChanged()));
     disambiguateDisplayNames(entry);
     delete entry;
 }
@@ -402,7 +420,7 @@ void DocumentModelPrivate::removeDocument(int idx)
 void DocumentModel::removeAllRestoredEntries()
 {
     for (int i = d->m_entries.count()-1; i >= 0; --i) {
-        if (!d->m_entries.at(i)->document) {
+        if (d->m_entries.at(i)->isRestored) {
             int row = i + 1/*<no document>*/;
             d->beginRemoveRows(QModelIndex(), row, row);
             delete d->m_entries.takeAt(i);
@@ -527,19 +545,12 @@ QVariant DocumentModelPrivate::data(const QModelIndex &index, int role) const
     switch (role) {
     case Qt::DisplayRole: {
         QString name = e->displayName();
-        if (e->document && e->document->isModified())
+        if (e->document->isModified())
             name += QLatin1Char('*');
         return name;
     }
     case Qt::DecorationRole:
-    {
-        bool showLock = false;
-        if (e->document)
-            showLock = e->document->filePath().isEmpty() ? false : e->document->isFileReadOnly();
-        else
-            showLock = !e->m_fileName.toFileInfo().isWritable();
-        return showLock ? m_lockedIcon : QIcon();
-    }
+        return e->document->isFileReadOnly() ? m_lockedIcon : QIcon();
     case Qt::ToolTipRole:
         return e->fileName().isEmpty() ? e->displayName() : e->fileName().toUserOutput();
     default:

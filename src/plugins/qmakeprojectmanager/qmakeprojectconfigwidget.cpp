@@ -237,13 +237,6 @@ void QmakeProjectConfigWidget::updateProblemLabel()
         }
     }
 
-    QString shadowBuildWarning;
-    if (!version->supportsShadowBuilds() && m_buildConfiguration->isShadowBuild()) {
-        shadowBuildWarning = tr("The Qt version %1 does not support shadow builds, building might fail.")
-                .arg(version->displayName())
-                + QLatin1String("<br>");
-    }
-
     if (allGood) {
         QString buildDirectory = m_buildConfiguration->target()->project()->projectDirectory().toString();
         if (m_buildConfiguration->isShadowBuild())
@@ -252,8 +245,8 @@ void QmakeProjectConfigWidget::updateProblemLabel()
         issues = version->reportIssues(proFileName, buildDirectory);
         Utils::sort(issues);
 
-        if (!issues.isEmpty() || !shadowBuildWarning.isEmpty()) {
-            QString text = QLatin1String("<nobr>") + shadowBuildWarning;
+        if (!issues.isEmpty()) {
+            QString text = QLatin1String("<nobr>");
             foreach (const ProjectExplorer::Task &task, issues) {
                 QString type;
                 switch (task.type) {
@@ -277,17 +270,14 @@ void QmakeProjectConfigWidget::updateProblemLabel()
             return;
         }
     } else if (targetMismatch) {
-        setProblemLabel(shadowBuildWarning + tr("A build for a different project exists in %1, which will be overwritten.",
-                                                "%1 build directory")
+        setProblemLabel(tr("A build for a different project exists in %1, which will be overwritten.",
+                           "%1 build directory")
                         .arg(m_buildConfiguration->buildDirectory().toUserOutput()));
         return;
     } else if (incompatibleBuild) {
-        setProblemLabel(shadowBuildWarning +tr("An incompatible build exists in %1, which will be overwritten.",
-                                               "%1 build directory")
+        setProblemLabel(tr("An incompatible build exists in %1, which will be overwritten.",
+                           "%1 build directory")
                         .arg(m_buildConfiguration->buildDirectory().toUserOutput()));
-        return;
-    } else if (!shadowBuildWarning.isEmpty()) {
-        setProblemLabel(shadowBuildWarning);
         return;
     }
 

@@ -59,7 +59,9 @@ public:
     void extensionsInitialized();
     bool delayedInitialize();
     ShutdownFlag aboutToShutdown();
-    QObject *remoteCommand(const QStringList & /* options */, const QStringList &args);
+    QObject *remoteCommand(const QStringList & /* options */,
+                           const QString &workingDirectory,
+                           const QStringList &args);
 
 public slots:
     void fileOpenRequest(const QString&);

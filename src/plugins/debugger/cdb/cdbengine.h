@@ -49,7 +49,8 @@ namespace Debugger {
 namespace Internal {
 
 class DisassemblerAgent;
-struct CdbCommand;
+class CdbCommand;
+class CdbResponse;
 struct MemoryViewCookie;
 class ByteArrayInputStream;
 class GdbMi;
@@ -70,7 +71,7 @@ public:
     };
 
     typedef QSharedPointer<CdbCommand> CdbCommandPtr;
-    typedef std::function<void(const CdbCommandPtr &)> CommandHandler;
+    typedef std::function<void(const CdbResponse &)> CommandHandler;
 
     CdbEngine(const DebuggerStartParameters &sp);
     ~CdbEngine();
@@ -216,37 +217,37 @@ private:
     void postResolveSymbol(const QString &module, const QString &function,
                            DisassemblerAgent *agent);
     // Builtin commands
-    void dummyHandler(const CdbCommandPtr &);
-    void handleStackTrace(const CdbCommandPtr &);
-    void handleRegisters(const CdbCommandPtr &);
-    void handleDisassembler(const CdbCommandPtr &, DisassemblerAgent *agent);
-    void handleJumpToLineAddressResolution(const CdbCommandPtr &, const ContextData &context);
-    void handleExpression(const CdbCommandPtr &command, BreakpointModelId id, const GdbMi &stopReason);
-    void handleResolveSymbol(const CdbCommandPtr &command, const QString &symbol, DisassemblerAgent *agent);
+    void dummyHandler(const CdbResponse &);
+    void handleStackTrace(const CdbResponse &);
+    void handleRegisters(const CdbResponse &);
+    void handleDisassembler(const CdbResponse &, DisassemblerAgent *agent);
+    void handleJumpToLineAddressResolution(const CdbResponse &response, const ContextData &context);
+    void handleExpression(const CdbResponse &command, BreakpointModelId id, const GdbMi &stopReason);
+    void handleResolveSymbol(const CdbResponse &command, const QString &symbol, DisassemblerAgent *agent);
     void handleResolveSymbolHelper(const QList<quint64> &addresses, DisassemblerAgent *agent);
-    void handleBreakInsert(const CdbCommandPtr &cmd);
-    void handleCheckWow64(const CdbCommandPtr &cmd, const GdbMi &stack);
-    void ensureUsing32BitStackInWow64(const CdbCommandPtr &cmd, const GdbMi &stack);
-    void handleSwitchWow64Stack(const CdbCommandPtr &cmd);
+    void handleBreakInsert(const CdbResponse &response);
+    void handleCheckWow64(const CdbResponse &response, const GdbMi &stack);
+    void ensureUsing32BitStackInWow64(const CdbResponse &response, const GdbMi &stack);
+    void handleSwitchWow64Stack(const CdbResponse &response);
     void jumpToAddress(quint64 address);
-    void handleCreateFullBackTrace(const CdbCommandPtr &cmd);
+    void handleCreateFullBackTrace(const CdbResponse &response);
 
     // Extension commands
-    void handleThreads(const CdbCommandPtr &);
-    void handlePid(const CdbCommandPtr &reply);
-    void handleLocals(const CdbCommandPtr &reply, int flags);
-    void handleAddWatch(const CdbCommandPtr &reply, WatchData item);
-    void handleExpandLocals(const CdbCommandPtr &reply);
-    void handleRegistersExt(const CdbCommandPtr &reply);
-    void handleModules(const CdbCommandPtr &reply);
-    void handleMemory(const CdbCommandPtr &, const MemoryViewCookie &memViewCookie);
-    void handleWidgetAt(const CdbCommandPtr &);
-    void handleBreakPoints(const CdbCommandPtr &);
+    void handleThreads(const CdbResponse &response);
+    void handlePid(const CdbResponse &response);
+    void handleLocals(const CdbResponse &response, bool newFrame);
+    void handleAddWatch(const CdbResponse &response, WatchData item);
+    void handleExpandLocals(const CdbResponse &response);
+    void handleRegistersExt(const CdbResponse &response);
+    void handleModules(const CdbResponse &response);
+    void handleMemory(const CdbResponse &response, const MemoryViewCookie &memViewCookie);
+    void handleWidgetAt(const CdbResponse &response);
+    void handleBreakPoints(const CdbResponse &response);
     void handleBreakPoints(const GdbMi &value);
-    void handleAdditionalQmlStack(const CdbCommandPtr &);
+    void handleAdditionalQmlStack(const CdbResponse &response);
     NormalizedSourceFileName sourceMapNormalizeFileNameFromDebugger(const QString &f);
     void updateLocalVariable(const QByteArray &iname);
-    void updateLocals(bool forNewStackFrame = false);
+    void updateLocals(bool forNewStackFrame);
     int elapsedLogTime() const;
     void addLocalsOptions(ByteArrayInputStream &s) const;
     unsigned parseStackTrace(const GdbMi &data, bool sourceStepInto);

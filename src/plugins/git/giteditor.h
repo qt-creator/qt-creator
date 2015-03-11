@@ -56,13 +56,14 @@ public slots:
 
 private slots:
     void checkoutChange();
-    void resetChange();
     void cherryPickChange();
     void revertChange();
+    void logChange();
     void applyDiffChunk(const VcsBase::DiffChunk& chunk, bool revert);
 
 private:
     void init();
+    void resetChange(const QByteArray &resetType);
     void addDiffActions(QMenu *menu, const VcsBase::DiffChunk &chunk);
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     QSet<QString> annotationChanges() const;

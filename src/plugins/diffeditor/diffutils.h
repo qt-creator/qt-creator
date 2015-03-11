@@ -35,9 +35,6 @@
 
 #include <QString>
 #include <QMap>
-#include <QTextEdit>
-
-#include "texteditor/texteditorconstants.h"
 
 namespace TextEditor { class FontSettings; }
 
@@ -138,7 +135,7 @@ public:
     static ChunkData calculateOriginalData(const QList<Diff> &leftDiffList,
                                            const QList<Diff> &rightDiffList);
     static FileData calculateContextData(const ChunkData &originalData,
-                                         int contextLinesNumber,
+                                         int contextLineCount,
                                          int joinChunkThreshold = 1);
     static QString makePatchLine(const QChar &startLineCharacter,
                                  const QString &textLine,

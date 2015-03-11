@@ -36,81 +36,63 @@
 
 #include <QObject>
 
+QT_FORWARD_DECLARE_CLASS(QMenu)
+
+namespace Core { class IDocument; }
+
 namespace DiffEditor {
 
-class DiffEditorReloader;
+namespace Internal { class DiffEditorDocument; }
 
 class DIFFEDITOR_EXPORT DiffEditorController : public QObject
 {
     Q_OBJECT
 public:
-    DiffEditorController(QObject *parent = 0);
-    ~DiffEditorController();
+    explicit DiffEditorController(Core::IDocument *document);
 
-    QString clearMessage() const;
+    void requestReload();
+    bool isReloading() const;
 
-    QList<FileData> diffFiles() const;
-    QString workingDirectory() const;
-    QString description() const;
-    bool isDescriptionEnabled() const;
-    int contextLinesNumber() const;
-    bool isContextLinesNumberEnabled() const;
-    bool isIgnoreWhitespace() const;
+    QString baseDirectory() const;
+    int contextLineCount() const;
+    bool ignoreWhitespace() const;
+
+    QString revisionFromDescription() const;
 
     QString makePatch(bool revert, bool addPrefix = false) const;
-    QString contents() const;
-
-    DiffEditorReloader *reloader() const;
-    void setReloader(DiffEditorReloader *reloader);
 
 public slots:
-    void clear();
-    void clear(const QString &message);
-    void setDiffFiles(const QList<FileData> &diffFileList,
-                      const QString &workingDirectory = QString());
-    void setDescription(const QString &description);
-    void setDescriptionEnabled(bool on);
-    void setContextLinesNumber(int lines);
-    void setContextLinesNumberEnabled(bool on);
-    void setIgnoreWhitespace(bool ignore);
-    void requestReload();
-    void requestChunkActions(QMenu *menu,
-                             int diffFileIndex,
-                             int chunkIndex);
-    void requestSaveState();
-    void requestRestoreState();
-    void branchesForCommitReceived(const QString &output);
-    void expandBranchesRequested();
+    void informationForCommitReceived(const QString &output);
 
 signals:
-    void cleared(const QString &message);
-    void diffFilesChanged(const QList<FileData> &diffFileList,
-                          const QString &workingDirectory);
-    void descriptionChanged(const QString &description);
-    void descriptionEnablementChanged(bool on);
-    void contextLinesNumberChanged(int lines);
-    void contextLinesNumberEnablementChanged(bool on);
-    void ignoreWhitespaceChanged(bool ignore);
     void chunkActionsRequested(QMenu *menu, bool isValid);
-    void saveStateRequested();
-    void restoreStateRequested();
-    void requestBranchList(const QString &revision);
-    void reloaderChanged();
+    void requestInformationForCommit(const QString &revision);
+
+protected:
+    // reloadFinished() should be called
+    // inside reload() (for synchronous reload)
+    // or later (for asynchronous reload)
+    virtual void reload() = 0;
+    void reloadFinished(bool success);
+
+    void setDiffFiles(const QList<FileData> &diffFileList,
+                      const QString &baseDirectory = QString());
+    void setDescription(const QString &description);
+    void forceContextLineCount(int lines);
 
 private:
-    QString prepareBranchesForCommit(const QString &output);
-    QString m_clearMessage;
+    void requestMoreInformation();
+    void requestChunkActions(QMenu *menu, int diffFileIndex, int chunkIndex);
 
-    QList<FileData> m_diffFiles;
-    QString m_workingDirectory;
-    QString m_description;
-    DiffEditorReloader *m_reloader;
-    int m_contextLinesNumber;
+    QString prepareBranchesForCommit(const QString &output);
+
+    Internal::DiffEditorDocument *const m_document;
+
+    bool m_isReloading;
     int m_diffFileIndex;
     int m_chunkIndex;
-    bool m_descriptionEnabled;
-    bool m_contextLinesNumberEnabled;
-    bool m_ignoreWhitespace;
+
+    friend class Internal::DiffEditorDocument;
 };
 
 } // namespace DiffEditor

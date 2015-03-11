@@ -72,7 +72,6 @@ namespace Git {
 namespace Internal {
 
 class CommitData;
-class GitDiffEditorReloader;
 struct GitSubmitEditorPanelData;
 class Stash;
 
@@ -375,10 +374,8 @@ private:
                                             const QString &dynamicPropertyValue,
                                             VcsBase::VcsBaseEditorParameterWidget *configWidget) const;
 
-    GitDiffEditorReloader *findOrCreateDiffEditor(const QString &documentId,
-                                                  const QString &source,
-                                                  const QString &title,
-                                                  const QString &workingDirectory) const;
+    void requestReload(const QString &documentId, const QString &source, const QString &title,
+                       std::function<DiffEditor::DiffEditorController *(Core::IDocument *)> factory) const;
 
     VcsBase::VcsCommand *createCommand(const QString &workingDirectory,
                              VcsBase::VcsBaseEditorWidget* editor = 0,

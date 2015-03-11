@@ -78,7 +78,9 @@ private:
 
     void setupEngine();
     void startLldb();
+    void startLldbStage2();
     void setupInferior();
+    void setupInferiorStage2();
     void runEngine();
     void shutdownInferior();
     void shutdownEngine();

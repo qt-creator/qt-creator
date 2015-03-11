@@ -29,34 +29,28 @@
 ****************************************************************************/
 
 #include "unifieddiffeditorwidget.h"
-#include "diffeditorguicontroller.h"
+#include "diffeditorcontroller.h"
 #include "diffutils.h"
 #include "diffeditorconstants.h"
+#include "diffeditordocument.h"
 
 #include <QPlainTextEdit>
-#include <QVBoxLayout>
 #include <QMenu>
 #include <QPlainTextDocumentLayout>
 #include <QTextBlock>
-#include <QScrollBar>
+#include <QTextCodec>
 #include <QPainter>
 #include <QDir>
-#include <QToolButton>
-#include <QTextCodec>
 #include <QMessageBox>
 
-#include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
-#include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/highlighterutils.h>
 
-#include <coreplugin/icore.h>
-#include <coreplugin/minisplitter.h>
 #include <coreplugin/patchtool.h>
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -75,8 +69,7 @@ namespace Internal {
 
 UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
     : SelectableTextEditorWidget("DiffEditor.UnifiedDiffEditor", parent)
-    , m_guiController(0)
-    , m_controller(0)
+    , m_document(0)
     , m_ignoreCurrentIndexChange(false)
     , m_contextMenuFileIndex(-1)
     , m_contextMenuChunkIndex(-1)
@@ -102,70 +95,35 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
             this, &UnifiedDiffEditorWidget::setFontSettings);
     setFontSettings(TextEditorSettings::fontSettings());
 
-    clear(tr("No controller"));
+    clear(tr("No document"));
 
     connect(this, &QPlainTextEdit::cursorPositionChanged,
             this, &UnifiedDiffEditorWidget::slotCursorPositionChangedInEditor);
 }
 
-void UnifiedDiffEditorWidget::setDiffEditorGuiController(
-        DiffEditorGuiController *controller)
+void UnifiedDiffEditorWidget::setDocument(DiffEditorDocument *document)
 {
-    if (m_guiController == controller)
-        return;
-
-    if (m_guiController) {
-        disconnect(m_controller, &DiffEditorController::cleared,
-                   this, &UnifiedDiffEditorWidget::clearAll);
-        disconnect(m_controller, &DiffEditorController::diffFilesChanged,
-                   this, &UnifiedDiffEditorWidget::setDiff);
-        disconnect(m_controller, &DiffEditorController::saveStateRequested,
-                   this, &UnifiedDiffEditorWidget::saveStateRequested);
-        disconnect(m_controller, &DiffEditorController::restoreStateRequested,
-                   this, &UnifiedDiffEditorWidget::restoreStateRequested);
-
-        disconnect(m_guiController, &DiffEditorGuiController::currentDiffFileIndexChanged,
-                   this, &UnifiedDiffEditorWidget::setCurrentDiffFileIndex);
-
-        clear(tr("No controller"));
-    }
-    m_guiController = controller;
-    m_controller = 0;
-    if (m_guiController) {
-        m_controller = m_guiController->controller();
-
-        connect(m_controller, &DiffEditorController::cleared,
-                this, &UnifiedDiffEditorWidget::clearAll);
-        connect(m_controller, &DiffEditorController::diffFilesChanged,
-                this, &UnifiedDiffEditorWidget::setDiff);
-        connect(m_controller, &DiffEditorController::saveStateRequested,
-                this, &UnifiedDiffEditorWidget::saveStateRequested);
-        connect(m_controller, &DiffEditorController::restoreStateRequested,
-                this, &UnifiedDiffEditorWidget::restoreStateRequested);
-
-        connect(m_guiController, &DiffEditorGuiController::currentDiffFileIndexChanged,
-                this, &UnifiedDiffEditorWidget::setCurrentDiffFileIndex);
-
-        setDiff(m_controller->diffFiles(), m_controller->workingDirectory());
-        setCurrentDiffFileIndex(m_guiController->currentDiffFileIndex());
-    }
+    m_document = document;
 }
 
-void UnifiedDiffEditorWidget::saveStateRequested()
+void UnifiedDiffEditorWidget::saveState()
 {
     if (!m_state.isNull())
         return;
 
-    m_state = saveState();
+    m_state = SelectableTextEditorWidget::saveState();
 }
 
-void UnifiedDiffEditorWidget::restoreStateRequested()
+void UnifiedDiffEditorWidget::restoreState()
 {
     if (m_state.isNull())
         return;
 
-    restoreState(m_state);
+    const bool oldIgnore = m_ignoreCurrentIndexChange;
+    m_ignoreCurrentIndexChange = true;
+    SelectableTextEditorWidget::restoreState(m_state);
     m_state.clear();
+    m_ignoreCurrentIndexChange = oldIgnore;
 }
 
 void UnifiedDiffEditorWidget::setDisplaySettings(const DisplaySettings &ds)
@@ -187,16 +145,12 @@ void UnifiedDiffEditorWidget::setFontSettings(const FontSettings &fontSettings)
 
 void UnifiedDiffEditorWidget::slotCursorPositionChangedInEditor()
 {
-    if (!m_guiController)
-        return;
-
     if (m_ignoreCurrentIndexChange)
         return;
 
     const bool oldIgnore = m_ignoreCurrentIndexChange;
     m_ignoreCurrentIndexChange = true;
-    m_guiController->setCurrentDiffFileIndex(fileIndexForBlockNumber(
-                                                 textCursor().blockNumber()));
+    emit currentDiffFileIndexChanged(fileIndexForBlockNumber(textCursor().blockNumber()));
     m_ignoreCurrentIndexChange = oldIgnore;
 }
 
@@ -230,7 +184,7 @@ void UnifiedDiffEditorWidget::addContextMenuActions(QMenu *menu,
                                                     int diffFileIndex,
                                                     int chunkIndex)
 {
-    if (!m_controller)
+    if (!m_document || !m_document->controller())
         return;
 
     menu->addSeparator();
@@ -260,7 +214,7 @@ void UnifiedDiffEditorWidget::addContextMenuActions(QMenu *menu,
     if (m_contextMenuChunkIndex >= fileData.chunks.count())
         return;
 
-    m_controller->requestChunkActions(menu, diffFileIndex, chunkIndex);
+    m_document->chunkActionsRequested(menu, diffFileIndex, chunkIndex);
 
     revertAction->setEnabled(true);
 
@@ -272,20 +226,10 @@ void UnifiedDiffEditorWidget::addContextMenuActions(QMenu *menu,
 
 void UnifiedDiffEditorWidget::slotSendChunkToCodePaster()
 {
-    if (!m_controller)
+    if (!m_document)
         return;
 
-    if (m_contextMenuFileIndex < 0 || m_contextMenuChunkIndex < 0)
-        return;
-
-    if (m_contextMenuFileIndex >= m_contextFileData.count())
-        return;
-
-    const FileData fileData = m_contextFileData.at(m_contextMenuFileIndex);
-    if (m_contextMenuChunkIndex >= fileData.chunks.count())
-        return;
-
-    const QString patch = m_controller->makePatch(false);
+    const QString patch = m_document->makePatch(m_contextMenuFileIndex, m_contextMenuChunkIndex, false);
 
     if (patch.isEmpty())
         return;
@@ -316,17 +260,7 @@ void UnifiedDiffEditorWidget::slotRevertChunk()
 
 void UnifiedDiffEditorWidget::patch(bool revert)
 {
-    if (!m_controller)
-        return;
-
-    if (m_contextMenuFileIndex < 0 || m_contextMenuChunkIndex < 0)
-        return;
-
-    if (m_contextMenuFileIndex >= m_contextFileData.count())
-        return;
-
-    const FileData fileData = m_contextFileData.at(m_contextMenuFileIndex);
-    if (m_contextMenuChunkIndex >= fileData.chunks.count())
+    if (!m_document)
         return;
 
     const QString title = revert ? tr("Revert Chunk") : tr("Apply Chunk");
@@ -339,24 +273,24 @@ void UnifiedDiffEditorWidget::patch(bool revert)
         return;
     }
 
-    const int strip = m_controller->workingDirectory().isEmpty() ? -1 : 0;
+    const int strip = m_document->baseDirectory().isEmpty() ? -1 : 0;
 
+    const FileData fileData = m_contextFileData.at(m_contextMenuFileIndex);
     const QString fileName = revert
             ? fileData.rightFileInfo.fileName
             : fileData.leftFileInfo.fileName;
 
-    const QString workingDirectory = m_controller->workingDirectory().isEmpty()
+    const QString workingDirectory = m_document->baseDirectory().isEmpty()
             ? QFileInfo(fileName).absolutePath()
-            : m_controller->workingDirectory();
+            : m_document->baseDirectory();
 
-    const QString patch = m_controller->makePatch(revert);
+    const QString patch = m_document->makePatch(m_contextMenuFileIndex, m_contextMenuChunkIndex, revert);
     if (patch.isEmpty())
         return;
 
-    if (PatchTool::runPatch(
-                EditorManager::defaultTextCodec()->fromUnicode(patch),
-                workingDirectory, strip, revert))
-        m_controller->requestReload();
+    if (PatchTool::runPatch(EditorManager::defaultTextCodec()->fromUnicode(patch),
+                            workingDirectory, strip, revert))
+        m_document->reload();
 }
 
 void UnifiedDiffEditorWidget::clear(const QString &message)
@@ -372,14 +306,9 @@ void UnifiedDiffEditorWidget::clear(const QString &message)
     const bool oldIgnore = m_ignoreCurrentIndexChange;
     m_ignoreCurrentIndexChange = true;
     SelectableTextEditorWidget::clear();
+    setDiff(QList<FileData>(), QString());
     setPlainText(message);
     m_ignoreCurrentIndexChange = oldIgnore;
-}
-
-void UnifiedDiffEditorWidget::clearAll(const QString &message)
-{
-    setDiff(QList<FileData>(), QString());
-    clear(message);
 }
 
 QString UnifiedDiffEditorWidget::lineNumber(int blockNumber) const
@@ -618,8 +547,6 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
 
 void UnifiedDiffEditorWidget::showDiff()
 {
-    clear(tr("No difference"));
-
     QString diffText;
 
     int blockNumber = 0;
@@ -669,8 +596,10 @@ void UnifiedDiffEditorWidget::showDiff()
 
     }
 
-    if (diffText.isEmpty())
+    if (diffText.isEmpty()) {
+        setPlainText(tr("No difference."));
         return;
+    }
 
     diffText.replace(QLatin1Char('\r'), QLatin1Char(' '));
     const bool oldIgnore = m_ignoreCurrentIndexChange;
@@ -783,10 +712,10 @@ void UnifiedDiffEditorWidget::jumpToOriginalFile(const QString &fileName,
                                                  int lineNumber,
                                                  int columnNumber)
 {
-    if (!m_controller)
+    if (!m_document)
         return;
 
-    const QDir dir(m_controller->workingDirectory());
+    const QDir dir(m_document->baseDirectory());
     const QString absoluteFileName = dir.absoluteFilePath(fileName);
     QFileInfo fi(absoluteFileName);
     if (fi.exists() && !fi.isDir())

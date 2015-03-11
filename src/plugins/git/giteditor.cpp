@@ -75,8 +75,8 @@ GitEditorWidget::GitEditorWidget() :
     */
     setDiffFilePattern(QRegExp(QLatin1String("^(?:diff --git a/|index |[+-]{3} (?:/dev/null|[ab]/(.+$)))")));
     setLogEntryPattern(QRegExp(QLatin1String("^commit ([0-9a-f]{8})[0-9a-f]{32}")));
-    setAnnotateRevisionTextFormat(tr("Blame %1"));
-    setAnnotatePreviousRevisionTextFormat(tr("Blame Parent Revision %1"));
+    setAnnotateRevisionTextFormat(tr("&Blame %1"));
+    setAnnotatePreviousRevisionTextFormat(tr("Blame &Parent Revision %1"));
 }
 
 QSet<QString> GitEditorWidget::annotationChanges() const
@@ -212,12 +212,13 @@ void GitEditorWidget::checkoutChange()
                 sourceWorkingDirectory(), m_currentChange);
 }
 
-void GitEditorWidget::resetChange()
+void GitEditorWidget::resetChange(const QByteArray &resetType)
 {
     const QString workingDir = sourceWorkingDirectory();
 
     GitClient *client = GitPlugin::instance()->gitClient();
-    if (client->gitStatus(workingDir, StatusMode(NoUntracked | NoSubmodules))
+    if (resetType == "hard"
+            && client->gitStatus(workingDir, StatusMode(NoUntracked | NoSubmodules))
             != GitClient::StatusUnchanged) {
         if (QMessageBox::question(
                     Core::ICore::mainWindow(), tr("Reset"),
@@ -227,7 +228,7 @@ void GitEditorWidget::resetChange()
             return;
         }
     }
-    client->reset(workingDir, QLatin1String("--hard"), m_currentChange);
+    client->reset(workingDir, QLatin1String("--" + resetType), m_currentChange);
 }
 
 void GitEditorWidget::cherryPickChange()
@@ -240,6 +241,12 @@ void GitEditorWidget::revertChange()
 {
     GitPlugin::instance()->gitClient()->synchronousRevert(
                 sourceWorkingDirectory(), m_currentChange);
+}
+
+void GitEditorWidget::logChange()
+{
+    GitPlugin::instance()->gitClient()->log(
+                sourceWorkingDirectory(), QString(), false, QStringList(m_currentChange));
 }
 
 void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, bool revert)
@@ -345,10 +352,18 @@ void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)
 {
     m_currentChange = change;
     if (contentType() != OtherContent) {
-        menu->addAction(tr("Cherry-Pick Change %1").arg(change), this, SLOT(cherryPickChange()));
-        menu->addAction(tr("Revert Change %1").arg(change), this, SLOT(revertChange()));
-        menu->addAction(tr("Checkout Change %1").arg(change), this, SLOT(checkoutChange()));
-        menu->addAction(tr("Hard Reset to Change %1").arg(change), this, SLOT(resetChange()));
+        menu->addAction(tr("Cherr&y-Pick Change %1").arg(change), this, SLOT(cherryPickChange()));
+        menu->addAction(tr("Re&vert Change %1").arg(change), this, SLOT(revertChange()));
+        menu->addAction(tr("C&heckout Change %1").arg(change), this, SLOT(checkoutChange()));
+        menu->addAction(tr("&Log for Change %1").arg(change), this, SLOT(logChange()));
+        QMenu *resetMenu = new QMenu(tr("&Reset to Change %1").arg(change), menu);
+        connect(resetMenu->addAction(tr("&Hard")), &QAction::triggered,
+                this, [this]() { resetChange("hard"); });
+        connect(resetMenu->addAction(tr("&Mixed")), &QAction::triggered,
+                this, [this]() { resetChange("mixed"); });
+        connect(resetMenu->addAction(tr("&Soft")), &QAction::triggered,
+                this, [this]() { resetChange("soft"); });
+        menu->addMenu(resetMenu);
     }
 }
 

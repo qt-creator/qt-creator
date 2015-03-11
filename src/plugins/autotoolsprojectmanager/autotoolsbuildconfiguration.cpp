@@ -182,7 +182,6 @@ BuildInfo *AutotoolsBuildConfigurationFactory::createBuildInfo(const Kit *k,
     info->typeName = tr("Build");
     info->buildDirectory = buildDir;
     info->kitId = k->id();
-    info->supportsShadowBuild = true; // Works sometimes...
 
     return info;
 }

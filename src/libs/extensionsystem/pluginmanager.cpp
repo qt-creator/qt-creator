@@ -505,6 +505,7 @@ QHash<QString, PluginCollection *> PluginManager::pluginCollections()
 }
 
 static const char argumentKeywordC[] = ":arguments";
+static const char pwdKeywordC[] = ":pwd";
 
 /*!
     Serializes plugin options and arguments for sending in a single string
@@ -528,20 +529,15 @@ QString PluginManager::serializedArguments()
             rc +=  ps->arguments().join(separator);
         }
     }
+    if (!rc.isEmpty())
+        rc += separator;
+    rc += QLatin1String(pwdKeywordC) + separator + QDir::currentPath();
     if (!d->arguments.isEmpty()) {
         if (!rc.isEmpty())
             rc += separator;
         rc += QLatin1String(argumentKeywordC);
-        // If the argument appears to be a file, make it absolute
-        // when sending to another instance.
-        foreach (const QString &argument, d->arguments) {
-            rc += separator;
-            const QFileInfo fi(argument);
-            if (fi.exists() && fi.isRelative())
-                rc += fi.absoluteFilePath();
-            else
-                rc += argument;
-        }
+        foreach (const QString &argument, d->arguments)
+            rc += separator + argument;
     }
     return rc;
 }
@@ -577,11 +573,14 @@ void PluginManager::remoteArguments(const QString &serializedArgument, QObject *
     if (serializedArgument.isEmpty())
         return;
     QStringList serializedArguments = serializedArgument.split(QLatin1Char('|'));
+    const QStringList pwdValue = subList(serializedArguments, QLatin1String(pwdKeywordC));
+    const QString workingDirectory = pwdValue.isEmpty() ? QString() : pwdValue.first();
     const QStringList arguments = subList(serializedArguments, QLatin1String(argumentKeywordC));
     foreach (const PluginSpec *ps, plugins()) {
         if (ps->state() == PluginSpec::Running) {
             const QStringList pluginOptions = subList(serializedArguments, QLatin1Char(':') + ps->name());
-            QObject *socketParent = ps->plugin()->remoteCommand(pluginOptions, arguments);
+            QObject *socketParent = ps->plugin()->remoteCommand(pluginOptions, workingDirectory,
+                                                                arguments);
             if (socketParent && socket) {
                 socket->setParent(socketParent);
                 socket = 0;

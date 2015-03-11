@@ -376,7 +376,6 @@ BuildInfo *QbsBuildConfigurationFactory::createBuildInfo(const Kit *k,
     info->typeName = tr("Build");
     info->kitId = k->id();
     info->type = type;
-    info->supportsShadowBuild = true;
     return info;
 }
 

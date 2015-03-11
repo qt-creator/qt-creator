@@ -31,8 +31,7 @@
 #ifndef UNIFIEDDIFFEDITORWIDGET_H
 #define UNIFIEDDIFFEDITORWIDGET_H
 
-#include "differ.h"
-#include "diffeditorcontroller.h"
+#include "diffutils.h"
 #include "selectabletexteditorwidget.h"
 
 namespace TextEditor {
@@ -47,12 +46,12 @@ QT_END_NAMESPACE
 
 namespace DiffEditor {
 
-namespace Internal { class DiffEditorGuiController; }
-
 class ChunkData;
 class FileData;
 
 namespace Internal {
+
+class DiffEditorDocument;
 
 class UnifiedDiffEditorWidget : public SelectableTextEditorWidget
 {
@@ -60,7 +59,19 @@ class UnifiedDiffEditorWidget : public SelectableTextEditorWidget
 public:
     UnifiedDiffEditorWidget(QWidget *parent = 0);
 
-    void setDiffEditorGuiController(Internal::DiffEditorGuiController *controller);
+    void setDocument(DiffEditorDocument *document);
+
+    void setDiff(const QList<FileData> &diffFileList,
+                 const QString &workingDirectory);
+    void setCurrentDiffFileIndex(int diffFileIndex);
+
+    void saveState();
+    void restoreState();
+
+    void clear(const QString &message = QString());
+
+signals:
+    void currentDiffFileIndexChanged(int index);
 
 public slots:
     void setDisplaySettings(const TextEditor::DisplaySettings &ds);
@@ -72,13 +83,6 @@ protected:
     int lineNumberDigits() const;
 
 private slots:
-    void clear(const QString &message = QString());
-    void clearAll(const QString &message = QString());
-    void setDiff(const QList<FileData> &diffFileList,
-                 const QString &workingDirectory);
-
-    void setCurrentDiffFileIndex(int diffFileIndex);
-
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
 
     void slotCursorPositionChangedInEditor();
@@ -86,8 +90,6 @@ private slots:
     void slotSendChunkToCodePaster();
     void slotApplyChunk();
     void slotRevertChunk();
-    void saveStateRequested();
-    void restoreStateRequested();
 
 private:
     void setLeftLineNumber(int blockNumber, int lineNumber);
@@ -114,8 +116,7 @@ private:
                                int chunkIndex);
     void patch(bool revert);
 
-    Internal::DiffEditorGuiController *m_guiController;
-    DiffEditorController *m_controller;
+    DiffEditorDocument *m_document;
 
     // block number, visual line number.
     QMap<int, int> m_leftLineNumbers;
@@ -132,7 +133,7 @@ private:
     QMap<int, QPair<int, int> > m_chunkInfo;
 
     QList<FileData> m_contextFileData; // ultimate data to be shown
-                                       // contextLinesNumber taken into account
+                                       // contextLineCount taken into account
 
     QTextCharFormat m_fileLineFormat;
     QTextCharFormat m_chunkLineFormat;

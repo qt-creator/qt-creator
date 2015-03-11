@@ -30,34 +30,29 @@
 
 #include "sidebysidediffeditorwidget.h"
 #include "selectabletexteditorwidget.h"
-#include "diffeditorguicontroller.h"
+#include "diffeditordocument.h"
 #include "diffutils.h"
 #include "diffeditorconstants.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QPlainTextEdit>
-#include <QVBoxLayout>
-#include <QPlainTextDocumentLayout>
 #include <QTextBlock>
+#include <QTextCodec>
 #include <QScrollBar>
 #include <QPainter>
 #include <QDir>
-#include <QToolButton>
-#include <QTextCodec>
 #include <QMessageBox>
 #include <QMenu>
+#include <QVBoxLayout>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocumentlayout.h>
-#include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/highlighterutils.h>
 
-#include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/patchtool.h>
 
@@ -133,11 +128,11 @@ public:
         return TextEditorWidget::firstVisibleBlock();
     }
 //    void setDocuments(const QList<QPair<DiffFileInfo, QString> > &documents);
+    void saveState();
+    void restoreState();
 
 public slots:
     void setDisplaySettings(const DisplaySettings &ds);
-    void saveStateRequested();
-    void restoreStateRequested();
 
 signals:
     void jumpToOriginalFileRequested(int diffFileIndex,
@@ -311,20 +306,20 @@ SideDiffEditorWidget::SideDiffEditorWidget(QWidget *parent)
 //    baseTextDocument()->setSyntaxHighlighter(m_highlighter);
 }
 
-void SideDiffEditorWidget::saveStateRequested()
+void SideDiffEditorWidget::saveState()
 {
     if (!m_state.isNull())
         return;
 
-    m_state = saveState();
+    m_state = SelectableTextEditorWidget::saveState();
 }
 
-void SideDiffEditorWidget::restoreStateRequested()
+void SideDiffEditorWidget::restoreState()
 {
     if (m_state.isNull())
         return;
 
-    restoreState(m_state);
+    SelectableTextEditorWidget::restoreState(m_state);
     m_state.clear();
 }
 
@@ -443,10 +438,8 @@ int SideDiffEditorWidget::blockNumberForFileIndex(int fileIndex) const
 
 int SideDiffEditorWidget::fileIndexForBlockNumber(int blockNumber) const
 {
-    QMap<int, DiffFileInfo>::const_iterator it
-            = m_fileInfo.constBegin();
-    QMap<int, DiffFileInfo>::const_iterator itEnd
-            = m_fileInfo.constEnd();
+    QMap<int, DiffFileInfo>::const_iterator it = m_fileInfo.constBegin();
+    QMap<int, DiffFileInfo>::const_iterator itEnd = m_fileInfo.constEnd();
 
     int i = -1;
     while (it != itEnd) {
@@ -484,7 +477,6 @@ void SideDiffEditorWidget::clearAll(const QString &message)
     setExtraSelections(TextEditorWidget::OtherSelection,
                        QList<QTextEdit::ExtraSelection>());
     setPlainText(message);
-//    m_highlighter->setDocuments(QList<QPair<DiffFileInfo, QString> >());
 }
 
 void SideDiffEditorWidget::clearAllData()
@@ -497,12 +489,7 @@ void SideDiffEditorWidget::clearAllData()
     m_separators.clear();
     setSelections(QMap<int, QList<DiffSelection> >());
 }
-/*
-void  SideDiffEditorWidget::setDocuments(const QList<QPair<DiffFileInfo, QString> > &documents)
-{
-    m_highlighter->setDocuments(documents);
-}
-*/
+
 void SideDiffEditorWidget::scrollContentsBy(int dx, int dy)
 {
     SelectableTextEditorWidget::scrollContentsBy(dx, dy);
@@ -751,10 +738,10 @@ void SideDiffEditorWidget::drawCollapsedBlockPopup(QPainter &painter,
 
 SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
     : QWidget(parent)
-    , m_guiController(0)
-    , m_controller(0)
+    , m_document(0)
     , m_ignoreCurrentIndexChange(false)
     , m_foldingBlocker(false)
+    , m_horizontalSync(false)
     , m_contextMenuFileIndex(-1)
     , m_contextMenuChunkIndex(-1)
 {
@@ -815,8 +802,6 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
 
     connect(m_rightEditor, &QPlainTextEdit::cursorPositionChanged,
             this, &SideBySideDiffEditorWidget::rightCursorPositionChanged);
-//    connect(m_rightEditor->document()->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)),
-//            this, SLOT(rightDocumentSizeChanged()));
 
     m_splitter = new MiniSplitter(this);
     m_splitter->addWidget(m_leftEditor);
@@ -825,74 +810,21 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
     l->setMargin(0);
     l->addWidget(m_splitter);
     setFocusProxy(m_rightEditor);
-
-    clear(tr("No controller"));
 }
 
-void SideBySideDiffEditorWidget::setDiffEditorGuiController(
-        DiffEditorGuiController *controller)
+void SideBySideDiffEditorWidget::setDocument(DiffEditorDocument *document)
 {
-    if (m_guiController == controller)
-        return;
-
-    if (m_guiController) {
-        disconnect(m_controller, &DiffEditorController::cleared,
-                   this, &SideBySideDiffEditorWidget::clearAll);
-        disconnect(m_controller, &DiffEditorController::diffFilesChanged,
-                   this, &SideBySideDiffEditorWidget::setDiff);
-        disconnect(m_controller, &DiffEditorController::saveStateRequested,
-                   m_leftEditor, &SideDiffEditorWidget::saveStateRequested);
-        disconnect(m_controller, &DiffEditorController::saveStateRequested,
-                   m_rightEditor, &SideDiffEditorWidget::saveStateRequested);
-        disconnect(m_controller, &DiffEditorController::restoreStateRequested,
-                   m_leftEditor, &SideDiffEditorWidget::restoreStateRequested);
-        disconnect(m_controller, &DiffEditorController::restoreStateRequested,
-                   m_rightEditor, &SideDiffEditorWidget::restoreStateRequested);
-
-        disconnect(m_guiController, &DiffEditorGuiController::currentDiffFileIndexChanged,
-                   this, &SideBySideDiffEditorWidget::setCurrentDiffFileIndex);
-
-        clearAll(tr("No controller"));
-    }
-    m_guiController = controller;
-    m_controller = 0;
-    if (m_guiController) {
-        m_controller = m_guiController->controller();
-
-        connect(m_controller, &DiffEditorController::cleared,
-                this, &SideBySideDiffEditorWidget::clearAll);
-        connect(m_controller, &DiffEditorController::diffFilesChanged,
-                this, &SideBySideDiffEditorWidget::setDiff);
-        connect(m_controller, &DiffEditorController::saveStateRequested,
-                m_leftEditor, &SideDiffEditorWidget::saveStateRequested);
-        connect(m_controller, &DiffEditorController::saveStateRequested,
-                m_rightEditor, &SideDiffEditorWidget::saveStateRequested);
-        connect(m_controller, &DiffEditorController::restoreStateRequested,
-                m_leftEditor, &SideDiffEditorWidget::restoreStateRequested);
-        connect(m_controller, &DiffEditorController::restoreStateRequested,
-                m_rightEditor, &SideDiffEditorWidget::restoreStateRequested);
-
-        connect(m_guiController, &DiffEditorGuiController::currentDiffFileIndexChanged,
-                this, &SideBySideDiffEditorWidget::setCurrentDiffFileIndex);
-
-        setDiff(m_controller->diffFiles(), m_controller->workingDirectory());
-        setCurrentDiffFileIndex(m_guiController->currentDiffFileIndex());
-    }
+    m_document = document;
 }
 
 void SideBySideDiffEditorWidget::clear(const QString &message)
 {
     const bool oldIgnore = m_ignoreCurrentIndexChange;
     m_ignoreCurrentIndexChange = true;
+    setDiff(QList<FileData>(), QString());
     m_leftEditor->clearAll(message);
     m_rightEditor->clearAll(message);
     m_ignoreCurrentIndexChange = oldIgnore;
-}
-
-void SideBySideDiffEditorWidget::clearAll(const QString &message)
-{
-    setDiff(QList<FileData>(), QString());
-    clear(message);
 }
 
 void SideBySideDiffEditorWidget::setDiff(const QList<FileData> &diffFileList,
@@ -900,8 +832,20 @@ void SideBySideDiffEditorWidget::setDiff(const QList<FileData> &diffFileList,
 {
     Q_UNUSED(workingDirectory)
 
+    const bool oldIgnore = m_ignoreCurrentIndexChange;
+    m_ignoreCurrentIndexChange = true;
+    m_leftEditor->clear();
+    m_rightEditor->clear();
+
     m_contextFileData = diffFileList;
-    showDiff();
+    if (m_contextFileData.isEmpty()) {
+        const QString msg = tr("No difference");
+        m_leftEditor->setPlainText(msg);
+        m_rightEditor->setPlainText(msg);
+    } else {
+        showDiff();
+    }
+    m_ignoreCurrentIndexChange = oldIgnore;
 }
 
 void SideBySideDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
@@ -928,14 +872,29 @@ void SideBySideDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
     m_ignoreCurrentIndexChange = oldIgnore;
 }
 
+void SideBySideDiffEditorWidget::setHorizontalSync(bool sync)
+{
+    m_horizontalSync = sync;
+    rightHSliderChanged();
+}
+
+void SideBySideDiffEditorWidget::saveState()
+{
+    m_leftEditor->saveState();
+    m_rightEditor->saveState();
+}
+
+void SideBySideDiffEditorWidget::restoreState()
+{
+    m_leftEditor->restoreState();
+    m_rightEditor->restoreState();
+}
+
 void SideBySideDiffEditorWidget::showDiff()
 {
-    clear(tr("No difference"));
-
     QMap<int, QList<DiffSelection> > leftFormats;
     QMap<int, QList<DiffSelection> > rightFormats;
 
-//    QList<QPair<DiffFileInfo, QString> > leftDocs, rightDocs;
     QString leftTexts, rightTexts;
     int blockNumber = 0;
     QChar separator = QLatin1Char('\n');
@@ -1065,15 +1024,10 @@ void SideBySideDiffEditorWidget::showDiff()
         rightText.replace(QLatin1Char('\r'), QLatin1Char(' '));
         leftTexts += leftText;
         rightTexts += rightText;
-//        leftDocs.append(qMakePair(contextFileData.leftFileInfo, leftText));
-//        rightDocs.append(qMakePair(contextFileData.rightFileInfo, rightText));
     }
 
     if (leftTexts.isEmpty() && rightTexts.isEmpty())
         return;
-
-//    m_leftEditor->setDocuments(leftDocs);
-//    m_rightEditor->setDocuments(rightDocs);
 
     const bool oldIgnore = m_ignoreCurrentIndexChange;
     m_ignoreCurrentIndexChange = true;
@@ -1085,63 +1039,6 @@ void SideBySideDiffEditorWidget::showDiff()
 
     m_leftEditor->setSelections(leftFormats);
     m_rightEditor->setSelections(rightFormats);
-
-
-/*
-    QTextBlock leftBlock = m_leftEditor->document()->firstBlock();
-    QTextBlock rightBlock = m_rightEditor->document()->firstBlock();
-    for (int i = 0; i < m_contextFileData.count(); i++) {
-        const FileData &contextFileData = m_contextFileData.at(i);
-        leftBlock = leftBlock.next();
-        rightBlock = rightBlock.next();
-        for (int j = 0; j < contextFileData.chunks.count(); j++) {
-            ChunkData chunkData = contextFileData.chunks.at(j);
-            if (chunkData.contextChunk) {
-                BaseTextDocumentLayout::setFoldingIndent(leftBlock, FILE_LEVEL);
-                BaseTextDocumentLayout::setFoldingIndent(rightBlock, FILE_LEVEL);
-                leftBlock = leftBlock.next();
-                rightBlock = rightBlock.next();
-            }
-            const int indent = chunkData.contextChunk ? CHUNK_LEVEL : FILE_LEVEL;
-            for (int k = 0; k < chunkData.rows.count(); k++) {
-                BaseTextDocumentLayout::setFoldingIndent(leftBlock, indent);
-                BaseTextDocumentLayout::setFoldingIndent(rightBlock, indent);
-                leftBlock = leftBlock.next();
-                rightBlock = rightBlock.next();
-            }
-        }
-    }
-    blockNumber = 0;
-    for (int i = 0; i < m_contextFileData.count(); i++) {
-        const FileData &contextFileData = m_contextFileData.at(i);
-        blockNumber++;
-        for (int j = 0; j < contextFileData.chunks.count(); j++) {
-            ChunkData chunkData = contextFileData.chunks.at(j);
-            if (chunkData.contextChunk) {
-                QTextBlock leftBlock = m_leftEditor->document()->findBlockByNumber(blockNumber);
-                BaseTextDocumentLayout::doFoldOrUnfold(leftBlock, false);
-                QTextBlock rightBlock = m_rightEditor->document()->findBlockByNumber(blockNumber);
-                BaseTextDocumentLayout::doFoldOrUnfold(rightBlock, false);
-                blockNumber++;
-            }
-            blockNumber += chunkData.rows.count();
-        }
-    }
-    m_foldingBlocker = true;
-    BaseTextDocumentLayout *leftLayout = qobject_cast<BaseTextDocumentLayout *>(m_leftEditor->document()->documentLayout());
-    if (leftLayout) {
-        leftLayout->requestUpdate();
-        leftLayout->emitDocumentSizeChanged();
-    }
-    BaseTextDocumentLayout *rightLayout = qobject_cast<BaseTextDocumentLayout *>(m_rightEditor->document()->documentLayout());
-    if (rightLayout) {
-        rightLayout->requestUpdate();
-        rightLayout->emitDocumentSizeChanged();
-    }
-    m_foldingBlocker = false;
-*/
-//    m_leftEditor->updateFoldingHighlight(QPoint(-1, -1));
-//    m_rightEditor->updateFoldingHighlight(QPoint(-1, -1));
 }
 
 void SideBySideDiffEditorWidget::setFontSettings(
@@ -1210,12 +1107,12 @@ void SideBySideDiffEditorWidget::slotRightJumpToOriginalFileRequested(
 }
 
 void SideBySideDiffEditorWidget::jumpToOriginalFile(const QString &fileName,
-                                          int lineNumber, int columnNumber)
+                                                    int lineNumber, int columnNumber)
 {
-    if (!m_controller)
+    if (!m_document)
         return;
 
-    const QDir dir(m_controller->workingDirectory());
+    const QDir dir(m_document->baseDirectory());
     const QString absoluteFileName = dir.absoluteFilePath(fileName);
     QFileInfo fi(absoluteFileName);
     if (fi.exists() && !fi.isDir())
@@ -1249,7 +1146,7 @@ void SideBySideDiffEditorWidget::slotLeftContextMenuRequested(QMenu *menu,
     if (m_contextMenuChunkIndex >= fileData.chunks.count())
         return;
 
-    m_controller->requestChunkActions(menu, diffFileIndex, chunkIndex);
+    m_document->chunkActionsRequested(menu, diffFileIndex, chunkIndex);
 
     if (fileData.leftFileInfo.fileName == fileData.rightFileInfo.fileName)
         return;
@@ -1284,33 +1181,22 @@ void SideBySideDiffEditorWidget::slotRightContextMenuRequested(QMenu *menu,
     if (m_contextMenuChunkIndex >= fileData.chunks.count())
         return;
 
-    m_controller->requestChunkActions(menu, diffFileIndex, chunkIndex);
+    m_document->chunkActionsRequested(menu, diffFileIndex, chunkIndex);
 
     revertAction->setEnabled(true);
 }
 
 void SideBySideDiffEditorWidget::slotSendChunkToCodePaster()
 {
-    if (!m_controller)
+    if (!m_document)
         return;
 
-    if (m_contextMenuFileIndex < 0 || m_contextMenuChunkIndex < 0)
-        return;
-
-    if (m_contextMenuFileIndex >= m_contextFileData.count())
-        return;
-
-    const FileData fileData = m_contextFileData.at(m_contextMenuFileIndex);
-    if (m_contextMenuChunkIndex >= fileData.chunks.count())
-        return;
-
-    const QString patch = m_controller->makePatch(false);
+    const QString patch = m_document->makePatch(m_contextMenuFileIndex, m_contextMenuChunkIndex, false);
     if (patch.isEmpty())
         return;
 
     // Retrieve service by soft dependency.
-    QObject *pasteService =
-            ExtensionSystem::PluginManager::getObjectByClassName(
+    QObject *pasteService= ExtensionSystem::PluginManager::getObjectByClassName(
                 QLatin1String("CodePaster::CodePasterService"));
     if (pasteService) {
         QMetaObject::invokeMethod(pasteService, "postText",
@@ -1334,18 +1220,10 @@ void SideBySideDiffEditorWidget::slotRevertChunk()
 
 void SideBySideDiffEditorWidget::patch(bool revert)
 {
-    if (!m_controller)
-        return;
-
-    if (m_contextMenuFileIndex < 0 || m_contextMenuChunkIndex < 0)
-        return;
-
-    if (m_contextMenuFileIndex >= m_contextFileData.count())
+    if (!m_document)
         return;
 
     const FileData fileData = m_contextFileData.at(m_contextMenuFileIndex);
-    if (m_contextMenuChunkIndex >= fileData.chunks.count())
-        return;
 
     const QString title = revert ? tr("Revert Chunk") : tr("Apply Chunk");
     const QString question = revert
@@ -1358,50 +1236,46 @@ void SideBySideDiffEditorWidget::patch(bool revert)
         return;
     }
 
-    const int strip = m_controller->workingDirectory().isEmpty() ? -1 : 0;
+    const int strip = m_document->baseDirectory().isEmpty() ? -1 : 0;
 
     const QString fileName = revert
             ? fileData.rightFileInfo.fileName
             : fileData.leftFileInfo.fileName;
 
-    const QString workingDirectory = m_controller->workingDirectory().isEmpty()
+    const QString workingDirectory = m_document->baseDirectory().isEmpty()
             ? QFileInfo(fileName).absolutePath()
-            : m_controller->workingDirectory();
+            : m_document->baseDirectory();
 
-    const QString patch = m_controller->makePatch(revert);
+    const QString patch = m_document->makePatch(m_contextMenuFileIndex, m_contextMenuChunkIndex, revert);
 
     if (patch.isEmpty())
         return;
 
     if (PatchTool::runPatch(EditorManager::defaultTextCodec()->fromUnicode(patch),
-                        workingDirectory, strip, revert))
-        m_controller->requestReload();
+                            workingDirectory, strip, revert))
+        m_document->reload();
 }
 
 void SideBySideDiffEditorWidget::leftVSliderChanged()
 {
-    m_rightEditor->verticalScrollBar()->setValue(
-                m_leftEditor->verticalScrollBar()->value());
+    m_rightEditor->verticalScrollBar()->setValue(m_leftEditor->verticalScrollBar()->value());
 }
 
 void SideBySideDiffEditorWidget::rightVSliderChanged()
 {
-    m_leftEditor->verticalScrollBar()->setValue(
-                m_rightEditor->verticalScrollBar()->value());
+    m_leftEditor->verticalScrollBar()->setValue(m_rightEditor->verticalScrollBar()->value());
 }
 
 void SideBySideDiffEditorWidget::leftHSliderChanged()
 {
-    if (!m_guiController || m_guiController->horizontalScrollBarSynchronization())
-        m_rightEditor->horizontalScrollBar()->setValue(
-                    m_leftEditor->horizontalScrollBar()->value());
+    if (m_horizontalSync)
+        m_rightEditor->horizontalScrollBar()->setValue(m_leftEditor->horizontalScrollBar()->value());
 }
 
 void SideBySideDiffEditorWidget::rightHSliderChanged()
 {
-    if (!m_guiController || m_guiController->horizontalScrollBarSynchronization())
-        m_leftEditor->horizontalScrollBar()->setValue(
-                    m_rightEditor->horizontalScrollBar()->value());
+    if (m_horizontalSync)
+        m_leftEditor->horizontalScrollBar()->setValue(m_rightEditor->horizontalScrollBar()->value());
 }
 
 void SideBySideDiffEditorWidget::leftCursorPositionChanged()
@@ -1409,17 +1283,13 @@ void SideBySideDiffEditorWidget::leftCursorPositionChanged()
     leftVSliderChanged();
     leftHSliderChanged();
 
-    if (!m_guiController)
-        return;
-
     if (m_ignoreCurrentIndexChange)
         return;
 
     const bool oldIgnore = m_ignoreCurrentIndexChange;
     m_ignoreCurrentIndexChange = true;
-    m_guiController->setCurrentDiffFileIndex(
-                m_leftEditor->fileIndexForBlockNumber(
-                    m_leftEditor->textCursor().blockNumber()));
+    emit currentDiffFileIndexChanged(
+                m_leftEditor->fileIndexForBlockNumber(m_leftEditor->textCursor().blockNumber()));
     m_ignoreCurrentIndexChange = oldIgnore;
 }
 
@@ -1428,160 +1298,15 @@ void SideBySideDiffEditorWidget::rightCursorPositionChanged()
     rightVSliderChanged();
     rightHSliderChanged();
 
-    if (!m_guiController)
-        return;
-
     if (m_ignoreCurrentIndexChange)
         return;
 
     const bool oldIgnore = m_ignoreCurrentIndexChange;
     m_ignoreCurrentIndexChange = true;
-    m_guiController->setCurrentDiffFileIndex(
-                m_rightEditor->fileIndexForBlockNumber(
-                    m_rightEditor->textCursor().blockNumber()));
+    emit currentDiffFileIndexChanged(
+                m_rightEditor->fileIndexForBlockNumber(m_rightEditor->textCursor().blockNumber()));
     m_ignoreCurrentIndexChange = oldIgnore;
 }
-
-#if 0
-void SideBySideDiffEditorWidget::leftDocumentSizeChanged()
-{
-    synchronizeFoldings(m_leftEditor, m_rightEditor);
-}
-
-void SideBySideDiffEditorWidget::rightDocumentSizeChanged()
-{
-    synchronizeFoldings(m_rightEditor, m_leftEditor);
-}
-
-/* Special version of that method (original: BaseTextDocumentLayout::doFoldOrUnfold())
-   The hack lies in fact, that when unfolding all direct sub-blocks are made visible,
-   while some of them need to stay invisible (i.e. unfolded chunk lines)
-*/
-static void doFoldOrUnfold(SideDiffEditorWidget *editor, const QTextBlock &block, bool unfold)
-{
-    if (!BaseTextDocumentLayout::canFold(block))
-        return;
-    QTextBlock b = block.next();
-
-    int indent = BaseTextDocumentLayout::foldingIndent(block);
-    while (b.isValid() && BaseTextDocumentLayout::foldingIndent(b) > indent && (unfold || b.next().isValid())) {
-        if (unfold && editor->isChunkLine(b.blockNumber()) && !BaseTextDocumentLayout::isFolded(b)) {
-            b.setVisible(false);
-            b.setLineCount(0);
-        } else {
-            b.setVisible(unfold);
-            b.setLineCount(unfold ? qMax(1, b.layout()->lineCount()) : 0);
-        }
-        if (unfold) { // do not unfold folded sub-blocks
-            if (BaseTextDocumentLayout::isFolded(b) && b.next().isValid()) {
-                int jndent = BaseTextDocumentLayout::foldingIndent(b);
-                b = b.next();
-                while (b.isValid() && BaseTextDocumentLayout::foldingIndent(b) > jndent)
-                    b = b.next();
-                continue;
-            }
-        }
-        b = b.next();
-    }
-    BaseTextDocumentLayout::setFolded(block, !unfold);
-}
-
-void SideBySideDiffEditorWidget::synchronizeFoldings(SideDiffEditorWidget *source, SideDiffEditorWidget *destination)
-{
-    if (m_foldingBlocker)
-        return;
-
-    m_foldingBlocker = true;
-    QTextBlock sourceBlock = source->document()->firstBlock();
-    QTextBlock destinationBlock = destination->document()->firstBlock();
-    while (sourceBlock.isValid() && destinationBlock.isValid()) {
-        if (BaseTextDocumentLayout::canFold(sourceBlock)) {
-            const bool isSourceFolded = BaseTextDocumentLayout::isFolded(sourceBlock);
-            const bool isDestinationFolded = BaseTextDocumentLayout::isFolded(destinationBlock);
-            if (isSourceFolded != isDestinationFolded) {
-                if (source->isFileLine(sourceBlock.blockNumber())) {
-                    doFoldOrUnfold(source, sourceBlock, !isSourceFolded);
-                    doFoldOrUnfold(destination, destinationBlock, !isSourceFolded);
-                } else {
-                    if (isSourceFolded) { // we fold the destination (shrinking)
-                        QTextBlock previousSource = sourceBlock.previous(); // skippedLines
-                        QTextBlock previousDestination = destinationBlock.previous(); // skippedLines
-                        if (source->isChunkLine(previousSource.blockNumber())) {
-                            QTextBlock firstVisibleDestinationBlock = destination->firstVisibleBlock();
-                            QTextBlock firstDestinationBlock = destination->document()->firstBlock();
-                            BaseTextDocumentLayout::doFoldOrUnfold(destinationBlock, !isSourceFolded);
-                            BaseTextDocumentLayout::setFoldingIndent(sourceBlock, CHUNK_LEVEL);
-                            BaseTextDocumentLayout::setFoldingIndent(destinationBlock, CHUNK_LEVEL);
-                            previousSource.setVisible(true);
-                            previousSource.setLineCount(1);
-                            previousDestination.setVisible(true);
-                            previousDestination.setLineCount(1);
-                            sourceBlock.setVisible(false);
-                            sourceBlock.setLineCount(0);
-                            destinationBlock.setVisible(false);
-                            destinationBlock.setLineCount(0);
-                            BaseTextDocumentLayout::setFolded(previousSource, true);
-                            BaseTextDocumentLayout::setFolded(previousDestination, true);
-
-                            if (firstVisibleDestinationBlock == destinationBlock) {
-                                /*
-                                The following hack is completely crazy. That's the only way to scroll 1 line up
-                                in case destinationBlock was the top visible block.
-                                There is no need to scroll the source since this is in sync anyway
-                                (leftSliderChanged(), rightSliderChanged())
-                                */
-                                destination->verticalScrollBar()->setValue(destination->verticalScrollBar()->value() - 1);
-                                destination->verticalScrollBar()->setValue(destination->verticalScrollBar()->value() + 1);
-                                if (firstVisibleDestinationBlock.previous() == firstDestinationBlock) {
-                                    /*
-                                    Even more crazy case: the destinationBlock was the first top visible block.
-                                    */
-                                    destination->verticalScrollBar()->setValue(0);
-                                }
-                            }
-                        }
-                    } else { // we unfold the destination (expanding)
-                        if (source->isChunkLine(sourceBlock.blockNumber())) {
-                            QTextBlock nextSource = sourceBlock.next();
-                            QTextBlock nextDestination = destinationBlock.next();
-                            BaseTextDocumentLayout::doFoldOrUnfold(destinationBlock, !isSourceFolded);
-                            BaseTextDocumentLayout::setFoldingIndent(nextSource, FILE_LEVEL);
-                            BaseTextDocumentLayout::setFoldingIndent(nextDestination, FILE_LEVEL);
-                            sourceBlock.setVisible(false);
-                            sourceBlock.setLineCount(0);
-                            destinationBlock.setVisible(false);
-                            destinationBlock.setLineCount(0);
-                            BaseTextDocumentLayout::setFolded(nextSource, false);
-                            BaseTextDocumentLayout::setFolded(nextDestination, false);
-                        }
-                    }
-                }
-                break; // only one should be synchronized
-            }
-        }
-
-        sourceBlock = sourceBlock.next();
-        destinationBlock = destinationBlock.next();
-    }
-
-    BaseTextDocumentLayout *sourceLayout = qobject_cast<BaseTextDocumentLayout *>(source->document()->documentLayout());
-    if (sourceLayout) {
-        sourceLayout->requestUpdate();
-        sourceLayout->emitDocumentSizeChanged();
-    }
-
-    QWidget *ea = source->extraArea();
-    if (ea->contentsRect().contains(ea->mapFromGlobal(QCursor::pos())))
-        source->updateFoldingHighlight(source->mapFromGlobal(QCursor::pos()));
-
-    BaseTextDocumentLayout *destinationLayout = qobject_cast<BaseTextDocumentLayout *>(destination->document()->documentLayout());
-    if (destinationLayout) {
-        destinationLayout->requestUpdate();
-        destinationLayout->emitDocumentSizeChanged();
-    }
-    m_foldingBlocker = false;
-}
-#endif
 
 } // namespace Internal
 } // namespace DiffEditor

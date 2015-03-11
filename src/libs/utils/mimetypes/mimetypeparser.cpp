@@ -188,8 +188,10 @@ static bool createMagicMatchRule(const QXmlStreamAttributes &atts,
 
     MimeMagicRule *tempRule = new MimeMagicRule(magicType, value.toUtf8(), startPos, endPos,
                                                 mask.toLatin1(), errorMessage);
-    if (!tempRule->isValid())
+    if (!tempRule->isValid()) {
+        delete tempRule;
         return false;
+    }
 
     rule = tempRule;
     return true;

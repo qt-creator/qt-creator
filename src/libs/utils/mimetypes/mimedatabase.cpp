@@ -190,9 +190,13 @@ MimeType MimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileName
 
         // Disambiguate conflicting extensions (if magic matching found something)
         if (candidateByData.isValid() && magicAccuracy > 0) {
-            // "for glob_match in glob_matches:"
-            // "if glob_match is subclass or equal to sniffed_type, use glob_match"
             const QString sniffedMime = candidateByData.name();
+            // If the sniffedMime matches a glob match, use it
+            if (candidatesByName.contains(sniffedMime)) {
+                *accuracyPtr = 100;
+                return candidateByData;
+            }
+            // If there is a glob match that is a sub class of sniffedMime, use it
             foreach (const QString &m, candidatesByName) {
                 if (inherits(m, sniffedMime)) {
                     // We have magic + pattern pointing to this, so it's a pretty good match

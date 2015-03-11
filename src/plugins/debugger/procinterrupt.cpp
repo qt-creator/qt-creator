@@ -154,7 +154,7 @@ GDB 32bit | Api             | Api             | NA              | Win32         
             if (!QFile::exists(executable)) {
                 *errorMessage = QString::fromLatin1("%1 does not exist. If you have built QtCreator "
                                                     "on your own ,checkout "
-                                                    "http://qt.gitorious.org/qt-creator/binary-artifacts.").
+                                                    "https://code.qt.io/cgit/qt-creator/binary-artifacts.git/.").
                         arg(QDir::toNativeSeparators(executable));
                 break;
             }

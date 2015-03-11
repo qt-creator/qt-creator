@@ -249,7 +249,7 @@ void OpenEditorsWindow::addHistoryItems(const QList<EditLocation> &history, Edit
 void OpenEditorsWindow::addRestoredItems()
 {
     foreach (DocumentModel::Entry *entry, DocumentModel::entries()) {
-        if (entry->document)
+        if (!entry->isRestored)
             continue;
         QTreeWidgetItem *item = new QTreeWidgetItem();
         QString title = entry->displayName();
