@@ -266,7 +266,7 @@ DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
     toolBar();
 
     loadSettings();
-    updateDescription();
+    documentHasChanged();
 }
 
 DiffEditor::~DiffEditor()
