@@ -60,6 +60,12 @@ const char DIFFLOG_ID[] = "Bazaar Diff Editor";
 const char DIFFLOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar Diff Editor");
 const char DIFFAPP[] = "text/x-patch";
 
+// File status hint
+const char FSTATUS_CREATED[] = "Created";
+const char FSTATUS_DELETED[] = "Deleted";
+const char FSTATUS_MODIFIED[] = "Modified";
+const char FSTATUS_RENAMED[] = "Renamed";
+
 } // namespace Constants
 } // namespace Bazaar
 

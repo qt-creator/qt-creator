@@ -101,6 +101,12 @@ Welcome_SideBar_BackgroundColor=ffebebeb
 Welcome_TextColorHeading=ff535353
 Welcome_TextColorNormal=ff000000
 
+VcsBase_FileStatusUnknown_TextColor=ff000000
+VcsBase_FileAdded_TextColor=ff00aa00
+VcsBase_FileModified_TextColor=ff0000ee
+VcsBase_FileDeleted_TextColor=ffee0000
+VcsBase_FileRenamed_TextColor=ffd77d00
+
 [Flags]
 ComboBoxDrawTextShadow=true
 DerivePaletteFromTheme=false

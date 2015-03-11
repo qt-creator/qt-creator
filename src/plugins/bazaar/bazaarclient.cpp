@@ -278,7 +278,7 @@ BazaarClient::StatusItem BazaarClient::parseStatusLine(const QString &line) cons
         else if (flagVersion == QLatin1Char('-'))
             item.flags = QLatin1String("Unversioned");
         else if (flagVersion == QLatin1Char('R'))
-            item.flags = QLatin1String("Renamed");
+            item.flags = QLatin1String(Constants::FSTATUS_RENAMED);
         else if (flagVersion == QLatin1Char('?'))
             item.flags = QLatin1String("Unknown");
         else if (flagVersion == QLatin1Char('X'))
@@ -292,13 +292,13 @@ BazaarClient::StatusItem BazaarClient::parseStatusLine(const QString &line) cons
         if (lineLength >= 2) {
             const QChar flagContents = line[1];
             if (flagContents == QLatin1Char('N'))
-                item.flags = QLatin1String("Created");
+                item.flags = QLatin1String(Constants::FSTATUS_CREATED);
             else if (flagContents == QLatin1Char('D'))
-                item.flags = QLatin1String("Deleted");
+                item.flags = QLatin1String(Constants::FSTATUS_DELETED);
             else if (flagContents == QLatin1Char('K'))
                 item.flags = QLatin1String("KindChanged");
             else if (flagContents == QLatin1Char('M'))
-                item.flags = QLatin1String("Modified");
+                item.flags = QLatin1String(Constants::FSTATUS_MODIFIED);
         }
         if (lineLength >= 3) {
             const QChar flagExec = line[2];

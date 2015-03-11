@@ -155,7 +155,14 @@ public:
         Welcome_SessionItem_BackgroundColorNormal,
         Welcome_SessionItem_BackgroundColorHover,
         Welcome_SessionItemExpanded_BackgroundColorNormal,
-        Welcome_SessionItemExpanded_BackgroundColorHover
+        Welcome_SessionItemExpanded_BackgroundColorHover,
+
+        /* VcsBase Plugin */
+        VcsBase_FileStatusUnknown_TextColor,
+        VcsBase_FileAdded_TextColor,
+        VcsBase_FileModified_TextColor,
+        VcsBase_FileDeleted_TextColor,
+        VcsBase_FileRenamed_TextColor
     };
 
     enum Gradient {

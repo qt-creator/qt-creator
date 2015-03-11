@@ -32,6 +32,7 @@
 
 #include <coreplugin/fileiconprovider.h>
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 
 #include <QStandardItem>
 #include <QFileInfo>
@@ -43,11 +44,36 @@ namespace VcsBase {
 // Helpers:
 // --------------------------------------------------------------------------
 
-enum { fileColumn = 1 };
+enum { stateColumn = 0, fileColumn = 1 };
+
+static QBrush fileStatusTextForeground(SubmitFileModel::FileStatusHint statusHint)
+{
+    using Utils::Theme;
+    Theme::Color statusTextColor = Theme::VcsBase_FileStatusUnknown_TextColor;
+    switch (statusHint) {
+    case SubmitFileModel::FileStatusUnknown:
+        statusTextColor = Theme::VcsBase_FileStatusUnknown_TextColor;
+        break;
+    case SubmitFileModel::FileAdded:
+        statusTextColor = Theme::VcsBase_FileAdded_TextColor;
+        break;
+    case SubmitFileModel::FileModified:
+        statusTextColor = Theme::VcsBase_FileModified_TextColor;
+        break;
+    case SubmitFileModel::FileDeleted:
+        statusTextColor = Theme::VcsBase_FileDeleted_TextColor;
+        break;
+    case SubmitFileModel::FileRenamed:
+        statusTextColor = Theme::VcsBase_FileRenamed_TextColor;
+        break;
+    }
+    return QBrush(Utils::creatorTheme()->color(statusTextColor));
+}
 
 static QList<QStandardItem *> createFileRow(const QString &repositoryRoot,
                                             const QString &fileName,
                                             const QString &status,
+                                            SubmitFileModel::FileStatusHint statusHint,
                                             CheckMode checked,
                                             const QVariant &v)
 {
@@ -68,6 +94,11 @@ static QList<QStandardItem *> createFileRow(const QString &repositoryRoot,
     fileItem->setIcon(Core::FileIconProvider::icon(fi));
     QList<QStandardItem *> row;
     row << statusItem << fileItem;
+    if (statusHint != SubmitFileModel::FileStatusUnknown) {
+        const QBrush textForeground = fileStatusTextForeground(statusHint);
+        foreach (QStandardItem *item, row)
+            item->setForeground(textForeground);
+    }
     return row;
 }
 
@@ -106,7 +137,10 @@ void SubmitFileModel::setRepositoryRoot(const QString &repoRoot)
 QList<QStandardItem *> SubmitFileModel::addFile(const QString &fileName, const QString &status, CheckMode checkMode,
                                                 const QVariant &v)
 {
-    const QList<QStandardItem *> row = createFileRow(m_repositoryRoot, fileName, status, checkMode, v);
+    const FileStatusHint statusHint =
+            m_fileStatusQualifier ? m_fileStatusQualifier(status, v) : FileStatusUnknown;
+    const QList<QStandardItem *> row =
+            createFileRow(m_repositoryRoot, fileName, status, statusHint, checkMode, v);
     appendRow(row);
     return row;
 }
@@ -205,6 +239,26 @@ void SubmitFileModel::updateSelections(SubmitFileModel *source)
             }
         }
     }
+}
+
+const SubmitFileModel::FileStatusQualifier &SubmitFileModel::fileStatusQualifier() const
+{
+    return m_fileStatusQualifier;
+}
+
+void SubmitFileModel::setFileStatusQualifier(FileStatusQualifier &&func)
+{
+    const int topLevelRowCount = rowCount();
+    const int topLevelColCount = columnCount();
+    for (int row = 0; row < topLevelRowCount; ++row) {
+        const QStandardItem *statusItem = item(row, stateColumn);
+        const FileStatusHint statusHint =
+                func ? func(statusItem->text(), statusItem->data()) : FileStatusUnknown;
+        const QBrush textForeground = fileStatusTextForeground(statusHint);
+        for (int col = 0; col < topLevelColCount; ++col)
+            item(row, col)->setForeground(textForeground);
+    }
+    m_fileStatusQualifier = func;
 }
 
 } // namespace VcsBase

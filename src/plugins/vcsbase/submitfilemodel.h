@@ -35,6 +35,8 @@
 
 #include <QStandardItemModel>
 
+#include <functional>
+
 namespace VcsBase {
 
 enum CheckMode
@@ -73,8 +75,27 @@ public:
 
     virtual void updateSelections(SubmitFileModel *source);
 
+    enum FileStatusHint
+    {
+        FileStatusUnknown,
+        FileAdded,
+        FileModified,
+        FileDeleted,
+        FileRenamed
+    };
+
+    // Function that converts(qualifies) a QString/QVariant pair to FileStatusHint
+    //     1st arg is the file status string as passed to addFile()
+    //     2nd arg is the file extra data as passed to addFile()
+    typedef std::function<FileStatusHint (const QString &, const QVariant &)>
+            FileStatusQualifier;
+
+    const FileStatusQualifier &fileStatusQualifier() const;
+    void setFileStatusQualifier(FileStatusQualifier &&func);
+
 private:
     QString m_repositoryRoot;
+    FileStatusQualifier m_fileStatusQualifier;
 };
 
 } // namespace VcsBase
