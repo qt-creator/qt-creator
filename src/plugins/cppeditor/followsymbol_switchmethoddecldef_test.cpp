@@ -955,6 +955,11 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
         "class Foo { void $" TEST_UNICODE_IDENTIFIER "(); };\n"
         "void Foo::@" TEST_UNICODE_IDENTIFIER "() {}\n"
     );
+
+    QTest::newRow("trailingReturnType") << _(
+        "struct $Foo {};\n"
+        "auto foo() -> @Foo {}\n"
+    );
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor()
