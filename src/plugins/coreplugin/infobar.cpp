@@ -177,8 +177,8 @@ void InfoBarDisplay::setInfoBar(InfoBar *infoBar)
         m_infoBar->disconnect(this);
     m_infoBar = infoBar;
     if (m_infoBar) {
-        connect(infoBar, SIGNAL(changed()), SLOT(update()));
-        connect(infoBar, SIGNAL(destroyed()), SLOT(infoBarDestroyed()));
+        connect(m_infoBar, SIGNAL(changed()), SLOT(update()));
+        connect(m_infoBar, SIGNAL(destroyed()), SLOT(infoBarDestroyed()));
     }
     update();
 }

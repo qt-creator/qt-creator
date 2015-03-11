@@ -323,7 +323,6 @@ private:
     CMakeToolItemModel *m_model;
     QLineEdit *m_displayNameLineEdit;
     PathChooser *m_binaryChooser;
-    bool m_autodetected;
     Core::Id m_id;
     bool m_loadingItem;
 };

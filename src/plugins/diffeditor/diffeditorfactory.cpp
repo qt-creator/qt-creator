@@ -49,7 +49,7 @@ DiffEditorFactory::DiffEditorFactory(QObject *parent)
 
 Core::IEditor *DiffEditorFactory::createEditor()
 {
-    return new DiffEditor(QSharedPointer<DiffEditorDocument>(new DiffEditorDocument));
+    return new DiffEditor(new DiffEditorDocument);
 }
 
 } // namespace Internal

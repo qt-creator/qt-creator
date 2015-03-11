@@ -215,8 +215,8 @@ void DescriptionEditorWidget::handleCurrentContents()
 
 ///////////////////////////////// DiffEditor //////////////////////////////////
 
-DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
-    : m_document(doc)
+DiffEditor::DiffEditor()
+    : m_document(0)
     , m_descriptionWidget(0)
     , m_stackedWidget(0)
     , m_toolBar(0)
@@ -233,10 +233,10 @@ DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
     , m_sync(false)
     , m_showDescription(true)
 {
-    Guard guard(&m_ignoreChanges);
-    QTC_ASSERT(m_document, return);
+    // Editor:
     setDuplicateSupported(true);
 
+    // Widget:
     QSplitter *splitter = new Core::MiniSplitter(Qt::Vertical);
 
     m_descriptionWidget = new DescriptionEditorWidget(splitter);
@@ -251,67 +251,11 @@ DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
 
     setWidget(splitter);
 
-    connect(m_descriptionWidget, &DescriptionEditorWidget::requestBranchList,
-            m_document.data(), &DiffEditorDocument::requestMoreInformation);
-    connect(m_document.data(), &DiffEditorDocument::documentChanged,
-            this, &DiffEditor::documentHasChanged);
-    connect(m_document.data(), &DiffEditorDocument::descriptionChanged,
-            this, &DiffEditor::updateDescription);
-    connect(m_document.data(), &DiffEditorDocument::aboutToReload,
-            this, &DiffEditor::prepareForReload);
-    connect(m_document.data(), &DiffEditorDocument::reloadFinished,
-            this, &DiffEditor::reloadHasFinished);
-
-    toolBar();
-
-    loadSettings();
-    documentHasChanged();
-}
-
-DiffEditor::~DiffEditor()
-{
-    delete m_toolBar;
-    delete m_widget;
-}
-
-Core::IEditor *DiffEditor::duplicate()
-{
-    return new DiffEditor(m_document);
-}
-
-bool DiffEditor::open(QString *errorString,
-                      const QString &fileName,
-                      const QString &realFileName)
-{
-    Q_UNUSED(realFileName)
-    return m_document->open(errorString, fileName);
-}
-
-Core::IDocument *DiffEditor::document()
-{
-    return m_document.data();
-}
-
-static QToolBar *createToolBar(IDiffView *someView)
-{
-    // Create
-    QToolBar *toolBar = new QToolBar;
-    toolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
-    const int size = someView->widget()->style()->pixelMetric(QStyle::PM_SmallIconSize);
-    toolBar->setIconSize(QSize(size, size));
-
-    return toolBar;
-}
-
-QWidget *DiffEditor::toolBar()
-{
-    QTC_ASSERT(!m_views.isEmpty(), return 0);
-
-    if (m_toolBar)
-        return m_toolBar;
-
-    // Create
-    m_toolBar = createToolBar(m_views.at(0));
+    // Toolbar:
+    m_toolBar = new QToolBar;
+    m_toolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    const int size = m_views.at(0)->widget()->style()->pixelMetric(QStyle::PM_SmallIconSize);
+    m_toolBar->setIconSize(QSize(size, size));
 
     m_entriesComboBox = new QComboBox;
     m_entriesComboBox->setMinimumContentsLength(20);
@@ -331,14 +275,12 @@ QWidget *DiffEditor::toolBar()
 
     m_contextSpinBox = new QSpinBox(m_toolBar);
     m_contextSpinBox->setRange(1, 100);
-    m_contextSpinBox->setValue(m_document->contextLineCount());
     m_contextSpinBox->setFrame(false);
     m_contextSpinBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding); // Mac Qt5
     m_toolBar->addWidget(m_contextSpinBox);
 
     m_whitespaceButtonAction = m_toolBar->addAction(tr("Ignore Whitespace"));
     m_whitespaceButtonAction->setCheckable(true);
-    m_whitespaceButtonAction->setChecked(m_document->ignoreWhitespace());
 
     m_toggleDescriptionAction = m_toolBar->addAction(QIcon(QLatin1String(Constants::ICON_TOP_BAR)),
                                                QString());
@@ -347,14 +289,12 @@ QWidget *DiffEditor::toolBar()
     m_reloadAction = m_toolBar->addAction(QIcon(QLatin1String(Core::Constants::ICON_RELOAD_GRAY)),
                                           tr("Reload Diff"));
     m_reloadAction->setToolTip(tr("Reload Diff"));
-    documentStateChanged();
 
     m_toggleSyncAction = m_toolBar->addAction(QIcon(QLatin1String(Core::Constants::ICON_LINK)),
                                         QString());
     m_toggleSyncAction->setCheckable(true);
 
     m_viewSwitcherAction = m_toolBar->addAction(QIcon(), QString());
-    updateDiffEditorSwitcher();
 
     connect(m_whitespaceButtonAction, &QAction::toggled, this, &DiffEditor::ignoreWhitespaceHasChanged);
     connect(m_contextSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
@@ -362,10 +302,84 @@ QWidget *DiffEditor::toolBar()
     connect(m_toggleSyncAction, &QAction::toggled, this, &DiffEditor::toggleSync);
     connect(m_toggleDescriptionAction, &QAction::toggled, this, &DiffEditor::toggleDescription);
     connect(m_viewSwitcherAction, &QAction::triggered, this, [this]() { showDiffView(nextView()); });
+}
+
+void DiffEditor::setDocument(QSharedPointer<DiffEditorDocument>(doc))
+{
+    QTC_ASSERT(m_document.isNull(), return);
+    QTC_ASSERT(doc, return);
+
+    m_document = QSharedPointer<DiffEditorDocument>(doc);
+
+    connect(m_descriptionWidget, &DescriptionEditorWidget::requestBranchList,
+            m_document.data(), &DiffEditorDocument::requestMoreInformation);
+    connect(m_document.data(), &DiffEditorDocument::documentChanged,
+            this, &DiffEditor::documentHasChanged);
+    connect(m_document.data(), &DiffEditorDocument::descriptionChanged,
+            this, &DiffEditor::updateDescription);
+    connect(m_document.data(), &DiffEditorDocument::aboutToReload,
+            this, &DiffEditor::prepareForReload);
+    connect(m_document.data(), &DiffEditorDocument::reloadFinished,
+            this, &DiffEditor::reloadHasFinished);
+
     connect(m_reloadAction, &QAction::triggered, this, [this]() { m_document->reload(); });
     connect(m_document.data(), &DiffEditorDocument::temporaryStateChanged,
             this, &DiffEditor::documentStateChanged);
 
+    m_contextSpinBox->setValue(m_document->contextLineCount());
+    m_whitespaceButtonAction->setChecked(m_document->ignoreWhitespace());
+
+    documentStateChanged();
+    documentHasChanged();
+}
+
+DiffEditor::DiffEditor(DiffEditorDocument *doc) : DiffEditor()
+{
+    Guard guard(&m_ignoreChanges);
+    setDocument(QSharedPointer<DiffEditorDocument>(doc));
+    setupView(loadSettings());
+}
+
+DiffEditor::~DiffEditor()
+{
+    delete m_toolBar;
+    delete m_widget;
+}
+
+Core::IEditor *DiffEditor::duplicate()
+{
+    DiffEditor *editor = new DiffEditor();
+    Guard guard(&editor->m_ignoreChanges);
+
+    editor->setDocument(m_document);
+    editor->m_sync = m_sync;
+    editor->m_showDescription = m_showDescription;
+
+    Core::Id id = currentView()->id();
+    IDiffView *view = Utils::findOr(editor->m_views, editor->m_views.at(0),
+                                    [id](IDiffView *v) { return v->id() == id; });
+    QTC_ASSERT(view, view = editor->currentView());
+    editor->setupView(view);
+
+    return editor;
+}
+
+bool DiffEditor::open(QString *errorString,
+                      const QString &fileName,
+                      const QString &realFileName)
+{
+    Q_UNUSED(realFileName)
+    return m_document->open(errorString, fileName);
+}
+
+Core::IDocument *DiffEditor::document()
+{
+    return m_document.data();
+}
+
+QWidget *DiffEditor::toolBar()
+{
+    QTC_ASSERT(m_toolBar, return 0);
     return m_toolBar;
 }
 
@@ -573,9 +587,9 @@ void DiffEditor::toggleSync()
     currentView()->setSync(m_sync);
 }
 
-void DiffEditor::loadSettings()
+IDiffView *DiffEditor::loadSettings()
 {
-    QTC_ASSERT(currentView(), return);
+    QTC_ASSERT(currentView(), return 0);
     QSettings *s = Core::ICore::settings();
 
     // TODO: Remove in 3.6: Read legacy settings first:
@@ -602,9 +616,9 @@ void DiffEditor::loadSettings()
     s->endGroup();
 
     IDiffView *view = Utils::findOr(m_views, m_views.at(0), [id](IDiffView *v) { return v->id() == id; });
-    QTC_ASSERT(view, return);
+    QTC_CHECK(view);
 
-    setupView(view);
+    return view;
 }
 
 void DiffEditor::saveSetting(const QString &key, const QVariant &value) const

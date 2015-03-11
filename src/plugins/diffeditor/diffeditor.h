@@ -59,10 +59,9 @@ class DiffEditor : public Core::IEditor
     Q_OBJECT
 
 public:
-    DiffEditor(const QSharedPointer<DiffEditorDocument> &doc);
+    DiffEditor(DiffEditorDocument *doc);
     ~DiffEditor();
 
-public:
     Core::IEditor *duplicate();
 
     bool open(QString *errorString,
@@ -86,7 +85,10 @@ private slots:
     void toggleSync();
 
 private:
-    void loadSettings();
+    DiffEditor();
+    void setDocument(QSharedPointer<DiffEditorDocument> doc);
+
+    IDiffView *loadSettings();
     void saveSetting(const QString &key, const QVariant &value) const;
     void updateEntryToolTip();
     void showDiffView(IDiffView *view);
