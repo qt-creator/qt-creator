@@ -89,6 +89,7 @@ public:
     void insertChild(int pos, TreeItem *item);
     void removeChildren();
     void update();
+    void updateColumn(int column);
     void expand();
     TreeItem *firstChild() const;
     TreeItem *lastChild() const;

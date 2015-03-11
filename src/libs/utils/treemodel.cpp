@@ -733,6 +733,14 @@ void TreeItem::update()
     }
 }
 
+void TreeItem::updateColumn(int column)
+{
+    if (m_model) {
+        QModelIndex idx = index();
+        m_model->dataChanged(idx.sibling(idx.row(), column), idx.sibling(idx.row(), column));
+    }
+}
+
 TreeItem *TreeItem::firstChild() const
 {
     return m_children.isEmpty() ? 0 : m_children.first();
