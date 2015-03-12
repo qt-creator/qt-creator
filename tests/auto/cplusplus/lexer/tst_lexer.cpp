@@ -70,6 +70,8 @@ private slots:
     void literals_data();
     void preprocessor();
     void preprocessor_data();
+    void digraph();
+    void digraph_data();
     void trigraph();
     void trigraph_data();
 
@@ -738,6 +740,36 @@ void tst_SimpleLexer::incremental_data()
     QTest::newRow("escaped_cpp_comment_with_space_and_newline_2")
             << _("bar")
             << (TokenKindList() << T_IDENTIFIER);
+}
+
+void tst_SimpleLexer::digraph()
+{
+    QFETCH(QByteArray, source);
+    QFETCH(TokenKindList, expectedTokenKindList);
+
+    run(source, toTokens(expectedTokenKindList), false, CompareKind);
+}
+
+void tst_SimpleLexer::digraph_data()
+{
+    QTest::addColumn<QByteArray>("source");
+    QTest::addColumn<TokenKindList>("expectedTokenKindList");
+
+    QTest::newRow("lbracket_digraph") << _("<:") << (TokenKindList() << T_LBRACKET);
+
+    QTest::newRow("rbracket_digraph") << _(":>") << (TokenKindList() << T_RBRACKET);
+
+    QTest::newRow("lbrace_digraph") << _("<%") << (TokenKindList() << T_LBRACE);
+
+    QTest::newRow("rbrace_digraph") << _("%>") << (TokenKindList() << T_RBRACE);
+
+    QTest::newRow("pound_digraph") << _("%:") << (TokenKindList() << T_POUND);
+
+    QTest::newRow("pound_pound_digraph") << _("%:%:") << (TokenKindList() << T_POUND_POUND);
+
+    QTest::newRow("pound_pound_mixed_digraph_1") << _("#%:") << (TokenKindList() << T_POUND << T_POUND);
+
+    QTest::newRow("pound_pound_mixed_digraph_2") << _("%:#") << (TokenKindList() << T_POUND << T_POUND);
 }
 
 void tst_SimpleLexer::trigraph()
