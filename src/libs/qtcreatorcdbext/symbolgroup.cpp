@@ -638,6 +638,12 @@ std::string LocalsSymbolGroup::module() const
 
 const char *WatchesSymbolGroup::watchInamePrefix = "watch";
 
+bool WatchesSymbolGroup::isWatchIname(const std::string &iname)
+{
+    static const size_t prefLen = std::strlen(WatchesSymbolGroup::watchInamePrefix);
+    return !iname.compare(0, prefLen, WatchesSymbolGroup::watchInamePrefix);
+}
+
 WatchesSymbolGroup::WatchesSymbolGroup(CIDebugSymbolGroup *sg) :
     SymbolGroup(sg, SymbolParameterVector(), std::string(), WatchesSymbolGroup::watchInamePrefix)
 {
@@ -776,9 +782,8 @@ std::string WatchesSymbolGroup::fixWatchExpression(CIDebugSymbols *s, const std:
 bool WatchesSymbolGroup::addWatch(CIDebugSymbols *s, std::string iname, const std::string &expression, std::string *errorMessage)
 {
     // "watch.0" -> "0"
-    const size_t prefLen = std::strlen(WatchesSymbolGroup::watchInamePrefix);
-    if (!iname.compare(0, prefLen, WatchesSymbolGroup::watchInamePrefix))
-        iname.erase(0, prefLen + 1);
+    if (isWatchIname(iname))
+        iname.erase(0, std::strlen(WatchesSymbolGroup::watchInamePrefix) + 1);
     // Already in?
     if (root()->childByIName(iname.c_str()))
         return true;
