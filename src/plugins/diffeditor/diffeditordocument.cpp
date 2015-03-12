@@ -76,9 +76,10 @@ DiffEditorDocument::~DiffEditorDocument()
  */
 void DiffEditorDocument::setController(DiffEditorController *controller)
 {
-    QTC_ASSERT(isTemporary(), return);
     if (m_controller == controller)
         return;
+
+    QTC_ASSERT(isTemporary(), return);
 
     if (m_controller)
         m_controller->deleteLater();
