@@ -33,10 +33,7 @@
 
     \QC integrates the \l{http://clang-analyzer.llvm.org}
     {Clang Static Analyzer} for finding problems in C, C++, and Objective-C
-    programs (commercial only). You must have Clang installed to use the plugin.
-    At the time of
-    this writing, the plugin is experimental and only available on Linux and
-    OS X.
+    programs (commercial only).
 
     \image qtcreator-clang-static-analyzer.png
 
@@ -44,36 +41,31 @@
     more information about the checkers, see
     \l{http://clang-analyzer.llvm.org/available_checks.html}{Available Checkers}.
 
-    To set up the Clang Static Analyzer:
+    To suppress diagnostics, select \uicontrol {Suppress This Diagnostic} in the
+    context menu.
 
-    \list 1
+    \section1 Setting Up Clang Static Analyzer
 
-        \li Select \uicontrol Help > \uicontrol {About Plugins} >
-            \uicontrol {Code Analyzer} > \uicontrol {Clang Static Analyzer} to
-            enable the experimental plugin.
+    You must have Clang installed to use the Clang Static Analyzer. On Windows,
+    Clang version 3.6, or later, is required to use the MSVC tool chain.
 
-        \li Restart \QC to be able to use the plugin.
+    To set up the Clang Static Analyzer, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol Analyzer >
+    \uicontrol {Clang Static Analyzer} and check that the path to the Clang
+    executable is set correctly in the \uicontrol {Clang executable} field.
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Analyzer >
-            \uicontrol {Clang Static Analyzer} to check that the path to the Clang
-            executable is set correctly in the \uicontrol {Clang executable} field.
+    \image qtcreator-clang-static-analyzer-options.png
 
-            \image qtcreator-clang-static-analyzer-options.png
+    \section1 Running Clang Static Analyzer
 
-    \endlist
+    To run the Clang Static Analyzer to analyze an open project, select
+    \uicontrol Analyze > \uicontrol {Clang Static Analyzer} on the menu bar. The
+    Clang Static Analyzer starts automatically.
 
-    To run the Clang Static Analyzer to analyze an open project:
-
-    \list 1
-
-        \li Select \uicontrol Analyze > \uicontrol {Clang Static Analyzer}.
-
-        \li Select the
-            \inlineimage qtcreator-analyze-start-button.png
-            (\uicontrol Start) button to run the Clang Static Analyzer on the
-            application.
-
-    \endlist
-
+    However, if you select \uicontrol Analyze in the mode selector to open the
+    \uicontrol Analyze mode and then select \uicontrol {Clang Static Analyzer},
+    you must start the Clang Static Analyzer by selecting the
+    \inlineimage qtcreator-analyze-start-button.png
+    (\uicontrol Start) button.
 */
 
