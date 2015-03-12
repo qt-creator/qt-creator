@@ -376,11 +376,11 @@ BaseQtVersion::QmakeBuildConfigs MakeFileParse::effectiveBuildConfig(BaseQtVersi
 {
     BaseQtVersion::QmakeBuildConfigs buildConfig = defaultBuildConfig;
     if (m_qmakeBuildConfig.explicitDebug)
-        buildConfig = buildConfig & BaseQtVersion::DebugBuild;
+        buildConfig = buildConfig | BaseQtVersion::DebugBuild;
     else if (m_qmakeBuildConfig.explicitRelease)
         buildConfig = buildConfig & ~BaseQtVersion::DebugBuild;
     if (m_qmakeBuildConfig.explicitBuildAll)
-        buildConfig = buildConfig & BaseQtVersion::BuildAll;
+        buildConfig = buildConfig | BaseQtVersion::BuildAll;
     else if (m_qmakeBuildConfig.explicitNoBuildAll)
         buildConfig = buildConfig &~ BaseQtVersion::BuildAll;
     return buildConfig;
