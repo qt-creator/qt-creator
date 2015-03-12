@@ -335,7 +335,7 @@ void HelpWidget::addSideBar()
     m_bookmarkAction = new QAction(tr("Activate Help Bookmarks View"), this);
     cmd = Core::ActionManager::registerAction(m_bookmarkAction, Constants::HELP_BOOKMARKS,
                                               m_context->context());
-    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+B")
+    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Alt+Meta+M")
                                                                   : tr("Ctrl+Shift+B")));
     shortcutMap.insert(QLatin1String(Constants::HELP_BOOKMARKS), cmd);
 

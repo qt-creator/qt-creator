@@ -28,6 +28,7 @@ QtcPlugin {
             "librarydetailscontroller.cpp", "librarydetailscontroller.h",
             "librarydetailswidget.ui",
             "makestep.cpp", "makestep.h", "makestep.ui",
+            "makefileparse.cpp", "makefileparse.h",
             "profilecompletionassist.cpp", "profilecompletionassist.h",
             "profileeditor.cpp", "profileeditor.h",
             "profilehighlighter.cpp", "profilehighlighter.h",

@@ -66,11 +66,6 @@ public:
     static void addVersion(BaseQtVersion *version);
     static void removeVersion(BaseQtVersion *version);
 
-    enum MakefileCompatible { CouldNotParse, DifferentProject, SameProject };
-    static MakefileCompatible makefileIsFor(const QString &makefile, const QString &proFile);
-    static QPair<BaseQtVersion::QmakeBuildConfigs, QString> scanMakeFile(const QString &makefile,
-                                                                     BaseQtVersion::QmakeBuildConfigs defaultBuildConfig);
-    static Utils::FileName findQMakeBinaryFromMakefile(const QString &directory);
     static bool isValidId(int id);
 
 signals:

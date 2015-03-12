@@ -160,6 +160,7 @@ QString DiffEditorDocument::description() const
 
 void DiffEditorDocument::setContextLineCount(int lines)
 {
+    QTC_ASSERT(!m_isContextLineCountForced, return);
     m_contextLineCount = lines;
 }
 
@@ -181,8 +182,6 @@ bool DiffEditorDocument::isContextLineCountForced() const
 
 void DiffEditorDocument::setIgnoreWhitespace(bool ignore)
 {
-    if (m_isContextLineCountForced)
-        return;
     m_ignoreWhitespace = ignore;
 }
 

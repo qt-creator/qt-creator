@@ -93,12 +93,9 @@ private slots:
     void rightHSliderChanged();
     void leftCursorPositionChanged();
     void rightCursorPositionChanged();
-//    void leftDocumentSizeChanged();
-//    void rightDocumentSizeChanged();
 
 private:
     void showDiff();
-//    void synchronizeFoldings(SideDiffEditorWidget *source, SideDiffEditorWidget *destination);
     void jumpToOriginalFile(const QString &fileName,
                             int lineNumber, int columnNumber);
     void patch(bool revert);

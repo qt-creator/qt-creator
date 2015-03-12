@@ -196,8 +196,10 @@ void AbstractSymbolGroupNode::dumpBasicData(std::ostream &str, const std::string
     str << "iname=\"" << aFullIname << "\",name=\"" << aName << '"';
     if (!type.empty())
         str << ",type=\"" << type << '"';
-    if (!expression.empty())
-        str << ",exp=\"" << expression  << '"';
+    if (WatchesSymbolGroup::isWatchIname(aFullIname))
+        str << ",exp=\"" << aName << '"';
+    else if (!expression.empty())
+        str << ",exp=\"" << expression << '"';
 }
 
 void AbstractSymbolGroupNode::setParent(AbstractSymbolGroupNode *n)

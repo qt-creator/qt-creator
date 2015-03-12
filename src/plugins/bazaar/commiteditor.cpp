@@ -61,8 +61,9 @@ void CommitEditor::setFields(const QString &repositoryRoot,
     bazaarWidget->setFields(branch, userName, email);
 
     m_fileModel = new VcsBase::SubmitFileModel(this);
+    m_fileModel->setRepositoryRoot(repositoryRoot);
     foreach (const VcsBase::VcsBaseClient::StatusItem &item, repoStatus)
         if (item.flags != QLatin1String("Unknown"))
             m_fileModel->addFile(item.file, item.flags);
-    setFileModel(m_fileModel, repositoryRoot);
+    setFileModel(m_fileModel);
 }

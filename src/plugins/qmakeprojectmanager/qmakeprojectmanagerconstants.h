@@ -72,11 +72,6 @@ const char QMAKEPROJECT_ID[] = "Qt4ProjectManager.Qt4Project";
 // ICONS
 const char ICON_QTQUICK_APP[] = ":/wizards/images/qtquickapp.png";
 
-// Env variables
-const char QMAKEVAR_QMLJSDEBUGGER_PATH[] = "QMLJSDEBUGGER_PATH";
-const char QMAKEVAR_QUICK1_DEBUG[] = "CONFIG+=declarative_debug";
-const char QMAKEVAR_QUICK2_DEBUG[] = "CONFIG+=qml_debug";
-
 } // namespace Constants
 } // namespace QmakeProjectManager
 

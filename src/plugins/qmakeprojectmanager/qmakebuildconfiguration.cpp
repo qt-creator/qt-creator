@@ -38,6 +38,7 @@
 #include "qmakenodes.h"
 #include "qmakestep.h"
 #include "makestep.h"
+#include "makefileparse.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
@@ -59,6 +60,7 @@
 
 #include <QDebug>
 #include <QInputDialog>
+#include <QLoggingCategory>
 
 #include <limits>
 
@@ -329,105 +331,116 @@ MakeStep *QmakeBuildConfiguration::makeStep() const
 // Returns true if both are equal.
 QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportFrom(const QString &makefile)
 {
+    const QLoggingCategory &logs = MakeFileParse::logging();
+    qCDebug(logs) << "QMakeBuildConfiguration::compareToImport";
+
     QMakeStep *qs = qmakeStep();
-    if (QFileInfo::exists(makefile) && qs) {
-        FileName qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(makefile);
-        BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
-        if (!version)
-            return MakefileForWrongProject;
-        if (QtSupport::QtVersionManager::makefileIsFor(makefile, qs->project()->projectFilePath().toString())
-                != QtSupport::QtVersionManager::SameProject) {
-            if (debug) {
-                qDebug() << "different profile used to generate the Makefile:"
-                         << makefile << " expected profile:" << qs->project()->projectFilePath();
-            }
-            return MakefileIncompatible;
-        }
-        if (version->qmakeCommand() == qmakePath) {
-            // same qtversion
-            QPair<BaseQtVersion::QmakeBuildConfigs, QString> result =
-                    QtVersionManager::scanMakeFile(makefile, version->defaultBuildConfig());
-            if (qmakeBuildConfiguration() == result.first) {
-                // The qmake Build Configuration are the same,
-                // now compare arguments lists
-                // we have to compare without the spec/platform cmd argument
-                // and compare that on its own
-                QString workingDirectory = QFileInfo(makefile).absolutePath();
-                QStringList actualArgs;
-                QString userArgs = qs->userArguments();
-                // This copies the settings from userArgs to actualArgs (minus some we
-                // are not interested in), splitting them up into individual strings:
-                extractSpecFromArguments(&userArgs, workingDirectory, version, &actualArgs);
-                actualArgs = qs->deducedArguments() + actualArgs;
-                FileName actualSpec = qs->mkspec();
+    MakeFileParse parse(makefile);
 
-                QString qmakeArgs = result.second;
-                QStringList parsedArgs;
-                FileName parsedSpec = extractSpecFromArguments(&qmakeArgs, workingDirectory, version, &parsedArgs);
+    if (parse.makeFileState() == MakeFileParse::MakefileMissing) {
+        qCDebug(logs) << "**Makefile missing";
+        return MakefileMissing;
+    }
+    if (parse.makeFileState() == MakeFileParse::CouldNotParse) {
+        qCDebug(logs) << "**Makefile incompatible";
+        return MakefileIncompatible;
+    }
 
-                if (debug) {
-                    qDebug() << "Actual args:" << actualArgs;
-                    qDebug() << "Parsed args:" << parsedArgs;
-                    qDebug() << "Actual spec:" << actualSpec.toString();
-                    qDebug() << "Parsed spec:" << parsedSpec.toString();
-                }
+    if (!qs) {
+        qCDebug(logs) << "**No qmake step";
+        return MakefileMissing;
+    }
 
-                // Comparing the sorted list is obviously wrong
-                // Though haven written a more complete version
-                // that managed had around 200 lines and yet faild
-                // to be actually foolproof at all, I think it's
-                // not feasible without actually taking the qmake
-                // command line parsing code
+    BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
+    if (!version) {
+        qCDebug(logs) << "**No qt version in kit";
+        return MakefileForWrongProject;
+    }
 
-                // Things, sorting gets wrong:
-                // parameters to positional parameters matter
-                //  e.g. -o -spec is different from -spec -o
-                //       -o 1 -spec 2 is diffrent from -spec 1 -o 2
-                // variable assignment order matters
-                // variable assignment vs -after
-                // -norecursive vs. recursive
-                actualArgs.sort();
-                parsedArgs.sort();
-                if (actualArgs == parsedArgs) {
-                    // Specs match exactly
-                    if (actualSpec == parsedSpec)
-                        return MakefileMatches;
-                    // Actual spec is the default one
+    if (parse.srcProFile() != qs->project()->projectFilePath().toString()) {
+        qCDebug(logs) << "**Different profile used to generate the Makefile:"
+                      << parse.srcProFile() << " expected profile:" << qs->project()->projectFilePath();
+        return MakefileIncompatible;
+    }
+
+    if (version->qmakeCommand() != parse.qmakePath()) {
+        qCDebug(logs) << "**Different Qt versions, buildconfiguration:" << version->qmakeCommand().toString()
+                      << " Makefile:"<< parse.qmakePath().toString();
+        return MakefileForWrongProject;
+    }
+
+    // same qtversion
+    BaseQtVersion::QmakeBuildConfigs buildConfig = parse.effectiveBuildConfig(version->defaultBuildConfig());
+    if (qmakeBuildConfiguration() != buildConfig) {
+        qCDebug(logs) << "**Different qmake buildconfigurations buildconfiguration:"
+                      << qmakeBuildConfiguration() << " Makefile:" << buildConfig;
+        return MakefileIncompatible;
+    }
+
+    // The qmake Build Configuration are the same,
+    // now compare arguments lists
+    // we have to compare without the spec/platform cmd argument
+    // and compare that on its own
+    QString workingDirectory = QFileInfo(makefile).absolutePath();
+    QStringList actualArgs;
+    QString userArgs = qs->userArguments();
+    // This copies the settings from userArgs to actualArgs (minus some we
+    // are not interested in), splitting them up into individual strings:
+    extractSpecFromArguments(&userArgs, workingDirectory, version, &actualArgs);
+    FileName actualSpec = qs->mkspec();
+
+    QString qmakeArgs = parse.unparsedArguments();
+    QStringList parsedArgs;
+    FileName parsedSpec = extractSpecFromArguments(&qmakeArgs, workingDirectory, version, &parsedArgs);
+
+    qCDebug(logs) << "  Actual args:" << actualArgs;
+    qCDebug(logs) << "  Parsed args:" << parsedArgs;
+    qCDebug(logs) << "  Actual spec:" << actualSpec.toString();
+    qCDebug(logs) << "  Parsed spec:" << parsedSpec.toString();
+    qCDebug(logs) << "  Actual config:" << qs->deducedArguments();
+    qCDebug(logs) << "  Parsed config:" << parse.config();
+
+    // Comparing the sorted list is obviously wrong
+    // Though haven written a more complete version
+    // that managed had around 200 lines and yet faild
+    // to be actually foolproof at all, I think it's
+    // not feasible without actually taking the qmake
+    // command line parsing code
+
+    // Things, sorting gets wrong:
+    // parameters to positional parameters matter
+    //  e.g. -o -spec is different from -spec -o
+    //       -o 1 -spec 2 is diffrent from -spec 1 -o 2
+    // variable assignment order matters
+    // variable assignment vs -after
+    // -norecursive vs. recursive
+    actualArgs.sort();
+    parsedArgs.sort();
+    if (actualArgs != parsedArgs) {
+        qCDebug(logs) << "**Mismateched args";
+        return MakefileIncompatible;
+    }
+
+    if (parse.config() != qs->deducedArguments()) {
+        qCDebug(logs) << "**Mismatched config";
+        return MakefileIncompatible;
+    }
+
+    // Specs match exactly
+    if (actualSpec == parsedSpec) {
+        qCDebug(logs) << "**Matched specs (1)";
+        return MakefileMatches;
+    }
+    // Actual spec is the default one
 //                    qDebug() << "AS vs VS" << actualSpec << version->mkspec();
-                    if ((actualSpec == version->mkspec() || actualSpec == FileName::fromLatin1("default"))
-                        && (parsedSpec == version->mkspec() || parsedSpec == FileName::fromLatin1("default") || parsedSpec.isEmpty()))
-                        return MakefileMatches;
-                }
-                return MakefileIncompatible;
-            } else {
-                if (debug)
-                    qDebug() << "different qmake buildconfigurations buildconfiguration:"
-                             << qmakeBuildConfiguration() << " Makefile:" << result.first;
-                return MakefileIncompatible;
-            }
-        } else {
-            if (debug)
-                qDebug() << "different Qt versions, buildconfiguration:" << version->qmakeCommand().toString()
-                         << " Makefile:"<< qmakePath.toString();
-            return MakefileForWrongProject;
-        }
+    if ((actualSpec == version->mkspec() || actualSpec == FileName::fromLatin1("default"))
+            && (parsedSpec == version->mkspec() || parsedSpec == FileName::fromLatin1("default") || parsedSpec.isEmpty())) {
+        qCDebug(logs) << "**Matched specs (2)";
+        return MakefileMatches;
     }
-    return MakefileMissing;
-}
 
-bool QmakeBuildConfiguration::removeQMLInspectorFromArguments(QString *args)
-{
-    bool removedArgument = false;
-    for (QtcProcess::ArgIterator ait(args); ait.next(); ) {
-        const QString arg = ait.value();
-        if (arg.contains(QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH))
-            || arg.contains(QLatin1String(Constants::QMAKEVAR_QUICK1_DEBUG))
-            || arg.contains(QLatin1String(Constants::QMAKEVAR_QUICK2_DEBUG))) {
-            ait.deleteArg();
-            removedArgument = true;
-        }
-    }
-    return removedArgument;
+    qCDebug(logs) << "**Incompatible specs";
+    return MakefileIncompatible;
 }
 
 FileName QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
@@ -497,52 +510,6 @@ FileName QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
             parsedSpec = parsedSpec.relativeChildPath(sourceMkSpecPath);
     }
     return parsedSpec;
-}
-
-QStringList QmakeBuildConfiguration::extractDeducedArguments(QString *args)
-{
-    QStringList allPossibleDeducedArguments;
-    allPossibleDeducedArguments << QLatin1String("CONFIG+=x86")
-                                << QLatin1String("CONFIG+=x86_64")
-                                << QLatin1String("CONFIG+=iphonesimulator")
-                                << QLatin1String("CONFIG+=ppc")
-                                << QLatin1String("CONFIG+=ppc64")
-                                << QLatin1String("CONFIG+=iphoneos");
-    QStringList result;
-    for (QtcProcess::ArgIterator ait(args); ait.next(); ) {
-        QString arg = ait.value();
-        if (allPossibleDeducedArguments.contains(arg))  {
-            result << arg;
-            ait.deleteArg();
-        }
-    }
-    return result;
-}
-
-QStringList QmakeBuildConfiguration::deduceArgumentsForTargetAbi(const ProjectExplorer::Abi &targetAbi, const BaseQtVersion *version)
-{
-    QStringList arguments;
-    if ((targetAbi.os() == ProjectExplorer::Abi::MacOS)
-            && (targetAbi.binaryFormat() == ProjectExplorer::Abi::MachOFormat)) {
-        if (targetAbi.architecture() == ProjectExplorer::Abi::X86Architecture) {
-            if (targetAbi.wordWidth() == 32)
-                arguments << QLatin1String("CONFIG+=x86");
-            else if (targetAbi.wordWidth() == 64)
-                arguments << QLatin1String("CONFIG+=x86_64");
-
-            const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios";
-            if (version && version->type() == QLatin1String(IOSQT)) // ugly, we can't distinguish between ios and mac toolchains
-                arguments << QLatin1String("CONFIG+=iphonesimulator");
-        } else if (targetAbi.architecture() == ProjectExplorer::Abi::PowerPCArchitecture) {
-            if (targetAbi.wordWidth() == 32)
-                arguments << QLatin1String("CONFIG+=ppc");
-            else if (targetAbi.wordWidth() == 64)
-                arguments << QLatin1String("CONFIG+=ppc64");
-        } else if (targetAbi.architecture() == ProjectExplorer::Abi::ArmArchitecture) {
-            arguments << QLatin1String("CONFIG+=iphoneos");
-        }
-    }
-    return arguments;
 }
 
 bool QmakeBuildConfiguration::isEnabled() const
@@ -702,13 +669,13 @@ void QmakeBuildConfigurationFactory::configureBuildConfiguration(Target *parent,
     cleanSteps->insertStep(0, cleanStep);
 
     QString additionalArguments = qmakeInfo->additionalArguments;
-
-    bool enableQmlDebugger
-            = QmakeBuildConfiguration::removeQMLInspectorFromArguments(&additionalArguments);
     if (!additionalArguments.isEmpty())
         qmakeStep->setUserArguments(additionalArguments);
     if (!qmakeInfo->makefile.isEmpty())
-        qmakeStep->setLinkQmlDebuggingLibrary(enableQmlDebugger);
+        qmakeStep->setLinkQmlDebuggingLibrary(qmakeInfo->config.linkQmlDebuggingQQ1
+                                              || qmakeInfo->config.linkQmlDebuggingQQ2);
+    qmakeStep->setSeparateDebugInfo(qmakeInfo->config.separateDebugInfo);
+    qmakeStep->setUseQtQuickCompiler(qmakeInfo->config.useQtQuickCompiler);
 
     bc->setQMakeBuildConfiguration(config);
 

@@ -92,12 +92,9 @@ public:
 
     enum MakefileState { MakefileMatches, MakefileForWrongProject, MakefileIncompatible, MakefileMissing };
     MakefileState compareToImportFrom(const QString &makefile);
-    static bool removeQMLInspectorFromArguments(QString *args);
     static Utils::FileName extractSpecFromArguments(QString *arguments,
                                             const QString &directory, const QtSupport::BaseQtVersion *version,
                                             QStringList *outArgs = 0);
-    static QStringList extractDeducedArguments(QString *args);
-    static QStringList deduceArgumentsForTargetAbi(const ProjectExplorer::Abi &targetAbi, const QtSupport::BaseQtVersion *version);
 
     QVariantMap toMap() const;
 

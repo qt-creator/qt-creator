@@ -45,8 +45,11 @@ namespace VcsBase {
 
 enum { fileColumn = 1 };
 
-static QList<QStandardItem *> createFileRow(const QString &fileName, const QString &status,
-                                            CheckMode checked, const QVariant &v)
+static QList<QStandardItem *> createFileRow(const QString &repositoryRoot,
+                                            const QString &fileName,
+                                            const QString &status,
+                                            CheckMode checked,
+                                            const QVariant &v)
 {
     auto statusItem = new QStandardItem(status);
     Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
@@ -58,7 +61,11 @@ static QList<QStandardItem *> createFileRow(const QString &fileName, const QStri
     statusItem->setData(v);
     auto fileItem = new QStandardItem(fileName);
     fileItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-    fileItem->setIcon(Core::FileIconProvider::icon(fileName));
+    // For some reason, Windows (at least) requires a valid (existing) file path to the icon, so
+    // the repository root is needed here.
+    // Note: for "overlaid" icons in Core::FileIconProvider a valid file path is not required
+    const QFileInfo fi(repositoryRoot + QLatin1Char('/') + fileName);
+    fileItem->setIcon(Core::FileIconProvider::icon(fi));
     QList<QStandardItem *> row;
     row << statusItem << fileItem;
     return row;
@@ -86,10 +93,20 @@ SubmitFileModel::SubmitFileModel(QObject *parent) :
     setHorizontalHeaderLabels(headerLabels);
 }
 
+const QString &SubmitFileModel::repositoryRoot() const
+{
+    return m_repositoryRoot;
+}
+
+void SubmitFileModel::setRepositoryRoot(const QString &repoRoot)
+{
+    m_repositoryRoot = repoRoot;
+}
+
 QList<QStandardItem *> SubmitFileModel::addFile(const QString &fileName, const QString &status, CheckMode checkMode,
                                                 const QVariant &v)
 {
-    const QList<QStandardItem *> row = createFileRow(fileName, status, checkMode, v);
+    const QList<QStandardItem *> row = createFileRow(m_repositoryRoot, fileName, status, checkMode, v);
     appendRow(row);
     return row;
 }

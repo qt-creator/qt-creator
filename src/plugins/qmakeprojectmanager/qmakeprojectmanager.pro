@@ -51,7 +51,8 @@ HEADERS += \
     findqmakeprofiles.h \
     qmakeprojectmanager_global.h \
     desktopqmakerunconfiguration.h \
-    profilecompletionassist.h
+    profilecompletionassist.h \
+    makefileparse.h
 
 SOURCES += \
     qmakekitconfigwidget.cpp \
@@ -98,6 +99,7 @@ SOURCES += \
     findqmakeprofiles.cpp \
     desktopqmakerunconfiguration.cpp \
     profilecompletionassist.cpp \
+    makefileparse.cpp
 
 FORMS += makestep.ui \
     qmakestep.ui \

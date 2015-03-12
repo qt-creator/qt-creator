@@ -40,20 +40,23 @@ class Qt5Path:
         if pathSpec == Qt5Path.DOCS:
             path52 = "/doc"
             path53 = "/Docs/Qt-5.3"
+            path54 = "/Docs/Qt-5.4"
         elif pathSpec == Qt5Path.EXAMPLES:
             path52 = "/examples"
             path53 = "/Examples/Qt-5.3"
+            path54 = "/Examples/Qt-5.4"
         else:
             test.fatal("Unknown pathSpec given: %s" % str(pathSpec))
             return []
         if platform.system() in ('Microsoft', 'Windows'):
-            return ["C:/Qt/Qt5.2.1/5.2.1/msvc2010" + path52, "C:/Qt/Qt5.3.1" + path53]
+            return ["C:/Qt/Qt5.2.1/5.2.1/msvc2010" + path52,
+                    "C:/Qt/Qt5.3.1" + path53, "C:/Qt/Qt5.4.1" + path54]
         elif platform.system() == 'Linux':
             if __is64BitOS__():
                 return map(os.path.expanduser, ["~/Qt5.2.1/5.2.1/gcc_64" + path52,
-                                                "~/Qt5.3.1" + path53])
+                                                "~/Qt5.3.1" + path53, "~/Qt5.4.1" + path54])
             return map(os.path.expanduser, ["~/Qt5.2.1/5.2.1/gcc" + path52,
-                                            "~/Qt5.3.1" + path53])
+                                            "~/Qt5.3.1" + path53, "~/Qt5.4.1" + path54])
         else:
             return map(os.path.expanduser, ["~/Qt5.2.1/5.2.1/clang_64" + path52,
                                             "~/Qt5.3.1" + path53])

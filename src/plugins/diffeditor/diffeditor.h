@@ -38,6 +38,7 @@
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
+class QLabel;
 class QSpinBox;
 class QToolBar;
 class QToolButton;
@@ -76,7 +77,7 @@ private slots:
     void toggleDescription();
     void updateDescription();
     void contextLineCountHasChanged(int lines);
-    void ignoreWhitespaceHasChanged(bool ignore);
+    void ignoreWhitespaceHasChanged();
     void prepareForReload();
     void reloadHasFinished(bool success);
     void setCurrentDiffFileIndex(int index);
@@ -102,21 +103,19 @@ private:
     QVector<IDiffView *> m_views;
     QToolBar *m_toolBar;
     QComboBox *m_entriesComboBox;
-    QToolButton *m_whitespaceButton;
     QSpinBox *m_contextSpinBox;
     QAction *m_toggleSyncAction;
     QAction *m_whitespaceButtonAction;
-    QAction *m_contextLabelAction;
-    QAction *m_contextSpinBoxAction;
     QAction *m_toggleDescriptionAction;
     QAction *m_reloadAction;
-    QToolButton *m_diffEditorSwitcher;
+    QLabel *m_contextLabel;
+    QAction *m_viewSwitcherAction;
     QPair<QString, QString> m_currentFileChunk;
     int m_currentViewIndex;
     int m_currentDiffFileIndex;
+    int m_ignoreChanges;
     bool m_sync;
     bool m_showDescription;
-    bool m_ignoreChanges;
 };
 
 } // namespace Internal

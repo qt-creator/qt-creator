@@ -28,49 +28,76 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEBUILDINFO_H
-#define QMAKEBUILDINFO_H
+#ifndef MAKEFILEPARSE_H
+#define MAKEFILEPARSE_H
 
-#include "qmakebuildconfiguration.h"
-#include "qmakestep.h"
-
-#include <projectexplorer/buildinfo.h>
-#include <projectexplorer/kitmanager.h>
+#include <utils/fileutils.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qmakeprojectmanager/qmakestep.h>
+
+QT_BEGIN_NAMESPACE
+class QLogggingCategory;
+QT_END_NAMESPACE
 
 namespace QmakeProjectManager {
+namespace Internal {
 
-class QmakeBuildInfo : public ProjectExplorer::BuildInfo
+struct QMakeAssignment
 {
-public:
-    QmakeBuildInfo(const QmakeBuildConfigurationFactory *f) : ProjectExplorer::BuildInfo(f) { }
-
-    ProjectExplorer::BuildConfiguration::BuildType type;
-    QString additionalArguments;
-    QString makefile;
-    QMakeStepConfig config;
-
-    bool operator==(const QmakeBuildInfo &o) {
-        return displayName == o.displayName
-                && typeName == o.typeName
-                && buildDirectory == o.buildDirectory
-                && kitId == o.kitId
-                && type == o.type
-                && additionalArguments == o.additionalArguments
-                && config == o.config;
-    }
-
-    QList<ProjectExplorer::Task> reportIssues(const QString &projectPath,
-                                              const QString &buildDir) const
-    {
-        ProjectExplorer::Kit *k = ProjectExplorer::KitManager::find(kitId);
-        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
-        return version ? version->reportIssues(projectPath, buildDir)
-                       : QList<ProjectExplorer::Task>();
-    }
+    QString variable;
+    QString op;
+    QString value;
 };
 
+class MakeFileParse
+{
+public:
+    MakeFileParse(const QString &makefile);
+
+    enum MakefileState { MakefileMissing, CouldNotParse, Okay };
+
+    MakefileState makeFileState() const;
+    Utils::FileName qmakePath() const;
+    QString srcProFile() const;
+    QMakeStepConfig config() const;
+
+    QString unparsedArguments() const;
+
+    QtSupport::BaseQtVersion::QmakeBuildConfigs
+        effectiveBuildConfig(QtSupport::BaseQtVersion::QmakeBuildConfigs defaultBuildConfig) const;
+
+    static const QLoggingCategory &logging();
+
+private:
+    void parseArgs(const QString &args, QList<QMakeAssignment> *assignments, QList<QMakeAssignment> *afterAssignments);
+    void parseAssignments(QList<QMakeAssignment> *assignments);
+
+    class QmakeBuildConfig
+    {
+    public:
+        QmakeBuildConfig()
+            : explicitDebug(false),
+              explicitRelease(false),
+              explicitBuildAll(false),
+              explicitNoBuildAll(false)
+        {}
+        bool explicitDebug;
+        bool explicitRelease;
+        bool explicitBuildAll;
+        bool explicitNoBuildAll;
+    };
+
+    MakefileState m_state;
+    Utils::FileName m_qmakePath;
+    QString m_srcProFile;
+
+    QmakeBuildConfig m_qmakeBuildConfig;
+    QMakeStepConfig m_config;
+    QString m_unparsedArguments;
+};
+
+} // namespace Internal
 } // namespace QmakeProjectManager
 
-#endif // QMAKEBUILDINFO_H
+
+#endif // MAKEFILEPARSE_H

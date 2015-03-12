@@ -47,13 +47,14 @@ void SubversionSubmitEditor::setStatusList(const QList<StatusFilePair> &statusOu
 {
     typedef QList<StatusFilePair>::const_iterator ConstIterator;
     auto model = new VcsBase::SubmitFileModel(this);
+    // Hack to allow completion in "description" field : completion needs a root repository, the
+    // checkScriptWorkingDirectory property is fine (at this point it was set by SubversionPlugin)
+    model->setRepositoryRoot(checkScriptWorkingDirectory());
 
     const ConstIterator cend = statusOutput.constEnd();
     for (ConstIterator it = statusOutput.constBegin(); it != cend; ++it)
         model->addFile(it->second, it->first);
-    // Hack to allow completion in "description" field : completion needs a root repository, the
-    // checkScriptWorkingDirectory property is fine (at this point it was set by SubversionPlugin)
-    setFileModel(model, this->checkScriptWorkingDirectory());
+    setFileModel(model);
 }
 
 QByteArray SubversionSubmitEditor::fileContents() const

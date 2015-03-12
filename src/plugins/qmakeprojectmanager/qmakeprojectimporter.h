@@ -31,6 +31,8 @@
 #ifndef QMAKEPROJECTIMPORTER_H
 #define QMAKEPROJECTIMPORTER_H
 
+#include "qmakestep.h"
+
 #include <projectexplorer/projectimporter.h>
 
 namespace QtSupport { class BaseQtVersion; }
@@ -58,7 +60,8 @@ public:
 private:
     ProjectExplorer::Kit *createTemporaryKit(QtSupport::BaseQtVersion *version,
                                              bool temporaryVersion,
-                                             const Utils::FileName &parsedSpec, const QStringList &deducedQmakeArguments);
+                                             const Utils::FileName &parsedSpec,
+                                             const QmakeProjectManager::QMakeStepConfig::TargetArchConfig &archConfig, const QMakeStepConfig::OsType &osType);
 };
 
 } // namespace Internal

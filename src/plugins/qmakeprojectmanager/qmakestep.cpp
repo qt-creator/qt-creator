@@ -49,6 +49,7 @@
 #include <qtsupport/debugginghelperbuildtask.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
+#include <qtsupport/qtsupportconstants.h>
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
@@ -58,6 +59,7 @@
 
 using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
+using namespace QtSupport;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -154,7 +156,7 @@ QString QMakeStep::allArguments(bool shorted)
     // Find out what flags we pass on to qmake
     arguments << bc->configCommandLineArguments();
 
-    arguments << deducedArguments();
+    arguments << deducedArguments().toArguments();
 
     QString args = QtcProcess::joinArgs(arguments);
     // User arguments
@@ -162,39 +164,35 @@ QString QMakeStep::allArguments(bool shorted)
     return args;
 }
 
-///
-/// moreArguments,
-/// iphoneos/iphonesimulator for ios
-/// QMAKE_VAR_QMLJSDEBUGGER_PATH
-QStringList QMakeStep::deducedArguments()
+QMakeStepConfig QMakeStep::deducedArguments()
 {
-    QStringList arguments;
+    ProjectExplorer::Kit *kit = target()->kit();
+    QMakeStepConfig config;
     ProjectExplorer::ToolChain *tc
-            = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
+            = ProjectExplorer::ToolChainKitInformation::toolChain(kit);
     ProjectExplorer::Abi targetAbi;
     if (tc)
         targetAbi = tc->targetAbi();
 
-    // explicitly add architecture to CONFIG
-
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    arguments << QmakeBuildConfiguration::deduceArgumentsForTargetAbi(targetAbi, version);
+
+    config.archConfig = QMakeStepConfig::targetArchFor(targetAbi, version);
+    config.osType = QMakeStepConfig::osTypeFor(targetAbi, version);
     if (linkQmlDebuggingLibrary() && version) {
-        arguments << QLatin1String(Constants::QMAKEVAR_QUICK1_DEBUG);
+        config.linkQmlDebuggingQQ1 = true;
         if (version->qtVersion().majorVersion >= 5)
-            arguments << QLatin1String(Constants::QMAKEVAR_QUICK2_DEBUG);
+            config.linkQmlDebuggingQQ2 = true;
     }
 
     if (useQtQuickCompiler() && version)
-        arguments << QLatin1String("CONFIG+=qtquickcompiler");
+        config.useQtQuickCompiler = true;
 
-    if (separateDebugInfo()) {
-        arguments << QLatin1String("CONFIG+=force_debug_info")
-                  << QLatin1String("CONFIG+=separate_debug_info");
-    }
+    if (separateDebugInfo())
+        config.separateDebugInfo = true;
 
-    return arguments;
+    return config;
 }
+
 
 bool QMakeStep::init()
 {
@@ -822,3 +820,76 @@ QString QMakeStepFactory::displayNameForId(Core::Id id) const
         return tr("qmake");
     return QString();
 }
+
+
+QMakeStepConfig::TargetArchConfig QMakeStepConfig::targetArchFor(const Abi &targetAbi, const BaseQtVersion *version)
+{
+    QMakeStepConfig::TargetArchConfig arch = QMakeStepConfig::NoArch;
+    if (!version || version->type() != QLatin1String(QtSupport::Constants::DESKTOPQT))
+        return arch;
+    if ((targetAbi.os() == ProjectExplorer::Abi::MacOS)
+            && (targetAbi.binaryFormat() == ProjectExplorer::Abi::MachOFormat)) {
+        if (targetAbi.architecture() == ProjectExplorer::Abi::X86Architecture) {
+            if (targetAbi.wordWidth() == 32)
+                arch = QMakeStepConfig::X86;
+            else if (targetAbi.wordWidth() == 64)
+                arch = QMakeStepConfig::X86_64;
+        } else if (targetAbi.architecture() == ProjectExplorer::Abi::PowerPCArchitecture) {
+            if (targetAbi.wordWidth() == 32)
+                arch = QMakeStepConfig::PPC;
+            else if (targetAbi.wordWidth() == 64)
+                arch = QMakeStepConfig::PPC64;
+        }
+    }
+    return arch;
+}
+
+QMakeStepConfig::OsType QMakeStepConfig::osTypeFor(const ProjectExplorer::Abi &targetAbi, const BaseQtVersion *version)
+{
+    QMakeStepConfig::OsType os = QMakeStepConfig::NoOsType;
+    const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios";
+    if (!version || version->type() != QLatin1String(IOSQT))
+        return os;
+    if ((targetAbi.os() == ProjectExplorer::Abi::MacOS)
+            && (targetAbi.binaryFormat() == ProjectExplorer::Abi::MachOFormat)) {
+        if (targetAbi.architecture() == ProjectExplorer::Abi::X86Architecture) {
+            os = QMakeStepConfig::IphoneSimulator;
+        } else if (targetAbi.architecture() == ProjectExplorer::Abi::ArmArchitecture) {
+            os = QMakeStepConfig::IphoneOS;
+        }
+    }
+    return os;
+}
+
+QStringList QMakeStepConfig::toArguments() const
+{
+    QStringList arguments;
+    if (archConfig == X86)
+        arguments << QLatin1String("CONFIG+=x86");
+    else if (archConfig == X86_64)
+        arguments << QLatin1String("CONFIG+=x86_64");
+    else if (archConfig == PPC)
+        arguments << QLatin1String("CONFIG+=ppc");
+    else if (archConfig == PPC64)
+        arguments << QLatin1String("CONFIG+=ppc64");
+
+    if (osType == IphoneSimulator)
+        arguments << QLatin1String("CONFIG+=iphonesimulator");
+    else if (osType == IphoneOS)
+        arguments << QLatin1String("CONFIG+=iphoneos");
+
+    if (linkQmlDebuggingQQ1)
+        arguments << QLatin1String("CONFIG+=declarative_debug");
+    if (linkQmlDebuggingQQ2)
+        arguments << QLatin1String("CONFIG+=qml_debug");
+
+    if (useQtQuickCompiler)
+        arguments << QLatin1String("CONFIG+=qtquickcompiler");
+
+    if (separateDebugInfo)
+        arguments << QLatin1String("CONFIG+=force_debug_info")
+                  << QLatin1String("CONFIG+=separate_debug_info");
+
+    return arguments;
+}
+

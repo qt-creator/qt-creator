@@ -157,6 +157,7 @@ public:
     typedef std::map<std::string, std::string> InameExpressionMap;
 
     static const char *watchInamePrefix;
+    static bool isWatchIname(const std::string &iname);
 
     // Add a symbol as 'watch.0' or '0' with expression
     bool addWatch(CIDebugSymbols *s, std::string iname, const std::string &expression, std::string *errorMessage);

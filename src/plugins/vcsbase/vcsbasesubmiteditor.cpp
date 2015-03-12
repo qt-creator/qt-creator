@@ -432,7 +432,7 @@ QStringList VcsBaseSubmitEditor::checkedFiles() const
     return d->m_widget->checkedFiles();
 }
 
-void VcsBaseSubmitEditor::setFileModel(SubmitFileModel *model, const QString &repositoryDirectory)
+void VcsBaseSubmitEditor::setFileModel(SubmitFileModel *model)
 {
     QTC_ASSERT(model, return);
     if (SubmitFileModel *oldModel = d->m_widget->fileModel()) {
@@ -446,7 +446,7 @@ void VcsBaseSubmitEditor::setFileModel(SubmitFileModel *model, const QString &re
 
     // Iterate over the files and get interesting symbols
     for (int row = 0; row < model->rowCount(); ++row) {
-        const QFileInfo fileInfo(repositoryDirectory, model->file(row));
+        const QFileInfo fileInfo(model->repositoryRoot(), model->file(row));
 
         // Add file name
         uniqueSymbols.insert(fileInfo.fileName());

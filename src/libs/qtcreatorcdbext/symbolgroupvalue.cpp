@@ -2148,34 +2148,94 @@ static bool dumpQTime(const SymbolGroupValue &v, std::wostream &str)
     return false;
 }
 
+static bool dumpQTimeZone(const SymbolGroupValue &v, std::wostream &str)
+{
+    return dumpQByteArrayFromQPrivateClass(v, QPDM_qSharedDataPadded, SymbolGroupValue::pointerSize(), str);
+}
+
+// Convenience to dump a QTimeZone from the unexported private class of a Qt class.
+static bool dumpQTimeZoneFromQPrivateClass(const SymbolGroupValue &v,
+                                           QPrivateDumpMode mode,
+                                           unsigned additionalOffset,
+                                           std::wostream &str)
+{
+    std::string errorMessage;
+    const ULONG64 timeZoneAddress = addressOfQPrivateMember(v, mode, additionalOffset);
+    if (!timeZoneAddress)
+        return false;
+    std::string dumpType = QtInfo::get(v.context()).prependQtCoreModule("QTimeZone");
+    std::string symbolName = SymbolGroupValue::pointedToSymbolName(timeZoneAddress , dumpType);
+    if (SymbolGroupValue::verbose > 1)
+        DebugPrint() <<  "dumpQTimeZoneFromQPrivateClass of " << v.name() << '/'
+                     << v.type() << " mode=" << mode
+                     << " offset=" << additionalOffset << " address=0x" << std::hex << timeZoneAddress
+                     << std::dec << " expr=" << symbolName;
+    SymbolGroupNode *timeZoneNode =
+            v.node()->symbolGroup()->addSymbol(v.module(), symbolName, std::string(), &errorMessage);
+    if (!timeZoneNode && errorMessage.find("DEBUG_ANY_ID") != std::string::npos) {
+        // HACK:
+        // In some rare cases the AddSymbol can't create a node with a given module name,
+        // but is able to add the symbol without any modulename.
+        dumpType = QtInfo::get(v.context()).prependModuleAndNameSpace("QTimeZone", "", QtInfo::get(v.context()).nameSpace);
+        symbolName = SymbolGroupValue::pointedToSymbolName(timeZoneAddress , dumpType);
+        timeZoneNode = v.node()->symbolGroup()->addSymbol(v.module(), symbolName, std::string(), &errorMessage);
+        if (!timeZoneNode)
+            return false;
+    }
+    return dumpQTimeZone(SymbolGroupValue(timeZoneNode, v.context()), str);
+}
+
 // QDateTime has an unexported private class. Obtain date and time
 // from memory.
 static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str)
 {
     // QDate is 64bit starting from Qt 5 which is always aligned 64bit.
     if (QtInfo::get(v.context()).version == 5) {
-        int additionalOffset = 8 /*int64*/ + SymbolGroupValue::sizeOf("Qt::TimeSpec")
-                + SymbolGroupValue::intSize() + SymbolGroupValue::sizeOf("QTimeZone");
-        const ULONG64 statusAddr = addressOfQPrivateMember(v, QPDM_qSharedDataPadded,
-                                                           additionalOffset);
-        if (!statusAddr)
+        // the dumper on the creator side expects msecs/spec/offset/tz/status
+        const char separator = '/';
+        const ULONG64 msecsAddr = addressOfQPrivateMember(v, QPDM_None, 0);
+        if (!msecsAddr)
             return false;
+
+        int addrOffset = 8 /*QSharedData + padded*/;
+        const LONG64 msecs = SymbolGroupValue::readSignedValue(
+                    v.context().dataspaces, msecsAddr + addrOffset, 8, 0);
+
+        addrOffset += 8 /*int64*/;
+        const int spec = SymbolGroupValue::readIntValue(
+                    v.context().dataspaces, msecsAddr + addrOffset);
+
+        addrOffset += SymbolGroupValue::sizeOf("Qt::TimeSpec");
+        const int offset = SymbolGroupValue::readIntValue(
+                    v.context().dataspaces, msecsAddr + addrOffset);
+
+        addrOffset += SymbolGroupValue::intSize();
+        std::wostringstream timeZoneStream;
+        dumpQTimeZoneFromQPrivateClass(v, QPDM_None, addrOffset, timeZoneStream);
+        const std::wstring &timeZoneString = timeZoneStream.str();
+
+        addrOffset += SymbolGroupValue::sizeOf("QTimeZone");
+        const int status = SymbolGroupValue::readIntValue(
+                    v.context().dataspaces, msecsAddr + addrOffset);
 
         enum StatusFlag {
             ValidDate = 0x04,
             ValidTime = 0x08,
             ValidDateTime = 0x10
         };
-        const int status = SymbolGroupValue::readIntValue(v.context().dataspaces, statusAddr);
         if (!(status & ValidDateTime || ((status & ValidDate) && (status & ValidTime))))
             return true;
-        const ULONG64 msecsAddr = addressOfQPrivateMember(v, QPDM_qSharedDataPadded, 0);
-        if (!msecsAddr)
-            return false;
-        const LONG64 msecs = SymbolGroupValue::readSignedValue(
-                    v.context().dataspaces, msecsAddr, 8, 0);
-        if (msecs)
-            str << msecs;
+
+        str << msecs << separator
+            << spec << separator
+            << offset << separator
+            << std::hex;
+        if (timeZoneString.length() > 2) {
+            for (int i = 1; i < timeZoneString.length() - 1; ++i) // remove '"'
+                str << (int)timeZoneString.at(i);
+        }
+        str << std::dec << separator << status;
+
         return  true;
     }
 
@@ -2195,11 +2255,6 @@ static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str)
                                        timeAddr, SymbolGroupValue::intSize(), 0);
     str << date << '/' << time;
     return true;
-}
-
-static bool dumpQTimeZone(const SymbolGroupValue &v, std::wostream &str)
-{
-    return dumpQByteArrayFromQPrivateClass(v, QPDM_qSharedDataPadded, SymbolGroupValue::pointerSize(), str);
 }
 
 static bool dumpQPixmap(const SymbolGroupValue &v, std::wostream &str)
