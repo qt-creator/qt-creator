@@ -107,7 +107,7 @@ QList<BuildInfo *> QmakeProjectImporter::import(const FileName &importPath, bool
 
         BaseQtVersion *version
                 = Utils::findOrDefault(QtVersionManager::versions(),
-                                      [&canonicalQmakeBinary](BaseQtVersion *v) {
+                                      [&canonicalQmakeBinary](BaseQtVersion *v) -> bool {
                                           QFileInfo vfi = v->qmakeCommand().toFileInfo();
                                           FileName current = FileName::fromString(vfi.canonicalFilePath());
                                           return current == canonicalQmakeBinary;

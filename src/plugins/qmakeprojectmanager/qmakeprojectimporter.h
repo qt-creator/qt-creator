@@ -31,8 +31,9 @@
 #ifndef QMAKEPROJECTIMPORTER_H
 #define QMAKEPROJECTIMPORTER_H
 
+#include "qmakestep.h"
+
 #include <projectexplorer/projectimporter.h>
-#include <qmakestep.h>
 
 namespace QtSupport { class BaseQtVersion; }
 

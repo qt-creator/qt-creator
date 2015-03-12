@@ -36,6 +36,8 @@
 
 #include <QStringList>
 
+#include <tuple>
+
 namespace Utils { class FileName; }
 
 namespace ProjectExplorer {
