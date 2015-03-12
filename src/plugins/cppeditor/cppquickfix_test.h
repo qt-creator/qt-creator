@@ -50,8 +50,9 @@ namespace Tests {
 /// Represents a test document before and after applying the quick fix.
 ///
 /// A TestDocument's source may contain an '@' character to denote
-/// the cursor position. This marker is removed before the Editor reads
-/// the document.
+/// the cursor position. For selections the markers "@{start}" and
+/// "@{end}" can be used. The markers are removed before the editor
+/// reads the document.
 ///
 
 class QuickFixTestDocument : public TestDocument
@@ -65,6 +66,9 @@ public:
     static Ptr create(const QByteArray &fileName, const QByteArray &source,
                       const QByteArray &expectedSource);
 
+private:
+    void removeMarkers();
+
 public:
     QString m_expectedSource;
 };
@@ -74,7 +78,8 @@ typedef QList<QuickFixTestDocument::Ptr> QuickFixTestDocuments;
 class BaseQuickFixTestCase : public TestCase
 {
 public:
-    /// Exactly one QuickFixTestDocument must contain the cursor position marker '@'.
+    /// Exactly one QuickFixTestDocument must contain the cursor position marker '@'
+    /// or "@{start}" and "@{end}"
     BaseQuickFixTestCase(const QList<QuickFixTestDocument::Ptr> &testDocuments,
                          const CppTools::ProjectPart::HeaderPaths &headerPaths
                             = CppTools::ProjectPart::HeaderPaths());

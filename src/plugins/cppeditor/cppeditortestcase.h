@@ -50,9 +50,13 @@ public:
     TestDocument(const QByteArray &fileName, const QByteArray &source, char cursorMarker = '@');
 
     bool hasCursorMarker() const;
+    bool hasAnchorMarker() const;
 
 public:
     int m_cursorPosition;
+    int m_anchorPosition;
+    QString m_selectionStartMarker;
+    QString m_selectionEndMarker;
     CppEditor *m_editor;
     CppEditorWidget *m_editorWidget;
 };

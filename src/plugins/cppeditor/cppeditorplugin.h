@@ -192,6 +192,9 @@ private slots:
 
     void test_quickfix_AssignToLocalVariable_templates();
 
+    void test_quickfix_ExtractFunction_data();
+    void test_quickfix_ExtractFunction();
+
     void test_quickfix_ExtractLiteralAsParameter_typeDeduction_data();
     void test_quickfix_ExtractLiteralAsParameter_typeDeduction();
     void test_quickfix_ExtractLiteralAsParameter_freeFunction_separateFiles();

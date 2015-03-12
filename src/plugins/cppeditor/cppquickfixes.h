@@ -34,10 +34,11 @@
 #include "cppquickfix.h"
 
 #include <cpptools/cpprefactoringchanges.h>
-
 #include <extensionsystem/iplugin.h>
 
 #include <QDialog>
+
+#include <functional>
 
 QT_BEGIN_NAMESPACE
 class QByteArray;
@@ -435,7 +436,13 @@ public:
 class ExtractFunction : public CppQuickFixFactory
 {
 public:
+    typedef std::function<QString ()> FunctionNameGetter;
+
+    ExtractFunction(FunctionNameGetter functionNameGetter = FunctionNameGetter());
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+
+private:
+    FunctionNameGetter m_functionNameGetter; // For tests to avoid GUI pop-up.
 };
 
 /*!
