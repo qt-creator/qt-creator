@@ -70,6 +70,7 @@
 #include <QFileDialog>
 #include <QTimer>
 #include <QCheckBox>
+#include <QScrollArea>
 
 #include <limits>
 
@@ -103,7 +104,7 @@ Project *androidProject(const Utils::FileName &fileName)
 } // anonymous namespace
 
 AndroidManifestEditorWidget::AndroidManifestEditorWidget()
-    : QScrollArea(),
+    : QStackedWidget(),
       m_dirty(false),
       m_stayClean(false),
       m_setAppName(false),
@@ -118,8 +119,6 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget()
 
     m_editor = new AndroidManifestEditor(this);
 
-    setWidgetResizable(true);
-
     connect(&m_timerParseCheck, SIGNAL(timeout()),
             this, SLOT(delayedParseCheck()));
 
@@ -129,11 +128,8 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget()
 
 void AndroidManifestEditorWidget::initializePage()
 {
-    m_stackedWidget = new QStackedWidget(this);
-    setWidget(m_stackedWidget);
-
     Core::IContext *myContext = new Core::IContext(this);
-    myContext->setWidget(m_stackedWidget);
+    myContext->setWidget(this);
     myContext->setContext(Core::Context(androidManifestEditorGeneralPaneContextId)); // where is the context used?
     Core::ICore::addContextObject(myContext);
 
@@ -458,8 +454,12 @@ void AndroidManifestEditorWidget::initializePage()
 
     topLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::MinimumExpanding));
 
-    m_stackedWidget->insertWidget(General, mainWidget);
-    m_stackedWidget->insertWidget(Source, m_textEditorWidget);
+    QScrollArea *mainWidgetScrollArea = new QScrollArea;
+    mainWidgetScrollArea->setWidgetResizable(true);
+    mainWidgetScrollArea->setWidget(mainWidget);
+
+    insertWidget(General, mainWidgetScrollArea);
+    insertWidget(Source, m_textEditorWidget);
 }
 
 bool AndroidManifestEditorWidget::eventFilter(QObject *obj, QEvent *event)
@@ -540,7 +540,7 @@ bool AndroidManifestEditorWidget::isModified() const
 
 AndroidManifestEditorWidget::EditorPage AndroidManifestEditorWidget::activePage() const
 {
-    return AndroidManifestEditorWidget::EditorPage(m_stackedWidget->currentIndex());
+    return AndroidManifestEditorWidget::EditorPage(currentIndex());
 }
 
 bool AndroidManifestEditorWidget::setActivePage(EditorPage page)
@@ -564,7 +564,7 @@ bool AndroidManifestEditorWidget::setActivePage(EditorPage page)
 //            m_packageNameLineEdit->setFocus();
     }
 
-    m_stackedWidget->setCurrentIndex(page);
+    setCurrentIndex(page);
     return true;
 }
 
