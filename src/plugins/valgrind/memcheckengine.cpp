@@ -44,7 +44,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 
 #include <utils/qtcassert.h>
@@ -81,9 +80,6 @@ ValgrindRunner *MemcheckRunControl::runner()
 bool MemcheckRunControl::startEngine()
 {
     m_runner.setParser(&m_parser);
-
-    // Clear about-to-be-outdated tasks.
-    TaskHub::clearTasks(Analyzer::Constants::ANALYZERTASK_ID);
 
     appendMessage(tr("Analyzing memory of %1").arg(executable()) + QLatin1Char('\n'),
                         Utils::NormalMessageFormat);
