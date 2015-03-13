@@ -75,7 +75,7 @@ public:
     void setStartupProject(ProjectNode *projectNode);
 
     Node *nodeForIndex(const QModelIndex &index) const;
-    QModelIndex indexForNode(const Node *node);
+    QModelIndex indexForNode(const Node *node) const;
 
     bool projectFilterEnabled();
     bool generatedFilesFilterEnabled();
@@ -132,6 +132,8 @@ private:
 
     FolderNode *m_parentFolderForChange;
     Node *m_nodeForSortKeyChange;
+
+    static const QLoggingCategory &logger();
 
     friend class FlatModelManager;
 };

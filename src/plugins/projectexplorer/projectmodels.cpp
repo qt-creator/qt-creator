@@ -42,6 +42,7 @@
 #include <QFileInfo>
 #include <QFont>
 #include <QMimeData>
+#include <QLoggingCategory>
 
 namespace ProjectExplorer {
 
@@ -241,27 +242,9 @@ QModelIndex FlatModel::parent(const QModelIndex &idx) const
     QModelIndex parentIndex;
     if (Node *node = nodeForIndex(idx)) {
         FolderNode *parentNode = visibleFolderNode(node->parentFolderNode());
-        if (parentNode) {
-            FolderNode *grandParentNode = visibleFolderNode(parentNode->parentFolderNode());
-            if (grandParentNode) {
-                QHash<FolderNode*, QList<Node*> >::const_iterator it = m_childNodes.constFind(grandParentNode);
-                if (it == m_childNodes.constEnd()) {
-                    fetchMore(grandParentNode);
-                    it = m_childNodes.constFind(grandParentNode);
-                }
-                Q_ASSERT(it != m_childNodes.constEnd());
-                const int row = it.value().indexOf(parentNode);
-                Q_ASSERT(row >= 0);
-                parentIndex = createIndex(row, 0, parentNode);
-            } else {
-                // top level node, parent is session
-                parentIndex = index(0, 0, QModelIndex());
-            }
-        }
+        if (parentNode)
+            return indexForNode(parentNode);
     }
-
-//    qDebug() << "parent of " << idx.data(Project::FilePathRole) << " is " << parentIndex.data(Project::FilePathRole);
-
     return parentIndex;
 }
 
@@ -444,6 +427,7 @@ void FlatModel::recursiveAddFileNodes(FolderNode *startNode, QList<Node *> *list
 
 QList<Node*> FlatModel::childNodes(FolderNode *parentNode, const QSet<Node*> &blackList) const
 {
+    qCDebug(logger()) << "FlatModel::childNodes for " << parentNode->displayName();
     QList<Node*> nodeList;
 
     if (parentNode->nodeType() == SessionNodeType) {
@@ -458,6 +442,7 @@ QList<Node*> FlatModel::childNodes(FolderNode *parentNode, const QSet<Node*> &bl
         recursiveAddFileNodes(parentNode, &nodeList, blackList + nodeList.toSet());
     }
     Utils::sort(nodeList, sortNodes);
+    qCDebug(logger()) << "  found" << nodeList.size() << "nodes";
     return nodeList;
 }
 
@@ -519,7 +504,7 @@ QMimeData *FlatModel::mimeData(const QModelIndexList &indexes) const
     return data;
 }
 
-QModelIndex FlatModel::indexForNode(const Node *node_)
+QModelIndex FlatModel::indexForNode(const Node *node_) const
 {
     // We assume that we are only called for nodes that are represented
 
@@ -610,6 +595,12 @@ bool FlatModel::filter(Node *node) const
     return isHidden;
 }
 
+const QLoggingCategory &FlatModel::logger()
+{
+    static QLoggingCategory logger("qtc.projectexplorer.flatmodel");
+    return logger;
+}
+
 bool isSorted(const QList<Node *> &nodes)
 {
     int size = nodes.size();
@@ -623,11 +614,21 @@ bool isSorted(const QList<Node *> &nodes)
 /// slots and all the fun
 void FlatModel::added(FolderNode* parentNode, const QList<Node*> &newNodeList)
 {
+    qCDebug(logger()) << "FlatModel::added" << parentNode->path() << newNodeList.size() << "nodes";
     QModelIndex parentIndex = indexForNode(parentNode);
     // Old  list
     QHash<FolderNode*, QList<Node*> >::const_iterator it = m_childNodes.constFind(parentNode);
-    if (it == m_childNodes.constEnd())
+    if (it == m_childNodes.constEnd()) {
+        if (!parentIndex.isValid()) {
+            qCDebug(logger()) << "  parent not mapped returning";
+            return;
+        }
+        qCDebug(logger()) << "  updated m_childNodes";
+        beginInsertRows(parentIndex, 0, newNodeList.size() - 1);
+        m_childNodes.insert(parentNode, newNodeList);
+        endInsertRows();
         return;
+    }
     QList<Node *> oldNodeList = it.value();
 
     // Compare lists and emit signals, and modify m_childNodes on the fly
@@ -658,6 +659,7 @@ void FlatModel::added(FolderNode* parentNode, const QList<Node*> &newNodeList)
         beginInsertRows(parentIndex, 0, newNodeList.size() - 1);
         m_childNodes.insert(parentNode, newNodeList);
         endInsertRows();
+        qCDebug(logger()) << "  updated m_childNodes";
         return;
     }
 
@@ -705,15 +707,19 @@ void FlatModel::added(FolderNode* parentNode, const QList<Node*> &newNodeList)
         endInsertRows();
         oldIter = oldNodeList.constBegin() + pos;
     }
+    qCDebug(logger()) << "  updated m_childNodes";
 }
 
 void FlatModel::removed(FolderNode* parentNode, const QList<Node*> &newNodeList)
 {
+    qCDebug(logger()) << "FlatModel::removed" << parentNode->path() << newNodeList.size() << "nodes";
     QModelIndex parentIndex = indexForNode(parentNode);
     // Old  list
     QHash<FolderNode*, QList<Node*> >::const_iterator it = m_childNodes.constFind(parentNode);
-    if (it == m_childNodes.constEnd())
+    if (it == m_childNodes.constEnd()) {
+        qCDebug(logger()) << "  unmapped node";
         return;
+    }
 
     QList<Node *> oldNodeList = it.value();
     // Compare lists and emit signals, and modify m_childNodes on the fly
@@ -743,6 +749,7 @@ void FlatModel::removed(FolderNode* parentNode, const QList<Node*> &newNodeList)
         beginRemoveRows(parentIndex, 0, oldNodeList.size() - 1);
         m_childNodes.insert(parentNode, newNodeList);
         endRemoveRows();
+        qCDebug(logger()) << "  updated m_childNodes";
         return;
     }
 
@@ -789,6 +796,7 @@ void FlatModel::removed(FolderNode* parentNode, const QList<Node*> &newNodeList)
         endRemoveRows();
         oldIter = oldNodeList.constBegin() + pos;
     }
+    qCDebug(logger()) << "  updated m_childNodes";
 }
 
 void FlatModel::aboutToShowInSimpleTreeChanged(FolderNode* node)
@@ -818,6 +826,7 @@ void FlatModel::showInSimpleTreeChanged(FolderNode *node)
 
 void FlatModel::foldersAboutToBeAdded(FolderNode *parentFolder, const QList<FolderNode*> &newFolders)
 {
+    qCDebug(logger()) << "FlatModel::foldersAboutToBeAdded";
     Q_UNUSED(newFolders)
     m_parentFolderForChange = parentFolder;
 }
@@ -886,6 +895,7 @@ void FlatModel::foldersRemoved()
 
 void FlatModel::filesAboutToBeAdded(FolderNode *folder, const QList<FileNode*> &newFiles)
 {
+    qCDebug(logger()) << "FlatModel::filesAboutToBeAdded";
     Q_UNUSED(newFiles)
     m_parentFolderForChange = folder;
 }
