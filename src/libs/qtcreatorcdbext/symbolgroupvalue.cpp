@@ -2231,7 +2231,7 @@ static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str)
             << offset << separator
             << std::hex;
         if (timeZoneString.length() > 2) {
-            for (int i = 1; i < timeZoneString.length() - 1; ++i) // remove '"'
+            for (unsigned i = 1; i < timeZoneString.length() - 1; ++i) // remove '"'
                 str << (int)timeZoneString.at(i);
         }
         str << std::dec << separator << status;
