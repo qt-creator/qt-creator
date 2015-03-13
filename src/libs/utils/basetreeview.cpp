@@ -326,8 +326,8 @@ void BaseTreeView::showProgressIndicator()
  */
 void BaseTreeView::hideProgressIndicator()
 {
-    QTC_ASSERT(d->m_progressIndicator, return);
-    d->m_progressIndicator->hide();
+    if (d->m_progressIndicator)
+        d->m_progressIndicator->hide();
 }
 
 void BaseTreeView::setSettings(QSettings *settings, const QByteArray &key)
