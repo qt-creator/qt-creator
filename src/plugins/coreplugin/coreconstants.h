@@ -38,11 +38,8 @@ namespace Constants {
 
 // Modes
 const char MODE_WELCOME[]          = "Welcome";
-const char MODE_WELCOME_TYPE[]     = "Type.Welcome";
 const char MODE_EDIT[]             = "Edit";
-const char MODE_EDIT_TYPE[]        = "Type.Edit";
 const char MODE_DESIGN[]           = "Design";
-const char MODE_DESIGN_TYPE[]      = "Type.Design";
 const int  P_MODE_WELCOME          = 100;
 const int  P_MODE_EDIT             = 90;
 const int  P_MODE_DESIGN           = 89;
