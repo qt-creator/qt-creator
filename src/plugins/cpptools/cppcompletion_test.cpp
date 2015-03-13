@@ -319,6 +319,7 @@ void CppToolsPlugin::test_completion()
     QEXPECT_FAIL("enum_in_function_in_struct_in_function_anon", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_class_accessed_in_member_func_cxx11", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_class_accessed_in_member_func_inline_cxx11", "QTCREATORBUG-13757", Abort);
+    QEXPECT_FAIL("pointer_partial_specialization", "QTCREATORBUG-14036", Abort);
     QCOMPARE(actualCompletions, expectedCompletions);
 }
 
@@ -2654,6 +2655,35 @@ void CppToolsPlugin::test_completion_data()
         << QLatin1String("operator ->")
         << QLatin1String("t")
         << QLatin1String("iterator"));
+
+    QTest::newRow("pointer_partial_specialization") << _(
+            "template<typename T>\n"
+            "struct Traits { typedef typename T::pointer pointer; };\n"
+            "\n"
+            "template<typename _Tp>\n"
+            "struct Traits<_Tp*> { typedef _Tp *pointer; };\n"
+            "\n"
+            "template<typename T>\n"
+            "class Temp\n"
+            "{\n"
+            "protected:\n"
+            "   typedef Traits<T> TraitsT;\n"
+            "\n"
+            "public:\n"
+            "   typedef typename TraitsT::pointer pointer;\n"
+            "   pointer p;\n"
+            "};\n"
+            "\n"
+            "struct Foo { int bar; };\n"
+            "\n"
+            "void func()\n"
+            "{\n"
+            "   Temp<Foo *> t;\n"
+            "   @\n"
+            "}\n"
+    ) << _("t.p->") << (QStringList()
+        << QLatin1String("Foo")
+        << QLatin1String("bar"));
 }
 
 void CppToolsPlugin::test_completion_member_access_operator()
