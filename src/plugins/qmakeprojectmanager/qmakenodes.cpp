@@ -2105,6 +2105,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
 
     QList<ProjectNode*> toAdd;
     QList<ProjectNode*> toRemove;
+    QList<QmakePriFileNode *> toUpdate;
 
     QList<ProjectNode*>::const_iterator existingIt = existingProjectNodes.constBegin();
     FileNameList::const_iterator newExactIt = result->newProjectFilesExact.constBegin();
@@ -2208,8 +2209,8 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
                     QmakePriFileNode *qmakePriFileNode = new QmakePriFileNode(m_project, this, nodeToAdd);
                     qmakePriFileNode->setParentFolderNode(this); // Needed for loop detection
                     qmakePriFileNode->setIncludedInExactParse(fileExact != 0 && includedInExactParse());
-                    qmakePriFileNode->update(result->priFileResults[nodeToAdd]);
                     toAdd << qmakePriFileNode;
+                    toUpdate << qmakePriFileNode;
                 } else {
                     QmakeProFileNode *qmakeProFileNode = new QmakeProFileNode(m_project, nodeToAdd);
                     qmakeProFileNode->setParentFolderNode(this); // Needed for loop detection
@@ -2234,6 +2235,9 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
         removeProjectNodes(toRemove);
     if (!toAdd.isEmpty())
         addProjectNodes(toAdd);
+
+    foreach (QmakePriFileNode *qmakePriFileNode, toUpdate)
+        qmakePriFileNode->update(result->priFileResults[qmakePriFileNode->path()]);
 
     QmakePriFileNode::update(result->priFileResults[m_projectFilePath]);
 

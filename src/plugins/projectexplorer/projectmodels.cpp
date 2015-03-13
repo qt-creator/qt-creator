@@ -427,7 +427,7 @@ void FlatModel::recursiveAddFileNodes(FolderNode *startNode, QList<Node *> *list
 
 QList<Node*> FlatModel::childNodes(FolderNode *parentNode, const QSet<Node*> &blackList) const
 {
-    qCDebug(logger()) << "FlatModel::childNodes for " << parentNode->displayName();
+    qCDebug(logger()) << "    FlatModel::childNodes for " << parentNode->path();
     QList<Node*> nodeList;
 
     if (parentNode->nodeType() == SessionNodeType) {
@@ -442,7 +442,7 @@ QList<Node*> FlatModel::childNodes(FolderNode *parentNode, const QSet<Node*> &bl
         recursiveAddFileNodes(parentNode, &nodeList, blackList + nodeList.toSet());
     }
     Utils::sort(nodeList, sortNodes);
-    qCDebug(logger()) << "  found" << nodeList.size() << "nodes";
+    qCDebug(logger()) << "      found" << nodeList.size() << "nodes";
     return nodeList;
 }
 
