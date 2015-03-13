@@ -900,11 +900,7 @@ void Preprocessor::skipPreprocesorDirective(PPToken *tk)
     ScopedBoolSwap s(m_state.m_inPreprocessorDirective, true);
 
     while (isContinuationToken(*tk)) {
-        if (tk->isComment()) {
-            synchronizeOutputLines(*tk);
-            enforceSpacing(*tk, true);
-            currentOutputBuffer().append(tk->tokenStart(), tk->bytes());
-        }
+        scanComment(tk);
         lex(tk);
     }
 }
@@ -1461,6 +1457,23 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
         m_state.popTokenBuffer();
 }
 
+bool Preprocessor::scanComment(Preprocessor::PPToken *tk)
+{
+    if (!tk->isComment())
+        return false;
+    synchronizeOutputLines(*tk);
+    enforceSpacing(*tk, true);
+    currentOutputBuffer().append(tk->tokenStart(), tk->bytes());
+    return true;
+}
+
+bool Preprocessor::consumeComments(PPToken *tk)
+{
+    while (scanComment(tk))
+        lex(tk);
+    return tk->isNot(T_EOF_SYMBOL);
+}
+
 bool Preprocessor::collectActualArguments(PPToken *tk, QVector<QVector<PPToken> > *actuals)
 {
     Q_ASSERT(tk);
@@ -1468,12 +1481,22 @@ bool Preprocessor::collectActualArguments(PPToken *tk, QVector<QVector<PPToken> 
 
     lex(tk); // consume the identifier
 
-    // consume comments
-    while (tk->isComment()) {
+    bool lastCommentIsCpp = false;
+    while (scanComment(tk)) {
+        /* After C++ comments we need to add a new line
+           e.g.
+             #define foo(a, b) int a = b
+             foo // comment
+             (x, 3);
+           can result in
+                 // commentint
+             x = 3;
+        */
+        lastCommentIsCpp = tk->is(T_CPP_COMMENT) || tk->is(T_CPP_DOXY_COMMENT);
         lex(tk);
-        if (!tk)
-            return false;
     }
+    if (lastCommentIsCpp)
+        maybeStartOutputLine();
 
     if (tk->isNot(T_LPAREN))
         //### TODO: error message
@@ -1639,6 +1662,9 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
     const unsigned defineOffset = tk->byteOffset;
     lex(tk); // consume "define" token
 
+    if (!consumeComments(tk))
+        return;
+
     if (tk->isNot(T_IDENTIFIER))
         return;
 
@@ -1658,6 +1684,8 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
         macro.setFunctionLike(true);
 
         lex(tk); // skip `('
+        if (!consumeComments(tk))
+            return;
 
         bool hasIdentifier = false;
         if (isContinuationToken(*tk) && tk->is(T_IDENTIFIER)) {
@@ -1665,13 +1693,19 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
             macro.addFormal(tk->asByteArrayRef().toByteArray());
 
             lex(tk);
+            if (!consumeComments(tk))
+                return;
 
             while (isContinuationToken(*tk) && tk->is(T_COMMA)) {
                 lex(tk);
+                if (!consumeComments(tk))
+                    return;
 
                 if (isContinuationToken(*tk) && tk->is(T_IDENTIFIER)) {
                     macro.addFormal(tk->asByteArrayRef().toByteArray());
                     lex(tk);
+                    if (!consumeComments(tk))
+                        return;
                 } else {
                     hasIdentifier = false;
                 }
@@ -1683,6 +1717,8 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
             if (!hasIdentifier)
                 macro.addFormal("__VA_ARGS__");
             lex(tk); // consume elipsis token
+            if (!consumeComments(tk))
+                return;
         }
         if (isContinuationToken(*tk) && tk->is(T_RPAREN))
             lex(tk); // consume ")" token
@@ -1727,14 +1763,8 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
         previousUtf16charsOffset = tk->utf16charOffset;
         previousLine = tk->lineno;
 
-        // Discard comments in macro definitions (keep comments flag doesn't apply here).
-        if (tk->isComment()) {
-            synchronizeOutputLines(*tk);
-            enforceSpacing(*tk, true);
-            currentOutputBuffer().append(tk->tokenStart(), tk->bytes());
-        } else {
+        if (!scanComment(tk))
             bodyTokens.push_back(*tk);
-        }
 
         lex(tk);
     }

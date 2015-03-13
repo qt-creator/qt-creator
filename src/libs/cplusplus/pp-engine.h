@@ -218,6 +218,8 @@ private:
 
     QVector<CPlusPlus::Token> tokenize(const QByteArray &text) const;
 
+    bool scanComment(PPToken *tk);
+    bool consumeComments(PPToken *tk);
     bool collectActualArguments(PPToken *tk, QVector<QVector<PPToken> > *actuals);
     void scanActualArgument(PPToken *tk, QVector<PPToken> *tokens);
 
