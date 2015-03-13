@@ -69,6 +69,24 @@ void saveData(const QByteArray &data, const QString &fileName)
     inf.close();
 }
 
+static QByteArray stringify(QByteArray code)
+{
+    QByteArray res = code.replace('"', "\\\"").replace("\n", "\\n\"\n\"");
+    if (res.endsWith("\"\n\""))
+        res.chop(3);
+    return res;
+}
+
+static bool compare(const QByteArray &actual, const QByteArray &expected)
+{
+    if (actual == expected)
+        return true;
+    qDebug() << "Compared strings are not the same\n"
+                "   Actual:\n" << stringify(actual)
+             << "   Expected:\n" << stringify(expected);
+    return false;
+}
+
 struct Include
 {
     Include(const QString &fileName, Client::IncludeType type, unsigned line)
@@ -344,7 +362,7 @@ protected:
         client.sourceNeeded("data/" + fileName, nolines);
         return output;
     }
-    static QString simplified(QByteArray buf);
+    static QByteArray simplified(const QByteArray &buf);
 
 private:
     void compare_input_output(bool keepComments = false);
@@ -396,7 +414,7 @@ private slots:
 // Remove all #... lines, and 'simplify' string, to allow easily comparing the result
 // Also, remove all unneeded spaces: keep only to ensure identifiers are separated.
 // NOTE: may not correctly handle underscore in identifiers
-QString tst_Preprocessor::simplified(QByteArray buf)
+QByteArray tst_Preprocessor::simplified(const QByteArray &buf)
 {
     QString out;
     QList<QByteArray> lines = buf.split('\n');
@@ -417,7 +435,7 @@ QString tst_Preprocessor::simplified(QByteArray buf)
             i++;
     }
 
-    return out;
+    return out.toUtf8();
 }
 
 void tst_Preprocessor::va_args()
@@ -435,7 +453,7 @@ void tst_Preprocessor::va_args()
 
     preprocessed = preprocessed.simplified();
 //    DUMP_OUTPUT(preprocessed);
-    QCOMPARE(simplified(preprocessed), QString("int f();int f(int a);int f(int a,int b);"));
+    QVERIFY(compare(simplified(preprocessed), "int f();int f(int a);int f(int a,int b);"));
 }
 
 void tst_Preprocessor::named_va_args()
@@ -452,7 +470,7 @@ void tst_Preprocessor::named_va_args()
                                              true, false);
 
     preprocessed = preprocessed.simplified();
-    QCOMPARE(simplified(preprocessed), QString("int f();int f(int a);int f(int a,int b);"));
+    QVERIFY(compare(simplified(preprocessed), "int f();int f(int a);int f(int a,int b);"));
 }
 
 void tst_Preprocessor::extra_va_args()
@@ -469,7 +487,7 @@ void tst_Preprocessor::extra_va_args()
                                              true, false);
 
     preprocessed = preprocessed.simplified();
-    QCOMPARE(simplified(preprocessed), QString("int f();float f(int b);long f(int b,int c);"));
+    QVERIFY(compare(simplified(preprocessed), "int f();float f(int b);long f(int b,int c);"));
 }
 
 void tst_Preprocessor::empty_macro_args()
@@ -489,8 +507,7 @@ void tst_Preprocessor::empty_macro_args()
 
     preprocessed = preprocessed.simplified();
 //    DUMP_OUTPUT(preprocessed);
-    QCOMPARE(simplified(preprocessed),
-             QString("const int cVal;int Val;int Val2;int;int;"));
+    QVERIFY(compare(simplified(preprocessed), "const int cVal;int Val;int Val2;int;int;"));
 }
 
 void tst_Preprocessor::macro_args_count()
@@ -626,7 +643,7 @@ void tst_Preprocessor::macro_uses()
 
     Preprocessor preprocess(&client, &env);
     QByteArray preprocessed = preprocess.run(QLatin1String("<stdin>"), buffer);
-    QCOMPARE(simplified(preprocessed), QString("void test(){int x=8;int y=9;}"));
+    QVERIFY(compare(simplified(preprocessed), "void test(){int x=8;int y=9;}"));
     QCOMPARE(client.expandedMacros(), QList<QByteArray>() << QByteArray("FOO") << QByteArray("BAR"));
     QCOMPARE(client.expandedMacrosOffset(), QList<unsigned>() << buffer.indexOf("FOO;") << buffer.indexOf("BAR;"));
     QCOMPARE(client.definedMacros(), QList<QByteArray>() << QByteArray("FOO") << QByteArray("BAR"));
@@ -801,7 +818,7 @@ void tst_Preprocessor::unfinished_function_like_macro_call()
                           "# 4 \"<stdin>\"\n");
 
 //    DUMP_OUTPUT(preprocessed);
-    QCOMPARE(preprocessed, expected__);
+    QVERIFY(compare(preprocessed, expected__));
 }
 
 void tst_Preprocessor::nasty_macro_expansion()
@@ -881,7 +898,7 @@ void tst_Preprocessor::glib_attribute()
             "}\n";
 
 //    DUMP_OUTPUT(preprocessed);
-    QCOMPARE(preprocessed, result____);
+    QVERIFY(compare(preprocessed, result____));
 }
 
 void tst_Preprocessor::builtin__FILE__()
@@ -898,7 +915,7 @@ void tst_Preprocessor::builtin__FILE__()
             "# 1 \"some-file.c\"\n"
             "const char *f = \"some-file.c\"\n";
 
-    QCOMPARE(preprocessed, result____);
+    QVERIFY(compare(preprocessed, result____));
 }
 
 void tst_Preprocessor::comparisons_data()
@@ -957,15 +974,12 @@ void tst_Preprocessor::comparisons()
         // These weird underscores are here to make the name as long as
         // "preprocessed", so the QCOMPARE error messages are nicely aligned.
         QByteArray output____ = loadSource("data/" + outfile);
-        //    QCOMPARE(preprocessed, output____);
-        QCOMPARE(QString::fromUtf8(preprocessed.constData()),
-                 QString::fromUtf8(output____.constData()));
+        QVERIFY(compare(preprocessed, output____));
     }
 
     if (!errorfile.isEmpty()) {
         QByteArray errorFileContents = loadSource("data/" + errorfile);
-        QCOMPARE(QString::fromUtf8(errors.constData()),
-                 QString::fromUtf8(errorFileContents.constData()));
+        QVERIFY(compare(errors, errorFileContents));
     }
 }
 
@@ -1252,10 +1266,10 @@ void tst_Preprocessor::comments_within()
     Preprocessor preprocess(0, &env);
     preprocess.setKeepComments(false);
     QByteArray prep = preprocess.run(QLatin1String("<stdin>"), input);
-    QCOMPARE(prep.constData(), without_comments.constData());
+    QVERIFY(compare(prep, without_comments));
     preprocess.setKeepComments(true);
     prep = preprocess.run(QLatin1String("<stdin>"), input);
-    QCOMPARE(prep.constData(), with_comments.constData());
+    QVERIFY(compare(prep, with_comments));
 }
 
 void tst_Preprocessor::comments_within_data()
@@ -1637,8 +1651,7 @@ void tst_Preprocessor::comments_before_args()
 
     preprocessed = preprocessed.simplified();
 //    DUMP_OUTPUT(preprocessed);
-    QCOMPARE(simplified(preprocessed),
-             QString("int a=1;int b=2;int c=3;int d=4;int e=5;"));
+    QVERIFY(compare(simplified(preprocessed), "int a=1;int b=2;int c=3;int d=4;int e=5;"));
 }
 
 void tst_Preprocessor::multiline_strings()
@@ -1899,7 +1912,7 @@ void tst_Preprocessor::concat()
         "# 5 \"<stdin>\"\n"
         "                           ;\n"
     );
-    QCOMPARE(prep.constData(), output.constData());
+    QVERIFY(compare(prep, output));
 }
 
 void tst_Preprocessor::excessive_nesting()
@@ -1928,7 +1941,7 @@ void tst_Preprocessor::compare_input_output(bool keepComments)
     Preprocessor preprocess(0, &env);
     preprocess.setKeepComments(keepComments);
     QByteArray prep = preprocess.run(QLatin1String("<stdin>"), input);
-    QCOMPARE(prep.constData(), output.constData());
+    QVERIFY(compare(prep, output));
 }
 
 QTEST_APPLESS_MAIN(tst_Preprocessor)
