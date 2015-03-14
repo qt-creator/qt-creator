@@ -3,4 +3,4 @@ include(../../qttest.pri)
 
 SOURCES += tst_treemodel.cpp
 
-HEADERS += $$UTILS_PATH/treemodel.h
+HEADERS += $$IDE_SOURCE_TREE/src/libs/utils/treemodel.h
