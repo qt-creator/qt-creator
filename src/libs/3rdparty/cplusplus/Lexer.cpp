@@ -610,8 +610,12 @@ void Lexer::scan_helper(Token *tok)
             yyinp();
             tok->f.kind = T_LESS_EQUAL;
         } else if (_yychar == ':') {
-            yyinp();
-            tok->f.kind = T_LBRACKET;
+            if (*(_currentChar+1) != ':' || *(_currentChar+2) == ':' || *(_currentChar+2) == '>') {
+                yyinp();
+                tok->f.kind = T_LBRACKET;
+            } else {
+                tok->f.kind = T_LESS;
+            }
         } else if (_yychar == '%') {
             yyinp();
             tok->f.kind = T_LBRACE;

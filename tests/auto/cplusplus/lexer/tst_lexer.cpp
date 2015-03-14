@@ -770,6 +770,14 @@ void tst_SimpleLexer::digraph_data()
     QTest::newRow("pound_pound_mixed_digraph_1") << _("#%:") << (TokenKindList() << T_POUND << T_POUND);
 
     QTest::newRow("pound_pound_mixed_digraph_2") << _("%:#") << (TokenKindList() << T_POUND << T_POUND);
+
+    QTest::newRow("lbracket_digraph_exception1") << _("<::") << (TokenKindList() << T_LESS << T_COLON_COLON);
+
+    QTest::newRow("lbracket_digraph_exception2") << _("<::x") << (TokenKindList() << T_LESS << T_COLON_COLON << T_IDENTIFIER);
+
+    QTest::newRow("lbracket_digraph_exception3") << _("<:::") << (TokenKindList() << T_LBRACKET << T_COLON_COLON);
+
+    QTest::newRow("lbracket_digraph_exception4") << _("<::>") << (TokenKindList() << T_LBRACKET << T_RBRACKET);
 }
 
 void tst_SimpleLexer::trigraph()
