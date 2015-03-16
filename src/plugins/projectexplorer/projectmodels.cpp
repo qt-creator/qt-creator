@@ -617,6 +617,12 @@ void FlatModel::added(FolderNode* parentNode, const QList<Node*> &newNodeList)
     qCDebug(logger()) << "FlatModel::added" << parentNode->path() << newNodeList.size() << "nodes";
     QModelIndex parentIndex = indexForNode(parentNode);
     // Old  list
+
+    if (newNodeList.isEmpty()) {
+        qCDebug(logger()) << "  newNodeList empty";
+        return;
+    }
+
     QHash<FolderNode*, QList<Node*> >::const_iterator it = m_childNodes.constFind(parentNode);
     if (it == m_childNodes.constEnd()) {
         if (!parentIndex.isValid()) {
