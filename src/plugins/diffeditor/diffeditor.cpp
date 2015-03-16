@@ -326,7 +326,7 @@ QWidget *DiffEditor::toolBar()
 
     m_contextLabel = new QLabel(m_toolBar);
 
-    m_contextLabel->setText(tr("Context Lines:"));
+    m_contextLabel->setText(tr("Context lines:"));
     m_contextLabel->setContentsMargins(6, 0, 6, 0);
     m_toolBar->addWidget(m_contextLabel);
 
