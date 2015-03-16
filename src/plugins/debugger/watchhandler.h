@@ -257,8 +257,6 @@ private:
     DebuggerEngine *m_engine; // Not owned.
     SeparatedView *m_separatedView; // Owned.
 
-    int m_watcherCounter;
-
     bool m_contentsValid;
     bool m_resetLocationScheduled;
 };

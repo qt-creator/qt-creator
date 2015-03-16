@@ -69,6 +69,7 @@ enum { debugModel = 0 };
 #define MODEL_DEBUG(s) do { if (debugModel) qDebug() << s; } while (0)
 
 static QHash<QByteArray, int> theWatcherNames;
+static int theWatcherCount = 0;
 static QHash<QByteArray, int> theTypeFormats;
 static QHash<QByteArray, int> theIndividualFormats;
 static int theUnprintableBase = -1;
@@ -861,7 +862,7 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
                     theWatcherNames.remove(item->d.exp);
                     item->d.exp = exp;
                     item->d.name = QString::fromLatin1(exp);
-                    theWatcherNames[exp] = m_handler->m_watcherCounter++;
+                    theWatcherNames[exp] = theWatcherCount++;
                     m_handler->saveWatchers();
                     if (engine()->state() == DebuggerNotReady) {
                         item->d.setAllUnneeded();
@@ -1154,7 +1155,6 @@ void WatchModel::setCurrentItem(const QByteArray &iname)
 WatchHandler::WatchHandler(DebuggerEngine *engine)
 {
     m_engine = engine;
-    m_watcherCounter = sessionValue("Watchers").toStringList().count();
     m_model = new WatchModel(this);
     m_contentsValid = false;
     m_contentsValid = true; // FIXME
@@ -1318,7 +1318,7 @@ void WatchHandler::watchExpression(const QString &exp0, const QString &name)
     WatchData data;
     data.exp = exp.toLatin1();
     data.name = name.isEmpty() ? exp : name;
-    theWatcherNames[data.exp] = m_watcherCounter++;
+    theWatcherNames[data.exp] = theWatcherCount++;
     saveWatchers();
 
     if (exp.isEmpty())
@@ -1443,7 +1443,7 @@ void WatchHandler::clearWatches()
 
     m_model->m_watchRoot->removeChildren();
     theWatcherNames.clear();
-    m_watcherCounter = 0;
+    theWatcherCount = 0;
     updateWatchersWindow();
     saveWatchers();
 }
@@ -1539,7 +1539,7 @@ void WatchHandler::loadSessionData()
 {
     loadFormats();
     theWatcherNames.clear();
-    m_watcherCounter = 0;
+    theWatcherCount = 0;
     QVariant value = sessionValue("Watchers");
     m_model->m_watchRoot->removeChildren();
     foreach (const QString &exp, value.toStringList())
