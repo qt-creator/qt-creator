@@ -1257,8 +1257,9 @@ void readSettings()
 
 QString DocumentManager::fileDialogInitialDirectory()
 {
-    if (EditorManager::currentDocument() && !EditorManager::currentDocument()->isTemporary())
-        return QFileInfo(EditorManager::currentDocument()->filePath().toString()).absolutePath();
+    IDocument *doc = EditorManager::currentDocument();
+    if (doc && !doc->isTemporary() && !doc->filePath().isEmpty())
+        return doc->filePath().toFileInfo().absolutePath();
     if (!d->m_defaultLocationForNewFiles.isEmpty())
         return d->m_defaultLocationForNewFiles;
     return d->m_lastVisitedDirectory;
