@@ -191,8 +191,12 @@ QList<BuildInfo *> QmakeProjectImporter::import(const FileName &importPath, bool
             ToolChain *tc = ToolChainKitInformation::toolChain(k);
             if (kitSpec.isEmpty() && kitVersion)
                 kitSpec = kitVersion->mkspecFor(tc);
-            QMakeStepConfig::TargetArchConfig kitTargetArch = QMakeStepConfig::targetArchFor(tc->targetAbi(), kitVersion);
-            QMakeStepConfig::OsType kitOsType = QMakeStepConfig::osTypeFor(tc->targetAbi(), kitVersion);
+            QMakeStepConfig::TargetArchConfig kitTargetArch = QMakeStepConfig::NoArch;
+            QMakeStepConfig::OsType kitOsType = QMakeStepConfig::NoOsType;
+            if (tc) {
+                kitTargetArch = QMakeStepConfig::targetArchFor(tc->targetAbi(), kitVersion);
+                kitOsType = QMakeStepConfig::osTypeFor(tc->targetAbi(), kitVersion);
+            }
             qCDebug(logs) << k->displayName()
                           << "version:" << (kitVersion == version)
                           << "spec:" << (kitSpec == parsedSpec)
