@@ -413,7 +413,7 @@ void KitEnvironmentConfigWidget::refresh()
     QString shortSummary = Utils::EnvironmentItem::toStringList(changes).join(QLatin1String("; "));
     QFontMetrics fm(m_summaryLabel->font());
     shortSummary = fm.elidedText(shortSummary, Qt::ElideRight, m_summaryLabel->width());
-    m_summaryLabel->setText(shortSummary.isEmpty() ? tr("No Changes to apply") : shortSummary);
+    m_summaryLabel->setText(shortSummary.isEmpty() ? tr("No changes to apply.") : shortSummary);
     if (m_editor)
         m_editor->setPlainText(Utils::EnvironmentItem::toStringList(changes).join(QLatin1Char('\n')));
 }
