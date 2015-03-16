@@ -148,14 +148,14 @@ JsonFieldPage::Field *JsonFieldPage::Field::parse(const QVariant &input, QString
     const QString type = tmp.value(QLatin1String(TYPE_KEY)).toString();
     if (type.isEmpty()) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "Field '%1' has no type.").arg(name);
+                                                    "Field \"%1\" has no type.").arg(name);
         return 0;
     }
 
     Field *data = createFieldData(type);
     if (!data) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "Field '%1' has unsupported type '%2'.")
+                                                    "Field \"%1\" has unsupported type \"%2\".")
                 .arg(name).arg(type);
         return 0;
     }
@@ -171,7 +171,7 @@ JsonFieldPage::Field *JsonFieldPage::Field::parse(const QVariant &input, QString
     QVariant dataVal = tmp.value(QLatin1String(DATA_KEY));
     if (!data->parseData(dataVal, errorMessage)) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "When parsing Field '%1': %2")
+                                                    "When parsing Field \"%1\": %2")
                 .arg(name).arg(*errorMessage);
         delete data;
         return 0;
@@ -278,7 +278,7 @@ bool JsonFieldPage::SpacerField::parseData(const QVariant &data, QString *errorM
 
     if (!ok) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "'factor' is no integer value.");
+                                                    "\"factor\" is no integer value.");
         return false;
     }
 
@@ -518,9 +518,9 @@ bool JsonFieldPage::PathChooserField::parseData(const QVariant &data, QString *e
         m_kind = PathChooser::Any;
     } else {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "kind '%1' is not one of the supported 'existingDirectory', "
-                                                    "'directory', 'file', 'saveFile', 'existingCommand', "
-                                                    "'command', 'any'.")
+                                                    "kind \"%1\" is not one of the supported \"existingDirectory\", "
+                                                    "\"directory\", \"file\", \"saveFile\", \"existingCommand\", "
+                                                    "\"command\", \"any\".")
                 .arg(kindStr);
         return false;
     }
@@ -664,7 +664,7 @@ QPair<QString, QString> parseComboBoxItem(const QVariant &item, QString *errorMe
         QString value = tmp.value(QLatin1String("value"), QString()).toString();
         if (key.isNull() || key.isEmpty()) {
             *errorMessage  = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                         "No 'key' found in ComboBox items.");
+                                                         "No \"key\" found in ComboBox items.");
             return qMakePair(QString(), QString());
         }
         if (value.isNull())
@@ -690,25 +690,25 @@ bool JsonFieldPage::ComboBoxField::parseData(const QVariant &data, QString *erro
     m_index = tmp.value(QLatin1String("index"), 0).toInt(&ok);
     if (!ok) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "ComboBox 'index' is not an integer value.");
+                                                    "ComboBox \"index\" is not an integer value.");
         return false;
     }
     m_disabledIndex = tmp.value(QLatin1String("disabledIndex"), -1).toInt(&ok);
     if (!ok) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "ComboBox 'disabledIndex' is not an integer value.");
+                                                    "ComboBox \"disabledIndex\" is not an integer value.");
         return false;
     }
 
     QVariant value = tmp.value(QLatin1String("items"));
     if (value.isNull()) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "ComboBox 'items' missing.");
+                                                    "ComboBox \"items\" missing.");
         return false;
     }
     if (value.type() != QVariant::List) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "ComboBox 'items' is not a list.");
+                                                    "ComboBox \"items\" is not a list.");
         return false;
     }
 
