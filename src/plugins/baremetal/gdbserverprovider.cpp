@@ -317,10 +317,10 @@ void GdbServerProviderConfigWidget::populateStartupModes()
         m_startupModeComboBox->insertItem(
                     idx,
                     (m == GdbServerProvider::NoStartup)
-                    ? tr("No startup")
+                    ? tr("No Startup")
                     : ((m == GdbServerProvider::StartupOnNetwork)
-                       ? tr("Startup in TCP/IP mode")
-                       : tr("Startup in Pipe mode")),
+                       ? tr("Startup in TCP/IP Mode")
+                       : tr("Startup in Pipe Mode")),
                     m);
     }
 }
