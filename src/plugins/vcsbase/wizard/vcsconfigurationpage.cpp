@@ -80,6 +80,7 @@ bool VcsConfigurationPageFactory::validateData(Id typeId, const QVariant &data,
     QTC_ASSERT(canCreate(typeId), return false);
 
     if (data.isNull() || data.type() != QVariant::Map) {
+        //: Do not translate "VcsConfiguration", because it is the id of a page.
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
                                                     "\"data\" must be a JSON object for \"VcsConfiguration\" pages.");
         return false;
@@ -88,6 +89,7 @@ bool VcsConfigurationPageFactory::validateData(Id typeId, const QVariant &data,
     QVariantMap tmp = data.toMap();
     const QString vcsId = tmp.value(QLatin1String("vcsId")).toString();
     if (vcsId.isEmpty()) {
+        //: Do not translate "VcsConfiguration", because it is the id of a page.
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
                                                     "\"VcsConfiguration\" page requires a \"vcsId\" set.");
         return false;
@@ -145,14 +147,17 @@ void VcsConfigurationPage::initializePage()
 {
     if (!d->m_versionControlId.isEmpty()) {
         auto jw = qobject_cast<JsonWizard *>(wizard());
-        if (!jw)
+        if (!jw) {
+            //: Do not translate "VcsConfiguration", because it is the id of a page.
             emit reportError(tr("No version control set on \"VcsConfiguration\" page."));
+        }
 
         const QString vcsId = jw ? jw->expander()->expand(d->m_versionControlId) : d->m_versionControlId;
 
         d->m_versionControl = VcsManager::versionControl(Id::fromString(vcsId));
         if (!d->m_versionControl) {
             emit reportError(
+                        //: Do not translate "VcsConfiguration", because it is the id of a page.
                         tr("\"vcsId\" (\"%1\") is invalid for \"VcsConfiguration\" page. "
                            "Possible values are: %2.")
                         .arg(vcsId)
