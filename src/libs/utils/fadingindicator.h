@@ -40,7 +40,13 @@
 namespace Utils {
 namespace FadingIndicator {
 
-QTCREATOR_UTILS_EXPORT void showText(QWidget *parent, const QString &text);
+enum TextSize {
+    SmallText,
+    LargeText
+};
+
+QTCREATOR_UTILS_EXPORT void showText(QWidget *parent, const QString &text,
+                                     TextSize size = LargeText);
 QTCREATOR_UTILS_EXPORT void showPixmap(QWidget *parent, const QString &pixmap);
 
 } // FadingIndicator

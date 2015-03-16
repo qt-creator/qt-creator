@@ -40,6 +40,8 @@
 
 #include <QDir>
 
+#include <utils/qtcassert.h>
+
 using namespace CppEditor::Internal;
 
 namespace CppEditor {
@@ -48,13 +50,33 @@ namespace Tests {
 
 TestDocument::TestDocument(const QByteArray &fileName, const QByteArray &source, char cursorMarker)
     : CppTools::Tests::TestDocument(fileName, source, cursorMarker)
-    , m_cursorPosition(m_source.indexOf(QLatin1Char(m_cursorMarker)))
+    , m_cursorPosition(-1)
+    , m_anchorPosition(-1)
+    , m_selectionStartMarker(QLatin1Char(m_cursorMarker) + QLatin1String("{start}"))
+    , m_selectionEndMarker(QLatin1Char(m_cursorMarker) + QLatin1String("{end}"))
     , m_editor(0)
     , m_editorWidget(0)
 {
+    // Try to find selection markers
+    const int selectionStartIndex = m_source.indexOf(m_selectionStartMarker);
+    const int selectionEndIndex = m_source.indexOf(m_selectionEndMarker);
+    const bool bothSelectionMarkersFound = selectionStartIndex != -1 && selectionEndIndex != -1;
+    const bool noneSelectionMarkersFounds = selectionStartIndex == -1 && selectionEndIndex == -1;
+    QTC_ASSERT(bothSelectionMarkersFound || noneSelectionMarkersFounds, return);
+
+    if (selectionStartIndex != -1) {
+        m_cursorPosition = selectionEndIndex;
+        m_anchorPosition = selectionStartIndex;
+
+    // No selection markers found, so check for simple cursorMarker
+    } else {
+        m_cursorPosition = m_source.indexOf(QLatin1Char(cursorMarker));
+    }
 }
 
 bool TestDocument::hasCursorMarker() const { return m_cursorPosition != -1; }
+
+bool TestDocument::hasAnchorMarker() const { return m_anchorPosition != -1; }
 
 TestCase::TestCase(bool runGarbageCollector)
     : CppTools::Tests::TestCase(runGarbageCollector)

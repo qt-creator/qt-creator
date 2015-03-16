@@ -3118,13 +3118,16 @@ public:
                     int extractionEnd,
                     FunctionDefinitionAST *refFuncDef,
                     Symbol *funcReturn,
-                    QList<QPair<QString, QString> > relevantDecls)
+                    QList<QPair<QString, QString> > relevantDecls,
+                    ExtractFunction::FunctionNameGetter functionNameGetter
+                             = ExtractFunction::FunctionNameGetter())
         : CppQuickFixOperation(interface)
         , m_extractionStart(extractionStart)
         , m_extractionEnd(extractionEnd)
         , m_refFuncDef(refFuncDef)
         , m_funcReturn(funcReturn)
         , m_relevantDecls(relevantDecls)
+        , m_functionNameGetter(functionNameGetter)
     {
         setDescription(QCoreApplication::translate("QuickFix::ExtractFunction", "Extract Function"));
     }
@@ -3135,7 +3138,7 @@ public:
         CppRefactoringChanges refactoring(snapshot());
         CppRefactoringFilePtr currentFile = refactoring.file(fileName());
 
-        const QString &funcName = getFunctionName();
+        const QString &funcName = m_functionNameGetter ? m_functionNameGetter() : getFunctionName();
         if (funcName.isEmpty())
             return;
 
@@ -3302,6 +3305,7 @@ public:
     FunctionDefinitionAST *m_refFuncDef;
     Symbol *m_funcReturn;
     QList<QPair<QString, QString> > m_relevantDecls;
+    ExtractFunction::FunctionNameGetter m_functionNameGetter;
 };
 
 QPair<QString, QString> assembleDeclarationData(const QString &specifiers, DeclaratorAST *decltr,
@@ -3505,6 +3509,11 @@ public:
 
 } // anonymous namespace
 
+ExtractFunction::ExtractFunction(FunctionNameGetter functionNameGetter)
+    : m_functionNameGetter(functionNameGetter)
+{
+}
+
 void ExtractFunction::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
 {
     CppRefactoringFilePtr file = interface.currentFile();
@@ -3632,7 +3641,8 @@ void ExtractFunction::match(const CppQuickFixInterface &interface, QuickFixOpera
                                                analyser.m_extractionEnd,
                                                refFuncDef,
                                                funcReturn,
-                                               relevantDecls));
+                                               relevantDecls,
+                                               m_functionNameGetter));
 }
 
 namespace {

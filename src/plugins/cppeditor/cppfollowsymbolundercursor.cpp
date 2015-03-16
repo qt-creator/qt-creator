@@ -395,6 +395,78 @@ Symbol *findDefinition(Symbol *symbol, const Snapshot &snapshot, SymbolFinder *s
     return symbolFinder->findMatchingDefinition(symbol, snapshot);
 }
 
+bool maybeAppendArgumentOrParameterList(QString *expression, const QTextCursor &textCursor)
+{
+    QTC_ASSERT(expression, return false);
+    QTextDocument *textDocument = textCursor.document();
+    QTC_ASSERT(textDocument, return false);
+
+    // Skip white space
+    QTextCursor cursor(textCursor);
+    while (textDocument->characterAt(cursor.position()).isSpace()
+           && cursor.movePosition(QTextCursor::NextCharacter)) {
+    }
+
+    // Find/Include "(arg1, arg2, ...)"
+    if (textDocument->characterAt(cursor.position()) == QLatin1Char('(')) {
+        if (TextBlockUserData::findNextClosingParenthesis(&cursor, true)) {
+            expression->append(cursor.selectedText());
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool isCursorOnTrailingReturnType(const QList<AST *> &astPath)
+{
+    for (auto it = astPath.cend() - 1, begin = astPath.cbegin(); it >= begin; --it) {
+        const auto nextIt = it + 1;
+        const auto nextNextIt = nextIt + 1;
+        if (nextNextIt != astPath.cend() && (*it)->asTrailingReturnType()) {
+            return (*nextIt)->asNamedTypeSpecifier()
+                    && ((*nextNextIt)->asSimpleName()
+                        || (*nextNextIt)->asQualifiedName()
+                        || (*nextNextIt)->asTemplateId());
+        }
+    }
+
+    return false;
+}
+
+void maybeFixExpressionInTrailingReturnType(QString *expression,
+                                            const QTextCursor &textCursor,
+                                            const Document::Ptr documentFromSemanticInfo)
+{
+    QTC_ASSERT(expression, return);
+
+    if (!documentFromSemanticInfo)
+        return;
+
+    const QString arrow = QLatin1String("->");
+    const int arrowPosition = expression->lastIndexOf(arrow);
+    if (arrowPosition != -1) {
+        ASTPath astPathFinder(documentFromSemanticInfo);
+        const QList<AST *> astPath = astPathFinder(textCursor);
+
+        if (isCursorOnTrailingReturnType(astPath))
+            *expression = expression->mid(arrowPosition + arrow.size()).trimmed();
+    }
+}
+
+QString expressionUnderCursorAsString(const QTextCursor &textCursor,
+                                      const Document::Ptr documentFromSemanticInfo,
+                                      const LanguageFeatures &features)
+{
+    ExpressionUnderCursor expressionUnderCursor(features);
+    QString expression = expressionUnderCursor(textCursor);
+
+    if (!maybeAppendArgumentOrParameterList(&expression, textCursor))
+        maybeFixExpressionInTrailingReturnType(&expression, textCursor, documentFromSemanticInfo);
+
+    return expression;
+}
+
 } // anonymous namespace
 
 FollowSymbolUnderCursor::FollowSymbolUnderCursor(CppEditorWidget *widget)
@@ -613,22 +685,9 @@ TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &curs
         return link;
 
     // Evaluate the type of the expression under the cursor
-    ExpressionUnderCursor expressionUnderCursor(features);
-    QString expression = expressionUnderCursor(tc);
-
-    for (int pos = tc.position();; ++pos) {
-        const QChar ch = document->characterAt(pos);
-        if (ch.isSpace())
-            continue;
-        if (ch == QLatin1Char('(') && !expression.isEmpty()) {
-            tc.setPosition(pos);
-            if (TextBlockUserData::findNextClosingParenthesis(&tc, true))
-                expression.append(tc.selectedText());
-        }
-
-        break;
-    }
-
+    QTC_CHECK(document == tc.document());
+    const QString expression = expressionUnderCursorAsString(tc, documentFromSemanticInfo,
+                                                             features);
     const QSharedPointer<TypeOfExpression> typeOfExpression(new TypeOfExpression);
     typeOfExpression->init(doc, snapshot);
     // make possible to instantiate templates

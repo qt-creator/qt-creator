@@ -366,6 +366,13 @@ void KitManagerConfigWidget::kitWasUpdated(Kit *k)
     updateVisibility();
 }
 
+void KitManagerConfigWidget::showEvent(QShowEvent *event)
+{
+    Q_UNUSED(event);
+    foreach (KitConfigWidget *widget, m_widgets)
+        widget->refresh();
+}
+
 QLabel *KitManagerConfigWidget::createLabel(const QString &name, const QString &toolTip)
 {
     QLabel *label = new QLabel(name);

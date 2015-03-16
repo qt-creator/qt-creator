@@ -1706,7 +1706,10 @@ bool CreateBindings::visit(Declaration *decl)
 bool CreateBindings::visit(Function *function)
 {
     ClassOrNamespace *previous = _currentClassOrNamespace;
-    _currentClassOrNamespace = lookupType(function, previous);
+    ClassOrNamespace *binding = lookupType(function, previous);
+    if (!binding)
+        return false;
+    _currentClassOrNamespace = binding;
     for (unsigned i = 0, count = function->memberCount(); i < count; ++i) {
         Symbol *s = function->memberAt(i);
         if (Block *b = s->asBlock())

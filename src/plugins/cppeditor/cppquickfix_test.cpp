@@ -73,8 +73,27 @@ QuickFixTestDocument::QuickFixTestDocument(const QByteArray &fileName,
     : TestDocument(fileName, source)
     , m_expectedSource(QString::fromUtf8(expectedSource))
 {
-    if (m_cursorPosition > -1)
+    removeMarkers();
+}
+
+void QuickFixTestDocument::removeMarkers()
+{
+    // Remove selection markers
+    if (m_anchorPosition != -1) {
+        if (m_anchorPosition < m_cursorPosition) {
+            m_source.remove(m_anchorPosition, m_selectionStartMarker.size());
+            m_cursorPosition -= m_selectionStartMarker.size();
+            m_source.remove(m_cursorPosition, m_selectionEndMarker.size());
+        } else {
+            m_source.remove(m_cursorPosition, m_selectionEndMarker.size());
+            m_anchorPosition -= m_selectionEndMarker.size();
+            m_source.remove(m_anchorPosition, m_selectionStartMarker.size());
+        }
+
+    // Remove simple cursor marker
+    } else if (m_cursorPosition != -1) {
         m_source.remove(m_cursorPosition, 1);
+    }
 
     const int cursorPositionInExpectedSource
         = m_expectedSource.indexOf(QLatin1Char(m_cursorMarker));
@@ -135,9 +154,16 @@ BaseQuickFixTestCase::BaseQuickFixTestCase(const QList<QuickFixTestDocument::Ptr
         closeEditorAtEndOfTestCase(document->m_editor);
 
         // Set cursor position
-        const int cursorPosition = document->hasCursorMarker()
-                ? document->m_cursorPosition : 0;
-        document->m_editor->setCursorPosition(cursorPosition);
+        if (document->hasCursorMarker()) {
+            if (document->hasAnchorMarker()) {
+                document->m_editor->setCursorPosition(document->m_anchorPosition);
+                document->m_editor->select(document->m_cursorPosition);
+            } else {
+                document->m_editor->setCursorPosition(document->m_cursorPosition);
+            }
+        } else {
+            document->m_editor->setCursorPosition(0);
+        }
 
         // Rehighlight
         waitForRehighlightedSemanticDocument(document->m_editorWidget);
@@ -4346,6 +4372,39 @@ void CppEditorPlugin::test_quickfix_AssignToLocalVariable_templates()
     testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
 
     AssignToLocalVariable factory;
+    QuickFixOperationTest(testDocuments, &factory);
+}
+
+void CppEditorPlugin::test_quickfix_ExtractFunction_data()
+{
+    QTest::addColumn<QByteArray>("original");
+    QTest::addColumn<QByteArray>("expected");
+
+    QTest::newRow("basic")
+        << _("void f()\n"
+             "{\n"
+             "    @{start}g();@{end}\n"
+             "}\n")
+        << _("void extracted()\n"
+             "{\n"
+             "    g();\n"
+             "}\n"
+             "\n"
+             "void f()\n"
+             "{\n"
+             "    extracted();\n"
+             "}\n");
+}
+
+void CppEditorPlugin::test_quickfix_ExtractFunction()
+{
+    QFETCH(QByteArray, original);
+    QFETCH(QByteArray, expected);
+
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
+
+    ExtractFunction factory([]() { return QLatin1String("extracted"); });
     QuickFixOperationTest(testDocuments, &factory);
 }
 

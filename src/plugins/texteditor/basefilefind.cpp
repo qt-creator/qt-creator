@@ -42,9 +42,10 @@
 #include <coreplugin/find/ifindsupport.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/refactoringchanges.h>
-#include <utils/stylehelper.h>
-#include <utils/qtcassert.h>
+#include <utils/fadingindicator.h>
 #include <utils/filesearch.h>
+#include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 
 #include <QDebug>
 #include <QSettings>
@@ -208,6 +209,9 @@ void BaseFileFind::doReplace(const QString &text,
 {
     QStringList files = replaceAll(text, items, preserveCase);
     if (!files.isEmpty()) {
+        Utils::FadingIndicator::showText(ICore::mainWindow(),
+            tr("%1 occurrences replaced.").arg(items.size()),
+            Utils::FadingIndicator::SmallText);
         DocumentManager::notifyFilesChangedInternally(files);
         SearchResultWindow::instance()->hide();
     }

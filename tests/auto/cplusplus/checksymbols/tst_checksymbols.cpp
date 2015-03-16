@@ -194,6 +194,8 @@ private slots:
 
     void test_checksymbols_infiniteLoop_data();
     void test_checksymbols_infiniteLoop();
+
+    void test_parentOfBlock();
 };
 
 void tst_CheckSymbols::test_checksymbols()
@@ -1772,6 +1774,19 @@ void tst_CheckSymbols::test_checksymbols_infiniteLoop()
     snapshot.insert(TestCase::createDocument(filePath2, source2));
 
     TestCase::runCheckSymbols(document1, snapshot);
+}
+
+void tst_CheckSymbols::test_parentOfBlock()
+{
+    const QByteArray source = "void C::f()\n"
+                              "{\n"
+                              "    enum E { e1 };\n"
+                              "}\n";
+
+    const Document::Ptr document = TestCase::createDocument(QLatin1String("file1.cpp"), source);
+    Snapshot snapshot;
+    snapshot.insert(document);
+    TestCase::runCheckSymbols(document, snapshot);
 }
 
 void tst_CheckSymbols::test_checksymbols_infiniteLoop_data()

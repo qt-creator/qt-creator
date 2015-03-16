@@ -1061,6 +1061,8 @@ int ClangCompletionAssistProcessor::startCompletionInternal(const QString fileNa
     foreach (ClangAssistProposalItem *item, items.values())
         m_completions.append(item);
 
+    addSnippets();
+
     return m_startPosition;
 }
 

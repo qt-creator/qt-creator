@@ -48,7 +48,7 @@ class FadingIndicatorPrivate : public QWidget
     Q_OBJECT
 
 public:
-    FadingIndicatorPrivate(QWidget *parent = 0)
+    FadingIndicatorPrivate(QWidget *parent, FadingIndicator::TextSize size)
         : QWidget(parent)
     {
         m_effect = new QGraphicsOpacityEffect(this);
@@ -57,7 +57,7 @@ public:
 
         m_label = new QLabel;
         QFont font = m_label->font();
-        font.setPixelSize(45);
+        font.setPixelSize(size == FadingIndicator::LargeText ? 45 : 22);
         m_label->setFont(font);
         QPalette pal = palette();
         pal.setColor(QPalette::Foreground, pal.color(QPalette::Background));
@@ -126,16 +126,16 @@ private:
 
 namespace FadingIndicator {
 
-void showText(QWidget *parent, const QString &text)
+void showText(QWidget *parent, const QString &text, TextSize size)
 {
-    auto indicator = new Internal::FadingIndicatorPrivate(parent);
+    auto indicator = new Internal::FadingIndicatorPrivate(parent, size);
     indicator->setText(text);
-    indicator->run(1000); // deletes itself
+    indicator->run(2500); // deletes itself
 }
 
 void showPixmap(QWidget *parent, const QString &pixmap)
 {
-    auto indicator = new Internal::FadingIndicatorPrivate(parent);
+    auto indicator = new Internal::FadingIndicatorPrivate(parent, LargeText);
     indicator->setPixmap(pixmap);
     indicator->run(300); // deletes itself
 }

@@ -35,7 +35,6 @@
 
 #include <QAbstractListModel>
 #include <QStackedWidget>
-#include <QScrollArea>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
@@ -86,7 +85,7 @@ public:
     explicit AndroidManifestTextEditorWidget(AndroidManifestEditorWidget *parent);
 };
 
-class AndroidManifestEditorWidget : public QScrollArea
+class AndroidManifestEditorWidget : public QStackedWidget
 {
     Q_OBJECT
 public:
@@ -196,7 +195,6 @@ private:
 
     QTimer m_timerParseCheck;
     TextEditor::TextEditorWidget *m_textEditorWidget;
-    QStackedWidget *m_stackedWidget;
     AndroidManifestEditor *m_editor;
 };
 } // namespace Internal

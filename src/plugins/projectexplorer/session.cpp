@@ -178,7 +178,8 @@ bool SessionManager::isDefaultSession(const QString &session)
 
 void SessionManager::saveActiveMode(IMode *mode)
 {
-    setValue(QLatin1String("ActiveMode"), mode->id().toString());
+    if (mode->id() != Id(Core::Constants::MODE_WELCOME))
+        setValue(QLatin1String("ActiveMode"), mode->id().toString());
 }
 
 void SessionManager::clearProjectFileCache()

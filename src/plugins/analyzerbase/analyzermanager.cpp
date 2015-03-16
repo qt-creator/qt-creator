@@ -52,6 +52,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
 
 #include <utils/algorithm.h>
 #include <utils/fancymainwindow.h>
@@ -420,6 +421,7 @@ bool AnalyzerManagerPrivate::showPromptDialog(const QString &title, const QStrin
 void AnalyzerManagerPrivate::startTool()
 {
     QTC_ASSERT(m_currentAction, return);
+    TaskHub::clearTasks(Constants::ANALYZERTASK_ID);
     m_currentAction->toolStarter()();
 }
 

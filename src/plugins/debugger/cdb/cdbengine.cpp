@@ -347,7 +347,6 @@ void CdbEngine::init()
     m_watchPointX = m_watchPointY = 0;
     m_ignoreCdbOutput = false;
     m_autoBreakPointCorrection = false;
-    m_watchInameToName.clear();
     m_wow64State = wow64Uninitialized;
 
     m_outputBuffer.clear();
@@ -986,14 +985,10 @@ void CdbEngine::updateWatchData(const WatchData &dataIn)
         return;
 
     // New watch item?
-    if (isWatchIName(dataIn.iname) && dataIn.isValueNeeded()) {
+    if (dataIn.isWatcher() && dataIn.isValueNeeded()) {
         QByteArray args;
         ByteArrayInputStream str(args);
         str << dataIn.iname << " \"" << dataIn.exp << '"';
-        // Store the name since the CDB extension library
-        // does not maintain the names of watches.
-        if (!dataIn.name.isEmpty() && dataIn.name != QLatin1String(dataIn.exp))
-            m_watchInameToName.insert(dataIn.iname, dataIn.name);
         postExtensionCommand("addwatch", args, 0,
                              [this, dataIn](const CdbResponse &r) { handleAddWatch(r, dataIn); });
         return;
@@ -1866,40 +1861,25 @@ void CdbEngine::handleLocals(const CdbResponse &response, bool newFrame)
     if (response.success) {
         if (boolSetting(VerboseLog))
             showMessage(QLatin1String("Locals: ") + QString::fromLatin1(response.extensionReply), LogDebug);
-        QList<WatchData> watchData;
         WatchHandler *handler = watchHandler();
+        GdbMi all;
+        all.fromString(response.extensionReply);
+        QTC_ASSERT(all.type() == GdbMi::List, return);
+
+        QSet<QByteArray> toDelete;
         if (newFrame) {
-            watchData.append(*handler->findData("local"));
-            watchData.append(*handler->findData("watch"));
+            foreach (WatchItem *item, handler->model()->treeLevelItems<WatchItem *>(2))
+                toDelete.insert(item->d.iname);
         }
-        GdbMi root;
-        root.fromString(response.extensionReply);
-        QTC_ASSERT(root.type() == GdbMi::List, return);
-        if (debugLocals)
-            qDebug() << root.toString(true, 4);
-        // Courtesy of GDB engine
-        foreach (const GdbMi &child, root.children()) {
-            WatchData dummy;
-            dummy.iname = child["iname"].data();
-            dummy.name = QLatin1String(child["name"].data());
-            parseWatchData(dummy, child, &watchData);
+
+        foreach (const GdbMi &child, all.children()) {
+            WatchItem *item = new WatchItem(child);
+            handler->insertItem(item);
+            toDelete.remove(item->d.iname);
         }
-        // Fix the names of watch data.
-        for (int i =0; i < watchData.size(); ++i) {
-            if (watchData.at(i).iname.startsWith('w')) {
-                const QHash<QByteArray, QString>::const_iterator it
-                    = m_watchInameToName.find(watchData.at(i).iname);
-                if (it != m_watchInameToName.constEnd())
-                    watchData[i].name = it.value();
-            }
-        }
-        handler->insertDataList(watchData);
-        if (debugLocals) {
-            QDebug nsp = qDebug().nospace();
-            nsp << "Obtained " << watchData.size() << " items:\n";
-            foreach (const WatchData &wd, watchData)
-                nsp << wd.toString() <<'\n';
-        }
+
+        handler->purgeOutdatedItems(toDelete);
+
         if (newFrame) {
             emit stackFrameCompleted();
             DebuggerToolTipManager::updateEngine(this);

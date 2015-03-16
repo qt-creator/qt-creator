@@ -93,6 +93,7 @@ private:
         ButtonColumn
     };
 
+    void showEvent(QShowEvent *event);
     QLabel *createLabel(const QString &name, const QString &toolTip);
     void paintEvent(QPaintEvent *ev);
 

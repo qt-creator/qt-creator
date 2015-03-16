@@ -88,7 +88,7 @@ def main():
         if current != models[0]:
             selectCodeModel(current)
         test.log("Testing code model: %s" % current)
-        openDocument("untitled.Sources.main\\.cpp")
+        openDocument("%s.Sources.main\\.cpp" % projectName)
         editor = getEditorForFileSuffix("main.cpp")
         if not editor:
             test.fatal("Failed to get an editor - leaving test.")
