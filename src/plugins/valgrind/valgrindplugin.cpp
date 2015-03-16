@@ -115,14 +115,14 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     AnalyzerAction *action = 0;
 
     QString callgrindToolTip = tr("Valgrind Function Profile uses the "
-        "\"callgrind\" tool to record function calls when a program runs.");
+        "Callgrind tool to record function calls when a program runs.");
 
     QString memcheckToolTip = tr("Valgrind Analyze Memory uses the "
-         "\"memcheck\" tool to find memory leaks.");
+         "Memcheck tool to find memory leaks.");
 
     QString memcheckWithGdbToolTip = tr(
-                "Valgrind Analyze Memory with GDB uses the \"memcheck\" tool to find memory leaks.\n"
-                "When a problem is detected, the application is interrupted and can be debugged");
+                "Valgrind Analyze Memory with GDB uses the Memcheck tool to find memory leaks.\n"
+                "When a problem is detected, the application is interrupted and can be debugged.");
 
     MemcheckTool *mcTool = m_memcheckTool;
     auto mcWidgetCreator = [mcTool] { return mcTool->createWidgets(); };
