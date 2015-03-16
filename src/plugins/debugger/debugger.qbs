@@ -153,7 +153,6 @@ QtcPlugin {
             "qmlengine.cpp", "qmlengine.h",
             "qmlinspectoradapter.cpp", "qmlinspectoradapter.h",
             "qmlinspectoragent.cpp", "qmlinspectoragent.h",
-            "qmllivetextpreview.cpp", "qmllivetextpreview.h",
             "qmlv8debuggerclient.cpp", "qmlv8debuggerclient.h",
             "qmlv8debuggerclientconstants.h",
             "qscriptdebuggerclient.cpp", "qscriptdebuggerclient.h"

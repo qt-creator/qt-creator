@@ -63,7 +63,6 @@ const char RESET[]                  = "Debugger.Reset";
 const char OPERATE_BY_INSTRUCTION[] = "Debugger.OperateByInstruction";
 const char OPERATE_NATIVE_MIXED[]   = "Debugger.OperateNativeMixed";
 const char QML_SHOW_APP_ON_TOP[]    = "Debugger.QmlShowAppOnTop";
-const char QML_UPDATE_ON_SAVE[]     = "Debugger.QmlUpdateOnSave";
 const char QML_SELECTTOOL[]         = "Debugger.QmlSelectTool";
 const char QML_ZOOMTOOL[]           = "Debugger.QmlZoomTool";
 

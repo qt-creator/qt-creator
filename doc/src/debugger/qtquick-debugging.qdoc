@@ -168,17 +168,6 @@
 
     \section1 Applying QML Changes at Runtime
 
-    \omit
-    // currently broken & disabled
-
-    If you change property values or add properties in the code editor, the
-    debugger can update the properties in the running application when you save
-    the file. This is enabled by default. To disable it, click the
-    \inlineimage qml-observer-bar-reload.png "Apply Changes on Save button"
-    (\uicontrol {Apply Changes on Save}) button on the toolbar.
-
-    \endomit
-
     When you change property values in the \uicontrol {QML/JS Console} or in the
     \uicontrol {Locals and Expressions} view, they are immediately updated in the running
     application, but not in the source code.

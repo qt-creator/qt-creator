@@ -40,6 +40,7 @@
 #include <qmldebug/qdebugmessageclient.h>
 #include <qmldebug/qmloutputparser.h>
 #include <qmljs/iscriptevaluator.h>
+#include <qmljs/qmljsdocument.h>
 
 QT_FORWARD_DECLARE_CLASS(QTextDocument)
 

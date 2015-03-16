@@ -32,7 +32,6 @@
 
 #include "qmladapter.h"
 #include "qmlinspectoragent.h"
-#include "qmllivetextpreview.h"
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerstringutils.h>
@@ -48,8 +47,6 @@
 #include <qmldebug/declarativetoolsclient.h>
 #include <qmldebug/qmlenginedebugclient.h>
 #include <qmldebug/qmltoolsclient.h>
-#include <qmljseditor/qmljseditorconstants.h>
-#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
@@ -75,13 +72,11 @@ QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
     , m_targetToSync(NoTarget)
     , m_debugIdToSelect(-1)
     , m_currentSelectedDebugId(-1)
-    , m_listeningToEditorManager(false)
     , m_toolsClientConnected(false)
     , m_inspectorToolsContext("Debugger.QmlInspector")
     , m_selectAction(new QAction(this))
     , m_zoomAction(new QAction(this))
     , m_showAppOnTopAction(action(ShowAppOnTop))
-    , m_updateOnSaveAction(action(QmlUpdateOnSave))
     , m_engineClientConnected(false)
 {
     if (!m_engine->isMasterEngine())
@@ -143,11 +138,9 @@ QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
     m_selectAction->setCheckable(true);
     m_zoomAction->setCheckable(true);
     m_showAppOnTopAction->setCheckable(true);
-    m_updateOnSaveAction->setCheckable(true);
     m_selectAction->setEnabled(false);
     m_zoomAction->setEnabled(false);
     m_showAppOnTopAction->setEnabled(false);
-    m_updateOnSaveAction->setEnabled(false);
 
     connect(m_selectAction, SIGNAL(triggered(bool)),
             SLOT(onSelectActionTriggered(bool)));
@@ -155,8 +148,6 @@ QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
             SLOT(onZoomActionTriggered(bool)));
     connect(m_showAppOnTopAction, SIGNAL(triggered(bool)),
             SLOT(onShowAppOnTopChanged(bool)));
-    connect(m_updateOnSaveAction, SIGNAL(triggered(bool)),
-            SLOT(onUpdateOnSaveChanged(bool)));
 }
 
 QmlInspectorAdapter::~QmlInspectorAdapter()
@@ -225,9 +216,6 @@ void QmlInspectorAdapter::toolsClientStateChanged(QmlDebugClient::State state)
         Core::ActionManager::registerAction(m_showAppOnTopAction,
                                             Core::Id(Constants::QML_SHOW_APP_ON_TOP),
                                             m_inspectorToolsContext);
-        Core::ActionManager::registerAction(m_updateOnSaveAction,
-                                            Core::Id(Constants::QML_UPDATE_ON_SAVE),
-                                            m_inspectorToolsContext);
 
         Core::ICore::addAdditionalContext(m_inspectorToolsContext);
 
@@ -246,8 +234,6 @@ void QmlInspectorAdapter::toolsClientStateChanged(QmlDebugClient::State state)
         Core::ActionManager::unregisterAction(m_zoomAction, Core::Id(Constants::QML_ZOOMTOOL));
         Core::ActionManager::unregisterAction(m_showAppOnTopAction,
                                               Core::Id(Constants::QML_SHOW_APP_ON_TOP));
-        Core::ActionManager::unregisterAction(m_updateOnSaveAction,
-                                              Core::Id(Constants::QML_UPDATE_ON_SAVE));
 
         Core::ICore::removeAdditionalContext(m_inspectorToolsContext);
 
@@ -256,7 +242,6 @@ void QmlInspectorAdapter::toolsClientStateChanged(QmlDebugClient::State state)
         m_selectAction->setCheckable(false);
         m_zoomAction->setCheckable(false);
         m_showAppOnTopAction->setCheckable(false);
-        m_updateOnSaveAction->setCheckable(false);
     }
 }
 
@@ -271,7 +256,6 @@ void QmlInspectorAdapter::engineClientStateChanged(QmlDebugClient::State state)
         setActiveEngineClient(client);
     } else if (m_engineClientConnected && client == m_engineClient) {
         m_engineClientConnected = false;
-        deletePreviews();
     }
 }
 
@@ -291,85 +275,6 @@ void QmlInspectorAdapter::onObjectFetched(const ObjectReference &ref)
         m_debugIdToSelect = -1;
         selectObject(ref, m_targetToSync);
     }
-}
-
-void QmlInspectorAdapter::createPreviewForEditor(Core::IEditor *newEditor)
-{
-    if (!m_engineClientConnected)
-        return;
-
-    if (!newEditor || newEditor->document()->id()
-            != QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
-        return;
-
-    QString filename = newEditor->document()->filePath().toString();
-    QmlJS::ModelManagerInterface *modelManager =
-            QmlJS::ModelManagerInterface::instance();
-    if (modelManager) {
-        QmlJS::Document::Ptr doc = modelManager->snapshot().document(filename);
-        if (!doc) {
-            if (filename.endsWith(QLatin1String(".qml")) || filename.endsWith(QLatin1String(".js"))) {
-                // add to list of docs that we have to update when
-                // snapshot figures out that there's a new document
-                m_pendingPreviewDocumentNames.append(filename);
-            }
-            return;
-        }
-        if (!doc->qmlProgram() && !filename.endsWith(QLatin1String(".js")))
-            return;
-
-        QmlJS::Document::Ptr initdoc = m_loadedSnapshot.document(filename);
-        if (!initdoc)
-            initdoc = doc;
-
-        if (m_textPreviews.contains(filename)) {
-            QmlLiveTextPreview *preview = m_textPreviews.value(filename);
-            preview->associateEditor(newEditor);
-        } else {
-            QmlLiveTextPreview *preview
-                    = new QmlLiveTextPreview(doc, initdoc, this, this);
-
-            preview->setApplyChangesToQmlInspector(action(QmlUpdateOnSave)->isChecked());
-            connect(preview, SIGNAL(reloadRequest()),
-                    this, SLOT(onReload()));
-
-            m_textPreviews.insert(newEditor->document()->filePath().toString(), preview);
-            preview->associateEditor(newEditor);
-            preview->updateDebugIds();
-        }
-    }
-}
-
-void QmlInspectorAdapter::removePreviewForEditor(Core::IEditor *editor)
-{
-    if (QmlLiveTextPreview *preview
-            = m_textPreviews.value(editor->document()->filePath().toString())) {
-        preview->unassociateEditor(editor);
-    }
-}
-
-void QmlInspectorAdapter::updatePendingPreviewDocuments(QmlJS::Document::Ptr doc)
-{
-    int idx = -1;
-    idx = m_pendingPreviewDocumentNames.indexOf(doc->fileName());
-
-    if (idx == -1)
-        return;
-
-    QList<Core::IEditor *> editors
-            = Core::DocumentModel::editorsForFilePath(doc->fileName());
-
-    if (editors.isEmpty())
-        return;
-
-    m_pendingPreviewDocumentNames.removeAt(idx);
-
-    Core::IEditor *editor = editors.takeFirst();
-    createPreviewForEditor(editor);
-    QmlLiveTextPreview *preview
-            = m_textPreviews.value(editor->document()->filePath().toString());
-    foreach (Core::IEditor *editor, editors)
-        preview->associateEditor(editor);
 }
 
 void QmlInspectorAdapter::onSelectActionTriggered(bool checked)
@@ -402,16 +307,6 @@ void QmlInspectorAdapter::onShowAppOnTopChanged(bool checked)
     toolsClient()->showAppOnTop(checked);
 }
 
-void QmlInspectorAdapter::onUpdateOnSaveChanged(bool checked)
-{
-    QTC_ASSERT(toolsClient(), return);
-    for (QHash<QString, QmlLiveTextPreview *>::const_iterator it
-         = m_textPreviews.constBegin();
-         it != m_textPreviews.constEnd(); ++it) {
-        it.value()->setApplyChangesToQmlInspector(checked);
-    }
-}
-
 void QmlInspectorAdapter::setActiveEngineClient(BaseEngineDebugClient *client)
 {
     if (m_engineClient == client)
@@ -420,54 +315,6 @@ void QmlInspectorAdapter::setActiveEngineClient(BaseEngineDebugClient *client)
     m_engineClient = client;
     m_agent->setEngineClient(m_engineClient);
     m_engineClientConnected = true;
-
-    if (m_engineClient &&
-            m_engineClient->state() == QmlDebugClient::Enabled) {
-        QmlJS::ModelManagerInterface *modelManager
-                = QmlJS::ModelManagerInterface::instance();
-        if (modelManager) {
-            QmlJS::Snapshot snapshot = modelManager->snapshot();
-            for (QHash<QString, QmlLiveTextPreview *>::const_iterator it
-                 = m_textPreviews.constBegin();
-                 it != m_textPreviews.constEnd(); ++it) {
-                QmlJS::Document::Ptr doc = snapshot.document(it.key());
-                it.value()->resetInitialDoc(doc);
-            }
-
-            initializePreviews();
-        }
-    }
-}
-
-void QmlInspectorAdapter::initializePreviews()
-{
-    QmlJS::ModelManagerInterface *modelManager
-            = QmlJS::ModelManagerInterface::instance();
-    if (modelManager) {
-        m_loadedSnapshot = modelManager->snapshot();
-
-        if (!m_listeningToEditorManager) {
-            m_listeningToEditorManager = true;
-            QObject *em = Core::EditorManager::instance();
-            connect(em, SIGNAL(editorAboutToClose(Core::IEditor*)),
-                    this, SLOT(removePreviewForEditor(Core::IEditor*)));
-            connect(em, SIGNAL(editorOpened(Core::IEditor*)),
-                    this, SLOT(createPreviewForEditor(Core::IEditor*)));
-            connect(modelManager,
-                    SIGNAL(documentChangedOnDisk(QmlJS::Document::Ptr)),
-                    this, SLOT(updatePendingPreviewDocuments(QmlJS::Document::Ptr)));
-        }
-
-        // initial update
-        foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments()) {
-            QList<Core::IEditor *> editors = Core::DocumentModel::editorsForDocument(document);
-            createPreviewForEditor(editors.takeFirst());
-            QmlLiveTextPreview *preview
-                    = m_textPreviews.value(document->filePath().toString());
-            foreach (Core::IEditor *editor, editors)
-                preview->associateEditor(editor);
-        }
-    }
 }
 
 void QmlInspectorAdapter::showConnectionStateMessage(const QString &message)
@@ -500,60 +347,20 @@ void QmlInspectorAdapter::selectObject(const ObjectReference &obj,
     agent()->selectObjectInTree(obj.debugId());
 }
 
-void QmlInspectorAdapter::deletePreviews()
-{
-    qDeleteAll(m_textPreviews);
-    m_textPreviews.clear();
-}
-
 void QmlInspectorAdapter::enableTools(const bool enable)
 {
     if (!m_toolsClientConnected)
         return;
     m_selectAction->setEnabled(enable);
     m_showAppOnTopAction->setEnabled(enable);
-    m_updateOnSaveAction->setEnabled(enable);
     // only enable zoom action for Qt 4.x/old client
     // (zooming is integrated into selection tool in Qt 5).
     if (!qobject_cast<QmlToolsClient*>(m_toolsClient))
         m_zoomAction->setEnabled(enable);
 }
 
-void QmlInspectorAdapter::onReload()
-{
-    QHash<QString, QByteArray> changesHash;
-    for (QHash<QString, QmlLiveTextPreview *>::const_iterator it
-         = m_textPreviews.constBegin();
-         it != m_textPreviews.constEnd(); ++it) {
-        if (it.value()->hasUnsynchronizableChange()) {
-            QFileInfo info = QFileInfo(it.value()->fileName());
-            QFile changedFile(it.value()->fileName());
-            QByteArray fileContents;
-            if (changedFile.open(QFile::ReadOnly))
-                fileContents = changedFile.readAll();
-            changedFile.close();
-            changesHash.insert(info.fileName(),
-                               fileContents);
-        }
-    }
-    if (m_toolsClient)
-        m_toolsClient->reload(changesHash);
-}
-
 void QmlInspectorAdapter::onReloaded()
 {
-    QmlJS::ModelManagerInterface *modelManager =
-            QmlJS::ModelManagerInterface::instance();
-    if (modelManager) {
-        QmlJS::Snapshot snapshot = modelManager->snapshot();
-        m_loadedSnapshot = snapshot;
-        for (QHash<QString, QmlLiveTextPreview *>::const_iterator it
-             = m_textPreviews.constBegin();
-             it != m_textPreviews.constEnd(); ++it) {
-            QmlJS::Document::Ptr doc = snapshot.document(it.key());
-            it.value()->resetInitialDoc(doc);
-        }
-    }
     m_agent->reloadEngines();
 }
 

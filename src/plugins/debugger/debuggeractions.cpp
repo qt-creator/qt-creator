@@ -655,11 +655,6 @@ DebuggerSettings::DebuggerSettings()
     item->setSettingsKey(qmlInspectorGroup, QLatin1String("QmlInspector.ShowAppOnTop"));
     item->setDefaultValue(false);
     insertItem(ShowAppOnTop, item);
-
-    item = new SavedAction(this);
-    item->setSettingsKey(qmlInspectorGroup, QLatin1String("QmlInspector.FromQml"));
-    item->setDefaultValue(false);
-    insertItem(QmlUpdateOnSave, item);
 }
 
 DebuggerSettings::~DebuggerSettings()

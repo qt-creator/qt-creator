@@ -35,9 +35,6 @@
 
 #include <coreplugin/icontext.h>
 #include <qmldebug/qmldebugclient.h>
-#include <qmljs/qmljsdocument.h>
-
-namespace Core { class IEditor; }
 
 namespace QmlDebug {
 class BaseEngineDebugClient;
@@ -50,10 +47,8 @@ namespace Debugger {
 namespace Internal {
 
 class DebuggerEngine;
-class WatchTreeView;
 class QmlAdapter;
 class QmlInspectorAgent;
-class QmlLiveTextPreview;
 
 class QmlInspectorAdapter : public QObject
 {
@@ -84,15 +79,9 @@ private slots:
     void selectObjectsFromToolsClient(const QList<int> &debugIds);
     void onObjectFetched(const QmlDebug::ObjectReference &ref);
 
-    void createPreviewForEditor(Core::IEditor *newEditor);
-    void removePreviewForEditor(Core::IEditor *editor);
-    void updatePendingPreviewDocuments(QmlJS::Document::Ptr doc);
-
     void onSelectActionTriggered(bool checked);
     void onZoomActionTriggered(bool checked);
     void onShowAppOnTopChanged(bool checked);
-    void onUpdateOnSaveChanged(bool checked);
-    void onReload();
     void onReloaded();
     void onDestroyedObject(int);
     void jumpToObjectDefinitionInEditor(const QmlDebug::FileReference &objSource, int debugId = -1);
@@ -100,14 +89,12 @@ private slots:
 private:
     void setActiveEngineClient(QmlDebug::BaseEngineDebugClient *client);
 
-    void initializePreviews();
     void showConnectionStateMessage(const QString &message);
 
     enum SelectionTarget { NoTarget, ToolTarget, EditorTarget };
     void selectObject(
             const QmlDebug::ObjectReference &objectReference,
             SelectionTarget target);
-    void deletePreviews();
 
     void enableTools(const bool enable);
 
@@ -124,19 +111,12 @@ private:
     int m_currentSelectedDebugId;
     QString m_currentSelectedDebugName;
 
-    // Qml/JS editor integration
-    bool m_listeningToEditorManager;
-    QHash<QString, QmlLiveTextPreview *> m_textPreviews;
-    QmlJS::Snapshot m_loadedSnapshot; //the snapshot loaded by the viewer
-    QStringList m_pendingPreviewDocumentNames;
-
     // toolbar
     bool m_toolsClientConnected;
     Core::Context m_inspectorToolsContext;
     QAction *m_selectAction;
     QAction *m_zoomAction;
     QAction *m_showAppOnTopAction;
-    QAction *m_updateOnSaveAction;
 
     bool m_engineClientConnected;
 };
