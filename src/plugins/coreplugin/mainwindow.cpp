@@ -985,7 +985,7 @@ void MainWindow::writeSettings()
     settings->endGroup();
 
     DocumentManager::saveSettings();
-    ActionManager::saveSettings(settings);
+    ActionManager::saveSettings();
     EditorManagerPrivate::saveSettings();
     m_navigationWidget->saveSettings(settings);
 }

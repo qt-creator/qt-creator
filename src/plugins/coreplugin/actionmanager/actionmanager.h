@@ -86,7 +86,7 @@ signals:
 private:
     ActionManager(QObject *parent = 0);
     ~ActionManager();
-    static void saveSettings(QSettings *settings);
+    static void saveSettings();
     static void setContext(const Context &context);
 
     friend class Core::Internal::CorePlugin; // initialization

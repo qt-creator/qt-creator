@@ -326,6 +326,7 @@ void ActionManager::unregisterAction(QAction *action, Id id)
     a->removeOverrideAction(action);
     if (a->isEmpty()) {
         // clean up
+        d->saveSettings(a);
         ICore::mainWindow()->removeAction(a->action());
         // ActionContainers listen to the commands' destroyed signals
         delete a->action();
@@ -363,9 +364,9 @@ bool ActionManager::isPresentationModeEnabled()
     return d->m_presentationModeEnabled;
 }
 
-void ActionManager::saveSettings(QSettings *settings)
+void ActionManager::saveSettings()
 {
-    d->saveSettings(settings);
+    d->saveSettings();
 }
 
 void ActionManager::setContext(const Context &context)
@@ -481,18 +482,21 @@ void ActionManagerPrivate::readUserSettings(Id id, Action *cmd)
     settings->endGroup();
 }
 
-void ActionManagerPrivate::saveSettings(QSettings *settings)
+void ActionManagerPrivate::saveSettings(Action *cmd)
 {
-    settings->beginGroup(QLatin1String(kKeyboardSettingsKey));
+    const QString settingsKey = QLatin1String(kKeyboardSettingsKey) + QLatin1Char('/')
+            + cmd->id().toString();
+    QKeySequence key = cmd->keySequence();
+    if (key != cmd->defaultKeySequence())
+        ICore::settings()->setValue(settingsKey, key.toString());
+    else
+        ICore::settings()->remove(settingsKey);
+}
+
+void ActionManagerPrivate::saveSettings()
+{
     const IdCmdMap::const_iterator cmdcend = m_idCmdMap.constEnd();
     for (IdCmdMap::const_iterator j = m_idCmdMap.constBegin(); j != cmdcend; ++j) {
-        const Id id = j.key();
-        Action *cmd = j.value();
-        QKeySequence key = cmd->keySequence();
-        if (key != cmd->defaultKeySequence())
-            settings->setValue(id.toString(), key.toString());
-        else
-            settings->remove(id.toString());
+        saveSettings(j.value());
     }
-    settings->endGroup();
 }
