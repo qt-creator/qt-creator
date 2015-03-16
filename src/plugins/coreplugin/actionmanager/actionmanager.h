@@ -86,7 +86,6 @@ signals:
 private:
     ActionManager(QObject *parent = 0);
     ~ActionManager();
-    static void initialize(QObject *parent);
     static void saveSettings(QSettings *settings);
     static void setContext(const Context &context);
 

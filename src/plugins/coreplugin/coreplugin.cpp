@@ -170,7 +170,7 @@ void CorePlugin::parseArguments(const QStringList &arguments)
 
 bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    ActionManager::initialize(this);
+    new ActionManager(this);
     Theme::initialPalette(); // Initialize palette before setting it
     qsrand(QDateTime::currentDateTime().toTime_t());
     parseArguments(arguments);

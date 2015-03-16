@@ -64,8 +64,6 @@ public:
     explicit ActionManagerPrivate();
     ~ActionManagerPrivate();
 
-    void initialize();
-
     void setContext(const Context &context);
     bool hasContext(int context) const;
 
