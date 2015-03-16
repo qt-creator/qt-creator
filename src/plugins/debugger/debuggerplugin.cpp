@@ -748,7 +748,6 @@ public:
     void fontSettingsChanged(const FontSettings &settings);
 
     void updateState(DebuggerEngine *engine);
-    void updateWatchersWindow(bool showWatch, bool showReturn);
     void onCurrentProjectChanged(Project *project);
 
     void sessionLoaded();
@@ -1948,12 +1947,6 @@ void DebuggerPluginPrivate::setInitialState()
     action(ExpandStack)->setEnabled(false);
 }
 
-void DebuggerPluginPrivate::updateWatchersWindow(bool showWatch, bool showReturn)
-{
-    m_watchersWindow->setVisible(showWatch);
-    m_returnWindow->setVisible(showReturn);
-}
-
 void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 {
     QTC_ASSERT(engine, return);
@@ -3140,7 +3133,8 @@ void updateState(DebuggerEngine *engine)
 
 void updateWatchersWindow(bool showWatch, bool showReturn)
 {
-    dd->updateWatchersWindow(showWatch, showReturn);
+    dd->m_watchersWindow->setVisible(showWatch);
+    dd->m_returnWindow->setVisible(showReturn);
 }
 
 QIcon locationMarkIcon()
