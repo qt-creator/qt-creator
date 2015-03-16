@@ -2383,7 +2383,7 @@ FileNameList QmakeProFileNode::subDirsPaths(QtSupport::ProFileReader *reader,
             }
         } else {
             if (errors)
-                errors->append(QCoreApplication::translate("QmakeProFileNode", "Could not find .pro file for sub dir \"%1\" in \"%2\"")
+                errors->append(QCoreApplication::translate("QmakeProFileNode", "Could not find .pro file for subdirectory \"%1\" in \"%2\".")
                                .arg(subDirVar).arg(realDir));
         }
     }
