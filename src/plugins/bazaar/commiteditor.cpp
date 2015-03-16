@@ -63,7 +63,9 @@ void CommitEditor::setFields(const QString &repositoryRoot,
 
     m_fileModel = new VcsBase::SubmitFileModel(this);
     m_fileModel->setRepositoryRoot(repositoryRoot);
-    m_fileModel->setFileStatusQualifier([](const QString &status, const QVariant &) {
+    m_fileModel->setFileStatusQualifier([](const QString &status, const QVariant &)
+                                           -> VcsBase::SubmitFileModel::FileStatusHint
+    {
         if (status == QLatin1String(Constants::FSTATUS_CREATED))
             return VcsBase::SubmitFileModel::FileAdded;
         if (status == QLatin1String(Constants::FSTATUS_MODIFIED))

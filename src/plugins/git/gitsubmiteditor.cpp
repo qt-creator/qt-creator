@@ -175,7 +175,9 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
 
     m_model = new GitSubmitFileModel(this);
     m_model->setRepositoryRoot(d.panelInfo.repository);
-    m_model->setFileStatusQualifier([](const QString &, const QVariant &extraData) {
+    m_model->setFileStatusQualifier([](const QString &, const QVariant &extraData)
+                                    -> SubmitFileModel::FileStatusHint
+    {
         const FileStates state = static_cast<FileStates>(extraData.toInt());
         if (state.testFlag(AddedFile) || state.testFlag(UntrackedFile))
             return SubmitFileModel::FileAdded;
