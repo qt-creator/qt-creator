@@ -73,7 +73,7 @@ public:
 
     QVariant editValue() const;
     int editType() const;
-    QColor color() const;
+    QColor valueColor() const;
 
     int requestedFormat() const;
     void showInEditorHelper(QString *contents, int depth) const;

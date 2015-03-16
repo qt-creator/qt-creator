@@ -721,7 +721,7 @@ QString WatchItem::displayType() const
     return result;
 }
 
-QColor WatchItem::color() const
+QColor WatchItem::valueColor() const
 {
     static const QColor red(200, 0, 0);
     static const QColor gray(140, 140, 140);
@@ -783,7 +783,7 @@ QVariant WatchItem::data(int column, int role) const
 
         case Qt::ForegroundRole:
             if (column == 1)
-                return color();
+                return valueColor();
 
         case LocalsExpressionRole:
             return expression();
