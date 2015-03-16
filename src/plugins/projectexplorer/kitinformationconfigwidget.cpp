@@ -166,6 +166,8 @@ void ToolChainInformationConfigWidget::refresh()
     foreach (ToolChain *tc, ToolChainManager::toolChains())
         m_comboBox->addItem(tc->displayName(), tc->id());
 
+    m_comboBox->setEnabled(m_comboBox->count() > 1);
+
     m_comboBox->setCurrentIndex(indexOf(ToolChainKitInformation::toolChain(m_kit)));
     m_ignoreChanges = false;
 }
