@@ -38,6 +38,10 @@
 #include <QPointer>
 #include <QVector>
 
+QT_BEGIN_NAMESPACE
+class QTimer;
+QT_END_NAMESPACE
+
 namespace Debugger {
 namespace Internal {
 
@@ -260,6 +264,7 @@ private:
     WatchModel *m_model; // Owned.
     DebuggerEngine *m_engine; // Not owned.
     SeparatedView *m_separatedView; // Owned.
+    QTimer *m_requestUpdateTimer; // Owned.
 
     bool m_contentsValid;
     bool m_resetLocationScheduled;

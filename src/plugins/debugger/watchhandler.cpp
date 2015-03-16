@@ -55,6 +55,7 @@
 #include <QTabWidget>
 #include <QTextEdit>
 
+#include <QTimer>
 #include <cstring>
 #include <ctype.h>
 
@@ -1160,6 +1161,9 @@ WatchHandler::WatchHandler(DebuggerEngine *engine)
     m_contentsValid = true; // FIXME
     m_resetLocationScheduled = false;
     m_separatedView = new SeparatedView;
+    m_requestUpdateTimer = new QTimer(this);
+    m_requestUpdateTimer->setSingleShot(true);
+    connect(m_requestUpdateTimer, &QTimer::timeout, m_model, &WatchModel::updateRequested);
 }
 
 WatchHandler::~WatchHandler()
@@ -1274,11 +1278,12 @@ void WatchHandler::resetValueCache()
 
 void WatchHandler::updateRequested()
 {
-    emit m_model->updateRequested();
+    m_requestUpdateTimer->start(80);
 }
 
 void WatchHandler::updateFinished()
 {
+    m_requestUpdateTimer->stop();
     emit m_model->updateFinished();
 }
 
