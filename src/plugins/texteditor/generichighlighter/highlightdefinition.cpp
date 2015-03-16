@@ -48,13 +48,13 @@ QSharedPointer<Element> createHelper(const QString &name, Container &container)
 {
     if (name.isEmpty()) {
         throw HighlighterException(
-                    QCoreApplication::translate("GenericHighlighter", "Element name is empty"));
+                    QCoreApplication::translate("GenericHighlighter", "Element name is empty."));
     }
 
     if (container.contains(name)) {
         throw HighlighterException(
                 QCoreApplication::translate("GenericHighlighter",
-                                            "Duplicate element name \"%1\"").arg(name));
+                                            "Duplicate element name \"%1\".").arg(name));
     }
 
     return container.insert(name, QSharedPointer<Element>(new Element)).value();
@@ -68,7 +68,7 @@ findHelper(const QString &name, const Container &container)
     if (it == container.end()) {
         throw HighlighterException(
                     QCoreApplication::translate("GenericHighlighter",
-                                                "name \"%1\" not found").arg(name));
+                                                "Name \"%1\" not found.").arg(name));
     }
 
     return it.value();
