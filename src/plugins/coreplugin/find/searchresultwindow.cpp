@@ -400,11 +400,10 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
     widget->setTextEditorFont(d->m_font, d->m_color);
     widget->setTabWidth(d->m_tabWidth);
     widget->setSupportPreserveCase(preserveCaseMode == PreserveCaseEnabled);
-    widget->setShowReplaceUI(searchOrSearchAndReplace != SearchOnly);
+    bool supportsReplace = searchOrSearchAndReplace != SearchOnly;
+    widget->setSupportsReplace(supportsReplace, supportsReplace ? cfgGroup : QString());
     widget->setAutoExpandResults(d->m_expandCollapseAction->isChecked());
     widget->setInfo(label, toolTip, searchTerm);
-    if (searchOrSearchAndReplace == SearchAndReplace)
-        widget->setDontAskAgainGroup(cfgGroup);
     auto result = new SearchResult(widget);
     d->m_searchResults.prepend(result);
     d->m_recentSearchesBox->insertItem(1, tr("%1 %2").arg(label, searchTerm));

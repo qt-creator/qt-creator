@@ -37,9 +37,8 @@ SearchResultTreeItem::SearchResultTreeItem(const SearchResultItem &item,
                                            SearchResultTreeItem *parent)
   : item(item),
   m_parent(parent),
-  m_isUserCheckable(false),
   m_isGenerated(false),
-  m_checkState(Qt::Unchecked)
+  m_checkState(Qt::Checked)
 {
 }
 
@@ -51,16 +50,6 @@ SearchResultTreeItem::~SearchResultTreeItem()
 bool SearchResultTreeItem::isLeaf() const
 {
     return childrenCount() == 0 && parent() != 0;
-}
-
-bool SearchResultTreeItem::isUserCheckable() const
-{
-    return m_isUserCheckable;
-}
-
-void SearchResultTreeItem::setIsUserCheckable(bool isUserCheckable)
-{
-    m_isUserCheckable = isUserCheckable;
 }
 
 Qt::CheckState SearchResultTreeItem::checkState() const
@@ -130,10 +119,6 @@ void SearchResultTreeItem::insertChild(int index, SearchResultTreeItem *child)
 void SearchResultTreeItem::insertChild(int index, const SearchResultItem &item)
 {
     SearchResultTreeItem *child = new SearchResultTreeItem(item, this);
-    if (isUserCheckable()) {
-        child->setIsUserCheckable(true);
-        child->setCheckState(Qt::Checked);
-    }
     insertChild(index, child);
 }
 

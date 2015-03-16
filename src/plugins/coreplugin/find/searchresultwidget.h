@@ -66,13 +66,11 @@ public:
 
     int count() const;
 
-    QString dontAskAgainGroup() const;
-    void setDontAskAgainGroup(const QString &group);
+    void setSupportsReplace(bool replaceSupported, const QString &group);
 
     void setTextToReplace(const QString &textToReplace);
     QString textToReplace() const;
     void setSupportPreserveCase(bool enabled);
-    void setShowReplaceUI(bool visible);
 
     bool hasFocusInternally() const;
     void setFocusInternally();
@@ -118,6 +116,7 @@ private slots:
     void searchAgain();
 
 private:
+    void setShowReplaceUI(bool visible);
     void continueAfterSizeWarning();
     void cancelAfterSizeWarning();
 
@@ -127,23 +126,24 @@ private:
     SearchResultTreeView *m_searchResultTreeView;
     int m_count;
     QString m_dontAskAgainGroup;
-    bool m_preserveCaseSupported;
     QFrame *m_messageWidget;
     InfoBar m_infoBar;
     InfoBarDisplay m_infoBarDisplay;
-    bool m_isShowingReplaceUI;
     QWidget *m_topReplaceWidget;
     QLabel *m_replaceLabel;
     QLineEdit *m_replaceTextEdit;
     QToolButton *m_replaceButton;
     QToolButton *m_searchAgainButton;
     QCheckBox *m_preserveCaseCheck;
-    bool m_searchAgainSupported;
     QWidget *m_descriptionContainer;
     QLabel *m_label;
     QLabel *m_searchTerm;
     QToolButton *m_cancelButton;
     QLabel *m_matchesFoundLabel;
+    bool m_preserveCaseSupported;
+    bool m_isShowingReplaceUI;
+    bool m_searchAgainSupported;
+    bool m_replaceSupported;
 };
 
 } // Internal
