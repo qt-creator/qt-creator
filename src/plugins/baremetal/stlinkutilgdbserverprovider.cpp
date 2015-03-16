@@ -98,7 +98,7 @@ QString StLinkUtilGdbServerProvider::defaultResetCommands()
 
 QString StLinkUtilGdbServerProvider::typeDisplayName() const
 {
-    return StLinkUtilGdbServerProviderFactory::tr("STLink-Util");
+    return StLinkUtilGdbServerProviderFactory::tr("ST-LINK Utility");
 }
 
 QString StLinkUtilGdbServerProvider::channel() const
@@ -221,7 +221,7 @@ GdbServerProviderConfigWidget *StLinkUtilGdbServerProvider::configurationWidget(
 StLinkUtilGdbServerProviderFactory::StLinkUtilGdbServerProviderFactory()
 {
     setId(QLatin1String(Constants::STLINK_UTIL_PROVIDER_ID));
-    setDisplayName(tr("STLink-Util"));
+    setDisplayName(tr("ST-LINK Utility"));
 }
 
 GdbServerProvider *StLinkUtilGdbServerProviderFactory::create()
@@ -377,10 +377,10 @@ void StLinkUtilGdbServerProviderConfigWidget::setTransportLayer(
 void StLinkUtilGdbServerProviderConfigWidget::populateTransportLayers()
 {
     m_transportLayerComboBox->insertItem(
-                m_transportLayerComboBox->count(), tr("STLINKv1"),
+                m_transportLayerComboBox->count(), tr("ST-LINK/V1"),
                 StLinkUtilGdbServerProvider::ScsiOverUsb);
     m_transportLayerComboBox->insertItem(
-                m_transportLayerComboBox->count(), tr("STLINKv2"),
+                m_transportLayerComboBox->count(), tr("ST-LINK/V2"),
                 StLinkUtilGdbServerProvider::RawUsb);
 }
 
