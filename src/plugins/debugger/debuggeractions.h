@@ -185,8 +185,7 @@ enum DebuggerActionCode
 
     // QML Tools
     ShowQmlObjectTree,
-    ShowAppOnTop,
-    QmlUpdateOnSave
+    ShowAppOnTop
 };
 
 } // namespace Internal

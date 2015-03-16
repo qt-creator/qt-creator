@@ -958,9 +958,6 @@ public slots:
     bool parseArguments(const QStringList &args, QString *errorMessage);
     void parseCommandLineArguments();
 
-    void updateQmlActions() {
-        action(QmlUpdateOnSave)->setEnabled(boolSetting(ShowQmlObjectTree));
-    }
 
 public:
     DebuggerMainWindow *m_mainWindow;
@@ -2956,11 +2953,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     // Application interaction
     connect(action(SettingsDialog), &QAction::triggered,
             [] { ICore::showOptionsDialog(DEBUGGER_COMMON_SETTINGS_ID); });
-
-    // QML Actions
-    connect(action(ShowQmlObjectTree), &SavedAction::valueChanged,
-            this,  &DebuggerPluginPrivate::updateQmlActions);
-    updateQmlActions();
 
     // Toolbar
     QWidget *toolbarContainer = new QWidget;
