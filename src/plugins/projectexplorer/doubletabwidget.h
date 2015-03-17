@@ -80,9 +80,7 @@ private:
         bool nameIsUnique;
         QStringList subTabs;
         int currentSubTab;
-        QString displayName() const {
-            return nameIsUnique ? name : fullName;
-        }
+        QString displayName() const;
     };
     void updateNameIsUniqueAdd(Tab *tab);
     void updateNameIsUniqueRemove(const Tab &tab);
