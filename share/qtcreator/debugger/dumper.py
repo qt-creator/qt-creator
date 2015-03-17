@@ -910,6 +910,10 @@ class DumperBase:
         innerType = value[0].type
         ts = innerType.sizeof
         #self.putAddress(value.address)
+        try:
+            self.putValue("@0x%x" % self.addressOf(value), priority = -1)
+        except:
+            self.putEmptyValue()
         self.putType(arrayType)
         self.putNumChild(1)
 
