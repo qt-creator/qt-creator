@@ -175,7 +175,7 @@ ProFileEvaluator::TemplateType ProFileEvaluator::templateType() const
         if (!t.compare(QLatin1String("app"), Qt::CaseInsensitive))
             return TT_Application;
         if (!t.compare(QLatin1String("lib"), Qt::CaseInsensitive))
-            return TT_Library;
+            return d->isActiveConfig(QStringLiteral("staticlib")) ? TT_StaticLibrary : TT_SharedLibrary;
         if (!t.compare(QLatin1String("script"), Qt::CaseInsensitive))
             return TT_Script;
         if (!t.compare(QLatin1String("aux"), Qt::CaseInsensitive))
@@ -220,8 +220,8 @@ bool ProFileEvaluator::accept(ProFile *pro, QMakeEvaluator::LoadFlags flags)
         case TT_Application:
             cxxflags += d->values(ProKey("QMAKE_CXXFLAGS_APP"));
             break;
-        case TT_Library:
-            if (d->isActiveConfig(QStringLiteral("dll"))) {
+        case TT_SharedLibrary:
+            {
                 bool plugin = d->isActiveConfig(QStringLiteral("plugin"));
                 if (!plugin || !d->isActiveConfig(QStringLiteral("plugin_no_share_shlib_cflags")))
                     cxxflags += d->values(ProKey("QMAKE_CXXFLAGS_SHLIB"));

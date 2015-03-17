@@ -92,7 +92,7 @@ QList<Core::Id> QmakeAndroidRunConfigurationFactory::availableCreationIds(Target
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
     QList<QmakeProFileNode *> nodes = project->allProFiles(QList<QmakeProjectType>()
                                                            << ApplicationTemplate
-                                                           << LibraryTemplate);
+                                                           << SharedLibraryTemplate);
 
     if (mode == AutoCreate)
         nodes = QmakeProject::nodesWithQtcRunnable(nodes);

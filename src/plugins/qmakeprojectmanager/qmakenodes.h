@@ -72,7 +72,8 @@ class QmakeProject;
 enum QmakeProjectType {
     InvalidProject = 0,
     ApplicationTemplate,
-    LibraryTemplate,
+    StaticLibraryTemplate,
+    SharedLibraryTemplate,
     ScriptTemplate,
     AuxTemplate,
     SubDirsTemplate

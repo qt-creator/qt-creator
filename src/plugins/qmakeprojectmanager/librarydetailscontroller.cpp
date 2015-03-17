@@ -1048,7 +1048,7 @@ void InternalLibraryDetailsController::updateProFile()
     QList<QmakeProFileNode *> proFiles = findQt4ProFiles(rootProject);
     foreach (QmakeProFileNode *proFileNode, proFiles) {
         const QString proFilePath = proFileNode->path().toString();
-        if (proFileNode->projectType() == LibraryTemplate) {
+        if (proFileNode->projectType() == SharedLibraryTemplate) {
             const QStringList configVar = proFileNode->variableValue(ConfigVar);
             if (!configVar.contains(QLatin1String("plugin"))) {
                 const QString relProFilePath = rootDir.relativeFilePath(proFilePath);
