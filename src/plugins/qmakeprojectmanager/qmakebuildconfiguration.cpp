@@ -100,15 +100,9 @@ const char BUILD_CONFIGURATION_KEY[] = "Qt4ProjectManager.Qt4BuildConfiguration.
 
 enum { debug = 0 };
 
-QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target) :
-    BuildConfiguration(target, Core::Id(QMAKE_BC_ID)),
-    m_shadowBuild(true),
-    m_isEnabled(false),
-    m_qmakeBuildConfiguration(0),
-    m_subNodeBuild(0),
-    m_fileNodeBuild(0)
+QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target)
+    : QmakeBuildConfiguration(target, Core::Id(QMAKE_BC_ID))
 {
-    ctor();
 }
 
 QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id) :
