@@ -77,7 +77,7 @@ bool MacrosPlugin::initialize(const QStringList &arguments, QString *errorMessag
     Core::ActionContainer *mtools = Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
     Core::ActionContainer *mmacrotools = Core::ActionManager::createMenu(Constants::M_TOOLS_MACRO);
     QMenu *menu = mmacrotools->menu();
-    menu->setTitle(tr("&Macros"));
+    menu->setTitle(tr("Text Editing &Macros"));
     menu->setEnabled(true);
     mtools->addMenu(mmacrotools);
 

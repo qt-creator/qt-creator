@@ -1056,16 +1056,16 @@
 
     \title Using Text Editing Macros
 
-    To record a text editing macro, select \uicontrol {Tools > Macros > Record Macro}
-    or press \key {Alt+(}. To stop recording, select \uicontrol {Tools > Macros >
+    To record a text editing macro, select \uicontrol {Tools > Text Editing Macros > Record Macro}
+    or press \key {Alt+(}. To stop recording, select \uicontrol {Tools > Text Editing Macros >
     Stop Recording Macro} or press \key {Alt+)}.
 
     \note The macro recorder does not support code completion.
 
-    To play the last macro, select \uicontrol {Tools > Macros > Play Last Macro} or
+    To play the last macro, select \uicontrol {Tools > Text Editing Macros > Play Last Macro} or
     press \key {Alt+R}.
 
-    To save the last macro, select \uicontrol {Tools > Macros > Save Last Macro}.
+    To save the last macro, select \uicontrol {Tools > Text Editing Macros > Save Last Macro}.
 
     To assign a keyboard shortcut to a text editing macro, select \uicontrol {Tools >
     Options > Environment > Keyboard}. For more information, see

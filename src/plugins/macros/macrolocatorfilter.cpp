@@ -45,7 +45,7 @@ MacroLocatorFilter::MacroLocatorFilter():
     m_icon(QPixmap(QLatin1String(":/macros/images/macro.png")))
 {
     setId("Macros");
-    setDisplayName(tr("Macros"));
+    setDisplayName(tr("Text Editing Macros"));
     setShortcutString(QLatin1String("rm"));
 }
 
