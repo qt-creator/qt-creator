@@ -33,7 +33,7 @@
 <wizard version="1" kind="project" firstpage="10" id="S.Plain C (Qbs)" category="I.Projects"
         platformIndependent="true" featuresRequired="Plugin.QbsProjectManager">
     <icon>../common/console.png</icon>
-    <description>Creates a plain C project using qbs.</description>
+    <description>Creates a plain C project using Qbs.</description>
     <displayname>Plain C Project (Qbs Build)</displayname>;
     <displaycategory>Non-Qt Project</displaycategory>
     <files>
