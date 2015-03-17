@@ -38,10 +38,6 @@
 #include <QPointer>
 #include <QVector>
 
-QT_BEGIN_NAMESPACE
-class QTimer;
-QT_END_NAMESPACE
-
 namespace Debugger {
 namespace Internal {
 
@@ -181,7 +177,7 @@ signals:
     void itemIsExpanded(const QModelIndex &idx);
     void inameIsExpanded(const QByteArray &iname);
     void columnAdjustmentRequested();
-    void updateRequested();
+    void updateStarted();
     void updateFinished();
 };
 
@@ -248,8 +244,8 @@ public:
     void removeItemByIName(const QByteArray &iname);
     void removeAllData(bool includeInspectData = false);
     void resetValueCache();
-    void updateRequested();
-    void updateFinished();
+    void notifyUpdateStarted();
+    void notifyUpdateFinished();
     void purgeOutdatedItems(const QSet<QByteArray> &inames);
 
 private:
@@ -264,7 +260,6 @@ private:
     WatchModel *m_model; // Owned.
     DebuggerEngine *m_engine; // Not owned.
     SeparatedView *m_separatedView; // Owned.
-    QTimer *m_requestUpdateTimer; // Owned.
 
     bool m_contentsValid;
     bool m_resetLocationScheduled;

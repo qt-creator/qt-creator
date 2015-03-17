@@ -912,7 +912,7 @@ void LldbEngine::doUpdateLocals(UpdateParameters params)
     m_lastDebuggableCommand = cmd;
     m_lastDebuggableCommand.args.replace("\"passexceptions\":0", "\"passexceptions\":1");
 
-    watchHandler()->updateRequested();
+    watchHandler()->notifyUpdateStarted();
     runCommand(cmd);
 
     reloadRegisters();
@@ -1010,7 +1010,7 @@ void LldbEngine::refreshLocals(const GdbMi &vars)
     }
 
     handler->purgeOutdatedItems(toDelete);
-    handler->updateFinished();
+    handler->notifyUpdateFinished();
 
     DebuggerToolTipManager::updateEngine(this);
  }

@@ -228,6 +228,7 @@ public:
     WatchItem *m_tooltipRoot; // Not owned.
 
     QSet<QByteArray> m_expandedINames;
+    QTimer m_requestUpdateTimer;
 
     TypeFormatList builtinTypeFormatList(const WatchData &data) const;
     QStringList dumperTypeFormatList(const WatchData &data) const;
@@ -256,6 +257,10 @@ WatchModel::WatchModel(WatchHandler *handler)
     root->appendChild(m_returnRoot = new WatchItem("return", tr("Return Value")));
     root->appendChild(m_tooltipRoot = new WatchItem("tooltip", tr("Tooltip")));
     setRootItem(root);
+
+    m_requestUpdateTimer.setSingleShot(true);
+    connect(&m_requestUpdateTimer, &QTimer::timeout,
+        this, &WatchModel::updateStarted);
 
     connect(action(SortStructMembers), &SavedAction::valueChanged,
         this, &WatchModel::reinsertAllData);
@@ -1161,9 +1166,6 @@ WatchHandler::WatchHandler(DebuggerEngine *engine)
     m_contentsValid = true; // FIXME
     m_resetLocationScheduled = false;
     m_separatedView = new SeparatedView;
-    m_requestUpdateTimer = new QTimer(this);
-    m_requestUpdateTimer->setSingleShot(true);
-    connect(m_requestUpdateTimer, &QTimer::timeout, m_model, &WatchModel::updateRequested);
 }
 
 WatchHandler::~WatchHandler()
@@ -1276,14 +1278,14 @@ void WatchHandler::resetValueCache()
     });
 }
 
-void WatchHandler::updateRequested()
+void WatchHandler::notifyUpdateStarted()
 {
-    m_requestUpdateTimer->start(80);
+    m_model->m_requestUpdateTimer.start(80);
 }
 
-void WatchHandler::updateFinished()
+void WatchHandler::notifyUpdateFinished()
 {
-    m_requestUpdateTimer->stop();
+    m_model->m_requestUpdateTimer.stop();
     emit m_model->updateFinished();
 }
 

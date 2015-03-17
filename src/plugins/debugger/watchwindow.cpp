@@ -953,7 +953,7 @@ void WatchTreeView::setModel(QAbstractItemModel *model)
     connect(watchModel, &WatchModelBase::itemIsExpanded,
             this, &WatchTreeView::handleItemIsExpanded);
     if (m_type == LocalsType) {
-        connect(watchModel, &WatchModelBase::updateRequested,
+        connect(watchModel, &WatchModelBase::updateStarted,
                 this, &WatchTreeView::showProgressIndicator);
         connect(watchModel, &WatchModelBase::updateFinished,
                 this, &WatchTreeView::hideProgressIndicator);
