@@ -48,62 +48,61 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QSignalMapper>
 #include <QSpacerItem>
 #include <QTextStream>
 #include <QTreeView>
 #include <QVBoxLayout>
 
+using namespace Utils;
+
 namespace BareMetal {
 namespace Internal {
 
-class GdbServerProviderNode
+class GdbServerProviderNode : public TreeItem
 {
 public:
-    explicit GdbServerProviderNode(GdbServerProviderNode *parent,
-                                   GdbServerProvider *provider = 0,
-                                   bool changed = false);
-    ~GdbServerProviderNode();
+    GdbServerProviderNode(GdbServerProvider *provider, bool changed = false)
+        : provider(provider), changed(changed)
+    {
+        widget = provider ? provider->configurationWidget() : 0;
+    }
 
-    GdbServerProviderNode *parent;
-    QList<GdbServerProviderNode *> childNodes;
+    Qt::ItemFlags flags() const
+    {
+        return provider ? Qt::ItemIsEnabled|Qt::ItemIsSelectable : Qt::ItemIsEnabled;
+    }
+
+    QVariant data(int column, int role) const
+    {
+        if (!provider)
+            return QVariant();
+
+        if (role == Qt::FontRole) {
+            QFont f = QApplication::font();
+            if (changed)
+                f.setBold(true);
+            return f;
+        }
+
+        if (role == Qt::DisplayRole) {
+            return column == 0 ? provider->displayName() : provider->typeDisplayName();
+        }
+
+        // FIXME: Need to handle ToolTipRole role?
+        return QVariant();
+    }
+
     GdbServerProvider *provider;
     GdbServerProviderConfigWidget *widget;
     bool changed;
 };
 
-GdbServerProviderNode::GdbServerProviderNode(
-        GdbServerProviderNode *parent,
-        GdbServerProvider *provider,
-        bool changed)
-    : parent(parent)
-    , provider(provider)
-    , changed(changed)
-{
-    if (parent)
-        parent->childNodes.append(this);
-
-    widget = provider ? provider->configurationWidget() : 0;
-}
-
-GdbServerProviderNode::~GdbServerProviderNode()
-{
-    // Do not delete provider, we do not own it.
-
-    for (int i = childNodes.size(); --i >= 0; ) {
-        GdbServerProviderNode *child = childNodes.at(i);
-        child->parent = 0;
-        delete child;
-    }
-
-    if (parent)
-        parent->childNodes.removeOne(this);
-}
 
 GdbServerProviderModel::GdbServerProviderModel(QObject *parent)
-    : QAbstractItemModel(parent)
-    , m_root(new GdbServerProviderNode(0))
+    : TreeModel(parent)
 {
+    setHeader({tr("Name"), tr("Type")});
+
     const GdbServerProviderManager *manager = GdbServerProviderManager::instance();
 
     connect(manager, &GdbServerProviderManager::providerAdded,
@@ -115,116 +114,13 @@ GdbServerProviderModel::GdbServerProviderModel(QObject *parent)
         addProvider(p);
 }
 
-GdbServerProviderModel::~GdbServerProviderModel()
-{
-    delete m_root;
-}
-
-QModelIndex GdbServerProviderModel::index(
-        int row, int column, const QModelIndex &parent) const
-{
-    if (!parent.isValid()) {
-        if (row >= 0 && row < m_root->childNodes.count())
-            return createIndex(row, column, m_root->childNodes.at(row));
-    }
-
-    return QModelIndex();
-}
-
-QModelIndex GdbServerProviderModel::index(
-        const QModelIndex &topIdx, const GdbServerProvider *provider) const
-{
-    const GdbServerProviderNode *current =
-            topIdx.isValid() ? nodeFromIndex(topIdx) : m_root;
-    QTC_ASSERT(current, return QModelIndex());
-
-    if (current->provider == provider)
-        return topIdx;
-
-    for (int i = 0; i < current->childNodes.count(); ++i) {
-        const QModelIndex idx = index(index(current->childNodes.at(i)), provider);
-        if (idx.isValid())
-            return idx;
-    }
-    return QModelIndex();
-}
-
-QModelIndex GdbServerProviderModel::parent(const QModelIndex &idx) const
-{
-    const GdbServerProviderNode *n = nodeFromIndex(idx);
-    return (n->parent == m_root) ? QModelIndex() : index(n->parent);
-}
-
-int GdbServerProviderModel::rowCount(const QModelIndex &parent) const
-{
-    if (!parent.isValid())
-        return m_root->childNodes.count();
-
-    const GdbServerProviderNode *n = nodeFromIndex(parent);
-    return n->childNodes.count();
-}
-
-int GdbServerProviderModel::columnCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent);
-    return ColumnsCount;
-}
-
-QVariant GdbServerProviderModel::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid())
-        return QVariant();
-
-    const GdbServerProviderNode *n = nodeFromIndex(index);
-    QTC_ASSERT(n, return QVariant());
-
-    if (!n->provider)
-        return QVariant();
-
-    if (role == Qt::FontRole) {
-        QFont f = QApplication::font();
-        if (n->changed)
-            f.setBold(true);
-        return f;
-    } else if (role == Qt::DisplayRole) {
-        return (index.column() == NameIndex)
-                ? n->provider->displayName()
-                : n->provider->typeDisplayName();
-    }
-
-    // FIXME: Need to handle also and ToolTipRole role?
-
-    return QVariant();
-}
-
-Qt::ItemFlags GdbServerProviderModel::flags(const QModelIndex &index) const
-{
-    if (!index.isValid())
-        return 0;
-
-    const GdbServerProviderNode *n = nodeFromIndex(index);
-    Q_ASSERT(n);
-    return (n->provider) ? (Qt::ItemIsEnabled | Qt::ItemIsSelectable)
-                         : Qt::ItemIsEnabled;
-}
-
-QVariant GdbServerProviderModel::headerData(
-        int section, Qt::Orientation orientation, int role) const
-{
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-        return section == NameIndex ? tr("Name") : tr("Type");
-    return QVariant();
-}
-
 GdbServerProvider *GdbServerProviderModel::provider(
         const QModelIndex &index) const
 {
     if (!index.isValid())
         return 0;
 
-    const GdbServerProviderNode *n = nodeFromIndex(index);
-    Q_ASSERT(n);
-    return n->provider;
+    return static_cast<GdbServerProviderNode *>(itemForIndex(index))->provider;
 }
 
 GdbServerProviderConfigWidget *GdbServerProviderModel::widget(
@@ -233,59 +129,30 @@ GdbServerProviderConfigWidget *GdbServerProviderModel::widget(
     if (!index.isValid())
         return 0;
 
-    const GdbServerProviderNode *n = nodeFromIndex(index);
-    Q_ASSERT(n);
-    return n->widget;
-}
-
-bool GdbServerProviderModel::isDirty() const
-{
-    return Utils::anyOf(m_root->childNodes, [](GdbServerProviderNode *n) {
-        return n->changed;
-    });
-}
-
-bool GdbServerProviderModel::isDirty(GdbServerProvider *p) const
-{
-    return Utils::anyOf(m_root->childNodes, [p](GdbServerProviderNode *n) {
-        return n->provider == p && n->changed;
-    });
-}
-
-void GdbServerProviderModel::setDirty()
-{
-    const auto w = qobject_cast<GdbServerProviderConfigWidget *>(sender());
-    foreach (GdbServerProviderNode *n, m_root->childNodes) {
-        if (n->widget == w) {
-            n->changed = true;
-            emit dataChanged(index(n, 0), index(n, columnCount(QModelIndex())));
-        }
-    }
+    return static_cast<GdbServerProviderNode *>(itemForIndex(index))->widget;
 }
 
 void GdbServerProviderModel::apply()
 {
     // Remove unused providers
-    foreach (const GdbServerProviderNode *n, m_toRemoveNodes) {
-        Q_ASSERT(!n->parent);
+    foreach (TreeItem *item, rootItem()->children()) {
+        auto n = static_cast<GdbServerProviderNode *>(item);
         GdbServerProviderManager::instance()->deregisterProvider(n->provider);
     }
-    Q_ASSERT(m_toRemoveNodes.isEmpty());
+    QTC_CHECK(m_toRemoveNodes.isEmpty());
 
     // Update providers
-    foreach (GdbServerProviderNode *n, m_root->childNodes) {
-        Q_ASSERT(n);
-
+    foreach (TreeItem *item, rootItem()->children()) {
+        auto n = static_cast<GdbServerProviderNode *>(item);
         if (!n->changed)
             continue;
 
-        Q_ASSERT(n->provider);
+        QTC_CHECK(n->provider);
         if (n->widget)
             n->widget->apply();
 
         n->changed = false;
-
-        emit dataChanged(index(n, 0), index(n, columnCount(QModelIndex())));
+        n->update();
     }
 
     // Add new (and already updated) providers
@@ -315,15 +182,27 @@ void GdbServerProviderModel::apply()
     }
 }
 
+template <class Container>
+GdbServerProviderNode *findNode(const Container &container, const GdbServerProvider *provider)
+{
+    auto test = [provider](TreeItem *item) {
+        return static_cast<GdbServerProviderNode *>(item)->provider == provider;
+    };
+
+    return static_cast<GdbServerProviderNode *>(Utils::findOrDefault(container, test));
+}
+
+QModelIndex GdbServerProviderModel::indexForProvider(GdbServerProvider *provider) const
+{
+    GdbServerProviderNode *n = findNode(rootItem()->children(), provider);
+    return n ? indexForItem(n) : QModelIndex();
+}
+
 void GdbServerProviderModel::markForRemoval(GdbServerProvider *provider)
 {
-    GdbServerProviderNode *n = findNode(m_root->childNodes, provider);
+    GdbServerProviderNode *n = findNode(rootItem()->children(), provider);
     QTC_ASSERT(n, return);
-
-    const int row = m_root->childNodes.indexOf(n);
-    emit beginRemoveRows(index(m_root), row, row);
-    m_root->childNodes.removeOne(n);
-    n->parent = 0;
+    takeItem(n);
 
     if (m_toAddNodes.contains(n)) {
         delete n->provider;
@@ -339,68 +218,40 @@ void GdbServerProviderModel::markForRemoval(GdbServerProvider *provider)
 
 void GdbServerProviderModel::markForAddition(GdbServerProvider *provider)
 {
-    const int pos = m_root->childNodes.size();
-    emit beginInsertRows(index(m_root), pos, pos);
-    GdbServerProviderNode *n = createNode(m_root, provider, true);
+    GdbServerProviderNode *n = createNode(provider, true);
+    rootItem()->appendChild(n);
     m_toAddNodes.append(n);
-    emit endInsertRows();
-}
-
-QModelIndex GdbServerProviderModel::index(
-        GdbServerProviderNode *n, int column) const
-{
-    if (n == m_root)
-        return QModelIndex();
-
-    if (n->parent == m_root)
-        return index(m_root->childNodes.indexOf(n), column, QModelIndex());
-
-    return index(n->parent->childNodes.indexOf(n),
-                 column, index(n->parent));
 }
 
 GdbServerProviderNode *GdbServerProviderModel::createNode(
-        GdbServerProviderNode *parent,
         GdbServerProvider *provider, bool changed)
 {
-    auto n = new GdbServerProviderNode(parent, provider, changed);
+    auto n = new GdbServerProviderNode(provider, changed);
     if (n->widget) {
-        connect(n->widget, &GdbServerProviderConfigWidget::dirty,
-                this, &GdbServerProviderModel::setDirty);
+        connect(n->widget, &GdbServerProviderConfigWidget::dirty, this, [this, n] {
+            foreach (TreeItem *item, rootItem()->children()) {
+                auto nn = static_cast<GdbServerProviderNode *>(item);
+                if (nn->widget == n->widget) {
+                    nn->changed = true;
+                    nn->update();
+                }
+            }
+        });
     }
     return n;
 }
 
-GdbServerProviderNode *GdbServerProviderModel::nodeFromIndex(
-        const QModelIndex &index) const
-{
-    return static_cast<GdbServerProviderNode *>(index.internalPointer());
-}
-
-GdbServerProviderNode *GdbServerProviderModel::findNode(
-        const QList<GdbServerProviderNode *> &container,
-        const GdbServerProvider *provider)
-{
-    return Utils::findOrDefault(container, [provider](GdbServerProviderNode *n) {
-        return n->provider == provider;
-    });
-}
-
 void GdbServerProviderModel::addProvider(GdbServerProvider *provider)
 {
-    GdbServerProviderNode *n = findNode(m_toAddNodes, provider);
-    if (n) {
-        m_toAddNodes.removeOne(n);
-        // do not delete n: Still used elsewhere!
-        return;
+    foreach (TreeItem *item, rootItem()->children()) {
+        auto n = static_cast<GdbServerProviderNode *>(item);
+        if (n->provider == provider) {
+            m_toAddNodes.removeOne(n);
+            // do not delete n: Still used elsewhere!
+            return;
+        }
     }
-
-    const int row = m_root->childNodes.count();
-
-    beginInsertRows(index(m_root), row, row);
-    createNode(m_root, provider, false);
-    endInsertRows();
-
+    rootItem()->appendChild(createNode(provider, false));
     emit providerStateChanged();
 }
 
@@ -413,136 +264,111 @@ void GdbServerProviderModel::removeProvider(GdbServerProvider *provider)
         return;
     }
 
-    int row = 0;
-    foreach (GdbServerProviderNode *current, m_root->childNodes) {
-        if (current->provider == provider) {
-            n = current;
-            break;
-        }
-        ++row;
-    }
-
-    beginRemoveRows(index(m_root), row, row);
-    m_root->childNodes.removeAt(row);
+    n = findNode(rootItem()->children(), provider);
+    takeItem(n);
     delete n;
-    endRemoveRows();
 
     emit providerStateChanged();
 }
 
-GdbServerProvidersSettingsPage::GdbServerProvidersSettingsPage(
-        QObject *parent)
-    : Core::IOptionsPage(parent)
+class GdbServerProvidersSettingsWidget : public QWidget
 {
-    setCategory(Constants::BAREMETAL_SETTINGS_CATEGORY);
+    Q_DECLARE_TR_FUNCTIONS(BareMetal::Internal::GdbServerProvidersSettingsPage)
 
-    setDisplayCategory(QCoreApplication::translate(
-                           "BareMetal", Constants::BAREMETAL_SETTINGS_TR_CATEGORY));
+public:
+    GdbServerProvidersSettingsWidget(GdbServerProvidersSettingsPage *page);
 
-    setCategoryIcon(QLatin1String(Constants::BAREMETAL_SETTINGS_CATEGORY_ICON));
+    void providerSelectionChanged();
+    void removeProvider();
+    void updateState();
 
-    setId(Constants::GDB_PROVIDERS_SETTINGS_ID);
-    setDisplayName(tr("GDB Server Providers"));
-}
+    void createProvider(GdbServerProviderFactory *f);
+    QModelIndex currentIndex() const;
 
-QWidget *GdbServerProvidersSettingsPage::widget()
+public:
+    GdbServerProvidersSettingsPage *m_page;
+    GdbServerProviderModel m_model;
+    QItemSelectionModel *m_selectionModel;
+    QTreeView *m_providerView;
+    Utils::DetailsWidget *m_container;
+    QPushButton *m_addButton;
+    QPushButton *m_cloneButton;
+    QPushButton *m_delButton;
+};
+
+GdbServerProvidersSettingsWidget::GdbServerProvidersSettingsWidget
+        (GdbServerProvidersSettingsPage *page)
+    : m_page(page)
 {
-    if (!m_configWidget) {
-        // Actual page setup:
-        m_configWidget = new QWidget;
+    m_providerView = new QTreeView(this);
+    m_providerView->setUniformRowHeights(true);
+    m_providerView->header()->setStretchLastSection(false);
 
-        m_providerView = new QTreeView(m_configWidget);
-        m_providerView->setUniformRowHeights(true);
-        m_providerView->header()->setStretchLastSection(false);
+    m_addButton = new QPushButton(tr("Add"), this);
+    m_cloneButton = new QPushButton(tr("Clone"), this);
+    m_delButton = new QPushButton(tr("Remove"), this);
 
-        m_addButton = new QPushButton(tr("Add"), m_configWidget);
-        m_cloneButton = new QPushButton(tr("Clone"), m_configWidget);
-        m_delButton = new QPushButton(tr("Remove"), m_configWidget);
+    m_container = new Utils::DetailsWidget(this);
+    m_container->setState(Utils::DetailsWidget::NoSummary);
+    m_container->setMinimumWidth(500);
+    m_container->setVisible(false);
 
-        m_container = new Utils::DetailsWidget(m_configWidget);
-        m_container->setState(Utils::DetailsWidget::NoSummary);
-        m_container->setMinimumWidth(500);
-        m_container->setVisible(false);
+    auto buttonLayout = new QHBoxLayout();
+    buttonLayout->setSpacing(6);
+    buttonLayout->setContentsMargins(0, 0, 0, 0);
+    buttonLayout->addWidget(m_addButton);
+    buttonLayout->addWidget(m_cloneButton);
+    buttonLayout->addWidget(m_delButton);
+    auto spacerItem = new QSpacerItem(40, 10, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    buttonLayout->addItem(spacerItem);
 
-        auto buttonLayout = new QHBoxLayout();
-        buttonLayout->setSpacing(6);
-        buttonLayout->setContentsMargins(0, 0, 0, 0);
-        buttonLayout->addWidget(m_addButton);
-        buttonLayout->addWidget(m_cloneButton);
-        buttonLayout->addWidget(m_delButton);
-        auto spacerItem = new QSpacerItem(40, 10, QSizePolicy::Expanding, QSizePolicy::Minimum);
-        buttonLayout->addItem(spacerItem);
+    auto verticalLayout = new QVBoxLayout();
+    verticalLayout->addWidget(m_providerView);
+    verticalLayout->addLayout(buttonLayout);
 
-        auto verticalLayout = new QVBoxLayout();
-        verticalLayout->addWidget(m_providerView);
-        verticalLayout->addLayout(buttonLayout);
+    auto horizontalLayout = new QHBoxLayout(this);
+    horizontalLayout->addLayout(verticalLayout);
+    horizontalLayout->addWidget(m_container);
 
-        auto horizontalLayout = new QHBoxLayout(m_configWidget);
-        horizontalLayout->addLayout(verticalLayout);
-        horizontalLayout->addWidget(m_container);
-        Q_ASSERT(!m_model);
-        m_model = new GdbServerProviderModel(m_configWidget);
+    connect(&m_model, &GdbServerProviderModel::providerStateChanged,
+            this, &GdbServerProvidersSettingsWidget::updateState);
 
-        connect(m_model.data(), &GdbServerProviderModel::providerStateChanged,
-                this, &GdbServerProvidersSettingsPage::updateState);
+    m_providerView->setModel(&m_model);
 
-        m_providerView->setModel(m_model);
+    auto headerView = m_providerView->header();
+    headerView->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    headerView->setSectionResizeMode(1, QHeaderView::Stretch);
+    m_providerView->expandAll();
 
-        auto headerView = m_providerView->header();
-        headerView->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-        headerView->setSectionResizeMode(1, QHeaderView::Stretch);
-        m_providerView->expandAll();
+    m_selectionModel = m_providerView->selectionModel();
 
-        m_selectionModel = m_providerView->selectionModel();
+    connect(m_selectionModel, &QItemSelectionModel::selectionChanged,
+            this, &GdbServerProvidersSettingsWidget::providerSelectionChanged);
 
-        connect(m_selectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-                SLOT(providerSelectionChanged()));
+    connect(GdbServerProviderManager::instance(), &GdbServerProviderManager::providersChanged,
+            this, &GdbServerProvidersSettingsWidget::providerSelectionChanged);
 
-        connect(GdbServerProviderManager::instance(), &GdbServerProviderManager::providersChanged,
-                this, &GdbServerProvidersSettingsPage::providerSelectionChanged);
+    // Set up add menu:
+    auto addMenu = new QMenu(m_addButton);
 
-        // Set up add menu:
-        auto addMenu = new QMenu(m_addButton);
-        auto mapper = new QSignalMapper(addMenu);
-        connect(mapper, SIGNAL(mapped(QObject*)), SLOT(createProvider(QObject*)));
-
-        foreach (const auto f, GdbServerProviderManager::instance()->factories()) {
-            auto action = new QAction(addMenu);
-            action->setText(f->displayName());
-            connect(action, SIGNAL(triggered()), mapper, SLOT(map()));
-            mapper->setMapping(action, static_cast<QObject *>(f));
-            addMenu->addAction(action);
-        }
-
-        connect(m_cloneButton, SIGNAL(clicked()), mapper, SLOT(map()));
-        mapper->setMapping(m_cloneButton, static_cast<QObject *>(0));
-
-        m_addButton->setMenu(addMenu);
-
-        connect(m_delButton.data(), &QPushButton::clicked,
-                this, &GdbServerProvidersSettingsPage::removeProvider);
-
-        updateState();
+    foreach (const auto f, GdbServerProviderManager::instance()->factories()) {
+        auto action = new QAction(addMenu);
+        action->setText(f->displayName());
+        connect(action, &QAction::triggered, this, [this, f] { createProvider(f); });
+        addMenu->addAction(action);
     }
 
-    return m_configWidget;
+    connect(m_cloneButton, &QAbstractButton::clicked, this, [this] { createProvider(0); });
+
+    m_addButton->setMenu(addMenu);
+
+    connect(m_delButton, &QPushButton::clicked,
+            this, &GdbServerProvidersSettingsWidget::removeProvider);
+
+    updateState();
 }
 
-void GdbServerProvidersSettingsPage::apply()
-{
-    if (m_model)
-        m_model->apply();
-}
-
-void GdbServerProvidersSettingsPage::finish()
-{
-    disconnect(GdbServerProviderManager::instance(), SIGNAL(providersChanged()),
-               this, SLOT(providerSelectionChanged()));
-
-    delete m_configWidget;
-}
-
-void GdbServerProvidersSettingsPage::providerSelectionChanged()
+void GdbServerProvidersSettingsWidget::providerSelectionChanged()
 {
     if (!m_container)
         return;
@@ -550,54 +376,49 @@ void GdbServerProvidersSettingsPage::providerSelectionChanged()
     QWidget *w = m_container->takeWidget(); // Prevent deletion.
     if (w)
         w->setVisible(false);
-    w = current.isValid() ? m_model->widget(current) : 0;
+    w = current.isValid() ? m_model.widget(current) : 0;
     m_container->setWidget(w);
     m_container->setVisible(w != 0);
     updateState();
 }
 
-void GdbServerProvidersSettingsPage::createProvider(QObject *factoryObject)
+void GdbServerProvidersSettingsWidget::createProvider(GdbServerProviderFactory *f)
 {
     GdbServerProvider *provider = 0;
-
-    auto f = static_cast<GdbServerProviderFactory *>(factoryObject);
     if (!f) {
-        GdbServerProvider *old = m_model->provider(currentIndex());
+        GdbServerProvider *old = m_model.provider(currentIndex());
         if (!old)
             return;
         provider = old->clone();
     } else {
         provider = f->create();
-    } if (!provider) {
-        return;
     }
 
-    m_model->markForAddition(provider);
+    if (!provider)
+        return;
 
-    const QModelIndex newIdx = m_model->index(QModelIndex(), provider);
-    m_selectionModel->select(newIdx,
+    m_model.markForAddition(provider);
+
+    m_selectionModel->select(m_model.indexForProvider(provider),
                              QItemSelectionModel::Clear
                              | QItemSelectionModel::SelectCurrent
                              | QItemSelectionModel::Rows);
 }
 
-void GdbServerProvidersSettingsPage::removeProvider()
+void GdbServerProvidersSettingsWidget::removeProvider()
 {
-    GdbServerProvider *p = m_model->provider(currentIndex());
-    if (!p)
-        return;
-    m_model->markForRemoval(p);
+    if (GdbServerProvider *p = m_model.provider(currentIndex()))
+        m_model.markForRemoval(p);
 }
 
-void GdbServerProvidersSettingsPage::updateState()
+void GdbServerProvidersSettingsWidget::updateState()
 {
     if (!m_cloneButton)
         return;
 
     bool canCopy = false;
     bool canDelete = false;
-    const GdbServerProvider *p = m_model->provider(currentIndex());
-    if (p) {
+    if (const GdbServerProvider *p = m_model.provider(currentIndex())) {
         canCopy = p->isValid();
         canDelete = true;
     }
@@ -606,7 +427,7 @@ void GdbServerProvidersSettingsPage::updateState()
     m_delButton->setEnabled(canDelete);
 }
 
-QModelIndex GdbServerProvidersSettingsPage::currentIndex() const
+QModelIndex GdbServerProvidersSettingsWidget::currentIndex() const
 {
     if (!m_selectionModel)
         return QModelIndex();
@@ -615,6 +436,39 @@ QModelIndex GdbServerProvidersSettingsPage::currentIndex() const
     if (rows.count() != 1)
         return QModelIndex();
     return rows.at(0);
+}
+
+
+GdbServerProvidersSettingsPage::GdbServerProvidersSettingsPage(QObject *parent)
+    : Core::IOptionsPage(parent)
+{
+    setCategory(Constants::BAREMETAL_SETTINGS_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate(
+                       "BareMetal", Constants::BAREMETAL_SETTINGS_TR_CATEGORY));
+    setCategoryIcon(QLatin1String(Constants::BAREMETAL_SETTINGS_CATEGORY_ICON));
+    setId(Constants::GDB_PROVIDERS_SETTINGS_ID);
+    setDisplayName(tr("GDB Server Providers"));
+}
+
+QWidget *GdbServerProvidersSettingsPage::widget()
+{
+    if (!m_configWidget)
+        m_configWidget = new GdbServerProvidersSettingsWidget(this);
+     return m_configWidget;
+}
+
+void GdbServerProvidersSettingsPage::apply()
+{
+    if (m_configWidget)
+        m_configWidget->m_model.apply();
+}
+
+void GdbServerProvidersSettingsPage::finish()
+{
+    disconnect(GdbServerProviderManager::instance(), &GdbServerProviderManager::providersChanged,
+               m_configWidget.data(), &GdbServerProvidersSettingsWidget::providerSelectionChanged);
+
+    delete m_configWidget;
 }
 
 } // namespace Internal

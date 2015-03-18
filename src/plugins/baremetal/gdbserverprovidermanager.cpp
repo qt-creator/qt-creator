@@ -59,22 +59,14 @@ static Utils::FileName settingsFileName(const QString &path)
     return Utils::FileName::fromString(settingsLocation.absolutePath() + path);
 }
 
-static QList<GdbServerProviderFactory *> createFactories()
-{
-    QList<GdbServerProviderFactory *> result;
-    result << new DefaultGdbServerProviderFactory
-           << new OpenOcdGdbServerProviderFactory
-           << new StLinkUtilGdbServerProviderFactory
-              ;
-    return result;
-}
-
-GdbServerProviderManager *GdbServerProviderManager::m_instance = 0;
+static GdbServerProviderManager *m_instance = 0;
 
 GdbServerProviderManager::GdbServerProviderManager(QObject *parent)
     : QObject(parent)
     , m_configFile(settingsFileName(QLatin1String(fileNameKeyC)))
-    , m_factories(createFactories())
+    , m_factories({ new DefaultGdbServerProviderFactory,
+                    new OpenOcdGdbServerProviderFactory,
+                    new StLinkUtilGdbServerProviderFactory })
 {
     m_writer = new Utils::PersistentSettingsWriter(
                 m_configFile, QLatin1String("QtCreatorGdbServerProviders"));
@@ -82,12 +74,12 @@ GdbServerProviderManager::GdbServerProviderManager(QObject *parent)
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, &GdbServerProviderManager::saveProviders);
 
-    connect(this, SIGNAL(providerAdded(GdbServerProvider*)),
-            SIGNAL(providersChanged()));
-    connect(this, SIGNAL(providerRemoved(GdbServerProvider*)),
-            SIGNAL(providersChanged()));
-    connect(this, SIGNAL(providerUpdated(GdbServerProvider*)),
-            SIGNAL(providersChanged()));
+    connect(this, &GdbServerProviderManager::providerAdded,
+            this, &GdbServerProviderManager::providersChanged);
+    connect(this, &GdbServerProviderManager::providerRemoved,
+            this, &GdbServerProviderManager::providersChanged);
+    connect(this, &GdbServerProviderManager::providerUpdated,
+            this, &GdbServerProviderManager::providersChanged);
 }
 
 GdbServerProviderManager::~GdbServerProviderManager()

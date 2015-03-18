@@ -59,9 +59,6 @@ public:
     bool registerProvider(GdbServerProvider *);
     void deregisterProvider(GdbServerProvider *);
 
-public slots:
-    void saveProviders();
-
 signals:
     void providerAdded(GdbServerProvider *);
     void providerRemoved(GdbServerProvider *);
@@ -70,6 +67,7 @@ signals:
     void providersLoaded();
 
 private:
+    void saveProviders();
     explicit GdbServerProviderManager(QObject *parent = 0);
 
     void restoreProviders();
@@ -79,8 +77,6 @@ private:
     QList<GdbServerProvider *> m_providers;
     const Utils::FileName m_configFile;
     const QList<GdbServerProviderFactory *> m_factories;
-
-    static GdbServerProviderManager *m_instance;
 
     friend class BareMetalPlugin; // for constructor
     friend class GdbServerProvider;

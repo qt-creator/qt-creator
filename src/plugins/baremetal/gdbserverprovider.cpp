@@ -109,8 +109,6 @@ GdbServerProvider::StartupMode GdbServerProvider::startupMode() const
 
 void GdbServerProvider::setStartupMode(StartupMode m)
 {
-    if (m == m_startupMode)
-        return;
     m_startupMode = m;
 }
 
@@ -121,8 +119,6 @@ QString GdbServerProvider::initCommands() const
 
 void GdbServerProvider::setInitCommands(const QString &cmds)
 {
-    if (cmds == m_initCommands)
-        return;
     m_initCommands = cmds;
 }
 
@@ -133,8 +129,6 @@ QString GdbServerProvider::resetCommands() const
 
 void GdbServerProvider::setResetCommands(const QString &cmds)
 {
-    if (cmds == m_resetCommands)
-        return;
     m_resetCommands = cmds;
 }
 
@@ -160,19 +154,18 @@ bool GdbServerProvider::operator==(const GdbServerProvider &other) const
     return thisId == otherId
             && m_startupMode == other.m_startupMode
             && m_initCommands == other.m_initCommands
-            && m_resetCommands == other.m_resetCommands
-            ;
+            && m_resetCommands == other.m_resetCommands;
 }
 
 QVariantMap GdbServerProvider::toMap() const
 {
-    QVariantMap result;
-    result.insert(QLatin1String(idKeyC), m_id);
-    result.insert(QLatin1String(displayNameKeyC), m_displayName);
-    result.insert(QLatin1String(startupModeKeyC), m_startupMode);
-    result.insert(QLatin1String(initCommandsKeyC), m_initCommands);
-    result.insert(QLatin1String(resetCommandsKeyC), m_resetCommands);
-    return result;
+    return {
+        { QLatin1String(idKeyC), m_id },
+        { QLatin1String(displayNameKeyC), m_displayName },
+        { QLatin1String(startupModeKeyC), m_startupMode },
+        { QLatin1String(initCommandsKeyC), m_initCommands },
+        { QLatin1String(resetCommandsKeyC), m_resetCommands }
+    };
 }
 
 bool GdbServerProvider::isValid() const

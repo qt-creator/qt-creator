@@ -33,7 +33,8 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QAbstractItemModel>
+#include <utils/treemodel.h>
+
 #include <QPointer>
 
 QT_BEGIN_NAMESPACE
@@ -49,36 +50,20 @@ namespace Internal {
 
 class GdbServerProvider;
 class GdbServerProviderConfigWidget;
+class GdbServerProviderFactory;
 class GdbServerProviderNode;
+class GdbServerProvidersSettingsWidget;
 
-class GdbServerProviderModel : public QAbstractItemModel
+class GdbServerProviderModel : public Utils::TreeModel
 {
     Q_OBJECT
 
 public:
     explicit GdbServerProviderModel(QObject *parent = 0);
-    ~GdbServerProviderModel();
-
-    QModelIndex index(int row, int column,
-                      const QModelIndex &parent = QModelIndex()) const;
-
-    QModelIndex index(const QModelIndex &topIdx, const GdbServerProvider *) const;
-    QModelIndex parent(const QModelIndex &index) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-
-    QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole) const;
 
     GdbServerProvider *provider(const QModelIndex &) const;
-
     GdbServerProviderConfigWidget *widget(const QModelIndex &) const;
-
-    bool isDirty() const;
-    bool isDirty(GdbServerProvider *) const;
+    QModelIndex indexForProvider(GdbServerProvider *provider) const;
 
     void apply();
 
@@ -88,26 +73,12 @@ public:
 signals:
     void providerStateChanged();
 
-private slots:
+private:
     void addProvider(GdbServerProvider *);
     void removeProvider(GdbServerProvider *);
-    void setDirty();
 
-private:
-    enum ColumnIndex { NameIndex = 0, TypeIndex, ColumnsCount };
+    GdbServerProviderNode *createNode(GdbServerProvider *, bool changed);
 
-    QModelIndex index(GdbServerProviderNode *, int column = 0) const;
-
-    GdbServerProviderNode *createNode(GdbServerProviderNode *parent,
-                                      GdbServerProvider *, bool changed);
-
-    GdbServerProviderNode *nodeFromIndex(const QModelIndex &) const;
-
-    static GdbServerProviderNode *findNode(
-            const QList<GdbServerProviderNode *> &container,
-            const GdbServerProvider *);
-
-    GdbServerProviderNode *m_root;
     QList<GdbServerProviderNode *> m_toAddNodes;
     QList<GdbServerProviderNode *> m_toRemoveNodes;
 };
@@ -119,28 +90,12 @@ class GdbServerProvidersSettingsPage : public Core::IOptionsPage
 public:
     explicit GdbServerProvidersSettingsPage(QObject *parent = 0);
 
+private:
     QWidget *widget();
     void apply();
     void finish();
 
-private slots:
-    void providerSelectionChanged();
-    void createProvider(QObject *);
-    void removeProvider();
-    void updateState();
-
-private:
-    QModelIndex currentIndex() const;
-
-    QPointer<QWidget> m_configWidget;
-
-    QPointer<GdbServerProviderModel> m_model;
-    QPointer<QItemSelectionModel> m_selectionModel;
-    QPointer<QTreeView> m_providerView;
-    QPointer<Utils::DetailsWidget> m_container;
-    QPointer<QPushButton> m_addButton;
-    QPointer<QPushButton> m_cloneButton;
-    QPointer<QPushButton> m_delButton;
+    QPointer<GdbServerProvidersSettingsWidget> m_configWidget;
 };
 
 } // namespace Internal

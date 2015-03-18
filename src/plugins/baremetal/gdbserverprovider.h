@@ -52,7 +52,6 @@ namespace BareMetal {
 namespace Internal {
 
 class GdbServerProviderConfigWidget;
-class GdbServerProviderFactory;
 class GdbServerProviderManager;
 
 class GdbServerProvider
