@@ -201,6 +201,7 @@ public:
     static QString nameForFormat(int format);
     TypeFormatList typeFormatList(const WatchData &value) const;
 
+    QVariant data(const QModelIndex &idx, int role) const;
     bool setData(const QModelIndex &idx, const QVariant &value, int role);
 
     void insertDataItem(const WatchData &data);
@@ -848,6 +849,19 @@ QVariant WatchItem::data(int column, int role) const
             break;
     }
     return QVariant();
+}
+
+QVariant WatchModel::data(const QModelIndex &idx, int role) const
+{
+    if (role == BaseTreeView::ExtraIndicesForColumnWidth) {
+        QModelIndexList l;
+        foreach (TreeItem *item, m_watchRoot->children())
+            l.append(indexFromItem(item));
+        foreach (TreeItem *item, m_returnRoot->children())
+            l.append(indexFromItem(item));
+        return QVariant::fromValue(l);
+    }
+    return WatchModelBase::data(idx, role);
 }
 
 bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role)
