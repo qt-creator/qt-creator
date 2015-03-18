@@ -758,7 +758,7 @@
 
     \section2 C++11 Features
 
-    Code should compile with Microsoft Visual Studio 2010, g++ 4.5, and Clang 3.1.
+    Code should compile with Microsoft Visual Studio 2013, g++ 4.7, and Clang 3.1.
 
     \section3 Lambdas
 
@@ -878,6 +878,23 @@
             \endcode
 
     \endlist
+
+    \section3 Scoped enums
+
+    You can use scoped enums in places where the implicit conversion to int of unscoped enums is
+    undesired or the additional scope is useful.
+
+    \section3 Delegating constructors
+
+    Use delegating constructors if multiple constructors use essentially the same code.
+
+    \section3 Initializer list
+
+    Use initializer lists to initialize containers, for example:
+
+    \code
+    const QVector<int> values = {1, 2, 3, 4, 5};
+    \endcode
 
     \section2 Using QObject
 
