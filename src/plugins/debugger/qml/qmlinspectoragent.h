@@ -113,8 +113,8 @@ private:
     void insertObjectInTree(const QmlDebug::ObjectReference &result);
 
     void buildDebugIdHashRecursive(const QmlDebug::ObjectReference &ref);
-    QList<WatchData> buildWatchData(const QmlDebug::ObjectReference &obj,
-                                           const QByteArray &parentIname, bool append);
+    void addWatchData(const QmlDebug::ObjectReference &obj,
+                      const QByteArray &parentIname, bool append);
 
     enum LogDirection {
         LogSend,

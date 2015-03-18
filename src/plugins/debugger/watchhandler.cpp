@@ -1253,12 +1253,6 @@ void WatchHandler::insertData(const WatchData &data)
     m_model->insertDataItem(data);
 }
 
-void WatchHandler::insertDataList(const QList<WatchData> &list)
-{
-    for (int i = 0, n = list.size(); i != n; ++i)
-        m_model->insertDataItem(list.at(i));
-}
-
 void WatchHandler::removeAllData(bool includeInspectData)
 {
     m_model->reinitialize(includeInspectData);

@@ -239,7 +239,6 @@ public:
     void appendFormatRequests(DebuggerCommand *cmd);
 
     void insertData(const WatchData &data); // DEPRECATED
-    void insertDataList(const QList<WatchData> &list); // DEPRECATED
     void insertItem(WatchItem *item); // Takes ownership.
     void removeItemByIName(const QByteArray &iname);
     void removeAllData(bool includeInspectData = false);
