@@ -1159,6 +1159,11 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
                 ? DumpEncodingJulianDateAndMillisecondsSinceMidnight
                 : DumpEncodingMillisecondsSinceEpoch;
         break;
+    case KT_QTimeZone: // Based on a QByteArray dumper
+    case KT_QByteArray:
+        if (QtInfo::get(ctx).version > 4)
+            encoding = DumpEncodingHex_Latin1_WithQuotes;
+        break;
     }
     if (encoding) {
         str << ",valueencoded=\"" << encoding << "\",value=\"" << gdbmiWStringFormat(value) <<'"';

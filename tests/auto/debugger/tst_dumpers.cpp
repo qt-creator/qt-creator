@@ -1539,8 +1539,7 @@ void tst_Dumpers::dumper_data()
                + Check("ba0", "ba0", "\"\"", "@QByteArray")
 
                + Check("ba1", QByteArray("\"Hello\"World")
-                      + char(0) + char(1) + char(2) + '"', "@QByteArray") % NoCdbEngine
-               + Check("ba1", QByteArray("\"Hello\"World...\""), "@QByteArray") % CdbEngine
+                      + char(0) + char(1) + char(2) + '"', "@QByteArray")
                + Check("ba1.0", "[0]", "72", "char")
                + Check("ba1.11", "[11]", "0", "char")
                + Check("ba1.12", "[12]", "1", "char")

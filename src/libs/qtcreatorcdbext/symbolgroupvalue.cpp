@@ -1728,6 +1728,8 @@ static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str,
     }
 
     // Qt 5: Data start at offset past the 'd' of type QByteArrayData.
+    wchar_t oldFill = str.fill(wchar_t('0'));
+    str << std::hex;
     char *memory;
     unsigned fullSize;
     unsigned size;
@@ -1735,26 +1737,20 @@ static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str,
     if (!readQt5StringData(dV, qtInfo, false, 0, maxStringSize, &fullSize, &size, &memory))
         return false;
     if (size) {
-        // Emulate CDB's behavior of replacing unprintable characters
-        // by dots.
-        std::wstring display;
-        display.reserve(size);
         char *memEnd = memory + size;
         for (char *p = memory; p < memEnd; p++) {
-            const char c = *p;
-            display.push_back(c >= 0 && isprint(c) ? wchar_t(c) : L'.');
+            const unsigned char c = *p;
+            str << std::setw(2) << c;
         }
-        str << "\"" << display;
         if (fullSize > size)
-            str << L"...";
-        str << L'"';
-    } else {
-        str << L"\"\"";
+            str << L"2e2e2e"; // ...
     }
     if (memoryHandle)
         *memoryHandle = new MemoryHandle(reinterpret_cast<unsigned char *>(memory), size);
     else
         delete [] memory;
+    str << std::dec;
+    str.fill(oldFill);
     return true;
 }
 
@@ -2230,12 +2226,8 @@ static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str)
         str << msecs << separator
             << spec << separator
             << offset << separator
-            << std::hex;
-        if (timeZoneString.length() > 2) {
-            for (unsigned i = 1; i < timeZoneString.length() - 1; ++i) // remove '"'
-                str << (int)timeZoneString.at(i);
-        }
-        str << std::dec << separator << status;
+            << timeZoneString << separator
+            << status;
 
         return  true;
     }
