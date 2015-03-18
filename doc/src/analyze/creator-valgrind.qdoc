@@ -30,9 +30,10 @@
 
     \title Detecting Memory Leaks
 
-    You can use the Memcheck tool included in the
-    Valgrind tool suite to detect
-    problems that are related to memory management in applications.
+    You can use the Memcheck tool included in the Valgrind tool suite to detect
+    problems that are related to memory management in applications. You can use
+    the tool together with the GDB debugger. When a problem is detected, the
+    application is interrupted and you can debug it.
 
     \note You can install and run Memcheck locally on Linux. You can run
     it on a remote host or device from any development machine.
@@ -46,7 +47,9 @@
 
         \li In the \uicontrol Projects mode, select a debug build configuration.
 
-        \li Select \uicontrol Analyze > \uicontrol {Valgrind Memory Analyzer}.
+        \li Select \uicontrol Analyze > \uicontrol {Valgrind Memory Analyzer},
+            or \uicontrol {Valgrind Memory Analyzer with GDB} if you want to
+            debug the found problems.
 
         \li Select the
             \inlineimage qtcreator-analyze-start-button.png "Start button"
