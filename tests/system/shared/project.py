@@ -69,7 +69,7 @@ def __handleCmakeWizardPage__():
     generatorCombo = waitForObject(":Generator:_QComboBox")
     generatorText = "Unix Generator (Desktop 480 GCC)"
     if platform.system() in ('Windows', 'Microsoft'):
-        generatorText = "MinGW Generator (Desktop 480 GCC)"
+        generatorText = "NMake Generator (Desktop 480 MSVC2010)"
     index = generatorCombo.findText(generatorText)
     if index == -1:
         test.warning("No matching CMake generator for found.")
@@ -389,12 +389,11 @@ def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None):
         available = availableTargets
     else:
         # following targets depend on the build environment - added for further/later tests
-        available = [Targets.DESKTOP_474_GCC, Targets.DESKTOP_480_GCC, Targets.DESKTOP_521_DEFAULT,
+        available = [Targets.DESKTOP_474_GCC, Targets.DESKTOP_480_DEFAULT, Targets.DESKTOP_521_DEFAULT,
                      Targets.DESKTOP_531_DEFAULT, Targets.MAEMO5, Targets.EMBEDDED_LINUX,
                      Targets.SIMULATOR, Targets.HARMATTAN]
         if platform.system() in ('Windows', 'Microsoft'):
             available.remove(Targets.EMBEDDED_LINUX)
-            available.append(Targets.DESKTOP_480_MSVC2010)
         if platform.system() != 'Darwin':
             available.append(Targets.DESKTOP_541_GCC)
     for target in filter(lambda x: x in available,
@@ -621,11 +620,9 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
         if 'Desktop' in supports:
             if version == None or version < "5.0":
                 result.append(Targets.DESKTOP_474_GCC)
-                result.append(Targets.DESKTOP_480_GCC)
+                result.append(Targets.DESKTOP_480_DEFAULT)
                 if platform.system() in ("Linux", "Darwin"):
                     result.append(Targets.EMBEDDED_LINUX)
-                elif platform.system() in ('Windows', 'Microsoft'):
-                    result.append(Targets.DESKTOP_480_MSVC2010)
             result.extend([Targets.DESKTOP_521_DEFAULT, Targets.DESKTOP_531_DEFAULT])
             if platform.system() != 'Darwin':
                 result.append(Targets.DESKTOP_541_GCC)
@@ -637,10 +634,8 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
             result.append(Targets.SIMULATOR)
     elif 'Platform independent' in text:
         # MAEMO5 and HARMATTAN could be wrong here - depends on having Madde plugin enabled or not
-        result = [Targets.DESKTOP_474_GCC, Targets.DESKTOP_480_GCC, Targets.DESKTOP_521_DEFAULT,
+        result = [Targets.DESKTOP_474_GCC, Targets.DESKTOP_480_DEFAULT, Targets.DESKTOP_521_DEFAULT,
                   Targets.DESKTOP_531_DEFAULT, Targets.MAEMO5, Targets.SIMULATOR, Targets.HARMATTAN]
-        if platform.system() in ('Windows', 'Microsoft'):
-            result.append(Targets.DESKTOP_480_MSVC2010)
         if platform.system() != 'Darwin':
             result.append(Targets.DESKTOP_541_GCC)
     else:

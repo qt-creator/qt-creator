@@ -45,7 +45,7 @@ def main():
     if canTestEmbeddedQtQuick():
         checkWelcomePage(sessionName, True)
     for project in projects:
-        openQmakeProject(project, Targets.DESKTOP_480_GCC)
+        openQmakeProject(project, Targets.DESKTOP_480_DEFAULT)
     progressBarWait(20000)
     checkNavigator(68, "Verifying whether all projects have been opened.")
     openDocument("propertyanimation.QML.qml.color-animation\\.qml")

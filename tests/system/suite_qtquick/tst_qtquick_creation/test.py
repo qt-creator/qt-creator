@@ -34,7 +34,7 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    for targ, qVer in [[Targets.DESKTOP_480_GCC, "1.1"], [Targets.DESKTOP_521_DEFAULT, "2.1"],
+    for targ, qVer in [[Targets.DESKTOP_480_DEFAULT, "1.1"], [Targets.DESKTOP_521_DEFAULT, "2.1"],
                        [Targets.DESKTOP_521_DEFAULT, "2.2"], [Targets.DESKTOP_531_DEFAULT, "2.3"],
                        [Targets.DESKTOP_521_DEFAULT, "Controls 1.0"], [Targets.DESKTOP_521_DEFAULT, "Controls 1.1"],
                        [Targets.DESKTOP_531_DEFAULT, "Controls 1.2"]]:

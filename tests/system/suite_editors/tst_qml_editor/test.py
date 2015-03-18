@@ -41,7 +41,7 @@ def main():
     # add docs to have the correct tool tips
     addHelpDocumentation([os.path.join(sdkPath, "Documentation", "qt.qch")])
     templateDir = prepareTemplate(sourceExample)
-    openQmakeProject(os.path.join(templateDir,proFile), Targets.DESKTOP_480_GCC)
+    openQmakeProject(os.path.join(templateDir, proFile), Targets.DESKTOP_480_DEFAULT)
     openDocument("focus.QML.qml.focus\\.qml")
     testRenameId()
     testFindUsages()
