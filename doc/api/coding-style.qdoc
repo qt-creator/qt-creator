@@ -238,8 +238,8 @@
         \li Class names begin with a capital letter.
         \li Function names begin with a lower case letter.
         \li Variable names begin with a lower case letter.
-        \li Enum names and values begin with a capital letter. Enum values
-            contain some part of the name of the enum type.
+        \li Enum names and values begin with a capital letter. Unscoped Enum
+            values contain some part of the name of the enum type.
     \endlist
 
     \section2 Whitespace
@@ -1058,7 +1058,7 @@
     \section2 Esthetics
 
     \list
-        \li Prefer enums to define const over static const int or defines.
+        \li Prefer unscoped enums to define const over static const int or defines.
             Enumeration values will be replaced by the compiler at compile time,
             resulting in faster code. Defines are not namespace safe.
         \li Prefer verbose argument names in headers.
