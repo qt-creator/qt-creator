@@ -303,7 +303,7 @@ void LldbEngine::setupInferior()
         runCommand(cmd);
     }
 
-    DebuggerCommand cmd1("loadDumperFiles");
+    DebuggerCommand cmd1("loadDumpers");
     runCommand(cmd1);
 }
 
@@ -1158,6 +1158,12 @@ void LldbEngine::reloadRegisters()
 {
     if (Internal::isDockVisible(QLatin1String(DOCKWIDGET_REGISTER)))
         runCommand("reportRegisters");
+}
+
+void LldbEngine::reloadDebuggingHelpers()
+{
+    runCommand("reloadDumpers");
+    updateAll();
 }
 
 void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)

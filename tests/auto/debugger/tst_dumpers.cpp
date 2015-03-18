@@ -1240,7 +1240,7 @@ void tst_Dumpers::dumper()
         cmds += "python sys.path.insert(1, '" + dumperDir + "')\n"
                 "python sys.path.append('" + uninstalledData + "')\n"
                 "python from gdbbridge import *\n"
-                "python theDumper.setupDumper()\n"
+                "python theDumper.setupDumpers()\n"
                 "run " + nograb + "\n"
                 "python theDumper.showData({'fancy':1,'forcens':1,'autoderef':1,"
                         "'dyntype':1,'passExceptions':1,'expanded':[" + expandedq + "]})\n";

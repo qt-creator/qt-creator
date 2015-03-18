@@ -4273,7 +4273,7 @@ void GdbEngine::startGdb(const QStringList &args)
     if (!commands.isEmpty())
         postCommand(commands.toLocal8Bit(), flags);
 
-    runCommand(DebuggerCommand("setupDumper", flags, CB(handlePythonSetup)));
+    runCommand(DebuggerCommand("loadDumpers", flags, CB(handlePythonSetup)));
 }
 
 void GdbEngine::handleGdbStartFailed()
@@ -4303,7 +4303,7 @@ void GdbEngine::loadInitScript()
 
 void GdbEngine::reloadDebuggingHelpers()
 {
-    runCommand("reloadDumper");
+    runCommand("reloadDumpers");
     reloadLocals();
 }
 

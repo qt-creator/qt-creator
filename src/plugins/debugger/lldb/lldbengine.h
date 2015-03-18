@@ -116,6 +116,7 @@ private:
     void reloadRegisters();
     void reloadSourceFiles() {}
     void reloadFullStack();
+    void reloadDebuggingHelpers();
     void fetchDisassembler(Internal::DisassemblerAgent *);
     void refreshDisassembly(const GdbMi &data);
 

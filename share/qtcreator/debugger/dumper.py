@@ -1706,7 +1706,7 @@ class DumperBase:
         except:
             pass
 
-    def setupDumper(self, _ = {}):
+    def setupDumpers(self, _ = {}):
         self.qqDumpers = {}
         self.qqFormats = {}
         self.qqEditable = {}
@@ -1719,27 +1719,26 @@ class DumperBase:
                 item = dic[name]
                 self.registerDumper(name, item)
 
-        return self.reportDumpers()
-
-    def reportDumpers(self, _ = {}):
-        result = "dumpers=["
+        msg = "dumpers=["
         for key, value in self.qqFormats.items():
             if key in self.qqEditable:
-                result += '{type="%s",formats="%s",editable="true"},' % (key, value)
+                msg += '{type="%s",formats="%s",editable="true"},' % (key, value)
             else:
-                result += '{type="%s",formats="%s"},' % (key, value)
-        result += ']'
-        return result
+                msg += '{type="%s",formats="%s"},' % (key, value)
+        msg += ']'
+        self.reportDumpers(msg)
 
-    def reloadDumper(self, args):
+    def reportDumpers(self, msg):
+        raise NotImplementedError # Pure
+
+    def reloadDumpers(self, args):
         for mod in self.dumpermodules:
             m = sys.modules[mod]
             if sys.version_info[0] >= 3:
                 importlib.reload(m)
             else:
                 reload(m)
-
-        self.setupDumper(args)
+        self.setupDumpers(args)
 
     def addDumperModule(self, args):
         path = args['path']
