@@ -756,25 +756,19 @@
     \note As an exception, imported third party code as well as code
     interfacing the native APIs (src/support/os_*) can use NULL.
 
-    \section2 C++11 Features
+    \section2 C++11 and C++14 Features
 
     Code should compile with Microsoft Visual Studio 2013, g++ 4.7, and Clang 3.1.
 
     \section3 Lambdas
 
-    You can use lambdas with the following restrictions:
+    When using lambdas, note the following:
 
     \list
-        \li You have to explicitly specify the return type, if the lambda contains more than a
-            single expression. Otherwise it does not compile with VS2010.
+        \li You do not have to explicitly specify the return type. If you are not using one
+            of the previously mentioned compilers, do note that this is a C++14 feature and you
+            might need to enable C++14 support in your compiler.
             \code
-            []() -> QString {
-                Foo *foo = activeFoo();
-                return foo ? foo->displayName() : QString();
-            });
-
-            -NOT-
-
             []() {
                 Foo *foo = activeFoo();
                 return foo ? foo->displayName() : QString();
