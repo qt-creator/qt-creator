@@ -47,13 +47,13 @@ void main()
     gl_Position = matrix * vertexCoord;
 
     // Make very narrow events somewhat wider so that they don't collapse into 0 pixels
-    highp float scaledWidth = scale.x * rectSize.x;
-    highp float shift = sign(scaledWidth) * max(0, 3.0 - abs(scaledWidth)) * 0.0005;
+    float scaledWidth = scale.x * rectSize.x;
+    float shift = sign(scaledWidth) * max(0.0, 3.0 - abs(scaledWidth)) * 0.0005;
     gl_Position.x += shift;
 
     // Ditto for events with very small height
-    highp float scaledHeight = scale.y * rectSize.y;
-    gl_Position.y += float(rectSize.y > 0.0) * max(0, 3.0 - scaledHeight) * 0.003;
+    float scaledHeight = scale.y * rectSize.y;
+    gl_Position.y += float(rectSize.y > 0.0) * max(0.0, 3.0 - scaledHeight) * 0.003;
 
     barycentric = vec2(rectSize.x > 0.0 ? 1.0 : 0.0, rectSize.y > 0.0 ? 1.0 : 0.0);
     color = vertexColor.rgb;
