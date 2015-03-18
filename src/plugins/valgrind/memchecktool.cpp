@@ -177,13 +177,10 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
     return true;
 }
 
-static void initKindFilterAction(QAction *action, const QList<int> &kinds)
+static void initKindFilterAction(QAction *action, const QVariantList &kinds)
 {
     action->setCheckable(true);
-    QVariantList data;
-    foreach (int kind, kinds)
-        data << kind;
-    action->setData(data);
+    action->setData(kinds);
 }
 
 MemcheckTool::MemcheckTool(QObject *parent)
@@ -208,21 +205,21 @@ MemcheckTool::MemcheckTool(QObject *parent)
         tr("These suppression files were used in the last memory analyzer run."));
 
     QAction *a = new QAction(tr("Definite Memory Leaks"), this);
-    initKindFilterAction(a, QList<int>() << Leak_DefinitelyLost << Leak_IndirectlyLost);
+    initKindFilterAction(a, { Leak_DefinitelyLost, Leak_IndirectlyLost });
     m_errorFilterActions.append(a);
 
     a = new QAction(tr("Possible Memory Leaks"), this);
-    initKindFilterAction(a, QList<int>() << Leak_PossiblyLost << Leak_StillReachable);
+    initKindFilterAction(a, { Leak_PossiblyLost, Leak_StillReachable });
     m_errorFilterActions.append(a);
 
     a = new QAction(tr("Use of Uninitialized Memory"), this);
-    initKindFilterAction(a, QList<int>() << InvalidRead << InvalidWrite << InvalidJump << Overlap
-                         << InvalidMemPool << UninitCondition << UninitValue
-                         << SyscallParam << ClientCheck);
+    initKindFilterAction(a, { InvalidRead, InvalidWrite, InvalidJump, Overlap,
+                              InvalidMemPool, UninitCondition, UninitValue,
+                              SyscallParam, ClientCheck });
     m_errorFilterActions.append(a);
 
     a = new QAction(tr("Invalid Calls to \"free()\""), this);
-    initKindFilterAction(a, QList<int>() << InvalidFree << MismatchedFree);
+    initKindFilterAction(a, { InvalidFree,  MismatchedFree });
     m_errorFilterActions.append(a);
 }
 
