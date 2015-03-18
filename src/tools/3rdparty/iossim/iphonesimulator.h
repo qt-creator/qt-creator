@@ -6,7 +6,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <dvtiphonesimulatorremoteclient/dvtiphonesimulatorremoteclient.h>
+#import "dvtiphonesimulatorremoteclient/dvtiphonesimulatorremoteclient.h"
 #import "version.h"
 
 @interface iPhoneSimulator : NSObject <DTiPhoneSimulatorSessionDelegate> {
