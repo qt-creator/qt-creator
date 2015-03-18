@@ -119,25 +119,16 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
             output = output.split(QLatin1Char('\n')).first();
     }
 
-    QColor mix;
-    mix.setRgb( static_cast<int>(0.7 * foreground.red()   + 0.3 * background.red()),
-                static_cast<int>(0.7 * foreground.green() + 0.3 * background.green()),
-                static_cast<int>(0.7 * foreground.blue()  + 0.3 * background.blue()));
-
     if (selected) {
         int height = 0;
         int leading = fm.leading();
-        int firstLineBreak = output.indexOf(QLatin1Char('\n'));
+        int fontHeight = fm.height();
         output.replace(QLatin1Char('\n'), QChar::LineSeparator);
         QTextLayout tl(output);
-        if (firstLineBreak != -1) {
-            QTextLayout::FormatRange fr;
-            fr.start = firstLineBreak;
-            fr.length = output.length() - firstLineBreak;
-            fr.format.setFontStyleHint(QFont::Monospace);
-            fr.format.setForeground(mix);
-            tl.setAdditionalFormats(QList<QTextLayout::FormatRange>() << fr);
-        }
+        tl.setFont(painter->font());
+        QTextOption txtOption;
+        txtOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+        tl.setTextOption(txtOption);
         tl.beginLayout();
         while (true) {
             QTextLine tLine = tl.createLine();
@@ -146,18 +137,14 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
             tLine.setLineWidth(positions.textAreaWidth());
             height += leading;
             tLine.setPosition(QPoint(0, height));
-            height += fm.ascent() + fm.descent();
+            height += fontHeight;
         }
         tl.endLayout();
         tl.draw(painter, QPoint(positions.textAreaLeft(), positions.top()));
-
-        painter->setPen(mix);
-
-        int bottomLine = positions.top() + fm.ascent() + height + leading;
-        painter->drawText(positions.textAreaLeft(), bottomLine, testResult.fileName());
     } else {
         painter->setClipRect(positions.textArea());
-        painter->drawText(positions.textAreaLeft(), positions.top() + fm.ascent(), output);
+        painter->drawText(positions.textAreaLeft(), positions.top() + fm.ascent(),
+                          fm.elidedText(output, Qt::ElideRight, positions.textAreaWidth()));
     }
 
     QString file = testResult.fileName();
@@ -236,18 +223,23 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
         int height = 0;
         int leading = fm.leading();
         QTextLayout tl(output);
+        tl.setFont(opt.font);
+        QTextOption txtOption;
+        txtOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+        tl.setTextOption(txtOption);
         tl.beginLayout();
         while (true) {
             QTextLine line = tl.createLine();
             if (!line.isValid())
                 break;
+            line.setLineWidth(positions.textAreaWidth());
             height += leading;
             line.setPosition(QPoint(0, height));
-            height += fm.ascent() + fm.descent();
+            height += fontHeight;
         }
         tl.endLayout();
 
-        s.setHeight(height + leading + 3 + (testResult.fileName().isEmpty() ? 0 : fontHeight));
+        s.setHeight(height + 3);
     } else {
         s.setHeight(fontHeight + 3);
     }
