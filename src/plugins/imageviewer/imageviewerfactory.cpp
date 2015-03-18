@@ -47,29 +47,14 @@ ImageViewerFactory::ImageViewerFactory(QObject *parent) :
     setId(Constants::IMAGEVIEWER_ID);
     setDisplayName(qApp->translate("OpenWith::Editors", Constants::IMAGEVIEWER_DISPLAY_NAME));
 
-    QMap<QByteArray, const char *> possibleMimeTypes;
-    possibleMimeTypes.insert("bmp", "image/bmp");
-    possibleMimeTypes.insert("gif", "image/gif");
-    possibleMimeTypes.insert("ico", "image/x-icon");
-    possibleMimeTypes.insert("jpeg","image/jpeg");
-    possibleMimeTypes.insert("jpg", "image/jpeg");
-    possibleMimeTypes.insert("mng", "video/x-mng");
-    possibleMimeTypes.insert("pbm", "image/x-portable-bitmap");
-    possibleMimeTypes.insert("pgm", "image/x-portable-graymap");
-    possibleMimeTypes.insert("png", "image/png");
-    possibleMimeTypes.insert("ppm", "image/x-portable-pixmap");
-    possibleMimeTypes.insert("svg", "image/svg+xml");
-    possibleMimeTypes.insert("tif", "image/tiff");
-    possibleMimeTypes.insert("tiff","image/tiff");
-    possibleMimeTypes.insert("xbm", "image/xbm");
-    possibleMimeTypes.insert("xpm", "image/xpm");
+    const QList<QByteArray> supportedMimeTypes = QImageReader::supportedMimeTypes();
+    foreach (const QByteArray &format, supportedMimeTypes)
+        addMimeType(format.constData());
 
-    QList<QByteArray> supportedFormats = QImageReader::supportedImageFormats();
-    foreach (const QByteArray &format, supportedFormats) {
-        const char *value = possibleMimeTypes.value(format);
-        if (value)
-            addMimeType(value);
-    }
+#if (QT_VERSION < QT_VERSION_CHECK(5, 5, 0)) && !QT_NO_SVGRENDERER
+    // Workaround for https://codereview.qt-project.org/108693
+    addMimeType("image/svg+xml");
+#endif
 }
 
 Core::IEditor *ImageViewerFactory::createEditor()
