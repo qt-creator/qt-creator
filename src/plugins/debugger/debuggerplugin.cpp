@@ -1820,6 +1820,8 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
     m_watchersView->setModel(engine->watchModel());
     m_inspectorView->setModel(engine->watchModel());
 
+    engine->watchHandler()->resetWatchers();
+
     mainWindow()->setEngineDebugLanguages(engine->startParameters().languages);
 }
 

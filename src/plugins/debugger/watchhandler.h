@@ -244,6 +244,7 @@ public:
     void removeItemByIName(const QByteArray &iname);
     void removeAllData(bool includeInspectData = false);
     void resetValueCache();
+    void resetWatchers();
     void notifyUpdateStarted();
     void notifyUpdateFinished();
     void purgeOutdatedItems(const QSet<QByteArray> &inames);
