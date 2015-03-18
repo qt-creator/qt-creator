@@ -36,7 +36,7 @@
 #include <QDir>
 #include <QStringBuilder>
 #include <QDebug>
-#include <QScriptEngine>
+#include <QJsonDocument>
 
 using namespace Utils;
 
@@ -57,13 +57,11 @@ JsonValue::~JsonValue()
 
 JsonValue *JsonValue::create(const QString &s, JsonMemoryPool *pool)
 {
-    QScriptEngine engine;
-    QScriptValue jsonParser = engine.evaluate(QLatin1String("JSON.parse"));
-    QScriptValue value = jsonParser.call(QScriptValue(), QScriptValueList() << s);
-    if (engine.hasUncaughtException() || !value.isValid())
+    const QJsonDocument document = QJsonDocument::fromJson(s.toUtf8());
+    if (document.isNull())
         return 0;
 
-    return build(value.toVariant(), pool);
+    return build(document.toVariant(), pool);
 }
 
 void *JsonValue::operator new(size_t size, JsonMemoryPool *pool)
