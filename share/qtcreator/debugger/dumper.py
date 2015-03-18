@@ -583,12 +583,15 @@ class DumperBase:
         elided, shown = self.computeLimit(size, limit)
         return elided, self.readMemory(data, shown)
 
-    def putStdStringHelper(self, data, size, charSize):
+    def putStdStringHelper(self, data, size, charSize, format = None):
         bytelen = size * charSize
         elided, shown = self.computeLimit(bytelen, self.displayStringLimit)
         mem = self.readMemory(data, shown)
         if charSize == 1:
-            encodingType = Hex2EncodedLatin1
+            if format == 1 or format == 2:
+                encodingType = Hex2EncodedLatin1
+            else:
+                encodingType = Hex2EncodedUtf8
             displayType = DisplayLatin1String
         elif charSize == 2:
             encodingType = Hex4EncodedLittleEndian
@@ -600,10 +603,9 @@ class DumperBase:
         self.putNumChild(0)
         self.putValue(mem, encodingType, elided=elided)
 
-        format = self.currentItemFormat()
-        if format == 1:
+        if format == 1 or format == 3:
             self.putDisplay(StopDisplay)
-        elif format == 2:
+        elif format == 2 or format == 4:
             self.putField("editformat", displayType)
             elided, shown = self.computeLimit(bytelen, 100000)
             self.putField("editvalue", self.readMemory(data, shown))
@@ -618,10 +620,6 @@ class DumperBase:
 
     def byteArrayData(self, value):
         return self.byteArrayDataHelper(self.extractPointer(value))
-
-    def putByteArrayValueByAddress(self, addr):
-        elided, data = self.encodeByteArrayHelper(addr, self.displayStringLimit)
-        self.putValue(data, Hex2EncodedLatin1, elided=elided)
 
     def putByteArrayValue(self, value):
         elided, data = self.encodeByteArrayHelper(self.extractPointer(value), self.displayStringLimit)

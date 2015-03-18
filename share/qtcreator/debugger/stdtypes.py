@@ -398,14 +398,14 @@ def qdump__std____debug__stack(d, value):
     qdump__std__stack(d, value)
 
 def qform__std__string():
-    return "Inline,In Separate Window"
+    return "Latin1 String,Latin1 String in Separate Window,UTF-8 String,UTF-8 String in Separate Window"
 
 def qdump__std__string(d, value):
-    qdump__std__stringHelper1(d, value, 1)
+    qdump__std__stringHelper1(d, value, 1, d.currentItemFormat())
 
-def qdump__std__stringHelper1(d, value, charSize):
+def qdump__std__stringHelper1(d, value, charSize, format):
     if d.isQnxTarget():
-        qdump__std__stringHelper1__QNX(d, value, charSize)
+        qdump__std__stringHelper1__QNX(d, value, charSize, format)
         return
 
     data = value["_M_dataplus"]["_M_p"]
@@ -418,9 +418,9 @@ def qdump__std__stringHelper1(d, value, charSize):
     refcount = int(sizePtr[-1]) & 0xffffffff
     d.check(refcount >= -1) # Can be -1 accoring to docs.
     d.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    d.putStdStringHelper(sizePtr, size, charSize)
+    d.putStdStringHelper(sizePtr, size, charSize, format)
 
-def qdump__std__stringHelper1__QNX(d, value, charSize):
+def qdump__std__stringHelper1__QNX(d, value, charSize, format):
     size = value['_Mysize']
     alloc = value['_Myres']
     _BUF_SIZE = 16 / charSize
@@ -432,7 +432,7 @@ def qdump__std__stringHelper1__QNX(d, value, charSize):
     refcount = int(sizePtr[-1])
     d.check(refcount >= -1) # Can be -1 accoring to docs.
     d.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    d.putStdStringHelper(sizePtr, size, charSize)
+    d.putStdStringHelper(sizePtr, size, charSize, format)
 
 
 def qdump__std____1__string(d, value):
@@ -446,7 +446,7 @@ def qdump__std____1__string(d, value):
         # Short/internal.
         size = firstByte / 2
         data = base + 1
-    d.putStdStringHelper(data, size, 1)
+    d.putStdStringHelper(data, size, 1, d.currentItemFormat())
     d.putType("std::string")
 
 
@@ -786,13 +786,17 @@ def qedit__string(d, expr, value):
 def qdump__string(d, value):
     qdump__std__string(d, value)
 
+def qform__std__wstring():
+    return "Inline String,String in Separate Window"
+
 def qdump__std__wstring(d, value):
     charSize = d.lookupType('wchar_t').sizeof
-    qdump__std__stringHelper1(d, value, charSize)
+    # HACK: Shift format by 4 to account for latin1 and utf8
+    qdump__std__stringHelper1(d, value, charSize, d.currentItemFormat())
 
 def qdump__std__basic_string(d, value):
     innerType = d.templateArgument(value.type, 0)
-    qdump__std__stringHelper1(d, value, innerType.sizeof)
+    qdump__std__stringHelper1(d, value, innerType.sizeof, d.currentItemFormat())
 
 def qdump__std____1__basic_string(d, value):
     innerType = str(d.templateArgument(value.type, 0))
