@@ -133,6 +133,12 @@ public:
 
         QtOutputFormatter_LinkTextColor,
 
+        /* Compile Output Pane */
+
+        CompileOutput_ErrorOutput,
+        CompileOutput_MessageOutput,
+        CompileOutput_ErrorMessageOutput,
+
         /* Welcome Plugin */
 
         Welcome_TextColorNormal,
