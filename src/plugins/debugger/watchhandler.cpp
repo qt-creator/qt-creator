@@ -856,7 +856,7 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
         case Qt::EditRole:
             switch (idx.column()) {
             case 0: {
-                m_handler->watchExpression(value.toString());
+                m_handler->watchExpression(value.toString().trimmed());
                 break;
             }
             case 1: // Change value
@@ -1491,7 +1491,7 @@ void WatchHandler::loadSessionData()
     QVariant value = sessionValue("Watchers");
     m_model->m_watchRoot->removeChildren();
     foreach (const QString &exp, value.toStringList())
-        watchExpression(exp);
+        watchExpression(exp.trimmed());
 }
 
 WatchModelBase *WatchHandler::model() const

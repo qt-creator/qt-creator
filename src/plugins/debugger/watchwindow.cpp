@@ -1108,7 +1108,7 @@ void WatchTreeView::inputNewExpression()
         "\">documentation</a>."));
     dlg.setHistoryCompleter(QLatin1String("WatchItems"));
     if (dlg.exec() == QDialog::Accepted) {
-        QString exp = dlg.text();
+        const QString exp = dlg.text().trimmed();
         if (!exp.isEmpty())
             watchExpression(exp, exp);
     }

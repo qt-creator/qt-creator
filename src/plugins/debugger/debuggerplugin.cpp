@@ -919,6 +919,7 @@ public slots:
             exp = removeObviousSideEffects(exp);
         else
             exp = fixCppExpression(exp);
+        exp = exp.trimmed();
         if (exp.isEmpty())
             return;
         currentEngine()->watchHandler()->watchVariable(exp);
