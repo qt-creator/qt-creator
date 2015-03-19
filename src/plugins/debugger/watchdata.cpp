@@ -260,7 +260,6 @@ void WatchData::setType(const QByteArray &str, bool guessChildrenFromType)
         else
             changed = false;
     }
-    setTypeUnneeded();
     if (guessChildrenFromType) {
         switch (guessChildren(type)) {
         case HasChildren:
@@ -320,7 +319,7 @@ QString WatchData::toString() const
 
     if (isValueNeeded())
         str << "value=<needed>,";
-    if (isValueKnown() && !value.isEmpty())
+    if (!value.isEmpty())
         str << "value=\"" << value << doubleQuoteComma;
 
     if (elided)
@@ -333,15 +332,9 @@ QString WatchData::toString() const
     if (!dumperFlags.isEmpty())
         str << "dumperFlags=\"" << dumperFlags << doubleQuoteComma;
 
-    if (isTypeNeeded())
-        str << "type=<needed>,";
-    if (isTypeKnown() && !type.isEmpty())
-        str << "type=\"" << type << doubleQuoteComma;
+    str << "type=\"" << type << doubleQuoteComma;
 
-    if (isHasChildrenNeeded())
-        str << "hasChildren=<needed>,";
-    if (isHasChildrenKnown())
-        str << "hasChildren=\"" << (hasChildren ? "true" : "false") << doubleQuoteComma;
+    str << "hasChildren=\"" << (hasChildren ? "true" : "false") << doubleQuoteComma;
 
     if (isChildrenNeeded())
         str << "children=<needed>,";
@@ -511,8 +504,6 @@ void WatchData::updateType(const GdbMi &item)
 {
     if (item.isValid())
         setType(item.data());
-    else if (type.isEmpty())
-        setTypeNeeded();
 }
 
 void WatchData::updateDisplayedType(const GdbMi &item)

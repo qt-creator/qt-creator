@@ -48,19 +48,15 @@ public:
 
     enum State
     {
-        Complete          = 0,
         HasChildrenNeeded = 1,
         ValueNeeded       = 2,
-        TypeNeeded        = 4,
         ChildrenNeeded    = 8,
 
         NeededMask = ValueNeeded
-            | TypeNeeded
             | ChildrenNeeded
             | HasChildrenNeeded,
 
         InitialState = ValueNeeded
-            | TypeNeeded
             | ChildrenNeeded
             | HasChildrenNeeded
     };
@@ -69,27 +65,14 @@ public:
     void setAllNeeded()            { state = NeededMask; }
     void setAllUnneeded()          { state = State(0); }
 
-    bool isTypeNeeded() const { return state & TypeNeeded; }
-    bool isTypeKnown()  const { return !(state & TypeNeeded); }
-    void setTypeNeeded()      { state = State(state | TypeNeeded); }
-    void setTypeUnneeded()    { state = State(state & ~TypeNeeded); }
-
     bool isValueNeeded() const { return state & ValueNeeded; }
-    bool isValueKnown()  const { return !(state & ValueNeeded); }
     void setValueNeeded()      { state = State(state | ValueNeeded); }
     void setValueUnneeded()    { state = State(state & ~ValueNeeded); }
 
     bool isChildrenNeeded() const { return state & ChildrenNeeded; }
-    bool isChildrenKnown()  const { return !(state & ChildrenNeeded); }
     void setChildrenNeeded()   { state = State(state | ChildrenNeeded); }
     void setChildrenUnneeded() { state = State(state & ~ChildrenNeeded); }
-
-    bool isHasChildrenNeeded() const { return state & HasChildrenNeeded; }
-    bool isHasChildrenKnown()  const { return !(state & HasChildrenNeeded); }
-    void setHasChildrenNeeded()   { state = State(state | HasChildrenNeeded); }
-    void setHasChildrenUnneeded() { state = State(state & ~HasChildrenNeeded); }
-    void setHasChildren(bool c)   { hasChildren = c; setHasChildrenUnneeded();
-                                         if (!c) setChildrenUnneeded(); }
+    void setHasChildren(bool c)   { hasChildren = c;  if (!c) setChildrenUnneeded(); }
 
     bool isLocal()   const { return iname.startsWith("local."); }
     bool isWatcher() const { return iname.startsWith("watch."); }
