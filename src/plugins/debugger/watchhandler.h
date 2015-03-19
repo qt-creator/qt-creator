@@ -35,17 +35,34 @@
 
 #include <utils/treemodel.h>
 
-#include <QPointer>
 #include <QVector>
 
 namespace Debugger {
 namespace Internal {
 
 class DebuggerCommand;
-class SeparatedView;
+class DebuggerEngine;
 class WatchModel;
 
-class WatchItem : public Utils::TreeItem
+class TypeFormatItem
+{
+public:
+    TypeFormatItem() : format(-1) {}
+    TypeFormatItem(const QString &display, int format);
+
+    QString display;
+    int format;
+};
+
+class TypeFormatList : public QVector<TypeFormatItem>
+{
+public:
+    using QVector::append;
+    void append(int format);
+    TypeFormatItem find(int format) const;
+};
+
+class WatchItem : public Utils::TreeItem, public WatchData
 {
 public:
     WatchItem();
@@ -53,14 +70,6 @@ public:
     explicit WatchItem(const WatchData &data);
     explicit WatchItem(const GdbMi &data);
 
-    WatchItem *parentItem() const;
-    const WatchModel *watchModel() const;
-    WatchModel *watchModel();
-
-    QVariant data(int column, int role) const;
-    Qt::ItemFlags flags(int column) const;
-
-    bool canFetchMore() const;
     void fetchMore();
 
     QString displayName() const;
@@ -76,12 +85,19 @@ public:
     QColor valueColor() const;
 
     int requestedFormat() const;
-    void showInEditorHelper(QString *contents, int depth) const;
     WatchItem *findItem(const QByteArray &iname);
-    void parseWatchData(const GdbMi &input);
 
-public:
-    WatchData d;
+private:
+    WatchItem *parentItem() const;
+    const WatchModel *watchModel() const;
+    WatchModel *watchModel();
+    TypeFormatList typeFormatList() const;
+
+    bool canFetchMore() const;
+    QVariant data(int column, int role) const;
+    Qt::ItemFlags flags(int column) const;
+
+    void parseWatchData(const GdbMi &input);
     bool fetchTriggered;
 };
 
@@ -125,35 +141,6 @@ enum DisplayFormat
     ScientificFloatFormat,
 };
 
-
-class TypeFormatItem
-{
-public:
-    TypeFormatItem() : format(-1) {}
-    TypeFormatItem(const QString &display, int format);
-
-    QString display;
-    int format;
-};
-
-class TypeFormatList : public QVector<TypeFormatItem>
-{
-public:
-    using QVector::append;
-    void append(int format);
-    TypeFormatItem find(int format) const;
-};
-
-} // namespace Internal
-} // namespace Debugger
-
-Q_DECLARE_METATYPE(Debugger::Internal::TypeFormatList)
-
-namespace Debugger {
-namespace Internal {
-
-class DebuggerEngine;
-
 class UpdateParameters
 {
 public:
@@ -196,13 +183,10 @@ public:
     void watchVariable(const QString &exp);
     Q_SLOT void clearWatches();
 
-    void showEditValue(const WatchData &data);
-
-    const WatchData *watchData(const QModelIndex &) const;
+    const WatchItem *watchItem(const QModelIndex &) const;
     void fetchMore(const QByteArray &iname) const;
-    const WatchData *findData(const QByteArray &iname) const;
     WatchItem *findItem(const QByteArray &iname) const;
-    const WatchData *findCppLocalVariable(const QString &name) const;
+    const WatchItem *findCppLocalVariable(const QString &name) const;
     bool hasItem(const QByteArray &iname) const;
 
     void loadSessionData();
@@ -229,7 +213,6 @@ public:
 
     QByteArray watcherName(const QByteArray &exp);
     QString editorContents();
-    void editTypeFormats(bool includeLocals, const QByteArray &iname);
 
     void scheduleResetLocation();
     void resetLocation();
@@ -238,7 +221,6 @@ public:
     void updateWatchersWindow();
     void appendFormatRequests(DebuggerCommand *cmd);
 
-    void insertData(const WatchData &data); // DEPRECATED
     void insertItem(WatchItem *item); // Takes ownership.
     void removeItemByIName(const QByteArray &iname);
     void removeAllData(bool includeInspectData = false);
@@ -259,7 +241,6 @@ private:
 
     WatchModel *m_model; // Owned.
     DebuggerEngine *m_engine; // Not owned.
-    SeparatedView *m_separatedView; // Owned.
 
     bool m_contentsValid;
     bool m_resetLocationScheduled;
@@ -269,5 +250,6 @@ private:
 } // namespace Debugger
 
 Q_DECLARE_METATYPE(Debugger::Internal::UpdateParameters)
+Q_DECLARE_METATYPE(Debugger::Internal::TypeFormatList)
 
 #endif // DEBUGGER_WATCHHANDLER_H

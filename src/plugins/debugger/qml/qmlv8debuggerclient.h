@@ -111,7 +111,7 @@ private:
     void updateEvaluationResult(int sequence, bool success, const QVariant &bodyVal,
                                 const QVariant &refsVal);
     void expandLocalsAndWatchers(const QVariant &bodyVal, const QVariant &refsVal);
-    void createWatchDataList(const WatchData *parent,
+    void createWatchDataList(const WatchItem *parent,
                              const QVariantList &properties,
                              const QVariant &refsVal);
 

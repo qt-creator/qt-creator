@@ -844,19 +844,17 @@ void LldbEngine::reloadFullStack()
 //
 //////////////////////////////////////////////////////////////////////
 
-void LldbEngine::assignValueInDebugger(const Internal::WatchData *data,
+void LldbEngine::assignValueInDebugger(WatchItem *,
     const QString &expression, const QVariant &value)
 {
-    Q_UNUSED(data);
     DebuggerCommand cmd("assignValue");
     cmd.arg("exp", expression.toLatin1().toHex());
     cmd.arg("value", value.toString().toLatin1().toHex());
     runCommand(cmd);
 }
 
-void LldbEngine::updateWatchData(const WatchData &data)
+void LldbEngine::updateWatchItem(WatchItem *)
 {
-    Q_UNUSED(data);
     updateLocals();
 }
 
@@ -1001,12 +999,12 @@ void LldbEngine::refreshLocals(const GdbMi &vars)
 
     QSet<QByteArray> toDelete;
     foreach (WatchItem *item, handler->model()->treeLevelItems<WatchItem *>(2))
-        toDelete.insert(item->d.iname);
+        toDelete.insert(item->iname);
 
     foreach (const GdbMi &child, vars.children()) {
         WatchItem *item = new WatchItem(child);
         handler->insertItem(item);
-        toDelete.remove(item->d.iname);
+        toDelete.remove(item->iname);
     }
 
     handler->purgeOutdatedItems(toDelete);

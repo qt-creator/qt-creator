@@ -57,7 +57,7 @@ public:
 
     void assignValue(const WatchData *data, const QString &expression, const QVariant &valueV);
     void updateWatchData(const WatchData &data);
-    void watchDataSelected(const WatchData *data);
+    void watchDataSelected(quint64 id);
     bool selectObjectInTree(int debugId);
 
     quint32 setBindingForObject(int objectDebugId,

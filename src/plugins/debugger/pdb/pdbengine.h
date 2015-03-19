@@ -82,7 +82,7 @@ private:
     void insertBreakpoint(Breakpoint bp);
     void removeBreakpoint(Breakpoint bp);
 
-    void assignValueInDebugger(const WatchData *data,
+    void assignValueInDebugger(WatchItem *item,
         const QString &expr, const QVariant &value);
     void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
 
@@ -96,7 +96,7 @@ private:
 
     bool supportsThreads() const { return true; }
     bool isSynchronous() const { return true; }
-    void updateWatchData(const WatchData &data);
+    void updateWatchItem(WatchItem *item);
     QString mainPythonFile() const;
 
     void runCommand(const DebuggerCommand &cmd);

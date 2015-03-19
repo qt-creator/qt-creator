@@ -3724,11 +3724,11 @@ void GdbEngine::reloadLocals()
     updateLocals();
 }
 
-void GdbEngine::updateWatchData(const WatchData &data)
+void GdbEngine::updateWatchItem(WatchItem *item)
 {
     UpdateParameters params;
     params.tryPartial = m_pendingBreakpointRequests == 0;
-    params.varList = data.iname;
+    params.varList = item->iname;
     updateLocalsPython(params);
 }
 
@@ -3759,14 +3759,14 @@ void GdbEngine::updateLocals()
     updateLocalsPython(UpdateParameters());
 }
 
-void GdbEngine::assignValueInDebugger(const WatchData *data,
+void GdbEngine::assignValueInDebugger(WatchItem *item,
     const QString &expression, const QVariant &value)
 {
     DebuggerCommand cmd("assignValue");
-    cmd.arg("type", data->type.toHex());
+    cmd.arg("type", item->type.toHex());
     cmd.arg("expr", expression.toLatin1().toHex());
     cmd.arg("value", value.toString().toLatin1().toHex());
-    cmd.arg("simpleType", isIntOrFloatType(data->type));
+    cmd.arg("simpleType", isIntOrFloatType(item->type));
     cmd.callback = CB(handleVarAssign);
     runCommand(cmd);
 }
@@ -4805,17 +4805,17 @@ void GdbEngine::handleStackFramePython(const DebuggerResponse &response, bool pa
         QSet<QByteArray> toDelete;
         if (!partial) {
             foreach (WatchItem *item, handler->model()->treeLevelItems<WatchItem *>(2))
-                toDelete.insert(item->d.iname);
+                toDelete.insert(item->iname);
         }
 
         foreach (const GdbMi &child, data.children()) {
             WatchItem *item = new WatchItem(child);
-            const TypeInfo ti = m_typeInfoCache.value(item->d.type);
+            const TypeInfo ti = m_typeInfoCache.value(item->type);
             if (ti.size)
-                item->d.size = ti.size;
+                item->size = ti.size;
 
             handler->insertItem(item);
-            toDelete.remove(item->d.iname);
+            toDelete.remove(item->iname);
         }
 
         handler->purgeOutdatedItems(toDelete);

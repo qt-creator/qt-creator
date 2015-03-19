@@ -105,8 +105,7 @@ private:
     void removeBreakpoint(Breakpoint bp);
     void changeBreakpoint(Breakpoint bp);
 
-    void assignValueInDebugger(const WatchData *data,
-        const QString &expr, const QVariant &value);
+    void assignValueInDebugger(WatchItem *item, const QString &expr, const QVariant &value);
     void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
 
     void loadSymbols(const QString &moduleName);
@@ -122,7 +121,7 @@ private:
 
     bool supportsThreads() const { return true; }
     bool isSynchronous() const { return true; }
-    void updateWatchData(const WatchData &data);
+    void updateWatchItem(WatchItem *item);
     void setRegisterValue(const QByteArray &name, const QString &value);
 
     void fetchMemory(Internal::MemoryAgent *, QObject *, quint64 addr, quint64 length);

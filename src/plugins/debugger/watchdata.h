@@ -72,7 +72,7 @@ public:
     bool isChildrenNeeded() const { return state & ChildrenNeeded; }
     void setChildrenNeeded()   { state = State(state | ChildrenNeeded); }
     void setChildrenUnneeded() { state = State(state & ~ChildrenNeeded); }
-    void setHasChildren(bool c)   { hasChildren = c;  if (!c) setChildrenUnneeded(); }
+    void setHasChildren(bool c)   { wantsChildren = c;  if (!c) setChildrenUnneeded(); }
 
     bool isLocal()   const { return iname.startsWith("local."); }
     bool isWatcher() const { return iname.startsWith("watch."); }
@@ -113,7 +113,6 @@ public:
     QString    value;        // Displayed value
     QByteArray editvalue;    // Displayed value
     qint32     editformat;   // Format of displayed value
-    QString    typeFormats;  // Selection of formats of displayed value
     QByteArray type;         // Type for further processing
     QString    displayedType;// Displayed type (optional)
     quint64    address;      // Displayed address of the actual object
@@ -122,7 +121,7 @@ public:
     uint       bitpos;       // Position within bit fields
     uint       bitsize;      // Size in case of bit fields
     int        elided;       // Full size if value was cut off, -1 if cut on unknown size, 0 otherwise
-    bool hasChildren;
+    bool wantsChildren;
     bool valueEnabled;       // Value will be enabled or not
     bool valueEditable;      // Value will be editable
     bool error;

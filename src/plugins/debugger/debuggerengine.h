@@ -62,6 +62,7 @@ class DebuggerPluginPrivate;
 class DisassemblerAgent;
 class MemoryAgent;
 class WatchData;
+class WatchItem;
 class BreakHandler;
 class ModulesHandler;
 class RegisterHandler;
@@ -139,7 +140,7 @@ public:
 
     virtual bool setToolTipExpression(const Internal::DebuggerToolTipContext &);
 
-    virtual void updateWatchData(const Internal::WatchData &data);
+    virtual void updateWatchItem(WatchItem *) {}
     virtual void watchDataSelected(const QByteArray &iname);
 
     virtual void startDebugger(DebuggerRunControl *runControl);
@@ -198,7 +199,7 @@ public:
     virtual bool acceptsDebuggerCommands() const { return true; }
     virtual void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
 
-    virtual void assignValueInDebugger(const Internal::WatchData *data,
+    virtual void assignValueInDebugger(WatchItem *item,
         const QString &expr, const QVariant &value);
     virtual void selectThread(Internal::ThreadId threadId) = 0;
 

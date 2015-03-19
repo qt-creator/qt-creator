@@ -110,8 +110,6 @@ static QByteArray stripForFormat(const QByteArray &ba)
 
 class SeparatedView : public QTabWidget
 {
-    Q_OBJECT
-
 public:
     SeparatedView() : QTabWidget(Internal::mainWindow())
     {
@@ -199,26 +197,27 @@ public:
     explicit WatchModel(WatchHandler *handler);
 
     static QString nameForFormat(int format);
-    TypeFormatList typeFormatList(const WatchData &value) const;
 
     QVariant data(const QModelIndex &idx, int role) const;
     bool setData(const QModelIndex &idx, const QVariant &value, int role);
 
-    void insertDataItem(const WatchData &data);
     void reinsertAllData();
     void reinsertAllDataHelper(WatchItem *item, QList<WatchData> *data);
     QString displayForAutoTest(const QByteArray &iname) const;
     void reinitialize(bool includeInspectData = false);
 
-    friend QDebug operator<<(QDebug d, const WatchModel &m);
+    WatchItem *findItem(const QByteArray &iname) const;
+    void insertItem(WatchItem *item);
+    void reexpandItems();
 
-    void showInEditorHelper(QString *contents, WatchItem *item, int level);
     void setCurrentItem(const QByteArray &iname);
+    void showEditValue(const WatchData &data);
 
     QString removeNamespaces(QString str) const;
     DebuggerEngine *engine() const;
     bool contentIsValid() const;
 
+public:
     WatchHandler *m_handler; // Not owned.
 
     WatchItem *root() const { return static_cast<WatchItem *>(rootItem()); }
@@ -228,21 +227,13 @@ public:
     WatchItem *m_returnRoot; // Not owned.
     WatchItem *m_tooltipRoot; // Not owned.
 
+    SeparatedView m_separatedView;
+
     QSet<QByteArray> m_expandedINames;
     QTimer m_requestUpdateTimer;
 
-    TypeFormatList builtinTypeFormatList(const WatchData &data) const;
-    QStringList dumperTypeFormatList(const WatchData &data) const;
     DumperTypeFormats m_reportedTypeFormats;
-
-    WatchItem *createItem(const QByteArray &iname);
-    WatchItem *findItem(const QByteArray &iname) const;
-    friend class WatchItem;
-    typedef QHash<QByteArray, QString> ValueCache;
-    ValueCache m_valueCache;
-
-    void insertItem(WatchItem *item);
-    void reexpandItems();
+    QHash<QByteArray, QString> m_valueCache;
 };
 
 WatchModel::WatchModel(WatchHandler *handler)
@@ -293,31 +284,21 @@ WatchItem *WatchModel::findItem(const QByteArray &iname) const
 
 WatchItem *WatchItem::findItem(const QByteArray &iname)
 {
-    if (d.iname == iname)
+    if (this->iname == iname)
         return this;
     foreach (TreeItem *child, children()) {
         auto witem = static_cast<WatchItem *>(child);
-        if (witem->d.iname == iname)
+        if (witem->iname == iname)
             return witem;
-        if (witem->d.isAncestorOf(iname))
+        if (witem->isAncestorOf(iname))
             return witem->findItem(iname);
     }
     return 0;
 }
 
-void WatchModel::reinsertAllData()
-{
-    QList<WatchData> list;
-    foreach (TreeItem *child, rootItem()->children())
-        reinsertAllDataHelper(static_cast<WatchItem *>(child), &list);
-    reinitialize(true);
-    for (int i = 0, n = list.size(); i != n; ++i)
-        insertDataItem(list.at(i));
-}
-
 void WatchModel::reinsertAllDataHelper(WatchItem *item, QList<WatchData> *data)
 {
-    data->append(item->d);
+    data->append(*item); // Slices intentionally.
     data->back().setAllUnneeded();
     foreach (TreeItem *child, item->children())
         reinsertAllDataHelper(static_cast<WatchItem *>(child), data);
@@ -498,64 +479,63 @@ static QString translate(const QString &str)
 
 QString WatchItem::formattedValue() const
 {
-    if (d.type == "bool") {
-        if (d.value == QLatin1String("0"))
+    if (type == "bool") {
+        if (value == QLatin1String("0"))
             return QLatin1String("false");
-        if (d.value == QLatin1String("1"))
+        if (value == QLatin1String("1"))
             return QLatin1String("true");
-        return d.value;
+        return value;
     }
 
     const int format = itemFormat();
 
     // Append quoted, printable character also for decimal.
-    if (d.type.endsWith("char") || d.type.endsWith("QChar")) {
+    if (type.endsWith("char") || type.endsWith("QChar")) {
         bool ok;
-        const int code = d.value.toInt(&ok);
-        return ok ? reformatCharacter(code, format) : d.value;
+        const int code = value.toInt(&ok);
+        return ok ? reformatCharacter(code, format) : value;
     }
 
     if (format == HexadecimalIntegerFormat
             || format == DecimalIntegerFormat
             || format == OctalIntegerFormat
             || format == BinaryIntegerFormat) {
-        bool isSigned = d.value.startsWith(QLatin1Char('-'));
-        quint64 raw = isSigned ? quint64(d.value.toLongLong()) : d.value.toULongLong();
-        return reformatInteger(raw, format, d.size, isSigned);
+        bool isSigned = value.startsWith(QLatin1Char('-'));
+        quint64 raw = isSigned ? quint64(value.toLongLong()) : value.toULongLong();
+        return reformatInteger(raw, format, size, isSigned);
     }
 
     if (format == ScientificFloatFormat) {
-        double dd = d.value.toDouble();
+        double dd = value.toDouble();
         return QString::number(dd, 'e');
     }
 
     if (format == CompactFloatFormat) {
-        double dd = d.value.toDouble();
+        double dd = value.toDouble();
         return QString::number(dd, 'g');
     }
 
-    if (d.type == "va_list")
-        return d.value;
+    if (type == "va_list")
+        return value;
 
-    if (!isPointerType(d.type) && !d.isVTablePointer()) {
+    if (!isPointerType(type) && !isVTablePointer()) {
         bool ok = false;
-        qulonglong integer = d.value.toULongLong(&ok, 0);
+        qulonglong integer = value.toULongLong(&ok, 0);
         if (ok) {
             const int format = itemFormat();
-            return reformatInteger(integer, format, d.size, false);
+            return reformatInteger(integer, format, size, false);
         }
     }
 
-    if (d.elided) {
-        QString v = d.value;
+    if (elided) {
+        QString v = value;
         v.chop(1);
         v = translate(v);
-        QString len = d.elided > 0 ? QString::number(d.elided)
-                                      : QLatin1String("unknown length");
+        QString len = elided > 0 ? QString::number(elided) : QLatin1String("unknown length");
         return v + QLatin1String("\"... (") + len  + QLatin1Char(')');
     }
 
-    return translate(d.value);
+    return translate(value);
 }
 
 // Get a pointer address from pointer values reported by the debugger.
@@ -573,14 +553,14 @@ static inline quint64 pointerValue(QString data)
 // Return the type used for editing
 int WatchItem::editType() const
 {
-    if (d.type == "bool")
+    if (type == "bool")
         return QVariant::Bool;
-    if (isIntType(d.type))
-        return d.type.contains('u') ? QVariant::ULongLong : QVariant::LongLong;
-    if (isFloatType(d.type))
+    if (isIntType(type))
+        return type.contains('u') ? QVariant::ULongLong : QVariant::LongLong;
+    if (isFloatType(type))
         return QVariant::Double;
     // Check for pointers using hex values (0xAD00 "Hallo")
-    if (isPointerType(d.type) && d.value.startsWith(QLatin1String("0x")))
+    if (isPointerType(type) && value.startsWith(QLatin1String("0x")))
         return QVariant::ULongLong;
    return QVariant::String;
 }
@@ -590,21 +570,21 @@ QVariant WatchItem::editValue() const
 {
     switch (editType()) {
     case QVariant::Bool:
-        return d.value != QLatin1String("0") && d.value != QLatin1String("false");
+        return value != QLatin1String("0") && value != QLatin1String("false");
     case QVariant::ULongLong:
-        if (isPointerType(d.type)) // Fix pointer values (0xAD00 "Hallo" -> 0xAD00)
-            return QVariant(pointerValue(d.value));
-        return QVariant(d.value.toULongLong());
+        if (isPointerType(type)) // Fix pointer values (0xAD00 "Hallo" -> 0xAD00)
+            return QVariant(pointerValue(value));
+        return QVariant(value.toULongLong());
     case QVariant::LongLong:
-        return QVariant(d.value.toLongLong());
+        return QVariant(value.toLongLong());
     case QVariant::Double:
-        return QVariant(d.value.toDouble());
+        return QVariant(value.toDouble());
     default:
         break;
     }
     // Some string value: '0x434 "Hallo"':
     // Remove quotes and replace newlines, which will cause line edit troubles.
-    QString stringValue = d.value;
+    QString stringValue = value;
     if (stringValue.endsWith(QLatin1Char('"'))) {
         const int leadingDoubleQuote = stringValue.indexOf(QLatin1Char('"'));
         if (leadingDoubleQuote != stringValue.size() - 1) {
@@ -618,11 +598,11 @@ QVariant WatchItem::editValue() const
 
 bool WatchItem::canFetchMore() const
 {
-    if (!d.hasChildren)
+    if (!wantsChildren)
         return false;
     if (!watchModel())
         return false;
-    if (!watchModel()->contentIsValid() && !d.isInspect())
+    if (!watchModel()->contentIsValid() && !isInspect())
         return false;
     return !fetchTriggered;
 }
@@ -632,11 +612,11 @@ void WatchItem::fetchMore()
     if (fetchTriggered)
         return;
 
-    watchModel()->m_expandedINames.insert(d.iname);
+    watchModel()->m_expandedINames.insert(iname);
     fetchTriggered = true;
     if (children().isEmpty()) {
-        d.setChildrenNeeded();
-        watchModel()->engine()->updateWatchData(d);
+        setChildrenNeeded();
+        watchModel()->engine()->updateWatchItem(this);
     }
 }
 
@@ -654,10 +634,10 @@ static QString truncateValue(QString v)
 
 int WatchItem::itemFormat() const
 {
-    const int individualFormat = theIndividualFormats.value(d.iname, AutomaticFormat);
+    const int individualFormat = theIndividualFormats.value(iname, AutomaticFormat);
     if (individualFormat != AutomaticFormat)
         return individualFormat;
-    return theTypeFormats.value(stripForFormat(d.type), AutomaticFormat);
+    return theTypeFormats.value(stripForFormat(type), AutomaticFormat);
 }
 
 bool WatchModel::contentIsValid() const
@@ -671,17 +651,17 @@ bool WatchModel::contentIsValid() const
 
 QString WatchItem::expression() const
 {
-    if (!d.exp.isEmpty())
-         return QString::fromLatin1(d.exp);
-    if (d.address && !d.type.isEmpty()) {
+    if (!exp.isEmpty())
+         return QString::fromLatin1(exp);
+    if (address && !type.isEmpty()) {
         return QString::fromLatin1("*(%1*)%2").
-                arg(QLatin1String(d.type), QLatin1String(d.hexAddress()));
+                arg(QLatin1String(type), QLatin1String(hexAddress()));
     }
     if (const WatchItem *p = parentItem()) {
-        if (!p->d.exp.isEmpty())
-           return QString::fromLatin1("(%1).%2").arg(QString::fromLatin1(p->d.exp), d.name);
+        if (!p->exp.isEmpty())
+           return QString::fromLatin1("(%1).%2").arg(QString::fromLatin1(p->exp), name);
     }
-    return d.name;
+    return name;
 }
 
 QString WatchItem::displayName() const
@@ -689,12 +669,12 @@ QString WatchItem::displayName() const
     QString result;
     if (!parentItem())
         return result;
-    if (d.iname.startsWith("return"))
+    if (iname.startsWith("return"))
         result = WatchModel::tr("returned value");
-    else if (d.name == QLatin1String("*"))
-        result = QLatin1Char('*') + parentItem()->d.name;
+    else if (name == QLatin1String("*"))
+        result = QLatin1Char('*') + parentItem()->name;
     else
-        result = watchModel()->removeNamespaces(d.name);
+        result = watchModel()->removeNamespaces(name);
 
     // Simplyfy names that refer to base classes.
     if (result.startsWith(QLatin1Char('['))) {
@@ -709,20 +689,20 @@ QString WatchItem::displayName() const
 QString WatchItem::displayValue() const
 {
     QString result = watchModel()->removeNamespaces(truncateValue(formattedValue()));
-    if (result.isEmpty() && d.address)
-        result += QString::fromLatin1("@0x" + QByteArray::number(d.address, 16));
-//    if (d.origaddr)
-//        result += QString::fromLatin1(" (0x" + QByteArray::number(d.origaddr, 16) + ')');
+    if (result.isEmpty() && address)
+        result += QString::fromLatin1("@0x" + QByteArray::number(address, 16));
+//    if (origaddr)
+//        result += QString::fromLatin1(" (0x" + QByteArray::number(origaddr, 16) + ')');
     return result;
 }
 
 QString WatchItem::displayType() const
 {
-    QString result = d.displayedType.isEmpty()
-        ? niceTypeHelper(d.type)
-        : d.displayedType;
-    if (d.bitsize)
-        result += QString::fromLatin1(":%1").arg(d.bitsize);
+    QString result = displayedType.isEmpty()
+        ? niceTypeHelper(type)
+        : displayedType;
+    if (bitsize)
+        result += QString::fromLatin1(":%1").arg(bitsize);
     result.remove(QLatin1Char('\''));
     result = watchModel()->removeNamespaces(result);
     return result;
@@ -733,13 +713,13 @@ QColor WatchItem::valueColor() const
     static const QColor red(200, 0, 0);
     static const QColor gray(140, 140, 140);
     if (watchModel()) {
-        if (!d.valueEnabled)
+        if (!valueEnabled)
             return gray;
-        if (!watchModel()->contentIsValid() && !d.isInspect())
+        if (!watchModel()->contentIsValid() && !isInspect())
             return gray;
-        if (d.value.isEmpty()) // This might still show 0x...
+        if (value.isEmpty()) // This might still show 0x...
             return gray;
-        if (d.value != watchModel()->m_valueCache.value(d.iname))
+        if (value != watchModel()->m_valueCache.value(iname))
             return red;
     }
     return QColor();
@@ -752,10 +732,10 @@ QVariant WatchItem::data(int column, int role) const
             return QVariant(editType());
 
         case LocalsNameRole:
-            return QVariant(d.name);
+            return QVariant(name);
 
         case LocalsIntegerBaseRole:
-            if (isPointerType(d.type)) // Pointers using 0x-convention
+            if (isPointerType(type)) // Pointers using 0x-convention
                 return QVariant(16);
             return QVariant(formatToIntegerBase(itemFormat()));
 
@@ -767,9 +747,9 @@ QVariant WatchItem::data(int column, int role) const
                     return editValue();
                 case 2:
                     // FIXME:: To be tested: Can debuggers handle those?
-                    if (!d.displayedType.isEmpty())
-                        return d.displayedType;
-                    return QString::fromUtf8(d.type);
+                    if (!displayedType.isEmpty())
+                        return displayedType;
+                    return QString::fromUtf8(type);
             }
         }
 
@@ -786,7 +766,7 @@ QVariant WatchItem::data(int column, int role) const
 
         case Qt::ToolTipRole:
             return boolSetting(UseToolTipsInLocalsView)
-                ? d.toToolTip() : QVariant();
+                ? toToolTip() : QVariant();
 
         case Qt::ForegroundRole:
             if (column == 1)
@@ -796,51 +776,51 @@ QVariant WatchItem::data(int column, int role) const
             return expression();
 
         case LocalsRawExpressionRole:
-            return d.exp;
+            return exp;
 
         case LocalsINameRole:
-            return d.iname;
+            return iname;
 
         case LocalsExpandedRole:
-            return watchModel()->m_expandedINames.contains(d.iname);
+            return watchModel()->m_expandedINames.contains(iname);
 
         case LocalsTypeFormatListRole:
-            return QVariant::fromValue(watchModel()->typeFormatList(d));
+            return QVariant::fromValue(typeFormatList());
 
         case LocalsTypeRole:
             return watchModel()->removeNamespaces(displayType());
 
         case LocalsRawTypeRole:
-            return QString::fromLatin1(d.type);
+            return QString::fromLatin1(type);
 
         case LocalsTypeFormatRole:
-            return theTypeFormats.value(stripForFormat(d.type), AutomaticFormat);
+            return theTypeFormats.value(stripForFormat(type), AutomaticFormat);
 
         case LocalsIndividualFormatRole:
-            return theIndividualFormats.value(d.iname, AutomaticFormat);
+            return theIndividualFormats.value(iname, AutomaticFormat);
 
         case LocalsRawValueRole:
-            return d.value;
+            return value;
 
         case LocalsObjectAddressRole:
-            return d.address;
+            return address;
 
         case LocalsPointerAddressRole:
-            return d.origaddr;
+            return origaddr;
 
         case LocalsIsWatchpointAtObjectAddressRole: {
             BreakpointParameters bp(WatchpointAtAddress);
-            bp.address = d.address;
+            bp.address = address;
             return watchModel()->engine()->breakHandler()->findWatchpoint(bp) != 0;
         }
 
         case LocalsSizeRole:
-            return QVariant(d.size);
+            return QVariant(size);
 
         case LocalsIsWatchpointAtPointerAddressRole:
-            if (isPointerType(d.type)) {
+            if (isPointerType(type)) {
                 BreakpointParameters bp(WatchpointAtAddress);
-                bp.address = pointerValue(d.value);
+                bp.address = pointerValue(value);
                 return watchModel()->engine()->breakHandler()->findWatchpoint(bp) != 0;
             }
             return false;
@@ -871,7 +851,6 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
 
     WatchItem *item = static_cast<WatchItem *>(itemFromIndex(idx));
     QTC_ASSERT(item, return false);
-    const WatchData &data = item->d;
 
     switch (role) {
         case Qt::EditRole:
@@ -881,35 +860,35 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
                 break;
             }
             case 1: // Change value
-                engine()->assignValueInDebugger(&data, item->expression(), value);
+                engine()->assignValueInDebugger(item, item->expression(), value);
                 break;
             case 2: // TODO: Implement change type.
-                engine()->assignValueInDebugger(&data, item->expression(), value);
+                engine()->assignValueInDebugger(item, item->expression(), value);
                 break;
             }
         case LocalsExpandedRole:
             if (value.toBool()) {
                 // Should already have been triggered by fetchMore()
-                //QTC_CHECK(m_expandedINames.contains(data.iname));
-                m_expandedINames.insert(data.iname);
+                //QTC_CHECK(m_expandedINames.contains(item->iname));
+                m_expandedINames.insert(item->iname);
             } else {
-                m_expandedINames.remove(data.iname);
+                m_expandedINames.remove(item->iname);
             }
             emit columnAdjustmentRequested();
             break;
 
         case LocalsTypeFormatRole:
-            m_handler->setFormat(data.type, value.toInt());
-            engine()->updateWatchData(data);
+            m_handler->setFormat(item->type, value.toInt());
+            engine()->updateWatchItem(item);
             break;
 
         case LocalsIndividualFormatRole: {
             const int format = value.toInt();
             if (format == AutomaticFormat)
-                theIndividualFormats.remove(data.iname);
+                theIndividualFormats.remove(item->iname);
             else
-                theIndividualFormats[data.iname] = format;
-            engine()->updateWatchData(data);
+                theIndividualFormats[item->iname] = format;
+            engine()->updateWatchItem(item);
             break;
         }
     }
@@ -931,29 +910,29 @@ Qt::ItemFlags WatchItem::flags(int column) const
     const Qt::ItemFlags notEditable = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     const Qt::ItemFlags editable = notEditable | Qt::ItemIsEditable;
 
-    if (d.isWatcher()) {
+    if (isWatcher()) {
         if (state != InferiorStopOk
                 && state != DebuggerNotReady
                 && state != DebuggerFinished
                 && !engine->hasCapability(AddWatcherWhileRunningCapability))
             return Qt::ItemFlags();
-        if (column == 0 && d.iname.count('.') == 1)
+        if (column == 0 && iname.count('.') == 1)
             return editable; // Watcher names are editable.
 
-        if (!d.name.isEmpty()) {
+        if (!name.isEmpty()) {
             // FIXME: Forcing types is not implemented yet.
             //if (idx.column() == 2)
             //    return editable; // Watcher types can be set by force.
-            if (column == 1 && d.valueEditable)
+            if (column == 1 && valueEditable)
                 return editable; // Watcher values are sometimes editable.
         }
-    } else if (d.isLocal()) {
+    } else if (isLocal()) {
         if (state != InferiorStopOk && !engine->hasCapability(AddWatcherWhileRunningCapability))
            return Qt::ItemFlags();
-        if (column == 1 && d.valueEditable)
+        if (column == 1 && valueEditable)
             return editable; // Locals values are sometimes editable.
-    } else if (d.isInspect()) {
-        if (column == 1 && d.valueEditable)
+    } else if (isInspect()) {
+        if (column == 1 && valueEditable)
             return editable; // Inspector values are sometimes editable.
     }
     return notEditable;
@@ -991,26 +970,26 @@ QString WatchModel::nameForFormat(int format)
     return QString();
 }
 
-TypeFormatList WatchModel::typeFormatList(const WatchData &data) const
+TypeFormatList WatchItem::typeFormatList() const
 {
     TypeFormatList formats;
 
     // Types supported by dumpers:
     // Hack: Compensate for namespaces.
-    QString type = QLatin1String(stripForFormat(data.type));
-    int pos = type.indexOf(QLatin1String("::Q"));
-    if (pos >= 0 && type.count(QLatin1Char(':')) == 2)
-        type.remove(0, pos + 2);
-    pos = type.indexOf(QLatin1Char('<'));
+    QString t = QLatin1String(stripForFormat(type));
+    int pos = t.indexOf(QLatin1String("::Q"));
+    if (pos >= 0 && t.count(QLatin1Char(':')) == 2)
+        t.remove(0, pos + 2);
+    pos = t.indexOf(QLatin1Char('<'));
     if (pos >= 0)
-        type.truncate(pos);
-    type.replace(QLatin1Char(':'), QLatin1Char('_'));
-    QStringList reported = m_reportedTypeFormats.value(type);
+        t.truncate(pos);
+    t.replace(QLatin1Char(':'), QLatin1Char('_'));
+    QStringList reported = watchModel()->m_reportedTypeFormats.value(t);
     for (int i = 0, n = reported.size(); i != n; ++i)
         formats.append(TypeFormatItem(reported.at(i), i));
 
     // Fixed artificial string and pointer types.
-    if (data.origaddr || isPointerType(data.type)) {
+    if (origaddr || isPointerType(type)) {
         formats.append(RawFormat);
         formats.append(Latin1StringFormat);
         formats.append(SeparateLatin1StringFormat);
@@ -1023,7 +1002,7 @@ TypeFormatList WatchModel::typeFormatList(const WatchData &data) const
         formats.append(Array100Format);
         formats.append(Array1000Format);
         formats.append(Array10000Format);
-    } else if (data.type.contains("char[") || data.type.contains("char [")) {
+    } else if (type.contains("char[") || type.contains("char [")) {
         formats.append(RawFormat);
         formats.append(Latin1StringFormat);
         formats.append(SeparateLatin1StringFormat);
@@ -1036,14 +1015,14 @@ TypeFormatList WatchModel::typeFormatList(const WatchData &data) const
 
     // Fixed artificial floating point types.
     bool ok = false;
-    data.value.toDouble(&ok);
+    value.toDouble(&ok);
     if (ok) {
         formats.append(CompactFloatFormat);
         formats.append(ScientificFloatFormat);
     }
 
     // Fixed artificial integral types.
-    QString v = data.value;
+    QString v = value;
     if (v.startsWith(QLatin1Char('-')))
         v = v.mid(1);
     v.toULongLong(&ok, 10);
@@ -1093,25 +1072,11 @@ static bool watchDataLessThan(const QByteArray &iname1, int sortId1,
     return qstrcmp(iname1.constData() + cmpPos1, iname2.constData() + cmpPos2) < 0;
 }
 
-// Sort key for watch data consisting of iname and numerical sort id.
-struct WatchDataSortKey
-{
-    explicit WatchDataSortKey(const WatchData &wd)
-        : iname(wd.iname), sortId(wd.sortId) {}
-    QByteArray iname;
-    int sortId;
-};
-
-inline bool operator<(const WatchDataSortKey &k1, const WatchDataSortKey &k2)
-{
-    return watchDataLessThan(k1.iname, k1.sortId, k2.iname, k2.sortId);
-}
-
 bool watchItemSorter(const TreeItem *item1, const TreeItem *item2)
 {
     const WatchItem *it1 = static_cast<const WatchItem *>(item1);
     const WatchItem *it2 = static_cast<const WatchItem *>(item2);
-    return watchDataLessThan(it1->d.iname, it1->d.sortId, it2->d.iname, it2->d.sortId);
+    return watchDataLessThan(it1->iname, it1->sortId, it2->iname, it2->sortId);
 }
 
 static int findInsertPosition(const QVector<TreeItem *> &list, const WatchItem *item)
@@ -1121,27 +1086,38 @@ static int findInsertPosition(const QVector<TreeItem *> &list, const WatchItem *
     return it - list.begin();
 }
 
-int WatchItem::requestedFormat() const
+void WatchModel::reinsertAllData()
 {
-    int format = theIndividualFormats.value(d.iname, AutomaticFormat);
-    if (format == AutomaticFormat)
-        format = theTypeFormats.value(stripForFormat(d.type), AutomaticFormat);
-    return format;
+    QList<WatchData> list;
+    foreach (TreeItem *child, rootItem()->children())
+        reinsertAllDataHelper(static_cast<WatchItem *>(child), &list);
+
+    reinitialize(true);
+
+    for (int i = 0, n = list.size(); i != n; ++i) {
+        const WatchData &data = list.at(i);
+        QTC_ASSERT(!data.iname.isEmpty(), qDebug() << data.toString(); return);
+        // Add new entry.
+        WatchItem *parent = findItem(parentName(data.iname));
+        QTC_ASSERT(parent, return);
+        WatchItem *newItem = new WatchItem(data);
+        newItem->sortChildren(&watchItemSorter);
+        const int row = findInsertPosition(parent->children(), newItem);
+        parent->insertChild(row, newItem);
+        if (m_expandedINames.contains(parent->iname)) {
+            emit inameIsExpanded(parent->iname);
+            emit itemIsExpanded(indexFromItem(parent));
+        }
+        showEditValue(data);
+    }
 }
 
-void WatchItem::showInEditorHelper(QString *contents, int depth) const
+int WatchItem::requestedFormat() const
 {
-    const QChar tab = QLatin1Char('\t');
-    const QChar nl = QLatin1Char('\n');
-    contents->append(QString(depth, tab));
-    contents->append(d.name);
-    contents->append(tab);
-    contents->append(d.value);
-    contents->append(tab);
-    contents->append(QString::fromLatin1(d.type));
-    contents->append(nl);
-    foreach (const TreeItem *child, children())
-        static_cast<const WatchItem *>(child)->showInEditorHelper(contents, depth + 1);
+    int format = theIndividualFormats.value(iname, AutomaticFormat);
+    if (format == AutomaticFormat)
+        format = theTypeFormats.value(stripForFormat(type), AutomaticFormat);
+    return format;
 }
 
 void WatchModel::setCurrentItem(const QByteArray &iname)
@@ -1165,15 +1141,13 @@ WatchHandler::WatchHandler(DebuggerEngine *engine)
     m_contentsValid = false;
     m_contentsValid = true; // FIXME
     m_resetLocationScheduled = false;
-    m_separatedView = new SeparatedView;
 }
 
 WatchHandler::~WatchHandler()
 {
-    delete m_separatedView;
-    m_separatedView = 0;
     // Do it manually to prevent calling back in model destructors
     // after m_cache is destroyed.
+    m_model->disconnect();
     delete m_model;
     m_model = 0;
 }
@@ -1185,7 +1159,7 @@ void WatchHandler::cleanup()
     saveWatchers();
     m_model->reinitialize();
     emit m_model->updateFinished();
-    m_separatedView->hide();
+    m_model->m_separatedView.hide();
 }
 
 void WatchHandler::insertItem(WatchItem *item)
@@ -1195,42 +1169,17 @@ void WatchHandler::insertItem(WatchItem *item)
 
 void WatchModel::insertItem(WatchItem *item)
 {
-    WatchItem *existing = findItem(item->d.iname);
+    WatchItem *existing = findItem(item->iname);
     if (existing)
         removeItem(existing);
 
-    WatchItem *parent = findItem(parentName(item->d.iname));
+    //item->walkTree([item](TreeItem *sub) { sub->sortChildren(&watchItemSorter); });
+    item->sortChildren(&watchItemSorter);
+
+    WatchItem *parent = findItem(parentName(item->iname));
     QTC_ASSERT(parent, return);
     const int row = findInsertPosition(parent->children(), item);
     parent->insertChild(row, item);
-}
-
-void WatchModel::insertDataItem(const WatchData &data)
-{
-    QTC_ASSERT(!data.iname.isEmpty(), qDebug() << data.toString(); return);
-
-    if (WatchItem *item = findItem(data.iname)) {
-        // Remove old children.
-        item->fetchTriggered = false;
-        item->removeChildren();
-
-        // Overwrite old entry.
-        item->d = data;
-        item->update();
-    } else {
-        // Add new entry.
-        WatchItem *parent = findItem(parentName(data.iname));
-        QTC_ASSERT(parent, return);
-        WatchItem *newItem = new WatchItem;
-        newItem->d = data;
-        const int row = findInsertPosition(parent->children(), newItem);
-        parent->insertChild(row, newItem);
-        if (m_expandedINames.contains(parent->d.iname)) {
-            emit inameIsExpanded(parent->d.iname);
-            emit itemIsExpanded(indexFromItem(parent));
-        }
-    }
-    m_handler->showEditValue(data);
 }
 
 void WatchModel::reexpandItems()
@@ -1248,11 +1197,6 @@ void WatchModel::reexpandItems()
     }
 }
 
-void WatchHandler::insertData(const WatchData &data)
-{
-    m_model->insertDataItem(data);
-}
-
 void WatchHandler::removeAllData(bool includeInspectData)
 {
     m_model->reinitialize(includeInspectData);
@@ -1265,7 +1209,7 @@ void WatchHandler::resetValueCache()
     TreeItem *root = m_model->rootItem();
     root->walkTree([this, root](TreeItem *item) {
         auto watchItem = static_cast<WatchItem *>(item);
-        m_model->m_valueCache[watchItem->d.iname] = watchItem->d.value;
+        m_model->m_valueCache[watchItem->iname] = watchItem->value;
     });
 }
 
@@ -1307,8 +1251,8 @@ void WatchHandler::removeItemByIName(const QByteArray &iname)
     WatchItem *item = m_model->findItem(iname);
     if (!item)
         return;
-    if (item->d.isWatcher()) {
-        theWatcherNames.remove(item->d.exp);
+    if (item->isWatcher()) {
+        theWatcherNames.remove(item->exp);
         saveWatchers();
     }
     m_model->removeItem(item);
@@ -1330,19 +1274,18 @@ void WatchHandler::watchExpression(const QString &exp0, const QString &name)
 
     theWatcherNames[exp] = theWatcherCount++;
 
-    WatchData data;
-    data.exp = exp;
-    data.name = name.isEmpty() ? exp0 : name;
-    data.iname = watcherName(exp);
+    auto item = new WatchItem;
+    item->exp = exp;
+    item->name = name.isEmpty() ? exp0 : name;
+    item->iname = watcherName(exp);
     saveWatchers();
 
     if (m_engine->state() == DebuggerNotReady) {
-        data.setAllUnneeded();
-        data.setValue(QString(QLatin1Char(' ')));
-        data.setHasChildren(false);
-        m_model->insertDataItem(data);
+        item->setAllUnneeded();
+        item->setValue(QString(QLatin1Char(' ')));
+        m_model->insertItem(item);
     } else {
-        m_engine->updateWatchData(data);
+        m_engine->updateWatchItem(item);
     }
     updateWatchersWindow();
 }
@@ -1371,12 +1314,12 @@ static void swapEndian(char *d, int nchar)
     }
 }
 
-void WatchHandler::showEditValue(const WatchData &data)
+void WatchModel::showEditValue(const WatchData &data)
 {
     const QByteArray key  = data.address ? data.hexAddress() : data.iname;
     switch (data.editformat) {
     case StopDisplay:
-        m_separatedView->removeObject(data.iname);
+        m_separatedView.removeObject(data.iname);
         break;
     case DisplayImageData:
     case DisplayImageFile: {  // QImage
@@ -1414,7 +1357,7 @@ void WatchHandler::showEditValue(const WatchData &data)
             tr("%1 Object at %2").arg(QLatin1String(data.type),
                 QLatin1String(data.hexAddress())) :
             tr("%1 Object at Unknown Address").arg(QLatin1String(data.type));
-        ImageViewer *v = m_separatedView->prepareObject<ImageViewer>(key, title);
+        ImageViewer *v = m_separatedView.prepareObject<ImageViewer>(key, title);
         v->setProperty(INameProperty, data.iname);
         v->setImage(im);
         break;
@@ -1430,7 +1373,7 @@ void WatchHandler::showEditValue(const WatchData &data)
             str = QString::fromLatin1(ba.constData(), ba.size());
         else if (data.editformat == DisplayUtf8String)
             str = QString::fromUtf8(ba.constData(), ba.size());
-        QTextEdit *t = m_separatedView->prepareObject<QTextEdit>(key, data.name);
+        QTextEdit *t = m_separatedView.prepareObject<QTextEdit>(key, data.name);
         t->setProperty(INameProperty, data.iname);
         t->setText(str);
         break;
@@ -1557,23 +1500,15 @@ WatchModelBase *WatchHandler::model() const
     return m_model;
 }
 
-const WatchData *WatchHandler::watchData(const QModelIndex &idx) const
+const WatchItem *WatchHandler::watchItem(const QModelIndex &idx) const
 {
-    TreeItem *item = m_model->itemFromIndex(idx);
-    return item ? &static_cast<WatchItem *>(item)->d : 0;
+    return static_cast<WatchItem *>(m_model->itemFromIndex(idx));
 }
 
 void WatchHandler::fetchMore(const QByteArray &iname) const
 {
-    WatchItem *item = m_model->findItem(iname);
-    if (item)
+    if (WatchItem *item = m_model->findItem(iname))
         item->fetchMore();
-}
-
-const WatchData *WatchHandler::findData(const QByteArray &iname) const
-{
-    const WatchItem *item = m_model->findItem(iname);
-    return item ? &item->d : 0;
 }
 
 WatchItem *WatchHandler::findItem(const QByteArray &iname) const
@@ -1581,13 +1516,13 @@ WatchItem *WatchHandler::findItem(const QByteArray &iname) const
     return m_model->findItem(iname);
 }
 
-const WatchData *WatchHandler::findCppLocalVariable(const QString &name) const
+const WatchItem *WatchHandler::findCppLocalVariable(const QString &name) const
 {
     // Can this be found as a local variable?
     const QByteArray localsPrefix("local.");
     QByteArray iname = localsPrefix + name.toLatin1();
-    if (const WatchData *wd = findData(iname))
-        return wd;
+    if (const WatchItem *item = findItem(iname))
+        return item;
 //    // Nope, try a 'local.this.m_foo'.
 //    iname.insert(localsPrefix.size(), "this.");
 //    if (const WatchData *wd = findData(iname))
@@ -1615,9 +1550,9 @@ int WatchHandler::format(const QByteArray &iname) const
 {
     int result = AutomaticFormat;
     if (const WatchItem *item = m_model->findItem(iname)) {
-        result = theIndividualFormats.value(item->d.iname, AutomaticFormat);
+        result = theIndividualFormats.value(item->iname, AutomaticFormat);
         if (result == AutomaticFormat)
-            result = theTypeFormats.value(stripForFormat(item->d.type), AutomaticFormat);
+            result = theTypeFormats.value(stripForFormat(item->type), AutomaticFormat);
     }
     return result;
 }
@@ -1716,10 +1651,21 @@ void WatchHandler::addTypeFormats(const QByteArray &type, const QStringList &for
     m_model->m_reportedTypeFormats.insert(QLatin1String(stripForFormat(type)), formats);
 }
 
+static void showInEditorHelper(const WatchItem *item, QTextStream &ts, int depth)
+{
+    const QChar tab = QLatin1Char('\t');
+    const QChar nl = QLatin1Char('\n');
+    ts << QString(depth, tab) << item->name << tab << item->value << tab
+       << item->type << nl;
+    foreach (const TreeItem *child, item->children())
+        showInEditorHelper(static_cast<const WatchItem *>(child), ts, depth + 1);
+}
+
 QString WatchHandler::editorContents()
 {
     QString contents;
-    m_model->root()->showInEditorHelper(&contents, 0);
+    QTextStream ts(&contents);
+    showInEditorHelper(m_model->root(), ts, 0);
     return contents;
 }
 
@@ -1731,22 +1677,6 @@ void WatchHandler::setTypeFormats(const DumperTypeFormats &typeFormats)
 DumperTypeFormats WatchHandler::typeFormats() const
 {
     return m_model->m_reportedTypeFormats;
-}
-
-void WatchHandler::editTypeFormats(bool includeLocals, const QByteArray &iname)
-{
-    Q_UNUSED(includeLocals);
-    TypeFormatsDialog dlg(0);
-
-    //QHashIterator<QString, QStringList> it(m_reportedTypeFormats);
-    QList<QString> l = m_model->m_reportedTypeFormats.keys();
-    Utils::sort(l);
-    foreach (const QString &ba, l) {
-        int f = iname.isEmpty() ? AutomaticFormat : format(iname);
-        dlg.addTypeFormats(ba, m_model->m_reportedTypeFormats.value(ba), f);
-    }
-    if (dlg.exec())
-        setTypeFormats(dlg.typeFormats());
 }
 
 void WatchHandler::scheduleResetLocation()
@@ -1828,30 +1758,30 @@ WatchItem::WatchItem()
 WatchItem::WatchItem(const QByteArray &i, const QString &n)
 {
     fetchTriggered = false;
-    d.iname = i;
-    d.name = n;
+    iname = i;
+    name = n;
 }
 
 WatchItem::WatchItem(const WatchData &data)
-    : d(data), fetchTriggered(false)
+    : WatchData(data), fetchTriggered(false)
 {
 }
 
 WatchItem::WatchItem(const GdbMi &data)
     : fetchTriggered(false)
 {
-    d.iname = data["iname"].data();
+    iname = data["iname"].data();
 
     GdbMi wname = data["wname"];
     if (wname.isValid()) // Happens (only) for watched expressions.
-        d.name = QString::fromUtf8(QByteArray::fromHex(wname.data()));
+        name = QString::fromUtf8(QByteArray::fromHex(wname.data()));
     else
-        d.name = QString::fromLatin1(data["name"].data());
+        name = QString::fromLatin1(data["name"].data());
 
     parseWatchData(data);
 
     if (wname.isValid())
-        d.exp = d.name.toUtf8();
+        exp = name.toUtf8();
 }
 
 WatchItem *WatchItem::parentItem() const
@@ -1872,8 +1802,9 @@ WatchModel *WatchItem::watchModel()
 void WatchItem::parseWatchData(const GdbMi &input)
 {
     auto itemHandler = [this](const WatchData &data) {
-        d = data;
+        WatchData::operator=(data);
     };
+
     auto childHandler = [this](const WatchData &innerData, const GdbMi &innerInput) {
         WatchItem *item = new WatchItem(innerData);
         item->parseWatchData(innerInput);
@@ -1889,10 +1820,8 @@ void WatchItem::parseWatchData(const GdbMi &input)
         decodeArrayData(itemAdder, childTemplate, encodedData, encoding);
     };
 
-    parseChildrenData(d, input, itemHandler, childHandler, arrayDecoder);
+    parseChildrenData(*this, input, itemHandler, childHandler, arrayDecoder);
 }
 
 } // namespace Internal
 } // namespace Debugger
-
-#include "watchhandler.moc"

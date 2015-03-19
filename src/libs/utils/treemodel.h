@@ -88,6 +88,7 @@ public:
     void appendChild(TreeItem *item);
     void insertChild(int pos, TreeItem *item);
     void removeChildren();
+    void sortChildren(const std::function<bool(const TreeItem *, const TreeItem *)> &cmp);
     void update();
     void updateColumn(int column);
     void expand();

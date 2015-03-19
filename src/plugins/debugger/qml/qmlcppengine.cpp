@@ -112,18 +112,18 @@ bool QmlCppEngine::setToolTipExpression(const DebuggerToolTipContext &ctx)
     return success;
 }
 
-void QmlCppEngine::updateWatchData(const WatchData &data)
+void QmlCppEngine::updateWatchItem(WatchItem *item)
 {
-    if (data.isInspect())
-        m_qmlEngine->updateWatchData(data);
+    if (item->isInspect())
+        m_qmlEngine->updateWatchItem(item);
     else
-        m_activeEngine->updateWatchData(data);
+        m_activeEngine->updateWatchItem(item);
 }
 
 void QmlCppEngine::watchDataSelected(const QByteArray &iname)
 {
-    const WatchData *wd = watchHandler()->findData(iname);
-    if (wd && wd->isInspect())
+    const WatchItem *item = watchHandler()->findItem(iname);
+    if (item && item->isInspect())
         m_qmlEngine->watchDataSelected(iname);
 }
 
@@ -264,13 +264,13 @@ void QmlCppEngine::selectThread(ThreadId threadId)
     m_activeEngine->selectThread(threadId);
 }
 
-void QmlCppEngine::assignValueInDebugger(const WatchData *data,
+void QmlCppEngine::assignValueInDebugger(WatchItem *item,
     const QString &expr, const QVariant &value)
 {
-    if (data->isInspect())
-        m_qmlEngine->assignValueInDebugger(data, expr, value);
+    if (item->isInspect())
+        m_qmlEngine->assignValueInDebugger(item, expr, value);
     else
-        m_activeEngine->assignValueInDebugger(data, expr, value);
+        m_activeEngine->assignValueInDebugger(item, expr, value);
 }
 
 void QmlCppEngine::notifyInferiorIll()

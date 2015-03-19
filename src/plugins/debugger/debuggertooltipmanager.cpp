@@ -218,9 +218,9 @@ ToolTipWatchItem::ToolTipWatchItem(WatchItem *item)
     name = item->displayName();
     value = item->displayValue();
     type = item->displayType();
-    iname = item->d.iname;
+    iname = item->iname;
     valueColor = item->valueColor();
-    expandable = item->d.hasChildren;
+    expandable = item->hasChildren();
     expression = item->expression();
     foreach (TreeItem *child, item->children())
         appendChild(new ToolTipWatchItem(static_cast<WatchItem *>(child)));

@@ -38,6 +38,7 @@ namespace Debugger {
 namespace Internal {
 
 class WatchData;
+class WatchItem;
 class BreakHandler;
 class BreakpointModelId;
 class QmlEngine;

@@ -974,46 +974,47 @@ static inline bool isWatchIName(const QByteArray &iname)
     return iname.startsWith("watch");
 }
 
-void CdbEngine::updateWatchData(const WatchData &dataIn)
+void CdbEngine::updateWatchItem(WatchItem *item)
 {
     if (debug || debugLocals || debugWatches)
         qDebug("CdbEngine::updateWatchData() %dms accessible=%d %s: %s",
                elapsedLogTime(), m_accessible, stateName(state()),
-               qPrintable(dataIn.toString()));
+               qPrintable(item->toString()));
 
     if (!m_accessible) // Add watch data while running?
         return;
 
     // New watch item?
-    if (dataIn.isWatcher() && dataIn.isValueNeeded()) {
+    if (item->isWatcher() && item->isValueNeeded()) {
         QByteArray args;
         ByteArrayInputStream str(args);
-        str << dataIn.iname << " \"" << dataIn.exp << '"';
+        WatchData data = *item; // Don't pass pointers to async functions.
+        str << data.iname << " \"" << data.exp << '"';
         postExtensionCommand("addwatch", args, 0,
-                             [this, dataIn](const CdbResponse &r) { handleAddWatch(r, dataIn); });
+                             [this, data](const CdbResponse &r) { handleAddWatch(r, data); });
         return;
     }
 
-    if (!dataIn.hasChildren && !dataIn.isValueNeeded()) {
-        WatchData data = dataIn;
-        data.setAllUnneeded();
-        watchHandler()->insertData(data);
-        return;
+    if (item->wantsChildren || item->isValueNeeded()) {
+        updateLocalVariable(item->iname);
+    } else {
+        item->setAllUnneeded();
+        item->update();
     }
-    updateLocalVariable(dataIn.iname);
 }
 
-void CdbEngine::handleAddWatch(const CdbResponse &response, WatchData item)
+void CdbEngine::handleAddWatch(const CdbResponse &response, WatchData data)
 {
     if (debugWatches)
-        qDebug() << "handleAddWatch ok="  << response.success << item.iname;
+        qDebug() << "handleAddWatch ok="  << response.success << data.iname;
     if (response.success) {
-        updateLocalVariable(item.iname);
+        updateLocalVariable(data.iname);
     } else {
-        item.setError(tr("Unable to add expression"));
-        watchHandler()->insertData(item);
+        auto item = new WatchItem(data);
+        item->setError(tr("Unable to add expression"));
+        watchHandler()->insertItem(item);
         showMessage(QString::fromLatin1("Unable to add watch item \"%1\"/\"%2\": %3").
-                    arg(QString::fromLatin1(item.iname), QString::fromLatin1(item.exp),
+                    arg(QString::fromLatin1(data.iname), QString::fromLatin1(data.exp),
                         QString::fromLocal8Bit(response.errorMessage)), LogError);
     }
 }
@@ -1269,7 +1270,7 @@ static inline bool isAsciiWord(const QString &s)
     return true;
 }
 
-void CdbEngine::assignValueInDebugger(const WatchData *w, const QString &expr, const QVariant &value)
+void CdbEngine::assignValueInDebugger(WatchItem *w, const QString &expr, const QVariant &value)
 {
     if (debug)
         qDebug() << "CdbEngine::assignValueInDebugger" << w->iname << expr << value;
@@ -1871,13 +1872,13 @@ void CdbEngine::handleLocals(const CdbResponse &response, bool newFrame)
         QSet<QByteArray> toDelete;
         if (newFrame) {
             foreach (WatchItem *item, handler->model()->treeLevelItems<WatchItem *>(2))
-                toDelete.insert(item->d.iname);
+                toDelete.insert(item->iname);
         }
 
         foreach (const GdbMi &child, all.children()) {
             WatchItem *item = new WatchItem(child);
             handler->insertItem(item);
-            toDelete.remove(item->d.iname);
+            toDelete.remove(item->iname);
         }
 
         handler->purgeOutdatedItems(toDelete);
