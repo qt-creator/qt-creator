@@ -90,7 +90,7 @@ void Terminal::setup()
         return;
     }
     if (!S_ISCHR(s.st_mode)) {
-        error(tr("Terminal: Slave is no character device"));
+        error(tr("Terminal: Slave is no character device."));
         return;
     }
 

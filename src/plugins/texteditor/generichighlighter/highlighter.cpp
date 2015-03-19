@@ -396,7 +396,7 @@ void Highlighter::changeContext(const QString &contextName,
         for (int i = 0; i < list.size(); ++i) {
             if (m_contexts.isEmpty()) {
                 throw HighlighterException(
-                        QCoreApplication::translate("GenericHighlighter", "Reached empty context"));
+                        QCoreApplication::translate("GenericHighlighter", "Reached empty context."));
             }
             m_contexts.pop_back();
         }

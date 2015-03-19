@@ -1279,12 +1279,19 @@ void BinEditorWidget::keyPressEvent(QKeyEvent *e)
 
 
     MoveMode moveMode = e->modifiers() & Qt::ShiftModifier ? KeepAnchor : MoveAnchor;
+    bool ctrlPressed = e->modifiers() & Qt::ControlModifier;
     switch (e->key()) {
     case Qt::Key_Up:
-        setCursorPosition(m_cursorPosition - m_bytesPerLine, moveMode);
+        if (ctrlPressed)
+            verticalScrollBar()->triggerAction(QScrollBar::SliderSingleStepSub);
+        else
+            setCursorPosition(m_cursorPosition - m_bytesPerLine, moveMode);
         break;
     case Qt::Key_Down:
-        setCursorPosition(m_cursorPosition + m_bytesPerLine, moveMode);
+        if (ctrlPressed)
+            verticalScrollBar()->triggerAction(QScrollBar::SliderSingleStepAdd);
+        else
+            setCursorPosition(m_cursorPosition + m_bytesPerLine, moveMode);
         break;
     case Qt::Key_Right:
         setCursorPosition(m_cursorPosition + 1, moveMode);
@@ -1297,12 +1304,13 @@ void BinEditorWidget::keyPressEvent(QKeyEvent *e)
         int line = qMax(0, m_cursorPosition / m_bytesPerLine - verticalScrollBar()->value());
         verticalScrollBar()->triggerAction(e->key() == Qt::Key_PageUp ?
                                            QScrollBar::SliderPageStepSub : QScrollBar::SliderPageStepAdd);
-        setCursorPosition((verticalScrollBar()->value() + line) * m_bytesPerLine + m_cursorPosition % m_bytesPerLine, moveMode);
+        if (!ctrlPressed)
+            setCursorPosition((verticalScrollBar()->value() + line) * m_bytesPerLine + m_cursorPosition % m_bytesPerLine, moveMode);
     } break;
 
     case Qt::Key_Home: {
         int pos;
-        if (e->modifiers() & Qt::ControlModifier)
+        if (ctrlPressed)
             pos = 0;
         else
             pos = m_cursorPosition/m_bytesPerLine * m_bytesPerLine;
@@ -1310,7 +1318,7 @@ void BinEditorWidget::keyPressEvent(QKeyEvent *e)
     } break;
     case Qt::Key_End: {
         int pos;
-        if (e->modifiers() & Qt::ControlModifier)
+        if (ctrlPressed)
             pos = m_size;
         else
             pos = m_cursorPosition/m_bytesPerLine * m_bytesPerLine + 15;

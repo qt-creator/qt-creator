@@ -31,6 +31,8 @@
 #ifndef JOURNALDWATCHER_H
 #define JOURNALDWATCHER_H
 
+#include <QByteArray>
+#include <QMap>
 #include <QObject>
 
 #include <functional>
@@ -50,6 +52,8 @@ public:
     ~JournaldWatcher();
 
     static JournaldWatcher *instance();
+
+    static const QByteArray &machineId();
 
     static bool subscribe(QObject *subscriber, const Subscription &subscription);
     static void unsubscribe(QObject *subscriber);

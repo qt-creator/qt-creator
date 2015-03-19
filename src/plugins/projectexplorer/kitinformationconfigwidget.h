@@ -104,12 +104,12 @@ private slots:
     void currentToolChainChanged(int idx);
 
 private:
-    void updateComboBox();
     int indexOf(const ToolChain *tc);
 
     QComboBox *m_comboBox;
     QPushButton *m_manageButton;
     bool m_ignoreChanges;
+    bool m_isReadOnly;
 };
 
 // --------------------------------------------------------------------------

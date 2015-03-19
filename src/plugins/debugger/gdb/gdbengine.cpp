@@ -3755,6 +3755,7 @@ void GdbEngine::handleVarAssign(const DebuggerResponse &)
 void GdbEngine::updateLocals()
 {
     watchHandler()->resetValueCache();
+    watchHandler()->notifyUpdateStarted();
     updateLocalsPython(UpdateParameters());
 }
 
@@ -4272,7 +4273,7 @@ void GdbEngine::startGdb(const QStringList &args)
     if (!commands.isEmpty())
         postCommand(commands.toLocal8Bit(), flags);
 
-    runCommand(DebuggerCommand("setupDumper", flags, CB(handlePythonSetup)));
+    runCommand(DebuggerCommand("loadDumpers", flags, CB(handlePythonSetup)));
 }
 
 void GdbEngine::handleGdbStartFailed()
@@ -4302,7 +4303,7 @@ void GdbEngine::loadInitScript()
 
 void GdbEngine::reloadDebuggingHelpers()
 {
-    runCommand("reloadDumper");
+    runCommand("reloadDumpers");
     reloadLocals();
 }
 
@@ -4767,6 +4768,7 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
 
 void GdbEngine::handleStackFramePython(const DebuggerResponse &response, bool partial)
 {
+    watchHandler()->notifyUpdateFinished();
     if (response.resultClass == ResultDone) {
         QByteArray out = response.consoleStreamOutput;
         while (out.endsWith(' ') || out.endsWith('\n'))

@@ -657,5 +657,5 @@ void ExternalToolConfig::updateEnvironmentLabel()
     QString shortSummary = m_environment.join(QLatin1String("; "));
     QFontMetrics fm(ui->environmentLabel->font());
     shortSummary = fm.elidedText(shortSummary, Qt::ElideRight, ui->environmentLabel->width());
-    ui->environmentLabel->setText(shortSummary.isEmpty() ? tr("No Changes to apply") : shortSummary);
+    ui->environmentLabel->setText(shortSummary.isEmpty() ? tr("No changes to apply.") : shortSummary);
 }

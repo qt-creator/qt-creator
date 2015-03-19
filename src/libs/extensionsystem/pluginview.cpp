@@ -41,8 +41,9 @@
 #include <QDir>
 #include <QGridLayout>
 #include <QHeaderView>
-#include <QSet>
 #include <QItemSelectionModel>
+#include <QSet>
+#include <QSortFilterProxyModel>
 
 /*!
     \class ExtensionSystem::PluginView
@@ -153,8 +154,8 @@ public:
     {
         if (column == LoadedColumn && role == Qt::CheckStateRole) {
             m_spec->setEnabled(data.toBool());
-            update();
-            parent()->update();
+            updateColumn(column);
+            parent()->updateColumn(column);
             emit m_view->pluginSettingsChanged(m_spec);
             return true;
         }
@@ -280,13 +281,17 @@ PluginView::PluginView(QWidget *parent)
     m_categoryView->setColumnWidth(LoadedColumn, 40);
     m_categoryView->header()->setDefaultSectionSize(120);
     m_categoryView->header()->setMinimumSectionSize(35);
+    m_categoryView->header()->setSortIndicator(0, Qt::AscendingOrder);
     m_categoryView->setActivationMode(DoubleClickActivation);
     m_categoryView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_categoryView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     m_model = new TreeModel(this);
     m_model->setHeader(QStringList() << tr("Name") << tr("Load") << tr("Version") << tr("Vendor"));
-    m_categoryView->setModel(m_model);
+
+    m_sortModel = new QSortFilterProxyModel(this);
+    m_sortModel->setSourceModel(m_model);
+    m_categoryView->setModel(m_sortModel);
 
     QGridLayout *gridLayout = new QGridLayout(this);
     gridLayout->setContentsMargins(2, 2, 2, 2);
@@ -325,7 +330,8 @@ PluginSpec *PluginView::currentPlugin() const
 
 PluginSpec *PluginView::pluginForIndex(const QModelIndex &index) const
 {
-    auto item = dynamic_cast<PluginItem *>(m_model->itemFromIndex(index));
+    const QModelIndex &sourceIndex = m_sortModel->mapToSource(index);
+    auto item = dynamic_cast<PluginItem *>(m_model->itemFromIndex(sourceIndex));
     return item ? item->m_spec: 0;
 }
 

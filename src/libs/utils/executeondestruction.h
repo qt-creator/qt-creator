@@ -1,6 +1,5 @@
-/**************************************************************************
+/****************************************************************************
 **
-** Copyright (C) 2015 Denis Mingulov.
 ** Copyright (C) 2015 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing
 **
@@ -29,43 +28,23 @@
 **
 ****************************************************************************/
 
-#include "imageviewerfactory.h"
-#include "imageviewerconstants.h"
-#include "imageviewer.h"
+#ifndef EXECUTEONDESTRUCTION_H
+#define EXECUTEONDESTRUCTION_H
 
-#include <QCoreApplication>
-#include <QMap>
-#include <QImageReader>
-#include <QDebug>
+#include <functional>
 
-namespace ImageViewer {
-namespace Internal {
+namespace Utils {
 
-ImageViewerFactory::ImageViewerFactory(QObject *parent) :
-    Core::IEditorFactory(parent)
+class ExecuteOnDestruction
 {
-    setId(Constants::IMAGEVIEWER_ID);
-    setDisplayName(qApp->translate("OpenWith::Editors", Constants::IMAGEVIEWER_DISPLAY_NAME));
+public:
+    ExecuteOnDestruction(std::function<void()> code) : destructionCode(code) {}
+    ~ExecuteOnDestruction() { if (destructionCode) destructionCode(); }
 
-    const QList<QByteArray> supportedMimeTypes = QImageReader::supportedMimeTypes();
-    foreach (const QByteArray &format, supportedMimeTypes)
-        addMimeType(format.constData());
+private:
+    const std::function<void()> destructionCode;
+};
 
-#if (QT_VERSION < QT_VERSION_CHECK(5, 5, 0)) && !QT_NO_SVGRENDERER
-    // Workaround for https://codereview.qt-project.org/108693
-    addMimeType("image/svg+xml");
-#endif
-}
+} // Utils
 
-Core::IEditor *ImageViewerFactory::createEditor()
-{
-    return new ImageViewer();
-}
-
-void ImageViewerFactory::extensionsInitialized()
-{
-    m_actionHandler.createActions();
-}
-
-} // namespace Internal
-} // namespace ImageViewer
+#endif // EXECUTEONDESTRUCTION_H

@@ -132,6 +132,7 @@ private:
     InfoBar m_infoBar;
     InfoBarDisplay m_infoBarDisplay;
     bool m_isShowingReplaceUI;
+    QWidget *m_topReplaceWidget;
     QLabel *m_replaceLabel;
     QLineEdit *m_replaceTextEdit;
     QToolButton *m_replaceButton;

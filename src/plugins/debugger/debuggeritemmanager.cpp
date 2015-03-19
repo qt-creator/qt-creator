@@ -200,8 +200,11 @@ void DebuggerItemManager::autoDetectGdbOrLldbDebuggers()
 {
     QStringList filters;
     filters.append(QLatin1String("gdb-i686-pc-mingw32"));
+    filters.append(QLatin1String("gdb-i686-pc-mingw32.exe"));
     filters.append(QLatin1String("gdb"));
+    filters.append(QLatin1String("gdb.exe"));
     filters.append(QLatin1String("lldb"));
+    filters.append(QLatin1String("lldb.exe"));
     filters.append(QLatin1String("lldb-*"));
 
 //    DebuggerItem result;

@@ -30,23 +30,33 @@
 ****************************************************************************/
 
 #include "androidextralibrarylistmodel.h"
+#include "qmakeandroidrunconfiguration.h"
+
+#include <projectexplorer/target.h>
+
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakenodes.h>
 #include <proparser/prowriter.h>
 
+
 using namespace QmakeAndroidSupport;
 using namespace Internal;
+using QmakeProjectManager::QmakeProject;
 
-AndroidExtraLibraryListModel::AndroidExtraLibraryListModel(QmakeProjectManager::QmakeProject *project,
+AndroidExtraLibraryListModel::AndroidExtraLibraryListModel(ProjectExplorer::Target *target,
                                                            QObject *parent)
-    : QAbstractItemModel(parent)
-    , m_project(project)
+    : QAbstractItemModel(parent),
+      m_target(target)
 {
-    QmakeProjectManager::QmakeProFileNode *node = m_project->rootQmakeProjectNode();
-    proFileUpdated(node, node->validParse(), node->parseInProgress());
 
-    connect(m_project, SIGNAL(proFileUpdated(QmakeProjectManager::QmakeProFileNode*,bool,bool)),
-            this, SLOT(proFileUpdated(QmakeProjectManager::QmakeProFileNode*,bool,bool)));
+    activeRunConfigurationChanged();
+
+    auto project = static_cast<QmakeProject *>(target->project());
+    connect(project, &QmakeProject::proFileUpdated,
+            this, &AndroidExtraLibraryListModel::proFileUpdated);
+
+    connect(target, &ProjectExplorer::Target::activeRunConfigurationChanged,
+            this, &AndroidExtraLibraryListModel::activeRunConfigurationChanged);
 }
 
 QModelIndex AndroidExtraLibraryListModel::index(int row, int column, const QModelIndex &) const
@@ -79,24 +89,21 @@ QVariant AndroidExtraLibraryListModel::data(const QModelIndex &index, int role) 
     };
 }
 
-void AndroidExtraLibraryListModel::proFileUpdated(QmakeProjectManager::QmakeProFileNode *node, bool success, bool parseInProgress)
+void AndroidExtraLibraryListModel::activeRunConfigurationChanged()
 {
-    QmakeProjectManager::QmakeProFileNode *root = m_project->rootQmakeProjectNode();
-    if (node != root)
+    const QmakeProjectManager::QmakeProFileNode *node = activeNode();
+    if (!node || node->parseInProgress()) {
+        emit enabledChanged(false);
         return;
+    }
 
     m_scope = QLatin1String("contains(ANDROID_TARGET_ARCH,")
             + node->singleVariableValue(QmakeProjectManager::AndroidArchVar)
             + QLatin1Char(')');
 
-    if (parseInProgress) {
-        emit enabledChanged(false);
-        return;
-    }
-
     bool enabled;
     beginResetModel();
-    if (success && root->projectType() == QmakeProjectManager::ApplicationTemplate) {
+    if (node->validParse() && node->projectType() == QmakeProjectManager::ApplicationTemplate) {
         m_entries = node->variableValue(QmakeProjectManager::AndroidExtraLibs);
         enabled = true;
     } else {
@@ -109,27 +116,47 @@ void AndroidExtraLibraryListModel::proFileUpdated(QmakeProjectManager::QmakeProF
     emit enabledChanged(enabled);
 }
 
+QmakeProjectManager::QmakeProFileNode *AndroidExtraLibraryListModel::activeNode() const
+{
+    ProjectExplorer::RunConfiguration *rc = m_target->activeRunConfiguration();
+    QmakeAndroidRunConfiguration *qarc = qobject_cast<QmakeAndroidRunConfiguration *>(rc);
+    if (!qarc)
+        return 0;
+    auto project = static_cast<QmakeProject *>(m_target->project());
+    return project->rootQmakeProjectNode()->findProFileFor(qarc->proFilePath());
+}
+
+void AndroidExtraLibraryListModel::proFileUpdated(QmakeProjectManager::QmakeProFileNode *node)
+{
+    if (node != activeNode())
+        return;
+    activeRunConfigurationChanged();
+}
+
 bool AndroidExtraLibraryListModel::isEnabled() const
 {
-    QmakeProjectManager::QmakeProFileNode *root = m_project->rootQmakeProjectNode();
-    if (root->parseInProgress())
+    QmakeProjectManager::QmakeProFileNode *node = activeNode();
+    if (!node)
         return false;
-    if (root->projectType() != QmakeProjectManager::ApplicationTemplate)
+    if (node->parseInProgress())
+        return false;
+    if (node->projectType() != QmakeProjectManager::ApplicationTemplate)
         return false;
     return true;
 }
 
 void AndroidExtraLibraryListModel::addEntries(const QStringList &list)
 {
-    if (m_project->rootQmakeProjectNode()->projectType() != QmakeProjectManager::ApplicationTemplate)
+    QmakeProjectManager::QmakeProFileNode *node = activeNode();
+    if (!node || node->projectType() != QmakeProjectManager::ApplicationTemplate)
         return;
 
     beginInsertRows(QModelIndex(), m_entries.size(), m_entries.size() + list.size());
 
     foreach (const QString &path, list)
-        m_entries += QLatin1String("$$PWD/") + QDir(m_project->projectDirectory().toString()).relativeFilePath(path);
+        m_entries +=  QLatin1String("$$PWD/")
+                + node->path().toFileInfo().absoluteDir().relativeFilePath(path);
 
-    QmakeProjectManager::QmakeProFileNode *node = m_project->rootQmakeProjectNode();
     node->setProVariable(QLatin1String("ANDROID_EXTRA_LIBS"), m_entries, m_scope,
                          QmakeProjectManager::Internal::ProWriter::ReplaceValues
                          | QmakeProjectManager::Internal::ProWriter::MultiLine);
@@ -144,7 +171,8 @@ bool greaterModelIndexByRow(const QModelIndex &a, const QModelIndex &b)
 
 void AndroidExtraLibraryListModel::removeEntries(QModelIndexList list)
 {
-    if (list.isEmpty() || m_project->rootQmakeProjectNode()->projectType() != QmakeProjectManager::ApplicationTemplate)
+    QmakeProjectManager::QmakeProFileNode *node = activeNode();
+    if (list.isEmpty() || !node || node->projectType() != QmakeProjectManager::ApplicationTemplate)
         return;
 
     std::sort(list.begin(), list.end(), greaterModelIndexByRow);
@@ -163,6 +191,5 @@ void AndroidExtraLibraryListModel::removeEntries(QModelIndexList list)
         endRemoveRows();
     }
 
-    QmakeProjectManager::QmakeProFileNode *node = m_project->rootQmakeProjectNode();
     node->setProVariable(QLatin1String("ANDROID_EXTRA_LIBS"), m_entries, m_scope);
 }

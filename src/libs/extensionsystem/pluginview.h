@@ -37,6 +37,10 @@
 #include <QSet>
 #include <QHash>
 
+QT_BEGIN_NAMESPACE
+class QSortFilterProxyModel;
+QT_END_NAMESPACE
+
 namespace Utils {
 class TreeItem;
 class TreeModel;
@@ -71,6 +75,7 @@ private:
 
     Utils::TreeView *m_categoryView;
     Utils::TreeModel *m_model;
+    QSortFilterProxyModel *m_sortModel;
 
     friend class CollectionItem;
     friend class PluginItem;

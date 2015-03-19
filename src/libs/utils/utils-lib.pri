@@ -187,7 +187,8 @@ HEADERS += \
     $$PWD/theme/theme.h \
     $$PWD/theme/theme_p.h \
     $$PWD/progressindicator.h \
-    $$PWD/fadingindicator.h
+    $$PWD/fadingindicator.h \
+    $$PWD/executeondestruction.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

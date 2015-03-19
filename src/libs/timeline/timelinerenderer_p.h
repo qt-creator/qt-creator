@@ -59,7 +59,7 @@ public:
         int eventIndex;
     } currentSelection;
 
-    QVector<QVector<TimelineRenderState *> > renderStates;
+    QVector<QHash<qint64, TimelineRenderState *> > renderStates;
     TimelineRenderState *lastState;
 
 private:

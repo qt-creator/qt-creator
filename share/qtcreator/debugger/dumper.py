@@ -583,12 +583,15 @@ class DumperBase:
         elided, shown = self.computeLimit(size, limit)
         return elided, self.readMemory(data, shown)
 
-    def putStdStringHelper(self, data, size, charSize):
+    def putStdStringHelper(self, data, size, charSize, format = None):
         bytelen = size * charSize
         elided, shown = self.computeLimit(bytelen, self.displayStringLimit)
         mem = self.readMemory(data, shown)
         if charSize == 1:
-            encodingType = Hex2EncodedLatin1
+            if format == 1 or format == 2:
+                encodingType = Hex2EncodedLatin1
+            else:
+                encodingType = Hex2EncodedUtf8
             displayType = DisplayLatin1String
         elif charSize == 2:
             encodingType = Hex4EncodedLittleEndian
@@ -600,10 +603,9 @@ class DumperBase:
         self.putNumChild(0)
         self.putValue(mem, encodingType, elided=elided)
 
-        format = self.currentItemFormat()
-        if format == 1:
+        if format == 1 or format == 3:
             self.putDisplay(StopDisplay)
-        elif format == 2:
+        elif format == 2 or format == 4:
             self.putField("editformat", displayType)
             elided, shown = self.computeLimit(bytelen, 100000)
             self.putField("editvalue", self.readMemory(data, shown))
@@ -618,10 +620,6 @@ class DumperBase:
 
     def byteArrayData(self, value):
         return self.byteArrayDataHelper(self.extractPointer(value))
-
-    def putByteArrayValueByAddress(self, addr):
-        elided, data = self.encodeByteArrayHelper(addr, self.displayStringLimit)
-        self.putValue(data, Hex2EncodedLatin1, elided=elided)
 
     def putByteArrayValue(self, value):
         elided, data = self.encodeByteArrayHelper(self.extractPointer(value), self.displayStringLimit)
@@ -910,6 +908,10 @@ class DumperBase:
         innerType = value[0].type
         ts = innerType.sizeof
         #self.putAddress(value.address)
+        try:
+            self.putValue("@0x%x" % self.addressOf(value), priority = -1)
+        except:
+            self.putEmptyValue()
         self.putType(arrayType)
         self.putNumChild(1)
 
@@ -1704,7 +1706,7 @@ class DumperBase:
         except:
             pass
 
-    def setupDumper(self, _ = {}):
+    def setupDumpers(self, _ = {}):
         self.qqDumpers = {}
         self.qqFormats = {}
         self.qqEditable = {}
@@ -1717,27 +1719,26 @@ class DumperBase:
                 item = dic[name]
                 self.registerDumper(name, item)
 
-        return self.reportDumpers()
-
-    def reportDumpers(self, _ = {}):
-        result = "dumpers=["
+        msg = "dumpers=["
         for key, value in self.qqFormats.items():
             if key in self.qqEditable:
-                result += '{type="%s",formats="%s",editable="true"},' % (key, value)
+                msg += '{type="%s",formats="%s",editable="true"},' % (key, value)
             else:
-                result += '{type="%s",formats="%s"},' % (key, value)
-        result += ']'
-        return result
+                msg += '{type="%s",formats="%s"},' % (key, value)
+        msg += ']'
+        self.reportDumpers(msg)
 
-    def reloadDumper(self, args):
+    def reportDumpers(self, msg):
+        raise NotImplementedError # Pure
+
+    def reloadDumpers(self, args):
         for mod in self.dumpermodules:
             m = sys.modules[mod]
             if sys.version_info[0] >= 3:
                 importlib.reload(m)
             else:
                 reload(m)
-
-        self.setupDumper(args)
+        self.setupDumpers(args)
 
     def addDumperModule(self, args):
         path = args['path']

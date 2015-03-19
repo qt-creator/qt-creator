@@ -317,10 +317,10 @@ void GdbServerProviderConfigWidget::populateStartupModes()
         m_startupModeComboBox->insertItem(
                     idx,
                     (m == GdbServerProvider::NoStartup)
-                    ? tr("No startup")
+                    ? tr("No Startup")
                     : ((m == GdbServerProvider::StartupOnNetwork)
-                       ? tr("Startup in TCP/IP mode")
-                       : tr("Startup in Pipe mode")),
+                       ? tr("Startup in TCP/IP Mode")
+                       : tr("Startup in Pipe Mode")),
                     m);
     }
 }
@@ -356,14 +356,14 @@ void GdbServerProviderConfigWidget::setFromProvider()
 QString GdbServerProviderConfigWidget::defaultInitCommandsTooltip()
 {
     return QCoreApplication::translate("BareMetal",
-                                       "Enter GDB commands to reset of the board, "
+                                       "Enter GDB commands to reset the board, "
                                        "and to write the nonvolatile memory.");
 }
 
 QString GdbServerProviderConfigWidget::defaultResetCommandsTooltip()
 {
     return QCoreApplication::translate("BareMetal",
-                                       "Enter GDB commands to hardware reset. "
+                                       "Enter GDB commands to reset the hardware. "
                                        "The MCU should be halted after this commands.");
 }
 

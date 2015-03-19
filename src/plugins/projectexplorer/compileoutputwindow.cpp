@@ -87,6 +87,13 @@ private slots:
     }
 
 protected:
+    void wheelEvent(QWheelEvent *ev)
+    {
+        // from QPlainTextEdit, but without scroll wheel zooming
+        QAbstractScrollArea::wheelEvent(ev);
+        updateMicroFocus();
+    }
+
     void mouseDoubleClickEvent(QMouseEvent *ev)
     {
         int line = cursorForPosition(ev->pos()).block().blockNumber();

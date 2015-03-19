@@ -1440,5 +1440,6 @@ AndroidManifestTextEditorWidget::AndroidManifestTextEditorWidget(AndroidManifest
     setTextDocument(TextEditor::TextDocumentPtr(new AndroidManifestDocument(parent)));
     textDocument()->setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
     setupGenericHighlighter();
+    setMarksVisible(false);
 }
 

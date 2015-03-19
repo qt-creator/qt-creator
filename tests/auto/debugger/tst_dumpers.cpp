@@ -799,7 +799,9 @@ public:
 
 struct TempStuff
 {
-    TempStuff() : buildTemp(QLatin1String("qt_tst_dumpers_"))
+    TempStuff(const char *tag) : buildTemp(QLatin1String("qt_tst_dumpers_")
+                                           + QLatin1String(tag)
+                                           + QLatin1Char('_'))
     {
         buildPath = QDir::currentPath() + QLatin1Char('/')  + buildTemp.path();
         buildTemp.setAutoRemove(false);
@@ -971,7 +973,7 @@ void tst_Dumpers::initTestCase()
 
 void tst_Dumpers::init()
 {
-    t = new TempStuff();
+    t = new TempStuff(QTest::currentDataTag());
 }
 
 void tst_Dumpers::cleanup()
@@ -1240,7 +1242,7 @@ void tst_Dumpers::dumper()
         cmds += "python sys.path.insert(1, '" + dumperDir + "')\n"
                 "python sys.path.append('" + uninstalledData + "')\n"
                 "python from gdbbridge import *\n"
-                "python theDumper.setupDumper()\n"
+                "python theDumper.setupDumpers()\n"
                 "run " + nograb + "\n"
                 "python theDumper.showData({'fancy':1,'forcens':1,'autoderef':1,"
                         "'dyntype':1,'passExceptions':1,'expanded':[" + expandedq + "]})\n";

@@ -144,7 +144,10 @@ def __kitFunc__(it, foundQt, foundCompNames):
     test.compare(it, "Desktop (default)", "Verifying whether default Desktop kit has been created.")
     if foundQt:
         test.compare(qtVersionStr, foundQt, "Verifying if Qt versions match.")
-    compilerCombo = waitForObject(":Compiler:_QComboBox")
+    compilerCombo = findObject(":Compiler:_QComboBox")
+    test.compare(compilerCombo.enabled, compilerCombo.count > 1,
+                 "Verifying whether compiler combo is enabled/disabled correctly.")
+
     test.verify(str(compilerCombo.currentText) in foundCompNames,
                 "Verifying if one of the found compilers had been set.")
     if currentSelectedTreeItem:

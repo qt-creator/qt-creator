@@ -1247,7 +1247,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // not be used in the Run/Build configuration pages.
     Utils::MacroExpander *expander = Utils::globalMacroExpander();
     expander->registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX,
-        tr("Current project's main file"),
+        tr("Current project's main file."),
         [this]() -> QString {
             Utils::FileName projectFilePath;
             if (Project *project = ProjectTree::currentProject())
@@ -1470,7 +1470,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
         ProjectExplorerPlugin::openProject(fileName, &errorMessage);
         if (!errorMessage.isEmpty())
             QMessageBox::critical(ICore::mainWindow(),
-                tr("Failed to open project"), errorMessage);
+                tr("Failed to open project."), errorMessage);
         return 0;
     });
 
@@ -2460,13 +2460,13 @@ QPair<bool, QString> ProjectExplorerPluginPrivate::buildSettingsEnabledForSessio
     result.first = true;
     if (!SessionManager::hasProjects()) {
         result.first = false;
-        result.second = tr("No project loaded");
+        result.second = tr("No project loaded.");
     } else if (BuildManager::isBuilding()) {
         result.first = false;
-        result.second = tr("A build is in progress");
+        result.second = tr("A build is in progress.");
     } else if (!hasBuildSettings(0)) {
         result.first = false;
-        result.second = tr("Project has no build settings");
+        result.second = tr("Project has no build settings.");
     } else {
         foreach (Project *project, SessionManager::projectOrder(0)) {
             if (project

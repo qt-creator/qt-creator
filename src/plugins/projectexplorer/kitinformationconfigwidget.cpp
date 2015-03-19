@@ -127,10 +127,10 @@ void SysRootInformationConfigWidget::pathWasChanged()
 
 ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Kit *k, const KitInformation *ki) :
     KitConfigWidget(k, ki),
-    m_ignoreChanges(false)
+    m_ignoreChanges(false),
+    m_isReadOnly(false)
 {
     m_comboBox = new QComboBox;
-    m_comboBox->setEnabled(false);
     m_comboBox->setToolTip(toolTip());
 
     refresh();
@@ -166,12 +166,20 @@ void ToolChainInformationConfigWidget::refresh()
     foreach (ToolChain *tc, ToolChainManager::toolChains())
         m_comboBox->addItem(tc->displayName(), tc->id());
 
+    if (m_comboBox->count() == 0) {
+        m_comboBox->addItem(tr("<No compiler available>"), QString());
+        m_comboBox->setEnabled(false);
+    } else {
+        m_comboBox->setEnabled(m_comboBox->count() > 1 && !m_isReadOnly);
+    }
+
     m_comboBox->setCurrentIndex(indexOf(ToolChainKitInformation::toolChain(m_kit)));
     m_ignoreChanges = false;
 }
 
 void ToolChainInformationConfigWidget::makeReadOnly()
 {
+    m_isReadOnly = true;
     m_comboBox->setEnabled(false);
 }
 
@@ -197,21 +205,6 @@ void ToolChainInformationConfigWidget::currentToolChainChanged(int idx)
 
     const QString id = m_comboBox->itemData(idx).toString();
     ToolChainKitInformation::setToolChain(m_kit, ToolChainManager::findToolChain(id));
-}
-
-void ToolChainInformationConfigWidget::updateComboBox()
-{
-    // remove unavailable tool chain:
-    int pos = indexOf(0);
-    if (pos >= 0)
-        m_comboBox->removeItem(pos);
-
-    if (m_comboBox->count() == 0) {
-        m_comboBox->addItem(tr("<No compiler available>"), QString());
-        m_comboBox->setEnabled(false);
-    } else {
-        m_comboBox->setEnabled(true);
-    }
 }
 
 int ToolChainInformationConfigWidget::indexOf(const ToolChain *tc)
@@ -413,7 +406,7 @@ void KitEnvironmentConfigWidget::refresh()
     QString shortSummary = Utils::EnvironmentItem::toStringList(changes).join(QLatin1String("; "));
     QFontMetrics fm(m_summaryLabel->font());
     shortSummary = fm.elidedText(shortSummary, Qt::ElideRight, m_summaryLabel->width());
-    m_summaryLabel->setText(shortSummary.isEmpty() ? tr("No Changes to apply") : shortSummary);
+    m_summaryLabel->setText(shortSummary.isEmpty() ? tr("No changes to apply.") : shortSummary);
     if (m_editor)
         m_editor->setPlainText(Utils::EnvironmentItem::toStringList(changes).join(QLatin1Char('\n')));
 }

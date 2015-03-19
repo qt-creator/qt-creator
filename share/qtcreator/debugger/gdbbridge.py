@@ -1660,6 +1660,12 @@ class Dumper(DumperBase):
             matplotQuit()
         gdb.execute("quit")
 
+    def loadDumpers(self, args):
+        self.setupDumpers()
+
+    def reportDumpers(self, msg):
+        print(msg)
+
     def profile1(self, args):
         """Internal profiling"""
         import tempfile

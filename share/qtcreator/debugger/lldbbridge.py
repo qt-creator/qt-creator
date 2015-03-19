@@ -1388,7 +1388,7 @@ class Dumper(DumperBase):
                 result += ',ignorecount="%s"' % loc.GetIgnoreCount()
                 result += ',file="%s"' % lineEntry.GetFileSpec()
                 result += ',line="%s"' % lineEntry.GetLine()
-                result += ',addr="%s"},' % loc.GetLoadAddress()
+                result += ',addr="%s"},' % addr.GetFileAddress()
         result += ']'
         if lineEntry is not None:
             result += ',file="%s"' % lineEntry.GetFileSpec()
@@ -1670,10 +1670,12 @@ class Dumper(DumperBase):
             result += ',offset="%s"},' % (addr - base)
         self.report(result + ']')
 
-    def loadDumperFiles(self, args):
+    def loadDumpers(self, args):
         self.reportToken(args)
-        result = self.setupDumper()
-        self.report(result)
+        self.setupDumpers()
+
+    def reportDumpers(self, msg):
+        self.report(msg)
 
     def fetchMemory(self, args):
         address = args['address']
@@ -1721,7 +1723,7 @@ class Tester(Dumper):
         self.expandedINames = set(expandedINames)
         self.passExceptions = True
 
-        self.loadDumperFiles({})
+        self.loadDumpers({})
         error = lldb.SBError()
         self.target = self.debugger.CreateTarget(binary, None, None, True, error)
 

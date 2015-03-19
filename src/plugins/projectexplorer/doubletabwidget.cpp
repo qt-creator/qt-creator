@@ -35,6 +35,7 @@
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
+#include <QDir>
 #include <QRect>
 #include <QPainter>
 #include <QMouseEvent>
@@ -572,4 +573,9 @@ bool DoubleTabWidget::event(QEvent *event)
         }
     }
     return QWidget::event(event);
+}
+
+QString DoubleTabWidget::Tab::displayName() const
+{
+    return nameIsUnique ? name : QDir::toNativeSeparators(fullName);
 }

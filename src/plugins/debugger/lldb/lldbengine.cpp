@@ -303,7 +303,7 @@ void LldbEngine::setupInferior()
         runCommand(cmd);
     }
 
-    DebuggerCommand cmd1("loadDumperFiles");
+    DebuggerCommand cmd1("loadDumpers");
     runCommand(cmd1);
 }
 
@@ -912,6 +912,7 @@ void LldbEngine::doUpdateLocals(UpdateParameters params)
     m_lastDebuggableCommand = cmd;
     m_lastDebuggableCommand.args.replace("\"passexceptions\":0", "\"passexceptions\":1");
 
+    watchHandler()->notifyUpdateStarted();
     runCommand(cmd);
 
     reloadRegisters();
@@ -1009,6 +1010,7 @@ void LldbEngine::refreshLocals(const GdbMi &vars)
     }
 
     handler->purgeOutdatedItems(toDelete);
+    handler->notifyUpdateFinished();
 
     DebuggerToolTipManager::updateEngine(this);
  }
@@ -1156,6 +1158,12 @@ void LldbEngine::reloadRegisters()
 {
     if (Internal::isDockVisible(QLatin1String(DOCKWIDGET_REGISTER)))
         runCommand("reportRegisters");
+}
+
+void LldbEngine::reloadDebuggingHelpers()
+{
+    runCommand("reloadDumpers");
+    updateAll();
 }
 
 void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)

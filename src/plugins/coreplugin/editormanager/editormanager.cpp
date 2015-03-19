@@ -65,6 +65,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/executeondestruction.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
@@ -2396,6 +2397,9 @@ IEditor *EditorManager::openEditorWithContents(Id editorId,
             EditorManager::gotoOtherSplit();
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    Utils::ExecuteOnDestruction appRestoreCursor(&QApplication::restoreOverrideCursor);
+    Q_UNUSED(appRestoreCursor)
+
 
     const QString title = makeTitleUnique(titlePattern);
 
@@ -2409,20 +2413,16 @@ IEditor *EditorManager::openEditorWithContents(Id editorId,
                 if (!title.isEmpty())
                     edt->document()->setPreferredDisplayName(title);
 
-                QApplication::restoreOverrideCursor();
                 activateEditor(edt, flags);
                 return edt;
             }
     }
 
     edt = EditorManagerPrivate::createEditor(editorId, title);
-    if (!edt) {
-        QApplication::restoreOverrideCursor();
+    if (!edt)
         return 0;
-    }
 
     if (!edt->document()->setContents(contents)) {
-        QApplication::restoreOverrideCursor();
         delete edt;
         edt = 0;
         return 0;
@@ -2435,7 +2435,6 @@ IEditor *EditorManager::openEditorWithContents(Id editorId,
         edt->document()->setPreferredDisplayName(title);
 
     EditorManagerPrivate::addEditor(edt);
-    QApplication::restoreOverrideCursor();
     activateEditor(edt, flags);
     return edt;
 }

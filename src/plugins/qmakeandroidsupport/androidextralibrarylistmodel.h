@@ -35,10 +35,12 @@
 #include <QAbstractItemModel>
 #include <QStringList>
 
-namespace QmakeProjectManager {
-class QmakeProject;
-class QmakeProFileNode;
+namespace ProjectExplorer {
+class RunConfiguration;
+class Target;
 }
+
+namespace QmakeProjectManager { class QmakeProFileNode; }
 
 namespace QmakeAndroidSupport {
 
@@ -47,7 +49,7 @@ class AndroidExtraLibraryListModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    explicit AndroidExtraLibraryListModel(QmakeProjectManager::QmakeProject *project,
+    explicit AndroidExtraLibraryListModel(ProjectExplorer::Target *target,
                                           QObject *parent = 0);
 
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
@@ -64,11 +66,12 @@ public:
 signals:
     void enabledChanged(bool);
 
-private slots:
-    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *node, bool success, bool parseInProgress);
-
 private:
-    QmakeProjectManager::QmakeProject *m_project;
+    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *node);
+    void activeRunConfigurationChanged();
+    QmakeProjectManager::QmakeProFileNode *activeNode() const;
+
+    ProjectExplorer::Target *m_target;
     QStringList m_entries;
     QString m_scope;
 };

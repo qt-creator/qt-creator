@@ -64,12 +64,11 @@ public:
     explicit ActionManagerPrivate();
     ~ActionManagerPrivate();
 
-    void initialize();
-
     void setContext(const Context &context);
     bool hasContext(int context) const;
 
-    void saveSettings(QSettings *settings);
+    void saveSettings();
+    void saveSettings(Action *cmd);
 
     void showShortcutPopup(const QString &shortcut);
     bool hasContext(const Context &context) const;

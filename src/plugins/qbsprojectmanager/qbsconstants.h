@@ -53,7 +53,7 @@ const char CPP_XCODESDKVERSION[] = "cpp.xcodeSdkVersion";
 
 // Settings page
 const char QBS_SETTINGS_CATEGORY[]  = "YM.qbs";
-const char QBS_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("QbsProjectManager", "qbs");
+const char QBS_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("QbsProjectManager", "Qbs");
 const char QBS_SETTINGS_CATEGORY_ICON[]  = ":/projectexplorer/images/build.png";
 
 const char QBS_PROPERTIES_KEY_FOR_KITS[] = "QbsProjectManager.qbs-properties";

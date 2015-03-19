@@ -1204,7 +1204,7 @@ void DebuggerEngine::notifyDebuggerProcessFinished(int exitCode,
         notifyEngineIll(); // Initiate shutdown sequence
         const QString msg = exitStatus == QProcess::CrashExit ?
                 tr("The %1 process terminated.") :
-                tr("The %2 process terminated unexpectedly (exitCode %1)").arg(exitCode);
+                tr("The %2 process terminated unexpectedly (exit code %1).").arg(exitCode);
         AsynchronousMessageBox::critical(tr("Unexpected %1 Exit").arg(backendName),
                                          msg.arg(backendName));
         break;
@@ -1712,7 +1712,7 @@ bool DebuggerEngine::isDying() const
 
 QString DebuggerEngine::msgStopped(const QString &reason)
 {
-    return reason.isEmpty() ? tr("Stopped.") : tr("Stopped: \"%1\"").arg(reason);
+    return reason.isEmpty() ? tr("Stopped.") : tr("Stopped: \"%1\".").arg(reason);
 }
 
 QString DebuggerEngine::msgStoppedBySignal(const QString &meaning,
@@ -1739,11 +1739,11 @@ void DebuggerEngine::showStoppedBySignalMessageBox(QString meaning, QString name
     if (meaning.isEmpty())
         meaning = QLatin1Char(' ') + tr("<Unknown>", "meaning") + QLatin1Char(' ');
     const QString msg = tr("<p>The inferior stopped because it received a "
-                           "signal from the Operating System.<p>"
+                           "signal from the operating system.<p>"
                            "<table><tr><td>Signal name : </td><td>%1</td></tr>"
                            "<tr><td>Signal meaning : </td><td>%2</td></tr></table>")
             .arg(name, meaning);
-    AsynchronousMessageBox::information(tr("Signal received"), msg);
+    AsynchronousMessageBox::information(tr("Signal Received"), msg);
 }
 
 void DebuggerEngine::showStoppedByExceptionMessageBox(const QString &description)

@@ -113,8 +113,8 @@
 
     Starting with version 3.1, \QC requires the Python scripting
     extension. GDB builds without Python scripting are not supported
-    anymore and will not work. The minimal supported version is GDB 7.4.1,
-    using Python version 2.6, 2.7, or 3.x.
+    anymore and will not work. The minimal supported version is GDB 7.5
+    using Python version 2.7, or 3.3, or newer.
 
     For remote debugging using GDB and GDB server, the minimal
     supported version of GDB server on the target device is 7.0.

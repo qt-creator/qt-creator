@@ -73,7 +73,7 @@ public:
 
     QVariant editValue() const;
     int editType() const;
-    QColor color() const;
+    QColor valueColor() const;
 
     int requestedFormat() const;
     void showInEditorHelper(QString *contents, int depth) const;
@@ -177,6 +177,8 @@ signals:
     void itemIsExpanded(const QModelIndex &idx);
     void inameIsExpanded(const QByteArray &iname);
     void columnAdjustmentRequested();
+    void updateStarted();
+    void updateFinished();
 };
 
 class WatchHandler : public QObject
@@ -242,6 +244,9 @@ public:
     void removeItemByIName(const QByteArray &iname);
     void removeAllData(bool includeInspectData = false);
     void resetValueCache();
+    void resetWatchers();
+    void notifyUpdateStarted();
+    void notifyUpdateFinished();
     void purgeOutdatedItems(const QSet<QByteArray> &inames);
 
 private:
@@ -256,8 +261,6 @@ private:
     WatchModel *m_model; // Owned.
     DebuggerEngine *m_engine; // Not owned.
     SeparatedView *m_separatedView; // Owned.
-
-    int m_watcherCounter;
 
     bool m_contentsValid;
     bool m_resetLocationScheduled;

@@ -208,7 +208,7 @@ public:
     QString value;
     QString type;
     QString expression;
-    QColor color;
+    QColor valueColor;
     bool expandable;
     QByteArray iname;
 };
@@ -219,7 +219,7 @@ ToolTipWatchItem::ToolTipWatchItem(WatchItem *item)
     value = item->displayValue();
     type = item->displayType();
     iname = item->d.iname;
-    color = item->color();
+    valueColor = item->valueColor();
     expandable = item->d.hasChildren;
     expression = item->expression();
     foreach (TreeItem *child, item->children())
@@ -303,7 +303,7 @@ QVariant ToolTipWatchItem::data(int column, int role) const
         case Qt::ForegroundRole:
             if (model() && static_cast<ToolTipModel *>(model())->m_enabled) {
                 if (column == 1)
-                    return color;
+                    return valueColor;
                 return QVariant();
             }
             return QColor(140, 140, 140);

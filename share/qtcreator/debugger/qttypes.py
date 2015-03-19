@@ -53,19 +53,25 @@ def qdump__QAtomicPointer(d, value):
            d.putSubItem("_q_value", q.dereference())
 
 def qform__QByteArray():
-    return "Inline,As Latin1 in Separate Window,As UTF-8 in Separate Window"
+    return "Latin1 String,Latin1 String in Separate Window,UTF-8 String,UTF-8 String in Separate Window"
 
 def qdump__QByteArray(d, value):
-    d.putByteArrayValue(value)
     data, size, alloc = d.byteArrayData(value)
     d.putNumChild(size)
+    elided, p = d.encodeByteArrayHelper(d.extractPointer(value), d.displayStringLimit)
     format = d.currentItemFormat()
-    if format == 1:
+    if format == 1 or format is None:
         d.putDisplay(StopDisplay)
+        d.putValue(p, Hex2EncodedLatin1, elided=elided)
     elif format == 2:
+        d.putValue(p, Hex2EncodedLatin1, elided=elided)
         d.putField("editformat", DisplayLatin1String)
         d.putField("editvalue", d.encodeByteArray(value, limit=100000))
     elif format == 3:
+        d.putDisplay(StopDisplay)
+        d.putValue(p, Hex2EncodedUtf8, elided=elided)
+    elif format == 4:
+        d.putValue(p, Hex2EncodedUtf8, elided=elided)
         d.putField("editformat", DisplayUtf8String)
         d.putField("editvalue", d.encodeByteArray(value, limit=100000))
     if d.isExpanded():

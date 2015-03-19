@@ -84,7 +84,7 @@ QmakeAndroidBuildApkWidget::QmakeAndroidBuildApkWidget(QmakeAndroidBuildApkStep 
     oldFilesWarningIcon->setVisible(oldFiles);
     oldFilesWarningLabel->setVisible(oldFiles);
 
-    m_extraLibraryListModel = new AndroidExtraLibraryListModel(static_cast<QmakeProject *>(m_step->project()), this);
+    m_extraLibraryListModel = new AndroidExtraLibraryListModel(m_step->target(), this);
     m_ui->androidExtraLibsListView->setModel(m_extraLibraryListModel);
 
     connect(m_ui->createAndroidTemplatesButton, SIGNAL(clicked()),

@@ -231,7 +231,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>No Changes to apply.</string>
+           <string>No changes to apply.</string>
           </property>
          </widget>
         </item>

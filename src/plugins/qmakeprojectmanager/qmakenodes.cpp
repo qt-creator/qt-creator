@@ -1527,13 +1527,13 @@ namespace {
     };
 }
 
-const QmakeProFileNode *QmakeProFileNode::findProFileFor(const FileName &fileName) const
+QmakeProFileNode *QmakeProFileNode::findProFileFor(const FileName &fileName) const
 {
     if (fileName == path())
-        return this;
+        return const_cast<QmakeProFileNode *>(this);
     foreach (ProjectNode *pn, subProjectNodes())
         if (QmakeProFileNode *qmakeProFileNode = dynamic_cast<QmakeProFileNode *>(pn))
-            if (const QmakeProFileNode *result = qmakeProFileNode->findProFileFor(fileName))
+            if (QmakeProFileNode *result = qmakeProFileNode->findProFileFor(fileName))
                 return result;
     return 0;
 }
@@ -2105,6 +2105,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
 
     QList<ProjectNode*> toAdd;
     QList<ProjectNode*> toRemove;
+    QList<QmakePriFileNode *> toUpdate;
 
     QList<ProjectNode*>::const_iterator existingIt = existingProjectNodes.constBegin();
     FileNameList::const_iterator newExactIt = result->newProjectFilesExact.constBegin();
@@ -2208,8 +2209,8 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
                     QmakePriFileNode *qmakePriFileNode = new QmakePriFileNode(m_project, this, nodeToAdd);
                     qmakePriFileNode->setParentFolderNode(this); // Needed for loop detection
                     qmakePriFileNode->setIncludedInExactParse(fileExact != 0 && includedInExactParse());
-                    qmakePriFileNode->update(result->priFileResults[nodeToAdd]);
                     toAdd << qmakePriFileNode;
+                    toUpdate << qmakePriFileNode;
                 } else {
                     QmakeProFileNode *qmakeProFileNode = new QmakeProFileNode(m_project, nodeToAdd);
                     qmakeProFileNode->setParentFolderNode(this); // Needed for loop detection
@@ -2234,6 +2235,9 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
         removeProjectNodes(toRemove);
     if (!toAdd.isEmpty())
         addProjectNodes(toAdd);
+
+    foreach (QmakePriFileNode *qmakePriFileNode, toUpdate)
+        qmakePriFileNode->update(result->priFileResults[qmakePriFileNode->path()]);
 
     QmakePriFileNode::update(result->priFileResults[m_projectFilePath]);
 
@@ -2379,7 +2383,7 @@ FileNameList QmakeProFileNode::subDirsPaths(QtSupport::ProFileReader *reader,
             }
         } else {
             if (errors)
-                errors->append(QCoreApplication::translate("QmakeProFileNode", "Could not find .pro file for sub dir \"%1\" in \"%2\"")
+                errors->append(QCoreApplication::translate("QmakeProFileNode", "Could not find .pro file for subdirectory \"%1\" in \"%2\".")
                                .arg(subDirVar).arg(realDir));
         }
     }

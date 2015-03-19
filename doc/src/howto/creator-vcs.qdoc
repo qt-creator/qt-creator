@@ -524,7 +524,9 @@
 
     To stash all local changes, select \uicontrol Tools > \uicontrol Git >
     \uicontrol {Local Repository} > \uicontrol Stash > \uicontrol Stash. The working copy is reset
-    to the state it had after the last commit.
+    to the state it had after the last commit. To save the current state of your
+    unstaged files and reset the repository to its staged state, select
+    \uicontrol {Stash Unstaged Files}.
 
     To display a dialog that shows all known stashes with options to restore,
     display or delete them, select \uicontrol Stashes.

@@ -51,7 +51,6 @@ namespace {
 }
 
 static const char kKeyboardSettingsKey[] = "KeyboardShortcuts";
-static const char kKeyboardSettingsTransferredKey[] = "OldSettingsTransferred";
 
 using namespace Core;
 using namespace Core::Internal;
@@ -327,6 +326,7 @@ void ActionManager::unregisterAction(QAction *action, Id id)
     a->removeOverrideAction(action);
     if (a->isEmpty()) {
         // clean up
+        d->saveSettings(a);
         ICore::mainWindow()->removeAction(a->action());
         // ActionContainers listen to the commands' destroyed signals
         delete a->action();
@@ -364,15 +364,9 @@ bool ActionManager::isPresentationModeEnabled()
     return d->m_presentationModeEnabled;
 }
 
-void ActionManager::initialize(QObject *parent)
+void ActionManager::saveSettings()
 {
-    new ActionManager(parent);
-    d->initialize();
-}
-
-void ActionManager::saveSettings(QSettings *settings)
-{
-    d->saveSettings(settings);
+    d->saveSettings();
 }
 
 void ActionManager::setContext(const Context &context)
@@ -488,56 +482,21 @@ void ActionManagerPrivate::readUserSettings(Id id, Action *cmd)
     settings->endGroup();
 }
 
-static const char oldSettingsGroup[] = "KeyBindings";
-static const char oldIdKey[] = "ID";
-static const char oldSequenceKey[] = "Keysequence";
-
-void ActionManagerPrivate::initialize()
+void ActionManagerPrivate::saveSettings(Action *cmd)
 {
-    // TODO remove me after some period after 3.1
-    // TODO also remove the old settings after some period after 3.1
-    // settings->remove(QLatin1String(oldSettingsGroup));
-    // settings->contains(QLatin1String(kKeyboardSettingsKey) + QLatin1Char('/')
-    //                    + QLatin1String(kKeyboardSettingsTransferredKey))
-    // check if settings in old style (pre 3.1) exist
-    QSettings *settings = ICore::settings();
-    if (settings->contains(QLatin1String(kKeyboardSettingsKey) + QLatin1Char('/')
-                           + QLatin1String(kKeyboardSettingsTransferredKey))) {
-        return;
-    }
-    // move old settings style to new settings style
-    QMap<Id, QKeySequence> shortcutMap;
-    const int shortcuts = settings->beginReadArray(QLatin1String(oldSettingsGroup));
-    for (int i = 0; i < shortcuts; ++i) {
-        settings->setArrayIndex(i);
-        const QKeySequence key(settings->value(QLatin1String(oldSequenceKey)).toString());
-        const Id id = Id::fromSetting(settings->value(QLatin1String(oldIdKey)));
-        shortcutMap.insert(id, key);
-    }
-    settings->endArray();
-    // write settings in new style
-    settings->beginGroup(QLatin1String(kKeyboardSettingsKey));
-    settings->setValue(QLatin1String(kKeyboardSettingsTransferredKey), true);
-    QMapIterator<Id, QKeySequence> it(shortcutMap);
-    while (it.hasNext()) {
-        it.next();
-        settings->setValue(it.key().toString(), it.value().toString());
-    }
-    settings->endGroup();
+    const QString settingsKey = QLatin1String(kKeyboardSettingsKey) + QLatin1Char('/')
+            + cmd->id().toString();
+    QKeySequence key = cmd->keySequence();
+    if (key != cmd->defaultKeySequence())
+        ICore::settings()->setValue(settingsKey, key.toString());
+    else
+        ICore::settings()->remove(settingsKey);
 }
 
-void ActionManagerPrivate::saveSettings(QSettings *settings)
+void ActionManagerPrivate::saveSettings()
 {
-    settings->beginGroup(QLatin1String(kKeyboardSettingsKey));
     const IdCmdMap::const_iterator cmdcend = m_idCmdMap.constEnd();
     for (IdCmdMap::const_iterator j = m_idCmdMap.constBegin(); j != cmdcend; ++j) {
-        const Id id = j.key();
-        Action *cmd = j.value();
-        QKeySequence key = cmd->keySequence();
-        if (key != cmd->defaultKeySequence())
-            settings->setValue(id.toString(), key.toString());
-        else
-            settings->remove(id.toString());
+        saveSettings(j.value());
     }
-    settings->endGroup();
 }

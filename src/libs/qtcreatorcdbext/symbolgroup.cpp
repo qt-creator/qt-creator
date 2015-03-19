@@ -785,8 +785,10 @@ bool WatchesSymbolGroup::addWatch(CIDebugSymbols *s, std::string iname, const st
     if (isWatchIname(iname))
         iname.erase(0, std::strlen(WatchesSymbolGroup::watchInamePrefix) + 1);
     // Already in?
-    if (root()->childByIName(iname.c_str()))
-        return true;
+    if (AbstractSymbolGroupNode *watcherNode = root()->childByIName(iname.c_str())) {
+        if (!removeSymbol(watcherNode, errorMessage))
+            return false;
+    }
     // Resolve the expressions, but still display the original name obtained to
     // avoid cycles re-adding symbols
     SymbolGroupNode *node = addSymbol(std::string(), fixWatchExpression(s, expression),

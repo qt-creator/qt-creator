@@ -48,6 +48,8 @@ class QTCREATOR_UTILS_EXPORT BaseTreeView : public TreeView
     Q_OBJECT
 
 public:
+    enum { ExtraIndicesForColumnWidth = 12734 };
+
     BaseTreeView(QWidget *parent = 0);
     ~BaseTreeView();
 

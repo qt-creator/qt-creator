@@ -427,7 +427,7 @@ void FlatModel::recursiveAddFileNodes(FolderNode *startNode, QList<Node *> *list
 
 QList<Node*> FlatModel::childNodes(FolderNode *parentNode, const QSet<Node*> &blackList) const
 {
-    qCDebug(logger()) << "FlatModel::childNodes for " << parentNode->displayName();
+    qCDebug(logger()) << "    FlatModel::childNodes for " << parentNode->path();
     QList<Node*> nodeList;
 
     if (parentNode->nodeType() == SessionNodeType) {
@@ -442,7 +442,7 @@ QList<Node*> FlatModel::childNodes(FolderNode *parentNode, const QSet<Node*> &bl
         recursiveAddFileNodes(parentNode, &nodeList, blackList + nodeList.toSet());
     }
     Utils::sort(nodeList, sortNodes);
-    qCDebug(logger()) << "  found" << nodeList.size() << "nodes";
+    qCDebug(logger()) << "      found" << nodeList.size() << "nodes";
     return nodeList;
 }
 
@@ -617,6 +617,12 @@ void FlatModel::added(FolderNode* parentNode, const QList<Node*> &newNodeList)
     qCDebug(logger()) << "FlatModel::added" << parentNode->path() << newNodeList.size() << "nodes";
     QModelIndex parentIndex = indexForNode(parentNode);
     // Old  list
+
+    if (newNodeList.isEmpty()) {
+        qCDebug(logger()) << "  newNodeList empty";
+        return;
+    }
+
     QHash<FolderNode*, QList<Node*> >::const_iterator it = m_childNodes.constFind(parentNode);
     if (it == m_childNodes.constEnd()) {
         if (!parentIndex.isValid()) {

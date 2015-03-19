@@ -55,6 +55,7 @@
 #include <QTabWidget>
 #include <QTextEdit>
 
+#include <QTimer>
 #include <cstring>
 #include <ctype.h>
 
@@ -69,6 +70,7 @@ enum { debugModel = 0 };
 #define MODEL_DEBUG(s) do { if (debugModel) qDebug() << s; } while (0)
 
 static QHash<QByteArray, int> theWatcherNames;
+static int theWatcherCount = 0;
 static QHash<QByteArray, int> theTypeFormats;
 static QHash<QByteArray, int> theIndividualFormats;
 static int theUnprintableBase = -1;
@@ -199,6 +201,7 @@ public:
     static QString nameForFormat(int format);
     TypeFormatList typeFormatList(const WatchData &value) const;
 
+    QVariant data(const QModelIndex &idx, int role) const;
     bool setData(const QModelIndex &idx, const QVariant &value, int role);
 
     void insertDataItem(const WatchData &data);
@@ -226,6 +229,7 @@ public:
     WatchItem *m_tooltipRoot; // Not owned.
 
     QSet<QByteArray> m_expandedINames;
+    QTimer m_requestUpdateTimer;
 
     TypeFormatList builtinTypeFormatList(const WatchData &data) const;
     QStringList dumperTypeFormatList(const WatchData &data) const;
@@ -254,6 +258,10 @@ WatchModel::WatchModel(WatchHandler *handler)
     root->appendChild(m_returnRoot = new WatchItem("return", tr("Return Value")));
     root->appendChild(m_tooltipRoot = new WatchItem("tooltip", tr("Tooltip")));
     setRootItem(root);
+
+    m_requestUpdateTimer.setSingleShot(true);
+    connect(&m_requestUpdateTimer, &QTimer::timeout,
+        this, &WatchModel::updateStarted);
 
     connect(action(SortStructMembers), &SavedAction::valueChanged,
         this, &WatchModel::reinsertAllData);
@@ -720,7 +728,7 @@ QString WatchItem::displayType() const
     return result;
 }
 
-QColor WatchItem::color() const
+QColor WatchItem::valueColor() const
 {
     static const QColor red(200, 0, 0);
     static const QColor gray(140, 140, 140);
@@ -782,7 +790,7 @@ QVariant WatchItem::data(int column, int role) const
 
         case Qt::ForegroundRole:
             if (column == 1)
-                return color();
+                return valueColor();
 
         case LocalsExpressionRole:
             return expression();
@@ -843,6 +851,19 @@ QVariant WatchItem::data(int column, int role) const
     return QVariant();
 }
 
+QVariant WatchModel::data(const QModelIndex &idx, int role) const
+{
+    if (role == BaseTreeView::ExtraIndicesForColumnWidth) {
+        QModelIndexList l;
+        foreach (TreeItem *item, m_watchRoot->children())
+            l.append(indexFromItem(item));
+        foreach (TreeItem *item, m_returnRoot->children())
+            l.append(indexFromItem(item));
+        return QVariant::fromValue(l);
+    }
+    return WatchModelBase::data(idx, role);
+}
+
 bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role)
 {
     if (!idx.isValid())
@@ -856,22 +877,7 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
         case Qt::EditRole:
             switch (idx.column()) {
             case 0: {
-                QByteArray exp = value.toByteArray();
-                if (!exp.isEmpty()) {
-                    theWatcherNames.remove(item->d.exp);
-                    item->d.exp = exp;
-                    item->d.name = QString::fromLatin1(exp);
-                    theWatcherNames[exp] = m_handler->m_watcherCounter++;
-                    m_handler->saveWatchers();
-                    if (engine()->state() == DebuggerNotReady) {
-                        item->d.setAllUnneeded();
-                        item->d.setValue(QString(QLatin1Char(' ')));
-                        item->d.setHasChildren(false);
-                    } else {
-                        engine()->updateWatchData(item->d);
-                    }
-                }
-                m_handler->updateWatchersWindow();
+                m_handler->watchExpression(value.toString());
                 break;
             }
             case 1: // Change value
@@ -915,8 +921,9 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
 Qt::ItemFlags WatchItem::flags(int column) const
 {
     QTC_ASSERT(model(), return Qt::ItemFlags());
-    if (!watchModel()->contentIsValid() && !d.isInspect())
-        return Qt::ItemFlags();
+    DebuggerEngine *engine = watchModel()->engine();
+    QTC_ASSERT(engine, return Qt::ItemFlags());
+    const DebuggerState state = engine->state();
 
     // Enabled, editable, selectable, checkable, and can be used both as the
     // source of a drag and drop operation and as a drop target.
@@ -924,14 +931,12 @@ Qt::ItemFlags WatchItem::flags(int column) const
     const Qt::ItemFlags notEditable = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     const Qt::ItemFlags editable = notEditable | Qt::ItemIsEditable;
 
-    // Disable editing if debuggee is positively running except for Inspector data
-    DebuggerEngine *engine = watchModel()->engine();
-    const bool isRunning = engine && engine->state() == InferiorRunOk;
-    if (isRunning && engine && !engine->hasCapability(AddWatcherWhileRunningCapability) &&
-            !d.isInspect())
-        return notEditable;
-
     if (d.isWatcher()) {
+        if (state != InferiorStopOk
+                && state != DebuggerNotReady
+                && state != DebuggerFinished
+                && !engine->hasCapability(AddWatcherWhileRunningCapability))
+            return Qt::ItemFlags();
         if (column == 0 && d.iname.count('.') == 1)
             return editable; // Watcher names are editable.
 
@@ -943,6 +948,8 @@ Qt::ItemFlags WatchItem::flags(int column) const
                 return editable; // Watcher values are sometimes editable.
         }
     } else if (d.isLocal()) {
+        if (state != InferiorStopOk && !engine->hasCapability(AddWatcherWhileRunningCapability))
+           return Qt::ItemFlags();
         if (column == 1 && d.valueEditable)
             return editable; // Locals values are sometimes editable.
     } else if (d.isInspect()) {
@@ -1154,7 +1161,6 @@ void WatchModel::setCurrentItem(const QByteArray &iname)
 WatchHandler::WatchHandler(DebuggerEngine *engine)
 {
     m_engine = engine;
-    m_watcherCounter = sessionValue("Watchers").toStringList().count();
     m_model = new WatchModel(this);
     m_contentsValid = false;
     m_contentsValid = true; // FIXME
@@ -1176,7 +1182,9 @@ void WatchHandler::cleanup()
 {
     m_model->m_expandedINames.clear();
     theWatcherNames.remove(QByteArray());
+    saveWatchers();
     m_model->reinitialize();
+    emit m_model->updateFinished();
     m_separatedView->hide();
 }
 
@@ -1243,16 +1251,12 @@ void WatchModel::reexpandItems()
 void WatchHandler::insertData(const WatchData &data)
 {
     m_model->insertDataItem(data);
-    m_contentsValid = true;
-    updateWatchersWindow();
 }
 
 void WatchHandler::insertDataList(const QList<WatchData> &list)
 {
     for (int i = 0, n = list.size(); i != n; ++i)
         m_model->insertDataItem(list.at(i));
-    m_contentsValid = true;
-    updateWatchersWindow();
 }
 
 void WatchHandler::removeAllData(bool includeInspectData)
@@ -1269,6 +1273,26 @@ void WatchHandler::resetValueCache()
         auto watchItem = static_cast<WatchItem *>(item);
         m_model->m_valueCache[watchItem->d.iname] = watchItem->d.value;
     });
+}
+
+void WatchHandler::resetWatchers()
+{
+    loadSessionData();
+}
+
+void WatchHandler::notifyUpdateStarted()
+{
+    m_model->m_requestUpdateTimer.start(80);
+    m_contentsValid = false;
+    updateWatchersWindow();
+}
+
+void WatchHandler::notifyUpdateFinished()
+{
+    m_contentsValid = true;
+    updateWatchersWindow();
+    m_model->m_requestUpdateTimer.stop();
+    emit m_model->updateFinished();
 }
 
 void WatchHandler::purgeOutdatedItems(const QSet<QByteArray> &inames)
@@ -1305,25 +1329,19 @@ QByteArray WatchHandler::watcherName(const QByteArray &exp)
 
 void WatchHandler::watchExpression(const QString &exp0, const QString &name)
 {
-    QString exp = exp0;
-
-    QTC_ASSERT(m_engine, return);
     // Do not insert the same entry more then once.
-    if (theWatcherNames.value(exp.toLatin1()))
+    QByteArray exp = exp0.toLatin1();
+    if (exp.isEmpty() || theWatcherNames.contains(exp))
         return;
 
-    // FIXME: 'exp' can contain illegal characters
-    exp.replace(QLatin1Char('#'), QString());
+    theWatcherNames[exp] = theWatcherCount++;
 
     WatchData data;
-    data.exp = exp.toLatin1();
-    data.name = name.isEmpty() ? exp : name;
-    theWatcherNames[data.exp] = m_watcherCounter++;
+    data.exp = exp;
+    data.name = name.isEmpty() ? exp0 : name;
+    data.iname = watcherName(exp);
     saveWatchers();
 
-    if (exp.isEmpty())
-        data.setAllUnneeded();
-    data.iname = watcherName(data.exp);
     if (m_engine->state() == DebuggerNotReady) {
         data.setAllUnneeded();
         data.setValue(QString(QLatin1Char(' ')));
@@ -1443,7 +1461,7 @@ void WatchHandler::clearWatches()
 
     m_model->m_watchRoot->removeChildren();
     theWatcherNames.clear();
-    m_watcherCounter = 0;
+    theWatcherCount = 0;
     updateWatchersWindow();
     saveWatchers();
 }
@@ -1453,14 +1471,8 @@ void WatchHandler::updateWatchersWindow()
     emit m_model->columnAdjustmentRequested();
 
     // Force show/hide of watchers and return view.
-    static int previousShowWatch = -1;
-    static int previousShowReturn = -1;
-    int showWatch = !m_model->m_watchRoot->children().isEmpty();
+    int showWatch = !theWatcherNames.isEmpty();
     int showReturn = !m_model->m_returnRoot->children().isEmpty();
-    if (showWatch == previousShowWatch && showReturn == previousShowReturn)
-        return;
-    previousShowWatch = showWatch;
-    previousShowReturn = showReturn;
     Internal::updateWatchersWindow(showWatch, showReturn);
 }
 
@@ -1539,7 +1551,7 @@ void WatchHandler::loadSessionData()
 {
     loadFormats();
     theWatcherNames.clear();
-    m_watcherCounter = 0;
+    theWatcherCount = 0;
     QVariant value = sessionValue("Watchers");
     m_model->m_watchRoot->removeChildren();
     foreach (const QString &exp, value.toStringList())
@@ -1746,7 +1758,6 @@ void WatchHandler::editTypeFormats(bool includeLocals, const QByteArray &iname)
 void WatchHandler::scheduleResetLocation()
 {
     m_contentsValid = false;
-    //m_contentsValid = true; // FIXME
     m_resetLocationScheduled = true;
 }
 
