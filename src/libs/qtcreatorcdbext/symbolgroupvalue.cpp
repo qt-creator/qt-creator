@@ -1731,7 +1731,8 @@ static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str,
     char *memory;
     unsigned fullSize;
     unsigned size;
-    if (!readQt5StringData(dV, qtInfo, false, 0, 10240, &fullSize, &size, &memory))
+    const unsigned &maxStringSize = ExtensionContext::instance().parameters().maxStringLength;
+    if (!readQt5StringData(dV, qtInfo, false, 0, maxStringSize, &fullSize, &size, &memory))
         return false;
     if (size) {
         // Emulate CDB's behavior of replacing unprintable characters
