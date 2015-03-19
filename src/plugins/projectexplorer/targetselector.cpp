@@ -41,6 +41,7 @@
 
 static const int TARGET_HEIGHT = 43;
 static const int NAVBUTTON_WIDTH = 27;
+static const int KITNAME_MARGINS = 6;
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -86,7 +87,8 @@ TargetSelector::TargetSelector(QWidget *parent) :
     m_currentTargetIndex(-1),
     m_currentHoveredTargetIndex(-1),
     m_startIndex(0),
-    m_menuShown(false)
+    m_menuShown(false),
+    m_targetWidthNeedsUpdate(true)
 {
     QFont f = font();
     f.setPixelSize(10);
@@ -129,6 +131,7 @@ void TargetSelector::insertTarget(int index, int subIndex, const QString &name)
 
     if (m_currentTargetIndex >= index)
         setCurrentIndex(m_currentTargetIndex + 1);
+    m_targetWidthNeedsUpdate = true;
     updateGeometry();
     update();
 }
@@ -136,6 +139,8 @@ void TargetSelector::insertTarget(int index, int subIndex, const QString &name)
 void TargetSelector::renameTarget(int index, const QString &name)
 {
     m_targets[index].name = name;
+    m_targetWidthNeedsUpdate = true;
+    updateGeometry();
     update();
 }
 
@@ -150,6 +155,7 @@ void TargetSelector::removeTarget(int index)
         // force a signal since the index has changed
         emit currentChanged(m_currentTargetIndex, m_targets.at(m_currentTargetIndex).currentSubIndex);
     }
+    m_targetWidthNeedsUpdate = true;
     updateGeometry();
     update();
 }
@@ -212,10 +218,16 @@ void TargetSelector::setTargetMenu(QMenu *menu)
 int TargetSelector::targetWidth() const
 {
     static int width = -1;
-    if (width < 0) {
+    if (width < 0 || m_targetWidthNeedsUpdate) {
+        m_targetWidthNeedsUpdate = false;
         QFontMetrics fm = fontMetrics();
-        width = qMax(fm.width(runButtonString()), fm.width(buildButtonString()));
-        width = qMax(149, width * 2 + 31);
+        width = 149; // minimum
+        // let it grow for the kit names ...
+        foreach (const Target &target, m_targets)
+            width = qMax(width, fm.width(target.name) + KITNAME_MARGINS + 2/*safety measure*/);
+        width = qMin(width, 299); // ... but not too much
+        int buttonWidth = qMax(fm.width(runButtonString()), fm.width(buildButtonString()));
+        width = qMax(width, buttonWidth * 2 + 31); // run & build button strings must be fully visible
     }
     return width;
 }
@@ -416,7 +428,7 @@ void TargetSelector::paintEvent(QPaintEvent *event)
         QRect buttonRect(x, 1, targetWidth() , image.height());
         Utils::StyleHelper::drawCornerImage(image, &p, buttonRect, 16, 0, 16, 0);
         const QString nameText = QFontMetrics(font()).elidedText(target.name, Qt::ElideRight,
-                                                                 targetWidth() - 6);
+                                                                 targetWidth() - KITNAME_MARGINS);
         p.drawText(x + (targetWidth()- fm.width(nameText))/2 + 1, 7 + fm.ascent(),
             nameText);
 

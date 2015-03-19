@@ -116,6 +116,7 @@ private:
     int m_currentHoveredTargetIndex;
     int m_startIndex;
     bool m_menuShown;
+    mutable bool m_targetWidthNeedsUpdate;
 };
 
 } // namespace Internal
