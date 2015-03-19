@@ -2220,8 +2220,10 @@ static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str)
             ValidTime = 0x08,
             ValidDateTime = 0x10
         };
-        if (!(status & ValidDateTime || ((status & ValidDate) && (status & ValidTime))))
+        if (!(status & ValidDateTime || ((status & ValidDate) && (status & ValidTime)))) {
+            str << L"(invalid)";
             return true;
+        }
 
         str << msecs << separator
             << spec << separator

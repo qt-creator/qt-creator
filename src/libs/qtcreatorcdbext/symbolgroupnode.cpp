@@ -1155,6 +1155,8 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
         encoding = DumpEncodingMillisecondsSinceMidnight;
         break;
     case KT_QDateTime:
+        if (!value.compare(L"(invalid)"))
+            break;
         encoding = QtInfo::get(ctx).version < 5
                 ? DumpEncodingJulianDateAndMillisecondsSinceMidnight
                 : DumpEncodingMillisecondsSinceEpoch;
