@@ -49,6 +49,7 @@
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/theme/theme.h>
 
 #include <QDebug>
 #include <QFile>
@@ -712,19 +713,19 @@ QString WatchItem::displayType() const
 
 QColor WatchItem::valueColor() const
 {
-    static const QColor red(200, 0, 0);
-    static const QColor gray(140, 140, 140);
+    using Utils::Theme;
+    Theme *theme = Utils::creatorTheme();
     if (watchModel()) {
         if (!valueEnabled)
-            return gray;
+            return theme->color(Theme::Debugger_WatchItem_ValueInvalid);
         if (!watchModel()->m_contentsValid && !isInspect())
-            return gray;
+            return theme->color(Theme::Debugger_WatchItem_ValueInvalid);
         if (value.isEmpty()) // This might still show 0x...
-            return gray;
+            return theme->color(Theme::Debugger_WatchItem_ValueInvalid);
         if (value != watchModel()->m_valueCache.value(iname))
-            return red;
+            return theme->color(Theme::Debugger_WatchItem_ValueChanged);
     }
-    return QColor();
+    return theme->color(Theme::Debugger_WatchItem_ValueNormal);
 }
 
 QVariant WatchItem::data(int column, int role) const
