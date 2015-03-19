@@ -799,7 +799,9 @@ public:
 
 struct TempStuff
 {
-    TempStuff() : buildTemp(QLatin1String("qt_tst_dumpers_"))
+    TempStuff(const char *tag) : buildTemp(QLatin1String("qt_tst_dumpers_")
+                                           + QLatin1String(tag)
+                                           + QLatin1Char('_'))
     {
         buildPath = QDir::currentPath() + QLatin1Char('/')  + buildTemp.path();
         buildTemp.setAutoRemove(false);
@@ -971,7 +973,7 @@ void tst_Dumpers::initTestCase()
 
 void tst_Dumpers::init()
 {
-    t = new TempStuff();
+    t = new TempStuff(QTest::currentDataTag());
 }
 
 void tst_Dumpers::cleanup()
