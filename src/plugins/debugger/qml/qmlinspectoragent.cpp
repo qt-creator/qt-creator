@@ -784,33 +784,28 @@ void QmlInspectorAgent::addWatchData(const ObjectReference &obj,
 
     // properties
     if (append && obj.properties().count()) {
-        WatchData propertiesWatch;
-        propertiesWatch.id = objDebugId;
-        propertiesWatch.exp = "";
-        propertiesWatch.name = tr("Properties");
-        propertiesWatch.iname = objIname + ".[properties]";
-        propertiesWatch.type = "";
-        propertiesWatch.value = _("list");
-        propertiesWatch.setHasChildren(true);
-        propertiesWatch.setAllUnneeded();
-
-        m_debuggerEngine->watchHandler()->insertData(propertiesWatch);
+        QByteArray iname = objIname + ".[properties]";
+        auto propertiesWatch = new WatchItem(iname, tr("Properties"));
+        propertiesWatch->d.id = objDebugId;
+        propertiesWatch->d.value = _("list");
+        propertiesWatch->d.setHasChildren(true);
+        propertiesWatch->d.setAllUnneeded();
 
         foreach (const PropertyReference &property, obj.properties()) {
             const QString propertyName = property.name();
             if (propertyName.isEmpty())
                 continue;
-            WatchData propertyWatch;
-            propertyWatch.id = objDebugId;
-            propertyWatch.exp = propertyName.toLatin1();
-            propertyWatch.name = propertyName;
-            propertyWatch.iname = buildIName(propertiesWatch.iname, propertyName);
-            propertyWatch.type = property.valueTypeName().toLatin1();
-            propertyWatch.value = property.value().toString();
-            propertyWatch.setAllUnneeded();
-            propertyWatch.setHasChildren(false);
-            m_debuggerEngine->watchHandler()->insertData(propertyWatch);
+            auto propertyWatch = new WatchItem(buildIName(iname, propertyName), propertyName);
+            propertyWatch->d.id = objDebugId;
+            propertyWatch->d.exp = propertyName.toLatin1();
+            propertyWatch->d.type = property.valueTypeName().toLatin1();
+            propertyWatch->d.value = property.value().toString();
+            propertyWatch->d.setAllUnneeded();
+            propertyWatch->d.setHasChildren(false);
+            propertiesWatch->appendChild(propertyWatch);
         }
+
+        m_debuggerEngine->watchHandler()->insertItem(propertiesWatch);
     }
 
     // recurse
