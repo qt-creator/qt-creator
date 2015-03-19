@@ -1257,8 +1257,11 @@ void tst_Dumpers::dumper()
              << QLatin1String("-c")
              << QLatin1String("g")
              << QLatin1String("debug\\doit.exe");
+        cmds = "!qtcreatorcdbext.setparameter maxStringLength=100";
         if (data.bigArray)
-            cmds = "!qtcreatorcdbext.setparameter maxArraySize=10000\n";
+            cmds += " maxArraySize=10000";
+        cmds += "\n";
+
         cmds += "!qtcreatorcdbext.locals -t -D -e " + expanded + " -v -c 0\n"
                 "q\n";
     } else if (m_debuggerEngine == LldbEngine) {
@@ -1544,8 +1547,10 @@ void tst_Dumpers::dumper_data()
                + Check("ba1.13", "[13]", "2", "char")
 
                + CheckType("ba2", "@QByteArray")
-               + Check("s", '"' + QByteArray(100, 'x') + '"', "@QString")
-               + Check("ss", '"' + QByteArray(100, 'c') + '"', "std::string")
+               + Check("s", '"' + QByteArray(100, 'x') + '"', "@QString") % NoCdbEngine
+               + Check("s", '"' + QByteArray(100, 'x') + "..." + '"', "@QString") % CdbEngine
+               + Check("ss", '"' + QByteArray(100, 'c') + '"', "std::string") % NoCdbEngine
+               + Check("ss", '"' + QByteArray(100, 'c') + "..." + '"', "std::string") % CdbEngine
 
                + Check("buf1", "\"" + QByteArray(1, (char)0xee) + "\"", "@QByteArray")
                + Check("buf2", "\"" + QByteArray(1, (char)0xee) + "\"", "@QByteArray")
