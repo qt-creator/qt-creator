@@ -3732,19 +3732,6 @@ void GdbEngine::updateWatchItem(WatchItem *item)
     updateLocalsPython(params);
 }
 
-void GdbEngine::rebuildWatchModel()
-{
-    static int count = 0;
-    ++count;
-    PENDING_DEBUG("REBUILDING MODEL" << count);
-    if (boolSetting(LogTimeStamps))
-        showMessage(LogWindow::logTimeStamp(), LogMiscInput);
-    showMessage(_("<Rebuild Watchmodel %1>").arg(count), LogMiscInput);
-    showStatusMessage(tr("Finished retrieving data"), 400);
-
-    DebuggerToolTipManager::updateEngine(this);
-}
-
 void GdbEngine::handleVarAssign(const DebuggerResponse &)
 {
     // Everything might have changed, force re-evaluation.
@@ -4711,7 +4698,6 @@ void addGdbOptionPages(QList<IOptionsPage *> *opts)
 
 void GdbEngine::updateLocalsPython(const UpdateParameters &params)
 {
-    //m_pendingWatchRequests = 0;
     m_pendingBreakpointRequests = 0;
 
     DebuggerCommand cmd("showData");
@@ -4820,17 +4806,16 @@ void GdbEngine::handleStackFramePython(const DebuggerResponse &response, bool pa
 
         handler->purgeOutdatedItems(toDelete);
 
-        //PENDING_DEBUG("AFTER handleStackFrame()");
-        // FIXME: This should only be used when updateLocals() was
-        // triggered by expanding an item in the view.
-        //if (m_pendingWatchRequests <= 0) {
-            //PENDING_DEBUG("\n\n ....  AND TRIGGERS MODEL UPDATE\n");
-            rebuildWatchModel();
-        //}
-        if (!partial) {
+        static int count = 0;
+        showMessage(_("<Rebuild Watchmodel %1 @ %2 >")
+            .arg(++count).arg(LogWindow::logTimeStamp()), LogMiscInput);
+        showStatusMessage(tr("Finished retrieving data"), 400);
+
+        DebuggerToolTipManager::updateEngine(this);
+
+        if (!partial)
             emit stackFrameCompleted();
-            DebuggerToolTipManager::updateEngine(this);
-        }
+
     } else {
         showMessage(_("DUMPER FAILED: " + response.toString()));
     }

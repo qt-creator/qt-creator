@@ -397,7 +397,6 @@ protected:
     virtual void watchPoint(const QPoint &);
     void handleWatchPoint(const DebuggerResponse &response);
 
-    void rebuildWatchModel();
     void updateWatchItem(WatchItem *item);
     void showToolTip();
 
