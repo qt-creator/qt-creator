@@ -494,8 +494,9 @@ void OutputPaneManager::showPage(int idx, int flags)
         ensurePageVisible(idx);
         IOutputPane *out = m_panes.at(idx);
         out->visibilityChanged(true);
-        if (flags & IOutputPane::WithFocus && out->canFocus()) {
-            out->setFocus();
+        if (flags & IOutputPane::WithFocus) {
+            if (out->canFocus())
+                out->setFocus();
             ICore::raiseWindow(m_outputWidgetPane);
         }
 
