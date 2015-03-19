@@ -73,6 +73,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     outputLayout->addWidget(m_summaryWidget);
 
     m_listView = new Utils::ListView(m_outputWidget);
+    m_listView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     m_model = new TestResultModel(this);
     m_filterModel = new TestResultFilterModel(m_model, this);
     m_filterModel->setDynamicSortFilter(true);
