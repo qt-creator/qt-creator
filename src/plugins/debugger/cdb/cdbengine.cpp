@@ -480,12 +480,12 @@ bool CdbEngine::startConsole(const DebuggerStartParameters &sp, QString *errorMe
         qDebug("startConsole %s", qPrintable(sp.executable));
     m_consoleStub.reset(new ConsoleProcess);
     m_consoleStub->setMode(ConsoleProcess::Suspend);
-    connect(m_consoleStub.data(), SIGNAL(processError(QString)),
-            SLOT(consoleStubError(QString)));
-    connect(m_consoleStub.data(), SIGNAL(processStarted()),
-            SLOT(consoleStubProcessStarted()));
-    connect(m_consoleStub.data(), SIGNAL(stubStopped()),
-            SLOT(consoleStubExited()));
+    connect(m_consoleStub.data(), &ConsoleProcess::processError,
+            this, &CdbEngine::consoleStubError);
+    connect(m_consoleStub.data(), &ConsoleProcess::processStarted,
+            this, &CdbEngine::consoleStubProcessStarted);
+    connect(m_consoleStub.data(), &ConsoleProcess::stubStopped,
+            this, &CdbEngine::consoleStubExited);
     m_consoleStub->setWorkingDirectory(sp.workingDirectory);
     if (sp.environment.size())
         m_consoleStub->setEnvironment(sp.environment);
@@ -1166,8 +1166,8 @@ void CdbEngine::doInterruptInferior(SpecialStopMode sm)
     m_signalOperation = startParameters().device->signalOperation();
     m_specialStopMode = sm;
     QTC_ASSERT(m_signalOperation, notifyInferiorStopFailed(); return;);
-    connect(m_signalOperation.data(), SIGNAL(finished(QString)),
-            SLOT(handleDoInterruptInferior(QString)));
+    connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
+            this, &CdbEngine::handleDoInterruptInferior);
 
     m_signalOperation->setDebuggerCommand(startParameters().debuggerCommand);
     m_signalOperation->interruptProcess(inferiorPid());
