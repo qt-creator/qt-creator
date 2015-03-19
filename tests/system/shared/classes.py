@@ -32,22 +32,24 @@ import operator
 
 # for easier re-usage (because Python hasn't an enum type)
 class Targets:
-    DESKTOP_474_GCC = 1
-    DESKTOP_480_DEFAULT = 2
-    SIMULATOR = 4
-    MAEMO5 = 8
-    HARMATTAN = 16
-    EMBEDDED_LINUX = 32
-    DESKTOP_521_DEFAULT = 64
-    DESKTOP_531_DEFAULT = 128
-    DESKTOP_541_GCC = 256
+    ALL_TARGETS = map(lambda x: 2 ** x , range(9))
+
+    (DESKTOP_474_GCC,
+     DESKTOP_480_DEFAULT,
+     SIMULATOR,
+     MAEMO5,
+     HARMATTAN,
+     EMBEDDED_LINUX,
+     DESKTOP_521_DEFAULT,
+     DESKTOP_531_DEFAULT,
+     DESKTOP_541_GCC) = ALL_TARGETS
 
     @staticmethod
     def desktopTargetClasses():
-        desktopTargets = (Targets.DESKTOP_474_GCC | Targets.DESKTOP_480_DEFAULT
-                          | Targets.DESKTOP_521_DEFAULT | Targets.DESKTOP_531_DEFAULT)
-        if platform.system() != 'Darwin':
-            desktopTargets |= Targets.DESKTOP_541_GCC
+        desktopTargets = (sum(Targets.ALL_TARGETS) & ~Targets.SIMULATOR & ~Targets.MAEMO5
+                          & ~Targets.HARMATTAN & ~Targets.EMBEDDED_LINUX)
+        if platform.system() == 'Darwin':
+            desktopTargets &= ~Targets.DESKTOP_541_GCC
         return desktopTargets
 
     @staticmethod
@@ -88,10 +90,7 @@ class Targets:
 
     @staticmethod
     def intToArray(targets):
-        available = [Targets.DESKTOP_474_GCC, Targets.DESKTOP_480_DEFAULT, Targets.SIMULATOR,
-                     Targets.MAEMO5, Targets.HARMATTAN, Targets.EMBEDDED_LINUX,
-                     Targets.DESKTOP_521_DEFAULT, Targets.DESKTOP_531_DEFAULT, Targets.DESKTOP_541_GCC]
-        return filter(lambda x: x & targets == x, available)
+        return filter(lambda x: x & targets, Targets.ALL_TARGETS)
 
     @staticmethod
     def arrayToInt(targetArr):

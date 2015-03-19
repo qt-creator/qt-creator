@@ -389,13 +389,11 @@ def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None):
         available = availableTargets
     else:
         # following targets depend on the build environment - added for further/later tests
-        available = [Targets.DESKTOP_474_GCC, Targets.DESKTOP_480_DEFAULT, Targets.DESKTOP_521_DEFAULT,
-                     Targets.DESKTOP_531_DEFAULT, Targets.MAEMO5, Targets.EMBEDDED_LINUX,
-                     Targets.SIMULATOR, Targets.HARMATTAN]
+        available = Targets.ALL_TARGETS
         if platform.system() in ('Windows', 'Microsoft'):
             available.remove(Targets.EMBEDDED_LINUX)
-        if platform.system() != 'Darwin':
-            available.append(Targets.DESKTOP_541_GCC)
+        elif platform.system() == 'Darwin':
+            available.remove(Targets.DESKTOP_541_GCC)
     for target in filter(lambda x: x in available,
                          (Targets.MAEMO5, Targets.HARMATTAN)):
         available.remove(target)
@@ -634,10 +632,10 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
             result.append(Targets.SIMULATOR)
     elif 'Platform independent' in text:
         # MAEMO5 and HARMATTAN could be wrong here - depends on having Madde plugin enabled or not
-        result = [Targets.DESKTOP_474_GCC, Targets.DESKTOP_480_DEFAULT, Targets.DESKTOP_521_DEFAULT,
-                  Targets.DESKTOP_531_DEFAULT, Targets.MAEMO5, Targets.SIMULATOR, Targets.HARMATTAN]
-        if platform.system() != 'Darwin':
-            result.append(Targets.DESKTOP_541_GCC)
+        result = Targets.ALL_TARGETS
+        result.remove(Targets.EMBEDDED_LINUX)
+        if platform.system() == 'Darwin':
+            result.remove(Targets.DESKTOP_541_GCC)
     else:
         test.warning("Returning None (__getSupportedPlatforms__())",
                      "Parsed text: '%s'" % text)
