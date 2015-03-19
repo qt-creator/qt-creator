@@ -44,3 +44,8 @@ equals(TEST, 1) {
         $$PWD/locator_test.cpp
     DEFINES += SRCDIR=\\\"$$PWD\\\"
 }
+
+osx {
+    HEADERS += $$PWD/spotlightlocatorfilter.h
+    OBJECTIVE_SOURCES += $$PWD/spotlightlocatorfilter.mm
+}

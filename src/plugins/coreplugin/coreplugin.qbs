@@ -287,6 +287,15 @@ QtcPlugin {
     }
 
     Group {
+        name: "Locator_mac"
+        condition: qbs.targetOS.contains("osx")
+        files: [
+            "locator/spotlightlocatorfilter.h",
+            "locator/spotlightlocatorfilter.mm",
+        ]
+    }
+
+    Group {
         name: "ThemeEditor"
         prefix: "themeeditor/"
         files: [

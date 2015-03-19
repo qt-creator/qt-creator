@@ -58,6 +58,10 @@
 #include <QFuture>
 #include <QAction>
 
+#ifdef Q_OS_OSX
+#include "spotlightlocatorfilter.h"
+#endif
+
 namespace Core {
 namespace Internal {
 
@@ -119,6 +123,9 @@ void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
     m_corePlugin->addObject(m_executeFilter);
 
     m_corePlugin->addAutoReleasedObject(new LocatorFiltersFilter(this, m_locatorWidget));
+#ifdef Q_OS_OSX
+    m_corePlugin->addAutoReleasedObject(new SpotlightLocatorFilter);
+#endif
 
     connect(ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
 }
