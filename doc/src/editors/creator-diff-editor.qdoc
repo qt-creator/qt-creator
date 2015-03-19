@@ -51,6 +51,10 @@
     indicates lines that contain added text (painted a darker green) in the
     right pane.
 
+    To revert the changes, right-click added text and then select
+    \uicontrol {Revert Chunk} in the context menu. To apply the changes, select
+    removed text and then select \uicontrol {Apply Chunk}.
+
     To view the differences in a unified view where changed rows are placed
     below each other, select
     \inlineimage qtcreator-switchto-unified-diffeditor.png
@@ -99,4 +103,8 @@
     If the files change outside \QC, select
     \inlineimage qtcreator-regenerate-index.png
     (\uicontrol {Reload Editor}) to compare them again and to show the results.
+
+    To send a chunk of changes to a \l{Pasting and Fetching Code Snippets}
+    {code pasting service}, select \uicontrol {Send Chunk to CodePaster} in the
+    context menu.
 */
