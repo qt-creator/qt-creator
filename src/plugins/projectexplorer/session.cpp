@@ -48,7 +48,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/stylehelper.h>
-#include <utils/algorithm.h>
 
 #include <QDebug>
 #include <QDir>

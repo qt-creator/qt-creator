@@ -32,7 +32,6 @@
 #define CONSTANTS_H
 
 #include <QtCore/QLatin1Char>
-#include <QtCore/QLatin1Char>
 
 namespace ClangCodeModel {
 namespace Constants {

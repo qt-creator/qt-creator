@@ -37,7 +37,6 @@
 #include "debuggerengine.h"
 #include "registerhandler.h"
 #include "watchdelegatewidgets.h"
-#include "memoryagent.h"
 
 #include <utils/savedaction.h>
 #include <utils/qtcassert.h>

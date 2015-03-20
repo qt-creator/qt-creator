@@ -48,7 +48,6 @@
 #include <utils/stringutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/qtcassert.h>
 
 using namespace Core;
 using namespace ProjectExplorer;
