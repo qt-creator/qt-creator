@@ -227,7 +227,7 @@ public:
     WatchItem *m_returnRoot; // Not owned.
     WatchItem *m_tooltipRoot; // Not owned.
 
-    SeparatedView m_separatedView;
+    SeparatedView *m_separatedView; // Not owned.
 
     QSet<QByteArray> m_expandedINames;
     QTimer m_requestUpdateTimer;
@@ -237,7 +237,7 @@ public:
 };
 
 WatchModel::WatchModel(WatchHandler *handler)
-    : m_handler(handler)
+    : m_handler(handler), m_separatedView(new SeparatedView)
 {
     setObjectName(QLatin1String("WatchModel"));
 
@@ -1147,7 +1147,6 @@ WatchHandler::~WatchHandler()
 {
     // Do it manually to prevent calling back in model destructors
     // after m_cache is destroyed.
-    m_model->disconnect();
     delete m_model;
     m_model = 0;
 }
@@ -1159,7 +1158,7 @@ void WatchHandler::cleanup()
     saveWatchers();
     m_model->reinitialize();
     emit m_model->updateFinished();
-    m_model->m_separatedView.hide();
+    m_model->m_separatedView->hide();
 }
 
 void WatchHandler::insertItem(WatchItem *item)
@@ -1319,7 +1318,7 @@ void WatchModel::showEditValue(const WatchData &data)
     const QByteArray key  = data.address ? data.hexAddress() : data.iname;
     switch (data.editformat) {
     case StopDisplay:
-        m_separatedView.removeObject(data.iname);
+        m_separatedView->removeObject(data.iname);
         break;
     case DisplayImageData:
     case DisplayImageFile: {  // QImage
@@ -1357,7 +1356,7 @@ void WatchModel::showEditValue(const WatchData &data)
             tr("%1 Object at %2").arg(QLatin1String(data.type),
                 QLatin1String(data.hexAddress())) :
             tr("%1 Object at Unknown Address").arg(QLatin1String(data.type));
-        ImageViewer *v = m_separatedView.prepareObject<ImageViewer>(key, title);
+        ImageViewer *v = m_separatedView->prepareObject<ImageViewer>(key, title);
         v->setProperty(INameProperty, data.iname);
         v->setImage(im);
         break;
@@ -1373,7 +1372,7 @@ void WatchModel::showEditValue(const WatchData &data)
             str = QString::fromLatin1(ba.constData(), ba.size());
         else if (data.editformat == DisplayUtf8String)
             str = QString::fromUtf8(ba.constData(), ba.size());
-        QTextEdit *t = m_separatedView.prepareObject<QTextEdit>(key, data.name);
+        QTextEdit *t = m_separatedView->prepareObject<QTextEdit>(key, data.name);
         t->setProperty(INameProperty, data.iname);
         t->setText(str);
         break;
