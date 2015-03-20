@@ -652,13 +652,13 @@ public:
     typedef std::function<Indenter *()> IndenterCreator;
     typedef std::function<AutoCompleter *()> AutoCompleterCreator;
 
-    void setDocumentCreator(const DocumentCreator &creator);
-    void setEditorWidgetCreator(const EditorWidgetCreator &creator);
-    void setEditorCreator(const EditorCreator &creator);
-    void setIndenterCreator(const IndenterCreator &creator);
-    void setSyntaxHighlighterCreator(const SyntaxHighLighterCreator &creator);
+    void setDocumentCreator(DocumentCreator &&creator);
+    void setEditorWidgetCreator(EditorWidgetCreator &&creator);
+    void setEditorCreator(EditorCreator &&creator);
+    void setIndenterCreator(IndenterCreator &&creator);
+    void setSyntaxHighlighterCreator(SyntaxHighLighterCreator &&creator);
     void setUseGenericHighlighter(bool enabled);
-    void setAutoCompleterCreator(const AutoCompleterCreator &creator);
+    void setAutoCompleterCreator(AutoCompleterCreator &&creator);
 
     void setEditorActionHandlers(Core::Id contextId, uint optionalActions);
     void setEditorActionHandlers(uint optionalActions);
