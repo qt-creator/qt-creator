@@ -831,8 +831,9 @@ void DebuggerToolTipHolder::setState(DebuggerTooltipState newState)
     bool ok = (state == New && newState == PendingUnshown)
         || (state == PendingUnshown && newState == PendingShown)
         || (state == PendingShown && newState == Acquired)
-        || (state == Acquired && (newState == Released))
-        || (state == Released && (newState == Acquired));
+        || (state == Acquired && newState == Released)
+        || (state == Acquired && newState == Acquired)
+        || (state == Released && newState == Acquired);
 
     // FIXME: These happen when a tooltip is re-used in findOrCreate.
     ok = ok
@@ -856,9 +857,22 @@ void DebuggerToolTipHolder::destroy()
 
 void DebuggerToolTipHolder::releaseEngine()
 {
+    DEBUG("RELEASE ENGINE: STATE " << state);
     if (state == Released)
         return;
-    DEBUG("RELEASE ENGINE: STATE " << state);
+
+    if (state == PendingShown) {
+        // This happens after hovering over something that looks roughly like
+        // a valid expression but can't be resolved by the debugger backend.
+        // (Out of scope items, keywords, ...)
+        ToolTip::show(context.mousePosition,
+                      DebuggerToolTipManager::tr("No valid expression"),
+                      Internal::mainWindow());
+        QTC_ASSERT(widget, return);
+        widget->deleteLater();
+        return;
+    }
+
     setState(Released);
 
     QTC_ASSERT(widget, return);
