@@ -44,23 +44,48 @@ class DebuggerCommand;
 class DebuggerEngine;
 class WatchModel;
 
-class TypeFormatItem
+// Special formats. Keep in sync with dumper.py.
+enum DisplayFormat
 {
-public:
-    TypeFormatItem() : format(-1) {}
-    TypeFormatItem(const QString &display, int format);
+    AutomaticFormat, // Based on type for individuals, dumper default for types.
+    RawFormat,
 
-    QString display;
-    int format;
+    SimpleFormat,    // Typical simple format (e.g. for QModelIndex row/column)
+    EnhancedFormat,  // Enhanced format (e.g. for QModelIndex with resolved display)
+    SeparateFormat,  // Display in separate Window
+
+    Latin1StringFormat,
+    SeparateLatin1StringFormat,
+    Utf8StringFormat,
+    SeparateUtf8StringFormat,
+    Local8BitStringFormat,
+    Utf16StringFormat,
+    Ucs4StringFormat,
+
+    Array10Format,
+    Array100Format,
+    Array1000Format,
+    Array10000Format,
+    ArrayPlotFormat,
+
+    CompactMapFormat,
+    DirectQListStorageFormat,
+    IndirectQListStorageFormat,
+
+    // Not used in *.py.
+    BoolTextFormat,
+    BoolIntegerFormat,
+
+    DecimalIntegerFormat,
+    HexadecimalIntegerFormat,
+    BinaryIntegerFormat,
+    OctalIntegerFormat,
+
+    CompactFloatFormat,
+    ScientificFloatFormat,
 };
 
-class TypeFormatList : public QVector<TypeFormatItem>
-{
-public:
-    using QVector::append;
-    void append(int format);
-    TypeFormatItem find(int format) const;
-};
+typedef QVector<DisplayFormat> DisplayFormats;
 
 class WatchItem : public Utils::TreeItem, public WatchData
 {
@@ -91,7 +116,7 @@ private:
     WatchItem *parentItem() const;
     const WatchModel *watchModel() const;
     WatchModel *watchModel();
-    TypeFormatList typeFormatList() const;
+    DisplayFormats typeFormatList() const;
 
     bool canFetchMore() const;
     QVariant data(int column, int role) const;
@@ -99,46 +124,6 @@ private:
 
     void parseWatchData(const GdbMi &input);
     bool fetchTriggered;
-};
-
-// Special formats. Keep in sync with dumper.py.
-enum DisplayFormat
-{
-    AutomaticFormat = -1, // Based on type for individuals, dumper default for types.
-    RawFormat = 0,
-
-    // Values between 1 and 99 refer to dumper provided custom formats.
-
-    // Values between 100 and 199 refer to well-known formats handled in dumpers.
-    KnownDumperFormatBase = 100,
-    Latin1StringFormat,
-    Utf8StringFormat,
-    Local8BitStringFormat,
-    Utf16StringFormat,
-    Ucs4StringFormat,
-
-    Array10Format,
-    Array100Format,
-    Array1000Format,
-    Array10000Format,
-
-    SeparateLatin1StringFormat,
-    SeparateUtf8StringFormat,
-
-
-    // Values above 200 refer to format solely handled in the WatchHandler code
-    ArtificialFormatBase = 200,
-
-    BoolTextFormat,
-    BoolIntegerFormat,
-
-    DecimalIntegerFormat,
-    HexadecimalIntegerFormat,
-    BinaryIntegerFormat,
-    OctalIntegerFormat,
-
-    CompactFloatFormat,
-    ScientificFloatFormat,
 };
 
 class UpdateParameters
@@ -149,8 +134,6 @@ public:
     bool tryPartial;
     QByteArray varList;
 };
-
-typedef QHash<QString, QStringList> DumperTypeFormats; // Type name -> Dumper Formats
 
 class WatchModelBase : public Utils::TreeModel
 {
@@ -201,11 +184,10 @@ public:
     QByteArray individualFormatRequests() const;
 
     int format(const QByteArray &iname) const;
+    static QString nameForFormat(int format);
 
     void addDumpers(const GdbMi &dumpers);
-    void addTypeFormats(const QByteArray &type, const QStringList &formats);
-    void setTypeFormats(const DumperTypeFormats &typeFormats);
-    DumperTypeFormats typeFormats() const;
+    void addTypeFormats(const QByteArray &type, const DisplayFormats &formats);
 
     void setUnprintableBase(int base);
     static int unprintableBase();
@@ -237,6 +219,6 @@ private:
 } // namespace Debugger
 
 Q_DECLARE_METATYPE(Debugger::Internal::UpdateParameters)
-Q_DECLARE_METATYPE(Debugger::Internal::TypeFormatList)
+Q_DECLARE_METATYPE(Debugger::Internal::DisplayFormats)
 
 #endif // DEBUGGER_WATCHHANDLER_H

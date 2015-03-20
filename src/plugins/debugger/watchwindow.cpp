@@ -554,12 +554,10 @@ void WatchTreeView::fillFormatMenu(QMenu *formatMenu, const QModelIndex &mi)
     const QModelIndex mi2 = mi.sibling(mi.row(), 2);
     const QString type = mi2.data().toString();
 
-    const TypeFormatList alternativeFormats =
-        mi.data(LocalsTypeFormatListRole).value<TypeFormatList>();
-    int typeFormat =
-        mi.data(LocalsTypeFormatRole).toInt();
-    const int individualFormat =
-        mi.data(LocalsIndividualFormatRole).toInt();
+    const DisplayFormats alternativeFormats =
+        mi.data(LocalsTypeFormatListRole).value<DisplayFormats>();
+    const int typeFormat = mi.data(LocalsTypeFormatRole).toInt();
+    const int individualFormat = mi.data(LocalsIndividualFormatRole).toInt();
     const int unprintableBase = WatchHandler::unprintableBase();
 
     QAction *showUnprintableUnicode = 0;
@@ -595,7 +593,7 @@ void WatchTreeView::fillFormatMenu(QMenu *formatMenu, const QModelIndex &mi)
     dummy->setEnabled(false);
     QString msg = (individualFormat == AutomaticFormat && typeFormat != AutomaticFormat)
         ? tr("Use Format for Type (Currently %1)")
-            .arg(alternativeFormats.find(typeFormat).display)
+            .arg(WatchHandler::nameForFormat(typeFormat))
         : tr("Use Display Format Based on Type") + QLatin1Char(' ');
 
     QAction *clearIndividualFormatAction = formatMenu->addAction(spacer + msg);
@@ -608,8 +606,8 @@ void WatchTreeView::fillFormatMenu(QMenu *formatMenu, const QModelIndex &mi)
     });
 
     for (int i = 0; i != alternativeFormats.size(); ++i) {
-        const QString display = spacer + alternativeFormats.at(i).display;
-        const int format = alternativeFormats.at(i).format;
+        const int format = alternativeFormats.at(i);
+        const QString display = spacer + WatchHandler::nameForFormat(format);
         QAction *act = new QAction(display, formatMenu);
         act->setCheckable(true);
         act->setChecked(format == individualFormat);
@@ -633,9 +631,9 @@ void WatchTreeView::fillFormatMenu(QMenu *formatMenu, const QModelIndex &mi)
     });
 
     for (int i = 0; i != alternativeFormats.size(); ++i) {
-        const QString display = spacer + alternativeFormats.at(i).display;
+        const int format = alternativeFormats.at(i);
+        const QString display = spacer + WatchHandler::nameForFormat(format);
         QAction *act = new QAction(display, formatMenu);
-        const int format = alternativeFormats.at(i).format;
         act->setCheckable(true);
         act->setChecked(format == typeFormat);
         formatMenu->addAction(act);

@@ -53,24 +53,25 @@ def qdump__QAtomicPointer(d, value):
            d.putSubItem("_q_value", q.dereference())
 
 def qform__QByteArray():
-    return "Latin1 String,Latin1 String in Separate Window,UTF-8 String,UTF-8 String in Separate Window"
+    return [Latin1StringFormat, SeparateLatin1StringFormat,
+            Utf8StringFormat, SeparateUtf8StringFormat ]
 
 def qdump__QByteArray(d, value):
     data, size, alloc = d.byteArrayData(value)
     d.putNumChild(size)
     elided, p = d.encodeByteArrayHelper(d.extractPointer(value), d.displayStringLimit)
-    format = d.currentItemFormat()
-    if format == 1 or format is None:
+    displayFormat = d.currentItemFormat()
+    if displayFormat == AutomaticFormat or displayFormat == Latin1StringFormat:
         d.putDisplay(StopDisplay)
         d.putValue(p, Hex2EncodedLatin1, elided=elided)
-    elif format == 2:
+    elif displayFormat == SeparateLatin1StringFormat:
         d.putValue(p, Hex2EncodedLatin1, elided=elided)
         d.putField("editformat", DisplayLatin1String)
         d.putField("editvalue", d.encodeByteArray(value, limit=100000))
-    elif format == 3:
+    elif displayFormat == Utf8StringFormat:
         d.putDisplay(StopDisplay)
         d.putValue(p, Hex2EncodedUtf8, elided=elided)
-    elif format == 4:
+    elif displayFormat == SeparateUtf8StringFormat:
         d.putValue(p, Hex2EncodedUtf8, elided=elided)
         d.putField("editformat", DisplayUtf8String)
         d.putField("editvalue", d.encodeByteArray(value, limit=100000))
@@ -92,14 +93,14 @@ def qdump__QChar(d, value):
 
 
 def qform__QAbstractItemModel():
-    return "Normal,Enhanced"
+    return [SimpleFormat, EnhancedFormat]
 
 def qdump__QAbstractItemModel(d, value):
-    format = d.currentItemFormat()
-    if format == 1:
+    displayFormat = d.currentItemFormat()
+    if displayFormat == SimpleFormat:
         d.putPlainChildren(value)
         return
-    #format == 2:
+    #displayFormat == EnhancedFormat:
     # Create a default-constructed QModelIndex on the stack.
     try:
         ri = d.makeValue(d.qtNamespace() + "QModelIndex", "-1, -1, 0, 0")
@@ -134,11 +135,11 @@ def qdump__QAbstractItemModel(d, value):
     #gdb.execute("call free($ri)")
 
 def qform__QModelIndex():
-    return "Normal,Enhanced"
+    return [SimpleFormat, EnhancedFormat]
 
 def qdump__QModelIndex(d, value):
-    format = d.currentItemFormat()
-    if format == 1:
+    displayFormat = d.currentItemFormat()
+    if displayFormat == SimpleFormat:
         d.putPlainChildren(value)
         return
     r = value["r"]
@@ -768,7 +769,7 @@ def qdump__QIPv6Address(d, value):
     d.putPlainChildren(c)
 
 def qform__QList():
-    return "Assume Direct Storage,Assume Indirect Storage"
+    return [DirectQListStorageFormat, IndirectQListStorageFormat]
 
 def qdump__QList(d, value):
     base = d.extractPointer(value)
@@ -794,10 +795,10 @@ def qdump__QList(d, value):
         # but this data is available neither in the compiled binary nor
         # in the frontend.
         # So as first approximation only do the 'isLarge' check:
-        format = d.currentItemFormat()
-        if format == 1:
+        displayFormat = d.currentItemFormat()
+        if displayFormat == DirectQListStorageFormat:
             isInternal = True
-        elif format == 2:
+        elif displayFormat == IndirectQListStorageFormat:
             isInternal = False
         else:
             isInternal = innerSize <= stepSize and d.isMovableType(innerType)
@@ -818,7 +819,7 @@ def qdump__QList(d, value):
                     d.putSubItem(i, x)
 
 def qform__QImage():
-    return "Normal,Displayed"
+    return [SimpleFormat, SeparateFormat]
 
 def qdump__QImage(d, value):
     # This relies on current QImage layout:
@@ -861,10 +862,10 @@ def qdump__QImage(d, value):
                 d.putNumChild(0)
                 d.putType("void *")
 
-    format = d.currentItemFormat()
-    if format == 1:
+    displayFormat = d.currentItemFormat()
+    if displayFormat == SimpleFormat:
         d.putDisplay(StopDisplay)
-    elif format == 2:
+    elif displayFormat == SeparateFormat:
         # This is critical for performance. Writing to an external
         # file using the following is faster when using GDB.
         #   file = tempfile.mkstemp(prefix="gdbpy_")
@@ -1751,16 +1752,16 @@ def qedit__QString(d, value, data):
     d.setValues(base, "short", [ord(c) for c in data])
 
 def qform__QString():
-    return "Inline,Separate Window"
+    return [SimpleFormat, SeparateFormat]
 
 def qdump__QString(d, value):
     d.putStringValue(value)
     data, size, alloc = d.stringData(value)
     d.putNumChild(size)
-    format = d.currentItemFormat()
-    if format == 1:
+    displayFormat = d.currentItemFormat()
+    if displayFormat == SimpleFormat:
         d.putDisplay(StopDisplay)
-    elif format == 2:
+    elif displayFormat == SeparateFormat:
         d.putField("editformat", DisplayUtf16String)
         d.putField("editvalue", d.encodeString(value, limit=100000))
     if d.isExpanded():
@@ -1847,7 +1848,7 @@ def qdump__QTextDocument(d, value):
 
 
 def qform__QUrl():
-    return "Inline,Separate Window"
+    return [SimpleFormat, SeparateFormat]
 
 def qdump__QUrl(d, value):
     if d.qtVersion() < 0x050000:
@@ -1911,10 +1912,10 @@ def qdump__QUrl(d, value):
         url += path
         d.putValue(url, Hex4EncodedLittleEndian)
 
-        format = d.currentItemFormat()
-        if format == 1:
+        displayFormat = d.currentItemFormat()
+        if displayFormat == SimpleFormat:
             d.putDisplay(StopDisplay)
-        elif format == 2:
+        elif displayFormat == SeparateFormat:
             d.putField("editformat", DisplayUtf16String)
             d.putField("editvalue", url)
 

@@ -67,9 +67,15 @@ StartRemoteProcess, \
 
 
 # Known special formats. Keep in sync with DisplayFormat in watchhandler.h
-KnownDumperFormatBase, \
+AutomaticFormat, \
+RawFormat, \
+SimpleFormat, \
+EnhancedFormat, \
+SeparateFormat, \
 Latin1StringFormat, \
+SeparateLatin1StringFormat, \
 Utf8StringFormat, \
+SeparateUtf8StringFormat, \
 Local8BitStringFormat, \
 Utf16StringFormat, \
 Ucs4StringFormat, \
@@ -77,9 +83,11 @@ Array10Format, \
 Array100Format, \
 Array1000Format, \
 Array10000Format, \
-SeparateLatin1StringFormat, \
-SeparateUtf8StringFormat \
-    = range(100, 112)
+ArrayPlotFormat, \
+CompactMapFormat, \
+DirectQListStorageFormat, \
+IndirectQListStorageFormat, \
+    = range(0, 20)
 
 # Breakpoints. Keep synchronized with BreakpointType in breakpoint.h
 UnknownType, \
@@ -171,10 +179,10 @@ if hasSubprocess and hasPlot:
 
 def arrayForms():
     global hasPlot
-    return "Normal,Plot" if hasPlot else "Normal"
+    return [ArrayPlotFormat] if hasPlot else []
 
 def mapForms():
-    return "Normal,Compact"
+    return [CompactMapFormat]
 
 
 class ReportItem:
@@ -583,12 +591,13 @@ class DumperBase:
         elided, shown = self.computeLimit(size, limit)
         return elided, self.readMemory(data, shown)
 
-    def putStdStringHelper(self, data, size, charSize, format = None):
+    def putStdStringHelper(self, data, size, charSize, displayFormat = AutomaticFormat):
         bytelen = size * charSize
         elided, shown = self.computeLimit(bytelen, self.displayStringLimit)
         mem = self.readMemory(data, shown)
         if charSize == 1:
-            if format == 1 or format == 2:
+            if displayFormat == Latin1StringFormat \
+                    or displayFormat == SeparateLatin1StringFormat:
                 encodingType = Hex2EncodedLatin1
             else:
                 encodingType = Hex2EncodedUtf8
@@ -603,9 +612,11 @@ class DumperBase:
         self.putNumChild(0)
         self.putValue(mem, encodingType, elided=elided)
 
-        if format == 1 or format == 3:
+        if displayFormat == Latin1StringFormat \
+                or displayFormat == Utf8StringFormat:
             self.putDisplay(StopDisplay)
-        elif format == 2 or format == 4:
+        elif displayFormat == SeparateLatin1StringFormat \
+                or displayFormat == SeparateUtf8StringFormat:
             self.putField("editformat", displayType)
             elided, shown = self.computeLimit(bytelen, 100000)
             self.putField("editvalue", self.readMemory(data, shown))
@@ -801,9 +812,8 @@ class DumperBase:
                 self.putFields(value, dumpBase)
 
     def isMapCompact(self, keyType, valueType):
-        format = self.currentItemFormat()
-        if format == 2:
-            return True # Compact.
+        if self.currentItemFormat() == CompactMapFormat:
+            return True
         return self.isSimpleType(keyType) and self.isSimpleType(valueType)
 
 
@@ -920,13 +930,13 @@ class DumperBase:
         except:
             p = None
 
-        itemFormat = self.currentItemFormat()
+        displayFormat = self.currentItemFormat()
         n = int(arrayType.sizeof / ts)
 
-        if p and self.tryPutSimpleFormattedPointer(p, str(arrayType), itemFormat, arrayType.sizeof):
+        if p and self.tryPutSimpleFormattedPointer(p, str(arrayType), displayFormat, arrayType.sizeof):
             self.putNumChild(n)
             pass
-        elif itemFormat is None:
+        elif displayFormat is None:
             innerTypeName = str(innerType.unqualified())
             blob = self.readMemory(self.addressOf(value), arrayType.sizeof)
             if innerTypeName == "char":
@@ -969,6 +979,31 @@ class DumperBase:
                 pass
             return str(addr)
 
+    def tryPutPrettyItem(self, typeName, value):
+        if self.useFancy and self.currentItemFormat() != RawFormat:
+            self.putType(typeName)
+
+            nsStrippedType = self.stripNamespaceFromType(typeName)\
+                .replace("::", "__")
+
+            # The following block is only needed for D.
+            if nsStrippedType.startswith("_A"):
+                # DMD v2.058 encodes string[] as _Array_uns long long.
+                # With spaces.
+                if nsStrippedType.startswith("_Array_"):
+                    qdump_Array(self, value)
+                    return True
+                if nsStrippedType.startswith("_AArray_"):
+                    qdump_AArray(self, value)
+                    return True
+
+            dumper = self.qqDumpers.get(nsStrippedType)
+            if not dumper is None:
+                dumper(self, value)
+                return True
+
+        return False
+
     def tryPutArrayContents(self, base, n, innerType):
         enc = self.simpleEncoding(innerType)
         if not enc:
@@ -991,8 +1026,8 @@ class DumperBase:
             data = self.readMemory(base, shown)
         self.putValue(data, Hex2EncodedLatin1, elided=elided)
 
-    def putDisplay(self, format, value = None, cmd = None):
-        self.put('editformat="%s",' % format)
+    def putDisplay(self, editFormat, value = None, cmd = None):
+        self.put('editformat="%s",' % editFormat)
         if cmd is None:
             if not value is None:
                 self.put('editvalue="%s",' % value)
@@ -1000,8 +1035,8 @@ class DumperBase:
             self.put('editvalue="%s|%s",' % (cmd, value))
 
     # This is shared by pointer and array formatting.
-    def tryPutSimpleFormattedPointer(self, value, typeName, itemFormat, limit):
-        if itemFormat == None and typeName == "char":
+    def tryPutSimpleFormattedPointer(self, value, typeName, displayFormat, limit):
+        if displayFormat == AutomaticFormat and typeName == "char":
             # Use Latin1 as default for char *.
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 1, limit)
@@ -1009,56 +1044,49 @@ class DumperBase:
             self.putDisplay(StopDisplay)
             return True
 
-        if itemFormat == Latin1StringFormat:
-            # Explicitly requested Latin1 formatting.
+        if displayFormat == Latin1StringFormat:
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 1, limit)
             self.putValue(data, Hex2EncodedLatin1, elided=elided)
             self.putDisplay(StopDisplay)
             return True
 
-        if itemFormat == SeparateLatin1StringFormat:
-            # Explicitly requested Latin1 formatting in separate window.
+        if displayFormat == SeparateLatin1StringFormat:
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 1, limit)
             self.putValue(data, Hex2EncodedLatin1, elided=elided)
             self.putDisplay(DisplayLatin1String, data)
             return True
 
-        if itemFormat == Utf8StringFormat:
-            # Explicitly requested UTF-8 formatting.
+        if displayFormat == Utf8StringFormat:
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 1, limit)
             self.putValue(data, Hex2EncodedUtf8, elided=elided)
             self.putDisplay(StopDisplay)
             return True
 
-        if itemFormat == SeparateUtf8StringFormat:
-            # Explicitly requested UTF-8 formatting in separate window.
+        if displayFormat == SeparateUtf8StringFormat:
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 1, limit)
             self.putValue(data, Hex2EncodedUtf8, elided=elided)
             self.putDisplay(DisplayUtf8String, data)
             return True
 
-        if itemFormat == Local8BitStringFormat:
-            # Explicitly requested local 8 bit formatting.
+        if displayFormat == Local8BitStringFormat:
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 1, limit)
             self.putValue(data, Hex2EncodedLocal8Bit, elided=elided)
             self.putDisplay(StopDisplay)
             return True
 
-        if itemFormat == Utf16StringFormat:
-            # Explicitly requested UTF-16 formatting.
+        if displayFormat == Utf16StringFormat:
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 2, limit)
             self.putValue(data, Hex4EncodedLittleEndian, elided=elided)
             self.putDisplay(StopDisplay)
             return True
 
-        if itemFormat == Ucs4StringFormat:
-            # Explicitly requested UCS-4 formatting.
+        if displayFormat == Ucs4StringFormat:
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 4, limit)
             self.putValue(data, Hex8EncodedLittleEndian, elided=elided)
@@ -1091,16 +1119,16 @@ class DumperBase:
             self.putNumChild(0)
             return
 
-        format = self.currentItemFormat(value.type)
+        displayFormat = self.currentItemFormat(value.type)
 
         if innerTypeName == "void":
-            #warn("VOID POINTER: %s" % format)
+            #warn("VOID POINTER: %s" % displayFormat)
             self.putType(typeName)
             self.putValue(str(value))
             self.putNumChild(0)
             return
 
-        if format == 0:
+        if displayFormat == RawFormat:
             # Explicitly requested bald pointer.
             self.putType(typeName)
             self.putValue(self.hexencode(str(value)), Hex2EncodedUtf8WithoutQuotes)
@@ -1112,16 +1140,15 @@ class DumperBase:
             return
 
         limit = self.displayStringLimit
-        if format == DisplayLatin1String or format == DisplayUtf8String:
+        if displayFormat == SeparateLatin1StringFormat \
+                or displayFormat == SeparateUtf8StringFormat:
             limit = 1000000
-        if self.tryPutSimpleFormattedPointer(value, typeName, format, limit):
+        if self.tryPutSimpleFormattedPointer(value, typeName, displayFormat, limit):
             self.putNumChild(0)
             return
 
-        if not format is None \
-            and format >= Array10Format and format <= Array1000Format:
-            # Explicitly requested formatting as array of n items.
-            n = (10, 100, 1000, 10000)[format - Array10Format]
+        if Array10Format <= displayFormat and displayFormat <= Array1000Format:
+            n = (10, 100, 1000, 10000)[displayFormat - Array10Format]
             self.putType(typeName)
             self.putItemCount(n)
             self.putArrayData(value, n, innerType)
@@ -1141,9 +1168,7 @@ class DumperBase:
         #warn("AUTODEREF: %s" % self.autoDerefPointers)
         #warn("INAME: %s" % self.currentIName)
         if self.autoDerefPointers or self.currentIName.endswith('.this'):
-            ## Generic pointer type with format None
-            #warn("GENERIC AUTODEREF POINTER: %s AT %s TO %s"
-            #    % (type, value.address, innerTypeName))
+            # Generic pointer type with AutomaticFormat.
             # Never dereference char types.
             if innerTypeName != "char" \
                     and innerTypeName != "signed char" \
@@ -1491,13 +1516,13 @@ class DumperBase:
         return typeName == "QStringList" and self.qtVersion() >= 0x050000
 
     def currentItemFormat(self, type = None):
-        format = self.formats.get(self.currentIName)
-        if format is None:
+        displayFormat = self.formats.get(self.currentIName, AutomaticFormat)
+        if displayFormat == AutomaticFormat:
             if type is None:
                 type = self.currentType.value
             needle = self.stripForFormat(str(type))
-            format = self.typeformats.get(needle)
-        return format
+            displayFormat = self.typeformats.get(needle, AutomaticFormat)
+        return displayFormat
 
     def putArrayData(self, base, n, innerType = None,
             childNumChild = None, maxNumChild = 10000):
@@ -1511,19 +1536,19 @@ class DumperBase:
                     i = toInteger(i)
                     self.putSubItem(i, (base + i).dereference())
 
-    def putArrayItem(self, name, addr, n, typeName, plotFormat = 2):
+    def putArrayItem(self, name, addr, n, typeName):
         with SubItem(self, name):
             self.putEmptyValue()
             self.putType("%s [%d]" % (typeName, n))
             self.putArrayData(addr, n, self.lookupType(typeName))
             self.putAddress(addr)
 
-    def putPlotData(self, base, n, typeobj, plotFormat = 2):
+    def putPlotData(self, base, n, typeobj):
         if self.isExpanded():
             self.putArrayData(base, n, typeobj)
         if hasPlot:
             if self.isSimpleType(typeobj):
-                show = self.currentItemFormat() == plotFormat
+                show = self.currentItemFormat() == ArrayPlotFormat
                 iname = self.currentIName
                 data = []
                 if show:
@@ -1688,15 +1713,13 @@ class DumperBase:
             if funcname.startswith("qdump__"):
                 typename = funcname[7:]
                 self.qqDumpers[typename] = function
-                self.qqFormats[typename] = self.qqFormats.get(typename, "")
+                self.qqFormats[typename] = self.qqFormats.get(typename, [])
             elif funcname.startswith("qform__"):
                 typename = funcname[7:]
-                formats = ""
                 try:
-                    formats = function()
+                    self.qqFormats[typename] = function()
                 except:
-                    pass
-                self.qqFormats[typename] = formats
+                    self.qqFormats[typename] = []
             elif funcname.startswith("qedit__"):
                 typename = funcname[7:]
                 try:
@@ -1721,15 +1744,14 @@ class DumperBase:
 
         msg = "dumpers=["
         for key, value in self.qqFormats.items():
-            if key in self.qqEditable:
-                msg += '{type="%s",formats="%s",editable="true"},' % (key, value)
-            else:
-                msg += '{type="%s",formats="%s"},' % (key, value)
+            editable = ',editable="true"' if key in self.qqEditable else ''
+            formats = (',formats=\"%s\"' % str(value)[1:-1]) if len(value) else ''
+            msg += '{type="%s"%s%s},' % (key, editable, formats)
         msg += ']'
         self.reportDumpers(msg)
 
     def reportDumpers(self, msg):
-        raise NotImplementedError # Pure
+        raise NotImplementedError
 
     def reloadDumpers(self, args):
         for mod in self.dumpermodules:

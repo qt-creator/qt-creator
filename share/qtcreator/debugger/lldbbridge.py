@@ -1063,15 +1063,8 @@ class Dumper(DumperBase):
 
         #warn("VALUE: %s" % value)
         #warn("FANCY: %s" % self.useFancy)
-        if self.useFancy:
-            stripped = self.stripNamespaceFromType(typeName).replace("::", "__")
-            #warn("STRIPPED: %s" % stripped)
-            #warn("DUMPABLE: %s" % (stripped in self.qqDumpers))
-            if stripped in self.qqDumpers:
-                self.putType(typeName)
-                self.context = value
-                self.qqDumpers[stripped](self, value)
-                return
+        if self.tryPutPrettyItem(typeName, value):
+            return
 
         # Normal value
         #numchild = 1 if value.MightHaveChildren() else 0
