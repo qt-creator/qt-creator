@@ -187,7 +187,6 @@ public:
     void fetchMore(const QByteArray &iname) const;
     WatchItem *findItem(const QByteArray &iname) const;
     const WatchItem *findCppLocalVariable(const QString &name) const;
-    bool hasItem(const QByteArray &iname) const;
 
     void loadSessionData();
     void saveSessionData();
@@ -231,19 +230,7 @@ public:
     void purgeOutdatedItems(const QSet<QByteArray> &inames);
 
 private:
-    friend class WatchModel;
-
-    void saveWatchers();
-    static void loadFormats();
-    static void saveFormats();
-
-    void setFormat(const QByteArray &type, int format);
-
     WatchModel *m_model; // Owned.
-    DebuggerEngine *m_engine; // Not owned.
-
-    bool m_contentsValid;
-    bool m_resetLocationScheduled;
 };
 
 } // namespace Internal
