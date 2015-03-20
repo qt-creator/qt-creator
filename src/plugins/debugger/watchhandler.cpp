@@ -1177,6 +1177,8 @@ void WatchModel::insertItem(WatchItem *item)
     QTC_ASSERT(parent, return);
     const int row = findInsertPosition(parent->children(), item);
     parent->insertChild(row, item);
+
+    item->walkTree([this](TreeItem *sub) { showEditValue(*static_cast<WatchItem *>(sub)); });
 }
 
 void WatchModel::reexpandItems()
