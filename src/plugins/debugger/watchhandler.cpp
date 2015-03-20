@@ -1802,7 +1802,7 @@ WatchModel *WatchItem::watchModel()
 void WatchItem::parseWatchData(const GdbMi &input)
 {
     auto itemHandler = [this](const WatchData &data) {
-        WatchData::operator=(data);
+        static_cast<WatchData *>(this)->operator=(data); // FIXME with 3.5
     };
 
     auto childHandler = [this](const WatchData &innerData, const GdbMi &innerInput) {
