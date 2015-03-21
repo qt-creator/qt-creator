@@ -914,6 +914,36 @@ void CppEditorPlugin::test_quickfix_data()
         "}\n"
     );
 
+    // Checks if the declaration inside Q_PROPERTY macro is ignored and a getter created
+    QTest::newRow("GenerateGetterSetter_ignoreQPropertiesMacro")
+        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
+        "class Something\n"
+        "{\n"
+        "    Q_PROPERTY(int foo)\n"
+        "    int @m_foo;\n"
+        "};\n"
+        ) << _(
+        "class Something\n"
+        "{\n"
+        "    Q_PROPERTY(int foo)\n"
+        "    int m_foo;\n"
+        "\n"
+        "public:\n"
+        "    int foo() const;\n"
+        "    void setFoo(int foo);\n"
+        "};\n"
+        "\n"
+        "int Something::foo() const\n"
+        "{\n"
+        "    return m_foo;\n"
+        "}\n"
+        "\n"
+        "void Something::setFoo(int foo)\n"
+        "{\n"
+        "    m_foo = foo;\n"
+        "}\n"
+    );
+
     QTest::newRow("MoveDeclarationOutOfIf_ifOnly")
         << CppQuickFixFactoryPtr(new MoveDeclarationOutOfIf) << _(
         "void f()\n"
