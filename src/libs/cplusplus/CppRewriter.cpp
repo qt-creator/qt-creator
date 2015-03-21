@@ -63,8 +63,10 @@ public:
         {
             TypeVisitor::accept(ty.type());
             unsigned flags = ty.flags();
-            flags |= temps.back().flags();
-            temps.back().setFlags(flags);
+            if (!temps.isEmpty()) {
+                flags |= temps.back().flags();
+                temps.back().setFlags(flags);
+            }
         }
 
     public:
@@ -73,7 +75,7 @@ public:
         FullySpecifiedType operator()(const FullySpecifiedType &ty)
         {
             accept(ty);
-            return temps.takeLast();
+            return (!temps.isEmpty()) ? temps.takeLast() : ty;
         }
 
         virtual void visit(UndefinedType *)
@@ -241,7 +243,7 @@ public:
                 return 0;
 
             accept(name);
-            return temps.takeLast();
+            return (!temps.isEmpty()) ? temps.takeLast() : name;
         }
 
         virtual void visit(const QualifiedNameId *name)
