@@ -113,6 +113,8 @@ QPair<QColor, QString> Theme::readNamedColor(const QString &color) const
 {
     if (d->palette.contains(color))
         return qMakePair(d->palette[color], color);
+    if (color == QLatin1String("style"))
+        return qMakePair(QColor(), QString());
 
     bool ok = true;
     const QRgb rgba = color.toLongLong(&ok, 16);

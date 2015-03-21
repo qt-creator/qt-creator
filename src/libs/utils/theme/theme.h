@@ -98,6 +98,8 @@ public:
         MenuBarItemBackgroundColor,
         MenuBarItemTextColorDisabled,
         MenuBarItemTextColorNormal,
+        MenuItemTextColorDisabled,
+        MenuItemTextColorNormal,
         MiniProjectTargetSelectorBackgroundColor,
         MiniProjectTargetSelectorBorderColor,
         MiniProjectTargetSelectorSummaryBackgroundColor,
