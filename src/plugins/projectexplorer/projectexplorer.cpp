@@ -288,7 +288,6 @@ public:
 
     void updateWelcomePage();
 
-    void handleRunControlFinished();
     void runConfigurationConfigurationFinished();
 
 public:
@@ -568,7 +567,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(dd->m_outputPane, &AppOutputPane::runControlFinished,
             this, &ProjectExplorerPlugin::runControlFinished);
     connect(dd->m_outputPane, &AppOutputPane::runControlFinished,
-            dd, &ProjectExplorerPluginPrivate::handleRunControlFinished);
+            this, &ProjectExplorerPlugin::updateRunActions);
 
     addAutoReleasedObject(new AllProjectsFilter);
     addAutoReleasedObject(new CurrentProjectFilter);
@@ -1966,11 +1965,6 @@ void ProjectExplorerPlugin::startRunControl(RunControl *runControl, RunMode runM
     dd->startRunControl(runControl, runMode);
 }
 
-void ProjectExplorerPluginPrivate::handleRunControlFinished()
-{
-    emit m_instance->updateRunActions();
-}
-
 void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl, RunMode runMode)
 {
     m_outputPane->createNewOutputWindow(runControl);
@@ -1980,8 +1974,6 @@ void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl, RunMo
             || ((runMode == DebugRunMode || runMode == DebugRunModeWithBreakOnMain)
                 && m_projectExplorerSettings.showDebugOutput);
     m_outputPane->setBehaviorOnOutput(runControl, popup ? AppOutputPane::Popup : AppOutputPane::Flash);
-    QObject::connect(runControl, &RunControl::finished,
-                     this, &ProjectExplorerPluginPrivate::handleRunControlFinished);
     runControl->start();
     emit m_instance->updateRunActions();
 }
