@@ -4566,7 +4566,7 @@ bool FakeVimHandler::Private::handleRegisterSubMode(const Input &input)
     bool handled = false;
 
     QChar reg = input.asChar();
-    if (QString::fromLatin1("*+.%#:-\"").contains(reg) || reg.isLetterOrNumber()) {
+    if (QString::fromLatin1("*+.%#:-\"_").contains(reg) || reg.isLetterOrNumber()) {
         m_register = reg.unicode();
         handled = true;
     }
@@ -6946,8 +6946,8 @@ void FakeVimHandler::Private::yankText(const Range &range, int reg)
             // copy to yank register 0 too
             setRegister('0', text, range.rangemode);
         }
-    } else {
-        // Always copy to " register too.
+    } else if (m_register != '_') {
+        // Always copy to " register too (except black hole register).
         setRegister('"', text, range.rangemode);
     }
 
