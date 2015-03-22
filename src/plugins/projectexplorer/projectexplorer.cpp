@@ -566,6 +566,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(dd->m_outputPane, &AppOutputPane::runControlStarted,
             this, &ProjectExplorerPlugin::runControlStarted);
     connect(dd->m_outputPane, &AppOutputPane::runControlFinished,
+            this, &ProjectExplorerPlugin::runControlFinished);
+    connect(dd->m_outputPane, &AppOutputPane::runControlFinished,
             dd, &ProjectExplorerPluginPrivate::handleRunControlFinished);
 
     addAutoReleasedObject(new AllProjectsFilter);
