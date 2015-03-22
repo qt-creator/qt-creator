@@ -4914,6 +4914,15 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         const int beginPos = position();
         Range range(beginPos, endPos, RangeCharMode);
         removeText(range);
+    } else if (input.isControl('u')) {
+        const int blockNumber = m_cursor.blockNumber();
+        const int endPos = position();
+        moveToStartOfLine();
+        if (blockNumber != m_cursor.blockNumber())
+            moveToEndOfLine();
+        const int beginPos = position();
+        Range range(beginPos, endPos, RangeCharMode);
+        removeText(range);
     } else if (input.isKey(Key_Insert)) {
         g.mode = ReplaceMode;
     } else if (input.isKey(Key_Left)) {
