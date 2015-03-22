@@ -4953,7 +4953,8 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
             endEditBlock();
         }
     } else if (input.isBackspace()) {
-        if (!handleInsertInEditor(input)) {
+        // pass C-h as backspace, too
+        if (!handleInsertInEditor(Input(Qt::Key_Backspace, Qt::NoModifier))) {
             joinPreviousEditBlock();
             if (!m_buffer->lastInsertion.isEmpty()
                     || hasConfig(ConfigBackspace, "start")
