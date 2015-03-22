@@ -6935,9 +6935,6 @@ void FakeVimHandler::Private::yankText(const Range &range, int reg)
 
     // If register is not specified or " ...
     if (m_register == '"') {
-        // copy to yank register 0 too
-        setRegister('0', text, range.rangemode);
-
         // with delete and change commands set register 1 (if text contains more lines) or
         // small delete register -
         if (g.submode == DeleteSubMode || g.submode == ChangeSubMode) {
@@ -6945,6 +6942,9 @@ void FakeVimHandler::Private::yankText(const Range &range, int reg)
                 setRegister('1', text, range.rangemode);
             else
                 setRegister('-', text, range.rangemode);
+        } else {
+            // copy to yank register 0 too
+            setRegister('0', text, range.rangemode);
         }
     } else {
         // Always copy to " register too.
