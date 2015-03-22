@@ -2730,6 +2730,25 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
 
 namespace {
 
+bool hasClassMemberWithGetPrefix(const Class *klass)
+{
+    if (!klass)
+        return false;
+
+    for (unsigned i = 0; i < klass->memberCount(); ++i) {
+        const Symbol *symbol = klass->memberAt(i);
+        if (symbol->isFunction() || symbol->isDeclaration()) {
+            if (const Name *symbolName = symbol->name()) {
+                if (const Identifier *id = symbolName->identifier()) {
+                    if (!strncmp(id->chars(), "get", 3))
+                        return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 class GenerateGetterSetterOperation : public CppQuickFixOperation
 {
 public:
@@ -2811,7 +2830,8 @@ public:
         if (m_baseName.isEmpty())
             m_baseName = QLatin1String("value");
 
-        m_getterName = m_baseName != m_variableString
+        m_getterName = !(m_baseName == m_variableString
+                         || hasClassMemberWithGetPrefix(m_classSpecifier->symbol))
             ? m_baseName
             : QString::fromLatin1("get%1%2")
                 .arg(m_baseName.left(1).toUpper()).arg(m_baseName.mid(1));

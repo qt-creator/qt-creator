@@ -612,6 +612,38 @@ void CppEditorPlugin::test_quickfix_data()
         "}\n"
     );
 
+    // Checks if getter uses 'get' prefix if member function with such a prefix is found
+    QTest::newRow("GenerateGetterSetter_getterWithGetPrefix")
+        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    int getFoo();\n"
+        "    int @m_it;\n"
+        "};\n"
+        ) << _(
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    int getFoo();\n"
+        "    int m_it;\n"
+        "\n"
+        "public:\n"
+        "    int getIt() const;\n"
+        "    void setIt(int it);\n"
+        "};\n"
+        "\n"
+        "int Something::getIt() const\n"
+        "{\n"
+        "    return m_it;\n"
+        "}\n"
+        "\n"
+        "void Something::setIt(int it)\n"
+        "{\n"
+        "    m_it = it;\n"
+        "}\n"
+    );
+
     // Check: Setter: Use pass by reference for parameters which
     // are not integer, float or pointers.
     QTest::newRow("GenerateGetterSetter_customType")
