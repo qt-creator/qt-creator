@@ -103,7 +103,10 @@ public:
     {
         QString componentName = m_componentName;
         QString path = QFileInfo(fileName()).path();
-        ComponentNameDialog::go(&componentName, &path, Core::ICore::dialogParent());
+        bool confirm = ComponentNameDialog::go(&componentName, &path, Core::ICore::dialogParent());
+
+        if (!confirm)
+            return;
 
         if (componentName.isEmpty() || path.isEmpty())
             return;

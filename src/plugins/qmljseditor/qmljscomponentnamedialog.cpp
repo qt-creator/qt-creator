@@ -54,7 +54,7 @@ ComponentNameDialog::~ComponentNameDialog()
     delete ui;
 }
 
-void ComponentNameDialog::go(QString *proposedName,
+bool ComponentNameDialog::go(QString *proposedName,
                              QString *proposedPath,
                              QWidget *parent)
 {
@@ -73,7 +73,10 @@ void ComponentNameDialog::go(QString *proposedName,
     if (QDialog::Accepted == d.exec()) {
         *proposedName = d.ui->componentNameEdit->text();
         *proposedPath = d.ui->pathEdit->path();
+        return true;
     }
+
+    return false;
 }
 
 void ComponentNameDialog::choosePath()
