@@ -89,6 +89,8 @@ protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void leaveEvent(QEvent *event);
+    void showEvent(QShowEvent *event);
+    void resizeEvent(QResizeEvent *event);
     bool event(QEvent *e);
 
 private slots:
@@ -99,6 +101,7 @@ private slots:
 private:
     void getControlAt(int x, int y, int *buttonIndex, int *targetIndex, int *targetSubIndex);
     int maxVisibleTargets() const;
+    void ensureCurrentIndexVisible();
 
     const QImage m_unselected;
     const QImage m_runselected;

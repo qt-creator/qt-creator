@@ -172,9 +172,33 @@ void TargetSelector::setCurrentIndex(int index)
 
     m_currentTargetIndex = index;
 
+    if (isVisible())
+        ensureCurrentIndexVisible();
+
     update();
     emit currentChanged(m_currentTargetIndex,
                              m_currentTargetIndex >= 0 ? m_targets.at(m_currentTargetIndex).currentSubIndex : -1);
+}
+
+void TargetSelector::showEvent(QShowEvent *event)
+{
+    QWidget::showEvent(event);
+    ensureCurrentIndexVisible();
+}
+
+void TargetSelector::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    ensureCurrentIndexVisible();
+}
+
+void TargetSelector::ensureCurrentIndexVisible()
+{
+    if (m_currentTargetIndex < m_startIndex)
+        m_startIndex = m_currentTargetIndex;
+    const int lastIndex = m_startIndex + maxVisibleTargets() - 1;
+    if (m_currentTargetIndex > lastIndex)
+        m_startIndex = m_currentTargetIndex - maxVisibleTargets() + 1;
 }
 
 void TargetSelector::setCurrentSubIndex(int subindex)
