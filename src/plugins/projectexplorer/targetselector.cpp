@@ -239,7 +239,7 @@ QSize TargetSelector::sizeHint() const
 
 int TargetSelector::maxVisibleTargets() const
 {
-    return (width() - ((NAVBUTTON_WIDTH + 1) * 2 + 3))/(targetWidth() + 1);
+    return qMax((width() - ((NAVBUTTON_WIDTH + 1) * 2 + 3))/(targetWidth() + 1), 1);
 }
 
 void TargetSelector::getControlAt(int x, int y, int *buttonIndex, int *targetIndex, int *targetSubIndex)
