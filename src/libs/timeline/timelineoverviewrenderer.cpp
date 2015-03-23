@@ -37,7 +37,6 @@ TimelineOverviewRenderer::TimelineOverviewRenderer(QQuickItem *parent) :
     TimelineAbstractRenderer(*(new TimelineOverviewRendererPrivate), parent)
 {
     Q_D(TimelineOverviewRenderer);
-    setFlag(QQuickItem::ItemHasContents);
     d->renderState = 0;
 }
 
