@@ -39,8 +39,8 @@ namespace Timeline {
 class TIMELINE_EXPORT TimelineZoomControl : public QObject {
     Q_OBJECT
 
-    Q_PROPERTY(qint64 traceStart READ traceStart WRITE setTraceStart NOTIFY traceChanged)
-    Q_PROPERTY(qint64 traceEnd READ traceEnd WRITE setTraceEnd NOTIFY traceChanged)
+    Q_PROPERTY(qint64 traceStart READ traceStart NOTIFY traceChanged)
+    Q_PROPERTY(qint64 traceEnd READ traceEnd NOTIFY traceChanged)
     Q_PROPERTY(qint64 traceDuration READ traceDuration NOTIFY traceChanged)
 
     Q_PROPERTY(qint64 windowStart READ windowStart NOTIFY windowChanged)
@@ -79,8 +79,6 @@ signals:
     void windowLockedChanged(bool windowLocked);
 
 public slots:
-    void setTraceStart(qint64 start);
-    void setTraceEnd(qint64 end);
     void setTrace(qint64 start, qint64 end);
     void setRange(qint64 start, qint64 end);
     void setWindowLocked(bool windowLocked);

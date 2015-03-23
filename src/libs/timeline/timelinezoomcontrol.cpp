@@ -45,28 +45,6 @@ void TimelineZoomControl::clear()
     setTrace(-1, -1);
 }
 
-void TimelineZoomControl::setTraceStart(qint64 start)
-{
-    if (start != m_traceStart) {
-        if (m_traceEnd < start)
-            m_traceEnd = start;
-        m_traceStart = start;
-        emit traceChanged(start, m_traceEnd);
-        rebuildWindow();
-    }
-}
-
-void TimelineZoomControl::setTraceEnd(qint64 end)
-{
-    if (end != m_traceEnd) {
-        if (m_traceStart > end)
-            m_traceStart = end;
-        m_traceEnd = end;
-        emit traceChanged(m_traceStart, end);
-        rebuildWindow();
-    }
-}
-
 void TimelineZoomControl::setTrace(qint64 start, qint64 end)
 {
     Q_ASSERT(start <= end);
