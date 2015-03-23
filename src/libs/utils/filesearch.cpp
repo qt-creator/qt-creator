@@ -29,15 +29,14 @@
 ****************************************************************************/
 
 #include "filesearch.h"
-#include <cctype>
-
-#include <QRegExp>
-#include <QCoreApplication>
-#include <QTextCodec>
-
 #include "runextensions.h"
 
-#include <functional>
+#include <QCoreApplication>
+#include <QRegExp>
+#include <QTextCodec>
+#include <QtConcurrentMap>
+
+#include <cctype>
 
 using namespace Utils;
 
@@ -66,14 +65,34 @@ QString clippedText(const QString &text, int maxLength)
     return text;
 }
 
-class FileSearch : public std::binary_function<QString, QTextStream, FileSearchResultList>
+// returns success
+bool openStream(const QString &filePath, QTextCodec *encoding, QTextStream *stream, QFile *file,
+                QString *tempString,
+                const QMap<QString, QString> &fileToContentsMap)
+{
+    if (fileToContentsMap.contains(filePath)) {
+        *tempString = fileToContentsMap.value(filePath);
+        stream->setString(tempString);
+    } else {
+        file->setFileName(filePath);
+        if (!file->open(QIODevice::ReadOnly))
+            return false;
+        stream->setDevice(file);
+        stream->setCodec(encoding);
+    }
+    return true;
+}
+
+class FileSearch : public std::unary_function<FileIterator::Item, FileSearchResultList>
 {
 public:
     FileSearch(const QString &searchTerm, QTextDocument::FindFlags flags,
+               QMap<QString, QString> fileToContentsMap,
                QFutureInterface<FileSearchResultList> *futureInterface);
-    const FileSearchResultList operator()(const QString &filePath, QTextStream &stream) const;
+    const FileSearchResultList operator()(const FileIterator::Item &item) const;
 
 private:
+    QMap<QString, QString> fileToContentsMap;
     QFutureInterface<FileSearchResultList> *future;
     QString searchTermLower;
     QString searchTermUpper;
@@ -85,21 +104,25 @@ private:
     bool wholeWord;
 };
 
-class FileSearchRegExp : public std::binary_function<QString, QTextStream, FileSearchResultList>
+class FileSearchRegExp : public std::unary_function<FileIterator::Item, FileSearchResultList>
 {
 public:
     FileSearchRegExp(const QString &searchTerm, QTextDocument::FindFlags flags,
-               QFutureInterface<FileSearchResultList> *futureInterface);
-    const FileSearchResultList operator()(const QString &filePath, QTextStream &stream) const;
+                     QMap<QString, QString> fileToContentsMap,
+                     QFutureInterface<FileSearchResultList> *futureInterface);
+    const FileSearchResultList operator()(const FileIterator::Item &item) const;
 
 private:
+    QMap<QString, QString> fileToContentsMap;
     QFutureInterface<FileSearchResultList> *future;
     QRegExp expression;
 };
 
 FileSearch::FileSearch(const QString &searchTerm, QTextDocument::FindFlags flags,
+                       QMap<QString, QString> fileToContentsMap,
                        QFutureInterface<FileSearchResultList> *futureInterface)
 {
+    this->fileToContentsMap = fileToContentsMap;
     caseSensitive = (flags & QTextDocument::FindCaseSensitively);
     wholeWord = (flags & QTextDocument::FindWholeWords);
     future = futureInterface;
@@ -111,11 +134,17 @@ FileSearch::FileSearch(const QString &searchTerm, QTextDocument::FindFlags flags
     termDataUpper = searchTermUpper.constData();
 }
 
-const FileSearchResultList FileSearch::operator()(const QString &filePath,
-                                                  QTextStream &stream) const
+const FileSearchResultList FileSearch::operator()(const FileIterator::Item &item) const
 {
-    int lineNr = 0;
     FileSearchResultList results;
+    if (future->isCanceled())
+        return results;
+    QFile file;
+    QTextStream stream;
+    QString tempString;
+    if (!openStream(item.filePath, item.encoding, &stream, &file, &tempString, fileToContentsMap))
+        return results;
+    int lineNr = 0;
 
     while (!stream.atEnd()) {
         ++lineNr;
@@ -172,7 +201,7 @@ const FileSearchResultList FileSearch::operator()(const QString &filePath,
                     }
                 }
                 if (equal) {
-                    results << FileSearchResult(filePath, lineNr, resultItemText,
+                    results << FileSearchResult(item.filePath, lineNr, resultItemText,
                                                 regionPtr - chunkPtr, termMaxIndex + 1,
                                                 QStringList());
                     regionPtr += termMaxIndex; // another +1 done by for-loop
@@ -184,12 +213,16 @@ const FileSearchResultList FileSearch::operator()(const QString &filePath,
         if (future->isCanceled())
             break;
     }
+    if (file.isOpen())
+        file.close();
     return results;
 }
 
 FileSearchRegExp::FileSearchRegExp(const QString &searchTerm, QTextDocument::FindFlags flags,
-                       QFutureInterface<FileSearchResultList> *futureInterface)
+                                   QMap<QString, QString> fileToContentsMap,
+                                   QFutureInterface<FileSearchResultList> *futureInterface)
 {
+    this->fileToContentsMap = fileToContentsMap;
     future = futureInterface;
     QString term = searchTerm;
     if (flags & QTextDocument::FindWholeWords)
@@ -199,11 +232,17 @@ FileSearchRegExp::FileSearchRegExp(const QString &searchTerm, QTextDocument::Fin
     expression = QRegExp(term, caseSensitivity);
 }
 
-const FileSearchResultList FileSearchRegExp::operator()(const QString &filePath,
-                                                        QTextStream &stream) const
+const FileSearchResultList FileSearchRegExp::operator()(const FileIterator::Item &item) const
 {
-    int lineNr = 0;
     FileSearchResultList results;
+    if (future->isCanceled())
+        return results;
+    QFile file;
+    QTextStream stream;
+    QString tempString;
+    if (!openStream(item.filePath, item.encoding, &stream, &file, &tempString, fileToContentsMap))
+        return results;
+    int lineNr = 0;
 
     QString line;
     while (!stream.atEnd()) {
@@ -213,7 +252,7 @@ const FileSearchResultList FileSearchRegExp::operator()(const QString &filePath,
         int lengthOfLine = line.size();
         int pos = 0;
         while ((pos = expression.indexIn(line, pos)) != -1) {
-            results << FileSearchResult(filePath, lineNr, resultItemText,
+            results << FileSearchResult(item.filePath, lineNr, resultItemText,
                                           pos, expression.matchedLength(),
                                           expression.capturedTexts());
             if (expression.matchedLength() == 0)
@@ -227,84 +266,103 @@ const FileSearchResultList FileSearchRegExp::operator()(const QString &filePath,
         if (future->isCanceled())
             break;
     }
+    if (file.isOpen())
+        file.close();
     return results;
 }
 
-void runFileSearch(QFutureInterface<FileSearchResultList> &future,
-                   QString searchTerm,
-                   FileIterator *files,
-                   QMap<QString, QString> fileToContentsMap,
-                   const std::function<FileSearchResultList(QString, QTextStream&)> &searchFunction)
+class RunFileSearch
 {
-    int numFilesSearched = 0;
-    int numMatches = 0;
-    future.setProgressRange(0, files->maxProgress());
-    future.setProgressValueAndText(files->currentProgress(), msgFound(searchTerm, numMatches,
-                                                                      numFilesSearched));
+public:
+    RunFileSearch(QFutureInterface<FileSearchResultList> &future,
+                  const QString &searchTerm,
+                  FileIterator *files,
+                  const std::function<FileSearchResultList(FileIterator::Item)> &searchFunction);
 
-    QFile file;
-    QString str;
-    QTextStream stream;
-    FileSearchResultList results;
-    auto end = files->end();
-    for (auto it = files->begin(); it != end; ++it) {
-        const QString &filePath = it->filePath;
-        if (future.isPaused())
-            future.waitForResume();
-        if (future.isCanceled()) {
-            future.setProgressValueAndText(files->currentProgress(), msgCanceled(searchTerm,
-                                                                                 numMatches,
-                                                                                 numFilesSearched));
-            break;
-        }
+    void run();
+    void collect(const FileSearchResultList &results);
 
-        bool needsToCloseFile = false;
-        if (fileToContentsMap.contains(filePath)) {
-            str = fileToContentsMap.value(filePath);
-            stream.setString(&str);
-        } else {
-            file.setFileName(filePath);
-            if (!file.open(QIODevice::ReadOnly))
-                continue;
-            needsToCloseFile = true;
-            stream.setDevice(&file);
-            stream.setCodec(it->encoding);
-        }
+private:
+    QFutureInterface<FileSearchResultList> &m_future;
+    QString m_searchTerm;
+    FileIterator *m_files;
+    std::function<FileSearchResultList(FileIterator::Item)> m_searchFunction;
 
-        const FileSearchResultList singleFileResults = searchFunction(filePath, stream);
-        numMatches += singleFileResults.size();
-        results << singleFileResults;
+    int m_numFilesSearched;
+    int m_numMatches;
+    FileSearchResultList m_results;
+    bool m_canceled;
+};
 
-        ++numFilesSearched;
-        if (future.isProgressUpdateNeeded()
-                || future.progressValue() == 0 /*workaround for regression in Qt*/) {
-            if (!results.isEmpty()) {
-                future.reportResult(results);
-                results.clear();
-            }
-            future.setProgressRange(0, files->maxProgress());
-            future.setProgressValueAndText(files->currentProgress(), msgFound(searchTerm,
-                                                                              numMatches,
-                                                                              numFilesSearched));
-        }
-
-        // clean up
-        if (needsToCloseFile)
-            file.close();
-
-    }
-    if (!results.isEmpty()) {
-        future.reportResult(results);
-        results.clear();
-    }
-    if (!future.isCanceled())
-        future.setProgressValueAndText(files->currentProgress(), msgFound(searchTerm, numMatches,
-                                                                          numFilesSearched));
-    delete files;
-    if (future.isPaused())
-        future.waitForResume();
+RunFileSearch::RunFileSearch(QFutureInterface<FileSearchResultList> &future,
+                             const QString &searchTerm, FileIterator *files,
+                             const std::function<FileSearchResultList (FileIterator::Item)> &searchFunction)
+    : m_future(future),
+      m_searchTerm(searchTerm),
+      m_files(files),
+      m_searchFunction(searchFunction),
+      m_numFilesSearched(0),
+      m_numMatches(0),
+      m_canceled(false)
+{
+    m_future.setProgressRange(0, m_files->maxProgress());
+    m_future.setProgressValueAndText(m_files->currentProgress(), msgFound(m_searchTerm,
+                                                                          m_numMatches,
+                                                                          m_numFilesSearched));
 }
 
+void RunFileSearch::run()
+{
+    // This thread waits for blockingMappedReduced to finish, so reduce the pool's used thread count
+    // so the blockingMappedReduced can use one more thread, and increase it again afterwards.
+    QThreadPool::globalInstance()->releaseThread();
+    QtConcurrent::blockingMappedReduced<FileSearchResultList>(m_files->begin(), m_files->end(),
+                                                  m_searchFunction,
+                                                  [this](FileSearchResultList &, const FileSearchResultList &results) {
+                                                      collect(results);
+                                                  },
+                                                  QtConcurrent::OrderedReduce | QtConcurrent::SequentialReduce);
+    QThreadPool::globalInstance()->reserveThread();
+    if (!m_results.isEmpty()) {
+        m_future.reportResult(m_results);
+        m_results.clear();
+    }
+    if (!m_future.isCanceled())
+        m_future.setProgressValueAndText(m_files->currentProgress(), msgFound(m_searchTerm,
+                                                                              m_numMatches,
+                                                                              m_numFilesSearched));
+    delete m_files;
+    if (m_future.isPaused())
+        m_future.waitForResume();
+}
+
+void RunFileSearch::collect(const FileSearchResultList &results)
+{
+    if (m_future.isCanceled()) {
+        if (!m_canceled) {
+            m_future.setProgressValueAndText(m_files->currentProgress(),
+                                             msgCanceled(m_searchTerm,
+                                                         m_numMatches,
+                                                         m_numFilesSearched));
+            m_canceled = true;
+        }
+        return;
+    }
+    m_numMatches += results.size();
+    m_results << results;
+    ++m_numFilesSearched;
+    if (m_future.isProgressUpdateNeeded()
+            || m_future.progressValue() == 0 /*workaround for regression in Qt*/) {
+        if (!m_results.isEmpty()) {
+            m_future.reportResult(m_results);
+            m_results.clear();
+        }
+        m_future.setProgressRange(0, m_files->maxProgress());
+        m_future.setProgressValueAndText(m_files->currentProgress(), msgFound(m_searchTerm,
+                                                                              m_numMatches,
+                                                                              m_numFilesSearched));
+    }
+}
 
 void runFileSearch(QFutureInterface<FileSearchResultList> &future,
                    QString searchTerm,
@@ -312,8 +370,9 @@ void runFileSearch(QFutureInterface<FileSearchResultList> &future,
                    QTextDocument::FindFlags flags,
                    QMap<QString, QString> fileToContentsMap)
 {
-    runFileSearch(future, searchTerm, files, fileToContentsMap,
-                  FileSearch(searchTerm, flags, &future));
+    RunFileSearch search(future, searchTerm, files,
+                         FileSearch(searchTerm, flags, fileToContentsMap, &future));
+    search.run();
 }
 
 void runFileSearchRegExp(QFutureInterface<FileSearchResultList> &future,
@@ -322,8 +381,9 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResultList> &future,
                    QTextDocument::FindFlags flags,
                    QMap<QString, QString> fileToContentsMap)
 {
-    runFileSearch(future, searchTerm, files, fileToContentsMap,
-                  FileSearchRegExp(searchTerm, flags, &future));
+    RunFileSearch search(future, searchTerm, files,
+                         FileSearchRegExp(searchTerm, flags, fileToContentsMap, &future));
+    search.run();
 }
 
 } // namespace
