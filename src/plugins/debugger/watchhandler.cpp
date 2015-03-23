@@ -238,6 +238,7 @@ public:
     SeparatedView *m_separatedView; // Not owned.
 
     QSet<QByteArray> m_expandedINames;
+    QSet<QByteArray> m_fetchTriggered;
     QTimer m_requestUpdateTimer;
 
     QHash<QString, DisplayFormats> m_reportedTypeFormats; // Type name -> Dumper Formats
@@ -607,23 +608,25 @@ bool WatchItem::canFetchMore() const
 {
     if (!wantsChildren)
         return false;
-    if (!watchModel())
+    const WatchModel *model = watchModel();
+    if (!model)
         return false;
-    if (!watchModel()->m_contentsValid && !isInspect())
+    if (!model->m_contentsValid && !isInspect())
         return false;
-    return !fetchTriggered;
+    return !model->m_fetchTriggered.contains(iname);
 }
 
 void WatchItem::fetchMore()
 {
-    if (fetchTriggered)
+    WatchModel *model = watchModel();
+    if (model->m_fetchTriggered.contains(iname))
         return;
 
-    watchModel()->m_expandedINames.insert(iname);
-    fetchTriggered = true;
+    model->m_expandedINames.insert(iname);
+    model->m_fetchTriggered.insert(iname);
     if (children().isEmpty()) {
         setChildrenNeeded();
-        watchModel()->m_engine->updateWatchItem(this);
+        model->m_engine->updateWatchItem(this);
     }
 }
 
@@ -1656,6 +1659,7 @@ QString WatchHandler::editorContents()
 
 void WatchHandler::scheduleResetLocation()
 {
+    m_model->m_fetchTriggered.clear();
     m_model->m_contentsValid = false;
     m_model->m_resetLocationScheduled = true;
 }
@@ -1705,24 +1709,18 @@ QSet<QByteArray> WatchHandler::expandedINames() const
 //
 ////////////////////////////////////////////////////////////////////
 
-WatchItem::WatchItem()
-    : fetchTriggered(false)
-{}
-
 WatchItem::WatchItem(const QByteArray &i, const QString &n)
 {
-    fetchTriggered = false;
     iname = i;
     name = n;
 }
 
 WatchItem::WatchItem(const WatchData &data)
-    : WatchData(data), fetchTriggered(false)
+    : WatchData(data)
 {
 }
 
 WatchItem::WatchItem(const GdbMi &data)
-    : fetchTriggered(false)
 {
     iname = data["iname"].data();
 

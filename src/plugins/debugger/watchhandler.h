@@ -90,7 +90,7 @@ typedef QVector<DisplayFormat> DisplayFormats;
 class WatchItem : public Utils::TreeItem, public WatchData
 {
 public:
-    WatchItem();
+    WatchItem() {}
     WatchItem(const QByteArray &i, const QString &n);
     explicit WatchItem(const WatchData &data);
     explicit WatchItem(const GdbMi &data);
@@ -123,7 +123,6 @@ private:
     Qt::ItemFlags flags(int column) const;
 
     void parseWatchData(const GdbMi &input);
-    bool fetchTriggered;
 };
 
 class UpdateParameters
