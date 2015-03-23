@@ -290,7 +290,7 @@
 
     If it is a scheduled feature, you can see this in the task tracker. If a
     feature already has been implemented, it is mentioned in the
-    \l{http://qt.gitorious.org/qt-creator/qt-creator/trees/master/dist}{changes file}
+    \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/dist}{changes file}
     for the upcoming release.
 
     \b {Why does \QC not use tabs for editors?}
