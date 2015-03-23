@@ -165,6 +165,7 @@ void tst_CodeSize::codesize()
     QFile mainPro(t->buildPath + "/main.pro");
     QVERIFY(mainPro.open(QIODevice::ReadWrite));
     mainPro.write("\n\nSOURCES += main.cpp");
+    mainPro.write("\nCONFIG += c++11\n");
 
     QFile mainCpp(t->buildPath + QLatin1String("/main.cpp"));
     QVERIFY(mainCpp.open(QIODevice::ReadWrite));
@@ -354,6 +355,51 @@ void tst_CodeSize::codesize_data()
     s.cases.append(c);
 
     QTest::newRow("lambdas") << s;
+    s.clear();
+
+
+    QByteArray std_tie_code =
+        "struct QMakeStepConfig\n"
+        "{\n"
+        "    enum TargetArchConfig { NoArch, X86, X86_64, PPC, PPC64 };\n"
+        "    enum OsType { NoOsType, IphoneSimulator, IphoneOS };\n"
+        "\n"
+        "    QMakeStepConfig()\n"
+        "        : e1(NoArch),\n"
+        "          e2(NoOsType),\n"
+        "          b1(false),\n"
+        "          b2(false),\n"
+        "          b3(false),\n"
+        "          b4(false)\n"
+        "    {}\n"
+        "\n"
+        "    TargetArchConfig e1;\n"
+        "    OsType e2;\n"
+        "    bool b1;\n"
+        "    bool b2;\n"
+        "    bool b3;\n"
+        "    bool b4;\n"
+        "};\n";
+
+    c.file = "std__tie";
+    c.gist = "std::tie";
+    c.code = "#include <tuple>\n" + std_tie_code +
+        "bool operator ==(const QMakeStepConfig &a, const QMakeStepConfig &b) {\n"
+        "    return std::tie(a.e1, a.e2, a.b1, a.b2, a.b3, a.b4)\n"
+        "        == std::tie(b.e1, b.e2, b.b1, b.b2, b.b3, b.b4);\n"
+        "}\n";
+    s.cases.append(c);
+
+    c.file = "conventional";
+    c.gist = "conventional";
+    c.code = "" + std_tie_code +
+        "bool operator ==(const QMakeStepConfig &a, const QMakeStepConfig &b) {\n"
+        "    return a.e1 == b.e1 && a.e2 == b.e2 && a.b1 == b.b1\n"
+        "        && a.b2 == b.b2 && a.b3 == b.b3 && a.b4 == b.b4;\n"
+        "}\n";
+    s.cases.append(c);
+
+    QTest::newRow("std_tie") << s;
     s.clear();
 }
 
