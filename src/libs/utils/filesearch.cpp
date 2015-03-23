@@ -246,8 +246,9 @@ void runFileSearch(QFutureInterface<FileSearchResultList> &future,
     QString str;
     QTextStream stream;
     FileSearchResultList results;
-    while (files->hasNext()) {
-        const QString &filePath = files->next();
+    auto end = files->end();
+    for (auto it = files->begin(); it != end; ++it) {
+        const QString &filePath = it->filePath;
         if (future.isPaused())
             future.waitForResume();
         if (future.isCanceled()) {
@@ -267,7 +268,7 @@ void runFileSearch(QFutureInterface<FileSearchResultList> &future,
                 continue;
             needsToCloseFile = true;
             stream.setDevice(&file);
-            stream.setCodec(files->encoding());
+            stream.setCodec(it->encoding);
         }
 
         const FileSearchResultList singleFileResults = searchFunction(filePath, stream);
@@ -420,9 +421,8 @@ QString matchCaseReplacement(const QString &originalText, const QString &replace
     return replaceText;         // mixed
 }
 }
-}
 
-QString Utils::matchCaseReplacement(const QString &originalText, const QString &replaceText)
+QString matchCaseReplacement(const QString &originalText, const QString &replaceText)
 {
     if (originalText.isEmpty())
         return replaceText;
@@ -451,55 +451,83 @@ QString Utils::matchCaseReplacement(const QString &originalText, const QString &
 
 // #pragma mark -- FileIterator
 
-FileIterator::FileIterator()
-    : m_list(QStringList()),
-    m_iterator(0),
-    m_index(-1)
+void FileIterator::next(FileIterator::const_iterator *it)
 {
+    if (it->m_index < 0) // == end
+        return;
+    ++it->m_index;
+    update(it->m_index);
+    if (it->m_index < currentFileCount()) {
+        it->m_item.filePath = fileAt(it->m_index);
+        it->m_item.encoding = codecAt(it->m_index);
+    } else {
+        it->m_index = -1; // == end
+        it->m_item.filePath.clear();
+        it->m_item.encoding = 0;
+    }
 }
 
-FileIterator::FileIterator(const QStringList &fileList,
-                           const QList<QTextCodec *> encodings)
-    : m_list(fileList),
-      m_iterator(new QStringListIterator(m_list)),
+FileIterator::const_iterator FileIterator::begin()
+{
+    update(0);
+    if (currentFileCount() == 0)
+        return end();
+    return FileIterator::const_iterator(this,
+                                        FileIterator::Item(fileAt(0), codecAt(0)),
+                                        0/*index*/);
+}
+
+FileIterator::const_iterator FileIterator::end()
+{
+    return FileIterator::const_iterator(this, FileIterator::Item(QString(), 0),
+                                        -1/*end*/);
+}
+
+// #pragma mark -- FileListIterator
+
+FileListIterator::FileListIterator(const QStringList &fileList,
+                                   const QList<QTextCodec *> encodings)
+    : m_files(fileList),
       m_encodings(encodings),
-      m_index(-1)
+      m_maxIndex(-1)
 {
 }
 
-FileIterator::~FileIterator()
+void FileListIterator::update(int requestedIndex)
 {
-    if (m_iterator)
-        delete m_iterator;
+    if (requestedIndex > m_maxIndex)
+        m_maxIndex = requestedIndex;
 }
 
-bool FileIterator::hasNext() const
+int FileListIterator::currentFileCount() const
 {
-    Q_ASSERT(m_iterator);
-    return m_iterator->hasNext();
+    return m_files.size();
 }
 
-QString FileIterator::next()
+QString FileListIterator::fileAt(int index) const
 {
-    Q_ASSERT(m_iterator);
-    ++m_index;
-    return m_iterator->next();
+    return m_files.at(index);
 }
 
-int FileIterator::maxProgress() const
+QTextCodec *FileListIterator::codecAt(int index) const
 {
-    return m_list.size();
+    return m_encodings.at(index);
 }
 
-int FileIterator::currentProgress() const
+int FileListIterator::maxProgress() const
 {
-    return m_index + 1;
+    return m_files.size();
 }
 
-QTextCodec * FileIterator::encoding() const
+int FileListIterator::currentProgress() const
 {
-    if (m_index >= 0 && m_index < m_encodings.size())
-        return m_encodings.at(m_index);
+    return m_maxIndex + 1;
+}
+
+QTextCodec *FileListIterator::encodingAt(int index) const
+{
+    if (index >= 0 && index < m_encodings.size())
+        return m_encodings.at(index);
     return QTextCodec::codecForLocale();
 }
 
@@ -524,11 +552,12 @@ SubDirFileIterator::SubDirFileIterator(const QStringList &directories, const QSt
     }
 }
 
-bool SubDirFileIterator::hasNext() const
+void SubDirFileIterator::update(int index)
 {
-    if (!m_currentFiles.isEmpty())
-        return true;
-    while (!m_dirs.isEmpty() && m_currentFiles.isEmpty()) {
+    if (index < m_files.size())
+        return;
+    // collect files from the directories until we have enough for the given index
+    while (!m_dirs.isEmpty() && index >= m_files.size()) {
         QDir dir = m_dirs.pop();
         const qreal dirProgressMax = m_progressValues.pop();
         const bool processed = m_processedValues.pop();
@@ -543,7 +572,7 @@ bool SubDirFileIterator::hasNext() const
                 it.toBack();
                 while (it.hasPrevious()) {
                     const QString &file = it.previous();
-                    m_currentFiles.append(dir.path()+ QLatin1Char('/') +file);
+                    m_files.append(dir.path()+ QLatin1Char('/') +file);
                 }
                 m_progress += dirProgressMax;
             } else {
@@ -564,18 +593,24 @@ bool SubDirFileIterator::hasNext() const
             m_progress += dirProgressMax;
         }
     }
-    if (m_currentFiles.isEmpty()) {
+    if (index >= m_files.size())
         m_progress = MAX_PROGRESS;
-        return false;
-    }
-
-    return true;
 }
 
-QString SubDirFileIterator::next()
+int SubDirFileIterator::currentFileCount() const
 {
-    Q_ASSERT(!m_currentFiles.isEmpty());
-    return m_currentFiles.takeFirst();
+    return m_files.size();
+}
+
+QString SubDirFileIterator::fileAt(int index) const
+{
+    return m_files.at(index);
+}
+
+QTextCodec *SubDirFileIterator::codecAt(int index) const
+{
+    Q_UNUSED(index)
+    return m_encoding;
 }
 
 int SubDirFileIterator::maxProgress() const
@@ -588,7 +623,4 @@ int SubDirFileIterator::currentProgress() const
     return qMin(qRound(m_progress), MAX_PROGRESS);
 }
 
-QTextCodec * SubDirFileIterator::encoding() const
-{
-    return m_encoding;
 }

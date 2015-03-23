@@ -114,7 +114,7 @@ Utils::FileIterator *AllProjectsFind::filesForProjects(const QStringList &nameFi
             encodings.insert(fileName, codec);
         }
     }
-    return new Utils::FileIterator(encodings.keys(), encodings.values());
+    return new Utils::FileListIterator(encodings.keys(), encodings.values());
 }
 
 QVariant AllProjectsFind::additionalParameters() const

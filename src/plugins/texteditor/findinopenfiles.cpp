@@ -81,7 +81,7 @@ Utils::FileIterator *FindInOpenFiles::files(const QStringList &nameFilters,
         }
     }
 
-    return new Utils::FileIterator(fileNames, codecs);
+    return new Utils::FileListIterator(fileNames, codecs);
 }
 
 QVariant FindInOpenFiles::additionalParameters() const

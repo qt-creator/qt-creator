@@ -46,24 +46,77 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT FileIterator
 {
 public:
-    explicit FileIterator(const QStringList &fileList,
-                          const QList<QTextCodec *> encodings);
-    virtual ~FileIterator();
+    class Item
+    {
+    public:
+        Item(const QString &path, QTextCodec *codec)
+            : filePath(path), encoding(codec)
+        {}
+        QString filePath;
+        QTextCodec *encoding;
+    };
 
-    virtual bool hasNext() const;
-    virtual QString next();
-    virtual QTextCodec *encoding() const;
-    virtual int maxProgress() const;
-    virtual int currentProgress() const;
+    class const_iterator
+    {
+    public:
+        typedef std::forward_iterator_tag iterator_category;
+        typedef Item value_type;
+        typedef std::ptrdiff_t difference_type;
+        typedef const value_type *pointer;
+        typedef const value_type &reference;
+
+        const_iterator(FileIterator *parent, Item item, int id)
+            : m_parent(parent), m_item(item), m_index(id)
+        {}
+        const Item operator*() const { return m_item; }
+        const Item *operator->() const { return &m_item; }
+        void operator++() { m_parent->next(this); }
+        bool operator==(const const_iterator &other) const
+        {
+            return m_parent == other.m_parent && m_index == other.m_index;
+        }
+        bool operator!=(const const_iterator &other) const { return !operator==(other); }
+
+        FileIterator *m_parent;
+        Item m_item;
+        int m_index; // -1 == end
+    };
+
+    virtual ~FileIterator() {}
+    void next(const_iterator *it);
+    const_iterator begin();
+    const_iterator end();
+
+    virtual int maxProgress() const = 0;
+    virtual int currentProgress() const = 0;
 
 protected:
-    FileIterator();
+    virtual void update(int requestedIndex) = 0;
+    virtual int currentFileCount() const = 0;
+    virtual QString fileAt(int index) const = 0;
+    virtual QTextCodec *codecAt(int index) const = 0;
+};
+
+class QTCREATOR_UTILS_EXPORT FileListIterator : public FileIterator
+{
+public:
+    explicit FileListIterator(const QStringList &fileList,
+                              const QList<QTextCodec *> encodings);
+
+    int maxProgress() const override;
+    int currentProgress() const override;
+
+protected:
+    void update(int requestedIndex) override;
+    int currentFileCount() const override;
+    QString fileAt(int index) const override;
+    QTextCodec *codecAt(int index) const override;
 
 private:
-    QStringList m_list;
-    QStringListIterator *m_iterator;
+    QTextCodec *encodingAt(int index) const;
+    QStringList m_files;
     QList<QTextCodec *> m_encodings;
-    int m_index;
+    int m_maxIndex;
 };
 
 class QTCREATOR_UTILS_EXPORT SubDirFileIterator : public FileIterator
@@ -72,20 +125,23 @@ public:
     SubDirFileIterator(const QStringList &directories, const QStringList &filters,
                        QTextCodec *encoding = 0);
 
-    bool hasNext() const;
-    QString next();
-    QTextCodec *encoding() const;
-    int maxProgress() const;
-    int currentProgress() const;
+    int maxProgress() const override;
+    int currentProgress() const override;
+
+protected:
+    void update(int requestedIndex) override;
+    int currentFileCount() const override;
+    QString fileAt(int index) const override;
+    QTextCodec *codecAt(int index) const override;
 
 private:
     QStringList m_filters;
     QTextCodec *m_encoding;
-    mutable QStack<QDir> m_dirs;
-    mutable QStack<qreal> m_progressValues;
-    mutable QStack<bool> m_processedValues;
-    mutable qreal m_progress;
-    mutable QStringList m_currentFiles;
+    QStack<QDir> m_dirs;
+    QStack<qreal> m_progressValues;
+    QStack<bool> m_processedValues;
+    qreal m_progress;
+    QStringList m_files;
 };
 
 class QTCREATOR_UTILS_EXPORT FileSearchResult

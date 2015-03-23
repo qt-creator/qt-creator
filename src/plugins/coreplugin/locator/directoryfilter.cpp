@@ -190,14 +190,17 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
         }
         directories = m_directories;
     }
-    Utils::SubDirFileIterator it(directories, m_filters);
-    future.setProgressRange(0, it.maxProgress());
+    Utils::SubDirFileIterator subDirIterator(directories, m_filters);
+    future.setProgressRange(0, subDirIterator.maxProgress());
     QStringList filesFound;
-    while (!future.isCanceled() && it.hasNext()) {
-        filesFound << it.next();
+    auto end = subDirIterator.end();
+    for (auto it = subDirIterator.begin(); it != end; ++it) {
+        if (future.isCanceled())
+            break;
+        filesFound << (*it).filePath;
         if (future.isProgressUpdateNeeded()
                 || future.progressValue() == 0 /*workaround for regression in Qt*/) {
-            future.setProgressValueAndText(it.currentProgress(),
+            future.setProgressValueAndText(subDirIterator.currentProgress(),
                                            tr("%1 filter update: %n files", 0, filesFound.size()).arg(displayName()));
         }
     }
@@ -206,8 +209,8 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
         QMutexLocker locker(&m_lock);
         m_files = filesFound;
         QTimer::singleShot(0, this, SLOT(updateFileIterator()));
-        future.setProgressValue(it.maxProgress());
+        future.setProgressValue(subDirIterator.maxProgress());
     } else {
-        future.setProgressValueAndText(it.currentProgress(), tr("%1 filter update: canceled").arg(displayName()));
+        future.setProgressValueAndText(subDirIterator.currentProgress(), tr("%1 filter update: canceled").arg(displayName()));
     }
 }

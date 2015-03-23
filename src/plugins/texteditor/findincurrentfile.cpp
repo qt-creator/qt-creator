@@ -70,7 +70,7 @@ Utils::FileIterator *FindInCurrentFile::files(const QStringList &nameFilters,
     QTextCodec *codec = openEditorEncodings.value(fileName);
     if (!codec)
         codec = Core::EditorManager::defaultTextCodec();
-    return new Utils::FileIterator(QStringList() << fileName, QList<QTextCodec *>() << codec);
+    return new Utils::FileListIterator(QStringList(fileName), QList<QTextCodec *>() << codec);
 }
 
 QVariant FindInCurrentFile::additionalParameters() const

@@ -67,7 +67,7 @@ namespace {
                      const QString &term,
                      QTextDocument::FindFlags flags, tst_FileSearch::RegExpFlag regexp = tst_FileSearch::NoRegExp)
     {
-        Utils::FileIterator *it = new Utils::FileIterator(QStringList() << QLatin1String(FILENAME), QList<QTextCodec *>() << QTextCodec::codecForLocale());
+        Utils::FileIterator *it = new Utils::FileListIterator(QStringList(QLatin1String(FILENAME)), QList<QTextCodec *>() << QTextCodec::codecForLocale());
         QFutureWatcher<Utils::FileSearchResultList> watcher;
         QSignalSpy ready(&watcher, SIGNAL(resultsReadyAt(int,int)));
         if (regexp == tst_FileSearch::NoRegExp)
