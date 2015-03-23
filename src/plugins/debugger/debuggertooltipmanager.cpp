@@ -238,9 +238,9 @@ public:
     ToolTipModel()
     {
         QStringList headers;
-        headers.append(tr("Name"));
-        headers.append(tr("Value"));
-        headers.append(tr("Type"));
+        headers.append(DebuggerToolTipManager::tr("Name"));
+        headers.append(DebuggerToolTipManager::tr("Value"));
+        headers.append(DebuggerToolTipManager::tr("Type"));
         setHeader(headers);
         m_enabled = true;
         auto item = new ToolTipWatchItem;

@@ -353,6 +353,7 @@ void DebuggerItemConfigWidget::binaryPathHasChanged()
 
 class DebuggerConfigWidget : public QWidget
 {
+    Q_DECLARE_TR_FUNCTIONS(Debugger::DebuggerOptionsPage)
 public:
     DebuggerConfigWidget()
     {

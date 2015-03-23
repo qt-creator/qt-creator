@@ -657,7 +657,7 @@ void TextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
 //     (void) new QShortcut(tr("F11"), this, SLOT(slotToggleBlockVisible()));
 
 #ifdef DO_FOO
-    (void) new QShortcut(tr("CTRL+D"), this, SLOT(doFoo()));
+    (void) new QShortcut(TextEditorWidget::tr("CTRL+D"), this, SLOT(doFoo()));
 #endif
 
     // parentheses matcher

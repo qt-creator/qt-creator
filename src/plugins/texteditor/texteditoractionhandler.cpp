@@ -56,6 +56,7 @@ namespace Internal {
 
 class TextEditorActionHandlerPrivate : public QObject
 {
+    Q_DECLARE_TR_FUNCTIONS(TextEditor::Internal::TextEditorActionHandler)
 public:
     TextEditorActionHandlerPrivate(TextEditorActionHandler *parent,
                                    Core::Id contextId,

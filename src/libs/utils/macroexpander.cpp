@@ -447,7 +447,7 @@ public:
     GlobalMacroExpander()
     {
         setDisplayName(MacroExpander::tr("Global variables"));
-        registerPrefix("Env", tr("Access environment variables."),
+        registerPrefix("Env", MacroExpander::tr("Access environment variables."),
            [](const QString &value) { return QString::fromLocal8Bit(qgetenv(value.toLocal8Bit())); });
     }
 };

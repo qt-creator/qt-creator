@@ -64,6 +64,7 @@ public:
 
 class MimeTypeMagicDialog : public QDialog
 {
+    Q_DECLARE_TR_FUNCTIONS(Core::Internal::MimeTypeMagicDialog)
 public:
     explicit MimeTypeMagicDialog(QWidget *parent = 0);
 

@@ -199,6 +199,7 @@ public:
 
 class WatchModel : public WatchModelBase
 {
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::WatchModel)
 public:
     WatchModel(WatchHandler *handler, DebuggerEngine *engine);
 

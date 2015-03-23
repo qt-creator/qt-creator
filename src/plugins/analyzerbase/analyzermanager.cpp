@@ -102,7 +102,7 @@ public:
         : IMode(parent)
     {
         setContext(Context(C_ANALYZEMODE, C_NAVIGATION_PANE));
-        setDisplayName(tr("Analyze"));
+        setDisplayName(AnalyzerManager::tr("Analyze"));
         setIcon(QIcon(QLatin1String(":/images/analyzer_mode.png")));
         setPriority(P_MODE_ANALYZE);
         setId(MODE_ANALYZE);
@@ -125,6 +125,7 @@ public:
 
 class AnalyzerManagerPrivate : public QObject
 {
+    Q_DECLARE_TR_FUNCTIONS(Analyzer::AnalyzerManager)
 public:
     typedef QHash<QString, QVariant> FancyMainWindowSettings;
 
