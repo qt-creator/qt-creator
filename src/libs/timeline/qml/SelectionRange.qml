@@ -56,8 +56,25 @@ RangeMover {
                             rangeRight * viewTimePerPixel + zoomer.windowStart)
     }
 
+    function updateRange() {
+        var left = (zoomer.selectionStart - zoomer.windowStart) / viewTimePerPixel;
+        var right = (zoomer.selectionEnd - zoomer.windowStart) / viewTimePerPixel;
+        if (left < rangeLeft) {
+            rangeLeft = left;
+            rangeRight = right;
+        } else {
+            rangeRight = right;
+            rangeLeft = left;
+        }
+    }
+
     onRangeWidthChanged: updateZoomer()
     onRangeLeftChanged: updateZoomer()
+
+    Connections {
+        target: zoomer
+        onWindowChanged: updateRange()
+    }
 
     function setPos(pos) {
         if (pos < 0)
