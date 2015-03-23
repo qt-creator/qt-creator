@@ -38,6 +38,14 @@
 
 using namespace Timeline;
 
+void renderMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &message)
+{
+    if (type > QtDebugMsg)
+        QTest::qFail(message.toLatin1().constData(), context.file, context.line);
+    else
+        QTest::qWarn(message.toLatin1().constData(), context.file, context.line);
+}
+
 void runSceneGraph(QSGNode *node)
 {
     QSurfaceFormat format;
@@ -62,7 +70,9 @@ void runSceneGraph(QSGNode *node)
     QSGAbstractRenderer *renderer = engine.createRenderer();
     QVERIFY(renderer != 0);
     renderer->setRootNode(&root);
+    QtMessageHandler originalHandler = qInstallMessageHandler(renderMessageHandler);
     renderer->renderScene();
+    qInstallMessageHandler(originalHandler);
     delete renderer;
 
     // Unfortunately we cannot check the results of the rendering. But at least we know the shaders
