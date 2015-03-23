@@ -31,8 +31,10 @@
 
 namespace Timeline {
 
-TimelineZoomControl::TimelineZoomControl(QObject *parent) : QObject(parent), m_traceStart(-1), m_traceEnd(-1),
-    m_windowStart(-1), m_windowEnd(-1), m_rangeStart(-1), m_rangeEnd(-1), m_windowLocked(false)
+TimelineZoomControl::TimelineZoomControl(QObject *parent) : QObject(parent),
+    m_traceStart(-1), m_traceEnd(-1), m_windowStart(-1), m_windowEnd(-1),
+    m_rangeStart(-1), m_rangeEnd(-1), m_selectionStart(-1), m_selectionEnd(-1),
+    m_windowLocked(false)
 {
     connect(&m_timer, &QTimer::timeout, this, &TimelineZoomControl::moveWindow);
 }
@@ -65,6 +67,15 @@ void TimelineZoomControl::setRange(qint64 start, qint64 end)
         m_rangeEnd = end;
         rebuildWindow();
         emit rangeChanged(start, end);
+    }
+}
+
+void TimelineZoomControl::setSelection(qint64 start, qint64 end)
+{
+    if (m_selectionStart != start || m_selectionEnd != end) {
+        m_selectionStart = start;
+        m_selectionEnd = end;
+        emit selectionChanged(start, end);
     }
 }
 

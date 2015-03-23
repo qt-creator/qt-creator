@@ -41,10 +41,6 @@ RangeMover {
 
     property bool ready: visible && creationState === creationFinished
 
-    property double startTime: rangeLeft * viewTimePerPixel + zoomer.windowStart
-    property double duration: Math.max(rangeWidth * viewTimePerPixel, 500)
-    property double endTime: startTime + duration
-
     property double viewTimePerPixel: 1
     property double creationReference : 0
     property int creationState : creationInactive
@@ -54,6 +50,14 @@ RangeMover {
         creationState = creationInactive;
         creationReference = 0;
     }
+
+    function updateZoomer() {
+        zoomer.setSelection(rangeLeft * viewTimePerPixel + zoomer.windowStart,
+                            rangeRight * viewTimePerPixel + zoomer.windowStart)
+    }
+
+    onRangeWidthChanged: updateZoomer()
+    onRangeLeftChanged: updateZoomer()
 
     function setPos(pos) {
         if (pos < 0)
