@@ -2416,6 +2416,9 @@ void FakeVimHandler::Private::enterFakeVim()
 {
     QTC_ASSERT(!m_inFakeVim, qDebug() << "enterFakeVim() shouldn't be called recursively!"; return);
 
+    if (!m_buffer->currentHandler)
+        m_buffer->currentHandler = this;
+
     pullOrCreateBufferData();
 
     m_inFakeVim = true;
