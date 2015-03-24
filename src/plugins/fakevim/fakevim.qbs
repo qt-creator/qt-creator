@@ -10,6 +10,11 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
 
+    pluginTestDepends: [
+        "CppEditor",
+        "CppTools",
+    ]
+
     files: [
         "fakevim.qrc",
         "fakevimactions.cpp",
