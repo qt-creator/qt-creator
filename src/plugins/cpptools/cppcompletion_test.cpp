@@ -319,7 +319,8 @@ void CppToolsPlugin::test_completion()
     QEXPECT_FAIL("enum_in_function_in_struct_in_function_anon", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_class_accessed_in_member_func_cxx11", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_class_accessed_in_member_func_inline_cxx11", "QTCREATORBUG-13757", Abort);
-    QEXPECT_FAIL("pointer_partial_specialization", "QTCREATORBUG-14141", Abort);
+    QEXPECT_FAIL("pointer_indirect_specialization", "QTCREATORBUG-14141", Abort);
+    QEXPECT_FAIL("pointer_indirect_specialization_typedef", "QTCREATORBUG-14141", Abort);
     QCOMPARE(actualCompletions, expectedCompletions);
 }
 
@@ -2656,7 +2657,7 @@ void CppToolsPlugin::test_completion_data()
         << QLatin1String("t")
         << QLatin1String("iterator"));
 
-    QTest::newRow("pointer_partial_specialization") << _(
+    QTest::newRow("pointer_indirect_specialization") << _(
             "template<typename T>\n"
             "struct Traits { typedef typename T::pointer pointer; };\n"
             "\n"
@@ -2679,6 +2680,35 @@ void CppToolsPlugin::test_completion_data()
             "void func()\n"
             "{\n"
             "   Temp<Foo *> t;\n"
+            "   @\n"
+            "}\n"
+    ) << _("t.p->") << (QStringList()
+        << QLatin1String("Foo")
+        << QLatin1String("bar"));
+
+    QTest::newRow("pointer_indirect_specialization_typedef") << _(
+            "template<typename T>\n"
+            "struct Traits { typedef typename T::pointer pointer; };\n"
+            "\n"
+            "template<typename _Tp>\n"
+            "struct Traits<_Tp*> { typedef _Tp *pointer; };\n"
+            "\n"
+            "struct Foo { int bar; };\n"
+            "\n"
+            "class Temp\n"
+            "{\n"
+            "protected:\n"
+            "   typedef Foo *FooPtr;\n"
+            "   typedef Traits<FooPtr> TraitsT;\n"
+            "\n"
+            "public:\n"
+            "   typedef typename TraitsT::pointer pointer;\n"
+            "   pointer p;\n"
+            "};\n"
+            "\n"
+            "void func()\n"
+            "{\n"
+            "   Temp t;\n"
             "   @\n"
             "}\n"
     ) << _("t.p->") << (QStringList()
