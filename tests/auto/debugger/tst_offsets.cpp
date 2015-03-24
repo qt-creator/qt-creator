@@ -83,7 +83,17 @@ void tst_offsets::offsets_data()
         QFilePrivate *p = 0;
         QTestData &data = QTest::newRow("QFilePrivate::fileName")
                 << int((char *)&p->fileName - (char *)p);
-        if (qtVersion >= 0x50400)
+        if (qtVersion >= 0x50500)
+#ifdef Q_OS_WIN
+#   ifdef Q_CC_MSVC
+            data << 176 << 248;
+#   else // MinGW
+            data << 164 << 248;
+#   endif
+#else
+            data << 156 << 248;
+#endif
+        else if (qtVersion >= 0x50400)
 #ifdef Q_OS_WIN
 #   ifdef Q_CC_MSVC
             data << 196 << 272;

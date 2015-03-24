@@ -421,10 +421,20 @@ def qdump__QDir(d, value):
 
 
 def qdump__QFile(d, value):
-    # 9fc0965 changes the layout of the private structure
+    # 9fc0965 and a373ffcd change the layout of the private structure
     qtVersion = d.qtVersion()
     is32bit = d.is32bit()
-    if qtVersion > 0x050200:
+    if qtVersion >= 0x050500:
+        if d.isWindowsTarget():
+            offset = 164 if is32bit else 248
+        else:
+            offset = 156 if is32bit else 248
+    elif qtVersion >= 0x050400:
+        if d.isWindowsTarget():
+            offset = 188 if is32bit else 272
+        else:
+            offset = 180 if is32bit else 272
+    elif qtVersion > 0x050200:
         if d.isWindowsTarget():
             offset = 180 if is32bit else 272
         else:
