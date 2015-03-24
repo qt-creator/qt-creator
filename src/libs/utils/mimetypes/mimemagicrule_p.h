@@ -90,8 +90,6 @@ public:
     static QByteArray typeName(Type type);
 
     static bool matchSubstring(const char *dataPtr, int dataSize, int rangeStart, int rangeLength, int valueLength, const char *valueData, const char *mask);
-    // Qt Creator additions
-    static QByteArray makePattern(const QByteArray &value); // necessary to be able to verify magic because otherwise MimMagicRule constructor asserts...
 
 private:
     const QScopedPointer<MimeMagicRulePrivate> d;
