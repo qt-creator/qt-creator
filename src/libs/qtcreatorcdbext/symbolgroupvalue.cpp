@@ -1246,6 +1246,8 @@ static KnownType knownClassTypeHelper(const std::string &type,
             return KT_QMatrix;
         if (!type.compare(qPos, 7, "QRegExp"))
             return KT_QRegExp;
+        if (!type.compare(qPos, 7, "QRegion"))
+            return KT_QRegion;
         if (!type.compare(qPos, 7, "QPixmap"))
             return KT_QPixmap;
         break;
@@ -1880,6 +1882,33 @@ static bool inline dumpQDir(const SymbolGroupValue &v, std::wostream &str)
 static inline bool dumpQRegExp(const SymbolGroupValue &v, std::wostream &str)
 {
     return dumpQStringFromQPrivateClass(v, QPDM_qSharedDataPadded, 0,  str);
+}
+
+static inline bool dumpQRegion(const SymbolGroupValue &v, std::wostream &str, void **specialInfo)
+{
+    const QtInfo info = QtInfo::get(v.context());
+    SymbolGroupValue d = v["d"]["qt_rgn"];
+    std::ostringstream namestr;
+    namestr << "(" << info.prependQtGuiModule("QRegionPrivate *") << ")("
+            << std::showbase << std::hex << d.pointerValue() << ')';
+
+    SymbolGroupNode *qRegionPrivateNode
+            = v.node()->symbolGroup()->addSymbol(v.module(), namestr.str(), std::string(), &std::string());
+    if (!qRegionPrivateNode)
+        return false;
+
+    const SymbolGroupValue qRegionPrivateValue = SymbolGroupValue(qRegionPrivateNode, v.context());
+    if (!qRegionPrivateValue)
+        return false;
+
+    const int size = containerSize(KT_QVector, qRegionPrivateValue["rects"]);
+    if (size == -1)
+        return false;
+
+    str << L'<' << size << L" items>";
+    if (specialInfo)
+        *specialInfo = qRegionPrivateNode;
+    return true;
 }
 
 /* Dump QFile, for whose private class no debugging information is available.
@@ -2839,6 +2868,9 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
         case KT_QRegExp:
             rc = dumpQRegExp(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
+        case KT_QRegion:
+            rc = dumpQRegion(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
         case KT_QUrl:
             rc = dumpQUrl(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
             break;
@@ -3318,6 +3350,17 @@ std::vector<AbstractSymbolGroupNode *>
     case KT_QByteArray:
         rc = complexDumpQByteArray(n, ctx);
         break;
+    case KT_QRegion:
+        if (specialInfo) {
+            typedef AbstractSymbolGroupNode::AbstractSymbolGroupNodePtrVector NodeVector;
+            NodeVector children =
+                    reinterpret_cast<SymbolGroupNode *>(specialInfo)->children();
+            for (NodeVector::iterator it = children.begin(); it != children.end(); ++it) {
+                if (SymbolGroupNode *node = (*it)->asSymbolGroupNode())
+                    rc.push_back(new ReferenceSymbolGroupNode(node->name(), node->iName(), node));
+            }
+        }
+        break;
     case KT_QWidget: // Special info by simple dumper is the QWidgetPrivate node
     case KT_QWindow: // Special info by simple dumper is the QWindowPrivate node
     case KT_QObject: // Special info by simple dumper is the QObjectPrivate node
@@ -3342,7 +3385,7 @@ std::vector<AbstractSymbolGroupNode *>
     }
     if (SymbolGroupValue::verbose) {
         DebugPrint dp;
-        dp << "<dumpComplexType" << rc.size() << ' ';
+        dp << "<dumpComplexType" << rc.size() << ' ' << specialInfo << ' ';
         for (VectorIndexType i = 0; i < rc.size() ; ++i)
             dp << i << ' ' << rc.at(i)->name();
     }
