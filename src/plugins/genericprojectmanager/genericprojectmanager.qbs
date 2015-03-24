@@ -13,6 +13,10 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
 
+    pluginTestDepends: [
+        "CppEditor",
+    ]
+
     files: [
         "filesselectionwizardpage.cpp",
         "filesselectionwizardpage.h",
