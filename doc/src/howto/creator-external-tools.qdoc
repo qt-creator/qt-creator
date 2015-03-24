@@ -95,6 +95,8 @@
     You can change the configuration of preconfigured tools and configure
     additional tools in \QC \uicontrol Options.
 
+    \image qtcreator-external-tools.png
+
     To configure external tools:
 
     \list 1
@@ -115,18 +117,18 @@
         \li In the \uicontrol {Working directory} field, specify the path to the
             working directory.
 
-        \li In the \uicontrol Environment field, select \uicontrol Change to modify
-            environment variable values for build and run environments in
-            the \uicontrol {Edit Environment Changes} dialog. For more information
-            about how to add and remove variable values, see \l{Batch Editing}.
-
-        \li In the \uicontrol {Output pane}, select how to handle output from the
+        \li In the \uicontrol Output field, select how to handle output from the
             tool. You can ignore the output, view it in the \uicontrol {General
             Messages} output pane, or replace the selected text with the
             output in the code editor.
 
-        \li In the \uicontrol {Error output pane}, select how to handle error messages
-            from the tool.
+        \li In the \uicontrol {Error output} field, select how to handle error
+            messages from the tool.
+
+        \li In the \uicontrol Environment field, select \uicontrol Change to modify
+            environment variable values for build and run environments in
+            the \uicontrol {Edit Environment Changes} dialog. For more information
+            about how to add and remove variable values, see \l{Batch Editing}.
 
         \li Select the \uicontrol {Modifies current document} check box to make sure
             that if the current document is modified by the tool, it is saved
@@ -140,7 +142,7 @@
     The category and tool are added to the \uicontrol {Tools > External} menu.
 
     If you change the configuration of preconfigured tools, you can later
-    revert the changes by selecting the \uicontrol Revert button.
+    revert the changes by selecting the \uicontrol Reset button.
 
     The tool configurations that you add and modify are stored in XML format in
     the user configuration folder. For example,
