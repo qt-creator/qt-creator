@@ -101,17 +101,8 @@ QVariant CMakeKitInformation::defaultValue(Kit *) const
 
 QList<Task> CMakeKitInformation::validate(const Kit *k) const
 {
-    CMakeTool *tool = CMakeKitInformation::cmakeTool(k);
-    QList<Task> result;
-    if (!tool) {
-        result.append(Task(Task::Warning,
-                           tr("No CMake tool set."),
-                           Utils::FileName(),
-                           -1,
-                           Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
-    }
-
-    return result;
+    Q_UNUSED(k);
+    return QList<Task>();
 }
 
 void CMakeKitInformation::setup(Kit *k)
