@@ -988,45 +988,41 @@ bool QmlEngine::setToolTipExpression(const DebuggerToolTipContext &context)
 //
 //////////////////////////////////////////////////////////////////////
 
-void QmlEngine::assignValueInDebugger(const WatchData *data,
+void QmlEngine::assignValueInDebugger(WatchItem *item,
     const QString &expression, const QVariant &valueV)
 {
     if (!expression.isEmpty()) {
-        if (data->isInspect() && m_inspectorAdapter.agent())
-            m_inspectorAdapter.agent()->assignValue(data, expression, valueV);
+        if (item->isInspect() && m_inspectorAdapter.agent())
+            m_inspectorAdapter.agent()->assignValue(item, expression, valueV);
         else if (m_adapter.activeDebuggerClient())
-            m_adapter.activeDebuggerClient()->assignValueInDebugger(data, expression, valueV);
+            m_adapter.activeDebuggerClient()->assignValueInDebugger(item, expression, valueV);
     }
 }
 
-void QmlEngine::updateWatchData(const WatchData &data)
+void QmlEngine::updateWatchItem(WatchItem *item)
 {
 //    qDebug() << "UPDATE WATCH DATA" << data.toString();
     //showStatusMessage(tr("Stopped."), 5000);
 
-    if (data.isInspect()) {
-        m_inspectorAdapter.agent()->updateWatchData(data);
+    if (item->isInspect()) {
+        m_inspectorAdapter.agent()->updateWatchData(*item);
     } else {
-        if (!data.name.isEmpty() && m_adapter.activeDebuggerClient()) {
-            if (data.isValueNeeded())
-                m_adapter.activeDebuggerClient()->updateWatchData(data);
-            if (data.isChildrenNeeded()
-                    && watchHandler()->isExpandedIName(data.iname)) {
-                m_adapter.activeDebuggerClient()->expandObject(data.iname, data.id);
+        if (!item->name.isEmpty() && m_adapter.activeDebuggerClient()) {
+            if (item->isValueNeeded())
+                m_adapter.activeDebuggerClient()->updateWatchData(*item);
+            if (item->isChildrenNeeded() && watchHandler()->isExpandedIName(item->iname)) {
+                m_adapter.activeDebuggerClient()->expandObject(item->iname, item->id);
             }
         }
         synchronizeWatchers();
     }
-
-    if (!data.isSomethingNeeded())
-        watchHandler()->insertData(data);
 }
 
 void QmlEngine::watchDataSelected(const QByteArray &iname)
 {
-    const WatchData *wd = watchHandler()->findData(iname);
-    if (wd && wd->isInspect())
-        m_inspectorAdapter.agent()->watchDataSelected(wd);
+    const WatchItem *item = watchHandler()->findItem(iname);
+    if (item && item->isInspect())
+        m_inspectorAdapter.agent()->watchDataSelected(item->id);
 }
 
 void QmlEngine::synchronizeWatchers()
@@ -1153,11 +1149,11 @@ void QmlEngine::updateCurrentContext()
         context = stackHandler()->currentFrame().function;
     } else {
         QModelIndex currentIndex = inspectorTreeView()->currentIndex();
-        const WatchData *currentData = watchHandler()->watchData(currentIndex);
+        const WatchData *currentData = watchHandler()->watchItem(currentIndex);
         if (!currentData)
             return;
-        const WatchData *parentData = watchHandler()->watchData(currentIndex.parent());
-        const WatchData *grandParentData = watchHandler()->watchData(
+        const WatchData *parentData = watchHandler()->watchItem(currentIndex.parent());
+        const WatchData *grandParentData = watchHandler()->watchItem(
                     currentIndex.parent().parent());
         if (currentData->id != parentData->id)
             context = currentData->name;
@@ -1217,7 +1213,7 @@ bool QmlEngine::evaluateScript(const QString &expression)
     if (state() != InferiorStopOk) {
         QModelIndex currentIndex = inspectorTreeView()->currentIndex();
         QmlInspectorAgent *agent = m_inspectorAdapter.agent();
-        quint32 queryId = agent->queryExpressionResult(watchHandler()->watchData(currentIndex)->id,
+        quint32 queryId = agent->queryExpressionResult(watchHandler()->watchItem(currentIndex)->id,
                                                        expression);
         if (queryId) {
             queryIds << queryId;

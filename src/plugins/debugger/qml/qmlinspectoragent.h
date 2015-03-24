@@ -57,7 +57,7 @@ public:
 
     void assignValue(const WatchData *data, const QString &expression, const QVariant &valueV);
     void updateWatchData(const WatchData &data);
-    void watchDataSelected(const WatchData *data);
+    void watchDataSelected(quint64 id);
     bool selectObjectInTree(int debugId);
 
     quint32 setBindingForObject(int objectDebugId,
@@ -113,8 +113,8 @@ private:
     void insertObjectInTree(const QmlDebug::ObjectReference &result);
 
     void buildDebugIdHashRecursive(const QmlDebug::ObjectReference &ref);
-    QList<WatchData> buildWatchData(const QmlDebug::ObjectReference &obj,
-                                           const QByteArray &parentIname, bool append);
+    void addWatchData(const QmlDebug::ObjectReference &obj,
+                      const QByteArray &parentIname, bool append);
 
     enum LogDirection {
         LogSend,

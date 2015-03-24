@@ -727,14 +727,6 @@ public:
     void enableReverseDebuggingTriggered(const QVariant &value);
     void showStatusMessage(const QString &msg, int timeout = -1);
 
-    DebuggerMainWindow *mainWindow() const { return m_mainWindow; }
-
-    bool isDockVisible(const QString &objectName) const
-    {
-        QDockWidget *dock = mainWindow()->findChild<QDockWidget *>(objectName);
-        return dock && dock->toggleViewAction()->isChecked();
-    }
-
     void runControlStarted(DebuggerEngine *engine);
     void runControlFinished(DebuggerEngine *engine);
     void remoteCommand(const QStringList &options);
@@ -919,6 +911,7 @@ public slots:
             exp = removeObviousSideEffects(exp);
         else
             exp = fixCppExpression(exp);
+        exp = exp.trimmed();
         if (exp.isEmpty())
             return;
         currentEngine()->watchHandler()->watchVariable(exp);
@@ -1822,7 +1815,7 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
 
     engine->watchHandler()->resetWatchers();
 
-    mainWindow()->setEngineDebugLanguages(engine->startParameters().languages);
+    m_mainWindow->setEngineDebugLanguages(engine->startParameters().languages);
 }
 
 static void changeFontSize(QWidget *widget, qreal size)
@@ -2048,7 +2041,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_detachAction->setEnabled(detachable);
 
     if (stopped)
-        QApplication::alert(mainWindow(), 3000);
+        QApplication::alert(m_mainWindow, 3000);
 
     const bool canReverse = engine->hasCapability(ReverseSteppingCapability)
                 && boolSetting(EnableReverseDebugging);
@@ -3196,12 +3189,13 @@ void synchronizeBreakpoints()
 
 QWidget *mainWindow()
 {
-    return dd->mainWindow();
+    return dd->m_mainWindow;
 }
 
 bool isDockVisible(const QString &objectName)
 {
-    return dd->isDockVisible(objectName);
+    QDockWidget *dock = dd->m_mainWindow->findChild<QDockWidget *>(objectName);
+    return dock && dock->toggleViewAction()->isChecked();
 }
 
 void openMemoryEditor()

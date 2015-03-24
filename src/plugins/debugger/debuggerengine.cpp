@@ -1439,10 +1439,6 @@ bool DebuggerEngine::setToolTipExpression(const DebuggerToolTipContext &)
     return false;
 }
 
-void DebuggerEngine::updateWatchData(const WatchData &)
-{
-}
-
 void DebuggerEngine::watchDataSelected(const QByteArray &)
 {
 }
@@ -1635,7 +1631,7 @@ void DebuggerEngine::changeBreakpoint(Breakpoint bp)
     QTC_CHECK(false);
 }
 
-void DebuggerEngine::assignValueInDebugger(const WatchData *,
+void DebuggerEngine::assignValueInDebugger(WatchItem *,
     const QString &, const QVariant &)
 {
 }

@@ -55,7 +55,8 @@ struct EXTENSIONSYSTEM_EXPORT PluginDependency
 {
     enum Type {
         Required,
-        Optional
+        Optional,
+        Test
     };
 
     PluginDependency() : type(Required) {}

@@ -253,7 +253,7 @@ void QmlV8DebuggerClientPrivate::evaluate(const QString expr, bool global,
         QScriptValue ctxtList = parser.call(QScriptValue(), QScriptValueList() << _(ARRAY  ));
         while (rowCount) {
             QModelIndex index = watchModel->index(--rowCount, 0);
-            const WatchData *data = watchHandler->watchData(index);
+            const WatchData *data = watchHandler->watchItem(index);
             QScriptValue ctxt = parser.call(QScriptValue(), QScriptValueList() << QScriptValue(_(OBJECT)));
             ctxt.setProperty(_(NAME), QScriptValue(data->name));
             ctxt.setProperty(_(HANDLE), QScriptValue(int(data->id)));
@@ -969,7 +969,7 @@ void QmlV8DebuggerClient::expandObject(const QByteArray &iname, quint64 objectId
 {
     if (objectId == 0) {
         //We may have got the global object
-        const WatchData *watch = d->engine->watchHandler()->findData(iname);
+        const WatchItem *watch = d->engine->watchHandler()->findItem(iname);
         if (watch->value == QLatin1String("global")) {
             StackHandler *stackHandler = d->engine->stackHandler();
             if (stackHandler->isContentsValid() && stackHandler->currentFrame().isUsable()) {
@@ -1469,10 +1469,9 @@ void QmlV8DebuggerClient::setCurrentFrameDetails(const QVariant &bodyVal, const 
     QHash<quint64, QByteArray> handlesToLookup;
     // Store handles of all expanded watch data
     foreach (const QByteArray &iname, expandedInames) {
-        const WatchData *wd = watchHandler->findData(iname);
-        if (!wd || !wd->isLocal())
-            continue;
-        handlesToLookup.insert(wd->id, iname);
+        const WatchItem *item = watchHandler->findItem(iname);
+        if (item && item->isLocal())
+            handlesToLookup.insert(item->id, iname);
     }
     watchHandler->removeAllData();
     if (frameIndex < 0)
@@ -1483,22 +1482,19 @@ void QmlV8DebuggerClient::setCurrentFrameDetails(const QVariant &bodyVal, const 
 
     //Set "this" variable
     {
-        WatchData data;
-        data.exp = QByteArray("this");
-        data.name = QLatin1String(data.exp);
-        data.iname = QByteArray("local.") + data.exp;
+        auto item = new WatchItem("local.this", QLatin1String("this"));
         QmlV8ObjectData objectData = extractData(currentFrame.value(_("receiver")), refsVal);
-        data.id = objectData.handle;
-        data.type = objectData.type;
-        data.value = objectData.value.toString();
-        data.setHasChildren(objectData.properties.count());
+        item->id = objectData.handle;
+        item->type = objectData.type;
+        item->value = objectData.value.toString();
+        item->setHasChildren(objectData.properties.count());
         //Incase of global object, we do not get children
         //Set children nevertheless and query later
-        if (data.value == QLatin1String("global")) {
-            data.setHasChildren(true);
-            data.id = 0;
+        if (item->value == QLatin1String("global")) {
+            item->setHasChildren(true);
+            item->id = 0;
         }
-        watchHandler->insertData(data);
+        watchHandler->insertItem(item);
     }
 
     const QVariantList currentFrameScopes = currentFrame.value(_("scopes")).toList();
@@ -1553,36 +1549,32 @@ void QmlV8DebuggerClient::updateScope(const QVariant &bodyVal, const QVariant &r
     QmlV8ObjectData objectData = extractData(bodyMap.value(_("object")), refsVal);
 
     QList<int> handlesToLookup;
-    QList<WatchData> locals;
     foreach (const QVariant &property, objectData.properties) {
         QmlV8ObjectData localData = extractData(property, refsVal);
-        WatchData data;
-        data.exp = localData.name;
+        auto item = new WatchItem;
+        item->exp = localData.name;
         //Check for v8 specific local data
-        if (data.exp.startsWith('.') || data.exp.isEmpty())
+        if (item->exp.startsWith('.') || item->exp.isEmpty())
             continue;
 
-        data.name = QLatin1String(data.exp);
-        data.iname = QByteArray("local.") + data.exp;
+        item->name = QLatin1String(item->exp);
+        item->iname = QByteArray("local.") + item->exp;
 
         int handle = localData.handle;
         if (localData.value.isValid()) {
-            data.id = handle;
-            data.type = localData.type;
-            data.value = localData.value.toString();
-            data.setHasChildren(localData.properties.count());
-            locals << data;
+            item->id = handle;
+            item->type = localData.type;
+            item->value = localData.value.toString();
+            item->setHasChildren(localData.properties.count());
+            d->engine->watchHandler()->insertItem(item);
         } else {
             handlesToLookup << handle;
-            d->localsAndWatchers.insertMulti(handle, data.exp);
+            d->localsAndWatchers.insertMulti(handle, item->exp);
         }
     }
 
     if (!handlesToLookup.isEmpty())
         d->lookup(handlesToLookup);
-
-    if (!locals.isEmpty())
-        d->engine->watchHandler()->insertDataList(locals);
 }
 
 QmlJS::ConsoleItem *constructLogItemTree(QmlJS::ConsoleItem *parent,
@@ -1640,7 +1632,7 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success,
             d->scope(index);
         //Also update "this"
         QByteArray iname("local.this");
-        const WatchData *parent = watchHandler->findData(iname);
+        const WatchItem *parent = watchHandler->findItem(iname);
         d->localsAndWatchers.insertMulti(parent->id, iname);
         d->lookup(QList<int>() << parent->id);
 
@@ -1662,32 +1654,29 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success,
         QmlV8ObjectData body = extractData(bodyVal, refsVal);
         if (d->evaluatingExpression.contains(sequence)) {
             QString exp =  d->evaluatingExpression.take(sequence);
-            QList<WatchData> watchDataList;
-            WatchData data;
             //Do we have request to evaluate a local?
             if (exp.startsWith(QLatin1String("local."))) {
-                const WatchData *watch = watchHandler->findData(exp.toLatin1());
-                watchDataList << createWatchDataList(watch, body.properties, refsVal);
+                const WatchItem *item = watchHandler->findItem(exp.toLatin1());
+                createWatchDataList(item, body.properties, refsVal);
             } else {
                 QByteArray iname = watchHandler->watcherName(exp.toLatin1());
                 SDEBUG(QString(iname));
 
-                data.exp = exp.toLatin1();
-                data.name = exp;
-                data.iname = iname;
-                data.id = body.handle;
+                auto item = new WatchItem(iname, exp);
+                item->exp = exp.toLatin1();
+                item->id = body.handle;
                 if (success) {
-                    data.type = body.type;
-                    data.value = body.value.toString();
-                    data.hasChildren = body.properties.count();
+                    item->type = body.type;
+                    item->value = body.value.toString();
+                    item->wantsChildren = body.properties.count();
                 } else {
                     //Do not set type since it is unknown
-                    data.setError(body.value.toString());
+                    item->setError(body.value.toString());
                 }
-                watchDataList << data << createWatchDataList(&data, body.properties, refsVal);
+                watchHandler->insertItem(item);
+                createWatchDataList(item, body.properties, refsVal);
             }
             //Insert the newly evaluated expression to the Watchers Window
-            watchHandler->insertDataList(watchDataList);
         }
     }
 }
@@ -1704,7 +1693,6 @@ void QmlV8DebuggerClient::expandLocalsAndWatchers(const QVariant &bodyVal, const
     //    }
     const QVariantMap body = bodyVal.toMap();
 
-    QList<WatchData> watchDataList;
     QStringList handlesList = body.keys();
     WatchHandler *watchHandler = d->engine->watchHandler();
     foreach (const QString &handle, handlesList) {
@@ -1713,63 +1701,59 @@ void QmlV8DebuggerClient::expandLocalsAndWatchers(const QVariant &bodyVal, const
         QByteArray prepend = d->localsAndWatchers.take(handle.toInt());
 
         if (prepend.startsWith("local.") || prepend.startsWith("watch.")) {
-            //Data for expanded local/watch
-            //Could be an object or function
-            const WatchData *parent = watchHandler->findData(prepend);
-            watchDataList << createWatchDataList(parent, bodyObjectData.properties, refsVal);
+            // Data for expanded local/watch.
+            // Could be an object or function.
+            const WatchItem *parent = watchHandler->findItem(prepend);
+            createWatchDataList(parent, bodyObjectData.properties, refsVal);
         } else {
             //rest
-            WatchData data;
-            data.exp = prepend;
-            data.name = QLatin1String(data.exp);
-            data.iname = QByteArray("local.") + data.exp;
-            data.id = handle.toInt();
+            auto item = new WatchItem;
+            item->exp = prepend;
+            item->name = QLatin1String(item->exp);
+            item->iname = QByteArray("local.") + item->exp;
+            item->id = handle.toInt();
 
-            data.type = bodyObjectData.type;
-            data.value = bodyObjectData.value.toString();
+            item->type = bodyObjectData.type;
+            item->value = bodyObjectData.value.toString();
 
-            data.setHasChildren(bodyObjectData.properties.count());
+            item->setHasChildren(bodyObjectData.properties.count());
 
-            watchDataList << data;
+            d->engine->watchHandler()->insertItem(item);
         }
     }
-
-    watchHandler->insertDataList(watchDataList);
 }
 
-QList<WatchData> QmlV8DebuggerClient::createWatchDataList(const WatchData *parent,
+void QmlV8DebuggerClient::createWatchDataList(const WatchItem *parent,
                                               const QVariantList &properties,
                                               const QVariant &refsVal)
 {
-    QList<WatchData> watchDataList;
     if (properties.count()) {
-        QTC_ASSERT(parent, return watchDataList);
+        QTC_ASSERT(parent, return);
         foreach (const QVariant &property, properties) {
             QmlV8ObjectData propertyData = extractData(property, refsVal);
-            WatchData data;
-            data.name = QString::fromUtf8(propertyData.name);
+            auto item = new WatchItem;
+            item->name = QString::fromUtf8(propertyData.name);
 
             //Check for v8 specific local data
-            if (data.name.startsWith(QLatin1Char('.')) || data.name.isEmpty())
+            if (item->name.startsWith(QLatin1Char('.')) || item->name.isEmpty())
                 continue;
             if (parent->type == "object") {
                 if (parent->value == _("Array"))
-                    data.exp = parent->exp + '[' + data.name.toLatin1() + ']';
+                    item->exp = parent->exp + '[' + item->name.toLatin1() + ']';
                 else if (parent->value == _("Object"))
-                    data.exp = parent->exp + '.' + data.name.toLatin1();
+                    item->exp = parent->exp + '.' + item->name.toLatin1();
             } else {
-                data.exp = data.name.toLatin1();
+                item->exp = item->name.toLatin1();
             }
 
-            data.iname = parent->iname + '.' + data.name.toLatin1();
-            data.id = propertyData.handle;
-            data.type = propertyData.type;
-            data.value = propertyData.value.toString();
-            data.setHasChildren(propertyData.properties.count());
-            watchDataList << data;
+            item->iname = parent->iname + '.' + item->name.toLatin1();
+            item->id = propertyData.handle;
+            item->type = propertyData.type;
+            item->value = propertyData.value.toString();
+            item->setHasChildren(propertyData.properties.count());
+            d->engine->watchHandler()->insertItem(item);
         }
     }
-    return watchDataList;
 }
 
 void QmlV8DebuggerClient::highlightExceptionCode(int lineNumber,

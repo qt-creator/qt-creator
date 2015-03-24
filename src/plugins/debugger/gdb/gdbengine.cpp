@@ -3724,25 +3724,12 @@ void GdbEngine::reloadLocals()
     updateLocals();
 }
 
-void GdbEngine::updateWatchData(const WatchData &data)
+void GdbEngine::updateWatchItem(WatchItem *item)
 {
     UpdateParameters params;
     params.tryPartial = m_pendingBreakpointRequests == 0;
-    params.varList = data.iname;
+    params.varList = item->iname;
     updateLocalsPython(params);
-}
-
-void GdbEngine::rebuildWatchModel()
-{
-    static int count = 0;
-    ++count;
-    PENDING_DEBUG("REBUILDING MODEL" << count);
-    if (boolSetting(LogTimeStamps))
-        showMessage(LogWindow::logTimeStamp(), LogMiscInput);
-    showMessage(_("<Rebuild Watchmodel %1>").arg(count), LogMiscInput);
-    showStatusMessage(tr("Finished retrieving data"), 400);
-
-    DebuggerToolTipManager::updateEngine(this);
 }
 
 void GdbEngine::handleVarAssign(const DebuggerResponse &)
@@ -3759,14 +3746,14 @@ void GdbEngine::updateLocals()
     updateLocalsPython(UpdateParameters());
 }
 
-void GdbEngine::assignValueInDebugger(const WatchData *data,
+void GdbEngine::assignValueInDebugger(WatchItem *item,
     const QString &expression, const QVariant &value)
 {
     DebuggerCommand cmd("assignValue");
-    cmd.arg("type", data->type.toHex());
+    cmd.arg("type", item->type.toHex());
     cmd.arg("expr", expression.toLatin1().toHex());
     cmd.arg("value", value.toString().toLatin1().toHex());
-    cmd.arg("simpleType", isIntOrFloatType(data->type));
+    cmd.arg("simpleType", isIntOrFloatType(item->type));
     cmd.callback = CB(handleVarAssign);
     runCommand(cmd);
 }
@@ -4711,7 +4698,6 @@ void addGdbOptionPages(QList<IOptionsPage *> *opts)
 
 void GdbEngine::updateLocalsPython(const UpdateParameters &params)
 {
-    //m_pendingWatchRequests = 0;
     m_pendingBreakpointRequests = 0;
 
     DebuggerCommand cmd("showData");
@@ -4805,32 +4791,31 @@ void GdbEngine::handleStackFramePython(const DebuggerResponse &response, bool pa
         QSet<QByteArray> toDelete;
         if (!partial) {
             foreach (WatchItem *item, handler->model()->treeLevelItems<WatchItem *>(2))
-                toDelete.insert(item->d.iname);
+                toDelete.insert(item->iname);
         }
 
         foreach (const GdbMi &child, data.children()) {
             WatchItem *item = new WatchItem(child);
-            const TypeInfo ti = m_typeInfoCache.value(item->d.type);
+            const TypeInfo ti = m_typeInfoCache.value(item->type);
             if (ti.size)
-                item->d.size = ti.size;
+                item->size = ti.size;
 
             handler->insertItem(item);
-            toDelete.remove(item->d.iname);
+            toDelete.remove(item->iname);
         }
 
         handler->purgeOutdatedItems(toDelete);
 
-        //PENDING_DEBUG("AFTER handleStackFrame()");
-        // FIXME: This should only be used when updateLocals() was
-        // triggered by expanding an item in the view.
-        //if (m_pendingWatchRequests <= 0) {
-            //PENDING_DEBUG("\n\n ....  AND TRIGGERS MODEL UPDATE\n");
-            rebuildWatchModel();
-        //}
-        if (!partial) {
+        static int count = 0;
+        showMessage(_("<Rebuild Watchmodel %1 @ %2 >")
+            .arg(++count).arg(LogWindow::logTimeStamp()), LogMiscInput);
+        showStatusMessage(tr("Finished retrieving data"), 400);
+
+        DebuggerToolTipManager::updateEngine(this);
+
+        if (!partial)
             emit stackFrameCompleted();
-            DebuggerToolTipManager::updateEngine(this);
-        }
+
     } else {
         showMessage(_("DUMPER FAILED: " + response.toString()));
     }

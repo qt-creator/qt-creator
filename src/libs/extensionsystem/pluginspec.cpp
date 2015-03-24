@@ -86,6 +86,8 @@
            Dependency is not necessarily needed. You need to make sure that
            the plugin is able to load without this dependency installed, so
            for example you may not link to the dependency's library.
+    \value Test
+           Dependency needs to be force-loaded for running tests of the plugin.
 */
 
 /*!
@@ -471,6 +473,7 @@ namespace {
     const char DEPENDENCY_TYPE[] = "Type";
     const char DEPENDENCY_TYPE_SOFT[] = "optional";
     const char DEPENDENCY_TYPE_HARD[] = "required";
+    const char DEPENDENCY_TYPE_TEST[] = "test";
     const char ARGUMENTS[] = "Arguments";
     const char ARGUMENT_NAME[] = "Name";
     const char ARGUMENT_PARAMETER[] = "Parameter";
@@ -763,6 +766,8 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &metaData)
                     dep.type = PluginDependency::Required;
                 } else if (typeValue.toLower() == QLatin1String(DEPENDENCY_TYPE_SOFT)) {
                     dep.type = PluginDependency::Optional;
+                } else if (typeValue.toLower() == QLatin1String(DEPENDENCY_TYPE_TEST)) {
+                    dep.type = PluginDependency::Test;
                 } else {
                     return reportError(tr("Dependency: \"%1\" must be \"%2\" or \"%3\" (is \"%4\")")
                                        .arg(QLatin1String(DEPENDENCY_TYPE),
@@ -917,7 +922,7 @@ void PluginSpecPrivate::disableIndirectlyIfDependencyDisabled()
     QHashIterator<PluginDependency, PluginSpec *> it(dependencySpecs);
     while (it.hasNext()) {
         it.next();
-        if (it.key().type == PluginDependency::Optional)
+        if (it.key().type != PluginDependency::Required)
             continue;
         PluginSpec *dependencySpec = it.value();
         if (!dependencySpec->isEffectivelyEnabled()) {

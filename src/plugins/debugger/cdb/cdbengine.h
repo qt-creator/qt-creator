@@ -89,7 +89,7 @@ public:
     virtual void shutdownEngine();
     virtual void abortDebugger();
     virtual void detachDebugger();
-    virtual void updateWatchData(const WatchData &data);
+    virtual void updateWatchItem(WatchItem *item);
     virtual bool hasCapability(unsigned cap) const;
     virtual void watchPoint(const QPoint &);
     virtual void setRegisterValue(const QByteArray &name, const QString &value);
@@ -106,7 +106,7 @@ public:
     virtual void executeRunToLine(const ContextData &data);
     virtual void executeRunToFunction(const QString &functionName);
     virtual void executeJumpToLine(const ContextData &data);
-    virtual void assignValueInDebugger(const WatchData *w, const QString &expr, const QVariant &value);
+    virtual void assignValueInDebugger(WatchItem *w, const QString &expr, const QVariant &value);
     virtual void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
 
     virtual void activateFrame(int index);

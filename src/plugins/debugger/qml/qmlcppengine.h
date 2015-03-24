@@ -48,7 +48,7 @@ public:
 
     bool canDisplayTooltip() const;
     bool setToolTipExpression(const DebuggerToolTipContext &);
-    void updateWatchData(const WatchData &data);
+    void updateWatchItem(WatchItem *item);
     void watchDataSelected(const QByteArray &iname);
 
     void watchPoint(const QPoint &);
@@ -79,7 +79,7 @@ public:
     bool acceptsBreakpoint(Breakpoint bp) const;
     void selectThread(ThreadId threadId);
 
-    void assignValueInDebugger(const WatchData *data,
+    void assignValueInDebugger(WatchItem *item,
         const QString &expr, const QVariant &value);
 
     DebuggerEngine *cppEngine() { return m_cppEngine; }

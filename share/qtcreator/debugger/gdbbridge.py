@@ -1075,35 +1075,8 @@ class Dumper(DumperBase):
             self.putItem(self.expensiveDowncast(value), False)
             return
 
-        format = self.currentItemFormat(typeName)
-
-        if self.useFancy and (format is None or format >= 1):
-            self.putType(typeName)
-
-            nsStrippedType = self.stripNamespaceFromType(typeName)\
-                .replace("::", "__")
-
-            # The following block is only needed for D.
-            if nsStrippedType.startswith("_A"):
-                # DMD v2.058 encodes string[] as _Array_uns long long.
-                # With spaces.
-                if nsStrippedType.startswith("_Array_"):
-                    qdump_Array(self, value)
-                    return
-                if nsStrippedType.startswith("_AArray_"):
-                    qdump_AArray(self, value)
-                    return
-
-            #warn(" STRIPPED: %s" % nsStrippedType)
-            #warn(" DUMPERS: %s" % self.qqDumpers)
-            #warn(" DUMPERS: %s" % (nsStrippedType in self.qqDumpers))
-            dumper = self.qqDumpers.get(nsStrippedType, None)
-            if not dumper is None:
-                if tryDynamic:
-                    dumper(self, self.expensiveDowncast(value))
-                else:
-                    dumper(self, value)
-                return
+        if self.tryPutPrettyItem(typeName, value):
+            return
 
         # D arrays, gdc compiled.
         if typeName.endswith("[]"):

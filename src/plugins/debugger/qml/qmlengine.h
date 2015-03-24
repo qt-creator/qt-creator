@@ -145,9 +145,8 @@ private:
     void changeBreakpoint(Breakpoint bp);
     bool acceptsBreakpoint(Breakpoint bp) const;
 
-    void assignValueInDebugger(const WatchData *data,
+    void assignValueInDebugger(WatchItem *item,
         const QString &expr, const QVariant &value);
-
 
     void loadSymbols(const QString &moduleName);
     void loadAllSymbols();
@@ -158,7 +157,7 @@ private:
     void reloadFullStack() {}
 
     bool supportsThreads() const { return false; }
-    void updateWatchData(const WatchData &data);
+    void updateWatchItem(WatchItem *item);
     void watchDataSelected(const QByteArray &iname);
     void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
     bool evaluateScript(const QString &expression);

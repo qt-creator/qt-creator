@@ -33,7 +33,6 @@
 #include "builtineditordocumentparser.h"
 #include "cppdoxygen.h"
 #include "cppmodelmanager.h"
-#include "cppmodelmanager.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolsreuse.h"
 #include "editordocumenthandle.h"

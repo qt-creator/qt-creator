@@ -199,8 +199,9 @@
         \row
             \li Type
             \li String
-            \li Optional. Value \c Required or \c Optional. Defines if the dependency is
-                a hard requirement or optional. Defaults to \c{Required}.
+            \li Optional. Value \c Required, \c Optional, or \c Test. Defines if the dependency is
+                a hard requirement, optional, or required for running the plugin's tests.
+                Defaults to \c{Required}.
     \endtable
 
     \section3 Optional Dependencies
@@ -222,6 +223,18 @@
     via ExtensionSystem::PluginManager::getObjectByName() or
     ExtensionSystem::PluginManager::getObjectByClassName(), and use QMetaObject functions to call
     functions on it.
+
+    \section3 Test Dependencies
+
+    When the user runs the application with the \c{-test} command line argument, only
+    the specified plugins and their dependencies are loaded. This is done in order to
+    speed up the execution of tests by avoiding the loading of unneeded plugins.
+
+    A plugin can specify additional dependencies that are required for running its
+    tests, but not for its normal execution, by declaring dependencies with
+    \c {"Type" : "Test"}. Test dependencies are force loaded, and do not affect load order.
+
+    This type of dependency is not transitive.
 
     \section2 Command Line Arguments
 

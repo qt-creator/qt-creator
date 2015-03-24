@@ -114,8 +114,10 @@ public:
 
 
 inline bool operator ==(const QMakeStepConfig &a, const QMakeStepConfig &b) {
-    return std::tie(a.archConfig, a.osType, a.linkQmlDebuggingQQ1, a.linkQmlDebuggingQQ2, a.useQtQuickCompiler, a.separateDebugInfo)
-            == std::tie(b.archConfig, b.osType, b.linkQmlDebuggingQQ1, b.linkQmlDebuggingQQ2, b.useQtQuickCompiler, b.separateDebugInfo);
+    return std::tie(a.archConfig, a.osType, a.linkQmlDebuggingQQ1, a.linkQmlDebuggingQQ2)
+               == std::tie(b.archConfig, b.osType, b.linkQmlDebuggingQQ1, b.linkQmlDebuggingQQ2)
+            && std::tie(a.useQtQuickCompiler, a.separateDebugInfo)
+               == std::tie(b.useQtQuickCompiler, b.separateDebugInfo);
 }
 
 inline bool operator !=(const QMakeStepConfig &a, const QMakeStepConfig &b) {

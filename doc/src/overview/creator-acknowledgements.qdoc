@@ -90,7 +90,7 @@
         here:
         \list
         \li  QtCreator/src/libs/3rdparty
-        \li  \l{http://qt.gitorious.org/qt-creator/qt-creator/trees/master/src/libs/3rdparty}
+        \li  \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/src/libs/3rdparty}
         \endlist
 
         \li \b{ANGLE (Windows)}

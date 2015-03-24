@@ -382,7 +382,7 @@ bool PdbEngine::setToolTipExpression(const DebuggerToolTipContext &ctx)
     return true;
 }
 
-void PdbEngine::assignValueInDebugger(const WatchData *, const QString &expression, const QVariant &value)
+void PdbEngine::assignValueInDebugger(WatchItem *, const QString &expression, const QVariant &value)
 {
     //DebuggerCommand cmd("assignValue");
     //cmd.arg("expression", expression);
@@ -393,9 +393,9 @@ void PdbEngine::assignValueInDebugger(const WatchData *, const QString &expressi
     updateLocals();
 }
 
-void PdbEngine::updateWatchData(const WatchData &data)
+void PdbEngine::updateWatchItem(WatchItem *item)
 {
-    Q_UNUSED(data);
+    Q_UNUSED(item);
     updateAll();
 }
 
@@ -573,12 +573,12 @@ void PdbEngine::refreshLocals(const GdbMi &vars)
 
     QSet<QByteArray> toDelete;
     foreach (WatchItem *item, handler->model()->treeLevelItems<WatchItem *>(2))
-        toDelete.insert(item->d.iname);
+        toDelete.insert(item->iname);
 
     foreach (const GdbMi &child, vars.children()) {
         WatchItem *item = new WatchItem(child);
         handler->insertItem(item);
-        toDelete.remove(item->d.iname);
+        toDelete.remove(item->iname);
     }
 
     handler->purgeOutdatedItems(toDelete);

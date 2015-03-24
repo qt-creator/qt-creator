@@ -491,7 +491,6 @@ void VcsManager::handleConfigurationChanges()
 #include <QtTest>
 
 #include "coreplugin.h"
-#include "iversioncontrol.h"
 
 #include <extensionsystem/pluginmanager.h>
 

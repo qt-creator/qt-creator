@@ -480,12 +480,12 @@ bool CdbEngine::startConsole(const DebuggerStartParameters &sp, QString *errorMe
         qDebug("startConsole %s", qPrintable(sp.executable));
     m_consoleStub.reset(new ConsoleProcess);
     m_consoleStub->setMode(ConsoleProcess::Suspend);
-    connect(m_consoleStub.data(), SIGNAL(processError(QString)),
-            SLOT(consoleStubError(QString)));
-    connect(m_consoleStub.data(), SIGNAL(processStarted()),
-            SLOT(consoleStubProcessStarted()));
-    connect(m_consoleStub.data(), SIGNAL(stubStopped()),
-            SLOT(consoleStubExited()));
+    connect(m_consoleStub.data(), &ConsoleProcess::processError,
+            this, &CdbEngine::consoleStubError);
+    connect(m_consoleStub.data(), &ConsoleProcess::processStarted,
+            this, &CdbEngine::consoleStubProcessStarted);
+    connect(m_consoleStub.data(), &ConsoleProcess::stubStopped,
+            this, &CdbEngine::consoleStubExited);
     m_consoleStub->setWorkingDirectory(sp.workingDirectory);
     if (sp.environment.size())
         m_consoleStub->setEnvironment(sp.environment);
@@ -576,17 +576,21 @@ void CdbEngine::setupEngine()
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupFailed")
         notifyEngineSetupFailed();
     }
-    const QString normalFormat = tr("Normal");
-    const QStringList stringFormats = QStringList()
-        << normalFormat << tr("Separate Window");
+
+    DisplayFormats stringFormats;
+    stringFormats.append(SimpleFormat);
+    stringFormats.append(SeparateFormat);
+
     WatchHandler *wh = watchHandler();
     wh->addTypeFormats("QString", stringFormats);
     wh->addTypeFormats("QString *", stringFormats);
     wh->addTypeFormats("QByteArray", stringFormats);
     wh->addTypeFormats("QByteArray *", stringFormats);
     wh->addTypeFormats("std__basic_string", stringFormats);  // Python dumper naming convention for std::[w]string
-    const QStringList imageFormats = QStringList()
-        << normalFormat << tr("Image");
+
+    DisplayFormats imageFormats;
+    imageFormats.append(SimpleFormat);
+    imageFormats.append(EnhancedFormat);
     wh->addTypeFormats("QImage", imageFormats);
     wh->addTypeFormats("QImage *", imageFormats);
 }
@@ -974,46 +978,47 @@ static inline bool isWatchIName(const QByteArray &iname)
     return iname.startsWith("watch");
 }
 
-void CdbEngine::updateWatchData(const WatchData &dataIn)
+void CdbEngine::updateWatchItem(WatchItem *item)
 {
     if (debug || debugLocals || debugWatches)
         qDebug("CdbEngine::updateWatchData() %dms accessible=%d %s: %s",
                elapsedLogTime(), m_accessible, stateName(state()),
-               qPrintable(dataIn.toString()));
+               qPrintable(item->toString()));
 
     if (!m_accessible) // Add watch data while running?
         return;
 
     // New watch item?
-    if (dataIn.isWatcher() && dataIn.isValueNeeded()) {
+    if (item->isWatcher() && item->isValueNeeded()) {
         QByteArray args;
         ByteArrayInputStream str(args);
-        str << dataIn.iname << " \"" << dataIn.exp << '"';
+        WatchData data = *item; // Don't pass pointers to async functions.
+        str << data.iname << " \"" << data.exp << '"';
         postExtensionCommand("addwatch", args, 0,
-                             [this, dataIn](const CdbResponse &r) { handleAddWatch(r, dataIn); });
+                             [this, data](const CdbResponse &r) { handleAddWatch(r, data); });
         return;
     }
 
-    if (!dataIn.hasChildren && !dataIn.isValueNeeded()) {
-        WatchData data = dataIn;
-        data.setAllUnneeded();
-        watchHandler()->insertData(data);
-        return;
+    if (item->wantsChildren || item->isValueNeeded()) {
+        updateLocalVariable(item->iname);
+    } else {
+        item->setAllUnneeded();
+        item->update();
     }
-    updateLocalVariable(dataIn.iname);
 }
 
-void CdbEngine::handleAddWatch(const CdbResponse &response, WatchData item)
+void CdbEngine::handleAddWatch(const CdbResponse &response, WatchData data)
 {
     if (debugWatches)
-        qDebug() << "handleAddWatch ok="  << response.success << item.iname;
+        qDebug() << "handleAddWatch ok="  << response.success << data.iname;
     if (response.success) {
-        updateLocalVariable(item.iname);
+        updateLocalVariable(data.iname);
     } else {
-        item.setError(tr("Unable to add expression"));
-        watchHandler()->insertData(item);
+        auto item = new WatchItem(data);
+        item->setError(tr("Unable to add expression"));
+        watchHandler()->insertItem(item);
         showMessage(QString::fromLatin1("Unable to add watch item \"%1\"/\"%2\": %3").
-                    arg(QString::fromLatin1(item.iname), QString::fromLatin1(item.exp),
+                    arg(QString::fromLatin1(data.iname), QString::fromLatin1(data.exp),
                         QString::fromLocal8Bit(response.errorMessage)), LogError);
     }
 }
@@ -1165,8 +1170,8 @@ void CdbEngine::doInterruptInferior(SpecialStopMode sm)
     m_signalOperation = startParameters().device->signalOperation();
     m_specialStopMode = sm;
     QTC_ASSERT(m_signalOperation, notifyInferiorStopFailed(); return;);
-    connect(m_signalOperation.data(), SIGNAL(finished(QString)),
-            SLOT(handleDoInterruptInferior(QString)));
+    connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
+            this, &CdbEngine::handleDoInterruptInferior);
 
     m_signalOperation->setDebuggerCommand(startParameters().debuggerCommand);
     m_signalOperation->interruptProcess(inferiorPid());
@@ -1269,7 +1274,7 @@ static inline bool isAsciiWord(const QString &s)
     return true;
 }
 
-void CdbEngine::assignValueInDebugger(const WatchData *w, const QString &expr, const QVariant &value)
+void CdbEngine::assignValueInDebugger(WatchItem *w, const QString &expr, const QVariant &value)
 {
     if (debug)
         qDebug() << "CdbEngine::assignValueInDebugger" << w->iname << expr << value;
@@ -1871,13 +1876,13 @@ void CdbEngine::handleLocals(const CdbResponse &response, bool newFrame)
         QSet<QByteArray> toDelete;
         if (newFrame) {
             foreach (WatchItem *item, handler->model()->treeLevelItems<WatchItem *>(2))
-                toDelete.insert(item->d.iname);
+                toDelete.insert(item->iname);
         }
 
         foreach (const GdbMi &child, all.children()) {
             WatchItem *item = new WatchItem(child);
             handler->insertItem(item);
-            toDelete.remove(item->d.iname);
+            toDelete.remove(item->iname);
         }
 
         handler->purgeOutdatedItems(toDelete);

@@ -128,7 +128,7 @@ WatchData::WatchData() :
     bitpos(0),
     bitsize(0),
     elided(0),
-    hasChildren(false),
+    wantsChildren(false),
     valueEnabled(true),
     valueEditable(true),
     error(false),
@@ -150,7 +150,7 @@ bool WatchData::isEqual(const WatchData &other) const
       && address == other.address
       && size == other.size
       && elided == other.elided
-      && hasChildren == other.hasChildren
+      && wantsChildren == other.wantsChildren
       && valueEnabled == other.valueEnabled
       && valueEditable == other.valueEditable
       && error == other.error;
@@ -177,7 +177,7 @@ void WatchData::setError(const QString &msg)
 {
     setAllUnneeded();
     value = msg;
-    setHasChildren(false);
+    wantsChildren = false;
     valueEnabled = false;
     valueEditable = false;
     error = true;
@@ -188,7 +188,7 @@ void WatchData::setValue(const QString &value0)
     value = value0;
     if (value == QLatin1String("{...}")) {
         value.clear();
-        hasChildren = true; // at least one...
+        wantsChildren = true; // at least one...
     }
     // strip off quoted characters for chars.
     if (value.endsWith(QLatin1Char('\'')) && type.endsWith("char")) {
@@ -260,7 +260,6 @@ void WatchData::setType(const QByteArray &str, bool guessChildrenFromType)
         else
             changed = false;
     }
-    setTypeUnneeded();
     if (guessChildrenFromType) {
         switch (guessChildren(type)) {
         case HasChildren:
@@ -320,7 +319,7 @@ QString WatchData::toString() const
 
     if (isValueNeeded())
         str << "value=<needed>,";
-    if (isValueKnown() && !value.isEmpty())
+    if (!value.isEmpty())
         str << "value=\"" << value << doubleQuoteComma;
 
     if (elided)
@@ -333,15 +332,9 @@ QString WatchData::toString() const
     if (!dumperFlags.isEmpty())
         str << "dumperFlags=\"" << dumperFlags << doubleQuoteComma;
 
-    if (isTypeNeeded())
-        str << "type=<needed>,";
-    if (isTypeKnown() && !type.isEmpty())
-        str << "type=\"" << type << doubleQuoteComma;
+    str << "type=\"" << type << doubleQuoteComma;
 
-    if (isHasChildrenNeeded())
-        str << "hasChildren=<needed>,";
-    if (isHasChildrenKnown())
-        str << "hasChildren=\"" << (hasChildren ? "true" : "false") << doubleQuoteComma;
+    str << "wantsChildren=\"" << (wantsChildren ? "true" : "false") << doubleQuoteComma;
 
     if (isChildrenNeeded())
         str << "children=<needed>,";
@@ -511,8 +504,6 @@ void WatchData::updateType(const GdbMi &item)
 {
     if (item.isValid())
         setType(item.data());
-    else if (type.isEmpty())
-        setTypeNeeded();
 }
 
 void WatchData::updateDisplayedType(const GdbMi &item)
@@ -612,10 +603,6 @@ void parseChildrenData(const WatchData &data0, const GdbMi &item,
 
     mi = item["editformat"];
     data.editformat = mi.toInt();
-
-    mi = item["typeformats"];
-    if (mi.isValid())
-        data.typeFormats = QString::fromUtf8(mi.data());
 
     mi = item["valueelided"];
     if (mi.isValid())

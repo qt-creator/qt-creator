@@ -725,6 +725,17 @@ void TreeItem::removeChildren()
     }
 }
 
+void TreeItem::sortChildren(const std::function<bool(const TreeItem *, const TreeItem *)> &cmp)
+{
+    if (m_model) {
+        m_model->layoutAboutToBeChanged();
+        std::sort(m_children.begin(), m_children.end(), cmp);
+        m_model->layoutChanged();
+    } else {
+        std::sort(m_children.begin(), m_children.end(), cmp);
+    }
+}
+
 void TreeItem::update()
 {
     if (m_model) {

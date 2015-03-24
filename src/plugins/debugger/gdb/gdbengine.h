@@ -59,7 +59,6 @@ class MemoryAgentCookie;
 class BreakpointParameters;
 class BreakpointResponse;
 
-class WatchData;
 class DisassemblerAgentCookie;
 class DisassemblerLines;
 
@@ -384,7 +383,7 @@ protected:
     // Watch specific stuff
     //
     virtual bool setToolTipExpression(const DebuggerToolTipContext &);
-    virtual void assignValueInDebugger(const WatchData *data,
+    virtual void assignValueInDebugger(WatchItem *item,
         const QString &expr, const QVariant &value);
 
     virtual void fetchMemory(MemoryAgent *agent, QObject *token,
@@ -398,8 +397,7 @@ protected:
     virtual void watchPoint(const QPoint &);
     void handleWatchPoint(const DebuggerResponse &response);
 
-    void updateWatchData(const WatchData &data);
-    void rebuildWatchModel();
+    void updateWatchItem(WatchItem *item);
     void showToolTip();
 
     void handleVarAssign(const DebuggerResponse &response);

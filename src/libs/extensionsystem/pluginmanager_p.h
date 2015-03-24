@@ -73,6 +73,7 @@ public:
     QList<PluginSpec *> loadQueue();
     void loadPlugin(PluginSpec *spec, PluginSpec::State destState);
     void resolveDependencies();
+    void enableOnlyTestedSpecs();
     void initProfiling();
     void profilingSummary() const;
     void profilingReport(const char *what, const PluginSpec *spec = 0);

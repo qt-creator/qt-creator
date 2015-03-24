@@ -1029,6 +1029,9 @@
     To paste any content that you copied to the clipboard, select \uicontrol Tools >
     \uicontrol {Code Pasting} > \uicontrol {Paste Snippet}.
 
+    To paste content from the \l{Comparing Files}{diff editor}, right-click a
+    chunk and select \uicontrol {Send Chunk to CodePaster} in the context menu.
+
     To fetch a snippet of code from the server, select \uicontrol{Tools} >
     \uicontrol{Code Pasting} > \uicontrol{Fetch Snippet} or press \key{Alt+C,Alt+F}. Select
     the snippet to fetch from the list.

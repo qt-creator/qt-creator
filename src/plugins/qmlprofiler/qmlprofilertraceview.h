@@ -51,8 +51,7 @@ class QmlProfilerTraceView : public QWidget
 public:
     explicit QmlProfilerTraceView(QWidget *parent, QmlProfilerTool *profilerTool,
                                   QmlProfilerViewManager *container,
-                                  QmlProfilerModelManager *modelManager,
-                                  QmlProfilerStateManager *profilerState);
+                                  QmlProfilerModelManager *modelManager);
     ~QmlProfilerTraceView();
 
     bool hasValidSelection() const;
@@ -68,7 +67,6 @@ public slots:
 
 private slots:
     void updateCursorPosition();
-    void profilerDataModelStateChanged();
 
 protected:
     void changeEvent(QEvent *e) Q_DECL_OVERRIDE;

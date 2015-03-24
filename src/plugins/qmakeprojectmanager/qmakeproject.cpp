@@ -1492,7 +1492,8 @@ void QmakeProject::collectData(const QmakeProFileNode *node, DeploymentData &dep
         if (!installsList.targetPath.isEmpty())
             collectApplicationData(node, deploymentData);
         break;
-    case LibraryTemplate:
+    case SharedLibraryTemplate:
+    case StaticLibraryTemplate:
         collectLibraryData(node, deploymentData);
         break;
     case SubDirsTemplate:

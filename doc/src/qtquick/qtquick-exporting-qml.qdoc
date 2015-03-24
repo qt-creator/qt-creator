@@ -115,8 +115,8 @@
     \list 1
 
         \li Download the export script, \e{Export QML.jx}, from
-            \l{http://qt.gitorious.org/qt-labs/photoshop-qmlexporter/trees/master}
-            {Gitorious}.
+            \l{https://code.qt.io/cgit/qt-labs/photoshop-qmlexporter.git/}
+            {code.qt.io}.
 
             \note Read the README.txt file in the repository for latest
             information about the script.
@@ -173,8 +173,8 @@
             {Tutorial: Installing Python for GIMP 2.6 (Windows)}.
 
         \li Download the export script, \e qmlexporter.py, from
-            \l{http://qt.gitorious.org/qt-labs/gimp-qmlexporter/trees/master}
-            {Gitorious}.
+            \l{https://code.qt.io/cgit/qt-labs/gimp-qmlexporter.git/}
+            {code.qt.io}.
 
             \note Read the INSTALL.txt in the repository for latest information
             about the script.

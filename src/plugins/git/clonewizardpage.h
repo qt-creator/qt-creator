@@ -41,7 +41,6 @@ namespace Git {
 
 struct CloneWizardPagePrivate;
 
-// Used by gitorious as well.
 class CloneWizardPage : public VcsBase::BaseCheckoutWizardPage
 {
     Q_OBJECT

@@ -37,7 +37,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <ssh/sshhostkeydatabase.h>
-#include <utils/qtcassert.h>
 #include <utils/fileutils.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>

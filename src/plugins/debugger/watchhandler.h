@@ -35,32 +35,66 @@
 
 #include <utils/treemodel.h>
 
-#include <QPointer>
 #include <QVector>
 
 namespace Debugger {
 namespace Internal {
 
 class DebuggerCommand;
-class SeparatedView;
+class DebuggerEngine;
 class WatchModel;
 
-class WatchItem : public Utils::TreeItem
+// Special formats. Keep in sync with dumper.py.
+enum DisplayFormat
+{
+    AutomaticFormat, // Based on type for individuals, dumper default for types.
+    RawFormat,
+
+    SimpleFormat,    // Typical simple format (e.g. for QModelIndex row/column)
+    EnhancedFormat,  // Enhanced format (e.g. for QModelIndex with resolved display)
+    SeparateFormat,  // Display in separate Window
+
+    Latin1StringFormat,
+    SeparateLatin1StringFormat,
+    Utf8StringFormat,
+    SeparateUtf8StringFormat,
+    Local8BitStringFormat,
+    Utf16StringFormat,
+    Ucs4StringFormat,
+
+    Array10Format,
+    Array100Format,
+    Array1000Format,
+    Array10000Format,
+    ArrayPlotFormat,
+
+    CompactMapFormat,
+    DirectQListStorageFormat,
+    IndirectQListStorageFormat,
+
+    // Not used in *.py.
+    BoolTextFormat,
+    BoolIntegerFormat,
+
+    DecimalIntegerFormat,
+    HexadecimalIntegerFormat,
+    BinaryIntegerFormat,
+    OctalIntegerFormat,
+
+    CompactFloatFormat,
+    ScientificFloatFormat,
+};
+
+typedef QVector<DisplayFormat> DisplayFormats;
+
+class WatchItem : public Utils::TreeItem, public WatchData
 {
 public:
-    WatchItem();
+    WatchItem() {}
     WatchItem(const QByteArray &i, const QString &n);
     explicit WatchItem(const WatchData &data);
     explicit WatchItem(const GdbMi &data);
 
-    WatchItem *parentItem() const;
-    const WatchModel *watchModel() const;
-    WatchModel *watchModel();
-
-    QVariant data(int column, int role) const;
-    Qt::ItemFlags flags(int column) const;
-
-    bool canFetchMore() const;
     void fetchMore();
 
     QString displayName() const;
@@ -76,83 +110,20 @@ public:
     QColor valueColor() const;
 
     int requestedFormat() const;
-    void showInEditorHelper(QString *contents, int depth) const;
     WatchItem *findItem(const QByteArray &iname);
+
+private:
+    WatchItem *parentItem() const;
+    const WatchModel *watchModel() const;
+    WatchModel *watchModel();
+    DisplayFormats typeFormatList() const;
+
+    bool canFetchMore() const;
+    QVariant data(int column, int role) const;
+    Qt::ItemFlags flags(int column) const;
+
     void parseWatchData(const GdbMi &input);
-
-public:
-    WatchData d;
-    bool fetchTriggered;
 };
-
-// Special formats. Keep in sync with dumper.py.
-enum DisplayFormat
-{
-    AutomaticFormat = -1, // Based on type for individuals, dumper default for types.
-    RawFormat = 0,
-
-    // Values between 1 and 99 refer to dumper provided custom formats.
-
-    // Values between 100 and 199 refer to well-known formats handled in dumpers.
-    KnownDumperFormatBase = 100,
-    Latin1StringFormat,
-    Utf8StringFormat,
-    Local8BitStringFormat,
-    Utf16StringFormat,
-    Ucs4StringFormat,
-
-    Array10Format,
-    Array100Format,
-    Array1000Format,
-    Array10000Format,
-
-    SeparateLatin1StringFormat,
-    SeparateUtf8StringFormat,
-
-
-    // Values above 200 refer to format solely handled in the WatchHandler code
-    ArtificialFormatBase = 200,
-
-    BoolTextFormat,
-    BoolIntegerFormat,
-
-    DecimalIntegerFormat,
-    HexadecimalIntegerFormat,
-    BinaryIntegerFormat,
-    OctalIntegerFormat,
-
-    CompactFloatFormat,
-    ScientificFloatFormat,
-};
-
-
-class TypeFormatItem
-{
-public:
-    TypeFormatItem() : format(-1) {}
-    TypeFormatItem(const QString &display, int format);
-
-    QString display;
-    int format;
-};
-
-class TypeFormatList : public QVector<TypeFormatItem>
-{
-public:
-    using QVector::append;
-    void append(int format);
-    TypeFormatItem find(int format) const;
-};
-
-} // namespace Internal
-} // namespace Debugger
-
-Q_DECLARE_METATYPE(Debugger::Internal::TypeFormatList)
-
-namespace Debugger {
-namespace Internal {
-
-class DebuggerEngine;
 
 class UpdateParameters
 {
@@ -162,8 +133,6 @@ public:
     bool tryPartial;
     QByteArray varList;
 };
-
-typedef QHash<QString, QStringList> DumperTypeFormats; // Type name -> Dumper Formats
 
 class WatchModelBase : public Utils::TreeModel
 {
@@ -196,14 +165,10 @@ public:
     void watchVariable(const QString &exp);
     Q_SLOT void clearWatches();
 
-    void showEditValue(const WatchData &data);
-
-    const WatchData *watchData(const QModelIndex &) const;
+    const WatchItem *watchItem(const QModelIndex &) const;
     void fetchMore(const QByteArray &iname) const;
-    const WatchData *findData(const QByteArray &iname) const;
     WatchItem *findItem(const QByteArray &iname) const;
-    const WatchData *findCppLocalVariable(const QString &name) const;
-    bool hasItem(const QByteArray &iname) const;
+    const WatchItem *findCppLocalVariable(const QString &name) const;
 
     void loadSessionData();
     void saveSessionData();
@@ -218,18 +183,16 @@ public:
     QByteArray individualFormatRequests() const;
 
     int format(const QByteArray &iname) const;
+    static QString nameForFormat(int format);
 
     void addDumpers(const GdbMi &dumpers);
-    void addTypeFormats(const QByteArray &type, const QStringList &formats);
-    void setTypeFormats(const DumperTypeFormats &typeFormats);
-    DumperTypeFormats typeFormats() const;
+    void addTypeFormats(const QByteArray &type, const DisplayFormats &formats);
 
     void setUnprintableBase(int base);
     static int unprintableBase();
 
     QByteArray watcherName(const QByteArray &exp);
     QString editorContents();
-    void editTypeFormats(bool includeLocals, const QByteArray &iname);
 
     void scheduleResetLocation();
     void resetLocation();
@@ -238,8 +201,6 @@ public:
     void updateWatchersWindow();
     void appendFormatRequests(DebuggerCommand *cmd);
 
-    void insertData(const WatchData &data); // DEPRECATED
-    void insertDataList(const QList<WatchData> &list); // DEPRECATED
     void insertItem(WatchItem *item); // Takes ownership.
     void removeItemByIName(const QByteArray &iname);
     void removeAllData(bool includeInspectData = false);
@@ -250,25 +211,13 @@ public:
     void purgeOutdatedItems(const QSet<QByteArray> &inames);
 
 private:
-    friend class WatchModel;
-
-    void saveWatchers();
-    static void loadFormats();
-    static void saveFormats();
-
-    void setFormat(const QByteArray &type, int format);
-
     WatchModel *m_model; // Owned.
-    DebuggerEngine *m_engine; // Not owned.
-    SeparatedView *m_separatedView; // Owned.
-
-    bool m_contentsValid;
-    bool m_resetLocationScheduled;
 };
 
 } // namespace Internal
 } // namespace Debugger
 
 Q_DECLARE_METATYPE(Debugger::Internal::UpdateParameters)
+Q_DECLARE_METATYPE(Debugger::Internal::DisplayFormats)
 
 #endif // DEBUGGER_WATCHHANDLER_H

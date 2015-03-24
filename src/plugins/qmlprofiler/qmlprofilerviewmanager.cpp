@@ -95,8 +95,7 @@ void QmlProfilerViewManager::createViews()
     d->traceView = new QmlProfilerTraceView(mw,
                                             d->profilerTool,
                                             this,
-                                            d->profilerModelManager,
-                                            d->profilerState);
+                                            d->profilerModelManager);
     d->traceView->setWindowTitle(tr("Timeline"));
     connect(d->traceView, SIGNAL(gotoSourceLocation(QString,int,int)),
             this, SIGNAL(gotoSourceLocation(QString,int,int)));

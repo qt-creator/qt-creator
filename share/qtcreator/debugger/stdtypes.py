@@ -398,7 +398,8 @@ def qdump__std____debug__stack(d, value):
     qdump__std__stack(d, value)
 
 def qform__std__string():
-    return "Latin1 String,Latin1 String in Separate Window,UTF-8 String,UTF-8 String in Separate Window"
+    return [Latin1StringFormat, SeparateLatin1StringFormat,
+            Utf8StringFormat, SeparateUtf8StringFormat ]
 
 def qdump__std__string(d, value):
     qdump__std__stringHelper1(d, value, 1, d.currentItemFormat())
@@ -787,7 +788,7 @@ def qdump__string(d, value):
     qdump__std__string(d, value)
 
 def qform__std__wstring():
-    return "Inline String,String in Separate Window"
+    return [SimpleFormat, SeparateFormat]
 
 def qdump__std__wstring(d, value):
     charSize = d.lookupType('wchar_t').sizeof

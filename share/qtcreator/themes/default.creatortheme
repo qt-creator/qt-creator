@@ -81,6 +81,10 @@ OutputPaneToggleButtonTextColorChecked=ffffffff
 OutputPaneToggleButtonTextColorUnchecked=ff000000
 QtOutputFormatter_LinkTextColor=ff0000aa
 
+CompileOutput_ErrorOutput=ffaa0000
+CompileOutput_MessageOutput=ff0000aa
+CompileOutput_ErrorMessageOutput=ffaa0000
+
 Welcome_BackgroundColorNormal=ffffffff
 Welcome_Button_BorderColorNormal=ff737373
 Welcome_Button_BorderColorPressed=ff333333

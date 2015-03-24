@@ -41,7 +41,6 @@
 
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/TypeOfExpression.h>
-#include <cpptools/cppmodelmanager.h>
 
 #include <QTextCursor>
 

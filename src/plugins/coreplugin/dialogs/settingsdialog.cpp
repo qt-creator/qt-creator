@@ -397,8 +397,8 @@ void SettingsDialog::showPage(const Id pageId)
         }
     }
 
-    QTC_ASSERT(!initialPageId.isValid() || initialPageIndex != -1,
-               qDebug("Unknown page: %s", initialPageId.name().constData()));
+    if (initialPageId.isValid() && initialPageIndex == -1)
+        return; // Unknown settings page, probably due to missing plugin.
 
     if (initialCategoryIndex != -1) {
         const QModelIndex modelIndex = m_proxyModel->mapFromSource(m_model->index(initialCategoryIndex));

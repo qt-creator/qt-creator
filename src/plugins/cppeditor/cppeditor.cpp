@@ -49,7 +49,6 @@
 #include <coreplugin/editormanager/documentmodel.h>
 
 #include <cpptools/cppchecksymbols.h>
-#include <cpptools/cppchecksymbols.h>
 #include <cpptools/cppcodeformatter.h>
 #include <cpptools/cppcompletionassistprovider.h>
 #include <cpptools/cppeditoroutline.h>

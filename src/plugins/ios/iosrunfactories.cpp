@@ -101,7 +101,7 @@ QList<Core::Id> IosRunConfigurationFactory::availableCreationIds(Target *parent,
 
     QList<QmakeProFileNode *> nodes = project->allProFiles(QList<QmakeProjectType>()
                                                            << ApplicationTemplate
-                                                           << LibraryTemplate
+                                                           << SharedLibraryTemplate
                                                            << AuxTemplate);
     if (mode == AutoCreate)
         nodes = QmakeProject::nodesWithQtcRunnable(nodes);

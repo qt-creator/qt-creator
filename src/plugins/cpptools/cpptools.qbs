@@ -13,6 +13,11 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "app_version_header" }
 
+    pluginTestDepends: [
+        "CppEditor",
+        "QmakeProjectManager",
+    ]
+
     cpp.defines: base
     Properties {
         condition: qbs.toolchain.contains("msvc")

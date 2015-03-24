@@ -58,7 +58,8 @@ public:
     enum TemplateType {
         TT_Unknown = 0,
         TT_Application,
-        TT_Library,
+        TT_StaticLibrary,
+        TT_SharedLibrary,
         TT_Script,
         TT_Aux,
         TT_Subdirs

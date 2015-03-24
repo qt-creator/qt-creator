@@ -482,16 +482,18 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
 
         d->logReceiveMessage(QLatin1String(command) + QLatin1Char(' ')
                              +  QLatin1String(iname) + QLatin1Char(' ') + data.value);
-        data.iname = iname;
+
+        auto item = new WatchItem(data);
+        item->iname = iname;
         if (iname.startsWith("watch.")) {
-            watchHandler->insertData(data);
+            watchHandler->insertItem(item);
         } else if (iname == "console") {
-            d->engine->showMessage(data.value, ConsoleOutput);
+            d->engine->showMessage(item->value, ConsoleOutput);
         } else if (iname.startsWith("local.")) {
-            data.name = data.name.left(data.name.indexOf(QLatin1Char(' ')));
-            watchHandler->insertData(data);
+            item->name = item->name.left(item->name.indexOf(QLatin1Char(' ')));
+            watchHandler->insertItem(item);
         } else {
-            qWarning() << "QmlEngine: Unexcpected result: " << iname << data.value;
+            qWarning() << "QmlEngine: Unexcpected result: " << iname << item->value;
         }
     } else if (command == "EXPANDED") {
         QList<WatchData> result;
@@ -504,7 +506,7 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
 
         foreach (WatchData data, result) {
             data.iname = iname + '.' + data.exp;
-            watchHandler->insertData(data);
+            watchHandler->insertItem(new WatchItem(data));
 
             if (watchHandler->isExpandedIName(data.iname) && qint64(data.id) != -1) {
                 needPing = true;
@@ -552,9 +554,10 @@ void QScriptDebuggerClient::insertLocalsAndWatches(QList<WatchData> &locals,
         return;
 
     bool needPing = false;
-    foreach (WatchData data, watches) {
-        data.iname = watchHandler->watcherName(data.exp);
-        watchHandler->insertData(data);
+    foreach (const WatchData &data, watches) {
+        auto item = new WatchItem(data);
+        item->iname = watchHandler->watcherName(data.exp);
+        watchHandler->insertItem(item);
 
         if (watchHandler->isExpandedIName(data.iname) && qint64(data.id) != -1) {
             needPing = true;
@@ -562,11 +565,12 @@ void QScriptDebuggerClient::insertLocalsAndWatches(QList<WatchData> &locals,
         }
     }
 
-    foreach (WatchData data, locals) {
-        if (data.name == QLatin1String("<no initialized data>"))
-            data.name = tr("No Local Variables");
-        data.iname = "local." + data.exp;
-        watchHandler->insertData(data);
+    foreach (const WatchData &data, locals) {
+        auto item = new WatchItem(data);
+        if (item->name == QLatin1String("<no initialized data>"))
+            item->name = tr("No Local Variables");
+        item->iname = "local." + item->exp;
+        watchHandler->insertItem(item);
 
         if (watchHandler->isExpandedIName(data.iname) && qint64(data.id) != -1) {
             needPing = true;

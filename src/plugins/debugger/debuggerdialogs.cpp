@@ -807,7 +807,7 @@ public:
     }
 
     void addTypeFormats(const QString &type,
-        const QStringList &typeFormats, int current)
+        const DisplayFormats &typeFormats, int current)
     {
         const int row = m_layout->rowCount();
         int column = 0;
@@ -815,7 +815,8 @@ public:
         m_layout->addWidget(new QLabel(type), row, column++);
         for (int i = -1; i != typeFormats.size(); ++i) {
             QRadioButton *choice = new QRadioButton(this);
-            choice->setText(i == -1 ? TypeFormatsDialog::tr("Reset") : typeFormats.at(i));
+            choice->setText(i == -1 ? TypeFormatsDialog::tr("Reset")
+                                    : WatchHandler::nameForFormat(typeFormats.at(i)));
             m_layout->addWidget(choice, row, column++);
             if (i == current)
                 choice->setChecked(true);
@@ -868,7 +869,6 @@ private:
 //
 ///////////////////////////////////////////////////////////////////////
 
-
 TypeFormatsDialog::TypeFormatsDialog(QWidget *parent)
    : QDialog(parent), m_ui(new TypeFormatsDialogUi(this))
 {
@@ -888,7 +888,7 @@ TypeFormatsDialog::~TypeFormatsDialog()
 }
 
 void TypeFormatsDialog::addTypeFormats(const QString &type0,
-    const QStringList &typeFormats, int current)
+    const DisplayFormats &typeFormats, int current)
 {
     QString type = type0;
     type.replace(QLatin1String("__"), QLatin1String("::"));
@@ -898,11 +898,6 @@ void TypeFormatsDialog::addTypeFormats(const QString &type0,
     else if (type.startsWith(QLatin1String("std::")))
         pos = 1;
     m_ui->pages[pos]->addTypeFormats(type, typeFormats, current);
-}
-
-DumperTypeFormats TypeFormatsDialog::typeFormats() const
-{
-    return DumperTypeFormats();
 }
 
 } // namespace Internal

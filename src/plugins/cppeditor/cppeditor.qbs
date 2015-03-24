@@ -15,6 +15,10 @@ QtcPlugin {
 
     Depends { name: "app_version_header" }
 
+    pluginTestDepends: [
+        "QmakeProjectManager",
+    ]
+
     files: [
         "cppautocompleter.cpp", "cppautocompleter.h",
         "cppcanonicalsymbol.cpp", "cppcanonicalsymbol.h",

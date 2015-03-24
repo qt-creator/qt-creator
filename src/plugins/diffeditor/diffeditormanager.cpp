@@ -30,7 +30,6 @@
 
 #include "diffeditormanager.h"
 #include "diffeditor.h"
-#include "diffeditordocument.h"
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
 #include <coreplugin/editormanager/editormanager.h>

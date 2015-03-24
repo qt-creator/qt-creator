@@ -917,7 +917,8 @@ QList<ProjectAction> QmakePriFileNode::supportedActions(Node *node) const
 
     switch (proFileNode->projectType()) {
     case ApplicationTemplate:
-    case LibraryTemplate:
+    case StaticLibraryTemplate:
+    case SharedLibraryTemplate:
     case AuxTemplate: {
         // TODO: Some of the file types don't make much sense for aux
         // projects (e.g. cpp). It'd be nice if the "add" action could
@@ -1495,8 +1496,10 @@ static QmakeProjectType proFileTemplateTypeToProjectType(ProFileEvaluator::Templ
     case ProFileEvaluator::TT_Unknown:
     case ProFileEvaluator::TT_Application:
         return ApplicationTemplate;
-    case ProFileEvaluator::TT_Library:
-        return LibraryTemplate;
+    case ProFileEvaluator::TT_StaticLibrary:
+        return StaticLibraryTemplate;
+    case ProFileEvaluator::TT_SharedLibrary:
+        return SharedLibraryTemplate;
     case ProFileEvaluator::TT_Script:
         return ScriptTemplate;
     case ProFileEvaluator::TT_Aux:
@@ -1639,7 +1642,7 @@ FolderNode::AddNewInformation QmakeProFileNode::addNewInformation(const QStringL
 
 bool QmakeProFileNode::showInSimpleTree(QmakeProjectType projectType) const
 {
-    return (projectType == ApplicationTemplate || projectType == LibraryTemplate);
+    return (projectType == ApplicationTemplate || projectType == SharedLibraryTemplate  || projectType == StaticLibraryTemplate);
 }
 
 bool QmakeProFileNode::isDebugAndRelease() const
@@ -2512,7 +2515,9 @@ void QmakeProFileNode::updateUiFiles(const QString &buildDir)
     m_uiFiles.clear();
 
     // Only those two project types can have ui files for us
-    if (m_projectType == ApplicationTemplate || m_projectType == LibraryTemplate) {
+    if (m_projectType == ApplicationTemplate ||
+            m_projectType == SharedLibraryTemplate ||
+            m_projectType == StaticLibraryTemplate) {
         // Find all ui files
         FindUiFileNodesVisitor uiFilesVisitor;
         this->accept(&uiFilesVisitor);

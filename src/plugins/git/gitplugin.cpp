@@ -61,7 +61,6 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/vcsmanager.h>
-#include <coreplugin/coreconstants.h>
 
 #include <coreplugin/messagebox.h>
 #include <utils/mimetypes/mimedatabase.h>

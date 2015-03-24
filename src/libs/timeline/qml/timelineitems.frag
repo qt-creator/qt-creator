@@ -28,17 +28,22 @@
 **
 ****************************************************************************/
 
+#ifdef GL_OES_standard_derivatives
+#extension GL_OES_standard_derivatives : enable
+// else we probably have fwidth() in core
+#endif
+
 varying lowp vec3 edgeColor;
 varying lowp vec3 color;
 varying lowp vec2 barycentric;
 
-vec4 zero = vec4(0.0);
+lowp vec4 zero = vec4(0.0);
 void main()
 {
-    vec2 d = fwidth(barycentric) * 5.0;
-    vec4 edge_closeness = smoothstep(zero, vec4(d.x, d.y, d.x, d.y),
+    lowp vec2 d = fwidth(barycentric) * 5.0;
+    lowp vec4 edge_closeness = smoothstep(zero, vec4(d.x, d.y, d.x, d.y),
             vec4(barycentric.x, barycentric.y, 1.0 - barycentric.x, 1.0 - barycentric.y));
-    float total = min(min(edge_closeness[0], edge_closeness[1]),
+    lowp float total = min(min(edge_closeness[0], edge_closeness[1]),
             min(edge_closeness[2], edge_closeness[3]));
     // square to make lines sharper
     total = total > 0.5 ? (1.0 - (1.0 - total) * (1.0 - total) * 2.0) : total * total * 2.0;

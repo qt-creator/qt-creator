@@ -127,8 +127,6 @@ QString IVersionControl::TopicCache::topic(const QString &topLevel)
 
 #if defined(WITH_TESTS)
 
-#include "vcsmanager.h"
-
 #include <QFileInfo>
 
 namespace Core {

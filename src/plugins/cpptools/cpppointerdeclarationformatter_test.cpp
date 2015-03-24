@@ -30,7 +30,6 @@
 
 #include "cpppointerdeclarationformatter.h"
 #include "cpptoolsplugin.h"
-#include "cpptoolsplugin.h"
 #include "cpptoolstestcase.h"
 
 #include <coreplugin/coreconstants.h>

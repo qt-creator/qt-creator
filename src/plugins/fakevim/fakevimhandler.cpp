@@ -4566,7 +4566,7 @@ bool FakeVimHandler::Private::handleRegisterSubMode(const Input &input)
     bool handled = false;
 
     QChar reg = input.asChar();
-    if (QString::fromLatin1("*+.%#:-\"").contains(reg) || reg.isLetterOrNumber()) {
+    if (QString::fromLatin1("*+.%#:-\"_").contains(reg) || reg.isLetterOrNumber()) {
         m_register = reg.unicode();
         handled = true;
     }
@@ -4909,6 +4909,15 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         const int blockNumber = m_cursor.blockNumber();
         const int endPos = position();
         moveToNextWordStart(1, false, false);
+        if (blockNumber != m_cursor.blockNumber())
+            moveToEndOfLine();
+        const int beginPos = position();
+        Range range(beginPos, endPos, RangeCharMode);
+        removeText(range);
+    } else if (input.isControl('u')) {
+        const int blockNumber = m_cursor.blockNumber();
+        const int endPos = position();
+        moveToStartOfLine();
         if (blockNumber != m_cursor.blockNumber())
             moveToEndOfLine();
         const int beginPos = position();
@@ -6926,9 +6935,6 @@ void FakeVimHandler::Private::yankText(const Range &range, int reg)
 
     // If register is not specified or " ...
     if (m_register == '"') {
-        // copy to yank register 0 too
-        setRegister('0', text, range.rangemode);
-
         // with delete and change commands set register 1 (if text contains more lines) or
         // small delete register -
         if (g.submode == DeleteSubMode || g.submode == ChangeSubMode) {
@@ -6936,9 +6942,12 @@ void FakeVimHandler::Private::yankText(const Range &range, int reg)
                 setRegister('1', text, range.rangemode);
             else
                 setRegister('-', text, range.rangemode);
+        } else {
+            // copy to yank register 0 too
+            setRegister('0', text, range.rangemode);
         }
-    } else {
-        // Always copy to " register too.
+    } else if (m_register != '_') {
+        // Always copy to " register too (except black hole register).
         setRegister('"', text, range.rangemode);
     }
 

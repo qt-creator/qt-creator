@@ -45,8 +45,6 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 
-#include <utils/pathchooser.h>
-
 #include <QFile>
 #include <QTextStream>
 #include <QProcess>

@@ -31,6 +31,8 @@
 #ifndef DEBUGGER_DIALOGS_H
 #define DEBUGGER_DIALOGS_H
 
+#include "watchhandler.h"
+
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/abi.h>
 
@@ -162,8 +164,6 @@ private:
      QDialogButtonBox *m_box;
 };
 
-typedef QHash<QString, QStringList> DumperTypeFormats;
-
 class StartRemoteEngineDialog : public QDialog
 {
     Q_OBJECT
@@ -191,9 +191,8 @@ public:
     explicit TypeFormatsDialog(QWidget *parent);
     ~TypeFormatsDialog();
 
-    void addTypeFormats(const QString &type, const QStringList &formats,
+    void addTypeFormats(const QString &type, const DisplayFormats &formats,
         int currentFormat);
-    DumperTypeFormats typeFormats() const;
 
 private:
     TypeFormatsDialogUi *m_ui;

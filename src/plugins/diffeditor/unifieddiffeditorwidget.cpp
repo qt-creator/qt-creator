@@ -45,7 +45,6 @@
 
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
-#include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/displaysettings.h>
