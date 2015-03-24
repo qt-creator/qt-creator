@@ -35,6 +35,7 @@
 #include "mimemagicrule_p.h"
 
 #include <QtCore/QList>
+#include <QtCore/QRegularExpression>
 #include <QtCore/QDebug>
 #include <qendian.h>
 
@@ -45,6 +46,7 @@ using namespace Utils::Internal;
 static const char magicRuleTypes_string[] =
     "invalid\0"
     "string\0"
+    "regexp\0"
     "host16\0"
     "host32\0"
     "big16\0"
@@ -55,7 +57,7 @@ static const char magicRuleTypes_string[] =
     "\0";
 
 static const int magicRuleTypes_indices[] = {
-    0, 8, 15, 22, 29, 35, 41, 50, 59, 65, 0
+    0, 8, 15, 22, 29, 36, 42, 48, 57, 66, 71, 0
 };
 
 MimeMagicRule::Type MimeMagicRule::type(const QByteArray &theTypeName)
@@ -86,6 +88,7 @@ public:
     int endPos;
     QByteArray mask;
 
+    QRegularExpression regexp;
     QByteArray pattern;
     quint32 number;
     quint32 numberMask;
@@ -164,6 +167,16 @@ static bool matchString(const MimeMagicRulePrivate *d, const QByteArray &data)
 {
     const int rangeLength = d->endPos - d->startPos + 1;
     return MimeMagicRule::matchSubstring(data.constData(), data.size(), d->startPos, rangeLength, d->pattern.size(), d->pattern.constData(), d->mask.constData());
+}
+
+static bool matchRegExp(const MimeMagicRulePrivate *d, const QByteArray &data)
+{
+    const QString str = QString::fromUtf8(data);
+    int length = d->endPos;
+    if (length == d->startPos)
+        length = -1; // from startPos to end of string
+    const QString subStr = str.left(length);
+    return d->regexp.match(subStr, d->startPos).hasMatch();
 }
 
 template <typename T>
@@ -294,6 +307,20 @@ MimeMagicRule::MimeMagicRule(MimeMagicRule::Type theType,
         }
         d->mask.squeeze();
         d->matchFunction = matchString;
+        break;
+    case RegExp:
+        d->regexp.setPatternOptions(QRegularExpression::MultilineOption
+                                    | QRegularExpression::DotMatchesEverythingOption
+                                    | QRegularExpression::OptimizeOnFirstUsageOption);
+        d->regexp.setPattern(QString::fromUtf8(d->value));
+        if (!d->regexp.isValid()) {
+            d->type = Invalid;
+            if (errorString)
+                *errorString = QString::fromLatin1("Invalid magic rule regexp value \"%1\"").arg(
+                        QString::fromLatin1(d->value));
+            return;
+        }
+        d->matchFunction = matchRegExp;
         break;
     case Byte:
         if (d->number <= quint8(-1)) {

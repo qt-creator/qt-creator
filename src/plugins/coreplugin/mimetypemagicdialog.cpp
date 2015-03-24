@@ -63,7 +63,19 @@ MimeTypeMagicDialog::MimeTypeMagicDialog(QWidget *parent) :
     connect(ui.informationLabel, &QLabel::linkActivated, this, [](const QString &link) {
         QDesktopServices::openUrl(QUrl(link));
     });
+    connect(ui.typeSelector, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+            this, [this]() {
+        if (ui.useRecommendedGroupBox->isChecked())
+            setToRecommendedValues();
+    });
     ui.valueLineEdit->setFocus();
+}
+
+void MimeTypeMagicDialog::setToRecommendedValues()
+{
+    ui.startRangeSpinBox->setValue(0);
+    ui.endRangeSpinBox->setValue(ui.typeSelector->currentIndex() == 1/*regexp*/ ? 200 : 0);
+    ui.prioritySpinBox->setValue(50);
 }
 
 void MimeTypeMagicDialog::applyRecommended(bool checked)
@@ -73,9 +85,7 @@ void MimeTypeMagicDialog::applyRecommended(bool checked)
         m_customRangeStart = ui.startRangeSpinBox->value();
         m_customRangeEnd = ui.endRangeSpinBox->value();
         m_customPriority = ui.prioritySpinBox->value();
-        ui.startRangeSpinBox->setValue(0);
-        ui.endRangeSpinBox->setValue(0);
-        ui.prioritySpinBox->setValue(50);
+        setToRecommendedValues();
     } else {
         // restore previous custom values
         ui.startRangeSpinBox->setValue(m_customRangeStart);

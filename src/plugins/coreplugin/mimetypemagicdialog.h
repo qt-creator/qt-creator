@@ -72,6 +72,7 @@ public:
     MagicData magicData() const;
 
 private:
+    void setToRecommendedValues();
     void applyRecommended(bool checked);
     void validateAccept();
     Utils::Internal::MimeMagicRule createRule(QString *errorMessage = 0) const;
