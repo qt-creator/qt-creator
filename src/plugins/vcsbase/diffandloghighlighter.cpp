@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "diffhighlighter.h"
+#include "diffandloghighlighter.h"
 
 #include <texteditor/textdocumentlayout.h>
 
@@ -38,11 +38,11 @@
 #include <QRegExp>
 
 /*!
-    \class VcsBase::DiffHighlighter
+    \class VcsBase::DiffAndLogHighlighter
 
-    \brief The DiffHighlighter class provides a highlighter for diffs.
+    \brief The DiffAndLogHighlighter class provides a highlighter for diffs and log editors.
 
-    Parametrizable by the file indicator, which is for example '^====' in case of p4:
+    Diff is parametrizable by the file indicator, which is for example '^====' in case of p4:
     \code
     ==== //depot/research/main/qdynamicmainwindow3/qdynamicdockwidgetlayout_p.h#34 (text) ====
     \endcode
@@ -66,7 +66,7 @@ static const int LOCATION_LEVEL = 2;
 namespace VcsBase {
 namespace Internal {
 
-// Formats used by DiffHighlighter
+// Formats used by DiffAndLogHighlighter
 enum DiffFormats {
     DiffTextFormat,
     DiffInFormat,
@@ -92,13 +92,13 @@ static inline QTextCharFormat invertedColorFormat(const QTextCharFormat &in)
     return rc;
 }
 
-// --- DiffHighlighterPrivate
-class DiffHighlighterPrivate
+// --- DiffAndLogHighlighterPrivate
+class DiffAndLogHighlighterPrivate
 {
-    DiffHighlighter *q_ptr;
-    Q_DECLARE_PUBLIC(DiffHighlighter)
+    DiffAndLogHighlighter *q_ptr;
+    Q_DECLARE_PUBLIC(DiffAndLogHighlighter)
 public:
-    DiffHighlighterPrivate(const QRegExp &filePattern);
+    DiffAndLogHighlighterPrivate(const QRegExp &filePattern);
 
     Internal::DiffFormats analyzeLine(const QString &block) const;
     void updateOtherFormats();
@@ -112,7 +112,7 @@ public:
     Internal::FoldingState m_foldingState;
 };
 
-DiffHighlighterPrivate::DiffHighlighterPrivate(const QRegExp &filePattern) :
+DiffAndLogHighlighterPrivate::DiffAndLogHighlighterPrivate(const QRegExp &filePattern) :
     q_ptr(0),
     m_filePattern(filePattern),
     m_locationIndicator(QLatin1String("@@")),
@@ -123,7 +123,7 @@ DiffHighlighterPrivate::DiffHighlighterPrivate(const QRegExp &filePattern) :
     QTC_CHECK(filePattern.isValid());
 }
 
-Internal::DiffFormats DiffHighlighterPrivate::analyzeLine(const QString &text) const
+Internal::DiffFormats DiffAndLogHighlighterPrivate::analyzeLine(const QString &text) const
 {
     // Do not match on git "--- a/" as a deleted line, check
     // file first
@@ -138,21 +138,21 @@ Internal::DiffFormats DiffHighlighterPrivate::analyzeLine(const QString &text) c
     return Internal::DiffTextFormat;
 }
 
-void DiffHighlighterPrivate::updateOtherFormats()
+void DiffAndLogHighlighterPrivate::updateOtherFormats()
 {
-    Q_Q(DiffHighlighter);
+    Q_Q(DiffAndLogHighlighter);
     m_addedTrailingWhiteSpaceFormat =
             invertedColorFormat(q->formatForCategory(Internal::DiffInFormat));
 
 }
 
-// --- DiffHighlighter
-DiffHighlighter::DiffHighlighter(const QRegExp &filePattern) :
+// --- DiffAndLogHighlighter
+DiffAndLogHighlighter::DiffAndLogHighlighter(const QRegExp &filePattern) :
     TextEditor::SyntaxHighlighter(static_cast<QTextDocument *>(0)),
-    d_ptr(new DiffHighlighterPrivate(filePattern))
+    d_ptr(new DiffAndLogHighlighterPrivate(filePattern))
 {
     d_ptr->q_ptr = this;
-    Q_D(DiffHighlighter);
+    Q_D(DiffAndLogHighlighter);
 
     static QVector<TextEditor::TextStyle> categories;
     if (categories.isEmpty()) {
@@ -166,7 +166,7 @@ DiffHighlighter::DiffHighlighter(const QRegExp &filePattern) :
     d->updateOtherFormats();
 }
 
-DiffHighlighter::~DiffHighlighter()
+DiffAndLogHighlighter::~DiffAndLogHighlighter()
 {
 }
 
@@ -185,9 +185,9 @@ static inline int trimmedLength(const QString &in)
  * 1 for all the following lines of the diff header and all @@ lines.
  * 2 for everything else
  */
-void DiffHighlighter::highlightBlock(const QString &text)
+void DiffAndLogHighlighter::highlightBlock(const QString &text)
 {
-    Q_D(DiffHighlighter);
+    Q_D(DiffAndLogHighlighter);
     if (text.isEmpty())
         return;
 
@@ -265,9 +265,9 @@ void DiffHighlighter::highlightBlock(const QString &text)
     }
 }
 
-void DiffHighlighter::setFontSettings(const TextEditor::FontSettings &fontSettings)
+void DiffAndLogHighlighter::setFontSettings(const TextEditor::FontSettings &fontSettings)
 {
-    Q_D(DiffHighlighter);
+    Q_D(DiffAndLogHighlighter);
     SyntaxHighlighter::setFontSettings(fontSettings);
     d->updateOtherFormats();
 }

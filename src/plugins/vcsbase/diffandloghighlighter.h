@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFHIGHLIGHTER_H
-#define DIFFHIGHLIGHTER_H
+#ifndef DIFFANDLOGHIGHLIGHTER_H
+#define DIFFANDLOGHIGHLIGHTER_H
 
 #include "vcsbase_global.h"
 
@@ -45,24 +45,24 @@ namespace TextEditor { class FontSettingsPage; }
 
 namespace VcsBase {
 
-class DiffHighlighterPrivate;
+class DiffAndLogHighlighterPrivate;
 
-class VCSBASE_EXPORT DiffHighlighter : public TextEditor::SyntaxHighlighter
+class VCSBASE_EXPORT DiffAndLogHighlighter : public TextEditor::SyntaxHighlighter
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(DiffHighlighter)
+    Q_DECLARE_PRIVATE(DiffAndLogHighlighter)
 public:
-    explicit DiffHighlighter(const QRegExp &filePattern);
-    ~DiffHighlighter();
+    explicit DiffAndLogHighlighter(const QRegExp &filePattern);
+    ~DiffAndLogHighlighter();
 
     void highlightBlock(const QString &text);
 
     virtual void setFontSettings(const TextEditor::FontSettings &fontSettings);
 
 private:
-    QScopedPointer<DiffHighlighterPrivate> d_ptr;
+    QScopedPointer<DiffAndLogHighlighterPrivate> d_ptr;
 };
 
 } // namespace VcsBase
 
-#endif // DIFFHIGHLIGHTER_H
+#endif // DIFFANDLOGHIGHLIGHTER_H

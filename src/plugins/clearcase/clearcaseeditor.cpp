@@ -35,7 +35,7 @@
 #include "clearcaseplugin.h"
 
 #include <utils/qtcassert.h>
-#include <vcsbase/diffhighlighter.h>
+#include <vcsbase/diffandloghighlighter.h>
 
 #include <QDir>
 #include <QFileInfo>

@@ -9,7 +9,7 @@ HEADERS += vcsbase_global.h \
     corelistener.h \
     vcsbaseplugin.h \
     baseannotationhighlighter.h \
-    diffhighlighter.h \
+    diffandloghighlighter.h \
     vcsbaseeditor.h \
     vcsbasesubmiteditor.h \
     basevcseditorfactory.h \
@@ -40,7 +40,7 @@ SOURCES += vcsplugin.cpp \
     wizard/vcsjsextension.cpp \
     corelistener.cpp \
     baseannotationhighlighter.cpp \
-    diffhighlighter.cpp \
+    diffandloghighlighter.cpp \
     vcsbaseeditor.cpp \
     vcsbasesubmiteditor.cpp \
     basevcseditorfactory.cpp \

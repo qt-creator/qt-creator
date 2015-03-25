@@ -35,7 +35,7 @@
 #include "mercurialclient.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <vcsbase/diffhighlighter.h>
+#include <vcsbase/diffandloghighlighter.h>
 
 #include <QString>
 #include <QTextCursor>

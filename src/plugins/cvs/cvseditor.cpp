@@ -35,7 +35,7 @@
 #include "cvsconstants.h"
 
 #include <utils/qtcassert.h>
-#include <vcsbase/diffhighlighter.h>
+#include <vcsbase/diffandloghighlighter.h>
 
 #include <QDebug>
 #include <QTextCursor>

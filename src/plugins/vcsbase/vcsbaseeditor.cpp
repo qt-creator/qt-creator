@@ -29,7 +29,7 @@
 ****************************************************************************/
 
 #include "vcsbaseeditor.h"
-#include "diffhighlighter.h"
+#include "diffandloghighlighter.h"
 #include "baseannotationhighlighter.h"
 #include "basevcseditorfactory.h"
 #include "vcsbaseplugin.h"
@@ -736,7 +736,7 @@ void VcsBaseEditorWidget::init()
         break;
     }
     if (hasDiff()) {
-        auto dh = new DiffHighlighter(d->m_diffFilePattern);
+        auto dh = new DiffAndLogHighlighter(d->m_diffFilePattern);
         setCodeFoldingSupported(true);
         textDocument()->setSyntaxHighlighter(dh);
     }
@@ -1120,9 +1120,11 @@ void VcsBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
     const QChar deletionIndicator = QLatin1Char('-');
     // find nearest change hunk
     QTextBlock block = cursor.block();
-    if (TextDocumentLayout::foldingIndent(block) <= 1)
-        /* We are in a diff header, do not jump anywhere. DiffHighlighter sets the foldingIndent for us. */
+    if (TextDocumentLayout::foldingIndent(block) <= 1) {
+        // We are in a diff header, do not jump anywhere.
+        // DiffAndLogHighlighter sets the foldingIndent for us.
         return;
+    }
     for ( ; block.isValid() ; block = block.previous()) {
         const QString line = block.text();
         if (checkChunkLine(line, &chunkStart)) {
@@ -1159,9 +1161,11 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
     QTC_ASSERT(hasDiff(), return rc);
     // Search back for start of chunk.
     QTextBlock block = cursor.block();
-    if (block.isValid() && TextDocumentLayout::foldingIndent(block) <= 1)
-        /* We are in a diff header, not in a chunk! DiffHighlighter sets the foldingIndent for us. */
+    if (block.isValid() && TextDocumentLayout::foldingIndent(block) <= 1) {
+        // We are in a diff header, not in a chunk!
+        // DiffAndLogHighlighter sets the foldingIndent for us.
         return rc;
+    }
 
     int chunkStart = 0;
     for ( ; block.isValid() ; block = block.previous()) {
