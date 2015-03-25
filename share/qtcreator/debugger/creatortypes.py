@@ -68,7 +68,7 @@ def readLiteral(d, value):
         return "<unsupported>"
 
 def dumpLiteral(d, value):
-    d.putValue('"' + readLiteral(d, value) + '"')
+    d.putValue(d.hexencode(readLiteral(d, value)), Hex2EncodedLatin1)
 
 def qdump__Core__Id(d, value):
     try:
