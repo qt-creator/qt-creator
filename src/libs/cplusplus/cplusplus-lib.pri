@@ -36,6 +36,7 @@ HEADERS += \
     $$PWD/NamePrettyPrinter.h \
     $$PWD/TypeOfExpression.h \
     $$PWD/TypePrettyPrinter.h \
+    $$PWD/TypeResolver.h \
     $$PWD/ResolveExpression.h \
     $$PWD/LookupItem.h \
     $$PWD/AlreadyConsideredClassContainer.h \
@@ -68,6 +69,7 @@ SOURCES += \
     $$PWD/NamePrettyPrinter.cpp \
     $$PWD/TypeOfExpression.cpp \
     $$PWD/TypePrettyPrinter.cpp \
+    $$PWD/TypeResolver.cpp \
     $$PWD/ResolveExpression.cpp \
     $$PWD/LookupItem.cpp \
     $$PWD/LookupContext.cpp \

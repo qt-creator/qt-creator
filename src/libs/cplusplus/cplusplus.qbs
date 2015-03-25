@@ -118,6 +118,7 @@ QtcLibrary {
             "SymbolNameVisitor.cpp", "SymbolNameVisitor.h",
             "TypeOfExpression.cpp", "TypeOfExpression.h",
             "TypePrettyPrinter.cpp", "TypePrettyPrinter.h",
+            "TypeResolver.cpp", "TypeResolver.h",
             "cplusplus.qrc",
             "findcdbbreakpoint.cpp", "findcdbbreakpoint.h",
             "pp-cctype.h",
