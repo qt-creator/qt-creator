@@ -782,7 +782,8 @@ class Dumper(DumperBase):
                 return thread
         return None
 
-    def reportThreads(self):
+    def reportThreads(self, args):
+        self.reportToken(args)
         result = 'threads={threads=['
         for i in xrange(0, self.process.GetNumThreads()):
             thread = self.process.GetThreadAtIndex(i)
@@ -810,8 +811,12 @@ class Dumper(DumperBase):
             result += ',file="%s"' % fileName(frame.line_entry.file)
             result += '}},'
 
-        result += '],current-thread-id="%s"},' % self.currentThread().id
+        result += ']},'
         self.report(result)
+
+    def reportCurrentThread(self, args):
+        self.reportToken(args)
+        self.report('current-thread={id="%s"}' % self.currentThread().id)
 
     def firstUsableFrame(self, thread):
         for i in xrange(10):
@@ -1210,7 +1215,6 @@ class Dumper(DumperBase):
         else:
             state = self.process.GetState()
             if state == lldb.eStateStopped:
-                self.reportThreads()
                 self.reportVariables()
 
     def reportRegisters(self, _ = None):
@@ -1329,7 +1333,6 @@ class Dumper(DumperBase):
                 stoppedThread = self.firstStoppedThread()
                 if stoppedThread:
                     self.process.SetSelectedThread(stoppedThread)
-                self.reportThreads()
         elif eventType == lldb.SBProcess.eBroadcastBitInterrupt: # 2
             pass
         elif eventType == lldb.SBProcess.eBroadcastBitSTDOUT:

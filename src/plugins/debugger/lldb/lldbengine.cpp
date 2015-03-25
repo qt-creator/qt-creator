@@ -456,6 +456,8 @@ void LldbEngine::handleResponse(const QByteArray &response)
             refreshRegisters(item);
         else if (name == "threads")
             refreshThreads(item);
+        else if (name == "current-thread")
+            refreshCurrentThread(item);
         else if (name == "typeinfo")
             refreshTypeInfo(item);
         else if (name == "state")
@@ -567,10 +569,15 @@ void LldbEngine::activateFrame(int frameIndex)
 
 void LldbEngine::selectThread(ThreadId threadId)
 {
-    DebuggerCommand cmd("selectThread");
-    cmd.arg("id", threadId.raw());
+    DebuggerCommand cmd1("selectThread");
+    cmd1.arg("id", threadId.raw());
+    runCommand(cmd1);
+
+    DebuggerCommand cmd("reportStack");
+    cmd.arg("nativeMixed", isNativeMixedActive());
+    cmd.arg("stacklimit", action(MaximalStackDepth)->value().toInt());
+    cmd.arg("continuation", "updateLocals");
     runCommand(cmd);
-    updateAll();
 }
 
 bool LldbEngine::stateAcceptsBreakpointChanges() const
@@ -823,6 +830,12 @@ bool LldbEngine::setToolTipExpression(const DebuggerToolTipContext &context)
 
 void LldbEngine::updateAll()
 {
+    DebuggerCommand cmd1("reportThreads");
+    runCommand(cmd1);
+
+    DebuggerCommand cmd2("reportCurrentThread");
+    runCommand(cmd2);
+
     DebuggerCommand cmd("reportStack");
     cmd.arg("nativeMixed", isNativeMixedActive());
     cmd.arg("stacklimit", action(MaximalStackDepth)->value().toInt());
@@ -1061,11 +1074,14 @@ void LldbEngine::refreshThreads(const GdbMi &threads)
 {
     ThreadsHandler *handler = threadsHandler();
     handler->updateThreads(threads);
-    if (!handler->currentThread().isValid()) {
-        ThreadId other = handler->threadAt(0);
-        if (other.isValid())
-            selectThread(other);
-    }
+    updateViews(); // Adjust Threads combobox.
+}
+
+void LldbEngine::refreshCurrentThread(const GdbMi &data)
+{
+    ThreadsHandler *handler = threadsHandler();
+    ThreadId id(data["id"].toInt());
+    handler->setCurrentThread(id);
     updateViews(); // Adjust Threads combobox.
 }
 
@@ -1102,9 +1118,10 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
         } else {
             updateAll();
         }
-    } else if (newState == "inferiorstopok")
+    } else if (newState == "inferiorstopok") {
         notifyInferiorStopOk();
-    else if (newState == "inferiorstopfailed")
+        updateAll();
+    } else if (newState == "inferiorstopfailed")
         notifyInferiorStopFailed();
     else if (newState == "inferiorill")
         notifyInferiorIll();
