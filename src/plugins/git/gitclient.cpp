@@ -755,14 +755,11 @@ void GitClient::stage(const QString &patch, bool revert)
  * (using the file's codec). Makes use of a dynamic property to find an
  * existing instance and to reuse it (in case, say, 'git diff foo' is
  * already open). */
-VcsBaseEditorWidget *GitClient::createVcsEditor(
-        Id id,
-        QString title,
-        const QString &source, // Source file or directory
-        CodecType codecType,
-        const char *registerDynamicProperty, // Dynamic property and value to identify that editor
-        const QString &dynamicPropertyValue,
-        VcsBaseEditorParameterWidget *configWidget) const
+VcsBaseEditorWidget *GitClient::createVcsEditor(Id id, QString title,
+                                                const QString &source, // Source file or directory
+                                                CodecType codecType,
+                                                const char *registerDynamicProperty, // Dynamic property and value to identify that editor
+                                                const QString &dynamicPropertyValue) const
 {
     VcsBaseEditorWidget *rc = 0;
     QTC_CHECK(!findExistingVCSEditor(registerDynamicProperty, dynamicPropertyValue));
@@ -781,9 +778,6 @@ VcsBaseEditorWidget *GitClient::createVcsEditor(
         rc->setCodec(encoding(source, "i18n.logOutputEncoding"));
 
     rc->setForceReadOnly(true);
-
-    if (configWidget)
-        rc->setConfigurationWidget(configWidget);
 
     return rc;
 }
@@ -904,8 +898,8 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
         auto *argWidget = new GitLogArgumentsWidget(settings());
         connect(argWidget, &VcsBaseEditorParameterWidget::commandExecutionRequested,
                 [=]() { this->log(workingDirectory, fileName, enableAnnotationContextMenu, args); });
-        editor = createVcsEditor(editorId, title, sourceFile, CodecLogOutput, "logTitle", msgArg,
-                                 argWidget);
+        editor = createVcsEditor(editorId, title, sourceFile, CodecLogOutput, "logTitle", msgArg);
+        editor->setConfigurationWidget(argWidget);
     }
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
     editor->setWorkingDirectory(workingDirectory);
@@ -937,7 +931,7 @@ void GitClient::reflog(const QString &workingDirectory)
     VcsBaseEditorWidget *editor = findExistingVCSEditor("reflogRepository", workingDirectory);
     if (!editor) {
         editor = createVcsEditor(editorId, title, workingDirectory, CodecLogOutput,
-                                 "reflogRepository", workingDirectory, 0);
+                                 "reflogRepository", workingDirectory);
     }
     editor->setWorkingDirectory(workingDirectory);
 
@@ -1031,7 +1025,8 @@ void GitClient::blame(const QString &workingDirectory,
                     const int line = VcsBaseEditor::lineNumberOfCurrentEditor();
                     blame(workingDirectory, args, fileName, revision, line);
                 } );
-        editor = createVcsEditor(editorId, title, sourceFile, CodecSource, "blameFileName", id, argWidget);
+        editor = createVcsEditor(editorId, title, sourceFile, CodecSource, "blameFileName", id);
+        editor->setConfigurationWidget(argWidget);
     }
 
     editor->setWorkingDirectory(workingDirectory);
@@ -3075,7 +3070,7 @@ void GitClient::subversionLog(const QString &workingDirectory)
     const QString sourceFile = VcsBaseEditor::getSource(workingDirectory, QStringList());
     VcsBaseEditorWidget *editor = findExistingVCSEditor("svnLog", sourceFile);
     if (!editor)
-        editor = createVcsEditor(editorId, title, sourceFile, CodecNone, "svnLog", sourceFile, 0);
+        editor = createVcsEditor(editorId, title, sourceFile, CodecNone, "svnLog", sourceFile);
     editor->setWorkingDirectory(workingDirectory);
     executeGit(workingDirectory, arguments, editor);
 }

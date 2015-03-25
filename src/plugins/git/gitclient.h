@@ -370,12 +370,11 @@ private:
     enum CodecType { CodecSource, CodecLogOutput, CodecNone };
 
     VcsBase::VcsBaseEditorWidget *createVcsEditor(Core::Id kind,
-                                            QString title,
-                                            const QString &source,
-                                            CodecType codecType,
-                                            const char *registerDynamicProperty,
-                                            const QString &dynamicPropertyValue,
-                                            VcsBase::VcsBaseEditorParameterWidget *configWidget) const;
+                                                  QString title,
+                                                  const QString &source,
+                                                  CodecType codecType,
+                                                  const char *registerDynamicProperty,
+                                                  const QString &dynamicPropertyValue) const;
 
     void requestReload(const QString &documentId, const QString &source, const QString &title,
                        std::function<DiffEditor::DiffEditorController *(Core::IDocument *)> factory) const;
