@@ -52,4 +52,5 @@
   <style name="DiffSourceChar" foreground="#000000" background="#c34141"/>
   <style name="DiffDestLine" background="#2d8c2d"/>
   <style name="DiffDestChar" foreground="#000000" background="#41c341"/>
+  <style name="LogChangeLine" foreground="#808000"/>
 </style-scheme>

@@ -95,6 +95,8 @@ enum TextStyle {
     C_DIFF_DEST_LINE,
     C_DIFF_DEST_CHAR,
 
+    C_LOG_CHANGE_LINE,
+
     C_LAST_STYLE_SENTINEL
 };
 

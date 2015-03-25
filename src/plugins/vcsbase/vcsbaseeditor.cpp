@@ -736,7 +736,7 @@ void VcsBaseEditorWidget::init()
         break;
     }
     if (hasDiff()) {
-        auto dh = new DiffAndLogHighlighter(d->m_diffFilePattern);
+        auto dh = new DiffAndLogHighlighter(d->m_diffFilePattern, d->m_logEntryPattern);
         setCodeFoldingSupported(true);
         textDocument()->setSyntaxHighlighter(dh);
     }

@@ -96,6 +96,8 @@ const char *nameForStyle(TextStyle style)
     case C_DIFF_DEST_LINE:      return "DiffDestLine";
     case C_DIFF_DEST_CHAR:      return "DiffDestChar";
 
+    case C_LOG_CHANGE_LINE:     return "LogChangeLine";
+
     case C_LAST_STYLE_SENTINEL: return "LastStyleSentinel";
 
     }

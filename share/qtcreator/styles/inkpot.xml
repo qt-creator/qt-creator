@@ -60,5 +60,6 @@
   <style name="DiffSourceChar" background="#c34141"/>
   <style name="DiffDestLine" background="#277027"/>
   <style name="DiffDestChar" background="#339d33"/>
+  <style name="LogChangeLine" foreground="#dcdc00"/>
 </style-scheme>
 

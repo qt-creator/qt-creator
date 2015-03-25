@@ -268,6 +268,10 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
                                             "in differences (in side-by-side diff editor)."),
                                          Format(QColor(), QColor(175, 255, 175))));
 
+    formatDescr.append(FormatDescription(C_LOG_CHANGE_LINE, tr("Log Change Line"),
+                                         tr("Applied to lines describing changes in VCS log"),
+                                         Format(QColor(192, 0, 0), QColor())));
+
     d->m_fontSettingsPage = new FontSettingsPage(formatDescr,
                                                    Constants::TEXT_EDITOR_FONT_SETTINGS,
                                                    this);

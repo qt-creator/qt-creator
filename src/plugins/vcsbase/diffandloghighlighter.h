@@ -52,7 +52,7 @@ class VCSBASE_EXPORT DiffAndLogHighlighter : public TextEditor::SyntaxHighlighte
     Q_OBJECT
     Q_DECLARE_PRIVATE(DiffAndLogHighlighter)
 public:
-    explicit DiffAndLogHighlighter(const QRegExp &filePattern);
+    explicit DiffAndLogHighlighter(const QRegExp &filePattern, const QRegExp &changePattern);
     ~DiffAndLogHighlighter();
 
     void highlightBlock(const QString &text);
