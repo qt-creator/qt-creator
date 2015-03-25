@@ -327,7 +327,6 @@ QString WatchData::toString() const
 
     if (!editvalue.isEmpty())
         str << "editvalue=\"<...>\",";
-    //    str << "editvalue=\"" << editvalue << doubleQuoteComma;
 
     str << "type=\"" << type << doubleQuoteComma;
 
@@ -574,7 +573,6 @@ void parseChildrenData(const WatchData &data0, const GdbMi &item,
                        std::function<void(const WatchData &, const GdbMi &)> childHandler,
                        std::function<void(const WatchData &childTemplate, const QByteArray &encodedData, int encoding)> arrayDecoder)
 {
-    //qDebug() << "HANDLE CHILDREN: " << data0.toString() << item.toString();
     WatchData data = data0;
     data.setChildrenUnneeded();
 
@@ -619,7 +617,6 @@ void parseChildrenData(const WatchData &data0, const GdbMi &item,
     setWatchDataValueEnabled(data, item["valueenabled"]);
     setWatchDataValueEditable(data, item["valueeditable"]);
     data.updateChildCount(item["numchild"]);
-    //qDebug() << "\nAPPEND TO LIST: " << data.toString() << "\n";
     itemHandler(data);
 
     bool ok = false;
@@ -630,7 +627,6 @@ void parseChildrenData(const WatchData &data0, const GdbMi &item,
     WatchData childtemplate;
     childtemplate.updateType(item["childtype"]);
     childtemplate.updateChildCount(item["childnumchild"]);
-    //qDebug() << "CHILD TEMPLATE:" << childtemplate.toString();
 
     mi = item["arraydata"];
     if (mi.isValid()) {
