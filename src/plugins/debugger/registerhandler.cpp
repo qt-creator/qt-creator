@@ -340,6 +340,7 @@ QByteArray RegisterValue::toByteArray(int base, RegisterKind kind, int size) con
 RegisterValue RegisterValue::subValue(int size, int index) const
 {
     RegisterValue value;
+    value.known = known;
     switch (size) {
         case 1:
             value.v.u8[0] = v.u8[index];
