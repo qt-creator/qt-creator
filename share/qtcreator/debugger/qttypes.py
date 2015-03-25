@@ -188,12 +188,7 @@ def qdump__QModelIndex(d, value):
                             % (mm_, row, column, mi_))
                         d.putItem(mi2)
                         i = i + 1
-            d.putFields(value)
-            #d.putCallItem("parent", val, "parent")
-            #with SubItem(d, "model"):
-            #    d.putValue(m)
-            #    d.putType(ns + "QAbstractItemModel*")
-            #    d.putNumChild(1)
+            d.putCallItem("parent", value, "parent")
     #gdb.execute("call free($mi)")
 
 
