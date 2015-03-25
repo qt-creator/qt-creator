@@ -329,9 +329,6 @@ QString WatchData::toString() const
         str << "editvalue=\"<...>\",";
     //    str << "editvalue=\"" << editvalue << doubleQuoteComma;
 
-    if (!dumperFlags.isEmpty())
-        str << "dumperFlags=\"" << dumperFlags << doubleQuoteComma;
-
     str << "type=\"" << type << doubleQuoteComma;
 
     str << "wantsChildren=\"" << (wantsChildren ? "true" : "false") << doubleQuoteComma;
@@ -466,7 +463,7 @@ static void setWatchDataAddress(WatchData &data, quint64 address)
 {
     data.address = address;
 
-    if (data.exp.isEmpty() && !data.dumperFlags.startsWith('$')) {
+    if (data.exp.isEmpty()) {
         if (data.iname.startsWith("local.") && data.iname.count('.') == 1)
             // Solve one common case of adding 'class' in
             // *(class X*)0xdeadbeef for gdb.
@@ -474,19 +471,6 @@ static void setWatchDataAddress(WatchData &data, quint64 address)
         else
             data.exp = "*(" + gdbQuoteTypes(data.type) + "*)" + data.hexAddress();
     }
-}
-
-void WatchData::updateAddress(const GdbMi &mi)
-{
-    if (!mi.isValid())
-        return;
-    const QByteArray addressBA = mi.data();
-    if (!addressBA.startsWith("0x")) { // Item model dumpers pull tricks.
-        dumperFlags = addressBA;
-        return;
-    }
-    const quint64 address = mi.toAddress();
-    setWatchDataAddress(*this, address);
 }
 
 static void setWatchDataSize(WatchData &data, const GdbMi &mi)
@@ -620,7 +604,10 @@ void parseChildrenData(const WatchData &data0, const GdbMi &item,
     if (mi.isValid())
         data.origaddr = mi.toAddress();
 
-    data.updateAddress(item["addr"]);
+    mi = item["addr"];
+    if (mi.isValid())
+        setWatchDataAddress(data, mi.toAddress());
+
     data.updateValue(item);
 
     setWatchDataSize(data, item["size"]);

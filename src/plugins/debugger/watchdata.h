@@ -102,7 +102,6 @@ public:
     // Protocol interaction.
     void updateValue(const GdbMi &item);
     void updateChildCount(const GdbMi &mi);
-    void updateAddress(const GdbMi &addressMi);
     void updateType(const GdbMi &item);
     void updateDisplayedType(const GdbMi &item);
 
@@ -128,7 +127,6 @@ public:
     bool            valueEditable; // Value will be editable
     bool            error;
     qint32          sortId;
-    QByteArray      dumperFlags;
 
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::WatchHandler)
 
