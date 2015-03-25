@@ -61,7 +61,10 @@ namespace VcsBase {
     class VcsBaseEditorParameterWidget;
 }
 
-namespace Utils { struct SynchronousProcessResponse; }
+namespace Utils {
+class ExitCodeInterpreter;
+struct SynchronousProcessResponse;
+} // namespace Utils
 
 namespace DiffEditor {
 class DiffEditorDocument;
@@ -385,6 +388,8 @@ private:
     VcsBase::VcsCommand *createCommand(const QString &workingDirectory,
                                        VcsBase::VcsBaseEditorWidget *editor = 0,
                                        JobOutputBindMode mode = NoOutputBind);
+    void enqueueJob(VcsBase::VcsCommand *cmd, const QStringList &args,
+                    Utils::ExitCodeInterpreter *interpreter = 0);
 
     VcsBase::VcsCommand *executeGit(const QString &workingDirectory,
                                  const QStringList &arguments,

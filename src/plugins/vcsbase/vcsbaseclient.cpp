@@ -566,7 +566,7 @@ VcsCommand *VcsBaseClient::createCommand(const QString &workingDirectory,
 
 void VcsBaseClient::enqueueJob(VcsCommand *cmd, const QStringList &args, Utils::ExitCodeInterpreter *interpreter)
 {
-    cmd->addJob(args, interpreter);
+    cmd->addJob(args, vcsTimeout(), interpreter);
     cmd->execute();
 }
 

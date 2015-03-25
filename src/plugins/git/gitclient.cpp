@@ -1584,13 +1584,12 @@ void GitClient::branchesForCommit(const QString &revision)
     QString workingDirectory = controller->baseDirectory();
     auto command = new VcsCommand(vcsBinary(), workingDirectory, processEnvironment());
     command->setCodec(getSourceCodec(currentDocumentPath()));
+    command->setCookie(workingDirectory);
 
     connect(command, &VcsCommand::output, controller,
             &DiffEditorController::informationForCommitReceived);
 
-    command->addJob(arguments, -1);
-    command->setCookie(workingDirectory);
-    command->execute();
+    enqueueJob(command, arguments);
 }
 
 bool GitClient::isRemoteCommit(const QString &workingDirectory, const QString &commit)
@@ -2007,6 +2006,12 @@ VcsCommand *GitClient::createCommand(const QString &workingDirectory, VcsBaseEdi
     return command;
 }
 
+void GitClient::enqueueJob(VcsCommand *cmd, const QStringList &args, ExitCodeInterpreter *interpreter)
+{
+    cmd->addJob(args, vcsTimeout(), interpreter);
+    cmd->execute();
+}
+
 // Execute a single command
 VcsCommand *GitClient::executeGit(const QString &workingDirectory,
                                   const QStringList &arguments,
@@ -2019,9 +2024,8 @@ VcsCommand *GitClient::executeGit(const QString &workingDirectory,
     VcsCommand *command = createCommand(workingDirectory, editor,
                                         useOutputToWindow ? VcsWindowOutputBind : NoOutputBind);
     command->setCookie(editorLineNumber);
-    command->addJob(arguments, vcsTimeout() * 1000);
     command->addFlags(additionalFlags);
-    command->execute();
+    enqueueJob(command, arguments);
     return command;
 }
 
@@ -3137,9 +3141,8 @@ void GitClient::asyncCommand(const QString &workingDirectory, const QStringList 
     new ConflictHandler(command, workingDirectory, gitCommand);
     if (hasProgress)
         command->setProgressParser(new GitProgressParser);
-    command->addJob(arguments, -1);
-    command->execute();
     command->setCookie(workingDirectory);
+    enqueueJob(command, arguments);
 }
 
 bool GitClient::synchronousRevert(const QString &workingDirectory, const QString &commit)
