@@ -131,7 +131,6 @@ WatchData::WatchData() :
     wantsChildren(false),
     valueEnabled(true),
     valueEditable(true),
-    error(false),
     sortId(0),
     source(0)
 {
@@ -146,14 +145,12 @@ bool WatchData::isEqual(const WatchData &other) const
       && editvalue == other.editvalue
       && type == other.type
       && displayedType == other.displayedType
-      && variable == other.variable
       && address == other.address
       && size == other.size
       && elided == other.elided
       && wantsChildren == other.wantsChildren
       && valueEnabled == other.valueEnabled
-      && valueEditable == other.valueEditable
-      && error == other.error;
+      && valueEditable == other.valueEditable;
 }
 
 bool WatchData::isAncestorOf(const QByteArray &childIName) const
@@ -180,7 +177,6 @@ void WatchData::setError(const QString &msg)
     wantsChildren = false;
     valueEnabled = false;
     valueEditable = false;
-    error = true;
 }
 
 void WatchData::setValue(const QString &value0)
@@ -299,8 +295,6 @@ QString WatchData::toString() const
     str << "sortId=\"" << sortId << doubleQuoteComma;
     if (!name.isEmpty() && name != QLatin1String(iname))
         str << "name=\"" << name << doubleQuoteComma;
-    if (error)
-        str << "error,";
     if (address) {
         str.setIntegerBase(16);
         str << "addr=\"0x" << address << doubleQuoteComma;
@@ -313,9 +307,6 @@ QString WatchData::toString() const
     }
     if (!exp.isEmpty())
         str << "exp=\"" << exp << doubleQuoteComma;
-
-    if (!variable.isEmpty())
-        str << "variable=\"" << variable << doubleQuoteComma;
 
     if (isValueNeeded())
         str << "value=<needed>,";

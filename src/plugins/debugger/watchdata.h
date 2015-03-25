@@ -125,14 +125,12 @@ public:
     bool            wantsChildren;
     bool            valueEnabled;  // Value will be enabled or not
     bool            valueEditable; // Value will be editable
-    bool            error;
     qint32          sortId;
 
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::WatchHandler)
 
 public:
     // FIXME: this is engine specific data that should be mapped internally
-    QByteArray variable;  // Name of internal Gdb variable if created
     qint32 source;  // Originated from dumper or symbol evaluation? (CDB only)
 };
 
