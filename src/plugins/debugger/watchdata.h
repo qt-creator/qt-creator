@@ -82,7 +82,6 @@ public:
     bool isValid()   const { return !iname.isEmpty(); }
     bool isVTablePointer() const;
 
-    bool isEqual(const WatchData &other) const;
     bool isAncestorOf(const QByteArray &childIName) const;
 
     void setError(const QString &);
@@ -128,10 +127,6 @@ public:
     qint32          sortId;
 
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::WatchHandler)
-
-public:
-    // FIXME: this is engine specific data that should be mapped internally
-    qint32 source;  // Originated from dumper or symbol evaluation? (CDB only)
 };
 
 void decodeArrayData(std::function<void(const WatchData &)> itemHandler,

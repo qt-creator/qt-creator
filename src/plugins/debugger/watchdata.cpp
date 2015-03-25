@@ -131,26 +131,8 @@ WatchData::WatchData() :
     wantsChildren(false),
     valueEnabled(true),
     valueEditable(true),
-    sortId(0),
-    source(0)
+    sortId(0)
 {
-}
-
-bool WatchData::isEqual(const WatchData &other) const
-{
-    return iname == other.iname
-      && exp == other.exp
-      && name == other.name
-      && value == other.value
-      && editvalue == other.editvalue
-      && type == other.type
-      && displayedType == other.displayedType
-      && address == other.address
-      && size == other.size
-      && elided == other.elided
-      && wantsChildren == other.wantsChildren
-      && valueEnabled == other.valueEnabled
-      && valueEditable == other.valueEditable;
 }
 
 bool WatchData::isAncestorOf(const QByteArray &childIName) const
