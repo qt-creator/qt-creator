@@ -1984,21 +1984,18 @@ bool GitClient::synchronousApplyPatch(const QString &workingDirectory,
 }
 
 // Factory function to create an asynchronous command
-VcsCommand *GitClient::createCommand(const QString &workingDirectory,
-                                     VcsBaseEditorWidget* editor,
-                                     bool useOutputToWindow,
-                                     int editorLineNumber)
+VcsCommand *GitClient::createCommand(const QString &workingDirectory, VcsBaseEditorWidget *editor,
+                                     JobOutputBindMode mode)
 {
     GitEditorWidget *gitEditor = qobject_cast<GitEditorWidget *>(editor);
     auto command = new VcsCommand(vcsBinary(), workingDirectory, processEnvironment());
     command->setCodec(getSourceCodec(currentDocumentPath()));
-    command->setCookie(QVariant(editorLineNumber));
     if (gitEditor) {
         gitEditor->setCommand(command);
         connect(command, &VcsCommand::finished,
                 gitEditor, &GitEditorWidget::commandFinishedGotoLine);
     }
-    if (useOutputToWindow) {
+    if (mode & VcsWindowOutputBind) {
         command->addFlags(VcsBasePlugin::ShowStdOutInLogWindow);
         command->addFlags(VcsBasePlugin::ShowSuccessMessage);
         if (editor) // assume that the commands output is the important thing
@@ -2019,7 +2016,9 @@ VcsCommand *GitClient::executeGit(const QString &workingDirectory,
                                   int editorLineNumber)
 {
     VcsOutputWindow::appendCommand(workingDirectory, vcsBinary(), arguments);
-    VcsCommand *command = createCommand(workingDirectory, editor, useOutputToWindow, editorLineNumber);
+    VcsCommand *command = createCommand(workingDirectory, editor,
+                                        useOutputToWindow ? VcsWindowOutputBind : NoOutputBind);
+    command->setCookie(editorLineNumber);
     command->addJob(arguments, vcsTimeout() * 1000);
     command->addFlags(additionalFlags);
     command->execute();
@@ -3134,7 +3133,7 @@ void GitClient::asyncCommand(const QString &workingDirectory, const QStringList 
     // and without timeout
     QString gitCommand = arguments.first();
     VcsOutputWindow::appendCommand(workingDirectory, settings()->binaryPath(), arguments);
-    VcsCommand *command = createCommand(workingDirectory, 0, true);
+    VcsCommand *command = createCommand(workingDirectory, 0, VcsWindowOutputBind);
     new ConflictHandler(command, workingDirectory, gitCommand);
     if (hasProgress)
         command->setProgressParser(new GitProgressParser);
