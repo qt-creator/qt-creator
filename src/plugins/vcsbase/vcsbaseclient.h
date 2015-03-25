@@ -33,6 +33,8 @@
 
 #include "vcsbase_global.h"
 
+#include <utils/fileutils.h>
+
 #include <QObject>
 #include <QStringList>
 
@@ -125,6 +127,9 @@ public:
     virtual VcsBaseClientSettings *settings() const;
     virtual QProcessEnvironment processEnvironment() const;
 
+    Utils::FileName vcsBinary() const;
+    int vcsTimeout() const;
+
 signals:
     void parsedStatus(const QList<VcsBase::VcsBaseClient::StatusItem> &statusList);
     // Passes on changed signals from VcsJob to Control
@@ -167,8 +172,7 @@ protected:
 
     QString vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const;
     // Fully synchronous VCS execution (QProcess-based)
-    bool vcsFullySynchronousExec(const QString &workingDir,
-                                 const QStringList &args,
+    bool vcsFullySynchronousExec(const QString &workingDir, const QStringList &args,
                                  QByteArray *output) const;
     // Synchronous VCS execution using Utils::SynchronousProcess, with
     // log windows updating (using VcsBasePlugin::runVcs with flags)
@@ -187,8 +191,8 @@ protected:
     };
 
     VcsCommand *createCommand(const QString &workingDirectory,
-                           VcsBaseEditorWidget *editor = 0,
-                           JobOutputBindMode mode = NoOutputBind) const;
+                              VcsBaseEditorWidget *editor = 0,
+                              JobOutputBindMode mode = NoOutputBind) const;
     void enqueueJob(VcsCommand *cmd, const QStringList &args, Utils::ExitCodeInterpreter *interpreter = 0);
 
     void resetCachedVcsInfo(const QString &workingDir);

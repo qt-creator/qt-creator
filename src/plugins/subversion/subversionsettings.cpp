@@ -63,11 +63,6 @@ bool SubversionSettings::hasAuthentication() const
     return boolValue(useAuthenticationKey) && !stringValue(userKey).isEmpty();
 }
 
-int SubversionSettings::timeOutMs() const
-{
-    return 1000 * intValue(timeoutKey);
-}
-
 void SubversionSettings::readLegacySettings(const QSettings *settings)
 {
     const QString keyRoot = settingsGroup() + QLatin1Char('/');

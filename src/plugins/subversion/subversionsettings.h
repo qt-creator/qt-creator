@@ -49,8 +49,6 @@ public:
     SubversionSettings();
     bool hasAuthentication() const;
 
-    int timeOutMs() const;
-
 protected:
     void readLegacySettings(const QSettings *settings);
 };

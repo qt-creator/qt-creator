@@ -405,7 +405,7 @@ void GerritPlugin::push()
 Utils::FileName GerritPlugin::gitBinary()
 {
     bool ok;
-    const Utils::FileName git = gitClient()->gitExecutable(&ok);
+    const Utils::FileName git = gitClient()->vcsBinary(&ok);
     if (!ok) {
         VcsBase::VcsOutputWindow::appendError(tr("Git is not available."));
         return Utils::FileName();

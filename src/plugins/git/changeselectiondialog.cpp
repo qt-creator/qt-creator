@@ -59,7 +59,7 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Co
     , m_command(NoCommand)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    m_gitExecutable = GitPlugin::instance()->gitClient()->gitExecutable();
+    m_gitExecutable = GitPlugin::instance()->gitClient()->vcsBinary();
     m_ui->setupUi(this);
     m_ui->workingDirectoryEdit->setText(workingDirectory);
     m_gitEnvironment = GitPlugin::instance()->gitClient()->processEnvironment();

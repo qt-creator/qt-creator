@@ -102,7 +102,7 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
     }
     m_process = new MergeToolProcess(this);
     m_process->setWorkingDirectory(workingDirectory);
-    const Utils::FileName binary = m_gitClient->gitExecutable();
+    const Utils::FileName binary = m_gitClient->vcsBinary();
     VcsOutputWindow::appendCommand(workingDirectory, binary, arguments);
     m_process->start(binary.toString(), arguments);
     if (m_process->waitForStarted()) {

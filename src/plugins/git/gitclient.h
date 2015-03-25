@@ -136,7 +136,8 @@ public:
 
     explicit GitClient(GitSettings *settings);
 
-    Utils::FileName gitExecutable(bool *ok = 0, QString *errorMessage = 0) const;
+    Utils::FileName vcsBinary(bool *ok = 0, QString *errorMessage = 0) const;
+    int vcsTimeout() const;
     unsigned gitVersion(QString *errorMessage = 0) const;
 
     QString findRepositoryForDirectory(const QString &dir) const;

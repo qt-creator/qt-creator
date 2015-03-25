@@ -148,7 +148,7 @@ void BaseController::runCommand(const QList<QStringList> &args, QTextCodec *code
         m_command->cancel();
     }
 
-    m_command = new VcsCommand(gitClient()->gitExecutable(), m_directory, gitClient()->processEnvironment());
+    m_command = new VcsCommand(gitClient()->vcsBinary(), m_directory, gitClient()->processEnvironment());
     m_command->setCodec(codec ? codec : EditorManager::defaultTextCodec());
     connect(m_command, &VcsCommand::output, this, &BaseController::processOutput);
     connect(m_command, &VcsCommand::finished, this, &BaseController::reloadFinished);
@@ -157,7 +157,7 @@ void BaseController::runCommand(const QList<QStringList> &args, QTextCodec *code
     foreach (const QStringList &arg, args) {
         QTC_ASSERT(!arg.isEmpty(), continue);
 
-        m_command->addJob(arg, GitPlugin::instance()->settings().intValue(GitSettings::timeoutKey));
+        m_command->addJob(arg, gitClient()->vcsTimeout());
     }
 
     m_command->execute();
@@ -1582,7 +1582,7 @@ void GitClient::branchesForCommit(const QString &revision)
 
     auto controller = qobject_cast<DiffEditorController *>(sender());
     QString workingDirectory = controller->baseDirectory();
-    auto command = new VcsCommand(gitExecutable(), workingDirectory, processEnvironment());
+    auto command = new VcsCommand(vcsBinary(), workingDirectory, processEnvironment());
     command->setCodec(getSourceCodec(currentDocumentPath()));
 
     connect(command, &VcsCommand::output, controller,
@@ -1990,7 +1990,7 @@ VcsCommand *GitClient::createCommand(const QString &workingDirectory,
                                      int editorLineNumber)
 {
     GitEditorWidget *gitEditor = qobject_cast<GitEditorWidget *>(editor);
-    auto command = new VcsCommand(gitExecutable(), workingDirectory, processEnvironment());
+    auto command = new VcsCommand(vcsBinary(), workingDirectory, processEnvironment());
     command->setCodec(getSourceCodec(currentDocumentPath()));
     command->setCookie(QVariant(editorLineNumber));
     if (gitEditor) {
@@ -2018,11 +2018,9 @@ VcsCommand *GitClient::executeGit(const QString &workingDirectory,
                                   unsigned additionalFlags,
                                   int editorLineNumber)
 {
-    VcsOutputWindow::appendCommand(workingDirectory,
-                                   FileName::fromUserInput(settings()->stringValue(GitSettings::binaryPathKey)),
-                                   arguments);
+    VcsOutputWindow::appendCommand(workingDirectory, vcsBinary(), arguments);
     VcsCommand *command = createCommand(workingDirectory, editor, useOutputToWindow, editorLineNumber);
-    command->addJob(arguments, settings()->intValue(GitSettings::timeoutKey));
+    command->addJob(arguments, vcsTimeout() * 1000);
     command->addFlags(additionalFlags);
     command->execute();
     return command;
@@ -2088,8 +2086,7 @@ SynchronousProcessResponse GitClient::synchronousGit(const QString &workingDirec
                                                      unsigned flags,
                                                      QTextCodec *outputCodec) const
 {
-    return VcsBasePlugin::runVcs(workingDirectory, gitExecutable(), gitArguments,
-                                 settings()->intValue(GitSettings::timeoutKey) * 1000,
+    return VcsBasePlugin::runVcs(workingDirectory, vcsBinary(), gitArguments, vcsTimeout() * 1000,
                                  flags, outputCodec, processEnvironment());
 }
 
@@ -2099,10 +2096,9 @@ bool GitClient::fullySynchronousGit(const QString &workingDirectory,
                                     QByteArray* errorText,
                                     unsigned flags) const
 {
-    VcsCommand command(gitExecutable(), workingDirectory, processEnvironment());
+    VcsCommand command(vcsBinary(), workingDirectory, processEnvironment());
     command.addFlags(flags);
-    return command.runFullySynchronous(gitArguments,
-                                       settings()->intValue(GitSettings::timeoutKey) * 1000,
+    return command.runFullySynchronous(gitArguments, vcsTimeout() * 1000,
                                        outputText, errorText);
 }
 
@@ -2387,7 +2383,7 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
 
 void GitClient::launchGitK(const QString &workingDirectory, const QString &fileName)
 {
-    const QFileInfo binaryInfo = gitExecutable().toFileInfo();
+    const QFileInfo binaryInfo = vcsBinary().toFileInfo();
     QDir foundBinDir(binaryInfo.dir());
     const bool foundBinDirIsCmdDir = foundBinDir.dirName() == QLatin1String("cmd");
     QProcessEnvironment env = processEnvironment();
@@ -2469,7 +2465,7 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
 
 bool GitClient::launchGitGui(const QString &workingDirectory) {
     bool success;
-    FileName gitBinary = gitExecutable(&success);
+    FileName gitBinary = vcsBinary(&success);
     if (success) {
         success = QProcess::startDetached(gitBinary.toString(), QStringList(QLatin1String("gui")),
                                           workingDirectory);
@@ -2483,7 +2479,7 @@ bool GitClient::launchGitGui(const QString &workingDirectory) {
 
 FileName GitClient::gitBinDirectory()
 {
-    const QString git = gitExecutable().toString();
+    const QString git = vcsBinary().toString();
     if (git.isEmpty())
         return FileName();
 
@@ -2499,9 +2495,14 @@ FileName GitClient::gitBinDirectory()
     return FileName::fromString(path);
 }
 
-FileName GitClient::gitExecutable(bool *ok, QString *errorMessage) const
+FileName GitClient::vcsBinary(bool *ok, QString *errorMessage) const
 {
     return settings()->gitExecutable(ok, errorMessage);
+}
+
+int GitClient::vcsTimeout() const
+{
+    return settings()->intValue(GitSettings::timeoutKey);
 }
 
 QTextCodec *GitClient::encoding(const QString &workingDirectory, const QByteArray &configVar) const
@@ -3343,7 +3344,7 @@ GitSettings *GitClient::settings() const
 // determine version as '(major << 16) + (minor << 8) + patch' or 0.
 unsigned GitClient::gitVersion(QString *errorMessage) const
 {
-    const FileName newGitBinary = gitExecutable();
+    const FileName newGitBinary = vcsBinary();
     if (m_gitVersionForBinary != newGitBinary && !newGitBinary.isEmpty()) {
         // Do not execute repeatedly if that fails (due to git
         // not being installed) until settings are changed.
@@ -3356,7 +3357,7 @@ unsigned GitClient::gitVersion(QString *errorMessage) const
 // determine version as '(major << 16) + (minor << 8) + patch' or 0.
 unsigned GitClient::synchronousGitVersion(QString *errorMessage) const
 {
-    if (gitExecutable().isEmpty())
+    if (vcsBinary().isEmpty())
         return 0;
 
     // run git --version

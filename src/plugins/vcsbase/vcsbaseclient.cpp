@@ -238,10 +238,9 @@ bool VcsBaseClient::vcsFullySynchronousExec(const QString &workingDir,
         vcsProcess.setWorkingDirectory(workingDir);
     vcsProcess.setProcessEnvironment(processEnvironment());
 
-    const Utils::FileName binary = settings()->binaryPath();
+    VcsOutputWindow::appendCommand(workingDir, vcsBinary(), args);
 
-    VcsOutputWindow::appendCommand(workingDir, binary, args);
-
+    const Utils::FileName binary = vcsBinary();
     vcsProcess.start(binary.toString(), args);
 
     if (!vcsProcess.waitForStarted()) {
@@ -253,12 +252,11 @@ bool VcsBaseClient::vcsFullySynchronousExec(const QString &workingDir,
     vcsProcess.closeWriteChannel();
 
     QByteArray stdErr;
-    const int timeoutSec = settings()->intValue(VcsBaseClientSettings::timeoutKey);
-    if (!Utils::SynchronousProcess::readDataFromProcess(vcsProcess, timeoutSec * 1000,
+    if (!Utils::SynchronousProcess::readDataFromProcess(vcsProcess, vcsTimeout() * 1000,
                                                         output, &stdErr, true)) {
         Utils::SynchronousProcess::stopProcess(vcsProcess);
         VcsOutputWindow::appendError(tr("Timed out after %1s waiting for the process %2 to finish.")
-                                         .arg(timeoutSec).arg(binary.toUserOutput()));
+                                         .arg(vcsTimeout()).arg(binary.toUserOutput()));
         return false;
     }
     if (!stdErr.isEmpty())
@@ -267,16 +265,13 @@ bool VcsBaseClient::vcsFullySynchronousExec(const QString &workingDir,
     return vcsProcess.exitStatus() == QProcess::NormalExit && vcsProcess.exitCode() == 0;
 }
 
-Utils::SynchronousProcessResponse VcsBaseClient::vcsSynchronousExec(
-        const QString &workingDirectory,
-        const QStringList &args,
-        unsigned flags,
-        QTextCodec *outputCodec) const
+Utils::SynchronousProcessResponse VcsBaseClient::vcsSynchronousExec(const QString &workingDirectory,
+                                                                    const QStringList &args,
+                                                                    unsigned flags,
+                                                                    QTextCodec *outputCodec) const
 {
-    const Utils::FileName binary = settings()->binaryPath();
-    const int timeoutSec = settings()->intValue(VcsBaseClientSettings::timeoutKey);
-    return VcsBasePlugin::runVcs(workingDirectory, binary, args,
-                                 timeoutSec * 1000, flags, outputCodec);
+    return VcsBasePlugin::runVcs(workingDirectory, vcsBinary(), args, vcsTimeout() * 1000,
+                                 flags, outputCodec);
 }
 
 void VcsBaseClient::annotate(const QString &workingDir, const QString &file,
@@ -507,8 +502,7 @@ VcsBaseClientSettings *VcsBaseClient::settings() const
 
 QString VcsBaseClient::vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const
 {
-    const Utils::FileName binary = settings()->binaryPath();
-    return binary.toFileInfo().baseName() +
+    return vcsBinary().toFileInfo().baseName() +
             QLatin1Char(' ') + vcsCmd + QLatin1Char(' ') +
             Utils::FileName::fromString(sourceId).fileName();
 }
@@ -554,9 +548,9 @@ VcsCommand *VcsBaseClient::createCommand(const QString &workingDirectory,
                                          VcsBaseEditorWidget *editor,
                                          JobOutputBindMode mode) const
 {
-    auto cmd = new VcsCommand(d->m_clientSettings->binaryPath(), workingDirectory,
+    auto cmd = new VcsCommand(vcsBinary(), workingDirectory,
                               processEnvironment());
-    cmd->setDefaultTimeout(d->m_clientSettings->intValue(VcsBaseClientSettings::timeoutKey));
+    cmd->setDefaultTimeout(vcsTimeout());
     if (editor)
         d->bindCommandToEditor(cmd, editor);
     if (mode == VcsWindowOutputBind) {
@@ -579,6 +573,16 @@ void VcsBaseClient::enqueueJob(VcsCommand *cmd, const QStringList &args, Utils::
 void VcsBaseClient::resetCachedVcsInfo(const QString &workingDir)
 {
     Core::VcsManager::resetVersionControlForDirectory(workingDir);
+}
+
+Utils::FileName VcsBaseClient::vcsBinary() const
+{
+    return d->m_clientSettings->binaryPath();
+}
+
+int VcsBaseClient::vcsTimeout() const
+{
+    return d->m_clientSettings->intValue(VcsBaseClientSettings::timeoutKey);
 }
 
 void VcsBaseClient::statusParser(const QString &text)

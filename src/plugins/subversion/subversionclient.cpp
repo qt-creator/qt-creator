@@ -182,8 +182,6 @@ private slots:
 private:
     QString getDescription() const;
     void postCollectTextualDiffOutput();
-    int timeout() const;
-    FileName subversionPath() const;
     QProcessEnvironment processEnvironment() const;
 
     const SubversionClient *m_client;
@@ -199,16 +197,6 @@ DiffController::DiffController(IDocument *document, const SubversionClient *clie
     m_changeNumber(0)
 {
     forceContextLineCount(3); // SVN can not change that when using internal diff
-}
-
-int DiffController::timeout() const
-{
-    return m_client->settings()->intValue(VcsBaseClientSettings::timeoutKey);
-}
-
-FileName DiffController::subversionPath() const
-{
-    return m_client->settings()->binaryPath();
 }
 
 QProcessEnvironment DiffController::processEnvironment() const
@@ -240,7 +228,7 @@ QString DiffController::getDescription() const
     args << QString::number(m_changeNumber);
     const SubversionResponse logResponse =
             SubversionPlugin::instance()->runSvn(m_workingDirectory, args,
-                                                 m_client->settings()->timeOutMs(),
+                                                 m_client->vcsTimeout() * 1000,
                                                  VcsBasePlugin::SshPasswordPrompt);
 
     if (logResponse.error)
@@ -251,7 +239,7 @@ QString DiffController::getDescription() const
 
 void DiffController::postCollectTextualDiffOutput()
 {
-    auto command = new VcsCommand(subversionPath(), m_workingDirectory, processEnvironment());
+    auto command = new VcsCommand(m_client->vcsBinary(), m_workingDirectory, processEnvironment());
     command->setCodec(EditorManager::defaultTextCodec());
     connect(command, SIGNAL(output(QString)),
             this, SLOT(slotTextualDiffOutputReceived(QString)));
@@ -270,7 +258,7 @@ void DiffController::postCollectTextualDiffOutput()
         args << m_filesList;
     }
 
-    command->addJob(args, timeout());
+    command->addJob(args, m_client->vcsTimeout());
     command->execute();
 }
 
