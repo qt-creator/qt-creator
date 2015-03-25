@@ -121,7 +121,7 @@ bool isIntOrFloatType(const QByteArray &type)
 WatchData::WatchData() :
     id(0),
     state(InitialState),
-    editformat(0),
+    editformat(StopDisplay),
     address(0),
     origaddr(0),
     size(0),
@@ -602,7 +602,7 @@ void parseChildrenData(const WatchData &data0, const GdbMi &item,
         data.editvalue = mi.data();
 
     mi = item["editformat"];
-    data.editformat = mi.toInt();
+    data.editformat = DebuggerDisplay(mi.toInt());
 
     mi = item["valueelided"];
     if (mi.isValid())

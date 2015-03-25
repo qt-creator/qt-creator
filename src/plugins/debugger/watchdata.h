@@ -31,6 +31,8 @@
 #ifndef DEBUGGER_WATCHDATA_H
 #define DEBUGGER_WATCHDATA_H
 
+#include "debuggerprotocol.h"
+
 #include <QCoreApplication>
 #include <QMetaType>
 
@@ -105,28 +107,28 @@ public:
     void updateDisplayedType(const GdbMi &item);
 
 public:
-    quint64    id;           // Token for the engine for internal mapping
-    qint32     state;        // 'needed' flags;
-    QByteArray iname;        // Internal name sth like 'local.baz.public.a'
-    QByteArray exp;          // The expression
-    QString    name;         // Displayed name
-    QString    value;        // Displayed value
-    QByteArray editvalue;    // Displayed value
-    qint32     editformat;   // Format of displayed value
-    QByteArray type;         // Type for further processing
-    QString    displayedType;// Displayed type (optional)
-    quint64    address;      // Displayed address of the actual object
-    quint64    origaddr;     // Address of the pointer referencing this item (gdb auto-deref)
-    uint       size;         // Size
-    uint       bitpos;       // Position within bit fields
-    uint       bitsize;      // Size in case of bit fields
-    int        elided;       // Full size if value was cut off, -1 if cut on unknown size, 0 otherwise
-    bool wantsChildren;
-    bool valueEnabled;       // Value will be enabled or not
-    bool valueEditable;      // Value will be editable
-    bool error;
-    qint32 sortId;
-    QByteArray dumperFlags;
+    quint64         id;            // Token for the engine for internal mapping
+    qint32          state;         // 'needed' flags;
+    QByteArray      iname;         // Internal name sth like 'local.baz.public.a'
+    QByteArray      exp;           // The expression
+    QString         name;          // Displayed name
+    QString         value;         // Displayed value
+    QByteArray      editvalue;     // Displayed value
+    DebuggerDisplay editformat;    // Format of displayed value
+    QByteArray      type;          // Type for further processing
+    QString         displayedType; // Displayed type (optional)
+    quint64         address;       // Displayed address of the actual object
+    quint64         origaddr;      // Address of the pointer referencing this item (gdb auto-deref)
+    uint            size;          // Size
+    uint            bitpos;        // Position within bit fields
+    uint            bitsize;       // Size in case of bit fields
+    int             elided;        // Full size if value was cut off, -1 if cut on unknown size, 0 otherwise
+    bool            wantsChildren;
+    bool            valueEnabled;  // Value will be enabled or not
+    bool            valueEditable; // Value will be editable
+    bool            error;
+    qint32          sortId;
+    QByteArray      dumperFlags;
 
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::WatchHandler)
 
